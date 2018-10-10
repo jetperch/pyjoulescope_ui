@@ -1,0 +1,11 @@
+<RCC>
+  <qresource prefix="joulescope">
+    <file>resources/icon_64x64.ico</file>
+    <file>resources/pause.png</file>
+    <file>resources/play.png</file>
+    <file>resources/record.png</file>
+    <file>resources/stop.png</file>
+    <file>resources/logo-large.png</file>
+    <file>resources/logo-small.png</file>
+  </qresource>
+</RCC>

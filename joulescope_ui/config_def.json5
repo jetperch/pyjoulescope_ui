@@ -1,0 +1,99 @@
+// json5 format: https://json5.org/
+// json5 selected to allow comments: alternatives include:
+// * TOML: standardized INI, https://github.com/toml-lang/toml
+// * YAML: whitespace significant, end-user challenges
+// * StrictYaml: https://github.com/crdoconnor/strictyaml
+// * JSON: no comments!
+{
+  info: {
+    name: 'Joulescope UI configuration file validator',
+    version: 1
+  },
+
+  children:
+  [
+    // to support UI editing, only 2 levels supported
+    {
+      name: 'paths',
+      brief: 'Default file locations',
+      type: 'map',
+      children: [
+        {
+          name: 'data',
+          brief: 'Default data directory',
+          type: 'path',
+          attributes: ['exists', 'dir'],
+          default: '__SAVE_PATH__',
+        }
+      ]
+    },  // paths end
+
+    {
+      name: 'device',
+      brief: 'Joulescope device-specific default settings',
+      type: 'map',
+      children: [
+
+        {
+          name: 'autostream',
+          brief: 'Start streaming when the device connects',
+          type: 'bool',
+          default: 'true'
+        },
+
+        {
+          name: 'source',
+          brief: 'Select the streaming data source',
+          detail: 'Do not edit this setting for normal use',
+          type: 'str',
+          options: ['off', 'raw', 'pattern_usb', 'pattern_control', 'pattern_sensor'],
+          default: 'raw',
+        },
+
+        {
+          name: 'i_range',
+          brief: 'Select the current measurement range (shunt resistor)',
+          type: 'str',
+          options: [
+            {
+              name: 'auto',
+              brief: 'Perform fast autoranging to select the best shunt value',
+            },
+            {
+              name: 'off',
+              brief: 'Disable the shunt for high impedance',
+            },
+            {
+              name: '0',
+              brief: 'Least resistance (highest current range)',
+            },
+            '1', '2', '3', '4', '5',
+            {
+              name: '6',
+              brief: 'Most resistance (lowest current range)',
+            }
+          ],
+          default: 'auto'
+        },
+
+        {
+          name: 'v_range',
+          brief: 'Select the voltage measurement range (gain)',
+          type: 'str',
+          options: [
+            {
+              name: 'high',
+              brief: '14V range (recommended)',
+            },
+            {
+              name: 'low',
+              brief: '4V range with improved resolution for lower voltages',
+            }
+          ],
+          default: 'high'
+        }
+      ]
+    } // device end
+
+  ]
+}

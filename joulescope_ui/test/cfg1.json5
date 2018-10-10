@@ -1,0 +1,7 @@
+// json5 format: https://json5.org/
+{
+  device: {
+    i_range: 'off',
+    v_range: 'low'
+  }
+}

@@ -1,0 +1,3 @@
+include README.md
+include LICENSE.txt
+include native/source/stream_buffer.h

@@ -1,0 +1,25 @@
+build
+dist
+**/__pycache__
+*.pyo
+*.pyc
+*.pyd
+*.egg-info
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.elf
+*.objdump
+*.flash
+*.map
+
+# Editor swap/backup file garbage
+.*.swp
+.*.swo
+~*.docx
+~*.xlsx
+*.tmp
+
+.idea
+.settings

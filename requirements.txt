@@ -1,0 +1,6 @@
+json5>=0.6.1
+numpy>=1.15.2
+pypiwin32>=223
+python-dateutil>=2.7.3
+PyQt5>=5.11.2
+pyqtgraph>=0.10.0
