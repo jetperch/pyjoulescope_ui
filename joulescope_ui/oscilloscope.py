@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from .plot_widget import Ui_PlotDockWidget
-from joulescope.native import NAME_TO_COLUMN
+from joulescope.stream_buffer import NAME_TO_COLUMN
 from joulescope.units import unit_prefix, three_sig_figs
 import weakref
 import pyqtgraph as pg
