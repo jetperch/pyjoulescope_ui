@@ -71,7 +71,8 @@ setuptools.setup(
         'pypiwin32>=223',
         'python-dateutil>=2.7.3',
         'PyQt5>=5.11.2',
-        'pyqtgraph>=0.10.0'
+        'pyqtgraph>=0.10.0',
+        'pyjoulescope>=0.1.0',
     ],
 
     entry_points={
