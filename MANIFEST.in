@@ -1,3 +1,5 @@
 include README.md
 include LICENSE.txt
 include native/source/stream_buffer.h
+include joulescope_ui/joulescope.qrc
+include joulescope_ui/config_def.json5

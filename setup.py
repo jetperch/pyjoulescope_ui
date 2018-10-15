@@ -64,6 +64,8 @@ setuptools.setup(
 
     packages=setuptools.find_packages(exclude=['docs', 'test', 'dist', 'build']),
 
+    include_package_data=True,
+    
     # See https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         'json5>=0.6.1',
@@ -72,7 +74,7 @@ setuptools.setup(
         'python-dateutil>=2.7.3',
         'PyQt5>=5.11.2',
         'pyqtgraph>=0.10.0',
-        'pyjoulescope>=0.1.0',
+        'joulescope>=0.1.0',
     ],
 
     entry_points={
