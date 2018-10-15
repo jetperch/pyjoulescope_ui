@@ -38,8 +38,6 @@ log = logging.getLogger(__name__)
 
 
 STATUS_BAR_TIMEOUT = 5000
-MYPATH = os.path.dirname(os.path.abspath(__file__))
-CONFIG_DEF = os.path.join(MYPATH, 'config_def.json5')
 DATA_BUFFER_DURATION = 60.0  # seconds
 
 
@@ -85,7 +83,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._status_row = 0
         self._data_view = None  # created when device is opened
 
-        self._cfg_def = load_config_def(CONFIG_DEF)
+        self._cfg_def = load_config_def()
         self._cfg = load_config(self._cfg_def)
         self._path = self._cfg['paths']['data']
 

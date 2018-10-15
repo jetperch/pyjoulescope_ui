@@ -78,7 +78,7 @@ setuptools.setup(
     ],
 
     entry_points={
-        'console_scripts': [
+        'gui_scripts': [
             'joulescope_ui=joulescope_ui.main:run',
         ],
     },

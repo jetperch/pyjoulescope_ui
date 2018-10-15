@@ -16,6 +16,7 @@
 
 import json5
 import os
+import pkgutil
 import collections
 import logging
 
@@ -120,12 +121,16 @@ def _cfg_def_normalize(d):
     return d
 
 
-def load_config_def(path: str):
-    if not os.path.isfile(path):
+def load_config_def(path: str=None):
+    if path is None:
+        bin_file = pkgutil.get_data('joulescope_ui', 'config_def.json5')
+        d = json5.loads(bin_file, encoding='utf-8')
+    elif not os.path.isfile(path):
         raise ValueError('config_def does not exist: %s' % (path, ))
-    log.info('load_config_def %s', path)
-    with open(path, 'r') as f:
-        d = json5.load(f)
+    else:
+        log.info('load_config_def %s', path)
+        with open(path, 'r') as f:
+            d = json5.load(f)
     # todo: validate the validator?
     d['children'] = _cfg_def_normalize(d['children'])
     return d

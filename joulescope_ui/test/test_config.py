@@ -39,6 +39,11 @@ class TestConfig(unittest.TestCase):
         self.assertIn('info', d)
         self.assertIn('children', d)
 
+    def test_load_config_def_default(self):
+        d = load_config_def()
+        self.assertIn('info', d)
+        self.assertIn('children', d)
+
     def test_file_not_found(self):
         d = load_def()
         c = load_config(d, '/path/to/nothing.json5')
