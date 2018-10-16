@@ -18,7 +18,7 @@
 import os
 import sys
 from joulescope.driver import scan_for_changes
-from PyQt5 import QtCore, QtWidgets
+from PySide2 import QtCore, QtWidgets
 from .developer_widget import Ui_DeveloperDockWidget
 from .main_window import Ui_mainWindow
 from .control_widget import Ui_ControlDockWidget
@@ -66,12 +66,12 @@ class DeviceDisable:
 
 
 class MainWindow(QtWidgets.QMainWindow):
-    device_notify_signal = QtCore.pyqtSignal(object, object)
-    status_signal = QtCore.pyqtSignal(object)
-    data_signal = QtCore.pyqtSignal(object, object)  # x, data[length][3][4]
-    on_stop_signal = QtCore.pyqtSignal()
-    on_statistic_signal = QtCore.pyqtSignal(object, float)
-    on_x_change_signal = QtCore.pyqtSignal(str, object)
+    on_deviceNotifySignal = QtCore.Signal(object, object)
+    on_statusSignal = QtCore.Signal(object)
+    on_dataSignal = QtCore.Signal(object, object)  # x, data[length][3][4]
+    on_stopSignal = QtCore.Signal()
+    on_statisticSignal = QtCore.Signal(object, float)
+    on_xChangeSignal = QtCore.Signal(str, object)
 
     def __init__(self):
         self._devices = []
@@ -103,7 +103,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.dev_dock_widget.setVisible(False)
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.dev_dock_widget)
         self.ui.menuView.addAction(self.dev_dock_widget.toggleViewAction())
-        self.device_notify_signal.connect(self.device_notify)
+        self.on_deviceNotifySignal.connect(self.device_notify)
 
         # Control widget
         self.control_dock_widget = QtWidgets.QDockWidget('Control', self)
@@ -126,7 +126,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.actionPreferences.triggered.connect(self.on_preferences)
         self.ui.actionExit.triggered.connect(self.close)
         self.ui.actionDeveloper.triggered.connect(self.on_developer)
-        self.status_signal.connect(self._status_fn)
+        self.on_statusSignal.connect(self._status_fn)
 
         # Digital multimeter display widget
         self.dmm_dock_widget = QtWidgets.QDockWidget('Multimeter', self)
@@ -155,36 +155,36 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Oscilloscope: current
         self._view_current = Oscilloscope(self, 'Current')
-        self._view_current.on_x_change_signal.connect(self._on_x_change)
+        self._view_current.on_xChangeSignal.connect(self._on_x_change)
         self.ui.menuView.addAction(self._view_current.widget.toggleViewAction())
         self._view_current.y_limit_set(-2.0, 10.0, update=True)
 
         # Oscilloscope: voltage
         self._view_voltage = Oscilloscope(self, 'Voltage')
-        self._view_voltage.on_x_change_signal.connect(self._on_x_change)
+        self._view_voltage.on_xChangeSignal.connect(self._on_x_change)
         self.ui.menuView.addAction(self._view_voltage.widget.toggleViewAction())
         self._view_voltage.y_limit_set(-1.2, 15.0, update=True)
 
         # status update timer
         self.status_update_timer = QtCore.QTimer(self)
         self.status_update_timer.setInterval(500)  # milliseconds
-        self.status_update_timer.timeout.connect(self.on_status_update_timer)
+        self.status_update_timer.timeout.connect(self.on_statusUpdateTimer)
         self.status_update_timer.start()
 
         # data update timer
         self.data_update_timer = QtCore.QTimer(self)
         self.data_update_timer.setInterval(33)  # milliseconds
-        self.data_update_timer.timeout.connect(self.on_data_update_timer)
+        self.data_update_timer.timeout.connect(self.on_dataUpdateTimer)
 
-        self.on_stop_signal.connect(self._on_stop)
-        self.on_statistic_signal.connect(self._on_statistic)
+        self.on_stopSignal.connect(self._on_stop)
+        self.on_statisticSignal.connect(self._on_statistic)
 
         self.show()
         self._device_close()
         self._device_scan()
 
-    @QtCore.pyqtSlot()
-    def on_status_update_timer(self):
+    @QtCore.Slot()
+    def on_statusUpdateTimer(self):
         if self._has_active_device and hasattr(self._device, 'status'):
             s = self._device.status()
             self._status_fn(s)
@@ -196,22 +196,22 @@ class MainWindow(QtWidgets.QMainWindow):
                 self._view_current.update(x, data)
                 self._view_voltage.update(x, data)
 
-    @QtCore.pyqtSlot()
-    def on_data_update_timer(self):
+    @QtCore.Slot()
+    def on_dataUpdateTimer(self):
         if not self._has_active_device and self._is_streaming:
             return
         self._update_data()
 
-    @QtCore.pyqtSlot(object, float)
+    @QtCore.Slot(object, float)
     def _on_statistic(self, statistics, energy):
         energy_str = three_sig_figs(energy, 'J')
         self.control_ui.energyValueLabel.setText(energy_str)
         self.dmm_widget.update(statistics, energy)
 
-    @QtCore.pyqtSlot(str, object)
+    @QtCore.Slot(str, object)
     def _on_x_change(self, cmd, kwargs):
         log.info('on_x_change(%s, %s)', cmd, kwargs)
-        self.on_x_change_signal.emit(cmd, kwargs)
+        self.on_xChangeSignal.emit(cmd, kwargs)
         if not self.data_update_timer.isActive():
             # force data update
             self.data_update_timer.timeout.emit()
@@ -245,10 +245,10 @@ class MainWindow(QtWidgets.QMainWindow):
                 self._device.ui_action.setChecked(True)
             self._param_init()
             self._control_ui_init()
-            self.on_x_change_signal.connect(self._device.view.on_x_change)
+            self.on_xChangeSignal.connect(self._device.view.on_x_change)
             self._device_view_force()
             self._device_cfg_apply(do_open=True)
-            self._device.statistics_callback = self.on_statistic_signal.emit
+            self._device.statistics_callback = self.on_statisticSignal.emit
 
     def _control_ui_init(self):
         log.info('_control_ui_init')
@@ -294,7 +294,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._device = self._device_disable
         log.info('device_close %s', str(device))
         if is_active_deivce:
-            self.on_x_change_signal.disconnect(device.view.on_x_change)
+            self.on_xChangeSignal.disconnect(device.view.on_x_change)
             device.close()
         self._status_clean()
         self._param_clean()
@@ -411,7 +411,7 @@ class MainWindow(QtWidgets.QMainWindow):
             w3.setParent(None)
         self._status = {}
 
-    @QtCore.pyqtSlot()
+    @QtCore.Slot()
     def _on_stop(self):
         log.debug('_on_stop')
         self.data_update_timer.stop()
@@ -431,7 +431,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.control_ui.playButton.setChecked(True)
         self.control_ui.recordButton.setEnabled(True)
         self.data_update_timer.start()
-        self._device.start(stop_fn=self.on_stop_signal.emit)
+        self._device.start(stop_fn=self.on_stopSignal.emit)
 
     def _device_stream_stop(self):
         log.debug('_device_stream_stop')
@@ -528,7 +528,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 s[1].setText(k)
                 s[2].setText(units)
 
-    @QtCore.pyqtSlot(str)
+    @QtCore.Slot(str)
     def status(self, msg, timeout=STATUS_BAR_TIMEOUT):
         """Display a status message.
 
@@ -560,7 +560,7 @@ def run():
     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
     app = QtWidgets.QApplication(sys.argv)
     ui = MainWindow()
-    device_notify = DeviceNotify(ui.device_notify_signal.emit)
+    device_notify = DeviceNotify(ui.on_deviceNotifySignal.emit)
     rc = app.exec_()
     device_notify.close()
     return rc

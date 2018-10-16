@@ -23,8 +23,49 @@ https://github.com/pypa/sampleproject
 # Always prefer setuptools over distutils
 import setuptools
 import os
+import subprocess
+import site
+from pyside2uic import compileUi
 
 MYPATH = os.path.abspath(os.path.dirname(__file__))
+
+
+def find_qt_rcc():
+    # Hack.  https://bugreports.qt.io/browse/PYSIDE-779
+    # Fixed in 5.12.0 which is not released as of 2018 Oct 15.
+    for path in site.getsitepackages():
+        fname = os.path.join(path, 'PySide2', 'pyside2-rcc.exe')
+        if os.path.isfile(fname):
+            return fname
+    raise ValueError('qt rcc not found')
+
+
+def convert_qt_ui():
+    site.getsitepackages()
+    rcc_path = find_qt_rcc()
+    path = os.path.join(MYPATH, 'joulescope_ui')
+    ignore_filename = os.path.join(path, '.gitignore')
+    with open(ignore_filename, 'wt') as ignore:
+        ignore.write('# Automatically generated.  DO NOT EDIT\n')
+        for source in os.listdir(path):
+            source_base, ext = os.path.splitext(source)
+            if ext == '.ui':
+                target = source_base + '.py'
+                with open(os.path.join(path, source), 'rt', encoding='utf8') as fsource:
+                    with open(os.path.join(path, target), 'wt', encoding='utf8') as ftarget:
+                        compileUi(fsource, ftarget, execute=False, indent=4, from_imports=True)
+            elif ext == '.qrc':
+                target = source_base + '_rc.py'
+                rc = subprocess.run([rcc_path, os.path.join(path, source), '-o', os.path.join(path, target)])
+                if rc.returncode:
+                    raise RuntimeError('failed on .qrc file')
+            else:
+                continue
+            ignore.write('%s\n' % target)
+
+
+convert_qt_ui()
+
 
 # Get the long description from the README file
 with open(os.path.join(MYPATH, 'README.md'), encoding='utf-8') as f:
@@ -72,7 +113,8 @@ setuptools.setup(
         'numpy>=1.15.2',
         'pypiwin32>=223',
         'python-dateutil>=2.7.3',
-        'PyQt5>=5.11.2',
+        # 'PySide2>=5.11.2',
+        'pyside2>=-5.11.2',
         'pyqtgraph>=0.10.0',
         'joulescope>=0.1.0',
     ],

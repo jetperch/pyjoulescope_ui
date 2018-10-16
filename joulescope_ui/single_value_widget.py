@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PySide2 import QtCore, QtGui, QtWidgets
 from . import joulescope_rc
 import logging
 log = logging.getLogger(__name__)
@@ -110,13 +110,13 @@ class SingleValueWidget(QtWidgets.QWidget):
         self._meter_value_source = self._meter_source.values[value]
         self._meter_value_source.on_update.connect(self.on_update)
 
-    @QtCore.pyqtSlot(object, str)
+    @QtCore.Slot(object, str)
     def on_update(self, values, units):
         idx = self.statisticComboBox.currentIndex()
         self.valueLabel.setText(values[idx])
         self.unitLabel.setText(f" {units} ")
 
-    @QtCore.pyqtSlot(int)
+    @QtCore.Slot(int)
     def on_field_changed(self, index):
         self.update()
 

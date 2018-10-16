@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PySide2 import QtCore, QtGui, QtWidgets
 from . import joulescope_rc
 from joulescope.units import unit_prefix
 import numpy as np
@@ -32,7 +32,7 @@ QLabel { font-weight: bold; font-color: black}
 
 
 class MeterValueWidget(QtWidgets.QWidget):
-    on_update = QtCore.pyqtSignal(object, str)  # [mean, std_dev, min, max, p2p], units : values are formatted strings!
+    on_update = QtCore.Signal(object, str)  # [mean, std_dev, min, max, p2p], units : values are formatted strings!
 
     def __init__(self, *args, **kwargs):
         QtWidgets.QWidget.__init__(self, *args, **kwargs)

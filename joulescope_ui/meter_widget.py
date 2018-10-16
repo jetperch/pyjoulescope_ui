@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PyQt5 import QtCore, QtWidgets
+from PySide2 import QtCore, QtWidgets
 from . import joulescope_rc
 from .meter_value_widget import MeterValueWidget
 import logging
@@ -64,7 +64,7 @@ class MeterWidget(QtWidgets.QWidget):
         self.setSizePolicy(self.sizePolicy)
         self.retranslateUi()
 
-    @QtCore.pyqtSlot(bool)
+    @QtCore.Slot(bool)
     def on_accumulate_toggled(self, checked):
         self.values['current'].accumulate_enable = checked
         self.values['voltage'].accumulate_enable = checked

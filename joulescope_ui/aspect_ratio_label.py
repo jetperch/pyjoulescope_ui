@@ -15,7 +15,7 @@
 """A Qt widget that displays an rescaled image to fit."""
 
 
-from PyQt5 import QtGui, QtCore
+from PySide2 import QtGui, QtCore
 
 
 class AspectRatioLabel(QtGui.QLabel):

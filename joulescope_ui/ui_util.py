@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PyQt5 import QtGui, QtCore
+from PySide2 import QtGui, QtCore
 import logging
 
 log = logging.getLogger(__name__)

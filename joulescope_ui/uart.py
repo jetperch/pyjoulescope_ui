@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PyQt5 import QtCore, QtWidgets
+from PySide2 import QtCore, QtWidgets
 from joulescope_ui.uart_widget import Ui_Form
 
 

@@ -17,7 +17,7 @@ from joulescope.stream_buffer import NAME_TO_COLUMN
 from joulescope.units import unit_prefix, three_sig_figs
 import weakref
 import pyqtgraph as pg
-from PyQt5 import QtCore, QtWidgets
+from PySide2 import QtCore, QtWidgets
 import numpy as np
 import time
 import logging
@@ -170,7 +170,7 @@ def resize_button_to_minimum(button: QtWidgets.QPushButton):
 
 
 class Oscilloscope(QtCore.QObject):
-    on_x_change_signal = QtCore.pyqtSignal(str, object)
+    on_xChangeSignal = QtCore.Signal(str, object)
     """List of command, kwargs:
     * ['resize', {pixels: }]
     * ['span_absolute', {range: [start, stop]}]
@@ -196,7 +196,7 @@ class Oscilloscope(QtCore.QObject):
         self.ui = Ui_PlotDockWidget()
         self.ui.setupUi(self.widget)
         self.widget.setWindowTitle(field)
-        self.vb = CustomViewBox(self.on_x_change_signal)
+        self.vb = CustomViewBox(self.on_xChangeSignal)
         self.plot = pg.PlotWidget(name=self._field, viewBox=self.vb)
         self.ui.mainLayout.addWidget(self.plot)
         resize_button_to_minimum(self.ui.selectXButton)

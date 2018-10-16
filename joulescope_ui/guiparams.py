@@ -20,7 +20,7 @@ Much inspiration for this module was drawn from the excellent
 `guidata package <https://code.google.com/p/guidata/>`_.
 """
 
-from PyQt5 import QtWidgets, QtGui, QtCore
+from PySide2 import QtWidgets, QtGui, QtCore
 import os
 import numpy as np
 from .ui_util import clear_layout
@@ -735,7 +735,7 @@ class FileSave(Path):
 
 class QClickLabel(QtWidgets.QLabel):
 
-    clicked = QtCore.pyqtSignal()
+    clicked = QtCore.Signal()
 
     def __init__(self, parent=None):
         QtWidgets.QLabel.__init__(self, parent)

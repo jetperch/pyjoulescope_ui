@@ -18,7 +18,7 @@ from joulescope_ui.preferences_dialog import Ui_PreferencesDialog
 from joulescope_ui import guiparams
 from joulescope_ui.config import find_child_by_name, validate
 from joulescope_ui.ui_util import confirmDiscard
-from PyQt5 import QtCore, QtWidgets, QtGui
+from PySide2 import QtCore, QtWidgets, QtGui
 import copy
 
 
