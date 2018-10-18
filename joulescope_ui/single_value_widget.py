@@ -114,7 +114,7 @@ class SingleValueWidget(QtWidgets.QWidget):
     def on_update(self, values, units):
         idx = self.statisticComboBox.currentIndex()
         self.valueLabel.setText(values[idx])
-        self.unitLabel.setText(f" {units} ")
+        self.unitLabel.setText(f"<html>&nbsp;{units}&nbsp;</html>")
 
     @QtCore.Slot(int)
     def on_field_changed(self, index):

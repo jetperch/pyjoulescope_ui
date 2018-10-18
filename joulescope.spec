@@ -1,5 +1,10 @@
 # -*- mode: python -*-
 
+# Configuration file for PyInstaller
+# See https://pyinstaller.readthedocs.io/en/stable/index.html
+# > pip install pyinstaller
+# > pyinstaller joulescope.spec
+
 block_cipher = None
 
 

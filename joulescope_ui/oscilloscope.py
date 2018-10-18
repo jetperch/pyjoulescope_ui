@@ -251,6 +251,7 @@ class Oscilloscope(QtCore.QObject):
                 self.ui.minValue.setText(three_sig_figs(v_min, self._units))
                 self.ui.maxValue.setText(three_sig_figs(v_max, self._units))
                 self.plot.setXRange(x[0], x[-1], padding=0.0)
+                self.plot.update()
                 return
 
         self._curve_min.clear()
