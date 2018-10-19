@@ -17,16 +17,16 @@
 
 import os
 import sys
-from joulescope.driver import scan_for_changes
+from joulescope.driver import scan, scan_for_changes
 from PySide2 import QtCore, QtWidgets
-from .developer_widget import Ui_DeveloperDockWidget
-from .main_window import Ui_mainWindow
-from .control_widget import Ui_ControlDockWidget
-from .oscilloscope import Oscilloscope
-from .uart import UartWidget
-from .meter_widget import MeterWidget
+from joulescope_ui.developer_widget import Ui_DeveloperDockWidget
+from joulescope_ui.main_window import Ui_mainWindow
+from joulescope_ui.control_widget import Ui_ControlDockWidget
+from joulescope_ui.oscilloscope import Oscilloscope
+from joulescope_ui.uart import UartWidget
+from joulescope_ui.meter_widget import MeterWidget
 from joulescope_ui.data_view_api import NullView
-from .single_value_widget import SingleValueWidget
+from joulescope_ui.single_value_widget import SingleValueWidget
 from joulescope.usb.win32_device_notify import DeviceNotify
 from joulescope.units import unit_prefix, three_sig_figs
 from joulescope.data_recorder import DataReader, construct_record_filename
