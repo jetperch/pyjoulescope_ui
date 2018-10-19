@@ -3,6 +3,7 @@
 
 #define MyAppName "Joulescope"
 #define MyAppVersion "0.1.1"
+#define MyAppVersionUnderscores "0_1_1"
 #define MyAppPublisher "Jetperch LLC"
 #define MyAppURL "https://www.joulescope.com"
 #define MyAppExeName "joulescope.exe"
@@ -23,7 +24,7 @@ DefaultDirName={pf}\{#MyAppName}
 DisableProgramGroupPage=yes
 LicenseFile=LICENSE.txt
 OutputDir=build_installer
-OutputBaseFilename=joulescope_setup
+OutputBaseFilename=joulescope_setup_{#MyAppVersionUnderscores}
 SetupIconFile=joulescope_ui\resources\icon_64x64.ico
 Compression=lzma
 SolidCompression=yes
