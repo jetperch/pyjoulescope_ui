@@ -33,6 +33,7 @@ from joulescope.data_recorder import DataReader, construct_record_filename
 from joulescope_ui.recording_viewer_device import RecordingViewerDevice
 from joulescope_ui.preferences import PreferencesDialog
 from joulescope_ui.config import load_config_def, load_config, save_config
+import ctypes
 import logging
 log = logging.getLogger(__name__)
 
@@ -550,12 +551,18 @@ class MainWindow(QtWidgets.QMainWindow):
             save_config(self._cfg)
             self._device_cfg_apply()
 
+            
+def kick_bootloaders():
+    for d in scan(name='bootloader'):
+        d.open()
+        d.go()
+
 
 def run():
     logging.basicConfig(level=logging.INFO)
     # http://doc.qt.io/qt-5/highdpi.html
     # https://vicrucann.github.io/tutorials/osg-qt-high-dpi/
-    import ctypes
+    kick_bootloaders()
     ctypes.windll.user32.SetProcessDPIAware()
     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
     app = QtWidgets.QApplication(sys.argv)
