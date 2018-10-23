@@ -266,7 +266,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 p = self._device.parameters(name=name)
                 current_value = self._device.parameter_get(name)
                 current_index = None
-                for idx, (value_name, value) in enumerate(p.values):
+                for idx, (value_name, value, _) in enumerate(p.values):
                     combobox.addItem(value_name)
                     if value_name == current_value:
                         current_index = idx
@@ -384,7 +384,7 @@ class MainWindow(QtWidgets.QMainWindow):
             label_units = QtWidgets.QLabel(self.dev_ui.parameter_groupbox)
             current_value = self._device.parameter_get(p.name)
             current_index = None
-            for idx, (value_name, value) in enumerate(p.values):
+            for idx, (value_name, value, _) in enumerate(p.values):
                 combobox.addItem(value_name)
                 if value_name == current_value:
                     current_index = idx
