@@ -74,7 +74,8 @@ class MainWindow(QtWidgets.QMainWindow):
     on_statisticSignal = QtCore.Signal(object, float)
     on_xChangeSignal = QtCore.Signal(str, object)
 
-    def __init__(self):
+    def __init__(self, app):
+        self._app = app
         self._devices = []
         self._device = None
         self._is_streaming = False
@@ -97,6 +98,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.central_widget.setMaximumWidth(1)
         self.setCentralWidget(self.central_widget)
 
+        self._multimeter_default_action = self.ui.menuView.addAction("Multimeter Default")
+        self._multimeter_default_action.triggered.connect(self.on_multimeterMenu)
+        self._oscilloscope_default_action = self.ui.menuView.addAction("Oscilloscope Default")
+        self._oscilloscope_default_action.triggered.connect(self.on_oscilloscopeMenu)
+        self.ui.menuView.addSeparator()
+
         # Developer widget
         self.dev_dock_widget = QtWidgets.QDockWidget('Developer', self)
         self.dev_ui = Ui_DeveloperDockWidget()
@@ -110,7 +117,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.control_dock_widget = QtWidgets.QDockWidget('Control', self)
         self.control_ui = Ui_ControlDockWidget()
         self.control_ui.setupUi(self.control_dock_widget)
-        self.control_dock_widget.setVisible(True)
+        self.control_dock_widget.setVisible(False)
         self.addDockWidget(QtCore.Qt.TopDockWidgetArea, self.control_dock_widget)
         self.ui.menuView.addAction(self.control_dock_widget.toggleViewAction())
         self.control_ui.playButton.toggled.connect(self._device_stream)
@@ -132,7 +139,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # Digital multimeter display widget
         self.dmm_dock_widget = QtWidgets.QDockWidget('Multimeter', self)
         self.dmm_widget = MeterWidget(self.dmm_dock_widget)
-        self.dmm_dock_widget.setVisible(True)
+        self.dmm_dock_widget.setVisible(False)
         self.dmm_dock_widget.setWidget(self.dmm_widget)
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.dmm_dock_widget)
         self.ui.menuView.addAction(self.dmm_dock_widget.toggleViewAction())
@@ -151,18 +158,21 @@ class MainWindow(QtWidgets.QMainWindow):
         self.uart_widget = UartWidget(self.uart_dock_widget)
         self.uart_dock_widget.setVisible(False)
         self.uart_dock_widget.setWidget(self.uart_widget)
-        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.uart_dock_widget)
-        self.ui.menuView.addAction(self.uart_dock_widget.toggleViewAction())
+        # todo implement UART widget
+        # self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.uart_dock_widget)
+        # self.ui.menuView.addAction(self.uart_dock_widget.toggleViewAction())
 
         # Oscilloscope: current
         self._view_current = Oscilloscope(self, 'Current')
         self._view_current.on_xChangeSignal.connect(self._on_x_change)
+        self._view_current.setVisible(False)
         self.ui.menuView.addAction(self._view_current.widget.toggleViewAction())
         self._view_current.y_limit_set(-2.0, 10.0, update=True)
 
         # Oscilloscope: voltage
         self._view_voltage = Oscilloscope(self, 'Voltage')
         self._view_voltage.on_xChangeSignal.connect(self._on_x_change)
+        self._view_voltage.setVisible(False)
         self.ui.menuView.addAction(self._view_voltage.widget.toggleViewAction())
         self._view_voltage.y_limit_set(-1.2, 15.0, update=True)
 
@@ -180,6 +190,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.on_stopSignal.connect(self._on_stop)
         self.on_statisticSignal.connect(self._on_statistic)
 
+        self.on_multimeterMenu(True)
         self.show()
         self._device_close()
         self._device_scan()
@@ -223,9 +234,71 @@ class MainWindow(QtWidgets.QMainWindow):
     def device_notify(self, inserted, info):
         self._device_scan()
 
+    @QtCore.Slot(bool)
+    def on_multimeterMenu(self, checked):
+        log.info('on_multimeterMenu(%r)', checked)
+        self.dev_dock_widget.setVisible(False)
+        self.control_dock_widget.setVisible(False)
+        self.dmm_dock_widget.setVisible(True)
+        self.single_value_dock_widget.setVisible(False)
+        self.uart_dock_widget.setVisible(False)
+        self._view_current.setVisible(False)
+        self._view_voltage.setVisible(False)
+        self.adjustSize()
+        self.center()
+
+    @QtCore.Slot(bool)
+    def on_oscilloscopeMenu(self, checked):
+        log.info('on_oscilloscopeMenu(%r)', checked)
+        self.dev_dock_widget.setVisible(False)
+        self.control_dock_widget.setVisible(True)
+        self.dmm_dock_widget.setVisible(False)
+        self.single_value_dock_widget.setVisible(False)
+        self.uart_dock_widget.setVisible(False)
+        self._view_current.setVisible(True)
+        self._view_voltage.setVisible(True)
+        self.center_and_resize(0.85, 0.85)
+        docks = [self._view_current.widget, self._view_voltage.widget]
+        self.resizeDocks(docks, [1000, 1000], QtCore.Qt.Vertical)
+
     @property
     def _has_active_device(self):
         return self._device not in [None, self._device_disable]
+
+    def center(self):
+        try:
+            geometry = self.window().windowHandle().screen().availableGeometry()
+        except AttributeError:
+            return
+        sz = self.size()
+        self.setGeometry(
+            QtWidgets.QStyle.alignedRect(
+                QtCore.Qt.LeftToRight,
+                QtCore.Qt.AlignCenter,
+                sz,
+                self.window().windowHandle().screen().availableGeometry()
+            )
+        )
+
+    def center_and_resize(self, width_fract, height_fract):
+        # https://wiki.qt.io/Center_and_Resize_MainWindow
+        try:
+            screen = self.window().windowHandle().screen()
+        except AttributeError:
+            return
+        geometry = screen.availableGeometry()
+        available_size = geometry.size()
+        width, height = available_size.width(), available_size.height()
+        log.info('Available dimensions [%d, %d]', width, height)
+        sz = QtCore.QSize(int(width * width_fract), int(height * height_fract))
+        self.setGeometry(
+            QtWidgets.QStyle.alignedRect(
+                QtCore.Qt.LeftToRight,
+                QtCore.Qt.AlignCenter,
+                sz,
+                geometry
+            )
+        )
 
     def _device_view_force(self):
         length, x_range = self._view_current.x_state_get()
@@ -566,7 +639,7 @@ def run():
     ctypes.windll.user32.SetProcessDPIAware()
     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
     app = QtWidgets.QApplication(sys.argv)
-    ui = MainWindow()
+    ui = MainWindow(app)
     device_notify = DeviceNotify(ui.on_deviceNotifySignal.emit)
     rc = app.exec_()
     device_notify.close()

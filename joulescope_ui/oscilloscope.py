@@ -215,6 +215,9 @@ class Oscilloscope(QtCore.QObject):
         # https://stackoverflow.com/questions/28296049/pyqtgraph-plotting-time-series?rq=1
         # https://stackoverflow.com/questions/17103698/plotting-large-arrays-in-pyqtgraph
 
+    def setVisible(self, is_visible):
+        self.widget.setVisible(is_visible)
+
     def clear(self):
         self.update(None, None)
 
