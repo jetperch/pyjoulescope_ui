@@ -73,7 +73,7 @@ with open(os.path.join(MYPATH, 'README.md'), encoding='utf-8') as f:
 
 setuptools.setup(
     name='joulescope_ui',
-    version='0.1.1',
+    version='0.1.2',
     description='Joulescope™ graphical user interface',
     long_description=long_description,
     long_description_content_type='text/markdown',
