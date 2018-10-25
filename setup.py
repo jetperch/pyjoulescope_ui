@@ -22,6 +22,7 @@ https://github.com/pypa/sampleproject
 
 # Always prefer setuptools over distutils
 import setuptools
+from setuptools.command.sdist import sdist
 import os
 import subprocess
 import site
@@ -64,7 +65,10 @@ def convert_qt_ui():
             ignore.write('%s\n' % target)
 
 
-convert_qt_ui()
+class CustomSdistCommand(sdist):
+    def run(self):
+        convert_qt_ui()
+        sdist.run(self)
 
 
 # Get the long description from the README file
@@ -73,7 +77,7 @@ with open(os.path.join(MYPATH, 'README.md'), encoding='utf-8') as f:
 
 setuptools.setup(
     name='joulescope_ui',
-    version='0.1.2',
+    version='0.1.3',
     description='Joulescope™ graphical user interface',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -81,6 +85,10 @@ setuptools.setup(
     author='Jetperch LLC',
     author_email='joulescope-dev@jetperch.com',
     license='Apache',
+
+    cmdclass={
+        'sdist': CustomSdistCommand
+    },
 
     # Classifiers help users find your project by categorizing it.
     #
@@ -116,7 +124,7 @@ setuptools.setup(
         # 'PySide2>=5.11.2',
         'pyside2>=-5.11.2',
         'pyqtgraph>=0.10.0',
-        'joulescope>=0.1.0',
+        'joulescope>=0.1.2',
     ],
 
     entry_points={
