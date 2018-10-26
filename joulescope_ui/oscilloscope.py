@@ -224,42 +224,48 @@ class Oscilloscope(QtCore.QObject):
     def update(self, x, data):
         if x is not None and data is not None:
             z_mean = data[:, self._column, 0]
+            self._curve_mean.updateData(x, z_mean)
+            self._curve_min.updateData(x,  data[:, self._column, 2])
+            self._curve_max.updateData(x, data[:, self._column, 3])
+
             z_valid = np.isfinite(z_mean)
             z_mean = z_mean[z_valid]
-            xv = x[z_valid]
 
-            if len(z_mean):
-                z_var = data[z_valid, self._column, 1]
-                z_min = data[z_valid, self._column, 2]
-                z_max = data[z_valid, self._column, 3]
-                self._curve_mean.updateData(xv, z_mean)
+            z_var = data[z_valid, self._column, 1]
+            z_min = data[z_valid, self._column, 2]
+            z_max = data[z_valid, self._column, 3]
 
+            if not len(z_mean):
+                v_mean = np.nan
+                v_min = np.nan
+                v_max = np.nan
+            else:
                 v_mean = np.mean(z_mean)
-                mean_delta = z_mean - v_mean
-                # combine variances across the combined samples
-                v_std = np.sqrt(np.sum(np.square(mean_delta, out=mean_delta) + z_var) / len(z_mean))
-                if np.isfinite(z_min[0]):
-                    self._curve_min.updateData(xv, z_min)
-                    self._curve_max.updateData(xv, z_max)
-                    v_min = np.min(z_min)
-                    v_max = np.max(z_max)
-                else:
-                    self._curve_min.clear()
-                    self._curve_max.clear()
+                v_min = np.min(z_min)
+                if not np.isfinite(v_min):
                     v_min = np.min(z_mean)
+                v_max = np.max(z_max)
+                if not np.isfinite(v_max):
                     v_max = np.max(z_mean)
-                self.ui.meanValue.setText(three_sig_figs(v_mean, self._units))
-                self.ui.stdValue.setText(three_sig_figs(v_std, self._units))
-                self.ui.p2pValue.setText(three_sig_figs(v_max - v_min, self._units))
-                self.ui.minValue.setText(three_sig_figs(v_min, self._units))
-                self.ui.maxValue.setText(three_sig_figs(v_max, self._units))
-                self.plot.setXRange(x[0], x[-1], padding=0.0)
-                self.plot.update()
-                return
+
+            mean_delta = z_mean - v_mean
+            # combine variances across the combined samples
+            v_std = np.sqrt(np.sum(np.square(mean_delta, out=mean_delta) + z_var) / len(z_mean))
+            self.ui.meanValue.setText(three_sig_figs(v_mean, self._units))
+            self.ui.stdValue.setText(three_sig_figs(v_std, self._units))
+            self.ui.p2pValue.setText(three_sig_figs(v_max - v_min, self._units))
+            self.ui.minValue.setText(three_sig_figs(v_min, self._units))
+            self.ui.maxValue.setText(three_sig_figs(v_max, self._units))
+            self.plot.setXRange(x[0], x[-1], padding=0.0)
+            self.plot.update()
+            return
 
         self._curve_min.clear()
+        self._curve_min.update()
         self._curve_max.clear()
+        self._curve_max.update()
         self._curve_mean.clear()
+        self._curve_mean.update()
         self.ui.meanValue.setText('')
         self.ui.stdValue.setText('')
         self.ui.p2pValue.setText('')
