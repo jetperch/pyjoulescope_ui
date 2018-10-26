@@ -237,6 +237,7 @@ class Oscilloscope(QtCore.QObject):
 
             if not len(z_mean):
                 v_mean = np.nan
+                v_std = np.nan
                 v_min = np.nan
                 v_max = np.nan
             else:
@@ -247,10 +248,10 @@ class Oscilloscope(QtCore.QObject):
                 v_max = np.max(z_max)
                 if not np.isfinite(v_max):
                     v_max = np.max(z_mean)
+                mean_delta = z_mean - v_mean
+                # combine variances across the combined samples
+                v_std = np.sqrt(np.sum(np.square(mean_delta, out=mean_delta) + z_var) / len(z_mean))
 
-            mean_delta = z_mean - v_mean
-            # combine variances across the combined samples
-            v_std = np.sqrt(np.sum(np.square(mean_delta, out=mean_delta) + z_var) / len(z_mean))
             self.ui.meanValue.setText(three_sig_figs(v_mean, self._units))
             self.ui.stdValue.setText(three_sig_figs(v_std, self._units))
             self.ui.p2pValue.setText(three_sig_figs(v_max - v_min, self._units))

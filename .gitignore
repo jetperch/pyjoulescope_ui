@@ -7,6 +7,9 @@ dist
 *.pyd
 *.egg-info
 
+joulescope_ui/version.py
+
+
 # Compiled Dynamic libraries
 *.so
 *.dylib

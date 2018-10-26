@@ -17,6 +17,7 @@
 
 import os
 import sys
+from . import VERSION
 from joulescope.driver import scan, scan_for_changes
 from PySide2 import QtCore, QtWidgets
 from joulescope_ui.developer_widget import Ui_DeveloperDockWidget
@@ -40,6 +41,25 @@ log = logging.getLogger(__name__)
 
 STATUS_BAR_TIMEOUT = 5000
 DATA_BUFFER_DURATION = 60.0  # seconds
+
+
+ABOUT = """\
+Joulescope version {version}
+
+Copyright 2018 Jetperch LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
 
 
 class ValueLabel(QtWidgets.QLabel):
@@ -190,6 +210,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.on_stopSignal.connect(self._on_stop)
         self.on_statisticSignal.connect(self._on_statistic)
 
+        # help about
+        self.ui.actionAbout.triggered.connect(self._help_about)
+
+        # tools
+        self.ui.actionUsbInrush.triggered.connect(self._tool_usb_inrush)
+
         self.on_multimeterMenu(True)
         self.show()
         self._device_close()
@@ -260,6 +286,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.center_and_resize(0.85, 0.85)
         docks = [self._view_current.widget, self._view_voltage.widget]
         self.resizeDocks(docks, [1000, 1000], QtCore.Qt.Vertical)
+
+    def _help_about(self):
+        txt = ABOUT.format(version=VERSION)
+        QtWidgets.QMessageBox.about(self, 'Joulescope', txt)
+
+    def _tool_usb_inrush(self):
+        pass
 
     @property
     def _has_active_device(self):
