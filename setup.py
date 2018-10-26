@@ -77,7 +77,7 @@ with open(os.path.join(MYPATH, 'README.md'), encoding='utf-8') as f:
 
 setuptools.setup(
     name='joulescope_ui',
-    version='0.1.3',
+    version='0.1.4',
     description='Joulescope™ graphical user interface',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -124,7 +124,7 @@ setuptools.setup(
         # 'PySide2>=5.11.2',
         'pyside2>=-5.11.2',
         'pyqtgraph>=0.10.0',
-        'joulescope>=0.1.2',
+        'joulescope>=0.1.4',
     ],
 
     entry_points={
