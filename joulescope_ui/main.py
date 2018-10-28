@@ -34,6 +34,7 @@ from joulescope.data_recorder import DataReader, construct_record_filename
 from joulescope_ui.recording_viewer_device import RecordingViewerDevice
 from joulescope_ui.preferences import PreferencesDialog
 from joulescope_ui.config import load_config_def, load_config, save_config
+from joulescope_ui import usb_inrush
 import ctypes
 import logging
 log = logging.getLogger(__name__)
@@ -215,6 +216,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # tools
         self.ui.actionUsbInrush.triggered.connect(self._tool_usb_inrush)
+        self.ui.actionUsbInrush.setEnabled(usb_inrush.is_available())
 
         self.on_multimeterMenu(True)
         self.show()
@@ -292,7 +294,8 @@ class MainWindow(QtWidgets.QMainWindow):
         QtWidgets.QMessageBox.about(self, 'Joulescope', txt)
 
     def _tool_usb_inrush(self):
-        pass
+        data = self._device.view.extract()
+        rv = usb_inrush.run(data, self._device.view.sampling_frequency)
 
     @property
     def _has_active_device(self):
