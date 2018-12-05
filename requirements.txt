@@ -3,4 +3,4 @@ numpy>=1.15.2
 pypiwin32>=223
 python-dateutil>=2.7.3
 PySide2>=5.11.2
-pyqtgraph>=0.11.0
+pyqtgraph>=0.11.0.dev0
