@@ -26,16 +26,20 @@ from setuptools.command.sdist import sdist
 import os
 import subprocess
 import site
+import shutil
 from pyside2uic import compileUi
 
 
-VERSION = '0.1.5'  # CHANGE THIS VERSION!
+VERSION = '0.2.1'  # CHANGE THIS VERSION!
 MYPATH = os.path.abspath(os.path.dirname(__file__))
 
 
 def find_qt_rcc():
     # Hack.  https://bugreports.qt.io/browse/PYSIDE-779
     # Fixed in 5.12.0 which is not released as of 2018 Oct 15.
+    fname = shutil.which('pyside2-rcc')
+    if fname:
+        return fname
     for path in site.getsitepackages():
         fname = os.path.join(path, 'PySide2', 'pyside2-rcc.exe')
         if os.path.isfile(fname):

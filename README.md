@@ -13,9 +13,19 @@ and communicates with the Joulescope device over USB.  The application
 source code is available at https://github.com/jetperch/pyjoulescope_ui.
 In addition to the graphical user interface, the source code is
 a Python 3.6+ package.
-The code currently runs under Windows 10. 
-Linux and Mac OS/X drivers will be before 2019.
 
+
+## Developer
+
+Install python3 dependencies
+
+    pip3 install -r requirements.txt
+
+### Linux
+
+Install QT5 tools
+
+    sudo apt install qtcreator qt5-default qt5-doc qt5-doc-html qtbase5-doc-html qtbase5-examples
 
 ## License
 
