@@ -28,6 +28,7 @@ OutputBaseFilename=joulescope_setup_{#MyAppVersionUnderscores}
 SetupIconFile=joulescope_ui\resources\icon_64x64.ico
 Compression=lzma
 SolidCompression=yes
+SignTool=signtool
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
