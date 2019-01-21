@@ -24,6 +24,7 @@ https://github.com/pypa/sampleproject
 import setuptools
 from setuptools.command.sdist import sdist
 import os
+import sys
 import subprocess
 import site
 import shutil
@@ -31,6 +32,7 @@ from pyside2uic import compileUi
 
 
 VERSION = '0.2.1'  # CHANGE THIS VERSION!
+JOULESCOPE_VERSION_MIN = '0.2.1'
 MYPATH = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -100,6 +102,12 @@ class CustomSdistCommand(sdist):
         sdist.run(self)
 
 
+if sys.platform.startswith('win'):
+    PLATFORM_INSTALL_REQUIRES = ['pypiwin32>=223']
+else:
+    PLATFORM_INSTALL_REQUIRES = []
+
+
 # Get the long description from the README file
 with open(os.path.join(MYPATH, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
@@ -148,13 +156,15 @@ setuptools.setup(
     install_requires=[
         'json5>=0.6.1',
         'numpy>=1.15.2',
-        'pypiwin32>=223',
         'python-dateutil>=2.7.3',
-        # 'PySide2>=5.11.2',
         'pyside2>=-5.11.2',
         'pyqtgraph>=0.10.0',
-        'joulescope>=0.1.4',
-    ],
+        'joulescope>=' + JOULESCOPE_VERSION_MIN,
+    ] + PLATFORM_INSTALL_REQUIRES,
+
+    extras_require={
+        'dev': ['check-manifest', 'Cython', 'coverage', 'wheel', 'pyinstaller'],
+    },
 
     entry_points={
         'gui_scripts': [

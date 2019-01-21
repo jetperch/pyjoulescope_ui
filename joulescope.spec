@@ -5,14 +5,22 @@
 # > pip install pyinstaller
 # > pyinstaller joulescope.spec
 
+import sys
 block_cipher = None
 
+if sys.platform.startswith('win'):
+    EXE_NAME = 'joulescope'
+else:
+    EXE_NAME = 'joulescope_launcher'
 
-a = Analysis(['joulescope_ui\__main__.py'],
-             pathex=['D:\\repos\\Jetperch\\pyjoulescope_ui'],
+# PATHEX = 'D:\\repos\\Jetperch\\pyjoulescope_ui'
+# PATHEX = '~/repos/Jetperch/pyjoulescope_ui'
+
+a = Analysis(['joulescope_ui/__main__.py'],
+             pathex=[],
              binaries=[],
              datas=[('joulescope_ui/config_def.json5', 'joulescope_ui')],
-             hiddenimports=['secrets'],
+             hiddenimports=['secrets', 'numpy.core._dtype_ctypes'],
              hookspath=[],
              runtime_hooks=[],
              excludes=['matplotlib', 'scipy'],
@@ -26,7 +34,7 @@ exe = EXE(pyz,
           a.scripts,
           [],
           exclude_binaries=True,
-          name='joulescope',
+          name=EXE_NAME,
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
