@@ -6,6 +6,7 @@ dist
 *.pyc
 *.pyd
 *.egg-info
+.DS_Store
 
 joulescope_ui/version.py
 

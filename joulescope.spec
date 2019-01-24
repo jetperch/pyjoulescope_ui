@@ -6,6 +6,7 @@
 # > pyinstaller joulescope.spec
 
 import sys
+import os
 block_cipher = None
 
 if sys.platform.startswith('win'):
@@ -15,6 +16,7 @@ else:
 
 # PATHEX = 'D:\\repos\\Jetperch\\pyjoulescope_ui'
 # PATHEX = '~/repos/Jetperch/pyjoulescope_ui'
+# PATHEX = '~/repos/pyjoulescope_ui/'
 
 a = Analysis(['joulescope_ui/__main__.py'],
              pathex=[],
@@ -48,3 +50,12 @@ coll = COLLECT(exe,
                strip=False,
                upx=True,
                name='joulescope')
+
+if sys.platform.startswith('darwin'):
+    # https://blog.macsales.com/28492-create-your-own-custom-icons-in-10-7-5-or-later
+    # iconutil --convert icns joulescope_ui/resources/icon.iconset
+    app = BUNDLE(coll,
+                 name='joulescope.app',
+                 icon='joulescope_ui/resources/icon.icns',
+                 bundle_identifier=None)
+
