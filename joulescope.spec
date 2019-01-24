@@ -6,13 +6,16 @@
 # > pyinstaller joulescope.spec
 
 import sys
+import ctypes.util
 import os
 block_cipher = None
 
 if sys.platform.startswith('win'):
     EXE_NAME = 'joulescope'
+    BINARIES = []
 else:
     EXE_NAME = 'joulescope_launcher'
+    BINARIES = [(ctypes.util.find_library('usb-1.0'), '.')]
 
 # PATHEX = 'D:\\repos\\Jetperch\\pyjoulescope_ui'
 # PATHEX = '~/repos/Jetperch/pyjoulescope_ui'
@@ -20,7 +23,7 @@ else:
 
 a = Analysis(['joulescope_ui/__main__.py'],
              pathex=[],
-             binaries=[],
+             binaries=BINARIES,
              datas=[('joulescope_ui/config_def.json5', 'joulescope_ui')],
              hiddenimports=['secrets', 'numpy.core._dtype_ctypes'],
              hookspath=[],
@@ -54,8 +57,12 @@ coll = COLLECT(exe,
 if sys.platform.startswith('darwin'):
     # https://blog.macsales.com/28492-create-your-own-custom-icons-in-10-7-5-or-later
     # iconutil --convert icns joulescope_ui/resources/icon.iconset
+    # hdiutil create ./dist/joulescope.dmg -srcfolder ./dist/joulescope.app -ov
     app = BUNDLE(coll,
                  name='joulescope.app',
                  icon='joulescope_ui/resources/icon.icns',
-                 bundle_identifier=None)
+                 bundle_identifier=None,
+                 info_plist={
+                     'CFBundleVersion': '0.2.1',
+                 })
 
