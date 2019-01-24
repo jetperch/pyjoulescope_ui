@@ -12,10 +12,13 @@ block_cipher = None
 
 if sys.platform.startswith('win'):
     EXE_NAME = 'joulescope'
-    BINARIES = []
-else:
+    BINARIES = []  # uses winusb which comes with Windows
+elif sys.platform.startswith('darwin'):
     EXE_NAME = 'joulescope_launcher'
     BINARIES = [(ctypes.util.find_library('usb-1.0'), '.')]
+else:
+    EXE_NAME = 'joulescope_launcher'
+    BINARIES = []  # sudo apt install libusb-1
 
 # PATHEX = 'D:\\repos\\Jetperch\\pyjoulescope_ui'
 # PATHEX = '~/repos/Jetperch/pyjoulescope_ui'
