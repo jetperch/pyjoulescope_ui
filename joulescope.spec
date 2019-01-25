@@ -12,7 +12,10 @@ block_cipher = None
 
 if sys.platform.startswith('win'):
     EXE_NAME = 'joulescope'
-    BINARIES = []  # uses winusb which comes with Windows
+    BINARIES = [  # uses winusb which comes with Windows
+        ('C:\\Windows\\System32\\msvcp100.dll', '.'),
+        ('C:\\Windows\\System32\\msvcr100.dll', '.'),
+    ]
 elif sys.platform.startswith('darwin'):
     EXE_NAME = 'joulescope_launcher'
     BINARIES = [(ctypes.util.find_library('usb-1.0'), '.')]
@@ -48,7 +51,7 @@ exe = EXE(pyz,
           strip=False,
           upx=True,
           console=False,
-          icon='joulescope_ui/resources/icon_64x64.ico')
+          icon='joulescope_ui/resources/icon.ico')
 coll = COLLECT(exe,
                a.binaries,
                a.zipfiles,
