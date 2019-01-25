@@ -50,7 +50,6 @@ def find_qt_rcc():
 
 
 def convert_qt_ui():
-    site.getsitepackages()
     rcc_path = find_qt_rcc()
     path = os.path.join(MYPATH, 'joulescope_ui')
     ignore_filename = os.path.join(path, '.gitignore')

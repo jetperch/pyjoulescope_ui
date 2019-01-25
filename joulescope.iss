@@ -25,7 +25,7 @@ DisableProgramGroupPage=yes
 LicenseFile=LICENSE.txt
 OutputDir=build_installer
 OutputBaseFilename=joulescope_setup_{#MyAppVersionUnderscores}
-SetupIconFile=joulescope_ui\resources\icon_64x64.ico
+SetupIconFile=joulescope_ui\resources\icon.ico
 Compression=lzma
 SolidCompression=yes
 

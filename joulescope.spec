@@ -8,7 +8,9 @@
 import sys
 import ctypes.util
 import os
+
 block_cipher = None
+specpath = os.path.dirname(os.path.abspath(SPEC))
 
 if sys.platform.startswith('win'):
     EXE_NAME = 'joulescope'
@@ -22,10 +24,6 @@ elif sys.platform.startswith('darwin'):
 else:
     EXE_NAME = 'joulescope_launcher'
     BINARIES = []  # sudo apt install libusb-1
-
-# PATHEX = 'D:\\repos\\Jetperch\\pyjoulescope_ui'
-# PATHEX = '~/repos/Jetperch/pyjoulescope_ui'
-# PATHEX = '~/repos/pyjoulescope_ui/'
 
 a = Analysis(['joulescope_ui/__main__.py'],
              pathex=[],
