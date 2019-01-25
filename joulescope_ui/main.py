@@ -28,7 +28,7 @@ from joulescope_ui.uart import UartWidget
 from joulescope_ui.meter_widget import MeterWidget
 from joulescope_ui.data_view_api import NullView
 from joulescope_ui.single_value_widget import SingleValueWidget
-from joulescope.usb.win32_device_notify import DeviceNotify
+from joulescope.usb import DeviceNotify
 from joulescope.units import unit_prefix, three_sig_figs
 from joulescope.data_recorder import DataReader, construct_record_filename
 from joulescope_ui.recording_viewer_device import RecordingViewerDevice
@@ -672,7 +672,8 @@ def run():
     # http://doc.qt.io/qt-5/highdpi.html
     # https://vicrucann.github.io/tutorials/osg-qt-high-dpi/
     kick_bootloaders()
-    ctypes.windll.user32.SetProcessDPIAware()
+    if sys.platform.startswith('win'):
+        ctypes.windll.user32.SetProcessDPIAware()
     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
     app = QtWidgets.QApplication(sys.argv)
     ui = MainWindow(app)

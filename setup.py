@@ -24,18 +24,24 @@ https://github.com/pypa/sampleproject
 import setuptools
 from setuptools.command.sdist import sdist
 import os
+import sys
 import subprocess
 import site
+import shutil
 from pyside2uic import compileUi
 
 
-VERSION = '0.1.5'  # CHANGE THIS VERSION!
+VERSION = '0.2.1'  # CHANGE THIS VERSION!
+JOULESCOPE_VERSION_MIN = '0.2.1'
 MYPATH = os.path.abspath(os.path.dirname(__file__))
 
 
 def find_qt_rcc():
     # Hack.  https://bugreports.qt.io/browse/PYSIDE-779
     # Fixed in 5.12.0 which is not released as of 2018 Oct 15.
+    fname = shutil.which('pyside2-rcc')
+    if fname:
+        return fname
     for path in site.getsitepackages():
         fname = os.path.join(path, 'PySide2', 'pyside2-rcc.exe')
         if os.path.isfile(fname):
@@ -44,7 +50,6 @@ def find_qt_rcc():
 
 
 def convert_qt_ui():
-    site.getsitepackages()
     rcc_path = find_qt_rcc()
     path = os.path.join(MYPATH, 'joulescope_ui')
     ignore_filename = os.path.join(path, '.gitignore')
@@ -96,6 +101,12 @@ class CustomSdistCommand(sdist):
         sdist.run(self)
 
 
+if sys.platform.startswith('win'):
+    PLATFORM_INSTALL_REQUIRES = ['pypiwin32>=223']
+else:
+    PLATFORM_INSTALL_REQUIRES = []
+
+
 # Get the long description from the README file
 with open(os.path.join(MYPATH, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
@@ -144,13 +155,15 @@ setuptools.setup(
     install_requires=[
         'json5>=0.6.1',
         'numpy>=1.15.2',
-        'pypiwin32>=223',
         'python-dateutil>=2.7.3',
-        # 'PySide2>=5.11.2',
         'pyside2>=-5.11.2',
         'pyqtgraph>=0.10.0',
-        'joulescope>=0.1.4',
-    ],
+        'joulescope>=' + JOULESCOPE_VERSION_MIN,
+    ] + PLATFORM_INSTALL_REQUIRES,
+
+    extras_require={
+        'dev': ['check-manifest', 'Cython', 'coverage', 'wheel', 'pyinstaller'],
+    },
 
     entry_points={
         'gui_scripts': [

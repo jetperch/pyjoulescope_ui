@@ -2,8 +2,8 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Joulescope"
-#define MyAppVersion "0.1.5"
-#define MyAppVersionUnderscores "0_1_5"
+#define MyAppVersion "0.2.1"
+#define MyAppVersionUnderscores "0_2_1"
 #define MyAppPublisher "Jetperch LLC"
 #define MyAppURL "https://www.joulescope.com"
 #define MyAppExeName "joulescope.exe"
@@ -25,7 +25,7 @@ DisableProgramGroupPage=yes
 LicenseFile=LICENSE.txt
 OutputDir=build_installer
 OutputBaseFilename=joulescope_setup_{#MyAppVersionUnderscores}
-SetupIconFile=joulescope_ui\resources\icon_64x64.ico
+SetupIconFile=joulescope_ui\resources\icon.ico
 Compression=lzma
 SolidCompression=yes
 SignTool=signtool
