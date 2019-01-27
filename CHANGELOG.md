@@ -8,15 +8,16 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 2019 Jan 27
 
-*   Fixed file load
+*   Fixed file load.
+*   Added single marker to oscilloscope widgets.
 
 
 ## 0.2.1
 
 2019 Jan 25
 
-*   Added linux support using libusb
-*   Added Mac OS X support using libusb
+*   Added linux support using libusb.
+*   Added Mac OS X support using libusb.
 
 
 ## 0.1.0

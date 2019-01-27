@@ -220,6 +220,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.menuView.addAction(self._view_voltage.widget.toggleViewAction())
         self._view_voltage.y_limit_set(-1.2, 15.0, update=True)
 
+        # Connect oscilloscope views together
+        self._view_current.on_markerSignal.connect(self._view_voltage.on_marker)
+        self._view_voltage.on_markerSignal.connect(self._view_current.on_marker)
+
         # status update timer
         self.status_update_timer = QtCore.QTimer(self)
         self.status_update_timer.setInterval(500)  # milliseconds
