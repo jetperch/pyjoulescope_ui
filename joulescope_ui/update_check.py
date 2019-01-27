@@ -17,7 +17,7 @@
 import requests
 import json
 import threading
-from .version import VERSION
+from joulescope_ui import VERSION
 
 URL = 'https://www.joulescope.com/app_download/version.json'
 TIMEOUT = 30.0
@@ -46,6 +46,8 @@ def check(callback):
     :param callback: The function to call if an update is required.
         The signature is callback(current_version, latest_version).
     """
+    if VERSION == 'UNRELEASED':
+        return
     thread = threading.Thread(target=fetch, args=[callback])
     thread.daemon = True
     thread.start()
