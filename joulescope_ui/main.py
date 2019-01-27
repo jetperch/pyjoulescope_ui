@@ -151,7 +151,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Other menu items
         self.ui.actionOpen.triggered.connect(self.recording_open)
+        #self.ui.actionSave.triggered.connect(self._save)
         #self.ui.actionClose.triggered.connect(self.close)
+        self.ui.actionSave.setEnabled(False)
+        self.ui.actionClose.setEnabled(False)
+
         self.ui.actionPreferences.triggered.connect(self.on_preferences)
         self.ui.actionExit.triggered.connect(self.close)
         self.ui.actionDeveloper.triggered.connect(self.on_developer)
@@ -588,6 +592,19 @@ class MainWindow(QtWidgets.QMainWindow):
                 self._device_stream_record_start(filename)
         elif not checked:
             self._device_stream_record_stop()
+
+    def _save(self):
+        if self._device is None:
+            self.status('Device not open, cannot save buffer')
+            return
+        # Save the current buffer
+        filename, selected_filter = QtWidgets.QFileDialog.getSaveFileName(
+            self, 'Save Joulescope buffer', self._path, 'Joulescope Data (*.jls)')
+        filename = str(filename)
+        if not len(filename):
+            self.status('Invalid filename, do not open')
+            return
+        # todo
 
     def recording_open(self):
         self._device_close()
