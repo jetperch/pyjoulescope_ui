@@ -31,8 +31,8 @@ import shutil
 from pyside2uic import compileUi
 
 
-VERSION = '0.2.1'  # CHANGE THIS VERSION!
-JOULESCOPE_VERSION_MIN = '0.2.1'
+VERSION = '0.2.2'  # CHANGE THIS VERSION!
+JOULESCOPE_VERSION_MIN = '0.2.2'
 MYPATH = os.path.abspath(os.path.dirname(__file__))
 
 

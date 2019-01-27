@@ -52,7 +52,7 @@ class RecordingViewerDevice:
         self.span = span.Span(x_lim, 1/f, 100)
         self.x_range, self.samples_per, self.x = self.span.conform_discrete(x_lim)
         self.changed = True
-        log.info('RecordingViewerDevice.open: %s => %s', r, self.x_range)
+        log.info('RecordingViewerDevice.open: %s => %s, %s', r, self.x_range, self.samples_per)
 
     def close(self):
         if self.reader is not None:
@@ -70,6 +70,7 @@ class RecordingViewerDevice:
                 log.info('resize %s', length)
                 self.span.length = length
                 self.changed = True  # invalidate
+            x_range, self.samples_per, self.x = self.span.conform_discrete(x_range)
         elif cmd == 'span_absolute':  # {range: (start: float, stop: float)}]
             x_range, self.samples_per, self.x = self.span.conform_discrete(kwargs.get('range'))
         elif cmd == 'span_relative':  # {center: float, gain: float}]
@@ -92,8 +93,14 @@ class RecordingViewerDevice:
         log.info('update: x_range=%r', self.x_range)
         start, stop = [int(x * f) for x in self.x_range]
         log.info('update: x_range=%r => (%s, %s)', self.x_range, start, stop)
-        x, data = self.reader.get(start, stop, self.samples_per)
-        x *= 1.0 / self.reader.sampling_frequency
+        data = self.reader.get(start, stop, self.samples_per)
+        t_start = start / self.reader.sampling_frequency
+        t_stop = stop / self.reader.sampling_frequency
+        x = np.linspace(t_start, t_stop, len(data), dtype=np.float64)
+        try:
+            log.info('update: len=%d, x_range=>(%s, %s)', len(data), x[0], x[-1])
+        except:
+            print(x.shape)
         return True, (x, data)
 
 

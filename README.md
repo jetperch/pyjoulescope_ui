@@ -1,7 +1,7 @@
 
 # Joulescope
 
-Welcome to Joulescope™!  Joulescope is an inexpensive, precision energy 
+Welcome to Joulescope™!  Joulescope is an inexpensive, precision DC energy 
 analyzer that enables you to build better products. 
 Joulescope™ accurately and simultaneously measures the voltage and current 
 supplied to your target device, and it then computes power and energy. 
