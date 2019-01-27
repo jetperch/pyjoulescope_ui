@@ -5,6 +5,10 @@
 # > pip install pyinstaller
 # > pyinstaller joulescope.spec
 
+# Mac OS X
+# https://kivy.org/doc/stable/guide/packaging-osx.html
+# hdiutil create ./dist/joulescope.dmg -srcfolder ./dist/joulescope.app -ov
+
 import sys
 import ctypes.util
 import os
