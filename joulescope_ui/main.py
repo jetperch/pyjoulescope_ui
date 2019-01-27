@@ -222,6 +222,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.actionUsbInrush.triggered.connect(self._tool_usb_inrush)
         self.ui.actionUsbInrush.setEnabled(usb_inrush.is_available())
 
+        self._dock_widgets = [
+            self.dev_dock_widget,
+            self.control_dock_widget,
+            self.dmm_dock_widget,
+            self.single_value_dock_widget,
+            self.uart_dock_widget,
+            self._view_current.widget,
+            self._view_voltage.widget,
+        ]
+
         self.on_multimeterMenu(True)
         self.show()
         self._device_close()
@@ -266,9 +276,14 @@ class MainWindow(QtWidgets.QMainWindow):
     def device_notify(self, inserted, info):
         self._device_scan()
 
+    def disable_floating(self):
+        for widget in self._dock_widgets:
+            widget.setFloating(False)
+
     @QtCore.Slot(bool)
     def on_multimeterMenu(self, checked):
         log.info('on_multimeterMenu(%r)', checked)
+        self.disable_floating()
         self.dev_dock_widget.setVisible(False)
         self.control_dock_widget.setVisible(False)
         self.dmm_dock_widget.setVisible(True)
@@ -276,12 +291,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.uart_dock_widget.setVisible(False)
         self._view_current.setVisible(False)
         self._view_voltage.setVisible(False)
+
         self.adjustSize()
         self.center()
 
     @QtCore.Slot(bool)
     def on_oscilloscopeMenu(self, checked):
         log.info('on_oscilloscopeMenu(%r)', checked)
+        self.disable_floating()
         self.dev_dock_widget.setVisible(False)
         self.control_dock_widget.setVisible(True)
         self.dmm_dock_widget.setVisible(False)
@@ -290,6 +307,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._view_current.setVisible(True)
         self._view_voltage.setVisible(True)
         self.center_and_resize(0.85, 0.85)
+
         docks = [self._view_current.widget, self._view_voltage.widget]
         self.resizeDocks(docks, [1000, 1000], QtCore.Qt.Vertical)
 
