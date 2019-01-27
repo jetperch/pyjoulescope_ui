@@ -37,6 +37,7 @@ class TestUpdateCheck(unittest.TestCase):
         self.assertTrue(update_check.is_newer("1.2.4"))
         self.assertTrue(update_check.is_newer("1.3.0"))
         self.assertTrue(update_check.is_newer("2.0.0"))
+        self.assertFalse(update_check.is_newer("1.2.3"))
         self.assertFalse(update_check.is_newer("1.2.2"))
         self.assertFalse(update_check.is_newer("1.1.4"))
         self.assertFalse(update_check.is_newer("0.9.9"))
