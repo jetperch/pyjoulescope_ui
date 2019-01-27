@@ -130,9 +130,7 @@ class Parameter(object):
         """
         if self.label is not None:
             layout = parent.layout()
-            layout.takeRow(self.label)
-            self.label.deleteLater()
-            clear_layout(self.layout)
+            layout.removeRow(self.label)
         self.label = None
         self.widget = None
         self.layout = None

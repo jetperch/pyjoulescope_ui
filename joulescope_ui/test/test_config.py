@@ -47,22 +47,22 @@ class TestConfig(unittest.TestCase):
     def test_file_not_found(self):
         d = load_def()
         c = load_config(d, '/path/to/nothing.json5')
-        self.assertIn('paths', c)
-        self.assertIn('data', c['paths'])
-        self.assertNotEqual('__APP_PATH__', c['paths']['data'])
-        self.assertIn('device', c)
-        self.assertIn('i_range', c['device'])
-        self.assertEqual('auto', c['device']['i_range'])
+        self.assertIn('General', c)
+        self.assertIn('data_path', c['General'])
+        self.assertNotEqual('__APP_PATH__', c['General']['data_path'])
+        self.assertIn('Device', c)
+        self.assertIn('i_range', c['Device'])
+        self.assertEqual('auto', c['Device']['i_range'])
 
     def test_load_filehandle(self):
         d = load_def()
-        f = io.BytesIO("""{'device': {'i_range': 'off'}}""".encode('utf-8'))
+        f = io.BytesIO("""{'Device': {'i_range': 'auto'}}""".encode('utf-8'))
         c = load_config(d, f)
-        self.assertEqual('off', c['device']['i_range'])
+        self.assertEqual('auto', c['Device']['i_range'])
 
     def test_load_bad_option(self):
         d = load_def()
-        f = io.BytesIO("""{'device': {'i_range': '__invalid__'}}""".encode('utf-8'))
+        f = io.BytesIO("""{'Device': {'i_range': '__invalid__'}}""".encode('utf-8'))
         with self.assertRaises(ValueError):
             c = load_config(d, f)
 
@@ -70,7 +70,7 @@ class TestConfig(unittest.TestCase):
         d = load_def()
         fname = os.path.join(MYPATH, 'cfg1.json5')
         c = load_config(d, fname)
-        self.assertEqual('off', c['device']['i_range'])
+        self.assertEqual('auto', c['Device']['i_range'])
 
 
 class TestConfigSave(unittest.TestCase):

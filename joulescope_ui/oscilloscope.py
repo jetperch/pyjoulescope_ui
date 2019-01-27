@@ -24,6 +24,9 @@ import logging
 log = logging.getLogger(__name__)
 
 
+MARKER_PEN = [100, 220, 0, 200]
+
+
 NAME_TO_UNITS = {
     'current': 'A',
     'i': 'A',
@@ -36,15 +39,19 @@ NAME_TO_UNITS = {
 
 class CustomViewBox(pg.ViewBox):
 
-    def __init__(self, on_x_change):
+    def __init__(self, on_x_change, on_marker):
         pg.ViewBox.__init__(self)
         self.on_x_change = on_x_change
+        self._on_marker = on_marker
         self.setMouseMode(self.RectMode)
         self.sigResized.connect(self.on_resize)
         self.setLimits(xMin=0, yMin=0, yMax=1.0)
         self._resize_enable_x = False
         self._resize_enable_y = False
         self._resize_highlight = None
+
+        self.vline = pg.InfiniteLine(angle=90, movable=False, pen=MARKER_PEN)
+        self.addItem(self.vline, ignoreBounds=True)
 
     def signal_change(self, command, **kwargs):
         self.on_x_change.emit(command, kwargs)
@@ -61,6 +68,13 @@ class CustomViewBox(pg.ViewBox):
             ys = (y2 - y1) * gain / 2
             self.setYRange(y - ys, y + ys)
         ev.accept()
+
+    def hoverEvent(self, ev):
+        if ev.isExit():
+            return
+        p = ev.lastPos()
+        p = self.mapToView(p)
+        self._on_marker(p.x())
 
     def mouseClickEvent(self, ev):
         if ev.button() == QtCore.Qt.RightButton:
@@ -171,6 +185,7 @@ def resize_button_to_minimum(button: QtWidgets.QPushButton):
 
 class Oscilloscope(QtCore.QObject):
     on_xChangeSignal = QtCore.Signal(str, object)
+    on_markerSignal = QtCore.Signal(object)
     """List of command, kwargs:
     * ['resize', {pixels: }]
     * ['span_absolute', {range: [start, stop]}]
@@ -196,13 +211,17 @@ class Oscilloscope(QtCore.QObject):
         self.ui = Ui_PlotDockWidget()
         self.ui.setupUi(self.widget)
         self.widget.setWindowTitle(field)
-        self.vb = CustomViewBox(self.on_xChangeSignal)
+        self.vb = CustomViewBox(self.on_xChangeSignal, self.on_markerSignal.emit)
+        self.on_markerSignal.connect(self.on_marker)
         self.plot = pg.PlotWidget(name=self._field, viewBox=self.vb)
         self.ui.mainLayout.addWidget(self.plot)
         resize_button_to_minimum(self.ui.selectXButton)
         self.ui.selectXButton.clicked.connect(lambda enable: self.vb.resize_axis_enable('x', enable))
         resize_button_to_minimum(self.ui.selectYButton)
         self.ui.selectYButton.clicked.connect(lambda enable: self.vb.resize_axis_enable('y', enable))
+
+        self._x = None
+        self._y = None
 
         self.plot.disableAutoRange()
         self.plot.hideButtons()
@@ -212,6 +231,10 @@ class Oscilloscope(QtCore.QObject):
         self._curve_min = self.plot.plot([], [], pen=(255, 64, 64)).curve
         self._curve_max = self.plot.plot([], [], pen=(255, 64, 64)).curve
         self._curve_mean = self.plot.plot([], [], pen=(255, 255, 64)).curve
+
+        self.x_label = pg.TextItem(anchor=(0, 0))
+        self.plot.addItem(self.x_label)
+
         # https://stackoverflow.com/questions/28296049/pyqtgraph-plotting-time-series?rq=1
         # https://stackoverflow.com/questions/17103698/plotting-large-arrays-in-pyqtgraph
 
@@ -222,6 +245,8 @@ class Oscilloscope(QtCore.QObject):
         self.update(None, None)
 
     def update(self, x, data):
+        self._x = x
+        self._y = data
         if x is not None and data is not None:
             z_mean = data[:, self._column, 0]
             self._curve_mean.updateData(x, z_mean)
@@ -259,6 +284,7 @@ class Oscilloscope(QtCore.QObject):
             self.ui.maxValue.setText(three_sig_figs(v_max, self._units))
             self.plot.setXRange(x[0], x[-1], padding=0.0)
             self.plot.update()
+            self.on_marker()
             return
 
         self._curve_min.clear()
@@ -273,6 +299,48 @@ class Oscilloscope(QtCore.QObject):
         self.ui.minValue.setText('')
         self.ui.maxValue.setText('')
         self.plot.update()
+
+    @QtCore.Slot(object)
+    def on_marker(self, x=None):
+        if x is None:
+            x = self.vb.vline.getPos()[0]
+        if self._x is not None and len(self._x):
+            values = ['t=%.6f' % (x, )]
+            idx = np.argmax(self._x >= x)
+            y = self._y[idx, self._column, :].tolist()
+            y[1] = np.sqrt(y[1])
+            if np.isfinite(y[2]):
+                labels = ['μ', 'σ', 'min', 'max']
+            elif np.isfinite(y[0]):
+                labels = ['μ']
+                y = y[:1]
+            else:
+                y = [0.0]
+                labels = []
+            max_value = float(np.max(np.abs(y)))
+            _, prefix, scale = unit_prefix(max_value)
+            scale = 1.0 / scale
+            if not len(prefix):
+                prefix = '&nbsp;'
+            units = f'{prefix}{self._units}'
+            for lbl, v in zip(labels, y):
+                v *= scale
+                if abs(v) < 0.000005:  # minimum display resolution
+                    v = 0
+                v_str = ('%+6f' % v)[:8]
+                values.append('%s=%s %s' % (lbl, v_str, units))
+            s = '<br>'.join(values)
+            html = '<div><span style="color: #FFF;">%s</span></div>' % (s, )
+            ymin, ymax = self.vb.viewRange()[1]
+            self.x_label.setPos(x, ymax)
+        else:
+            html = ""
+        self.x_label.setHtml(html)
+
+        #self.vb.vline.label.setHtml(html)
+        #self.vb.vline.label.setFormat(html)
+        # self.x_pos.setAnchor([0.5, 0.5])
+        self.vb.vline.setPos(x)
 
     def y_limit_set(self, y_min, y_max, update=None):
         self.vb.setLimits(yMin=y_min, yMax=y_max)

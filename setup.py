@@ -31,8 +31,8 @@ import shutil
 from pyside2uic import compileUi
 
 
-VERSION = '0.2.1'  # CHANGE THIS VERSION!
-JOULESCOPE_VERSION_MIN = '0.2.1'
+VERSION = '0.2.2'  # CHANGE THIS VERSION!
+JOULESCOPE_VERSION_MIN = '0.2.2'
 MYPATH = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -158,6 +158,7 @@ setuptools.setup(
         'python-dateutil>=2.7.3',
         'pyside2>=-5.11.2',
         'pyqtgraph>=0.10.0',
+        'requests>=2.0.0',
         'joulescope>=' + JOULESCOPE_VERSION_MIN,
     ] + PLATFORM_INSTALL_REQUIRES,
 

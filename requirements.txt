@@ -4,3 +4,4 @@ pypiwin32>=223; sys_platform == 'win32'
 python-dateutil>=2.7.3
 PySide2>=5.11.2
 pyqtgraph>=0.11.0.dev0
+requests>=2.0.0

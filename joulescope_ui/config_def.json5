@@ -14,22 +14,28 @@
   [
     // to support UI editing, only 2 levels supported
     {
-      name: 'paths',
+      name: 'General',
       brief: 'Default file locations',
       type: 'map',
       children: [
         {
-          name: 'data',
+          name: 'data_path',
           brief: 'Default data directory',
           type: 'path',
           attributes: ['exists', 'dir'],
           default: '__SAVE_PATH__',
+        },
+        {
+          name: 'update_check',
+          brief: 'Automatically check for software updates',
+          type: 'bool',
+          default: 'true',
         }
       ]
     },  // paths end
 
     {
-      name: 'device',
+      name: 'Device',
       brief: 'Joulescope device-specific default settings',
       type: 'map',
       children: [
