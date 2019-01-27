@@ -19,7 +19,11 @@ from joulescope_ui import guiparams
 from joulescope_ui.config import find_child_by_name, validate
 from joulescope_ui.ui_util import confirmDiscard
 from PySide2 import QtCore, QtWidgets, QtGui
+import logging
 import copy
+
+
+log = logging.getLogger(__name__)
 
 
 class PreferencesDialog(QtWidgets.QDialog):
@@ -94,6 +98,7 @@ class PreferencesDialog(QtWidgets.QDialog):
                 self._params.append(p)
 
     def on_selection_change(self, selection):
+        log.info('on_selection_change(%r)', selection)
         model_index_list = selection.indexes()
         if len(model_index_list) != 1:
             # force the first item

@@ -30,11 +30,12 @@ from joulescope_ui.data_view_api import NullView
 from joulescope_ui.single_value_widget import SingleValueWidget
 from joulescope.usb import DeviceNotify
 from joulescope.units import unit_prefix, three_sig_figs
-from joulescope.data_recorder import DataReader, construct_record_filename
+from joulescope.data_recorder import construct_record_filename
 from joulescope_ui.recording_viewer_device import RecordingViewerDevice
 from joulescope_ui.preferences import PreferencesDialog
 from joulescope_ui.config import load_config_def, load_config, save_config
 from joulescope_ui import usb_inrush
+from joulescope_ui.update_check import check as software_update_check
 import ctypes
 import logging
 log = logging.getLogger(__name__)
@@ -45,9 +46,12 @@ DATA_BUFFER_DURATION = 60.0  # seconds
 
 
 ABOUT = """\
-Joulescope version {version}
+<html>
+Joulescope version {version}<br/> 
+<a href="https://www.joulescope.com">https://www.joulescope.com</a>
 
-Copyright 2018 Jetperch LLC
+<pre>
+Copyright 2018-2019 Jetperch LLC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -60,6 +64,20 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+</pre>
+</html>
+"""
+
+
+SOFTWARE_UPDATE = """\
+<html>
+<p>
+A software update is available:<br/>
+Current version = {current_version}<br/>
+Available version = {latest_version}<br/>
+</p>
+<p><a href="https://www.joulescope.com/download">Download</a> now.</p>
+</html>
 """
 
 
@@ -94,6 +112,7 @@ class MainWindow(QtWidgets.QMainWindow):
     on_stopSignal = QtCore.Signal()
     on_statisticSignal = QtCore.Signal(object, float)
     on_xChangeSignal = QtCore.Signal(str, object)
+    on_softwareUpdateSignal = QtCore.Signal(str, str)
 
     def __init__(self, app):
         self._app = app
@@ -108,7 +127,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self._cfg_def = load_config_def()
         self._cfg = load_config(self._cfg_def)
-        self._path = self._cfg['paths']['data']
+        self._path = self._cfg['General']['data_path']
 
         super(MainWindow, self).__init__()
         self.ui = Ui_mainWindow()
@@ -215,6 +234,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.on_stopSignal.connect(self._on_stop)
         self.on_statisticSignal.connect(self._on_statistic)
 
+        # Software update
+        self.on_softwareUpdateSignal.connect(self._on_software_update)
+
         # help about
         self.ui.actionAbout.triggered.connect(self._help_about)
 
@@ -236,6 +258,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.show()
         self._device_close()
         self._device_scan()
+        self._software_update_check()
 
     @QtCore.Slot()
     def on_statusUpdateTimer(self):
@@ -310,6 +333,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
         docks = [self._view_current.widget, self._view_voltage.widget]
         self.resizeDocks(docks, [1000, 1000], QtCore.Qt.Vertical)
+
+    def _software_update_check(self):
+        if self._cfg['General']['update_check']:
+            software_update_check(self.on_softwareUpdateSignal.emit)
+
+    def _on_software_update(self, current_version, latest_version):
+        txt = SOFTWARE_UPDATE.format(current_version=current_version, latest_version=latest_version)
+        QtWidgets.QMessageBox.about(self, 'Joulescope Software Update Available', txt)
 
     def _help_about(self):
         txt = ABOUT.format(version=VERSION)
@@ -414,10 +445,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def _device_cfg_apply(self, do_open=False):
         if self._has_active_device:
-            self._on_param_change('source', value=self._cfg['device']['source'])
-            self._on_param_change('i_range', value=self._cfg['device']['i_range'])
-            self._on_param_change('v_range', value=self._cfg['device']['v_range'])
-            if do_open and self._cfg['device']['autostream']:
+            self._on_param_change('source', value=self._cfg['Device']['source'])
+            self._on_param_change('i_range', value=self._cfg['Device']['i_range'])
+            self._on_param_change('v_range', value=self._cfg['Device']['v_range'])
+            if do_open and self._cfg['Device']['autostream']:
                 self._device_stream(True)
 
     def _device_close(self):
