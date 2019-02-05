@@ -64,6 +64,8 @@ will be implemented before Joulescope general availability.
 
 *   Improve zoom ease of use. Consider right click functionality.
 *   Add pan/move.
+*   Add auto-pan and auto-zoom option.
+*   Add y-axis log display in addition to linear.
 *   Allow single marker to be turned on/off.
 *   Add support for dual markers.  Display the t, Δt, mean, min, max, p2p and
     energy over the window.
