@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>867</width>
+    <width>1408</width>
     <height>506</height>
    </rect>
   </property>
@@ -19,9 +19,12 @@
      <widget class="QWidget" name="topWidget" native="true">
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
-        <widget class="QPushButton" name="selectXButton">
+        <widget class="QPushButton" name="zoomButton">
+         <property name="toolTip">
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zoom in using the left mouse button when active.&lt;/p&gt;&lt;p&gt;To zoom using the mouse, press the mouse button, drag, and release mouse button.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         </property>
          <property name="text">
-          <string>X</string>
+          <string> 🔍 </string>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -29,15 +32,63 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="selectYButton">
-         <property name="minimumSize">
-          <size>
-           <width>66</width>
-           <height>0</height>
-          </size>
+        <widget class="QPushButton" name="zoomXButton">
+         <property name="toolTip">
+          <string>Zoom affects the x-axis.  Zoom using the scroll wheel or, when enabled, left mouse button.</string>
          </property>
          <property name="text">
-          <string>Y</string>
+          <string> 🔍X </string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="zoomYButton">
+         <property name="toolTip">
+          <string>Zoom affects the y-axis.  Zoom using the scroll wheel or, when enabled, left mouse button.</string>
+         </property>
+         <property name="text">
+          <string> 🔍Y </string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="zoomAutoYButton">
+         <property name="toolTip">
+          <string>Automatically zoom the y-axis range over the visible display window.</string>
+         </property>
+         <property name="text">
+          <string> ↕Y </string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string>&lt;html&gt;&amp;nbsp;&amp;nbsp;&lt;/html&gt;</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="panButton">
+         <property name="toolTip">
+          <string>Use the left mouse button to pan, when active.  Press the mouse button, drag, and release the mouse button.</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normalon>:/joulescope/resources/pan_256x256.png</normalon>
+          </iconset>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -178,6 +229,8 @@
    </layout>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="joulescope.qrc"/>
+ </resources>
  <connections/>
 </ui>

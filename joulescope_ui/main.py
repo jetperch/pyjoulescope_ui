@@ -33,9 +33,11 @@ from joulescope.units import unit_prefix, three_sig_figs
 from joulescope.data_recorder import construct_record_filename
 from joulescope_ui.recording_viewer_device import RecordingViewerDevice
 from joulescope_ui.preferences import PreferencesDialog
+from joulescope_ui.save_data import SaveDataDialog
 from joulescope_ui.config import load_config_def, load_config, save_config
 from joulescope_ui import usb_inrush
 from joulescope_ui.update_check import check as software_update_check
+from joulescope_ui.save import save_csv
 import ctypes
 import logging
 log = logging.getLogger(__name__)
@@ -172,6 +174,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.actionOpen.triggered.connect(self.recording_open)
         #self.ui.actionSave.triggered.connect(self._save)
         #self.ui.actionClose.triggered.connect(self.close)
+        self.ui.actionSave.triggered.connect(self.on_saveData)
         self.ui.actionSave.setEnabled(False)
         self.ui.actionClose.setEnabled(False)
 
@@ -723,12 +726,29 @@ class MainWindow(QtWidgets.QMainWindow):
         d = PreferencesDialog(self._cfg_def, self._cfg)
         cfg = d.exec_()
         if cfg is not None:
-            if cfg['paths']['data'] != self._cfg['paths']['data']:
-                self._path = cfg['paths']['data']
+            if cfg['General']['data_path'] != self._cfg['General']['data_path']:
+                self._path = cfg['General']['data_path']
             log.info(cfg)
             self._cfg = cfg
             save_config(self._cfg)
             self._device_cfg_apply()
+
+    def on_saveData(self):
+        rv = SaveDataDialog(self._path).exec_()
+        if rv is None:
+            return
+        filename = rv['filename']
+        log.info('save to %s', filename)
+        sample_frequency = self._device.view.sampling_frequency
+        if filename.endswith('.csv'):
+            extracted_data = self._device.view.extract()
+            save_csv(filename, extracted_data, sample_frequency)
+        # WARNING need to implement recording_viewer_device
+        # define & improve the buffer API to be compatible
+        #elif filename.endswith('.jls'):
+        #    pass
+        else:
+            self.ui.statusbar.showMessage('Save failed')
 
             
 def kick_bootloaders():

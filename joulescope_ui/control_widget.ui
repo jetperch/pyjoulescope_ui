@@ -17,6 +17,9 @@
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
      <widget class="QPushButton" name="playButton">
+      <property name="toolTip">
+       <string>Enable to capture data from the selected Joulescope.  Disable to stop/pause capture.</string>
+      </property>
       <property name="text">
        <string/>
       </property>
@@ -36,6 +39,9 @@
      <widget class="QPushButton" name="recordButton">
       <property name="enabled">
        <bool>true</bool>
+      </property>
+      <property name="toolTip">
+       <string>Click once to start recording capture Joulescope data to a file.  Click again to stop the capture.  Only new data is recorded.</string>
       </property>
       <property name="text">
        <string/>
@@ -60,7 +66,11 @@
      </widget>
     </item>
     <item>
-     <widget class="QComboBox" name="iRangeComboBox"/>
+     <widget class="QComboBox" name="iRangeComboBox">
+      <property name="toolTip">
+       <string>Select the Joulescope current range.  &quot;Auto&quot; allows Joulescope to dynamical adjust the current range.</string>
+      </property>
+     </widget>
     </item>
     <item>
      <widget class="QLabel" name="vRangeLabel">
@@ -70,7 +80,11 @@
      </widget>
     </item>
     <item>
-     <widget class="QComboBox" name="vRangeComboBox"/>
+     <widget class="QComboBox" name="vRangeComboBox">
+      <property name="toolTip">
+       <string>The voltage range.  No autoranging option exists.</string>
+      </property>
+     </widget>
     </item>
     <item>
      <spacer name="horizontalSpacer">

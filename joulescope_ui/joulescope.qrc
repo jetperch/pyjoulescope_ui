@@ -7,5 +7,9 @@
     <file>resources/stop.png</file>
     <file>resources/logo-large.png</file>
     <file>resources/logo-small.png</file>
+    <file>resources/pan_256x256.png</file>
+    <file>resources/pan_128x128.png</file>
+    <file>resources/pan_64x64.png</file>
+    <file>resources/pan_32x32.png</file>
   </qresource>
 </RCC>

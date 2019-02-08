@@ -27,9 +27,11 @@ class DataViewApi:
         """Signal a requested change in the x-axis.
 
         :param command: The list of commands.
+            * 'refresh' - {}  # resend the most recent data
             * 'resize' - {pixels: int}
             * 'span_absolute' - {range: (start: float, stop: float)}]
             * 'span_relative' - {center: float, gain: float}]
+            * 'span_pan' - {delta: }]
         :param kwargs: The keyword arguments for the command.
         """
         raise NotImplementedError()

@@ -19,12 +19,15 @@ import weakref
 import pyqtgraph as pg
 from PySide2 import QtCore, QtWidgets
 import numpy as np
+from typing import List
 import time
 import logging
 log = logging.getLogger(__name__)
 
 
 MARKER_PEN = [100, 220, 0, 200]
+CURVE_WIDTH = 1
+AUTO_RANGE_FRACT = 0.45  # autorange when current range smaller than existing range by this fractional amount.
 
 
 NAME_TO_UNITS = {
@@ -49,24 +52,28 @@ class CustomViewBox(pg.ViewBox):
         self._resize_enable_x = False
         self._resize_enable_y = False
         self._resize_highlight = None
+        self._last_point = None
 
-        self.vline = pg.InfiniteLine(angle=90, movable=False, pen=MARKER_PEN)
+        self.vline_pen = pg.mkPen(color=MARKER_PEN, width=1)
+        self.vline = pg.InfiniteLine(angle=90, movable=False, pen=self.vline_pen)
         self.addItem(self.vline, ignoreBounds=True)
+        self.left_button_mode = 'pan'
 
     def signal_change(self, command, **kwargs):
         self.on_x_change.emit(command, kwargs)
 
     def wheelEvent(self, ev, axis=None):
-        c = self.mapToView(ev.scenePos())
+        c = self.mapToView(ev.pos())
         x, y = c.x(), c.y()
         gain = 0.7 ** (ev.delta() / 120)
         log.info('wheelEvent(delta=%s, x=%.3f, y=%.1f) gain=>%s', ev.delta(), x, y, gain)
         if self._resize_enable_x:
-            self.signal_change('span_relative', center=x, gain=gain)
+            self.signal_change('span_relative', pivot=x, gain=gain)
         if self._resize_enable_y:
             _, (y1, y2) = self.viewRange()
-            ys = (y2 - y1) * gain / 2
-            self.setYRange(y - ys, y + ys)
+            z1 = (1 - gain) * y + gain * y1
+            z2 = z1 + (y2 - y1) * gain
+            self.setYRange(z1, z2)
         ev.accept()
 
     def hoverEvent(self, ev):
@@ -78,72 +85,82 @@ class CustomViewBox(pg.ViewBox):
 
     def mouseClickEvent(self, ev):
         if ev.button() == QtCore.Qt.RightButton:
-            (x1, x2), (y1, y2) = self.viewRange()
-            if self._resize_enable_x:
-                xc = (y1 + y2) / 2
-                xs = (x2 - x1) / 2 * 2
-                self.signal_change('span_absolute', range=[xc - xs, xc + xs])
-            if self._resize_enable_y:
-                yc = (y1 + y2) / 2
-                ys = (y2 - y1) / 2 * 2
-                self.setYRange(yc - ys, yc + ys)
+            pass
         elif ev.button() == QtCore.Qt.LeftButton:
             pass
         elif ev.button() == QtCore.Qt.RightButton:
             pass
         ev.accept()
 
-    def mouseDragEvent(self, ev):
+    def _zoom_drag(self, ev):
         start_point = self.mapToView(ev.buttonDownPos())
         end_point = self.mapToView(ev.pos())
-
-        if ev.button() == QtCore.Qt.LeftButton:
-            if ev.isFinish():
-                log.info('mouseDragEvent left finish: %s => %s', start_point, end_point)
-                if self._resize_highlight is not None:
-                    self.removeItem(self._resize_highlight)
-                    self._resize_highlight = None
-                if self._resize_enable_x:
-                    x_range = sorted([start_point.x(), end_point.x()])
-                    log.info('zoom x: %s', x_range)
-                    self.signal_change('span_absolute', range=sorted([x_range[0], x_range[1]]))
-                if self._resize_enable_y:
-                    y_range = sorted([start_point.y(), end_point.y()])
-                    log.info('zoom y: %s', y_range)
-                    self.setYRange(*y_range)
-            elif ev.isStart():
-                log.info('mouseDragEvent left start: %s', start_point)
-                if self._resize_enable_x and self._resize_enable_y:
-                    self._resize_highlight = pg.RectROI(start_point, [0, 0], pen=(0, 9), parent=self)
-                elif self._resize_enable_x:
-                    self._resize_highlight = pg.LinearRegionItem(orientation=pg.LinearRegionItem.Vertical)
-                    r = sorted([start_point.x(), end_point.x()])
-                    self._resize_highlight.setRegion(r)
-                elif self._resize_enable_y:
-                    self._resize_highlight = pg.LinearRegionItem(orientation=pg.LinearRegionItem.Horizontal)
-                    r = sorted([start_point.y(), end_point.y()])
-                    self._resize_highlight.setRegion(r)
-                else:
-                    pass  # no resize enabled
-                if self._resize_highlight is not None:
-                    self.addItem(self._resize_highlight)
+        if ev.isFinish():
+            log.info('zoom mouseDragEvent left finish: %s => %s', start_point, end_point)
+            if self._resize_highlight is not None:
+                self.removeItem(self._resize_highlight)
+                self._resize_highlight = None
+            if self._resize_enable_x:
+                x_range = sorted([start_point.x(), end_point.x()])
+                log.info('zoom x: %s', x_range)
+                self.signal_change('span_absolute', range=sorted([x_range[0], x_range[1]]))
+            if self._resize_enable_y:
+                y_range = sorted([start_point.y(), end_point.y()])
+                log.info('zoom y: %s', y_range)
+                self.setYRange(*y_range)
+        elif ev.isStart():
+            log.info('zoom mouseDragEvent left start: %s', start_point)
+            if self._resize_enable_x and self._resize_enable_y:
+                self._resize_highlight = pg.RectROI(start_point, [0, 0], pen=(0, 9), parent=self)
+            elif self._resize_enable_x:
+                self._resize_highlight = pg.LinearRegionItem(orientation=pg.LinearRegionItem.Vertical)
+                r = sorted([start_point.x(), end_point.x()])
+                self._resize_highlight.setRegion(r)
+            elif self._resize_enable_y:
+                self._resize_highlight = pg.LinearRegionItem(orientation=pg.LinearRegionItem.Horizontal)
+                r = sorted([start_point.y(), end_point.y()])
+                self._resize_highlight.setRegion(r)
             else:
-                if self._resize_enable_x and self._resize_enable_y:
-                    self._resize_highlight.setSize(end_point - start_point)
-                elif self._resize_enable_x:
-                    r = sorted([start_point.x(), end_point.x()])
-                    self._resize_highlight.setRegion(r)
-                elif self._resize_enable_y:
-                    r = sorted([start_point.y(), end_point.y()])
-                    self._resize_highlight.setRegion(r)
-                else:
-                    pass  # no resize enabled
-        if ev.button() == QtCore.Qt.RightButton:
+                pass  # no resize enabled
+            if self._resize_highlight is not None:
+                self.addItem(self._resize_highlight)
+        else:
+            if self._resize_enable_x and self._resize_enable_y:
+                self._resize_highlight.setSize(end_point - start_point)
+            elif self._resize_enable_x:
+                r = sorted([start_point.x(), end_point.x()])
+                self._resize_highlight.setRegion(r)
+            elif self._resize_enable_y:
+                r = sorted([start_point.y(), end_point.y()])
+                self._resize_highlight.setRegion(r)
+            else:
+                pass  # no resize enabled
+
+    def _pan_drag(self, ev):
+        if ev.isStart():
+            start_point = self.mapToView(ev.buttonDownPos())
+            log.info('pan mouseDragEvent left start: %s', start_point)
+            self._last_point = start_point
+        else:
             if ev.isFinish():
-                log.info('mouseDragEvent right finish: %s => %s', start_point, end_point)
-            elif ev.isStart():
-                log.info('mouseDragEvent right start: %s', start_point)
-            pass
+                p = self.mapToView(ev.pos())
+                delta = p - self._last_point
+                self._last_point = p
+                log.info('pan delta = %s', delta)
+                # (x1, x2), (y1, y2) = self.viewRange()
+                # y1 += delta.y()
+                # y2 += delta.y()
+                self.signal_change('span_pan', delta=-delta.x())
+                log.info('pan mouseDragEvent left finish')
+
+    def mouseDragEvent(self, ev):
+        if ev.button() == QtCore.Qt.LeftButton:
+            if self.left_button_mode == 'zoom':
+                self._zoom_drag(ev)
+            elif self.left_button_mode == 'pan':
+                self._pan_drag(ev)
+        if ev.button() == QtCore.Qt.RightButton:
+            self._zoom_drag(ev)
         else:
             pass  # pg.ViewBox.mouseDragEvent(self, ev)
         ev.accept()
@@ -183,13 +200,26 @@ def resize_button_to_minimum(button: QtWidgets.QPushButton):
     button.setMaximumWidth(width)
 
 
+def resize_buttons_to_minimum(buttons: List[QtWidgets.QPushButton]):
+    text_width = 0
+    for button in buttons:
+        sz = button.fontMetrics().boundingRect(button.text())
+        text_width = max(sz.width(), text_width)
+    # https://stackoverflow.com/questions/6639012/minimum-size-width-of-a-qpushbutton-that-is-created-from-code
+    width = text_width + 10  # I hate this constant
+    for button in buttons:
+        button.setMinimumWidth(width)
+        button.setMaximumWidth(width)
+
+
 class Oscilloscope(QtCore.QObject):
     on_xChangeSignal = QtCore.Signal(str, object)
     on_markerSignal = QtCore.Signal(object)
     """List of command, kwargs:
     * ['resize', {pixels: }]
     * ['span_absolute', {range: [start, stop]}]
-    * ['span_relative', {center: , gain: }]
+    * ['span_pan', {delta: }]
+    * ['span_relative', {pivot: , gain: }]
     """
 
     def __init__(self, parent, field):
@@ -215,10 +245,23 @@ class Oscilloscope(QtCore.QObject):
         self.on_markerSignal.connect(self.on_marker)
         self.plot = pg.PlotWidget(name=self._field, viewBox=self.vb)
         self.ui.mainLayout.addWidget(self.plot)
-        resize_button_to_minimum(self.ui.selectXButton)
-        self.ui.selectXButton.clicked.connect(lambda enable: self.vb.resize_axis_enable('x', enable))
-        resize_button_to_minimum(self.ui.selectYButton)
-        self.ui.selectYButton.clicked.connect(lambda enable: self.vb.resize_axis_enable('y', enable))
+        self.ui.zoomButton.clicked.connect(self.on_zoom_button)
+        self.ui.zoomXButton.clicked.connect(self.on_zoom_x_button)
+        self.ui.zoomYButton.clicked.connect(self.on_zoom_y_button)
+        self.ui.zoomAutoYButton.clicked.connect(self.on_zoom_auto_y_button)
+        self.ui.panButton.clicked.connect(self.on_pan_button)
+
+        self.on_zoom_x_button(True)
+        self.on_zoom_auto_y_button(True)
+        self.on_pan_button(True)
+
+        resize_buttons_to_minimum([
+            self.ui.zoomButton,
+            self.ui.zoomXButton,
+            self.ui.zoomYButton,
+            self.ui.zoomAutoYButton,
+            self.ui.panButton,
+        ])
 
         self._x = None
         self._y = None
@@ -228,9 +271,11 @@ class Oscilloscope(QtCore.QObject):
         self.plot.setXRange(0.0, 1.0)
 
         parent.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.widget)
-        self._curve_min = self.plot.plot([], [], pen=(255, 64, 64)).curve
-        self._curve_max = self.plot.plot([], [], pen=(255, 64, 64)).curve
-        self._curve_mean = self.plot.plot([], [], pen=(255, 255, 64)).curve
+        self._pen_min_max = pg.mkPen(color=(255, 64, 64), width=CURVE_WIDTH)
+        self._pen_mean = pg.mkPen(color=(255, 255, 64), width=CURVE_WIDTH)
+        self._curve_min = self.plot.plot([], [], pen=self._pen_min_max).curve
+        self._curve_max = self.plot.plot([], [], pen=self._pen_min_max).curve
+        self._curve_mean = self.plot.plot([], [], pen=self._pen_mean).curve
 
         self.x_label = pg.TextItem(anchor=(0, 0))
         self.plot.addItem(self.x_label)
@@ -243,6 +288,36 @@ class Oscilloscope(QtCore.QObject):
 
     def clear(self):
         self.update(None, None)
+
+    def on_zoom_button(self, enable):
+        self.ui.zoomButton.setChecked(enable)
+        if enable:
+            self.on_pan_button(False)
+            self.vb.left_button_mode = 'zoom'
+
+    def on_zoom_x_button(self, enable):
+        self.ui.zoomXButton.setChecked(enable)
+        self.vb.resize_axis_enable('x', enable)
+
+    def on_zoom_y_button(self, enable):
+        self.ui.zoomYButton.setChecked(enable)
+        if enable:
+            self.ui.zoomAutoYButton.setChecked(False)
+        self.vb.resize_axis_enable('y', enable)
+
+    def on_zoom_auto_y_button(self, enable):
+        self.ui.zoomAutoYButton.setChecked(enable)
+        log.info('on_zoom_auto_y_button(%s)', enable)
+        if enable:
+            self.ui.zoomYButton.setChecked(False)
+            self.vb.resize_axis_enable('y', False)
+            self.on_xChangeSignal.emit('refresh', {})
+
+    def on_pan_button(self, enable):
+        self.ui.panButton.setChecked(enable)
+        if enable:
+            self.on_zoom_button(False)
+            self.vb.left_button_mode = 'pan'
 
     def update(self, x, data):
         self._x = x
@@ -276,13 +351,22 @@ class Oscilloscope(QtCore.QObject):
                 mean_delta = z_mean - v_mean
                 # combine variances across the combined samples
                 v_std = np.sqrt(np.sum(np.square(mean_delta, out=mean_delta) + z_var) / len(z_mean))
+                if self.ui.zoomAutoYButton.isChecked():
+                    _, (vb_min, vb_max) = self.vb.viewRange()
+                    vb_range = vb_max - vb_min
+                    v_range = v_max - v_min
+                    update_range = (v_max > vb_max) or (v_min < vb_min)
+                    if vb_range > 0:
+                        update_range |= (v_range / vb_range) < AUTO_RANGE_FRACT
+                    if update_range:
+                        self.vb.setYRange(v_min, v_max)
 
             self.ui.meanValue.setText(three_sig_figs(v_mean, self._units))
             self.ui.stdValue.setText(three_sig_figs(v_std, self._units))
             self.ui.p2pValue.setText(three_sig_figs(v_max - v_min, self._units))
             self.ui.minValue.setText(three_sig_figs(v_min, self._units))
             self.ui.maxValue.setText(three_sig_figs(v_max, self._units))
-            self.plot.setXRange(x[0], x[-1], padding=0.0)
+            self.vb.setXRange(x[0], x[-1], padding=0.0)
             self.plot.update()
             self.on_marker()
             return

@@ -73,9 +73,16 @@ class RecordingViewerDevice:
             x_range, self.samples_per, self.x = self.span.conform_discrete(x_range)
         elif cmd == 'span_absolute':  # {range: (start: float, stop: float)}]
             x_range, self.samples_per, self.x = self.span.conform_discrete(kwargs.get('range'))
-        elif cmd == 'span_relative':  # {center: float, gain: float}]
+        elif cmd == 'span_relative':  # {pivot: float, gain: float}]
             x_range, self.samples_per, self.x = self.span.conform_discrete(
-                x_range, gain=kwargs.get('gain'), center=kwargs.get('center'))
+                x_range, gain=kwargs.get('gain'), pivot=kwargs.get('pivot'))
+        elif cmd == 'span_pan':
+            delta = kwargs.get('delta', 0.0)
+            x_range = [x_range[0] + delta, x_range[-1] + delta]
+            x_range, self.samples_per, self.x = self.span.conform_discrete(x_range)
+        elif cmd == 'refresh':
+            self.changed = True
+            return
         else:
             log.warning('on_x_change(%s) unsupported', cmd)
             return

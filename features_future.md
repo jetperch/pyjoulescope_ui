@@ -62,9 +62,6 @@ will be implemented before Joulescope general availability.
 
 ### Oscilloscope
 
-*   Improve zoom ease of use. Consider right click functionality.
-*   Add pan/move.
-*   Add auto-pan and auto-zoom option.
 *   Add y-axis log display in addition to linear.
 *   Allow single marker to be turned on/off.
 *   Add support for dual markers.  Display the t, Δt, mean, min, max, p2p and
@@ -73,6 +70,7 @@ will be implemented before Joulescope general availability.
     The supported output formats should include jls, csv, npy, bin.
 *   Add "comparison" mode to overlay multiple data captures so that the 
     user can compare changes over the development cycle (story 3).
+*   Animate "pan" action (likely need to pause live view to be meaningful).
 
 
 ### Frequency analysis
@@ -100,4 +98,5 @@ will be implemented before Joulescope general availability.
 *   Automatically perform software update when required.  The existing
     implementation just directs the User to the Joulescope download page.
 *   Automatically perform Joulescope firmware updates when required.
+*   Reset energy to 0.0 based upon user command(s).
 
