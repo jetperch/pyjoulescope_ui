@@ -4,6 +4,16 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.2.4
+
+2019 Feb 10
+
+*   Fixed buttons on oscilloscope plots - png icons instead of unicode text.
+*   Disable left button action when no tool is selected on oscilloscope. 
+    Was previously keeping the last selected tool.
+
+
+
 ## 0.2.3
 
 2019 Feb 8

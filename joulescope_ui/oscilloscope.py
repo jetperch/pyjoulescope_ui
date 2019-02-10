@@ -57,7 +57,7 @@ class CustomViewBox(pg.ViewBox):
         self.vline_pen = pg.mkPen(color=MARKER_PEN, width=1)
         self.vline = pg.InfiniteLine(angle=90, movable=False, pen=self.vline_pen)
         self.addItem(self.vline, ignoreBounds=True)
-        self.left_button_mode = 'pan'
+        self.left_button_mode = 'none'
 
     def signal_change(self, command, **kwargs):
         self.on_x_change.emit(command, kwargs)
@@ -159,6 +159,10 @@ class CustomViewBox(pg.ViewBox):
                 self._zoom_drag(ev)
             elif self.left_button_mode == 'pan':
                 self._pan_drag(ev)
+            elif self.left_button_mode == 'none':
+                pass
+            else:
+                log.warning('Unsupported left_button_mode %s', self.left_button_mode)
         if ev.button() == QtCore.Qt.RightButton:
             self._zoom_drag(ev)
         else:
@@ -255,14 +259,6 @@ class Oscilloscope(QtCore.QObject):
         self.on_zoom_auto_y_button(True)
         self.on_pan_button(True)
 
-        resize_buttons_to_minimum([
-            self.ui.zoomButton,
-            self.ui.zoomXButton,
-            self.ui.zoomYButton,
-            self.ui.zoomAutoYButton,
-            self.ui.panButton,
-        ])
-
         self._x = None
         self._y = None
 
@@ -294,6 +290,8 @@ class Oscilloscope(QtCore.QObject):
         if enable:
             self.on_pan_button(False)
             self.vb.left_button_mode = 'zoom'
+        else:
+            self.vb.left_button_mode = 'none'
 
     def on_zoom_x_button(self, enable):
         self.ui.zoomXButton.setChecked(enable)
@@ -318,6 +316,8 @@ class Oscilloscope(QtCore.QObject):
         if enable:
             self.on_zoom_button(False)
             self.vb.left_button_mode = 'pan'
+        else:
+            self.vb.left_button_mode = 'none'
 
     def update(self, x, data):
         self._x = x
