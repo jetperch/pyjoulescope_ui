@@ -23,8 +23,10 @@
          <property name="toolTip">
           <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Zoom in using the left mouse button when active.&lt;/p&gt;&lt;p&gt;To zoom using the mouse, press the mouse button, drag, and release mouse button.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
-         <property name="text">
-          <string> 🔍 </string>
+         <property name="icon">
+          <iconset>
+           <normalon>:/joulescope/resources/zoom.png</normalon>
+          </iconset>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -36,8 +38,10 @@
          <property name="toolTip">
           <string>Zoom affects the x-axis.  Zoom using the scroll wheel or, when enabled, left mouse button.</string>
          </property>
-         <property name="text">
-          <string> 🔍X </string>
+         <property name="icon">
+          <iconset>
+           <normalon>:/joulescope/resources/zoom_x.png</normalon>
+          </iconset>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -49,8 +53,10 @@
          <property name="toolTip">
           <string>Zoom affects the y-axis.  Zoom using the scroll wheel or, when enabled, left mouse button.</string>
          </property>
-         <property name="text">
-          <string> 🔍Y </string>
+         <property name="icon">
+          <iconset>
+           <normalon>:/joulescope/resources/zoom_y.png</normalon>
+          </iconset>
          </property>
          <property name="checkable">
           <bool>true</bool>
@@ -62,8 +68,10 @@
          <property name="toolTip">
           <string>Automatically zoom the y-axis range over the visible display window.</string>
          </property>
-         <property name="text">
-          <string> ↕Y </string>
+         <property name="icon">
+          <iconset>
+           <normalon>:/joulescope/resources/zoom_auto_y.png</normalon>
+          </iconset>
          </property>
          <property name="checkable">
           <bool>true</bool>
