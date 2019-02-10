@@ -273,6 +273,18 @@ class Oscilloscope(QtCore.QObject):
         self._curve_max = self.plot.plot([], [], pen=self._pen_min_max).curve
         self._curve_mean = self.plot.plot([], [], pen=self._pen_mean).curve
 
+        value_labels = [
+            self.ui.meanValue,
+            self.ui.stdValue,
+            self.ui.p2pValue,
+            self.ui.minValue,
+            self.ui.maxValue
+        ]
+        # https://stackoverflow.com/a/19502467/888653
+        width = self.ui.meanValue.fontMetrics().boundingRect("Z9.99 AA").width()
+        for label in value_labels:
+            label.setMinimumWidth(width)
+
         self.x_label = pg.TextItem(anchor=(0, 0))
         self.plot.addItem(self.x_label)
 

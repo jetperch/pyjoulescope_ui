@@ -208,3 +208,14 @@ class MeterValueWidget(QtWidgets.QWidget):
     def update_value(self, *values):
         self._update_value(*values)
         self._update_ui()
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        width = self.valueLabel.fontMetrics().boundingRect("i+0.00000").width()
+        self.valueLabel.setMinimumWidth(width)
+        width = self.unitLabel.fontMetrics().boundingRect("imWi").width()
+        self.unitLabel.setMinimumWidth(width)
+
+        width = self.stdLabel.fontMetrics().boundingRect("i+0.00000").width()
+        for label, _ in self._stats_widgets:
+            label.setMinimumWidth(width)
