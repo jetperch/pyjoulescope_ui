@@ -126,6 +126,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._status = {}
         self._status_row = 0
         self._data_view = None  # created when device is opened
+        self._energy = [0, 0]  # value, offset
 
         self._cfg_def = load_config_def()
         self._cfg = load_config(self._cfg_def)
@@ -248,6 +249,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.actionAbout.triggered.connect(self._help_about)
 
         # tools
+        self.ui.actionClearEnergy.triggered.connect(self._tool_clear_energy)
         self.ui.actionUsbInrush.triggered.connect(self._tool_usb_inrush)
         self.ui.actionUsbInrush.setEnabled(usb_inrush.is_available())
 
@@ -288,6 +290,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
     @QtCore.Slot(object, float)
     def _on_statistic(self, statistics, energy):
+        self._energy[0] = energy
+        energy -= self._energy[1]
         energy_str = three_sig_figs(energy, 'J')
         self.control_ui.energyValueLabel.setText(energy_str)
         self.dmm_widget.update(statistics, energy)
@@ -353,6 +357,10 @@ class MainWindow(QtWidgets.QMainWindow):
         txt = ABOUT.format(version=VERSION)
         QtWidgets.QMessageBox.about(self, 'Joulescope', txt)
 
+    def _tool_clear_energy(self):
+        log.info('_tool_clear_energy: offset= %g J', self._energy[0])
+        self._energy[1] = self._energy[0]
+
     def _tool_usb_inrush(self):
         data = self._device.view.extract()
         rv = usb_inrush.run(data, self._device.view.sampling_frequency)
@@ -407,6 +415,7 @@ class MainWindow(QtWidgets.QMainWindow):
             log.info('device_open reopen %s', str(device))
             return
         self._device_close()
+        self._energy_offset = 0
         log.info('device_open %s', str(device))
         self._device = device
         if self._has_active_device:

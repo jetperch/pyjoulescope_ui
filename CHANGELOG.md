@@ -11,7 +11,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Fixed buttons on oscilloscope plots - png icons instead of unicode text.
 *   Disable left button action when no tool is selected on oscilloscope. 
     Was previously keeping the last selected tool.
-
+*   Explicitly set statistics label widths to prevent resizing as value changes.
+*   Added "Clear Energy" tool to reset energy to 0.0.
 
 
 ## 0.2.3

@@ -57,6 +57,7 @@
     <property name="title">
      <string>&amp;Tools</string>
     </property>
+    <addaction name="actionClearEnergy"/>
     <addaction name="actionUsbInrush"/>
    </widget>
    <addaction name="menuFile"/>
@@ -129,6 +130,11 @@
   <action name="actionSave">
    <property name="text">
     <string>&amp;Save</string>
+   </property>
+  </action>
+  <action name="actionClearEnergy">
+   <property name="text">
+    <string>Clear &amp;Energy</string>
    </property>
   </action>
  </widget>
