@@ -71,6 +71,8 @@ will be implemented before Joulescope general availability.
 *   Add "comparison" mode to overlay multiple data captures so that the 
     user can compare changes over the development cycle (story 3).
 *   Animate "pan" action (likely need to pause live view to be meaningful).
+*   Add a "triggered" mode that only captures on events, such as thresholds, 
+    like a normal oscilloscope.
 
 
 ### Frequency analysis
