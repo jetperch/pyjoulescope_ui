@@ -62,6 +62,8 @@ will be implemented before Joulescope general availability.
 
 ### Oscilloscope
 
+*   Add y-axis label (voltage, current)
+*   Add x-axis label (or at least some tool-tip / hover text)
 *   Add y-axis log display in addition to linear.
 *   Allow single marker to be turned on/off.
 *   Add support for dual markers.  Display the t, Δt, mean, min, max, p2p and
@@ -72,7 +74,14 @@ will be implemented before Joulescope general availability.
     user can compare changes over the development cycle (story 3).
 *   Animate "pan" action (likely need to pause live view to be meaningful).
 *   Add a "triggered" mode that only captures on events, such as thresholds, 
-    like a normal oscilloscope.
+    like a normal oscilloscope.  Note that triggering on an external signal
+    is not included in this feature.
+*   Show a visible "saturation" line (likely in a different color) where the 
+    signal is above or below the current y-axis view range.
+*   Add a small navigation window that shows the full extents of the buffer
+    and a box with the view being displayed.
+*   The zoom & pan controls are improved, but still not intuitive.  Explore
+    alternatives, including a survey of other products, to see what works.
 
 
 ### Frequency analysis
@@ -90,13 +99,16 @@ will be implemented before Joulescope general availability.
     loaded from jls files.
 *   Add logic analyzer integration.  Best path may be to integrate Joulescope
     with [sigrok](https://sigrok.org/), so not really a feature for the UI.
+    This approach may also enable external triggers.
+*   Add integration with hardware trace.  Ideally, display a heat-map of
+    energy usage and allow navigation by code module, function and line.
     
 
 ### Other
 
 *   Add soft-fuse configuration once implemented in Joulescope FPGA.
 *   Automate build: [travis-ci](https://travis-ci.org/).
-*   Measure and automate code coverage.
+*   Measure and automate Joulescope code coverage.
 *   Automatically perform software update when required.  The existing
     implementation just directs the User to the Joulescope download page.
 *   Automatically perform Joulescope firmware updates when required.
