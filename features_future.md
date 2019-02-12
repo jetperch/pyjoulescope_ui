@@ -64,6 +64,8 @@ will be implemented before Joulescope general availability.
 
 *   Add y-axis label (voltage, current)
 *   Add x-axis label (or at least some tool-tip / hover text)
+*   Make the y-axis autoranging less confusing.  You lose context on the
+    discrete jumps.  Perhaps animate the transition?
 *   Add y-axis log display in addition to linear.
 *   Allow single marker to be turned on/off.
 *   Add support for dual markers.  Display the t, Δt, mean, min, max, p2p and
