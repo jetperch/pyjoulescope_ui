@@ -82,6 +82,7 @@ will be implemented before Joulescope general availability.
     and a box with the view being displayed.
 *   The zoom & pan controls are improved, but still not intuitive.  Explore
     alternatives, including a survey of other products, to see what works.
+*   Add power plot
 
 
 ### Frequency analysis
@@ -95,8 +96,9 @@ will be implemented before Joulescope general availability.
 
 ### System integration
 
-*   Add UART capture and display.  Ensure that UART data is saved to and
-    loaded from jls files.
+*   Add UART capture and display.
+    *   Ensure that UART data is saved to and loaded from jls files.
+    *   Use DTR as an external trigger.
 *   Add logic analyzer integration.  Best path may be to integrate Joulescope
     with [sigrok](https://sigrok.org/), so not really a feature for the UI.
     This approach may also enable external triggers.
