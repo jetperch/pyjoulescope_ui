@@ -62,7 +62,6 @@ will be implemented before Joulescope general availability.
 
 ### Oscilloscope
 
-*   Add y-axis label (voltage, current)
 *   Add x-axis label (or at least some tool-tip / hover text)
 *   Make the y-axis autoranging less confusing.  You lose context on the
     discrete jumps.  Perhaps animate the transition?
@@ -84,7 +83,6 @@ will be implemented before Joulescope general availability.
     and a box with the view being displayed.
 *   The zoom & pan controls are improved, but still not intuitive.  Explore
     alternatives, including a survey of other products, to see what works.
-*   Add power plot
 
 
 ### Frequency analysis

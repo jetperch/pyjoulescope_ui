@@ -267,6 +267,8 @@ class Oscilloscope(QtCore.QObject):
         self.plot.disableAutoRange()
         self.plot.hideButtons()
         self.plot.setXRange(0.0, 1.0)
+        # The label automatically causes SI unit ranging with a prefix
+        self.plot.setLabel('left', text=field, units=self._units)
 
         parent.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.widget)
         self._pen_min_max = pg.mkPen(color=(255, 64, 64), width=CURVE_WIDTH)
