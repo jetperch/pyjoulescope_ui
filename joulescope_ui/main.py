@@ -224,9 +224,20 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.menuView.addAction(self._view_voltage.widget.toggleViewAction())
         self._view_voltage.y_limit_set(-1.2, 15.0, update=True)
 
+        # Oscilloscope: voltage
+        self._view_power = Oscilloscope(self, 'Power')
+        self._view_power.on_xChangeSignal.connect(self._on_x_change)
+        self._view_power.setVisible(False)
+        self.ui.menuView.addAction(self._view_power.widget.toggleViewAction())
+        self._view_power.y_limit_set(-2.4, 150.0, update=True)
+
         # Connect oscilloscope views together
-        self._view_current.on_markerSignal.connect(self._view_voltage.on_marker)
-        self._view_voltage.on_markerSignal.connect(self._view_current.on_marker)
+        views = [self._view_current, self._view_voltage, self._view_power]
+        for v1 in views:
+            for v2 in views:
+                if v1 == v2:
+                    continue;
+                v1.on_markerSignal.connect(v2.on_marker)
 
         # status update timer
         self.status_update_timer = QtCore.QTimer(self)
@@ -261,6 +272,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.uart_dock_widget,
             self._view_current.widget,
             self._view_voltage.widget,
+            self._view_power.widget,
         ]
 
         self.on_multimeterMenu(True)
@@ -281,6 +293,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if is_changed:
                 self._view_current.update(x, data)
                 self._view_voltage.update(x, data)
+                self._view_power.update(x, data)
 
     @QtCore.Slot()
     def on_dataUpdateTimer(self):
@@ -325,6 +338,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.uart_dock_widget.setVisible(False)
         self._view_current.setVisible(False)
         self._view_voltage.setVisible(False)
+        self._view_power.setVisible(False)
 
         self.adjustSize()
         self.center()
@@ -340,6 +354,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.uart_dock_widget.setVisible(False)
         self._view_current.setVisible(True)
         self._view_voltage.setVisible(True)
+        self._view_power.setVisible(False)
         self.center_and_resize(0.85, 0.85)
 
         docks = [self._view_current.widget, self._view_voltage.widget]
@@ -480,6 +495,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._control_ui_clean()
         self._view_current.clear()
         self._view_voltage.clear()
+        self._view_power.clear()
 
     def _device_add(self, device):
         """Add device to the user interface"""

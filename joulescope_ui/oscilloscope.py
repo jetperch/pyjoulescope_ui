@@ -37,6 +37,8 @@ NAME_TO_UNITS = {
     'voltage': 'V',
     'v': 'V',
     'v_raw': 'LSBs',
+    'power': 'W',
+    'p': 'W',
 }
 
 
@@ -332,6 +334,8 @@ class Oscilloscope(QtCore.QObject):
             self.vb.left_button_mode = 'none'
 
     def update(self, x, data):
+        if not self.widget.isVisible():
+            return
         self._x = x
         self._y = data
         if x is not None and data is not None:
