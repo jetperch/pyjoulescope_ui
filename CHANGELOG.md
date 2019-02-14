@@ -4,6 +4,14 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.2.5
+
+2019 Feb 14
+
+*   Addressed Win 10 issue with pyinstaller.
+    See https://github.com/pyinstaller/pyinstaller/issues/4040
+
+
 ## 0.2.4
 
 2019 Feb 10

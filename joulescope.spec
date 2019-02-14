@@ -15,6 +15,15 @@ import os
 
 block_cipher = None
 specpath = os.path.dirname(os.path.abspath(SPEC))
+PATHEX = []
+
+
+def find_site_packages():
+    for p in sys.path:
+        if p.endswith('site-packages'):
+            return p
+    raise RuntimeError('Could not find site-packages')
+
 
 if sys.platform.startswith('win'):
     EXE_NAME = 'joulescope'
@@ -22,6 +31,7 @@ if sys.platform.startswith('win'):
         ('C:\\Windows\\System32\\msvcp100.dll', '.'),
         ('C:\\Windows\\System32\\msvcr100.dll', '.'),
     ]
+    PATHEX.append(os.path.join(find_site_packages(), 'shiboken2'))
 elif sys.platform.startswith('darwin'):
     EXE_NAME = 'joulescope_launcher'
     BINARIES = [(ctypes.util.find_library('usb-1.0'), '.')]
@@ -30,7 +40,7 @@ else:
     BINARIES = []  # sudo apt install libusb-1
 
 a = Analysis(['joulescope_ui/__main__.py'],
-             pathex=[],
+             pathex=PATHEX,
              binaries=BINARIES,
              datas=[('joulescope_ui/config_def.json5', 'joulescope_ui')],
              hiddenimports=['secrets', 'numpy.core._dtype_ctypes'],
