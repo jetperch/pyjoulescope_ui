@@ -4,13 +4,21 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
-## 0.2.5
+## 0.2.6
 
 2019 TBD???
 
-*   Use "joulescope" 0.2.5.
-*   Do not display README.md on Windows install.
+*   Use "joulescope" 0.2.6.
 *   Added "power" plot.
+
+
+## 0.2.5
+
+2019 Feb 14
+
+*   Addressed Win 10 issue with pyinstaller.
+    See https://github.com/pyinstaller/pyinstaller/issues/4040
+*   Do not display README.md on Windows install.
 
 
 ## 0.2.4
