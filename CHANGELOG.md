@@ -6,7 +6,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.2.6
 
-2019 TBD???
+2019 Feb 16
 
 *   Use "joulescope" 0.2.6.
 *   Added "power" plot.
