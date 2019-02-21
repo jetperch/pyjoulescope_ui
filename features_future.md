@@ -84,6 +84,7 @@ will be implemented before Joulescope general availability.
     alternatives, including a survey of other products, to see what works.
 *   Add ability to hide the min/max signals.
 *   Display energy computed over the visible window.
+*   Display grid.
 
 
 
