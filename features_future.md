@@ -4,7 +4,6 @@
 This document captures the Joulescope™ User Interface (UI) future features. 
 The UI is under active development, and many features remain outstanding. 
 
-
 ## Terminology
 
 *   **User** references anyone who uses Joulescope.  The primary target
@@ -83,6 +82,8 @@ will be implemented before Joulescope general availability.
     and a box with the view being displayed.
 *   The zoom & pan controls are improved, but still not intuitive.  Explore
     alternatives, including a survey of other products, to see what works.
+*   Add ability to hide the min/max signals.
+
 
 
 ### Frequency analysis
@@ -104,6 +105,9 @@ will be implemented before Joulescope general availability.
     This approach may also enable external triggers.
 *   Add integration with hardware trace.  Ideally, display a heat-map of
     energy usage and allow navigation by code module, function and line.
+*   Integrate with external low-data-rate sensors, especially temperature 
+    sensors.  When enabled, can display in both multimeter view and 
+    oscilloscope view.  Save/load sensor data to/from jls files.
     
 
 ### Other
@@ -114,4 +118,4 @@ will be implemented before Joulescope general availability.
 *   Automatically perform software update when required.  The existing
     implementation just directs the User to the Joulescope download page.
 *   Automatically perform Joulescope firmware updates when required.
-
+*   Add Help -> "Getting Started" to the user interface.
