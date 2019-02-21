@@ -83,6 +83,7 @@ will be implemented before Joulescope general availability.
 *   The zoom & pan controls are improved, but still not intuitive.  Explore
     alternatives, including a survey of other products, to see what works.
 *   Add ability to hide the min/max signals.
+*   Display energy computed over the visible window.
 
 
 
