@@ -127,3 +127,4 @@ will be implemented before Joulescope general availability.
 *   Add Help -> "Getting Started" to the user interface.
 *   Add automatic battery life estimation - may need to input battery 
     chemistry type & capacity.
+*   Add Complementary Cumulative Distribution Function (CCDF) view.
