@@ -85,6 +85,7 @@ will be implemented before Joulescope general availability.
 *   Add ability to hide the min/max signals.
 *   Display energy computed over the visible window.
 *   Display grid.
+*   Save waveforms to image file.
 
 
 
@@ -110,6 +111,9 @@ will be implemented before Joulescope general availability.
 *   Integrate with external low-data-rate sensors, especially temperature 
     sensors.  When enabled, can display in both multimeter view and 
     oscilloscope view.  Save/load sensor data to/from jls files.
+*   Integrate a microcontroller software-based trace function, something
+    like EE101 Insight-Pro.  Could try to integrate with them if their
+    software didn't get such bad reviews.  Sigrok?  Or just in UI?
     
 
 ### Other
@@ -121,3 +125,5 @@ will be implemented before Joulescope general availability.
     implementation just directs the User to the Joulescope download page.
 *   Automatically perform Joulescope firmware updates when required.
 *   Add Help -> "Getting Started" to the user interface.
+*   Add automatic battery life estimation - may need to input battery 
+    chemistry type & capacity.
