@@ -128,3 +128,8 @@ will be implemented before Joulescope general availability.
 *   Add automatic battery life estimation - may need to input battery 
     chemistry type & capacity.
 *   Add Complementary Cumulative Distribution Function (CCDF) view.
+*   Trigger on waveform: select a waveform.  Then trigger and overlay similar.
+*   Automatically identify similar periodic processes and sleep power. 
+    When done, feed estimation tool where you can set the period of each 
+    identified process to estimate energy consumption per desired timescale
+    or even battery life.
