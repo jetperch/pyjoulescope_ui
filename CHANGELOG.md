@@ -4,6 +4,14 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.2.7
+
+2019 Mar 2
+
+*   Improved device open error handling
+*   Managed future features
+
+
 ## 0.2.6
 
 2019 Feb 16

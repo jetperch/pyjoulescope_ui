@@ -294,6 +294,10 @@ class MainWindow(QtWidgets.QMainWindow):
                 self._view_current.update(x, data)
                 self._view_voltage.update(x, data)
                 self._view_power.update(x, data)
+        else:
+            self._view_current.clear()
+            self._view_voltage.clear()
+            self._view_power.clear()
 
     @QtCore.Slot()
     def on_dataUpdateTimer(self):
@@ -425,6 +429,11 @@ class MainWindow(QtWidgets.QMainWindow):
             length = 100
         self._device.view.on_x_change('resize', {'pixels': length})
 
+    def _device_open_failed(self, msg):
+        self.status(msg)
+        self._device_close()
+        return None
+
     def _device_open(self, device):
         if self._device == device:
             log.info('device_open reopen %s', str(device))
@@ -434,15 +443,22 @@ class MainWindow(QtWidgets.QMainWindow):
         log.info('device_open %s', str(device))
         self._device = device
         if self._has_active_device:
-            self._device.open()
-            if not self._device.ui_action.isChecked():
-                self._device.ui_action.setChecked(True)
-            self._param_init()
-            self._control_ui_init()
-            self.on_xChangeSignal.connect(self._device.view.on_x_change)
-            self._device_view_force()
-            self._device_cfg_apply(do_open=True)
-            self._device.statistics_callback = self.on_statisticSignal.emit
+            try:
+                self._device.open()
+            except:
+                return self._device_open_failed('Could not open device')
+            try:
+                if not self._device.ui_action.isChecked():
+                    self._device.ui_action.setChecked(True)
+                self._param_init()
+                self._control_ui_init()
+                self.on_xChangeSignal.connect(self._device.view.on_x_change)
+                self._device_view_force()
+                self._device_cfg_apply(do_open=True)
+                self._device.statistics_callback = self.on_statisticSignal.emit
+                self._update_data()
+            except:
+                return self._device_open_failed('Could not initialize device')
 
     def _control_ui_init(self):
         log.info('_control_ui_init')
@@ -484,12 +500,15 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def _device_close(self):
         device = self._device
-        is_active_deivce = self._has_active_device
+        is_active_device = self._has_active_device
         self._device = self._device_disable
         log.info('device_close %s', str(device))
-        if is_active_deivce:
+        if is_active_device:
             self.on_xChangeSignal.disconnect(device.view.on_x_change)
             device.close()
+            if self._device.ui_action.isChecked():
+                self._device.ui_action.setChecked(False)
+        self._device_disable.ui_action.setChecked(True)
         self._status_clean()
         self._param_clean()
         self._control_ui_clean()
