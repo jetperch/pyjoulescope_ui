@@ -511,10 +511,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self._device = self._device_disable
         log.info('device_close %s', str(device))
         if is_active_device:
-            self.on_xChangeSignal.disconnect(device.view.on_x_change)
+            if device.view is not None:
+                self.on_xChangeSignal.disconnect(device.view.on_x_change)
             device.close()
-            if self._device.ui_action.isChecked():
-                self._device.ui_action.setChecked(False)
+            if device.ui_action.isChecked():
+                device.ui_action.setChecked(False)
         self._device_disable.ui_action.setChecked(True)
         self._status_clean()
         self._param_clean()
