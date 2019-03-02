@@ -29,7 +29,7 @@
           name: 'update_check',
           brief: 'Automatically check for software updates',
           type: 'bool',
-          default: 'true',
+          default: true,
         }
       ]
     },  // paths end
@@ -44,7 +44,7 @@
           name: 'autostream',
           brief: 'Start streaming when the device connects',
           type: 'bool',
-          default: 'true'
+          default: true,
         },
 
         {
@@ -111,21 +111,21 @@
           name: 'show_min_max',
           brief: 'Display the minimum and maximum traces',
           type: 'bool',
-          default: 'true'
+          default: true,
         },
 
         {
           name: 'grid_x',
           brief: 'Display the x-axis grid',
           type: 'bool',
-          default: 'true',
+          default: true,
         },
 
         {
           name: 'grid_y',
           brief: 'Display the y-axis grid',
           type: 'bool',
-          default: 'true',
+          default: true,
         },
 
         {
