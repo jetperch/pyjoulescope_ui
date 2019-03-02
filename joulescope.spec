@@ -34,8 +34,9 @@ if sys.platform.startswith('win'):
     ]
     PATHEX.append(os.path.join(find_site_packages(), 'shiboken2'))
 elif sys.platform.startswith('darwin'):
+    from joulescope_ui.libusb_mac import mac_binaries
     EXE_NAME = 'joulescope_launcher'
-    BINARIES = [(ctypes.util.find_library('usb-1.0'), '.')]
+    BINARIES = mac_binaries()
 else:
     EXE_NAME = 'joulescope_launcher'
     BINARIES = []  # sudo apt install libusb-1
