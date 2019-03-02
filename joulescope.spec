@@ -18,6 +18,7 @@ specpath = os.path.dirname(os.path.abspath(SPEC))
 PATHEX = []
 sys.path.insert(0, specpath)
 import joulescope_ui
+VERSION_STR = joulescope_ui.VERSION.replace('.', '_')
 
 
 def find_site_packages():
@@ -76,6 +77,7 @@ coll = COLLECT(exe,
                upx=True,
                name='joulescope')
 
+
 if sys.platform.startswith('darwin'):
     # https://blog.macsales.com/28492-create-your-own-custom-icons-in-10-7-5-or-later
     # iconutil --convert icns joulescope_ui/resources/icon.iconset
@@ -87,11 +89,18 @@ if sys.platform.startswith('darwin'):
                  info_plist={
                      'CFBundleVersion': joulescope_ui.VERSION,
                  })
-    fname = joulescope_ui.VERSION.replace('.', '_')
-    subprocess.run(['hdiutil', 'create', './dist/joulescope_%s.dmg' % fname,
+    subprocess.run(['hdiutil', 'create', './dist/joulescope_%s.dmg' % VERSION_STR,
                     '-srcfolder', './dist/joulescope.app', '-ov'],
                     cwd=specpath)
 elif sys.platform == 'win32':
     subprocess.run(['C:\Program Files (x86)\Inno Setup 5\ISCC.exe', 
                     'joulescope.iss'],
                     cwd=specpath)
+elif sys.platform == 'linux':
+    os.rename(os.path.join(specpath, 'dist/joulescope'),
+              os.path.join(specpath, 'dist/joulescope_%s' % VERSION_STR))
+    subprocess.run(['tar', 'czvf',
+                    'joulescope_%s.tar.gz' % VERSION_STR,
+                    'joulescope_%s/' % VERSION_STR],
+                    cwd=os.path.join(specpath, 'dist'))
+
