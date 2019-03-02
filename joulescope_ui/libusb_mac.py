@@ -38,8 +38,7 @@ def _mac_binaries_index():
         d = r.json()
         d_str = json.dumps(d, indent=2)
         # print(json.dumps(d, indent=2))
-        version_stable = d['versions']['stable']
-        print('VERSION = {}'.format(version_stable))
+        print('VERSION = {}'.format(d['versions']['stable']))
         return d, d_str
     except Exception:
         return None, None
@@ -71,7 +70,7 @@ def mac_binaries():
 
             # Extract and save the dynamic library
             with TarFS(path_os) as f_in:
-                zip_path = 'libusb/%s/lib/libusb-1.0.0.dylib' % (version_stable, )
+                zip_path = 'libusb/%s/lib/libusb-1.0.0.dylib' % (d['versions']['stable'], )
                 lib_path = '%d_libusb-1.0.0.dylib' % (VERSION_MAP[os_name], )
                 with f_in.open(zip_path, 'rb') as a:
                     with f_out.open(lib_path, 'wb') as b:
