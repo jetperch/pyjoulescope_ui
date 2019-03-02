@@ -91,3 +91,7 @@ if sys.platform.startswith('darwin'):
     subprocess.run(['hdiutil', 'create', './dist/joulescope_%s.dmg' % fname,
                     '-srcfolder', './dist/joulescope.app', '-ov'],
                     cwd=specpath)
+elif sys.platform == 'win32':
+    subprocess.run(['C:\Program Files (x86)\Inno Setup 5\ISCC.exe', 
+                    'joulescope.iss'],
+                    cwd=specpath)
