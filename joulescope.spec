@@ -10,12 +10,14 @@
 # hdiutil create ./dist/joulescope.dmg -srcfolder ./dist/joulescope.app -ov
 
 import sys
-import ctypes.util
 import os
+import subprocess
 
 block_cipher = None
 specpath = os.path.dirname(os.path.abspath(SPEC))
 PATHEX = []
+sys.path.insert(0, specpath)
+import joulescope_ui
 
 
 def find_site_packages():
@@ -36,7 +38,7 @@ if sys.platform.startswith('win'):
 elif sys.platform.startswith('darwin'):
     from joulescope_ui.libusb_mac import mac_binaries
     EXE_NAME = 'joulescope_launcher'
-    BINARIES = mac_binaries()
+    BINARIES = [(x, '.') for x in mac_binaries()]
 else:
     EXE_NAME = 'joulescope_launcher'
     BINARIES = []  # sudo apt install libusb-1
@@ -83,6 +85,9 @@ if sys.platform.startswith('darwin'):
                  icon='joulescope_ui/resources/icon.icns',
                  bundle_identifier=None,
                  info_plist={
-                     'CFBundleVersion': '0.2.1',
+                     'CFBundleVersion': joulescope_ui.VERSION,
                  })
-
+    fname = joulescope_ui.VERSION.replace('.', '_')
+    subprocess.run(['hdiutil', 'create', './dist/joulescope_%s.dmg' % fname,
+                    '-srcfolder', './dist/joulescope.app', '-ov'],
+                    cwd=specpath)

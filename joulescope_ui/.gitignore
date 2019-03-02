@@ -1,13 +1,13 @@
 # Automatically generated.  DO NOT EDIT
-control_widget.py
-developer_widget.py
-joulescope_rc.py
 main_window.py
-meter_value_widget_dev.py
-meter_widget_dev.py
 plot_widget.py
-preferences_dialog.py
-save_data_dialog.py
+control_widget.py
 single_value_widget_dev.py
 uart_config_widget.py
+preferences_dialog.py
+save_data_dialog.py
 uart_widget.py
+developer_widget.py
+joulescope_rc.py
+meter_widget_dev.py
+meter_value_widget_dev.py
