@@ -276,6 +276,7 @@ class MainWindow(QtWidgets.QMainWindow):
         ]
 
         self.on_multimeterMenu(True)
+        self._waveform_cfg_apply()
         self.show()
         self._device_close()
         self._device_scan()
@@ -489,6 +490,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.control_ui.playButton.setEnabled(False)
         self.control_ui.recordButton.setChecked(False)
         self.control_ui.recordButton.setEnabled(False)
+
+    def _waveform_cfg_apply(self):
+        for waveform in [self._view_current, self._view_voltage, self._view_power]:
+            waveform.config(self._cfg['Waveform'])
 
     def _device_cfg_apply(self, do_open=False):
         if self._has_active_device:
@@ -776,6 +781,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self._cfg = cfg
             save_config(self._cfg)
             self._device_cfg_apply()
+            self._waveform_cfg_apply()
 
     def on_saveData(self):
         rv = SaveDataDialog(self._path).exec_()

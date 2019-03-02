@@ -82,11 +82,8 @@ will be implemented before Joulescope general availability.
     and a box with the view being displayed.
 *   The zoom & pan controls are improved, but still not intuitive.  Explore
     alternatives, including a survey of other products, to see what works.
-*   Add ability to hide the min/max signals.
 *   Display energy computed over the visible window.
-*   Display grid.
 *   Save waveforms to image file.
-
 
 
 ### Frequency analysis

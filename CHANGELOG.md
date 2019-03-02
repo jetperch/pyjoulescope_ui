@@ -10,6 +10,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 *   Improved device open error handling
 *   Managed future features
+*   Added waveform options: hide min/max signals, show grid, trace width.
 
 
 ## 0.2.6

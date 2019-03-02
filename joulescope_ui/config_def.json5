@@ -97,9 +97,47 @@
             }
           ],
           default: 'high'
-        }
+        },
       ]
-    } // device end
+    }, // device end
+
+
+    {
+      name: 'Waveform',
+      brief: 'Waveform display settings',
+      type: 'map',
+      children: [
+        {
+          name: 'show_min_max',
+          brief: 'Display the minimum and maximum traces',
+          type: 'bool',
+          default: 'true'
+        },
+
+        {
+          name: 'grid_x',
+          brief: 'Display the x-axis grid',
+          type: 'bool',
+          default: 'true',
+        },
+
+        {
+          name: 'grid_y',
+          brief: 'Display the y-axis grid',
+          type: 'bool',
+          default: 'true',
+        },
+
+        {
+          name: 'trace_width',
+          brief: 'The trace width in pixels',
+          detail: 'Increasing trace width SIGNIFICANTLY degrades performance',
+          type: 'str',
+          options: ['1', '2', '4', '6', '8'],
+          default: '1'
+        },
+      ],
+    }, // waveform end
 
   ]
 }

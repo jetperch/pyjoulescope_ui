@@ -234,6 +234,7 @@ class Oscilloscope(QtCore.QObject):
         self._field = field
         self._column = NAME_TO_COLUMN[field.lower()]
         self._units = NAME_TO_UNITS[field.lower()]
+        self._show_min_max = True
         self.refresh = 0.05
         self.last_refresh = time.time()
         self.widget = QtWidgets.QDockWidget(self._field, parent)
@@ -301,6 +302,20 @@ class Oscilloscope(QtCore.QObject):
     def clear(self):
         self.update(None, None)
 
+    def config(self, cfg):
+        self._show_min_max = cfg['show_min_max']
+        if not self._show_min_max:
+            self._curve_min.clear()
+            self._curve_min.update()
+            self._curve_max.clear()
+            self._curve_max.update()
+        self.plot.showGrid(x=cfg['grid_x'], y=cfg['grid_y'], alpha=0.8)
+        self._pen_min_max = pg.mkPen(color=(255, 64, 64), width=int(cfg['trace_width']))
+        self._pen_mean = pg.mkPen(color=(255, 255, 64), width=int(cfg['trace_width']))
+        self._curve_min.setPen(self._pen_min_max)
+        self._curve_max.setPen(self._pen_min_max)
+        self._curve_mean.setPen(self._pen_mean)
+
     def on_zoom_button(self, enable):
         self.ui.zoomButton.setChecked(enable)
         if enable:
@@ -343,8 +358,9 @@ class Oscilloscope(QtCore.QObject):
         if x is not None and data is not None:
             z_mean = data[:, self._column, 0]
             self._curve_mean.updateData(x, z_mean)
-            self._curve_min.updateData(x,  data[:, self._column, 2])
-            self._curve_max.updateData(x, data[:, self._column, 3])
+            if self._show_min_max:
+                self._curve_min.updateData(x,  data[:, self._column, 2])
+                self._curve_max.updateData(x, data[:, self._column, 3])
 
             z_valid = np.isfinite(z_mean)
             z_mean = z_mean[z_valid]
