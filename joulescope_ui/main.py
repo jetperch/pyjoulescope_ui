@@ -19,6 +19,7 @@ import os
 import sys
 from . import VERSION
 from joulescope.driver import scan, scan_for_changes
+from joulescope import VERSION as DRIVER_VERSION
 from PySide2 import QtCore, QtWidgets
 from joulescope_ui.developer_widget import Ui_DeveloperDockWidget
 from joulescope_ui.main_window import Ui_mainWindow
@@ -49,7 +50,8 @@ DATA_BUFFER_DURATION = 60.0  # seconds
 
 ABOUT = """\
 <html>
-Joulescope version {version}<br/> 
+Joulescope UI version {ui_version}<br/> 
+Joulescope driver version {driver_version}<br/>
 <a href="https://www.joulescope.com">https://www.joulescope.com</a>
 
 <pre>
@@ -374,7 +376,7 @@ class MainWindow(QtWidgets.QMainWindow):
         QtWidgets.QMessageBox.about(self, 'Joulescope Software Update Available', txt)
 
     def _help_about(self):
-        txt = ABOUT.format(version=VERSION)
+        txt = ABOUT.format(ui_version=VERSION, driver_version=DRIVER_VERSION)
         QtWidgets.QMessageBox.about(self, 'Joulescope', txt)
 
     def _tool_clear_energy(self):
