@@ -13,6 +13,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added waveform options: hide min/max signals, show grid, trace width.
 *   Display Joulescope driver version in ABOUT.
 *   Added support for older Mac OS X versions when packaged.
+*   Automatically package Windows, Linux & Mac OS X applications.
 
 
 ## 0.2.6
