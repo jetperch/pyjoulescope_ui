@@ -115,6 +115,13 @@
         },
 
         {
+          name: 'show_vline',
+          brief: 'Display the vertical line and values at the present point',
+          type: 'bool',
+          default: true,
+        },
+
+        {
           name: 'grid_x',
           brief: 'Display the x-axis grid',
           type: 'bool',

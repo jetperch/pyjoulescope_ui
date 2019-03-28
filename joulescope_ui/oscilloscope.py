@@ -26,6 +26,7 @@ log = logging.getLogger(__name__)
 
 
 MARKER_PEN = [100, 220, 0, 200]
+HIDE_PEN = pg.mkPen(color=[0, 0, 0, 0], width=1)
 CURVE_WIDTH = 1
 AUTO_RANGE_FRACT = 0.45  # autorange when current range smaller than existing range by this fractional amount.
 
@@ -235,6 +236,7 @@ class Oscilloscope(QtCore.QObject):
         self._column = NAME_TO_COLUMN[field.lower()]
         self._units = NAME_TO_UNITS[field.lower()]
         self._show_min_max = True
+        self._show_vline = True
         self.refresh = 0.05
         self.last_refresh = time.time()
         self.widget = QtWidgets.QDockWidget(self._field, parent)
@@ -309,6 +311,12 @@ class Oscilloscope(QtCore.QObject):
             self._curve_min.update()
             self._curve_max.clear()
             self._curve_max.update()
+        self._show_vline = cfg['show_vline']
+        if not self._show_vline:
+            self.vb.vline.setPen(HIDE_PEN)
+            self.x_label.setHtml('')
+        else:
+            self.vb.vline.setPen(self.vb.vline_pen)
         self.plot.showGrid(x=cfg['grid_x'], y=cfg['grid_y'], alpha=0.8)
         self._pen_min_max = pg.mkPen(color=(255, 64, 64), width=int(cfg['trace_width']))
         self._pen_mean = pg.mkPen(color=(255, 255, 64), width=int(cfg['trace_width']))
@@ -453,7 +461,8 @@ class Oscilloscope(QtCore.QObject):
             self.x_label.setPos(x, ymax)
         else:
             html = ""
-        self.x_label.setHtml(html)
+        if self._show_vline:
+            self.x_label.setHtml(html)
 
         #self.vb.vline.label.setHtml(html)
         #self.vb.vline.label.setFormat(html)
