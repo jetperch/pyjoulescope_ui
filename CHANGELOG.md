@@ -4,6 +4,13 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.3.0
+
+2019 Apr ??
+
+*   Improved error handling for underlying driver/fw/hw errors.
+
+
 ## 0.2.7
 
 2019 Mar 2

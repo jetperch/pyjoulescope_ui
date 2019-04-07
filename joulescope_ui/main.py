@@ -587,7 +587,11 @@ class MainWindow(QtWidgets.QMainWindow):
             return
         log.info('param_name=%s, value=%s, index=%s', param_name, value, index)
         if hasattr(self._device, 'parameter_set'):
-            self._device.parameter_set(param_name, value)
+            try:
+                self._device.parameter_set(param_name, value)
+            except Exception:
+                log.exception('during parameter_set')
+                self.status('Parameter set %s failed, value=%s' % (param_name, value))
 
     def _param_cbk_construct(self, param_name: str):
         return lambda x: self._on_param_change(param_name, index=x)
@@ -653,7 +657,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.control_ui.playButton.setChecked(True)
         self.control_ui.recordButton.setEnabled(True)
         self.data_update_timer.start()
-        self._device.start(stop_fn=self.on_stopSignal.emit)
+        try:
+            self._device.start(stop_fn=self.on_stopSignal.emit)
+        except Exception:
+            log.exception('_device_stream_start')
+            self.status('Could not start device streaming')
 
     def _device_stream_stop(self):
         log.debug('_device_stream_stop')
