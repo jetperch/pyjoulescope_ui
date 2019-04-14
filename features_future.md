@@ -69,7 +69,7 @@ will be implemented before Joulescope general availability.
 *   Add support for dual markers.  Display the t, Δt, mean, min, max, p2p and
     energy over the window.
 *   Add ability to save either the entire buffer or the selected time range.
-    The supported output formats should include jls, csv, npy, bin.
+    The supported output formats should include jls, csv, npy, bin, xlsx, mat.
 *   Add "comparison" mode to overlay multiple data captures so that the 
     user can compare changes over the development cycle (story 3).
 *   Animate "pan" action (likely need to pause live view to be meaningful).
