@@ -120,6 +120,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def __init__(self, app):
         self._app = app
+        self._device_scan_name = 'joulescope'
         self._devices = []
         self._device = None
         self._is_streaming = False
@@ -546,7 +547,7 @@ class MainWindow(QtWidgets.QMainWindow):
         """Scan for new physical Joulescope devices."""
         physical_devices = [d for d in self._devices if hasattr(d, 'usb_device')]
         virtual_devices = [d for d in self._devices if not hasattr(d, 'usb_device')]
-        devices, added, removed = scan_for_changes(name='Joulescope', devices=physical_devices)
+        devices, added, removed = scan_for_changes(name=self._device_scan_name, devices=physical_devices)
         if self._device in removed:
             self._device_close()
         for d in removed:
