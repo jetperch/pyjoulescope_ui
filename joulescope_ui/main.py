@@ -118,9 +118,9 @@ class MainWindow(QtWidgets.QMainWindow):
     on_xChangeSignal = QtCore.Signal(str, object)
     on_softwareUpdateSignal = QtCore.Signal(str, str)
 
-    def __init__(self, app):
+    def __init__(self, app, device_name=None):
         self._app = app
-        self._device_scan_name = 'joulescope'
+        self._device_scan_name = 'joulescope' if device_name is None else str(device_name)
         self._devices = []
         self._device = None
         self._is_streaming = False
@@ -819,7 +819,7 @@ def kick_bootloaders():
         d.go()
 
 
-def run():
+def run(device_name=None):
     logging.basicConfig(level=logging.INFO)
     # http://doc.qt.io/qt-5/highdpi.html
     # https://vicrucann.github.io/tutorials/osg-qt-high-dpi/
@@ -828,7 +828,7 @@ def run():
         ctypes.windll.user32.SetProcessDPIAware()
     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
     app = QtWidgets.QApplication(sys.argv)
-    ui = MainWindow(app)
+    ui = MainWindow(app, device_name=device_name)
     device_notify = DeviceNotify(ui.on_deviceNotifySignal.emit)
     rc = app.exec_()
     device_notify.close()

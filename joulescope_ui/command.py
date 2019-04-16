@@ -27,8 +27,10 @@ NAME = "ui"
 
 def parser_config(p):
     """Start the Joulescope graphical user interface"""
+    p.add_argument('--device_name',
+                   help='The device name to search [joulescope]')
     return on_cmd
 
 
 def on_cmd(args):
-    return run()
+    return run(args.device_name)

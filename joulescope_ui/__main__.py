@@ -15,7 +15,12 @@
 # limitations under the License.
 
 import sys
-from joulescope_ui.main import run
+from joulescope_ui.command import parser_config
+import argparse
+
 
 if __name__ == '__main__':
-    sys.exit(run())
+    parser = argparse.ArgumentParser(description='Joulescope™ user interface.')
+    cmd = parser_config(parser)
+    args = parser.parse_args()
+    sys.exit(cmd(args))
