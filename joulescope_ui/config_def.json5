@@ -146,5 +146,21 @@
       ],
     }, // waveform end
 
+
+    {
+      name: 'Developer',
+      brief: 'Developer settings',
+      type: 'map',
+      children: [
+        {
+          name: 'compliance',
+          brief: 'Compliance testing mode',
+          type: 'bool',
+          default: false,
+        },
+      ],
+    }, // developer end
+
+
   ]
 }

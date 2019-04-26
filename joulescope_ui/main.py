@@ -124,6 +124,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self._devices = []
         self._device = None
         self._is_streaming = False
+        self._compliance = {  # state for compliance testing
+            'gpo_value': 0,   # automatically toggle GPO, loopback & measure GPI
+        }
 
         self._parameters = {}
         self._status = {}
@@ -239,7 +242,7 @@ class MainWindow(QtWidgets.QMainWindow):
         for v1 in views:
             for v2 in views:
                 if v1 == v2:
-                    continue;
+                    continue
                 v1.on_markerSignal.connect(v2.on_marker)
 
         # status update timer
@@ -316,6 +319,19 @@ class MainWindow(QtWidgets.QMainWindow):
         energy_str = three_sig_figs(energy, 'J')
         self.control_ui.energyValueLabel.setText(energy_str)
         self.dmm_widget.update(statistics, energy)
+
+        if self._cfg['Developer']['compliance']:
+            gpo_value = self._compliance['gpo_value']
+            gpi_value = self._device.extio_status()['gpi_value']['value']
+            if gpo_value != gpi_value:
+                log.warning('gpi mismatch: gpo=0x%02x, gpi=0x%02x', gpo_value, gpi_value)
+                self.setStyleSheet("background-color: red;")
+            else:
+                self.setStyleSheet("")
+            gpo_value = (gpo_value + 1) & 0x03
+            self._device.parameter_set('gpo0', '1' if (gpo_value & 0x01) else '0')
+            self._device.parameter_set('gpo1', '1' if (gpo_value & 0x02) else '0')
+            self._compliance['gpo_value'] = gpo_value
 
     @QtCore.Slot(str, object)
     def _on_x_change(self, cmd, kwargs):
@@ -505,6 +521,13 @@ class MainWindow(QtWidgets.QMainWindow):
             self._on_param_change('v_range', value=self._cfg['Device']['v_range'])
             if do_open and self._cfg['Device']['autostream']:
                 self._device_stream(True)
+
+    def _developer_cfg_apply(self):
+        self._compliance['gpo_value'] = 0
+        self.setStyleSheet("")
+        if self._device is not None:
+            self._device.parameter_set('gpo0', '0')
+            self._device.parameter_set('gpo1', '0')
 
     def _device_close(self):
         device = self._device
@@ -794,6 +817,7 @@ class MainWindow(QtWidgets.QMainWindow):
             save_config(self._cfg)
             self._device_cfg_apply()
             self._waveform_cfg_apply()
+            self._developer_cfg_apply()
 
     def on_saveData(self):
         rv = SaveDataDialog(self._path).exec_()
