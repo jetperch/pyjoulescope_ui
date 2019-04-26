@@ -111,7 +111,6 @@ class DeviceDisable:
 
 class MainWindow(QtWidgets.QMainWindow):
     on_deviceNotifySignal = QtCore.Signal(object, object)
-    on_statusSignal = QtCore.Signal(object)
     on_dataSignal = QtCore.Signal(object, object)  # x, data[length][3][4]
     on_stopSignal = QtCore.Signal()
     on_statisticSignal = QtCore.Signal(object, float)
@@ -126,6 +125,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._is_streaming = False
         self._compliance = {  # state for compliance testing
             'gpo_value': 0,   # automatically toggle GPO, loopback & measure GPI
+            'status': None,
         }
 
         self._parameters = {}
@@ -188,7 +188,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.actionPreferences.triggered.connect(self.on_preferences)
         self.ui.actionExit.triggered.connect(self.close)
         self.ui.actionDeveloper.triggered.connect(self.on_developer)
-        self.on_statusSignal.connect(self._status_fn)
 
         # Digital multimeter display widget
         self.dmm_dock_widget = QtWidgets.QDockWidget('Multimeter', self)
@@ -293,6 +292,14 @@ class MainWindow(QtWidgets.QMainWindow):
         if self._has_active_device and hasattr(self._device, 'status'):
             s = self._device.status()
             self._status_fn(s)
+            if self._cfg['Developer']['compliance']:
+                if self._compliance['status'] is not None:
+                    sample_id_prev = self._compliance['status']['buffer']['sample_id']['value']
+                    sample_id_now = s['buffer']['sample_id']['value']
+                    sample_id_delta = sample_id_now - sample_id_prev
+                    if sample_id_delta < 2000000 * 0.5 * 0.90:
+                        self._compliance_error('orange')
+                self._compliance['status'] = s
 
     def _update_data(self):
         if self._has_active_device:
@@ -320,14 +327,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.control_ui.energyValueLabel.setText(energy_str)
         self.dmm_widget.update(statistics, energy)
 
-        if self._cfg['Developer']['compliance']:
+        if self._cfg['Developer']['compliance'] and self._cfg['Developer']['compliance_gpio_loopback']:
             gpo_value = self._compliance['gpo_value']
             gpi_value = self._device.extio_status()['gpi_value']['value']
             if gpo_value != gpi_value:
                 log.warning('gpi mismatch: gpo=0x%02x, gpi=0x%02x', gpo_value, gpi_value)
-                self.setStyleSheet("background-color: red;")
+                self._compliance_error('red')
             else:
-                self.setStyleSheet("")
+                self._compliance_error(None)
             gpo_value = (gpo_value + 1) & 0x03
             self._device.parameter_set('gpo0', '1' if (gpo_value & 0x01) else '0')
             self._device.parameter_set('gpo1', '1' if (gpo_value & 0x02) else '0')
@@ -452,7 +459,17 @@ class MainWindow(QtWidgets.QMainWindow):
     def _device_open_failed(self, msg):
         self.status(msg)
         self._device_close()
+        self._compliance_error('yellow')
         return None
+
+    def _compliance_error(self, color=None):
+        if self._cfg['Developer']['compliance']:
+            if color is None:
+                style_sheet = ''
+            else:
+                style_sheet = 'background-color: {color};'.format(color=color)
+                log.warning('compliance error: %s', color)
+            self.setStyleSheet(style_sheet)
 
     def _device_open(self, device):
         if self._device == device:
@@ -479,6 +496,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self._update_data()
             except:
                 return self._device_open_failed('Could not initialize device')
+            self._developer_cfg_apply()
 
     def _control_ui_init(self):
         log.info('_control_ui_init')
@@ -524,7 +542,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def _developer_cfg_apply(self):
         self._compliance['gpo_value'] = 0
-        self.setStyleSheet("")
+        self._compliance['status'] = None
+        self._compliance_error(None)
         if self._device is not None:
             self._device.parameter_set('gpo0', '0')
             self._device.parameter_set('gpo1', '0')
@@ -547,6 +566,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self._view_current.clear()
         self._view_voltage.clear()
         self._view_power.clear()
+        if self._cfg['Developer']['compliance']:
+            self.setStyleSheet("background-color: yellow;")
 
     def _device_add(self, device):
         """Add device to the user interface"""

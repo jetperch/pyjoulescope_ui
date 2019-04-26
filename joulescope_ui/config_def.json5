@@ -158,6 +158,12 @@
           type: 'bool',
           default: false,
         },
+        {
+          name: 'compliance_gpio_loopback',
+          brief: 'GPI/O loopback for compliance testing',
+          type: 'bool',
+          default: false,
+        }
       ],
     }, // developer end
 
