@@ -291,13 +291,16 @@ class MainWindow(QtWidgets.QMainWindow):
     def on_statusUpdateTimer(self):
         if self._has_active_device and hasattr(self._device, 'status'):
             s = self._device.status()
+            if s['driver']['return_code']['value']:
+                self._device_close()
+                return
             self._status_fn(s)
             if self._cfg['Developer']['compliance']:
                 if self._compliance['status'] is not None:
                     sample_id_prev = self._compliance['status']['buffer']['sample_id']['value']
                     sample_id_now = s['buffer']['sample_id']['value']
                     sample_id_delta = sample_id_now - sample_id_prev
-                    if sample_id_delta < 2000000 * 0.5 * 0.90:
+                    if sample_id_delta < 2000000 * 0.5 * 0.80:
                         self._compliance_error('orange')
                 self._compliance['status'] = s
 
