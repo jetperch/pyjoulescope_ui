@@ -30,7 +30,14 @@
           brief: 'Automatically check for software updates',
           type: 'bool',
           default: true,
-        }
+        },
+        {
+          name: 'log_level',
+          brief: 'The logging level',
+          type: 'str',
+          options: ['OFF', 'CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'ALL'],
+          default: 'INFO',
+        },
       ]
     },  // General end
 
@@ -70,13 +77,34 @@
               brief: 'Disable the shunt for high impedance',
             },
             {
-              name: '0',
+              name: '10 A',
               brief: 'Least resistance (highest current range)',
+              aliases: ['0'],
             },
-            '1', '2', '3', '4', '5',
             {
-              name: '6',
+              name: '2 A',
+              aliases: ['1'],
+            },
+            {
+              name: '180 mA',
+              aliases: ['2'],
+            },
+            {
+              name: '18 mA',
+              aliases: ['3'],
+            },
+            {
+              name: '1.8 mA',
+              aliases: ['4'],
+            },
+            {
+              name: '180 µA',
+              aliases: ['5'],
+            },
+            {
+              name: '18 µA',
               brief: 'Most resistance (lowest current range)',
+              aliases: ['6']
             }
           ],
           default: 'auto'
@@ -88,12 +116,14 @@
           type: 'str',
           options: [
             {
-              name: 'high',
-              brief: '14V range (recommended)',
+              name: '15V',
+              brief: '15V range (recommended)',
+              aliases: ['high'],
             },
             {
-              name: 'low',
-              brief: '4V range with improved resolution for lower voltages',
+              name: '5V',
+              brief: '5V range with improved resolution for lower voltages',
+              aliases: ['low'],
             }
           ],
           default: 'high'

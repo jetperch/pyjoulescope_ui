@@ -84,9 +84,16 @@ def validate(config_def, cfg, path=None):
             v = cfg.get(key, entry.get('default'))
             if v is not None:
                 if t == 'str' and 'options' in entry:
-                    values = [x['name'] for x in entry['options']]
+                    values = {}
+                    for x in entry['options']:
+                        n = x['name']
+                        for e in [n] + x.get('aliases', []):
+                            if e in values:
+                                raise ValueError('Invalid configuration: duplicate key %s' % (e, ))
+                            values[e] = n
                     if v not in values:
                         raise ValueError('%s: Value "%s" not in %s' % (p, v, values))
+                    v = values[v]
                 y[key] = _substitute(entry, v)
         if key in k2:
             k2.remove(key)

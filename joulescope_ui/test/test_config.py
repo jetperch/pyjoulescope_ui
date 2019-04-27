@@ -66,11 +66,23 @@ class TestConfig(unittest.TestCase):
         with self.assertRaises(ValueError):
             c = load_config(d, f)
 
+    def test_load_default(self):
+        d = load_def()
+        f = io.BytesIO("""{'Device': {}}""".encode('utf-8'))
+        c = load_config(d, f)
+        self.assertEqual('auto', c['Device']['i_range'])
+
+    def test_load_alias(self):
+        d = load_def()
+        f = io.BytesIO("""{'Device': {'i_range': '2'}}""".encode('utf-8'))
+        c = load_config(d, f)
+        self.assertEqual('180 mA', c['Device']['i_range'])
+
     def test_filename(self):
         d = load_def()
         fname = os.path.join(MYPATH, 'cfg1.json5')
         c = load_config(d, fname)
-        self.assertEqual('2', c['Device']['i_range'])
+        self.assertEqual('180 mA', c['Device']['i_range'])
 
 
 class TestConfigSave(unittest.TestCase):
