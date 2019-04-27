@@ -32,7 +32,7 @@
           default: true,
         }
       ]
-    },  // paths end
+    },  // General end
 
     {
       name: 'Device',
@@ -99,7 +99,7 @@
           default: 'high'
         },
       ]
-    }, // device end
+    }, // Device end
 
 
     {
@@ -144,7 +144,7 @@
           default: '1'
         },
       ],
-    }, // waveform end
+    }, // Waveform end
 
 
     {
@@ -165,7 +165,7 @@
           default: false,
         }
       ],
-    }, // developer end
+    }, // Developer end
 
 
   ]

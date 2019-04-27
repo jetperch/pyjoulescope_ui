@@ -70,7 +70,7 @@ class TestConfig(unittest.TestCase):
         d = load_def()
         fname = os.path.join(MYPATH, 'cfg1.json5')
         c = load_config(d, fname)
-        self.assertEqual('auto', c['Device']['i_range'])
+        self.assertEqual('2', c['Device']['i_range'])
 
 
 class TestConfigSave(unittest.TestCase):

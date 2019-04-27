@@ -40,7 +40,7 @@ if not os.path.isdir(APP_PATH):
     os.makedirs(APP_PATH)
 
 
-def substitute(entry, value):
+def _substitute(entry, value):
     if entry.get('type') == 'path':
         attributes = entry.get('attributes', [])
         if value == '__SAVE_PATH__':
@@ -52,7 +52,17 @@ def substitute(entry, value):
     return value
 
 
-def validate(config_def, cfg, path=''):
+def validate(config_def, cfg, path=None):
+    """Validate that the configuration is valid.
+
+    :param config_def: The configuration definition data structure.
+        See config_def.json5 for the data structure format.
+    :param cfg: The configuration to validate against the config_def.
+    :param path: The path used recursively by this function.
+        This value should not be provided by the initial caller.
+    :return: True on validate success, False on failure.
+    """
+    path = '' if path is None else str(path)
     if 'info' in config_def:  # handle top level
         config_def = config_def['children']
     y = {}
@@ -77,7 +87,7 @@ def validate(config_def, cfg, path=''):
                     values = [x['name'] for x in entry['options']]
                     if v not in values:
                         raise ValueError('%s: Value "%s" not in %s' % (p, v, values))
-                y[key] = substitute(entry, v)
+                y[key] = _substitute(entry, v)
         if key in k2:
             k2.remove(key)
     for k in k2:
@@ -87,6 +97,17 @@ def validate(config_def, cfg, path=''):
 
 
 def find_child_by_name(d, name):
+    """Find a specification configuration definition child.
+
+    :param d: The configuration definition list with dict elements that
+        have a key 'name'.
+    :param name: The name to match against the 'name' key in each list
+        element.
+    :return: The matching element or None.
+
+    Fastest implementation, no.
+    Simplest while maintaining guaranteed order, yes.
+    """
     for entry in d['children']:
         if entry['name'] == name:
             return entry
@@ -122,6 +143,14 @@ def _cfg_def_normalize(d):
 
 
 def load_config_def(path: str=None):
+    """Load a configuration definition.
+
+    :param path: The full path to the configuration definition.
+        None (default) uses the config_def.json5 included with this
+        package.
+    :return: The configuration definition.
+        See config_def.json5 for the data structure format.
+    """
     if path is None:
         bin_file = pkgutil.get_data('joulescope_ui', 'config_def.json5')
         d = json5.loads(bin_file, encoding='utf-8')
@@ -137,6 +166,16 @@ def load_config_def(path: str=None):
 
 
 def load_config(config_def, path=None):
+    """Load the configuration.
+
+    :param config_def: The configuration definition used to validate the
+        loaded configuration.
+        See config_def.json5 for the data structure format.
+    :param path: The full path to the configuration definition.
+        None (default) uses the platform-dependent path.
+    :return: The loaded configuration which consists of a two level dictionary
+        that mirrors the configuration definition. (key -> key -> value).
+    """
     if path is None:
         path = CONFIG_PATH
     if not isinstance(path, str):
@@ -153,6 +192,13 @@ def load_config(config_def, path=None):
 
 
 def save_config(cfg, path=None):
+    """Save the configuration.
+
+    :param cfg: The configuration which consists of a two level dictionary
+        that mirrors the configuration definition. (key -> key -> value).
+    :param path: The full save path.
+        None (default) uses the platform-dependent path.
+    """
     if path is None:
         path = CONFIG_PATH
     if not isinstance(path, str):
