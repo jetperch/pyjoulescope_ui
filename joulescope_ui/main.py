@@ -39,6 +39,7 @@ from joulescope_ui.config import load_config_def, load_config, save_config
 from joulescope_ui import usb_inrush
 from joulescope_ui.update_check import check as software_update_check
 from joulescope_ui.save import save_csv
+from joulescope_ui.logging_util import logging_config
 import ctypes
 import logging
 log = logging.getLogger(__name__)
@@ -117,7 +118,7 @@ class MainWindow(QtWidgets.QMainWindow):
     on_xChangeSignal = QtCore.Signal(str, object)
     on_softwareUpdateSignal = QtCore.Signal(str, str)
 
-    def __init__(self, app, device_name=None):
+    def __init__(self, app, device_name=None, cfg_def=None, cfg=None):
         self._app = app
         self._device_scan_name = 'joulescope' if device_name is None else str(device_name)
         self._devices = []
@@ -134,8 +135,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self._data_view = None  # created when device is opened
         self._energy = [0, 0]  # value, offset
 
-        self._cfg_def = load_config_def()
-        self._cfg = load_config(self._cfg_def)
+        if cfg_def is None:
+            self._cfg_def = load_config_def()
+        else:
+            self._cfg_def = cfg_def
+        if cfg is None:
+            self._cfg = load_config(self._cfg_def)
+        else:
+            self._cfg = cfg
         self._path = self._cfg['General']['data_path']
 
         super(MainWindow, self).__init__()
@@ -627,7 +634,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     index = i
                     break
             if index is None:
-                log.warning('Could not find value %s' % (value, ))
+                log.warning('Could not find param %s value %s' % (param_name, value))
                 return
             combobox.setCurrentIndex(index)
         else:
@@ -868,7 +875,10 @@ def kick_bootloaders():
 
 
 def run(device_name=None):
-    logging.basicConfig(level=logging.INFO)
+    cfg_def = load_config_def()
+    cfg = load_config(cfg_def)
+    logging_config(file_log_level=cfg['General']['log_level'])
+
     # http://doc.qt.io/qt-5/highdpi.html
     # https://vicrucann.github.io/tutorials/osg-qt-high-dpi/
     kick_bootloaders()
@@ -876,7 +886,7 @@ def run(device_name=None):
         ctypes.windll.user32.SetProcessDPIAware()
     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
     app = QtWidgets.QApplication(sys.argv)
-    ui = MainWindow(app, device_name=device_name)
+    ui = MainWindow(app, device_name=device_name, cfg_def=cfg_def, cfg=cfg)
     device_notify = DeviceNotify(ui.on_deviceNotifySignal.emit)
     rc = app.exec_()
     device_notify.close()
