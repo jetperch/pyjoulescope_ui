@@ -36,14 +36,9 @@ Install python3 dependencies
 
     pip3 install -r requirements.txt
 
-As of Jan 2019, this package depends upon a 
-[forked version of pyqtgraph](https://github.com/jetperch/pyqtgraph). You
-must clone and the install this version:
-
-    git clone https://github.com/jetperch/pyqtgraph.git
-    cd pyqtgraph
-    python3 setup.py sdist
-    pip3 install dist/pyqtgraph-0.11.0.dev0.tar.gz
+As of May 2019, this package depends upon a 
+[forked version of pyqtgraph](https://github.com/jetperch/pyqtgraph) which
+is automatically installed from the Joulescope website.
     
 If you are just interested in developing the UI, you can install the joulescope
 package as described in the 

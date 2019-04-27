@@ -6,11 +6,14 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.3.0
 
-2019 Apr ??
+2019 Apr 27
 
 *   Improved error handling for underlying driver/fw/hw errors.
 *   Added command-line option to specify the joulescope device name.
 *   Added compliance testing mode.
+*   Added logging to file.
+*   Fixed Device.i_range and Device.v_range preferences.
+*   Added alias values to the configuration.
 
 
 ## 0.2.7

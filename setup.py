@@ -32,7 +32,7 @@ from pyside2uic import compileUi
 
 
 VERSION = '0.3.0'  # CHANGE THIS VERSION!
-JOULESCOPE_VERSION_MIN = '0.3.0'
+JOULESCOPE_VERSION_MIN = '0.3.0'  # also update requirements.txt
 MYPATH = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -157,7 +157,7 @@ setuptools.setup(
         'numpy>=1.15.2',
         'python-dateutil>=2.7.3',
         'pyside2>=-5.11.2',
-        'pyqtgraph>=0.10.0',
+        'pyqtgraph>=0.11.0',
         'requests>=2.0.0',
         'joulescope>=' + JOULESCOPE_VERSION_MIN,
     ] + PLATFORM_INSTALL_REQUIRES,
