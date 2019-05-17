@@ -4,6 +4,18 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.3.1
+
+2019 May ??
+
+*   Improved file logging.
+*   Improved application robustness.
+    *   Added periodic device scan, because bad things happen.
+    *   Catch and handle more exceptions.
+    *   Automatically attempt to recover when a device is "lost".
+    *   Eliminated repeated parameter initialization x number of device disconnects.
+
+
 ## 0.3.0
 
 2019 Apr 27
