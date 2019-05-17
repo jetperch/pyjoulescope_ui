@@ -18,7 +18,9 @@ import requests
 import json
 import threading
 from joulescope_ui import VERSION
+import logging
 
+log = logging.getLogger(__name__)
 URL = 'https://www.joulescope.com/app_download/version.json'
 TIMEOUT = 30.0
 
@@ -30,15 +32,18 @@ def is_newer(version):
 
 
 def fetch(callback):
-    response = requests.get(URL, timeout=TIMEOUT)
-    data = json.loads(response.text)
+    try:
+        response = requests.get(URL, timeout=TIMEOUT)
+        data = json.loads(response.text)
 
-    latest_version = data.get('production', '0.0.0')
-    if is_newer(latest_version):
-        callback(VERSION, latest_version)
-        return True
-    return False
-
+        latest_version = data.get('production', '0.0.0')
+        if is_newer(latest_version):
+            callback(VERSION, latest_version)
+            return True
+        return False
+    except Exception:
+        log.warning('Could not connect to software download server')
+        return False
 
 def check(callback):
     """Check for software updates.
