@@ -106,6 +106,9 @@ class DeviceDisable:
     def open(self):
         pass
 
+    def parameter_set(self, name, value):
+        pass
+
     def close(self):
         pass
 
@@ -134,6 +137,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._status_row = 0
         self._data_view = None  # created when device is opened
         self._energy = [0, 0]  # value, offset
+        self._is_scanning = False
 
         if cfg_def is None:
             self._cfg_def = load_config_def()
@@ -257,6 +261,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.status_update_timer.timeout.connect(self.on_statusUpdateTimer)
         self.status_update_timer.start()
 
+        # device scan timer - because bad things happen
+        self.rescan_timer = QtCore.QTimer(self)
+        self.rescan_timer.setInterval(10000)  # milliseconds
+        self.rescan_timer.timeout.connect(self.on_rescanTimer)
+        self.rescan_timer.start()
+
         # data update timer
         self.data_update_timer = QtCore.QTimer(self)
         self.data_update_timer.setInterval(33)  # milliseconds
@@ -297,19 +307,29 @@ class MainWindow(QtWidgets.QMainWindow):
     @QtCore.Slot()
     def on_statusUpdateTimer(self):
         if self._has_active_device and hasattr(self._device, 'status'):
-            s = self._device.status()
-            if s['driver']['return_code']['value']:
-                self._device_close()
+            try:
+                s = self._device.status()
+                if s['driver']['return_code']['value']:
+                    self._device_recover()
+                    return
+                self._status_fn(s)
+                if self._cfg['Developer']['compliance']:
+                    if self._compliance['status'] is not None:
+                        sample_id_prev = self._compliance['status']['buffer']['sample_id']['value']
+                        sample_id_now = s['buffer']['sample_id']['value']
+                        sample_id_delta = sample_id_now - sample_id_prev
+                        if sample_id_delta < 2000000 * 0.5 * 0.80:
+                            self._compliance_error('orange')
+                    self._compliance['status'] = s
+            except:
+                log.exception("statusUpdateTimer failed - assume device error")
+                self._device_recover()
                 return
-            self._status_fn(s)
-            if self._cfg['Developer']['compliance']:
-                if self._compliance['status'] is not None:
-                    sample_id_prev = self._compliance['status']['buffer']['sample_id']['value']
-                    sample_id_now = s['buffer']['sample_id']['value']
-                    sample_id_delta = sample_id_now - sample_id_prev
-                    if sample_id_delta < 2000000 * 0.5 * 0.80:
-                        self._compliance_error('orange')
-                self._compliance['status'] = s
+
+    @QtCore.Slot()
+    def on_rescanTimer(self):
+        log.info('rescanTimer')
+        self._device_scan()
 
     def _update_data(self):
         if self._has_active_device:
@@ -362,6 +382,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.dev_dock_widget.setVisible(do_show)
 
     def device_notify(self, inserted, info):
+        log.info('Device notify')
         self._device_scan()
 
     def disable_floating(self):
@@ -468,7 +489,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def _device_open_failed(self, msg):
         self.status(msg)
-        self._device_close()
+        self._device_recover()
         self._compliance_error('yellow')
         return None
 
@@ -508,11 +529,20 @@ class MainWindow(QtWidgets.QMainWindow):
                 return self._device_open_failed('Could not initialize device')
             self._developer_cfg_apply()
 
+    def _control_ui_disconnect(self):
+        for combobox in [self.control_ui.iRangeComboBox, self.control_ui.vRangeComboBox]:
+            try:
+                combobox.currentIndexChanged.disconnect()
+            except:
+                pass
+
     def _control_ui_init(self):
         log.info('_control_ui_init')
         if not self._has_active_device:
             self._control_ui_clean()
             return
+        else:
+            self._control_ui_disconnect()
         self.control_ui.playButton.setEnabled(hasattr(self._device, 'start'))
         self.control_ui.recordButton.setEnabled(False)
         params = [('i_range', self.control_ui.iRangeComboBox),
@@ -533,6 +563,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 combobox.currentIndexChanged.connect(self._param_cbk_construct(p.name))
 
     def _control_ui_clean(self):
+        self._control_ui_disconnect()
         self.control_ui.playButton.setChecked(False)
         self.control_ui.playButton.setEnabled(False)
         self.control_ui.recordButton.setChecked(False)
@@ -544,6 +575,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def _device_cfg_apply(self, do_open=False):
         if self._has_active_device:
+            log.info('_device_cfg_apply')
             self._on_param_change('source', value=self._cfg['Device']['source'])
             self._on_param_change('i_range', value=self._cfg['Device']['i_range'])
             self._on_param_change('v_range', value=self._cfg['Device']['v_range'])
@@ -551,6 +583,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self._device_stream(True)
 
     def _developer_cfg_apply(self):
+        log.info('_developer_cfg_apply')
         self._compliance['gpo_value'] = 0
         self._compliance['status'] = None
         self._compliance_error(None)
@@ -563,12 +596,15 @@ class MainWindow(QtWidgets.QMainWindow):
         is_active_device = self._has_active_device
         self._device = self._device_disable
         log.info('device_close %s', str(device))
-        if is_active_device:
-            if device.view is not None:
+        if is_active_device and device.view is not None:
+            try:
                 self.on_xChangeSignal.disconnect(device.view.on_x_change)
+            except:
+                log.warning('Could not disconnect device.view.on_x_change')
+        if device:
             device.close()
-            if device.ui_action.isChecked():
-                device.ui_action.setChecked(False)
+        if is_active_device and device.ui_action.isChecked():
+            device.ui_action.setChecked(False)
         self._device_disable.ui_action.setChecked(True)
         self._status_clean()
         self._param_clean()
@@ -579,8 +615,16 @@ class MainWindow(QtWidgets.QMainWindow):
         if self._cfg['Developer']['compliance']:
             self.setStyleSheet("background-color: yellow;")
 
+    def _device_recover(self):
+        log.info('_device_recover')
+        devices, self._devices = self._devices, []
+        for device in devices:
+            self._device_remove(device)
+        self._device_scan()
+
     def _device_add(self, device):
         """Add device to the user interface"""
+        log.info('_device_change add %s', device)
         action = QtWidgets.QAction(str(device), self)
         action.setCheckable(True)
         action.setChecked(False)
@@ -591,6 +635,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def _device_remove(self, device):
         """Remove the device from the user interface"""
+        log.info('_device_change remove %s', device)
         self.device_action_group.removeAction(device.ui_action)
         self.ui.menuDevice.removeAction(device.ui_action)
         if self._device == device:
@@ -599,20 +644,27 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def _device_scan(self):
         """Scan for new physical Joulescope devices."""
-        physical_devices = [d for d in self._devices if hasattr(d, 'usb_device')]
-        virtual_devices = [d for d in self._devices if not hasattr(d, 'usb_device')]
-        devices, added, removed = scan_for_changes(name=self._device_scan_name, devices=physical_devices)
-        if self._device in removed:
-            self._device_close()
-        for d in removed:
-            self._device_remove(d)
-        for d in added:
-            self._device_add(d)
-        self._devices = virtual_devices + devices
-        log.info('current device = %s, %s', self._device, self._device is self._device_disable)
-        if self._device is self._device_disable and len(devices):
-            log.info('device_scan activate first device %s', devices[0])
-            devices[0].ui_action.trigger()
+        if self._is_scanning:
+            return
+        log.info('_device_scan')
+        try:
+            self._is_scanning = True
+            physical_devices = [d for d in self._devices if hasattr(d, 'usb_device')]
+            virtual_devices = [d for d in self._devices if not hasattr(d, 'usb_device')]
+            devices, added, removed = scan_for_changes(name=self._device_scan_name, devices=physical_devices)
+            if self._device in removed:
+                self._device_close()
+            for d in removed:
+                self._device_remove(d)
+            for d in added:
+                self._device_add(d)
+            self._devices = virtual_devices + devices
+            log.info('current device = %s, %s', self._device, self._device is self._device_disable)
+            if self._device is self._device_disable and len(devices):
+                log.info('device_scan activate first device %s', devices[0])
+                devices[0].ui_action.trigger()
+        finally:
+            self._is_scanning = False
 
     def _on_param_change(self, param_name, index=None, value=None):
         if param_name == 'i_range':
@@ -636,10 +688,11 @@ class MainWindow(QtWidgets.QMainWindow):
             if index is None:
                 log.warning('Could not find param %s value %s' % (param_name, value))
                 return
-            combobox.setCurrentIndex(index)
         else:
             log.warning('_on_param_change with no change!')
             return
+        if combobox.currentIndex() != index:
+            combobox.setCurrentIndex(index)
         log.info('param_name=%s, value=%s, index=%s', param_name, value, index)
         if hasattr(self._device, 'parameter_set'):
             try:
@@ -647,9 +700,14 @@ class MainWindow(QtWidgets.QMainWindow):
             except Exception:
                 log.exception('during parameter_set')
                 self.status('Parameter set %s failed, value=%s' % (param_name, value))
+                self._device_recover()
 
     def _param_cbk_construct(self, param_name: str):
-        return lambda x: self._on_param_change(param_name, index=x)
+        @QtCore.Slot()
+        def cbk(x):
+            log.info('_param_cbk(%s)', param_name)
+            return self._on_param_change(param_name, index=x)
+        return cbk
 
     def _param_init(self):
         self._param_clean()
@@ -679,10 +737,14 @@ class MainWindow(QtWidgets.QMainWindow):
             self._parameters[p.name] = [label_name, combobox, label_units]
 
     def _param_clean(self):
-        for key, (w1, w2, w3) in self._parameters.items():
-            w1.setParent(None)
-            w2.setParent(None)
-            w3.setParent(None)
+        for key, (label_name, combobox, label_units) in self._parameters.items():
+            label_name.setParent(None)
+            try:
+                combobox.currentIndexChanged.disconnect()
+            except:
+                pass
+            combobox.setParent(None)
+            label_units.setParent(None)
         self._parameters = {}
 
     def _status_clean(self):
