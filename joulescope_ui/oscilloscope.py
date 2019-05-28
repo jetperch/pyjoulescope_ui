@@ -220,14 +220,22 @@ def resize_buttons_to_minimum(buttons: List[QtWidgets.QPushButton]):
 
 
 class Oscilloscope(QtCore.QObject):
+
     on_xChangeSignal = QtCore.Signal(str, object)
-    on_markerSignal = QtCore.Signal(object)
-    """List of command, kwargs:
+    """Indicate that an x-axis range change was requested.
+    
+    :param command: The command string.
+    :param kwargs: The keyword argument dict for the command.
+    
+    List of command, kwargs:
     * ['resize', {pixels: }]
     * ['span_absolute', {range: [start, stop]}]
     * ['span_pan', {delta: }]
     * ['span_relative', {pivot: , gain: }]
     """
+
+    on_markerSignal = QtCore.Signal(object)
+    """x-axis position or None"""
 
     def __init__(self, parent, field):
         QtCore.QObject.__init__(self)
@@ -425,6 +433,17 @@ class Oscilloscope(QtCore.QObject):
         self.ui.minValue.setText('')
         self.ui.maxValue.setText('')
         self.plot.update()
+
+    """
+    on_marker(marker_name, command, kwargs)
+    marker_name = cursor, left, right
+    add/show
+    remove/hide
+    configure
+    position
+    
+    t, Δt, mean, min, max, p2p, integral (C, V-s, J)
+    """
 
     @QtCore.Slot(object)
     def on_marker(self, x=None):

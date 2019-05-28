@@ -158,9 +158,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.central_widget.setMaximumWidth(1)
         self.setCentralWidget(self.central_widget)
 
-        self._multimeter_default_action = self.ui.menuView.addAction("Multimeter Default")
+        self._multimeter_default_action = self.ui.menuView.addAction("Multimeter")
         self._multimeter_default_action.triggered.connect(self.on_multimeterMenu)
-        self._oscilloscope_default_action = self.ui.menuView.addAction("Oscilloscope Default")
+        self._oscilloscope_default_action = self.ui.menuView.addAction("Oscilloscope")
         self._oscilloscope_default_action.triggered.connect(self.on_oscilloscopeMenu)
         self.ui.menuView.addSeparator()
 
