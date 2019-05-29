@@ -125,3 +125,9 @@ class Marker(pg.GraphicsObject):
         self._invalidateCache()
         self.update()
 
+    def get_pos(self):
+        """Get the current x-axis position for the marker.
+
+        :return: The current x-axis position in the Axis coordinates.
+        """
+        return self._x

@@ -13,17 +13,12 @@ class Oscilloscope(QtWidgets.QWidget):
     :param parent: The parent :class:`QWidget`.
     """
 
-    on_xChangeSignal = QtCore.Signal(str, object)
+    on_xChangeSignal = QtCore.Signal(float, float, int)
     """Indicate that an x-axis range change was requested.
 
-    :param command: The command string.
-    :param kwargs: The keyword argument dict for the command.
-
-    List of command, kwargs:
-    * ['resize', {pixels: }]
-    * ['span_absolute', {range: [start, stop]}]
-    * ['span_pan', {delta: }]
-    * ['span_relative', {pivot: , gain: }]
+    :param x_min: The minimum x_axis value to display in the range.
+    :param x_max: The maximum x_axis value to display in the range.
+    :param x_count: The desired number of samples in the range.
     """
 
     def __init__(self, parent=None):
@@ -61,13 +56,13 @@ class Oscilloscope(QtWidgets.QWidget):
 
         self.win.ci.layout.setColumnStretchFactor(2, -1)
 
-        self.marker = Marker(x_axis=self._x_axis, shape='none')
-        self.win.sceneObj.addItem(self.marker)
+        self._cursor = Marker(x_axis=self._x_axis, shape='none')
+        self.win.sceneObj.addItem(self._cursor)
 
         for p in self._signals.values():
-            p.vb.sigResized.connect(self.marker.linkedViewChanged)
-            p.vb.sigXRangeChanged.connect(self.marker.linkedViewChanged)
-        self.marker.show()
+            p.vb.sigResized.connect(self._cursor.linkedViewChanged)
+            p.vb.sigXRangeChanged.connect(self._cursor.linkedViewChanged)
+        self._cursor.show()
         self._proxy = pg.SignalProxy(self.win.scene().sigMouseMoved, rateLimit=60, slot=self._mouseMoveEvent)
 
     def set_display_mode(self, mode):
@@ -84,6 +79,15 @@ class Oscilloscope(QtWidgets.QWidget):
         """
         self._scrollbar.set_display_mode(mode)
 
+    def set_sampling_frequency(self, freq):
+        """Set the sampling frequency.
+
+        :param freq: The sampling frequency in Hz.
+
+        This value is used to request appropriate x-axis ranges.
+        """
+        self._scrollbar.set_sampling_frequency(freq)
+
     def _mouseMoveEvent(self, ev):
         """Handle mouse movements for every mouse movement within the widget"""
         pos = ev[0]
@@ -97,7 +101,7 @@ class Oscilloscope(QtWidgets.QWidget):
             x = x_min
         elif x > x_max:
             x = x_max
-        self.marker.set_pos(x)
+        self._cursor.set_pos(x)
 
     def set_xview(self, x_min, x_max):
         self._scrollbar.set_xview(x_min, x_max)
@@ -142,11 +146,18 @@ class Oscilloscope(QtWidgets.QWidget):
                 item.setMaximumWidth(16777215)
 
     def data_update(self, x, data):
+        cursor_x = None
+        if self._cursor.isVisible() and len(x):
+            cursor_x = self._cursor.get_pos()
+            if not x[0] <= cursor_x <= x[-1]:
+                cursor_x = None
+
         for name, value in data.items():
             s = self._signals.get(name)
             if s is not None:
                 self._signals[name].update(x, value)
-        # marker.update()
+                if cursor_x is not None:
+                    labels = self._signals[name].statistics_at(cursor_x)
 
     def data_clear(self):
         pass
@@ -160,16 +171,12 @@ class Oscilloscope(QtWidgets.QWidget):
         length = int(length)
         return length, tuple(self._x_limits)
 
-    @QtCore.Slot(float, float)
-    def on_scrollbarRegionChange(self, x_min, x_max):
+    @QtCore.Slot(float, float, float)
+    def on_scrollbarRegionChange(self, x_min, x_max, x_count):
         row_count = self.win.ci.layout.rowCount()
+        if x_min > x_max:
+            x_min = x_max
         if row_count > 3:
             vb = self.win.ci.layout.itemAt(self.win.ci.layout.rowCount() - 1, 1)
             vb.setXRange(x_min, x_max, padding=0)
-        self.on_xChangeSignal.emit('span_absolute', {'range': [x_min, x_max]})
-
-    def resizeEvent(self, ev):
-        vb = self.win.ci.layout.itemAt(0, 1)
-        width = vb.geometry().width()
-        width = int(width)
-        self.on_xChangeSignal.emit('resize', {'pixels': width})
+        self.on_xChangeSignal.emit(x_min, x_max, x_count)

@@ -357,10 +357,11 @@ class MainWindow(QtWidgets.QMainWindow):
             self._device.parameter_set('gpo1', '1' if (gpo_value & 0x02) else '0')
             self._compliance['gpo_value'] = gpo_value
 
-    @QtCore.Slot(str, object)
-    def _on_x_change(self, cmd, kwargs):
-        log.info('on_x_change(%s, %s)', cmd, kwargs)
-        self.on_xChangeSignal.emit(cmd, kwargs)
+    @QtCore.Slot(float, float, int)
+    def _on_x_change(self, x_min, x_max, x_count):
+        log.info('_on_x_change(%s, %s, %s)', x_min, x_max, x_count)
+        self.on_xChangeSignal.emit('resize', {'pixels': x_count})
+        self.on_xChangeSignal.emit('span_absolute', {'range': [x_min, x_max]})
         if not self.data_update_timer.isActive():
             # force data update
             self.data_update_timer.timeout.emit()
@@ -761,6 +762,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.control_ui.recordButton.setEnabled(True)
         self.data_update_timer.start()
         self.oscilloscope_widget.set_display_mode('realtime')
+        self.oscilloscope_widget.set_sampling_frequency(self._device.sampling_frequency)
         try:
             self._device.start(stop_fn=self.on_stopSignal.emit)
         except Exception:

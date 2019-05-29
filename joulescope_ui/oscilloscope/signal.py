@@ -1,7 +1,11 @@
 from .signal_statistics import SignalStatistics
+from joulescope.units import unit_prefix, three_sig_figs
 import pyqtgraph as pg
 import numpy as np
+import logging
 
+
+log = logging.getLogger(__name__)
 CURVE_WIDTH = 1
 AUTO_RANGE_FRACT = 0.45  # autorange when current range smaller than existing range by this fractional amount.
 
@@ -20,6 +24,7 @@ class Signal:
         self.y_axis = pg.AxisItem(orientation='left')
         self.y_axis.linkToView(self.vb)
         self.y_axis.setGrid(128)
+        self._most_recent_data = None
         if name is not None:
             self.y_axis.setLabel(text=name, units=units)
             if units is not None:
@@ -51,67 +56,125 @@ class Signal:
             layout.ci.layout.setRowStretchFactor(row, 10)
 
     def yaxis_autorange(self, v_min, v_max):
-        if True:  # self.ui.zoomAutoYButton.isChecked():
-            _, (vb_min, vb_max) = self.vb.viewRange()
-            vb_range = vb_max - vb_min
-            v_range = v_max - v_min
-            update_range = (v_max > vb_max) or (v_min < vb_min)
-            if vb_range > 0:
-                update_range |= (v_range / vb_range) < AUTO_RANGE_FRACT
-            if update_range:
-                self.vb.setYRange(v_min, v_max)
+        _, (vb_min, vb_max) = self.vb.viewRange()
+        if not np.isfinite(v_min):
+            v_min = vb_min
+        if not np.isfinite(v_max):
+            v_max = vb_max
+        vb_range = vb_max - vb_min
+        v_range = v_max - v_min
+        update_range = (v_max > vb_max) or (v_min < vb_min)
+        if vb_range > 0:
+            update_range |= (v_range / vb_range) < AUTO_RANGE_FRACT
+        if update_range:
+            self.vb.setYRange(v_min, v_max)
+
+    def data_clear(self):
+        self._most_recent_data = None
+        self.curve_mean.clear()
+        self.curve_mean.update()
+        self._min_max_disable()
+
+    def _min_max_enable(self):
+        if not self.curve_min.isVisible():
+            self.curve_max.show()
+            self.curve_min.show()
+
+    def _min_max_disable(self):
+        if self.curve_min.isVisible():
+            self.curve_max.clear()
+            self.curve_max.update()
+            self.curve_max.hide()
+            self.curve_min.clear()
+            self.curve_min.update()
+            self.curve_min.hide()
 
     def update(self, x, value):
+        """Update the signal data.
+
+        :param x: The length N array of x-axis time in seconds.
+        :param value: The y-axis data which can be:
+            * length N array
+            * length Nx4 array of [mean, var, min, max].  Note that
+              var, min, max may be NaN when not available.
+        """
         self.text_item.data_clear()
-        if x is None or value is None:
-            self.curve_mean.clear()
-            self.curve_mean.update()
-            self.curve_max.clear()
-            self.curve_max.update()
-            self.curve_min.clear()
-            self.curve_min.update()
+        if x is None or value is None or not len(x):
+            self.data_clear()
+            return
 
-        elif len(value.shape) == 1:
-            self.curve_mean.setData(x, value)
-            self.curve_max.clear()
-            self.curve_max.update()
-            self.curve_min.clear()
-            self.curve_min.update()
-
-            if self.text_item is not None:
-                z_valid = np.isfinite(value)
-                z = value[z_valid]
-                if len(z):
-                    z_mean = np.mean(z)
-                    z_std = np.std(z)
-                    z_max = np.max(z)
-                    z_min = np.min(z)
-                    self.text_item.data_update(z_mean, z_std, z_max, z_min)
-                    self.yaxis_autorange(np.min(z_min), np.max(z_max))
-
-        elif len(value.shape) == 2 and value.shape[-1] > 1:
+        # get the mean value regardless of shape
+        shape_len = len(value.shape)
+        if shape_len == 1:
+            z_mean = value
+        elif shape_len == 2:
             z_mean = value[:, 0]
-            self.curve_mean.setData(x, z_mean)
-            self.curve_min.setData(x, value[:, 2])
-            self.curve_max.setData(x, value[:, 3])
+        else:
+            log.warning('Unsupported value shape: %s', str(value.shape))
 
-            if self.text_item is not None:
-                z_valid = np.isfinite(z_mean)
-                z_mean = value[z_valid, 0]
-                z_var = value[z_valid, 1]
-                z_min = value[z_valid, 2]
-                z_max = value[z_valid, 3]
-                if len(z_mean):
-                    v_mean = np.mean(z_mean)
-                    v_min = np.min(z_min)
-                    if not np.isfinite(v_min):
-                        v_min = np.min(z_mean)
-                    v_max = np.max(z_max)
-                    if not np.isfinite(v_max):
-                        v_max = np.max(z_mean)
-                    mean_delta = z_mean - v_mean
-                    # combine variances across the combined samples
-                    v_std = np.sqrt(np.sum(np.square(mean_delta, out=mean_delta) + z_var) / len(z_mean))
-                    self.text_item.data_update(v_mean, v_std, v_max, v_min)
-                    self.yaxis_autorange(v_min, v_max)
+        # get the valid mean values regardless of shape
+        z_valid = np.isfinite(z_mean)
+        x = x[z_valid]
+        z_mean = z_mean[z_valid]
+        if not len(z_mean):
+            self.data_clear()
+            return
+
+        self._most_recent_data = [x, z_mean, None, None, None]
+        z_var, z_min, z_max = None, None, None
+        if shape_len == 2 and value.shape[1] == 4:
+            # axes are: mean, variance, min, max
+            z_var = value[z_valid, 1]
+            z_min = value[z_valid, 2]
+            z_max = value[z_valid, 3]
+            if np.isfinite(z_min[0]):
+                self._most_recent_data = [x, z_mean, z_var, z_min, z_max]
+
+        # compute statistics over the visible window
+        z = z_mean
+        self.curve_mean.setData(x, z)
+        if z_var is None:
+            self._min_max_disable()
+            v_mean = np.mean(z)
+            v_std = np.std(z)
+            v_max = np.max(z)
+            v_min = np.min(z)
+        else:
+            self._min_max_enable()
+            self.curve_min.setData(x, z_min)
+            self.curve_max.setData(x, z_max)
+
+            v_mean = np.mean(z_mean)
+            v_min = np.min(z_min)
+            v_max = np.max(z_max)
+            mean_delta = z_mean - v_mean
+            # combine variances across the combined samples
+            v_std = np.sqrt(np.sum(np.square(mean_delta, out=mean_delta) + z_var) / len(z_mean))
+
+        if self.text_item is not None:
+            self.text_item.data_update(v_mean, v_std, v_max, v_min)
+
+        self.yaxis_autorange(v_min, v_max)
+
+    def statistics_at(self, x):
+        """Get the statistics at the provided x value.
+
+        :param x: The x-axis value in seconds.
+        :return: The dict mapping parameter name to float value.
+        """
+        if self._most_recent_data is None:
+            return {}
+        z_x, z_mean, z_var, z_min, z_max = self._most_recent_data
+        if x < z_x[0] or x > z_x[-1]:
+            return {}
+        idx = np.argmax(z_x >= x)
+        y_mean = float(z_mean[idx])
+        if z_min is not None:
+            y_var = float(z_var[idx])
+            y_min = float(z_min[idx])
+            y_max = float(z_max[idx])
+            labels = {'μ': y_mean, 'σ': np.sqrt(y_var), 'min': y_min, 'max': y_max, 'p2p': y_max - y_min}
+        else:
+            labels = {'μ': y_mean}
+        return labels
 
