@@ -14,6 +14,7 @@
 
 from pyqtgraph.Qt import QtGui, QtCore
 import pyqtgraph as pg
+import weakref
 import logging
 
 
@@ -29,9 +30,16 @@ class Marker(pg.GraphicsObject):
         ['full', 'left', 'right', 'none'].
     """
 
-    def __init__(self, x_axis: pg.AxisItem, color=None, shape=None):
+    sigRemoveRequest = QtCore.Signal(object)
+    """Indicate that the user has requested to remove this marker
+
+    :param marker: The marker instance to remove.
+    """
+
+    def __init__(self, name, x_axis: pg.AxisItem, color=None, shape=None):
         pg.GraphicsObject.__init__(self)
-        self._axis = x_axis
+        self.name = name
+        self._axis = weakref.ref(x_axis)
         self.color = (64, 255, 64, 255) if color is None else color
         self._boundingRect = None
         self.picture = None
@@ -40,19 +48,24 @@ class Marker(pg.GraphicsObject):
         self._x = 0.0  # in self._axis coordinates
         # self.setZValue(2000000)
         self.signals = {}  # name: (Signal weakref, TextItem)
+        self.pair = None
+        self.moving = False
 
     def _endpoints(self):
         """Get the endpoints in the scene's (parent) coordinates.
 
         :return: (top, bottom) pg.Point instances
         """
-        vb = self._axis.linkedView()
+        axis = self._axis()
+        if axis is None:
+            return None, None
+        vb = axis.linkedView()
         if vb is None:
             return None, None
-        bounds = self._axis.geometry()
-        tickBounds = vb.mapRectToItem(self, self._axis.boundingRect())
+        bounds = axis.geometry()
+        tickBounds = vb.mapRectToItem(self, axis.boundingRect())
         point = pg.Point(self._x, 0.0)
-        x = self._axis.linkedView().mapViewToScene(point).x()
+        x = vb.mapViewToScene(point).x()
         p1 = pg.Point(x, bounds.bottom())
         p2 = pg.Point(x, tickBounds.bottom())
         log.debug('_endpoints %s: %s, %s' % (self._x, p1, p2))
@@ -67,19 +80,25 @@ class Marker(pg.GraphicsObject):
         r = self._boundingRect
         if r is not None:  # use cache
             return r
-        top = self._axis.geometry().top()
-        h = self._axis.geometry().height()
+        axis = self._axis()
+        if axis is None:
+            return QtCore.QRectF()
+        top = axis.geometry().top()
+        h = axis.geometry().height()
         w = h // 2 + 1
         p1, p2 = self._endpoints()
         if p2 is None:
-            return QtCore.QRectF(0, 0, 0, 0)
+            return QtCore.QRectF()
         x = p2.x()
         bottom = p2.y()
         self._boundingRect = QtCore.QRectF(x - w, top, 2 * w, bottom - top)
         return self._boundingRect
 
     def paint_flag(self, painter, p1):
-        h = self._axis.geometry().height()
+        axis = self._axis()
+        if axis is None:
+            return
+        h = axis.geometry().height()
         he = h // 3
         w2 = h // 2
         if self._shape in [None, 'none']:
@@ -107,7 +126,8 @@ class Marker(pg.GraphicsObject):
 
     def paint(self, p, opt, widget):
         profiler = pg.debug.Profiler()
-        if self._axis.linkedView() is None:
+        axis = self._axis()
+        if axis is None or axis.linkedView() is None:
             return
         if self.picture is None:
             try:
@@ -160,3 +180,16 @@ class Marker(pg.GraphicsObject):
 
     def on_xChangeSignal(self, x_min, x_max, x_count):
         self._redraw()
+
+    def mouseClickEvent(self, ev):
+        ev.accept()
+        if not self.moving:
+            if ev.button() == QtCore.Qt.LeftButton:
+                self.moving = True
+            elif ev.button() == QtCore.Qt.RightButton:
+                self.sigRemoveRequest.emit(self)
+        else:
+            if ev.button() == QtCore.Qt.LeftButton:
+                self.moving = False
+            elif ev.button() == QtCore.Qt.RightButton:
+                pass  # todo restore original position

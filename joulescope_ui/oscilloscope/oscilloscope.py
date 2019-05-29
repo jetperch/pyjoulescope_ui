@@ -56,7 +56,6 @@ class Oscilloscope(QtWidgets.QWidget):
         self._x_axis = XAxis()
         self.win.addItem(self._x_axis, row=2, col=1)
         self._x_axis.setGrid(128)
-        self.marker_add('cursor', shape='none')
 
         self.win.ci.layout.setRowStretchFactor(0, 1)
         self.win.ci.layout.setRowStretchFactor(1, 1)
@@ -111,13 +110,6 @@ class Oscilloscope(QtWidgets.QWidget):
         self._vb_relink()
         list(self._signals.values())[-1].vb.setXRange(28.0, 30.0, padding=0)
         return s
-
-    def marker_add(self, name, shape):
-        marker = self._x_axis.marker_add(name=name, shape=shape)
-        self.on_xChangeSignal.connect(marker.on_xChangeSignal)
-
-    def marker_remove(self, name):
-        return self._x_axis.marker_remove(name=name)
 
     def _vb_relink(self):
         vb = self.win.ci.layout.itemAt(self.win.ci.layout.rowCount() - 1, 1)

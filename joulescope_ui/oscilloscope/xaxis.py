@@ -21,17 +21,13 @@ class AxisMenu(QtGui.QMenu):
 
     def __init__(self):
         QtGui.QMenu.__init__(self)
-        self._annotations = self.addMenu('&Annotations')
+        self.annotations = self.addMenu('&Annotations')
 
-        self._cursor = QtGui.QAction('&Cursor')
-        self._cursor.setCheckable(True)
-        self._cursor.setChecked(True)
-        self._annotations.addAction(self._cursor)
+        self.single_marker = QtGui.QAction('&Single Marker')
+        self.annotations.addAction(self.single_marker)
 
-        self._dual = QtGui.QAction('&Markers')
-        self._dual.setCheckable(True)
-        self._dual.setChecked(False)
-        self._annotations.addAction(self._dual)
+        self.dual_markers = QtGui.QAction('&Dual Markers')
+        self.annotations.addAction(self.dual_markers)
 
 
 class XAxis(pg.AxisItem):
@@ -39,24 +35,70 @@ class XAxis(pg.AxisItem):
     def __init__(self):
         pg.AxisItem.__init__(self, orientation='top')
         self.menu = AxisMenu()
+        self.menu.single_marker.triggered.connect(self.on_singleMarker)
+        self.menu.dual_markers.triggered.connect(self.on_dualMarkers)
         self._markers = {}
         self._proxy = None
 
+    def on_singleMarker(self):
+        idx = 0
+        while True:
+            if idx not in self._markers:
+                marker = self.marker_add(idx, shape='full')
+                xa, xb = self.range
+                marker.set_pos((xa + xb) / 2)
+                marker.moving = True
+                break
+            idx += 1
+
+    def on_dualMarkers(self):
+        letter = 'A'
+        while ord(letter) <= ord('Z'):
+            if letter not in self._markers:
+                xa, xb = self.range
+                xc = (xa + xb) / 2
+                xr = (xb - xa) * 0.1
+                mleft = self.marker_add(letter + '1', shape='left')
+                mleft.set_pos(xc - xr)
+                mright = self.marker_add(letter + '2', shape='right')
+                mright.set_pos(xc + xr)
+                mleft.pair = mright
+                mright.pair = mleft
+                mleft.moving = True
+                break
+            letter = chr(ord(letter) + 1)
+
+    def linkedViewChanged(self, view, newRange=None):
+        for marker in self._markers.values():
+            marker.viewTransformChanged()
+        pg.AxisItem.linkedViewChanged(self, view=view, newRange=newRange)
+
     def marker_add(self, name, shape):
         self.marker_remove(name)
-        marker = Marker(x_axis=self, shape=shape)
+        marker = Marker(name=name, x_axis=self, shape=shape)
         self.scene().addItem(marker)
         self._markers[name] = marker
         marker.show()
+        marker.sigRemoveRequest.connect(self._on_marker_remove)
         if self._proxy is None:
             self._proxy = pg.SignalProxy(self.scene().sigMouseMoved, rateLimit=60, slot=self._mouseMoveEvent)
         return marker
 
+    @QtCore.Slot(object)
+    def _on_marker_remove(self, marker: Marker):
+        self.marker_remove(marker.name)
+
     def marker_remove(self, name):
-        marker = self._markers.get(name)
+        marker = self._markers.pop(name, None)
         if marker is not None:
-            self.scene().removeItem(marker)
-            del self._markers[name]
+            marker.sigRemoveRequest.disconnect(self._on_marker_remove)
+            marker.setVisible(False)
+            # marker.prepareGeometryChange()
+            # self.scene().removeItem(marker)  # removing from scene causes crash... ugh
+            if marker.pair:
+                other, marker.pair = marker.pair, None
+                other.pair = None
+                self.marker_remove(other.name)
 
     def _mouseMoveEvent(self, ev):
         """Handle mouse movements for every mouse movement within the widget"""
@@ -72,9 +114,9 @@ class XAxis(pg.AxisItem):
         elif x > x_max:
             x = x_max
 
-        cursor = self._markers.get('cursor')
-        if cursor:
-            cursor.set_pos(x)
+        for marker in self._markers.values():
+            if marker.moving:
+                marker.set_pos(x)
 
     def mouseClickEvent(self, event):
         if self.linkedView() is None:
