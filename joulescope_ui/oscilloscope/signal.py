@@ -1,4 +1,18 @@
-from .signal_statistics import SignalStatistics
+# Copyright 2019 Jetperch LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+from .signal_statistics import SignalStatistics, si_format
 from joulescope.units import unit_prefix, three_sig_figs
 import pyqtgraph as pg
 import numpy as np
@@ -8,6 +22,12 @@ import logging
 log = logging.getLogger(__name__)
 CURVE_WIDTH = 1
 AUTO_RANGE_FRACT = 0.45  # autorange when current range smaller than existing range by this fractional amount.
+
+
+INTEGRATION_UNITS = {
+    'A': 'C',
+    'W': 'J'
+}
 
 
 class Signal:
@@ -102,6 +122,7 @@ class Signal:
         if x is None or value is None or not len(x):
             self.data_clear()
             return
+        x_range = x[-1] - x[0]
 
         # get the mean value regardless of shape
         shape_len = len(value.shape)
@@ -123,17 +144,18 @@ class Signal:
         self._most_recent_data = [x, z_mean, None, None, None]
         z_var, z_min, z_max = None, None, None
         if shape_len == 2 and value.shape[1] == 4:
-            # axes are: mean, variance, min, max
-            z_var = value[z_valid, 1]
             z_min = value[z_valid, 2]
-            z_max = value[z_valid, 3]
             if np.isfinite(z_min[0]):
+                z_var = value[z_valid, 1]
+                z_max = value[z_valid, 3]
                 self._most_recent_data = [x, z_mean, z_var, z_min, z_max]
+            else:
+                z_min = None
 
         # compute statistics over the visible window
         z = z_mean
         self.curve_mean.setData(x, z)
-        if z_var is None:
+        if z_min is None:
             self._min_max_disable()
             v_mean = np.mean(z)
             v_std = np.std(z)
@@ -152,7 +174,12 @@ class Signal:
             v_std = np.sqrt(np.sum(np.square(mean_delta, out=mean_delta) + z_var) / len(z_mean))
 
         if self.text_item is not None:
-            self.text_item.data_update(v_mean, v_std, v_max, v_min)
+            labels = {'μ': v_mean, 'σ': v_std, 'min': v_min, 'max': v_max, 'p2p': v_max - v_min}
+            txt_result = si_format(labels, units=self.units)
+            integration_units = INTEGRATION_UNITS.get(self.units)
+            if integration_units is not None:
+                txt_result += si_format({'∫': v_mean * x_range}, units=integration_units)
+            self.text_item.data_update(txt_result)
 
         self.yaxis_autorange(v_min, v_max)
 

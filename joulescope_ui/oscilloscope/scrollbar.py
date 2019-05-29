@@ -1,7 +1,21 @@
+# Copyright 2019 Jetperch LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-from PySide2 import QtGui, QtCore, QtWidgets
+from PySide2 import QtCore
 import pyqtgraph as pg
 import weakref
+from typing import Callable
 import logging
 
 
@@ -9,7 +23,19 @@ log = logging.getLogger(__name__)
 
 
 class ScrollBar(pg.ViewBox):
+    """ScrollBar for x-axis range control.
+
+    :param parent: The parent widget.
+    """
+
     regionChange = QtCore.Signal(float, float, int)  # x_min, x_max, x_count
+    """The signal when the x-axis region changes.
+    
+    :param x_min: The minimum x-axis range value in seconds.
+    :param x_max: The maximum x-axis range value in seconds.
+    :parma x_count: The number of samples to provide between 
+        x_min and x_max, inclusive.
+    """
 
     def __init__(self, parent=None):
         pg.ViewBox.__init__(self, parent=parent, enableMouse=False)
@@ -46,8 +72,14 @@ class ScrollBar(pg.ViewBox):
 
 
 class CustomLinearRegionItem(pg.LinearRegionItem):
+    """Custom linear region that enforces x-axis zoom constraints
 
-    def __init__(self, parent, callback):
+    :param parent: The parent :class:1ScrollBar1.
+    :param callback: The function(x_min, x_max, x_count) called on
+        view updates.
+    """
+
+    def __init__(self, parent: ScrollBar, callback: Callable[[float, float, int], None]):
         pg.LinearRegionItem.__init__(self, orientation='vertical', swapMode='block')
         self._parent = weakref.ref(parent)
         self.mode = 'normal'
