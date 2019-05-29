@@ -226,34 +226,22 @@ class MainWindow(QtWidgets.QMainWindow):
         # self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.uart_dock_widget)
         # self.ui.menuView.addAction(self.uart_dock_widget.toggleViewAction())
 
-        # Oscilloscope: current
-        self._view_current = Oscilloscope(self, 'Current')
-        self._view_current.on_xChangeSignal.connect(self._on_x_change)
-        self._view_current.setVisible(False)
-        self.ui.menuView.addAction(self._view_current.widget.toggleViewAction())
-        self._view_current.y_limit_set(-2.0, 10.0, update=True)
-
-        # Oscilloscope: voltage
-        self._view_voltage = Oscilloscope(self, 'Voltage')
-        self._view_voltage.on_xChangeSignal.connect(self._on_x_change)
-        self._view_voltage.setVisible(False)
-        self.ui.menuView.addAction(self._view_voltage.widget.toggleViewAction())
-        self._view_voltage.y_limit_set(-1.2, 15.0, update=True)
-
-        # Oscilloscope: voltage
-        self._view_power = Oscilloscope(self, 'Power')
-        self._view_power.on_xChangeSignal.connect(self._on_x_change)
-        self._view_power.setVisible(False)
-        self.ui.menuView.addAction(self._view_power.widget.toggleViewAction())
-        self._view_power.y_limit_set(-2.4, 150.0, update=True)
-
-        # Connect oscilloscope views together
-        views = [self._view_current, self._view_voltage, self._view_power]
-        for v1 in views:
-            for v2 in views:
-                if v1 == v2:
-                    continue
-                v1.on_markerSignal.connect(v2.on_marker)
+        # Oscilloscope: current, voltage, power, GPI0, GPI1, i_range
+        self.oscilloscope_dock_widget = QtWidgets.QDockWidget('Waveforms', self)
+        self.oscilloscope_widget = Oscilloscope(self.oscilloscope_dock_widget)
+        self.oscilloscope_dock_widget.setVisible(False)
+        self.oscilloscope_dock_widget.setWidget(self.oscilloscope_widget)
+        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.oscilloscope_dock_widget)
+        self.ui.menuView.addAction(self.oscilloscope_dock_widget.toggleViewAction())
+        self.oscilloscope_widget.signal_add(name='Current', units='A', y_limit=[-2.0, 10.0])
+        self.oscilloscope_widget.signal_add(name='Voltage', units='V', y_limit=[-1.2, 15.0])
+        self.oscilloscope_widget.signal_add(name='Power', units='W', y_limit=[-2.4, 150.0])
+        self.oscilloscope_widget.signal_add(name='gpi0')
+        self.oscilloscope_widget.signal_add(name='gpi1')
+        self.oscilloscope_widget.signal_add(name='i_range', y_limit=[0.0, 7.0])
+        self.oscilloscope_widget.set_xlimits(0.0, 30.0)
+        self.oscilloscope_widget.set_xview(25.0, 30.0)
+        self.oscilloscope_widget.on_xChangeSignal.connect(self._on_x_change)
 
         # status update timer
         self.status_update_timer = QtCore.QTimer(self)
@@ -292,9 +280,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.dmm_dock_widget,
             self.single_value_dock_widget,
             self.uart_dock_widget,
-            self._view_current.widget,
-            self._view_voltage.widget,
-            self._view_power.widget,
+            self.oscilloscope_dock_widget,
         ]
 
         self.on_multimeterMenu(True)
@@ -335,13 +321,14 @@ class MainWindow(QtWidgets.QMainWindow):
         if self._has_active_device:
             is_changed, (x, data) = self._device.view.update()
             if is_changed:
-                self._view_current.update(x, data)
-                self._view_voltage.update(x, data)
-                self._view_power.update(x, data)
+                odata = {
+                    'Current': data[:, 0, :],
+                    'Voltage': data[:, 1, :],
+                    'Power': data[:, 2, :],
+                }
+                self.oscilloscope_widget.data_update(x, odata)
         else:
-            self._view_current.clear()
-            self._view_voltage.clear()
-            self._view_power.clear()
+            self.oscilloscope_widget.data_clear()
 
     @QtCore.Slot()
     def on_dataUpdateTimer(self):
@@ -398,9 +385,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.dmm_dock_widget.setVisible(True)
         self.single_value_dock_widget.setVisible(False)
         self.uart_dock_widget.setVisible(False)
-        self._view_current.setVisible(False)
-        self._view_voltage.setVisible(False)
-        self._view_power.setVisible(False)
+        self.oscilloscope_dock_widget.setVisible(False)
 
         self.adjustSize()
         self.center()
@@ -414,13 +399,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.dmm_dock_widget.setVisible(False)
         self.single_value_dock_widget.setVisible(False)
         self.uart_dock_widget.setVisible(False)
-        self._view_current.setVisible(True)
-        self._view_voltage.setVisible(True)
-        self._view_power.setVisible(False)
+        self.oscilloscope_dock_widget.setVisible(True)
         self.center_and_resize(0.85, 0.85)
-
-        docks = [self._view_current.widget, self._view_voltage.widget]
-        self.resizeDocks(docks, [1000, 1000], QtCore.Qt.Vertical)
+        # docks = [self.oscilloscope_dock_widget]
+        # self.resizeDocks(docks, [1000], QtCore.Qt.Vertical)
 
     def _software_update_check(self):
         if self._cfg['General']['update_check']:
@@ -482,10 +464,12 @@ class MainWindow(QtWidgets.QMainWindow):
         )
 
     def _device_view_force(self):
-        length, x_range = self._view_current.x_state_get()
+        log.info('_device_view_force')
+        length, x_range = self.oscilloscope_widget.x_state_get()
         if length is None:
             length = 100
         self._device.view.on_x_change('resize', {'pixels': length})
+        self._device.view.on_x_change('span_absolute', {'range': x_range})
 
     def _device_open_failed(self, msg):
         self.status(msg)
@@ -526,6 +510,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self._device.statistics_callback = self.on_statisticSignal.emit
                 self._update_data()
             except:
+                log.exception('doh')
                 return self._device_open_failed('Could not initialize device')
             self._developer_cfg_apply()
 
@@ -570,8 +555,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.control_ui.recordButton.setEnabled(False)
 
     def _waveform_cfg_apply(self):
-        for waveform in [self._view_current, self._view_voltage, self._view_power]:
-            waveform.config(self._cfg['Waveform'])
+        # for waveform in [self._view_current, self._view_voltage, self._view_power]:
+        #    waveform.config(self._cfg['Waveform'])
+        pass
 
     def _device_cfg_apply(self, do_open=False):
         if self._has_active_device:
@@ -584,6 +570,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def _developer_cfg_apply(self):
         log.info('_developer_cfg_apply')
+        return
         self._compliance['gpo_value'] = 0
         self._compliance['status'] = None
         self._compliance_error(None)
@@ -609,9 +596,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._status_clean()
         self._param_clean()
         self._control_ui_clean()
-        self._view_current.clear()
-        self._view_voltage.clear()
-        self._view_power.clear()
+        self.oscilloscope_widget.data_clear()
         if self._cfg['Developer']['compliance']:
             self.setStyleSheet("background-color: yellow;")
 
@@ -761,6 +746,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.control_ui.playButton.setChecked(False)
         self.control_ui.recordButton.setChecked(False)
         self.control_ui.recordButton.setEnabled(False)
+        self.oscilloscope_widget.set_display_mode('normal')
 
     def _device_stream_start(self):
         log.debug('_device_stream_start')
@@ -774,6 +760,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.control_ui.playButton.setChecked(True)
         self.control_ui.recordButton.setEnabled(True)
         self.data_update_timer.start()
+        self.oscilloscope_widget.set_display_mode('realtime')
         try:
             self._device.start(stop_fn=self.on_stopSignal.emit)
         except Exception:
@@ -789,6 +776,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return
         if hasattr(self._device, 'stop'):
             self._device.stop()  # always safe to call
+        self.oscilloscope_widget.set_display_mode('normal')
 
     def _device_stream(self, checked):
         log.info('_device_stream(%s)' % checked)
