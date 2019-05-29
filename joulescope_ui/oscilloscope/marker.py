@@ -14,6 +14,10 @@
 
 from pyqtgraph.Qt import QtGui, QtCore
 import pyqtgraph as pg
+import logging
+
+
+log = logging.getLogger(__name__)
 
 
 class Marker(pg.GraphicsObject):
@@ -35,6 +39,7 @@ class Marker(pg.GraphicsObject):
         self.setPos(pg.Point(0, 0))
         self._x = 0.0  # in self._axis coordinates
         # self.setZValue(2000000)
+        self.signals = {}  # name: (Signal weakref, TextItem)
 
     def _endpoints(self):
         """Get the endpoints in the scene's (parent) coordinates.
@@ -45,13 +50,12 @@ class Marker(pg.GraphicsObject):
         if vb is None:
             return None, None
         bounds = self._axis.geometry()
-        # print(bounds)
         tickBounds = vb.mapRectToItem(self, self._axis.boundingRect())
-        point = pg.Point(self._x, 1000.0)
+        point = pg.Point(self._x, 0.0)
         x = self._axis.linkedView().mapViewToScene(point).x()
         p1 = pg.Point(x, bounds.bottom())
         p2 = pg.Point(x, tickBounds.bottom())
-        # print('%s, %s' % (p1, p2))
+        log.debug('_endpoints %s: %s, %s' % (self._x, p1, p2))
         return p1, p2
 
     def _invalidateCache(self):
@@ -122,13 +126,21 @@ class Marker(pg.GraphicsObject):
             self.picture = picture
         self.picture.play(p)
 
-    def resizeEvent(self, ev=None):
+    def _redraw(self):
         self._invalidateCache()
         self.update()
 
+    def resizeEvent(self, ev=None):
+        self._redraw()
+
+    def viewRangeChanged(self):
+        self._redraw()
+
+    def viewTransformChanged(self):
+        self._redraw()
+
     def linkedViewChanged(self, view, newRange=None):
-        self._invalidateCache()
-        self.update()
+        self._redraw()
 
     def set_pos(self, x):
         """Set the x-axis position for the marker.
@@ -145,3 +157,6 @@ class Marker(pg.GraphicsObject):
         :return: The current x-axis position in the Axis coordinates.
         """
         return self._x
+
+    def on_xChangeSignal(self, x_min, x_max, x_count):
+        self._redraw()

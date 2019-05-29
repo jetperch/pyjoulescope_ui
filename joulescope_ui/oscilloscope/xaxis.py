@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from PySide2 import QtGui, QtCore, QtWidgets
+from .marker import Marker
 import pyqtgraph as pg
 
 
@@ -38,6 +39,42 @@ class XAxis(pg.AxisItem):
     def __init__(self):
         pg.AxisItem.__init__(self, orientation='top')
         self.menu = AxisMenu()
+        self._markers = {}
+        self._proxy = None
+
+    def marker_add(self, name, shape):
+        self.marker_remove(name)
+        marker = Marker(x_axis=self, shape=shape)
+        self.scene().addItem(marker)
+        self._markers[name] = marker
+        marker.show()
+        if self._proxy is None:
+            self._proxy = pg.SignalProxy(self.scene().sigMouseMoved, rateLimit=60, slot=self._mouseMoveEvent)
+        return marker
+
+    def marker_remove(self, name):
+        marker = self._markers.get(name)
+        if marker is not None:
+            self.scene().removeItem(marker)
+            del self._markers[name]
+
+    def _mouseMoveEvent(self, ev):
+        """Handle mouse movements for every mouse movement within the widget"""
+        pos = ev[0]
+        b1 = self.geometry()
+        if pos.y() < b1.top():
+            return
+        p = self.linkedView().mapSceneToView(pos)
+        x = p.x()
+        x_min, x_max = self.range
+        if x < x_min:
+            x = x_min
+        elif x > x_max:
+            x = x_max
+
+        cursor = self._markers.get('cursor')
+        if cursor:
+            cursor.set_pos(x)
 
     def mouseClickEvent(self, event):
         if self.linkedView() is None:

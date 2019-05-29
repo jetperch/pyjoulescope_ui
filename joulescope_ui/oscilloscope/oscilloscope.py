@@ -56,6 +56,7 @@ class Oscilloscope(QtWidgets.QWidget):
         self._x_axis = XAxis()
         self.win.addItem(self._x_axis, row=2, col=1)
         self._x_axis.setGrid(128)
+        self.marker_add('cursor', shape='none')
 
         self.win.ci.layout.setRowStretchFactor(0, 1)
         self.win.ci.layout.setRowStretchFactor(1, 1)
@@ -68,15 +69,6 @@ class Oscilloscope(QtWidgets.QWidget):
         self.win.ci.layout.setColumnAlignment(2, QtCore.Qt.AlignLeft)
 
         self.win.ci.layout.setColumnStretchFactor(2, -1)
-
-        self._cursor = Marker(x_axis=self._x_axis, shape='none')
-        self.win.sceneObj.addItem(self._cursor)
-
-        for p in self._signals.values():
-            p.vb.sigResized.connect(self._cursor.linkedViewChanged)
-            p.vb.sigXRangeChanged.connect(self._cursor.linkedViewChanged)
-        self._cursor.show()
-        self._proxy = pg.SignalProxy(self.win.scene().sigMouseMoved, rateLimit=60, slot=self._mouseMoveEvent)
 
     def set_display_mode(self, mode):
         """Configure the display mode.
@@ -101,21 +93,6 @@ class Oscilloscope(QtWidgets.QWidget):
         """
         self._scrollbar.set_sampling_frequency(freq)
 
-    def _mouseMoveEvent(self, ev):
-        """Handle mouse movements for every mouse movement within the widget"""
-        pos = ev[0]
-        b1 = self._x_axis.geometry()
-        if pos.y() < b1.top():
-            return
-        p = self._x_axis.linkedView().mapSceneToView(pos)
-        x = p.x()
-        x_min, x_max = self._x_axis.range
-        if x < x_min:
-            x = x_min
-        elif x > x_max:
-            x = x_max
-        self._cursor.set_pos(x)
-
     def set_xview(self, x_min, x_max):
         self._scrollbar.set_xview(x_min, x_max)
 
@@ -134,6 +111,13 @@ class Oscilloscope(QtWidgets.QWidget):
         self._vb_relink()
         list(self._signals.values())[-1].vb.setXRange(28.0, 30.0, padding=0)
         return s
+
+    def marker_add(self, name, shape):
+        marker = self._x_axis.marker_add(name=name, shape=shape)
+        self.on_xChangeSignal.connect(marker.on_xChangeSignal)
+
+    def marker_remove(self, name):
+        return self._x_axis.marker_remove(name=name)
 
     def _vb_relink(self):
         vb = self.win.ci.layout.itemAt(self.win.ci.layout.rowCount() - 1, 1)
@@ -159,18 +143,10 @@ class Oscilloscope(QtWidgets.QWidget):
                 item.setMaximumWidth(16777215)
 
     def data_update(self, x, data):
-        cursor_x = None
-        if self._cursor.isVisible() and len(x):
-            cursor_x = self._cursor.get_pos()
-            if not x[0] <= cursor_x <= x[-1]:
-                cursor_x = None
-
         for name, value in data.items():
             s = self._signals.get(name)
             if s is not None:
                 self._signals[name].update(x, value)
-                if cursor_x is not None:
-                    labels = self._signals[name].statistics_at(cursor_x)
 
     def data_clear(self):
         pass
