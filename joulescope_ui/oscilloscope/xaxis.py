@@ -15,6 +15,10 @@
 from PySide2 import QtGui, QtCore, QtWidgets
 from .marker import Marker
 import pyqtgraph as pg
+import logging
+
+
+log = logging.getLogger(__name__)
 
 
 class AxisMenu(QtGui.QMenu):
@@ -69,13 +73,18 @@ class XAxis(pg.AxisItem):
             letter = chr(ord(letter) + 1)
 
     def linkedViewChanged(self, view, newRange=None):
+        pg.AxisItem.linkedViewChanged(self, view=view, newRange=newRange)
         for marker in self._markers.values():
             marker.viewTransformChanged()
-        pg.AxisItem.linkedViewChanged(self, view=view, newRange=newRange)
 
     def marker_add(self, name, shape):
         self.marker_remove(name)
         marker = Marker(name=name, x_axis=self, shape=shape)
+        scene = self.scene()
+        if scene is not None and scene is not marker.scene():
+            scene.addItem(marker)
+        marker.setParentItem(self.parentItem())
+
         self.scene().addItem(marker)
         self._markers[name] = marker
         marker.show()
@@ -121,6 +130,7 @@ class XAxis(pg.AxisItem):
     def mouseClickEvent(self, event):
         if self.linkedView() is None:
             return
+        log.info('mouseClickEvent(%s)', event)
         if self.geometry().contains(event.scenePos()):
             if event.button() == QtCore.Qt.RightButton:
                 event.accept()

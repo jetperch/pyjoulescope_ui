@@ -38,7 +38,7 @@ class Marker(pg.GraphicsObject):
 
     def __init__(self, name, x_axis: pg.AxisItem, color=None, shape=None):
         pg.GraphicsObject.__init__(self)
-        self.name = name
+        self._name = name
         self._axis = weakref.ref(x_axis)
         self.color = (64, 255, 64, 255) if color is None else color
         self._boundingRect = None
@@ -50,6 +50,10 @@ class Marker(pg.GraphicsObject):
         self.signals = {}  # name: (Signal weakref, TextItem)
         self.pair = None
         self.moving = False
+
+    @property
+    def name(self):
+        return self._name
 
     def _endpoints(self):
         """Get the endpoints in the scene's (parent) coordinates.
@@ -63,18 +67,12 @@ class Marker(pg.GraphicsObject):
         if vb is None:
             return None, None
         bounds = axis.geometry()
-        tickBounds = vb.mapRectToItem(self, axis.boundingRect())
+        tickBounds = vb.geometry()
         point = pg.Point(self._x, 0.0)
         x = vb.mapViewToScene(point).x()
         p1 = pg.Point(x, bounds.bottom())
         p2 = pg.Point(x, tickBounds.bottom())
-        log.debug('_endpoints %s: %s, %s' % (self._x, p1, p2))
         return p1, p2
-
-    def _invalidateCache(self):
-        self.picture = None
-        self._boundingRect = None
-        self.prepareGeometryChange()
 
     def boundingRect(self):
         r = self._boundingRect
@@ -92,6 +90,7 @@ class Marker(pg.GraphicsObject):
         x = p2.x()
         bottom = p2.y()
         self._boundingRect = QtCore.QRectF(x - w, top, 2 * w, bottom - top)
+        log.info('boundingRect: %s => %s', self._x, str(self._boundingRect))
         return self._boundingRect
 
     def paint_flag(self, painter, p1):
@@ -147,7 +146,9 @@ class Marker(pg.GraphicsObject):
         self.picture.play(p)
 
     def _redraw(self):
-        self._invalidateCache()
+        self.picture = None
+        self._boundingRect = None
+        self.prepareGeometryChange()
         self.update()
 
     def resizeEvent(self, ev=None):
@@ -168,8 +169,7 @@ class Marker(pg.GraphicsObject):
         :param x: The new x-axis position in Axis coordinates.
         """
         self._x = x
-        self._invalidateCache()
-        self.update()
+        self._redraw()
 
     def get_pos(self):
         """Get the current x-axis position for the marker.

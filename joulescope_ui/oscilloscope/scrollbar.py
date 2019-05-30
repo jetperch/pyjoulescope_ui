@@ -38,7 +38,7 @@ class ScrollBar(pg.ViewBox):
     """
 
     def __init__(self, parent=None):
-        pg.ViewBox.__init__(self, parent=parent, enableMouse=False)
+        pg.ViewBox.__init__(self, parent=parent, enableMenu=False, enableMouse=False)
         self._region = CustomLinearRegionItem(self, self.regionChange.emit)
         self._region.setZValue(-10)
         self.addItem(self._region)
@@ -66,9 +66,6 @@ class ScrollBar(pg.ViewBox):
         # delegate to the RegionItem
         ev.currentItem = self._region
         self._region.mouseDragEvent(ev)
-
-    def resizeEvent(self, ev):
-        self._region.on_regionChange()
 
 
 class CustomLinearRegionItem(pg.LinearRegionItem):
@@ -247,3 +244,5 @@ class CustomLinearRegionItem(pg.LinearRegionItem):
         if self._callback:
             self._callback(x_min, x_max, x_count)
 
+    def viewTransformChanged(self):
+        self.on_regionChange()

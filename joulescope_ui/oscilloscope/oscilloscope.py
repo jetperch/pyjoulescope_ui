@@ -13,11 +13,14 @@
 # limitations under the License.
 
 from PySide2 import QtGui, QtCore, QtWidgets
-from .marker import Marker
 from .signal import Signal
 from .scrollbar import ScrollBar
 from .xaxis import XAxis
 import pyqtgraph as pg
+import logging
+
+
+log = logging.getLogger(__name__)
 
 
 class Oscilloscope(QtWidgets.QWidget):
@@ -105,10 +108,7 @@ class Oscilloscope(QtWidgets.QWidget):
         s = Signal(name=name, units=units, y_limit=y_limit)
         s.addToLayout(self.win, row=self.win.ci.layout.rowCount())
         self._signals[name] = s
-
-        # Linking to last axis makes grid draw correctly
-        self._vb_relink()
-        list(self._signals.values())[-1].vb.setXRange(28.0, 30.0, padding=0)
+        self._vb_relink()  # Linking to last axis makes grid draw correctly
         return s
 
     def _vb_relink(self):
@@ -158,6 +158,9 @@ class Oscilloscope(QtWidgets.QWidget):
         if x_min > x_max:
             x_min = x_max
         if row_count > 3:
+            log.info('on_scrollbarRegionChange(%s, %s, %s)', x_min, x_max, x_count)
             vb = self.win.ci.layout.itemAt(self.win.ci.layout.rowCount() - 1, 1)
             vb.setXRange(x_min, x_max, padding=0)
+        else:
+            log.info('on_scrollbarRegionChange(%s, %s, %s) with no ViewBox', x_min, x_max, x_count)
         self.on_xChangeSignal.emit(x_min, x_max, x_count)
