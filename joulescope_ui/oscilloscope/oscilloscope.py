@@ -16,6 +16,7 @@ from PySide2 import QtGui, QtCore, QtWidgets
 from .signal import Signal
 from .scrollbar import ScrollBar
 from .xaxis import XAxis
+from .signal_statistics import si_format, html_format
 import pyqtgraph as pg
 import logging
 
@@ -137,11 +138,37 @@ class Oscilloscope(QtWidgets.QWidget):
     def data_update(self, x, data):
         for name, value in data.items():
             s = self._signals.get(name)
-            if s is not None:
-                self._signals[name].update(x, value)
+            if s is None:
+                continue
+            s.update(x, value)
+
+            vby = s.vb.geometry().top()
+            for m in self._x_axis.markers_single():
+                txt = m.text.get(name)
+                if txt is None:
+                    txt = pg.TextItem()
+                    m.text[name] = txt
+                    s.vb.scene().addItem(txt)
+                mx = m.get_pos()
+                px = s.vb.mapViewToScene(pg.Point(mx, 0.0)).x()
+                txt.setPos(pg.Point(px, vby))
+                labels = s.statistics_at(mx)
+                if len(labels):
+                    txt_result = si_format(labels, units=s.units)
+                    html = html_format(txt_result, x=mx)
+                    txt.setHtml(html)
+
+            for m1, m2 in self._x_axis.markers_dual():
+                m1x = m1.get_pos()
+                m2x = m2.get_pos()
+                labels1 = s.statistics_at(m1x)
+                labels2 = s.statistics_at(m2x)
+                if len(labels1) and len(labels2):
+                    pass
 
     def data_clear(self):
-        pass
+        for s in self._signals.values():
+            s.data_clear()
 
     def x_state_get(self):
         """Get the x-axis state.
@@ -164,3 +191,6 @@ class Oscilloscope(QtWidgets.QWidget):
         else:
             log.info('on_scrollbarRegionChange(%s, %s, %s) with no ViewBox', x_min, x_max, x_count)
         self.on_xChangeSignal.emit(x_min, x_max, x_count)
+
+    def request_x_change(self):
+        self._scrollbar.request_x_change()

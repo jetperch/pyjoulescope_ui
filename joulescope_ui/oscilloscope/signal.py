@@ -192,7 +192,7 @@ class Signal:
         if self._most_recent_data is None:
             return {}
         z_x, z_mean, z_var, z_min, z_max = self._most_recent_data
-        if x < z_x[0] or x > z_x[-1]:
+        if not z_x[0] <= x <= z_x[-1]:
             return {}
         idx = np.argmax(z_x >= x)
         y_mean = float(z_mean[idx])

@@ -768,6 +768,7 @@ class MainWindow(QtWidgets.QMainWindow):
         except Exception:
             log.exception('_device_stream_start')
             self.status('Could not start device streaming')
+        self.oscilloscope_widget.request_x_change()
 
     def _device_stream_stop(self):
         log.debug('_device_stream_stop')

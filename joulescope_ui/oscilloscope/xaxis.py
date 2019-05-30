@@ -42,6 +42,7 @@ class XAxis(pg.AxisItem):
         self.menu.single_marker.triggered.connect(self.on_singleMarker)
         self.menu.dual_markers.triggered.connect(self.on_dualMarkers)
         self._markers = {}
+        self._marker_pairs = {}
         self._proxy = None
 
     def on_singleMarker(self):
@@ -69,6 +70,7 @@ class XAxis(pg.AxisItem):
                 mleft.pair = mright
                 mright.pair = mleft
                 mleft.moving = True
+                self._marker_pairs[letter] = [mleft, mright]
                 break
             letter = chr(ord(letter) + 1)
 
@@ -108,6 +110,18 @@ class XAxis(pg.AxisItem):
                 other, marker.pair = marker.pair, None
                 other.pair = None
                 self.marker_remove(other.name)
+                self._marker_pairs.pop(name[:1], None)
+
+    def markers(self):
+        return list(self._markers.values())
+
+    def markers_single(self):
+        m = self._markers.values()
+        m = [x for x in m if not isinstance(x.name, str)]
+        return m
+
+    def markers_dual(self):
+        return self._marker_pairs.values()
 
     def _mouseMoveEvent(self, ev):
         """Handle mouse movements for every mouse movement within the widget"""

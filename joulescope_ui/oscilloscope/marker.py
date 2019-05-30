@@ -50,6 +50,7 @@ class Marker(pg.GraphicsObject):
         self.signals = {}  # name: (Signal weakref, TextItem)
         self.pair = None
         self.moving = False
+        self.text = {}
 
     @property
     def name(self):

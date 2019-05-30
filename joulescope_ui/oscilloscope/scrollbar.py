@@ -67,6 +67,9 @@ class ScrollBar(pg.ViewBox):
         ev.currentItem = self._region
         self._region.mouseDragEvent(ev)
 
+    def request_x_change(self):
+        self._region.on_regionChange()
+
 
 class CustomLinearRegionItem(pg.LinearRegionItem):
     """Custom linear region that enforces x-axis zoom constraints
