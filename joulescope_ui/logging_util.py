@@ -31,6 +31,7 @@ FILE_FMT = "%(levelname)s:%(asctime)s:%(filename)s:%(lineno)d:%(name)s:%(message
 LEVELS = {
     'OFF': 100,
     'CRITICAL': logging.CRITICAL,
+    'ERROR': logging.ERROR,
     'WARNING': logging.WARNING,
     'INFO': logging.INFO,
     'DEBUG': logging.DEBUG,

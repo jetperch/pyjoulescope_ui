@@ -14,6 +14,7 @@ This file contains the list of changes made to pyjoulescope_ui.
     *   Catch and handle more exceptions.
     *   Automatically attempt to recover when a device is "lost".
     *   Eliminated repeated parameter initialization x number of device disconnects.
+*   Added stdout console logging command line option.
 
 
 ## 0.3.0
