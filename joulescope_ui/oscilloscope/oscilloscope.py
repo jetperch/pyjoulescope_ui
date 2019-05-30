@@ -16,12 +16,12 @@ from PySide2 import QtGui, QtCore, QtWidgets
 from .signal import Signal
 from .scrollbar import ScrollBar
 from .xaxis import XAxis
-from .signal_statistics import si_format, html_format
 import pyqtgraph as pg
 import logging
 
 
 log = logging.getLogger(__name__)
+SIGNAL_OFFSET_ROW = 2
 
 
 class Oscilloscope(QtWidgets.QWidget):
@@ -51,26 +51,24 @@ class Oscilloscope(QtWidgets.QWidget):
 
         self._signals = {}
 
-        self.win.addLabel('Time (seconds)', row=0, col=1)
-
         self._scrollbar = ScrollBar()
         self._scrollbar.regionChange.connect(self.on_scrollbarRegionChange)
-        self.win.addItem(self._scrollbar, row=1, col=1)
+        self.win.addItem(self._scrollbar, row=0, col=1)
 
         self._x_axis = XAxis()
-        self.win.addItem(self._x_axis, row=2, col=1)
+        self.win.addItem(self._x_axis, row=1, col=1)
         self._x_axis.setGrid(128)
+        self.sigMarkerSingleAddRequest = self._x_axis.sigMarkerSingleAddRequest
+        self.sigMarkerDualAddRequest = self._x_axis.sigMarkerDualAddRequest
 
         self.win.ci.layout.setRowStretchFactor(0, 1)
         self.win.ci.layout.setRowStretchFactor(1, 1)
-        self.win.ci.layout.setRowStretchFactor(2, 1)
+
         self.win.ci.layout.setColumnStretchFactor(0, 1)
         self.win.ci.layout.setColumnStretchFactor(1, 1000)
-
         self.win.ci.layout.setColumnAlignment(0, QtCore.Qt.AlignRight)
         self.win.ci.layout.setColumnAlignment(1, QtCore.Qt.AlignLeft)
         self.win.ci.layout.setColumnAlignment(2, QtCore.Qt.AlignLeft)
-
         self.win.ci.layout.setColumnStretchFactor(2, -1)
 
     def set_display_mode(self, mode):
@@ -112,8 +110,34 @@ class Oscilloscope(QtWidgets.QWidget):
         self._vb_relink()  # Linking to last axis makes grid draw correctly
         return s
 
+    def signal_remove(self, name):
+        signal = self._signals.pop(name, None)
+        if signal is None:
+            log.warning('signal_remove(%s) but not found', name)
+            return
+        for m in self._x_axis.markers():
+            m.signal_remove(name)
+        row = signal.removeFromLayout(self.win)
+        for k in range(row + 1, self.win.ci.layout.rowCount()):
+            for j in range(3):
+                i = self.win.getItem(k, j)
+                if i is not None:
+                    self.win.removeItem(i)
+                    self.win.addItem(i, row=k - 1, col=j)
+        self._vb_relink()
+
+    def marker_single_add(self, x):
+        return self._x_axis.marker_single_add(x)
+
+    def marker_dual_add(self, x1, x2):
+        return self._x_axis.marker_dual_add(x1, x2)
+
     def _vb_relink(self):
-        vb = self.win.ci.layout.itemAt(self.win.ci.layout.rowCount() - 1, 1)
+        if len(self._signals) <= 0:
+            self._x_axis.linkToView(None)
+            return
+        row = SIGNAL_OFFSET_ROW + len(self._signals) - 1
+        vb = self.win.ci.layout.itemAt(row, 1)
         self._x_axis.linkToView(vb)
         for p in self._signals.values():
             if p.vb == vb:
@@ -141,30 +165,8 @@ class Oscilloscope(QtWidgets.QWidget):
             if s is None:
                 continue
             s.update(x, value)
-
-            vby = s.vb.geometry().top()
             for m in self._x_axis.markers_single():
-                txt = m.text.get(name)
-                if txt is None:
-                    txt = pg.TextItem()
-                    m.text[name] = txt
-                    s.vb.scene().addItem(txt)
-                mx = m.get_pos()
-                px = s.vb.mapViewToScene(pg.Point(mx, 0.0)).x()
-                txt.setPos(pg.Point(px, vby))
-                labels = s.statistics_at(mx)
-                if len(labels):
-                    txt_result = si_format(labels, units=s.units)
-                    html = html_format(txt_result, x=mx)
-                    txt.setHtml(html)
-
-            for m1, m2 in self._x_axis.markers_dual():
-                m1x = m1.get_pos()
-                m2x = m2.get_pos()
-                labels1 = s.statistics_at(m1x)
-                labels2 = s.statistics_at(m2x)
-                if len(labels1) and len(labels2):
-                    pass
+                m.signal_update(s)
 
     def data_clear(self):
         for s in self._signals.values():
@@ -184,9 +186,10 @@ class Oscilloscope(QtWidgets.QWidget):
         row_count = self.win.ci.layout.rowCount()
         if x_min > x_max:
             x_min = x_max
-        if row_count > 3:
+        if row_count >= SIGNAL_OFFSET_ROW:
+            row = SIGNAL_OFFSET_ROW + len(self._signals) - 1
             log.info('on_scrollbarRegionChange(%s, %s, %s)', x_min, x_max, x_count)
-            vb = self.win.ci.layout.itemAt(self.win.ci.layout.rowCount() - 1, 1)
+            vb = self.win.ci.layout.itemAt(row, 1)
             vb.setXRange(x_min, x_max, padding=0)
         else:
             log.info('on_scrollbarRegionChange(%s, %s, %s) with no ViewBox', x_min, x_max, x_count)

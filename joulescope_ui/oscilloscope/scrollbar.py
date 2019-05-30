@@ -42,6 +42,8 @@ class ScrollBar(pg.ViewBox):
         self._region = CustomLinearRegionItem(self, self.regionChange.emit)
         self._region.setZValue(-10)
         self.addItem(self._region)
+        self._label = pg.TextItem(html='<div><span style="color: #FFF;">Time (seconds)</span></div>', anchor=(0.5, 0.5))
+        self.addItem(self._label, ignoreBounds=True)
 
     def wheelEvent(self, ev, axis=None):
         ev.accept()
@@ -69,6 +71,12 @@ class ScrollBar(pg.ViewBox):
 
     def request_x_change(self):
         self._region.on_regionChange()
+
+    def resizeEvent(self, ev):
+        super().resizeEvent(ev)
+        c = self.geometry().center()
+        c = self.mapToView(c)
+        self._label.setPos(c.x(), c.y())
 
 
 class CustomLinearRegionItem(pg.LinearRegionItem):

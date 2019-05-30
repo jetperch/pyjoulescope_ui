@@ -236,12 +236,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.oscilloscope_widget.signal_add(name='Current', units='A', y_limit=[-2.0, 10.0])
         self.oscilloscope_widget.signal_add(name='Voltage', units='V', y_limit=[-1.2, 15.0])
         self.oscilloscope_widget.signal_add(name='Power', units='W', y_limit=[-2.4, 150.0])
-        # self.oscilloscope_widget.signal_add(name='gpi0')
-        # self.oscilloscope_widget.signal_add(name='gpi1')
-        # self.oscilloscope_widget.signal_add(name='i_range', y_limit=[0.0, 7.0])
+        self.oscilloscope_widget.signal_add(name='gpi0')
+        self.oscilloscope_widget.signal_add(name='gpi1')
+        self.oscilloscope_widget.signal_add(name='i_range', y_limit=[0.0, 7.0])
+
+        self.oscilloscope_widget.signal_remove(name='gpi0')
+        self.oscilloscope_widget.signal_remove(name='gpi1')
+        self.oscilloscope_widget.signal_remove(name='i_range')
+
         self.oscilloscope_widget.set_xlimits(0.0, 30.0)
         self.oscilloscope_widget.set_xview(25.0, 30.0)
         self.oscilloscope_widget.on_xChangeSignal.connect(self._on_x_change)
+        self.oscilloscope_widget.sigMarkerSingleAddRequest.connect(self.on_markerSingleAddRequest)
+        self.oscilloscope_widget.sigMarkerDualAddRequest.connect(self.on_markerDualAddRequest)
 
         # status update timer
         self.status_update_timer = QtCore.QTimer(self)
@@ -919,6 +926,15 @@ class MainWindow(QtWidgets.QMainWindow):
         #    pass
         else:
             self.ui.statusbar.showMessage('Save failed')
+
+    @QtCore.Slot(float)
+    def on_markerSingleAddRequest(self, x):
+        self.oscilloscope_widget.marker_single_add(x)
+
+    @QtCore.Slot(float)
+    def on_markerDualAddRequest(self, x1, x2):
+        m1, m2 = self.oscilloscope_widget.marker_dual_add(x1, x2)
+        # todo: manage dual marker update
 
             
 def kick_bootloaders():

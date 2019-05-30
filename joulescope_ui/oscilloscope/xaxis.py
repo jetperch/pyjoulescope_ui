@@ -14,6 +14,7 @@
 
 from PySide2 import QtGui, QtCore, QtWidgets
 from .marker import Marker
+from typing import List
 import pyqtgraph as pg
 import logging
 
@@ -36,43 +37,62 @@ class AxisMenu(QtGui.QMenu):
 
 class XAxis(pg.AxisItem):
 
+    sigMarkerSingleAddRequest = QtCore.Signal(float)
+    """Indicate that the user has requested to add a single marker.
+
+    :param x: The initial x-axis time coordinate in seconds for the marker.
+    """
+
+    sigMarkerDualAddRequest = QtCore.Signal(float, float)
+    """Indicate that the user has requested to add a single marker.
+
+    :param x1: The initial x-axis time coordinate in seconds for the left marker.
+    :param x1: The initial x-axis time coordinate in seconds for the right marker.
+    """
+
     def __init__(self):
         pg.AxisItem.__init__(self, orientation='top')
         self.menu = AxisMenu()
         self.menu.single_marker.triggered.connect(self.on_singleMarker)
         self.menu.dual_markers.triggered.connect(self.on_dualMarkers)
         self._markers = {}
-        self._marker_pairs = {}
         self._proxy = None
+        self._popup_menu_pos = None
 
-    def on_singleMarker(self):
+    def marker_single_add(self, x):
         idx = 0
         while True:
             if idx not in self._markers:
                 marker = self.marker_add(idx, shape='full')
-                xa, xb = self.range
-                marker.set_pos((xa + xb) / 2)
-                marker.moving = True
-                break
+                marker.set_pos(x)
+                return marker
             idx += 1
 
-    def on_dualMarkers(self):
+    def marker_dual_add(self, x1, x2):
         letter = 'A'
         while ord(letter) <= ord('Z'):
             if letter not in self._markers:
-                xa, xb = self.range
-                xc = (xa + xb) / 2
-                xr = (xb - xa) * 0.1
                 mleft = self.marker_add(letter + '1', shape='left')
-                mleft.set_pos(xc - xr)
+                mleft.set_pos(x1)
                 mright = self.marker_add(letter + '2', shape='right')
-                mright.set_pos(xc + xr)
+                mright.set_pos(x2)
                 mleft.pair = mright
                 mright.pair = mleft
-                mleft.moving = True
-                self._marker_pairs[letter] = [mleft, mright]
-                break
+                return mleft, mright
             letter = chr(ord(letter) + 1)
+
+    def on_singleMarker(self):
+        x = self._popup_menu_pos.x()
+        log.info('on_singleMarker(%s)', x)
+        self.sigMarkerSingleAddRequest.emit(x)
+
+    def on_dualMarkers(self):
+        x = self._popup_menu_pos.x()
+        xa, xb = self.range
+        xr = (xb - xa) * 0.05
+        x1, x2 = x - xr, x + xr
+        log.info('on_dualMarkers(%s, %s)', x1, x2)
+        self.sigMarkerDualAddRequest.emit(x1, x2)
 
     def linkedViewChanged(self, view, newRange=None):
         pg.AxisItem.linkedViewChanged(self, view=view, newRange=newRange)
@@ -110,18 +130,14 @@ class XAxis(pg.AxisItem):
                 other, marker.pair = marker.pair, None
                 other.pair = None
                 self.marker_remove(other.name)
-                self._marker_pairs.pop(name[:1], None)
 
-    def markers(self):
+    def markers(self) -> List[Marker]:
         return list(self._markers.values())
 
-    def markers_single(self):
+    def markers_single(self) -> List[Marker]:
         m = self._markers.values()
         m = [x for x in m if not isinstance(x.name, str)]
         return m
-
-    def markers_dual(self):
-        return self._marker_pairs.values()
 
     def _mouseMoveEvent(self, ev):
         """Handle mouse movements for every mouse movement within the widget"""
@@ -145,8 +161,10 @@ class XAxis(pg.AxisItem):
         if self.linkedView() is None:
             return
         log.info('mouseClickEvent(%s)', event)
-        if self.geometry().contains(event.scenePos()):
+        pos = event.scenePos()
+        if self.geometry().contains(pos):
             if event.button() == QtCore.Qt.RightButton:
+                self._popup_menu_pos = self.linkedView().mapSceneToView(pos)
                 event.accept()
                 # self.scene().addParentContextMenus(self, self.menu, event)
                 self.menu.popup(event.screenPos().toPoint())

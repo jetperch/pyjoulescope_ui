@@ -75,6 +75,16 @@ class Signal:
         else:
             layout.ci.layout.setRowStretchFactor(row, 10)
 
+    def removeFromLayout(self, layout):
+        rows = layout.ci.layout.rowCount()
+        for row in range(rows):
+            if layout.getItem(row, 1) == self.vb:
+                layout.removeItem(self.y_axis)
+                layout.removeItem(self.vb)
+                if self.text_item:
+                    layout.removeItem(self.text_item)
+                return row
+
     def yaxis_autorange(self, v_min, v_max):
         _, (vb_min, vb_max) = self.vb.viewRange()
         if not np.isfinite(v_min):

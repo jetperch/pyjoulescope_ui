@@ -15,6 +15,8 @@
 from pyqtgraph.Qt import QtGui, QtCore
 import pyqtgraph as pg
 import weakref
+from .signal import Signal
+from .signal_statistics import si_format, html_format
 import logging
 
 
@@ -47,14 +49,43 @@ class Marker(pg.GraphicsObject):
         self.setPos(pg.Point(0, 0))
         self._x = 0.0  # in self._axis coordinates
         # self.setZValue(2000000)
-        self.signals = {}  # name: (Signal weakref, TextItem)
         self.pair = None
         self.moving = False
-        self.text = {}
+        self.text = {}  #: Dict[weakref.ReferenceType[Signal], TextItem]
 
     @property
     def name(self):
         return self._name
+
+    def signal_add(self, signal):
+        txt = pg.TextItem()
+        self.text[signal.name] = [weakref.ref(signal), txt]
+        signal.vb.scene().addItem(txt)
+
+    def signal_update(self, signal):
+        if signal.name not in self.text:
+            self.signal_add(signal)
+        _, txt = self.text[signal.name]
+        mx = self.get_pos()
+        vby = signal.vb.geometry().top()
+        px = signal.vb.mapViewToScene(pg.Point(mx, 0.0)).x()
+        txt.setPos(pg.Point(px, vby))
+        labels = signal.statistics_at(mx)
+        if len(labels):
+            txt_result = si_format(labels, units=signal.units)
+            html = html_format(txt_result, x=mx)
+            txt.setHtml(html)
+
+    def signal_remove(self, name):
+        if isinstance(name, Signal):
+            name = name.name
+        if name not in self.text:
+            log.warning('signal_remove(%s) but not found', name)
+            return
+        signal_ref, txt = self.text.pop(name)
+        signal = signal_ref()
+        if signal is not None:
+            signal.vb.scene().removeItem(txt)
 
     def _endpoints(self):
         """Get the endpoints in the scene's (parent) coordinates.
@@ -170,6 +201,12 @@ class Marker(pg.GraphicsObject):
         :param x: The new x-axis position in Axis coordinates.
         """
         self._x = x
+        for signal_ref, text in self.text.values():
+            s = signal_ref()
+            if s is not None:
+                vby = s.vb.geometry().top()
+                px = s.vb.mapViewToScene(pg.Point(x, 0.0)).x()
+                text.setPos(px, vby)
         self._redraw()
 
     def get_pos(self):
