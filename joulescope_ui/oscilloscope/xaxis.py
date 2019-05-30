@@ -80,11 +80,11 @@ class XAxis(pg.AxisItem):
         while ord(letter) <= ord('Z'):
             if letter + '1' not in self._markers:
                 mleft = self._marker_add(letter + '1', shape='left')
-                mleft.set_pos(x1)
+                mleft.set_pos(x1, no_emit=True)
                 mright = self._marker_add(letter + '2', shape='right')
-                mright.set_pos(x2)
                 mleft.pair = mright
                 mright.pair = mleft
+                mright.set_pos(x2)
                 return mleft, mright
             letter = chr(ord(letter) + 1)
 

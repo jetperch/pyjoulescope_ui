@@ -32,14 +32,11 @@ class Marker(pg.GraphicsObject):
         ['full', 'left', 'right', 'none'].
     """
 
-    sigUpdateRequest = QtCore.Signal(object, object)
+    sigUpdateRequest = QtCore.Signal(object)
     """Request a value update when x-axis position changes.
     
     :param marker: The :class:`Marker` instance requesting the update.
-    :param coords: List[float]: The x-axis coordinates for the
-        update.  A single coordinate for single markers and two
-        coordinates for dual markers.  For dual markers, this
-        request is signaled using only the left marker.
+        For dual markers, the marker that moved will signal.
     """
 
     sigRemoveRequest = QtCore.Signal(object)
@@ -223,10 +220,12 @@ class Marker(pg.GraphicsObject):
     def linkedViewChanged(self, view, newRange=None):
         self._redraw()
 
-    def set_pos(self, x):
+    def set_pos(self, x, no_emit=None):
         """Set the x-axis position for the marker.
 
         :param x: The new x-axis position in Axis coordinates.
+        :param no_emit: When True, do not emit any updates.
+            When False or None (default) emit updates.
         """
         self._x = x
         for signal_ref, text in self.text.values():
@@ -237,14 +236,9 @@ class Marker(pg.GraphicsObject):
                 px = s.vb.mapViewToScene(pg.Point(x, 0.0)).x()
                 text.setPos(px, vby)
 
-        # signal the update request
-        if self.pair is not None:
-            if self.is_right:
-                self.sigUpdateRequest.emit(self.pair, [self.pair.get_pos(), x])
-            else:
-                self.sigUpdateRequest.emit(self, [x, self.pair.get_pos()])
-        else:
-            self.sigUpdateRequest.emit(self, [x])
+        # signal the update request as necessary
+        if not bool(no_emit):
+            self.sigUpdateRequest.emit(self)
         self._redraw()
 
     def get_pos(self):
