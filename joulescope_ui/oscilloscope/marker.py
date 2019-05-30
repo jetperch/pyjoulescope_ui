@@ -32,6 +32,16 @@ class Marker(pg.GraphicsObject):
         ['full', 'left', 'right', 'none'].
     """
 
+    sigUpdateRequest = QtCore.Signal(object, object)
+    """Request a value update when x-axis position changes.
+    
+    :param marker: The :class:`Marker` instance requesting the update.
+    :param coords: List[float]: The x-axis coordinates for the
+        update.  A single coordinate for single markers and two
+        coordinates for dual markers.  For dual markers, this
+        request is signaled using only the left marker.
+    """
+
     sigRemoveRequest = QtCore.Signal(object)
     """Indicate that the user has requested to remove this marker
 
@@ -51,30 +61,44 @@ class Marker(pg.GraphicsObject):
         # self.setZValue(2000000)
         self.pair = None
         self.moving = False
-        self.text = {}  #: Dict[weakref.ReferenceType[Signal], TextItem]
+        self.text = {}  #: Dict[str, List[weakref.ReferenceType[Signal], TextItem]]
+
+    def __str__(self):
+        return f'Marker({self.name})'
 
     @property
     def name(self):
         return self._name
 
-    def signal_add(self, signal):
+    @property
+    def is_right(self):
+        return self.pair is not None and self.name[1] == '2'
+
+    def signal_add(self, signal: Signal):
         txt = pg.TextItem()
         self.text[signal.name] = [weakref.ref(signal), txt]
-        signal.vb.scene().addItem(txt)
+        signal.vb.addItem(txt)
 
-    def signal_update(self, signal):
+    def signal_update(self, signal: Signal):
         if signal.name not in self.text:
             self.signal_add(signal)
         _, txt = self.text[signal.name]
-        mx = self.get_pos()
-        vby = signal.vb.geometry().top()
-        px = signal.vb.mapViewToScene(pg.Point(mx, 0.0)).x()
-        txt.setPos(pg.Point(px, vby))
-        labels = signal.statistics_at(mx)
+        xv = self.get_pos()
+        vb = signal.vb
+        ys = vb.geometry().top()
+        yv = vb.mapSceneToView(pg.Point(0.0, ys)).y()
+        txt.setPos(pg.Point(xv, yv))
+        labels = signal.statistics_at(xv)
         if len(labels):
             txt_result = si_format(labels, units=signal.units)
-            html = html_format(txt_result, x=mx)
+            html = html_format(txt_result, x=xv)
             txt.setHtml(html)
+
+    def signal_update_all(self):
+        for signal_ref, _ in self.text.values():
+            s = signal_ref()
+            if s is not None:
+                self.signal_update(s)
 
     def signal_remove(self, name):
         if isinstance(name, Signal):
@@ -86,6 +110,10 @@ class Marker(pg.GraphicsObject):
         signal = signal_ref()
         if signal is not None:
             signal.vb.scene().removeItem(txt)
+
+    def signal_remove_all(self):
+        for name in list(self.text.keys()):
+            self.signal_remove(name)
 
     def _endpoints(self):
         """Get the endpoints in the scene's (parent) coordinates.
@@ -122,7 +150,7 @@ class Marker(pg.GraphicsObject):
         x = p2.x()
         bottom = p2.y()
         self._boundingRect = QtCore.QRectF(x - w, top, 2 * w, bottom - top)
-        log.info('boundingRect: %s => %s', self._x, str(self._boundingRect))
+        log.debug('boundingRect: %s => %s', self._x, str(self._boundingRect))
         return self._boundingRect
 
     def paint_flag(self, painter, p1):
@@ -202,11 +230,21 @@ class Marker(pg.GraphicsObject):
         """
         self._x = x
         for signal_ref, text in self.text.values():
+            text.setText('')  # better to have nothing than be wrong
             s = signal_ref()
             if s is not None:
                 vby = s.vb.geometry().top()
                 px = s.vb.mapViewToScene(pg.Point(x, 0.0)).x()
                 text.setPos(px, vby)
+
+        # signal the update request
+        if self.pair is not None:
+            if self.is_right:
+                self.sigUpdateRequest.emit(self.pair, [self.pair.get_pos(), x])
+            else:
+                self.sigUpdateRequest.emit(self, [x, self.pair.get_pos()])
+        else:
+            self.sigUpdateRequest.emit(self, [x])
         self._redraw()
 
     def get_pos(self):

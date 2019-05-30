@@ -50,6 +50,13 @@ class XAxis(pg.AxisItem):
     :param x1: The initial x-axis time coordinate in seconds for the right marker.
     """
 
+    sigMarkerRemoveRequest = QtCore.Signal(object)
+    """Indicate that the user has requested to remove markers
+
+    :param markers: The list of markers to remove which is either length 1
+        for single markers and length 2 for dual markers.  
+    """
+
     def __init__(self):
         pg.AxisItem.__init__(self, orientation='top')
         self.menu = AxisMenu()
@@ -63,7 +70,7 @@ class XAxis(pg.AxisItem):
         idx = 0
         while True:
             if idx not in self._markers:
-                marker = self.marker_add(idx, shape='full')
+                marker = self._marker_add(idx, shape='full')
                 marker.set_pos(x)
                 return marker
             idx += 1
@@ -71,10 +78,10 @@ class XAxis(pg.AxisItem):
     def marker_dual_add(self, x1, x2):
         letter = 'A'
         while ord(letter) <= ord('Z'):
-            if letter not in self._markers:
-                mleft = self.marker_add(letter + '1', shape='left')
+            if letter + '1' not in self._markers:
+                mleft = self._marker_add(letter + '1', shape='left')
                 mleft.set_pos(x1)
-                mright = self.marker_add(letter + '2', shape='right')
+                mright = self._marker_add(letter + '2', shape='right')
                 mright.set_pos(x2)
                 mleft.pair = mright
                 mright.pair = mleft
@@ -99,37 +106,62 @@ class XAxis(pg.AxisItem):
         for marker in self._markers.values():
             marker.viewTransformChanged()
 
-    def marker_add(self, name, shape):
-        self.marker_remove(name)
+    def _marker_add(self, name, shape):
+        if name in self._markers:
+            raise RuntimeError('_marker_add internal error: name %s already exists', name)
         marker = Marker(name=name, x_axis=self, shape=shape)
         scene = self.scene()
         if scene is not None and scene is not marker.scene():
             scene.addItem(marker)
         marker.setParentItem(self.parentItem())
-
-        self.scene().addItem(marker)
         self._markers[name] = marker
         marker.show()
-        marker.sigRemoveRequest.connect(self._on_marker_remove)
+        marker.sigRemoveRequest.connect(self._on_marker_remove_request)
         if self._proxy is None:
             self._proxy = pg.SignalProxy(self.scene().sigMouseMoved, rateLimit=60, slot=self._mouseMoveEvent)
         return marker
 
     @QtCore.Slot(object)
-    def _on_marker_remove(self, marker: Marker):
-        self.marker_remove(marker.name)
+    def _on_marker_remove_request(self, marker: Marker):
+        if marker.pair is not None:
+            if marker.is_right:
+                self.sigMarkerRemoveRequest.emit([marker.pair, marker])
+            else:
+                self.sigMarkerRemoveRequest.emit([marker, marker.pair])
+        else:
+            self.sigMarkerRemoveRequest.emit([marker])
 
-    def marker_remove(self, name):
-        marker = self._markers.pop(name, None)
-        if marker is not None:
-            marker.sigRemoveRequest.disconnect(self._on_marker_remove)
-            marker.setVisible(False)
-            # marker.prepareGeometryChange()
-            # self.scene().removeItem(marker)  # removing from scene causes crash... ugh
-            if marker.pair:
-                other, marker.pair = marker.pair, None
-                other.pair = None
-                self.marker_remove(other.name)
+    def marker_get(self, name):
+        if name is None:
+            return None
+        elif isinstance(name, Marker):
+            name = name.name
+        return self._markers.get(name)
+
+    def marker_remove(self, m1, m2=None):
+        m1 = self.marker_get(m1)
+        if m1 is None:
+            log.error('marker_remove(%s) not found', m1)
+            if m2 is not None:
+                return self.marker_remove(m2)
+            return
+        log.info('marker_remove(%s)', m1)
+        m2 = self.marker_get(m2)
+        if m2 is not None:
+            if m1 != m2.pair and m2 != m1.pair:
+                log.error('marker_remove on mismatch: %s, %s', m1, m2)
+                self.marker_remove(m2)
+        self._markers.pop(m1.name)
+        m1.sigRemoveRequest.disconnect(self._on_marker_remove_request)
+        m1.setVisible(False)
+        m1.signal_remove_all()
+        # marker.prepareGeometryChange()
+        # self.scene().removeItem(marker)  # removing from scene causes crash... ugh
+        # ViewBox has crash workaround for this case - incorporate here?
+        if m1.pair:
+            other, m1.pair = m1.pair, None
+            other.pair = None
+            self.marker_remove(other)
 
     def markers(self) -> List[Marker]:
         return list(self._markers.values())

@@ -38,6 +38,14 @@ class Oscilloscope(QtWidgets.QWidget):
     :param x_count: The desired number of samples in the range.
     """
 
+    sigMarkerDualUpdateRequest = QtCore.Signal(object, float, float)
+    """Request a value update when x-axis position changes.
+
+    :param marker: The :class:`Marker` instance for the left marker requesting the update.
+    :param x1: The left x-axis time coordinate.
+    :param x2: The left x-axis time coordinate.
+    """
+
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self, parent=parent)
         self._x_limits = [0.0, 30.0]
@@ -60,6 +68,7 @@ class Oscilloscope(QtWidgets.QWidget):
         self._x_axis.setGrid(128)
         self.sigMarkerSingleAddRequest = self._x_axis.sigMarkerSingleAddRequest
         self.sigMarkerDualAddRequest = self._x_axis.sigMarkerDualAddRequest
+        self.sigMarkerRemoveRequest = self._x_axis.sigMarkerRemoveRequest
 
         self.win.ci.layout.setRowStretchFactor(0, 1)
         self.win.ci.layout.setRowStretchFactor(1, 1)
@@ -127,10 +136,31 @@ class Oscilloscope(QtWidgets.QWidget):
         self._vb_relink()
 
     def marker_single_add(self, x):
-        return self._x_axis.marker_single_add(x)
+        m = self._x_axis.marker_single_add(x)
+        m.sigUpdateRequest.connect(self._on_marker_single_update)
+        return m
+
+    @QtCore.Slot(object, object)
+    def _on_marker_single_update(self, marker, coords):
+        marker.signal_update_all()
 
     def marker_dual_add(self, x1, x2):
-        return self._x_axis.marker_dual_add(x1, x2)
+        m1, m2 = self._x_axis.marker_dual_add(x1, x2)
+        # todo
+        return m1, m2
+
+    def marker_remove(self, m1, m2=None):
+        """Remove markers
+
+        :param m1: The marker or marker name to remove.
+        :param m2: The other marker or marker name to remove for
+            dual markers.  This second marker parameter is never
+            required, but will be check for correctness if provided.
+        """
+        m1 = self._x_axis.marker_get(m1)
+        if m1.pair is None:
+            m1.sigUpdateRequest.disconnect(self._on_marker_single_update)
+        self._x_axis.marker_remove(m1, m2)
 
     def _vb_relink(self):
         if len(self._signals) <= 0:

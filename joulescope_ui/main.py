@@ -249,6 +249,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.oscilloscope_widget.on_xChangeSignal.connect(self._on_x_change)
         self.oscilloscope_widget.sigMarkerSingleAddRequest.connect(self.on_markerSingleAddRequest)
         self.oscilloscope_widget.sigMarkerDualAddRequest.connect(self.on_markerDualAddRequest)
+        self.oscilloscope_widget.sigMarkerRemoveRequest.connect(self.on_markerRemoveRequest)
 
         # status update timer
         self.status_update_timer = QtCore.QTimer(self)
@@ -929,12 +930,17 @@ class MainWindow(QtWidgets.QMainWindow):
 
     @QtCore.Slot(float)
     def on_markerSingleAddRequest(self, x):
-        self.oscilloscope_widget.marker_single_add(x)
+        m = self.oscilloscope_widget.marker_single_add(x)
+        # no further action necessary, updates handled by oscilloscope_widget
 
     @QtCore.Slot(float)
     def on_markerDualAddRequest(self, x1, x2):
         m1, m2 = self.oscilloscope_widget.marker_dual_add(x1, x2)
         # todo: manage dual marker update
+
+    @QtCore.Slot(object)
+    def on_markerRemoveRequest(self, markers):
+        self.oscilloscope_widget.marker_remove(*markers)
 
             
 def kick_bootloaders():
