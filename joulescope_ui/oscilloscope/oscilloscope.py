@@ -137,8 +137,14 @@ class Oscilloscope(QtWidgets.QWidget):
                     self.win.addItem(i, row=k - 1, col=j)
         self._vb_relink()
 
+    def _add_signals_to_marker(self, marker):
+        for signal in self._signals.values():
+            marker.signal_add(signal)
+        return marker
+
     def marker_single_add(self, x):
         m = self._x_axis.marker_single_add(x)
+        m = self._add_signals_to_marker(m)
         m.sigUpdateRequest.connect(self._on_marker_single_update)
         return m
 
@@ -148,8 +154,10 @@ class Oscilloscope(QtWidgets.QWidget):
 
     def marker_dual_add(self, x1, x2):
         m1, m2 = self._x_axis.marker_dual_add(x1, x2)
+        m2 = self._add_signals_to_marker(m2)
         m1.sigUpdateRequest.connect(self._on_marker_dual_update)
         m2.sigUpdateRequest.connect(self._on_marker_dual_update)
+        self.sigMarkerDualUpdateRequest.emit(m1, m2)
         return m1, m2
 
     @QtCore.Slot(object)
@@ -213,6 +221,8 @@ class Oscilloscope(QtWidgets.QWidget):
             s.update(x, value)
             for m in self._x_axis.markers_single():
                 m.signal_update(s)
+            for m1, m2 in self._x_axis.markers_dual():
+                self.sigMarkerDualUpdateRequest.emit(m1, m2)
 
     def data_clear(self):
         for s in self._signals.values():

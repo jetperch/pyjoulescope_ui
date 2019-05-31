@@ -75,21 +75,18 @@ class Marker(pg.GraphicsObject):
         txt = pg.TextItem()
         self.text[signal.name] = [weakref.ref(signal), txt]
         signal.vb.addItem(txt)
+        txt.setVisible(True)
 
     def signal_update(self, signal: Signal):
         if signal.name not in self.text:
             self.signal_add(signal)
         _, txt = self.text[signal.name]
         xv = self.get_pos()
-        vb = signal.vb
-        ys = vb.geometry().top()
-        yv = vb.mapSceneToView(pg.Point(0.0, ys)).y()
-        txt.setPos(pg.Point(xv, yv))
         labels = signal.statistics_at(xv)
         if len(labels):
             txt_result = si_format(labels, units=signal.units)
             html = html_format(txt_result, x=xv)
-            txt.setHtml(html)
+            self.html_set(signal.name, html)
 
     def signal_update_all(self):
         for signal_ref, _ in self.text.values():
@@ -111,6 +108,22 @@ class Marker(pg.GraphicsObject):
     def signal_remove_all(self):
         for name in list(self.text.keys()):
             self.signal_remove(name)
+
+    def html_set(self, signal_name, html):
+        if signal_name not in self.text:
+            log.warning('html_set(%s) but does not exist', signal_name)
+            return
+        signal_ref, txt = self.text[signal_name]
+        signal = signal_ref()
+        if signal is None:
+            log.warning('html_set(%s) but signal ref not valid', signal_name)
+            return
+        xv = self.get_pos()
+        vb = signal.vb
+        ys = vb.geometry().top()
+        yv = vb.mapSceneToView(pg.Point(0.0, ys)).y()
+        txt.setPos(pg.Point(xv, yv))
+        txt.setHtml(html)
 
     def _endpoints(self):
         """Get the endpoints in the scene's (parent) coordinates.

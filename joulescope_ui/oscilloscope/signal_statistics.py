@@ -18,6 +18,9 @@ import numpy as np
 import pyqtgraph as pg
 
 
+STYLE_DEFAULT = 'color: #FFF; font-size: 8pt'
+
+
 def si_format(labels, units=None):
     if units is None:
         units = ''
@@ -40,7 +43,7 @@ def si_format(labels, units=None):
 
 def html_format(results, x=None, style=None):
     if style is None:
-        style = "color: #FFF;"
+        style = STYLE_DEFAULT
     if x is None:
         values = []
     else:
@@ -48,7 +51,7 @@ def html_format(results, x=None, style=None):
     values += results
 
     body = '<br/>'.join(results)
-    return f'<html><body><span style="{style}">{body}</span></body></html>'
+    return f'<div><span style="{style}">{body}</span></div>'
 
 
 class SignalStatistics(pg.GraphicsWidget):

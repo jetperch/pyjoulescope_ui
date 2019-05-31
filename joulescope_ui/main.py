@@ -40,6 +40,9 @@ from joulescope_ui import usb_inrush
 from joulescope_ui.update_check import check as software_update_check
 from joulescope_ui.save import save_csv
 from joulescope_ui.logging_util import logging_config
+from joulescope_ui.oscilloscope.signal_statistics import si_format, html_format, three_sig_figs
+
+import numpy as np
 import ctypes
 import logging
 log = logging.getLogger(__name__)
@@ -945,7 +948,29 @@ class MainWindow(QtWidgets.QMainWindow):
 
     @QtCore.Slot(object, object)
     def on_markerDualUpdateRequest(self, m1, m2):
-        log.info('on_markerDualUpdateRequest(%s, %s)', m1, m2)
+        # log.info('on_markerDualUpdateRequest(%s, %s)', m1, m2)
+        v = self._device.view
+        t1 = m1.get_pos()
+        t2 = m2.get_pos()
+        if t1 > t2:
+            t1, t2 = t2, t1
+        s1 = v.view_time_to_sample_id(t1)
+        s2 = v.view_time_to_sample_id(t2)
+        # log.info('buffer %s, %s => %s, %s', t1, t2, s1, s2)
+        d = self._device.stream_buffer.data_get(start=s1, stop=s2, increment=s2 - s1)
+        fields = [('Current', 'A', 'C'), ('Voltage', 'V', None), ('Power', 'W', 'J')]
+        dt = abs(m2.get_pos() - m1.get_pos())
+        for j, (field, units, integral_units) in enumerate(fields):
+            f = {}
+            for k, stat in enumerate(['μ', 'σ', 'min', 'max']):
+                f[stat] = float(d[0, j, k])
+            f['σ'] = np.sqrt(f['σ'])
+            f['p2p'] = f['max'] - f['min']
+            txt_result = si_format(f, units=units)
+            integral = f['μ'] * dt
+            txt_result += ['=' + three_sig_figs(integral, units=integral_units)]
+            html = html_format(txt_result)
+            m2.html_set(field, html)
 
             
 def kick_bootloaders():

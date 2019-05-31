@@ -14,7 +14,7 @@
 
 from PySide2 import QtGui, QtCore, QtWidgets
 from .marker import Marker
-from typing import List
+from typing import List, Tuple
 import pyqtgraph as pg
 import logging
 
@@ -169,6 +169,11 @@ class XAxis(pg.AxisItem):
     def markers_single(self) -> List[Marker]:
         m = self._markers.values()
         m = [x for x in m if not isinstance(x.name, str)]
+        return m
+
+    def markers_dual(self) -> List[Tuple[Marker, Marker]]:
+        m = self._markers.values()
+        m = [(x.pair, x) for x in m if x.is_right]
         return m
 
     def _mouseMoveEvent(self, ev):
