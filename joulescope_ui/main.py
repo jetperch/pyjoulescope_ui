@@ -956,14 +956,17 @@ class MainWindow(QtWidgets.QMainWindow):
             t1, t2 = t2, t1
         s1 = v.view_time_to_sample_id(t1)
         s2 = v.view_time_to_sample_id(t2)
-        # log.info('buffer %s, %s => %s, %s', t1, t2, s1, s2)
-        d = self._device.stream_buffer.data_get(start=s1, stop=s2, increment=s2 - s1)
+        log.info('buffer %s, %s => %s, %s : %s', t1, t2, s1, s2, v.span)
+        d = self._device.stream_buffer.stats_get(start=s1, stop=s2)
         fields = [('Current', 'A', 'C'), ('Voltage', 'V', None), ('Power', 'W', 'J')]
         dt = abs(m2.get_pos() - m1.get_pos())
         for j, (field, units, integral_units) in enumerate(fields):
+            if d is None:
+                m2.html_set(field, '')
+                continue
             f = {}
             for k, stat in enumerate(['μ', 'σ', 'min', 'max']):
-                f[stat] = float(d[0, j, k])
+                f[stat] = float(d[j, k])
             f['σ'] = np.sqrt(f['σ'])
             f['p2p'] = f['max'] - f['min']
             txt_result = si_format(f, units=units)
