@@ -61,7 +61,6 @@ will be implemented before Joulescope general availability.
 
 ### Oscilloscope
 
-*   Add x-axis label (or at least some tool-tip / hover text)
 *   Make the y-axis autoranging less confusing.  You lose context on the
     discrete jumps.  Perhaps animate the transition?
 *   Add y-axis log display in addition to linear.
@@ -71,7 +70,6 @@ will be implemented before Joulescope general availability.
     The supported output formats should include jls, csv, npy, bin, xlsx, mat.
 *   Add "comparison" mode to overlay multiple data captures so that the 
     user can compare changes over the development cycle (story 3).
-*   Animate "pan" action (likely need to pause live view to be meaningful).
 *   Add a "triggered" mode that only captures on events, such as thresholds, 
     like a normal oscilloscope.  Note that triggering on an external signal
     is not included in this feature.
@@ -79,9 +77,6 @@ will be implemented before Joulescope general availability.
     signal is above or below the current y-axis view range.
 *   Add a small navigation window that shows the full extents of the buffer
     and a box with the view being displayed.
-*   The zoom & pan controls are improved, but still not intuitive.  Explore
-    alternatives, including a survey of other products, to see what works.
-*   Display energy computed over the visible window.
 *   Save waveforms to image file.
 
 

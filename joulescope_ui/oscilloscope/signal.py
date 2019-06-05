@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from .signal_statistics import SignalStatistics, si_format
+from .signal_viewbox import SignalViewBox
 from joulescope.units import unit_prefix, three_sig_figs
 import pyqtgraph as pg
 import numpy as np
@@ -36,7 +37,7 @@ class Signal:
         self.text_item = None
         self.name = name
         self.units = units
-        self.vb = pg.ViewBox(enableMenu=False, enableMouse=False)
+        self.vb = SignalViewBox(name=self.name)
         if y_limit is not None:
             y_min, y_max = y_limit
             self.vb.setLimits(yMin=y_min, yMax=y_max)

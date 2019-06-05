@@ -22,6 +22,10 @@ import logging
 log = logging.getLogger(__name__)
 
 
+def _wheel_to_gain(delta):
+    return 0.7 ** (delta / 120.0)
+
+
 class ScrollBar(pg.ViewBox):
     """ScrollBar for x-axis range control.
 
@@ -45,9 +49,6 @@ class ScrollBar(pg.ViewBox):
         self._label = pg.TextItem(html='<div><span style="color: #FFF;">Time (seconds)</span></div>', anchor=(0.5, 0.5))
         self.addItem(self._label, ignoreBounds=True)
 
-    def wheelEvent(self, ev, axis=None):
-        ev.accept()
-
     def set_xview(self, x_min, x_max):
         self._region.setRegion([x_min, x_max])
 
@@ -61,13 +62,24 @@ class ScrollBar(pg.ViewBox):
     def set_sampling_frequency(self, freq):
         self._region.set_sampling_frequency(freq)
 
+    @QtCore.Slot(float, float)
+    def on_wheelZoomX(self, x: float, delta: float):
+        self._region.on_wheelZoomX(x, delta)
+
     def wheelEvent(self, ev, axis=None):
         self._region.wheelEvent(ev)
+
+    @QtCore.Slot(object, float)
+    def on_panX(self, command: str, x: float):
+        self._region.on_panX(command, x)
 
     def mouseDragEvent(self, ev):
         # delegate to the RegionItem
         ev.currentItem = self._region
         self._region.mouseDragEvent(ev)
+
+    def mouseClickEvent(self, ev, axis=None):
+        self._region.mouseClickEvent(ev)
 
     def request_x_change(self):
         self._region.on_regionChange()
@@ -92,6 +104,7 @@ class CustomLinearRegionItem(pg.LinearRegionItem):
         self._parent = weakref.ref(parent)
         self.mode = 'normal'
         self._x_down = None
+        self._x_pan = None
         self._x_range_start = None
         self._sampling_frequency = None
         self._callback = callback
@@ -107,22 +120,46 @@ class CustomLinearRegionItem(pg.LinearRegionItem):
     def set_sampling_frequency(self, freq):
         self._sampling_frequency = freq
 
-    def on_mouse_drag_event(self, ev):
+    def mouseDragEvent(self, ev):
         if not self.movable or int(ev.button() & QtCore.Qt.LeftButton) == 0:
             return
         ev.accept()
-
         x_pos = ev.pos().x()
-        if ev.isStart():
+        if ev.isFinish():
+            x_down, self._x_down = self._x_down, None
+            self.on_panX('finish', x_pos - x_down)
+        elif ev.isStart():
             self._x_down = ev.buttonDownPos().x()
-            self._x_range_start = [l.pos().x() for l in self.lines]
-            self.moving = True
+            self.on_panX('start', x_pos - self._x_down)
+        else:
+            self.on_panX('drag', x_pos - self._x_down)
 
-        if not self.moving:
+    def mouseClickEvent(self, ev, axis=None):
+        ev.accept()
+        if ev.button() & QtCore.Qt.RightButton:
+            if self._x_down:
+                self._x_down = None
+                self.sigPanXEvent.emit('abort', 0.0)
+
+    @QtCore.Slot(object, float, float)
+    def on_panX(self, command: str, x: float):
+        log.info('pan(%s, %s)', command, x)
+        if command == 'finish':
+            if self._x_pan is not None:
+                pass
+            self._x_pan = None
+            self._x_range_start = None
+            self.sigRegionChangeFinished.emit(self)
+            return
+        elif command == 'start':
+            self._x_pan = x
+            self._x_range_start = [l.pos().x() for l in self.lines]
+
+        if self._x_pan is None:
             return
 
         x_min, x_max = self.get_bounds()
-        delta = x_pos - self._x_down
+        delta = x - self._x_pan
         if self.mode == 'realtime':
             r = self._x_range_start[0] + delta
             self.setRegion([r, x_max])
@@ -130,13 +167,6 @@ class CustomLinearRegionItem(pg.LinearRegionItem):
             ra = self._x_range_start[0] + delta
             rb = self._x_range_start[1] + delta
             self.setRegion([ra, rb])
-
-        if ev.isFinish():
-            self.moving = False
-            self.sigRegionChangeFinished.emit(self)
-
-    def mouseDragEvent(self, ev):
-        self.on_mouse_drag_event(ev)
 
     def get_bounds(self):
         x_min, x_max = self.lines[0].bounds()
@@ -155,8 +185,28 @@ class CustomLinearRegionItem(pg.LinearRegionItem):
         else:
             raise RuntimeError('invalid mode')
 
+    def _wheel_to_gain(self, delta):
+        gain = 0.7 ** (delta / 120.0)
+        self.setRegion(gain=gain)
+
+    @QtCore.Slot(float, float)
+    def on_wheelZoomX(self, x, delta):
+        ra, rb = self.getRegion()
+        gain = _wheel_to_gain(delta)
+        if self.mode == 'realtime':
+            self.setRegion(gain=gain)
+        elif ra <= x <= rb:  # valid x, keep x in same screen location
+            d1 = rb - ra
+            d2 = d1 * gain
+            f = (x - ra) / d1
+            pa = x - f * d2
+            pb = pa + d2
+            self.setRegion(rgn=[pa, pb])
+        else:
+            log.warning('wheel zoom out of range')
+
     def wheelEvent(self, ev):
-        gain = 0.7 ** (ev.delta() / 120)
+        gain = _wheel_to_gain(ev.delta())
         log.info('wheelEvent(delta=%s) gain=>%s', ev.delta(), gain)
         self.setRegion(gain=gain)
         ev.accept()

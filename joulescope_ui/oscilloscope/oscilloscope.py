@@ -117,6 +117,8 @@ class Oscilloscope(QtWidgets.QWidget):
     def signal_add(self, name, units=None, y_limit=None):
         s = Signal(name=name, units=units, y_limit=y_limit)
         s.addToLayout(self.win, row=self.win.ci.layout.rowCount())
+        s.vb.sigWheelZoomXEvent.connect(self._scrollbar.on_wheelZoomX)
+        s.vb.sigPanXEvent.connect(self._scrollbar.on_panX)
         self._signals[name] = s
         self._vb_relink()  # Linking to last axis makes grid draw correctly
         return s
@@ -126,6 +128,8 @@ class Oscilloscope(QtWidgets.QWidget):
         if signal is None:
             log.warning('signal_remove(%s) but not found', name)
             return
+        signal.vb.sigWheelZoomXEvent.disconnect(self._scrollbar.on_wheelZoomX)
+        signal.vb.sigPanXEvent.disconnect(self._scrollbar.on_panX)
         for m in self._x_axis.markers():
             m.signal_remove(name)
         row = signal.removeFromLayout(self.win)
