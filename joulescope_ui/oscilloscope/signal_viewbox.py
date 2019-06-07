@@ -78,7 +78,9 @@ class SignalViewBox(pg.ViewBox):
                 self.sigPanXEvent.emit('drag', self._pan[0])
 
     def wheelEvent(self, ev, axis=None):
-        self.log.debug('mouse wheel: %s' % (ev,))
-        ev.accept()
-        p = self.mapSceneToView(ev.scenePos())
-        self.sigWheelZoomXEvent.emit(p.x(), ev.delta())
+        pos = ev.scenePos()
+        if self.geometry().contains(pos):
+            self.log.info('mouse wheel: %s' % (ev,))
+            ev.accept()
+            p = self.mapSceneToView(ev.scenePos())
+            self.sigWheelZoomXEvent.emit(p.x(), ev.delta())

@@ -20,7 +20,7 @@ from .signal_statistics import si_format, html_format
 import logging
 
 
-log = logging.getLogger(__name__)
+TIME_STYLE_DEFAULT = 'color: #FFF; background-color: #000; font-size: 8pt'
 
 
 class Marker(pg.GraphicsObject):
@@ -47,6 +47,7 @@ class Marker(pg.GraphicsObject):
 
     def __init__(self, name, x_axis: pg.AxisItem, color=None, shape=None):
         pg.GraphicsObject.__init__(self)
+        self.log = logging.getLogger('%s.%s' % (__name__, name))
         self._name = name
         self._axis = weakref.ref(x_axis)
         self.color = (64, 255, 64, 255) if color is None else color
@@ -56,8 +57,12 @@ class Marker(pg.GraphicsObject):
         self.setPos(pg.Point(0, 0))
         self._x = 0.0  # in self._axis coordinates
         # self.setZValue(2000000)
-        self.pair = None
+        self._pair = None
         self.moving = False
+        self._marker_time_text = pg.TextItem("t=0.00")
+        self._delta_time_text = pg.TextItem("Δt=0.00")
+        self._delta_time_text.setAnchor([0.5, 0])
+        self.graphic_items = [self._marker_time_text, self._delta_time_text]
         self.text = {}  #: Dict[str, List[weakref.ReferenceType[Signal], TextItem]]
 
     def __str__(self):
@@ -69,7 +74,25 @@ class Marker(pg.GraphicsObject):
 
     @property
     def is_right(self):
-        return self.pair is not None and self.name[1] == '2'
+        return self._pair is not None and self.name[1] == '2'
+
+    @property
+    def is_left(self):
+        return self._pair is not None and self.name[1] == '1'
+
+    @property
+    def pair(self):
+        return self._pair
+
+    @pair.setter
+    def pair(self, value):
+        self._pair = value
+        if self.is_left:
+            self._marker_time_text.setAnchor([1, 0])
+            self._delta_time_text.setVisible(True)
+        else:
+            self._marker_time_text.setAnchor([0, 0])
+            self._delta_time_text.setVisible(False)
 
     def signal_add(self, signal: Signal):
         txt = pg.TextItem()
@@ -98,7 +121,7 @@ class Marker(pg.GraphicsObject):
         if isinstance(name, Signal):
             name = name.name
         if name not in self.text:
-            log.warning('signal_remove(%s) but not found', name)
+            self.log.warning('signal_remove(%s) but not found', name)
             return
         signal_ref, txt = self.text.pop(name)
         signal = signal_ref()
@@ -111,12 +134,12 @@ class Marker(pg.GraphicsObject):
 
     def html_set(self, signal_name, html):
         if signal_name not in self.text:
-            log.warning('html_set(%s) but does not exist', signal_name)
+            self.log.warning('html_set(%s) but does not exist', signal_name)
             return
         signal_ref, txt = self.text[signal_name]
         signal = signal_ref()
         if signal is None:
-            log.warning('html_set(%s) but signal ref not valid', signal_name)
+            self.log.warning('html_set(%s) but signal ref not valid', signal_name)
             return
         xv = self.get_pos()
         vb = signal.vb
@@ -160,7 +183,7 @@ class Marker(pg.GraphicsObject):
         x = p2.x()
         bottom = p2.y()
         self._boundingRect = QtCore.QRectF(x - w, top, 2 * w, bottom - top)
-        log.debug('boundingRect: %s => %s', self._x, str(self._boundingRect))
+        self.log.debug('boundingRect: %s => %s', self._x, str(self._boundingRect))
         return self._boundingRect
 
     def paint_flag(self, painter, p1):
@@ -218,6 +241,7 @@ class Marker(pg.GraphicsObject):
     def _redraw(self):
         self.picture = None
         self._boundingRect = None
+        self._update_marker_text()
         self.prepareGeometryChange()
         self.update()
 
@@ -254,6 +278,50 @@ class Marker(pg.GraphicsObject):
             self.sigUpdateRequest.emit(self)
         self._redraw()
 
+    def _update_marker_text(self):
+        x = self._x
+        style = TIME_STYLE_DEFAULT
+        self._marker_time_text.setHtml(f'<div><span style="{style}">t={x:.6f}</span></div>')
+        axis = self._axis()
+        if axis is None:
+            return
+        vb = axis.linkedView()
+        if vb is None:
+            return
+        g = axis.geometry()
+        axis_top = g.top()
+        axis_height = axis.geometry().height()
+        text_offset = axis_height // 2
+        x_scene = vb.mapViewToScene(pg.Point(x, 0.0)).x()
+        if self._pair is None:
+            self._marker_time_text.setPos(x_scene + text_offset, axis_top)
+        elif self.is_left:
+            self._marker_time_text.setPos(x_scene, axis_top)
+            self._update_delta_time()
+        else:
+            self._marker_time_text.setPos(x_scene, axis_top)
+            self._pair._update_delta_time()
+
+    def _update_delta_time(self):
+        if self.is_left:
+            style = TIME_STYLE_DEFAULT
+            axis = self._axis()
+            if axis is None:
+                return
+            axis_top = axis.geometry().top()
+            vb = axis.linkedView()
+            if vb is None:
+                return
+            x_left = self._x
+            x_right = self._pair._x
+            dx = abs(x_right - x_left)
+            x_center = (x_left + x_right) / 2
+            x_scene = vb.mapViewToScene(pg.Point(x_center, 0.0)).x()
+            self._delta_time_text.setHtml(f'<div><span style="{style}">Δt={dx:.3g}</span></div>')
+            self._delta_time_text.setPos(x_scene, axis_top)
+        elif self.is_right:
+            self._pair._update_delta_time()
+
     def get_pos(self):
         """Get the current x-axis position for the marker.
 
@@ -265,6 +333,7 @@ class Marker(pg.GraphicsObject):
         self._redraw()
 
     def mouseClickEvent(self, ev):
+        self.log.info('mouseClickEvent(%s)', ev)
         ev.accept()
         if not self.moving:
             if ev.button() == QtCore.Qt.LeftButton:
@@ -276,3 +345,8 @@ class Marker(pg.GraphicsObject):
                 self.moving = False
             elif ev.button() == QtCore.Qt.RightButton:
                 pass  # todo restore original position
+
+    def setVisible(self, visible):
+        super().setVisible(visible)
+        for item in self.graphic_items:
+            item.setVisible(visible)

@@ -15,6 +15,7 @@
 from .signal_statistics import SignalStatistics, si_format
 from .signal_viewbox import SignalViewBox
 from joulescope.units import unit_prefix, three_sig_figs
+from .yaxis import YAxis
 import pyqtgraph as pg
 import numpy as np
 import logging
@@ -42,7 +43,7 @@ class Signal:
             y_min, y_max = y_limit
             self.vb.setLimits(yMin=y_min, yMax=y_max)
             self.vb.setYRange(y_min, y_max)
-        self.y_axis = pg.AxisItem(orientation='left')
+        self.y_axis = YAxis(name)
         self.y_axis.linkToView(self.vb)
         self.y_axis.setGrid(128)
         self._most_recent_data = None

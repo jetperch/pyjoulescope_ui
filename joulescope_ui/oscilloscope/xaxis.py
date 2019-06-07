@@ -80,10 +80,10 @@ class XAxis(pg.AxisItem):
         while ord(letter) <= ord('Z'):
             if letter + '1' not in self._markers:
                 mleft = self._marker_add(letter + '1', shape='left')
-                mleft.set_pos(x1, no_emit=True)
                 mright = self._marker_add(letter + '2', shape='right')
                 mleft.pair = mright
                 mright.pair = mleft
+                mleft.set_pos(x1, no_emit=True)
                 mright.set_pos(x2)
                 return mleft, mright
             letter = chr(ord(letter) + 1)
@@ -111,9 +111,10 @@ class XAxis(pg.AxisItem):
             raise RuntimeError('_marker_add internal error: name %s already exists', name)
         marker = Marker(name=name, x_axis=self, shape=shape)
         scene = self.scene()
-        if scene is not None and scene is not marker.scene():
-            scene.addItem(marker)
-        marker.setParentItem(self.parentItem())
+        for item in [marker] + marker.graphic_items:
+            if scene is not None and scene is not item.scene():
+                scene.addItem(item)
+            item.setParentItem(self.parentItem())
         self._markers[name] = marker
         marker.show()
         marker.sigRemoveRequest.connect(self._on_marker_remove_request)
@@ -197,11 +198,22 @@ class XAxis(pg.AxisItem):
     def mouseClickEvent(self, event):
         if self.linkedView() is None:
             return
-        log.info('mouseClickEvent(%s)', event)
         pos = event.scenePos()
         if self.geometry().contains(pos):
+            log.info('mouseClickEvent(%s)', event)
             if event.button() == QtCore.Qt.RightButton:
                 self._popup_menu_pos = self.linkedView().mapSceneToView(pos)
                 event.accept()
                 # self.scene().addParentContextMenus(self, self.menu, event)
                 self.menu.popup(event.screenPos().toPoint())
+
+    def wheelEvent(self, event, axis=None):
+        pos = event.scenePos()
+        vb = self.linkedView()
+        if vb is not None and self.geometry().contains(pos):
+            log.info('wheelEvent(%s)', event)
+            event.accept()
+            p = vb.mapSceneToView(event.scenePos())
+            vb.sigWheelZoomXEvent.emit(p.x(), event.delta())
+        else:
+            event.setAccepted(False)
