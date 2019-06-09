@@ -29,8 +29,8 @@ class SignalViewBox(pg.ViewBox):
     sigPanXEvent = QtCore.Signal(object, float)
     """A pan x event.
     
-    :param x: The x-axis delta from the start in axis coordinates. 
     :param command: One of ['start', 'drag', 'finish', 'abort']
+    :param x: The x-axis delta from the start in axis coordinates. 
     """
 
     def __init__(self, name):

@@ -236,9 +236,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.oscilloscope_dock_widget.setWidget(self.oscilloscope_widget)
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.oscilloscope_dock_widget)
         self.ui.menuView.addAction(self.oscilloscope_dock_widget.toggleViewAction())
-        self.oscilloscope_widget.signal_add(name='Current', units='A', y_limit=[-2.0, 10.0])
+        self.oscilloscope_widget.signal_add(name='Current', units='A', y_limit=[-2.0, 10.0], y_log_min=1e-9)
         self.oscilloscope_widget.signal_add(name='Voltage', units='V', y_limit=[-1.2, 15.0])
-        self.oscilloscope_widget.signal_add(name='Power', units='W', y_limit=[-2.4, 150.0])
+        self.oscilloscope_widget.signal_add(name='Power', units='W', y_limit=[-2.4, 150.0], y_log_min=1e-9)
         self.oscilloscope_widget.signal_add(name='gpi0')
         self.oscilloscope_widget.signal_add(name='gpi1')
         self.oscilloscope_widget.signal_add(name='i_range', y_limit=[0.0, 7.0])
@@ -250,6 +250,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.oscilloscope_widget.set_xlimits(0.0, 30.0)
         self.oscilloscope_widget.set_xview(25.0, 30.0)
         self.oscilloscope_widget.on_xChangeSignal.connect(self._on_x_change)
+        self.oscilloscope_widget.sigRefreshRequest.connect(self._on_refresh)
         self.oscilloscope_widget.sigMarkerSingleAddRequest.connect(self.on_markerSingleAddRequest)
         self.oscilloscope_widget.sigMarkerDualAddRequest.connect(self.on_markerDualAddRequest)
         self.oscilloscope_widget.sigMarkerRemoveRequest.connect(self.on_markerRemoveRequest)
@@ -329,10 +330,10 @@ class MainWindow(QtWidgets.QMainWindow):
         log.info('rescanTimer')
         self._device_scan()
 
-    def _update_data(self):
+    def _update_data(self, force=None):
         if self._has_active_device:
             is_changed, (x, data) = self._device.view.update()
-            if is_changed:
+            if is_changed or bool(force):
                 odata = {
                     'Current': data[:, 0, :],
                     'Voltage': data[:, 1, :],
@@ -375,8 +376,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.on_xChangeSignal.emit('resize', {'pixels': x_count})
         self.on_xChangeSignal.emit('span_absolute', {'range': [x_min, x_max]})
         if not self.data_update_timer.isActive():
-            # force data update
-            self.data_update_timer.timeout.emit()
+            self._update_data(force=True)
+
+    @QtCore.Slot()
+    def _on_refresh(self):
+        log.info('_on_refresh')
+        if not self.data_update_timer.isActive():
+            self._update_data(force=True)
 
     def on_developer(self, do_show):
         self.dev_dock_widget.setVisible(do_show)
@@ -956,7 +962,7 @@ class MainWindow(QtWidgets.QMainWindow):
             t1, t2 = t2, t1
         s1 = v.view_time_to_sample_id(t1)
         s2 = v.view_time_to_sample_id(t2)
-        # log.info('buffer %s, %s => %s, %s : %s', t1, t2, s1, s2, v.span)
+        log.info('buffer %s, %s => %s, %s : %s', t1, t2, s1, s2, v.span)
         d = self._device.stream_buffer.stats_get(start=s1, stop=s2)
         fields = [('Current', 'A', 'C'), ('Voltage', 'V', None), ('Power', 'W', 'J')]
         dt = abs(m2.get_pos() - m1.get_pos())

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from PySide2 import QtCore
 from .signal_statistics import SignalStatistics, si_format
 from .signal_viewbox import SignalViewBox
 from joulescope.units import unit_prefix, three_sig_figs
@@ -21,7 +22,6 @@ import numpy as np
 import logging
 
 
-log = logging.getLogger(__name__)
 CURVE_WIDTH = 1
 AUTO_RANGE_FRACT = 0.45  # autorange when current range smaller than existing range by this fractional amount.
 
@@ -32,20 +32,38 @@ INTEGRATION_UNITS = {
 }
 
 
-class Signal:
+def _wheel_to_y_gain(delta):
+    return 0.7 ** (delta / 120.0)
 
-    def __init__(self, name, units=None, y_limit=None):
+
+class Signal(QtCore.QObject):
+
+    sigRefreshRequest = QtCore.Signal()
+    """Request a data refresh"""
+
+    def __init__(self, name, units=None, y_limit=None, y_log_min=None):
+        QtCore.QObject.__init__(self)
         self.text_item = None
         self.name = name
+        self.log = logging.getLogger(__name__ + '.' + name)
         self.units = units
+        self.config = {
+            'name': name,
+            'y-axis': {
+                'limit': y_limit,
+                'log_min': y_log_min,
+            },
+        }
+        self._y_pan = None
         self.vb = SignalViewBox(name=self.name)
         if y_limit is not None:
             y_min, y_max = y_limit
             self.vb.setLimits(yMin=y_min, yMax=y_max)
             self.vb.setYRange(y_min, y_max)
-        self.y_axis = YAxis(name)
+        self.y_axis = YAxis(name, log_enable=y_log_min is not None)
         self.y_axis.linkToView(self.vb)
         self.y_axis.setGrid(128)
+
         self._most_recent_data = None
         if name is not None:
             self.y_axis.setLabel(text=name, units=units)
@@ -64,6 +82,10 @@ class Signal:
         self.vb.addItem(self.curve_min)
         # self.curve_range = pg.FillBetweenItem(self.curve_min, self.curve_max, brush=self._brush_min_max)
         # self.vb.addItem(self.curve_range)
+
+        self.y_axis.sigConfigEvent.connect(self.y_axis_config_update)
+        self.y_axis.sigWheelZoomYEvent.connect(self.on_wheelZoomY)
+        self.y_axis.sigPanYEvent.connect(self.on_panY)
 
     def set_xlimits(self, x_min, x_max):
         self.vb.setLimits(xMin=x_min, xMax=x_max)
@@ -87,14 +109,75 @@ class Signal:
                     layout.removeItem(self.text_item)
                 return row
 
+    def y_axis_config_update(self, cfg):
+        self.config['y-axis'].update(**cfg)
+        # range, handled elsewhere
+        if self.config['y-axis']['scale'] == 'logarithmic':
+            self.y_axis.setLogMode(True)
+            self.curve_mean.setLogMode(xMode=False, yMode=True)
+            self.curve_min.setLogMode(xMode=False, yMode=True)
+            self.curve_max.setLogMode(xMode=False, yMode=True)
+            y_min = np.log10(self.config['y-axis']['log_min'])
+            y_max = np.log10(self.config['y-axis']['limit'][1])
+            self.vb.setLimits(yMin=y_min, yMax=y_max)
+            self.vb.setYRange(y_min, y_max)
+            self.vb.setYRange(y_min, y_max)
+        else:
+            self.y_axis.setLogMode(False)
+            self.curve_mean.setLogMode(xMode=False, yMode=False)
+            self.curve_min.setLogMode(xMode=False, yMode=False)
+            self.curve_max.setLogMode(xMode=False, yMode=False)
+            y_min, y_max = self.config['y-axis']['limit']
+            self.vb.setLimits(yMin=y_min, yMax=y_max)
+        self.sigRefreshRequest.emit()
+
+    @QtCore.Slot(float, float)
+    def on_wheelZoomY(self, y, delta):
+        gain = _wheel_to_y_gain(delta)
+        ra, rb = self.vb.viewRange()[1]
+        if ra <= y <= rb:  # valid y, keep y in same screen location
+            d1 = rb - ra
+            d2 = d1 * gain
+            f = (y - ra) / d1
+            pa = y - f * d2
+            pb = pa + d2
+            self.vb.setRange(yRange=[pa, pb])
+        else:
+            self.log.warning('on_wheelZoomY(%s, %s) out of range', y, delta)
+
+    @QtCore.Slot(object, float)
+    def on_panY(self, command, y):
+        self.log.info('on_panY(%s, %s)', command, y)
+        if command == 'finish':
+            if self._y_pan is not None:
+                pass
+            self._y_pan = None
+        elif command == 'start':
+            self._y_pan = [y] + self.vb.viewRange()[1]
+
+        if self._y_pan is None:
+            return
+
+        y_start, ya, yb = self._y_pan
+        delta = y_start - y
+        ra = ya + delta
+        rb = yb + delta
+        self.vb.setRange(yRange=[ra, rb])
+
     def yaxis_autorange(self, v_min, v_max):
+        if self.config['y-axis'].get('range', 'auto') == 'manual':
+            return
         _, (vb_min, vb_max) = self.vb.viewRange()
         if not np.isfinite(v_min):
             v_min = vb_min
         if not np.isfinite(v_max):
             v_max = vb_max
+        if self.config['y-axis'].get('scale', 'linear') == 'logarithmic':
+            v_min = np.log10(max(v_min, self.config['y-axis']['log_min']))
+            v_max = np.log10(max(v_max, self.config['y-axis']['log_min']))
         vb_range = vb_max - vb_min
         v_range = v_max - v_min
+
         update_range = (v_max > vb_max) or (v_min < vb_min)
         if vb_range > 0:
             update_range |= (v_range / vb_range) < AUTO_RANGE_FRACT
@@ -121,6 +204,16 @@ class Signal:
             self.curve_min.update()
             self.curve_min.hide()
 
+    def _log_bound(self, y):
+        if self.config['y-axis'].get('scale', 'linear') == 'logarithmic':
+            y_log_min = self.config['y-axis']['log_min']
+            y = np.copy(y)
+            y[y < y_log_min] = y_log_min
+            # y = np.log10(y)
+            return y
+        else:
+            return y
+
     def update(self, x, value):
         """Update the signal data.
 
@@ -143,7 +236,7 @@ class Signal:
         elif shape_len == 2:
             z_mean = value[:, 0]
         else:
-            log.warning('Unsupported value shape: %s', str(value.shape))
+            self.log.warning('Unsupported value shape: %s', str(value.shape))
 
         # get the valid mean values regardless of shape
         z_valid = np.isfinite(z_mean)
@@ -166,7 +259,7 @@ class Signal:
 
         # compute statistics over the visible window
         z = z_mean
-        self.curve_mean.setData(x, z)
+        self.curve_mean.setData(x, self._log_bound(z))
         if z_min is None:
             self._min_max_disable()
             v_mean = np.mean(z)
@@ -175,15 +268,15 @@ class Signal:
             v_min = np.min(z)
         else:
             self._min_max_enable()
-            self.curve_min.setData(x, z_min)
-            self.curve_max.setData(x, z_max)
-
             v_mean = np.mean(z_mean)
             v_min = np.min(z_min)
             v_max = np.max(z_max)
             mean_delta = z_mean - v_mean
             # combine variances across the combined samples
             v_std = np.sqrt(np.sum(np.square(mean_delta, out=mean_delta) + z_var) / len(z_mean))
+
+            self.curve_min.setData(x, self._log_bound(z_min))
+            self.curve_max.setData(x, self._log_bound(z_max))
 
         if self.text_item is not None:
             labels = {'μ': v_mean, 'σ': v_std, 'min': v_min, 'max': v_max, 'p2p': v_max - v_min}

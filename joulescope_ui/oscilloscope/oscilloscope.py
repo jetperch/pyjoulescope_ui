@@ -30,6 +30,9 @@ class Oscilloscope(QtWidgets.QWidget):
     :param parent: The parent :class:`QWidget`.
     """
 
+    sigRefreshRequest = QtCore.Signal()
+    """Request a data refresh"""
+
     on_xChangeSignal = QtCore.Signal(float, float, int)
     """Indicate that an x-axis range change was requested.
 
@@ -114,11 +117,12 @@ class Oscilloscope(QtWidgets.QWidget):
         for signal in self._signals.values():
             signal.set_xlimits(x_min, x_max)
 
-    def signal_add(self, name, units=None, y_limit=None):
-        s = Signal(name=name, units=units, y_limit=y_limit)
+    def signal_add(self, name, units=None, y_limit=None, y_log_min=None):
+        s = Signal(name=name, units=units, y_limit=y_limit, y_log_min=y_log_min)
         s.addToLayout(self.win, row=self.win.ci.layout.rowCount())
         s.vb.sigWheelZoomXEvent.connect(self._scrollbar.on_wheelZoomX)
         s.vb.sigPanXEvent.connect(self._scrollbar.on_panX)
+        s.sigRefreshRequest.connect(self.sigRefreshRequest.emit)
         self._signals[name] = s
         self._vb_relink()  # Linking to last axis makes grid draw correctly
         return s
@@ -128,6 +132,7 @@ class Oscilloscope(QtWidgets.QWidget):
         if signal is None:
             log.warning('signal_remove(%s) but not found', name)
             return
+        signal.sigRefreshRequest.disconnect(self.sigRefreshRequest.emit)
         signal.vb.sigWheelZoomXEvent.disconnect(self._scrollbar.on_wheelZoomX)
         signal.vb.sigPanXEvent.disconnect(self._scrollbar.on_panX)
         for m in self._x_axis.markers():
@@ -150,6 +155,7 @@ class Oscilloscope(QtWidgets.QWidget):
         m = self._x_axis.marker_single_add(x)
         m = self._add_signals_to_marker(m)
         m.sigUpdateRequest.connect(self._on_marker_single_update)
+        m.signal_update_all()
         return m
 
     @QtCore.Slot(object)

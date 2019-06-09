@@ -22,7 +22,7 @@ import logging
 log = logging.getLogger(__name__)
 
 
-def _wheel_to_gain(delta):
+def _wheel_to_x_gain(delta):
     return 0.7 ** (delta / 120.0)
 
 
@@ -192,7 +192,7 @@ class CustomLinearRegionItem(pg.LinearRegionItem):
     @QtCore.Slot(float, float)
     def on_wheelZoomX(self, x, delta):
         ra, rb = self.getRegion()
-        gain = _wheel_to_gain(delta)
+        gain = _wheel_to_x_gain(delta)
         if self.mode == 'realtime':
             self.setRegion(gain=gain)
         elif ra <= x <= rb:  # valid x, keep x in same screen location
@@ -206,7 +206,7 @@ class CustomLinearRegionItem(pg.LinearRegionItem):
             log.warning('wheel zoom out of range')
 
     def wheelEvent(self, ev):
-        gain = _wheel_to_gain(ev.delta())
+        gain = _wheel_to_x_gain(ev.delta())
         log.info('wheelEvent(delta=%s) gain=>%s', ev.delta(), gain)
         self.setRegion(gain=gain)
         ev.accept()

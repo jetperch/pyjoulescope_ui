@@ -63,9 +63,6 @@ will be implemented before Joulescope general availability.
 
 *   Make the y-axis autoranging less confusing.  You lose context on the
     discrete jumps.  Perhaps animate the transition?
-*   Add y-axis log display in addition to linear.
-*   Add support for dual markers.  Display the t, Δt, mean, min, max, p2p and
-    energy over the window.
 *   Add ability to save either the entire buffer or the selected time range.
     The supported output formats should include jls, csv, npy, bin, xlsx, mat.
 *   Add "comparison" mode to overlay multiple data captures so that the 
