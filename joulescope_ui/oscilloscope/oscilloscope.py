@@ -16,7 +16,9 @@ from PySide2 import QtGui, QtCore, QtWidgets
 from .signal import Signal
 from .scrollbar import ScrollBar
 from .xaxis import XAxis
+from .settings_widget import SettingsWidget
 import pyqtgraph as pg
+import copy
 import logging
 
 
@@ -62,7 +64,12 @@ class Oscilloscope(QtWidgets.QWidget):
         self.win.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.layout.addWidget(self.win)
 
+        self._signals_def = {}
         self._signals = {}
+
+        self._settings_widget = SettingsWidget()
+        self.win.addItem(self._settings_widget, row=0, col=0)
+        self._settings_widget.sigAddSignalRequest.connect(self._on_signalAdd)
 
         self._scrollbar = ScrollBar()
         self._scrollbar.regionChange.connect(self.on_scrollbarRegionChange)
@@ -117,24 +124,52 @@ class Oscilloscope(QtWidgets.QWidget):
         for signal in self._signals.values():
             signal.set_xlimits(x_min, x_max)
 
+    def signal_configure(self, signals):
+        """Configure the available signals.
+
+        :param signals: The list of signal definitions.  Each definition is a dict:
+            * name: The signal name [required].
+            * units: The optional SI units for the signal.
+            * y_limit: The list of [min, max].
+            * y_log_min: The minimum log value.  None (default) disables logarithmic scale.
+            * show: True to show.  Not shown by default.
+        """
+        for signal in signals:
+            self._signals_def[signal['name']] = copy.deepcopy(signal)
+            if signal.get('show'):
+                self._on_signalAdd(signal['name'])
+        self._vb_relink()
+
+    def _on_signalAdd(self, name):
+        signal = self._signals_def[name]
+        self.signal_add(name=signal['name'],
+                        units=signal.get('units'),
+                        y_limit=signal.get('y_limit'),
+                        y_log_min=signal.get('y_log_min'))
+
     def signal_add(self, name, units=None, y_limit=None, y_log_min=None):
         s = Signal(name=name, units=units, y_limit=y_limit, y_log_min=y_log_min)
         s.addToLayout(self.win, row=self.win.ci.layout.rowCount())
+        s.sigRefreshRequest.connect(self.sigRefreshRequest.emit)
+        s.sigHideRequestEvent.connect(self.on_signalHide)
         s.vb.sigWheelZoomXEvent.connect(self._scrollbar.on_wheelZoomX)
         s.vb.sigPanXEvent.connect(self._scrollbar.on_panX)
-        s.sigRefreshRequest.connect(self.sigRefreshRequest.emit)
         self._signals[name] = s
         self._vb_relink()  # Linking to last axis makes grid draw correctly
         return s
 
     def signal_remove(self, name):
+        if len(self._signals) <= 1:
+            log.warning('signal_remove(%s) but last signal', name)
+            return
         signal = self._signals.pop(name, None)
         if signal is None:
             log.warning('signal_remove(%s) but not found', name)
             return
-        signal.sigRefreshRequest.disconnect(self.sigRefreshRequest.emit)
-        signal.vb.sigWheelZoomXEvent.disconnect(self._scrollbar.on_wheelZoomX)
-        signal.vb.sigPanXEvent.disconnect(self._scrollbar.on_panX)
+        signal.vb.sigWheelZoomXEvent.disconnect()
+        signal.vb.sigPanXEvent.disconnect()
+        signal.sigHideRequestEvent.disconnect()
+        signal.sigRefreshRequest.disconnect()
         for m in self._x_axis.markers():
             m.signal_remove(name)
         row = signal.removeFromLayout(self.win)
@@ -145,6 +180,11 @@ class Oscilloscope(QtWidgets.QWidget):
                     self.win.removeItem(i)
                     self.win.addItem(i, row=k - 1, col=j)
         self._vb_relink()
+
+    @QtCore.Slot(str)
+    def on_signalHide(self, name):
+        log.info('on_signalHide(%s)', name)
+        self.signal_remove(name)
 
     def _add_signals_to_marker(self, marker):
         for signal in self._signals.values():
@@ -208,6 +248,8 @@ class Oscilloscope(QtWidgets.QWidget):
                 p.vb.setXLink(None)
             else:
                 p.vb.setXLink(vb)
+        self._settings_widget.on_signalsAvailable(list(self._signals_def.keys()),
+                                                  visible=list(self._signals.keys()))
 
     def values_column_hide(self):
         for idx in range(self.win.ci.layout.rowCount()):
@@ -252,7 +294,7 @@ class Oscilloscope(QtWidgets.QWidget):
         row_count = self.win.ci.layout.rowCount()
         if x_min > x_max:
             x_min = x_max
-        if row_count >= SIGNAL_OFFSET_ROW:
+        if row_count > SIGNAL_OFFSET_ROW:
             row = SIGNAL_OFFSET_ROW + len(self._signals) - 1
             log.info('on_scrollbarRegionChange(%s, %s, %s)', x_min, x_max, x_count)
             vb = self.win.ci.layout.itemAt(row, 1)

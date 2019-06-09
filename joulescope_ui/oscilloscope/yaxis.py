@@ -34,7 +34,7 @@ class YAxisMenu(QtGui.QMenu):
         self.range_auto = QtGui.QAction(
             '&Auto', self.range_group,
             checkable=True,
-            statusTip='Automatically adjust the y-axis range to show all visible data.'
+            toolTip='Automatically adjust the y-axis range to show all visible data.'
         )
         self.range_auto.setChecked(True)
         self.range.addAction(self.range_auto)
@@ -42,7 +42,7 @@ class YAxisMenu(QtGui.QMenu):
         self.range_manual = QtGui.QAction(
             '&Manual', self.range_group,
             checkable=True,
-            statusTip='Manually zoom and pan the y-axis range.'
+            toolTip='Manually zoom and pan the y-axis range.'
         )
         self.range.addAction(self.range_manual)
         self.range_group.addAction(self.range_manual)
@@ -56,7 +56,7 @@ class YAxisMenu(QtGui.QMenu):
         self.scale_linear = QtGui.QAction(
             '&Linear', self.scale_group,
             checkable=True,
-            statusTip='Use a "normal" linear y-axis scale.'
+            toolTip='Use a "normal" linear y-axis scale.'
         )
         self.scale_linear.setChecked(True)
         self.scale.addAction(self.scale_linear)
@@ -65,12 +65,16 @@ class YAxisMenu(QtGui.QMenu):
         self.scale_logarithmic = QtGui.QAction(
             'Lo&garithmic', self.scale_group,
             checkable=True,
-            statusTip='Use a logarithmic y-axis scale.'
+            toolTip='Use a logarithmic y-axis scale.'
         )
         self.scale.addAction(self.scale_logarithmic)
         self.scale_group.addAction(self.scale_logarithmic)
         if log_enable:
             self.addMenu(self.scale)
+
+        self.hide_request = QtGui.QAction('&Hide', self)
+        self.hide_request.setToolTip('Hide this signal.')
+        self.addAction(self.hide_request)
 
     def range_set(self, value):
         if value == 'manual':
@@ -116,6 +120,12 @@ class YAxis(pg.AxisItem):
     :param y: The y-axis delta from the start in axis coordinates. 
     """
 
+    sigHideRequestEvent = QtCore.Signal(str)
+    """Request to hide this signal.
+    
+    :param name: The name of the signal to hide.
+    """
+
     def __init__(self, name, log_enable=None):
         pg.AxisItem.__init__(self, orientation='left')
         self._name = name
@@ -130,6 +140,7 @@ class YAxis(pg.AxisItem):
         self.menu.range_manual.triggered.connect(lambda: self._config_update(range='manual'))
         self.menu.scale_linear.triggered.connect(lambda: self._config_update(scale='linear'))
         self.menu.scale_logarithmic.triggered.connect(lambda: self._config_update(scale='logarithmic'))
+        self.menu.hide_request.triggered.connect(lambda: self.sigHideRequestEvent.emit(self._name))
         self._markers = {}
         self._proxy = None
         self._popup_menu_pos = None

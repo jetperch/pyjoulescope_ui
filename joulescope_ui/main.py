@@ -236,16 +236,40 @@ class MainWindow(QtWidgets.QMainWindow):
         self.oscilloscope_dock_widget.setWidget(self.oscilloscope_widget)
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.oscilloscope_dock_widget)
         self.ui.menuView.addAction(self.oscilloscope_dock_widget.toggleViewAction())
-        self.oscilloscope_widget.signal_add(name='Current', units='A', y_limit=[-2.0, 10.0], y_log_min=1e-9)
-        self.oscilloscope_widget.signal_add(name='Voltage', units='V', y_limit=[-1.2, 15.0])
-        self.oscilloscope_widget.signal_add(name='Power', units='W', y_limit=[-2.4, 150.0], y_log_min=1e-9)
-        self.oscilloscope_widget.signal_add(name='gpi0')
-        self.oscilloscope_widget.signal_add(name='gpi1')
-        self.oscilloscope_widget.signal_add(name='i_range', y_limit=[0.0, 7.0])
-
-        self.oscilloscope_widget.signal_remove(name='gpi0')
-        self.oscilloscope_widget.signal_remove(name='gpi1')
-        self.oscilloscope_widget.signal_remove(name='i_range')
+        signals = [
+            {
+                'name': 'Current',
+                'units': 'A',
+                'y_limit': [-2.0, 10.0],
+                'y_log_min': 1e-9,
+                'show': True,
+            },
+            {
+                'name': 'Voltage',
+                'units': 'V',
+                'y_limit': [-1.2, 15.0],
+                'show': True,
+            },
+            {
+                'name': 'Power',
+                'units': 'W',
+                'y_limit': [-2.4, 150.0],
+                'y_log_min': 1e-9,
+            },
+            # {
+            #     'name': 'gpi0',
+            #     'y_limit': [0, 1.0],
+            # },
+            # {
+            #     'name': 'gpi1',
+            #     'y_limit': [0, 1.0],
+            # },
+            # {
+            #     'name': 'i_range',
+            #     'y_limit': [0.0, 7.0],
+            # },
+        ]
+        self.oscilloscope_widget.signal_configure(signals)
 
         self.oscilloscope_widget.set_xlimits(0.0, 30.0)
         self.oscilloscope_widget.set_xview(25.0, 30.0)

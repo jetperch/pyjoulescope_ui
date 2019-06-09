@@ -38,6 +38,12 @@ def _wheel_to_y_gain(delta):
 
 class Signal(QtCore.QObject):
 
+    sigHideRequestEvent = QtCore.Signal(str)
+    """Request to hide this signal.
+
+    :param name: The name of the signal to hide.
+    """
+
     sigRefreshRequest = QtCore.Signal()
     """Request a data refresh"""
 
@@ -86,6 +92,7 @@ class Signal(QtCore.QObject):
         self.y_axis.sigConfigEvent.connect(self.y_axis_config_update)
         self.y_axis.sigWheelZoomYEvent.connect(self.on_wheelZoomY)
         self.y_axis.sigPanYEvent.connect(self.on_panY)
+        self.y_axis.sigHideRequestEvent.connect(lambda name: self.sigHideRequestEvent.emit(name))
 
     def set_xlimits(self, x_min, x_max):
         self.vb.setLimits(xMin=x_min, xMax=x_max)
