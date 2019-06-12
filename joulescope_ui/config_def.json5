@@ -128,6 +128,19 @@
           ],
           default: 'high'
         },
+
+        {
+          name: 'rescan_interval',
+          brief: 'The manual device rescan interval in seconds',
+          detail: 'Device rescan normally happens when devices are connected \
+to the computer.  For long running-tests, selecting an additional manual \
+rescan interval assists recovery on USB and device failures.  However, \
+enabling this feature automatically selects a device on Device->disable.',
+          type: 'str',
+          options: ['off', '1', '2', '5', '10', '20', '50'],
+          default: 'off',
+        }
+
       ]
     }, // Device end
 

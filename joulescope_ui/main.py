@@ -286,11 +286,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.status_update_timer.timeout.connect(self.on_statusUpdateTimer)
         self.status_update_timer.start()
 
-        # device scan timer - because bad things happen
+        # device scan timer - because bad things happen, see rescan_interval config
         self.rescan_timer = QtCore.QTimer(self)
-        self.rescan_timer.setInterval(10000)  # milliseconds
         self.rescan_timer.timeout.connect(self.on_rescanTimer)
-        self.rescan_timer.start()
 
         # data update timer
         self.data_update_timer = QtCore.QTimer(self)
@@ -321,7 +319,7 @@ class MainWindow(QtWidgets.QMainWindow):
         ]
 
         self.on_multimeterMenu(True)
-        self._waveform_cfg_apply()
+        self._cfg_apply()
         self.show()
         self._device_close()
         self._device_scan()
@@ -610,6 +608,12 @@ class MainWindow(QtWidgets.QMainWindow):
             self._on_param_change('v_range', value=self._cfg['Device']['v_range'])
             if do_open and self._cfg['Device']['autostream']:
                 self._device_stream(True)
+        rescan_interval = self._cfg['Device']['rescan_interval']
+        if rescan_interval == 'off':
+            self.rescan_timer.stop()
+        else:
+            self.rescan_timer.setInterval(int(rescan_interval) * 1000)  # milliseconds
+            self.rescan_timer.start()
 
     def _developer_cfg_apply(self):
         log.info('_developer_cfg_apply')
@@ -941,9 +945,12 @@ class MainWindow(QtWidgets.QMainWindow):
             log.info(cfg)
             self._cfg = cfg
             save_config(self._cfg)
-            self._device_cfg_apply()
-            self._waveform_cfg_apply()
-            self._developer_cfg_apply()
+            self._cfg_apply()
+
+    def _cfg_apply(self):
+        self._device_cfg_apply()
+        self._waveform_cfg_apply()
+        self._developer_cfg_apply()
 
     def on_saveData(self):
         rv = SaveDataDialog(self._path).exec_()
@@ -1001,7 +1008,7 @@ class MainWindow(QtWidgets.QMainWindow):
             f['p2p'] = f['max'] - f['min']
             txt_result = si_format(f, units=units)
             integral = f['μ'] * dt
-            txt_result += ['=' + three_sig_figs(integral, units=integral_units)]
+            txt_result += ['∫=' + three_sig_figs(integral, units=integral_units)]
             html = html_format(txt_result)
             m2.html_set(field, html)
 

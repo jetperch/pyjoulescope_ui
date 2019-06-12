@@ -195,6 +195,7 @@ class Signal(QtCore.QObject):
         self._most_recent_data = None
         self.curve_mean.clear()
         self.curve_mean.update()
+        self.curve_mean.hide()
         self._min_max_disable()
 
     def _min_max_enable(self):
@@ -267,6 +268,7 @@ class Signal(QtCore.QObject):
         # compute statistics over the visible window
         z = z_mean
         self.curve_mean.setData(x, self._log_bound(z))
+        self.curve_mean.show()
         if z_min is None:
             self._min_max_disable()
             v_mean = np.mean(z)
