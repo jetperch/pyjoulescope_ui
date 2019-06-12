@@ -6,7 +6,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.3.1
 
-2019 May ??
+2019 Jun ??
 
 *   Improved file logging.
 *   Improved application robustness.
@@ -15,6 +15,8 @@ This file contains the list of changes made to pyjoulescope_ui.
     *   Automatically attempt to recover when a device is "lost".
     *   Eliminated repeated parameter initialization x number of device disconnects.
 *   Added stdout console logging command line option.
+*   Made manual rescan interval configurable and "off" by default.
+*   Hide all oscilloscope traces on data clear.
 
 
 ## 0.3.0

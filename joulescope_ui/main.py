@@ -820,8 +820,7 @@ class MainWindow(QtWidgets.QMainWindow):
         log.debug('_device_stream_stop')
         self._is_streaming = False
         if not self._has_active_device:
-            log.warning('_device_stream_stop when no device')
-            self._device_close()
+            log.info('_device_stream_stop when no device')
             return
         if hasattr(self._device, 'stop'):
             self._device.stop()  # always safe to call
