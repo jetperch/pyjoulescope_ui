@@ -116,9 +116,19 @@ class Oscilloscope(QtWidgets.QWidget):
         self._scrollbar.set_sampling_frequency(freq)
 
     def set_xview(self, x_min, x_max):
+        """Set the current view extents for the time x-axis.
+
+        :param x_min: The minimum value to display on the current view in seconds.
+        :param x_max: The maximum value to display on the current view in seconds.
+        """
         self._scrollbar.set_xview(x_min, x_max)
 
     def set_xlimits(self, x_min, x_max):
+        """Set the allowable view extents for the time x-axis.
+
+        :param x_min: The minimum value in seconds.
+        :param x_max: The maximum value in seconds.
+        """
         self._x_limits = [x_min, x_max]
         self._scrollbar.set_xlimits(x_min, x_max)
         for signal in self._signals.values():
@@ -283,11 +293,18 @@ class Oscilloscope(QtWidgets.QWidget):
     def x_state_get(self):
         """Get the x-axis state.
 
-        :return: (length: int in pixels, (x_min: float, x_max: float))
+        :return: The dict of x-axis state including:
+            * length: The current length in pixels (integer)
+            * x_limits: The tuple of (x_min: float, x_max: float) view limits.
+            * x_view: The tuple of (x_min: float, x_max: float) for the current view range.
         """
         length = self.win.ci.layout.itemAt(0, 1).geometry().width()
         length = int(length)
-        return length, tuple(self._x_limits)
+        return {
+            'length': length,
+            'x_limits': tuple(self._x_limits),
+            'x_view': self._scrollbar.get_xview(),
+        }
 
     @QtCore.Slot(float, float, float)
     def on_scrollbarRegionChange(self, x_min, x_max, x_count):

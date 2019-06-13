@@ -238,20 +238,20 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.menuView.addAction(self.oscilloscope_dock_widget.toggleViewAction())
         signals = [
             {
-                'name': 'Current',
+                'name': 'current',
                 'units': 'A',
                 'y_limit': [-2.0, 10.0],
                 'y_log_min': 1e-9,
                 'show': True,
             },
             {
-                'name': 'Voltage',
+                'name': 'voltage',
                 'units': 'V',
                 'y_limit': [-1.2, 15.0],
                 'show': True,
             },
             {
-                'name': 'Power',
+                'name': 'power',
                 'units': 'W',
                 'y_limit': [-2.4, 150.0],
                 'y_log_min': 1e-9,
@@ -357,9 +357,9 @@ class MainWindow(QtWidgets.QMainWindow):
             is_changed, (x, data) = self._device.view.update()
             if is_changed or bool(force):
                 odata = {
-                    'Current': data[:, 0, :],
-                    'Voltage': data[:, 1, :],
-                    'Power': data[:, 2, :],
+                    'current': data[:, 0, :],
+                    'voltage': data[:, 1, :],
+                    'power': data[:, 2, :],
                 }
                 self.oscilloscope_widget.data_update(x, odata)
         else:
@@ -504,14 +504,6 @@ class MainWindow(QtWidgets.QMainWindow):
             )
         )
 
-    def _device_view_force(self):
-        log.info('_device_view_force')
-        length, x_range = self.oscilloscope_widget.x_state_get()
-        if length is None:
-            length = 100
-        self._device.view.on_x_change('resize', {'pixels': length})
-        self._device.view.on_x_change('span_absolute', {'range': x_range})
-
     def _device_open_failed(self, msg):
         self.status(msg)
         self._device_recover()
@@ -546,7 +538,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self._param_init()
                 self._control_ui_init()
                 self.on_xChangeSignal.connect(self._device.view.on_x_change)
-                self._device_view_force()
+                self.oscilloscope_widget.set_xlimits(*self._device.view.span.limits)
                 self._device_cfg_apply(do_open=True)
                 self._device.statistics_callback = self.on_statisticSignal.emit
                 self._update_data()
@@ -884,6 +876,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.status('Invalid filename, do not open')
             return
         log.info('open recording %s', filename)
+        self.oscilloscope_widget.set_display_mode('normal')
         device = RecordingViewerDevice(filename)
         device.on_close = lambda: self._device_remove(device)
         self._device_add(device)
@@ -985,31 +978,23 @@ class MainWindow(QtWidgets.QMainWindow):
     @QtCore.Slot(object, object)
     def on_markerDualUpdateRequest(self, m1, m2):
         # log.info('on_markerDualUpdateRequest(%s, %s)', m1, m2)
-        v = self._device.view
         t1 = m1.get_pos()
         t2 = m2.get_pos()
         if t1 > t2:
             t1, t2 = t2, t1
-        s1 = v.view_time_to_sample_id(t1)
-        s2 = v.view_time_to_sample_id(t2)
-        log.info('buffer %s, %s => %s, %s : %s', t1, t2, s1, s2, v.span)
-        d = self._device.stream_buffer.stats_get(start=s1, stop=s2)
-        fields = [('Current', 'A', 'C'), ('Voltage', 'V', None), ('Power', 'W', 'J')]
-        dt = abs(m2.get_pos() - m1.get_pos())
-        for j, (field, units, integral_units) in enumerate(fields):
-            if d is None:
-                m2.html_set(field, '')
+        d = self._device.statistics_get(t1, t2)
+        for key, value in d['signals'].items():
+            f = d['signals'][key]['statistics']
+            dt = d['time']['delta']
+            if f is None or not len(f):
+                m2.html_set(key, '')
                 continue
-            f = {}
-            for k, stat in enumerate(['μ', 'σ', 'min', 'max']):
-                f[stat] = float(d[j, k])
-            f['σ'] = np.sqrt(f['σ'])
-            f['p2p'] = f['max'] - f['min']
-            txt_result = si_format(f, units=units)
-            integral = f['μ'] * dt
-            txt_result += ['∫=' + three_sig_figs(integral, units=integral_units)]
+            txt_result = si_format(f, units=value['units'])
+            if value.get('integral_units'):
+                integral = f['μ'] * dt
+                txt_result += ['∫=' + three_sig_figs(integral, units=value['integral_units'])]
             html = html_format(txt_result)
-            m2.html_set(field, html)
+            m2.html_set(key, html)
 
             
 def kick_bootloaders():

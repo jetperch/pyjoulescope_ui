@@ -52,6 +52,9 @@ class ScrollBar(pg.ViewBox):
     def set_xview(self, x_min, x_max):
         self._region.setRegion([x_min, x_max])
 
+    def get_xview(self):
+        return self._region.getRegion()
+
     def set_xlimits(self, x_min, x_max):
         self.setXRange(x_min, x_max, padding=0)
         self._region.setBounds([x_min, x_max])
@@ -248,6 +251,8 @@ class CustomLinearRegionItem(pg.LinearRegionItem):
                 skip_line_update = False
                 rb = min(rb + (x_min - ra), x_max)
                 ra = x_min
+        if self.lines[0].value() == ra and self.lines[1].value() == rb:
+            return
         if not bool(skip_line_update):
             self.blockLineSignal = True
             self.lines[0].setValue(ra)
@@ -268,9 +273,6 @@ class CustomLinearRegionItem(pg.LinearRegionItem):
             rd = (rb - ra) * gain / 2
             ra = rc - rd
             rb = rc + rd
-
-        if self.lines[0].value() == ra and self.lines[1].value() == rb:
-            return
         self._region_update(ra, rb)
 
     def lineMoved(self, i):

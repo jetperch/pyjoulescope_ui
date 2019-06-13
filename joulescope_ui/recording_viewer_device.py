@@ -110,4 +110,13 @@ class RecordingViewerDevice:
             print(x.shape)
         return True, (x, data)
 
+    def statistics_get(self, t1, t2):
+        """Get the statistics for the collected sample data over a time range.
 
+        :param t1: The starting time in seconds relative to the streaming start time.
+        :param t2: The ending time in seconds.
+        :return: The statistics data structure.
+        """
+        if self.reader is None:
+            return None
+        return self.reader.statistics_get(t1, t2)
