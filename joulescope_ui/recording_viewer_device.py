@@ -35,7 +35,7 @@ class RecordingViewerDevice:
         self.span = None
         self.x = None
         self.samples_per = 1
-        self.changed = True
+        self._cache = None
 
     def __str__(self):
         return os.path.basename(self._filename)
@@ -51,7 +51,7 @@ class RecordingViewerDevice:
         x_lim = [x / f for x in r]
         self.span = span.Span(x_lim, 1/f, 100)
         self.x_range, self.samples_per, self.x = self.span.conform_discrete(x_lim)
-        self.changed = True
+        self._cache = None  # invalidate
         log.info('RecordingViewerDevice.open: %s => %s, %s', r, self.x_range, self.samples_per)
 
     def close(self):
@@ -69,7 +69,7 @@ class RecordingViewerDevice:
             if length is not None and length != self.span.length:
                 log.info('resize %s', length)
                 self.span.length = length
-                self.changed = True  # invalidate
+                self._cache = None  # invalidate
             x_range, self.samples_per, self.x = self.span.conform_discrete(x_range)
         elif cmd == 'span_absolute':  # {range: (start: float, stop: float)}]
             x_range, self.samples_per, self.x = self.span.conform_discrete(kwargs.get('range'))
@@ -81,21 +81,22 @@ class RecordingViewerDevice:
             x_range = [x_range[0] + delta, x_range[-1] + delta]
             x_range, self.samples_per, self.x = self.span.conform_discrete(x_range)
         elif cmd == 'refresh':
-            self.changed = True
+            self._cache = None  # invalidate
             return
         else:
             log.warning('on_x_change(%s) unsupported', cmd)
             return
 
-        self.changed |= self.x_range != x_range
+        if self.x_range != x_range:
+            self._cache = None  # invalidate
         self.x_range = x_range
-        log.info('changed=%s, length=%s, span=%s, range=%s, samples_per=%s',
-                 self.changed, len(self), self.x_range,
+        log.info('cmd=%s, changed=%s, length=%s, span=%s, range=%s, samples_per=%s',
+                 cmd, self._cache is None, len(self), self.x_range,
                  self.x_range[1] - self.x_range[0], self.samples_per)
 
     def update(self):
-        if not self.changed:
-            return False, (None, None)
+        if self._cache is not None:
+            return self._cache
         f = self.reader.sampling_frequency
         log.info('update: x_range=%r', self.x_range)
         start, stop = [int(x * f) for x in self.x_range]
@@ -108,7 +109,8 @@ class RecordingViewerDevice:
             log.info('update: len=%d, x_range=>(%s, %s)', len(data), x[0], x[-1])
         except:
             print(x.shape)
-        return True, (x, data)
+        self._cache = True, (x, data)
+        return self._cache
 
     def statistics_get(self, t1, t2):
         """Get the statistics for the collected sample data over a time range.

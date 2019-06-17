@@ -17,6 +17,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added stdout console logging command line option.
 *   Made manual rescan interval configurable and "off" by default.
 *   Hide all oscilloscope traces on data clear.
+*   Refactored statistics and added statistics_get to RecordingViewerDevice.
 
 
 ## 0.3.0
