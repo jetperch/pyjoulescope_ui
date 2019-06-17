@@ -41,6 +41,7 @@ from joulescope_ui.update_check import check as software_update_check
 from joulescope_ui.save import save_csv
 from joulescope_ui.logging_util import logging_config
 from joulescope_ui.oscilloscope.signal_statistics import si_format, html_format, three_sig_figs
+from joulescope_ui import help_ui
 
 import numpy as np
 import ctypes
@@ -303,6 +304,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # help about
         self.ui.actionAbout.triggered.connect(self._help_about)
+        self.ui.actionCredits.triggered.connect(self._help_credits)
 
         # tools
         self.ui.actionClearEnergy.triggered.connect(self._tool_clear_energy)
@@ -456,6 +458,13 @@ class MainWindow(QtWidgets.QMainWindow):
     def _help_about(self):
         txt = ABOUT.format(ui_version=VERSION, driver_version=DRIVER_VERSION)
         QtWidgets.QMessageBox.about(self, 'Joulescope', txt)
+
+    def _help_credits(self):
+        html = help_ui.load_credits()
+        dialog = help_ui.ScrollMessageBox(html, self)
+        dialog.setWindowTitle('Joulescope Credits')
+        dialog.exec_()
+        # QtWidgets.QMessageBox.about(self, 'Joulescope Credits', html)
 
     def _tool_clear_energy(self):
         log.info('_tool_clear_energy: offset= %g J', self._energy[0])

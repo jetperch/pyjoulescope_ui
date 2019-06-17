@@ -18,6 +18,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Made manual rescan interval configurable and "off" by default.
 *   Hide all oscilloscope traces on data clear.
 *   Refactored statistics and added statistics_get to RecordingViewerDevice.
+*   Added Help -> "Credits" to the user interface with credits & licenses.
 
 
 ## 0.3.0
