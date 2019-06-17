@@ -96,7 +96,7 @@ class RecordingViewerDevice:
 
     def update(self):
         if self._cache is not None:
-            return self._cache
+            return False, self._cache
         f = self.reader.sampling_frequency
         log.info('update: x_range=%r', self.x_range)
         start, stop = [int(x * f) for x in self.x_range]
@@ -109,8 +109,8 @@ class RecordingViewerDevice:
             log.info('update: len=%d, x_range=>(%s, %s)', len(data), x[0], x[-1])
         except:
             print(x.shape)
-        self._cache = True, (x, data)
-        return self._cache
+        self._cache = (x, data)
+        return True, self._cache
 
     def statistics_get(self, t1, t2):
         """Get the statistics for the collected sample data over a time range.
