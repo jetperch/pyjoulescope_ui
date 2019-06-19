@@ -21,6 +21,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added Help -> "Credits" to the user interface with credits & licenses.
 *   Added marker right-click context menu.
 *   Added dual marker data export to CSV.
+*   Added dual marker data export to JLS.
 
 
 ## 0.3.0

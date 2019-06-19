@@ -41,6 +41,8 @@ class RecordingViewerDevice:
         return os.path.basename(self._filename)
 
     def __len__(self):
+        if self.span is None:
+            return 0
         return self.span.length
 
     @property
@@ -48,6 +50,12 @@ class RecordingViewerDevice:
         if self.reader is None:
             return None
         return self.reader.sampling_frequency
+
+    @property
+    def calibration(self):
+        if self.reader is None:
+            return None
+        return self.reader.calibration
 
     def open(self):
         self.view = self

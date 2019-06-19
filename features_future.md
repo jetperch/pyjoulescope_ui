@@ -63,8 +63,7 @@ will be implemented before Joulescope general availability.
 
 *   Make the y-axis autoranging less confusing.  You lose context on the
     discrete jumps.  Perhaps animate the transition?
-*   Add ability to save either the entire buffer or the selected time range.
-    The supported output formats should include jls, csv, npy, bin, xlsx, mat.
+*   Add ability to save dual markers to npy, bin, xlsx, mat.  (csv & jls supported)
 *   Add "comparison" mode to overlay multiple data captures so that the 
     user can compare changes over the development cycle (story 3).
 *   Add a "triggered" mode that only captures on events, such as thresholds, 

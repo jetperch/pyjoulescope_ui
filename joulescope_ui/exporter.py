@@ -14,6 +14,8 @@
 
 from joulescope_ui.export_dialog import Ui_Form
 from PySide2 import QtWidgets, QtGui, QtCore
+from joulescope.data_recorder import DataRecorder
+from joulescope.stream_buffer import StreamBuffer
 import numpy as np
 import os
 import logging
@@ -87,11 +89,37 @@ class Worker(QtCore.QObject):
                 self.sigProgress.emit(int(1000 * (idx - idx_start) / idx_range))
 
     def _export_jls(self):
-        pass
-        # r = DataRecorder(
-        #    rv['filename'],
-        #    sampling_frequency=self._device.sampling_frequency,
-        #    calibration=self._device.calibration.data)
+        view = self._view
+        cfg = self._cfg
+        sampling_frequency = view.sampling_frequency
+        sample_step_size = sampling_frequency
+        stream_buffer = StreamBuffer(sampling_frequency * 2, [])
+        data_recorder = DataRecorder(
+            cfg['filename'],
+            calibration=view.calibration.data,
+            sampling_frequency=sampling_frequency)
+        data_recorder.process(stream_buffer)
+
+        try:
+            idx_start = cfg['sample_id_start']
+            idx_stop = cfg['sample_id_stop']
+            idx_range = idx_stop - idx_start
+            idx = idx_start
+            self.sigProgress.emit(0)
+            while not self._stop and idx < idx_stop:
+                log.info('export_jls iteration')
+                idx_next = idx + sample_step_size
+                if idx_next > idx_stop:
+                    idx_next = idx_stop
+                data = view.raw_get(idx, idx_next)
+                log.info('export_jls (%d, %d) -> %d', idx, idx_next, len(data))
+                stream_buffer.insert_raw(data)
+                stream_buffer.process()
+                data_recorder.process(stream_buffer)
+                idx = idx_next
+                self.sigProgress.emit(int(1000 * (idx - idx_start) / idx_range))
+        finally:
+            data_recorder.close()
 
 
 class Exporter(QtCore.QObject):
@@ -165,7 +193,7 @@ class ExportDialog(QtWidgets.QDialog):
 
     def on_filename_select_button(self):
         filename, select_mask = QtWidgets.QFileDialog.getSaveFileName(
-            self, 'Save Joulescope Data', self._path, 'Joulescope Data (*.csv)')
+            self, 'Save Joulescope Data', self._path, 'Joulescope Data (*.jls);;Comma Separated Values (*.csv)')
         log.info('save filename selected: %s', filename)
         filename = str(filename)
         self.ui.filenameLineEdit.setText(filename)
