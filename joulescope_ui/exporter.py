@@ -73,10 +73,10 @@ class Worker(QtCore.QObject):
                 idx_next = idx + int(view.sampling_frequency / 10)
                 if idx_next > idx_stop:
                     idx_next = idx_stop
-                data = view.data_get(idx, idx_next)
-                current = data[:, 0, 0].reshape((-1, 1))
-                voltage = data[:, 1, 0].reshape((-1, 1))
-                x = np.arange(len(data), dtype=np.float64).reshape((-1, 1))
+                data = view.samples_get(idx, idx_next)
+                current = data['current']['value'].reshape((-1, 1))
+                voltage = data['voltage']['value'].reshape((-1, 1))
+                x = np.arange(len(current), dtype=np.float64).reshape((-1, 1))
                 x *= sampling_period
                 x += (idx - idx_start) * sampling_period
                 values = np.hstack((x, current, voltage))

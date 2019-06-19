@@ -43,6 +43,12 @@ class RecordingViewerDevice:
     def __len__(self):
         return self.span.length
 
+    @property
+    def sampling_frequency(self):
+        if self.reader is None:
+            return None
+        return self.reader.sampling_frequency
+
     def open(self):
         self.view = self
         self.reader = DataReader().open(self._filename)
@@ -127,3 +133,23 @@ class RecordingViewerDevice:
         if self.reader is None:
             return None
         return self.reader.statistics_get(t1, t2)
+
+    def raw_get(self, start=None, stop=None):
+        if self.reader is None:
+            return None
+        return self.reader.raw(start=start, stop=stop)
+
+    def samples_get(self, start=None, stop=None):
+        if self.reader is None:
+            return None
+        i, v = self.reader.get_calibrated(start=start, stop=stop)
+        return {
+            'current': {
+                'value': i,
+                'units': 'A',
+            },
+            'voltage': {
+                'value': v,
+                'units': 'V',
+            }
+        }
