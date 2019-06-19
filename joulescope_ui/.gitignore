@@ -8,7 +8,6 @@ meter_value_widget_dev.py
 meter_widget_dev.py
 plot_widget.py
 preferences_dialog.py
-save_data_dialog.py
 single_value_widget_dev.py
 uart_config_widget.py
 uart_widget.py
