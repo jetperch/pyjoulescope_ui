@@ -22,6 +22,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added marker right-click context menu.
 *   Added dual marker data export to CSV.
 *   Added dual marker data export to JLS.
+*   Added dual marker data export to BIN.
 
 
 ## 0.3.0

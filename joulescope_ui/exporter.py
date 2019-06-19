@@ -38,6 +38,7 @@ class Worker(QtCore.QObject):
 
     def run(self):
         registry = {
+            'bin': self._export_bin,
             'csv': self._export_csv,
             'jls': self._export_jls,
         }
@@ -56,6 +57,31 @@ class Worker(QtCore.QObject):
             except:
                 log.exception('while exporting')
                 self.sigFinished.emit('Export failed: internal exception')
+
+    def _export_bin(self):
+        view = self._view
+        cfg = self._cfg
+        sampling_frequency = view.sampling_frequency
+        sample_step_size = int(sampling_frequency)
+        idx_start = cfg['sample_id_start']
+        idx_stop = cfg['sample_id_stop']
+        idx_range = idx_stop - idx_start
+        idx = idx_start
+        self.sigProgress.emit(0)
+        with open(cfg['filename'], 'wb') as f:
+            if cfg.get('add_header'):
+                f.write('#time (s),current (A),voltage (V)\n')
+            while not self._stop and idx < idx_stop:
+                idx_next = idx + sample_step_size
+                if idx_next > idx_stop:
+                    idx_next = idx_stop
+                data = view.samples_get(idx, idx_next)
+                current = data['current']['value'].reshape((-1, 1))
+                voltage = data['voltage']['value'].reshape((-1, 1))
+                values = np.hstack((current, voltage))
+                f.write(values.tobytes())
+                idx = idx_next
+                self.sigProgress.emit(int(1000 * (idx - idx_start) / idx_range))
 
     def _export_csv(self):
         view = self._view
@@ -192,8 +218,14 @@ class ExportDialog(QtWidgets.QDialog):
         self.ui.filenameSelectButton.pressed.connect(self.on_filename_select_button)
 
     def on_filename_select_button(self):
+        filters = [
+            'Joulescope Data (*.jls)',
+            'Binary 32-bit float (*.bin)',
+            'Comma Separated Values (*.csv)',
+        ]
+        filter_str = ';;'.join(filters)
         filename, select_mask = QtWidgets.QFileDialog.getSaveFileName(
-            self, 'Save Joulescope Data', self._path, 'Joulescope Data (*.jls);;Comma Separated Values (*.csv)')
+            self, 'Save Joulescope Data', self._path, filter_str)
         log.info('save filename selected: %s', filename)
         filename = str(filename)
         self.ui.filenameLineEdit.setText(filename)
