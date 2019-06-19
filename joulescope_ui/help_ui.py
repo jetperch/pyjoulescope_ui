@@ -35,6 +35,7 @@ class ScrollMessageBox(QtWidgets.QMessageBox):
         self._layout = QtWidgets.QVBoxLayout(self.content)
         self._label = QtWidgets.QLabel(msg, self)
         self._label.setWordWrap(True)
+        self._label.setOpenExternalLinks(True)
         self._layout.addWidget(self._label)
         self.layout().addWidget(self._scroll, 0, 0, 1, self.layout().columnCount())
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
