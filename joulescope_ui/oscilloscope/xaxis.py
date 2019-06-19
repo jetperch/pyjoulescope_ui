@@ -177,6 +177,11 @@ class XAxis(pg.AxisItem):
         m = [(x.pair, x) for x in m if x.is_right]
         return m
 
+    def markers_clear(self):
+        while self._markers:
+            m = next(iter(self._markers.values()))
+            self.marker_remove(m)
+
     def _mouseMoveEvent(self, ev):
         """Handle mouse movements for every mouse movement within the widget"""
         pos = ev[0]

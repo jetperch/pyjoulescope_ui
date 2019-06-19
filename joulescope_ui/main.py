@@ -648,6 +648,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._param_clean()
         self._control_ui_clean()
         self.oscilloscope_widget.data_clear()
+        self.oscilloscope_widget.markers_clear()
         if self._cfg['Developer']['compliance']:
             self.setStyleSheet("background-color: yellow;")
 

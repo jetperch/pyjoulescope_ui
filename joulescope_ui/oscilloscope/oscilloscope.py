@@ -302,6 +302,9 @@ class Oscilloscope(QtWidgets.QWidget):
         for s in self._signals.values():
             s.data_clear()
 
+    def markers_clear(self):
+        self._x_axis.markers_clear()
+
     def x_state_get(self):
         """Get the x-axis state.
 
