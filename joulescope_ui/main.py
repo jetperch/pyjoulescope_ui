@@ -194,12 +194,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Other menu items
         self.ui.actionOpen.triggered.connect(self.recording_open)
-        #self.ui.actionSave.triggered.connect(self._save)
-        #self.ui.actionClose.triggered.connect(self.close)
-        self.ui.actionSave.triggered.connect(self.on_saveData)
-        self.ui.actionSave.setEnabled(False)
-        self.ui.actionClose.setEnabled(False)
-
         self.ui.actionPreferences.triggered.connect(self.on_preferences)
         self.ui.actionExit.triggered.connect(self.close)
         self.ui.actionDeveloper.triggered.connect(self.on_developer)
@@ -302,9 +296,10 @@ class MainWindow(QtWidgets.QMainWindow):
         # Software update
         self.on_softwareUpdateSignal.connect(self._on_software_update)
 
-        # help about
-        self.ui.actionAbout.triggered.connect(self._help_about)
+        # help
+        self.ui.actionGettingStarted.triggered.connect(self._help_getting_started)
         self.ui.actionCredits.triggered.connect(self._help_credits)
+        self.ui.actionAbout.triggered.connect(self._help_about)
 
         # tools
         self.ui.actionClearEnergy.triggered.connect(self._tool_clear_energy)
@@ -464,7 +459,12 @@ class MainWindow(QtWidgets.QMainWindow):
         dialog = help_ui.ScrollMessageBox(html, self)
         dialog.setWindowTitle('Joulescope Credits')
         dialog.exec_()
-        # QtWidgets.QMessageBox.about(self, 'Joulescope Credits', html)
+
+    def _help_getting_started(self):
+        html = help_ui.load_getting_started()
+        dialog = help_ui.ScrollMessageBox(html, self)
+        dialog.setWindowTitle('Getting Started with Your Joulescope')
+        dialog.exec_()
 
     def _tool_clear_energy(self):
         log.info('_tool_clear_energy: offset= %g J', self._energy[0])

@@ -32,8 +32,6 @@
      <string>&amp;File</string>
     </property>
     <addaction name="actionOpen"/>
-    <addaction name="actionSave"/>
-    <addaction name="actionClose"/>
     <addaction name="actionPreferences"/>
     <addaction name="actionExit"/>
    </widget>
@@ -51,8 +49,9 @@
     <property name="title">
      <string>&amp;Help</string>
     </property>
-    <addaction name="actionAbout"/>
+    <addaction name="actionGettingStarted"/>
     <addaction name="actionCredits"/>
+    <addaction name="actionAbout"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -141,6 +140,11 @@
   <action name="actionCredits">
    <property name="text">
     <string>Credits</string>
+   </property>
+  </action>
+  <action name="actionGettingStarted">
+   <property name="text">
+    <string>Getting Started</string>
    </property>
   </action>
  </widget>

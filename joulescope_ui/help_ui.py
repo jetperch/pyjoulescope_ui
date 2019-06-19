@@ -50,3 +50,13 @@ def load_credits():
     else:
         bin_data = pkgutil.get_data('joulescope_ui', 'CREDITS.html')
     return bin_data.decode('utf-8')
+
+
+def load_getting_started():
+    fname = os.path.join(APP_PATH, 'joulescope_ui', 'getting_started.html')
+    if os.path.isfile(fname):
+        with open(fname, 'rb') as f:
+            bin_data = f.read()
+    else:
+        bin_data = pkgutil.get_data('joulescope_ui', 'getting_started.html')
+    return bin_data.decode('utf-8')
