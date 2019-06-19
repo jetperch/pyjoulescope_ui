@@ -4,9 +4,9 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
-## 0.3.1
+## 0.4.0
 
-2019 Jun ??
+2019 Jun 20
 
 *   Improved file logging.
 *   Improved application robustness.
