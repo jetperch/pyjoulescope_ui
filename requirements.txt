@@ -14,4 +14,5 @@ wheel
 # Include forked pyqtgraph (source https://github.com/jetperch/pyqtgraph)
 # https://www.joulescope.com/app_download/pyqtgraph-0.11.0.dev0.tar.gz
 # pyqtgraph>=0.11.0.dev0
--e git+https://github.com/jetperch/pyqtgraph.git@c8548b3246d29ee84a1ef76ebf63a5bb0e39c917#egg=mliberty-develop
+-e git+https://github.com/jetperch/pyqtgraph.git@c8548b3246d29ee84a1ef76ebf63a5bb0e39c917#egg=pyqtgraph
+
