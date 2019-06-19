@@ -19,6 +19,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Hide all oscilloscope traces on data clear.
 *   Refactored statistics and added statistics_get to RecordingViewerDevice.
 *   Added Help -> "Credits" to the user interface with credits & licenses.
+*   Added marker right-click context menu.
+*   Added dual marker data export to CSV.
 
 
 ## 0.3.0

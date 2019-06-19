@@ -45,6 +45,16 @@ class Marker(pg.GraphicsObject):
     :param marker: The marker instance to remove.
     """
 
+    sigExportDataRequest = QtCore.Signal(float, float)
+    """Indicate that the user has requested to export data.
+    
+    :param x_start: The starting position in x-axis units.
+    :param x_stop: The stopping position in x-axis units.
+    
+    Export is only triggered for dual markers.  Exporting data for a single
+    marker is not supported.
+    """
+
     def __init__(self, name, x_axis: pg.AxisItem, color=None, shape=None):
         pg.GraphicsObject.__init__(self)
         self.log = logging.getLogger('%s.%s' % (__name__, name))
@@ -339,12 +349,35 @@ class Marker(pg.GraphicsObject):
             if ev.button() == QtCore.Qt.LeftButton:
                 self.moving = True
             elif ev.button() == QtCore.Qt.RightButton:
-                self.sigRemoveRequest.emit(self)
+                pos = ev.screenPos().toPoint()
+                self.menu_exec(pos)
         else:
             if ev.button() == QtCore.Qt.LeftButton:
                 self.moving = False
             elif ev.button() == QtCore.Qt.RightButton:
                 pass  # todo restore original position
+
+    @QtCore.Slot()
+    def export_data(self):
+        if self._pair is None:
+            raise RuntimeError('export_data only available on dual markers')
+        p1 = self.get_pos()
+        p2 = self._pair.get_pos()
+        x_start = min(p1, p2)
+        x_stop = max(p1, p2)
+        self.sigExportDataRequest.emit(x_start, x_stop)
+
+    def menu_exec(self, pos):
+        menu = QtGui.QMenu()
+        menu.setToolTipsVisible(True)
+        if self._pair is not None:
+            export_data = QtGui.QAction('&Export data', self)
+            export_data.triggered.connect(self.export_data)
+            menu.addAction(export_data)
+        marker_remove = QtGui.QAction('&Remove', self)
+        marker_remove.triggered.connect(lambda: self.sigRemoveRequest.emit(self))
+        menu.addAction(marker_remove)
+        menu.exec_(pos)
 
     def setVisible(self, visible):
         super().setVisible(visible)

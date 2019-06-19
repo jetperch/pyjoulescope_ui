@@ -34,13 +34,12 @@ from joulescope.units import unit_prefix, three_sig_figs
 from joulescope.data_recorder import construct_record_filename
 from joulescope_ui.recording_viewer_device import RecordingViewerDevice
 from joulescope_ui.preferences import PreferencesDialog
-from joulescope_ui.save_data import SaveDataDialog
 from joulescope_ui.config import load_config_def, load_config, save_config
 from joulescope_ui import usb_inrush
 from joulescope_ui.update_check import check as software_update_check
-from joulescope_ui.save import save_csv
 from joulescope_ui.logging_util import logging_config
 from joulescope_ui.oscilloscope.signal_statistics import si_format, html_format, three_sig_figs
+from joulescope_ui.exporter import Exporter
 from joulescope_ui import help_ui
 
 import numpy as np
@@ -274,6 +273,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.oscilloscope_widget.sigMarkerDualAddRequest.connect(self.on_markerDualAddRequest)
         self.oscilloscope_widget.sigMarkerRemoveRequest.connect(self.on_markerRemoveRequest)
         self.oscilloscope_widget.sigMarkerDualUpdateRequest.connect(self.on_markerDualUpdateRequest)
+        self.oscilloscope_widget.sigExportDataRequest.connect(self.on_exportData)
 
         # status update timer
         self.status_update_timer = QtCore.QTimer(self)
@@ -314,6 +314,9 @@ class MainWindow(QtWidgets.QMainWindow):
             self.uart_dock_widget,
             self.oscilloscope_dock_widget,
         ]
+
+        self._exporter = Exporter(self)
+        self._exporter.sigFinished.connect(self.on_exporterFinished)
 
         self.on_multimeterMenu(True)
         self._cfg_apply()
@@ -953,23 +956,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self._waveform_cfg_apply()
         self._developer_cfg_apply()
 
-    def on_saveData(self):
-        rv = SaveDataDialog(self._path).exec_()
-        if rv is None:
-            return
-        filename = rv['filename']
-        log.info('save to %s', filename)
-        sample_frequency = self._device.view.sampling_frequency
-        if filename.endswith('.csv'):
-            extracted_data = self._device.view.extract()
-            save_csv(filename, extracted_data, sample_frequency)
-        # WARNING need to implement recording_viewer_device
-        # define & improve the buffer API to be compatible
-        #elif filename.endswith('.jls'):
-        #    pass
-        else:
-            self.ui.statusbar.showMessage('Save failed')
-
     @QtCore.Slot(float)
     def on_markerSingleAddRequest(self, x):
         m = self.oscilloscope_widget.marker_single_add(x)
@@ -1004,6 +990,18 @@ class MainWindow(QtWidgets.QMainWindow):
                 txt_result += ['∫=' + three_sig_figs(integral, units=value['integral_units'])]
             html = html_format(txt_result)
             m2.html_set(key, html)
+
+    @QtCore.Slot(float, float)
+    def on_exportData(self, x_start, x_stop):
+        self._exporter.export(self._device.view, x_start, x_stop, path_default=self._path)
+
+    @QtCore.Slot(str)
+    def on_exporterFinished(self, msg):
+        if msg:
+            log.warning(msg)
+            self.status(msg)
+        else:
+            self.status('Export done')
 
             
 def kick_bootloaders():

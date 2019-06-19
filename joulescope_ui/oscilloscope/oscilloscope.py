@@ -53,6 +53,16 @@ class Oscilloscope(QtWidgets.QWidget):
     each marker. 
     """
 
+    sigExportDataRequest = QtCore.Signal(float, float)
+    """Indicate that the user has requested to export data.
+
+    :param x_start: The starting position in x-axis units.
+    :param x_stop: The stopping position in x-axis units.
+
+    Export is only triggered for dual markers.  Exporting data for a single
+    marker is not supported.
+    """
+
     def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self, parent=parent)
         self._x_limits = [0.0, 30.0]
@@ -217,6 +227,8 @@ class Oscilloscope(QtWidgets.QWidget):
         m2 = self._add_signals_to_marker(m2)
         m1.sigUpdateRequest.connect(self._on_marker_dual_update)
         m2.sigUpdateRequest.connect(self._on_marker_dual_update)
+        m1.sigExportDataRequest.connect(self.sigExportDataRequest.emit)
+        m2.sigExportDataRequest.connect(self.sigExportDataRequest.emit)
         self.sigMarkerDualUpdateRequest.emit(m1, m2)
         return m1, m2
 

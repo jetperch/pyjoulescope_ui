@@ -112,6 +112,11 @@ class RecordingViewerDevice:
         self._cache = (x, data)
         return True, self._cache
 
+    def time_to_sample_id(self, t):
+        if self.reader is None:
+            return None
+        return self.reader.time_to_sample_id(t)
+
     def statistics_get(self, t1, t2):
         """Get the statistics for the collected sample data over a time range.
 

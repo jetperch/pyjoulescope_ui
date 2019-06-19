@@ -52,13 +52,6 @@
         </layout>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="contentsLabel">
-        <property name="text">
-         <string>Contents</string>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="1">
        <widget class="QWidget" name="contentsWidget" native="true">
         <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -68,33 +61,6 @@
          <property name="bottomMargin">
           <number>0</number>
          </property>
-         <item>
-          <widget class="QComboBox" name="contentsComboBox">
-           <item>
-            <property name="text">
-             <string>View</string>
-            </property>
-           </item>
-           <item>
-            <property name="text">
-             <string>Buffer</string>
-            </property>
-           </item>
-          </widget>
-         </item>
-         <item>
-          <spacer name="contentsSpacer">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>358</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
         </layout>
        </widget>
       </item>

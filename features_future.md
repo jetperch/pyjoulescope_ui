@@ -112,7 +112,6 @@ will be implemented before Joulescope general availability.
 *   Automatically perform software update when required.  The existing
     implementation just directs the User to the Joulescope download page.
 *   Automatically perform Joulescope firmware updates when required.
-*   Add Help -> "Getting Started" to the user interface.
 *   Add automatic battery life estimation - may need to input battery 
     chemistry type & capacity.
 *   Add Complementary Cumulative Distribution Function (CCDF) view.
