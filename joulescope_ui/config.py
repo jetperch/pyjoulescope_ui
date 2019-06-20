@@ -99,7 +99,7 @@ def validate(config_def, cfg, path=None):
             k2.remove(key)
     for k in k2:
         p = path + '.' + k
-        log.warning('Unexpected entry: %s', p)
+        log.info('Unexpected entry: %s', p)
     return y
 
 

@@ -76,6 +76,12 @@ class Oscilloscope(QtWidgets.QWidget):
 
         self._signals_def = {}
         self._signals = {}
+        self.config = {
+            'show_min_max': True,
+            'grid_x': 128,
+            'grid_y': 128,
+            'trace_width': 1,
+        }
 
         self._settings_widget = SettingsWidget()
         self.win.addItem(self._settings_widget, row=0, col=0)
@@ -176,6 +182,7 @@ class Oscilloscope(QtWidgets.QWidget):
         s.vb.sigPanXEvent.connect(self._scrollbar.on_panX)
         self._signals[name] = s
         self._vb_relink()  # Linking to last axis makes grid draw correctly
+        s.y_axis.setGrid(self.config['grid_y'])
         return s
 
     def signal_remove(self, name):
@@ -337,3 +344,42 @@ class Oscilloscope(QtWidgets.QWidget):
 
     def request_x_change(self):
         self._scrollbar.request_x_change()
+
+    def config_apply(self, cfg):
+        """Apply a new configuration.
+
+        :param cfg: The dict of configuration options.  Keys include:
+            * show_min_max: (bool) Display the min/max traces.
+            * grid_x: (bool) Display the x-axis grid lines.
+            * grid_y: (bool) Display the y-axis grid lines.
+            * trace_width: (int) The width of the mean, min, max traces in pixels.
+        """
+        # validate alpha values and convert boolean to int
+        for key, false_alpha, true_alpha in [('grid_x', 0, 128), ('grid_y', 0, 128)]:
+            if key not in cfg:
+                continue
+            x = cfg[key]
+            if x is False:
+                x = false_alpha
+            elif x is True:
+                x = true_alpha
+            self.config[key] = int(x)
+
+        # validate boolean values
+        for key in []:
+            if key in cfg:
+                self.config[key] = bool(cfg[key])
+
+        # validate integer value
+        for key in ['trace_width']:
+            if key in cfg:
+                self.config[key] = int(cfg[key])
+
+        # validate string values:
+        for key in ['show_min_max']:
+            if key in cfg:
+                self.config[key] = cfg[key]
+
+        self._x_axis.setGrid(self.config['grid_x'])
+        for signal in self._signals.values():
+            signal.config_apply(self.config)

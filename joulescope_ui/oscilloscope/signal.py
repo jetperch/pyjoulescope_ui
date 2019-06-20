@@ -59,7 +59,11 @@ class Signal(QtCore.QObject):
                 'limit': y_limit,
                 'log_min': y_log_min,
             },
+            'show_min_max': 'lines',
+            'decimate_min_max': 1,
+            'trace_width': 1,
         }
+        self._is_min_max_active = False  # when zoomed out enough to display min/max
         self._y_pan = None
         self.vb = SignalViewBox(name=self.name)
         if y_limit is not None:
@@ -77,17 +81,21 @@ class Signal(QtCore.QObject):
                 self.text_item = SignalStatistics(units=units)
 
         self._pen_min_max = pg.mkPen(color=(255, 64, 64), width=CURVE_WIDTH)
-        self._brush_min_max = pg.mkBrush(color=(255, 64, 64, 32))
+        self._brush_min_max = pg.mkBrush(color=(255, 64, 64, 80))
         self._pen_mean = pg.mkPen(color=(255, 255, 64), width=CURVE_WIDTH)
 
         self.curve_mean = pg.PlotDataItem(pen=self._pen_mean)
         self.curve_max = pg.PlotDataItem(pen=self._pen_min_max)
         self.curve_min = pg.PlotDataItem(pen=self._pen_min_max)
-        self.vb.addItem(self.curve_mean)
+        self.curve_range = pg.FillBetweenItem(self.curve_min, self.curve_max, brush=self._brush_min_max)
+        self.vb.addItem(self.curve_range)
         self.vb.addItem(self.curve_max)
         self.vb.addItem(self.curve_min)
-        # self.curve_range = pg.FillBetweenItem(self.curve_min, self.curve_max, brush=self._brush_min_max)
-        # self.vb.addItem(self.curve_range)
+        self.vb.addItem(self.curve_mean)
+
+        self.curve_max.hide()
+        self.curve_min.hide()
+        self.curve_range.hide()
 
         self.y_axis.sigConfigEvent.connect(self.y_axis_config_update)
         self.y_axis.sigWheelZoomYEvent.connect(self.on_wheelZoomY)
@@ -198,19 +206,38 @@ class Signal(QtCore.QObject):
         self.curve_mean.hide()
         self._min_max_disable()
 
-    def _min_max_enable(self):
-        if not self.curve_min.isVisible():
+    def _min_max_show(self):
+        if not self._is_min_max_active:
+            self._min_max_hide()
+            return
+        c = self.config['show_min_max']
+        if c == 'lines':
             self.curve_max.show()
             self.curve_min.show()
+            self.curve_range.hide()
+        elif c == 'fill':
+            self.curve_max.hide()
+            self.curve_min.hide()
+            self.curve_range.show()
+        else:
+            self._min_max_hide()
+
+    def _min_max_hide(self):
+        self.curve_max.clear()
+        self.curve_max.update()
+        self.curve_max.hide()
+        self.curve_min.clear()
+        self.curve_min.update()
+        self.curve_min.hide()
+        self.curve_range.hide()
+
+    def _min_max_enable(self):
+        self._is_min_max_active = True
+        self._min_max_show()
 
     def _min_max_disable(self):
-        if self.curve_min.isVisible():
-            self.curve_max.clear()
-            self.curve_max.update()
-            self.curve_max.hide()
-            self.curve_min.clear()
-            self.curve_min.update()
-            self.curve_min.hide()
+        self._is_min_max_active = False
+        self._min_max_hide()
 
     def _log_bound(self, y):
         if self.config['y-axis'].get('scale', 'linear') == 'logarithmic':
@@ -284,8 +311,19 @@ class Signal(QtCore.QObject):
             # combine variances across the combined samples
             v_std = np.sqrt(np.sum(np.square(mean_delta, out=mean_delta) + z_var) / len(z_mean))
 
-            self.curve_min.setData(x, self._log_bound(z_min))
-            self.curve_max.setData(x, self._log_bound(z_max))
+            decimate = int(self.config['decimate_min_max'])
+            if decimate <= 1:
+                d_x = x
+                d_min = z_min
+                d_max = z_max
+            else:
+                # this decimation implementation causes strange rendering artifacts on streaming data
+                k = (len(x) // decimate) * decimate
+                d_x = np.mean(x[:k].reshape((-1, decimate)), axis=1)
+                d_min = np.min(z_min[:k].reshape((-1, decimate)), axis=1)
+                d_max = np.max(z_max[:k].reshape((-1, decimate)), axis=1)
+            self.curve_min.setData(d_x, self._log_bound(d_min))
+            self.curve_max.setData(d_x, self._log_bound(d_max))
 
         if self.text_item is not None:
             labels = {'μ': v_mean, 'σ': v_std, 'min': v_min, 'max': v_max, 'p2p': v_max - v_min}
@@ -319,3 +357,20 @@ class Signal(QtCore.QObject):
             labels = {'μ': y_mean}
         return labels
 
+    def config_apply(self, cfg):
+        if 'grid_y' in cfg:
+            self.y_axis.setGrid(int(cfg['grid_y']))
+        if 'trace_width' in cfg:
+            w = int(cfg['trace_width'])
+            self.config['trace_width'] = w
+            self._pen_min_max = pg.mkPen(color=(255, 64, 64), width=w)
+            self._pen_mean = pg.mkPen(color=(255, 255, 64), width=w)
+            self.curve_min.setPen(self._pen_min_max)
+            self.curve_max.setPen(self._pen_min_max)
+            self.curve_mean.setPen(self._pen_mean)
+            self.vb.update()
+        if 'show_min_max' in cfg:
+            x = cfg['show_min_max']
+            self.config['show_min_max'] = x
+            self._min_max_show()
+            self.vb.update()

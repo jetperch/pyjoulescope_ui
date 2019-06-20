@@ -152,16 +152,25 @@ enabling this feature automatically selects a device on Device->disable.',
       children: [
         {
           name: 'show_min_max',
-          brief: 'Display the minimum and maximum traces',
-          type: 'bool',
-          default: true,
-        },
-
-        {
-          name: 'show_vline',
-          brief: 'Display the vertical line and values at the present point',
-          type: 'bool',
-          default: true,
+          brief: 'Display the minimum and maximum for ease of finding short events.',
+          type: 'str',
+          options: [
+            {
+              name: 'off',
+              brief: 'Hide the min/max indicators',
+              aliases: [false],
+            },
+            {
+              name: 'lines',
+              brief: 'Display minimum and maximum lines',
+              aliases: [true],
+            },
+            {
+              name: 'fill',
+              brief: 'Fill the region between min and max, but may significantly reduce performance.',
+            },
+          ],
+          default: 'lines',
         },
 
         {

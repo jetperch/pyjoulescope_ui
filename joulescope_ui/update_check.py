@@ -45,6 +45,7 @@ def fetch(callback):
         log.warning('Could not connect to software download server')
         return False
 
+
 def check(callback):
     """Check for software updates.
 

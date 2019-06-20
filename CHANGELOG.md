@@ -4,6 +4,14 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.4.1
+
+2019 Jun 20
+
+*   Use the Waveform preferences.
+*   Added "fill" option for show_min_max.
+
+
 ## 0.4.0
 
 2019 Jun 20

@@ -600,9 +600,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.control_ui.recordButton.setEnabled(False)
 
     def _waveform_cfg_apply(self):
-        # for waveform in [self._view_current, self._view_voltage, self._view_power]:
-        #    waveform.config(self._cfg['Waveform'])
-        pass
+        self.oscilloscope_widget.config_apply(self._cfg['Waveform'])
 
     def _device_cfg_apply(self, do_open=False):
         if self._has_active_device:
