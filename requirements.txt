@@ -1,7 +1,7 @@
 check-manifest>=0.37
 coverage>=4.5.2
 Cython>=0.29.3
-joulescope>=0.4.1  # also update JOULESCOPE_VERSION_MIN in requirements.txt
+joulescope>=0.4.2  # also update JOULESCOPE_VERSION_MIN in requirements.txt
 json5>=0.6.1
 numpy>=1.15.2
 pypiwin32>=223; sys_platform == 'win32'

@@ -543,6 +543,7 @@ class MainWindow(QtWidgets.QMainWindow):
             try:
                 self._device.open()
             except:
+                log.exception('while opening device')
                 return self._device_open_failed('Could not open device')
             try:
                 if not self._device.ui_action.isChecked():
@@ -555,7 +556,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self._device.statistics_callback = self.on_statisticSignal.emit
                 self._update_data()
             except:
-                log.exception('doh')
+                log.exception('while initializing after open device')
                 return self._device_open_failed('Could not initialize device')
             self._developer_cfg_apply()
 

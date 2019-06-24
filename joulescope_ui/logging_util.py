@@ -25,7 +25,8 @@ from joulescope_ui.config import APP_PATH
 
 LOG_PATH = os.path.join(APP_PATH, 'log')
 EXPIRATION_SECONDS = 7 * 24 * 60 * 60
-STREAM_FMT = "%(levelname)s:%(name)s:%(message)s"
+STREAM_SIMPLE_FMT = "%(levelname)s:%(name)s:%(message)s"
+STREAM_VERBOSE_FMT = "%(levelname)s:%(asctime)s:%(filename)s:%(lineno)d:%(name)s:%(message)s"
 FILE_FMT = "%(levelname)s:%(asctime)s:%(filename)s:%(lineno)d:%(name)s:%(message)s"
 
 LEVELS = {
@@ -71,7 +72,7 @@ def logging_config(stream_log_level=None, file_log_level=None):
     filename = os.path.join(LOG_PATH, 'joulescope_%s_%s.log' % (time_str, os.getpid(), ))
 
     stream_lvl = logging.WARNING if stream_log_level is None else LEVELS[stream_log_level]
-    stream_fmt = logging.Formatter(STREAM_FMT)
+    stream_fmt = logging.Formatter(STREAM_VERBOSE_FMT)
     stream_hnd = logging.StreamHandler()
     stream_hnd.setFormatter(stream_fmt)
     stream_hnd.setLevel(stream_lvl)
@@ -84,9 +85,9 @@ def logging_config(stream_log_level=None, file_log_level=None):
         file_hnd.setLevel(file_lvl)
 
     root_log = logging.getLogger()
+    root_log.handlers = []
     root_log.addHandler(stream_hnd)
     root_log.addHandler(file_hnd)
 
     root_log.setLevel(min([stream_lvl, file_lvl]))
     _cleanup_logfiles()
-

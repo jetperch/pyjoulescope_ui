@@ -4,6 +4,16 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.4.2
+
+2019 Jun 24
+
+*   Added more verbose console stdout log messages (include timestamp).
+*   Removed default loggers when invoked as a joulescope command.
+*   Improved joulescope device logging and error handling, particularly for 
+    libusb (Linux/Mac), using joulescope 0.4.2.
+
+
 ## 0.4.1
 
 2019 Jun 20
