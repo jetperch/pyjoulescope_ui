@@ -9,6 +9,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 2019 Jun 28
 
 *   Used new joulescope.bootloaders_run_application() for better error handling.
+*   Improved logging to include header with joulescope and platform information.
+*   Added "--file_log_level" command line option.
 
 
 ## 0.4.2

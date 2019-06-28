@@ -1003,18 +1003,25 @@ class MainWindow(QtWidgets.QMainWindow):
             self.status('Export done')
 
             
-def run(device_name=None, log_level=None):
+def run(device_name=None, log_level=None, file_log_level=None):
     """Run the Joulescope UI application.
 
     :param device_name: The optional Joulescope device name.  None (default)
         searches for normal Joulescope devices.
     :param log_level: The logging level for the stdout console stream log.
         The allowed levels are in :data:`joulescope_ui.logging_util.LEVELS`.
+        None (default) disables console logging.
+    :param file_log_level: The logging level for the file log.
+        The allowed levels are in :data:`joulescope_ui.logging_util.LEVELS`.
+        None (default) uses the configuration value.
+
     :return: 0 on success or error code on failure.
     """
     cfg_def = load_config_def()
     cfg = load_config(cfg_def)
-    logging_config(file_log_level=cfg['General']['log_level'],
+    if file_log_level is None:
+        file_log_level = cfg['General']['log_level']
+    logging_config(file_log_level=file_log_level,
                    stream_log_level=log_level)
 
     # http://doc.qt.io/qt-5/highdpi.html
