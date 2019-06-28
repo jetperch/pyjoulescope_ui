@@ -963,7 +963,7 @@ class MainWindow(QtWidgets.QMainWindow):
     @QtCore.Slot(float)
     def on_markerDualAddRequest(self, x1, x2):
         m1, m2 = self.oscilloscope_widget.marker_dual_add(x1, x2)
-        # todo: manage dual marker update
+        # No further action necessary, updates handled by on_markerDualUpdateRequest
 
     @QtCore.Slot(object)
     def on_markerRemoveRequest(self, markers):
