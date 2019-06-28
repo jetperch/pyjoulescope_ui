@@ -32,7 +32,7 @@ from pyside2uic import compileUi
 
 
 VERSION = '0.4.4'  # CHANGE THIS VERSION!
-JOULESCOPE_VERSION_MIN = '0.4.3'  # also update requirements.txt
+JOULESCOPE_VERSION_MIN = '0.4.4'  # also update requirements.txt
 MYPATH = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -157,15 +157,12 @@ setuptools.setup(
         'numpy>=1.15.2',
         'python-dateutil>=2.7.3',
         'pyside2>=-5.11.2',
-        # 'pyqtgraph>=0.11.0', see dependency_links for now
+        # 'pyqtgraph>=0.11.0', eventually, but PEP 508 URL for now:
+        'pyqtgraph @ https://github.com/jetperch/pyqtgraph/tarball/c8548b3246d29ee84a1ef76ebf63a5bb0e39c917#egg=pyqtgraph-0.11.0.dev0'
         'requests>=2.0.0',
         'joulescope>=' + JOULESCOPE_VERSION_MIN,
     ] + PLATFORM_INSTALL_REQUIRES,
     
-    dependency_links=[
-        'git+https://github.com/jetperch/pyqtgraph.git@c8548b3246d29ee84a1ef76ebf63a5bb0e39c917#egg=pyqtgraph-0.11.0.dev0'
-    ],
-
     extras_require={
         'dev': ['check-manifest', 'Cython', 'coverage', 'wheel', 'pyinstaller'],
     },
