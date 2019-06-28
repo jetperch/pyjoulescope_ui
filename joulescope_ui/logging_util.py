@@ -108,7 +108,7 @@ def logging_config(stream_log_level=None, file_log_level=None):
         can be the integer value or name.  None (default) is 'INFO'.
     """
     banner = _make_banner()
-    banner = banner + '\ninfo = ' + _make_info() + '\n'
+    banner = banner + '\ninfo = ' + _make_info() + '\n\n=====\n'
     os.makedirs(LOG_PATH, exist_ok=True)
     d = datetime.datetime.utcnow()
     time_str = d.strftime('%Y%m%d_%H%M%S')
