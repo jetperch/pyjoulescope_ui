@@ -21,6 +21,7 @@ from . import VERSION
 import joulescope
 from PySide2 import QtCore, QtWidgets
 from joulescope_ui.developer_widget import Ui_DeveloperDockWidget
+from joulescope_ui.error_window import Ui_ErrorWindow
 from joulescope_ui.main_window import Ui_mainWindow
 from joulescope_ui.control_widget import Ui_ControlDockWidget
 from joulescope_ui.oscilloscope import Oscilloscope
@@ -42,7 +43,9 @@ from joulescope_ui.exporter import Exporter
 from joulescope_ui import help_ui
 
 import numpy as np
+import io
 import ctypes
+import traceback
 import logging
 log = logging.getLogger(__name__)
 
@@ -1002,6 +1005,16 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.status('Export done')
 
+
+class ErrorWindow(QtWidgets.QMainWindow):
+
+    def __init__(self, msg):
+        super(ErrorWindow, self).__init__()
+        self.ui = Ui_ErrorWindow()
+        self.ui.setupUi(self)
+        self.ui.label.setText(msg)
+        self.show()
+
             
 def run(device_name=None, log_level=None, file_log_level=None):
     """Run the Joulescope UI application.
@@ -1017,19 +1030,35 @@ def run(device_name=None, log_level=None, file_log_level=None):
 
     :return: 0 on success or error code on failure.
     """
-    cfg_def = load_config_def()
-    cfg = load_config(cfg_def)
-    if file_log_level is None:
-        file_log_level = cfg['General']['log_level']
-    logging_config(file_log_level=file_log_level,
-                   stream_log_level=log_level)
+    try:
+        cfg_def = load_config_def()
+        cfg = load_config(cfg_def)
+        if file_log_level is None:
+            file_log_level = cfg['General']['log_level']
+        logging_config(file_log_level=file_log_level,
+                       stream_log_level=log_level)
+        joulescope.bootloaders_run_application()
 
-    # http://doc.qt.io/qt-5/highdpi.html
-    # https://vicrucann.github.io/tutorials/osg-qt-high-dpi/
-    joulescope.bootloaders_run_application()
-    if sys.platform.startswith('win'):
-        ctypes.windll.user32.SetProcessDPIAware()
-    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+    except Exception:
+        log.exception('during initialization')
+        with io.StringIO() as f:
+            traceback.print_exc(file=f)
+            t = f.getvalue()
+        app = QtWidgets.QApplication()
+        ui = ErrorWindow("Exception trace:\n" + t)
+        return app.exec_()
+
+    try:
+        log.info('configure high DPI scaling')
+        # http://doc.qt.io/qt-5/highdpi.html
+        # https://vicrucann.github.io/tutorials/osg-qt-high-dpi/
+        if sys.platform.startswith('win'):
+            ctypes.windll.user32.SetProcessDPIAware()
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+    except:
+        log.exception('while configuring high DPI scaling')
+
+    log.info('Start Qt')
     app = QtWidgets.QApplication(sys.argv)
     ui = MainWindow(app, device_name=device_name, cfg_def=cfg_def, cfg=cfg)
     device_notify = DeviceNotify(ui.on_deviceNotifySignal.emit)

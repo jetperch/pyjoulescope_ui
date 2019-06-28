@@ -1,6 +1,7 @@
 # Automatically generated.  DO NOT EDIT
 control_widget.py
 developer_widget.py
+error_window.py
 export_dialog.py
 joulescope_rc.py
 main_window.py
