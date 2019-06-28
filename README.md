@@ -21,10 +21,15 @@ outstanding. See the [future features document](features_future.md) for details.
 
 ## Quick start
 
-Most Joulescope users will want to 
-[download](https://www.joulescope.com/download) the application.  The
-packages are available at pypi, but this project uses a forked version of
-pyqtgraph which you will need to install manually.
+Many Joulescope users will want to 
+[download](https://www.joulescope.com/download) the application distribution.
+However, you install this python package from pypi:
+
+    pip3 install joulescope-ui
+
+You can then run the Joulescope user interface application:
+
+    python3 -m joulescope_ui
 
 
 ## Developer
