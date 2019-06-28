@@ -4,6 +4,14 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.4.4
+
+2019 Jun 28
+
+*   Fixed pyqtgraph dependency.
+*   Updated "Quick Start" in README.md.
+
+
 ## 0.4.3
 
 2019 Jun 28

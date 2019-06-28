@@ -31,7 +31,7 @@ import shutil
 from pyside2uic import compileUi
 
 
-VERSION = '0.4.3'  # CHANGE THIS VERSION!
+VERSION = '0.4.4'  # CHANGE THIS VERSION!
 JOULESCOPE_VERSION_MIN = '0.4.3'  # also update requirements.txt
 MYPATH = os.path.abspath(os.path.dirname(__file__))
 
@@ -163,7 +163,7 @@ setuptools.setup(
     ] + PLATFORM_INSTALL_REQUIRES,
     
     dependency_links=[
-        'https://github.com/jetperch/pyqtgraph/tarball/c8548b3246d29ee84a1ef76ebf63a5bb0e39c917#egg=pyqtgraph-0.11.0.dev0'
+        'git+https://github.com/jetperch/pyqtgraph.git@c8548b3246d29ee84a1ef76ebf63a5bb0e39c917#egg=pyqtgraph-0.11.0.dev0'
     ],
 
     extras_require={
