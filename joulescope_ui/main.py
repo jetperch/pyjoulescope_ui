@@ -18,8 +18,7 @@
 import os
 import sys
 from . import VERSION
-from joulescope.driver import scan, scan_for_changes
-from joulescope import VERSION as DRIVER_VERSION
+import joulescope
 from PySide2 import QtCore, QtWidgets
 from joulescope_ui.developer_widget import Ui_DeveloperDockWidget
 from joulescope_ui.main_window import Ui_mainWindow
@@ -454,7 +453,7 @@ class MainWindow(QtWidgets.QMainWindow):
         QtWidgets.QMessageBox.about(self, 'Joulescope Software Update Available', txt)
 
     def _help_about(self):
-        txt = ABOUT.format(ui_version=VERSION, driver_version=DRIVER_VERSION)
+        txt = ABOUT.format(ui_version=VERSION, driver_version=joulescope.VERSION)
         QtWidgets.QMessageBox.about(self, 'Joulescope', txt)
 
     def _help_credits(self):
@@ -687,7 +686,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self._is_scanning = True
             physical_devices = [d for d in self._devices if hasattr(d, 'usb_device')]
             virtual_devices = [d for d in self._devices if not hasattr(d, 'usb_device')]
-            devices, added, removed = scan_for_changes(name=self._device_scan_name, devices=physical_devices)
+            devices, added, removed = joulescope.scan_for_changes(name=self._device_scan_name, devices=physical_devices)
             if self._device in removed:
                 self._device_close()
             for d in removed:
@@ -1004,12 +1003,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.status('Export done')
 
             
-def kick_bootloaders():
-    for d in scan(name='bootloader'):
-        d.open()
-        d.go()
-
-
 def run(device_name=None, log_level=None):
     """Run the Joulescope UI application.
 
@@ -1026,7 +1019,7 @@ def run(device_name=None, log_level=None):
 
     # http://doc.qt.io/qt-5/highdpi.html
     # https://vicrucann.github.io/tutorials/osg-qt-high-dpi/
-    kick_bootloaders()
+    joulescope.bootloaders_run_application()
     if sys.platform.startswith('win'):
         ctypes.windll.user32.SetProcessDPIAware()
     QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)

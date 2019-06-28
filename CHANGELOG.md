@@ -4,6 +4,13 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.4.3
+
+2019 Jun 28
+
+*   Used new joulescope.bootloaders_run_application() for better error handling.
+
+
 ## 0.4.2
 
 2019 Jun 24
