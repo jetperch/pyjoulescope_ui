@@ -4,6 +4,13 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.4.5
+
+2019 ??? ??
+
+*   Added "Annotations" -> "Clear all" option.
+
+
 ## 0.4.4
 
 2019 Jun 28

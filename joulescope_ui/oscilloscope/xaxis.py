@@ -34,6 +34,9 @@ class AxisMenu(QtGui.QMenu):
         self.dual_markers = QtGui.QAction('&Dual Markers')
         self.annotations.addAction(self.dual_markers)
 
+        self.clear_all_markers = QtGui.QAction('&Clear all')
+        self.annotations.addAction(self.clear_all_markers)
+
 
 class XAxis(pg.AxisItem):
 
@@ -62,6 +65,7 @@ class XAxis(pg.AxisItem):
         self.menu = AxisMenu()
         self.menu.single_marker.triggered.connect(self.on_singleMarker)
         self.menu.dual_markers.triggered.connect(self.on_dualMarkers)
+        self.menu.clear_all_markers.triggered.connect(self.on_clearAllMarkers)
         self._markers = {}
         self._proxy = None
         self._popup_menu_pos = None
@@ -100,6 +104,18 @@ class XAxis(pg.AxisItem):
         x1, x2 = x - xr, x + xr
         log.info('on_dualMarkers(%s, %s)', x1, x2)
         self.sigMarkerDualAddRequest.emit(x1, x2)
+
+    def on_clearAllMarkers(self):
+        log.info('on_clearAllMarkers()')
+        removal = []
+        for marker in self._markers.values():
+            if marker.pair is not None:
+                if marker.is_left:
+                    removal.append([marker, marker.pair])
+            else:
+                removal.append([marker])
+        for k in removal:
+            self.sigMarkerRemoveRequest.emit(k)
 
     def linkedViewChanged(self, view, newRange=None):
         pg.AxisItem.linkedViewChanged(self, view=view, newRange=newRange)
