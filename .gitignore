@@ -9,7 +9,7 @@ dist
 .DS_Store
 
 joulescope_ui/version.py
-
+joulescope_ui/.gitignore
 
 # Compiled Dynamic libraries
 *.so

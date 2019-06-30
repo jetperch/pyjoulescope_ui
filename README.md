@@ -54,6 +54,15 @@ On Windows:
 
     set PYTHONPATH=C:\path\to\pyjoulescope;C:\path\to\pyjoulescope_ui;
 
+This project uses Qt. Before running the python code, you must build the 
+Qt resource file and the Qt user interface modules.  To generate, run:
+
+    python3 setup.py qt
+
+You should then be able to run the user interface from this directory:
+
+    python3 -m joulescope_ui
+
     
 ### Linux
 
