@@ -322,7 +322,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.on_multimeterMenu(True)
         self._cfg_apply()
+        log.debug('Qt show()')
         self.show()
+        log.debug('Qt show() success')
         self._device_close()
         self._device_scan()
         self._software_update_check()
@@ -954,9 +956,11 @@ class MainWindow(QtWidgets.QMainWindow):
             self._cfg_apply()
 
     def _cfg_apply(self):
+        log.debug('_cfg_apply: start')
         self._device_cfg_apply()
         self._waveform_cfg_apply()
         self._developer_cfg_apply()
+        log.debug('_cfg_apply: end')
 
     @QtCore.Slot(float)
     def on_markerSingleAddRequest(self, x):

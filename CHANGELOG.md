@@ -9,6 +9,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 2019 ??? ??
 
 *   Added "Annotations" -> "Clear all" option.
+*   Increased startup logging to isolate Qt show().
 
 
 ## 0.4.4
