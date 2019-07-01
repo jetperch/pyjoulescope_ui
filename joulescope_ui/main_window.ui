@@ -50,6 +50,7 @@
      <string>&amp;Help</string>
     </property>
     <addaction name="actionGettingStarted"/>
+    <addaction name="actionUsersGuide"/>
     <addaction name="actionCredits"/>
     <addaction name="actionAbout"/>
    </widget>
@@ -145,6 +146,11 @@
   <action name="actionGettingStarted">
    <property name="text">
     <string>Getting Started</string>
+   </property>
+  </action>
+  <action name="actionUsersGuide">
+   <property name="text">
+    <string>User's Guide</string>
    </property>
   </action>
  </widget>

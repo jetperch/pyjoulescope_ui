@@ -46,12 +46,14 @@ import numpy as np
 import io
 import ctypes
 import traceback
+import webbrowser
 import logging
 log = logging.getLogger(__name__)
 
 
 STATUS_BAR_TIMEOUT = 5000
 DATA_BUFFER_DURATION = 60.0  # seconds
+USERS_GUIDE_URL = "https://www.joulescope.com/docs/JoulescopeUsersGuide.html"
 
 
 ABOUT = """\
@@ -300,6 +302,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # help
         self.ui.actionGettingStarted.triggered.connect(self._help_getting_started)
+        self.ui.actionUsersGuide.triggered.connect(self._help_users_guide)
         self.ui.actionCredits.triggered.connect(self._help_credits)
         self.ui.actionAbout.triggered.connect(self._help_about)
 
@@ -472,6 +475,9 @@ class MainWindow(QtWidgets.QMainWindow):
         dialog = help_ui.ScrollMessageBox(html, self)
         dialog.setWindowTitle('Getting Started with Your Joulescope')
         dialog.exec_()
+
+    def _help_users_guide(self):
+        webbrowser.open_new_tab(USERS_GUIDE_URL)
 
     def _tool_clear_energy(self):
         log.info('_tool_clear_energy: offset= %g J', self._energy[0])
