@@ -34,7 +34,7 @@ from pyside2uic import compileUi
 
 
 VERSION = '0.4.5'  # CHANGE THIS VERSION!
-JOULESCOPE_VERSION_MIN = '0.4.4'  # also update requirements.txt
+JOULESCOPE_VERSION_MIN = '0.4.5'  # also update requirements.txt
 MYPATH = os.path.abspath(os.path.dirname(__file__))
 VERSION_PATH = os.path.join(MYPATH, 'joulescope_ui', 'version.py')
 
