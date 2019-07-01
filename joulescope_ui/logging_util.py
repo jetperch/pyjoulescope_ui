@@ -22,6 +22,7 @@ import datetime
 import json
 import os
 import sys
+import platform
 from joulescope_ui.config import APP_PATH
 from . import VERSION as UI_VERSION
 from joulescope import VERSION as DRIVER_VERSION
@@ -76,6 +77,8 @@ def _make_info():
         'platform': {
             'name': sys.platform,
             'python_version': sys.version,
+            'platform': platform.platform(),
+            'processor': platform.processor(),
             'executable': sys.executable,
             'frozen': frozen,
             'app_path': APP_PATH,
