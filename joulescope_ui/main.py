@@ -323,13 +323,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self._exporter = Exporter(self)
         self._exporter.sigFinished.connect(self.on_exporterFinished)
 
+        self._device_close()
         self.on_multimeterMenu(True)
         self._cfg_apply()
         log.debug('Qt show()')
         self.show()
         log.debug('Qt show() success')
-        self._device_close()
-        self._device_scan()
         self._software_update_check()
 
     @QtCore.Slot()
@@ -437,6 +436,16 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.adjustSize()
         self.center()
+
+        if self._device is self._device_disable:
+            self._device_scan()
+        elif hasattr(self._device, 'is_streaming'):
+            if not self._device.is_streaming and self._cfg['Device']['autostream']:
+                self._device_stream(True)
+        elif self._cfg['Device']['autostream']:
+            # close file reader and attempt to open Joulescope
+            self._device_close()
+            self._device_scan()
 
     @QtCore.Slot(bool)
     def on_oscilloscopeMenu(self, checked):
@@ -639,6 +648,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self._device.parameter_set('gpo1', '0')
 
     def _device_close(self):
+        log.debug('_device_close')
         device = self._device
         is_active_device = self._has_active_device
         self._device = self._device_disable

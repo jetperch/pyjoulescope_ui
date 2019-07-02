@@ -12,6 +12,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Increased startup logging to isolate Qt show().
 *   Added platform information to info.
 *   Added link to User's Guide in Help menu.
+*   Modified Multimeter View to automatically start device streaming.
 
 
 ## 0.4.4
