@@ -28,3 +28,7 @@ joulescope_ui/.gitignore
 
 .idea
 .settings
+
+src/pyqtgraph-0\.11\.0\.dev0/
+
+src/pip-delete-this-directory\.txt
