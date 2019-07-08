@@ -73,6 +73,7 @@ will be implemented before Joulescope general availability.
 *   Add a small navigation window that shows the full extents of the buffer
     and a box with the view being displayed.
 *   Save waveforms to image file.
+*   Move the selected, active marker using left/right arrow keys.
 
 
 ### Frequency analysis
@@ -118,3 +119,5 @@ will be implemented before Joulescope general availability.
     When done, feed estimation tool where you can set the period of each 
     identified process to estimate energy consumption per desired timescale
     or even battery life.
+*   Save user-defined Views. Allow user to select saved views in addition to 
+    Multimeter and Oscilloscope. Also allow user to set startup view preference.
