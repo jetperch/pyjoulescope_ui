@@ -11,6 +11,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Fixed .gitignore to exclude pyqtgraph git dependency download in place.
 *   Added VSCode launch file.
 *   Addressed pip install "ModuleNotFoundError: No module named 'pyside2uic'"
+*   Updated README: pip install joulescope_ui does not work with forked pyqtgraph.
 
 
 ## 0.4.5
