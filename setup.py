@@ -30,10 +30,9 @@ import sys
 import subprocess
 import site
 import shutil
-from pyside2uic import compileUi
 
 
-VERSION = '0.4.5'  # CHANGE THIS VERSION!
+VERSION = '0.4.6'  # CHANGE THIS VERSION!
 JOULESCOPE_VERSION_MIN = '0.4.5'  # also update requirements.txt
 MYPATH = os.path.abspath(os.path.dirname(__file__))
 VERSION_PATH = os.path.join(MYPATH, 'joulescope_ui', 'version.py')
@@ -53,6 +52,7 @@ def find_qt_rcc():
 
 
 def convert_qt_ui():
+    from pyside2uic import compileUi
     rcc_path = find_qt_rcc()
     path = os.path.join(MYPATH, 'joulescope_ui')
     ignore_filename = os.path.join(path, '.gitignore')
@@ -188,7 +188,7 @@ setuptools.setup(
         'python-dateutil>=2.7.3',
         'pyside2>=-5.11.2',
         # 'pyqtgraph>=0.11.0', eventually, but PEP 508 URL for now:
-        'pyqtgraph @ https://github.com/jetperch/pyqtgraph/tarball/c8548b3246d29ee84a1ef76ebf63a5bb0e39c917#egg=pyqtgraph-0.11.0.dev0'
+        'pyqtgraph @ https://github.com/jetperch/pyqtgraph/tarball/c8548b3246d29ee84a1ef76ebf63a5bb0e39c917#egg=pyqtgraph-0.11.0.dev0',
         'requests>=2.0.0',
         'joulescope>=' + JOULESCOPE_VERSION_MIN,
     ] + PLATFORM_INSTALL_REQUIRES,

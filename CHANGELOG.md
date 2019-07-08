@@ -4,6 +4,15 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.4.6
+
+2019 Jul ??? [in progress]
+
+*   Fixed .gitignore to exclude pyqtgraph git dependency download in place.
+*   Added VSCode launch file.
+*   Addressed pip install "ModuleNotFoundError: No module named 'pyside2uic'"
+
+
 ## 0.4.5
 
 2019 Jul 2
