@@ -900,13 +900,13 @@ class MainWindow(QtWidgets.QMainWindow):
         # todo
 
     def recording_open(self):
-        self._device_close()
         filename, selected_filter = QtWidgets.QFileDialog.getOpenFileName(
             self, 'Open Joulescope Recording', self._path, 'Joulescope Data (*.jls)')
         filename = str(filename)
-        if not len(filename):
+        if not len(filename) or not os.path.isfile(filename):
             self.status('Invalid filename, do not open')
             return
+        self._device_close()
         log.info('open recording %s', filename)
         self.oscilloscope_widget.set_display_mode('normal')
         device = RecordingViewerDevice(filename)

@@ -12,6 +12,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added VSCode launch file.
 *   Addressed pip install "ModuleNotFoundError: No module named 'pyside2uic'"
 *   Updated README: pip install joulescope_ui does not work with forked pyqtgraph.
+*   Defer device close on File->Open until correct file name provided. Cancel does not change operation.
 
 
 ## 0.4.5

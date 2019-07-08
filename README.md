@@ -90,7 +90,7 @@ Replace {path/to/repos} with your desired path.
 
 As of July 2019, this package depends upon a 
 [forked version of pyqtgraph](https://github.com/jetperch/pyqtgraph) which
-is automatically installed using requirements.txt from the forked GitHub repo.
+is automatically installed using requirements.txt.
 
 You should now be able to run the Joulescope UI:
 
