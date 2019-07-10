@@ -16,6 +16,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Fixed recordings to capture the correct data in 5V range. Captures made with 
     previous versions will presume 15V range when zoomed in.
 *   Added source indicator with USB streaming health in status bar.
+*   Add new signal to each existing dual marker.
+*   Apply i_range and v_range Preferences only on change.
 
 
 ## 0.4.5

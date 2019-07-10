@@ -632,6 +632,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.control_ui.playButton.setEnabled(False)
         self.control_ui.recordButton.setChecked(False)
         self.control_ui.recordButton.setEnabled(False)
+        self.control_ui.iRangeComboBox.setEnabled(False)
+        self.control_ui.vRangeComboBox.setEnabled(False)
 
     def _waveform_cfg_apply(self):
         self.oscilloscope_widget.config_apply(self._cfg['Waveform'])
@@ -640,8 +642,10 @@ class MainWindow(QtWidgets.QMainWindow):
         if self._has_active_device:
             log.info('_device_cfg_apply')
             self._on_param_change('source', value=self._cfg['Device']['source'])
-            self._on_param_change('i_range', value=self._cfg['Device']['i_range'])
-            self._on_param_change('v_range', value=self._cfg['Device']['v_range'])
+            if self._cfg['Device'].get('i_range_update', True):
+                self._on_param_change('i_range', value=self._cfg['Device']['i_range'])
+            if self._cfg['Device'].get('v_range_update', True):
+                self._on_param_change('v_range', value=self._cfg['Device']['v_range'])
             if do_open and self._cfg['Device']['autostream']:
                 self._device_stream(True)
         rescan_interval = self._cfg['Device']['rescan_interval']
@@ -832,6 +836,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.control_ui.playButton.setChecked(False)
         self.control_ui.recordButton.setChecked(False)
         self.control_ui.recordButton.setEnabled(False)
+        self.control_ui.iRangeComboBox.setEnabled(False)
+        self.control_ui.vRangeComboBox.setEnabled(False)
         self.oscilloscope_widget.set_display_mode('normal')
 
     def _device_stream_start(self):
@@ -846,6 +852,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self._streaming_status = None
         self.control_ui.playButton.setChecked(True)
         self.control_ui.recordButton.setEnabled(True)
+        self.control_ui.iRangeComboBox.setEnabled(True)
+        self.control_ui.vRangeComboBox.setEnabled(True)
         self.data_update_timer.start()
         self.oscilloscope_widget.set_display_mode('realtime')
         self.oscilloscope_widget.set_sampling_frequency(self._device.sampling_frequency)
@@ -1018,6 +1026,13 @@ class MainWindow(QtWidgets.QMainWindow):
             if cfg['General']['data_path'] != self._cfg['General']['data_path']:
                 self._path = cfg['General']['data_path']
             log.info(cfg)
+
+            # Maintain existing i_range and v_range unless changed.
+            # Only necessary since full view is not persisted as of Jul 2019.
+            # If persist full view state, remove this since i_range & v_range changes will be stored automatically.
+            cfg['Device']['i_range_update'] = (self._cfg['Device']['i_range'] != cfg['Device']['i_range'])
+            cfg['Device']['v_range_update'] = (self._cfg['Device']['v_range'] != cfg['Device']['v_range'])
+            
             self._cfg = cfg
             save_config(self._cfg)
             self._cfg_apply()
