@@ -183,6 +183,11 @@ class Oscilloscope(QtWidgets.QWidget):
         self._signals[name] = s
         self._vb_relink()  # Linking to last axis makes grid draw correctly
         s.y_axis.setGrid(self.config['grid_y'])
+
+        # add signal to each existing dual marker
+        for m in self._x_axis.markers():
+            if m.is_right:
+                m.signal_add(s)
         return s
 
     def signal_remove(self, name):
