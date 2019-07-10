@@ -13,6 +13,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Addressed pip install "ModuleNotFoundError: No module named 'pyside2uic'"
 *   Updated README: pip install joulescope_ui does not work with forked pyqtgraph.
 *   Defer device close on File->Open until correct file name provided. Cancel does not change operation.
+*   Fixed recordings to capture the correct data in 5V range. Captures made with 
+    previous versions will presume 15V range when zoomed in.
 
 
 ## 0.4.5
