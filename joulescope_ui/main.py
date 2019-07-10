@@ -41,8 +41,6 @@ from joulescope_ui.logging_util import logging_config
 from joulescope_ui.oscilloscope.signal_statistics import si_format, html_format, three_sig_figs
 from joulescope_ui.exporter import Exporter
 from joulescope_ui import help_ui
-
-import numpy as np
 import io
 import ctypes
 import traceback
@@ -134,6 +132,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._devices = []
         self._device = None
         self._is_streaming = False
+        self._streaming_status = None
         self._compliance = {  # state for compliance testing
             'gpo_value': 0,   # automatically toggle GPO, loopback & measure GPI
             'status': None,
@@ -284,6 +283,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.status_update_timer.setInterval(500)  # milliseconds
         self.status_update_timer.timeout.connect(self.on_statusUpdateTimer)
         self.status_update_timer.start()
+
+        # Status bar
+        self._source_indicator = QtWidgets.QLabel(self.ui.statusbar)
+        self.ui.statusbar.addPermanentWidget(self._source_indicator)
 
         # device scan timer - because bad things happen, see rescan_interval config
         self.rescan_timer = QtCore.QTimer(self)
@@ -495,6 +498,17 @@ class MainWindow(QtWidgets.QMainWindow):
     def _tool_usb_inrush(self):
         data = self._device.view.extract()
         rv = usb_inrush.run(data, self._device.view.sampling_frequency)
+        self.status(f'USB inrush analysis completed: return code {rv}')
+
+    def _source_indicator_set(self, text, color=None, tooltip=None):
+        tooltip = '' if tooltip is None else str(tooltip)
+        self._source_indicator.setText(text)
+        if color is None:
+            style = ""
+        else:
+            style = f"QLabel {{ background-color : {color} }}"
+        self._source_indicator.setStyleSheet(style)
+        self._source_indicator.setToolTip(tooltip)
 
     @property
     def _has_active_device(self):
@@ -511,7 +525,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 QtCore.Qt.LeftToRight,
                 QtCore.Qt.AlignCenter,
                 sz,
-                self.window().windowHandle().screen().availableGeometry()
+                geometry
             )
         )
 
@@ -670,6 +684,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.oscilloscope_widget.markers_clear()
         if self._cfg['Developer']['compliance']:
             self.setStyleSheet("background-color: yellow;")
+        self._source_indicator_set('')
 
     def _device_recover(self):
         log.info('_device_recover')
@@ -828,6 +843,7 @@ class MainWindow(QtWidgets.QMainWindow):
             log.info('device does not support start')
             return
         self._is_streaming = True
+        self._streaming_status = None
         self.control_ui.playButton.setChecked(True)
         self.control_ui.recordButton.setEnabled(True)
         self.data_update_timer.start()
@@ -839,16 +855,19 @@ class MainWindow(QtWidgets.QMainWindow):
             log.exception('_device_stream_start')
             self.status('Could not start device streaming')
         self.oscilloscope_widget.request_x_change()
+        self._source_indicator_set(' USB ', tooltip=str(self._device))
 
     def _device_stream_stop(self):
         log.debug('_device_stream_stop')
         self._is_streaming = False
+        self._streaming_status = None
         if not self._has_active_device:
             log.info('_device_stream_stop when no device')
             return
         if hasattr(self._device, 'stop'):
             self._device.stop()  # always safe to call
         self.oscilloscope_widget.set_display_mode('normal')
+        self._source_indicator_set(' Buffer ', tooltip=str(self._device))
 
     def _device_stream(self, checked):
         log.info('_device_stream(%s)' % checked)
@@ -914,12 +933,44 @@ class MainWindow(QtWidgets.QMainWindow):
         self._device_add(device)
         self._device_open(device)
         self._update_data()
+        self._source_indicator_set(' File ', tooltip=filename)
 
     def closeEvent(self, event):
         self._device_close()
         event.accept()
 
+    def _source_indicator_status_update(self, status):
+        if not self._is_streaming or status is None or 'buffer' not in status:
+            return
+        buffer = status['buffer']
+        n_sample_id = buffer.get('sample_id')
+        n_sample_missing_count = buffer.get('sample_missing_count')
+        if n_sample_id is None or n_sample_missing_count is None:
+            return
+
+        try:
+            color = None
+            n_sample_id = n_sample_id['value']
+            n_sample_missing_count = n_sample_missing_count['value']
+            if self._streaming_status is None:
+                self._streaming_status = {}
+            else:
+                d_sample_id = n_sample_id - self._streaming_status['sample_id']
+                d_sample_missing_count = n_sample_missing_count - self._streaming_status['sample_missing_count']
+                if (0 == d_sample_id) or ((d_sample_missing_count / d_sample_id) > 0.001):
+                    color = 'red'
+                elif d_sample_missing_count:
+                    color = 'yellow'
+                else:
+                    color = 'LightGreen'
+            self._streaming_status['sample_id'] = n_sample_id
+            self._streaming_status['sample_missing_count'] = n_sample_missing_count
+            self._source_indicator_set(' USB ', color=color, tooltip=str(self._device))
+        except:
+            log.exception('_source_indicator_status_update')
+
     def _status_fn(self, status):
+        self._source_indicator_status_update(status)
         for root_key, root_value in status.items():
             if root_key == 'endpoints':
                 root_value = root_value.get('2', {})
