@@ -1028,11 +1028,9 @@ class MainWindow(QtWidgets.QMainWindow):
             log.info(cfg)
 
             # Maintain existing i_range and v_range unless changed.
-            # Only necessary since full view is not persisted as of Jul 2019.
-            # If persist full view state, remove this since i_range & v_range changes will be stored automatically.
             cfg['Device']['i_range_update'] = (self._cfg['Device']['i_range'] != cfg['Device']['i_range'])
             cfg['Device']['v_range_update'] = (self._cfg['Device']['v_range'] != cfg['Device']['v_range'])
-            
+
             self._cfg = cfg
             save_config(self._cfg)
             self._cfg_apply()
