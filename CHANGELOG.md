@@ -18,6 +18,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added source indicator with USB streaming health in status bar.
 *   Add new signal to each existing dual marker.
 *   Apply i_range and v_range Preferences only on change.
+*   Display total charge in addition to energy on multimeter view.
 
 
 ## 0.4.5

@@ -56,7 +56,7 @@ class MeterWidget(QtWidgets.QWidget):
             self.values[name] = w
             w.setContentsMargins(0, 0, 0, 0)
             self.verticalLayout.addWidget(w)
-        self.values['energy'].stats_stylesheet("QWidget { background-color : black; color : black; }")
+        self.values['energy'].configure_energy()
 
         self.sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.sizePolicy.setHorizontalStretch(0)
@@ -70,16 +70,17 @@ class MeterWidget(QtWidgets.QWidget):
         self.values['voltage'].accumulate_enable = checked
         self.values['power'].accumulate_enable = checked
 
-    def update(self, stats, energy):
+    def update(self, statistics):
         """Update the multimeter display
 
-        :param stats: The [3][4] statistics as [current, voltage, power][mean, variance, min, max]
-        :param energy: The energy.
+        :param statistics: The statistics data structure
         """
-        for idx, field in enumerate(FIELDS[:3]):
-            name = field[0]
-            self.values[name].update_value(*stats[idx])
-        self.values['energy'].update_value(energy, 0, 0, 0)
+        for name, field in statistics['signals'].items():
+            d = field['statistics']
+            self.values[name].update_value(mean=d['μ'], variance=d['σ2'], v_min=d['min'], v_max=d['max'])
+        energy = statistics['accumulators']['energy']['value']
+        charge = statistics['accumulators']['charge']['value']
+        self.values['energy'].update_energy(energy, charge)
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate

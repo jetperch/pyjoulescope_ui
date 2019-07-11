@@ -122,7 +122,7 @@ class MainWindow(QtWidgets.QMainWindow):
     on_deviceNotifySignal = QtCore.Signal(object, object)
     on_dataSignal = QtCore.Signal(object, object)  # x, data[length][3][4]
     on_stopSignal = QtCore.Signal()
-    on_statisticSignal = QtCore.Signal(object, float)
+    on_statisticSignal = QtCore.Signal(object)
     on_xChangeSignal = QtCore.Signal(str, object)
     on_softwareUpdateSignal = QtCore.Signal(str, str)
 
@@ -142,6 +142,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._status = {}
         self._status_row = 0
         self._data_view = None  # created when device is opened
+        self._charge = [0, 0]  # value, offset
         self._energy = [0, 0]  # value, offset
         self._is_scanning = False
 
@@ -380,13 +381,21 @@ class MainWindow(QtWidgets.QMainWindow):
             return
         self._update_data()
 
-    @QtCore.Slot(object, float)
-    def _on_statistic(self, statistics, energy):
+    @QtCore.Slot(object)
+    def _on_statistic(self, statistics):
+        charge = statistics['accumulators']['charge']['value']
+        self._charge[0] = charge
+        charge -= self._charge[1]
+        charge_str = three_sig_figs(charge, statistics['accumulators']['charge']['units'])
+        self.control_ui.energyValueLabel.setText(charge_str)
+
+        energy = statistics['accumulators']['energy']['value']
         self._energy[0] = energy
         energy -= self._energy[1]
-        energy_str = three_sig_figs(energy, 'J')
+        energy_str = three_sig_figs(energy, statistics['accumulators']['energy']['units'])
         self.control_ui.energyValueLabel.setText(energy_str)
-        self.dmm_widget.update(statistics, energy)
+
+        self.dmm_widget.update(statistics)
 
         if self._cfg['Developer']['compliance'] and self._cfg['Developer']['compliance_gpio_loopback']:
             gpo_value = self._compliance['gpo_value']
@@ -492,7 +501,8 @@ class MainWindow(QtWidgets.QMainWindow):
         webbrowser.open_new_tab(USERS_GUIDE_URL)
 
     def _tool_clear_energy(self):
-        log.info('_tool_clear_energy: offset= %g J', self._energy[0])
+        log.info('_tool_clear_energy: offset= %g J, offset=%g C', self._energy[0], self._charge[0])
+        self._charge[1] = self._charge[0]
         self._energy[1] = self._energy[0]
 
     def _tool_usb_inrush(self):
@@ -569,7 +579,6 @@ class MainWindow(QtWidgets.QMainWindow):
             log.info('device_open reopen %s', str(device))
             return
         self._device_close()
-        self._energy_offset = 0
         log.info('device_open %s', str(device))
         self._device = device
         if self._has_active_device:

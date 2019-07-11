@@ -205,9 +205,39 @@ class MeterValueWidget(QtWidgets.QWidget):
             values.append(v_str)
         self.on_update.emit(values, units)
 
-    def update_value(self, *values):
-        self._update_value(*values)
+    def update_value(self, mean, variance, v_min, v_max):
+        self._update_value(mean, variance, v_min, v_max)
         self._update_ui()
+
+    def update_energy(self, energy, charge):
+        energy, prefix, _ = unit_prefix(energy)
+        units = f'{prefix}{self._units_short}'
+        self.unitLabel.setText(f"<html>&nbsp;{units}&nbsp;</html>")
+        self.valueLabel.setText(('%+6f' % energy)[:8])
+
+        charge_c, prefix_c, _ = unit_prefix(charge)
+        self.stdName.setText(f"<html>&nbsp;{prefix_c}C&nbsp;</html>")
+        self.stdLabel.setText(('%+6f' % charge_c)[:8])
+
+        charge_ah, prefix_ah, _ = unit_prefix(charge / 3600.0)
+        self.minName.setText(f"<html>&nbsp;{prefix_ah}Ah&nbsp;</html>")
+        self.minLabel.setText(('%+6f' % charge_ah)[:8])
+
+        self.maxName.setText('')
+        self.maxLabel.setText('')
+        self.p2pName.setText('')
+        self.p2pLabel.setText('')
+
+    def configure_energy(self):
+        self.stdName.setText('')
+        self.stdLabel.setText('')
+        self.minName.setText('')
+        self.minLabel.setText('')
+        self.maxName.setText('')
+        self.maxLabel.setText('')
+        self.p2pName.setText('')
+        self.p2pLabel.setText('')
+        self.update_energy(0.0, 0.0)
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
