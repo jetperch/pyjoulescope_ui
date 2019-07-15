@@ -6,7 +6,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.4.6
 
-2019 Jul ??? [in progress]
+2019 Jul 15
 
 *   Fixed .gitignore to exclude pyqtgraph git dependency download in place.
 *   Added VSCode launch file.
