@@ -19,6 +19,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Add new signal to each existing dual marker.
 *   Apply i_range and v_range Preferences only on change.
 *   Display total charge in addition to energy on multimeter view.
+*   Updated to Qt5/PySide2 5.13.0.
 
 
 ## 0.4.5

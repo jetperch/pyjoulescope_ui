@@ -186,7 +186,7 @@ setuptools.setup(
         'json5>=0.6.1',
         'numpy>=1.15.2',
         'python-dateutil>=2.7.3',
-        'pyside2>=-5.11.2',
+        'pyside2>=5.13.0',
         # 'pyqtgraph>=0.11.0', eventually, but PEP 508 URL for now:
         'pyqtgraph @ https://github.com/jetperch/pyqtgraph/tarball/c8548b3246d29ee84a1ef76ebf63a5bb0e39c917#egg=pyqtgraph-0.11.0.dev0',
         'requests>=2.0.0',
