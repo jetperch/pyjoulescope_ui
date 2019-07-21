@@ -4,6 +4,13 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.5.0-dev
+
+2019 Jul 15
+
+*   Fixed "Tools -> Clear Energy" not clearing energy on multimeter view.
+
+
 ## 0.4.6
 
 2019 Jul 15

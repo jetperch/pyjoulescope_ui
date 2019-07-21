@@ -386,12 +386,14 @@ class MainWindow(QtWidgets.QMainWindow):
         charge = statistics['accumulators']['charge']['value']
         self._charge[0] = charge
         charge -= self._charge[1]
+        statistics['accumulators']['charge']['value'] = charge
         charge_str = three_sig_figs(charge, statistics['accumulators']['charge']['units'])
         self.control_ui.energyValueLabel.setText(charge_str)
 
         energy = statistics['accumulators']['energy']['value']
         self._energy[0] = energy
         energy -= self._energy[1]
+        statistics['accumulators']['energy']['value'] = energy
         energy_str = three_sig_figs(energy, statistics['accumulators']['energy']['units'])
         self.control_ui.energyValueLabel.setText(energy_str)
 

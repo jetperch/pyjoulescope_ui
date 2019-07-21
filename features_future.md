@@ -121,3 +121,5 @@ will be implemented before Joulescope general availability.
     or even battery life.
 *   Save user-defined Views. Allow user to select saved views in addition to 
     Multimeter and Oscilloscope. Also allow user to set startup view preference.
+*   Add plug-in architecture for the UI with well-defined plug-in API.
+*   Energy display should have a context menu with a Clear option.
