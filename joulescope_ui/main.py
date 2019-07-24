@@ -702,11 +702,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self._source_indicator_set('')
 
     def _device_recover(self):
-        log.info('_device_recover')
+        log.info('_device_recover: start')
         devices, self._devices = self._devices, []
         for device in devices:
             self._device_remove(device)
         self._device_scan()
+        log.info('_device_recover: done')
 
     def _device_add(self, device):
         """Add device to the user interface"""
@@ -721,7 +722,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def _device_remove(self, device):
         """Remove the device from the user interface"""
-        log.info('_device_change remove %s', device)
+        log.info('_device_change remove')
         self.device_action_group.removeAction(device.ui_action)
         self.ui.menuDevice.removeAction(device.ui_action)
         if self._device == device:
@@ -731,8 +732,9 @@ class MainWindow(QtWidgets.QMainWindow):
     def _device_scan(self):
         """Scan for new physical Joulescope devices."""
         if self._is_scanning:
+            log.info('_device_scan already in progress')
             return
-        log.info('_device_scan')
+        log.info('_device_scan start')
         try:
             self._is_scanning = True
             physical_devices = [d for d in self._devices if hasattr(d, 'usb_device')]
@@ -751,6 +753,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 devices[0].ui_action.trigger()
         finally:
             self._is_scanning = False
+        log.info('_device_scan done')
 
     def _on_param_change(self, param_name, index=None, value=None):
         if param_name == 'i_range':
