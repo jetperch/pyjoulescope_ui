@@ -41,6 +41,7 @@ from joulescope_ui.logging_util import logging_config
 from joulescope_ui.oscilloscope.signal_statistics import si_format, html_format, three_sig_figs
 from joulescope_ui.exporter import Exporter
 from joulescope_ui import help_ui
+from joulescope_ui import firmware_manager
 import io
 import ctypes
 import traceback
@@ -142,8 +143,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self._status = {}
         self._status_row = 0
         self._data_view = None  # created when device is opened
-        self._charge = [0, 0]  # value, offset
-        self._energy = [0, 0]  # value, offset
+        self._charge = [0.0, 0.0]  # value, offset
+        self._energy = [0.0, 0.0]  # value, offset
         self._is_scanning = False
 
         if cfg_def is None:
@@ -328,11 +329,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self._exporter.sigFinished.connect(self.on_exporterFinished)
 
         self._device_close()
-        self.on_multimeterMenu(True)
+        self._multimeter_show()
         self._cfg_apply()
         log.debug('Qt show()')
         self.show()
         log.debug('Qt show() success')
+        self._multimeter_select_device()
         self._software_update_check()
 
     @QtCore.Slot()
@@ -437,9 +439,7 @@ class MainWindow(QtWidgets.QMainWindow):
         for widget in self._dock_widgets:
             widget.setFloating(False)
 
-    @QtCore.Slot(bool)
-    def on_multimeterMenu(self, checked):
-        log.info('on_multimeterMenu(%r)', checked)
+    def _multimeter_show(self):
         self.disable_floating()
         self.dev_dock_widget.setVisible(False)
         self.control_dock_widget.setVisible(False)
@@ -451,6 +451,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.adjustSize()
         self.center()
 
+    def _multimeter_select_device(self):
         if self._device is self._device_disable:
             self._device_scan()
         elif hasattr(self._device, 'is_streaming'):
@@ -460,6 +461,12 @@ class MainWindow(QtWidgets.QMainWindow):
             # close file reader and attempt to open Joulescope
             self._device_close()
             self._device_scan()
+
+    @QtCore.Slot(bool)
+    def on_multimeterMenu(self, checked):
+        log.info('on_multimeterMenu(%r)', checked)
+        self._multimeter_show()
+        self._multimeter_select_device()
 
     @QtCore.Slot(bool)
     def on_oscilloscopeMenu(self, checked):
@@ -589,6 +596,10 @@ class MainWindow(QtWidgets.QMainWindow):
             except:
                 log.exception('while opening device')
                 return self._device_open_failed('Could not open device')
+            try:
+                self._firmware_update()
+            except:
+                log.exception('firmware update failed')
             try:
                 if not self._device.ui_action.isChecked():
                     self._device.ui_action.setChecked(True)
@@ -729,6 +740,59 @@ class MainWindow(QtWidgets.QMainWindow):
             self._device_close()
         device.ui_action.triggered.disconnect()
 
+    def _bootloader_scan(self):
+        try:
+            bootloaders = joulescope.scan('bootloader')
+        except:
+            return
+        if not len(bootloaders):
+            return
+
+        log.info('Found %d Joulescope bootloaders', len(bootloaders))
+        data = firmware_manager.load()
+
+        if data is None:
+            # no firmware, just attempt to kick into existing application
+            for b in list(bootloaders):
+                try:
+                    b.open()
+                except:
+                    log.exception('while attempting to open bootloader')
+                    continue
+                try:
+                    b.go()
+                except:
+                    log.exception('while attempting to run the application')
+            return False
+
+        for b in list(bootloaders):
+            self.status('Programming firmware')
+            try:
+                b.open()
+            except:
+                log.exception('while attempting to open bootloader')
+                continue
+            try:
+                rc1 = b.firmware_program(data['data']['controller']['image'])
+                if rc1:
+                    log.warning('Controller firmware update failed: %s', rc1)
+                    self.status('FAILED on controller firmware update')
+                else:
+                    d = joulescope.bootloader_go(b)
+                    d.open()
+                    try:
+                        log.info('sensor_firmware_program')
+                        rc2 = d.sensor_firmware_program(data['data']['sensor']['image'])
+                        if rc2:
+                            log.warning('Sensor firmware update failed: %s', rc2)
+                            self.status('FAILED on sensor firmware update')
+                        else:
+                            self.status('Firmware updated successfully')
+                    finally:
+                        d.close()
+            except:
+                log.exception('while attempting to run the application')
+
     def _device_scan(self):
         """Scan for new physical Joulescope devices."""
         if self._is_scanning:
@@ -737,6 +801,7 @@ class MainWindow(QtWidgets.QMainWindow):
         log.info('_device_scan start')
         try:
             self._is_scanning = True
+            self._bootloader_scan()
             physical_devices = [d for d in self._devices if hasattr(d, 'usb_device')]
             virtual_devices = [d for d in self._devices if not hasattr(d, 'usb_device')]
             devices, added, removed = joulescope.scan_for_changes(name=self._device_scan_name, devices=physical_devices)
@@ -754,6 +819,62 @@ class MainWindow(QtWidgets.QMainWindow):
         finally:
             self._is_scanning = False
         log.info('_device_scan done')
+
+    def _firmware_update(self):
+        if not hasattr(self._device, 'parameters'):
+            return
+        info = self._device.info()
+        ver = None
+        ver_required = firmware_manager.version_required()
+        if info is not None:
+            ver = info.get('ctl', {}).get('fw', {}).get('ver', '0.0.0')
+            ver = tuple([int(x) for x in ver.split('.')])
+            if ver >= ver_required:
+                log.info('firmware is up to date: %s >= %s', ver, ver_required)
+                # return
+        log.info('firmware update required: %s < %s', ver, ver_required)
+        self.status('Firmware update required')
+        data = firmware_manager.load()
+        if data is None:
+            self.status('Firmware update required, but could not find firmware image')
+            return False
+
+        dialog = QtWidgets.QProgressDialog()
+        dialog.setCancelButton(None)
+        dialog.setWindowTitle('Joulescope')
+        dialog.setLabelText('Firmware update in progress\nDo not unplug or turn off power')
+        dialog.setRange(0, 1000)
+
+        def progress1(value):
+            dialog.setValue(int(value*250))
+
+        def progress2(value):
+            dialog.setValue(250 + int(value * 750))
+
+        dialog.open()
+        dialog.setValue(0)
+
+        self._is_scanning, is_scanning = True, self._is_scanning
+        try:
+            d, self._device = self._device, self._device_disable
+            log.info('controller_firmware_program')
+            rc1 = d.controller_firmware_program(data['data']['controller']['image'], progress1)
+            if rc1:
+                log.warning('Controller firmware update failed: %s', rc1)
+                self.status('FAILED on controller firmware update')
+            else:
+                log.info('sensor_firmware_program')
+                rc2 = d.sensor_firmware_program(data['data']['sensor']['image'], progress2)
+                if rc2:
+                    log.warning('Sensor firmware update failed: %s', rc2)
+                    self.status('FAILED on sensor firmware update')
+                else:
+                    self.status('Firmware updated successfully')
+        finally:
+            dialog.close()
+            self._device = d
+            self._is_scanning = is_scanning
+            # self.status_update_timer.start()
 
     def _on_param_change(self, param_name, index=None, value=None):
         if param_name == 'i_range':
@@ -1135,7 +1256,6 @@ def run(device_name=None, log_level=None, file_log_level=None):
             file_log_level = cfg['General']['log_level']
         logging_config(file_log_level=file_log_level,
                        stream_log_level=log_level)
-        joulescope.bootloaders_run_application()
 
     except Exception:
         log.exception('during initialization')

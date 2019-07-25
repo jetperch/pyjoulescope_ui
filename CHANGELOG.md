@@ -6,10 +6,18 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.5.0-dev
 
-2019 Jul 15
+2019 Jul 26
 
 *   Fixed energy not displaying in "Single Value Display".
 *   Fixed "Tools -> Clear Energy" not clearing energy on multimeter view.
+*   Added firmware update to 1.1.0.
+    *   Fixed negative voltage current range oscillation.
+    *   Improved USB enumeration and reliability issues (LPC silicon errata).
+    *   Improved autoranging to use device calibration for consistent behavior
+        across devices.
+    *   Eliminated switching glitches between current auto ranging and manual ranging
+*   Improved bootloader recovery handling.
+*   Added logical USB suspend/resume support to correctly resume streaming.
 
 
 ## 0.4.6
