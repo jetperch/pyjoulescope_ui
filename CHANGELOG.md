@@ -8,6 +8,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 2019 Jul 15
 
+*   Fixed energy not displaying in "Single Value Display".
 *   Fixed "Tools -> Clear Energy" not clearing energy on multimeter view.
 
 

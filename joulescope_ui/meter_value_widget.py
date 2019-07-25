@@ -213,7 +213,9 @@ class MeterValueWidget(QtWidgets.QWidget):
         energy, prefix, _ = unit_prefix(energy)
         units = f'{prefix}{self._units_short}'
         self.unitLabel.setText(f"<html>&nbsp;{units}&nbsp;</html>")
-        self.valueLabel.setText(('%+6f' % energy)[:8])
+        energy_str = ('%+6f' % energy)[:8]
+        self.valueLabel.setText(energy_str)
+        self.on_update.emit([energy_str, '0.0000', energy_str, energy_str, '0.0000'], units)
 
         charge_c, prefix_c, _ = unit_prefix(charge)
         self.stdName.setText(f"<html>&nbsp;{prefix_c}C&nbsp;</html>")
