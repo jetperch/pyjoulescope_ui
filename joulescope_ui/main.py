@@ -612,9 +612,11 @@ class MainWindow(QtWidgets.QMainWindow):
                 log.exception('while opening device')
                 return self._device_open_failed('Could not open device')
             try:
-                self._firmware_update()
+                self._firmware_update_on_open()
             except:
                 log.exception('firmware update failed')
+                self._device_close()
+                return
             try:
                 if hasattr(self._device, 'serial_number'):
                     self.setWindowTitle(str(self._device))
@@ -793,23 +795,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 log.exception('while attempting to open bootloader')
                 continue
             try:
-                rc1 = b.firmware_program(data['data']['controller']['image'])
-                if rc1:
-                    log.warning('Controller firmware update failed: %s', rc1)
-                    self.status('FAILED on controller firmware update')
-                else:
-                    d = joulescope.bootloader_go(b)
-                    d.open()
-                    try:
-                        log.info('sensor_firmware_program')
-                        rc2 = d.sensor_firmware_program(data['data']['sensor']['image'])
-                        if rc2:
-                            log.warning('Sensor firmware update failed: %s', rc2)
-                            self.status('FAILED on sensor firmware update')
-                        else:
-                            self.status('Firmware updated successfully')
-                    finally:
-                        d.close()
+                self._firmware_update(b)
             except:
                 log.exception('while attempting to run the application')
 
@@ -855,7 +841,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.on_progressMessage.disconnect()
         self._progress_dialog = None
 
-    def _firmware_update(self):
+    def _firmware_update_on_open(self):
         if not hasattr(self._device, 'parameters'):
             return
         firmware_update_cfg = self._cfg['Device']['firmware_update']
@@ -873,6 +859,12 @@ class MainWindow(QtWidgets.QMainWindow):
                 return
         log.info('firmware update required: %s < %s', ver, ver_required)
         self.status('Firmware update required')
+        self._device, d = None, self._device
+        self._firmware_update(d)
+        d.open()
+        self._device = d
+
+    def _firmware_update(self, device):
         data = firmware_manager.load()
         if data is None:
             self.status('Firmware update required, but could not find firmware image')
@@ -900,12 +892,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self._is_scanning, is_scanning = True, self._is_scanning
         try:
-            self._device, d = None, self._device
-            t = firmware_manager.upgrade(d, data, progress_cbk=progress_cbk, stage_cbk=stage_cbk, done_cbk=done_cbk)
+            t = firmware_manager.upgrade(device, data, progress_cbk=progress_cbk, stage_cbk=stage_cbk, done_cbk=done_cbk)
             dialog.exec()
             t.join()
-            d.open()
-            self._device = d
         finally:
             self._progress_dialog_finalize()
             self._is_scanning = is_scanning
