@@ -18,7 +18,13 @@ specpath = os.path.dirname(os.path.abspath(SPEC))
 PATHEX = []
 sys.path.insert(0, specpath)
 import joulescope_ui
+from joulescope_ui import firmware_manager
 VERSION_STR = joulescope_ui.VERSION.replace('.', '_')
+
+
+def firmware_get():
+    p = firmware_manager.cache_path()
+    return firmware_manager.cache_fill(p)
 
 
 def find_site_packages():
@@ -51,6 +57,7 @@ a = Analysis(['joulescope_ui/__main__.py'],
                  ('joulescope_ui/config_def.json5', 'joulescope_ui'),
                  ('joulescope_ui/getting_started.html', 'joulescope_ui'),
                  ('CREDITS.html', 'joulescope_ui'),
+                 (firmware_get(), 'joulescope_ui.firmware.js110'),
              ],
              hiddenimports=['secrets', 'numpy.core._dtype_ctypes'],
              hookspath=[],

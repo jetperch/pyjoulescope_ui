@@ -32,8 +32,8 @@ import site
 import shutil
 
 
-VERSION = '0.4.6'  # CHANGE THIS VERSION!
-JOULESCOPE_VERSION_MIN = '0.4.6'  # also update requirements.txt
+VERSION = '0.5.0'  # CHANGE THIS VERSION!
+JOULESCOPE_VERSION_MIN = '0.5.0'  # also update requirements.txt
 MYPATH = os.path.abspath(os.path.dirname(__file__))
 VERSION_PATH = os.path.join(MYPATH, 'joulescope_ui', 'version.py')
 

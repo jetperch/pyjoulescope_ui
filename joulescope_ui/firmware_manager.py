@@ -101,24 +101,33 @@ def _load(path):
     return index
 
 
+def cache_path(version=None):
+    if version is None:
+        version = VERSIONS['data']['production']
+    version_str = version.replace('.', '_')
+    filename = VERSIONS['data']['format'].format(version=version_str)
+
+    # Attempt local cache
+    path = os.path.join(FIRMWARE_PATH, filename)
+    return path
+
+
+def cache_fill(path):
+    # download to local cache
+    if not _download_from_distribution(path):
+        if not _download(path):
+            return None
+    return path
+
+
 def load(version=None):
     try:
-        if version is None:
-            version = VERSIONS['data']['production']
-        version_str = version.replace('.', '_')
-        filename = VERSIONS['data']['format'].format(version=version_str)
-
-        # Attempt local cache
-        path = os.path.join(FIRMWARE_PATH, filename)
+        path = cache_path(version)
         try:
             return _load(path)
         except:
             pass
-
-        # download to local cache
-        if not _download_from_distribution(path):
-            if not _download(path):
-                return None
+        cache_fill(path)
         return _load(path)
     except:
         log.exception('firmware_manager.load')
