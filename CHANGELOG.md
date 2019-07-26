@@ -17,7 +17,10 @@ This file contains the list of changes made to pyjoulescope_ui.
         across devices.
     *   Eliminated switching glitches between current auto ranging and manual ranging
 *   Improved bootloader recovery handling.
+*   Removed NaN injection that caused invalid multimeter displays.
 *   Added logical USB suspend/resume support to correctly resume streaming.
+*   Improved USB device robustness and error handling, particularly for macOS.
+*   Fixed multimeter view showing 0 current by forcing current autoranging.
 
 
 ## 0.4.6

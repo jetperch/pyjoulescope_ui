@@ -451,16 +451,20 @@ class MainWindow(QtWidgets.QMainWindow):
         self.adjustSize()
         self.center()
 
+    def _multimeter_configure_device(self):
+        if hasattr(self._device, 'is_streaming'):
+            if not self._device.is_streaming and self._cfg['Device']['autostream']:
+                self._device_stream(True)
+            self._on_param_change('i_range', value='auto')
+
     def _multimeter_select_device(self):
         if self._device is self._device_disable:
             self._device_scan()
-        elif hasattr(self._device, 'is_streaming'):
-            if not self._device.is_streaming and self._cfg['Device']['autostream']:
-                self._device_stream(True)
-        elif self._cfg['Device']['autostream']:
+        elif not hasattr(self._device, 'is_streaming') and self._cfg['Device']['autostream']:
             # close file reader and attempt to open Joulescope
             self._device_close()
             self._device_scan()
+        self._multimeter_configure_device()
 
     @QtCore.Slot(bool)
     def on_multimeterMenu(self, checked):
@@ -614,6 +618,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 log.exception('while initializing after open device')
                 return self._device_open_failed('Could not initialize device')
             self._developer_cfg_apply()
+            if self.dmm_dock_widget.isVisible() and not self.control_dock_widget.isVisible():
+                self._multimeter_configure_device()
 
     def _control_ui_disconnect(self):
         for combobox in [self.control_ui.iRangeComboBox, self.control_ui.vRangeComboBox]:
@@ -664,10 +670,8 @@ class MainWindow(QtWidgets.QMainWindow):
         if self._has_active_device:
             log.info('_device_cfg_apply')
             self._on_param_change('source', value=self._cfg['Device']['source'])
-            if self._cfg['Device'].get('i_range_update', True):
-                self._on_param_change('i_range', value=self._cfg['Device']['i_range'])
-            if self._cfg['Device'].get('v_range_update', True):
-                self._on_param_change('v_range', value=self._cfg['Device']['v_range'])
+            self._on_param_change('i_range', value=self._cfg['Device']['i_range'])
+            self._on_param_change('v_range', value=self._cfg['Device']['v_range'])
             if do_open and self._cfg['Device']['autostream']:
                 self._device_stream(True)
         rescan_interval = self._cfg['Device']['rescan_interval']
@@ -823,15 +827,19 @@ class MainWindow(QtWidgets.QMainWindow):
     def _firmware_update(self):
         if not hasattr(self._device, 'parameters'):
             return
+        firmware_update_cfg = self._cfg['Device']['firmware_update']
+        if firmware_update_cfg in ['off', 'never'] or not bool(firmware_update_cfg):
+            log.info('Skip firmware update: %s', firmware_update_cfg)
+            return
         info = self._device.info()
         ver = None
         ver_required = firmware_manager.version_required()
-        if info is not None:
+        if info is not None and firmware_update_cfg != 'always':
             ver = info.get('ctl', {}).get('fw', {}).get('ver', '0.0.0')
             ver = tuple([int(x) for x in ver.split('.')])
             if ver >= ver_required:
-                log.info('firmware is up to date: %s >= %s', ver, ver_required)
-                # return
+                log.info('controller firmware is up to date: %s >= %s', ver, ver_required)
+                return
         log.info('firmware update required: %s < %s', ver, ver_required)
         self.status('Firmware update required')
         data = firmware_manager.load()
@@ -904,6 +912,8 @@ class MainWindow(QtWidgets.QMainWindow):
         if combobox.currentIndex() != index:
             combobox.setCurrentIndex(index)
         log.info('param_name=%s, value=%s, index=%s', param_name, value, index)
+        if param_name in ['i_range', 'v_range', 'source']:
+            self._cfg['Device'][param_name] = value
         if hasattr(self._device, 'parameter_set'):
             try:
                 self._device.parameter_set(param_name, value)

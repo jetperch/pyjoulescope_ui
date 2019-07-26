@@ -139,6 +139,14 @@ enabling this feature automatically selects a device on Device->disable.',
           type: 'str',
           options: ['off', '1', '2', '5', '10', '20', '50'],
           default: 'off',
+        },
+
+        {
+          name: 'firmware_update',
+          brief: 'Firmware update settings.',
+          type: 'str',
+          options: ['never', 'auto', 'always'],
+          default: 'auto'
         }
 
       ]
