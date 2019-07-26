@@ -22,6 +22,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Improved USB device robustness and error handling, particularly for macOS.
 *   Fixed multimeter view showing 0 current by forcing current autoranging.
 *   Added optional JLS filename command line argument & Windows file association.
+*   Changed window title to match active source: device or file.
 
 
 ## 0.4.6

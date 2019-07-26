@@ -611,6 +611,10 @@ class MainWindow(QtWidgets.QMainWindow):
             except:
                 log.exception('firmware update failed')
             try:
+                if hasattr(self._device, 'serial_number'):
+                    self.setWindowTitle(str(self._device))
+                else:
+                    self.setWindowTitle('Joulescope')
                 if not self._device.ui_action.isChecked():
                     self._device.ui_action.setChecked(True)
                 self._param_init()
@@ -699,6 +703,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def _device_close(self):
         log.debug('_device_close')
+        self.setWindowTitle('Joulescope')
         device = self._device
         is_active_device = self._has_active_device
         self._device = self._device_disable
@@ -1098,6 +1103,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._device_open(device)
         self._update_data()
         self._source_indicator_set(' File ', tooltip=filename)
+        self.setWindowTitle('Joulescope: ' + os.path.basename(filename))
 
     def closeEvent(self, event):
         self._device_close()
