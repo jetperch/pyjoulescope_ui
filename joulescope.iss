@@ -30,6 +30,7 @@ LicenseFile=LICENSE.txt
 OutputDir=build_installer
 OutputBaseFilename=joulescope_setup_{#MyAppVersionUnderscores}
 SetupIconFile=joulescope_ui\resources\icon.ico
+ChangesAssociations=yes
 Compression=lzma
 SolidCompression=yes
 SignTool=signtool
@@ -54,3 +55,10 @@ Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: 
 
 [Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+
+[Registry]
+; https://stackoverflow.com/questions/26536030/file-association-in-inno-setup
+Root: HKCR; Subkey: ".jls";                             ValueData: "{#MyAppName}";          Flags: uninsdeletevalue; ValueType: string;  ValueName: ""
+Root: HKCR; Subkey: "{#MyAppName}";                     ValueData: "Program {#MyAppName}";  Flags: uninsdeletekey;   ValueType: string;  ValueName: ""
+Root: HKCR; Subkey: "{#MyAppName}\DefaultIcon";         ValueData: "{app}\{#MyAppExeName},0";                        ValueType: string;  ValueName: ""
+Root: HKCR; Subkey: "{#MyAppName}\shell\open\command";  ValueData: """{app}\{#MyAppExeName}"" ""%1""";               ValueType: string;  ValueName: ""

@@ -27,6 +27,10 @@ NAME = "ui"
 
 def parser_config(p):
     """Start the Joulescope graphical user interface"""
+    p.add_argument('filename',
+                   default=None,
+                   nargs='?',
+                   help='The optional filename to display immediately')
     p.add_argument('--device_name',
                    help='The device name to search [joulescope]')
     p.add_argument('--console_log_level', '--log_level',
@@ -41,4 +45,5 @@ def parser_config(p):
 def on_cmd(args):
     return run(device_name=args.device_name,
                log_level=args.console_log_level,
-               file_log_level=args.file_log_level)
+               file_log_level=args.file_log_level,
+               filename=args.filename)

@@ -21,6 +21,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added logical USB suspend/resume support to correctly resume streaming.
 *   Improved USB device robustness and error handling, particularly for macOS.
 *   Fixed multimeter view showing 0 current by forcing current autoranging.
+*   Added optional JLS filename command line argument & Windows file association.
 
 
 ## 0.4.6

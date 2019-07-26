@@ -197,7 +197,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._device_add(self._device_disable)
 
         # Other menu items
-        self.ui.actionOpen.triggered.connect(self.recording_open)
+        self.ui.actionOpen.triggered.connect(self.on_recording_open)
         self.ui.actionPreferences.triggered.connect(self.on_preferences)
         self.ui.actionExit.triggered.connect(self.close)
         self.ui.actionDeveloper.triggered.connect(self.on_developer)
@@ -329,13 +329,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self._exporter.sigFinished.connect(self.on_exporterFinished)
 
         self._device_close()
-        self._multimeter_show()
         self._cfg_apply()
+
+    def run(self, filename=None):
+        if filename is not None:
+            self.recording_open(filename)
+            self.on_oscilloscopeMenu(True)
+        else:
+            self._multimeter_show()
+            self._multimeter_select_device()
+        self._software_update_check()
         log.debug('Qt show()')
         self.show()
         log.debug('Qt show() success')
-        self._multimeter_select_device()
-        self._software_update_check()
 
     @QtCore.Slot()
     def on_statusUpdateTimer(self):
@@ -1071,12 +1077,17 @@ class MainWindow(QtWidgets.QMainWindow):
             return
         # todo
 
-    def recording_open(self):
+    def on_recording_open(self):
         filename, selected_filter = QtWidgets.QFileDialog.getOpenFileName(
             self, 'Open Joulescope Recording', self._path, 'Joulescope Data (*.jls)')
         filename = str(filename)
         if not len(filename) or not os.path.isfile(filename):
             self.status('Invalid filename, do not open')
+            return
+        self.recording_open(filename)
+
+    def recording_open(self, filename):
+        if filename is None:
             return
         self._device_close()
         log.info('open recording %s', filename)
@@ -1245,7 +1256,7 @@ class ErrorWindow(QtWidgets.QMainWindow):
         self.show()
 
             
-def run(device_name=None, log_level=None, file_log_level=None):
+def run(device_name=None, log_level=None, file_log_level=None, filename=None):
     """Run the Joulescope UI application.
 
     :param device_name: The optional Joulescope device name.  None (default)
@@ -1256,6 +1267,7 @@ def run(device_name=None, log_level=None, file_log_level=None):
     :param file_log_level: The logging level for the file log.
         The allowed levels are in :data:`joulescope_ui.logging_util.LEVELS`.
         None (default) uses the configuration value.
+    :param filename: The optional filename to display immediately.
 
     :return: 0 on success or error code on failure.
     """
@@ -1289,6 +1301,7 @@ def run(device_name=None, log_level=None, file_log_level=None):
     log.info('Start Qt')
     app = QtWidgets.QApplication(sys.argv)
     ui = MainWindow(app, device_name=device_name, cfg_def=cfg_def, cfg=cfg)
+    ui.run(filename)
     device_notify = DeviceNotify(ui.on_deviceNotifySignal.emit)
     rc = app.exec_()
     device_notify.close()
