@@ -13,13 +13,11 @@
 # limitations under the License.
 
 
-from zipfile import ZipFile
 import os
 from joulescope_ui.config import APP_PATH
-import monocypher
+from joulescope.firmware_manager import load as _load, upgrade, version_required, VERSIONS
 import binascii
 import pkgutil
-import json
 import requests
 import logging
 
@@ -35,20 +33,6 @@ URL_TIMEOUT = 30.0
 
 if not os.path.isdir(FIRMWARE_PATH):
     os.makedirs(FIRMWARE_PATH)
-
-
-VERSIONS = {
-    'namespace': 'joulescope',
-    'type': 'firmware-versions',
-    'version': 1,
-    'data': {
-        'format': 'js110_{version}.img',
-        # alpha
-        # beta
-        'production': '1.1.0',
-        'available': ['1.1.0']
-    }
-}
 
 
 def _download_from_distribution(path):
@@ -77,28 +61,6 @@ def _download(path):
         return True
     log.warning('Could not download firmware image: %s', url)
     return None
-
-
-def _load(path):
-    with ZipFile(path, mode='r') as f_zip:
-        with f_zip.open('index.json', 'r') as f:
-            index_bytes = f.read()
-        with f_zip.open('index.sig', 'r') as f:
-            index_sig = binascii.unhexlify(f.read())
-
-        if not monocypher.signature_check(index_sig, SIGNING_KEY_PUBLIC, index_bytes):
-            log.warning('integrity check failed: index.json')
-            return None
-
-        index = json.loads(index_bytes.decode('utf-8'))
-        for image in index['target']['images']:
-            with f_zip.open(index['data'][image]['image'], 'r') as f:
-                index['data'][image]['image'] = f.read()
-            sig = binascii.unhexlify(index['data'][image]['signature'])
-            if not monocypher.signature_check(sig, SIGNING_KEY_PUBLIC, index['data'][image]['image']):
-                log.warning('integrity check failed: %s' % (image, ))
-                return None
-    return index
 
 
 def cache_path(version=None):
@@ -132,9 +94,3 @@ def load(version=None):
     except:
         log.exception('firmware_manager.load')
         return None
-
-
-def version_required(release=None):
-    release = 'production' if release is None else str(release)
-    v = VERSIONS['data'][release]
-    return tuple([int(x) for x in v.split('.')])

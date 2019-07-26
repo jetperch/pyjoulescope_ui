@@ -127,6 +127,9 @@ class MainWindow(QtWidgets.QMainWindow):
     on_xChangeSignal = QtCore.Signal(str, object)
     on_softwareUpdateSignal = QtCore.Signal(str, str)
 
+    on_progressValue = QtCore.Signal(int)
+    on_progressMessage = QtCore.Signal(str)
+
     def __init__(self, app, device_name=None, cfg_def=None, cfg=None):
         self._app = app
         self._device_scan_name = 'joulescope' if device_name is None else str(device_name)
@@ -146,6 +149,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._charge = [0.0, 0.0]  # value, offset
         self._energy = [0.0, 0.0]  # value, offset
         self._is_scanning = False
+        self._progress_dialog = None
 
         if cfg_def is None:
             self._cfg_def = load_config_def()
@@ -337,11 +341,12 @@ class MainWindow(QtWidgets.QMainWindow):
             self.on_oscilloscopeMenu(True)
         else:
             self._multimeter_show()
-            self._multimeter_select_device()
         self._software_update_check()
         log.debug('Qt show()')
         self.show()
         log.debug('Qt show() success')
+        if filename is None:
+            self._multimeter_select_device()
 
     @QtCore.Slot()
     def on_statusUpdateTimer(self):
@@ -835,6 +840,21 @@ class MainWindow(QtWidgets.QMainWindow):
             self._is_scanning = False
         log.info('_device_scan done')
 
+    def _progress_dialog_construct(self):
+        dialog = QtWidgets.QProgressDialog()
+        dialog.setCancelButton(None)
+        dialog.setWindowTitle('Joulescope')
+        dialog.setLabelText('Firmware update in progress\nDo not unplug or turn off power')
+        dialog.setRange(0, 1000)
+        dialog.adjustSize()
+        self._progress_dialog = dialog
+        return dialog
+
+    def _progress_dialog_finalize(self):
+        self.on_progressValue.disconnect()
+        self.on_progressMessage.disconnect()
+        self._progress_dialog = None
+
     def _firmware_update(self):
         if not hasattr(self._device, 'parameters'):
             return
@@ -858,45 +878,36 @@ class MainWindow(QtWidgets.QMainWindow):
             self.status('Firmware update required, but could not find firmware image')
             return False
 
-        dialog = QtWidgets.QProgressDialog()
-        dialog.setCancelButton(None)
-        dialog.setWindowTitle('Joulescope')
-        dialog.setLabelText('Firmware update in progress\nDo not unplug or turn off power')
-        dialog.setRange(0, 1000)
-        dialog.adjustSize()
+        dialog = self._progress_dialog_construct()
+        progress = {
+            'stage': '',
+            'device': None,
+        }
 
-        def progress1(value):
-            f = value * 250
-            dialog.setValue(int(f))
-            self.status('Firmware upgrade: %.1f%%' % (f / 10))
+        self.on_progressValue.connect(dialog.setValue)
+        self.on_progressMessage.connect(self.status)
 
-        def progress2(value):
-            f = 250 + int(value * 750)
-            dialog.setValue(f)
-            self.status('Firmware upgrade: %.1f%%' % (f / 10))
+        def progress_cbk(value):
+            self.on_progressValue.emit(int(value * 1000))
+            self.on_progressMessage.emit('Firmware upgrade [%.1f%%] %s' % (value * 100, progress['stage']))
 
-        dialog.open()
-        dialog.setValue(0)
+        def stage_cbk(s):
+            progress['stage'] = s
+
+        def done_cbk(d):
+            progress['device'] = d
+            dialog.accept()
 
         self._is_scanning, is_scanning = True, self._is_scanning
         try:
-            d, self._device = self._device, self._device_disable
-            log.info('controller_firmware_program')
-            rc1 = d.controller_firmware_program(data['data']['controller']['image'], progress1)
-            if rc1:
-                log.warning('Controller firmware update failed: %s', rc1)
-                self.status('FAILED on controller firmware update')
-            else:
-                log.info('sensor_firmware_program')
-                rc2 = d.sensor_firmware_program(data['data']['sensor']['image'], progress2)
-                if rc2:
-                    log.warning('Sensor firmware update failed: %s', rc2)
-                    self.status('FAILED on sensor firmware update')
-                else:
-                    self.status('Firmware updated successfully')
-        finally:
-            dialog.close()
+            self._device, d = None, self._device
+            t = firmware_manager.upgrade(d, data, progress_cbk=progress_cbk, stage_cbk=stage_cbk, done_cbk=done_cbk)
+            dialog.exec()
+            t.join()
+            d.open()
             self._device = d
+        finally:
+            self._progress_dialog_finalize()
             self._is_scanning = is_scanning
             # self.status_update_timer.start()
 
