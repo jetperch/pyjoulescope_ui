@@ -863,12 +863,17 @@ class MainWindow(QtWidgets.QMainWindow):
         dialog.setWindowTitle('Joulescope')
         dialog.setLabelText('Firmware update in progress\nDo not unplug or turn off power')
         dialog.setRange(0, 1000)
+        dialog.adjustSize()
 
         def progress1(value):
-            dialog.setValue(int(value*250))
+            f = value * 250
+            dialog.setValue(int(f))
+            self.status('Firmware upgrade: %.1f%%' % (f / 10))
 
         def progress2(value):
-            dialog.setValue(250 + int(value * 750))
+            f = 250 + int(value * 750)
+            dialog.setValue(f)
+            self.status('Firmware upgrade: %.1f%%' % (f / 10))
 
         dialog.open()
         dialog.setValue(0)
