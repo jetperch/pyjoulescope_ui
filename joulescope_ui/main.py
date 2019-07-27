@@ -19,7 +19,7 @@ import os
 import sys
 from . import VERSION
 import joulescope
-from PySide2 import QtCore, QtWidgets
+from PySide2 import QtCore, QtGui, QtWidgets
 from joulescope_ui.developer_widget import Ui_DeveloperDockWidget
 from joulescope_ui.error_window import Ui_ErrorWindow
 from joulescope_ui.main_window import Ui_mainWindow
@@ -832,7 +832,8 @@ class MainWindow(QtWidgets.QMainWindow):
         dialog.setWindowTitle('Joulescope')
         dialog.setLabelText('Firmware update in progress\nDo not unplug or turn off power')
         dialog.setRange(0, 1000)
-        dialog.adjustSize()
+        width = QtGui.QFontMetrics(dialog.font()).width('Do not unplug or turn off power') + 100
+        dialog.resize(width, dialog.height())
         self._progress_dialog = dialog
         return dialog
 
@@ -888,6 +889,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         def done_cbk(d):
             progress['device'] = d
+            if d is None:
+                self.on_progressMessage.emit('Firmware upgrade failed - unplug and retry')
             dialog.accept()
 
         self._is_scanning, is_scanning = True, self._is_scanning
