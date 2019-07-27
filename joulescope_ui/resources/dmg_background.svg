@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="8in"
+   height="6in"
+   viewBox="0 0 203.2 152.39999"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.4 (5da689c313, 2019-01-14)"
+   sodipodi:docname="dmg_background.svg"
+   inkscape:export-filename="D:\repos\Jetperch\pyjoulescope_ui\joulescope_ui\resources\dmg_background@2x.png"
+   inkscape:export-xdpi="144"
+   inkscape:export-ydpi="144">
+  <title
+     id="title4518">Joulescope DMG</title>
+  <defs
+     id="defs2">
+    <marker
+       inkscape:stockid="Arrow2Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="marker5100"
+       style="overflow:visible;"
+       inkscape:isstock="true">
+      <path
+         id="path5098"
+         style="fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round;stroke:#000000;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+         transform="scale(1.1) rotate(180) translate(1,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow2Lend"
+       style="overflow:visible;"
+       inkscape:isstock="true">
+      <path
+         id="path4637"
+         style="fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round;stroke:#000000;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         d="M 8.7185878,4.0337352 L -2.2072895,0.016013256 L 8.7185884,-4.0017078 C 6.9730900,-1.6296469 6.9831476,1.6157441 8.7185878,4.0337352 z "
+         transform="scale(1.1) rotate(180) translate(1,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="marker5010"
+       style="overflow:visible;"
+       inkscape:isstock="true">
+      <path
+         id="path5008"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="marker4952"
+       style="overflow:visible;"
+       inkscape:isstock="true">
+      <path
+         id="path4950"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lstart"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Lstart"
+       style="overflow:visible"
+       inkscape:isstock="true">
+      <path
+         id="path4616"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         transform="scale(0.8) translate(12.5,0)" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow1Lend"
+       orient="auto"
+       refY="0.0"
+       refX="0.0"
+       id="Arrow1Lend"
+       style="overflow:visible;"
+       inkscape:isstock="true">
+      <path
+         id="path4619"
+         d="M 0.0,0.0 L 5.0,-5.0 L -12.5,0.0 L 5.0,5.0 L 0.0,0.0 z "
+         style="fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1;fill:#000000;fill-opacity:1"
+         transform="scale(0.8) rotate(180) translate(12.5,0)" />
+    </marker>
+  </defs>
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.4"
+     inkscape:cx="196.53708"
+     inkscape:cy="263.92192"
+     inkscape:document-units="in"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     units="in"
+     inkscape:window-width="2194"
+     inkscape:window-height="1171"
+     inkscape:window-x="2186"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     showguides="false">
+    <inkscape:grid
+       type="xygrid"
+       id="grid5198"
+       units="in"
+       spacingx="2.5399999"
+       spacingy="2.5399999" />
+  </sodipodi:namedview>
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>Joulescope DMG</dc:title>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>Jetperch LLC</dc:title>
+          </cc:Agent>
+        </dc:creator>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(0,-144.60002)">
+    <g
+       id="g4552"
+       transform="matrix(0.26458333,0,0,0.26458333,18.534064,155.48574)">
+	<g
+   id="g4542">
+		<path
+   id="path4522"
+   d="m 148,80.6 c -7.4,0 -13.3,-3 -17.8,-8.2 l 6.1,-9.1 c 3.7,3.9 7.7,5.8 10.7,5.8 3.3,0 5.3,-2 5.3,-5.9 V 39.9 h -17.5 v -11 h 30.9 v 34.5 c 0.1,10.9 -6.8,17.2 -17.7,17.2 z"
+   class="st0"
+   inkscape:connector-curvature="0"
+   style="fill:#001535" />
+
+		<path
+   id="path4524"
+   d="m 226.7,54.4 c 0,14.9 -11.8,26.2 -27.6,26.2 -15.8,0 -27.6,-11.2 -27.6,-26.2 0,-14.9 11.8,-25.9 27.6,-25.9 15.8,0.1 27.6,11.1 27.6,25.9 z m -41.5,0.1 c 0,8.3 6.5,14.7 14.1,14.7 7.6,0 13.8,-6.4 13.8,-14.7 0,-8.3 -6.1,-14.6 -13.8,-14.6 -7.7,0 -14.1,6.3 -14.1,14.6 z"
+   class="st0"
+   inkscape:connector-curvature="0"
+   style="fill:#001535" />
+
+		<path
+   id="path4526"
+   d="m 256.2,69.2 c 5.9,0 10,-4 10,-10.6 V 28.9 h 13.3 v 29.6 c 0,13.5 -9,22 -23.4,22 -14.4,0 -23.7,-8.5 -23.7,-22 V 28.9 h 13.3 v 29.6 c 0.1,6.6 4.5,10.7 10.5,10.7 z"
+   class="st0"
+   inkscape:connector-curvature="0"
+   style="fill:#001535" />
+
+		<path
+   id="path4528"
+   d="m 301.9,28.9 v 39.7 h 21.6 V 80 h -35 V 28.9 Z"
+   class="st0"
+   inkscape:connector-curvature="0"
+   style="fill:#001535" />
+
+		<path
+   id="path4530"
+   d="m 369.9,28.9 v 10.6 h -27 V 49 h 24.3 v 10.6 l -24.3,0.1 v 9.6 h 27.7 V 80 h -41 V 28.9 Z"
+   class="st0"
+   inkscape:connector-curvature="0"
+   style="fill:#001535" />
+
+		<path
+   id="path4532"
+   d="m 396.3,34.5 c -6.6,0 -10.9,2.6 -10.9,7 0,13.3 28.7,6.3 28.6,24.8 0,8.5 -7.5,13.9 -18.4,13.9 -7.4,0 -14.7,-3.2 -19.5,-7.8 l 2.6,-5 c 4.7,4.5 11.2,7.1 17,7.1 7.4,0 11.9,-3 11.9,-7.9 C 407.7,53 379,60.2 379,41.9 c 0,-8 7.1,-13.1 17.6,-13.1 5.9,0 11.9,1.9 16.2,4.7 l -2.5,5.2 c -4.5,-3 -9.9,-4.2 -14,-4.2 z"
+   class="st0"
+   inkscape:connector-curvature="0"
+   style="fill:#001535" />
+
+		<path
+   id="path4534"
+   d="m 447.9,34.2 c -11.5,0 -20.8,9 -20.8,20.3 0,11.2 9.3,20.3 20.8,20.3 5.6,0 11.1,-2.3 15.1,-6.1 l 3.6,3.9 c -5,4.7 -11.9,7.7 -18.9,7.7 -14.7,0 -26.4,-11.4 -26.4,-25.8 0,-14.3 11.8,-25.6 26.6,-25.6 7,0 13.8,2.8 18.6,7.4 l -3.5,4.2 c -4,-3.9 -9.5,-6.3 -15.1,-6.3 z"
+   class="st0"
+   inkscape:connector-curvature="0"
+   style="fill:#001535" />
+
+		<path
+   id="path4536"
+   d="m 524.4,54.5 c 0,14.4 -11.8,25.7 -26.7,25.7 -14.9,0 -26.7,-11.4 -26.7,-25.7 0,-14.4 11.8,-25.6 26.7,-25.6 14.9,-0.1 26.7,11.2 26.7,25.6 z m -47.5,0 c 0,11.3 9.5,20.4 20.8,20.4 11.4,0 20.7,-9.1 20.7,-20.4 0,-11.3 -9.3,-20.3 -20.7,-20.3 -11.4,0 -20.8,9 -20.8,20.3 z"
+   class="st0"
+   inkscape:connector-curvature="0"
+   style="fill:#001535" />
+
+		<path
+   id="path4538"
+   d="m 574,46.1 c 0,11.2 -7.3,17.7 -19.9,17.7 H 540.8 V 80 H 535 V 29 h 19.2 c 12.5,0 19.8,6.3 19.8,17.1 z m -5.6,0.2 c 0,-7.8 -5.3,-11.9 -14.5,-11.9 h -13.1 v 24 h 13.1 c 9.2,0 14.5,-4.1 14.5,-12.1 z"
+   class="st0"
+   inkscape:connector-curvature="0"
+   style="fill:#001535" />
+
+		<path
+   id="path4540"
+   d="m 618.3,29 v 5.4 h -28.8 v 17.1 h 25.7 v 5.3 h -25.7 v 17.8 h 29.7 V 80 H 583.7 V 29 Z"
+   class="st0"
+   inkscape:connector-curvature="0"
+   style="fill:#001535" />
+
+	</g>
+
+	<g
+   id="g4550">
+		<polygon
+   id="polygon4544"
+   points="75,99 61.2,99 61.2,46.8 8.8,46.8 8.8,33 66.1,33 75,41.9 "
+   class="st1"
+   style="fill:#046080" />
+
+		<polygon
+   id="polygon4546"
+   points="47,99 33.2,99 33.2,74.8 8.7,74.8 8.7,61 38.1,61 47,69.9 "
+   class="st0"
+   style="fill:#001535" />
+
+		<polygon
+   id="polygon4548"
+   points="8.9,18.8 89.2,18.8 89.2,99 103,99 103,11.9 103,5 8.9,5 "
+   class="st2"
+   style="fill:#02819e" />
+
+	</g>
+
+</g>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:7.05555534px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#001435;fill-opacity:1;stroke:none;stroke-width:0.26458332;"
+       x="21.456747"
+       y="199.98119"
+       id="text4580"><tspan
+         sodipodi:role="line"
+         x="21.456747"
+         y="199.98119"
+         style="stroke-width:0.26458332;fill:#001435;fill-opacity:1;"
+         id="tspan4586">Drag <tspan
+   style="font-weight:bold;fill:#001435;fill-opacity:1;"
+   id="tspan4582">joulescope</tspan> to the <tspan
+   style="font-weight:bold;fill:#001435;fill-opacity:1;"
+   id="tspan5196">Applications</tspan> folder</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:7.05555534px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#001435;fill-opacity:1;stroke:none;stroke-width:0.26458332;"
+       x="51.311943"
+       y="283.97498"
+       id="text4580-6"><tspan
+         sodipodi:role="line"
+         x="51.311943"
+         y="283.97498"
+         style="stroke-width:0.26458332;fill:#001435;fill-opacity:1;"
+         id="tspan4586-3">You may then eject this disk </tspan></text>
+    <path
+       style="fill:#08829f;stroke:#08829f;stroke-width:10;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;fill-opacity:1"
+       d="M 75.102738,237.09081 H 113.85682"
+       id="path5186"
+       inkscape:connector-curvature="0" />
+    <path
+       sodipodi:type="star"
+       style="fill:#08829f;fill-opacity:1;stroke:#08829f;stroke-width:0;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="path5194"
+       sodipodi:sides="3"
+       sodipodi:cx="110.33125"
+       sodipodi:cy="237.09081"
+       sodipodi:r1="14.814786"
+       sodipodi:r2="7.407393"
+       sodipodi:arg1="2.0943951"
+       sodipodi:arg2="3.1415927"
+       inkscape:flatsided="true"
+       inkscape:rounded="0"
+       inkscape:randomized="0"
+       d="m 102.92386,249.92079 0,-25.65997 22.22218,12.82999 z"
+       inkscape:transform-center-x="-3.7036951" />
+  </g>
+  <style
+     id="style4520"
+     type="text/css">
+	.st0{fill:#001535;}
+	.st1{fill:#046080;}
+	.st2{fill:#02819E;}
+</style>
+</svg>
