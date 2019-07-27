@@ -36,17 +36,16 @@ if not os.path.isdir(FIRMWARE_PATH):
 
 
 def _download_from_distribution(path):
-    package = 'joulescope_ui.firmware.js110'
     filename = os.path.basename(path)
     try:
-        bin_file = pkgutil.get_data(package, filename)
+        bin_file = pkgutil.get_data('joulescope_ui', 'firmware/js110/' + filename)
     except:
         return False
     if bin_file is not None:
         with open(path, 'wb') as f:
             f.write(bin_file)
         return True
-    log.info('Distribution does not contain firmware image: %s, %s', package, filename)
+    log.info('Distribution does not contain firmware image: %s', filename)
     return False
 
 
