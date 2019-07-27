@@ -100,9 +100,10 @@ if sys.platform.startswith('darwin'):
                  info_plist={
                      'CFBundleVersion': joulescope_ui.VERSION,
                  })
-    subprocess.run(['hdiutil', 'create', './dist/joulescope_%s.dmg' % VERSION_STR,
-                    '-srcfolder', './dist/joulescope.app', '-ov'],
-                    cwd=specpath)
+    # subprocess.run(['hdiutil', 'create', './dist/joulescope_%s.dmg' % VERSION_STR,
+    #                 '-srcfolder', './dist/joulescope.app', '-ov'],
+    #                 cwd=specpath)
+    subprocess.run(['appdmg', 'appdmg.json', 'dist/joulescope_%s.dmg' % VERSION_STR])
 elif sys.platform == 'win32':
     subprocess.run(['C:\Program Files (x86)\Inno Setup 5\ISCC.exe', 
                     'joulescope.iss'],
