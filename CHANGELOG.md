@@ -4,6 +4,13 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.5.1-dev
+
+2019 ??? ??
+
+*   Fixed show_min_max preferences change from off to lines.
+
+
 ## 0.5.0
 
 2019 Jul 26

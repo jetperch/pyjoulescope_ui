@@ -223,10 +223,8 @@ class Signal(QtCore.QObject):
             self._min_max_hide()
 
     def _min_max_hide(self):
-        self.curve_max.clear()
         self.curve_max.update()
         self.curve_max.hide()
-        self.curve_min.clear()
         self.curve_min.update()
         self.curve_min.hide()
         self.curve_range.hide()
