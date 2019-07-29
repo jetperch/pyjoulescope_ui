@@ -45,6 +45,7 @@ from joulescope_ui.plugin_manager import PluginManager
 from joulescope_ui.exporter import Exporter
 import io
 import ctypes
+import collections
 import traceback
 import webbrowser
 import logging
@@ -103,6 +104,19 @@ class ValueLabel(QtWidgets.QLabel):
         self.setText('%s=%-8.2f' % (self._text, value))
 
 
+def dict_update_recursive(tgt, src):
+    """Merge src into tgt, overwriting as needed.
+
+    :param tgt: The target dict.
+    :param src: the source dict.
+    """
+    for key, value in src.items():
+        if key in tgt and isinstance(tgt[key], dict) and isinstance(value, collections.Mapping):
+            dict_update_recursive(tgt[key], value)
+        else:
+            tgt[key] = value
+
+
 class DeviceDisable:
     def __init__(self):
         self.view = NullView()
@@ -151,7 +165,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self._energy = [0.0, 0.0]  # value, offset
         self._is_scanning = False
         self._progress_dialog = None
-        self._plugins = PluginManager()
 
         if cfg_def is None:
             self._cfg_def = load_config_def()
@@ -160,8 +173,9 @@ class MainWindow(QtWidgets.QMainWindow):
         if cfg is None:
             self._cfg = load_config(self._cfg_def)
         else:
-            self._cfg = cfg
+            self._cfg = cfg  # warning: shared mutable data, update only (no replace)
         self._path = self._cfg['General']['data_path']
+        self._plugins = PluginManager(self._cfg)
 
         super(MainWindow, self).__init__()
         self.ui = Ui_mainWindow()
@@ -1196,7 +1210,7 @@ class MainWindow(QtWidgets.QMainWindow):
             cfg['Device']['i_range_update'] = (self._cfg['Device']['i_range'] != cfg['Device']['i_range'])
             cfg['Device']['v_range_update'] = (self._cfg['Device']['v_range'] != cfg['Device']['v_range'])
 
-            self._cfg = cfg
+            dict_update_recursive(self._cfg, cfg)
             save_config(self._cfg)
             self._cfg_apply()
 

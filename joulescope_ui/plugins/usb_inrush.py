@@ -67,7 +67,12 @@ class UsbInrush:
             log.info('USBET returned %s\nSTDERR: %s\nSTDOUT: %s', rv.returncode, rv.stderr, rv.stdout)
 
 
-def register_plugin(api, app_config, plugin_config):
+def plugin_register(api):
+    """Register the USB Inrush plugin.
+
+    :param api: The :class:`PluginServiceAPI` instance.
+    :return: True on success any other value on failure.
+    """
     if not is_available():
         log.info('USBET20 tool not found - skip usb_inrush plugin')
         return False

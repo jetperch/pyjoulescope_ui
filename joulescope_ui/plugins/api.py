@@ -17,65 +17,99 @@
 A plugin must be a valid python module with definitions:
 * PLUGIN: A dict containing the plugin metadata, including any configuration
   options that are available to the user.
-* register_plugin: A function(PluginServiceAPI, app_config, plugin_config)
+* plugin_register: A function(PluginServiceAPI, app_config, plugin_config)
   that registers the module's functionality.
 
 The plugin module may contain other definitions and statements,
-but they are not used directly by the plugin API.
+but they are not used directly by the plugin API.  For a basic example,
+see the example_01.py file.
 """
 
 
-PLUGIN = {
-    'name': 'Plugin Name',
-    'description': 'User-meaningful plugin description',
-}
-
-
 class RangeToolInvocation:
+    """The object skeleton provided to RangeTool instances."""
 
     def __init__(self):
-        self.sample_count = None
-        self.sample_frequency = None
-        self.plugin_config = None
-        self.app_config = None
-        self.calibration = None
+        self.sample_count = None        #: The number of samples to process
+        self.sample_frequency = None    #: The sampling frequency in Hertz
+        self.app_config = None          #: The application configuration data structure
+        self.plugin_config = None       #: The plugin configuration data structure for this plugin.
+        self.calibration = None         #: The calibration information assoicated with the data.
 
-    def iterate(self, samples_per_iteration):
+    def iterate(self, samples_per_iteration=None):
+        """Return an iterable over the data.
+
+        :param samples_per_iteration: The number of samples to provide with
+            each iteration.  None (default) provides 1 second chunks.
+        """
         pass
 
     def progress(self, fraction):
+        """Manually update the progress bar.
+
+        :param fraction: The fraction complete from 0.0 (just starting) to
+            1.0 (done).
+
+        If using the provided iterable, the progress bar will be updated
+        automatically.
+        """
         pass
 
     def samples_get(self):
-        """Just get all the data which may run out of memory."""
+        """Get all the data.
+
+        If the user selects too much data, then this method will fail.
+        Whenever possible, prefer using the iterate method.
+        """
         pass
 
 
 class RangeTool:
+    """The object skeleton to be provided to range_tool_register()."""
 
     def run_pre(self, data: RangeToolInvocation):
+        """Optional method run before starting the processing thread.
+
+        :param data: The :class:`RangeToolInvocation` instance to process.
+        :return: None on success or error message.
+        """
         pass
 
     def run(self, data: RangeToolInvocation):
+        """Required method run in the processing thread.
+
+        :param data: The :class:`RangeToolInvocation` instance to process.
+        :return: None on success or error message.
+        """
         pass
 
     def run_post(self, data: RangeToolInvocation):
+        """Optional method run after completing the processing thread.
+
+        :param data: The :class:`RangeToolInvocation` instance to process.
+        :return: None on success or error message.
+        """
         pass
 
 
 class PluginServiceAPI:
+    """The API provided to each plugin's plugin_register() function.
+
+     :attr app_config: The application configuration dict struct.
+     :attr plugin_config: The plugin configuration dict struct.
+     """
 
     def range_tool_register(self, name, tool):
         """Add a data range tool.
 
         :param name: The name for the tool which can be hierarchical separated
             by ".".  For example, "Analysis.USB Inrush".
-        :param tool: The function() called when the user activates the tool. The
-            function must return an object compatible with :class:`RangeTool`.
-            Since the user can select an arbitrary range, the number of samples
-            and required memory can be very large.  The framework cannot
-            guarantee that all samples can fit into memory.  The
-            RangeToolInvocation.iterable() allows an convenient,
+        :param tool: The callable() to activate the tool. The callable must
+            return an object compatible with :class:`RangeTool`, so the
+            callable can be a class.  Since the user can select an arbitrary
+            range, the number of samples and required memory can be very large.
+            The framework cannot guarantee that all samples can fit into
+            memory.  The RangeToolInvocation.iterable() allows an convenient,
             memory-friendly access of the sample data.
         """
         raise NotImplementedError()

@@ -13,6 +13,9 @@
 # limitations under the License.
 
 from joulescope_ui.plugins import PLUGINS_BUILTIN
+import logging
+
+log = logging.getLogger(__name__)
 
 
 class RangeTool:
@@ -23,9 +26,11 @@ class RangeTool:
 
 
 class PluginImpl:
+    """The PluginServiceAPI for a specific """
 
-    def __init__(self, manager):
+    def __init__(self, manager, app_config):
         self._manager = manager
+        self.app_config = app_config
         self._undo = []
 
     def range_tool_register(self, name, fn):
@@ -35,13 +40,15 @@ class PluginImpl:
 
 
 class PluginManager:
+    """The Plugin Manager."""
 
-    def __init__(self):
+    def __init__(self, app_config):
+        self.app_config = app_config
         self.context = []
         self.range_tools = {}  # passed read-only to application, do not replace!
 
     def __enter__(self):
-        c = PluginImpl(self)
+        c = PluginImpl(self, self.app_config)
         self.context.append(c)
         return c
 
@@ -53,5 +60,7 @@ class PluginManager:
         for plugin in PLUGINS_BUILTIN:
             meta = plugin.PLUGIN
             with self as c:
-                plugin_config = app_config.get('plugins', {}).get(meta['name'], {})
-                plugin.register_plugin(c, app_config=app_config, plugin_config=plugin_config)
+                c.plugin_config = app_config.get('plugins', {}).get(meta['name'], {})
+                rv = plugin.plugin_register(c)
+                if rv is not True:
+                    log.warning('plugin "%s" failed to register', meta['name'])
