@@ -60,7 +60,7 @@ class XAxis(pg.AxisItem):
         for single markers and length 2 for dual markers.  
     """
 
-    def __init__(self):
+    def __init__(self, plugins=None):
         pg.AxisItem.__init__(self, orientation='top')
         self.menu = AxisMenu()
         self.menu.single_marker.triggered.connect(self.on_singleMarker)
@@ -69,6 +69,7 @@ class XAxis(pg.AxisItem):
         self._markers = {}
         self._proxy = None
         self._popup_menu_pos = None
+        self.plugins = plugins
 
     def marker_single_add(self, x):
         idx = 0
@@ -238,3 +239,4 @@ class XAxis(pg.AxisItem):
             vb.sigWheelZoomXEvent.emit(p.x(), event.delta())
         else:
             event.setAccepted(False)
+

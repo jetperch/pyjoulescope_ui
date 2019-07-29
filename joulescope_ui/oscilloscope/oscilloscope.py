@@ -53,17 +53,18 @@ class Oscilloscope(QtWidgets.QWidget):
     each marker. 
     """
 
-    sigExportDataRequest = QtCore.Signal(float, float)
-    """Indicate that the user has requested to export data.
+    sigRangeToolRequest = QtCore.Signal(str, float, float)
+    """Indicate that the user has requested a tool that operates over a time range.
 
+    :param name: The tool name to process.
     :param x_start: The starting position in x-axis units.
     :param x_stop: The stopping position in x-axis units.
 
-    Export is only triggered for dual markers.  Exporting data for a single
-    marker is not supported.
+    Range tools are only triggered for dual markers.  Tools for single
+    markers are not supported.
     """
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, plugins=None):
         QtWidgets.QWidget.__init__(self, parent=parent)
         self._x_limits = [0.0, 30.0]
 
@@ -91,7 +92,7 @@ class Oscilloscope(QtWidgets.QWidget):
         self._scrollbar.regionChange.connect(self.on_scrollbarRegionChange)
         self.win.addItem(self._scrollbar, row=0, col=1)
 
-        self._x_axis = XAxis()
+        self._x_axis = XAxis(plugins)
         self.win.addItem(self._x_axis, row=1, col=1)
         self._x_axis.setGrid(128)
         self.sigMarkerSingleAddRequest = self._x_axis.sigMarkerSingleAddRequest
@@ -239,8 +240,8 @@ class Oscilloscope(QtWidgets.QWidget):
         m2 = self._add_signals_to_marker(m2)
         m1.sigUpdateRequest.connect(self._on_marker_dual_update)
         m2.sigUpdateRequest.connect(self._on_marker_dual_update)
-        m1.sigExportDataRequest.connect(self.sigExportDataRequest.emit)
-        m2.sigExportDataRequest.connect(self.sigExportDataRequest.emit)
+        m1.sigRangeToolRequest.connect(self.sigRangeToolRequest.emit)
+        m2.sigRangeToolRequest.connect(self.sigRangeToolRequest.emit)
         self.sigMarkerDualUpdateRequest.emit(m1, m2)
         return m1, m2
 

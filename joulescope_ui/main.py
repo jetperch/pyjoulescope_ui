@@ -35,13 +35,14 @@ from joulescope.data_recorder import construct_record_filename
 from joulescope_ui.recording_viewer_device import RecordingViewerDevice
 from joulescope_ui.preferences import PreferencesDialog
 from joulescope_ui.config import load_config_def, load_config, save_config
-from joulescope_ui import usb_inrush
 from joulescope_ui.update_check import check as software_update_check
 from joulescope_ui.logging_util import logging_config
 from joulescope_ui.oscilloscope.signal_statistics import si_format, html_format, three_sig_figs
-from joulescope_ui.exporter import Exporter
+from joulescope_ui.range_tool import RangeToolInvoke
 from joulescope_ui import help_ui
 from joulescope_ui import firmware_manager
+from joulescope_ui.plugin_manager import PluginManager
+from joulescope_ui.exporter import Exporter
 import io
 import ctypes
 import traceback
@@ -150,6 +151,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._energy = [0.0, 0.0]  # value, offset
         self._is_scanning = False
         self._progress_dialog = None
+        self._plugins = PluginManager()
 
         if cfg_def is None:
             self._cfg_def = load_config_def()
@@ -234,7 +236,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Oscilloscope: current, voltage, power, GPI0, GPI1, i_range
         self.oscilloscope_dock_widget = QtWidgets.QDockWidget('Waveforms', self)
-        self.oscilloscope_widget = Oscilloscope(self.oscilloscope_dock_widget)
+        self.oscilloscope_widget = Oscilloscope(self.oscilloscope_dock_widget, plugins=self._plugins)
         self.oscilloscope_dock_widget.setVisible(False)
         self.oscilloscope_dock_widget.setWidget(self.oscilloscope_widget)
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.oscilloscope_dock_widget)
@@ -282,7 +284,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.oscilloscope_widget.sigMarkerDualAddRequest.connect(self.on_markerDualAddRequest)
         self.oscilloscope_widget.sigMarkerRemoveRequest.connect(self.on_markerRemoveRequest)
         self.oscilloscope_widget.sigMarkerDualUpdateRequest.connect(self.on_markerDualUpdateRequest)
-        self.oscilloscope_widget.sigExportDataRequest.connect(self.on_exportData)
+        self.oscilloscope_widget.sigRangeToolRequest.connect(self.on_rangeTool)
 
         # status update timer
         self.status_update_timer = QtCore.QTimer(self)
@@ -317,8 +319,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # tools
         self.ui.actionClearEnergy.triggered.connect(self._tool_clear_energy)
-        self.ui.actionUsbInrush.triggered.connect(self._tool_usb_inrush)
-        self.ui.actionUsbInrush.setEnabled(usb_inrush.is_available())
+        with self._plugins as p:
+            p.range_tool_register('Export data', Exporter)
+        self._plugins.builtin_register(app_config=self._cfg)
 
         self._dock_widgets = [
             self.dev_dock_widget,
@@ -328,9 +331,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.uart_dock_widget,
             self.oscilloscope_dock_widget,
         ]
-
-        self._exporter = Exporter(self)
-        self._exporter.sigFinished.connect(self.on_exporterFinished)
 
         self._device_close()
         self._cfg_apply()
@@ -528,11 +528,6 @@ class MainWindow(QtWidgets.QMainWindow):
         log.info('_tool_clear_energy: offset= %g J, offset=%g C', self._energy[0], self._charge[0])
         self._charge[1] = self._charge[0]
         self._energy[1] = self._energy[0]
-
-    def _tool_usb_inrush(self):
-        data = self._device.view.extract()
-        rv = usb_inrush.run(data, self._device.view.sampling_frequency)
-        self.status(f'USB inrush analysis completed: return code {rv}')
 
     def _source_indicator_set(self, text, color=None, tooltip=None):
         tooltip = '' if tooltip is None else str(tooltip)
@@ -1247,17 +1242,41 @@ class MainWindow(QtWidgets.QMainWindow):
             html = html_format(txt_result)
             m2.html_set(key, html)
 
-    @QtCore.Slot(float, float)
-    def on_exportData(self, x_start, x_stop):
-        self._exporter.export(self._device.view, x_start, x_stop, path_default=self._path)
+    @QtCore.Slot(str, float, float)
+    def on_rangeTool(self, name, x_start, x_stop):
+        range_tool = self._plugins.range_tools.get(name)
+        if range_tool is None:
+            self.status('Range tool not found')
+            return
+        plugin_config = self._cfg.get('plugins', {}).get(name, {})
+        invoke = RangeToolInvoke(self, range_tool, app_config=self._cfg, plugin_config=plugin_config)
+        invoke.sigFinished.connect(self.on_rangeToolFinished)
+        invoke.run(self._device.view, x_start, x_stop)
 
-    @QtCore.Slot(str)
-    def on_exporterFinished(self, msg):
+    @QtCore.Slot(object, str)
+    def on_rangeToolFinished(self, range_tool, msg):
         if msg:
             log.warning(msg)
             self.status(msg)
         else:
-            self.status('Export done')
+            self.status(range_tool.name + ' done')
+
+    def range_tool_menu_construct(self, menu=None):
+        instances = []  # hold on to QT objects
+        if menu is None:
+            menu = QtGui.QMenu()
+            menu.setToolTipsVisible(True)
+        export_data = QtGui.QAction('&Export data', self)
+        export_data.triggered.connect(self._range_tool_constructor('export'))
+        menu.addAction(export_data)
+        tools = self._axis().range_tools
+        for name, in tools.keys():
+            t = QtGui.QAction(name, self)
+            t.triggered.connect(self._analysis_menu_callback_constructor(name))
+            menu.addAction(t)
+            instances.append(t)
+        menu.instances = instances
+        return menu
 
 
 class ErrorWindow(QtWidgets.QMainWindow):

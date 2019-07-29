@@ -59,7 +59,6 @@
      <string>&amp;Tools</string>
     </property>
     <addaction name="actionClearEnergy"/>
-    <addaction name="actionUsbInrush"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuDevice"/>

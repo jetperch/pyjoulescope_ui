@@ -9,6 +9,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 2019 ??? ??
 
 *   Fixed show_min_max preferences change from off to lines.
+*   Added plugins and range_tool.  Refactored export & USB Inrush.
 
 
 ## 0.5.0
