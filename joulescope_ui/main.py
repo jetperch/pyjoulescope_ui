@@ -1312,6 +1312,7 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
     except:
         log.exception('while configuring high DPI scaling')
 
+    log.info('Arguments: %s', (sys.argv, ))
     log.info('Start Qt')
     app = QtWidgets.QApplication(sys.argv)
     ui = MainWindow(app, device_name=device_name, cfg_def=cfg_def, cfg=cfg)
