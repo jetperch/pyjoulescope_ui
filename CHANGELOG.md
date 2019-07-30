@@ -10,6 +10,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 *   Fixed show_min_max preferences change from off to lines.
 *   Use default config value on invalid value & log error (not throw).
+*   Added Device.on_close configurable behavior.
 
 
 ## 0.5.0
