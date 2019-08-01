@@ -12,6 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from . import usb_inrush
+from . import usb_inrush, histogram
 
-PLUGINS_BUILTIN = [usb_inrush]
+PLUGINS_BUILTIN = [
+    usb_inrush,
+    histogram
+    ]

@@ -117,7 +117,7 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
             progress = self._worker.sigProgress.emit
         else:
             progress = self.progress
-        return RangeToolIterable(self, samples_per_iteration, progress=progress)
+        return RangeToolIterable(self, int(samples_per_iteration), progress=progress)
 
     @QtCore.Slot(float)
     def progress(self, fraction):
