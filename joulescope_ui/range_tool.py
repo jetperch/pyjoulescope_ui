@@ -117,6 +117,7 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
             progress = self._worker.sigProgress.emit
         else:
             progress = self.progress
+        # Axel Jacobsen, AUG 1 added cast to int for samples_per_iteration to avoid floating point error on range
         return RangeToolIterable(self, int(samples_per_iteration), progress=progress)
 
     @QtCore.Slot(float)

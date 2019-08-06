@@ -133,7 +133,7 @@
      <widget class="QComboBox" name="normalization">
       <item>
        <property name="text">
-        <string extracomment="Integral over the histogram is 1; approximates the Probability Density Function of your distribution">density</string>
+        <string extracomment="No normalization">count</string>
        </property>
       </item>
       <item>
@@ -143,7 +143,7 @@
       </item>
       <item>
        <property name="text">
-        <string extracomment="No normalization">None</string>
+        <string extracomment="Integral over the histogram is 1; approximates the Probability Density Function of your distribution">density</string>
        </property>
       </item>
      </widget>
