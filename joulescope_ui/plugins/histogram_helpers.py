@@ -17,8 +17,7 @@ class histogram_helpers:
         _, data_chunk = data_enum.__next__()
 
         # bin edges must be consistent, therefore calculate this first chunk to enforce standard bin edges
-        hist, bin_edges = np.histogram(
-            data_chunk[signal]['value'], range=(minimum, maximum), bins=num_bins)
+        hist, bin_edges = np.histogram(data_chunk[signal]['value'], range=(minimum, maximum), bins=num_bins)
 
         for _, data_chunk in data_enum:
             hist += np.histogram(data_chunk[signal]['value'], bins=bin_edges)[0]
@@ -37,3 +36,17 @@ class histogram_helpers:
         else:
             raise RuntimeWarning(
                 '_normalize_hist invalid normalization; possible values are "density", "unity", or None')
+
+    @staticmethod
+    def cdf(data, signal):
+        hist, bin_edges = histogram_helpers.calculate_histogram(data, bins=0, signal=signal)
+        normed, bin_edges = histogram_helpers.normalize_hist(hist, bin_edges, norm='unity')
+        _cdf = np.zeros(len(normed))
+        for i, hist_val in enumerate(normed):
+            _cdf[i] = _cdf[i - 1] + hist_val
+        return _cdf, bin_edges
+
+    @staticmethod
+    def ccdf(data, signal):
+        _cdf, bin_edges = histogram_helpers.cdf(data, signal=signal)
+        return 1 - _cdf, bin_edges
