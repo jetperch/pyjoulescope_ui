@@ -3,9 +3,9 @@ import logging
 import numpy as np
 import pyqtgraph as pg
 from math import ceil
-from typing import Callable
-from joulescope_ui.histogram_config_widget import Ui_Dialog
 from PySide2 import QtWidgets, QtGui, QtCore
+from joulescope_ui.histogram_config_widget import Ui_Dialog
+from .histogram_helpers import histogram_helpers
 
 
 log = logging.getLogger(__name__)
@@ -44,8 +44,8 @@ class Histogram:
         signal = self._cfg['signal']
         num_bins = self._cfg['num_bins']
 
-        hist, bin_edges = self._calculate_histogram(data, num_bins, signal)
-        self.hist, _bin_edges = self._normalize_hist(hist, bin_edges, norm)
+        hist, bin_edges = histogram_helpers.calculate_histogram(data, num_bins, signal)
+        self.hist, _bin_edges = histogram_helpers.normalize_hist(hist, bin_edges, norm)
         self.bin_edges = _bin_edges[:-1]
 
     def run_post(self, data):
@@ -87,43 +87,6 @@ class Histogram:
 
         self.proxy = pg.SignalProxy(
             p.scene().sigMouseMoved, rateLimit=60, slot=mouseMoved)
-
-    def _calculate_histogram(self,
-                             data,
-                             bins: int,
-                             signal: str):
-
-        t0 = 0
-        t1 = data.sample_count / data.sample_frequency
-
-        stats = data.view.statistics_get(t0, t1)['signals'][signal]['statistics']
-        maximum, minimum = stats['max'], stats['min']
-        width = 3.5 * stats['σ'] / (data.sample_count)**(1. / 3)
-        num_bins = bins if bins > 0 else ceil((maximum - minimum) / width)
-
-        data_enum = enumerate(data)
-        _, data_chunk = data_enum.__next__()
-
-        # bin edges must be consistent, therefore calculate this first chunk to enforce standard bin edges
-        hist, bin_edges = np.histogram(
-            data_chunk[signal]['value'], range=(minimum, maximum), bins=num_bins)
-
-        for _, data_chunk in data_enum:
-            hist += np.histogram(data_chunk[signal]['value'], bins=bin_edges)[0]
-
-        return hist, bin_edges
-
-    def _normalize_hist(self, hist, bin_edges, norm: str = 'density'):
-        if norm == 'density':
-            db = np.array(np.diff(bin_edges), float)
-            return hist/db/hist.sum(), bin_edges
-        elif norm == 'unity':
-            return hist/hist.sum(), bin_edges
-        elif norm == 'count':
-            return hist, bin_edges
-        else:
-            raise RuntimeWarning(
-                '_normalize_hist invalid normalization; possible values are "density", "unity", or None')
 
     def _left_axis_label(self):
         if self._cfg['norm'] == 'density':
