@@ -119,7 +119,7 @@ class Histogram:
             return hist/db/hist.sum(), bin_edges
         elif norm == 'unity':
             return hist/hist.sum(), bin_edges
-        elif norm == 'None':
+        elif norm == 'count':
             return hist, bin_edges
         else:
             raise RuntimeWarning(
