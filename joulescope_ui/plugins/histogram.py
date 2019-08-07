@@ -40,7 +40,7 @@ class Histogram:
         self._cfg = rv
 
     def run(self, data):
-        norm = self._cfg['norm']
+        norm = _shorten_norm_name(self._cfg['norm'])
         signal = self._cfg['signal']
         num_bins = self._cfg['num_bins']
 
@@ -50,7 +50,7 @@ class Histogram:
 
     def run_post(self, data):
         if self.hist.size == 0 or self.bin_edges.size == 0:
-            log.error('Histogram is empty')
+            log.exception('Histogram is empty')
             return
 
         self.win = pg.GraphicsLayoutWidget(show=True)
@@ -64,7 +64,7 @@ class Histogram:
         p.addItem(bg)
         self.win.addItem(label, row=0, col=0)
 
-        p.setLabels(left=(self._left_axis_label()),
+        p.setLabels(left=(_left_axis_label(self._cfg['norm'])),
                     bottom=(self._cfg['signal']))
         p.setXRange(self.bin_edges[0], self.bin_edges[-1], padding=0.05)
         p.setYRange(np.nanmin(self.hist), np.nanmax(self.hist), padding=0.05)
@@ -77,8 +77,8 @@ class Histogram:
                 index = np.searchsorted(self.bin_edges, xval) - 1
                 if index >= 0 and index < len(self.bin_edges):
                     label.setText(
-                        "<span style='font-size: 12pt'>{}={:.5f}</span>,   <span style='color: yellow; font-size:12pt'>bin value: {:.5f}</span>".format(
-                            self._cfg['signal'], mousePoint.x(), self.hist[index])
+                        "<span style='font-size: 12pt'>{}={:.5f}</span>,   <span style='color: yellow; font-size:12pt'>{}: {:.5f}</span>".format(
+                            self._cfg['signal'], mousePoint.x(), _left_axis_label(self._cfg['norm']), self.hist[index])
                     )
                     brushes = [(128, 128, 128)] * len(self.bin_edges)
                     brushes[index] = (213, 224, 61)
@@ -87,14 +87,6 @@ class Histogram:
 
         self.proxy = pg.SignalProxy(
             p.scene().sigMouseMoved, rateLimit=60, slot=mouseMoved)
-
-    def _left_axis_label(self):
-        if self._cfg['norm'] == 'density':
-            return 'Probability Density'
-        elif self._cfg['norm'] == 'unity':
-            return 'Probability'
-        else:
-            return 'Sample Count'
 
 
 class HistogramDialog(QtWidgets.QDialog):
@@ -116,6 +108,29 @@ class HistogramDialog(QtWidgets.QDialog):
         else:
             return None
 
+
+def _shorten_norm_name(norm_name):
+    if norm_name == 'Probability Density Distribution':
+        return 'density'
+    elif norm_name == 'Discrete Probability Distribution':
+        return 'unity'
+    elif norm_name == 'Frequency Distribution':
+        return 'count'
+    else:
+        log.exception('Invalid normalization')
+        return
+
+
+def _left_axis_label(norm_name):
+        if norm_name == 'Probability Density Distribution':
+            return 'Probability Density'
+        elif norm_name == 'Discrete Probability Distribution':
+            return 'Probability'
+        elif norm_name == 'Frequency Distribution':
+            return 'Sample Count'
+        else:
+            log.exception('Invalid normalization')
+            return
 
 def plugin_register(api):
     """Register the example plugin.

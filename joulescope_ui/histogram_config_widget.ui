@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>259</width>
+    <width>368</width>
     <height>293</height>
    </rect>
   </property>
@@ -16,8 +16,8 @@
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>250</y>
+     <x>110</x>
+     <y>240</y>
      <width>161</width>
      <height>32</height>
     </rect>
@@ -34,7 +34,7 @@
     <rect>
      <x>30</x>
      <y>10</y>
-     <width>208</width>
+     <width>311</width>
      <height>231</height>
     </rect>
    </property>
@@ -125,7 +125,7 @@
     <item row="6" column="0">
      <widget class="QLabel" name="label_3">
       <property name="text">
-       <string>Normalization</string>
+       <string>Histogram Type</string>
       </property>
      </widget>
     </item>
@@ -133,17 +133,17 @@
      <widget class="QComboBox" name="normalization">
       <item>
        <property name="text">
-        <string extracomment="No normalization">count</string>
+        <string extracomment="No normalization">Frequency Distribution</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string extracomment="Sum over the histogram is 1">unity</string>
+        <string extracomment="Sum over the histogram is 1">Discrete Probability Distribution</string>
        </property>
       </item>
       <item>
        <property name="text">
-        <string extracomment="Integral over the histogram is 1; approximates the Probability Density Function of your distribution">density</string>
+        <string extracomment="Integral over the histogram is 1; approximates the Probability Density Function of your distribution">Probability Density Distribution</string>
        </property>
       </item>
      </widget>

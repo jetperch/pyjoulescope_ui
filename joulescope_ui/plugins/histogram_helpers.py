@@ -1,5 +1,8 @@
+import logging
 import numpy as np
 from math import ceil
+
+log = logging.getLogger(__name__)
 
 class histogram_helpers:
 
@@ -34,8 +37,9 @@ class histogram_helpers:
         elif norm == 'count':
             return hist, bin_edges
         else:
-            raise RuntimeWarning(
+            log.exception(
                 '_normalize_hist invalid normalization; possible values are "density", "unity", or None')
+            return
 
     @staticmethod
     def cdf(data, signal):
