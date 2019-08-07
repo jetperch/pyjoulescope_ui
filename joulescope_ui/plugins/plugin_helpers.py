@@ -4,7 +4,7 @@ from math import ceil
 
 log = logging.getLogger(__name__)
 
-class histogram_helpers:
+class plugin_helpers:
 
     @staticmethod
     def calculate_histogram(data, bins: int, signal: str):
@@ -43,8 +43,8 @@ class histogram_helpers:
 
     @staticmethod
     def cdf(data, signal):
-        hist, bin_edges = histogram_helpers.calculate_histogram(data, bins=0, signal=signal)
-        normed, bin_edges = histogram_helpers.normalize_hist(hist, bin_edges, norm='unity')
+        hist, bin_edges = plugin_helpers.calculate_histogram(data, bins=0, signal=signal)
+        normed, bin_edges = plugin_helpers.normalize_hist(hist, bin_edges, norm='unity')
         _cdf = np.zeros(len(normed))
         for i, hist_val in enumerate(normed):
             _cdf[i] = _cdf[i - 1] + hist_val
@@ -52,5 +52,5 @@ class histogram_helpers:
 
     @staticmethod
     def ccdf(data, signal):
-        _cdf, bin_edges = histogram_helpers.cdf(data, signal=signal)
+        _cdf, bin_edges = plugin_helpers.cdf(data, signal=signal)
         return 1 - _cdf, bin_edges

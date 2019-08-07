@@ -5,7 +5,7 @@ import pyqtgraph as pg
 from math import ceil
 from PySide2 import QtWidgets, QtGui, QtCore
 from joulescope_ui.cdf_config_widget import Ui_Dialog
-from .histogram_helpers import histogram_helpers
+from .plugin_helpers import plugin_helpers
 
 
 log = logging.getLogger(__name__)
@@ -42,7 +42,7 @@ class CCDF:
     def run(self, data):
         signal = self._cfg['signal']
 
-        self.hist, bin_edges = histogram_helpers.ccdf(data, signal)
+        self.hist, bin_edges = plugin_helpers.ccdf(data, signal)
         self.bin_edges = bin_edges[:-1]
 
     def run_post(self, data):
