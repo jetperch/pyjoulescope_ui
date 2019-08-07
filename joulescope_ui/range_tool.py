@@ -53,7 +53,7 @@ class RangeToolIterable:
         self._parent = parent
         self._x_start, self._x_stop = self._parent.sample_range
         self._x_next = self._x_start
-        self._samples_per_iteration = samples_per_iteration
+        self._samples_per_iteration = int(samples_per_iteration)
         self._progress = progress
 
     def __iter__(self):
@@ -117,8 +117,7 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
             progress = self._worker.sigProgress.emit
         else:
             progress = self.progress
-        # Axel Jacobsen, AUG 1 added cast to int for samples_per_iteration to avoid floating point error on range
-        return RangeToolIterable(self, int(samples_per_iteration), progress=progress)
+        return RangeToolIterable(self, samples_per_iteration, progress=progress)
 
     @QtCore.Slot(float)
     def progress(self, fraction):
