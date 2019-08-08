@@ -9,21 +9,11 @@ from .plugin_helpers import plugin_helpers
 
 
 log = logging.getLogger(__name__)
-CHUNK_SIZE = 65536
 
 PLUGIN = {
     'name': 'Cumulative Distribution Function',
     'description': 'Cumulative Distribution Function for current/voltage data',
 }
-
-_signal_index = {'current': 0, 'voltage': 1}
-
-
-def _get_signal_index(signal: str):
-    if signal not in _signal_index.keys():
-        raise RuntimeError(
-            'Invalid Signal Request; possible values: "voltage", "current"')
-    return _signal_index[signal]
 
 
 class CDF:
