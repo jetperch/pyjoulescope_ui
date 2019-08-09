@@ -48,8 +48,10 @@ class Histogram:
 
         label = pg.LabelItem(justify='right')
         width = self.bin_edges[1] - self.bin_edges[0]
+        brushes = [(128, 128, 128)] * len(self.bin_edges)
         bg = pg.BarGraphItem(
-            x0=self.bin_edges, height=self.hist, width=width)
+            x0=self.bin_edges, height=self.hist, width=width, brushes=brushes)
+        self.prev_hover_index = 0
 
         p.addItem(bg)
         self.win.addItem(label, row=0, col=0)
@@ -70,9 +72,9 @@ class Histogram:
                         "<span style='font-size: 12pt'>{}={:.5f}</span>,   <span style='color: yellow; font-size:12pt'>{}: {:.5f}</span>".format(
                             self._cfg['signal'], mousePoint.x(), _left_axis_label(self._cfg['norm']), self.hist[index])
                     )
-                    brushes = [(128, 128, 128)] * len(self.bin_edges)
-                    brushes[index] = (213, 224, 61)
-                    bg.opts['brushes'] = brushes
+                    bg.opts['brushes'][self.prev_hover_index] = (128, 128, 128)
+                    bg.opts['brushes'][index] = (213, 224, 61)
+                    self.prev_hover_index = index
                     bg.drawPicture()
 
         self.proxy = pg.SignalProxy(
