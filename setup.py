@@ -32,8 +32,8 @@ import site
 import shutil
 
 
-VERSION = '0.5.0'  # CHANGE THIS VERSION!
-JOULESCOPE_VERSION_MIN = '0.5.0'  # also update requirements.txt
+VERSION = '0.5.1'  # CHANGE THIS VERSION!
+JOULESCOPE_VERSION_MIN = '0.5.1'  # also update requirements.txt
 MYPATH = os.path.abspath(os.path.dirname(__file__))
 VERSION_PATH = os.path.join(MYPATH, 'joulescope_ui', 'version.py')
 
@@ -160,7 +160,7 @@ setuptools.setup(
     #
     # For a list of valid classifiers, see https://pypi.org/classifiers/
     classifiers=[  # Optional
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
 
         # Indicate who your project is intended for
         'Intended Audience :: End Users/Desktop',
