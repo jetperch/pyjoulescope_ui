@@ -1,11 +1,23 @@
-import time
+# Copyright 2019 Jetperch LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import logging
 import numpy as np
 import pyqtgraph as pg
-from math import ceil
-from PySide2 import QtWidgets, QtGui, QtCore
-from joulescope_ui.cdf_config_widget import Ui_Dialog
-from .plugin_helpers import plugin_helpers
+from PySide2 import QtWidgets
+from .cdf_config_widget import Ui_Dialog
+from . import plugin_helpers
 
 
 log = logging.getLogger(__name__)
@@ -40,8 +52,10 @@ class CCDF:
             log.error('CCDF data is empty')
             return
 
-        self.win = pg.GraphicsLayoutWidget(show=True)
+        self.win = pg.GraphicsLayoutWidget(show=True, title='CCDF')
         p = self.win.addPlot(row=1, col=0)
+        p.getAxis('left').setGrid(128)
+        p.getAxis('bottom').setGrid(128)
 
         label = pg.LabelItem(justify='right')
         bg = pg.PlotDataItem(x=self.bin_edges, y=self.hist, pen='r')
@@ -49,7 +63,7 @@ class CCDF:
         p.addItem(bg)
         self.win.addItem(label, row=0, col=0)
 
-        p.setLabels(left=('Probability'), bottom=(self._cfg['signal']))
+        p.setLabels(left='Probability', bottom=self._cfg['signal'])
         p.setXRange(self.bin_edges[0], self.bin_edges[-1], padding=0.05)
         p.setYRange(np.nanmin(self.hist), np.nanmax(self.hist), padding=0.05)
 

@@ -22,6 +22,9 @@ import logging
 log = logging.getLogger(__name__)
 
 
+SAMPLES_PER_ITERATION_DEFAULT_MIN = 1000
+
+
 class Worker(QtCore.QObject):
     sigProgress = QtCore.Signal(float)
     sigFinished = QtCore.Signal(str)
@@ -37,7 +40,7 @@ class Worker(QtCore.QObject):
 
     def run(self):
         try:
-            msg = self._invoker.range_tool_obj.run(self._invoker)
+            msg = self._invoker._range_tool_obj.run(self._invoker)
         except:
             log.exception('During range tool run()')
             msg = 'Error during range tool run()'
@@ -63,13 +66,18 @@ class RangeToolIterable:
         if self._x_next >= self._x_stop:
             self._progress(1.0)
             raise StopIteration()
-        if self._parent.cancel:
+        if self._parent._cancel:
             raise RuntimeError('')
         self._progress((self._x_next - self._x_start) / (self._x_stop - self._x_start))
         x_next = self._x_next + self._samples_per_iteration
         if x_next > self._x_stop:
             x_next = self._x_stop
-        data = self._parent.view.samples_get(self._x_start, x_next)
+        data = self._parent._view.samples_get(self._x_next, x_next)
+        if 'power' not in data:
+            data['power'] = {
+                'value': data['current']['value'] * data['voltage']['value'],
+                'units': 'W',
+            }
         self._x_next = x_next
         return data
 
@@ -80,20 +88,21 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
 
     def __init__(self, parent, range_tool, app_config, plugin_config):
         super().__init__(parent)
-        self.range_tool = range_tool
+        self._range_tool = range_tool
         self.app_config = app_config
         self.plugin_config = plugin_config
-        self.range_tool_obj = None
+        self._range_tool_obj = None
         self.sample_range = None
-        self.view = None
+        self._view = None
         self._worker = None
         self._thread = None
         self._progress = None
-        self.cancel = False
+        self._cancel = False
 
         self.sample_count = 0
         self.sample_frequency = 0
         self.calibration = None
+        self.statistics = None
         self._iterable = None
 
     def __iter__(self):
@@ -108,11 +117,16 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
             raise
 
     def samples_get(self):
-        return self.view.samples_get(*self.sample_range)
+        return self._view.samples_get(*self.sample_range)
 
     def iterate(self, samples_per_iteration=None):
         if samples_per_iteration is None or samples_per_iteration <= 0:
-            samples_per_iteration = self.sample_frequency
+            if self.sample_frequency < SAMPLES_PER_ITERATION_DEFAULT_MIN:
+                samples_per_iteration = SAMPLES_PER_ITERATION_DEFAULT_MIN
+            else:
+                samples_per_iteration = int(self.sample_frequency)
+        else:
+            samples_per_iteration = int(samples_per_iteration)
         if self._worker is not None:
             progress = self._worker.sigProgress.emit
         else:
@@ -124,15 +138,17 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
         if self._progress is not None:
             self._progress.setValue(int(fraction * 1000))
 
-    def run(self, view, x_start, x_stop):
+    def run(self, view, statistics, x_start, x_stop):
         """Export data request.
 
         :param view: The view implementation with TBD API.
+        :param statistics: The statistics (see :meth:`joulescope.driver.statistics_get`).
         :param x_start: The starting position in x-axis units.
         :param x_stop: The stopping position in x-axis units.
         """
+        self.statistics = statistics
         t1, t2 = min(x_start, x_stop), max(x_start, x_stop)
-        log.info('range_tool %s(%s, %s)', self.range_tool.name, t1, t2)
+        log.info('range_tool %s(%s, %s)', self._range_tool.name, t1, t2)
         s1 = view.time_to_sample_id(x_start)
         s2 = view.time_to_sample_id(x_stop)
         if s1 is None or s2 is None:
@@ -140,19 +156,22 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
         self.sample_range = (s1, s2)
         self.sample_count = s2 - s1
         self.sample_frequency = view.sampling_frequency
-        self.view = view
-        self.calibration = self.view.calibration
+        self._view = view
+        self.calibration = self._view.calibration
 
-        self.range_tool_obj = self.range_tool.fn()
+        self._range_tool_obj = self._range_tool.fn()
         try:
-            if hasattr(self.range_tool_obj, 'run_pre'):
-                self.range_tool_obj.run_pre(self)
+            if hasattr(self._range_tool_obj, 'run_pre'):
+                rc = self._range_tool_obj.run_pre(self)
+                if rc is not None:
+                    log.info('%s run_pre failed: %s', self._range_tool.name, rc)
+                    return
         except:
             log.exception('During range tool run_pre()')
             return
 
         self._thread = QtCore.QThread()
-        title = f'{self.range_tool.name} in progress...'
+        title = f'{self._range_tool.name} in progress...'
         self._progress = QtWidgets.QProgressDialog(title, 'Cancel', 0, 1000, self.parent())
         self._progress.setWindowModality(QtCore.Qt.WindowModal)
         self._worker = Worker(self)
@@ -166,7 +185,7 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
         self._progress.forceShow()
 
     def on_cancel(self):
-        self.cancel = True
+        self._cancel = True
 
     def on_finished(self, msg):
         self._thread.quit()
@@ -178,10 +197,10 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
         self._worker = None
 
         try:
-            if hasattr(self.range_tool_obj, 'run_post'):
-                self.range_tool_obj.run_post(self)
+            if hasattr(self._range_tool_obj, 'run_post'):
+                self._range_tool_obj.run_post(self)
         except:
             log.exception('During range tool run_post()')
             return
 
-        self.sigFinished.emit(self.range_tool, msg)
+        self.sigFinished.emit(self._range_tool, msg)

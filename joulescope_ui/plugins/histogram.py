@@ -1,11 +1,23 @@
-import time
+# Copyright 2019 Jetperch LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import logging
 import numpy as np
 import pyqtgraph as pg
-from math import ceil
-from PySide2 import QtWidgets, QtGui, QtCore
-from joulescope_ui.histogram_config_widget import Ui_Dialog
-from .plugin_helpers import plugin_helpers
+from PySide2 import QtWidgets
+from .histogram_config_widget import Ui_Dialog
+from . import plugin_helpers
 
 
 log = logging.getLogger(__name__)
@@ -13,6 +25,13 @@ log = logging.getLogger(__name__)
 PLUGIN = {
     'name': 'Histogram',
     'description': 'Histogram for current/voltage data',
+}
+
+
+_NORMALIZATIONS = {
+    'Frequency Distribution': ('count', 'Sample Count'),
+    'Discrete Probability Distribution': ('unity', 'Probability'),
+    'Probability Density Distribution': ('density', 'Probability Density'),
 }
 
 
@@ -30,7 +49,7 @@ class Histogram:
         self._cfg = rv
 
     def run(self, data):
-        norm = _shorten_norm_name(self._cfg['norm'])
+        norm = _NORMALIZATIONS[self._cfg['norm']][0]
         signal = self._cfg['signal']
         num_bins = self._cfg['num_bins']
 
@@ -43,8 +62,10 @@ class Histogram:
             log.exception('Histogram is empty')
             return
 
-        self.win = pg.GraphicsLayoutWidget(show=True)
+        self.win = pg.GraphicsLayoutWidget(show=True, title='Histogram')
         p = self.win.addPlot(row=1, col=0)
+        p.getAxis('left').setGrid(128)
+        p.getAxis('bottom').setGrid(128)
 
         label = pg.LabelItem(justify='right')
         width = self.bin_edges[1] - self.bin_edges[0]
@@ -56,8 +77,8 @@ class Histogram:
         p.addItem(bg)
         self.win.addItem(label, row=0, col=0)
 
-        p.setLabels(left=(_left_axis_label(self._cfg['norm'])),
-                    bottom=(self._cfg['signal']))
+        left_axis_label = _NORMALIZATIONS[self._cfg['norm']][1]
+        p.setLabels(left=left_axis_label, bottom=self._cfg['signal'])
         p.setXRange(self.bin_edges[0], self.bin_edges[-1], padding=0.05)
         p.setYRange(np.nanmin(self.hist), np.nanmax(self.hist), padding=0.05)
 
@@ -70,7 +91,7 @@ class Histogram:
                 if index >= 0 and index < len(self.bin_edges):
                     label.setText(
                         "<span style='font-size: 12pt'>{}={:.5f}</span>,   <span style='color: yellow; font-size:12pt'>{}: {:.5f}</span>".format(
-                            self._cfg['signal'], mousePoint.x(), _left_axis_label(self._cfg['norm']), self.hist[index])
+                            self._cfg['signal'], mousePoint.x(), left_axis_label, self.hist[index])
                     )
                     bg.opts['brushes'][self.prev_hover_index] = (128, 128, 128)
                     bg.opts['brushes'][index] = (213, 224, 61)
@@ -86,6 +107,11 @@ class HistogramDialog(QtWidgets.QDialog):
         QtWidgets.QDialog.__init__(self)
         self.ui = Ui_Dialog()
         self.ui.setupUi(self)
+        self.ui.signal.addItem("current")
+        self.ui.signal.addItem("voltage")
+        self.ui.signal.addItem("power")
+        for name in _NORMALIZATIONS.keys():
+            self.ui.normalization.addItem(name)
 
     def exec_(self):
         if QtWidgets.QDialog.exec_(self) == 1:
@@ -100,29 +126,6 @@ class HistogramDialog(QtWidgets.QDialog):
         else:
             return None
 
-
-def _shorten_norm_name(norm_name):
-    if norm_name == 'Probability Density Distribution':
-        return 'density'
-    elif norm_name == 'Discrete Probability Distribution':
-        return 'unity'
-    elif norm_name == 'Frequency Distribution':
-        return 'count'
-    else:
-        log.exception('Invalid normalization')
-        return
-
-
-def _left_axis_label(norm_name):
-        if norm_name == 'Probability Density Distribution':
-            return 'Probability Density'
-        elif norm_name == 'Discrete Probability Distribution':
-            return 'Probability'
-        elif norm_name == 'Frequency Distribution':
-            return 'Sample Count'
-        else:
-            log.exception('Invalid normalization')
-            return
 
 def plugin_register(api):
     """Register the example plugin.
