@@ -171,7 +171,7 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self._cfg_def = cfg_def
         if cfg is None:
-            self._cfg = load_config(self._cfg_def)
+            self._cfg = load_config(self._cfg_def, default_on_error=True)
         else:
             self._cfg = cfg  # warning: shared mutable data, update only (no replace)
         self._path = self._cfg['General']['data_path']
@@ -730,6 +730,19 @@ class MainWindow(QtWidgets.QMainWindow):
             except:
                 log.warning('Could not disconnect device.view.on_x_change')
         if device:
+            on_close = self._cfg['Device']['on_close']
+            try:
+                if hasattr(device, 'status'):
+                    if on_close == 'sensor_off':
+                        device.parameter_set('sensor_power', 'off')
+                    elif on_close == 'current_off':
+                        device.parameter_set('i_range', 'off')
+                    elif on_close == 'current_auto':
+                        device.parameter_set('i_range', 'auto')
+                    else:  # keep
+                        pass
+            except:
+                log.warning('could not set Device.on_close behavior %s', on_close)
             device.close()
         if is_active_device and device.ui_action.isChecked():
             device.ui_action.setChecked(False)
@@ -1321,7 +1334,7 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
     """
     try:
         cfg_def = load_config_def()
-        cfg = load_config(cfg_def)
+        cfg = load_config(cfg_def, default_on_error=True)
         if file_log_level is None:
             file_log_level = cfg['General']['log_level']
         logging_config(file_log_level=file_log_level,

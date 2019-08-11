@@ -66,6 +66,12 @@ class TestConfig(unittest.TestCase):
         with self.assertRaises(ValueError):
             c = load_config(d, f)
 
+    def test_load_bad_option_use_default(self):
+        d = load_def()
+        f = io.BytesIO("""{'Device': {'i_range': '__invalid__'}}""".encode('utf-8'))
+        c = load_config(d, f, default_on_error=True)
+        self.assertEqual('auto', c['Device']['i_range'])
+
     def test_load_default(self):
         d = load_def()
         f = io.BytesIO("""{'Device': {}}""".encode('utf-8'))

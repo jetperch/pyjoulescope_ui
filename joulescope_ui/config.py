@@ -52,7 +52,7 @@ def _substitute(entry, value):
     return value
 
 
-def validate(config_def, cfg, path=None):
+def validate(config_def, cfg, path=None, default_on_error=None):
     """Validate that the configuration is valid.
 
     :param config_def: The configuration definition data structure.
@@ -60,6 +60,8 @@ def validate(config_def, cfg, path=None):
     :param cfg: The configuration to validate against the config_def.
     :param path: The path used recursively by this function.
         This value should not be provided by the initial caller.
+    :param default_on_error: When true, presume the default value on
+        validation errors.
     :return: True on validate success, False on failure.
     """
     path = '' if path is None else str(path)
@@ -75,11 +77,11 @@ def validate(config_def, cfg, path=None):
             if key in cfg:
                 v = cfg[key]
                 if isinstance(v, collections.abc.Mapping):
-                    y[key] = validate(entry['children'], v)
+                    y[key] = validate(entry['children'], v, default_on_error=default_on_error)
                 else:
                     raise ValueError('%s should be map' % (p, ))
             else:
-                y[key] = validate(entry['children'], {})
+                y[key] = validate(entry['children'], {}, default_on_error=default_on_error)
         else:
             v = cfg.get(key, entry.get('default'))
             if v is not None:
@@ -92,7 +94,12 @@ def validate(config_def, cfg, path=None):
                                 raise ValueError('Invalid configuration: duplicate key %s' % (e, ))
                             values[e] = n
                     if v not in values:
-                        raise ValueError('%s: Value "%s" not in %s' % (p, v, values))
+                        if bool(default_on_error):
+                            d = entry.get('default')
+                            log.warning('%s: Value "%s" invalid, use default "%s"', p, v, d)
+                            v = d
+                        else:
+                            raise ValueError('%s: Value "%s" not in %s' % (p, v, values))
                     v = values[v]
                 y[key] = _substitute(entry, v)
         if key in k2:
@@ -172,7 +179,7 @@ def load_config_def(path: str=None):
     return d
 
 
-def load_config(config_def, path=None):
+def load_config(config_def, path=None, default_on_error=None):
     """Load the configuration.
 
     :param config_def: The configuration definition used to validate the
@@ -180,6 +187,8 @@ def load_config(config_def, path=None):
         See config_def.json5 for the data structure format.
     :param path: The full path to the configuration definition.
         None (default) uses the platform-dependent path.
+    :param default_on_error: When true, presume the default value on
+        validation errors.
     :return: The loaded configuration which consists of a two level dictionary
         that mirrors the configuration definition. (key -> key -> value).
     """
@@ -194,7 +203,7 @@ def load_config(config_def, path=None):
         log.info('Load configuration file: %s', path)
         with open(path, 'r') as f:
             cfg = json5.load(f)
-    y = validate(config_def, cfg)
+    y = validate(config_def, cfg, default_on_error=default_on_error)
     return y
 
 
