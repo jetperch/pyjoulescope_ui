@@ -22,21 +22,19 @@ import logging
 log = logging.getLogger(__name__)
 
 
-class Worker(QtCore.QObject):
-    sigProgress = QtCore.Signal(int)  # 0 to 1000
-    sigFinished = QtCore.Signal(str)
+class Exporter:
 
-    def __init__(self, view, cfg):
-        super().__init__()
-        self._view = view
-        self._cfg = cfg
-        self._stop = False
+    def __init__(self):
+        self._cfg = None
 
-    @QtCore.Slot()
-    def stop(self):
-        self._stop = True
+    def run_pre(self, data):  # RangeToolInvocation
+        path = data.app_config['General']['data_path']
+        rv = ExportDialog(path).exec_()
+        if rv is None:
+            return 'Cancelled'
+        self._cfg = rv
 
-    def run(self):
+    def run(self, data):  # RangeToolInvocation
         registry = {
             'bin': self._export_bin,
             'csv': self._export_csv,
@@ -45,164 +43,57 @@ class Worker(QtCore.QObject):
         filetype = self._cfg['filetype']
         fn = registry.get(filetype)
         if fn is None:
-            msg = f'Invalid export file type: {filetype}'
-            log.warning(msg)
-            self.sigFinished.emit(msg)
-        else:
-            try:
-                msg = fn()
-                if msg is None and self._stop:
-                    msg = 'Export aborted'
-                self.sigFinished.emit(msg)
-            except:
-                log.exception('while exporting')
-                self.sigFinished.emit('Export failed: internal exception')
+            return f'Invalid export file type: {filetype}'
+        return fn(data)
 
-    def _export_bin(self):
-        view = self._view
+    def _export_bin(self, data):
         cfg = self._cfg
-        sampling_frequency = view.sampling_frequency
-        sample_step_size = int(sampling_frequency)
-        idx_start = cfg['sample_id_start']
-        idx_stop = cfg['sample_id_stop']
-        idx_range = idx_stop - idx_start
-        idx = idx_start
-        self.sigProgress.emit(0)
         with open(cfg['filename'], 'wb') as f:
             if cfg.get('add_header'):
                 f.write('#time (s),current (A),voltage (V)\n')
-            while not self._stop and idx < idx_stop:
-                idx_next = idx + sample_step_size
-                if idx_next > idx_stop:
-                    idx_next = idx_stop
-                data = view.samples_get(idx, idx_next)
-                current = data['current']['value'].reshape((-1, 1))
-                voltage = data['voltage']['value'].reshape((-1, 1))
+            for block in data:
+                current = block['current']['value'].reshape((-1, 1))
+                voltage = block['voltage']['value'].reshape((-1, 1))
                 values = np.hstack((current, voltage))
                 f.write(values.tobytes())
-                idx = idx_next
-                self.sigProgress.emit(int(1000 * (idx - idx_start) / idx_range))
 
-    def _export_csv(self):
-        view = self._view
+    def _export_csv(self, data):
         cfg = self._cfg
-        sampling_frequency = view.sampling_frequency
+        sampling_frequency = data.sample_frequency
         sampling_period = 1.0 / sampling_frequency
-        idx_start = cfg['sample_id_start']
-        idx_stop = cfg['sample_id_stop']
-        idx_range = idx_stop - idx_start
-        idx = idx_start
-        self.sigProgress.emit(0)
+        time_offset = 0.0
         with open(cfg['filename'], 'wt') as f:
             if cfg.get('add_header'):
                 f.write('#time (s),current (A),voltage (V)\n')
-            while not self._stop and idx < idx_stop:
-                log.debug('export_csv iteration')
-                idx_next = idx + int(view.sampling_frequency / 10)
-                if idx_next > idx_stop:
-                    idx_next = idx_stop
-                data = view.samples_get(idx, idx_next)
-                current = data['current']['value'].reshape((-1, 1))
-                voltage = data['voltage']['value'].reshape((-1, 1))
+            for block in data.iterate(sampling_frequency):
+                current = block['current']['value'].reshape((-1, 1))
+                voltage = block['voltage']['value'].reshape((-1, 1))
                 x = np.arange(len(current), dtype=np.float64).reshape((-1, 1))
                 x *= sampling_period
-                x += (idx - idx_start) * sampling_period
+                x += time_offset
+                time_offset += 1.0
                 values = np.hstack((x, current, voltage))
-                log.debug('export_csv savetxt start')
                 np.savetxt(f, values, ['%.7f', '%.4e', '%.4f'], delimiter=',')
-                log.debug('export_csv savetxt done')
-                idx = idx_next
-                self.sigProgress.emit(int(1000 * (idx - idx_start) / idx_range))
 
-    def _export_jls(self):
-        view = self._view
+    def _export_jls(self, data):
         cfg = self._cfg
-        sampling_frequency = view.sampling_frequency
+        sampling_frequency = data.sample_frequency
         sample_step_size = sampling_frequency
         stream_buffer = StreamBuffer(sampling_frequency * 2, [])
         data_recorder = DataRecorder(
             cfg['filename'],
-            calibration=view.calibration.data,
+            calibration=data.calibration.data,
             sampling_frequency=sampling_frequency)
         data_recorder.process(stream_buffer)
 
         try:
-            idx_start = cfg['sample_id_start']
-            idx_stop = cfg['sample_id_stop']
-            idx_range = idx_stop - idx_start
-            idx = idx_start
-            self.sigProgress.emit(0)
-            while not self._stop and idx < idx_stop:
+            for block in data:
                 log.info('export_jls iteration')
-                idx_next = idx + sample_step_size
-                if idx_next > idx_stop:
-                    idx_next = idx_stop
-                data = view.raw_get(idx, idx_next)
-                log.info('export_jls (%d, %d) -> %d', idx, idx_next, len(data))
-                stream_buffer.insert_raw(data)
+                stream_buffer.insert_raw(block['raw']['value'])
                 stream_buffer.process()
                 data_recorder.process(stream_buffer)
-                idx = idx_next
-                self.sigProgress.emit(int(1000 * (idx - idx_start) / idx_range))
         finally:
             data_recorder.close()
-
-
-class Exporter(QtCore.QObject):
-
-    sigFinished = QtCore.Signal(str)
-
-    def __init__(self, parent):
-        super().__init__(parent)
-        self._worker = None
-        self._thread = None
-        self._progress = None
-
-    def export(self, view, x_start, x_stop, path_default=None):
-        """Export data request.
-
-        :param view: The view implementation with TBD API.
-        :param x_start: The starting position in x-axis units.
-        :param x_stop: The stopping position in x-axis units.
-        :param path_default: The default path.  None (default)
-            uses the current directory.
-        """
-        if self._thread is not None:
-            self.sigFinished.emit('busy')
-        self._thread = QtCore.QThread()
-        t1, t2 = min(x_start, x_stop), max(x_start, x_stop)
-        log.info('exportData(%s, %s)', t1, t2)
-        s1 = view.time_to_sample_id(x_start)
-        s2 = view.time_to_sample_id(x_stop)
-        if s1 is None or s2 is None:
-            return 'Export time out of range'
-
-        rv = ExportDialog(path_default).exec_()
-        if rv is None:
-            return
-        rv['sample_id_start'] = s1
-        rv['sample_id_stop'] = s2
-
-        self._progress = QtWidgets.QProgressDialog('Export in progress...', 'Cancel', 0, 1000, self.parent())
-        self._progress.setWindowModality(QtCore.Qt.WindowModal)
-        self._worker = Worker(view, rv)
-        self._worker.sigProgress.connect(self._progress.setValue)
-        self._worker.sigFinished.connect(self.on_finished)
-        self._worker.moveToThread(self._thread)
-        self._thread.started.connect(self._worker.run)
-        self._thread.finished.connect(self._worker.deleteLater)
-        self._progress.canceled.connect(self._worker.stop)
-        self._thread.start()
-        self._progress.forceShow()
-
-    def on_finished(self, msg):
-        self._thread.quit()
-        self._thread.wait()
-        self._progress.hide()
-        self._progress.close()
-        self._thread = None
-        self._progress = None
-        self.sigFinished.emit(msg)
 
 
 class ExportDialog(QtWidgets.QDialog):

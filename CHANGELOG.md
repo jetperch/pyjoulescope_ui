@@ -4,6 +4,15 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.6.0-dev0
+
+2019 ??? ??
+
+*   Added plugins and range_tool.  Refactored export & USB Inrush.
+*   Added histogram-based plugins (author Axel Jacobsen).
+*   Updated pyqtgraph
+
+
 ## 0.5.1
 
 2019 Aug 11

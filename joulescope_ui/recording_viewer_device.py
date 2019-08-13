@@ -159,5 +159,8 @@ class RecordingViewerDevice:
             'voltage': {
                 'value': v,
                 'units': 'V',
+            },
+            'raw': {
+                'value': self.raw_get(start, stop),
             }
         }

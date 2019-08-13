@@ -12,6 +12,6 @@ requests>=2.0.0
 wheel
 
 # Include forked pyqtgraph (source https://github.com/jetperch/pyqtgraph)
-# https://www.joulescope.com/app_download/pyqtgraph-0.11.0.dev0.tar.gz
-# pyqtgraph>=0.11.0.dev0
--e git+https://github.com/jetperch/pyqtgraph.git@c8548b3246d29ee84a1ef76ebf63a5bb0e39c917#egg=pyqtgraph-0.11.0.dev0
+# https://www.joulescope.com/app_download/pyqtgraph-0.11.0.dev1.tar.gz
+# pyqtgraph>=0.11.0.dev1
+-e git+https://github.com/jetperch/pyqtgraph.git@cb01a73910db6a366467259fba89d00319b9d6ac#egg=pyqtgraph-0.11.0.dev1

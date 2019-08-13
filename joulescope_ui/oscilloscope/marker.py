@@ -45,14 +45,15 @@ class Marker(pg.GraphicsObject):
     :param marker: The marker instance to remove.
     """
 
-    sigExportDataRequest = QtCore.Signal(float, float)
-    """Indicate that the user has requested to export data.
-    
+    sigRangeToolRequest = QtCore.Signal(str, float, float)
+    """Indicate that the user has requested a tool.
+
+    :param name: The tool name to process.
     :param x_start: The starting position in x-axis units.
     :param x_stop: The stopping position in x-axis units.
-    
-    Export is only triggered for dual markers.  Exporting data for a single
-    marker is not supported.
+
+    Tools are only triggered for dual markers.  Tools for single
+    markers are not supported.
     """
 
     def __init__(self, name, x_axis: pg.AxisItem, color=None, shape=None):
@@ -357,23 +358,28 @@ class Marker(pg.GraphicsObject):
             elif ev.button() == QtCore.Qt.RightButton:
                 pass  # todo restore original position
 
-    @QtCore.Slot()
-    def export_data(self):
-        if self._pair is None:
-            raise RuntimeError('export_data only available on dual markers')
-        p1 = self.get_pos()
-        p2 = self._pair.get_pos()
-        x_start = min(p1, p2)
-        x_stop = max(p1, p2)
-        self.sigExportDataRequest.emit(x_start, x_stop)
+    def _range_tool_constructor(self, name):
+        # @QtCore.Slot()
+        def fn():
+            if self._pair is None:
+                raise RuntimeError('analysis only available on dual markers')
+            p1 = self.get_pos()
+            p2 = self._pair.get_pos()
+            x_start = min(p1, p2)
+            x_stop = max(p1, p2)
+            self.sigRangeToolRequest.emit(name, x_start, x_stop)
+        return fn
 
     def menu_exec(self, pos):
+        instances = []  # hold on to QT objects
         menu = QtGui.QMenu()
         menu.setToolTipsVisible(True)
         if self._pair is not None:
-            export_data = QtGui.QAction('&Export data', self)
-            export_data.triggered.connect(self.export_data)
-            menu.addAction(export_data)
+            for name in self._axis().plugins.range_tools.keys():
+                t = QtGui.QAction(name, self)
+                t.triggered.connect(self._range_tool_constructor(name))
+                menu.addAction(t)
+                instances.append(t)
         marker_remove = QtGui.QAction('&Remove', self)
         marker_remove.triggered.connect(lambda: self.sigRemoveRequest.emit(self))
         menu.addAction(marker_remove)
