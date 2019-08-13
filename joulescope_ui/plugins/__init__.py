@@ -18,5 +18,5 @@ PLUGINS_BUILTIN = [
     usb_inrush,
     histogram,
     cdf,
-    ccdf
-    ]
+    ccdf,
+]

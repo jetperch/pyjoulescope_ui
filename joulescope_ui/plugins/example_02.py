@@ -12,28 +12,26 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""This module contains the example 01 plugin."""
+"""This module contains the example 02 plugin that adds markers."""
 
 import numpy as np
 
 PLUGIN = {
-    'name': 'Example 01',  # The user-meaningful name
-    'description': 'Trivial example plugin',  # A user-meaningful description
+    'name': 'Example 02',  # The user-meaningful name
+    'description': 'Markers demo plugin',  # A user-meaningful description
 }
 
 
 class MyPlugin:
-    """Example 01 plugin implementation."""
+    """Example 02 plugin implementation."""
 
     def run(self, data):
-        """Run the plugin across the data.
+        pass
 
-        :param data: The :class:`RangeToolInvocation` instance.
-        :return: None on success or error message on failure.
-        """
-        for idx, block in enumerate(data):
-            current = float(np.mean(block['current']['value']))
-            print(f'{idx}: {current}')
+    def run_post(self, data):
+        x = data.sample_count / data.sample_frequency
+        data.marker_single_add(0.5 * x)
+        data.marker_dual_add(0.25 * x, 0.75 * x)
 
 
 def plugin_register(api):
@@ -42,5 +40,5 @@ def plugin_register(api):
     :param api: The :class:`PluginServiceAPI` instance.
     :return: True on success any other value on failure.
     """
-    api.range_tool_register('Example 01', MyPlugin)
+    api.range_tool_register('Example 02', MyPlugin)
     return True

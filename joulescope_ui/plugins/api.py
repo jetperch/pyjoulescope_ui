@@ -64,6 +64,27 @@ class RangeToolInvocation:
         """
         pass
 
+    def marker_single_add(self, x):
+        """Add a single marker to the current oscilloscope view.
+
+        :param x: The x-axis location relative to the start of this range.
+
+        The value x must be within the range of this invocation which is
+        between 0.0 and data.sample_count / data.sample_frequency.
+        """
+        pass
+
+    def marker_dual_add(self, x1, x2):
+        """Add a dual markers to the current oscilloscope view.
+
+        :param x1: The first x-axis location relative to the start of this range.
+        :param x2: The second x-axis location relative to the start of this range.
+
+        The values x1 and x2 must be within the range of this invocation which is
+        between 0.0 and data.sample_count / data.sample_frequency.
+        """
+        pass
+
 
 class RangeTool:
     """The object skeleton to be provided to range_tool_register()."""

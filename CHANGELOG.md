@@ -11,6 +11,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added plugins and range_tool.  Refactored export & USB Inrush.
 *   Added histogram-based plugins (author Axel Jacobsen).
 *   Updated pyqtgraph
+*   Added RangeToolInvocation methods marker_single_add and marker_dual_add.
 
 
 ## 0.5.1

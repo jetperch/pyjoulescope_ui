@@ -88,11 +88,13 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
 
     def __init__(self, parent, range_tool, app_config, plugin_config):
         super().__init__(parent)
+        self._parent = parent
         self._range_tool = range_tool
         self.app_config = app_config
         self.plugin_config = plugin_config
         self._range_tool_obj = None
         self.sample_range = None
+        self._time_range = None
         self._view = None
         self._worker = None
         self._thread = None
@@ -104,6 +106,7 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
         self.calibration = None
         self.statistics = None
         self._iterable = None
+        self._commands = []
 
     def __iter__(self):
         self._iterable = self.iterate()
@@ -138,6 +141,23 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
         if self._progress is not None:
             self._progress.setValue(int(fraction * 1000))
 
+    def _x_map_to_parent(self, x):
+        t1, t2 = self._time_range
+        if x < 0.0:
+            raise ValueError('x too small')
+        if x >= (t2 - t1):
+            raise ValueError('x too big')
+        return t1 + x
+
+    def marker_single_add(self, x):
+        x = self._x_map_to_parent(x)
+        self._commands.append(lambda: self._parent.on_markerSingleAddRequest(x))
+
+    def marker_dual_add(self, x1, x2):
+        x1 = self._x_map_to_parent(x1)
+        x2 = self._x_map_to_parent(x2)
+        self._commands.append(lambda: self._parent.on_markerDualAddRequest(x1, x2))
+
     def run(self, view, statistics, x_start, x_stop):
         """Export data request.
 
@@ -149,8 +169,9 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
         self.statistics = statistics
         t1, t2 = min(x_start, x_stop), max(x_start, x_stop)
         log.info('range_tool %s(%s, %s)', self._range_tool.name, t1, t2)
-        s1 = view.time_to_sample_id(x_start)
-        s2 = view.time_to_sample_id(x_stop)
+        self._time_range = (t1, t2)
+        s1 = view.time_to_sample_id(t1)
+        s2 = view.time_to_sample_id(t2)
         if s1 is None or s2 is None:
             return 'time out of range'
         self.sample_range = (s1, s2)
@@ -202,5 +223,12 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
         except:
             log.exception('During range tool run_post()')
             return
+
+        while len(self._commands):
+            command = self._commands.pop(0)
+            try:
+                command()
+            except:
+                log.exception('During range tool command')
 
         self.sigFinished.emit(self._range_tool, msg)
