@@ -32,7 +32,7 @@ import site
 import shutil
 
 
-VERSION = '0.5.1-dev'  # CHANGE THIS VERSION!
+VERSION = '0.6.0-dev0'  # CHANGE THIS VERSION!
 JOULESCOPE_VERSION_MIN = '0.5.1'  # also update requirements.txt
 MYPATH = os.path.abspath(os.path.dirname(__file__))
 VERSION_PATH = os.path.join(MYPATH, 'joulescope_ui', 'version.py')
@@ -54,25 +54,25 @@ def find_qt_rcc():
 def convert_qt_ui():
     from pyside2uic import compileUi
     rcc_path = find_qt_rcc()
-    path = os.path.join(MYPATH, 'joulescope_ui')
-    ignore_filename = os.path.join(path, '.gitignore')
-    with open(ignore_filename, 'wt') as ignore:
-        ignore.write('# Automatically generated.  DO NOT EDIT\n')
-        for source in os.listdir(path):
-            source_base, ext = os.path.splitext(source)
-            if ext == '.ui':
-                target = source_base + '.py'
-                with open(os.path.join(path, source), 'rt', encoding='utf8') as fsource:
-                    with open(os.path.join(path, target), 'wt', encoding='utf8') as ftarget:
-                        compileUi(fsource, ftarget, execute=False, indent=4, from_imports=True)
-            elif ext == '.qrc':
-                target = source_base + '_rc.py'
-                rc = subprocess.run([rcc_path, os.path.join(path, source), '-o', os.path.join(path, target)])
-                if rc.returncode:
-                    raise RuntimeError('failed on .qrc file')
-            else:
-                continue
-            ignore.write('%s\n' % target)
+    for path in [os.path.join(MYPATH, 'joulescope_ui'), os.path.join(MYPATH, 'joulescope_ui', 'plugins')]:
+        ignore_filename = os.path.join(path, '.gitignore')
+        with open(ignore_filename, 'wt') as ignore:
+            ignore.write('# Automatically generated.  DO NOT EDIT\n')
+            for source in os.listdir(path):
+                source_base, ext = os.path.splitext(source)
+                if ext == '.ui':
+                    target = source_base + '.py'
+                    with open(os.path.join(path, source), 'rt', encoding='utf8') as fsource:
+                        with open(os.path.join(path, target), 'wt', encoding='utf8') as ftarget:
+                            compileUi(fsource, ftarget, execute=False, indent=4, from_imports=True)
+                elif ext == '.qrc':
+                    target = source_base + '_rc.py'
+                    rc = subprocess.run([rcc_path, os.path.join(path, source), '-o', os.path.join(path, target)])
+                    if rc.returncode:
+                        raise RuntimeError('failed on .qrc file')
+                else:
+                    continue
+                ignore.write('%s\n' % target)
 
 
 def update_version_py():
@@ -160,7 +160,7 @@ setuptools.setup(
     #
     # For a list of valid classifiers, see https://pypi.org/classifiers/
     classifiers=[  # Optional
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
 
         # Indicate who your project is intended for
         'Intended Audience :: End Users/Desktop',
@@ -191,7 +191,7 @@ setuptools.setup(
         'python-dateutil>=2.7.3',
         'pyside2>=5.13.0',
         # 'pyqtgraph>=0.11.0', eventually, but PEP 508 URL for now:
-        'pyqtgraph @ https://github.com/jetperch/pyqtgraph/tarball/c8548b3246d29ee84a1ef76ebf63a5bb0e39c917#egg=pyqtgraph-0.11.0.dev0',
+        'pyqtgraph @ https://github.com/jetperch/pyqtgraph/tarball/cb01a73910db6a366467259fba89d00319b9d6ac#egg=pyqtgraph-0.11.0.dev1',
         'requests>=2.0.0',
         'joulescope>=' + JOULESCOPE_VERSION_MIN,
     ] + PLATFORM_INSTALL_REQUIRES,

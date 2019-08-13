@@ -4,12 +4,23 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
-## 0.5.1-dev
+## 0.6.0-dev0
 
 2019 ??? ??
 
-*   Fixed show_min_max preferences change from off to lines.
 *   Added plugins and range_tool.  Refactored export & USB Inrush.
+*   Added histogram-based plugins (author Axel Jacobsen).
+*   Updated pyqtgraph
+
+
+## 0.5.1
+
+2019 Aug 11
+
+*   Fixed show_min_max preferences change from off to lines.
+*   Use default config value on invalid value & log error (not throw).
+*   Added Device.on_close configurable behavior.
+*   Fixed sensor programming when unprogrammed (see joulescope 0.5.1).
 
 
 ## 0.5.0

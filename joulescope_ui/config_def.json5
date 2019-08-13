@@ -147,7 +147,15 @@ enabling this feature automatically selects a device on Device->disable.',
           type: 'str',
           options: ['never', 'auto', 'always'],
           default: 'auto'
-        }
+        },
+
+        {
+          name: 'on_close',
+          brief: 'Device configuration on device close.',
+          type: 'str',
+          options: ['keep', 'sensor_off', 'current_off', 'current_auto'],
+          default: 'keep',
+        },
 
       ]
     }, // Device end

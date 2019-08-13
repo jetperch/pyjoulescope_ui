@@ -35,6 +35,7 @@ class RangeToolInvocation:
         self.app_config = None          #: The application configuration data structure
         self.plugin_config = None       #: The plugin configuration data structure for this plugin.
         self.calibration = None         #: The calibration information assoicated with the data.
+        self.statistics = None          #: The statistics (see :meth:`joulescope.driver.statistics_get`).
 
     def iterate(self, samples_per_iteration=None):
         """Return an iterable over the data.
