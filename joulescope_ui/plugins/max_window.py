@@ -47,8 +47,6 @@ class MaxWindow:
 
         max_sum, start, end = plugin_helpers.max_sum_in_window(data, signal, time_len)
 
-        # there is a rounding error when converting between sample number and time of sample
-        # therefore take the start to be max of 0, start
         self.data = {
             'max_sum': max_sum,
             'start': start,
