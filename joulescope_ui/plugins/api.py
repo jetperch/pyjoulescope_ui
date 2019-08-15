@@ -34,7 +34,7 @@ class RangeToolInvocation:
         self.sample_frequency = None    #: The sampling frequency in Hertz
         self.app_config = None          #: The application configuration data structure
         self.plugin_config = None       #: The plugin configuration data structure for this plugin.
-        self.calibration = None         #: The calibration information assoicated with the data.
+        self.calibration = None         #: The calibration information associated with the data.
         self.statistics = None          #: The statistics (see :meth:`joulescope.driver.statistics_get`).
 
     def iterate(self, samples_per_iteration=None):
