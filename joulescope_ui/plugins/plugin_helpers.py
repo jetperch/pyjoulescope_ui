@@ -15,6 +15,7 @@
 import logging
 import numpy as np
 from math import ceil
+from collections import deque
 
 log = logging.getLogger(__name__)
 
@@ -62,3 +63,24 @@ def cdf(data, signal):
 def ccdf(data, signal):
     _cdf, bin_edges = cdf(data, signal=signal)
     return 1 - _cdf, bin_edges
+
+def max_sum_in_window(data, signal, time_window_len):
+    window_len = int(time_window_len * data.sample_frequency)
+    queue = deque(np.zeros(window_len), maxlen=window_len)
+
+    start = end = 0
+    max_sum = cur_sum = 0
+    j = 0
+
+    for data_chunk in data:
+        for v in data_chunk[signal]['value']:
+            j += 1
+            old_val = queue.popleft()
+            cur_sum += v - old_val
+            queue.append(v)
+            if cur_sum > max_sum:
+                max_sum = cur_sum
+                start = max(0, j - window_len)
+                end   = j
+
+    return max_sum, start, end
