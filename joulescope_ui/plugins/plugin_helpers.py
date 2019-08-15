@@ -15,6 +15,7 @@
 import logging
 import numpy as np
 from math import ceil
+from collections import deque
 
 log = logging.getLogger(__name__)
 
@@ -62,3 +63,46 @@ def cdf(data, signal):
 def ccdf(data, signal):
     _cdf, bin_edges = cdf(data, signal=signal)
     return 1 - _cdf, bin_edges
+
+
+def max_sum_in_window(data, signal, time_window_len):
+    """Compute the maximum sum over a data window.
+
+    :param data: The :class:`RangeToolInvocation` instance.
+    :param signal: The name of the signal to process.
+    :param time_window_len: The length of the window used to evaluate each
+        sample.  The time_window_len span with the maximum value will
+        be returned.
+    :return: (max_sum, start, end) where:
+        * max_sum is the computed value over the best span.
+        * start is the starting sample index.
+        * end is the ending sample index.
+    """
+    window_len = int(time_window_len * data.sample_frequency)
+    if window_len >= data.sample_count:
+        window_len = data.sample_count - 1
+    queue = deque(np.zeros(window_len), maxlen=window_len)
+
+    start = end = -1
+    max_sum = -np.Infinity
+    cur_sum = 0.0
+    j = 0
+
+    for data_chunk in data:
+        for v in data_chunk[signal]['value']:
+            j += 1
+            old_val = queue.popleft()
+            cur_sum += v - old_val
+            queue.append(v)
+            if cur_sum > max_sum:
+                max_sum = cur_sum
+                start = max(0, j - window_len)
+                end = max(j, start + window_len)
+                if end >= data.sample_count:
+                    end = data.sample_count - 1
+                    start = end - window_len
+
+    if start < 0:
+        raise RuntimeError('Span not found')
+
+    return max_sum, start, end

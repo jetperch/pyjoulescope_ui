@@ -12,11 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from . import usb_inrush, histogram, cdf, ccdf
+from . import usb_inrush, histogram, cdf, ccdf, max_window
 
 PLUGINS_BUILTIN = [
     usb_inrush,
     histogram,
     cdf,
     ccdf,
+    max_window
 ]
