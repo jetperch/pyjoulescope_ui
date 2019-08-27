@@ -1255,6 +1255,9 @@ class MainWindow(QtWidgets.QMainWindow):
         t2 = m2.get_pos()
         if t1 > t2:
             t1, t2 = t2, t1
+        if not hasattr(self._device, 'statistics_get'):
+            self.status('Dual markers not supported by selected device')
+            return
         d = self._device.statistics_get(t1, t2)
         for key, value in d['signals'].items():
             f = d['signals'][key]['statistics']
@@ -1274,6 +1277,9 @@ class MainWindow(QtWidgets.QMainWindow):
         range_tool = self._plugins.range_tools.get(name)
         if range_tool is None:
             self.status('Range tool not found')
+            return
+        if not hasattr(self._device, 'statistics_get'):
+            self.status('Range tool not supported by selected device')
             return
         plugin_config = self._cfg.get('plugins', {}).get(name, {})
         invoke = RangeToolInvoke(self, range_tool, app_config=self._cfg, plugin_config=plugin_config)
