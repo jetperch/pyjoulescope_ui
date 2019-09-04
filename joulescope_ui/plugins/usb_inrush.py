@@ -75,7 +75,7 @@ def plugin_register(api):
     """
     if not is_available():
         log.info('USBET20 tool not found - skip usb_inrush plugin')
-        return False
+        return True  # not an error, normal operation
 
     api.range_tool_register('Analysis/USB Inrush', UsbInrush)
     return True
