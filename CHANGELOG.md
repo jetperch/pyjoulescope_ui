@@ -16,6 +16,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Improved logging.
 *   Added range_tool plugins submenus.
 *   Added fault handler (such as segmentation faults) output to log.
+*   Modified dual marker delta time to display in engineering notation.
 
 
 ## 0.5.1

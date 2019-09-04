@@ -17,6 +17,7 @@ import pyqtgraph as pg
 import weakref
 from .signal import Signal
 from .signal_statistics import si_format, html_format
+from joulescope.units import three_sig_figs
 import logging
 
 
@@ -328,7 +329,8 @@ class Marker(pg.GraphicsObject):
             dx = abs(x_right - x_left)
             x_center = (x_left + x_right) / 2
             x_scene = vb.mapViewToScene(pg.Point(x_center, 0.0)).x()
-            self._delta_time_text.setHtml(f'<div><span style="{style}">Δt={dx:.3g}</span></div>')
+            dx_str = three_sig_figs(dx, 's')
+            self._delta_time_text.setHtml(f'<div><span style="{style}">Δt={dx_str}</span></div>')
             self._delta_time_text.setPos(x_scene, axis_top)
         elif self.is_right:
             self._pair._update_delta_time()
