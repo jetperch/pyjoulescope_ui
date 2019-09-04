@@ -14,6 +14,7 @@
 
 from PySide2 import QtCore, QtWidgets
 from . import joulescope_rc
+from joulescope.units import three_sig_figs
 from .meter_value_widget import MeterValueWidget
 import logging
 log = logging.getLogger(__name__)
@@ -31,6 +32,7 @@ class MeterWidget(QtWidgets.QWidget):
 
     def __init__(self, *args, **kwargs):
         QtWidgets.QWidget.__init__(self, *args, **kwargs)
+        self._accumulate_duration = 0.0
         self.verticalLayout = QtWidgets.QVBoxLayout(self)
         self.verticalLayout.setObjectName("verticalLayout")
         self.verticalLayout.setSpacing(0)
@@ -44,6 +46,9 @@ class MeterWidget(QtWidgets.QWidget):
         self.accumulateButton.setObjectName("accumulateButton")
         self.controlLayout.addWidget(self.accumulateButton)
         self.accumulateButton.toggled.connect(self.on_accumulate_toggled)
+
+        self.accumulateDurationLabel = QtWidgets.QLabel(self)
+        self.controlLayout.addWidget(self.accumulateDurationLabel)
 
         self.controlSpacer = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.controlLayout.addItem(self.controlSpacer)
@@ -75,12 +80,18 @@ class MeterWidget(QtWidgets.QWidget):
 
         :param statistics: The statistics data structure
         """
+        if self.accumulateButton.isChecked():
+            self._accumulate_duration += statistics['time']['delta']
+        else:
+            self._accumulate_duration = statistics['time']['delta']
         for name, field in statistics['signals'].items():
             d = field['statistics']
             self.values[name].update_value(mean=d['μ'], variance=d['σ2'], v_min=d['min'], v_max=d['max'])
+        accum_time = statistics['time']['accumulator']
         energy = statistics['accumulators']['energy']['value']
         charge = statistics['accumulators']['charge']['value']
-        self.values['energy'].update_energy(energy, charge)
+        self.values['energy'].update_energy(accum_time, energy, charge)
+        self.accumulateDurationLabel.setText(three_sig_figs(self._accumulate_duration, 's'))
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate

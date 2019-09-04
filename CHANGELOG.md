@@ -18,6 +18,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added fault handler (such as segmentation faults) output to log.
 *   Modified dual marker delta time to display in engineering notation.
 *   Updated the getting started guide.
+*   Persisted accumulated charge/energy across device disconnect/connect.
 
 
 ## 0.5.1

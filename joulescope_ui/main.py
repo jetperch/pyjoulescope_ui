@@ -160,8 +160,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self._status = {}
         self._status_row = 0
         self._data_view = None  # created when device is opened
-        self._charge = [0.0, 0.0]  # value, offset
-        self._energy = [0.0, 0.0]  # value, offset
+        self._accumulators = {
+            'time': 0.0,
+            'fields': {
+                'charge': [0.0, 0.0],  # accumulated value, last stats value
+                'energy': [0.0, 0.0],  # accumulated value, last stats value
+            },
+        }
         self._is_scanning = False
         self._progress_dialog = None
 
@@ -331,7 +336,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.actionAbout.triggered.connect(self._help_about)
 
         # tools
-        self.ui.actionClearEnergy.triggered.connect(self._tool_clear_energy)
+        self.ui.actionClearEnergy.triggered.connect(self._accumulators_zero)
         with self._plugins as p:
             p.range_tool_register('Export data', Exporter)
         self._plugins.builtin_register(app_config=self._cfg)
@@ -409,17 +414,16 @@ class MainWindow(QtWidgets.QMainWindow):
 
     @QtCore.Slot(object)
     def _on_statistic(self, statistics):
-        charge = statistics['accumulators']['charge']['value']
-        self._charge[0] = charge
-        charge -= self._charge[1]
-        statistics['accumulators']['charge']['value'] = charge
-        charge_str = three_sig_figs(charge, statistics['accumulators']['charge']['units'])
-        self.control_ui.energyValueLabel.setText(charge_str)
+        self._accumulators['time'] += statistics['time']['delta']
+        statistics['time']['accumulator'] = self._accumulators['time']
+        for field in ['charge', 'energy']:
+            x = statistics['accumulators'][field]['value']
+            z = self._accumulators['fields'][field]
+            z[0] += x - z[1]
+            z[1] = x
+            statistics['accumulators'][field]['value'] = z[0]
 
         energy = statistics['accumulators']['energy']['value']
-        self._energy[0] = energy
-        energy -= self._energy[1]
-        statistics['accumulators']['energy']['value'] = energy
         energy_str = three_sig_figs(energy, statistics['accumulators']['energy']['units'])
         self.control_ui.energyValueLabel.setText(energy_str)
 
@@ -543,10 +547,11 @@ class MainWindow(QtWidgets.QMainWindow):
         log.info('_help_users_guide')
         webbrowser.open_new_tab(USERS_GUIDE_URL)
 
-    def _tool_clear_energy(self):
-        log.info('_tool_clear_energy: offset=%g J, offset=%g C', self._energy[0], self._charge[0])
-        self._charge[1] = self._charge[0]
-        self._energy[1] = self._energy[0]
+    def _accumulators_zero(self):
+        log.info('_accumulators_zero')
+        self._accumulators['time'] = 0.0
+        for z in self._accumulators['fields'].values():
+            z[0] = 0.0
 
     def _source_indicator_set(self, text, color=None, tooltip=None):
         tooltip = '' if tooltip is None else str(tooltip)
@@ -755,6 +760,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self._status_clean()
         self._param_clean()
         self._control_ui_clean()
+        for z in self._accumulators['fields'].values():
+            z[1] = 0.0  # reset last value
         self.oscilloscope_widget.data_clear()
         self.oscilloscope_widget.markers_clear()
         if self._cfg['Developer']['compliance']:

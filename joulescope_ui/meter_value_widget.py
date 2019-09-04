@@ -209,7 +209,7 @@ class MeterValueWidget(QtWidgets.QWidget):
         self._update_value(mean, variance, v_min, v_max)
         self._update_ui()
 
-    def update_energy(self, energy, charge):
+    def update_energy(self, duration, energy, charge):
         energy, prefix, _ = unit_prefix(energy)
         units = f'{prefix}{self._units_short}'
         self.unitLabel.setText(f"<html>&nbsp;{units}&nbsp;</html>")
@@ -227,8 +227,10 @@ class MeterValueWidget(QtWidgets.QWidget):
 
         self.maxName.setText('')
         self.maxLabel.setText('')
-        self.p2pName.setText('')
-        self.p2pLabel.setText('')
+
+        duration_c, prefix_t, _ = unit_prefix(duration)
+        self.p2pName.setText(f"<html>&nbsp;{prefix_t}s&nbsp;</html>")
+        self.p2pLabel.setText(('%.1f' % duration_c))
 
     def configure_energy(self):
         self.stdName.setText('')
@@ -239,7 +241,7 @@ class MeterValueWidget(QtWidgets.QWidget):
         self.maxLabel.setText('')
         self.p2pName.setText('')
         self.p2pLabel.setText('')
-        self.update_energy(0.0, 0.0)
+        self.update_energy(0.0, 0.0, 0.0)
 
     def resizeEvent(self, event):
         super().resizeEvent(event)
