@@ -19,6 +19,7 @@ import logging
 from logging import FileHandler
 import time
 import datetime
+import faulthandler
 import json
 import os
 import sys
@@ -117,12 +118,16 @@ def logging_config(stream_log_level=None, file_log_level=None):
     time_str = d.strftime('%Y%m%d_%H%M%S')
     filename = os.path.join(LOG_PATH, 'joulescope_%s_%s.log' % (time_str, os.getpid(), ))
 
+    root_log = logging.getLogger()
+    root_log.handlers = []
+
     stream_lvl = logging.WARNING if stream_log_level is None else LEVELS[stream_log_level]
     stream_fmt = logging.Formatter(STREAM_VERBOSE_FMT)
     stream_hnd = logging.StreamHandler()
     stream_hnd.stream.write(banner)
     stream_hnd.setFormatter(stream_fmt)
     stream_hnd.setLevel(stream_lvl)
+    root_log.addHandler(stream_hnd)
 
     file_lvl = logging.INFO if file_log_level is None else LEVELS[file_log_level]
     if file_lvl < LEVELS['OFF']:
@@ -131,11 +136,10 @@ def logging_config(stream_log_level=None, file_log_level=None):
         file_hnd.stream.write(banner)
         file_hnd.setFormatter(file_fmt)
         file_hnd.setLevel(file_lvl)
-
-    root_log = logging.getLogger()
-    root_log.handlers = []
-    root_log.addHandler(stream_hnd)
-    root_log.addHandler(file_hnd)
+        faulthandler.enable(file=file_hnd.stream)
+        root_log.addHandler(file_hnd)
+    else:
+        faulthandler.enable()
 
     root_log.setLevel(min([stream_lvl, file_lvl]))
     _cleanup_logfiles()
