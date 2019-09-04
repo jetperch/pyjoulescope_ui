@@ -13,6 +13,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Updated pyqtgraph
 *   Added RangeToolInvocation methods marker_single_add and marker_dual_add.
 *   Added check and UI status warning when device does not support dual markers.
+*   Improved logging.
 
 
 ## 0.5.1

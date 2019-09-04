@@ -52,8 +52,7 @@ import logging
 log = logging.getLogger(__name__)
 
 
-STATUS_BAR_TIMEOUT = 5000
-DATA_BUFFER_DURATION = 60.0  # seconds
+STATUS_BAR_TIMEOUT = 5000  # milliseconds
 USERS_GUIDE_URL = "https://www.joulescope.com/docs/JoulescopeUsersGuide.html"
 
 
@@ -386,7 +385,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     @QtCore.Slot()
     def on_rescanTimer(self):
-        log.info('rescanTimer')
+        log.debug('rescanTimer')
         self._device_scan()
 
     def _update_data(self, force=None):
@@ -454,6 +453,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self._update_data(force=True)
 
     def on_developer(self, do_show):
+        log.info('on_developer(%r)', do_show)
         self.dev_dock_widget.setVisible(do_show)
 
     def device_notify(self, inserted, info):
@@ -516,30 +516,35 @@ class MainWindow(QtWidgets.QMainWindow):
             software_update_check(self.on_softwareUpdateSignal.emit)
 
     def _on_software_update(self, current_version, latest_version):
+        log.info('_on_software_update(current_version=%r, latest_version=%r)', current_version, latest_version)
         txt = SOFTWARE_UPDATE.format(current_version=current_version, latest_version=latest_version)
         QtWidgets.QMessageBox.about(self, 'Joulescope Software Update Available', txt)
 
     def _help_about(self):
+        log.info('_help_about')
         txt = ABOUT.format(ui_version=VERSION, driver_version=joulescope.VERSION)
         QtWidgets.QMessageBox.about(self, 'Joulescope', txt)
 
     def _help_credits(self):
+        log.info('_help_credits')
         html = help_ui.load_credits()
         dialog = help_ui.ScrollMessageBox(html, self)
         dialog.setWindowTitle('Joulescope Credits')
         dialog.exec_()
 
     def _help_getting_started(self):
+        log.info('_help_getting_started')
         html = help_ui.load_getting_started()
         dialog = help_ui.ScrollMessageBox(html, self)
         dialog.setWindowTitle('Getting Started with Your Joulescope')
         dialog.exec_()
 
     def _help_users_guide(self):
+        log.info('_help_users_guide')
         webbrowser.open_new_tab(USERS_GUIDE_URL)
 
     def _tool_clear_energy(self):
-        log.info('_tool_clear_energy: offset= %g J, offset=%g C', self._energy[0], self._charge[0])
+        log.info('_tool_clear_energy: offset=%g J, offset=%g C', self._energy[0], self._charge[0])
         self._charge[1] = self._charge[0]
         self._energy[1] = self._energy[0]
 
@@ -1136,6 +1141,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setWindowTitle('Joulescope: ' + os.path.basename(filename))
 
     def closeEvent(self, event):
+        log.info('closeEvent(%r)', event)
         self._device_close()
         event.accept()
 
@@ -1159,8 +1165,12 @@ class MainWindow(QtWidgets.QMainWindow):
                 d_sample_missing_count = n_sample_missing_count - self._streaming_status['sample_missing_count']
                 if (0 == d_sample_id) or ((d_sample_missing_count / d_sample_id) > 0.001):
                     color = 'red'
+                    log.warning('status RED: d_sample_id=%d, d_sample_missing_count=%d',
+                                d_sample_id, d_sample_missing_count)
                 elif d_sample_missing_count:
                     color = 'yellow'
+                    log.warning('status YELLOW: d_sample_id=%d, d_sample_missing_count=%d',
+                                d_sample_id, d_sample_missing_count)
                 else:
                     color = 'LightGreen'
             self._streaming_status['sample_id'] = n_sample_id
@@ -1211,7 +1221,8 @@ class MainWindow(QtWidgets.QMainWindow):
         log.info(msg)
         self.ui.statusbar.showMessage(msg, timeout)
 
-    def on_preferences(self, *args, **kwargs):
+    def on_preferences(self):
+        log.info('on_preferences')
         d = PreferencesDialog(self._cfg_def, self._cfg)
         cfg = d.exec_()
         if cfg is not None:
