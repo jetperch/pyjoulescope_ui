@@ -374,11 +374,21 @@ class Marker(pg.GraphicsObject):
         instances = []  # hold on to QT objects
         menu = QtGui.QMenu()
         menu.setToolTipsVisible(True)
+        submenus = {}
         if self._pair is not None:
             for name in self._axis().plugins.range_tools.keys():
-                t = QtGui.QAction(name, self)
+                m, subm = menu, submenus
+                name_parts = name.split('/')
+                while len(name_parts) > 1:
+                    name_part = name_parts.pop(0)
+                    if name_part not in subm:
+                        subm[name_part] = [m.addMenu(name_part), {}]
+                        m, subm = subm[name_part]
+                    else:
+                        m, subm = subm[name_part]
+                t = QtGui.QAction(name_parts[0], self)
                 t.triggered.connect(self._range_tool_constructor(name))
-                menu.addAction(t)
+                m.addAction(t)
                 instances.append(t)
         marker_remove = QtGui.QAction('&Remove', self)
         marker_remove.triggered.connect(lambda: self.sigRemoveRequest.emit(self))

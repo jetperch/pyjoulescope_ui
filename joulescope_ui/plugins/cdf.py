@@ -105,5 +105,5 @@ def plugin_register(api):
     :param api: The :class:`PluginServiceAPI` instance.
     :return: True on success any other value on failure.
     """
-    api.range_tool_register('CDF', CDF)
+    api.range_tool_register('Analysis/CDF', CDF)
     return True

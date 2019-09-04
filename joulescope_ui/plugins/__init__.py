@@ -13,11 +13,13 @@
 # limitations under the License.
 
 from . import usb_inrush, histogram, cdf, ccdf, max_window
+# from . import example_01, example_02
 
 PLUGINS_BUILTIN = [
     usb_inrush,
     histogram,
     cdf,
     ccdf,
-    max_window
+    max_window,
+    # example_01, example_02,
 ]

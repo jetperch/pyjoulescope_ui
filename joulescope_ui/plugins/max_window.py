@@ -92,5 +92,5 @@ def plugin_register(api):
     :param api: The :class:`PluginServiceAPI` instance.
     :return: True on success any other value on failure.
     """
-    api.range_tool_register('Max Window', MaxWindow)
+    api.range_tool_register('Analysis/Max Window', MaxWindow)
     return True

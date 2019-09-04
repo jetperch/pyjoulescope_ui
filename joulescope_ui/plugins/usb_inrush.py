@@ -77,5 +77,5 @@ def plugin_register(api):
         log.info('USBET20 tool not found - skip usb_inrush plugin')
         return False
 
-    api.range_tool_register('USB Inrush', UsbInrush)
+    api.range_tool_register('Analysis/USB Inrush', UsbInrush)
     return True
