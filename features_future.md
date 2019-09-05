@@ -110,10 +110,8 @@ will be implemented before Joulescope general availability.
 *   Measure and automate Joulescope code coverage.
 *   Automatically perform software update when required.  The existing
     implementation just directs the User to the Joulescope download page.
-*   Automatically perform Joulescope firmware updates when required.
 *   Add automatic battery life estimation - may need to input battery 
     chemistry type & capacity.
-*   Add Complementary Cumulative Distribution Function (CCDF) view.
 *   Trigger on waveform: select a waveform.  Then trigger and overlay similar.
 *   Automatically identify similar periodic processes and sleep power. 
     When done, feed estimation tool where you can set the period of each 
@@ -121,5 +119,4 @@ will be implemented before Joulescope general availability.
     or even battery life.
 *   Save user-defined Views. Allow user to select saved views in addition to 
     Multimeter and Oscilloscope. Also allow user to set startup view preference.
-*   Add plug-in architecture for the UI with well-defined plug-in API.
 *   Energy display should have a context menu with a Clear option.
