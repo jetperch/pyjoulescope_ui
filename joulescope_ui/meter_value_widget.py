@@ -17,10 +17,16 @@ from . import joulescope_rc
 from joulescope.units import unit_prefix
 import numpy as np
 
+# https://en.wikipedia.org/wiki/List_of_monospaced_typefaces
+# https://github.com/adobe-fonts/source-code-pro
+# font-family:"Courier New", Courier, monospace;
+# See stylesheet support: https://doc.qt.io/qt-5/stylesheet-reference.html#list-of-properties
+# Only font, font-family, font-size, font-style, font-weight
 
 styleSheetMain = """
 QLabel { font-weight: bold; font-size: 48pt; }
 """
+# QLabel { font-family: "Courier New"; font-weight: bold; font-size: 48pt; }
 
 styleSheetStats = """
 QLabel { font-weight: bold; }
@@ -29,6 +35,13 @@ QLabel { font-weight: bold; }
 styleSheetStatsHide = """
 QLabel { font-weight: bold; font-color: black}
 """
+
+# Programmatic method
+# self.font = QtGui.QFont('Consolas', pointSize=48, weight=QtGui.QFont.Bold)
+# self.font.setPointSize(48)
+# self.font.setWeight(QtGui.QFont.Bold)
+# self.font.setFixedPitch(True)  # does not work in Qt 5
+# self.setFont(self.font)
 
 
 class MeterValueWidget(QtWidgets.QWidget):
