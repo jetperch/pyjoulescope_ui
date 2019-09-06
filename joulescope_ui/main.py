@@ -135,7 +135,6 @@ class DeviceDisable:
 
 class MainWindow(QtWidgets.QMainWindow):
     on_deviceNotifySignal = QtCore.Signal(object, object)
-    on_dataSignal = QtCore.Signal(object, object)  # x, data[length][3][4]
     on_stopSignal = QtCore.Signal()
     on_statisticSignal = QtCore.Signal(object)
     on_xChangeSignal = QtCore.Signal(str, object)

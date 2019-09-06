@@ -73,6 +73,9 @@ class MaxWindowDialog(QtWidgets.QDialog):
         self.ui.signal.addItem("voltage")
         self.ui.signal.addItem("power")
         self.ui.time_len.setMaximum(max_time_len)
+        starting_value = 10 ** np.round(np.log10(max_time_len / 1000))
+        value = min(max_time_len, max(0.00001, starting_value))
+        self.ui.time_len.setValue(value)
 
     def exec_(self):
         if QtWidgets.QDialog.exec_(self) == 1:

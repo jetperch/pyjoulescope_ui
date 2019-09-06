@@ -152,15 +152,18 @@ class RecordingViewerDevice:
             return None
         i, v = self.reader.get_calibrated(start=start, stop=stop)
         return {
-            'current': {
-                'value': i,
-                'units': 'A',
-            },
-            'voltage': {
-                'value': v,
-                'units': 'V',
-            },
-            'raw': {
-                'value': self.raw_get(start, stop),
+            'signals': {
+                'current': {
+                    'value': i,
+                    'units': 'A',
+                },
+                'voltage': {
+                    'value': v,
+                    'units': 'V',
+                },
+                'raw': {
+                    'value': self.raw_get(start, stop),
+                    'units': 'LSBs',
+                },
             }
         }

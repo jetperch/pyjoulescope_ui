@@ -30,9 +30,10 @@ def calculate_histogram(data, bins: int, signal: str):
 
     for data_chunk in data:
         if bin_edges is None:
-            hist, bin_edges = np.histogram(data_chunk[signal]['value'], range=(minimum, maximum), bins=num_bins)
+            hist, bin_edges = np.histogram(data_chunk['signals'][signal]['value'],
+                                           range=(minimum, maximum), bins=num_bins)
         else:
-            hist += np.histogram(data_chunk[signal]['value'], bins=bin_edges)[0]
+            hist += np.histogram(data_chunk['signals'][signal]['value'], bins=bin_edges)[0]
 
     return hist, bin_edges
 
@@ -89,7 +90,7 @@ def max_sum_in_window(data, signal, time_window_len):
     j = 0
 
     for data_chunk in data:
-        for v in data_chunk[signal]['value']:
+        for v in data_chunk['signals'][signal]['value']:
             j += 1
             old_val = queue.popleft()
             cur_sum += v - old_val
@@ -104,5 +105,6 @@ def max_sum_in_window(data, signal, time_window_len):
 
     if start < 0:
         raise RuntimeError('Span not found')
+    log.info('max_sum_in_window found (%s, %s): max_sum=%g', start, end, max_sum)
 
     return max_sum, start, end

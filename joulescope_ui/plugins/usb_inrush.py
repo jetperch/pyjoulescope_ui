@@ -48,8 +48,8 @@ class UsbInrush:
             return f'Invalid duration {duration:.2f}, must be between 0.1 and 0.5 seconds.'
         usbet20_path = USBET20_PATH
         d = data.samples_get()
-        current = d['current']['value']
-        voltage = d['voltage']['value']
+        current = d['signals']['current']['value']
+        voltage = d['signals']['voltage']['value']
         x = np.arange(len(current), dtype=np.float) * (1.0 / data.sample_frequency)
         valid = np.isfinite(current)
         voltage = np.mean(voltage[valid])
