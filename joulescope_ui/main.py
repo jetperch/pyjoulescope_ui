@@ -133,7 +133,7 @@ class DeviceDisable:
 
 class MainWindow(QtWidgets.QMainWindow):
     on_deviceNotifySignal = QtCore.Signal(object, object)
-    on_stopSignal = QtCore.Signal()
+    on_stopSignal = QtCore.Signal(int, str)
     on_statisticSignal = QtCore.Signal(object)
     on_xChangeSignal = QtCore.Signal(str, object)
     on_softwareUpdateSignal = QtCore.Signal(str, str)
@@ -1022,9 +1022,9 @@ class MainWindow(QtWidgets.QMainWindow):
             w3.setParent(None)
         self._status = {}
 
-    @QtCore.Slot()
-    def _on_stop(self):
-        log.debug('_on_stop')
+    @QtCore.Slot(int, str)
+    def _on_stop(self, event, message):
+        log.debug('_on_stop(%d, %s)', event, message)
         self.data_update_timer.stop()
         self.control_ui.playButton.setChecked(False)
         self.control_ui.recordButton.setChecked(False)
