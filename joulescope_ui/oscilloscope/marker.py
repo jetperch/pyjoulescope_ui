@@ -122,6 +122,8 @@ class Marker(pg.GraphicsObject):
             txt_result = si_format(labels, units=signal.units)
             html = html_format(txt_result, x=xv)
             self.html_set(signal.name, html)
+        else:
+            self.html_set(signal.name, '<p>No data</p>')
 
     def signal_update_all(self):
         for signal_ref, _ in self.text.values():

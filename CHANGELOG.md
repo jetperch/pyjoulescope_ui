@@ -19,6 +19,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Modified dual marker delta time to display in engineering notation.
 *   Updated the getting started guide.
 *   Persisted accumulated charge/energy across device disconnect/connect.
+*   Fixed single marker to display "No data" over missing samples.
 
 
 ## 0.5.1
