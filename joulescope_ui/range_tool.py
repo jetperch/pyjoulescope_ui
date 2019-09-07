@@ -177,8 +177,8 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
         self.sample_range = (s1, s2)
         self.sample_count = s2 - s1
         self.sample_frequency = view.sampling_frequency
+        self.calibration = view.calibration
         self._view = view
-        self.calibration = self._view.calibration
 
         self._range_tool_obj = self._range_tool.fn()
         try:

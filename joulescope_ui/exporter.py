@@ -39,6 +39,7 @@ class Exporter:
             'bin': self._export_bin,
             'csv': self._export_csv,
             'jls': self._export_jls,
+            'raw': self._export_raw,
         }
         filetype = self._cfg['filetype']
         fn = registry.get(filetype)
@@ -49,11 +50,9 @@ class Exporter:
     def _export_bin(self, data):
         cfg = self._cfg
         with open(cfg['filename'], 'wb') as f:
-            if cfg.get('add_header'):
-                f.write('#time (s),current (A),voltage (V)\n')
             for block in data:
-                current = block['current']['value'].reshape((-1, 1))
-                voltage = block['voltage']['value'].reshape((-1, 1))
+                current = block['signals']['current']['value'].reshape((-1, 1))
+                voltage = block['signals']['voltage']['value'].reshape((-1, 1))
                 values = np.hstack((current, voltage))
                 f.write(values.tobytes())
 
@@ -66,8 +65,8 @@ class Exporter:
             if cfg.get('add_header'):
                 f.write('#time (s),current (A),voltage (V)\n')
             for block in data.iterate(sampling_frequency):
-                current = block['current']['value'].reshape((-1, 1))
-                voltage = block['voltage']['value'].reshape((-1, 1))
+                current = block['signals']['current']['value'].reshape((-1, 1))
+                voltage = block['signals']['voltage']['value'].reshape((-1, 1))
                 x = np.arange(len(current), dtype=np.float64).reshape((-1, 1))
                 x *= sampling_period
                 x += time_offset
@@ -78,7 +77,6 @@ class Exporter:
     def _export_jls(self, data):
         cfg = self._cfg
         sampling_frequency = data.sample_frequency
-        sample_step_size = sampling_frequency
         stream_buffer = StreamBuffer(sampling_frequency * 2, [])
         data_recorder = DataRecorder(
             cfg['filename'],
@@ -89,11 +87,18 @@ class Exporter:
         try:
             for block in data:
                 log.info('export_jls iteration')
-                stream_buffer.insert_raw(block['raw']['value'])
+                stream_buffer.insert_raw(block['signals']['raw']['value'])
                 stream_buffer.process()
                 data_recorder.process(stream_buffer)
         finally:
             data_recorder.close()
+
+    def _export_raw(self, data):
+        cfg = self._cfg
+        with open(cfg['filename'], 'wb') as f:
+            for block in data:
+                values = block['signals']['raw']['value']
+                f.write(values.tobytes())
 
 
 class ExportDialog(QtWidgets.QDialog):
@@ -113,6 +118,7 @@ class ExportDialog(QtWidgets.QDialog):
             'Joulescope Data (*.jls)',
             'Binary 32-bit float (*.bin)',
             'Comma Separated Values (*.csv)',
+            'Raw 16-bit samples (*.raw)',
         ]
         filter_str = ';;'.join(filters)
         filename, select_mask = QtWidgets.QFileDialog.getSaveFileName(

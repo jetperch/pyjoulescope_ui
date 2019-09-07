@@ -266,29 +266,37 @@ class Signal(QtCore.QObject):
         shape_len = len(value.shape)
         if shape_len == 1:
             z_mean = value
+            z_var, z_min, z_max = None, None, None
         elif shape_len == 2:
             z_mean = value[:, 0]
+            z_var = value[:, 1]
+            z_min = value[:, 2]
+            z_max = value[:, 3]
         else:
             self.log.warning('Unsupported value shape: %s', str(value.shape))
+
+        self._most_recent_data = [x, z_mean, z_var, z_min, z_max]
 
         # get the valid mean values regardless of shape
         z_valid = np.isfinite(z_mean)
         x = x[z_valid]
-        z_mean = z_mean[z_valid]
-        if not len(z_mean):
+        z_mean_valid = z_mean[z_valid]
+        if not len(z_mean_valid):
+            if len(z_mean):
+                self.log.warning('no valid data: %d -> %d', len(z_mean), len(z_mean_valid))
             self.data_clear()
             return
 
-        self._most_recent_data = [x, z_mean, None, None, None]
-        z_var, z_min, z_max = None, None, None
-        if shape_len == 2 and value.shape[1] == 4:
+        z_mean = z_mean_valid
+        if z_var is not None:
             z_min = value[z_valid, 2]
             if np.isfinite(z_min[0]):
                 z_var = value[z_valid, 1]
                 z_max = value[z_valid, 3]
-                self._most_recent_data = [x, z_mean, z_var, z_min, z_max]
             else:
+                z_var = None
                 z_min = None
+                z_max = None
 
         # compute statistics over the visible window
         z = z_mean
@@ -323,6 +331,8 @@ class Signal(QtCore.QObject):
             self.curve_min.setData(d_x, self._log_bound(d_min))
             self.curve_max.setData(d_x, self._log_bound(d_max))
 
+        if not np.isfinite(v_min) or not np.isfinite(v_max) or np.abs(v_min) > 1000 or np.abs(v_max) > 1000:
+            self.log.warning('signal.update(%r, %r)' % (v_min, v_max))
         if self.text_item is not None:
             labels = {'μ': v_mean, 'σ': v_std, 'min': v_min, 'max': v_max, 'p2p': v_max - v_min}
             txt_result = si_format(labels, units=self.units)
@@ -346,6 +356,8 @@ class Signal(QtCore.QObject):
             return {}
         idx = np.argmax(z_x >= x)
         y_mean = float(z_mean[idx])
+        if not np.isfinite(y_mean):
+            return {}
         if z_min is not None:
             y_var = float(z_var[idx])
             y_min = float(z_min[idx])

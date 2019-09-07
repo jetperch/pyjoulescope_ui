@@ -47,6 +47,7 @@ import io
 import ctypes
 import collections
 import traceback
+import time
 import webbrowser
 import logging
 log = logging.getLogger(__name__)
@@ -152,6 +153,9 @@ class MainWindow(QtWidgets.QMainWindow):
             'gpo_value': 0,   # automatically toggle GPO, loopback & measure GPI
             'status': None,
         }
+
+        self._fps_counter = 0
+        self._fps_time = None
 
         self._parameters = {}
         self._status = {}
@@ -393,6 +397,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def _update_data(self, force=None):
         if self._has_active_device:
             is_changed, (x, data) = self._device.view.update()
+            self._fps_counter += 1
             if is_changed or bool(force):
                 odata = {
                     'current': data[:, 0, :],
@@ -640,7 +645,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self._param_init()
                 self._control_ui_init()
                 self.on_xChangeSignal.connect(self._device.view.on_x_change)
-                self.oscilloscope_widget.set_xlimits(*self._device.view.span.limits)
+                self.oscilloscope_widget.set_xlimits(*self._device.view.limits)
                 self._device_cfg_apply(do_open=True)
                 self._device.statistics_callback = self.on_statisticSignal.emit
                 self._update_data()
@@ -1181,7 +1186,23 @@ class MainWindow(QtWidgets.QMainWindow):
         except:
             log.exception('_source_indicator_status_update')
 
+    def _fps_compute(self):
+        fps_time = time.time()
+        if self._fps_time is None:
+            fps = 0.0
+        else:
+            fps = self._fps_counter / (fps_time - self._fps_time)
+        self._fps_counter = 0
+        self._fps_time = fps_time
+        return fps
+
     def _status_fn(self, status):
+        status['ui'] = {
+            'display_rate': {
+                'value': self._fps_compute(),
+                'units': 'fps',
+            },
+        }
         self._source_indicator_status_update(status)
         for root_key, root_value in status.items():
             if root_key == 'endpoints':
