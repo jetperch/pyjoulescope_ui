@@ -274,11 +274,14 @@ class Signal(QtCore.QObject):
         # get the valid mean values regardless of shape
         z_valid = np.isfinite(z_mean)
         x = x[z_valid]
-        z_mean = z_mean[z_valid]
-        if not len(z_mean):
+        z_mean_valid = z_mean[z_valid]
+        if not len(z_mean_valid):
+            if len(z_mean):
+                self.log.warning('no valid data: %d -> %d', len(z_mean), len(z_mean_valid))
             self.data_clear()
             return
 
+        z_mean = z_mean_valid
         self._most_recent_data = [x, z_mean, None, None, None]
         z_var, z_min, z_max = None, None, None
         if shape_len == 2 and value.shape[1] == 4:
@@ -323,6 +326,8 @@ class Signal(QtCore.QObject):
             self.curve_min.setData(d_x, self._log_bound(d_min))
             self.curve_max.setData(d_x, self._log_bound(d_max))
 
+        if not np.isfinite(v_min) or not np.isfinite(v_max) or np.abs(v_min) > 1000 or np.abs(v_max) > 1000:
+            log.warning('signal.update(%r, %r)' % (v_min, v_max))
         if self.text_item is not None:
             labels = {'μ': v_mean, 'σ': v_std, 'min': v_min, 'max': v_max, 'p2p': v_max - v_min}
             txt_result = si_format(labels, units=self.units)
