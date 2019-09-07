@@ -93,6 +93,12 @@ Available version = {latest_version}<br/>
 """
 
 
+TOOLTIP_NO_SOURCE = """\
+No data source selected.
+Connect a Joulescope or 
+open a file."""
+
+
 class ValueLabel(QtWidgets.QLabel):
 
     def __init__(self, parent=None, text=''):
@@ -117,17 +123,9 @@ def dict_update_recursive(tgt, src):
 
 
 class DeviceDisable:
-    def __init__(self):
-        self.view = NullView()
 
     def __str__(self):
         return "disable"
-
-    def open(self):
-        pass
-
-    def parameter_set(self, name, value):
-        pass
 
     def close(self):
         pass
@@ -636,10 +634,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self._device_close()
                 return
             try:
-                if hasattr(self._device, 'serial_number'):
-                    self.setWindowTitle(str(self._device))
-                else:
-                    self.setWindowTitle('Joulescope')
+                self.setWindowTitle(str(self._device))
                 if not self._device.ui_action.isChecked():
                     self._device.ui_action.setChecked(True)
                 self._param_init()
@@ -727,7 +722,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self._device.parameter_set('gpo1', '0')
 
     def _device_close(self):
-        log.debug('_device_close')
+        log.debug('_device_close: start')
         self.setWindowTitle('Joulescope')
         device = self._device
         is_active_device = self._has_active_device
@@ -765,7 +760,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.oscilloscope_widget.markers_clear()
         if self._cfg['Developer']['compliance']:
             self.setStyleSheet("background-color: yellow;")
-        self._source_indicator_set('')
+        self._source_indicator_set('None', color='yellow', tooltip=TOOLTIP_NO_SOURCE)
+        log.debug('_device_close: done')
 
     def _device_recover(self):
         log.info('_device_recover: start')
