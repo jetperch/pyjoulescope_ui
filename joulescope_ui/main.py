@@ -1316,7 +1316,11 @@ class MainWindow(QtWidgets.QMainWindow):
             self.status('Range tool not supported by selected device')
             return
         plugin_config = self._cfg.get('plugins', {}).get(name, {})
-        invoke = RangeToolInvoke(self, range_tool, app_config=self._cfg, plugin_config=plugin_config)
+        app_state = {
+            'voltage_range': self._device.stream_buffer.voltage_range,
+        }
+        invoke = RangeToolInvoke(self, range_tool, app_config=self._cfg,
+                                 app_state=app_state, plugin_config=plugin_config)
         invoke.sigFinished.connect(self.on_rangeToolFinished)
         s = self._device.statistics_get(x_start, x_stop)
         invoke.run(self._device.view, s, x_start, x_stop)

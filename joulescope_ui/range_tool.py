@@ -86,11 +86,12 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
 
     sigFinished = QtCore.Signal(object, str)  # range_tool, error message or ''
 
-    def __init__(self, parent, range_tool, app_config, plugin_config):
+    def __init__(self, parent, range_tool, app_config, app_state, plugin_config):
         super().__init__(parent)
         self._parent = parent
         self._range_tool = range_tool
         self.app_config = app_config
+        self.app_state = app_state
         self.plugin_config = plugin_config
         self._range_tool_obj = None
         self.sample_range = None
