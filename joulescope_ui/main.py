@@ -138,6 +138,7 @@ class MainWindow(QtWidgets.QMainWindow):
     on_statisticSignal = QtCore.Signal(object)
     on_xChangeSignal = QtCore.Signal(str, object)
     on_softwareUpdateSignal = QtCore.Signal(str, str)
+    on_deviceEventSignal = QtCore.Signal(int, str)  # event, message
 
     on_progressValue = QtCore.Signal(int)
     on_progressMessage = QtCore.Signal(str)
@@ -326,6 +327,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.on_stopSignal.connect(self._on_stop)
         self.on_statisticSignal.connect(self._on_statistic)
+        self.on_deviceEventSignal.connect(self._on_device_event, type=QtCore.Qt.QueuedConnection)
 
         # Software update
         self.on_softwareUpdateSignal.connect(self._on_software_update)
@@ -619,6 +621,13 @@ class MainWindow(QtWidgets.QMainWindow):
                 log.warning('compliance error: %s', color)
             self.setStyleSheet(style_sheet)
 
+    @QtCore.Slot(int, str)
+    def _on_device_event(self, event, msg):
+        # Must connect with Qt.QueuedConnection since likely called from the
+        # device's python data thread.
+        level = logging.WARNING if event > 0 else logging.INFO
+        log.log(level, '_on_device_event(%r, %r)', event, msg)
+
     def _device_open(self, device):
         if self._device == device:
             log.info('device_open reopen %s', str(device))
@@ -628,7 +637,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._device = device
         if self._has_active_device:
             try:
-                self._device.open()
+                self._device.open(self.on_deviceEventSignal.emit)
             except:
                 log.exception('while opening device')
                 return self._device_open_failed('Could not open device')
