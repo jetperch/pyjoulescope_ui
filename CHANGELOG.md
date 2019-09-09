@@ -20,6 +20,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Updated the getting started guide.
 *   Persisted accumulated charge/energy across device disconnect/connect.
 *   Fixed single marker to display "No data" over missing samples.
+*   Fixed y-axis waveform autoranging when min/max traces are not shown.
 
 
 ## 0.5.1

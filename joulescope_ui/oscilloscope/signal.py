@@ -59,7 +59,7 @@ class Signal(QtCore.QObject):
                 'limit': y_limit,
                 'log_min': y_log_min,
             },
-            'show_min_max': 'lines',
+            'show_min_max': 'lines',  # ['lines', 'fill',  'off']
             'decimate_min_max': 1,
             'trace_width': 1,
         }
@@ -220,6 +220,8 @@ class Signal(QtCore.QObject):
             self.curve_min.hide()
             self.curve_range.show()
         else:
+            if c != 'off':
+                self.log.warning('unsupported show_min_max mode: %s, presume "off"', c)
             self._min_max_hide()
 
     def _min_max_hide(self):
@@ -330,6 +332,11 @@ class Signal(QtCore.QObject):
                 d_max = np.max(z_max[:k].reshape((-1, decimate)), axis=1)
             self.curve_min.setData(d_x, self._log_bound(d_min))
             self.curve_max.setData(d_x, self._log_bound(d_max))
+
+        if self.config['show_min_max'] == 'off':
+            # use min/max of the mean trace for y-axis autoranging (not actual min/max)
+            v_min = np.min(z_mean)
+            v_max = np.max(z_mean)
 
         if not np.isfinite(v_min) or not np.isfinite(v_max) or np.abs(v_min) > 1000 or np.abs(v_max) > 1000:
             self.log.warning('signal.update(%r, %r)' % (v_min, v_max))
