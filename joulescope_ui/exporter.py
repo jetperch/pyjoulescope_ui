@@ -77,20 +77,20 @@ class Exporter:
     def _export_jls(self, data):
         cfg = self._cfg
         sampling_frequency = data.sample_frequency
-        stream_buffer = StreamBuffer(sampling_frequency * 2, [])
+        stream_buffer = StreamBuffer(sampling_frequency * 2, [], sampling_frequency=sampling_frequency)
         stream_buffer.voltage_range = data.app_state['voltage_range']
         data_recorder = DataRecorder(
             cfg['filename'],
             calibration=data.calibration.data,
             sampling_frequency=sampling_frequency)
-        data_recorder.process(stream_buffer)
+        data_recorder.stream_notify(stream_buffer)
 
         try:
             for block in data:
                 log.info('export_jls iteration')
                 stream_buffer.insert_raw(block['signals']['raw']['value'])
                 stream_buffer.process()
-                data_recorder.process(stream_buffer)
+                data_recorder.stream_notify(stream_buffer)
         finally:
             data_recorder.close()
 

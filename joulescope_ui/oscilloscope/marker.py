@@ -148,7 +148,7 @@ class Marker(pg.GraphicsObject):
 
     def html_set(self, signal_name, html):
         if signal_name not in self.text:
-            self.log.debug('html_set(%s) but does not exist', signal_name)
+            # self.log.debug('html_set(%s) but does not exist', signal_name)
             return
         signal_ref, txt = self.text[signal_name]
         signal = signal_ref()

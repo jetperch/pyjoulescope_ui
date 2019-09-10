@@ -183,7 +183,7 @@ class CustomLinearRegionItem(pg.LinearRegionItem):
         if self.mode == 'realtime':
             self.lines[1].setMovable(False)
             self.setRegion()
-        elif self.mode in ['normal', None]:
+        elif self.mode in ['normal', 'buffer', None]:
             self.lines[1].setMovable(True)
         else:
             raise RuntimeError('invalid mode')

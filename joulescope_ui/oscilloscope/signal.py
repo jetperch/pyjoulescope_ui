@@ -259,24 +259,16 @@ class Signal(QtCore.QObject):
               var, min, max may be NaN when not available.
         """
         self.text_item.data_clear()
-        if x is None or value is None or not len(x):
+        if x is None or value is None or len(x) <= 1:
             self.data_clear()
             return
         x_range = x[-1] - x[0]
 
         # get the mean value regardless of shape
-        shape_len = len(value.shape)
-        if shape_len == 1:
-            z_mean = value
-            z_var, z_min, z_max = None, None, None
-        elif shape_len == 2:
-            z_mean = value[:, 0]
-            z_var = value[:, 1]
-            z_min = value[:, 2]
-            z_max = value[:, 3]
-        else:
-            self.log.warning('Unsupported value shape: %s', str(value.shape))
-
+        z_mean = value['μ']
+        z_var = value['σ2']
+        z_min = value['min']
+        z_max = value['max']
         self._most_recent_data = [x, z_mean, z_var, z_min, z_max]
 
         # get the valid mean values regardless of shape
@@ -290,21 +282,16 @@ class Signal(QtCore.QObject):
             return
 
         z_mean = z_mean_valid
-        if z_var is not None:
-            z_min = value[z_valid, 2]
-            if np.isfinite(z_min[0]):
-                z_var = value[z_valid, 1]
-                z_max = value[z_valid, 3]
-            else:
-                z_var = None
-                z_min = None
-                z_max = None
+        z_min = z_min[z_valid]
+        if np.isfinite(z_min[0]):
+            z_var = z_var[z_valid]
+            z_max = z_max[z_valid]
 
         # compute statistics over the visible window
         z = z_mean
         self.curve_mean.setData(x, self._log_bound(z))
         self.curve_mean.show()
-        if z_min is None:
+        if not np.isfinite(z_min[0]):
             self._min_max_disable()
             v_mean = np.mean(z)
             v_std = np.std(z)
@@ -343,6 +330,7 @@ class Signal(QtCore.QObject):
         if self.text_item is not None:
             labels = {'μ': v_mean, 'σ': v_std, 'min': v_min, 'max': v_max, 'p2p': v_max - v_min}
             txt_result = si_format(labels, units=self.units)
+            txt_result += si_format({'Δt': x_range}, units='s')
             integration_units = INTEGRATION_UNITS.get(self.units)
             if integration_units is not None:
                 txt_result += si_format({'∫': v_mean * x_range}, units=integration_units)

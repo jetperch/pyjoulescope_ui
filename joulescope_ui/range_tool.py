@@ -72,8 +72,8 @@ class RangeToolIterable:
         x_next = self._x_next + self._samples_per_iteration
         if x_next > self._x_stop:
             x_next = self._x_stop
-        data = self._parent._view.samples_get(self._x_next, x_next)
-        if 'power' not in data:
+        data = self._parent._view.samples_get(self._x_next, x_next, units='samples')
+        if 'power' not in data['signals']:
             data['signals']['power'] = {
                 'value': data['signals']['current']['value'] * data['signals']['voltage']['value'],
                 'units': 'W',
@@ -121,7 +121,7 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
             raise
 
     def samples_get(self):
-        return self._view.samples_get(*self.sample_range)
+        return self._view.samples_get(*self.sample_range, units='samples')
 
     def iterate(self, samples_per_iteration=None):
         if samples_per_iteration is None or samples_per_iteration <= 0:

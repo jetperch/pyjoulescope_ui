@@ -31,7 +31,7 @@ from joulescope_ui.data_view_api import NullView
 from joulescope_ui.single_value_widget import SingleValueWidget
 from joulescope.usb import DeviceNotify
 from joulescope.units import unit_prefix, three_sig_figs
-from joulescope.data_recorder import construct_record_filename
+from joulescope.data_recorder import DataRecorder, construct_record_filename
 from joulescope_ui.recording_viewer_device import RecordingViewerDevice
 from joulescope_ui.preferences import PreferencesDialog
 from joulescope_ui.config import load_config_def, load_config, save_config
@@ -139,6 +139,7 @@ class MainWindow(QtWidgets.QMainWindow):
     on_xChangeSignal = QtCore.Signal(str, object)
     on_softwareUpdateSignal = QtCore.Signal(str, str)
     on_deviceEventSignal = QtCore.Signal(int, str)  # event, message
+    on_dataUpdateSignal = QtCore.Signal(object)
 
     on_progressValue = QtCore.Signal(int)
     on_progressMessage = QtCore.Signal(str)
@@ -157,11 +158,15 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self._fps_counter = 0
         self._fps_time = None
+        self._fps_limit_timer = QtCore.QTimer()
+        self._fps_limit_timer.setSingleShot(True)
+        self._fps_limit_timer.timeout.connect(self.on_fps_timer)
 
         self._parameters = {}
         self._status = {}
         self._status_row = 0
         self._data_view = None  # created when device is opened
+        self._recording = None  # created to record stream to JLS file
         self._accumulators = {
             'time': 0.0,
             'fields': {
@@ -320,17 +325,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.rescan_timer = QtCore.QTimer(self)
         self.rescan_timer.timeout.connect(self.on_rescanTimer)
 
-        # data update timer
-        self.data_update_timer = QtCore.QTimer(self)
-        self.data_update_timer.setInterval(33)  # milliseconds
-        self.data_update_timer.timeout.connect(self.on_dataUpdateTimer)
-
-        self.on_stopSignal.connect(self._on_stop)
-        self.on_statisticSignal.connect(self._on_statistic)
+        self.on_stopSignal.connect(self._on_stop, type=QtCore.Qt.QueuedConnection)
+        self.on_statisticSignal.connect(self._on_statistic, type=QtCore.Qt.QueuedConnection)
         self.on_deviceEventSignal.connect(self._on_device_event, type=QtCore.Qt.QueuedConnection)
+        self.on_dataUpdateSignal.connect(self._on_data_update, type=QtCore.Qt.QueuedConnection)
 
         # Software update
-        self.on_softwareUpdateSignal.connect(self._on_software_update)
+        self.on_softwareUpdateSignal.connect(self._on_software_update, type=QtCore.Qt.QueuedConnection)
 
         # help
         self.ui.actionGettingStarted.triggered.connect(self._help_getting_started)
@@ -358,7 +359,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def run(self, filename=None):
         if filename is not None:
-            self.recording_open(filename)
+            self._recording_open(filename)
             self.on_oscilloscopeMenu(True)
         else:
             self._multimeter_show()
@@ -396,25 +397,19 @@ class MainWindow(QtWidgets.QMainWindow):
         log.debug('rescanTimer')
         self._device_scan()
 
-    def _update_data(self, force=None):
-        if self._has_active_device:
-            is_changed, (x, data) = self._device.view.update()
-            self._fps_counter += 1
-            if is_changed or bool(force):
-                odata = {
-                    'current': data[:, 0, :],
-                    'voltage': data[:, 1, :],
-                    'power': data[:, 2, :],
-                }
-                self.oscilloscope_widget.data_update(x, odata)
-        else:
-            self.oscilloscope_widget.data_clear()
+    @QtCore.Slot(object)
+    def _on_data_update(self, data):
+        self._fps_counter += 1
+        self.oscilloscope_widget.data_update(data)
+        if self._is_streaming and self._data_view is not None:
+            self._fps_limit_timer.stop()
+            self._fps_limit_timer.start(30)  # help to limit the frame rate for smoother animation
+        # self.oscilloscope_widget.data_clear()
 
     @QtCore.Slot()
-    def on_dataUpdateTimer(self):
-        if not self._has_active_device and self._is_streaming:
-            return
-        self._update_data()
+    def on_fps_timer(self):
+        if self._data_view is not None:
+            self._data_view.refresh()
 
     @QtCore.Slot(object)
     def _on_statistic(self, statistics):
@@ -435,15 +430,17 @@ class MainWindow(QtWidgets.QMainWindow):
 
         if self._cfg['Developer']['compliance'] and self._cfg['Developer']['compliance_gpio_loopback']:
             gpo_value = self._compliance['gpo_value']
-            gpi_value = self._device.extio_status()['gpi_value']['value']
+            if hasattr(self._device, 'extio_status'):
+                gpi_value = self._device.extio_status()['gpi_value']['value']
             if gpo_value != gpi_value:
                 log.warning('gpi mismatch: gpo=0x%02x, gpi=0x%02x', gpo_value, gpi_value)
                 self._compliance_error('red')
             else:
                 self._compliance_error(None)
             gpo_value = (gpo_value + 1) & 0x03
-            self._device.parameter_set('gpo0', '1' if (gpo_value & 0x01) else '0')
-            self._device.parameter_set('gpo1', '1' if (gpo_value & 0x02) else '0')
+            if hasattr(self._device, 'parameter_set'):
+                self._device.parameter_set('gpo0', '1' if (gpo_value & 0x01) else '0')
+                self._device.parameter_set('gpo1', '1' if (gpo_value & 0x02) else '0')
             self._compliance['gpo_value'] = gpo_value
 
     @QtCore.Slot(float, float, int)
@@ -451,14 +448,12 @@ class MainWindow(QtWidgets.QMainWindow):
         log.info('_on_x_change(%s, %s, %s)', x_min, x_max, x_count)
         self.on_xChangeSignal.emit('resize', {'pixels': x_count})
         self.on_xChangeSignal.emit('span_absolute', {'range': [x_min, x_max]})
-        if not self.data_update_timer.isActive():
-            self._update_data(force=True)
 
     @QtCore.Slot()
     def _on_refresh(self):
         log.info('_on_refresh')
-        if not self.data_update_timer.isActive():
-            self._update_data(force=True)
+        if self._view is not None:
+            self._view.refresh(force=True)
 
     def on_developer(self, do_show):
         log.info('on_developer(%r)', do_show)
@@ -653,11 +648,15 @@ class MainWindow(QtWidgets.QMainWindow):
                     self._device.ui_action.setChecked(True)
                 self._param_init()
                 self._control_ui_init()
-                self.on_xChangeSignal.connect(self._device.view.on_x_change)
-                self.oscilloscope_widget.set_xlimits(*self._device.view.limits)
+                if hasattr(self._device, 'view_factory'):
+                    self._data_view = self._device.view_factory()
+                    self.on_xChangeSignal.connect(self._data_view.on_x_change)
+                    self._data_view.on_update_fn = self.on_dataUpdateSignal.emit
+                    self._data_view.open()
+                    self._data_view.refresh()
                 self._device_cfg_apply(do_open=True)
-                self._device.statistics_callback = self.on_statisticSignal.emit
-                self._update_data()
+                if hasattr(self._device, 'statistics_callback'):
+                    self._device.statistics_callback = self.on_statisticSignal.emit
             except:
                 log.exception('while initializing after open device')
                 return self._device_open_failed('Could not initialize device')
@@ -731,7 +730,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._compliance['gpo_value'] = 0
         self._compliance['status'] = None
         self._compliance_error(None)
-        if self._device is not None:
+        if self._device is not None and hasattr(self._device, 'parameter_set'):
             self._device.parameter_set('gpo0', '0')
             self._device.parameter_set('gpo1', '0')
 
@@ -742,11 +741,13 @@ class MainWindow(QtWidgets.QMainWindow):
         is_active_device = self._has_active_device
         self._device = self._device_disable
         log.info('device_close %s', str(device))
-        if is_active_device and device.view is not None:
+        if self._data_view is not None:
             try:
-                self.on_xChangeSignal.disconnect(device.view.on_x_change)
+                self.on_xChangeSignal.disconnect(self._data_view.on_x_change)
             except:
                 log.warning('Could not disconnect device.view.on_x_change')
+            self._data_view.close()
+            self._data_view = None
         if device:
             on_close = self._cfg['Device']['on_close']
             try:
@@ -762,8 +763,10 @@ class MainWindow(QtWidgets.QMainWindow):
             except:
                 log.warning('could not set Device.on_close behavior %s', on_close)
             device.close()
-        if is_active_device and device.ui_action.isChecked():
+        if is_active_device and hasattr(device, 'ui_action') and device.ui_action.isChecked():
             device.ui_action.setChecked(False)
+        if hasattr(device, 'ui_on_close'):
+            device.ui_on_close()
         self._device_disable.ui_action.setChecked(True)
         self._status_clean()
         self._param_clean()
@@ -1039,13 +1042,12 @@ class MainWindow(QtWidgets.QMainWindow):
     @QtCore.Slot(int, str)
     def _on_stop(self, event, message):
         log.debug('_on_stop(%d, %s)', event, message)
-        self.data_update_timer.stop()
         self.control_ui.playButton.setChecked(False)
         self.control_ui.recordButton.setChecked(False)
         self.control_ui.recordButton.setEnabled(False)
         self.control_ui.iRangeComboBox.setEnabled(False)
         self.control_ui.vRangeComboBox.setEnabled(False)
-        self.oscilloscope_widget.set_display_mode('normal')
+        self.oscilloscope_widget.set_display_mode('buffer')
 
     def _device_stream_start(self):
         log.debug('_device_stream_start')
@@ -1061,8 +1063,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.control_ui.recordButton.setEnabled(True)
         self.control_ui.iRangeComboBox.setEnabled(True)
         self.control_ui.vRangeComboBox.setEnabled(True)
-        self.data_update_timer.start()
-        self.oscilloscope_widget.set_display_mode('realtime')
         self.oscilloscope_widget.set_sampling_frequency(self._device.sampling_frequency)
         try:
             self._device.start(stop_fn=self.on_stopSignal.emit)
@@ -1081,7 +1081,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return
         if hasattr(self._device, 'stop'):
             self._device.stop()  # always safe to call
-        self.oscilloscope_widget.set_display_mode('normal')
+        self.oscilloscope_widget.set_display_mode('buffer')
         self._source_indicator_set(' Buffer ', tooltip=str(self._device))
 
     def _device_stream(self, checked):
@@ -1093,30 +1093,48 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self._device_stream_stop()
 
+    def _device_can_record(self):
+        return self._has_active_device and hasattr(self._device, 'stream_process_register')
+
     def _device_stream_record_start(self, filename):
-        if self._has_active_device and self._device.recording_start(filename):
+        self._device_stream_record_close()
+        if self._device_can_record():
+            self._recording = DataRecorder(filename,
+                                           sampling_frequency=self._device.sampling_frequency,
+                                           calibration=self._device.calibration)
+            self._device.stream_process_register(self._recording)
             self.control_ui.recordButton.setChecked(True)
         else:
             log.warning('start recording failed for %s', filename)
             self.control_ui.recordButton.setChecked(False)
 
+    def _device_stream_record_close(self):
+        if self._recording is not None:
+            if self._has_active_device and hasattr(self._device, 'stream_process_unregister'):
+                self._device.stream_process_unregister(self._recording)
+            self._recording.close()
+            self._recording = None
+
     def _device_stream_record_stop(self):
-        if self._has_active_device:
-            self._device.recording_stop()
+        self._device_stream_record_close()
         self.control_ui.recordButton.setChecked(False)
 
     def _device_stream_save(self, checked):
-        if checked and self._device is not None and not self._device.is_recording:
-            fname = construct_record_filename()
-            path = os.path.join(self._path, os.path.basename(fname))
-            filename, selected_filter = QtWidgets.QFileDialog.getSaveFileName(
-                self, 'Save Joulescope Recording', path, 'Joulescope Data (*.jls)')
-            filename = str(filename)
-            if not len(filename):
-                self.status('Invalid filename, do not record')
-                self._device_stream_record_stop()
+        if checked:
+            if self._device_can_record():
+                self._device_stream_record_close()
+                fname = construct_record_filename()
+                path = os.path.join(self._path, os.path.basename(fname))
+                filename, selected_filter = QtWidgets.QFileDialog.getSaveFileName(
+                    self, 'Save Joulescope Recording', path, 'Joulescope Data (*.jls)')
+                filename = str(filename)
+                if not len(filename):
+                    self.status('Invalid filename, do not record')
+                    self._device_stream_record_stop()
+                else:
+                    self._device_stream_record_start(filename)
             else:
-                self._device_stream_record_start(filename)
+                self.status('Selected device cannot record')
         elif not checked:
             self._device_stream_record_stop()
 
@@ -1140,19 +1158,18 @@ class MainWindow(QtWidgets.QMainWindow):
         if not len(filename) or not os.path.isfile(filename):
             self.status('Invalid filename, do not open')
             return
-        self.recording_open(filename)
+        self._recording_open(filename)
 
-    def recording_open(self, filename):
+    def _recording_open(self, filename):
         if filename is None:
             return
         self._device_close()
         log.info('open recording %s', filename)
-        self.oscilloscope_widget.set_display_mode('normal')
+        self.oscilloscope_widget.set_display_mode('buffer')
         device = RecordingViewerDevice(filename)
-        device.on_close = lambda: self._device_remove(device)
+        device.ui_on_close = lambda: self._device_remove(device)
         self._device_add(device)
         self._device_open(device)
-        self._update_data()
         self._source_indicator_set(' File ', tooltip=filename)
         self.setWindowTitle('Joulescope: ' + os.path.basename(filename))
 
@@ -1298,10 +1315,10 @@ class MainWindow(QtWidgets.QMainWindow):
         t2 = m2.get_pos()
         if t1 > t2:
             t1, t2 = t2, t1
-        if not hasattr(self._device, 'statistics_get'):
+        if not hasattr(self._data_view, 'statistics_get'):
             self.status('Dual markers not supported by selected device')
             return
-        d = self._device.statistics_get(t1, t2)
+        d = self._data_view.statistics_get(t1, t2)
         for key, value in d['signals'].items():
             f = d['signals'][key]['statistics']
             dt = d['time']['delta']
@@ -1321,7 +1338,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if range_tool is None:
             self.status('Range tool not found')
             return
-        if not hasattr(self._device, 'statistics_get'):
+        if not hasattr(self._data_view, 'statistics_get'):
             self.status('Range tool not supported by selected device')
             return
         plugin_config = self._cfg.get('plugins', {}).get(name, {})
@@ -1331,8 +1348,8 @@ class MainWindow(QtWidgets.QMainWindow):
         invoke = RangeToolInvoke(self, range_tool, app_config=self._cfg,
                                  app_state=app_state, plugin_config=plugin_config)
         invoke.sigFinished.connect(self.on_rangeToolFinished)
-        s = self._device.statistics_get(x_start, x_stop)
-        invoke.run(self._device.view, s, x_start, x_stop)
+        s = self._data_view.statistics_get(x_start, x_stop)
+        invoke.run(self._data_view, s, x_start, x_stop)
 
     @QtCore.Slot(object, str)
     def on_rangeToolFinished(self, range_tool, msg):

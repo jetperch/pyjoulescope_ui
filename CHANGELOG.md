@@ -21,6 +21,14 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Persisted accumulated charge/energy across device disconnect/connect.
 *   Fixed single marker to display "No data" over missing samples.
 *   Fixed y-axis waveform autoranging when min/max traces are not shown.
+*   Modified codebase to use new joulescope.Driver StreamProcessApi, 
+    elimination of recording_start and recording_stop.
+*   Implemented improved frame rate limiting.
+*   Refactored to support new data_update format with integrated view details.
+*   Added Δt indication for statistics computed over visible window.
+*   Moved RecordingViewerDevice to operate in its own thread for improved 
+    performance.  Allows software to condense multiple requests, such as
+    during mouse click & drag.
 
 
 ## 0.5.1
