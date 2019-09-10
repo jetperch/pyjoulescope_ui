@@ -29,6 +29,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Moved RecordingViewerDevice to operate in its own thread for improved 
     performance.  Allows software to condense multiple requests, such as
     during mouse click & drag.
+*   Moved JLS recording to its own process so that OS file write stalls do
+    not cause sample drops.
 
 
 ## 0.5.1

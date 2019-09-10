@@ -31,7 +31,8 @@ from joulescope_ui.data_view_api import NullView
 from joulescope_ui.single_value_widget import SingleValueWidget
 from joulescope.usb import DeviceNotify
 from joulescope.units import unit_prefix, three_sig_figs
-from joulescope.data_recorder import DataRecorder, construct_record_filename
+from joulescope_ui.data_recorder_process import DataRecorderProcess as DataRecorder
+from joulescope.data_recorder import construct_record_filename  # DataRecorder
 from joulescope_ui.recording_viewer_device import RecordingViewerDevice
 from joulescope_ui.preferences import PreferencesDialog
 from joulescope_ui.config import load_config_def, load_config, save_config

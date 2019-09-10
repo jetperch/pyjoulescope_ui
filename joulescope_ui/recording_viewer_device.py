@@ -117,10 +117,7 @@ class RecordingView:
         t_start = start / self._reader.sampling_frequency
         t_stop = stop / self._reader.sampling_frequency
         x = np.linspace(t_start, t_stop, len(data), dtype=np.float64)
-        try:
-            self._log.info('update: len=%d, x_range=>(%s, %s)', len(data), x[0], x[-1])
-        except:
-            print(x.shape)
+        self._log.info('update: len=%d, x_range=>(%s, %s)', len(data), x[0], x[-1])
         self._cache = data_array_to_update(self.limits, x, data)
         self.on_update_fn(self._cache)
 
