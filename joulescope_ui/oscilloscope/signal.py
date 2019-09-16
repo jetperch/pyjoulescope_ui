@@ -262,7 +262,6 @@ class Signal(QtCore.QObject):
         if x is None or value is None or len(x) <= 1:
             self.data_clear()
             return
-        x_range = x[-1] - x[0]
 
         # get the mean value regardless of shape
         z_mean = value['μ']
@@ -277,10 +276,11 @@ class Signal(QtCore.QObject):
         z_mean_valid = z_mean[z_valid]
         if not len(z_mean_valid):
             if len(z_mean):
-                self.log.warning('no valid data: %d -> %d', len(z_mean), len(z_mean_valid))
-            self.data_clear()
+                self.log.info('no valid data: %d -> %d', len(z_mean), len(z_mean_valid))
+            self.text_item.data_clear()
             return
 
+        x_range = x[-1] - x[0]
         z_mean = z_mean_valid
         z_min = z_min[z_valid]
         if np.isfinite(z_min[0]):
