@@ -1,7 +1,7 @@
 check-manifest>=0.37
 coverage>=4.5.2
 Cython>=0.29.3
-joulescope>=0.5.1  # also update JOULESCOPE_VERSION_MIN in setup.py
+joulescope>=0.6.0  # also update JOULESCOPE_VERSION_MIN in setup.py
 json5>=0.6.1
 numpy>=1.15.2
 pypiwin32>=223; sys_platform == 'win32'
@@ -14,4 +14,4 @@ wheel
 # Include forked pyqtgraph (source https://github.com/jetperch/pyqtgraph)
 # https://www.joulescope.com/app_download/pyqtgraph-0.11.0.dev1.tar.gz
 # pyqtgraph>=0.11.0.dev1
--e git+https://github.com/jetperch/pyqtgraph.git@cb01a73910db6a366467259fba89d00319b9d6ac#egg=pyqtgraph-0.11.0.dev1
+-e git+https://github.com/jetperch/pyqtgraph.git@d88af7ebb2c1c8d61a3b33271f2e103ce0c1c233#egg=pyqtgraph-0.11.0.dev1
