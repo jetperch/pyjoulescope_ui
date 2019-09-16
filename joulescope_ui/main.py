@@ -341,7 +341,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.actionAbout.triggered.connect(self._help_about)
 
         # tools
-        self.ui.actionClearEnergy.triggered.connect(self._accumulators_zero)
+        self.ui.actionClearEnergy.triggered.connect(self._accumulators_zero_total)
         with self._plugins as p:
             p.range_tool_register('Export data', Exporter)
         self._plugins.builtin_register(app_config=self._cfg)
@@ -547,11 +547,16 @@ class MainWindow(QtWidgets.QMainWindow):
         log.info('_help_users_guide')
         webbrowser.open_new_tab(USERS_GUIDE_URL)
 
-    def _accumulators_zero(self):
-        log.info('_accumulators_zero')
+    def _accumulators_zero_total(self):
+        log.info('_accumulators_zero_total')
         self._accumulators['time'] = 0.0
         for z in self._accumulators['fields'].values():
-            z[0] = 0.0
+            z[0] = 0.0  # accumulated value
+
+    def _accumulators_zero_last(self):
+        log.info('_accumulators_zero_last')
+        for z in self._accumulators['fields'].values():
+            z[1] = 0.0  # last update value
 
     def _source_indicator_set(self, text, color=None, tooltip=None):
         tooltip = '' if tooltip is None else str(tooltip)
@@ -630,6 +635,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return
         self._device_close()
         log.info('device_open %s', str(device))
+        self._accumulators_zero_last()
         self._device = device
         if self._has_active_device:
             try:
@@ -772,8 +778,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._status_clean()
         self._param_clean()
         self._control_ui_clean()
-        for z in self._accumulators['fields'].values():
-            z[1] = 0.0  # reset last value
+        self._accumulators_zero_last()
         self.oscilloscope_widget.data_clear()
         self.oscilloscope_widget.markers_clear()
         if self._cfg['Developer']['compliance']:
@@ -1058,6 +1063,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if not hasattr(self._device, 'start'):
             log.info('device does not support start')
             return
+        self._accumulators_zero_last()
         self._is_streaming = True
         self._streaming_status = None
         self.control_ui.playButton.setChecked(True)
@@ -1319,7 +1325,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if not hasattr(self._data_view, 'statistics_get'):
             self.status('Dual markers not supported by selected device')
             return
-        d = self._data_view.statistics_get(t1, t2)
+        d = self._data_view.statistics_get(t1, t2, units='seconds')
         for key, value in d['signals'].items():
             f = d['signals'][key]['statistics']
             dt = d['time']['delta']
@@ -1343,13 +1349,17 @@ class MainWindow(QtWidgets.QMainWindow):
             self.status('Range tool not supported by selected device')
             return
         plugin_config = self._cfg.get('plugins', {}).get(name, {})
-        app_state = {
-            'voltage_range': self._device.stream_buffer.voltage_range,
-        }
+        app_state = {}
+        if hasattr(self._device, 'voltage_range'):
+            app_state['voltage_range'] = self._device.voltage_range
+        elif hasattr(self._device, 'stream_buffer'):
+            app_state['voltage_range'] = self._device.stream_buffer.voltage_range
+        else:
+            log.warning('cannot get voltage_range')
         invoke = RangeToolInvoke(self, range_tool, app_config=self._cfg,
                                  app_state=app_state, plugin_config=plugin_config)
         invoke.sigFinished.connect(self.on_rangeToolFinished)
-        s = self._data_view.statistics_get(x_start, x_stop)
+        s = self._data_view.statistics_get(x_start, x_stop, units='seconds')
         invoke.run(self._data_view, s, x_start, x_stop)
 
     @QtCore.Slot(object, str)

@@ -68,6 +68,10 @@ class RecordingView:
     def _reader(self):
         return self._parent()._reader
 
+    @property
+    def voltage_range(self):
+        return self._reader.voltage_range
+
     def _on_x_change(self, cmd, kwargs):
         x_range = self._x_range
         if cmd == 'resize':  # {pixels: int}
