@@ -17,9 +17,11 @@
 import sys
 from joulescope_ui.command import parser_config
 import argparse
+import multiprocessing
 
 
 if __name__ == '__main__':
+    multiprocessing.freeze_support()
     parser = argparse.ArgumentParser(description='Joulescope™ user interface.')
     cmd = parser_config(parser)
     args = parser.parse_args()

@@ -78,6 +78,8 @@ class Exporter:
         cfg = self._cfg
         sampling_frequency = data.sample_frequency
         stream_buffer = StreamBuffer(sampling_frequency * 2, [], sampling_frequency=sampling_frequency)
+        stream_buffer.calibration_set(data.calibration.current_offset, data.calibration.current_gain,
+                                      data.calibration.voltage_offset, data.calibration.voltage_gain)
         stream_buffer.voltage_range = data.app_state['voltage_range']
         data_recorder = DataRecorder(
             cfg['filename'],
