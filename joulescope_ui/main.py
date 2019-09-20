@@ -161,7 +161,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._fps_time = None
         self._fps_limit_timer = QtCore.QTimer()
         self._fps_limit_timer.setSingleShot(True)
-        self._fps_limit_timer.timeout.connect(self.on_fps_timer)
+        self._fps_limit_timer.timeout.connect(self.on_fpsTimer)
 
         self._parameters = {}
         self._status = {}
@@ -408,7 +408,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # self.oscilloscope_widget.data_clear()
 
     @QtCore.Slot()
-    def on_fps_timer(self):
+    def on_fpsTimer(self):
         if self._data_view is not None:
             self._data_view.refresh()
 
