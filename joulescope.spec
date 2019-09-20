@@ -96,13 +96,19 @@ if sys.platform.startswith('darwin'):
     app = BUNDLE(coll,
                  name='joulescope.app',
                  icon='joulescope_ui/resources/icon.icns',
-                 bundle_identifier=None,
+                 bundle_identifier='com.jetperch.joulescope',
                  info_plist={
+                     'CFBundleName': 'Jetperch LLC',
                      'CFBundleVersion': joulescope_ui.VERSION,
                  })
+    print('sign app')
+    subprocess.run(['codesign', '-s', 'Jetperch LLC', 
+                    '--deep', './dist/joulescope.app'],
+                   cwd=specpath)
     # subprocess.run(['hdiutil', 'create', './dist/joulescope_%s.dmg' % VERSION_STR,
     #                 '-srcfolder', './dist/joulescope.app', '-ov'],
     #                 cwd=specpath)
+    print('create dmg')
     subprocess.run(['appdmg', 'appdmg.json', 'dist/joulescope_%s.dmg' % VERSION_STR])
 elif sys.platform == 'win32':
     subprocess.run(['C:\Program Files (x86)\Inno Setup 5\ISCC.exe', 

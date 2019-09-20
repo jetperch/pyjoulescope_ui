@@ -10,6 +10,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 *   Fixed log warning for on_fps_timer.
 *   Fixed error that prevented "Export data" on open JLS file.
+*   Sign macOS distribution and application.
 
 
 ## 0.6.1

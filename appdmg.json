@@ -7,5 +7,8 @@
   "contents": [
     { "x": 466, "y": 260, "type": "link", "path": "/Applications" },
     { "x": 110, "y": 260, "type": "file", "path": "dist/joulescope.app" }
-  ]
+  ],
+  "code-sign": {
+    "signing-identity": "Jetperch LLC"
+  }
 }
