@@ -260,6 +260,10 @@ class RecordingViewerDevice:
             return None
         return self._reader.calibration
 
+    @property
+    def voltage_range(self):
+        return self._reader.voltage_range
+
     def _cmd_process(self, cmd, view, args):
         rv = None
         try:

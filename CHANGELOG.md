@@ -4,17 +4,24 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.6.2
+
+2019 Sep 20
+
+*   Fixed log warning for on_fps_timer.
+*   Fixed error that prevented "Export data" on open JLS file.
+
+
 ## 0.6.1
 
 2019 Sep 17
 
-*   Fixed "record" function not working on Windows due to multiprocessing and 
+*   Fixed "record" function not working on Windows due to multiprocessing and
     pyinstaller EXE packaging.
-*   Applied calibration to "zoomed-out" data on dual marker export.  All existing
-    files created with dual marker export are invalid when the view window is 
+*   Applied calibration to "zoomed-out" data on dual marker export. All existing
+    files created with dual marker export are invalid when the view window is
     more than a couple seconds (actual duration varies), but the zoomed-in
     data is still valid.
-
 
 ## 0.6.0
 
