@@ -453,8 +453,8 @@ class MainWindow(QtWidgets.QMainWindow):
     @QtCore.Slot()
     def _on_refresh(self):
         log.info('_on_refresh')
-        if self._view is not None:
-            self._view.refresh(force=True)
+        if self._data_view is not None:
+            self._data_view.refresh(force=True)
 
     def on_developer(self, do_show):
         log.info('on_developer(%r)', do_show)
