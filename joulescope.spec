@@ -102,7 +102,7 @@ if sys.platform.startswith('darwin'):
                      'CFBundleVersion': joulescope_ui.VERSION,
                  })
     print('sign app')
-    subprocess.run(['codesign', '-s', 'Jetperch LLC', 
+    subprocess.run(['codesign', '-s', 'Developer ID Application: Jetperch LLC (WFRS3L8Y7Y)', 
                     '--deep', './dist/joulescope.app'],
                    cwd=specpath)
     # subprocess.run(['hdiutil', 'create', './dist/joulescope_%s.dmg' % VERSION_STR,
