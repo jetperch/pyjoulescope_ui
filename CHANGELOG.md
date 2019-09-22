@@ -6,7 +6,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.6.3
 
-2019 Sep 22 [in progress]
+2019 Sep 22
 
 *   Only display mean for signal markers when zoomed to single sample.
 
