@@ -353,7 +353,7 @@ class Signal(QtCore.QObject):
         y_mean = float(z_mean[idx])
         if not np.isfinite(y_mean):
             return {}
-        if z_min is not None:
+        if z_min is not None and np.isfinite(z_min[idx]):
             y_var = float(z_var[idx])
             y_min = float(z_min[idx])
             y_max = float(z_max[idx])
