@@ -157,6 +157,16 @@ enabling this feature automatically selects a device on Device->disable.',
           default: 'keep',
         },
 
+        {
+          name: 'buffer_duration',
+          brief: 'The stream buffer duration in seconds.',
+          detail: 'Use care when setting this value. \
+The software requires 1.5 GB of RAM for every 60 seconds.',
+          type: 'str',
+          options: ['15', '30', '60', '90', '120', '180', '240', '300'],
+          default: '30',
+        },
+
       ]
     }, // Device end
 

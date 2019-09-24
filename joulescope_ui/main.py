@@ -47,6 +47,7 @@ from joulescope_ui.exporter import Exporter
 import io
 import ctypes
 import collections
+import copy
 import traceback
 import time
 import webbrowser
@@ -135,6 +136,8 @@ class DeviceDisable:
 
 class MainWindow(QtWidgets.QMainWindow):
     on_deviceNotifySignal = QtCore.Signal(object, object)
+    _deviceOpenRequestSignal = QtCore.Signal(object)
+    _deviceScanRequestSignal = QtCore.Signal()
     on_stopSignal = QtCore.Signal(int, str)
     on_statisticSignal = QtCore.Signal(object)
     on_xChangeSignal = QtCore.Signal(str, object)
@@ -212,6 +215,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.addDockWidget(QtCore.Qt.LeftDockWidgetArea, self.dev_dock_widget)
         self.ui.menuView.addAction(self.dev_dock_widget.toggleViewAction())
         self.on_deviceNotifySignal.connect(self.device_notify)
+        self._deviceOpenRequestSignal.connect(self.on_deviceOpen, type=QtCore.Qt.QueuedConnection)
+        self._deviceScanRequestSignal.connect(self.on_deviceScan, type=QtCore.Qt.QueuedConnection)
 
         # Control widget
         self.control_dock_widget = QtWidgets.QDockWidget('Control', self)
@@ -460,6 +465,7 @@ class MainWindow(QtWidgets.QMainWindow):
         log.info('on_developer(%r)', do_show)
         self.dev_dock_widget.setVisible(do_show)
 
+    @QtCore.Slot(object, object)
     def device_notify(self, inserted, info):
         log.info('Device notify')
         self._device_scan()
@@ -638,6 +644,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self._accumulators_zero_last()
         self._device = device
         if self._has_active_device:
+            if hasattr(self._device, 'stream_buffer_duration'):
+                self._device.stream_buffer_duration = float(self._cfg['Device']['buffer_duration'])
             try:
                 self._device.open(self.on_deviceEventSignal.emit)
             except:
@@ -713,16 +721,20 @@ class MainWindow(QtWidgets.QMainWindow):
         self.control_ui.iRangeComboBox.setEnabled(False)
         self.control_ui.vRangeComboBox.setEnabled(False)
 
-    def _waveform_cfg_apply(self):
+    def _waveform_cfg_apply(self, previous_cfg=None):
         self.oscilloscope_widget.config_apply(self._cfg['Waveform'])
 
-    def _device_cfg_apply(self, do_open=False):
+    def _device_cfg_apply(self, previous_cfg=None, do_open=False):
+        reopen = False
         if self._has_active_device:
             log.info('_device_cfg_apply')
             self._on_param_change('source', value=self._cfg['Device']['source'])
             self._on_param_change('i_range', value=self._cfg['Device']['i_range'])
             self._on_param_change('v_range', value=self._cfg['Device']['v_range'])
-            if do_open and self._cfg['Device']['autostream']:
+            if hasattr(self._device, 'stream_buffer_duration') and previous_cfg is not None and \
+                    previous_cfg['Device']['buffer_duration'] != self._cfg['Device']['buffer_duration']:
+                reopen = True
+            elif do_open and self._cfg['Device']['autostream']:
                 self._device_stream(True)
         rescan_interval = self._cfg['Device']['rescan_interval']
         if rescan_interval == 'off':
@@ -730,8 +742,10 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.rescan_timer.setInterval(int(rescan_interval) * 1000)  # milliseconds
             self.rescan_timer.start()
+        if reopen:
+            self._device_reopen()
 
-    def _developer_cfg_apply(self):
+    def _developer_cfg_apply(self, previous_cfg=None):
         log.info('_developer_cfg_apply')
         return
         self._compliance['gpo_value'] = 0
@@ -791,8 +805,17 @@ class MainWindow(QtWidgets.QMainWindow):
         devices, self._devices = self._devices, []
         for device in devices:
             self._device_remove(device)
-        self._device_scan()
+        self._deviceScanRequestSignal.emit()
         log.info('_device_recover: done')
+
+    def _device_reopen(self):
+        d = self._device
+        self._device_close()
+        self._deviceOpenRequestSignal.emit(d)
+
+    @QtCore.Slot(object)
+    def on_deviceOpen(self, d):
+        self._device_open(d)
 
     def _device_add(self, device):
         """Add device to the user interface"""
@@ -877,6 +900,10 @@ class MainWindow(QtWidgets.QMainWindow):
         finally:
             self._is_scanning = False
         log.info('_device_scan done')
+
+    @QtCore.Slot()
+    def on_deviceScan(self):
+        self._device_scan()
 
     def _progress_dialog_construct(self):
         dialog = QtWidgets.QProgressDialog()
@@ -1290,15 +1317,16 @@ class MainWindow(QtWidgets.QMainWindow):
             cfg['Device']['i_range_update'] = (self._cfg['Device']['i_range'] != cfg['Device']['i_range'])
             cfg['Device']['v_range_update'] = (self._cfg['Device']['v_range'] != cfg['Device']['v_range'])
 
+            previous_cfg = copy.deepcopy(self._cfg)
             dict_update_recursive(self._cfg, cfg)
             save_config(self._cfg)
-            self._cfg_apply()
+            self._cfg_apply(previous_cfg=previous_cfg)
 
-    def _cfg_apply(self):
+    def _cfg_apply(self, previous_cfg=None):
         log.debug('_cfg_apply: start')
-        self._device_cfg_apply()
-        self._waveform_cfg_apply()
-        self._developer_cfg_apply()
+        self._device_cfg_apply(previous_cfg=previous_cfg)
+        self._waveform_cfg_apply(previous_cfg=previous_cfg)
+        self._developer_cfg_apply(previous_cfg=previous_cfg)
         log.debug('_cfg_apply: end')
 
     @QtCore.Slot(float)

@@ -6,8 +6,8 @@
 ; http://www.jrsoftware.org/ishelp/index.php?topic=setup_signtool
 
 #define MyAppName "Joulescope"
-#define MyAppVersion "0.6.3"
-#define MyAppVersionUnderscores "0_6_3"
+#define MyAppVersion "0.6.4"
+#define MyAppVersionUnderscores "0_6_4"
 #define MyAppPublisher "Jetperch LLC"
 #define MyAppURL "https://www.joulescope.com"
 #define MyAppExeName "joulescope.exe"
