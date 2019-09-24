@@ -170,20 +170,23 @@ class MeterValueWidget(QtWidgets.QWidget):
                 widget.setStyleSheet(stylesheet)
 
     def _update_value(self, mean, variance, v_min, v_max):
-        self._accum_count += 1
         if self._accum_enable:
-            self.v_min = min(self.v_min, v_min)
-            self.v_max = max(self.v_max, v_max)
-            self.v_p2p = max(self.v_p2p, self.v_p2p)
+            if np.isfinite(v_min) and np.isfinite(v_max):
+                self.v_min = min(self.v_min, v_min)
+                self.v_max = max(self.v_max, v_max)
+                self.v_p2p = max(self.v_p2p, self.v_p2p)
 
-            m = self.v_mean + (mean - self.v_mean) / self._accum_count
-            if self._accum_count <= 1:
+            if np.isfinite(mean) and np.isfinite(variance):
+                self._accum_count += 1
+                m = self.v_mean + (mean - self.v_mean) / self._accum_count
+                if self._accum_count <= 1:
+                    self.v_mean = m
+                v = (mean - self.v_mean) * (mean - m) + variance
+                dv = (v - self.v_var) / self._accum_count
+                self.v_var += dv
                 self.v_mean = m
-            v = (mean - self.v_mean) * (mean - m) + variance
-            dv = (v - self.v_var) / self._accum_count
-            self.v_var += dv
-            self.v_mean = m
         else:
+            self._accum_count += 1
             self.v_mean = mean
             self.v_var = variance
             self.v_min = v_min

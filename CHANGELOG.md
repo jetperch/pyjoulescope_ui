@@ -4,6 +4,13 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.6.4
+
+2019 Sep 25 [in progress]
+
+* Added NaN checks in multimeter when accumulating (Issue #2).
+
+
 ## 0.6.3
 
 2019 Sep 22
