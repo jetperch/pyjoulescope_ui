@@ -258,7 +258,8 @@ class Signal(QtCore.QObject):
             * length Nx4 array of [mean, var, min, max].  Note that
               var, min, max may be NaN when not available.
         """
-        self.text_item.data_clear()
+        if self.text_item:
+            self.text_item.data_clear()
         if x is None or value is None or len(x) <= 1:
             self.data_clear()
             return
@@ -277,7 +278,8 @@ class Signal(QtCore.QObject):
         if not len(z_mean_valid):
             if len(z_mean):
                 self.log.info('no valid data: %d -> %d', len(z_mean), len(z_mean_valid))
-            self.text_item.data_clear()
+            if self.text_item:
+                self.text_item.data_clear()
             return
 
         x_range = x[-1] - x[0]

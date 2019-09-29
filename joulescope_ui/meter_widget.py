@@ -85,6 +85,8 @@ class MeterWidget(QtWidgets.QWidget):
         else:
             self._accumulate_duration = statistics['time']['delta']
         for name, field in statistics['signals'].items():
+            if name not in self.values:
+                continue
             d = field['statistics']
             self.values[name].update_value(mean=d['μ'], variance=d['σ2'], v_min=d['min'], v_max=d['max'])
         accum_time = statistics['time']['accumulator']

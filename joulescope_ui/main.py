@@ -292,18 +292,18 @@ class MainWindow(QtWidgets.QMainWindow):
                 'y_limit': [-2.4, 150.0],
                 'y_log_min': 1e-9,
             },
-            # {
-            #     'name': 'gpi0',
-            #     'y_limit': [0, 1.0],
-            # },
-            # {
-            #     'name': 'gpi1',
-            #     'y_limit': [0, 1.0],
-            # },
-            # {
-            #     'name': 'i_range',
-            #     'y_limit': [0.0, 7.0],
-            # },
+            {
+                'name': 'current_range',
+                'y_limit': [-0.1, 8.1],
+            },
+            {
+                'name': 'gpi0',
+                'y_limit': [-0.1, 1.1],
+            },
+            {
+                'name': 'gpi1',
+                'y_limit': [-0.1, 1.1],
+            },
         ]
         self.oscilloscope_widget.signal_configure(signals)
 
