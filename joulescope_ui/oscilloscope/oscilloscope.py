@@ -172,10 +172,11 @@ class Oscilloscope(QtWidgets.QWidget):
         self.signal_add(name=signal['name'],
                         units=signal.get('units'),
                         y_limit=signal.get('y_limit'),
-                        y_log_min=signal.get('y_log_min'))
+                        y_log_min=signal.get('y_log_min'),
+                        y_range=signal.get('y_range'))
 
-    def signal_add(self, name, units=None, y_limit=None, y_log_min=None):
-        s = Signal(name=name, units=units, y_limit=y_limit, y_log_min=y_log_min)
+    def signal_add(self, name, units=None, y_limit=None, y_log_min=None, y_range=None):
+        s = Signal(name=name, units=units, y_limit=y_limit, y_log_min=y_log_min, y_range=y_range)
         s.addToLayout(self.win, row=self.win.ci.layout.rowCount())
         s.sigRefreshRequest.connect(self.sigRefreshRequest.emit)
         s.sigHideRequestEvent.connect(self.on_signalHide)

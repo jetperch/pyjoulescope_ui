@@ -150,6 +150,10 @@ class YAxis(pg.AxisItem):
         self.config.update(**kwargs)
         self.sigConfigEvent.emit(self.config.copy())
 
+    def range_set(self, value):
+        self.config['range'] = value
+        self.menu.range_set(value)
+
     def mouseClickEvent(self, event, axis=None):
         if self.linkedView() is None:
             return

@@ -47,7 +47,7 @@ class Signal(QtCore.QObject):
     sigRefreshRequest = QtCore.Signal()
     """Request a data refresh"""
 
-    def __init__(self, name, units=None, y_limit=None, y_log_min=None):
+    def __init__(self, name, units=None, y_limit=None, y_log_min=None, y_range=None):
         QtCore.QObject.__init__(self)
         self.text_item = None
         self.name = name
@@ -58,6 +58,7 @@ class Signal(QtCore.QObject):
             'y-axis': {
                 'limit': y_limit,
                 'log_min': y_log_min,
+                'range': 'auto' if y_range is None else y_range
             },
             'show_min_max': 'lines',  # ['lines', 'fill',  'off']
             'decimate_min_max': 1,
@@ -101,6 +102,7 @@ class Signal(QtCore.QObject):
         self.y_axis.sigWheelZoomYEvent.connect(self.on_wheelZoomY)
         self.y_axis.sigPanYEvent.connect(self.on_panY)
         self.y_axis.sigHideRequestEvent.connect(lambda name: self.sigHideRequestEvent.emit(name))
+        self.y_axis.range_set(self.config['y-axis']['range'])
 
     def set_xlimits(self, x_min, x_max):
         self.vb.setLimits(xMin=x_min, xMax=x_max)

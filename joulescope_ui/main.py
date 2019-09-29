@@ -278,12 +278,14 @@ class MainWindow(QtWidgets.QMainWindow):
                 'units': 'A',
                 'y_limit': [-2.0, 10.0],
                 'y_log_min': 1e-9,
+                'y_range': 'auto',
                 'show': True,
             },
             {
                 'name': 'voltage',
                 'units': 'V',
                 'y_limit': [-1.2, 15.0],
+                'y_range': 'auto',
                 'show': True,
             },
             {
@@ -291,18 +293,22 @@ class MainWindow(QtWidgets.QMainWindow):
                 'units': 'W',
                 'y_limit': [-2.4, 150.0],
                 'y_log_min': 1e-9,
+                'y_range': 'auto',
             },
             {
                 'name': 'current_range',
                 'y_limit': [-0.1, 8.1],
+                'y_range': 'manual',
             },
             {
                 'name': 'gpi0',
                 'y_limit': [-0.1, 1.1],
+                'y_range': 'manual',
             },
             {
                 'name': 'gpi1',
                 'y_limit': [-0.1, 1.1],
+                'y_range': 'manual',
             },
         ]
         self.oscilloscope_widget.signal_configure(signals)
