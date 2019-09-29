@@ -301,12 +301,12 @@ class MainWindow(QtWidgets.QMainWindow):
                 'y_range': 'manual',
             },
             {
-                'name': 'gpi0',
+                'name': 'current_lsb',
                 'y_limit': [-0.1, 1.1],
                 'y_range': 'manual',
             },
             {
-                'name': 'gpi1',
+                'name': 'voltage_lsb',
                 'y_limit': [-0.1, 1.1],
                 'y_range': 'manual',
             },
