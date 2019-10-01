@@ -78,8 +78,7 @@ class Signal(QtCore.QObject):
         self._most_recent_data = None
         if name is not None:
             self.y_axis.setLabel(text=name, units=units)
-            if units is not None:
-                self.text_item = SignalStatistics(units=units)
+            self.text_item = SignalStatistics(units=units)
 
         self._pen_min_max = pg.mkPen(color=(255, 64, 64), width=CURVE_WIDTH)
         self._brush_min_max = pg.mkBrush(color=(255, 64, 64, 80))
