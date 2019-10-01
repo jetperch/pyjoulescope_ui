@@ -11,6 +11,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added NaN checks in multimeter when accumulating (Issue #2).
 * Added configurable stream buffer duration (was fixed at 30 seconds).
 * Added general-purpose input (GPI) support.
+* Only update oscilloscope when visible (improve performance).
 
 
 ## 0.6.3

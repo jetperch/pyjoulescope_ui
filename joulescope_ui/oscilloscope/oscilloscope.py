@@ -302,6 +302,8 @@ class Oscilloscope(QtWidgets.QWidget):
                 item.setMaximumWidth(16777215)
 
     def data_update(self, data):
+        if not self.isVisible():
+            return
         if data is None or not bool(data):
             self.data_clear()
             return
