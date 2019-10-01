@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>666</width>
-    <height>134</height>
+    <height>34</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -29,6 +29,9 @@
    </item>
    <item>
     <widget class="QPushButton" name="input1Button">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {padding-left: 10px; padding-right: 10px;}</string>
+     </property>
      <property name="text">
       <string>1</string>
      </property>
@@ -39,6 +42,9 @@
    </item>
    <item>
     <widget class="QPushButton" name="input0Button">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {padding-left: 10px; padding-right: 10px;}</string>
+     </property>
      <property name="text">
       <string>0</string>
      </property>
@@ -69,6 +75,9 @@
    </item>
    <item>
     <widget class="QPushButton" name="output1Button">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {padding-left: 10px; padding-right: 10px;}</string>
+     </property>
      <property name="text">
       <string>1</string>
      </property>
@@ -79,6 +88,9 @@
    </item>
    <item>
     <widget class="QPushButton" name="output0Button">
+     <property name="styleSheet">
+      <string notr="true">QPushButton {padding-left: 10px; padding-right: 10px;}</string>
+     </property>
      <property name="text">
       <string>0</string>
      </property>
