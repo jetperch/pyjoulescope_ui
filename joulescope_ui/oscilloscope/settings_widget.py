@@ -45,7 +45,7 @@ class SettingsWidget(pg.ViewBox):
         return cbk
 
     def on_signalsAvailable(self, signals, visible=None):
-        log.info('on_signalsAvailable(%s, %s)', signals, visible)
+        log.info('on_signalsAvailable(%s, %s)', [x['name'] for x in signals], visible)
         self._signals_available = signals
         self._signals_visible = visible
 
@@ -58,8 +58,8 @@ class SettingsWidget(pg.ViewBox):
 
         for s in self._signals_available:
             if s not in self._signals_visible:
-                a = QtGui.QAction(s, signal_add)
-                a.triggered.connect(self._signal_add_construct(s))
+                a = QtGui.QAction(s['display_name'], signal_add)
+                a.triggered.connect(self._signal_add_construct(s['name']))
                 signal_add.addAction(a)
                 signal_add_actions.append(a)
         if len(signal_add_actions):

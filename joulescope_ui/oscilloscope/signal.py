@@ -47,7 +47,7 @@ class Signal(QtCore.QObject):
     sigRefreshRequest = QtCore.Signal()
     """Request a data refresh"""
 
-    def __init__(self, name, units=None, y_limit=None, y_log_min=None, y_range=None):
+    def __init__(self, name, display_name=None, units=None, y_limit=None, y_log_min=None, y_range=None, **kwargs):
         QtCore.QObject.__init__(self)
         self.text_item = None
         self.name = name
@@ -76,8 +76,10 @@ class Signal(QtCore.QObject):
         self.y_axis.setGrid(128)
 
         self._most_recent_data = None
-        if name is not None:
-            self.y_axis.setLabel(text=name, units=units)
+        if display_name is None:
+            display_name = name
+        if display_name is not None:
+            self.y_axis.setLabel(text=display_name, units=units)
             self.text_item = SignalStatistics(units=units)
 
         self._pen_min_max = pg.mkPen(color=(255, 64, 64), width=CURVE_WIDTH)

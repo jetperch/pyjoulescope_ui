@@ -29,13 +29,14 @@ from joulescope_ui.uart import UartWidget
 from joulescope_ui.meter_widget import MeterWidget
 from joulescope_ui.data_view_api import NullView
 from joulescope_ui.single_value_widget import SingleValueWidget
+from joulescope_ui.gpio import GpioWidget
 from joulescope.usb import DeviceNotify
 from joulescope.units import unit_prefix, three_sig_figs
 from joulescope_ui.data_recorder_process import DataRecorderProcess as DataRecorder
 from joulescope.data_recorder import construct_record_filename  # DataRecorder
 from joulescope_ui.recording_viewer_device import RecordingViewerDevice
 from joulescope_ui.preferences import PreferencesDialog
-from joulescope_ui.config import load_config_def, load_config, save_config
+from joulescope_ui.config import load_config_def, load_config, save_config, find_child_by_name
 from joulescope_ui.update_check import check as software_update_check
 from joulescope_ui.logging_util import logging_config
 from joulescope_ui.oscilloscope.signal_statistics import si_format, html_format, three_sig_figs
@@ -256,6 +257,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.single_value_dock_widget)
         self.ui.menuView.addAction(self.single_value_dock_widget.toggleViewAction())
 
+        # GPIO Widget
+        self.gpio_dock_widget = QtWidgets.QDockWidget('GPI/O', self)
+        self.gpio_widget = GpioWidget(self.gpio_dock_widget)
+        self.gpio_dock_widget.setVisible(False)
+        self.gpio_dock_widget.setWidget(self.gpio_widget)
+        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.gpio_dock_widget)
+        self.ui.menuView.addAction(self.gpio_dock_widget.toggleViewAction())
+        gpio_def = find_child_by_name(self._cfg_def, 'GPIO')
+        io_voltage_def = find_child_by_name(gpio_def, 'io_voltage')
+        self.gpio_widget.init([x['name'] for x in io_voltage_def['options']])
+        self.gpio_widget.on_changeSignal.connect(self._on_gpio_cfg_change)
+
         # UART widget
         self.uart_dock_widget = QtWidgets.QDockWidget('Uart', self)
         self.uart_widget = UartWidget(self.uart_dock_widget)
@@ -302,11 +315,13 @@ class MainWindow(QtWidgets.QMainWindow):
             },
             {
                 'name': 'current_lsb',
+                'display_name': 'gpi0',
                 'y_limit': [-0.1, 1.1],
                 'y_range': 'manual',
             },
             {
                 'name': 'voltage_lsb',
+                'display_name': 'gpi1',
                 'y_limit': [-0.1, 1.1],
                 'y_range': 'manual',
             },
@@ -730,13 +745,40 @@ class MainWindow(QtWidgets.QMainWindow):
     def _waveform_cfg_apply(self, previous_cfg=None):
         self.oscilloscope_widget.config_apply(self._cfg['Waveform'])
 
+    def _gpio_cfg_apply(self, previous_cfg=None):
+        self.gpio_widget.update(self._cfg['GPIO'])
+        if not hasattr(self._device, 'parameter_set'):
+            return
+        if previous_cfg is None:
+            previous_cfg = {}
+
+        for key, value in self._cfg['GPIO'].items():
+            previous_value = previous_cfg.get(key)
+            if previous_value != value:
+                log.info('Set %s to %s (was %s)', key, value, previous_value)
+                try:
+                    self._device.parameter_set(key, value)
+                except Exception:
+                    log.exception('during parameter_set')
+                    self.status('Parameter set %s failed, value=%s' % (key, value))
+                    self._device_recover()
+
+    @QtCore.Slot(object)
+    def _on_gpio_cfg_change(self, gpio_state):
+        previous_cfg = copy.deepcopy(self._cfg)
+        dict_update_recursive(self._cfg['GPIO'], gpio_state)
+        save_config(self._cfg)
+        self._gpio_cfg_apply(previous_cfg)
+
     def _device_cfg_apply(self, previous_cfg=None, do_open=False):
+        log.info('_device_cfg_apply')
         reopen = False
+        self.gpio_widget.update(self._cfg['GPIO'])
         if self._has_active_device:
-            log.info('_device_cfg_apply')
             self._on_param_change('source', value=self._cfg['Device']['source'])
             self._on_param_change('i_range', value=self._cfg['Device']['i_range'])
             self._on_param_change('v_range', value=self._cfg['Device']['v_range'])
+            self._gpio_cfg_apply(previous_cfg)
             if hasattr(self._device, 'stream_buffer_duration') and previous_cfg is not None and \
                     previous_cfg['Device']['buffer_duration'] != self._cfg['Device']['buffer_duration']:
                 reopen = True
@@ -1330,7 +1372,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def _cfg_apply(self, previous_cfg=None):
         log.debug('_cfg_apply: start')
-        self._device_cfg_apply(previous_cfg=previous_cfg)
+        self._device_cfg_apply(previous_cfg=previous_cfg)  # includes GPIO
         self._waveform_cfg_apply(previous_cfg=previous_cfg)
         self._developer_cfg_apply(previous_cfg=previous_cfg)
         log.debug('_cfg_apply: end')

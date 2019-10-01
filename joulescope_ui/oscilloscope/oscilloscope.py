@@ -162,27 +162,25 @@ class Oscilloscope(QtWidgets.QWidget):
             * show: True to show.  Not shown by default.
         """
         for signal in signals:
-            self._signals_def[signal['name']] = copy.deepcopy(signal)
+            signal = copy.deepcopy(signal)
+            signal['display_name'] = signal.get('display_name', signal['name'])
+            self._signals_def[signal['name']] = signal
             if signal.get('show'):
                 self._on_signalAdd(signal['name'])
         self._vb_relink()
 
     def _on_signalAdd(self, name):
         signal = self._signals_def[name]
-        self.signal_add(name=signal['name'],
-                        units=signal.get('units'),
-                        y_limit=signal.get('y_limit'),
-                        y_log_min=signal.get('y_log_min'),
-                        y_range=signal.get('y_range'))
+        self.signal_add(signal)
 
-    def signal_add(self, name, units=None, y_limit=None, y_log_min=None, y_range=None):
-        s = Signal(name=name, units=units, y_limit=y_limit, y_log_min=y_log_min, y_range=y_range)
+    def signal_add(self, signal):
+        s = Signal(**signal)
         s.addToLayout(self.win, row=self.win.ci.layout.rowCount())
         s.sigRefreshRequest.connect(self.sigRefreshRequest.emit)
         s.sigHideRequestEvent.connect(self.on_signalHide)
         s.vb.sigWheelZoomXEvent.connect(self._scrollbar.on_wheelZoomX)
         s.vb.sigPanXEvent.connect(self._scrollbar.on_panX)
-        self._signals[name] = s
+        self._signals[signal['name']] = s
         self._vb_relink()  # Linking to last axis makes grid draw correctly
         s.y_axis.setGrid(self.config['grid_y'])
 
@@ -284,7 +282,7 @@ class Oscilloscope(QtWidgets.QWidget):
                 p.vb.setXLink(None)
             else:
                 p.vb.setXLink(vb)
-        self._settings_widget.on_signalsAvailable(list(self._signals_def.keys()),
+        self._settings_widget.on_signalsAvailable(list(self._signals_def.values()),
                                                   visible=list(self._signals.keys()))
 
     def values_column_hide(self):

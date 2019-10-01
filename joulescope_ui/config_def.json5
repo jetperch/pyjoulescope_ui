@@ -166,10 +166,55 @@ The software requires 1.5 GB of RAM for every 60 seconds.',
           options: ['15', '30', '60', '90', '120', '180', '240', '300'],
           default: '30',
         },
-
       ]
     }, // Device end
 
+    {
+      name: 'GPIO',
+      brief: 'Joulescope device GPIO settings',
+      type: 'map',
+      children: [
+        {
+          name: 'io_voltage',
+          brief: 'The GPI/O high-level voltage.',
+          type: 'str',
+          options: ['1.8V', '2.1V', '2.5V', '2.7V', '3.0V', '3.3V', '5.0V'],
+          default: '3.3V',
+        },
+
+        {
+          name: 'gpo0',
+          brief: 'The GPO bit 0 output value.',
+          type: 'str',
+          options: ['0', '1'],
+          default: '0',
+        },
+
+        {
+          name: 'gpo1',
+          brief: 'The GPO bit 1 output value.',
+          type: 'str',
+          options: ['0', '1'],
+          default: '0',
+        },
+
+        {
+          name: 'current_lsb',
+          brief: 'The current signal least-significant bit mapping.',
+          type: 'str',
+          options: ['normal', 'gpi0'],
+          default: 'normal',
+        },
+
+        {
+          name: 'voltage_lsb',
+          brief: 'The voltage signal least-significant bit mapping.',
+          type: 'str',
+          options: ['normal', 'gpi1'],
+          default: 'normal',
+        },
+      ],
+    },
 
     {
       name: 'Waveform',
