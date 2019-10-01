@@ -751,9 +751,10 @@ class MainWindow(QtWidgets.QMainWindow):
             return
         if previous_cfg is None:
             previous_cfg = {}
+        previous_gpio_cfg = previous_cfg.get('GPIO', {})
 
         for key, value in self._cfg['GPIO'].items():
-            previous_value = previous_cfg.get(key)
+            previous_value = previous_gpio_cfg.get(key)
             if previous_value != value:
                 log.info('Set %s to %s (was %s)', key, value, previous_value)
                 try:
