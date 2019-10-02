@@ -28,6 +28,9 @@ class GpioWidget(QtWidgets.QWidget):
         self._state = None
         self._io_voltages = []
         self._update_active = False
+        self._inputs = [('current_lsb', self.ui.input0CheckBox, self.ui.input0Label),
+                        ('voltage_lsb', self.ui.input1CheckBox, self.ui.input1Label)]
+        self.data_update_clear()
 
     def init(self, voltages):
         self._io_voltages = voltages
@@ -38,8 +41,8 @@ class GpioWidget(QtWidgets.QWidget):
         self.ui.voltageComboBox.currentIndexChanged.connect(self._on_voltage_change)
         self.ui.output0Button.toggled.connect(self._on_button_change)
         self.ui.output1Button.toggled.connect(self._on_button_change)
-        self.ui.input0Button.toggled.connect(self._on_button_change)
-        self.ui.input1Button.toggled.connect(self._on_button_change)
+        self.ui.input0CheckBox.toggled.connect(self._on_button_change)
+        self.ui.input1CheckBox.toggled.connect(self._on_button_change)
 
     def update(self, state=None):
         if state is not None:
@@ -60,14 +63,12 @@ class GpioWidget(QtWidgets.QWidget):
             if button.isChecked() != checked:
                 button.setChecked(checked)
 
-        input_buttons = [
-            (self.ui.input0Button, self._state['current_lsb']),
-            (self.ui.input1Button, self._state['voltage_lsb']),
-        ]
-        for button, value in input_buttons:
+        for name, checkbox, _ in self._inputs:
+            value = self._state[name]
             checked = (value != 'normal')
-            if button.isChecked() != checked:
-                button.setChecked(checked)
+            if checkbox.isChecked() != checked:
+                checkbox.setChecked(checked)
+        self.data_update_clear()
         self._update_active = False
 
     def extract(self):
@@ -75,8 +76,8 @@ class GpioWidget(QtWidgets.QWidget):
             'io_voltage': str(self.ui.voltageComboBox.currentText()),
             'gpo0': '1' if self.ui.output0Button.isChecked() else '0',
             'gpo1': '1' if self.ui.output1Button.isChecked() else '0',
-            'current_lsb': 'gpi0' if self.ui.input0Button.isChecked() else 'normal',
-            'voltage_lsb': 'gpi1' if self.ui.input1Button.isChecked() else 'normal',
+            'current_lsb': 'gpi0' if self.ui.input0CheckBox.isChecked() else 'normal',
+            'voltage_lsb': 'gpi1' if self.ui.input1CheckBox.isChecked() else 'normal',
         }
         return state
 
@@ -84,6 +85,7 @@ class GpioWidget(QtWidgets.QWidget):
         if self._update_active:
             return
         state = self.extract()
+        self.data_update_clear()
         if state != self._state:
             self._state = state
             self.on_changeSignal.emit(state)
@@ -99,12 +101,19 @@ class GpioWidget(QtWidgets.QWidget):
     def data_update(self, data):
         if not self.isVisible():
             return
-        for signal_name, label in [('current_lsb', self.ui.input0Label), ('voltage_lsb', self.ui.input1Label)]:
+        for signal_name, checkbox, label in self._inputs:
             if signal_name not in data['signals']:
                 continue
             v = data['signals'][signal_name]['μ']
             if len(v):
                 v = str(int(v[-1]))
             else:
-                v = ' '
+                v = '_'
             label.setText(v)
+
+    def data_update_clear(self):
+        for _, checkbox, label in self._inputs:
+            if not checkbox.isChecked():
+                label.setStyleSheet('QLabel {color: rgba(255, 255, 255, 255); }')
+            else:
+                label.setStyleSheet('QLabel {color: blue; }')
