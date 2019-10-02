@@ -315,13 +315,13 @@ class MainWindow(QtWidgets.QMainWindow):
             },
             {
                 'name': 'current_lsb',
-                'display_name': 'gpi0',
+                'display_name': 'in0',
                 'y_limit': [-0.1, 1.1],
                 'y_range': 'manual',
             },
             {
                 'name': 'voltage_lsb',
-                'display_name': 'gpi1',
+                'display_name': 'in1',
                 'y_limit': [-0.1, 1.1],
                 'y_range': 'manual',
             },
@@ -428,6 +428,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def _on_data_update(self, data):
         self._fps_counter += 1
         self.oscilloscope_widget.data_update(data)
+        self.gpio_widget.data_update(data)
         if self._is_streaming and self._data_view is not None:
             self._fps_limit_timer.stop()
             self._fps_limit_timer.start(30)  # help to limit the frame rate for smoother animation

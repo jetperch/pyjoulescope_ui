@@ -95,3 +95,16 @@ class GpioWidget(QtWidgets.QWidget):
     @QtCore.Slot(object)
     def _on_voltage_change(self, value):
         self._handle_event()
+
+    def data_update(self, data):
+        if not self.isVisible():
+            return
+        for signal_name, label in [('current_lsb', self.ui.input0Label), ('voltage_lsb', self.ui.input1Label)]:
+            if signal_name not in data['signals']:
+                continue
+            v = data['signals'][signal_name]['μ']
+            if len(v):
+                v = str(int(v[-1]))
+            else:
+                v = ' '
+            label.setText(v)

@@ -21,35 +21,48 @@
   </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
    <item>
-    <widget class="QLabel" name="inputsLabel">
-     <property name="text">
-      <string>Inputs</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QPushButton" name="input1Button">
+     <property name="toolTip">
+      <string>Click to enable input 1, which overwrites the voltage least-significant bit.</string>
+     </property>
      <property name="styleSheet">
       <string notr="true">QPushButton {padding-left: 10px; padding-right: 10px;}</string>
      </property>
      <property name="text">
-      <string>1</string>
+      <string>IN1</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="input1Label">
+     <property name="text">
+      <string>0</string>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QPushButton" name="input0Button">
+     <property name="toolTip">
+      <string>Click to enable input 0, which overwrites the current least-significant bit.</string>
+     </property>
      <property name="styleSheet">
       <string notr="true">QPushButton {padding-left: 10px; padding-right: 10px;}</string>
      </property>
      <property name="text">
-      <string>0</string>
+      <string>IN0</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLabel" name="input0Label">
+     <property name="text">
+      <string>0</string>
      </property>
     </widget>
    </item>
@@ -67,19 +80,15 @@
     </spacer>
    </item>
    <item>
-    <widget class="QLabel" name="outputsLabel">
-     <property name="text">
-      <string>Outputs</string>
-     </property>
-    </widget>
-   </item>
-   <item>
     <widget class="QPushButton" name="output1Button">
+     <property name="toolTip">
+      <string>Click to set output 1 to digitial high.</string>
+     </property>
      <property name="styleSheet">
       <string notr="true">QPushButton {padding-left: 10px; padding-right: 10px;}</string>
      </property>
      <property name="text">
-      <string>1</string>
+      <string>OUT1</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -88,11 +97,14 @@
    </item>
    <item>
     <widget class="QPushButton" name="output0Button">
+     <property name="toolTip">
+      <string>Click to set output 0 to digitial high.</string>
+     </property>
      <property name="styleSheet">
       <string notr="true">QPushButton {padding-left: 10px; padding-right: 10px;}</string>
      </property>
      <property name="text">
-      <string>0</string>
+      <string>OUT0</string>
      </property>
      <property name="checkable">
       <bool>true</bool>
@@ -120,7 +132,11 @@
     </widget>
    </item>
    <item>
-    <widget class="QComboBox" name="voltageComboBox"/>
+    <widget class="QComboBox" name="voltageComboBox">
+     <property name="toolTip">
+      <string>Select the digital high-level reference voltage for the general purpose inputs and outputs.</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
