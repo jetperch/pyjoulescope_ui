@@ -14,6 +14,8 @@
 
 from PySide2 import QtCore, QtWidgets
 from joulescope_ui.gpio_widget import Ui_Gpio
+import numpy as np
+
 
 VOLTAGES = ['1.8V', '2.1V', '2.5V', '2.7V', '3.0V', '3.3V', '5.0V']
 
@@ -105,7 +107,7 @@ class GpioWidget(QtWidgets.QWidget):
             if signal_name not in data['signals']:
                 continue
             v = data['signals'][signal_name]['μ']
-            if len(v):
+            if len(v) and np.isfinite(v[-1]):
                 v = str(int(v[-1]))
             else:
                 v = '_'
