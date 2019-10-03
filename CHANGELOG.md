@@ -6,7 +6,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.6.4
 
-2019 Sep 25 [in progress]
+2019 Oct 3
 
 * Added NaN checks in multimeter when accumulating (Issue #2).
 * Added configurable stream buffer duration (was fixed at 30 seconds).
