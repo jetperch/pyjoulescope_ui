@@ -25,6 +25,7 @@ URL = 'https://formulae.brew.sh/api/formula/libusb.json'
 
 VERSION_MAP = {
     # friendly name, darwin version
+    'catalina', 19,
     'mojave': 18,
     'high_sierra': 17,
     'sierra': 16,
