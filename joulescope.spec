@@ -98,7 +98,7 @@ if sys.platform.startswith('darwin'):
                  icon='joulescope_ui/resources/icon.icns',
                  bundle_identifier='com.jetperch.joulescope',
                  info_plist={
-                     'CFBundleName': 'Jetperch LLC',
+                     'CFBundleName': 'Joulescope',
                      'CFBundleVersion': joulescope_ui.VERSION,
                  })
     print('sign app')
