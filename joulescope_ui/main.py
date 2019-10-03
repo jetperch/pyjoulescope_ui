@@ -504,6 +504,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.single_value_dock_widget.setVisible(False)
         self.uart_dock_widget.setVisible(False)
         self.oscilloscope_dock_widget.setVisible(False)
+        self.gpio_dock_widget.setVisible(False)
 
         self.adjustSize()
         self.center()
@@ -539,6 +540,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.single_value_dock_widget.setVisible(False)
         self.uart_dock_widget.setVisible(False)
         self.oscilloscope_dock_widget.setVisible(True)
+        self.gpio_dock_widget.setVisible(False)
         self.center_and_resize(0.85, 0.85)
         # docks = [self.oscilloscope_dock_widget]
         # self.resizeDocks(docks, [1000], QtCore.Qt.Vertical)
