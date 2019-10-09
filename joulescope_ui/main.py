@@ -58,6 +58,7 @@ log = logging.getLogger(__name__)
 
 STATUS_BAR_TIMEOUT = 5000  # milliseconds
 USERS_GUIDE_URL = "https://www.joulescope.com/docs/JoulescopeUsersGuide.html"
+FRAME_LIMIT_DELAY_MS = 30
 
 
 ABOUT = """\
@@ -431,7 +432,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.gpio_widget.data_update(data)
         if self._is_streaming and self._data_view is not None:
             self._fps_limit_timer.stop()
-            self._fps_limit_timer.start(30)  # help to limit the frame rate for smoother animation
+            self._fps_limit_timer.start(FRAME_LIMIT_DELAY_MS)  # help to limit the frame rate for smoother animation
         # self.oscilloscope_widget.data_clear()
 
     @QtCore.Slot()
