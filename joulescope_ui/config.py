@@ -201,6 +201,8 @@ def load_config(config_def, path=None, default_on_error=None):
             if os.path.isfile(p):
                 path = p
                 break
+    if path is None:
+        path = '__not_found__'
     if not isinstance(path, str):
         cfg = json.load(path)
     elif not os.path.isfile(path):

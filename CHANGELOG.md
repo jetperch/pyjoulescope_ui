@@ -4,6 +4,13 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.6.6
+
+2019 Oct 9
+
+* Fixed configuration to work on new installations (error introduced in 0.6.5).
+
+
 ## 0.6.5
 
 2019 Oct 9

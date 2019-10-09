@@ -21,6 +21,7 @@ import os
 import io
 import tempfile
 import shutil
+import joulescope_ui.config
 from joulescope_ui.config import load_config_def, load_config, save_config
 
 MYPATH = os.path.dirname(os.path.abspath(__file__))
@@ -89,11 +90,25 @@ class TestConfig(unittest.TestCase):
 class TestConfigSave(unittest.TestCase):
 
     def setUp(self):
+        self._CONFIG_PATH_LIST = joulescope_ui.config.CONFIG_PATH_LIST
         self._tempdir = tempfile.mkdtemp()
         self._filename1 = os.path.join(self._tempdir, 'joulescope_config.json5')
 
     def tearDown(self):
         shutil.rmtree(self._tempdir)
+        joulescope_ui.config.CONFIG_PATH_LIST = self._CONFIG_PATH_LIST
+
+    def test_load_save_search_not_found(self):
+        d = load_config_def()
+        joulescope_ui.config.CONFIG_PATH_LIST = [os.path.join(MYPATH, 'not_there.json5')]
+        c1 = load_config(d)
+        self.assertEqual('auto', c1['Device']['i_range'])
+
+    def test_load_save_search_found(self):
+        d = load_config_def()
+        joulescope_ui.config.CONFIG_PATH_LIST = [os.path.join(MYPATH, 'cfg1.json5')]
+        c1 = load_config(d)
+        self.assertEqual('180 mA', c1['Device']['i_range'])
 
     def test_load_save_load_path(self):
         d = load_config_def()
