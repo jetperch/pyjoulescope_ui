@@ -155,7 +155,7 @@ class RecordingView:
             return None
         start, stop = r.normalize_time_arguments(start, stop, units)
         t1, t2 = start / r.sampling_frequency, stop / r.sampling_frequency
-        i, v = r.get_calibrated(start=start, stop=stop, units='samples')
+        raw, bits, cal = r.raw(start, stop)
         return {
             'time': {
                 'range': [t1, t2],
@@ -167,15 +167,15 @@ class RecordingView:
             },
             'signals': {
                 'current': {
-                    'value': i,
+                    'value': cal[:, 0],
                     'units': 'A',
                 },
                 'voltage': {
-                    'value': v,
+                    'value': cal[:, 1],
                     'units': 'V',
                 },
                 'raw': {
-                    'value': r.raw(start, stop),
+                    'value': raw,
                     'units': 'LSBs',
                 },
             }
@@ -211,7 +211,7 @@ class RecordingView:
         args = {'start': start, 'stop': stop, 'units': units}
         return self._parent()._post_block('samples_get', self, args)
 
-    def statistics_get(self, start=None, stop=None, units=None):
+    def statistics_get(self, start=None, stop=None, units=None, callback=None):
         """Get statistics over a range.
 
         :param start: The starting time.
@@ -219,9 +219,17 @@ class RecordingView:
         :param units: The units for start and stop.
             'seconds' or None is in floating point seconds relative to the view.
             'samples' is in stream buffer sample indicies.
+        :param callback: The optional callable.  When provided, this method will
+            not block and the callable will be called with the statistics
+            data structure from the view thread.
+        :return: The statistics data structure or None if callback is provided.
         """
         args = {'start': start, 'stop': stop, 'units': units}
-        return self._parent()._post_block('statistics_get', self, args)
+        if callback is None:
+            return self._parent()._post_block('statistics_get', self, args)
+        else:
+            self._parent()._post('statistics_get', self, args, callback)
+            return
 
     def ping(self, *args, **kwargs):
         return self._parent()._post_block('ping', self, (args, kwargs))

@@ -146,6 +146,7 @@ class MainWindow(QtWidgets.QMainWindow):
     on_softwareUpdateSignal = QtCore.Signal(str, str)
     on_deviceEventSignal = QtCore.Signal(int, str)  # event, message
     on_dataUpdateSignal = QtCore.Signal(object)
+    on_markerStatisticsReadySignal = QtCore.Signal(object, object, object)
 
     on_progressValue = QtCore.Signal(int)
     on_progressMessage = QtCore.Signal(str)
@@ -357,6 +358,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.on_statisticSignal.connect(self._on_statistic, type=QtCore.Qt.QueuedConnection)
         self.on_deviceEventSignal.connect(self._on_device_event, type=QtCore.Qt.QueuedConnection)
         self.on_dataUpdateSignal.connect(self._on_data_update, type=QtCore.Qt.QueuedConnection)
+        self.on_markerStatisticsReadySignal.connect(self.on_markererStatistics, type=QtCore.Qt.QueuedConnection)
 
         # Software update
         self.on_softwareUpdateSignal.connect(self._on_software_update, type=QtCore.Qt.QueuedConnection)
@@ -1406,7 +1408,11 @@ class MainWindow(QtWidgets.QMainWindow):
         if not hasattr(self._data_view, 'statistics_get'):
             self.status('Dual markers not supported by selected device')
             return
-        d = self._data_view.statistics_get(t1, t2, units='seconds')
+        self._data_view.statistics_get(t1, t2, units='seconds',
+                                       callback=lambda d: self.on_markerStatisticsReadySignal.emit(m1, m2, d))
+
+    @QtCore.Slot(object, object, object)
+    def on_markererStatistics(self, m1, m2, d):
         for key, value in d['signals'].items():
             f = d['signals'][key]['statistics']
             dt = d['time']['delta']
