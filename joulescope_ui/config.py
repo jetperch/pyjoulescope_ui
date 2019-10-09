@@ -14,7 +14,9 @@
 
 """Manage Joulescope application configurations"""
 
+from joulescope_ui.config_def import CONFIG
 import json5
+import json
 import os
 import pkgutil
 import collections
@@ -33,7 +35,10 @@ except:
     APP_PATH = os.path.join(USER_PATH, '.joulescope')
 
 SAVE_PATH_DEFAULT = os.path.join(USER_PATH, 'joulescope')
-CONFIG_PATH = os.path.join(APP_PATH, 'config.json5')
+CONFIG_PATH_LIST = [
+    os.path.join(APP_PATH, 'config.json'),
+    os.path.join(APP_PATH, 'config.json5')
+]
 
 
 if not os.path.isdir(APP_PATH):
@@ -56,7 +61,7 @@ def validate(config_def, cfg, path=None, default_on_error=None):
     """Validate that the configuration is valid.
 
     :param config_def: The configuration definition data structure.
-        See config_def.json5 for the data structure format.
+        See config_def.py for the data structure format.
     :param cfg: The configuration to validate against the config_def.
     :param path: The path used recursively by this function.
         This value should not be provided by the initial caller.
@@ -160,16 +165,15 @@ def load_config_def(path: str=None):
     """Load a configuration definition.
 
     :param path: The full path to the configuration definition.
-        None (default) uses the config_def.json5 included with this
+        None (default) uses the config_def.py included with this
         package.
     :return: The configuration definition.
-        See config_def.json5 for the data structure format.
+        See config_def.py for the data structure format.
     """
     if path is None:
-        bin_file = pkgutil.get_data('joulescope_ui', 'config_def.json5')
-        d = json5.loads(bin_file, encoding='utf-8')
+        d = CONFIG
     elif not os.path.isfile(path):
-        raise ValueError('config_def does not exist: %s' % (path, ))
+        raise ValueError('config_def does not exist: %s' % (path,))
     else:
         log.info('load_config_def %s', path)
         with open(path, 'r') as f:
@@ -193,16 +197,22 @@ def load_config(config_def, path=None, default_on_error=None):
         that mirrors the configuration definition. (key -> key -> value).
     """
     if path is None:
-        path = CONFIG_PATH
+        for p in CONFIG_PATH_LIST:
+            if os.path.isfile(p):
+                path = p
+                break
     if not isinstance(path, str):
-        cfg = json5.load(path)
+        cfg = json.load(path)
     elif not os.path.isfile(path):
         log.info('Configuration file not found: %s', path)
         cfg = {}
     else:
         log.info('Load configuration file: %s', path)
         with open(path, 'r') as f:
-            cfg = json5.load(f)
+            if path.endswith('json5'):
+                cfg = json5.load(f)
+            else:
+                cfg = json.load(f)
     y = validate(config_def, cfg, default_on_error=default_on_error)
     return y
 
@@ -216,9 +226,9 @@ def save_config(cfg, path=None):
         None (default) uses the platform-dependent path.
     """
     if path is None:
-        path = CONFIG_PATH
+        path = CONFIG_PATH_LIST[0]
     if not isinstance(path, str):
-        json5.dump(cfg, path, indent=2)
+        json.dump(cfg, path, indent=2)
     else:
         with open(path, 'w') as f:
-            json5.dump(cfg, f, indent=2)
+            json.dump(cfg, f, indent=2)

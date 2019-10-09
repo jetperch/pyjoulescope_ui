@@ -27,15 +27,10 @@ MYPATH = os.path.dirname(os.path.abspath(__file__))
 PATH = os.path.dirname(MYPATH)
 
 
-def load_def():
-    path = os.path.join(PATH, 'config_def.json5')
-    return load_config_def(path)
-
-
 class TestConfig(unittest.TestCase):
 
     def test_load_config_def(self):
-        d = load_def()
+        d = load_config_def()
         self.assertIn('info', d)
         self.assertIn('children', d)
 
@@ -45,7 +40,7 @@ class TestConfig(unittest.TestCase):
         self.assertIn('children', d)
 
     def test_file_not_found(self):
-        d = load_def()
+        d = load_config_def()
         c = load_config(d, '/path/to/nothing.json5')
         self.assertIn('General', c)
         self.assertIn('data_path', c['General'])
@@ -55,37 +50,37 @@ class TestConfig(unittest.TestCase):
         self.assertEqual('auto', c['Device']['i_range'])
 
     def test_load_filehandle(self):
-        d = load_def()
-        f = io.BytesIO("""{'Device': {'i_range': 'auto'}}""".encode('utf-8'))
+        d = load_config_def()
+        f = io.BytesIO("""{"Device": {"i_range": "auto"}}""".encode('utf-8'))
         c = load_config(d, f)
         self.assertEqual('auto', c['Device']['i_range'])
 
     def test_load_bad_option(self):
-        d = load_def()
-        f = io.BytesIO("""{'Device': {'i_range': '__invalid__'}}""".encode('utf-8'))
+        d = load_config_def()
+        f = io.BytesIO("""{"Device": {"i_range": "__invalid__"}}""".encode('utf-8'))
         with self.assertRaises(ValueError):
             c = load_config(d, f)
 
     def test_load_bad_option_use_default(self):
-        d = load_def()
-        f = io.BytesIO("""{'Device': {'i_range': '__invalid__'}}""".encode('utf-8'))
+        d = load_config_def()
+        f = io.BytesIO("""{"Device": {"i_range": "__invalid__"}}""".encode('utf-8'))
         c = load_config(d, f, default_on_error=True)
         self.assertEqual('auto', c['Device']['i_range'])
 
     def test_load_default(self):
-        d = load_def()
-        f = io.BytesIO("""{'Device': {}}""".encode('utf-8'))
+        d = load_config_def()
+        f = io.BytesIO("""{"Device": {}}""".encode('utf-8'))
         c = load_config(d, f)
         self.assertEqual('auto', c['Device']['i_range'])
 
     def test_load_alias(self):
-        d = load_def()
-        f = io.BytesIO("""{'Device': {'i_range': '2'}}""".encode('utf-8'))
+        d = load_config_def()
+        f = io.BytesIO("""{"Device": {"i_range": "2"}}""".encode('utf-8'))
         c = load_config(d, f)
         self.assertEqual('180 mA', c['Device']['i_range'])
 
     def test_filename(self):
-        d = load_def()
+        d = load_config_def()
         fname = os.path.join(MYPATH, 'cfg1.json5')
         c = load_config(d, fname)
         self.assertEqual('180 mA', c['Device']['i_range'])
@@ -101,7 +96,7 @@ class TestConfigSave(unittest.TestCase):
         shutil.rmtree(self._tempdir)
 
     def test_load_save_load_path(self):
-        d = load_def()
+        d = load_config_def()
         fname = os.path.join(MYPATH, 'cfg1.json5')
         c1 = load_config(d, fname)
         save_config(c1, self._filename1)
@@ -109,7 +104,7 @@ class TestConfigSave(unittest.TestCase):
         self.assertEqual(c1, c2)
 
     def test_load_save_load_filehandle(self):
-        d = load_def()
+        d = load_config_def()
         fname = os.path.join(MYPATH, 'cfg1.json5')
         c1 = load_config(d, fname)
         with open(self._filename1, 'w') as f:

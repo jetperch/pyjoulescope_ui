@@ -54,7 +54,6 @@ a = Analysis(['joulescope_ui/__main__.py'],
              pathex=PATHEX,
              binaries=BINARIES,
              datas=[
-                 ('joulescope_ui/config_def.json5', 'joulescope_ui'),
                  ('joulescope_ui/getting_started.html', 'joulescope_ui'),
                  ('CREDITS.html', 'joulescope_ui'),
                  (firmware_get(), 'joulescope_ui/firmware/js110'),
