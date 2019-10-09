@@ -89,15 +89,13 @@ class Signal(QtCore.QObject):
         self.curve_mean = pg.PlotDataItem(pen=self._pen_mean)
         self.curve_max = pg.PlotDataItem(pen=self._pen_min_max)
         self.curve_min = pg.PlotDataItem(pen=self._pen_min_max)
-        self.curve_range = pg.FillBetweenItem(self.curve_min, self.curve_max, brush=self._brush_min_max)
-        self.vb.addItem(self.curve_range)
+        self.curve_range = None
         self.vb.addItem(self.curve_max)
         self.vb.addItem(self.curve_min)
         self.vb.addItem(self.curve_mean)
 
         self.curve_max.hide()
         self.curve_min.hide()
-        self.curve_range.hide()
 
         self.y_axis.sigConfigEvent.connect(self.y_axis_config_update)
         self.y_axis.sigWheelZoomYEvent.connect(self.on_wheelZoomY)
@@ -217,11 +215,16 @@ class Signal(QtCore.QObject):
         if c == 'lines':
             self.curve_max.show()
             self.curve_min.show()
-            self.curve_range.hide()
+            if self.curve_range is not None:
+                curve_range, self.curve_range = self.curve_range, None
+                self.vb.removeItem(curve_range)
+                del curve_range
         elif c == 'fill':
             self.curve_max.hide()
             self.curve_min.hide()
-            self.curve_range.show()
+            if self.curve_range is None:
+                self.curve_range = pg.FillBetweenItem(self.curve_min, self.curve_max, brush=self._brush_min_max)
+                self.vb.addItem(self.curve_range)
         else:
             if c != 'off':
                 self.log.warning('unsupported show_min_max mode: %s, presume "off"', c)
@@ -232,7 +235,8 @@ class Signal(QtCore.QObject):
         self.curve_max.hide()
         self.curve_min.update()
         self.curve_min.hide()
-        self.curve_range.hide()
+        if self.curve_range is not None:
+            self.curve_range.hide()
 
     def _min_max_enable(self):
         self._is_min_max_active = True

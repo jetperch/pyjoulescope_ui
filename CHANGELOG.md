@@ -4,6 +4,15 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.6.5
+
+2019 Oct 9
+
+* Converted JSON5 config_def to python to improve start time.
+* Updated to latest pyqtgraph.
+* Improved waveform performance by only updating curve fill when needed.
+
+
 ## 0.6.4
 
 2019 Oct 3
