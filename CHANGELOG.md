@@ -6,7 +6,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.6.8
 
-2019 Oct 15 [in progress]
+2019 Oct 15
 
 *   Fixed data-dependent single NaN sample insertion. Only occurred when
     i_range was 3 or 7 and current LSBs was saturated.
