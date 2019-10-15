@@ -4,6 +4,22 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.6.8
+
+2019 Oct 15 [in progress]
+
+*   Fixed data-dependent single NaN sample insertion. Only occurred when
+    i_range was 3 or 7 and current LSBs was saturated.
+    Affects 0.6.0 through 0.6.7.
+*   Added customizable current range switching filter available through 
+    File → Preferences → Current Ranging.
+*   Changed default current range switch filter from mean_0_3_1 to mean_1_n_1,
+    which significantly reduces the displayed glitches on current ranging.
+    If you like the old behavior, File → Preferences → Current Ranging to
+    set type: mean, samples_pre: 0, samples_window: 3, samples_post: 1.
+    The drawback is that up to 8 samples (4 µs) of data can be filtered out.
+
+
 ## 0.6.6
 
 2019 Oct 9

@@ -697,6 +697,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self._data_view.open()
                     self._data_view.refresh()
                 self._device_cfg_apply(do_open=True)
+                self._current_ranging_cfg_apply()
                 if hasattr(self._device, 'statistics_callback'):
                     self._device.statistics_callback = self.on_statisticSignal.emit
             except:
@@ -800,6 +801,18 @@ class MainWindow(QtWidgets.QMainWindow):
         if reopen:
             self._device_reopen()
 
+    def _current_ranging_cfg_apply(self, previous_cfg=None):
+        log.info('_current_ranging_cfg_apply')
+        if self._has_active_device:
+            names = ['type', 'samples_pre', 'samples_window', 'samples_post']
+            values = [self._cfg['Current Ranging'][n] for n in names]
+            if hasattr(self._device, 'parameters') and self._device.parameters('suppress_type') is not None:
+                for name, value in zip(names, values):
+                    self._device.parameter_set('current_ranging_' + name, value)
+            elif hasattr(self._device, 'stream_buffer'):
+                s = '_'.join([str(x) for x in values])
+                self._device.stream_buffer.suppress_mode = s
+
     def _developer_cfg_apply(self, previous_cfg=None):
         log.info('_developer_cfg_apply')
         return
@@ -809,6 +822,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if self._device is not None and hasattr(self._device, 'parameter_set'):
             self._device.parameter_set('gpo0', '0')
             self._device.parameter_set('gpo1', '0')
+
 
     def _device_close(self):
         log.debug('_device_close: start')
@@ -1380,6 +1394,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def _cfg_apply(self, previous_cfg=None):
         log.debug('_cfg_apply: start')
         self._device_cfg_apply(previous_cfg=previous_cfg)  # includes GPIO
+        self._current_ranging_cfg_apply(previous_cfg=previous_cfg)
         self._waveform_cfg_apply(previous_cfg=previous_cfg)
         self._developer_cfg_apply(previous_cfg=previous_cfg)
         log.debug('_cfg_apply: end')

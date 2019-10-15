@@ -166,8 +166,50 @@ The software requires 1.5 GB of RAM for every 60 seconds.',
           'options': ['15', '30', '60', '90', '120', '180', '240', '300'],
           'default': '30',
         },
-      ]
-    }, # Device end
+      ],
+    },  # Device end
+
+    {
+      'name': 'Current Ranging',
+      'brief': 'Configure the current range behavior including the filtering applied during range switches.',
+      'type': 'map',
+      'children': [
+        {
+          'name': 'type',
+          'brief': 'The filter type.',
+          'type': 'str',
+          'options': ['off', 'mean', 'NaN'],
+          'default': 'mean',
+        },
+
+        {
+          'name': 'samples_pre',
+          'brief': 'The number of samples before the range switch to include.',
+          'detail': 'Only valid for type "mean" - ignored for "off" and "NaN".',
+          'type': 'str',
+          'options': ['0', '1', '2', '3', '4', '5', '6', '7', '8'],
+          'default': '2',
+        },
+
+        {
+          'name': 'samples_window',
+          'brief': 'The number of samples to adjust.',
+          'detail': 'Use "n" for automatic duration based upon known response time.',
+          'type': 'str',
+          'options': ['n', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
+          'default': 'n',
+        },
+
+        {
+          'name': 'samples_post',
+          'brief': 'The number of samples after the range switch to include.',
+          'detail': 'Only valid for type "mean" - ignored for "off" and "NaN".',
+          'type': 'str',
+          'options': ['0', '1', '2', '3', '4', '5', '6', '7', '8'],
+          'default': '2',
+        },
+      ],
+    },
 
     {
       'name': 'GPIO',
