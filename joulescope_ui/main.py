@@ -57,7 +57,7 @@ log = logging.getLogger(__name__)
 
 
 STATUS_BAR_TIMEOUT = 5000  # milliseconds
-USERS_GUIDE_URL = "https://www.joulescope.com/docs/JoulescopeUsersGuide.html"
+USERS_GUIDE_URL = "https://download.joulescope.com/docs/JoulescopeUsersGuide/index.html"
 FRAME_LIMIT_DELAY_MS = 30
 
 
@@ -93,7 +93,7 @@ A software update is available:<br/>
 Current version = {current_version}<br/>
 Available version = {latest_version}<br/>
 </p>
-<p><a href="https://www.joulescope.com/download">Download</a> now.</p>
+<p><a href="{url}">Download</a> now.</p>
 </html>
 """
 
@@ -143,7 +143,7 @@ class MainWindow(QtWidgets.QMainWindow):
     on_stopSignal = QtCore.Signal(int, str)
     on_statisticSignal = QtCore.Signal(object)
     on_xChangeSignal = QtCore.Signal(str, object)
-    on_softwareUpdateSignal = QtCore.Signal(str, str)
+    on_softwareUpdateSignal = QtCore.Signal(str, str, str)
     on_deviceEventSignal = QtCore.Signal(int, str)  # event, message
     on_dataUpdateSignal = QtCore.Signal(object)
     on_markerStatisticsReadySignal = QtCore.Signal(object, object, object)
@@ -552,9 +552,10 @@ class MainWindow(QtWidgets.QMainWindow):
         if self._cfg['General']['update_check']:
             software_update_check(self.on_softwareUpdateSignal.emit)
 
-    def _on_software_update(self, current_version, latest_version):
-        log.info('_on_software_update(current_version=%r, latest_version=%r)', current_version, latest_version)
-        txt = SOFTWARE_UPDATE.format(current_version=current_version, latest_version=latest_version)
+    def _on_software_update(self, current_version, latest_version, url):
+        log.info('_on_software_update(current_version=%r, latest_version=%r, url=%r)',
+                 current_version, latest_version, url)
+        txt = SOFTWARE_UPDATE.format(current_version=current_version, latest_version=latest_version, url=url)
         QtWidgets.QMessageBox.about(self, 'Joulescope Software Update Available', txt)
 
     def _help_about(self):

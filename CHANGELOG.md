@@ -17,6 +17,10 @@ This file contains the list of changes made to pyjoulescope_ui.
     current range transitions.  Testing shows that we were lucky on 
     Win10 and the data was not a huge floating point number.
     Added unit test and fixed.
+*   Added support for new download.joulescope.com site.
+    Support new https://download.joulescope.com/joulescope_install/index.json.
+    Modifed URLS to point directly to https://download.joulescope.com rather 
+    than https://www.joulescope.com.
 
 
 ## 0.6.8

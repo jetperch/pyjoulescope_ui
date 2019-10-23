@@ -28,8 +28,8 @@ class TestUpdateCheck(unittest.TestCase):
         self.lock.acquire()
         self.update = None
 
-    def callback(self, current_version, latest_version):
-        self.update = (current_version, latest_version)
+    def callback(self, current_version, latest_version, url):
+        self.update = (current_version, latest_version, url)
         self.lock.release()
 
     def test_is_newer(self):

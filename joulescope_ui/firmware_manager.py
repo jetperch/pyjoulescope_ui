@@ -27,7 +27,7 @@ log = logging.getLogger(__name__)
 
 SIGNING_KEY_PUBLIC = binascii.unhexlify(b'32fe2bed04bbc42fe1b382e0371ba95ec2947045e8d919e49fdef601e24c105e')
 FIRMWARE_PATH = os.path.join(APP_PATH, 'firmware', 'js110')
-URL = 'https://www.joulescope.com/firmware/js110/'
+URL = 'https://download.joulescope.com/firmware/js110/'
 URL_TIMEOUT = 30.0
 
 
