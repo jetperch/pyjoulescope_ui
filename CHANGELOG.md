@@ -4,6 +4,21 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.6.10
+
+2019 Oct 23
+
+*   Fixed current range glitch filter using invalid sample data.
+    The glitch filter could occasionally use one sample of invalid data during
+    the computation of the "pre" mean component.  The underlying cause was 
+    that the pre mean value was computed over a FIFO that was rolling over 1 
+    sample too late.  This injected up to one sample of undefined data. 
+    For a length n pre value, this error occurred on roughly (n - 1) / 8 
+    current range transitions.  Testing shows that we were lucky on 
+    Win10 and the data was not a huge floating point number.
+    Added unit test and fixed.
+
+
 ## 0.6.8
 
 2019 Oct 15
