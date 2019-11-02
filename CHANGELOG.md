@@ -20,7 +20,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added support for new download.joulescope.com site.
     Support new https://download.joulescope.com/joulescope_install/index.json 
     format.
-    Modifed URLS to point directly to https://download.joulescope.com rather 
+    Modified URLS to point directly to https://download.joulescope.com rather 
     than https://www.joulescope.com.
 
 
