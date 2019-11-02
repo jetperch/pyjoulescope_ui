@@ -13,9 +13,8 @@
 # limitations under the License.
 
 """
-This executable captures the raw USB stream from Joulescope devices
-and saves the raw stream data to a file.  This executable is a
-development tool and is not intended for customer use.
+This entry point is discoverable by the joulescope package and
+executes the official Joulescope User Interface software.
 """
 
 from joulescope_ui.main import run

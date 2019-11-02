@@ -15,7 +15,7 @@
 # limitations under the License.
 
 import sys
-from joulescope_ui.command import parser_config
+from joulescope_ui.entry_points.ui import parser_config
 import argparse
 import multiprocessing
 
