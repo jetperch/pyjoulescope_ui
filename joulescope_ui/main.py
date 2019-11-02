@@ -35,7 +35,7 @@ from joulescope.units import unit_prefix, three_sig_figs
 from joulescope_ui.data_recorder_process import DataRecorderProcess as DataRecorder
 from joulescope.data_recorder import construct_record_filename  # DataRecorder
 from joulescope_ui.recording_viewer_device import RecordingViewerDevice
-from joulescope_ui.preferences import PreferencesDialog
+from joulescope_ui.preferences_ui import PreferencesDialog
 from joulescope_ui.config import load_config_def, load_config, save_config, find_child_by_name
 from joulescope_ui.update_check import check as software_update_check
 from joulescope_ui.logging_util import logging_config
