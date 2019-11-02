@@ -4,6 +4,13 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.6.11
+
+2019 Nov 2 [in progress]
+
+*   Renamed "command" to "entry_point" to prevent confusion with UI "commands".
+
+
 ## 0.6.10
 
 2019 Oct 23
