@@ -144,7 +144,7 @@ def migrate_1_to_2(app=None):
         with open(cfg_file, 'r') as f:
             cfg_old = json.load(f)
         cfg = {
-            'id': 'joulescope_config',
+            'type': 'joulescope_config',
             'version': 2,
             'profiles': {
                 'all': cfg_old
