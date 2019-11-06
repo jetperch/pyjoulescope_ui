@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from joulescope_ui import VERSION
+from joulescope_ui.paths import paths_current
 
 
 def preferences_def(p):
@@ -30,9 +31,10 @@ def preferences_def(p):
     p.define(
         name='General/data_path',
         brief='Default data directory',
-        dtype='path',
-        attributes=['exists', 'dir'],
-        default='__SAVE_PATH__')
+        dtype='str',
+        # dtype='path',
+        # attributes=['exists', 'dir'],
+        default=paths_current()['dirs']['data'])
     p.define(
         name='General/update_check',
         brief='Automatically check for software updates',

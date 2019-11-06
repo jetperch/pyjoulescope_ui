@@ -37,8 +37,11 @@ def validate(value, dtype, options=None):
     if dtype == 'str':
         if not isinstance(value, str):
             raise ValueError(f'expected str {value}')
-        if options is not None and value not in options:
-            raise ValueError(f'Unsupported option value {value}')
+        if options is not None:
+            try:
+                value = options['__remap__'][value]
+            except KeyError:
+                raise ValueError(f'Unsupported option value {value}')
     elif dtype == 'int':
         return int(value)
     elif dtype == 'float':
@@ -58,6 +61,31 @@ def validate(value, dtype, options=None):
     else:
         raise ValueError(f'unsuppored dtype {dtype}')
     return value
+
+
+def options_conform(options):
+    if options is None:
+        return None
+    if isinstance(options, collections.abc.Mapping):
+        if '__remap__' in options:
+            return options
+        for key, value in options.items():
+            value['name'] = key
+    else:
+        values = {}
+        for v in options:
+            values[v] = {'name': v}
+        options = values
+    remap = {}
+    r = {
+        '__def__': options,  # option definition
+        '__remap__': remap,  #
+    }
+    for key, value in options.items():
+        remap[key] = key
+        for k in value.get('aliases', []):
+            remap[k] = key
+    return r
 
 
 class PreferencesJsonEncoder(json.JSONEncoder):
@@ -152,16 +180,11 @@ class Preferences(QtCore.QObject):
         if dtype not in DTYPES:
             raise ValueError(f'invalid dtype {dtype} for {name}')
         if dtype == 'str' and options is not None:
-            values = {}
-            if isinstance(options, collections.abc.Mapping):
-                for key, value in options:
-                    value['name'] = key
-            else:
-                for v in options:
-                    values[v] = {'name': v}
-            options = values
+            options = options_conform(options)
         if dtype != 'container' and name not in self._profiles['all']:
             self._profiles['all'][name] = default
+        if default is not None:
+            validate(default, dtype, options=options)
         self._defines[name] = {
             'name': name,
             'brief': brief,
@@ -275,11 +298,19 @@ class Preferences(QtCore.QObject):
         except KeyError:
             return False
 
+    def items(self, prefix=None):
+        if prefix is None:
+            return self.flatten().items()
+        return [(key, self[key]) for key in self._profiles['all'].keys() if key.startswith(prefix)]
+
     def validate(self, name, value):
         d = self._defines.get(name)
         if d is None:
             return value
-        return validate(value, d.get('dtype', 'str'), d.get('options'))
+        try:
+            return validate(value, d.get('dtype', 'str'), d.get('options'))
+        except ValueError as ex:
+            raise ValueError(f'{name}: {str(ex)}') from ex
 
     def is_valid(self, name, value):
         try:

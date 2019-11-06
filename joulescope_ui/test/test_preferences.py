@@ -18,7 +18,7 @@ Test the preferences
 
 import unittest
 import os
-from joulescope_ui.preferences import Preferences, validate
+from joulescope_ui.preferences import Preferences, validate, options_conform
 from joulescope_ui import paths
 
 
@@ -176,19 +176,27 @@ class TestPreferences(unittest.TestCase):
             validate({}, 'str')
 
     def test_validate_str_options_list(self):
-        options = ['a', 'b', 'c']
+        options = options_conform(['a', 'b', 'c'])
         self.assertEqual('a', validate('a', 'str', options=options))
         with self.assertRaises(ValueError):
             validate('A', 'str', options=options)
 
     def test_validate_str_options_map(self):
-        options = {
+        options = options_conform({
             'a': {'brief': 'option a'},
             'b': {'brief': 'option b'},
-            'c': {}}
+            'c': {}})
         self.assertEqual('a', validate('a', 'str', options=options))
         with self.assertRaises(ValueError):
             validate('A', 'str', options=options)
+
+    def test_validate_str_options_map_with_aliases(self):
+        options = options_conform({'a': {'brief': 'option a', 'aliases': ['b', 'c']}})
+        self.assertEqual('a', validate('a', 'str', options=options))
+        self.assertEqual('a', validate('b', 'str', options=options))
+        self.assertEqual('a', validate('c', 'str', options=options))
+        with self.assertRaises(ValueError):
+            validate('d', 'str', options=options)
 
     def test_validate_int(self):
         self.assertEqual(1, validate(1, 'int'))
@@ -233,6 +241,10 @@ class TestPreferences(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.p.set('hello', 'you')
 
+    def test_set_invalid_default(self):
+        with self.assertRaises(ValueError):
+            self.p.define(name='hello', dtype='str', options=['there', 'world'], default='bad')
+
     def test_definition_get(self):
         self.p.define(name='hello', dtype='str', default='world')
         d = self.p.definition_get(name='hello')
@@ -263,4 +275,15 @@ class TestPreferences(unittest.TestCase):
         self.assertEqual(2, len(p))
         self.assertEqual('a_default', p['hello/a'])
 
-    # get definition
+    def test_items(self):
+        p = self.p
+        p.define(name='a', dtype='str', default='zz')
+        p.define(name='a/0', dtype='str', default='0')
+        p.define(name='a/1', dtype='str', default='1')
+        p.define(name='b/2', dtype='str', default='2')
+        p.profile_add('p1', activate=True)
+        p['a/1'] = 'new'
+        self.assertEqual([('a', 'zz'), ('a/0', '0'), ('a/1', 'new'), ('b/2', '2')], list(p.items()))
+        self.assertEqual([('a', 'zz'), ('a/0', '0'), ('a/1', 'new')], list(p.items(prefix='a')))
+        self.assertEqual([('a/0', '0'), ('a/1', 'new')], list(p.items(prefix='a/')))
+        self.assertEqual([('b/2', '2')], list(p.items(prefix='b/')))
