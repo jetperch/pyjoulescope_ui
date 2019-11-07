@@ -80,80 +80,30 @@ class TestPreferences(unittest.TestCase):
         self.p.profile = 'all'
         self.assertEqual('all_value', self.p.get('hello'))
 
+    def test_load_not_found(self):
+        self.p.define(name='hello', default='world')
+        self.assertEqual('world', self.p['hello'])
+        self.p.load()
+        self.assertEqual('world', self.p['hello'])
+
     def test_save_load_simple(self):
         self.p.set('hello', 'world')
         self.p.save()
         p = Preferences(app=self.app).load()
         self.assertEqual('world', p.get('hello'))
 
+    def test_save_load_skip_starting_with_pound(self):
+        self.p.set('hello/#there', 'world')
+        self.assertIn('hello/#there', self.p)
+        self.p.save()
+        p = Preferences(app=self.app).load()
+        self.assertNotIn('hello/#there', p)
+
     def test_save_load_bytes(self):
         self.p.set('hello', b'world')
         self.p.save()
         p = Preferences(app=self.app).load()
         self.assertEqual(b'world', p.get('hello'))
-
-    def listener_append(self, *args):
-        self.listener_calls.append(args)
-
-    def listener_reset(self):
-        self.listener_calls = []
-
-    def test_listener_on_set(self):
-        self.p.listener_add('hello', self.listener_append)
-        self.p.set('hello', 'world')
-        self.assertEqual([('hello', 'world')], self.listener_calls)
-        self.listener_reset()
-        self.assertTrue(self.p.listener_remove('hello', self.listener_append))
-        self.p.set('hello', 'world')
-        self.assertEqual([], self.listener_calls)
-
-    def test_listener_on_set_all(self):
-        self.p.listener_add('hello', self.listener_append)
-        self.p.profile_add('p1', activate=True)
-        self.p.set('hello', 'world', profile='all')
-        self.assertEqual([('hello', 'world')], self.listener_calls)
-
-    def test_listener_on_set_other(self):
-        self.p.listener_add('hello', self.listener_append)
-        self.p.profile_add('p1', activate=True)
-        self.p.profile_add('p2', activate=True)
-        self.p.set('hello', 'world', profile='p1')
-        self.assertEqual([], self.listener_calls)
-
-    def test_listener_remove_when_not_present(self):
-        self.assertFalse(self.p.listener_remove('hello', self.listener_append))
-
-    def test_group_listener_on_set(self):
-        self.p.listener_add('hello/', self.listener_append)
-        self.p.set('hello/there', 'world')
-        self.assertEqual([('hello/there', 'world')], self.listener_calls)
-        self.listener_reset()
-        self.assertTrue(self.p.listener_remove('hello/', self.listener_append))
-        self.p.set('hello/there', 'world')
-        self.assertEqual([], self.listener_calls)
-
-    def test_listener_on_load(self):
-        self.p.set('hello/there', 'world')
-        self.p.save()
-        p = Preferences(app=self.app)
-        p.listener_add('hello/there', self.listener_append)
-        p.load()
-        self.assertEqual([('hello/there', 'world')], self.listener_calls)
-
-    def test_listener_on_profile_switch(self):
-        self.p.set('hello', 'all_value')
-        self.p.profile_add('p1', activate=True)
-        self.p.set('hello', 'p1_value')
-        self.p.profile_add('p2', activate=True)
-        self.p.listener_add('hello', self.listener_append)
-        self.p.profile = 'p1'
-        self.assertEqual([('hello', 'p1_value')], self.listener_calls)
-        self.listener_reset()
-        self.p.profile = 'p2'
-        self.assertEqual([('hello', 'all_value')], self.listener_calls)
-        self.listener_reset()
-        self.p.profile = 'all'
-        self.assertEqual([], self.listener_calls)
 
     def test_define_default_when_new(self):
         self.p.define(name='hello', default='world')

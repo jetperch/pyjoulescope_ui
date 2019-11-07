@@ -26,15 +26,31 @@ import collections.abc
 import base64
 import os
 import json
+import copy
 import logging
 
 
 log = logging.getLogger(__name__)
-DTYPES = ['str', 'int', 'float', 'bool', 'bytes', 'dict', 'container']
+DTYPES_DEF = [
+    ('str', str),
+    ('int', int),
+    ('float', float),
+    ('bool', bool),
+    ('bytes', bytes),
+    ('dict', dict, collections.abc.Mapping),
+    ('obj', 'object', object),  # WARNING CANNOT BE SERIALIZED!
+    ('container', )]
+DTYPES = [item for sublist in DTYPES_DEF for item in sublist]
+DTYPES_MAP = {}
+for t in DTYPES_DEF:
+    for k in t:
+        DTYPES_MAP[k] = t[0]
 
 
 def validate(value, dtype, options=None):
-    if dtype == 'str':
+    if dtype == 'obj':
+        pass  # no validation necessary
+    elif dtype == 'str':
         if not isinstance(value, str):
             raise ValueError(f'expected str {value}')
         if options is not None:
@@ -59,7 +75,7 @@ def validate(value, dtype, options=None):
     elif dtype == 'container':
         return value
     else:
-        raise ValueError(f'unsuppored dtype {dtype}')
+        raise ValueError(f'unsupported dtype {dtype}')
     return value
 
 
@@ -89,6 +105,7 @@ def options_conform(options):
 
 
 class PreferencesJsonEncoder(json.JSONEncoder):
+
     def default(self, obj):
         if isinstance(obj, bytes):
             return {
@@ -107,6 +124,16 @@ def json_decode_custom(obj):
     return obj
 
 
+def _remove_unsaved_keys(d):
+    for key in list(d.keys()):
+        if '#' in key:
+            del d[key]
+            continue
+        v = d[key]
+        if isinstance(v, collections.abc.Mapping):
+            _remove_unsaved_keys(v)
+
+
 class Preferences(QtCore.QObject):
     """Store and manage application preferences.
 
@@ -118,10 +145,7 @@ class Preferences(QtCore.QObject):
     QSettings https://doc.qt.io/qt-5/qsettings.html.  However, this class adds
     profile and listener support.
     """
-
-    sigProfileChanging = QtCore.Signal(str)  # profile name
     sigProfileChanged = QtCore.Signal(str)   # profile name
-    sigPreferenceChanged = QtCore.Signal(str, object)  # preference name, value
 
     def __init__(self, parent=None, app=None):
         super(Preferences, self).__init__(parent)
@@ -130,7 +154,6 @@ class Preferences(QtCore.QObject):
         self._defines = {}
         self._profiles = {'all': {}}
         self._profile_active = 'all'
-        self._listeners = {}
         self.define(name='/', dtype='container')
 
     def flatten(self):
@@ -141,27 +164,37 @@ class Preferences(QtCore.QObject):
         return values
 
     def load(self):
+        if not os.path.isfile(self._path):
+            log.info('preferences file does not exist: %s', self._path)
+            return self
         with open(self._path, 'r') as f:
             p = json.load(f, object_hook=json_decode_custom)
-        if p['type'] != 'joulescope_config':
-            raise ValueError('Unsupported config')
-        if p['version'] != 2:
-            raise ValueError('config migration not supported')
-        flat_old = self.flatten()
-        self._profiles = p['profiles']
-        if self._profile_active not in self._profiles:
-            log.warning('load does not contain active profile %s', self._profile_active)
-            self._bulk_changer(profile_name='all', flat_old=flat_old)
-        else:
-            self._bulk_changer(flat_old=flat_old)
+        self.state_restore(p)
         return self
 
-    def save(self):
-        p = {
+    def state_export(self):
+        state = {
             'type': 'joulescope_config',
             'version': 2,
-            'profiles': self._profiles,
+            'profile': self._profile_active,
+            'profiles': copy.deepcopy(self._profiles),
         }
+        _remove_unsaved_keys(state['profiles'])
+        return state
+
+    def state_restore(self, state):
+        if state['type'] != 'joulescope_config':
+            raise ValueError('Unsupported config')
+        if state['version'] != 2:
+            raise ValueError('config migration not supported')
+        self._profiles = state['profiles']
+        if state['profile'] not in self._profiles:
+            log.warning('state_restore does not contain profile %s, use "all"', state['profile'])
+            self.profile = 'all'
+        self.profile = state['profile']
+
+    def save(self):
+        p = self.state_export()
         tmp_file = self._path + '.tmp'
         with open(tmp_file, 'w') as f:
             json.dump(p, f, cls=PreferencesJsonEncoder)
@@ -177,8 +210,9 @@ class Preferences(QtCore.QObject):
                 dtype = 'container'
             else:
                 dtype = 'str'
-        if dtype not in DTYPES:
+        if dtype not in DTYPES_MAP:
             raise ValueError(f'invalid dtype {dtype} for {name}')
+        dtype = DTYPES_MAP[dtype]
         if dtype == 'str' and options is not None:
             options = options_conform(options)
         if dtype != 'container' and name not in self._profiles['all']:
@@ -196,6 +230,12 @@ class Preferences(QtCore.QObject):
 
     def definition_get(self, name):
         return self._defines[name]
+
+    def definition_options(self, name):
+        options = self._defines[name]['options']
+        if options is None:
+            return []
+        return options['__def__'].keys()
 
     @property
     def definitions(self):
@@ -233,26 +273,6 @@ class Preferences(QtCore.QObject):
                 prefix.append(name_parts.pop(0))
         return d
 
-    def listener_add(self, name, on_change_fn):
-        """Add a new listener on a preference name.
-
-        :param name: The preference name.
-        :param on_change_fn: The callable(name, value) that is called with the
-            updated value.
-        """
-        listeners = self._listeners.get(name, [])
-        listeners.append(on_change_fn)
-        self._listeners[name] = listeners
-
-    def listener_remove(self, name, on_change_fn):
-        listeners = self._listeners.get(name, [])
-        try:
-            listeners.remove(on_change_fn)
-        except ValueError:
-            log.info('listener could not be removed (not found) for %s', name)
-            return False
-        return True
-
     def get(self, name, **kwargs):
         profile = kwargs.get('profile', self._profile_active)
         try:
@@ -273,8 +293,6 @@ class Preferences(QtCore.QObject):
             raise KeyError(f'invalid profile {profile}')
         value = self.validate(name, value)
         self._profiles[profile][name] = value
-        if profile == self._profile_active or (profile == 'all' and name not in self._profiles[self._profile_active]):
-            self._listener_update(name, value)
 
     def __len__(self):
         return len(self._profiles['all'])
@@ -322,18 +340,6 @@ class Preferences(QtCore.QObject):
         profile = self._profile_active if profile is None else str(profile)
         return name in self._profiles.get(profile, {})
 
-    def _listener_update(self, name, value):
-        self._listeners.get(name, [])
-        for listener in self._listeners.get(name, []):
-            listener(name, value)
-        listener_parts = name.split('/')
-        while len(listener_parts):
-            listener_parts[-1] = ''
-            n = '/'.join(listener_parts)
-            for listener in self._listeners.get(n, []):
-                listener(name, value)
-            listener_parts.pop()
-
     def clear(self, name, profile=None):
         profile = self._profile_active if profile is None else str(profile)
         del self._profiles[profile][name]
@@ -362,20 +368,7 @@ class Preferences(QtCore.QObject):
 
     @profile.setter
     def profile(self, name):
-        self._bulk_changer(profile_name=name)
-
-    def _bulk_changer(self, profile_name=None, flat_old=None):
-        if flat_old is None:
-            flat_old = self.flatten()
-        if profile_name is not None:
-            if profile_name not in self._profiles:
-                raise KeyError(f'invalid profile {profile_name}')
-            self.sigProfileChanging.emit(profile_name)
-            self._profile_active = profile_name
-        flat_new = self.flatten()
-        for key, value in flat_new.items():
-            if key not in flat_old or flat_new[key] != flat_old[key]:
-                self._listener_update(key, value)
-        if profile_name is not None:
-            self.sigProfileChanged.emit(profile_name)
-        return self
+        if name not in self._profiles:
+            raise KeyError(f'invalid profile {name}')
+        self._profile_active = name
+        self.sigProfileChanged.emit(name)

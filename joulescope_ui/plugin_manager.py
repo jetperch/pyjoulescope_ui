@@ -56,11 +56,10 @@ class PluginManager:
         c = self.context.pop()
         pass
 
-    def builtin_register(self, app_config):
+    def builtin_register(self):
         for plugin in PLUGINS_BUILTIN:
             meta = plugin.PLUGIN
             with self as c:
-                c.plugin_config = app_config.get('plugins', {}).get(meta['name'], {})
                 rv = plugin.plugin_register(c)
                 if rv is not True:
                     log.warning('plugin "%s" failed to register', meta['name'])

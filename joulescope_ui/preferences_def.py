@@ -29,19 +29,19 @@ def preferences_def(p):
     # --- GENERAL ---
     p.define('General/', 'General application settings.')
     p.define(
-        name='General/data_path',
+        topic='General/data_path',
         brief='Default data directory',
         dtype='str',
         # dtype='path',
         # attributes=['exists', 'dir'],
         default=paths_current()['dirs']['data'])
     p.define(
-        name='General/update_check',
+        topic='General/update_check',
         brief='Automatically check for software updates',
         dtype='bool',
         default=True)
     p.define(
-        name='General/log_level',
+        topic='General/log_level',
         brief='The logging level',
         dtype='str',
         options=['OFF', 'CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'ALL'],
@@ -50,19 +50,19 @@ def preferences_def(p):
     # --- DEVICE ---
     p.define('Device/', 'Joulescope device-specific default settings')
     p.define(
-        name='Device/autostream',
+        topic='Device/autostream',
         brief='Start streaming when the device connects',
         dtype='bool',
         default=True)
     p.define(
-        name='Device/source',
+        topic='Device/parameter/source',
         brief='Select the streaming data source',
         detail='Do not edit this setting for normal use',
         dtype='str',
         options=['off', 'raw', 'pattern_usb', 'pattern_control', 'pattern_sensor'],
         default='raw')
     p.define(
-        name='Device/i_range',
+        topic='Device/parameter/i_range',
         brief='Select the current measurement range (shunt resistor)',
         dtype='str',
         options={
@@ -77,7 +77,7 @@ def preferences_def(p):
             '18 µA':  {'aliases': ['6'], 'brief': 'Most resistance (lowest current range)'}},
         default='auto')
     p.define(
-        name='Device/v_range',
+        topic='Device/parameter/v_range',
         brief='Select the voltage measurement range (gain)',
         dtype='str',
         options={
@@ -85,7 +85,7 @@ def preferences_def(p):
             '5V':  {'brief': '5V range with improved resolution for lower voltages', 'aliases': ['low']}},
         default='high')
     p.define(
-        name='Device/rescan_interval',
+        topic='Device/rescan_interval',
         brief='The manual device rescan interval in seconds',
         detail='Device rescan normally happens when devices are connected' + \
             'to the computer.  For long running-tests, selecting an additional manual' +\
@@ -95,52 +95,61 @@ def preferences_def(p):
         options=['off', '1', '2', '5', '10', '20', '50'],
         default='off')
     p.define(
-        name='Device/firmware_update',
+        topic='Device/firmware_update',
         brief='Firmware update settings.',
         dtype='str',
         options=['never', 'auto', 'always'],
         default='auto')
     p.define(
-        name='Device/on_close',
+        topic='Device/on_close',
         brief='Device configuration on device close.',
         dtype='str',
         options=['keep', 'sensor_off', 'current_off', 'current_auto'],
         default='keep')
     p.define(
-        name='Device/buffer_duration',
+        topic='Device/buffer_duration',
         brief='The stream buffer duration in seconds.',
         detail='Use care when setting this value. ' +\
             'The software requires 1.5 GB of RAM for every 60 seconds.',
         dtype='str',
         options=['15', '30', '60', '90', '120', '180', '240', '300'],
         default='30')
+    p.define('Device/#state/name', dtype=str, default='')
+    p.define('Device/#state/source', dtype=str, options=['None', 'USB', 'Buffer', 'File'], default='None')
+    p.define('Device/#state/sample_drop_color', dtype=str, default='')
+    p.define('Device/#state/play',   dtype=bool, default=False)
+    p.define('Device/#state/record', dtype=bool, default=False)
+    p.define('Device/#state/energy', dtype=str, default='')
+    p.define('Device/#state/sampling_frequency', dtype=float, default=0.0)
+    p.define('Device/#state/data', dtype=object)
+    p.define('Device/#state/status', dtype=dict, default={})
 
     # --- CURRENT RANGING ---
     p.define(
-        name='Current Ranging/',
+        topic='Current Ranging/',
         brief='Configure the current range behavior including the filtering applied during range switches.')
     p.define(
-        name='Current Ranging/type',
+        topic='Current Ranging/type',
         brief='The filter type.',
         dtype='str',
         options=['off', 'mean', 'NaN'],
         default='mean')
     p.define(
-        name='Current Ranging/samples_pre',
+        topic='Current Ranging/samples_pre',
         brief='The number of samples before the range switch to include.',
         detail='Only valid for type "mean" - ignored for "off" and "NaN".',
         dtype='str',
         options=['0', '1', '2', '3', '4', '5', '6', '7', '8'],
         default='2')
     p.define(
-        name='Current Ranging/samples_window',
+        topic='Current Ranging/samples_window',
         brief='The number of samples to adjust.',
         detail='Use "n" for automatic duration based upon known response time.',
         dtype='str',
         options=['n', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
         default='n')
     p.define(
-        name='Current Ranging/samples_post',
+        topic='Current Ranging/samples_post',
         brief='The number of samples after the range switch to include.',
         detail='Only valid for type "mean" - ignored for "off" and "NaN".',
         dtype='str',
@@ -150,31 +159,31 @@ def preferences_def(p):
     # --- GPIO ---
     p.define('GPIO/', 'Joulescope device GPIO settings')
     p.define(
-        name='GPIO/io_voltage',
+        topic='GPIO/io_voltage',
         brief='The GPI/O high-level voltage.',
         dtype='str',
         options=['1.8V', '2.1V', '2.5V', '2.7V', '3.0V', '3.3V', '5.0V'],
         default='3.3V')
     p.define(
-        name='GPIO/gpo0',
+        topic='GPIO/gpo0',
         brief='The GPO bit 0 output value.',
         dtype='str',
         options=['0', '1'],
         default='0')
     p.define(
-        name='GPIO/gpo1',
+        topic='GPIO/gpo1',
         brief='The GPO bit 1 output value.',
         dtype='str',
         options=['0', '1'],
         default='0')
     p.define(
-        name='GPIO/current_lsb',
+        topic='GPIO/current_lsb',
         brief='The current signal least-significant bit mapping.',
         dtype='str',
         options=['normal', 'gpi0'],
         default='normal')
     p.define(
-        name='GPIO/voltage_lsb',
+        topic='GPIO/voltage_lsb',
         brief='The voltage signal least-significant bit mapping.',
         dtype='str',
         options=['normal', 'gpi1'],
@@ -183,7 +192,7 @@ def preferences_def(p):
     # --- WAVEFORM ---
     p.define('Waveform/', 'Waveform display settings')
     p.define(
-        name='Waveform/show_min_max',
+        topic='Waveform/show_min_max',
         brief='Display the minimum and maximum for ease of finding short events.',
         dtype='str',
         options={
@@ -192,34 +201,21 @@ def preferences_def(p):
             'fill':  {'brief': 'Fill the region between min and max, but may significantly reduce performance.'}},
         default='lines')
     p.define(
-        name='Waveform/grid_x',
+        topic='Waveform/grid_x',
         brief='Display the x-axis grid',
         dtype='bool',
         default=True)
     p.define(
-        name='Waveform/grid_y',
+        topic='Waveform/grid_y',
         brief='Display the y-axis grid',
         dtype='bool',
         default=True)
     p.define(
-        name='Waveform/trace_width',
+        topic='Waveform/trace_width',
         brief='The trace width in pixels',
         detail='Increasing trace width SIGNIFICANTLY degrades performance',
         dtype='str',
         options=['1', '2', '4', '6', '8'],
         default='1')
-
-    # --- DEVELOPER ---
-    p.define('Developer/', 'Developer settings')
-    p.define(
-        name='Developer/compliance',
-        brief='Compliance testing mode',
-        dtype='bool',
-        default=False)
-    p.define(
-        name='Developer/compliance_gpio_loopback',
-        brief='GPI/O loopback for compliance testing',
-        dtype='bool',
-        default=False)
 
     return p

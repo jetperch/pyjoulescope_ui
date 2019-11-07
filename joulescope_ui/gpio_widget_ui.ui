@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Gpio</class>
- <widget class="QWidget" name="Gpio">
+ <class>GpioWidget</class>
+ <widget class="QWidget" name="GpioWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
