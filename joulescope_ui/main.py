@@ -23,10 +23,7 @@ from PySide2 import QtCore, QtGui, QtWidgets
 from joulescope_ui.error_window import Ui_ErrorWindow
 from joulescope_ui.main_window import Ui_mainWindow
 from joulescope_ui.oscilloscope import Oscilloscope
-from joulescope_ui.meter_widget import MeterWidget
 from joulescope_ui.widgets import widget_register
-from joulescope_ui.data_view_api import NullView
-from joulescope_ui.single_value_widget import SingleValueWidget
 from joulescope.usb import DeviceNotify
 from joulescope_ui.data_recorder_process import DataRecorderProcess as DataRecorder
 from joulescope.data_recorder import construct_record_filename  # DataRecorder
@@ -185,8 +182,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setCentralWidget(self.central_widget)
 
         # todo convert multimeter and oscilloscope into profiles, allow other profiles
-        self._multimeter_default_action = self.ui.menuView.addAction("Multimeter")
-        self._multimeter_default_action.triggered.connect(self.on_multimeterMenu)
         self._oscilloscope_default_action = self.ui.menuView.addAction("Oscilloscope")
         self._oscilloscope_default_action.triggered.connect(self.on_oscilloscopeMenu)
         self.ui.menuView.addSeparator()
@@ -224,23 +219,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.actionOpen.triggered.connect(self.on_recording_open)
         self.ui.actionPreferences.triggered.connect(self.on_preferences)
         self.ui.actionExit.triggered.connect(self.close)
-
-        # Digital multimeter display widget
-        self.dmm_dock_widget = QtWidgets.QDockWidget('Multimeter', self)
-        self.dmm_widget = MeterWidget(self.dmm_dock_widget)
-        self.dmm_dock_widget.setVisible(False)
-        self.dmm_dock_widget.setWidget(self.dmm_widget)
-        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.dmm_dock_widget)
-        self.ui.menuView.addAction(self.dmm_dock_widget.toggleViewAction())
-
-        # Single value display widget
-        self.single_value_dock_widget = QtWidgets.QDockWidget('Single Value Display', self)
-        self.single_value_widget = SingleValueWidget(self.single_value_dock_widget)
-        self.single_value_widget.source(self.dmm_widget)
-        self.single_value_dock_widget.setVisible(False)
-        self.single_value_dock_widget.setWidget(self.single_value_widget)
-        self.addDockWidget(QtCore.Qt.RightDockWidgetArea, self.single_value_dock_widget)
-        self.ui.menuView.addAction(self.single_value_dock_widget.toggleViewAction())
 
         # Oscilloscope: current, voltage, power, GPI0, GPI1, i_range
         self.oscilloscope_dock_widget = QtWidgets.QDockWidget('Waveforms', self)
@@ -339,8 +317,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self._plugins.builtin_register()
 
         self._dock_widgets = [
-            self.dmm_dock_widget,
-            self.single_value_dock_widget,
             self.oscilloscope_dock_widget,
         ] + [x[0] for x in self._widgets]
 
@@ -358,8 +334,6 @@ class MainWindow(QtWidgets.QMainWindow):
         if filename is not None:
             self._recording_open(filename)
             self.on_oscilloscopeMenu(True)
-        else:
-            self._multimeter_show()
         self._software_update_check()
         log.debug('Qt show()')
         self.show()
@@ -426,8 +400,7 @@ class MainWindow(QtWidgets.QMainWindow):
         energy = statistics['accumulators']['energy']['value']
         energy_str = three_sig_figs(energy, statistics['accumulators']['energy']['units'])
         self._cmdp.publish('Device/#state/energy', energy_str)
-
-        self.dmm_widget.update(statistics)
+        self._cmdp.publish('Device/#state/statistics', statistics)
 
     @QtCore.Slot(float, float, int)
     def _on_x_change(self, x_min, x_max, x_count):
@@ -450,26 +423,10 @@ class MainWindow(QtWidgets.QMainWindow):
         for widget in self._dock_widgets:
             widget.setFloating(False)
 
-    def _multimeter_show(self):
-        self.disable_floating()
-        self.dmm_dock_widget.setVisible(True)
-        self.single_value_dock_widget.setVisible(False)
-        self.oscilloscope_dock_widget.setVisible(False)
-
-        self.adjustSize()
-        self.center()
-
-    @QtCore.Slot(bool)
-    def on_multimeterMenu(self, checked):
-        log.info('on_multimeterMenu(%r)', checked)
-        self._multimeter_show()
-
     @QtCore.Slot(bool)
     def on_oscilloscopeMenu(self, checked):
         log.info('on_oscilloscopeMenu(%r)', checked)
         self.disable_floating()
-        self.dmm_dock_widget.setVisible(False)
-        self.single_value_dock_widget.setVisible(False)
         self.oscilloscope_dock_widget.setVisible(True)
         self.center_and_resize(0.85, 0.85)
         # docks = [self.oscilloscope_dock_widget]

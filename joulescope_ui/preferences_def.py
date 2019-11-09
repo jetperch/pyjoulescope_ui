@@ -123,6 +123,7 @@ def preferences_def(p):
     p.define('Device/#state/sampling_frequency', dtype=float, default=0.0)
     p.define('Device/#state/data', dtype=object)
     p.define('Device/#state/status', dtype=dict, default={})
+    p.define('Device/#state/statistics', dtype=dict, default={})
 
     # --- CURRENT RANGING ---
     p.define(

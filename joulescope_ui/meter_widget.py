@@ -30,8 +30,9 @@ FIELDS = [
 
 class MeterWidget(QtWidgets.QWidget):
 
-    def __init__(self, *args, **kwargs):
-        QtWidgets.QWidget.__init__(self, *args, **kwargs)
+    def __init__(self, parent, cmdp):
+        QtWidgets.QWidget.__init__(self, parent)
+        self._cmdp = cmdp
         self._accumulate_duration = 0.0
         self.verticalLayout = QtWidgets.QVBoxLayout(self)
         self.verticalLayout.setObjectName("verticalLayout")
@@ -68,6 +69,10 @@ class MeterWidget(QtWidgets.QWidget):
         self.sizePolicy.setVerticalStretch(0)
         self.setSizePolicy(self.sizePolicy)
         self.retranslateUi()
+        self._cmdp.subscribe('Device/#state/statistics', self._on_device_statistics)
+
+    def __del__(self):
+        self._cmdp.unsubscribe('Device/#state/statistics', self._on_device_statistics)
 
     @QtCore.Slot(bool)
     def on_accumulate_toggled(self, checked):
@@ -75,7 +80,7 @@ class MeterWidget(QtWidgets.QWidget):
         self.values['voltage'].accumulate_enable = checked
         self.values['power'].accumulate_enable = checked
 
-    def update(self, statistics):
+    def _on_device_statistics(self, topic, statistics):
         """Update the multimeter display
 
         :param statistics: The statistics data structure
@@ -98,3 +103,13 @@ class MeterWidget(QtWidgets.QWidget):
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
         self.accumulateButton.setText(_translate("meter_widget", "Accumulate"))
+
+
+def widget_register(cmdp):
+    return {
+        'name': 'Multimeter',
+        'brief': 'Display the average values and statistics.',
+        'class': MeterWidget,
+        'location': QtCore.Qt.RightDockWidgetArea,
+        'singleton': True,
+    }

@@ -13,7 +13,9 @@
 # limitations under the License.
 
 from PySide2 import QtCore, QtGui, QtWidgets
+import numpy as np
 from . import joulescope_rc
+from joulescope.units import unit_prefix
 import logging
 log = logging.getLogger(__name__)
 
@@ -26,14 +28,22 @@ QWidget {{ background-color : black; }}
 QLabel {{ color : green; font-weight: bold; font-size: {font_size}pt; }}
 """
 
+STATISTICS_TRANSLATE = {
+    'Mean': lambda s: s['μ'],
+    'Standard Deviation': lambda s: np.sqrt(s['σ2']),
+    'Minimum': lambda s: s['min'],
+    'Maximum': lambda s: s['max'],
+    'Peak-to-Peak': lambda s: s['p2p'],
+}
+
 
 class SingleValueWidget(QtWidgets.QWidget):
 
-    def __init__(self, *args, **kwargs):
-        QtWidgets.QWidget.__init__(self, *args, **kwargs)
+    def __init__(self, parent, cmdp):
+        QtWidgets.QWidget.__init__(self, parent)
+        self._cmdp = cmdp
         self._font_index = 2
-        self._meter_source = None
-        self._meter_value_source = None
+        self._statistics = {}
         self.setObjectName("SingleValueWidget")
         self.resize(387, 76)
         self.horizontalLayout = QtWidgets.QHBoxLayout(self)
@@ -47,10 +57,6 @@ class SingleValueWidget(QtWidgets.QWidget):
         self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.fieldLabel)
         self.fieldComboBox = QtWidgets.QComboBox(self.widget)
         self.fieldComboBox.setObjectName("fieldComboBox")
-        self.fieldComboBox.addItem("")
-        self.fieldComboBox.addItem("")
-        self.fieldComboBox.addItem("")
-        self.fieldComboBox.addItem("")
         self.fieldComboBox.currentIndexChanged.connect(self.on_field_changed)
         self.formLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.fieldComboBox)
         self.statisticLabel = QtWidgets.QLabel(self.widget)
@@ -86,6 +92,7 @@ class SingleValueWidget(QtWidgets.QWidget):
         self.horizontalLayout.addWidget(self.value_widget)
 
         self.retranslateUi()
+        self._cmdp.subscribe('Device/#state/statistics', self._on_device_statistics)
 
     def _font_size_delta(self, delta=None):
         delta = 0 if delta is None else int(delta)
@@ -96,37 +103,46 @@ class SingleValueWidget(QtWidgets.QWidget):
         font_size = FONT_SIZES[self._font_index]
         self.value_widget.setStyleSheet(STYLE_FSTR.format(font_size=font_size))
 
-    def source(self, src):
-        self._meter_source = src
-        self.update()
-
-    def update(self):
-        if self._meter_value_source is not None:
-            self._meter_value_source.on_update.disconnect(self.on_update)
-            self._meter_value_source = None
-        if self._meter_source is None:
-            return
-        value = self.fieldComboBox.currentText().lower()
-        self._meter_value_source = self._meter_source.values[value]
-        self._meter_value_source.on_update.connect(self.on_update)
-
     @QtCore.Slot(object, str)
-    def on_update(self, values, units):
-        idx = self.statisticComboBox.currentIndex()
-        self.valueLabel.setText(values[idx])
-        self.unitLabel.setText(f"<html>&nbsp;{units}&nbsp;</html>")
+    def _on_device_statistics(self, topic, statistics):
+        self._statistics = statistics
+        self._update()
+
+    def _update(self):
+        if self.fieldComboBox.count() == 0:
+            fields = list(self._statistics['signals'].keys()) + \
+                     list(self._statistics['accumulators'].keys())
+            for field in fields:
+                self.fieldComboBox.addItem(field)
+        field = self.fieldComboBox.currentText()
+        if field in self._statistics['signals']:
+            self.statisticComboBox.setEnabled(True)
+            stat = self.statisticComboBox.currentText()
+            s = self._statistics['signals'][field]['statistics']
+            units = self._statistics['signals'][field]['units']
+            value = STATISTICS_TRANSLATE[stat](s)
+        elif field in self._statistics['accumulators']:
+            self.statisticComboBox.setEnabled(False)
+            v = self._statistics['accumulators'][field]['value']
+            value = self._statistics['accumulators'][field]['value']
+            units = self._statistics['accumulators'][field]['units']
+        else:
+            log.warning('unsupported field: %s', field)
+            return
+
+        _, prefix, scale = unit_prefix(value)
+        value /= scale
+        value_str = ('%+6f' % value)[:8]
+        self.valueLabel.setText(value_str)
+        self.unitLabel.setText(f"<html>&nbsp;{prefix}{units}&nbsp;</html>")
 
     @QtCore.Slot(int)
     def on_field_changed(self, index):
-        self.update()
+        self._update()
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
         self.fieldLabel.setText(_translate("Form", "Field"))
-        self.fieldComboBox.setItemText(0, _translate("Form", "Current"))
-        self.fieldComboBox.setItemText(1, _translate("Form", "Voltage"))
-        self.fieldComboBox.setItemText(2, _translate("Form", "Power"))
-        self.fieldComboBox.setItemText(3, _translate("Form", "Energy"))
         self.statisticLabel.setText(_translate("Form", "Statistic"))
         self.statisticComboBox.setItemText(0, _translate("Form", "Mean"))
         self.statisticComboBox.setItemText(1, _translate("Form", "Standard Deviation"))
@@ -136,3 +152,11 @@ class SingleValueWidget(QtWidgets.QWidget):
         self.valueLabel.setText(_translate("Form", "0.000"))
         self.unitLabel.setText(_translate("Form", " mA "))
 
+
+def widget_register(cmdp):
+    return {
+        'name': 'Single Value',
+        'brief': 'Select and display a single value.',
+        'class': SingleValueWidget,
+        'location': QtCore.Qt.RightDockWidgetArea,
+    }

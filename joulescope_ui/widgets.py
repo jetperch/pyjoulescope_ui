@@ -16,12 +16,16 @@
 from joulescope_ui import control_widget
 from joulescope_ui import developer_widget
 from joulescope_ui import gpio_widget
+from joulescope_ui import meter_widget
+from joulescope_ui import single_value_widget
 
 
 WIDGETS = [
     control_widget,
     developer_widget,
     gpio_widget,
+    meter_widget,
+    single_value_widget,
 ]
 
 
