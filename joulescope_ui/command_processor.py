@@ -120,6 +120,7 @@ class CommandProcessor(QtCore.QObject):
             rv = self._topic[topic]['execute_fn'](topic, data)
             if rv is None or rv[0] is None:
                 return
+            self._redos.clear()
             self._undos.append(((topic, data), rv))
         else:
             data_orig = self.preferences.get(topic)

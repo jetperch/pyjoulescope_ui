@@ -41,6 +41,10 @@ class TestCommandProcessor(unittest.TestCase):
     def execute_undo(self, command, data):
         return command + '/undo', data + '/undo'
 
+    def execute_undo_and_record(self, command, data):
+        self.commands.append((command, data))
+        return command + '/undo', data + '/undo'
+
     def test_register_invoke_unregister(self):
         self.c.register('!my/command', self.execute_ignore)
         self.c.invoke('!my/command', 'hello')
@@ -79,6 +83,16 @@ class TestCommandProcessor(unittest.TestCase):
         c.invoke('!redo')
         self.assertEqual(['!my/command'], c.undos)
         self.assertEqual([], c.redos)
+
+    def test_undo_then_command_erases_redo(self):
+        c = self.c
+        c.register('!my/command', self.execute_undo_and_record)
+        c.register('!my/command/undo', self.execute_ignore)
+        c.invoke('!my/command', '1')
+        c.invoke('!undo')
+        c.invoke('!my/command', '2')
+        c.invoke('!redo')
+        self.assertEqual([('!my/command', '1'), ('!my/command/undo', '1/undo'), ('!my/command', '2')], self.commands)
 
     def test_undo_when_empty(self):
         self.c.invoke('!undo')
