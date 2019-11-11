@@ -39,6 +39,7 @@ DTYPES_DEF = [
     ('bytes', bytes),
     ('dict', dict, collections.abc.Mapping),
     ('obj', 'object', object),  # WARNING CANNOT BE SERIALIZED!
+    ('none', None),  # not stored, but used to signal events
     ('container', )]
 DTYPES = [item for sublist in DTYPES_DEF for item in sublist]
 DTYPES_MAP = {}
@@ -73,6 +74,8 @@ def validate(value, dtype, options=None):
             raise ValueError(f'dtype dict but no keys')
         return value
     elif dtype == 'container':
+        return value
+    elif dtype == 'none':
         return value
     else:
         raise ValueError(f'unsupported dtype {dtype}')
@@ -294,6 +297,45 @@ class Preferences(QtCore.QObject):
         value = self.validate(name, value)
         self._profiles[profile][name] = value
 
+    def remove(self, name):
+        """Completely remove a preference from the system.
+
+        :param name: The name of the preference.
+        :return: A dict suitable for :meth:`restore` to completely
+            undo this operation.
+        """
+        state = {'name': name, 'profiles': {}, 'defines': {}}
+        if name[-1] == '/':
+            # traverse EVERYTHING: could improve efficiency if needed
+            for pname in list(self._profiles.keys()):
+                profile = self._profiles[pname]
+                state['profiles'][pname] = {}
+                for key in list(profile.keys()):
+                    if key.startswith(name):
+                        state['profiles'][pname][key] = profile.pop(key)
+            for dname in list(self._defines):
+                if dname.startswith(name):
+                    state['defines'][dname] = self._defines.pop(dname)
+        else:
+            for pname, profile in self._profiles.items():
+                if name in profile:
+                    state['profiles'][pname] = {name: profile.pop(name)}
+            if name in self._defines:
+                state['defines'][name] = self._defines.pop(name)
+        return state
+
+    def restore(self, value):
+        """Restore a preference removed by :meth:`remove`.
+
+        :param value: The value returned by :meth:`remove`.
+        """
+        if 'defines' in value:
+            for key, d in value['defines'].items():
+                self._defines[key] = d
+        for pname, profile in value['profiles'].items():
+            for key, v in profile.items():
+                self._profiles[pname][key] = v
+
     def __len__(self):
         return len(self._profiles['all'])
 
@@ -340,9 +382,25 @@ class Preferences(QtCore.QObject):
         profile = self._profile_active if profile is None else str(profile)
         return name in self._profiles.get(profile, {})
 
+    def match(self, pattern, profile=None):
+        """Find all preferences matching pattern.
+
+        :param pattern: The pattern to match.
+        :param profile: The profile name.  None (default) matches only on the
+           currently active profile.
+        :return: The list of matching preference names.
+        """
+        profile = self._profile_active if profile is None else str(profile)
+        if pattern[-1] == '/':
+            return [k for k in self._profiles[profile].keys() if k.startswith(pattern)]
+        elif pattern in self._profiles[profile]:
+            return [pattern]
+        else:
+            return []
+
     def clear(self, name, profile=None):
         profile = self._profile_active if profile is None else str(profile)
-        del self._profiles[profile][name]
+        return self._profiles[profile].pop(name)
 
     def profile_add(self, name, activate=False):
         if name in self._profiles:

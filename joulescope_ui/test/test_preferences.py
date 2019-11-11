@@ -180,6 +180,9 @@ class TestPreferences(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate('world', 'dict')
 
+    def test_validate_none(self):
+        self.assertEqual('hi', validate('hi', 'none'))
+
     def test_set_invalid_type(self):
         self.p.define(name='hello', dtype='str', default='world')
         with self.assertRaises(ValueError):
@@ -237,3 +240,45 @@ class TestPreferences(unittest.TestCase):
         self.assertEqual([('a', 'zz'), ('a/0', '0'), ('a/1', 'new')], list(p.items(prefix='a')))
         self.assertEqual([('a/0', '0'), ('a/1', 'new')], list(p.items(prefix='a/')))
         self.assertEqual([('b/2', '2')], list(p.items(prefix='b/')))
+
+    def test_remove_single(self):
+        self.p.define(name='a', dtype='str', default='zz')
+        self.p.profile_add('p1', activate=True)
+        self.p['a'] = '1'
+        r = self.p.remove('a')
+        self.assertEqual({'all': {'a': 'zz'}, 'p1': {'a': '1'}}, r['profiles'])
+        with self.assertRaises(KeyError):
+            self.p['a']
+        self.p.restore(r)
+        self.assertEqual('1', self.p['a'])
+        self.p.profile = 'all'
+        self.assertEqual('zz', self.p['a'])
+        with self.assertRaises(ValueError):
+            self.p['a'] = 1
+
+    def test_remove_hierarchy(self):
+        p = self.p
+        p.define(name='a/0', dtype='str', default='0')
+        p.define(name='a/1', dtype='str', default='1')
+        self.p.profile_add('p1', activate=True)
+        self.p['a/0'] = '00'
+        r = self.p.remove('a/')
+        with self.assertRaises(KeyError):
+            self.p['a/0']
+        self.p.restore(r)
+        self.assertEqual('00', self.p['a/0'])
+        self.p.profile = 'all'
+        self.assertEqual('0', self.p['a/0'])
+        with self.assertRaises(ValueError):
+            self.p['a/0'] = 1
+
+    def test_match(self):
+        p = self.p
+        p.define(name='a/0', dtype='str', default='0')
+        p.define(name='a/1', dtype='str', default='1')
+        self.assertEqual(['a/0', 'a/1'], p.match('a/'))
+        self.assertEqual(['a/0'], p.match('a/0'))
+        p.profile_add('p1', activate=True)
+        self.assertEqual([], p.match('a/'))
+        p['a/0'] = 'zz'
+        self.assertEqual(['a/0'], p.match('a/'))
