@@ -38,30 +38,23 @@ class AxisMenu(QtGui.QMenu):
         self.annotations.addAction(self.clear_all_markers)
 
 
+def int_to_alpha(i):
+    result = ''
+    while True:
+        k = i % 26
+        result = chr(ord('A') + k) + result
+        i = (i // 26)
+        if i <= 0:
+            return result
+        i = i - 1
+
+
 class XAxis(pg.AxisItem):
+    sigMarkerMoving = QtCore.Signal(str, float)
 
-    sigMarkerSingleAddRequest = QtCore.Signal(float)
-    """Indicate that the user has requested to add a single marker.
-
-    :param x: The initial x-axis time coordinate in seconds for the marker.
-    """
-
-    sigMarkerDualAddRequest = QtCore.Signal(float, float)
-    """Indicate that the user has requested to add a single marker.
-
-    :param x1: The initial x-axis time coordinate in seconds for the left marker.
-    :param x1: The initial x-axis time coordinate in seconds for the right marker.
-    """
-
-    sigMarkerRemoveRequest = QtCore.Signal(object)
-    """Indicate that the user has requested to remove markers
-
-    :param markers: The list of markers to remove which is either length 1
-        for single markers and length 2 for dual markers.  
-    """
-
-    def __init__(self, plugins=None):
+    def __init__(self, cmdp):
         pg.AxisItem.__init__(self, orientation='top')
+        self._cmdp = cmdp
         self.menu = AxisMenu()
         self.menu.single_marker.triggered.connect(self.on_singleMarker)
         self.menu.dual_markers.triggered.connect(self.on_dualMarkers)
@@ -69,45 +62,86 @@ class XAxis(pg.AxisItem):
         self._markers = {}
         self._proxy = None
         self._popup_menu_pos = None
-        self.plugins = plugins
 
-    def marker_single_add(self, x):
-        idx = 0
+        cmdp.register('!Waveform/Markers/single_add', self._cmd_waveform_marker_single_add,
+                      brief='Add a single marker to the waveform widget.',
+                      detail='value is x-axis time coordinate in seconds for the marker.')
+        cmdp.register('!Waveform/Markers/dual_add', self._cmd_waveform_marker_dual_add,
+                      brief='Add a dual marker pair to the waveform widget.',
+                      detail='value is a list containing:\n' +
+                             'x1: The initial x-axis time coordinate in seconds for the left marker.\n' +
+                             'x2: The initial x-axis time coordinate in seconds for the right marker.\n')
+        cmdp.register('!Waveform/Markers/remove', self._cmd_waveform_marker_remove,
+                      brief='Remove a single marker or dual marker pair from the waveform widget.',
+                      detail='The value is the list of marker names lists to remove which is either length 1' +
+                             'for single markers and length 2 for dual markers.')
+        cmdp.register('!Waveform/Markers/clear', self._cmd_waveform_marker_clear,
+                      brief='Remove all markers.')
+        cmdp.register('!Waveform/Markers/restore', self._cmd_waveform_marker_restore,
+                      brief='Restore removed markers (for undo support).')
+
+        # todo '!Waveform/Markers/move'
+        # todo '!Waveform/Markers/list'
+
+    def _find_first_unused_single_marker_name(self):
+        idx = 1
         while True:
-            if idx not in self._markers:
-                marker = self._marker_add(idx, shape='full')
-                marker.set_pos(x)
-                return marker
+            name = str(idx)
+            if name not in self._markers:
+                return name
             idx += 1
 
-    def marker_dual_add(self, x1, x2):
-        letter = 'A'
-        while ord(letter) <= ord('Z'):
-            if letter + '1' not in self._markers:
-                mleft = self._marker_add(letter + '1', shape='left')
-                mright = self._marker_add(letter + '2', shape='right')
-                mleft.pair = mright
-                mright.pair = mleft
-                mleft.set_pos(x1, no_emit=True)
-                mright.set_pos(x2)
-                return mleft, mright
-            letter = chr(ord(letter) + 1)
+    def _find_first_unused_dual_marker_prefix(self):
+        idx = 0
+        while True:
+            prefix = int_to_alpha(idx)
+            name1, name2 = prefix + '1', prefix + '2'
+            if name1 not in self._markers:
+                return name1, name2
+            idx += 1
 
-    def on_singleMarker(self):
-        x = self._popup_menu_pos.x()
-        log.info('on_singleMarker(%s)', x)
-        self.sigMarkerSingleAddRequest.emit(x)
+    def _cmd_waveform_marker_single_add(self, topic, value):
+        x = value
+        name = self._find_first_unused_single_marker_name()
+        self._marker_add(name, shape='full', pos=x)
+        self.marker_moving_emit(name, x)
+        self._cmdp.publish('Waveform/#requests/refresh_markers', [name])
+        return '!Waveform/Markers/remove', [[name]]
 
-    def on_dualMarkers(self):
-        x = self._popup_menu_pos.x()
-        xa, xb = self.range
-        xr = (xb - xa) * 0.05
-        x1, x2 = x - xr, x + xr
-        log.info('on_dualMarkers(%s, %s)', x1, x2)
-        self.sigMarkerDualAddRequest.emit(x1, x2)
+    def _cmd_waveform_marker_dual_add(self, topic, value):
+        x1, x2 = value
+        name1, name2 = self._find_first_unused_dual_marker_prefix()
+        mleft = self._marker_add(name1, shape='left', pos=x1)
+        mright = self._marker_add(name2, shape='right', pos=x2)
+        mleft.pair = mright
+        mright.pair = mleft
+        self.marker_moving_emit(name1, x1)
+        self.marker_moving_emit(name2, x2)
+        self._cmdp.publish('Waveform/#requests/refresh_markers', [name1, name2])
+        return '!Waveform/Markers/remove', [[name1, name2]]
 
-    def on_clearAllMarkers(self):
-        log.info('on_clearAllMarkers()')
+    def _cmd_waveform_marker_remove(self, topic, value):
+        states = []
+        for v in value:
+            states.append(self.marker_remove(*v))
+        self._cmdp.publish('Waveform/#requests/refresh_markers', None)
+        return '!Waveform/Markers/restore', states
+
+    def _cmd_waveform_marker_restore(self, topic, value):
+        names = []
+        for state in value:
+            if state is None or len(state) != 2:
+                continue
+            markers = [self._marker_add(**s) for s in state if s is not None]
+            if len(markers) == 2:
+                markers[0].pair = markers[1]
+                markers[1].pair = markers[0]
+            for m in markers:
+                self.marker_moving_emit(m.name, m.get_pos())
+            names.append([x.name for x in markers])
+        return '!Waveform/Markers/remove', names
+
+    def _cmd_waveform_marker_clear(self, topic, value):
         removal = []
         for marker in self._markers.values():
             if marker.pair is not None:
@@ -115,18 +149,34 @@ class XAxis(pg.AxisItem):
                     removal.append([marker, marker.pair])
             else:
                 removal.append([marker])
-        for k in removal:
-            self.sigMarkerRemoveRequest.emit(k)
+        return self._cmd_waveform_marker_remove(None, removal)
+
+    def on_singleMarker(self):
+        x = self._popup_menu_pos.x()
+        log.info('on_singleMarker(%s)', x)
+        self._cmdp.invoke('!Waveform/Markers/single_add', x)
+
+    def on_dualMarkers(self):
+        x = self._popup_menu_pos.x()
+        xa, xb = self.range
+        xr = (xb - xa) * 0.05
+        x1, x2 = x - xr, x + xr
+        log.info('on_dualMarkers(%s, %s)', x1, x2)
+        self._cmdp.invoke('!Waveform/Markers/dual_add', [x1, x2])
+
+    def on_clearAllMarkers(self):
+        log.info('on_clearAllMarkers()')
+        self._cmdp.invoke('!Waveform/Markers/clear', None)
 
     def linkedViewChanged(self, view, newRange=None):
         pg.AxisItem.linkedViewChanged(self, view=view, newRange=newRange)
         for marker in self._markers.values():
             marker.viewTransformChanged()
 
-    def _marker_add(self, name, shape):
+    def _marker_add(self, name, **state):
         if name in self._markers:
             raise RuntimeError('_marker_add internal error: name %s already exists', name)
-        marker = Marker(name=name, x_axis=self, shape=shape)
+        marker = Marker(cmdp=self._cmdp, name=name, x_axis=self, state=state)
         scene = self.scene()
         for item in [marker] + marker.graphic_items:
             if scene is not None and scene is not item.scene():
@@ -134,20 +184,9 @@ class XAxis(pg.AxisItem):
             item.setParentItem(self.parentItem())
         self._markers[name] = marker
         marker.show()
-        marker.sigRemoveRequest.connect(self._on_marker_remove_request)
         if self._proxy is None:
             self._proxy = pg.SignalProxy(self.scene().sigMouseMoved, rateLimit=60, slot=self._mouseMoveEvent)
         return marker
-
-    @QtCore.Slot(object)
-    def _on_marker_remove_request(self, marker: Marker):
-        if marker.pair is not None:
-            if marker.is_right:
-                self.sigMarkerRemoveRequest.emit([marker.pair, marker])
-            else:
-                self.sigMarkerRemoveRequest.emit([marker, marker.pair])
-        else:
-            self.sigMarkerRemoveRequest.emit([marker])
 
     def marker_get(self, name):
         if name is None:
@@ -156,48 +195,46 @@ class XAxis(pg.AxisItem):
             name = name.name
         return self._markers.get(name)
 
-    def marker_remove(self, m1, m2=None):
-        m1 = self.marker_get(m1)
-        if m1 is None:
-            log.error('marker_remove(%s) not found', m1)
-            if m2 is not None:
-                return self.marker_remove(m2)
-            return
-        log.info('marker_remove(%s)', m1)
-        m2 = self.marker_get(m2)
-        if m2 is not None:
-            if m1 != m2.pair and m2 != m1.pair:
-                log.error('marker_remove on mismatch: %s, %s', m1, m2)
-                self.marker_remove(m2)
-        self._markers.pop(m1.name)
-        m1.sigRemoveRequest.disconnect(self._on_marker_remove_request)
-        m1.setVisible(False)
-        m1.signal_remove_all()
+    def _marker_remove_one(self, m):
+        if m is None:
+            return None
+        self._markers.pop(m.name)
+        m.setVisible(False)
+        state = m.remove()
         # marker.prepareGeometryChange()
         # self.scene().removeItem(marker)  # removing from scene causes crash... ugh
         # ViewBox has crash workaround for this case - incorporate here?
-        if m1.pair:
-            other, m1.pair = m1.pair, None
-            other.pair = None
-            self.marker_remove(other)
+        return state
+
+    def marker_remove(self, m1, m2=None):
+        m1 = self.marker_get(m1)
+        m2 = self.marker_get(m2)
+        if m1 is not None and m2 is not None:
+            if m1.pair is not None and m1.pair != m2:
+                log.error('dual marker mismatch')
+                self._marker_remove_one(m1.pair)
+            if m2.pair is not None and m2.pair != m1:
+                log.error('dual marker mismatch')
+                self._marker_remove_one(m2.pair)
+        return [self._marker_remove_one(m1),
+                self._marker_remove_one(m2)]
 
     def markers(self) -> List[Marker]:
         return list(self._markers.values())
 
     def markers_single(self) -> List[Marker]:
-        m = self._markers.values()
-        m = [x for x in m if not isinstance(x.name, str)]
-        return m
+        return [m for m in self._markers.values() if m.is_single]
 
     def markers_dual(self) -> List[Tuple[Marker, Marker]]:
-        m = self._markers.values()
-        m = [(x.pair, x) for x in m if x.is_right]
-        return m
+        return [(m.pair, m) for m in self._markers.values() if m.is_right]
 
     def markers_clear(self):
         while self._markers:
             m = next(iter(self._markers.values()))
             self.marker_remove(m)
+
+    def marker_moving_emit(self, marker_name, marker_pos):
+        self.sigMarkerMoving.emit(marker_name, marker_pos)
 
     def _mouseMoveEvent(self, ev):
         """Handle mouse movements for every mouse movement within the widget"""

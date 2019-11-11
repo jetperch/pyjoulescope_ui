@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from PySide2 import QtGui, QtCore, QtWidgets
+from .signal_def import signal_def
 from .signal import Signal
 from .scrollbar import ScrollBar
 from .xaxis import XAxis
@@ -32,40 +33,9 @@ class Oscilloscope(QtWidgets.QWidget):
     :param parent: The parent :class:`QWidget`.
     """
 
-    sigRefreshRequest = QtCore.Signal()
-    """Request a data refresh"""
-
-    on_xChangeSignal = QtCore.Signal(float, float, int)
-    """Indicate that an x-axis range change was requested.
-
-    :param x_min: The minimum x_axis value to display in the range.
-    :param x_max: The maximum x_axis value to display in the range.
-    :param x_count: The desired number of samples in the range.
-    """
-
-    sigMarkerDualUpdateRequest = QtCore.Signal(object, object)
-    """Request a value update when x-axis position changes.
-
-    :param marker1: The left :class:`Marker` instance.
-    :param marker2: The right :class:`Marker` instance.
-    
-    Use :meth:`Marker.get_pos` to get the the x-axis coordinate for
-    each marker. 
-    """
-
-    sigRangeToolRequest = QtCore.Signal(str, float, float)
-    """Indicate that the user has requested a tool that operates over a time range.
-
-    :param name: The tool name to process.
-    :param x_start: The starting position in x-axis units.
-    :param x_stop: The stopping position in x-axis units.
-
-    Range tools are only triggered for dual markers.  Tools for single
-    markers are not supported.
-    """
-
-    def __init__(self, parent=None, plugins=None):
+    def __init__(self, parent, cmdp):
         QtWidgets.QWidget.__init__(self, parent=parent)
+        self._cmdp = cmdp
         self._x_limits = [0.0, 30.0]
 
         self.layout = QtWidgets.QHBoxLayout(self)
@@ -83,6 +53,7 @@ class Oscilloscope(QtWidgets.QWidget):
             'grid_y': 128,
             'trace_width': 1,
         }
+        self._dataview_data_pending = 0
 
         self._settings_widget = SettingsWidget()
         self.win.addItem(self._settings_widget, row=0, col=0)
@@ -92,12 +63,10 @@ class Oscilloscope(QtWidgets.QWidget):
         self._scrollbar.regionChange.connect(self.on_scrollbarRegionChange)
         self.win.addItem(self._scrollbar, row=0, col=1)
 
-        self._x_axis = XAxis(plugins)
+        self._x_axis = XAxis(self._cmdp)
         self.win.addItem(self._x_axis, row=1, col=1)
         self._x_axis.setGrid(128)
-        self.sigMarkerSingleAddRequest = self._x_axis.sigMarkerSingleAddRequest
-        self.sigMarkerDualAddRequest = self._x_axis.sigMarkerDualAddRequest
-        self.sigMarkerRemoveRequest = self._x_axis.sigMarkerRemoveRequest
+        self._x_axis.sigMarkerMoving.connect(self._on_marker_moving)
 
         self.win.ci.layout.setRowStretchFactor(0, 1)
         self.win.ci.layout.setRowStretchFactor(1, 1)
@@ -108,6 +77,45 @@ class Oscilloscope(QtWidgets.QWidget):
         self.win.ci.layout.setColumnAlignment(1, QtCore.Qt.AlignLeft)
         self.win.ci.layout.setColumnAlignment(2, QtCore.Qt.AlignLeft)
         self.win.ci.layout.setColumnStretchFactor(2, -1)
+        self.signal_configure()
+        self.set_xlimits(0.0, 30.0)
+        self.set_xview(25.0, 30.0)
+
+        # context manager with auto delete?
+        self._cmdp.subscribe('DataView/#data', self._on_data)
+        self._cmdp.subscribe('Device/#state/source', self._on_device_state_source)
+        self._cmdp.subscribe('Device/#state/play', self._on_device_state_play)
+        self._cmdp.subscribe('Device/#state/name', self._on_device_state_name)
+        self._cmdp.subscribe('Waveform/Markers/_state/instances/', self._on_marker_instance_change)
+        self._cmdp.subscribe('Waveform/#requests/refresh_markers', self._on_refresh_markers)
+        self._cmdp.subscribe('Waveform/#statistics_over_range_resp', self._on_statics_over_range_resp)
+        self._cmdp.subscribe('Device/#state/x_limits', self._on_device_state_limits)
+
+        # todo '!Waveform/Signals/add'
+        # todo '!Waveform/Signals/remove'
+
+    def _on_device_state_limits(self, topic, value):
+        self.set_xlimits(*value)
+        self.set_xview(*value)
+
+    def _on_device_state_name(self, topic, value):
+        if not value:
+            # disconnected from data source
+            self.data_clear()
+            self.markers_clear()
+
+    def _on_device_state_play(self, topic, value):
+        if value:
+            self.set_display_mode('realtime')
+        else:
+            self.set_display_mode('buffer')
+
+    def _on_device_state_source(self, topic, value):
+        if value == 'USB':
+            if self.set_display_mode('realtime'):
+                self.request_x_change()
+        else:
+            self.set_display_mode('buffer')
 
     def set_display_mode(self, mode):
         """Configure the display mode.
@@ -115,13 +123,13 @@ class Oscilloscope(QtWidgets.QWidget):
         :param mode: The oscilloscope display mode which is one of:
             * 'realtime': Display realtime data, and do not allow x-axis time scrolling
               away from present time.
-            * 'browse': Display stored data, either from a file or a buffer,
+            * 'buffer': Display stored data, either from a file or a buffer,
               with a fixed x-axis range.
 
         Use :meth:`set_xview` and :meth:`set_xlimits` to configure the current
         view and the total allowed range.
         """
-        self._scrollbar.set_display_mode(mode)
+        return self._scrollbar.set_display_mode(mode)
 
     def set_sampling_frequency(self, freq):
         """Set the sampling frequency.
@@ -151,7 +159,7 @@ class Oscilloscope(QtWidgets.QWidget):
         for signal in self._signals.values():
             signal.set_xlimits(x_min, x_max)
 
-    def signal_configure(self, signals):
+    def signal_configure(self, signals=None):
         """Configure the available signals.
 
         :param signals: The list of signal definitions.  Each definition is a dict:
@@ -161,6 +169,8 @@ class Oscilloscope(QtWidgets.QWidget):
             * y_log_min: The minimum log value.  None (default) disables logarithmic scale.
             * show: True to show.  Not shown by default.
         """
+        if signals is None:
+            signals = signal_def
         for signal in signals:
             signal = copy.deepcopy(signal)
             signal['display_name'] = signal.get('display_name', signal['name'])
@@ -174,20 +184,14 @@ class Oscilloscope(QtWidgets.QWidget):
         self.signal_add(signal)
 
     def signal_add(self, signal):
-        s = Signal(**signal)
+        s = Signal(parent=self, cmdp=self._cmdp, **signal)
         s.addToLayout(self.win, row=self.win.ci.layout.rowCount())
-        s.sigRefreshRequest.connect(self.sigRefreshRequest.emit)
         s.sigHideRequestEvent.connect(self.on_signalHide)
         s.vb.sigWheelZoomXEvent.connect(self._scrollbar.on_wheelZoomX)
         s.vb.sigPanXEvent.connect(self._scrollbar.on_panX)
         self._signals[signal['name']] = s
         self._vb_relink()  # Linking to last axis makes grid draw correctly
         s.y_axis.setGrid(self.config['grid_y'])
-
-        # add signal to each existing dual marker
-        for m in self._x_axis.markers():
-            if m.is_right:
-                m.signal_add(s)
         return s
 
     def signal_remove(self, name):
@@ -201,7 +205,6 @@ class Oscilloscope(QtWidgets.QWidget):
         signal.vb.sigWheelZoomXEvent.disconnect()
         signal.vb.sigPanXEvent.disconnect()
         signal.sigHideRequestEvent.disconnect()
-        signal.sigRefreshRequest.disconnect()
         for m in self._x_axis.markers():
             m.signal_remove(name)
         row = signal.removeFromLayout(self.win)
@@ -217,58 +220,6 @@ class Oscilloscope(QtWidgets.QWidget):
     def on_signalHide(self, name):
         log.info('on_signalHide(%s)', name)
         self.signal_remove(name)
-
-    def _add_signals_to_marker(self, marker):
-        for signal in self._signals.values():
-            marker.signal_add(signal)
-        return marker
-
-    def marker_single_add(self, x):
-        m = self._x_axis.marker_single_add(x)
-        m = self._add_signals_to_marker(m)
-        m.sigUpdateRequest.connect(self._on_marker_single_update)
-        m.signal_update_all()
-        return m
-
-    @QtCore.Slot(object)
-    def _on_marker_single_update(self, marker):
-        marker.signal_update_all()
-
-    def marker_dual_add(self, x1, x2):
-        m1, m2 = self._x_axis.marker_dual_add(x1, x2)
-        m2 = self._add_signals_to_marker(m2)
-        m1.sigUpdateRequest.connect(self._on_marker_dual_update)
-        m2.sigUpdateRequest.connect(self._on_marker_dual_update)
-        m1.sigRangeToolRequest.connect(self.sigRangeToolRequest.emit)
-        m2.sigRangeToolRequest.connect(self.sigRangeToolRequest.emit)
-        self.sigMarkerDualUpdateRequest.emit(m1, m2)
-        return m1, m2
-
-    @QtCore.Slot(object)
-    def _on_marker_dual_update(self, marker):
-        if marker.is_right:
-            m1 = marker.pair
-            m2 = marker
-        else:
-            m1 = marker
-            m2 = marker.pair
-        self.sigMarkerDualUpdateRequest.emit(m1, m2)
-
-    def marker_remove(self, m1, m2=None):
-        """Remove markers
-
-        :param m1: The marker or marker name to remove.
-        :param m2: The other marker or marker name to remove for
-            dual markers.  This second marker parameter is never
-            required, but will be check for correctness if provided.
-        """
-        m1 = self._x_axis.marker_get(m1)
-        if m1.pair is None:
-            m1.sigUpdateRequest.disconnect(self._on_marker_single_update)
-        else:
-            m1.sigUpdateRequest.disconnect(self._on_marker_dual_update)
-            m1.pair.sigUpdateRequest.disconnect(self._on_marker_dual_update)
-        self._x_axis.marker_remove(m1, m2)
 
     def _vb_relink(self):
         if len(self._signals) <= 0:
@@ -299,12 +250,13 @@ class Oscilloscope(QtWidgets.QWidget):
                 item.show()
                 item.setMaximumWidth(16777215)
 
-    def data_update(self, data):
+    def _on_data(self, topic, data):
         if not self.isVisible():
             return
         if data is None or not bool(data):
             self.data_clear()
             return
+        self._dataview_data_pending += 1
         x_limits = data['time']['limits']
         if x_limits is not None and x_limits != self._x_limits:
             self.set_xlimits(*x_limits)
@@ -315,10 +267,81 @@ class Oscilloscope(QtWidgets.QWidget):
             if s is None:
                 continue
             s.update(x, value)
-            for m in self._x_axis.markers_single():
-                m.signal_update(s)
-            for m1, m2 in self._x_axis.markers_dual():
-                self.sigMarkerDualUpdateRequest.emit(m1, m2)
+        self._markers_single_update_all()
+        self._markers_dual_update_all()
+
+    def _markers_single_update_all(self):
+        markers = [(m.name, m.get_pos()) for m in self._x_axis.markers_single()]
+        for s in self._signals.values():
+            s.update_markers_single_all(markers)
+
+    def _markers_single_update(self, marker_name):
+        marker = self._x_axis.marker_get(marker_name)
+        if marker.is_single:
+            for s in self._signals.values():
+                s.update_markers_single_one(marker.name, marker.get_pos())
+
+    def _on_data_frame_done(self):
+        self._dataview_data_pending = 0
+        self._cmdp.publish('Waveform/#requests/data_next', None)
+
+    def _markers_dual_update_all(self):
+        ranges = []
+        markers = []
+        for m1, m2 in self._x_axis.markers_dual():
+            t1 = m1.get_pos()
+            t2 = m2.get_pos()
+            if t1 > t2:
+                t1, t2 = t2, t1
+            ranges.append((t1, t2, m2.name))
+            markers.append((m2.name, m2.get_pos()))
+        if len(ranges):
+            request = {
+                'ranges': ranges,
+                'source_id': 'Waveform._markers_dual_update_all',
+                'markers': markers,
+                'reply_topic': 'Waveform/#statistics_over_range_resp'
+            }
+            self._cmdp.publish('DataView/#service/range_statistics', request)
+        else:
+            for s in self._signals.values():
+                s.update_markers_dual_all([])
+            self._on_data_frame_done()
+
+    def _on_statics_over_range_resp(self, topic, value):
+        if value is not None:
+            req = value['request']
+            rsp = value['response']
+            if rsp is None:
+                rsp = [None] * len(req['markers'])
+            for s in self._signals.values():
+                y = []
+                for (name, pos), stat in zip(req['markers'], rsp):
+                    if stat is not None:
+                        stat = stat['signals'].get(s.name, {}).get('statistics')
+                    y.append((name, pos, stat))
+                s.update_markers_dual_all(y)
+        self._on_data_frame_done()
+
+    def _on_marker_instance_change(self, topic, value):
+        marker_name = topic.split('/')[-2]
+        marker = self._x_axis.marker_get(marker_name)
+        if marker is None:
+            return  # marker still being created
+        elif marker.is_single:
+            self._markers_single_update(marker_name)
+        else:
+            self._markers_dual_update_all()  # todo : just update one
+
+    @QtCore.Slot(str, float)
+    def _on_marker_moving(self, marker_name, marker_pos):
+        for s in self._signals.values():
+            s.marker_move(marker_name, marker_pos)
+
+    def _on_refresh_markers(self, topic, value):
+        # keep it simple for now, just refresh everything
+        self._markers_single_update_all()
+        self._markers_dual_update_all()
 
     def data_clear(self):
         for s in self._signals.values():
@@ -326,6 +349,8 @@ class Oscilloscope(QtWidgets.QWidget):
 
     def markers_clear(self):
         self._x_axis.markers_clear()
+        self._markers_single_update_all()
+        self._markers_dual_update_all()
 
     def x_state_get(self):
         """Get the x-axis state.
@@ -355,7 +380,7 @@ class Oscilloscope(QtWidgets.QWidget):
             vb.setXRange(x_min, x_max, padding=0)
         else:
             log.info('on_scrollbarRegionChange(%s, %s, %s) with no ViewBox', x_min, x_max, x_count)
-        self.on_xChangeSignal.emit(x_min, x_max, x_count)
+        self._cmdp.publish('DataView/#service/x_change_request', [x_min, x_max, x_count])
 
     def request_x_change(self):
         self._scrollbar.request_x_change()
@@ -398,3 +423,17 @@ class Oscilloscope(QtWidgets.QWidget):
         self._x_axis.setGrid(self.config['grid_x'])
         for signal in self._signals.values():
             signal.config_apply(self.config)
+
+
+def widget_register(cmdp):
+    cmdp.define('Waveform/#requests/refresh_markers', dtype=object)  # list of marker names
+    cmdp.define('Waveform/#requests/data_next', dtype='none')
+    cmdp.define('Waveform/#statistics_over_range_resp', dtype=object)
+
+    return {
+        'name': 'Waveform',
+        'brief': 'Display waveforms of values over time.',
+        'class': Oscilloscope,
+        'location': QtCore.Qt.RightDockWidgetArea,
+        'singleton': True,
+    }

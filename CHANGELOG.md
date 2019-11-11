@@ -6,9 +6,12 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.6.11
 
-2019 Nov 2 [in progress]
+2019 Nov 9 [in progress]
 
+*   Implemented Command pattern with preferences.  Refactored code.
+*   Fixed single value widget to display value in its own best unit scale.
 *   Renamed "command" to "entry_point" to prevent confusion with UI "commands".
+*   Addressed crashes on marker removal.
 
 
 ## 0.6.10

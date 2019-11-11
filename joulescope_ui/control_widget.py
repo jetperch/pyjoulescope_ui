@@ -35,12 +35,20 @@ class ControlWidget(QtWidgets.QWidget):
 
         self._cmdp.subscribe('Device/parameter/', self._on_device_parameter, update_now=True)
         self._cmdp.subscribe('Device/#state/', self._on_device_state, update_now=True)
-        self._ui.playButton.toggled.connect(lambda checked: self._cmdp.publish('Device/#state/play', checked))
-        self._ui.recordButton.toggled.connect(lambda checked: self._cmdp.publish('Device/#state/record', checked))
+        self._ui.playButton.toggled.connect(self._on_play_button_toggled)
+        self._ui.recordButton.toggled.connect(self._on_record_button_toggled)
 
     def __del__(self):
         self._cmdp.unsubscribe('Device/parameter/', self._on_device_parameter)
         self._cmdp.unsubscribe('Device/#state/', self._on_device_state)
+
+    def _on_play_button_toggled(self, checked):
+        log.info('control_widget play button %s', checked)
+        self._cmdp.publish('Device/#state/play', checked)
+
+    def _on_record_button_toggled(self, checked):
+        log.info('control_widget record button %s %s', checked)
+        self._cmdp.publish('Device/#state/record', checked)
 
     def _populate_combobox(self, combobox, topic):
         try:
@@ -88,11 +96,12 @@ class ControlWidget(QtWidgets.QWidget):
                 self._ui.recordButton.setEnabled(False)
                 self._ui.iRangeComboBox.setEnabled(False)
                 self._ui.vRangeComboBox.setEnabled(False)
-        elif topic == 'Device/#state/play':
-            self._ui.playButton.setChecked(data)
-            self._ui.recordButton.setEnabled(data)
-        elif topic == 'Device/#state/record':
-            self._ui.recordButton.setChecked(data)
+        elif self._cmdp['Device/#state/source'] in ['USB', 'Buffer']:
+            if topic == 'Device/#state/play':
+                self._ui.playButton.setChecked(data)
+                self._ui.recordButton.setEnabled(data)
+            elif topic == 'Device/#state/record':
+                self._ui.recordButton.setChecked(data)
 
 
 def widget_register(cmdp):

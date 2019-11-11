@@ -17,7 +17,7 @@
 A plugin must be a valid python module with definitions:
 * PLUGIN: A dict containing the plugin metadata, including any configuration
   options that are available to the user.
-* plugin_register: A function(PluginServiceAPI, app_config, plugin_config)
+* plugin_register: A function(PluginServiceAPI)
   that registers the module's functionality.
 
 The plugin module may contain other definitions and statements,
@@ -30,13 +30,11 @@ class RangeToolInvocation:
     """The object skeleton provided to RangeTool instances."""
 
     def __init__(self):
-        self.sample_count = None        #: The number of samples to process
-        self.sample_frequency = None    #: The sampling frequency in Hertz
-        self.app_config = None          #: The application configuration data structure
-        self.app_state = None           #: The application state data structure
-        self.plugin_config = None       #: The plugin configuration data structure for this plugin.
-        self.calibration = None         #: The calibration information associated with the data.
-        self.statistics = None          #: The statistics (see :meth:`joulescope.driver.statistics_get`).
+        self.sample_count = None       #: The number of samples to process.
+        self.sample_frequency = None   #: The sampling frequency in Hertz.
+        self.cmdp = None               #: The :class:`joulescope_ui.command_processor.CommandProcessor` instance.
+        self.calibration = None        #: The calibration information associated with the data.
+        self.statistics = None         #: The statistics (see :meth:`joulescope.driver.statistics_get`).
 
     def iterate(self, samples_per_iteration=None):
         """Return an iterable over the data.
@@ -118,8 +116,7 @@ class RangeTool:
 class PluginServiceAPI:
     """The API provided to each plugin's plugin_register() function.
 
-     :attr app_config: The application configuration dict struct.
-     :attr plugin_config: The plugin configuration dict struct.
+     :attr cmdp: The application configuration dict struct.
      """
 
     def range_tool_register(self, name, tool):

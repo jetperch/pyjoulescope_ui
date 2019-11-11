@@ -58,9 +58,10 @@ class ScrollBar(pg.ViewBox):
     def set_xlimits(self, x_min, x_max):
         self.setXRange(x_min, x_max, padding=0)
         self._region.setBounds([x_min, x_max])
+        self.resizeEvent(None)
 
     def set_display_mode(self, mode):
-        self._region.set_display_mode(mode)
+        return self._region.set_display_mode(mode)
 
     def set_sampling_frequency(self, freq):
         self._region.set_sampling_frequency(freq)
@@ -88,10 +89,14 @@ class ScrollBar(pg.ViewBox):
         self._region.on_regionChange()
 
     def resizeEvent(self, ev):
-        super().resizeEvent(ev)
-        c = self.geometry().center()
-        c = self.mapToView(c)
-        self._label.setPos(c.x(), c.y())
+        if ev is not None:
+            super().resizeEvent(ev)
+        try:
+            c = self.geometry().center()
+            c = self.mapToView(c)
+            self._label.setPos(c.x(), c.y())
+        except Exception:
+            pass
 
 
 class CustomLinearRegionItem(pg.LinearRegionItem):
@@ -177,7 +182,7 @@ class CustomLinearRegionItem(pg.LinearRegionItem):
 
     def set_display_mode(self, mode):
         if self.mode == mode:
-            return
+            return False
         log.info('set_display_mode(%s)', mode)
         self.mode = mode
         if self.mode == 'realtime':
@@ -187,6 +192,7 @@ class CustomLinearRegionItem(pg.LinearRegionItem):
             self.lines[1].setMovable(True)
         else:
             raise RuntimeError('invalid mode')
+        return True
 
     def _wheel_to_gain(self, delta):
         gain = 0.7 ** (delta / 120.0)
@@ -288,6 +294,7 @@ class CustomLinearRegionItem(pg.LinearRegionItem):
     @QtCore.Slot(object)
     def on_regionChange(self, obj=None):
         x_min, x_max = self.getRegion()
+        log.info('on_regionChange(%s, %s)', x_min, x_max)
         w = self._parent().geometry().width()
         x_count = int(w) + 1
 

@@ -18,6 +18,8 @@ from joulescope_ui import developer_widget
 from joulescope_ui import gpio_widget
 from joulescope_ui import meter_widget
 from joulescope_ui import single_value_widget
+from joulescope_ui import oscilloscope
+
 
 
 WIDGETS = [
@@ -26,6 +28,7 @@ WIDGETS = [
     gpio_widget,
     meter_widget,
     single_value_widget,
+    oscilloscope,
 ]
 
 

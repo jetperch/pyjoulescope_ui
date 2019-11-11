@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from PySide2 import QtCore
-from .signal_statistics import SignalStatistics, si_format
+from .signal_statistics import SignalStatistics, SignalMarkerStatistics, si_format, html_format
 from .signal_viewbox import SignalViewBox
 from joulescope.units import unit_prefix, three_sig_figs
 from .yaxis import YAxis
@@ -44,11 +44,9 @@ class Signal(QtCore.QObject):
     :param name: The name of the signal to hide.
     """
 
-    sigRefreshRequest = QtCore.Signal()
-    """Request a data refresh"""
-
-    def __init__(self, name, display_name=None, units=None, y_limit=None, y_log_min=None, y_range=None, **kwargs):
-        QtCore.QObject.__init__(self)
+    def __init__(self, parent, cmdp, name, display_name=None, units=None, y_limit=None, y_log_min=None, y_range=None, **kwargs):
+        QtCore.QObject.__init__(self, parent=parent)
+        self._cmdp = cmdp
         self.text_item = None
         self.name = name
         self.log = logging.getLogger(__name__ + '.' + name)
@@ -64,6 +62,8 @@ class Signal(QtCore.QObject):
             'decimate_min_max': 1,
             'trace_width': 1,
         }
+        self._markers_single = {}
+        self._markers_dual = {}
         self._is_min_max_active = False  # when zoomed out enough to display min/max
         self._y_pan = None
         self.vb = SignalViewBox(name=self.name)
@@ -145,7 +145,7 @@ class Signal(QtCore.QObject):
             self.curve_max.setLogMode(xMode=False, yMode=False)
             y_min, y_max = self.config['y-axis']['limit']
             self.vb.setLimits(yMin=y_min, yMax=y_max)
-        self.sigRefreshRequest.emit()
+        self._cmdp.publish('waveform/#requests/refresh', None)
 
     @QtCore.Slot(float, float)
     def on_wheelZoomY(self, y, delta):
@@ -346,6 +346,57 @@ class Signal(QtCore.QObject):
             self.text_item.data_update(txt_result)
 
         self.yaxis_autorange(v_min, v_max)
+
+    def update_markers_single_all(self, markers):
+        current_markers = self._markers_single.copy()
+        for name, pos in markers:
+            current_markers.pop(name, None)
+            self.update_markers_single_one(name, pos)
+        if len(current_markers):
+            for marker_name in list(current_markers.keys()):
+                m = self._markers_single.pop(marker_name)
+                self.vb.scene().removeItem(m)
+
+    def update_markers_single_one(self, marker_name, marker_pos):
+        if marker_name not in self._markers_single:
+            m = SignalMarkerStatistics()
+            self.vb.addItem(m)
+            m.setVisible(True)
+            m.move(self.vb, marker_pos)
+            self._markers_single[marker_name] = m
+        m = self._markers_single[marker_name]
+        if marker_pos is None:
+            stats = None
+        else:
+            stats = self.statistics_at(marker_pos)
+        m.data_update(self.vb, marker_pos, stats, units=self.units)
+
+    def update_markers_dual_one(self, marker_name, marker_pos, statistics):
+        if marker_name not in self._markers_dual:
+            m = SignalMarkerStatistics()
+            self.vb.addItem(m)
+            m.setVisible(True)
+            m.move(self.vb, marker_pos)
+            self._markers_dual[marker_name] = m
+        m = self._markers_dual[marker_name]
+        m.data_update(self.vb, marker_pos, statistics, units=self.units)
+
+    def update_markers_dual_all(self, values):
+        # list of (marker_name, marker_pos, statistics)
+        current_markers = self._markers_dual.copy()
+        for name, pos, statistic in values:
+            current_markers.pop(name, None)
+            self.update_markers_dual_one(name, pos, statistic)
+        if len(current_markers):
+            for marker_name in list(current_markers.keys()):
+                m = self._markers_dual.pop(marker_name)
+                self.vb.scene().removeItem(m)
+
+    def marker_move(self, marker_name, marker_pos):
+        for m in [self._markers_single.get(marker_name), self._markers_dual.get(marker_name)]:
+            if m is not None:
+                m.move(self.vb, marker_pos)
+                m.computing()
 
     def statistics_at(self, x):
         """Get the statistics at the provided x value.

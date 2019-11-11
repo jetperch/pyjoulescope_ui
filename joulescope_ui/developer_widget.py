@@ -34,7 +34,7 @@ class DeveloperWidget(QtWidgets.QWidget):
         cmdp.subscribe('Device/#state/status', self._on_device_state_status)
 
     def __del__(self):
-        self._cmdp.unsubscribe('Device/#state/status/', self._on_device_state_status)
+        self._cmdp.unsubscribe('Device/#state/status', self._on_device_state_status)
 
     def _status_clean(self):
         for key, (w1, w2, w3) in self._status.items():

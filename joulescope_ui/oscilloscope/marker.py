@@ -27,70 +27,66 @@ TIME_STYLE_DEFAULT = 'color: #FFF; background-color: #000; font-size: 8pt'
 class Marker(pg.GraphicsObject):
     """A vertical x-axis marker for display on the oscilloscope.
 
+    :param cmdp: The command processor instance.
+    :param name: The name for the marker.  By convention, single markers are
+        number strings, like '1', and marker pairs are like 'A1' and 'A2'.
     :param x_axis: The x-axis :class:`pg.AxisItem` instance.
     :param color: The [R,G,B] or [R,G,B,A] color for the marker.
     :param shape: The marker flag shape which is one of:
         ['full', 'left', 'right', 'none'].
     """
 
-    sigUpdateRequest = QtCore.Signal(object)
-    """Request a value update when x-axis position changes.
-    
-    :param marker: The :class:`Marker` instance requesting the update.
-        For dual markers, the marker that moved will signal.
-    """
-
-    sigRemoveRequest = QtCore.Signal(object)
-    """Indicate that the user has requested to remove this marker
-
-    :param marker: The marker instance to remove.
-    """
-
-    sigRangeToolRequest = QtCore.Signal(str, float, float)
-    """Indicate that the user has requested a tool.
-
-    :param name: The tool name to process.
-    :param x_start: The starting position in x-axis units.
-    :param x_stop: The stopping position in x-axis units.
-
-    Tools are only triggered for dual markers.  Tools for single
-    markers are not supported.
-    """
-
-    def __init__(self, name, x_axis: pg.AxisItem, color=None, shape=None):
+    def __init__(self, cmdp, name, x_axis: pg.AxisItem, state=None):
         pg.GraphicsObject.__init__(self)
+        state.setdefault('pos', None)
+        state.setdefault('color', (64, 255, 64, 255))
+        state.setdefault('shape', 'full')
+        self._cmdp = cmdp
         self.log = logging.getLogger('%s.%s' % (__name__, name))
         self._name = name
         self._axis = weakref.ref(x_axis)
-        self.color = (64, 255, 64, 255) if color is None else color
         self._boundingRect = None
         self.picture = None
-        self._shape = shape
-        self.setPos(pg.Point(0, 0))
-        self._x = 0.0  # in self._axis coordinates
-        # self.setZValue(2000000)
+        self._x = None  # in self._axis coordinates
         self._pair = None
         self.moving = False
         self._marker_time_text = pg.TextItem("t=0.00")
-        self._delta_time_text = pg.TextItem("Δt=0.00")
+        self._delta_time_text = pg.TextItem("")
         self._delta_time_text.setAnchor([0.5, 0])
+        self._delta_time_text.setVisible(False)
         self.graphic_items = [self._marker_time_text, self._delta_time_text]
         self.text = {}  #: Dict[str, List[weakref.ReferenceType[Signal], TextItem]]
 
+        self._instance_prefix = f'Waveform/Markers/_state/instances/{name}/'
+        for key, value in state.items():
+            self._cmdp.preferences.set(self._instance_prefix + key, value)
+        self.set_pos(state.get('pos'))
+
     def __str__(self):
         return f'Marker({self.name})'
+
+    def remove(self):
+        state = {'name': self._name}
+        preferences = self._cmdp.preferences.match(self._instance_prefix)
+        for p in preferences:
+            state[p.split('/')[-1]] = self._cmdp.preferences.clear(p)
+        return state
 
     @property
     def name(self):
         return self._name
 
     @property
+    def is_single(self):
+        return self._pair is None
+
+    @property
     def is_right(self):
-        return self._pair is not None and self.name[1] == '2'
+        return self._pair is not None and self.name[-1] == '2'
 
     @property
     def is_left(self):
-        return self._pair is not None and self.name[1] == '1'
+        return self._pair is not None and self.name[-1] == '1'
 
     @property
     def pair(self):
@@ -104,63 +100,7 @@ class Marker(pg.GraphicsObject):
             self._delta_time_text.setVisible(True)
         else:
             self._marker_time_text.setAnchor([0, 0])
-            self._delta_time_text.setVisible(False)
-
-    def signal_add(self, signal: Signal):
-        txt = pg.TextItem()
-        self.text[signal.name] = [weakref.ref(signal), txt]
-        signal.vb.addItem(txt)
-        txt.setVisible(True)
-
-    def signal_update(self, signal: Signal):
-        if signal.name not in self.text:
-            self.signal_add(signal)
-        _, txt = self.text[signal.name]
-        xv = self.get_pos()
-        labels = signal.statistics_at(xv)
-        if len(labels):
-            txt_result = si_format(labels, units=signal.units)
-            html = html_format(txt_result, x=xv)
-            self.html_set(signal.name, html)
-        else:
-            self.html_set(signal.name, '<p>No data</p>')
-
-    def signal_update_all(self):
-        for signal_ref, _ in self.text.values():
-            s = signal_ref()
-            if s is not None:
-                self.signal_update(s)
-
-    def signal_remove(self, name):
-        if isinstance(name, Signal):
-            name = name.name
-        if name not in self.text:
-            self.log.warning('signal_remove(%s) but not found', name)
-            return
-        signal_ref, txt = self.text.pop(name)
-        signal = signal_ref()
-        if signal is not None:
-            signal.vb.scene().removeItem(txt)
-
-    def signal_remove_all(self):
-        for name in list(self.text.keys()):
-            self.signal_remove(name)
-
-    def html_set(self, signal_name, html):
-        if signal_name not in self.text:
-            # self.log.debug('html_set(%s) but does not exist', signal_name)
-            return
-        signal_ref, txt = self.text[signal_name]
-        signal = signal_ref()
-        if signal is None:
-            self.log.warning('html_set(%s) but signal ref not valid', signal_name)
-            return
-        xv = self.get_pos()
-        vb = signal.vb
-        ys = vb.geometry().top()
-        yv = vb.mapSceneToView(pg.Point(0.0, ys)).y()
-        txt.setPos(pg.Point(xv, yv))
-        txt.setHtml(html)
+        self._redraw()
 
     def _endpoints(self):
         """Get the endpoints in the scene's (parent) coordinates.
@@ -171,7 +111,7 @@ class Marker(pg.GraphicsObject):
         if axis is None:
             return None, None
         vb = axis.linkedView()
-        if vb is None:
+        if vb is None or self._x is None:
             return None, None
         bounds = axis.geometry()
         tickBounds = vb.geometry()
@@ -207,16 +147,18 @@ class Marker(pg.GraphicsObject):
         h = axis.geometry().height()
         he = h // 3
         w2 = h // 2
-        if self._shape in [None, 'none']:
+        shape = self._cmdp[self._instance_prefix + 'shape']
+        color = self._cmdp[self._instance_prefix + 'color']
+        if shape in [None, 'none']:
             return
-        if self._shape in ['right']:
+        if shape in ['right']:
             wl, wr = -w2, 0
-        elif self._shape in ['left']:
+        elif shape in ['left']:
             wl, wr = 0, w2
         else:
             wl, wr = -w2, w2
 
-        brush = pg.mkBrush(self.color)
+        brush = pg.mkBrush(color)
         painter.setBrush(brush)
         painter.setPen(None)
         painter.resetTransform()
@@ -235,17 +177,19 @@ class Marker(pg.GraphicsObject):
         axis = self._axis()
         if axis is None or axis.linkedView() is None:
             return
+        color = self._cmdp[self._instance_prefix + 'color']
         if self.picture is None:
             try:
                 p.resetTransform()
                 picture = QtGui.QPicture()
                 painter = QtGui.QPainter(picture)
-                pen = pg.mkPen(self.color)
+                pen = pg.mkPen(color)
                 pen.setWidth(1)
                 painter.setPen(pen)
                 p1, p2 = self._endpoints()
-                painter.drawLine(p1, p2)
-                self.paint_flag(painter, p1)
+                if p1 is not None and p2 is not None:
+                    painter.drawLine(p1, p2)
+                    self.paint_flag(painter, p1)
                 profiler('draw picture')
             finally:
                 painter.end()
@@ -271,36 +215,31 @@ class Marker(pg.GraphicsObject):
     def linkedViewChanged(self, view, newRange=None):
         self._redraw()
 
-    def set_pos(self, x, no_emit=None):
+    def set_pos(self, x):
         """Set the x-axis position for the marker.
 
         :param x: The new x-axis position in Axis coordinates.
-        :param no_emit: When True, do not emit any updates.
-            When False or None (default) emit updates.
         """
+        if x == self._x:
+            return
         self._x = x
-        for signal_ref, text in self.text.values():
-            text.setText('')  # better to have nothing than be wrong
-            s = signal_ref()
-            if s is not None:
-                vby = s.vb.geometry().top()
-                px = s.vb.mapViewToScene(pg.Point(x, 0.0)).x()
-                text.setPos(px, vby)
-
-        # signal the update request as necessary
-        if not bool(no_emit):
-            self.sigUpdateRequest.emit(self)
+        self._axis().marker_moving_emit(self.name, x)
+        self._cmdp.publish(self._instance_prefix + 'pos', x)
         self._redraw()
 
     def _update_marker_text(self):
         x = self._x
         style = TIME_STYLE_DEFAULT
-        self._marker_time_text.setHtml(f'<div><span style="{style}">t={x:.6f}</span></div>')
+        if self._x is None:
+            html = ''
+        else:
+            html = f'<div><span style="{style}">t={x:.6f}</span></div>'
+        self._marker_time_text.setHtml(html)
         axis = self._axis()
         if axis is None:
             return
         vb = axis.linkedView()
-        if vb is None:
+        if vb is None or self._x is None:
             return
         g = axis.geometry()
         axis_top = g.top()
@@ -328,6 +267,9 @@ class Marker(pg.GraphicsObject):
                 return
             x_left = self._x
             x_right = self._pair._x
+            if x_left is None or x_right is None:
+                self._delta_time_text.setHtml('')
+                return
             dx = abs(x_right - x_left)
             x_center = (x_left + x_right) / 2
             x_scene = vb.mapViewToScene(pg.Point(x_center, 0.0)).x()
@@ -362,17 +304,26 @@ class Marker(pg.GraphicsObject):
             elif ev.button() == QtCore.Qt.RightButton:
                 pass  # todo restore original position
 
-    def _range_tool_constructor(self, name):
-        # @QtCore.Slot()
-        def fn():
+    def _range_tool_factory(self, range_tool_name):
+        def fn(*args, **kwargs):
             if self._pair is None:
                 raise RuntimeError('analysis only available on dual markers')
             p1 = self.get_pos()
             p2 = self._pair.get_pos()
-            x_start = min(p1, p2)
-            x_stop = max(p1, p2)
-            self.sigRangeToolRequest.emit(name, x_start, x_stop)
+            value = {
+                'name': range_tool_name,
+                'x_start': min(p1, p2),
+                'x_stop': max(p1, p2)
+            }
+            self._cmdp.invoke('!RangeTool/run', value)
         return fn
+
+    def _remove(self, *args, **kwargs):
+        if self.pair is not None:
+            removes = [self.name, self.pair.name]
+        else:
+            removes = [self.name]
+        self._cmdp.invoke('!Waveform/Markers/remove', [removes])
 
     def menu_exec(self, pos):
         instances = []  # hold on to QT objects
@@ -380,7 +331,8 @@ class Marker(pg.GraphicsObject):
         menu.setToolTipsVisible(True)
         submenus = {}
         if self._pair is not None:
-            for name in self._axis().plugins.range_tools.keys():
+            plugins = self._cmdp['Plugins/#registered']
+            for name in plugins.range_tools.keys():
                 m, subm = menu, submenus
                 name_parts = name.split('/')
                 while len(name_parts) > 1:
@@ -391,11 +343,11 @@ class Marker(pg.GraphicsObject):
                     else:
                         m, subm = subm[name_part]
                 t = QtGui.QAction(name_parts[0], self)
-                t.triggered.connect(self._range_tool_constructor(name))
+                t.triggered.connect(self._range_tool_factory(name))
                 m.addAction(t)
                 instances.append(t)
         marker_remove = QtGui.QAction('&Remove', self)
-        marker_remove.triggered.connect(lambda: self.sigRemoveRequest.emit(self))
+        marker_remove.triggered.connect(self._remove)
         menu.addAction(marker_remove)
         menu.exec_(pos)
 

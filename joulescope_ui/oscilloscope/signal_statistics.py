@@ -82,3 +82,26 @@ class SignalStatistics(pg.GraphicsWidget):
     def data_update(self, results, x=None):
         html = html_format(results, x=x)
         self._label.setHtml(html)
+
+
+class SignalMarkerStatistics(pg.TextItem):
+
+    def __init__(self):
+        pg.TextItem.__init__(self)
+
+    def computing(self):
+        self.setHtml(f'<html><body></body></html>')
+
+    def move(self, vb, xv):
+        if vb is not None and xv is not None:
+            ys = vb.geometry().top()
+            yv = vb.mapSceneToView(pg.Point(0.0, ys)).y()
+            self.setPos(pg.Point(xv, yv))
+
+    def data_update(self, vb, xv, labels, units):
+        if labels is None or not len(labels):
+            html = '<p>No data</p>'
+        else:
+            txt_result = si_format(labels, units=units)
+            html = html_format(txt_result, x=xv)
+        self.setHtml(html)

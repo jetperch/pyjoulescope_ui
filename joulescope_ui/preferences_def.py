@@ -22,6 +22,31 @@ def preferences_def(p):
     p.define('_meta/def_version', dtype='int', default=1)
     p.define('_meta/app_version', dtype='str', default=VERSION)
 
+    p.define('Plugins/#registered', dtype=object, default=None)
+
+    p.define(
+        'DataView/#service/x_change_request', dtype=object,
+        brief='Request an x-axis range change.',
+        detail='List of [x_min: float, x_max: float, x_count: int] where\n' +
+               'x_min: The minimum x_axis value to display in the range.\n' +
+               'x_max: The maximum x_axis value to display in the range.\n' +
+               'x_count: The desired number of samples in the range.\n')
+
+    p.define(
+        'DataView/#service/range_statistics', dtype=object,
+        brief='Request statistics over data ranges.',
+        detail='dict containing:\n' +
+               'ranges: list of (x_start, x_stop) ranges in view seconds\n' +
+               'source_id: Source indicator to allow for coalescence.\n' +
+               'reply_topic: The topic for the response which is a dict with\n' +
+               'request and response.  On error, response is None.\n' +
+               'On success, response is a list of joulescope.view.View.statistics_get\n' +
+               'return values.')
+
+    p.define(
+        'DataView/#data', dtype=object,
+        brief='The latest data from the view.')
+
     # p.define('_window/', brief='Active UI window and tools configuration')
     # p.define('_window/geometry', default=None)
     # p.define('_window/contents', default=None)
@@ -121,9 +146,9 @@ def preferences_def(p):
     p.define('Device/#state/record', dtype=bool, default=False)
     p.define('Device/#state/energy', dtype=str, default='')
     p.define('Device/#state/sampling_frequency', dtype=float, default=0.0)
-    p.define('Device/#state/data', dtype=object)
     p.define('Device/#state/status', dtype=dict, default={})
     p.define('Device/#state/statistics', dtype=dict, default={})
+    p.define('Device/#state/x_limits', dtype=object)  # [x_min, x_max]
 
     # --- CURRENT RANGING ---
     p.define(

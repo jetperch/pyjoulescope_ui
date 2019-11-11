@@ -28,7 +28,7 @@ class Exporter:
         self._cfg = None
 
     def run_pre(self, data):  # RangeToolInvocation
-        path = data.app_config['General']['data_path']
+        path = data.cmdp['General/data_path']
         rv = ExportDialog(path).exec_()
         if rv is None:
             return 'Cancelled'
@@ -80,7 +80,7 @@ class Exporter:
         stream_buffer = StreamBuffer(sampling_frequency * 2, [], sampling_frequency=sampling_frequency)
         stream_buffer.calibration_set(data.calibration.current_offset, data.calibration.current_gain,
                                       data.calibration.voltage_offset, data.calibration.voltage_gain)
-        stream_buffer.voltage_range = data.app_state['voltage_range']
+        stream_buffer.voltage_range = data.cmdp['Plugins/#state/voltage_range']
         data_recorder = DataRecorder(
             cfg['filename'],
             calibration=data.calibration.data,

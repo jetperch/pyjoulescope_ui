@@ -86,13 +86,11 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
 
     sigFinished = QtCore.Signal(object, str)  # range_tool, error message or ''
 
-    def __init__(self, parent, range_tool, app_config, app_state, plugin_config):
+    def __init__(self, parent, range_tool, cmdp):
         super().__init__(parent)
         self._parent = parent
         self._range_tool = range_tool
-        self.app_config = app_config
-        self.app_state = app_state
-        self.plugin_config = plugin_config
+        self.cmdp = cmdp
         self._range_tool_obj = None
         self.sample_range = None
         self._time_range = None
@@ -108,6 +106,8 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
         self.statistics = None
         self._iterable = None
         self._commands = []
+
+        cmdp.define('Plugins/#state/voltage_range', dtype=int)  # for file export
 
     def __iter__(self):
         self._iterable = self.iterate()
@@ -152,12 +152,12 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
 
     def marker_single_add(self, x):
         x = self._x_map_to_parent(x)
-        self._commands.append(lambda: self._parent.on_markerSingleAddRequest(x))
+        self._commands.append(lambda: self.cmdp.publish('!Waveform/Markers/single_add', x))
 
     def marker_dual_add(self, x1, x2):
         x1 = self._x_map_to_parent(x1)
         x2 = self._x_map_to_parent(x2)
-        self._commands.append(lambda: self._parent.on_markerDualAddRequest(x1, x2))
+        self._commands.append(lambda: self.cmdp.publish('!Waveform/Markers/dual_add', (x1, x2)))
 
     def run(self, view, statistics, x_start, x_stop):
         """Export data request.

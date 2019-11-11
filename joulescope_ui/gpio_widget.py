@@ -34,10 +34,10 @@ class GpioWidget(QtWidgets.QWidget):
         self._inputs = [('current_lsb', self.ui.input0CheckBox, self.ui.input0Label),
                         ('voltage_lsb', self.ui.input1CheckBox, self.ui.input1Label)]
         self.data_update_clear()
-        self._cmdp.subscribe('Device/#state/data', self._on_device_state_data)
+        self._cmdp.subscribe('DataView/#data', self._on_device_state_data)
 
     def __del__(self):
-        self._cmdp.unsubscribe('Device/#state/data', self._on_device_state_data)
+        self._cmdp.unsubscribe('DataView/#data', self._on_device_state_data)
 
     def init(self, voltages):
         self._io_voltages = voltages

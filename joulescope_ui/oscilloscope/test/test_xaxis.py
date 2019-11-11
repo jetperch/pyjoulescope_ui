@@ -12,4 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .oscilloscope import Oscilloscope, widget_register
+"""
+Test the preferences
+"""
+
+import unittest
+from joulescope_ui.oscilloscope.xaxis import int_to_alpha
+
+
+class TestXAxis(unittest.TestCase):
+
+    def test_int_to_alpha(self):
+        self.assertEqual('A', int_to_alpha(0))
+        self.assertEqual('B', int_to_alpha(1))
+        self.assertEqual('Z', int_to_alpha(25))
+        self.assertEqual('AA', int_to_alpha(26))
+        self.assertEqual('AZ', int_to_alpha(51))
+        self.assertEqual('BA', int_to_alpha(52))
