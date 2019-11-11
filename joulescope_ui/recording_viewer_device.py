@@ -41,8 +41,7 @@ class RecordingView:
         self._log = logging.getLogger(__name__)
 
     def __str__(self):
-        fname = os.path.basename(self._filename)
-        return f'View({fname})'
+        return f'RecordingView()'
 
     def __len__(self):
         if self._span is None:
@@ -149,6 +148,9 @@ class RecordingView:
             return None
         return self._reader.statistics_get(start=start, stop=stop, units=units)
 
+    def _statistics_get_multiple(self, ranges, units=None):
+        return [self._statistics_get(x[0], x[1], units=units) for x in ranges]
+
     def _samples_get(self, start=None, stop=None, units=None):
         r = self._reader
         if r is None:
@@ -231,6 +233,14 @@ class RecordingView:
             self._parent()._post('statistics_get', self, args, callback)
             return
 
+    def statistics_get_multiple(self, ranges, units=None, callback=None, source_id=None):
+        args = {'ranges': ranges, 'units': units, 'source_id': source_id}
+        if callback is None:
+            return self._parent()._post_block('statistics_get_multiple', self, args)
+        else:
+            self._parent()._post('statistics_get_multiple', self, args, callback)
+            return
+
     def ping(self, *args, **kwargs):
         return self._parent()._post_block('ping', self, (args, kwargs))
 
@@ -246,7 +256,7 @@ class RecordingViewerDevice:
         self._filename = filename
         self._reader = None
         self._views = []
-
+        self._coalesce = {}
         self._thread = None
         self._cmd_queue = queue.Queue()  # tuples of (command, args, callback)
         self._response_queue = queue.Queue()
@@ -272,7 +282,7 @@ class RecordingViewerDevice:
     def voltage_range(self):
         return self._reader.voltage_range
 
-    def _cmd_process(self, cmd, view, args):
+    def _cmd_process(self, cmd, view, args, cbk):
         rv = None
         try:
             # self._log.debug('_cmd_process %s - start', cmd)
@@ -284,6 +294,8 @@ class RecordingViewerDevice:
                 rv = view._samples_get(**args)
             elif cmd == 'statistics_get':
                 rv = view._statistics_get(**args)
+            elif cmd == 'statistics_get_multiple':
+                rv = view._statistics_get_multiple(**args)
             elif cmd == 'view_factory':
                 self._views.append(args)
                 rv = args
@@ -300,8 +312,11 @@ class RecordingViewerDevice:
                 self._log.warning('unsupported command %s', cmd)
         except:
             self._log.exception('While running command')
-        # self._log.debug('_cmd_process %s - done', cmd)
-        return rv
+        if callable(cbk):
+            try:
+                cbk(rv)
+            except:
+                self._log.exception('in callback')
 
     def run(self):
         cmd_count = 0
@@ -312,6 +327,9 @@ class RecordingViewerDevice:
                 cmd, view, args, cbk = self._cmd_queue.get(timeout=timeout)
             except queue.Empty:
                 timeout = 1.0
+                for value in self._coalesce.values():
+                    self._cmd_process(*value)
+                self._coalesce.clear()
                 for view in self._views:
                     if view._refresh_requested:
                         view._update()
@@ -319,12 +337,15 @@ class RecordingViewerDevice:
                 continue
             cmd_count += 1
             timeout = 0.0
-            rv = self._cmd_process(cmd, view, args)
-            if callable(cbk):
-                try:
-                    cbk(rv)
-                except:
-                    self._log.exception('in callback')
+            try:
+                source_id = args.pop('source_id')
+            except:
+                source_id = None
+            if source_id is not None:
+                key = f'{view}_{cmd}_{source_id}'  # keep most recent only
+                self._coalesce[key] = (cmd, view, args, cbk)
+            else:
+                self._cmd_process(cmd, view, args, cbk)
         self._log.info('RecordingViewerDevice.run done')
 
     def _post(self, command, view=None, args=None, cbk=None):
