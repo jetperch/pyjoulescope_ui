@@ -979,7 +979,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def on_preferences(self):
         log.info('on_preferences')
-        d = PreferencesDialog(self._cmdp)
+        d = PreferencesDialog(self, self._cmdp)
         if d.exec_():
             self._cmdp.preferences.save()
 

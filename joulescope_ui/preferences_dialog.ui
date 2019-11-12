@@ -21,7 +21,7 @@
     <widget class="QWidget" name="profileWidget" native="true">
      <layout class="QHBoxLayout" name="horizontalLayout_3">
       <item>
-       <widget class="QLabel" name="profileLable">
+       <widget class="QLabel" name="profileLabel">
         <property name="text">
          <string>Profile</string>
         </property>

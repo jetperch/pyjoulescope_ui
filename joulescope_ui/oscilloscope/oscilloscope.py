@@ -436,6 +436,34 @@ class Oscilloscope(QtWidgets.QWidget):
 
 
 def widget_register(cmdp):
+    cmdp.define('Waveform/', 'Waveform display settings')
+    cmdp.define(
+        topic='Waveform/show_min_max',
+        brief='Display the minimum and maximum for ease of finding short events.',
+        dtype='str',
+        options={
+            'off':   {'brief': 'Hide the min/max indicators'},
+            'lines': {'brief': 'Display minimum and maximum lines'},
+            'fill':  {'brief': 'Fill the region between min and max, but may significantly reduce performance.'}},
+        default='lines')
+    cmdp.define(
+        topic='Waveform/grid_x',
+        brief='Display the x-axis grid',
+        dtype='bool',
+        default=True)
+    cmdp.define(
+        topic='Waveform/grid_y',
+        brief='Display the y-axis grid',
+        dtype='bool',
+        default=True)
+    cmdp.define(
+        topic='Waveform/trace_width',
+        brief='The trace width in pixels',
+        detail='Increasing trace width SIGNIFICANTLY degrades performance',
+        dtype='str',
+        options=['1', '2', '4', '6', '8'],
+        default='1')
+
     cmdp.define('Waveform/#requests/refresh_markers', dtype=object)  # list of marker names
     cmdp.define('Waveform/#requests/data_next', dtype='none')
     cmdp.define('Waveform/#statistics_over_range_resp', dtype=object)

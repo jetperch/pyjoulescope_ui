@@ -18,7 +18,7 @@ Test the preferences
 
 import unittest
 import os
-from joulescope_ui.preferences import Preferences, validate, options_conform
+from joulescope_ui.preferences import Preferences, validate, options_conform, BASE_PROFILE
 from joulescope_ui import paths
 
 
@@ -33,6 +33,16 @@ class TestPreferences(unittest.TestCase):
 
     def tearDown(self):
         paths.clear(app=self.app, delete_data=True)
+
+    def test_get_without_set_or_define(self):
+        with self.assertRaises(KeyError):
+            self.p.get('hello')
+        with self.assertRaises(KeyError):
+            self.p['hello']
+
+    def test_set_get_without_define(self):
+        self.p.set('hello', 'world')
+        self.assertEqual('world', self.p.get('hello'))
 
     def test_get_set_get(self):
         with self.assertRaises(KeyError):
@@ -56,17 +66,23 @@ class TestPreferences(unittest.TestCase):
         with self.assertRaises(KeyError):
             self.p.get('hello')
 
+    def test_define_set_clear(self):
+        self.p.define(name='hello', default='default')
+        self.p.set('hello', 'world')
+        self.p.clear('hello')
+        self.assertEqual('default', self.p.get('hello'))
+
     def test_profile_add_remove(self):
-        self.assertEqual('all', self.p.profile)
-        self.assertEqual(['all'], self.p.profiles)
+        self.assertEqual(BASE_PROFILE, self.p.profile)
+        self.assertEqual([BASE_PROFILE], self.p.profiles)
         self.p.profile_add('p1')
-        self.assertEqual(['all', 'p1'], self.p.profiles)
-        self.assertEqual('all', self.p.profile)
+        self.assertEqual([BASE_PROFILE, 'p1'], self.p.profiles)
+        self.assertEqual(BASE_PROFILE, self.p.profile)
         self.p.profile = 'p1'
         self.assertEqual('p1', self.p.profile)
         self.p.profile_remove('p1')
-        self.assertEqual('all', self.p.profile)
-        self.assertEqual(['all'], self.p.profiles)
+        self.assertEqual(BASE_PROFILE, self.p.profile)
+        self.assertEqual([BASE_PROFILE], self.p.profiles)
 
     def test_profile_override(self):
         self.p.set('hello', 'all_value')
@@ -77,7 +93,7 @@ class TestPreferences(unittest.TestCase):
         self.p.set('hello', 'p1_value')
         self.assertTrue(self.p.is_in_profile('hello'))
         self.assertEqual('p1_value', self.p.get('hello'))
-        self.p.profile = 'all'
+        self.p.profile = BASE_PROFILE
         self.assertEqual('all_value', self.p.get('hello'))
 
     def test_load_not_found(self):
@@ -147,6 +163,16 @@ class TestPreferences(unittest.TestCase):
         self.assertEqual('a', validate('c', 'str', options=options))
         with self.assertRaises(ValueError):
             validate('d', 'str', options=options)
+
+    def test_options_callable_list(self):
+        self.assertEqual('a', validate('a', 'str', options=lambda: ['a']))
+        with self.assertRaises(ValueError):
+            validate('d', 'str', options=lambda: ['a'])
+
+    def test_options_callable_dict(self):
+        self.assertEqual('a', validate('a', 'str', options=lambda: {'a': 'a'}))
+        with self.assertRaises(ValueError):
+            validate('d', 'str', options=lambda: {'a': 'a'})
 
     def test_validate_int(self):
         self.assertEqual(1, validate(1, 'int'))
@@ -241,33 +267,33 @@ class TestPreferences(unittest.TestCase):
         self.assertEqual([('a/0', '0'), ('a/1', 'new')], list(p.items(prefix='a/')))
         self.assertEqual([('b/2', '2')], list(p.items(prefix='b/')))
 
-    def test_remove_single(self):
+    def test_purge_single(self):
         self.p.define(name='a', dtype='str', default='zz')
         self.p.profile_add('p1', activate=True)
         self.p['a'] = '1'
-        r = self.p.remove('a')
-        self.assertEqual({'all': {'a': 'zz'}, 'p1': {'a': '1'}}, r['profiles'])
+        r = self.p.purge('a')
+        self.assertEqual({BASE_PROFILE: {'a': 'zz'}, 'p1': {'a': '1'}}, r['profiles'])
         with self.assertRaises(KeyError):
             self.p['a']
         self.p.restore(r)
         self.assertEqual('1', self.p['a'])
-        self.p.profile = 'all'
+        self.p.profile = BASE_PROFILE
         self.assertEqual('zz', self.p['a'])
         with self.assertRaises(ValueError):
             self.p['a'] = 1
 
-    def test_remove_hierarchy(self):
+    def test_purge_hierarchy(self):
         p = self.p
         p.define(name='a/0', dtype='str', default='0')
         p.define(name='a/1', dtype='str', default='1')
         self.p.profile_add('p1', activate=True)
         self.p['a/0'] = '00'
-        r = self.p.remove('a/')
+        r = self.p.purge('a/')
         with self.assertRaises(KeyError):
             self.p['a/0']
         self.p.restore(r)
         self.assertEqual('00', self.p['a/0'])
-        self.p.profile = 'all'
+        self.p.profile = BASE_PROFILE
         self.assertEqual('0', self.p['a/0'])
         with self.assertRaises(ValueError):
             self.p['a/0'] = 1

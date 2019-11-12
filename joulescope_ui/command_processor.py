@@ -18,7 +18,7 @@ Implement the "Command" pattern for the Joulescope UI.
 
 from PySide2 import QtCore
 import logging
-from joulescope_ui.preferences import Preferences
+from joulescope_ui.preferences import Preferences, BASE_PROFILE
 
 
 log = logging.getLogger(__name__)
@@ -64,16 +64,21 @@ class CommandProcessor(QtCore.QObject):
         self.register('!redo', self._redo)
         self.register('!command_group/start', self._command_group_start)
         self.register('!command_group/end', self._command_group_end)
-        connect_type = QtCore.Qt.QueuedConnection
-        if bool(synchronous):
-            connect_type = QtCore.Qt.AutoConnection
-        self.invokeSignal.connect(self._on_invoke, type=connect_type)
         self.register('!preferences/profile/add', self._preferences_profile_add)
         self.register('!preferences/profile/remove', self._preferences_profile_remove)
         self.register('!preferences/profile/switch', self._preferences_profile_switch)
         self.register('!preferences/save', self._preferences_save)
         self.register('!preferences/load', self._preferences_load)
         self.register('!preferences/restore', self._preferences_restore)
+        self.register('!preferences/preference/purge', self._preferences_preference_purge)
+        self.register('!preferences/preference/set', self._preferences_preference_set)  # name, value, profile
+        self.register('!preferences/preference/clear', self._preferences_preference_clear)  # name, profile
+
+        # Push all commands through the Qt event queue by default
+        connect_type = QtCore.Qt.QueuedConnection
+        if bool(synchronous):
+            connect_type = QtCore.Qt.AutoConnection
+        self.invokeSignal.connect(self._on_invoke, type=connect_type)
 
     def __str__(self):
         return "CommandProcessor: %d commands, %d undos, %d redos" % (
@@ -81,6 +86,12 @@ class CommandProcessor(QtCore.QObject):
 
     def __getitem__(self, key):
         return self.preferences.get(key)
+
+    def __setitem__(self, key, value):
+        self.publish(key, value)
+
+    def __delitem__(self, key):
+        self.invoke('!preferences/preference/purge', key)
 
     def items(self, prefix=None):
         return self.preferences.items(prefix=prefix)
@@ -146,15 +157,19 @@ class CommandProcessor(QtCore.QObject):
             self._redos.clear()
             self._undos.append(((topic, data), rv))
         else:
-            data_orig = self.preferences.get(topic)
             if '#' not in topic:
-                if data == data_orig:
-                    return  # ignore, no change necessary
+                try:
+                    data_orig = self.preferences.get(topic)
+                    if data == data_orig:
+                        return  # ignore, no change necessary
+                    if len(self._undos) and self._undos[-1][0][0] == topic:
+                        # coalesce repeated actions to the same topic
+                        _, (_, data_orig) = self._undos.pop()
+                    undo = (topic, data_orig)
+                except KeyError:
+                    undo = '!preferences/preference/purge', topic
                 log.debug('set %s <= %s', topic, data)
-                if len(self._undos) and self._undos[-1][0][0] == topic:
-                    # coalesce repeated actions to the same topic
-                    _, (_, data_orig) = self._undos.pop()
-                self._undos.append(((topic, data), (topic, data_orig)))
+                self._undos.append(((topic, data), undo))
             self.preferences[topic] = data
         self._subscriber_update(topic, data)
 
@@ -229,13 +244,19 @@ class CommandProcessor(QtCore.QObject):
 
     def _subscriber_update(self, topic, value):
         for subscriber in self._subscribers.get(topic, []):
-            subscriber(topic, value)
+            try:
+                subscriber(topic, value)
+            except:
+                log.exception('subscriber error for topic=%s, value=%s', topic, value)
         subscriber_parts = topic.split('/')
         while len(subscriber_parts):
             subscriber_parts[-1] = ''
             n = '/'.join(subscriber_parts)
             for subscriber in self._subscribers.get(n, []):
-                subscriber(topic, value)
+                try:
+                    subscriber(topic, value)
+                except:
+                    log.exception('subscriber error for topic=%s, value=%s', topic, value)
             subscriber_parts.pop()
 
     def _preferences_bulk_update(self, profile_name=None, flat_old=None):
@@ -267,11 +288,12 @@ class CommandProcessor(QtCore.QObject):
         return'!preferences/profile/add', (data, flat_old)
 
     def _preferences_profile_switch(self, topic, data):
-        profile = self.preferences.profile
-        if profile == data:
+        profile = data
+        profile_prev = self.preferences.profile
+        if profile_prev == data:
             return
         self._preferences_bulk_update(profile_name=data)
-        return '!preferences/profile/switch', (data, profile)
+        return '!preferences/profile/switch', profile_prev
 
     def _preferences_save(self, topic, data):
         self.preferences.save()
@@ -290,6 +312,37 @@ class CommandProcessor(QtCore.QObject):
         self.preferences.state_restore(data)
         self._preferences_bulk_update(flat_old=flat_old)
         return '!preferences/restore', state_old
+
+    def _preferences_preference_purge(self, topic, data):
+        try:
+            value = self.preferences[data]
+        except KeyError:
+            return None
+        self.preferences.purge(data)
+        return data, value
+
+    def _preferences_preference_clear(self, topic, data):
+        topic, profile = data
+        try:
+            value = self.preferences.get(topic, profile=profile)
+            self.preferences.clear(topic, profile=profile)
+            if profile == self.preferences.profile:
+                self._subscriber_update(topic, data)
+            return data, value
+        except KeyError:
+            return None
+
+    def _preferences_preference_set(self, topic, data):
+        topic, value, profile = data
+        try:
+            previous_value = self.preferences.get(topic, profile=profile)
+            undo = '!preferences/preference/set', (topic, previous_value, profile)
+        except KeyError:
+            undo = '!preferences/preference/clear', (topic, profile)
+        self.preferences.set(topic, value, profile)
+        if profile == self.preferences.profile:
+            self._subscriber_update(topic, value)
+        return undo
 
     def define(self, topic, brief=None, detail=None, dtype=None, options=None, default=None):
         """Define a new preference.
@@ -356,4 +409,3 @@ class CommandProcessor(QtCore.QObject):
             log.warning('unregister command %s, but not registered', topic)
             return
         del self._topic[topic]
-

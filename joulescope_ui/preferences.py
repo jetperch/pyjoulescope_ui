@@ -30,6 +30,9 @@ import copy
 import logging
 
 
+BASE_PROFILE = 'defaults'
+
+
 log = logging.getLogger(__name__)
 DTYPES_DEF = [
     ('str', str),
@@ -48,17 +51,52 @@ for t in DTYPES_DEF:
         DTYPES_MAP[k] = t[0]
 
 
+def options_enum(options):
+    """Enumerate all options at the present time.
+
+    :param options: The options definition, which can be a callable.
+    """
+    if options is None:
+        return options
+    if callable(options):
+        options = options()
+    if isinstance(options, collections.abc.Mapping) and '__def__' in options:
+        return list(options['__def__'].keys())
+    elif isinstance(options, collections.abc.Mapping):
+        return list(options.keys())
+    elif isinstance(options, collections.abc.Sequence):
+        return options
+    else:
+        raise ValueError(f'unsupported options format {options}')
+
+
+def options_validate(options, value):
+    if options is None:
+        return value
+    try:
+        if callable(options):
+            options = options()
+        if isinstance(options, collections.abc.Mapping) and '__remap__' in options:
+            return options['__remap__'][value]
+        elif isinstance(options, collections.abc.Mapping):
+            return options[value]
+        elif isinstance(options, collections.abc.Sequence):
+            if value not in options:
+                raise ValueError(f'value {value} not in options {options}')
+            return value
+        else:
+            raise ValueError(f'unsupported options format {options}')
+    except KeyError:
+        raise ValueError(f'Unsupported option value {value}')
+
+
 def validate(value, dtype, options=None):
     if dtype == 'obj':
         pass  # no validation necessary
     elif dtype == 'str':
         if not isinstance(value, str):
             raise ValueError(f'expected str {value}')
-        if options is not None:
-            try:
-                value = options['__remap__'][value]
-            except KeyError:
-                raise ValueError(f'Unsupported option value {value}')
+        value = options_validate(options, value)
     elif dtype == 'int':
         return int(value)
     elif dtype == 'float':
@@ -85,7 +123,9 @@ def validate(value, dtype, options=None):
 def options_conform(options):
     if options is None:
         return None
-    if isinstance(options, collections.abc.Mapping):
+    if callable(options):
+        return options
+    elif isinstance(options, collections.abc.Mapping):
         if '__remap__' in options:
             return options
         for key, value in options.items():
@@ -155,13 +195,13 @@ class Preferences(QtCore.QObject):
         self._app = app
         self._path = paths.paths_current(self._app)['files']['config']
         self._defines = {}
-        self._profiles = {'all': {}}
-        self._profile_active = 'all'
+        self._profiles = {BASE_PROFILE: {}}
+        self._profile_active = BASE_PROFILE
         self.define(name='/', dtype='container')
 
     def flatten(self):
-        values = self._profiles['all'].copy()
-        if self._profile_active != 'all':
+        values = self._profiles[BASE_PROFILE].copy()
+        if self._profile_active != BASE_PROFILE:
             for key, value in self._profiles[self._profile_active].items():
                 values[key] = value
         return values
@@ -193,7 +233,7 @@ class Preferences(QtCore.QObject):
         self._profiles = state['profiles']
         if state['profile'] not in self._profiles:
             log.warning('state_restore does not contain profile %s, use "all"', state['profile'])
-            self.profile = 'all'
+            self.profile = BASE_PROFILE
         self.profile = state['profile']
 
     def save(self):
@@ -218,8 +258,8 @@ class Preferences(QtCore.QObject):
         dtype = DTYPES_MAP[dtype]
         if dtype == 'str' and options is not None:
             options = options_conform(options)
-        if dtype != 'container' and name not in self._profiles['all']:
-            self._profiles['all'][name] = default
+        if dtype != 'container' and name not in self._profiles[BASE_PROFILE]:
+            self._profiles[BASE_PROFILE][name] = default
         if default is not None:
             default = validate(default, dtype, options=options)
         self._defines[name] = {
@@ -281,9 +321,9 @@ class Preferences(QtCore.QObject):
         try:
             return self._profiles[profile][name]
         except KeyError:
-            if profile != 'all':
+            if profile != BASE_PROFILE:
                 try:
-                    return self._profiles['all'][name]
+                    return self._profiles[BASE_PROFILE][name]
                 except KeyError:
                     pass
             if 'default' in kwargs:
@@ -297,7 +337,7 @@ class Preferences(QtCore.QObject):
         value = self.validate(name, value)
         self._profiles[profile][name] = value
 
-    def remove(self, name):
+    def purge(self, name):
         """Completely remove a preference from the system.
 
         :param name: The name of the preference.
@@ -325,9 +365,9 @@ class Preferences(QtCore.QObject):
         return state
 
     def restore(self, value):
-        """Restore a preference removed by :meth:`remove`.
+        """Restore a preference removed by :meth:`purge`.
 
-        :param value: The value returned by :meth:`remove`.
+        :param value: The value returned by :meth:`purge`.
         """
         if 'defines' in value:
             for key, d in value['defines'].items():
@@ -337,7 +377,7 @@ class Preferences(QtCore.QObject):
                 self._profiles[pname][key] = v
 
     def __len__(self):
-        return len(self._profiles['all'])
+        return len(self._profiles[BASE_PROFILE])
 
     def __getitem__(self, key):
         return self.get(key)
@@ -361,7 +401,7 @@ class Preferences(QtCore.QObject):
     def items(self, prefix=None):
         if prefix is None:
             return self.flatten().items()
-        return [(key, self[key]) for key in self._profiles['all'].keys() if key.startswith(prefix)]
+        return [(key, self[key]) for key in self._profiles[BASE_PROFILE].keys() if key.startswith(prefix)]
 
     def validate(self, name, value):
         d = self._defines.get(name)
@@ -400,7 +440,10 @@ class Preferences(QtCore.QObject):
 
     def clear(self, name, profile=None):
         profile = self._profile_active if profile is None else str(profile)
-        return self._profiles[profile].pop(name)
+        value = self._profiles[profile].pop(name)
+        if profile == BASE_PROFILE and name in self._defines and self._defines[name]['default'] is not None:
+            self._profiles[profile][name] = self._defines[name]['default']
+        return value
 
     def profile_add(self, name, activate=False):
         if name in self._profiles:
@@ -410,10 +453,10 @@ class Preferences(QtCore.QObject):
             self.profile = name
 
     def profile_remove(self, name):
-        if name == 'all':
+        if name == BASE_PROFILE:
             raise KeyError('cannot remove profile all')
         if name == self._profile_active:
-            self.profile = 'all'
+            self.profile = BASE_PROFILE
         del self._profiles[name]
 
     @property

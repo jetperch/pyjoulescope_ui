@@ -24,18 +24,22 @@
 
 from joulescope_ui.preferences_dialog import Ui_PreferencesDialog
 from joulescope_ui import guiparams
+from joulescope_ui.ui_util import comboBoxConfig
+from joulescope_ui.preferences import options_enum, BASE_PROFILE
 from PySide2 import QtCore, QtWidgets, QtGui
 import logging
 
 
 log = logging.getLogger(__name__)
+PROFILES_RESET = [BASE_PROFILE, 'Multimeter', 'Oscilloscope']
 
 
 class PreferencesDialog(QtWidgets.QDialog):
 
-    def __init__(self, cmdp):
-        QtWidgets.QDialog.__init__(self)
+    def __init__(self, parent, cmdp):
+        QtWidgets.QDialog.__init__(self, parent)
         self._active_group = None
+        self._active_profile = cmdp.preferences.profile
         self._params = []
         self._cmdp = cmdp
         self.ui = Ui_PreferencesDialog()
@@ -56,10 +60,30 @@ class PreferencesDialog(QtWidgets.QDialog):
         select_mode_index = self._tree_model.index(0, 0)
         self.ui.treeView.setCurrentIndex(select_mode_index)
         self._on_current_changed(select_mode_index, None)
+        self._profile_combobox_update()
 
+        self.ui.profileResetButton.pressed.connect(self._on_profile_reset_button)
         self.ui.okButton.pressed.connect(self.accept)
-        self.ui.cancelButton.pressed.connect(self.cancel)
+        self.ui.cancelButton.pressed.connect(self.reject)
         self.ui.resetButton.pressed.connect(self.preferences_reset)
+
+    def _on_profile_reset_button(self):
+        if self._active_profile in PROFILES_RESET:
+            pass  # todo reset
+        else:
+            # todo profile_remove should be a command
+            self._cmdp.preferences.profile_remove(self._active_profile)
+            self._active_profile = self._cmdp.preferences.profile
+            self._profile_combobox_update()
+
+    def _profile_combobox_update(self):
+        if self._active_profile not in self._cmdp.preferences.profiles:
+            self._active_profile = self._cmdp.preferences.profile
+        comboBoxConfig(self.ui.profileComboBox, self._cmdp.preferences.profiles, self._active_profile)
+        if self._active_profile in PROFILES_RESET:
+            self.ui.profileResetButton.setText('Reset')
+        else:
+            self.ui.profileResetButton.setText('Erase')
 
     def _tree_populate(self, parent, d):
         if 'children' not in d:
@@ -71,7 +95,6 @@ class PreferencesDialog(QtWidgets.QDialog):
             child_item = QtGui.QStandardItem(name)
 
             # WARNING: setData with dict causes key reordering.  Store str and lookup.
-            print(definition_name)
             self._definitions_tree_map[definition_name] = child
             child_item.setData(definition_name, QtCore.Qt.UserRole + 1)
 
@@ -104,16 +127,15 @@ class PreferencesDialog(QtWidgets.QDialog):
             self._populate_entry(name, child)
 
     def _populate_str(self, entry, name, value, tooltip):
-        options = entry.get('options', None)
+        options = options_enum(entry.get('options', None))
         if options is not None:
-            options = [x['name'] for x in options['__def__'].values()]
             p = guiparams.Enum(name, value, options, tooltip=tooltip)
         else:
             p = guiparams.String(name, value, tooltip=tooltip)
         return p
 
     def _populate_entry(self, name, entry):
-        value = self._cmdp[entry['name']]
+        value = self._cmdp.preferences.get(entry['name'], profile=self._active_profile)
         p = None
         tooltip = ''
         dtype = entry.get('dtype', 'str')
@@ -142,7 +164,8 @@ class PreferencesDialog(QtWidgets.QDialog):
         if p is not None:
             p.populate(self.ui.targetWidget)
             self._params.append(p)
-            p.callback = lambda x: self._cmdp.publish(entry['name'], x.value)
+            p.callback = lambda x: self._cmdp.invoke('!preferences/preference/set',
+                                                     (entry['name'], x.value, self._active_profile))
 
     def on_selection_change(self, selection):
         log.info('on_selection_change(%r)', selection)
@@ -154,9 +177,6 @@ class PreferencesDialog(QtWidgets.QDialog):
         self._clear()
         name = model_index_list[0].data()
         self._populate(name)
-
-    def cancel(self):
-        QtWidgets.QDialog.reject(self)
 
     def preferences_reset(self):
         active_group = self._active_group

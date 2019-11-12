@@ -17,7 +17,7 @@ Test the command processor
 """
 
 import unittest
-from joulescope_ui.command_processor import CommandProcessor, Preferences
+from joulescope_ui.command_processor import CommandProcessor, Preferences, BASE_PROFILE
 from joulescope_ui import paths
 import os
 
@@ -36,7 +36,7 @@ class TestCommandProcessor(unittest.TestCase):
 
     def execute_ignore(self, command, data):
         self.commands.append((command, data))
-        return command, data + '-undo'
+        return command, str(data) + '-undo'
 
     def execute_undo(self, command, data):
         return command + '/undo', data + '/undo'
@@ -192,7 +192,7 @@ class TestCommandProcessor(unittest.TestCase):
         self.assert_commands([('hello', '1'), ('hello', 'world')])
         self.assertEqual('world', self.c.preferences['hello'])
 
-    def test_publish_same_topic_undo(self):
+    def test_publish_same_topic_undo_with_coalesce(self):
         self.c.define('hello', default='world')
         self.c.subscribe('hello', self.execute_ignore)
         self.c.publish('hello', '1')
@@ -213,7 +213,7 @@ class TestCommandProcessor(unittest.TestCase):
         self.c.invoke('!preferences/profile/switch', 'p1')
         self.c.publish('a/0', 'update')
         self.assert_commands([('a/0', 'update')])
-        self.c.invoke('!preferences/profile/switch', 'all')
+        self.c.invoke('!preferences/profile/switch', BASE_PROFILE)
         self.assert_commands([('a/0', '0')])
         self.c.invoke('!preferences/profile/switch', 'p1')
         self.assert_commands([('a/0', 'update')])
@@ -248,3 +248,41 @@ class TestCommandProcessor(unittest.TestCase):
         self.c.invoke('!preferences/save')
         p = Preferences(app=self.app).load()
         self.assertEqual('0', p['a/0'])
+
+    def test_preference_get_without_set_or_define(self):
+        with self.assertRaises(KeyError):
+            self.c['a/0']
+
+    def test_preference_set_undo(self):
+        self.c.publish('a', 'hello')
+        self.c.invoke('!undo')
+        with self.assertRaises(KeyError):
+            self.c['a']
+
+    def test_data_model(self):
+        self.c['a'] = 'hello'
+        self.assertEqual('hello', self.c['a'])
+        del self.c['a']
+        with self.assertRaises(KeyError):
+            self.c['a']
+
+    def test_profiles(self):
+        self.c.preferences.define('a', default='default')
+        self.c.subscribe('a', self.execute_ignore)
+        self.c['a'] = 'world'
+        self.c.invoke('!preferences/profile/add', 'p')
+        self.c.invoke('!preferences/preference/set', ('a', 'value', 'p'))
+        self.c.invoke('!preferences/preference/set', ('a', 'override', BASE_PROFILE))
+        self.assertEqual('value', self.c.preferences.get('a', profile='p'))
+        self.assertEqual('override', self.c.preferences.get('a', profile=BASE_PROFILE))
+        self.assert_commands([('a', 'world'), ('a', 'override')])
+        self.c.invoke('!preferences/profile/switch', 'p')
+        self.assert_commands([('a', 'value')])
+        self.c.invoke('!undo')
+        self.assert_commands([('a', 'override')])
+        self.c.invoke('!undo')
+        self.assert_commands([('a', 'world')])
+        self.c.invoke('!undo')
+        self.c.invoke('!undo')
+        self.c.invoke('!undo')
+        self.assert_commands([('a', 'default')])

@@ -30,6 +30,13 @@ def preferences_def(p):
     # --- GENERAL ---
     p.define('General/', 'General application settings.')
     p.define(
+        topic='General/starting_profile',
+        brief='The profile to use when launching the application.',
+        dtype='str',
+        options=lambda: ['previous', 'factory defaults'] + p.preferences.profiles,
+        default='previous',
+    )
+    p.define(
         topic='General/data_path',
         brief='Default data directory',
         dtype='str',
@@ -218,34 +225,5 @@ def preferences_def(p):
         dtype='str',
         options=['normal', 'gpi1'],
         default='normal')
-
-    # --- WAVEFORM ---
-    p.define('Waveform/', 'Waveform display settings')
-    p.define(
-        topic='Waveform/show_min_max',
-        brief='Display the minimum and maximum for ease of finding short events.',
-        dtype='str',
-        options={
-            'off':   {'brief': 'Hide the min/max indicators'},
-            'lines': {'brief': 'Display minimum and maximum lines'},
-            'fill':  {'brief': 'Fill the region between min and max, but may significantly reduce performance.'}},
-        default='lines')
-    p.define(
-        topic='Waveform/grid_x',
-        brief='Display the x-axis grid',
-        dtype='bool',
-        default=True)
-    p.define(
-        topic='Waveform/grid_y',
-        brief='Display the y-axis grid',
-        dtype='bool',
-        default=True)
-    p.define(
-        topic='Waveform/trace_width',
-        brief='The trace width in pixels',
-        detail='Increasing trace width SIGNIFICANTLY degrades performance',
-        dtype='str',
-        options=['1', '2', '4', '6', '8'],
-        default='1')
 
     return p
