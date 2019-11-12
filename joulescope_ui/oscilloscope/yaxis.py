@@ -120,15 +120,10 @@ class YAxis(pg.AxisItem):
     :param y: The y-axis delta from the start in axis coordinates. 
     """
 
-    sigHideRequestEvent = QtCore.Signal(str)
-    """Request to hide this signal.
-    
-    :param name: The name of the signal to hide.
-    """
-
-    def __init__(self, name, log_enable=None):
+    def __init__(self, name, cmdp, log_enable=None):
         pg.AxisItem.__init__(self, orientation='left')
         self._name = name
+        self._cmdp = cmdp
         self.log = logging.getLogger(__name__ + '.' + name)
         self._pan = None
         self.menu = YAxisMenu(log_enable=log_enable)
@@ -140,10 +135,13 @@ class YAxis(pg.AxisItem):
         self.menu.range_manual.triggered.connect(lambda: self._config_update(range='manual'))
         self.menu.scale_linear.triggered.connect(lambda: self._config_update(scale='linear'))
         self.menu.scale_logarithmic.triggered.connect(lambda: self._config_update(scale='logarithmic'))
-        self.menu.hide_request.triggered.connect(lambda: self.sigHideRequestEvent.emit(self._name))
+        self.menu.hide_request.triggered.connect(self._on_hide)
         self._markers = {}
         self._proxy = None
         self._popup_menu_pos = None
+
+    def _on_hide(self):
+        self._cmdp.publish('!Waveform/Signals/remove', self._name)
 
     def _config_update(self, **kwargs):
         log.info('config update: %s', str(kwargs))

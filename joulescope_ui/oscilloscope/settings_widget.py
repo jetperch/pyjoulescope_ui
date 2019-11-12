@@ -22,14 +22,9 @@ log = logging.getLogger(__name__)
 
 class SettingsWidget(pg.ViewBox):
 
-    sigAddSignalRequest = QtCore.Signal(str)
-    """Request to add a signal.
-
-    :param name: The name of the signal to add
-    """
-
-    def __init__(self):
+    def __init__(self, cmdp):
         pg.ViewBox.__init__(self, enableMouse=False, enableMenu=False)
+        self._cmdp = cmdp
         self.setToolTip('Click to adjust the waveform settings')
         self.setRange(xRange=[-1, 1], yRange=[-1, 1])
         self._text = pg.TextItem(html='<div><span style="color: #FFF; background-color: #448">Settings</span></div>',
@@ -41,7 +36,7 @@ class SettingsWidget(pg.ViewBox):
 
     def _signal_add_construct(self, name):
         def cbk():
-            self.sigAddSignalRequest.emit(name)
+            self._cmdp.publish('!Waveform/Signals/add' , [name, -1])
         return cbk
 
     def on_signalsAvailable(self, signals, visible=None):
@@ -57,7 +52,7 @@ class SettingsWidget(pg.ViewBox):
         signal_add_actions = []
 
         for s in self._signals_available:
-            if s not in self._signals_visible:
+            if s['name'] not in self._signals_visible:
                 a = QtGui.QAction(s['display_name'], signal_add)
                 a.triggered.connect(self._signal_add_construct(s['name']))
                 signal_add.addAction(a)

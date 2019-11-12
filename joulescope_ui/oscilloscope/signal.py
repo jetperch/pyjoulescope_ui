@@ -38,12 +38,6 @@ def _wheel_to_y_gain(delta):
 
 class Signal(QtCore.QObject):
 
-    sigHideRequestEvent = QtCore.Signal(str)
-    """Request to hide this signal.
-
-    :param name: The name of the signal to hide.
-    """
-
     def __init__(self, parent, cmdp, name, display_name=None, units=None, y_limit=None, y_log_min=None, y_range=None, **kwargs):
         QtCore.QObject.__init__(self, parent=parent)
         self._cmdp = cmdp
@@ -71,7 +65,7 @@ class Signal(QtCore.QObject):
             y_min, y_max = y_limit
             self.vb.setLimits(yMin=y_min, yMax=y_max)
             self.vb.setYRange(y_min, y_max)
-        self.y_axis = YAxis(name, log_enable=y_log_min is not None)
+        self.y_axis = YAxis(name, cmdp, log_enable=y_log_min is not None)
         self.y_axis.linkToView(self.vb)
         self.y_axis.setGrid(128)
 
@@ -100,7 +94,6 @@ class Signal(QtCore.QObject):
         self.y_axis.sigConfigEvent.connect(self.y_axis_config_update)
         self.y_axis.sigWheelZoomYEvent.connect(self.on_wheelZoomY)
         self.y_axis.sigPanYEvent.connect(self.on_panY)
-        self.y_axis.sigHideRequestEvent.connect(lambda name: self.sigHideRequestEvent.emit(name))
         self.y_axis.range_set(self.config['y-axis']['range'])
 
     def set_xlimits(self, x_min, x_max):

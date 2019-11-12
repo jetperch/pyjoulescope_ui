@@ -55,9 +55,8 @@ class Oscilloscope(QtWidgets.QWidget):
         }
         self._dataview_data_pending = 0
 
-        self._settings_widget = SettingsWidget()
+        self._settings_widget = SettingsWidget(self._cmdp)
         self.win.addItem(self._settings_widget, row=0, col=0)
-        self._settings_widget.sigAddSignalRequest.connect(self._on_signalAdd)
 
         self._scrollbar = ScrollBar()
         self._scrollbar.regionChange.connect(self.on_scrollbarRegionChange)
@@ -91,8 +90,21 @@ class Oscilloscope(QtWidgets.QWidget):
         self._cmdp.subscribe('Waveform/#statistics_over_range_resp', self._on_statics_over_range_resp)
         self._cmdp.subscribe('Device/#state/x_limits', self._on_device_state_limits)
 
-        # todo '!Waveform/Signals/add'
-        # todo '!Waveform/Signals/remove'
+        cmdp.register('!Waveform/Signals/add', self._cmd_waveform_signals_add,
+                      brief='Add a signal to the waveform.',
+                      detail='value is list of signal name string and position. -1 inserts at end')
+        cmdp.register('!Waveform/Signals/remove', self._cmd_waveform_signals_remove,
+                      brief='Remove a signal from the waveform by name.',
+                      detail='value is signal name string.')
+
+    def _cmd_waveform_signals_add(self, topic, value):
+        name, index = value
+        self._on_signalAdd(name)
+        return '!Waveform/Signals/remove', name
+
+    def _cmd_waveform_signals_remove(self, topic, value):
+        self.signal_remove(value)
+        return '!Waveform/Signals/add', [value, -1]  # todo actual position
 
     def _on_device_state_limits(self, topic, value):
         self.set_xlimits(*value)
@@ -184,9 +196,10 @@ class Oscilloscope(QtWidgets.QWidget):
         self.signal_add(signal)
 
     def signal_add(self, signal):
+        if signal['name'] in self._signals:
+            self.signal_remove(signal['name'])
         s = Signal(parent=self, cmdp=self._cmdp, **signal)
         s.addToLayout(self.win, row=self.win.ci.layout.rowCount())
-        s.sigHideRequestEvent.connect(self.on_signalHide)
         s.vb.sigWheelZoomXEvent.connect(self._scrollbar.on_wheelZoomX)
         s.vb.sigPanXEvent.connect(self._scrollbar.on_panX)
         self._signals[signal['name']] = s
@@ -204,9 +217,6 @@ class Oscilloscope(QtWidgets.QWidget):
             return
         signal.vb.sigWheelZoomXEvent.disconnect()
         signal.vb.sigPanXEvent.disconnect()
-        signal.sigHideRequestEvent.disconnect()
-        for m in self._x_axis.markers():
-            m.signal_remove(name)
         row = signal.removeFromLayout(self.win)
         for k in range(row + 1, self.win.ci.layout.rowCount()):
             for j in range(3):
