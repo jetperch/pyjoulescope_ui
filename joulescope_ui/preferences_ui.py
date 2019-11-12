@@ -50,12 +50,12 @@ class PreferencesDialog(QtWidgets.QDialog):
         self._tree_model.setHorizontalHeaderLabels(['Name'])
         self.ui.treeView.setModel(self._tree_model)
         self.ui.treeView.setHeaderHidden(True)
-        self.ui.treeView.clicked.connect(self._on_tree_clicked)
+        self.ui.treeView.selectionModel().currentChanged.connect(self._on_current_changed)
         self._tree_populate(self._tree_model.invisibleRootItem(), self._definitions)
 
         select_mode_index = self._tree_model.index(0, 0)
         self.ui.treeView.setCurrentIndex(select_mode_index)
-        self._on_tree_clicked(select_mode_index)
+        self._on_current_changed(select_mode_index, None)
 
         self.ui.okButton.pressed.connect(self.accept)
         self.ui.cancelButton.pressed.connect(self.cancel)
@@ -85,8 +85,8 @@ class PreferencesDialog(QtWidgets.QDialog):
             self._params = []
         self._active_group = None
 
-    @QtCore.Slot(object)
-    def _on_tree_clicked(self, model_index):
+    @QtCore.Slot(object, object)
+    def _on_current_changed(self, model_index, model_index_old):
         self._clear()
         definition_name = self._tree_model.data(model_index, QtCore.Qt.UserRole + 1)
         data = self._definitions_tree_map[definition_name]
