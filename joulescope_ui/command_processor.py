@@ -66,7 +66,7 @@ class CommandProcessor(QtCore.QObject):
         self.register('!command_group/end', self._command_group_end)
         self.register('!preferences/profile/add', self._preferences_profile_add)
         self.register('!preferences/profile/remove', self._preferences_profile_remove)
-        self.register('!preferences/profile/switch', self._preferences_profile_switch)
+        self.register('!preferences/profile/set', self._preferences_profile_set)
         self.register('!preferences/save', self._preferences_save)
         self.register('!preferences/load', self._preferences_load)
         self.register('!preferences/restore', self._preferences_restore)
@@ -287,13 +287,13 @@ class CommandProcessor(QtCore.QObject):
         self.preferences.profile_remove(data)
         return'!preferences/profile/add', (data, flat_old)
 
-    def _preferences_profile_switch(self, topic, data):
+    def _preferences_profile_set(self, topic, data):
         profile = data
         profile_prev = self.preferences.profile
         if profile_prev == data:
             return
-        self._preferences_bulk_update(profile_name=data)
-        return '!preferences/profile/switch', profile_prev
+        self._preferences_bulk_update(profile_name=profile)
+        return '!preferences/profile/set', profile_prev
 
     def _preferences_save(self, topic, data):
         self.preferences.save()
@@ -409,3 +409,37 @@ class CommandProcessor(QtCore.QObject):
             log.warning('unregister command %s, but not registered', topic)
             return
         del self._topic[topic]
+
+    def context(self):
+        """Return a context for automatically unsubscribing / unregistering on delete.
+
+        :return: The context object which supports subscribe and register.
+        """
+        return _CommandProcessorContext(self)
+
+
+class _CommandProcessorContext:
+
+    def __init__(self, cmdp):
+        self._cmdp = cmdp
+        self._fn = []
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exception_type, exception_value, traceback):
+        pass
+
+    def __del__(self):
+        for fn in self._fn:
+            fn()
+        self._fn = None
+        self._cmdp = None
+
+    def subscribe(self, topic, update_fn, update_now=False):
+        self._cmdp.subscribe(topic, update_fn, update_now)
+        self._fn.append(lambda: self._cmdp.unsubscribe(topic, update_fn))
+
+    def register(self, topic, execute_fn, validate_fn=None, brief=None, detail=None):
+        self._cmdp.register(topic, execute_fn, validate_fn, brief, detail)
+        self._fn.append(lambda: self._cmdp.unregister(topic))

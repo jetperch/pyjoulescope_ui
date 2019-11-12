@@ -80,22 +80,22 @@ class Oscilloscope(QtWidgets.QWidget):
         self.set_xlimits(0.0, 30.0)
         self.set_xview(25.0, 30.0)
 
-        # context manager with auto delete?
-        self._cmdp.subscribe('DataView/#data', self._on_data)
-        self._cmdp.subscribe('Device/#state/source', self._on_device_state_source)
-        self._cmdp.subscribe('Device/#state/play', self._on_device_state_play)
-        self._cmdp.subscribe('Device/#state/name', self._on_device_state_name)
-        self._cmdp.subscribe('Waveform/Markers/_state/instances/', self._on_marker_instance_change)
-        self._cmdp.subscribe('Waveform/#requests/refresh_markers', self._on_refresh_markers)
-        self._cmdp.subscribe('Waveform/#statistics_over_range_resp', self._on_statics_over_range_resp)
-        self._cmdp.subscribe('Device/#state/x_limits', self._on_device_state_limits)
-
-        cmdp.register('!Waveform/Signals/add', self._cmd_waveform_signals_add,
-                      brief='Add a signal to the waveform.',
-                      detail='value is list of signal name string and position. -1 inserts at end')
-        cmdp.register('!Waveform/Signals/remove', self._cmd_waveform_signals_remove,
-                      brief='Remove a signal from the waveform by name.',
-                      detail='value is signal name string.')
+        self._context = self._cmdp.context()
+        with self._context as c:
+            c.subscribe('DataView/#data', self._on_data)
+            c.subscribe('Device/#state/source', self._on_device_state_source)
+            c.subscribe('Device/#state/play', self._on_device_state_play)
+            c.subscribe('Device/#state/name', self._on_device_state_name)
+            c.subscribe('Waveform/Markers/_state/instances/', self._on_marker_instance_change)
+            c.subscribe('Waveform/#requests/refresh_markers', self._on_refresh_markers)
+            c.subscribe('Waveform/#statistics_over_range_resp', self._on_statics_over_range_resp)
+            c.subscribe('Device/#state/x_limits', self._on_device_state_limits)
+            c.register('!Waveform/Signals/add', self._cmd_waveform_signals_add,
+                       brief='Add a signal to the waveform.',
+                       detail='value is list of signal name string and position. -1 inserts at end')
+            c.register('!Waveform/Signals/remove', self._cmd_waveform_signals_remove,
+                       brief='Remove a signal from the waveform by name.',
+                       detail='value is signal name string.')
 
     def _cmd_waveform_signals_add(self, topic, value):
         name, index = value

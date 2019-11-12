@@ -54,36 +54,78 @@ class PreferencesDialog(QtWidgets.QDialog):
         self._tree_model.setHorizontalHeaderLabels(['Name'])
         self.ui.treeView.setModel(self._tree_model)
         self.ui.treeView.setHeaderHidden(True)
-        self.ui.treeView.selectionModel().currentChanged.connect(self._on_current_changed)
+        self.ui.treeView.selectionModel().currentChanged.connect(self._on_tree_item_changed)
         self._tree_populate(self._tree_model.invisibleRootItem(), self._definitions)
 
         select_mode_index = self._tree_model.index(0, 0)
         self.ui.treeView.setCurrentIndex(select_mode_index)
-        self._on_current_changed(select_mode_index, None)
+        self._on_tree_item_changed(select_mode_index, None)
+        self.ui.profileComboBox.currentIndexChanged.connect(self._on_profile_combo_box_change)
         self._profile_combobox_update()
 
+        self.ui.profileActivateButton.pressed.connect(self._on_profile_activate_button)
         self.ui.profileResetButton.pressed.connect(self._on_profile_reset_button)
+        self.ui.profileNewButton.pressed.connect(self._on_profile_new_button)
+
         self.ui.okButton.pressed.connect(self.accept)
         self.ui.cancelButton.pressed.connect(self.reject)
         self.ui.resetButton.pressed.connect(self.preferences_reset)
+
+        self._context = self._cmdp.context()
+        with self._context as c:
+            c.subscribe('!preferences/profile/add', self._on_profile_add)
+            c.subscribe('!preferences/profile/remove', self._on_profile_remove)
+
+    def _on_profile_combo_box_change(self, index):
+        profile = self.ui.profileComboBox.currentText()
+        self._profile_change(profile)
+
+    def _on_profile_add(self, topic, data):
+        log.info('_on_profile_add(%s)  %s', data, self._active_profile)
+        self._profile_change(data)
+
+    def _on_profile_remove(self, topic, data):
+        log.info('_on_profile_remove(%s) : %s', data, self._active_profile)
+        if data == self._active_profile:
+            self._profile_change()
+
+    def _profile_change(self, profile=None):
+        if profile is None:
+            profile = self._cmdp.preferences.profile
+        if profile == self._active_profile:
+            return
+        if profile != self._active_profile:
+            self._active_profile = profile
+            self._profile_combobox_update()
+            self._on_tree_item_changed(self.ui.treeView.currentIndex(), None)
+
+    def _on_profile_activate_button(self):
+        self._cmdp.invoke('!preferences/profile/set', self._active_profile)
+        self.ui.profileActivateButton.setEnabled(False)
 
     def _on_profile_reset_button(self):
         if self._active_profile in PROFILES_RESET:
             pass  # todo reset
         else:
-            # todo profile_remove should be a command
-            self._cmdp.preferences.profile_remove(self._active_profile)
-            self._active_profile = self._cmdp.preferences.profile
-            self._profile_combobox_update()
+            self._cmdp.invoke('!preferences/profile/remove', self._active_profile)
+
+    def _on_profile_new_button(self):
+        profile, success = QtWidgets.QInputDialog.getText(self, 'Enter profile name', 'Profile Name:')
+        if not success:
+            return
+        if profile in self._cmdp.preferences.profiles:
+            log.warning('Already exists - switch to it')
+            self._cmdp.invoke('!preferences/profile/set', profile)
+        else:
+            self._cmdp.invoke('!preferences/profile/add', profile)
 
     def _profile_combobox_update(self):
         if self._active_profile not in self._cmdp.preferences.profiles:
             self._active_profile = self._cmdp.preferences.profile
         comboBoxConfig(self.ui.profileComboBox, self._cmdp.preferences.profiles, self._active_profile)
-        if self._active_profile in PROFILES_RESET:
-            self.ui.profileResetButton.setText('Reset')
-        else:
-            self.ui.profileResetButton.setText('Erase')
+        reset_text = 'Reset' if self._active_profile in PROFILES_RESET else 'Erase'
+        self.ui.profileResetButton.setText(reset_text)
+        self.ui.profileActivateButton.setEnabled(self._active_profile != self._cmdp.preferences.profile)
 
     def _tree_populate(self, parent, d):
         if 'children' not in d:
@@ -109,7 +151,7 @@ class PreferencesDialog(QtWidgets.QDialog):
         self._active_group = None
 
     @QtCore.Slot(object, object)
-    def _on_current_changed(self, model_index, model_index_old):
+    def _on_tree_item_changed(self, model_index, model_index_old):
         self._clear()
         definition_name = self._tree_model.data(model_index, QtCore.Qt.UserRole + 1)
         data = self._definitions_tree_map[definition_name]
@@ -139,9 +181,9 @@ class PreferencesDialog(QtWidgets.QDialog):
         p = None
         tooltip = ''
         dtype = entry.get('dtype', 'str')
-        if 'brief' in entry:
+        if 'brief' in entry and entry['brief'] is not None:
             tooltip = '<span><p>%s</p>' % entry['brief']
-            if 'detail' in entry:
+            if 'detail' in entry and entry['detail'] is not None:
                 tooltip += '<p>%s</p>' % entry['detail']
             tooltip += '</span>'
         if dtype == 'str':

@@ -31,9 +31,23 @@
        <widget class="QComboBox" name="profileComboBox"/>
       </item>
       <item>
+       <widget class="QPushButton" name="profileActivateButton">
+        <property name="text">
+         <string>Activate</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="profileResetButton">
         <property name="text">
          <string>Reset</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="profileNewButton">
+        <property name="text">
+         <string>New</string>
         </property>
        </widget>
       </item>

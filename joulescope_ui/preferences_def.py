@@ -33,7 +33,7 @@ def preferences_def(p):
         topic='General/starting_profile',
         brief='The profile to use when launching the application.',
         dtype='str',
-        options=lambda: ['previous', 'factory defaults'] + p.preferences.profiles,
+        options=lambda: ['previous', 'factory defaults'] + [x for x in p.preferences.profiles if x != 'defaults'],
         default='previous',
     )
     p.define(
