@@ -36,7 +36,7 @@ class TestCommandProcessor(unittest.TestCase):
 
     def execute_ignore(self, command, data):
         self.commands.append((command, data))
-        return command, data
+        return command, data + '-undo'
 
     def execute_undo(self, command, data):
         return command + '/undo', data + '/undo'
@@ -99,6 +99,42 @@ class TestCommandProcessor(unittest.TestCase):
 
     def test_redo_when_empty(self):
         self.c.invoke('!redo')
+
+    def test_command_group_undo_redo(self):
+        c = self.c
+        cmds = [('!my/cmd', '1'), ('!my/cmd', '2'), ('!my/cmd', '3')]
+        c.register('!my/cmd', self.execute_ignore)
+        c.invoke('!my/cmd', '1')
+        c.invoke('!command_group/start', None)
+        c.invoke('!my/cmd', '2')
+        c.invoke('!my/cmd', '3')
+        c.invoke('!command_group/end', None)
+        self.assert_commands(cmds)
+        c.invoke('!undo')
+        self.assert_commands([('!my/cmd', '3-undo'), ('!my/cmd', '2-undo')])
+        c.invoke('!undo')
+        self.assert_commands([('!my/cmd', '1-undo')])
+        c.invoke('!redo')
+        c.invoke('!redo')
+        self.assert_commands(cmds)
+
+    def test_command_group_nested(self):
+        c = self.c
+        cmds = [('!my/cmd', '1'), ('!my/cmd', '2'), ('!my/cmd', '3'), ('!my/cmd', '4')]
+        c.register('!my/cmd', self.execute_ignore)
+        c.invoke('!my/cmd', '1')
+        c.invoke('!command_group/start', None)
+        c.invoke('!my/cmd', '2')
+        c.invoke('!command_group/start', None)
+        c.invoke('!my/cmd', '3')
+        c.invoke('!command_group/end', None)
+        c.invoke('!my/cmd', '4')
+        c.invoke('!command_group/end', None)
+        self.assert_commands(cmds)
+        c.invoke('!undo')
+        self.assert_commands([(topic, value + '-undo') for topic, value in cmds[-1:0:-1]])
+        c.invoke('!redo')
+        self.assert_commands(cmds[1:])
 
     def test_publish_subscribe(self):
         self.c.define('hello', default='world')

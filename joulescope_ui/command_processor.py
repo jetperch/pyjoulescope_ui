@@ -62,6 +62,8 @@ class CommandProcessor(QtCore.QObject):
         self._redos = []  # tuples of (do, undo), each tuples (command, data)
         self.register('!undo', self._undo)
         self.register('!redo', self._redo)
+        self.register('!command_group/start', self._command_group_start)
+        self.register('!command_group/end', self._command_group_end)
         connect_type = QtCore.Qt.QueuedConnection
         if bool(synchronous):
             connect_type = QtCore.Qt.AutoConnection
@@ -103,15 +105,33 @@ class CommandProcessor(QtCore.QObject):
                 self.preferences[undo_topic] = undo_data
             self._redos.append((do_cmd, undo_cmd))
             self._subscriber_update(undo_topic, undo_data)
+            if undo_topic == '!command_group/end':
+                while len(self._undos):
+                    _, (undo_topic, _) = self._undos[-1]
+                    self._undo(None, None)
+                    if undo_topic == '!command_group/start':
+                        break
         return None
 
-    def _redo(self, command, data):
+    def _redo(self, topic, data):
         if len(self._redos):
             do_cmd, undo_cmd = self._redos.pop()
             do_command, do_data = do_cmd
             self._topic[do_command]['execute_fn'](do_command, do_data)
             self._undos.append((do_cmd, undo_cmd))
+            if do_command == '!command_group/start':
+                while len(self._redos):
+                    (redo_topic, _), _ = self._redos[-1]
+                    self._redo(None, None)
+                    if redo_topic == '!command_group/end':
+                        break
         return None
+
+    def _command_group_start(self, topic, data):
+        return topic, data
+
+    def _command_group_end(self, topic, data):
+        return topic, data
 
     @QtCore.Slot(str, object)
     def _on_invoke(self, topic, data):
