@@ -422,12 +422,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self._source_indicator.setStyleSheet(style)
 
     def keyPressEvent(self, event: QtGui.QKeyEvent):
-        log.info('keyPressEvent(%s %d %s', event.text(), event.key(), event.modifiers())
+        # See https://doc.qt.io/qt-5/qkeysequence.html for list of defines
+        # log.info('keyPressEvent(%s %d %s', event.text(), event.key(), event.modifiers())
         if event.matches(QtGui.QKeySequence.Undo):
             self._cmdp.invoke('!undo')
         elif event.matches(QtGui.QKeySequence.Redo):
             self._cmdp.invoke('!redo')
-        super(MainWindow, self).keyPressEvent(event)
+        else:
+            super(MainWindow, self).keyPressEvent(event)
+            return
+        event.accept()
 
     @property
     def _has_active_device(self):
