@@ -22,31 +22,7 @@ def preferences_def(p):
     p.define('_meta/def_version', dtype='int', default=1)
     p.define('_meta/app_version', dtype='str', default=VERSION)
 
-    p.define('Plugins/#registered', dtype=object, default=None)
-
-    p.define(
-        'DataView/#service/x_change_request', dtype=object,
-        brief='Request an x-axis range change.',
-        detail='List of [x_min: float, x_max: float, x_count: int] where\n' +
-               'x_min: The minimum x_axis value to display in the range.\n' +
-               'x_max: The maximum x_axis value to display in the range.\n' +
-               'x_count: The desired number of samples in the range.\n')
-
-    p.define(
-        'DataView/#service/range_statistics', dtype=object,
-        brief='Request statistics over data ranges.',
-        detail='dict containing:\n' +
-               'ranges: list of (x_start, x_stop) ranges in view seconds\n' +
-               'source_id: Source indicator to allow for coalescence.\n' +
-               'reply_topic: The topic for the response which is a dict with\n' +
-               'request and response.  On error, response is None.\n' +
-               'On success, response is a list of joulescope.view.View.statistics_get\n' +
-               'return values.')
-
-    p.define(
-        'DataView/#data', dtype=object,
-        brief='The latest data from the view.')
-
+    # --- WINDOW ---
     # p.define('_window/', brief='Active UI window and tools configuration')
     # p.define('_window/geometry', default=None)
     # p.define('_window/contents', default=None)
@@ -79,6 +55,7 @@ def preferences_def(p):
         brief='Start streaming when the device connects',
         dtype='bool',
         default=True)
+    p.define('Device/parameter/', 'Joulescope device-specific parameters')
     p.define(
         topic='Device/parameter/source',
         brief='Select the streaming data source',
@@ -108,7 +85,7 @@ def preferences_def(p):
         options={
             '15V': {'brief': '15V range (recommended)', 'aliases': ['high']},
             '5V':  {'brief': '5V range with improved resolution for lower voltages', 'aliases': ['low']}},
-        default='high')
+        default='15V')
     p.define(
         topic='Device/rescan_interval',
         brief='The manual device rescan interval in seconds',
@@ -181,6 +158,33 @@ def preferences_def(p):
         dtype='str',
         options=['0', '1', '2', '3', '4', '5', '6', '7', '8'],
         default='2')
+
+    # --- Plugins ---
+    p.define('Plugins/', 'Joulescope UI Plugins')
+    p.define('Plugins/#registered', dtype=object, default=None)
+
+    # --- DataView ---
+    p.define('DataView/', 'Data view configuration for waveform')
+    p.define(
+        'DataView/#service/x_change_request', dtype=object,
+        brief='Request an x-axis range change.',
+        detail='List of [x_min: float, x_max: float, x_count: int] where\n' +
+               'x_min: The minimum x_axis value to display in the range.\n' +
+               'x_max: The maximum x_axis value to display in the range.\n' +
+               'x_count: The desired number of samples in the range.\n')
+    p.define(
+        'DataView/#service/range_statistics', dtype=object,
+        brief='Request statistics over data ranges.',
+        detail='dict containing:\n' +
+               'ranges: list of (x_start, x_stop) ranges in view seconds\n' +
+               'source_id: Source indicator to allow for coalescence.\n' +
+               'reply_topic: The topic for the response which is a dict with\n' +
+               'request and response.  On error, response is None.\n' +
+               'On success, response is a list of joulescope.view.View.statistics_get\n' +
+               'return values.')
+    p.define(
+        'DataView/#data', dtype=object,
+        brief='The latest data from the view.')
 
     # --- GPIO ---
     p.define('GPIO/', 'Joulescope device GPIO settings')

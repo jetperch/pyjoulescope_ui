@@ -116,10 +116,13 @@ class CommandProcessor(QtCore.QObject):
     def _redo(self, topic, data):
         if len(self._redos):
             do_cmd, undo_cmd = self._redos.pop()
-            do_command, do_data = do_cmd
-            self._topic[do_command]['execute_fn'](do_command, do_data)
+            do_topic, do_data = do_cmd
+            if do_topic[0] == '!':
+                self._topic[do_topic]['execute_fn'](do_topic, do_data)
+            else:
+                self.preferences[do_topic] = do_data
             self._undos.append((do_cmd, undo_cmd))
-            if do_command == '!command_group/start':
+            if do_topic == '!command_group/start':
                 while len(self._redos):
                     (redo_topic, _), _ = self._redos[-1]
                     self._redo(None, None)

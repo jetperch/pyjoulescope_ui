@@ -14,13 +14,18 @@
 
 """Display and update application preferences"""
 
+# https://doc.qt.io/qt-5/qtreeview.html
+# https://doc.qt.io/qt-5/qstandarditemmodel.html
+# https://doc.qt.io/qt-5/qmodelindex.html
+# https://pythonspot.com/pyqt5-treeview/
+# https://stackoverflow.com/questions/47102920/pyqt5-how-to-generate-a-qtreeview-from-a-list-of-dictionary-items
+# https://stackoverflow.com/questions/27898718/multi-level-qtreeview
+# https://stackoverflow.com/questions/25943153/how-to-access-data-stored-in-qmodelindex
+
 from joulescope_ui.preferences_dialog import Ui_PreferencesDialog
 from joulescope_ui import guiparams
-from joulescope_ui.config import find_child_by_name, validate
-from joulescope_ui.ui_util import confirmDiscard
 from PySide2 import QtCore, QtWidgets, QtGui
 import logging
-import copy
 
 
 log = logging.getLogger(__name__)
@@ -28,31 +33,50 @@ log = logging.getLogger(__name__)
 
 class PreferencesDialog(QtWidgets.QDialog):
 
-    def __init__(self, cfg_def, cfg):
+    def __init__(self, cmdp):
         QtWidgets.QDialog.__init__(self)
         self._active_group = None
         self._params = []
-        self._cfg_def = cfg_def
-        self.cfg_orig = cfg
-        self._cfg = copy.deepcopy(cfg)
+        self._cmdp = cmdp
         self.ui = Ui_PreferencesDialog()
         self.ui.setupUi(self)
-        self._model = QtGui.QStandardItemModel()
-        for entry in self._cfg_def['children']:
-            item = QtGui.QStandardItem(entry['name'])
-            self._model.appendRow(item)
-        self.ui.groupListView.setModel(self._model)
-        self.ui.groupListView.selectionModel().selectionChanged.connect(self.on_selection_change)
-        self.ui.groupListView.setCurrentIndex(self._model.item(0).index())
+
+        self._definitions = self._cmdp.preferences.definitions
+        if self._definitions['name'] != '/':
+            raise ValueError('unexpected root')
+        self._definitions_tree_map = {}
+
+        self._tree_model = QtGui.QStandardItemModel(self)
+        self._tree_model.setHorizontalHeaderLabels(['Name'])
+        self.ui.treeView.setModel(self._tree_model)
+        self.ui.treeView.setHeaderHidden(True)
+        self.ui.treeView.clicked.connect(self._on_tree_clicked)
+        self._tree_populate(self._tree_model.invisibleRootItem(), self._definitions)
+
+        select_mode_index = self._tree_model.index(0, 0)
+        self.ui.treeView.setCurrentIndex(select_mode_index)
+        self._on_tree_clicked(select_mode_index)
+
         self.ui.okButton.pressed.connect(self.accept)
         self.ui.cancelButton.pressed.connect(self.cancel)
-        self.ui.resetButton.pressed.connect(self.cfg_reset)
+        self.ui.resetButton.pressed.connect(self.preferences_reset)
 
-    def update(self):
-        if self._active_group is None:
+    def _tree_populate(self, parent, d):
+        if 'children' not in d:
             return
-        for param in self._params:
-            self._cfg[self._active_group][param.name] = param.value
+        for name, child in d['children'].items():
+            definition_name = child['name']
+            if '#' in name or name.startswith('_') or not child['name'].endswith('/'):
+                continue
+            child_item = QtGui.QStandardItem(name)
+
+            # WARNING: setData with dict causes key reordering.  Store str and lookup.
+            print(definition_name)
+            self._definitions_tree_map[definition_name] = child
+            child_item.setData(definition_name, QtCore.Qt.UserRole + 1)
+
+            parent.appendRow(child_item)
+            self._tree_populate(child_item, child)
 
     def _clear(self):
         if self._active_group is not None:
@@ -61,41 +85,64 @@ class PreferencesDialog(QtWidgets.QDialog):
             self._params = []
         self._active_group = None
 
-    def _populate(self, group_name: str):
-        group = find_child_by_name(self._cfg_def, group_name)
-        if group is None:
-            return
-        self._active_group = group_name
+    @QtCore.Slot(object)
+    def _on_tree_clicked(self, model_index):
+        self._clear()
+        definition_name = self._tree_model.data(model_index, QtCore.Qt.UserRole + 1)
+        data = self._definitions_tree_map[definition_name]
+        self._populate_selected(data)
 
-        for entry in group['children']:
-            name = entry['name']
-            value = self._cfg[self._active_group][name]
-            p = None
-            tooltip = ''
-            if 'brief' in entry:
-                tooltip = '<span><p>%s</p>' % entry['brief']
-                if 'detail' in entry:
-                    tooltip += '<p>%s</p>' % entry['detail']
-                tooltip += '</span>'
-            if entry['type'] == 'str' and 'options' in entry:
-                options = [x['name'] for x in entry['options']]
-                p = guiparams.Enum(name, value, options, tooltip=tooltip)
-            elif entry['type'] == 'bool':
-                if isinstance(value, str):
-                    value = value.lower()
-                value = value in [True, 'true', 'on']
-                p = guiparams.Bool(name, value, tooltip=tooltip)
-            elif entry['type'] == 'path':
-                attributes = entry.get('attributes', [])
-                if 'dir' in attributes:
-                    p = guiparams.Directory(name, value, tooltip=tooltip)
-                elif 'exists' in attributes:
-                    p = guiparams.FileOpen(name, value, tooltip=tooltip)
-                else:
-                    p = guiparams.FileSave(name, value, tooltip=tooltip)
-            if p is not None:
-                p.populate(self.ui.targetWidget)
-                self._params.append(p)
+    def _populate_selected(self, data):
+        if 'children' not in data:
+            return
+        self._active_group = data['name']
+        for name, child in data['children'].items():
+            if 'children' in child:
+                continue
+            if '#' in name or name.startswith('_') or child['name'].endswith('/'):
+                continue
+            self._populate_entry(name, child)
+
+    def _populate_str(self, entry, name, value, tooltip):
+        options = entry.get('options', None)
+        if options is not None:
+            options = [x['name'] for x in options['__def__'].values()]
+            p = guiparams.Enum(name, value, options, tooltip=tooltip)
+        else:
+            p = guiparams.String(name, value, tooltip=tooltip)
+        return p
+
+    def _populate_entry(self, name, entry):
+        value = self._cmdp[entry['name']]
+        p = None
+        tooltip = ''
+        dtype = entry.get('dtype', 'str')
+        if 'brief' in entry:
+            tooltip = '<span><p>%s</p>' % entry['brief']
+            if 'detail' in entry:
+                tooltip += '<p>%s</p>' % entry['detail']
+            tooltip += '</span>'
+        if dtype == 'str':
+            p = self._populate_str(entry, name, value, tooltip)
+        elif dtype == 'bool':
+            if isinstance(value, str):
+                value = value.lower()
+            value = value in [True, 'true', 'on']
+            p = guiparams.Bool(name, value, tooltip=tooltip)
+        elif dtype == 'path':
+            attributes = entry.get('attributes', [])
+            if 'dir' in attributes:
+                p = guiparams.Directory(name, value, tooltip=tooltip)
+            elif 'exists' in attributes:
+                p = guiparams.FileOpen(name, value, tooltip=tooltip)
+            else:
+                p = guiparams.FileSave(name, value, tooltip=tooltip)
+        else:
+            log.info('%s: unsupported dtype %s', entry['name'], dtype)
+        if p is not None:
+            p.populate(self.ui.targetWidget)
+            self._params.append(p)
+            p.callback = lambda x: self._cmdp.publish(entry['name'], x.value)
 
     def on_selection_change(self, selection):
         log.info('on_selection_change(%r)', selection)
@@ -104,28 +151,21 @@ class PreferencesDialog(QtWidgets.QDialog):
             # force the first item
             self.ui.groupListView.setCurrentIndex(self._model.item(0).index())
             return
-
-        self.update()
         self._clear()
-
         name = model_index_list[0].data()
         self._populate(name)
 
     def cancel(self):
-        self.update()
-        if self.cfg_orig == self._cfg:
-            QtWidgets.QDialog.reject(self)
-        elif confirmDiscard(self):
-            QtWidgets.QDialog.reject(self)
+        QtWidgets.QDialog.reject(self)
 
-    def cfg_reset(self):
+    def preferences_reset(self):
         active_group = self._active_group
         self._clear()
-        self._cfg = validate(self._cfg_def, {})
         self._populate(active_group)
 
     def exec_(self):
-        if QtWidgets.QDialog.exec_(self) == 1:
-            self.update()
-            return self._cfg  # accepted!
-        return None
+        self._cmdp.invoke('!command_group/start')
+        rv = QtWidgets.QDialog.exec_(self)
+        self._cmdp.invoke('!command_group/end')
+        if rv == 0:
+            self._cmdp.invoke('!undo')

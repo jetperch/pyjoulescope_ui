@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>741</width>
-    <height>780</height>
+    <width>660</width>
+    <height>388</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,6 +18,49 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
+    <widget class="QWidget" name="profileWidget" native="true">
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <widget class="QLabel" name="profileLable">
+        <property name="text">
+         <string>Profile</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QComboBox" name="profileComboBox"/>
+      </item>
+      <item>
+       <widget class="QPushButton" name="profileResetButton">
+        <property name="text">
+         <string>Reset</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="profileHorizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="helpButton">
+        <property name="text">
+         <string>Help</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
     <widget class="QWidget" name="widget" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
@@ -27,24 +70,31 @@
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QListView" name="groupListView">
-        <property name="editTriggers">
-         <set>QAbstractItemView::NoEditTriggers</set>
+       <widget class="QTreeView" name="treeView">
+        <property name="animated">
+         <bool>true</bool>
         </property>
-        <property name="showDropIndicator" stdset="0">
+        <attribute name="headerVisible">
          <bool>false</bool>
-        </property>
+        </attribute>
        </widget>
       </item>
       <item>
-       <widget class="QWidget" name="targetWidget" native="true">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+       <widget class="QScrollArea" name="scrollArea">
+        <property name="widgetResizable">
+         <bool>true</bool>
         </property>
-        <layout class="QFormLayout" name="formLayout"/>
+        <widget class="QWidget" name="targetWidget">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>311</width>
+           <height>278</height>
+          </rect>
+         </property>
+         <layout class="QFormLayout" name="formLayout_2"/>
+        </widget>
        </widget>
       </item>
      </layout>
@@ -75,7 +125,7 @@
       <item>
        <widget class="QPushButton" name="resetButton">
         <property name="text">
-         <string>Reset</string>
+         <string>Reset to Defaults</string>
         </property>
        </widget>
       </item>

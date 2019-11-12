@@ -221,7 +221,7 @@ class Preferences(QtCore.QObject):
         if dtype != 'container' and name not in self._profiles['all']:
             self._profiles['all'][name] = default
         if default is not None:
-            validate(default, dtype, options=options)
+            default = validate(default, dtype, options=options)
         self._defines[name] = {
             'name': name,
             'brief': brief,
@@ -245,7 +245,7 @@ class Preferences(QtCore.QObject):
         """Get the definitions hierarchical data structure.
 
         :return: A complex data structure of dicts.  Leafs are normal defines.
-            Nodes only have 'nam'e, 'brief', 'detail' and 'children.
+            Nodes only have 'name', 'brief', 'detail' and 'children.
 
         This method can be used to automatically populate a UI preferences dialog.
         """

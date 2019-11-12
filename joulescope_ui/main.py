@@ -979,14 +979,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def on_preferences(self):
         log.info('on_preferences')
-        d = PreferencesDialog(self._preferences)
-        p = d.exec_()
-        if p is not None:
-            if p['General/data_path'] != self._cmdp['General/data_path']:
-                self._path = p['General/data_path']
-            # todo save
-            # todo config apply?
-            # todo update listeners
+        d = PreferencesDialog(self._cmdp)
+        if d.exec_():
+            self._cmdp.preferences.save()
 
     def _on_dataview_service_range_statistics(self, topic, value):
         # topic: DataView/#service/range_statistics
