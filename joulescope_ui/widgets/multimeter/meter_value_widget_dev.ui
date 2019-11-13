@@ -195,7 +195,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="joulescope.qrc"/>
+  <include location="../../joulescope.qrc"/>
  </resources>
  <connections/>
 </ui>

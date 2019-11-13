@@ -14,7 +14,7 @@
 
 
 from PySide2 import QtWidgets, QtCore
-from joulescope_ui.control_widget_ui import Ui_ControlWidget
+from .control_widget_ui import Ui_ControlWidget
 import logging
 
 

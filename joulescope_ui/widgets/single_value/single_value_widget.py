@@ -14,7 +14,7 @@
 
 from PySide2 import QtCore, QtGui, QtWidgets
 import numpy as np
-from . import joulescope_rc
+from joulescope_ui import joulescope_rc
 from joulescope.units import unit_prefix
 import logging
 log = logging.getLogger(__name__)

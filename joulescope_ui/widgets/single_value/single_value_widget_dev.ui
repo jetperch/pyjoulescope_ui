@@ -145,7 +145,7 @@ QLabel { color : green; font-weight: bold; font-size: 32pt; }</string>
   </layout>
  </widget>
  <resources>
-  <include location="joulescope.qrc"/>
+  <include location="../../joulescope.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -14,7 +14,7 @@
 
 
 from PySide2 import QtWidgets, QtCore
-from joulescope_ui.developer_widget_ui import Ui_DeveloperWidget
+from .developer_widget_ui import Ui_DeveloperWidget
 from joulescope.units import unit_prefix, three_sig_figs
 import logging
 

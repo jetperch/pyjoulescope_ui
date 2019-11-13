@@ -12,23 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# from joulescope_ui.uart import UartWidget
-from joulescope_ui import control_widget
-from joulescope_ui import developer_widget
-from joulescope_ui import gpio_widget
-from joulescope_ui import meter_widget
-from joulescope_ui import single_value_widget
-from joulescope_ui import oscilloscope
-
-
+from . import control
+from . import developer
+from . import gpio
+from . import multimeter
+from . import single_value
+# from . import uart
+from . import waveform
 
 WIDGETS = [
-    control_widget,
-    developer_widget,
-    gpio_widget,
-    meter_widget,
-    single_value_widget,
-    oscilloscope,
+    control,
+    developer,
+    gpio,
+    multimeter,
+    single_value,
+    waveform,
 ]
 
 

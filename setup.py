@@ -54,17 +54,19 @@ def find_qt_rcc():
 def convert_qt_ui():
     from pyside2uic import compileUi
     rcc_path = find_qt_rcc()
-    for path in [os.path.join(MYPATH, 'joulescope_ui'), os.path.join(MYPATH, 'joulescope_ui', 'plugins')]:
-        ignore_filename = os.path.join(path, '.gitignore')
-        with open(ignore_filename, 'wt') as ignore:
-            ignore.write('# Automatically generated.  DO NOT EDIT\n')
-            for source in os.listdir(path):
+    path = os.path.join(MYPATH, 'joulescope_ui')
+    ignore_filename = os.path.join(path, '.gitignore')
+    with open(ignore_filename, 'wt') as ignore:
+        ignore.write('# Automatically generated.  DO NOT EDIT\n')
+        for root, d_names, f_names in os.walk(path):
+            for source in f_names:
+                source = os.path.join(root, source)
                 source_base, ext = os.path.splitext(source)
                 if ext == '.ui':
                     target = source_base + '.py'
                     with open(os.path.join(path, source), 'rt', encoding='utf8') as fsource:
                         with open(os.path.join(path, target), 'wt', encoding='utf8') as ftarget:
-                            compileUi(fsource, ftarget, execute=False, indent=4, from_imports=True)
+                            compileUi(fsource, ftarget, execute=False, indent=4, from_imports=False)
                 elif ext == '.qrc':
                     target = source_base + '_rc.py'
                     rc = subprocess.run([rcc_path, os.path.join(path, source), '-o', os.path.join(path, target)])
@@ -72,7 +74,8 @@ def convert_qt_ui():
                         raise RuntimeError('failed on .qrc file')
                 else:
                     continue
-                ignore.write('%s\n' % target)
+                ignore_entry = os.path.relpath(target, path).replace('\\', '/')
+                ignore.write('%s\n' % ignore_entry)
 
 
 def update_version_py():

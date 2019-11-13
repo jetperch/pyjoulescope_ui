@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from PySide2 import QtCore, QtWidgets
-from joulescope_ui.gpio_widget_ui import Ui_GpioWidget
+from .gpio_widget_ui import Ui_GpioWidget
 import numpy as np
 
 

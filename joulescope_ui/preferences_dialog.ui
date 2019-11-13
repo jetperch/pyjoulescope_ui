@@ -28,7 +28,14 @@
        </widget>
       </item>
       <item>
-       <widget class="QComboBox" name="profileComboBox"/>
+       <widget class="QComboBox" name="profileComboBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
       </item>
       <item>
        <widget class="QPushButton" name="profileActivateButton">
