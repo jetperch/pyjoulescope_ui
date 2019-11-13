@@ -308,3 +308,10 @@ class TestPreferences(unittest.TestCase):
         self.assertEqual([], p.match('a/'))
         p['a/0'] = 'zz'
         self.assertEqual(['a/0'], p.match('a/'))
+
+    def test_singleton(self):
+        self.p.define(name='a', dtype='str', default='0', default_profile_only=True)
+        self.p.profile_add('p', activate=True)
+        self.p['a'] = 'override'
+        self.assertEqual('override', self.p.get('a', profile='p'))
+        self.assertEqual('override', self.p.get('a', profile=BASE_PROFILE))

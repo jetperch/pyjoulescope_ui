@@ -344,7 +344,8 @@ class CommandProcessor(QtCore.QObject):
             self._subscriber_update(topic, value)
         return undo
 
-    def define(self, topic, brief=None, detail=None, dtype=None, options=None, default=None):
+    def define(self, topic, brief=None, detail=None, dtype=None, options=None, default=None,
+               default_profile_only=None):
         """Define a new preference.
 
         :param topic: The name for the preference which must be unique.  Preferences
@@ -362,9 +363,14 @@ class CommandProcessor(QtCore.QObject):
               alternative allowed value string.
         :param default: The default value for this preference.  Providing a default
             value is high recommended.
+        :param default_profile_only: True to force this preference to exist
+            in the default profile only.  False or None (default), allow
+            this preference to exist in all profiles and override the default
+            profile.
         """
         return self.preferences.define(topic, brief=brief, detail=detail,
-                                       dtype=dtype, options=options, default=default)
+                                       dtype=dtype, options=options, default=default,
+                                       default_profile_only=default_profile_only)
 
     def register(self, topic, execute_fn, validate_fn=None, brief=None, detail=None):
         """Register a new command topic.

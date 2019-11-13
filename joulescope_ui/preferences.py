@@ -246,7 +246,8 @@ class Preferences(QtCore.QObject):
         os.replace(tmp_file, self._path)
         return self
 
-    def define(self, name, brief=None, detail=None, dtype=None, options=None, default=None):
+    def define(self, name, brief=None, detail=None, dtype=None, options=None, default=None,
+               default_profile_only=None):
         # todo support int ranges: min, max, step
         if dtype is None:
             if name.endswith('/'):
@@ -269,6 +270,7 @@ class Preferences(QtCore.QObject):
             'dtype': dtype,
             'options': options,
             'default': default,
+            'default_profile_only': bool(default_profile_only),
         }
 
     def definition_get(self, name):
@@ -335,7 +337,10 @@ class Preferences(QtCore.QObject):
         if profile not in self._profiles:
             raise KeyError(f'invalid profile {profile}')
         value = self.validate(name, value)
-        self._profiles[profile][name] = value
+        if name in self._defines and self._defines[name]['default_profile_only']:
+            self._profiles[BASE_PROFILE][name] = value
+        else:
+            self._profiles[profile][name] = value
 
     def purge(self, name):
         """Completely remove a preference from the system.

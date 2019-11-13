@@ -32,9 +32,13 @@ def preferences_def(p):
     p.define(
         topic='General/starting_profile',
         brief='The profile to use when launching the application.',
+        detail='Use "previous" to automatically restore the previous state. ' +
+               'Since this preference selects the starting profile, the ' +
+               'value is shared between all profiles.',
         dtype='str',
         options=lambda: ['previous', 'factory defaults'] + [x for x in p.preferences.profiles if x != 'defaults'],
         default='previous',
+        default_profile_only=True,
     )
     p.define(
         topic='General/data_path',
@@ -96,10 +100,10 @@ def preferences_def(p):
     p.define(
         topic='Device/rescan_interval',
         brief='The manual device rescan interval in seconds',
-        detail='Device rescan normally happens when devices are connected' + \
-            'to the computer.  For long running-tests, selecting an additional manual' +\
-            'rescan interval assists recovery on USB and device failures.  However, ' +\
-            'enabling this feature automatically selects a device on Device->disable.',
+        detail='Device rescan normally happens when devices are connected ' +
+               'to the computer.  For long running-tests, selecting an additional manual ' +
+               'rescan interval assists recovery on USB and device failures.  However, ' +
+               'enabling this feature automatically selects a device on Device->disable.',
         dtype='str',
         options=['off', '1', '2', '5', '10', '20', '50'],
         default='off')
@@ -118,8 +122,8 @@ def preferences_def(p):
     p.define(
         topic='Device/buffer_duration',
         brief='The stream buffer duration in seconds.',
-        detail='Use care when setting this value. ' +\
-            'The software requires 1.5 GB of RAM for every 60 seconds.',
+        detail='Use care when setting this value. ' +
+               'The software requires 1.5 GB of RAM for every 60 seconds.',
         dtype='str',
         options=['15', '30', '60', '90', '120', '180', '240', '300'],
         default='30')
