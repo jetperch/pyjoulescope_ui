@@ -152,12 +152,12 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
 
     def marker_single_add(self, x):
         x = self._x_map_to_parent(x)
-        self._commands.append(lambda: self.cmdp.publish('!Waveform/Markers/single_add', x))
+        self._commands.append(lambda: self.cmdp.publish('!Widgets/Waveform/Markers/single_add', x))
 
     def marker_dual_add(self, x1, x2):
         x1 = self._x_map_to_parent(x1)
         x2 = self._x_map_to_parent(x2)
-        self._commands.append(lambda: self.cmdp.publish('!Waveform/Markers/dual_add', (x1, x2)))
+        self._commands.append(lambda: self.cmdp.publish('!Widgets/Waveform/Markers/dual_add', (x1, x2)))
 
     def run(self, view, statistics, x_start, x_stop):
         """Export data request.

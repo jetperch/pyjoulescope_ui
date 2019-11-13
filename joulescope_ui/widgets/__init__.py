@@ -32,6 +32,8 @@ WIDGETS = [
 
 def widget_register(cmdp):
     widgets = {}
+    cmdp.define('Widgets/', 'Widget settings.')
+
     for widget in WIDGETS:
         r = widget.widget_register(cmdp)
         widgets[r['name']] = r

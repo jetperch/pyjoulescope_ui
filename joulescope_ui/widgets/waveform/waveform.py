@@ -86,25 +86,25 @@ class WaveformWidget(QtWidgets.QWidget):
             c.subscribe('Device/#state/source', self._on_device_state_source)
             c.subscribe('Device/#state/play', self._on_device_state_play)
             c.subscribe('Device/#state/name', self._on_device_state_name)
-            c.subscribe('Waveform/Markers/_state/instances/', self._on_marker_instance_change)
-            c.subscribe('Waveform/#requests/refresh_markers', self._on_refresh_markers)
-            c.subscribe('Waveform/#statistics_over_range_resp', self._on_statics_over_range_resp)
+            c.subscribe('Widgets/Waveform/Markers/_state/instances/', self._on_marker_instance_change)
+            c.subscribe('Widgets/Waveform/#requests/refresh_markers', self._on_refresh_markers)
+            c.subscribe('Widgets/Waveform/#statistics_over_range_resp', self._on_statics_over_range_resp)
             c.subscribe('Device/#state/x_limits', self._on_device_state_limits)
-            c.register('!Waveform/Signals/add', self._cmd_waveform_signals_add,
+            c.register('!Widgets/Waveform/Signals/add', self._cmd_waveform_signals_add,
                        brief='Add a signal to the waveform.',
                        detail='value is list of signal name string and position. -1 inserts at end')
-            c.register('!Waveform/Signals/remove', self._cmd_waveform_signals_remove,
+            c.register('!Widgets/Waveform/Signals/remove', self._cmd_waveform_signals_remove,
                        brief='Remove a signal from the waveform by name.',
                        detail='value is signal name string.')
 
     def _cmd_waveform_signals_add(self, topic, value):
         name, index = value
         self._on_signalAdd(name)
-        return '!Waveform/Signals/remove', name
+        return '!Widgets/Waveform/Signals/remove', name
 
     def _cmd_waveform_signals_remove(self, topic, value):
         self.signal_remove(value)
-        return '!Waveform/Signals/add', [value, -1]  # todo actual position
+        return '!Widgets/Waveform/Signals/add', [value, -1]  # todo actual position
 
     def _on_device_state_limits(self, topic, value):
         self.set_xlimits(*value)
@@ -293,7 +293,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _on_data_frame_done(self):
         self._dataview_data_pending = 0
-        self._cmdp.publish('Waveform/#requests/data_next', None)
+        self._cmdp.publish('Widgets/Waveform/#requests/data_next', None)
 
     def _markers_dual_update_all(self):
         ranges = []
@@ -310,7 +310,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 'ranges': ranges,
                 'source_id': 'Waveform._markers_dual_update_all',
                 'markers': markers,
-                'reply_topic': 'Waveform/#statistics_over_range_resp'
+                'reply_topic': 'Widgets/Waveform/#statistics_over_range_resp'
             }
             self._cmdp.publish('DataView/#service/range_statistics', request)
         else:
@@ -436,9 +436,9 @@ class WaveformWidget(QtWidgets.QWidget):
 
 
 def widget_register(cmdp):
-    cmdp.define('Waveform/', 'Waveform display settings')
+    cmdp.define('Widgets/Waveform/', 'Waveform display settings')
     cmdp.define(
-        topic='Waveform/show_min_max',
+        topic='Widgets/Waveform/show_min_max',
         brief='Display the minimum and maximum for ease of finding short events.',
         dtype='str',
         options={
@@ -447,26 +447,26 @@ def widget_register(cmdp):
             'fill':  {'brief': 'Fill the region between min and max, but may significantly reduce performance.'}},
         default='lines')
     cmdp.define(
-        topic='Waveform/grid_x',
+        topic='Widgets/Waveform/grid_x',
         brief='Display the x-axis grid',
         dtype='bool',
         default=True)
     cmdp.define(
-        topic='Waveform/grid_y',
+        topic='Widgets/Waveform/grid_y',
         brief='Display the y-axis grid',
         dtype='bool',
         default=True)
     cmdp.define(
-        topic='Waveform/trace_width',
+        topic='Widgets/Waveform/trace_width',
         brief='The trace width in pixels',
         detail='Increasing trace width SIGNIFICANTLY degrades performance',
         dtype='str',
         options=['1', '2', '4', '6', '8'],
         default='1')
 
-    cmdp.define('Waveform/#requests/refresh_markers', dtype=object)  # list of marker names
-    cmdp.define('Waveform/#requests/data_next', dtype='none')
-    cmdp.define('Waveform/#statistics_over_range_resp', dtype=object)
+    cmdp.define('Widgets/Waveform/#requests/refresh_markers', dtype=object)  # list of marker names
+    cmdp.define('Widgets/Waveform/#requests/data_next', dtype='none')
+    cmdp.define('Widgets/Waveform/#statistics_over_range_resp', dtype=object)
 
     return {
         'name': 'Waveform',

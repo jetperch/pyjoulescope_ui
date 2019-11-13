@@ -141,7 +141,7 @@ class YAxis(pg.AxisItem):
         self._popup_menu_pos = None
 
     def _on_hide(self):
-        self._cmdp.publish('!Waveform/Signals/remove', self._name)
+        self._cmdp.publish('!Widgets/Waveform/Signals/remove', self._name)
 
     def _config_update(self, **kwargs):
         log.info('config update: %s', str(kwargs))

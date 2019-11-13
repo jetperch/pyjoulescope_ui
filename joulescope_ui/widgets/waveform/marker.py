@@ -57,7 +57,7 @@ class Marker(pg.GraphicsObject):
         self.graphic_items = [self._marker_time_text, self._delta_time_text]
         self.text = {}  #: Dict[str, List[weakref.ReferenceType[Signal], TextItem]]
 
-        self._instance_prefix = f'Waveform/Markers/_state/instances/{name}/'
+        self._instance_prefix = f'Widgets/Waveform/Markers/_state/instances/{name}/'
         for key, value in state.items():
             self._cmdp.preferences.set(self._instance_prefix + key, value)
         self.set_pos(state.get('pos'))
@@ -323,7 +323,7 @@ class Marker(pg.GraphicsObject):
             removes = [self.name, self.pair.name]
         else:
             removes = [self.name]
-        self._cmdp.invoke('!Waveform/Markers/remove', [removes])
+        self._cmdp.invoke('!Widgets/Waveform/Markers/remove', [removes])
 
     def menu_exec(self, pos):
         instances = []  # hold on to QT objects

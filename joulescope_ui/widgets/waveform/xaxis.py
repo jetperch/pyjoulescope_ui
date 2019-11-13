@@ -63,25 +63,25 @@ class XAxis(pg.AxisItem):
         self._proxy = None
         self._popup_menu_pos = None
 
-        cmdp.register('!Waveform/Markers/single_add', self._cmd_waveform_marker_single_add,
+        cmdp.register('!Widgets/Waveform/Markers/single_add', self._cmd_waveform_marker_single_add,
                       brief='Add a single marker to the waveform widget.',
                       detail='value is x-axis time coordinate in seconds for the marker.')
-        cmdp.register('!Waveform/Markers/dual_add', self._cmd_waveform_marker_dual_add,
+        cmdp.register('!Widgets/Waveform/Markers/dual_add', self._cmd_waveform_marker_dual_add,
                       brief='Add a dual marker pair to the waveform widget.',
                       detail='value is a list containing:\n' +
                              'x1: The initial x-axis time coordinate in seconds for the left marker.\n' +
                              'x2: The initial x-axis time coordinate in seconds for the right marker.\n')
-        cmdp.register('!Waveform/Markers/remove', self._cmd_waveform_marker_remove,
+        cmdp.register('!Widgets/Waveform/Markers/remove', self._cmd_waveform_marker_remove,
                       brief='Remove a single marker or dual marker pair from the waveform widget.',
                       detail='The value is the list of marker names lists to remove which is either length 1' +
                              'for single markers and length 2 for dual markers.')
-        cmdp.register('!Waveform/Markers/clear', self._cmd_waveform_marker_clear,
+        cmdp.register('!Widgets/Waveform/Markers/clear', self._cmd_waveform_marker_clear,
                       brief='Remove all markers.')
-        cmdp.register('!Waveform/Markers/restore', self._cmd_waveform_marker_restore,
+        cmdp.register('!Widgets/Waveform/Markers/restore', self._cmd_waveform_marker_restore,
                       brief='Restore removed markers (for undo support).')
 
-        # todo '!Waveform/Markers/move'
-        # todo '!Waveform/Markers/list'
+        # todo '!Widgets/Waveform/Markers/move'
+        # todo '!Widgets/Waveform/Markers/list'
 
     def _find_first_unused_single_marker_name(self):
         idx = 1
@@ -105,8 +105,8 @@ class XAxis(pg.AxisItem):
         name = self._find_first_unused_single_marker_name()
         self._marker_add(name, shape='full', pos=x)
         self.marker_moving_emit(name, x)
-        self._cmdp.publish('Waveform/#requests/refresh_markers', [name])
-        return '!Waveform/Markers/remove', [[name]]
+        self._cmdp.publish('Widgets/Waveform/#requests/refresh_markers', [name])
+        return '!Widgets/Waveform/Markers/remove', [[name]]
 
     def _cmd_waveform_marker_dual_add(self, topic, value):
         x1, x2 = value
@@ -117,15 +117,15 @@ class XAxis(pg.AxisItem):
         mright.pair = mleft
         self.marker_moving_emit(name1, x1)
         self.marker_moving_emit(name2, x2)
-        self._cmdp.publish('Waveform/#requests/refresh_markers', [name1, name2])
-        return '!Waveform/Markers/remove', [[name1, name2]]
+        self._cmdp.publish('Widgets/Waveform/#requests/refresh_markers', [name1, name2])
+        return '!Widgets/Waveform/Markers/remove', [[name1, name2]]
 
     def _cmd_waveform_marker_remove(self, topic, value):
         states = []
         for v in value:
             states.append(self.marker_remove(*v))
-        self._cmdp.publish('Waveform/#requests/refresh_markers', None)
-        return '!Waveform/Markers/restore', states
+        self._cmdp.publish('Widgets/Waveform/#requests/refresh_markers', None)
+        return '!Widgets/Waveform/Markers/restore', states
 
     def _cmd_waveform_marker_restore(self, topic, value):
         names = []
@@ -139,7 +139,7 @@ class XAxis(pg.AxisItem):
             for m in markers:
                 self.marker_moving_emit(m.name, m.get_pos())
             names.append([x.name for x in markers])
-        return '!Waveform/Markers/remove', names
+        return '!Widgets/Waveform/Markers/remove', names
 
     def _cmd_waveform_marker_clear(self, topic, value):
         removal = []
@@ -154,7 +154,7 @@ class XAxis(pg.AxisItem):
     def on_singleMarker(self):
         x = self._popup_menu_pos.x()
         log.info('on_singleMarker(%s)', x)
-        self._cmdp.invoke('!Waveform/Markers/single_add', x)
+        self._cmdp.invoke('!Widgets/Waveform/Markers/single_add', x)
 
     def on_dualMarkers(self):
         x = self._popup_menu_pos.x()
@@ -162,11 +162,11 @@ class XAxis(pg.AxisItem):
         xr = (xb - xa) * 0.05
         x1, x2 = x - xr, x + xr
         log.info('on_dualMarkers(%s, %s)', x1, x2)
-        self._cmdp.invoke('!Waveform/Markers/dual_add', [x1, x2])
+        self._cmdp.invoke('!Widgets/Waveform/Markers/dual_add', [x1, x2])
 
     def on_clearAllMarkers(self):
         log.info('on_clearAllMarkers()')
-        self._cmdp.invoke('!Waveform/Markers/clear', None)
+        self._cmdp.invoke('!Widgets/Waveform/Markers/clear', None)
 
     def linkedViewChanged(self, view, newRange=None):
         pg.AxisItem.linkedViewChanged(self, view=view, newRange=newRange)

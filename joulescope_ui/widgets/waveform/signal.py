@@ -138,7 +138,7 @@ class Signal(QtCore.QObject):
             self.curve_max.setLogMode(xMode=False, yMode=False)
             y_min, y_max = self.config['y-axis']['limit']
             self.vb.setLimits(yMin=y_min, yMax=y_max)
-        self._cmdp.publish('waveform/#requests/refresh', None)
+        self._cmdp.publish('Widgets/Waveform/#requests/refresh', None)
 
     @QtCore.Slot(float, float)
     def on_wheelZoomY(self, y, delta):

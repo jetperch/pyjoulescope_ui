@@ -56,14 +56,14 @@ class GpioWidget(QtWidgets.QWidget):
             self._state = state
         self._update_active = True
         for idx, v in enumerate(self._io_voltages):
-            if v == self._state['GPIO/io_voltage']:
+            if v == self._state['Device/parameter/io_voltage']:
                 if self.ui.voltageComboBox.currentIndex() != idx:
                     self.ui.voltageComboBox.setCurrentIndex(idx)
                 break
 
         output_buttons = [
-            (self.ui.output0Button, self._state['GPIO/gpo0']),
-            (self.ui.output1Button, self._state['GPIO/gpo1']),
+            (self.ui.output0Button, self._state['Device/parameter/gpo0']),
+            (self.ui.output1Button, self._state['Device/parameter/gpo1']),
         ]
         for button, value in output_buttons:
             checked = bool(int(value))
@@ -71,7 +71,7 @@ class GpioWidget(QtWidgets.QWidget):
                 button.setChecked(checked)
 
         for name, checkbox, _ in self._inputs:
-            value = self._state['GPIO/' + name]
+            value = self._state['Device/parameter/' + name]
             checked = (value != 'normal')
             if checkbox.isChecked() != checked:
                 checkbox.setChecked(checked)
@@ -127,7 +127,7 @@ class GpioWidget(QtWidgets.QWidget):
 
 
 def widget_register(cmdp):
-    #io_voltage_def = self._cmdp.preferences.definition_get('GPIO/io_voltage')
+    #io_voltage_def = self._cmdp.preferences.definition_get('Device/parameter/io_voltage')
     #self.gpio_widget.init(io_voltage_def['options'].keys())
     #self.gpio_widget.on_changeSignal.connect(self._on_gpio_cfg_change)
 

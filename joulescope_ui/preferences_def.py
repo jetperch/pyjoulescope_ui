@@ -97,6 +97,37 @@ def preferences_def(p):
             '15V': {'brief': '15V range (recommended)', 'aliases': ['high']},
             '5V':  {'brief': '5V range with improved resolution for lower voltages', 'aliases': ['low']}},
         default='15V')
+    # --- GPIO ---
+    p.define(
+        topic='Device/parameter/io_voltage',
+        brief='The GPI/O high-level voltage.',
+        dtype='str',
+        options=['1.8V', '2.1V', '2.5V', '2.7V', '3.0V', '3.3V', '5.0V'],
+        default='3.3V')
+    p.define(
+        topic='Device/parameter/gpo0',
+        brief='The GPO bit 0 output value.',
+        dtype='str',
+        options=['0', '1'],
+        default='0')
+    p.define(
+        topic='Device/parameter/gpo1',
+        brief='The GPO bit 1 output value.',
+        dtype='str',
+        options=['0', '1'],
+        default='0')
+    p.define(
+        topic='Device/parameter/current_lsb',
+        brief='The current signal least-significant bit mapping.',
+        dtype='str',
+        options=['normal', 'gpi0'],
+        default='normal')
+    p.define(
+        topic='Device/parameter/voltage_lsb',
+        brief='The voltage signal least-significant bit mapping.',
+        dtype='str',
+        options=['normal', 'gpi1'],
+        default='normal')
     p.define(
         topic='Device/rescan_interval',
         brief='The manual device rescan interval in seconds',
@@ -196,38 +227,5 @@ def preferences_def(p):
     p.define(
         'DataView/#data', dtype=object,
         brief='The latest data from the view.')
-
-    # --- GPIO ---
-    p.define('GPIO/', 'Joulescope device GPIO settings')
-    p.define(
-        topic='GPIO/io_voltage',
-        brief='The GPI/O high-level voltage.',
-        dtype='str',
-        options=['1.8V', '2.1V', '2.5V', '2.7V', '3.0V', '3.3V', '5.0V'],
-        default='3.3V')
-    p.define(
-        topic='GPIO/gpo0',
-        brief='The GPO bit 0 output value.',
-        dtype='str',
-        options=['0', '1'],
-        default='0')
-    p.define(
-        topic='GPIO/gpo1',
-        brief='The GPO bit 1 output value.',
-        dtype='str',
-        options=['0', '1'],
-        default='0')
-    p.define(
-        topic='GPIO/current_lsb',
-        brief='The current signal least-significant bit mapping.',
-        dtype='str',
-        options=['normal', 'gpi0'],
-        default='normal')
-    p.define(
-        topic='GPIO/voltage_lsb',
-        brief='The voltage signal least-significant bit mapping.',
-        dtype='str',
-        options=['normal', 'gpi1'],
-        default='normal')
 
     return p

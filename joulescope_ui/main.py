@@ -206,7 +206,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._cmdp.subscribe('Device/#state/name', self._on_device_state_name)
         self._cmdp.subscribe('Device/#state/play', self._on_device_state_play)
         self._cmdp.subscribe('Device/#state/record', self._on_device_state_record)
-        self._cmdp.subscribe('Waveform/#requests/data_next', self._on_waveform_requests_data_next)
+        self._cmdp.subscribe('Widgets/Waveform/#requests/data_next', self._on_waveform_requests_data_next)
 
         # Main implements the DataView bindings
         self._cmdp.subscribe('DataView/#service/x_change_request', self._on_dataview_service_x_change_request)

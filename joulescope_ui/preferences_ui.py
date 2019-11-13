@@ -59,6 +59,7 @@ class PreferencesDialog(QtWidgets.QDialog):
 
         select_mode_index = self._tree_model.index(0, 0)
         self.ui.treeView.setCurrentIndex(select_mode_index)
+        self.ui.treeView.expandAll()
         self._on_tree_item_changed(select_mode_index, None)
         self.ui.profileComboBox.currentIndexChanged.connect(self._on_profile_combo_box_change)
         self._profile_combobox_update()
@@ -130,9 +131,13 @@ class PreferencesDialog(QtWidgets.QDialog):
     def _tree_populate(self, parent, d):
         if 'children' not in d:
             return
+
         for name, child in d['children'].items():
             definition_name = child['name']
             if '#' in name or name.startswith('_') or not child['name'].endswith('/'):
+                continue
+            child_children = [x for x in child.get('children', {}).keys() if '#' not in x and not x.startswith('_')]
+            if not len(child_children):
                 continue
             child_item = QtGui.QStandardItem(name)
 
