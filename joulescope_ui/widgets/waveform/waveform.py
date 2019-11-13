@@ -27,7 +27,7 @@ log = logging.getLogger(__name__)
 SIGNAL_OFFSET_ROW = 2
 
 
-class Oscilloscope(QtWidgets.QWidget):
+class WaveformWidget(QtWidgets.QWidget):
     """Oscilloscope-style waveform view for multiple signals.
 
     :param parent: The parent :class:`QWidget`.
@@ -471,7 +471,7 @@ def widget_register(cmdp):
     return {
         'name': 'Waveform',
         'brief': 'Display waveforms of values over time.',
-        'class': Oscilloscope,
+        'class': WaveformWidget,
         'location': QtCore.Qt.RightDockWidgetArea,
         'singleton': True,
     }

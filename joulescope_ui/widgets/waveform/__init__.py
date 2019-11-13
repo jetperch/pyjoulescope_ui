@@ -12,4 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .oscilloscope import Oscilloscope, widget_register
+from .waveform import WaveformWidget, widget_register

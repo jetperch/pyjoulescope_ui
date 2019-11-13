@@ -10,7 +10,6 @@ dist
 
 joulescope_ui/version.py
 joulescope_ui/.gitignore
-joulescope_ui/plugins/.gitignore
 
 # Compiled Dynamic libraries
 *.so
