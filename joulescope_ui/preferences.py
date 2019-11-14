@@ -51,6 +51,13 @@ for t in DTYPES_DEF:
         DTYPES_MAP[k] = t[0]
 
 
+def to_bool(v):
+    if isinstance(v, str):
+        v = v.lower()
+        return v not in ['false', '0', 'off', '']
+    return bool(v)
+
+
 def options_enum(options):
     """Enumerate all options at the present time.
 
@@ -278,9 +285,7 @@ class Preferences(QtCore.QObject):
 
     def definition_options(self, name):
         options = self._defines[name]['options']
-        if options is None:
-            return []
-        return options['__def__'].keys()
+        return options_enum(options)
 
     @property
     def definitions(self):

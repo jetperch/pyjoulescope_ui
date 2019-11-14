@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PySide2 import QtGui, QtCore
+from PySide2 import QtGui, QtCore, QtWidgets
 import logging
 
 log = logging.getLogger(__name__)
@@ -71,6 +71,12 @@ def comboBoxIncrement(box):
         box.setCurrentIndex(idx)
         return True
     return False
+
+
+def comboBoxSelectItemByText(combobox: QtWidgets.QComboBox, value):
+    index = combobox.findText(value)
+    if index >= 0:
+        combobox.setCurrentIndex(index)
 
 
 def confirmDiscard(parent):
