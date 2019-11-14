@@ -101,7 +101,7 @@ class GpioWidget(QtWidgets.QWidget):
         self.ui.output1Button.setChecked(to_bool(data))
 
     def _on_device_state_data(self, topic, data):
-        if not self.isVisible():
+        if not self.isVisible() or data is None:
             return
         for signal_name, checkbox, label in self._inputs:
             if signal_name not in data['signals']:
