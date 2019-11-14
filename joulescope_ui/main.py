@@ -352,7 +352,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def _on_dataview_service_x_change_request(self, topic, value):
         # DataView/#service/x_change_request
         x_min, x_max, x_count = value
-        log.info('_on_x_change(%s, %s, %s)', x_min, x_max, x_count)
+        log.info('_on_dataview_service_x_change_request(%s, %s, %s)', x_min, x_max, x_count)
         if self._data_view is not None:
             self._data_view.on_x_change('resize', {'pixels': x_count})
             self._data_view.on_x_change('span_absolute', {'range': [x_min, x_max]})

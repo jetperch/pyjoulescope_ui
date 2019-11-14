@@ -41,13 +41,17 @@ class ScrollBar(pg.ViewBox):
         x_min and x_max, inclusive.
     """
 
-    def __init__(self, parent=None):
+    def __init__(self, parent, cmdp):
         pg.ViewBox.__init__(self, parent=parent, enableMenu=False, enableMouse=False)
+        self._cmdp = cmdp
         self._region = CustomLinearRegionItem(self, self.regionChange.emit)
         self._region.setZValue(-10)
         self.addItem(self._region)
         self._label = pg.TextItem(html='<div><span style="color: #FFF;">Time (seconds)</span></div>', anchor=(0.5, 0.5))
         self.addItem(self._label, ignoreBounds=True)
+        self._context = cmdp.context()
+        with self._context as c:
+            c.subscribe('Device/#state/sampling_frequency', self._on_device_state_sampling_frequency, update_now=True)
 
     def set_xview(self, x_min, x_max):
         self._region.setRegion([x_min, x_max])
@@ -63,8 +67,8 @@ class ScrollBar(pg.ViewBox):
     def set_display_mode(self, mode):
         return self._region.set_display_mode(mode)
 
-    def set_sampling_frequency(self, freq):
-        self._region.set_sampling_frequency(freq)
+    def _on_device_state_sampling_frequency(self, topic, data):
+        self._region.set_sampling_frequency(data)
 
     @QtCore.Slot(float, float)
     def on_wheelZoomX(self, x: float, delta: float):
@@ -120,7 +124,7 @@ class CustomLinearRegionItem(pg.LinearRegionItem):
 
     @property
     def minimum_width(self):
-        if self._sampling_frequency is not None:
+        if self._sampling_frequency is not None and self._sampling_frequency > 0:
             return 10.0 / self._sampling_frequency
         else:
             return 0.001

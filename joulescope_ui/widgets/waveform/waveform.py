@@ -58,7 +58,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._settings_widget = SettingsWidget(self._cmdp)
         self.win.addItem(self._settings_widget, row=0, col=0)
 
-        self._scrollbar = ScrollBar()
+        self._scrollbar = ScrollBar(parent=None, cmdp=cmdp)
         self._scrollbar.regionChange.connect(self.on_scrollbarRegionChange)
         self.win.addItem(self._scrollbar, row=0, col=1)
 
