@@ -1,45 +1,16 @@
 # notes from refactoring
 
-self._source_indicator_set('None', color='yellow', tooltip=TOOLTIP_NO_SOURCE)
-self._source_indicator_set(' USB ', tooltip=str(self._device))
-self._source_indicator_set(' Buffer ', tooltip=str(self._device))
-self._source_indicator_set(' File ', tooltip=filename)
-self._source_indicator_set(' USB ', color=color, tooltip=str(self._device))
 
-self._on_data_update
-
-    def _waveform_cfg_apply(self, previous_cfg=None):
-        pass  # todo self.oscilloscope_widget.config_apply(self._cmdp)
-
-    def _gpio_cfg_apply(self, previous_cfg=None):
-        self.gpio_widget.update(self._cmdp)
-        if not hasattr(self._device, 'parameter_set'):
-            return
-        if previous_cfg is None:
-            previous_cfg = {}
-        previous_gpio_cfg = previous_cfg.get('GPIO', {})
-
-        for key, value in self._cmdp.items(prefix='GPIO/'):
-            previous_value = previous_gpio_cfg.get(key)
-            if previous_value != value:
-                log.info('Set %s to %s (was %s)', key, value, previous_value)
-                try:
-                    self._device.parameter_set(key.split('/')[-1], value)
-                except Exception:
-                    log.exception('during parameter_set')
-                    self.status('Parameter set %s failed, value=%s' % (key, value))
-                    self._device_recover()
-
-    @QtCore.Slot(object)
-    def _on_gpio_cfg_change(self, gpio_state):
-        pass
-        #previous_cfg = copy.deepcopy(self._cfg)
-        #dict_update_recursive(self._cfg['GPIO'], gpio_state)
-        #save_config(self._cfg)
-        #self._gpio_cfg_apply(previous_cfg)
+# --- oscilloscope widget commands
 
 
-'Device/#state/play
+# --- main.py
+
+self.disable_floating()
+self.adjustSize()
+self.center()
+self.center_and_resize(0.85, 0.85)  # oscilloscope
+
 
     if self.dmm_dock_widget.isVisible() and not self.control_dock_widget.isVisible():
         self._multimeter_configure_device()
@@ -60,24 +31,6 @@ self._on_data_update
             # self._on_param_change('i_range', value='auto')
 
     self._multimeter_select_device()
-
-self._cmdp.publish('Device/_state/source', 'USB')
-
-        self.control_ui.playButton.setChecked(True)
-        self.control_ui.recordButton.setEnabled(True)
-        self.control_ui.iRangeComboBox.setEnabled(True)
-        self.control_ui.vRangeComboBox.setEnabled(True)
-
-
-'Device/#state/sampling_frequency' =>
-        self.oscilloscope_widget.set_sampling_frequency(self._device.sampling_frequency)
-
-
-        self.control_ui.playButton.setChecked(False)
-        self.control_ui.recordButton.setChecked(False)
-        self.control_ui.recordButton.setEnabled(False)
-        self.control_ui.iRangeComboBox.setEnabled(False)
-        self.control_ui.vRangeComboBox.setEnabled(False)
 
 
     def _device_cfg_apply(self, previous_cfg=None, do_open=False):

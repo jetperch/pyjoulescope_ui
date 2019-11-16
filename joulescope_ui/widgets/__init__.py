@@ -33,8 +33,14 @@ WIDGETS = [
 def widget_register(cmdp):
     widgets = {}
     cmdp.define('Widgets/', 'Widget settings.')
+    cmdp.define('Widgets/active', 'The Widgets active in this profile.', dtype='obj', default=[])
+    cmdp.define('Widgets/#enum',
+                brief='Map of widget name to widget definition',
+                dtype=object,
+                default_profile_only=True)
 
     for widget in WIDGETS:
         r = widget.widget_register(cmdp)
         widgets[r['name']] = r
+    cmdp['Widgets/#enum'] = widgets
     return widgets

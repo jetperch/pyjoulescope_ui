@@ -129,6 +129,35 @@ class DeviceDisable:
         pass
 
 
+class MyDockWidget(QtWidgets.QDockWidget):
+
+    def __init__(self, parent, widget_def, cmdp):
+        self.name = widget_def['name']
+        log.info('MyDockWidget(%s)', self.name)
+        QtWidgets.QDockWidget.__init__(self, self.name, parent)
+        self._parent = parent
+        self.widget_def = widget_def
+
+        self.inner_widget = widget_def['class'](self, cmdp)
+        location = widget_def.get('location', QtCore.Qt.RightDockWidgetArea)
+        self.setWidget(self.inner_widget)
+        self.setVisible(False)
+        parent.addDockWidget(location, self)
+
+    def __str__(self):
+        return f'MyDockWidget({self.name})'
+
+    def closeEvent(self, event):
+        log.info('MyDockWidget.closeEvent for %s', self.widget_def['name'])
+        if self.widget_def.get('singleton', False):
+            self.widget_def['action'].setChecked(False)
+        else:
+            self.widget_def = None
+            self.inner_widget = None
+            self.deleteLater()
+        QtWidgets.QDockWidget.closeEvent(self, event)
+
+
 class MainWindow(QtWidgets.QMainWindow):
     on_deviceNotifySignal = QtCore.Signal(object, object)
     _deviceOpenRequestSignal = QtCore.Signal(object)
@@ -167,7 +196,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self._progress_dialog = None
 
         self._cmdp = cmdp
-        self._path = self._cmdp['General/data_path']
         self._plugins = PluginManager(self._cmdp)
         self._cmdp.publish('Plugins/#registered', self._plugins)
 
@@ -189,17 +217,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self._widget_defs = widget_register(self._cmdp)
         self._widgets = []
-
-        for widget_def in self._widget_defs.values():
-            name = widget_def['name']
-            if widget_def.get('singleton', False):
-                w = self._widget_create(name)
-                self.ui.menuView.addAction(w.toggleViewAction())  # todo must feed through command
-            else:
-                name = widget_def['name']
-                action = self.ui.menuView.addAction(name)  # todo must feed through command
-                action.triggered.connect(self._widget_menu_item_callback_factory(name))
-                widget_def['action'] = action
+        self._view_menu()
 
         self._cmdp.subscribe('Device/#state/source', self._device_state_source)
         self._cmdp.subscribe('Device/#state/sample_drop_color', self._device_state_color)
@@ -264,6 +282,47 @@ class MainWindow(QtWidgets.QMainWindow):
         self._device_close()
 
     @property
+    def _path(self):
+        path = self._cmdp['General/data_path']
+        if not os.path.isdir(path):
+            os.makedirs(path, exist_ok=True)
+        return path
+
+    def _view_menu(self):
+        active_names = [x['name'] for x in self._cmdp['Widgets/active']]
+        menu = self.ui.menuView
+        menu.clear()
+        # todo populate profiles
+        menu.addSeparator()
+        for widget_def in self._widget_defs.values():
+            self._widget_view_menu_factory(menu, widget_def)
+
+    def _widget_view_menu_factory(self, menu, widget_def):
+        name = widget_def['name']
+        action = menu.addAction(name)
+        widget_def['action'] = action
+        if widget_def.get('singleton', False):
+            action.setCheckable(True)
+            widget_def['dock_widget'] = self._widget_create(name)
+
+            def menu_fn(checked):
+                if checked:
+                    widget_def['dock_widget'].setVisible(True)
+                    widget_def['dock_widget'].show()
+                else:
+                    widget_def['dock_widget'].close()
+
+            action.toggled.connect(menu_fn)
+
+        else:
+
+            def menu_fn(checked):
+                dock_widget = self._widget_create(name)
+                dock_widget.setVisible(True)
+
+            action.triggered.connect(menu_fn)
+
+    @property
     def _is_streaming(self):
         return self._streaming_status is not None
 
@@ -283,22 +342,23 @@ class MainWindow(QtWidgets.QMainWindow):
         log.debug('Qt show() success')
         self._device_scan()
 
-    def _widget_create(self, name, visible=False):
-        dock_widget = QtWidgets.QDockWidget(name, self)
-        log.info('_widget_create(%s)', name)
-        widget_def = self._widget_defs[name]
-        w = widget_def['class'](self, self._cmdp)
-        location = widget_def.get('location', QtCore.Qt.RightDockWidgetArea)
-        dock_widget.setWidget(w)
-        self.addDockWidget(location, dock_widget)
-        self._widgets.append((dock_widget, w, widget_def))
-        dock_widget.setVisible(visible)
+    def _widget_create(self, name):
+        dock_widget = MyDockWidget(self, self._widget_defs[name], self._cmdp)
+        self._widgets.append(dock_widget)
         return dock_widget
 
-    def _widget_menu_item_callback_factory(self, name):
-        def fn(checked):
-            self._widget_create(name, visible=True)
-        return fn
+    def widget_remove(self, dock_widget):
+        if dock_widget.widget_def.get('singleton', False):
+            dock_widget.setVisible(False)
+        else:
+            log.info('widget_remove %s', dock_widget)
+            try:
+                self._widgets.remove(dock_widget)
+            except ValueError:
+                log.warning('remove widget %s not found', dock_widget)
+                return
+            self.removeDockWidget(dock_widget)
+            del dock_widget
 
     @QtCore.Slot()
     def on_statusUpdateTimer(self):

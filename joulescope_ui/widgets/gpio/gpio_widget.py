@@ -17,6 +17,7 @@ from .gpio_widget_ui import Ui_GpioWidget
 from joulescope_ui.preferences import options_enum, to_bool
 from joulescope_ui.ui_util import comboBoxConfig, comboBoxSelectItemByText
 import numpy as np
+import weakref
 
 
 VOLTAGES = ['1.8V', '2.1V', '2.5V', '2.7V', '3.0V', '3.3V', '5.0V']
@@ -35,15 +36,14 @@ class GpioWidget(QtWidgets.QWidget):
         self._inputs = [('current_lsb', self.ui.input0CheckBox, self.ui.input0Label),
                         ('voltage_lsb', self.ui.input1CheckBox, self.ui.input1Label)]
 
-        self._context = self._cmdp.context()
         self.init()
-        with self._context as c:
-            c.subscribe('DataView/#data', self._on_device_state_data, update_now=True)
-            c.subscribe('Device/parameter/io_voltage', self._on_io_voltage, update_now=True)
-            c.subscribe('Device/parameter/current_lsb', self._on_current_lsb, update_now=True)
-            c.subscribe('Device/parameter/voltage_lsb', self._on_voltage_lsb, update_now=True)
-            c.subscribe('Device/parameter/gpo0', self._on_gpo0, update_now=True)
-            c.subscribe('Device/parameter/gpo1', self._on_gpo1, update_now=True)
+        wref = weakref.WeakMethod
+        cmdp.subscribe('DataView/#data', wref(self._on_device_state_data), update_now=True)
+        cmdp.subscribe('Device/parameter/io_voltage', wref(self._on_io_voltage), update_now=True)
+        cmdp.subscribe('Device/parameter/current_lsb', wref(self._on_current_lsb), update_now=True)
+        cmdp.subscribe('Device/parameter/voltage_lsb', wref(self._on_voltage_lsb), update_now=True)
+        cmdp.subscribe('Device/parameter/gpo0', wref(self._on_gpo0), update_now=True)
+        cmdp.subscribe('Device/parameter/gpo1', wref(self._on_gpo1), update_now=True)
 
     def init(self):
         io_voltages = options_enum(self._cmdp.preferences.definition_options('Device/parameter/io_voltage'))

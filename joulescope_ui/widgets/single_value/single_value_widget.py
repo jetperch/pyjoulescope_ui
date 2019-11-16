@@ -14,6 +14,7 @@
 
 from PySide2 import QtCore, QtGui, QtWidgets
 import numpy as np
+import weakref
 from joulescope_ui import joulescope_rc
 from joulescope.units import unit_prefix
 import logging
@@ -92,7 +93,7 @@ class SingleValueWidget(QtWidgets.QWidget):
         self.horizontalLayout.addWidget(self.value_widget)
 
         self.retranslateUi()
-        self._cmdp.subscribe('Device/#state/statistics', self._on_device_statistics)
+        self._cmdp.subscribe('Device/#state/statistics', weakref.WeakMethod(self._on_device_statistics))
 
     def _font_size_delta(self, delta=None):
         delta = 0 if delta is None else int(delta)

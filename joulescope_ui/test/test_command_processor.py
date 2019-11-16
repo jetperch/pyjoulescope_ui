@@ -19,6 +19,7 @@ Test the command processor
 import unittest
 from joulescope_ui.command_processor import CommandProcessor, Preferences, BASE_PROFILE
 from joulescope_ui import paths
+import weakref
 import os
 
 
@@ -286,3 +287,16 @@ class TestCommandProcessor(unittest.TestCase):
         self.c.invoke('!undo')
         self.c.invoke('!undo')
         self.assert_commands([('a', 'default')])
+
+    def test_weakref_support(self):
+        calls = []
+        fn = lambda topic, value: calls.append(value)
+        self.c.preferences.define('a', default='default')
+        self.c.subscribe('a', weakref.ref(fn))
+        self.c['a'] = '1'
+        self.assertEqual(['1'], calls)
+        del fn
+        self.c['a'] = '2'
+        self.assertEqual(['1'], calls)
+
+

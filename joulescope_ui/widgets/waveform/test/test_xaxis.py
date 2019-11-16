@@ -17,7 +17,7 @@ Test the preferences
 """
 
 import unittest
-from joulescope_ui.widgets.waveform import int_to_alpha
+from joulescope_ui.widgets.waveform.xaxis import int_to_alpha
 
 
 class TestXAxis(unittest.TestCase):

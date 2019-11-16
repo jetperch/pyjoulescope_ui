@@ -49,9 +49,9 @@ class ScrollBar(pg.ViewBox):
         self.addItem(self._region)
         self._label = pg.TextItem(html='<div><span style="color: #FFF;">Time (seconds)</span></div>', anchor=(0.5, 0.5))
         self.addItem(self._label, ignoreBounds=True)
-        self._context = cmdp.context()
-        with self._context as c:
-            c.subscribe('Device/#state/sampling_frequency', self._on_device_state_sampling_frequency, update_now=True)
+        self._cmdp.subscribe('Device/#state/sampling_frequency',
+                             weakref.WeakMethod(self._on_device_state_sampling_frequency),
+                             update_now=True)
 
     def set_xview(self, x_min, x_max):
         self._region.setRegion([x_min, x_max])

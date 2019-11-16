@@ -51,8 +51,23 @@ def find_qt_rcc():
     raise ValueError('qt rcc not found')
 
 
+
+
 def convert_qt_ui():
+    # ugly monkeypatch to get: from joulescope_ui import joulescope_rc
+    import pyside2uic
+
+    def write_import(module_name, from_imports):
+        if isinstance(from_imports, str):
+            pyside2uic.compiler.write_code("from %s import %s" % (from_imports, module_name))
+        elif from_imports:
+            pyside2uic.compiler.write_code("from . import %s" % module_name)
+        else:
+            pyside2uic.compiler.write_code("import %s" % module_name)
+
+    pyside2uic.compiler.write_import = write_import
     from pyside2uic import compileUi
+
     rcc_path = find_qt_rcc()
     path = os.path.join(MYPATH, 'joulescope_ui')
     ignore_filename = os.path.join(path, '.gitignore')
@@ -66,7 +81,7 @@ def convert_qt_ui():
                     target = source_base + '.py'
                     with open(os.path.join(path, source), 'rt', encoding='utf8') as fsource:
                         with open(os.path.join(path, target), 'wt', encoding='utf8') as ftarget:
-                            compileUi(fsource, ftarget, execute=False, indent=4, from_imports=False)
+                            compileUi(fsource, ftarget, execute=False, indent=4, from_imports='joulescope_ui')
                 elif ext == '.qrc':
                     target = source_base + '_rc.py'
                     rc = subprocess.run([rcc_path, os.path.join(path, source), '-o', os.path.join(path, target)])

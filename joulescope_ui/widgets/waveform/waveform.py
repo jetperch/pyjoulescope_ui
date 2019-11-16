@@ -21,6 +21,7 @@ from .settings_widget import SettingsWidget
 import pyqtgraph as pg
 import copy
 import logging
+import weakref
 
 
 log = logging.getLogger(__name__)
@@ -80,22 +81,22 @@ class WaveformWidget(QtWidgets.QWidget):
         self.set_xlimits(0.0, 30.0)
         self.set_xview(25.0, 30.0)
 
-        self._context = self._cmdp.context()
-        with self._context as c:
-            c.subscribe('DataView/#data', self._on_data)
-            c.subscribe('Device/#state/source', self._on_device_state_source)
-            c.subscribe('Device/#state/play', self._on_device_state_play)
-            c.subscribe('Device/#state/name', self._on_device_state_name)
-            c.subscribe('Widgets/Waveform/Markers/_state/instances/', self._on_marker_instance_change)
-            c.subscribe('Widgets/Waveform/#requests/refresh_markers', self._on_refresh_markers)
-            c.subscribe('Widgets/Waveform/#statistics_over_range_resp', self._on_statics_over_range_resp)
-            c.subscribe('Device/#state/x_limits', self._on_device_state_limits)
-            c.register('!Widgets/Waveform/Signals/add', self._cmd_waveform_signals_add,
-                       brief='Add a signal to the waveform.',
-                       detail='value is list of signal name string and position. -1 inserts at end')
-            c.register('!Widgets/Waveform/Signals/remove', self._cmd_waveform_signals_remove,
-                       brief='Remove a signal from the waveform by name.',
-                       detail='value is signal name string.')
+        c = self._cmdp
+        wref = weakref.WeakMethod
+        c.subscribe('DataView/#data', wref(self._on_data))
+        c.subscribe('Device/#state/source', wref(self._on_device_state_source))
+        c.subscribe('Device/#state/play', wref(self._on_device_state_play))
+        c.subscribe('Device/#state/name', wref(self._on_device_state_name))
+        c.subscribe('Widgets/Waveform/Markers/_state/instances/', wref(self._on_marker_instance_change))
+        c.subscribe('Widgets/Waveform/#requests/refresh_markers', wref(self._on_refresh_markers))
+        c.subscribe('Widgets/Waveform/#statistics_over_range_resp', wref(self._on_statics_over_range_resp))
+        c.subscribe('Device/#state/x_limits', wref(self._on_device_state_limits))
+        c.register('!Widgets/Waveform/Signals/add', self._cmd_waveform_signals_add,
+                   brief='Add a signal to the waveform.',
+                   detail='value is list of signal name string and position. -1 inserts at end')
+        c.register('!Widgets/Waveform/Signals/remove', self._cmd_waveform_signals_remove,
+                   brief='Remove a signal from the waveform by name.',
+                   detail='value is signal name string.')
 
     def _cmd_waveform_signals_add(self, topic, value):
         name, index = value

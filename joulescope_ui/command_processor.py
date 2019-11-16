@@ -18,6 +18,7 @@ Implement the "Command" pattern for the Joulescope UI.
 
 from PySide2 import QtCore
 import logging
+import weakref
 from joulescope_ui.preferences import Preferences, BASE_PROFILE
 
 
@@ -210,6 +211,8 @@ class CommandProcessor(QtCore.QObject):
             are wildcards that match all subtopics.
         :param update_fn: The callable(topic, data) that will be called
             whenever topic is published.  The return value is ignored.
+            Note that update_fn can be a weakref.ref (use weakref.WeakMethod
+            on methods)
         :param update_now: When True, call update_fn with the current
             value for all matching topics.  Any commands (topics that
             start with "!") will not match since they do not have
@@ -224,9 +227,9 @@ class CommandProcessor(QtCore.QObject):
                 return
             elif topic[-1] == '/':
                 for t, v in self.preferences.items(prefix=topic):
-                    update_fn(t, v)
+                    self._subscriber_call(update_fn, t, v)
             else:
-                update_fn(topic, self.preferences[topic])
+                self._subscriber_call(update_fn, topic, self.preferences[topic])
 
     def unsubscribe(self, topic, update_fn):
         """Unsubscribe from a topic.
@@ -242,21 +245,27 @@ class CommandProcessor(QtCore.QObject):
             return False
         return True
 
+    def _subscriber_call(self, subscriber, topic, value):
+        try:
+            if isinstance(subscriber, weakref.ReferenceType):
+                fn = subscriber()
+                if fn is None:
+                    self.unsubscribe(topic, subscriber)
+                    return
+                subscriber = fn
+            subscriber(topic, value)
+        except:
+            log.exception('subscriber error for topic=%s, value=%s', topic, value)
+
     def _subscriber_update(self, topic, value):
-        for subscriber in self._subscribers.get(topic, []):
-            try:
-                subscriber(topic, value)
-            except:
-                log.exception('subscriber error for topic=%s, value=%s', topic, value)
+        for subscriber in list(self._subscribers.get(topic, [])):
+            self._subscriber_call(subscriber, topic, value)
         subscriber_parts = topic.split('/')
         while len(subscriber_parts):
             subscriber_parts[-1] = ''
             n = '/'.join(subscriber_parts)
-            for subscriber in self._subscribers.get(n, []):
-                try:
-                    subscriber(topic, value)
-                except:
-                    log.exception('subscriber error for topic=%s, value=%s', topic, value)
+            for subscriber in list(self._subscribers.get(n, [])):
+                self._subscriber_call(subscriber, topic, value)
             subscriber_parts.pop()
 
     def _preferences_bulk_update(self, profile_name=None, flat_old=None):
@@ -420,6 +429,11 @@ class CommandProcessor(QtCore.QObject):
         """Return a context for automatically unsubscribing / unregistering on delete.
 
         :return: The context object which supports subscribe and register.
+
+        Note that callbacks maintain references, which can prevent an object
+        from being deleted.  This class supports weakref subscriber update_fn
+        which are automatically unsubscribed when the weakref is no longer
+        valid.  When possible, prefer weakrefs to a manually managed context.
         """
         return _CommandProcessorContext(self)
 
@@ -437,10 +451,14 @@ class _CommandProcessorContext:
         pass
 
     def __del__(self):
-        for fn in self._fn:
-            fn()
-        self._fn = None
-        self._cmdp = None
+        self.close()
+
+    def close(self):
+        if self._fn is not None:
+            for fn in self._fn:
+                fn()
+            self._fn = None
+            self._cmdp = None
 
     def subscribe(self, topic, update_fn, update_now=False):
         self._cmdp.subscribe(topic, update_fn, update_now)

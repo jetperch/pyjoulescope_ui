@@ -28,6 +28,7 @@ from joulescope_ui.ui_util import comboBoxConfig
 from joulescope_ui.preferences import options_enum, BASE_PROFILE
 from PySide2 import QtCore, QtWidgets, QtGui
 import logging
+import weakref
 
 
 log = logging.getLogger(__name__)
@@ -44,6 +45,8 @@ class PreferencesDialog(QtWidgets.QDialog):
         self._cmdp = cmdp
         self.ui = Ui_PreferencesDialog()
         self.ui.setupUi(self)
+
+        print(self._cmdp['Widgets/#enum'])
 
         self._definitions = self._cmdp.preferences.definitions
         if self._definitions['name'] != '/':
@@ -72,10 +75,8 @@ class PreferencesDialog(QtWidgets.QDialog):
         self.ui.cancelButton.pressed.connect(self.reject)
         self.ui.resetButton.pressed.connect(self.preferences_reset)
 
-        self._context = self._cmdp.context()
-        with self._context as c:
-            c.subscribe('!preferences/profile/add', self._on_profile_add)
-            c.subscribe('!preferences/profile/remove', self._on_profile_remove)
+        self._cmdp.subscribe('!preferences/profile/add', weakref.WeakMethod(self._on_profile_add))
+        self._cmdp.subscribe('!preferences/profile/remove', weakref.WeakMethod(self._on_profile_remove))
 
     def _on_profile_combo_box_change(self, index):
         profile = self.ui.profileComboBox.currentText()

@@ -17,6 +17,7 @@ from PySide2 import QtWidgets, QtCore
 from .developer_widget_ui import Ui_DeveloperWidget
 from joulescope.units import unit_prefix, three_sig_figs
 import logging
+import weakref
 
 
 log = logging.getLogger(__name__)
@@ -31,10 +32,7 @@ class DeveloperWidget(QtWidgets.QWidget):
         self._ui.setupUi(self)
         self._status = {}
         self._status_row = 0
-        cmdp.subscribe('Device/#state/status', self._on_device_state_status)
-
-    def __del__(self):
-        self._cmdp.unsubscribe('Device/#state/status', self._on_device_state_status)
+        cmdp.subscribe('Device/#state/status', weakref.WeakMethod(self._on_device_state_status))
 
     def _status_clean(self):
         for key, (w1, w2, w3) in self._status.items():
