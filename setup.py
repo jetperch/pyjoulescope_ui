@@ -51,8 +51,6 @@ def find_qt_rcc():
     raise ValueError('qt rcc not found')
 
 
-
-
 def convert_qt_ui():
     # ugly monkeypatch to get: from joulescope_ui import joulescope_rc
     import pyside2uic

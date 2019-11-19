@@ -93,7 +93,8 @@ class SingleValueWidget(QtWidgets.QWidget):
         self.horizontalLayout.addWidget(self.value_widget)
 
         self.retranslateUi()
-        self._cmdp.subscribe('Device/#state/statistics', weakref.WeakMethod(self._on_device_statistics))
+        self._cmdp.subscribe('Device/#state/statistics', weakref.WeakMethod(self._on_device_statistics),
+                             update_now=True)
 
     def _font_size_delta(self, delta=None):
         delta = 0 if delta is None else int(delta)

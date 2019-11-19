@@ -70,7 +70,8 @@ class MeterWidget(QtWidgets.QWidget):
         self.sizePolicy.setVerticalStretch(0)
         self.setSizePolicy(self.sizePolicy)
         self.retranslateUi()
-        self._cmdp.subscribe('Device/#state/statistics', weakref.WeakMethod(self._on_device_statistics))
+        self._cmdp.subscribe('Device/#state/statistics', weakref.WeakMethod(self._on_device_statistics),
+                             update_now=True)
 
     @QtCore.Slot(bool)
     def on_accumulate_toggled(self, checked):

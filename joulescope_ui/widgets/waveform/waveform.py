@@ -83,14 +83,16 @@ class WaveformWidget(QtWidgets.QWidget):
 
         c = self._cmdp
         wref = weakref.WeakMethod
-        c.subscribe('DataView/#data', wref(self._on_data))
-        c.subscribe('Device/#state/source', wref(self._on_device_state_source))
-        c.subscribe('Device/#state/play', wref(self._on_device_state_play))
-        c.subscribe('Device/#state/name', wref(self._on_device_state_name))
-        c.subscribe('Widgets/Waveform/Markers/_state/instances/', wref(self._on_marker_instance_change))
-        c.subscribe('Widgets/Waveform/#requests/refresh_markers', wref(self._on_refresh_markers))
-        c.subscribe('Widgets/Waveform/#statistics_over_range_resp', wref(self._on_statics_over_range_resp))
-        c.subscribe('Device/#state/x_limits', wref(self._on_device_state_limits))
+        c.subscribe('DataView/#data', wref(self._on_data), update_now=True)
+        c.subscribe('Device/#state/source', wref(self._on_device_state_source), update_now=True)
+        c.subscribe('Device/#state/play', wref(self._on_device_state_play), update_now=True)
+        c.subscribe('Device/#state/name', wref(self._on_device_state_name), update_now=True)
+        c.subscribe('Widgets/Waveform/Markers/_state/instances/', wref(self._on_marker_instance_change),
+                    update_now=True)
+        c.subscribe('Widgets/Waveform/#requests/refresh_markers', wref(self._on_refresh_markers), update_now=True)
+        c.subscribe('Widgets/Waveform/#statistics_over_range_resp', wref(self._on_statics_over_range_resp),
+                    update_now=True)
+        c.subscribe('Device/#state/x_limits', wref(self._on_device_state_limits), update_now=True)
         c.register('!Widgets/Waveform/Signals/add', self._cmd_waveform_signals_add,
                    brief='Add a signal to the waveform.',
                    detail='value is list of signal name string and position. -1 inserts at end')

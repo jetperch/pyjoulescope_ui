@@ -155,8 +155,12 @@ class CommandProcessor(QtCore.QObject):
             rv = self._topic[topic]['execute_fn'](topic, data)
             if rv is None or rv[0] is None:
                 return
+            if isinstance(rv[0], str):
+                undos = (topic, data), rv
+            else:
+                undos = rv
             self._redos.clear()
-            self._undos.append(((topic, data), rv))
+            self._undos.append(undos)
         else:
             if '#' not in topic:
                 try:
@@ -389,9 +393,12 @@ class CommandProcessor(QtCore.QObject):
             and use "/" to create a hierarchical names, such as
             "!widget/marker/add".  Topics that do not start with "!" are presumed
              to be associated with a preference topic.
-        :param execute_fn: The callable(topic, data) -> (topic, data) that executes
-            the command and returns the undo command and data.  If the callable returns
-            None or (None, object), then no undo operation will be registered.
+        :param execute_fn: The callable(topic, data) -> (undo_topic, undo_data)
+            that executes the command and returns the undo command and undo
+            data.  If the callable returns None or (None, object), then no undo
+            operation will be registered.  The callable can optionally override
+            the original command for future redos by returning
+            ((redo_topic, redo_data), (undo_topic, undo_data)).
         :param validate_fn: The optional callable(data) that validates the data.
             Returns the validate data on success, which may be different from the
               input data.  Throw an exception on failure.

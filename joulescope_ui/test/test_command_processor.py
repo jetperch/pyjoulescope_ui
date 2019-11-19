@@ -85,6 +85,19 @@ class TestCommandProcessor(unittest.TestCase):
         self.assertEqual(['!my/command'], c.undos)
         self.assertEqual([], c.redos)
 
+    def test_undo_redo_rewrite(self):
+        def fn(topic, value):
+            self.commands.append((topic, value))
+            return ('!c1', value + 'a'), ('!c2', 'v2')
+        c = self.c
+        c.register('!c1', self.execute_ignore)
+        c.register('!c2', self.execute_ignore)
+        c.register('!c0', fn)
+        c.invoke('!c0', 'v1')
+        c.invoke('!undo')
+        c.invoke('!redo')
+        self.assertEqual([('!c0', 'v1'), ('!c2', 'v2'), ('!c1', 'v1a')], self.commands)
+
     def test_undo_then_command_erases_redo(self):
         c = self.c
         c.register('!my/command', self.execute_undo_and_record)
