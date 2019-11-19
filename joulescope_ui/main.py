@@ -129,6 +129,18 @@ class DeviceDisable:
         pass
 
 
+def dock_widget_parse_str(s):
+    if not isinstance(s, str):
+        raise ValueError('dock_widget_parse_str value %s' % (s, ))
+    parts = s.split(':')
+    if len(parts) == 1:
+        return parts[0], None
+    elif len(parts) == 2:
+        return parts
+    else:
+        raise ValueError('Unsupported value %s', s)
+
+
 class MyDockWidget(QtWidgets.QDockWidget):
     _next_instance_id = 1
 
@@ -152,7 +164,7 @@ class MyDockWidget(QtWidgets.QDockWidget):
         parent.addDockWidget(location, self)
 
     def __str__(self):
-        return f'MyDockWidget({self.name}/{self.instance_id})'
+        return f'{self.name}:{self.instance_id}'
 
     def dock_widget_close(self):
         self.setVisible(False)
@@ -167,7 +179,7 @@ class MyDockWidget(QtWidgets.QDockWidget):
     def closeEvent(self, event):
         if self.isVisible():
             log.info('MyDockWidget.closeEvent for %s', self.widget_def['name'])
-            self._cmdp.invoke('!Widgets/remove', (self.name, self.instance_id))
+            self._cmdp.invoke('!Widgets/remove', str(self))
             event.ignore()
         else:
             QtWidgets.QDockWidget.closeEvent(self, event)
@@ -365,10 +377,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._device_scan()
 
     def _widgets_add(self, topic, value):
-        if isinstance(value, str):
-            name, instance_id = value, None
-        else:
-            name, instance_id = value
+        name, instance_id = dock_widget_parse_str(value)
         if name not in self._widget_defs:
             log.warning('_widgets_add(%s) not found', name)
             return
@@ -388,16 +397,12 @@ class MainWindow(QtWidgets.QMainWindow):
         dock_widget.setVisible(True)
         dock_widget.show()
         self._widgets.append(dock_widget)
-        cmd_value = dock_widget.name, dock_widget.instance_id
-        return (topic, cmd_value), ('!Widgets/remove', cmd_value)
+        return (topic, str(dock_widget)), ('!Widgets/remove', str(dock_widget))
 
     def _widgets_remove(self, topic, value):
-        if isinstance(value, str):
-            name = value
-            widgets = [w for w in self._widgets if w.name == name]
-        else:
-            name, instance_id = value
-            widgets = [w for w in self._widgets if w.name == name and w.instance_id == instance_id]
+        name, instance_id = dock_widget_parse_str(value)
+        v = f'{name}:{instance_id}'
+        widgets = [w for w in self._widgets if str(w) == v]
         if len(widgets) == 0:
             log.warning('_widgets_remove(%s) not found', value)
             return
@@ -419,8 +424,7 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             log.info('remove widget %s', name)
             dock_widget.close()
-        cmd_value = name, instance_id
-        return (topic, cmd_value), ('!Widgets/add', cmd_value)  # should also restore state
+        return (topic, str(dock_widget)), ('!Widgets/add', str(dock_widget))  # should also restore state
 
     @QtCore.Slot()
     def on_statusUpdateTimer(self):
