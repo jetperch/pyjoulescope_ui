@@ -174,7 +174,7 @@ class MeterValueWidget(QtWidgets.QWidget):
             if np.isfinite(v_min) and np.isfinite(v_max):
                 self.v_min = min(self.v_min, v_min)
                 self.v_max = max(self.v_max, v_max)
-                self.v_p2p = max(self.v_p2p, self.v_p2p)
+                self.v_p2p = self.v_max - self.v_min
 
             if np.isfinite(mean) and np.isfinite(variance):
                 self._accum_count += 1
