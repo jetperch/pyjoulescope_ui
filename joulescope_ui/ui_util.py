@@ -37,22 +37,14 @@ def comboBoxConfig(comboBox, values, default=None):
         currentValue = str(comboBox.currentText())
         if currentValue in values:
             default = currentValue
-    d1 = set(values)
-    d0 = set([str(comboBox.itemText(idx)) for idx in range(comboBox.count())])
-    deleted = d0 - d1
-    added = [x for x in values if x not in d0]  # keep ordered
-    for value in deleted:
-        idx = comboBox.findText(value)
-        comboBox.removeItem(idx)
-    for value in added:
+
+    block_state = comboBox.blockSignals(True)
+    comboBox.clear()
+    for value in values:
         comboBox.addItem(value)
-    if default:
-        default = str(default)
-        idx = comboBox.findText(default)
-        if idx < 0:
-            log.warning('Could not find default entry')
-        elif str(comboBox.currentText()) != default:
-            comboBox.setCurrentIndex(idx)
+        if value == default:
+            comboBox.setCurrentIndex(comboBox.count() - 1)
+    comboBox.blockSignals(block_state)
     return str(comboBox.currentText())
 
 

@@ -38,6 +38,7 @@ from joulescope_ui.plugin_manager import PluginManager
 from joulescope_ui.exporter import Exporter
 from joulescope_ui.command_processor import CommandProcessor
 from joulescope_ui.preferences_def import preferences_def
+from joulescope_ui.preferences_defaults import defaults as preference_defaults
 import io
 import ctypes
 import collections
@@ -209,6 +210,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self._fps_limit_timer.setSingleShot(True)
         self._fps_limit_timer.timeout.connect(self.on_fpsTimer)
 
+        self._profile_actions = []
+        self._profile_action_group = None
+
         self._parameters = {}
         self._data_view = None  # created when device is opened
         self._recording = None  # created to record stream to JLS file
@@ -235,16 +239,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.central_widget.setMaximumWidth(1)
         self.setCentralWidget(self.central_widget)
 
-        # todo convert multimeter and oscilloscope into profiles, allow other profiles
-        self.ui.menuView.addSeparator()
-
         self.on_deviceNotifySignal.connect(self.device_notify)
         self._deviceOpenRequestSignal.connect(self.on_deviceOpen, type=QtCore.Qt.QueuedConnection)
         self._deviceScanRequestSignal.connect(self.on_deviceScan, type=QtCore.Qt.QueuedConnection)
 
         self._widget_defs = widget_register(self._cmdp)
         self._widgets = []
-        self.state_defaults()
+        preference_defaults(self._cmdp.preferences)
         self._view_menu()
 
         self._cmdp.subscribe('Device/#state/source', self._device_state_source)
@@ -253,6 +254,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self._cmdp.subscribe('Device/#state/play', self._on_device_state_play)
         self._cmdp.subscribe('Device/#state/record', self._on_device_state_record)
         self._cmdp.subscribe('Widgets/Waveform/#requests/data_next', self._on_waveform_requests_data_next)
+        self._cmdp.subscribe('!preferences/profile/add', self._on_preferences_profile_add)
+        self._cmdp.subscribe('!preferences/profile/remove', self._on_preferences_profile_remove)
+        self._cmdp.subscribe('!preferences/profile/set', self._on_preferences_profile_set)
 
         # Main implements the DataView bindings
         self._cmdp.subscribe('DataView/#service/x_change_request', self._on_dataview_service_x_change_request)
@@ -265,10 +269,10 @@ class MainWindow(QtWidgets.QMainWindow):
                                    'x_start: The starting position, in view x-axis coordinates\n' +
                                    'x_stop: The stopping position, in view x-axis coordinates')
 
-        self._cmdp.register('!Widgets/add', self._widgets_add,
+        self._cmdp.register('!Widgets/add', self._widgets_add_cmd,
                             brief='Add a main window widget',
                             detail='The value is the widget name.')
-        self._cmdp.register('!Widgets/remove', self._widgets_remove,
+        self._cmdp.register('!Widgets/remove', self._widgets_remove_cmd,
                             brief='Remove a main window widget',
                             detail='The value is the widget or widget name string.')
 
@@ -333,11 +337,43 @@ class MainWindow(QtWidgets.QMainWindow):
             os.makedirs(path, exist_ok=True)
         return path
 
+    def _profile_view_menu_factory(self, profile):
+
+        def menu_fn(checked):
+            if checked:
+                self._cmdp.invoke('!preferences/profile/set', profile)
+
+        return menu_fn
+
+    def _on_preferences_profile_set(self, topic, value):
+        self.state_restore()
+
+    def _on_preferences_profile_add(self, topic, value):
+        self._view_menu()
+
+    def _on_preferences_profile_remove(self, topic, value):
+        self._view_menu()
+
     def _view_menu(self):
+        self._profile_action_group = None
+        self._profile_actions = []
         menu = self.ui.menuView
         menu.clear()
-        # todo populate profiles
-        menu.addSeparator()
+
+        self._profile_action_group = QtWidgets.QActionGroup(self.ui.menuView)
+        self._profile_action_group.setExclusive(True)
+        for profile in sorted(self._cmdp.preferences.profiles):
+            if profile == 'defaults':
+                continue
+            action = self.ui.menuView.addAction(profile)
+            action.setCheckable(True)
+            self._profile_action_group.addAction(action)
+            if profile == self._cmdp.preferences.profile:
+                action.setChecked(True)
+            action.triggered.connect(self._profile_view_menu_factory(profile))
+            self._profile_actions.append(action)
+
+        self._profile_menu_separator = menu.addSeparator()
         for widget_def in self._widget_defs.values():
             self._widget_view_menu_factory(menu, widget_def)
 
@@ -379,8 +415,16 @@ class MainWindow(QtWidgets.QMainWindow):
         log.debug('Qt show() success')
         self._device_scan()
 
-    def _widgets_add(self, topic, value):
-        name, instance_id = dock_widget_parse_str(value)
+    def _widgets_add_cmd(self, topic, value):
+        dock_widget = self._widgets_add(value)
+        return (topic, str(dock_widget)), ('!Widgets/remove', str(dock_widget))
+
+    def _widgets_remove_cmd(self, topic, value):
+        dock_widget = self._widgets_remove(value)
+        return (topic, str(dock_widget)), ('!Widgets/add', str(dock_widget))  # should also restore state
+
+    def _widgets_add(self, widget_str):
+        name, instance_id = dock_widget_parse_str(widget_str)
         if name not in self._widget_defs:
             log.warning('_widgets_add(%s) not found', name)
             return
@@ -400,17 +444,19 @@ class MainWindow(QtWidgets.QMainWindow):
         dock_widget.setVisible(True)
         dock_widget.show()
         self._widgets.append(dock_widget)
-        return (topic, str(dock_widget)), ('!Widgets/remove', str(dock_widget))
+        return dock_widget
 
-    def _widgets_remove(self, topic, value):
-        name, instance_id = dock_widget_parse_str(value)
+    def _widgets_get(self, widget_str):
+        name, instance_id = dock_widget_parse_str(widget_str)
         v = f'{name}:{instance_id}'
         widgets = [w for w in self._widgets if str(w) == v]
         if len(widgets) == 0:
-            log.warning('_widgets_remove(%s) not found', value)
-            return
-        dock_widget = widgets[-1]  # most recently added, in case of multiple
-        instance_id = dock_widget.instance_id
+            log.warning('_widget_get(%s) not found', widget_str)
+            raise ValueError(f'widget {widget_str} not found')
+        return widgets[-1]  # most recently added, in case of multiple
+
+    def _widgets_remove(self, widget_str):
+        dock_widget = self._widgets_get(widget_str)
         dock_widget.setVisible(False)
         self._widgets.remove(dock_widget)
 
@@ -427,7 +473,7 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             log.info('remove widget %s', name)
             dock_widget.close()
-        return (topic, str(dock_widget)), ('!Widgets/add', str(dock_widget))  # should also restore state
+        return dock_widget
 
     @QtCore.Slot()
     def on_statusUpdateTimer(self):
@@ -480,6 +526,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def _on_dataview_service_x_change_request(self, topic, value):
         # DataView/#service/x_change_request
+        if value is None:
+            return
         x_min, x_max, x_count = value
         log.info('_on_dataview_service_x_change_request(%s, %s, %s)', x_min, x_max, x_count)
         if self._data_view is not None:
@@ -1008,18 +1056,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self._cmdp.publish('Device/#state/source', 'File')
         self._cmdp.publish('Device/#state/sample_drop_color', '')
 
-    def state_defaults(self):
-        p = self._cmdp.preferences
-        profiles = p.profiles
-        if 'Multimeter' not in profiles:
-            p.profile_add('Multimeter', activate=True)
-            p['Widgets/active'] = ['Multimeter']
-        if 'Oscilloscope' not in profiles:
-            p.profile_add('Oscilloscope')
-            p.set('Widgets/active', ['Control', 'Waveform'], profile='Oscilloscope')
-        if 'defaults' == p.profile:
-            p.profile = 'Multimeter'
-
     def state_save(self):
         window_state = {
             'geometry': self.saveGeometry().data(),
@@ -1034,10 +1070,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self._cmdp.preferences.save()
 
     def state_restore(self):
-        self._cmdp.invoke('!command_group/start')
+        log.debug('state_restore')
+        for widget_str in [str(w) for w in self._widgets]:
+            self._widgets_remove(widget_str)
         for widget_str in self._cmdp['Widgets/active']:
-            self._widgets_add(None, widget_str)
-        self._cmdp.invoke('!command_group/end')
+            self._widgets_add(widget_str)
         window_state = self._cmdp.preferences.get('_window')
         if window_state is not None:
             self.restoreGeometry(window_state['geometry'])
@@ -1203,6 +1240,9 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
         logging_config(file_log_level=file_log_level,
                        stream_log_level=log_level)
         logging.getLogger('joulescope').setLevel(logging.WARNING)
+        starting_profile = cmdp.preferences['General/starting_profile']
+        if starting_profile not in ['previous', 'app defaults']:
+            cmdp.preferences.profile = starting_profile
 
     except Exception:
         log.exception('during initialization')

@@ -57,6 +57,12 @@ class CommandProcessor(QtCore.QObject):
         QtCore.QObject.__init__(self, parent)
         self.preferences = Preferences(parent=self, app=app)
         self.preferences.load()
+        starting_profile = self.preferences.get('General/starting_profile', profile='default', default=None)
+        if starting_profile == 'app defaults':
+            # New instance, do not load!
+            self.preferences = Preferences(parent=self, app=app)
+            self.preferences.set('General/starting_profile', starting_profile)
+
         self._topic = {}
         self._subscribers = {}
         self._undos = []  # tuples of (do, undo), each tuples (command, data)
@@ -134,6 +140,7 @@ class CommandProcessor(QtCore.QObject):
             else:
                 self.preferences[do_topic] = do_data
             self._undos.append((do_cmd, undo_cmd))
+            self._subscriber_update(do_topic, do_data)
             if do_topic == '!command_group/start':
                 while len(self._redos):
                     (redo_topic, _), _ = self._redos[-1]
@@ -279,6 +286,8 @@ class CommandProcessor(QtCore.QObject):
             self.preferences.profile = profile_name
         flat_new = self.preferences.flatten()
         for key, value in flat_new.items():
+            if '#' in key:
+                continue
             if key not in flat_old or flat_new[key] != flat_old[key]:
                 self._subscriber_update(key, value)
         return self
@@ -379,7 +388,8 @@ class CommandProcessor(QtCore.QObject):
         :param default_profile_only: True to force this preference to exist
             in the default profile only.  False or None (default), allow
             this preference to exist in all profiles and override the default
-            profile.
+            profile.  If '#' is in the topic string, then default_profile_only
+            defaults to True.
         """
         return self.preferences.define(topic, brief=brief, detail=detail,
                                        dtype=dtype, options=options, default=default,

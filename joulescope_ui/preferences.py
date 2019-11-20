@@ -260,6 +260,8 @@ class Preferences(QtCore.QObject):
     def define(self, name, brief=None, detail=None, dtype=None, options=None, default=None,
                default_profile_only=None):
         # todo support int ranges: min, max, step
+        if '#' in name and default_profile_only is None:
+            default_profile_only = True
         if dtype is None:
             if name.endswith('/'):
                 dtype = 'container'

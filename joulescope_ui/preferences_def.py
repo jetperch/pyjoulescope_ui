@@ -34,7 +34,7 @@ def preferences_def(p):
                'Since this preference selects the starting profile, the ' +
                'value is shared between all profiles.',
         dtype='str',
-        options=lambda: ['previous', 'factory defaults'] + [x for x in p.preferences.profiles if x != 'defaults'],
+        options=lambda: ['previous', 'app defaults'] + [x for x in p.preferences.profiles if x != 'defaults'],
         default='previous',
         default_profile_only=True,
     )
