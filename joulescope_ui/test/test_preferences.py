@@ -315,3 +315,14 @@ class TestPreferences(unittest.TestCase):
         self.p['a'] = 'override'
         self.assertEqual('override', self.p.get('a', profile='p'))
         self.assertEqual('override', self.p.get('a', profile=BASE_PROFILE))
+
+    def test_restore_base_default(self):
+        self.p.define(name='a', dtype='str', default='0')
+        self.p['a'] = 'base'
+        self.p['b'] = 'no define'
+        self.p.profile_add('p', activate=True)
+        self.p['a'] = 'override'
+        self.p.restore_base_defaults()
+        self.assertEqual('override', self.p['a'])
+        self.assertEqual('0', self.p.get('a', profile=BASE_PROFILE))
+        self.assertEqual('no define', self.p.get('b', profile=BASE_PROFILE))

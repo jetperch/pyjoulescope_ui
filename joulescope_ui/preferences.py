@@ -489,3 +489,11 @@ class Preferences(QtCore.QObject):
             raise KeyError(f'invalid profile {name}')
         self._profile_active = name
         self.sigProfileChanged.emit(name)
+
+    def restore_base_defaults(self):
+        for value in self._defines.values():
+            name = value['name']
+            if name.endswith('/'):
+                continue
+            default = value['default']
+            self._profiles[BASE_PROFILE][name] = default

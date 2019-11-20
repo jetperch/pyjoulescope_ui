@@ -416,12 +416,17 @@ class MainWindow(QtWidgets.QMainWindow):
         log.debug('Qt show() success')
         self._device_scan()
 
+    def _widgets_active_update(self):
+        self._cmdp['Widgets/active'] = [str(w) for w in self._widgets]
+
     def _widgets_add_cmd(self, topic, value):
         dock_widget = self._widgets_add(value)
+        self._widgets_active_update()
         return (topic, str(dock_widget)), ('!Widgets/remove', str(dock_widget))
 
     def _widgets_remove_cmd(self, topic, value):
         dock_widget = self._widgets_remove(value)
+        self._widgets_active_update()
         return (topic, str(dock_widget)), ('!Widgets/add', str(dock_widget))  # should also restore state
 
     def _widgets_add(self, widget_str):
@@ -444,6 +449,7 @@ class MainWindow(QtWidgets.QMainWindow):
             dock_widget = MyDockWidget(self, widget_def, self._cmdp, instance_id=instance_id)
         dock_widget.setVisible(True)
         dock_widget.show()
+        dock_widget.setObjectName(str(dock_widget))
         self._widgets.append(dock_widget)
         return dock_widget
 
@@ -602,41 +608,6 @@ class MainWindow(QtWidgets.QMainWindow):
     @property
     def _has_active_device(self):
         return self._device not in [None, self._device_disable]
-
-    def center(self):
-        try:
-            geometry = self.window().windowHandle().screen().availableGeometry()
-        except AttributeError:
-            return
-        sz = self.size()
-        self.setGeometry(
-            QtWidgets.QStyle.alignedRect(
-                QtCore.Qt.LeftToRight,
-                QtCore.Qt.AlignCenter,
-                sz,
-                geometry
-            )
-        )
-
-    def center_and_resize(self, width_fract, height_fract):
-        # https://wiki.qt.io/Center_and_Resize_MainWindow
-        try:
-            screen = self.window().windowHandle().screen()
-        except AttributeError:
-            return
-        geometry = screen.availableGeometry()
-        available_size = geometry.size()
-        width, height = available_size.width(), available_size.height()
-        log.info('Available dimensions [%d, %d]', width, height)
-        sz = QtCore.QSize(int(width * width_fract), int(height * height_fract))
-        self.setGeometry(
-            QtWidgets.QStyle.alignedRect(
-                QtCore.Qt.LeftToRight,
-                QtCore.Qt.AlignCenter,
-                sz,
-                geometry
-            )
-        )
 
     def _device_open_failed(self, msg):
         self.status(msg)
@@ -1059,7 +1030,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._cmdp.publish('Device/#state/source', 'File')
         self._cmdp.publish('Device/#state/sample_drop_color', '')
 
-    def state_save(self):
+    def _window_state_update(self):
         window_state = {
             'geometry': self.saveGeometry().data(),
             'state': self.saveState().data(),
@@ -1068,9 +1039,37 @@ class MainWindow(QtWidgets.QMainWindow):
             'size': list(self.size().toTuple()),
         }
         self._cmdp.preferences.set('_window', window_state)
+
+    def state_save(self):
+        self._window_state_update()
         active_widgets = [str(widget) for widget in self._widgets if widget.isVisible()]
         self._cmdp.preferences.set('Widgets/active', active_widgets)
         self._cmdp.preferences.save()
+
+    def _window_center_and_resize(self, width_fract, height_fract):
+        # https://wiki.qt.io/Center_and_Resize_MainWindow
+        try:
+            screen = self.window().windowHandle().screen()
+        except AttributeError:
+            return
+        geometry = screen.availableGeometry()
+        available_size = geometry.size()
+        width, height = available_size.width(), available_size.height()
+        log.info('Available dimensions [%d, %d]', width, height)
+        sz = self.size()
+        w, h = sz.width(), sz.height()
+        if width_fract is not None:
+            w = int(width * width_fract)
+        if height_fract is not None:
+            h = int(height * height_fract)
+        self.setGeometry(
+            QtWidgets.QStyle.alignedRect(
+                QtCore.Qt.LeftToRight,
+                QtCore.Qt.AlignCenter,
+                QtCore.QSize(w, h),
+                geometry
+            )
+        )
 
     def state_restore(self):
         log.debug('state_restore')
@@ -1079,9 +1078,21 @@ class MainWindow(QtWidgets.QMainWindow):
         for widget_str in self._cmdp['Widgets/active']:
             self._widgets_add(widget_str)
         window_state = self._cmdp.preferences.get('_window')
+        window_location = self._cmdp['General/window_location']
+        window_size = self._cmdp['General/window_size']
+
         if window_state is not None:
             self.restoreGeometry(window_state['geometry'])
             self.restoreState(window_state['state'])
+
+        if window_size == 'minimum':
+            self.adjustSize()
+        if window_location == 'center':
+            if window_size.endswith('%'):
+                f = float(window_size[:-1]) * 0.01
+                self._window_center_and_resize(f, f)
+            else:
+                self._window_center_and_resize(None, None)
 
     def closeEvent(self, event):
         log.info('closeEvent(%r)', event)
@@ -1208,6 +1219,16 @@ class MainWindow(QtWidgets.QMainWindow):
             self.status(msg)
         else:
             self.status(range_tool.name + ' done')
+
+    def resizeEvent(self, event):
+        rv = super().resizeEvent(event)
+        self._window_state_update()
+        return rv
+
+    def moveEvent(self, event):
+        rv = super().moveEvent(event)
+        self._window_state_update()
+        return rv
 
 
 class ErrorWindow(QtWidgets.QMainWindow):

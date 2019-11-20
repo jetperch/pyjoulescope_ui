@@ -25,14 +25,14 @@
 from joulescope_ui.preferences_dialog import Ui_PreferencesDialog
 from joulescope_ui import guiparams
 from joulescope_ui.ui_util import comboBoxConfig
-from joulescope_ui.preferences import options_enum, BASE_PROFILE
+from joulescope_ui.preferences import options_enum
+from joulescope_ui import preferences_defaults
 from PySide2 import QtCore, QtWidgets, QtGui
 import logging
 import weakref
 
 
 log = logging.getLogger(__name__)
-PROFILES_RESET = [BASE_PROFILE, 'Multimeter', 'Oscilloscope']
 
 
 class PreferencesDialog(QtWidgets.QDialog):
@@ -106,8 +106,8 @@ class PreferencesDialog(QtWidgets.QDialog):
         self.ui.profileActivateButton.setEnabled(False)
 
     def _on_profile_reset_button(self):
-        if self._active_profile in PROFILES_RESET:
-            pass  # todo reset
+        if self._active_profile in preferences_defaults.PROFILES_RESET:
+            preferences_defaults.restore(self._cmdp.preferences, self._active_profile)
         else:
             self._cmdp.invoke('!preferences/profile/remove', self._active_profile)
 
@@ -125,7 +125,7 @@ class PreferencesDialog(QtWidgets.QDialog):
         if self._active_profile not in self._cmdp.preferences.profiles:
             self._active_profile = self._cmdp.preferences.profile
         comboBoxConfig(self.ui.profileComboBox, self._cmdp.preferences.profiles, self._active_profile)
-        reset_text = 'Reset' if self._active_profile in PROFILES_RESET else 'Erase'
+        reset_text = 'Reset' if self._active_profile in preferences_defaults.PROFILES_RESET else 'Erase'
         self.ui.profileResetButton.setText(reset_text)
         self.ui.profileActivateButton.setEnabled(self._active_profile != self._cmdp.preferences.profile)
 

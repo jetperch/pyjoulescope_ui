@@ -16,7 +16,7 @@
 Implement the application default preferences.
 """
 
-from joulescope_ui.preferences import Preferences
+from joulescope_ui.preferences import Preferences, BASE_PROFILE
 
 
 def multimeter_profile_default(preferences: Preferences):
@@ -25,6 +25,8 @@ def multimeter_profile_default(preferences: Preferences):
         preferences.profile_remove('Multimeter')
     preferences.profile_add('Multimeter', activate=is_active)
     preferences.set('Widgets/active', ['Multimeter'], profile='Multimeter')
+    preferences.set('General/window_size', 'minimum', profile='Multimeter')
+    preferences.set('General/window_location', 'center', profile='Multimeter')
 
 
 def oscilloscope_profile_default(preferences: Preferences):
@@ -33,6 +35,23 @@ def oscilloscope_profile_default(preferences: Preferences):
         preferences.profile_remove('Oscilloscope')
     preferences.profile_add('Oscilloscope', activate=is_active)
     preferences.set('Widgets/active', ['Control', 'Waveform'], profile='Oscilloscope')
+    preferences.set('General/window_size', '75%', profile='Oscilloscope')
+    preferences.set('General/window_location', 'center', profile='Oscilloscope')
+
+
+def defaults_profile_default(preferences: Preferences):
+    preferences.restore_base_defaults()
+
+
+PROFILES_RESET = {
+    BASE_PROFILE: defaults_profile_default,
+    'Multimeter': multimeter_profile_default,
+    'Oscilloscope': oscilloscope_profile_default,
+}
+
+
+def restore(preferences: Preferences, profile):
+    PROFILES_RESET[profile](preferences)
 
 
 def defaults(preferences: Preferences):

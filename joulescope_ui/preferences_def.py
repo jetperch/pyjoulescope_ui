@@ -56,6 +56,18 @@ def preferences_def(p):
         dtype='str',
         options=['OFF', 'CRITICAL', 'ERROR', 'WARNING', 'INFO', 'DEBUG', 'ALL'],
         default='INFO')
+    p.define(
+        topic='General/window_location',
+        brief='The window location',
+        dtype='str',
+        options=['center', 'previous'],
+        default='center')
+    p.define(
+        topic='General/window_size',
+        brief='The window size',
+        dtype='str',
+        options=['previous', 'minimum', '50%', '75%', '100%'],
+        default='previous')
 
     # --- DEVICE ---
     p.define('Device/', 'Joulescope device-specific default settings')
