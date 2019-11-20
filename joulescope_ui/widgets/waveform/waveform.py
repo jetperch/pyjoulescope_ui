@@ -110,8 +110,9 @@ class WaveformWidget(QtWidgets.QWidget):
         return '!Widgets/Waveform/Signals/add', [value, -1]  # todo actual position
 
     def _on_device_state_limits(self, topic, value):
-        self.set_xlimits(*value)
-        self.set_xview(*value)
+        if value is not None:
+            self.set_xlimits(*value)
+            self.set_xview(*value)
 
     def _on_device_state_name(self, topic, value):
         if not value:

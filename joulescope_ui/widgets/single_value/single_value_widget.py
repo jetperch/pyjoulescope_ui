@@ -111,6 +111,8 @@ class SingleValueWidget(QtWidgets.QWidget):
         self._update()
 
     def _update(self):
+        if not len(self._statistics):
+            return
         if self.fieldComboBox.count() == 0:
             fields = list(self._statistics['signals'].keys()) + \
                      list(self._statistics['accumulators'].keys())

@@ -244,6 +244,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self._widget_defs = widget_register(self._cmdp)
         self._widgets = []
+        self.state_defaults()
         self._view_menu()
 
         self._cmdp.subscribe('Device/#state/source', self._device_state_source)
@@ -322,6 +323,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self._shortcut_undo.activated.connect(lambda: self._cmdp.invoke('!undo'))
         self._shortcut_redo = QtWidgets.QShortcut(QtGui.QKeySequence.Redo, self)
         self._shortcut_redo.activated.connect(lambda: self._cmdp.invoke('!redo'))
+
+        self.state_restore()
 
     @property
     def _path(self):
@@ -1005,23 +1008,44 @@ class MainWindow(QtWidgets.QMainWindow):
         self._cmdp.publish('Device/#state/source', 'File')
         self._cmdp.publish('Device/#state/sample_drop_color', '')
 
-    def stateSave(self):
-        state = {
+    def state_defaults(self):
+        p = self._cmdp.preferences
+        profiles = p.profiles
+        if 'Multimeter' not in profiles:
+            p.profile_add('Multimeter', activate=True)
+            p['Widgets/active'] = ['Multimeter']
+        if 'Oscilloscope' not in profiles:
+            p.profile_add('Oscilloscope')
+            p.set('Widgets/active', ['Control', 'Waveform'], profile='Oscilloscope')
+        if 'defaults' == p.profile:
+            p.profile = 'Multimeter'
+
+    def state_save(self):
+        window_state = {
             'geometry': self.saveGeometry().data(),
             'state': self.saveState().data(),
             'maximized': self.isMaximized(),
-            'pos': self.pos(),
-            'size': self.size(),
-            'widgets': [widget.name for widget in self._widgets if widget.isVisible()],
+            'pos': list(self.pos().toTuple()),
+            'size': list(self.size().toTuple()),
         }
-        # todo save to preferences
+        self._cmdp.preferences.set('_window', window_state)
+        active_widgets = [str(widget) for widget in self._widgets if widget.isVisible()]
+        self._cmdp.preferences.set('Widgets/active', active_widgets)
+        self._cmdp.preferences.save()
 
-    def stateRestore(self, state=None):
-        pass
+    def state_restore(self):
+        self._cmdp.invoke('!command_group/start')
+        for widget_str in self._cmdp['Widgets/active']:
+            self._widgets_add(None, widget_str)
+        self._cmdp.invoke('!command_group/end')
+        window_state = self._cmdp.preferences.get('_window')
+        if window_state is not None:
+            self.restoreGeometry(window_state['geometry'])
+            self.restoreState(window_state['state'])
 
     def closeEvent(self, event):
         log.info('closeEvent(%r)', event)
-        self.stateSave()
+        self.state_save()
         self._device_close()
         return super(MainWindow, self).closeEvent(event)
 

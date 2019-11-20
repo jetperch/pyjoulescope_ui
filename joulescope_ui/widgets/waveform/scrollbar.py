@@ -131,6 +131,7 @@ class CustomLinearRegionItem(pg.LinearRegionItem):
 
     def set_sampling_frequency(self, freq):
         self._sampling_frequency = freq
+        self.on_regionChange(None)
 
     def mouseDragEvent(self, ev):
         if not self.movable or int(ev.button() & QtCore.Qt.LeftButton) == 0:
@@ -298,11 +299,11 @@ class CustomLinearRegionItem(pg.LinearRegionItem):
     @QtCore.Slot(object)
     def on_regionChange(self, obj=None):
         x_min, x_max = self.getRegion()
-        log.info('on_regionChange(%s, %s)', x_min, x_max)
         w = self._parent().geometry().width()
+        log.info('on_regionChange(%s, %s) pixels=%s', x_min, x_max, w)
         x_count = int(w) + 1
 
-        if self._sampling_frequency is not None:
+        if self._sampling_frequency is not None and self._sampling_frequency > 0:
             # adjust to ease processing
             x_range_orig = x_max - x_min
             samples = x_range_orig * self._sampling_frequency

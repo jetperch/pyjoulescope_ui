@@ -174,14 +174,15 @@ def json_decode_custom(obj):
     return obj
 
 
-def _remove_unsaved_keys(d):
-    for key in list(d.keys()):
+def _copy_save_keys(d):
+    y = {}
+    for key, v in d.items():
         if '#' in key:
-            del d[key]
             continue
-        v = d[key]
         if isinstance(v, collections.abc.Mapping):
-            _remove_unsaved_keys(v)
+            v = _copy_save_keys(v)
+        y[key] = v
+    return y
 
 
 class Preferences(QtCore.QObject):
@@ -227,9 +228,8 @@ class Preferences(QtCore.QObject):
             'type': 'joulescope_config',
             'version': 2,
             'profile': self._profile_active,
-            'profiles': copy.deepcopy(self._profiles),
+            'profiles': _copy_save_keys(self._profiles),
         }
-        _remove_unsaved_keys(state['profiles'])
         return state
 
     def state_restore(self, state):
@@ -241,13 +241,17 @@ class Preferences(QtCore.QObject):
         if state['profile'] not in self._profiles:
             log.warning('state_restore does not contain profile %s, use "all"', state['profile'])
             self.profile = BASE_PROFILE
-        self.profile = state['profile']
+        else:
+            self.profile = state['profile']
 
     def save(self):
         p = self.state_export()
         tmp_file = self._path + '.tmp'
+        path = os.path.dirname(self._path)
+        if not os.path.isdir(path):
+            os.makedirs(path)
         with open(tmp_file, 'w') as f:
-            json.dump(p, f, cls=PreferencesJsonEncoder)
+            json.dump(p, f, cls=PreferencesJsonEncoder, indent=2)
             f.flush()
             os.fsync(f.fileno())
         os.replace(tmp_file, self._path)

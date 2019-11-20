@@ -84,6 +84,8 @@ class MeterWidget(QtWidgets.QWidget):
 
         :param statistics: The statistics data structure
         """
+        if not statistics:
+            return
         if self.accumulateButton.isChecked():
             self._accumulate_duration += statistics['time']['delta']
         else:
