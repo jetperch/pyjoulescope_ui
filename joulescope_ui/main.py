@@ -42,6 +42,7 @@ from joulescope_ui.preferences_defaults import defaults as preference_defaults
 import io
 import ctypes
 import collections
+import gc
 import traceback
 import time
 import webbrowser
@@ -750,6 +751,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self._cmdp.publish('Device/#state/sample_drop_color', '')
         self._cmdp.publish('Device/#state/play', False)
         self._cmdp.publish('Device/#state/record', False)
+        gc.collect()  # safe time to force garbage collection
+        gc.collect()
         log.debug('_device_close: done')
 
     def _device_recover(self):
