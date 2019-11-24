@@ -144,16 +144,10 @@ def dock_widget_parse_str(s):
 
 
 class MyDockWidget(QtWidgets.QDockWidget):
-    _next_instance_id = 1
 
-    def __init__(self, parent, widget_def, cmdp, instance_id=None):
-        if instance_id is not None:
-            self.instance_id = int(instance_id)
-        else:
-            self.instance_id = MyDockWidget._next_instance_id
-            MyDockWidget._next_instance_id += 1
+    def __init__(self, parent, widget_def, cmdp, instance_id):
+        self.instance_id = int(instance_id)
         self.name = widget_def['name']
-        log.info(str(self))
         QtWidgets.QDockWidget.__init__(self, self.name, parent)
         self._parent = parent
         self._cmdp = cmdp
@@ -162,7 +156,6 @@ class MyDockWidget(QtWidgets.QDockWidget):
         self.inner_widget = widget_def['class'](self, cmdp)
         location = widget_def.get('location', QtCore.Qt.RightDockWidgetArea)
         self.setWidget(self.inner_widget)
-        self.setVisible(False)
         parent.addDockWidget(location, self)
 
     def __str__(self):
@@ -171,6 +164,7 @@ class MyDockWidget(QtWidgets.QDockWidget):
     def dock_widget_close(self):
         self.setVisible(False)
         if not self.widget_def.get('singleton', False):
+            self._parent.removeDockWidget(self)
             self.widget_def['dock_widget'] = None
             self.widget_def = None
             self.inner_widget = None
@@ -183,8 +177,10 @@ class MyDockWidget(QtWidgets.QDockWidget):
             log.info('MyDockWidget.closeEvent for %s', self.widget_def['name'])
             self._cmdp.invoke('!Widgets/remove', str(self))
             event.ignore()
-        else:
+        elif not self.widget_def.get('singleton', False):
+            log.info('MyDockWidget.closeEvent singleton final for %s', self.widget_def['name'])
             QtWidgets.QDockWidget.closeEvent(self, event)
+            self.dock_widget_close()
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -210,6 +206,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._fps_limit_timer = QtCore.QTimer()
         self._fps_limit_timer.setSingleShot(True)
         self._fps_limit_timer.timeout.connect(self.on_fpsTimer)
+        self._widget_next_instance_id = 1
 
         self._profile_actions = []
         self._profile_action_group = None
@@ -246,6 +243,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self._widget_defs = widget_register(self._cmdp)
         self._widgets = []
+
+        # must be after other preferences so applied last
+        self._cmdp.define('_window', brief='UI window configuration', dtype='obj', default=None)
+
         preference_defaults(self._cmdp.preferences)
         self._view_menu()
 
@@ -258,6 +259,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self._cmdp.subscribe('!preferences/profile/add', self._on_preferences_profile_add)
         self._cmdp.subscribe('!preferences/profile/remove', self._on_preferences_profile_remove)
         self._cmdp.subscribe('!preferences/profile/set', self._on_preferences_profile_set)
+        self._cmdp.subscribe('Widgets/active', self._on_widgets_active)
+        self._cmdp.subscribe('_window', self._on_window_state)
 
         # Main implements the DataView bindings
         self._cmdp.subscribe('DataView/#service/x_change_request', self._on_dataview_service_x_change_request)
@@ -329,8 +332,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self._shortcut_redo = QtWidgets.QShortcut(QtGui.QKeySequence.Redo, self)
         self._shortcut_redo.activated.connect(lambda: self._cmdp.invoke('!redo'))
 
-        self.state_restore()
-
     @property
     def _path(self):
         path = self._cmdp['General/data_path']
@@ -347,7 +348,7 @@ class MainWindow(QtWidgets.QMainWindow):
         return menu_fn
 
     def _on_preferences_profile_set(self, topic, value):
-        self.state_restore()
+        self._view_menu()
 
     def _on_preferences_profile_add(self, topic, value):
         self._view_menu()
@@ -390,11 +391,11 @@ class MainWindow(QtWidgets.QMainWindow):
                 self._cmdp.invoke('!Widgets/remove', name)
 
         if widget_def.get('singleton', False):
-            action.setCheckable(widget_def.get('singleton', False))
+            action.setCheckable(True)
             action.toggled.connect(menu_fn)
+            widget_def.setdefault('dock_widget', None)
         else:
             action.triggered.connect(menu_fn)
-        widget_def['dock_widget'] = None
 
     @property
     def _is_streaming(self):
@@ -407,80 +408,15 @@ class MainWindow(QtWidgets.QMainWindow):
     def run(self, filename=None):
         if filename is not None:
             self._recording_open(filename)
-            # automatically open oscilloscope profile
+            self._cmdp.publish('!preferences/profile/set', 'Oscilloscope')
         else:
-            pass  # todo automatically open profile (specified or most recent)
+            self._on_widgets_active('Widgets/active', self._cmdp['Widgets/active'])
+            self._on_window_state('_window', self._cmdp['_window'])
         self._software_update_check()
         log.debug('Qt show()')
         self.show()
         log.debug('Qt show() success')
         self._device_scan()
-
-    def _widgets_active_update(self):
-        self._cmdp['Widgets/active'] = [str(w) for w in self._widgets]
-
-    def _widgets_add_cmd(self, topic, value):
-        dock_widget = self._widgets_add(value)
-        self._widgets_active_update()
-        return (topic, str(dock_widget)), ('!Widgets/remove', str(dock_widget))
-
-    def _widgets_remove_cmd(self, topic, value):
-        dock_widget = self._widgets_remove(value)
-        self._widgets_active_update()
-        return (topic, str(dock_widget)), ('!Widgets/add', str(dock_widget))  # should also restore state
-
-    def _widgets_add(self, widget_str):
-        name, instance_id = dock_widget_parse_str(widget_str)
-        if name not in self._widget_defs:
-            log.warning('_widgets_add(%s) not found', name)
-            return
-        widget_def = self._widget_defs[name]
-        if widget_def.get('singleton', False):
-            log.info('add singleton widget %s', name)
-            if widget_def['dock_widget'] is None:
-                widget_def['dock_widget'] = MyDockWidget(self, widget_def, self._cmdp, instance_id=instance_id)
-            dock_widget = widget_def['dock_widget']
-            action = widget_def['action']
-            signal_block_state = action.blockSignals(True)
-            action.setChecked(True)
-            action.blockSignals(signal_block_state)
-        else:
-            log.info('add widget %s', name)
-            dock_widget = MyDockWidget(self, widget_def, self._cmdp, instance_id=instance_id)
-        dock_widget.setVisible(True)
-        dock_widget.show()
-        dock_widget.setObjectName(str(dock_widget))
-        self._widgets.append(dock_widget)
-        return dock_widget
-
-    def _widgets_get(self, widget_str):
-        name, instance_id = dock_widget_parse_str(widget_str)
-        v = f'{name}:{instance_id}'
-        widgets = [w for w in self._widgets if str(w) == v]
-        if len(widgets) == 0:
-            log.warning('_widget_get(%s) not found', widget_str)
-            raise ValueError(f'widget {widget_str} not found')
-        return widgets[-1]  # most recently added, in case of multiple
-
-    def _widgets_remove(self, widget_str):
-        dock_widget = self._widgets_get(widget_str)
-        dock_widget.setVisible(False)
-        self._widgets.remove(dock_widget)
-
-        widget_def = self._widget_defs[dock_widget.name]
-        name = widget_def['name']
-        if widget_def.get('singleton', False):
-            log.info('remove singleton widget %s', name)
-            if widget_def['dock_widget'] is not None:
-                widget_def['dock_widget'].setVisible(False)
-            action = widget_def['action']
-            signal_block_state = action.blockSignals(True)
-            action.setChecked(False)
-            action.blockSignals(signal_block_state)
-        else:
-            log.info('remove widget %s', name)
-            dock_widget.close()
-        return dock_widget
 
     @QtCore.Slot()
     def on_statusUpdateTimer(self):
@@ -1030,21 +966,155 @@ class MainWindow(QtWidgets.QMainWindow):
         self._cmdp.publish('Device/#state/source', 'File')
         self._cmdp.publish('Device/#state/sample_drop_color', '')
 
-    def _window_state_update(self):
-        window_state = {
+    def _widget_str(self, widget_str):
+        name, instance_id = dock_widget_parse_str(widget_str)
+        if instance_id is None:
+            instance_id = self._widget_next_instance_id
+            self._widget_next_instance_id += 1
+        return f'{name}:{instance_id}'
+
+    @property
+    def _widgets_active(self):
+        return [str(widget) for widget in self._widgets]  # if widget.isVisible()
+
+    def _widgets_active_update(self):
+        # skip command since should already be processing the command
+        active_widgets = self._widgets_active
+        log.debug('_widgets_active_update %s', active_widgets)
+        self._cmdp.preferences['Widgets/active'] = active_widgets
+
+    def _widgets_add_cmd(self, topic, value):
+        widget_str = self._widget_str(value)
+        if widget_str in self._widgets_active:
+            return None
+        widgets_active = self._widgets_active + [widget_str]
+        self._cmdp.publish('Widgets/active', widgets_active)
+        return (topic, widget_str), ('!Widgets/remove', widget_str)
+
+    def _widgets_find_first(self, widget_str):
+        widgets_active = self._widgets_active
+        name, instance_id = dock_widget_parse_str(widget_str)
+        if instance_id is not None:
+            if widget_str not in widgets_active:
+                raise ValueError('widget not found: %s', name)
+            return widget_str
+        for widget in widgets_active:
+            if name == dock_widget_parse_str(widget)[0]:
+                return widget
+        raise ValueError('widget not found: %s', name)
+
+    def _widgets_remove_cmd(self, topic, value):
+        widget_str = self._widgets_find_first(value)
+        widgets_active = self._widgets_active
+        if widget_str not in self._widgets_active:
+            return None
+        widgets_active.remove(widget_str)
+        self._cmdp.publish('Widgets/active', widgets_active)
+        return (topic, widget_str), ('!Widgets/add', widget_str)
+
+    def _widgets_add(self, widget_str):
+        name, instance_id = dock_widget_parse_str(self._widget_str(widget_str))
+        if name not in self._widget_defs:
+            log.warning('_widgets_add(%s) not found', name)
+            return
+        widget_def = self._widget_defs[name]
+        if widget_def.get('singleton', False):
+            log.info('add singleton widget %s', name)
+            if widget_def['dock_widget'] is None:
+                dock_widget = MyDockWidget(self, widget_def, self._cmdp, instance_id)
+                widget_def['dock_widget'] = dock_widget
+            dock_widget = widget_def['dock_widget']
+            action = widget_def['action']
+            signal_block_state = action.blockSignals(True)
+            action.setChecked(True)
+            action.blockSignals(signal_block_state)
+        else:
+            log.info('add widget %s', name)
+            dock_widget = MyDockWidget(self, widget_def, self._cmdp, instance_id)
+        dock_widget.setVisible(True)
+        dock_widget.setObjectName(str(dock_widget))
+        self._widgets.append(dock_widget)
+        return dock_widget
+
+    def _widgets_get(self, widget_str):
+        name, instance_id = dock_widget_parse_str(widget_str)
+        v = f'{name}:{instance_id}'
+        widgets = [w for w in self._widgets if str(w) == v]
+        if len(widgets) == 0:
+            log.warning('_widget_get(%s) not found', widget_str)
+            raise ValueError(f'widget {widget_str} not found')
+        return widgets[-1]  # most recently added, in case of multiple
+
+    def _widgets_remove(self, widget_str):
+        dock_widget = self._widgets_get(widget_str)
+        dock_widget.setVisible(False)
+        self._widgets.remove(dock_widget)
+
+        widget_def = self._widget_defs[dock_widget.name]
+        name = widget_def['name']
+        if widget_def.get('singleton', False):
+            log.info('remove singleton widget %s', name)
+            action = widget_def['action']
+            signal_block_state = action.blockSignals(True)
+            action.setChecked(False)
+            action.blockSignals(signal_block_state)
+        else:
+            log.info('remove widget %s', name)
+            dock_widget.close()
+        return dock_widget
+
+    def _on_widgets_active(self, topic, value):
+        # must be safe to call repeatedly
+        log.debug('_on_widgets_active: %s', value)
+        widgets_previous = self._widgets_active
+        widgets_next = value
+        for widget in widgets_previous:
+            if widget not in widgets_next:
+                self._widgets_remove(widget)
+        for widget in widgets_next:
+            if widget not in widgets_previous:
+                self._widgets_add(widget)
+        self._window_state_update()
+
+    def _window_state(self):
+        return {
             'geometry': self.saveGeometry().data(),
             'state': self.saveState().data(),
             'maximized': self.isMaximized(),
             'pos': list(self.pos().toTuple()),
             'size': list(self.size().toTuple()),
         }
-        self._cmdp.preferences.set('_window', window_state)
 
-    def state_save(self):
-        self._window_state_update()
-        active_widgets = [str(widget) for widget in self._widgets if widget.isVisible()]
-        self._cmdp.preferences.set('Widgets/active', active_widgets)
-        self._cmdp.preferences.save()
+    def _window_state_update(self):
+        s = self._window_state()
+        s['__ignore__'] = True
+        self._cmdp.publish('_window', s)
+
+    def _on_window_state(self, topic, value):
+        log.debug('_on_window_state')
+        # WARNING: mutate value so that future invocations (undo, restore) take effect
+        window_state = value
+        if window_state is not None and window_state.pop('__ignore__', False):
+            return
+
+        if window_state is not None:
+            self.restoreGeometry(window_state['geometry'])
+            self.restoreState(window_state['state'])
+
+        # force visible, since restoreState can hide
+        for widget in self._widgets:
+            widget.setVisible(True)
+
+        window_location = self._cmdp['General/window_location']
+        window_size = self._cmdp['General/window_size']
+        if window_size == 'minimum':
+            self.adjustSize()
+        if window_location == 'center':
+            if window_size.endswith('%'):
+                f = float(window_size[:-1]) * 0.01
+                self._window_center_and_resize(f, f)
+            else:
+                self._window_center_and_resize(None, None)
 
     def _window_center_and_resize(self, width_fract, height_fract):
         # https://wiki.qt.io/Center_and_Resize_MainWindow
@@ -1071,32 +1141,9 @@ class MainWindow(QtWidgets.QMainWindow):
             )
         )
 
-    def state_restore(self):
-        log.debug('state_restore')
-        for widget_str in [str(w) for w in self._widgets]:
-            self._widgets_remove(widget_str)
-        for widget_str in self._cmdp['Widgets/active']:
-            self._widgets_add(widget_str)
-        window_state = self._cmdp.preferences.get('_window')
-        window_location = self._cmdp['General/window_location']
-        window_size = self._cmdp['General/window_size']
-
-        if window_state is not None:
-            self.restoreGeometry(window_state['geometry'])
-            self.restoreState(window_state['state'])
-
-        if window_size == 'minimum':
-            self.adjustSize()
-        if window_location == 'center':
-            if window_size.endswith('%'):
-                f = float(window_size[:-1]) * 0.01
-                self._window_center_and_resize(f, f)
-            else:
-                self._window_center_and_resize(None, None)
-
     def closeEvent(self, event):
         log.info('closeEvent(%r)', event)
-        self.state_save()
+        self._cmdp.preferences.save()
         self._device_close()
         return super(MainWindow, self).closeEvent(event)
 

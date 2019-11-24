@@ -22,9 +22,6 @@ def preferences_def(p):
     p.define('_meta/def_version', dtype='int', default=1)
     p.define('_meta/app_version', dtype='str', default=VERSION)
 
-    # --- WINDOW ---
-    p.define('_window', dtype='obj', brief='UI window configuration')
-
     # --- GENERAL ---
     p.define('General/', 'General application settings.')
     p.define(

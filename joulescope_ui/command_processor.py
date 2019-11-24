@@ -118,8 +118,10 @@ class CommandProcessor(QtCore.QObject):
             do_cmd, undo_cmd = self._undos.pop()
             undo_topic, undo_data = undo_cmd
             if undo_topic[0] == '!':
+                log.debug('undo_exec %s | %s', undo_topic, undo_data)
                 self._topic[undo_topic]['execute_fn'](undo_topic, undo_data)
             else:
+                log.debug('undo_pref %s | %s', undo_topic, undo_data)
                 self.preferences[undo_topic] = undo_data
             self._redos.append((do_cmd, undo_cmd))
             self._subscriber_update(undo_topic, undo_data)
@@ -136,6 +138,7 @@ class CommandProcessor(QtCore.QObject):
             do_cmd, undo_cmd = self._redos.pop()
             do_topic, do_data = do_cmd
             if do_topic[0] == '!':
+                log.debug('redo_exec %s | %s', do_topic, do_data)
                 self._topic[do_topic]['execute_fn'](do_topic, do_data)
             else:
                 self.preferences[do_topic] = do_data
@@ -158,7 +161,7 @@ class CommandProcessor(QtCore.QObject):
     @QtCore.Slot(str, object)
     def _on_invoke(self, topic, data):
         if topic[0] == '!':
-            log.debug('cmd %s <= %s', topic, data)
+            log.debug('cmd %s | %s', topic, data)
             rv = self._topic[topic]['execute_fn'](topic, data)
             if rv is None or rv[0] is None:
                 return
