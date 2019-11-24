@@ -154,17 +154,20 @@ class MyDockWidget(QtWidgets.QDockWidget):
         self.widget_def = widget_def
 
         self.inner_widget = widget_def['class'](self, cmdp)
-        location = widget_def.get('location', QtCore.Qt.RightDockWidgetArea)
         self.setWidget(self.inner_widget)
-        parent.addDockWidget(location, self)
+        self.dockLocationChanged.connect(self._on_dock_location_changed)
 
     def __str__(self):
         return f'{self.name}:{self.instance_id}'
 
+    def _on_dock_location_changed(self, area):
+        self._parent._window_state_update()
+
+    def resizeEvent(self, event):
+        self._parent._window_state_update()
+
     def dock_widget_close(self):
-        self.setVisible(False)
         if not self.widget_def.get('singleton', False):
-            self._parent.removeDockWidget(self)
             self.widget_def['dock_widget'] = None
             self.widget_def = None
             self.inner_widget = None
@@ -1023,7 +1026,8 @@ class MainWindow(QtWidgets.QMainWindow):
             if widget_def['dock_widget'] is None:
                 dock_widget = MyDockWidget(self, widget_def, self._cmdp, instance_id)
                 widget_def['dock_widget'] = dock_widget
-            dock_widget = widget_def['dock_widget']
+            else:
+                dock_widget = widget_def['dock_widget']
             action = widget_def['action']
             signal_block_state = action.blockSignals(True)
             action.setChecked(True)
@@ -1031,6 +1035,8 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             log.info('add widget %s', name)
             dock_widget = MyDockWidget(self, widget_def, self._cmdp, instance_id)
+        location = widget_def.get('location', QtCore.Qt.RightDockWidgetArea)
+        self.addDockWidget(location, dock_widget)
         dock_widget.setVisible(True)
         dock_widget.setObjectName(str(dock_widget))
         self._widgets.append(dock_widget)
@@ -1048,6 +1054,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def _widgets_remove(self, widget_str):
         dock_widget = self._widgets_get(widget_str)
         dock_widget.setVisible(False)
+        self.removeDockWidget(dock_widget)
         self._widgets.remove(dock_widget)
 
         widget_def = self._widget_defs[dock_widget.name]
@@ -1266,6 +1273,10 @@ class MainWindow(QtWidgets.QMainWindow):
             self.status(msg)
         else:
             self.status(range_tool.name + ' done')
+
+    def dropEvent(self, event):
+        print('dropEvent')
+        return super().dropEvent(event)
 
     def resizeEvent(self, event):
         rv = super().resizeEvent(event)
