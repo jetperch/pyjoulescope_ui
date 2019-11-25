@@ -24,9 +24,10 @@ def multimeter_profile_default(preferences: Preferences):
     if 'Multimeter' in preferences.profiles:
         preferences.profile_remove('Multimeter')
     preferences.profile_add('Multimeter', activate=is_active)
-    preferences.set('Widgets/active', ['Multimeter'], profile='Multimeter')
+    preferences.set('Widgets/active', ['Multimeter:1'], profile='Multimeter')
     preferences.set('General/window_size', 'minimum', profile='Multimeter')
     preferences.set('General/window_location', 'center', profile='Multimeter')
+    preferences.set('Device/parameter/i_range', 'auto', profile='Multimeter')
 
 
 def oscilloscope_profile_default(preferences: Preferences):
@@ -34,9 +35,10 @@ def oscilloscope_profile_default(preferences: Preferences):
     if 'Oscilloscope' in preferences.profiles:
         preferences.profile_remove('Oscilloscope')
     preferences.profile_add('Oscilloscope', activate=is_active)
-    preferences.set('Widgets/active', ['Control', 'Waveform'], profile='Oscilloscope')
+    preferences.set('Widgets/active', ['Control:1', 'Waveform:2'], profile='Oscilloscope')
     preferences.set('General/window_size', '75%', profile='Oscilloscope')
     preferences.set('General/window_location', 'center', profile='Oscilloscope')
+    preferences.set('Device/parameter/i_range', 'auto', profile='Oscilloscope')
 
 
 def defaults_profile_default(preferences: Preferences):

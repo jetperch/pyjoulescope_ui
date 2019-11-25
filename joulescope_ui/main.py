@@ -209,7 +209,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self._fps_limit_timer = QtCore.QTimer()
         self._fps_limit_timer.setSingleShot(True)
         self._fps_limit_timer.timeout.connect(self.on_fpsTimer)
-        self._widget_next_instance_id = 1
 
         self._profile_actions = []
         self._profile_action_group = None
@@ -969,11 +968,29 @@ class MainWindow(QtWidgets.QMainWindow):
         self._cmdp.publish('Device/#state/source', 'File')
         self._cmdp.publish('Device/#state/sample_drop_color', '')
 
+    def _instance_id_next(self):
+        """Get the next dock widget instance id.
+
+        :return: The integer instance id which must be unique across all
+            widgets that currently exist, even after restarting the
+            application.
+        """
+        # Only used when creating a new widget, so performance is not critical.
+        instance_ids = [w.instance_id for w in self._widgets]
+        for widget_def in self._widget_defs.values():
+            w = widget_def.get('dock_widget')
+            if w is not None:
+                instance_ids.append(w.instance_id)
+        instance_id = 1
+        while instance_id in instance_ids:
+            instance_id += 1
+        log.debug('_instance_id_next => %d', instance_id)
+        return instance_id
+
     def _widget_str(self, widget_str):
         name, instance_id = dock_widget_parse_str(widget_str)
         if instance_id is None:
-            instance_id = self._widget_next_instance_id
-            self._widget_next_instance_id += 1
+            instance_id = self._instance_id_next()
         return f'{name}:{instance_id}'
 
     @property
