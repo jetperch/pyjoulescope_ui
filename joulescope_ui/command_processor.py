@@ -360,7 +360,7 @@ class CommandProcessor(QtCore.QObject):
             self.preferences.clear(topic, profile=profile)
             if profile == self.preferences.profile:
                 self._subscriber_update(topic, data)
-            return data, value
+            return topic, value
         except KeyError:
             return None
 
