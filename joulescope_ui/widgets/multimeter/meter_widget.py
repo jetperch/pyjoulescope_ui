@@ -57,7 +57,7 @@ class MeterWidget(QtWidgets.QWidget):
 
         self.values = {}
         for name, units_short, units_long in FIELDS:
-            w = MeterValueWidget(self)
+            w = MeterValueWidget(self, cmdp)
             w.setStyleSheet("QWidget { background-color : black; color : green; }")
             w.configure(name.capitalize(), units_short, units_long)
             self.values[name] = w
@@ -107,6 +107,26 @@ class MeterWidget(QtWidgets.QWidget):
 
 
 def widget_register(cmdp):
+    # https://blog.graphiq.com/finding-the-best-free-fonts-for-numbers-25c54002a895
+    cmdp.define(
+        topic='Widgets/Multimeter/font-main',
+        dtype='font',
+        default="Lato,48,-1,5,87,0,0,0,0,0,Black")
+    cmdp.define(
+        topic='Widgets/Multimeter/font-stats',
+        dtype='font',
+        default="Lato,10,-1,5,87,0,0,0,0,0,Black")
+    cmdp.define(
+        topic='Widgets/Multimeter/font-color',
+        brief='The font color.',
+        dtype='color',
+        default=(0, 128, 0, 255))
+    cmdp.define(
+        topic='Widgets/Multimeter/background-color',
+        brief='The background color.',
+        dtype='color',
+        default=(0, 0, 0, 255))
+
     return {
         'name': 'Multimeter',
         'brief': 'Display the average values and statistics.',

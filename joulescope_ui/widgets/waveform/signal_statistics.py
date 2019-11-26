@@ -14,11 +14,13 @@
 
 from pyqtgraph.Qt import QtGui, QtCore
 from joulescope.units import unit_prefix, three_sig_figs
+from joulescope_ui.ui_util import rgba_to_css, font_to_css
 import numpy as np
 import pyqtgraph as pg
+from weakref import WeakMethod as wref
 
 
-STYLE_DEFAULT = 'color: #FFF; font-size: 8pt'
+STYLE_DEFAULT = 'color: #FFF'
 
 
 def si_format(labels, units=None):
@@ -56,32 +58,59 @@ def html_format(results, x=None, style=None):
 
 class SignalStatistics(pg.GraphicsWidget):
 
-    def __init__(self, parent=None, units=None):
+    def __init__(self, parent=None, units=None, cmdp=None):
         pg.GraphicsWidget.__init__(self, parent=parent)
         self._units = units
         self.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         self._label = QtGui.QGraphicsTextItem(self)
         self._label.setVisible(True)
-        self.style = 'color: #FFF; font-size: 8pt'
+        self._value_cache = None
+        self._label.setFont(QtGui.QFont('Source Code Pro', 8))
+        self._cmdp = cmdp
 
-        labels = {'μ': -0.001, 'σ': -0.01, 'min': -0.1, 'max': 0.001, 'p2p': 0.001 + 0.1}
-        txt_result = si_format(labels)
+        labels = {'μ': -0.000000001, 'σ': +0.000000001, 'min': -0.001, 'max': 0.001, 'p2p': 0.002}
+        txt_result = si_format(labels, units='A')
         self.data_update(txt_result)
+        cmdp.subscribe('Widgets/Waveform/Statistics/font', wref(self._on_font), update_now=True)
+        cmdp.subscribe('Widgets/Waveform/Statistics/font-color', wref(self._on_font_color), update_now=True)
+        self._resize()
+        pg.GraphicsWidget.show(self)
+
+    def _resize(self):
+        self._label.adjustSize()
         b = self._label.boundingRect()
         self.setMinimumHeight(b.height())
         self.setMinimumWidth(b.width())
-        pg.GraphicsWidget.show(self)
+        self.adjustSize()
+
+    def _on_font(self, topic, value):
+        self._data_update(*self._value_cache)
+        font = QtGui.QFont()
+        font.fromString(value)
+        self._label.setFont(font)
+        self._resize()
+
+    def _on_font_color(self, topic, value):
+        self._data_update(*self._value_cache)
 
     def close(self):
         self.scene().removeItem(self._label)
         self._label = None
+        self._value_cache = None
 
     def data_clear(self):
+        self._value_cache = None
         self._label.setHtml(f'<html><body></body></html>')
 
-    def data_update(self, results, x=None):
-        html = html_format(results, x=x)
+    def _data_update(self, results, x):
+        font_color = rgba_to_css(self._cmdp['Widgets/Waveform/Statistics/font-color'])
+        style = f'color: {font_color};'
+        html = html_format(results, x=x, style=style)
         self._label.setHtml(html)
+
+    def data_update(self, results, x=None):
+        self._value_cache = (results, x)
+        self._data_update(results, x)
 
 
 class SignalMarkerStatistics(pg.TextItem):

@@ -18,6 +18,7 @@ from .signal import Signal
 from .scrollbar import ScrollBar
 from .xaxis import XAxis
 from .settings_widget import SettingsWidget
+from joulescope_ui.preferences_def import FONT_SIZES
 import pyqtgraph as pg
 import copy
 import logging
@@ -93,12 +94,16 @@ class WaveformWidget(QtWidgets.QWidget):
         c.subscribe('Widgets/Waveform/#statistics_over_range_resp', wref(self._on_statics_over_range_resp),
                     update_now=True)
         c.subscribe('Device/#state/x_limits', wref(self._on_device_state_limits), update_now=True)
+        c.subscribe('Widgets/Waveform/Statistics/font-size', wref(self._on_statistics_settings))
         c.register('!Widgets/Waveform/Signals/add', self._cmd_waveform_signals_add,
                    brief='Add a signal to the waveform.',
                    detail='value is list of signal name string and position. -1 inserts at end')
         c.register('!Widgets/Waveform/Signals/remove', self._cmd_waveform_signals_remove,
                    brief='Remove a signal from the waveform by name.',
                    detail='value is signal name string.')
+
+    def _on_statistics_settings(self, topic, value):
+        self.win.ci.layout.invalidate()
 
     def _cmd_waveform_signals_add(self, topic, value):
         name, index = value
@@ -467,6 +472,16 @@ def widget_register(cmdp):
         dtype='str',
         options=['1', '2', '4', '6', '8'],
         default='1')
+
+    cmdp.define(
+        topic='Widgets/Waveform/Statistics/font',
+        dtype='font',
+        default='Lato,10,-1,5,87,0,0,0,0,0,Black')
+    cmdp.define(
+        topic='Widgets/Waveform/Statistics/font-color',
+        brief='The font color.',
+        dtype='color',
+        default=(192, 192, 192, 255))
 
     cmdp.define('Widgets/Waveform/#requests/refresh_markers', dtype=object)  # list of marker names
     cmdp.define('Widgets/Waveform/#requests/data_next', dtype='none')

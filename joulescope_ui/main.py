@@ -1315,7 +1315,21 @@ class ErrorWindow(QtWidgets.QMainWindow):
         self.ui.label.setText(msg)
         self.show()
 
-            
+
+def load_font(resource_path):
+    rv = QtGui.QFontDatabase.addApplicationFont(resource_path)
+    if rv == -1:
+        raise RuntimeError(f'Could not load font {resource_path}')
+
+
+def load_fonts():
+    iterator = QtCore.QDirIterator(':/joulescope/fonts/', QtCore.QDirIterator.Subdirectories)
+    while iterator.hasNext():
+        resource_path = iterator.next()
+        if resource_path.endswith('.ttf'):
+            load_font(resource_path)
+
+
 def run(device_name=None, log_level=None, file_log_level=None, filename=None):
     """Run the Joulescope UI application.
 
@@ -1366,6 +1380,7 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
     log.info('Start Qt')
     app = QtWidgets.QApplication(sys.argv)
     ui = MainWindow(app, device_name, cmdp)
+    load_fonts()
     ui.run(filename)
     device_notify = DeviceNotify(ui.on_deviceNotifySignal.emit)
     rc = app.exec_()

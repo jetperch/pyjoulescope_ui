@@ -15,5 +15,9 @@
     <file>resources/zoom_x.png</file>
     <file>resources/zoom_y.png</file>
     <file>resources/zoom_auto_y.png</file>
+    
+    <file>fonts/Lato/Lato-Regular.ttf</file>
+    <file>fonts/Lato/Lato-Bold.ttf</file>
+    <file>fonts/Lato/Lato-Black.ttf</file>
   </qresource>
 </RCC>

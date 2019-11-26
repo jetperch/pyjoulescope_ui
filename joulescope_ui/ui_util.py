@@ -110,3 +110,56 @@ def clear_layout(layout):
                 widget.deleteLater()
             else:
                 clear_layout(item.layout())
+
+
+def rgba_to_css(rgba):
+    r, g, b, a = rgba
+    return 'rgba(%d,%d,%d,%f)' % (r, g, b, a / 255.0)
+
+
+def font_to_css(font):
+    # https://forum.qt.io/topic/45970/qfont-support-for-css-font-spec-encoding/2
+    fields = []
+    font = QtGui.QFont(font)
+
+    # Determine font family
+    family = font.family()
+    # substitutes seem worthless in Qt - nothing ever returned
+    family_subs_baseline = font.substitutes(family)
+    if family not in family_subs_baseline:
+        family_subs_baseline.insert(0, family)
+    family_subs = []
+    for family in family_subs_baseline:
+        if ' ' in family and family[0] not in ['"', "'"]:
+            family = f'"{family}"'
+        family_subs.append(family)
+    fields.append('font-family: ' + ','.join(family_subs))
+
+    # Font weight and style
+    if font.bold():
+        fields.append('font-weight: bold')
+    if font.style() == QtGui.QFont.StyleItalic:
+        fields.append('font-style: italic')
+    elif font.style() == QtGui.QFont.StyleOblique:
+        fields.append('font-style: oblique')
+
+    # font size
+    size_in_points = font.pointSizeF()  # 0 if not defined
+    size_in_pixels = font.pixelSize()  # 0 if not defined
+    if size_in_points > 0:
+        fields.append(f'font-size: {size_in_points}pt')
+    elif size_in_pixels > 0:
+        fields.append(f'font-size: {size_in_pixels}px')
+
+    # decorations: underline & strikeout
+    underline = font.underline()
+    strike_out = font.strikeOut()
+    if underline or strike_out:
+        s = 'text-decoration:'
+        if underline:
+            s += ' underline'
+        if strike_out:
+            s += 'line-through'
+        fields.append(s)
+
+    return '; '.join(fields)

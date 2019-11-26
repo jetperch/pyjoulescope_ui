@@ -16,39 +16,16 @@ from PySide2 import QtCore, QtGui, QtWidgets
 from joulescope_ui import joulescope_rc
 from joulescope.units import unit_prefix
 import numpy as np
-
-# https://en.wikipedia.org/wiki/List_of_monospaced_typefaces
-# https://github.com/adobe-fonts/source-code-pro
-# font-family:"Courier New", Courier, monospace;
-# See stylesheet support: https://doc.qt.io/qt-5/stylesheet-reference.html#list-of-properties
-# Only font, font-family, font-size, font-style, font-weight
-
-styleSheetMain = """
-QLabel { font-weight: bold; font-size: 48pt; }
-"""
-# QLabel { font-family: "Courier New"; font-weight: bold; font-size: 48pt; }
-
-styleSheetStats = """
-QLabel { font-weight: bold; }
-"""
-
-styleSheetStatsHide = """
-QLabel { font-weight: bold; font-color: black}
-"""
-
-# Programmatic method
-# self.font = QtGui.QFont('Consolas', pointSize=48, weight=QtGui.QFont.Bold)
-# self.font.setPointSize(48)
-# self.font.setWeight(QtGui.QFont.Bold)
-# self.font.setFixedPitch(True)  # does not work in Qt 5
-# self.setFont(self.font)
+from weakref import WeakMethod as wref
+from joulescope_ui.ui_util import rgba_to_css
 
 
 class MeterValueWidget(QtWidgets.QWidget):
     on_update = QtCore.Signal(object, str)  # [mean, std_dev, min, max, p2p], units : values are formatted strings!
 
-    def __init__(self, *args, **kwargs):
-        QtWidgets.QWidget.__init__(self, *args, **kwargs)
+    def __init__(self, parent, cmdp):
+        QtWidgets.QWidget.__init__(self, parent)
+        self._cmdp = cmdp
         self._units_short = ''
         self._units_long = ''
         self.v_mean = 0.0
@@ -65,13 +42,12 @@ class MeterValueWidget(QtWidgets.QWidget):
         self.horizontalLayout.setContentsMargins(2, 2, 2, 2)
         self.horizontalLayout.setSpacing(0)
         self.horizontalLayout.setObjectName("horizontalLayout")
+
         self.valueLabel = QtWidgets.QLabel(self)
-        self.valueLabel.setStyleSheet(styleSheetMain)
         self.valueLabel.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.valueLabel.setObjectName("valueLabel")
         self.horizontalLayout.addWidget(self.valueLabel)
         self.unitLabel = QtWidgets.QLabel(self)
-        self.unitLabel.setStyleSheet(styleSheetMain)
         self.unitLabel.setObjectName("unitLabel")
         self.horizontalLayout.addWidget(self.unitLabel)
         self.frame = QtWidgets.QFrame(self)
@@ -89,42 +65,34 @@ class MeterValueWidget(QtWidgets.QWidget):
         self.gridLayout.setSpacing(0)
         self.gridLayout.setObjectName("gridLayout")
         self.stdLabel = QtWidgets.QLabel(self.frame)
-        self.stdLabel.setStyleSheet(styleSheetStats)
         self.stdLabel.setLineWidth(0)
         self.stdLabel.setObjectName("stdLabel")
         self.gridLayout.addWidget(self.stdLabel, 0, 0, 1, 1)
         self.stdName = QtWidgets.QLabel(self.frame)
-        self.stdName.setStyleSheet(styleSheetStats)
         self.stdName.setLineWidth(0)
         self.stdName.setObjectName("stdName")
         self.gridLayout.addWidget(self.stdName, 0, 1, 1, 1)
         self.minLabel = QtWidgets.QLabel(self.frame)
-        self.minLabel.setStyleSheet(styleSheetStats)
         self.minLabel.setLineWidth(0)
         self.minLabel.setObjectName("minLabel")
         self.gridLayout.addWidget(self.minLabel, 1, 0, 1, 1)
         self.minName = QtWidgets.QLabel(self.frame)
-        self.minName.setStyleSheet(styleSheetStats)
         self.minName.setLineWidth(0)
         self.minName.setObjectName("minName")
         self.gridLayout.addWidget(self.minName, 1, 1, 1, 1)
         self.maxLabel = QtWidgets.QLabel(self.frame)
-        self.maxLabel.setStyleSheet(styleSheetStats)
         self.maxLabel.setLineWidth(0)
         self.maxLabel.setObjectName("maxLabel")
         self.gridLayout.addWidget(self.maxLabel, 2, 0, 1, 1)
         self.maxName = QtWidgets.QLabel(self.frame)
-        self.maxName.setStyleSheet(styleSheetStats)
         self.maxName.setLineWidth(0)
         self.maxName.setObjectName("maxName")
         self.gridLayout.addWidget(self.maxName, 2, 1, 1, 1)
         self.p2pLabel = QtWidgets.QLabel(self.frame)
-        self.p2pLabel.setStyleSheet(styleSheetStats)
         self.p2pLabel.setLineWidth(0)
         self.p2pLabel.setObjectName("p2pLabel")
         self.gridLayout.addWidget(self.p2pLabel, 3, 0, 1, 1)
         self.p2pName = QtWidgets.QLabel(self.frame)
-        self.p2pName.setStyleSheet(styleSheetStats)
         self.p2pName.setLineWidth(0)
         self.p2pName.setObjectName("p2pName")
         self.gridLayout.addWidget(self.p2pName, 3, 1, 1, 1)
@@ -138,6 +106,37 @@ class MeterValueWidget(QtWidgets.QWidget):
         ]
 
         self.retranslateUi()
+
+        cmdp.subscribe('Widgets/Multimeter/font-main', wref(self._on_font_main), update_now=True)
+        cmdp.subscribe('Widgets/Multimeter/font-stats', wref(self._on_font_stats), update_now=True)
+        cmdp.subscribe('Widgets/Multimeter/font-color', wref(self._on_color), update_now=True)
+        cmdp.subscribe('Widgets/Multimeter/background-color', wref(self._on_color), update_now=True)
+
+    def _widgets(self):
+        widgets = [self.valueLabel, self.unitLabel]
+        for w in self._stats_widgets:
+            widgets.extend(w)
+        return widgets
+
+    def _on_font_main(self, topic, value):
+        font = QtGui.QFont()
+        font.fromString(value)
+        self.valueLabel.setFont(font)
+        self.unitLabel.setFont(font)
+
+    def _on_font_stats(self, topic, value):
+        font = QtGui.QFont()
+        font.fromString(value)
+        for widgets in self._stats_widgets:
+            for widget in widgets:
+                widget.setFont(font)
+
+    def _on_color(self, topic, value):
+        foreground = rgba_to_css(self._cmdp['Widgets/Multimeter/font-color'])
+        background = rgba_to_css(self._cmdp['Widgets/Multimeter/background-color'])
+        style = 'QLabel { background-color: %s; color: %s; }' % (background, foreground)
+        for widget in self._widgets():
+            widget.setStyleSheet(style)
 
     @property
     def accumulate_enable(self):
@@ -163,11 +162,6 @@ class MeterValueWidget(QtWidgets.QWidget):
         self.minName.setText(_translate("Form", " min "))
         self.maxName.setText(_translate("Form", " max "))
         self.p2pName.setText(_translate("Form", " p2p "))
-
-    def stats_stylesheet(self, stylesheet):
-        for widgets in self._stats_widgets:
-            for widget in widgets:
-                widget.setStyleSheet(stylesheet)
 
     def _update_value(self, mean, variance, v_min, v_max):
         if self._accum_enable:

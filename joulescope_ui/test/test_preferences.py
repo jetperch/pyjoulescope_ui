@@ -180,6 +180,25 @@ class TestPreferences(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate('world', 'int')
 
+    def test_validate_int_range(self):
+        options = {'min': 1, 'max': 11, 'step': 2}
+        self.assertEqual(1, validate(1, 'int', options=options))
+        self.assertEqual(3, validate(3, 'int', options=options))
+        self.assertEqual(11, validate(11, 'int', options=options))
+        with self.assertRaises(ValueError):
+            validate(-1, 'int', options=options)
+        with self.assertRaises(ValueError):
+            validate(2, 'int', options=options)
+        with self.assertRaises(ValueError):
+            validate(13, 'int', options=options)
+
+    def test_validate_int_list(self):
+        options = [6, 7, 8, 10, 12, 14, 16, 20, 24, 32, 40, 48, 64]
+        self.assertEqual(10, validate(10, 'int', options=options))
+        self.assertEqual(10, validate('10', 'int', options=options))
+        with self.assertRaises(ValueError):
+            self.assertEqual(10, validate(11, 'int', options=options))
+
     def test_validate_float(self):
         self.assertEqual(1, validate(1, 'float'))
         self.assertEqual(1.1, validate(1.1, 'float'))
@@ -208,6 +227,21 @@ class TestPreferences(unittest.TestCase):
 
     def test_validate_none(self):
         self.assertEqual('hi', validate('hi', 'none'))
+
+    def test_validate_color(self):
+        self.assertEqual((1, 2, 3, 255), validate([1, 2, 3], 'color'))
+        self.assertEqual((1, 2, 3, 4), validate([1, 2, 3, 4], 'color'))
+        self.assertEqual((255, 0, 0, 255), validate('red', 'color'))
+        with self.assertRaises(ValueError):
+            validate('djflkajfdsfklsj', 'color')
+        with self.assertRaises(ValueError):
+            validate([1, 2], 'color')
+
+    def test_validate_font(self):
+        validate('Monospaced', 'font')
+        with self.assertRaises(ValueError):
+            validate('__very_invalid_font__', 'font')
+            # not sure how to get this to raise
 
     def test_set_invalid_type(self):
         self.p.define(name='hello', dtype='str', default='world')

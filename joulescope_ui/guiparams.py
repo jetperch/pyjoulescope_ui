@@ -442,9 +442,10 @@ class Enum(Parameter):
         of values.  When False, arbitrary string values are allowed.
     """
     def __init__(self, name: str, value=None, values=None, tooltip: str='', closed=True):
-        if value is None and values:
-            value = values[0]
-        self._values = values
+        if values is not None:
+            self._values = [str(v) for v in values]
+        if value is None and self._values:
+            value = self._values[0]
         self._closed = closed
         self.comboBox = None
         Parameter.__init__(self, name, value, tooltip)
@@ -459,31 +460,28 @@ class Enum(Parameter):
     def _update_values(self):
         if self.comboBox is None:
             return
-        try:
-            self.comboBox.currentIndexChanged.disconnect()
-        except Exception:
-            pass
-        try:
-            self.comboBox.editTextChanged.disconnect()
-        except Exception:
-            pass
+        block_signals_state = self.comboBox.blockSignals(True)
         self.comboBox.clear()
         if self._values:
             for v in self._values:
-                self.comboBox.addItem(str(v))
+                self.comboBox.addItem(v)
             self.comboBox.setEnabled(True)
         elif self._closed:
             self.comboBox.setEnabled(False)
         else:
             self.comboBox.setEnabled(True)
         if self._value is not None:
-            idx = self.comboBox.findText(self._value)
+            idx = self.comboBox.findText(str(self._value))
             if idx >= 0:
                 self.comboBox.setCurrentIndex(idx)
             elif not self._closed:
-                self.comboBox.setEditText(self._value)
-        self.comboBox.currentIndexChanged.connect(self.update)
+                self.comboBox.setEditText(str(self._value))
+        self.comboBox.blockSignals(block_signals_state)
+        self.comboBox.currentIndexChanged.connect(self._on_index_changed)
         self.comboBox.editTextChanged.connect(self._on_text_changed)
+
+    def _on_index_changed(self, index):
+        self.update(self._values[index])
 
     @property
     def values(self):
@@ -491,7 +489,7 @@ class Enum(Parameter):
 
     @values.setter
     def values(self, values):
-        self._values = values
+        self._values = [str(v) for v in values]
         self._update_values()
         if self._values and self._closed:
             if self._value not in self._values:
@@ -499,16 +497,10 @@ class Enum(Parameter):
 
     def validate(self, x):
         if x is None:
-            pass
-        elif isinstance(x, int):  # presume index
-            if x < 0 or x >= len(self._values):
-                raise ValueError(x)
-            x = self._values[x]
-        elif isinstance(x, str):  #allowed
-            if self._closed: # require to be in values
-                self._values.index(x)
-        else:
-            raise ValueError(x)
+            return None
+        x = str(x)
+        if self._closed:  # require to be in values
+            self._values.index(x)
         return x
 
     def on_changed(self):
@@ -571,7 +563,6 @@ class String(Parameter):
     def on_changed(self):
         v = self.value
         if v is None:
-            print('on_changed None')
             return
         if self.lineEdit is not None:
             if v != str(self.lineEdit.text()):
@@ -750,18 +741,23 @@ class Color(Parameter):
     :param tooltip: The text for the tooltip.
     """
     def __init__(self, name: str, value=False, tooltip: str=''):
-        self.label = None
+        self.color_label = None
         self._parent = None
         Parameter.__init__(self, name, value, tooltip)
         self.picture = None
 
     def populate_subclass(self, parent):
         self._parent = parent
-        self.label = QClickLabel()
-        self.label.clicked.connect(self.onClick)
+        self.color_label = QClickLabel()
+        self.color_label.clicked.connect(self.onClick)
         self.picture = QtGui.QPicture()
         self.draw()
-        self.add_widget(self.label)
+        self.add_widget(self.color_label)
+
+    def unpopulate(self, parent):
+        super().unpopulate(parent)
+        self.color_label = None
+        self.picture = None
 
     def to_qt_color(self, x=None):
         if x is None:
@@ -778,24 +774,65 @@ class Color(Parameter):
         painter = QtGui.QPainter()
         painter.begin(self.picture)
         color = self.to_qt_color()
-        print('%s : %s' % (self._value, color.getRgb()))
+        # print('%s : %s' % (self._value, color.getRgb()))
         painter.fillRect(QtCore.QRect(0, 0, 60, 20), QtGui.QBrush(color))
         painter.end()
-        self.label.setPicture(self.picture)
+        self.color_label.setPicture(self.picture)
 
     def validate(self, x):
         if x is None:
             return None
-        return self.to_qt_color(x).getRgb()[:3]
+        return self.to_qt_color(x).getRgb()
 
     def onClick(self):
         dialog = QtWidgets.QColorDialog(self.to_qt_color(), self._parent)
+        dialog.setOption(QtWidgets.QColorDialog.ColorDialogOption.ShowAlphaChannel, True)
         if dialog.exec_():
             self.value = dialog.selectedColor()
 
     def on_changed(self):
-        if self.label is not None:
+        if self.color_label is not None:
             self.draw()
+
+
+class Font(Parameter):
+    """A font selection item.
+
+    :param str name: The name for this item.
+    :param bool value: The starting value for this item.
+    :param tooltip: The text for the tooltip.
+    """
+    def __init__(self, name: str, value=False, tooltip: str=''):
+        self.sample_label = None
+        self._parent = None
+        Parameter.__init__(self, name, value, tooltip)
+
+    def populate_subclass(self, parent):
+        self._parent = parent
+        self.sample_label = QClickLabel()
+        self.sample_label.setText('0123456789 µΔσ∫')
+        self.sample_label.clicked.connect(self.onClick)
+        self.add_widget(self.sample_label)
+
+    def unpopulate(self, parent):
+        super().unpopulate(parent)
+        self.sample_label = None
+
+    def validate(self, x):
+        return x
+
+    def onClick(self):
+        font = QtGui.QFont()
+        font.fromString(self._value)
+        ok, font = QtWidgets.QFontDialog.getFont(font, self._parent)
+        if ok:
+            self.value = font.toString()
+
+    def on_changed(self):
+        if self.sample_label is not None:
+            font = QtGui.QFont()
+            font.fromString(self._value)
+            self.sample_label.setFont(font)
 
 
 def demo():

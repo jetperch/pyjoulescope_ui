@@ -28,6 +28,7 @@ from joulescope_ui.ui_util import comboBoxConfig
 from joulescope_ui.preferences import options_enum
 from joulescope_ui import preferences_defaults
 from PySide2 import QtCore, QtWidgets, QtGui
+import collections.abc
 import logging
 import weakref
 
@@ -182,6 +183,18 @@ class PreferencesDialog(QtWidgets.QDialog):
             p = guiparams.String(name, value, tooltip=tooltip)
         return p
 
+    def _populate_int(self, entry, name, value, tooltip):
+        options = entry.get('options', None)
+        if options is None:
+            return None  # todo
+        if callable(options):
+            options = options_enum(options)
+        if isinstance(options, collections.abc.Sequence):
+            return guiparams.Enum(name, value, options, tooltip=tooltip)
+        else:
+            # todo range
+            return None
+
     def _populate_entry(self, name, entry):
         value = self._cmdp.preferences.get(entry['name'], profile=self._active_profile)
         p = None
@@ -194,6 +207,8 @@ class PreferencesDialog(QtWidgets.QDialog):
             tooltip += '</span>'
         if dtype == 'str':
             p = self._populate_str(entry, name, value, tooltip)
+        elif dtype == 'int':
+            p = self._populate_int(entry, name, value, tooltip)
         elif dtype == 'bool':
             if isinstance(value, str):
                 value = value.lower()
@@ -207,6 +222,10 @@ class PreferencesDialog(QtWidgets.QDialog):
                 p = guiparams.FileOpen(name, value, tooltip=tooltip)
             else:
                 p = guiparams.FileSave(name, value, tooltip=tooltip)
+        elif dtype == 'color':
+            p = guiparams.Color(name, value, tooltip=tooltip)
+        elif dtype == 'font':
+            p = guiparams.Font(name, value, tooltip=tooltip)
         else:
             log.info('%s: unsupported dtype %s', entry['name'], dtype)
         if p is not None:

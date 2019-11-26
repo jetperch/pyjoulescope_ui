@@ -20,7 +20,7 @@ https://gist.github.com/dgovil/d83e7ddc8f3fb4a28832ccc6f9c7f07b
 https://gist.github.com/bootchk/5330231
 """
 
-from PySide2 import QtCore
+from PySide2 import QtCore, QtGui
 from joulescope_ui import paths
 import collections.abc
 import base64
@@ -42,6 +42,8 @@ DTYPES_DEF = [
     ('bytes', bytes),
     ('dict', dict, collections.abc.Mapping),
     ('obj', 'object', object),  # WARNING CANNOT BE SERIALIZED!
+    ('color', ),
+    ('font', ),
     ('none', None),  # not stored, but used to signal events
     ('container', )]
 DTYPES = [item for sublist in DTYPES_DEF for item in sublist]
@@ -77,7 +79,7 @@ def options_enum(options):
         raise ValueError(f'unsupported options format {options}')
 
 
-def options_validate(options, value):
+def options_str_validate(options, value):
     if options is None:
         return value
     try:
@@ -97,15 +99,45 @@ def options_validate(options, value):
         raise ValueError(f'Unsupported option value {value}')
 
 
+def options_int_validate(options, value):
+    value = int(value)
+    if options is None:
+        return value
+    if isinstance(options, collections.abc.Mapping):
+        x_min = options.get('min', 0)
+        x_max = options.get('max', 100)
+        x_step = options.get('step', 1)
+        if value < x_min or value > x_max:
+            raise ValueError(f'int {value} out of range {x_min}..{x_max}')
+        if 0 != (value - x_min) % x_step:
+            raise ValueError(f'int {value} not on step N * {x_step} + x_min')
+    elif isinstance(options, collections.abc.Sequence):
+        if value not in options:
+            raise ValueError(f'int {value} not in options {options}')
+    return value
+
+
+def validate_color(value):
+    c = None
+    if isinstance(value, str):
+        c = QtGui.QColor(value)
+    elif isinstance(value, collections.abc.Sequence):
+        if len(value) in [3, 4]:
+            c = QtGui.QColor(*value)
+    if c is None or not c.isValid():
+        raise ValueError(f'Invalid color {value}')
+    return c.getRgb()
+
+
 def validate(value, dtype, options=None):
     if dtype == 'obj':
         pass  # no validation necessary
     elif dtype == 'str':
         if not isinstance(value, str):
             raise ValueError(f'expected str {value}')
-        value = options_validate(options, value)
+        value = options_str_validate(options, value)
     elif dtype == 'int':
-        return int(value)
+        return options_int_validate(options, value)
     elif dtype == 'float':
         return float(value)
     elif dtype == 'bool':
@@ -117,6 +149,10 @@ def validate(value, dtype, options=None):
     elif dtype == 'dict':
         if not hasattr(value, 'keys'):
             raise ValueError(f'dtype dict but no keys')
+        return value
+    elif dtype == 'color':
+        return validate_color(value)
+    elif dtype == 'font':
         return value
     elif dtype == 'container':
         return value

@@ -16,6 +16,9 @@ from joulescope_ui import VERSION
 from joulescope_ui.paths import paths_current
 
 
+FONT_SIZES = [6, 7, 8, 9, 10, 11, 12, 14, 16, 20, 24, 30, 36, 48, 72]
+
+
 def preferences_def(p):
     # --- METADATA ---
     p.define('_meta/', 'Preferences metadata')
