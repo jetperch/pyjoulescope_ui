@@ -156,6 +156,11 @@ class TestCommandProcessor(unittest.TestCase):
         self.c.publish('hello', 'there')
         self.assertEqual([('hello', 'there')], self.commands)
 
+    def test_subscribe_to_missing(self):
+        self.c.subscribe('hello', self.execute_ignore)
+        self.c.subscribe('hello', self.execute_ignore, update_now=True)
+        self.assertEqual([], self.commands)
+
     def test_unsubscribe(self):
         self.c.define('hello', default='world')
         self.c.subscribe('hello', self.execute_ignore)
@@ -312,4 +317,8 @@ class TestCommandProcessor(unittest.TestCase):
         self.c['a'] = '2'
         self.assertEqual(['1'], calls)
 
+    def test_contains(self):
+        self.assertFalse('hello' in self.c)
+        self.c['hello'] = 'world'
+        self.assertTrue('hello' in self.c)
 

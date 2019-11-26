@@ -26,7 +26,7 @@ VOLTAGES = ['1.8V', '2.1V', '2.5V', '2.7V', '3.0V', '3.3V', '5.0V']
 class GpioWidget(QtWidgets.QWidget):
     on_changeSignal = QtCore.Signal(object)
 
-    def __init__(self, parent, cmdp):
+    def __init__(self, parent, cmdp, state_preference):
         QtWidgets.QWidget.__init__(self, parent)
         self.ui = Ui_GpioWidget()
         self.ui.setupUi(self)

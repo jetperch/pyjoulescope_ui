@@ -153,7 +153,9 @@ class MyDockWidget(QtWidgets.QDockWidget):
         self._cmdp = cmdp
         self.widget_def = widget_def
 
-        self.inner_widget = widget_def['class'](self, cmdp)
+        state_preference = f'Widgets/_state/{self}'
+        self.inner_widget = widget_def['class'](self, cmdp, state_preference)
+        self.inner_widget.setObjectName(str(self) + "__inner__")
         self.setWidget(self.inner_widget)
         self.dockLocationChanged.connect(self._on_dock_location_changed)
 

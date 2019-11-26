@@ -31,7 +31,7 @@ FIELDS = [
 
 class MeterWidget(QtWidgets.QWidget):
 
-    def __init__(self, parent, cmdp):
+    def __init__(self, parent, cmdp, state_preference):
         QtWidgets.QWidget.__init__(self, parent)
         self._cmdp = cmdp
         self._accumulate_duration = 0.0

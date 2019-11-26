@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 
 class ControlWidget(QtWidgets.QWidget):
 
-    def __init__(self, parent, cmdp):
+    def __init__(self, parent, cmdp, state_preference):
         QtWidgets.QWidget.__init__(self, parent)
         self._cmdp = cmdp
         self._ui = Ui_ControlWidget()

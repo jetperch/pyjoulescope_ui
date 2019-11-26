@@ -35,7 +35,7 @@ class WaveformWidget(QtWidgets.QWidget):
     :param parent: The parent :class:`QWidget`.
     """
 
-    def __init__(self, parent, cmdp):
+    def __init__(self, parent, cmdp, state_preference):
         QtWidgets.QWidget.__init__(self, parent=parent)
         self._cmdp = cmdp
         self._x_limits = [0.0, 30.0]

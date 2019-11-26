@@ -100,6 +100,9 @@ class CommandProcessor(QtCore.QObject):
     def __delitem__(self, key):
         self.invoke('!preferences/preference/purge', key)
 
+    def __contains__(self, key):
+        return self.preferences.__contains__(key)
+
     def items(self, prefix=None):
         return self.preferences.items(prefix=prefix)
 
@@ -243,7 +246,11 @@ class CommandProcessor(QtCore.QObject):
                 for t, v in self.preferences.items(prefix=topic):
                     self._subscriber_call(update_fn, t, v)
             else:
-                self._subscriber_call(update_fn, topic, self.preferences[topic])
+                try:
+                    value = self.preferences[topic]
+                    self._subscriber_call(update_fn, topic, value)
+                except KeyError:
+                    log.info('subscribed to missing topic %s', topic)
 
     def unsubscribe(self, topic, update_fn):
         """Unsubscribe from a topic.

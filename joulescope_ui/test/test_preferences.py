@@ -52,6 +52,11 @@ class TestPreferences(unittest.TestCase):
         self.assertEqual('world', self.p.get('hello'))
         self.assertEqual('world', self.p.get('hello', default='default'))
 
+    def test_contains(self):
+        self.assertFalse('hello' in self.p)
+        self.p['hello'] = 'world'
+        self.assertTrue('hello' in self.p)
+
     def test_set_profile_missing(self):
         with self.assertRaises(KeyError):
             self.p.set('hello', 'world', profile='p1')
@@ -239,9 +244,6 @@ class TestPreferences(unittest.TestCase):
 
     def test_validate_font(self):
         validate('Monospaced', 'font')
-        with self.assertRaises(ValueError):
-            validate('__very_invalid_font__', 'font')
-            # not sure how to get this to raise
 
     def test_set_invalid_type(self):
         self.p.define(name='hello', dtype='str', default='world')

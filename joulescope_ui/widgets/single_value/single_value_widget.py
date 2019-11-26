@@ -18,7 +18,7 @@ import weakref
 from joulescope_ui import joulescope_rc
 from joulescope.units import unit_prefix
 from weakref import WeakMethod as wref
-from joulescope_ui.ui_util import rgba_to_css
+from joulescope_ui.ui_util import rgba_to_css, comboBoxSelectItemByText
 import logging
 log = logging.getLogger(__name__)
 
@@ -37,7 +37,7 @@ STATISTICS_TRANSLATE = {
 
 class SingleValueWidget(QtWidgets.QWidget):
 
-    def __init__(self, parent, cmdp):
+    def __init__(self, parent, cmdp, state_preference):
         QtWidgets.QWidget.__init__(self, parent)
         self._cmdp = cmdp
         self._font_index = 2
@@ -55,7 +55,6 @@ class SingleValueWidget(QtWidgets.QWidget):
         self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.fieldLabel)
         self.fieldComboBox = QtWidgets.QComboBox(self.widget)
         self.fieldComboBox.setObjectName("fieldComboBox")
-        self.fieldComboBox.currentIndexChanged.connect(self.on_field_changed)
         self.formLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.fieldComboBox)
         self.statisticLabel = QtWidgets.QLabel(self.widget)
         self.statisticLabel.setObjectName("statisticLabel")
@@ -84,11 +83,32 @@ class SingleValueWidget(QtWidgets.QWidget):
         self.horizontalLayout.addWidget(self.value_widget)
 
         self.retranslateUi()
+        self.fieldComboBox.currentIndexChanged.connect(self.on_field_changed)
+        self.statisticComboBox.currentIndexChanged.connect(self.on_statistic_changed)
         self._cmdp.subscribe('Device/#state/statistics', weakref.WeakMethod(self._on_device_statistics),
                              update_now=True)
         cmdp.subscribe('Widgets/Single Value/font', wref(self._on_font), update_now=True)
         cmdp.subscribe('Widgets/Single Value/font-color', wref(self._on_color), update_now=True)
         cmdp.subscribe('Widgets/Single Value/background-color', wref(self._on_color), update_now=True)
+
+        self._state_preference = state_preference
+        if self._state_preference not in cmdp:
+            cmdp[self._state_preference] = {}
+        cmdp.subscribe(self._state_preference, wref(self._on_state), update_now=True)
+
+    def _on_state(self, topic, value):
+        if value is None:
+            value = self._cmdp[self._state_preference]
+        if 'fieldComboBox' in value and value['fieldComboBox'] != self.fieldComboBox.currentText():
+            comboBoxSelectItemByText(self.fieldComboBox, value['fieldComboBox'], block=True)
+        if 'statisticComboBox' in value and value['statisticComboBox'] != self.statisticComboBox.currentText():
+            comboBoxSelectItemByText(self.statisticComboBox, value['statisticComboBox'], block=True)
+
+    def _state_update(self):
+        self._cmdp[self._state_preference] = {
+            'fieldComboBox': self.fieldComboBox.currentText(),
+            'statisticComboBox': self.statisticComboBox.currentText(),
+        }
 
     def _on_font(self, topic, value):
         font = QtGui.QFont()
@@ -117,8 +137,11 @@ class SingleValueWidget(QtWidgets.QWidget):
         if self.fieldComboBox.count() == 0:
             fields = list(self._statistics['signals'].keys()) + \
                      list(self._statistics['accumulators'].keys())
+            block_signals_state = self.fieldComboBox.blockSignals(True)
             for field in fields:
                 self.fieldComboBox.addItem(field)
+            self._on_state(None, None)  # restore
+            self.fieldComboBox.blockSignals(block_signals_state)
         field = self.fieldComboBox.currentText()
         if field in self._statistics['signals']:
             self.statisticComboBox.setEnabled(True)
@@ -128,7 +151,6 @@ class SingleValueWidget(QtWidgets.QWidget):
             value = STATISTICS_TRANSLATE[stat](s)
         elif field in self._statistics['accumulators']:
             self.statisticComboBox.setEnabled(False)
-            v = self._statistics['accumulators'][field]['value']
             value = self._statistics['accumulators'][field]['value']
             units = self._statistics['accumulators'][field]['units']
         else:
@@ -144,6 +166,12 @@ class SingleValueWidget(QtWidgets.QWidget):
     @QtCore.Slot(int)
     def on_field_changed(self, index):
         self._update()
+        self._state_update()
+
+    @QtCore.Slot(int)
+    def on_statistic_changed(self, index):
+        self._update()
+        self._state_update()
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
@@ -154,8 +182,8 @@ class SingleValueWidget(QtWidgets.QWidget):
         self.statisticComboBox.addItem(_translate("Form", "Minimum"))
         self.statisticComboBox.addItem(_translate("Form", "Maximum"))
         self.statisticComboBox.addItem(_translate("Form", "Peak-to-Peak"))
-        self.valueLabel.setText("+0.00000")
-        self.unitLabel.setText(_translate("Form", " mA "))
+        self.valueLabel.setText("")
+        self.unitLabel.setText(_translate("Form", ""))
 
     def resizeEvent(self, event):
         super().resizeEvent(event)

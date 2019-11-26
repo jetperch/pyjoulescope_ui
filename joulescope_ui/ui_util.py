@@ -65,10 +65,14 @@ def comboBoxIncrement(box):
     return False
 
 
-def comboBoxSelectItemByText(combobox: QtWidgets.QComboBox, value):
+def comboBoxSelectItemByText(combobox: QtWidgets.QComboBox, value, block=False):
     index = combobox.findText(value)
     if index >= 0:
+        if block:
+            block_state = combobox.blockSignals(True)
         combobox.setCurrentIndex(index)
+        if block:
+            combobox.blockSignals(block_state)
 
 
 def confirmDiscard(parent):
