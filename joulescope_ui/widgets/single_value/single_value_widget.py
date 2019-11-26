@@ -17,17 +17,14 @@ import numpy as np
 import weakref
 from joulescope_ui import joulescope_rc
 from joulescope.units import unit_prefix
+from weakref import WeakMethod as wref
+from joulescope_ui.ui_util import rgba_to_css
 import logging
 log = logging.getLogger(__name__)
 
 
 FONT_SIZES = [24, 32, 40, 48, 56, 64]
 
-
-STYLE_FSTR = """
-QWidget {{ background-color : black; }}
-QLabel {{ color : green; font-weight: bold; font-size: {font_size}pt; }}
-"""
 
 STATISTICS_TRANSLATE = {
     'Mean': lambda s: s['μ'],
@@ -65,25 +62,19 @@ class SingleValueWidget(QtWidgets.QWidget):
         self.formLayout.setWidget(1, QtWidgets.QFormLayout.LabelRole, self.statisticLabel)
         self.statisticComboBox = QtWidgets.QComboBox(self.widget)
         self.statisticComboBox.setObjectName("statisticComboBox")
-        self.statisticComboBox.addItem("")
-        self.statisticComboBox.addItem("")
-        self.statisticComboBox.addItem("")
-        self.statisticComboBox.addItem("")
-        self.statisticComboBox.addItem("")
         self.formLayout.setWidget(1, QtWidgets.QFormLayout.FieldRole, self.statisticComboBox)
         self.horizontalLayout.addWidget(self.widget)
         self.spacerItem = QtWidgets.QSpacerItem(44, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(self.spacerItem)
         self.value_widget = QtWidgets.QWidget(self)
         self.value_widget.setObjectName("ValueWidget")
-        self._font_size_delta()
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.value_widget)
         self.horizontalLayout_2.setContentsMargins(-1, 0, -1, 0)
         self.horizontalLayout_2.setSpacing(0)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.valueLabel = QtWidgets.QLabel(self.value_widget)
         self.valueLabel.setLineWidth(0)
-        self.valueLabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.valueLabel.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.valueLabel.setObjectName("valueLabel")
         self.horizontalLayout_2.addWidget(self.valueLabel)
         self.unitLabel = QtWidgets.QLabel(self.value_widget)
@@ -95,15 +86,25 @@ class SingleValueWidget(QtWidgets.QWidget):
         self.retranslateUi()
         self._cmdp.subscribe('Device/#state/statistics', weakref.WeakMethod(self._on_device_statistics),
                              update_now=True)
+        cmdp.subscribe('Widgets/Single Value/font', wref(self._on_font), update_now=True)
+        cmdp.subscribe('Widgets/Single Value/font-color', wref(self._on_color), update_now=True)
+        cmdp.subscribe('Widgets/Single Value/background-color', wref(self._on_color), update_now=True)
 
-    def _font_size_delta(self, delta=None):
-        delta = 0 if delta is None else int(delta)
-        idx = self._font_index + delta
-        idx = max(idx, 0)
-        idx = min(idx, len(FONT_SIZES) - 1)
-        self._font_index = idx
-        font_size = FONT_SIZES[self._font_index]
-        self.value_widget.setStyleSheet(STYLE_FSTR.format(font_size=font_size))
+    def _on_font(self, topic, value):
+        font = QtGui.QFont()
+        font.fromString(value)
+        self.valueLabel.setFont(font)
+        self.unitLabel.setFont(font)
+        self.resizeEvent(None)
+
+    def _on_color(self, topic, value):
+        foreground = rgba_to_css(self._cmdp['Widgets/Multimeter/font-color'])
+        background = rgba_to_css(self._cmdp['Widgets/Multimeter/background-color'])
+        style = f"""
+        QWidget {{ background-color : {background}; }}
+        QLabel {{ background-color : {background}; color : {foreground}; }}
+        """
+        self.value_widget.setStyleSheet(style)
 
     @QtCore.Slot(object, str)
     def _on_device_statistics(self, topic, statistics):
@@ -148,16 +149,38 @@ class SingleValueWidget(QtWidgets.QWidget):
         _translate = QtCore.QCoreApplication.translate
         self.fieldLabel.setText(_translate("Form", "Field"))
         self.statisticLabel.setText(_translate("Form", "Statistic"))
-        self.statisticComboBox.setItemText(0, _translate("Form", "Mean"))
-        self.statisticComboBox.setItemText(1, _translate("Form", "Standard Deviation"))
-        self.statisticComboBox.setItemText(2, _translate("Form", "Minimum"))
-        self.statisticComboBox.setItemText(3, _translate("Form", "Maximum"))
-        self.statisticComboBox.setItemText(4, _translate("Form", "Peak-to-Peak"))
-        self.valueLabel.setText(_translate("Form", "0.000"))
+        self.statisticComboBox.addItem(_translate("Form", "Mean"))
+        self.statisticComboBox.addItem(_translate("Form", "Standard Deviation"))
+        self.statisticComboBox.addItem(_translate("Form", "Minimum"))
+        self.statisticComboBox.addItem(_translate("Form", "Maximum"))
+        self.statisticComboBox.addItem(_translate("Form", "Peak-to-Peak"))
+        self.valueLabel.setText("+0.00000")
         self.unitLabel.setText(_translate("Form", " mA "))
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        width = self.valueLabel.fontMetrics().boundingRect("i+0.00000").width()
+        self.valueLabel.setMinimumWidth(width)
+        width = self.unitLabel.fontMetrics().boundingRect("imW").width()
+        self.unitLabel.setMinimumWidth(width)
 
 
 def widget_register(cmdp):
+    cmdp.define(
+        topic='Widgets/Single Value/font',
+        dtype='font',
+        default="Lato,48,-1,5,87,0,0,0,0,0,Black")
+    cmdp.define(
+        topic='Widgets/Single Value/font-color',
+        brief='The font color.',
+        dtype='color',
+        default=(0, 128, 0, 255))
+    cmdp.define(
+        topic='Widgets/Single Value/background-color',
+        brief='The background color.',
+        dtype='color',
+        default=(0, 0, 0, 255))
+
     return {
         'name': 'Single Value',
         'brief': 'Select and display a single value.',
