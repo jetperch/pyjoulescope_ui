@@ -153,14 +153,17 @@ class MyDockWidget(QtWidgets.QDockWidget):
         self._cmdp = cmdp
         self.widget_def = widget_def
 
-        state_preference = f'Widgets/_state/{self}'
-        self.inner_widget = widget_def['class'](self, cmdp, state_preference)
+        self.inner_widget = widget_def['class'](self, cmdp, self.state_preference)
         self.inner_widget.setObjectName(str(self) + "__inner__")
         self.setWidget(self.inner_widget)
         self.dockLocationChanged.connect(self._on_dock_location_changed)
 
     def __str__(self):
         return f'{self.name}:{self.instance_id}'
+
+    @property
+    def state_preference(self):
+        return f'Widgets/_state/{self}'
 
     def _on_dock_location_changed(self, area):
         self._parent._window_state_update()
@@ -1086,7 +1089,9 @@ class MainWindow(QtWidgets.QMainWindow):
             action.blockSignals(signal_block_state)
         else:
             log.info('remove widget %s', name)
+            p = dock_widget.state_preference
             dock_widget.close()
+            self._cmdp.invoke('!preferences/preference/clear', (p, None))
         return dock_widget
 
     def _on_widgets_active(self, topic, value):

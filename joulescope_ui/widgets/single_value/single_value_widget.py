@@ -42,6 +42,7 @@ class SingleValueWidget(QtWidgets.QWidget):
         self._cmdp = cmdp
         self._font_index = 2
         self._statistics = {}
+        self._state_preference = state_preference
         self.setObjectName("SingleValueWidget")
         self.resize(387, 76)
         self.horizontalLayout = QtWidgets.QHBoxLayout(self)
@@ -91,14 +92,16 @@ class SingleValueWidget(QtWidgets.QWidget):
         cmdp.subscribe('Widgets/Single Value/font-color', wref(self._on_color), update_now=True)
         cmdp.subscribe('Widgets/Single Value/background-color', wref(self._on_color), update_now=True)
 
-        self._state_preference = state_preference
         if self._state_preference not in cmdp:
             cmdp[self._state_preference] = {}
         cmdp.subscribe(self._state_preference, wref(self._on_state), update_now=True)
 
     def _on_state(self, topic, value):
         if value is None:
-            value = self._cmdp[self._state_preference]
+            try:
+                value = self._cmdp[self._state_preference]
+            except KeyError:
+                return
         if 'fieldComboBox' in value and value['fieldComboBox'] != self.fieldComboBox.currentText():
             comboBoxSelectItemByText(self.fieldComboBox, value['fieldComboBox'], block=True)
         if 'statisticComboBox' in value and value['statisticComboBox'] != self.statisticComboBox.currentText():

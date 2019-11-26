@@ -366,7 +366,9 @@ class Preferences(QtCore.QObject):
         return d
 
     def get(self, name, **kwargs):
-        profile = kwargs.get('profile', self._profile_active)
+        profile = kwargs.get('profile')
+        if profile is None:
+            profile = self._profile_active
         try:
             return self._profiles[profile][name]
         except KeyError:
