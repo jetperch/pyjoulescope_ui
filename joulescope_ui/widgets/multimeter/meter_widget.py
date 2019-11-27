@@ -17,7 +17,6 @@ from joulescope_ui import joulescope_rc
 from joulescope.units import three_sig_figs
 from .meter_value_widget import MeterValueWidget
 import logging
-import weakref
 log = logging.getLogger(__name__)
 
 
@@ -70,8 +69,7 @@ class MeterWidget(QtWidgets.QWidget):
         self.sizePolicy.setVerticalStretch(0)
         self.setSizePolicy(self.sizePolicy)
         self.retranslateUi()
-        self._cmdp.subscribe('Device/#state/statistics', weakref.WeakMethod(self._on_device_statistics),
-                             update_now=True)
+        self._cmdp.subscribe('Device/#state/statistics', self._on_device_statistics, update_now=True)
 
     @QtCore.Slot(bool)
     def on_accumulate_toggled(self, checked):

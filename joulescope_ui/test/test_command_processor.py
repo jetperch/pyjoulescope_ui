@@ -177,6 +177,13 @@ class TestCommandProcessor(unittest.TestCase):
         self.c.publish('hello', 'there')
         self.assertEqual([], self.commands)
 
+    def test_unsubscribe_weakmethod(self):
+        self.c.define('hello', default='world')
+        self.c.subscribe('hello', weakref.WeakMethod(self.execute_ignore))
+        self.c.unsubscribe('hello', weakref.WeakMethod(self.execute_ignore))
+        self.c.publish('hello', 'there')
+        self.assertEqual([], self.commands)
+
     def test_unsubscribe_when_not_subscribed(self):
         self.c.unsubscribe('hello', self.execute_ignore)
 

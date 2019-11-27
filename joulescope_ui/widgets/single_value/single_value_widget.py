@@ -14,10 +14,8 @@
 
 from PySide2 import QtCore, QtGui, QtWidgets
 import numpy as np
-import weakref
 from joulescope_ui import joulescope_rc
 from joulescope.units import unit_prefix
-from weakref import WeakMethod as wref
 from joulescope_ui.ui_util import rgba_to_css, comboBoxSelectItemByText
 import logging
 log = logging.getLogger(__name__)
@@ -86,15 +84,14 @@ class SingleValueWidget(QtWidgets.QWidget):
         self.retranslateUi()
         self.fieldComboBox.currentIndexChanged.connect(self.on_field_changed)
         self.statisticComboBox.currentIndexChanged.connect(self.on_statistic_changed)
-        self._cmdp.subscribe('Device/#state/statistics', weakref.WeakMethod(self._on_device_statistics),
-                             update_now=True)
-        cmdp.subscribe('Widgets/Single Value/font', wref(self._on_font), update_now=True)
-        cmdp.subscribe('Widgets/Single Value/font-color', wref(self._on_color), update_now=True)
-        cmdp.subscribe('Widgets/Single Value/background-color', wref(self._on_color), update_now=True)
+        self._cmdp.subscribe('Device/#state/statistics', self._on_device_statistics, update_now=True)
+        cmdp.subscribe('Widgets/Single Value/font', self._on_font, update_now=True)
+        cmdp.subscribe('Widgets/Single Value/font-color', self._on_color, update_now=True)
+        cmdp.subscribe('Widgets/Single Value/background-color', self._on_color, update_now=True)
 
         if self._state_preference not in cmdp:
             cmdp[self._state_preference] = {}
-        cmdp.subscribe(self._state_preference, wref(self._on_state), update_now=True)
+        cmdp.subscribe(self._state_preference, self._on_state, update_now=True)
 
     def _on_state(self, topic, value):
         if value is None:

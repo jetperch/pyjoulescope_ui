@@ -17,7 +17,6 @@ from joulescope.units import unit_prefix, three_sig_figs
 from joulescope_ui.ui_util import rgba_to_css, font_to_css
 import numpy as np
 import pyqtgraph as pg
-from weakref import WeakMethod as wref
 
 
 STYLE_DEFAULT = 'color: #FFF'
@@ -71,8 +70,8 @@ class SignalStatistics(pg.GraphicsWidget):
         labels = {'μ': -0.000000001, 'σ': +0.000000001, 'min': -0.001, 'max': 0.001, 'p2p': 0.002}
         txt_result = si_format(labels, units='A')
         self.data_update(txt_result)
-        cmdp.subscribe('Widgets/Waveform/Statistics/font', wref(self._on_font), update_now=True)
-        cmdp.subscribe('Widgets/Waveform/Statistics/font-color', wref(self._on_font_color), update_now=True)
+        cmdp.subscribe('Widgets/Waveform/Statistics/font', self._on_font, update_now=True)
+        cmdp.subscribe('Widgets/Waveform/Statistics/font-color', self._on_font_color, update_now=True)
         self._resize()
         pg.GraphicsWidget.show(self)
 

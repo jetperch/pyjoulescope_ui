@@ -16,7 +16,6 @@ from PySide2 import QtCore, QtGui, QtWidgets
 from joulescope_ui import joulescope_rc
 from joulescope.units import unit_prefix
 import numpy as np
-from weakref import WeakMethod as wref
 from joulescope_ui.ui_util import rgba_to_css
 
 
@@ -107,10 +106,10 @@ class MeterValueWidget(QtWidgets.QWidget):
 
         self.retranslateUi()
 
-        cmdp.subscribe('Widgets/Multimeter/font-main', wref(self._on_font_main), update_now=True)
-        cmdp.subscribe('Widgets/Multimeter/font-stats', wref(self._on_font_stats), update_now=True)
-        cmdp.subscribe('Widgets/Multimeter/font-color', wref(self._on_color), update_now=True)
-        cmdp.subscribe('Widgets/Multimeter/background-color', wref(self._on_color), update_now=True)
+        cmdp.subscribe('Widgets/Multimeter/font-main', self._on_font_main, update_now=True)
+        cmdp.subscribe('Widgets/Multimeter/font-stats', self._on_font_stats, update_now=True)
+        cmdp.subscribe('Widgets/Multimeter/font-color', self._on_color, update_now=True)
+        cmdp.subscribe('Widgets/Multimeter/background-color', self._on_color, update_now=True)
 
     def _widgets(self):
         widgets = [self.valueLabel, self.unitLabel]

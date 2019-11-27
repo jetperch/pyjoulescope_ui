@@ -30,7 +30,6 @@ from joulescope_ui import preferences_defaults
 from PySide2 import QtCore, QtWidgets, QtGui
 import collections.abc
 import logging
-import weakref
 
 
 log = logging.getLogger(__name__)
@@ -76,8 +75,8 @@ class PreferencesDialog(QtWidgets.QDialog):
         self.ui.cancelButton.pressed.connect(self.reject)
         self.ui.resetButton.pressed.connect(self.preferences_reset)
 
-        self._cmdp.subscribe('!preferences/profile/add', weakref.WeakMethod(self._on_profile_add))
-        self._cmdp.subscribe('!preferences/profile/remove', weakref.WeakMethod(self._on_profile_remove))
+        self._cmdp.subscribe('!preferences/profile/add', self._on_profile_add)
+        self._cmdp.subscribe('!preferences/profile/remove', self._on_profile_remove)
 
     def _on_profile_combo_box_change(self, index):
         profile = self.ui.profileComboBox.currentText()

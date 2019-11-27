@@ -27,8 +27,28 @@ log = logging.getLogger(__name__)
 TOPIC_COMMAND_CHAR = '!'
 
 
+class _ExampleClass:
+    def method(self):
+        return True
+
+
+_method_type = type(_ExampleClass().method)
+_weakref_type = type(weakref.ref(log))
+
+
 def _is_command(topic):
     return topic[0] == TOPIC_COMMAND_CHAR or topic[-1] == TOPIC_COMMAND_CHAR
+
+
+def _weakref_factory(x):
+    if x is None:
+        return None
+    elif isinstance(x, _weakref_type):
+        return x  # not recommended, but allowed
+    elif isinstance(x, _method_type):
+        return weakref.WeakMethod(x)
+    else:
+        return weakref.ref(x)
 
 
 class CommandProcessor(QtCore.QObject):
@@ -128,7 +148,9 @@ class CommandProcessor(QtCore.QObject):
             undo_topic, undo_data = undo_cmd
             if _is_command(undo_topic):
                 log.debug('undo_exec %s | %s', undo_topic, undo_data)
-                self._topic[undo_topic]['execute_fn'](undo_topic, undo_data)
+                fn = self._topic[undo_topic]['execute_fn']()
+                if fn is not None:
+                    fn(undo_topic, undo_data)
             else:
                 log.debug('undo_pref %s | %s', undo_topic, undo_data)
                 self.preferences[undo_topic] = undo_data
@@ -148,7 +170,9 @@ class CommandProcessor(QtCore.QObject):
             do_topic, do_data = do_cmd
             if _is_command(do_topic):
                 log.debug('redo_exec %s | %s', do_topic, do_data)
-                self._topic[do_topic]['execute_fn'](do_topic, do_data)
+                fn = self._topic[do_topic]['execute_fn']()
+                if fn is not None:
+                    fn(do_topic, do_data)
             else:
                 self.preferences[do_topic] = do_data
             self._undos.append((do_cmd, undo_cmd))
@@ -171,15 +195,17 @@ class CommandProcessor(QtCore.QObject):
     def _on_invoke(self, topic, data):
         if _is_command(topic):
             log.debug('cmd %s | %s', topic, data)
-            rv = self._topic[topic]['execute_fn'](topic, data)
-            if rv is None or rv[0] is None:
-                return
-            if isinstance(rv[0], str):
-                undos = (topic, data), rv
-            else:
-                undos = rv
-            self._redos.clear()
-            self._undos.append(undos)
+            execute_fn = self._topic[topic]['execute_fn']()
+            if execute_fn is not None:
+                rv = execute_fn(topic, data)
+                if rv is None or rv[0] is None:
+                    return
+                if isinstance(rv[0], str):
+                    undos = (topic, data), rv
+                else:
+                    undos = rv
+                self._redos.clear()
+                self._undos.append(undos)
         else:
             if TOPIC_TEMPORARY_CHAR not in topic:
                 try:
@@ -221,6 +247,8 @@ class CommandProcessor(QtCore.QObject):
             if topic not in self._topic:
                 raise KeyError(f'unknown command {topic}')
             fn = self._topic[topic]['validate_fn']
+            if fn is not None:
+                fn = fn()  # dereference weakref
             if fn is not None and callable(fn):
                 data = fn(data)
         else:
@@ -234,14 +262,15 @@ class CommandProcessor(QtCore.QObject):
             are wildcards that match all subtopics.
         :param update_fn: The callable(topic, data) that will be called
             whenever topic is published.  The return value is ignored.
-            Note that update_fn can be a weakref.ref (use weakref.WeakMethod
-            on methods)
+            Note that this instance stores a weakref to update_fn so that
+            subscribing does not keep the subscriber alive.
         :param update_now: When True, call update_fn with the current
             value for all matching topics.  Any commands (topics that
             start with "!") will not match since they do not have
             persistent state.
         """
         subscribers = self._subscribers.get(topic, [])
+        update_fn = _weakref_factory(update_fn)
         subscribers.append(update_fn)
         self._subscribers[topic] = subscribers
         if bool(update_now):
@@ -265,34 +294,42 @@ class CommandProcessor(QtCore.QObject):
         :param update_fn: The callable provided to :meth:`subscribe`.
         """
         subscribers = self._subscribers.get(topic, [])
-        try:
-            subscribers.remove(update_fn)
-        except ValueError:
-            log.info('unsubscribe not found for %s', topic)
-            return False
-        return True
+        if isinstance(update_fn, _weakref_type):
+            update_fn = update_fn()
+        if update_fn is not None:
+            for subscriber in subscribers:
+                if subscriber() == update_fn:
+                    subscribers.remove(subscriber)
+                    return True
+        log.info('unsubscribe not found for %s', topic)
+        return False
 
     def _subscriber_call(self, subscriber, topic, value):
         try:
-            if isinstance(subscriber, weakref.ReferenceType):
-                fn = subscriber()
-                if fn is None:
-                    self.unsubscribe(topic, subscriber)
-                    return
-                subscriber = fn
-            subscriber(topic, value)
+            fn = subscriber()
+            if fn is None:
+                return False
+            fn(topic, value)
         except:
             log.exception('subscriber error for topic=%s, value=%s', topic, value)
+        return True
+
+    def _subscribers_call(self, subscribers, topic, value):
+        remove_indices = []
+        for idx, subscriber in enumerate(subscribers):
+            if not self._subscriber_call(subscriber, topic, value):
+                remove_indices.append(idx)
+        for idx in remove_indices[-1::-1]:
+            log.debug('removing expired subscriber from %s', topic)
+            subscribers.pop(idx)
 
     def _subscriber_update(self, topic, value):
-        for subscriber in list(self._subscribers.get(topic, [])):
-            self._subscriber_call(subscriber, topic, value)
+        self._subscribers_call(self._subscribers.get(topic, []), topic, value)
         subscriber_parts = topic.split('/')
         while len(subscriber_parts):
             subscriber_parts[-1] = ''
             n = '/'.join(subscriber_parts)
-            for subscriber in list(self._subscribers.get(n, [])):
-                self._subscriber_call(subscriber, topic, value)
+            self._subscribers_call(self._subscribers.get(n, []), topic, value)
             subscriber_parts.pop()
 
     def _preferences_bulk_update(self, profile_name=None, flat_old=None):
@@ -446,8 +483,8 @@ class CommandProcessor(QtCore.QObject):
             raise ValueError('execute_fn is not callable')
         log.info('register command %s', topic)
         self._topic[topic] = {
-            'execute_fn': execute_fn,
-            'validate_fn': validate_fn,
+            'execute_fn': _weakref_factory(execute_fn),
+            'validate_fn': _weakref_factory(validate_fn),
             'brief': brief,
             'detail': detail,
         }

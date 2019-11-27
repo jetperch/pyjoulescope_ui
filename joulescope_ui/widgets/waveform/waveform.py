@@ -22,7 +22,6 @@ from joulescope_ui.preferences_def import FONT_SIZES
 import pyqtgraph as pg
 import copy
 import logging
-import weakref
 
 
 log = logging.getLogger(__name__)
@@ -83,22 +82,21 @@ class WaveformWidget(QtWidgets.QWidget):
         self.set_xview(25.0, 30.0)
 
         c = self._cmdp
-        wref = weakref.WeakMethod
-        c.subscribe('DataView/#data', wref(self._on_data), update_now=True)
-        c.subscribe('Device/#state/source', wref(self._on_device_state_source), update_now=True)
-        c.subscribe('Device/#state/play', wref(self._on_device_state_play), update_now=True)
-        c.subscribe('Device/#state/name', wref(self._on_device_state_name), update_now=True)
-        c.subscribe('Widgets/Waveform/Markers/_state/instances/', wref(self._on_marker_instance_change),
+        c.subscribe('DataView/#data', self._on_data, update_now=True)
+        c.subscribe('Device/#state/source', self._on_device_state_source, update_now=True)
+        c.subscribe('Device/#state/play', self._on_device_state_play, update_now=True)
+        c.subscribe('Device/#state/name', self._on_device_state_name, update_now=True)
+        c.subscribe('Widgets/Waveform/Markers/_state/instances/', self._on_marker_instance_change,
                     update_now=True)
-        c.subscribe('Widgets/Waveform/#requests/refresh_markers', wref(self._on_refresh_markers), update_now=True)
-        c.subscribe('Widgets/Waveform/#statistics_over_range_resp', wref(self._on_statics_over_range_resp),
+        c.subscribe('Widgets/Waveform/#requests/refresh_markers', self._on_refresh_markers, update_now=True)
+        c.subscribe('Widgets/Waveform/#statistics_over_range_resp', self._on_statics_over_range_resp,
                     update_now=True)
-        c.subscribe('Device/#state/x_limits', wref(self._on_device_state_limits), update_now=True)
-        c.subscribe('Widgets/Waveform/Statistics/font-size', wref(self._on_statistics_settings))
-        c.register('!Widgets/Waveform/Signals/add', wref(self._cmd_waveform_signals_add),
+        c.subscribe('Device/#state/x_limits', self._on_device_state_limits, update_now=True)
+        c.subscribe('Widgets/Waveform/Statistics/font-size', self._on_statistics_settings)
+        c.register('!Widgets/Waveform/Signals/add', self._cmd_waveform_signals_add,
                    brief='Add a signal to the waveform.',
                    detail='value is list of signal name string and position. -1 inserts at end')
-        c.register('!Widgets/Waveform/Signals/remove', wref(self._cmd_waveform_signals_remove),
+        c.register('!Widgets/Waveform/Signals/remove', self._cmd_waveform_signals_remove,
                    brief='Remove a signal from the waveform by name.',
                    detail='value is signal name string.')
 
