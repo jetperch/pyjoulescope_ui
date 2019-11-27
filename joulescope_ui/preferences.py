@@ -31,6 +31,8 @@ import logging
 
 
 BASE_PROFILE = 'defaults'
+TOPIC_HIDDEN_CHAR = '_'
+TOPIC_TEMPORARY_CHAR = '#'
 
 
 log = logging.getLogger(__name__)
@@ -213,7 +215,7 @@ def json_decode_custom(obj):
 def _copy_save_keys(d):
     y = {}
     for key, v in d.items():
-        if '#' in key:
+        if TOPIC_TEMPORARY_CHAR in key:
             continue
         if isinstance(v, collections.abc.Mapping):
             v = _copy_save_keys(v)
@@ -296,7 +298,7 @@ class Preferences(QtCore.QObject):
     def define(self, name, brief=None, detail=None, dtype=None, options=None, default=None,
                default_profile_only=None):
         # todo support int ranges: min, max, step
-        if '#' in name and default_profile_only is None:
+        if TOPIC_TEMPORARY_CHAR in name and default_profile_only is None:
             default_profile_only = True
         if dtype is None:
             if name.endswith('/'):

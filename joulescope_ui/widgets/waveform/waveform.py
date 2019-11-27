@@ -95,10 +95,10 @@ class WaveformWidget(QtWidgets.QWidget):
                     update_now=True)
         c.subscribe('Device/#state/x_limits', wref(self._on_device_state_limits), update_now=True)
         c.subscribe('Widgets/Waveform/Statistics/font-size', wref(self._on_statistics_settings))
-        c.register('!Widgets/Waveform/Signals/add', self._cmd_waveform_signals_add,
+        c.register('!Widgets/Waveform/Signals/add', wref(self._cmd_waveform_signals_add),
                    brief='Add a signal to the waveform.',
                    detail='value is list of signal name string and position. -1 inserts at end')
-        c.register('!Widgets/Waveform/Signals/remove', self._cmd_waveform_signals_remove,
+        c.register('!Widgets/Waveform/Signals/remove', wref(self._cmd_waveform_signals_remove),
                    brief='Remove a signal from the waveform by name.',
                    detail='value is signal name string.')
 
@@ -475,6 +475,7 @@ def widget_register(cmdp):
 
     cmdp.define(
         topic='Widgets/Waveform/Statistics/font',
+        brief='The font for the statistics text on the right-hand side of the waveform display.',
         dtype='font',
         default='Lato,10,-1,5,87,0,0,0,0,0,Black')
     cmdp.define(

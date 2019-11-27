@@ -19,10 +19,16 @@ Implement the "Command" pattern for the Joulescope UI.
 from PySide2 import QtCore
 import logging
 import weakref
-from joulescope_ui.preferences import Preferences, BASE_PROFILE
+from joulescope_ui.preferences import Preferences, BASE_PROFILE, \
+    TOPIC_HIDDEN_CHAR, TOPIC_TEMPORARY_CHAR
 
 
 log = logging.getLogger(__name__)
+TOPIC_COMMAND_CHAR = '!'
+
+
+def _is_command(topic):
+    return topic[0] == TOPIC_COMMAND_CHAR or topic[-1] == TOPIC_COMMAND_CHAR
 
 
 class CommandProcessor(QtCore.QObject):
@@ -120,7 +126,7 @@ class CommandProcessor(QtCore.QObject):
         if len(self._undos):
             do_cmd, undo_cmd = self._undos.pop()
             undo_topic, undo_data = undo_cmd
-            if undo_topic[0] == '!':
+            if _is_command(undo_topic):
                 log.debug('undo_exec %s | %s', undo_topic, undo_data)
                 self._topic[undo_topic]['execute_fn'](undo_topic, undo_data)
             else:
@@ -140,7 +146,7 @@ class CommandProcessor(QtCore.QObject):
         if len(self._redos):
             do_cmd, undo_cmd = self._redos.pop()
             do_topic, do_data = do_cmd
-            if do_topic[0] == '!':
+            if _is_command(do_topic):
                 log.debug('redo_exec %s | %s', do_topic, do_data)
                 self._topic[do_topic]['execute_fn'](do_topic, do_data)
             else:
@@ -163,7 +169,7 @@ class CommandProcessor(QtCore.QObject):
 
     @QtCore.Slot(str, object)
     def _on_invoke(self, topic, data):
-        if topic[0] == '!':
+        if _is_command(topic):
             log.debug('cmd %s | %s', topic, data)
             rv = self._topic[topic]['execute_fn'](topic, data)
             if rv is None or rv[0] is None:
@@ -175,7 +181,7 @@ class CommandProcessor(QtCore.QObject):
             self._redos.clear()
             self._undos.append(undos)
         else:
-            if '#' not in topic:
+            if TOPIC_TEMPORARY_CHAR not in topic:
                 try:
                     data_orig = self.preferences.get(topic)
                     if data == data_orig:
@@ -200,7 +206,7 @@ class CommandProcessor(QtCore.QObject):
         The commands "redo" and "undo" are registered automatically,
         and neither take data.
         """
-        if topic[0] != '!':
+        if not _is_command(topic):
             raise ValueError('invoke commands only, use publish for preferences')
         self.publish(topic, data)
 
@@ -211,7 +217,7 @@ class CommandProcessor(QtCore.QObject):
         :param data: The new data for the topic.
 
         """
-        if topic[0] == '!':
+        if _is_command(topic):
             if topic not in self._topic:
                 raise KeyError(f'unknown command {topic}')
             fn = self._topic[topic]['validate_fn']
@@ -239,7 +245,7 @@ class CommandProcessor(QtCore.QObject):
         subscribers.append(update_fn)
         self._subscribers[topic] = subscribers
         if bool(update_now):
-            if topic[0] == '!':
+            if _is_command(topic):
                 log.warning('commands do not support update_now')
                 return
             elif topic[-1] == '/':
@@ -296,7 +302,7 @@ class CommandProcessor(QtCore.QObject):
             self.preferences.profile = profile_name
         flat_new = self.preferences.flatten()
         for key, value in flat_new.items():
-            if '#' in key:
+            if TOPIC_TEMPORARY_CHAR in key:
                 continue
             if key not in flat_old or flat_new[key] != flat_old[key]:
                 self._subscriber_update(key, value)
@@ -381,7 +387,7 @@ class CommandProcessor(QtCore.QObject):
         """Define a new preference.
 
         :param topic: The name for the preference which must be unique.  Preferences
-            must not start with a "!", but should use "/" to create hierarchical
+            must not contain a "!", but should use "/" to create hierarchical
             names, such as "widget/marker/color".
         :param brief: The brief user-meaningful description for this preference.
         :param detail: The detailed user-meaningful HTML formatted description
@@ -430,6 +436,8 @@ class CommandProcessor(QtCore.QObject):
         """
         if not isinstance(topic, str):
             raise ValueError('commands must be strings')
+        if not _is_command(topic):
+            raise ValueError(f'topic "{topic}" is not a valid command name')
         if topic in self._topic:
             raise KeyError(f'command already exists: {topic}')
         if not callable(execute_fn):

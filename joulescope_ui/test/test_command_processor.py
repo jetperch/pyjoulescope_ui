@@ -47,16 +47,25 @@ class TestCommandProcessor(unittest.TestCase):
         return command + '/undo', data + '/undo'
 
     def test_register_invoke_unregister(self):
-        self.c.register('!my/command', self.execute_ignore)
-        self.c.invoke('!my/command', 'hello')
-        self.assertEqual([('!my/command', 'hello')], self.commands)
-        self.c.unregister('!my/command')
+        for command in ['!my/command', 'my/command!']:
+            with self.subTest(command=command):
+                self.commands = []
+                self.c.register(command, self.execute_ignore)
+                self.c.invoke(command, 'hello')
+                self.assertEqual([(command, 'hello')], self.commands)
+                self.c.unregister(command)
 
     def test_register_invalid(self):
         with self.assertRaises(ValueError):
             self.c.register(1, self.execute_ignore)
         with self.assertRaises(ValueError):
             self.c.register('!hello/world', 2)
+
+    def test_register_invalid_name(self):
+        for topic in ['my/name', 'my/_name', 'my/#name']:
+            with self.subTest(topic=topic):
+                with self.assertRaises(ValueError):
+                    self.c.register(topic, self.execute_ignore)
 
     def test_invoke_when_unregistered(self):
         with self.assertRaises(KeyError):
