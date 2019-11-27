@@ -107,7 +107,6 @@ def preferences_def(p):
             '15V': {'brief': '15V range (recommended)', 'aliases': ['high']},
             '5V':  {'brief': '5V range with improved resolution for lower voltages', 'aliases': ['low']}},
         default='15V')
-    # --- GPIO ---
     p.define(
         topic='Device/parameter/io_voltage',
         brief='The GPI/O high-level voltage.',

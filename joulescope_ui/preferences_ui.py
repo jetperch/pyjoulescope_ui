@@ -174,64 +174,11 @@ class PreferencesDialog(QtWidgets.QDialog):
                 continue
             self._populate_entry(name, child)
 
-    def _populate_str(self, entry, name, value, tooltip):
-        options = options_enum(entry.get('options', None))
-        if options is not None:
-            p = guiparams.Enum(name, value, options, tooltip=tooltip)
-        else:
-            p = guiparams.String(name, value, tooltip=tooltip)
-        return p
-
-    def _populate_int(self, entry, name, value, tooltip):
-        options = entry.get('options', None)
-        if options is None:
-            return None  # todo
-        if callable(options):
-            options = options_enum(options)
-        if isinstance(options, collections.abc.Sequence):
-            return guiparams.Enum(name, value, options, tooltip=tooltip)
-        else:
-            # todo range
-            return None
-
     def _populate_entry(self, name, entry):
-        value = self._cmdp.preferences.get(entry['name'], profile=self._active_profile)
-        p = None
-        tooltip = ''
-        dtype = entry.get('dtype', 'str')
-        if 'brief' in entry and entry['brief'] is not None:
-            tooltip = '<span><p>%s</p>' % entry['brief']
-            if 'detail' in entry and entry['detail'] is not None:
-                tooltip += '<p>%s</p>' % entry['detail']
-            tooltip += '</span>'
-        if dtype == 'str':
-            p = self._populate_str(entry, name, value, tooltip)
-        elif dtype == 'int':
-            p = self._populate_int(entry, name, value, tooltip)
-        elif dtype == 'bool':
-            if isinstance(value, str):
-                value = value.lower()
-            value = value in [True, 'true', 'on']
-            p = guiparams.Bool(name, value, tooltip=tooltip)
-        elif dtype == 'path':
-            attributes = entry.get('attributes', [])
-            if 'dir' in attributes:
-                p = guiparams.Directory(name, value, tooltip=tooltip)
-            elif 'exists' in attributes:
-                p = guiparams.FileOpen(name, value, tooltip=tooltip)
-            else:
-                p = guiparams.FileSave(name, value, tooltip=tooltip)
-        elif dtype == 'color':
-            p = guiparams.Color(name, value, tooltip=tooltip)
-        elif dtype == 'font':
-            p = guiparams.Font(name, value, tooltip=tooltip)
-        else:
-            log.info('%s: unsupported dtype %s', entry['name'], dtype)
+        p = widget_factory(self._cmdp, entry['name'], profile=self._active_profile)
         if p is not None:
             p.populate(self.ui.targetWidget)
             self._params.append(p)
-            p.callback = lambda x: self._cmdp.invoke('!preferences/preference/set',
-                                                     (entry['name'], x.value, self._active_profile))
 
     def on_selection_change(self, selection):
         log.info('on_selection_change(%r)', selection)
@@ -255,3 +202,75 @@ class PreferencesDialog(QtWidgets.QDialog):
         self._cmdp.invoke('!command_group/end')
         if rv == 0:
             self._cmdp.invoke('!undo')
+
+
+def _str_factory(entry, name, value, tooltip):
+    options = options_enum(entry.get('options', None))
+    if options is not None:
+        p = guiparams.Enum(name, value, options, tooltip=tooltip)
+    else:
+        p = guiparams.String(name, value, tooltip=tooltip)
+    return p
+
+
+def _int_factory(entry, name, value, tooltip):
+    options = entry.get('options', None)
+    if options is None:
+        return None  # todo
+    if callable(options):
+        options = options_enum(options)
+    if isinstance(options, collections.abc.Sequence):
+        return guiparams.Enum(name, value, options, tooltip=tooltip)
+    else:
+        # todo range
+        return None
+
+
+def widget_factory(cmdp, topic, profile=None):
+    value = cmdp.preferences.get(topic, profile=profile)
+    entry = cmdp.preferences.definition_get(topic)
+    name = topic.split('/')[-1]
+    p = None
+    tooltip = ''
+    dtype = entry.get('dtype', 'str')
+    if 'brief' in entry and entry['brief'] is not None:
+        tooltip = '<span><p>%s</p>' % entry['brief']
+        if 'detail' in entry and entry['detail'] is not None:
+            tooltip += '<p>%s</p>' % entry['detail']
+        tooltip += '</span>'
+    if dtype == 'str':
+        p = _str_factory(entry, name, value, tooltip)
+    elif dtype == 'int':
+        p = _int_factory(entry, name, value, tooltip)
+    elif dtype == 'bool':
+        if isinstance(value, str):
+            value = value.lower()
+        value = value in [True, 'true', 'on']
+        p = guiparams.Bool(name, value, tooltip=tooltip)
+    elif dtype == 'path':
+        attributes = entry.get('attributes', [])
+        if 'dir' in attributes:
+            p = guiparams.Directory(name, value, tooltip=tooltip)
+        elif 'exists' in attributes:
+            p = guiparams.FileOpen(name, value, tooltip=tooltip)
+        else:
+            p = guiparams.FileSave(name, value, tooltip=tooltip)
+    elif dtype == 'color':
+        p = guiparams.Color(name, value, tooltip=tooltip)
+    elif dtype == 'font':
+        p = guiparams.Font(name, value, tooltip=tooltip)
+    else:
+        log.info('%s: unsupported dtype %s', entry['name'], dtype)
+
+    if p is None:
+        return None
+
+    def cbk(value):
+        cmdp.invoke('!preferences/preference/set', (topic, value.value, profile))
+
+    def _on_change(topic, value):
+        p.value = value
+
+    p.callback = cbk
+    cmdp.subscribe(topic, _on_change)
+    return p
