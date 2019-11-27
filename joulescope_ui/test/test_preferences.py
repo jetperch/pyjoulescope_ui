@@ -268,8 +268,12 @@ class TestPreferences(unittest.TestCase):
         self.p.define(name='/', brief='top level', dtype='container')
         self.p.define(name='hello/', brief='holder', dtype='container')
         self.p.define(name='hello/world', brief='hello', dtype='str', default='world')
+        self.p.define(name='hello/there/world', brief='hello', dtype='str', default='world')
         d = self.p.definitions
+        self.assertEqual('/', d['name'])
         self.assertIn('children', d)
+        self.assertEqual('hello/', d['children']['hello']['name'])
+        self.assertEqual('hello/there/', d['children']['hello']['children']['there']['name'])
 
     def test_dict_style_access(self):
         p = self.p

@@ -361,7 +361,7 @@ class Preferences(QtCore.QObject):
                         k['children'] = {}
                     if name_parts[0] not in k['children']:
                         k['children'][name_parts[0]] = {
-                            'name': '/'.join(prefix) + '/'
+                            'name': '/'.join(prefix + [name_parts[0]]) + '/'
                         }
                     k = k['children'][name_parts[0]]
                 prefix.append(name_parts.pop(0))

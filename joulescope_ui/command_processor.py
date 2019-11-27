@@ -23,6 +23,13 @@ Provide centralized application state management include:
 * Hierarchical topic naming and subscriptions.
 * API to support automatic preferences widget population.
 
+Alternatives and references include:
+
+* [QSettings](https://doc.qt.io/qt-5/qsettings.html) -
+  [PySide](https://doc.qt.io/qtforpython/PySide2/QtCore/QSettings.html)
+* [Implementing a preferences dialog window in PyQt](https://stackoverflow.com/questions/39023584/implementing-a-preferences-dialog-window-in-pyqt)
+* [PyQtConfig](https://www.mfitzp.com/article/pyqtconfig/)
+
 """
 
 from PySide2 import QtCore

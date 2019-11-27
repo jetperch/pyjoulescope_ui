@@ -63,6 +63,8 @@ class XAxis(pg.AxisItem):
         self._proxy = None
         self._popup_menu_pos = None
 
+        cmdp.subscribe('Widgets/Waveform/grid_x', self._on_grid_x, update_now=True)
+
         cmdp.register('!Widgets/Waveform/Markers/single_add', self._cmd_waveform_marker_single_add,
                       brief='Add a single marker to the waveform widget.',
                       detail='value is x-axis time coordinate in seconds for the marker.')
@@ -82,6 +84,9 @@ class XAxis(pg.AxisItem):
 
         # todo '!Widgets/Waveform/Markers/move'
         # todo '!Widgets/Waveform/Markers/list'
+
+    def _on_grid_x(self, topic, value):
+        self.setGrid(128 if bool(value) else 0)
 
     def _find_first_unused_single_marker_name(self):
         idx = 1

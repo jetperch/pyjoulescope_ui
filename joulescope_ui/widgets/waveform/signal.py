@@ -52,9 +52,7 @@ class Signal(QtCore.QObject):
                 'log_min': y_log_min,
                 'range': 'auto' if y_range is None else y_range
             },
-            'show_min_max': 'lines',  # ['lines', 'fill',  'off']
             'decimate_min_max': 1,
-            'trace_width': 1,
         }
         self._markers_single = {}
         self._markers_dual = {}
@@ -95,6 +93,10 @@ class Signal(QtCore.QObject):
         self.y_axis.sigWheelZoomYEvent.connect(self.on_wheelZoomY)
         self.y_axis.sigPanYEvent.connect(self.on_panY)
         self.y_axis.range_set(self.config['y-axis']['range'])
+
+        cmdp.subscribe('Widgets/Waveform/grid_y', self._on_grid_y, update_now=True)
+        cmdp.subscribe('Widgets/Waveform/show_min_max', self._on_show_min_max, update_now=True)
+        cmdp.subscribe('Widgets/Waveform/trace_width', self._on_trace_width, update_now=True)
 
     def set_xlimits(self, x_min, x_max):
         self.vb.setLimits(xMin=x_min, xMax=x_max)
@@ -204,7 +206,7 @@ class Signal(QtCore.QObject):
         if not self._is_min_max_active:
             self._min_max_hide()
             return
-        c = self.config['show_min_max']
+        c = self._cmdp['Widgets/Waveform/show_min_max']
         if c == 'lines':
             self.curve_max.show()
             self.curve_min.show()
@@ -322,7 +324,7 @@ class Signal(QtCore.QObject):
             self.curve_min.setData(d_x, self._log_bound(d_min))
             self.curve_max.setData(d_x, self._log_bound(d_max))
 
-        if self.config['show_min_max'] == 'off':
+        if self._cmdp['Widgets/Waveform/show_min_max'] == 'off':
             # use min/max of the mean trace for y-axis autoranging (not actual min/max)
             v_min = np.min(z_mean)
             v_max = np.max(z_mean)
@@ -415,20 +417,19 @@ class Signal(QtCore.QObject):
             labels = {'μ': y_mean}
         return labels
 
-    def config_apply(self, cfg):
-        if 'grid_y' in cfg:
-            self.y_axis.setGrid(int(cfg['grid_y']))
-        if 'trace_width' in cfg:
-            w = int(cfg['trace_width'])
-            self.config['trace_width'] = w
-            self._pen_min_max = pg.mkPen(color=(255, 64, 64), width=w)
-            self._pen_mean = pg.mkPen(color=(255, 255, 64), width=w)
-            self.curve_min.setPen(self._pen_min_max)
-            self.curve_max.setPen(self._pen_min_max)
-            self.curve_mean.setPen(self._pen_mean)
-            self.vb.update()
-        if 'show_min_max' in cfg:
-            x = cfg['show_min_max']
-            self.config['show_min_max'] = x
-            self._min_max_show()
-            self.vb.update()
+    def _on_show_min_max(self, topic, value):
+        self._min_max_show()
+        self.vb.update()
+
+    def _on_grid_y(self, topic, value):
+        self.y_axis.setGrid(128 if bool(value) else 0)
+
+    def _on_trace_width(self, topic, value):
+        w = int(value)
+        self._pen_min_max = pg.mkPen(color=(255, 64, 64), width=w)
+        self._pen_mean = pg.mkPen(color=(255, 255, 64), width=w)
+        self.curve_min.setPen(self._pen_min_max)
+        self.curve_max.setPen(self._pen_min_max)
+        self.curve_mean.setPen(self._pen_mean)
+        self.vb.update()
+
