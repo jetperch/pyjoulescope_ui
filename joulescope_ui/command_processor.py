@@ -13,7 +13,16 @@
 # limitations under the License.
 
 """
-Implement the "Command" pattern for the Joulescope UI.
+Provide centralized application state management include:
+
+* Preferences (topic-value pairs) including:
+  * Publish / Subscribe pattern for loose coupling by topic name only.
+  * Save and restore.
+  * Profiles with application defaults.
+* Commands pattern with undo/redo support.
+* Hierarchical topic naming and subscriptions.
+* API to support automatic preferences widget population.
+
 """
 
 from PySide2 import QtCore
@@ -498,46 +507,3 @@ class CommandProcessor(QtCore.QObject):
             log.warning('unregister command %s, but not registered', topic)
             return
         del self._topic[topic]
-
-    def context(self):
-        """Return a context for automatically unsubscribing / unregistering on delete.
-
-        :return: The context object which supports subscribe and register.
-
-        Note that callbacks maintain references, which can prevent an object
-        from being deleted.  This class supports weakref subscriber update_fn
-        which are automatically unsubscribed when the weakref is no longer
-        valid.  When possible, prefer weakrefs to a manually managed context.
-        """
-        return _CommandProcessorContext(self)
-
-
-class _CommandProcessorContext:
-
-    def __init__(self, cmdp):
-        self._cmdp = cmdp
-        self._fn = []
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, exception_type, exception_value, traceback):
-        pass
-
-    def __del__(self):
-        self.close()
-
-    def close(self):
-        if self._fn is not None:
-            for fn in self._fn:
-                fn()
-            self._fn = None
-            self._cmdp = None
-
-    def subscribe(self, topic, update_fn, update_now=False):
-        self._cmdp.subscribe(topic, update_fn, update_now)
-        self._fn.append(lambda: self._cmdp.unsubscribe(topic, update_fn))
-
-    def register(self, topic, execute_fn, validate_fn=None, brief=None, detail=None):
-        self._cmdp.register(topic, execute_fn, validate_fn, brief, detail)
-        self._fn.append(lambda: self._cmdp.unregister(topic))
