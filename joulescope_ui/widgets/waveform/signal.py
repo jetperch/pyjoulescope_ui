@@ -52,7 +52,6 @@ class Signal(QtCore.QObject):
                 'log_min': y_log_min,
                 'range': 'auto' if y_range is None else y_range
             },
-            'decimate_min_max': 1,
         }
         self._markers_single = {}
         self._markers_dual = {}
@@ -309,20 +308,8 @@ class Signal(QtCore.QObject):
             mean_delta = z_mean - v_mean
             # combine variances across the combined samples
             v_std = np.sqrt(np.sum(np.square(mean_delta, out=mean_delta) + z_var) / len(z_mean))
-
-            decimate = int(self.config['decimate_min_max'])
-            if decimate <= 1:
-                d_x = x
-                d_min = z_min
-                d_max = z_max
-            else:
-                # this decimation implementation causes strange rendering artifacts on streaming data
-                k = (len(x) // decimate) * decimate
-                d_x = np.mean(x[:k].reshape((-1, decimate)), axis=1)
-                d_min = np.min(z_min[:k].reshape((-1, decimate)), axis=1)
-                d_max = np.max(z_max[:k].reshape((-1, decimate)), axis=1)
-            self.curve_min.setData(d_x, self._log_bound(d_min))
-            self.curve_max.setData(d_x, self._log_bound(d_max))
+            self.curve_min.setData(x, self._log_bound(z_min))
+            self.curve_max.setData(x, self._log_bound(z_max))
 
         if self._cmdp['Widgets/Waveform/show_min_max'] == 'off':
             # use min/max of the mean trace for y-axis autoranging (not actual min/max)

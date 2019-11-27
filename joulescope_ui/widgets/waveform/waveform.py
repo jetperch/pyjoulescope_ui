@@ -402,45 +402,6 @@ class WaveformWidget(QtWidgets.QWidget):
     def request_x_change(self):
         self._scrollbar.request_x_change()
 
-    def config_apply(self, cfg):
-        """Apply a new configuration.
-
-        :param cfg: The dict of configuration options.  Keys include:
-            * show_min_max: (bool) Display the min/max traces.
-            * grid_x: (bool) Display the x-axis grid lines.
-            * grid_y: (bool) Display the y-axis grid lines.
-            * trace_width: (int) The width of the mean, min, max traces in pixels.
-        """
-        # validate alpha values and convert boolean to int
-        for key, false_alpha, true_alpha in [('grid_x', 0, 128), ('grid_y', 0, 128)]:
-            if key not in cfg:
-                continue
-            x = cfg[key]
-            if x is False:
-                x = false_alpha
-            elif x is True:
-                x = true_alpha
-            self.config[key] = int(x)
-
-        # validate boolean values
-        for key in []:
-            if key in cfg:
-                self.config[key] = bool(cfg[key])
-
-        # validate integer value
-        for key in ['trace_width']:
-            if key in cfg:
-                self.config[key] = int(cfg[key])
-
-        # validate string values:
-        for key in ['show_min_max']:
-            if key in cfg:
-                self.config[key] = cfg[key]
-
-        self._x_axis.setGrid(self.config['grid_x'])
-        for signal in self._signals.values():
-            signal.config_apply(self.config)
-
 
 def widget_register(cmdp):
     cmdp.define('Widgets/Waveform/', 'Waveform display settings')

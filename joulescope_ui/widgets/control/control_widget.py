@@ -61,7 +61,9 @@ class ControlWidget(QtWidgets.QWidget):
         for i in range(combobox.count()):
             if value == str(combobox.itemText(i)):
                 index = i
+                block_signals_state = combobox.blockSignals(True)
                 combobox.setCurrentIndex(index)
+                combobox.blockSignals(block_signals_state)
                 break
         if index is None:
             log.warning('Could not find item %s in combobox', value)
