@@ -407,6 +407,8 @@ class CommandProcessor(QtCore.QObject):
             profile.  If '#' is in the topic string, then default_profile_only
             defaults to True.
         """
+        if _is_command(topic):
+            raise ValueError(f'Invalid topic name "{topic}" for a preference.')
         return self.preferences.define(topic, brief=brief, detail=detail,
                                        dtype=dtype, options=options, default=default,
                                        default_profile_only=default_profile_only)

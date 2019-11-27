@@ -234,6 +234,12 @@ class TestCommandProcessor(unittest.TestCase):
         self.assertEqual(expected, self.commands)
         self.commands.clear()
 
+    def test_invalid_preference_names(self):
+        for topic in ['!command', 'command!']:
+            with self.subTest(topic=topic):
+                with self.assertRaises(ValueError):
+                    self.c.define(topic, default='world')
+
     def test_preferences_profile(self):
         self.define_group()
         self.c.subscribe('a/0', self.execute_ignore)
