@@ -268,9 +268,6 @@ def widget_factory(cmdp, topic, profile=None):
     def cbk(value):
         cmdp.invoke('!preferences/preference/set', (topic, value.value, profile))
 
-    def _on_change(topic, value):
-        p.value = value
-
     p.callback = cbk
-    cmdp.subscribe(topic, _on_change)
+    cmdp.subscribe(topic, p.update_as_topic_subscriber)
     return p

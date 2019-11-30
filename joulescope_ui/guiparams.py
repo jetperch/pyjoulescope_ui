@@ -221,6 +221,9 @@ class Parameter(object):
         else:
             self.value = value
 
+    def update_as_topic_subscriber(self, topic, value):
+        self.update(value)
+
     def on_changed(self):
         """Notify the GUI of a value change.
 

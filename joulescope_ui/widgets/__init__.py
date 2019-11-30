@@ -13,7 +13,8 @@
 # limitations under the License.
 
 from . import control
-from . import developer
+from .developer import parameters_widget
+from .developer import status_widget
 from . import gpio
 from . import multimeter
 from . import single_value
@@ -22,10 +23,11 @@ from . import waveform
 
 WIDGETS = [
     control,
-    developer,
     gpio,
     multimeter,
+    parameters_widget,
     single_value,
+    status_widget,
     waveform,
 ]
 

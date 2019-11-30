@@ -56,6 +56,17 @@ def _is_command(topic):
     return topic[0] == TOPIC_COMMAND_CHAR or topic[-1] == TOPIC_COMMAND_CHAR
 
 
+def _is_lambda_or_local(fn):
+    if fn is None:
+        return False
+    elif '<lambda>' in fn.__qualname__:
+        return True
+    elif '<local>' in fn.__qualname__:
+        return True
+    else:
+        return False
+
+
 def _weakref_factory(x):
     if x is None:
         return None
@@ -279,12 +290,19 @@ class CommandProcessor(QtCore.QObject):
         :param update_fn: The callable(topic, data) that will be called
             whenever topic is published.  The return value is ignored.
             Note that this instance stores a weakref to update_fn so that
-            subscribing does not keep the subscriber alive.
+            subscribing does not keep the subscriber alive.  Since this
+            instance creates and stores weakrefs, the update_fn must remain
+            referenced externally.  To prevent unintentionally having
+            update_fn go out of scope, creating and passing a lambda or
+            local function will raise a ValueError.  Write the caller to
+            provide a method or module function.
         :param update_now: When True, call update_fn with the current
             value for all matching topics.  Any commands (topics that
             start with "!") will not match since they do not have
             persistent state.
         """
+        if _is_lambda_or_local(update_fn):
+            raise ValueError(f'Provided update_fn {update_fn.__qualname__} that may have limited lifetime')
         subscribers = self._subscribers.get(topic, [])
         update_fn = _weakref_factory(update_fn)
         subscribers.append(update_fn)
@@ -340,12 +358,14 @@ class CommandProcessor(QtCore.QObject):
             subscribers.pop(idx)
 
     def _subscriber_update(self, topic, value):
-        self._subscribers_call(self._subscribers.get(topic, []), topic, value)
+        subscribers = self._subscribers.get(topic, [])
+        self._subscribers_call(subscribers, topic, value)
         subscriber_parts = topic.split('/')
         while len(subscriber_parts):
             subscriber_parts[-1] = ''
             n = '/'.join(subscriber_parts)
-            self._subscribers_call(self._subscribers.get(n, []), topic, value)
+            subscribers = self._subscribers.get(n, [])
+            self._subscribers_call(subscribers, topic, value)
             subscriber_parts.pop()
 
     def _preferences_bulk_update(self, profile_name=None, flat_old=None):
@@ -431,7 +451,7 @@ class CommandProcessor(QtCore.QObject):
         except KeyError:
             undo = '!preferences/preference/clear', (topic, profile)
         self.preferences.set(topic, value, profile)
-        if profile == self.preferences.profile:
+        if profile is None or profile == self.preferences.profile:
             self._subscriber_update(topic, value)
         return undo
 
@@ -497,6 +517,11 @@ class CommandProcessor(QtCore.QObject):
             raise KeyError(f'command already exists: {topic}')
         if not callable(execute_fn):
             raise ValueError('execute_fn is not callable')
+        if _is_lambda_or_local(execute_fn):
+            raise ValueError(f'Provided execute_fn {execute_fn.__qualname__} that may have limited lifetime')
+        if _is_lambda_or_local(validate_fn):
+            raise ValueError(f'Provided validate_fn {validate_fn.__qualname__} that may have limited lifetime')
+
         log.info('register command %s', topic)
         self._topic[topic] = {
             'execute_fn': _weakref_factory(execute_fn),
