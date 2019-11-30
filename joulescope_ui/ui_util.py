@@ -13,7 +13,10 @@
 # limitations under the License.
 
 from PySide2 import QtGui, QtCore, QtWidgets
+import subprocess
+import os
 import logging
+import sys
 
 log = logging.getLogger(__name__)
 
@@ -167,3 +170,27 @@ def font_to_css(font):
         fields.append(s)
 
     return '; '.join(fields)
+
+
+def show_in_folder(path):
+    path = os.path.abspath(path)
+    path = os.path.normpath(path)
+    if not os.path.isfile(path) and not os.path.isdir(path):
+        return False  # does not exist
+
+    if 'win' in sys.platform:
+        args = ['explorer.exe']
+        if os.path.isfile(path):
+            args.append('/select')
+        args.append(path)
+        subprocess.Popen(args)
+    elif 'darwin' in sys.platform:
+        args = ['/usr/bin/osascript',
+                '-e', 'tell application "Finder"',
+                '-e', 'activate',
+                '-e', f'select POSIX file "{path}"',
+                '-e', 'end tell']
+        subprocess.Popen(args)
+    else:
+        args = ['xdg-open', path]  # assume X-Windows?
+        subprocess.Popen(args)

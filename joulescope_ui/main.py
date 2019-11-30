@@ -29,7 +29,7 @@ from joulescope.data_recorder import construct_record_filename  # DataRecorder
 from joulescope_ui.recording_viewer_device import RecordingViewerDevice
 from joulescope_ui.preferences_ui import PreferencesDialog
 from joulescope_ui.update_check import check as software_update_check
-from joulescope_ui.logging_util import logging_config
+from joulescope_ui.logging_util import logging_config, LOG_PATH
 from joulescope_ui.widgets.waveform.signal_statistics import three_sig_figs
 from joulescope_ui.range_tool import RangeToolInvoke
 from joulescope_ui import help_ui
@@ -39,6 +39,7 @@ from joulescope_ui.exporter import Exporter
 from joulescope_ui.command_processor import CommandProcessor
 from joulescope_ui.preferences_def import preferences_def
 from joulescope_ui.preferences_defaults import defaults as preference_defaults
+from joulescope_ui import ui_util
 import io
 import ctypes
 import collections
@@ -322,6 +323,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # help
         self.ui.actionGettingStarted.triggered.connect(self._help_getting_started)
         self.ui.actionUsersGuide.triggered.connect(self._help_users_guide)
+        self.ui.actionViewLogs.triggered.connect(self._view_logs)
         self.ui.actionCredits.triggered.connect(self._help_credits)
         self.ui.actionAbout.triggered.connect(self._help_about)
 
@@ -532,6 +534,10 @@ class MainWindow(QtWidgets.QMainWindow):
     def _help_users_guide(self):
         log.info('_help_users_guide')
         webbrowser.open_new_tab(USERS_GUIDE_URL)
+
+    def _view_logs(self):
+        log.info('_view_logs(%s)', LOG_PATH)
+        ui_util.show_in_folder(LOG_PATH)
 
     def _accumulators_zero_total(self):
         log.info('_accumulators_zero_total')

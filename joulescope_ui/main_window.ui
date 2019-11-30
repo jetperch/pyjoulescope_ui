@@ -51,6 +51,7 @@
     </property>
     <addaction name="actionGettingStarted"/>
     <addaction name="actionUsersGuide"/>
+    <addaction name="actionViewLogs"/>
     <addaction name="actionCredits"/>
     <addaction name="actionAbout"/>
    </widget>
@@ -150,6 +151,11 @@
   <action name="actionUsersGuide">
    <property name="text">
     <string>User's Guide</string>
+   </property>
+  </action>
+  <action name="actionViewLogs">
+   <property name="text">
+    <string>View logs...</string>
    </property>
   </action>
  </widget>

@@ -24,12 +24,13 @@ import json
 import os
 import sys
 import platform
-from joulescope_ui.config import APP_PATH
+from joulescope_ui.paths import paths_current
 from . import VERSION as UI_VERSION
 from joulescope import VERSION as DRIVER_VERSION
 
 
-LOG_PATH = os.path.join(APP_PATH, 'log')
+paths = paths_current()
+LOG_PATH = paths['dirs']['log']
 EXPIRATION_SECONDS = 7 * 24 * 60 * 60
 STREAM_SIMPLE_FMT = "%(levelname)s:%(name)s:%(message)s"
 STREAM_VERBOSE_FMT = "%(levelname)s:%(asctime)s:%(filename)s:%(lineno)d:%(name)s:%(message)s"
@@ -82,8 +83,7 @@ def _make_info():
             'processor': platform.processor(),
             'executable': sys.executable,
             'frozen': frozen,
-            'app_path': APP_PATH,
-            'log_path': LOG_PATH,
+            'paths': paths,
         }
     }
     return json.dumps(info, indent=2)
