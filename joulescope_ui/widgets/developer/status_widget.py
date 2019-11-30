@@ -100,5 +100,5 @@ def widget_register(cmdp):
         'class': StatusWidget,
         'location': QtCore.Qt.LeftDockWidgetArea,
         'singleton': True,
-        'permissions': 'developer',
+        'permissions': ['developer'],
     }

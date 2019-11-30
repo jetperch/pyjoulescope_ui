@@ -268,6 +268,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._cmdp.subscribe('!preferences/profile/set', self._on_preferences_profile_set)
         self._cmdp.subscribe('Widgets/active', self._on_widgets_active)
         self._cmdp.subscribe('_window', self._on_window_state)
+        self._cmdp.subscribe('General/developer', self._on_general_developer)
 
         # Main implements the DataView bindings
         self._cmdp.subscribe('DataView/#service/x_change_request', self._on_dataview_service_x_change_request)
@@ -363,18 +364,22 @@ class MainWindow(QtWidgets.QMainWindow):
     def _on_preferences_profile_remove(self, topic, value):
         self._view_menu()
 
+    def _on_general_developer(self, topic, value):
+        self._view_menu()
+
     def _view_menu(self):
         self._profile_action_group = None
         self._profile_actions = []
         menu = self.ui.menuView
         menu.clear()
 
-        self._profile_action_group = QtWidgets.QActionGroup(self.ui.menuView)
+        developer = self._cmdp['General/developer']
+        self._profile_action_group = QtWidgets.QActionGroup(menu)
         self._profile_action_group.setExclusive(True)
         for profile in sorted(self._cmdp.preferences.profiles):
             if profile == 'defaults':
                 continue
-            action = self.ui.menuView.addAction(profile)
+            action = menu.addAction(profile)
             action.setCheckable(True)
             self._profile_action_group.addAction(action)
             if profile == self._cmdp.preferences.profile:
@@ -384,6 +389,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self._profile_menu_separator = menu.addSeparator()
         for widget_def in self._widget_defs.values():
+            widget_def.setdefault('dock_widget', None)
+            if not developer and 'developer' in widget_def.get('permissions', []):
+                continue
             self._widget_view_menu_factory(menu, widget_def)
 
     def _widget_view_menu_factory(self, menu, widget_def):
@@ -400,7 +408,6 @@ class MainWindow(QtWidgets.QMainWindow):
         if widget_def.get('singleton', False):
             action.setCheckable(True)
             action.toggled.connect(menu_fn)
-            widget_def.setdefault('dock_widget', None)
         else:
             action.triggered.connect(menu_fn)
 
@@ -1050,10 +1057,11 @@ class MainWindow(QtWidgets.QMainWindow):
                 widget_def['dock_widget'] = dock_widget
             else:
                 dock_widget = widget_def['dock_widget']
-            action = widget_def['action']
-            signal_block_state = action.blockSignals(True)
-            action.setChecked(True)
-            action.blockSignals(signal_block_state)
+            action = widget_def.get('action')
+            if action is not None:
+                signal_block_state = action.blockSignals(True)
+                action.setChecked(True)
+                action.blockSignals(signal_block_state)
         else:
             log.info('add widget %s', name)
             dock_widget = MyDockWidget(self, widget_def, self._cmdp, instance_id)
@@ -1083,10 +1091,11 @@ class MainWindow(QtWidgets.QMainWindow):
         name = widget_def['name']
         if widget_def.get('singleton', False):
             log.info('remove singleton widget %s', name)
-            action = widget_def['action']
-            signal_block_state = action.blockSignals(True)
-            action.setChecked(False)
-            action.blockSignals(signal_block_state)
+            action = widget_def.get('action')
+            if action is not None:
+                signal_block_state = action.blockSignals(True)
+                action.setChecked(False)
+                action.blockSignals(signal_block_state)
         else:
             log.info('remove widget %s', name)
             p = dock_widget.state_preference

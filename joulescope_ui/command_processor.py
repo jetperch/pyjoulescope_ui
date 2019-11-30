@@ -49,6 +49,7 @@ class _ExampleClass:
 
 
 _method_type = type(_ExampleClass().method)
+_function_type = type(lambda: True)
 _weakref_type = type(weakref.ref(log))
 
 
@@ -57,14 +58,16 @@ def _is_command(topic):
 
 
 def _is_lambda_or_local(fn):
+    if isinstance(fn, _weakref_type):
+        fn = fn()
     if fn is None:
         return False
-    elif '<lambda>' in fn.__qualname__:
-        return True
-    elif '<local>' in fn.__qualname__:
-        return True
-    else:
-        return False
+    if isinstance(fn, _function_type):
+        if '<lambda>' in fn.__qualname__:
+            return True
+        elif '<locals>' in fn.__qualname__:
+            return True
+    return False
 
 
 def _weakref_factory(x):

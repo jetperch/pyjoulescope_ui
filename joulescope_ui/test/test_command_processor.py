@@ -23,6 +23,22 @@ import weakref
 import os
 
 
+class CallbackClass:
+
+    def __init__(self, calls=None):
+        self.calls = calls if calls is not None else []
+
+    def __call__(self, topic, value):
+        self.callback(topic, value)
+
+    def callback(self, topic, value):
+        self.calls.append((topic, value))
+
+    def clear(self):
+        self.calls.clear()
+
+
+
 class TestCommandProcessor(unittest.TestCase):
 
     def setUp(self):
@@ -45,6 +61,10 @@ class TestCommandProcessor(unittest.TestCase):
     def execute_undo_and_record(self, command, data):
         self.commands.append((command, data))
         return command + '/undo', data + '/undo'
+
+    def execute_rewrite(self, topic, value):
+        self.commands.append((topic, value))
+        return ('!c1', value + 'a'), ('!c2', 'v2')
 
     def test_register_invoke_unregister(self):
         for command in ['!my/command', 'my/command!']:
@@ -95,13 +115,10 @@ class TestCommandProcessor(unittest.TestCase):
         self.assertEqual([], c.redos)
 
     def test_undo_redo_rewrite(self):
-        def fn(topic, value):
-            self.commands.append((topic, value))
-            return ('!c1', value + 'a'), ('!c2', 'v2')
         c = self.c
         c.register('!c1', self.execute_ignore)
         c.register('!c2', self.execute_ignore)
-        c.register('!c0', fn)
+        c.register('!c0', self.execute_rewrite)
         c.invoke('!c0', 'v1')
         c.invoke('!undo')
         c.invoke('!redo')
@@ -328,16 +345,41 @@ class TestCommandProcessor(unittest.TestCase):
         self.c.invoke('!undo')
         self.assert_commands([('a', 'default')])
 
-    def test_weakref_support(self):
-        calls = []
-        fn = lambda topic, value: calls.append(value)
+    def test_lambda_reject(self):
         self.c.preferences.define('a', default='default')
-        self.c.subscribe('a', weakref.ref(fn))
+        with self.assertRaises(ValueError):
+            self.c.subscribe('a', lambda topic, value: False)
+
+    def test_local_function_reject(self):
+        def mycallback(topic, value):
+            pass
+        self.c.preferences.define('a', default='default')
+        with self.assertRaises(ValueError):
+            self.c.subscribe('a', mycallback)
+
+    def test_weakref_class(self):
+        calls = []
+        cbk = CallbackClass(calls=calls)
+        self.c.preferences.define('a', default='default')
+        self.c.subscribe('a', cbk)
         self.c['a'] = '1'
-        self.assertEqual(['1'], calls)
-        del fn
+        self.assertEqual([('a', '1')], calls)
+        del cbk
+        calls.clear()
         self.c['a'] = '2'
-        self.assertEqual(['1'], calls)
+        self.assertEqual([], calls)
+
+    def test_weakref_method(self):
+        calls = []
+        cbk = CallbackClass(calls=calls)
+        self.c.preferences.define('a', default='default')
+        self.c.subscribe('a', cbk.callback)
+        self.c['a'] = '1'
+        self.assertEqual([('a', '1')], calls)
+        del cbk
+        calls.clear()
+        self.c['a'] = '2'
+        self.assertEqual([], calls)
 
     def test_contains(self):
         self.assertFalse('hello' in self.c)

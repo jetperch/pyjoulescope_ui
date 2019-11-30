@@ -76,5 +76,5 @@ def widget_register(cmdp):
         'class': ParametersWidget,
         'location': QtCore.Qt.LeftDockWidgetArea,
         'singleton': True,
-        'permissions': 'developer',
+        'permissions': ['developer'],
     }

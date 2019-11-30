@@ -68,6 +68,12 @@ def preferences_def(p):
         dtype='str',
         options=['previous', 'minimum', '50%', '75%', '100%'],
         default='previous')
+    p.define(
+        topic='General/developer',
+        brief='Enable developer features',
+        dtype='bool',
+        default=False,
+        default_profile_only=True)
 
     # --- DEVICE ---
     p.define('Device/', 'Joulescope device-specific default settings')
