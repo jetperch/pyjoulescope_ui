@@ -36,8 +36,10 @@ The Joulescope User Interface requires Python 3.6 or newer.
 Install [Python 3.6+](https://www.python.org/) on your system and then verify
 your python version at the terminal or command line:
 
-    > python3 -V
-    Python 3.7.3
+    > python3 -VV
+    Python 3.7.5 (tags/v3.7.5:5c02a39a0b, Oct 15 2019, 00:11:34) [MSC v.1916 64 bit (AMD64)]
+    
+Ensure that you have Python 3.6 or newer and 64-bit.
 
 
 ### Configure virtualenv [optional]
@@ -96,6 +98,12 @@ You should now be able to run the Joulescope UI:
 
     cd {path/to/repos}/pyjoulescope_ui
     python3 -m joulescope_ui
+
+
+If you see an error importing win32api on Windows, you should try running this
+command from an Administrator command prompt:
+
+   python {path_to_python}\scripts\pywin32_postinstall.py -install
 
 
 ### Simultaneously develop the Joulescope driver

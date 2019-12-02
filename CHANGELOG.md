@@ -17,6 +17,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added ability to set fonts and colors for Multimeter and Waveform widgets.
 *   Added Help → View Logs...
 *   Added software release channel selection: alpha, beta, stable.
+*   Updated to Python 3.7.5 (was 3.7.3).
 
 
 ## 0.6.10
