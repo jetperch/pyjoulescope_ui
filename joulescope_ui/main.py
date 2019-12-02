@@ -151,6 +151,7 @@ class MyDockWidget(QtWidgets.QDockWidget):
         self.instance_id = int(instance_id)
         self.name = widget_def['name']
         QtWidgets.QDockWidget.__init__(self, self.name, parent)
+        self.setObjectName(str(self))
         self._parent = parent
         self._cmdp = cmdp
         self.widget_def = widget_def
