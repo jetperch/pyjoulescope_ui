@@ -64,7 +64,6 @@ class SignalStatistics(pg.GraphicsWidget):
         self._label = QtGui.QGraphicsTextItem(self)
         self._label.setVisible(True)
         self._value_cache = None
-        self._label.setFont(QtGui.QFont('Source Code Pro', 8))
         self._cmdp = cmdp
 
         labels = {'μ': -0.000000001, 'σ': +0.000000001, 'min': -0.001, 'max': 0.001, 'p2p': 0.002}
