@@ -51,6 +51,12 @@ def preferences_def(p):
         dtype='bool',
         default=True)
     p.define(
+        topic='General/update_channel',
+        brief='The software release channel for updates',
+        dtype='str',
+        options=['alpha', 'beta', 'stable'],
+        default='stable')
+    p.define(
         topic='General/log_level',
         brief='The logging level',
         dtype='str',

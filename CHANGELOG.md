@@ -12,6 +12,11 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Fixed single value widget to display value in its own best unit scale.
 *   Renamed "command" to "entry_point" to prevent confusion with UI "commands".
 *   Addressed crashes on marker removal.
+*   Updated Preferences dialog to support user-defined profiles.
+*   Updated software to save and restore settings within each profile.
+*   Added ability to set fonts and colors for Multimeter and Waveform widgets.
+*   Added Help → View Logs...
+*   Added software release channel selection: alpha, beta, stable.
 
 
 ## 0.6.10

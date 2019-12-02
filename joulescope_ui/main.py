@@ -88,6 +88,7 @@ SOFTWARE_UPDATE = """\
 A software update is available:<br/>
 Current version = {current_version}<br/>
 Available version = {latest_version}<br/>
+Channel = {channel}<br/>
 </p>
 <p><a href="{url}">Download</a> now.</p>
 </html>
@@ -504,12 +505,17 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def _software_update_check(self):
         if self._cmdp['General/update_check']:
-            software_update_check(self.on_softwareUpdateSignal.emit)
+            channel = self._cmdp['General/update_channel']
+            software_update_check(self.on_softwareUpdateSignal.emit, channel)
 
     def _on_software_update(self, current_version, latest_version, url):
-        log.info('_on_software_update(current_version=%r, latest_version=%r, url=%r)',
-                 current_version, latest_version, url)
-        txt = SOFTWARE_UPDATE.format(current_version=current_version, latest_version=latest_version, url=url)
+        channel = self._cmdp['General/update_channel']
+        log.info('_on_software_update(current_version=%r, latest_version=%r, channel=%s, url=%r)',
+                 current_version, latest_version, channel, url)
+        txt = SOFTWARE_UPDATE.format(current_version=current_version,
+                                     latest_version=latest_version,
+                                     channel=channel,
+                                     url=url)
         QtWidgets.QMessageBox.about(self, 'Joulescope Software Update Available', txt)
 
     def _help_about(self):

@@ -36,6 +36,15 @@ _PLATFORM_MAP = {
 }
 
 
+def _validate_channel(channel):
+    if channel is None:
+        channel = 'stable'
+    channel = str(channel).lower()
+    if channel not in ['alpha', 'beta', 'stable']:
+        raise ValueError(f'Unsupported update channel "{channel}"')
+    return channel
+
+
 def str_to_version(v):
     if isinstance(v, str):
         v = v.split('.')
@@ -60,13 +69,18 @@ def is_newer(version):
     return str_to_version(version) > current_version()
 
 
-def fetch(callback):
+def fetch(callback, channel=None):
+    channel = _validate_channel(channel)
     try:
         response = requests.get(URL_INDEX, timeout=TIMEOUT)
         data = json.loads(response.text)
 
-        latest_version = data.get('active', {}).get('stable', [0, 0, 0])
+        latest_version = data.get('active', {}).get(channel, [0, 0, 0])
         if not is_newer(latest_version):
+            log.debug('software up to date: version=%s, latest=%s, channel=%s',
+                      version_to_str(current_version()),
+                      version_to_str(latest_version),
+                      channel)
             return False
         path = _PLATFORM_MAP.get(platform.system())
         if path is None:
@@ -84,14 +98,18 @@ def fetch(callback):
         return False
 
 
-def check(callback):
+def check(callback, channel=None):
     """Check for software updates.
 
     :param callback: The function to call if an update is required.
         The signature is callback(current_version, latest_version, url).
+    :param channel: The software update channel which is in:
+        ['alpha', 'beta', 'stable'].  None (default) is equivalent to 'stable'.
     """
     if VERSION == 'UNRELEASED':
+        log.info('Skip software update check: version is UNRELEASED')
         return
-    thread = threading.Thread(target=fetch, args=[callback])
+    channel = _validate_channel(channel)
+    thread = threading.Thread(target=fetch, args=[callback, channel])
     thread.daemon = True
     thread.start()

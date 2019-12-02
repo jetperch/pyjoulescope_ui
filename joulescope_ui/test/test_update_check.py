@@ -42,9 +42,17 @@ class TestUpdateCheck(unittest.TestCase):
         self.assertFalse(update_check.is_newer("1.1.4"))
         self.assertFalse(update_check.is_newer("0.9.9"))
 
+    def test_fetch_invalid_channel(self):
+        update_check.VERSION = "999999.0.0"
+        with self.assertRaises(ValueError):
+            update_check.fetch(self.callback, '__INVALID__')
+
     def test_fetch_no_update(self):
         update_check.VERSION = "999999.0.0"
         self.assertFalse(update_check.fetch(self.callback))
+        self.assertFalse(update_check.fetch(self.callback, 'alpha'))
+        self.assertFalse(update_check.fetch(self.callback, 'beta'))
+        self.assertFalse(update_check.fetch(self.callback, 'stable'))
 
     def test_has_update(self):
         update_check.VERSION = "0.0.0"
