@@ -58,7 +58,7 @@ def paths_v2(app=None):
             'dirs': {
                 'app_path': app_path,
                 'config': os.path.join(app_path, 'config'),
-                'log': os.path.join(app_path, 'Library', 'Logs', app),
+                'log': os.path.join(app_path, 'log'),
                 'firmware': os.path.join(app_path, 'firmware'),
                 'data': os.path.join(user_path, 'Documents', app),
             }
