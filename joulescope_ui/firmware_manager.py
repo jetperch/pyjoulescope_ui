@@ -14,8 +14,8 @@
 
 
 import os
-from joulescope_ui.config import APP_PATH
 from joulescope.firmware_manager import load as _load, upgrade, version_required, VERSIONS
+from joulescope_ui.paths import paths_current
 import binascii
 import pkgutil
 import requests
@@ -26,13 +26,8 @@ log = logging.getLogger(__name__)
 
 
 SIGNING_KEY_PUBLIC = binascii.unhexlify(b'32fe2bed04bbc42fe1b382e0371ba95ec2947045e8d919e49fdef601e24c105e')
-FIRMWARE_PATH = os.path.join(APP_PATH, 'firmware', 'js110')
 URL = 'https://download.joulescope.com/firmware/js110/'
 URL_TIMEOUT = 30.0
-
-
-if not os.path.isdir(FIRMWARE_PATH):
-    os.makedirs(FIRMWARE_PATH)
 
 
 def _download_from_distribution(path):
@@ -69,7 +64,11 @@ def cache_path(version=None):
     filename = VERSIONS['data']['format'].format(version=version_str)
 
     # Attempt local cache
-    path = os.path.join(FIRMWARE_PATH, filename)
+    firmware_path = paths_current()['dirs']['firmware']
+    firmware_path = os.path.join(firmware_path, 'js110')
+    if not os.path.isdir(firmware_path):
+        os.makedirs(firmware_path)
+    path = os.path.join(firmware_path, filename)
     return path
 
 
