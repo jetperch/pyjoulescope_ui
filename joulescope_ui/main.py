@@ -185,13 +185,15 @@ class MyDockWidget(QtWidgets.QDockWidget):
 
     def closeEvent(self, event):
         if self.isVisible():
-            log.info('MyDockWidget.closeEvent for %s', self.widget_def['name'])
+            log.info('MyDockWidget.closeEvent for %s', self)
             self._cmdp.invoke('!Widgets/remove', str(self))
             event.ignore()
         elif not self.widget_def.get('singleton', False):
-            log.info('MyDockWidget.closeEvent singleton final for %s', self.widget_def['name'])
+            log.info('MyDockWidget.closeEvent for %s', self)
             QtWidgets.QDockWidget.closeEvent(self, event)
             self.dock_widget_close()
+        else:
+            log.info('MyDockWidget.closeEvent for %s', self)
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -286,10 +288,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self._cmdp.register('!Widgets/add', self._widgets_add_cmd,
                             brief='Add a main window widget',
-                            detail='The value is the widget name.')
+                            detail='The value is the widget name.',
+                            record_undo=True)
         self._cmdp.register('!Widgets/remove', self._widgets_remove_cmd,
                             brief='Remove a main window widget',
-                            detail='The value is the widget or widget name string.')
+                            detail='The value is the widget or widget name string.',
+                            record_undo=True)
 
         # Device selection
         self.device_action_group = QtWidgets.QActionGroup(self)
@@ -393,6 +397,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self._profile_menu_separator = menu.addSeparator()
         for widget_def in self._widget_defs.values():
+            widget_def['action'] = None  # clear any existing action reference
             widget_def.setdefault('dock_widget', None)
             if not developer and 'developer' in widget_def.get('permissions', []):
                 continue
@@ -411,6 +416,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
         if widget_def.get('singleton', False):
             action.setCheckable(True)
+            dock_widget = widget_def.get('dock_widget')
+            if dock_widget is not None and dock_widget.isVisible():
+                action.setChecked(True)
             action.toggled.connect(menu_fn)
         else:
             action.triggered.connect(menu_fn)
@@ -1022,19 +1030,13 @@ class MainWindow(QtWidgets.QMainWindow):
     def _widgets_active(self):
         return [str(widget) for widget in self._widgets]  # if widget.isVisible()
 
-    def _widgets_active_update(self):
-        # skip command since should already be processing the command
-        active_widgets = self._widgets_active
-        log.debug('_widgets_active_update %s', active_widgets)
-        self._cmdp.preferences['Widgets/active'] = active_widgets
-
     def _widgets_add_cmd(self, topic, value):
         widget_str = self._widget_str(value)
         if widget_str in self._widgets_active:
             return None
         widgets_active = self._widgets_active + [widget_str]
         self._cmdp.publish('Widgets/active', widgets_active)
-        return (topic, widget_str), ('!Widgets/remove', widget_str)
+        return (topic, widget_str), [('!Widgets/remove', widget_str)]
 
     def _widgets_find_first(self, widget_str):
         widgets_active = self._widgets_active
@@ -1055,10 +1057,12 @@ class MainWindow(QtWidgets.QMainWindow):
             return None
         widgets_active.remove(widget_str)
         self._cmdp.publish('Widgets/active', widgets_active)
-        return (topic, widget_str), ('!Widgets/add', widget_str)
+        return (topic, widget_str), [('!Widgets/add', widget_str)]
 
     def _widgets_add(self, widget_str):
         name, instance_id = dock_widget_parse_str(self._widget_str(widget_str))
+        if instance_id is None:
+            raise ValueError('instance_id not specified')
         if name not in self._widget_defs:
             log.warning('_widgets_add(%s) not found', name)
             return
@@ -1081,7 +1085,6 @@ class MainWindow(QtWidgets.QMainWindow):
         location = widget_def.get('location', QtCore.Qt.RightDockWidgetArea)
         self.addDockWidget(location, dock_widget)
         dock_widget.setVisible(True)
-        dock_widget.setObjectName(str(dock_widget))
         self._widgets.append(dock_widget)
         return dock_widget
 
@@ -1097,13 +1100,13 @@ class MainWindow(QtWidgets.QMainWindow):
     def _widgets_remove(self, widget_str):
         dock_widget = self._widgets_get(widget_str)
         dock_widget.setVisible(False)
-        self.removeDockWidget(dock_widget)
         self._widgets.remove(dock_widget)
+        self.removeDockWidget(dock_widget)
 
         widget_def = self._widget_defs[dock_widget.name]
         name = widget_def['name']
         if widget_def.get('singleton', False):
-            log.info('remove singleton widget %s', name)
+            log.info('remove singleton widget %s', str(dock_widget))
             action = widget_def.get('action')
             if action is not None:
                 signal_block_state = action.blockSignals(True)
@@ -1158,6 +1161,12 @@ class MainWindow(QtWidgets.QMainWindow):
         for widget in self._widgets:
             widget.setVisible(True)
 
+        # force invisible, since restoreState can show
+        active_widgets = self._widgets_active
+        for widget in self.findChildren(QtGui.QDockWidget):
+            if str(widget) not in active_widgets:
+                widget.setVisible(False)
+
         window_location = self._cmdp['General/window_location']
         window_size = self._cmdp['General/window_size']
         if window_size == 'minimum':
@@ -1195,7 +1204,7 @@ class MainWindow(QtWidgets.QMainWindow):
         )
 
     def closeEvent(self, event):
-        log.info('closeEvent(%r)', event)
+        log.info('closeEvent()')
         self._cmdp.preferences.save()
         self._device_close()
         return super(MainWindow, self).closeEvent(event)
@@ -1291,14 +1300,15 @@ class MainWindow(QtWidgets.QMainWindow):
         self._data_view.statistics_get_multiple(ranges, units='seconds', callback=_on_done, source_id=source_id)
 
     def _cmd_range_tool_run(self, topic, value):
+        # note: no undo available
         range_tool = self._plugins.range_tools.get(value['name'])
         if range_tool is None:
             self.status(f'Range tool {value["name"]} not found')
-            return
+            return None
         x_start, x_stop = value['x_start'], value['x_stop']
         if not hasattr(self._data_view, 'statistics_get'):
             self.status('Range tool not supported by selected device')
-            return
+            return None
         if hasattr(self._device, 'voltage_range'):
             voltage_range = self._device.voltage_range
         elif hasattr(self._device, 'stream_buffer'):
@@ -1311,6 +1321,7 @@ class MainWindow(QtWidgets.QMainWindow):
         invoke.sigFinished.connect(self.on_rangeToolFinished)
         s = self._data_view.statistics_get(x_start, x_stop, units='seconds')
         invoke.run(self._data_view, s, x_start, x_stop)
+        return None
 
     @QtCore.Slot(object, str)
     def on_rangeToolFinished(self, range_tool, msg):
