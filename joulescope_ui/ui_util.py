@@ -178,7 +178,7 @@ def show_in_folder(path):
     if not os.path.isfile(path) and not os.path.isdir(path):
         return False  # does not exist
 
-    if 'win' in sys.platform:
+    if 'win32' in sys.platform:
         args = ['explorer.exe']
         if os.path.isfile(path):
             args.append('/select')
