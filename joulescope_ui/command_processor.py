@@ -35,6 +35,7 @@ Alternatives and references include:
 from PySide2 import QtCore
 import logging
 import weakref
+import threading
 from joulescope_ui.preferences import Preferences, BASE_PROFILE, \
     TOPIC_HIDDEN_CHAR, TOPIC_TEMPORARY_CHAR
 
@@ -121,8 +122,11 @@ class CommandProcessor(QtCore.QObject):
 
         self._topic = {}
         self._subscribers = {}
-        self._undos = []  # tuples of (do, undo), each tuples (command, data)
-        self._redos = []  # tuples of (do, undo), each tuples (command, data)
+        self._undos = []  # tuples of (do, undo), do is tuple (command, data), undo is list of tuples (command, data)
+        self._redos = []  # tuples of (do, undo), do is tuple (command, data), undo is list of tuples (command, data)
+        self._thread_id = None
+        self._topic_stack = []
+        self._stack_undo = None
         self.register('!undo', self._undo)
         self.register('!redo', self._redo)
         self.register('!command_group/start', self._command_group_start)
@@ -174,29 +178,29 @@ class CommandProcessor(QtCore.QObject):
 
     def _undo(self, topic, data):
         if len(self._undos):
-            do_cmd, undo_cmd = self._undos.pop()
-            undo_topic, undo_data = undo_cmd
-            if _is_command(undo_topic):
-                log.debug('undo_exec %s | %s', undo_topic, undo_data)
-                fn = self._topic[undo_topic]['execute_fn']()
-                if fn is not None:
-                    fn(undo_topic, undo_data)
-            else:
-                log.debug('undo_pref %s | %s', undo_topic, undo_data)
-                self.preferences[undo_topic] = undo_data
-            self._redos.append((do_cmd, undo_cmd))
+            do_cmd, undo_cmds = self._undos.pop()
+            for undo_topic, undo_data in undo_cmds[-1::-1]:
+                if _is_command(undo_topic):
+                    log.debug('undo_exec %s | %s', undo_topic, undo_data)
+                    fn = self._topic[undo_topic]['execute_fn']()
+                    if fn is not None:
+                        fn(undo_topic, undo_data)
+                else:
+                    log.debug('undo_pref %s | %s', undo_topic, undo_data)
+                    self.preferences[undo_topic] = undo_data
+            self._redos.append((do_cmd, undo_cmds))
             self._subscriber_update(undo_topic, undo_data)
             if undo_topic == '!command_group/end':
                 while len(self._undos):
-                    _, (undo_topic, _) = self._undos[-1]
+                    (redo_topic, _), _ = self._undos[-1]
                     self._undo(None, None)
-                    if undo_topic == '!command_group/start':
+                    if redo_topic == '!command_group/start':
                         break
         return None
 
     def _redo(self, topic, data):
         if len(self._redos):
-            do_cmd, undo_cmd = self._redos.pop()
+            do_cmd, undo_cmds = self._redos.pop()
             do_topic, do_data = do_cmd
             if _is_command(do_topic):
                 log.debug('redo_exec %s | %s', do_topic, do_data)
@@ -205,7 +209,7 @@ class CommandProcessor(QtCore.QObject):
                     fn(do_topic, do_data)
             else:
                 self.preferences[do_topic] = do_data
-            self._undos.append((do_cmd, undo_cmd))
+            self._undos.append((do_cmd, undo_cmds))
             self._subscriber_update(do_topic, do_data)
             if do_topic == '!command_group/start':
                 while len(self._redos):
@@ -223,34 +227,59 @@ class CommandProcessor(QtCore.QObject):
 
     @QtCore.Slot(str, object)
     def _on_invoke(self, topic, data):
-        if _is_command(topic):
-            log.debug('cmd %s | %s', topic, data)
-            execute_fn = self._topic[topic]['execute_fn']()
-            if execute_fn is not None:
-                rv = execute_fn(topic, data)
-                if rv is None or rv[0] is None:
-                    return
-                if isinstance(rv[0], str):
-                    undos = (topic, data), rv
-                else:
-                    undos = rv
+        if self._thread_id is None:
+            self._thread_id = threading.get_ident()
+        self._topic_stack.append(topic)  # re-entrant!
+        try:
+            redo_undos = None
+            if _is_command(topic):
+                log.debug('cmd %s | %s', topic, data)
+                if bool(self._topic[topic].get('record_undo', False)) and len(self._topic_stack) == 1:
+                    self._stack_undo = []
+                execute_fn = self._topic[topic]['execute_fn']()
+                if execute_fn is not None:
+                    rv = execute_fn(topic, data)
+                    if rv is not None and rv[0] is not None:
+                        if isinstance(rv[0], str):
+                            redo_undos = (topic, data), [rv]
+                        else:
+                            redo, undos = rv
+                            if not isinstance(undos[0][0], str):
+                                raise ValueError('invalid return value for topic %s', topic)
+                            redo_undos = rv
+            else:
+                if TOPIC_TEMPORARY_CHAR not in topic:
+                    try:
+                        data_orig = self.preferences.get(topic)
+                        if data == data_orig:
+                            return  # ignore, no change necessary
+                        if len(self._undos) and self._undos[0][0][0] == topic:
+                            # coalesce repeated actions to the same topic
+                            _, undos = self._undos.pop()
+                            if 1 == len(undos):
+                                _, data_orig = undos[0]
+                        undos = [(topic, data_orig)]
+                    except KeyError:
+                        undos = [('!preferences/preference/purge', topic)]
+                    log.debug('set %s <= %s', topic, data)
+                    redo_undos = (topic, data), undos
+                self.preferences[topic] = data
+        finally:
+            self._topic_stack.pop()
+
+        is_dependent_command = len(self._topic_stack)
+        if redo_undos is not None:
+            if is_dependent_command:
+                if self._stack_undo is not None:
+                    self._stack_undo.extend(redo_undos[1])
+            else:
+                if self._stack_undo is not None and len(self._stack_undo):
+                    redo, undos = redo_undos
+                    redo_undos = (redo, self._stack_undo + undos)
+                self._undos.append(redo_undos)
                 self._redos.clear()
-                self._undos.append(undos)
-        else:
-            if TOPIC_TEMPORARY_CHAR not in topic:
-                try:
-                    data_orig = self.preferences.get(topic)
-                    if data == data_orig:
-                        return  # ignore, no change necessary
-                    if len(self._undos) and self._undos[-1][0][0] == topic:
-                        # coalesce repeated actions to the same topic
-                        _, (_, data_orig) = self._undos.pop()
-                    undo = (topic, data_orig)
-                except KeyError:
-                    undo = '!preferences/preference/purge', topic
-                log.debug('set %s <= %s', topic, data)
-                self._undos.append(((topic, data), undo))
-            self.preferences[topic] = data
+        if not is_dependent_command:
+            self._stack_undo = None
         self._subscriber_update(topic, data)
 
     def invoke(self, topic, data=None):
@@ -283,7 +312,10 @@ class CommandProcessor(QtCore.QObject):
                 data = fn(data)
         else:
             data = self.preferences.validate(topic, data)
-        self.invokeSignal.emit(topic, data)
+        if self._thread_id == threading.get_ident() and self._stack_undo is not None:
+            self._on_invoke(topic, data)
+        else:
+            self.invokeSignal.emit(topic, data)
 
     def subscribe(self, topic, update_fn, update_now=False):
         """Subscribe to a topic.
@@ -489,7 +521,7 @@ class CommandProcessor(QtCore.QObject):
                                        dtype=dtype, options=options, default=default,
                                        default_profile_only=default_profile_only)
 
-    def register(self, topic, execute_fn, validate_fn=None, brief=None, detail=None):
+    def register(self, topic, execute_fn, validate_fn=None, brief=None, detail=None, record_undo=None):
         """Register a new command topic.
 
         :param topic: The name for the command topic which must be unique.
@@ -501,14 +533,20 @@ class CommandProcessor(QtCore.QObject):
             that executes the command and returns the undo command and undo
             data.  If the callable returns None or (None, object), then no undo
             operation will be registered.  The callable can optionally override
-            the original command for future redos by returning
-            ((redo_topic, redo_data), (undo_topic, undo_data)).
+            the original command for future redos or have multiple undo operations
+            by returning
+            ((redo_topic, redo_data), [(undo1_topic, undo1_data), ...]).
+            Note that the list of undos will be performed in reverse order!
         :param validate_fn: The optional callable(data) that validates the data.
             Returns the validate data on success, which may be different from the
               input data.  Throw an exception on failure.
         :param brief: The brief user-meaningful description for this command.
         :param detail: The detailed user-meaningful HTML formatted description
             for this command.
+        :param record_undo: True to record all publish and invokes that occur during
+            the command for future undo as a single group.  False to simply use
+            the execute_fn return value for undo.  None (default) is equivalent to
+            False.
         :raises ValueError: If command is not a string of execute_fn is not callable.
         :raises KeyError: If command is already registered.
         """
@@ -531,6 +569,7 @@ class CommandProcessor(QtCore.QObject):
             'validate_fn': _weakref_factory(validate_fn),
             'brief': brief,
             'detail': detail,
+            'record_undo': bool(record_undo)
         }
 
     def unregister(self, topic):

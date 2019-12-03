@@ -64,7 +64,7 @@ class TestCommandProcessor(unittest.TestCase):
 
     def execute_rewrite(self, topic, value):
         self.commands.append((topic, value))
-        return ('!c1', value + 'a'), ('!c2', 'v2')
+        return ('!c1', value + 'a'), [('!c2', 'v2')]
 
     def test_register_invoke_unregister(self):
         for command in ['!my/command', 'my/command!']:
@@ -385,4 +385,36 @@ class TestCommandProcessor(unittest.TestCase):
         self.assertFalse('hello' in self.c)
         self.c['hello'] = 'world'
         self.assertTrue('hello' in self.c)
+
+    def execute_subcommands(self, topic, data):
+        self.c['a'] = 'exec'
+        cmd2_value, undo = data
+        self.c.invoke('!cmd2', cmd2_value)
+        return undo
+
+    def test_command_with_subcommands_should_undo_as_one(self):
+        self.c.preferences.define('a', default='default')
+        self.c.register('!cmd1', self.execute_subcommands, record_undo=True)
+        self.c.register('!cmd2', self.execute_ignore)
+        self.c.invoke('!cmd1', ('cmd2-data', ('!cmd2', 'cmd1-undo')))
+        self.assert_commands([('!cmd2', 'cmd2-data')])
+        self.assertEqual('exec', self.c['a'])
+        self.assertEqual(1, len(self.c.undos))
+        self.c.invoke('!undo')
+        self.assert_commands([('!cmd2', 'cmd1-undo'), ('!cmd2', 'cmd2-data-undo')])
+        self.assertEqual('default', self.c['a'])
+        self.assertEqual(0, len(self.c.undos))
+
+    def test_command_with_subcommands_use_return_value_undo_only(self):
+        self.c.preferences.define('a', default='default')
+        self.c.register('!cmd1', self.execute_subcommands)  # , record_undo=False
+        self.c.register('!cmd2', self.execute_ignore)
+        self.c.invoke('!cmd1', ('cmd2-data', ('!cmd2', 'cmd1-undo')))
+        self.assert_commands([('!cmd2', 'cmd2-data')])
+        self.assertEqual('exec', self.c['a'])
+        self.assertEqual(1, len(self.c.undos))
+        self.c.invoke('!undo')
+        self.assert_commands([('!cmd2', 'cmd1-undo')])
+        self.assertEqual('exec', self.c['a'])
+        self.assertEqual(0, len(self.c.undos))
 
