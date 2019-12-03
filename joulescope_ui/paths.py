@@ -36,7 +36,7 @@ def paths_v2(app=None):
         contains keys mapping :data:`FILES` to their paths.
     """
     app = APP if app is None else str(app)
-    if 'win' in sys.platform:
+    if 'win32' in sys.platform:
         from win32com.shell import shell, shellcon
         user_path = shell.SHGetFolderPath(0, shellcon.CSIDL_PERSONAL, None, 0)
         appdata_path = shell.SHGetFolderPath(0, shellcon.CSIDL_LOCAL_APPDATA, None, 0)
