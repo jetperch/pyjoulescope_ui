@@ -20,14 +20,12 @@ signal_def = [
         'y_limit': [-2.0, 10.0],
         'y_log_min': 1e-9,
         'y_range': 'auto',
-        'show': True,
     },
     {
         'name': 'voltage',
         'units': 'V',
         'y_limit': [-1.2, 15.0],
         'y_range': 'auto',
-        'show': True,
     },
     {
         'name': 'power',

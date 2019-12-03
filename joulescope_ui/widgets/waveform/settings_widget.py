@@ -36,7 +36,7 @@ class SettingsWidget(pg.ViewBox):
 
     def _signal_add_construct(self, name):
         def cbk():
-            self._cmdp.publish('!Widgets/Waveform/Signals/add' , [name, -1])
+            self._cmdp.publish('!Widgets/Waveform/Signals/add', name)
         return cbk
 
     def on_signalsAvailable(self, signals, visible=None):

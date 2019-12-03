@@ -93,6 +93,7 @@ class WaveformWidget(QtWidgets.QWidget):
                     update_now=True)
         c.subscribe('Device/#state/x_limits', self._on_device_state_limits, update_now=True)
         c.subscribe('Widgets/Waveform/Statistics/font-size', self._on_statistics_settings)
+        c.subscribe('Widgets/Waveform/_signals', self._on_signals_active, update_now=True)
         c.register('!Widgets/Waveform/Signals/add', self._cmd_waveform_signals_add,
                    brief='Add a signal to the waveform.',
                    detail='value is list of signal name string and position. -1 inserts at end')
@@ -104,13 +105,31 @@ class WaveformWidget(QtWidgets.QWidget):
         self.win.ci.layout.invalidate()
 
     def _cmd_waveform_signals_add(self, topic, value):
-        name, index = value
-        self._on_signalAdd(name)
-        return '!Widgets/Waveform/Signals/remove', name
+        if value in self._signals:
+            return None
+        signals = list(self._signals.keys()) + [value]
+        self._cmdp['Widgets/Waveform/_signals'] = signals
+        return '!Widgets/Waveform/Signals/remove', value
 
     def _cmd_waveform_signals_remove(self, topic, value):
-        self.signal_remove(value)
-        return '!Widgets/Waveform/Signals/add', [value, -1]  # todo actual position
+        if value not in self._signals:
+            return None
+        signals = list(self._signals.keys())
+        signals.remove(value)
+        self._cmdp['Widgets/Waveform/_signals'] = signals
+        return '!Widgets/Waveform/Signals/add', value
+
+    def _on_signals_active(self, topic, value):
+        # must be safe to call repeatedly
+        log.debug('_on_signals_active: %s', value)
+        signals_previous = list(self._signals.keys())
+        signals_next = value
+        for signal in signals_previous:
+            if signal not in signals_next:
+                self.signal_remove(signal)
+        for signal in signals_next:
+            if signal not in signals_previous:
+                self._on_signalAdd(signal)
 
     def _on_device_state_limits(self, topic, value):
         if value is not None:
@@ -194,8 +213,6 @@ class WaveformWidget(QtWidgets.QWidget):
             signal = copy.deepcopy(signal)
             signal['display_name'] = signal.get('display_name', signal['name'])
             self._signals_def[signal['name']] = signal
-            if signal.get('show'):
-                self._on_signalAdd(signal['name'])
         self._vb_relink()
 
     def _on_signalAdd(self, name):
@@ -215,9 +232,6 @@ class WaveformWidget(QtWidgets.QWidget):
         return s
 
     def signal_remove(self, name):
-        if len(self._signals) <= 1:
-            log.warning('signal_remove(%s) but last signal', name)
-            return
         signal = self._signals.pop(name, None)
         if signal is None:
             log.warning('signal_remove(%s) but not found', name)
@@ -233,23 +247,18 @@ class WaveformWidget(QtWidgets.QWidget):
                     self.win.addItem(i, row=k - 1, col=j)
         self._vb_relink()
 
-    @QtCore.Slot(str)
-    def on_signalHide(self, name):
-        log.info('on_signalHide(%s)', name)
-        self.signal_remove(name)
-
     def _vb_relink(self):
         if len(self._signals) <= 0:
             self._x_axis.linkToView(None)
-            return
-        row = SIGNAL_OFFSET_ROW + len(self._signals) - 1
-        vb = self.win.ci.layout.itemAt(row, 1)
-        self._x_axis.linkToView(vb)
-        for p in self._signals.values():
-            if p.vb == vb:
-                p.vb.setXLink(None)
-            else:
-                p.vb.setXLink(vb)
+        else:
+            row = SIGNAL_OFFSET_ROW + len(self._signals) - 1
+            vb = self.win.ci.layout.itemAt(row, 1)
+            self._x_axis.linkToView(vb)
+            for p in self._signals.values():
+                if p.vb == vb:
+                    p.vb.setXLink(None)
+                else:
+                    p.vb.setXLink(vb)
         self._settings_widget.on_signalsAvailable(list(self._signals_def.values()),
                                                   visible=list(self._signals.keys()))
 
@@ -442,6 +451,11 @@ def widget_register(cmdp):
         brief='The font color.',
         dtype='color',
         default=(192, 192, 192, 255))
+    cmdp.define(
+        topic='Widgets/Waveform/_signals',
+        brief='The signal configurations.',
+        dtype='obj',
+        default=['current', 'voltage'])
 
     cmdp.define('Widgets/Waveform/#requests/refresh_markers', dtype=object)  # list of marker names
     cmdp.define('Widgets/Waveform/#requests/data_next', dtype='none')
