@@ -950,7 +950,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if self._device_can_record():
                 self._device_stream_record_close()
                 fname = construct_record_filename()
-                path = os.path.join(self._path, os.path.basename(fname))
+                path = os.path.join(self._path, fname)
                 filename, selected_filter = QtWidgets.QFileDialog.getSaveFileName(
                     self, 'Save Joulescope Recording', path, 'Joulescope Data (*.jls)')
                 filename = str(filename)
