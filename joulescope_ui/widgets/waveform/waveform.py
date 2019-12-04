@@ -467,4 +467,5 @@ def widget_register(cmdp):
         'class': WaveformWidget,
         'location': QtCore.Qt.RightDockWidgetArea,
         'singleton': True,
+        'sizePolicy': ['expanding', 'expanding'],
     }

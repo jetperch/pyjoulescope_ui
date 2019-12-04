@@ -109,10 +109,16 @@ class Parameter(object):
         self.label = QtWidgets.QLabel(self.name, parent)
         if self.tooltip is not None:
             self.label.setToolTip(self.tooltip)
+        self.widget_construct(parent)
+        layout.addRow(self.label, self.widget)
+        return self
+
+    def widget_construct(self, parent):
         self.widget = QtWidgets.QWidget(parent)
+        if self.tooltip is not None:
+            self.widget.setToolTip(self.tooltip)
         self.layout = QtWidgets.QHBoxLayout(self.widget)
         self.layout.setContentsMargins(0, 0, 0, 0)
-        layout.addRow(self.label, self.widget)
         self.populate_subclass(parent)
         try:
             self.validate(self._value)
@@ -120,7 +126,7 @@ class Parameter(object):
             self.on_changed()
         except Exception:
             self.on_invalid()
-        return self
+        return self.widget
 
     def unpopulate(self, parent):
         """Unpopulated a parent widget to remove this parameter.

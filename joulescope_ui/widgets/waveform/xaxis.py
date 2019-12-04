@@ -106,7 +106,11 @@ class XAxis(pg.AxisItem):
             idx += 1
 
     def _cmd_waveform_marker_single_add(self, topic, value):
-        x = value
+        if value is None:
+            x1, x2 = self.range
+            x = (x1 + x2) / 2
+        else:
+            x = value
         name = self._find_first_unused_single_marker_name()
         self._marker_add(name, shape='full', pos=x)
         self.marker_moving_emit(name, x)
@@ -114,7 +118,13 @@ class XAxis(pg.AxisItem):
         return '!Widgets/Waveform/Markers/remove', [[name]]
 
     def _cmd_waveform_marker_dual_add(self, topic, value):
-        x1, x2 = value
+        if value is None:
+            x1, x2 = self.range
+            xc = (x1 + x2) / 2
+            xs = (x2 - x1) / 10
+            x1, x2 = xc - xs, xc + xs
+        else:
+            x1, x2 = value
         name1, name2 = self._find_first_unused_dual_marker_prefix()
         mleft = self._marker_add(name1, shape='left', pos=x1)
         mright = self._marker_add(name2, shape='right', pos=x2)

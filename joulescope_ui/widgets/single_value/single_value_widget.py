@@ -214,4 +214,5 @@ def widget_register(cmdp):
         'brief': 'Select and display a single value.',
         'class': SingleValueWidget,
         'location': QtCore.Qt.RightDockWidgetArea,
+        'sizePolicy': ['expanding', 'minimum'],
     }

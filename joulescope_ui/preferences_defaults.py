@@ -35,7 +35,7 @@ def oscilloscope_profile_default(preferences: Preferences):
     if 'Oscilloscope' in preferences.profiles:
         preferences.profile_remove('Oscilloscope')
     preferences.profile_add('Oscilloscope', activate=is_active)
-    preferences.set('Widgets/active', ['Control:1', 'Waveform:2'], profile='Oscilloscope')
+    preferences.set('Widgets/active', ['Control:1', 'Waveform Control:2', 'Waveform:3'], profile='Oscilloscope')
     preferences.set('General/window_size', '75%', profile='Oscilloscope')
     preferences.set('General/window_location', 'center', profile='Oscilloscope')
     preferences.set('Device/parameter/i_range', 'auto', profile='Oscilloscope')

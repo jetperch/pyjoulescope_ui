@@ -21,6 +21,17 @@ import sys
 log = logging.getLogger(__name__)
 
 
+SIZE_POLICY_MAP = {
+    'fixed': QtWidgets.QSizePolicy.Fixed,
+    'minimum': QtWidgets.QSizePolicy.Minimum,
+    'maximum': QtWidgets.QSizePolicy.Maximum,
+    'preferred': QtWidgets.QSizePolicy.Preferred,
+    'expanding': QtWidgets.QSizePolicy.Expanding,
+    'minimum_expanding': QtWidgets.QSizePolicy.MinimumExpanding,
+    'ignored': QtWidgets.QSizePolicy.Ignored,
+}
+
+
 def comboBoxConfig(comboBox, values, default=None):
     """Configure (or reconfigure) a QT combo box.
 
@@ -194,3 +205,7 @@ def show_in_folder(path):
     else:
         args = ['xdg-open', path]  # assume X-Windows?
         subprocess.Popen(args)
+
+
+def str_to_size_policy(s):
+    return SIZE_POLICY_MAP.get(s, QtWidgets.QSizePolicy.Expanding)

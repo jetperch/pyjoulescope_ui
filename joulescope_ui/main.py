@@ -1082,6 +1082,9 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             log.info('add widget %s', name)
             dock_widget = MyDockWidget(self, widget_def, self._cmdp, instance_id)
+        size_policy = widget_def.get('sizePolicy', ['expanding', 'expanding'])
+        dock_widget.setSizePolicy(ui_util.str_to_size_policy(size_policy[0]),
+                                  ui_util.str_to_size_policy(size_policy[1]))
         location = widget_def.get('location', QtCore.Qt.RightDockWidgetArea)
         self.addDockWidget(location, dock_widget)
         dock_widget.setVisible(True)
@@ -1360,14 +1363,18 @@ def load_font(resource_path):
     rv = QtGui.QFontDatabase.addApplicationFont(resource_path)
     if rv == -1:
         raise RuntimeError(f'Could not load font {resource_path}')
+    return rv
 
 
 def load_fonts():
+    font_list = ['']
     iterator = QtCore.QDirIterator(':/joulescope/fonts/', QtCore.QDirIterator.Subdirectories)
     while iterator.hasNext():
         resource_path = iterator.next()
         if resource_path.endswith('.ttf'):
-            load_font(resource_path)
+            rv = load_font(resource_path)
+            font_list.append(f'    {resource_path} => {rv}')
+    log.debug('Loaded fonts:%s', '\n'.join(font_list))
 
 
 def run(device_name=None, log_level=None, file_log_level=None, filename=None):
@@ -1421,6 +1428,7 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
     app = QtWidgets.QApplication(sys.argv)
     ui = MainWindow(app, device_name, cmdp)
     load_fonts()
+    # app.setFont(QtGui.QFont('Lato', 10))
     ui.run(filename)
     device_notify = DeviceNotify(ui.on_deviceNotifySignal.emit)
     rc = app.exec_()

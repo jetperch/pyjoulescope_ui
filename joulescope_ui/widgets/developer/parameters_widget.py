@@ -15,8 +15,6 @@
 
 from PySide2 import QtWidgets, QtCore
 from joulescope_ui.preferences_ui import widget_factory
-from joulescope.units import unit_prefix, three_sig_figs
-from joulescope_ui.ui_util import comboBoxConfig
 import logging
 
 

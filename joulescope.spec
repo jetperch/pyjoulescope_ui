@@ -12,6 +12,7 @@
 import sys
 import os
 import subprocess
+import shutil
 
 block_cipher = None
 specpath = os.path.dirname(os.path.abspath(SPEC))
@@ -97,9 +98,18 @@ if sys.platform.startswith('darwin'):
                  icon='joulescope_ui/resources/icon.icns',
                  bundle_identifier='com.jetperch.joulescope',
                  info_plist={
+                     'NSPrincipalClass': 'NSApplication',
                      'CFBundleName': 'Joulescope',
                      'CFBundleVersion': joulescope_ui.VERSION,
+                     'ATSApplicationFontsPath': 'Fonts/',
+                     'NSHighResolutionCapable': 'True',
                  })
+
+    # copy over the fonts so they work with QFontDialog
+    font_src_path = os.path.join(specpath, 'joulescope_ui', 'fonts')
+    font_dst_path = os.path.join(specpath, 'dist, 'joulescope.app', 'Contents', 'Resources', 'Fonts')
+    shutil.copytree(font_src_path, font_dst_path, dirs_exist_ok=True)
+
     print('sign app')
     subprocess.run(['codesign', '-s', 'Developer ID Application: Jetperch LLC (WFRS3L8Y7Y)', 
                     '--deep', './dist/joulescope.app'],

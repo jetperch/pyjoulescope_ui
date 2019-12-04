@@ -20,6 +20,7 @@ from . import multimeter
 from . import single_value
 # from . import uart
 from . import waveform
+from . import waveform_control
 
 WIDGETS = [
     control,
@@ -29,6 +30,7 @@ WIDGETS = [
     single_value,
     status_widget,
     waveform,
+    waveform_control,
 ]
 
 

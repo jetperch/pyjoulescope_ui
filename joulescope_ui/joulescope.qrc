@@ -12,6 +12,8 @@
     <file>resources/pan_64x64.png</file>
     <file>resources/pan_32x32.png</file>
     <file>resources/zoom.png</file>
+    <file>resources/zoom_in_128.png</file>
+    <file>resources/zoom_out_128.png</file>
     <file>resources/zoom_x.png</file>
     <file>resources/zoom_y.png</file>
     <file>resources/zoom_auto_y.png</file>

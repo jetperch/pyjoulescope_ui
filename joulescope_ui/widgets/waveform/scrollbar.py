@@ -20,10 +20,11 @@ import logging
 
 
 log = logging.getLogger(__name__)
+WHEEL_TICK = 120.0
 
 
 def _wheel_to_x_gain(delta):
-    return 0.7 ** (delta / 120.0)
+    return 0.7 ** (delta / WHEEL_TICK)
 
 
 class ScrollBar(pg.ViewBox):
@@ -52,6 +53,10 @@ class ScrollBar(pg.ViewBox):
         self._cmdp.subscribe('Device/#state/sampling_frequency',
                              self._on_device_state_sampling_frequency,
                              update_now=True)
+        cmdp.register('!Widgets/Waveform/x-axis/zoom', self._cmd_waveform_xaxis_zoom,
+                      brief='Zoom the x-axis around the center.',
+                      detail='value is x-axis zoom in steps.')
+
 
     def set_xview(self, x_min, x_max):
         self._region.setRegion([x_min, x_max])
@@ -73,6 +78,11 @@ class ScrollBar(pg.ViewBox):
     @QtCore.Slot(float, float)
     def on_wheelZoomX(self, x: float, delta: float):
         self._region.on_wheelZoomX(x, delta)
+
+    def _cmd_waveform_xaxis_zoom(self, topic, value):
+        x1, x2 = self.get_xview()
+        xc = (x1 + x2) / 2
+        self.on_wheelZoomX(xc, value * WHEEL_TICK)
 
     def wheelEvent(self, ev, axis=None):
         self._region.wheelEvent(ev)
