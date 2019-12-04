@@ -6,18 +6,25 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.7.0
 
-2019 Dec 2 [in progress]
+2019 Dec 4
 
-*   Implemented Command pattern with preferences.  Refactored code.
+*   Implemented Command pattern with preferences.  The application now supports
+    undo/redo using the standard keys combinations: CTRL-Z & CTRL-Y on windows.
+    Refactored code.
 *   Fixed single value widget to display value in its own best unit scale.
 *   Renamed "command" to "entry_point" to prevent confusion with UI "commands".
 *   Addressed crashes on marker removal.
 *   Updated Preferences dialog to support user-defined profiles.
 *   Updated software to save and restore settings within each profile.
 *   Added ability to set fonts and colors for Multimeter and Waveform widgets.
+    Include Lato font by default for all platforms.
 *   Added Help → View Logs...
 *   Added software release channel selection: alpha, beta, stable.
 *   Updated to Python 3.7.5 (was 3.7.3).
+*   Added "Waveform Control" widget, part of the Oscilloscope View by default.
+*   Run garbage collector on device disconnect, which ensures StreamBuffer
+    is correctly freed.
+*   Modified default paths to be more platform-friendly.
 
 
 ## 0.6.10
