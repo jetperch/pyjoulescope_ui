@@ -107,8 +107,10 @@ if sys.platform.startswith('darwin'):
 
     # copy over the fonts so they work with QFontDialog
     font_src_path = os.path.join(specpath, 'joulescope_ui', 'fonts')
-    font_dst_path = os.path.join(specpath, 'dist, 'joulescope.app', 'Contents', 'Resources', 'Fonts')
-    shutil.copytree(font_src_path, font_dst_path, dirs_exist_ok=True)
+    font_dst_path = os.path.join(specpath, 'dist', 'joulescope.app', 'Contents', 'Resources', 'Fonts')
+    if os.path.isdir(font_dst_path):
+        shutil.rmtree(font_dst_path)
+    shutil.copytree(font_src_path, font_dst_path)
 
     print('sign app')
     subprocess.run(['codesign', '-s', 'Developer ID Application: Jetperch LLC (WFRS3L8Y7Y)', 
