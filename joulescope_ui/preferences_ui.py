@@ -46,8 +46,6 @@ class PreferencesDialog(QtWidgets.QDialog):
         self.ui = Ui_PreferencesDialog()
         self.ui.setupUi(self)
 
-        print(self._cmdp['Widgets/#enum'])
-
         self._definitions = self._cmdp.preferences.definitions
         if self._definitions['name'] != '/':
             raise ValueError('unexpected root')

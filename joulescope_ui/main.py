@@ -1332,7 +1332,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.status(range_tool.name + ' done')
 
     def dropEvent(self, event):
-        print('dropEvent')
+        log.debug('dropEvent')
         return super().dropEvent(event)
 
     def resizeEvent(self, event):
