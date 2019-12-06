@@ -15,9 +15,9 @@
    version="1.1"
    id="svg8"
    sodipodi:docname="zoom.svg"
-   inkscape:export-filename="C:\Users\mliberty\bitmap.png"
-   inkscape:export-xdpi="97.970001"
-   inkscape:export-ydpi="97.970001"
+   inkscape:export-filename="D:\repos\Jetperch\pyjoulescope_ui\joulescope_ui\resources\zoom_in_16.png"
+   inkscape:export-xdpi="10.16"
+   inkscape:export-ydpi="10.16"
    inkscape:version="0.92.4 (5da689c313, 2019-01-14)">
   <defs
      id="defs2">
@@ -272,14 +272,14 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.4"
-     inkscape:cx="223.08121"
+     inkscape:cx="97.724067"
      inkscape:cy="80.424753"
      inkscape:document-units="mm"
      inkscape:current-layer="g4539"
      showgrid="false"
      inkscape:window-width="2194"
      inkscape:window-height="1171"
-     inkscape:window-x="2186"
+     inkscape:window-x="-8"
      inkscape:window-y="-8"
      inkscape:window-maximized="1" />
   <metadata
@@ -290,7 +290,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -321,17 +321,17 @@
          inkscape:export-ydpi="95.470001" />
       <text
          xml:space="preserve"
-         style="font-style:normal;font-weight:normal;font-size:38.80556107px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
-         x="34.410954"
-         y="291.05325"
+         style="font-style:normal;font-weight:normal;font-size:25.24656868px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+         x="4.6182456"
+         y="279.95294"
          id="text4547"
          inkscape:export-xdpi="95.470001"
          inkscape:export-ydpi="95.470001"><tspan
            sodipodi:role="line"
            id="tspan4545"
-           x="34.410954"
-           y="291.05325"
-           style="font-size:38.80556107px;stroke-width:0.26458332">Y</tspan></text>
+           x="4.6182456"
+           y="279.95294"
+           style="font-size:25.24656868px;stroke-width:0.26458332">+</tspan></text>
       <path
          style="fill:none;stroke:#000000;stroke-width:3;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;marker-start:url(#Arrow2Sstart);marker-end:url(#Arrow2Send)"
          d="m 90.336309,254.568 v 25.59777"
