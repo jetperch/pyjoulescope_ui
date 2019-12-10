@@ -3,6 +3,12 @@
 
 This file contains the list of changes made to pyjoulescope_ui.
 
+## 0.7.1
+
+2019 Dec 10 [in development]
+
+* Fixed firmware version check to work with untagged development builds.
+
 
 ## 0.7.0
 

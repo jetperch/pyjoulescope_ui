@@ -830,7 +830,11 @@ class MainWindow(QtWidgets.QMainWindow):
         ver_required = firmware_manager.version_required()
         if info is not None and firmware_update_cfg != 'always':
             ver = info.get('ctl', {}).get('fw', {}).get('ver', '0.0.0')
-            ver = tuple([int(x) for x in ver.split('.')])
+            try:
+                ver = tuple([int(x) for x in ver.split('.')])
+            except ValueError:
+                log.warning('Unsupported version %s', ver)
+                return
             if ver >= ver_required:
                 log.info('controller firmware is up to date: %s >= %s', ver, ver_required)
                 return
