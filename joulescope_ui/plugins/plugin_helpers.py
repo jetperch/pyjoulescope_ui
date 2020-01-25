@@ -21,9 +21,9 @@ log = logging.getLogger(__name__)
 
 
 def calculate_histogram(data, bins: int, signal: str):
-    stats = data.statistics['signals'][signal]['statistics']
-    maximum, minimum = stats['max'], stats['min']
-    width = 3.5 * stats['σ'] / (data.sample_count ** (1. / 3))
+    stats = data.statistics['signals'][signal]
+    maximum, minimum = stats['max']['value'], stats['min']['value']
+    width = 3.5 * np.sqrt(stats['σ2']['value']) / (data.sample_count ** (1. / 3))
     num_bins = bins if bins > 0 else ceil((maximum - minimum) / width)
     hist = None
     bin_edges = None

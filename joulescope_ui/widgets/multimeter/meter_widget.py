@@ -85,18 +85,17 @@ class MeterWidget(QtWidgets.QWidget):
         if not statistics:
             return
         if self.accumulateButton.isChecked():
-            self._accumulate_duration += statistics['time']['delta']
+            self._accumulate_duration += statistics['time']['delta']['value']
         else:
-            self._accumulate_duration = statistics['time']['delta']
+            self._accumulate_duration = statistics['time']['delta']['value']
         for name, field in statistics['signals'].items():
             if name not in self.values:
                 continue
-            d = field['statistics']
-            self.values[name].update_value(mean=d['μ'], variance=d['σ2'], v_min=d['min'], v_max=d['max'])
+            self.values[name].update_value(field)
         accum_time = statistics['time']['accumulator']
         energy = statistics['accumulators']['energy']['value']
         charge = statistics['accumulators']['charge']['value']
-        self.values['energy'].update_energy(accum_time, energy, charge)
+        self.values['energy'].update_energy(accum_time['value'], energy, charge)
         self.accumulateDurationLabel.setText(three_sig_figs(self._accumulate_duration, 's'))
 
     def retranslateUi(self):

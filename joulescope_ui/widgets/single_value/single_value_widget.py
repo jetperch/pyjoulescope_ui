@@ -25,11 +25,11 @@ FONT_SIZES = [24, 32, 40, 48, 56, 64]
 
 
 STATISTICS_TRANSLATE = {
-    'Mean': lambda s: s['μ'],
-    'Standard Deviation': lambda s: np.sqrt(s['σ2']),
-    'Minimum': lambda s: s['min'],
-    'Maximum': lambda s: s['max'],
-    'Peak-to-Peak': lambda s: s['p2p'],
+    'Mean': 'μ',
+    'Standard Deviation': 'σ2',
+    'Minimum': 'min',
+    'Maximum': 'max',
+    'Peak-to-Peak': 'p2p',
 }
 
 
@@ -145,10 +145,12 @@ class SingleValueWidget(QtWidgets.QWidget):
         field = self.fieldComboBox.currentText()
         if field in self._statistics['signals']:
             self.statisticComboBox.setEnabled(True)
-            stat = self.statisticComboBox.currentText()
-            s = self._statistics['signals'][field]['statistics']
-            units = self._statistics['signals'][field]['units']
-            value = STATISTICS_TRANSLATE[stat](s)
+            stat_user = self.statisticComboBox.currentText()
+            stat = STATISTICS_TRANSLATE[stat_user]
+            value = self._statistics['signals'][field][stat]['value']
+            units = self._statistics['signals'][field][stat]['units']
+            if stat == 'σ2':
+                value = np.sqrt(value)
         elif field in self._statistics['accumulators']:
             self.statisticComboBox.setEnabled(False)
             value = self._statistics['accumulators'][field]['value']

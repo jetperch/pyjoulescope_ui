@@ -15,7 +15,7 @@
 from PySide2 import QtCore
 from .signal_statistics import SignalStatistics, SignalMarkerStatistics, si_format, html_format
 from .signal_viewbox import SignalViewBox
-from joulescope.units import unit_prefix, three_sig_figs
+from joulescope.stream_buffer import single_stat_to_api
 from .yaxis import YAxis
 import pyqtgraph as pg
 import numpy as np
@@ -266,10 +266,10 @@ class Signal(QtCore.QObject):
             return
 
         # get the mean value regardless of shape
-        z_mean = value['μ']
-        z_var = value['σ2']
-        z_min = value['min']
-        z_max = value['max']
+        z_mean = value['μ']['value']
+        z_var = value['σ2']['value']
+        z_min = value['min']['value']
+        z_max = value['max']['value']
         self._most_recent_data = [x, z_mean, z_var, z_min, z_max]
 
         # get the valid mean values regardless of shape
@@ -297,7 +297,7 @@ class Signal(QtCore.QObject):
         if not np.isfinite(z_min[0]):
             self._min_max_disable()
             v_mean = np.mean(z)
-            v_std = np.std(z)
+            v_var = np.var(z)
             v_max = np.max(z)
             v_min = np.min(z)
         else:
@@ -307,7 +307,7 @@ class Signal(QtCore.QObject):
             v_max = np.max(z_max)
             mean_delta = z_mean - v_mean
             # combine variances across the combined samples
-            v_std = np.sqrt(np.sum(np.square(mean_delta, out=mean_delta) + z_var) / len(z_mean))
+            v_var = np.sum(np.square(mean_delta, out=mean_delta) + z_var) / len(z_mean)
             self.curve_min.setData(x, self._log_bound(z_min))
             self.curve_max.setData(x, self._log_bound(z_max))
 
@@ -319,12 +319,12 @@ class Signal(QtCore.QObject):
         if not np.isfinite(v_min) or not np.isfinite(v_max) or np.abs(v_min) > 1000 or np.abs(v_max) > 1000:
             self.log.warning('signal.update(%r, %r)' % (v_min, v_max))
         if self.text_item is not None:
-            labels = {'μ': v_mean, 'σ': v_std, 'min': v_min, 'max': v_max, 'p2p': v_max - v_min}
-            txt_result = si_format(labels, units=self.units)
-            txt_result += si_format({'Δt': x_range}, units='s')
+            labels = single_stat_to_api(v_mean, v_var, v_min, v_max, self.units)
+            labels['Δt'] = {'value': x_range, 'units': 's'}
             integration_units = INTEGRATION_UNITS.get(self.units)
             if integration_units is not None:
-                txt_result += si_format({'∫': v_mean * x_range}, units=integration_units)
+                labels['∫'] = {'value': v_mean * x_range, 'units': integration_units}
+            txt_result = si_format(labels)
             self.text_item.data_update(txt_result)
 
         self.yaxis_autorange(v_min, v_max)
@@ -351,7 +351,7 @@ class Signal(QtCore.QObject):
             stats = None
         else:
             stats = self.statistics_at(marker_pos)
-        m.data_update(self.vb, marker_pos, stats, units=self.units)
+        m.data_update(self.vb, marker_pos, stats)
 
     def update_markers_dual_one(self, marker_name, marker_pos, statistics):
         if marker_name not in self._markers_dual:
@@ -361,7 +361,7 @@ class Signal(QtCore.QObject):
             m.move(self.vb, marker_pos)
             self._markers_dual[marker_name] = m
         m = self._markers_dual[marker_name]
-        m.data_update(self.vb, marker_pos, statistics, units=self.units)
+        m.data_update(self.vb, marker_pos, statistics)
 
     def update_markers_dual_all(self, values):
         # list of (marker_name, marker_pos, statistics)
@@ -399,9 +399,9 @@ class Signal(QtCore.QObject):
             y_var = float(z_var[idx])
             y_min = float(z_min[idx])
             y_max = float(z_max[idx])
-            labels = {'μ': y_mean, 'σ': np.sqrt(y_var), 'min': y_min, 'max': y_max, 'p2p': y_max - y_min}
+            labels = single_stat_to_api(y_mean, y_var, y_min, y_max, self.units)
         else:
-            labels = {'μ': y_mean}
+            labels = {'μ': {'value': y_mean, 'units': self.units}}
         return labels
 
     def _on_show_min_max(self, topic, value):

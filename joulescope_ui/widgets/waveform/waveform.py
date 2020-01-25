@@ -283,11 +283,11 @@ class WaveformWidget(QtWidgets.QWidget):
             self.data_clear()
             return
         self._dataview_data_pending += 1
-        x_limits = data['time']['limits']
+        x_limits = data['time']['limits']['value']
         if x_limits is not None and x_limits != self._x_limits:
             self.set_xlimits(*x_limits)
         self.set_display_mode(data['state']['source_type'])
-        x = data['time']['x']
+        x = data['time']['x']['value']
         for name, value in data['signals'].items():
             s = self._signals.get(name)
             if s is None:
@@ -344,7 +344,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 y = []
                 for (name, pos), stat in zip(req['markers'], rsp):
                     if stat is not None:
-                        stat = stat['signals'].get(s.name, {}).get('statistics')
+                        stat = stat['signals'].get(s.name, {})
                     y.append((name, pos, stat))
                 s.update_markers_dual_all(y)
         self._on_data_frame_done()

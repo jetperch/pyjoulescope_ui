@@ -160,12 +160,11 @@ class RecordingView:
         raw, bits, cal = r.raw(start, stop)
         return {
             'time': {
-                'range': [t1, t2],
-                'delta': t2 - t1,
-                'sample_id_range': [start, stop],
-                'sample_id_limits': r.sample_id_range,
-                'sampling_frequency': r.sampling_frequency,
-                'units': 's',
+                'range': {'value': [t1, t2], 'units': 's'},
+                'delta':  {'value': t2 - t1, 'units': 's'},
+                'sample_id_range':  {'value': [start, stop], 'units': 'samples'},
+                'sample_id_limits': {'value': r.sample_id_range, 'units': 'samples'},
+                'sampling_frequency': {'value': r.sampling_frequency, 'units': 'Hz'},
             },
             'signals': {
                 'current': {

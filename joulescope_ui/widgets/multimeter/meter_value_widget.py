@@ -151,7 +151,7 @@ class MeterValueWidget(QtWidgets.QWidget):
     def configure(self, name, units_short, units_long):
         self._units_short = units_short
         self._units_long = units_long
-        self.update_value(0, 0, 0, 0)
+        self.update_value()
         self.setToolTip(name)
 
     def retranslateUi(self):
@@ -162,26 +162,37 @@ class MeterValueWidget(QtWidgets.QWidget):
         self.maxName.setText(_translate("Form", " max "))
         self.p2pName.setText(_translate("Form", " p2p "))
 
-    def _update_value(self, mean, variance, v_min, v_max):
+    def _update_value(self, statistics=None):
+        if statistics is None:
+            v_mean = 0.0
+            v_var = 0.0
+            v_min = 0.0
+            v_max = 0.0
+        else:
+            v_mean = statistics['μ']['value']
+            v_var = statistics['σ2']['value']
+            v_min = statistics['min']['value']
+            v_max = statistics['max']['value']
+
         if self._accum_enable:
             if np.isfinite(v_min) and np.isfinite(v_max):
                 self.v_min = min(self.v_min, v_min)
                 self.v_max = max(self.v_max, v_max)
                 self.v_p2p = self.v_max - self.v_min
 
-            if np.isfinite(mean) and np.isfinite(variance):
+            if np.isfinite(v_mean) and np.isfinite(v_var):
                 self._accum_count += 1
-                m = self.v_mean + (mean - self.v_mean) / self._accum_count
+                m = self.v_mean + (v_mean - self.v_mean) / self._accum_count
                 if self._accum_count <= 1:
                     self.v_mean = m
-                v = (mean - self.v_mean) * (mean - m) + variance
+                v = (v_mean - self.v_mean) * (v_mean - m) + v_var
                 dv = (v - self.v_var) / self._accum_count
                 self.v_var += dv
                 self.v_mean = m
         else:
             self._accum_count += 1
-            self.v_mean = mean
-            self.v_var = variance
+            self.v_mean = v_mean
+            self.v_var = v_var
             self.v_min = v_min
             self.v_max = v_max
             self.v_p2p = v_max - v_min
@@ -214,8 +225,8 @@ class MeterValueWidget(QtWidgets.QWidget):
             values.append(v_str)
         self.on_update.emit(values, units)
 
-    def update_value(self, mean, variance, v_min, v_max):
-        self._update_value(mean, variance, v_min, v_max)
+    def update_value(self, statistics=None):
+        self._update_value(statistics)
         self._update_ui()
 
     def update_energy(self, duration, energy, charge):

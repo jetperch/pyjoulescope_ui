@@ -14,6 +14,7 @@
 
 from pyqtgraph.Qt import QtGui, QtCore
 from joulescope.units import unit_prefix, three_sig_figs
+from joulescope.stream_buffer import single_stat_to_api
 from joulescope_ui.ui_util import rgba_to_css, font_to_css
 import numpy as np
 import pyqtgraph as pg
@@ -22,23 +23,48 @@ import pyqtgraph as pg
 STYLE_DEFAULT = 'color: #FFF'
 
 
-def si_format(labels, units=None):
+def _si_format(names, values, units):
+    results = []
     if units is None:
         units = ''
-    values = np.array([z for z in labels.values()])
-    max_value = float(np.max(np.abs(values)))
-    _, prefix, scale = unit_prefix(max_value)
-    scale = 1.0 / scale
-    if not len(prefix):
-        prefix = '&nbsp;'
-    units_suffix = f'{prefix}{units}'
+    if len(values):
+        values = np.array(values)
+        max_value = float(np.max(np.abs(values)))
+        _, prefix, scale = unit_prefix(max_value)
+        scale = 1.0 / scale
+        if not len(prefix):
+            prefix = '&nbsp;'
+        units_suffix = f'{prefix}{units}'
+        for lbl, v in zip(names, values):
+            v *= scale
+            if abs(v) < 0.000005:  # minimum display resolution
+                v = 0
+            v_str = ('%+6f' % v)[:8]
+            results.append('%s=%s %s' % (lbl, v_str, units_suffix))
+    return results
+
+
+def si_format(labels):
     results = []
-    for lbl, v in labels.items():
-        v *= scale
-        if abs(v) < 0.000005:  # minimum display resolution
-            v = 0
-        v_str = ('%+6f' % v)[:8]
-        results.append('%s=%s %s' % (lbl, v_str, units_suffix))
+    if not len(labels):
+        return results
+    units = None
+    values = []
+    names = []
+    for name, d in labels.items():
+        value = d['value']
+        if name == 'σ2':
+            name = 'σ'
+            value = np.sqrt(value)
+        if d['units'] != units:
+            results.extend(_si_format(names, values, units))
+            units = d['units']
+            values = [value]
+            names = [name]
+        else:
+            values.append(value)
+            names.append(name)
+    results.extend(_si_format(names, values, units))
     return results
 
 
@@ -66,8 +92,8 @@ class SignalStatistics(pg.GraphicsWidget):
         self._value_cache = None
         self._cmdp = cmdp
 
-        labels = {'μ': -0.000000001, 'σ': +0.000000001, 'min': -0.001, 'max': 0.001, 'p2p': 0.002}
-        txt_result = si_format(labels, units='A')
+        labels = single_stat_to_api(-0.000000001, 0.000001, -0.001, 0.001, self._units)
+        txt_result = si_format(labels)
         self.data_update(txt_result)
         cmdp.subscribe('Widgets/Waveform/Statistics/font', self._on_font, update_now=True)
         cmdp.subscribe('Widgets/Waveform/Statistics/font-color', self._on_font_color, update_now=True)
@@ -125,10 +151,10 @@ class SignalMarkerStatistics(pg.TextItem):
             yv = vb.mapSceneToView(pg.Point(0.0, ys)).y()
             self.setPos(pg.Point(xv, yv))
 
-    def data_update(self, vb, xv, labels, units):
+    def data_update(self, vb, xv, labels):
         if labels is None or not len(labels):
             html = '<p>No data</p>'
         else:
-            txt_result = si_format(labels, units=units)
+            txt_result = si_format(labels)
             html = html_format(txt_result, x=xv)
         self.setHtml(html)

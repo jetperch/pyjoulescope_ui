@@ -479,8 +479,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
     @QtCore.Slot(object)
     def _on_statistic(self, statistics):
-        self._accumulators['time'] += statistics['time']['delta']
-        statistics['time']['accumulator'] = self._accumulators['time']
+        self._accumulators['time'] += statistics['time']['delta']['value']
+        statistics['time']['accumulator'] = {'value': self._accumulators['time'], 'units': 's'}
         for field in ['charge', 'energy']:
             x = statistics['accumulators'][field]['value']
             z = self._accumulators['fields'][field]
