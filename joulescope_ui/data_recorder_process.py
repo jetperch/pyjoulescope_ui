@@ -52,7 +52,7 @@ class DataRecorderProcess:
             return
         sample_id = stream_buffer.sample_id_range[1]
         voltage = float(stream_buffer.voltage_range)
-        raw_data = stream_buffer.raw_get(self.sample_id, sample_id)
+        raw_data = stream_buffer.samples_get(self.sample_id, sample_id, fields='raw')
         args = (raw_data, voltage)
         self._cmd_queue.put(('stream_notify', args))
         self.sample_id = sample_id
