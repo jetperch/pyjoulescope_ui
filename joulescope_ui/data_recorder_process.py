@@ -19,7 +19,7 @@ from joulescope.stream_buffer import StreamBuffer
 
 def run(cmd_queue, filehandle, sampling_frequency, calibration):
     r = DataRecorder(filehandle, sampling_frequency, calibration)
-    b = StreamBuffer(int(sampling_frequency), [], sampling_frequency)
+    b = StreamBuffer(1.0, [], sampling_frequency)
     b.calibration_set(calibration.current_offset, calibration.current_gain,
                       calibration.voltage_offset, calibration.voltage_gain)
     while True:
