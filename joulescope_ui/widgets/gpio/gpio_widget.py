@@ -37,15 +37,15 @@ class GpioWidget(QtWidgets.QWidget):
 
         self.init()
         cmdp.subscribe('DataView/#data', self._on_device_state_data, update_now=True)
-        cmdp.subscribe('Device/parameter/io_voltage', self._on_io_voltage, update_now=True)
-        cmdp.subscribe('Device/parameter/current_lsb', self._on_current_lsb, update_now=True)
-        cmdp.subscribe('Device/parameter/voltage_lsb', self._on_voltage_lsb, update_now=True)
-        cmdp.subscribe('Device/parameter/gpo0', self._on_gpo0, update_now=True)
-        cmdp.subscribe('Device/parameter/gpo1', self._on_gpo1, update_now=True)
+        cmdp.subscribe('Device/extio/io_voltage', self._on_io_voltage, update_now=True)
+        cmdp.subscribe('Device/extio/current_lsb', self._on_current_lsb, update_now=True)
+        cmdp.subscribe('Device/extio/voltage_lsb', self._on_voltage_lsb, update_now=True)
+        cmdp.subscribe('Device/extio/gpo0', self._on_gpo0, update_now=True)
+        cmdp.subscribe('Device/extio/gpo1', self._on_gpo1, update_now=True)
 
     def init(self):
-        io_voltages = options_enum(self._cmdp.preferences.definition_options('Device/parameter/io_voltage'))
-        io_voltage = self._cmdp['Device/parameter/io_voltage']
+        io_voltages = options_enum(self._cmdp.preferences.definition_options('Device/extio/io_voltage'))
+        io_voltage = self._cmdp['Device/extio/io_voltage']
         comboBoxConfig(self.ui.voltageComboBox, io_voltages, io_voltage)
         self.ui.voltageComboBox.currentIndexChanged.connect(self._on_voltage_combobox)
         self.ui.output0Button.toggled.connect(self._on_output0_button)
@@ -55,19 +55,19 @@ class GpioWidget(QtWidgets.QWidget):
 
     def _on_voltage_combobox(self, index):
         voltage_io = self.ui.voltageComboBox.currentText()
-        self._cmdp.publish('Device/parameter/io_voltage', voltage_io)
+        self._cmdp.publish('Device/extio/io_voltage', voltage_io)
 
     def _on_output0_button(self, checked):
-        self._cmdp.publish('Device/parameter/gpo0', '1' if checked else '0')
+        self._cmdp.publish('Device/extio/gpo0', '1' if checked else '0')
 
     def _on_output1_button(self, checked):
-        self._cmdp.publish('Device/parameter/gpo1', '1' if checked else '0')
+        self._cmdp.publish('Device/extio/gpo1', '1' if checked else '0')
 
     def _on_input0_button(self, checked):
-        self._cmdp.publish('Device/parameter/current_lsb', 'gpi0' if checked else 'normal')
+        self._cmdp.publish('Device/extio/current_lsb', 'gpi0' if checked else 'normal')
 
     def _on_input1_button(self, checked):
-        self._cmdp.publish('Device/parameter/voltage_lsb', 'gpi1' if checked else 'normal')
+        self._cmdp.publish('Device/extio/voltage_lsb', 'gpi1' if checked else 'normal')
 
     def _on_io_voltage(self, topic, data):
         comboBoxSelectItemByText(self.ui.voltageComboBox, data)

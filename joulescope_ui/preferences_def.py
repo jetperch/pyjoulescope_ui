@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from joulescope.parameters_v1 import PARAMETERS
 from joulescope_ui import VERSION
 from joulescope_ui.paths import paths_current
 
@@ -88,67 +89,6 @@ def preferences_def(p):
         brief='Start streaming when the device connects',
         dtype='bool',
         default=True)
-    p.define('Device/parameter/', 'Joulescope device-specific parameters')
-    p.define(
-        topic='Device/parameter/source',
-        brief='Select the streaming data source',
-        detail='Do not edit this setting for normal use',
-        dtype='str',
-        options=['off', 'raw', 'pattern_usb', 'pattern_control', 'pattern_sensor'],
-        default='raw')
-    p.define(
-        topic='Device/parameter/i_range',
-        brief='Select the current measurement range (shunt resistor)',
-        dtype='str',
-        options={
-            'auto':   {'brief': 'Perform fast autoranging to select the best shunt value'},
-            'off':    {'brief': 'Disable the shunt for high impedance'},
-            '10 A':   {'aliases': ['0'], 'brief': 'Least resistance (highest current range)'},
-            '2 A':    {'aliases': ['1']},
-            '180 mA': {'aliases': ['2']},
-            '18 mA':  {'aliases': ['3']},
-            '1.8 mA': {'aliases': ['4']},
-            '180 µA': {'aliases': ['5']},
-            '18 µA':  {'aliases': ['6'], 'brief': 'Most resistance (lowest current range)'}},
-        default='auto')
-    p.define(
-        topic='Device/parameter/v_range',
-        brief='Select the voltage measurement range (gain)',
-        dtype='str',
-        options={
-            '15V': {'brief': '15V range (recommended)', 'aliases': ['high']},
-            '5V':  {'brief': '5V range with improved resolution for lower voltages', 'aliases': ['low']}},
-        default='15V')
-    p.define(
-        topic='Device/parameter/io_voltage',
-        brief='The GPI/O high-level voltage.',
-        dtype='str',
-        options=['1.8V', '2.1V', '2.5V', '2.7V', '3.0V', '3.3V', '5.0V'],
-        default='3.3V')
-    p.define(
-        topic='Device/parameter/gpo0',
-        brief='The GPO bit 0 output value.',
-        dtype='str',
-        options=['0', '1'],
-        default='0')
-    p.define(
-        topic='Device/parameter/gpo1',
-        brief='The GPO bit 1 output value.',
-        dtype='str',
-        options=['0', '1'],
-        default='0')
-    p.define(
-        topic='Device/parameter/current_lsb',
-        brief='The current signal least-significant bit mapping.',
-        dtype='str',
-        options=['normal', 'gpi0'],
-        default='normal')
-    p.define(
-        topic='Device/parameter/voltage_lsb',
-        brief='The voltage signal least-significant bit mapping.',
-        dtype='str',
-        options=['normal', 'gpi1'],
-        default='normal')
     p.define(
         topic='Device/rescan_interval',
         brief='The manual device rescan interval in seconds',
@@ -171,14 +111,36 @@ def preferences_def(p):
         dtype='str',
         options=['keep', 'sensor_off', 'current_off', 'current_auto'],
         default='keep')
+    p.define('Device/setting/', 'Joulescope device-specific settings.')
+    p.define('Device/extio/', 'Joulescope external general purpose input/output control.')
     p.define(
-        topic='Device/buffer_duration',
-        brief='The stream buffer duration in seconds.',
-        detail='Use care when setting this value. ' +
-               'The software requires 1.5 GB of RAM for every 60 seconds.',
-        dtype='str',
-        options=['15', '30', '60', '90', '120', '180', '240', '300'],
-        default='30')
+        topic='Device/Current Ranging/',
+        brief='Configure the current range behavior including the filtering applied during range switches.')
+    for parameter in PARAMETERS:
+        if 'developer' in parameter.flags or 'hidden' in parameter.flags:
+            prefix = '_'
+        else:
+            prefix = ''
+        default = parameter.default
+        if parameter.path in ['setting', 'extio']:
+            topic = f'Device/{parameter.path}/{prefix}{parameter.name}'
+            if parameter.name == 'source':
+                default = 'raw'
+        elif parameter.path == 'current_ranging':
+            if parameter.name == 'current_ranging':
+                continue
+            name = parameter.name.replace('current_ranging_', '')
+            topic = f'Device/Current Ranging/{name}'
+        else:
+            continue
+        p.define(
+            topic=topic,
+            brief=parameter.brief,
+            detail=parameter.detail,
+            dtype='str',
+            options=[x[0] for x in parameter.options],
+            default=default)
+
     p.define('Device/#state/name', dtype=str, default='')
     p.define('Device/#state/source', dtype=str, options=['None', 'USB', 'Buffer', 'File'], default='None')
     p.define('Device/#state/sample_drop_color', dtype=str, default='')
@@ -189,38 +151,6 @@ def preferences_def(p):
     p.define('Device/#state/status', dtype=dict, default={})
     p.define('Device/#state/statistics', dtype=dict, default={})
     p.define('Device/#state/x_limits', dtype=object)  # [x_min, x_max]
-
-    # --- CURRENT RANGING ---
-    p.define(
-        topic='Current Ranging/',
-        brief='Configure the current range behavior including the filtering applied during range switches.')
-    p.define(
-        topic='Current Ranging/type',
-        brief='The filter type.',
-        dtype='str',
-        options=['off', 'mean', 'NaN'],
-        default='mean')
-    p.define(
-        topic='Current Ranging/samples_pre',
-        brief='The number of samples before the range switch to include.',
-        detail='Only valid for type "mean" - ignored for "off" and "NaN".',
-        dtype='str',
-        options=['0', '1', '2', '3', '4', '5', '6', '7', '8'],
-        default='2')
-    p.define(
-        topic='Current Ranging/samples_window',
-        brief='The number of samples to adjust.',
-        detail='Use "n" for automatic duration based upon known response time.',
-        dtype='str',
-        options=['n', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'],
-        default='n')
-    p.define(
-        topic='Current Ranging/samples_post',
-        brief='The number of samples after the range switch to include.',
-        detail='Only valid for type "mean" - ignored for "off" and "NaN".',
-        dtype='str',
-        options=['0', '1', '2', '3', '4', '5', '6', '7', '8'],
-        default='2')
 
     # --- Plugins ---
     p.define('Plugins/', 'Joulescope UI Plugins')

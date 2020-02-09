@@ -604,8 +604,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self._accumulators_zero_last()
         self._device = device
         if self._has_active_device:
-            if hasattr(self._device, 'stream_buffer_duration'):
-                self._device.stream_buffer_duration = float(self._cmdp['Device/buffer_duration'])
+            if hasattr(self._device, 'parameter_set'):
+                self._device.parameter_set('buffer_duration', self._cmdp['Device/setting/buffer_duration'])
             try:
                 self._device.open(self.on_deviceEventSignal.emit)
             except:
@@ -630,7 +630,8 @@ class MainWindow(QtWidgets.QMainWindow):
                     self._data_view = data_view
                 if hasattr(self._device, 'statistics_callback'):
                     self._device.statistics_callback = self.on_statisticSignal.emit
-                self._cmdp.subscribe('Device/parameter/', self._on_device_parameter, update_now=True)
+                self._cmdp.subscribe('Device/setting/', self._on_device_parameter, update_now=True)
+                self._cmdp.subscribe('Device/extio/', self._on_device_parameter, update_now=True)
                 if self._is_streaming_device:
                     if self._cmdp['Device/autostream']:
                         self._cmdp.publish('Device/#state/source', 'USB')
@@ -647,7 +648,9 @@ class MainWindow(QtWidgets.QMainWindow):
     def _on_device_parameter(self, topic, value):
         if not hasattr(self._device, 'parameter_set'):
             return
-        topic = topic.replace('Device/parameter/', '')
+        topic = topic.split('/')[-1]
+        while topic.startswith('_'):
+            topic = topic[1:]
         try:
             self._device.parameter_set(topic, value)
         except Exception:
@@ -657,7 +660,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def _device_close(self):
         log.debug('_device_close: start')
-        self._cmdp.unsubscribe('Device/parameter/', self._on_device_parameter)
+        self._cmdp.unsubscribe('Device/setting/', self._on_device_parameter)
+        self._cmdp.unsubscribe('Device/extio/', self._on_device_parameter)
         device = self._device
         is_active_device = self._has_active_device
         self._device = self._device_disable

@@ -58,7 +58,7 @@ class ParametersWidget(QtWidgets.QWidget):
     def _parameters_populate(self):
         self._parameters_clean()
         for topic, value in self._cmdp.preferences.flatten().items():
-            if not topic.startswith('Device/parameter/') or topic[-1] == '/':
+            if not topic.startswith('Device/setting/') or topic[-1] == '/':
                 continue
             widget = widget_factory(self._cmdp, topic)
             if widget is not None:

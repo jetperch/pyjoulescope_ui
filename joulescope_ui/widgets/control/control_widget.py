@@ -30,10 +30,10 @@ class ControlWidget(QtWidgets.QWidget):
         self._ui.setupUi(self)
         self.setVisible(False)
 
-        self._populate_combobox(self._ui.iRangeComboBox, 'Device/parameter/i_range')
-        self._populate_combobox(self._ui.vRangeComboBox, 'Device/parameter/v_range')
+        self._populate_combobox(self._ui.iRangeComboBox, 'Device/setting/i_range')
+        self._populate_combobox(self._ui.vRangeComboBox, 'Device/setting/v_range')
 
-        self._cmdp.subscribe('Device/parameter/', self._on_device_parameter, update_now=True)
+        self._cmdp.subscribe('Device/setting/', self._on_device_parameter, update_now=True)
         self._cmdp.subscribe('Device/#state/', self._on_device_state, update_now=True)
         self._ui.playButton.toggled.connect(self._on_play_button_toggled)
         self._ui.recordButton.toggled.connect(self._on_record_button_toggled)
@@ -69,9 +69,9 @@ class ControlWidget(QtWidgets.QWidget):
             log.warning('Could not find item %s in combobox', value)
 
     def _on_device_parameter(self, topic, data):
-        if topic == 'Device/parameter/i_range':
+        if topic == 'Device/setting/i_range':
             self._update_combobox(self._ui.iRangeComboBox, data)
-        elif topic == 'Device/parameter/v_range':
+        elif topic == 'Device/setting/v_range':
             self._update_combobox(self._ui.vRangeComboBox, data)
 
     def _on_device_state(self, topic, data):
