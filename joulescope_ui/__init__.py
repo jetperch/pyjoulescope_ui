@@ -13,8 +13,8 @@
 # limitations under the License.
 
 try:
-    from .version import VERSION
+    from .version import __version__
 except ImportError:
     VERSION = 'UNRELEASED'
 
-__version__ = VERSION
+__version__ = __version__

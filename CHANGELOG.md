@@ -11,6 +11,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added support for joulescope 0.8.0 unified statistics data structure.
 *   Fixed issue #40: Added ∫ back to dual marker statistics.
 *   Reorganized device parameters into settings, extio and Current Ranging.
+*   Updated PySide2 build process and version definition.  Removed VERSION.
 
 
 ## 0.7.0

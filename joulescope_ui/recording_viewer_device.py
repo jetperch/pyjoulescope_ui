@@ -116,7 +116,7 @@ class RecordingView:
         self._log.info('update: x_range=%r', self._x_range)
         start, stop = [int(x * f) for x in self._x_range]
         self._log.info('update: x_range=%r => (%s, %s)', self._x_range, start, stop)
-        data = self._reader.get(start, stop, self._samples_per)
+        data = self._reader.data_get(start, stop, self._samples_per)
         t_start = start / self._reader.sampling_frequency
         t_stop = stop / self._reader.sampling_frequency
         x = np.linspace(t_start, t_stop, len(data), dtype=np.float64)
@@ -151,36 +151,11 @@ class RecordingView:
     def _statistics_get_multiple(self, ranges, units=None):
         return [self._statistics_get(x[0], x[1], units=units) for x in ranges]
 
-    def _samples_get(self, start=None, stop=None, units=None):
+    def _samples_get(self, start=None, stop=None, units=None, fields=None):
         r = self._reader
         if r is None:
             return None
-        start, stop = r.normalize_time_arguments(start, stop, units)
-        t1, t2 = start / r.sampling_frequency, stop / r.sampling_frequency
-        raw, bits, cal = r.raw(start, stop)
-        return {
-            'time': {
-                'range': {'value': [t1, t2], 'units': 's'},
-                'delta':  {'value': t2 - t1, 'units': 's'},
-                'sample_id_range':  {'value': [start, stop], 'units': 'samples'},
-                'sample_id_limits': {'value': r.sample_id_range, 'units': 'samples'},
-                'sampling_frequency': {'value': r.sampling_frequency, 'units': 'Hz'},
-            },
-            'signals': {
-                'current': {
-                    'value': cal[:, 0],
-                    'units': 'A',
-                },
-                'voltage': {
-                    'value': cal[:, 1],
-                    'units': 'V',
-                },
-                'raw': {
-                    'value': raw,
-                    'units': 'LSBs',
-                },
-            }
-        }
+        return r.samples_get(start, stop, units, fields)
 
     def open(self):
         f = self._reader.sampling_frequency
@@ -200,7 +175,7 @@ class RecordingView:
     def on_x_change(self, cmd, kwargs):
         self._parent()._post('on_x_change', self, (cmd, kwargs))
 
-    def samples_get(self, start=None, stop=None, units=None):
+    def samples_get(self, start=None, stop=None, units=None, fields=None):
         """Get exact samples over a range.
 
         :param start: The starting time.
@@ -208,8 +183,9 @@ class RecordingView:
         :param units: The units for start and stop.
             'seconds' or None is in floating point seconds relative to the view.
             'samples' is in stream buffer sample indicies.
+        :param fields: The list of field names to get.
         """
-        args = {'start': start, 'stop': stop, 'units': units}
+        args = {'start': start, 'stop': stop, 'units': units, 'fields': fields}
         return self._parent()._post_block('samples_get', self, args)
 
     def statistics_get(self, start=None, stop=None, units=None, callback=None):

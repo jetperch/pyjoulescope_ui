@@ -17,7 +17,7 @@
 
 import os
 import sys
-from . import VERSION
+from . import __version__
 import joulescope
 from PySide2 import QtCore, QtGui, QtWidgets
 from joulescope_ui.error_window import Ui_ErrorWindow
@@ -529,7 +529,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def _help_about(self):
         log.info('_help_about')
-        txt = ABOUT.format(ui_version=VERSION, driver_version=joulescope.VERSION)
+        txt = ABOUT.format(ui_version=__version__, driver_version=joulescope.VERSION)
         QtWidgets.QMessageBox.about(self, 'Joulescope', txt)
 
     def _help_credits(self):

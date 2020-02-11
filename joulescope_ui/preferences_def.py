@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from joulescope.parameters_v1 import PARAMETERS
-from joulescope_ui import VERSION
+from joulescope_ui import __version__
 from joulescope_ui.paths import paths_current
 
 
@@ -24,7 +24,7 @@ def preferences_def(p):
     # --- METADATA ---
     p.define('_meta/', 'Preferences metadata')
     p.define('_meta/def_version', dtype='int', default=1)
-    p.define('_meta/app_version', dtype='str', default=VERSION)
+    p.define('_meta/app_version', dtype='str', default=__version__)
 
     # --- GENERAL ---
     p.define('General/', 'General application settings.')

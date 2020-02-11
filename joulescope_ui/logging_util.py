@@ -25,7 +25,7 @@ import os
 import sys
 import platform
 from joulescope_ui.paths import paths_current
-from . import VERSION as UI_VERSION
+from . import __version__ as UI_VERSION
 from joulescope import VERSION as DRIVER_VERSION
 
 

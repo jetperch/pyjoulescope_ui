@@ -33,7 +33,7 @@ class TestUpdateCheck(unittest.TestCase):
         self.lock.release()
 
     def test_is_newer(self):
-        update_check.VERSION = "1.2.3"
+        update_check.__version__ = "1.2.3"
         self.assertTrue(update_check.is_newer("1.2.4"))
         self.assertTrue(update_check.is_newer("1.3.0"))
         self.assertTrue(update_check.is_newer("2.0.0"))
@@ -43,19 +43,19 @@ class TestUpdateCheck(unittest.TestCase):
         self.assertFalse(update_check.is_newer("0.9.9"))
 
     def test_fetch_invalid_channel(self):
-        update_check.VERSION = "999999.0.0"
+        update_check.__version__ = "999999.0.0"
         with self.assertRaises(ValueError):
             update_check.fetch(self.callback, '__INVALID__')
 
     def test_fetch_no_update(self):
-        update_check.VERSION = "999999.0.0"
+        update_check.__version__ = "999999.0.0"
         self.assertFalse(update_check.fetch(self.callback))
         self.assertFalse(update_check.fetch(self.callback, 'alpha'))
         self.assertFalse(update_check.fetch(self.callback, 'beta'))
         self.assertFalse(update_check.fetch(self.callback, 'stable'))
 
     def test_has_update(self):
-        update_check.VERSION = "0.0.0"
+        update_check.__version__ = "0.0.0"
         update_check.check(self.callback)
         self.lock.acquire()
-        self.assertEqual(update_check.VERSION, self.update[0])
+        self.assertEqual(update_check.__version__, self.update[0])

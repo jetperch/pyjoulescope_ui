@@ -18,7 +18,7 @@ import requests
 import json
 import threading
 import platform
-from joulescope_ui import VERSION
+from joulescope_ui import __version__
 import logging
 
 log = logging.getLogger(__name__)
@@ -62,7 +62,7 @@ def version_to_str(v):
 
 
 def current_version():
-    return str_to_version(VERSION)
+    return str_to_version(__version__)
 
 
 def is_newer(version):
@@ -91,7 +91,7 @@ def fetch(callback, channel=None):
             path = path.replace('{version_minor}', str(latest_version[1]))
             path = path.replace('{version_patch}', str(latest_version[2]))
             path = path
-        callback(VERSION, version_to_str(latest_version), path)
+        callback(__version__, version_to_str(latest_version), path)
         return True
     except Exception:
         log.warning('Could not connect to software download server')
@@ -106,7 +106,7 @@ def check(callback, channel=None):
     :param channel: The software update channel which is in:
         ['alpha', 'beta', 'stable'].  None (default) is equivalent to 'stable'.
     """
-    if VERSION == 'UNRELEASED':
+    if __version__ == 'UNRELEASED':
         log.info('Skip software update check: version is UNRELEASED')
         return
     channel = _validate_channel(channel)
