@@ -336,7 +336,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _on_statics_over_range_resp(self, topic, value):
         if value is not None:
-            show_dt = self._cmdp['Widgets/Waveform/dual_markers_Δt']
+            show_dt = self._cmdp['Widgets/Waveform/Statistics/dual_markers_Δt']
             req = value['request']
             rsp = value['response']
             if rsp is None:
@@ -445,10 +445,25 @@ def widget_register(cmdp):
         options=['1', '2', '4', '6', '8'],
         default='1')
     cmdp.define(
-        topic='Widgets/Waveform/dual_markers_Δt',
-        brief='Show the Δt statistics with dual markers.',
-        dtype='bool',
-        default=True)
+        topic='Widgets/Waveform/mean_color',
+        brief='The mean (average) trace color.',
+        dtype='color',
+        default=(255, 255, 64, 255))
+    cmdp.define(
+        topic='Widgets/Waveform/mean_color',
+        brief='The mean (average) trace color.',
+        dtype='color',
+        default=(255, 255, 64, 255))
+    cmdp.define(
+        topic='Widgets/Waveform/min_max_trace_color',
+        brief='The min/max trace color.',
+        dtype='color',
+        default=(255, 64, 64, 255))
+    cmdp.define(
+        topic='Widgets/Waveform/min_max_fill_color',
+        brief='The min/max trace color.',
+        dtype='color',
+        default=(255, 64, 64, 80))
 
     cmdp.define(
         topic='Widgets/Waveform/Statistics/font',
@@ -460,6 +475,11 @@ def widget_register(cmdp):
         brief='The font color.',
         dtype='color',
         default=(192, 192, 192, 255))
+    cmdp.define(
+        topic='Widgets/Waveform/Statistics/dual_markers_Δt',
+        brief='Show the Δt statistics with dual markers.',
+        dtype='bool',
+        default=True)
     cmdp.define(
         topic='Widgets/Waveform/_signals',
         brief='The signal configurations.',

@@ -22,7 +22,6 @@ import numpy as np
 import logging
 
 
-CURVE_WIDTH = 1
 AUTO_RANGE_FRACT = 0.45  # autorange when current range smaller than existing range by this fractional amount.
 
 
@@ -73,13 +72,9 @@ class Signal(QtCore.QObject):
             self.y_axis.setLabel(text=display_name, units=units)
             self.text_item = SignalStatistics(units=units, cmdp=cmdp)
 
-        self._pen_min_max = pg.mkPen(color=(255, 64, 64), width=CURVE_WIDTH)
-        self._brush_min_max = pg.mkBrush(color=(255, 64, 64, 80))
-        self._pen_mean = pg.mkPen(color=(255, 255, 64), width=CURVE_WIDTH)
-
-        self.curve_mean = pg.PlotDataItem(pen=self._pen_mean)
-        self.curve_max = pg.PlotDataItem(pen=self._pen_min_max)
-        self.curve_min = pg.PlotDataItem(pen=self._pen_min_max)
+        self.curve_mean = pg.PlotDataItem()
+        self.curve_max = pg.PlotDataItem()
+        self.curve_min = pg.PlotDataItem()
         self.curve_range = None
         self.vb.addItem(self.curve_max)
         self.vb.addItem(self.curve_min)
@@ -95,7 +90,10 @@ class Signal(QtCore.QObject):
 
         cmdp.subscribe('Widgets/Waveform/grid_y', self._on_grid_y, update_now=True)
         cmdp.subscribe('Widgets/Waveform/show_min_max', self._on_show_min_max, update_now=True)
-        cmdp.subscribe('Widgets/Waveform/trace_width', self._on_trace_width, update_now=True)
+        cmdp.subscribe('Widgets/Waveform/trace_width', self._on_colors, update_now=True)
+        cmdp.subscribe('Widgets/Waveform/mean_color', self._on_colors, update_now=True)
+        cmdp.subscribe('Widgets/Waveform/min_max_trace_color', self._on_colors, update_now=True)
+        cmdp.subscribe('Widgets/Waveform/min_max_fill_color', self._on_colors, update_now=True)
 
     def set_xlimits(self, x_min, x_max):
         self.vb.setLimits(xMin=x_min, xMax=x_max)
@@ -217,8 +215,11 @@ class Signal(QtCore.QObject):
             self.curve_max.hide()
             self.curve_min.hide()
             if self.curve_range is None:
-                self.curve_range = pg.FillBetweenItem(self.curve_min, self.curve_max, brush=self._brush_min_max)
+                brush = pg.mkBrush(color=self._cmdp['Widgets/Waveform/min_max_fill_color'])
+                self.curve_range = pg.FillBetweenItem(self.curve_min, self.curve_max, brush=brush)
                 self.vb.addItem(self.curve_range)
+            else:
+                self.curve_range.show()
         else:
             if c != 'off':
                 self.log.warning('unsupported show_min_max mode: %s, presume "off"', c)
@@ -411,12 +412,17 @@ class Signal(QtCore.QObject):
     def _on_grid_y(self, topic, value):
         self.y_axis.setGrid(128 if bool(value) else 0)
 
-    def _on_trace_width(self, topic, value):
-        w = int(value)
-        self._pen_min_max = pg.mkPen(color=(255, 64, 64), width=w)
-        self._pen_mean = pg.mkPen(color=(255, 255, 64), width=w)
+    def _on_colors(self, topic, value):
+        trace_width = int(self._cmdp['Widgets/Waveform/trace_width'])
+        mean_color = tuple(self._cmdp['Widgets/Waveform/mean_color'])
+        min_max_trace_color = tuple(self._cmdp['Widgets/Waveform/min_max_trace_color'])
+        self._pen_min_max = pg.mkPen(color=min_max_trace_color, width=trace_width)
+        self._pen_mean = pg.mkPen(color=mean_color, width=trace_width)
         self.curve_min.setPen(self._pen_min_max)
         self.curve_max.setPen(self._pen_min_max)
         self.curve_mean.setPen(self._pen_mean)
+        if self.curve_range is not None:
+            brush_color = tuple(self._cmdp['Widgets/Waveform/min_max_fill_color'])
+            brush = pg.mkBrush(color=brush_color)
+            self.curve_range.setBrush(brush)
         self.vb.update()
-
