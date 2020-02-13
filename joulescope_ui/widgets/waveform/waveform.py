@@ -336,6 +336,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _on_statics_over_range_resp(self, topic, value):
         if value is not None:
+            show_dt = self._cmdp['Widgets/Waveform/dual_markers_Δt']
             req = value['request']
             rsp = value['response']
             if rsp is None:
@@ -344,7 +345,10 @@ class WaveformWidget(QtWidgets.QWidget):
                 y = []
                 for (name, pos), stat in zip(req['markers'], rsp):
                     if stat is not None:
+                        dt = stat['time']['delta']
                         stat = stat['signals'].get(s.name, {})
+                        if show_dt:
+                            stat['Δt'] = dt
                     y.append((name, pos, stat))
                 s.update_markers_dual_all(y)
         self._on_data_frame_done()
@@ -440,6 +444,11 @@ def widget_register(cmdp):
         dtype='str',
         options=['1', '2', '4', '6', '8'],
         default='1')
+    cmdp.define(
+        topic='Widgets/Waveform/dual_markers_Δt',
+        brief='Show the Δt statistics with dual markers.',
+        dtype='bool',
+        default=True)
 
     cmdp.define(
         topic='Widgets/Waveform/Statistics/font',

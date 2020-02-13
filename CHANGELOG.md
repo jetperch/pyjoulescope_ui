@@ -12,6 +12,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Fixed issue #40: Added ∫ back to dual marker statistics.
 *   Reorganized device parameters into settings, extio and Current Ranging.
 *   Updated PySide2 build process and version definition.  Removed VERSION.
+*   Added configuration option to display Δt dual marker statistic.
 
 
 ## 0.7.0
