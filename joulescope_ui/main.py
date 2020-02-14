@@ -606,6 +606,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if self._has_active_device:
             if hasattr(self._device, 'parameter_set'):
                 self._device.parameter_set('buffer_duration', self._cmdp['Device/setting/buffer_duration'])
+                self._device.parameter_set('sampling_frequency', self._cmdp['Device/setting/sampling_frequency'])
             try:
                 self._device.open(self.on_deviceEventSignal.emit)
             except:
@@ -937,7 +938,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self._device_stream_record_close()
         if self._device_can_record():
             self._recording = DataRecorder(filename,
-                                           sampling_frequency=self._device.sampling_frequency,
                                            calibration=self._device.calibration)
             self._device.stream_process_register(self._recording)
         else:

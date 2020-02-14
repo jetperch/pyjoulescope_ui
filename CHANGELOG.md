@@ -5,14 +5,15 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.8.0
 
-2020 Feb 9 [in development]
+2020 Feb 13 [in development]
 
 *   Fixed firmware version check to work with untagged development builds.
 *   Added support for joulescope 0.8.0 unified statistics data structure.
-*   Fixed issue #40: Added ∫ back to dual marker statistics.
+*   Fixed issue #40: Added ∫ and Δt back to dual marker statistics.
+*   Added parameter to show/hide Δt dual marker statistic.
 *   Reorganized device parameters into settings, extio and Current Ranging.
 *   Updated PySide2 build process and version definition.  Removed VERSION.
-*   Added configuration option to display Δt dual marker statistic.
+*   Added color parameters for waveform mean/min/max/fill.
 
 
 ## 0.7.0
