@@ -73,8 +73,17 @@ def fetch(callback, channel=None):
     channel = _validate_channel(channel)
     try:
         response = requests.get(URL_INDEX, timeout=TIMEOUT)
-        data = json.loads(response.text)
+    except Exception:
+        log.warning('Could not connect to software download server')
+        return False
 
+    try:
+        data = json.loads(response.text)
+    except Exception:
+        log.warning('Could not parse software metadata')
+        return False
+
+    try:
         latest_version = data.get('active', {}).get(channel, [0, 0, 0])
         if not is_newer(latest_version):
             log.debug('software up to date: version=%s, latest=%s, channel=%s',
@@ -94,8 +103,9 @@ def fetch(callback, channel=None):
         callback(__version__, version_to_str(latest_version), path)
         return True
     except Exception:
-        log.warning('Could not connect to software download server')
+        log.exception('Unexpected error checking available software')
         return False
+
 
 
 def check(callback, channel=None):
