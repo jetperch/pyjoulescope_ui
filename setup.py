@@ -49,7 +49,7 @@ def convert_qt_ui():
                 if ext == '.ui':
                     target = source_base + '.py'
                     print(f'Generate {os.path.relpath(target, MYPATH)}')
-                    rc = subprocess.run([uic_path, source], capture_output=True)
+                    rc = subprocess.run([uic_path, source], stdout=subprocess.PIPE)
                     s = rc.stdout.replace(b'\r\n', b'\n').decode('utf-8')
                     s = s.replace('\nimport joulescope_rc\n', '\nfrom joulescope_ui import joulescope_rc\n')
                     with open(target, 'wt', encoding='utf8') as ftarget:
