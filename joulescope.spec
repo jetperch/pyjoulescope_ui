@@ -65,6 +65,7 @@ a = Analysis(
         'joulescope.filter_fir',
         'joulescope.pattern_buffer',
         'numpy.core._dtype_ctypes',
+        'psutil',
         'secrets', 
     ],
     hookspath=[],
