@@ -3,9 +3,10 @@
 
 This file contains the list of changes made to pyjoulescope_ui.
 
+
 ## 0.8.0
 
-2020 Feb 13 [in development]
+2020 Feb 18
 
 *   Fixed firmware version check to work with untagged development builds.
 *   Added support for joulescope 0.8.0 unified statistics data structure.

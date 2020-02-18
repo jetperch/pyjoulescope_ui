@@ -122,6 +122,7 @@ else:
 with open(os.path.join(MYPATH, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
+
 setuptools.setup(
     name='joulescope_ui',
     version=_version_get(),

@@ -12,9 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-try:
-    from .version import __version__
-except ImportError:
-    VERSION = 'UNRELEASED'
+from .version import __version__
 
-__version__ = __version__
+__all__ = ['__version__', 'VERSION']
+VERSION = __version__  # deprecated, use __version__
