@@ -145,8 +145,10 @@ class SignalMarkerStatistics(pg.TextItem):
     def computing(self):
         self.setHtml(f'<html><body></body></html>')
 
-    def move(self, vb, xv):
-        if vb is not None and xv is not None:
+    def move(self, vb, xv=None):
+        if vb is not None:
+            if xv is None:
+                xv = self.pos().x()
             ys = vb.geometry().top()
             yv = vb.mapSceneToView(pg.Point(0.0, ys)).y()
             self.setPos(pg.Point(xv, yv))

@@ -34,10 +34,9 @@ class SignalViewBox(pg.ViewBox):
     """
 
     def __init__(self, name):
-        self._name = name
+        pg.ViewBox.__init__(self, enableMenu=False, enableMouse=False, name=name)
         self._pan = None  # [total_x_delta in axis coordinates, last_x_scene_pos]
         self.log = logging.getLogger(__name__ + '.' + name)
-        pg.ViewBox.__init__(self, enableMenu=False, enableMouse=False)
 
     def mouseClickEvent(self, ev, axis=None):
         self.log.debug('mouse click: %s' % (ev, ))

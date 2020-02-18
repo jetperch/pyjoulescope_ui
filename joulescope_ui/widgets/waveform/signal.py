@@ -87,6 +87,7 @@ class Signal(QtCore.QObject):
         self.y_axis.sigWheelZoomYEvent.connect(self.on_wheelZoomY)
         self.y_axis.sigPanYEvent.connect(self.on_panY)
         self.y_axis.range_set(self.config['y-axis']['range'])
+        self.vb.sigYRangeChanged.connect(self._on_y_range_changed)
 
         cmdp.subscribe('Widgets/Waveform/grid_y', self._on_grid_y, update_now=True)
         cmdp.subscribe('Widgets/Waveform/show_min_max', self._on_show_min_max, update_now=True)
@@ -426,3 +427,11 @@ class Signal(QtCore.QObject):
             brush = pg.mkBrush(color=brush_color)
             self.curve_range.setBrush(brush)
         self.vb.update()
+
+    @QtCore.Slot(object, object)
+    def _on_y_range_changed(self, vb, y_range):
+        self.log.info('_on_y_range_changed(%s, %s)', self.name, y_range)
+        for m in self._markers_single.values():
+            m.move(self.vb)
+        for m in self._markers_dual.values():
+            m.move(self.vb)
