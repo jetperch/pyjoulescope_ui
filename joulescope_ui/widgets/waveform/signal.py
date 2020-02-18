@@ -64,6 +64,7 @@ class Signal(QtCore.QObject):
         self.y_axis = YAxis(name, cmdp, log_enable=y_log_min is not None)
         self.y_axis.linkToView(self.vb)
         self.y_axis.setGrid(128)
+        self._y_range_now = [None, None]
 
         self._most_recent_data = None
         if display_name is None:
@@ -119,6 +120,7 @@ class Signal(QtCore.QObject):
                 return row
 
     def y_axis_config_update(self, cfg):
+        update_range = cfg.get('range') == 'auto' and self.config.get('y-axis', {}).get('range') == 'manual'
         self.config['y-axis'].update(**cfg)
         # range, handled elsewhere
         if self.config['y-axis']['scale'] == 'logarithmic':
@@ -130,7 +132,6 @@ class Signal(QtCore.QObject):
             y_max = np.log10(self.config['y-axis']['limit'][1])
             self.vb.setLimits(yMin=y_min, yMax=y_max)
             self.vb.setYRange(y_min, y_max)
-            self.vb.setYRange(y_min, y_max)
         else:
             self.y_axis.setLogMode(False)
             self.curve_mean.setLogMode(xMode=False, yMode=False)
@@ -138,6 +139,8 @@ class Signal(QtCore.QObject):
             self.curve_max.setLogMode(xMode=False, yMode=False)
             y_min, y_max = self.config['y-axis']['limit']
             self.vb.setLimits(yMin=y_min, yMax=y_max)
+        if update_range:
+            self.yaxis_autorange(*self._y_range_now)
         self._cmdp.publish('Widgets/Waveform/#requests/refresh', None)
 
     @QtCore.Slot(float, float)
@@ -174,6 +177,9 @@ class Signal(QtCore.QObject):
         self.vb.setRange(yRange=[ra, rb])
 
     def yaxis_autorange(self, v_min, v_max):
+        if v_min is None or v_max is None:
+            return
+        self._y_range_now = [v_min, v_max]
         if self.config['y-axis'].get('range', 'auto') == 'manual':
             return
         _, (vb_min, vb_max) = self.vb.viewRange()

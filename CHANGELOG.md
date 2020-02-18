@@ -15,6 +15,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Reorganized device parameters into settings, extio and Current Ranging.
 *   Updated PySide2 build process and version definition.  Removed VERSION.
 *   Added color parameters for waveform mean/min/max/fill.
+*   Fixed marker text position when y-axis scale changes.
+*   Fixed y-axis range to auto not causing immediate autoscale #21
 
 
 ## 0.7.0
