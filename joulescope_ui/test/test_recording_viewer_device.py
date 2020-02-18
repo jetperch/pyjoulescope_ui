@@ -28,7 +28,7 @@ from joulescope.calibration import Calibration
 class TestRecordingViewerDevice(unittest.TestCase):
 
     def _create_file(self, packet_index, count=None):
-        stream_buffer = StreamBuffer(2.0, [10], 1000.0)
+        stream_buffer = StreamBuffer(4.0, [10], 1000.0)
         stream_buffer.suppress_mode = 'off'
         if packet_index > 0:
             data = usb_packet_factory(0, packet_index - 1)
@@ -36,7 +36,7 @@ class TestRecordingViewerDevice(unittest.TestCase):
             stream_buffer.process()
 
         fh = io.BytesIO()
-        d = DataRecorder(fh, sampling_frequency=1000)
+        d = DataRecorder(fh)
         d.stream_notify(stream_buffer)
         data = usb_packet_factory(packet_index, count)
         stream_buffer.insert(data)
@@ -62,7 +62,7 @@ class TestRecordingViewerDevice(unittest.TestCase):
         v.open()
         self.assertEqual(1000.0, v.sampling_frequency)
         self.assertIsInstance(v.calibration, Calibration)
-        self.assertEqual([0.0, 0.2], v.limits)
+        self.assertEqual([0.0, 0.252], v.limits)
         self.assertEqual(0, v.time_to_sample_id(v.sample_id_to_time(0)))
         self.assertEqual(0.0, v.sample_id_to_time(0))
         self.assertEqual(0.2, v.sample_id_to_time(200))
@@ -87,8 +87,8 @@ class TestRecordingViewerDevice(unittest.TestCase):
         self.assertEqual(1, len(c))
         d = c[0][0][0]
         self.assertIn('time', d)
-        self.assertEqual([0.0, 0.2], d['time']['limits']['value'])
-        self.assertEqual([0.002, 0.2], d['time']['range']['value'])  # not right -- off by 1 error
+        self.assertEqual([0.0, 0.252], d['time']['limits']['value'])
+        self.assertEqual([0.028, 0.226], d['time']['range']['value'])
         self.assertEqual(0.198, d['time']['delta']['value'])
         self.assertEqual('s', d['time']['delta']['units'])
         self.assertIn('x', d['time'])
@@ -102,13 +102,12 @@ class TestRecordingViewerDevice(unittest.TestCase):
     def test_view_get_samples(self):
         v = self.d.view_factory()
         v.open()
-        s = v.samples_get(0, 100)
+        s = v.samples_get(0, 100, fields=['current', 'voltage'])
         self.assertEqual([0.0, 0.1], s['time']['range']['value'])
         self.assertEqual(0.1, s['time']['delta']['value'])
         self.assertEqual('s', s['time']['delta']['units'])
         self.assertEqual(100, len(s['signals']['current']['value']))
         self.assertEqual(100, len(s['signals']['voltage']['value']))
-        self.assertEqual(100, len(s['signals']['raw']['value']))
         v.close()
 
     def test_view_get_statistics(self):
