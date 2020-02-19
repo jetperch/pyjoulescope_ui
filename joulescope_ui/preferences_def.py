@@ -20,6 +20,12 @@ from joulescope_ui.paths import paths_current
 FONT_SIZES = [6, 7, 8, 9, 10, 11, 12, 14, 16, 20, 24, 30, 36, 48, 72]
 
 
+_DEVICE_PARAMETER_DEFAULT_OVERRIDE = {
+    'source': 'raw',
+    'i_range': 'auto',
+}
+
+
 def preferences_def(p):
     # --- METADATA ---
     p.define('_meta/', 'Preferences metadata')
@@ -121,11 +127,9 @@ def preferences_def(p):
             prefix = '_'
         else:
             prefix = ''
-        default = parameter.default
+        default = _DEVICE_PARAMETER_DEFAULT_OVERRIDE.get(parameter.name, parameter.default)
         if parameter.path in ['setting', 'extio']:
             topic = f'Device/{parameter.path}/{prefix}{parameter.name}'
-            if parameter.name == 'source':
-                default = 'raw'
         elif parameter.path == 'current_ranging':
             if parameter.name == 'current_ranging':
                 continue

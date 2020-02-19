@@ -4,6 +4,13 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.8.1
+
+2020 Feb 19
+
+*   Changed i_range preference default to "auto" (was "off").
+
+
 ## 0.8.0
 
 2020 Feb 18
