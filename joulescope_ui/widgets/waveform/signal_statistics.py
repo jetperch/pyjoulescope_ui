@@ -139,8 +139,22 @@ class SignalStatistics(pg.GraphicsWidget):
 
 class SignalMarkerStatistics(pg.TextItem):
 
-    def __init__(self):
+    def __init__(self, cmdp):
         pg.TextItem.__init__(self)
+        self._cmdp = cmdp
+        self._value_cache = None
+        cmdp.subscribe('Widgets/Waveform/Statistics/font', self._on_font, update_now=True)
+        cmdp.subscribe('Widgets/Waveform/Statistics/font-color', self._on_font_color, update_now=True)
+
+    def _on_font(self, topic, value):
+        font = QtGui.QFont()
+        font.fromString(value)
+        self.textItem.setFont(font)
+        self.updateTextPos()
+
+    def _on_font_color(self, topic, value):
+        if self._value_cache is not None:
+            self.data_update(None, *self._value_cache)
 
     def computing(self):
         self.setHtml(f'<html><body></body></html>')
@@ -156,7 +170,11 @@ class SignalMarkerStatistics(pg.TextItem):
     def data_update(self, vb, xv, labels):
         if labels is None or not len(labels):
             html = '<p>No data</p>'
+            self._value_cache = None
         else:
+            font_color = rgba_to_css(self._cmdp['Widgets/Waveform/Statistics/font-color'])
+            style = f'color: {font_color};'
+            self._value_cache = (xv, labels)
             txt_result = si_format(labels)
-            html = html_format(txt_result, x=xv)
+            html = html_format(txt_result, x=xv, style=style)
         self.setHtml(html)

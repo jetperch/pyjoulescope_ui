@@ -4,11 +4,12 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
-## 0.8.1
+## 0.8.2
 
 2020 Feb 19
 
 *   Changed i_range preference default to "auto" (was "off").
+*   Modified marker statistics to use same font style as waveform statistics.
 
 
 ## 0.8.0

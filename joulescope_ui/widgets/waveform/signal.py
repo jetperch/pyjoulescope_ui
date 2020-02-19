@@ -349,7 +349,7 @@ class Signal(QtCore.QObject):
 
     def update_markers_single_one(self, marker_name, marker_pos):
         if marker_name not in self._markers_single:
-            m = SignalMarkerStatistics()
+            m = SignalMarkerStatistics(self._cmdp)
             self.vb.addItem(m)
             m.setVisible(True)
             m.move(self.vb, marker_pos)
@@ -363,7 +363,7 @@ class Signal(QtCore.QObject):
 
     def update_markers_dual_one(self, marker_name, marker_pos, statistics):
         if marker_name not in self._markers_dual:
-            m = SignalMarkerStatistics()
+            m = SignalMarkerStatistics(self._cmdp)
             self.vb.addItem(m)
             m.setVisible(True)
             m.move(self.vb, marker_pos)
