@@ -4,10 +4,11 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
-## 0.8.2
+## 0.8.3
 
 2020 Feb 19
 
+*   Added downsampling support.
 *   Changed i_range preference default to "auto" (was "off").
 *   Modified marker statistics to use same font style as waveform statistics.
 
