@@ -4,6 +4,13 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.8.4
+
+2020 Feb 24
+
+*   Fixed export to JLS not working #47.
+
+
 ## 0.8.3
 
 2020 Feb 19

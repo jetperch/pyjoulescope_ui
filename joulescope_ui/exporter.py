@@ -83,8 +83,7 @@ class Exporter:
         stream_buffer.voltage_range = data.cmdp['Plugins/#state/voltage_range']
         data_recorder = DataRecorder(
             cfg['filename'],
-            calibration=data.calibration.data,
-            sampling_frequency=sampling_frequency)
+            calibration=data.calibration.data)
         data_recorder.stream_notify(stream_buffer)
 
         try:
