@@ -29,7 +29,7 @@ from joulescope.data_recorder import construct_record_filename  # DataRecorder
 from joulescope_ui.recording_viewer_device import RecordingViewerDevice
 from joulescope_ui.preferences_ui import PreferencesDialog
 from joulescope_ui.update_check import check as software_update_check
-from joulescope_ui.logging_util import logging_config, LOG_PATH
+from joulescope_ui.logging_util import logging_preconfig, logging_config, LOG_PATH
 from joulescope_ui.widgets.waveform.signal_statistics import three_sig_figs
 from joulescope_ui.range_tool import RangeToolInvoke
 from joulescope_ui import help_ui
@@ -347,6 +347,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self._shortcut_undo.activated.connect(lambda: self._cmdp.invoke('!undo'))
         self._shortcut_redo = QtWidgets.QShortcut(QtGui.QKeySequence.Redo, self)
         self._shortcut_redo.activated.connect(lambda: self._cmdp.invoke('!redo'))
+
+        if not self._cmdp.restore_success:
+            self.status('Could not restore preferences - using defaults', timeout=0)
 
     @property
     def _path(self):
@@ -1216,8 +1219,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def closeEvent(self, event):
         log.info('closeEvent()')
-        self._cmdp.preferences.save()
-        self._device_close()
+        try:
+            self._cmdp.preferences.save()
+        except:
+            log.exception('closeEvent could not save preferences')
+        try:
+            self._device_close()
+        except:
+            log.exception('closeEvent could not close device')
         return super(MainWindow, self).closeEvent(event)
 
     def _source_indicator_status_update(self, status):
@@ -1275,21 +1284,27 @@ class MainWindow(QtWidgets.QMainWindow):
         self._source_indicator_status_update(status)
 
     @QtCore.Slot(str)
-    def status(self, msg, timeout=STATUS_BAR_TIMEOUT):
+    def status(self, msg, timeout=STATUS_BAR_TIMEOUT, level=None):
         """Display a status message.
 
         :param msg: The message to display.
         :param timeout: The optional timeout in milliseconds.  0 
             does not time out.
+        :param level: The logging level for the message.  None (default)
+            is equivalent to log.INFO.
         """
-        log.info(msg)
+        level = logging.INFO if level is None else level
+        log.log(level, msg)
         self.ui.statusbar.showMessage(msg, timeout)
 
     def on_preferences(self):
         log.info('on_preferences')
         d = PreferencesDialog(self, self._cmdp)
         if d.exec_():
-            self._cmdp.preferences.save()
+            try:
+                self._cmdp.preferences.save()
+            except Exception:
+                self.status('Could not save preferences', level=logging.ERROR)
 
     def _on_dataview_service_range_statistics(self, topic, value):
         # topic: DataView/#service/range_statistics
@@ -1367,21 +1382,17 @@ class ErrorWindow(QtWidgets.QMainWindow):
         self.show()
 
 
-def load_font(resource_path):
-    rv = QtGui.QFontDatabase.addApplicationFont(resource_path)
-    if rv == -1:
-        raise RuntimeError(f'Could not load font {resource_path}')
-    return rv
-
-
 def load_fonts():
     font_list = ['']
     iterator = QtCore.QDirIterator(':/joulescope/fonts/', QtCore.QDirIterator.Subdirectories)
     while iterator.hasNext():
         resource_path = iterator.next()
         if resource_path.endswith('.ttf'):
-            rv = load_font(resource_path)
-            font_list.append(f'    {resource_path} => {rv}')
+            rv = QtGui.QFontDatabase.addApplicationFont(resource_path)
+            if rv == -1:
+                log.warning(f'Could not load font {resource_path}')
+            else:
+                font_list.append(f'    {resource_path} => {rv}')
     log.debug('Loaded fonts:%s', '\n'.join(font_list))
 
 
@@ -1401,6 +1412,8 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
     :return: 0 on success or error code on failure.
     """
     try:
+        logging_preconfig()  # capture log messages until logging_config
+        app = QtWidgets.QApplication(sys.argv)
         cmdp = CommandProcessor()
         cmdp = preferences_def(cmdp)
         if file_log_level is None:
@@ -1412,31 +1425,34 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
         if starting_profile not in ['previous', 'app defaults']:
             cmdp.preferences.profile = starting_profile
 
+        try:
+            log.info('configure high DPI scaling')
+            # http://doc.qt.io/qt-5/highdpi.html
+            # https://vicrucann.github.io/tutorials/osg-qt-high-dpi/
+            if sys.platform.startswith('win'):
+                ctypes.windll.user32.SetProcessDPIAware()
+            QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+        except:
+            log.exception('while configuring high DPI scaling')
+
+        log.info('Arguments: %s', (sys.argv, ))
+        log.info('Start Qt')
+        load_fonts()
+        # app.setFont(QtGui.QFont('Lato', 10))
+
     except Exception:
         log.exception('during initialization')
         with io.StringIO() as f:
             traceback.print_exc(file=f)
             t = f.getvalue()
-        app = QtWidgets.QApplication()
         ui = ErrorWindow("Exception trace:\n" + t)
         return app.exec_()
 
     try:
-        log.info('configure high DPI scaling')
-        # http://doc.qt.io/qt-5/highdpi.html
-        # https://vicrucann.github.io/tutorials/osg-qt-high-dpi/
-        if sys.platform.startswith('win'):
-            ctypes.windll.user32.SetProcessDPIAware()
-        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+        ui = MainWindow(app, device_name, cmdp)
     except:
-        log.exception('while configuring high DPI scaling')
-
-    log.info('Arguments: %s', (sys.argv, ))
-    log.info('Start Qt')
-    app = QtWidgets.QApplication(sys.argv)
-    ui = MainWindow(app, device_name, cmdp)
-    load_fonts()
-    # app.setFont(QtGui.QFont('Lato', 10))
+        log.exception('MainWindow initializer failed')
+        raise
     ui.run(filename)
     device_notify = DeviceNotify(ui.on_deviceNotifySignal.emit)
     rc = app.exec_()

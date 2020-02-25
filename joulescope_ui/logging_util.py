@@ -103,6 +103,24 @@ def _cleanup_logfiles():
                 logging.getLogger(__name__).warning('Could not unlink %s', fname)
 
 
+class DeferredLogHandler(logging.Handler):
+
+    def __init__(self):
+        logging.Handler.__init__(self)
+        self.records = []
+
+    def emit(self, record):
+        self.records.append(record)
+
+
+def logging_preconfig():
+    """Capture log in memory until :func:`logging_config`."""
+    root_log = logging.getLogger()
+    root_log.handlers = []
+    root_log.addHandler(DeferredLogHandler())
+    root_log.setLevel(logging.WARNING)
+
+
 def logging_config(stream_log_level=None, file_log_level=None):
     """Configure logging.
 
@@ -119,6 +137,10 @@ def logging_config(stream_log_level=None, file_log_level=None):
     filename = os.path.join(LOG_PATH, 'joulescope_%s_%s.log' % (time_str, os.getpid(), ))
 
     root_log = logging.getLogger()
+    deferred_log_handler = None
+    if len(root_log.handlers) == 1:
+        if isinstance(root_log.handlers[0], DeferredLogHandler):
+            deferred_log_handler = root_log.handlers[0]
     root_log.handlers = []
 
     stream_lvl = logging.WARNING if stream_log_level is None else LEVELS[stream_log_level]
@@ -144,3 +166,7 @@ def logging_config(stream_log_level=None, file_log_level=None):
     root_log.setLevel(min([stream_lvl, file_lvl]))
     _cleanup_logfiles()
     root_log.info('logging configuration: stream_level=%s, file_level=%s', stream_lvl, file_lvl)
+    if deferred_log_handler:
+        for record in deferred_log_handler.records:
+            root_log.handle(record)
+        deferred_log_handler.records.clear()
