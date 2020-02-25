@@ -16,6 +16,7 @@
 # https://wiki.qt.io/Gallery_of_Qt_CSS_Based_Styles
 
 import os
+import platform
 import sys
 from . import __version__
 import joulescope
@@ -44,6 +45,7 @@ import io
 import ctypes
 import collections
 import gc
+import pyperclip
 import traceback
 import time
 import webbrowser
@@ -92,6 +94,27 @@ Channel = {channel}<br/>
 </p>
 <p><a href="{url}">Download</a> now.</p>
 </html>
+"""
+
+
+STARTUP_ERROR_MESSAGE = """\
+<html><body>
+<h2>Unexpected Error</h2>
+<p>The Joulescope UI encountered an error,<br/>
+and it cannot start correctly.<p>
+<p>Please report this error by contacting us:
+<ul>
+   <li><a href="https://www.joulescope.com/contact">Contact form</a></li>
+   <li><a href="https://forum.joulescope.com/">Joulescope forum</a></li>
+   <li><a href="https://github.com/jetperch/pyjoulescope_ui/issues">GitHub</a></li>
+</ul>
+</p>
+<p>Please include the text below,<br/>
+which has been automatically copied to your clipboard.</p>
+<pre>
+{msg_err}
+</pre>
+</body></html>
 """
 
 
@@ -1379,6 +1402,8 @@ class ErrorWindow(QtWidgets.QMainWindow):
         self.ui = Ui_ErrorWindow()
         self.ui.setupUi(self)
         self.ui.label.setText(msg)
+        self.ui.label.setTextInteractionFlags(QtCore.Qt.TextBrowserInteraction)
+        self.ui.label.setOpenExternalLinks(True)
         self.show()
 
 
@@ -1411,9 +1436,9 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
 
     :return: 0 on success or error code on failure.
     """
+    app = None
     try:
         logging_preconfig()  # capture log messages until logging_config
-        app = QtWidgets.QApplication(sys.argv)
         cmdp = CommandProcessor()
         cmdp = preferences_def(cmdp)
         if file_log_level is None:
@@ -1425,8 +1450,10 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
         if starting_profile not in ['previous', 'app defaults']:
             cmdp.preferences.profile = starting_profile
 
+        log.info('Arguments: %s', (sys.argv, ))
+        log.info('Start Qt')
         try:
-            log.info('configure high DPI scaling')
+            log.info('Configure high DPI scaling')
             # http://doc.qt.io/qt-5/highdpi.html
             # https://vicrucann.github.io/tutorials/osg-qt-high-dpi/
             if sys.platform.startswith('win'):
@@ -1434,9 +1461,7 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
             QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
         except:
             log.exception('while configuring high DPI scaling')
-
-        log.info('Arguments: %s', (sys.argv, ))
-        log.info('Start Qt')
+        app = QtWidgets.QApplication(sys.argv)
         load_fonts()
         # app.setFont(QtGui.QFont('Lato', 10))
 
@@ -1445,7 +1470,17 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
         with io.StringIO() as f:
             traceback.print_exc(file=f)
             t = f.getvalue()
-        ui = ErrorWindow("Exception trace:\n" + t)
+        if app is None:
+            app = QtWidgets.QApplication(sys.argv)
+        msg_err = '\n'.join([
+            "--------------------",
+            f"Exception on Joulescope UI {__version__} startup. ",
+            'Python=' + sys.version,
+            'Platform=' + platform.platform(),
+            t])
+        pyperclip.copy(msg_err)
+        msg = STARTUP_ERROR_MESSAGE.format(msg_err=msg_err)
+        ui = ErrorWindow(msg)
         return app.exec_()
 
     try:

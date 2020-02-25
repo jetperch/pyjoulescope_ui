@@ -11,6 +11,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Fixed export to JLS not working #47.
 *   Improved error handling on invalid config file and bad values #45.
 *   Improved startup error handling and logging #45.
+*   Improved startup error dialog with instructions and links #45.
 
 
 ## 0.8.3

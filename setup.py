@@ -171,6 +171,7 @@ setuptools.setup(
     install_requires=[
         'json5>=0.6.1',
         'numpy>=1.15.2',
+        'pyperclip>=1.7.0',
         'python-dateutil>=2.7.3',
         'pyside2>=5.13.0',
         # 'pyqtgraph>=0.11.0', eventually, but PEP 508 URL for now:

@@ -107,7 +107,6 @@ def fetch(callback, channel=None):
         return False
 
 
-
 def check(callback, channel=None):
     """Check for software updates.
 

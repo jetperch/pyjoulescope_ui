@@ -7,6 +7,7 @@ numpy>=1.15.2
 pypiwin32>=223; sys_platform == 'win32'
 # python {path_to_python}\scripts\pywin32_postinstall.py -install
 python-dateutil>=2.7.3
+pyperclip>=1.7.0
 PyInstaller>=3.5
 PySide2>=5.13.0
 requests>=2.0.0
