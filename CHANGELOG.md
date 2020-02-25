@@ -17,6 +17,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added default filename for "Export data".
 *   Fixed preferences UI profile "Reset" and "Reset to Defaults" #44.
 *   Improved "General/data_path" error handling #32.
+*   Added device reopen after changing critical device parameters #42.
+    Parameters: buffer_duration, reduction_frequency, sampling_frequency.
 
 
 ## 0.8.3

@@ -1338,12 +1338,21 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def on_preferences(self):
         log.info('on_preferences')
+        reopen_params = [
+            'Device/setting/buffer_duration',
+            'Device/setting/reduction_frequency',
+            'Device/setting/sampling_frequency']
+        value_before = [self._cmdp.preferences.get(x) for x in reopen_params]
         d = PreferencesDialog(self, self._cmdp)
-        if d.exec_():
-            try:
-                self._cmdp.preferences.save()
-            except Exception:
-                self.status('Could not save preferences', level=logging.ERROR)
+        if not d.exec_():
+            return
+        try:
+            self._cmdp.preferences.save()
+        except Exception:
+            self.status('Could not save preferences', level=logging.ERROR)
+        value_after = [self._cmdp.preferences.get(x) for x in reopen_params]
+        if self._is_streaming_device and value_before != value_after:
+            self._device_reopen()
 
     def _on_dataview_service_range_statistics(self, topic, value):
         # topic: DataView/#service/range_statistics

@@ -210,6 +210,7 @@ class PreferencesDialog(QtWidgets.QDialog):
         self._cmdp.invoke('!command_group/end')
         if rv == 0:
             self._cmdp.invoke('!undo')
+        return rv
 
     def _redraw_right_pane(self):
         self._clear()
