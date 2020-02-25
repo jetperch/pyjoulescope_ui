@@ -14,7 +14,7 @@
 
 from joulescope_ui.export_dialog import Ui_Form
 from PySide2 import QtWidgets, QtGui, QtCore
-from joulescope.data_recorder import DataRecorder
+from joulescope.data_recorder import DataRecorder, construct_record_filename
 from joulescope.stream_buffer import StreamBuffer
 import numpy as np
 import os
@@ -114,6 +114,9 @@ class ExportDialog(QtWidgets.QDialog):
         self.ui.cancelButton.pressed.connect(self.reject)
         self.ui.filenameLineEdit.textChanged.connect(self.on_filename_text_edit)
         self.ui.filenameSelectButton.pressed.connect(self.on_filename_select_button)
+        filename = construct_record_filename()
+        path = os.path.join(path, filename)
+        self.ui.filenameLineEdit.setText(path)
 
     def on_filename_select_button(self):
         filters = [
@@ -125,13 +128,14 @@ class ExportDialog(QtWidgets.QDialog):
         filter_str = ';;'.join(filters)
         filename, select_mask = QtWidgets.QFileDialog.getSaveFileName(
             self, 'Save Joulescope Data', self._path, filter_str)
-        log.info('save filename selected: %s', filename)
-        filename = str(filename)
-        self.ui.filenameLineEdit.setText(filename)
-        self.ui.saveButton.setEnabled(True)
+        if bool(filename):
+            log.info('save filename selected: %s', filename)
+            filename = str(filename)
+            self.ui.filenameLineEdit.setText(filename)
 
     def on_filename_text_edit(self, text):
-        self.ui.saveButton.setEnabled(True)
+        good_path = os.path.isdir(os.path.dirname(os.path.abspath(text)))
+        self.ui.saveButton.setEnabled(good_path)
 
     def _field_flags(self):
         d = {}

@@ -14,6 +14,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Improved startup error dialog with instructions and links #45.
 *   Added charge and energy unit preferences #39.
 *   Moved Δt to consistently be the last statistic in waveform view.
+*   Added default filename for "Export data".
 
 
 ## 0.8.3
