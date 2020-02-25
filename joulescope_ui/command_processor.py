@@ -113,7 +113,7 @@ class CommandProcessor(QtCore.QObject):
     def __init__(self, parent=None, synchronous=None, app=None):
         QtCore.QObject.__init__(self, parent)
         self.preferences = Preferences(parent=self, app=app)
-        self.preferences.load()
+        self.restore_success = self.preferences.load()
         starting_profile = self.preferences.get('General/starting_profile', profile='default', default=None)
         if starting_profile == 'app defaults':
             # New instance, do not load!

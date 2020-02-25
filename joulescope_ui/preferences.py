@@ -132,6 +132,14 @@ def validate_color(value):
 
 
 def validate(value, dtype, options=None):
+    """Ensure that a value is valid.
+
+    :param value: The value to check.
+    :param dtype: The data type string for value.
+    :param options: The validator to further constrain value.
+    :return: The conforming value.
+    :raise ValueError: on invalid value.
+    """
     if dtype == 'obj':
         pass  # no validation necessary
     elif dtype == 'str':
@@ -163,6 +171,21 @@ def validate(value, dtype, options=None):
     else:
         raise ValueError(f'unsupported dtype {dtype}')
     return value
+
+
+def is_valid(value, dtype, options=None):
+    """Check that value is valid.
+
+    :param value: The value to check.
+    :param dtype: The data type string for value.
+    :param options: The validator to further constrain value.
+    :return: True if valid, False if not valid.
+    """
+    try:
+        validate(value, dtype, options)
+        return True
+    except:
+        return False
 
 
 def options_conform(options):
@@ -255,11 +278,19 @@ class Preferences(QtCore.QObject):
     def load(self):
         if not os.path.isfile(self._path):
             log.info('preferences file does not exist: %s', self._path)
-            return self
-        with open(self._path, 'r') as f:
-            p = json.load(f, object_hook=json_decode_custom)
-        self.state_restore(p)
-        return self
+            return False
+        try:
+            with open(self._path, 'r') as f:
+                p = json.load(f, object_hook=json_decode_custom)
+        except:
+            log.error('Preferences could not load %s', self._path)
+            return False
+        try:
+            self.state_restore(p)
+        except:
+            log.error('Preferences could not restore state from %s', self._path)
+            return False
+        return True
 
     def state_export(self):
         state = {
@@ -300,6 +331,7 @@ class Preferences(QtCore.QObject):
         # todo support int ranges: min, max, step
         if TOPIC_TEMPORARY_CHAR in name and default_profile_only is None:
             default_profile_only = True
+        default_profile_only = bool(default_profile_only)
         if dtype is None:
             if name.endswith('/'):
                 dtype = 'container'
@@ -321,8 +353,16 @@ class Preferences(QtCore.QObject):
             'dtype': dtype,
             'options': options,
             'default': default,
-            'default_profile_only': bool(default_profile_only),
+            'default_profile_only': default_profile_only,
         }
+        for profile, d in self._profiles.items():
+            if name in d:
+                if default_profile_only and profile != BASE_PROFILE:
+                    log.warning('Preference[%r][%r] not allowed (base profile only)', profile, name)
+                    del d[name]
+                elif not is_valid(d[name], dtype, options=options):
+                    log.warning('Preference[%r][%r] %r not valid => %r', profile, name, d[name], default)
+                    self.set(name, default, profile=profile)
 
     def definition_get(self, name):
         return self._defines[name]

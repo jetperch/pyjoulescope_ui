@@ -304,7 +304,8 @@ class TestCommandProcessor(unittest.TestCase):
     def test_preferences_save(self):
         self.define_group()
         self.c.invoke('!preferences/save')
-        p = Preferences(app=self.app).load()
+        p = Preferences(app=self.app)
+        self.assertTrue(p.load())
         self.assertEqual('0', p['a/0'])
 
     def test_preference_get_without_set_or_define(self):

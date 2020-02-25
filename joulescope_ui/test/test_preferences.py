@@ -17,9 +17,21 @@ Test the preferences
 """
 
 import unittest
+import json
 import os
 from joulescope_ui.preferences import Preferences, validate, options_conform, BASE_PROFILE
 from joulescope_ui import paths
+
+
+INVALID_CONFIG1 = {
+  "type": "invalid",
+  "version": 2,
+  "profile": "Oscilloscope",
+  "profiles": {
+    "defaults": {},
+    "Oscilloscope": {}
+  }
+}
 
 
 class TestPreferences(unittest.TestCase):
@@ -104,26 +116,39 @@ class TestPreferences(unittest.TestCase):
     def test_load_not_found(self):
         self.p.define(name='hello', default='world')
         self.assertEqual('world', self.p['hello'])
-        self.p.load()
+        self.assertFalse(self.p.load())
         self.assertEqual('world', self.p['hello'])
+
+    def test_load_invalid_json(self):
+        with open(self.p._path, 'wt') as f:
+            f.write('{"hello": "world",}')  # invalid JSON
+        self.assertFalse(self.p.load())
+
+    def test_load_invalid_type(self):
+        with open(self.p._path, 'wt') as f:
+            f.write(json.dumps(INVALID_CONFIG1))
+        self.assertFalse(self.p.load())
 
     def test_save_load_simple(self):
         self.p.set('hello', 'world')
         self.p.save()
-        p = Preferences(app=self.app).load()
+        p = Preferences(app=self.app)
+        self.assertTrue(p.load())
         self.assertEqual('world', p.get('hello'))
 
     def test_save_load_skip_starting_with_pound(self):
         self.p.set('hello/#there', 'world')
         self.assertIn('hello/#there', self.p)
         self.p.save()
-        p = Preferences(app=self.app).load()
+        p = Preferences(app=self.app)
+        self.assertTrue(p.load())
         self.assertNotIn('hello/#there', p)
 
     def test_save_load_bytes(self):
         self.p.set('hello', b'world')
         self.p.save()
-        p = Preferences(app=self.app).load()
+        p = Preferences(app=self.app)
+        self.assertTrue(p.load())
         self.assertEqual(b'world', p.get('hello'))
 
     def test_define_default_when_new(self):
@@ -260,6 +285,10 @@ class TestPreferences(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.p.define(name='hello', dtype='str', options=['there', 'world'], default='bad')
 
+    def test_set_invalid_existing(self):
+        self.p['hello'] = 'bad'
+        self.p.define(name='hello', dtype='str', options=['there', 'world'], default='there')
+
     def test_definition_get(self):
         self.p.define(name='hello', dtype='str', default='world')
         d = self.p.definition_get(name='hello')
@@ -366,3 +395,10 @@ class TestPreferences(unittest.TestCase):
         self.assertEqual('override', self.p['a'])
         self.assertEqual('0', self.p.get('a', profile=BASE_PROFILE))
         self.assertEqual('no define', self.p.get('b', profile=BASE_PROFILE))
+
+    def test_define_base_profile_only_but_already_exists(self):
+        self.p.profile_add('p', activate=True)
+        self.p['hello'] = 'world'
+        self.p.define(name='hello', dtype='str', options=['there', 'world'],
+                      default='there', default_profile_only=True)
+        self.assertEqual('there', self.p['hello'])
