@@ -107,7 +107,7 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
         self._iterable = None
         self._commands = []
 
-        cmdp.define('Plugins/#state/voltage_range', dtype=int)  # for file export
+        cmdp.define('Plugins/#state/voltage_range', dtype=int, default=0)  # for file export
 
     def __iter__(self):
         self._iterable = self.iterate()

@@ -31,7 +31,6 @@ from joulescope_ui.recording_viewer_device import RecordingViewerDevice
 from joulescope_ui.preferences_ui import PreferencesDialog
 from joulescope_ui.update_check import check as software_update_check
 from joulescope_ui.logging_util import logging_preconfig, logging_config, LOG_PATH
-from joulescope_ui.widgets.waveform.signal_statistics import three_sig_figs
 from joulescope_ui.range_tool import RangeToolInvoke
 from joulescope_ui import help_ui
 from joulescope_ui import firmware_manager

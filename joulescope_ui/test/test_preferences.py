@@ -402,3 +402,9 @@ class TestPreferences(unittest.TestCase):
         self.p.define(name='hello', dtype='str', options=['there', 'world'],
                       default='there', default_profile_only=True)
         self.assertEqual('there', self.p['hello'])
+
+    def test_get_defaults(self):
+        self.p.define(name='hello', dtype='str', default='there')
+        self.p['hello'] = 'world'
+        self.assertEqual('world', self.p['hello'])
+        self.assertEqual('there', self.p.definition_get('hello')['default'])
