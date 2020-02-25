@@ -88,6 +88,21 @@ def preferences_def(p):
         default=False,
         default_profile_only=True)
 
+    # --- GENERAL ---
+    p.define('Units/', 'Units to display.')
+    p.define(
+        topic='Units/charge',
+        brief='The units to display for charge, the integral of current.',
+        dtype='str',
+        options=['C', 'Ah'],
+        default='C')
+    p.define(
+        topic='Units/energy',
+        brief='The units to display for energy, the integral of power.',
+        dtype='str',
+        options=['J', 'Wh'],
+        default='J')
+
     # --- DEVICE ---
     p.define('Device/', 'Joulescope device-specific default settings')
     p.define(
@@ -150,7 +165,6 @@ def preferences_def(p):
     p.define('Device/#state/sample_drop_color', dtype=str, default='')
     p.define('Device/#state/play',   dtype=bool, default=False)
     p.define('Device/#state/record', dtype=bool, default=False)
-    p.define('Device/#state/energy', dtype=str, default='')
     p.define('Device/#state/sampling_frequency', dtype=float, default=0.0)
     p.define('Device/#state/status', dtype=dict, default={})
     p.define('Device/#state/statistics', dtype=dict, default={})

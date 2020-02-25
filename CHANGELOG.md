@@ -12,6 +12,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Improved error handling on invalid config file and bad values #45.
 *   Improved startup error handling and logging #45.
 *   Improved startup error dialog with instructions and links #45.
+*   Added charge and energy unit preferences #39.
+*   Moved Δt to consistently be the last statistic in waveform view.
 
 
 ## 0.8.3

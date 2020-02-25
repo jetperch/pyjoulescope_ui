@@ -15,6 +15,7 @@
 
 from PySide2 import QtWidgets, QtCore
 from .control_widget_ui import Ui_ControlWidget
+from joulescope.units import three_sig_figs
 import logging
 
 
@@ -75,8 +76,11 @@ class ControlWidget(QtWidgets.QWidget):
             self._update_combobox(self._ui.vRangeComboBox, data)
 
     def _on_device_state(self, topic, data):
-        if topic == 'Device/#state/energy':
-            self._ui.energyValueLabel.setText(data)
+        if topic == 'Device/#state/statistics':
+            v = data.get('accumulators', {}).get('energy')
+            v = self._cmdp.convert_units('energy', v)
+            s = three_sig_figs(v['value'], v['units'])
+            self._ui.energyValueLabel.setText(s)
         elif topic == 'Device/#state/source':
             if data in 'USB':
                 self._ui.playButton.setEnabled(True)

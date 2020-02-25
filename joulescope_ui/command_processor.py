@@ -38,6 +38,7 @@ import weakref
 import threading
 from joulescope_ui.preferences import Preferences, BASE_PROFILE, \
     TOPIC_HIDDEN_CHAR, TOPIC_TEMPORARY_CHAR
+from joulescope_ui.units import convert_units, FIELD_UNITS_SI
 
 
 log = logging.getLogger(__name__)
@@ -581,3 +582,23 @@ class CommandProcessor(QtCore.QObject):
             log.warning('unregister command %s, but not registered', topic)
             return
         del self._topic[topic]
+
+    def convert_units(self, field, value, units=None):
+        """Convert a field value into user-configurable preferred units.
+
+        :param field: The field name, such as 'current'.
+        :param value: The float value to convert or the dict of
+            {'value': value, 'units': units}.
+        :param units: The units for when value is a float.  Ignored
+            otherwise.
+        :return: dict of {'value': value, 'units': units}.
+        """
+        if value is None:
+            value = 0.0
+            if units is None:
+                units = FIELD_UNITS_SI.get(field)
+        if units is None:
+            units = value['units']
+            value = value['value']
+        output_units = self.preferences.get('Units/' + field, default=units)
+        return convert_units(value, units, output_units)

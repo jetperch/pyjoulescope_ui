@@ -230,8 +230,9 @@ class MeterValueWidget(QtWidgets.QWidget):
         self._update_ui()
 
     def update_energy(self, duration, energy, charge):
-        energy, prefix, _ = unit_prefix(energy)
-        units = f'{prefix}{self._units_short}'
+        v = self._cmdp.convert_units('energy', energy, self._units_short)
+        energy, prefix, _ = unit_prefix(v['value'])
+        units = f'{prefix}{v["units"]}'
         self.unitLabel.setText(f"<html>&nbsp;{units}&nbsp;</html>")
         energy_str = ('%+6f' % energy)[:8]
         self.valueLabel.setText(energy_str)

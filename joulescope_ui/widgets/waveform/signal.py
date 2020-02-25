@@ -71,7 +71,7 @@ class Signal(QtCore.QObject):
             display_name = name
         if display_name is not None:
             self.y_axis.setLabel(text=display_name, units=units)
-            self.text_item = SignalStatistics(units=units, cmdp=cmdp)
+            self.text_item = SignalStatistics(field=self.name, units=units, cmdp=cmdp)
 
         self.curve_mean = pg.PlotDataItem()
         self.curve_max = pg.PlotDataItem()
@@ -328,12 +328,11 @@ class Signal(QtCore.QObject):
             self.log.warning('signal.update(%r, %r)' % (v_min, v_max))
         if self.text_item is not None:
             labels = single_stat_to_api(v_mean, v_var, v_min, v_max, self.units)
-            labels['Δt'] = {'value': x_range, 'units': 's'}
             integration_units = INTEGRATION_UNITS.get(self.units)
             if integration_units is not None:
                 labels['∫'] = {'value': v_mean * x_range, 'units': integration_units}
-            txt_result = si_format(labels)
-            self.text_item.data_update(txt_result)
+            labels['Δt'] = {'value': x_range, 'units': 's'}
+            self.text_item.data_update(labels)
 
         self.yaxis_autorange(v_min, v_max)
 
@@ -349,7 +348,7 @@ class Signal(QtCore.QObject):
 
     def update_markers_single_one(self, marker_name, marker_pos):
         if marker_name not in self._markers_single:
-            m = SignalMarkerStatistics(self._cmdp)
+            m = SignalMarkerStatistics(self.name, self._cmdp)
             self.vb.addItem(m)
             m.setVisible(True)
             m.move(self.vb, marker_pos)
@@ -363,7 +362,7 @@ class Signal(QtCore.QObject):
 
     def update_markers_dual_one(self, marker_name, marker_pos, statistics):
         if marker_name not in self._markers_dual:
-            m = SignalMarkerStatistics(self._cmdp)
+            m = SignalMarkerStatistics(self.name, self._cmdp)
             self.vb.addItem(m)
             m.setVisible(True)
             m.move(self.vb, marker_pos)

@@ -508,15 +508,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self._accumulators['time'] += statistics['time']['delta']['value']
         statistics['time']['accumulator'] = {'value': self._accumulators['time'], 'units': 's'}
         for field in ['charge', 'energy']:
-            x = statistics['accumulators'][field]['value']
+            d = statistics['accumulators'][field]
+            x = d['value']
             z = self._accumulators['fields'][field]
             z[0] += x - z[1]
             z[1] = x
-            statistics['accumulators'][field]['value'] = z[0]
-
-        energy = statistics['accumulators']['energy']['value']
-        energy_str = three_sig_figs(energy, statistics['accumulators']['energy']['units'])
-        self._cmdp.publish('Device/#state/energy', energy_str)
+            d['value'] = z[0]
         self._cmdp.publish('Device/#state/statistics', statistics)
 
     def _on_dataview_service_x_change_request(self, topic, value):

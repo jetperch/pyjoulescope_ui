@@ -16,6 +16,7 @@ from PySide2 import QtCore, QtGui, QtWidgets
 import numpy as np
 from joulescope_ui import joulescope_rc
 from joulescope.units import unit_prefix
+from joulescope_ui.units import convert_units
 from joulescope_ui.ui_util import rgba_to_css, comboBoxSelectItemByText
 import logging
 log = logging.getLogger(__name__)
@@ -159,6 +160,8 @@ class SingleValueWidget(QtWidgets.QWidget):
             log.warning('unsupported field: %s', field)
             return
 
+        v = self._cmdp.convert_units(field, value, units)
+        value, units = v['value'], v['units']
         _, prefix, scale = unit_prefix(value)
         value /= scale
         value_str = ('%+6f' % value)[:8]

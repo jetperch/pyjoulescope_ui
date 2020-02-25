@@ -16,6 +16,7 @@ from pyqtgraph.Qt import QtGui, QtCore
 from joulescope.units import unit_prefix, three_sig_figs
 from joulescope.stream_buffer import single_stat_to_api
 from joulescope_ui.ui_util import rgba_to_css, font_to_css
+from joulescope_ui.units import FIELD_UNITS_INTEGRAL
 import numpy as np
 import pyqtgraph as pg
 
@@ -68,6 +69,15 @@ def si_format(labels):
     return results
 
 
+def convert(field, labels, cmdp):
+    for name, d in labels.items():
+        if name == '∫':
+            field = FIELD_UNITS_INTEGRAL.get(field, field)
+        v = cmdp.convert_units(field, d)
+        d['value'], d['units'] = v['value'], v['units']
+    return labels
+
+
 def html_format(results, x=None, style=None):
     if style is None:
         style = STYLE_DEFAULT
@@ -83,8 +93,9 @@ def html_format(results, x=None, style=None):
 
 class SignalStatistics(pg.GraphicsWidget):
 
-    def __init__(self, parent=None, units=None, cmdp=None):
+    def __init__(self, parent=None, field=None, units=None, cmdp=None):
         pg.GraphicsWidget.__init__(self, parent=parent)
+        self._field = field
         self._units = units
         self.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         self._label = QtGui.QGraphicsTextItem(self)
@@ -93,8 +104,7 @@ class SignalStatistics(pg.GraphicsWidget):
         self._cmdp = cmdp
 
         labels = single_stat_to_api(-0.000000001, 0.000001, -0.001, 0.001, self._units)
-        txt_result = si_format(labels)
-        self.data_update(txt_result)
+        self.data_update(labels)
         cmdp.subscribe('Widgets/Waveform/Statistics/font', self._on_font, update_now=True)
         cmdp.subscribe('Widgets/Waveform/Statistics/font-color', self._on_font_color, update_now=True)
         self._resize()
@@ -126,21 +136,23 @@ class SignalStatistics(pg.GraphicsWidget):
         self._value_cache = None
         self._label.setHtml(f'<html><body></body></html>')
 
-    def _data_update(self, results, x):
+    def _data_update(self, labels, x):
         font_color = rgba_to_css(self._cmdp['Widgets/Waveform/Statistics/font-color'])
         style = f'color: {font_color};'
-        html = html_format(results, x=x, style=style)
+        txt_result = si_format(convert(self._field, labels, self._cmdp))
+        html = html_format(txt_result, x=x, style=style)
         self._label.setHtml(html)
 
-    def data_update(self, results, x=None):
-        self._value_cache = (results, x)
-        self._data_update(results, x)
+    def data_update(self, labels, x=None):
+        self._value_cache = (labels, x)
+        self._data_update(labels, x)
 
 
 class SignalMarkerStatistics(pg.TextItem):
 
-    def __init__(self, cmdp):
+    def __init__(self, field, cmdp):
         pg.TextItem.__init__(self)
+        self._field = field
         self._cmdp = cmdp
         self._value_cache = None
         cmdp.subscribe('Widgets/Waveform/Statistics/font', self._on_font, update_now=True)
@@ -175,6 +187,6 @@ class SignalMarkerStatistics(pg.TextItem):
             font_color = rgba_to_css(self._cmdp['Widgets/Waveform/Statistics/font-color'])
             style = f'color: {font_color};'
             self._value_cache = (xv, labels)
-            txt_result = si_format(labels)
+            txt_result = si_format(convert(self._field, labels, self._cmdp))
             html = html_format(txt_result, x=xv, style=style)
         self.setHtml(html)
