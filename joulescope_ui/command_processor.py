@@ -474,7 +474,7 @@ class CommandProcessor(QtCore.QObject):
             value = self.preferences.get(topic, profile=profile)
             self.preferences.clear(topic, profile=profile)
             if profile == self.preferences.profile:
-                self._subscriber_update(topic, data)
+                self._subscriber_update(topic, value)
             return topic, value
         except KeyError:
             return None

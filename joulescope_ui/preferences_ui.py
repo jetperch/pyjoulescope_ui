@@ -76,6 +76,12 @@ class PreferencesDialog(QtWidgets.QDialog):
         self._cmdp.subscribe('!preferences/profile/add', self._on_profile_add)
         self._cmdp.subscribe('!preferences/profile/remove', self._on_profile_remove)
 
+        self._refresh_topic = f'!preferences/_ui/refresh_{id(self)}'
+        self._cmdp.register(self._refresh_topic, self._refresh)
+
+    def _refresh(self, topic, value):
+        self._redraw_right_pane()
+
     def _on_profile_combo_box_change(self, index):
         profile = self.ui.profileComboBox.currentText()
         self._profile_change(profile)
@@ -97,17 +103,33 @@ class PreferencesDialog(QtWidgets.QDialog):
         if profile != self._active_profile:
             self._active_profile = profile
             self._profile_combobox_update()
-            self._on_tree_item_changed(self.ui.treeView.currentIndex(), None)
+        self._redraw_right_pane()
 
     def _on_profile_activate_button(self):
         self._cmdp.invoke('!preferences/profile/set', self._active_profile)
         self.ui.profileActivateButton.setEnabled(False)
 
     def _on_profile_reset_button(self):
+        self._profile_reset()
+
+    def _profile_reset(self, prefix=''):
+        existing = self._cmdp.preferences.state_export()['profiles'][self._active_profile]
         if self._active_profile in preferences_defaults.PROFILES_RESET:
-            preferences_defaults.restore(self._cmdp.preferences, self._active_profile)
+            default_profile = preferences_defaults.Preferences(app='joulescope_config')
+            preferences_defaults.defaults(default_profile)
+            defaults = default_profile.state_export()['profiles'][self._active_profile]
         else:
-            self._cmdp.invoke('!preferences/profile/remove', self._active_profile)
+            defaults = {}
+        for key, new_value in defaults.items():
+            if key.startswith(prefix):
+                existing.pop(key, None)  # remove if possible
+                self._cmdp.invoke('!preferences/preference/set', (key, new_value, self._active_profile))
+        for key, old_value in existing.items():
+            if '#' in key or key[-1] == '/' or '/_' in key:
+                continue
+            if key.startswith(prefix):
+                self._cmdp.invoke('!preferences/preference/clear', (key, self._active_profile))
+        self._cmdp.invoke(self._refresh_topic, None)
 
     def _on_profile_new_button(self):
         profile, success = QtWidgets.QInputDialog.getText(self, 'Enter profile name', 'Profile Name:')
@@ -118,6 +140,7 @@ class PreferencesDialog(QtWidgets.QDialog):
             self._cmdp.invoke('!preferences/profile/set', profile)
         else:
             self._cmdp.invoke('!preferences/profile/add', profile)
+        self._redraw_right_pane()
 
     def _profile_combobox_update(self):
         if self._active_profile not in self._cmdp.preferences.profiles:
@@ -178,21 +201,8 @@ class PreferencesDialog(QtWidgets.QDialog):
             p.populate(self.ui.targetWidget)
             self._params.append(p)
 
-    def on_selection_change(self, selection):
-        log.info('on_selection_change(%r)', selection)
-        model_index_list = selection.indexes()
-        if len(model_index_list) != 1:
-            # force the first item
-            self.ui.groupListView.setCurrentIndex(self._model.item(0).index())
-            return
-        self._clear()
-        name = model_index_list[0].data()
-        self._populate(name)
-
     def preferences_reset(self):
-        active_group = self._active_group
-        self._clear()
-        self._populate(active_group)
+        self._profile_reset(self._active_group)
 
     def exec_(self):
         self._cmdp.invoke('!command_group/start')
@@ -200,6 +210,10 @@ class PreferencesDialog(QtWidgets.QDialog):
         self._cmdp.invoke('!command_group/end')
         if rv == 0:
             self._cmdp.invoke('!undo')
+
+    def _redraw_right_pane(self):
+        self._clear()
+        self._on_tree_item_changed(self.ui.treeView.currentIndex(), None)
 
 
 def _str_factory(entry, name, value, tooltip):

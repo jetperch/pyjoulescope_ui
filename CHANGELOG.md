@@ -15,6 +15,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added charge and energy unit preferences #39.
 *   Moved Δt to consistently be the last statistic in waveform view.
 *   Added default filename for "Export data".
+*   Fixed preferences UI profile "Reset" and "Reset to Defaults" #44.
 
 
 ## 0.8.3
