@@ -373,12 +373,29 @@ class MainWindow(QtWidgets.QMainWindow):
         if not self._cmdp.restore_success:
             self.status('Could not restore preferences - using defaults', timeout=0)
 
-    @property
     def _path(self):
-        path = self._cmdp['General/data_path']
-        if not os.path.isdir(path):
-            os.makedirs(path, exist_ok=True)
-        return path
+        """Get the data_path.
+
+        :return: The data path, which is guaranteed to be valid.
+        :raise ValueError: If no valid path can be found.
+
+        Side-effect: will update 'General/data_path' parameters if the
+        configured path is not available.
+        """
+        config_path = self._cmdp['General/data_path']
+        paths = [config_path,
+                 self._cmdp.preferences.definition_get('General/data_path')['default'],
+                 os.getcwd()]
+        for path in paths:
+            try:
+                if not os.path.isdir(path):
+                    os.makedirs(path, exist_ok=True)
+                if config_path != path:
+                    self._cmdp['General/data_path'] = path
+                return path
+            except:
+                log.info('Invalid path: %s', path)
+        raise ValueError('No path found')
 
     def _profile_view_menu_factory(self, profile):
 
@@ -980,7 +997,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if self._device_can_record():
                 self._device_stream_record_close()
                 fname = construct_record_filename()
-                path = os.path.join(self._path, fname)
+                path = os.path.join(self._path(), fname)
                 filename, selected_filter = QtWidgets.QFileDialog.getSaveFileName(
                     self, 'Save Joulescope Recording', path, 'Joulescope Data (*.jls)')
                 filename = str(filename)
@@ -1001,7 +1018,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return
         # Save the current buffer
         filename, selected_filter = QtWidgets.QFileDialog.getSaveFileName(
-            self, 'Save Joulescope buffer', self._path, 'Joulescope Data (*.jls)')
+            self, 'Save Joulescope buffer', self._path(), 'Joulescope Data (*.jls)')
         filename = str(filename)
         if not len(filename):
             self.status('Invalid filename, do not open')
@@ -1010,7 +1027,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def on_recording_open(self):
         filename, selected_filter = QtWidgets.QFileDialog.getOpenFileName(
-            self, 'Open Joulescope Recording', self._path, 'Joulescope Data (*.jls)')
+            self, 'Open Joulescope Recording', self._path(), 'Joulescope Data (*.jls)')
         filename = str(filename)
         if not len(filename) or not os.path.isfile(filename):
             self.status('Invalid filename, do not open')
@@ -1183,8 +1200,11 @@ class MainWindow(QtWidgets.QMainWindow):
         log.debug('_on_window_state')
         # WARNING: mutate value so that future invocations (undo, restore) take effect
         window_state = value
-        if window_state is not None and window_state.pop('__ignore__', False):
-            return
+        if window_state is not None:
+            if not hasattr(window_state, 'pop'):
+                return
+            if window_state.pop('__ignore__', False):
+                return
 
         if window_state is not None:
             self.restoreGeometry(window_state['geometry'])
@@ -1346,6 +1366,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def _cmd_range_tool_run(self, topic, value):
         # note: no undo available
+        self._path()  # has side effect of validating path
         range_tool = self._plugins.range_tools.get(value['name'])
         if range_tool is None:
             self.status(f'Range tool {value["name"]} not found')

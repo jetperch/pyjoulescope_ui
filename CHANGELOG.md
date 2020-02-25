@@ -16,6 +16,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Moved Δt to consistently be the last statistic in waveform view.
 *   Added default filename for "Export data".
 *   Fixed preferences UI profile "Reset" and "Reset to Defaults" #44.
+*   Improved "General/data_path" error handling #32.
 
 
 ## 0.8.3
