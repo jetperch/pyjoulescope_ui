@@ -30,7 +30,7 @@ from joulescope.data_recorder import construct_record_filename  # DataRecorder
 from joulescope_ui.recording_viewer_device import RecordingViewerDevice
 from joulescope_ui.preferences_ui import PreferencesDialog
 from joulescope_ui.update_check import check as software_update_check
-from joulescope_ui.logging_util import logging_preconfig, logging_config, LOG_PATH
+from joulescope_ui.logging_util import logging_preconfig, logging_config, LOG_PATH, logging_start
 from joulescope_ui.range_tool import RangeToolInvoke
 from joulescope_ui import help_ui
 from joulescope_ui import firmware_manager
@@ -230,9 +230,10 @@ class MainWindow(QtWidgets.QMainWindow):
     on_progressValue = QtCore.Signal(int)
     on_progressMessage = QtCore.Signal(str)
 
-    def __init__(self, app, device_name, cmdp):
+    def __init__(self, app, device_name, cmdp, multiprocessing_logging_queue):
         self._app = app
         self._device_scan_name = 'joulescope' if device_name is None else str(device_name)
+        self._multiprocessing_logging_queue = multiprocessing_logging_queue
         self._devices = []
         self._device = None
         self._streaming_status = None
@@ -977,7 +978,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self._device_stream_record_close()
         if self._device_can_record():
             self._recording = DataRecorder(filename,
-                                           calibration=self._device.calibration)
+                                           calibration=self._device.calibration,
+                                           multiprocessing_logging_queue=self._multiprocessing_logging_queue)
             self._device.stream_process_register(self._recording)
         else:
             log.warning('start recording failed for %s', filename)
@@ -1490,6 +1492,7 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
         app = QtWidgets.QApplication(sys.argv)
         load_fonts()
         # app.setFont(QtGui.QFont('Lato', 10))
+        multiprocessing_logging_queue, logging_stop = logging_start()
 
     except Exception:
         log.exception('during initialization')
@@ -1510,7 +1513,7 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
         return app.exec_()
 
     try:
-        ui = MainWindow(app, device_name, cmdp)
+        ui = MainWindow(app, device_name, cmdp, multiprocessing_logging_queue)
     except:
         log.exception('MainWindow initializer failed')
         raise
@@ -1519,4 +1522,5 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
     rc = app.exec_()
     del ui
     device_notify.close()
+    logging_stop()
     return rc

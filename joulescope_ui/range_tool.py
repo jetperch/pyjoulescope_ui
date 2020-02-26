@@ -73,11 +73,6 @@ class RangeToolIterable:
         if x_next > self._x_stop:
             x_next = self._x_stop
         data = self._parent._view.samples_get(self._x_next, x_next, units='samples')
-        if 'power' not in data['signals']:
-            data['signals']['power'] = {
-                'value': data['signals']['current']['value'] * data['signals']['voltage']['value'],
-                'units': 'W',
-            }
         self._x_next = x_next
         return data
 

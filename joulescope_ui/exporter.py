@@ -15,7 +15,6 @@
 from joulescope_ui.export_dialog import Ui_Form
 from PySide2 import QtWidgets, QtGui, QtCore
 from joulescope.data_recorder import DataRecorder, construct_record_filename
-from joulescope.stream_buffer import StreamBuffer
 import numpy as np
 import os
 import logging
@@ -76,22 +75,14 @@ class Exporter:
 
     def _export_jls(self, data):
         cfg = self._cfg
-        sampling_frequency = data.sample_frequency
-        stream_buffer = StreamBuffer(2.0, [], sampling_frequency=sampling_frequency)
-        stream_buffer.calibration_set(data.calibration.current_offset, data.calibration.current_gain,
-                                      data.calibration.voltage_offset, data.calibration.voltage_gain)
-        stream_buffer.voltage_range = data.cmdp['Plugins/#state/voltage_range']
         data_recorder = DataRecorder(
             cfg['filename'],
             calibration=data.calibration.data)
-        data_recorder.stream_notify(stream_buffer)
 
         try:
             for block in data:
                 log.info('export_jls iteration')
-                stream_buffer.insert_raw(block['signals']['raw']['value'])
-                stream_buffer.process()
-                data_recorder.stream_notify(stream_buffer)
+                data_recorder.insert(block)
         finally:
             data_recorder.close()
 
@@ -99,6 +90,8 @@ class Exporter:
         cfg = self._cfg
         with open(cfg['filename'], 'wb') as f:
             for block in data:
+                if 'raw' not in block['signals']:
+                    raise ValueError('Source does have RAW data')
                 values = block['signals']['raw']['value']
                 f.write(values.tobytes())
 

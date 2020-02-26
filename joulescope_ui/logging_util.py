@@ -16,11 +16,15 @@
 
 
 import logging
+from logging.handlers import QueueHandler
 from logging import FileHandler
 import time
 import datetime
 import faulthandler
 import json
+import multiprocessing
+import threading
+import traceback
 import os
 import sys
 import platform
@@ -170,3 +174,46 @@ def logging_config(stream_log_level=None, file_log_level=None):
         for record in deferred_log_handler.records:
             root_log.handle(record)
         deferred_log_handler.records.clear()
+
+
+# See https://docs.python.org/3/howto/logging-cookbook.html#logging-to-a-single-file-from-multiple-processes
+
+def _listener_run(queue):
+    while True:
+        try:
+            record = queue.get()
+            if record is None:  # We send this as a sentinel to tell the listener to quit.
+                break
+            logger = logging.getLogger(record.name)
+            logger.handle(record)  # No level or filter logic applied - just do it!
+        except Exception:
+            print('Logging problem:', file=sys.stderr)
+            traceback.print_exc(file=sys.stderr)
+
+
+# The worker configuration is done at the start of the worker process run.
+# Note that on Windows you can't rely on fork semantics, so each process
+# will run the logging configuration code when it starts.
+def worker_configurer(queue):
+    if queue is None:
+        return
+    h = QueueHandler(queue)  # Just the one handler needed
+    root = logging.getLogger()
+    root.addHandler(h)
+    # send all messages, for demo; no other level or filter logic applied.
+    root.setLevel(logging.DEBUG)
+
+
+def logging_start():
+    queue = multiprocessing.Queue(-1)
+    listener = threading.Thread(target=_listener_run, args=(queue, ))
+    listener.start()
+
+    def stop():
+        try:
+            queue.put_nowait(None)
+            listener.join(timeout=2.0)
+        except:
+            print('Error stopping logging thread')
+
+    return queue, stop

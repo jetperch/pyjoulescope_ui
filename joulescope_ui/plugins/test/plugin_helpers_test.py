@@ -39,7 +39,7 @@ class RangeToolIterate:
         x_next = self._x_next + self._samples_per_iteration
         if x_next > self._x_stop:
             x_next = self._x_stop
-        data = {self._signal: {'value': self._data[self._x_next: x_next]}}
+        data = {'signals': {self._signal: {'value': self._data[self._x_next: x_next]}}}
         self._x_next = x_next
         return data
 
@@ -70,7 +70,7 @@ class RangeToolData:
         pass
 
     def samples_get(self):
-        return {self._signal: {'value': self._data}}
+        return {'signals': {self._signal: {'value': self._data}}}
 
     def marker_single_add(self, x):
         pass

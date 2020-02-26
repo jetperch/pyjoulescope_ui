@@ -19,6 +19,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Improved "General/data_path" error handling #32.
 *   Added device reopen after changing critical device parameters #42.
     Parameters: buffer_duration, reduction_frequency, sampling_frequency.
+*   Added support for the new joulescope 0.8.5 samples_get return format.
 
 
 ## 0.8.3
