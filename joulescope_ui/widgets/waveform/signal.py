@@ -274,7 +274,7 @@ class Signal(QtCore.QObject):
             return
 
         # get the mean value regardless of shape
-        z_mean = value['μ']['value']
+        z_mean = value['µ']['value']
         z_var = value['σ2']['value']
         z_min = value['min']['value']
         z_max = value['max']['value']
@@ -408,7 +408,7 @@ class Signal(QtCore.QObject):
             y_max = float(z_max[idx])
             labels = single_stat_to_api(y_mean, y_var, y_min, y_max, self.units)
         else:
-            labels = {'μ': {'value': y_mean, 'units': self.units}}
+            labels = {'µ': {'value': y_mean, 'units': self.units}}
         return labels
 
     def _on_show_min_max(self, topic, value):

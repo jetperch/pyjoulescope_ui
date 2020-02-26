@@ -169,7 +169,7 @@ class MeterValueWidget(QtWidgets.QWidget):
             v_min = 0.0
             v_max = 0.0
         else:
-            v_mean = statistics['μ']['value']
+            v_mean = statistics['µ']['value']
             v_var = statistics['σ2']['value']
             v_min = statistics['min']['value']
             v_max = statistics['max']['value']

@@ -104,7 +104,7 @@ class GpioWidget(QtWidgets.QWidget):
         for signal_name, checkbox, label in self._inputs:
             if signal_name not in data['signals']:
                 continue
-            v = data['signals'][signal_name]['μ']
+            v = data['signals'][signal_name]['µ']
             if len(v) and np.isfinite(v[-1]):
                 v = str(int(v[-1]))
             else:

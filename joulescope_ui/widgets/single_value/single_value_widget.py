@@ -26,7 +26,7 @@ FONT_SIZES = [24, 32, 40, 48, 56, 64]
 
 
 STATISTICS_TRANSLATE = {
-    'Mean': 'μ',
+    'Mean': 'µ',
     'Standard Deviation': 'σ2',
     'Minimum': 'min',
     'Maximum': 'max',
