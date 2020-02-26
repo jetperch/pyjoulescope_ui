@@ -471,24 +471,28 @@ class CommandProcessor(QtCore.QObject):
     def _preferences_preference_clear(self, topic, data):
         topic, profile = data
         try:
-            value = self.preferences.get(topic, profile=profile)
+            value_orig = self.preferences.get(topic)
+            value_profile = self.preferences.get(topic, profile=profile)
             self.preferences.clear(topic, profile=profile)
-            if profile == self.preferences.profile:
-                self._subscriber_update(topic, value)
-            return topic, value
+            value_new = self.preferences.get(topic)
+            if value_orig != value_new:
+                self._subscriber_update(topic, value_new)
+            return '!preferences/preference/set', (topic, value_orig, profile)
         except KeyError:
             return None
 
     def _preferences_preference_set(self, topic, data):
         topic, value, profile = data
+        value_orig = self.preferences.get(topic, default=None)
         try:
             previous_value = self.preferences.get(topic, profile=profile)
             undo = '!preferences/preference/set', (topic, previous_value, profile)
         except KeyError:
             undo = '!preferences/preference/clear', (topic, profile)
         self.preferences.set(topic, value, profile)
-        if profile is None or profile == self.preferences.profile:
-            self._subscriber_update(topic, value)
+        value_new = self.preferences.get(topic, default=None)
+        if value_orig != value_new:
+            self._subscriber_update(topic, value_new)
         return undo
 
     def define(self, topic, brief=None, detail=None, dtype=None, options=None, default=None,

@@ -47,6 +47,12 @@ class TestCommandProcessor(unittest.TestCase):
         os.makedirs(self.paths['dirs']['config'])
         self.c = CommandProcessor(synchronous=True, app=self.app)
         self.commands = []
+        self.parameter_subscriber_history = []
+        self.parameter_subscriber_value = None
+
+    def parameter_subscriber(self, topic, value):
+        self.parameter_subscriber_value = value
+        self.parameter_subscriber_history.append((topic, value))
 
     def tearDown(self):
         paths.clear(app=self.app, delete_data=True)
@@ -419,3 +425,22 @@ class TestCommandProcessor(unittest.TestCase):
         self.assertEqual('exec', self.c['a'])
         self.assertEqual(0, len(self.c.undos))
 
+    def test_clear_in_active_profile(self):
+        self.c.invoke('!preferences/profile/add', 'p')
+        self.c.invoke('!preferences/profile/set', 'p')
+        self.c.subscribe('a', self.parameter_subscriber)
+        self.c.invoke('!preferences/preference/set', ('a', 'default', BASE_PROFILE))
+        self.c.invoke('!preferences/preference/set', ('a', 'value', 'p'))
+        self.c.invoke('!preferences/preference/clear', ('a', 'p'))
+        self.assertEqual('default', self.parameter_subscriber_value)
+
+    def test_clear_in_inactive_profile(self):
+        self.c.invoke('!preferences/profile/add', 'p')
+        self.c.invoke('!preferences/profile/add', 'z')
+        self.c.invoke('!preferences/profile/set', 'p')
+        self.c.subscribe('a', self.parameter_subscriber)
+        self.c.invoke('!preferences/preference/set', ('a', 'default', BASE_PROFILE))
+        self.c.invoke('!preferences/preference/set', ('a', 'active', 'p'))
+        self.c.invoke('!preferences/preference/set', ('a', 'inactive', 'z'))
+        self.c.invoke('!preferences/preference/clear', ('a', 'z'))
+        self.assertEqual([('a', 'default'), ('a', 'active')], self.parameter_subscriber_history)

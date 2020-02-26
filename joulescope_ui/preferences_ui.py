@@ -113,6 +113,7 @@ class PreferencesDialog(QtWidgets.QDialog):
         self._profile_reset()
 
     def _profile_reset(self, prefix=''):
+        log.info('profile_reset start %s : %s', self._active_profile, prefix)
         existing = self._cmdp.preferences.state_export()['profiles'][self._active_profile]
         if self._active_profile in preferences_defaults.PROFILES_RESET:
             default_profile = preferences_defaults.Preferences(app='joulescope_config')
@@ -129,7 +130,11 @@ class PreferencesDialog(QtWidgets.QDialog):
                 continue
             if key.startswith(prefix):
                 self._cmdp.invoke('!preferences/preference/clear', (key, self._active_profile))
+        # special case state preferences
+        if prefix == '' or prefix == 'General':
+            self._cmdp.invoke('!preferences/preference/set', ('_window', None, self._active_profile))
         self._cmdp.invoke(self._refresh_topic, None)
+        log.info('profile_reset done %s : %s', self._active_profile, prefix)
 
     def _on_profile_new_button(self):
         profile, success = QtWidgets.QInputDialog.getText(self, 'Enter profile name', 'Profile Name:')
@@ -208,6 +213,7 @@ class PreferencesDialog(QtWidgets.QDialog):
         self._cmdp.invoke('!command_group/start')
         rv = QtWidgets.QDialog.exec_(self)
         self._cmdp.invoke('!command_group/end')
+        self._clear()
         if rv == 0:
             self._cmdp.invoke('!undo')
         return rv
@@ -279,6 +285,7 @@ def widget_factory(cmdp, topic, profile=None):
         return None
 
     def cbk(value):
+        log.info('widget set %s, %s, %s', topic, value.value, profile)
         cmdp.invoke('!preferences/preference/set', (topic, value.value, profile))
 
     p.callback = cbk
