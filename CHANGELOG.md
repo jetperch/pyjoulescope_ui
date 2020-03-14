@@ -13,6 +13,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added marker Clear button to Waveform Control Widget #49.
 *   Fixed "Add Single" marker button not working correctly. 
 *   Added Waveform Control button to zoom out to full x-axis extents.
+*   Added discrete Waveform Control buttons to toggle signal display #50.
 
 
 

@@ -16,6 +16,7 @@
 signal_def = [
     {
         'name': 'current',
+        'abbreviation': 'i',
         'units': 'A',
         'y_limit': [-2.0, 10.0],
         'y_log_min': 1e-9,
@@ -23,12 +24,14 @@ signal_def = [
     },
     {
         'name': 'voltage',
+        'abbreviation': 'v',
         'units': 'V',
         'y_limit': [-1.2, 15.0],
         'y_range': 'auto',
     },
     {
         'name': 'power',
+        'abbreviation': 'p',
         'units': 'W',
         'y_limit': [-2.4, 150.0],
         'y_log_min': 1e-9,
@@ -36,17 +39,20 @@ signal_def = [
     },
     {
         'name': 'current_range',
+        'abbreviation': 'r',
         'y_limit': [-0.1, 8.1],
         'y_range': 'manual',
     },
     {
         'name': 'current_lsb',
+        'abbreviation': 'in0',
         'display_name': 'in0',
         'y_limit': [-0.1, 1.1],
         'y_range': 'manual',
     },
     {
         'name': 'voltage_lsb',
+        'abbreviation': 'in1',
         'display_name': 'in1',
         'y_limit': [-0.1, 1.1],
         'y_range': 'manual',

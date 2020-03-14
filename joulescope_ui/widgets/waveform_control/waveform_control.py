@@ -15,6 +15,7 @@
 from PySide2 import QtCore, QtGui, QtWidgets
 from joulescope_ui import joulescope_rc
 from joulescope_ui.preferences_ui import widget_factory
+from joulescope_ui.widgets.waveform.signal_def import signal_def
 import logging
 log = logging.getLogger(__name__)
 
@@ -74,6 +75,12 @@ TOOLTIP_X_AXIS_ZOOM_ALL = f"""<html><body>
 """
 
 
+TOOLTIP_SIGNAL = """<html><body>
+<p>Toggle the <b>{name}</b> signal display in the Waveform widget.</p>
+</body></html>
+"""
+
+
 class WaveformControlWidget(QtWidgets.QWidget):
 
     def __init__(self, parent, cmdp, state_preference):
@@ -119,6 +126,13 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._show_min_max_widget = self._show_min_max.widget_construct(self)
         self._layout.addWidget(self._show_min_max_widget)
 
+        self._signals_label = QtWidgets.QLabel(self)
+        self._signals_label.setText('Signals:')
+        self._layout.addWidget(self._signals_label)
+        self._signals = {}
+        for signal in signal_def:
+            self._add_signal(signal)
+
         self._spacer = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding,
                                              QtWidgets.QSizePolicy.Minimum)
         self._layout.addItem(self._spacer)
@@ -131,6 +145,7 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._markers_signal_button.clicked.connect(self._on_markers_single_add)
         self._markers_dual_button.clicked.connect(self._on_markers_dual_add)
         self._markers_clear_button.clicked.connect(self._on_markers_clear)
+        self._cmdp.subscribe('Widgets/Waveform/_signals', self._on_signals_active, update_now=True)
 
     def _add_icon(self, resource_name, callback, tooltip):
         button = QtWidgets.QPushButton(self)
@@ -141,6 +156,34 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._layout.addWidget(button)
         button.clicked.connect(callback)
         self._icon_buttons.append((button, icon))
+
+    def _add_signal(self, signal):
+        button = QtWidgets.QPushButton(self)
+        button.setCheckable(True)
+        name = signal['name']
+        abbr = signal['abbreviation']
+        button.setText(abbr)
+        button.setToolTip(TOOLTIP_SIGNAL.format(name=name))
+        width = button.fontMetrics().boundingRect(abbr).width() + 10
+        button.setMinimumWidth(width)
+        button.setMaximumWidth(width)
+        self._layout.addWidget(button)
+        button.clicked.connect(lambda checked: self._on_signal_button(name, checked))
+        self._signals[name] = button
+
+    def _on_signal_button(self, name, checked):
+        if checked:
+            self._cmdp.invoke('!Widgets/Waveform/Signals/add', name)
+        else:
+            self._cmdp.invoke('!Widgets/Waveform/Signals/remove', name)
+
+    def _on_signals_active(self, topic, value):
+        for name, button in self._signals.items():
+            checked = name in value
+            if checked != button.isChecked():
+                block_signals_state = button.blockSignals(True)
+                button.setChecked(checked)
+                button.blockSignals(block_signals_state)
 
     @QtCore.Slot(bool)
     def _on_markers_single_add(self, checked):
