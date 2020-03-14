@@ -43,6 +43,12 @@ then selecting <b>Annotations</b> → <b>Dual Markers</b>.</p>
 """
 
 
+TOOLTIP_MARKER_CLEAR = """<html><body>
+<p>Clear all markers.</p>
+</body></html>
+"""
+
+
 ZOOM_TIP = """\
 <p>You can also zoom by positioning the mouse over the waveform and 
 then using the scroll wheel.</p>"""
@@ -72,16 +78,20 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._layout.setObjectName("horizontalLayout")
 
         self._markers_label = QtWidgets.QLabel(self)
-        self._markers_label.setText('Add Markers:')
+        self._markers_label.setText('Markers:')
         self._markers_signal_button = QtWidgets.QPushButton(self)
-        self._markers_signal_button.setText('Single')
+        self._markers_signal_button.setText('Add Single')
         self._markers_signal_button.setToolTip(TOOLTIP_MARKER_SINGLE_ADD)
         self._markers_dual_button = QtWidgets.QPushButton(self)
-        self._markers_dual_button.setText('Dual')
+        self._markers_dual_button.setText('Add Dual')
         self._markers_dual_button.setToolTip(TOOLTIP_MARKER_DUAL_ADD)
+        self._markers_clear_button = QtWidgets.QPushButton(self)
+        self._markers_clear_button.setText('Clear')
+        self._markers_clear_button.setToolTip(TOOLTIP_MARKER_CLEAR)
         self._layout.addWidget(self._markers_label)
         self._layout.addWidget(self._markers_signal_button)
         self._layout.addWidget(self._markers_dual_button)
+        self._layout.addWidget(self._markers_clear_button)
 
         self._x_axis_label = QtWidgets.QLabel(self)
         self._x_axis_label.setText('X-Axis:')
@@ -125,6 +135,7 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._x_axis_zoom_out_button.clicked.connect(self._on_x_axis_zoom_out)
         self._markers_signal_button.clicked.connect(self._on_markers_single_add)
         self._markers_dual_button.clicked.connect(self._on_markers_dual_add)
+        self._markers_clear_button.clicked.connect(self._on_markers_clear)
 
     @QtCore.Slot(bool)
     def _on_markers_single_add(self, checked):
@@ -133,6 +144,10 @@ class WaveformControlWidget(QtWidgets.QWidget):
     @QtCore.Slot(bool)
     def _on_markers_dual_add(self, checked):
         self._cmdp.invoke('!Widgets/Waveform/Markers/dual_add', None)
+
+    @QtCore.Slot(bool)
+    def _on_markers_clear(self, checked):
+        self._cmdp.invoke('!Widgets/Waveform/Markers/clear', None)
 
     @QtCore.Slot(bool)
     def _on_x_axis_zoom_in(self, checked):
