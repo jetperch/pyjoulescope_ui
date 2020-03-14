@@ -573,18 +573,10 @@ class MainWindow(QtWidgets.QMainWindow):
         QtWidgets.QMessageBox.about(self, 'Joulescope', txt)
 
     def _help_credits(self):
-        log.info('_help_credits')
-        html = help_ui.load_credits()
-        dialog = help_ui.ScrollMessageBox(html, self)
-        dialog.setWindowTitle('Joulescope Credits')
-        dialog.exec_()
+        help_ui.display_help(self, 'credits')
 
     def _help_getting_started(self):
-        log.info('_help_getting_started')
-        html = help_ui.load_getting_started()
-        dialog = help_ui.ScrollMessageBox(html, self)
-        dialog.setWindowTitle('Getting Started with Your Joulescope')
-        dialog.exec_()
+        help_ui.display_help(self, 'getting_started')
 
     def _help_users_guide(self):
         log.info('_help_users_guide')
@@ -871,10 +863,17 @@ class MainWindow(QtWidgets.QMainWindow):
             log.info('Skip firmware update: %s', firmware_update_cfg)
             return
         info = self._device.info()
+        log.info('Device info: %s', info)
+        if info is None:
+            log.info('Could not get controller info: skip firmware update')
+            return
         ver = None
         ver_required = firmware_manager.version_required()
         if info is not None and firmware_update_cfg != 'always':
-            ver = info.get('ctl', {}).get('fw', {}).get('ver', '0.0.0')
+            ver = info.get('ctl', {}).get('fw', {}).get('ver', None)
+            if ver is None:
+                log.info('Could not get controller firmware version: skip firmware update')
+                return
             try:
                 ver = tuple([int(x) for x in ver.split('.')])
             except ValueError:

@@ -30,6 +30,7 @@ import sys
 import platform
 from joulescope_ui.paths import paths_current
 from . import __version__ as UI_VERSION
+from . import frozen
 from joulescope import VERSION as DRIVER_VERSION
 
 
@@ -72,9 +73,6 @@ def _make_banner():
 
 
 def _make_info():
-    frozen = getattr(sys, 'frozen', False)
-    if frozen:
-        frozen = getattr(sys, '_MEIPASS', frozen)
     info = {
         'joulescope': {
             'ui_version': UI_VERSION,

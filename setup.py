@@ -132,7 +132,7 @@ setuptools.setup(
     url='https://www.joulescope.com',
     author='Jetperch LLC',
     author_email='joulescope-dev@jetperch.com',
-    license='Apache',
+    license='Apache 2.0',
 
     cmdclass={
         'qt': CustomBuildQt,

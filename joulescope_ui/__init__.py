@@ -13,6 +13,12 @@
 # limitations under the License.
 
 from .version import __version__
+import sys
 
 __all__ = ['__version__', 'VERSION']
 VERSION = __version__  # deprecated, use __version__
+
+
+frozen = getattr(sys, 'frozen', False)
+if frozen:
+    frozen = getattr(sys, '_MEIPASS', frozen)

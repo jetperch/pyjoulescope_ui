@@ -66,6 +66,8 @@ def current_version():
 
 
 def is_newer(version):
+    if 'dev' in __version__:
+        return False
     return str_to_version(version) > current_version()
 
 
@@ -87,7 +89,7 @@ def fetch(callback, channel=None):
         latest_version = data.get('active', {}).get(channel, [0, 0, 0])
         if not is_newer(latest_version):
             log.debug('software up to date: version=%s, latest=%s, channel=%s',
-                      version_to_str(current_version()),
+                      __version__,
                       version_to_str(latest_version),
                       channel)
             return False

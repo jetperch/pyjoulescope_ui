@@ -27,6 +27,7 @@ from joulescope_ui import guiparams
 from joulescope_ui.ui_util import comboBoxConfig
 from joulescope_ui.preferences import options_enum
 from joulescope_ui import preferences_defaults
+from joulescope_ui.help_ui import display_help
 from PySide2 import QtCore, QtWidgets, QtGui
 import collections.abc
 import logging
@@ -68,6 +69,7 @@ class PreferencesDialog(QtWidgets.QDialog):
         self.ui.profileActivateButton.pressed.connect(self._on_profile_activate_button)
         self.ui.profileResetButton.pressed.connect(self._on_profile_reset_button)
         self.ui.profileNewButton.pressed.connect(self._on_profile_new_button)
+        self.ui.helpButton.pressed.connect(self._help)
 
         self.ui.okButton.pressed.connect(self.accept)
         self.ui.cancelButton.pressed.connect(self.reject)
@@ -78,6 +80,9 @@ class PreferencesDialog(QtWidgets.QDialog):
 
         self._refresh_topic = f'!preferences/_ui/refresh_{id(self)}'
         self._cmdp.register(self._refresh_topic, self._refresh)
+
+    def _help(self):
+        display_help(self, 'preferences')
 
     def _refresh(self, topic, value):
         self._redraw_right_pane()

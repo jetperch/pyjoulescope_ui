@@ -14,8 +14,11 @@
 
 
 import pkgutil
+import logging
 import os
+import re
 from PySide2 import QtCore, QtWidgets
+from . import frozen
 
 
 MY_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -42,6 +45,13 @@ class ScrollMessageBox(QtWidgets.QMessageBox):
         self.setStyleSheet("QScrollArea{min-width:600 px; min-height: 400px}")
 
 
+HELP_FILES = {
+    'credits': 'CREDITS.html',
+    'getting_started': 'getting_started.html',
+    'preferences': 'preferences.html',
+}
+
+
 def load_credits():
     fname = os.path.join(APP_PATH, 'CREDITS.html')
     if os.path.isfile(fname):
@@ -60,3 +70,28 @@ def load_getting_started():
     else:
         bin_data = pkgutil.get_data('joulescope_ui', 'getting_started.html')
     return bin_data.decode('utf-8')
+
+
+def load_help(name):
+    filename = HELP_FILES[name]
+    for path in [['joulescope_ui'], []]:
+        try:
+            if frozen:
+                bin_data = pkgutil.get_data(*path, filename)
+            else:
+                fname = os.path.join(APP_PATH, *path, filename)
+                with open(fname, 'rb') as f:
+                    bin_data = f.read()
+            return bin_data.decode('utf-8')
+        except:
+            pass
+    raise RuntimeError(f'Could not load help {name}')
+
+
+def display_help(parent, name):
+    logging.getLogger(__name__).info('display_help(%s)', name)
+    html = load_help(name)
+    title = re.search(r'<title>(.*?)<\/title>', html)[1]
+    dialog = ScrollMessageBox(html, parent)
+    dialog.setWindowTitle(title)
+    dialog.exec_()

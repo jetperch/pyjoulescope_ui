@@ -35,10 +35,16 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="toolTip">
+         <string>Select the profile to view and edit.</string>
+        </property>
        </widget>
       </item>
       <item>
        <widget class="QPushButton" name="profileActivateButton">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Activate the selected profile.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This action updates Joulescope UI to use the preferences in the selected profile.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="text">
          <string>Activate</string>
         </property>
@@ -46,6 +52,9 @@
       </item>
       <item>
        <widget class="QPushButton" name="profileResetButton">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Reset or erase the selected profile.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;For the built-in profiles, &lt;span style=&quot; font-weight:600;&quot;&gt;Reset&lt;/span&gt; the profile to the factory defaults.  For custom profiles, &lt;span style=&quot; font-weight:600;&quot;&gt;Erase&lt;/span&gt; the profile so that it is no longer available.  You cannot erase the built-in profiles.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="text">
          <string>Reset</string>
         </property>
@@ -53,6 +62,9 @@
       </item>
       <item>
        <widget class="QPushButton" name="profileNewButton">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Create a new custom profile.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="text">
          <string>New</string>
         </property>
@@ -92,6 +104,9 @@
      <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
        <widget class="QTreeView" name="treeView">
+        <property name="toolTip">
+         <string>Select the Preferences Group to display.</string>
+        </property>
         <property name="animated">
          <bool>true</bool>
         </property>
@@ -102,6 +117,9 @@
       </item>
       <item>
        <widget class="QScrollArea" name="scrollArea">
+        <property name="toolTip">
+         <string>View and edit the Preferences for the selected Profile and Preference Group.</string>
+        </property>
         <property name="widgetResizable">
          <bool>true</bool>
         </property>
@@ -110,8 +128,8 @@
           <rect>
            <x>0</x>
            <y>0</y>
-           <width>311</width>
-           <height>278</height>
+           <width>307</width>
+           <height>254</height>
           </rect>
          </property>
          <layout class="QFormLayout" name="formLayout_2"/>
@@ -145,6 +163,9 @@
       </item>
       <item>
        <widget class="QPushButton" name="resetButton">
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Reset the Preferences for the selected Profile and Preferences Group.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This button only resets the Preferences that are currently shown in the right-hand side, and only for the selected Profile.  All other preference values are not changed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
         <property name="text">
          <string>Reset to Defaults</string>
         </property>
