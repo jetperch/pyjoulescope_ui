@@ -4,6 +4,13 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.8.8
+
+2020 Mar 14 [in progress]
+
+*   Fixed poor performance caused by GPIO Widget #60.
+
+
 ## 0.8.6
 
 2020 Feb 26
