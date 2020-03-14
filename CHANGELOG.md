@@ -9,6 +9,11 @@ This file contains the list of changes made to pyjoulescope_ui.
 2020 Mar 14 [in progress]
 
 *   Fixed poor performance caused by GPIO Widget #60.
+*   Added Preferences Dialog Help #52. 
+*   Added marker Clear button to Waveform Control Widget #49.
+*   Fixed "Add Single" marker button not working correctly. 
+*   Added Waveform Control button to zoom out to full x-axis extents.
+
 
 
 ## 0.8.6

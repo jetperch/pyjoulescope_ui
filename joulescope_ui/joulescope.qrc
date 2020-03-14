@@ -14,6 +14,7 @@
     <file>resources/zoom.png</file>
     <file>resources/zoom_in_128.png</file>
     <file>resources/zoom_out_128.png</file>
+    <file>resources/zoom_all_128.png</file>
     <file>resources/zoom_x.png</file>
     <file>resources/zoom_y.png</file>
     <file>resources/zoom_auto_y.png</file>

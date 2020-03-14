@@ -56,7 +56,8 @@ class ScrollBar(pg.ViewBox):
         cmdp.register('!Widgets/Waveform/x-axis/zoom', self._cmd_waveform_xaxis_zoom,
                       brief='Zoom the x-axis around the center.',
                       detail='value is x-axis zoom in steps.')
-
+        cmdp.register('!Widgets/Waveform/x-axis/zoom_all', self._cmd_waveform_xaxis_zoom_all,
+                      brief='Zoom to the full extents.')
 
     def set_xview(self, x_min, x_max):
         self._region.setRegion([x_min, x_max])
@@ -83,6 +84,9 @@ class ScrollBar(pg.ViewBox):
         x1, x2 = self.get_xview()
         xc = (x1 + x2) / 2
         self.on_wheelZoomX(xc, value * WHEEL_TICK)
+
+    def _cmd_waveform_xaxis_zoom_all(self, topic, value):
+        self._region.on_zoom_all()
 
     def wheelEvent(self, ev, axis=None):
         self._region.wheelEvent(ev)
@@ -234,6 +238,10 @@ class CustomLinearRegionItem(pg.LinearRegionItem):
         log.info('wheelEvent(delta=%s) gain=>%s', ev.delta(), gain)
         self.setRegion(gain=gain)
         ev.accept()
+
+    def on_zoom_all(self):
+        x_min, x_max = self.lines[0].bounds()
+        self._region_update(x_min, x_max)
 
     def _region_update(self, ra, rb, skip_line_update=None):
         """Update the currently selected region.

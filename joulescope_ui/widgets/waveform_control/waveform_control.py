@@ -68,11 +68,18 @@ TOOLTIP_X_AXIS_ZOOM_OUT = f"""<html><body>
 """
 
 
+TOOLTIP_X_AXIS_ZOOM_ALL = f"""<html><body>
+<p>Zoom out to the full extents of the x-axis.</p>
+</body></html>
+"""
+
+
 class WaveformControlWidget(QtWidgets.QWidget):
 
     def __init__(self, parent, cmdp, state_preference):
         QtWidgets.QWidget.__init__(self, parent)
         self._cmdp = cmdp
+        self._icon_buttons = []
         self.setObjectName("WaveformControlWidget")
         self._layout = QtWidgets.QHBoxLayout(self)
         self._layout.setObjectName("WaveformControlLayout")
@@ -100,21 +107,9 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._x_axis_label.setText('X-Axis:')
         self._layout.addWidget(self._x_axis_label)
 
-        self._x_axis_zoom_in_button = QtWidgets.QPushButton(self)
-        self._x_axis_zoom_in_button.setToolTip(TOOLTIP_X_AXIS_ZOOM_IN)
-        # self._x_axis_zoom_in_button.setText('Zoom In')
-        self._icon1 = QtGui.QIcon()
-        self._icon1.addPixmap(QtGui.QPixmap(":/joulescope/resources/zoom_in_128.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self._x_axis_zoom_in_button.setIcon(self._icon1)
-        self._layout.addWidget(self._x_axis_zoom_in_button)
-
-        self._x_axis_zoom_out_button = QtWidgets.QPushButton(self)
-        self._x_axis_zoom_out_button.setToolTip(TOOLTIP_X_AXIS_ZOOM_OUT)
-        # self._x_axis_zoom_out_button.setText('Zoom Out')
-        self._icon2 = QtGui.QIcon()
-        self._icon2.addPixmap(QtGui.QPixmap(":/joulescope/resources/zoom_out_128.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self._x_axis_zoom_out_button.setIcon(self._icon2)
-        self._layout.addWidget(self._x_axis_zoom_out_button)
+        self._add_icon('zoom_in_128', self._on_x_axis_zoom_in, TOOLTIP_X_AXIS_ZOOM_IN)
+        self._add_icon('zoom_out_128', self._on_x_axis_zoom_out, TOOLTIP_X_AXIS_ZOOM_OUT)
+        self._add_icon('zoom_all_128', self._on_x_axis_zoom_all, TOOLTIP_X_AXIS_ZOOM_ALL)
 
         self._show_min_max_label = QtWidgets.QLabel(self)
         self._show_min_max_label.setText('Min/Max:')
@@ -133,11 +128,19 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self.setMinimumHeight(height)
         self.setMaximumHeight(height)
 
-        self._x_axis_zoom_in_button.clicked.connect(self._on_x_axis_zoom_in)
-        self._x_axis_zoom_out_button.clicked.connect(self._on_x_axis_zoom_out)
         self._markers_signal_button.clicked.connect(self._on_markers_single_add)
         self._markers_dual_button.clicked.connect(self._on_markers_dual_add)
         self._markers_clear_button.clicked.connect(self._on_markers_clear)
+
+    def _add_icon(self, resource_name, callback, tooltip):
+        button = QtWidgets.QPushButton(self)
+        button.setToolTip(tooltip)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(f":/joulescope/resources/{resource_name}.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        button.setIcon(icon)
+        self._layout.addWidget(button)
+        button.clicked.connect(callback)
+        self._icon_buttons.append((button, icon))
 
     @QtCore.Slot(bool)
     def _on_markers_single_add(self, checked):
@@ -158,6 +161,10 @@ class WaveformControlWidget(QtWidgets.QWidget):
     @QtCore.Slot(bool)
     def _on_x_axis_zoom_out(self, checked):
         self._cmdp.invoke('!Widgets/Waveform/x-axis/zoom', -1)
+
+    @QtCore.Slot(bool)
+    def _on_x_axis_zoom_all(self, checked):
+        self._cmdp.invoke('!Widgets/Waveform/x-axis/zoom_all', None)
 
 
 def widget_register(cmdp):
