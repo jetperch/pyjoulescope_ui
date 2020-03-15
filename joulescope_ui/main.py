@@ -243,6 +243,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self._fps_limit_timer.setSingleShot(True)
         self._fps_limit_timer.timeout.connect(self.on_fpsTimer)
 
+        self._recovery_timer = QtCore.QTimer()
+        self._recovery_timer.setSingleShot(True)
+        self._recovery_timer.timeout.connect(self._on_recoveryTimer)
+
         self._profile_actions = []
         self._profile_action_group = None
 
@@ -735,12 +739,18 @@ class MainWindow(QtWidgets.QMainWindow):
         log.debug('_device_close: done')
 
     def _device_recover(self):
+        if self._recovery_timer.isActive():
+            return
         log.info('_device_recover: start')
+        self._recovery_timer.start(2000)
         devices, self._devices = self._devices, []
         for device in devices:
             self._device_remove(device)
+
+    @QtCore.Slot()
+    def _on_recoveryTimer(self):
+        log.info('_on_recoveryTimer')
         self._deviceScanRequestSignal.emit()
-        log.info('_device_recover: done')
 
     def _device_reopen(self):
         d = self._device
