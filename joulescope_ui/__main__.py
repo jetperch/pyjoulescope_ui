@@ -15,14 +15,27 @@
 # limitations under the License.
 
 import sys
-from joulescope_ui.entry_points.ui import parser_config
+from joulescope.entry_points.runner import run
 import argparse
 import multiprocessing
+
+
+def _argv_patch():
+    """Add the "ui" command as needed."""
+    for argv in sys.argv[1:]:
+        if argv.startswith('-'):
+            # not fully supported, presume "ui" command.
+            break
+        if argv.endswith('.jls'):
+            # first positional argument is filename, "ui" command.
+            break
+        else:
+            return  # command present
+    sys.argv.insert(1, 'ui')
 
 
 if __name__ == '__main__':
     multiprocessing.freeze_support()
     parser = argparse.ArgumentParser(description='Joulescope™ user interface.')
-    cmd = parser_config(parser)
-    args = parser.parse_args()
-    sys.exit(cmd(args))
+    _argv_patch()
+    sys.exit(run())

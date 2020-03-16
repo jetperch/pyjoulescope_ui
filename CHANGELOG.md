@@ -16,6 +16,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added discrete Waveform Control buttons to toggle signal display #50.
 *   Added device recovery rate limit.  Previous version was spamming the
     recovering device which caused more problems.
+*   Modified command-line to accept all Joulescope package commands.
 
 
 ## 0.8.6

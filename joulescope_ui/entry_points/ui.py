@@ -25,7 +25,7 @@ NAME = "ui"
 
 
 def parser_config(p):
-    """Start the Joulescope graphical user interface"""
+    """Start the Joulescope graphical user interface."""
     p.add_argument('filename',
                    default=None,
                    nargs='?',
