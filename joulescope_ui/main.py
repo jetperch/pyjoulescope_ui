@@ -479,11 +479,11 @@ class MainWindow(QtWidgets.QMainWindow):
         return hasattr(self._device, 'start')
 
     def run(self, filename=None):
+        self._on_widgets_active('Widgets/active', self._cmdp['Widgets/active'])
         if filename is not None:
             self._recording_open(filename)
             self._cmdp.publish('!preferences/profile/set', 'Oscilloscope')
         else:
-            self._on_widgets_active('Widgets/active', self._cmdp['Widgets/active'])
             self._on_window_state('_window', self._cmdp['_window'])
         self._software_update_check()
         log.debug('Qt show()')
