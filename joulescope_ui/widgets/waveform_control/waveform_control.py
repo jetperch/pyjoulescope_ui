@@ -95,20 +95,9 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._markers_label.setText('Markers:')
         self._layout.addWidget(self._markers_label)
 
-        self._markers_signal_button = QtWidgets.QPushButton(self)
-        self._markers_signal_button.setText('Add Single')
-        self._markers_signal_button.setToolTip(TOOLTIP_MARKER_SINGLE_ADD)
-        self._layout.addWidget(self._markers_signal_button)
-
-        self._markers_dual_button = QtWidgets.QPushButton(self)
-        self._markers_dual_button.setText('Add Dual')
-        self._markers_dual_button.setToolTip(TOOLTIP_MARKER_DUAL_ADD)
-        self._layout.addWidget(self._markers_dual_button)
-
-        self._markers_clear_button = QtWidgets.QPushButton(self)
-        self._markers_clear_button.setText('Clear')
-        self._markers_clear_button.setToolTip(TOOLTIP_MARKER_CLEAR)
-        self._layout.addWidget(self._markers_clear_button)
+        self._add_button('Add Single', self._on_markers_single_add, TOOLTIP_MARKER_SINGLE_ADD)
+        self._add_button('Add Dual', self._on_markers_dual_add, TOOLTIP_MARKER_DUAL_ADD)
+        self._add_button('Clear', self._on_markers_clear, TOOLTIP_MARKER_CLEAR)
 
         self._x_axis_label = QtWidgets.QLabel(self)
         self._x_axis_label.setText('X-Axis:')
@@ -142,10 +131,16 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self.setMinimumHeight(height)
         self.setMaximumHeight(height)
 
-        self._markers_signal_button.clicked.connect(self._on_markers_single_add)
-        self._markers_dual_button.clicked.connect(self._on_markers_dual_add)
-        self._markers_clear_button.clicked.connect(self._on_markers_clear)
         self._cmdp.subscribe('Widgets/Waveform/_signals', self._on_signals_active, update_now=True)
+
+    def _add_button(self, label, callback, tooltip):
+        button = QtWidgets.QPushButton(self)
+        button.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        button.setText(label)
+        button.setToolTip(tooltip)
+        self._layout.addWidget(button)
+        button.clicked.connect(callback)
+        self._icon_buttons.append((button, None))
 
     def _add_icon(self, resource_name, callback, tooltip):
         button = QtWidgets.QPushButton(self)
@@ -160,13 +155,11 @@ class WaveformControlWidget(QtWidgets.QWidget):
     def _add_signal(self, signal):
         button = QtWidgets.QPushButton(self)
         button.setCheckable(True)
+        button.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         name = signal['name']
         abbr = signal['abbreviation']
         button.setText(abbr)
         button.setToolTip(TOOLTIP_SIGNAL.format(name=name))
-        width = button.fontMetrics().boundingRect(abbr).width() + 10
-        button.setMinimumWidth(width)
-        button.setMaximumWidth(width)
         self._layout.addWidget(button)
         button.clicked.connect(lambda checked: self._on_signal_button(name, checked))
         self._signals[name] = button
