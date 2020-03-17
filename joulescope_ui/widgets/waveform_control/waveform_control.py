@@ -16,6 +16,7 @@ from PySide2 import QtCore, QtGui, QtWidgets
 from joulescope_ui import joulescope_rc
 from joulescope_ui.preferences_ui import widget_factory
 from joulescope_ui.widgets.waveform.signal_def import signal_def
+import sys
 import logging
 log = logging.getLogger(__name__)
 
@@ -86,10 +87,11 @@ class WaveformControlWidget(QtWidgets.QWidget):
     def __init__(self, parent, cmdp, state_preference):
         QtWidgets.QWidget.__init__(self, parent)
         self._cmdp = cmdp
-        self._icon_buttons = []
+        self._buttons = []
         self.setObjectName("WaveformControlWidget")
         self._layout = QtWidgets.QHBoxLayout(self)
         self._layout.setObjectName("WaveformControlLayout")
+        self._layout.setContentsMargins(1, 1, 1, 1)
 
         self._markers_label = QtWidgets.QLabel(self)
         self._markers_label.setText('Markers:')
@@ -127,10 +129,6 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._layout.addItem(self._spacer)
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.updateGeometry()
-        height = self.height() + 10
-        self.setMinimumHeight(height)
-        self.setMaximumHeight(height)
-
         self._cmdp.subscribe('Widgets/Waveform/_signals', self._on_signals_active, update_now=True)
 
     def _add_button(self, label, callback, tooltip):
@@ -140,7 +138,7 @@ class WaveformControlWidget(QtWidgets.QWidget):
         button.setToolTip(tooltip)
         self._layout.addWidget(button)
         button.clicked.connect(callback)
-        self._icon_buttons.append((button, None))
+        self._buttons.append((button, None))
 
     def _add_icon(self, resource_name, callback, tooltip):
         button = QtWidgets.QPushButton(self)
@@ -150,7 +148,7 @@ class WaveformControlWidget(QtWidgets.QWidget):
         button.setIcon(icon)
         self._layout.addWidget(button)
         button.clicked.connect(callback)
-        self._icon_buttons.append((button, icon))
+        self._buttons.append((button, icon))
 
     def _add_signal(self, signal):
         button = QtWidgets.QPushButton(self)
@@ -160,6 +158,10 @@ class WaveformControlWidget(QtWidgets.QWidget):
         abbr = signal['abbreviation']
         button.setText(abbr)
         button.setToolTip(TOOLTIP_SIGNAL.format(name=name))
+        if sys.platform == 'win32':
+            width = button.fontMetrics().boundingRect(abbr).width()
+            button.setMinimumWidth(width + 10)
+            button.setMaximumWidth(width + 10)
         self._layout.addWidget(button)
         button.clicked.connect(lambda checked: self._on_signal_button(name, checked))
         self._signals[name] = button
