@@ -120,7 +120,10 @@ class RecordingView:
         t_start = start / self._reader.sampling_frequency
         t_stop = stop / self._reader.sampling_frequency
         x = np.linspace(t_start, t_stop, len(data), dtype=np.float64)
-        self._log.info('update: len=%d, x_range=>(%s, %s)', len(data), x[0], x[-1])
+        if not len(x):
+            self._log.info('update: empty')
+        else:
+            self._log.info('update: len=%d, x_range=>(%s, %s)', len(data), x[0], x[-1])
         self._cache = data_array_to_update(self.limits, x, data)
         self.on_update_fn(self._cache)
 
@@ -159,6 +162,9 @@ class RecordingView:
 
     def open(self):
         f = self._reader.sampling_frequency
+        if f <= 0:
+            self._log.warning('Invalid sampling_frequency %r, assume 1 Hz', f)
+            f = 1.0
         r = self._reader.sample_id_range
         x_lim = [x / f for x in r]
         self._span = span.Span(x_lim, 1 / f, 100)

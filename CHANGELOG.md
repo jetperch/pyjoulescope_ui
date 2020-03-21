@@ -19,6 +19,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Modified command-line to accept all Joulescope package commands.
 *   Fixed command-line filename argument support #62.
 *   Fixed current ranging preferences #63.
+*   Improved handling of empty JLS files and zero length data.
 
 
 ## 0.8.6

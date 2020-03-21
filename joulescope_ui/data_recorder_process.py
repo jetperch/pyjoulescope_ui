@@ -53,6 +53,8 @@ class DataRecorderProcess:
             self.sample_id = stream_buffer.sample_id_range[1]
             return
         sample_id = stream_buffer.sample_id_range[1]
+        if self.sample_id == sample_id:
+            return  # no new data, nothing to do
         data = stream_buffer.samples_get(self.sample_id, sample_id)
         if self._cmd_queue is not None:
             self._cmd_queue.put(('stream_notify', (data, )))

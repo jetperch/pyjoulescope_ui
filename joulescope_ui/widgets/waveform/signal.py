@@ -286,7 +286,7 @@ class Signal(QtCore.QObject):
         z_mean_valid = z_mean[z_valid]
         if not len(z_mean_valid):
             if len(z_mean):
-                self.log.info('no valid data: %d -> %d', len(z_mean), len(z_mean_valid))
+                pass  # self.log.debug('no valid data to display: %d -> %d', len(z_mean), len(z_mean_valid))
             if self.text_item:
                 self.text_item.data_clear()
             return
