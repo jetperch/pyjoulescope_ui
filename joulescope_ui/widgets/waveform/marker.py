@@ -137,7 +137,7 @@ class Marker(pg.GraphicsObject):
         x = p2.x()
         bottom = p2.y()
         self._boundingRect = QtCore.QRectF(x - w, top, 2 * w, bottom - top)
-        self.log.debug('boundingRect: %s => %s', self._x, str(self._boundingRect))
+        # self.log.debug('boundingRect: %s => %s', self._x, str(self._boundingRect))
         return self._boundingRect
 
     def paint_flag(self, painter, p1):
