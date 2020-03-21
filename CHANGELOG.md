@@ -18,6 +18,7 @@ This file contains the list of changes made to pyjoulescope_ui.
     recovering device which caused more problems.
 *   Modified command-line to accept all Joulescope package commands.
 *   Fixed command-line filename argument support #62.
+*   Fixed current ranging preferences #63.
 
 
 ## 0.8.6

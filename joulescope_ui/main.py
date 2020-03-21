@@ -669,6 +669,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self._device.statistics_callback = self.on_statisticSignal.emit
                 self._cmdp.subscribe('Device/setting/', self._on_device_parameter, update_now=True)
                 self._cmdp.subscribe('Device/extio/', self._on_device_parameter, update_now=True)
+                self._cmdp.subscribe('Device/Current Ranging/', self._on_device_current_range_parameter, update_now=True)
                 if self._is_streaming_device:
                     if self._cmdp['Device/autostream']:
                         self._cmdp.publish('Device/#state/source', 'USB')
@@ -694,6 +695,16 @@ class MainWindow(QtWidgets.QMainWindow):
             log.exception('during parameter_set')
             self.status('Parameter set %s failed, value=%s' % (topic, value))
             self._device_recover()
+
+    def _on_device_current_range_parameter(self, topic, value):
+        if not hasattr(self._device, 'parameter_set'):
+            return
+        name = 'current_ranging_' + topic.split('/')[-1]
+        try:
+            self._device.parameter_set(name, value)
+        except Exception:
+            log.exception('during parameter_set')
+            self.status('Parameter set %s failed, value=%s' % (name, value))
 
     def _device_close(self):
         log.debug('_device_close: start')
