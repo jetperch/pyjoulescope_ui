@@ -18,6 +18,7 @@ from .signal import Signal
 from .scrollbar import ScrollBar
 from .xaxis import XAxis
 from .settings_widget import SettingsWidget
+from .font_resizer import FontResizer
 from joulescope_ui.preferences_def import FONT_SIZES
 import pyqtgraph as pg
 import copy
@@ -80,6 +81,8 @@ class WaveformWidget(QtWidgets.QWidget):
         self.signal_configure()
         self.set_xlimits(0.0, 30.0)
         self.set_xview(25.0, 30.0)
+        self._font_resizer = FontResizer()
+        cmdp.subscribe('Widgets/Waveform/Statistics/font', self._font_resizer.on_font, update_now=True)
 
         c = self._cmdp
         c.subscribe('DataView/#data', self._on_data, update_now=True)
@@ -229,6 +232,11 @@ class WaveformWidget(QtWidgets.QWidget):
         self._signals[signal['name']] = s
         self._vb_relink()  # Linking to last axis makes grid draw correctly
         s.y_axis.setGrid(self.config['grid_y'])
+
+        if s.text_item is not None:
+            self._font_resizer.add(s.text_item)
+            s.vb.sigTransformChanged.connect(self._font_resizer.resize)
+            s.vb.sigResized.connect(self._font_resizer.resize)
         return s
 
     def signal_remove(self, name):
@@ -238,6 +246,11 @@ class WaveformWidget(QtWidgets.QWidget):
             return
         signal.vb.sigWheelZoomXEvent.disconnect()
         signal.vb.sigPanXEvent.disconnect()
+        if signal.text_item is not None:
+            self._font_resizer.remove(signal.text_item)
+            signal.vb.sigTransformChanged.disconnect(self._font_resizer.resize)
+            signal.vb.sigResized.disconnect(self._font_resizer.resize)
+
         row = signal.removeFromLayout(self.win)
         for k in range(row + 1, self.win.ci.layout.rowCount()):
             for j in range(3):

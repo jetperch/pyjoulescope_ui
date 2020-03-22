@@ -37,7 +37,8 @@ def _wheel_to_y_gain(delta):
 
 class Signal(QtCore.QObject):
 
-    def __init__(self, parent, cmdp, name, display_name=None, units=None, y_limit=None, y_log_min=None, y_range=None, **kwargs):
+    def __init__(self, parent, cmdp, name, display_name=None, units=None,
+                 y_limit=None, y_log_min=None, y_range=None, **kwargs):
         QtCore.QObject.__init__(self, parent=parent)
         self._cmdp = cmdp
         self.text_item = None

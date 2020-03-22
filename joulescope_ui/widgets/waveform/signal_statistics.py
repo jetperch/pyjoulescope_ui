@@ -100,32 +100,35 @@ class SignalStatistics(pg.GraphicsWidget):
         self.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
         self._label = QtGui.QGraphicsTextItem(self)
         self._label.setVisible(True)
+        self._label.document().setUseDesignMetrics(True)
         self._value_cache = None
         self._cmdp = cmdp
-
         labels = single_stat_to_api(-0.000000001, 0.000001, -0.001, 0.001, self._units)
         self.data_update(labels)
-        cmdp.subscribe('Widgets/Waveform/Statistics/font', self._on_font, update_now=True)
-        cmdp.subscribe('Widgets/Waveform/Statistics/font-color', self._on_font_color, update_now=True)
         self._resize()
+        self.data_clear()
+        cmdp.subscribe('Widgets/Waveform/Statistics/font-color', self._on_font_color, update_now=True)
         pg.GraphicsWidget.show(self)
+
+    def preferred_height(self):
+        return self._label.boundingRect().height()
+
+    def setFont(self, font):
+        # 'Widgets/Waveform/Statistics/font',
+        self._label.setFont(font)
+        self._label.adjustSize()
+        b = self._label.boundingRect()
+        self.setMinimumWidth(b.width())
 
     def _resize(self):
         self._label.adjustSize()
         b = self._label.boundingRect()
-        self.setMinimumHeight(b.height())
         self.setMinimumWidth(b.width())
         self.adjustSize()
 
-    def _on_font(self, topic, value):
-        self._data_update(*self._value_cache)
-        font = QtGui.QFont()
-        font.fromString(value)
-        self._label.setFont(font)
-        self._resize()
-
     def _on_font_color(self, topic, value):
-        self._data_update(*self._value_cache)
+        if self._value_cache is not None:
+            self._data_update(*self._value_cache)
 
     def close(self):
         self.scene().removeItem(self._label)
@@ -157,6 +160,9 @@ class SignalMarkerStatistics(pg.TextItem):
         self._value_cache = None
         cmdp.subscribe('Widgets/Waveform/Statistics/font', self._on_font, update_now=True)
         cmdp.subscribe('Widgets/Waveform/Statistics/font-color', self._on_font_color, update_now=True)
+
+    def preferred_height(self):
+        return self.textItem.boundingRect().height()
 
     def _on_font(self, topic, value):
         font = QtGui.QFont()
