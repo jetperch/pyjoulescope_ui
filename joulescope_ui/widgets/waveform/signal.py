@@ -37,7 +37,9 @@ def _wheel_to_y_gain(delta):
 
 class Signal(QtCore.QObject):
 
-    def __init__(self, parent, cmdp, name, display_name=None, units=None,
+    def __init__(self, parent, cmdp,
+                 statistics_font_resizer, marker_font_resizer,
+                 name, display_name=None, units=None,
                  y_limit=None, y_log_min=None, y_range=None, **kwargs):
         QtCore.QObject.__init__(self, parent=parent)
         self._cmdp = cmdp
@@ -53,6 +55,8 @@ class Signal(QtCore.QObject):
                 'range': 'auto' if y_range is None else y_range
             },
         }
+        self._statistics_font_resizer = statistics_font_resizer
+        self._marker_font_resizer = marker_font_resizer
         self._markers_single = {}
         self._markers_dual = {}
         self._is_min_max_active = False  # when zoomed out enough to display min/max
@@ -109,9 +113,25 @@ class Signal(QtCore.QObject):
             layout.ci.layout.setRowStretchFactor(row, 150)
         else:
             layout.ci.layout.setRowStretchFactor(row, 10)
+        if self._statistics_font_resizer is not None and self.text_item is not None:
+            self._statistics_font_resizer.add(self.text_item)
+            self.vb.sigTransformChanged.connect(self._statistics_font_resizer.resize)
+            self.vb.sigResized.connect(self._statistics_font_resizer.resize)
+        if self._marker_font_resizer is not None:
+            self.vb.sigTransformChanged.connect(self._marker_font_resizer.resize)
+            self.vb.sigResized.connect(self._marker_font_resizer.resize)
 
     def removeFromLayout(self, layout):
         rows = layout.ci.layout.rowCount()
+
+        if self._statistics_font_resizer is not None and self.text_item is not None:
+            self._statistics_font_resizer.remove(self.text_item)
+            self.vb.sigTransformChanged.disconnect(self._statistics_font_resizer.resize)
+            self.vb.sigResized.disconnect(self._statistics_font_resizer.resize)
+        if self._marker_font_resizer is not None:
+            self.vb.sigTransformChanged.disconnet(self._marker_font_resizer.resize)
+            self.vb.sigResized.disconnet(self._marker_font_resizer.resize)
+
         for row in range(rows):
             if layout.getItem(row, 1) == self.vb:
                 layout.removeItem(self.y_axis)
@@ -346,6 +366,7 @@ class Signal(QtCore.QObject):
             for marker_name in list(current_markers.keys()):
                 m = self._markers_single.pop(marker_name)
                 self.vb.scene().removeItem(m)
+                self._marker_font_resizer.remove(m)
 
     def update_markers_single_one(self, marker_name, marker_pos):
         if marker_name not in self._markers_single:
@@ -353,6 +374,7 @@ class Signal(QtCore.QObject):
             self.vb.addItem(m)
             m.setVisible(True)
             m.move(self.vb, marker_pos)
+            self._marker_font_resizer.add(m)
             self._markers_single[marker_name] = m
         m = self._markers_single[marker_name]
         if marker_pos is None:
@@ -368,6 +390,8 @@ class Signal(QtCore.QObject):
             m.setVisible(True)
             m.move(self.vb, marker_pos)
             self._markers_dual[marker_name] = m
+            self._marker_font_resizer.add(m)
+
         m = self._markers_dual[marker_name]
         m.data_update(self.vb, marker_pos, statistics)
 
@@ -380,6 +404,7 @@ class Signal(QtCore.QObject):
         if len(current_markers):
             for marker_name in list(current_markers.keys()):
                 m = self._markers_dual.pop(marker_name)
+                self._marker_font_resizer.remove(m)
                 self.vb.scene().removeItem(m)
 
     def marker_move(self, marker_name, marker_pos):

@@ -68,6 +68,8 @@ class FontResizer:
             h_obj = obj.height()
             h_txt = obj.preferred_height()
             h_ratio = min(h_obj / h_txt, h_ratio)
+        if h_ratio <= 0:
+            h_ratio = 1e-9
         font = QtGui.QFont(self.font)
         font.setPointSizeF(p * h_ratio)
         for obj in objects:

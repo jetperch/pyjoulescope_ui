@@ -21,6 +21,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Fixed current ranging preferences #63.
 *   Improved handling of empty JLS files and zero length data.
 *   Resize waveform signal statistics text to fit #54.
+*   Resize waveform marker text to fit.
 
 
 ## 0.8.6

@@ -164,6 +164,9 @@ class SignalMarkerStatistics(pg.TextItem):
     def preferred_height(self):
         return self.textItem.boundingRect().height()
 
+    def height(self):
+        return self.getViewBox().height() * 0.85
+
     def _on_font(self, topic, value):
         font = QtGui.QFont()
         font.fromString(value)

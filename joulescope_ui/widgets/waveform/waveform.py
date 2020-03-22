@@ -81,8 +81,10 @@ class WaveformWidget(QtWidgets.QWidget):
         self.signal_configure()
         self.set_xlimits(0.0, 30.0)
         self.set_xview(25.0, 30.0)
-        self._font_resizer = FontResizer()
-        cmdp.subscribe('Widgets/Waveform/Statistics/font', self._font_resizer.on_font, update_now=True)
+        self._statistics_font_resizer = FontResizer()
+        cmdp.subscribe('Widgets/Waveform/Statistics/font', self._statistics_font_resizer.on_font, update_now=True)
+        self._marker_font_resizer = FontResizer()
+        cmdp.subscribe('Widgets/Waveform/Statistics/font', self._marker_font_resizer.on_font, update_now=True)
 
         c = self._cmdp
         c.subscribe('DataView/#data', self._on_data, update_now=True)
@@ -225,18 +227,16 @@ class WaveformWidget(QtWidgets.QWidget):
     def signal_add(self, signal):
         if signal['name'] in self._signals:
             self.signal_remove(signal['name'])
-        s = Signal(parent=self, cmdp=self._cmdp, **signal)
+        s = Signal(parent=self, cmdp=self._cmdp,
+                   statistics_font_resizer=self._statistics_font_resizer,
+                   marker_font_resizer=self._marker_font_resizer,
+                   **signal)
         s.addToLayout(self.win, row=self.win.ci.layout.rowCount())
         s.vb.sigWheelZoomXEvent.connect(self._scrollbar.on_wheelZoomX)
         s.vb.sigPanXEvent.connect(self._scrollbar.on_panX)
         self._signals[signal['name']] = s
         self._vb_relink()  # Linking to last axis makes grid draw correctly
         s.y_axis.setGrid(self.config['grid_y'])
-
-        if s.text_item is not None:
-            self._font_resizer.add(s.text_item)
-            s.vb.sigTransformChanged.connect(self._font_resizer.resize)
-            s.vb.sigResized.connect(self._font_resizer.resize)
         return s
 
     def signal_remove(self, name):
@@ -246,11 +246,6 @@ class WaveformWidget(QtWidgets.QWidget):
             return
         signal.vb.sigWheelZoomXEvent.disconnect()
         signal.vb.sigPanXEvent.disconnect()
-        if signal.text_item is not None:
-            self._font_resizer.remove(signal.text_item)
-            signal.vb.sigTransformChanged.disconnect(self._font_resizer.resize)
-            signal.vb.sigResized.disconnect(self._font_resizer.resize)
-
         row = signal.removeFromLayout(self.win)
         for k in range(row + 1, self.win.ci.layout.rowCount()):
             for j in range(3):
