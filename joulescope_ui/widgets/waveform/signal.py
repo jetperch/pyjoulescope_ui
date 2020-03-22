@@ -123,14 +123,15 @@ class Signal(QtCore.QObject):
 
     def removeFromLayout(self, layout):
         rows = layout.ci.layout.rowCount()
-
+        self.update_markers_single_all([])
+        self.update_markers_dual_all([])
         if self._statistics_font_resizer is not None and self.text_item is not None:
             self._statistics_font_resizer.remove(self.text_item)
             self.vb.sigTransformChanged.disconnect(self._statistics_font_resizer.resize)
             self.vb.sigResized.disconnect(self._statistics_font_resizer.resize)
         if self._marker_font_resizer is not None:
-            self.vb.sigTransformChanged.disconnet(self._marker_font_resizer.resize)
-            self.vb.sigResized.disconnet(self._marker_font_resizer.resize)
+            self.vb.sigTransformChanged.disconnect(self._marker_font_resizer.resize)
+            self.vb.sigResized.disconnect(self._marker_font_resizer.resize)
 
         for row in range(rows):
             if layout.getItem(row, 1) == self.vb:
