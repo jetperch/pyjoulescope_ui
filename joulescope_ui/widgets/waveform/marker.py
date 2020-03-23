@@ -50,6 +50,7 @@ class Marker(pg.GraphicsObject):
         self._x = None  # in self._axis coordinates
         self._pair = None
         self.moving = False
+        self.moving_offset = 0.0
         self._marker_time_text = pg.TextItem("t=0.00")
         self._delta_time_text = pg.TextItem("")
         self._delta_time_text.setAnchor([0.5, 0])
@@ -293,14 +294,22 @@ class Marker(pg.GraphicsObject):
         self.log.info('mouseClickEvent(%s)', ev)
         ev.accept()
         if not self.moving:
+            self.moving_offset = 0.0
             if ev.button() == QtCore.Qt.LeftButton:
                 self.moving = True
+                # https://doc.qt.io/qt-5/qt.html#KeyboardModifier-enum
+                if int(QtGui.Qt.ControlModifier & ev.modifiers()) and self.pair is not None:
+                    self.pair.moving = True
+                    self.pair.moving_offset = self.pair.get_pos() - self.get_pos()
             elif ev.button() == QtCore.Qt.RightButton:
                 pos = ev.screenPos().toPoint()
                 self.menu_exec(pos)
         else:
             if ev.button() == QtCore.Qt.LeftButton:
                 self.moving = False
+                if self.pair is not None:
+                    self.pair.moving = False
+                    self.pair.moving_offset = 0.0
             elif ev.button() == QtCore.Qt.RightButton:
                 pass  # todo restore original position
 

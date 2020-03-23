@@ -267,7 +267,7 @@ class XAxis(pg.AxisItem):
 
         for marker in self._markers.values():
             if marker.moving:
-                marker.set_pos(x)
+                marker.set_pos(x + marker.moving_offset)
 
     def mouseClickEvent(self, event):
         if self.linkedView() is None:

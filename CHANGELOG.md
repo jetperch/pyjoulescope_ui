@@ -6,7 +6,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.8.8
 
-2020 Mar 22 [in progress]
+2020 Mar 23 [in progress]
 
 *   Fixed poor performance caused by GPIO Widget #60.
 *   Added Preferences Dialog Help #52. 
@@ -22,6 +22,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Improved handling of empty JLS files and zero length data.
 *   Resized waveform signal statistics text to fit #54.
 *   Resized waveform marker text to fit.
+*   Added feature to move both dual markers on CTRL left click #56.
 
 
 ## 0.8.6
