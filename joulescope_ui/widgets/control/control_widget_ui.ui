@@ -10,7 +10,19 @@
     <height>480</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Expanding" vsizetype="Minimum">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
   <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="topMargin">
+    <number>1</number>
+   </property>
+   <property name="bottomMargin">
+    <number>1</number>
+   </property>
    <item>
     <widget class="QPushButton" name="playButton">
      <property name="toolTip">
@@ -20,7 +32,7 @@
       <string/>
      </property>
      <property name="icon">
-      <iconset resource="joulescope.qrc">
+      <iconset resource="../../joulescope.qrc">
        <normaloff>:/joulescope/resources/play.png</normaloff>:/joulescope/resources/play.png</iconset>
      </property>
      <property name="checkable">
@@ -43,7 +55,7 @@
       <string/>
      </property>
      <property name="icon">
-      <iconset resource="joulescope.qrc">
+      <iconset resource="../../joulescope.qrc">
        <normaloff>:/joulescope/resources/record.png</normaloff>:/joulescope/resources/record.png</iconset>
      </property>
      <property name="checkable">

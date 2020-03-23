@@ -39,6 +39,11 @@ class ControlWidget(QtWidgets.QWidget):
         self._ui.playButton.toggled.connect(self._on_play_button_toggled)
         self._ui.recordButton.toggled.connect(self._on_record_button_toggled)
 
+        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        h = self.minimumSizeHint().height()
+        self.setMinimumHeight(h)
+        self.setMaximumHeight(h)
+
     def _on_play_button_toggled(self, checked):
         log.info('control_widget play button %s', checked)
         self._cmdp.publish('Device/#state/play', checked)

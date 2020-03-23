@@ -91,7 +91,7 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self.setObjectName("WaveformControlWidget")
         self._layout = QtWidgets.QHBoxLayout(self)
         self._layout.setObjectName("WaveformControlLayout")
-        self._layout.setContentsMargins(1, 1, 1, 1)
+        self._layout.setContentsMargins(-1, 1, -1, 1)
 
         self._markers_label = QtWidgets.QLabel(self)
         self._markers_label.setText('Markers:')
@@ -128,6 +128,9 @@ class WaveformControlWidget(QtWidgets.QWidget):
                                              QtWidgets.QSizePolicy.Minimum)
         self._layout.addItem(self._spacer)
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        h = self.minimumSizeHint().height()
+        self.setMinimumHeight(h)
+        self.setMaximumHeight(h)
         self.updateGeometry()
         self._cmdp.subscribe('Widgets/Waveform/_signals', self._on_signals_active, update_now=True)
 

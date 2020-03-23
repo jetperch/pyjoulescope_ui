@@ -29,6 +29,10 @@ class GpioWidget(QtWidgets.QWidget):
         QtWidgets.QWidget.__init__(self, parent)
         self.ui = Ui_GpioWidget()
         self.ui.setupUi(self)
+        h = self.minimumSizeHint().height()
+        self.setMinimumHeight(h)
+        self.setMaximumHeight(h)
+
         self._cmdp = cmdp
         self._state = None
         self._update_active = False

@@ -4,7 +4,7 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
-## 0.8.8
+## 0.8.9
 
 2020 Mar 23
 
@@ -23,6 +23,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Resized waveform signal statistics text to fit #54.
 *   Resized waveform marker text to fit.
 *   Added feature to move both dual markers on CTRL left click #56.
+*   Corrected widget heights for Control, Waveform Control, Single Value, GPIO.
 
 
 ## 0.8.6

@@ -46,6 +46,7 @@ class SingleValueWidget(QtWidgets.QWidget):
         self.resize(387, 76)
         self.horizontalLayout = QtWidgets.QHBoxLayout(self)
         self.horizontalLayout.setObjectName("horizontalLayout")
+        self.horizontalLayout.setContentsMargins(-1, 1, -1, 1)
         self.widget = QtWidgets.QWidget(self)
         self.widget.setObjectName("widget")
         self.formLayout = QtWidgets.QFormLayout(self.widget)
@@ -81,6 +82,7 @@ class SingleValueWidget(QtWidgets.QWidget):
         self.unitLabel.setObjectName("unitLabel")
         self.horizontalLayout_2.addWidget(self.unitLabel)
         self.horizontalLayout.addWidget(self.value_widget)
+        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.MinimumExpanding)
 
         self.retranslateUi()
         self.fieldComboBox.currentIndexChanged.connect(self.on_field_changed)
