@@ -740,6 +740,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self._device_disable.ui_action.setChecked(True)
         self._accumulators_zero_last()
+        self._streaming_status = None
         self._cmdp.publish('Device/#state/name', '')
         self._cmdp.publish('Device/#state/source', 'None')
         self._cmdp.publish('Device/#state/sample_drop_color', '')

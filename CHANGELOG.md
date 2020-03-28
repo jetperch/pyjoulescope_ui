@@ -4,6 +4,15 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+
+## 0.8.10
+
+2020 Mar 28  [in progress]
+
+*   Reduced CPU cycles when viewing JLS file with markers after streaming.
+
+
+
 ## 0.8.9
 
 2020 Mar 23
