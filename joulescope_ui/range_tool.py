@@ -18,15 +18,18 @@ The tool is executed from a separate thread.
 """
 
 from PySide2 import QtWidgets, QtCore
+import threading
+import time
 import logging
 log = logging.getLogger(__name__)
 
 
 SAMPLES_PER_ITERATION_DEFAULT_MIN = 1000
+PROGRESS_COUNT = 1000
+PROGRESS_UPDATE_RATE = 0.100  # seconds
 
 
 class Worker(QtCore.QObject):
-    sigProgress = QtCore.Signal(float)
     sigFinished = QtCore.Signal(str)
 
     def __init__(self, invoker):
@@ -40,11 +43,10 @@ class Worker(QtCore.QObject):
 
     def run(self):
         try:
-            msg = self._invoker._range_tool_obj.run(self._invoker)
+            msg = self._invoker._thread_run()
         except:
             log.exception('During range tool run()')
             msg = 'Error during range tool run()'
-        self.sigProgress.emit(1.0)
         if msg is None:
             msg = ''
         self.sigFinished.emit(msg)
@@ -52,23 +54,21 @@ class Worker(QtCore.QObject):
 
 class RangeToolIterable:
 
-    def __init__(self, parent, samples_per_iteration, progress):
+    def __init__(self, parent, samples_per_iteration):
         self._parent = parent
         self._x_start, self._x_stop = self._parent.sample_range
         self._x_next = self._x_start
         self._samples_per_iteration = int(samples_per_iteration)
-        self._progress = progress
 
     def __iter__(self):
         return self
 
     def __next__(self):
         if self._x_next >= self._x_stop:
-            self._progress(1.0)
             raise StopIteration()
         if self._parent._cancel:
-            raise RuntimeError('')
-        self._progress((self._x_next - self._x_start) / (self._x_stop - self._x_start))
+            raise RuntimeError('Range tool canceled by user')
+        self._parent.progress((self._x_next - self._x_start) / (self._x_stop - self._x_start))
         x_next = self._x_next + self._samples_per_iteration
         if x_next > self._x_stop:
             x_next = self._x_stop
@@ -78,7 +78,7 @@ class RangeToolIterable:
 
 
 class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
-
+    sigProgress = QtCore.Signal(int)
     sigFinished = QtCore.Signal(object, str)  # range_tool, error message or ''
 
     def __init__(self, parent, range_tool, cmdp):
@@ -94,6 +94,7 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
         self._thread = None
         self._progress = None
         self._cancel = False
+        self._progress_time_last = time.time()
 
         self.sample_count = 0
         self.sample_frequency = 0
@@ -126,16 +127,13 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
                 samples_per_iteration = int(self.sample_frequency)
         else:
             samples_per_iteration = int(samples_per_iteration)
-        if self._worker is not None:
-            progress = self._worker.sigProgress.emit
-        else:
-            progress = self.progress
-        return RangeToolIterable(self, samples_per_iteration, progress=progress)
+        return RangeToolIterable(self, samples_per_iteration)
 
-    @QtCore.Slot(float)
     def progress(self, fraction):
-        if self._progress is not None:
-            self._progress.setValue(int(fraction * 1000))
+        current_time = time.time()
+        if current_time - self._progress_time_last > PROGRESS_UPDATE_RATE:
+            self.sigProgress.emit(int(fraction * PROGRESS_COUNT))
+            self._progress_time_last = current_time
 
     def _x_map_to_parent(self, x):
         t1, t2 = self._time_range
@@ -187,28 +185,31 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
             log.exception('During range tool run_pre()')
             return
 
-        self._thread = QtCore.QThread()
         title = f'{self._range_tool.name} in progress...'
-        self._progress = QtWidgets.QProgressDialog(title, 'Cancel', 0, 1000, self.parent())
+        self._progress = QtWidgets.QProgressDialog(title, 'Cancel', 0, PROGRESS_COUNT, self._parent)
+        self._progress.setWindowTitle('Progress')
         self._progress.setWindowModality(QtCore.Qt.WindowModal)
+        self._progress.setMinimumDuration(0)
         self._worker = Worker(self)
-        self._worker.sigProgress.connect(self.progress)
-        self._worker.sigFinished.connect(self.on_finished)
+        self._worker.sigFinished.connect(self._on_finished, type=QtCore.Qt.QueuedConnection)
         self._worker.moveToThread(self._thread)
-        self._thread.started.connect(self._worker.run)
-        self._thread.finished.connect(self._worker.deleteLater)
-        self._progress.canceled.connect(self.on_cancel)
+        self._thread = threading.Thread(target=self._worker.run)
+        self._progress.canceled.connect(self._on_cancel, type=QtCore.Qt.QueuedConnection)
+        self.sigProgress.connect(self._progress.setValue, type=QtCore.Qt.QueuedConnection)
         self._thread.start()
-        self._progress.forceShow()
 
-    def on_cancel(self):
+    def _thread_run(self):
+        return self._range_tool_obj.run(self)
+
+    def _on_cancel(self):
         self._cancel = True
 
-    def on_finished(self, msg):
-        self._thread.quit()
-        self._thread.wait()
+    def _on_finished(self, msg):
+        self._thread.join()
+        self.sigProgress.disconnect()
         self._progress.hide()
         self._progress.close()
+        time.sleep(0.0)  # yield to let progress window close
         self._thread = None
         self._progress = None
         self._worker = None
