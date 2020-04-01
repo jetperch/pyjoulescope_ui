@@ -7,10 +7,11 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.8.10
 
-2020 Mar 28  [in progress]
+2020 Apr 2
 
 *   Reduced CPU cycles when viewing JLS file with markers after streaming.
 *   Fixed crash while running plugins #67.
+*   Updated from PySide2 5.14.1 to PySide2 5.14.2.
 
 
 ## 0.8.9
