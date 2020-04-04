@@ -169,15 +169,15 @@ class Signal(QtCore.QObject):
     def on_wheelZoomY(self, y, delta):
         gain = _wheel_to_y_gain(delta)
         ra, rb = self.vb.viewRange()[1]
-        if ra <= y <= rb:  # valid y, keep y in same screen location
-            d1 = rb - ra
-            d2 = d1 * gain
-            f = (y - ra) / d1
-            pa = y - f * d2
-            pb = pa + d2
-            self.vb.setRange(yRange=[pa, pb])
-        else:
-            self.log.warning('on_wheelZoomY(%s, %s) out of range', y, delta)
+        if y < ra:
+            y = ra
+        elif y > rb:
+            y = rb
+        pa = y + gain * (ra - y)
+        pb = y + gain * (rb - y)
+        self.vb.blockLineSignal = True
+        self.vb.setYRange(pa, pb, padding=0)
+        self.vb.blockLineSignal = False
 
     @QtCore.Slot(object, float)
     def on_panY(self, command, y):

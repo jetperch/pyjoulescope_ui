@@ -223,15 +223,14 @@ class CustomLinearRegionItem(pg.LinearRegionItem):
         gain = _wheel_to_x_gain(delta)
         if self.mode == 'realtime':
             self.setRegion(gain=gain)
-        elif ra <= x <= rb:  # valid x, keep x in same screen location
-            d1 = rb - ra
-            d2 = d1 * gain
-            f = (x - ra) / d1
-            pa = x - f * d2
-            pb = pa + d2
-            self.setRegion(rgn=[pa, pb])
         else:
-            log.warning('wheel zoom out of range')
+            if x < ra:
+                x = ra
+            elif x > rb:
+                x = rb
+            pa = x + gain * (ra - x)
+            pb = x + gain * (rb - x)
+            self.setRegion(rgn=[pa, pb])
 
     def wheelEvent(self, ev):
         gain = _wheel_to_x_gain(ev.delta())
