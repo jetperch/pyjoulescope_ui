@@ -90,26 +90,26 @@ def comboBoxSelectItemByText(combobox: QtWidgets.QComboBox, value, block=False):
 
 
 def confirmDiscard(parent):
-    msgBox = QtGui.QMessageBox(parent)
+    msgBox = QtWidgets.QMessageBox(parent)
     msgBox.setText('Existing data has not been saved.')
     msgBox.setInformativeText('Discard data?')
-    msgBox.setStandardButtons(QtGui.QMessageBox.Discard | QtGui.QMessageBox.Cancel)
-    msgBox.setDefaultButton(QtGui.QMessageBox.Cancel)
+    msgBox.setStandardButtons(QtWidgets.QMessageBox.Discard | QtWidgets.QMessageBox.Cancel)
+    msgBox.setDefaultButton(QtWidgets.QMessageBox.Cancel)
     rv = msgBox.exec_()
-    if rv != QtGui.QMessageBox.Discard:
+    if rv != QtWidgets.QMessageBox.Discard:
         return False
     return True
 
 
 def confirmOverwrite(parent, targetName=None):
     targetName = 'file' if targetName is None else targetName
-    msgBox = QtGui.QMessageBox(parent)
+    msgBox = QtWidgets.QMessageBox(parent)
     msgBox.setText('%s already exists.' % targetName.title())
     msgBox.setInformativeText('Overwrite %s?' % targetName)
-    msgBox.setStandardButtons(QtGui.QMessageBox.Ok | QtGui.QMessageBox.Cancel)
-    msgBox.setDefaultButton(QtGui.QMessageBox.Cancel)
+    msgBox.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+    msgBox.setDefaultButton(QtWidgets.QMessageBox.Cancel)
     rv = msgBox.exec_()
-    if rv != QtGui.QMessageBox.Ok:
+    if rv != QtWidgets.QMessageBox.Ok:
         return False
     return True
 

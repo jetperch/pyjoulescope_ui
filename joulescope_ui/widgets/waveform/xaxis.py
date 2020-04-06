@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PySide2 import QtGui, QtCore, QtWidgets
+from PySide2 import QtCore, QtWidgets
 from .marker import Marker
 from typing import List, Tuple
 import pyqtgraph as pg
@@ -22,19 +22,19 @@ import logging
 log = logging.getLogger(__name__)
 
 
-class AxisMenu(QtGui.QMenu):
+class AxisMenu(QtWidgets.QMenu):
 
     def __init__(self):
-        QtGui.QMenu.__init__(self)
+        QtWidgets.QMenu.__init__(self)
         self.annotations = self.addMenu('&Annotations')
 
-        self.single_marker = QtGui.QAction('&Single Marker')
+        self.single_marker = QtWidgets.QAction('&Single Marker')
         self.annotations.addAction(self.single_marker)
 
-        self.dual_markers = QtGui.QAction('&Dual Markers')
+        self.dual_markers = QtWidgets.QAction('&Dual Markers')
         self.annotations.addAction(self.dual_markers)
 
-        self.clear_all_markers = QtGui.QAction('&Clear all')
+        self.clear_all_markers = QtWidgets.QAction('&Clear all')
         self.annotations.addAction(self.clear_all_markers)
 
 

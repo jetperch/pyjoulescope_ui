@@ -15,10 +15,10 @@
 """A Qt widget that displays an rescaled image to fit."""
 
 
-from PySide2 import QtGui, QtCore
+from PySide2 import QtWidgets, QtGui, QtCore
 
 
-class AspectRatioLabel(QtGui.QLabel):
+class AspectRatioLabel(QtWidgets.QLabel):
     """A QLabel that displays a QPixmap image and rescales it to fit.
 
     Based upon the C++ code at:
@@ -26,7 +26,7 @@ class AspectRatioLabel(QtGui.QLabel):
     """
 
     def __init__(self, *args, **kwargs):
-        QtGui.QLabel.__init__(self, *args, **kwargs)
+        QtWidgets.QLabel.__init__(self, *args, **kwargs)
         self._pixmap = None
         self.setMinimumSize(1, 1)
         self.setScaledContents(False)
@@ -39,7 +39,7 @@ class AspectRatioLabel(QtGui.QLabel):
 
     def on_resize(self):
         if self._pixmap:
-            QtGui.QLabel.setPixmap(self, self.scaled_pixmap())
+            QtWidgets.QLabel.setPixmap(self, self.scaled_pixmap())
 
     def resizeEvent(self, *args, **kwargs):
         self.on_resize()

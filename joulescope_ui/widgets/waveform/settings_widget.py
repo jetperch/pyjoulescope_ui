@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PySide2 import QtGui, QtCore, QtWidgets
+from PySide2 import QtWidgets
 import pyqtgraph as pg
 import logging
 
@@ -45,15 +45,15 @@ class SettingsWidget(pg.ViewBox):
         self._signals_visible = visible
 
     def menu_exec(self, pos):
-        menu = QtGui.QMenu()
+        menu = QtWidgets.QMenu()
         menu.setToolTipsVisible(True)
-        signal_add = QtGui.QMenu()
+        signal_add = QtWidgets.QMenu()
         signal_add.setTitle('&Add')
         signal_add_actions = []
 
         for s in self._signals_available:
             if s['name'] not in self._signals_visible:
-                a = QtGui.QAction(s['display_name'], signal_add)
+                a = QtWidgets.QAction(s['display_name'], signal_add)
                 a.triggered.connect(self._signal_add_construct(s['name']))
                 signal_add.addAction(a)
                 signal_add_actions.append(a)

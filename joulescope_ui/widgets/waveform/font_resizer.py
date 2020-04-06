@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import weakref
-from pyqtgraph.Qt import QtGui
+from PySide2.QtGui import QFont
 
 
 class FontResizer:
@@ -27,7 +27,7 @@ class FontResizer:
         self._objects = []  # weakrefs to SignalStatistics
 
     def on_font(self, topic, value):
-        font = QtGui.QFont()
+        font = QFont()
         font.fromString(value)
         self.font = font
         self.resize()
@@ -36,7 +36,7 @@ class FontResizer:
         """Add a target object for automatic font size adjustment.
 
         :param obj: The object to add which must support the following methods:
-            * setFont(QtGui.QFont): Set the font.
+            * setFont(QFont): Set the font.
             * height(): Get the actual widget height.
             * preferred_height(): Return the preferred height with the current font.
         """
@@ -70,7 +70,7 @@ class FontResizer:
             h_ratio = min(h_obj / h_txt, h_ratio)
         if h_ratio <= 0:
             h_ratio = 1e-9
-        font = QtGui.QFont(self.font)
+        font = QFont(self.font)
         font.setPointSizeF(p * h_ratio)
         for obj in objects:
             obj.setFont(font)

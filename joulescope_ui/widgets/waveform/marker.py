@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyqtgraph.Qt import QtGui, QtCore
+from PySide2 import QtWidgets, QtGui, QtCore
 import pyqtgraph as pg
 import weakref
 from .signal import Signal
@@ -336,7 +336,7 @@ class Marker(pg.GraphicsObject):
 
     def menu_exec(self, pos):
         instances = []  # hold on to QT objects
-        menu = QtGui.QMenu()
+        menu = QtWidgets.QMenu()
         menu.setToolTipsVisible(True)
         submenus = {}
         if self._pair is not None:
@@ -351,11 +351,11 @@ class Marker(pg.GraphicsObject):
                         m, subm = subm[name_part]
                     else:
                         m, subm = subm[name_part]
-                t = QtGui.QAction(name_parts[0], self)
+                t = QtWidgets.QAction(name_parts[0], self)
                 t.triggered.connect(self._range_tool_factory(name))
                 m.addAction(t)
                 instances.append(t)
-        marker_remove = QtGui.QAction('&Remove', self)
+        marker_remove = QtWidgets.QAction('&Remove', self)
         marker_remove.triggered.connect(self._remove)
         menu.addAction(marker_remove)
         menu.exec_(pos)

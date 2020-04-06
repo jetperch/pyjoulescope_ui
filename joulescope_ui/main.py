@@ -1239,7 +1239,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # force invisible, since restoreState can show
         active_widgets = self._widgets_active
-        for widget in self.findChildren(QtGui.QDockWidget):
+        for widget in self.findChildren(QtWidgets.QDockWidget):
             if str(widget) not in active_widgets:
                 widget.setVisible(False)
 

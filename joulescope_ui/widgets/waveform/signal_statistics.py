@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyqtgraph.Qt import QtGui, QtCore
+from PySide2 import QtCore, QtGui, QtWidgets
 from joulescope.units import unit_prefix, three_sig_figs
 from joulescope.stream_buffer import single_stat_to_api
 from joulescope_ui.ui_util import rgba_to_css, font_to_css
@@ -97,8 +97,8 @@ class SignalStatistics(pg.GraphicsWidget):
         pg.GraphicsWidget.__init__(self, parent=parent)
         self._field = field
         self._units = units
-        self.setSizePolicy(QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Expanding)
-        self._label = QtGui.QGraphicsTextItem(self)
+        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self._label = QtWidgets.QGraphicsTextItem(self)
         self._label.setVisible(True)
         self._label.document().setUseDesignMetrics(True)
         self._value_cache = None
