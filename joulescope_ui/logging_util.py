@@ -204,7 +204,7 @@ def worker_configurer(queue):
 
 def logging_start():
     queue = multiprocessing.Queue(-1)
-    listener = threading.Thread(target=_listener_run, args=(queue, ))
+    listener = threading.Thread(name='logging', target=_listener_run, args=(queue, ))
     listener.start()
 
     def stop():

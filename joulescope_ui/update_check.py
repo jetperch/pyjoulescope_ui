@@ -121,6 +121,6 @@ def check(callback, channel=None):
         log.info('Skip software update check: version is UNRELEASED')
         return
     channel = _validate_channel(channel)
-    thread = threading.Thread(target=fetch, args=[callback, channel])
+    thread = threading.Thread(name='sw_update_check', target=fetch, args=[callback, channel])
     thread.daemon = True
     thread.start()
