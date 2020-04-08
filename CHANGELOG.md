@@ -10,6 +10,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 *   Fixed waveform Y-Axis zoom only zooms out with trackpad #70.
 *   Fixed PySide2 imports #71.
+*   Fixed Widgets to use Python float rather than numpy.float32/64.
 
 
 ## 0.8.10

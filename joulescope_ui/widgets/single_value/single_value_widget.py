@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from PySide2 import QtCore, QtGui, QtWidgets
-import numpy as np
+import math
 from joulescope_ui import joulescope_rc
 from joulescope.units import unit_prefix
 from joulescope_ui.units import convert_units
@@ -153,7 +153,7 @@ class SingleValueWidget(QtWidgets.QWidget):
             value = self._statistics['signals'][field][stat]['value']
             units = self._statistics['signals'][field][stat]['units']
             if stat == 'σ2':
-                value = np.sqrt(value)
+                value = math.sqrt(value)
         elif field in self._statistics['accumulators']:
             self.statisticComboBox.setEnabled(False)
             value = self._statistics['accumulators'][field]['value']

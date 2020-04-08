@@ -18,6 +18,7 @@ from joulescope.stream_buffer import single_stat_to_api
 from joulescope_ui.ui_util import rgba_to_css, font_to_css
 from joulescope_ui.units import FIELD_UNITS_INTEGRAL
 import numpy as np
+import math
 import pyqtgraph as pg
 
 
@@ -53,10 +54,10 @@ def si_format(labels):
     values = []
     names = []
     for name, d in labels.items():
-        value = d['value']
+        value = float(d['value'])
         if name == 'σ2':
             name = 'σ'
-            value = np.sqrt(value)
+            value = math.sqrt(value)
         if d['units'] != units:
             results.extend(_si_format(names, values, units))
             units = d['units']

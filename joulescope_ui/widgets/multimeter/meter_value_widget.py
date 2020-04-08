@@ -16,6 +16,7 @@ from PySide2 import QtCore, QtGui, QtWidgets
 from joulescope_ui import joulescope_rc
 from joulescope.units import unit_prefix
 import numpy as np
+import math
 from joulescope_ui.ui_util import rgba_to_css
 
 
@@ -196,7 +197,7 @@ class MeterValueWidget(QtWidgets.QWidget):
             self.v_min = v_min
             self.v_max = v_max
             self.v_p2p = v_max - v_min
-        self.v_std_dev = np.sqrt(self.v_var)
+        self.v_std_dev = math.sqrt(self.v_var)
 
     def _update_ui(self):
         values = [self.v_mean, self.v_std_dev, self.v_min, self.v_max]

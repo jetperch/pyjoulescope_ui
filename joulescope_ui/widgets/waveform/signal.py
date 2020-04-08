@@ -18,6 +18,7 @@ from .signal_viewbox import SignalViewBox
 from joulescope.stream_buffer import single_stat_to_api
 from .yaxis import YAxis
 import pyqtgraph as pg
+import math
 import numpy as np
 import logging
 
@@ -150,8 +151,8 @@ class Signal(QtCore.QObject):
             self.curve_mean.setLogMode(xMode=False, yMode=True)
             self.curve_min.setLogMode(xMode=False, yMode=True)
             self.curve_max.setLogMode(xMode=False, yMode=True)
-            y_min = np.log10(self.config['y-axis']['log_min'])
-            y_max = np.log10(self.config['y-axis']['limit'][1])
+            y_min = math.log10(self.config['y-axis']['log_min'])
+            y_max = math.log10(self.config['y-axis']['limit'][1])
             self.vb.setLimits(yMin=y_min, yMax=y_max)
             self.vb.setYRange(y_min, y_max)
         else:
@@ -205,13 +206,13 @@ class Signal(QtCore.QObject):
         if self.config['y-axis'].get('range', 'auto') == 'manual':
             return
         _, (vb_min, vb_max) = self.vb.viewRange()
-        if not np.isfinite(v_min):
+        if not math.isfinite(v_min):
             v_min = vb_min
-        if not np.isfinite(v_max):
+        if not math.isfinite(v_max):
             v_max = vb_max
         if self.config['y-axis'].get('scale', 'linear') == 'logarithmic':
-            v_min = np.log10(max(v_min, self.config['y-axis']['log_min']))
-            v_max = np.log10(max(v_max, self.config['y-axis']['log_min']))
+            v_min = math.log10(max(v_min, self.config['y-axis']['log_min']))
+            v_max = math.log10(max(v_max, self.config['y-axis']['log_min']))
         vb_range = vb_max - vb_min
         v_range = v_max - v_min
 
@@ -313,7 +314,7 @@ class Signal(QtCore.QObject):
                 self.text_item.data_clear()
             return
 
-        x_range = x[-1] - x[0]
+        x_range = float(x[-1] - x[0])
         z_mean = z_mean_valid
         z_min = z_min[z_valid]
         if np.isfinite(z_min[0]):
@@ -326,25 +327,26 @@ class Signal(QtCore.QObject):
         self.curve_mean.show()
         if not np.isfinite(z_min[0]):
             self._min_max_disable()
-            v_mean = np.mean(z)
-            v_var = np.var(z)
-            v_max = np.max(z)
-            v_min = np.min(z)
+            v_mean = np.mean(z).item()
+            v_var = np.var(z).item()
+            v_max = np.max(z).item()
+            v_min = np.min(z).item()
         else:
             self._min_max_enable()
-            v_mean = np.mean(z_mean)
-            v_min = np.min(z_min)
-            v_max = np.max(z_max)
+            v_mean = np.mean(z_mean).item()
+            v_min = np.min(z_min).item()
+            v_max = np.max(z_max).item()
             mean_delta = z_mean - v_mean
             # combine variances across the combined samples
             v_var = np.sum(np.square(mean_delta, out=mean_delta) + z_var) / len(z_mean)
+            v_var = v_var.item()
             self.curve_min.setData(x, self._log_bound(z_min))
             self.curve_max.setData(x, self._log_bound(z_max))
 
         if self._cmdp['Widgets/Waveform/show_min_max'] == 'off':
             # use min/max of the mean trace for y-axis autoranging (not actual min/max)
-            v_min = np.min(z_mean)
-            v_max = np.max(z_mean)
+            v_min = np.min(z_mean).item()
+            v_max = np.max(z_mean).item()
 
         if not np.isfinite(v_min) or not np.isfinite(v_max) or np.abs(v_min) > 1000 or np.abs(v_max) > 1000:
             self.log.warning('signal.update(%r, %r)' % (v_min, v_max))
