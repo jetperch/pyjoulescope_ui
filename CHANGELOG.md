@@ -6,7 +6,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.8.11
 
-2020 Apr 6 [in progress]
+2020 Apr 8 [in progress]
 
 *   Fixed waveform Y-Axis zoom only zooms out with trackpad #70.
 *   Fixed PySide2 imports #71.
