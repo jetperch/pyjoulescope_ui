@@ -6,11 +6,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.8.11
 
-2020 Apr 8 [in progress]
+2020 Apr 10 [in progress]
 
 *   Fixed waveform Y-Axis zoom only zooms out with trackpad #70.
 *   Fixed PySide2 imports #71.
 *   Fixed Widgets to use Python float rather than numpy.float32/64.
+*   Reverted to PySide 5.13.2.
+*   Improved thread safety for main thread and range tool.
 
 
 ## 0.8.10

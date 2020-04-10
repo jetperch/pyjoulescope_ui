@@ -40,6 +40,7 @@ from joulescope_ui.command_processor import CommandProcessor
 from joulescope_ui.preferences_def import preferences_def
 from joulescope_ui.preferences_defaults import defaults as preference_defaults
 from joulescope_ui import ui_util
+from queue import Queue, Empty
 import io
 import ctypes
 import collections
@@ -47,6 +48,7 @@ import gc
 import pyperclip
 import traceback
 import time
+import threading
 import webbrowser
 import logging
 log = logging.getLogger(__name__)
@@ -56,6 +58,8 @@ STATUS_BAR_TIMEOUT = 5000  # milliseconds
 USERS_GUIDE_URL = "https://download.joulescope.com/docs/JoulescopeUsersGuide/index.html"
 FRAME_LIMIT_DELAY_MS = 30
 FRAME_LIMIT_MAXIMUM_DELAY_MS = 2000
+_excepthook = sys.excepthook
+_unraisablehook = getattr(sys, 'unraisablehook', lambda *args: None)
 
 
 ABOUT = """\
@@ -167,6 +171,20 @@ def dock_widget_parse_str(s):
         raise ValueError('Unsupported value %s', s)
 
 
+class QResyncEvent(QtCore.QEvent):
+    """An event containing a request for a function call."""
+    EVENT_TYPE = QtCore.QEvent.Type(QtCore.QEvent.registerEventType())
+
+    def __init__(self):
+        QtCore.QEvent.__init__(self, self.EVENT_TYPE)
+
+    def __str__(self):
+        return 'QResyncEvent()'
+
+    def __len__(self):
+        return 0
+
+
 class MyDockWidget(QtWidgets.QDockWidget):
 
     def __init__(self, parent, widget_def, cmdp, instance_id):
@@ -219,16 +237,8 @@ class MyDockWidget(QtWidgets.QDockWidget):
 
 
 class MainWindow(QtWidgets.QMainWindow):
-    on_deviceNotifySignal = QtCore.Signal(object, object)
     _deviceOpenRequestSignal = QtCore.Signal(object)
     _deviceScanRequestSignal = QtCore.Signal()
-    on_stopSignal = QtCore.Signal(int, str)
-    on_statisticSignal = QtCore.Signal(object)
-    on_softwareUpdateSignal = QtCore.Signal(str, str, str)
-    on_deviceEventSignal = QtCore.Signal(int, str)  # event, message
-
-    on_progressValue = QtCore.Signal(int)
-    on_progressMessage = QtCore.Signal(str)
 
     def __init__(self, app, device_name, cmdp, multiprocessing_logging_queue):
         self._app = app
@@ -237,11 +247,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self._devices = []
         self._device = None
         self._streaming_status = None
+        self._resync_handlers = {}
+        self._resync_queue = Queue()
         self._fps_counter = 0
         self._fps_time = None
         self._fps_limit_timer = QtCore.QTimer()
         self._fps_limit_timer.setSingleShot(True)
         self._fps_limit_timer.timeout.connect(self.on_fpsTimer)
+        self._range_tool = None
 
         self._recovery_timer = QtCore.QTimer()
         self._recovery_timer.setSingleShot(True)
@@ -262,21 +275,21 @@ class MainWindow(QtWidgets.QMainWindow):
         }
         self._is_scanning = False
         self._progress_dialog = None
-
         self._cmdp = cmdp
-        self._plugins = PluginManager(self._cmdp)
-        self._cmdp.publish('Plugins/#registered', self._plugins)
 
         super(MainWindow, self).__init__()
         self.ui = Ui_mainWindow()
         self.ui.setupUi(self)
+
+        self._cmdp.setParent(self)
+        self._plugins = PluginManager(self._cmdp)
+        self._cmdp.publish('Plugins/#registered', self._plugins)
 
         # Central widget to keep top at top
         self.central_widget = QtWidgets.QWidget(self)
         self.central_widget.setMaximumWidth(1)
         self.setCentralWidget(self.central_widget)
 
-        self.on_deviceNotifySignal.connect(self.device_notify)
         self._deviceOpenRequestSignal.connect(self.on_deviceOpen, type=QtCore.Qt.QueuedConnection)
         self._deviceScanRequestSignal.connect(self.on_deviceScan, type=QtCore.Qt.QueuedConnection)
 
@@ -345,13 +358,6 @@ class MainWindow(QtWidgets.QMainWindow):
         # device scan timer - because bad things happen, see rescan_interval config
         self.rescan_timer = QtCore.QTimer(self)
         self.rescan_timer.timeout.connect(self.on_rescanTimer)
-
-        self.on_stopSignal.connect(self._on_stop, type=QtCore.Qt.QueuedConnection)
-        self.on_statisticSignal.connect(self._on_statistic, type=QtCore.Qt.QueuedConnection)
-        self.on_deviceEventSignal.connect(self._on_device_event, type=QtCore.Qt.QueuedConnection)
-
-        # Software update
-        self.on_softwareUpdateSignal.connect(self._on_software_update, type=QtCore.Qt.QueuedConnection)
 
         # help
         self.ui.actionGettingStarted.triggered.connect(self._help_getting_started)
@@ -491,6 +497,48 @@ class MainWindow(QtWidgets.QMainWindow):
         log.debug('Qt show() success')
         self._device_scan()
 
+    def event(self, event: QtCore.QEvent):
+        if event.type() == QResyncEvent.EVENT_TYPE:
+            # process resync_handler resync calls.
+            event.accept()
+            try:
+                name, args, kwargs, ev = self._resync_queue.get(timeout=0.0)
+                if id(event) != id(ev):
+                    log.warning('event mismatch')
+                fn = getattr(self, f'_on_{name}')
+                fn(*args, **kwargs)
+            except Empty:
+                log.warning('event signaled but not available')
+            except:
+                log.exception('resync queue failed')
+            return True
+        else:
+            return super(MainWindow, self).event(event)
+
+    def _resync_handle(self, name, args, kwargs):
+        # safely resynchronize to the main Qt event thread
+        event = QResyncEvent()
+        self._resync_queue.put((name, args, kwargs, event))
+        QtCore.QCoreApplication.postEvent(self, event)
+
+    def resync_handler(self, name):
+        """Get a function that will resynchronize to the Main Qt thread.
+
+        :param: The resychronization handler name.  The method
+            _on_{name}(self, args, kwargs) must exist to handle the
+            resynchronization call.
+        :return: The resynchronization function.  Calls to this function
+            complete immediately, but the actual processing is deferred
+            to the main thread's QT event loop.
+        """
+        def fn(*args, **kwargs):
+            return self._resync_handle(name, args, kwargs)
+        if name not in self._resync_handlers:
+            self._resync_handlers[name] = fn
+            if not hasattr(self, f'_on_{name}'):
+                raise ValueError(f'resync {name} not supported')
+        return self._resync_handlers[name]
+
     @QtCore.Slot()
     def on_statusUpdateTimer(self):
         if self._has_active_device and hasattr(self._device, 'status'):
@@ -524,8 +572,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self._data_view.refresh()
             self._fps_limit_timer.start(FRAME_LIMIT_MAXIMUM_DELAY_MS)
 
-    @QtCore.Slot(object)
-    def _on_statistic(self, statistics):
+    def _on_device_statistic(self, statistics):
         self._accumulators['time'] += statistics['time']['delta']['value']
         statistics['time']['accumulator'] = {'value': self._accumulators['time'], 'units': 's'}
         for field in ['charge', 'energy']:
@@ -547,8 +594,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self._data_view.on_x_change('resize', {'pixels': x_count})
             self._data_view.on_x_change('span_absolute', {'range': [x_min, x_max]})
 
-    @QtCore.Slot(object, object)
-    def device_notify(self, inserted, info):
+    def _on_device_notify(self, inserted, info):
         log.info('Device notify')
         self._device_scan()
 
@@ -559,7 +605,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def _software_update_check(self):
         if self._cmdp['General/update_check']:
             channel = self._cmdp['General/update_channel']
-            software_update_check(self.on_softwareUpdateSignal.emit, channel)
+            software_update_check(self.resync_handler('software_update'), channel)
 
     def _on_software_update(self, current_version, latest_version, url):
         channel = self._cmdp['General/update_channel']
@@ -644,7 +690,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self._device.parameter_set('buffer_duration', self._cmdp['Device/setting/buffer_duration'])
                 self._device.parameter_set('sampling_frequency', self._cmdp['Device/setting/sampling_frequency'])
             try:
-                self._device.open(self.on_deviceEventSignal.emit)
+                self._device.open(self.resync_handler('device_event'))
             except:
                 log.exception('while opening device')
                 return self._device_open_failed('Could not open device')
@@ -660,13 +706,13 @@ class MainWindow(QtWidgets.QMainWindow):
                     self._device.ui_action.setChecked(True)
                 if hasattr(self._device, 'view_factory'):
                     data_view = self._device.view_factory()
-                    data_view.on_update_fn = self._data_view_update_fn
+                    data_view.on_update_fn = self.resync_handler('data_view_update')
                     data_view.open()
                     data_view.refresh()
                     self._cmdp.publish('Device/#state/x_limits', data_view.limits)
                     self._data_view = data_view
                 if hasattr(self._device, 'statistics_callback'):
-                    self._device.statistics_callback = self.on_statisticSignal.emit
+                    self._device.statistics_callback = self.resync_handler('device_statistic')
                 self._cmdp.subscribe('Device/setting/', self._on_device_parameter, update_now=True)
                 self._cmdp.subscribe('Device/extio/', self._on_device_parameter, update_now=True)
                 self._cmdp.subscribe('Device/Current Ranging/', self._on_device_current_range_parameter, update_now=True)
@@ -680,7 +726,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 log.exception('while initializing after open device')
                 return self._device_open_failed('Could not initialize device')
 
-    def _data_view_update_fn(self, data):
+    def _on_data_view_update(self, data):
         self._cmdp.publish('DataView/#data', data)
 
     def _on_device_parameter(self, topic, value):
@@ -861,10 +907,11 @@ class MainWindow(QtWidgets.QMainWindow):
     def on_deviceScan(self):
         self._device_scan()
 
-    def _progress_dialog_construct(self):
-        dialog = QtWidgets.QProgressDialog()
+    def _firmware_update_progress_dialog_construct(self):
+        log.debug('_firmware_update_progress_dialog_construct')
+        dialog = QtWidgets.QProgressDialog(self)
         dialog.setCancelButton(None)
-        dialog.setWindowTitle('Joulescope')
+        dialog.setWindowTitle('Joulescope Progress')
         dialog.setLabelText('Firmware update in progress\nDo not unplug or turn off power')
         dialog.setRange(0, 1000)
         width = QtGui.QFontMetrics(dialog.font()).width('Do not unplug or turn off power') + 100
@@ -872,9 +919,28 @@ class MainWindow(QtWidgets.QMainWindow):
         self._progress_dialog = dialog
         return dialog
 
+    def _range_tool_progress_dialog_construct(self, name):
+        log.debug('_range_tool_progress_dialog_construct')
+        dialog = QtWidgets.QProgressDialog(self)
+        dialog.setWindowTitle('Joulescope Progress')
+        text = f'{name} in progress...'
+        dialog.setMinimumDuration(0)
+        dialog.setLabelText(text)
+        dialog.setRange(0, 1000)
+        dialog.setCancelButtonText('Cancel')
+        dialog.setWindowModality(QtCore.Qt.WindowModal)
+        width = QtGui.QFontMetrics(dialog.font()).width(text) + 100
+        dialog.resize(width, dialog.height())
+        self._progress_dialog = dialog
+        return dialog
+
     def _progress_dialog_finalize(self):
-        self.on_progressValue.disconnect()
-        self.on_progressMessage.disconnect()
+        if self._progress_dialog is not None:
+            log.debug('_progress_dialog_finalize')
+            self._progress_dialog.canceled.disconnect()
+            self._progress_dialog.cancel()
+            self._progress_dialog.hide()
+            self._progress_dialog.close()
         self._progress_dialog = None
 
     def _firmware_update_on_open(self):
@@ -911,24 +977,36 @@ class MainWindow(QtWidgets.QMainWindow):
         d.open()
         self._device = d
 
+    @QtCore.Slot(int)
+    def _on_progress_value(self, value):
+        if self._progress_dialog is not None:
+            value = int(value)
+            self._progress_dialog.setValue(int(value))
+            if value == 1000:
+                self._progress_dialog_finalize()
+            elif self._progress_dialog.isHidden():
+                self._progress_dialog.show()
+
+    def _on_progress_message(self, msg):
+        self.status(msg)
+
     def _firmware_update(self, device):
         data = firmware_manager.load()
         if data is None:
             self.status('Firmware update required, but could not find firmware image')
             return False
 
-        dialog = self._progress_dialog_construct()
+        dialog = self._firmware_update_progress_dialog_construct()
         progress = {
             'stage': '',
             'device': None,
         }
-
-        self.on_progressValue.connect(dialog.setValue)
-        self.on_progressMessage.connect(self.status)
+        progress_value_fn = self.resync_handler('progress_value')
+        progress_message_fn = self.resync_handler('progress_message')
 
         def progress_cbk(value):
-            self.on_progressValue.emit(int(value * 1000))
-            self.on_progressMessage.emit('Firmware upgrade [%.1f%%] %s' % (value * 100, progress['stage']))
+            progress_value_fn(int(value * 1000))
+            progress_message_fn('Firmware upgrade [%.1f%%] %s' % (value * 100, progress['stage']))
 
         def stage_cbk(s):
             progress['stage'] = s
@@ -936,7 +1014,7 @@ class MainWindow(QtWidgets.QMainWindow):
         def done_cbk(d):
             progress['device'] = d
             if d is None:
-                self.on_progressMessage.emit('Firmware upgrade failed - unplug and retry')
+                progress_message_fn('Firmware upgrade failed - unplug and retry')
             dialog.accept()
 
         self._is_scanning, is_scanning = True, self._is_scanning
@@ -949,9 +1027,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self._is_scanning = is_scanning
             # self.status_update_timer.start()
 
-    @QtCore.Slot(int, str)
-    def _on_stop(self, event, message):
-        log.debug('_on_stop(%d, %s)', event, message)
+    def _on_device_stop(self, event, message):
+        log.debug('_on_device_stop(%d, %s)', event, message)
         self._cmdp.publish('Device/#state/play', False)
 
     def _device_stream_start(self):
@@ -966,7 +1043,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._streaming_status = {}
         self._cmdp.publish('Device/#state/sampling_frequency', self._device.sampling_frequency)
         try:
-            self._device.start(stop_fn=self.on_stopSignal.emit)
+            self._device.start(stop_fn=self.resync_handler('device_stop'))
         except Exception:
             log.exception('_device_stream_start')
             self.status('Could not start device streaming')
@@ -1215,6 +1292,8 @@ class MainWindow(QtWidgets.QMainWindow):
         }
 
     def _window_state_update(self):
+        if threading.current_thread().getName() != 'MainThread':
+            raise RuntimeError('invalid thread')
         s = self._window_state()
         s['__ignore__'] = True
         self._cmdp.publish('_window', s)
@@ -1399,9 +1478,10 @@ class MainWindow(QtWidgets.QMainWindow):
     def _cmd_range_tool_run(self, topic, value):
         # note: no undo available
         self._path()  # has side effect of validating path
-        range_tool = self._plugins.range_tools.get(value['name'])
+        range_tool_name = value['name']
+        range_tool = self._plugins.range_tools.get(range_tool_name)
         if range_tool is None:
-            self.status(f'Range tool {value["name"]} not found')
+            self.status(f'Range tool {range_tool_name} not found')
             return None
         x_start, x_stop = value['x_start'], value['x_stop']
         if not hasattr(self._data_view, 'statistics_get'):
@@ -1415,14 +1495,24 @@ class MainWindow(QtWidgets.QMainWindow):
             voltage_range = None
             log.warning('cannot get voltage_range')
         self._cmdp.publish('Plugins/#state/voltage_range', voltage_range)
-        invoke = RangeToolInvoke(self, range_tool, cmdp=self._cmdp)
+        invoke = RangeToolInvoke(self, self.resync_handler('range_tool_resync'), range_tool, cmdp=self._cmdp)
+        progress_dialog = self._range_tool_progress_dialog_construct(range_tool_name)
+        progress_dialog.canceled.connect(invoke.on_cancel)
+        invoke.sigProgress.connect(self._on_progress_value)
         invoke.sigFinished.connect(self.on_rangeToolFinished)
         s = self._data_view.statistics_get(x_start, x_stop, units='seconds')
+        self._range_tool = invoke
         invoke.run(self._data_view, s, x_start, x_stop)
         return None
 
+    def _on_range_tool_resync(self):
+        if self._range_tool is not None:
+            self._range_tool.on_resync()
+
     @QtCore.Slot(object, str)
     def on_rangeToolFinished(self, range_tool, msg):
+        self._range_tool = None
+        self._progress_dialog_finalize()
         if msg:
             log.warning(msg)
             self.status(msg)
@@ -1468,6 +1558,18 @@ def load_fonts():
             else:
                 font_list.append(f'    {resource_path} => {rv}')
     log.debug('Loaded fonts:%s', '\n'.join(font_list))
+
+
+def exception_hook(exctype, value, traceback):
+    print(exctype, value, traceback)
+    _excepthook(exctype, value, traceback)
+    sys.exit(1)
+
+
+def unraisable_hook(unraisable):
+    print(unraisable)
+    _unraisablehook(unraisable)
+    sys.exit(1)
 
 
 def run(device_name=None, log_level=None, file_log_level=None, filename=None):
@@ -1539,7 +1641,7 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
         log.exception('MainWindow initializer failed')
         raise
     ui.run(filename)
-    device_notify = DeviceNotify(ui.on_deviceNotifySignal.emit)
+    device_notify = DeviceNotify(ui.resync_handler('device_notify'))
     rc = app.exec_()
     del ui
     device_notify.close()
