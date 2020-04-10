@@ -29,6 +29,7 @@ def run(cmd_queue, filehandle, calibration, logging_queue):
             data, = args
             r.insert(data)
         elif cmd == 'close':
+            log.info('DataRecorder closing')
             r.close()
             break
     cmd_queue.put('close')
