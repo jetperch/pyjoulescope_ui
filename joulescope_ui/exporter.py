@@ -44,7 +44,10 @@ class Exporter:
         fn = registry.get(filetype)
         if fn is None:
             return f'Invalid export file type: {filetype}'
-        return fn(data)
+        rv = fn(data)
+        if data.is_cancelled and os.path.isfile(self._cfg['filename']):
+            os.unlink(self._cfg['filename'])
+        return rv
 
     def _export_bin(self, data):
         cfg = self._cfg
