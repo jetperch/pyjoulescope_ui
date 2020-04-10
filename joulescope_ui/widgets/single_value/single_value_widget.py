@@ -193,7 +193,8 @@ class SingleValueWidget(QtWidgets.QWidget):
         self.unitLabel.setText(_translate("Form", ""))
 
     def resizeEvent(self, event):
-        super().resizeEvent(event)
+        if event is not None:
+            super().resizeEvent(event)
         width = self.valueLabel.fontMetrics().boundingRect("i+0.00000").width()
         self.valueLabel.setMinimumWidth(width)
         width = self.unitLabel.fontMetrics().boundingRect("imW").width()
