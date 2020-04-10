@@ -30,7 +30,7 @@ import subprocess
 import shutil
 
 
-JOULESCOPE_VERSION_MIN = '0.8.8'  # also update requirements.txt
+JOULESCOPE_VERSION_MIN = '0.8.11'  # also update requirements.txt
 MYPATH = os.path.abspath(os.path.dirname(__file__))
 VERSION_PATH = os.path.join(MYPATH, 'joulescope_ui', 'version.py')
 
@@ -173,9 +173,9 @@ setuptools.setup(
         'numpy>=1.15.2',
         'pyperclip>=1.7.0',
         'python-dateutil>=2.7.3',
-        'pyside2>=5.13.0',
+        'pyside2==5.13.2',
         # 'pyqtgraph>=0.11.0', eventually, but PEP 508 URL for now:
-        'pyqtgraph @ https://github.com/jetperch/pyqtgraph/tarball/36e8ef44232ea9bbf577cadeb0465078fa0c067c#egg=pyqtgraph-0.11.0.dev1',
+        'pyqtgraph @ https://github.com/jetperch/pyqtgraph/tarball/fc3192a9c8187405ee6655daffdba19ea6d35b13#egg=pyqtgraph-0.11.0.dev1',
         'requests>=2.0.0',
         'joulescope>=' + JOULESCOPE_VERSION_MIN,
     ] + PLATFORM_INSTALL_REQUIRES,
