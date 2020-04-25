@@ -254,7 +254,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self._fps_limit_timer = QtCore.QTimer()
         self._fps_limit_timer.setSingleShot(True)
         self._fps_limit_timer.timeout.connect(self.on_fpsTimer)
-        self._range_tool = None
+        self._range_tool = None  # the current running range tools
+        self._range_tools = []   # completed range tools with open windows
 
         self._recovery_timer = QtCore.QTimer()
         self._recovery_timer.setSingleShot(True)
@@ -1477,6 +1478,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def _cmd_range_tool_run(self, topic, value):
         # note: no undo available
+        if self._range_tool is not None:
+            self.status('Previous range tool still running')
+            return
         self._path()  # has side effect of validating path
         range_tool_name = value['name']
         range_tool = self._plugins.range_tools.get(range_tool_name)
@@ -1500,9 +1504,16 @@ class MainWindow(QtWidgets.QMainWindow):
         progress_dialog.canceled.connect(invoke.on_cancel)
         invoke.sigProgress.connect(self._on_progress_value)
         invoke.sigFinished.connect(self.on_rangeToolFinished)
+        invoke.sigClosed.connect(self.on_rangeToolClosed)
         s = self._data_view.statistics_get(x_start, x_stop, units='seconds')
         self._range_tool = invoke
-        invoke.run(self._data_view, s, x_start, x_stop)
+        self._range_tools.append(invoke)
+        try:
+            invoke.run(self._data_view, s, x_start, x_stop)
+        except:
+            log.exception('range tool run')
+            self.on_rangeToolFinished(invoke, f'Exception in range tool {invoke.name}')
+            self.on_rangeToolClosed(invoke)
         return None
 
     def _on_range_tool_resync(self):
@@ -1518,6 +1529,15 @@ class MainWindow(QtWidgets.QMainWindow):
             self.status(msg)
         else:
             self.status(range_tool.name + ' done')
+
+    def on_rangeToolClosed(self, range_tool):
+        if range_tool == self._range_tool:
+            log.warning('range tool closed but not finished')
+            self.on_rangeToolFinished(range_tool, 'range tool closed but not finished')
+        try:
+            self._range_tools.remove(range_tool)
+        except ValueError:
+            log.warning('Range tool closed but not found')
 
     def dropEvent(self, event):
         log.debug('dropEvent')

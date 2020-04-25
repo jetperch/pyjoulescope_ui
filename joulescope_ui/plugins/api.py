@@ -108,7 +108,8 @@ class RangeTool:
         """Optional method run after completing the processing thread.
 
         :param data: The :class:`RangeToolInvocation` instance to process.
-        :return: None on success or error message.
+        :return: None on success and done.  True to defer execution close
+            until this tool calls data.on_tool_finished().
         """
         pass
 

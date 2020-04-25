@@ -57,6 +57,8 @@ class RangeToolIterable:
 class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
     sigProgress = QtCore.Signal(int)
     sigFinished = QtCore.Signal(object, str)  # range_tool, error message or ''
+    sigClosed = QtCore.Signal(object)  # range_tool
+    _sigToolClosed = QtCore.Signal()
 
     def __init__(self, parent, resync_handler, range_tool, cmdp):
         super().__init__(parent)
@@ -81,6 +83,7 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
         self._iterable = None
         self._commands = []
 
+        self._sigToolClosed.connect(self._finalize, type=QtCore.Qt.QueuedConnection)
         cmdp.define('Plugins/#state/voltage_range', dtype=int, default=0)  # for file export
 
     def __iter__(self):
@@ -93,6 +96,10 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
         except StopIteration:
             self._iterable = None
             raise
+
+    @property
+    def name(self):
+        return self._range_tool.name
 
     @property
     def is_cancelled(self):
@@ -164,7 +171,7 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
         s1 = view.time_to_sample_id(t1)
         s2 = view.time_to_sample_id(t2)
         if s1 is None or s2 is None:
-            return 'time out of range'
+            return self._abort('time out of range')
         self.sample_range = (s1, s2)
         self.sample_count = s2 - s1
         self.sample_frequency = view.sampling_frequency
@@ -176,14 +183,17 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
             if hasattr(self._range_tool_obj, 'run_pre'):
                 rc = self._range_tool_obj.run_pre(self)
                 if rc is not None:
-                    log.warning('%s run_pre failed: %s', self._range_tool.name, rc)
-                    self._finalize(f'{self._range_tool.name}: {rc}')
-                    return
+                    return self._abort(f'{self.name} run_pre failed: {rc}')
         except:
             log.exception('During range tool run_pre()')
-            return
+            return self._abort('Exception in range tool run_pre()')
         self._thread = threading.Thread(target=self._thread_run)
         self._thread.start()
+
+    def _abort(self, msg):
+        self.sigFinished.emit(self, msg)
+        self._finalize()
+        return msg
 
     def _thread_run(self):
         self._assert_worker_thread()
@@ -216,6 +226,7 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
         self._cancel = True
 
     def _on_finished(self, msg):
+        finalize_defer = False
         self._assert_main_thread()
         self.sigProgress.emit(1000)
         self.sigProgress.disconnect()
@@ -224,7 +235,7 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
         if not self.is_cancelled:
             try:
                 if hasattr(self._range_tool_obj, 'run_post'):
-                    self._range_tool_obj.run_post(self)
+                    finalize_defer = self._range_tool_obj.run_post(self)
             except:
                 log.exception('During range tool run_post()')
                 return
@@ -235,12 +246,18 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
                     command()
                 except:
                     log.exception('During range tool command')
-        self._finalize(msg)
+        self.sigFinished.emit(self, msg)
+        if not finalize_defer:
+            self._finalize()
 
-    def _finalize(self, msg):
+    def on_tool_finished(self):
+        self._sigToolClosed.emit()
+
+    @QtCore.Slot()
+    def _finalize(self):
         self._assert_main_thread()
         log.info('range tool finalize')
-        self.sigFinished.emit(self._range_tool, msg)
+        self.sigClosed.emit(self)
         self._range_tool_obj = None
         self._parent = None
         self._qt_resync_handler = None
