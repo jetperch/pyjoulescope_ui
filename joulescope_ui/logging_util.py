@@ -219,4 +219,4 @@ def logging_start():
         except:
             print('Error stopping logging thread')
 
-    return queue, stop
+    return queue, stop, listener

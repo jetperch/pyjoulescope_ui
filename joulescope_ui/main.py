@@ -1635,7 +1635,7 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
         app = QtWidgets.QApplication(sys.argv)
         load_fonts()
         # app.setFont(QtGui.QFont('Lato', 10))
-        multiprocessing_logging_queue, logging_stop = logging_start()
+        multiprocessing_logging_queue, logging_stop, logging_thread = logging_start()
 
     except Exception:
         log.exception('during initialization')
