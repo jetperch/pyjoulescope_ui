@@ -6,7 +6,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.8.12
 
-2020 Apr 27 [in progress]
+2020 Apr 27
 
 *   Fixed plugin window instances become invalid #74.
 *   Improved logging for multiprocessing.
