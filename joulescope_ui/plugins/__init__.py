@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from . import usb_inrush, histogram, cdf, ccdf, max_window
+from . import usb_inrush, histogram, cdf, ccdf, frequency, max_window
 # from . import example_01, example_02
 
 PLUGINS_BUILTIN = [
@@ -20,6 +20,7 @@ PLUGINS_BUILTIN = [
     histogram,
     cdf,
     ccdf,
+    frequency,
     max_window,
     # example_01, example_02,
 ]
