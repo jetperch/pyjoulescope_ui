@@ -10,6 +10,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 *   Fixed plugin window instances become invalid #74.
 *   Improved logging for multiprocessing.
+*   Fixed downsampled JLS files display dropped samples as 0 #75.
 
 
 ## 0.8.11
