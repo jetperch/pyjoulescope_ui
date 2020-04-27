@@ -87,6 +87,13 @@ def preferences_def(p):
         dtype='bool',
         default=False,
         default_profile_only=True)
+    p.define(
+        topic='General/process_priority',
+        brief='The OS process priority',
+        detail='This feature is currently only supported on Windows.',
+        dtype='str',
+        options=['normal', 'elevated'],
+        default='elevated')
 
     # --- GENERAL ---
     p.define('Units/', 'Units to display.')

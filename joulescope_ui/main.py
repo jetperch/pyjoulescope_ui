@@ -315,6 +315,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._cmdp.subscribe('Widgets/active', self._on_widgets_active)
         self._cmdp.subscribe('_window', self._on_window_state)
         self._cmdp.subscribe('General/developer', self._on_general_developer)
+        self._cmdp.subscribe('General/process_priority', self._on_process_priority, update_now=True)
 
         # Main implements the DataView bindings
         self._cmdp.subscribe('DataView/#service/x_change_request', self._on_dataview_service_x_change_request)
@@ -428,6 +429,17 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def _on_general_developer(self, topic, value):
         self._view_menu()
+
+    def _on_process_priority(self, topic, value):
+        if sys.platform.startswith('win'):
+            import win32api, win32process, win32con
+            pid = win32api.GetCurrentProcessId()
+            handle = win32api.OpenProcess(win32con.PROCESS_ALL_ACCESS, True, pid)
+            if value == 'normal':
+                priority = win32process.NORMAL_PRIORITY_CLASS
+            else:
+                priority = win32process.HIGH_PRIORITY_CLASS
+            win32process.SetPriorityClass(handle, priority)
 
     def _view_menu(self):
         self._profile_action_group = None
