@@ -4,6 +4,13 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.8.14
+
+2020 Apr 30
+
+*   Added encoding='utf-8' to setup.py to fix package install on macOS.
+
+
 ## 0.8.12
 
 2020 Apr 27

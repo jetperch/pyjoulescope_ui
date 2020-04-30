@@ -30,7 +30,7 @@ import subprocess
 import shutil
 
 
-JOULESCOPE_VERSION_MIN = '0.8.12'  # also update requirements.txt
+JOULESCOPE_VERSION_MIN = '0.8.14'  # also update requirements.txt
 MYPATH = os.path.abspath(os.path.dirname(__file__))
 VERSION_PATH = os.path.join(MYPATH, 'joulescope_ui', 'version.py')
 
@@ -40,7 +40,7 @@ def convert_qt_ui():
     rcc_path = shutil.which('pyside2-rcc')
     path = os.path.join(MYPATH, 'joulescope_ui')
     ignore_filename = os.path.join(path, '.gitignore')
-    with open(ignore_filename, 'wt') as ignore:
+    with open(ignore_filename, 'w', encoding='utf-8') as ignore:
         ignore.write('# Automatically generated.  DO NOT EDIT\n')
         for root, d_names, f_names in os.walk(path):
             for source in f_names:
@@ -52,7 +52,7 @@ def convert_qt_ui():
                     rc = subprocess.run([uic_path, source], stdout=subprocess.PIPE)
                     s = rc.stdout.replace(b'\r\n', b'\n').decode('utf-8')
                     s = s.replace('\nimport joulescope_rc\n', '\nfrom joulescope_ui import joulescope_rc\n')
-                    with open(target, 'wt', encoding='utf8') as ftarget:
+                    with open(target, 'w', encoding='utf-8') as ftarget:
                         ftarget.write(s)
                 elif ext == '.qrc':
                     target = source_base + '_rc.py'
@@ -67,7 +67,7 @@ def convert_qt_ui():
 
 
 def _version_get():
-    with open(VERSION_PATH, 'rt') as fv:
+    with open(VERSION_PATH, 'r', encoding='utf-8') as fv:
         for line in fv:
             if line.startswith('__version__'):
                 return line.split('=')[-1].strip()[1:-1]
@@ -77,7 +77,7 @@ def _version_get():
 def update_inno_iss():
     version = _version_get()
     path = os.path.join(MYPATH, 'joulescope.iss')
-    with open(path, 'rt') as fv:
+    with open(path, 'r', encoding='utf-8') as fv:
         lines = fv.readlines()
     version_underscore = version.replace('.', '_')
     for idx, line in enumerate(lines):
@@ -85,7 +85,7 @@ def update_inno_iss():
             lines[idx] = f'#define MyAppVersionUnderscores "{version_underscore}"\n'
         elif line.startswith('#define MyAppVersion'):
             lines[idx] = f'#define MyAppVersion "{version}"\n'
-    with open(path, 'wt') as fv:
+    with open(path, 'w', encoding='utf-8') as fv:
         fv.write(''.join(lines))
 
 
