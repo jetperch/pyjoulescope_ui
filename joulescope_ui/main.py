@@ -726,6 +726,8 @@ class MainWindow(QtWidgets.QMainWindow):
                     self._data_view = data_view
                 if hasattr(self._device, 'statistics_callback'):
                     self._device.statistics_callback = self.resync_handler('device_statistic')
+                # must apply i_range first to prevent Joulescope OUT glitch
+                self._on_device_parameter('Device/setting/i_range', self._cmdp['Device/setting/i_range'])
                 self._cmdp.subscribe('Device/setting/', self._on_device_parameter, update_now=True)
                 self._cmdp.subscribe('Device/extio/', self._on_device_parameter, update_now=True)
                 self._cmdp.subscribe('Device/Current Ranging/', self._on_device_current_range_parameter, update_now=True)
@@ -749,6 +751,7 @@ class MainWindow(QtWidgets.QMainWindow):
         while topic.startswith('_'):
             topic = topic[1:]
         try:
+            print(f'_on_device_parameter({topic}, {value})')
             self._device.parameter_set(topic, value)
         except Exception:
             log.exception('during parameter_set')
