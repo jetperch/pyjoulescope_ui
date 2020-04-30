@@ -275,7 +275,7 @@ class MainWindow(QtWidgets.QMainWindow):
             },
         }
         self._is_scanning = False
-        self._progress_dialog = None
+        self._progress_dialog = None  # One of [None, cfg dict, QProgressDialog].
         self._cmdp = cmdp
 
         super(MainWindow, self).__init__()
@@ -951,7 +951,9 @@ class MainWindow(QtWidgets.QMainWindow):
         return dialog
 
     def _progress_dialog_finalize(self):
-        if self._progress_dialog is not None:
+        if isinstance(self._progress_dialog , dict):
+            pass  # never created, no worries!
+        elif self._progress_dialog is not None:
             log.debug('_progress_dialog_finalize')
             self._progress_dialog.canceled.disconnect()
             self._progress_dialog.cancel()
@@ -995,6 +997,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
     @QtCore.Slot(int)
     def _on_progress_value(self, value):
+        if isinstance(self._progress_dialog, dict):
+            # only for range tools, not firmware update
+            cfg, self._progress_dialog = self._progress_dialog, None
+            progress_dialog = self._range_tool_progress_dialog_construct(cfg['name'])
+            progress_dialog.canceled.connect(cfg['on_cancel'])
         if self._progress_dialog is not None:
             value = int(value)
             self._progress_dialog.setValue(int(value))
@@ -1515,8 +1522,7 @@ class MainWindow(QtWidgets.QMainWindow):
             log.warning('cannot get voltage_range')
         self._cmdp.publish('Plugins/#state/voltage_range', voltage_range)
         invoke = RangeToolInvoke(self, self.resync_handler('range_tool_resync'), range_tool, cmdp=self._cmdp)
-        progress_dialog = self._range_tool_progress_dialog_construct(range_tool_name)
-        progress_dialog.canceled.connect(invoke.on_cancel)
+        self._progress_dialog = {'name': range_tool_name, 'on_cancel': invoke.on_cancel}
         invoke.sigProgress.connect(self._on_progress_value)
         invoke.sigFinished.connect(self.on_rangeToolFinished)
         invoke.sigClosed.connect(self.on_rangeToolClosed)
