@@ -751,7 +751,7 @@ class MainWindow(QtWidgets.QMainWindow):
         while topic.startswith('_'):
             topic = topic[1:]
         try:
-            print(f'_on_device_parameter({topic}, {value})')
+            # print(f'_on_device_parameter({topic}, {value})')
             self._device.parameter_set(topic, value)
         except Exception:
             log.exception('during parameter_set')
