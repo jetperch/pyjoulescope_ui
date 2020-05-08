@@ -9,7 +9,8 @@ pypiwin32>=223; sys_platform == 'win32'
 python-dateutil>=2.7.3
 pyperclip>=1.7.0
 PyInstaller>=3.5
-PySide2==5.13.2
+PySide2==5.13.2; python_version < '3.8'
+PySide2>=5.14.2.1; python_version >= '3.8'
 requests>=2.0.0
 wheel
 

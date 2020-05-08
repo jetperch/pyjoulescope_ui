@@ -6,11 +6,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.8.14
 
-2020 Apr 30 [in progress]
+2020 May 8
 
 *   Added encoding='utf-8' to setup.py to fix package install on macOS.
 *   Fixed momentary power OUT power glitch when reconnecting using 'auto'.
 *   Fixed progress bar displaying while still configuring data export #77.
+*   Fixed JLS load to better handle truncated files.
+*   Modified dependencies to support both Python 3.7 and Python 3.8.
 
 
 ## 0.8.12

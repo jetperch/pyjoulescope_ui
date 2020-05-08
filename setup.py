@@ -156,6 +156,7 @@ setuptools.setup(
         # Supported Python versions
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ],
 
     keywords='joulescope ui gui "user interface"',
@@ -173,7 +174,6 @@ setuptools.setup(
         'numpy>=1.15.2',
         'pyperclip>=1.7.0',
         'python-dateutil>=2.7.3',
-        'pyside2==5.13.2',
         # 'pyqtgraph>=0.11.0', eventually, but PEP 508 URL for now:
         'pyqtgraph @ https://github.com/jetperch/pyqtgraph/tarball/fc3192a9c8187405ee6655daffdba19ea6d35b13#egg=pyqtgraph-0.11.0.dev1',
         'requests>=2.0.0',
@@ -181,6 +181,8 @@ setuptools.setup(
     ] + PLATFORM_INSTALL_REQUIRES,
     
     extras_require={
+        ':python_version == "3.7"': ['pyside2==5.13.2'],
+        ':python_version == "3.8"': ['pyside2>=5.14.2.1'],
         'dev': ['check-manifest', 'Cython', 'coverage', 'wheel', 'pyinstaller'],
     },
 
