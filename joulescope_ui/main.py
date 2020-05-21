@@ -382,6 +382,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self._shortcut_undo.activated.connect(lambda: self._cmdp.invoke('!undo'))
         self._shortcut_redo = QtWidgets.QShortcut(QtGui.QKeySequence.Redo, self)
         self._shortcut_redo.activated.connect(lambda: self._cmdp.invoke('!redo'))
+        self._shortcut_spacebar = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Space), self)
+        self._shortcut_spacebar.activated.connect(self._on_spacebar)
 
         if not self._cmdp.restore_success:
             self.status('Could not restore preferences - using defaults', timeout=0)
@@ -1189,6 +1191,10 @@ class MainWindow(QtWidgets.QMainWindow):
             instance_id += 1
         log.debug('_instance_id_next => %d', instance_id)
         return instance_id
+
+    def _on_spacebar(self):
+        is_playing = self._cmdp['Device/#state/play']
+        self._cmdp.publish('Device/#state/play', not is_playing)
 
     def _widget_str(self, widget_str):
         name, instance_id = dock_widget_parse_str(widget_str)
