@@ -4,6 +4,14 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.8.15
+
+2020 May 21 [in progress]
+
+*   Fixed dragging y-axis range #65.
+
+
+
 ## 0.8.14
 
 2020 May 8

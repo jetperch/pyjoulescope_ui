@@ -182,7 +182,7 @@ class Signal(QtCore.QObject):
 
     @QtCore.Slot(object, float)
     def on_panY(self, command, y):
-        self.log.info('on_panY(%s, %s)', command, y)
+        self.log.debug('on_panY(%s, %s)', command, y)
         if command == 'finish':
             if self._y_pan is not None:
                 pass
@@ -197,7 +197,7 @@ class Signal(QtCore.QObject):
         delta = y_start - y
         ra = ya + delta
         rb = yb + delta
-        self.vb.setRange(yRange=[ra, rb])
+        self.vb.setRange(yRange=[ra, rb], padding=0)
 
     def yaxis_autorange(self, v_min, v_max):
         if v_min is None or v_max is None:

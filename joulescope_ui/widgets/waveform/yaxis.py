@@ -164,13 +164,37 @@ class YAxis(pg.AxisItem):
                 # self.scene().addParentContextMenus(self, self.menu, event)
                 self.menu.popup(event.screenPos().toPoint())
 
+    def _pan_finish(self):
+        if self._pan is not None:
+            self.log.info('_pan_finish')
+            pan_x, self._pan = self._pan[0], None
+            self.sigPanYEvent.emit('finish', pan_x)
+
+    def _pan_start(self, pnow_y):
+        self._pan_finish()
+        self._pan = [0.0, pnow_y]
+        self.sigPanYEvent.emit('start', 0.0)
+
+    def hoverEvent(self, event):
+        vb = self.linkedView()
+        if vb is None:
+            return
+        if event.exit:
+            self._pan_finish()
+        try:
+            pos = event.scenePos()
+        except:
+            return  # no problem, not a mouse move event
+        if not self.geometry().contains(pos):
+            self._pan_finish()
+
     def mouseDragEvent(self, event, axis=None):
         vb = self.linkedView()
         if vb is None:
             return
         pos = event.scenePos()
         if self.geometry().contains(pos):
-            self.log.info('mouseDragEvent(%s)', event)
+            self.log.debug('mouseDragEvent(%s)', event)
             event.accept()
             if self.config['range'] == 'manual':
                 [x_min, x_max], [y_min, y_max] = vb.viewRange()
@@ -188,14 +212,13 @@ class YAxis(pg.AxisItem):
 
                 if event.button() & QtCore.Qt.LeftButton:
                     if event.isFinish():
-                        if self._pan is not None:
-                            pan_x, self._pan = self._pan[0], None
-                            self.sigPanYEvent.emit('finish', pan_x)
+                        self._pan_finish()
                     elif self._pan is None:
-                        self._pan = [0.0, pnow_y]
-                        self.sigPanYEvent.emit('start', 0.0)
+                        self._pan_start(pnow_y)
                     else:
                         self.sigPanYEvent.emit('drag', self._pan[0])
+        else:
+            self._pan_finish()
 
     def wheelEvent(self, event, axis=None):
         vb = self.linkedView()
