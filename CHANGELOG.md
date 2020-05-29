@@ -6,7 +6,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.8.15
 
-2020 May 21 [in progress]
+2020 May 29
 
 *   Fixed dragging y-axis range #65.
 *   Mapped space bar keyboard shortcut to toggle device run/pause #78.
