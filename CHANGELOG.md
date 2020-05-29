@@ -4,7 +4,7 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
-## 0.8.15
+## 0.8.16
 
 2020 May 29
 
@@ -13,6 +13,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Updated to PySide2 5.15.0 and pyqraph development latest.
 *   Add workaround to prevent main Qt event thread blocking on Windows
     when using QFileDialog convenience functions.
+*   Fixed race condition when stopping recording.
+*   Fixed streaming stop not fully stopping any recording in progress.
 
 
 ## 0.8.14

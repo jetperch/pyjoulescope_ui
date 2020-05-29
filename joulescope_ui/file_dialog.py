@@ -31,10 +31,13 @@ class FileDialog:
         file_mode = 'existingfile' if file_mode is None else file_mode.lower()
         if file_mode in [None, 'existingfile', 'existing']:
             self._mode = QtWidgets.QFileDialog.ExistingFile
+            self.dialog.setAcceptMode(QtWidgets.QFileDialog.AcceptOpen)
         elif file_mode in [None, 'existingfiles', 'files', 'multiple']:
             self._mode = QtWidgets.QFileDialog.ExistingFiles
+            self.dialog.setAcceptMode(QtWidgets.QFileDialog.AcceptOpen)
         elif file_mode in ['any', 'anyfile']:
             self._mode = QtWidgets.QFileDialog.AnyFile
+            self.dialog.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
         else:
             raise RuntimeError(f'Invalid file mode {file_mode}')
         self.dialog.setFileMode(self._mode)

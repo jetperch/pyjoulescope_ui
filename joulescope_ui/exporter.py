@@ -112,8 +112,8 @@ class ExportDialog(QtWidgets.QDialog):
         self.ui.filenameLineEdit.textChanged.connect(self.on_filename_text_edit)
         self.ui.filenameSelectButton.pressed.connect(self.on_filename_select_button)
         filename = construct_record_filename()
-        path = os.path.join(path, filename)
-        self.ui.filenameLineEdit.setText(path)
+        filename = os.path.join(path, filename)
+        self.ui.filenameLineEdit.setText(filename)
 
     def on_filename_select_button(self):
         filters = [
@@ -123,7 +123,8 @@ class ExportDialog(QtWidgets.QDialog):
             'Raw 16-bit samples (*.raw)',
         ]
         filter_str = ';;'.join(filters)
-        dialog = FileDialog(self, 'Save Joulescope Data', self._path, 'any')
+        filename = self.ui.filenameLineEdit.text()
+        dialog = FileDialog(self, 'Save Joulescope Data', filename, 'any')
         dialog.setNameFilter(filter_str)
         filename = dialog.exec_()
         if bool(filename):

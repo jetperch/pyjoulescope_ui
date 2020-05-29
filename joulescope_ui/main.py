@@ -1081,6 +1081,8 @@ class MainWindow(QtWidgets.QMainWindow):
         if not self._has_active_device:
             log.info('_device_stream_stop when no device')
             return
+        self._device_stream_record_stop()
+        self._cmdp.publish('Device/#state/record', False)
         if hasattr(self._device, 'stop'):
             self._device.stop()  # always safe to call
         self._cmdp.publish('Device/#state/source', 'Buffer')
@@ -1676,6 +1678,7 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
     ui.run(filename)
     device_notify = DeviceNotify(ui.resync_handler('device_notify'))
     rc = app.exec_()
+    log.info('shutting down')
     del ui
     device_notify.close()
     logging_stop()
