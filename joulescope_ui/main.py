@@ -26,6 +26,7 @@ from joulescope_ui.main_window import Ui_mainWindow
 from joulescope_ui.widgets import widget_register
 from joulescope.usb import DeviceNotify
 from joulescope_ui.data_recorder_process import DataRecorderProcess as DataRecorder
+from joulescope_ui.file_dialog import FileDialog
 from joulescope.data_recorder import construct_record_filename  # DataRecorder
 from joulescope_ui.recording_viewer_device import RecordingViewerDevice
 from joulescope_ui.preferences_ui import PreferencesDialog
@@ -1123,10 +1124,9 @@ class MainWindow(QtWidgets.QMainWindow):
                 self._device_stream_record_close()
                 fname = construct_record_filename()
                 path = os.path.join(self._path(), fname)
-                filename, selected_filter = QtWidgets.QFileDialog.getSaveFileName(
-                    self, 'Save Joulescope Recording', path, 'Joulescope Data (*.jls)')
-                filename = str(filename)
-                if not len(filename):
+                dialog = FileDialog(self, 'Save Joulescope Recording', path, 'any')
+                filename = dialog.exec_()
+                if filename is None:
                     self.status('Invalid filename, do not record')
                     self._device_stream_record_stop()
                     self._cmdp.publish('Device/#state/record', False)
@@ -1137,25 +1137,11 @@ class MainWindow(QtWidgets.QMainWindow):
         elif not enable:
             self._device_stream_record_stop()
 
-    def _save(self):
-        if self._device is None:
-            self.status('Device not open, cannot save buffer')
-            return
-        # Save the current buffer
-        filename, selected_filter = QtWidgets.QFileDialog.getSaveFileName(
-            self, 'Save Joulescope buffer', self._path(), 'Joulescope Data (*.jls)')
-        filename = str(filename)
-        if not len(filename):
-            self.status('Invalid filename, do not open')
-            return
-        # todo
-
     def on_recording_open(self):
-        filename, selected_filter = QtWidgets.QFileDialog.getOpenFileName(
-            self, 'Open Joulescope Recording', self._path(), 'Joulescope Data (*.jls)')
-        filename = str(filename)
-        if not len(filename) or not os.path.isfile(filename):
-            self.status('Invalid filename, do not open')
+        dialog = FileDialog(self, 'Open Joulescope Recording', self._path(), 'existing')
+        filename = dialog.exec_()
+        if filename is None:
+            self.status('Filename not selected, do not open')
             return
         self._recording_open(filename)
 

@@ -14,6 +14,7 @@
 
 from joulescope_ui.export_dialog import Ui_Form
 from PySide2 import QtWidgets, QtGui, QtCore
+from joulescope_ui.file_dialog import FileDialog
 from joulescope.data_recorder import DataRecorder, construct_record_filename
 import numpy as np
 import os
@@ -122,8 +123,9 @@ class ExportDialog(QtWidgets.QDialog):
             'Raw 16-bit samples (*.raw)',
         ]
         filter_str = ';;'.join(filters)
-        filename, select_mask = QtWidgets.QFileDialog.getSaveFileName(
-            self, 'Save Joulescope Data', self._path, filter_str)
+        dialog = FileDialog(self, 'Save Joulescope Data', self._path, 'any')
+        dialog.setNameFilter(filter_str)
+        filename = dialog.exec_()
         if bool(filename):
             log.info('save filename selected: %s', filename)
             filename = str(filename)
