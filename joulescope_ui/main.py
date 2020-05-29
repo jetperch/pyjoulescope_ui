@@ -69,7 +69,7 @@ Joulescope driver version {driver_version}<br/>
 <a href="https://www.joulescope.com">https://www.joulescope.com</a>
 
 <pre>
-Copyright 2018-2019 Jetperch LLC
+Copyright 2018-2020 Jetperch LLC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
