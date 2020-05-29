@@ -257,7 +257,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _vb_relink(self):
         if len(self._signals) <= 0:
-            self._x_axis.linkToView(None)
+            self._x_axis.unlinkFromView()
         else:
             row = SIGNAL_OFFSET_ROW + len(self._signals) - 1
             vb = self.win.ci.layout.itemAt(row, 1)
