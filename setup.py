@@ -175,7 +175,7 @@ setuptools.setup(
         'pyperclip>=1.7.0',
         'python-dateutil>=2.7.3',
         # 'pyqtgraph>=0.11.0', eventually, but PEP 508 URL for now:
-        'pyqtgraph @ https://github.com/jetperch/pyqtgraph/tarball/fc3192a9c8187405ee6655daffdba19ea6d35b13#egg=pyqtgraph-0.11.0.dev1',
+        'pyqtgraph @ https://github.com/jetperch/pyqtgraph/tarball/557e867b377b223589c0c8ffd0799c547965fb46#egg=pyqtgraph-0.11.0.dev1',
         'requests>=2.0.0',
         'joulescope>=' + JOULESCOPE_VERSION_MIN,
     ] + PLATFORM_INSTALL_REQUIRES,

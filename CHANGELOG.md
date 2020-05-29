@@ -10,6 +10,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 *   Fixed dragging y-axis range #65.
 *   Mapped space bar keyboard shortcut to toggle device run/pause #78.
+*   Updated to PySide2 5.15.0 and pyqraph development latest.
 
 
 ## 0.8.14
