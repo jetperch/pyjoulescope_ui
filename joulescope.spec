@@ -41,6 +41,8 @@ if sys.platform.startswith('win'):
         ('C:\\Windows\\System32\\msvcp100.dll', '.'),
         ('C:\\Windows\\System32\\msvcr100.dll', '.'),
         ('C:\\Windows\\System32\\msvcp140.dll', '.'),
+        ('C:\\Windows\\System32\\msvcp140_1.dll', '.'),
+        ('C:\\Windows\\System32\\msvcp140_2.dll', '.'),
     ]
     PATHEX.append(os.path.join(find_site_packages(), 'shiboken2'))
 elif sys.platform.startswith('darwin'):
