@@ -98,6 +98,12 @@ def preferences_def(p):
     # --- GENERAL ---
     p.define('Units/', 'Units to display.')
     p.define(
+        topic='Units/accumulator',
+        brief='The accumulation field to display.',
+        dtype='str',
+        options=['energy', 'charge'],
+        default='energy')
+    p.define(
         topic='Units/charge',
         brief='The units to display for charge, the integral of current.',
         dtype='str',

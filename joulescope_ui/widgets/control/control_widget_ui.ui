@@ -108,21 +108,15 @@
     </spacer>
    </item>
    <item>
-    <widget class="QLabel" name="energyNameLabel">
-     <property name="text">
-      <string>Energy</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="energyValueLabel">
-     <property name="font">
-      <font>
-       <pointsize>12</pointsize>
-      </font>
+    <widget class="QLabel" name="accumLabel">
+     <property name="toolTip">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The accumulated charge or energy.&lt;/p&gt;&lt;p&gt;Left click to clear, same as Tools → Clear Accumulators.&lt;br/&gt;Right click for more options. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="text">
-      <string>0 J</string>
+      <string>&lt;html&gt;&lt;header/&gt;&lt;body&gt;&lt;/body&lt;/html&gt;</string>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::RichText</enum>
      </property>
     </widget>
    </item>

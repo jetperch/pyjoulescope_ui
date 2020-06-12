@@ -42,6 +42,7 @@ from joulescope_ui.preferences_def import preferences_def
 from joulescope_ui.preferences_defaults import defaults as preference_defaults
 from joulescope_ui import ui_util
 from queue import Queue, Empty
+import copy
 import io
 import ctypes
 import collections
@@ -337,6 +338,9 @@ class MainWindow(QtWidgets.QMainWindow):
                             brief='Remove a main window widget',
                             detail='The value is the widget or widget name string.',
                             record_undo=True)
+        self._cmdp.register('!Accumulators/reset', self._accumulators_reset,
+                            brief='Reset the energy and charge accumulators',
+                            record_undo=True)
 
         # Device selection
         self.device_action_group = QtWidgets.QActionGroup(self)
@@ -370,7 +374,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.actionAbout.triggered.connect(self._help_about)
 
         # tools
-        self.ui.actionClearEnergy.triggered.connect(self._accumulators_zero_total)
+        self.ui.actionClearEnergy.triggered.connect(self._on_accumulators_clear)
         with self._plugins as p:
             p.range_tool_register('Export data', Exporter)
         self._plugins.builtin_register()
@@ -652,11 +656,19 @@ class MainWindow(QtWidgets.QMainWindow):
         log.info('_view_logs(%s)', LOG_PATH)
         ui_util.show_in_folder(LOG_PATH)
 
-    def _accumulators_zero_total(self):
-        log.info('_accumulators_zero_total')
-        self._accumulators['time'] = 0.0
-        for z in self._accumulators['fields'].values():
-            z[0] = 0.0  # accumulated value
+    def _accumulators_reset(self, topic, value):
+        log.info('_accumulators_reset')
+        accumulators = copy.deepcopy(self._accumulators)
+        if value is not None:
+            self._accumulators = copy.deepcopy(value)
+        else:
+            self._accumulators['time'] = 0.0
+            for z in self._accumulators['fields'].values():
+                z[0] = 0.0  # accumulated value
+        return (topic, value), [(topic, accumulators)]
+
+    def _on_accumulators_clear(self):
+        self._cmdp.invoke('!Accumulators/reset', None)
 
     def _accumulators_zero_last(self):
         log.info('_accumulators_zero_last')

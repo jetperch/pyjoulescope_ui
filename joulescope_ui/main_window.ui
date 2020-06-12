@@ -24,7 +24,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -135,7 +135,7 @@
   </action>
   <action name="actionClearEnergy">
    <property name="text">
-    <string>Clear &amp;Energy</string>
+    <string>Clear &amp;Accumulators</string>
    </property>
   </action>
   <action name="actionCredits">
