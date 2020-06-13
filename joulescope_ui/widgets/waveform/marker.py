@@ -382,7 +382,7 @@ class Marker(pg.GraphicsObject):
         x1, x2 = min(x1, x2), max(x1, x2)
         k = (x2 - x1) * 0.01
         x1, x2 = x1 - k, x2 + k
-        self._cmdp.invoke('!Widgets/Waveform/x-axis/zoom_range', (x1, x2))
+        self._cmdp.invoke('!Widgets/Waveform/x-axis/range', (x1, x2))
         self.log.info('zoom %s %s', x1, x2)
 
     def setVisible(self, visible):

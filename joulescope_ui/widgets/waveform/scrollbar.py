@@ -56,8 +56,11 @@ class ScrollBar(pg.ViewBox):
         cmdp.register('!Widgets/Waveform/x-axis/zoom', self._cmd_waveform_xaxis_zoom,
                       brief='Zoom the x-axis around the center.',
                       detail='value is x-axis zoom in steps.')
-        cmdp.register('!Widgets/Waveform/x-axis/zoom_range', self._cmd_waveform_xaxis_zoom_range,
-                      brief='Zoom the x-axis to the specified range.',
+        cmdp.register('!Widgets/Waveform/x-axis/pan', self._cmd_waveform_xaxis_pan,
+                      brief='Pan the x-axis in relative steps.',
+                      detail='1 pans to the right, -1 to the left.')
+        cmdp.register('!Widgets/Waveform/x-axis/range', self._cmd_waveform_xaxis_range,
+                      brief='Set the x-axis to the specified range.',
                       detail='The value is (x1, x2).')
         cmdp.register('!Widgets/Waveform/x-axis/zoom_all', self._cmd_waveform_xaxis_zoom_all,
                       brief='Zoom to the full extents.')
@@ -88,14 +91,21 @@ class ScrollBar(pg.ViewBox):
         x1, x2 = self.get_xview()
         xc = (x1 + x2) / 2
         self.on_wheelZoomX(xc, value * WHEEL_TICK)
-        return (topic, value), ('!Widgets/Waveform/x-axis/zoom_range', previous)
+        return (topic, value), ('!Widgets/Waveform/x-axis/range', previous)
 
-    def _cmd_waveform_xaxis_zoom_range(self, topic, value):
+    def _cmd_waveform_xaxis_pan(self, topic, value):
+        previous = self._region.getRegion()
+        x1, x2 = self.get_xview()
+        k = (x2 - x1) * 0.25 * value
+        self._region.setRegion((x1 + k, x2 + k))
+        return (topic, value), ('!Widgets/Waveform/x-axis/range', previous)
+
+    def _cmd_waveform_xaxis_range(self, topic, value):
         previous = self._region.getRegion()
         if self._region.mode == 'realtime':
             value = min(value), previous[-1]
         self._region.setRegion(value)
-        return (topic, value), ('!Widgets/Waveform/x-axis/zoom_range', previous)
+        return (topic, value), ('!Widgets/Waveform/x-axis/range', previous)
 
     def _cmd_waveform_xaxis_zoom_all(self, topic, value):
         self._region.on_zoom_all()

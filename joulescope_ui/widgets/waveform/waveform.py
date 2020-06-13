@@ -106,6 +106,31 @@ class WaveformWidget(QtWidgets.QWidget):
                    brief='Remove a signal from the waveform by name.',
                    detail='value is signal name string.')
 
+        self._shortcut_left = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Left), self)
+        self._shortcut_left.activated.connect(self._on_left)
+        self._shortcut_right = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Right), self)
+        self._shortcut_right.activated.connect(self._on_right)
+        self._shortcut_up = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Up), self)
+        self._shortcut_up.activated.connect(self._on_zoom_in)
+        self._shortcut_down = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Down), self)
+        self._shortcut_down.activated.connect(self._on_zoom_out)
+        self._shortcut_plus = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Plus), self)
+        self._shortcut_plus.activated.connect(self._on_zoom_in)
+        self._shortcut_minus = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Minus), self)
+        self._shortcut_minus.activated.connect(self._on_zoom_out)
+
+    def _on_left(self):
+        self._cmdp.invoke('!Widgets/Waveform/x-axis/pan', -1)
+
+    def _on_right(self):
+        self._cmdp.invoke('!Widgets/Waveform/x-axis/pan', 1)
+
+    def _on_zoom_in(self):
+        self._cmdp.invoke('!Widgets/Waveform/x-axis/zoom', 1)
+
+    def _on_zoom_out(self):
+        self._cmdp.invoke('!Widgets/Waveform/x-axis/zoom', -1)
+
     def _on_statistics_settings(self, topic, value):
         self.win.ci.layout.invalidate()
 

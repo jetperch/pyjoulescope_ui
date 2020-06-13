@@ -12,6 +12,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Renamed Tools → Clear Energy to Clear Accumulators and added undo.
 *   Added move markers on click & drag #35.
 *   Added dual markers "Scale to fit" feature #66.
+*   Added keyboard movement/zoom of waveform display #11.
 
 
 ## 0.8.16
