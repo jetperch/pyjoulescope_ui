@@ -88,22 +88,19 @@ class XAxis(pg.AxisItem):
     def _on_grid_x(self, topic, value):
         self.setGrid(128 if bool(value) else 0)
 
-    def _find_first_unused_single_marker_name(self):
+    def _find_first_unused_marker_index(self):
         idx = 1
         while True:
             name = str(idx)
-            if name not in self._markers:
-                return name
+            name1 = name + 'a'
+            if name not in self._markers and name1 not in self._markers:
+                return idx
             idx += 1
 
-    def _find_first_unused_dual_marker_prefix(self):
-        idx = 0
-        while True:
-            prefix = int_to_alpha(idx)
-            name1, name2 = prefix + '1', prefix + '2'
-            if name1 not in self._markers:
-                return name1, name2
-            idx += 1
+    def _marker_color(self, idx):
+        idx = 1 + ((idx - 1) % 6)  # have 6 colors
+        topic = f'Widgets/Waveform/marker{idx}_color'
+        return self._cmdp.preferences[topic]
 
     def _cmd_waveform_marker_single_add(self, topic, value):
         if value is None:
@@ -111,8 +108,10 @@ class XAxis(pg.AxisItem):
             x = (x1 + x2) / 2
         else:
             x = value
-        name = self._find_first_unused_single_marker_name()
-        self._marker_add(name, shape='full', pos=x)
+        idx = self._find_first_unused_marker_index()
+        name = str(idx)
+        color = self._marker_color(idx)
+        self._marker_add(name, shape='full', pos=x, color=color)
         self.marker_moving_emit(name, x)
         self._cmdp.publish('Widgets/Waveform/#requests/refresh_markers', [name])
         return '!Widgets/Waveform/Markers/remove', [[name]]
@@ -125,9 +124,12 @@ class XAxis(pg.AxisItem):
             x1, x2 = xc - xs, xc + xs
         else:
             x1, x2 = value
-        name1, name2 = self._find_first_unused_dual_marker_prefix()
-        mleft = self._marker_add(name1, shape='left', pos=x1)
-        mright = self._marker_add(name2, shape='right', pos=x2)
+        idx = self._find_first_unused_marker_index()
+        name = str(idx)
+        name1, name2 = name + 'a', name + 'b'
+        color = self._marker_color(idx)
+        mleft = self._marker_add(name1, shape='left', pos=x1, color=color)
+        mright = self._marker_add(name2, shape='right', pos=x2, color=color)
         mleft.pair = mright
         mright.pair = mleft
         self.marker_moving_emit(name1, x1)

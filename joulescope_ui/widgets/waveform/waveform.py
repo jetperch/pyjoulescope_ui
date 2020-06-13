@@ -119,6 +119,11 @@ class WaveformWidget(QtWidgets.QWidget):
         self._shortcut_minus = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Minus), self)
         self._shortcut_minus.activated.connect(self._on_zoom_out)
 
+    def keyPressEvent(self, ev):
+        if QtCore.Qt.Key_1 <= ev.key() <= QtCore.Qt.Key_8:
+            markers = self._x_axis.markers_dual()
+            pass  # todo support markers
+
     def _on_left(self):
         self._cmdp.invoke('!Widgets/Waveform/x-axis/pan', -1)
 
@@ -497,6 +502,36 @@ def widget_register(cmdp):
         brief='The min/max trace color.',
         dtype='color',
         default=(255, 64, 64, 80))
+    cmdp.define(
+        topic='Widgets/Waveform/marker1_color',
+        brief='The marker 1 color.',
+        dtype='color',
+        default=(64, 192, 64, 255))
+    cmdp.define(
+        topic='Widgets/Waveform/marker2_color',
+        brief='The marker 2 color.',
+        dtype='color',
+        default=(64, 128, 200, 255))
+    cmdp.define(
+        topic='Widgets/Waveform/marker3_color',
+        brief='The marker 3 color.',
+        dtype='color',
+        default=(160, 64, 160, 255))
+    cmdp.define(
+        topic='Widgets/Waveform/marker4_color',
+        brief='The marker 4 color.',
+        dtype='color',
+        default=(64, 160, 160, 255))
+    cmdp.define(
+        topic='Widgets/Waveform/marker5_color',
+        brief='The marker 5 color.',
+        dtype='color',
+        default=(226, 151, 64, 255))
+    cmdp.define(
+        topic='Widgets/Waveform/marker6_color',
+        brief='The marker 6 color.',
+        dtype='color',
+        default=(160, 160, 160, 255))
 
     cmdp.define(
         topic='Widgets/Waveform/Statistics/font',

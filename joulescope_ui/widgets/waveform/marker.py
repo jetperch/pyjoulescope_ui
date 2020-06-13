@@ -83,11 +83,11 @@ class Marker(pg.GraphicsObject):
 
     @property
     def is_right(self):
-        return self._pair is not None and self.name[-1] == '2'
+        return self._pair is not None and self.name[-1] == 'b'
 
     @property
     def is_left(self):
-        return self._pair is not None and self.name[-1] == '1'
+        return self._pair is not None and self.name[-1] == 'a'
 
     @property
     def pair(self):
