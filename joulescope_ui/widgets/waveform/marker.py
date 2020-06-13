@@ -370,10 +370,20 @@ class Marker(pg.GraphicsObject):
                 t.triggered.connect(self._range_tool_factory(name))
                 m.addAction(t)
                 instances.append(t)
-        marker_remove = QtWidgets.QAction('&Remove', self)
+            zoom = menu.addAction('&Zoom to fit')
+            zoom.triggered.connect(self._on_zoom)
+        marker_remove = menu.addAction('&Remove')
         marker_remove.triggered.connect(self._remove)
-        menu.addAction(marker_remove)
         menu.exec_(pos)
+
+    def _on_zoom(self):
+        x1 = self.get_pos()
+        x2 = self.pair.get_pos()
+        x1, x2 = min(x1, x2), max(x1, x2)
+        k = (x2 - x1) * 0.01
+        x1, x2 = x1 - k, x2 + k
+        self._cmdp.invoke('!Widgets/Waveform/x-axis/zoom_range', (x1, x2))
+        self.log.info('zoom %s %s', x1, x2)
 
     def setVisible(self, visible):
         super().setVisible(visible)
