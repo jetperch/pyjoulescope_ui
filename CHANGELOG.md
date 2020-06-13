@@ -10,6 +10,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 *   Modified Control widget to display accumulator time and selected field.
 *   Renamed Tools → Clear Energy to Clear Accumulators and added undo.
+*   Move markers on click & drag #35
 
 
 ## 0.8.16
