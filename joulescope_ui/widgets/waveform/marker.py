@@ -321,12 +321,13 @@ class Marker(pg.GraphicsObject):
 
     def mouseDragEvent(self, ev, axis=None):
         self.log.debug('mouse drag: %s' % (ev, ))
-        ev.accept()
-        if ev.button() & QtCore.Qt.LeftButton:
-            if ev.isStart():
-                self._move_start(ev)
-            if ev.isFinish():
-                self._move_end()
+        if not self.moving:
+            ev.accept()
+            if ev.button() & QtCore.Qt.LeftButton:
+                if ev.isStart():
+                    self._move_start(ev)
+                if ev.isFinish():
+                    self._move_end()
 
     def _range_tool_factory(self, range_tool_name):
         def fn(*args, **kwargs):
