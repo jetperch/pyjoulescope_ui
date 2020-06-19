@@ -17,6 +17,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Migrated to official pyqtgraph 0.11.0.
 *   Added save waveform as image #81
 *   Added save/export current waveform buffer #10
+*   Fixed dragging the endpoints of the top x-axis scroll bar #24
 
 
 ## 0.8.16

@@ -301,8 +301,6 @@ class CustomLinearRegionItem(pg.LinearRegionItem):
                 skip_line_update = False
                 rb = min(rb + (x_min - ra), x_max)
                 ra = x_min
-        if self.lines[0].value() == ra and self.lines[1].value() == rb:
-            return
         if not bool(skip_line_update):
             self.blockLineSignal = True
             self.lines[0].setValue(ra)
