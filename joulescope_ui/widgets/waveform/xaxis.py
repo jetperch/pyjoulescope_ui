@@ -103,11 +103,12 @@ class XAxis(pg.AxisItem):
         return self._cmdp.preferences[topic]
 
     def _cmd_waveform_marker_single_add(self, topic, value):
+        x1, x2 = self.range
         if value is None:
-            x1, x2 = self.range
             x = (x1 + x2) / 2
         else:
             x = value
+            x = min(max(x, x1), x2)
         idx = self._find_first_unused_marker_index()
         name = str(idx)
         color = self._marker_color(idx)

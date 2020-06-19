@@ -157,7 +157,8 @@ class Marker(pg.GraphicsObject):
         wl, wr, he, h = self._flag_bounds_relative()
         x = p2.x()
         bottom = p2.y()
-        self._boundingRect = QtCore.QRectF(x + wl - 1, top, -wl + wr + 2, bottom - top)
+        w = max(abs(wl), abs(wr))
+        self._boundingRect = QtCore.QRectF(x - w - 1, top, w * 2 + 2, bottom - top)
         # self.log.debug('boundingRect: %s => %s', self._x, str(self._boundingRect))
         return self._boundingRect
 

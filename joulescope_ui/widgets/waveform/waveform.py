@@ -43,6 +43,7 @@ class WaveformWidget(QtWidgets.QWidget):
         QtWidgets.QWidget.__init__(self, parent=parent)
         self._cmdp = cmdp
         self._x_limits = [0.0, 30.0]
+        self._mouse_pos = None
 
         self.layout = QtWidgets.QHBoxLayout(self)
         self.layout.setSpacing(0)
@@ -50,6 +51,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self.win = pg.GraphicsLayoutWidget(parent=self, show=True, title="Oscilloscope layout")
         self.win.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.win.sceneObj.sigMouseClicked.connect(self._on_mouse_clicked_event)
+        self.win.sceneObj.sigMouseMoved.connect(self._on_mouse_moved_event)
         self.layout.addWidget(self.win)
 
         self._signals_def = {}
@@ -124,6 +126,9 @@ class WaveformWidget(QtWidgets.QWidget):
         self._shortcut_minus = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Minus), self)
         self._shortcut_minus.activated.connect(self._on_zoom_out)
 
+    def _on_mouse_moved_event(self, pos):
+        self._mouse_pos = pos
+
     def _on_mouse_clicked_event(self, ev):
         if ev.isAccepted():
             return
@@ -167,9 +172,24 @@ class WaveformWidget(QtWidgets.QWidget):
         exporter.parameters()['width'] = k.width() * r
         exporter.export(filename)
 
+    def _mouse_as_x(self):
+        x = None
+        if self._mouse_pos:
+            x = self._x_axis.linkedView().mapSceneToView(self._mouse_pos).x()
+        return x
+
     def keyPressEvent(self, ev):
-        if QtCore.Qt.Key_1 <= ev.key() <= QtCore.Qt.Key_8:
-            markers = self._x_axis.markers_dual()
+        key = ev.key()
+        if key == QtCore.Qt.Key_S:
+            self._cmdp.invoke('!Widgets/Waveform/Markers/single_add', self._mouse_as_x())
+        elif key == QtCore.Qt.Key_D:
+            x = self._mouse_as_x()
+            x_min, x_max = self._x_axis.range
+            w2 = (x_max - x_min) / 10
+            self._cmdp.invoke('!Widgets/Waveform/Markers/dual_add', [x - w2, x + w2])
+        elif key == QtCore.Qt.Key_Delete or QtCore.Qt.Key_Backspace:
+            self._cmdp.invoke('!Widgets/Waveform/Markers/clear', None)
+        elif QtCore.Qt.Key_1 <= key <= QtCore.Qt.Key_8:
             pass  # todo support markers
 
     def _on_left(self):
