@@ -6,7 +6,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.8.18
 
-2020 June 12 [in progress]
+2020 June 19 [in progress]
 
 *   Modified Control widget to display accumulator time and selected field.
 *   Renamed Tools → Clear Energy to Clear Accumulators and added undo.
@@ -14,6 +14,9 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added dual markers "Scale to fit" feature #66.
 *   Added keyboard movement/zoom of waveform display #11.
 *   Added marker colors #57.
+*   Migrated to official pyqtgraph 0.11.0.
+*   Added save waveform as image #81
+*   Added save/export current waveform buffer #10
 
 
 ## 0.8.16

@@ -19,9 +19,13 @@ from .scrollbar import ScrollBar
 from .xaxis import XAxis
 from .settings_widget import SettingsWidget
 from .font_resizer import FontResizer
+from joulescope_ui.file_dialog import FileDialog
+from joulescope.data_recorder import construct_record_filename
 from joulescope_ui.preferences_def import FONT_SIZES
 import pyqtgraph as pg
+import pyqtgraph.exporters
 import copy
+import os
 import logging
 
 
@@ -45,6 +49,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.win = pg.GraphicsLayoutWidget(parent=self, show=True, title="Oscilloscope layout")
         self.win.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.win.sceneObj.sigMouseClicked.connect(self._on_mouse_clicked_event)
         self.layout.addWidget(self.win)
 
         self._signals_def = {}
@@ -118,6 +123,49 @@ class WaveformWidget(QtWidgets.QWidget):
         self._shortcut_plus.activated.connect(self._on_zoom_in)
         self._shortcut_minus = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Minus), self)
         self._shortcut_minus.activated.connect(self._on_zoom_out)
+
+    def _on_mouse_clicked_event(self, ev):
+        if ev.isAccepted():
+            return
+        if ev.button() & QtCore.Qt.RightButton:
+            pos = ev.screenPos().toPoint()
+            self._context_menu(pos)
+
+    def _context_menu(self, pos):
+        log.debug('_context_menu')
+        menu = QtGui.QMenu('Waveform menu', self)
+        save_image = menu.addAction('Save image...')
+        save_image.triggered.connect(self.on_save_image)
+        export_data = menu.addAction('Export data...')
+        export_data.triggered.connect(self.on_export_data)
+        menu.exec_(pos)
+
+    def on_export_data(self):
+        p1, p2 = self._scrollbar.get_xview()
+        value = {
+            'name': 'Export data',
+            'x_start': min(p1, p2),
+            'x_stop': max(p1, p2)
+        }
+        self._cmdp.invoke('!RangeTool/run', value)
+
+    def on_save_image(self):
+        filter_str = 'png (*.png)'
+        filename = construct_record_filename()
+        filename = os.path.splitext(filename)[0] + '.png'
+        path = self._cmdp['General/data_path']
+        filename = os.path.join(path, filename)
+        dialog = FileDialog(self, 'Save Joulescope Data', filename, 'any')
+        dialog.setNameFilter(filter_str)
+        filename = dialog.exec_()
+        if not bool(filename):
+            return
+        r = QtWidgets.QApplication.desktop().devicePixelRatio()
+        w = self.win.sceneObj.getViewWidget()
+        k = w.viewportTransform().inverted()[0].mapRect(w.rect())
+        exporter = pg.exporters.ImageExporter(self.win.sceneObj)
+        exporter.parameters()['width'] = k.width() * r
+        exporter.export(filename)
 
     def keyPressEvent(self, ev):
         if QtCore.Qt.Key_1 <= ev.key() <= QtCore.Qt.Key_8:
@@ -441,7 +489,7 @@ class WaveformWidget(QtWidgets.QWidget):
         row_count = self.win.ci.layout.rowCount()
         if x_min > x_max:
             x_min = x_max
-        if row_count > SIGNAL_OFFSET_ROW:
+        if (row_count > SIGNAL_OFFSET_ROW) and len(self._signals):
             row = SIGNAL_OFFSET_ROW + len(self._signals) - 1
             log.info('on_scrollbarRegionChange(%s, %s, %s)', x_min, x_max, x_count)
             vb = self.win.ci.layout.itemAt(row, 1)
