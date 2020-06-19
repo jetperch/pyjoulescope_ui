@@ -18,6 +18,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added save waveform as image #81
 *   Added save/export current waveform buffer #10
 *   Fixed dragging the endpoints of the top x-axis scroll bar #24
+*   Added marker name text to flag and changed dual marker flag shape.
 
 
 ## 0.8.16

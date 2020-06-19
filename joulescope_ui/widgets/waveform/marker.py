@@ -122,6 +122,27 @@ class Marker(pg.GraphicsObject):
         p2 = pg.Point(x, tickBounds.bottom())
         return p1, p2
 
+    def _flag_bounds_relative(self):
+        """Get the bound region for the flag.
+
+        :return: width left, width right, height bezel, height total
+        """
+        axis = self._axis()
+        if axis is None:
+            return 0, 0, 0
+        h = axis.geometry().height()
+        he = h // 3
+        shape = self._cmdp[self._instance_prefix + 'shape']
+        if shape in [None, 'none']:
+            return 0, 0, he, h
+        if shape in ['right']:
+            return -h, 0, he, h
+        elif shape in ['left']:
+            return 0, h, he, h
+        else:
+            w2 = h // 2
+            return -w2, w2, he, h
+
     def boundingRect(self):
         r = self._boundingRect
         if r is not None:  # use cache
@@ -130,35 +151,21 @@ class Marker(pg.GraphicsObject):
         if axis is None:
             return QtCore.QRectF()
         top = axis.geometry().top()
-        h = axis.geometry().height()
-        w = h // 2 + 1
         p1, p2 = self._endpoints()
         if p2 is None:
             return QtCore.QRectF()
+        wl, wr, he, h = self._flag_bounds_relative()
         x = p2.x()
         bottom = p2.y()
-        self._boundingRect = QtCore.QRectF(x - w, top, 2 * w, bottom - top)
+        self._boundingRect = QtCore.QRectF(x + wl - 1, top, -wl + wr + 2, bottom - top)
         # self.log.debug('boundingRect: %s => %s', self._x, str(self._boundingRect))
         return self._boundingRect
 
     def paint_flag(self, painter, p1):
-        axis = self._axis()
-        if axis is None:
+        wl, wr, he, h = self._flag_bounds_relative()
+        if not h:
             return
-        h = axis.geometry().height()
-        he = h // 3
-        w2 = h // 2
-        shape = self._cmdp[self._instance_prefix + 'shape']
         color = self._cmdp[self._instance_prefix + 'color']
-        if shape in [None, 'none']:
-            return
-        if shape in ['right']:
-            wl, wr = -w2, 0
-        elif shape in ['left']:
-            wl, wr = 0, w2
-        else:
-            wl, wr = -w2, w2
-
         brush = pg.mkBrush(color)
         painter.setBrush(brush)
         painter.setPen(None)
@@ -172,6 +179,12 @@ class Marker(pg.GraphicsObject):
             pg.Point(wr, -h),
             pg.Point(wr, -he)
         ])
+        text_brush = pg.mkBrush([0, 0, 0, 128])
+        painter.setBrush(text_brush)
+        txt = self._name
+        r = painter.fontMetrics().boundingRect(txt)
+        r = QtCore.QRect(wl, -h, wr - wl, -he + h)
+        painter.drawText(r, QtCore.Qt.AlignCenter, txt)
 
     def paint(self, p, opt, widget):
         profiler = pg.debug.Profiler()
