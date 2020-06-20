@@ -1,23 +1,13 @@
 <RCC>
   <qresource prefix="joulescope">
     <file>resources/icon_64x64.ico</file>
-    <file>resources/pause.png</file>
-    <file>resources/play.png</file>
-    <file>resources/record.png</file>
-    <file>resources/stop.png</file>
+    <file>resources/play.svg</file>
+    <file>resources/record.svg</file>
     <file>resources/logo-large.png</file>
     <file>resources/logo-small.png</file>
-    <file>resources/pan_256x256.png</file>
-    <file>resources/pan_128x128.png</file>
-    <file>resources/pan_64x64.png</file>
-    <file>resources/pan_32x32.png</file>
-    <file>resources/zoom.png</file>
-    <file>resources/zoom_in_128.png</file>
-    <file>resources/zoom_out_128.png</file>
-    <file>resources/zoom_all_128.png</file>
-    <file>resources/zoom_x.png</file>
-    <file>resources/zoom_y.png</file>
-    <file>resources/zoom_auto_y.png</file>
+    <file>resources/zoom_in.svg</file>
+    <file>resources/zoom_out.svg</file>
+    <file>resources/zoom_all.svg</file>
     
     <file>fonts/Lato/Lato-Regular.ttf</file>
     <file>fonts/Lato/Lato-Bold.ttf</file>

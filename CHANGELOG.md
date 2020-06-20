@@ -20,6 +20,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Fixed dragging the endpoints of the top x-axis scroll bar #24
 *   Added marker name text to flag and changed dual marker flag shape.
 *   Added keybinding "S" and "D" to add single and dual markers, respectively #9.
+*   Fixed pixelated button icons in oscilloscope view by using SVG icons #1.
+*   Added subtle "blink" to record button when active.
 
 
 ## 0.8.16

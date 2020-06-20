@@ -13,8 +13,7 @@
 # limitations under the License.
 
 
-from PySide2 import QtWidgets, QtCore
-from .control_widget_ui import Ui_ControlWidget
+from PySide2 import QtWidgets, QtGui, QtCore
 from joulescope.units import three_sig_figs
 from joulescope_ui.units import convert_units
 import logging
@@ -31,6 +30,73 @@ ACCUM_TEMPLATE = """\
 <span style="font-size:8pt;">in</span>
 <span style="font-size:12pt;">{time}</span>
 </p></body></html>
+"""
+
+PLAY_TOOLTIP = """\
+<html><head/><body><p>
+Click to stream data from the selected Joulescope.<br/>
+Click again to stop data streaming.
+</p></body></html>
+"""
+
+RECORD_TOOLTIP = """\
+<html><head/><body>
+<p>Click to recording streaming Joulescope data to a file.</p>
+<p>
+Click again to stop the recording.<br/>
+Only new data is recorded.
+</p></body></html>
+"""
+
+IRANGE_TOOLTIP = """\
+<html><head/><body>
+<p>Select the Joulescope current range.</p>
+<p>
+"Auto" allows Joulescope to dynamically adjust the current range.<br/>
+"off" disconnects IN+ from OUT+.
+</p></body></html>
+"""
+
+VRANGE_TOOLTIP = """\
+<html><head/><body>
+<p>Select the Joulescope voltage range.</p>
+<p>No autoranging option exists."
+</p></body></html>
+"""
+
+ACCUM_TOOLTIP = """\
+<html><head/><body>
+<p>The accumulated charge or energy.</p>
+<p>Left click to clear, same as Tools \u2192 Clear Accumulators.<br/>
+Right click for more options.
+</p></body></html>",
+"""
+
+PLAY_STYLESHEET = """\
+QPushButton {
+    border-radius: 12;
+    image: url(":/joulescope/resources/play.svg"); 
+}
+QPushButton:enabled       { background: #008000; }
+QPushButton:enabled:hover { background: #00A000; }
+QPushButton:checked       { background: #008000; }
+QPushButton:checked:hover { background: #00A000; }
+QPushButton[blink=true]:checked       { background: #00A000; }
+QPushButton:disabled      { background: #808080; }
+
+"""
+
+RECORD_STYLESHEET = """\
+QPushButton {
+    border-radius: 12;
+    image: url(":/joulescope/resources/record.svg"); 
+}
+QPushButton:enabled       { background: #A00000; }
+QPushButton:enabled:hover { background: #C00000; }
+QPushButton:checked       { background: #A00000; }
+QPushButton:checked:hover { background: #D00000; }
+QPushButton[blink=true]:checked       { background: #C00000; }
+QPushButton:disabled      { background: #808080; }
 """
 
 
@@ -62,26 +128,95 @@ class ControlWidget(QtWidgets.QWidget):
     def __init__(self, parent, cmdp, state_preference):
         QtWidgets.QWidget.__init__(self, parent)
         self._cmdp = cmdp
-        self._ui = Ui_ControlWidget()
-        self._ui.setupUi(self)
+        self._layout = QtWidgets.QHBoxLayout(self)
+        self._layout.setContentsMargins(-1, 1, -1, 1)
+
+        self._playButton = QtWidgets.QPushButton(self)
+        self._playButton.setObjectName('playButton')
+        self._playButton.setCheckable(True)
+        self._playButton.setFlat(True)
+        self._playButton.setProperty('blink', False)
+        self._playButton.setStyleSheet(PLAY_STYLESHEET)
+        self._playButton.setFixedSize(24, 24)
+        self._layout.addWidget(self._playButton)
+
+        self._recordButton = QtWidgets.QPushButton(self)
+        self._recordButton.setObjectName('recordButton')
+        self._recordButton.setEnabled(True)
+        self._recordButton.setProperty('blink', False)
+        self._recordButton.setStyleSheet(RECORD_STYLESHEET)
+        self._recordButton.setCheckable(True)
+        self._recordButton.setFlat(True)
+        self._recordButton.setFixedSize(24, 24)
+        self._layout.addWidget(self._recordButton)
+
+        self._iRangeLabel = QtWidgets.QLabel(self)
+        self._iRangeLabel.setObjectName('iRangeLabel')
+        self._iRangeLabel.setText('Current Range')
+        self._iRangeLabel.setToolTip(IRANGE_TOOLTIP)
+        self._layout.addWidget(self._iRangeLabel)
+
+        self._iRangeComboBox = QtWidgets.QComboBox(self)
+        self._iRangeComboBox.setObjectName('iRangeComboBox')
+        self._iRangeComboBox.setToolTip(IRANGE_TOOLTIP)
+        self._layout.addWidget(self._iRangeComboBox)
+
+        self._vRangeLabel = QtWidgets.QLabel(self)
+        self._vRangeLabel.setObjectName('vRangeLabel')
+        self._vRangeLabel.setText('Voltage Range')
+        self._vRangeLabel.setToolTip(VRANGE_TOOLTIP)
+        self._layout.addWidget(self._vRangeLabel)
+
+        self._vRangeComboBox = QtWidgets.QComboBox(self)
+        self._vRangeComboBox.setObjectName('vRangeComboBox')
+        self._vRangeComboBox.setToolTip(VRANGE_TOOLTIP)
+        self._layout.addWidget(self._vRangeComboBox)
+
+        self._horizontalSpacer = QtWidgets.QSpacerItem(40, 20,
+                                                       QtWidgets.QSizePolicy.Expanding,
+                                                       QtWidgets.QSizePolicy.Minimum)
+        self._layout.addItem(self._horizontalSpacer)
+
+        self._accumLabel = QtWidgets.QLabel(self)
+        self._accumLabel.setObjectName(u"accumLabel")
+        self._accumLabel.setTextFormat(QtGui.Qt.RichText)
+        self._accumLabel.setText('<html><header/><body></body</html>')
+        self._accumLabel.setToolTip(ACCUM_TOOLTIP)
+        self._layout.addWidget(self._accumLabel)
+
+        self._playButton.setToolTip(PLAY_TOOLTIP)
+        self._recordButton.setToolTip(RECORD_TOOLTIP)
+
         self.setVisible(False)
         self._accum_history = None
         self._accum_menu = None
 
-        self._populate_combobox(self._ui.iRangeComboBox, 'Device/setting/i_range')
-        self._populate_combobox(self._ui.vRangeComboBox, 'Device/setting/v_range')
+        self._populate_combobox(self._iRangeComboBox, 'Device/setting/i_range')
+        self._populate_combobox(self._vRangeComboBox, 'Device/setting/v_range')
 
         self._cmdp.subscribe('Device/setting/', self._on_device_parameter, update_now=True)
         self._cmdp.subscribe('Device/#state/', self._on_device_state, update_now=True)
         self._cmdp.subscribe('Units/accumulator', self._on_accumulator)
-        self._ui.playButton.toggled.connect(self._on_play_button_toggled)
-        self._ui.recordButton.toggled.connect(self._on_record_button_toggled)
-        self._ui.accumLabel.mousePressEvent = self._on_accum_mousePressEvent
+        self._playButton.toggled.connect(self._on_play_button_toggled)
+        self._recordButton.toggled.connect(self._on_record_button_toggled)
+        self._accumLabel.mousePressEvent = self._on_accum_mousePressEvent
 
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         h = self.minimumSizeHint().height()
         self.setMinimumHeight(h)
         self.setMaximumHeight(h)
+
+        self._blink = True
+        self._timer = QtCore.QTimer()
+        self._timer.timeout.connect(self._on_timer)
+        self._timer.start(1000)
+
+    def _on_timer(self):
+        self._blink = not self._blink
+        for b in [self._recordButton]:  # self._playButton
+            b.setProperty('blink', self._blink)
+            b.style().unpolish(b)
+            b.style().polish(b)
 
     def _on_accum_mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
@@ -123,9 +258,9 @@ class ControlWidget(QtWidgets.QWidget):
 
     def _on_device_parameter(self, topic, data):
         if topic == 'Device/setting/i_range':
-            self._update_combobox(self._ui.iRangeComboBox, data)
+            self._update_combobox(self._iRangeComboBox, data)
         elif topic == 'Device/setting/v_range':
-            self._update_combobox(self._ui.vRangeComboBox, data)
+            self._update_combobox(self._vRangeComboBox, data)
 
     def _on_accumulator(self, topic, value):
         self.accum_update()
@@ -144,7 +279,7 @@ class ControlWidget(QtWidgets.QWidget):
             v = convert_units(v['value'], v['units'], units)
             s = three_sig_figs(v['value'], v['units'])
             txt = ACCUM_TEMPLATE.format(field=field.capitalize(), value=s, time=time_str)
-        self._ui.accumLabel.setText(txt)
+        self._accumLabel.setText(txt)
 
     def _on_device_state(self, topic, data):
         if topic == 'Device/#state/statistics':
@@ -161,27 +296,27 @@ class ControlWidget(QtWidgets.QWidget):
             self.accum_update()
         elif topic == 'Device/#state/source':
             if data in 'USB':
-                self._ui.playButton.setEnabled(True)
-                self._ui.iRangeComboBox.setEnabled(True)
-                self._ui.vRangeComboBox.setEnabled(True)
+                self._playButton.setEnabled(True)
+                self._iRangeComboBox.setEnabled(True)
+                self._vRangeComboBox.setEnabled(True)
             elif data == 'Buffer':
-                self._ui.playButton.setEnabled(True)
-                self._ui.recordButton.setEnabled(False)
-                self._ui.iRangeComboBox.setEnabled(False)
-                self._ui.vRangeComboBox.setEnabled(False)
+                self._playButton.setEnabled(True)
+                self._recordButton.setEnabled(False)
+                self._iRangeComboBox.setEnabled(False)
+                self._vRangeComboBox.setEnabled(False)
             else:
-                self._ui.playButton.setChecked(False)
-                self._ui.playButton.setEnabled(False)
-                self._ui.recordButton.setChecked(False)
-                self._ui.recordButton.setEnabled(False)
-                self._ui.iRangeComboBox.setEnabled(False)
-                self._ui.vRangeComboBox.setEnabled(False)
+                self._playButton.setChecked(False)
+                self._playButton.setEnabled(False)
+                self._recordButton.setChecked(False)
+                self._recordButton.setEnabled(False)
+                self._iRangeComboBox.setEnabled(False)
+                self._vRangeComboBox.setEnabled(False)
         elif self._cmdp['Device/#state/source'] in ['USB', 'Buffer']:
             if topic == 'Device/#state/play':
-                self._ui.playButton.setChecked(data)
-                self._ui.recordButton.setEnabled(data)
+                self._playButton.setChecked(data)
+                self._recordButton.setEnabled(data)
             elif topic == 'Device/#state/record':
-                self._ui.recordButton.setChecked(data)
+                self._recordButton.setChecked(data)
 
 
 def widget_register(cmdp):

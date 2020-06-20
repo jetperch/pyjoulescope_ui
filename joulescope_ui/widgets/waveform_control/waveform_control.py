@@ -105,9 +105,9 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._x_axis_label.setText('X-Axis:')
         self._layout.addWidget(self._x_axis_label)
 
-        self._add_icon('zoom_in_128', self._on_x_axis_zoom_in, TOOLTIP_X_AXIS_ZOOM_IN)
-        self._add_icon('zoom_out_128', self._on_x_axis_zoom_out, TOOLTIP_X_AXIS_ZOOM_OUT)
-        self._add_icon('zoom_all_128', self._on_x_axis_zoom_all, TOOLTIP_X_AXIS_ZOOM_ALL)
+        self._add_icon('zoom_in', self._on_x_axis_zoom_in, TOOLTIP_X_AXIS_ZOOM_IN)
+        self._add_icon('zoom_out', self._on_x_axis_zoom_out, TOOLTIP_X_AXIS_ZOOM_OUT)
+        self._add_icon('zoom_all', self._on_x_axis_zoom_all, TOOLTIP_X_AXIS_ZOOM_ALL)
 
         self._show_min_max_label = QtWidgets.QLabel(self)
         self._show_min_max_label.setText('Min/Max:')
@@ -146,12 +146,11 @@ class WaveformControlWidget(QtWidgets.QWidget):
     def _add_icon(self, resource_name, callback, tooltip):
         button = QtWidgets.QPushButton(self)
         button.setToolTip(tooltip)
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(f":/joulescope/resources/{resource_name}.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        button.setIcon(icon)
+        button.setStyleSheet(f'image: url(":/joulescope/resources/{resource_name}.svg")')
+        button.setFixedSize(24, 24)
         self._layout.addWidget(button)
         button.clicked.connect(callback)
-        self._buttons.append((button, icon))
+        self._buttons.append(button)
 
     def _add_signal(self, signal):
         button = QtWidgets.QPushButton(self)
