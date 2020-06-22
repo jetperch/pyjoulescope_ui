@@ -14,6 +14,7 @@
 
 from PySide2 import QtCore, QtWidgets
 from .marker import Marker
+import numpy as np
 from typing import List, Tuple
 import pyqtgraph as pg
 import logging
@@ -106,11 +107,26 @@ class XAxis(pg.AxisItem):
         topic = f'Widgets/Waveform/marker{idx}_color'
         return self._cmdp.preferences[topic]
 
+    def _position_markers(self, positions):
+        """Position markers to avoid overlaying existing markers.
+
+        :param positions: The list of desired marker locations.
+        :return: The list of actual marker locations.
+        """
+        positions_start = [k for k in positions]
+        m = np.array([m.get_pos() for m in self._markers.values()])
+        x1, x2 = self.range
+        incr = (x2 - x1) / 80
+        while max(positions) < x2:
+            if all([np.all(np.abs(m - p) > incr) for p in positions]):
+                return positions
+            positions = [k + incr for k in positions]
+        return positions_start
+
     def _cmd_waveform_marker_single_add(self, topic, value):
         x1, x2 = self.range
         if value is None:
-            x = (x1 + x2) / 2
-            # todo : collision detection
+            x = self._position_markers([(x1 + x2) / 2])[0]
         else:
             x = value
             x = min(max(x, x1), x2)
@@ -129,7 +145,7 @@ class XAxis(pg.AxisItem):
             xc = (x1 + x2) / 2
             xs = (x2 - x1) / 10
             x1, x2 = xc - xs, xc + xs
-            # todo : collision detection
+            x1, x2 = self._position_markers([x1, x2])
         else:
             x1, x2 = value
         idx = self._find_first_unused_marker_index()
