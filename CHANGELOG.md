@@ -23,6 +23,9 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Fixed pixelated button icons in oscilloscope view by using SVG icons #1.
 *   Added subtle "blink" to record button when active.
 *   Added File → Open Recent #43.
+*   Added "active marker" so most recently used marker is clickable.
+*   Fixed undo for marker move.
+*   Added "revert" if right-click while moving marker.
 
 
 ## 0.8.16

@@ -21,6 +21,9 @@ import logging
 
 log = logging.getLogger(__name__)
 
+Z_MARKER_NORMAL = 10
+Z_MARKER_ACTIVE = 100
+
 
 class AxisMenu(QtWidgets.QMenu):
 
@@ -79,11 +82,12 @@ class XAxis(pg.AxisItem):
                              'for single markers and length 2 for dual markers.')
         cmdp.register('!Widgets/Waveform/Markers/clear', self._cmd_waveform_marker_clear,
                       brief='Remove all markers.')
+        cmdp.register('!Widgets/Waveform/Markers/activate', self._cmd_waveform_marker_activate,
+                      brief='Activate the list of markers')
         cmdp.register('!Widgets/Waveform/Markers/restore', self._cmd_waveform_marker_restore,
                       brief='Restore removed markers (for undo support).')
-
-        # todo '!Widgets/Waveform/Markers/move'
-        # todo '!Widgets/Waveform/Markers/list'
+        cmdp.register('!Widgets/Waveform/Markers/move', self._cmd_waveform_marker_move,
+                      brief='Move list of markers given as [name, new_pos, old_pos].')
 
     def _on_grid_x(self, topic, value):
         self.setGrid(128 if bool(value) else 0)
@@ -106,6 +110,7 @@ class XAxis(pg.AxisItem):
         x1, x2 = self.range
         if value is None:
             x = (x1 + x2) / 2
+            # todo : collision detection
         else:
             x = value
             x = min(max(x, x1), x2)
@@ -114,6 +119,7 @@ class XAxis(pg.AxisItem):
         color = self._marker_color(idx)
         self._marker_add(name, shape='full', pos=x, color=color)
         self.marker_moving_emit(name, x)
+        self._cmd_waveform_marker_activate(None, [ name])
         self._cmdp.publish('Widgets/Waveform/#requests/refresh_markers', [name])
         return '!Widgets/Waveform/Markers/remove', [[name]]
 
@@ -123,6 +129,7 @@ class XAxis(pg.AxisItem):
             xc = (x1 + x2) / 2
             xs = (x2 - x1) / 10
             x1, x2 = xc - xs, xc + xs
+            # todo : collision detection
         else:
             x1, x2 = value
         idx = self._find_first_unused_marker_index()
@@ -135,6 +142,7 @@ class XAxis(pg.AxisItem):
         mright.pair = mleft
         self.marker_moving_emit(name1, x1)
         self.marker_moving_emit(name2, x2)
+        self._cmd_waveform_marker_activate(None, [name1, name2])
         self._cmdp.publish('Widgets/Waveform/#requests/refresh_markers', [name1, name2])
         return '!Widgets/Waveform/Markers/remove', [[name1, name2]]
 
@@ -168,6 +176,22 @@ class XAxis(pg.AxisItem):
             else:
                 removal.append([marker])
         return self._cmd_waveform_marker_remove(None, removal)
+
+    def _cmd_waveform_marker_activate(self, topic, value):
+        active = []
+        for name, marker in self._markers.items():
+            if marker.zValue() >= Z_MARKER_ACTIVE:
+                active.append(name)
+            z = Z_MARKER_ACTIVE if name in value else Z_MARKER_NORMAL
+            marker.setZValue(z)
+        return '!Widgets/Waveform/Markers/activate', active
+
+    def _cmd_waveform_marker_move(self, topic, value):
+        undo = []
+        for name, new_pos, old_pos in value:
+            self._markers[name].set_pos(new_pos)
+            undo.append([name, old_pos, new_pos])
+        return '!Widgets/Waveform/Markers/move', undo
 
     def on_singleMarker(self):
         x = self._popup_menu_pos.x()

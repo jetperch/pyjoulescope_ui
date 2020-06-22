@@ -51,6 +51,7 @@ class Marker(pg.GraphicsObject):
         self._pair = None
         self.moving = False
         self.moving_offset = 0.0
+        self.start_pos = 0.0
         self._marker_time_text = pg.TextItem("t=0.00")
         self._delta_time_text = pg.TextItem("")
         self._delta_time_text.setAnchor([0.5, 0])
@@ -239,7 +240,7 @@ class Marker(pg.GraphicsObject):
             return
         self._x = x
         self._axis().marker_moving_emit(self.name, x)
-        self._cmdp.publish(self._instance_prefix + 'pos', x)
+        self._cmdp.publish(self._instance_prefix + 'pos', x, no_undo=True)
         self._redraw()
 
     def _update_marker_text(self):
@@ -305,18 +306,27 @@ class Marker(pg.GraphicsObject):
         self._redraw()
 
     def _move_start(self, ev):
+        activate = [self.name]
         self.moving_offset = 0.0
         self.moving = True
+        self.start_pos = self.get_pos()
         # https://doc.qt.io/qt-5/qt.html#KeyboardModifier-enum
         if int(QtGui.Qt.ControlModifier & ev.modifiers()) and self.pair is not None:
             self.pair.moving = True
             self.pair.moving_offset = self.pair.get_pos() - self.get_pos()
+        if self.pair is not None:
+            self.pair.start_pos = self.pair.get_pos()
+            activate.append(self.pair.name)
+        self._cmdp.invoke('!Widgets/Waveform/Markers/activate', activate)
 
     def _move_end(self):
         self.moving = False
+        moved = [[self.name, self.get_pos(), self.start_pos]]
         if self.pair is not None:
             self.pair.moving = False
             self.pair.moving_offset = 0.0
+            moved = [[self.pair.name, self.pair.get_pos(), self.pair.start_pos]]
+        self._cmdp.invoke('!Widgets/Waveform/Markers/move', moved)
 
     def mouseClickEvent(self, ev):
         self.log.info('mouseClickEvent(%s)', ev)
@@ -331,7 +341,11 @@ class Marker(pg.GraphicsObject):
             if ev.button() == QtCore.Qt.LeftButton:
                 self._move_end()
             elif ev.button() == QtCore.Qt.RightButton:
-                pass  # todo restore original position
+                self.set_pos(self.start_pos)
+                self.moving = False
+                if self.pair is not None:
+                    self.pair.moving = False
+                    self.pair.set_pos(self.pair.start_pos)
 
     def mouseDragEvent(self, ev, axis=None):
         self.log.debug('mouse drag: %s' % (ev, ))

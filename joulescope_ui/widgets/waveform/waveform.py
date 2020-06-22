@@ -187,7 +187,7 @@ class WaveformWidget(QtWidgets.QWidget):
             x_min, x_max = self._x_axis.range
             w2 = (x_max - x_min) / 10
             self._cmdp.invoke('!Widgets/Waveform/Markers/dual_add', [x - w2, x + w2])
-        elif key == QtCore.Qt.Key_Delete or QtCore.Qt.Key_Backspace:
+        elif key == QtCore.Qt.Key_Delete or key == QtCore.Qt.Key_Backspace:
             self._cmdp.invoke('!Widgets/Waveform/Markers/clear', None)
         elif QtCore.Qt.Key_1 <= key <= QtCore.Qt.Key_8:
             pass  # todo support markers

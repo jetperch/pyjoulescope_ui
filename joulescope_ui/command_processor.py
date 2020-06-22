@@ -109,7 +109,7 @@ class CommandProcessor(QtCore.QObject):
     to know that they occurred.
     """
 
-    invokeSignal = QtCore.Signal(str, object)
+    invokeSignal = QtCore.Signal(str, object, object)
 
     def __init__(self, parent=None, synchronous=None, app=None):
         QtCore.QObject.__init__(self, parent)
@@ -227,7 +227,7 @@ class CommandProcessor(QtCore.QObject):
         return topic, data
 
     @QtCore.Slot(str, object)
-    def _on_invoke(self, topic, data):
+    def _on_invoke(self, topic, data, no_undo=None):
         if self._thread_id is None:
             self._thread_id = threading.get_ident()
         self._topic_stack.append(topic)  # re-entrant!
@@ -269,7 +269,7 @@ class CommandProcessor(QtCore.QObject):
             self._topic_stack.pop()
 
         is_dependent_command = len(self._topic_stack)
-        if redo_undos is not None:
+        if redo_undos is not None and not no_undo:
             if is_dependent_command:
                 if self._stack_undo is not None:
                     self._stack_undo.extend(redo_undos[1])
@@ -296,12 +296,12 @@ class CommandProcessor(QtCore.QObject):
             raise ValueError('invoke commands only, use publish for preferences')
         self.publish(topic, data)
 
-    def publish(self, topic, data):
+    def publish(self, topic, data, no_undo=None):
         """Publish new data to a topic.
 
         :param topic: The topic name.
         :param data: The new data for the topic.
-
+        :param no_undo: Publish the parameter without posting an undo.
         """
         if _is_command(topic):
             if topic not in self._topic:
@@ -314,9 +314,9 @@ class CommandProcessor(QtCore.QObject):
         else:
             data = self.preferences.validate(topic, data)
         if self._thread_id == threading.get_ident() and self._stack_undo is not None:
-            self._on_invoke(topic, data)
+            self._on_invoke(topic, data, no_undo)
         else:
-            self.invokeSignal.emit(topic, data)
+            self.invokeSignal.emit(topic, data, bool(no_undo))
 
     def subscribe(self, topic, update_fn, update_now=False):
         """Subscribe to a topic.
