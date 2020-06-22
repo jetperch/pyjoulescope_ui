@@ -138,6 +138,12 @@ class ScrollBar(pg.ViewBox):
         except Exception:
             pass
 
+    def zoom_to_point(self, x):
+        self._region.zoom_to_point(x)
+
+    def zoom_to_range(self, x1, x2):
+        self._region.zoom_to_range(x1, x2)
+
 
 class CustomLinearRegionItem(pg.LinearRegionItem):
     """Custom linear region that enforces x-axis zoom constraints
@@ -263,6 +269,28 @@ class CustomLinearRegionItem(pg.LinearRegionItem):
     def on_zoom_all(self):
         x_min, x_max = self.lines[0].bounds()
         self._region_update(x_min, x_max)
+
+    def zoom_to_point(self, x):
+        x_min, x_max = self.lines[0].bounds()  # allowed range
+        if self.mode == 'realtime':
+            if x > x_max or x < x_min:
+                return
+            a = x - (x_max - x)
+            a = max(a, x_min)
+            self._region_update(a, x_max)
+        else:
+            ra, rb = self.getRegion()
+            d = (rb - ra) / 2
+            self._region_update(x - d, x + d)
+
+    def zoom_to_range(self, x1, x2):
+        if x2 < x1:
+            x1, x2 = x2, x1
+        if self.mode == 'realtime':
+            self.zoom_to_point((x1 + x2) / 2)
+        else:
+            m = (x2 - x1) * 0.1
+            self._region_update(x1 - m, x2 + m)
 
     def _region_update(self, ra, rb, skip_line_update=None):
         """Update the currently selected region.

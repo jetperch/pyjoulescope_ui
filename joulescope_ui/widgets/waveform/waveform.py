@@ -190,7 +190,21 @@ class WaveformWidget(QtWidgets.QWidget):
         elif key == QtCore.Qt.Key_Delete or key == QtCore.Qt.Key_Backspace:
             self._cmdp.invoke('!Widgets/Waveform/Markers/clear', None)
         elif QtCore.Qt.Key_1 <= key <= QtCore.Qt.Key_8:
-            pass  # todo support markers
+            self._markers_show(key - QtCore.Qt.Key_1 + 1)
+
+    def _markers_show(self, idx):
+        """Show the markers
+
+        :param idx: The marker index, starting from 1.
+        """
+        n = chr(ord('1') + idx - 1)
+        names = [n, f'{n}a', f'{n}b']
+        m = [self._x_axis.marker_get(name) for name in names]
+        m = [k for k in m if k is not None]
+        if len(m) == 1:
+            self._scrollbar.zoom_to_point(m[0].get_pos())
+        elif len(m) == 2:
+            self._scrollbar.zoom_to_range(m[0].get_pos(), m[1].get_pos())
 
     def _on_left(self):
         self._cmdp.invoke('!Widgets/Waveform/x-axis/pan', -1)
