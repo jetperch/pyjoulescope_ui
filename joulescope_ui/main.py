@@ -22,7 +22,6 @@ from . import __version__
 import joulescope
 from PySide2 import QtCore, QtGui, QtWidgets
 from joulescope_ui.error_window import Ui_ErrorWindow
-from joulescope_ui.main_window import Ui_mainWindow
 from joulescope_ui.widgets import widget_register
 from joulescope.usb import DeviceNotify
 from joulescope_ui.data_recorder_process import DataRecorderProcess as DataRecorder
@@ -281,8 +280,39 @@ class MainWindow(QtWidgets.QMainWindow):
         self._cmdp = cmdp
 
         super(MainWindow, self).__init__()
-        self.ui = Ui_mainWindow()
-        self.ui.setupUi(self)
+        self.resize(800, 600)
+        icon = QtGui.QIcon()
+        icon.addFile(u":/joulescope/resources/icon_64x64.ico", QtCore.QSize(), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.setWindowIcon(icon)
+
+        self._menu_bar = QtWidgets.QMenuBar(self)
+        self._menu_items = self._menu_setup({
+            '&File': {
+                '&Open': self.on_recording_open,
+                'Open &Recent': {},  # dynamically populated from MRU
+                '&Preferences': self.on_preferences,
+                '&Exit': self.close,
+            },
+            '&Device': {},  # dynamically populated
+            '&View': {},    # dynamically populated from widgets
+            '&Tools': {
+                '&Clear Accumulator': self._on_accumulators_clear,
+            },
+            '&Help': {
+                '&Getting Started': self._help_getting_started,
+                '&User\'s Guide': self._help_users_guide,
+                '&View logs...': self._view_logs,
+                '&Credits': self._help_credits,
+                '&About': self._help_about,
+            }
+        }, self._menu_bar)
+        self.setMenuBar(self._menu_bar)
+
+        # convenience accessors for dynamically populated menu items
+        self._menu_open_recent = self._menu_items['File']['Open Recent']['__root__']
+        self._menu_open_recent_update()
+        self._menu_view = self._menu_items['View']['__root__']
+        self._menu_devices = self._menu_items['Device']['__root__']
 
         self._cmdp.setParent(self)
         self._plugins = PluginManager(self._cmdp)
@@ -347,11 +377,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self._device_disable = DeviceDisable()
         self._device_add(self._device_disable)
 
-        # Other menu items
-        self.ui.actionOpen.triggered.connect(self.on_recording_open)
-        self.ui.actionPreferences.triggered.connect(self.on_preferences)
-        self.ui.actionExit.triggered.connect(self.close)
-
         # status update timer
         self.status_update_timer = QtCore.QTimer(self)
         self.status_update_timer.setInterval(500)  # milliseconds
@@ -359,22 +384,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.status_update_timer.start()
 
         # Status bar
-        self._source_indicator = QtWidgets.QLabel(self.ui.statusbar)
-        self.ui.statusbar.addPermanentWidget(self._source_indicator)
+        self.statusbar = QtWidgets.QStatusBar(self)
+        self.setStatusBar(self.statusbar)
+        self._source_indicator = QtWidgets.QLabel(self.statusbar)
+        self.statusbar.addPermanentWidget(self._source_indicator)
 
         # device scan timer - because bad things happen, see rescan_interval config
         self.rescan_timer = QtCore.QTimer(self)
         self.rescan_timer.timeout.connect(self.on_rescanTimer)
 
-        # help
-        self.ui.actionGettingStarted.triggered.connect(self._help_getting_started)
-        self.ui.actionUsersGuide.triggered.connect(self._help_users_guide)
-        self.ui.actionViewLogs.triggered.connect(self._view_logs)
-        self.ui.actionCredits.triggered.connect(self._help_credits)
-        self.ui.actionAbout.triggered.connect(self._help_about)
-
-        # tools
-        self.ui.actionClearEnergy.triggered.connect(self._on_accumulators_clear)
+        # plugins
         with self._plugins as p:
             p.range_tool_register('Export data', Exporter)
         self._plugins.builtin_register()
@@ -392,6 +411,25 @@ class MainWindow(QtWidgets.QMainWindow):
 
         if not self._cmdp.restore_success:
             self.status('Could not restore preferences - using defaults', timeout=0)
+
+    def _menu_setup(self, d, parent=None):
+        k = {}
+        for name, value in d.items():
+            name_safe = name.replace('&', '')
+            if isinstance(value, dict):
+                wroot = QtWidgets.QMenu(parent)
+                wroot.setTitle(name)
+                parent.addAction(wroot.menuAction())
+                w = self._menu_setup(value, wroot)
+                w['__root__'] = wroot
+            else:
+                w = QtWidgets.QAction(parent)
+                w.setText(name)
+                if callable(value):
+                    w.triggered.connect(value)
+                parent.addAction(w)
+            k[name_safe] = w
+        return k
 
     def _path(self):
         """Get the data_path.
@@ -451,7 +489,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def _view_menu(self):
         self._profile_action_group = None
         self._profile_actions = []
-        menu = self.ui.menuView
+        menu = self._menu_view
         menu.clear()
 
         developer = self._cmdp['General/developer']
@@ -858,14 +896,14 @@ class MainWindow(QtWidgets.QMainWindow):
         action.setChecked(False)
         action.triggered.connect(lambda x: self._device_open(device))
         self.device_action_group.addAction(action)
-        self.ui.menuDevice.addAction(action)
+        self._menu_devices.addAction(action)
         device.ui_action = action
 
     def _device_remove(self, device):
         """Remove the device from the user interface"""
         log.info('_device_change remove')
         self.device_action_group.removeAction(device.ui_action)
-        self.ui.menuDevice.removeAction(device.ui_action)
+        self._menu_devices.removeAction(device.ui_action)
         if self._device == device:
             self._device_close()
         device.ui_action.triggered.disconnect()
@@ -1172,6 +1210,29 @@ class MainWindow(QtWidgets.QMainWindow):
         self._cmdp.publish('Device/#state/name', os.path.basename(filename))
         self._cmdp.publish('Device/#state/source', 'File')
         self._cmdp.publish('Device/#state/sample_drop_color', '')
+        self._menu_open_recent_update(filename)
+
+    def _menu_open_recent_update(self, path=None):
+        self._menu_open_recent.clear()
+        mru_count = int(self._cmdp['General/mru'])
+        mrus = self._cmdp['General/_mru_open']
+        if path is not None:
+            try:
+                mrus.remove(path)
+            except ValueError:
+                pass  # only remove if present
+            mrus.insert(0, path)
+        mrus = mrus[:mru_count]
+        self._cmdp.preferences['General/_mru_open'] = mrus
+        for mru in mrus:
+            self._menu_open_recent_add(mru)
+        self._menu_open_recent.setEnabled(len(mrus))
+
+    def _menu_open_recent_add(self, path):
+        w = QtWidgets.QAction(self._menu_open_recent)
+        w.setText(path)
+        w.triggered.connect(lambda: self._recording_open(path))
+        self._menu_open_recent.addAction(w)
 
     def _instance_id_next(self):
         """Get the next dock widget instance id.
@@ -1465,7 +1526,7 @@ class MainWindow(QtWidgets.QMainWindow):
         """
         level = logging.INFO if level is None else level
         log.log(level, msg)
-        self.ui.statusbar.showMessage(msg, timeout)
+        self.statusbar.showMessage(msg, timeout)
 
     def on_preferences(self):
         log.info('on_preferences')

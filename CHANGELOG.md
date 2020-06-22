@@ -6,7 +6,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.8.18
 
-2020 June 19 [in progress]
+2020 June 22 [in progress]
 
 *   Modified Control widget to display accumulator time and selected field.
 *   Renamed Tools → Clear Energy to Clear Accumulators and added undo.
@@ -22,6 +22,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added keybinding "S" and "D" to add single and dual markers, respectively #9.
 *   Fixed pixelated button icons in oscilloscope view by using SVG icons #1.
 *   Added subtle "blink" to record button when active.
+*   Added File → Open Recent #43.
 
 
 ## 0.8.16

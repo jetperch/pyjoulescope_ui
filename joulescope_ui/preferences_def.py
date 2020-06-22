@@ -94,6 +94,13 @@ def preferences_def(p):
         dtype='str',
         options=['normal', 'elevated'],
         default='elevated')
+    p.define(
+        topic='General/mru',
+        brief='The number of most recently used files to remember.',
+        dtype='str',
+        options=['0', '3', '5', '10', '20'],
+        default='10')
+    p.define(topic='General/_mru_open', dtype=object, default=[])
 
     # --- GENERAL ---
     p.define('Units/', 'Units to display.')
