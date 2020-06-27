@@ -44,6 +44,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._cmdp = cmdp
         self._x_limits = [0.0, 30.0]
         self._mouse_pos = None
+        self._clipboard_image = None
 
         self.layout = QtWidgets.QHBoxLayout(self)
         self.layout.setSpacing(0)
@@ -141,6 +142,8 @@ class WaveformWidget(QtWidgets.QWidget):
         menu = QtGui.QMenu('Waveform menu', self)
         save_image = menu.addAction('Save image...')
         save_image.triggered.connect(self.on_save_image)
+        copy_image = menu.addAction('Copy image to clipboard...')
+        copy_image.triggered.connect(self.on_copy_image_to_clipboard)
         export_data = menu.addAction('Export data...')
         export_data.triggered.connect(self.on_export_data)
         menu.exec_(pos)
@@ -154,6 +157,14 @@ class WaveformWidget(QtWidgets.QWidget):
         }
         self._cmdp.invoke('!RangeTool/run', value)
 
+    def _export_as_image(self):
+        r = QtWidgets.QApplication.desktop().devicePixelRatio()
+        w = self.win.sceneObj.getViewWidget()
+        k = w.viewportTransform().inverted()[0].mapRect(w.rect())
+        exporter = pg.exporters.ImageExporter(self.win.sceneObj)
+        exporter.parameters()['width'] = k.width() * r
+        return exporter.export(toBytes=True)
+
     def on_save_image(self):
         filter_str = 'png (*.png)'
         filename = construct_record_filename()
@@ -165,12 +176,12 @@ class WaveformWidget(QtWidgets.QWidget):
         filename = dialog.exec_()
         if not bool(filename):
             return
-        r = QtWidgets.QApplication.desktop().devicePixelRatio()
-        w = self.win.sceneObj.getViewWidget()
-        k = w.viewportTransform().inverted()[0].mapRect(w.rect())
-        exporter = pg.exporters.ImageExporter(self.win.sceneObj)
-        exporter.parameters()['width'] = k.width() * r
-        exporter.export(filename)
+        png = self._export_as_image()
+        png.save(filename)
+
+    def on_copy_image_to_clipboard(self):
+        self._clipboard_image = self._export_as_image()
+        QtWidgets.QApplication.clipboard().setImage(self._clipboard_image)
 
     def _mouse_as_x(self):
         x = None

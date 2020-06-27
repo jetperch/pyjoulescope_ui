@@ -27,6 +27,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Fixed undo for marker move.
 *   Added "revert" if right-click while moving marker.
 *   Added algorithm to place new markers in open space #59.
+*   Added copy waveform to clipboard #81
 
 
 ## 0.8.16
