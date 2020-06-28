@@ -29,6 +29,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added algorithm to place new markers in open space #59.
 *   Added copy waveform to clipboard #81
 *   Added save entire buffer to file #82.
+*   Removed export dialog.  Directly bring up save file dialog.
 
 
 ## 0.8.16
