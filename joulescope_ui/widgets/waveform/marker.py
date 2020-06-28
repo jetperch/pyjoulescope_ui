@@ -52,7 +52,7 @@ class Marker(pg.GraphicsObject):
         self.moving = False
         self.moving_offset = 0.0
         self.start_pos = 0.0
-        self._marker_time_text = pg.TextItem("t=0.00")
+        self._marker_time_text = pg.TextItem("")
         self._delta_time_text = pg.TextItem("")
         self._delta_time_text.setAnchor([0.5, 0])
         self._delta_time_text.setVisible(False)

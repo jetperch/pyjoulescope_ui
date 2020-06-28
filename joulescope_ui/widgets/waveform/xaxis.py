@@ -14,6 +14,7 @@
 
 from PySide2 import QtCore, QtWidgets
 from .marker import Marker
+from .marker_area import MarkerArea
 import numpy as np
 from typing import List, Tuple
 import pyqtgraph as pg
@@ -64,6 +65,7 @@ class XAxis(pg.AxisItem):
         self.menu.dual_markers.triggered.connect(self.on_dualMarkers)
         self.menu.clear_all_markers.triggered.connect(self.on_clearAllMarkers)
         self._markers = {}
+        self._marker_area = MarkerArea(self)
         self._proxy = None
         self._popup_menu_pos = None
 
@@ -89,6 +91,9 @@ class XAxis(pg.AxisItem):
                       brief='Restore removed markers (for undo support).')
         cmdp.register('!Widgets/Waveform/Markers/move', self._cmd_waveform_marker_move,
                       brief='Move list of markers given as [name, new_pos, old_pos].')
+
+    def add_to_scene(self):
+        self._marker_area.add_to_scene()
 
     def _on_grid_x(self, topic, value):
         self.setGrid(128 if bool(value) else 0)
@@ -235,11 +240,8 @@ class XAxis(pg.AxisItem):
         if name in self._markers:
             raise RuntimeError('_marker_add internal error: name %s already exists', name)
         marker = Marker(cmdp=self._cmdp, name=name, x_axis=self, state=state)
-        scene = self.scene()
         for item in [marker] + marker.graphic_items:
-            if scene is not None and scene is not item.scene():
-                scene.addItem(item)
-            item.setParentItem(self.parentItem())
+            item.setParentItem(self._marker_area)
         self._markers[name] = marker
         marker.show()
         if self._proxy is None:

@@ -6,7 +6,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.8.18
 
-2020 June 22 [in progress]
+2020 June 28 [in progress]
 
 *   Modified Control widget to display accumulator time and selected field.
 *   Renamed Tools → Clear Energy to Clear Accumulators and added undo.
@@ -30,6 +30,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added copy waveform to clipboard #81
 *   Added save entire buffer to file #82.
 *   Removed export dialog.  Directly bring up save file dialog.
+*   Bound markers to the waveform area.  Restrict from y-axis & statistics.
 
 
 ## 0.8.16

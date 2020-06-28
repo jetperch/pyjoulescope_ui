@@ -74,6 +74,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
         self._x_axis = XAxis(self._cmdp)
         self.win.addItem(self._x_axis, row=1, col=1)
+        self._x_axis.add_to_scene()
         self._x_axis.setGrid(128)
         self._x_axis.sigMarkerMoving.connect(self._on_marker_moving)
 
