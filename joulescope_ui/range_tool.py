@@ -168,7 +168,7 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
         t1, t2 = min(x_start, x_stop), max(x_start, x_stop)
         log.info('range_tool %s(%s, %s)', self._range_tool.name, t1, t2)
         self._time_range = (t1, t2)
-        s1 = view.time_to_sample_id(t1)
+        s1 = max(view.time_to_sample_id(t1), 0)  # negative sample_ids not allowed
         s2 = view.time_to_sample_id(t2)
         if s1 is None or s2 is None:
             return self._abort('time out of range')

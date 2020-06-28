@@ -140,16 +140,27 @@ class WaveformWidget(QtWidgets.QWidget):
     def _context_menu(self, pos):
         log.debug('_context_menu')
         menu = QtGui.QMenu('Waveform menu', self)
-        save_image = menu.addAction('Save image...')
+        save_image = menu.addAction('Save image')
         save_image.triggered.connect(self.on_save_image)
-        copy_image = menu.addAction('Copy image to clipboard...')
+        copy_image = menu.addAction('Copy image to clipboard')
         copy_image.triggered.connect(self.on_copy_image_to_clipboard)
-        export_data = menu.addAction('Export data...')
-        export_data.triggered.connect(self.on_export_data)
+        export_data = menu.addAction('Export visible data')
+        export_data.triggered.connect(self.on_export_visible_data)
+        export_data = menu.addAction('Export all data')
+        export_data.triggered.connect(self.on_export_all_data)
         menu.exec_(pos)
 
-    def on_export_data(self):
+    def on_export_visible_data(self):
         p1, p2 = self._scrollbar.get_xview()
+        value = {
+            'name': 'Export data',
+            'x_start': min(p1, p2),
+            'x_stop': max(p1, p2)
+        }
+        self._cmdp.invoke('!RangeTool/run', value)
+
+    def on_export_all_data(self):
+        p1, p2 = self._scrollbar.get_xlimits()
         value = {
             'name': 'Export data',
             'x_start': min(p1, p2),

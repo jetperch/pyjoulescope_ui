@@ -47,6 +47,7 @@ class ScrollBar(pg.ViewBox):
         self._cmdp = cmdp
         self._region = CustomLinearRegionItem(self, self.regionChange.emit)
         self._region.setZValue(-10)
+        self._xlimits = [None, None]
         self.addItem(self._region)
         self._label = pg.TextItem(html='<div><span style="color: #FFF;">Time (seconds)</span></div>', anchor=(0.5, 0.5))
         self.addItem(self._label, ignoreBounds=True)
@@ -74,7 +75,11 @@ class ScrollBar(pg.ViewBox):
     def set_xlimits(self, x_min, x_max):
         self.setXRange(x_min, x_max, padding=0)
         self._region.setBounds([x_min, x_max])
+        self._xlimits = [x_min, x_max]
         self.resizeEvent(None)
+
+    def get_xlimits(self):
+        return self._xlimits
 
     def set_display_mode(self, mode):
         return self._region.set_display_mode(mode)
