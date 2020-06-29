@@ -226,6 +226,9 @@ class Signal(QtCore.QObject):
         if update_range:
             if v_min == v_max:
                 v_min, v_max = v_min - vb_range / 2, v_max + vb_range / 2
+            else:
+                f = (v_max - v_min) * 0.1
+                v_min, v_max = v_min - f / 2, v_max + f
             self.vb.setYRange(v_min, v_max, padding=0)
 
     def data_clear(self):
