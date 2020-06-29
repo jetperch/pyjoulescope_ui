@@ -204,7 +204,7 @@ class YAxis(pg.AxisItem):
         if name in self.markers:
             raise RuntimeError('_marker_add internal error: name %s already exists', name)
         state['color'] = self._marker_color(name[0])
-        marker = YMarker(cmdp=self._cmdp, name=name, view=self.linkedView(), state=state)
+        marker = YMarker(cmdp=self._cmdp, name=name, view=self.linkedView(), units=self.labelUnits, state=state)
         return self._marker_add_priv(marker)
 
     def _marker_remove(self, m):
@@ -241,7 +241,7 @@ class YAxis(pg.AxisItem):
 
     def marker_restore(self, state):
         name = state.pop('name')
-        marker = YMarker(cmdp=self._cmdp, name=name, view=self.linkedView(), state=state)
+        marker = YMarker(cmdp=self._cmdp, name=name, view=self.linkedView(), units=self.labelUnits, state=state)
         return self._marker_add_priv(marker)
 
     def _on_single_marker(self):

@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from PySide2 import QtWidgets, QtGui, QtCore
+from joulescope.units import three_sig_figs
 from .marker import Z_MARKER_MOVING
 import pyqtgraph as pg
 import weakref
@@ -29,8 +30,10 @@ class YMarker(pg.GraphicsObject):
     :param name: The name for the marker.  By convention, single markers are
         number strings, like '1', and marker pairs are like 'A1' and 'A2'.
     :param view: The ViewBox instance.
+    :param units: The units for this marker.
+    :param state: Additional state values.
     """
-    def __init__(self, cmdp, name, view, state):
+    def __init__(self, cmdp, name, view, units, state):
         pg.GraphicsObject.__init__(self)
         state.setdefault('pos', None)
         state.setdefault('color', (64, 255, 64, 255))
@@ -38,6 +41,7 @@ class YMarker(pg.GraphicsObject):
         self.log = logging.getLogger('%s.%s' % (__name__, name))
         self._name = name
         self._view = weakref.ref(view)
+        self._units = units
         self._y = None  # in signal coordinates
         self._pair: YMarker = None
         self.moving = False
@@ -110,10 +114,12 @@ class YMarker(pg.GraphicsObject):
         pen = pg.mkPen([255, 255, 255, 255])
         p.setPen(pen)
         if self.pair is None:
-            txt = f'{self._y:g}'
+            txt = three_sig_figs(self._y, self._units)
         else:
             dy = abs(self._y - self.pair._y)
-            txt = f'y={self._y:g} Δ={dy:g}'
+            t1 = three_sig_figs(self._y, self._units)
+            t2 = three_sig_figs(dy, self._units)
+            txt = f'y={t1}, Δ={t2}'
         p.drawText(p1 - 2, txt)
 
     def _redraw(self):
