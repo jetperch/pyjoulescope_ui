@@ -13,10 +13,10 @@
 # limitations under the License.
 
 from PySide2 import QtCore, QtWidgets
-from .marker import Marker, Z_MARKER_NORMAL, Z_MARKER_ACTIVE, Z_MARKER_MOVING
+from .marker import Marker, Z_MARKER_NORMAL, Z_MARKER_ACTIVE
 from .marker_area import MarkerArea
 import numpy as np
-from typing import List, Tuple
+from typing import Dict, List, Tuple
 import pyqtgraph as pg
 import logging
 
@@ -61,7 +61,7 @@ class XAxis(pg.AxisItem):
         self.menu.single_marker.triggered.connect(self.on_singleMarker)
         self.menu.dual_markers.triggered.connect(self.on_dualMarkers)
         self.menu.clear_all_markers.triggered.connect(self.on_clearAllMarkers)
-        self._markers = {}
+        self._markers: Dict[str, Marker] = {}
         self._marker_area = MarkerArea(self)
         self._proxy = None
         self._popup_menu_pos = None
@@ -135,7 +135,7 @@ class XAxis(pg.AxisItem):
         idx = self._find_first_unused_marker_index()
         name = str(idx)
         color = self._marker_color(idx)
-        self._marker_add(name, shape='full', pos=x, color=color)
+        self._marker_add(name, shape='full', pos=x, color=color, statistics=True)
         self.marker_moving_emit(name, x)
         self._cmd_waveform_marker_activate(None, [name])
         self._cmdp.publish('Widgets/Waveform/#requests/refresh_markers', [name])
@@ -155,7 +155,7 @@ class XAxis(pg.AxisItem):
         name1, name2 = name + 'a', name + 'b'
         color = self._marker_color(idx)
         mleft = self._marker_add(name1, shape='left', pos=x1, color=color)
-        mright = self._marker_add(name2, shape='right', pos=x2, color=color)
+        mright = self._marker_add(name2, shape='right', pos=x2, color=color, statistics=True)
         mleft.pair = mright
         mright.pair = mleft
         self.marker_moving_emit(name1, x1)
@@ -276,8 +276,10 @@ class XAxis(pg.AxisItem):
         return [self._marker_remove_one(m1),
                 self._marker_remove_one(m2)]
 
-    def markers(self) -> List[Marker]:
-        return list(self._markers.values())
+    @property
+    def markers(self) -> Dict[str, Marker]:
+        # WARNING: for reference only
+        return self._markers
 
     def markers_single(self) -> List[Marker]:
         return [m for m in self._markers.values() if m.is_single]

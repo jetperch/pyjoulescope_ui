@@ -16,7 +16,9 @@ from PySide2 import QtCore
 from .signal_statistics import SignalStatistics, SignalMarkerStatistics, si_format, html_format
 from .signal_viewbox import SignalViewBox
 from joulescope.stream_buffer import single_stat_to_api
+from .marker import Marker
 from .yaxis import YAxis
+from typing import Dict
 import pyqtgraph as pg
 import math
 import numpy as np
@@ -57,6 +59,7 @@ class Signal(QtCore.QObject):
             },
         }
         self._statistics_font_resizer = statistics_font_resizer
+        self.markers: Dict[str, Marker] = None   # WARNING: for reference only
         self._marker_font_resizer = marker_font_resizer
         self._markers_single = {}
         self._markers_dual = {}
@@ -375,38 +378,45 @@ class Signal(QtCore.QObject):
                 self._marker_font_resizer.remove(m)
 
     def update_markers_single_one(self, marker_name, marker_pos):
+        m = self.markers.get(marker_name)
         if marker_name not in self._markers_single:
-            m = SignalMarkerStatistics(self.name, self._cmdp)
-            self.vb.addItem(m)
-            m.setVisible(True)
-            m.move(self.vb, marker_pos)
-            self._marker_font_resizer.add(m)
-            self._markers_single[marker_name] = m
-        m = self._markers_single[marker_name]
+            s = SignalMarkerStatistics(self.name, self._cmdp)
+            self.vb.addItem(s)
+            s.setVisible(True)
+            s.move(self.vb, marker_pos)
+            self._marker_font_resizer.add(s)
+            self._markers_single[marker_name] = s
+        s = self._markers_single[marker_name]
         if marker_pos is None:
             stats = None
         else:
             stats = self.statistics_at(marker_pos)
-        m.data_update(self.vb, marker_pos, stats)
+        s.setVisible(m.statistics_show)
+        s.data_update(self.vb, marker_pos, stats)
 
-    def update_markers_dual_one(self, marker_name, marker_pos, statistics):
-        if marker_name not in self._markers_dual:
-            m = SignalMarkerStatistics(self.name, self._cmdp)
-            self.vb.addItem(m)
-            m.setVisible(True)
-            m.move(self.vb, marker_pos)
-            self._markers_dual[marker_name] = m
-            self._marker_font_resizer.add(m)
+    def update_markers_dual_one(self, m, statistics):
+        if m.name not in self._markers_dual:
+            s = SignalMarkerStatistics(self.name, self._cmdp)
+            self.vb.addItem(s)
+            s.setVisible(True)
+            s.move(self.vb, m.get_pos())
+            self._markers_dual[m.name] = s
+            self._marker_font_resizer.add(s)
 
-        m = self._markers_dual[marker_name]
-        m.data_update(self.vb, marker_pos, statistics)
+        s = self._markers_dual[m.name]
+        s.setVisible(m.statistics_show)
+        s.data_update(self.vb, m.get_pos(), statistics)
 
     def update_markers_dual_all(self, values):
         # list of (marker_name, marker_pos, statistics)
         current_markers = self._markers_dual.copy()
         for name, pos, statistic in values:
             current_markers.pop(name, None)
-            self.update_markers_dual_one(name, pos, statistic)
+            m1 = self.markers.get(name)
+            m2 = m1.pair
+            current_markers.pop(m2.name, None)
+            self.update_markers_dual_one(m1, statistic)
+            self.update_markers_dual_one(m2, statistic)
         if len(current_markers):
             for marker_name in list(current_markers.keys()):
                 m = self._markers_dual.pop(marker_name)

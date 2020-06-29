@@ -42,6 +42,7 @@ class Marker(pg.GraphicsObject):
         state.setdefault('pos', None)
         state.setdefault('color', (64, 255, 64, 255))
         state.setdefault('shape', 'full')
+        state.setdefault('statistics', False)
         self._cmdp = cmdp
         self.log = logging.getLogger('%s.%s' % (__name__, name))
         self._name = name
@@ -67,6 +68,16 @@ class Marker(pg.GraphicsObject):
 
     def __str__(self):
         return f'Marker({self.name})'
+
+    @property
+    def statistics_show(self):
+        p = self._instance_prefix + 'statistics'
+        return self._cmdp.preferences.get(p, default=False)
+
+    @statistics_show.setter
+    def statistics_show(self, value):
+        p = self._instance_prefix + 'statistics'
+        return self._cmdp.publish(p, bool(value))
 
     def remove(self):
         state = {'name': self._name}
@@ -401,6 +412,12 @@ class Marker(pg.GraphicsObject):
                 instances.append(t)
             zoom = menu.addAction('&Zoom to fit')
             zoom.triggered.connect(self._on_zoom)
+
+        show_statistics = menu.addAction('&Show statistics')
+        show_statistics.setCheckable(True)
+        show_statistics.setChecked(self.statistics_show)
+        show_statistics.toggled.connect(self._on_statistics_show)
+
         marker_remove = menu.addAction('&Remove')
         marker_remove.triggered.connect(self._remove)
         menu.exec_(pos)
@@ -413,6 +430,9 @@ class Marker(pg.GraphicsObject):
         x1, x2 = x1 - k, x2 + k
         self._cmdp.invoke('!Widgets/Waveform/x-axis/range', (x1, x2))
         self.log.info('zoom %s %s', x1, x2)
+
+    def _on_statistics_show(self, checked):
+        self.statistics_show = checked
 
     def setVisible(self, visible):
         super().setVisible(visible)

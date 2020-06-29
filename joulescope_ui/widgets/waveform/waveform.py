@@ -356,7 +356,6 @@ class WaveformWidget(QtWidgets.QWidget):
             signal = copy.deepcopy(signal)
             signal['display_name'] = signal.get('display_name', signal['name'])
             self._signals_def[signal['name']] = signal
-        self._vb_relink()
 
     def _on_signalAdd(self, name):
         signal = self._signals_def[name]
@@ -370,6 +369,7 @@ class WaveformWidget(QtWidgets.QWidget):
                    marker_font_resizer=self._marker_font_resizer,
                    **signal)
         s.addToLayout(self.win, row=self.win.ci.layout.rowCount())
+        s.markers = self._x_axis.markers
         s.vb.sigWheelZoomXEvent.connect(self._scrollbar.on_wheelZoomX)
         s.vb.sigPanXEvent.connect(self._scrollbar.on_panX)
         self._signals[signal['name']] = s
