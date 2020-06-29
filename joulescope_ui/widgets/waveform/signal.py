@@ -66,7 +66,7 @@ class Signal(QtCore.QObject):
         if y_limit is not None:
             y_min, y_max = y_limit
             self.vb.setLimits(yMin=y_min, yMax=y_max)
-            self.vb.setYRange(y_min, y_max)
+            self.vb.setYRange(y_min, y_max, padding=0)
         self.y_axis = YAxis(name, cmdp, log_enable=y_log_min is not None)
         self.y_axis.linkToView(self.vb)
         self.y_axis.setGrid(128)
@@ -154,7 +154,7 @@ class Signal(QtCore.QObject):
             y_min = math.log10(self.config['y-axis']['log_min'])
             y_max = math.log10(self.config['y-axis']['limit'][1])
             self.vb.setLimits(yMin=y_min, yMax=y_max)
-            self.vb.setYRange(y_min, y_max)
+            self.vb.setYRange(y_min, y_max, padding=0)
         else:
             self.y_axis.setLogMode(False)
             self.curve_mean.setLogMode(xMode=False, yMode=False)
@@ -162,6 +162,7 @@ class Signal(QtCore.QObject):
             self.curve_max.setLogMode(xMode=False, yMode=False)
             y_min, y_max = self.config['y-axis']['limit']
             self.vb.setLimits(yMin=y_min, yMax=y_max)
+            self.vb.setYRange(y_min, y_max, padding=0)
         if update_range:
             self.yaxis_autorange(*self._y_range_now)
         self._cmdp.publish('Widgets/Waveform/#requests/refresh', None)
@@ -220,7 +221,9 @@ class Signal(QtCore.QObject):
         if vb_range > 0:
             update_range |= (v_range / vb_range) < AUTO_RANGE_FRACT
         if update_range:
-            self.vb.setYRange(v_min, v_max)
+            if v_min == v_max:
+                v_min, v_max = v_min - vb_range / 2, v_max + vb_range / 2
+            self.vb.setYRange(v_min, v_max, padding=0)
 
     def data_clear(self):
         self._most_recent_data = None

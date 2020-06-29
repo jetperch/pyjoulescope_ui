@@ -31,6 +31,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added save entire buffer to file #82.
 *   Removed export dialog.  Directly bring up save file dialog.
 *   Bound markers to the waveform area.  Restrict from y-axis & statistics.
+*   Fixed current range "zoom out" when output switch is "off".
 
 
 ## 0.8.16
