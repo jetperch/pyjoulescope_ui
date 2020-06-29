@@ -19,11 +19,13 @@ from .scrollbar import ScrollBar
 from .xaxis import XAxis
 from .settings_widget import SettingsWidget
 from .font_resizer import FontResizer
+from .ymarker_manager import YMarkerManager
 from joulescope_ui.file_dialog import FileDialog
 from joulescope.data_recorder import construct_record_filename
 from joulescope_ui.preferences_def import FONT_SIZES
 import pyqtgraph as pg
 import pyqtgraph.exporters
+from typing import Dict
 import copy
 import os
 import logging
@@ -56,7 +58,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self.layout.addWidget(self.win)
 
         self._signals_def = {}
-        self._signals = {}
+        self._signals: Dict[str, Signal] = {}
         self.config = {
             'show_min_max': True,
             'grid_x': 128,
@@ -64,6 +66,7 @@ class WaveformWidget(QtWidgets.QWidget):
             'trace_width': 1,
         }
         self._dataview_data_pending = 0
+        self._ymarker_mgr = YMarkerManager(cmdp, self._signals)
 
         self._settings_widget = SettingsWidget(self._cmdp)
         self.win.addItem(self._settings_widget, row=0, col=0)

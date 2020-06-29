@@ -15,13 +15,16 @@
 from PySide2 import QtWidgets, QtGui, QtCore
 import pyqtgraph as pg
 import weakref
-from .signal import Signal
-from .signal_statistics import si_format, html_format
 from joulescope.units import three_sig_figs
 import logging
 
 
 TIME_STYLE_DEFAULT = 'color: #FFF; background-color: #000; font-size: 8pt'
+
+
+Z_MARKER_NORMAL = 10
+Z_MARKER_ACTIVE = 11
+Z_MARKER_MOVING = 12
 
 
 class Marker(pg.GraphicsObject):
@@ -301,27 +304,30 @@ class Marker(pg.GraphicsObject):
         return self._x
 
     def _move_start(self, ev):
-        activate = [self.name]
         self.moving_offset = 0.0
         self.moving = True
         self.start_pos = self.get_pos()
+        self.setZValue(Z_MARKER_MOVING)
         # https://doc.qt.io/qt-5/qt.html#KeyboardModifier-enum
         if int(QtGui.Qt.ControlModifier & ev.modifiers()) and self.pair is not None:
             self.pair.moving = True
             self.pair.moving_offset = self.pair.get_pos() - self.get_pos()
         if self.pair is not None:
             self.pair.start_pos = self.pair.get_pos()
-            activate.append(self.pair.name)
-        self._cmdp.invoke('!Widgets/Waveform/Markers/activate', activate)
 
     def _move_end(self):
         self.moving = False
         moved = [[self.name, self.get_pos(), self.start_pos]]
+        activate = [self.name]
         if self.pair is not None:
             self.pair.moving = False
             self.pair.moving_offset = 0.0
             moved = [[self.pair.name, self.pair.get_pos(), self.pair.start_pos]]
+            activate.append(self.pair.name)
+        self._cmdp.invoke('!command_group/start', None)
+        self._cmdp.invoke('!Widgets/Waveform/Markers/activate', activate)
         self._cmdp.invoke('!Widgets/Waveform/Markers/move', moved)
+        self._cmdp.invoke('!command_group/end', None)
 
     def mouseClickEvent(self, ev):
         self.log.info('mouseClickEvent(%s)', ev)
@@ -344,13 +350,12 @@ class Marker(pg.GraphicsObject):
 
     def mouseDragEvent(self, ev, axis=None):
         self.log.debug('mouse drag: %s' % (ev, ))
-        if not self.moving:
-            ev.accept()
-            if ev.button() & QtCore.Qt.LeftButton:
-                if ev.isStart():
-                    self._move_start(ev)
-                if ev.isFinish():
-                    self._move_end()
+        ev.accept()
+        if ev.button() & QtCore.Qt.LeftButton:
+            if ev.isStart():
+                self._move_start(ev)
+            if ev.isFinish():
+                self._move_end()
 
     def _range_tool_factory(self, range_tool_name):
         def fn(*args, **kwargs):

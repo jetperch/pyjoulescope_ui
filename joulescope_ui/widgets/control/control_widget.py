@@ -53,8 +53,8 @@ IRANGE_TOOLTIP = """\
 <html><head/><body>
 <p>Select the Joulescope current range.</p>
 <p>
-"Auto" allows Joulescope to dynamically adjust the current range.ON_OFF_SWITCH_TOOLTIP
-"off" disconnects IN+ from OUT+.
+"Auto" allows Joulescope to dynamically adjust the current range.<br/>
+"Off" disconnects IN+ from OUT+.
 </p></body></html>
 """
 
@@ -72,7 +72,7 @@ value that was not "off".
 VRANGE_TOOLTIP = """\
 <html><head/><body>
 <p>Select the Joulescope voltage range.</p>
-<p>No autoranging option exists."
+<p>No autoranging option exists.
 </p></body></html>
 """
 

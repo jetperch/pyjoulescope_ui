@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from PySide2 import QtCore, QtWidgets
-from .marker import Marker
+from .marker import Marker, Z_MARKER_NORMAL, Z_MARKER_ACTIVE, Z_MARKER_MOVING
 from .marker_area import MarkerArea
 import numpy as np
 from typing import List, Tuple
@@ -22,9 +22,6 @@ import logging
 
 
 log = logging.getLogger(__name__)
-
-Z_MARKER_NORMAL = 10
-Z_MARKER_ACTIVE = 100
 
 
 class AxisMenu(QtWidgets.QMenu):
@@ -140,7 +137,7 @@ class XAxis(pg.AxisItem):
         color = self._marker_color(idx)
         self._marker_add(name, shape='full', pos=x, color=color)
         self.marker_moving_emit(name, x)
-        self._cmd_waveform_marker_activate(None, [ name])
+        self._cmd_waveform_marker_activate(None, [name])
         self._cmdp.publish('Widgets/Waveform/#requests/refresh_markers', [name])
         return '!Widgets/Waveform/Markers/remove', [[name]]
 

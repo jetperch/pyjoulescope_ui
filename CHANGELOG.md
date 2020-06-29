@@ -33,6 +33,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Bound markers to the waveform area.  Restrict from y-axis & statistics.
 *   Fixed current range "zoom out" when output switch is "off".
 *   Added on/off switch #84.
+*   Added horizontal markers to the waveform widget #37.
 
 
 ## 0.8.16

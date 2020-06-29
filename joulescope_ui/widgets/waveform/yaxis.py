@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from .ymarker import YMarker
+from typing import Dict
 from PySide2 import QtCore, QtWidgets
 import pyqtgraph as pg
 import logging
@@ -25,6 +27,12 @@ class YAxisMenu(QtWidgets.QMenu):
     def __init__(self, log_enable=None):
         QtWidgets.QMenu.__init__(self)
         self.setTitle('Y Axis')
+
+        # Annotations
+        self.annotations = self.addMenu('Annotations')
+        self.single_marker = self.annotations.addAction('Single Marker')
+        self.dual_markers = self.annotations.addAction('Dual Markers')
+        self.clear_annotations = self.annotations.addAction('Clear all')
 
         # range
         self.range = QtWidgets.QMenu()
@@ -126,17 +134,12 @@ class YAxis(pg.AxisItem):
         self._cmdp = cmdp
         self.log = logging.getLogger(__name__ + '.' + name)
         self._pan = None
-        self.menu = YAxisMenu(log_enable=log_enable)
         self.config = {
             'range': 'auto',
             'scale': 'linear',
+            'log_enable': bool(log_enable),
         }
-        self.menu.range_auto.triggered.connect(lambda: self._config_update(range='auto'))
-        self.menu.range_manual.triggered.connect(lambda: self._config_update(range='manual'))
-        self.menu.scale_linear.triggered.connect(lambda: self._config_update(scale='linear'))
-        self.menu.scale_logarithmic.triggered.connect(lambda: self._config_update(scale='logarithmic'))
-        self.menu.hide_request.triggered.connect(self._on_hide)
-        self._markers = {}
+        self.markers: Dict[str, YMarker] = {}  #  Dict[str, YMarker]
         self._proxy = None
         self._popup_menu_pos = None
 
@@ -150,7 +153,116 @@ class YAxis(pg.AxisItem):
 
     def range_set(self, value):
         self.config['range'] = value
-        self.menu.range_set(value)
+
+    def _context_menu(self, pos):
+        menu = YAxisMenu(log_enable=self.config['log_enable'])
+        menu.range_set(self.config['range'])
+        menu.scale_set(self.config['scale'])
+        menu.single_marker.triggered.connect(self._on_single_marker)
+        menu.dual_markers.triggered.connect(self._on_dual_markers)
+        menu.clear_annotations.triggered.connect(self._on_clear_annotations)
+        menu.range_auto.triggered.connect(lambda: self._config_update(range='auto'))
+        menu.range_manual.triggered.connect(lambda: self._config_update(range='manual'))
+        menu.scale_linear.triggered.connect(lambda: self._config_update(scale='linear'))
+        menu.scale_logarithmic.triggered.connect(lambda: self._config_update(scale='logarithmic'))
+        menu.hide_request.triggered.connect(self._on_hide)
+        menu.exec_(pos)
+
+    def _find_first_unused_marker_index(self):
+        idx = 1
+        while True:
+            name = str(idx)
+            name1 = name + 'a'
+            if name not in self.markers and name1 not in self.markers:
+                return idx
+            idx += 1
+
+    def _marker_color(self, idx):
+        idx = int(idx)
+        idx = 1 + ((idx - 1) % 6)  # have 6 colors
+        topic = f'Widgets/Waveform/marker{idx}_color'
+        return self._cmdp.preferences[topic]
+
+    def _marker_add_priv(self, marker):
+        view = self.linkedView()
+        marker.setParentItem(view.parentItem())
+        self.markers[marker.name] = marker
+        if self._proxy is None:
+            self._proxy = pg.SignalProxy(self.scene().sigMouseMoved, rateLimit=60, slot=self._mouseMoveEvent)
+        marker_name = marker.name
+        if marker_name[-1] in ['a', 'b']:
+            pair_name = marker_name[:-1] + ('b' if marker_name[-1] == 'a' else 'a')
+            pair = self.markers.get(pair_name)
+            if pair is not None:
+                marker.pair = pair
+                pair.pair = marker
+        marker.show()
+        view.update()
+        return marker
+
+    def _marker_add(self, name, **state):
+        if name in self.markers:
+            raise RuntimeError('_marker_add internal error: name %s already exists', name)
+        state['color'] = self._marker_color(name[0])
+        marker = YMarker(cmdp=self._cmdp, name=name, view=self.linkedView(), state=state)
+        return self._marker_add_priv(marker)
+
+    def _marker_remove(self, m):
+        if m is None:
+            return None
+        self.markers.pop(m.name)
+        m.setVisible(False)
+        state = m.remove()
+        # marker.prepareGeometryChange()
+        # self.scene().removeItem(marker)  # removing from scene causes crash... ugh
+        # ViewBox has crash workaround for this case - incorporate here?
+        self.linkedView().update()
+        return state
+
+    def marker_single_add(self, y):
+        name = self._find_first_unused_marker_index()
+        return self._marker_add(str(name), pos=y)
+
+    def marker_dual_add(self, y1, y2):
+        name = self._find_first_unused_marker_index()
+        m1 = self._marker_add(f'{name}a', pos=y1)
+        m2 = self._marker_add(f'{name}b', pos=y2)
+        return m1, m2
+
+    def marker_remove(self, name):
+        m1 = self.markers.get(name)
+        if m1 is None:
+            return []
+        if m1.pair is not None:
+            m2 = m1.pair
+            return [self._marker_remove(m1), self._marker_remove(m2)]
+        else:
+            return [self._marker_remove(m1)]
+
+    def marker_restore(self, state):
+        name = state.pop('name')
+        marker = YMarker(cmdp=self._cmdp, name=name, view=self.linkedView(), state=state)
+        return self._marker_add_priv(marker)
+
+    def _on_single_marker(self):
+        self._cmdp.invoke('!Widgets/Waveform/YMarkers/single_add', [self._name, self._popup_menu_pos])
+
+    def _on_dual_markers(self):
+        r1, r2 = self.range
+        yc = self._popup_menu_pos
+        ys = (r2 - r1) / 10
+        y1, y2 = yc - ys, yc + ys
+        if y1 < r1:
+            c = r1 - y1
+        elif y2 > r2:
+            c = r2 - y2
+        else:
+            c = 0.0
+        y1, y2 = y1 + c, y2 + c
+        self._cmdp.invoke('!Widgets/Waveform/YMarkers/dual_add', [self._name, y1, y2])
+
+    def _on_clear_annotations(self):
+        self._cmdp.invoke('!Widgets/Waveform/YMarkers/clear', [self._name])
 
     def mouseClickEvent(self, event, axis=None):
         if self.linkedView() is None:
@@ -160,9 +272,8 @@ class YAxis(pg.AxisItem):
             self.log.info('mouseClickEvent(%s)', event)
             event.accept()
             if event.button() == QtCore.Qt.RightButton:
-                self._popup_menu_pos = self.linkedView().mapSceneToView(pos)
-                # self.scene().addParentContextMenus(self, self.menu, event)
-                self.menu.popup(event.screenPos().toPoint())
+                self._popup_menu_pos = self.linkedView().mapSceneToView(pos).y()
+                self._context_menu(event.screenPos().toPoint())
 
     def _pan_finish(self):
         if self._pan is not None:
@@ -235,3 +346,16 @@ class YAxis(pg.AxisItem):
             event.setAccepted(False)
         # p = self.mapSceneToView(ev.scenePos())
         # self.sigWheelZoomXEvent.emit(p.x(), ev.delta())
+
+    def _mouseMoveEvent(self, ev):
+        """Handle mouse movements for every mouse movement within the widget"""
+        pos = ev[0]
+        b1 = self.geometry()
+        if pos.y() < b1.top():
+            return
+        p = self.linkedView().mapSceneToView(pos)
+        y_min, y_max = self.range
+        y = min(max(p.y(), y_min), y_max)
+        for marker in self.markers.values():
+            if marker.moving:
+                marker.set_pos(y + marker.moving_offset)
