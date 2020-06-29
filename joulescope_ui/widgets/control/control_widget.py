@@ -14,6 +14,7 @@
 
 
 from PySide2 import QtWidgets, QtGui, QtCore
+from joulescope_ui.widgets.switch import Switch
 from joulescope.units import three_sig_figs
 from joulescope_ui.units import convert_units
 import logging
@@ -52,10 +53,21 @@ IRANGE_TOOLTIP = """\
 <html><head/><body>
 <p>Select the Joulescope current range.</p>
 <p>
-"Auto" allows Joulescope to dynamically adjust the current range.<br/>
+"Auto" allows Joulescope to dynamically adjust the current range.ON_OFF_SWITCH_TOOLTIP
 "off" disconnects IN+ from OUT+.
 </p></body></html>
 """
+
+ON_OFF_SWITCH_TOOLTIP = """\
+<html><head/><body>
+<p>Switch the target device on or off.</p>
+<p>
+"Off" disconnects IN+ from OUT+.<br/>
+"On" configures the current range to the most recent 
+value that was not "off".
+</p></body></html>
+"""
+
 
 VRANGE_TOOLTIP = """\
 <html><head/><body>
@@ -161,6 +173,11 @@ class ControlWidget(QtWidgets.QWidget):
         self._iRangeComboBox.setToolTip(IRANGE_TOOLTIP)
         self._layout.addWidget(self._iRangeComboBox)
 
+        self._current_range_when_on = 'auto'
+        self._switch = Switch(thumb_radius=11, track_radius=8)
+        self._switch.setToolTip(ON_OFF_SWITCH_TOOLTIP)
+        self._layout.addWidget(self._switch)
+
         self._vRangeLabel = QtWidgets.QLabel(self)
         self._vRangeLabel.setObjectName('vRangeLabel')
         self._vRangeLabel.setText('Voltage Range')
@@ -199,6 +216,7 @@ class ControlWidget(QtWidgets.QWidget):
         self._cmdp.subscribe('Units/accumulator', self._on_accumulator)
         self._playButton.toggled.connect(self._on_play_button_toggled)
         self._recordButton.toggled.connect(self._on_record_button_toggled)
+        self._switch.toggled.connect(self._on_switch_toggled)
         self._accumLabel.mousePressEvent = self._on_accum_mousePressEvent
 
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
@@ -234,6 +252,11 @@ class ControlWidget(QtWidgets.QWidget):
         log.info('control_widget record button %s', checked)
         self._cmdp.publish('Device/#state/record', checked)
 
+    def _on_switch_toggled(self, checked):
+        log.info('on_off_widget switch %s', checked)
+        value = self._current_range_when_on if checked else 'off'
+        self._cmdp.publish('Device/setting/i_range', value)
+
     def _populate_combobox(self, combobox, topic):
         try:
             combobox.currentIndexChanged.disconnect()
@@ -259,6 +282,13 @@ class ControlWidget(QtWidgets.QWidget):
     def _on_device_parameter(self, topic, data):
         if topic == 'Device/setting/i_range':
             self._update_combobox(self._iRangeComboBox, data)
+            block_state = self._switch.blockSignals(True)
+            if data == 'off':
+                self._switch.setChecked(False)
+            else:
+                self._switch.setChecked(True)
+                self._current_range_when_on = data
+            self._switch.blockSignals(block_state)
         elif topic == 'Device/setting/v_range':
             self._update_combobox(self._vRangeComboBox, data)
 
@@ -297,11 +327,13 @@ class ControlWidget(QtWidgets.QWidget):
         elif topic == 'Device/#state/source':
             if data in 'USB':
                 self._playButton.setEnabled(True)
+                self._switch.setEnabled(True)
                 self._iRangeComboBox.setEnabled(True)
                 self._vRangeComboBox.setEnabled(True)
             elif data == 'Buffer':
                 self._playButton.setEnabled(True)
                 self._recordButton.setEnabled(False)
+                self._switch.setEnabled(False)
                 self._iRangeComboBox.setEnabled(False)
                 self._vRangeComboBox.setEnabled(False)
             else:
@@ -309,12 +341,14 @@ class ControlWidget(QtWidgets.QWidget):
                 self._playButton.setEnabled(False)
                 self._recordButton.setChecked(False)
                 self._recordButton.setEnabled(False)
+                self._switch.setEnabled(False)
                 self._iRangeComboBox.setEnabled(False)
                 self._vRangeComboBox.setEnabled(False)
         elif self._cmdp['Device/#state/source'] in ['USB', 'Buffer']:
             if topic == 'Device/#state/play':
                 self._playButton.setChecked(data)
                 self._recordButton.setEnabled(data)
+                self._switch.setEnabled(data)
             elif topic == 'Device/#state/record':
                 self._recordButton.setChecked(data)
 

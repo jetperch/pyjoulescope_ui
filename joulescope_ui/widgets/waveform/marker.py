@@ -31,9 +31,7 @@ class Marker(pg.GraphicsObject):
     :param name: The name for the marker.  By convention, single markers are
         number strings, like '1', and marker pairs are like 'A1' and 'A2'.
     :param x_axis: The x-axis :class:`pg.AxisItem` instance.
-    :param color: The [R,G,B] or [R,G,B,A] color for the marker.
-    :param shape: The marker flag shape which is one of:
-        ['full', 'left', 'right', 'none'].
+    :param state: The dict of state attributes.
     """
 
     def __init__(self, cmdp, name, x_axis: pg.AxisItem, state=None):
@@ -301,9 +299,6 @@ class Marker(pg.GraphicsObject):
         :return: The current x-axis position in the Axis coordinates.
         """
         return self._x
-
-    def on_xChangeSignal(self, x_min, x_max, x_count):
-        self._redraw()
 
     def _move_start(self, ev):
         activate = [self.name]
