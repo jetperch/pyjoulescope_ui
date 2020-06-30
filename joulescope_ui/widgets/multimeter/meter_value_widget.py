@@ -17,14 +17,13 @@ from joulescope_ui import joulescope_rc
 from joulescope.units import unit_prefix
 import numpy as np
 import math
-from joulescope_ui.ui_util import rgba_to_css
 
 
-class MeterValueWidget(QtWidgets.QWidget):
+class MeterValueWidget(QtCore.QObject):
     on_update = QtCore.Signal(object, str)  # [mean, std_dev, min, max, p2p], units : values are formatted strings!
 
-    def __init__(self, parent, cmdp):
-        QtWidgets.QWidget.__init__(self, parent)
+    def __init__(self, parent, cmdp, row, name):
+        QtCore.QObject.__init__(self, parent)
         self._cmdp = cmdp
         self._units_short = ''
         self._units_long = ''
@@ -37,106 +36,80 @@ class MeterValueWidget(QtWidgets.QWidget):
 
         self._accum_enable = False
         self._accum_count = 0
+        layout = parent.layout()
 
-        self.horizontalLayout = QtWidgets.QHBoxLayout(self)
-        self.horizontalLayout.setContentsMargins(2, 2, 2, 2)
-        self.horizontalLayout.setSpacing(0)
-        self.horizontalLayout.setObjectName("horizontalLayout")
-
-        self.valueLabel = QtWidgets.QLabel(self)
+        self.valueLabel = QtWidgets.QLabel(parent)
         self.valueLabel.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
-        self.valueLabel.setObjectName("valueLabel")
-        self.horizontalLayout.addWidget(self.valueLabel)
-        self.unitLabel = QtWidgets.QLabel(self)
-        self.unitLabel.setObjectName("unitLabel")
-        self.horizontalLayout.addWidget(self.unitLabel)
-        self.frame = QtWidgets.QFrame(self)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Maximum, QtWidgets.QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.frame.sizePolicy().hasHeightForWidth())
-        self.frame.setSizePolicy(sizePolicy)
-        self.frame.setFrameShape(QtWidgets.QFrame.NoFrame)
-        self.frame.setFrameShadow(QtWidgets.QFrame.Plain)
-        self.frame.setLineWidth(0)
-        self.frame.setObjectName("frame")
-        self.gridLayout = QtWidgets.QGridLayout(self.frame)
-        self.gridLayout.setContentsMargins(0, 0, 0, 0)
-        self.gridLayout.setSpacing(0)
-        self.gridLayout.setObjectName("gridLayout")
-        self.stdLabel = QtWidgets.QLabel(self.frame)
-        self.stdLabel.setLineWidth(0)
-        self.stdLabel.setObjectName("stdLabel")
-        self.gridLayout.addWidget(self.stdLabel, 0, 0, 1, 1)
-        self.stdName = QtWidgets.QLabel(self.frame)
-        self.stdName.setLineWidth(0)
-        self.stdName.setObjectName("stdName")
-        self.gridLayout.addWidget(self.stdName, 0, 1, 1, 1)
-        self.minLabel = QtWidgets.QLabel(self.frame)
-        self.minLabel.setLineWidth(0)
-        self.minLabel.setObjectName("minLabel")
-        self.gridLayout.addWidget(self.minLabel, 1, 0, 1, 1)
-        self.minName = QtWidgets.QLabel(self.frame)
-        self.minName.setLineWidth(0)
-        self.minName.setObjectName("minName")
-        self.gridLayout.addWidget(self.minName, 1, 1, 1, 1)
-        self.maxLabel = QtWidgets.QLabel(self.frame)
-        self.maxLabel.setLineWidth(0)
-        self.maxLabel.setObjectName("maxLabel")
-        self.gridLayout.addWidget(self.maxLabel, 2, 0, 1, 1)
-        self.maxName = QtWidgets.QLabel(self.frame)
-        self.maxName.setLineWidth(0)
-        self.maxName.setObjectName("maxName")
-        self.gridLayout.addWidget(self.maxName, 2, 1, 1, 1)
-        self.p2pLabel = QtWidgets.QLabel(self.frame)
-        self.p2pLabel.setLineWidth(0)
-        self.p2pLabel.setObjectName("p2pLabel")
-        self.gridLayout.addWidget(self.p2pLabel, 3, 0, 1, 1)
-        self.p2pName = QtWidgets.QLabel(self.frame)
-        self.p2pName.setLineWidth(0)
-        self.p2pName.setObjectName("p2pName")
-        self.gridLayout.addWidget(self.p2pName, 3, 1, 1, 1)
-        self.horizontalLayout.addWidget(self.frame)
+        self.valueLabel.setObjectName(f'{name}_valueLabel')
+        layout.addWidget(self.valueLabel, row, 0, 4, 1)
 
-        self._stats_widgets = [
+        self.unitLabel = QtWidgets.QLabel(parent)
+        self.unitLabel.setObjectName(f'{name}_unitLabel')
+        layout.addWidget(self.unitLabel, row, 1, 4, 1)
+
+        self.stdLabel = QtWidgets.QLabel(parent)
+        self.stdLabel.setLineWidth(0)
+        self.stdLabel.setObjectName(f'{name}_stdLabel')
+        layout.addWidget(self.stdLabel, row, 2, 1, 1)
+
+        self.stdName = QtWidgets.QLabel(parent)
+        self.stdName.setLineWidth(0)
+        self.stdName.setObjectName(f'{name}_stdName')
+        layout.addWidget(self.stdName, row, 3, 1, 1)
+
+        self.minLabel = QtWidgets.QLabel(parent)
+        self.minLabel.setLineWidth(0)
+        self.minLabel.setObjectName(f'{name}_minLabel')
+        layout.addWidget(self.minLabel, row + 1, 2, 1, 1)
+
+        self.minName = QtWidgets.QLabel(parent)
+        self.minName.setLineWidth(0)
+        self.minName.setObjectName(f'{name}_minName')
+        layout.addWidget(self.minName, row + 1, 3, 1, 1)
+
+        self.maxLabel = QtWidgets.QLabel(parent)
+        self.maxLabel.setLineWidth(0)
+        self.maxLabel.setObjectName(f'{name}_maxLabel')
+        layout.addWidget(self.maxLabel, row + 2, 2, 1, 1)
+
+        self.maxName = QtWidgets.QLabel(parent)
+        self.maxName.setLineWidth(0)
+        self.maxName.setObjectName(f'{name}_maxName')
+        layout.addWidget(self.maxName, row + 2, 3, 1, 1)
+
+        self.p2pLabel = QtWidgets.QLabel(parent)
+        self.p2pLabel.setLineWidth(0)
+        self.p2pLabel.setObjectName(f'{name}_p2pLabel')
+        layout.addWidget(self.p2pLabel, row + 3, 2, 1, 1)
+
+        self.p2pName = QtWidgets.QLabel(parent)
+        self.p2pName.setLineWidth(0)
+        self.p2pName.setObjectName(f'{name}_p2pName')
+        layout.addWidget(self.p2pName, row + 3, 3, 1, 1)
+
+        self.main_widgets = [self.valueLabel, self.unitLabel]
+        for w in self.main_widgets:
+            w.setProperty('multimeter_label', True)
+            w.setProperty('multimeter_main', True)
+
+        self.stats_widgets = [
             (self.stdLabel, self.stdName),
             (self.minLabel, self.minName),
             (self.maxLabel, self.maxName),
             (self.p2pLabel, self.p2pName),
         ]
+        for widgets in self.stats_widgets:
+            for w in widgets:
+                w.setProperty('multimeter_label', True)
+                w.setProperty('multimeter_statistic', True)
 
         self.retranslateUi()
 
-        cmdp.subscribe('Widgets/Multimeter/font-main', self._on_font_main, update_now=True)
-        cmdp.subscribe('Widgets/Multimeter/font-stats', self._on_font_stats, update_now=True)
-        cmdp.subscribe('Widgets/Multimeter/font-color', self._on_color, update_now=True)
-        cmdp.subscribe('Widgets/Multimeter/background-color', self._on_color, update_now=True)
-
     def _widgets(self):
         widgets = [self.valueLabel, self.unitLabel]
-        for w in self._stats_widgets:
+        for w in self.stats_widgets:
             widgets.extend(w)
         return widgets
-
-    def _on_font_main(self, topic, value):
-        font = QtGui.QFont()
-        font.fromString(value)
-        self.valueLabel.setFont(font)
-        self.unitLabel.setFont(font)
-
-    def _on_font_stats(self, topic, value):
-        font = QtGui.QFont()
-        font.fromString(value)
-        for widgets in self._stats_widgets:
-            for widget in widgets:
-                widget.setFont(font)
-
-    def _on_color(self, topic, value):
-        foreground = rgba_to_css(self._cmdp['Widgets/Multimeter/font-color'])
-        background = rgba_to_css(self._cmdp['Widgets/Multimeter/background-color'])
-        style = 'QLabel { background-color: %s; color: %s; }' % (background, foreground)
-        for widget in self._widgets():
-            widget.setStyleSheet(style)
 
     @property
     def accumulate_enable(self):
@@ -153,7 +126,7 @@ class MeterValueWidget(QtWidgets.QWidget):
         self._units_short = units_short
         self._units_long = units_long
         self.update_value()
-        self.setToolTip(name)
+        # self.setToolTip(name)
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
@@ -204,10 +177,8 @@ class MeterValueWidget(QtWidgets.QWidget):
         max_value = max(*[abs(x) for x in values])
         _, prefix, scale = unit_prefix(max_value)
         scale = 1.0 / scale
-        if not len(prefix):
-            prefix = '&nbsp;'
         units = f'{prefix}{self._units_short}'
-        self.unitLabel.setText(f"<html>&nbsp;{units}&nbsp;</html>")
+        self.unitLabel.setText(units)
         fields = [
             [self.v_mean, self.valueLabel],
             [self.v_std_dev, self.stdLabel],
@@ -234,24 +205,24 @@ class MeterValueWidget(QtWidgets.QWidget):
         v = self._cmdp.convert_units('energy', energy, self._units_short)
         energy, prefix, _ = unit_prefix(v['value'])
         units = f'{prefix}{v["units"]}'
-        self.unitLabel.setText(f"<html>&nbsp;{units}&nbsp;</html>")
+        self.unitLabel.setText(units)
         energy_str = ('%+6f' % energy)[:8]
         self.valueLabel.setText(energy_str)
         self.on_update.emit([energy_str, '0.0000', energy_str, energy_str, '0.0000'], units)
 
         charge_c, prefix_c, _ = unit_prefix(charge)
-        self.stdName.setText(f"<html>&nbsp;{prefix_c}C&nbsp;</html>")
+        self.stdName.setText(f"{prefix_c}C")
         self.stdLabel.setText(('%+6f' % charge_c)[:8])
 
         charge_ah, prefix_ah, _ = unit_prefix(charge / 3600.0)
-        self.minName.setText(f"<html>&nbsp;{prefix_ah}Ah&nbsp;</html>")
+        self.minName.setText(f"{prefix_ah}Ah")
         self.minLabel.setText(('%+6f' % charge_ah)[:8])
 
         self.maxName.setText('')
         self.maxLabel.setText('')
 
         duration_c, prefix_t, _ = unit_prefix(duration)
-        self.p2pName.setText(f"<html>&nbsp;{prefix_t}s&nbsp;</html>")
+        self.p2pName.setText(f"{prefix_t}s")
         self.p2pLabel.setText(('%.1f' % duration_c))
 
     def configure_energy(self):
@@ -264,14 +235,3 @@ class MeterValueWidget(QtWidgets.QWidget):
         self.p2pName.setText('')
         self.p2pLabel.setText('')
         self.update_energy(0.0, 0.0, 0.0)
-
-    def resizeEvent(self, event):
-        super().resizeEvent(event)
-        width = self.valueLabel.fontMetrics().boundingRect("i+0.00000").width()
-        self.valueLabel.setMinimumWidth(width)
-        width = self.unitLabel.fontMetrics().boundingRect("imWi").width()
-        self.unitLabel.setMinimumWidth(width)
-
-        width = self.stdLabel.fontMetrics().boundingRect("i+0.00000").width()
-        for label, _ in self._stats_widgets:
-            label.setMinimumWidth(width)
