@@ -40,6 +40,9 @@ class Exporter:
         if self._filename is None:
             return 'Cancelled'
 
+    def run_post(self, data):
+        data.cmdp.publish('!General/mru_add', self._filename)
+
     def run(self, data):  # RangeToolInvocation
         registry = {
             'bin': self._export_bin,

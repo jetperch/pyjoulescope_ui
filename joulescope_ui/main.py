@@ -371,6 +371,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self._cmdp.register('!Accumulators/reset', self._accumulators_reset,
                             brief='Reset the energy and charge accumulators',
                             record_undo=True)
+        self._cmdp.register('!General/mru_add', self._mru_add,
+                            brief='Add a file to the most recently used list.',
+                            detail='This command uses General/_mru_open to undo.')
 
         # Device selection
         self.device_action_group = QtWidgets.QActionGroup(self)
@@ -1157,6 +1160,7 @@ class MainWindow(QtWidgets.QMainWindow):
                                            calibration=self._device.calibration,
                                            multiprocessing_logging_queue=self._multiprocessing_logging_queue)
             self._device.stream_process_register(self._recording)
+            self._cmdp.publish('!General/mru_add', filename)
         else:
             log.warning('start recording failed for %s', filename)
 
@@ -1210,12 +1214,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self._cmdp.publish('Device/#state/name', os.path.basename(filename))
         self._cmdp.publish('Device/#state/source', 'File')
         self._cmdp.publish('Device/#state/sample_drop_color', '')
-        self._menu_open_recent_update(filename)
+        self._cmdp.publish('!General/mru_add', filename)
 
-    def _menu_open_recent_update(self, path=None):
-        self._menu_open_recent.clear()
+    def _mru_add(self, topic, value):
+        path = value
         mru_count = int(self._cmdp['General/mru'])
         mrus = self._cmdp['General/_mru_open']
+        mrus_restore = list(mrus)
         if path is not None:
             try:
                 mrus.remove(path)
@@ -1224,15 +1229,21 @@ class MainWindow(QtWidgets.QMainWindow):
             mrus.insert(0, path)
         mrus = mrus[:mru_count]
         self._cmdp.preferences['General/_mru_open'] = mrus
-        for mru in mrus:
-            self._menu_open_recent_add(mru)
-        self._menu_open_recent.setEnabled(len(mrus))
+        self._menu_open_recent_update()
+        return 'General/_mru_open', mrus_restore
 
-    def _menu_open_recent_add(self, path):
-        w = QtWidgets.QAction(self._menu_open_recent)
-        w.setText(path)
-        w.triggered.connect(lambda: self._recording_open(path))
-        self._menu_open_recent.addAction(w)
+    def _mru_callback_factory(self, path):
+        def cbk():
+            self._recording_open(path)
+        return cbk
+
+    def _menu_open_recent_update(self, path=None):
+        self._menu_open_recent.clear()
+        mrus = self._cmdp.preferences['General/_mru_open']
+        for mru in mrus:
+            w = self._menu_open_recent.addAction(mru)
+            w.triggered.connect(self._mru_callback_factory(mru))
+        self._menu_open_recent.setEnabled(len(mrus))
 
     def _instance_id_next(self):
         """Get the next dock widget instance id.
