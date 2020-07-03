@@ -26,8 +26,10 @@ class FileDialog:
     simplifies the API.
     """
 
-    def __init__(self, parent, title, path, file_mode=None):
-        self.dialog = QtWidgets.QFileDialog(parent, title, path, 'Joulescope Data (*.jls)')
+    def __init__(self, parent, title, path, file_mode=None, filter_=None):
+        if filter_ is None:
+            filter_ = 'Joulescope Data (*.jls)'
+        self.dialog = QtWidgets.QFileDialog(parent, title, path, filter_)
         file_mode = 'existingfile' if file_mode is None else file_mode.lower()
         if file_mode in [None, 'existingfile', 'existing']:
             self._mode = QtWidgets.QFileDialog.ExistingFile

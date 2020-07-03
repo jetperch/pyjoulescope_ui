@@ -185,6 +185,7 @@ def preferences_def(p):
     p.define('Device/#state/sample_drop_color', dtype=str, default='')
     p.define('Device/#state/play',   dtype=bool, default=False)
     p.define('Device/#state/record', dtype=bool, default=False)
+    p.define('Device/#state/record_statistics', dtype=bool, default=False)
     p.define('Device/#state/sampling_frequency', dtype=float, default=0.0)
     p.define('Device/#state/status', dtype=dict, default={})
     p.define('Device/#state/statistics', dtype=dict, default={})

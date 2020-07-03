@@ -35,7 +35,7 @@ ACCUM_TEMPLATE = """\
 
 PLAY_TOOLTIP = """\
 <html><head/><body><p>
-Click to stream data from the selected Joulescope.<br/>
+<p>Click to stream data from the selected Joulescope.</p>
 Click again to stop data streaming.
 </p></body></html>
 """
@@ -43,6 +43,15 @@ Click again to stop data streaming.
 RECORD_TOOLTIP = """\
 <html><head/><body>
 <p>Click to recording streaming Joulescope data to a file.</p>
+<p>
+Click again to stop the recording.<br/>
+Only new data is recorded.
+</p></body></html>
+"""
+
+STATISTICS_TOOLTIP = """\
+<html><head/><body>
+<p>Click to recording statistics Joulescope data to a CSV file.</p>
 <p>
 Click again to stop the recording.<br/>
 Only new data is recorded.
@@ -106,8 +115,21 @@ QPushButton {
 QPushButton:enabled       { background: #A00000; }
 QPushButton:enabled:hover { background: #C00000; }
 QPushButton:checked       { background: #A00000; }
-QPushButton:checked:hover { background: #D00000; }
-QPushButton[blink=true]:checked       { background: #C00000; }
+QPushButton:checked:hover { background: #E00000; }
+QPushButton[blink=true]:checked       { background: #D00000; }
+QPushButton:disabled      { background: #808080; }
+"""
+
+RECORD_STATISTICS_STYLESHEET = """\
+QPushButton {
+    border-radius: 6;
+    image: url(":/joulescope/resources/record_statistics.svg"); 
+}
+QPushButton:enabled       { background: #0D47A1; }
+QPushButton:enabled:hover { background: #2196F3; }
+QPushButton:checked       { background: #0D47A1; }
+QPushButton:checked:hover { background: #64B5F6; }
+QPushButton[blink=true]:checked       { background: #2196F3; }
 QPushButton:disabled      { background: #808080; }
 """
 
@@ -161,6 +183,16 @@ class ControlWidget(QtWidgets.QWidget):
         self._recordButton.setFixedSize(24, 24)
         self._layout.addWidget(self._recordButton)
 
+        self._recordStatisticsButton = QtWidgets.QPushButton(self)
+        self._recordStatisticsButton.setObjectName('recordStatisticsButton')
+        self._recordStatisticsButton.setEnabled(True)
+        self._recordStatisticsButton.setProperty('blink', False)
+        self._recordStatisticsButton.setStyleSheet(RECORD_STATISTICS_STYLESHEET)
+        self._recordStatisticsButton.setCheckable(True)
+        self._recordStatisticsButton.setFlat(True)
+        self._recordStatisticsButton.setFixedSize(24, 24)
+        self._layout.addWidget(self._recordStatisticsButton)
+
         self._iRangeLabel = QtWidgets.QLabel(self)
         self._iRangeLabel.setObjectName('iRangeLabel')
         self._iRangeLabel.setText('Current Range')
@@ -202,6 +234,7 @@ class ControlWidget(QtWidgets.QWidget):
 
         self._playButton.setToolTip(PLAY_TOOLTIP)
         self._recordButton.setToolTip(RECORD_TOOLTIP)
+        self._recordStatisticsButton.setToolTip(STATISTICS_TOOLTIP)
 
         self.setVisible(False)
         self._accum_history = None
@@ -216,6 +249,7 @@ class ControlWidget(QtWidgets.QWidget):
         self._cmdp.subscribe('!Accumulators/reset', self._on_accumulator_reset)
         self._playButton.toggled.connect(self._on_play_button_toggled)
         self._recordButton.toggled.connect(self._on_record_button_toggled)
+        self._recordStatisticsButton.toggled.connect(self._on_record_statistics_button_toggled)
         self._switch.toggled.connect(self._on_switch_toggled)
         self._accumLabel.mousePressEvent = self._on_accum_mousePressEvent
 
@@ -231,7 +265,7 @@ class ControlWidget(QtWidgets.QWidget):
 
     def _on_timer(self):
         self._blink = not self._blink
-        for b in [self._recordButton]:  # self._playButton
+        for b in [self._recordButton, self._recordStatisticsButton]:  # self._playButton
             b.setProperty('blink', self._blink)
             b.style().unpolish(b)
             b.style().polish(b)
@@ -251,6 +285,10 @@ class ControlWidget(QtWidgets.QWidget):
     def _on_record_button_toggled(self, checked):
         log.info('control_widget record button %s', checked)
         self._cmdp.publish('Device/#state/record', checked)
+
+    def _on_record_statistics_button_toggled(self, checked):
+        log.info('control_widget record statistics button %s', checked)
+        self._cmdp.publish('Device/#state/record_statistics', checked)
 
     def _on_switch_toggled(self, checked):
         log.info('on_off_widget switch %s', checked)
@@ -337,6 +375,7 @@ class ControlWidget(QtWidgets.QWidget):
             elif data == 'Buffer':
                 self._playButton.setEnabled(True)
                 self._recordButton.setEnabled(False)
+                self._recordStatisticsButton.setEnabled(False)
                 self._switch.setEnabled(False)
                 self._iRangeComboBox.setEnabled(False)
                 self._vRangeComboBox.setEnabled(False)
@@ -345,16 +384,27 @@ class ControlWidget(QtWidgets.QWidget):
                 self._playButton.setEnabled(False)
                 self._recordButton.setChecked(False)
                 self._recordButton.setEnabled(False)
+                self._recordStatisticsButton.setChecked(False)
+                self._recordStatisticsButton.setEnabled(False)
                 self._switch.setEnabled(False)
                 self._iRangeComboBox.setEnabled(False)
                 self._vRangeComboBox.setEnabled(False)
         elif self._cmdp['Device/#state/source'] in ['USB', 'Buffer']:
             if topic == 'Device/#state/play':
+                b = self._playButton.blockSignals(True)
                 self._playButton.setChecked(data)
+                self._playButton.blockSignals(b)
                 self._recordButton.setEnabled(data)
+                self._recordStatisticsButton.setEnabled(data)
                 self._switch.setEnabled(data)
             elif topic == 'Device/#state/record':
+                b = self._recordButton.blockSignals(True)
                 self._recordButton.setChecked(data)
+                self._recordButton.blockSignals(b)
+            elif topic == 'Device/#state/record_statistics':
+                b = self._recordStatisticsButton.blockSignals(True)
+                self._recordStatisticsButton.setChecked(data)
+                self._recordStatisticsButton.blockSignals(b)
 
 
 def widget_register(cmdp):

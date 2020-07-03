@@ -7,40 +7,40 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="40mm"
-   height="40mm"
-   viewBox="0 0 40 40"
-   version="1.1"
-   id="svg8"
-   sodipodi:docname="icons.svg"
-   inkscape:export-filename="D:\repos\Jetperch\pyjoulescope_ui\joulescope_ui\resources\zoom_in_16.png"
-   inkscape:export-xdpi="10.16"
+   inkscape:version="1.0 (4035a4fb49, 2020-05-01)"
    inkscape:export-ydpi="10.16"
-   inkscape:version="1.0 (4035a4fb49, 2020-05-01)">
+   inkscape:export-xdpi="10.16"
+   inkscape:export-filename="D:\repos\Jetperch\pyjoulescope_ui\joulescope_ui\resources\zoom_in_16.png"
+   sodipodi:docname="icons.svg"
+   id="svg8"
+   version="1.1"
+   viewBox="0 0 40 40"
+   height="40mm"
+   width="40mm">
   <defs
      id="defs2" />
   <sodipodi:namedview
-     id="base"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageopacity="0.0"
-     inkscape:pageshadow="2"
-     inkscape:zoom="0.9899495"
-     inkscape:cx="163.24179"
-     inkscape:cy="145.28084"
-     inkscape:document-units="mm"
-     inkscape:current-layer="g4539"
+     inkscape:document-rotation="0"
+     inkscape:window-maximized="0"
+     inkscape:window-y="31"
+     inkscape:window-x="2682"
+     inkscape:window-height="1194"
+     inkscape:window-width="1274"
      showgrid="false"
-     inkscape:window-width="2194"
-     inkscape:window-height="1171"
-     inkscape:window-x="2186"
-     inkscape:window-y="-8"
-     inkscape:window-maximized="1"
-     inkscape:document-rotation="0">
+     inkscape:current-layer="g4539"
+     inkscape:document-units="mm"
+     inkscape:cy="145.28084"
+     inkscape:cx="163.24179"
+     inkscape:zoom="0.9899495"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base">
     <inkscape:grid
-       id="grid2158"
-       type="xygrid" />
+       type="xygrid"
+       id="grid2158" />
   </sodipodi:namedview>
   <metadata
      id="metadata5">
@@ -55,36 +55,35 @@
     </rdf:RDF>
   </metadata>
   <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
+     transform="translate(0,-257)"
      id="layer1"
-     transform="translate(0,-257)">
+     inkscape:groupmode="layer"
+     inkscape:label="Layer 1">
     <g
-       id="g4539"
+       inkscape:export-ydpi="97.970001"
        inkscape:export-xdpi="97.970001"
-       inkscape:export-ydpi="97.970001">
-      <circle
-         r="20"
-         cy="277"
-         cx="20"
-         id="path2154"
-         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.380952" />
+       id="g4539">
       <circle
          style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.380952"
-         id="path2154-2"
-         cx="11.22532"
-         cy="344.12988"
+         id="path2154"
+         cx="20"
+         cy="277"
          r="20" />
       <path
-         style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.16643px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-         d="m 4.7430308,333.08672 v 22.08629 L 23.223573,344.12989 Z"
-         id="path2162-8" />
+         transform="matrix(0.26458333,0,0,0.26458333,0,257)"
+         d="M 75.349609 34.015625 A 41.574803 41.574803 0 0 0 34.015625 75.589844 A 41.574803 41.574803 0 0 0 75.589844 117.16602 A 41.574803 41.574803 0 0 0 117.16602 75.589844 A 41.574803 41.574803 0 0 0 75.589844 34.015625 A 41.574803 41.574803 0 0 0 75.349609 34.015625 z M 75.515625 56.693359 A 18.897638 18.897638 0 0 1 75.589844 56.693359 A 18.897638 18.897638 0 0 1 94.488281 75.589844 A 18.897638 18.897638 0 0 1 75.589844 94.488281 A 18.897638 18.897638 0 0 1 56.693359 75.589844 A 18.897638 18.897638 0 0 1 75.515625 56.693359 z "
+         style="fill:#ffffff;stroke-width:0.769289"
+         id="path836" />
       <circle
-         r="8"
-         cy="277"
-         cx="20"
-         id="path2184"
-         style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:0.251415" />
+         r="20"
+         cy="344.12988"
+         cx="11.22532"
+         id="path2154-2"
+         style="fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.380952" />
+      <path
+         id="path2162-8"
+         d="m 4.7430308,333.08672 v 22.08629 L 23.223573,344.12989 Z"
+         style="fill:#ffffff;fill-opacity:1;stroke:none;stroke-width:1.16643px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1" />
     </g>
   </g>
 </svg>

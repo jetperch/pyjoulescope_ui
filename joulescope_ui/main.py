@@ -268,6 +268,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._parameters = {}
         self._data_view = None  # created when device is opened
         self._recording = None  # created to record stream to JLS file
+        self._statistics_recording = None  # record statistics to CSV file
         self._accumulators = {
             'time': 0.0,
             'fields': {
@@ -297,6 +298,7 @@ class MainWindow(QtWidgets.QMainWindow):
             '&View': {},    # dynamically populated from widgets
             '&Tools': {
                 '&Clear Accumulator': self._on_accumulators_clear,
+                '&Record Statistics': self._on_record_statistics,
             },
             '&Help': {
                 '&Getting Started': self._help_getting_started,
@@ -313,6 +315,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self._menu_open_recent_update()
         self._menu_view = self._menu_items['View']['__root__']
         self._menu_devices = self._menu_items['Device']['__root__']
+        self._menu_record_statistics = self._menu_items['Tools']['Record Statistics']
+        self._menu_record_statistics.setCheckable(True)
+        self._menu_record_statistics.setVisible(False)
 
         self._cmdp.setParent(self)
         self._plugins = PluginManager(self._cmdp)
@@ -340,6 +345,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._cmdp.subscribe('Device/#state/name', self._on_device_state_name)
         self._cmdp.subscribe('Device/#state/play', self._on_device_state_play)
         self._cmdp.subscribe('Device/#state/record', self._on_device_state_record)
+        self._cmdp.subscribe('Device/#state/record_statistics', self._on_device_state_record_statistics)
         self._cmdp.subscribe('Widgets/Waveform/#requests/data_next', self._on_waveform_requests_data_next)
         self._cmdp.subscribe('!preferences/profile/add', self._on_preferences_profile_add)
         self._cmdp.subscribe('!preferences/profile/remove', self._on_preferences_profile_remove)
@@ -644,6 +650,27 @@ class MainWindow(QtWidgets.QMainWindow):
             z[1] = x
             d['value'] = z[0]
         self._cmdp.publish('Device/#state/statistics', statistics)
+        if self._statistics_recording is not None:
+            hdr = '#time,current,voltage,power,charge,energy\n'
+            t = statistics['time']['range']['value'][1]
+            i = statistics['signals']['current']['µ']['value']
+            v = statistics['signals']['voltage']['µ']['value']
+            p = statistics['signals']['power']['µ']['value']
+            c = statistics['accumulators']['charge']['value']
+            e = statistics['accumulators']['energy']['value']
+
+            if self._statistics_recording['offsets'] is None:
+                self._statistics_recording['offsets'] = {
+                    'time': t,
+                    'charge': c,
+                    'energy': e,
+                }
+                self._statistics_recording['file'].write(hdr)
+            t -= self._statistics_recording['offsets']['time']
+            c -= self._statistics_recording['offsets']['charge']
+            e -= self._statistics_recording['offsets']['energy']
+            line = '%.1f,%g,%g,%g,%g,%g\n' % (t, i, v, p, c, e)
+            self._statistics_recording['file'].write(line)
 
     def _on_dataview_service_x_change_request(self, topic, value):
         # DataView/#service/x_change_request
@@ -1127,6 +1154,7 @@ class MainWindow(QtWidgets.QMainWindow):
             log.exception('_device_stream_start')
             self.status('Could not start device streaming')
         self._cmdp.publish('Device/#state/source', 'USB')
+        self._menu_record_statistics.setVisible(True)
 
     def _device_stream_stop(self):
         log.debug('_device_stream_stop')
@@ -1136,6 +1164,9 @@ class MainWindow(QtWidgets.QMainWindow):
             return
         self._device_stream_record_stop()
         self._cmdp.publish('Device/#state/record', False)
+        self._record_statistics_stop()
+        self._cmdp.publish('Device/#state/record_statistics', False)
+        self._menu_record_statistics.setVisible(False)
         if hasattr(self._device, 'stop'):
             self._device.stop()  # always safe to call
         self._cmdp.publish('Device/#state/source', 'Buffer')
@@ -1190,8 +1221,51 @@ class MainWindow(QtWidgets.QMainWindow):
                     self._device_stream_record_start(filename)
             else:
                 self.status('Selected device cannot record')
-        elif not enable:
+        else:
             self._device_stream_record_stop()
+
+    def _record_statistics_start(self, filename):
+        f = open(filename, 'w', encoding='utf-8')
+        self._statistics_recording = {
+            'file': f,
+            'offsets': None,
+        }
+
+    def _record_statistics_stop(self):
+        if self._statistics_recording is not None:
+            self._statistics_recording['file'].close()
+            self._statistics_recording = None
+
+    def _on_record_statistics(self, checked):
+        if self._device_can_record():
+            self._cmdp.publish('Device/#state/record_statistics', checked)
+        else:
+            block_signals_state = self._menu_record_statistics.blockSignals(True)
+            self._menu_record_statistics.setChecked(False)
+            self._menu_record_statistics.blockSignals(block_signals_state)
+
+    def _on_device_state_record_statistics(self, topic, enable):
+        enable = bool(enable)
+        block_signals_state = self._menu_record_statistics.blockSignals(True)
+        self._menu_record_statistics.setChecked(enable)
+        self._menu_record_statistics.blockSignals(block_signals_state)
+        if enable:
+            if self._device_can_record():
+                self._record_statistics_stop()
+                fname = construct_record_filename()
+                fname = os.path.splitext(fname)[0] + '.csv'
+                path = os.path.join(self._path(), fname)
+                filter_ = 'Comma-separated values (*.csv)'
+                dialog = FileDialog(self, 'Save Joulescope statistics', path, 'any', filter_)
+                filename = dialog.exec_()
+                if filename is None:
+                    self.status('Invalid filename, do not record')
+                    self._device_stream_record_stop()
+                    self._cmdp.publish('Device/#state/record_statistics', False)
+                else:
+                    self._record_statistics_start(filename)
+        else:
+            self._record_statistics_stop()
 
     def on_recording_open(self):
         dialog = FileDialog(self, 'Open Joulescope Recording', self._path(), 'existing')

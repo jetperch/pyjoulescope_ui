@@ -38,6 +38,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Improved multimeter view grid layout.
 *   Clear accumulator immediately even when not streaming #86.
 *   Added click to copy multimeter value to clipboard #87.
+*   Added record statistics to CSV option #85.
 
 
 ## 0.8.16
