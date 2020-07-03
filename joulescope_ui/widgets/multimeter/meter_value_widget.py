@@ -33,6 +33,7 @@ class MeterValueWidget(QtCore.QObject):
         self.v_min = 0.0
         self.v_max = 0.0
         self.v_p2p = 0.0
+        self._clipboard_text = ''
 
         self._accum_enable = False
         self._accum_count = 0
@@ -91,6 +92,7 @@ class MeterValueWidget(QtCore.QObject):
         for w in self.main_widgets:
             w.setProperty('multimeter_label', True)
             w.setProperty('multimeter_main', True)
+            w.mousePressEvent = self._mouse_press_event_factory(w)
 
         self.stats_widgets = [
             (self.stdLabel, self.stdName),
@@ -102,8 +104,16 @@ class MeterValueWidget(QtCore.QObject):
             for w in widgets:
                 w.setProperty('multimeter_label', True)
                 w.setProperty('multimeter_statistic', True)
+                w.mousePressEvent = self._mouse_press_event_factory(w)
 
         self.retranslateUi()
+
+    def _mouse_press_event_factory(self, label):
+        def on_mouse_press_event(event: QtGui.QMouseEvent):
+            # if event.button() == QtCore.Qt.LeftButton:
+            self._clipboard_text = f'{label.text()} {self.unitLabel.text()}'
+            QtWidgets.QApplication.clipboard().setText(self._clipboard_text)
+        return on_mouse_press_event
 
     def _widgets(self):
         widgets = [self.valueLabel, self.unitLabel]

@@ -37,6 +37,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added statistics on/off for all vertical markers #12.
 *   Improved multimeter view grid layout.
 *   Clear accumulator immediately even when not streaming #86.
+*   Added click to copy multimeter value to clipboard #87.
 
 
 ## 0.8.16
