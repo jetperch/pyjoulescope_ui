@@ -91,6 +91,7 @@ class SingleValueWidget(QtWidgets.QWidget):
         cmdp.subscribe('Widgets/Single Value/font', self._on_font, update_now=True)
         cmdp.subscribe('Widgets/Single Value/font-color', self._on_color, update_now=True)
         cmdp.subscribe('Widgets/Single Value/background-color', self._on_color, update_now=True)
+        self._cmdp.subscribe('!Accumulators/reset', self._on_accumulator_reset)
 
         if self._state_preference not in cmdp:
             cmdp[self._state_preference] = {}
@@ -128,6 +129,11 @@ class SingleValueWidget(QtWidgets.QWidget):
         QLabel {{ background-color : {background}; color : {foreground}; }}
         """
         self.value_widget.setStyleSheet(style)
+
+    def _on_accumulator_reset(self, topic, value):
+        field = self.fieldComboBox.currentText()
+        if field in ['energy', 'current']:
+            self.valueLabel.setText('0.00000')
 
     @QtCore.Slot(object, str)
     def _on_device_statistics(self, topic, statistics):

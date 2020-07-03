@@ -6,7 +6,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.8.18
 
-2020 June 28 [in progress]
+2020 Jul 3 [in progress]
 
 *   Modified Control widget to display accumulator time and selected field.
 *   Renamed Tools → Clear Energy to Clear Accumulators and added undo.
@@ -36,6 +36,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added horizontal markers to the waveform widget #37.
 *   Added statistics on/off for all vertical markers #12.
 *   Improved multimeter view grid layout.
+*   Clear accumulator immediately even when not streaming #86.
 
 
 ## 0.8.16

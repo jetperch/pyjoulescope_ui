@@ -129,7 +129,6 @@ class AccumMenu(QtWidgets.QMenu):
 
     def _on_clear(self):
         self._cmdp.invoke('!Accumulators/reset', None)
-        self.parent().accum_update(True)
 
     def _on_field_switch(self):
         self._cmdp.publish('Units/accumulator', self._next_field)
@@ -214,6 +213,7 @@ class ControlWidget(QtWidgets.QWidget):
         self._cmdp.subscribe('Device/setting/', self._on_device_parameter, update_now=True)
         self._cmdp.subscribe('Device/#state/', self._on_device_state, update_now=True)
         self._cmdp.subscribe('Units/accumulator', self._on_accumulator)
+        self._cmdp.subscribe('!Accumulators/reset', self._on_accumulator_reset)
         self._playButton.toggled.connect(self._on_play_button_toggled)
         self._recordButton.toggled.connect(self._on_record_button_toggled)
         self._switch.toggled.connect(self._on_switch_toggled)
@@ -295,20 +295,24 @@ class ControlWidget(QtWidgets.QWidget):
     def _on_accumulator(self, topic, value):
         self.accum_update()
 
-    def accum_update(self, clear=None):
-        if bool(clear):
-            self._accum_history = None
+    def _on_accumulator_reset(self, topic, value):
+        self._accum_history = None
+        self.accum_update()
+
+    def accum_update(self):
+        field = self._cmdp['Units/accumulator']
         if self._accum_history is None:
-            txt = ''
+            time_str = '0 s'
+            units = self._cmdp.preferences.get('Units/' + field)
+            v = convert_units(0.0, units, units)
         else:
-            field = self._cmdp['Units/accumulator']
             time_str = self._accum_history['time_str']
             a = self._accum_history['accumulators']
             v = a[field]
             units = self._cmdp.preferences.get('Units/' + field, default=v['units'])
             v = convert_units(v['value'], v['units'], units)
-            s = three_sig_figs(v['value'], v['units'])
-            txt = ACCUM_TEMPLATE.format(field=field.capitalize(), value=s, time=time_str)
+        s = three_sig_figs(v['value'], v['units'])
+        txt = ACCUM_TEMPLATE.format(field=field.capitalize(), value=s, time=time_str)
         self._accumLabel.setText(txt)
 
     def _on_device_state(self, topic, data):

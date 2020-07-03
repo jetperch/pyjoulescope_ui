@@ -117,6 +117,7 @@ class MeterWidget(QtWidgets.QWidget):
         cmdp.subscribe('Widgets/Multimeter/font-stats', self._on_font_stats, update_now=True)
         cmdp.subscribe('Widgets/Multimeter/font-color', self._on_color)
         cmdp.subscribe('Widgets/Multimeter/background-color', self._on_color, update_now=True)
+        self._cmdp.subscribe('!Accumulators/reset', self._on_accumulator_reset)
 
     def _on_font_main(self, topic, value):
         font = QtGui.QFont()
@@ -157,6 +158,9 @@ class MeterWidget(QtWidgets.QWidget):
         self.values['current'].accumulate_enable = checked
         self.values['voltage'].accumulate_enable = checked
         self.values['power'].accumulate_enable = checked
+
+    def _on_accumulator_reset(self, topic, statistics):
+        self.values['energy'].update_energy(0, 0, 0)
 
     def _on_device_statistics(self, topic, statistics):
         """Update the multimeter display
