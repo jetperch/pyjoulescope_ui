@@ -182,7 +182,7 @@ def preferences_def(p):
 
     p.define('Device/#state/name', dtype=str, default='')
     p.define('Device/#state/source', dtype=str, options=['None', 'USB', 'Buffer', 'File'], default='None')
-    p.define('Device/#state/sample_drop_color', dtype=str, default='')
+    p.define('Device/#state/stream', dtype=str, default='inactive')
     p.define('Device/#state/play',   dtype=bool, default=False)
     p.define('Device/#state/record', dtype=bool, default=False)
     p.define('Device/#state/record_statistics', dtype=bool, default=False)

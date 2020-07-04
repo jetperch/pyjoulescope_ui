@@ -46,6 +46,7 @@ import io
 import ctypes
 import collections
 import gc
+import pkgutil
 import pyperclip
 import traceback
 import time
@@ -283,7 +284,7 @@ class MainWindow(QtWidgets.QMainWindow):
         super(MainWindow, self).__init__()
         self.resize(800, 600)
         icon = QtGui.QIcon()
-        icon.addFile(u":/joulescope/resources/icon_64x64.ico", QtCore.QSize(), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addFile(u":/icon_64x64.ico", QtCore.QSize(), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setWindowIcon(icon)
 
         self._menu_bar = QtWidgets.QMenuBar(self)
@@ -341,7 +342,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._view_menu()
 
         self._cmdp.subscribe('Device/#state/source', self._device_state_source)
-        self._cmdp.subscribe('Device/#state/sample_drop_color', self._device_state_color)
+        self._cmdp.subscribe('Device/#state/stream', self._device_state_stream)
         self._cmdp.subscribe('Device/#state/name', self._on_device_state_name)
         self._cmdp.subscribe('Device/#state/play', self._on_device_state_play)
         self._cmdp.subscribe('Device/#state/record', self._on_device_state_record)
@@ -396,6 +397,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.statusbar = QtWidgets.QStatusBar(self)
         self.setStatusBar(self.statusbar)
         self._source_indicator = QtWidgets.QLabel(self.statusbar)
+        self._source_indicator.setObjectName('stream_source')
+        self._source_indicator.setProperty('stream', 'inactive')
         self.statusbar.addPermanentWidget(self._source_indicator)
 
         # device scan timer - because bad things happen, see rescan_interval config
@@ -747,12 +750,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self._source_indicator.setText(f'  {data}  ')
         self._source_indicator.setToolTip(self._cmdp['Device/#state/name'])
 
-    def _device_state_color(self, topic, data):
-        if data is None or data == '':
-            style = ""
-        else:
-            style = f"QLabel {{ background-color : {data} }}"
-        self._source_indicator.setStyleSheet(style)
+    def _device_state_stream(self, topic, data):
+        self._source_indicator.setProperty('stream', data)
+        self._source_indicator.style().unpolish(self._source_indicator)
+        self._source_indicator.style().polish(self._source_indicator)
 
     @property
     def _has_active_device(self):
@@ -888,7 +889,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._streaming_status = None
         self._cmdp.publish('Device/#state/name', '')
         self._cmdp.publish('Device/#state/source', 'None')
-        self._cmdp.publish('Device/#state/sample_drop_color', '')
+        self._cmdp.publish('Device/#state/stream', 'inactive')
         self._cmdp.publish('Device/#state/play', False)
         self._cmdp.publish('Device/#state/record', False)
         gc.collect()  # safe time to force garbage collection
@@ -1170,7 +1171,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if hasattr(self._device, 'stop'):
             self._device.stop()  # always safe to call
         self._cmdp.publish('Device/#state/source', 'Buffer')
-        self._cmdp.publish('Device/#state/sample_drop_color', '')
+        self._cmdp.publish('Device/#state/stream', 'inactive')
 
     def _on_device_state_play(self, topic, checked):
         log.info('_on_device_state_play(%s, %s)', topic, checked)
@@ -1287,7 +1288,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self._cmdp.publish('Device/#state/name', os.path.basename(filename))
         self._cmdp.publish('Device/#state/source', 'File')
-        self._cmdp.publish('Device/#state/sample_drop_color', '')
+        self._cmdp.publish('Device/#state/stream', 'inactive')
         self._cmdp.publish('!General/mru_add', filename)
 
     def _mru_add(self, topic, value):
@@ -1557,15 +1558,16 @@ class MainWindow(QtWidgets.QMainWindow):
         try:
             n_sample_id = n_sample_id['value']
             n_sample_missing_count = n_sample_missing_count['value']
+            stream_status = 'active'
             if len(self._streaming_status):  # skip first time
                 d_sample_id = n_sample_id - self._streaming_status['sample_id']
                 d_sample_missing_count = n_sample_missing_count - self._streaming_status['sample_missing_count']
                 if (0 == d_sample_id) or ((d_sample_missing_count / d_sample_id) > 0.001):
-                    color = 'red'
+                    stream_status = 'error'
                     log.warning('status RED: d_sample_id=%d, d_sample_missing_count=%d',
                                 d_sample_id, d_sample_missing_count)
                 elif d_sample_missing_count:
-                    color = 'yellow'
+                    stream_status = 'warning'
                     log.warning('status YELLOW: d_sample_id=%d, d_sample_missing_count=%d',
                                 d_sample_id, d_sample_missing_count)
                 else:
@@ -1574,7 +1576,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 color = ''
             self._streaming_status['sample_id'] = n_sample_id
             self._streaming_status['sample_missing_count'] = n_sample_missing_count
-            self._cmdp.publish('Device/#state/sample_drop_color', color)
+            self._cmdp.publish('Device/#state/stream', stream_status)
             self._cmdp.publish('Device/#state/source', 'USB')
         except:
             log.exception('_source_indicator_status_update')
@@ -1741,7 +1743,7 @@ class ErrorWindow(QtWidgets.QMainWindow):
 
 def load_fonts():
     font_list = ['']
-    iterator = QtCore.QDirIterator(':/joulescope/fonts/', QtCore.QDirIterator.Subdirectories)
+    iterator = QtCore.QDirIterator(':/fonts/', QtCore.QDirIterator.Subdirectories)
     while iterator.hasNext():
         resource_path = iterator.next()
         if resource_path.endswith('.ttf'):
@@ -1780,6 +1782,7 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
 
     :return: 0 on success or error code on failure.
     """
+    resources = []
     app = None
     try:
         logging_preconfig()  # capture log messages until logging_config
@@ -1806,8 +1809,21 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
         except:
             log.exception('while configuring high DPI scaling')
         app = QtWidgets.QApplication(sys.argv)
+        resource_list = [
+            #('joulescope_ui.styles', 'light.rcc'),
+            ('joulescope_ui.styles', 'default.rcc'),
+            ('joulescope_ui', 'resources.rcc'),
+            ('joulescope_ui', 'fonts.rcc')]
+        for r in resource_list:
+            b = pkgutil.get_data(*r)
+            QtCore.QResource.registerResourceData(b)
+            resources.append(b)
         load_fonts()
-        # app.setFont(QtGui.QFont('Lato', 10))
+        f = QtCore.QFile(':/style/style.qss')
+        f.open(QtCore.QFile.ReadOnly | QtCore.QFile.Text)
+        stream = QtCore.QTextStream(f)
+        app.setStyleSheet(stream.readAll())
+
         multiprocessing_logging_queue, logging_stop, logging_thread = logging_start()
 
     except Exception:

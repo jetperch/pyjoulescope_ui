@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Copyright 2019 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -43,27 +44,38 @@ Click again to stop data streaming.
 RECORD_TOOLTIP = """\
 <html><head/><body>
 <p>Click to recording streaming Joulescope data to a file.</p>
+
+<p>Click again to stop the recording. Only new data is recorded.</p>
+
 <p>
-Click again to stop the recording.<br/>
-Only new data is recorded.
-</p></body></html>
+By default, your Joulescope streams and records 2 million
+samples per second which is 8 MB/s.
+You can downsample for smaller file sizes when you do not need the full
+bandwidth.  See File → Preferences → Device → setting → sampling_frequency.
+</p>
+</body></html>
 """
 
 STATISTICS_TOOLTIP = """\
 <html><head/><body>
 <p>Click to recording statistics Joulescope data to a CSV file.</p>
+
+<p>Click again to stop the recording. Only new data is recorded.</p>
+
 <p>
-Click again to stop the recording.<br/>
-Only new data is recorded.
-</p></body></html>
+By default, your Joulescope records statistics 2 times per second.
+You can adjust this statistics rate.
+See File → Preferences → Device → setting → reduction_frequency.
+</p>
+</body></html>
 """
 
 IRANGE_TOOLTIP = """\
 <html><head/><body>
 <p>Select the Joulescope current range.</p>
 <p>
-"Auto" allows Joulescope to dynamically adjust the current range.<br/>
-"Off" disconnects IN+ from OUT+.
+<b>auto</b> allows Joulescope to dynamically adjust the current range.<br/>
+<b>off</b> disconnects IN+ from OUT+.
 </p></body></html>
 """
 
@@ -71,9 +83,9 @@ ON_OFF_SWITCH_TOOLTIP = """\
 <html><head/><body>
 <p>Switch the target device on or off.</p>
 <p>
-"Off" disconnects IN+ from OUT+.<br/>
-"On" configures the current range to the most recent 
-value that was not "off".
+<b>off</b> disconnects IN+ from OUT+.<br/>
+<b>on</b> configures the current range to the most recent 
+value that was not <b>off</b>.
 </p></body></html>
 """
 
@@ -88,15 +100,15 @@ VRANGE_TOOLTIP = """\
 ACCUM_TOOLTIP = """\
 <html><head/><body>
 <p>The accumulated charge or energy.</p>
-<p>Left click to clear, same as Tools \u2192 Clear Accumulators.<br/>
+<p>Left click to clear, same as Tools → Clear Accumulators.<br/>
 Right click for more options.
-</p></body></html>",
+</p></body></html>
 """
 
 PLAY_STYLESHEET = """\
 QPushButton {
     border-radius: 12;
-    image: url(":/joulescope/resources/play.svg"); 
+    image: url(":/style/play.svg"); 
 }
 QPushButton:enabled       { background: #008000; }
 QPushButton:enabled:hover { background: #00A000; }
@@ -110,7 +122,7 @@ QPushButton:disabled      { background: #808080; }
 RECORD_STYLESHEET = """\
 QPushButton {
     border-radius: 12;
-    image: url(":/joulescope/resources/record.svg"); 
+    image: url(":/style/record.svg"); 
 }
 QPushButton:enabled       { background: #A00000; }
 QPushButton:enabled:hover { background: #C00000; }
@@ -123,7 +135,7 @@ QPushButton:disabled      { background: #808080; }
 RECORD_STATISTICS_STYLESHEET = """\
 QPushButton {
     border-radius: 6;
-    image: url(":/joulescope/resources/record_statistics.svg"); 
+    image: url(":/style/record_statistics.svg"); 
 }
 QPushButton:enabled       { background: #0D47A1; }
 QPushButton:enabled:hover { background: #2196F3; }

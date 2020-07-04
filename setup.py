@@ -35,19 +35,29 @@ MYPATH = os.path.abspath(os.path.dirname(__file__))
 VERSION_PATH = os.path.join(MYPATH, 'joulescope_ui', 'version.py')
 
 
+def qt_rcc_path():
+    # As of PySide2 5.15.0, the pyside2-rcc executable ignores the --binary flag
+    import PySide2
+    path = os.path.dirname(PySide2.__file__)
+    fname = [n for n in os.listdir(path) if n.startswith('rcc')]
+    if len(fname) != 1:
+        raise ValueError('Could not find rcc executable')
+    return os.path.join(path, fname[0])
+
+
 def convert_qt_ui():
     uic_path = shutil.which('pyside2-uic')
-    rcc_path = shutil.which('pyside2-rcc')
+    rcc_path = qt_rcc_path()
     path = os.path.join(MYPATH, 'joulescope_ui')
     ignore_filename = os.path.join(path, '.gitignore')
     with open(ignore_filename, 'w', encoding='utf-8') as ignore:
         ignore.write('# Automatically generated.  DO NOT EDIT\n')
         for root, d_names, f_names in os.walk(path):
             for source in f_names:
-                source = os.path.join(root, source)
-                source_base, ext = os.path.splitext(source)
+                _, ext = os.path.splitext(source)
                 if ext == '.ui':
-                    target = source_base + '.py'
+                    source = os.path.join(root, source)
+                    target = os.path.splitext(source)[0] + '.py'
                     print(f'Generate {os.path.relpath(target, MYPATH)}')
                     rc = subprocess.run([uic_path, source], stdout=subprocess.PIPE)
                     s = rc.stdout.replace(b'\r\n', b'\n').decode('utf-8')
@@ -55,9 +65,14 @@ def convert_qt_ui():
                     with open(target, 'w', encoding='utf-8') as ftarget:
                         ftarget.write(s)
                 elif ext == '.qrc':
-                    target = source_base + '_rc.py'
+                    src = os.path.join(root, source)
+                    if 'styles' in root:
+                        target = os.path.join(os.path.dirname(root), os.path.basename(root) + '.rcc')
+                    else:
+                        target = os.path.join(os.path.dirname(root), source)
+                        target = os.path.splitext(target)[0] + '.rcc'
                     print(f'Generate {os.path.relpath(target, MYPATH)}')
-                    rc = subprocess.run([rcc_path, source, '-o', target])
+                    rc = subprocess.run([rcc_path, src, '--binary', '--threshold', '33', '-o', target])
                     if rc.returncode:
                         raise RuntimeError('failed on .qrc file')
                 else:

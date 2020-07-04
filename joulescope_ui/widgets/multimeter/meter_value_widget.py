@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from PySide2 import QtCore, QtGui, QtWidgets
-from joulescope_ui import joulescope_rc
 from joulescope.units import unit_prefix
 import numpy as np
 import math

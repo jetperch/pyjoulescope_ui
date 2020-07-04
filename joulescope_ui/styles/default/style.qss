@@ -1,0 +1,10 @@
+
+QLabel#stream_source[stream=active] {
+    background-color: LightGreen;
+}
+QLabel#stream_source[stream=warning] {
+    background-color: yellow;
+}
+QLabel#stream_source[stream=error] {
+    background-color: red;
+}

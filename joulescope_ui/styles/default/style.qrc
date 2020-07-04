@@ -1,0 +1,12 @@
+<RCC>
+  <qresource prefix="style">
+    <file>style.qss</file>
+
+    <file>play.svg</file>
+    <file>record.svg</file>
+    <file>record_statistics.svg</file>
+    <file>zoom_in.svg</file>
+    <file>zoom_out.svg</file>
+    <file>zoom_all.svg</file>
+  </qresource>
+</RCC>

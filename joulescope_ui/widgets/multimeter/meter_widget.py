@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from PySide2 import QtCore, QtGui, QtWidgets
-from joulescope_ui import joulescope_rc
 from joulescope_ui.template import render
 from joulescope.units import three_sig_figs
 from .meter_value_widget import MeterValueWidget

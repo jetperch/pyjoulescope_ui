@@ -58,9 +58,6 @@ a = Analysis(
     pathex=PATHEX,
     binaries=BINARIES,
     datas=[
-        ('joulescope_ui/getting_started.html', 'joulescope_ui'),
-        ('joulescope_ui/preferences.html', 'joulescope_ui'),
-        ('CREDITS.html', 'joulescope_ui'),
         (firmware_get(), 'joulescope_ui/firmware/js110'),
     ],
     hiddenimports=[

@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from PySide2 import QtCore, QtGui, QtWidgets
-from joulescope_ui import joulescope_rc
 from joulescope_ui.preferences_ui import widget_factory
 from joulescope_ui.widgets.waveform.signal_def import signal_def
 import sys
@@ -145,8 +144,9 @@ class WaveformControlWidget(QtWidgets.QWidget):
 
     def _add_icon(self, resource_name, callback, tooltip):
         button = QtWidgets.QPushButton(self)
+        button.setObjectName(resource_name)
         button.setToolTip(tooltip)
-        button.setStyleSheet(f'image: url(":/joulescope/resources/{resource_name}.svg")')
+        button.setStyleSheet(f'image: url(":/style/{resource_name}.svg")')
         button.setFixedSize(24, 24)
         self._layout.addWidget(button)
         button.clicked.connect(callback)

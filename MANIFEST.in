@@ -1,5 +1,12 @@
+include CREDITS.html
 include README.md
 include LICENSE.txt
 include native/source/stream_buffer.h
-include joulescope_ui/joulescope.qrc
+include joulescope_ui/getting_started.html
+include joulescope_ui/preferences.html
+include joulescope_ui/fonts.rcc
+include joulescope_ui/resources.rcc
 include joulescope_ui/config_def.json5
+include joulescope_ui/styles/dark.rcc
+include joulescope_ui/styles/default.rcc
+include joulescope_ui/styles/light.rcc
