@@ -65,6 +65,7 @@ class SingleValueWidget(QtWidgets.QWidget):
         self.horizontalLayout.addWidget(self.widget)
         self.spacerItem = QtWidgets.QSpacerItem(44, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(self.spacerItem)
+
         self.value_widget = QtWidgets.QWidget(self)
         self.value_widget.setObjectName("ValueWidget")
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.value_widget)
@@ -83,13 +84,15 @@ class SingleValueWidget(QtWidgets.QWidget):
         self.horizontalLayout.addWidget(self.value_widget)
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.MinimumExpanding)
 
+        for w in [self.valueLabel, self.unitLabel]:
+            w.setProperty('single_value_label', True)
+
+
         self.retranslateUi()
         self.fieldComboBox.currentIndexChanged.connect(self.on_field_changed)
         self.statisticComboBox.currentIndexChanged.connect(self.on_statistic_changed)
         self._cmdp.subscribe('Device/#state/statistics', self._on_device_statistics, update_now=True)
         cmdp.subscribe('Widgets/Single Value/font', self._on_font, update_now=True)
-        cmdp.subscribe('Widgets/Single Value/font-color', self._on_color, update_now=True)
-        cmdp.subscribe('Widgets/Single Value/background-color', self._on_color, update_now=True)
         self._cmdp.subscribe('!Accumulators/reset', self._on_accumulator_reset)
 
         if self._state_preference not in cmdp:
@@ -119,15 +122,6 @@ class SingleValueWidget(QtWidgets.QWidget):
         self.valueLabel.setFont(font)
         self.unitLabel.setFont(font)
         self.resizeEvent(None)
-
-    def _on_color(self, topic, value):
-        foreground = rgba_to_css(self._cmdp['Widgets/Multimeter/font-color'])
-        background = rgba_to_css(self._cmdp['Widgets/Multimeter/background-color'])
-        style = f"""
-        QWidget {{ background-color : {background}; }}
-        QLabel {{ background-color : {background}; color : {foreground}; }}
-        """
-        self.value_widget.setStyleSheet(style)
 
     def _on_accumulator_reset(self, topic, value):
         field = self.fieldComboBox.currentText()

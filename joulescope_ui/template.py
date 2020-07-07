@@ -23,7 +23,7 @@ methods, at least for CSS.
 import re
 
 
-_r = re.compile(r'{%\s*(\S+)\s*%}')
+_r = re.compile(r'{%\s*([a-zA-Z0-9_]+)\s*%}')
 
 
 def render(template, **values):

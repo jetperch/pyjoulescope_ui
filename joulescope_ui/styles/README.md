@@ -22,6 +22,10 @@ See the following style references:
 
 * [Qt Style Sheet Syntax](https://doc.qt.io/Qt-5/stylesheet-syntax.html)
 * [Qt Style Sheets Reference](https://doc.qt.io/qt-5/stylesheet-reference.html)
+* [SVG Tiny 1.2](https://www.w3.org/TR/SVGTiny12/).  
+  Qt only [supports](https://doc.qt.io/qt-5/svgrendering.html) the 
+  [static features](https://www.w3.org/Graphics/SVG/feature/1.2/#SVG-static)
+  without ECMA scripts and DOM (CSS) manipulation.
 
 See the following Qt Resource references:
 

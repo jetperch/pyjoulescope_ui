@@ -144,10 +144,10 @@ class WaveformControlWidget(QtWidgets.QWidget):
 
     def _add_icon(self, resource_name, callback, tooltip):
         button = QtWidgets.QPushButton(self)
+        button.setProperty('icon', True)
         button.setObjectName(resource_name)
         button.setToolTip(tooltip)
-        button.setStyleSheet(f'image: url(":/style/{resource_name}.svg")')
-        button.setFixedSize(24, 24)
+
         self._layout.addWidget(button)
         button.clicked.connect(callback)
         self._buttons.append(button)

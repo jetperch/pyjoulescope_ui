@@ -105,46 +105,6 @@ Right click for more options.
 </p></body></html>
 """
 
-PLAY_STYLESHEET = """\
-QPushButton {
-    border-radius: 12;
-    image: url(":/style/play.svg"); 
-}
-QPushButton:enabled       { background: #008000; }
-QPushButton:enabled:hover { background: #00A000; }
-QPushButton:checked       { background: #008000; }
-QPushButton:checked:hover { background: #00A000; }
-QPushButton[blink=true]:checked       { background: #00A000; }
-QPushButton:disabled      { background: #808080; }
-
-"""
-
-RECORD_STYLESHEET = """\
-QPushButton {
-    border-radius: 12;
-    image: url(":/style/record.svg"); 
-}
-QPushButton:enabled       { background: #A00000; }
-QPushButton:enabled:hover { background: #C00000; }
-QPushButton:checked       { background: #A00000; }
-QPushButton:checked:hover { background: #E00000; }
-QPushButton[blink=true]:checked       { background: #D00000; }
-QPushButton:disabled      { background: #808080; }
-"""
-
-RECORD_STATISTICS_STYLESHEET = """\
-QPushButton {
-    border-radius: 6;
-    image: url(":/style/record_statistics.svg"); 
-}
-QPushButton:enabled       { background: #0D47A1; }
-QPushButton:enabled:hover { background: #2196F3; }
-QPushButton:checked       { background: #0D47A1; }
-QPushButton:checked:hover { background: #64B5F6; }
-QPushButton[blink=true]:checked       { background: #2196F3; }
-QPushButton:disabled      { background: #808080; }
-"""
-
 
 class AccumMenu(QtWidgets.QMenu):
 
@@ -177,29 +137,27 @@ class ControlWidget(QtWidgets.QWidget):
         self._layout.setContentsMargins(-1, 1, -1, 1)
 
         self._playButton = QtWidgets.QPushButton(self)
-        self._playButton.setObjectName('playButton')
+        self._playButton.setObjectName('play')
+        self._playButton.setProperty('blink', False)
         self._playButton.setCheckable(True)
         self._playButton.setFlat(True)
         self._playButton.setProperty('blink', False)
-        self._playButton.setStyleSheet(PLAY_STYLESHEET)
         self._playButton.setFixedSize(24, 24)
         self._layout.addWidget(self._playButton)
 
         self._recordButton = QtWidgets.QPushButton(self)
-        self._recordButton.setObjectName('recordButton')
+        self._recordButton.setObjectName('record')
         self._recordButton.setEnabled(True)
         self._recordButton.setProperty('blink', False)
-        self._recordButton.setStyleSheet(RECORD_STYLESHEET)
         self._recordButton.setCheckable(True)
         self._recordButton.setFlat(True)
         self._recordButton.setFixedSize(24, 24)
         self._layout.addWidget(self._recordButton)
 
         self._recordStatisticsButton = QtWidgets.QPushButton(self)
-        self._recordStatisticsButton.setObjectName('recordStatisticsButton')
+        self._recordStatisticsButton.setObjectName('record_statistics')
         self._recordStatisticsButton.setEnabled(True)
         self._recordStatisticsButton.setProperty('blink', False)
-        self._recordStatisticsButton.setStyleSheet(RECORD_STATISTICS_STYLESHEET)
         self._recordStatisticsButton.setCheckable(True)
         self._recordStatisticsButton.setFlat(True)
         self._recordStatisticsButton.setFixedSize(24, 24)
@@ -277,7 +235,7 @@ class ControlWidget(QtWidgets.QWidget):
 
     def _on_timer(self):
         self._blink = not self._blink
-        for b in [self._recordButton, self._recordStatisticsButton]:  # self._playButton
+        for b in [self._playButton, self._recordButton, self._recordStatisticsButton]:
             b.setProperty('blink', self._blink)
             b.style().unpolish(b)
             b.style().polish(b)

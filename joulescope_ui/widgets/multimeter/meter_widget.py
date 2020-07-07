@@ -13,34 +13,11 @@
 # limitations under the License.
 
 from PySide2 import QtCore, QtGui, QtWidgets
-from joulescope_ui.template import render
 from joulescope.units import three_sig_figs
 from .meter_value_widget import MeterValueWidget
 from joulescope_ui.ui_util import rgba_to_css
 import logging
 log = logging.getLogger(__name__)
-
-
-STYLESHEET = """\
-QWidget[multimeter=true] {
-  padding: 0px;
-  color: {% multimeter_color %};
-}
-
-QWidget[multimeter_spacer=true] {
-  background-color: {% multimeter_background_half %};
-}
-
-QLabel[multimeter_label=true] {
-  padding-left: 2px;
-  padding-right: 2px;
-  padding-top: 2px;
-  padding-bottom: 2px; 
-  background-color: {% multimeter_background_color %}; 
-  color: {% multimeter_color %};
-  border-color: white;
-}
-"""
 
 
 FIELDS = [
@@ -114,8 +91,6 @@ class MeterWidget(QtWidgets.QWidget):
 
         cmdp.subscribe('Widgets/Multimeter/font-main', self._on_font_main, update_now=True)
         cmdp.subscribe('Widgets/Multimeter/font-stats', self._on_font_stats, update_now=True)
-        cmdp.subscribe('Widgets/Multimeter/font-color', self._on_color)
-        cmdp.subscribe('Widgets/Multimeter/background-color', self._on_color, update_now=True)
         self._cmdp.subscribe('!Accumulators/reset', self._on_accumulator_reset)
 
     def _on_font_main(self, topic, value):
@@ -139,18 +114,6 @@ class MeterWidget(QtWidgets.QWidget):
                 w1.setFont(font)
                 w1.setMinimumWidth(width)
                 w2.setFont(font)
-
-    def _on_color(self, topic, value):
-        foreground = rgba_to_css(self._cmdp['Widgets/Multimeter/font-color'])
-        bg = self._cmdp['Widgets/Multimeter/background-color']
-        background = rgba_to_css(bg)
-        r, g, b, a = bg
-        bg_half = rgba_to_css([r, g, b, a * 0.75])
-        style = render(STYLESHEET,
-                       multimeter_background_color=background,
-                       multimeter_color=foreground,
-                       multimeter_background_half=bg_half)
-        self._grid_widget.setStyleSheet(style)
 
     @QtCore.Slot(bool)
     def on_accumulate_toggled(self, checked):

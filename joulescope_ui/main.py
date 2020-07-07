@@ -1810,8 +1810,9 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
             log.exception('while configuring high DPI scaling')
         app = QtWidgets.QApplication(sys.argv)
         resource_list = [
-            #('joulescope_ui.styles', 'light.rcc'),
-            ('joulescope_ui.styles', 'default.rcc'),
+            ('joulescope_ui.styles', 'demo.rcc'),
+            # ('joulescope_ui.styles', 'dark.rcc'),
+            # ('joulescope_ui.styles', 'default.rcc'),
             ('joulescope_ui', 'resources.rcc'),
             ('joulescope_ui', 'fonts.rcc')]
         for r in resource_list:
