@@ -6,7 +6,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.8.18
 
-2020 Jul 3 [in progress]
+2020 Jul 8 [in progress]
 
 *   Modified Control widget to display accumulator time and selected field.
 *   Renamed Tools → Clear Energy to Clear Accumulators and added undo.
@@ -39,6 +39,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Clear accumulator immediately even when not streaming #86.
 *   Added click to copy multimeter value to clipboard #87.
 *   Added record statistics to CSV option #85.
+*   Fixed multimeter view to display elapsed seconds, no SI prefix.
+*   Added accumulator start time to multimeter view.
 
 
 ## 0.8.16

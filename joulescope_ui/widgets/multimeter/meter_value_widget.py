@@ -230,9 +230,8 @@ class MeterValueWidget(QtCore.QObject):
         self.maxName.setText('')
         self.maxLabel.setText('')
 
-        duration_c, prefix_t, _ = unit_prefix(duration)
-        self.p2pName.setText(f"{prefix_t}s")
-        self.p2pLabel.setText(('%.1f' % duration_c))
+        self.p2pName.setText('s')
+        self.p2pLabel.setText(f'{duration:.1f}')
 
     def configure_energy(self):
         self.stdName.setText('')
