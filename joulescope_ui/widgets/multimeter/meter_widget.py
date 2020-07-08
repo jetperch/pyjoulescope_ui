@@ -18,6 +18,7 @@ from joulescope_ui.template import render
 from joulescope.units import three_sig_figs
 from .meter_value_widget import MeterValueWidget
 from joulescope_ui.ui_util import rgba_to_css
+import datetime
 import logging
 log = logging.getLogger(__name__)
 
@@ -52,12 +53,31 @@ FIELDS = [
 ]
 
 
+ACCUMULATE_TOOLTIP = """\
+<html><head/><body>
+<p>Accumulate current, voltage, and power over time.</p>
+<p>Current, voltage, and power are normally computed
+over the statistics duration, which you can set using:<br/>
+<b>File → Preferences → Device → setting → reduction_frequency</b></p>
+
+<p>Press this button to compute the mean, standard deviation,
+minimum, maximum, and peak-to-peak statistics
+over multiple statistics durations.  Press again
+to return to single statistics duration.</p>
+
+<p>Note that this button does not affect the charge and energy
+accumulation.  Select <b>Tools → Clear Accumulator</b> to reset them.</p>
+</body></html>
+"""
+
+
 class MeterWidget(QtWidgets.QWidget):
 
     def __init__(self, parent, cmdp, state_preference):
         QtWidgets.QWidget.__init__(self, parent)
         self._cmdp = cmdp
         self._accumulate_duration = 0.0
+        self._accumulate_start = None
 
         self.verticalLayout = QtWidgets.QVBoxLayout(self)
         self.verticalLayout.setObjectName("verticalLayout")
@@ -72,6 +92,7 @@ class MeterWidget(QtWidgets.QWidget):
         self.accumulateButton.setObjectName("accumulateButton")
         self.controlLayout.addWidget(self.accumulateButton)
         self.accumulateButton.toggled.connect(self.on_accumulate_toggled)
+        self.accumulateButton.setToolTip(ACCUMULATE_TOOLTIP)
 
         self.accumulateDurationLabel = QtWidgets.QLabel(self)
         self.controlLayout.addWidget(self.accumulateDurationLabel)
@@ -155,6 +176,7 @@ class MeterWidget(QtWidgets.QWidget):
 
     @QtCore.Slot(bool)
     def on_accumulate_toggled(self, checked):
+        self._accumulate_start = None
         self.values['current'].accumulate_enable = checked
         self.values['voltage'].accumulate_enable = checked
         self.values['power'].accumulate_enable = checked
@@ -171,8 +193,12 @@ class MeterWidget(QtWidgets.QWidget):
             return
         if self.accumulateButton.isChecked():
             self._accumulate_duration += statistics['time']['delta']['value']
+            if self._accumulate_start is None:
+                self._accumulate_start = datetime.datetime.now().isoformat().split('.')[0]
+            accum_txt = f'{int(self._accumulate_duration)} s | Started at {self._accumulate_start}'
         else:
             self._accumulate_duration = statistics['time']['delta']['value']
+            accum_txt = three_sig_figs(self._accumulate_duration, 's')
         for name, field in statistics['signals'].items():
             if name not in self.values:
                 continue
@@ -181,7 +207,7 @@ class MeterWidget(QtWidgets.QWidget):
         energy = statistics['accumulators']['energy']['value']
         charge = statistics['accumulators']['charge']['value']
         self.values['energy'].update_energy(accum_time['value'], energy, charge)
-        self.accumulateDurationLabel.setText(three_sig_figs(self._accumulate_duration, 's'))
+        self.accumulateDurationLabel.setText(accum_txt)
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
