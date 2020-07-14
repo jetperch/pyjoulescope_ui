@@ -23,7 +23,7 @@ import json
 
 platform = sys.platform
 APP = 'joulescope'
-DIRS = ['app_path', 'config', 'log', 'firmware', 'data']
+DIRS = ['app_path', 'config', 'log', 'firmware', 'themes', 'data']
 FILES = ['config']
 
 
@@ -47,6 +47,7 @@ def paths_v2(app=None):
                 'config': os.path.join(app_path, 'config'),
                 'log': os.path.join(app_path, 'log'),
                 'firmware': os.path.join(app_path, 'firmware'),
+                'themes': os.path.join(app_path, 'themes'),
                 'data': os.path.join(user_path, app),
             }
         }
@@ -60,6 +61,7 @@ def paths_v2(app=None):
                 'config': os.path.join(app_path, 'config'),
                 'log': os.path.join(app_path, 'log'),
                 'firmware': os.path.join(app_path, 'firmware'),
+                'themes': os.path.join(app_path, 'themes'),
                 'data': os.path.join(user_path, 'Documents', app),
             }
         }
@@ -73,6 +75,7 @@ def paths_v2(app=None):
                 'config': os.path.join(app_path, 'config'),
                 'log': os.path.join(app_path, 'log'),
                 'firmware': os.path.join(app_path, 'firmware'),
+                'themes': os.path.join(app_path, 'themes'),
                 'data': os.path.join(user_path, 'Documents', app),
             }
         }
@@ -108,6 +111,7 @@ def paths_v1(app=None):
             'config': app_path,
             'log': os.path.join(app_path, 'log'),
             'firmware': os.path.join(app_path, 'firmware'),
+            'themes': os.path.join(app_path, 'themes'),
             'data': os.path.join(user_path, app),
         },
         'files': {

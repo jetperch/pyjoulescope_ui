@@ -1,0 +1,10 @@
+{
+  "type": "theme",
+  "version": 1,
+  "name": "system",
+  "description": "System theme",
+  "colors": {
+    "standard": {
+    }
+  }
+}

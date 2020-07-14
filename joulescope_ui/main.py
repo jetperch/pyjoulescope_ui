@@ -40,6 +40,7 @@ from joulescope_ui.command_processor import CommandProcessor
 from joulescope_ui.preferences_def import preferences_def
 from joulescope_ui.preferences_defaults import defaults as preference_defaults
 from joulescope_ui import ui_util
+from joulescope_ui.themes.manager import theme_loader
 from queue import Queue, Empty
 import copy
 import io
@@ -1810,20 +1811,18 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
             log.exception('while configuring high DPI scaling')
         app = QtWidgets.QApplication(sys.argv)
         resource_list = [
-            ('joulescope_ui.styles', 'demo.rcc'),
-            # ('joulescope_ui.styles', 'dark.rcc'),
-            # ('joulescope_ui.styles', 'default.rcc'),
             ('joulescope_ui', 'resources.rcc'),
             ('joulescope_ui', 'fonts.rcc')]
         for r in resource_list:
             b = pkgutil.get_data(*r)
             QtCore.QResource.registerResourceData(b)
             resources.append(b)
+        theme_start_time = time.time()
         load_fonts()
-        f = QtCore.QFile(':/style/style.qss')
-        f.open(QtCore.QFile.ReadOnly | QtCore.QFile.Text)
-        stream = QtCore.QTextStream(f)
-        app.setStyleSheet(stream.readAll())
+        theme = cmdp.preferences['Appearance/Theme']
+        index = theme_loader('js1.dark', 'default')
+        # theme_preferences_overwrite(index, cmdp)
+        log.info('theme load took %.4f seconds', time.time() - theme_start_time)
 
         multiprocessing_logging_queue, logging_stop, logging_thread = logging_start()
 

@@ -191,6 +191,12 @@ def preferences_def(p):
     p.define('Device/#state/statistics', dtype=dict, default={})
     p.define('Device/#state/x_limits', dtype=object)  # [x_min, x_max]
 
+    # --- Appearance ---
+    p.define('Appearance/', 'Adjust the UI appearance')
+    p.define('Appearance/Theme', dtype=str, options=['system', 'js1.dark', 'js1.light'], default='js1.dark')
+    p.define('Appearance/Fonts/', 'Adjust fonts')
+    p.define('Appearance/Colors/', 'Adjust colors')
+
     # --- Plugins ---
     p.define('Plugins/', 'Joulescope UI Plugins')
     p.define('Plugins/#registered', dtype=object, default=None)

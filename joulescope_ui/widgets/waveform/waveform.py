@@ -52,6 +52,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.win = pg.GraphicsLayoutWidget(parent=self, show=True, title="Oscilloscope layout")
+
         self.win.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.win.sceneObj.sigMouseClicked.connect(self._on_mouse_clicked_event)
         self.win.sceneObj.sigMouseMoved.connect(self._on_mouse_moved_event)
