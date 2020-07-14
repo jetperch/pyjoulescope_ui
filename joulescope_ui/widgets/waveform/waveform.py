@@ -483,7 +483,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _on_statics_over_range_resp(self, topic, value):
         if value is not None:
-            show_dt = self._cmdp['Widgets/Waveform/Statistics/dual_markers_Δt']
+            show_dt = self._cmdp['Widgets/Waveform/dual_markers_Δt']
             req = value['request']
             rsp = value['response']
             if rsp is None:
@@ -591,56 +591,6 @@ def widget_register(cmdp):
         dtype='str',
         options=['1', '2', '4', '6', '8'],
         default='1')
-    cmdp.define(
-        topic='Widgets/Waveform/mean_color',
-        brief='The mean (average) trace color.',
-        dtype='color',
-        default=(255, 255, 64, 255))
-    cmdp.define(
-        topic='Widgets/Waveform/mean_color',
-        brief='The mean (average) trace color.',
-        dtype='color',
-        default=(255, 255, 64, 255))
-    cmdp.define(
-        topic='Widgets/Waveform/min_max_trace_color',
-        brief='The min/max trace color.',
-        dtype='color',
-        default=(255, 64, 64, 255))
-    cmdp.define(
-        topic='Widgets/Waveform/min_max_fill_color',
-        brief='The min/max trace color.',
-        dtype='color',
-        default=(255, 64, 64, 80))
-    cmdp.define(
-        topic='Widgets/Waveform/marker1_color',
-        brief='The marker 1 color.',
-        dtype='color',
-        default=(64, 192, 64, 255))
-    cmdp.define(
-        topic='Widgets/Waveform/marker2_color',
-        brief='The marker 2 color.',
-        dtype='color',
-        default=(64, 128, 200, 255))
-    cmdp.define(
-        topic='Widgets/Waveform/marker3_color',
-        brief='The marker 3 color.',
-        dtype='color',
-        default=(160, 64, 160, 255))
-    cmdp.define(
-        topic='Widgets/Waveform/marker4_color',
-        brief='The marker 4 color.',
-        dtype='color',
-        default=(64, 160, 160, 255))
-    cmdp.define(
-        topic='Widgets/Waveform/marker5_color',
-        brief='The marker 5 color.',
-        dtype='color',
-        default=(226, 151, 64, 255))
-    cmdp.define(
-        topic='Widgets/Waveform/marker6_color',
-        brief='The marker 6 color.',
-        dtype='color',
-        default=(160, 160, 160, 255))
 
     cmdp.define(
         topic='Widgets/Waveform/Statistics/font',
@@ -648,12 +598,7 @@ def widget_register(cmdp):
         dtype='font',
         default='Lato,10,-1,5,87,0,0,0,0,0,Black')
     cmdp.define(
-        topic='Widgets/Waveform/Statistics/font-color',
-        brief='The font color.',
-        dtype='color',
-        default=(192, 192, 192, 255))
-    cmdp.define(
-        topic='Widgets/Waveform/Statistics/dual_markers_Δt',
+        topic='Widgets/Waveform/dual_markers_Δt',
         brief='Show the Δt statistics with dual markers.',
         dtype='bool',
         default=True)

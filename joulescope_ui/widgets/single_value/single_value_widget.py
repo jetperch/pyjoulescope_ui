@@ -167,7 +167,7 @@ class SingleValueWidget(QtWidgets.QWidget):
         value /= scale
         value_str = ('%+6f' % value)[:8]
         self.valueLabel.setText(value_str)
-        self.unitLabel.setText(f"<html>&nbsp;{prefix}{units}&nbsp;</html>")
+        self.unitLabel.setText(f"{prefix}{units}")
 
     @QtCore.Slot(int)
     def on_field_changed(self, index):
@@ -205,16 +205,6 @@ def widget_register(cmdp):
         topic='Widgets/Single Value/font',
         dtype='font',
         default="Lato,48,-1,5,87,0,0,0,0,0,Black")
-    cmdp.define(
-        topic='Widgets/Single Value/font-color',
-        brief='The font color.',
-        dtype='color',
-        default=(0, 128, 0, 255))
-    cmdp.define(
-        topic='Widgets/Single Value/background-color',
-        brief='The background color.',
-        dtype='color',
-        default=(0, 0, 0, 255))
 
     return {
         'name': 'Single Value',

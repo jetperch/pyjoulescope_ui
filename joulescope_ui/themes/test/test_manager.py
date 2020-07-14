@@ -57,4 +57,5 @@ class TestThemeLoader(unittest.TestCase):
         shutil.rmtree(self.path, ignore_errors=True)
 
     def test_generate(self):
-        mgr.theme_loader('js1', 'default', target_path=self.path)
+        index = mgr.theme_loader('js1', 'default', target_path=self.path)
+        mgr.theme_save(index)

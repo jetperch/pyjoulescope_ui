@@ -16,10 +16,10 @@
   <property name="modal">
    <bool>true</bool>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="dialogLayout">
    <item>
     <widget class="QWidget" name="profileWidget" native="true">
-     <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <layout class="QHBoxLayout" name="profileLayout">
       <item>
        <widget class="QLabel" name="profileLabel">
         <property name="text">
@@ -43,7 +43,12 @@
       <item>
        <widget class="QPushButton" name="profileActivateButton">
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Activate the selected profile.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;This action updates Joulescope UI to use the preferences in the selected profile.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;p&gt;&lt;b&gt;Activate the selected profile.&lt;/b&gt;&lt;/p&gt;
+&lt;p&gt;This action updates Joulescope UI to use the preferences in the selected profile.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string>Activate</string>
@@ -53,7 +58,9 @@
       <item>
        <widget class="QPushButton" name="profileResetButton">
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;Reset or erase the selected profile.&lt;/span&gt;&lt;/p&gt;&lt;p&gt;For the built-in profiles, &lt;span style=&quot; font-weight:600;&quot;&gt;Reset&lt;/span&gt; the profile to the factory defaults.  For custom profiles, &lt;span style=&quot; font-weight:600;&quot;&gt;Erase&lt;/span&gt; the profile so that it is no longer available.  You cannot erase the built-in profiles.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;
+&lt;body&gt;&lt;p&gt;&lt;b&gt;Reset or erase the selected profile.&lt;/b&gt;&lt;/p&gt;
+&lt;p&gt;For the built-in profiles, &lt;b&gt;Reset&lt;/b&gt; the profile to the factory defaults.  For custom profiles, &lt;b&gt;Erase&lt;/b&gt; the profile so that it is no longer available.  You cannot erase the built-in profiles.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string>Reset</string>
@@ -63,7 +70,12 @@
       <item>
        <widget class="QPushButton" name="profileNewButton">
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Create a new custom profile.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;
+&lt;head&gt;&lt;/head&gt;
+&lt;body&gt;
+&lt;p&gt;Create a new custom profile.&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string>New</string>
@@ -71,7 +83,7 @@
        </widget>
       </item>
       <item>
-       <spacer name="profileHorizontalSpacer">
+       <spacer name="profileSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>
@@ -94,14 +106,14 @@
     </widget>
    </item>
    <item>
-    <widget class="QWidget" name="widget" native="true">
+    <widget class="QWidget" name="centerWidget" native="true">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout">
+     <layout class="QHBoxLayout" name="centerLayout">
       <item>
        <widget class="QTreeView" name="treeView">
         <property name="toolTip">
@@ -132,7 +144,7 @@
            <height>254</height>
           </rect>
          </property>
-         <layout class="QFormLayout" name="formLayout_2"/>
+         <layout class="QVBoxLayout" name="targetLayout"/>
         </widget>
        </widget>
       </item>
@@ -147,9 +159,9 @@
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <layout class="QHBoxLayout" name="buttonLayout">
       <item>
-       <spacer name="horizontalSpacer">
+       <spacer name="buttonSpacer">
         <property name="orientation">
          <enum>Qt::Horizontal</enum>
         </property>

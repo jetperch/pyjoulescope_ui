@@ -18,6 +18,7 @@ from .signal_viewbox import SignalViewBox
 from joulescope.stream_buffer import single_stat_to_api
 from .marker import Marker
 from .yaxis import YAxis
+from joulescope_ui.themes.color_picker import color_as_qcolor
 from typing import Dict
 import pyqtgraph as pg
 import math
@@ -102,9 +103,7 @@ class Signal(QtCore.QObject):
         cmdp.subscribe('Widgets/Waveform/grid_y', self._on_grid_y, update_now=True)
         cmdp.subscribe('Widgets/Waveform/show_min_max', self._on_show_min_max, update_now=True)
         cmdp.subscribe('Widgets/Waveform/trace_width', self._on_colors, update_now=True)
-        cmdp.subscribe('Widgets/Waveform/mean_color', self._on_colors, update_now=True)
-        cmdp.subscribe('Widgets/Waveform/min_max_trace_color', self._on_colors, update_now=True)
-        cmdp.subscribe('Widgets/Waveform/min_max_fill_color', self._on_colors, update_now=True)
+        cmdp.subscribe('Appearance/__index__', self._on_colors, update_now=True)
 
     def set_xlimits(self, x_min, x_max):
         self.vb.setLimits(xMin=x_min, xMax=x_max)
@@ -464,17 +463,18 @@ class Signal(QtCore.QObject):
         self.y_axis.setGrid(128 if bool(value) else 0)
 
     def _on_colors(self, topic, value):
+        colors = self._cmdp['Appearance/__index__']['colors']
         trace_width = int(self._cmdp['Widgets/Waveform/trace_width'])
-        mean_color = tuple(self._cmdp['Widgets/Waveform/mean_color'])
-        min_max_trace_color = tuple(self._cmdp['Widgets/Waveform/min_max_trace_color'])
+        mean_color = color_as_qcolor(colors.get('waveform_trace1_mean', '#FFFF00'))
+        min_max_trace_color = color_as_qcolor(colors.get('waveform_trace1_min_max_trace', '#A00000'))
         self._pen_min_max = pg.mkPen(color=min_max_trace_color, width=trace_width)
         self._pen_mean = pg.mkPen(color=mean_color, width=trace_width)
         self.curve_min.setPen(self._pen_min_max)
         self.curve_max.setPen(self._pen_min_max)
         self.curve_mean.setPen(self._pen_mean)
         if self.curve_range is not None:
-            brush_color = tuple(self._cmdp['Widgets/Waveform/min_max_fill_color'])
-            brush = pg.mkBrush(color=brush_color)
+            min_max_fill_color = color_as_qcolor(colors.get('waveform_trace1_min_max_fill', '#FF404080'))
+            brush = pg.mkBrush(color=min_max_fill_color)
             self.curve_range.setBrush(brush)
         self.vb.update()
 

@@ -195,19 +195,19 @@ QComboBox::drop-down:disabled
 
 QComboBox::down-arrow
 {
-    border-image: url({% path %}arrow_down_enabled.svg);
+    border-image: url("{% path %}/arrow_down_enabled.svg");
     width: 8px;
     height: 6px;
 }
 
 QComboBox::down-arrow:disabled
 {
-    border-image: url({% path %}/arrow_down_disabled.svg);
+    border-image: url("{% path %}/arrow_down_disabled.svg");
 }
 
 QComboBox::down-arrow:enabled:hover
 {
-    border-image: url({% path %}/arrow_down_hover.svg);
+    border-image: url("{% path %}/arrow_down_hover.svg");
 }
 
 
@@ -218,55 +218,55 @@ QComboBox::down-arrow:enabled:hover
 QCheckBox::indicator:unchecked:disabled,
 QGroupBox::indicator:unchecked:disabled
 {
-    border-image: url({% path %}/checkbox_unchecked_disabled.svg);
+    border-image: url("{% path %}/checkbox_unchecked_disabled.svg");
 }
 
 QCheckBox::indicator:unchecked:enabled,
 QGroupBox::indicator:unchecked:enabled,
 QMenu::indicator:non-exclusive:unchecked
 {
-    border-image: url({% path %}/checkbox_unchecked_enabled.svg);
+    border-image: url("{% path %}/checkbox_unchecked_enabled.svg");
 }
 
 QCheckBox::indicator:unchecked:enabled:hover,
 QGroupBox::indicator:unchecked:enabled:hover,
 QMenu::indicator:non-exclusive:unchecked:hover
 {
-    border-image: url({% path %}/checkbox_unchecked_hover.svg);
+    border-image: url("{% path %}/checkbox_unchecked_hover.svg");
 }
 
 QCheckBox::indicator:unchecked:enabled:pressed,
 QGroupBox::indicator:unchecked:enabled:pressed,
 QMenu::indicator:non-exclusive:unchecked:pressed
 {
-    border-image: url({% path %}/checkbox_unchecked_pressed.svg);
+    border-image: url("{% path %}/checkbox_unchecked_pressed.svg");
 }
 
 QCheckBox::indicator:checked:disabled,
 QGroupBox::indicator:checked:disabled
 {
-    border-image: url({% path %}/checkbox_checked_disabled.svg);
+    border-image: url("{% path %}/checkbox_checked_disabled.svg");
 }
 
 QCheckBox::indicator:checked:enabled,
 QGroupBox::indicator:checked:enabled,
 QMenu::indicator:non-exclusive:checked
 {
-    border-image: url({% path %}/checkbox_checked_enabled.svg);
+    border-image: url("{% path %}/checkbox_checked_enabled.svg");
 }
 
 QCheckBox::indicator:checked:enabled:hover,
 QGroupBox::indicator:checked:enabled:hover,
 QMenu::indicator:non-exclusive:checked:hover
 {
-    border-image: url({% path %}/checkbox_checked_hover.svg);
+    border-image: url("{% path %}/checkbox_checked_hover.svg");
 }
 
 QCheckBox::indicator:checked:enabled:pressed,
 QGroupBox::indicator:checked:enabled:pressed,
 QMenu::indicator:non-exclusive:checked:pressed
 {
-    border-image: url({% path %}/checkbox_checked_pressed.svg);
+    border-image: url("{% path %}/checkbox_checked_pressed.svg");
 }
 
 
@@ -276,48 +276,48 @@ QMenu::indicator:non-exclusive:checked:pressed
 
 QRadioButton::indicator:unchecked:disabled
 {
-    border-image: url({% path %}/radio_unchecked_disabled.svg);
+    border-image: url("{% path %}/radio_unchecked_disabled.svg");
 }
 
 QRadioButton::indicator:unchecked:enabled,
 QMenu::indicator:exclusive:unchecked
 {
-    border-image: url({% path %}/radio_unchecked_enabled.svg);
+    border-image: url("{% path %}/radio_unchecked_enabled.svg");
 }
 
 QRadioButton::indicator:unchecked:enabled:hover,
 QMenu::indicator:exclusive:unchecked:hover
 {
-    border-image: url({% path %}/radio_unchecked_hover.svg);
+    border-image: url("{% path %}/radio_unchecked_hover.svg");
 }
 
 QRadioButton::indicator:unchecked:enabled:pressed,
 QMenu::indicator:exclusive:unchecked:pressed
 {
-    border-image: url({% path %}/radio_unchecked_pressed.svg);
+    border-image: url("{% path %}/radio_unchecked_pressed.svg");
 }
 
 QRadioButton::indicator:checked:disabled
 {
-    border-image: url({% path %}/radio_checked_disabled.svg);
+    border-image: url("{% path %}/radio_checked_disabled.svg");
 }
 
 QRadioButton::indicator:checked:enabled,
 QMenu::indicator:exclusive:checked
 {
-    border-image: url({% path %}/radio_checked_enabled.svg);
+    border-image: url("{% path %}/radio_checked_enabled.svg");
 }
 
 QRadioButton::indicator:checked:enabled:hover,
 QMenu::indicator:exclusive:checked:hover
 {
-    border-image: url({% path %}/radio_checked_hover.svg);
+    border-image: url("{% path %}/radio_checked_hover.svg");
 }
 
 QRadioButton::indicator:checked:enabled:pressed,
 QMenu::indicator:exclusive:checked:pressed
 {
-    border-image: url({% path %}/radio_checked_pressed.svg);
+    border-image: url("{% path %}/radio_checked_pressed.svg");
 }
 
 
@@ -373,26 +373,26 @@ QScrollBar::add-line:horizontal
 
 QScrollBar::sub-line:horizontal
 {
-    border-image: url({% path %}/arrow_left_enabled.svg);
+    border-image: url("{% path %}/arrow_left_enabled.svg");
     subcontrol-position: left;
 }
 
 QScrollBar::add-line:horizontal
 {
-    border-image: url({% path %}/arrow_right_enabled.svg);
+    border-image: url("{% path %}/arrow_right_enabled.svg");
     subcontrol-position: right;
 }
 
 QScrollBar::sub-line:horizontal:hover,
 QScrollBar::sub-line:horizontal:on
 {
-    border-image: url({% path %}/arrow_left_hover.svg);
+    border-image: url("{% path %}/arrow_left_hover.svg");
 }
 
 QScrollBar::add-line:horizontal:hover,
 QScrollBar::add-line:horizontal:on
 {
-    border-image: url({% path %}/arrow_right_hover.svg);
+    border-image: url("{% path %}/arrow_right_hover.svg");
 }
 
 QScrollBar::sub-line:vertical,
@@ -408,26 +408,26 @@ QScrollBar::add-line:vertical
 
 QScrollBar::sub-line:vertical
 {
-    border-image: url({% path %}/arrow_up_enabled.svg);
+    border-image: url("{% path %}/arrow_up_enabled.svg");
     subcontrol-position: top;
 }
 
 QScrollBar::add-line:vertical
 {
-    border-image: url({% path %}/arrow_down_enabled.svg);
+    border-image: url("{% path %}/arrow_down_enabled.svg");
     subcontrol-position: bottom;
 }
 
 QScrollBar::sub-line:vertical:hover,
 QScrollBar::sub-line:vertical:on
 {
-    border-image: url({% path %}/arrow_up_hover.svg);
+    border-image: url("{% path %}/arrow_up_hover.svg");
 }
 
 QScrollBar::add-line:vertical:hover,
 QScrollBar::add-line:vertical:on
 {
-    border-image: url({% path %}/arrow_down_hover.svg);
+    border-image: url("{% path %}/arrow_down_hover.svg");
 }
 
 
@@ -529,8 +529,8 @@ QDockWidget
 {
     background: {% base_background %};
     border: 1px solid {% base_background %};
-    titlebar-close-icon: url({% path %}/transparent_disabled.svg);
-    titlebar-normal-icon: url({% path %}/transparent_disabled.svg);
+    titlebar-close-icon: url("{% path %}/transparent_disabled.svg");
+    titlebar-normal-icon: url("{% path %}/transparent_disabled.svg");
 }
 
 QDockWidget::close-button,
@@ -551,35 +551,35 @@ QDockWidget::float-button
 
 QDockWidget::float-button:enabled
 {
-    border-image: url({% path %}/undock_disabled.svg);
+    border-image: url("{% path %}/undock_disabled.svg");
 }
 
 QDockWidget::float-button:enabled:hover
 {
-    border-image: url({% path %}/undock_enabled.svg);
+    border-image: url("{% path %}/undock_enabled.svg");
     background-color: {% clickable_hover %}
 }
 
 QDockWidget::float-button:enabled:pressed
 {
-    border-image: url({% path %}/undock_enabled.svg);
+    border-image: url("{% path %}/undock_enabled.svg");
     background-color: {% clickable_pressed %}
 }
 
 QDockWidget::close-button:enabled
 {
-    border-image: url({% path %}/close_disabled.svg);
+    border-image: url("{% path %}/close_disabled.svg");
 }
 
 QDockWidget::close-button:enabled:hover
 {
-    border-image: url({% path %}/close_enabled.svg);
+    border-image: url("{% path %}/close_enabled.svg");
     background-color: {% dock_close_hover %}
 }
 
 QDockWidget::close-button:enabled:pressed
 {
-    border-image: url({% path %}/close_enabled.svg);
+    border-image: url("{% path %}/close_enabled.svg");
     background-color: {% dock_close_pressed %}
 }
 
@@ -590,42 +590,42 @@ QDockWidget::close-button:enabled:pressed
 
 QTreeView::branch:has-siblings:!adjoins-item
 {
-    border-image: url({% path %}/branch_vline_enabled.svg) 0;
+    border-image: url("{% path %}/branch_vline_enabled.svg") 0;
 }
 
 QTreeView::branch:has-siblings:adjoins-item
 {
-    border-image: url({% path %}/branch_more_enabled.svg) 0;
+    border-image: url("{% path %}/branch_more_enabled.svg") 0;
 }
 
 QTreeView::branch:!has-children:!has-siblings:adjoins-item
 {
-    border-image: url({% path %}/branch_end_enabled.svg) 0;
+    border-image: url("{% path %}/branch_end_enabled.svg") 0;
 }
 
 QTreeView::branch:has-children:!has-siblings:closed,
 QTreeView::branch:closed:has-children:has-siblings
 {
-    border-image: url({% path %}/branch_end_open_enabled.svg) 0;
-    image: url({% path %}/branch_closed_enabled.svg);
+    border-image: url("{% path %}/branch_end_open_enabled.svg") 0;
+    image: url("{% path %}/branch_closed_enabled.svg");
 }
 
 QTreeView::branch:open:has-children:!has-siblings,
 QTreeView::branch:open:has-children:has-siblings
 {
-    border-image: url({% path %}/branch_end_open_enabled.svg) 0;
-    image: url({% path %}/branch_open_enabled.svg);
+    border-image: url("{% path %}/branch_end_open_enabled.svg") 0;
+    image: url("{% path %}/branch_open_enabled.svg");
 }
 
  /* style the sort indicator */
 QHeaderView::down-arrow
 {
-    image: url({% path %}/arrow_down_enabled.svg);
+    image: url("{% path %}/arrow_down_enabled.svg");
 }
 
 QHeaderView::up-arrow
 {
-    image: url({% path %}/arrow_up_enabled.svg);
+    image: url("{% path %}/arrow_up_enabled.svg");
 }
 
 

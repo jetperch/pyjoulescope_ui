@@ -14,6 +14,7 @@
 
 
 from joulescope_ui.paths import paths_current
+import copy
 import json
 import logging
 import os
@@ -101,7 +102,13 @@ def theme_name_normalize(theme_name, subtheme_name=None):
     return '.'.join(parts)
 
 
-def _generate_files(theme_name, theme_files, target_path, colors):
+def _generate_files(index):
+    theme_name = index['generator']['name']
+    index['generator']['files'].clear()
+    theme_files = index['files']
+    target_path = index['generator']['target_path']
+    colors = index['colors']
+
     r = re.compile(r'{%\s*([a-zA-Z0-9_]+)\s*%}')
     target_path = target_path.replace('\\', '/')
 
@@ -115,6 +122,7 @@ def _generate_files(theme_name, theme_files, target_path, colors):
         s = r.sub(replace, s)
         with open(os.path.join(target_path, source), 'w', encoding='utf-8') as f:
             f.write(s)
+        index['generator']['files'][source] = s
 
 
 def _generate_images(index):
@@ -151,12 +159,10 @@ def _generate(theme_name, target_path):
         'name': theme_name_normalize(basetheme_name, subtheme_name),
         'source_path': src_path,
         'target_path': target_path,
+        'files': {},
     }
     index['colors'] = index['colors'][subtheme_name]
-    _generate_files(theme_name, index['files'], target_path, index['colors'])
-    _generate_images(index)
-    with open(os.path.join(target_path, 'index.json'), 'w', encoding='utf-8') as f:
-        json.dump(index, f)
+    theme_update(index)
 
 
 def theme_loader(theme_name, target_name, generate=None, target_path=None):
@@ -175,16 +181,35 @@ def theme_loader(theme_name, target_name, generate=None, target_path=None):
     theme_index = os.path.join(target_path, 'index.json')
     if bool(generate) or not os.path.isfile(theme_index):
         _generate(theme_name, target_path)
-
     with open(theme_index, 'r', encoding='utf-8') as f:
         index = json.load(f)
-    files = {}
-    for filename in index['files']:
-        with open(os.path.join(target_path, filename),'r', encoding='utf-8') as f:
-            files[filename] = f.read()
-    index['files'] = files
-    if 'style.qss' in files:
+    return theme_select(index)
+
+
+def theme_save(index):
+    index = copy.deepcopy(index)
+    path = index['generator']['target_path']
+    for fname, value in index['generator']['files'].items():
+        with open(os.path.join(path, fname), 'w', encoding='utf-8') as f:
+            f.write(value)
+    _generate_images(index)
+    with open(os.path.join(path, 'index.json'), 'w', encoding='utf-8') as f:
+        json.dump(index, f)
+
+
+def theme_select(index):
+    if 'style.qss' in index['generator']['files']:
         app = QtCore.QCoreApplication.instance()
         if app is not None:
-            app.setStyleSheet(files['style.qss'])
+            app.setStyleSheet(index['generator']['files']['style.qss'])
     return index
+
+
+def theme_update(index):
+    _generate_files(index)
+    _generate_images(index)
+    target_path = index['generator']['target_path']
+    with open(os.path.join(target_path, 'index.json'), 'w', encoding='utf-8') as f:
+        json.dump(index, f)
+    theme_select(index)
+

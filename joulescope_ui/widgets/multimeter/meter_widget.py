@@ -109,7 +109,6 @@ class MeterWidget(QtWidgets.QWidget):
         self.setSizePolicy(self.sizePolicy)
         self.retranslateUi()
         self._cmdp.subscribe('Device/#state/statistics', self._on_device_statistics, update_now=True)
-
         cmdp.subscribe('Widgets/Multimeter/font-main', self._on_font_main, update_now=True)
         cmdp.subscribe('Widgets/Multimeter/font-stats', self._on_font_stats, update_now=True)
         self._cmdp.subscribe('!Accumulators/reset', self._on_accumulator_reset)
@@ -186,16 +185,6 @@ def widget_register(cmdp):
         topic='Widgets/Multimeter/font-stats',
         dtype='font',
         default="Lato,10,-1,5,87,0,0,0,0,0,Black")
-    cmdp.define(
-        topic='Widgets/Multimeter/font-color',
-        brief='The font color.',
-        dtype='color',
-        default=(0, 128, 0, 255))
-    cmdp.define(
-        topic='Widgets/Multimeter/background-color',
-        brief='The background color.',
-        dtype='color',
-        default=(0, 0, 0, 255))
 
     return {
         'name': 'Multimeter',

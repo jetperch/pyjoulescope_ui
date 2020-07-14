@@ -40,7 +40,7 @@ from joulescope_ui.command_processor import CommandProcessor
 from joulescope_ui.preferences_def import preferences_def
 from joulescope_ui.preferences_defaults import defaults as preference_defaults
 from joulescope_ui import ui_util
-from joulescope_ui.themes.manager import theme_loader
+from joulescope_ui.themes.manager import theme_loader, theme_select
 from queue import Queue, Empty
 import copy
 import io
@@ -1819,9 +1819,13 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
             resources.append(b)
         theme_start_time = time.time()
         load_fonts()
-        theme = cmdp.preferences['Appearance/Theme']
-        index = theme_loader('js1.dark', 'default')
-        # theme_preferences_overwrite(index, cmdp)
+        theme_name = cmdp.preferences['Appearance/Theme']
+        theme_index = cmdp.preferences['Appearance/__index__']
+        if not len(theme_index):
+            theme_index = theme_loader(theme_name, 'defaults')
+            cmdp.preferences.set('Appearance/__index__', theme_index, 'defaults')
+        else:
+            theme_select(theme_index)
         log.info('theme load took %.4f seconds', time.time() - theme_start_time)
 
         multiprocessing_logging_queue, logging_stop, logging_thread = logging_start()

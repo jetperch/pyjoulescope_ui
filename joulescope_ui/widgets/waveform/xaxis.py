@@ -106,8 +106,9 @@ class XAxis(pg.AxisItem):
 
     def _marker_color(self, idx):
         idx = 1 + ((idx - 1) % 6)  # have 6 colors
-        topic = f'Widgets/Waveform/marker{idx}_color'
-        return self._cmdp.preferences[topic]
+        colors = self._cmdp['Appearance/__index__']['colors']
+        color = f'waveform_marker{idx}'
+        return colors.get(color, '#808080')
 
     def _position_markers(self, positions):
         """Position markers to avoid overlaying existing markers.

@@ -194,8 +194,10 @@ def preferences_def(p):
     # --- Appearance ---
     p.define('Appearance/', 'Adjust the UI appearance')
     p.define('Appearance/Theme', dtype=str, options=['system', 'js1.dark', 'js1.light'], default='js1.dark')
+    p.define('Appearance/__index__', dtype=dict, default={})
     p.define('Appearance/Fonts/', 'Adjust fonts')
     p.define('Appearance/Colors/', 'Adjust colors')
+    p.define('Appearance/Colors/ui_override', dtype=str, default='')
 
     # --- Plugins ---
     p.define('Plugins/', 'Joulescope UI Plugins')

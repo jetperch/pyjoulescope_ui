@@ -93,6 +93,7 @@ class QColorLabel(QtWidgets.QLabel):
 
     def _on_current_color_changed(self, color):
         self.color = color
+        self.color_changed.emit(self.color)
 
     def mousePressEvent(self, ev):
         dialog = QtWidgets.QColorDialog(self.qcolor, self._parent)
@@ -101,9 +102,9 @@ class QColorLabel(QtWidgets.QLabel):
         dialog.currentColorChanged.connect(self._on_current_color_changed)
         if dialog.exec_():
             self.color = dialog.selectedColor()
-            self.color_changed.emit(self.color)
         else:
             self.color = color
+        self.color_changed.emit(self.color)
 
     def draw(self):
         self.setStyleSheet('')
@@ -115,10 +116,11 @@ class QColorLabel(QtWidgets.QLabel):
         self.setPicture(self._picture)
 
 
-class ColorItem:
-    color_changed = QtCore.Signal(str)
+class ColorItem(QtCore.QObject):
+    color_changed = QtCore.Signal(str, str)  # name, color
 
     def __init__(self, parent, name, color):
+        QtCore.QObject.__init__(self, parent)
         self._name = name
         self._color = color
         self.value_edit = QtWidgets.QLineEdit(color, parent)
@@ -142,6 +144,7 @@ class ColorItem:
         self._color = color
         self.value_edit.setText(color)
         self.color_label.color = color
+        self.color_changed.emit(self._name, self._color)
 
 
 class ColorPicker(QtWidgets.QWidget):

@@ -108,7 +108,7 @@ class SignalStatistics(pg.GraphicsWidget):
         self.data_update(labels)
         self._resize()
         self.data_clear()
-        cmdp.subscribe('Widgets/Waveform/Statistics/font-color', self._on_font_color, update_now=True)
+        cmdp.subscribe('Appearance/__index__', self._on_font_color, update_now=True)
         pg.GraphicsWidget.show(self)
 
     def preferred_height(self):
@@ -141,7 +141,7 @@ class SignalStatistics(pg.GraphicsWidget):
         self._label.setHtml(f'<html><body></body></html>')
 
     def _data_update(self, labels, x):
-        font_color = rgba_to_css(self._cmdp['Widgets/Waveform/Statistics/font-color'])
+        font_color = self._cmdp['Appearance/__index__']['colors']['waveform_font_color']
         style = f'color: {font_color};'
         txt_result = si_format(convert(self._field, labels, self._cmdp))
         html = html_format(txt_result, x=x, style=style)
@@ -160,7 +160,7 @@ class SignalMarkerStatistics(pg.TextItem):
         self._cmdp = cmdp
         self._value_cache = None
         cmdp.subscribe('Widgets/Waveform/Statistics/font', self._on_font, update_now=True)
-        cmdp.subscribe('Widgets/Waveform/Statistics/font-color', self._on_font_color, update_now=True)
+        cmdp.subscribe('Appearance/__index__', self._on_font_color, update_now=True)
 
     def preferred_height(self):
         return self.textItem.boundingRect().height()
@@ -194,7 +194,7 @@ class SignalMarkerStatistics(pg.TextItem):
             html = '<p>No data</p>'
             self._value_cache = None
         else:
-            font_color = rgba_to_css(self._cmdp['Widgets/Waveform/Statistics/font-color'])
+            font_color = self._cmdp['Appearance/__index__']['colors']['waveform_font_color']
             style = f'color: {font_color};'
             self._value_cache = (xv, labels)
             txt_result = si_format(convert(self._field, labels, self._cmdp))
