@@ -66,11 +66,8 @@ def convert_qt_ui():
                         ftarget.write(s)
                 elif ext == '.qrc':
                     src = os.path.join(root, source)
-                    if 'styles' in root:
-                        target = os.path.join(os.path.dirname(root), os.path.basename(root) + '.rcc')
-                    else:
-                        target = os.path.join(os.path.dirname(root), source)
-                        target = os.path.splitext(target)[0] + '.rcc'
+                    target = os.path.join(os.path.dirname(root), source)
+                    target = os.path.splitext(target)[0] + '.rcc'
                     print(f'Generate {os.path.relpath(target, MYPATH)}')
                     rc = subprocess.run([rcc_path, src, '--binary', '--threshold', '33', '-o', target])
                     if rc.returncode:
