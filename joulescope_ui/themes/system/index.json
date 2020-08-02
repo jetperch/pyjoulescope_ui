@@ -7,6 +7,9 @@
   "images": {
     "copy": {
       "sources": [
+        "play.svg",
+        "record.svg",
+        "record_statistics.svg",
         "zoom_all.svg",
         "zoom_in.svg",
         "zoom_out.svg"
