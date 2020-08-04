@@ -68,9 +68,10 @@ class FontResizer:
             h_obj = obj.height()
             h_txt = obj.preferred_height()
             h_ratio = min(h_obj / h_txt, h_ratio)
-        if h_ratio <= 0:
-            h_ratio = 1e-9
+        point_size = p * h_ratio
+        if point_size <= 1:
+            point_size = 1
         font = QFont(self.font)
-        font.setPointSizeF(p * h_ratio)
+        font.setPointSizeF(point_size)
         for obj in objects:
             obj.setFont(font)
