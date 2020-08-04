@@ -59,12 +59,6 @@ QPlainTextEdit:!read-only:hover
     border-color: {% base_focus_border %};
 }
 
-QWidget:disabled
-{
-    color: {% disabled_foreground %};
-    background-color: {% disabled_background %};
-}
-
 QMenuBar
 {
     spacing: 2ex;
@@ -91,6 +85,7 @@ QMenu
     background-clip: border;
     border-image: none;
     border: 1px solid {% base_background %};
+    padding: 0.5ex 0.5ex 0.5ex 0.5ex;
     /* outline: 0; */
 }
 
@@ -99,7 +94,6 @@ QMenu::item
     color: {% base_foreground %};
     background-color: {% input_background %};
     padding: 0.5ex 1em 0.5ex 1em;
-    margin-left: 0.5ex;
     border: 0px solid {% input_background %};
 }
 
@@ -157,19 +151,25 @@ QPushButton:pressed
 /* QComboBox                                                                */
 /****************************************************************************/
 
-QComboBox,
-QComboBox QAbstractItemView
+QComboBox
 {
     background: {% input_background %};
     selection-background-color: {% clickable_hover %};
     padding: 0.5ex;
-    min-width: 7.5ex;
+    min-width: 10ex;
+}
+
+QComboBox QAbstractItemView  /* The popup */
+{
+    background: {% input_background %};
+    selection-background-color: {% clickable_hover %};
+    padding: 0.5ex;
+    min-width: 20ex;
 }
 
 QComboBox:on  /* shift the text when the popup opens */
 {
     padding-top: 0.3ex;
-    padding-left: 0.4ex;
     selection-background-color: {% clickable_hover %};
 }
 
@@ -178,7 +178,7 @@ QComboBox::drop-down
     background: {% input_background %};
     subcontrol-origin: padding;
     subcontrol-position: top right;
-    width: 10px;
+    width: 15px;
 
     border-left-width: 1px;
     border-left-color: {% base_selection_border %};
