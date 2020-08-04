@@ -129,7 +129,7 @@ class PreferencesDialog(QtWidgets.QDialog):
 
     def _on_theme(self, topic, value):
         profile = self._active_profile
-        theme_index = theme_loader(value, profile, generate=True)
+        theme_index = theme_loader(value, profile)
         topic = 'Appearance/__index__'
         self._cmdp.invoke('!preferences/preference/set', (topic, theme_index, profile))
 
@@ -183,7 +183,9 @@ class PreferencesDialog(QtWidgets.QDialog):
                 existing.pop(key, None)  # remove if possible
                 self._cmdp.invoke('!preferences/preference/set', (key, new_value, self._active_profile))
         for key, old_value in existing.items():
-            if '#' in key or key[-1] == '/' or '/_' in key:
+            if key in ['Appearance/__index__']:
+                pass  # always consider
+            elif '#' in key or key[-1] == '/' or '/_' in key:
                 continue
             if key.startswith(prefix):
                 self._cmdp.invoke('!preferences/preference/clear', (key, self._active_profile))

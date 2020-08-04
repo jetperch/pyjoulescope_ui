@@ -38,14 +38,14 @@ class TestThemeManager(unittest.TestCase):
             mgr.theme_name_parser('hello.there.world')
 
     def test_theme_index(self):
-        index = mgr.theme_source_index('js1')
+        index = mgr._theme_source_index('js1')
         self.assertEqual('js1', index['name'])
         self.assertIn('images', index)
         self.assertIn('colors', index)
 
     def test_theme_index_invalid(self):
         with self.assertRaises(ValueError):
-            mgr.theme_source_index('__invalid__')
+            mgr._theme_source_index('__invalid__')
 
 
 class TestThemeLoader(unittest.TestCase):

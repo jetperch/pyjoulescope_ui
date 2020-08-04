@@ -54,14 +54,14 @@ def preferences_overwrite(index, cmdp):
         cmdp.preferences.set(name, value, profile)
 
 
-def theme_source_path(theme_name):
+def _theme_source_path(theme_name):
     theme_name = theme_name.split('.')[0]
     path = os.path.join(MYPATH, theme_name)
     return path
 
 
-def theme_source_index(theme_name):
-    path = theme_source_path(theme_name)
+def _theme_source_index(theme_name):
+    path = _theme_source_path(theme_name)
     theme_index = os.path.join(path, 'index.json')
     if not os.path.isfile(theme_index):
         raise ValueError('Invalid theme: missing index.json')
@@ -71,7 +71,7 @@ def theme_source_index(theme_name):
 
 
 def _theme_source_load_file(theme_name, filename):
-    path = theme_source_path(theme_name)
+    path = _theme_source_path(theme_name)
     fname = os.path.join(path, filename)
     if not os.path.isfile(fname):
         raise ValueError(f'Theme could not load source file {filename}')
@@ -88,7 +88,7 @@ def theme_name_parser(theme_name, subtheme_name=None):
             log.warning('subtheme specified and in theme_name')
         return p[0], subtheme_name
     if len(p) == 1:  # use default subtheme
-        index = theme_source_index(theme_name)
+        index = _theme_source_index(theme_name)
         subtheme_name = next(iter(index['colors']))
         return p[0], subtheme_name
     elif len(p) == 2:
@@ -146,55 +146,80 @@ def _generate_images(index):
                     f.write(svg_out)
 
 
-def _generate(theme_name, target_path):
-    basetheme_name, subtheme_name = theme_name_parser(theme_name)
-    if not os.path.isdir(target_path):
-        os.makedirs(target_path, exist_ok=True)
+def theme_index_loader(theme_name):
+    """Load the theme index information.
 
-    src_path = theme_source_path(theme_name)
-    index = theme_source_index(theme_name)
+    :param theme_name: The theme name given as "{theme}.{subtheme}".
+    :return: The theme index.
+    """
+    basetheme_name, subtheme_name = theme_name_parser(theme_name)
+    src_path = _theme_source_path(theme_name)
+    index = _theme_source_index(theme_name)
     if index['name'] != basetheme_name:
         raise ValueError(f'theme name mismatch: {index["name"]} != {basetheme_name}')
     index['generator'] = {
         'name': theme_name_normalize(basetheme_name, subtheme_name),
         'source_path': src_path,
-        'target_path': target_path,
+        'target_path': None,  # Must be filled in later
         'files': {},
     }
     index['colors'] = index['colors'][subtheme_name]
-    theme_update(index)
+    return index
 
 
-def theme_loader(theme_name, target_name, generate=None, target_path=None):
-    """Load a theme, generating as needed.
+def theme_configure(index, target_name, target_path=None):
+    """Configure the theme generator.
 
-    :param theme_name: The theme name given as "{theme}.{subtheme}".
+    :param index: The theme index from theme_index_loader or the theme name string.
     :param target_name: The target name, usually the profile name.
-    :param generate: When True, force generate.
     :param target_path: The target path.  Used to override the default for
         unit testing.
     :return: The theme index.
     """
+    if isinstance(index, str):
+        index = theme_index_loader(index)
     if target_path is None:
         target_path = paths_current()['dirs']['themes']
     target_path = os.path.join(target_path, target_name)
-    theme_index = os.path.join(target_path, 'index.json')
-    if bool(generate) or not os.path.isfile(theme_index):
-        _generate(theme_name, target_path)
-    with open(theme_index, 'r', encoding='utf-8') as f:
-        index = json.load(f)
-    return theme_select(index)
+    index['generator']['target_path'] = target_path
+    return index
+
+
+def theme_loader(theme_name, target_name, target_path=None):
+    """Load a theme, generating as needed.
+
+    :param theme_name: The theme name given as "{theme}.{subtheme}".
+    :param target_name: The target name, usually the profile name.
+    :param target_path: The target path.  Used to override the default for
+        unit testing.
+    :return: The theme index.
+    """
+    index = theme_configure(theme_name, target_name, target_path)
+    return theme_update(index)
 
 
 def theme_save(index):
-    index = copy.deepcopy(index)
+    """Save a theme to disk.
+
+    :param index: The theme index data structure.
+    """
+    # load the theme
+    name = index['generator']['name']
+    index_new = theme_index_loader(name)
+    index_new['colors'] = copy.deepcopy(index['colors'])
+    index_new['generator'] = copy.deepcopy(index['generator'])
+    index = index_new
+
     path = index['generator']['target_path']
-    for fname, value in index['generator']['files'].items():
-        with open(os.path.join(path, fname), 'w', encoding='utf-8') as f:
-            f.write(value)
+    if path is None:
+        raise ValueError('theme_save but not configured')
+    if not os.path.isdir(path):
+        os.makedirs(path, exist_ok=True)
+    _generate_files(index)
     _generate_images(index)
     with open(os.path.join(path, 'index.json'), 'w', encoding='utf-8') as f:
         json.dump(index, f)
+    return index
 
 
 def theme_select(index):
@@ -206,10 +231,5 @@ def theme_select(index):
 
 
 def theme_update(index):
-    _generate_files(index)
-    _generate_images(index)
-    target_path = index['generator']['target_path']
-    with open(os.path.join(target_path, 'index.json'), 'w', encoding='utf-8') as f:
-        json.dump(index, f)
-    theme_select(index)
-
+    index = theme_save(index)
+    return theme_select(index)
