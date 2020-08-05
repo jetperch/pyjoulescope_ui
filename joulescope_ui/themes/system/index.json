@@ -3,7 +3,7 @@
   "version": 1,
   "name": "system",
   "description": "System theme",
-  "files": ["style.qss"],
+  "files": ["style.html", "style.qss"],
   "images": {
     "copy": {
       "sources": [

@@ -198,7 +198,7 @@ class ControlWidget(QtWidgets.QWidget):
         self._accumLabel = QtWidgets.QLabel(self)
         self._accumLabel.setObjectName(u"accumLabel")
         self._accumLabel.setTextFormat(QtGui.Qt.RichText)
-        self._accumLabel.setText('<html><header/><body></body</html>')
+        self._accumLabel.setText('<html><head/><body></body</html>')
         self._accumLabel.setToolTip(ACCUM_TOOLTIP)
         self._layout.addWidget(self._accumLabel)
 

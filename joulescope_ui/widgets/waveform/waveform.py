@@ -118,6 +118,7 @@ class WaveformWidget(QtWidgets.QWidget):
         c.register('!Widgets/Waveform/Signals/remove', self._cmd_waveform_signals_remove,
                    brief='Remove a signal from the waveform by name.',
                    detail='value is signal name string.')
+        cmdp.subscribe('Appearance/__index__', self._on_colors, update_now=True)
 
         self._shortcut_left = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Left), self)
         self._shortcut_left.activated.connect(self._on_left)
@@ -131,6 +132,12 @@ class WaveformWidget(QtWidgets.QWidget):
         self._shortcut_plus.activated.connect(self._on_zoom_in)
         self._shortcut_minus = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Minus), self)
         self._shortcut_minus.activated.connect(self._on_zoom_out)
+
+    def _on_colors(self, topic, value):
+        colors = value['colors']
+        self.win.setBackground(colors['waveform_background'])
+        pyqtgraph.setConfigOption('background', colors['waveform_background'])
+        pyqtgraph.setConfigOption('foreground', colors['waveform_font_color'])
 
     def _on_mouse_moved_event(self, pos):
         self._mouse_pos = pos

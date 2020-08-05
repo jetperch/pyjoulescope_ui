@@ -32,6 +32,7 @@ class ScrollMessageBox(QtWidgets.QMessageBox):
         QtWidgets.QMessageBox.__init__(self, *args, **kwargs)
         self._scroll = QtWidgets.QScrollArea(self)
         self._scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self._scroll.setObjectName("help_ui")
         self._scroll.setWidgetResizable(True)
         self.content = QtWidgets.QWidget()
         self._scroll.setWidget(self.content)
@@ -42,7 +43,6 @@ class ScrollMessageBox(QtWidgets.QMessageBox):
         self._layout.addWidget(self._label)
         self.layout().addWidget(self._scroll, 0, 0, 1, self.layout().columnCount())
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        self.setStyleSheet("QScrollArea{min-width:600 px; min-height: 400px}")
 
 
 HELP_FILES = {
@@ -50,26 +50,6 @@ HELP_FILES = {
     'getting_started': 'getting_started.html',
     'preferences': 'preferences.html',
 }
-
-
-def load_credits():
-    fname = os.path.join(APP_PATH, 'CREDITS.html')
-    if os.path.isfile(fname):
-        with open(fname, 'rb') as f:
-            bin_data = f.read()
-    else:
-        bin_data = pkgutil.get_data('joulescope_ui', 'CREDITS.html')
-    return bin_data.decode('utf-8')
-
-
-def load_getting_started():
-    fname = os.path.join(APP_PATH, 'joulescope_ui', 'getting_started.html')
-    if os.path.isfile(fname):
-        with open(fname, 'rb') as f:
-            bin_data = f.read()
-    else:
-        bin_data = pkgutil.get_data('joulescope_ui', 'getting_started.html')
-    return bin_data.decode('utf-8')
 
 
 def load_help(name):
@@ -88,10 +68,12 @@ def load_help(name):
     raise RuntimeError(f'Could not load help {name}')
 
 
-def display_help(parent, name):
+def display_help(parent, cmdp, name):
+    style = cmdp.preferences['Appearance/__index__']['generator']['files']['style.html']
     logging.getLogger(__name__).info('display_help(%s)', name)
     html = load_help(name)
     title = re.search(r'<title>(.*?)<\/title>', html)[1]
+    html = html.format(style=style)
     dialog = ScrollMessageBox(html, parent)
     dialog.setWindowTitle(title)
     dialog.exec_()

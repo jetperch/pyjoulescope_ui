@@ -464,6 +464,7 @@ class Signal(QtCore.QObject):
 
     def _on_colors(self, topic, value):
         colors = self._cmdp['Appearance/__index__']['colors']
+        font_color = colors.get('waveform_font_color', '#808080')
         trace_width = int(self._cmdp['Widgets/Waveform/trace_width'])
         mean_color = color_as_qcolor(colors.get('waveform_trace1_mean', '#FFFF00'))
         min_max_trace_color = color_as_qcolor(colors.get('waveform_trace1_min_max_trace', '#A00000'))
@@ -477,6 +478,7 @@ class Signal(QtCore.QObject):
             brush = pg.mkBrush(color=min_max_fill_color)
             self.curve_range.setBrush(brush)
         self.vb.update()
+        self.y_axis.setTextPen(font_color)
 
     @QtCore.Slot(object, object)
     def _on_y_range_changed(self, vb, y_range):

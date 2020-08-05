@@ -765,3 +765,14 @@ QPushButton#zoom_out {
 QPushButton#zoom_all {
     image: url("{% path %}/zoom_all_enabled.svg"); 
 }
+
+
+/****************************************************************************/
+/* Help UI                                                                  */
+/****************************************************************************/
+
+QScrollArea#help_ui
+{
+    min-width:600 px; 
+    min-height: 400px;
+}

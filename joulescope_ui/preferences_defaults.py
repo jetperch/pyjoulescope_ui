@@ -17,6 +17,7 @@ Implement the application default preferences.
 """
 
 from joulescope_ui.preferences import Preferences, BASE_PROFILE
+from joulescope_ui.themes.manager import theme_loader
 
 
 def multimeter_profile_default(preferences: Preferences):
@@ -41,8 +42,15 @@ def oscilloscope_profile_default(preferences: Preferences):
     preferences.set('Device/setting/i_range', 'auto', profile='Oscilloscope')
 
 
+def _theme_default(preferences: Preferences):
+    theme_name = preferences.get('Appearance/Theme', profile='defaults')
+    theme_index = theme_loader(theme_name, 'defaults')
+    preferences.set('Appearance/__index__', theme_index, profile='defaults')
+
+
 def defaults_profile_default(preferences: Preferences):
     preferences.restore_base_defaults()
+    _theme_default(preferences)
 
 
 PROFILES_RESET = {
@@ -59,6 +67,9 @@ def restore(preferences: Preferences, profile):
 def defaults(preferences: Preferences):
     p = preferences
     profiles = p.profiles
+    if preferences.is_in_profile('Appearance/__index__', profile='defaults'):
+        if not preferences.get('Appearance/__index__', profile='defaults'):
+            _theme_default(p)
     if 'Multimeter' not in profiles:
         multimeter_profile_default(p)
         p.profile = 'Multimeter'

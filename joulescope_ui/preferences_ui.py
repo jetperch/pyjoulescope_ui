@@ -29,7 +29,7 @@ from joulescope_ui.preferences import options_enum
 from joulescope_ui import preferences_defaults
 from joulescope_ui.help_ui import display_help
 from joulescope_ui.themes.color_picker import ColorItem
-from joulescope_ui.themes.manager import theme_update, theme_loader
+from joulescope_ui.themes.manager import theme_update, theme_loader, theme_index_loader
 from PySide2 import QtCore, QtWidgets, QtGui
 import copy
 import collections.abc
@@ -52,7 +52,7 @@ class AppearanceColors(QtWidgets.QWidget):
         self._layout = QtWidgets.QGridLayout(self)
         self._widgets = []
         row = 0
-        for name, color in index['colors'].items():
+        for name, color in index.get('colors', {}).items():
             w = ColorItem(self, name, color)
             w.text_label = QtWidgets.QLabel(name, parent)
             self._widgets.append(w)
@@ -67,10 +67,9 @@ class AppearanceColors(QtWidgets.QWidget):
         self._widgets.clear()
 
     def _on_timer(self):
-        theme_update(self._index)
+        index = theme_update(self._index)
         topic = 'Appearance/__index__'
-        value = copy.deepcopy(self._index)
-        self._cmdp.invoke('!preferences/preference/set', (topic, value, self._profile))
+        self._cmdp.invoke('!preferences/preference/set', (topic, index, self._profile))
 
     def _on_change(self, color_name, color_value):
         self._index['colors'][color_name] = color_value
@@ -134,7 +133,7 @@ class PreferencesDialog(QtWidgets.QDialog):
         self._cmdp.invoke('!preferences/preference/set', (topic, theme_index, profile))
 
     def _help(self):
-        display_help(self, 'preferences')
+        display_help(self, self._cmdp, 'preferences')
 
     def _refresh(self, topic, value):
         self._redraw_right_pane()
@@ -184,7 +183,7 @@ class PreferencesDialog(QtWidgets.QDialog):
                 self._cmdp.invoke('!preferences/preference/set', (key, new_value, self._active_profile))
         for key, old_value in existing.items():
             if key in ['Appearance/__index__']:
-                pass  # always consider
+                pass
             elif '#' in key or key[-1] == '/' or '/_' in key:
                 continue
             if key.startswith(prefix):
@@ -256,12 +255,12 @@ class PreferencesDialog(QtWidgets.QDialog):
         self._populate_selected(data)
 
     def _populate_selected(self, data):
-
         if data['name'] == 'Appearance/Colors/':
             index = self._cmdp['Appearance/__index__']
             self._target_widget = AppearanceColors(self.ui.targetWidget, self._cmdp, index, self._active_profile)
             self._target_widget.setContentsMargins(0, 0, 0, 0)
             self.ui.targetLayout.addWidget(self._target_widget)
+            self._active_group = data['name']
             return
         elif 'children' not in data:
             return

@@ -19,7 +19,7 @@ from joulescope.units import three_sig_figs
 import logging
 
 
-TIME_STYLE_DEFAULT = 'color: #FFF; background-color: #000; font-size: 8pt'
+TIME_STYLE_DEFAULT = 'color: {foreground}; background-color: {background}; font-size: 8pt'
 
 
 Z_MARKER_NORMAL = 10
@@ -255,9 +255,16 @@ class Marker(pg.GraphicsObject):
         self._cmdp.publish(self._instance_prefix + 'pos', x, no_undo=True)
         self._redraw()
 
+    def _time_style(self):
+        theme = self._cmdp['Appearance/__index__']
+        return TIME_STYLE_DEFAULT.format(
+            foreground=theme['colors']['waveform_font_color'],
+            background=theme['colors']['waveform_background'],
+        )
+
     def _update_marker_text(self):
         x = self._x
-        style = TIME_STYLE_DEFAULT
+        style = self._time_style()
         if self._x is None:
             html = ''
         else:
@@ -285,7 +292,7 @@ class Marker(pg.GraphicsObject):
 
     def _update_delta_time(self):
         if self.is_left:
-            style = TIME_STYLE_DEFAULT
+            style = self._time_style()
             axis = self._axis()
             if axis is None:
                 return

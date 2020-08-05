@@ -206,8 +206,11 @@ def theme_save(index):
     # load the theme
     name = index['generator']['name']
     index_new = theme_index_loader(name)
-    index_new['colors'] = copy.deepcopy(index['colors'])
-    index_new['generator'] = copy.deepcopy(index['generator'])
+    colors = index['colors']
+    colors_new = index_new['colors']
+    for color_name, color_value in colors_new.items():
+        colors_new[color_name] = colors.get(color_name, color_value)
+    index_new['generator']['target_path'] = index['generator']['target_path']
     index = index_new
 
     path = index['generator']['target_path']
@@ -218,7 +221,7 @@ def theme_save(index):
     _generate_files(index)
     _generate_images(index)
     with open(os.path.join(path, 'index.json'), 'w', encoding='utf-8') as f:
-        json.dump(index, f)
+        json.dump(index, f, indent=2)
     return index
 
 

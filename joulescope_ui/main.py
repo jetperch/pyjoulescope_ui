@@ -67,6 +67,10 @@ _unraisablehook = getattr(sys, 'unraisablehook', lambda *args: None)
 
 ABOUT = """\
 <html>
+<head>
+{style}
+</head>
+<body>
 Joulescope UI version {ui_version}<br/> 
 Joulescope driver version {driver_version}<br/>
 <a href="https://www.joulescope.com">https://www.joulescope.com</a>
@@ -86,12 +90,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 </pre>
+</body>
 </html>
 """
 
 
 SOFTWARE_UPDATE = """\
 <html>
+<head>
+{style}
+</head>
+<body>
 <p>
 A software update is available:<br/>
 Current version = {current_version}<br/>
@@ -99,12 +108,17 @@ Available version = {latest_version}<br/>
 Channel = {channel}<br/>
 </p>
 <p><a href="{url}">Download</a> now.</p>
+</body>
 </html>
 """
 
 
 STARTUP_ERROR_MESSAGE = """\
-<html><body>
+<html>
+<head>
+{style}
+</head>
+<body>
 <h2>Unexpected Error</h2>
 <p>The Joulescope UI encountered an error,<br/>
 and it cannot start correctly.<p>
@@ -339,7 +353,6 @@ class MainWindow(QtWidgets.QMainWindow):
         # must be after other preferences so applied last
         self._cmdp.define('_window', brief='UI window configuration', dtype='obj', default=None)
 
-        preference_defaults(self._cmdp.preferences)
         self._view_menu()
 
         self._cmdp.subscribe('Device/#state/source', self._device_state_source)
@@ -699,6 +712,9 @@ class MainWindow(QtWidgets.QMainWindow):
             channel = self._cmdp['General/update_channel']
             software_update_check(self.resync_handler('software_update'), channel)
 
+    def _html_style(self):
+        return self._cmdp.preferences['Appearance/__index__']['generator']['files']['style.html']
+
     def _on_software_update(self, current_version, latest_version, url):
         channel = self._cmdp['General/update_channel']
         log.info('_on_software_update(current_version=%r, latest_version=%r, channel=%s, url=%r)',
@@ -706,19 +722,22 @@ class MainWindow(QtWidgets.QMainWindow):
         txt = SOFTWARE_UPDATE.format(current_version=current_version,
                                      latest_version=latest_version,
                                      channel=channel,
-                                     url=url)
+                                     url=url,
+                                     style=self._html_style())
         QtWidgets.QMessageBox.about(self, 'Joulescope Software Update Available', txt)
 
     def _help_about(self):
         log.info('_help_about')
-        txt = ABOUT.format(ui_version=__version__, driver_version=joulescope.VERSION)
+        txt = ABOUT.format(ui_version=__version__,
+                           driver_version=joulescope.VERSION,
+                           style=self._html_style())
         QtWidgets.QMessageBox.about(self, 'Joulescope', txt)
 
     def _help_credits(self):
-        help_ui.display_help(self, 'credits')
+        help_ui.display_help(self, self._cmdp, 'credits')
 
     def _help_getting_started(self):
-        help_ui.display_help(self, 'getting_started')
+        help_ui.display_help(self, self._cmdp, 'getting_started')
 
     def _help_users_guide(self):
         log.info('_help_users_guide')
@@ -1785,10 +1804,13 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
     """
     resources = []
     app = None
+    html_style = ''
     try:
         logging_preconfig()  # capture log messages until logging_config
         cmdp = CommandProcessor()
         cmdp = preferences_def(cmdp)
+        preference_defaults(cmdp.preferences)
+
         if file_log_level is None:
             file_log_level = cmdp.preferences['General/log_level']
         logging_config(file_log_level=file_log_level,
@@ -1822,13 +1844,10 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
         theme_profile = 'defaults'
         if cmdp.preferences.is_in_profile('Appearance/Theme'):
             theme_profile = cmdp.preferences.profile
-        theme_name = cmdp.preferences['Appearance/Theme']
         theme_index = cmdp.preferences['Appearance/__index__']
-        if not len(theme_index):
-            theme_index = theme_loader(theme_name, theme_profile)
-            cmdp.preferences.set('Appearance/__index__', theme_index, theme_profile)
-        else:
-            theme_update(theme_index)
+        theme_index = theme_update(theme_index)
+        cmdp.preferences.set('Appearance/__index__', theme_index, theme_profile)
+        html_style = theme_index['generator']['files']['style.html']
         log.info('theme load took %.4f seconds', time.time() - theme_start_time)
 
         multiprocessing_logging_queue, logging_stop, logging_thread = logging_start()
@@ -1847,7 +1866,7 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
             'Platform=' + platform.platform(),
             t])
         pyperclip.copy(msg_err)
-        msg = STARTUP_ERROR_MESSAGE.format(msg_err=msg_err)
+        msg = STARTUP_ERROR_MESSAGE.format(msg_err=msg_err, style=html_style)
         ui = ErrorWindow(msg)
         return app.exec_()
 
