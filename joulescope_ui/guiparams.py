@@ -618,9 +618,9 @@ PTYPE_SAVE = ['w', 'write', 's', 'save']
 PTYPE_DIR = ['d', 'dir', 'directory']
 
 PTYPE_MAP = {
-    'open': (PTYPE_OPEN, ":/joulescope/resources/play.png"),
-    'save': (PTYPE_SAVE, ":/joulescope/resources/record.png"),
-    'dir':  (PTYPE_DIR,  ":/joulescope/resources/pause.png"),
+    'open': (PTYPE_OPEN, ":/play.png"),
+    'save': (PTYPE_SAVE, ":/record.png"),
+    'dir':  (PTYPE_DIR,  ":/pause.png"),
 }
 
 

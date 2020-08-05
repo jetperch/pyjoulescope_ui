@@ -13,8 +13,10 @@
 # limitations under the License.
 
 from PySide2 import QtCore, QtWidgets
-from .marker import Marker
-from typing import List, Tuple
+from .marker import Marker, Z_MARKER_NORMAL, Z_MARKER_ACTIVE
+from .marker_area import MarkerArea
+import numpy as np
+from typing import Dict, List, Tuple
 import pyqtgraph as pg
 import logging
 
@@ -59,7 +61,8 @@ class XAxis(pg.AxisItem):
         self.menu.single_marker.triggered.connect(self.on_singleMarker)
         self.menu.dual_markers.triggered.connect(self.on_dualMarkers)
         self.menu.clear_all_markers.triggered.connect(self.on_clearAllMarkers)
-        self._markers = {}
+        self._markers: Dict[str, Marker] = {}
+        self._marker_area = MarkerArea(self)
         self._proxy = None
         self._popup_menu_pos = None
 
@@ -79,41 +82,63 @@ class XAxis(pg.AxisItem):
                              'for single markers and length 2 for dual markers.')
         cmdp.register('!Widgets/Waveform/Markers/clear', self._cmd_waveform_marker_clear,
                       brief='Remove all markers.')
+        cmdp.register('!Widgets/Waveform/Markers/activate', self._cmd_waveform_marker_activate,
+                      brief='Activate the list of markers')
         cmdp.register('!Widgets/Waveform/Markers/restore', self._cmd_waveform_marker_restore,
                       brief='Restore removed markers (for undo support).')
+        cmdp.register('!Widgets/Waveform/Markers/move', self._cmd_waveform_marker_move,
+                      brief='Move list of markers given as [name, new_pos, old_pos].')
 
-        # todo '!Widgets/Waveform/Markers/move'
-        # todo '!Widgets/Waveform/Markers/list'
+    def add_to_scene(self):
+        self._marker_area.add_to_scene()
 
     def _on_grid_x(self, topic, value):
         self.setGrid(128 if bool(value) else 0)
 
-    def _find_first_unused_single_marker_name(self):
+    def _find_first_unused_marker_index(self):
         idx = 1
         while True:
             name = str(idx)
-            if name not in self._markers:
-                return name
+            name1 = name + 'a'
+            if name not in self._markers and name1 not in self._markers:
+                return idx
             idx += 1
 
-    def _find_first_unused_dual_marker_prefix(self):
-        idx = 0
-        while True:
-            prefix = int_to_alpha(idx)
-            name1, name2 = prefix + '1', prefix + '2'
-            if name1 not in self._markers:
-                return name1, name2
-            idx += 1
+    def _marker_color(self, idx):
+        idx = 1 + ((idx - 1) % 6)  # have 6 colors
+        colors = self._cmdp['Appearance/__index__']['colors']
+        color = f'waveform_marker{idx}'
+        return colors.get(color, '#808080')
+
+    def _position_markers(self, positions):
+        """Position markers to avoid overlaying existing markers.
+
+        :param positions: The list of desired marker locations.
+        :return: The list of actual marker locations.
+        """
+        positions_start = [k for k in positions]
+        m = np.array([m.get_pos() for m in self._markers.values()])
+        x1, x2 = self.range
+        incr = (x2 - x1) / 80
+        while max(positions) < x2:
+            if all([np.all(np.abs(m - p) > incr) for p in positions]):
+                return positions
+            positions = [k + incr for k in positions]
+        return positions_start
 
     def _cmd_waveform_marker_single_add(self, topic, value):
+        x1, x2 = self.range
         if value is None:
-            x1, x2 = self.range
-            x = (x1 + x2) / 2
+            x = self._position_markers([(x1 + x2) / 2])[0]
         else:
             x = value
-        name = self._find_first_unused_single_marker_name()
-        self._marker_add(name, shape='full', pos=x)
+            x = min(max(x, x1), x2)
+        idx = self._find_first_unused_marker_index()
+        name = str(idx)
+        color = self._marker_color(idx)
+        self._marker_add(name, shape='full', pos=x, color=color, statistics=True)
         self.marker_moving_emit(name, x)
+        self._cmd_waveform_marker_activate(None, [name])
         self._cmdp.publish('Widgets/Waveform/#requests/refresh_markers', [name])
         return '!Widgets/Waveform/Markers/remove', [[name]]
 
@@ -123,15 +148,20 @@ class XAxis(pg.AxisItem):
             xc = (x1 + x2) / 2
             xs = (x2 - x1) / 10
             x1, x2 = xc - xs, xc + xs
+            x1, x2 = self._position_markers([x1, x2])
         else:
             x1, x2 = value
-        name1, name2 = self._find_first_unused_dual_marker_prefix()
-        mleft = self._marker_add(name1, shape='left', pos=x1)
-        mright = self._marker_add(name2, shape='right', pos=x2)
+        idx = self._find_first_unused_marker_index()
+        name = str(idx)
+        name1, name2 = name + 'a', name + 'b'
+        color = self._marker_color(idx)
+        mleft = self._marker_add(name1, shape='left', pos=x1, color=color)
+        mright = self._marker_add(name2, shape='right', pos=x2, color=color, statistics=True)
         mleft.pair = mright
         mright.pair = mleft
         self.marker_moving_emit(name1, x1)
         self.marker_moving_emit(name2, x2)
+        self._cmd_waveform_marker_activate(None, [name1, name2])
         self._cmdp.publish('Widgets/Waveform/#requests/refresh_markers', [name1, name2])
         return '!Widgets/Waveform/Markers/remove', [[name1, name2]]
 
@@ -166,6 +196,22 @@ class XAxis(pg.AxisItem):
                 removal.append([marker])
         return self._cmd_waveform_marker_remove(None, removal)
 
+    def _cmd_waveform_marker_activate(self, topic, value):
+        active = []
+        for name, marker in self._markers.items():
+            if marker.zValue() >= Z_MARKER_ACTIVE:
+                active.append(name)
+            z = Z_MARKER_ACTIVE if name in value else Z_MARKER_NORMAL
+            marker.setZValue(z)
+        return '!Widgets/Waveform/Markers/activate', active
+
+    def _cmd_waveform_marker_move(self, topic, value):
+        undo = []
+        for name, new_pos, old_pos in value:
+            self._markers[name].set_pos(new_pos)
+            undo.append([name, old_pos, new_pos])
+        return '!Widgets/Waveform/Markers/move', undo
+
     def on_singleMarker(self):
         x = self._popup_menu_pos.x()
         log.info('on_singleMarker(%s)', x)
@@ -192,11 +238,8 @@ class XAxis(pg.AxisItem):
         if name in self._markers:
             raise RuntimeError('_marker_add internal error: name %s already exists', name)
         marker = Marker(cmdp=self._cmdp, name=name, x_axis=self, state=state)
-        scene = self.scene()
         for item in [marker] + marker.graphic_items:
-            if scene is not None and scene is not item.scene():
-                scene.addItem(item)
-            item.setParentItem(self.parentItem())
+            item.setParentItem(self._marker_area)
         self._markers[name] = marker
         marker.show()
         if self._proxy is None:
@@ -234,8 +277,10 @@ class XAxis(pg.AxisItem):
         return [self._marker_remove_one(m1),
                 self._marker_remove_one(m2)]
 
-    def markers(self) -> List[Marker]:
-        return list(self._markers.values())
+    @property
+    def markers(self) -> Dict[str, Marker]:
+        # WARNING: for reference only
+        return self._markers
 
     def markers_single(self) -> List[Marker]:
         return [m for m in self._markers.values() if m.is_single]

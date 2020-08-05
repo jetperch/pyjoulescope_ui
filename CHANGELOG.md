@@ -4,9 +4,80 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.9.1
+
+2020 Aug 4 [in progress]
+
+*   Added "system", "dark", and "light" theme options #72.
+
+
+## 0.9.0
+
+2020 Aug 2
+
+*   Modified Control widget to display accumulator time and selected field.
+*   Renamed Tools → Clear Energy to Clear Accumulators and added undo.
+*   Added move markers on click & drag #35.
+*   Added dual markers "Scale to fit" feature #66.
+*   Added keyboard movement/zoom of waveform display #11.
+*   Added marker colors #57.
+*   Migrated to official pyqtgraph 0.11.0.
+*   Added save waveform as image #81
+*   Added save/export current waveform buffer #10
+*   Fixed dragging the endpoints of the top x-axis scroll bar #24
+*   Added marker name text to flag and changed dual marker flag shape.
+*   Added keybinding "S" and "D" to add single and dual markers, respectively #9.
+*   Fixed pixelated button icons in oscilloscope view by using SVG icons #1.
+*   Added subtle "blink" to record button when active.
+*   Added File → Open Recent #43.
+*   Added "active marker" so most recently used marker is clickable.
+*   Fixed undo for marker move.
+*   Added "revert" if right-click while moving marker.
+*   Added algorithm to place new markers in open space #59.
+*   Added copy waveform to clipboard #81
+*   Added save entire buffer to file #82.
+*   Removed export dialog.  Directly bring up save file dialog.
+*   Bound markers to the waveform area.  Restrict from y-axis & statistics.
+*   Fixed current range "zoom out" when output switch is "off".
+*   Added on/off switch #84.
+*   Added horizontal markers to the waveform widget #37.
+*   Added statistics on/off for all vertical markers #12.
+*   Improved multimeter view grid layout.
+*   Clear accumulator immediately even when not streaming #86.
+*   Added click to copy multimeter value to clipboard #87.
+*   Added record statistics to CSV option #85.
+*   Fixed multimeter view to display elapsed seconds, no SI prefix.
+*   Added accumulator start time to multimeter view.
+*   Updated to pyjoulescope 0.9.0 with support for firmware 1.3.0.
+
+
+## 0.8.16
+
+2020 May 29
+
+*   Fixed dragging y-axis range #65.
+*   Mapped space bar keyboard shortcut to toggle device run/pause #78.
+*   Updated to PySide2 5.15.0 and pyqraph development latest.
+*   Add workaround to prevent main Qt event thread blocking on Windows
+    when using QFileDialog convenience functions.
+*   Fixed race condition when stopping recording.
+*   Fixed streaming stop not fully stopping any recording in progress.
+
+
+## 0.8.14
+
+2020 May 8
+
+*   Added encoding='utf-8' to setup.py to fix package install on macOS.
+*   Fixed momentary power OUT power glitch when reconnecting using 'auto'.
+*   Fixed progress bar displaying while still configuring data export #77.
+*   Fixed JLS load to better handle truncated files.
+*   Modified dependencies to support both Python 3.7 and Python 3.8.
+
+
 ## 0.8.12
 
-2020 Apr 27 [in progress]
+2020 Apr 27
 
 *   Fixed plugin window instances become invalid #74.
 *   Improved logging for multiprocessing.

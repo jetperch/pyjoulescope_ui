@@ -22,10 +22,10 @@ from . import __version__
 import joulescope
 from PySide2 import QtCore, QtGui, QtWidgets
 from joulescope_ui.error_window import Ui_ErrorWindow
-from joulescope_ui.main_window import Ui_mainWindow
 from joulescope_ui.widgets import widget_register
 from joulescope.usb import DeviceNotify
 from joulescope_ui.data_recorder_process import DataRecorderProcess as DataRecorder
+from joulescope_ui.file_dialog import FileDialog
 from joulescope.data_recorder import construct_record_filename  # DataRecorder
 from joulescope_ui.recording_viewer_device import RecordingViewerDevice
 from joulescope_ui.preferences_ui import PreferencesDialog
@@ -40,11 +40,14 @@ from joulescope_ui.command_processor import CommandProcessor
 from joulescope_ui.preferences_def import preferences_def
 from joulescope_ui.preferences_defaults import defaults as preference_defaults
 from joulescope_ui import ui_util
+from joulescope_ui.themes.manager import theme_loader, theme_update
 from queue import Queue, Empty
+import copy
 import io
 import ctypes
 import collections
 import gc
+import pkgutil
 import pyperclip
 import traceback
 import time
@@ -64,12 +67,16 @@ _unraisablehook = getattr(sys, 'unraisablehook', lambda *args: None)
 
 ABOUT = """\
 <html>
+<head>
+{style}
+</head>
+<body>
 Joulescope UI version {ui_version}<br/> 
 Joulescope driver version {driver_version}<br/>
 <a href="https://www.joulescope.com">https://www.joulescope.com</a>
 
 <pre>
-Copyright 2018-2019 Jetperch LLC
+Copyright 2018-2020 Jetperch LLC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -83,12 +90,17 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 </pre>
+</body>
 </html>
 """
 
 
 SOFTWARE_UPDATE = """\
 <html>
+<head>
+{style}
+</head>
+<body>
 <p>
 A software update is available:<br/>
 Current version = {current_version}<br/>
@@ -96,12 +108,17 @@ Available version = {latest_version}<br/>
 Channel = {channel}<br/>
 </p>
 <p><a href="{url}">Download</a> now.</p>
+</body>
 </html>
 """
 
 
 STARTUP_ERROR_MESSAGE = """\
-<html><body>
+<html>
+<head>
+{style}
+</head>
+<body>
 <h2>Unexpected Error</h2>
 <p>The Joulescope UI encountered an error,<br/>
 and it cannot start correctly.<p>
@@ -267,6 +284,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._parameters = {}
         self._data_view = None  # created when device is opened
         self._recording = None  # created to record stream to JLS file
+        self._statistics_recording = None  # record statistics to CSV file
         self._accumulators = {
             'time': 0.0,
             'fields': {
@@ -275,12 +293,47 @@ class MainWindow(QtWidgets.QMainWindow):
             },
         }
         self._is_scanning = False
-        self._progress_dialog = None
+        self._progress_dialog = None  # One of [None, cfg dict, QProgressDialog].
         self._cmdp = cmdp
 
         super(MainWindow, self).__init__()
-        self.ui = Ui_mainWindow()
-        self.ui.setupUi(self)
+        self.resize(800, 600)
+        icon = QtGui.QIcon()
+        icon.addFile(u":/icon_64x64.ico", QtCore.QSize(), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.setWindowIcon(icon)
+
+        self._menu_bar = QtWidgets.QMenuBar(self)
+        self._menu_items = self._menu_setup({
+            '&File': {
+                '&Open': self.on_recording_open,
+                'Open &Recent': {},  # dynamically populated from MRU
+                '&Preferences': self.on_preferences,
+                '&Exit': self.close,
+            },
+            '&Device': {},  # dynamically populated
+            '&View': {},    # dynamically populated from widgets
+            '&Tools': {
+                '&Clear Accumulator': self._on_accumulators_clear,
+                '&Record Statistics': self._on_record_statistics,
+            },
+            '&Help': {
+                '&Getting Started': self._help_getting_started,
+                '&User\'s Guide': self._help_users_guide,
+                '&View logs...': self._view_logs,
+                '&Credits': self._help_credits,
+                '&About': self._help_about,
+            }
+        }, self._menu_bar)
+        self.setMenuBar(self._menu_bar)
+
+        # convenience accessors for dynamically populated menu items
+        self._menu_open_recent = self._menu_items['File']['Open Recent']['__root__']
+        self._menu_open_recent_update()
+        self._menu_view = self._menu_items['View']['__root__']
+        self._menu_devices = self._menu_items['Device']['__root__']
+        self._menu_record_statistics = self._menu_items['Tools']['Record Statistics']
+        self._menu_record_statistics.setCheckable(True)
+        self._menu_record_statistics.setVisible(False)
 
         self._cmdp.setParent(self)
         self._plugins = PluginManager(self._cmdp)
@@ -300,14 +353,14 @@ class MainWindow(QtWidgets.QMainWindow):
         # must be after other preferences so applied last
         self._cmdp.define('_window', brief='UI window configuration', dtype='obj', default=None)
 
-        preference_defaults(self._cmdp.preferences)
         self._view_menu()
 
         self._cmdp.subscribe('Device/#state/source', self._device_state_source)
-        self._cmdp.subscribe('Device/#state/sample_drop_color', self._device_state_color)
+        self._cmdp.subscribe('Device/#state/stream', self._device_state_stream)
         self._cmdp.subscribe('Device/#state/name', self._on_device_state_name)
         self._cmdp.subscribe('Device/#state/play', self._on_device_state_play)
         self._cmdp.subscribe('Device/#state/record', self._on_device_state_record)
+        self._cmdp.subscribe('Device/#state/record_statistics', self._on_device_state_record_statistics)
         self._cmdp.subscribe('Widgets/Waveform/#requests/data_next', self._on_waveform_requests_data_next)
         self._cmdp.subscribe('!preferences/profile/add', self._on_preferences_profile_add)
         self._cmdp.subscribe('!preferences/profile/remove', self._on_preferences_profile_remove)
@@ -336,16 +389,17 @@ class MainWindow(QtWidgets.QMainWindow):
                             brief='Remove a main window widget',
                             detail='The value is the widget or widget name string.',
                             record_undo=True)
+        self._cmdp.register('!Accumulators/reset', self._accumulators_reset,
+                            brief='Reset the energy and charge accumulators',
+                            record_undo=True)
+        self._cmdp.register('!General/mru_add', self._mru_add,
+                            brief='Add a file to the most recently used list.',
+                            detail='This command uses General/_mru_open to undo.')
 
         # Device selection
         self.device_action_group = QtWidgets.QActionGroup(self)
         self._device_disable = DeviceDisable()
         self._device_add(self._device_disable)
-
-        # Other menu items
-        self.ui.actionOpen.triggered.connect(self.on_recording_open)
-        self.ui.actionPreferences.triggered.connect(self.on_preferences)
-        self.ui.actionExit.triggered.connect(self.close)
 
         # status update timer
         self.status_update_timer = QtCore.QTimer(self)
@@ -354,22 +408,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self.status_update_timer.start()
 
         # Status bar
-        self._source_indicator = QtWidgets.QLabel(self.ui.statusbar)
-        self.ui.statusbar.addPermanentWidget(self._source_indicator)
+        self.statusbar = QtWidgets.QStatusBar(self)
+        self.setStatusBar(self.statusbar)
+        self._source_indicator = QtWidgets.QLabel(self.statusbar)
+        self._source_indicator.setObjectName('stream_source')
+        self._source_indicator.setProperty('stream', 'inactive')
+        self.statusbar.addPermanentWidget(self._source_indicator)
 
         # device scan timer - because bad things happen, see rescan_interval config
         self.rescan_timer = QtCore.QTimer(self)
         self.rescan_timer.timeout.connect(self.on_rescanTimer)
 
-        # help
-        self.ui.actionGettingStarted.triggered.connect(self._help_getting_started)
-        self.ui.actionUsersGuide.triggered.connect(self._help_users_guide)
-        self.ui.actionViewLogs.triggered.connect(self._view_logs)
-        self.ui.actionCredits.triggered.connect(self._help_credits)
-        self.ui.actionAbout.triggered.connect(self._help_about)
-
-        # tools
-        self.ui.actionClearEnergy.triggered.connect(self._accumulators_zero_total)
+        # plugins
         with self._plugins as p:
             p.range_tool_register('Export data', Exporter)
         self._plugins.builtin_register()
@@ -382,9 +432,30 @@ class MainWindow(QtWidgets.QMainWindow):
         self._shortcut_undo.activated.connect(lambda: self._cmdp.invoke('!undo'))
         self._shortcut_redo = QtWidgets.QShortcut(QtGui.QKeySequence.Redo, self)
         self._shortcut_redo.activated.connect(lambda: self._cmdp.invoke('!redo'))
+        self._shortcut_spacebar = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Space), self)
+        self._shortcut_spacebar.activated.connect(self._on_spacebar)
 
         if not self._cmdp.restore_success:
             self.status('Could not restore preferences - using defaults', timeout=0)
+
+    def _menu_setup(self, d, parent=None):
+        k = {}
+        for name, value in d.items():
+            name_safe = name.replace('&', '')
+            if isinstance(value, dict):
+                wroot = QtWidgets.QMenu(parent)
+                wroot.setTitle(name)
+                parent.addAction(wroot.menuAction())
+                w = self._menu_setup(value, wroot)
+                w['__root__'] = wroot
+            else:
+                w = QtWidgets.QAction(parent)
+                w.setText(name)
+                if callable(value):
+                    w.triggered.connect(value)
+                parent.addAction(w)
+            k[name_safe] = w
+        return k
 
     def _path(self):
         """Get the data_path.
@@ -444,7 +515,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def _view_menu(self):
         self._profile_action_group = None
         self._profile_actions = []
-        menu = self.ui.menuView
+        menu = self._menu_view
         menu.clear()
 
         developer = self._cmdp['General/developer']
@@ -596,6 +667,27 @@ class MainWindow(QtWidgets.QMainWindow):
             z[1] = x
             d['value'] = z[0]
         self._cmdp.publish('Device/#state/statistics', statistics)
+        if self._statistics_recording is not None:
+            hdr = '#time,current,voltage,power,charge,energy\n'
+            t = statistics['time']['range']['value'][1]
+            i = statistics['signals']['current']['µ']['value']
+            v = statistics['signals']['voltage']['µ']['value']
+            p = statistics['signals']['power']['µ']['value']
+            c = statistics['accumulators']['charge']['value']
+            e = statistics['accumulators']['energy']['value']
+
+            if self._statistics_recording['offsets'] is None:
+                self._statistics_recording['offsets'] = {
+                    'time': t,
+                    'charge': c,
+                    'energy': e,
+                }
+                self._statistics_recording['file'].write(hdr)
+            t -= self._statistics_recording['offsets']['time']
+            c -= self._statistics_recording['offsets']['charge']
+            e -= self._statistics_recording['offsets']['energy']
+            line = '%.1f,%g,%g,%g,%g,%g\n' % (t, i, v, p, c, e)
+            self._statistics_recording['file'].write(line)
 
     def _on_dataview_service_x_change_request(self, topic, value):
         # DataView/#service/x_change_request
@@ -620,6 +712,9 @@ class MainWindow(QtWidgets.QMainWindow):
             channel = self._cmdp['General/update_channel']
             software_update_check(self.resync_handler('software_update'), channel)
 
+    def _html_style(self):
+        return self._cmdp.preferences['Appearance/__index__']['generator']['files']['style.html']
+
     def _on_software_update(self, current_version, latest_version, url):
         channel = self._cmdp['General/update_channel']
         log.info('_on_software_update(current_version=%r, latest_version=%r, channel=%s, url=%r)',
@@ -627,19 +722,22 @@ class MainWindow(QtWidgets.QMainWindow):
         txt = SOFTWARE_UPDATE.format(current_version=current_version,
                                      latest_version=latest_version,
                                      channel=channel,
-                                     url=url)
+                                     url=url,
+                                     style=self._html_style())
         QtWidgets.QMessageBox.about(self, 'Joulescope Software Update Available', txt)
 
     def _help_about(self):
         log.info('_help_about')
-        txt = ABOUT.format(ui_version=__version__, driver_version=joulescope.VERSION)
+        txt = ABOUT.format(ui_version=__version__,
+                           driver_version=joulescope.VERSION,
+                           style=self._html_style())
         QtWidgets.QMessageBox.about(self, 'Joulescope', txt)
 
     def _help_credits(self):
-        help_ui.display_help(self, 'credits')
+        help_ui.display_help(self, self._cmdp, 'credits')
 
     def _help_getting_started(self):
-        help_ui.display_help(self, 'getting_started')
+        help_ui.display_help(self, self._cmdp, 'getting_started')
 
     def _help_users_guide(self):
         log.info('_help_users_guide')
@@ -649,11 +747,19 @@ class MainWindow(QtWidgets.QMainWindow):
         log.info('_view_logs(%s)', LOG_PATH)
         ui_util.show_in_folder(LOG_PATH)
 
-    def _accumulators_zero_total(self):
-        log.info('_accumulators_zero_total')
-        self._accumulators['time'] = 0.0
-        for z in self._accumulators['fields'].values():
-            z[0] = 0.0  # accumulated value
+    def _accumulators_reset(self, topic, value):
+        log.info('_accumulators_reset')
+        accumulators = copy.deepcopy(self._accumulators)
+        if value is not None:
+            self._accumulators = copy.deepcopy(value)
+        else:
+            self._accumulators['time'] = 0.0
+            for z in self._accumulators['fields'].values():
+                z[0] = 0.0  # accumulated value
+        return (topic, value), [(topic, accumulators)]
+
+    def _on_accumulators_clear(self):
+        self._cmdp.invoke('!Accumulators/reset', None)
 
     def _accumulators_zero_last(self):
         log.info('_accumulators_zero_last')
@@ -664,12 +770,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self._source_indicator.setText(f'  {data}  ')
         self._source_indicator.setToolTip(self._cmdp['Device/#state/name'])
 
-    def _device_state_color(self, topic, data):
-        if data is None or data == '':
-            style = ""
-        else:
-            style = f"QLabel {{ background-color : {data} }}"
-        self._source_indicator.setStyleSheet(style)
+    def _device_state_stream(self, topic, data):
+        self._source_indicator.setProperty('stream', data)
+        self._source_indicator.style().unpolish(self._source_indicator)
+        self._source_indicator.style().polish(self._source_indicator)
 
     @property
     def _has_active_device(self):
@@ -726,6 +830,8 @@ class MainWindow(QtWidgets.QMainWindow):
                     self._data_view = data_view
                 if hasattr(self._device, 'statistics_callback'):
                     self._device.statistics_callback = self.resync_handler('device_statistic')
+                # must apply i_range first to prevent Joulescope OUT glitch
+                self._on_device_parameter('Device/setting/i_range', self._cmdp['Device/setting/i_range'])
                 self._cmdp.subscribe('Device/setting/', self._on_device_parameter, update_now=True)
                 self._cmdp.subscribe('Device/extio/', self._on_device_parameter, update_now=True)
                 self._cmdp.subscribe('Device/Current Ranging/', self._on_device_current_range_parameter, update_now=True)
@@ -749,6 +855,7 @@ class MainWindow(QtWidgets.QMainWindow):
         while topic.startswith('_'):
             topic = topic[1:]
         try:
+            # print(f'_on_device_parameter({topic}, {value})')
             self._device.parameter_set(topic, value)
         except Exception:
             log.exception('during parameter_set')
@@ -802,7 +909,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._streaming_status = None
         self._cmdp.publish('Device/#state/name', '')
         self._cmdp.publish('Device/#state/source', 'None')
-        self._cmdp.publish('Device/#state/sample_drop_color', '')
+        self._cmdp.publish('Device/#state/stream', 'inactive')
         self._cmdp.publish('Device/#state/play', False)
         self._cmdp.publish('Device/#state/record', False)
         gc.collect()  # safe time to force garbage collection
@@ -840,14 +947,14 @@ class MainWindow(QtWidgets.QMainWindow):
         action.setChecked(False)
         action.triggered.connect(lambda x: self._device_open(device))
         self.device_action_group.addAction(action)
-        self.ui.menuDevice.addAction(action)
+        self._menu_devices.addAction(action)
         device.ui_action = action
 
     def _device_remove(self, device):
         """Remove the device from the user interface"""
         log.info('_device_change remove')
         self.device_action_group.removeAction(device.ui_action)
-        self.ui.menuDevice.removeAction(device.ui_action)
+        self._menu_devices.removeAction(device.ui_action)
         if self._device == device:
             self._device_close()
         device.ui_action.triggered.disconnect()
@@ -948,7 +1055,9 @@ class MainWindow(QtWidgets.QMainWindow):
         return dialog
 
     def _progress_dialog_finalize(self):
-        if self._progress_dialog is not None:
+        if isinstance(self._progress_dialog , dict):
+            pass  # never created, no worries!
+        elif self._progress_dialog is not None:
             log.debug('_progress_dialog_finalize')
             self._progress_dialog.canceled.disconnect()
             self._progress_dialog.cancel()
@@ -992,6 +1101,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
     @QtCore.Slot(int)
     def _on_progress_value(self, value):
+        if isinstance(self._progress_dialog, dict):
+            # only for range tools, not firmware update
+            cfg, self._progress_dialog = self._progress_dialog, None
+            progress_dialog = self._range_tool_progress_dialog_construct(cfg['name'])
+            progress_dialog.canceled.connect(cfg['on_cancel'])
         if self._progress_dialog is not None:
             value = int(value)
             self._progress_dialog.setValue(int(value))
@@ -1061,6 +1175,7 @@ class MainWindow(QtWidgets.QMainWindow):
             log.exception('_device_stream_start')
             self.status('Could not start device streaming')
         self._cmdp.publish('Device/#state/source', 'USB')
+        self._menu_record_statistics.setVisible(True)
 
     def _device_stream_stop(self):
         log.debug('_device_stream_stop')
@@ -1068,10 +1183,15 @@ class MainWindow(QtWidgets.QMainWindow):
         if not self._has_active_device:
             log.info('_device_stream_stop when no device')
             return
+        self._device_stream_record_stop()
+        self._cmdp.publish('Device/#state/record', False)
+        self._record_statistics_stop()
+        self._cmdp.publish('Device/#state/record_statistics', False)
+        self._menu_record_statistics.setVisible(False)
         if hasattr(self._device, 'stop'):
             self._device.stop()  # always safe to call
         self._cmdp.publish('Device/#state/source', 'Buffer')
-        self._cmdp.publish('Device/#state/sample_drop_color', '')
+        self._cmdp.publish('Device/#state/stream', 'inactive')
 
     def _on_device_state_play(self, topic, checked):
         log.info('_on_device_state_play(%s, %s)', topic, checked)
@@ -1092,6 +1212,7 @@ class MainWindow(QtWidgets.QMainWindow):
                                            calibration=self._device.calibration,
                                            multiprocessing_logging_queue=self._multiprocessing_logging_queue)
             self._device.stream_process_register(self._recording)
+            self._cmdp.publish('!General/mru_add', filename)
         else:
             log.warning('start recording failed for %s', filename)
 
@@ -1111,10 +1232,9 @@ class MainWindow(QtWidgets.QMainWindow):
                 self._device_stream_record_close()
                 fname = construct_record_filename()
                 path = os.path.join(self._path(), fname)
-                filename, selected_filter = QtWidgets.QFileDialog.getSaveFileName(
-                    self, 'Save Joulescope Recording', path, 'Joulescope Data (*.jls)')
-                filename = str(filename)
-                if not len(filename):
+                dialog = FileDialog(self, 'Save Joulescope Recording', path, 'any')
+                filename = dialog.exec_()
+                if filename is None:
                     self.status('Invalid filename, do not record')
                     self._device_stream_record_stop()
                     self._cmdp.publish('Device/#state/record', False)
@@ -1122,28 +1242,57 @@ class MainWindow(QtWidgets.QMainWindow):
                     self._device_stream_record_start(filename)
             else:
                 self.status('Selected device cannot record')
-        elif not enable:
+        else:
             self._device_stream_record_stop()
 
-    def _save(self):
-        if self._device is None:
-            self.status('Device not open, cannot save buffer')
-            return
-        # Save the current buffer
-        filename, selected_filter = QtWidgets.QFileDialog.getSaveFileName(
-            self, 'Save Joulescope buffer', self._path(), 'Joulescope Data (*.jls)')
-        filename = str(filename)
-        if not len(filename):
-            self.status('Invalid filename, do not open')
-            return
-        # todo
+    def _record_statistics_start(self, filename):
+        f = open(filename, 'w', encoding='utf-8')
+        self._statistics_recording = {
+            'file': f,
+            'offsets': None,
+        }
+
+    def _record_statistics_stop(self):
+        if self._statistics_recording is not None:
+            self._statistics_recording['file'].close()
+            self._statistics_recording = None
+
+    def _on_record_statistics(self, checked):
+        if self._device_can_record():
+            self._cmdp.publish('Device/#state/record_statistics', checked)
+        else:
+            block_signals_state = self._menu_record_statistics.blockSignals(True)
+            self._menu_record_statistics.setChecked(False)
+            self._menu_record_statistics.blockSignals(block_signals_state)
+
+    def _on_device_state_record_statistics(self, topic, enable):
+        enable = bool(enable)
+        block_signals_state = self._menu_record_statistics.blockSignals(True)
+        self._menu_record_statistics.setChecked(enable)
+        self._menu_record_statistics.blockSignals(block_signals_state)
+        if enable:
+            if self._device_can_record():
+                self._record_statistics_stop()
+                fname = construct_record_filename()
+                fname = os.path.splitext(fname)[0] + '.csv'
+                path = os.path.join(self._path(), fname)
+                filter_ = 'Comma-separated values (*.csv)'
+                dialog = FileDialog(self, 'Save Joulescope statistics', path, 'any', filter_)
+                filename = dialog.exec_()
+                if filename is None:
+                    self.status('Invalid filename, do not record')
+                    self._device_stream_record_stop()
+                    self._cmdp.publish('Device/#state/record_statistics', False)
+                else:
+                    self._record_statistics_start(filename)
+        else:
+            self._record_statistics_stop()
 
     def on_recording_open(self):
-        filename, selected_filter = QtWidgets.QFileDialog.getOpenFileName(
-            self, 'Open Joulescope Recording', self._path(), 'Joulescope Data (*.jls)')
-        filename = str(filename)
-        if not len(filename) or not os.path.isfile(filename):
-            self.status('Invalid filename, do not open')
+        dialog = FileDialog(self, 'Open Joulescope Recording', self._path(), 'existing')
+        filename = dialog.exec_()
+        if filename is None:
+            self.status('Filename not selected, do not open')
             return
         self._recording_open(filename)
 
@@ -1159,7 +1308,37 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self._cmdp.publish('Device/#state/name', os.path.basename(filename))
         self._cmdp.publish('Device/#state/source', 'File')
-        self._cmdp.publish('Device/#state/sample_drop_color', '')
+        self._cmdp.publish('Device/#state/stream', 'inactive')
+        self._cmdp.publish('!General/mru_add', filename)
+
+    def _mru_add(self, topic, value):
+        path = value
+        mru_count = int(self._cmdp['General/mru'])
+        mrus = self._cmdp['General/_mru_open']
+        mrus_restore = list(mrus)
+        if path is not None:
+            try:
+                mrus.remove(path)
+            except ValueError:
+                pass  # only remove if present
+            mrus.insert(0, path)
+        mrus = mrus[:mru_count]
+        self._cmdp.preferences['General/_mru_open'] = mrus
+        self._menu_open_recent_update()
+        return 'General/_mru_open', mrus_restore
+
+    def _mru_callback_factory(self, path):
+        def cbk():
+            self._recording_open(path)
+        return cbk
+
+    def _menu_open_recent_update(self, path=None):
+        self._menu_open_recent.clear()
+        mrus = self._cmdp.preferences['General/_mru_open']
+        for mru in mrus:
+            w = self._menu_open_recent.addAction(mru)
+            w.triggered.connect(self._mru_callback_factory(mru))
+        self._menu_open_recent.setEnabled(len(mrus))
 
     def _instance_id_next(self):
         """Get the next dock widget instance id.
@@ -1179,6 +1358,10 @@ class MainWindow(QtWidgets.QMainWindow):
             instance_id += 1
         log.debug('_instance_id_next => %d', instance_id)
         return instance_id
+
+    def _on_spacebar(self):
+        is_playing = self._cmdp['Device/#state/play']
+        self._cmdp.publish('Device/#state/play', not is_playing)
 
     def _widget_str(self, widget_str):
         name, instance_id = dock_widget_parse_str(widget_str)
@@ -1395,15 +1578,16 @@ class MainWindow(QtWidgets.QMainWindow):
         try:
             n_sample_id = n_sample_id['value']
             n_sample_missing_count = n_sample_missing_count['value']
+            stream_status = 'active'
             if len(self._streaming_status):  # skip first time
                 d_sample_id = n_sample_id - self._streaming_status['sample_id']
                 d_sample_missing_count = n_sample_missing_count - self._streaming_status['sample_missing_count']
                 if (0 == d_sample_id) or ((d_sample_missing_count / d_sample_id) > 0.001):
-                    color = 'red'
+                    stream_status = 'error'
                     log.warning('status RED: d_sample_id=%d, d_sample_missing_count=%d',
                                 d_sample_id, d_sample_missing_count)
                 elif d_sample_missing_count:
-                    color = 'yellow'
+                    stream_status = 'warning'
                     log.warning('status YELLOW: d_sample_id=%d, d_sample_missing_count=%d',
                                 d_sample_id, d_sample_missing_count)
                 else:
@@ -1412,7 +1596,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 color = ''
             self._streaming_status['sample_id'] = n_sample_id
             self._streaming_status['sample_missing_count'] = n_sample_missing_count
-            self._cmdp.publish('Device/#state/sample_drop_color', color)
+            self._cmdp.publish('Device/#state/stream', stream_status)
             self._cmdp.publish('Device/#state/source', 'USB')
         except:
             log.exception('_source_indicator_status_update')
@@ -1449,7 +1633,7 @@ class MainWindow(QtWidgets.QMainWindow):
         """
         level = logging.INFO if level is None else level
         log.log(level, msg)
-        self.ui.statusbar.showMessage(msg, timeout)
+        self.statusbar.showMessage(msg, timeout)
 
     def on_preferences(self):
         log.info('on_preferences')
@@ -1512,8 +1696,7 @@ class MainWindow(QtWidgets.QMainWindow):
             log.warning('cannot get voltage_range')
         self._cmdp.publish('Plugins/#state/voltage_range', voltage_range)
         invoke = RangeToolInvoke(self, self.resync_handler('range_tool_resync'), range_tool, cmdp=self._cmdp)
-        progress_dialog = self._range_tool_progress_dialog_construct(range_tool_name)
-        progress_dialog.canceled.connect(invoke.on_cancel)
+        self._progress_dialog = {'name': range_tool_name, 'on_cancel': invoke.on_cancel}
         invoke.sigProgress.connect(self._on_progress_value)
         invoke.sigFinished.connect(self.on_rangeToolFinished)
         invoke.sigClosed.connect(self.on_rangeToolClosed)
@@ -1580,7 +1763,7 @@ class ErrorWindow(QtWidgets.QMainWindow):
 
 def load_fonts():
     font_list = ['']
-    iterator = QtCore.QDirIterator(':/joulescope/fonts/', QtCore.QDirIterator.Subdirectories)
+    iterator = QtCore.QDirIterator(':/fonts/', QtCore.QDirIterator.Subdirectories)
     while iterator.hasNext():
         resource_path = iterator.next()
         if resource_path.endswith('.ttf'):
@@ -1619,11 +1802,15 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
 
     :return: 0 on success or error code on failure.
     """
+    resources = []
     app = None
+    html_style = ''
     try:
         logging_preconfig()  # capture log messages until logging_config
         cmdp = CommandProcessor()
         cmdp = preferences_def(cmdp)
+        preference_defaults(cmdp.preferences)
+
         if file_log_level is None:
             file_log_level = cmdp.preferences['General/log_level']
         logging_config(file_log_level=file_log_level,
@@ -1645,8 +1832,24 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
         except:
             log.exception('while configuring high DPI scaling')
         app = QtWidgets.QApplication(sys.argv)
+        resource_list = [
+            ('joulescope_ui', 'resources.rcc'),
+            ('joulescope_ui', 'fonts.rcc')]
+        for r in resource_list:
+            b = pkgutil.get_data(*r)
+            QtCore.QResource.registerResourceData(b)
+            resources.append(b)
+        theme_start_time = time.time()
         load_fonts()
-        # app.setFont(QtGui.QFont('Lato', 10))
+        theme_profile = 'defaults'
+        if cmdp.preferences.is_in_profile('Appearance/Theme'):
+            theme_profile = cmdp.preferences.profile
+        theme_index = cmdp.preferences['Appearance/__index__']
+        theme_index = theme_update(theme_index)
+        cmdp.preferences.set('Appearance/__index__', theme_index, theme_profile)
+        html_style = theme_index['generator']['files']['style.html']
+        log.info('theme load took %.4f seconds', time.time() - theme_start_time)
+
         multiprocessing_logging_queue, logging_stop, logging_thread = logging_start()
 
     except Exception:
@@ -1663,7 +1866,7 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
             'Platform=' + platform.platform(),
             t])
         pyperclip.copy(msg_err)
-        msg = STARTUP_ERROR_MESSAGE.format(msg_err=msg_err)
+        msg = STARTUP_ERROR_MESSAGE.format(msg_err=msg_err, style=html_style)
         ui = ErrorWindow(msg)
         return app.exec_()
 
@@ -1675,6 +1878,7 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
     ui.run(filename)
     device_notify = DeviceNotify(ui.resync_handler('device_notify'))
     rc = app.exec_()
+    log.info('shutting down')
     del ui
     device_notify.close()
     logging_stop()

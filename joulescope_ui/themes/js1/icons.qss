@@ -1,0 +1,40 @@
+
+QCheckBox::indicator:unchecked:disabled
+{
+    border-image: url(:/style/checkbox_unchecked_disabled.svg);
+}
+
+QCheckBox::indicator:unchecked:enabled
+{
+    border-image: url(:/style/checkbox_unchecked_enabled.svg);
+}
+
+QCheckBox::indicator:unchecked:enabled:hover
+{
+    border-image: url(:/style/checkbox_unchecked_hover.svg);
+}
+
+QCheckBox::indicator:unchecked:enabled:pressed
+{
+    border-image: url(:/style/checkbox_unchecked_pressed.svg);
+}
+
+QCheckBox::indicator:checked:disabled
+{
+    border-image: url(:/style/checkbox_checked_disabled.svg);
+}
+
+QCheckBox::indicator:checked:enabled
+{
+    border-image: url(:/style/checkbox_checked_enabled.svg);
+}
+
+QCheckBox::indicator:checked:enabled:hover
+{
+    border-image: url(:/style/checkbox_checked_hover.svg);
+}
+
+QCheckBox::indicator:checked:enabled:pressed
+{
+    border-image: url(:/style/checkbox_checked_pressed.svg);
+}

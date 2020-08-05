@@ -38,17 +38,6 @@ class SignalViewBox(pg.ViewBox):
         self._pan = None  # [total_x_delta in axis coordinates, last_x_scene_pos]
         self.log = logging.getLogger(__name__ + '.' + name)
 
-    def mouseClickEvent(self, ev, axis=None):
-        self.log.debug('mouse click: %s' % (ev, ))
-        ev.accept()
-        p = self.mapSceneToView(ev.scenePos())
-        x = p.x()
-
-        if ev.button() & QtCore.Qt.RightButton:
-            if self._pan:
-                x_start, self._pan = self._pan, None
-                self.sigPanXEvent.emit('abort', 0.0)
-
     def mouseDragEvent(self, ev, axis=None):
         self.log.debug('mouse drag: %s' % (ev, ))
         ev.accept()

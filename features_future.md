@@ -72,7 +72,7 @@ will be implemented before Joulescope general availability.
     signal is above or below the current y-axis view range.
 *   Add a small navigation window that shows the full extents of the buffer
     and a box with the view being displayed.
-*   Save waveforms to image file.
+*   Save waveforms as graphics to image file and clipboard.
 *   Move the selected, active marker using left/right arrow keys.
 
 

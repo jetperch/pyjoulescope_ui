@@ -94,9 +94,22 @@ def preferences_def(p):
         dtype='str',
         options=['normal', 'elevated'],
         default='elevated')
+    p.define(
+        topic='General/mru',
+        brief='The number of most recently used files to remember.',
+        dtype='str',
+        options=['0', '3', '5', '10', '20'],
+        default='10')
+    p.define(topic='General/_mru_open', dtype=object, default=[])
 
     # --- GENERAL ---
     p.define('Units/', 'Units to display.')
+    p.define(
+        topic='Units/accumulator',
+        brief='The accumulation field to display.',
+        dtype='str',
+        options=['energy', 'charge'],
+        default='energy')
     p.define(
         topic='Units/charge',
         brief='The units to display for charge, the integral of current.',
@@ -169,13 +182,22 @@ def preferences_def(p):
 
     p.define('Device/#state/name', dtype=str, default='')
     p.define('Device/#state/source', dtype=str, options=['None', 'USB', 'Buffer', 'File'], default='None')
-    p.define('Device/#state/sample_drop_color', dtype=str, default='')
+    p.define('Device/#state/stream', dtype=str, default='inactive')
     p.define('Device/#state/play',   dtype=bool, default=False)
     p.define('Device/#state/record', dtype=bool, default=False)
+    p.define('Device/#state/record_statistics', dtype=bool, default=False)
     p.define('Device/#state/sampling_frequency', dtype=float, default=0.0)
     p.define('Device/#state/status', dtype=dict, default={})
     p.define('Device/#state/statistics', dtype=dict, default={})
     p.define('Device/#state/x_limits', dtype=object)  # [x_min, x_max]
+
+    # --- Appearance ---
+    p.define('Appearance/', 'Adjust the UI appearance')
+    p.define('Appearance/Theme', dtype=str, options=['system', 'js1.dark', 'js1.light'], default='system')
+    p.define('Appearance/__index__', dtype=dict, default={})
+    p.define('Appearance/Fonts/', 'Adjust fonts')
+    p.define('Appearance/Colors/', 'Adjust colors')
+    p.define('Appearance/Colors/ui_override', dtype=str, default='')
 
     # --- Plugins ---
     p.define('Plugins/', 'Joulescope UI Plugins')

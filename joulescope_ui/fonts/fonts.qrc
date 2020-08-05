@@ -1,0 +1,7 @@
+<RCC>
+  <qresource prefix='fonts'>
+    <file>Lato/Lato-Regular.ttf</file>
+    <file>Lato/Lato-Bold.ttf</file>
+    <file>Lato/Lato-Black.ttf</file>
+  </qresource>
+</RCC>

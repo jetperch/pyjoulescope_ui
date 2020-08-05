@@ -16,7 +16,10 @@ from PySide2 import QtCore
 from .signal_statistics import SignalStatistics, SignalMarkerStatistics, si_format, html_format
 from .signal_viewbox import SignalViewBox
 from joulescope.stream_buffer import single_stat_to_api
+from .marker import Marker
 from .yaxis import YAxis
+from joulescope_ui.themes.color_picker import color_as_qcolor
+from typing import Dict
 import pyqtgraph as pg
 import math
 import numpy as np
@@ -57,6 +60,7 @@ class Signal(QtCore.QObject):
             },
         }
         self._statistics_font_resizer = statistics_font_resizer
+        self.markers: Dict[str, Marker] = None   # WARNING: for reference only
         self._marker_font_resizer = marker_font_resizer
         self._markers_single = {}
         self._markers_dual = {}
@@ -66,7 +70,7 @@ class Signal(QtCore.QObject):
         if y_limit is not None:
             y_min, y_max = y_limit
             self.vb.setLimits(yMin=y_min, yMax=y_max)
-            self.vb.setYRange(y_min, y_max)
+            self.vb.setYRange(y_min, y_max, padding=0)
         self.y_axis = YAxis(name, cmdp, log_enable=y_log_min is not None)
         self.y_axis.linkToView(self.vb)
         self.y_axis.setGrid(128)
@@ -99,9 +103,7 @@ class Signal(QtCore.QObject):
         cmdp.subscribe('Widgets/Waveform/grid_y', self._on_grid_y, update_now=True)
         cmdp.subscribe('Widgets/Waveform/show_min_max', self._on_show_min_max, update_now=True)
         cmdp.subscribe('Widgets/Waveform/trace_width', self._on_colors, update_now=True)
-        cmdp.subscribe('Widgets/Waveform/mean_color', self._on_colors, update_now=True)
-        cmdp.subscribe('Widgets/Waveform/min_max_trace_color', self._on_colors, update_now=True)
-        cmdp.subscribe('Widgets/Waveform/min_max_fill_color', self._on_colors, update_now=True)
+        cmdp.subscribe('Appearance/__index__', self._on_colors, update_now=True)
 
     def set_xlimits(self, x_min, x_max):
         self.vb.setLimits(xMin=x_min, xMax=x_max)
@@ -154,7 +156,7 @@ class Signal(QtCore.QObject):
             y_min = math.log10(self.config['y-axis']['log_min'])
             y_max = math.log10(self.config['y-axis']['limit'][1])
             self.vb.setLimits(yMin=y_min, yMax=y_max)
-            self.vb.setYRange(y_min, y_max)
+            self.vb.setYRange(y_min, y_max, padding=0)
         else:
             self.y_axis.setLogMode(False)
             self.curve_mean.setLogMode(xMode=False, yMode=False)
@@ -162,6 +164,7 @@ class Signal(QtCore.QObject):
             self.curve_max.setLogMode(xMode=False, yMode=False)
             y_min, y_max = self.config['y-axis']['limit']
             self.vb.setLimits(yMin=y_min, yMax=y_max)
+            self.vb.setYRange(y_min, y_max, padding=0)
         if update_range:
             self.yaxis_autorange(*self._y_range_now)
         self._cmdp.publish('Widgets/Waveform/#requests/refresh', None)
@@ -182,7 +185,7 @@ class Signal(QtCore.QObject):
 
     @QtCore.Slot(object, float)
     def on_panY(self, command, y):
-        self.log.info('on_panY(%s, %s)', command, y)
+        self.log.debug('on_panY(%s, %s)', command, y)
         if command == 'finish':
             if self._y_pan is not None:
                 pass
@@ -197,7 +200,7 @@ class Signal(QtCore.QObject):
         delta = y_start - y
         ra = ya + delta
         rb = yb + delta
-        self.vb.setRange(yRange=[ra, rb])
+        self.vb.setRange(yRange=[ra, rb], padding=0)
 
     def yaxis_autorange(self, v_min, v_max):
         if v_min is None or v_max is None:
@@ -220,7 +223,12 @@ class Signal(QtCore.QObject):
         if vb_range > 0:
             update_range |= (v_range / vb_range) < AUTO_RANGE_FRACT
         if update_range:
-            self.vb.setYRange(v_min, v_max)
+            if v_min == v_max:
+                v_min, v_max = v_min - vb_range / 2, v_max + vb_range / 2
+            else:
+                f = (v_max - v_min) * 0.1
+                v_min, v_max = v_min - f / 2, v_max + f
+            self.vb.setYRange(v_min, v_max, padding=0)
 
     def data_clear(self):
         self._most_recent_data = None
@@ -372,38 +380,45 @@ class Signal(QtCore.QObject):
                 self._marker_font_resizer.remove(m)
 
     def update_markers_single_one(self, marker_name, marker_pos):
+        m = self.markers.get(marker_name)
         if marker_name not in self._markers_single:
-            m = SignalMarkerStatistics(self.name, self._cmdp)
-            self.vb.addItem(m)
-            m.setVisible(True)
-            m.move(self.vb, marker_pos)
-            self._marker_font_resizer.add(m)
-            self._markers_single[marker_name] = m
-        m = self._markers_single[marker_name]
+            s = SignalMarkerStatistics(self.name, self._cmdp)
+            self.vb.addItem(s)
+            s.setVisible(True)
+            s.move(self.vb, marker_pos)
+            self._marker_font_resizer.add(s)
+            self._markers_single[marker_name] = s
+        s = self._markers_single[marker_name]
         if marker_pos is None:
             stats = None
         else:
             stats = self.statistics_at(marker_pos)
-        m.data_update(self.vb, marker_pos, stats)
+        s.setVisible(m.statistics_show)
+        s.data_update(self.vb, marker_pos, stats)
 
-    def update_markers_dual_one(self, marker_name, marker_pos, statistics):
-        if marker_name not in self._markers_dual:
-            m = SignalMarkerStatistics(self.name, self._cmdp)
-            self.vb.addItem(m)
-            m.setVisible(True)
-            m.move(self.vb, marker_pos)
-            self._markers_dual[marker_name] = m
-            self._marker_font_resizer.add(m)
+    def update_markers_dual_one(self, m, statistics):
+        if m.name not in self._markers_dual:
+            s = SignalMarkerStatistics(self.name, self._cmdp)
+            self.vb.addItem(s)
+            s.setVisible(True)
+            s.move(self.vb, m.get_pos())
+            self._markers_dual[m.name] = s
+            self._marker_font_resizer.add(s)
 
-        m = self._markers_dual[marker_name]
-        m.data_update(self.vb, marker_pos, statistics)
+        s = self._markers_dual[m.name]
+        s.setVisible(m.statistics_show)
+        s.data_update(self.vb, m.get_pos(), statistics)
 
     def update_markers_dual_all(self, values):
         # list of (marker_name, marker_pos, statistics)
         current_markers = self._markers_dual.copy()
         for name, pos, statistic in values:
             current_markers.pop(name, None)
-            self.update_markers_dual_one(name, pos, statistic)
+            m1 = self.markers.get(name)
+            m2 = m1.pair
+            current_markers.pop(m2.name, None)
+            self.update_markers_dual_one(m1, statistic)
+            self.update_markers_dual_one(m2, statistic)
         if len(current_markers):
             for marker_name in list(current_markers.keys()):
                 m = self._markers_dual.pop(marker_name)
@@ -448,19 +463,22 @@ class Signal(QtCore.QObject):
         self.y_axis.setGrid(128 if bool(value) else 0)
 
     def _on_colors(self, topic, value):
+        colors = self._cmdp['Appearance/__index__']['colors']
+        font_color = colors.get('waveform_font_color', '#808080')
         trace_width = int(self._cmdp['Widgets/Waveform/trace_width'])
-        mean_color = tuple(self._cmdp['Widgets/Waveform/mean_color'])
-        min_max_trace_color = tuple(self._cmdp['Widgets/Waveform/min_max_trace_color'])
+        mean_color = color_as_qcolor(colors.get('waveform_trace1_mean', '#FFFF00'))
+        min_max_trace_color = color_as_qcolor(colors.get('waveform_trace1_min_max_trace', '#A00000'))
         self._pen_min_max = pg.mkPen(color=min_max_trace_color, width=trace_width)
         self._pen_mean = pg.mkPen(color=mean_color, width=trace_width)
         self.curve_min.setPen(self._pen_min_max)
         self.curve_max.setPen(self._pen_min_max)
         self.curve_mean.setPen(self._pen_mean)
         if self.curve_range is not None:
-            brush_color = tuple(self._cmdp['Widgets/Waveform/min_max_fill_color'])
-            brush = pg.mkBrush(color=brush_color)
+            min_max_fill_color = color_as_qcolor(colors.get('waveform_trace1_min_max_fill', '#FF404080'))
+            brush = pg.mkBrush(color=min_max_fill_color)
             self.curve_range.setBrush(brush)
         self.vb.update()
+        self.y_axis.setTextPen(font_color)
 
     @QtCore.Slot(object, object)
     def _on_y_range_changed(self, vb, y_range):

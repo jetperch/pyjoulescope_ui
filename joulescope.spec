@@ -35,12 +35,31 @@ def find_site_packages():
     raise RuntimeError('Could not find site-packages')
 
 
+def parse_manifest():
+    add_files = []
+    with open(os.path.join(specpath, 'MANIFEST.in'), 'r', encoding='utf-8') as f:
+        for line in f.readlines():
+            line = line.strip()
+            print(line)
+            if not line.startswith('include'):
+                continue
+            path = line.split(None, maxsplit=1)[-1].strip()
+            if '/' in path:
+                tgt = os.path.dirname(path)
+            else:
+                tgt = '.'
+            add_files.append((path, tgt))
+    return add_files
+
+
 if sys.platform.startswith('win'):
     EXE_NAME = 'joulescope'
     BINARIES = [  # uses winusb which comes with Windows
         ('C:\\Windows\\System32\\msvcp100.dll', '.'),
         ('C:\\Windows\\System32\\msvcr100.dll', '.'),
         ('C:\\Windows\\System32\\msvcp140.dll', '.'),
+        ('C:\\Windows\\System32\\msvcp140_1.dll', '.'),
+        ('C:\\Windows\\System32\\msvcp140_2.dll', '.'),
     ]
     PATHEX.append(os.path.join(find_site_packages(), 'shiboken2'))
 elif sys.platform.startswith('darwin'):
@@ -56,11 +75,8 @@ a = Analysis(
     pathex=PATHEX,
     binaries=BINARIES,
     datas=[
-        ('joulescope_ui/getting_started.html', 'joulescope_ui'),
-        ('joulescope_ui/preferences.html', 'joulescope_ui'),
-        ('CREDITS.html', 'joulescope_ui'),
         (firmware_get(), 'joulescope_ui/firmware/js110'),
-    ],
+    ] + parse_manifest(),
     hiddenimports=[
         'joulescope.decimators',
         'joulescope.filter_fir',

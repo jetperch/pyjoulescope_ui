@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="joulescope.qrc">
-    <normaloff>:/joulescope/resources/icon_64x64.ico</normaloff>:/joulescope/resources/icon_64x64.ico</iconset>
+    <normaloff>:/icon_64x64.ico</normaloff>:/icon_64x64.ico</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -35,8 +35,5 @@
    </layout>
   </widget>
  </widget>
- <resources>
-  <include location="joulescope.qrc"/>
- </resources>
  <connections/>
 </ui>

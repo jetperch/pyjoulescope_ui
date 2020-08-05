@@ -14,7 +14,6 @@
 
 from PySide2 import QtCore, QtGui, QtWidgets
 import math
-from joulescope_ui import joulescope_rc
 from joulescope.units import unit_prefix
 from joulescope_ui.units import convert_units
 from joulescope_ui.ui_util import rgba_to_css, comboBoxSelectItemByText
@@ -66,6 +65,7 @@ class SingleValueWidget(QtWidgets.QWidget):
         self.horizontalLayout.addWidget(self.widget)
         self.spacerItem = QtWidgets.QSpacerItem(44, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout.addItem(self.spacerItem)
+
         self.value_widget = QtWidgets.QWidget(self)
         self.value_widget.setObjectName("ValueWidget")
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.value_widget)
@@ -84,13 +84,16 @@ class SingleValueWidget(QtWidgets.QWidget):
         self.horizontalLayout.addWidget(self.value_widget)
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.MinimumExpanding)
 
+        for w in [self.valueLabel, self.unitLabel]:
+            w.setProperty('single_value_label', True)
+
+
         self.retranslateUi()
         self.fieldComboBox.currentIndexChanged.connect(self.on_field_changed)
         self.statisticComboBox.currentIndexChanged.connect(self.on_statistic_changed)
         self._cmdp.subscribe('Device/#state/statistics', self._on_device_statistics, update_now=True)
         cmdp.subscribe('Widgets/Single Value/font', self._on_font, update_now=True)
-        cmdp.subscribe('Widgets/Single Value/font-color', self._on_color, update_now=True)
-        cmdp.subscribe('Widgets/Single Value/background-color', self._on_color, update_now=True)
+        self._cmdp.subscribe('!Accumulators/reset', self._on_accumulator_reset)
 
         if self._state_preference not in cmdp:
             cmdp[self._state_preference] = {}
@@ -120,14 +123,10 @@ class SingleValueWidget(QtWidgets.QWidget):
         self.unitLabel.setFont(font)
         self.resizeEvent(None)
 
-    def _on_color(self, topic, value):
-        foreground = rgba_to_css(self._cmdp['Widgets/Multimeter/font-color'])
-        background = rgba_to_css(self._cmdp['Widgets/Multimeter/background-color'])
-        style = f"""
-        QWidget {{ background-color : {background}; }}
-        QLabel {{ background-color : {background}; color : {foreground}; }}
-        """
-        self.value_widget.setStyleSheet(style)
+    def _on_accumulator_reset(self, topic, value):
+        field = self.fieldComboBox.currentText()
+        if field in ['energy', 'current']:
+            self.valueLabel.setText('0.00000')
 
     @QtCore.Slot(object, str)
     def _on_device_statistics(self, topic, statistics):
@@ -168,7 +167,7 @@ class SingleValueWidget(QtWidgets.QWidget):
         value /= scale
         value_str = ('%+6f' % value)[:8]
         self.valueLabel.setText(value_str)
-        self.unitLabel.setText(f"<html>&nbsp;{prefix}{units}&nbsp;</html>")
+        self.unitLabel.setText(f"{prefix}{units}")
 
     @QtCore.Slot(int)
     def on_field_changed(self, index):
@@ -206,16 +205,6 @@ def widget_register(cmdp):
         topic='Widgets/Single Value/font',
         dtype='font',
         default="Lato,48,-1,5,87,0,0,0,0,0,Black")
-    cmdp.define(
-        topic='Widgets/Single Value/font-color',
-        brief='The font color.',
-        dtype='color',
-        default=(0, 128, 0, 255))
-    cmdp.define(
-        topic='Widgets/Single Value/background-color',
-        brief='The background color.',
-        dtype='color',
-        default=(0, 0, 0, 255))
 
     return {
         'name': 'Single Value',

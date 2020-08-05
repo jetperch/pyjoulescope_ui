@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from multiprocessing import Queue, Process
+from queue import Empty
 from joulescope.data_recorder import DataRecorder
 from joulescope_ui.logging_util import worker_configurer
 import logging
@@ -21,19 +22,23 @@ import logging
 def run(cmd_queue, filehandle, calibration, logging_queue):
     worker_configurer(logging_queue)
     log = logging.getLogger(__name__)
-    log.info('DataRecorder process start')
+    log.info('run start')
     r = DataRecorder(filehandle, calibration)
     while True:
-        cmd, args = cmd_queue.get()
-        if cmd == 'stream_notify':
-            data, = args
-            r.insert(data)
-        elif cmd == 'close':
-            log.info('DataRecorder closing')
-            r.close()
-            break
-    cmd_queue.put('close')
-    log.info('DataRecorder process end')
+        try:
+            cmd, args = cmd_queue.get(timeout=1.0)
+            if cmd == 'stream_notify':
+                data, = args
+                r.insert(data)
+            elif cmd == 'close':
+                log.info('run closing')
+                r.close()
+                break
+        except Empty:
+            pass
+        except:
+            log.exception("run exception during loop")
+    log.info('run end')
 
 
 class DataRecorderProcess:
@@ -57,19 +62,22 @@ class DataRecorderProcess:
         if self.sample_id == sample_id:
             return  # no new data, nothing to do
         data = stream_buffer.samples_get(self.sample_id, sample_id)
-        if self._cmd_queue is not None:
-            self._cmd_queue.put(('stream_notify', (data, )))
+        cmd_queue = self._cmd_queue
+        if cmd_queue is not None:
+            cmd_queue.put(('stream_notify', (data, )))
             self.sample_id = sample_id
 
     def close(self):
-        if self._cmd_queue is None:
-            return
-        self._log.info('DataRecorderProcess close init')
         cmd_queue, self._cmd_queue = self._cmd_queue, None
-        cmd_queue.put(('close', None))
-        cmd_queue.get(True, 2000.0)
-        self._log.info('DataRecorderProcess close ack')
-        cmd_queue.close()
-        cmd_queue.join_thread()
-        self._process.join(timeout=100.0)
-        self._log.info('DataRecorderProcess close joined')
+        process, self._process = self._process, None
+        if cmd_queue is not None:
+            self._log.info('DataRecorderProcess cmd_queue close init')
+            cmd_queue.put(('close', None))
+            self._log.info('DataRecorderProcess cmd_queue close ack')
+            cmd_queue.close()
+            cmd_queue.join_thread()
+            self._log.info('DataRecorderProcess cmd_queue close joined')
+        if process is not None:
+            self._log.info('DataRecorderProcess process join init')
+            process.join(timeout=10.0)
+            self._log.info('DataRecorderProcess process join done')

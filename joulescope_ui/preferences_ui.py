@@ -24,11 +24,14 @@
 
 from joulescope_ui.preferences_dialog import Ui_PreferencesDialog
 from joulescope_ui import guiparams
-from joulescope_ui.ui_util import comboBoxConfig
+from joulescope_ui.ui_util import comboBoxConfig, clear_layout
 from joulescope_ui.preferences import options_enum
 from joulescope_ui import preferences_defaults
 from joulescope_ui.help_ui import display_help
+from joulescope_ui.themes.color_picker import ColorItem
+from joulescope_ui.themes.manager import theme_update, theme_loader, theme_index_loader
 from PySide2 import QtCore, QtWidgets, QtGui
+import copy
 import collections.abc
 import logging
 
@@ -36,16 +39,57 @@ import logging
 log = logging.getLogger(__name__)
 
 
+class AppearanceColors(QtWidgets.QWidget):
+
+    def __init__(self, parent, cmdp, index, profile):
+        QtWidgets.QWidget.__init__(self, parent)
+        self._cmdp = cmdp
+        self._index = copy.deepcopy(index)
+        self._profile = profile
+        self._timer = QtCore.QTimer()
+        self._timer.setSingleShot(True)
+        self._timer.timeout.connect(self._on_timer)
+        self._layout = QtWidgets.QGridLayout(self)
+        self._widgets = []
+        row = 0
+        for name, color in index.get('colors', {}).items():
+            w = ColorItem(self, name, color)
+            w.text_label = QtWidgets.QLabel(name, parent)
+            self._widgets.append(w)
+            self._layout.addWidget(w.text_label, row, 0, 1, 1)
+            self._layout.addWidget(w.value_edit, row, 1, 1, 1)
+            self._layout.addWidget(w.color_label, row, 2, 1, 1)
+            w.color_changed.connect(self._on_change)
+            row += 1
+
+    def clear(self):
+        clear_layout(self._layout)
+        self._widgets.clear()
+
+    def _on_timer(self):
+        index = theme_update(self._index)
+        topic = 'Appearance/__index__'
+        self._cmdp.invoke('!preferences/preference/set', (topic, index, self._profile))
+
+    def _on_change(self, color_name, color_value):
+        self._index['colors'][color_name] = color_value
+        self._timer.stop()
+        self._timer.start(100)  # milliseconds
+
+
 class PreferencesDialog(QtWidgets.QDialog):
 
     def __init__(self, parent, cmdp):
         QtWidgets.QDialog.__init__(self, parent)
+        self.setObjectName('PreferencesDialog')
         self._active_group = None
         self._active_profile = cmdp.preferences.profile
         self._params = []
         self._cmdp = cmdp
+
         self.ui = Ui_PreferencesDialog()
         self.ui.setupUi(self)
+        self._target_widget = None
 
         self._definitions = self._cmdp.preferences.definitions
         if self._definitions['name'] != '/':
@@ -77,12 +121,19 @@ class PreferencesDialog(QtWidgets.QDialog):
 
         self._cmdp.subscribe('!preferences/profile/add', self._on_profile_add)
         self._cmdp.subscribe('!preferences/profile/remove', self._on_profile_remove)
+        self._cmdp.subscribe('Appearance/Theme', self._on_theme)
 
         self._refresh_topic = f'!preferences/_ui/refresh_{id(self)}'
         self._cmdp.register(self._refresh_topic, self._refresh)
 
+    def _on_theme(self, topic, value):
+        profile = self._active_profile
+        theme_index = theme_loader(value, profile)
+        topic = 'Appearance/__index__'
+        self._cmdp.invoke('!preferences/preference/set', (topic, theme_index, profile))
+
     def _help(self):
-        display_help(self, 'preferences')
+        display_help(self, self._cmdp, 'preferences')
 
     def _refresh(self, topic, value):
         self._redraw_right_pane()
@@ -131,7 +182,9 @@ class PreferencesDialog(QtWidgets.QDialog):
                 existing.pop(key, None)  # remove if possible
                 self._cmdp.invoke('!preferences/preference/set', (key, new_value, self._active_profile))
         for key, old_value in existing.items():
-            if '#' in key or key[-1] == '/' or '/_' in key:
+            if key in ['Appearance/__index__']:
+                pass
+            elif '#' in key or key[-1] == '/' or '/_' in key:
                 continue
             if key.startswith(prefix):
                 self._cmdp.invoke('!preferences/preference/clear', (key, self._active_profile))
@@ -181,11 +234,18 @@ class PreferencesDialog(QtWidgets.QDialog):
             self._tree_populate(child_item, child)
 
     def _clear(self):
-        if self._active_group is not None:
-            for param in self._params:
-                param.unpopulate(self.ui.targetWidget)
-            self._params = []
-        self._active_group = None
+        w, self._target_widget = self._target_widget, None
+        params, self._params = self._params, []
+        active_group, self._active_group = self._active_group, None
+        if w is None:
+            return
+        elif hasattr(w, 'clear'):
+            w.clear()
+        elif active_group is not None:
+            for param in params:
+                param.unpopulate(w)
+        self.ui.targetLayout.removeWidget(w)
+        w.deleteLater()
 
     @QtCore.Slot(object, object)
     def _on_tree_item_changed(self, model_index, model_index_old):
@@ -195,8 +255,19 @@ class PreferencesDialog(QtWidgets.QDialog):
         self._populate_selected(data)
 
     def _populate_selected(self, data):
-        if 'children' not in data:
+        if data['name'] == 'Appearance/Colors/':
+            index = self._cmdp['Appearance/__index__']
+            self._target_widget = AppearanceColors(self.ui.targetWidget, self._cmdp, index, self._active_profile)
+            self._target_widget.setContentsMargins(0, 0, 0, 0)
+            self.ui.targetLayout.addWidget(self._target_widget)
+            self._active_group = data['name']
             return
+        elif 'children' not in data:
+            return
+
+        self._target_widget = QtWidgets.QWidget()
+        self._target_widget.setContentsMargins(0, 0, 0, 0)
+        self.ui.targetLayout.addWidget(self._target_widget)
         self._active_group = data['name']
         for name, child in data['children'].items():
             if 'children' in child:
@@ -208,7 +279,7 @@ class PreferencesDialog(QtWidgets.QDialog):
     def _populate_entry(self, name, entry):
         p = widget_factory(self._cmdp, entry['name'], profile=self._active_profile)
         if p is not None:
-            p.populate(self.ui.targetWidget)
+            p.populate(self._target_widget)
             self._params.append(p)
 
     def preferences_reset(self):

@@ -19,9 +19,15 @@ from .scrollbar import ScrollBar
 from .xaxis import XAxis
 from .settings_widget import SettingsWidget
 from .font_resizer import FontResizer
+from .ymarker_manager import YMarkerManager
+from joulescope_ui.file_dialog import FileDialog
+from joulescope.data_recorder import construct_record_filename
 from joulescope_ui.preferences_def import FONT_SIZES
 import pyqtgraph as pg
+import pyqtgraph.exporters
+from typing import Dict
 import copy
+import os
 import logging
 
 
@@ -39,16 +45,21 @@ class WaveformWidget(QtWidgets.QWidget):
         QtWidgets.QWidget.__init__(self, parent=parent)
         self._cmdp = cmdp
         self._x_limits = [0.0, 30.0]
+        self._mouse_pos = None
+        self._clipboard_image = None
 
         self.layout = QtWidgets.QHBoxLayout(self)
         self.layout.setSpacing(0)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.win = pg.GraphicsLayoutWidget(parent=self, show=True, title="Oscilloscope layout")
+
         self.win.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.win.sceneObj.sigMouseClicked.connect(self._on_mouse_clicked_event)
+        self.win.sceneObj.sigMouseMoved.connect(self._on_mouse_moved_event)
         self.layout.addWidget(self.win)
 
         self._signals_def = {}
-        self._signals = {}
+        self._signals: Dict[str, Signal] = {}
         self.config = {
             'show_min_max': True,
             'grid_x': 128,
@@ -56,6 +67,7 @@ class WaveformWidget(QtWidgets.QWidget):
             'trace_width': 1,
         }
         self._dataview_data_pending = 0
+        self._ymarker_mgr = YMarkerManager(cmdp, self._signals)
 
         self._settings_widget = SettingsWidget(self._cmdp)
         self.win.addItem(self._settings_widget, row=0, col=0)
@@ -66,6 +78,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
         self._x_axis = XAxis(self._cmdp)
         self.win.addItem(self._x_axis, row=1, col=1)
+        self._x_axis.add_to_scene()
         self._x_axis.setGrid(128)
         self._x_axis.sigMarkerMoving.connect(self._on_marker_moving)
 
@@ -105,6 +118,139 @@ class WaveformWidget(QtWidgets.QWidget):
         c.register('!Widgets/Waveform/Signals/remove', self._cmd_waveform_signals_remove,
                    brief='Remove a signal from the waveform by name.',
                    detail='value is signal name string.')
+        cmdp.subscribe('Appearance/__index__', self._on_colors, update_now=True)
+
+        self._shortcut_left = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Left), self)
+        self._shortcut_left.activated.connect(self._on_left)
+        self._shortcut_right = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Right), self)
+        self._shortcut_right.activated.connect(self._on_right)
+        self._shortcut_up = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Up), self)
+        self._shortcut_up.activated.connect(self._on_zoom_in)
+        self._shortcut_down = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Down), self)
+        self._shortcut_down.activated.connect(self._on_zoom_out)
+        self._shortcut_plus = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Plus), self)
+        self._shortcut_plus.activated.connect(self._on_zoom_in)
+        self._shortcut_minus = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Minus), self)
+        self._shortcut_minus.activated.connect(self._on_zoom_out)
+
+    def _on_colors(self, topic, value):
+        colors = value['colors']
+        self.win.setBackground(colors['waveform_background'])
+        pyqtgraph.setConfigOption('background', colors['waveform_background'])
+        pyqtgraph.setConfigOption('foreground', colors['waveform_font_color'])
+
+    def _on_mouse_moved_event(self, pos):
+        self._mouse_pos = pos
+
+    def _on_mouse_clicked_event(self, ev):
+        if ev.isAccepted():
+            return
+        if ev.button() & QtCore.Qt.RightButton:
+            pos = ev.screenPos().toPoint()
+            self._context_menu(pos)
+
+    def _context_menu(self, pos):
+        log.debug('_context_menu')
+        menu = QtGui.QMenu('Waveform menu', self)
+        save_image = menu.addAction('Save image')
+        save_image.triggered.connect(self.on_save_image)
+        copy_image = menu.addAction('Copy image to clipboard')
+        copy_image.triggered.connect(self.on_copy_image_to_clipboard)
+        export_data = menu.addAction('Export visible data')
+        export_data.triggered.connect(self.on_export_visible_data)
+        export_data = menu.addAction('Export all data')
+        export_data.triggered.connect(self.on_export_all_data)
+        menu.exec_(pos)
+
+    def on_export_visible_data(self):
+        p1, p2 = self._scrollbar.get_xview()
+        value = {
+            'name': 'Export data',
+            'x_start': min(p1, p2),
+            'x_stop': max(p1, p2)
+        }
+        self._cmdp.invoke('!RangeTool/run', value)
+
+    def on_export_all_data(self):
+        p1, p2 = self._scrollbar.get_xlimits()
+        value = {
+            'name': 'Export data',
+            'x_start': min(p1, p2),
+            'x_stop': max(p1, p2)
+        }
+        self._cmdp.invoke('!RangeTool/run', value)
+
+    def _export_as_image(self):
+        r = QtWidgets.QApplication.desktop().devicePixelRatio()
+        w = self.win.sceneObj.getViewWidget()
+        k = w.viewportTransform().inverted()[0].mapRect(w.rect())
+        exporter = pg.exporters.ImageExporter(self.win.sceneObj)
+        exporter.parameters()['width'] = k.width() * r
+        return exporter.export(toBytes=True)
+
+    def on_save_image(self):
+        filter_str = 'png (*.png)'
+        filename = construct_record_filename()
+        filename = os.path.splitext(filename)[0] + '.png'
+        path = self._cmdp['General/data_path']
+        filename = os.path.join(path, filename)
+        dialog = FileDialog(self, 'Save Joulescope Data', filename, 'any')
+        dialog.setNameFilter(filter_str)
+        filename = dialog.exec_()
+        if not bool(filename):
+            return
+        png = self._export_as_image()
+        png.save(filename)
+
+    def on_copy_image_to_clipboard(self):
+        self._clipboard_image = self._export_as_image()
+        QtWidgets.QApplication.clipboard().setImage(self._clipboard_image)
+
+    def _mouse_as_x(self):
+        x = None
+        if self._mouse_pos:
+            x = self._x_axis.linkedView().mapSceneToView(self._mouse_pos).x()
+        return x
+
+    def keyPressEvent(self, ev):
+        key = ev.key()
+        if key == QtCore.Qt.Key_S:
+            self._cmdp.invoke('!Widgets/Waveform/Markers/single_add', self._mouse_as_x())
+        elif key == QtCore.Qt.Key_D:
+            x = self._mouse_as_x()
+            x_min, x_max = self._x_axis.range
+            w2 = (x_max - x_min) / 10
+            self._cmdp.invoke('!Widgets/Waveform/Markers/dual_add', [x - w2, x + w2])
+        elif key == QtCore.Qt.Key_Delete or key == QtCore.Qt.Key_Backspace:
+            self._cmdp.invoke('!Widgets/Waveform/Markers/clear', None)
+        elif QtCore.Qt.Key_1 <= key <= QtCore.Qt.Key_8:
+            self._markers_show(key - QtCore.Qt.Key_1 + 1)
+
+    def _markers_show(self, idx):
+        """Show the markers
+
+        :param idx: The marker index, starting from 1.
+        """
+        n = chr(ord('1') + idx - 1)
+        names = [n, f'{n}a', f'{n}b']
+        m = [self._x_axis.marker_get(name) for name in names]
+        m = [k for k in m if k is not None]
+        if len(m) == 1:
+            self._scrollbar.zoom_to_point(m[0].get_pos())
+        elif len(m) == 2:
+            self._scrollbar.zoom_to_range(m[0].get_pos(), m[1].get_pos())
+
+    def _on_left(self):
+        self._cmdp.invoke('!Widgets/Waveform/x-axis/pan', -1)
+
+    def _on_right(self):
+        self._cmdp.invoke('!Widgets/Waveform/x-axis/pan', 1)
+
+    def _on_zoom_in(self):
+        self._cmdp.invoke('!Widgets/Waveform/x-axis/zoom', 1)
+
+    def _on_zoom_out(self):
+        self._cmdp.invoke('!Widgets/Waveform/x-axis/zoom', -1)
 
     def _on_statistics_settings(self, topic, value):
         self.win.ci.layout.invalidate()
@@ -218,7 +364,6 @@ class WaveformWidget(QtWidgets.QWidget):
             signal = copy.deepcopy(signal)
             signal['display_name'] = signal.get('display_name', signal['name'])
             self._signals_def[signal['name']] = signal
-        self._vb_relink()
 
     def _on_signalAdd(self, name):
         signal = self._signals_def[name]
@@ -232,6 +377,7 @@ class WaveformWidget(QtWidgets.QWidget):
                    marker_font_resizer=self._marker_font_resizer,
                    **signal)
         s.addToLayout(self.win, row=self.win.ci.layout.rowCount())
+        s.markers = self._x_axis.markers
         s.vb.sigWheelZoomXEvent.connect(self._scrollbar.on_wheelZoomX)
         s.vb.sigPanXEvent.connect(self._scrollbar.on_panX)
         self._signals[signal['name']] = s
@@ -257,7 +403,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _vb_relink(self):
         if len(self._signals) <= 0:
-            self._x_axis.linkToView(None)
+            self._x_axis.unlinkFromView()
         else:
             row = SIGNAL_OFFSET_ROW + len(self._signals) - 1
             vb = self.win.ci.layout.itemAt(row, 1)
@@ -344,7 +490,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _on_statics_over_range_resp(self, topic, value):
         if value is not None:
-            show_dt = self._cmdp['Widgets/Waveform/Statistics/dual_markers_Δt']
+            show_dt = self._cmdp['Widgets/Waveform/dual_markers_Δt']
             req = value['request']
             rsp = value['response']
             if rsp is None:
@@ -411,7 +557,7 @@ class WaveformWidget(QtWidgets.QWidget):
         row_count = self.win.ci.layout.rowCount()
         if x_min > x_max:
             x_min = x_max
-        if row_count > SIGNAL_OFFSET_ROW:
+        if (row_count > SIGNAL_OFFSET_ROW) and len(self._signals):
             row = SIGNAL_OFFSET_ROW + len(self._signals) - 1
             log.info('on_scrollbarRegionChange(%s, %s, %s)', x_min, x_max, x_count)
             vb = self.win.ci.layout.itemAt(row, 1)
@@ -452,26 +598,6 @@ def widget_register(cmdp):
         dtype='str',
         options=['1', '2', '4', '6', '8'],
         default='1')
-    cmdp.define(
-        topic='Widgets/Waveform/mean_color',
-        brief='The mean (average) trace color.',
-        dtype='color',
-        default=(255, 255, 64, 255))
-    cmdp.define(
-        topic='Widgets/Waveform/mean_color',
-        brief='The mean (average) trace color.',
-        dtype='color',
-        default=(255, 255, 64, 255))
-    cmdp.define(
-        topic='Widgets/Waveform/min_max_trace_color',
-        brief='The min/max trace color.',
-        dtype='color',
-        default=(255, 64, 64, 255))
-    cmdp.define(
-        topic='Widgets/Waveform/min_max_fill_color',
-        brief='The min/max trace color.',
-        dtype='color',
-        default=(255, 64, 64, 80))
 
     cmdp.define(
         topic='Widgets/Waveform/Statistics/font',
@@ -479,12 +605,7 @@ def widget_register(cmdp):
         dtype='font',
         default='Lato,10,-1,5,87,0,0,0,0,0,Black')
     cmdp.define(
-        topic='Widgets/Waveform/Statistics/font-color',
-        brief='The font color.',
-        dtype='color',
-        default=(192, 192, 192, 255))
-    cmdp.define(
-        topic='Widgets/Waveform/Statistics/dual_markers_Δt',
+        topic='Widgets/Waveform/dual_markers_Δt',
         brief='Show the Δt statistics with dual markers.',
         dtype='bool',
         default=True)

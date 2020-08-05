@@ -57,7 +57,7 @@ of your system.
 
 Install virtualenv and create a new virtual environment:
 
-    pip3 install virtualenv
+    pip3 install -U virtualenv
     virtualenv c:\venv\joulescope
 
 Activate the virtual environment whenever you start a new terminal:
@@ -69,7 +69,7 @@ Activate the virtual environment whenever you start a new terminal:
 
 Install virtualenv and create a new virtual environment:
 
-    pip3 install virtualenv
+    pip3 install -U virtualenv
     virtualenv ~/venv/joulescope
     
 Activate the virtual environment whenever you start a new terminal:
@@ -85,7 +85,7 @@ Clone and configure the Joulescope UI from the terminal or command line:
     cd {path/to/repos}
     git clone https://github.com/jetperch/pyjoulescope_ui.git
     cd pyjoulescope_ui
-    pip3 install -r requirements.txt
+    pip3 install -U -r requirements.txt
     python3 setup.py qt
 
 Replace {path/to/repos} with your desired path.
@@ -115,7 +115,7 @@ Joulescope driver:
     cd {path/to/repos}
     git clone https://github.com/jetperch/pyjoulescope.git
     cd pyjoulescope
-    pip3 install -r requirements.txt    
+    pip3 install -U -r requirements.txt    
     python3 setup.py build_ext --inplace
 
 You should then modify your python path. On Windows:

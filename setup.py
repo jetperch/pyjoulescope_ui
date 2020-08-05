@@ -30,34 +30,46 @@ import subprocess
 import shutil
 
 
-JOULESCOPE_VERSION_MIN = '0.8.12'  # also update requirements.txt
+JOULESCOPE_VERSION_MIN = '0.9.0'  # also update requirements.txt
 MYPATH = os.path.abspath(os.path.dirname(__file__))
 VERSION_PATH = os.path.join(MYPATH, 'joulescope_ui', 'version.py')
 
 
+def qt_rcc_path():
+    # As of PySide2 5.15.0, the pyside2-rcc executable ignores the --binary flag
+    import PySide2
+    path = os.path.dirname(PySide2.__file__)
+    fname = [n for n in os.listdir(path) if n.startswith('rcc')]
+    if len(fname) != 1:
+        raise ValueError('Could not find rcc executable')
+    return os.path.join(path, fname[0])
+
+
 def convert_qt_ui():
     uic_path = shutil.which('pyside2-uic')
-    rcc_path = shutil.which('pyside2-rcc')
+    rcc_path = qt_rcc_path()
     path = os.path.join(MYPATH, 'joulescope_ui')
     ignore_filename = os.path.join(path, '.gitignore')
-    with open(ignore_filename, 'wt') as ignore:
+    with open(ignore_filename, 'w', encoding='utf-8') as ignore:
         ignore.write('# Automatically generated.  DO NOT EDIT\n')
         for root, d_names, f_names in os.walk(path):
             for source in f_names:
-                source = os.path.join(root, source)
-                source_base, ext = os.path.splitext(source)
+                _, ext = os.path.splitext(source)
                 if ext == '.ui':
-                    target = source_base + '.py'
+                    source = os.path.join(root, source)
+                    target = os.path.splitext(source)[0] + '.py'
                     print(f'Generate {os.path.relpath(target, MYPATH)}')
                     rc = subprocess.run([uic_path, source], stdout=subprocess.PIPE)
                     s = rc.stdout.replace(b'\r\n', b'\n').decode('utf-8')
                     s = s.replace('\nimport joulescope_rc\n', '\nfrom joulescope_ui import joulescope_rc\n')
-                    with open(target, 'wt', encoding='utf8') as ftarget:
+                    with open(target, 'w', encoding='utf-8') as ftarget:
                         ftarget.write(s)
                 elif ext == '.qrc':
-                    target = source_base + '_rc.py'
+                    src = os.path.join(root, source)
+                    target = os.path.join(os.path.dirname(root), source)
+                    target = os.path.splitext(target)[0] + '.rcc'
                     print(f'Generate {os.path.relpath(target, MYPATH)}')
-                    rc = subprocess.run([rcc_path, source, '-o', target])
+                    rc = subprocess.run([rcc_path, src, '--binary', '--threshold', '33', '-o', target])
                     if rc.returncode:
                         raise RuntimeError('failed on .qrc file')
                 else:
@@ -67,7 +79,7 @@ def convert_qt_ui():
 
 
 def _version_get():
-    with open(VERSION_PATH, 'rt') as fv:
+    with open(VERSION_PATH, 'r', encoding='utf-8') as fv:
         for line in fv:
             if line.startswith('__version__'):
                 return line.split('=')[-1].strip()[1:-1]
@@ -77,7 +89,7 @@ def _version_get():
 def update_inno_iss():
     version = _version_get()
     path = os.path.join(MYPATH, 'joulescope.iss')
-    with open(path, 'rt') as fv:
+    with open(path, 'r', encoding='utf-8') as fv:
         lines = fv.readlines()
     version_underscore = version.replace('.', '_')
     for idx, line in enumerate(lines):
@@ -85,7 +97,7 @@ def update_inno_iss():
             lines[idx] = f'#define MyAppVersionUnderscores "{version_underscore}"\n'
         elif line.startswith('#define MyAppVersion'):
             lines[idx] = f'#define MyAppVersion "{version}"\n'
-    with open(path, 'wt') as fv:
+    with open(path, 'w', encoding='utf-8') as fv:
         fv.write(''.join(lines))
 
 
@@ -156,6 +168,7 @@ setuptools.setup(
         # Supported Python versions
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ],
 
     keywords='joulescope ui gui "user interface"',
@@ -173,14 +186,15 @@ setuptools.setup(
         'numpy>=1.15.2',
         'pyperclip>=1.7.0',
         'python-dateutil>=2.7.3',
-        'pyside2==5.13.2',
-        # 'pyqtgraph>=0.11.0', eventually, but PEP 508 URL for now:
-        'pyqtgraph @ https://github.com/jetperch/pyqtgraph/tarball/fc3192a9c8187405ee6655daffdba19ea6d35b13#egg=pyqtgraph-0.11.0.dev1',
+        'pyqtgraph>=0.11.0',
+        # 'pyqtgraph @ https://github.com/jetperch/pyqtgraph/tarball/557e867b377b223589c0c8ffd0799c547965fb46#egg=pyqtgraph-0.11.0.dev1',
         'requests>=2.0.0',
         'joulescope>=' + JOULESCOPE_VERSION_MIN,
     ] + PLATFORM_INSTALL_REQUIRES,
     
     extras_require={
+        ':python_version == "3.7"': ['pyside2==5.13.2'],
+        ':python_version == "3.8"': ['pyside2>=5.14.2.1'],
         'dev': ['check-manifest', 'Cython', 'coverage', 'wheel', 'pyinstaller'],
     },
 

@@ -15,13 +15,16 @@
 from PySide2 import QtWidgets, QtGui, QtCore
 import pyqtgraph as pg
 import weakref
-from .signal import Signal
-from .signal_statistics import si_format, html_format
 from joulescope.units import three_sig_figs
 import logging
 
 
-TIME_STYLE_DEFAULT = 'color: #FFF; background-color: #000; font-size: 8pt'
+TIME_STYLE_DEFAULT = 'color: {foreground}; background-color: {background}; font-size: 8pt'
+
+
+Z_MARKER_NORMAL = 10
+Z_MARKER_ACTIVE = 11
+Z_MARKER_MOVING = 12
 
 
 class Marker(pg.GraphicsObject):
@@ -31,9 +34,7 @@ class Marker(pg.GraphicsObject):
     :param name: The name for the marker.  By convention, single markers are
         number strings, like '1', and marker pairs are like 'A1' and 'A2'.
     :param x_axis: The x-axis :class:`pg.AxisItem` instance.
-    :param color: The [R,G,B] or [R,G,B,A] color for the marker.
-    :param shape: The marker flag shape which is one of:
-        ['full', 'left', 'right', 'none'].
+    :param state: The dict of state attributes.
     """
 
     def __init__(self, cmdp, name, x_axis: pg.AxisItem, state=None):
@@ -41,6 +42,7 @@ class Marker(pg.GraphicsObject):
         state.setdefault('pos', None)
         state.setdefault('color', (64, 255, 64, 255))
         state.setdefault('shape', 'full')
+        state.setdefault('statistics', False)
         self._cmdp = cmdp
         self.log = logging.getLogger('%s.%s' % (__name__, name))
         self._name = name
@@ -51,7 +53,8 @@ class Marker(pg.GraphicsObject):
         self._pair = None
         self.moving = False
         self.moving_offset = 0.0
-        self._marker_time_text = pg.TextItem("t=0.00")
+        self.start_pos = 0.0
+        self._marker_time_text = pg.TextItem("")
         self._delta_time_text = pg.TextItem("")
         self._delta_time_text.setAnchor([0.5, 0])
         self._delta_time_text.setVisible(False)
@@ -65,6 +68,16 @@ class Marker(pg.GraphicsObject):
 
     def __str__(self):
         return f'Marker({self.name})'
+
+    @property
+    def statistics_show(self):
+        p = self._instance_prefix + 'statistics'
+        return self._cmdp.preferences.get(p, default=False)
+
+    @statistics_show.setter
+    def statistics_show(self, value):
+        p = self._instance_prefix + 'statistics'
+        return self._cmdp.publish(p, bool(value))
 
     def remove(self):
         state = {'name': self._name}
@@ -83,11 +96,11 @@ class Marker(pg.GraphicsObject):
 
     @property
     def is_right(self):
-        return self._pair is not None and self.name[-1] == '2'
+        return self._pair is not None and self.name[-1] == 'b'
 
     @property
     def is_left(self):
-        return self._pair is not None and self.name[-1] == '1'
+        return self._pair is not None and self.name[-1] == 'a'
 
     @property
     def pair(self):
@@ -122,6 +135,27 @@ class Marker(pg.GraphicsObject):
         p2 = pg.Point(x, tickBounds.bottom())
         return p1, p2
 
+    def _flag_bounds_relative(self):
+        """Get the bound region for the flag.
+
+        :return: width left, width right, height bezel, height total
+        """
+        axis = self._axis()
+        if axis is None:
+            return 0, 0, 0
+        h = axis.geometry().height()
+        he = h // 3
+        shape = self._cmdp[self._instance_prefix + 'shape']
+        if shape in [None, 'none']:
+            return 0, 0, he, h
+        if shape in ['right']:
+            return -h, 0, he, h
+        elif shape in ['left']:
+            return 0, h, he, h
+        else:
+            w2 = h // 2
+            return -w2, w2, he, h
+
     def boundingRect(self):
         r = self._boundingRect
         if r is not None:  # use cache
@@ -130,35 +164,22 @@ class Marker(pg.GraphicsObject):
         if axis is None:
             return QtCore.QRectF()
         top = axis.geometry().top()
-        h = axis.geometry().height()
-        w = h // 2 + 1
         p1, p2 = self._endpoints()
         if p2 is None:
             return QtCore.QRectF()
+        wl, wr, he, h = self._flag_bounds_relative()
         x = p2.x()
         bottom = p2.y()
-        self._boundingRect = QtCore.QRectF(x - w, top, 2 * w, bottom - top)
+        w = max(abs(wl), abs(wr))
+        self._boundingRect = QtCore.QRectF(x - w - 1, top, w * 2 + 2, bottom - top)
         # self.log.debug('boundingRect: %s => %s', self._x, str(self._boundingRect))
         return self._boundingRect
 
     def paint_flag(self, painter, p1):
-        axis = self._axis()
-        if axis is None:
+        wl, wr, he, h = self._flag_bounds_relative()
+        if not h:
             return
-        h = axis.geometry().height()
-        he = h // 3
-        w2 = h // 2
-        shape = self._cmdp[self._instance_prefix + 'shape']
         color = self._cmdp[self._instance_prefix + 'color']
-        if shape in [None, 'none']:
-            return
-        if shape in ['right']:
-            wl, wr = -w2, 0
-        elif shape in ['left']:
-            wl, wr = 0, w2
-        else:
-            wl, wr = -w2, w2
-
         brush = pg.mkBrush(color)
         painter.setBrush(brush)
         painter.setPen(None)
@@ -172,6 +193,12 @@ class Marker(pg.GraphicsObject):
             pg.Point(wr, -h),
             pg.Point(wr, -he)
         ])
+        text_brush = pg.mkBrush([0, 0, 0, 128])
+        painter.setBrush(text_brush)
+        txt = self._name
+        r = painter.fontMetrics().boundingRect(txt)
+        r = QtCore.QRect(wl, -h, wr - wl, -he + h)
+        painter.drawText(r, QtCore.Qt.AlignCenter, txt)
 
     def paint(self, p, opt, widget):
         profiler = pg.debug.Profiler()
@@ -225,12 +252,19 @@ class Marker(pg.GraphicsObject):
             return
         self._x = x
         self._axis().marker_moving_emit(self.name, x)
-        self._cmdp.publish(self._instance_prefix + 'pos', x)
+        self._cmdp.publish(self._instance_prefix + 'pos', x, no_undo=True)
         self._redraw()
+
+    def _time_style(self):
+        theme = self._cmdp['Appearance/__index__']
+        return TIME_STYLE_DEFAULT.format(
+            foreground=theme['colors']['waveform_font_color'],
+            background=theme['colors']['waveform_background'],
+        )
 
     def _update_marker_text(self):
         x = self._x
-        style = TIME_STYLE_DEFAULT
+        style = self._time_style()
         if self._x is None:
             html = ''
         else:
@@ -258,7 +292,7 @@ class Marker(pg.GraphicsObject):
 
     def _update_delta_time(self):
         if self.is_left:
-            style = TIME_STYLE_DEFAULT
+            style = self._time_style()
             axis = self._axis()
             if axis is None:
                 return
@@ -287,31 +321,59 @@ class Marker(pg.GraphicsObject):
         """
         return self._x
 
-    def on_xChangeSignal(self, x_min, x_max, x_count):
-        self._redraw()
+    def _move_start(self, ev):
+        self.moving_offset = 0.0
+        self.moving = True
+        self.start_pos = self.get_pos()
+        self.setZValue(Z_MARKER_MOVING)
+        # https://doc.qt.io/qt-5/qt.html#KeyboardModifier-enum
+        if int(QtGui.Qt.ControlModifier & ev.modifiers()) and self.pair is not None:
+            self.pair.moving = True
+            self.pair.moving_offset = self.pair.get_pos() - self.get_pos()
+        if self.pair is not None:
+            self.pair.start_pos = self.pair.get_pos()
+
+    def _move_end(self):
+        self.moving = False
+        moved = [[self.name, self.get_pos(), self.start_pos]]
+        activate = [self.name]
+        if self.pair is not None:
+            self.pair.moving = False
+            self.pair.moving_offset = 0.0
+            moved = [[self.pair.name, self.pair.get_pos(), self.pair.start_pos]]
+            activate.append(self.pair.name)
+        self._cmdp.invoke('!command_group/start', None)
+        self._cmdp.invoke('!Widgets/Waveform/Markers/activate', activate)
+        self._cmdp.invoke('!Widgets/Waveform/Markers/move', moved)
+        self._cmdp.invoke('!command_group/end', None)
 
     def mouseClickEvent(self, ev):
         self.log.info('mouseClickEvent(%s)', ev)
         ev.accept()
         if not self.moving:
-            self.moving_offset = 0.0
             if ev.button() == QtCore.Qt.LeftButton:
-                self.moving = True
-                # https://doc.qt.io/qt-5/qt.html#KeyboardModifier-enum
-                if int(QtGui.Qt.ControlModifier & ev.modifiers()) and self.pair is not None:
-                    self.pair.moving = True
-                    self.pair.moving_offset = self.pair.get_pos() - self.get_pos()
+                self._move_start(ev)
             elif ev.button() == QtCore.Qt.RightButton:
                 pos = ev.screenPos().toPoint()
                 self.menu_exec(pos)
         else:
             if ev.button() == QtCore.Qt.LeftButton:
+                self._move_end()
+            elif ev.button() == QtCore.Qt.RightButton:
+                self.set_pos(self.start_pos)
                 self.moving = False
                 if self.pair is not None:
                     self.pair.moving = False
-                    self.pair.moving_offset = 0.0
-            elif ev.button() == QtCore.Qt.RightButton:
-                pass  # todo restore original position
+                    self.pair.set_pos(self.pair.start_pos)
+
+    def mouseDragEvent(self, ev, axis=None):
+        self.log.debug('mouse drag: %s' % (ev, ))
+        ev.accept()
+        if ev.button() & QtCore.Qt.LeftButton:
+            if ev.isStart():
+                self._move_start(ev)
+            if ev.isFinish():
+                self._move_end()
 
     def _range_tool_factory(self, range_tool_name):
         def fn(*args, **kwargs):
@@ -355,10 +417,29 @@ class Marker(pg.GraphicsObject):
                 t.triggered.connect(self._range_tool_factory(name))
                 m.addAction(t)
                 instances.append(t)
-        marker_remove = QtWidgets.QAction('&Remove', self)
+            zoom = menu.addAction('&Zoom to fit')
+            zoom.triggered.connect(self._on_zoom)
+
+        show_statistics = menu.addAction('&Show statistics')
+        show_statistics.setCheckable(True)
+        show_statistics.setChecked(self.statistics_show)
+        show_statistics.toggled.connect(self._on_statistics_show)
+
+        marker_remove = menu.addAction('&Remove')
         marker_remove.triggered.connect(self._remove)
-        menu.addAction(marker_remove)
         menu.exec_(pos)
+
+    def _on_zoom(self):
+        x1 = self.get_pos()
+        x2 = self.pair.get_pos()
+        x1, x2 = min(x1, x2), max(x1, x2)
+        k = (x2 - x1) * 0.01
+        x1, x2 = x1 - k, x2 + k
+        self._cmdp.invoke('!Widgets/Waveform/x-axis/range', (x1, x2))
+        self.log.info('zoom %s %s', x1, x2)
+
+    def _on_statistics_show(self, checked):
+        self.statistics_show = checked
 
     def setVisible(self, visible):
         super().setVisible(visible)

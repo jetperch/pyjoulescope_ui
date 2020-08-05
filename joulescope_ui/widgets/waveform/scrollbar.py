@@ -47,6 +47,7 @@ class ScrollBar(pg.ViewBox):
         self._cmdp = cmdp
         self._region = CustomLinearRegionItem(self, self.regionChange.emit)
         self._region.setZValue(-10)
+        self._xlimits = [None, None]
         self.addItem(self._region)
         self._label = pg.TextItem(html='<div><span style="color: #FFF;">Time (seconds)</span></div>', anchor=(0.5, 0.5))
         self.addItem(self._label, ignoreBounds=True)
@@ -56,6 +57,12 @@ class ScrollBar(pg.ViewBox):
         cmdp.register('!Widgets/Waveform/x-axis/zoom', self._cmd_waveform_xaxis_zoom,
                       brief='Zoom the x-axis around the center.',
                       detail='value is x-axis zoom in steps.')
+        cmdp.register('!Widgets/Waveform/x-axis/pan', self._cmd_waveform_xaxis_pan,
+                      brief='Pan the x-axis in relative steps.',
+                      detail='1 pans to the right, -1 to the left.')
+        cmdp.register('!Widgets/Waveform/x-axis/range', self._cmd_waveform_xaxis_range,
+                      brief='Set the x-axis to the specified range.',
+                      detail='The value is (x1, x2).')
         cmdp.register('!Widgets/Waveform/x-axis/zoom_all', self._cmd_waveform_xaxis_zoom_all,
                       brief='Zoom to the full extents.')
 
@@ -68,7 +75,11 @@ class ScrollBar(pg.ViewBox):
     def set_xlimits(self, x_min, x_max):
         self.setXRange(x_min, x_max, padding=0)
         self._region.setBounds([x_min, x_max])
+        self._xlimits = [x_min, x_max]
         self.resizeEvent(None)
+
+    def get_xlimits(self):
+        return self._xlimits
 
     def set_display_mode(self, mode):
         return self._region.set_display_mode(mode)
@@ -81,9 +92,25 @@ class ScrollBar(pg.ViewBox):
         self._region.on_wheelZoomX(x, delta)
 
     def _cmd_waveform_xaxis_zoom(self, topic, value):
+        previous = self._region.getRegion()
         x1, x2 = self.get_xview()
         xc = (x1 + x2) / 2
         self.on_wheelZoomX(xc, value * WHEEL_TICK)
+        return (topic, value), ('!Widgets/Waveform/x-axis/range', previous)
+
+    def _cmd_waveform_xaxis_pan(self, topic, value):
+        previous = self._region.getRegion()
+        x1, x2 = self.get_xview()
+        k = (x2 - x1) * 0.25 * value
+        self._region.setRegion((x1 + k, x2 + k))
+        return (topic, value), ('!Widgets/Waveform/x-axis/range', previous)
+
+    def _cmd_waveform_xaxis_range(self, topic, value):
+        previous = self._region.getRegion()
+        if self._region.mode == 'realtime':
+            value = min(value), previous[-1]
+        self._region.setRegion(value)
+        return (topic, value), ('!Widgets/Waveform/x-axis/range', previous)
 
     def _cmd_waveform_xaxis_zoom_all(self, topic, value):
         self._region.on_zoom_all()
@@ -115,6 +142,12 @@ class ScrollBar(pg.ViewBox):
             self._label.setPos(c.x(), c.y())
         except Exception:
             pass
+
+    def zoom_to_point(self, x):
+        self._region.zoom_to_point(x)
+
+    def zoom_to_range(self, x1, x2):
+        self._region.zoom_to_range(x1, x2)
 
 
 class CustomLinearRegionItem(pg.LinearRegionItem):
@@ -242,6 +275,28 @@ class CustomLinearRegionItem(pg.LinearRegionItem):
         x_min, x_max = self.lines[0].bounds()
         self._region_update(x_min, x_max)
 
+    def zoom_to_point(self, x):
+        x_min, x_max = self.lines[0].bounds()  # allowed range
+        if self.mode == 'realtime':
+            if x > x_max or x < x_min:
+                return
+            a = x - (x_max - x)
+            a = max(a, x_min)
+            self._region_update(a, x_max)
+        else:
+            ra, rb = self.getRegion()
+            d = (rb - ra) / 2
+            self._region_update(x - d, x + d)
+
+    def zoom_to_range(self, x1, x2):
+        if x2 < x1:
+            x1, x2 = x2, x1
+        if self.mode == 'realtime':
+            self.zoom_to_point((x1 + x2) / 2)
+        else:
+            m = (x2 - x1) * 0.1
+            self._region_update(x1 - m, x2 + m)
+
     def _region_update(self, ra, rb, skip_line_update=None):
         """Update the currently selected region.
 
@@ -279,8 +334,6 @@ class CustomLinearRegionItem(pg.LinearRegionItem):
                 skip_line_update = False
                 rb = min(rb + (x_min - ra), x_max)
                 ra = x_min
-        if self.lines[0].value() == ra and self.lines[1].value() == rb:
-            return
         if not bool(skip_line_update):
             self.blockLineSignal = True
             self.lines[0].setValue(ra)
