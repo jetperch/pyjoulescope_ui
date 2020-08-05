@@ -26,6 +26,17 @@ PLUGIN = {
 }
 
 
+_WINDOWS = {
+    'bartlett': np.bartlett,
+    'blackman': np.blackman,
+    'hamming': np.hamming,
+    'hanning': np.hanning,
+    'rectangular': np.ones
+}
+
+_FFT_LENGTHS = [64, 128, 256, 512, 1024, 2048, 4096, 8192]
+
+
 class Frequency:
 
     def __init__(self):
@@ -33,6 +44,8 @@ class Frequency:
         self._win = None
         self._label = None
         self._bg = None
+        self._f = None
+        self._y = None
 
     def run_pre(self, data):
         rv = FrequencyDialog().exec_()
@@ -42,29 +55,67 @@ class Frequency:
 
     def run(self, data):
         signal = self._cfg['signal']
+        window = self._cfg['window']
+        nfft = self._cfg['nfft']
+        overlap = self._cfg['overlap']
+        window = _WINDOWS[window](nfft)
+        overlap = int(min(1.0, max(0.0, overlap)) * nfft)
+        sample_jump = nfft - overlap
+
+        if nfft > data.sample_count:
+            nfft = data.sample_count & 0xfffffffe  # make even
+
+        x = np.zeros(nfft)
+        y = np.zeros(nfft // 2 + 1)
+        k = 0
+        x_offset = 0
+
+        fs = data.sample_frequency
+        window_factor = np.sum(window * window)
+        fft_factor = 2.0 / (fs * window_factor)
+        self._f = np.arange(nfft // 2 + 1) / (nfft * fs / 4)
+
+        # Video explaining periodogram: https://www.youtube.com/watch?v=Qs-Zai0F2Pw
+        # Example: https://github.com/matplotlib/matplotlib/blob/d7feb03da5b78e15b002b7438779068a318a3024/lib/matplotlib/mlab.py#L405
+
         for data_chunk in data:
-            pass  # todo
+            d = data_chunk['signals'][signal]['value']
+            data_offset = 0
+            d_len = len(d)
+            while (d_len + x_offset) >= nfft:
+                d_len_this = nfft - x_offset
+                x[x_offset:] = d[data_offset:(data_offset + d_len_this)]
+                z = np.fft.rfft(x * window)
+                y += np.real((z * np.conj(z))) * fft_factor
+                k += 1
+                d_len -= d_len_this
+                data_offset += d_len_this
+                x[:overlap] = x[sample_jump:]
+                x_offset = overlap
+            x[x_offset:(x_offset + d_len)] = d[data_offset:]
+            x_offset += d_len
+
+        y *= (1.0 / k)  # average
+        y = 20 * np.log10(y)  # convert to dB
+        self._y = y
 
     def run_post(self, data):
         title = f'{self._cfg["signal"]} : Frequency Plot'
         self._win = pg.GraphicsLayoutWidget(show=True, title=title)
 
-        x = np.arange(100)
-        y = x
+        x = self._f
+        y = self._y
         p = self._win.addPlot(row=1, col=0)
         p.getAxis('left').setGrid(128)
         p.getAxis('bottom').setGrid(128)
         p.setLabels(left='Magnitude (dB)', bottom='Frequency (Hz)')
-        bg = pg.PlotDataItem(x=x, y=x, pen='r')
+        bg = pg.PlotDataItem(x=x, y=y, pen='r')
         p.addItem(bg)
         p.setXRange(x[0], x[-1], padding=0.05)
         p.setYRange(np.nanmin(y), np.nanmax(y), padding=0.05)
 
         self._label = pg.LabelItem(justify='right')
         self._win.addItem(self._label, row=0, col=0)
-
-        #p.setXRange(self.bin_edges[0], self.bin_edges[-1], padding=0.05)
-        #p.setYRange(np.nanmin(self.hist), np.nanmax(self.hist), padding=0.05)
 
         def mouseMoved(evt):
             pos = evt[0]
@@ -88,22 +139,53 @@ class FrequencyDialog(QtWidgets.QDialog):
         self.resize(259, 140)
         self.verticalLayout = QtWidgets.QVBoxLayout(self)
         self.verticalLayout.setObjectName("verticalLayout")
-        self.formLayout = QtWidgets.QFormLayout()
-        self.formLayout.setObjectName("formLayout")
+        self._layout = QtWidgets.QGridLayout()
+        self._layout.setObjectName("gridLayout")
 
         self.signalLabel = QtWidgets.QLabel(self)
         self.signalLabel.setObjectName("signalLabel")
         self.signalLabel.setText("Signal")
-        self.formLayout.setWidget(0, QtWidgets.QFormLayout.LabelRole, self.signalLabel)
+        self._layout.addWidget(self.signalLabel, 0, 0, 1, 1)
 
         self.signalComboBox = QtWidgets.QComboBox(self)
         self.signalComboBox.setObjectName("signalComboBox")
         self.signalComboBox.addItem("current")
         self.signalComboBox.addItem("voltage")
         self.signalComboBox.addItem("power")
-        self.formLayout.setWidget(0, QtWidgets.QFormLayout.FieldRole, self.signalComboBox)
+        self._layout.addWidget(self.signalComboBox, 0, 1, 1, 1)
 
-        self.verticalLayout.addLayout(self.formLayout)
+        self._windowLabel = QtWidgets.QLabel(self)
+        self._windowLabel.setText("Window")
+        self._layout.addWidget(self._windowLabel, 1, 0, 1, 1)
+
+        self._windowComboBox = QtWidgets.QComboBox(self)
+        self._windowComboBox.setObjectName("windowComboBox")
+        for key in _WINDOWS.keys():
+            self._windowComboBox.addItem(key)
+        self._windowComboBox.setCurrentIndex(2)  # hamming
+        self._layout.addWidget(self._windowComboBox, 1, 1, 1, 1)
+
+        self._fftLengthLabel = QtWidgets.QLabel(self)
+        self._fftLengthLabel.setText('FFT Length')
+        self._layout.addWidget(self._fftLengthLabel, 2, 0, 1, 1)
+
+        self._fftLengthComboBox = QtWidgets.QComboBox(self)
+        self._fftLengthComboBox.setObjectName('fftLengthComboBox')
+        for pow2 in range(6, 22):
+            self._fftLengthComboBox.addItem(str(2**pow2))
+        self._fftLengthComboBox.setCurrentIndex(6)
+        self._layout.addWidget(self._fftLengthComboBox, 2, 1, 1, 1)
+
+        self._overlapLabel = QtWidgets.QLabel(self)
+        self._overlapLabel.setText('Overlap %')
+        self._layout.addWidget(self._overlapLabel, 3, 0, 1, 1)
+
+        self._overlapSpin = QtWidgets.QSpinBox(self)
+        self._overlapSpin.setRange(0, 50)
+        self._overlapSpin.setValue(25)
+        self._layout.addWidget(self._overlapSpin, 3, 1, 1, 1)
+
+        self.verticalLayout.addLayout(self._layout)
         self.buttonBox = QtWidgets.QDialogButtonBox(self)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
         self.buttonBox.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel | QtWidgets.QDialogButtonBox.Ok)
@@ -115,7 +197,10 @@ class FrequencyDialog(QtWidgets.QDialog):
     def exec_(self):
         if QtWidgets.QDialog.exec_(self) == 1:
             return {
-                'signal': str(self.signalComboBox.currentText()),
+                'signal': self.signalComboBox.currentText(),
+                'window': self._windowComboBox.currentText(),
+                'nfft': int(self._fftLengthComboBox.currentText()),
+                'overlap': self._overlapSpin.value() / 100.0,
             }
         else:
             return None

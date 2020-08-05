@@ -81,8 +81,6 @@ will be implemented before Joulescope general availability.
 *   Add real-time FFT display with max, min and average. Include controls for
     windowing, FFT length and window overlap %.
 *   Add [spectrogram](https://en.wikipedia.org/wiki/Spectrogram).
-*   Add off-line FFT display that analyzes the selected time window.
-    Use markers to select time window.
 
 
 ### System integration
