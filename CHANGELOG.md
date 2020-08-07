@@ -11,6 +11,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added "system", "dark", and "light" theme options #72.
 *   Added frequency analysis that computes the Welch periodogram.
 *   Improved range tool exception handling.
+*   Fixed y-axis markers.
 
 
 ## 0.9.0

@@ -178,10 +178,11 @@ class YAxis(pg.AxisItem):
             idx += 1
 
     def _marker_color(self, idx):
+        theme = self._cmdp['Appearance/__index__']
         idx = int(idx)
         idx = 1 + ((idx - 1) % 6)  # have 6 colors
-        topic = f'Widgets/Waveform/marker{idx}_color'
-        return self._cmdp.preferences[topic]
+        color_name = f'waveform_marker{idx}'
+        return theme['colors'][color_name]
 
     def _marker_add_priv(self, marker):
         view = self.linkedView()
