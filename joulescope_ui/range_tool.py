@@ -204,6 +204,7 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
         except Exception as ex:
             log.exception('range tool run exception')
             rv = f'{self._range_tool.name}: ERROR'
+            self._cancel = True
         self._qt_resync('done', rv)
 
     def on_resync(self):
@@ -238,7 +239,7 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
                     finalize_defer = self._range_tool_obj.run_post(self)
             except:
                 log.exception('During range tool run_post()')
-                return
+                self._cancel = True
 
             while not self.is_cancelled and len(self._commands):
                 command = self._commands.pop(0)

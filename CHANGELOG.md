@@ -6,10 +6,11 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.9.1
 
-2020 Aug 5 [in progress]
+2020 Aug 7
 
 *   Added "system", "dark", and "light" theme options #72.
 *   Added frequency analysis that computes the Welch periodogram.
+*   Improved range tool exception handling.
 
 
 ## 0.9.0
