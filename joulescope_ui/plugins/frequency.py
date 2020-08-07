@@ -58,13 +58,13 @@ class Frequency:
         window = self._cfg['window']
         nfft = self._cfg['nfft']
         overlap = self._cfg['overlap']
-        window = _WINDOWS[window](nfft)
-        overlap = int(min(1.0, max(0.0, overlap)) * nfft)
-        sample_jump = nfft - overlap
 
         if nfft > data.sample_count:
             nfft = data.sample_count & 0xfffffffe  # make even
 
+        overlap = int(min(1.0, max(0.0, overlap)) * nfft)
+        sample_jump = nfft - overlap
+        window = _WINDOWS[window](nfft)
         x = np.zeros(nfft)
         y = np.zeros(nfft // 2 + 1)
         k = 0
@@ -73,7 +73,7 @@ class Frequency:
         fs = data.sample_frequency
         window_factor = np.sum(window * window)
         fft_factor = 2.0 / (fs * window_factor)
-        self._f = np.arange(nfft // 2 + 1) / (nfft * fs / 4)
+        self._f = np.arange(nfft // 2 + 1) * (fs / nfft)
 
         # Video explaining periodogram: https://www.youtube.com/watch?v=Qs-Zai0F2Pw
         # Example: https://github.com/matplotlib/matplotlib/blob/d7feb03da5b78e15b002b7438779068a318a3024/lib/matplotlib/mlab.py#L405
@@ -102,6 +102,8 @@ class Frequency:
     def run_post(self, data):
         title = f'{self._cfg["signal"]} : Frequency Plot'
         self._win = pg.GraphicsLayoutWidget(show=True, title=title)
+        self._label = pg.LabelItem(justify='right')
+        self._win.addItem(self._label)
 
         x = self._f
         y = self._y
@@ -111,17 +113,34 @@ class Frequency:
         p.setLabels(left='Magnitude (dB)', bottom='Frequency (Hz)')
         bg = pg.PlotDataItem(x=x, y=y, pen='r')
         p.addItem(bg)
-        p.setXRange(x[0], x[-1], padding=0.05)
-        p.setYRange(np.nanmin(y), np.nanmax(y), padding=0.05)
+        x_min, x_max = [x[0], x[-1]]
+        y_min, y_max = [np.nanmin(y), np.nanmax(y)]
+        y_over = 0.025 * (y_max - y_min)
+        y_min, y_max = y_min - y_over, y_max + y_over
+        p.getViewBox().setLimits(xMin=x_min, xMax=x_max, yMin=y_min, yMax=y_max)
+        p.setXRange(x_min, x_max, padding=0.0)
+        p.setYRange(y_min, y_max, padding=0.0)
 
         self._label = pg.LabelItem(justify='right')
         self._win.addItem(self._label, row=0, col=0)
+
+        # cross hair
+        self._vLine = pg.InfiniteLine(angle=90, movable=False)
+        self._hLine = pg.InfiniteLine(angle=0, movable=False)
+        p.addItem(self._vLine, ignoreBounds=True)
+        p.addItem(self._hLine, ignoreBounds=True)
 
         def mouseMoved(evt):
             pos = evt[0]
             if p.sceneBoundingRect().contains(pos):
                 mousePoint = p.vb.mapSceneToView(pos)
                 xval = mousePoint.x()
+                idx = np.searchsorted(self._f, xval)
+                xval = self._f[idx]
+                yval = self._y[idx]
+                self._label.setText(f'x={xval:.1f} Hz, y={yval:.3f} dB')
+                self._vLine.setPos(xval)
+                self._hLine.setPos(yval)
 
         self.proxy = pg.SignalProxy(
             p.scene().sigMouseMoved, rateLimit=60, slot=mouseMoved)
