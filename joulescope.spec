@@ -36,7 +36,7 @@ def find_site_packages():
 
 
 def parse_manifest():
-    add_files = []
+    add_files = [('CREDITS.html', 'joulescope_ui')]
     with open(os.path.join(specpath, 'MANIFEST.in'), 'r', encoding='utf-8') as f:
         for line in f.readlines():
             line = line.strip()
