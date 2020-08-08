@@ -334,17 +334,20 @@ class Marker(pg.GraphicsObject):
             self.pair.start_pos = self.pair.get_pos()
 
     def _move_end(self):
-        self.moving = False
-        moved = [[self.name, self.get_pos(), self.start_pos]]
+        self._cmdp.invoke('!command_group/start', None)
+        if self.moving:
+            moved = [[self.name, self.get_pos(), self.start_pos]]
+            self._cmdp.invoke('!Widgets/Waveform/Markers/move', moved)
+            self.moving = False
         activate = [self.name]
         if self.pair is not None:
+            moved = [[self.pair.name, self.pair.get_pos(), self.pair.start_pos]]
+            if self.pair.moving:
+                self._cmdp.invoke('!Widgets/Waveform/Markers/move', moved)
             self.pair.moving = False
             self.pair.moving_offset = 0.0
-            moved = [[self.pair.name, self.pair.get_pos(), self.pair.start_pos]]
             activate.append(self.pair.name)
-        self._cmdp.invoke('!command_group/start', None)
         self._cmdp.invoke('!Widgets/Waveform/Markers/activate', activate)
-        self._cmdp.invoke('!Widgets/Waveform/Markers/move', moved)
         self._cmdp.invoke('!command_group/end', None)
 
     def mouseClickEvent(self, ev):
