@@ -12,6 +12,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added frequency analysis that computes the Welch periodogram.
 *   Improved range tool exception handling.
 *   Fixed y-axis markers.
+*   Fixed firmware upgrade crashed after completion (stuck at 99%).
+*   Fixed firmware upgrade progress bar update event spamming.
 
 
 ## 0.9.0

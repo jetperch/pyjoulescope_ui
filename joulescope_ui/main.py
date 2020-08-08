@@ -1032,9 +1032,9 @@ class MainWindow(QtWidgets.QMainWindow):
         dialog = QtWidgets.QProgressDialog(self)
         dialog.setCancelButton(None)
         dialog.setWindowTitle('Joulescope Progress')
-        dialog.setLabelText('Firmware update in progress\nDo not unplug or turn off power')
+        dialog.setLabelText('Firmware update in progress.\nDo not unplug or turn off power.')
         dialog.setRange(0, 1000)
-        width = QtGui.QFontMetrics(dialog.font()).width('Do not unplug or turn off power') + 100
+        width = QtGui.QFontMetrics(dialog.font()).width('Do not unplug or turn off power.now') + 100
         dialog.resize(width, dialog.height())
         self._progress_dialog = dialog
         return dialog
@@ -1101,6 +1101,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     @QtCore.Slot(int)
     def _on_progress_value(self, value):
+        log.debug('_on_progress_value(%s)', value)
         if isinstance(self._progress_dialog, dict):
             # only for range tools, not firmware update
             cfg, self._progress_dialog = self._progress_dialog, None
@@ -1108,13 +1109,15 @@ class MainWindow(QtWidgets.QMainWindow):
             progress_dialog.canceled.connect(cfg['on_cancel'])
         if self._progress_dialog is not None:
             value = int(value)
-            self._progress_dialog.setValue(int(value))
+            if self._progress_dialog.value() != value:
+                self._progress_dialog.setValue(int(value))
             if value == 1000:
                 self._progress_dialog_finalize()
             elif self._progress_dialog.isHidden():
                 self._progress_dialog.show()
 
     def _on_progress_message(self, msg):
+        print(f'_on_progress_msg({msg})')
         self.status(msg)
 
     def _firmware_update(self, device):
@@ -1122,7 +1125,20 @@ class MainWindow(QtWidgets.QMainWindow):
         if data is None:
             self.status('Firmware update required, but could not find firmware image')
             return False
+        fw_version = data['target']['version']
 
+        result = QtWidgets.QMessageBox.question(
+            self,
+            'Firmware upgrade',
+            f'Upgrade firmware to {fw_version}?\n\n' +
+            'The firmware upgrade takes 30 seconds.\n' +
+            'Please do not unplug your Joulescope\n' +
+            'during the firmware upgrade.\n')
+        if result != QtWidgets.QMessageBox.Yes:
+            log.info('User skipped firmware update')
+            return False
+
+        log.info('Start firmware upgrade %s', fw_version)
         dialog = self._firmware_update_progress_dialog_construct()
         progress = {
             'stage': '',
@@ -1133,7 +1149,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         def progress_cbk(value):
             progress_value_fn(int(value * 1000))
-            progress_message_fn('Firmware upgrade [%.1f%%] %s' % (value * 100, progress['stage']))
 
         def stage_cbk(s):
             progress['stage'] = s
@@ -1141,8 +1156,9 @@ class MainWindow(QtWidgets.QMainWindow):
         def done_cbk(d):
             progress['device'] = d
             if d is None:
-                progress_message_fn('Firmware upgrade failed - unplug and retry')
-            dialog.accept()
+                progress_message_fn('Firmware upgrade failed - unplug and retry.')
+            else:
+                progress_message_fn(f'Successfully upgraded firmware to {fw_version}.')
 
         self._is_scanning, is_scanning = True, self._is_scanning
         try:
