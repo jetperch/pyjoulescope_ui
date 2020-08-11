@@ -1317,8 +1317,22 @@ class MainWindow(QtWidgets.QMainWindow):
             return
         self._device_close()
         log.info('open recording %s', filename)
-        device = RecordingViewerDevice(filename)
+        pnames = ['type', 'samples_pre', 'samples_window', 'samples_post']
+        values = [str(self._cmdp['Device/Current Ranging/' + p]) for p in pnames]
+        current_ranging_format = '_'.join(values)
+        device = RecordingViewerDevice(filename, current_ranging_format=current_ranging_format)
         device.ui_on_close = lambda: self._device_remove(device)
+
+        def _on_device_current_range_parameter(self, topic, value):
+            if not hasattr(self._device, 'parameter_set'):
+                return
+            name = 'current_ranging_' + topic.split('/')[-1]
+            try:
+                self._device.parameter_set(name, value)
+            except Exception:
+                log.exception('during parameter_set')
+                self.status('Parameter set %s failed, value=%s' % (name, value))
+
         self._device_add(device)
         self._device_open(device)
 

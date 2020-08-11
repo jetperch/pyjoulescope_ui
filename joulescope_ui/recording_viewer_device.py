@@ -231,10 +231,11 @@ class RecordingViewerDevice:
 
     :param filename: The filename path to the pre-recorded data.
     """
-    def __init__(self, filename):
+    def __init__(self, filename, current_ranging_format=None):
         if isinstance(filename, str) and not os.path.isfile(filename):
             raise IOError('file not found')
         self._filename = filename
+        self._current_ranging_format = current_ranging_format
         self._reader = None
         self._views = []
         self._coalesce = {}
@@ -363,7 +364,10 @@ class RecordingViewerDevice:
         return rv
 
     def _open(self):
-        self._reader = DataReader().open(self._filename)  # todo progress bar updates
+        self._reader = DataReader()
+        if self._current_ranging_format is not None:
+            self._reader.raw_processor.suppress_mode = self._current_ranging_format
+        self._reader.open(self._filename)  # todo progress bar updates
         self._log.info('RecordingViewerDevice.open')
 
     def _close(self):
