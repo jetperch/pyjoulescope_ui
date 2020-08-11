@@ -136,7 +136,7 @@ class XAxis(pg.AxisItem):
         idx = self._find_first_unused_marker_index()
         name = str(idx)
         color = self._marker_color(idx)
-        self._marker_add(name, shape='full', pos=x, color=color, statistics=True)
+        self._marker_add(name, shape='full', pos=x, color=color, statistics='right')
         self.marker_moving_emit(name, x)
         self._cmd_waveform_marker_activate(None, [name])
         self._cmdp.publish('Widgets/Waveform/#requests/refresh_markers', [name])
@@ -155,8 +155,8 @@ class XAxis(pg.AxisItem):
         name = str(idx)
         name1, name2 = name + 'a', name + 'b'
         color = self._marker_color(idx)
-        mleft = self._marker_add(name1, shape='left', pos=x1, color=color)
-        mright = self._marker_add(name2, shape='right', pos=x2, color=color, statistics=True)
+        mleft = self._marker_add(name1, shape='left', pos=x1, color=color, statistics='off')
+        mright = self._marker_add(name2, shape='right', pos=x2, color=color, statistics='right')
         mleft.pair = mright
         mright.pair = mleft
         self.marker_moving_emit(name1, x1)

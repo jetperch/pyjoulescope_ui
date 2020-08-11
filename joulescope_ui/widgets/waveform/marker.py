@@ -42,7 +42,7 @@ class Marker(pg.GraphicsObject):
         state.setdefault('pos', None)
         state.setdefault('color', (64, 255, 64, 255))
         state.setdefault('shape', 'full')
-        state.setdefault('statistics', False)
+        state.setdefault('statistics', 'right')
         self._cmdp = cmdp
         self.log = logging.getLogger('%s.%s' % (__name__, name))
         self._name = name
@@ -72,12 +72,12 @@ class Marker(pg.GraphicsObject):
     @property
     def statistics_show(self):
         p = self._instance_prefix + 'statistics'
-        return self._cmdp.preferences.get(p, default=False)
+        return self._cmdp.preferences.get(p, default='right')
 
     @statistics_show.setter
     def statistics_show(self, value):
         p = self._instance_prefix + 'statistics'
-        return self._cmdp.publish(p, bool(value))
+        return self._cmdp.publish(p, value)
 
     def remove(self):
         state = {'name': self._name}
@@ -423,10 +423,26 @@ class Marker(pg.GraphicsObject):
             zoom = menu.addAction('&Zoom to fit')
             zoom.triggered.connect(self._on_zoom)
 
-        show_statistics = menu.addAction('&Show statistics')
-        show_statistics.setCheckable(True)
-        show_statistics.setChecked(self.statistics_show)
-        show_statistics.toggled.connect(self._on_statistics_show)
+        show_stats_menu = menu.addMenu('&Show statistics')
+        show_stats_group = QtWidgets.QActionGroup(show_stats_menu)
+
+        left = show_stats_menu.addAction('&Left')
+        left.setCheckable(True)
+        left.setChecked(self.statistics_show == 'left')
+        left.triggered.connect(lambda: self._on_statistics_show('left'))
+        show_stats_group.addAction(left)
+
+        right = show_stats_menu.addAction('&Right')
+        right.setCheckable(True)
+        right.setChecked(self.statistics_show == 'right')
+        right.triggered.connect(lambda: self._on_statistics_show('right'))
+        show_stats_group.addAction(right)
+
+        off = show_stats_menu.addAction('&Off')
+        off.setCheckable(True)
+        off.setChecked(self.statistics_show == 'off')
+        off.triggered.connect(lambda: self._on_statistics_show('off'))
+        show_stats_group.addAction(off)
 
         marker_remove = menu.addAction('&Remove')
         marker_remove.triggered.connect(self._remove)
@@ -441,8 +457,8 @@ class Marker(pg.GraphicsObject):
         self._cmdp.invoke('!Widgets/Waveform/x-axis/range', (x1, x2))
         self.log.info('zoom %s %s', x1, x2)
 
-    def _on_statistics_show(self, checked):
-        self.statistics_show = checked
+    def _on_statistics_show(self, value):
+        self.statistics_show = value
 
     def setVisible(self, visible):
         super().setVisible(visible)

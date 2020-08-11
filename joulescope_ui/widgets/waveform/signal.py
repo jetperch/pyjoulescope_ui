@@ -379,6 +379,17 @@ class Signal(QtCore.QObject):
                 self.vb.scene().removeItem(m)
                 self._marker_font_resizer.remove(m)
 
+    def _marker_vis(self, s, m):
+        show = m.statistics_show
+        visible = True
+        if show == 'left':
+            s.setAnchor((1, 0))
+        elif show == 'right':
+            s.setAnchor((0, 0))
+        else:
+            visible = False
+        s.setVisible(visible)
+
     def update_markers_single_one(self, marker_name, marker_pos):
         m = self.markers.get(marker_name)
         if marker_name not in self._markers_single:
@@ -389,11 +400,11 @@ class Signal(QtCore.QObject):
             self._marker_font_resizer.add(s)
             self._markers_single[marker_name] = s
         s = self._markers_single[marker_name]
+        self._marker_vis(s, m)
         if marker_pos is None:
             stats = None
         else:
             stats = self.statistics_at(marker_pos)
-        s.setVisible(m.statistics_show)
         s.data_update(self.vb, marker_pos, stats)
 
     def update_markers_dual_one(self, m, statistics):
@@ -406,7 +417,7 @@ class Signal(QtCore.QObject):
             self._marker_font_resizer.add(s)
 
         s = self._markers_dual[m.name]
-        s.setVisible(m.statistics_show)
+        self._marker_vis(s, m)
         s.data_update(self.vb, m.get_pos(), statistics)
 
     def update_markers_dual_all(self, values):

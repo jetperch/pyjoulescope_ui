@@ -15,6 +15,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Fixed firmware upgrade crashed after completion (stuck at 99%).
 *   Fixed firmware upgrade progress bar update event spamming.
 *   Added raw processor preference-based configuration for files.
+*   Added marker statistics display to left, right, or off.
 
 
 ## 0.9.0
