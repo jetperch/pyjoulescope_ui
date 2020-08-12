@@ -320,6 +320,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 '&Getting Started': self._help_getting_started,
                 '&User\'s Guide': self._help_users_guide,
                 '&View logs...': self._view_logs,
+                'Changelog': self._help_changelog,
                 '&Credits': self._help_credits,
                 '&About': self._help_about,
             }
@@ -732,6 +733,9 @@ class MainWindow(QtWidgets.QMainWindow):
                            driver_version=joulescope.VERSION,
                            style=self._html_style())
         QtWidgets.QMessageBox.about(self, 'Joulescope', txt)
+
+    def _help_changelog(self):
+        help_ui.display_help(self, self._cmdp, 'changelog')
 
     def _help_credits(self):
         help_ui.display_help(self, self._cmdp, 'credits')

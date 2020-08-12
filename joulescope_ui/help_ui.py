@@ -15,6 +15,7 @@
 
 import pkgutil
 import logging
+import markdown
 import os
 import re
 from PySide2 import QtCore, QtWidgets
@@ -46,14 +47,14 @@ class ScrollMessageBox(QtWidgets.QMessageBox):
 
 
 HELP_FILES = {
+    'changelog': 'CHANGELOG.md',
     'credits': 'CREDITS.html',
     'getting_started': 'getting_started.html',
     'preferences': 'preferences.html',
 }
 
 
-def load_help(name):
-    filename = HELP_FILES[name]
+def _load_filename(filename):
     for path in [['joulescope_ui'], []]:
         try:
             if frozen:
@@ -65,14 +66,26 @@ def load_help(name):
             return bin_data.decode('utf-8')
         except:
             pass
-    raise RuntimeError(f'Could not load help {name}')
+    raise RuntimeError(f'Could not load file: {filename}')
+
+
+def load_help(name):
+    filename = HELP_FILES[name]
+    html = _load_filename(filename)
+    if filename.endswith('.md'):
+        md = markdown.Markdown()
+        html = md.convert(html)
+    return html
 
 
 def display_help(parent, cmdp, name):
     style = cmdp.preferences['Appearance/__index__']['generator']['files']['style.html']
     logging.getLogger(__name__).info('display_help(%s)', name)
     html = load_help(name)
-    title = re.search(r'<title>(.*?)<\/title>', html)[1]
+    try:
+        title = re.search(r'<title>(.*?)<\/title>', html)[0]
+    except:
+        title = name
     html = html.format(style=style)
     dialog = ScrollMessageBox(html, parent)
     dialog.setWindowTitle(title)

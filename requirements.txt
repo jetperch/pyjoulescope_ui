@@ -4,6 +4,7 @@ Cython>=0.29.3
 fs
 joulescope>=0.9.1  # also update JOULESCOPE_VERSION_MIN in setup.py
 json5>=0.6.1
+markdown
 numpy>=1.15.2
 pypiwin32>=223; sys_platform == 'win32'
 # python {path_to_python}\scripts\pywin32_postinstall.py -install

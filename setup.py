@@ -183,6 +183,7 @@ setuptools.setup(
     # See https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         'json5>=0.6.1',
+        'markdown',
         'numpy>=1.15.2',
         'pyperclip>=1.7.0',
         'python-dateutil>=2.7.3',

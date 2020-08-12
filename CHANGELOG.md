@@ -17,6 +17,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added raw processor preference-based configuration for files.
 *   Added marker statistics display to left, right, or off.
 *   Fixed y-axis scale setting to update correctly when changed.
+*   Added Help → Changelog display.
 
 
 ## 0.9.0
