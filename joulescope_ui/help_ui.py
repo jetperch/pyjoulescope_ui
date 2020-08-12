@@ -83,7 +83,7 @@ def display_help(parent, cmdp, name):
     logging.getLogger(__name__).info('display_help(%s)', name)
     html = load_help(name)
     try:
-        title = re.search(r'<title>(.*?)<\/title>', html)[0]
+        title = re.search(r'<title>(.*?)<\/title>', html)[1]
     except:
         title = name
     html = html.format(style=style)
