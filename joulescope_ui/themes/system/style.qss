@@ -113,6 +113,9 @@ QPushButton#record_statistics:disabled
 QPushButton[waveform_zoom_icon=true]
 {
   padding: 0px;
+  border-width: 1px;
+  border-color: {% disabled_foreground %};
+  border-style: solid;
   width: 24px;
   min-width: 24px;
   max-width: 24px;
