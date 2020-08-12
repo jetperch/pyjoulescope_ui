@@ -56,7 +56,8 @@ class Signal(QtCore.QObject):
             'y-axis': {
                 'limit': y_limit,
                 'log_min': y_log_min,
-                'range': 'auto' if y_range is None else y_range
+                'range': 'auto' if y_range is None else y_range,
+                'scale': 'linear',
             },
         }
         self._statistics_font_resizer = statistics_font_resizer
@@ -145,28 +146,30 @@ class Signal(QtCore.QObject):
                 return row
 
     def y_axis_config_update(self, cfg):
-        update_range = cfg.get('range') == 'auto' and self.config.get('y-axis', {}).get('range') == 'manual'
+        scale_orig = self.config['y-axis']['scale']
         self.config['y-axis'].update(**cfg)
-        # range, handled elsewhere
-        if self.config['y-axis']['scale'] == 'logarithmic':
-            self.y_axis.setLogMode(True)
-            self.curve_mean.setLogMode(xMode=False, yMode=True)
-            self.curve_min.setLogMode(xMode=False, yMode=True)
-            self.curve_max.setLogMode(xMode=False, yMode=True)
-            y_min = math.log10(self.config['y-axis']['log_min'])
-            y_max = math.log10(self.config['y-axis']['limit'][1])
-            self.vb.setLimits(yMin=y_min, yMax=y_max)
-            self.vb.setYRange(y_min, y_max, padding=0)
-        else:
-            self.y_axis.setLogMode(False)
-            self.curve_mean.setLogMode(xMode=False, yMode=False)
-            self.curve_min.setLogMode(xMode=False, yMode=False)
-            self.curve_max.setLogMode(xMode=False, yMode=False)
-            y_min, y_max = self.config['y-axis']['limit']
-            self.vb.setLimits(yMin=y_min, yMax=y_max)
-            self.vb.setYRange(y_min, y_max, padding=0)
-        if update_range:
-            self.yaxis_autorange(*self._y_range_now)
+        auto_range = self.config['y-axis']['range'] == 'auto'
+        if self.config['y-axis']['scale'] != scale_orig:
+            auto_range = True
+            if self.config['y-axis']['scale'] == 'logarithmic':
+                self.y_axis.setLogMode(True)
+                self.curve_mean.setLogMode(xMode=False, yMode=True)
+                self.curve_min.setLogMode(xMode=False, yMode=True)
+                self.curve_max.setLogMode(xMode=False, yMode=True)
+                y_min = math.log10(self.config['y-axis']['log_min'])
+                y_max = math.log10(self.config['y-axis']['limit'][1])
+                self.vb.setLimits(yMin=y_min, yMax=y_max)
+                self.vb.setYRange(y_min, y_max, padding=0)
+            else:
+                self.y_axis.setLogMode(False)
+                self.curve_mean.setLogMode(xMode=False, yMode=False)
+                self.curve_min.setLogMode(xMode=False, yMode=False)
+                self.curve_max.setLogMode(xMode=False, yMode=False)
+                y_min, y_max = self.config['y-axis']['limit']
+                self.vb.setLimits(yMin=y_min, yMax=y_max)
+                self.vb.setYRange(y_min, y_max, padding=0)
+        if auto_range:
+            self.yaxis_autorange(*self._y_range_now, force=True)
         self._cmdp.publish('Widgets/Waveform/#requests/refresh', None)
 
     @QtCore.Slot(float, float)
@@ -202,18 +205,18 @@ class Signal(QtCore.QObject):
         rb = yb + delta
         self.vb.setRange(yRange=[ra, rb], padding=0)
 
-    def yaxis_autorange(self, v_min, v_max):
+    def yaxis_autorange(self, v_min, v_max, force=False):
         if v_min is None or v_max is None:
             return
         self._y_range_now = [v_min, v_max]
-        if self.config['y-axis'].get('range', 'auto') == 'manual':
+        if not bool(force) and self.config['y-axis']['range'] == 'manual':
             return
         _, (vb_min, vb_max) = self.vb.viewRange()
         if not math.isfinite(v_min):
             v_min = vb_min
         if not math.isfinite(v_max):
             v_max = vb_max
-        if self.config['y-axis'].get('scale', 'linear') == 'logarithmic':
+        if self.config['y-axis']['scale'] == 'logarithmic':
             v_min = math.log10(max(v_min, self.config['y-axis']['log_min']))
             v_max = math.log10(max(v_max, self.config['y-axis']['log_min']))
         vb_range = vb_max - vb_min
@@ -280,7 +283,7 @@ class Signal(QtCore.QObject):
         self._min_max_hide()
 
     def _log_bound(self, y):
-        if self.config['y-axis'].get('scale', 'linear') == 'logarithmic':
+        if self.config['y-axis']['scale'] == 'logarithmic':
             y_log_min = self.config['y-axis']['log_min']
             y = np.copy(y)
             y[y < y_log_min] = y_log_min

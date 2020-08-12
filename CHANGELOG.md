@@ -6,7 +6,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.9.1
 
-2020 Aug 11
+2020 Aug 12
 
 *   Added "system", "dark", and "light" theme options #72.
 *   Added frequency analysis that computes the Welch periodogram.
@@ -16,6 +16,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Fixed firmware upgrade progress bar update event spamming.
 *   Added raw processor preference-based configuration for files.
 *   Added marker statistics display to left, right, or off.
+*   Fixed y-axis scale setting to update correctly when changed.
 
 
 ## 0.9.0
