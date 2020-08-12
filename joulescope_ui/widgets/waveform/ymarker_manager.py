@@ -54,7 +54,8 @@ class YMarkerManager:
                       detail='[[signal, name, new_pos, old_pos], ...]')
 
     def _axis(self, signal_name):
-        return self._signals[signal_name].y_axis
+        s = self._signals[signal_name]
+        return s.y_axis
 
     def _cmd_single_add(self, topic, value):
         signal, ypos = value
@@ -81,6 +82,13 @@ class YMarkerManager:
             ax = self._axis(signal)
             markers.extend([[signal, name] for name in ax.markers.keys()])
         return self._cmd_remove(topic, markers)
+
+    def clear(self, signal_name=None):
+        if signal_name is None:
+            signals = list(self._signals.keys())
+        else:
+            signals = [signal_name]
+        self._cmd_clear(None, signals)
 
     def _cmd_activate(self, topic, value):
         active = []

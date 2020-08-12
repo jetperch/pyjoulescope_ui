@@ -386,10 +386,12 @@ class WaveformWidget(QtWidgets.QWidget):
         return s
 
     def signal_remove(self, name):
-        signal = self._signals.pop(name, None)
+        signal = self._signals.get(name)
         if signal is None:
             log.warning('signal_remove(%s) but not found', name)
             return
+        self._ymarker_mgr.clear(name)
+        signal = self._signals.pop(name, None)
         signal.vb.sigWheelZoomXEvent.disconnect()
         signal.vb.sigPanXEvent.disconnect()
         row = signal.removeFromLayout(self.win)
