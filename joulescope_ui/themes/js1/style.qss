@@ -741,9 +741,7 @@ QPushButton#record_statistics:disabled
 /* Waveform Control Widget                                                  */
 /****************************************************************************/
 
-QPushButton#zoom_in,
-QPushButton#zoom_out,
-QPushButton#zoom_all 
+QPushButton[waveform_zoom_icon=true]
 {
   padding: 0px;
   width: 24px;
@@ -754,15 +752,15 @@ QPushButton#zoom_all
   max-height: 24px;
 }
 
-QPushButton#zoom_in {
+QPushButton[waveform_zoom_icon=true]#zoom_in {
     image: url("{% path %}/zoom_in_enabled.svg"); 
 }
 
-QPushButton#zoom_out {
+QPushButton[waveform_zoom_icon=true]#zoom_out {
     image: url("{% path %}/zoom_out_enabled.svg"); 
 }
 
-QPushButton#zoom_all {
+QPushButton[waveform_zoom_icon=true]#zoom_all {
     image: url("{% path %}/zoom_all_enabled.svg"); 
 }
 
