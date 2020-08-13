@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import sys
 from joulescope.parameters_v1 import PARAMETERS
 from joulescope_ui import __version__
 from joulescope_ui.paths import paths_current
@@ -194,12 +193,7 @@ def preferences_def(p):
 
     # --- Appearance ---
     p.define('Appearance/', 'Adjust the UI appearance')
-    if sys.platform.startswith('darwin'):
-        # https://bugreports.qt.io/browse/QTBUG-84879
-        # no themes for mac until PySide2 5.15.1
-        p.define('Appearance/Theme', dtype=str, options=['system'], default='system')
-    else:
-        p.define('Appearance/Theme', dtype=str, options=['system', 'js1.dark', 'js1.light'], default='js1.dark')
+    p.define('Appearance/Theme', dtype=str, options=['system', 'js1.dark', 'js1.light'], default='js1.dark')
     p.define('Appearance/__index__', dtype=dict, default={})
     p.define('Appearance/Fonts/', 'Adjust fonts')
     p.define('Appearance/Colors/', 'Adjust colors')

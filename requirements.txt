@@ -12,7 +12,8 @@ python-dateutil>=2.7.3
 pyperclip>=1.7.0
 PyInstaller>=3.5
 PySide2==5.13.2; python_version < '3.8'
-PySide2>=5.15.0; python_version >= '3.8'
+PySide2==5.14.2.3; python_version >= '3.8' and sys_platform == 'darwin'
+PySide2>=5.15.0; python_version >= '3.8' and sys_platform != 'darwin'
 requests>=2.0.0
 wheel
 

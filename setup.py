@@ -195,7 +195,7 @@ setuptools.setup(
     
     extras_require={
         ':python_version == "3.7"': ['pyside2==5.13.2'],
-        ':python_version == "3.8"': ['pyside2>=5.14.2.1'],
+        ':python_version == "3.8"': ['pyside2>=5.14.2.3'],
         'dev': ['check-manifest', 'Cython', 'coverage', 'wheel', 'pyinstaller'],
     },
 
