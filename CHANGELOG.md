@@ -4,6 +4,15 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.9.2
+
+2020 Aug 13
+
+*   Reverted macOS to PySide2 5.14.2.3 to avoid the QT bug:
+    https://bugreports.qt.io/browse/QTBUG-84879.
+*   No change for Windows & Linux which still used 5.15.0.
+
+
 ## 0.9.1
 
 2020 Aug 12
