@@ -15,6 +15,7 @@
 from PySide2 import QtWidgets, QtGui, QtCore
 from joulescope.units import three_sig_figs
 from .marker import Z_MARKER_MOVING
+import numpy as np
 import pyqtgraph as pg
 import weakref
 import logging
@@ -42,7 +43,8 @@ class YMarker(pg.GraphicsObject):
         self._name = name
         self._view = weakref.ref(view)
         self._units = units
-        self._y = None  # in signal coordinates
+        self._y = None  # in signal coordinates, which is power of 10 for logarithmic mode
+        self._log_mode = False
         self._pair: YMarker = None
         self.moving = False
         self.moving_offset = 0.0
@@ -97,6 +99,24 @@ class YMarker(pg.GraphicsObject):
         g = vb.geometry()
         return QtCore.QRectF(g.left(), y - 10, g.width(), 20)
 
+    def setLogMode(self, mode):
+        mode = bool(mode)
+        if mode != self._log_mode:
+            if mode:
+                self._y = max(self._y, 1e-9)  # enforce a lower limit
+                self._y = np.log10(self._y)
+            else:
+                self._y = 10 ** self._y
+        self._log_mode = bool(mode)
+        self.update()
+
+    @property
+    def y(self):
+        if self._log_mode:
+            return 10 ** self._y
+        else:
+            return self._y
+
     def paint(self, p, opt, widget):
         vb = self._view()
         color = self._cmdp[self._instance_prefix + 'color']
@@ -114,10 +134,10 @@ class YMarker(pg.GraphicsObject):
         pen = pg.mkPen([255, 255, 255, 255])
         p.setPen(pen)
         if self.pair is None:
-            txt = three_sig_figs(self._y, self._units)
+            txt = three_sig_figs(self.y, self._units)
         else:
-            dy = abs(self._y - self.pair._y)
-            t1 = three_sig_figs(self._y, self._units)
+            dy = abs(self.y - self.pair.y)
+            t1 = three_sig_figs(self.y, self._units)
             t2 = three_sig_figs(dy, self._units)
             txt = f'y={t1}, Δ={t2}'
         p.drawText(p1 - 2, txt)

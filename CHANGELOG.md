@@ -4,6 +4,15 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.9.3
+
+2020 Oct 28 [in progress]
+
+*   Fixed y-axis marker text value when in logarithmic mode #104.
+*   Fixed y-axis markers during linear <-> logarithmic mode switch.
+
+
+
 ## 0.9.2
 
 2020 Aug 13

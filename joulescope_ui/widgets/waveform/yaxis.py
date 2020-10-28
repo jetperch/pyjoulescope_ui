@@ -206,6 +206,7 @@ class YAxis(pg.AxisItem):
             raise RuntimeError('_marker_add internal error: name %s already exists', name)
         state['color'] = self._marker_color(name[0])
         marker = YMarker(cmdp=self._cmdp, name=name, view=self.linkedView(), units=self.labelUnits, state=state)
+        marker.setLogMode(self.logMode)
         return self._marker_add_priv(marker)
 
     def _marker_remove(self, m):
@@ -360,3 +361,9 @@ class YAxis(pg.AxisItem):
         for marker in self.markers.values():
             if marker.moving:
                 marker.set_pos(y + marker.moving_offset)
+
+    def setLogMode(self, mode):
+        for marker in self.markers.values():
+            marker.setLogMode(mode)
+        super().setLogMode(mode)
+
