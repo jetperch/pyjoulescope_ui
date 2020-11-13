@@ -83,5 +83,6 @@ def mac_binaries():
             json.dump(d, f, indent=2)
     return binaries
 
+
 if __name__ == '__main__':
     print(mac_binaries())

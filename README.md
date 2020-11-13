@@ -19,25 +19,28 @@ The Joulescope UI is under active development, and many features remain
 outstanding. See the [future features document](features_future.md) for details.
 
 
-## Quick start
+## Quick start using official distribution
 
-Many Joulescope users will want to 
-[download](https://www.joulescope.com/download) the application distribution.
-
-However, you may also use this python package directly.  As of July 2019, 
-this package is not available on pypi since it requires a forked version of 
-pyqtgraph. Follow the Developer instructions below to run the Joulescope UI 
-from the source GitHub repository.
+We provide an official distribution that is prebuit for Windows, macOS and
+Ubuntu 20.04LTS. 
+[Download](https://www.joulescope.com/download) the application distribution
+for your platform and install it.  
 
 
-## Developer
+## Run as python package
 
-The Joulescope User Interface requires Python 3.6 or newer. 
-Install [Python 3.6+](https://www.python.org/) on your system and then verify
+The Joulescope UI is a python package which you can install for pypi or
+run directly from source.
+
+
+### Install Python
+
+The Joulescope User Interface requires Python 3.6 or newer.  We recommend Python 3.8 or 3.9.
+Install [Python 3.8+](https://www.python.org/) on your system and then verify
 your python version at the terminal or command line:
 
     > python3 -VV
-    Python 3.7.5 (tags/v3.7.5:5c02a39a0b, Oct 15 2019, 00:11:34) [MSC v.1916 64 bit (AMD64)]
+    Python 3.9.0 (tags/v3.9.0:9cf6752, Oct  5 2020, 15:34:40) [MSC v.1927 64 bit (AMD64)]
     
 Ensure that you have Python 3.6 or newer and 64-bit.
 
@@ -77,28 +80,29 @@ Activate the virtual environment whenever you start a new terminal:
     source ~/venv/joulescope/bin/activate
     
 
-### Clone & Run
+### Option 1: Install from pypi
+
+Installation from pypi is easy!
+
+    pip3 install -U joulescope_ui
+
+
+### Option 2: Clone and run from source
 
 Clone and configure the Joulescope UI from the terminal or command line:
 
-    pip3 uninstall pyqtgraph
-    cd {path/to/repos}
     git clone https://github.com/jetperch/pyjoulescope_ui.git
     cd pyjoulescope_ui
     pip3 install -U -r requirements.txt
-    python3 setup.py qt
+    
+You can then run from this directory:
 
-Replace {path/to/repos} with your desired path.
-
-As of July 2019, this package depends upon a 
-[forked version of pyqtgraph](https://github.com/jetperch/pyqtgraph) which
-is automatically installed using requirements.txt.
-
-You should now be able to run the Joulescope UI:
-
-    cd {path/to/repos}/pyjoulescope_ui
     python3 -m joulescope_ui
+    
+You can alternatively build and install from source:
 
+    python3 setup.py sdist
+    python3 install dist/joulescope_ui-{version}.tar.gz
 
 If you see an error importing win32api on Windows, you should try running this
 command from an Administrator command prompt:
@@ -125,7 +129,6 @@ You should then modify your python path. On Windows:
 and on POSIX (Linux, Mac OS X with homebrew):
 
     export PYTHONPATH={path/to/repos}/pyjoulescope:{path/to/repos}/pyjoulescope_ui
-
 
 You should then be able to run the user interface from this directory:
 

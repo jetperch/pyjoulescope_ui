@@ -30,7 +30,7 @@ import subprocess
 import shutil
 
 
-JOULESCOPE_VERSION_MIN = '0.9.1'  # also update requirements.txt
+JOULESCOPE_VERSION_MIN = '0.9.3'  # also update requirements.txt
 MYPATH = os.path.abspath(os.path.dirname(__file__))
 VERSION_PATH = os.path.join(MYPATH, 'joulescope_ui', 'version.py')
 
@@ -182,14 +182,16 @@ setuptools.setup(
     
     # See https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        'json5>=0.6.1',
         'markdown',
         'numpy>=1.15.2',
         'pyperclip>=1.7.0',
         'python-dateutil>=2.7.3',
         'pyqtgraph>=0.11.0',
+        "pypiwin32>=223; platform_system == 'Windows'",
         # 'pyqtgraph @ https://github.com/jetperch/pyqtgraph/tarball/557e867b377b223589c0c8ffd0799c547965fb46#egg=pyqtgraph-0.11.0.dev1',
         'requests>=2.0.0',
+        "PySide2==5.13.2; python_version < '3.8'",
+        "PySide2>=5.15.1; python_version >= '3.8'",
         'joulescope>=' + JOULESCOPE_VERSION_MIN,
     ] + PLATFORM_INSTALL_REQUIRES,
     
