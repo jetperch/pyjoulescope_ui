@@ -1,6 +1,7 @@
 build
 build_installer
 dist
+node_modules
 **/__pycache__
 *.pyo
 *.pyc

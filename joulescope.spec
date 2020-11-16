@@ -157,7 +157,7 @@ if sys.platform.startswith('darwin'):
     #                 '-srcfolder', './dist/joulescope.app', '-ov'],
     #                 cwd=specpath)
     print('create dmg')
-    subprocess.run(['appdmg', 'appdmg.json', 'dist/joulescope_%s.dmg' % VERSION_STR])
+    subprocess.run(['./node_modules/appdmg/bin/appdmg.js', 'appdmg.json', 'dist/joulescope_%s.dmg' % VERSION_STR])
 
 elif sys.platform == 'win32':
     subprocess.run(['C:\Program Files (x86)\Inno Setup 6\ISCC.exe', 
