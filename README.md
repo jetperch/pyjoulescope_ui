@@ -50,8 +50,7 @@ Ensure that you have Python 3.6 or newer and 64-bit.
 Although not required, using 
 [virtualenv](https://virtualenv.pypa.io/en/latest/)
 avoids dependency conflicts, especially if you use your python installation for 
-other programs.  Joulescope does require a forked version of pyqtgraph and the
-latest versions of most package dependencies.  Using virtualenv ensures that
+other programs.  Using virtualenv ensures that
 the Joulescope software has the right dependencies without changing the rest
 of your system.
 

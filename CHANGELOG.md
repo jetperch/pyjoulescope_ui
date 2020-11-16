@@ -6,12 +6,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.9.3
 
-2020 Nov 11 [in progress]
+2020 Nov 16 [in progress]
 
 *   Fixed y-axis marker text value when in logarithmic mode #104.
 *   Fixed y-axis markers during linear <-> logarithmic mode switch.
 *   Fixed dependencies and README.
 *   Improved JLS read performance for downsampled files using joulescope 0.9.3 #102
+*   Added waveform hotkeys for zoom all and clear all markers #105
 
 
 ## 0.9.2

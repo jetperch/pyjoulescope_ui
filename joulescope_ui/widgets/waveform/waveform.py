@@ -47,6 +47,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._x_limits = [0.0, 30.0]
         self._mouse_pos = None
         self._clipboard_image = None
+        self._shortcuts = {}
 
         self.layout = QtWidgets.QHBoxLayout(self)
         self.layout.setSpacing(0)
@@ -120,18 +121,24 @@ class WaveformWidget(QtWidgets.QWidget):
                    detail='value is signal name string.')
         cmdp.subscribe('Appearance/__index__', self._on_colors, update_now=True)
 
-        self._shortcut_left = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Left), self)
-        self._shortcut_left.activated.connect(self._on_left)
-        self._shortcut_right = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Right), self)
-        self._shortcut_right.activated.connect(self._on_right)
-        self._shortcut_up = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Up), self)
-        self._shortcut_up.activated.connect(self._on_zoom_in)
-        self._shortcut_down = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Down), self)
-        self._shortcut_down.activated.connect(self._on_zoom_out)
-        self._shortcut_plus = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Plus), self)
-        self._shortcut_plus.activated.connect(self._on_zoom_in)
-        self._shortcut_minus = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Minus), self)
-        self._shortcut_minus.activated.connect(self._on_zoom_out)
+        shortcuts = [
+            [QtCore.Qt.Key_Asterisk, self._on_x_axis_zoom_all],
+            [QtCore.Qt.Key_Delete, self._on_markers_clear],
+            [QtCore.Qt.Key_Backspace, self._on_markers_clear],
+            [QtCore.Qt.Key_Left, self._on_left],
+            [QtCore.Qt.Key_Right, self._on_right],
+            [QtCore.Qt.Key_Up, self._on_zoom_in],
+            [QtCore.Qt.Key_Down, self._on_zoom_out],
+            [QtCore.Qt.Key_Plus, self._on_zoom_in],
+            [QtCore.Qt.Key_Minus, self._on_zoom_out],
+        ]
+        self._shortcuts_activate(shortcuts)
+
+    def _shortcuts_activate(self, shortcuts):
+        for key, cbk in shortcuts:
+            shortcut = QtWidgets.QShortcut(QtGui.QKeySequence(key), self)
+            shortcut.activated.connect(cbk)
+            self._shortcuts[key] = [key, cbk, shortcut]
 
     def _on_colors(self, topic, value):
         colors = value['colors']
@@ -239,6 +246,14 @@ class WaveformWidget(QtWidgets.QWidget):
             self._scrollbar.zoom_to_point(m[0].get_pos())
         elif len(m) == 2:
             self._scrollbar.zoom_to_range(m[0].get_pos(), m[1].get_pos())
+
+    @QtCore.Slot(bool)
+    def _on_markers_clear(self):
+        self._cmdp.invoke('!Widgets/Waveform/Markers/clear', None)
+
+    @QtCore.Slot(bool)
+    def _on_x_axis_zoom_all(self):
+        self._cmdp.invoke('!Widgets/Waveform/x-axis/zoom_all', None)
 
     def _on_left(self):
         self._cmdp.invoke('!Widgets/Waveform/x-axis/pan', -1)
