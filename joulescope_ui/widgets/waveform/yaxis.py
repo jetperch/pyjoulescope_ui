@@ -16,6 +16,7 @@ from .ymarker import YMarker
 from typing import Dict
 from PySide2 import QtCore, QtWidgets
 import pyqtgraph as pg
+from . axis_item_patch import AxisItemPatch
 import logging
 
 
@@ -101,7 +102,7 @@ class YAxisMenu(QtWidgets.QMenu):
             self.scale_logarithmic.setChecked(False)
 
 
-class YAxis(pg.AxisItem):
+class YAxis(AxisItemPatch):
 
     sigConfigEvent = QtCore.Signal(object)
     """Indicate a potential configuration event change.

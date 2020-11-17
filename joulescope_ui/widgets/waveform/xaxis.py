@@ -18,6 +18,7 @@ from .marker_area import MarkerArea
 import numpy as np
 from typing import Dict, List, Tuple
 import pyqtgraph as pg
+from . axis_item_patch import AxisItemPatch
 import logging
 
 
@@ -51,7 +52,7 @@ def int_to_alpha(i):
         i = i - 1
 
 
-class XAxis(pg.AxisItem):
+class XAxis(AxisItemPatch):
     sigMarkerMoving = QtCore.Signal(str, float)
 
     def __init__(self, cmdp):

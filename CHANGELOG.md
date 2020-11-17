@@ -6,7 +6,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.9.3
 
-2020 Nov 16 [in progress]
+2020 Nov 17 [in progress]
 
 *   Fixed y-axis marker text value when in logarithmic mode #104.
 *   Fixed y-axis markers during linear <-> logarithmic mode switch.
@@ -16,6 +16,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added path option as fixed, most recently, used or most recently saved #92
 *   Clear energy and charge on JLS file open and "disable" device #99
 *   Fixed multimeter value to work on units and names #89
+*   Fixed display artifact on x-axis timescale #97
 
 
 ## 0.9.2
