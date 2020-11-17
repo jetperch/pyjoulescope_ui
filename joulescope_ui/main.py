@@ -392,6 +392,7 @@ class MainWindow(QtWidgets.QMainWindow):
                             detail='The value is the widget or widget name string.',
                             record_undo=True)
         self._cmdp.register('!Accumulators/reset', self._accumulators_reset,
+                            # value None to clear, value 'disable' to hide.
                             brief='Reset the energy and charge accumulators',
                             record_undo=True)
         self._cmdp.register('!General/mru_add', self._mru_add,
@@ -741,16 +742,16 @@ class MainWindow(QtWidgets.QMainWindow):
     def _accumulators_reset(self, topic, value):
         log.info('_accumulators_reset')
         accumulators = copy.deepcopy(self._accumulators)
-        if value is not None:
-            self._accumulators = copy.deepcopy(value)
-        else:
+        if value == 'disable' or value is None:
             self._accumulators['time'] = 0.0
             for z in self._accumulators['fields'].values():
                 z[0] = 0.0  # accumulated value
+        else:
+            self._accumulators = copy.deepcopy(value)
         return (topic, value), [(topic, accumulators)]
 
-    def _on_accumulators_clear(self):
-        self._cmdp.invoke('!Accumulators/reset', None)
+    def _on_accumulators_clear(self, value=None):
+        self._cmdp.invoke('!Accumulators/reset', value)
 
     def _accumulators_zero_last(self):
         log.info('_accumulators_zero_last')
@@ -835,6 +836,8 @@ class MainWindow(QtWidgets.QMainWindow):
             except:
                 log.exception('while initializing after open device')
                 return self._device_open_failed('Could not initialize device')
+        else:
+            self._device_state_clear()
 
     def _on_data_view_update(self, data):
         self._cmdp.publish('DataView/#data', data)
@@ -896,7 +899,6 @@ class MainWindow(QtWidgets.QMainWindow):
             device.ui_on_close()
 
         self._device_disable.ui_action.setChecked(True)
-        self._accumulators_zero_last()
         self._streaming_status = None
         self._cmdp.publish('Device/#state/name', '')
         self._cmdp.publish('Device/#state/source', 'None')
@@ -1305,11 +1307,16 @@ class MainWindow(QtWidgets.QMainWindow):
             return
         self._recording_open(filename)
 
+    def _device_state_clear(self):
+        self._on_accumulators_clear('disable')
+        self._cmdp['Device/#state/statistics'] = {}
+
     def _recording_open(self, filename):
         if filename is None:
             return
         self._device_close()
         log.info('open recording %s', filename)
+        self._device_state_clear()
         self._data_path_used_set(os.path.dirname(filename))
         pnames = ['type', 'samples_pre', 'samples_window', 'samples_post']
         values = [str(self._cmdp['Device/Current Ranging/' + p]) for p in pnames]

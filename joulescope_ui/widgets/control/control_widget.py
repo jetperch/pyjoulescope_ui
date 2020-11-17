@@ -306,21 +306,22 @@ class ControlWidget(QtWidgets.QWidget):
     def _on_accumulator_reset(self, topic, value):
         self._accum_history = None
         self.accum_update()
+        if value == 'disable':
+            self._accumLabel.setText('')
+            self._accum_history = None
 
     def accum_update(self):
         field = self._cmdp['Units/accumulator']
         if self._accum_history is None:
-            time_str = '0 s'
-            units = self._cmdp.preferences.get('Units/' + field)
-            v = convert_units(0.0, units, units)
+            txt = '0 s'
         else:
             time_str = self._accum_history['time_str']
             a = self._accum_history['accumulators']
             v = a[field]
             units = self._cmdp.preferences.get('Units/' + field, default=v['units'])
             v = convert_units(v['value'], v['units'], units)
-        s = three_sig_figs(v['value'], v['units'])
-        txt = ACCUM_TEMPLATE.format(field=field.capitalize(), value=s, time=time_str)
+            s = three_sig_figs(v['value'], v['units'])
+            txt = ACCUM_TEMPLATE.format(field=field.capitalize(), value=s, time=time_str)
         self._accumLabel.setText(txt)
 
     def _on_device_state(self, topic, data):

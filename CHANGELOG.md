@@ -14,6 +14,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Improved JLS read performance for downsampled files using joulescope 0.9.3 #102
 *   Added waveform hotkeys for zoom all and clear all markers #105
 *   Added path option as fixed, most recently, used or most recently saved #92
+*   Clear energy and charge on JLS file open and "disable" device #99
 
 
 ## 0.9.2

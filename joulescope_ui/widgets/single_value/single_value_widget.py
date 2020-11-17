@@ -87,7 +87,6 @@ class SingleValueWidget(QtWidgets.QWidget):
         for w in [self.valueLabel, self.unitLabel]:
             w.setProperty('single_value_label', True)
 
-
         self.retranslateUi()
         self.fieldComboBox.currentIndexChanged.connect(self.on_field_changed)
         self.statisticComboBox.currentIndexChanged.connect(self.on_statistic_changed)
@@ -125,7 +124,11 @@ class SingleValueWidget(QtWidgets.QWidget):
 
     def _on_accumulator_reset(self, topic, value):
         field = self.fieldComboBox.currentText()
-        if field in ['energy', 'current']:
+        if value == 'disable':
+            self.valueLabel.setText('')
+            self.unitLabel.setText('')
+            self._statistics = {}
+        elif field in ['energy', 'current']:
             self.valueLabel.setText('0.00000')
 
     @QtCore.Slot(object, str)
