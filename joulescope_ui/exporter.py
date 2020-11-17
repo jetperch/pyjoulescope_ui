@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from joulescope_ui.file_dialog import FileDialog
+from joulescope_ui.paths import data_path, data_path_saved_set
 from joulescope.data_recorder import DataRecorder, construct_record_filename
 import numpy as np
 import os
@@ -35,13 +36,14 @@ class Exporter:
         self._filename = None
 
     def run_pre(self, data):  # RangeToolInvocation
-        path = data.cmdp['General/data_path']
+        path = data_path(data.cmdp)
         self._filename = self._filename_select(data.parent(), path)
         if self._filename is None:
             return 'Cancelled'
 
     def run_post(self, data):
         data.cmdp.publish('!General/mru_add', self._filename)
+        data_path_saved_set(data.cmdp, os.path.dirname(self._filename))
 
     def run(self, data):  # RangeToolInvocation
         registry = {

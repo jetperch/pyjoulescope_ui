@@ -53,6 +53,14 @@ def preferences_def(p):
         # attributes=['exists', 'dir'],
         default=paths_current()['dirs']['data'])
     p.define(
+        topic='General/data_path_type',
+        brief='Specify the default data path.',
+        dtype='str',
+        options=['Use fixed data_path', 'Most recently saved', 'Most recently used'],
+        default='Most recently used'),
+    p.define('General/_path_most_recently_saved', dtype='str', default=paths_current()['dirs']['data']),
+    p.define('General/_path_most_recently_used', dtype='str', default=paths_current()['dirs']['data']),
+    p.define(
         topic='General/update_check',
         brief='Automatically check for software updates',
         dtype='bool',

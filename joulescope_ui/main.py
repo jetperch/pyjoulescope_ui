@@ -37,6 +37,7 @@ from joulescope_ui import firmware_manager
 from joulescope_ui.plugin_manager import PluginManager
 from joulescope_ui.exporter import Exporter
 from joulescope_ui.command_processor import CommandProcessor
+from joulescope_ui.paths import data_path, data_path_used_set, data_path_saved_set
 from joulescope_ui.preferences_def import preferences_def
 from joulescope_ui.preferences_defaults import defaults as preference_defaults
 from joulescope_ui import ui_util
@@ -458,29 +459,15 @@ class MainWindow(QtWidgets.QMainWindow):
             k[name_safe] = w
         return k
 
-    def _path(self):
-        """Get the data_path.
+    def _data_path_get(self):
+        """Get the data_path."""
+        return data_path(self._cmdp)
 
-        :return: The data path, which is guaranteed to be valid.
-        :raise ValueError: If no valid path can be found.
+    def _data_path_used_set(self, path):
+        data_path_used_set(self._cmdp, path)
 
-        Side-effect: will update 'General/data_path' parameters if the
-        configured path is not available.
-        """
-        config_path = self._cmdp['General/data_path']
-        paths = [config_path,
-                 self._cmdp.preferences.definition_get('General/data_path')['default'],
-                 os.getcwd()]
-        for path in paths:
-            try:
-                if not os.path.isdir(path):
-                    os.makedirs(path, exist_ok=True)
-                if config_path != path:
-                    self._cmdp['General/data_path'] = path
-                return path
-            except:
-                log.info('Invalid path: %s', path)
-        raise ValueError('No path found')
+    def _data_path_save_set(self, path):
+        data_path_saved_set(self._cmdp, path)
 
     def _profile_view_menu_factory(self, profile):
 
@@ -1251,7 +1238,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if self._device_can_record():
                 self._device_stream_record_close()
                 fname = construct_record_filename()
-                path = os.path.join(self._path(), fname)
+                path = os.path.join(self._data_path_get(), fname)
                 dialog = FileDialog(self, 'Save Joulescope Recording', path, 'any')
                 filename = dialog.exec_()
                 if filename is None:
@@ -1259,6 +1246,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self._device_stream_record_stop()
                     self._cmdp.publish('Device/#state/record', False)
                 else:
+                    self._data_path_save_set(os.path.dirname(filename))
                     self._device_stream_record_start(filename)
             else:
                 self.status('Selected device cannot record')
@@ -1295,7 +1283,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self._record_statistics_stop()
                 fname = construct_record_filename()
                 fname = os.path.splitext(fname)[0] + '.csv'
-                path = os.path.join(self._path(), fname)
+                path = os.path.join(self._data_path_get(), fname)
                 filter_ = 'Comma-separated values (*.csv)'
                 dialog = FileDialog(self, 'Save Joulescope statistics', path, 'any', filter_)
                 filename = dialog.exec_()
@@ -1304,12 +1292,13 @@ class MainWindow(QtWidgets.QMainWindow):
                     self._device_stream_record_stop()
                     self._cmdp.publish('Device/#state/record_statistics', False)
                 else:
+                    self._data_path_save_set(os.path.dirname(filename))
                     self._record_statistics_start(filename)
         else:
             self._record_statistics_stop()
 
     def on_recording_open(self):
-        dialog = FileDialog(self, 'Open Joulescope Recording', self._path(), 'existing')
+        dialog = FileDialog(self, 'Open Joulescope Recording', self._data_path_get(), 'existing')
         filename = dialog.exec_()
         if filename is None:
             self.status('Filename not selected, do not open')
@@ -1321,6 +1310,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return
         self._device_close()
         log.info('open recording %s', filename)
+        self._data_path_used_set(os.path.dirname(filename))
         pnames = ['type', 'samples_pre', 'samples_window', 'samples_post']
         values = [str(self._cmdp['Device/Current Ranging/' + p]) for p in pnames]
         current_ranging_format = '_'.join(values)
@@ -1711,7 +1701,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if self._range_tool is not None:
             self.status('Previous range tool still running')
             return
-        self._path()  # has side effect of validating path
+        self._data_path_get()  # has side effect of validating path
         range_tool_name = value['name']
         range_tool = self._plugins.range_tools.get(range_tool_name)
         if range_tool is None:
