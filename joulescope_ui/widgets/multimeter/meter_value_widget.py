@@ -91,7 +91,7 @@ class MeterValueWidget(QtCore.QObject):
         for w in self.main_widgets:
             w.setProperty('multimeter_label', True)
             w.setProperty('multimeter_main', True)
-            w.mousePressEvent = self._mouse_press_event_factory(w)
+            w.mousePressEvent = self._mouse_press_event_factory(self.valueLabel)
 
         self.stats_widgets = [
             (self.stdLabel, self.stdName),
@@ -99,11 +99,12 @@ class MeterValueWidget(QtCore.QObject):
             (self.maxLabel, self.maxName),
             (self.p2pLabel, self.p2pName),
         ]
-        for widgets in self.stats_widgets:
-            for w in widgets:
+        for value_widget, name_widget in self.stats_widgets:
+            for w in [value_widget, name_widget]:
                 w.setProperty('multimeter_label', True)
                 w.setProperty('multimeter_statistic', True)
-                w.mousePressEvent = self._mouse_press_event_factory(w)
+            value_widget.mousePressEvent = self._mouse_press_event_factory(value_widget)
+            name_widget.mousePressEvent = self._mouse_press_event_factory(value_widget)
 
         self.retranslateUi()
 
