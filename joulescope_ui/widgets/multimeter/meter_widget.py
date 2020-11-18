@@ -170,6 +170,12 @@ class MeterWidget(QtWidgets.QWidget):
         charge = statistics['accumulators']['charge']['value']
         self.values['energy'].update_energy(accum_time['value'], energy, charge)
         self.accumulateDurationLabel.setText(accum_txt)
+        self.accumulateDurationLabel.mousePressEvent = self._on_accumulate_duration_mouse_press
+
+    def _on_accumulate_duration_mouse_press(self, event: QtGui.QMouseEvent):
+        # if event.button() == QtCore.Qt.LeftButton:
+        self._clipboard_text = self.accumulateDurationLabel.text()
+        QtWidgets.QApplication.clipboard().setText(self._clipboard_text)
 
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
