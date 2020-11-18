@@ -28,7 +28,7 @@ from joulescope.calibration import Calibration
 class TestRecordingViewerDevice(unittest.TestCase):
 
     def _create_file(self, packet_index, count=None):
-        stream_buffer = StreamBuffer(4.0, [10], 1000.0)
+        stream_buffer = StreamBuffer(401.0, [10], 1000.0)
         stream_buffer.suppress_mode = 'off'
         if packet_index > 0:
             data = usb_packet_factory(0, packet_index - 1)
