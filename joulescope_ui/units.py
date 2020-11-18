@@ -48,3 +48,42 @@ def convert_units(value, input_units, output_units):
         'value': value,
         'units': input_units}
 
+
+def elapsed_time_formatter(seconds, cmdp=None, fmt=None):
+    """Format time in seconds to a string.
+
+    :param seconds: The elapsed time in seconds.
+    :param cmdp: The optional CommandProcessor containing the time formatting options.
+    :param fmt: The optional format string containing:
+        * 'seconds': Display time in seconds.
+        * 'standard': Display time as D:hh:mm:ss.
+    :return: The elapsed time string.
+    """
+    seconds = int(seconds)  # drop fractions
+    fmt = 'seconds' if fmt is None else str(fmt)
+    if cmdp is not None:
+        if isinstance(cmdp, str):
+            fmt = cmdp
+        else:
+            fmt = cmdp['Units/elapsed_time']
+    if seconds >= 60 and fmt in ['D:hh:mm:ss', 'conventional', 'standard']:
+        days = seconds // (24 * 60 * 60)
+        seconds -= days * (24 * 60 * 60)
+        hours = seconds // (60 * 60)
+        seconds -= hours * (60 * 60)
+        minutes = seconds // 60
+        seconds -= minutes * 60
+        time_parts = f'{days}:{hours:02d}:{minutes:02d}:{seconds:02d}'.split(':')
+        while True:
+            p = time_parts[0]
+            p_zero = '0' * len(p)
+            if p == p_zero:
+                time_parts.pop(0)
+            else:
+                break
+        time_str = ':'.join(time_parts)
+        while time_str[0] == '0':
+            time_str = time_str[1:]
+        return time_str
+    else:
+        return f'{seconds} s'

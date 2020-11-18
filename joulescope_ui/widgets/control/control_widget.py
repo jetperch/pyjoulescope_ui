@@ -328,7 +328,7 @@ class ControlWidget(QtWidgets.QWidget):
         if topic == 'Device/#state/statistics':
             try:
                 t = data['time']['accumulator']
-                time_str = f"{int(t['value'])} {t['units']}"
+                time_str = self._cmdp.elapsed_time_formatter(t['value'])
                 a = data.get('accumulators', {})
                 self._accum_history = {
                     'time_str': time_str,

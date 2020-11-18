@@ -231,8 +231,13 @@ class MeterValueWidget(QtCore.QObject):
         self.maxName.setText('')
         self.maxLabel.setText('')
 
-        self.p2pName.setText('s')
-        self.p2pLabel.setText(f'{duration:.1f}')
+        time_parts = self._cmdp.elapsed_time_formatter(duration).split(' ')
+        if len(time_parts) > 1:
+            self.p2pLabel.setText(time_parts[0])
+            self.p2pName.setText(time_parts[1])
+        else:
+            self.p2pLabel.setText(time_parts[0])
+            self.p2pName.setText('')
 
     def configure_energy(self):
         self.stdName.setText('')

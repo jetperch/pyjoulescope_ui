@@ -17,6 +17,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Clear energy and charge on JLS file open and "disable" device #99
 *   Fixed multimeter value to work on units and names #89
 *   Fixed display artifact on x-axis timescale #97
+*   Added elapse time display formatting option as Units → elapsed_time #88
 
 
 ## 0.9.2

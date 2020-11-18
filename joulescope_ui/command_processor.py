@@ -38,7 +38,7 @@ import weakref
 import threading
 from joulescope_ui.preferences import Preferences, BASE_PROFILE, \
     TOPIC_HIDDEN_CHAR, TOPIC_TEMPORARY_CHAR
-from joulescope_ui.units import convert_units, FIELD_UNITS_SI
+from joulescope_ui.units import convert_units, FIELD_UNITS_SI, elapsed_time_formatter
 
 
 log = logging.getLogger(__name__)
@@ -606,3 +606,11 @@ class CommandProcessor(QtCore.QObject):
             value = value['value']
         output_units = self.preferences.get('Units/' + field, default=units)
         return convert_units(value, units, output_units)
+
+    def elapsed_time_formatter(self, seconds):
+        """Format time in seconds to a string.
+
+        :param seconds: The elapsed time in seconds.
+        :return: The elapsed time string.
+        """
+        return elapsed_time_formatter(seconds, cmdp=self)

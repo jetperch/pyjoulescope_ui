@@ -130,6 +130,11 @@ def preferences_def(p):
         dtype='str',
         options=['J', 'Wh'],
         default='J')
+    p.define('Units/elapsed_time',
+        brief='The elapsed time format.',
+        dtype='str',
+        options=['seconds', 'D:hh:mm:ss'],
+        default='seconds')
 
     # --- DEVICE ---
     p.define('Device/', 'Joulescope device-specific default settings')

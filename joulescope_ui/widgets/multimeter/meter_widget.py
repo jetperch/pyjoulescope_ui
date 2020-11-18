@@ -156,7 +156,8 @@ class MeterWidget(QtWidgets.QWidget):
             self._accumulate_duration += statistics['time']['delta']['value']
             if self._accumulate_start is None:
                 self._accumulate_start = datetime.datetime.now().isoformat().split('.')[0]
-            accum_txt = f'{int(self._accumulate_duration)} s | Started at {self._accumulate_start}'
+            elapsed_time = self._cmdp.elapsed_time_formatter(self._accumulate_duration)
+            accum_txt = f'{elapsed_time} | Started at {self._accumulate_start}'
         else:
             self._accumulate_duration = statistics['time']['delta']['value']
             accum_txt = three_sig_figs(self._accumulate_duration, 's')
