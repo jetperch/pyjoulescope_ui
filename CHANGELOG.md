@@ -6,7 +6,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.9.3
 
-2020 Nov 17 [in progress]
+2020 Nov 20 [in progress]
 
 *   Fixed y-axis marker text value when in logarithmic mode #104.
 *   Fixed y-axis markers during linear <-> logarithmic mode switch.
@@ -19,6 +19,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Fixed display artifact on x-axis timescale #97
 *   Added elapse time display formatting option as Units → elapsed_time #88
 *   Added click on multimeter accumulate text to copy.
+*   Fixed automatic "play" when switching between Joulescopes #94
 
 
 ## 0.9.2

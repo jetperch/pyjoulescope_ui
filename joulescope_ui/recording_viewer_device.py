@@ -249,6 +249,10 @@ class RecordingViewerDevice:
         return os.path.basename(self._filename)
 
     @property
+    def filename(self):
+        return self._filename
+
+    @property
     def sampling_frequency(self):
         if self._reader is None:
             return None

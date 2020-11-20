@@ -110,7 +110,7 @@ def preferences_def(p):
         default='10')
     p.define(topic='General/_mru_open', dtype=object, default=[])
 
-    # --- GENERAL ---
+    # --- UNITS ---
     p.define('Units/', 'Units to display.')
     p.define(
         topic='Units/accumulator',

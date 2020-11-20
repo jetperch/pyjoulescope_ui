@@ -255,7 +255,6 @@ class MyDockWidget(QtWidgets.QDockWidget):
 
 
 class MainWindow(QtWidgets.QMainWindow):
-    _deviceOpenRequestSignal = QtCore.Signal(object)
     _deviceScanRequestSignal = QtCore.Signal()
 
     def __init__(self, app, device_name, cmdp, multiprocessing_logging_queue):
@@ -346,7 +345,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.central_widget.setMaximumWidth(1)
         self.setCentralWidget(self.central_widget)
 
-        self._deviceOpenRequestSignal.connect(self.on_deviceOpen, type=QtCore.Qt.QueuedConnection)
         self._deviceScanRequestSignal.connect(self.on_deviceScan, type=QtCore.Qt.QueuedConnection)
 
         self._widget_defs = widget_register(self._cmdp)
@@ -375,6 +373,14 @@ class MainWindow(QtWidgets.QMainWindow):
         # Main implements the DataView bindings
         self._cmdp.subscribe('DataView/#service/x_change_request', self._on_dataview_service_x_change_request)
         self._cmdp.subscribe('DataView/#service/range_statistics', self._on_dataview_service_range_statistics)
+
+        self._cmdp.register('!Device/open', self._on_device_open,
+                            brief='Open a device.',
+                            record_undo=True)
+
+        self._cmdp.register('!Device/close', self._on_device_close,
+                            brief='Close a device.',
+                            record_undo=True)
 
         self._cmdp.register('!RangeTool/run', self._cmd_range_tool_run,
                             brief='Run a range tool over a data region.',
@@ -560,8 +566,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def run(self, filename=None):
         self._on_widgets_active('Widgets/active', self._cmdp['Widgets/active'])
         if filename is not None:
-            self._recording_open(filename)
             self._cmdp.publish('!preferences/profile/set', 'Oscilloscope')
+            self._cmdp.invoke('!Device/open', filename)
         else:
             self._on_window_state('_window', self._cmdp['_window'])
         self._software_update_check()
@@ -786,6 +792,20 @@ class MainWindow(QtWidgets.QMainWindow):
     def _on_device_state_name(self, topic, data):
         self.setWindowTitle(f'Joulescope: {data}')
 
+    def _recording_construct_device(self, filename):
+        if filename is None:
+            return None
+        log.info('open recording %s', filename)
+        self._device_state_clear()
+        self._data_path_used_set(os.path.dirname(filename))
+        pnames = ['type', 'samples_pre', 'samples_window', 'samples_post']
+        values = [str(self._cmdp['Device/Current Ranging/' + p]) for p in pnames]
+        current_ranging_format = '_'.join(values)
+        device = RecordingViewerDevice(filename, current_ranging_format=current_ranging_format)
+        device.ui_on_close = lambda: self._device_remove(device)
+        self._device_add(device)
+        return device
+
     def _device_open(self, device):
         if self._device == device:
             log.info('device_open reopen %s', str(device))
@@ -793,7 +813,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self._device_close()
         log.info('device_open %s', str(device))
         self._accumulators_zero_last()
-        self._device = device
+        if isinstance(device, str):
+            self._device = self._recording_construct_device(device)
+        else:
+            self._device = device
         if self._has_active_device:
             if hasattr(self._device, 'parameter_set'):
                 self._device.parameter_set('buffer_duration', self._cmdp['Device/setting/buffer_duration'])
@@ -833,6 +856,11 @@ class MainWindow(QtWidgets.QMainWindow):
                         self._cmdp.publish('Device/#state/play', True)
                     else:
                         self._cmdp.publish('Device/#state/source', 'Buffer')
+                if hasattr(device, 'filename'):
+                    self._cmdp.publish('Device/#state/name', os.path.basename(device.filename))
+                    self._cmdp.publish('Device/#state/source', 'File')
+                    self._cmdp.publish('Device/#state/stream', 'inactive')
+                    self._cmdp.publish('!General/mru_add', device.filename)
             except:
                 log.exception('while initializing after open device')
                 return self._device_open_failed('Could not initialize device')
@@ -925,12 +953,14 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def _device_reopen(self):
         d = self._device
-        self._device_close()
-        self._deviceOpenRequestSignal.emit(d)
+        self._cmdp.invoke('!Device/close', d)
+        self._cmdp.invoke('!Device/open', d)
 
-    @QtCore.Slot(object)
-    def on_deviceOpen(self, d):
-        self._device_open(d)
+    def _on_device_open(self, topic, value):  # !Device/open
+        self._device_open(value)
+
+    def _on_device_close(self, topic, value):  # !Device/close
+        self._device_close()  # currently, only a single active device
 
     def _device_add(self, device):
         """Add device to the user interface"""
@@ -938,7 +968,7 @@ class MainWindow(QtWidgets.QMainWindow):
         action = QtWidgets.QAction(str(device), self)
         action.setCheckable(True)
         action.setChecked(False)
-        action.triggered.connect(lambda x: self._device_open(device))
+        action.triggered.connect(lambda x: self._cmdp.invoke('!Device/open', device))
         self.device_action_group.addAction(action)
         self._menu_devices.addAction(action)
         device.ui_action = action
@@ -1163,9 +1193,10 @@ class MainWindow(QtWidgets.QMainWindow):
             self._is_scanning = is_scanning
             # self.status_update_timer.start()
 
-    def _on_device_stop(self, event, message):
-        log.debug('_on_device_stop(%d, %s)', event, message)
-        self._cmdp.publish('Device/#state/play', False)
+    def _on_device_stop(self, device_str, event, message):
+        log.debug('_on_device_stop(%s, %d, %s)', device_str, event, message)
+        if device_str == str(self._device):
+            self._cmdp.publish('Device/#state/play', False)
 
     def _device_stream_start(self):
         log.debug('_device_stream_start')
@@ -1178,8 +1209,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self._accumulators_zero_last()
         self._streaming_status = {}
         self._cmdp.publish('Device/#state/sampling_frequency', self._device.sampling_frequency)
+
+        def stop_fn(event, message):
+            fn = self.resync_handler('device_stop')
+            fn(str(self._device), event, message)
+
         try:
-            self._device.start(stop_fn=self.resync_handler('device_stop'))
+            self._device.start(stop_fn=stop_fn)
         except Exception:
             log.exception('_device_stream_start')
             self.status('Could not start device streaming')
@@ -1305,42 +1341,11 @@ class MainWindow(QtWidgets.QMainWindow):
         if filename is None:
             self.status('Filename not selected, do not open')
             return
-        self._recording_open(filename)
+        self._cmdp.invoke('!Device/open', filename)
 
     def _device_state_clear(self):
         self._on_accumulators_clear('disable')
         self._cmdp['Device/#state/statistics'] = {}
-
-    def _recording_open(self, filename):
-        if filename is None:
-            return
-        self._device_close()
-        log.info('open recording %s', filename)
-        self._device_state_clear()
-        self._data_path_used_set(os.path.dirname(filename))
-        pnames = ['type', 'samples_pre', 'samples_window', 'samples_post']
-        values = [str(self._cmdp['Device/Current Ranging/' + p]) for p in pnames]
-        current_ranging_format = '_'.join(values)
-        device = RecordingViewerDevice(filename, current_ranging_format=current_ranging_format)
-        device.ui_on_close = lambda: self._device_remove(device)
-
-        def _on_device_current_range_parameter(self, topic, value):
-            if not hasattr(self._device, 'parameter_set'):
-                return
-            name = 'current_ranging_' + topic.split('/')[-1]
-            try:
-                self._device.parameter_set(name, value)
-            except Exception:
-                log.exception('during parameter_set')
-                self.status('Parameter set %s failed, value=%s' % (name, value))
-
-        self._device_add(device)
-        self._device_open(device)
-
-        self._cmdp.publish('Device/#state/name', os.path.basename(filename))
-        self._cmdp.publish('Device/#state/source', 'File')
-        self._cmdp.publish('Device/#state/stream', 'inactive')
-        self._cmdp.publish('!General/mru_add', filename)
 
     def _mru_add(self, topic, value):
         path = value
@@ -1360,7 +1365,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def _mru_callback_factory(self, path):
         def cbk():
-            self._recording_open(path)
+            self._cmdp.invoke('!Device/open', path)
         return cbk
 
     def _menu_open_recent_update(self, path=None):
