@@ -182,8 +182,8 @@ setuptools.setup(
     
     # See https://packaging.python.org/en/latest/requirements.html
     install_requires=[
+        'fs',
         'markdown',
-        'numpy>=1.15.2',
         'pyperclip>=1.7.0',
         'python-dateutil>=2.7.3',
         'pyqtgraph>=0.11.0',
@@ -196,8 +196,6 @@ setuptools.setup(
     ] + PLATFORM_INSTALL_REQUIRES,
     
     extras_require={
-        ':python_version == "3.7"': ['pyside2==5.13.2'],
-        ':python_version == "3.8"': ['pyside2>=5.14.2.3'],
         'dev': ['check-manifest', 'Cython', 'coverage', 'wheel', 'pyinstaller'],
     },
 
