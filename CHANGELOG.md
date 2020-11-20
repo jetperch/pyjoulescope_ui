@@ -21,6 +21,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added click on multimeter accumulate text to copy.
 *   Fixed automatic "play" when switching between Joulescopes #94
 *   Forced waveform update on streaming stop #109
+*   Modified Joulescope UI to work with MacOS 11.0.1, Big Sur #108
 
 
 ## 0.9.2

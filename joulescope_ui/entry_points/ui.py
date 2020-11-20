@@ -20,6 +20,11 @@ executes the official Joulescope User Interface software.
 from joulescope_ui.main import run
 from joulescope_ui.logging_util import LEVELS
 
+# QT bug workaround for MacOS Big Sur, added 2020 Nov 20.
+# https://bugreports.qt.io/browse/QTBUG-87014
+import os
+os.environ["QT_MAC_WANTS_LAYER"] = "1"
+
 
 NAME = "ui"
 
