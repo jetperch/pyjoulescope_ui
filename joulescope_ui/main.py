@@ -1197,6 +1197,8 @@ class MainWindow(QtWidgets.QMainWindow):
         log.debug('_on_device_stop(%s, %d, %s)', device_str, event, message)
         if device_str == str(self._device):
             self._cmdp.publish('Device/#state/play', False)
+            if self._data_view is not None:
+                self._data_view.refresh()
 
     def _device_stream_start(self):
         log.debug('_device_stream_start')

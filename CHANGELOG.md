@@ -20,6 +20,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added elapse time display formatting option as Units → elapsed_time #88
 *   Added click on multimeter accumulate text to copy.
 *   Fixed automatic "play" when switching between Joulescopes #94
+*   Forced waveform update on streaming stop #109
 
 
 ## 0.9.2
