@@ -748,7 +748,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def _accumulators_reset(self, topic, value):
         log.info('_accumulators_reset')
         accumulators = copy.deepcopy(self._accumulators)
-        if value == 'disable' or value is None:
+        if value in ['disable', None, True, False]:
             self._accumulators['time'] = 0.0
             for z in self._accumulators['fields'].values():
                 z[0] = 0.0  # accumulated value

@@ -4,6 +4,13 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.9.4
+
+2020 Dec 2 [in progress]
+
+*   Fixed Tools → Clear Accumulator #111
+
+
 ## 0.9.3
 
 2020 Nov 20
