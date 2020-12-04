@@ -86,6 +86,8 @@ class SingleValueWidget(QtWidgets.QWidget):
 
         for w in [self.valueLabel, self.unitLabel]:
             w.setProperty('single_value_label', True)
+        self.valueLabel.mousePressEvent = self._on_mouse_press_event
+        self.unitLabel.mousePressEvent = self._on_mouse_press_event
 
         self.retranslateUi()
         self.fieldComboBox.currentIndexChanged.connect(self.on_field_changed)
@@ -97,6 +99,12 @@ class SingleValueWidget(QtWidgets.QWidget):
         if self._state_preference not in cmdp:
             cmdp[self._state_preference] = {}
         cmdp.subscribe(self._state_preference, self._on_state, update_now=True)
+        self.retranslateUi()
+
+    def _on_mouse_press_event(self, event: QtGui.QMouseEvent):
+        # if event.button() == QtCore.Qt.LeftButton:
+        self._clipboard_text = f'{self.valueLabel.text()} {self.unitLabel.text()}'
+        QtWidgets.QApplication.clipboard().setText(self._clipboard_text)
 
     def _on_state(self, topic, value):
         if value is None:

@@ -6,9 +6,10 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.9.4
 
-2020 Dec 2 [in progress]
+2020 Dec 4 [in progress]
 
 *   Fixed Tools → Clear Accumulator #111
+*   Copied Single Value Widget value to clipboard on mouse click #113
 
 
 ## 0.9.3
