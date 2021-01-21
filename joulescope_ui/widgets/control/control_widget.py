@@ -14,7 +14,7 @@
 # limitations under the License.
 
 
-from PySide2 import QtWidgets, QtGui, QtCore
+from PySide2 import QtWidgets, QtCore
 from joulescope_ui.widgets.switch import Switch
 from joulescope.units import three_sig_figs
 from joulescope_ui.units import convert_units
@@ -197,7 +197,7 @@ class ControlWidget(QtWidgets.QWidget):
 
         self._accumLabel = QtWidgets.QLabel(self)
         self._accumLabel.setObjectName(u"accumLabel")
-        self._accumLabel.setTextFormat(QtGui.Qt.RichText)
+        self._accumLabel.setTextFormat(QtCore.Qt.RichText)
         self._accumLabel.setText('<html><head/><body></body</html>')
         self._accumLabel.setToolTip(ACCUM_TOOLTIP)
         self._layout.addWidget(self._accumLabel)

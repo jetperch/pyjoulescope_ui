@@ -10,6 +10,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 *   Fixed Tools → Clear Accumulator #111
 *   Copied Single Value Widget value to clipboard on mouse click #113
+*   Used PySide.QtCore.Qt instead of PySide.QtGui.Qt #115
 
 
 ## 0.9.3
