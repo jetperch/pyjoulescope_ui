@@ -97,13 +97,13 @@ def _cleanup_logfiles():
     now = time.time()
     for f in os.listdir(LOG_PATH):
         fname = os.path.join(LOG_PATH, f)
-        if not os.path.isfile(fname):
-            continue
-        if os.stat(fname).st_mtime + EXPIRATION_SECONDS < now:
-            try:
-                os.unlink(fname)
-            except Exception:
-                logging.getLogger(__name__).warning('Could not unlink %s', fname)
+        try:
+            if os.path.isfile(fname):
+                expire_time = os.stat(fname).st_mtime + EXPIRATION_SECONDS
+                if expire_time < now:
+                    os.unlink(fname)
+        except Exception:
+            logging.getLogger(__name__).warning('While cleaning up %s', fname)
 
 
 class DeferredLogHandler(logging.Handler):

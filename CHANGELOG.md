@@ -6,11 +6,12 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.9.4
 
-2020 Dec 4 [in progress]
+2021 Jan 28 [in progress]
 
 *   Fixed Tools → Clear Accumulator #111
 *   Copied Single Value Widget value to clipboard on mouse click #113
 *   Used PySide.QtCore.Qt instead of PySide.QtGui.Qt #115
+*   Added error handling to log file cleanup.
 
 
 ## 0.9.3
