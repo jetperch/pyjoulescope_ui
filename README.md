@@ -93,6 +93,7 @@ Clone and configure the Joulescope UI from the terminal or command line:
     git clone https://github.com/jetperch/pyjoulescope_ui.git
     cd pyjoulescope_ui
     pip3 install -U -r requirements.txt
+    python setup.py qt
     
 You can then run from this directory:
 
