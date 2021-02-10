@@ -1535,37 +1535,42 @@ class MainWindow(QtWidgets.QMainWindow):
     def _on_window_state(self, topic, value):
         log.debug('_on_window_state')
         # WARNING: mutate value so that future invocations (undo, restore) take effect
-        window_state = value
-        if window_state is not None:
-            if not hasattr(window_state, 'pop'):
-                return
-            if window_state.pop('__ignore__', False):
-                return
+        try:
+            window_state = value
 
-        if window_state is not None:
-            self.restoreGeometry(window_state['geometry'])
-            self.restoreState(window_state['state'])
+            if window_state is not None:
+                if not hasattr(window_state, 'pop'):
+                    return
+                if window_state.pop('__ignore__', False):
+                    return
 
-        # force visible, since restoreState can hide
-        for widget in self._widgets:
-            widget.setVisible(True)
+            if window_state is not None:
+                self.restoreGeometry(window_state['geometry'])
+                self.restoreState(window_state['state'])
 
-        # force invisible, since restoreState can show
-        active_widgets = self._widgets_active
-        for widget in self.findChildren(QtWidgets.QDockWidget):
-            if str(widget) not in active_widgets:
-                widget.setVisible(False)
+            # force visible, since restoreState can hide
+            for widget in self._widgets:
+                widget.setVisible(True)
 
-        window_location = self._cmdp['General/window_location']
-        window_size = self._cmdp['General/window_size']
-        if window_size == 'minimum':
-            self.adjustSize()
-        if window_location == 'center':
-            if window_size.endswith('%'):
-                f = float(window_size[:-1]) * 0.01
-                self._window_center_and_resize(f, f)
-            else:
-                self._window_center_and_resize(None, None)
+            # force invisible, since restoreState can show
+            active_widgets = self._widgets_active
+            for widget in self.findChildren(QtWidgets.QDockWidget):
+                if str(widget) not in active_widgets:
+                    widget.setVisible(False)
+
+            window_location = self._cmdp['General/window_location']
+            window_size = self._cmdp['General/window_size']
+            if window_size == 'minimum':
+                self.adjustSize()
+            if window_location == 'center':
+                if window_size.endswith('%'):
+                    f = float(window_size[:-1]) * 0.01
+                    self._window_center_and_resize(f, f)
+                else:
+                    self._window_center_and_resize(None, None)
+        except Exception:
+            # Log error, but keep on going
+            log.exception('Could not restore window state')
 
     def _window_center_and_resize(self, width_fract, height_fract):
         # https://wiki.qt.io/Center_and_Resize_MainWindow
