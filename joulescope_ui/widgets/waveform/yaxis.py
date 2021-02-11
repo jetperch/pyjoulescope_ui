@@ -297,7 +297,7 @@ class YAxis(AxisItemPatch):
             self._pan_finish()
         try:
             pos = event.scenePos()
-        except:
+        except Exception:
             return  # no problem, not a mouse move event
         if not self.geometry().contains(pos):
             self._pan_finish()

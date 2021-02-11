@@ -296,12 +296,12 @@ class RecordingViewerDevice:
                 rv = args
             else:
                 self._log.warning('unsupported command %s', cmd)
-        except:
+        except Exception:
             self._log.exception('While running command')
         if callable(cbk):
             try:
                 cbk(rv)
-            except:
+            except Exception:
                 self._log.exception('in callback')
 
     def run(self):
@@ -325,7 +325,7 @@ class RecordingViewerDevice:
             timeout = 0.0
             try:
                 source_id = args.pop('source_id')
-            except:
+            except Exception:
                 source_id = None
             if source_id is not None:
                 key = f'{view}_{cmd}_{source_id}'  # keep most recent only

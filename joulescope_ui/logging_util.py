@@ -216,7 +216,7 @@ def logging_start():
         try:
             queue.put_nowait(None)
             listener.join(timeout=2.0)
-        except:
+        except Exception:
             print('Error stopping logging thread')
 
     return queue, stop, listener

@@ -184,7 +184,7 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
                 rc = self._range_tool_obj.run_pre(self)
                 if rc is not None:
                     return self._abort(f'{self.name} run_pre failed: {rc}')
-        except:
+        except Exception:
             log.exception('During range tool run_pre()')
             return self._abort('Exception in range tool run_pre()')
         self._thread = threading.Thread(target=self._thread_run)
@@ -214,7 +214,7 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
                 cmd, args = self._message_queue.get(timeout=0.0)
             except Empty:
                 break
-            except:
+            except Exception:
                 log.exception('on_resync message_queue get')
             if cmd == 'progress':
                 self.sigProgress.emit(args)
@@ -237,7 +237,7 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
             try:
                 if hasattr(self._range_tool_obj, 'run_post'):
                     finalize_defer = self._range_tool_obj.run_post(self)
-            except:
+            except Exception:
                 log.exception('During range tool run_post()')
                 self._cancel = True
 
@@ -245,7 +245,7 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
                 command = self._commands.pop(0)
                 try:
                     command()
-                except:
+                except Exception:
                     log.exception('During range tool command')
         self.sigFinished.emit(self, msg)
         if not finalize_defer:

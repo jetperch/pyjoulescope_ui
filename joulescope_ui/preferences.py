@@ -184,7 +184,7 @@ def is_valid(value, dtype, options=None):
     try:
         validate(value, dtype, options)
         return True
-    except:
+    except Exception:
         return False
 
 
@@ -282,12 +282,12 @@ class Preferences(QtCore.QObject):
         try:
             with open(self._path, 'r') as f:
                 p = json.load(f, object_hook=json_decode_custom)
-        except:
+        except Exception:
             log.error('Preferences could not load %s', self._path)
             return False
         try:
             self.state_restore(p)
-        except:
+        except Exception:
             log.error('Preferences could not restore state from %s', self._path)
             return False
         return True
@@ -511,7 +511,7 @@ class Preferences(QtCore.QObject):
     def is_valid(self, name, value):
         try:
             return self.validate(name, value)
-        except:
+        except Exception:
             return False
 
     def is_in_profile(self, name, profile=None):

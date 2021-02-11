@@ -380,7 +380,7 @@ class CommandProcessor(QtCore.QObject):
             if fn is None:
                 return False
             fn(topic, value)
-        except:
+        except Exception:
             log.exception('subscriber error for topic=%s, value=%s', topic, value)
         return True
 

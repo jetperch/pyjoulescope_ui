@@ -102,7 +102,7 @@ def paths_v1(app=None):
         user_path = shell.SHGetFolderPath(0, shellcon.CSIDL_PERSONAL, None, 0)
         appdata_path = shell.SHGetFolderPath(0, shellcon.CSIDL_LOCAL_APPDATA, None, 0)
         app_path = os.path.join(appdata_path, app)
-    except:
+    except Exception:
         user_path = os.path.expanduser('~')
         app_path = os.path.join(user_path, '.' + app)
 
@@ -202,7 +202,7 @@ def data_path(cmdp):
             if config_path != path:
                 cmdp['General/data_path'] = path
             return path
-        except:
+        except Exception:
             logging.getLogger(__name__).info('Invalid path: %s', path)
     raise ValueError('No path found')
 

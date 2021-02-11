@@ -34,7 +34,7 @@ def _download_from_distribution(path):
     filename = os.path.basename(path)
     try:
         bin_file = pkgutil.get_data('joulescope_ui', 'firmware/js110/' + filename)
-    except:
+    except Exception:
         return False
     if bin_file is not None:
         with open(path, 'wb') as f:
@@ -85,10 +85,10 @@ def load(version=None):
         path = cache_path(version)
         try:
             return _load(path)
-        except:
+        except Exception:
             pass
         cache_fill(path)
         return _load(path)
-    except:
+    except Exception:
         log.exception('firmware_manager.load')
         return None

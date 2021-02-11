@@ -588,7 +588,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 fn(*args, **kwargs)
             except Empty:
                 log.warning('event signaled but not available')
-            except:
+            except Exception:
                 log.exception('resync queue failed')
             return True
         else:
@@ -627,7 +627,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self._device_recover()
                     return
                 self._status_fn(s)
-            except:
+            except Exception:
                 log.exception("statusUpdateTimer failed - assume device error")
                 self._device_recover()
                 return
@@ -823,12 +823,12 @@ class MainWindow(QtWidgets.QMainWindow):
                 self._device.parameter_set('sampling_frequency', self._cmdp['Device/setting/sampling_frequency'])
             try:
                 self._device.open(self.resync_handler('device_event'))
-            except:
+            except Exception:
                 log.exception('while opening device')
                 return self._device_open_failed('Could not open device')
             try:
                 self._firmware_update_on_open()
-            except:
+            except Exception:
                 log.exception('firmware update failed')
                 self._device_close()
                 return
@@ -861,7 +861,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self._cmdp.publish('Device/#state/source', 'File')
                     self._cmdp.publish('Device/#state/stream', 'inactive')
                     self._cmdp.publish('!General/mru_add', device.filename)
-            except:
+            except Exception:
                 log.exception('while initializing after open device')
                 return self._device_open_failed('Could not initialize device')
         else:
@@ -917,7 +917,7 @@ class MainWindow(QtWidgets.QMainWindow):
                         device.parameter_set('i_range', 'auto')
                     else:  # keep
                         pass
-            except:
+            except Exception:
                 log.warning('could not set Device.on_close behavior %s', on_close)
             device.close()
 
@@ -985,7 +985,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def _bootloader_scan(self):
         try:
             bootloaders = joulescope.scan('bootloader')
-        except:
+        except Exception:
             return
         if not len(bootloaders):
             return
@@ -998,12 +998,12 @@ class MainWindow(QtWidgets.QMainWindow):
             for b in list(bootloaders):
                 try:
                     b.open()
-                except:
+                except Exception:
                     log.exception('while attempting to open bootloader')
                     continue
                 try:
                     b.go()
-                except:
+                except Exception:
                     log.exception('while attempting to run the application')
             return False
 
@@ -1011,12 +1011,12 @@ class MainWindow(QtWidgets.QMainWindow):
             self.status('Programming firmware')
             try:
                 b.open()
-            except:
+            except Exception:
                 log.exception('while attempting to open bootloader')
                 continue
             try:
                 self._firmware_update(b)
-            except:
+            except Exception:
                 log.exception('while attempting to run the application')
 
     def _device_scan(self):
@@ -1601,11 +1601,11 @@ class MainWindow(QtWidgets.QMainWindow):
         log.info('closeEvent()')
         try:
             self._cmdp.preferences.save()
-        except:
+        except Exception:
             log.exception('closeEvent could not save preferences')
         try:
             self._device_close()
-        except:
+        except Exception:
             log.exception('closeEvent could not close device')
         return super(MainWindow, self).closeEvent(event)
 
@@ -1641,7 +1641,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self._streaming_status['sample_missing_count'] = n_sample_missing_count
             self._cmdp.publish('Device/#state/stream', stream_status)
             self._cmdp.publish('Device/#state/source', 'USB')
-        except:
+        except Exception:
             log.exception('_source_indicator_status_update')
 
     def _fps_compute(self):
@@ -1748,7 +1748,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._range_tools.append(invoke)
         try:
             invoke.run(self._data_view, s, x_start, x_stop)
-        except:
+        except Exception:
             log.exception('range tool run')
             self.on_rangeToolFinished(invoke, f'Exception in range tool {invoke.name}')
             self.on_rangeToolClosed(invoke)
@@ -1872,7 +1872,7 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
             if sys.platform.startswith('win'):
                 ctypes.windll.user32.SetProcessDPIAware()
             QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
-        except:
+        except Exception:
             log.exception('while configuring high DPI scaling')
         app = QtWidgets.QApplication(sys.argv)
         resource_list = [
@@ -1915,7 +1915,7 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
 
     try:
         ui = MainWindow(app, device_name, cmdp, multiprocessing_logging_queue)
-    except:
+    except Exception:
         log.exception('MainWindow initializer failed')
         raise
     ui.run(filename)

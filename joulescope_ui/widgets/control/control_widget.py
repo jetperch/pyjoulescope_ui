@@ -334,7 +334,7 @@ class ControlWidget(QtWidgets.QWidget):
                     'time_str': time_str,
                     'accumulators': a,
                 }
-            except:
+            except Exception:
                 self._accum_history = None
             self.accum_update()
         elif topic == 'Device/#state/source':

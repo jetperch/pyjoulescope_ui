@@ -36,7 +36,7 @@ def run(cmd_queue, filehandle, calibration, logging_queue):
                 break
         except Empty:
             pass
-        except:
+        except Exception:
             log.exception("run exception during loop")
     log.info('run end')
 

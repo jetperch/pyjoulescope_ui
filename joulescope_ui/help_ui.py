@@ -64,7 +64,7 @@ def _load_filename(filename):
                 with open(fname, 'rb') as f:
                     bin_data = f.read()
             return bin_data.decode('utf-8')
-        except:
+        except Exception:
             pass
     raise RuntimeError(f'Could not load file: {filename}')
 
@@ -84,7 +84,7 @@ def display_help(parent, cmdp, name):
     html = load_help(name)
     try:
         title = re.search(r'<title>(.*?)<\/title>', html)[1]
-    except:
+    except Exception:
         title = name
     html = html.format(style=style)
     dialog = ScrollMessageBox(html, parent)
