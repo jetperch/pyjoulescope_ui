@@ -6,7 +6,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.9.4
 
-2021 Feb 11 [in progress]
+2021 Feb 15 [in progress]
 
 *   Fixed Tools → Clear Accumulator #111
 *   Copied Single Value Widget value to clipboard on mouse click #113
@@ -14,6 +14,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Added error handling to log file cleanup.
 *   Fixed crash on invalid window_state #116
 *   Reduced exception catching from "except:" to "except Exception:"
+*   Fixed clear accumulators also affecting CSV capture #117
 
 
 ## 0.9.3

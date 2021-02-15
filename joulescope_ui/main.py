@@ -653,6 +653,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def _on_device_statistic(self, statistics):
         self._accumulators['time'] += statistics['time']['delta']['value']
+        self._record_statistics_item(statistics)
         statistics['time']['accumulator'] = {'value': self._accumulators['time'], 'units': 's'}
         for field in ['charge', 'energy']:
             d = statistics['accumulators'][field]
@@ -662,6 +663,8 @@ class MainWindow(QtWidgets.QMainWindow):
             z[1] = x
             d['value'] = z[0]
         self._cmdp.publish('Device/#state/statistics', statistics)
+
+    def _record_statistics_item(self, statistics):
         if self._statistics_recording is not None:
             hdr = '#time,current,voltage,power,charge,energy\n'
             t = statistics['time']['range']['value'][1]
