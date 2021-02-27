@@ -1,13 +1,14 @@
 check-manifest>=0.37
 coverage>=4.5.2
 fs
-joulescope>=0.9.3  # also update JOULESCOPE_VERSION_MIN in setup.py
+joulescope>=0.9.4  # also update JOULESCOPE_VERSION_MIN in setup.py
 markdown
+pyjls
 pypiwin32>=223; sys_platform == 'win32'
 # python {path_to_python}\scripts\pywin32_postinstall.py -install
 python-dateutil>=2.7.3
 pyperclip>=1.7.0
-PyInstaller>=3.5
+PyInstaller>=4.2
 PySide2==5.13.2; python_version < '3.8'
 PySide2>=5.15.1; python_version >= '3.8'
 requests>=2.0.0

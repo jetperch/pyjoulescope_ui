@@ -27,7 +27,7 @@ from joulescope.usb import DeviceNotify
 from joulescope_ui.data_recorder_process import DataRecorderProcess as DataRecorder
 from joulescope_ui.file_dialog import FileDialog
 from joulescope.data_recorder import construct_record_filename  # DataRecorder
-from joulescope_ui.recording_viewer_device import RecordingViewerDevice
+from joulescope_ui.recording_viewer_factory import factory as recording_viewer_factory
 from joulescope_ui.preferences_ui import PreferencesDialog
 from joulescope_ui.update_check import check as software_update_check
 from joulescope_ui.logging_util import logging_preconfig, logging_config, LOG_PATH, logging_start
@@ -804,7 +804,7 @@ class MainWindow(QtWidgets.QMainWindow):
         pnames = ['type', 'samples_pre', 'samples_window', 'samples_post']
         values = [str(self._cmdp['Device/Current Ranging/' + p]) for p in pnames]
         current_ranging_format = '_'.join(values)
-        device = RecordingViewerDevice(filename, current_ranging_format=current_ranging_format)
+        device = recording_viewer_factory(filename, self._cmdp, current_ranging_format=current_ranging_format)
         device.ui_on_close = lambda: self._device_remove(device)
         self._device_add(device)
         return device

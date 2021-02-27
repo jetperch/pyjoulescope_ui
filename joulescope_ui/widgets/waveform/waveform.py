@@ -15,6 +15,7 @@
 from PySide2 import QtGui, QtCore, QtWidgets
 from .signal_def import signal_def
 from .signal import Signal
+from .signal_viewbox import SignalViewBox
 from .scrollbar import ScrollBar
 from .xaxis import XAxis
 from .settings_widget import SettingsWidget
@@ -46,6 +47,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._cmdp = cmdp
         self._x_limits = [0.0, 30.0]
         self._mouse_pos = None
+        self._context_menu_event = None
         self._clipboard_image = None
         self._shortcuts = {}
 
@@ -119,6 +121,12 @@ class WaveformWidget(QtWidgets.QWidget):
         c.register('!Widgets/Waveform/Signals/remove', self._cmd_waveform_signals_remove,
                    brief='Remove a signal from the waveform by name.',
                    detail='value is signal name string.')
+        c.register('!Widgets/Waveform/annotation/add', self._cmd_waveform_signals_annotation_add,
+                   brief='Add an annotation to a signal.',
+                   detail='value is [signal_name, x_pos, text].')
+        c.register('!Widgets/Waveform/annotation/remove', self._cmd_waveform_signals_annotation_remove,
+                   brief='Remove an annotation from a signal.',
+                   detail='value is [signal_name, x_pos].')
         cmdp.subscribe('Appearance/__index__', self._on_colors, update_now=True)
 
         shortcuts = [
@@ -153,12 +161,52 @@ class WaveformWidget(QtWidgets.QWidget):
         if ev.isAccepted():
             return
         if ev.button() & QtCore.Qt.RightButton:
-            pos = ev.screenPos().toPoint()
-            self._context_menu(pos)
+            self._context_menu_event = ev
+            self._context_menu(ev.screenPos().toPoint())
+
+    def _context_menu_pos_view_x(self):
+        p = self._context_menu_event.scenePos().toPoint()
+        return self._x_axis.linkedView().mapSceneToView(p).x()
+
+    def _on_annotation_single_marker(self):
+        x = self._context_menu_pos_view_x()
+        self._cmdp.invoke('!Widgets/Waveform/Markers/single_add', x)
+
+    def _on_annotation_dual_markers(self):
+        x = self._context_menu_pos_view_x()
+        self._cmdp.invoke('!Widgets/Waveform/Markers/dual_add', [x])
+
+    def _event_to_signal_name(self, ev):
+        for item in self.win.sceneObj.itemsNearEvent(ev):
+            if isinstance(item, SignalViewBox):
+                return item.name
+        return None
+
+    def _on_annotation_text(self):
+        x = self._context_menu_pos_view_x()
+        signal_name = self._event_to_signal_name(self._context_menu_event)
+        if signal_name is None:
+            log.warning('No signal at location: ignored')
+            return
+        self._cmdp.invoke('!Widgets/Waveform/annotation/add', [signal_name, x, None])
+
+    def _on_annotation_clear_all(self):
+        self._cmdp.invoke('!Widgets/Waveform/Markers/clear', None)
 
     def _context_menu(self, pos):
         log.debug('_context_menu')
         menu = QtGui.QMenu('Waveform menu', self)
+
+        annotations = menu.addMenu('&Annotations')
+        single_marker = annotations.addAction('&Single Marker')
+        single_marker.triggered.connect(self._on_annotation_single_marker)
+        dual_markers = annotations.addAction('&Dual Markers')
+        dual_markers.triggered.connect(self._on_annotation_dual_markers)
+        annotation_text = annotations.addAction('&Text')
+        annotation_text.triggered.connect(self._on_annotation_text)
+        clear_all = annotations.addAction('&Clear all')
+        clear_all.triggered.connect(self._on_annotation_clear_all)
+
         save_image = menu.addAction('Save image')
         save_image.triggered.connect(self.on_save_image)
         copy_image = menu.addAction('Copy image to clipboard')
@@ -284,6 +332,24 @@ class WaveformWidget(QtWidgets.QWidget):
         signals.remove(value)
         self._cmdp['Widgets/Waveform/_signals'] = signals
         return '!Widgets/Waveform/Signals/add', value
+
+    def _cmd_waveform_signals_annotation_add(self, topic, value):
+        signal_name, x, text = value
+        if signal_name not in self._signals:
+            log.warning(f'Signal {signal_name} not found')
+            return
+        signal = self._signals[signal_name]
+        signal.annotation_add(x, text)
+        return '!Widgets/Waveform/Signals/annotation/remove', [signal_name, x]
+
+    def _cmd_waveform_signals_annotation_remove(self, topic, value):
+        signal_name, x = value
+        if signal_name not in self._signals:
+            log.warning(f'Signal {signal_name} not found')
+            return
+        signal = self._signals[signal_name]
+        text = signal.annotation_remove(x)
+        return '!Widgets/Waveform/Signals/annotation/add', [signal_name, x, text]
 
     def _on_signals_active(self, topic, value):
         # must be safe to call repeatedly

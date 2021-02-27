@@ -128,6 +128,7 @@ class XAxis(AxisItemPatch):
         return positions_start
 
     def _cmd_waveform_marker_single_add(self, topic, value):
+        log.info('marker_single_add(%s)', value)
         x1, x2 = self.range
         if value is None:
             x = self._position_markers([(x1 + x2) / 2])[0]
@@ -144,14 +145,22 @@ class XAxis(AxisItemPatch):
         return '!Widgets/Waveform/Markers/remove', [[name]]
 
     def _cmd_waveform_marker_dual_add(self, topic, value):
+        log.info('marker_dual_add(%s)', value)
         if value is None:
             x1, x2 = self.range
             xc = (x1 + x2) / 2
             xs = (x2 - x1) / 10
             x1, x2 = xc - xs, xc + xs
             x1, x2 = self._position_markers([x1, x2])
-        else:
+        elif len(value) == 1:
+            x = value[0]
+            xa, xb = self.range
+            xr = (xb - xa) * 0.05
+            x1, x2 = x - xr, x + xr
+        elif len(value) == 2:
             x1, x2 = value
+        else:
+            raise ValueError(f'unsupported dual marker value: {value}')
         idx = self._find_first_unused_marker_index()
         name = str(idx)
         name1, name2 = name + 'a', name + 'b'
@@ -167,6 +176,7 @@ class XAxis(AxisItemPatch):
         return '!Widgets/Waveform/Markers/remove', [[name1, name2]]
 
     def _cmd_waveform_marker_remove(self, topic, value):
+        log.info('marker_remove(%s)', value)
         states = []
         for v in value:
             states.append(self.marker_remove(*v))
@@ -174,6 +184,7 @@ class XAxis(AxisItemPatch):
         return '!Widgets/Waveform/Markers/restore', states
 
     def _cmd_waveform_marker_restore(self, topic, value):
+        log.info('marker_restore(%s)', value)
         names = []
         for state in value:
             if state is None or len(state) != 2:
@@ -188,6 +199,7 @@ class XAxis(AxisItemPatch):
         return '!Widgets/Waveform/Markers/remove', names
 
     def _cmd_waveform_marker_clear(self, topic, value):
+        log.info('marker_clear(%s)', value)
         removal = []
         for marker in self._markers.values():
             if marker.pair is not None:
@@ -215,19 +227,13 @@ class XAxis(AxisItemPatch):
 
     def on_singleMarker(self):
         x = self._popup_menu_pos.x()
-        log.info('on_singleMarker(%s)', x)
         self._cmdp.invoke('!Widgets/Waveform/Markers/single_add', x)
 
     def on_dualMarkers(self):
         x = self._popup_menu_pos.x()
-        xa, xb = self.range
-        xr = (xb - xa) * 0.05
-        x1, x2 = x - xr, x + xr
-        log.info('on_dualMarkers(%s, %s)', x1, x2)
-        self._cmdp.invoke('!Widgets/Waveform/Markers/dual_add', [x1, x2])
+        self._cmdp.invoke('!Widgets/Waveform/Markers/dual_add', [x])
 
     def on_clearAllMarkers(self):
-        log.info('on_clearAllMarkers()')
         self._cmdp.invoke('!Widgets/Waveform/Markers/clear', None)
 
     def linkedViewChanged(self, view, newRange=None):

@@ -18,7 +18,7 @@ Test the configuration file
 
 import unittest
 from unittest.mock import MagicMock
-from joulescope_ui.recording_viewer_device import RecordingViewerDevice
+from joulescope_ui.recording_viewer_factory import factory
 from joulescope.stream_buffer import StreamBuffer, usb_packet_factory
 import io
 from joulescope.data_recorder import DataRecorder
@@ -51,7 +51,7 @@ class TestRecordingViewerDevice(unittest.TestCase):
         self.lock = threading.Lock()
         self.lock.acquire()
         self.updates = []
-        self.d = RecordingViewerDevice(self._create_file(0, 2))
+        self.d = factory(self._create_file(0, 2), None)
         self.d.open()
 
     def tearDown(self):

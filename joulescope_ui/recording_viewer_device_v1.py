@@ -226,7 +226,7 @@ class RecordingView:
         return self._parent()._post_block('ping', self, (args, kwargs))
 
 
-class RecordingViewerDevice:
+class RecordingViewerDeviceV1:
     """A user-interface-compatible device that displays previous recorded data
 
     :param filename: The filename path to the pre-recorded data.

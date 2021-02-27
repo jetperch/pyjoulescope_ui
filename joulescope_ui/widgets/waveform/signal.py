@@ -15,6 +15,7 @@
 from PySide2 import QtCore
 from .signal_statistics import SignalStatistics, SignalMarkerStatistics, si_format, html_format
 from .signal_viewbox import SignalViewBox
+from .text_annotation import TextAnnotation
 from joulescope.stream_buffer import single_stat_to_api
 from .marker import Marker
 from .yaxis import YAxis
@@ -60,6 +61,7 @@ class Signal(QtCore.QObject):
                 'scale': 'linear',
             },
         }
+        self._annotations = []
         self._statistics_font_resizer = statistics_font_resizer
         self.markers: Dict[str, Marker] = None   # WARNING: for reference only
         self._marker_font_resizer = marker_font_resizer
@@ -144,6 +146,20 @@ class Signal(QtCore.QObject):
                 if self.text_item:
                     layout.removeItem(self.text_item)
                 return row
+
+    def annotation_add(self, x, text):
+        self.log.info('annotation_add(%s, %s)', x, text)
+        state = {'signal_name': self.name, 'x': x, 'text': text}
+        a = TextAnnotation(self.vb, state)
+        self.vb.addItem(a, ignoreBounds=True)
+        a.show()
+        self._annotations.append(a)
+
+    def annotation_remove(self, x):
+        self.log.info('annotation_remove(%s)', x)
+        print(f'annotation_remove({self.name}, {x})')
+        # todo return text
+        pass
 
     def y_axis_config_update(self, cfg):
         scale_orig = self.config['y-axis']['scale']
