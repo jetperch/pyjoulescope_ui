@@ -166,9 +166,9 @@ setuptools.setup(
         'License :: OSI Approved :: Apache Software License',
 
         # Supported Python versions
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
     ],
 
     keywords='joulescope ui gui "user interface"',
@@ -184,6 +184,7 @@ setuptools.setup(
     install_requires=[
         'fs',
         'markdown',
+        'pyjls',
         'pyperclip>=1.7.0',
         'python-dateutil>=2.7.3',
         'pyqtgraph>=0.11.0',
