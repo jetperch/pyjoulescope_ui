@@ -74,6 +74,7 @@ will be implemented before Joulescope general availability.
     and a box with the view being displayed.
 *   Save waveforms as graphics to image file and clipboard.
 *   Move the selected, active marker using left/right arrow keys.
+*   Add "Zoom to area" feature that zooms both x & y axes.
 
 
 ### Frequency analysis
