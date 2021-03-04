@@ -127,16 +127,17 @@ class RecordingView:
             self._log.warning(msg)
             raise RuntimeError(msg)
         x_len = (stop - start) // incr
-        stop = start + (x_len - 1) * incr
+        stop = start + x_len * incr
         t_start = start / fs
         x = np.arange(x_len, dtype=np.float64)
         x *= incr / fs
         x += t_start
+        dx = (x[-1] - x[0]) + (incr - 1) / fs
 
         result = {
             'time': {
                 'x': {'value': x, 'units': 's'},
-                'delta': {'value': x[-1] - x[0], 'units': 's'},
+                'delta': {'value': dx, 'units': 's'},
                 'samples': {'value': [start, stop], 'units': 'samples'},
                 'limits': {'value': self.limits, 'units': 's'},
             },

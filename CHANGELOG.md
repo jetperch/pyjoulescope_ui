@@ -4,6 +4,13 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.9.5
+
+2021 Mar 4 [in progress]
+
+*   Fixed delta time computation (dual markers) for JLS v2.
+
+
 ## 0.9.4
 
 2021 Feb 27
