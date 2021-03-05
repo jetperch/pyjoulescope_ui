@@ -152,43 +152,49 @@ class RecordingView:
             if signal.signal_type != SignalType.FSR:
                 continue
             units = signal.units
-            if incr > 1:
-                data = reader.fsr_statistics(signal_id, start, incr, x_len)
-                dmean = data[:, SummaryFSR.MEAN]
-                s = {
-                    'µ': {'value': dmean, 'units': units},
-                    'σ2': {'value': data[:, SummaryFSR.STD] * data[:, SummaryFSR.STD], 'units': units},
-                    'min': {'value': data[:, SummaryFSR.MIN], 'units': units},
-                    'max': {'value': data[:, SummaryFSR.MAX], 'units': units},
-                    'p2p': {'value': data[:, SummaryFSR.MAX] - data[:, SummaryFSR.MIN], 'units': units},
-                    # '∫': {'value': 0.0, 'units': units},  # todo
-                }
-            else:
-                data = reader.fsr(signal_id, start, x_len)
-                zeros = np.zeros(len(data), dtype=np.float32)
-                s = {
-                    'µ': {'value': data, 'units': units},
-                    'σ2': {'value': zeros, 'units': units},
-                    'min': {'value': data, 'units': units},
-                    'max': {'value': data, 'units': units},
-                    'p2p': {'value': zeros, 'units': units},
-                    # '∫': {'value': 0.0, 'units': units},  # todo
-                }
-            result['signals'][signal.name] = s
+            try:
+                if incr > 1:
+                    data = reader.fsr_statistics(signal_id, start, incr, x_len)
+                    dmean = data[:, SummaryFSR.MEAN]
+                    s = {
+                        'µ': {'value': dmean, 'units': units},
+                        'σ2': {'value': data[:, SummaryFSR.STD] * data[:, SummaryFSR.STD], 'units': units},
+                        'min': {'value': data[:, SummaryFSR.MIN], 'units': units},
+                        'max': {'value': data[:, SummaryFSR.MAX], 'units': units},
+                        'p2p': {'value': data[:, SummaryFSR.MAX] - data[:, SummaryFSR.MIN], 'units': units},
+                        # '∫': {'value': 0.0, 'units': units},  # todo
+                    }
+                else:
+                    data = reader.fsr(signal_id, start, x_len)
+                    zeros = np.zeros(len(data), dtype=np.float32)
+                    s = {
+                        'µ': {'value': data, 'units': units},
+                        'σ2': {'value': zeros, 'units': units},
+                        'min': {'value': data, 'units': units},
+                        'max': {'value': data, 'units': units},
+                        'p2p': {'value': zeros, 'units': units},
+                        # '∫': {'value': 0.0, 'units': units},  # todo
+                    }
+                result['signals'][signal.name] = s
+            except Exception:
+                self._log.warn('view could not get %s', signal.name)
         return result
 
     def _update(self):
-        reader = self._reader
-        if not callable(self.on_update_fn) or reader is None:
-            return
-        self._refresh_requested = False
-        if self._cache is not None:
+        try:
+            reader = self._reader
+            if not callable(self.on_update_fn) or reader is None:
+                return
+            self._refresh_requested = False
+            if self._cache is not None:
+                self.on_update_fn(self._cache)
+                return
+            fs = self.sampling_frequency
+            start, stop = [int(x * fs) for x in self._x_range]
+            self._cache = self._get(start, stop, self._samples_per)
             self.on_update_fn(self._cache)
-            return
-        fs = self.sampling_frequency
-        start, stop = [int(x * fs) for x in self._x_range]
-        self._cache = self._get(start, stop, self._samples_per)
-        self.on_update_fn(self._cache)
+        except Exception:
+            self._log.exception('view update failed')
 
     def _statistics_get(self, start=None, stop=None, units=None):
         """Get the statistics for the collected sample data over a time range.
