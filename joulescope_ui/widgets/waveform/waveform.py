@@ -334,12 +334,12 @@ class WaveformWidget(QtWidgets.QWidget):
         return '!Widgets/Waveform/Signals/add', value
 
     def _cmd_waveform_signals_annotation_add(self, topic, value):
-        signal_name, x, text = value
+        signal_name, x, group_id, text = value
         if signal_name not in self._signals:
             log.warning(f'Signal {signal_name} not found')
             return
         signal = self._signals[signal_name]
-        signal.annotation_add(x, text)
+        signal.annotation_add(x, group_id, text)
         return '!Widgets/Waveform/Signals/annotation/remove', [signal_name, x]
 
     def _cmd_waveform_signals_annotation_remove(self, topic, value):

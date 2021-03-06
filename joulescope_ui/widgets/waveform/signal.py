@@ -86,6 +86,10 @@ class Signal(QtCore.QObject):
             self.y_axis.setLabel(text=display_name, units=units)
             self.text_item = SignalStatistics(field=self.name, units=units, cmdp=cmdp)
 
+        self._pen_min_max = None
+        self._brush_min_max = None
+        self._pen_mean = None
+
         self.curve_mean = pg.PlotDataItem()
         self.curve_max = pg.PlotDataItem()
         self.curve_min = pg.PlotDataItem()
@@ -147,9 +151,9 @@ class Signal(QtCore.QObject):
                     layout.removeItem(self.text_item)
                 return row
 
-    def annotation_add(self, x, text):
+    def annotation_add(self, x, group_id, text):
         self.log.info('annotation_add(%s, %s)', x, text)
-        state = {'signal_name': self.name, 'x': x, 'text': text}
+        state = {'signal_name': self.name, 'x': x, 'group_id': group_id, 'text': text}
         a = TextAnnotation(self.vb, state)
         self.vb.addItem(a, ignoreBounds=True)
         a.show()
@@ -272,8 +276,7 @@ class Signal(QtCore.QObject):
             self.curve_max.hide()
             self.curve_min.hide()
             if self.curve_range is None:
-                brush = pg.mkBrush(color=self._cmdp['Widgets/Waveform/min_max_fill_color'])
-                self.curve_range = pg.FillBetweenItem(self.curve_min, self.curve_max, brush=brush)
+                self.curve_range = pg.FillBetweenItem(self.curve_min, self.curve_max, brush=self._brush_min_max)
                 self.vb.addItem(self.curve_range)
             else:
                 self.curve_range.show()
@@ -498,15 +501,15 @@ class Signal(QtCore.QObject):
         trace_width = int(self._cmdp['Widgets/Waveform/trace_width'])
         mean_color = color_as_qcolor(colors.get('waveform_trace1_mean', '#FFFF00'))
         min_max_trace_color = color_as_qcolor(colors.get('waveform_trace1_min_max_trace', '#A00000'))
+        min_max_fill_color = color_as_qcolor(colors.get('waveform_trace1_min_max_fill', '#FF404080'))
         self._pen_min_max = pg.mkPen(color=min_max_trace_color, width=trace_width)
         self._pen_mean = pg.mkPen(color=mean_color, width=trace_width)
         self.curve_min.setPen(self._pen_min_max)
         self.curve_max.setPen(self._pen_min_max)
         self.curve_mean.setPen(self._pen_mean)
+        self._brush_min_max = pg.mkBrush(color=min_max_fill_color)
         if self.curve_range is not None:
-            min_max_fill_color = color_as_qcolor(colors.get('waveform_trace1_min_max_fill', '#FF404080'))
-            brush = pg.mkBrush(color=min_max_fill_color)
-            self.curve_range.setBrush(brush)
+            self.curve_range.setBrush(self._brush_min_max)
         self.vb.update()
         self.y_axis.setTextPen(font_color)
 

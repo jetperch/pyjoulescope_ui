@@ -41,6 +41,7 @@ class TextAnnotation(QtGui.QGraphicsPathItem):
             'id': state.get('id', id(self)),
             'signal_name': state['signal_name'],
             'x': state['x'],
+            'group_id': int(state.get('group_id', 0)),
             'text': state.get('text'),
             'fill_color': state.get('fill_color', (64, 192, 128, 255)),
             # 'border_color': state.get('border_color', (64, 255, 128, 255)),
