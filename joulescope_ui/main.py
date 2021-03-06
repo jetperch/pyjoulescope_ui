@@ -263,6 +263,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._multiprocessing_logging_queue = multiprocessing_logging_queue
         self._devices = []
         self._device = None
+        self._device_notify = None
         self._streaming_status = None
         self._resync_handlers = {}
         self._resync_queue = Queue()
@@ -424,10 +425,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self._source_indicator.setProperty('stream', 'inactive')
         self.statusbar.addPermanentWidget(self._source_indicator)
 
-        # device scan timer - because bad things happen, see rescan_interval config
-        self.rescan_timer = QtCore.QTimer(self)
-        self.rescan_timer.timeout.connect(self.on_rescanTimer)
-
         # plugins
         with self._plugins as p:
             p.range_tool_register('Export data', Exporter)
@@ -563,6 +560,21 @@ class MainWindow(QtWidgets.QMainWindow):
     def _is_streaming_device(self):
         return hasattr(self._device, 'start')
 
+    def _device_notify_start(self):
+        log.info('_device_notify_stop')
+        if self._device_notify is None:
+            self._device_notify = DeviceNotify(self.resync_handler('device_notify'))
+            self._device_scan()
+
+    def _device_notify_stop(self):
+        log.info('_device_notify_stop')
+        try:
+            if self._device_notify is not None:
+                device_notify, self._device_notify = self._device_notify, None
+                device_notify.close()
+        except Exception:
+            log.exception('_device_notify_stop')
+
     def run(self, filename=None):
         self._on_widgets_active('Widgets/active', self._cmdp['Widgets/active'])
         if filename is not None:
@@ -570,11 +582,11 @@ class MainWindow(QtWidgets.QMainWindow):
             self._cmdp.invoke('!Device/open', filename)
         else:
             self._on_window_state('_window', self._cmdp['_window'])
+            self._device_notify_start()
         self._software_update_check()
         log.debug('Qt show()')
         self.show()
         log.debug('Qt show() success')
-        self._device_scan()
 
     def event(self, event: QtCore.QEvent):
         if event.type() == QResyncEvent.EVENT_TYPE:
@@ -631,11 +643,6 @@ class MainWindow(QtWidgets.QMainWindow):
                 log.exception("statusUpdateTimer failed - assume device error")
                 self._device_recover()
                 return
-
-    @QtCore.Slot()
-    def on_rescanTimer(self):
-        log.debug('rescanTimer')
-        self._device_scan()
 
     def _on_waveform_requests_data_next(self, topic, data):
         self._fps_counter += 1
@@ -804,6 +811,12 @@ class MainWindow(QtWidgets.QMainWindow):
         pnames = ['type', 'samples_pre', 'samples_window', 'samples_post']
         values = [str(self._cmdp['Device/Current Ranging/' + p]) for p in pnames]
         current_ranging_format = '_'.join(values)
+        filename_parts = filename.split('.')
+        if len(filename_parts) > 2:
+            basename = '.'.join([filename_parts[0], filename_parts[-1]])
+            if os.path.isfile(basename):
+                filename = basename
+            log.info('found recording base %s', filename)
         device = recording_viewer_factory(filename, self._cmdp, current_ranging_format=current_ranging_format)
         device.ui_on_close = lambda: self._device_remove(device)
         self._device_add(device)
@@ -867,6 +880,7 @@ class MainWindow(QtWidgets.QMainWindow):
             except Exception:
                 log.exception('while initializing after open device')
                 return self._device_open_failed('Could not initialize device')
+            self._device_notify_start()
         else:
             self._device_state_clear()
 
@@ -1610,6 +1624,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self._device_close()
         except Exception:
             log.exception('closeEvent could not close device')
+        self._device_notify_stop()
         return super(MainWindow, self).closeEvent(event)
 
     def _source_indicator_status_update(self, status):
@@ -1922,10 +1937,8 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
         log.exception('MainWindow initializer failed')
         raise
     ui.run(filename)
-    device_notify = DeviceNotify(ui.resync_handler('device_notify'))
     rc = app.exec_()
     log.info('shutting down')
     del ui
-    device_notify.close()
     logging_stop()
     return rc

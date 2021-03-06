@@ -12,6 +12,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 *   Fixed crash on viewing JLS v2 signal with no data.
 *   Fixed min/max fill color.
 *   Added annotation group_id support.
+*   Fixed race condition when start UI with JLS file argument.
+*   Load base recording if user selects an annotation file.
 
 
 ## 0.9.4
