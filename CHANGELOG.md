@@ -6,7 +6,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.9.5
 
-2021 Mar 6 [in progress]
+2021 Mar 9
 
 *   Fixed delta time computation (dual markers) for JLS v2.
 *   Fixed crash on viewing JLS v2 signal with no data.
