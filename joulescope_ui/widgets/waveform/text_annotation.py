@@ -15,13 +15,14 @@
 # Based upon pyqtgraph/examples/customGraphicsItem.py
 
 from PySide2 import QtWidgets, QtGui, QtCore
+from . path_item import PathItem
 import pyqtgraph as pg
 import logging
 
 Z_ANNOTATION_NORMAL = 15
 
 
-class TextAnnotation(QtGui.QGraphicsPathItem):
+class TextAnnotation(PathItem):
     """A user-defined text annotation applied to a signal.
 
     :param parent: The parent signal's ViewBox.
@@ -34,7 +35,7 @@ class TextAnnotation(QtGui.QGraphicsPathItem):
         * border_color: The border color.
     """
     def __init__(self, parent, state):
-        QtGui.QGraphicsPathItem.__init__(self, parent)
+        PathItem.__init__(self)
         self._parent = parent
         self._log = logging.getLogger('%s.%s' % (__name__, state['x']))
         self._state = {
@@ -50,7 +51,6 @@ class TextAnnotation(QtGui.QGraphicsPathItem):
         }
         self._path = self._make_path()
         self.setPath(self._path)
-        self.setFlags(self.flags() | self.ItemIgnoresTransformations)
         self.setPos(self._state['x'], 0.0)
 
         brush = pg.mkBrush(self._state['fill_color'])
