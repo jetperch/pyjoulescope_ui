@@ -6,9 +6,10 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.9.6
 
-2021 Mar 11 [in progress]
+2021 Mar 24 [in progress]
 
 *   Added text annotation fix.  Thank you Selmen Dridi!
+*   Fixed crash when logging is disabled.
 
 
 ## 0.9.5

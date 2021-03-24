@@ -163,8 +163,6 @@ def logging_config(stream_log_level=None, file_log_level=None):
         file_hnd.setLevel(file_lvl)
         faulthandler.enable(file=file_hnd.stream)
         root_log.addHandler(file_hnd)
-    else:
-        faulthandler.enable()
 
     root_log.setLevel(min([stream_lvl, file_lvl]))
     _cleanup_logfiles()
