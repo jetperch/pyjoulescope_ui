@@ -1,28 +1,28 @@
 
 # Joulescope UI
 
-Welcome to Joulescope™!  Joulescope is an affordable, precision DC energy 
+Welcome to Joulescope™!  Joulescope is an affordable, precision DC energy
 analyzer that enables you to build better products.
-Joulescope™ accurately and simultaneously measures the voltage and current 
-supplied to your target device, and it then computes power and energy. 
-For more information on Joulescope, see 
+Joulescope™ accurately and simultaneously measures the voltage and current
+supplied to your target device, and it then computes power and energy.
+For more information on Joulescope, see
 [www.joulescope.com](https://www.joulescope.com).
 
 This repository contains the Joulescope graphical user interface (UI).
-The UI runs on a host computer and communicates with the Joulescope device 
-over USB.  The application source code is available at 
+The UI runs on a host computer and communicates with the Joulescope device
+over USB.  The application source code is available at
 https://github.com/jetperch/pyjoulescope_ui.  
 
 For the list of changes by release, see the [Changelog](CHANGELOG.md).
 
-The Joulescope UI is under active development, and many features remain 
+The Joulescope UI is under active development, and many features remain
 outstanding. See the [future features document](features_future.md) for details.
 
 
 ## Quick start using official distribution
 
 We provide an official distribution that is prebuit for Windows, macOS and
-Ubuntu 20.04LTS. 
+Ubuntu 20.04LTS.
 [Download](https://www.joulescope.com/download) the application distribution
 for your platform and install it.  
 
@@ -35,21 +35,22 @@ run directly from source.
 
 ### Install Python
 
-The Joulescope User Interface requires Python 3.6 or newer.  We recommend Python 3.8 or 3.9.
+The Joulescope User Interface requires Python 3.6 or newer.
+We recommend Python 3.8 or 3.9.
 Install [Python 3.8+](https://www.python.org/) on your system and then verify
 your python version at the terminal or command line:
 
     > python3 -VV
     Python 3.9.0 (tags/v3.9.0:9cf6752, Oct  5 2020, 15:34:40) [MSC v.1927 64 bit (AMD64)]
-    
+
 Ensure that you have Python 3.6 or newer and 64-bit.
 
 
 ### Configure virtualenv [optional]
 
-Although not required, using 
+Although not required, using
 [virtualenv](https://virtualenv.pypa.io/en/latest/)
-avoids dependency conflicts, especially if you use your python installation for 
+avoids dependency conflicts, especially if you use your python installation for
 other programs.  Using virtualenv ensures that
 the Joulescope software has the right dependencies without changing the rest
 of your system.
@@ -73,36 +74,38 @@ Install virtualenv and create a new virtual environment:
 
     pip3 install -U virtualenv
     virtualenv ~/venv/joulescope
-    
+
 Activate the virtual environment whenever you start a new terminal:
-    
+
     source ~/venv/joulescope/bin/activate
-    
+
 
 ### Option 1: Install from pypi
 
-Installation from pypi is easy!
+Installation from pypi is easy:
 
     pip3 install -U joulescope_ui
+    
+If you just want to run the latest released version of the UI, use this option!
 
 
-### Option 2: Clone and run from source
+### Option 2: Clone, install and run from source
 
 Clone and configure the Joulescope UI from the terminal or command line:
 
     git clone https://github.com/jetperch/pyjoulescope_ui.git
     cd pyjoulescope_ui
     pip3 install -U -r requirements.txt
-    python3 setup.py qt
-    
-You can then run from this directory:
 
-    python3 -m joulescope_ui
-    
-You can alternatively build and install from source:
+Make any optional modifications you want to the source code.  Then build and
+install the source:
 
     python3 setup.py sdist
-    python3 install dist/joulescope_ui-{version}.tar.gz
+    pip3 install dist/joulescope_ui-{version}.tar.gz
+
+You can then run from any directory:
+
+    python3 -m joulescope_ui
 
 If you see an error importing win32api on Windows, you should try running this
 command from an Administrator command prompt:
@@ -110,9 +113,35 @@ command from an Administrator command prompt:
    python {path_to_python}\scripts\pywin32_postinstall.py -install
 
 
-### Simultaneously develop the Joulescope driver
+### Option 3: Develop the UI
 
-If you also want to simultaneously develop the Joulescope UI and the 
+Clone and configure the Joulescope UI from the terminal or command line:
+
+    git clone https://github.com/jetperch/pyjoulescope_ui.git
+    cd pyjoulescope_ui
+    pip3 install -U -r requirements.txt
+
+Build the QT resources:
+
+    python3 setup.py qt
+
+As long as the current directory is the source directory, you can run:
+
+    python3 -m joulescope_ui
+
+If you want to run from another directory, you will need to add the source
+to your PYTHONPATH environment variable.  On Windows:
+
+    set PYTHONPATH={C:\path\to\repos}\pyjoulescope_ui
+
+and on POSIX (Linux, Mac OS X with homebrew):
+
+    export PYTHONPATH={path/to/repos}/pyjoulescope_ui
+
+
+### Option 4: Develop both UI and driver
+
+If you also want to simultaneously develop the Joulescope UI and the
 Joulescope driver:
 
     pip3 uninstall joulescope
@@ -122,7 +151,8 @@ Joulescope driver:
     pip3 install -U -r requirements.txt    
     python3 setup.py build_ext --inplace
 
-You should then modify your python path. On Windows:
+You should then modify your python path to find both the UI and driver
+source paths. On Windows:
 
     set PYTHONPATH={C:\path\to\repos}\pyjoulescope;{C:\path\to\repos}\pyjoulescope_ui
 
@@ -130,9 +160,7 @@ and on POSIX (Linux, Mac OS X with homebrew):
 
     export PYTHONPATH={path/to/repos}/pyjoulescope:{path/to/repos}/pyjoulescope_ui
 
-You should then be able to run the user interface from this directory:
-
-    python3 -m joulescope_ui
+Follow the instructions from Option 3 to configure and run the UI.
 
 
 ## License
