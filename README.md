@@ -1,28 +1,28 @@
 
 # Joulescope UI
 
-Welcome to Joulescope™!  Joulescope is an affordable, precision DC energy 
+Welcome to Joulescope™!  Joulescope is an affordable, precision DC energy
 analyzer that enables you to build better products.
-Joulescope™ accurately and simultaneously measures the voltage and current 
-supplied to your target device, and it then computes power and energy. 
-For more information on Joulescope, see 
+Joulescope™ accurately and simultaneously measures the voltage and current
+supplied to your target device, and it then computes power and energy.
+For more information on Joulescope, see
 [www.joulescope.com](https://www.joulescope.com).
 
 This repository contains the Joulescope graphical user interface (UI).
-The UI runs on a host computer and communicates with the Joulescope device 
-over USB.  The application source code is available at 
+The UI runs on a host computer and communicates with the Joulescope device
+over USB.  The application source code is available at
 https://github.com/jetperch/pyjoulescope_ui.  
 
 For the list of changes by release, see the [Changelog](CHANGELOG.md).
 
-The Joulescope UI is under active development, and many features remain 
+The Joulescope UI is under active development, and many features remain
 outstanding. See the [future features document](features_future.md) for details.
 
 
 ## Quick start using official distribution
 
 We provide an official distribution that is prebuit for Windows, macOS and
-Ubuntu 20.04LTS. 
+Ubuntu 20.04LTS.
 [Download](https://www.joulescope.com/download) the application distribution
 for your platform and install it.  
 
@@ -41,15 +41,15 @@ your python version at the terminal or command line:
 
     > python3 -VV
     Python 3.9.0 (tags/v3.9.0:9cf6752, Oct  5 2020, 15:34:40) [MSC v.1927 64 bit (AMD64)]
-    
+
 Ensure that you have Python 3.6 or newer and 64-bit.
 
 
 ### Configure virtualenv [optional]
 
-Although not required, using 
+Although not required, using
 [virtualenv](https://virtualenv.pypa.io/en/latest/)
-avoids dependency conflicts, especially if you use your python installation for 
+avoids dependency conflicts, especially if you use your python installation for
 other programs.  Using virtualenv ensures that
 the Joulescope software has the right dependencies without changing the rest
 of your system.
@@ -73,11 +73,11 @@ Install virtualenv and create a new virtual environment:
 
     pip3 install -U virtualenv
     virtualenv ~/venv/joulescope
-    
+
 Activate the virtual environment whenever you start a new terminal:
-    
+
     source ~/venv/joulescope/bin/activate
-    
+
 
 ### Option 1: Install from pypi
 
@@ -93,15 +93,15 @@ Clone and configure the Joulescope UI from the terminal or command line:
     git clone https://github.com/jetperch/pyjoulescope_ui.git
     cd pyjoulescope_ui
     pip3 install -U -r requirements.txt
-    
+
+Build and install from source:
+
+    python3 setup.py sdist
+    pip install dist/joulescope_ui-{version}.tar.gz
+
 You can then run from this directory:
 
     python3 -m joulescope_ui
-    
-You can alternatively build and install from source:
-
-    python3 setup.py sdist
-    python3 install dist/joulescope_ui-{version}.tar.gz
 
 If you see an error importing win32api on Windows, you should try running this
 command from an Administrator command prompt:
@@ -111,7 +111,7 @@ command from an Administrator command prompt:
 
 ### Simultaneously develop the Joulescope driver
 
-If you also want to simultaneously develop the Joulescope UI and the 
+If you also want to simultaneously develop the Joulescope UI and the
 Joulescope driver:
 
     pip3 uninstall joulescope
