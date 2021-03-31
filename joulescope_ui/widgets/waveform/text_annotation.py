@@ -15,14 +15,15 @@
 # Based upon pyqtgraph/examples/customGraphicsItem.py
 
 from PySide2 import QtWidgets, QtGui, QtCore
-from . path_item import PathItem
+import numpy as np
 import pyqtgraph as pg
 import logging
+
 
 Z_ANNOTATION_NORMAL = 15
 
 
-class TextAnnotation(PathItem):
+class TextAnnotation(pg.GraphicsObject):
     """A user-defined text annotation applied to a signal.
 
     :param parent: The parent signal's ViewBox.
@@ -35,7 +36,7 @@ class TextAnnotation(PathItem):
         * border_color: The border color.
     """
     def __init__(self, parent, state):
-        PathItem.__init__(self)
+        pg.GraphicsObject.__init__(self, parent)
         self._parent = parent
         self._log = logging.getLogger('%s.%s' % (__name__, state['x']))
         self._state = {
@@ -49,8 +50,15 @@ class TextAnnotation(PathItem):
             'text_color': state.get('text_color', (192, 192, 192, 255)),
             'size': state.get('size', 6),
         }
-        self._path = self._make_path()
-        self.setPath(self._path)
+        self._pathItem = QtGui.QGraphicsPathItem()
+        self._pathItem.setParentItem(self)
+
+        self._lastTransform = None
+        self._lastScene = None
+        self._fill = pg.mkBrush(None)
+        self._border = pg.mkPen(None)
+
+        self._make_path()
         self.setPos(self._state['x'], 0.0)
 
         brush = pg.mkBrush(self._state['fill_color'])
@@ -73,14 +81,51 @@ class TextAnnotation(PathItem):
         path.lineTo(sz, 0)
         path.lineTo(0, -sz)
         path.lineTo(-sz, 0)
-        return path
+        self._pathItem.setPath(path)
+
+    def setBrush(self, brush):
+        self._pathItem.setBrush(brush)
+
+    def setZValue(self, zValue):
+        self._pathItem.setZValue(zValue)
+        super().setZValue(zValue)
+
+    def boundingRect(self):
+        return self._pathItem.mapRectToParent(self._pathItem.boundingRect())
 
     def paint(self, p, *args):
         p.setRenderHint(QtGui.QPainter.Antialiasing)
-        super().paint(p, *args)
+        self._pathItem.paint(p, *args)
 
-    def shape(self):
-        return self._path
+    def viewTransformChanged(self):
+        # called whenever view transform has changed.
+        # Do this here to avoid double-updates when view changes.
+        self.updateTransform()
+
+    def updateTransform(self, force=True):
+        if not self.isVisible():
+            return
+        # update transform such that this item has the correct orientation
+        # and scaling relative to the scene, but inherits its position from its
+        # parent.
+        # This is similar to setting ItemIgnoresTransformations = True, but
+        # does not break mouse interaction and collision detection.
+        p = self.parentItem()
+        if p is None:
+            pt = QtGui.QTransform()
+        else:
+            pt = p.sceneTransform()
+
+        if not force and pt == self._lastTransform:
+            return
+
+        t = pt.inverted()[0]
+        # reset translation
+        _, (y_min, y_max) = self._parent.viewRange()
+        y_center = (y_max + y_min) / 2
+        t.setMatrix(t.m11(), t.m12(), t.m13(), t.m21(), t.m22(), t.m23(), 0, y_center, t.m33())
+        self.setTransform(t)
+        self._lastTransform = pt
 
     def mouseClickEvent(self, ev):
         scene_pos = ev.scenePos()

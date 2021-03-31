@@ -188,7 +188,7 @@ class WaveformWidget(QtWidgets.QWidget):
         if signal_name is None:
             log.warning('No signal at location: ignored')
             return
-        self._cmdp.invoke('!Widgets/Waveform/annotation/add', [signal_name, x, None])
+        self._cmdp.invoke('!Widgets/Waveform/annotation/add', [signal_name, x, 0, None])
 
     def _on_annotation_clear_all(self):
         self._cmdp.invoke('!Widgets/Waveform/Markers/clear', None)
