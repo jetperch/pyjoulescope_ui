@@ -23,6 +23,50 @@ import logging
 Z_ANNOTATION_NORMAL = 15
 
 
+def _make_path(*args):
+    path = QtGui.QPainterPath()
+    path.moveTo(*args[0])
+    for arg in args[1:]:
+        path.lineTo(*arg)
+    path.closeSubpath()
+    return path
+
+
+def _rotate(path, angle):
+    tr = QtGui.QTransform()
+    tr.rotate(angle)
+    return tr.map(path)
+
+
+_circle = QtGui.QPainterPath()
+_circle.addEllipse(-1, -1, 2, 2)
+_rectangle = QtGui.QPainterPath()
+_rectangle.addRect(QtCore.QRectF(-1, -1, 2, 2))
+_plus_points = [(-1, -0.4), (-1, 0.4), (-0.4, 0.4),
+                (-0.4, 1), (0.4, 1), (0.4, 0.4),
+                (1, 0.4), (1, -0.4), (0.4, -0.4),
+                (0.4, -1), (-0.4, -1), (-0.4, -0.4)]
+_star_points = [(0.0, -1.25), (-0.28075, -0.38625),
+                (-1.18875, -0.38625), (-0.454, 0.1475),
+                (-0.73475, 1.01125), (0.0, 0.4775),
+                (0.73475, 1.01125), (0.454, 0.1475),
+                (1.18875, -0.38625), (0.28075, -0.38625)]
+
+
+SHAPES = [
+    _make_path((-1, 0), (0, 1), (1, 0), (0, -1)),   # diamond
+    _circle,                                        # circle
+    _rectangle,                                     # rectangle
+    _make_path(*_star_points),                      # star
+    _make_path(*_plus_points),                      # plus
+    _rotate(_make_path(*_plus_points), 45),         # x
+    _make_path((-1, 1), (0, -1), (1, 1)),           # triangle up
+    _make_path((-1, -1), (0, 1), (1, -1)),          # triangle down
+    _make_path((-1, 1), (-1, -1), (1, 0)),          # triangle right
+    _make_path((1, 1), (1, -1), (-1, 0)),           # triangle left
+]
+
+
 class TextAnnotation(pg.GraphicsObject):
     """A user-defined text annotation applied to a signal.
 
@@ -58,7 +102,7 @@ class TextAnnotation(pg.GraphicsObject):
         self._fill = pg.mkBrush(None)
         self._border = pg.mkPen(None)
 
-        self._make_path()
+        self._group_id_set(self._state['group_id'])
         self.setPos(self._state['x'], 0.0)
 
         brush = pg.mkBrush(self._state['fill_color'])
@@ -73,14 +117,14 @@ class TextAnnotation(pg.GraphicsObject):
         self._text_item.setPlainText(self._state['text'])
         self.prepareGeometryChange()
 
-    def _make_path(self):
+    def _group_id_set(self, group_id):
+        s_len = len(SHAPES)
+        group_id = group_id % s_len
+        path = SHAPES[group_id]
+        tr = QtGui.QTransform()
         sz = self._state['size']
-        path = QtGui.QPainterPath()
-        path.moveTo(-sz, 0)
-        path.lineTo(0, sz)
-        path.lineTo(sz, 0)
-        path.lineTo(0, -sz)
-        path.lineTo(-sz, 0)
+        tr.scale(sz, sz)
+        path = tr.map(path)
         self._pathItem.setPath(path)
 
     def setBrush(self, brush):
