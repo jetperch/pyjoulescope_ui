@@ -21,6 +21,18 @@
   },
   "colors": {
     "standard": {
+      "annotation_diamond": "#6060ff",
+      "annotation_circle": "#40c080",
+      "annotation_hexagon": "#c04040",
+      "annotation_square": "#8040c0",
+      "annotation_star": "#c0c000",
+      "annotation_plus": "#40c0c0",
+      "annotation_cross": "#c08040",
+      "annotation_triangle_up": "#40c040",
+      "annotation_triangle_down": "#c040c0",
+      "annotation_triangle_left": "#c0c080",
+      "annotation_triangle_right": "#80c0c0",
+      "annotation_text": "#c0c0c0",
       "disabled_foreground": "#808080",
       "stream_source_active": "#20AA20",
       "stream_source_warning": "#C0A000",

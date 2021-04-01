@@ -182,6 +182,10 @@ class Signal(QtCore.QObject):
         a.text = text
         return text_orig
 
+    def annotation_text_visible(self, x, visible):
+        a = self._annotation_find(x)
+        a.setTextVisible(visible)
+
     def annotation_group_id(self, x, group_id):
         a = self._annotation_find(x)
         group_id_orig = a.group_id

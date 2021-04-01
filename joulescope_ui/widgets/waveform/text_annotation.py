@@ -40,8 +40,9 @@ def _rotate(path, angle):
 
 _circle = QtGui.QPainterPath()
 _circle.addEllipse(-1, -1, 2, 2)
-_rectangle = QtGui.QPainterPath()
-_rectangle.addRect(QtCore.QRectF(-1, -1, 2, 2))
+_square = QtGui.QPainterPath()
+_square.addRect(QtCore.QRectF(-1, -1, 2, 2))
+_hex_points = [(0.5, 0.866), (1.0, 0.0), (0.5, -0.866), (-0.5, -0.866), (-1.0, 0), (-0.5, 0.866)]
 _plus_points = [(-1, -0.4), (-1, 0.4), (-0.4, 0.4),
                 (-0.4, 1), (0.4, 1), (0.4, 0.4),
                 (1, 0.4), (1, -0.4), (0.4, -0.4),
@@ -56,7 +57,8 @@ _star_points = [(0.0, -1.25), (-0.28075, -0.38625),
 SHAPES_DEF = [
     ['d', 'diamond', _make_path((-1, 0), (0, 1), (1, 0), (0, -1))],
     ['o', 'circle', _circle],
-    ['s', 'rectangle', _rectangle],
+    ['h', 'hexagon', _make_path(*_hex_points)],
+    ['s', 'square', _square],
     ['*', 'star', _make_path(*_star_points)],
     ['+', 'plus', _make_path(*_plus_points)],
     ['x', 'cross', _rotate(_make_path(*_plus_points), 45)],
@@ -87,8 +89,18 @@ def _shapes_idx():
     return d
 
 
+def _shapes_name():
+    d = {}
+    for idx, (abbr, name, _) in enumerate(SHAPES_DEF):
+        d[idx] = name
+        d[abbr] = name
+        d[name] = name
+    return d
+
+
 SHAPES_MAP = _shapes_map()
 SHAPES_IDX = _shapes_idx()
+SHAPES_NAME = _shapes_name()
 
 
 class TextAnnotation(pg.GraphicsObject):
@@ -114,15 +126,19 @@ class TextAnnotation(pg.GraphicsObject):
             'id': state.get('id', id(self)),
             'signal_name': state['signal_name'],
             'x': state['x'],
-            'group_id': int(state.get('group_id', 0)),
+            'group_id': 0,
             'text': state.get('text'),
-            'fill_color': state.get('fill_color', (64, 192, 128, 255)),
-            # 'border_color': state.get('border_color', (64, 255, 128, 255)),
-            'text_color': state.get('text_color', (192, 192, 192, 255)),
+            'text_visible': True,
             'size': state.get('size', 6),
         }
         self._pathItem = QtGui.QGraphicsPathItem()
         self._pathItem.setParentItem(self)
+
+        self._text_item = QtGui.QGraphicsTextItem(self)
+        self._text_item.setParentItem(self)
+        self._text_item.setVisible(bool(self._state['text_visible']))
+
+        self.group_id = state.get('group_id', 0)
 
         self._lastTransform = None
         self._lastScene = None
@@ -131,18 +147,23 @@ class TextAnnotation(pg.GraphicsObject):
 
         self.group_id = self._state['group_id']
         self.setPos(self._state['x'], 0.0)
-
-        brush = pg.mkBrush(self._state['fill_color'])
-        # pen = pg.mkPen(self._state['border_color'])
-        self.setBrush(brush)
-        # self.setPen(pen)
         self._z_value_set()
 
-        self._text_item = QtGui.QGraphicsTextItem(self)
-        self._text_item.setParentItem(self)
-        self._text_item.setDefaultTextColor(pg.mkColor(self._state['text_color']))
         self.text = self._state['text']
+        self._update_colors()
         self.prepareGeometryChange()
+
+    def _update_colors(self):
+        theme = self._cmdp['Appearance/__index__']
+        name = SHAPES_NAME[self.group_id]
+        fg = theme['colors'].get(f'annotation_{name}', '#40C080')
+        pen = pg.mkPen(fg)
+        self.setPen(pen)
+        brush = pg.mkBrush(fg)
+        self.setBrush(brush)
+        txt = theme['colors'].get('annotation_text', '#C0C0C0')
+        self._text_item.setDefaultTextColor(pg.mkColor(txt))
+        #waveform_background
 
     def _z_value_set(self, offset=None):
         z_value = self._parent.zValue()
@@ -181,6 +202,14 @@ class TextAnnotation(pg.GraphicsObject):
         self._state['text'] = text
         self._text_item.setPlainText(text)
 
+    def isTextVisible(self):
+        return self._text_item.isVisible()
+
+    def setTextVisible(self, visible):
+        visible = bool(visible)
+        self._state['text_visible'] = visible
+        self._text_item.setVisible(visible)
+
     @property
     def group_id(self):
         return self._state['group_id']
@@ -198,6 +227,10 @@ class TextAnnotation(pg.GraphicsObject):
         path = tr.map(path)
         self._pathItem.setPath(path)
         self._state['group_id'] = SHAPES_IDX[group_id]
+        self._update_colors()
+
+    def setPen(self, pen):
+        self._pathItem.setPen(pen)
 
     def setBrush(self, brush):
         self._pathItem.setBrush(brush)
@@ -248,7 +281,7 @@ class TextAnnotation(pg.GraphicsObject):
         ev.accept()
         self._log.debug(f'mouseClickEvent({ev})')
         if ev.button() == QtCore.Qt.LeftButton:
-            self._text()
+            self._show_text()
         elif ev.button() == QtCore.Qt.RightButton:
             pos = ev.screenPos().toPoint()
             self.menu_exec(pos)
@@ -301,7 +334,8 @@ class TextAnnotation(pg.GraphicsObject):
         self._cmdp.invoke('!Widgets/Waveform/annotation/text_dialog', [self.signal_name, self.x_pos, text])
 
     def _show_text(self):
-        self._text_item.setVisible(not self._text_item.isVisible())
+        visible = not self.isTextVisible()
+        self._cmdp.invoke('!Widgets/Waveform/annotation/text_visible', [self.signal_name, self.x_pos, visible])
 
     def _remove(self, *args, **kwargs):
         self._cmdp.invoke('!Widgets/Waveform/annotation/remove', [self.signal_name, self.x_pos])

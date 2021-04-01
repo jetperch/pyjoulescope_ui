@@ -136,6 +136,9 @@ class WaveformWidget(QtWidgets.QWidget):
         c.register('!Widgets/Waveform/annotation/text_dialog', self._cmd_waveform_signals_annotation_text_dialog,
                    brief='Request a text update for an annotation.',
                    detail='value is [signal_name, x_pos, text_orig].')
+        c.register('!Widgets/Waveform/annotation/text_visible', self._cmd_waveform_signals_annotation_text_visible,
+                   brief='Set text visibility for an annotation.',
+                   detail='value is [signal_name, x_pos, visible].')
         c.register('!Widgets/Waveform/annotation/group_id', self._cmd_waveform_signals_annotation_group_id,
                    brief='Change the group_id for an annotation.',
                    detail='value is [signal_name, x_pos, group_id].')
@@ -385,6 +388,14 @@ class WaveformWidget(QtWidgets.QWidget):
                                                   QtWidgets.QLineEdit.Normal, text_orig)
         if rv:
             self._cmdp.invoke('!Widgets/Waveform/annotation/text', [signal_name, x_pos, text_new])
+
+    def _cmd_waveform_signals_annotation_text_visible(self, topic, value):
+        signal_name, x_pos, visible = value
+        signal = self._signal_get(signal_name)
+        if signal is not None:
+            visible = bool(visible)
+            signal.annotation_text_visible(x_pos, visible)
+            return '!Widgets/Waveform/annotation/text_visible', [signal_name, x_pos, not visible]
 
     def _cmd_waveform_signals_annotation_group_id(self, topic, value):
         signal_name, x_pos, group_id = value
