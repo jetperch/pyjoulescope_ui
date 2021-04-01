@@ -53,24 +53,49 @@ _star_points = [(0.0, -1.25), (-0.28075, -0.38625),
                 (1.18875, -0.38625), (0.28075, -0.38625)]
 
 
-SHAPES = [
-    _make_path((-1, 0), (0, 1), (1, 0), (0, -1)),   # diamond
-    _circle,                                        # circle
-    _rectangle,                                     # rectangle
-    _make_path(*_star_points),                      # star
-    _make_path(*_plus_points),                      # plus
-    _rotate(_make_path(*_plus_points), 45),         # x
-    _make_path((-1, 1), (0, -1), (1, 1)),           # triangle up
-    _make_path((-1, -1), (0, 1), (1, -1)),          # triangle down
-    _make_path((-1, 1), (-1, -1), (1, 0)),          # triangle right
-    _make_path((1, 1), (1, -1), (-1, 0)),           # triangle left
+SHAPES_DEF = [
+    ['d', 'diamond', _make_path((-1, 0), (0, 1), (1, 0), (0, -1))],
+    ['o', 'circle', _circle],
+    ['s', 'rectangle', _rectangle],
+    ['*', 'star', _make_path(*_star_points)],
+    ['+', 'plus', _make_path(*_plus_points)],
+    ['x', 'cross', _rotate(_make_path(*_plus_points), 45)],
+    ['^', 'triangle_up', _make_path((-1, 1), (0, -1), (1, 1))],
+    ['v', 'triangle_down', _make_path((-1, -1), (0, 1), (1, -1))],
+    ['>', 'triangle_right', _make_path((-1, 1), (-1, -1), (1, 0))],
+    ['<', 'triangle_left', _make_path((1, 1), (1, -1), (-1, 0))],
 ]
+
+SHAPES = [x[-1] for x in SHAPES_DEF]
+
+
+def _shapes_map():
+    d = {}
+    for idx, (abbr, name, shape) in enumerate(SHAPES_DEF):
+        d[idx] = shape
+        d[abbr] = shape
+        d[name] = shape
+    return d
+
+
+def _shapes_idx():
+    d = {}
+    for idx, (abbr, name, _) in enumerate(SHAPES_DEF):
+        d[idx] = idx
+        d[abbr] = idx
+        d[name] = idx
+    return d
+
+
+SHAPES_MAP = _shapes_map()
+SHAPES_IDX = _shapes_idx()
 
 
 class TextAnnotation(pg.GraphicsObject):
     """A user-defined text annotation applied to a signal.
 
     :param parent: The parent signal's ViewBox.
+    :param cmdp: The command processor.
     :param state: The map of the text annotation state, which includes keys:
         * id: The text annotation id.
         * signal_name: The signal name for this annotation.
@@ -79,10 +104,12 @@ class TextAnnotation(pg.GraphicsObject):
         * fill_color: The fill color.
         * border_color: The border color.
     """
-    def __init__(self, parent, state):
+    def __init__(self, parent, cmdp, state):
         pg.GraphicsObject.__init__(self, parent)
         self._parent = parent
+        self._cmdp = cmdp
         self._log = logging.getLogger('%s.%s' % (__name__, state['x']))
+        self._move_x_start = None
         self._state = {
             'id': state.get('id', id(self)),
             'signal_name': state['signal_name'],
@@ -102,30 +129,75 @@ class TextAnnotation(pg.GraphicsObject):
         self._fill = pg.mkBrush(None)
         self._border = pg.mkPen(None)
 
-        self._group_id_set(self._state['group_id'])
+        self.group_id = self._state['group_id']
         self.setPos(self._state['x'], 0.0)
 
         brush = pg.mkBrush(self._state['fill_color'])
         # pen = pg.mkPen(self._state['border_color'])
         self.setBrush(brush)
         # self.setPen(pen)
-        self.setZValue(Z_ANNOTATION_NORMAL)
+        self._z_value_set()
 
         self._text_item = QtGui.QGraphicsTextItem(self)
         self._text_item.setParentItem(self)
         self._text_item.setDefaultTextColor(pg.mkColor(self._state['text_color']))
-        self._text_item.setPlainText(self._state['text'])
+        self.text = self._state['text']
         self.prepareGeometryChange()
 
-    def _group_id_set(self, group_id):
+    def _z_value_set(self, offset=None):
+        z_value = self._parent.zValue()
+        z_value = 0 if z_value >= 0 else -z_value
+        z_value += Z_ANNOTATION_NORMAL
+        if offset is not None:
+            z_value += int(offset)
+        self.setZValue(z_value)
+
+    @property
+    def signal_name(self):
+        return self._state['signal_name']
+
+    @property
+    def x_pos(self):
+        return self._state['x']
+
+    @x_pos.setter
+    def x_pos(self, value):
+        x_pos = float(value)
+        self._state['x'] = x_pos
+        _, (y_min, y_max) = self._parent.viewRange()
+        y_pos = (y_max + y_min) / 2
+        self.setPos(self._state['x'], y_pos)
+
+    @property
+    def text(self):
+        return self._state['text']
+
+    @text.setter
+    def text(self, value):
+        if value is None:
+            text = ''
+        else:
+            text = str(value)
+        self._state['text'] = text
+        self._text_item.setPlainText(text)
+
+    @property
+    def group_id(self):
+        return self._state['group_id']
+
+    @group_id.setter
+    def group_id(self, value):
+        group_id = value
         s_len = len(SHAPES)
-        group_id = group_id % s_len
-        path = SHAPES[group_id]
+        if isinstance(group_id, int) and not 0 <= group_id < s_len:
+            group_id = group_id % s_len
+        path = SHAPES_MAP[group_id]
         tr = QtGui.QTransform()
         sz = self._state['size']
         tr.scale(sz, sz)
         path = tr.map(path)
         self._pathItem.setPath(path)
+        self._state['group_id'] = SHAPES_IDX[group_id]
 
     def setBrush(self, brush):
         self._pathItem.setBrush(brush)
@@ -167,15 +239,96 @@ class TextAnnotation(pg.GraphicsObject):
         # reset translation
         _, (y_min, y_max) = self._parent.viewRange()
         y_center = (y_max + y_min) / 2
-        t.setMatrix(t.m11(), t.m12(), t.m13(), t.m21(), t.m22(), t.m23(), 0, y_center, t.m33())
+        self.setPos(self.x_pos, y_center)
+        t.setMatrix(t.m11(), t.m12(), t.m13(), t.m21(), t.m22(), t.m23(), 0, 0, t.m33())
         self.setTransform(t)
         self._lastTransform = pt
 
     def mouseClickEvent(self, ev):
-        scene_pos = ev.scenePos()
-        item_pos = self.mapFromScene(scene_pos)
         ev.accept()
-        print(f'mouseClickEvent({ev})')
-        print(f'boundingRect={self.boundingRect()}')
-        print(f'shape={self.shape()}')
-        print(f'item_pos={item_pos}')
+        self._log.debug(f'mouseClickEvent({ev})')
+        if ev.button() == QtCore.Qt.LeftButton:
+            self._text()
+        elif ev.button() == QtCore.Qt.RightButton:
+            pos = ev.screenPos().toPoint()
+            self.menu_exec(pos)
+
+    def _ev_to_x(self, ev):
+        pos = ev.scenePos()
+        p = self._parent.mapSceneToView(pos)
+        x = p.x()
+        (x_min, x_max), _ = self._parent.viewRange()
+        x = min(max(x, x_min), x_max)
+        return x
+
+    def _mouse_move_event(self, ev):
+        if self._move_x_start is None:
+            return
+        self.x_pos = self._ev_to_x(ev)
+
+    def _move_start(self, ev):
+        self._z_value_set(True)
+        self._move_x_start = self.x_pos
+
+    def _move_end(self, ev):
+        if self._move_x_start is None:
+            return
+        x_end = self._ev_to_x(ev)
+        self._z_value_set(False)
+        x_start, self._move_x_start = self._move_x_start, None
+        self.x_pos = x_start
+        self._cmdp.invoke('!Widgets/Waveform/annotation/move', [self.signal_name, x_start, x_end])
+
+    def mouseDragEvent(self, ev, axis=None):
+        self._log.info('mouse drag: %s', ev)
+        ev.accept()
+        if ev.button() & QtCore.Qt.LeftButton:
+            if ev.isStart():
+                self._move_start(ev)
+            self._mouse_move_event(ev)
+            if ev.isFinish():
+                self._move_end(ev)
+
+    def _group_id_setter(self, value):
+        x_pos = self.x_pos
+
+        def fn():
+            self._cmdp.invoke('!Widgets/Waveform/annotation/group_id', [self.signal_name, x_pos, value])
+        return fn
+
+    def _text(self):
+        text = self._state['text']
+        self._cmdp.invoke('!Widgets/Waveform/annotation/text_dialog', [self.signal_name, self.x_pos, text])
+
+    def _show_text(self):
+        self._text_item.setVisible(not self._text_item.isVisible())
+
+    def _remove(self, *args, **kwargs):
+        self._cmdp.invoke('!Widgets/Waveform/annotation/remove', [self.signal_name, self.x_pos])
+
+    def menu_exec(self, pos):
+        menu = QtWidgets.QMenu()
+
+        remove = menu.addAction('Set &Text')
+        remove.triggered.connect(self._text)
+
+        remove = menu.addAction('&Show Text')
+        remove.setCheckable(True)
+        remove.setChecked(self._text_item.isVisible())
+        remove.triggered.connect(self._show_text)
+
+        group_id = self._state['group_id']
+        appearance_menu = menu.addMenu('&Appearance')
+        appearance_group = QtWidgets.QActionGroup(appearance_menu)
+        appearance_actions = []
+        for idx, (_, name, shape) in enumerate(SHAPES_DEF):
+            action = appearance_menu.addAction(name)
+            action.setCheckable(True)
+            action.setChecked(group_id == idx)
+            action.triggered.connect(self._group_id_setter(name))
+            appearance_group.addAction(action)
+            appearance_actions.append(action)
+
+        remove = menu.addAction('&Remove')
+        remove.triggered.connect(self._remove)
+        menu.exec_(pos)

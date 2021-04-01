@@ -561,7 +561,7 @@ class MainWindow(QtWidgets.QMainWindow):
         return hasattr(self._device, 'start')
 
     def _device_notify_start(self):
-        log.info('_device_notify_stop')
+        log.info('_device_notify_start')
         if self._device_notify is None:
             self._device_notify = DeviceNotify(self.resync_handler('device_notify'))
             self._device_scan()

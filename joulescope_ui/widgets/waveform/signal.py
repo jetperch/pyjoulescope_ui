@@ -154,16 +154,39 @@ class Signal(QtCore.QObject):
     def annotation_add(self, x, group_id, text):
         self.log.info('annotation_add(%s, %s)', x, text)
         state = {'signal_name': self.name, 'x': x, 'group_id': group_id, 'text': text}
-        a = TextAnnotation(self.vb, state)
+        a = TextAnnotation(self.vb, self._cmdp, state)
         self.vb.addItem(a, ignoreBounds=True)
         a.show()
         self._annotations.append(a)
 
+    def _annotation_find(self, x):
+        for annotation in self._annotations:
+            if annotation.x_pos == x:
+                return annotation
+        raise ValueError(f'Could not find annotation: signal={self.name}, pos={x}')
+
     def annotation_remove(self, x):
         self.log.info('annotation_remove(%s)', x)
-        print(f'annotation_remove({self.name}, {x})')
-        # todo return text
-        pass
+        a = self._annotation_find(x)
+        self.vb.removeItem(a)
+        self._annotations.remove(a)
+        return a.x_pos, a.group_id, a.text
+
+    def annotation_move(self, x_orig, x_new):
+        a = self._annotation_find(x_orig)
+        a.x_pos = x_new
+
+    def annotation_text(self, x, text):
+        a = self._annotation_find(x)
+        text_orig = a.text
+        a.text = text
+        return text_orig
+
+    def annotation_group_id(self, x, group_id):
+        a = self._annotation_find(x)
+        group_id_orig = a.group_id
+        a.group_id = group_id
+        return group_id_orig
 
     def y_axis_config_update(self, cfg):
         scale_orig = self.config['y-axis']['scale']
