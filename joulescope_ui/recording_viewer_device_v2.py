@@ -439,7 +439,7 @@ class RecordingViewerDeviceV2:
         for signal in reader.signals.values():
             dual_markers = {}
 
-            def cbk(timestamp, annotation_type, group_id, data):
+            def cbk(timestamp, annotation_type, group_id, y, data):
                 if signal.signal_type == SignalType.FSR:
                     # convert to seconds
                     # todo make this respect UTC, when UTC is implemented
@@ -457,6 +457,7 @@ class RecordingViewerDeviceV2:
                             dual_markers[name] = timestamp
                     else:
                         self._cmdp.invoke('!Widgets/Waveform/Markers/single_add', timestamp)
+                return 0
 
             reader.annotations(signal.signal_id, 0, cbk)
 
