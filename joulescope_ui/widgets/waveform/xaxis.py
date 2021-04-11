@@ -337,10 +337,7 @@ class XAxis(AxisItemPatch):
         pos = event.scenePos()
         vb = self.linkedView()
         if vb is not None and self.geometry().contains(pos):
-            log.info('wheelEvent(%s)', event)
-            event.accept()
-            p = vb.mapSceneToView(event.scenePos())
-            vb.sigWheelZoomXEvent.emit(p.x(), event.delta())
+            vb.process_wheel_event(event)
         else:
             event.setAccepted(False)
 

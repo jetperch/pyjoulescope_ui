@@ -14,6 +14,7 @@
 
 import pyqtgraph as pg
 from PySide2 import QtCore
+from .scrollbar import WHEEL_TICK
 import logging
 
 
@@ -65,10 +66,21 @@ class SignalViewBox(pg.ViewBox):
             else:
                 self.sigPanXEvent.emit('drag', self._pan[0])
 
+    def process_wheel_event(self, ev):
+        self.log.info('mouse wheel: %s' % (ev,))
+        ev.accept()
+        p = self.mapSceneToView(ev.scenePos())
+        if QtCore.Qt.ShiftModifier & ev.modifiers():
+            delta = ev.delta() / WHEEL_TICK
+            (x_min, x_max), _ = self.viewRange()
+            pan_x = (x_max - x_min) * 0.1 * delta
+            self.sigPanXEvent.emit('start', 0.0)
+            self.sigPanXEvent.emit('drag', pan_x)
+            self.sigPanXEvent.emit('finish', pan_x)
+        else:
+            self.sigWheelZoomXEvent.emit(p.x(), ev.delta())
+
     def wheelEvent(self, ev, axis=None):
         pos = ev.scenePos()
         if self.geometry().contains(pos):
-            self.log.info('mouse wheel: %s' % (ev,))
-            ev.accept()
-            p = self.mapSceneToView(ev.scenePos())
-            self.sigWheelZoomXEvent.emit(p.x(), ev.delta())
+            self.process_wheel_event(ev)
