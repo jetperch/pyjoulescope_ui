@@ -105,18 +105,6 @@ class WaveformWidget(QtWidgets.QWidget):
         cmdp.subscribe('Widgets/Waveform/Statistics/font', self._marker_font_resizer.on_font, update_now=True)
 
         c = self._cmdp
-        c.subscribe('DataView/#data', self._on_data, update_now=True)
-        c.subscribe('Device/#state/source', self._on_device_state_source, update_now=True)
-        c.subscribe('Device/#state/play', self._on_device_state_play, update_now=True)
-        c.subscribe('Device/#state/name', self._on_device_state_name, update_now=True)
-        c.subscribe('Widgets/Waveform/Markers/_state/instances/', self._on_marker_instance_change,
-                    update_now=True)
-        c.subscribe('Widgets/Waveform/#requests/refresh_markers', self._on_refresh_markers, update_now=True)
-        c.subscribe('Widgets/Waveform/#statistics_over_range_resp', self._on_statics_over_range_resp,
-                    update_now=True)
-        c.subscribe('Device/#state/x_limits', self._on_device_state_limits, update_now=True)
-        c.subscribe('Widgets/Waveform/Statistics/font-size', self._on_statistics_settings)
-        c.subscribe('Widgets/Waveform/_signals', self._on_signals_active, update_now=True)
         c.register('!Widgets/Waveform/Signals/add', self._cmd_waveform_signals_add,
                    brief='Add a signal to the waveform.',
                    detail='value is list of signal name string and position. -1 inserts at end')
@@ -143,6 +131,19 @@ class WaveformWidget(QtWidgets.QWidget):
         c.register('!Widgets/Waveform/annotation/dialog', self._cmd_waveform_signals_annotation_dialog,
                    brief='Request a text update for an annotation.',
                    detail='value is instance_id.')
+
+        c.subscribe('DataView/#data', self._on_data, update_now=True)
+        c.subscribe('Device/#state/source', self._on_device_state_source, update_now=True)
+        c.subscribe('Device/#state/play', self._on_device_state_play, update_now=True)
+        c.subscribe('Device/#state/name', self._on_device_state_name, update_now=True)
+        c.subscribe('Widgets/Waveform/Markers/_state/instances/', self._on_marker_instance_change,
+                    update_now=True)
+        c.subscribe('Widgets/Waveform/#requests/refresh_markers', self._on_refresh_markers, update_now=True)
+        c.subscribe('Widgets/Waveform/#statistics_over_range_resp', self._on_statics_over_range_resp,
+                    update_now=True)
+        c.subscribe('Device/#state/x_limits', self._on_device_state_limits, update_now=True)
+        c.subscribe('Widgets/Waveform/Statistics/font-size', self._on_statistics_settings)
+        c.subscribe('Widgets/Waveform/_signals', self._on_signals_active, update_now=True)
 
         cmdp.subscribe('Appearance/__index__', self._on_colors, update_now=True)
 
