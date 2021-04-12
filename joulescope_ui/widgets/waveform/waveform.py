@@ -352,7 +352,7 @@ class WaveformWidget(QtWidgets.QWidget):
             w2 = (x_max - x_min) / 10
             self._cmdp.invoke('!Widgets/Waveform/Markers/dual_add', [x - w2, x + w2])
         elif key == QtCore.Qt.Key_Delete or key == QtCore.Qt.Key_Backspace:
-            self._cmdp.invoke('!Widgets/Waveform/Markers/clear', None)
+            self._on_annotation_clear_all()
         elif QtCore.Qt.Key_1 <= key <= QtCore.Qt.Key_8:
             self._markers_show(key - QtCore.Qt.Key_1 + 1)
 
@@ -493,7 +493,7 @@ class WaveformWidget(QtWidgets.QWidget):
         if not value:
             # disconnected from data source
             self.data_clear()
-            self.markers_clear()
+            self._on_annotation_clear_all()
 
     def _on_device_state_play(self, topic, value):
         if value:
@@ -734,11 +734,6 @@ class WaveformWidget(QtWidgets.QWidget):
     def data_clear(self):
         for s in self._signals.values():
             s.data_clear()
-
-    def markers_clear(self):
-        self._x_axis.markers_clear()
-        self._markers_single_update_all()
-        self._markers_dual_update_all()
 
     def x_state_get(self):
         """Get the x-axis state.
