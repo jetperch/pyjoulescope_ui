@@ -57,15 +57,15 @@ class TextAnnotationDialog(QtWidgets.QDialog):
         self._button_spacer = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self._button_layout.addItem(self._button_spacer)
 
-        self.cancelButton = QtWidgets.QPushButton(self._button_frame)
-        self.cancelButton.setObjectName('cancelButton')
-        self.cancelButton.pressed.connect(self.reject)
-        self._button_layout.addWidget(self.cancelButton)
-
         self.okButton = QtWidgets.QPushButton(self._button_frame)
         self.okButton.setObjectName('okButton')
         self.okButton.pressed.connect(self.accept)
         self._button_layout.addWidget(self.okButton)
+
+        self.cancelButton = QtWidgets.QPushButton(self._button_frame)
+        self.cancelButton.setObjectName('cancelButton')
+        self.cancelButton.pressed.connect(self.reject)
+        self._button_layout.addWidget(self.cancelButton)
 
         self._layout.addWidget(self._grid_widget)
         self._layout.addWidget(self._button_frame)

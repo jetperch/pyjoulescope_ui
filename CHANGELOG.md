@@ -6,11 +6,12 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.9.6
 
-2021 Mar 24 [in progress]
+2021 Apr 12
 
 *   Added text annotation fix.  Thank you Selmen Dridi!
-*   Fixed crash when logging is disabled.
-*   Added waveform pan when holding shift while scrolling.
+*   Fixed crash when logging is disabled #120.
+*   Added waveform pan when holding shift while scrolling #123.
+*   Improved waveform right-click context menu.
 
 
 ## 0.9.5
