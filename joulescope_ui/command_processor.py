@@ -283,25 +283,27 @@ class CommandProcessor(QtCore.QObject):
             self._stack_undo = None
         self._subscriber_update(topic, data)
 
-    def invoke(self, topic, data=None):
+    def invoke(self, topic, data=None, force_signal=None):
         """Invoke a new command.
 
         :param topic: The command's topic name.
         :param data: The optional associated data.
+        :param force_signal: Force signal, even if within command stack
 
         The commands "redo" and "undo" are registered automatically,
         and neither take data.
         """
         if not _is_command(topic):
             raise ValueError('invoke commands only, use publish for preferences')
-        self.publish(topic, data)
+        self.publish(topic, data, force_signal=force_signal)
 
-    def publish(self, topic, data, no_undo=None):
+    def publish(self, topic, data, no_undo=None, force_signal=None):
         """Publish new data to a topic.
 
         :param topic: The topic name.
         :param data: The new data for the topic.
         :param no_undo: Publish the parameter without posting an undo.
+        :param force_signal: Force signal, even if within command stack
         """
         if _is_command(topic):
             if topic not in self._topic:
@@ -313,7 +315,7 @@ class CommandProcessor(QtCore.QObject):
                 data = fn(data)
         else:
             data = self.preferences.validate(topic, data)
-        if self._thread_id == threading.get_ident() and self._stack_undo is not None:
+        if self._thread_id == threading.get_ident() and self._stack_undo is not None and not bool(force_signal):
             self._on_invoke(topic, data, no_undo)
         else:
             self.invokeSignal.emit(topic, data, bool(no_undo))

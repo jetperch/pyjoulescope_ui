@@ -18,6 +18,8 @@ from PySide2 import QtWidgets, QtGui, QtCore
 import numpy as np
 import pyqtgraph as pg
 import logging
+from typing import Dict
+import weakref
 
 
 Z_ANNOTATION_NORMAL = 15
@@ -125,8 +127,17 @@ class TextAnnotation(pg.GraphicsObject):
         y = state.get('y')
         if y is not None:
             y = float(y)
+
+        my_id = state.get('id')
+        if my_id is None:  # assign an id
+            my_id = id(self)
+            while my_id in _registry:
+                my_id += 1
+        elif my_id in _registry:
+            raise RuntimeError(f'id {my_id} already in annotation registry')
+
         self._state = {
-            'id': state.get('id', id(self)),
+            'id': my_id,
             'signal_name': state['signal_name'],
             'x': float(state['x']),
             'y': y,
@@ -135,6 +146,7 @@ class TextAnnotation(pg.GraphicsObject):
             'text_visible': True,
             'size': state.get('size', 6),
         }
+        _registry[my_id] = weakref.ref(self)
         self._pathItem = QtGui.QGraphicsPathItem()
         self._pathItem.setParentItem(self)
 
@@ -176,6 +188,14 @@ class TextAnnotation(pg.GraphicsObject):
         if offset is not None:
             z_value += int(offset)
         self.setZValue(z_value)
+
+    @property
+    def state(self):
+        return self._state.copy()
+
+    @property
+    def id(self):
+        return self._state['id']
 
     @property
     def signal_name(self):
@@ -234,20 +254,49 @@ class TextAnnotation(pg.GraphicsObject):
     def group_id(self):
         return self._state['group_id']
 
+    def _recalculate_path(self):
+        path = SHAPES_MAP[self._state['group_id']]
+        tr = QtGui.QTransform()
+        sz = self._state['size']
+        tr.scale(sz, sz)
+        path = tr.map(path)
+        self._pathItem.setPath(path)
+        self._update_colors()
+
     @group_id.setter
     def group_id(self, value):
         group_id = value
         s_len = len(SHAPES)
         if isinstance(group_id, int) and not 0 <= group_id < s_len:
             group_id = group_id % s_len
-        path = SHAPES_MAP[group_id]
-        tr = QtGui.QTransform()
-        sz = self._state['size']
-        tr.scale(sz, sz)
-        path = tr.map(path)
-        self._pathItem.setPath(path)
         self._state['group_id'] = SHAPES_IDX[group_id]
-        self._update_colors()
+        self._recalculate_path()
+
+    def update(self, state):
+        undo = {}
+        for key, value in state.items():
+            if key not in self._state:
+                continue
+            old_value = self._state[key]
+            if old_value == value:
+                continue
+            if key in ['id', 'signal_name']:
+                continue  # ignore, update not allowed
+            undo[key] = old_value
+            if key == 'x':
+                self.x_pos = value
+            elif key == 'y':
+                self.y_pos = value
+            elif key == 'group_id':
+                self.group_id = value
+            elif key == 'text':
+                self.text = value
+            elif key == 'text_visible':
+                self.setTextVisible(bool(value))
+            elif key == 'size':
+                self._state['size'] = float(value)
+                self._recalculate_path()
+        return [self.id, undo]
 
     def setPen(self, pen):
         self._pathItem.setPen(pen)
@@ -335,7 +384,7 @@ class TextAnnotation(pg.GraphicsObject):
         self.y_pos = y_start
         if self._state['y'] is None:
             y_end = None
-        self._cmdp.invoke('!Widgets/Waveform/annotation/move', [self.signal_name, x_start, x_end, y_end])
+        self._cmdp.invoke('!Widgets/Waveform/annotation/update', [self.id, {'x': x_end, 'y': y_end}])
 
     def mouseDragEvent(self, ev, axis=None):
         self._log.info('mouse drag: %s', ev)
@@ -348,36 +397,33 @@ class TextAnnotation(pg.GraphicsObject):
                 self._move_end(ev)
 
     def _group_id_setter(self, value):
-        x_pos = self.x_pos
 
         def fn():
-            self._cmdp.invoke('!Widgets/Waveform/annotation/group_id', [self.signal_name, x_pos, value])
+            self._cmdp.invoke('!Widgets/Waveform/annotation/update', [self.id, {'group_id': value}])
         return fn
 
-    def _text(self):
-        text = self._state['text']
-        self._cmdp.invoke('!Widgets/Waveform/annotation/text_dialog', [self.signal_name, self.x_pos, text])
+    def _edit_text(self):
+        self._cmdp.invoke('!Widgets/Waveform/annotation/dialog', self.id)
 
     def _show_text(self):
         visible = not self.isTextVisible()
-        self._cmdp.invoke('!Widgets/Waveform/annotation/text_visible', [self.signal_name, self.x_pos, visible])
+        self._cmdp.invoke('!Widgets/Waveform/annotation/update', [self.id, {'text_visible': visible}])
 
     def _center_y(self):
-        x_pos = self.x_pos
         if self._state['y'] is None:
             y_pos = self._y_display_pos()
         else:
             y_pos = None
-        self._cmdp.invoke('!Widgets/Waveform/annotation/move', [self.signal_name, x_pos, x_pos, y_pos])
+        self._cmdp.invoke('!Widgets/Waveform/annotation/update', [self.id, {'y': y_pos}])
 
     def _remove(self, *args, **kwargs):
-        self._cmdp.invoke('!Widgets/Waveform/annotation/remove', [self.signal_name, self.x_pos])
+        self._cmdp.invoke('!Widgets/Waveform/annotation/remove', [self.id])
 
     def menu_exec(self, pos):
         menu = QtWidgets.QMenu()
 
-        set_text = menu.addAction('Set &Text')
-        set_text.triggered.connect(self._text)
+        set_text = menu.addAction('&Edit text')
+        set_text.triggered.connect(self._edit_text)
 
         show_text = menu.addAction('&Show Text')
         show_text.setCheckable(True)
@@ -404,3 +450,28 @@ class TextAnnotation(pg.GraphicsObject):
         remove = menu.addAction('&Remove')
         remove.triggered.connect(self._remove)
         menu.exec_(pos)
+
+
+_registry: Dict[int, weakref.ReferenceType[TextAnnotation]] = {}
+
+
+def find(instance_id) -> TextAnnotation:
+    """Find the text annotation by id.
+
+    :param instance_id: The annotation identifier.
+    :return: The TextAnnotation instance.
+    :raises KeyError: If the instance is not found.
+    """
+    if isinstance(instance_id, TextAnnotation):
+        instance_id = instance_id.id
+    ref = _registry.get(instance_id)
+    if ref is not None:
+        obj = ref()
+        if obj is not None:
+            return obj
+    raise KeyError(f'annotation not found with id={instance_id}')
+
+
+def remove(instance_id):
+    if instance_id in _registry:
+        _registry.pop(instance_id)

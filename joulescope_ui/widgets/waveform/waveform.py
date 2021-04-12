@@ -16,6 +16,8 @@ from PySide2 import QtGui, QtCore, QtWidgets
 from .signal_def import signal_def
 from .signal import Signal
 from .signal_viewbox import SignalViewBox
+from .text_annotation_dialog import TextAnnotationDialog
+from . import text_annotation
 from .scrollbar import ScrollBar
 from .xaxis import XAxis
 from .settings_widget import SettingsWidget
@@ -121,31 +123,27 @@ class WaveformWidget(QtWidgets.QWidget):
         c.register('!Widgets/Waveform/Signals/remove', self._cmd_waveform_signals_remove,
                    brief='Remove a signal from the waveform by name.',
                    detail='value is signal name string.')
+
         c.register('!Widgets/Waveform/annotation/add', self._cmd_waveform_signals_annotation_add,
                    brief='Add an annotation to a signal.',
-                   detail='value is [signal_name, x_pos, group_id, y, text].')
+                   detail='value is [signal_name, instance_id, x, y, group_id, text]. '
+                   + 'If instance_id is None, a new id will be automatically created.')
         c.register('!Widgets/Waveform/annotation/remove', self._cmd_waveform_signals_annotation_remove,
-                   brief='Remove an annotation from a signal.',
-                   detail='value is [signal_name, x_pos].')
+                   brief='Remove annotations.',
+                   detail='value is [instance_id, ...].')
+        c.register('!Widgets/Waveform/annotation/signal_hide', self._cmd_waveform_signals_annotation_hide,
+                   brief='Hide or show the text of all annotations.',
+                   detail='value is [signal_name, show].')
         c.register('!Widgets/Waveform/annotation/clear', self._cmd_waveform_signals_annotation_clear,
-                   brief='Remove an annotation from signals.',
+                   brief='Remove all annotations from signals.',
                    detail='value is [signal_name, ...].')
-        c.register('!Widgets/Waveform/annotation/move', self._cmd_waveform_signals_annotation_move,
-                   brief='Move the x-axis location for an annotation.',
-                   detail='value is [signal_name, x_pos_orig, x_pos_new, y_pos_new].'
-                   + 'If y_pos_new is None, then center on y-axis.')
-        c.register('!Widgets/Waveform/annotation/text', self._cmd_waveform_signals_annotation_text,
-                   brief='Change the text for an annotation.',
-                   detail='value is [signal_name, x_pos, text].')
-        c.register('!Widgets/Waveform/annotation/text_dialog', self._cmd_waveform_signals_annotation_text_dialog,
+        c.register('!Widgets/Waveform/annotation/update', self._cmd_waveform_signals_annotation_update,
+                   brief='Change the annotation properties.',
+                   detail='value is [instance_id, {dict}].  The dict may contain any of the init keys.')
+        c.register('!Widgets/Waveform/annotation/dialog', self._cmd_waveform_signals_annotation_dialog,
                    brief='Request a text update for an annotation.',
-                   detail='value is [signal_name, x_pos, text_orig].')
-        c.register('!Widgets/Waveform/annotation/text_visible', self._cmd_waveform_signals_annotation_text_visible,
-                   brief='Set text visibility for an annotation.',
-                   detail='value is [signal_name, x_pos, visible].')
-        c.register('!Widgets/Waveform/annotation/group_id', self._cmd_waveform_signals_annotation_group_id,
-                   brief='Change the group_id for an annotation.',
-                   detail='value is [signal_name, x_pos, group_id].')
+                   detail='value is instance_id.')
+
         cmdp.subscribe('Appearance/__index__', self._on_colors, update_now=True)
 
         shortcuts = [
@@ -225,7 +223,16 @@ class WaveformWidget(QtWidgets.QWidget):
         x = self._context_menu_pos_view_x()
         signal_name, y = self._context_menu_pos_view_y()
         if signal_name is not None:
-            self._cmdp.invoke('!Widgets/Waveform/annotation/add', [signal_name, x, 0, y, None])
+            self._cmdp.invoke('!Widgets/Waveform/annotation/add', [signal_name, None, x, y, 0, None])
+
+    def _on_annotation_text_hide(self, show=None):
+        x = self._context_menu_pos_view_x()
+        signal_name, y = self._context_menu_pos_view_y()
+        if signal_name is not None:
+            self._cmdp.invoke('!Widgets/Waveform/annotation/signal_hide', [signal_name, bool(show)])
+
+    def _on_annotation_text_show(self):
+        return self._on_annotation_text_hide(show=True)
 
     def _on_annotation_text_clear(self):
         signal_name, y = self._context_menu_pos_view_y()
@@ -265,6 +272,10 @@ class WaveformWidget(QtWidgets.QWidget):
 
         annotation_text = anno_text.addAction('&Add text')
         annotation_text.triggered.connect(self._on_annotation_text_add)
+        anno_text_hide = anno_text.addAction('&Hide all')
+        anno_text_hide.triggered.connect(self._on_annotation_text_hide)
+        anno_text_show = anno_text.addAction('&Show all')
+        anno_text_show.triggered.connect(self._on_annotation_text_show)
         annotation_clear = anno_text.addAction('&Clear all')
         annotation_clear.triggered.connect(self._on_annotation_text_clear)
 
@@ -404,13 +415,16 @@ class WaveformWidget(QtWidgets.QWidget):
             return
         if isinstance(value[0], str):
             value = [value]
+        redo_info = []
         undo_info = []
-        for signal_name, x, group_id, y, text in value:
+        for signal_name, instance_id, x, y, group_id, text in value:
             signal = self._signal_get(signal_name)
             if signal is not None:
-                signal.annotation_add(x, group_id, y, text)
-                undo_info.append([signal_name, x])
-        return '!Widgets/Waveform/annotation/remove', [signal_name, x]
+                undo_this, redo_this = signal.annotation_add(instance_id, x, y, group_id, text)
+                redo_info.append(redo_this)
+                undo_info.append(undo_this)
+        return (('!Widgets/Waveform/annotation/add', redo_info),
+                [('!Widgets/Waveform/annotation/remove', undo_info)])
 
     def _cmd_waveform_signals_annotation_remove(self, topic, value):
         if value is None or not len(value):
@@ -418,12 +432,23 @@ class WaveformWidget(QtWidgets.QWidget):
         if isinstance(value[0], str):
             value = [value]
         undo_info = []
-        for signal_name, x in value:
-            signal = self._signal_get(signal_name)
-            if signal is not None:
-                undo_this = signal.annotation_remove(x)
+        for instance_id in value:
+            annotation = text_annotation.find(instance_id)
+            signal = self._signal_get(annotation.signal_name)
+            if signal is None:
+                text_annotation.remove(annotation.id)
+            else:
+                undo_this = signal.annotation_remove(instance_id)
                 undo_info.append(undo_this)
         return '!Widgets/Waveform/annotation/add', undo_info
+
+    def _cmd_waveform_signals_annotation_hide(self, topic, value):
+        signal_name = value[0]
+        show = bool(value[1])
+        signal = self._signal_get(signal_name)
+        if signal is not None:
+            signal.annotation_show(show)
+            return '!Widgets/Waveform/annotation/signal_hide', [signal_name, not show]
 
     def _cmd_waveform_signals_annotation_clear(self, topic, value):
         undo_info = []
@@ -434,41 +459,18 @@ class WaveformWidget(QtWidgets.QWidget):
                 undo_info.extend(undo_this)
         return '!Widgets/Waveform/annotation/add', undo_info
 
-    def _cmd_waveform_signals_annotation_move(self, topic, value):
-        signal_name, x_pos_orig, x_pos_new, y_pos_new = value
-        signal = self._signal_get(signal_name)
-        if signal is not None:
-            undo_info = signal.annotation_move(x_pos_orig, x_pos_new, y_pos_new)
-            return '!Widgets/Waveform/annotation/move', undo_info
+    def _cmd_waveform_signals_annotation_update(self, topic, value):
+        instance_id, state = value
+        annotation = text_annotation.find(instance_id)
+        undo_info = annotation.update(state)
+        return '!Widgets/Waveform/annotation/update', undo_info
 
-    def _cmd_waveform_signals_annotation_text(self, topic, value):
-        signal_name, x_pos, text = value
-        signal = self._signal_get(signal_name)
-        if signal is not None:
-            text_orig = signal.annotation_text(x_pos, text)
-            return '!Widgets/Waveform/annotation/text', [signal_name, x_pos, text_orig]
-
-    def _cmd_waveform_signals_annotation_text_dialog(self, topic, value):
-        signal_name, x_pos, text_orig = value
-        text_new, rv = QtGui.QInputDialog.getText(self, 'Annotation Text Update', 'Annotation',
-                                                  QtWidgets.QLineEdit.Normal, text_orig)
-        if rv:
-            self._cmdp.invoke('!Widgets/Waveform/annotation/text', [signal_name, x_pos, text_new])
-
-    def _cmd_waveform_signals_annotation_text_visible(self, topic, value):
-        signal_name, x_pos, visible = value
-        signal = self._signal_get(signal_name)
-        if signal is not None:
-            visible = bool(visible)
-            signal.annotation_text_visible(x_pos, visible)
-            return '!Widgets/Waveform/annotation/text_visible', [signal_name, x_pos, not visible]
-
-    def _cmd_waveform_signals_annotation_group_id(self, topic, value):
-        signal_name, x_pos, group_id = value
-        signal = self._signal_get(signal_name)
-        if signal is not None:
-            group_id_orig = signal.annotation_group_id(x_pos, group_id)
-            return '!Widgets/Waveform/annotation/group_id', [signal_name, x_pos, group_id_orig]
+    def _cmd_waveform_signals_annotation_dialog(self, topic, value):
+        annotation = text_annotation.find(value)
+        dialog = TextAnnotationDialog(self, self._cmdp, annotation)
+        undo = dialog.exec_()
+        redo = '!Widgets/Waveform/annotation/update', [annotation.id, annotation.state]
+        return redo, [undo]
 
     def _on_signals_active(self, topic, value):
         # must be safe to call repeatedly

@@ -15,7 +15,7 @@
 from PySide2 import QtCore
 from .signal_statistics import SignalStatistics, SignalMarkerStatistics, si_format, html_format
 from .signal_viewbox import SignalViewBox
-from .text_annotation import TextAnnotation
+from . import text_annotation
 from joulescope.stream_buffer import single_stat_to_api
 from .marker import Marker
 from .yaxis import YAxis
@@ -151,30 +151,26 @@ class Signal(QtCore.QObject):
                     layout.removeItem(self.text_item)
                 return row
 
-    def annotation_add(self, x, group_id, y, text):
-        self.log.info('annotation_add(%s, %s)', x, text)
-        state = {'signal_name': self.name, 'x': x, 'group_id': group_id, 'y': y, 'text': text}
-        a = TextAnnotation(self.vb, self._cmdp, state)
+    def annotation_add(self, instance_id, x, y, group_id, text):
+        self.log.info('annotation_add(id=%s, x=%s, y=%s, group_id=%s, text=%s)', instance_id, x, y, group_id, text)
+        state = {'signal_name': self.name, 'id': instance_id, 'x': x, 'y': y, 'group_id': group_id, 'text': text}
+        a = text_annotation.TextAnnotation(self.vb, self._cmdp, state)
         self.vb.addItem(a, ignoreBounds=True)
         a.show()
         self._annotations.append(a)
+        return a.id, [self.name, a.id, x, y, group_id, text]
 
-    def _annotation_find(self, x):
-        if isinstance(x, TextAnnotation):
-            if x in self._annotations:
-                return x
-        else:
-            for annotation in self._annotations:
-                if annotation.x_pos == x:
-                    return annotation
-        raise ValueError(f'Could not find annotation: signal={self.name}, pos={x}')
-
-    def annotation_remove(self, x):
-        self.log.info('annotation_remove(%s)', x)
-        a = self._annotation_find(x)
+    def annotation_remove(self, instance_id):
+        self.log.info('annotation_remove(%s)', instance_id)
+        a = text_annotation.find(instance_id)
         self.vb.removeItem(a)
         self._annotations.remove(a)
-        return self.name, a.x_pos, a.group_id, a.y_pos, a.text
+        text_annotation.remove(a.id)
+        return [self.name, a.id, a.x_pos, a.y_pos, a.group_id, a.text]
+
+    def annotation_show(self, show):
+        for a in self._annotations:
+            a.setTextVisible(show)
 
     def annotation_clear(self):
         undo_info = []
@@ -182,29 +178,6 @@ class Signal(QtCore.QObject):
             undo_this = self.annotation_remove(self._annotations[0])
             undo_info.append(undo_this)
         return undo_info
-
-    def annotation_move(self, x_orig, x_new, y_new=None):
-        a = self._annotation_find(x_orig)
-        y_orig = a.y_pos
-        a.x_pos = x_new
-        a.y_pos = y_new
-        return [self.name, x_new, x_orig, y_orig]
-
-    def annotation_text(self, x, text):
-        a = self._annotation_find(x)
-        text_orig = a.text
-        a.text = text
-        return text_orig
-
-    def annotation_text_visible(self, x, visible):
-        a = self._annotation_find(x)
-        a.setTextVisible(visible)
-
-    def annotation_group_id(self, x, group_id):
-        a = self._annotation_find(x)
-        group_id_orig = a.group_id
-        a.group_id = group_id
-        return group_id_orig
 
     def y_axis_config_update(self, cfg):
         scale_orig = self.config['y-axis']['scale']

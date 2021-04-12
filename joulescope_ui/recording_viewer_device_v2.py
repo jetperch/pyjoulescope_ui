@@ -436,6 +436,7 @@ class RecordingViewerDeviceV2:
     def _annotations_publish(self, reader):
         if self._cmdp is None:
             return
+        self._cmdp.invoke('!command_group/start', None)
         for signal in reader.signals.values():
             dual_markers = {}
 
@@ -445,7 +446,8 @@ class RecordingViewerDeviceV2:
                     # todo make this respect UTC, when UTC is implemented
                     timestamp = timestamp / signal.sample_rate
                 if annotation_type == AnnotationType.TEXT:
-                    self._cmdp.invoke('!Widgets/Waveform/annotation/add', [signal.name, timestamp, group_id, data])
+                    self._cmdp.invoke('!Widgets/Waveform/annotation/add',
+                                      [signal.name, None, timestamp, y, group_id, data])
                 elif annotation_type == AnnotationType.MARKER:
                     if data[-1] in 'ab':
                         name = data[:-1]
@@ -460,6 +462,7 @@ class RecordingViewerDeviceV2:
                 return 0
 
             reader.annotations(signal.signal_id, 0, cbk)
+        self._cmdp.invoke('!command_group/end', None)
 
     def _annotations_load(self):
         path = os.path.dirname(self._filename)
