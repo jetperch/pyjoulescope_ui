@@ -121,11 +121,15 @@ class TextAnnotation(pg.GraphicsObject):
         self._parent = parent
         self._cmdp = cmdp
         self._log = logging.getLogger('%s.%s' % (__name__, state['x']))
-        self._move_x_start = None
+        self._move_start_point = None
+        y = state.get('y')
+        if y is not None:
+            y = float(y)
         self._state = {
             'id': state.get('id', id(self)),
             'signal_name': state['signal_name'],
-            'x': state['x'],
+            'x': float(state['x']),
+            'y': y,
             'group_id': 0,
             'text': state.get('text'),
             'text_visible': True,
@@ -181,13 +185,29 @@ class TextAnnotation(pg.GraphicsObject):
     def x_pos(self):
         return self._state['x']
 
+    def _y_display_pos(self):
+        y = self._state['y']
+        if y is None:
+            _, (y_min, y_max) = self._parent.viewRange()
+            y = (y_max + y_min) / 2
+        return y
+
     @x_pos.setter
     def x_pos(self, value):
         x_pos = float(value)
         self._state['x'] = x_pos
-        _, (y_min, y_max) = self._parent.viewRange()
-        y_pos = (y_max + y_min) / 2
-        self.setPos(self._state['x'], y_pos)
+        self.setPos(self._state['x'], self._y_display_pos())
+
+    @property
+    def y_pos(self):
+        return self._state['y']
+
+    @y_pos.setter
+    def y_pos(self, value):
+        if value is not None:
+            value = float(value)
+        self._state['y'] = value
+        self.setPos(self._state['x'], self._y_display_pos())
 
     @property
     def text(self):
@@ -270,9 +290,7 @@ class TextAnnotation(pg.GraphicsObject):
 
         t = pt.inverted()[0]
         # reset translation
-        _, (y_min, y_max) = self._parent.viewRange()
-        y_center = (y_max + y_min) / 2
-        self.setPos(self.x_pos, y_center)
+        self.setPos(self.x_pos, self._y_display_pos())
         t.setMatrix(t.m11(), t.m12(), t.m13(), t.m21(), t.m22(), t.m23(), 0, 0, t.m33())
         self.setTransform(t)
         self._lastTransform = pt
@@ -286,31 +304,38 @@ class TextAnnotation(pg.GraphicsObject):
             pos = ev.screenPos().toPoint()
             self.menu_exec(pos)
 
-    def _ev_to_x(self, ev):
+    def _ev_to_point(self, ev):
         pos = ev.scenePos()
         p = self._parent.mapSceneToView(pos)
         x = p.x()
-        (x_min, x_max), _ = self._parent.viewRange()
+        (x_min, x_max), (y_min, y_max) = self._parent.viewRange()
         x = min(max(x, x_min), x_max)
-        return x
+        y = p.y()
+        y = min(max(y, y_min), y_max)
+        return x, y
 
     def _mouse_move_event(self, ev):
-        if self._move_x_start is None:
+        if self._move_start_point is None:
             return
-        self.x_pos = self._ev_to_x(ev)
+        self.x_pos, y = self._ev_to_point(ev)
+        if self._state['y'] is not None:
+            self.y_pos = y
 
     def _move_start(self, ev):
         self._z_value_set(True)
-        self._move_x_start = self.x_pos
+        self._move_start_point = self.x_pos, self.y_pos
 
     def _move_end(self, ev):
-        if self._move_x_start is None:
+        if self._move_start_point is None:
             return
-        x_end = self._ev_to_x(ev)
+        x_end, y_end = self._ev_to_point(ev)
         self._z_value_set(False)
-        x_start, self._move_x_start = self._move_x_start, None
+        [x_start, y_start], self._move_start_point = self._move_start_point, None
         self.x_pos = x_start
-        self._cmdp.invoke('!Widgets/Waveform/annotation/move', [self.signal_name, x_start, x_end])
+        self.y_pos = y_start
+        if self._state['y'] is None:
+            y_end = None
+        self._cmdp.invoke('!Widgets/Waveform/annotation/move', [self.signal_name, x_start, x_end, y_end])
 
     def mouseDragEvent(self, ev, axis=None):
         self._log.info('mouse drag: %s', ev)
@@ -337,19 +362,32 @@ class TextAnnotation(pg.GraphicsObject):
         visible = not self.isTextVisible()
         self._cmdp.invoke('!Widgets/Waveform/annotation/text_visible', [self.signal_name, self.x_pos, visible])
 
+    def _center_y(self):
+        x_pos = self.x_pos
+        if self._state['y'] is None:
+            y_pos = self._y_display_pos()
+        else:
+            y_pos = None
+        self._cmdp.invoke('!Widgets/Waveform/annotation/move', [self.signal_name, x_pos, x_pos, y_pos])
+
     def _remove(self, *args, **kwargs):
         self._cmdp.invoke('!Widgets/Waveform/annotation/remove', [self.signal_name, self.x_pos])
 
     def menu_exec(self, pos):
         menu = QtWidgets.QMenu()
 
-        remove = menu.addAction('Set &Text')
-        remove.triggered.connect(self._text)
+        set_text = menu.addAction('Set &Text')
+        set_text.triggered.connect(self._text)
 
-        remove = menu.addAction('&Show Text')
-        remove.setCheckable(True)
-        remove.setChecked(self._text_item.isVisible())
-        remove.triggered.connect(self._show_text)
+        show_text = menu.addAction('&Show Text')
+        show_text.setCheckable(True)
+        show_text.setChecked(self._text_item.isVisible())
+        show_text.triggered.connect(self._show_text)
+
+        center_y = menu.addAction('&Center Y')
+        center_y.setCheckable(True)
+        center_y.setChecked(self._state['y'] is None)
+        center_y.triggered.connect(self._center_y)
 
         group_id = self._state['group_id']
         appearance_menu = menu.addMenu('&Appearance')

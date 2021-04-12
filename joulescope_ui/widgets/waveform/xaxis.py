@@ -31,10 +31,10 @@ class AxisMenu(QtWidgets.QMenu):
         QtWidgets.QMenu.__init__(self)
         self.annotations = self.addMenu('&Annotations')
 
-        self.single_marker = QtWidgets.QAction('&Single Marker')
+        self.single_marker = QtWidgets.QAction('&Single marker')
         self.annotations.addAction(self.single_marker)
 
-        self.dual_markers = QtWidgets.QAction('&Dual Markers')
+        self.dual_markers = QtWidgets.QAction('&Dual markers')
         self.annotations.addAction(self.dual_markers)
 
         self.clear_all_markers = QtWidgets.QAction('&Clear all')

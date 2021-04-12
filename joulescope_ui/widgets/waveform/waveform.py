@@ -123,13 +123,17 @@ class WaveformWidget(QtWidgets.QWidget):
                    detail='value is signal name string.')
         c.register('!Widgets/Waveform/annotation/add', self._cmd_waveform_signals_annotation_add,
                    brief='Add an annotation to a signal.',
-                   detail='value is [signal_name, x_pos, text].')
+                   detail='value is [signal_name, x_pos, group_id, y, text].')
         c.register('!Widgets/Waveform/annotation/remove', self._cmd_waveform_signals_annotation_remove,
                    brief='Remove an annotation from a signal.',
                    detail='value is [signal_name, x_pos].')
+        c.register('!Widgets/Waveform/annotation/clear', self._cmd_waveform_signals_annotation_clear,
+                   brief='Remove an annotation from signals.',
+                   detail='value is [signal_name, ...].')
         c.register('!Widgets/Waveform/annotation/move', self._cmd_waveform_signals_annotation_move,
                    brief='Move the x-axis location for an annotation.',
-                   detail='value is [signal_name, x_pos_orig, x_pos_new].')
+                   detail='value is [signal_name, x_pos_orig, x_pos_new, y_pos_new].'
+                   + 'If y_pos_new is None, then center on y-axis.')
         c.register('!Widgets/Waveform/annotation/text', self._cmd_waveform_signals_annotation_text,
                    brief='Change the text for an annotation.',
                    detail='value is [signal_name, x_pos, text].')
@@ -146,8 +150,8 @@ class WaveformWidget(QtWidgets.QWidget):
 
         shortcuts = [
             [QtCore.Qt.Key_Asterisk, self._on_x_axis_zoom_all],
-            [QtCore.Qt.Key_Delete, self._on_markers_clear],
-            [QtCore.Qt.Key_Backspace, self._on_markers_clear],
+            [QtCore.Qt.Key_Delete, self._on_annotation_clear_all],
+            [QtCore.Qt.Key_Backspace, self._on_annotation_clear_all],
             [QtCore.Qt.Key_Left, self._on_left],
             [QtCore.Qt.Key_Right, self._on_right],
             [QtCore.Qt.Key_Up, self._on_zoom_in],
@@ -183,42 +187,87 @@ class WaveformWidget(QtWidgets.QWidget):
         p = self._context_menu_event.scenePos().toPoint()
         return self._x_axis.linkedView().mapSceneToView(p).x()
 
-    def _on_annotation_single_marker(self):
+    def _context_menu_pos_view_y(self):
+        p = self._context_menu_event.scenePos().toPoint()
+        for signal_name, signal in self._signals.items():
+            if signal.vb.geometry().contains(p):
+                y = signal.vb.mapSceneToView(p).y()
+                return signal_name, y
+        return None, None
+
+    def _on_annotation_x_single_marker(self):
         x = self._context_menu_pos_view_x()
         self._cmdp.invoke('!Widgets/Waveform/Markers/single_add', x)
 
-    def _on_annotation_dual_markers(self):
+    def _on_annotation_x_dual_markers(self):
         x = self._context_menu_pos_view_x()
         self._cmdp.invoke('!Widgets/Waveform/Markers/dual_add', [x])
 
-    def _event_to_signal_name(self, ev):
-        for item in self.win.sceneObj.itemsNearEvent(ev):
-            if isinstance(item, SignalViewBox):
-                return item.name
-        return None
+    def _on_annotation_x_clear_markers(self):
+        self._cmdp.invoke('!Widgets/Waveform/Markers/clear', None)
 
-    def _on_annotation_text(self):
+    def _on_annotation_y_single_marker(self):
+        signal_name, y = self._context_menu_pos_view_y()
+        if signal_name is not None:
+            self._cmdp.invoke('!Widgets/Waveform/YMarkers/single_add', [signal_name, y])
+
+    def _on_annotation_y_dual_markers(self):
+        signal_name, y = self._context_menu_pos_view_y()
+        if signal_name is not None:
+            self._cmdp.invoke('!Widgets/Waveform/YMarkers/dual_add', [signal_name, y, None])
+
+    def _on_annotation_y_clear_markers(self):
+        signal_name, y = self._context_menu_pos_view_y()
+        if signal_name is not None:
+            self._cmdp.invoke('!Widgets/Waveform/YMarkers/clear', [signal_name])
+
+    def _on_annotation_text_add(self):
         x = self._context_menu_pos_view_x()
-        signal_name = self._event_to_signal_name(self._context_menu_event)
-        if signal_name is None:
-            log.warning('No signal at location: ignored')
-            return
-        self._cmdp.invoke('!Widgets/Waveform/annotation/add', [signal_name, x, 0, None])
+        signal_name, y = self._context_menu_pos_view_y()
+        if signal_name is not None:
+            self._cmdp.invoke('!Widgets/Waveform/annotation/add', [signal_name, x, 0, y, None])
+
+    def _on_annotation_text_clear(self):
+        signal_name, y = self._context_menu_pos_view_y()
+        if signal_name is not None:
+            self._cmdp.invoke('!Widgets/Waveform/annotation/clear', [signal_name])
 
     def _on_annotation_clear_all(self):
+        signals = list(self._signals.keys())
+        self._cmdp.invoke('!command_group/start', None)
         self._cmdp.invoke('!Widgets/Waveform/Markers/clear', None)
+        self._cmdp.invoke('!Widgets/Waveform/YMarkers/clear', signals)
+        self._cmdp.invoke('!Widgets/Waveform/annotation/clear', signals)
+        self._cmdp.invoke('!command_group/end', None)
 
     def _context_menu(self, pos):
         log.debug('_context_menu')
         menu = QtGui.QMenu('Waveform menu', self)
 
         annotations = menu.addMenu('&Annotations')
-        single_marker = annotations.addAction('&Single Marker')
-        single_marker.triggered.connect(self._on_annotation_single_marker)
-        dual_markers = annotations.addAction('&Dual Markers')
-        dual_markers.triggered.connect(self._on_annotation_dual_markers)
-        annotation_text = annotations.addAction('&Text')
-        annotation_text.triggered.connect(self._on_annotation_text)
+        anno_x = annotations.addMenu('&Vertical')
+        anno_y = annotations.addMenu('&Horizontal')
+        anno_text = annotations.addMenu('&Text')
+
+        single_xmarker = anno_x.addAction('&Single marker')
+        single_xmarker.triggered.connect(self._on_annotation_x_single_marker)
+        dual_xmarkers = anno_x.addAction('&Dual markers')
+        dual_xmarkers.triggered.connect(self._on_annotation_x_dual_markers)
+        clear_xmarkers = anno_x.addAction('&Clear all')
+        clear_xmarkers.triggered.connect(self._on_annotation_x_clear_markers)
+
+        single_ymarker = anno_y.addAction('&Single marker')
+        single_ymarker.triggered.connect(self._on_annotation_y_single_marker)
+        dual_ymarkers = anno_y.addAction('&Dual markers')
+        dual_ymarkers.triggered.connect(self._on_annotation_y_dual_markers)
+        clear_xmarkers = anno_y.addAction('&Clear all')
+        clear_xmarkers.triggered.connect(self._on_annotation_y_clear_markers)
+
+        annotation_text = anno_text.addAction('&Add text')
+        annotation_text.triggered.connect(self._on_annotation_text_add)
+        annotation_clear = anno_text.addAction('&Clear all')
+        annotation_clear.triggered.connect(self._on_annotation_text_clear)
+
         clear_all = annotations.addAction('&Clear all')
         clear_all.triggered.connect(self._on_annotation_clear_all)
 
@@ -311,10 +360,6 @@ class WaveformWidget(QtWidgets.QWidget):
             self._scrollbar.zoom_to_range(m[0].get_pos(), m[1].get_pos())
 
     @QtCore.Slot(bool)
-    def _on_markers_clear(self):
-        self._cmdp.invoke('!Widgets/Waveform/Markers/clear', None)
-
-    @QtCore.Slot(bool)
     def _on_x_axis_zoom_all(self):
         self._cmdp.invoke('!Widgets/Waveform/x-axis/zoom_all', None)
 
@@ -355,25 +400,46 @@ class WaveformWidget(QtWidgets.QWidget):
         return self._signals[signal_name]
 
     def _cmd_waveform_signals_annotation_add(self, topic, value):
-        signal_name, x, group_id, text = value
-        signal = self._signal_get(signal_name)
-        if signal is not None:
-            signal.annotation_add(x, group_id, text)
-            return '!Widgets/Waveform/annotation/remove', [signal_name, x]
+        if value is None or not len(value):
+            return
+        if isinstance(value[0], str):
+            value = [value]
+        undo_info = []
+        for signal_name, x, group_id, y, text in value:
+            signal = self._signal_get(signal_name)
+            if signal is not None:
+                signal.annotation_add(x, group_id, y, text)
+                undo_info.append([signal_name, x])
+        return '!Widgets/Waveform/annotation/remove', [signal_name, x]
 
     def _cmd_waveform_signals_annotation_remove(self, topic, value):
-        signal_name, x = value
-        signal = self._signal_get(signal_name)
-        if signal is not None:
-            x_pos, group_id, text = signal.annotation_remove(x)
-            return '!Widgets/Waveform/annotation/add', [signal_name, x_pos, group_id, text]
+        if value is None or not len(value):
+            return
+        if isinstance(value[0], str):
+            value = [value]
+        undo_info = []
+        for signal_name, x in value:
+            signal = self._signal_get(signal_name)
+            if signal is not None:
+                undo_this = signal.annotation_remove(x)
+                undo_info.append(undo_this)
+        return '!Widgets/Waveform/annotation/add', undo_info
+
+    def _cmd_waveform_signals_annotation_clear(self, topic, value):
+        undo_info = []
+        for signal_name in value:
+            signal = self._signal_get(signal_name)
+            if signal is not None:
+                undo_this = signal.annotation_clear()
+                undo_info.extend(undo_this)
+        return '!Widgets/Waveform/annotation/add', undo_info
 
     def _cmd_waveform_signals_annotation_move(self, topic, value):
-        signal_name, x_pos_orig, x_pos_new = value
+        signal_name, x_pos_orig, x_pos_new, y_pos_new = value
         signal = self._signal_get(signal_name)
         if signal is not None:
-            signal.annotation_move(x_pos_orig, x_pos_new)
-            return '!Widgets/Waveform/annotation/move', [signal_name, x_pos_new, x_pos_orig]
+            undo_info = signal.annotation_move(x_pos_orig, x_pos_new, y_pos_new)
+            return '!Widgets/Waveform/annotation/move', undo_info
 
     def _cmd_waveform_signals_annotation_text(self, topic, value):
         signal_name, x_pos, text = value

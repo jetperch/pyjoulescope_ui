@@ -31,9 +31,9 @@ class YAxisMenu(QtWidgets.QMenu):
 
         # Annotations
         self.annotations = self.addMenu('Annotations')
-        self.single_marker = self.annotations.addAction('Single Marker')
-        self.dual_markers = self.annotations.addAction('Dual Markers')
-        self.clear_annotations = self.annotations.addAction('Clear all')
+        self.single_marker = self.annotations.addAction('&Single marker')
+        self.dual_markers = self.annotations.addAction('&Dual markers')
+        self.clear_annotations = self.annotations.addAction('&Clear all')
 
         # range
         self.range = QtWidgets.QMenu()
@@ -226,7 +226,19 @@ class YAxis(AxisItemPatch):
         name = self._find_first_unused_marker_index()
         return self._marker_add(str(name), pos=y)
 
-    def marker_dual_add(self, y1, y2):
+    def marker_dual_add(self, y1, y2=None):
+        if y2 is None:
+            yc = y1
+            r1, r2 = self.range
+            ys = (r2 - r1) / 10
+            y1, y2 = yc - ys, yc + ys
+            if y1 < r1:
+                c = r1 - y1
+            elif y2 > r2:
+                c = r2 - y2
+            else:
+                c = 0.0
+            y1, y2 = y1 + c, y2 + c
         name = self._find_first_unused_marker_index()
         m1 = self._marker_add(f'{name}a', pos=y1)
         m2 = self._marker_add(f'{name}b', pos=y2)
@@ -251,18 +263,8 @@ class YAxis(AxisItemPatch):
         self._cmdp.invoke('!Widgets/Waveform/YMarkers/single_add', [self._name, self._popup_menu_pos])
 
     def _on_dual_markers(self):
-        r1, r2 = self.range
         yc = self._popup_menu_pos
-        ys = (r2 - r1) / 10
-        y1, y2 = yc - ys, yc + ys
-        if y1 < r1:
-            c = r1 - y1
-        elif y2 > r2:
-            c = r2 - y2
-        else:
-            c = 0.0
-        y1, y2 = y1 + c, y2 + c
-        self._cmdp.invoke('!Widgets/Waveform/YMarkers/dual_add', [self._name, y1, y2])
+        self._cmdp.invoke('!Widgets/Waveform/YMarkers/dual_add', [self._name, yc, None])
 
     def _on_clear_annotations(self):
         self._cmdp.invoke('!Widgets/Waveform/YMarkers/clear', [self._name])

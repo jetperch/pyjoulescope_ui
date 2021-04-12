@@ -20,7 +20,7 @@ from joulescope.stream_buffer import single_stat_to_api
 from .marker import Marker
 from .yaxis import YAxis
 from joulescope_ui.themes.color_picker import color_as_qcolor
-from typing import Dict
+from typing import Dict, List
 import pyqtgraph as pg
 import math
 import numpy as np
@@ -61,7 +61,7 @@ class Signal(QtCore.QObject):
                 'scale': 'linear',
             },
         }
-        self._annotations = []
+        self._annotations: List[TextAnnotation] = []
         self._statistics_font_resizer = statistics_font_resizer
         self.markers: Dict[str, Marker] = None   # WARNING: for reference only
         self._marker_font_resizer = marker_font_resizer
@@ -151,18 +151,22 @@ class Signal(QtCore.QObject):
                     layout.removeItem(self.text_item)
                 return row
 
-    def annotation_add(self, x, group_id, text):
+    def annotation_add(self, x, group_id, y, text):
         self.log.info('annotation_add(%s, %s)', x, text)
-        state = {'signal_name': self.name, 'x': x, 'group_id': group_id, 'text': text}
+        state = {'signal_name': self.name, 'x': x, 'group_id': group_id, 'y': y, 'text': text}
         a = TextAnnotation(self.vb, self._cmdp, state)
         self.vb.addItem(a, ignoreBounds=True)
         a.show()
         self._annotations.append(a)
 
     def _annotation_find(self, x):
-        for annotation in self._annotations:
-            if annotation.x_pos == x:
-                return annotation
+        if isinstance(x, TextAnnotation):
+            if x in self._annotations:
+                return x
+        else:
+            for annotation in self._annotations:
+                if annotation.x_pos == x:
+                    return annotation
         raise ValueError(f'Could not find annotation: signal={self.name}, pos={x}')
 
     def annotation_remove(self, x):
@@ -170,11 +174,21 @@ class Signal(QtCore.QObject):
         a = self._annotation_find(x)
         self.vb.removeItem(a)
         self._annotations.remove(a)
-        return a.x_pos, a.group_id, a.text
+        return self.name, a.x_pos, a.group_id, a.y_pos, a.text
 
-    def annotation_move(self, x_orig, x_new):
+    def annotation_clear(self):
+        undo_info = []
+        while len(self._annotations):
+            undo_this = self.annotation_remove(self._annotations[0])
+            undo_info.append(undo_this)
+        return undo_info
+
+    def annotation_move(self, x_orig, x_new, y_new=None):
         a = self._annotation_find(x_orig)
+        y_orig = a.y_pos
         a.x_pos = x_new
+        a.y_pos = y_new
+        return [self.name, x_new, x_orig, y_orig]
 
     def annotation_text(self, x, text):
         a = self._annotation_find(x)
