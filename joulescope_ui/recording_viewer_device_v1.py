@@ -13,6 +13,8 @@
 # limitations under the License.
 
 from joulescope.data_recorder import DataReader
+from PySide2 import QtCore
+from .widgets.waveform.annotations import AnnotationLoader
 from joulescope.view import data_array_to_update
 from joulescope_ui.data_view_api import DataViewApi
 from joulescope import span
@@ -231,10 +233,12 @@ class RecordingViewerDeviceV1:
 
     :param filename: The filename path to the pre-recorded data.
     """
-    def __init__(self, filename, current_ranging_format=None):
+    def __init__(self, parent, filename, cmdp=None, current_ranging_format=None):
         if isinstance(filename, str) and not os.path.isfile(filename):
             raise IOError('file not found')
+        self._parent = parent
         self._filename = filename
+        self._cmdp = cmdp
         self._current_ranging_format = current_ranging_format
         self._reader = None
         self._views = []
@@ -244,6 +248,8 @@ class RecordingViewerDeviceV1:
         self._response_queue = queue.Queue()
         self._quit = False
         self._log = logging.getLogger(__name__)
+        self._loader = None
+        self._threadpool = None
 
     def __str__(self):
         return os.path.basename(self._filename)
@@ -367,11 +373,19 @@ class RecordingViewerDeviceV1:
         # self._log.debug('_post_block %s done', command)  # rv
         return rv
 
+    def _on_annotations_loaded(self, *args, **kwargs):
+        self._loader = None
+        self._threadpool.stop()
+
     def _open(self):
         self._reader = DataReader()
         if self._current_ranging_format is not None:
             self._reader.raw_processor.suppress_mode = self._current_ranging_format
         self._reader.open(self._filename)  # todo progress bar updates
+        self._loader = AnnotationLoader(self._parent, self._filename, self._cmdp)
+        self._loader.signals.finished.connect(self._on_annotations_loaded)
+        self._threadpool = QtCore.QThreadPool()
+        self._threadpool.start(self._loader)
         self._log.info('RecordingViewerDevice.open')
 
     def _close(self):

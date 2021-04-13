@@ -69,7 +69,7 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
         self.cmdp = cmdp
         self._range_tool_obj = None
         self.sample_range = None
-        self._time_range = None
+        self.time_range = None
         self._view = None
         self._thread = None
         self._message_queue = Queue()
@@ -139,7 +139,7 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
             self._progress_time_last = current_time
 
     def _x_map_to_parent(self, x):
-        t1, t2 = self._time_range
+        t1, t2 = self.time_range
         if x < 0.0:
             raise ValueError('x too small')
         if x >= (t2 - t1):
@@ -167,7 +167,7 @@ class RangeToolInvoke(QtCore.QObject):  # also implements RangeToolInvocation
         self.statistics = statistics
         t1, t2 = min(x_start, x_stop), max(x_start, x_stop)
         log.info('range_tool %s(%s, %s)', self._range_tool.name, t1, t2)
-        self._time_range = (t1, t2)
+        self.time_range = (t1, t2)
         s1 = max(view.time_to_sample_id(t1), 0)  # negative sample_ids not allowed
         s2 = view.time_to_sample_id(t2)
         if s1 is None or s2 is None:

@@ -88,6 +88,10 @@ class RangeToolInvocation:
 class RangeTool:
     """The object skeleton to be provided to range_tool_register()."""
 
+    def __init__(self):
+        self.sample_range = None    #: [sample_min, sample_max]
+        self.time_range = None      #: [time_min, time_max]
+
     def run_pre(self, data: RangeToolInvocation):
         """Optional method run before starting the processing thread.
 

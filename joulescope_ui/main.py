@@ -817,7 +817,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if os.path.isfile(basename):
                 filename = basename
             log.info('found recording base %s', filename)
-        device = recording_viewer_factory(filename, self._cmdp, current_ranging_format=current_ranging_format)
+        device = recording_viewer_factory(self, filename, self._cmdp, current_ranging_format=current_ranging_format)
         device.ui_on_close = lambda: self._device_remove(device)
         self._device_add(device)
         return device
@@ -867,16 +867,18 @@ class MainWindow(QtWidgets.QMainWindow):
                 self._cmdp.subscribe('Device/extio/', self._on_device_parameter, update_now=True)
                 self._cmdp.subscribe('Device/Current Ranging/', self._on_device_current_range_parameter, update_now=True)
                 if self._is_streaming_device:
+                    self._cmdp.publish('Device/#state/filename', '')
                     if self._cmdp['Device/autostream']:
                         self._cmdp.publish('Device/#state/source', 'USB')
                         self._cmdp.publish('Device/#state/play', True)
                     else:
                         self._cmdp.publish('Device/#state/source', 'Buffer')
-                if hasattr(device, 'filename'):
-                    self._cmdp.publish('Device/#state/name', os.path.basename(device.filename))
+                if hasattr(self._device, 'filename'):
+                    self._cmdp.publish('Device/#state/name', os.path.basename(self._device.filename))
+                    self._cmdp.publish('Device/#state/filename', self._device.filename)
                     self._cmdp.publish('Device/#state/source', 'File')
                     self._cmdp.publish('Device/#state/stream', 'inactive')
-                    self._cmdp.publish('!General/mru_add', device.filename)
+                    self._cmdp.publish('!General/mru_add', self._device.filename)
             except Exception:
                 log.exception('while initializing after open device')
                 return self._device_open_failed('Could not initialize device')

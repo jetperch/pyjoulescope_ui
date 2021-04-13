@@ -61,7 +61,7 @@ class Signal(QtCore.QObject):
                 'scale': 'linear',
             },
         }
-        self._annotations: List[TextAnnotation] = []
+        self._annotations: List[text_annotation.TextAnnotation] = []
         self._statistics_font_resizer = statistics_font_resizer
         self.markers: Dict[str, Marker] = None   # WARNING: for reference only
         self._marker_font_resizer = marker_font_resizer
@@ -111,6 +111,10 @@ class Signal(QtCore.QObject):
         cmdp.subscribe('Widgets/Waveform/show_min_max', self._on_show_min_max, update_now=True)
         cmdp.subscribe('Widgets/Waveform/trace_width', self._on_colors, update_now=True)
         cmdp.subscribe('Appearance/__index__', self._on_colors, update_now=True)
+
+    @property
+    def annotations(self) -> List[text_annotation.TextAnnotation]:  # for read only
+        return self._annotations
 
     def set_xlimits(self, x_min, x_max):
         self.vb.setLimits(xMin=x_min, xMax=x_max)

@@ -21,7 +21,7 @@ _V1_PREFIX = bytes([0xd3, 0x74, 0x61, 0x67, 0x66, 0x6d, 0x74, 0x20, 0x0d, 0x0a, 
 _V2_PREFIX = bytes([0x6a, 0x6c, 0x73, 0x66, 0x6d, 0x74, 0x0d, 0x0a, 0x20, 0x0a, 0x20, 0x1a, 0x20, 0x20, 0xb2, 0x1c])
 
 
-def factory(filename, cmdp=None, current_ranging_format=None):
+def factory(parent, filename, cmdp=None, current_ranging_format=None):
     """Open the correct JLS file version based upon the file header prefix."""
     if hasattr(filename, 'read') and hasattr(filename, 'seek'):
         d = filename.read(16)
@@ -30,8 +30,8 @@ def factory(filename, cmdp=None, current_ranging_format=None):
         with open(filename, 'rb') as f:
             d = f.read(16)
     if d == _V2_PREFIX:
-        return RecordingViewerDeviceV2(filename, cmdp)
+        return RecordingViewerDeviceV2(parent, filename, cmdp)
     elif d == _V1_PREFIX:
-        return RecordingViewerDeviceV1(filename, current_ranging_format=current_ranging_format)
+        return RecordingViewerDeviceV1(parent, filename, cmdp, current_ranging_format=current_ranging_format)
     else:
         raise RuntimeError('unsupported file prefix')

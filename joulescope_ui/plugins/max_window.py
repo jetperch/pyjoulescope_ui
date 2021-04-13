@@ -35,7 +35,7 @@ class MaxWindow:
         self.data = None
 
     def run_pre(self, data):
-        max_time_len = data._time_range[1] - data._time_range[0]
+        max_time_len = data.time_range[1] - data.time_range[0]
         rv = MaxWindowDialog(max_time_len).exec_()
         if rv is None:
             return 'Cancelled'

@@ -26,6 +26,7 @@ from .ymarker_manager import YMarkerManager
 from joulescope_ui.file_dialog import FileDialog
 from joulescope.data_recorder import construct_record_filename
 from joulescope_ui.preferences_def import FONT_SIZES
+from pyjls import Writer, DataType, AnnotationType, SignalType, SourceDef, SignalDef, SummaryFSR
 import pyqtgraph as pg
 import pyqtgraph.exporters
 from typing import Dict
@@ -131,6 +132,10 @@ class WaveformWidget(QtWidgets.QWidget):
         c.register('!Widgets/Waveform/annotation/dialog', self._cmd_waveform_signals_annotation_dialog,
                    brief='Request a text update for an annotation.',
                    detail='value is instance_id.')
+
+        c.register('!Widgets/Waveform/annotation/save', self._cmd_waveform_annotation_save,
+                   brief='Save annotations to a file.',
+                   detail='value is None to save for currently open JLS, or [filename, x_start, x_end].')
 
         c.subscribe('DataView/#data', self._on_data, update_now=True)
         c.subscribe('Device/#state/source', self._on_device_state_source, update_now=True)
@@ -240,6 +245,9 @@ class WaveformWidget(QtWidgets.QWidget):
         if signal_name is not None:
             self._cmdp.invoke('!Widgets/Waveform/annotation/clear', [signal_name])
 
+    def _on_annotation_save(self):
+        self._cmdp.invoke('!Widgets/Waveform/annotation/save', None)
+
     def _on_annotation_clear_all(self):
         signals = list(self._signals.keys())
         self._cmdp.invoke('!command_group/start', None)
@@ -279,6 +287,10 @@ class WaveformWidget(QtWidgets.QWidget):
         anno_text_show.triggered.connect(self._on_annotation_text_show)
         annotation_clear = anno_text.addAction('&Clear all')
         annotation_clear.triggered.connect(self._on_annotation_text_clear)
+
+        if self._cmdp['Device/#state/source'] == 'File':
+            save_all = annotations.addAction('&Save all')
+            save_all.triggered.connect(self._on_annotation_save)
 
         clear_all = annotations.addAction('&Clear all')
         clear_all.triggered.connect(self._on_annotation_clear_all)
@@ -472,6 +484,52 @@ class WaveformWidget(QtWidgets.QWidget):
         undo = dialog.exec_()
         redo = '!Widgets/Waveform/annotation/update', [annotation.id, annotation.state]
         return redo, [undo]
+
+    def _cmd_waveform_annotation_save(self, topic, value):
+        if value is None:
+            x_start, x_end = None, None
+            fname = self._cmdp['Device/#state/filename']
+            if not len(fname) or not fname.endswith('.jls'):
+                self._log.warning('Can only save when JLS file source')
+                return
+            fname = os.path.abspath(fname)[:-4] + '.anno.jls'
+        else:
+            fname, x_start, x_end = value
+        fs = 1000000
+        signal_def = {
+            # signal_id, source_id, sample_rate, units
+            'current': [1, 1, fs, 'A'],
+            'voltage': [2, 1, fs, 'V'],
+            'power':   [3, 1, fs, 'W'],
+        }
+
+        with Writer(fname) as w:
+            w.source_def(source_id=1, name='annotations', vendor='-', model='-',
+                         version='-', serial_number='-')
+            for name, [signal_id, source_id, sample_rate, units] in signal_def.items():
+                w.signal_def(signal_id=signal_id, source_id=source_id, sample_rate=sample_rate, name=name, units=units)
+
+            # Horizontal markers first, since x-axis position is 0
+            for sname, s in self._signals.items():
+                signal_id = signal_def[sname][0]
+                for name, m in s.y_axis.markers.items():
+                    w.annotation(signal_id, 0, m.y, AnnotationType.HMARKER, 0, name)
+
+            for name, m in self._x_axis.markers.items():
+                x = m.get_pos()
+                if (x_start is not None and x <= x_start) or (x_end is not None and x >= x_end):
+                    continue
+                x *= fs
+                w.annotation(1, x, None, AnnotationType.VMARKER, 0, name)
+
+            for sname, s in self._signals.items():
+                signal_id, _, sample_rate, _ = signal_def[sname]
+                for a in s.annotations:
+                    x = a.x_pos
+                    if (x_start is not None and x <= x_start) or (x_end is not None and x >= x_end):
+                        continue
+                    x *= fs
+                    w.annotation(signal_id, x, a.y_pos, AnnotationType.TEXT, a.group_id, a.text)
 
     def _on_signals_active(self, topic, value):
         # must be safe to call repeatedly

@@ -57,8 +57,13 @@ class Exporter:
         if fn is None:
             return f'Invalid export file type: {filetype}'
         rv = fn(data)
-        if data.is_cancelled and os.path.isfile(self._filename):
-            os.unlink(self._filename)
+        if data.is_cancelled:
+            if os.path.isfile(self._filename):
+                os.unlink(self._filename)
+        elif filetype == 'jls':
+            annofile = self._filename[:-4] + '.anno.jls'
+            t_min, t_max = data.time_range
+            data.cmdp.publish('!Widgets/Waveform/annotation/save', [annofile, t_min, t_max])
         return rv
 
     def _filename_select(self, parent, path):

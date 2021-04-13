@@ -13,7 +13,9 @@
 # limitations under the License.
 
 from pyjls import Reader, DataType, AnnotationType, SignalType, SourceDef, SignalDef, SummaryFSR
+from PySide2 import QtCore
 from joulescope import span
+from .widgets.waveform.annotations import AnnotationLoader
 import os
 import numpy as np
 import threading
@@ -293,9 +295,10 @@ class RecordingViewerDeviceV2:
 
     :param filename: The filename path to the pre-recorded data.
     """
-    def __init__(self, filename, cmdp=None):
+    def __init__(self, parent, filename, cmdp=None):
         if isinstance(filename, str) and not os.path.isfile(filename):
             raise IOError('file not found')
+        self._parent = parent
         self._filename = filename
         self._cmdp = cmdp
         self._reader: Reader = None
@@ -307,6 +310,8 @@ class RecordingViewerDeviceV2:
         self._response_queue = queue.Queue()
         self._quit = False
         self._log = logging.getLogger(__name__)
+        self._loader = None
+        self._threadpool = None
 
     def __str__(self):
         return os.path.basename(self._filename)
@@ -433,45 +438,9 @@ class RecordingViewerDeviceV2:
         # self._log.debug('_post_block %s done', command)  # rv
         return rv
 
-    def _annotations_publish(self, reader):
-        if self._cmdp is None:
-            return
-        self._cmdp.invoke('!command_group/start', None)
-        for signal in reader.signals.values():
-            dual_markers = {}
-
-            def cbk(timestamp, annotation_type, group_id, y, data):
-                if signal.signal_type == SignalType.FSR:
-                    # convert to seconds
-                    # todo make this respect UTC, when UTC is implemented
-                    timestamp = timestamp / signal.sample_rate
-                if annotation_type == AnnotationType.TEXT:
-                    self._cmdp.invoke('!Widgets/Waveform/annotation/add',
-                                      [signal.name, None, timestamp, y, group_id, data])
-                elif annotation_type == AnnotationType.MARKER:
-                    if data[-1] in 'ab':
-                        name = data[:-1]
-                        if name in dual_markers:
-                            t2 = dual_markers.pop(name)
-                            value = sorted([timestamp, t2])
-                            self._cmdp.invoke('!Widgets/Waveform/Markers/dual_add', value)
-                        else:
-                            dual_markers[name] = timestamp
-                    else:
-                        self._cmdp.invoke('!Widgets/Waveform/Markers/single_add', timestamp)
-                return 0
-
-            reader.annotations(signal.signal_id, 0, cbk)
-        self._cmdp.invoke('!command_group/end', None)
-
-    def _annotations_load(self):
-        path = os.path.dirname(self._filename)
-        fname = os.path.basename(self._filename)
-        fbase, fext = os.path.splitext(fname)
-        for filename in os.listdir(path):
-            if filename.startswith(fbase) and filename != fname and filename.endswith(fext):
-                with Reader(os.path.join(path, filename)) as r:
-                    self._annotations_publish(r)
+    def _on_annotations_loaded(self, *args, **kwargs):
+        self._loader = None
+        self._threadpool.stop()
 
     def _open(self):
         self._log.info('RecordingViewerDevice.open')
@@ -480,8 +449,11 @@ class RecordingViewerDeviceV2:
         if len(signals) <= 1:
             raise RuntimeError('This JLS file is not currently supported')
         self._default_signal = signals[1]
-        self._annotations_publish(self._reader)
-        self._annotations_load()
+        self._loader = AnnotationLoader(self._parent, self._filename, self._cmdp)
+        self._loader.signals.finished.connect(self._on_annotations_loaded)
+        self._loader.publish(self._reader)  # handle base
+        self._threadpool = QtCore.QThreadPool()
+        self._threadpool.start(self._loader)
 
     def _close(self):
         if self._reader is not None:
