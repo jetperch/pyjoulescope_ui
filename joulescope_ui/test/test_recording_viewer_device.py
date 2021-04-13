@@ -51,7 +51,7 @@ class TestRecordingViewerDevice(unittest.TestCase):
         self.lock = threading.Lock()
         self.lock.acquire()
         self.updates = []
-        self.d = factory(self._create_file(0, 2), None)
+        self.d = factory(None, self._create_file(0, 2), None)
         self.d.open()
 
     def tearDown(self):

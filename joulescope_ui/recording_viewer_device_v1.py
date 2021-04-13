@@ -382,6 +382,8 @@ class RecordingViewerDeviceV1:
         if self._current_ranging_format is not None:
             self._reader.raw_processor.suppress_mode = self._current_ranging_format
         self._reader.open(self._filename)  # todo progress bar updates
+        if hasattr(self._filename, 'read'):
+            return
         self._loader = AnnotationLoader(self._parent, self._filename, self._cmdp)
         self._loader.signals.finished.connect(self._on_annotations_loaded)
         self._threadpool = QtCore.QThreadPool()
