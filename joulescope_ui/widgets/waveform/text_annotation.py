@@ -452,7 +452,8 @@ class TextAnnotation(pg.GraphicsObject):
         menu.exec_(pos)
 
 
-_registry: Dict[int, weakref.ReferenceType[TextAnnotation]] = {}
+# Dict[int, weakref.ReferenceType[TextAnnotation]] fails on Python 3.8
+_registry: Dict[int, weakref.ReferenceType] = {}
 
 
 def find(instance_id) -> TextAnnotation:
