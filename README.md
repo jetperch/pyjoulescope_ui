@@ -139,6 +139,16 @@ and on POSIX (Linux, Mac OS X with homebrew):
     export PYTHONPATH={path/to/repos}/pyjoulescope_ui
 
 
+To also distribute the UI on macOS, you need to install XCode and then
+configure node:
+
+    brew install node
+    npm install
+
+You will also need to install the signing certificate using
+Applications/Utilities/Keychain Access.
+
+
 ### Option 4: Develop both UI and driver
 
 If you also want to simultaneously develop the Joulescope UI and the
