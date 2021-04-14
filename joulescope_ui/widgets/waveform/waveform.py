@@ -519,6 +519,8 @@ class WaveformWidget(QtWidgets.QWidget):
                 x = m.get_pos()
                 if (x_start is not None and x <= x_start) or (x_end is not None and x >= x_end):
                     continue
+                if x_start is not None:
+                    x -= x_start  # only for FSR signals, but ok since no VSR yet
                 x *= fs
                 w.annotation(1, x, None, AnnotationType.VMARKER, 0, name)
 
@@ -528,6 +530,8 @@ class WaveformWidget(QtWidgets.QWidget):
                     x = a.x_pos
                     if (x_start is not None and x <= x_start) or (x_end is not None and x >= x_end):
                         continue
+                    if x_start is not None:
+                        x -= x_start  # only for FSR signals, but ok since no VSR yet
                     x *= fs
                     w.annotation(signal_id, x, a.y_pos, AnnotationType.TEXT, a.group_id, a.text)
 

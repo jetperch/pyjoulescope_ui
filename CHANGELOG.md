@@ -4,6 +4,13 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.9.7
+
+2021 Apr 14
+
+*   Fixed annotation save when exporting data range. 
+
+
 ## 0.9.6
 
 2021 Apr 12
