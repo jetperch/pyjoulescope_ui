@@ -35,7 +35,7 @@ run directly from source.
 
 ### Install Python
 
-The Joulescope User Interface requires Python 3.6 or newer.
+The Joulescope User Interface requires Python 3.8 or newer.
 We recommend Python 3.8 or 3.9.
 Install [Python 3.8+](https://www.python.org/) on your system and then verify
 your python version at the terminal or command line:
@@ -43,7 +43,7 @@ your python version at the terminal or command line:
     > python3 -VV
     Python 3.9.0 (tags/v3.9.0:9cf6752, Oct  5 2020, 15:34:40) [MSC v.1927 64 bit (AMD64)]
 
-Ensure that you have Python 3.6 or newer and 64-bit.
+Ensure that you have Python 3.8 or newer and 64-bit.
 
 
 ### Configure virtualenv [optional]
