@@ -184,7 +184,7 @@ setuptools.setup(
     install_requires=[
         'fs',
         'markdown',
-        'pyjls>=0.3.1',
+        'pyjls>=0.3.3',
         'pyperclip>=1.7.0',
         'python-dateutil>=2.7.3',
         'pyqtgraph>=0.11.0',

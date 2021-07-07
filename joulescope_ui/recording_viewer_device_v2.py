@@ -117,7 +117,6 @@ class RecordingView:
         self._log.info('get: x_range=%r => (%s, %s, %s)', self._x_range, start, stop, incr)
         reader = self._reader
         fs = self.sampling_frequency
-        self._log.info('update: x_range=%r => (%s, %s)', self._x_range, start, stop)
         if incr is None:
             incr = 1
         elif incr < 1:
@@ -179,7 +178,7 @@ class RecordingView:
                     }
                 result['signals'][signal.name] = s
             except Exception:
-                self._log.warn('view could not get %s', signal.name)
+                self._log.warning('view could not get %s', signal.name)
         return result
 
     def _update(self):
@@ -210,9 +209,13 @@ class RecordingView:
         """
         self._log.info('_statistics_get(%s, %s, %s)', start, stop, units)
         if units == 'seconds':
+            t_start, t_stop = start, stop
             fs = self.sampling_frequency
             start = int(round(start * fs))
             stop = int(round(stop * fs + 1))  # make exclusive
+            self._log.info('_statistics_get(%s, %s, %s) => (%s, %s)', t_start, t_stop, units, start, stop)
+        else:
+            self._log.info('_statistics_get(%s, %s, %s)', start, stop, units)
         s = self._get(start, stop, stop - start)
         return s
 

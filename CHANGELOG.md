@@ -4,6 +4,20 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.9.9
+
+2021 Jul 7
+
+*   Fixed dual marker stats and waveform right-side stats (pyjls 0.3.2).  
+
+
+## 0.9.8
+
+2021 May 11
+
+*   Added firmware 1.3.4 to support 2021B1 units. 
+
+
 ## 0.9.7
 
 2021 Apr 14
