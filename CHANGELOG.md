@@ -4,6 +4,13 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.9.10
+
+2021 Jul 27 [in progress]
+
+*   Added "--window_state" command line argument
+
+
 ## 0.9.9
 
 2021 Jul 7

@@ -43,6 +43,9 @@ def parser_config(p):
     p.add_argument('--file_log_level',
                    choices=list(LEVELS.keys()),
                    help='The file log level.')
+    p.add_argument('--window_state',
+                   choices=['normal', 'active', 'minimized', 'maximized', 'fullscreen'],
+                   help='The window state')
     return on_cmd
 
 
@@ -50,4 +53,5 @@ def on_cmd(args):
     return run(device_name=args.device_name,
                log_level=args.console_log_level,
                file_log_level=args.file_log_level,
-               filename=args.filename)
+               filename=args.filename,
+               window_state=args.window_state)

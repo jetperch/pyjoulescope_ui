@@ -145,6 +145,15 @@ Connect a Joulescope or
 open a file."""
 
 
+WINDOW_STATE_MAP = {
+    "normal": QtCore.Qt.WindowNoState,
+    "minimized": QtCore.Qt.WindowMinimized,
+    "maximized": QtCore.Qt.WindowMaximized,
+    "fullscreen": QtCore.Qt.WindowFullScreen,
+    "active": QtCore.Qt.WindowActive,
+}
+
+
 class ValueLabel(QtWidgets.QLabel):
 
     def __init__(self, parent=None, text=''):
@@ -1850,7 +1859,8 @@ def unraisable_hook(unraisable):
     sys.exit(1)
 
 
-def run(device_name=None, log_level=None, file_log_level=None, filename=None):
+def run(device_name=None, log_level=None, file_log_level=None, filename=None,
+        window_state=None):
     """Run the Joulescope UI application.
 
     :param device_name: The optional Joulescope device name.  None (default)
@@ -1862,6 +1872,8 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
         The allowed levels are in :data:`joulescope_ui.logging_util.LEVELS`.
         None (default) uses the configuration value.
     :param filename: The optional filename to display immediately.
+    :param window_state: The starting window state (ignoring previous state)
+        for the new window.
 
     :return: 0 on success or error code on failure.
     """
@@ -1939,6 +1951,10 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None):
         log.exception('MainWindow initializer failed')
         raise
     ui.run(filename)
+    if window_state is not None:
+        window_state = WINDOW_STATE_MAP.get(window_state.lower())
+        if window_state is not None:
+            ui.setWindowState(window_state)
     rc = app.exec_()
     log.info('shutting down')
     del ui
