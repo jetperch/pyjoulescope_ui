@@ -16,6 +16,7 @@
 # https://www.usb.org/document-library/usbet20
 # "C:\Program Files (x86)\USB-IF Test Suite\USBET20\USBET20.exe"
 
+import datetime
 import numpy as np
 import tempfile
 import os
@@ -38,9 +39,20 @@ def is_available():
     return os.path.isfile(USBET20_PATH)
 
 
+def construct_path(base_path):
+    time_start = datetime.datetime.utcnow()
+    timestamp_str = time_start.strftime('%Y%m%d_%H%M%S')
+    base = f'{timestamp_str}'
+    p = os.path.join(base_path, 'usbet', base)
+    if not os.path.isdir(p):
+        os.makedirs(p, exist_ok=True)
+    return p
+
+
 class UsbInrush:
 
     def run(self, data):  # RangeToolInvocation
+        dpath = construct_path(data.cmdp['General/data_path'])
         duration = data.sample_count / data.sample_frequency
         if not is_available():
             return f'USBET tool not found.'
@@ -57,14 +69,13 @@ class UsbInrush:
         i_mean = current[valid].reshape((-1, 1))
         values = np.hstack((x, i_mean))
 
-        with tempfile.TemporaryDirectory(prefix='js_') as tempdir:
-            filename = os.path.join(tempdir, 'inrush.csv')
-            with open(filename, 'wt') as f:
-                np.savetxt(f, values, ['%.8f', '%.3f'], delimiter=',')
-            args = ','.join(['usbinrushcheck', filename, '%.3f' % voltage])
-            log.info('Running USBET20')
-            rv = subprocess.run([usbet20_path, args], capture_output=True)
-            log.info('USBET returned %s\nSTDERR: %s\nSTDOUT: %s', rv.returncode, rv.stderr, rv.stdout)
+        filename = os.path.join(dpath, 'inrush.csv')
+        with open(filename, 'wt') as f:
+            np.savetxt(f, values, ['%.8f', '%.3f'], delimiter=',')
+        args = ','.join(['usbinrushcheck', filename, '%.3f' % voltage])
+        log.info('Running USBET20')
+        rv = subprocess.run([usbet20_path, args], capture_output=True)
+        log.info('USBET returned %s\nSTDERR: %s\nSTDOUT: %s', rv.returncode, rv.stderr, rv.stdout)
 
 
 def plugin_register(api):
