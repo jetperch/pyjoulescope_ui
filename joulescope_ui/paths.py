@@ -186,7 +186,7 @@ def data_path(cmdp):
     configured path is not available.
     """
     paths = {
-        'Use data_path': cmdp['General/data_path_type'],
+        'Use fixed data_path': cmdp['General/data_path'],
         'Most recently saved': cmdp['General/_path_most_recently_saved'],
         'Most recently used': cmdp['General/_path_most_recently_used']
     }
