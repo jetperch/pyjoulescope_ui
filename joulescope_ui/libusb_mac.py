@@ -25,10 +25,13 @@ URL = 'https://formulae.brew.sh/api/formula/libusb.json'
 
 VERSION_MAP = {
     # friendly name, darwin version
+    'arm64_monterey': 'arm64_21',
     'arm64_big_sur': 'arm64_20',
+    'monterey': 'x86_64_21',
     'big_sur': 'x86_64_20',
     'catalina': 'x86_64_19',
     'mojave': 'x86_64_18',
+    'x86_64_linux': None,
 }
 
 HEADERS = {
@@ -50,7 +53,7 @@ def _mac_binaries_index():
 
 
 def mac_binaries():
-    """Retrieve the latest libusb dynamica libraries for each Mac OS version."""
+    """Retrieve the latest libusb dynamic libraries for each Mac OS version."""
     binaries = []
     with UserDataFS('joulescope_ui_build', create=True) as f_out:
         print('Working directory: %s' % f_out.getospath('').decode('utf-8'))
@@ -63,13 +66,20 @@ def mac_binaries():
                     return json.load(f)
 
         for os_name, k in d['bottle']['stable']['files'].items():
+            if os_name not in VERSION_MAP:
+                print(f'WARNING: unknown os_name {os_name} - skip')
+                continue
+            if VERSION_MAP[os_name] is None:
+                continue  # not needed
             # download and save the .tar.gz for each version
-            print(k['url'])
+            path = os_name + '.zip'
+            print(f'{path} <- {k["url"]}')
             r = requests.get(k['url'], headers=HEADERS)
-            print(hashlib.sha256(r.content).hexdigest())
+            #print(hashlib.sha256(r.content).hexdigest())
             if hashlib.sha256(r.content).hexdigest() != k['sha256']:
+                print('sha mismatch')
+                continue
                 pass # raise RuntimeError('sha mismatch')
-            path = os.path.basename(k['url'])
             path_os = f_out.getospath(path).decode('utf-8')
             with f_out.open(path, 'wb') as f:
                 f.write(r.content)
