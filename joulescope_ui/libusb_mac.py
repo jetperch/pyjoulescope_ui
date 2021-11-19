@@ -19,6 +19,7 @@ from fs.appfs import UserDataFS
 import hashlib
 import json
 import os
+import platform
 import requests
 
 URL = 'https://formulae.brew.sh/api/formula/libusb.json'
@@ -61,7 +62,7 @@ def mac_binaries():
         if f_out.isfile('libusb.json'):
             with f_out.open('libusb.json', 'rt') as f:
                 d_str_now = f.read()
-            if d_str_now is None or d_str_now == d_str:
+            if bool(d_str_now) and d_str_now == d_str:
                 with f_out.open('binaries.json', 'rt') as f:
                     return json.load(f)
 
@@ -69,11 +70,13 @@ def mac_binaries():
             if os_name not in VERSION_MAP:
                 print(f'WARNING: unknown os_name {os_name} - skip')
                 continue
-            if VERSION_MAP[os_name] is None:
+            darwin_ver = VERSION_MAP[os_name]
+            if darwin_ver is None or platform.machine() not in darwin_ver:
+                print(f'Skip {os_name}, not needed')
                 continue  # not needed
             # download and save the .tar.gz for each version
             path = os_name + '.zip'
-            print(f'{path} <- {k["url"]}')
+            print(f'{path}: {darwin_ver} from {k["url"]}')
             r = requests.get(k['url'], headers=HEADERS)
             #print(hashlib.sha256(r.content).hexdigest())
             if hashlib.sha256(r.content).hexdigest() != k['sha256']:
