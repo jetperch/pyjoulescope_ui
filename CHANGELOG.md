@@ -6,10 +6,11 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.9.10
 
-2021 Sep 14 [in progress]
+2021 Nov 19
 
-*   Added "--window_state" command line argument
-*   Fixed USB Inrush test #134
+* Added "--window_state" command line argument
+* Fixed USB Inrush test #134
+* Fixed data_path_type "Use fixed data_path" #136
 
 
 ## 0.9.9

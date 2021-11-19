@@ -1,7 +1,7 @@
 check-manifest>=0.37
 coverage>=4.5.2
 fs
-joulescope>=0.9.6  # also update JOULESCOPE_VERSION_MIN in setup.py
+joulescope>=0.9.7  # also update JOULESCOPE_VERSION_MIN in setup.py
 markdown
 pyjls>=0.3.3
 pypiwin32>=223; sys_platform == 'win32'
