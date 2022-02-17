@@ -52,6 +52,22 @@ class RecordingView:
     def sampling_frequency(self):
         return self._parent().sampling_frequency
 
+    def time_to_sample_id(self, t):
+        if t is None or t < 0:
+            return None
+        p = self._parent()
+        f = p.sampling_frequency
+        k = p.sample_id_last
+        s = int(t * f)
+        return s if s <= k else None
+
+    def sample_id_to_time(self, sample_id):
+        p = self._parent()
+        if sample_id is None or sample_id < 0 or sample_id > p.sample_id_last:
+            return None
+        f = p.sampling_frequency
+        return sample_id / f
+
     @property
     def calibration(self):
         return None
@@ -208,15 +224,21 @@ class RecordingView:
         :return: The statistics data structure.
         """
         self._log.info('_statistics_get(%s, %s, %s)', start, stop, units)
+        fs = self.sampling_frequency
         if units == 'seconds':
             t_start, t_stop = start, stop
-            fs = self.sampling_frequency
             start = int(round(start * fs))
             stop = int(round(stop * fs + 1))  # make exclusive
             self._log.info('_statistics_get(%s, %s, %s) => (%s, %s)', t_start, t_stop, units, start, stop)
         else:
+            t_start, t_stop = start / fs, stop / fs
             self._log.info('_statistics_get(%s, %s, %s)', start, stop, units)
         s = self._get(start, stop, stop - start)
+        for signal in s['signals'].values():
+            for entry in signal.values():
+                entry['value'] = entry['value'][0]
+        s['time'].pop('x')
+        s['time']['range'] = {'value': [t_start, t_stop], 'units': 's'}
         return s
 
     def _statistics_get_multiple(self, ranges, units=None):
@@ -228,7 +250,38 @@ class RecordingView:
         r = self._reader
         if r is None:
             return None
-        return r.samples_get(start, stop, units, fields)
+        units = 'seconds' if units is None else str(units).lower()
+        if units == 'seconds':
+            t1, t2 = float(start), float(stop)
+        elif units == 'samples':
+            t1, t2 = self.sample_id_to_time(start), self.sample_id_to_time(stop)
+            if t1 is None or t2 is None:
+                return None
+        else:
+            raise ValueError(f'Invalid units {units}')
+        s1, s2 = self.time_to_sample_id(t1), self.time_to_sample_id(t2)
+        rv = {
+            'time': {
+                'range': {'value': [t1, t2], 'units': 's'},
+                'delta':  {'value': t2 - t1, 'units': 's'},
+                'sample_id_range':  {'value': [s1, s2], 'units': 'samples'},
+                'sample_id_limits': {'value': [0, self._parent().sample_id_last], 'units': 'samples'},
+                'samples': {'value': s2 - s1, 'units': 'samples'},
+                'sampling_frequency': {'value': self.sampling_frequency, 'units': 'Hz'},
+            },
+            'signals': {},
+        }
+        for signal in r.signals.values():
+            if signal.signal_id == 0 or signal.signal_type != SignalType.FSR:
+                continue
+            if fields is not None and signal.name not in fields:
+                continue
+            f = signal.sample_rate
+            s_start = int(t1 * f)
+            s_length = int((t2 - s1 / f) * f) + 1
+            y = r.fsr(signal.signal_id, s_start, s_length)
+            rv['signals'][signal.name] = {'value': y, 'units': signal.units}
+        return rv
 
     def open(self):
         fs = self.sampling_frequency

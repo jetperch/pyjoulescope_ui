@@ -9,6 +9,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 2022 Feb 17 [in progress]
 
 * Fixed waveform context menu (QtGui.QMenu -> QtWidgets.QMenu).
+* Fixed range tools on JLS v2 files (except for export) #131
 
 
 ## 0.9.10
