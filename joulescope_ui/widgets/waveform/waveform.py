@@ -258,7 +258,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _context_menu(self, pos):
         log.debug('_context_menu')
-        menu = QtGui.QMenu('Waveform menu', self)
+        menu = QtWidgets.QMenu('Waveform menu', self)
 
         annotations = menu.addMenu('&Annotations')
         anno_x = annotations.addMenu('&Vertical')
