@@ -26,6 +26,7 @@ QLabel#stream_source[stream=error] {
 QWidget[multimeter=true] {
   padding: 0px;
   color: {% multimeter_background %};
+  background-color: {% multimeter_background %};
   border-width: 0px;
 }
 

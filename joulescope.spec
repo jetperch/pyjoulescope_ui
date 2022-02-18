@@ -64,7 +64,6 @@ if sys.platform.startswith('win'):
         ('C:\\Windows\\System32\\msvcp140_1.dll', '.'),
         ('C:\\Windows\\System32\\msvcp140_2.dll', '.'),
     ]
-    # PATHEX.append(os.path.join(find_site_packages(), 'shiboken2'))
 elif sys.platform.startswith('darwin'):
     from joulescope_ui.libusb_mac import mac_binaries
     EXE_NAME = 'joulescope_launcher'
@@ -85,10 +84,9 @@ a = Analysis(
         'joulescope.filter_fir',
         'joulescope.pattern_buffer',
         'numpy.core._dtype_ctypes',
-        # 'pkg_resources.py2_warn',
-        'pyqtgraph.graphicsItems.ViewBox.axisCtrlTemplate_pyside2',
-        'pyqtgraph.graphicsItems.PlotItem.plotConfigTemplate_pyside2',
-        'pyqtgraph.imageview.ImageViewTemplate_pyside2',
+        'pyqtgraph.graphicsItems.ViewBox.axisCtrlTemplate_pyside6',
+        'pyqtgraph.graphicsItems.PlotItem.plotConfigTemplate_pyside6',
+        'pyqtgraph.imageview.ImageViewTemplate_pyside6',
         'psutil',
         'secrets', 
     ],

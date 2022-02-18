@@ -1958,7 +1958,7 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None,
         window_state = WINDOW_STATE_MAP.get(window_state.lower())
         if window_state is not None:
             ui.setWindowState(window_state)
-    rc = app.exec_()
+    rc = app.exec()
     log.info('shutting down')
     del ui
     logging_stop()
