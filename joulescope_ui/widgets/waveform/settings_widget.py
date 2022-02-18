@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PySide2 import QtWidgets
+from PySide6 import QtGui, QtWidgets
 import pyqtgraph as pg
 import logging
 
@@ -53,7 +53,7 @@ class SettingsWidget(pg.ViewBox):
 
         for s in self._signals_available:
             if s['name'] not in self._signals_visible:
-                a = QtWidgets.QAction(s['display_name'], signal_add)
+                a = QtGui.QAction(s['display_name'], signal_add)
                 a.triggered.connect(self._signal_add_construct(s['name']))
                 signal_add.addAction(a)
                 signal_add_actions.append(a)

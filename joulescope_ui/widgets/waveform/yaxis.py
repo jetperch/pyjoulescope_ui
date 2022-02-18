@@ -14,7 +14,7 @@
 
 from .ymarker import YMarker
 from typing import Dict
-from PySide2 import QtCore, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 import pyqtgraph as pg
 from . axis_item_patch import AxisItemPatch
 import logging
@@ -38,9 +38,9 @@ class YAxisMenu(QtWidgets.QMenu):
         # range
         self.range = QtWidgets.QMenu()
         self.range.setTitle('Range')
-        self.range_group = QtWidgets.QActionGroup(self)
+        self.range_group = QtGui.QActionGroup(self)
         self.range_group.setExclusive(True)
-        self.range_auto = QtWidgets.QAction(
+        self.range_auto = QtGui.QAction(
             '&Auto', self.range_group,
             checkable=True,
             toolTip='Automatically adjust the y-axis range to show all visible data.'
@@ -48,7 +48,7 @@ class YAxisMenu(QtWidgets.QMenu):
         self.range_auto.setChecked(True)
         self.range.addAction(self.range_auto)
         self.range_group.addAction(self.range_auto)
-        self.range_manual = QtWidgets.QAction(
+        self.range_manual = QtGui.QAction(
             '&Manual', self.range_group,
             checkable=True,
             toolTip='Manually zoom and pan the y-axis range.'
@@ -59,10 +59,10 @@ class YAxisMenu(QtWidgets.QMenu):
 
         self.scale = QtWidgets.QMenu()
         self.scale.setTitle('Scale')
-        self.scale_group = QtWidgets.QActionGroup(self)
+        self.scale_group = QtGui.QActionGroup(self)
         self.scale_group.setExclusive(True)
 
-        self.scale_linear = QtWidgets.QAction(
+        self.scale_linear = QtGui.QAction(
             '&Linear', self.scale_group,
             checkable=True,
             toolTip='Use a "normal" linear y-axis scale.'
@@ -71,7 +71,7 @@ class YAxisMenu(QtWidgets.QMenu):
         self.scale.addAction(self.scale_linear)
         self.scale_group.addAction(self.scale_linear)
 
-        self.scale_logarithmic = QtWidgets.QAction(
+        self.scale_logarithmic = QtGui.QAction(
             'Lo&garithmic', self.scale_group,
             checkable=True,
             toolTip='Use a logarithmic y-axis scale.'
@@ -81,7 +81,7 @@ class YAxisMenu(QtWidgets.QMenu):
         if log_enable:
             self.addMenu(self.scale)
 
-        self.hide_request = QtWidgets.QAction('&Hide', self)
+        self.hide_request = QtGui.QAction('&Hide', self)
         self.hide_request.setToolTip('Hide this signal.')
         self.addAction(self.hide_request)
 

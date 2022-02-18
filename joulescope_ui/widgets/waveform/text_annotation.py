@@ -14,7 +14,7 @@
 
 # Based upon pyqtgraph/examples/customGraphicsItem.py
 
-from PySide2 import QtWidgets, QtGui, QtCore
+from PySide6 import QtWidgets, QtGui, QtCore
 import numpy as np
 import pyqtgraph as pg
 import logging
@@ -437,7 +437,7 @@ class TextAnnotation(pg.GraphicsObject):
 
         group_id = self._state['group_id']
         appearance_menu = menu.addMenu('&Appearance')
-        appearance_group = QtWidgets.QActionGroup(appearance_menu)
+        appearance_group = QtGui.QActionGroup(appearance_menu)
         appearance_actions = []
         for idx, (_, name, shape) in enumerate(SHAPES_DEF):
             action = appearance_menu.addAction(name)

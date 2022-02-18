@@ -14,9 +14,9 @@
 
 """Display and update application preferences"""
 
-# https://doc.qt.io/qt-5/qtreeview.html
-# https://doc.qt.io/qt-5/qstandarditemmodel.html
-# https://doc.qt.io/qt-5/qmodelindex.html
+# https://doc.qt.io/qt-6/qtreeview.html
+# https://doc.qt.io/qt-6/qstandarditemmodel.html
+# https://doc.qt.io/qt-6/qmodelindex.html
 # https://pythonspot.com/pyqt5-treeview/
 # https://stackoverflow.com/questions/47102920/pyqt5-how-to-generate-a-qtreeview-from-a-list-of-dictionary-items
 # https://stackoverflow.com/questions/27898718/multi-level-qtreeview
@@ -30,7 +30,7 @@ from joulescope_ui import preferences_defaults
 from joulescope_ui.help_ui import display_help
 from joulescope_ui.themes.color_picker import ColorItem
 from joulescope_ui.themes.manager import theme_update, theme_loader, theme_index_loader
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide6 import QtCore, QtWidgets, QtGui
 import copy
 import collections.abc
 import logging

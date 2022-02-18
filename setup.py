@@ -36,9 +36,9 @@ VERSION_PATH = os.path.join(MYPATH, 'joulescope_ui', 'version.py')
 
 
 def qt_rcc_path():
-    # As of PySide2 5.15.0, the pyside2-rcc executable ignores the --binary flag
-    import PySide2
-    path = os.path.dirname(PySide2.__file__)
+    # As of PySide6 5.15.0, the pyside6-rcc executable ignores the --binary flag
+    import PySide6
+    path = os.path.dirname(PySide6.__file__)
     fname = [n for n in os.listdir(path) if n.startswith('rcc')]
     if len(fname) != 1:
         raise ValueError('Could not find rcc executable')
@@ -46,7 +46,7 @@ def qt_rcc_path():
 
 
 def convert_qt_ui():
-    uic_path = shutil.which('pyside2-uic')
+    uic_path = shutil.which('pyside6-uic')
     rcc_path = qt_rcc_path()
     path = os.path.join(MYPATH, 'joulescope_ui')
     ignore_filename = os.path.join(path, '.gitignore')
@@ -178,7 +178,7 @@ setuptools.setup(
     include_package_data=True,
     
     # See https://packaging.python.org/guides/distributing-packages-using-setuptools/#python-requires
-    python_requires='~=3.6',    
+    python_requires='~=3.7',    
     
     # See https://packaging.python.org/en/latest/requirements.html
     install_requires=[
@@ -192,8 +192,7 @@ setuptools.setup(
         "pypiwin32>=223; platform_system == 'Windows'",
         # 'pyqtgraph @ https://github.com/jetperch/pyqtgraph/tarball/557e867b377b223589c0c8ffd0799c547965fb46#egg=pyqtgraph-0.11.0.dev1',
         'requests>=2.0.0',
-        "PySide2==5.13.2; python_version < '3.8'",
-        "PySide2>=5.15.1; python_version >= '3.8'",
+        'PySide6>=6.2.0',
         'joulescope>=' + JOULESCOPE_VERSION_MIN,
     ] + PLATFORM_INSTALL_REQUIRES,
     

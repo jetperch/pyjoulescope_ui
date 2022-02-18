@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-from PySide2 import QtWidgets
+from PySide6 import QtWidgets
 import os
 
 

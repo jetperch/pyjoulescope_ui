@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PySide2 import QtCore, QtGui, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 from joulescope.units import unit_prefix, three_sig_figs
 from joulescope.stream_buffer import single_stat_to_api
 from joulescope_ui.ui_util import rgba_to_css, font_to_css

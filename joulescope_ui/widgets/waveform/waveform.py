@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PySide2 import QtGui, QtCore, QtWidgets
+from PySide6 import QtGui, QtCore, QtWidgets
 from .signal_def import signal_def
 from .signal import Signal
 from .signal_viewbox import SignalViewBox
@@ -167,7 +167,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _shortcuts_activate(self, shortcuts):
         for key, cbk in shortcuts:
-            shortcut = QtWidgets.QShortcut(QtGui.QKeySequence(key), self)
+            shortcut = QtGui.QShortcut(QtGui.QKeySequence(key), self)
             shortcut.activated.connect(cbk)
             self._shortcuts[key] = [key, cbk, shortcut]
 
@@ -823,7 +823,8 @@ class WaveformWidget(QtWidgets.QWidget):
             row = SIGNAL_OFFSET_ROW + len(self._signals) - 1
             log.info('on_scrollbarRegionChange(%s, %s, %s)', x_min, x_max, x_count)
             vb = self.win.ci.layout.itemAt(row, 1)
-            vb.setXRange(x_min, x_max, padding=0)
+            if vb is not None:
+                vb.setXRange(x_min, x_max, padding=0)
         else:
             log.info('on_scrollbarRegionChange(%s, %s, %s) with no ViewBox', x_min, x_max, x_count)
         self._cmdp.publish('DataView/#service/x_change_request', [x_min, x_max, x_count])
@@ -841,8 +842,8 @@ def widget_register(cmdp):
         options={
             'off':   {'brief': 'Hide the min/max indicators'},
             'lines': {'brief': 'Display minimum and maximum lines'},
-            'fill':  {'brief': 'Fill the region between min and max, but may significantly reduce performance.'}},
-        default='lines')
+            'fill':  {'brief': 'Fill the region between min and max.'}},
+        default='fill')
     cmdp.define(
         topic='Widgets/Waveform/grid_x',
         brief='Display the x-axis grid',
@@ -859,7 +860,7 @@ def widget_register(cmdp):
         detail='Increasing trace width SIGNIFICANTLY degrades performance',
         dtype='str',
         options=['1', '2', '4', '6', '8'],
-        default='1')
+        default='2')
     cmdp.define(
         topic='Widgets/Waveform/scale',
         brief='The default y-axis scale for current and power signals.',
