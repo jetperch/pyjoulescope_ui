@@ -38,6 +38,7 @@ class YMarker(pg.GraphicsObject):
         pg.GraphicsObject.__init__(self)
         state.setdefault('pos', None)
         state.setdefault('color', (64, 255, 64, 255))
+        state.setdefault('statistics', 'top')
         self._cmdp = cmdp
         self.log = logging.getLogger('%s.%s' % (__name__, name))
         self._name = name
@@ -131,16 +132,25 @@ class YMarker(pg.GraphicsObject):
         p.setPen(pen)
         p.drawLine(p1, p2)
 
-        pen = pg.mkPen([255, 255, 255, 255])
-        p.setPen(pen)
-        if self.pair is None:
-            txt = three_sig_figs(self.y, self._units)
-        else:
-            dy = abs(self.y - self.pair.y)
-            t1 = three_sig_figs(self.y, self._units)
-            t2 = three_sig_figs(dy, self._units)
-            txt = f'y={t1}, Δ={t2}'
-        p.drawText(p1 - 2, txt)
+        show_stats = self.statistics_show
+        if show_stats != 'off':
+            pen = pg.mkPen([255, 255, 255, 255])
+            p.setPen(pen)
+            if self.pair is None:
+                txt = three_sig_figs(self.y, self._units)
+            else:
+                dy = abs(self.y - self.pair.y)
+                t1 = three_sig_figs(self.y, self._units)
+                t2 = three_sig_figs(dy, self._units)
+                txt = f'{t1}, Δ={t2}'
+            if show_stats == 'bottom':
+                font = QtGui.QFont()
+                h = QtGui.QFontMetrics(font).height()
+                p1 += pg.Point(0, h)
+            else:
+                p1 += pg.Point(0, -2)
+
+            p.drawText(p1, txt)
 
     def _redraw(self):
         self.prepareGeometryChange()
@@ -234,11 +244,41 @@ class YMarker(pg.GraphicsObject):
             if ev.isFinish():
                 self._move_end()
 
+    def _construct_stats_item(self, menu, txt, v):
+        item = menu.addAction(txt)
+        item.setCheckable(True)
+        item.setChecked(self.statistics_show == v)
+        item.triggered.connect(lambda: self._on_statistics_show(v))
+        return item
+
     def _context_menu_exec(self, pos):
         menu = QtWidgets.QMenu()
+        show_stats_menu = menu.addMenu('&Show statistics')
+
+        show_stats_group = QtWidgets.QActionGroup(show_stats_menu)
+        show_stats_items = []
+        for txt, v in [['&Top', 'top'], ['&Bottom', 'bottom'], ['&Off', 'off']]:
+            item = self._construct_stats_item(show_stats_menu, txt, v)
+            show_stats_group.addAction(item)
+            show_stats_items.append(item)
+
         marker_remove = menu.addAction('&Remove')
         marker_remove.triggered.connect(self._remove)
         menu.exec_(pos)
+
+    def _on_statistics_show(self, value):
+        self.statistics_show = value
+        self._redraw()
+
+    @property
+    def statistics_show(self):
+        p = self._instance_prefix + 'statistics'
+        return self._cmdp.preferences.get(p, default='top')
+
+    @statistics_show.setter
+    def statistics_show(self, value):
+        p = self._instance_prefix + 'statistics'
+        return self._cmdp.publish(p, value)
 
     def _remove(self, *args, **kwargs):
         cmd = [[self._view().name, self.name]]
