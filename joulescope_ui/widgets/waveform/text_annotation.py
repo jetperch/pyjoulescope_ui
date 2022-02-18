@@ -147,10 +147,10 @@ class TextAnnotation(pg.GraphicsObject):
             'size': state.get('size', 6),
         }
         _registry[my_id] = weakref.ref(self)
-        self._pathItem = QtGui.QGraphicsPathItem()
+        self._pathItem = QtWidgets.QGraphicsPathItem()
         self._pathItem.setParentItem(self)
 
-        self._text_item = QtGui.QGraphicsTextItem(self)
+        self._text_item = QtWidgets.QGraphicsTextItem(self)
         self._text_item.setParentItem(self)
         self._text_item.setVisible(bool(self._state['text_visible']))
 

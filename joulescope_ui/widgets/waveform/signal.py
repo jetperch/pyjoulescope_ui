@@ -106,6 +106,10 @@ class Signal(QtCore.QObject):
         self.y_axis.sigPanYEvent.connect(self.on_panY)
         self.y_axis.range_set(self.config['y-axis']['range'])
         self.vb.sigYRangeChanged.connect(self._on_y_range_changed)
+        if name in ['current', 'power']:
+            # set the default scale the same way the yaxis menu selection does.
+            # Should refactor default settings to clean this up.
+            self.y_axis._config_update(scale=cmdp['Widgets/Waveform/scale'])
 
         cmdp.subscribe('Widgets/Waveform/grid_y', self._on_grid_y, update_now=True)
         cmdp.subscribe('Widgets/Waveform/show_min_max', self._on_show_min_max, update_now=True)
@@ -191,18 +195,18 @@ class Signal(QtCore.QObject):
             auto_range = True
             if self.config['y-axis']['scale'] == 'logarithmic':
                 self.y_axis.setLogMode(True)
-                self.curve_mean.setLogMode(xMode=False, yMode=True)
-                self.curve_min.setLogMode(xMode=False, yMode=True)
-                self.curve_max.setLogMode(xMode=False, yMode=True)
+                self.curve_mean.setLogMode(False, True)
+                self.curve_min.setLogMode(False, True)
+                self.curve_max.setLogMode(False, True)
                 y_min = math.log10(self.config['y-axis']['log_min'])
                 y_max = math.log10(self.config['y-axis']['limit'][1])
                 self.vb.setLimits(yMin=y_min, yMax=y_max)
                 self.vb.setYRange(y_min, y_max, padding=0)
             else:
                 self.y_axis.setLogMode(False)
-                self.curve_mean.setLogMode(xMode=False, yMode=False)
-                self.curve_min.setLogMode(xMode=False, yMode=False)
-                self.curve_max.setLogMode(xMode=False, yMode=False)
+                self.curve_mean.setLogMode(False, False)
+                self.curve_min.setLogMode(False, False)
+                self.curve_max.setLogMode(False, False)
                 y_min, y_max = self.config['y-axis']['limit']
                 self.vb.setLimits(yMin=y_min, yMax=y_max)
                 self.vb.setYRange(y_min, y_max, padding=0)

@@ -860,6 +860,12 @@ def widget_register(cmdp):
         dtype='str',
         options=['1', '2', '4', '6', '8'],
         default='1')
+    cmdp.define(
+        topic='Widgets/Waveform/scale',
+        brief='The default y-axis scale for current and power signals.',
+        dtype='str',
+        options=['linear', 'logarithmic'],
+        default='linear')
 
     cmdp.define(
         topic='Widgets/Waveform/Statistics/font',
