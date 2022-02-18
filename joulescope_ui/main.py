@@ -594,6 +594,9 @@ class MainWindow(QtWidgets.QMainWindow):
             self._device_notify_start()
         self._software_update_check()
         log.debug('Qt show()')
+        if self._cmdp['General/window_on_top']:
+            flags = self.windowFlags() | QtGui.Qt.WindowStaysOnTopHint
+            self.setWindowFlags(flags)
         self.show()
         log.debug('Qt show() success')
 

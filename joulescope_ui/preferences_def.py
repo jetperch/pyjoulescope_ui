@@ -90,6 +90,15 @@ def preferences_def(p):
         options=['previous', 'minimum', '50%', '75%', '100%'],
         default='previous')
     p.define(
+        topic='General/window_on_top',
+        brief='Force the Joulescope UI window to stay on top.',
+        detail='This feature keeps the Joulescope UI in the foreground, ' +
+               'even if other applications are selected. ' +
+               'This feature does not take effect until the Joulescope UI ' +
+               'restarts.',
+        dtype='bool',
+        default=False)
+    p.define(
         topic='General/developer',
         brief='Enable developer features',
         dtype='bool',
