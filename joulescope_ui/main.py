@@ -15,6 +15,7 @@
 # https://stackoverflow.com/questions/11874767/real-time-plotting-in-while-loop-with-matplotlib
 # https://wiki.qt.io/Gallery_of_Qt_CSS_Based_Styles
 
+import appnope
 import os
 import platform
 import sys
@@ -879,6 +880,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self._cmdp.subscribe('Device/extio/', self._on_device_parameter, update_now=True)
                 self._cmdp.subscribe('Device/Current Ranging/', self._on_device_current_range_parameter, update_now=True)
                 if self._is_streaming_device:
+                    appnope.nope()
                     self._cmdp.publish('Device/#state/filename', '')
                     if self._cmdp['Device/autostream']:
                         self._cmdp.publish('Device/#state/source', 'USB')
@@ -957,6 +959,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if hasattr(device, 'ui_on_close'):
             device.ui_on_close()
 
+        appnope.nap()
         self._device_disable.ui_action.setChecked(True)
         self._streaming_status = None
         self._cmdp.publish('Device/#state/name', '')

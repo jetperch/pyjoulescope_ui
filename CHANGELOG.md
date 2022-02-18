@@ -10,7 +10,9 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 * Fixed waveform context menu (QtGui.QMenu -> QtWidgets.QMenu).
 * Fixed range tools on JLS v2 files (except for export) #131
-* Added "General/window_on_top" preference #138.
+* Added "General/window_on_top" preference #138
+* Made y-axis markers consistent #124
+* Addressed OSX Data loss while running in background #139 using appnope package.
 
 
 ## 0.9.10

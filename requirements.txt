@@ -1,3 +1,4 @@
+appnope>=0.1.2
 check-manifest>=0.37
 coverage>=4.5.2
 fs

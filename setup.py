@@ -182,6 +182,7 @@ setuptools.setup(
     
     # See https://packaging.python.org/en/latest/requirements.html
     install_requires=[
+        'appnope>=0.1.2',
         'fs',
         'markdown',
         'pyjls>=0.3.3',
