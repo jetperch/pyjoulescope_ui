@@ -92,14 +92,22 @@ class SingleValueWidget(QtWidgets.QWidget):
         self.retranslateUi()
         self.fieldComboBox.currentIndexChanged.connect(self.on_field_changed)
         self.statisticComboBox.currentIndexChanged.connect(self.on_statistic_changed)
-        self._cmdp.subscribe('Device/#state/statistics', self._on_device_statistics, update_now=True)
-        cmdp.subscribe('Widgets/Single Value/font', self._on_font, update_now=True)
-        self._cmdp.subscribe('!Accumulators/reset', self._on_accumulator_reset)
-
         if self._state_preference not in cmdp:
             cmdp[self._state_preference] = {}
-        cmdp.subscribe(self._state_preference, self._on_state, update_now=True)
+
+        self._subscribe = [
+            ['Device/#state/statistics', self._on_device_statistics, True],
+            ['Widgets/Single Value/font', self._on_font, True],
+            ['!Accumulators/reset', self._on_accumulator_reset, False],
+            [self._state_preference, self._on_state, True],
+        ]
+        for topic, fn, update_now in self._subscribe:
+            cmdp.subscribe(topic, fn, update_now=update_now)
         self.retranslateUi()
+
+    def closeEvent(self, event):
+        for topic, fn, update_now in self._subscribe:
+            self._cmdp.unsubscribe(topic, fn)
 
     def _on_mouse_press_event(self, event: QtGui.QMouseEvent):
         # if event.button() == QtCore.Qt.LeftButton:

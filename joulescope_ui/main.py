@@ -250,6 +250,8 @@ class MyDockWidget(QtWidgets.QDockWidget):
         if not self.widget_def.get('singleton', False):
             self.widget_def['dock_widget'] = None
             self.widget_def = None
+            if self.inner_widget:
+                self.inner_widget.close()
             self.inner_widget = None
             self._cmdp = None
             self._parent = None

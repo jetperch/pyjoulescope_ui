@@ -17,6 +17,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added "Widgets/Waveform/scale" property for default waveform scale #135
 * Migrated from PySide2/Qt5 to PySide6/Qt6 (caused revision bump to 0.10).
 * Configured to use OpenGL with trace width 2 and min/max fill by default.
+* Unsubscribed Single Value Widget when closed.
 
 
 ## 0.9.10

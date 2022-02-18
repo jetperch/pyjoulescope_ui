@@ -82,7 +82,6 @@ class MeterWidget(QtWidgets.QWidget):
 
         self._grid_layout = QtWidgets.QGridLayout(self._grid_widget)
         self._grid_layout.setContentsMargins(0, 0, 0, 0)
-        self._grid_layout.setMargin(0)
         self._grid_layout.setHorizontalSpacing(0)
         self._grid_layout.setVerticalSpacing(0)
 
