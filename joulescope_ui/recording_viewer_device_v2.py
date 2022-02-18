@@ -416,7 +416,7 @@ class RecordingViewerDeviceV2:
                 if args in self._views:
                     self._views.remove(args)
             elif cmd == 'open':
-                rv = self._open()
+                rv = None
             elif cmd == 'close':
                 rv = self._close()
             elif cmd == 'ping':
@@ -496,7 +496,7 @@ class RecordingViewerDeviceV2:
 
     def _on_annotations_loaded(self, *args, **kwargs):
         self._loader = None
-        self._threadpool.stop()
+        self._threadpool.waitForDone(1000)
 
     def _open(self):
         self._log.info('RecordingViewerDevice.open')
@@ -524,6 +524,7 @@ class RecordingViewerDeviceV2:
     def open(self, event_callback_fn=None):
         self.close()
         self._log.info('open')
+        self._open()
         self._thread = threading.Thread(name='view', target=self.run)
         self._thread.start()
         self._post_block('open')

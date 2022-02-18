@@ -13,6 +13,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added "General/window_on_top" preference #138
 * Made y-axis markers consistent #124
 * Addressed OSX Data loss while running in background #139 using appnope package.
+* Fixed incorrect instantiation of Qt Thread from a python thread.  May fix #132.
 
 
 ## 0.9.10
