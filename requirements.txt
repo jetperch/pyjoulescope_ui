@@ -18,4 +18,4 @@ wheel
 # https://www.joulescope.com/app_download/pyqtgraph-0.11.0.dev1.tar.gz
 # pyqtgraph>=0.11.0.dev1
 # -e git+https://github.com/jetperch/pyqtgraph.git@557e867b377b223589c0c8ffd0799c547965fb46#egg=pyqtgraph-0.11.0.dev1
-pyqtgraph>=0.11.0
+pyqtgraph>=0.12.3

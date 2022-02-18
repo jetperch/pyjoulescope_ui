@@ -188,7 +188,7 @@ setuptools.setup(
         'pyjls>=0.3.3',
         'pyperclip>=1.7.0',
         'python-dateutil>=2.7.3',
-        'pyqtgraph>=0.11.0',
+        'pyqtgraph>=0.12.3',
         "pypiwin32>=223; platform_system == 'Windows'",
         # 'pyqtgraph @ https://github.com/jetperch/pyqtgraph/tarball/557e867b377b223589c0c8ffd0799c547965fb46#egg=pyqtgraph-0.11.0.dev1',
         'requests>=2.0.0',
