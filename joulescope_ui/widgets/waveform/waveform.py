@@ -860,7 +860,7 @@ def widget_register(cmdp):
         detail='Increasing trace width SIGNIFICANTLY degrades performance',
         dtype='str',
         options=['1', '2', '4', '6', '8'],
-        default='2')
+        default='1')
     cmdp.define(
         topic='Widgets/Waveform/scale',
         brief='The default y-axis scale for current and power signals.',
