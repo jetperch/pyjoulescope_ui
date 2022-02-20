@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PySide6 import QtCore, QtGui, QtWidgets
+from PySide2 import QtCore, QtGui, QtWidgets
 from .marker import Marker, Z_MARKER_NORMAL, Z_MARKER_ACTIVE
 from .marker_area import MarkerArea
 import numpy as np
@@ -31,13 +31,13 @@ class AxisMenu(QtWidgets.QMenu):
         QtWidgets.QMenu.__init__(self)
         self.annotations = self.addMenu('&Annotations')
 
-        self.single_marker = QtGui.QAction('&Single marker')
+        self.single_marker = QtWidgets.QAction('&Single marker')
         self.annotations.addAction(self.single_marker)
 
-        self.dual_markers = QtGui.QAction('&Dual markers')
+        self.dual_markers = QtWidgets.QAction('&Dual markers')
         self.annotations.addAction(self.dual_markers)
 
-        self.clear_all_markers = QtGui.QAction('&Clear all')
+        self.clear_all_markers = QtWidgets.QAction('&Clear all')
         self.annotations.addAction(self.clear_all_markers)
 
 

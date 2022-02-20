@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from pyjls import Reader, DataType, AnnotationType, SignalType, SourceDef, SignalDef, SummaryFSR
-from PySide6 import QtCore
+from PySide2 import QtCore
 from joulescope import span
 from .widgets.waveform.annotations import AnnotationLoader
 import os

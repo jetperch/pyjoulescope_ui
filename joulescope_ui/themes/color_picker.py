@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-from PySide6 import QtCore, QtGui, QtWidgets
+from PySide2 import QtCore, QtGui, QtWidgets
 import re
 
 

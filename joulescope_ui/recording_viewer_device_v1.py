@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from joulescope.data_recorder import DataReader
-from PySide6 import QtCore
+from PySide2 import QtCore
 from .widgets.waveform.annotations import AnnotationLoader
 from joulescope.view import data_array_to_update
 from joulescope_ui.data_view_api import DataViewApi

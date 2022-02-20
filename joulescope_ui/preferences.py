@@ -20,7 +20,7 @@ https://gist.github.com/dgovil/d83e7ddc8f3fb4a28832ccc6f9c7f07b
 https://gist.github.com/bootchk/5330231
 """
 
-from PySide6 import QtCore, QtGui
+from PySide2 import QtCore, QtGui
 from joulescope_ui import paths
 import collections.abc
 import base64

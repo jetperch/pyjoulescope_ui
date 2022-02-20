@@ -15,7 +15,7 @@
 # https://stackoverflow.com/questions/11874767/real-time-plotting-in-while-loop-with-matplotlib
 # https://wiki.qt.io/Gallery_of_Qt_CSS_Based_Styles
 
-from PySide6 import QtCore, QtGui, QtWidgets
+from PySide2 import QtCore, QtGui, QtWidgets
 import pyqtgraph
 pyqtgraph.setConfigOptions(useOpenGL=True)
 
@@ -423,7 +423,7 @@ class MainWindow(QtWidgets.QMainWindow):
                             detail='This command uses General/_mru_open to undo.')
 
         # Device selection
-        self.device_action_group = QtGui.QActionGroup(self)
+        self.device_action_group = QtWidgets.QActionGroup(self)
         self._device_disable = DeviceDisable()
         self._device_add(self._device_disable)
 
@@ -450,11 +450,11 @@ class MainWindow(QtWidgets.QMainWindow):
         # Add global keyboard shortcuts for the application
         # Attempted app.installEventFilter(self) with def eventFilter
         # but need to handle gets ShortcutOverride, KeyPress, KeyRelease, multiple times
-        self._shortcut_undo = QtGui.QShortcut(QtGui.QKeySequence.Undo, self)
+        self._shortcut_undo = QtWidgets.QShortcut(QtGui.QKeySequence.Undo, self)
         self._shortcut_undo.activated.connect(lambda: self._cmdp.invoke('!undo'))
-        self._shortcut_redo = QtGui.QShortcut(QtGui.QKeySequence.Redo, self)
+        self._shortcut_redo = QtWidgets.QShortcut(QtGui.QKeySequence.Redo, self)
         self._shortcut_redo.activated.connect(lambda: self._cmdp.invoke('!redo'))
-        self._shortcut_spacebar = QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Space), self)
+        self._shortcut_spacebar = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Space), self)
         self._shortcut_spacebar.activated.connect(self._on_spacebar)
 
         if not self._cmdp.restore_success:
@@ -471,7 +471,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 w = self._menu_setup(value, wroot)
                 w['__root__'] = wroot
             else:
-                w = QtGui.QAction(parent)
+                w = QtWidgets.QAction(parent)
                 w.setText(name)
                 if callable(value):
                     w.triggered.connect(value)
@@ -527,7 +527,7 @@ class MainWindow(QtWidgets.QMainWindow):
         menu.clear()
 
         developer = self._cmdp['General/developer']
-        self._profile_action_group = QtGui.QActionGroup(menu)
+        self._profile_action_group = QtWidgets.QActionGroup(menu)
         self._profile_action_group.setExclusive(True)
         for profile in sorted(self._cmdp.preferences.profiles):
             if profile == 'defaults':
@@ -1005,7 +1005,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def _device_add(self, device):
         """Add device to the user interface"""
         log.info('_device_change add %s', device)
-        action = QtGui.QAction(str(device), self)
+        action = QtWidgets.QAction(str(device), self)
         action.setCheckable(True)
         action.setChecked(False)
         action.triggered.connect(lambda x: self._cmdp.invoke('!Device/open', device))
@@ -1909,6 +1909,15 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None,
 
         log.info('Arguments: %s', (sys.argv, ))
         log.info('Start Qt')
+        try:
+            log.info('Configure high DPI scaling')
+            # http://doc.qt.io/qt-5/highdpi.html
+            # https://vicrucann.github.io/tutorials/osg-qt-high-dpi/
+            if sys.platform.startswith('win'):
+                ctypes.windll.user32.SetProcessDPIAware()
+            QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+        except Exception:
+            log.exception('while configuring high DPI scaling')
         app = QtWidgets.QApplication(sys.argv)
         resource_list = [
             ('joulescope_ui', 'resources.rcc'),
@@ -1958,7 +1967,7 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None,
         window_state = WINDOW_STATE_MAP.get(window_state.lower())
         if window_state is not None:
             ui.setWindowState(window_state)
-    rc = app.exec()
+    rc = app.exec_()
     log.info('shutting down')
     del ui
     logging_stop()

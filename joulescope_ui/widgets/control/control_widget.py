@@ -14,7 +14,7 @@
 # limitations under the License.
 
 
-from PySide6 import QtWidgets, QtCore
+from PySide2 import QtWidgets, QtCore
 from joulescope_ui.widgets.switch import Switch
 from joulescope.units import three_sig_figs
 from joulescope_ui.units import convert_units

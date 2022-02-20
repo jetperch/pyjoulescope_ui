@@ -4,9 +4,9 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
-## 0.10.0
+## 0.9.11
 
-2022 Feb 17
+2022 Feb 20
 
 * Fixed waveform context menu (QtGui.QMenu -> QtWidgets.QMenu).
 * Fixed range tools on JLS v2 files (except for export) #131
@@ -15,8 +15,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Addressed OSX Data loss while running in background #139 using appnope package.
 * Fixed incorrect instantiation of Qt Thread from a python thread.  May fix #132.
 * Added "Widgets/Waveform/scale" property for default waveform scale #135
-* Migrated from PySide2/Qt5 to PySide6/Qt6 (caused revision bump to 0.10).
-* Configured to use OpenGL with trace width 2 and min/max fill by default.
+* Configured to use OpenGL with trace width 1 and min/max fill by default.
 * Unsubscribed Single Value Widget when closed.
 
 

@@ -17,7 +17,7 @@
 The tool is executed from a separate thread.
 """
 
-from PySide6 import QtCore
+from PySide2 import QtCore
 import threading
 import time
 from queue import Queue, Empty

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PySide6 import QtGui, QtCore, QtWidgets
+from PySide2 import QtGui, QtCore, QtWidgets
 from .signal_def import signal_def
 from .signal import Signal
 from .signal_viewbox import SignalViewBox
@@ -167,7 +167,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _shortcuts_activate(self, shortcuts):
         for key, cbk in shortcuts:
-            shortcut = QtGui.QShortcut(QtGui.QKeySequence(key), self)
+            shortcut = QtWidgets.QShortcut(QtGui.QKeySequence(key), self)
             shortcut.activated.connect(cbk)
             self._shortcuts[key] = [key, cbk, shortcut]
 

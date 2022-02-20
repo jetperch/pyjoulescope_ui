@@ -18,7 +18,7 @@ import logging
 import markdown
 import os
 import re
-from PySide6 import QtCore, QtWidgets
+from PySide2 import QtCore, QtWidgets
 from . import frozen
 
 

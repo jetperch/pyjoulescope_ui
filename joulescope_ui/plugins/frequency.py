@@ -15,7 +15,7 @@
 import logging
 import numpy as np
 import pyqtgraph as pg
-from PySide6 import QtCore, QtWidgets
+from PySide2 import QtCore, QtWidgets
 
 
 log = logging.getLogger(__name__)

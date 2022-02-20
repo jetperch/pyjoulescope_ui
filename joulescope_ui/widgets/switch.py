@@ -2,9 +2,9 @@
 # Thank you to Stefan Scherfke and IMAN4K
 # https://stackoverflow.com/a/51825815/888653
 
-from PySide6.QtCore import QPropertyAnimation, QRectF, QSize, Qt, Property
-from PySide6.QtGui import QPainter
-from PySide6.QtWidgets import (
+from PySide2.QtCore import QPropertyAnimation, QRectF, QSize, Qt, Property
+from PySide2.QtGui import QPainter
+from PySide2.QtWidgets import (
     QAbstractButton,
     QApplication,
     QHBoxLayout,

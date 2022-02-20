@@ -16,7 +16,7 @@
 from pyjls import Reader, DataType, AnnotationType, SignalType, SourceDef, SignalDef, SummaryFSR
 import logging
 import os
-from PySide6 import QtWidgets, QtGui, QtCore
+from PySide2 import QtWidgets, QtGui, QtCore
 
 
 def annotation_filenames(filename):

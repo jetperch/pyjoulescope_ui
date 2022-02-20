@@ -15,7 +15,7 @@
 import logging
 import numpy as np
 import pyqtgraph as pg
-from PySide6 import QtWidgets
+from PySide2 import QtWidgets
 from .max_window_config_widget import Ui_Dialog
 from . import plugin_helpers
 
