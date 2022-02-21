@@ -1,4 +1,4 @@
-# Copyright 2018 Jetperch LLC
+# Copyright 2018-2022 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,6 +25,7 @@ import setuptools
 from setuptools.command.sdist import sdist
 import distutils.cmd
 import os
+import platform
 import sys
 import subprocess
 import shutil
@@ -40,9 +41,15 @@ def qt_rcc_path():
     import PySide2
     path = os.path.dirname(PySide2.__file__)
     fname = [n for n in os.listdir(path) if n.startswith('rcc')]
-    if len(fname) != 1:
-        raise ValueError('Could not find rcc executable')
-    return os.path.join(path, fname[0])
+    if len(fname) == 1:
+        fname = os.path.join(path, fname[0])
+        if os.path.isfile(fname):
+            return fname
+    if platform.system() == 'Darwin':
+        fname = os.path.join(path, 'Qt', 'libexec', 'rcc')
+        if os.path.isfile(fname):
+            return fname
+    raise ValueError('Could not find rcc executable')
 
 
 def convert_qt_ui():
@@ -192,7 +199,7 @@ setuptools.setup(
         "pypiwin32>=223; platform_system == 'Windows'",
         # 'pyqtgraph @ https://github.com/jetperch/pyqtgraph/tarball/557e867b377b223589c0c8ffd0799c547965fb46#egg=pyqtgraph-0.11.0.dev1',
         'requests>=2.0.0',
-        'PySide2>=5.15.0',
+        'PySide2>=5.15.2',
         'joulescope>=' + JOULESCOPE_VERSION_MIN,
     ] + PLATFORM_INSTALL_REQUIRES,
     
