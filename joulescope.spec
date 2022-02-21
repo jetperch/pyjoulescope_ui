@@ -80,6 +80,7 @@ a = Analysis(
         (firmware_get(), 'joulescope_ui/firmware/js110'),
     ] + parse_manifest(),
     hiddenimports=[
+        'html.parser',
         'joulescope.decimators',
         'joulescope.filter_fir',
         'joulescope.pattern_buffer',
