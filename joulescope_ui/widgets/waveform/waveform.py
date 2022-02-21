@@ -843,7 +843,7 @@ def widget_register(cmdp):
             'off':   {'brief': 'Hide the min/max indicators'},
             'lines': {'brief': 'Display minimum and maximum lines'},
             'fill':  {'brief': 'Fill the region between min and max.'}},
-        default='fill')
+        default='lines')
     cmdp.define(
         topic='Widgets/Waveform/grid_x',
         brief='Display the x-axis grid',

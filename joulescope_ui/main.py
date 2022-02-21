@@ -16,9 +16,6 @@
 # https://wiki.qt.io/Gallery_of_Qt_CSS_Based_Styles
 
 from PySide2 import QtCore, QtGui, QtWidgets
-import pyqtgraph
-pyqtgraph.setConfigOptions(useOpenGL=True)
-
 import appnope
 import os
 import platform

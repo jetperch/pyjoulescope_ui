@@ -15,7 +15,6 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Addressed OSX Data loss while running in background #139 using appnope package.
 * Fixed incorrect instantiation of Qt Thread from a python thread.  May fix #132.
 * Added "Widgets/Waveform/scale" property for default waveform scale #135
-* Configured to use OpenGL with trace width 1 and min/max fill by default.
 * Unsubscribed Single Value Widget when closed.
 
 
