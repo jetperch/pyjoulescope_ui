@@ -16,6 +16,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Fixed incorrect instantiation of Qt Thread from a python thread.  May fix #132.
 * Added "Widgets/Waveform/scale" property for default waveform scale #135
 * Unsubscribed Single Value Widget when closed.
+* Fixed JLS open not updating view to full-resolution waveform #143
 
 
 ## 0.9.10

@@ -873,8 +873,8 @@ class MainWindow(QtWidgets.QMainWindow):
                     data_view.on_update_fn = self.resync_handler('data_view_update')
                     data_view.open()
                     data_view.refresh()
-                    self._cmdp.publish('Device/#state/x_limits', data_view.limits)
                     self._data_view = data_view
+                    self._cmdp.publish('Device/#state/x_limits', data_view.limits)
                 if hasattr(self._device, 'statistics_callback'):
                     self._device.statistics_callback = self.resync_handler('device_statistic')
                 # must apply i_range first to prevent Joulescope OUT glitch
