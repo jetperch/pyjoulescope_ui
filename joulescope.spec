@@ -13,6 +13,7 @@ import sys
 import os
 import subprocess
 import shutil
+import time
 
 block_cipher = None
 specpath = os.path.dirname(os.path.abspath(SPEC))
@@ -21,6 +22,7 @@ sys.path.insert(0, specpath)
 import joulescope_ui
 from joulescope_ui import firmware_manager
 VERSION_STR = joulescope_ui.__version__.replace('.', '_')
+MACOS_CODE_SIGN = 'Developer ID Application: Jetperch LLC (WFRS3L8Y7Y)'
 
 
 def firmware_get():
@@ -64,13 +66,20 @@ if sys.platform.startswith('win'):
         ('C:\\Windows\\System32\\msvcp140_1.dll', '.'),
         ('C:\\Windows\\System32\\msvcp140_2.dll', '.'),
     ]
+    DATA = []
 elif sys.platform.startswith('darwin'):
     from joulescope_ui.libusb_mac import mac_binaries
     EXE_NAME = 'joulescope_launcher'
     BINARIES = [(x, '.') for x in mac_binaries()]
+    DATA = [
+        # copy over the fonts so they work with QFontDialog
+        ['joulescope_ui/fonts/fonts.qrc', 'Fonts'],
+        ['joulescope_ui/fonts/Lato/*', 'Fonts/Lato'],
+    ]
 else:
     EXE_NAME = 'joulescope_launcher'
     BINARIES = []  # sudo apt install libusb-1
+    DATA = []
 
 a = Analysis(
     ['joulescope_ui/__main__.py'],
@@ -78,7 +87,7 @@ a = Analysis(
     binaries=BINARIES,
     datas=[
         (firmware_get(), 'joulescope_ui/firmware/js110'),
-    ] + parse_manifest(),
+    ] + DATA + parse_manifest(),
     hiddenimports=[
         'html.parser',
         'joulescope.decimators',
@@ -97,12 +106,14 @@ a = Analysis(
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
     cipher=block_cipher,
-    noarchive=False, )
+    noarchive=False,
+)
 
 pyz = PYZ(
     a.pure, 
     a.zipped_data,
-    cipher=block_cipher, )
+    cipher=block_cipher,
+)
 
 exe = EXE(
     pyz,
@@ -115,7 +126,9 @@ exe = EXE(
     strip=False,
     upx=True,
     console=False,
-    icon='joulescope_ui/resources/icon.ico', )
+    icon='joulescope_ui/resources/icon.ico',
+    codesign_identity=MACOS_CODE_SIGN,
+)
 
 coll = COLLECT(
     exe,
@@ -124,7 +137,8 @@ coll = COLLECT(
     a.datas,
     strip=False,
     upx=True,
-    name='joulescope', )
+    name='joulescope',
+)
 
 
 if sys.platform.startswith('darwin'):
@@ -136,6 +150,7 @@ if sys.platform.startswith('darwin'):
         name='joulescope.app',
         icon='joulescope_ui/resources/icon.icns',
         bundle_identifier='com.jetperch.joulescope',
+        version=joulescope_ui.__version__,
         info_plist={
             'NSPrincipalClass': 'NSApplication',
             'CFBundleName': 'Joulescope',
@@ -144,22 +159,29 @@ if sys.platform.startswith('darwin'):
             'NSHighResolutionCapable': 'True',
         })
 
-    # copy over the fonts so they work with QFontDialog
-    font_src_path = os.path.join(specpath, 'joulescope_ui', 'fonts')
-    font_dst_path = os.path.join(specpath, 'dist', 'joulescope.app', 'Contents', 'Resources', 'Fonts')
-    if os.path.isdir(font_dst_path):
-        shutil.rmtree(font_dst_path)
-    shutil.copytree(font_src_path, font_dst_path)
-
+    print('unsign app')
+    subprocess.run(['codesign', '--remove', '--all-architectures',
+                    './dist/joulescope.app'],
+                   cwd=specpath)
     print('sign app')
-    subprocess.run(['codesign', '-s', 'Developer ID Application: Jetperch LLC (WFRS3L8Y7Y)', 
+    subprocess.run(['codesign',
+                    '-s', MACOS_CODE_SIGN,
+                    '--options', 'runtime',
+                    '--entitlements', './entitlements.plist',
                     '--deep', './dist/joulescope.app'],
                    cwd=specpath)
+
     # subprocess.run(['hdiutil', 'create', './dist/joulescope_%s.dmg' % VERSION_STR,
     #                 '-srcfolder', './dist/joulescope.app', '-ov'],
     #                 cwd=specpath)
     print('create dmg')
-    subprocess.run(['./node_modules/appdmg/bin/appdmg.js', 'appdmg.json', 'dist/joulescope_%s.dmg' % VERSION_STR])
+    dmg_file = 'dist/joulescope_%s.dmg' % VERSION_STR
+    subprocess.run(['./node_modules/appdmg/bin/appdmg.js', 'appdmg.json', dmg_file])
+
+    # xcrun altool --notarize-app --primary-bundle-id "com.jetperch.joulescope" --username "matt.liberty@jetperch.com" --password "@keychain:Developer-altool" --file "dist/joulescope_0_9_11.dmg"
+    # xcrun altool --notarization-info "7c927036-3c17-4f03-ba24-d49420b1e81d" --username "matt.liberty@jetperch.com" --password "@keychain:Developer-altool"
+    # spctl -a -t open --context context:primary-signature dmg_file
+    # xcrun stapler staple dist/joulescope_0_9_11.dmg
 
 elif sys.platform == 'win32':
     subprocess.run(['C:\Program Files (x86)\Inno Setup 6\ISCC.exe', 

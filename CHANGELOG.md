@@ -17,6 +17,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added "Widgets/Waveform/scale" property for default waveform scale #135
 * Unsubscribed Single Value Widget when closed.
 * Fixed JLS open not updating view to full-resolution waveform #143
+* Added macOS signature and notarization #18
 
 
 ## 0.9.10
