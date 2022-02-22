@@ -883,7 +883,6 @@ class MainWindow(QtWidgets.QMainWindow):
                 self._cmdp.subscribe('Device/extio/', self._on_device_parameter, update_now=True)
                 self._cmdp.subscribe('Device/Current Ranging/', self._on_device_current_range_parameter, update_now=True)
                 if self._is_streaming_device:
-                    appnope.nope()
                     self._cmdp.publish('Device/#state/filename', '')
                     if self._cmdp['Device/autostream']:
                         self._cmdp.publish('Device/#state/source', 'USB')
@@ -962,7 +961,6 @@ class MainWindow(QtWidgets.QMainWindow):
         if hasattr(device, 'ui_on_close'):
             device.ui_on_close()
 
-        appnope.nap()
         self._device_disable.ui_action.setChecked(True)
         self._streaming_status = None
         self._cmdp.publish('Device/#state/name', '')
@@ -1953,6 +1951,12 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None,
         msg = STARTUP_ERROR_MESSAGE.format(msg_err=msg_err, style=html_style)
         ui = ErrorWindow(msg)
         return app.exec_()
+
+    try:
+        appnope.nope()
+    except Exception:
+        log.exception('appnope failed')
+        raise
 
     try:
         ui = MainWindow(app, device_name, cmdp, multiprocessing_logging_queue)
