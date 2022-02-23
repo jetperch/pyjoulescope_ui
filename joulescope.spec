@@ -11,6 +11,7 @@
 
 import sys
 import os
+import pyqtgraph
 import subprocess
 import shutil
 import time
@@ -23,6 +24,7 @@ import joulescope_ui
 from joulescope_ui import firmware_manager
 VERSION_STR = joulescope_ui.__version__.replace('.', '_')
 MACOS_CODE_SIGN = 'Developer ID Application: Jetperch LLC (WFRS3L8Y7Y)'
+PYQTGRAPH_PATH = os.path.dirname(pyqtgraph.__file__)
 
 
 def firmware_get():
@@ -57,6 +59,13 @@ def parse_manifest():
     return add_files
 
 
+DATA = [
+    # Force pyqtgraph icon include, which were not automatically found on mac OS 12 & Ubuntu for 0.9.11
+    [os.path.join(PYQTGRAPH_PATH, 'icons', '*.png'), 'pyqtgraph/icons'],
+    [os.path.join(PYQTGRAPH_PATH, 'icons', '*.svg'), 'pyqtgraph/icons'],
+]
+
+
 if sys.platform.startswith('win'):
     EXE_NAME = 'joulescope'
     BINARIES = [  # uses winusb which comes with Windows
@@ -66,12 +75,12 @@ if sys.platform.startswith('win'):
         ('C:\\Windows\\System32\\msvcp140_1.dll', '.'),
         ('C:\\Windows\\System32\\msvcp140_2.dll', '.'),
     ]
-    DATA = []
+    DATA += []
 elif sys.platform.startswith('darwin'):
     from joulescope_ui.libusb_mac import mac_binaries
     EXE_NAME = 'joulescope_launcher'
     BINARIES = [(x, '.') for x in mac_binaries()]
-    DATA = [
+    DATA += [
         # copy over the fonts so they work with QFontDialog
         ['joulescope_ui/fonts/fonts.qrc', 'Fonts'],
         ['joulescope_ui/fonts/Lato/*', 'Fonts/Lato'],
@@ -79,7 +88,7 @@ elif sys.platform.startswith('darwin'):
 else:
     EXE_NAME = 'joulescope_launcher'
     BINARIES = []  # sudo apt install libusb-1
-    DATA = []
+    DATA += []
 
 a = Analysis(
     ['joulescope_ui/__main__.py'],
