@@ -40,9 +40,16 @@ body:
       description: You can select multiple OS
       multiple: true
       options:
-        - Windows
-        - Linux
-        - Mac OS X
+        - Windows 11
+        - Windows 10
+        - Windows 7
+        - Mac OS 12 arm64 (M1 and newer)
+        - Mac OS 12 amd64
+        - Mac OS 11 amd64
+        - Mac OS 10
+        - Linux Ubuntu amd64 (PC)
+        - Linux Ubuntu arm64 (Raspberry Pi 4)
+        - Other (describe below)
     validations:
       required: true
   - type: textarea
