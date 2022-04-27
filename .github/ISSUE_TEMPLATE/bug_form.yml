@@ -1,0 +1,84 @@
+name: Bug report
+description: File a bug report
+title: "[Bug]: UPDATE TITLE"
+labels: ["bug", "triage"]
+assignees:
+  - mliberty1
+body:
+  - type: markdown
+    attributes:
+      value: Thanks for taking the time to fill out this bug report!
+  - type: input
+    id: Joulescope-SN
+    attributes:
+      label: Joulescope serial number
+      description: Please copy serial number in back of Joulescope
+  - type: dropdown
+    id: version
+    attributes:
+      label: UI version
+      description: What version of our software are you running?
+      options:
+        - 0.9.11
+        - 0.9.10
+        - 0.9.9
+        - 0.9.8
+        - 0.9.7
+        - 0.9.6
+        - 0.9.5
+        - 0.9.4
+        - 0.9.3
+        - 0.9.2
+        - 0.9.1
+        - 0.9.0
+    validations:
+      required: true
+  - type: dropdown
+    id: Environment
+    attributes:
+      label: What OS are you seeing the problem on?
+      description: You can select multiple OS
+      multiple: true
+      options:
+        - Windows 11
+        - Windows 10
+        - Windows 7
+        - Mac OS 12 arm64 (M1 and newer)
+        - Mac OS 12 amd64
+        - Mac OS 11 amd64
+        - Mac OS 10
+        - Linux Ubuntu amd64 (PC)
+        - Linux Ubuntu arm64 (Raspberry Pi 4)
+        - Other (describe below)
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      placeholder: I encountered a bug
+    validations:
+      required: true
+  - type: textarea
+    id: what-expected
+    attributes:
+      label: What was expected?
+      placeholder: UI should not crash
+    validations:
+      required: true
+  - type: textarea
+    id: how-reproduce
+    attributes:
+      label: How to reproduce?
+      value: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: extra-info
+    attributes:
+      label: Extra information
+      description: Tell us anything that has not been explicitelly asked but could help us.
+      placeholder: Tell us anything usefull
