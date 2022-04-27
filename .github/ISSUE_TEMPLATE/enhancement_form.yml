@@ -1,13 +1,13 @@
-name: Bug report
-description: File a bug report
-title: "[Bug]: UPDATE TITLE"
-labels: ["bug", "triage"]
+name: Enhancement request
+description: Propose enhancement to the tool
+title: "[Enhancement]: UPDATE TITLE"
+labels: ["enhancement", "triage"]
 assignees:
   - mliberty1
 body:
   - type: markdown
     attributes:
-      value: Thanks for taking the time to fill out this bug report!
+      value: Thanks for taking the time to share your ideas!
   - type: input
     id: Joulescope-SN
     attributes:
@@ -33,10 +33,17 @@ body:
         - 0.9.0
     validations:
       required: true
+  - type: textarea
+    id: enhancement
+    attributes:
+      label: Your idea
+      placeholder: I would like a feature that...
+    validations:
+      required: true
   - type: dropdown
     id: Environment
     attributes:
-      label: What OS are you seeing the problem on?
+      label: Does your idea concern a specific OS?
       description: You can select multiple OS
       multiple: true
       options:
@@ -50,35 +57,3 @@ body:
         - Linux Ubuntu amd64 (PC)
         - Linux Ubuntu arm64 (Raspberry Pi 4)
         - Other (describe below)
-    validations:
-      required: true
-  - type: textarea
-    id: what-happened
-    attributes:
-      label: What happened?
-      placeholder: I encountered a bug
-    validations:
-      required: true
-  - type: textarea
-    id: what-expected
-    attributes:
-      label: What was expected?
-      placeholder: UI should not crash
-    validations:
-      required: true
-  - type: textarea
-    id: how-reproduce
-    attributes:
-      label: How to reproduce?
-      value: |
-        1. ...
-        2. ...
-        3. ...
-    validations:
-      required: true
-  - type: textarea
-    id: extra-info
-    attributes:
-      label: Extra information
-      description: Tell us anything that has not been explicitelly asked but could help us.
-      placeholder: Tell us anything usefull

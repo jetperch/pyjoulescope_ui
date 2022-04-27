@@ -1,0 +1,56 @@
+name: Question
+description: If you need help understanding or using our tool
+title: "[Question]: UPDATE TITLE"
+labels: ["question", "triage"]
+assignees:
+  - mliberty1
+body:
+  - type: input
+    id: Joulescope-SN
+    attributes:
+      label: Joulescope serial number
+      description: Please copy serial number in back of Joulescope
+  - type: dropdown
+    id: version
+    attributes:
+      label: UI version
+      description: What version of our software are you running?
+      options:
+        - 0.9.11
+        - 0.9.10
+        - 0.9.9
+        - 0.9.8
+        - 0.9.7
+        - 0.9.6
+        - 0.9.5
+        - 0.9.4
+        - 0.9.3
+        - 0.9.2
+        - 0.9.1
+        - 0.9.0
+    validations:
+      required: true
+  - type: textarea
+    id: Question
+    attributes:
+      label: Your question
+      placeholder: How to ...
+    validations:
+      required: true
+  - type: dropdown
+    id: Environment
+    attributes:
+      label: What OS are you using?
+      description: You can select multiple OS
+      multiple: true
+      options:
+        - Windows 11
+        - Windows 10
+        - Windows 7
+        - Mac OS 12 arm64 (M1 and newer)
+        - Mac OS 12 amd64
+        - Mac OS 11 amd64
+        - Mac OS 10
+        - Linux Ubuntu amd64 (PC)
+        - Linux Ubuntu arm64 (Raspberry Pi 4)
+        - Other (describe below)
