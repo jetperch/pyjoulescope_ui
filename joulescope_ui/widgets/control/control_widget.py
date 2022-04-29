@@ -43,7 +43,7 @@ Click again to stop data streaming.
 
 RECORD_TOOLTIP = """\
 <html><head/><body>
-<p>Click to recording streaming Joulescope data to a file.</p>
+<p>Click to start recording streaming Joulescope data to a file.</p>
 
 <p>Click again to stop the recording. Only new data is recorded.</p>
 
@@ -58,7 +58,7 @@ bandwidth.  See File → Preferences → Device → setting → sampling_frequen
 
 STATISTICS_TOOLTIP = """\
 <html><head/><body>
-<p>Click to recording statistics Joulescope data to a CSV file.</p>
+<p>Click to start recording statistics Joulescope data to a CSV file.</p>
 
 <p>Click again to stop the recording. Only new data is recorded.</p>
 
