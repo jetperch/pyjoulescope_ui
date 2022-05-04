@@ -20,7 +20,7 @@ Much inspiration for this module was drawn from the excellent
 `guidata package <https://code.google.com/p/guidata/>`_.
 """
 
-from PySide2 import QtWidgets, QtGui, QtCore
+from PySide6 import QtWidgets, QtGui, QtCore
 import os
 import numpy as np
 from .ui_util import clear_layout

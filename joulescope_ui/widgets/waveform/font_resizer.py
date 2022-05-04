@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import weakref
-from PySide2.QtGui import QFont
+from PySide6.QtGui import QFont
 
 
 class FontResizer:

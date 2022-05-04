@@ -37,9 +37,9 @@ VERSION_PATH = os.path.join(MYPATH, 'joulescope_ui', 'version.py')
 
 
 def qt_rcc_path():
-    # As of PySide2 5.15.0, the pyside2-rcc executable ignores the --binary flag
-    import PySide2
-    path = os.path.dirname(PySide2.__file__)
+    # As of PySide 5.15.0, the pySide6-rcc executable ignores the --binary flag
+    import PySide6
+    path = os.path.dirname(PySide6.__file__)
     fname = [n for n in os.listdir(path) if n.startswith('rcc')]
     if len(fname) == 1:
         fname = os.path.join(path, fname[0])
@@ -53,7 +53,7 @@ def qt_rcc_path():
 
 
 def convert_qt_ui():
-    uic_path = shutil.which('pyside2-uic')
+    uic_path = shutil.which('pySide6-uic')
     rcc_path = qt_rcc_path()
     path = os.path.join(MYPATH, 'joulescope_ui')
     ignore_filename = os.path.join(path, '.gitignore')
@@ -200,7 +200,7 @@ setuptools.setup(
         "pypiwin32>=223; platform_system == 'Windows'",
         # 'pyqtgraph @ https://github.com/jetperch/pyqtgraph/tarball/557e867b377b223589c0c8ffd0799c547965fb46#egg=pyqtgraph-0.11.0.dev1',
         'requests>=2.0.0',
-        'PySide2>=5.15.2',
+        'PySide6>=6.3.0',
         'joulescope>=' + JOULESCOPE_VERSION_MIN,
     ] + PLATFORM_INSTALL_REQUIRES,
     

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PySide2 import QtWidgets, QtGui, QtCore
+from PySide6 import QtWidgets, QtGui, QtCore
 from joulescope.units import three_sig_figs
 from .marker import Z_MARKER_MOVING
 import numpy as np
@@ -255,7 +255,7 @@ class YMarker(pg.GraphicsObject):
         menu = QtWidgets.QMenu()
         show_stats_menu = menu.addMenu('&Show statistics')
 
-        show_stats_group = QtWidgets.QActionGroup(show_stats_menu)
+        show_stats_group = QtGui.QActionGroup(show_stats_menu)
         show_stats_items = []
         for txt, v in [['&Top', 'top'], ['&Bottom', 'bottom'], ['&Off', 'off']]:
             item = self._construct_stats_item(show_stats_menu, txt, v)

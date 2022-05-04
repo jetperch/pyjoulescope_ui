@@ -9,8 +9,8 @@ pypiwin32>=223; sys_platform == 'win32'
 # python {path_to_python}\scripts\pywin32_postinstall.py -install
 python-dateutil>=2.7.3
 pyperclip>=1.7.0
-PyInstaller>=4.2
-PySide2>=5.15.2
+PyInstaller>=5.0.1
+PySide6>=6.3.0
 requests>=2.0.0
 wheel
 

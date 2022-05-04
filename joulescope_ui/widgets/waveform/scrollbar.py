@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PySide2 import QtCore
+from PySide6 import QtCore
 import pyqtgraph as pg
 import weakref
 from typing import Callable

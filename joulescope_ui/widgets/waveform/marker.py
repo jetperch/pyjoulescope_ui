@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PySide2 import QtWidgets, QtGui, QtCore
+from PySide6 import QtWidgets, QtGui, QtCore
 import pyqtgraph as pg
 import weakref
 from joulescope.units import three_sig_figs
@@ -416,7 +416,7 @@ class Marker(pg.GraphicsObject):
                         m, subm = subm[name_part]
                     else:
                         m, subm = subm[name_part]
-                t = QtWidgets.QAction(name_parts[0], self)
+                t = QtGui.QAction(name_parts[0], self)
                 t.triggered.connect(self._range_tool_factory(name))
                 m.addAction(t)
                 instances.append(t)
@@ -424,7 +424,7 @@ class Marker(pg.GraphicsObject):
             zoom.triggered.connect(self._on_zoom)
 
         show_stats_menu = menu.addMenu('&Show statistics')
-        show_stats_group = QtWidgets.QActionGroup(show_stats_menu)
+        show_stats_group = QtGui.QActionGroup(show_stats_menu)
 
         left = show_stats_menu.addAction('&Left')
         left.setCheckable(True)

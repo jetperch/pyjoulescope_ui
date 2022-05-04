@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-from PySide2 import QtCore, QtWidgets
+from PySide6 import QtCore, QtWidgets
 from joulescope_ui.themes.color_picker import ColorItem
 import json
 import os

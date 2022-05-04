@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-from PySide2 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore
 from joulescope_ui.preferences_ui import widget_factory
 import logging
 

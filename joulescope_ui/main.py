@@ -15,7 +15,7 @@
 # https://stackoverflow.com/questions/11874767/real-time-plotting-in-while-loop-with-matplotlib
 # https://wiki.qt.io/Gallery_of_Qt_CSS_Based_Styles
 
-from PySide2 import QtCore, QtGui, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 import appnope
 import os
 import platform
@@ -420,7 +420,7 @@ class MainWindow(QtWidgets.QMainWindow):
                             detail='This command uses General/_mru_open to undo.')
 
         # Device selection
-        self.device_action_group = QtWidgets.QActionGroup(self)
+        self.device_action_group = QtGui.QActionGroup(self)
         self._device_disable = DeviceDisable()
         self._device_add(self._device_disable)
 
@@ -447,11 +447,11 @@ class MainWindow(QtWidgets.QMainWindow):
         # Add global keyboard shortcuts for the application
         # Attempted app.installEventFilter(self) with def eventFilter
         # but need to handle gets ShortcutOverride, KeyPress, KeyRelease, multiple times
-        self._shortcut_undo = QtWidgets.QShortcut(QtGui.QKeySequence.Undo, self)
+        self._shortcut_undo = QtGui.QShortcut(QtGui.QKeySequence.Undo, self)
         self._shortcut_undo.activated.connect(lambda: self._cmdp.invoke('!undo'))
-        self._shortcut_redo = QtWidgets.QShortcut(QtGui.QKeySequence.Redo, self)
+        self._shortcut_redo = QtGui.QShortcut(QtGui.QKeySequence.Redo, self)
         self._shortcut_redo.activated.connect(lambda: self._cmdp.invoke('!redo'))
-        self._shortcut_spacebar = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Space), self)
+        self._shortcut_spacebar = QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Space), self)
         self._shortcut_spacebar.activated.connect(self._on_spacebar)
 
         if not self._cmdp.restore_success:
@@ -468,7 +468,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 w = self._menu_setup(value, wroot)
                 w['__root__'] = wroot
             else:
-                w = QtWidgets.QAction(parent)
+                w = QtGui.QAction(parent)
                 w.setText(name)
                 if callable(value):
                     w.triggered.connect(value)
@@ -524,7 +524,7 @@ class MainWindow(QtWidgets.QMainWindow):
         menu.clear()
 
         developer = self._cmdp['General/developer']
-        self._profile_action_group = QtWidgets.QActionGroup(menu)
+        self._profile_action_group = QtGui.QActionGroup(menu)
         self._profile_action_group.setExclusive(True)
         for profile in sorted(self._cmdp.preferences.profiles):
             if profile == 'defaults':
@@ -1000,7 +1000,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def _device_add(self, device):
         """Add device to the user interface"""
         log.info('_device_change add %s', device)
-        action = QtWidgets.QAction(str(device), self)
+        action = QtGui.QAction(str(device), self)
         action.setCheckable(True)
         action.setChecked(False)
         action.triggered.connect(lambda x: self._cmdp.invoke('!Device/open', device))

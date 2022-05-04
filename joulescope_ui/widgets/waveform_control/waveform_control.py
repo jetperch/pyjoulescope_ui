@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PySide2 import QtCore, QtGui, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 from joulescope_ui.preferences_ui import widget_factory
 from joulescope_ui.widgets.waveform.signal_def import signal_def
 import sys
