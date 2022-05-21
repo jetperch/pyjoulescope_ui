@@ -193,10 +193,10 @@ class Marker(pg.GraphicsObject):
             pg.Point(wr, -h),
             pg.Point(wr, -he)
         ])
-        text_brush = pg.mkBrush([0, 0, 0, 128])
-        painter.setBrush(text_brush)
+        text_pen = pg.mkPen([0, 0, 0, 128])
+        painter.setPen(text_pen)
         txt = self._name
-        r = painter.fontMetrics().boundingRect(txt)
+        # r = painter.fontMetrics().boundingRect(txt)
         r = QtCore.QRect(wl, -h, wr - wl, -he + h)
         painter.drawText(r, QtCore.Qt.AlignCenter, txt)
 
