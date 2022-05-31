@@ -4,6 +4,13 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.9.12
+
+2022 May 31 [in progress]
+
+* Fixed CSV time precision to match reduction_frequency #159
+
+
 ## 0.9.11
 
 2022 Feb 22
