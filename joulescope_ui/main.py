@@ -49,6 +49,7 @@ import io
 import ctypes
 import collections
 import gc
+import numpy as np
 import pkgutil
 import pyperclip
 import traceback
@@ -689,6 +690,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def _record_statistics_item(self, statistics):
         if self._statistics_recording is not None:
+            freq = self._cmdp['Device/setting/reduction_frequency']
+            freq = float(freq.split()[0])
+            freq_log10 = int(np.ceil(max(0, np.log10(freq))))
+            time_format = f'%.{freq_log10}f'
             hdr = '#time,current,voltage,power,charge,energy\n'
             t = statistics['time']['range']['value'][1]
             i = statistics['signals']['current']['µ']['value']
@@ -707,7 +712,7 @@ class MainWindow(QtWidgets.QMainWindow):
             t -= self._statistics_recording['offsets']['time']
             c -= self._statistics_recording['offsets']['charge']
             e -= self._statistics_recording['offsets']['energy']
-            line = '%.1f,%g,%g,%g,%g,%g\n' % (t, i, v, p, c, e)
+            line = (time_format + ',%g,%g,%g,%g,%g\n') % (t, i, v, p, c, e)
             self._statistics_recording['file'].write(line)
 
     def _on_dataview_service_x_change_request(self, topic, value):

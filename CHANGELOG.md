@@ -6,12 +6,18 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.10.0
 
-2022 May 4 [in progress]
+2022 May 31 [in progress]
 
 * Upgraded from Pyside2 (5.15) to PySide6 (6.3.0).
   Blocking [QTBUG-101047](https://bugreports.qt.io/browse/QTBUG-101047) fixed in 6.3.0. 
 * Upgraded from pyinstaller 4.9 to 5.0.
-* 
+
+
+## 0.9.12
+
+2022 May 31 [in progress]
+
+* Fixed CSV time precision to match reduction_frequency #159
 
 
 ## 0.9.11
