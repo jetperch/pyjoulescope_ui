@@ -14,7 +14,7 @@
 
 
 import os
-from joulescope.firmware_manager import load as _load, upgrade, version_required, VERSIONS
+from joulescope.v0.firmware_manager import load as _load, upgrade, version_required, VERSIONS
 from joulescope_ui.paths import paths_current
 import binascii
 import pkgutil

@@ -24,7 +24,7 @@ from . import __version__
 import joulescope
 from joulescope_ui.error_window import Ui_ErrorWindow
 from joulescope_ui.widgets import widget_register
-from joulescope.usb import DeviceNotify
+from joulescope.v0.usb import DeviceNotify
 from joulescope_ui.data_recorder_process import DataRecorderProcess as DataRecorder
 from joulescope_ui.file_dialog import FileDialog
 from joulescope.data_recorder import construct_record_filename  # DataRecorder
@@ -861,14 +861,15 @@ class MainWindow(QtWidgets.QMainWindow):
             try:
                 self._device.open(self.resync_handler('device_event'))
             except Exception:
-                log.exception('while opening device')
+                log.exception(f'while opening device {str(device)}')
                 return self._device_open_failed('Could not open device')
-            try:
-                self._firmware_update_on_open()
-            except Exception:
-                log.exception('firmware update failed')
-                self._device_close()
-                return
+            if '/' not in str(device):
+                try:
+                    self._firmware_update_on_open()
+                except Exception:
+                    log.exception('firmware update failed')
+                    self._device_close()
+                    return
             try:
                 self._cmdp.publish('Device/#state/name', str(self._device))
                 if not self._device.ui_action.isChecked():
