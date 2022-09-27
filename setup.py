@@ -45,7 +45,7 @@ def qt_rcc_path():
         fname = os.path.join(path, fname[0])
         if os.path.isfile(fname):
             return fname
-    if platform.system() == 'Darwin':
+    if platform.system() in ['Darwin', 'Linux']:
         fname = os.path.join(path, 'Qt', 'libexec', 'rcc')
         if os.path.isfile(fname):
             return fname
@@ -53,7 +53,7 @@ def qt_rcc_path():
 
 
 def convert_qt_ui():
-    uic_path = shutil.which('pySide6-uic')
+    uic_path = shutil.which('pyside6-uic')
     rcc_path = qt_rcc_path()
     path = os.path.join(MYPATH, 'joulescope_ui')
     ignore_filename = os.path.join(path, '.gitignore')
