@@ -99,9 +99,9 @@ a = Analysis(
     ] + DATA + parse_manifest(),
     hiddenimports=[
         'html.parser',
-        'joulescope.decimators',
-        'joulescope.filter_fir',
-        'joulescope.pattern_buffer',
+        'joulescope.v0.decimators',
+        'joulescope.v0.filter_fir',
+        'joulescope.v0.pattern_buffer',
         'numpy.core._dtype_ctypes',
         'pyqtgraph.graphicsItems.ViewBox.axisCtrlTemplate_pyside2',
         'pyqtgraph.graphicsItems.PlotItem.plotConfigTemplate_pyside2',
