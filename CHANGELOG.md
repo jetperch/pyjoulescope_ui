@@ -10,16 +10,11 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 * Upgraded from Pyside2 (5.15) to PySide6 (6.3.0).
   Blocking [QTBUG-101047](https://bugreports.qt.io/browse/QTBUG-101047) fixed in 6.3.0. 
+* Fixed CSV time precision to match reduction_frequency #159
 * Upgraded from pyinstaller 4.9 to 5.x.
 * Added support for joulescope v1 driver using joulescope_driver backend.
 * Added automatic updates, Windows only for now.
-
-
-## 0.9.12
-
-2022 May 31 [in progress]
-
-* Fixed CSV time precision to match reduction_frequency #159
+* Updated waveform ranges to support JS220.
 
 
 ## 0.9.11
