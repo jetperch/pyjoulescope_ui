@@ -31,6 +31,7 @@ from joulescope.data_recorder import construct_record_filename  # DataRecorder
 from joulescope_ui.recording_viewer_factory import factory as recording_viewer_factory
 from joulescope_ui.preferences_ui import PreferencesDialog
 from joulescope_ui.update_check import check as software_update_check
+from joulescope_ui.update_check import apply as software_update_apply
 from joulescope_ui.logging_util import logging_preconfig, logging_config, LOG_PATH, logging_start
 from joulescope_ui.range_tool import RangeToolInvoke
 from joulescope_ui import help_ui
@@ -59,6 +60,7 @@ import webbrowser
 import logging
 
 log = logging.getLogger(__name__)
+_software_update = None
 
 
 STATUS_BAR_TIMEOUT = 5000  # milliseconds
@@ -108,10 +110,10 @@ SOFTWARE_UPDATE = """\
 <p>
 A software update is available:<br/>
 Current version = {current_version}<br/>
-Available version = {latest_version}<br/>
+Available version = {available_version}<br/>
 Channel = {channel}<br/>
 </p>
-<p><a href="{url}">Download</a> now.</p>
+{extra}
 </body>
 </html>
 """
@@ -632,7 +634,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def resync_handler(self, name):
         """Get a function that will resynchronize to the Main Qt thread.
 
-        :param: The resychronization handler name.  The method
+        :param name: The resychronization handler name.  The method
             _on_{name}(self, args, kwargs) must exist to handle the
             resynchronization call.
         :return: The resynchronization function.  Calls to this function
@@ -726,7 +728,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self._data_view.on_x_change('span_absolute', {'range': [x_min, x_max]})
 
     def _on_device_notify(self, inserted, info):
-        log.info('Device notify')
+        log.info('device_notify(%s, %s)', inserted, info)
         self._device_scan()
 
     def disable_floating(self):
@@ -741,16 +743,33 @@ class MainWindow(QtWidgets.QMainWindow):
     def _html_style(self):
         return self._cmdp.preferences['Appearance/__index__']['generator']['files']['style.html']
 
-    def _on_software_update(self, current_version, latest_version, url):
-        channel = self._cmdp['General/update_channel']
-        log.info('_on_software_update(current_version=%r, latest_version=%r, channel=%s, url=%r)',
-                 current_version, latest_version, channel, url)
-        txt = SOFTWARE_UPDATE.format(current_version=current_version,
-                                     latest_version=latest_version,
-                                     channel=channel,
-                                     url=url,
+    def _on_software_update(self, info):
+        global _software_update
+        log.info('_on_software_update(current_version=%r, available_version=%r, channel=%sr)',
+                 info['current_version'], info['available_version'], info['channel'])
+        if platform.system() == 'Windows':
+            extra = ''
+        else:
+            url = info['download_url']
+            extra = f'<p><a href="{url}">Download</a> now.</p>'
+        txt = SOFTWARE_UPDATE.format(current_version=info['current_version'],
+                                     available_version=info['available_version'],
+                                     channel=info['channel'],
+                                     extra=extra,
                                      style=self._html_style())
-        QtWidgets.QMessageBox.about(self, 'Joulescope Software Update Available', txt)
+        if extra:
+            QtWidgets.QMessageBox.about(self, 'Joulescope UI Software Update', txt)
+            return
+        # Skip, Update
+        msg_box = QtWidgets.QMessageBox(self)
+        msg_box.setWindowTitle('Joulescope UI Software Update')
+        msg_box.setText(txt)
+        update = msg_box.addButton('Update Now', QtWidgets.QMessageBox.YesRole)
+        later = msg_box.addButton('Later', QtWidgets.QMessageBox.NoRole)
+        msg_box.exec()
+        if msg_box.clickedButton() == update:
+            _software_update = info
+            self.close()
 
     def _help_about(self):
         log.info('_help_about')
@@ -1978,4 +1997,6 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None,
     log.info('shutting down')
     del ui
     logging_stop()
+    if _software_update is not None:
+        software_update_apply(_software_update)
     return rc
