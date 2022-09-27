@@ -19,10 +19,10 @@ Test the configuration file
 import unittest
 from unittest.mock import MagicMock
 from joulescope_ui.recording_viewer_factory import factory
-from joulescope.stream_buffer import StreamBuffer, usb_packet_factory
+from joulescope.v0.stream_buffer import StreamBuffer, usb_packet_factory
 import io
 from joulescope.data_recorder import DataRecorder
-from joulescope.calibration import Calibration
+from joulescope.v0.calibration import Calibration
 import threading
 
 
