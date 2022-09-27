@@ -86,7 +86,7 @@ def _platform_name():
         # assume all Linux is the supported Ubuntu version for now
         return 'ubuntu'
     elif psys == 'Darwin':
-        release, _, machine = platform.mac_ver
+        release, _, machine = platform.mac_ver()
         # use "machine" to add arm64 support here
         release_major = int(release.split('.')[0])
         if release_major > 10:
