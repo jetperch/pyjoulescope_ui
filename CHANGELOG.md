@@ -6,7 +6,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.10.0
 
-2022 Sep 29 [in progress]
+2022 Sep 29
 
 * Upgraded from Pyside2 (5.15) to PySide6 (6.3.0).
   Blocking [QTBUG-101047](https://bugreports.qt.io/browse/QTBUG-101047) fixed in 6.3.0. 
