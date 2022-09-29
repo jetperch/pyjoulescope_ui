@@ -6,7 +6,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.10.0
 
-2022 Sep 27 [in progress]
+2022 Sep 29 [in progress]
 
 * Upgraded from Pyside2 (5.15) to PySide6 (6.3.0).
   Blocking [QTBUG-101047](https://bugreports.qt.io/browse/QTBUG-101047) fixed in 6.3.0. 
@@ -15,6 +15,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added support for joulescope v1 driver using joulescope_driver backend.
 * Added automatic updates, Windows only for now.
 * Updated waveform ranges to support JS220.
+* Updated requirements.
 
 
 ## 0.9.11

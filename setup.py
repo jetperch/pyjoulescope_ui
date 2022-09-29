@@ -192,20 +192,21 @@ setuptools.setup(
     install_requires=[
         'appnope>=0.1.2',
         'fs',
+        'joulescope>=' + JOULESCOPE_VERSION_MIN,
         'markdown',
         'pyjls>=0.3.3',
+        'pyopengl',
         'pyperclip>=1.7.0',
-        'python-dateutil>=2.7.3',
-        'pyqtgraph>=0.12.3',
         "pypiwin32>=223; platform_system == 'Windows'",
+        'pyqtgraph>=0.13.1',
+        'PySide6>=6.3.0',
+        'python-dateutil>=2.7.3',
         # 'pyqtgraph @ https://github.com/jetperch/pyqtgraph/tarball/557e867b377b223589c0c8ffd0799c547965fb46#egg=pyqtgraph-0.11.0.dev1',
         'requests>=2.0.0',
-        'PySide6>=6.3.0',
-        'joulescope>=' + JOULESCOPE_VERSION_MIN,
     ] + PLATFORM_INSTALL_REQUIRES,
     
     extras_require={
-        'dev': ['check-manifest', 'Cython', 'coverage', 'wheel', 'pyinstaller'],
+        'dev': ['check-manifest', 'coverage', 'Cython', 'pyinstaller', 'wheel'],
     },
 
     entry_points={
