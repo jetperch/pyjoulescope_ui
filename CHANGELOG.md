@@ -4,6 +4,16 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.10.1
+
+2022 Oct 3 [in progress]
+
+* Updated to latest pyjoulescope
+  * Added power computation to JS220.
+  * Improved statistics performance.
+* Fixed copy and save waveform widget image.
+
+
 ## 0.10.0
 
 2022 Sep 29

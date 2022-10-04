@@ -324,7 +324,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._cmdp.invoke('!RangeTool/run', value)
 
     def _export_as_image(self):
-        r = QtWidgets.QApplication.desktop().devicePixelRatio()
+        r = self.window().windowHandle().screen().devicePixelRatio()
         w = self.win.sceneObj.getViewWidget()
         k = w.viewportTransform().inverted()[0].mapRect(w.rect())
         exporter = pg.exporters.ImageExporter(self.win.sceneObj)
