@@ -12,6 +12,7 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Added power computation to JS220.
   * Improved statistics performance.
 * Fixed copy and save waveform widget image.
+* Fixed duplicate selections in Single Value Widget "Statistic" combobox.
 
 
 ## 0.10.0

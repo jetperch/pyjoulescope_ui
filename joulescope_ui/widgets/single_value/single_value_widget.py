@@ -89,7 +89,6 @@ class SingleValueWidget(QtWidgets.QWidget):
         self.valueLabel.mousePressEvent = self._on_mouse_press_event
         self.unitLabel.mousePressEvent = self._on_mouse_press_event
 
-        self.retranslateUi()
         self.fieldComboBox.currentIndexChanged.connect(self.on_field_changed)
         self.statisticComboBox.currentIndexChanged.connect(self.on_statistic_changed)
         if self._state_preference not in cmdp:
