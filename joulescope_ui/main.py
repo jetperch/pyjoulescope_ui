@@ -882,7 +882,7 @@ class MainWindow(QtWidgets.QMainWindow):
             except Exception:
                 log.exception(f'while opening device {str(device)}')
                 return self._device_open_failed('Could not open device')
-            if '/' not in str(device):
+            if '-' not in str(device):
                 try:
                     self._firmware_update_on_open()
                 except Exception:
