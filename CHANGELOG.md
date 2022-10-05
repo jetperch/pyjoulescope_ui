@@ -6,7 +6,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.10.1
 
-2022 Oct 3 [in progress]
+2022 Oct 4
 
 * Updated to latest pyjoulescope
   * Added power computation to JS220.
