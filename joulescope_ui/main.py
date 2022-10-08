@@ -1169,17 +1169,29 @@ class MainWindow(QtWidgets.QMainWindow):
         self.status(msg)
 
     def _on_firmware_manager_status(self, state):
+        dialog = state.get('dialog')
+        if dialog is not None:
+            value = state.get('progress', 0) * 1000
+            if dialog.value() != value:
+                dialog.setValue(int(value))
+            if value == 1000:
+                dialog.cancel()
+                dialog.hide()
+                dialog.close()
+                self._progress_dialog = None
+                state['dialog'] = None
+            elif dialog.isHidden():
+                dialog.show()
         if state['device'] is not None and state['progress'] >= 0.25:
             d, state['device'] = state['device'], None
-            d.close()
+        progress = state['progress'] * 100
+        msg = f"{state['message']} : {progress:.0f}%"
+        self.status(msg)
         if state['progress'] >= 1.0:
             t, state['thread'] = state['thread'], None
             if t is not None:
                 t.join()
                 self._device_scan()
-        progress = state['progress'] * 100
-        msg = f"{state['message']} : {progress:.0f}%"
-        self.status(msg)
 
     def _firmware_update(self, device):
         fw = firmware_manager.load()
@@ -1205,8 +1217,10 @@ class MainWindow(QtWidgets.QMainWindow):
                  f'sensor fpga: {sensor_fpga_now} => {sensor_fpga}')
 
         firmware_manager_status_fn = self.resync_handler('firmware_manager_status')
+        dialog = self._firmware_update_progress_dialog_construct()
 
         state = {
+            'dialog': dialog,
             'firmware_manager_status_fn': firmware_manager_status_fn,
             'progress': 0.0,
             'message': '',

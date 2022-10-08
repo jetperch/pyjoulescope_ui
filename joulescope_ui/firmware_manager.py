@@ -139,6 +139,7 @@ def _upgrade(device, fw, progress_cbk, stage_cbk, done_cbk):
     updater_path = '/'.join(parts)
     _log.info(f'FW upgrade: reset device {path}')
     device.publish('h/!reset', 'update1')
+    device.close()
     stage_cbk(f'Performing upgrade')
 
     for i in range(1, 11):
