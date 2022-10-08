@@ -21,15 +21,10 @@ specpath = os.path.dirname(os.path.abspath(SPEC))
 PATHEX = []
 sys.path.insert(0, specpath)
 import joulescope_ui
-from joulescope_ui import firmware_manager
+from joulescope_ui.firmware_manager import firmware_build_data_files
 VERSION_STR = joulescope_ui.__version__.replace('.', '_')
 MACOS_CODE_SIGN = 'Developer ID Application: Jetperch LLC (WFRS3L8Y7Y)'
 PYQTGRAPH_PATH = os.path.dirname(pyqtgraph.__file__)
-
-
-def firmware_get():
-    p = firmware_manager.cache_path()
-    return firmware_manager.cache_fill(p)
 
 
 def find_site_packages():
@@ -94,18 +89,13 @@ a = Analysis(
     ['joulescope_ui/__main__.py'],
     pathex=PATHEX,
     binaries=BINARIES,
-    datas=[
-        (firmware_get(), 'joulescope_ui/firmware/js110'),
-    ] + DATA + parse_manifest(),
+    datas=firmware_build_data_files() + DATA + parse_manifest(),
     hiddenimports=[
         'html.parser',
         'joulescope.v0.decimators',
         'joulescope.v0.filter_fir',
         'joulescope.v0.pattern_buffer',
         'numpy.core._dtype_ctypes',
-        'pyqtgraph.graphicsItems.ViewBox.axisCtrlTemplate_pyside2',
-        'pyqtgraph.graphicsItems.PlotItem.plotConfigTemplate_pyside2',
-        'pyqtgraph.imageview.ImageViewTemplate_pyside2',
         'psutil',
         'secrets', 
     ],

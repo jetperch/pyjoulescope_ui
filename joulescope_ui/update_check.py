@@ -29,8 +29,7 @@ import subprocess
 
 log = logging.getLogger(__name__)
 URL_BASE = 'https://download.joulescope.com/joulescope_install/'
-URL_INDEX = URL_BASE + 'index.json'
-DOWNLOAD_DEFAULT_URL = 'https://www.joulescope.com/download'
+URL_INDEX = URL_BASE + 'index_v2.json'
 TIMEOUT = 30.0
 
 
@@ -69,30 +68,25 @@ def is_newer(version):
     return str_to_version(version) > current_version()
 
 
-def _url_compute(url, version):
-    if url is None:
-        return None
-    url = url.replace('{version_major}', str(version[0]))
-    url = url.replace('{version_minor}', str(version[1]))
-    url = url.replace('{version_patch}', str(version[2]))
-    return url
-
-
 def _platform_name():
     psys = platform.system()
     if psys == 'Windows':
-        return 'win10'  # for both win10 and win11
+        if platform.machine() == 'AMD64':
+            return 'win10_x86_64'  # for both win10 and win11
     elif psys == 'Linux':
         # assume all Linux is the supported Ubuntu version for now
-        return 'ubuntu'
+        return 'ubuntu_22_04_x86_64'
     elif psys == 'Darwin':
         release, _, machine = platform.mac_ver()
         # use "machine" to add arm64 support here
         release_major = int(release.split('.')[0])
-        if release_major > 10:
-            return 'macos'
+        if release_major >= 12:
+            if platform.machine() == 'arm64':
+                return 'macos_12_0_arm64'
+            else:
+                return 'macos_12_0_x86_64'
         elif release_major == 10:
-            return 'macos10'
+            return 'macos_10_15_x86_64'
         else:
             raise RuntimeError(f'unsupported macOS version {release}')
     else:
@@ -128,7 +122,8 @@ def fetch_info(channel=None):
         return None
 
     try:
-        latest_version = data.get('active', {}).get(channel, [0, 0, 0])
+        active = data.get('active', {}).get(channel, {})
+        latest_version = active.get('version', [0, 0, 0])
         if not is_newer(latest_version):
             log.debug('software up to date: version=%s, latest=%s, channel=%s',
                       __version__,
@@ -136,15 +131,12 @@ def fetch_info(channel=None):
                       channel)
             _download_cleanup()
             return None
-        download_url = data['paths'][platform_name]
-        download_url = _url_compute(download_url, latest_version)
-        changelog_url = _url_compute(data['paths']['changelog'], latest_version)
         return {
             'channel': channel,
             'current_version': __version__,
             'available_version': version_to_str(latest_version),
-            'download_url': download_url,
-            'changelog_url': changelog_url
+            'download_url': active['releases'][platform_name],
+            'changelog_url': active['changelog']
         }
     except Exception:
         log.exception('Unexpected error checking available software')
