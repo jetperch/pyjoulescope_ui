@@ -4,6 +4,13 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.10.3
+
+2022 Oct 8
+
+* Fixed automatic UI update (Windows only for now).
+
+
 ## 0.10.2
 
 2022 Oct 8

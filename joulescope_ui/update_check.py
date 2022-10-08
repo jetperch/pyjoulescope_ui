@@ -135,8 +135,8 @@ def fetch_info(channel=None):
             'channel': channel,
             'current_version': __version__,
             'available_version': version_to_str(latest_version),
-            'download_url': active['releases'][platform_name],
-            'changelog_url': active['changelog']
+            'download_url': URL_BASE + active['releases'][platform_name],
+            'changelog_url': URL_BASE + active['changelog']
         }
     except Exception:
         log.exception('Unexpected error checking available software')
