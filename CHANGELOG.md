@@ -4,6 +4,13 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.10.4
+
+2022 Oct 9
+
+* Disabled firmware/gateware updates since not working in release.
+
+
 ## 0.10.3
 
 2022 Oct 8

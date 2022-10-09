@@ -1122,6 +1122,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._progress_dialog = None
 
     def _firmware_update_on_open(self):
+        return False  # disabled as of 2022-10-09, pending pyjoulescope_driver.program integration.
         if not hasattr(self._device, 'parameters'):
             return False
         if not 'js220' in self._device.device_path:
