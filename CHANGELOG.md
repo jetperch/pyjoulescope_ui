@@ -4,6 +4,13 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.10.5
+
+2022 Oct 12
+
+* Improved dual marker performance while streaming.
+
+
 ## 0.10.4
 
 2022 Oct 9
