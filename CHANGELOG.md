@@ -4,6 +4,13 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.10.6
+
+2022 Oct 21 [in progress]
+
+* Fixes for linux and Qt6.
+
+
 ## 0.10.5
 
 2022 Oct 12
