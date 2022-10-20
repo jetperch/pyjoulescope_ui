@@ -63,6 +63,7 @@ DATA = [
 
 if sys.platform.startswith('win'):
     EXE_NAME = 'joulescope'
+    HIDDEN_IMPORTS = []
     BINARIES = [  # uses winusb which comes with Windows
         ('C:\\Windows\\System32\\msvcp100.dll', '.'),
         ('C:\\Windows\\System32\\msvcr100.dll', '.'),
@@ -74,6 +75,7 @@ if sys.platform.startswith('win'):
 elif sys.platform.startswith('darwin'):
     from joulescope_ui.libusb_mac import mac_binaries
     EXE_NAME = 'joulescope_launcher'
+    HIDDEN_IMPORTS = []
     BINARIES = [(x, '.') for x in mac_binaries()]
     DATA += [
         # copy over the fonts so they work with QFontDialog
@@ -82,7 +84,8 @@ elif sys.platform.startswith('darwin'):
     ]
 else:
     EXE_NAME = 'joulescope_launcher'
-    BINARIES = []  # sudo apt install libusb-1
+    HIDDEN_IMPORTS = ['OpenGL.platform.egl']
+    BINARIES = []
     DATA += []
 
 a = Analysis(
@@ -98,7 +101,7 @@ a = Analysis(
         'numpy.core._dtype_ctypes',
         'psutil',
         'secrets', 
-    ],
+    ] + HIDDEN_IMPORTS,
     hookspath=[],
     runtime_hooks=[],
     excludes=['matplotlib', 'scipy', 'tkinter'],
