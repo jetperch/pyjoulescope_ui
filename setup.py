@@ -132,7 +132,7 @@ class CustomSdistCommand(sdist):
 
 
 if sys.platform.startswith('win'):
-    PLATFORM_INSTALL_REQUIRES = ['pypiwin32>=223']
+    PLATFORM_INSTALL_REQUIRES = ['pywin32']
 else:
     PLATFORM_INSTALL_REQUIRES = []
 

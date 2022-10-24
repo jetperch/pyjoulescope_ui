@@ -6,9 +6,14 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.10.6
 
-2022 Oct 21 [in progress]
+2022 Oct 24
 
 * Fixes for linux and Qt6.
+* Added JS220 tooltip info.
+* Added downsampling support.
+* Updated to pyjoulescope 1.0.7 for improved JS110 support.
+* Updated GitHub issue templates to include macOS 13 and UI 0.10.6.
+* Clarified tooltips for JS110 and JS220.
 
 
 ## 0.10.5
