@@ -29,6 +29,7 @@ VERSION_MAP = {
     'arm64_ventura': 'arm64_22',
     'arm64_monterey': 'arm64_21',
     'arm64_big_sur': 'arm64_20',
+    'ventura': 'x86_64_22',
     'monterey': 'x86_64_21',
     'big_sur': 'x86_64_20',
     'catalina': 'x86_64_19',
