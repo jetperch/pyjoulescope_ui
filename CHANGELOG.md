@@ -4,6 +4,13 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.10.7
+
+2022 Oct 24
+
+* Added support for macOS 13 Ventura and built on macOS 13.
+
+
 ## 0.10.6
 
 2022 Oct 24
