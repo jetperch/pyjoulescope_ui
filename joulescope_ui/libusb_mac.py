@@ -26,6 +26,7 @@ URL = 'https://formulae.brew.sh/api/formula/libusb.json'
 
 VERSION_MAP = {
     # friendly name, darwin version
+    'arm64_ventura': 'arm64_22',
     'arm64_monterey': 'arm64_21',
     'arm64_big_sur': 'arm64_20',
     'monterey': 'x86_64_21',
