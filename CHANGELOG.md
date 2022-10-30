@@ -12,6 +12,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added back JS110 support for macOS and Linux.
 * Improved macOS and Linux support.
 * Added JS220 GPO support.
+* Added JS220 firmware update support.
 
 
 ## 0.10.6

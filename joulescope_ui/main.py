@@ -159,16 +159,6 @@ WINDOW_STATE_MAP = {
 }
 
 
-def version_pack(v):
-    return ((v[0] & 0xff) << 24) | ((v[1] & 0xff) << 16) | (v[2] & 0xffff)
-
-
-def version_u32_to_str(v):
-    ver = [(v >> 24) & 0xff, (v >> 16) & 0xff, v & 0xffff]
-    ver = [str(x) for x in ver]
-    return '.'.join(ver)
-
-
 class ValueLabel(QtWidgets.QLabel):
 
     def __init__(self, parent=None, text=''):
@@ -1122,10 +1112,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self._progress_dialog = None
 
     def _firmware_update_on_open(self):
-        return False  # disabled as of 2022-10-09, pending pyjoulescope_driver.program integration.
         if not hasattr(self._device, 'parameters'):
             return False
-        if not 'js220' in self._device.device_path:
+        if 'js220' not in self._device.device_path:
             return False
         firmware_update_cfg = self._cmdp['Device/firmware_update']
         if firmware_update_cfg in ['off', 'never'] or not bool(firmware_update_cfg):
@@ -1133,20 +1122,26 @@ class MainWindow(QtWidgets.QMainWindow):
             return False
 
         fw = firmware_manager.load()
-        sensor_fpga = self._device.query('s/fpga/version')
-        ctrl_app = self._device.query('c/fw/version')
-        has_update = False
-        has_update |= version_pack(fw['sensor_fpga']['version']) > sensor_fpga
-        has_update |= version_pack(fw['ctrl_app']['version']) > ctrl_app
-        if has_update:
-            self._device, d = None, self._device
-            if not self._firmware_update(d):
-                self._device = d
-                return False
-            else:
-                self._device = self._device_disable
-                return True
-        return False
+        upd = firmware_manager.is_upgrade_available(self._device, fw)
+        if upd is None:
+            return False
+        app_from, app_to = upd['app']
+        fgpa_from, fpga_to = upd['fpga']
+        msg = '\n'.join([
+            'Upgrade firmware?',
+            f'app: {app_from} => {app_to}',
+            f'fpga: {fgpa_from} => {fpga_to}',
+            'The firmware upgrade takes 10 seconds.',
+            'Please do not unplug your Joulescope',
+            'during the firmware upgrade.'])
+        result = QtWidgets.QMessageBox.question(self, 'Firmware upgrade', msg)
+        if result != QtWidgets.QMessageBox.Yes:
+            log.info('User skipped firmware update')
+            return False
+        self._device, d = self._device_disable, self._device
+        log.info(f'Start firmware upgrade: app {app_from} => {app_to}, fpga: {fgpa_from} => {fpga_to}')
+        self._firmware_update(d, fw)
+        return True
 
     @QtCore.Slot(int)
     def _on_progress_value(self, value):
@@ -1192,34 +1187,16 @@ class MainWindow(QtWidgets.QMainWindow):
             t, state['thread'] = state['thread'], None
             if t is not None:
                 t.join()
+                self._is_scanning = False
                 self._device_scan()
 
-    def _firmware_update(self, device):
-        fw = firmware_manager.load()
-        sensor_fpga_now = version_u32_to_str(device.query('s/fpga/version'))
-        ctrl_app_now = version_u32_to_str(device.query('c/fw/version'))
-        sensor_fpga = '.'.join([str(x) for x in fw['sensor_fpga']['version']])
-        ctrl_app = '.'.join([str(x) for x in fw['ctrl_app']['version']])
-        result = QtWidgets.QMessageBox.question(
-            self,
-            'Firmware upgrade',
-            'Upgrade firmware?\n\n' +
-            f'ctrl app: {ctrl_app_now} => {ctrl_app}\n' +
-            f'sensor fpga: {sensor_fpga_now} => {sensor_fpga}\n' +
-            'The firmware upgrade takes 10 seconds.\n' +
-            'Please do not unplug your Joulescope\n' +
-            'during the firmware upgrade.\n')
-        if result != QtWidgets.QMessageBox.Yes:
-            log.info('User skipped firmware update')
-            return False
-
-        log.info('Start firmware upgrade\n' +
-                 f'ctrl app: {ctrl_app_now} => {ctrl_app}\n' +
-                 f'sensor fpga: {sensor_fpga_now} => {sensor_fpga}')
-
+    def _firmware_update(self, device, fw):
+        log.info('Start firmware upgrade')
+        while self._is_scanning:
+            time.sleep(0.001)
+        self._is_scanning = True
         firmware_manager_status_fn = self.resync_handler('firmware_manager_status')
         dialog = self._firmware_update_progress_dialog_construct()
-
         state = {
             'dialog': dialog,
             'firmware_manager_status_fn': firmware_manager_status_fn,
@@ -1229,23 +1206,12 @@ class MainWindow(QtWidgets.QMainWindow):
             'device': device,
         }
 
-        def progress_cbk(value):
-            state['progress'] = value
+        def progress_cbk(fract, msg):
+            state['progress'] = fract
+            state['message'] = msg
             firmware_manager_status_fn(state)
 
-        def stage_cbk(s):
-            state['message'] = s
-            firmware_manager_status_fn(state)
-
-        def done_cbk(d):
-            state['progress'] = 1.0
-            if d:
-                state['message'] = 'Successfully upgraded firmware.'
-            else:
-                state['message'] = 'Firmware upgrade failed - unplug and retry.'
-            firmware_manager_status_fn(state)
-
-        state['thread'] = firmware_manager.upgrade(device, fw, progress_cbk, stage_cbk, done_cbk)
+        state['thread'] = firmware_manager.upgrade(device, fw, progress_cbk)
         return True
 
     def _on_device_stop(self, device_str, event, message):
