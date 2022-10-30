@@ -21,7 +21,6 @@ specpath = os.path.dirname(os.path.abspath(SPEC))
 PATHEX = []
 sys.path.insert(0, specpath)
 import joulescope_ui
-from joulescope_ui.firmware_manager import firmware_build_data_files
 VERSION_STR = joulescope_ui.__version__.replace('.', '_')
 MACOS_CODE_SIGN = 'Developer ID Application: Jetperch LLC (WFRS3L8Y7Y)'
 PYQTGRAPH_PATH = os.path.dirname(pyqtgraph.__file__)
@@ -91,7 +90,7 @@ a = Analysis(
     ['joulescope_ui/__main__.py'],
     pathex=PATHEX,
     binaries=BINARIES,
-    datas=firmware_build_data_files() + DATA + parse_manifest(),
+    datas=DATA + parse_manifest(),
     hiddenimports=[
         'html.parser',
         'joulescope.v0.decimators',
