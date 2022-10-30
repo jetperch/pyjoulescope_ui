@@ -16,6 +16,7 @@ body:
       label: UI version
       description: What version of our software are you running?
       options:
+        - 0.10.6
         - 0.9.11
         - 0.9.10
         - 0.9.9
@@ -47,10 +48,12 @@ body:
         - Windows 11
         - Windows 10
         - Windows 7
-        - Mac OS 12 arm64 (M1 and newer)
-        - Mac OS 12 amd64
-        - Mac OS 11 amd64
-        - Mac OS 10
+        - macOS 13 arm64 (M1 and newer)
+        - macOS 13 amd64
+        - macOS 12 arm64 (M1 and newer)
+        - macOS 12 amd64
+        - macOS 11 amd64
+        - macOS 10
         - Linux Ubuntu amd64 (PC)
         - Linux Ubuntu arm64 (Raspberry Pi 4)
         - Other (describe below)

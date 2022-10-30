@@ -6,8 +6,8 @@
 ; http://www.jrsoftware.org/ishelp/index.php?topic=setup_signtool
 
 #define MyAppName "Joulescope"
-#define MyAppVersion "0.9.11"
-#define MyAppVersionUnderscores "0_9_11"
+#define MyAppVersion "0.10.8"
+#define MyAppVersionUnderscores "0_10_8"
 #define MyAppPublisher "Jetperch LLC"
 #define MyAppURL "https://www.joulescope.com"
 #define MyAppExeName "joulescope.exe"
@@ -24,6 +24,8 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
+;ArchitecturesAllowed=x64
+;ArchitecturesInstallIn64BitMode=x64
 DefaultDirName={autopf}\{#MyAppName}
 DisableProgramGroupPage=yes
 LicenseFile=LICENSE.txt

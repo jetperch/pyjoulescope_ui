@@ -2,20 +2,15 @@ appnope>=0.1.2
 check-manifest>=0.37
 coverage>=4.5.2
 fs
-joulescope>=0.9.7  # also update JOULESCOPE_VERSION_MIN in setup.py
+joulescope>=1.0.8  # also update JOULESCOPE_VERSION_MIN in setup.py
 markdown
 pyjls>=0.3.3
-pypiwin32>=223; sys_platform == 'win32'
-# python {path_to_python}\scripts\pywin32_postinstall.py -install
-python-dateutil>=2.7.3
+pyopengl
 pyperclip>=1.7.0
-PyInstaller>=4.2
-PySide2>=5.15.2
+pywin32; sys_platform == 'win32'   # python {path_to_python}\scripts\pywin32_postinstall.py -install
+pyqtgraph>=0.13.1
+PySide6>=6.3.0
+python-dateutil>=2.7.3
+PyInstaller>=5.0.1
 requests>=2.0.0
 wheel
-
-# Include forked pyqtgraph (source https://github.com/jetperch/pyqtgraph)
-# https://www.joulescope.com/app_download/pyqtgraph-0.11.0.dev1.tar.gz
-# pyqtgraph>=0.11.0.dev1
-# -e git+https://github.com/jetperch/pyqtgraph.git@557e867b377b223589c0c8ffd0799c547965fb46#egg=pyqtgraph-0.11.0.dev1
-pyqtgraph>=0.12.3

@@ -23,15 +23,6 @@ from joulescope_ui import update_check
 
 class TestUpdateCheck(unittest.TestCase):
 
-    def setUp(self):
-        self.lock = threading.Lock()
-        self.lock.acquire()
-        self.update = None
-
-    def callback(self, current_version, latest_version, url):
-        self.update = (current_version, latest_version, url)
-        self.lock.release()
-
     def test_is_newer(self):
         update_check.__version__ = "1.2.3"
         self.assertTrue(update_check.is_newer("1.2.4"))
@@ -45,17 +36,17 @@ class TestUpdateCheck(unittest.TestCase):
     def test_fetch_invalid_channel(self):
         update_check.__version__ = "999999.0.0"
         with self.assertRaises(ValueError):
-            update_check.fetch(self.callback, '__INVALID__')
+            update_check.fetch_info('__INVALID__')
 
     def test_fetch_no_update(self):
         update_check.__version__ = "999999.0.0"
-        self.assertFalse(update_check.fetch(self.callback))
-        self.assertFalse(update_check.fetch(self.callback, 'alpha'))
-        self.assertFalse(update_check.fetch(self.callback, 'beta'))
-        self.assertFalse(update_check.fetch(self.callback, 'stable'))
+        self.assertIsNone(update_check.fetch_info())
+        self.assertIsNone(update_check.fetch_info('alpha'))
+        self.assertIsNone(update_check.fetch_info('beta'))
+        self.assertIsNone(update_check.fetch_info('stable'))
 
     def test_has_update(self):
         update_check.__version__ = "0.0.0"
-        update_check.check(self.callback)
-        self.lock.acquire()
-        self.assertEqual(update_check.__version__, self.update[0])
+        result = update_check.fetch_info()
+        self.assertIsNotNone(result)
+        self.assertEqual(update_check.__version__, result['current_version'])

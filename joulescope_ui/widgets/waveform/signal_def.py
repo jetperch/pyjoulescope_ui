@@ -1,4 +1,4 @@
-# Copyright 2019 Jetperch LLC
+# Copyright 2019-2022 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ signal_def = [
         'name': 'current',
         'abbreviation': 'i',
         'units': 'A',
-        'y_limit': [-2.0, 10.0],
+        'y_limit': [-10.0, 10.0],
         'y_log_min': 1e-9,
         'y_range': 'auto',
     },
@@ -26,14 +26,14 @@ signal_def = [
         'name': 'voltage',
         'abbreviation': 'v',
         'units': 'V',
-        'y_limit': [-1.2, 15.0],
+        'y_limit': [-15, 15.0],
         'y_range': 'auto',
     },
     {
         'name': 'power',
         'abbreviation': 'p',
         'units': 'W',
-        'y_limit': [-2.4, 150.0],
+        'y_limit': [-150.0, 150.0],
         'y_log_min': 1e-9,
         'y_range': 'auto',
     },

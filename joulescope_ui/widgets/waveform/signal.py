@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PySide2 import QtCore
+from PySide6 import QtCore
 from .signal_statistics import SignalStatistics, SignalMarkerStatistics, si_format, html_format
 from .signal_viewbox import SignalViewBox
 from . import text_annotation
@@ -537,7 +537,7 @@ class Signal(QtCore.QObject):
 
     @QtCore.Slot(object, object)
     def _on_y_range_changed(self, vb, y_range):
-        self.log.info('_on_y_range_changed(%s, %s)', self.name, y_range)
+        self.log.debug('_on_y_range_changed(%s, %s)', self.name, y_range)
         for m in self._markers_single.values():
             m.move(self.vb)
         for m in self._markers_dual.values():

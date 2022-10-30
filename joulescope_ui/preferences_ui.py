@@ -30,7 +30,7 @@ from joulescope_ui import preferences_defaults
 from joulescope_ui.help_ui import display_help
 from joulescope_ui.themes.color_picker import ColorItem
 from joulescope_ui.themes.manager import theme_update, theme_loader, theme_index_loader
-from PySide2 import QtCore, QtWidgets, QtGui
+from PySide6 import QtCore, QtWidgets, QtGui
 import copy
 import collections.abc
 import logging

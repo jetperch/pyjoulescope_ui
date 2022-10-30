@@ -14,7 +14,7 @@
 # limitations under the License.
 
 
-from PySide2 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore
 from joulescope_ui.widgets.switch import Switch
 from joulescope.units import three_sig_figs
 from joulescope_ui.units import convert_units
@@ -75,7 +75,11 @@ IRANGE_TOOLTIP = """\
 <p>Select the Joulescope current range.</p>
 <p>
 <b>auto</b> allows Joulescope to dynamically adjust the current range.<br/>
-<b>off</b> disconnects IN+ from OUT+.
+<b>off</b> disconnects current
+<ul>
+  <li>JS220: disconnects <b>Current +</b> from <b>Current -</b>.</li>
+  <li>JS110: disconnects IN+ from OUT+.</li>
+</ul>
 </p></body></html>
 """
 
@@ -83,7 +87,11 @@ ON_OFF_SWITCH_TOOLTIP = """\
 <html><head/><body>
 <p>Switch the target device on or off.</p>
 <p>
-<b>off</b> disconnects IN+ from OUT+.<br/>
+<b>off</b> disconnects current.
+<ul>
+  <li>JS220: disconnects <b>Current +</b> from <b>Current -</b>.</li>
+  <li>JS110: disconnects IN+ from OUT+.</li>
+</ul>
 <b>on</b> configures the current range to the most recent 
 value that was not <b>off</b>.
 </p></body></html>

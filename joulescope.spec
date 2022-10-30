@@ -21,15 +21,9 @@ specpath = os.path.dirname(os.path.abspath(SPEC))
 PATHEX = []
 sys.path.insert(0, specpath)
 import joulescope_ui
-from joulescope_ui import firmware_manager
 VERSION_STR = joulescope_ui.__version__.replace('.', '_')
 MACOS_CODE_SIGN = 'Developer ID Application: Jetperch LLC (WFRS3L8Y7Y)'
 PYQTGRAPH_PATH = os.path.dirname(pyqtgraph.__file__)
-
-
-def firmware_get():
-    p = firmware_manager.cache_path()
-    return firmware_manager.cache_fill(p)
 
 
 def find_site_packages():
@@ -68,6 +62,7 @@ DATA = [
 
 if sys.platform.startswith('win'):
     EXE_NAME = 'joulescope'
+    HIDDEN_IMPORTS = []
     BINARIES = [  # uses winusb which comes with Windows
         ('C:\\Windows\\System32\\msvcp100.dll', '.'),
         ('C:\\Windows\\System32\\msvcr100.dll', '.'),
@@ -77,9 +72,9 @@ if sys.platform.startswith('win'):
     ]
     DATA += []
 elif sys.platform.startswith('darwin'):
-    from joulescope_ui.libusb_mac import mac_binaries
     EXE_NAME = 'joulescope_launcher'
-    BINARIES = [(x, '.') for x in mac_binaries()]
+    HIDDEN_IMPORTS = []
+    BINARIES = []
     DATA += [
         # copy over the fonts so they work with QFontDialog
         ['joulescope_ui/fonts/fonts.qrc', 'Fonts'],
@@ -87,28 +82,24 @@ elif sys.platform.startswith('darwin'):
     ]
 else:
     EXE_NAME = 'joulescope_launcher'
-    BINARIES = []  # sudo apt install libusb-1
+    HIDDEN_IMPORTS = ['OpenGL.platform.egl']
+    BINARIES = []
     DATA += []
 
 a = Analysis(
     ['joulescope_ui/__main__.py'],
     pathex=PATHEX,
     binaries=BINARIES,
-    datas=[
-        (firmware_get(), 'joulescope_ui/firmware/js110'),
-    ] + DATA + parse_manifest(),
+    datas=DATA + parse_manifest(),
     hiddenimports=[
         'html.parser',
-        'joulescope.decimators',
-        'joulescope.filter_fir',
-        'joulescope.pattern_buffer',
+        'joulescope.v0.decimators',
+        'joulescope.v0.filter_fir',
+        'joulescope.v0.pattern_buffer',
         'numpy.core._dtype_ctypes',
-        'pyqtgraph.graphicsItems.ViewBox.axisCtrlTemplate_pyside2',
-        'pyqtgraph.graphicsItems.PlotItem.plotConfigTemplate_pyside2',
-        'pyqtgraph.imageview.ImageViewTemplate_pyside2',
         'psutil',
         'secrets', 
-    ],
+    ] + HIDDEN_IMPORTS,
     hookspath=[],
     runtime_hooks=[],
     excludes=['matplotlib', 'scipy', 'tkinter'],

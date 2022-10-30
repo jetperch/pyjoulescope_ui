@@ -31,21 +31,21 @@ import subprocess
 import shutil
 
 
-JOULESCOPE_VERSION_MIN = '0.9.7'  # also update requirements.txt
+JOULESCOPE_VERSION_MIN = '1.0.8'  # also update requirements.txt
 MYPATH = os.path.abspath(os.path.dirname(__file__))
 VERSION_PATH = os.path.join(MYPATH, 'joulescope_ui', 'version.py')
 
 
 def qt_rcc_path():
-    # As of PySide2 5.15.0, the pyside2-rcc executable ignores the --binary flag
-    import PySide2
-    path = os.path.dirname(PySide2.__file__)
+    # As of PySide 5.15.0, the pySide6-rcc executable ignores the --binary flag
+    import PySide6
+    path = os.path.dirname(PySide6.__file__)
     fname = [n for n in os.listdir(path) if n.startswith('rcc')]
     if len(fname) == 1:
         fname = os.path.join(path, fname[0])
         if os.path.isfile(fname):
             return fname
-    if platform.system() == 'Darwin':
+    if platform.system() in ['Darwin', 'Linux']:
         fname = os.path.join(path, 'Qt', 'libexec', 'rcc')
         if os.path.isfile(fname):
             return fname
@@ -53,7 +53,7 @@ def qt_rcc_path():
 
 
 def convert_qt_ui():
-    uic_path = shutil.which('pyside2-uic')
+    uic_path = shutil.which('pyside6-uic')
     rcc_path = qt_rcc_path()
     path = os.path.join(MYPATH, 'joulescope_ui')
     ignore_filename = os.path.join(path, '.gitignore')
@@ -132,7 +132,7 @@ class CustomSdistCommand(sdist):
 
 
 if sys.platform.startswith('win'):
-    PLATFORM_INSTALL_REQUIRES = ['pypiwin32>=223']
+    PLATFORM_INSTALL_REQUIRES = ['pywin32']
 else:
     PLATFORM_INSTALL_REQUIRES = []
 
@@ -192,20 +192,21 @@ setuptools.setup(
     install_requires=[
         'appnope>=0.1.2',
         'fs',
+        'joulescope>=' + JOULESCOPE_VERSION_MIN,
         'markdown',
         'pyjls>=0.3.3',
+        'pyopengl',
         'pyperclip>=1.7.0',
-        'python-dateutil>=2.7.3',
-        'pyqtgraph>=0.12.3',
         "pypiwin32>=223; platform_system == 'Windows'",
+        'pyqtgraph>=0.13.1',
+        'PySide6>=6.3.0',
+        'python-dateutil>=2.7.3',
         # 'pyqtgraph @ https://github.com/jetperch/pyqtgraph/tarball/557e867b377b223589c0c8ffd0799c547965fb46#egg=pyqtgraph-0.11.0.dev1',
         'requests>=2.0.0',
-        'PySide2>=5.15.2',
-        'joulescope>=' + JOULESCOPE_VERSION_MIN,
     ] + PLATFORM_INSTALL_REQUIRES,
     
     extras_require={
-        'dev': ['check-manifest', 'Cython', 'coverage', 'wheel', 'pyinstaller'],
+        'dev': ['check-manifest', 'coverage', 'Cython', 'pyinstaller', 'wheel'],
     },
 
     entry_points={

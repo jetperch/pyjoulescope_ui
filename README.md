@@ -36,12 +36,12 @@ run directly from source.
 ### Install Python
 
 The Joulescope User Interface requires Python 3.8 or newer.
-We recommend Python 3.8 or 3.9.
+We recommend Python 3.10.
 Install [Python 3.8+](https://www.python.org/) on your system and then verify
 your python version at the terminal or command line:
 
     > python3 -VV
-    Python 3.9.0 (tags/v3.9.0:9cf6752, Oct  5 2020, 15:34:40) [MSC v.1927 64 bit (AMD64)]
+    Python 3.10.7 (tags/v3.10.7:6cc6b13, Sep  5 2022, 14:08:36) [MSC v.1933 64 bit (AMD64)]
 
 Ensure that you have Python 3.8 or newer and 64-bit.
 
@@ -60,8 +60,7 @@ of your system.
 
 Install virtualenv and create a new virtual environment:
 
-    pip3 install -U virtualenv
-    virtualenv c:\venv\joulescope
+    python3 -v venv c:\venv\joulescope
 
 Activate the virtual environment whenever you start a new terminal:
 
@@ -72,12 +71,11 @@ Activate the virtual environment whenever you start a new terminal:
 
 Install virtualenv and create a new virtual environment:
 
-    pip3 install -U virtualenv
-    virtualenv ~/venv/joulescope
+    python3 -m venv ~/venv/joulescope
 
 Activate the virtual environment whenever you start a new terminal:
 
-    source ~/venv/joulescope/bin/activate
+    . ~/venv/joulescope/bin/activate
 
 
 ### Option 1: Install from pypi

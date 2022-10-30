@@ -24,8 +24,14 @@ class AxisItemPatch(pg.AxisItem):
         pg.AxisItem.__init__(self, *args, **kwargs)
 
     def drawPicture(self, p, axisSpec, tickSpecs, textSpecs):
-        p.setRenderHint(p.Antialiasing, False)
-        p.setRenderHint(p.TextAntialiasing, True)
+        try:
+            p.setRenderHint(p.Antialiasing, False)
+        except AttributeError:
+            pass
+        try:
+            p.setRenderHint(p.TextAntialiasing, True)
+        except AttributeError:
+            pass
 
         ## draw long line along axis
         pen, p1, p2 = axisSpec

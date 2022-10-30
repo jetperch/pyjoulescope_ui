@@ -24,7 +24,7 @@ import logging
 
 platform = sys.platform
 APP = 'joulescope'
-DIRS = ['app_path', 'config', 'log', 'firmware', 'themes', 'data']
+DIRS = ['app_path', 'config', 'log', 'firmware', 'themes', 'data', 'update']
 FILES = ['config']
 
 
@@ -50,6 +50,7 @@ def paths_v2(app=None):
                 'firmware': os.path.join(app_path, 'firmware'),
                 'themes': os.path.join(app_path, 'themes'),
                 'data': os.path.join(user_path, app),
+                'update': os.path.join(app_path, 'update'),
             }
         }
 
@@ -64,6 +65,7 @@ def paths_v2(app=None):
                 'firmware': os.path.join(app_path, 'firmware'),
                 'themes': os.path.join(app_path, 'themes'),
                 'data': os.path.join(user_path, 'Documents', app),
+                'update': os.path.join(app_path, 'update'),
             }
         }
 
@@ -78,6 +80,7 @@ def paths_v2(app=None):
                 'firmware': os.path.join(app_path, 'firmware'),
                 'themes': os.path.join(app_path, 'themes'),
                 'data': os.path.join(user_path, 'Documents', app),
+                'update': os.path.join(app_path, 'update'),
             }
         }
 
@@ -88,37 +91,6 @@ def paths_v2(app=None):
         'config': os.path.join(p['dirs']['config'], 'joulescope_config.json'),
     }
     return p
-
-
-def paths_v1(app=None):
-    """Paths for Joulescope software for 0.6.10 and earlier.
-
-    :param app: The optional application name.  None is :data:`APP`.
-    :return: The dict of name to path.  See :meth:`paths` for details.
-    """
-    app = APP if app is None else str(app)
-    try:
-        from win32com.shell import shell, shellcon
-        user_path = shell.SHGetFolderPath(0, shellcon.CSIDL_PERSONAL, None, 0)
-        appdata_path = shell.SHGetFolderPath(0, shellcon.CSIDL_LOCAL_APPDATA, None, 0)
-        app_path = os.path.join(appdata_path, app)
-    except Exception:
-        user_path = os.path.expanduser('~')
-        app_path = os.path.join(user_path, '.' + app)
-
-    return {
-        'dirs': {
-            'app_path': app_path,
-            'config': app_path,
-            'log': os.path.join(app_path, 'log'),
-            'firmware': os.path.join(app_path, 'firmware'),
-            'themes': os.path.join(app_path, 'themes'),
-            'data': os.path.join(user_path, app),
-        },
-        'files': {
-            'config': os.path.join(app_path, 'config.json'),
-        }
-    }
 
 
 paths_current = paths_v2
@@ -137,35 +109,6 @@ def clear(app=None, delete_data=False):
             if key in ['data'] and not bool(delete_data):
                 continue
             shutil.rmtree(path)
-
-
-def migrate_1_to_2(app=None):
-    paths_old = paths_v1(app)
-    paths_new = paths_v2(app)
-
-    cfg = None
-    cfg_file = paths_old['files']['config']
-    if os.path.isfile(cfg_file):
-        with open(cfg_file, 'r') as f:
-            cfg_old = json.load(f)
-        cfg = {
-            'type': 'joulescope_config',
-            'version': 2,
-            'profiles': {
-                'all': cfg_old
-            }
-        }
-
-    for name, path in paths_new['dirs'].items():
-        path_old = paths_old['dirs'][name]
-        if name in ['app_data', 'config']:
-            continue
-        if path_old != path and os.path.isdir(path_old) and not os.path.isdir(path):
-            shutil.move(path_old, path)
-    initialize(paths_new)
-    if cfg is not None:
-        with open(paths_new['files']['config'], 'w') as f:
-            json.dump(cfg, f)
 
 
 def initialize(paths):

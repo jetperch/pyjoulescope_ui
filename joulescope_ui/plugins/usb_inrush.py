@@ -25,7 +25,10 @@ import logging
 
 
 log = logging.getLogger(__name__)
-USBET20_PATH = r"C:\Program Files (x86)\USB-IF Test Suite\USBET20\USBET20.exe"
+USBET20_PATHS = [
+    r"C:\Program Files\USB-IF Test Suite\USBET20\USBET20.exe",
+    r"C:\Program Files (x86)\USB-IF Test Suite\USBET20\USBET20.exe",
+]
 
 
 PLUGIN = {
@@ -35,8 +38,15 @@ PLUGIN = {
 }
 
 
+def find_usbet20():
+    path = [p for p in USBET20_PATHS if os.path.isfile(p)]
+    if len(path):
+        return path[0]
+    return None
+
+
 def is_available():
-    return os.path.isfile(USBET20_PATH)
+    return find_usbet20() is not None
 
 
 def construct_path(base_path):
@@ -58,7 +68,7 @@ class UsbInrush:
             return f'USBET tool not found.'
         if not 0.1 < duration < 0.5:  # todo: confirm range
             return f'Invalid duration {duration:.2f}, must be between 0.1 and 0.5 seconds.'
-        usbet20_path = USBET20_PATH
+        usbet20_path = find_usbet20()
         d = data.samples_get()
         current = d['signals']['current']['value']
         voltage = d['signals']['voltage']['value']

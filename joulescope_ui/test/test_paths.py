@@ -52,13 +52,3 @@ class TestPaths(unittest.TestCase):
                 self.assertTrue(os.path.isdir(x))
             else:
                 self.assertFalse(os.path.isdir(x))
-
-    def test_migrate_1_to_2(self):
-        cfg = {'hello': 'world'}
-        paths_old = paths.paths_v1(self.app)
-        paths.initialize(paths_old)
-        with open(paths_old['files']['config'], 'w') as f:
-            json.dump(cfg, f)
-        paths.migrate_1_to_2(self.app)
-        for x in self.paths['dirs'].values():
-            self.assertTrue(os.path.isdir(x))

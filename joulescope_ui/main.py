@@ -15,7 +15,7 @@
 # https://stackoverflow.com/questions/11874767/real-time-plotting-in-while-loop-with-matplotlib
 # https://wiki.qt.io/Gallery_of_Qt_CSS_Based_Styles
 
-from PySide2 import QtCore, QtGui, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 import appnope
 import os
 import platform
@@ -24,13 +24,14 @@ from . import __version__
 import joulescope
 from joulescope_ui.error_window import Ui_ErrorWindow
 from joulescope_ui.widgets import widget_register
-from joulescope.usb import DeviceNotify
+from joulescope import DeviceNotify
 from joulescope_ui.data_recorder_process import DataRecorderProcess as DataRecorder
 from joulescope_ui.file_dialog import FileDialog
 from joulescope.data_recorder import construct_record_filename  # DataRecorder
 from joulescope_ui.recording_viewer_factory import factory as recording_viewer_factory
 from joulescope_ui.preferences_ui import PreferencesDialog
 from joulescope_ui.update_check import check as software_update_check
+from joulescope_ui.update_check import apply as software_update_apply
 from joulescope_ui.logging_util import logging_preconfig, logging_config, LOG_PATH, logging_start
 from joulescope_ui.range_tool import RangeToolInvoke
 from joulescope_ui import help_ui
@@ -59,6 +60,7 @@ import webbrowser
 import logging
 
 log = logging.getLogger(__name__)
+_software_update = None
 
 
 STATUS_BAR_TIMEOUT = 5000  # milliseconds
@@ -80,7 +82,7 @@ Joulescope driver version {driver_version}<br/>
 <a href="https://www.joulescope.com">https://www.joulescope.com</a>
 
 <pre>
-Copyright 2018-2020 Jetperch LLC
+Copyright 2018-2022 Jetperch LLC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -108,10 +110,10 @@ SOFTWARE_UPDATE = """\
 <p>
 A software update is available:<br/>
 Current version = {current_version}<br/>
-Available version = {latest_version}<br/>
+Available version = {available_version}<br/>
 Channel = {channel}<br/>
 </p>
-<p><a href="{url}">Download</a> now.</p>
+{extra}
 </body>
 </html>
 """
@@ -421,7 +423,7 @@ class MainWindow(QtWidgets.QMainWindow):
                             detail='This command uses General/_mru_open to undo.')
 
         # Device selection
-        self.device_action_group = QtWidgets.QActionGroup(self)
+        self.device_action_group = QtGui.QActionGroup(self)
         self._device_disable = DeviceDisable()
         self._device_add(self._device_disable)
 
@@ -448,11 +450,11 @@ class MainWindow(QtWidgets.QMainWindow):
         # Add global keyboard shortcuts for the application
         # Attempted app.installEventFilter(self) with def eventFilter
         # but need to handle gets ShortcutOverride, KeyPress, KeyRelease, multiple times
-        self._shortcut_undo = QtWidgets.QShortcut(QtGui.QKeySequence.Undo, self)
+        self._shortcut_undo = QtGui.QShortcut(QtGui.QKeySequence.Undo, self)
         self._shortcut_undo.activated.connect(lambda: self._cmdp.invoke('!undo'))
-        self._shortcut_redo = QtWidgets.QShortcut(QtGui.QKeySequence.Redo, self)
+        self._shortcut_redo = QtGui.QShortcut(QtGui.QKeySequence.Redo, self)
         self._shortcut_redo.activated.connect(lambda: self._cmdp.invoke('!redo'))
-        self._shortcut_spacebar = QtWidgets.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Space), self)
+        self._shortcut_spacebar = QtGui.QShortcut(QtGui.QKeySequence(QtCore.Qt.Key_Space), self)
         self._shortcut_spacebar.activated.connect(self._on_spacebar)
 
         if not self._cmdp.restore_success:
@@ -469,7 +471,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 w = self._menu_setup(value, wroot)
                 w['__root__'] = wroot
             else:
-                w = QtWidgets.QAction(parent)
+                w = QtGui.QAction(parent)
                 w.setText(name)
                 if callable(value):
                     w.triggered.connect(value)
@@ -525,7 +527,7 @@ class MainWindow(QtWidgets.QMainWindow):
         menu.clear()
 
         developer = self._cmdp['General/developer']
-        self._profile_action_group = QtWidgets.QActionGroup(menu)
+        self._profile_action_group = QtGui.QActionGroup(menu)
         self._profile_action_group.setExclusive(True)
         for profile in sorted(self._cmdp.preferences.profiles):
             if profile == 'defaults':
@@ -578,7 +580,6 @@ class MainWindow(QtWidgets.QMainWindow):
         log.info('_device_notify_start')
         if self._device_notify is None:
             self._device_notify = DeviceNotify(self.resync_handler('device_notify'))
-            self._device_scan()
 
     def _device_notify_stop(self):
         log.info('_device_notify_stop')
@@ -632,7 +633,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def resync_handler(self, name):
         """Get a function that will resynchronize to the Main Qt thread.
 
-        :param: The resychronization handler name.  The method
+        :param name: The resychronization handler name.  The method
             _on_{name}(self, args, kwargs) must exist to handle the
             resynchronization call.
         :return: The resynchronization function.  Calls to this function
@@ -726,7 +727,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self._data_view.on_x_change('span_absolute', {'range': [x_min, x_max]})
 
     def _on_device_notify(self, inserted, info):
-        log.info('Device notify')
+        log.info('device_notify(%s, %s)', inserted, info)
         self._device_scan()
 
     def disable_floating(self):
@@ -741,16 +742,33 @@ class MainWindow(QtWidgets.QMainWindow):
     def _html_style(self):
         return self._cmdp.preferences['Appearance/__index__']['generator']['files']['style.html']
 
-    def _on_software_update(self, current_version, latest_version, url):
-        channel = self._cmdp['General/update_channel']
-        log.info('_on_software_update(current_version=%r, latest_version=%r, channel=%s, url=%r)',
-                 current_version, latest_version, channel, url)
-        txt = SOFTWARE_UPDATE.format(current_version=current_version,
-                                     latest_version=latest_version,
-                                     channel=channel,
-                                     url=url,
+    def _on_software_update(self, info):
+        global _software_update
+        log.info('_on_software_update(current_version=%r, available_version=%r, channel=%sr)',
+                 info['current_version'], info['available_version'], info['channel'])
+        if platform.system() == 'Windows':
+            extra = ''
+        else:
+            url = info['download_url']
+            extra = f'<p><a href="{url}">Download</a> now.</p>'
+        txt = SOFTWARE_UPDATE.format(current_version=info['current_version'],
+                                     available_version=info['available_version'],
+                                     channel=info['channel'],
+                                     extra=extra,
                                      style=self._html_style())
-        QtWidgets.QMessageBox.about(self, 'Joulescope Software Update Available', txt)
+        if extra:
+            QtWidgets.QMessageBox.about(self, 'Joulescope UI Software Update', txt)
+            return
+        # Skip, Update
+        msg_box = QtWidgets.QMessageBox(self)
+        msg_box.setWindowTitle('Joulescope UI Software Update')
+        msg_box.setText(txt)
+        update = msg_box.addButton('Update Now', QtWidgets.QMessageBox.YesRole)
+        later = msg_box.addButton('Later', QtWidgets.QMessageBox.NoRole)
+        msg_box.exec()
+        if msg_box.clickedButton() == update:
+            _software_update = info
+            self.close()
 
     def _help_about(self):
         log.info('_help_about')
@@ -861,10 +879,11 @@ class MainWindow(QtWidgets.QMainWindow):
             try:
                 self._device.open(self.resync_handler('device_event'))
             except Exception:
-                log.exception('while opening device')
+                log.exception(f'while opening device {str(device)}')
                 return self._device_open_failed('Could not open device')
             try:
-                self._firmware_update_on_open()
+                if self._firmware_update_on_open():
+                    return
             except Exception:
                 log.exception('firmware update failed')
                 self._device_close()
@@ -992,11 +1011,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self._deviceScanRequestSignal.emit()
 
     def _device_reopen(self):
+        log.info('_device_reopen')
         d = self._device
         self._cmdp.invoke('!Device/close', d)
         self._cmdp.invoke('!Device/open', d)
 
     def _on_device_open(self, topic, value):  # !Device/open
+        log.info('_on_device_open(%s, %s)', topic, value)
         self._device_open(value)
 
     def _on_device_close(self, topic, value):  # !Device/close
@@ -1005,7 +1026,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def _device_add(self, device):
         """Add device to the user interface"""
         log.info('_device_change add %s', device)
-        action = QtWidgets.QAction(str(device), self)
+        action = QtGui.QAction(str(device), self)
         action.setCheckable(True)
         action.setChecked(False)
         action.triggered.connect(lambda x: self._cmdp.invoke('!Device/open', device))
@@ -1022,43 +1043,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self._device_close()
         device.ui_action.triggered.disconnect()
 
-    def _bootloader_scan(self):
-        try:
-            bootloaders = joulescope.scan('bootloader')
-        except Exception:
-            return
-        if not len(bootloaders):
-            return
-
-        log.info('Found %d Joulescope bootloaders', len(bootloaders))
-        data = firmware_manager.load()
-
-        if data is None:
-            # no firmware, just attempt to kick into existing application
-            for b in list(bootloaders):
-                try:
-                    b.open()
-                except Exception:
-                    log.exception('while attempting to open bootloader')
-                    continue
-                try:
-                    b.go()
-                except Exception:
-                    log.exception('while attempting to run the application')
-            return False
-
-        for b in list(bootloaders):
-            self.status('Programming firmware')
-            try:
-                b.open()
-            except Exception:
-                log.exception('while attempting to open bootloader')
-                continue
-            try:
-                self._firmware_update(b)
-            except Exception:
-                log.exception('while attempting to run the application')
-
     def _device_scan(self):
         """Scan for new physical Joulescope devices."""
         if self._is_scanning:
@@ -1067,7 +1051,6 @@ class MainWindow(QtWidgets.QMainWindow):
         log.info('_device_scan start')
         try:
             self._is_scanning = True
-            self._bootloader_scan()
             physical_devices = [d for d in self._devices if hasattr(d, 'usb_device')]
             virtual_devices = [d for d in self._devices if not hasattr(d, 'usb_device')]
             devices, added, removed = joulescope.scan_for_changes(name=self._device_scan_name, devices=physical_devices)
@@ -1097,7 +1080,7 @@ class MainWindow(QtWidgets.QMainWindow):
         dialog.setWindowTitle('Joulescope Progress')
         dialog.setLabelText('Firmware update in progress.\nDo not unplug or turn off power.')
         dialog.setRange(0, 1000)
-        width = QtGui.QFontMetrics(dialog.font()).width('Do not unplug or turn off power.now') + 100
+        width = QtGui.QFontMetrics(dialog.font()).boundingRect('Do not unplug or turn off power.now').width() + 100
         dialog.resize(width, dialog.height())
         self._progress_dialog = dialog
         return dialog
@@ -1130,37 +1113,35 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def _firmware_update_on_open(self):
         if not hasattr(self._device, 'parameters'):
-            return
+            return False
+        if 'js220' not in self._device.device_path:
+            return False
         firmware_update_cfg = self._cmdp['Device/firmware_update']
         if firmware_update_cfg in ['off', 'never'] or not bool(firmware_update_cfg):
             log.info('Skip firmware update: %s', firmware_update_cfg)
-            return
-        info = self._device.info()
-        log.info('Device info: %s', info)
-        if info is None:
-            log.info('Could not get controller info: skip firmware update')
-            return
-        ver = None
-        ver_required = firmware_manager.version_required()
-        if info is not None and firmware_update_cfg != 'always':
-            ver = info.get('ctl', {}).get('fw', {}).get('ver', None)
-            if ver is None:
-                log.info('Could not get controller firmware version: skip firmware update')
-                return
-            try:
-                ver = tuple([int(x) for x in ver.split('.')])
-            except ValueError:
-                log.warning('Unsupported version %s', ver)
-                return
-            if ver >= ver_required:
-                log.info('controller firmware is up to date: %s >= %s', ver, ver_required)
-                return
-        log.info('firmware update required: %s < %s', ver, ver_required)
-        self.status('Firmware update required')
-        self._device, d = None, self._device
-        self._firmware_update(d)
-        d.open()
-        self._device = d
+            return False
+
+        fw = firmware_manager.load()
+        upd = firmware_manager.is_upgrade_available(self._device, fw)
+        if upd is None:
+            return False
+        app_from, app_to = upd['app']
+        fgpa_from, fpga_to = upd['fpga']
+        msg = '\n'.join([
+            'Upgrade firmware?',
+            f'app: {app_from} => {app_to}',
+            f'fpga: {fgpa_from} => {fpga_to}',
+            'The firmware upgrade takes 10 seconds.',
+            'Please do not unplug your Joulescope',
+            'during the firmware upgrade.'])
+        result = QtWidgets.QMessageBox.question(self, 'Firmware upgrade', msg)
+        if result != QtWidgets.QMessageBox.Yes:
+            log.info('User skipped firmware update')
+            return False
+        self._device, d = self._device_disable, self._device
+        log.info(f'Start firmware upgrade: app {app_from} => {app_to}, fpga: {fgpa_from} => {fpga_to}')
+        self._firmware_update(d, fw)
+        return True
 
     @QtCore.Slot(int)
     def _on_progress_value(self, value):
@@ -1183,55 +1164,55 @@ class MainWindow(QtWidgets.QMainWindow):
         print(f'_on_progress_msg({msg})')
         self.status(msg)
 
-    def _firmware_update(self, device):
-        data = firmware_manager.load()
-        if data is None:
-            self.status('Firmware update required, but could not find firmware image')
-            return False
-        fw_version = data['target']['version']
+    def _on_firmware_manager_status(self, state):
+        dialog = state.get('dialog')
+        if dialog is not None:
+            value = state.get('progress', 0) * 1000
+            if dialog.value() != value:
+                dialog.setValue(int(value))
+            if value == 1000:
+                dialog.cancel()
+                dialog.hide()
+                dialog.close()
+                self._progress_dialog = None
+                state['dialog'] = None
+            elif dialog.isHidden():
+                dialog.show()
+        if state['device'] is not None and state['progress'] >= 0.25:
+            d, state['device'] = state['device'], None
+        progress = state['progress'] * 100
+        msg = f"{state['message']} : {progress:.0f}%"
+        self.status(msg)
+        if state['progress'] >= 1.0:
+            t, state['thread'] = state['thread'], None
+            if t is not None:
+                t.join()
+                self._is_scanning = False
+                self._device_scan()
 
-        result = QtWidgets.QMessageBox.question(
-            self,
-            'Firmware upgrade',
-            f'Upgrade firmware to {fw_version}?\n\n' +
-            'The firmware upgrade takes 30 seconds.\n' +
-            'Please do not unplug your Joulescope\n' +
-            'during the firmware upgrade.\n')
-        if result != QtWidgets.QMessageBox.Yes:
-            log.info('User skipped firmware update')
-            return False
-
-        log.info('Start firmware upgrade %s', fw_version)
+    def _firmware_update(self, device, fw):
+        log.info('Start firmware upgrade')
+        while self._is_scanning:
+            time.sleep(0.001)
+        self._is_scanning = True
+        firmware_manager_status_fn = self.resync_handler('firmware_manager_status')
         dialog = self._firmware_update_progress_dialog_construct()
-        progress = {
-            'stage': '',
-            'device': None,
+        state = {
+            'dialog': dialog,
+            'firmware_manager_status_fn': firmware_manager_status_fn,
+            'progress': 0.0,
+            'message': '',
+            'thread': None,
+            'device': device,
         }
-        progress_value_fn = self.resync_handler('progress_value')
-        progress_message_fn = self.resync_handler('progress_message')
 
-        def progress_cbk(value):
-            progress_value_fn(int(value * 1000))
+        def progress_cbk(fract, msg):
+            state['progress'] = fract
+            state['message'] = msg
+            firmware_manager_status_fn(state)
 
-        def stage_cbk(s):
-            progress['stage'] = s
-
-        def done_cbk(d):
-            progress['device'] = d
-            if d is None:
-                progress_message_fn('Firmware upgrade failed - unplug and retry.')
-            else:
-                progress_message_fn(f'Successfully upgraded firmware to {fw_version}.')
-
-        self._is_scanning, is_scanning = True, self._is_scanning
-        try:
-            t = firmware_manager.upgrade(device, data, progress_cbk=progress_cbk, stage_cbk=stage_cbk, done_cbk=done_cbk)
-            dialog.exec()
-            t.join()
-        finally:
-            self._progress_dialog_finalize()
-            self._is_scanning = is_scanning
-            # self.status_update_timer.start()
+        state['thread'] = firmware_manager.upgrade(device, fw, progress_cbk)
+        return True
 
     def _on_device_stop(self, device_str, event, message):
         log.debug('_on_device_stop(%s, %d, %s)', device_str, event, message)
@@ -1977,4 +1958,6 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None,
     log.info('shutting down')
     del ui
     logging_stop()
+    if _software_update is not None:
+        software_update_apply(_software_update)
     return rc

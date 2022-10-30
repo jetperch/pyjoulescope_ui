@@ -10,15 +10,32 @@
 <body>
 
 <h1>Safety</h1>
-<p>The maximum voltage between IN+ and IN- should never exceed ±15V.  IN and OUT 
-are electrically isolated from USB, but the voltage between any port and USB 
-ground should never exceed ±48V.  The GPI/O ports are referenced to USB 
-ground.</p>
+<p>The voltage between any sensor port must never exceed ±15V.</p>
+<p>The JS220 sensor ports are
+  <b>Current +</b>,
+  <b>Current -</b>,
+  <b>Voltage +</b>, and
+  <b>Voltage -</b>.</p>
+<p>The JS110 sensor ports are
+  <b>IN +</b>,
+  <b>IN -</b>,
+  <b>OUT +</b>, and
+  <b>OUT -</b>.</p>
+<p>The sensor ports are electrically isolated from USB.  The voltage between
+any sensor port and USB ground must never exceed ±48V.
+The GPI/O and trigger ports are referenced to USB ground.</p>
 
 <h1>Connect</h1>
 <p>Connect Joulescope's USB port to your computer using the provided cable. 
-Use an adapter if your computer only has USB Type C ports.
-Connect the Joulescope IN port to your power supply.
+Use an adapter or suitable cable if your computer only has USB Type C ports.</p>
+
+<p>For the JS220, connect the current port between the power supply and
+  the device under test.  Connect the voltage port to the power
+  supply.  See the
+  <a href="https://download.joulescope.com/products/JS220/JS220-K000/users_guide/index.html">Joulescope JS220 User's Guide</a>
+  for more connection examples.</p>
+
+<p>For the JS110, connect the Joulescope IN port to your power supply.
 Connect the Joulescope OUT port to your target device.</p>
 
 <h1>Measure</h1>

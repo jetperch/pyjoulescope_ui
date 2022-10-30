@@ -111,9 +111,11 @@ class Exporter:
                 np.savetxt(f, values, ['%.7f', '%.4e', '%.4f'], delimiter=',')
 
     def _export_jls(self, data):
+        cal = getattr(data, 'calibration', None)
+        cal_data = getattr(cal, 'data', None)
         data_recorder = DataRecorder(
             self._filename,
-            calibration=data.calibration.data)
+            calibration=cal_data)
 
         try:
             for block in data:

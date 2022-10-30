@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PySide2 import QtGui, QtWidgets
+from PySide6 import QtGui, QtWidgets
 import subprocess
 import os
 import logging

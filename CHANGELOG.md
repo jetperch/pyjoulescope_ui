@@ -4,11 +4,81 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
-## 0.9.12
+## 0.10.8
 
-2022 May 31 [in progress]
+2022 Oct 30
 
+* Added support for macOS 13 Ventura and built on macOS 13.
+* Added back JS110 support for macOS and Linux.
+* Improved macOS and Linux support.
+* Added JS220 GPO support.
+* Added JS220 firmware update support.
+
+
+## 0.10.6
+
+2022 Oct 24
+
+* Fixes for linux and Qt6.
+* Added JS220 tooltip info.
+* Added downsampling support.
+* Updated to pyjoulescope 1.0.7 for improved JS110 support.
+* Updated GitHub issue templates to include macOS 13 and UI 0.10.6.
+* Clarified tooltips for JS110 and JS220.
+
+
+## 0.10.5
+
+2022 Oct 12
+
+* Improved dual marker performance while streaming.
+
+
+## 0.10.4
+
+2022 Oct 9
+
+* Disabled firmware/gateware updates since not working in release.
+
+
+## 0.10.3
+
+2022 Oct 8
+
+* Fixed automatic UI update (Windows only for now).
+
+
+## 0.10.2
+
+2022 Oct 8
+
+* Added automatic UI update (Windows only for now).
+* Added JS220 firmware update. 
+
+
+## 0.10.1
+
+2022 Oct 4
+
+* Updated to latest pyjoulescope
+  * Added power computation to JS220.
+  * Improved statistics performance.
+* Fixed copy and save waveform widget image.
+* Fixed duplicate selections in Single Value Widget "Statistic" combobox.
+
+
+## 0.10.0
+
+2022 Sep 29
+
+* Upgraded from Pyside2 (5.15) to PySide6 (6.3.0).
+  Blocking [QTBUG-101047](https://bugreports.qt.io/browse/QTBUG-101047) fixed in 6.3.0. 
 * Fixed CSV time precision to match reduction_frequency #159
+* Upgraded from pyinstaller 4.9 to 5.x.
+* Added support for joulescope v1 driver using joulescope_driver backend.
+* Added automatic updates, Windows only for now.
+* Updated waveform ranges to support JS220.
+* Updated requirements.
 
 
 ## 0.9.11
