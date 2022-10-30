@@ -73,10 +73,9 @@ if sys.platform.startswith('win'):
     ]
     DATA += []
 elif sys.platform.startswith('darwin'):
-    from joulescope_ui.libusb_mac import mac_binaries
     EXE_NAME = 'joulescope_launcher'
     HIDDEN_IMPORTS = []
-    BINARIES = [(x, '.') for x in mac_binaries()]
+    BINARIES = []
     DATA += [
         # copy over the fonts so they work with QFontDialog
         ['joulescope_ui/fonts/fonts.qrc', 'Fonts'],
