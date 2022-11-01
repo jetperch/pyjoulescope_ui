@@ -4,6 +4,20 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.10.9
+
+2022 Nov 1
+
+* Updated to pyjoulescope 1.0.9
+  * Updated to pyjoulescope_driver 1.0.5
+    * Fixed JS110 current range processing for window N and M.
+    * Fixed JS110 sample alignment.
+    * Fixed JS110 statistics generation time and rate.
+  * Fixed v1 JS110 config=auto.
+  * Fixed v1 JS220 voltage to use 15V manual range by default.
+  * Modified v1 stats to skip NaN values.
+
+
 ## 0.10.8
 
 2022 Oct 30
