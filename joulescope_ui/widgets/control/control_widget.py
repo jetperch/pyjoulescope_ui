@@ -16,6 +16,7 @@
 
 from PySide6 import QtWidgets, QtCore
 from joulescope_ui.widgets.switch import Switch
+from joulescope_ui.ui_util import comboBoxConfig
 from joulescope.units import three_sig_figs
 from joulescope_ui.units import convert_units
 import logging
@@ -333,7 +334,24 @@ class ControlWidget(QtWidgets.QWidget):
         self._accumLabel.setText(txt)
 
     def _on_device_state(self, topic, data):
-        if topic == 'Device/#state/statistics':
+        if topic == 'Device/#state/name':
+            i_range = self._cmdp.preferences.definition_options('Device/setting/i_range')
+            v_range = self._cmdp.preferences.definition_options('Device/setting/v_range')
+            vrange_opts = {'__def__': {'15V': {'name': '15V'}, '5V': {'name': '5V'}},
+                           '__remap__': {'15V': '15V', '5V': '5V'}}
+            if not isinstance(data, str):
+                pass
+            elif data.startswith('JS110-'):
+                pass
+            elif data.startswith('JS220-'):
+                vrange_opts = {'__def__': {'15V': {'name': '15V'}, '2V': {'name': '2V'}},
+                               '__remap__': {'15V': '15V', '2V': '2V'}}
+                i_range = [x for x in i_range if x != '2 A']
+                v_range = ['15V', '2V']
+            self._cmdp.preferences.definition_get('Device/setting/v_range')['options'] = vrange_opts
+            comboBoxConfig(self._iRangeComboBox, i_range)
+            comboBoxConfig(self._vRangeComboBox, v_range)
+        elif topic == 'Device/#state/statistics':
             try:
                 t = data['time']['accumulator']
                 time_str = self._cmdp.elapsed_time_formatter(t['value'])

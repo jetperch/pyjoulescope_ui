@@ -4,6 +4,17 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.10.10
+
+2022 Nov 8
+
+* Updated documentation to link to JS220 User's Guide.
+* Updated credits.
+* Fixed JS220 parameters.
+  * Added support for JS220 v_range "2 V".
+  * Removed JS220 i_range "2 A" option.
+
+
 ## 0.10.9
 
 2022 Nov 1

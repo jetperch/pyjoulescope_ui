@@ -64,7 +64,8 @@ _software_update = None
 
 
 STATUS_BAR_TIMEOUT = 5000  # milliseconds
-USERS_GUIDE_URL = "https://download.joulescope.com/docs/JoulescopeUsersGuide/index.html"
+JS110_USERS_GUIDE_URL = "https://download.joulescope.com/docs/JoulescopeUsersGuide/index.html"
+JS220_USERS_GUIDE_URL = 'https://download.joulescope.com/products/JS220/JS220-K000/users_guide/index.html'
 FRAME_LIMIT_DELAY_MS = 30
 FRAME_LIMIT_MAXIMUM_DELAY_MS = 2000
 _excepthook = sys.excepthook
@@ -335,7 +336,8 @@ class MainWindow(QtWidgets.QMainWindow):
             },
             '&Help': {
                 '&Getting Started': self._help_getting_started,
-                '&User\'s Guide': self._help_users_guide,
+                'JS220 User\'s Guide': self._help_js220_users_guide,
+                'JS110 User\'s Guide': self._help_js110_users_guide,
                 '&View logs...': self._view_logs,
                 'Changelog': self._help_changelog,
                 '&Credits': self._help_credits,
@@ -786,9 +788,13 @@ class MainWindow(QtWidgets.QMainWindow):
     def _help_getting_started(self):
         help_ui.display_help(self, self._cmdp, 'getting_started')
 
-    def _help_users_guide(self):
-        log.info('_help_users_guide')
-        webbrowser.open_new_tab(USERS_GUIDE_URL)
+    def _help_js110_users_guide(self):
+        log.info('_help_js110_users_guide')
+        webbrowser.open_new_tab(JS110_USERS_GUIDE_URL)
+
+    def _help_js220_users_guide(self):
+        log.info('_help_js220_users_guide')
+        webbrowser.open_new_tab(JS220_USERS_GUIDE_URL)
 
     def _view_logs(self):
         log.info('_view_logs(%s)', LOG_PATH)

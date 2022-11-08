@@ -31,7 +31,7 @@ import subprocess
 import shutil
 
 
-JOULESCOPE_VERSION_MIN = '1.0.9'  # also update requirements.txt
+JOULESCOPE_VERSION_MIN = '1.0.10'  # also update requirements.txt
 MYPATH = os.path.abspath(os.path.dirname(__file__))
 VERSION_PATH = os.path.join(MYPATH, 'joulescope_ui', 'version.py')
 
@@ -162,21 +162,38 @@ setuptools.setup(
     #
     # For a list of valid classifiers, see https://pypi.org/classifiers/
     classifiers=[  # Optional
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
 
         # Indicate who your project is intended for
+        'Intended Audience :: Developers',
         'Intended Audience :: End Users/Desktop',
-        'Topic :: Scientific/Engineering',
-        'Topic :: Software Development :: Embedded Systems',
+        'Intended Audience :: Science/Research',
 
         # Pick your license as you wish
         'License :: OSI Approved :: Apache Software License',
+
+        # Natural Language
+        'Natural Language :: English',
+
+        # Operating systems
+        'Operating System :: Microsoft :: Windows :: Windows 10',
+        'Operating System :: Microsoft :: Windows :: Windows 11',
+        'Operating System :: MacOS',
+        'Operating System :: MacOS :: MacOS X',
+        'Operating System :: POSIX :: Linux',
 
         # Supported Python versions
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+
+        # Topics
+        'Topic :: Scientific/Engineering',
+        'Topic :: Software Development :: Embedded Systems',
+        'Topic :: Software Development :: Testing',
+        'Topic :: Utilities',
     ],
 
     keywords='joulescope ui gui "user interface"',
@@ -194,10 +211,10 @@ setuptools.setup(
         'fs',
         'joulescope>=' + JOULESCOPE_VERSION_MIN,
         'markdown',
-        'pyjls>=0.3.3',
+        'pyjls>=0.4.2',
         'pyopengl',
         'pyperclip>=1.7.0',
-        "pypiwin32>=223; platform_system == 'Windows'",
+        "pywin32>=223; platform_system == 'Windows'",
         'pyqtgraph>=0.13.1',
         'PySide6>=6.3.0',
         'python-dateutil>=2.7.3',

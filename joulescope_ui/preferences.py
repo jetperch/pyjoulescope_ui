@@ -376,7 +376,7 @@ class Preferences(QtCore.QObject):
         """Get the definitions hierarchical data structure.
 
         :return: A complex data structure of dicts.  Leafs are normal defines.
-            Nodes only have 'name', 'brief', 'detail' and 'children.
+            Nodes only have 'name', 'brief', 'detail' and 'children'.
 
         This method can be used to automatically populate a UI preferences dialog.
         """
