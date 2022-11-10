@@ -76,7 +76,7 @@ def is_upgrade_available(device, image):
     if app_to > app_from or fpga_to > fpga_from:
         return {
             'app': (version_as_str(app_from), version_as_str(app_to)),
-            'fpga': (version_as_str(fpga_to), version_as_str(fpga_from)),
+            'fpga': (version_as_str(fpga_from), version_as_str(fpga_to)),
         }
     else:
         return None
