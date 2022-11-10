@@ -225,7 +225,7 @@ def apply(info):
     path = info['download_path']
     if platform.system() == 'Windows':
         flags = subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP
-        subprocess.Popen([path], creationflags=flags)
+        subprocess.Popen([path, '/SILENT'], creationflags=flags)
 
 
 if __name__ == '__main__':

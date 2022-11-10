@@ -4,6 +4,18 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.10.11
+
+2022 Nov 10
+
+* Fixed swapped FPGA version from=>to in firmware upgrade dialog box.
+  Fixes https://forum.joulescope.com/t/joulescope-ui-prompts-to-downgrade-firmware-on-new-js220/492/2 
+* Updated Windows installation
+  * Uninstall old version, fixes #173.
+  * Install into x64 "C:\Program Files" rather than "C:\Program Files (x86)".
+  * Future updates will install automatically without prompts.
+
+
 ## 0.10.10
 
 2022 Nov 8

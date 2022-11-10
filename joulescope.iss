@@ -6,8 +6,8 @@
 ; http://www.jrsoftware.org/ishelp/index.php?topic=setup_signtool
 
 #define MyAppName "Joulescope"
-#define MyAppVersion "0.10.10"
-#define MyAppVersionUnderscores "0_10_10"
+#define MyAppVersion "0.10.11"
+#define MyAppVersionUnderscores "0_10_11"
 #define MyAppPublisher "Jetperch LLC"
 #define MyAppURL "https://www.joulescope.com"
 #define MyAppExeName "joulescope.exe"
@@ -24,8 +24,8 @@ AppPublisher={#MyAppPublisher}
 AppPublisherURL={#MyAppURL}
 AppSupportURL={#MyAppURL}
 AppUpdatesURL={#MyAppURL}
-;ArchitecturesAllowed=x64
-;ArchitecturesInstallIn64BitMode=x64
+ArchitecturesAllowed=x64
+ArchitecturesInstallIn64BitMode=x64
 DefaultDirName={autopf}\{#MyAppName}
 DisableProgramGroupPage=yes
 LicenseFile=LICENSE.txt
@@ -52,12 +52,15 @@ Source: "LICENSE.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "README.md"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
+[InstallDelete]
+Type: files; Name: "{app}\psutil\*.pyd"
+
 [Icons]
 Name: "{commonprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall
 
 [Registry]
 ; https://stackoverflow.com/questions/26536030/file-association-in-inno-setup
@@ -65,3 +68,41 @@ Root: HKCR; Subkey: ".jls";                             ValueData: "{#MyAppName}
 Root: HKCR; Subkey: "{#MyAppName}";                     ValueData: "Program {#MyAppName}";  Flags: uninsdeletekey;   ValueType: string;  ValueName: ""
 Root: HKCR; Subkey: "{#MyAppName}\DefaultIcon";         ValueData: "{app}\{#MyAppExeName},0";                        ValueType: string;  ValueName: ""
 Root: HKCR; Subkey: "{#MyAppName}\shell\open\command";  ValueData: """{app}\{#MyAppExeName}"" ""%1""";               ValueType: string;  ValueName: ""
+
+[Code]
+function GetUninstallerPath(): String;
+var
+  sUnInstPath1: String;
+  sUnInstPath2: String;
+  sUnInstallString: String;
+begin
+    sUnInstPath1 := ExpandConstant('Software\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\{#emit SetupSetting("AppId")}_is1');
+    sUnInstPath2 := ExpandConstant('Software\Microsoft\Windows\CurrentVersion\Uninstall\{#emit SetupSetting("AppId")}_is1');
+    if (RegQueryStringValue(HKLM, sUnInstPath1, 'UninstallString', sUnInstallString)) then
+    else if (RegQueryStringValue(HKCU, sUnInstPath1, 'UninstallString', sUnInstallString)) then
+    else if (RegQueryStringValue(HKLM, sUnInstPath2, 'UninstallString', sUnInstallString)) then
+    else if (RegQueryStringValue(HKCU, sUnInstPath2, 'UninstallString', sUnInstallString)) then
+    else
+        ;
+    Result := sUnInstallString;
+end;
+
+procedure UninstallOldVersion();
+var
+    UninstallerPath: String;
+    ResultCode: Integer;
+begin
+    UninstallerPath := GetUninstallerPath();
+    if (UninstallerPath <> '') then begin
+        UninstallerPath := RemoveQuotes(UninstallerPath);
+        Exec(UninstallerPath, '/VERYSILENT /NORESTART /SUPPRESSMSGBOXES', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
+    end;
+end;
+
+procedure CurStepChanged(CurStep: TSetupStep);
+begin
+    if (CurStep = ssInstall) then
+    begin
+        UninstallOldVersion();
+    end;
+end;
