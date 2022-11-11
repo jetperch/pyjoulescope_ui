@@ -511,6 +511,8 @@ class WaveformWidget(QtWidgets.QWidget):
 
             # Horizontal markers first, since x-axis position is 0
             for sname, s in self._signals.items():
+                if sname not in signal_def:
+                    continue
                 signal_id = signal_def[sname][0]
                 for name, m in s.y_axis.markers.items():
                     w.annotation(signal_id, 0, m.y, AnnotationType.HMARKER, 0, name)
@@ -525,6 +527,8 @@ class WaveformWidget(QtWidgets.QWidget):
                 w.annotation(1, x, None, AnnotationType.VMARKER, 0, name)
 
             for sname, s in self._signals.items():
+                if sname not in signal_def:
+                    continue
                 signal_id, _, sample_rate, _ = signal_def[sname]
                 for a in s.annotations:
                     x = a.x_pos
