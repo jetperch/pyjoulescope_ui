@@ -20,10 +20,12 @@ block_cipher = None
 specpath = os.path.dirname(os.path.abspath(SPEC))
 PATHEX = []
 sys.path.insert(0, specpath)
+import pyjoulescope_driver
 import joulescope_ui
 VERSION_STR = joulescope_ui.__version__.replace('.', '_')
 MACOS_CODE_SIGN = 'Developer ID Application: Jetperch LLC (WFRS3L8Y7Y)'
 PYQTGRAPH_PATH = os.path.dirname(pyqtgraph.__file__)
+PYJOULESCOPE_DRIVER_PATH = os.path.dirname(pyjoulescope_driver.__file__)
 
 
 def find_site_packages():
@@ -57,6 +59,8 @@ DATA = [
     # Force pyqtgraph icon include, which were not automatically found on mac OS 12 & Ubuntu for 0.9.11
     [os.path.join(PYQTGRAPH_PATH, 'icons', '*.png'), 'pyqtgraph/icons'],
     [os.path.join(PYQTGRAPH_PATH, 'icons', '*.svg'), 'pyqtgraph/icons'],
+    # Force pyjoulescope_driver image include
+    [os.path.join(PYJOULESCOPE_DRIVER_PATH, '*.img'), 'pyjoulescope_driver'],
 ]
 
 

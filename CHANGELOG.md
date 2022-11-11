@@ -9,6 +9,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 2022 Nov 11
 
 * Handle exception on firmware update check.
+* Fixed UI distribution to include firmware images.
 * Fixed waveform annotation export exception.
 
 
