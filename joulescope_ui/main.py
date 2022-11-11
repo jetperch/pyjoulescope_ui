@@ -1127,10 +1127,20 @@ class MainWindow(QtWidgets.QMainWindow):
             log.info('Skip firmware update: %s', firmware_update_cfg)
             return False
 
-        fw = firmware_manager.load()
-        upd = firmware_manager.is_upgrade_available(self._device, fw)
+        try:
+            fw = firmware_manager.load()
+        except Exception:
+            log.exception('firmware_manager.load - skip firmware update')
+            return False
+        try:
+            upd = firmware_manager.is_upgrade_available(self._device, fw)
+        except Exception:
+            log.exception('firmware_manager.is_upgrade_available - skip firmware update')
+            return False
+
         if upd is None:
             return False
+
         app_from, app_to = upd['app']
         fgpa_from, fpga_to = upd['fpga']
         msg = '\n'.join([
@@ -1889,7 +1899,7 @@ def run(device_name=None, log_level=None, file_log_level=None, filename=None,
             file_log_level = cmdp.preferences['General/log_level']
         logging_config(file_log_level=file_log_level,
                        stream_log_level=log_level)
-        logging.getLogger('joulescope').setLevel(logging.WARNING)
+        # logging.getLogger('joulescope').setLevel(logging.WARNING)
         starting_profile = cmdp.preferences['General/starting_profile']
         if starting_profile not in ['previous', 'app defaults']:
             cmdp.preferences.profile = starting_profile
