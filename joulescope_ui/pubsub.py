@@ -16,7 +16,7 @@
 Communication method used to connect the Joulescope UI components.
 """
 
-import json
+from . import json
 from .metadata import Metadata
 import threading
 import logging
@@ -28,18 +28,25 @@ _SUFFIX_CHAR = {
     '~': 'remove',
     '#': 'completion'
 }
-UNDO_TOPIC = 'app_common/!undo'
-REDO_TOPIC = 'app_common/!redo'
+APP_COMMON_ACTIONS_TOPIC = 'app_common/actions'
+UNDO_TOPIC = APP_COMMON_ACTIONS_TOPIC + '/!undo'
+REDO_TOPIC = APP_COMMON_ACTIONS_TOPIC + '/!redo'
+SUBSCRIBE_TOPIC = APP_COMMON_ACTIONS_TOPIC + '/!subscribe'
+UNSUBSCRIBE_TOPIC = APP_COMMON_ACTIONS_TOPIC + '/!unsubscribe'
+UNSUBSCRIBE_ALL_TOPIC = APP_COMMON_ACTIONS_TOPIC + '/!unsubscribe_all'
+TOPIC_ADD_TOPIC = APP_COMMON_ACTIONS_TOPIC + '/!topic_add'
+TOPIC_REMOVE_TOPIC = APP_COMMON_ACTIONS_TOPIC + '/!topic_remove'
 
 
 class _Topic:
 
-    def __init__(self, parent, topic, meta):
+    def __init__(self, parent, topic, meta, value=None):
         """Hold a single MyTopic entry for :class:`PubSub`.
 
         :param parent: The parent :class:`MyTopic` instance.
         :param topic: The fully-qualified topic string.
         :param meta: The metadata for this topic.
+        :param value: The optional initial value.
         """
         self.update_fn = {}   # Mapping[str, list]
         for stype in _SUBSCRIBER_TYPES:
@@ -50,7 +57,37 @@ class _Topic:
         self._value = None          # for retained values
         self.children = {}      # Mapping[str, MyTopic]
         self.meta = meta
-        self.value = self.meta.default
+        default = None if meta is None else meta.default
+        self.value = value if value is not None else default
+
+    def to_obj(self):
+        children = []
+        for n, child in self.children.items():
+            if n[0] == '!':
+                continue
+            children.append(child.to_obj())
+        return {
+            'topic': self.subtopic_name,
+            'value': self.value,
+            'meta': self.meta.to_map(),
+            'children': children,
+        }
+
+    def from_obj(self, obj):
+        self._value = obj['value']
+        self.meta = Metadata(**obj['meta'])
+        for child_obj in obj['children']:
+            child_name = child_obj['topic']
+            if child_name in self.children:
+                child = self.children[child_name]
+            else:
+                if self.topic_name == '':
+                    topic_name = child_name
+                else:
+                    topic_name = f'{self.topic_name}/{child_name}'
+                child = _Topic(self, topic_name, None)
+                self.children[child_name] = child
+            child.from_obj(child_obj)
 
     def __str__(self):
         return f'_Topic({self.topic_name}, value={self.value})'
@@ -65,17 +102,37 @@ class _Topic:
 
     @value.setter
     def value(self, x):
-        x = self.meta.validate(x)
+        if self.meta is not None:
+            x = self.meta.validate(x)
         if not self.subtopic_name.startswith('!'):
             self._value = x
 
 
+class _Command:
+
+    def __init__(self, topic, value):
+        self.topic = topic
+        self.value = value
+
+    def __str__(self):
+        return f'_Command({repr(self.topic)}, {self.value})'
+
+    def __repr__(self):
+        return f'_Command({repr(self.topic)}, {repr(self.value)})'
+
+
 class _Undo:
 
-    def __init__(self, topic):
+    def __init__(self, topic, undos=None, redos=None):
         self.topic = topic
-        self.undos = []  # list of [topic, value]
-        self.redos = []  # list of [topic, value]
+        self.undos = [] if undos is None else undos  # list of _Command
+        self.redos = [] if redos is None else redos  # list of _Command
+
+    def __str__(self):
+        return self.topic
+
+    def __repr__(self):
+        return f'_Undo({repr(self.topic)}, {repr(self.undos)}, {repr(self.redos)})'
 
     def __len__(self):
         return len(self.undos)
@@ -87,8 +144,8 @@ class _Undo:
         :param old_value: The original retained topic value.
         :param new_value: The new topic value being published.
         """
-        self.undos.append([topic, old_value])
-        self.redos.append([topic, new_value])
+        self.undos.append(_Command(topic, old_value))
+        self.redos.append(_Command(topic, new_value))
 
     def cmd_add(self, topic: str, value, rv):
         """Add an undo/redo for a command.
@@ -99,32 +156,15 @@ class _Undo:
             which is one of:
             * None: No undo/redo support
             * [undo_topic, undo_value]
-            * [[undo_topic, undo_value], None]
-            * [[[undo_topic1, undo_value1], ...], None]
-            * [[undo_topic, undo_value], [redo_topic, redo_value]]
-            * [[[undo_topic1, undo_value1], ...], [redo_topic, redo_value]]
-            * [[undo_topic, undo_value], [[redo_topic1, redo_value1], ...]]
-            * [[[undo_topic1, undo_value1], ...], [[redo_topic1, redo_value1], ...]]
         """
         if rv is None:
             return
-        if isinstance(rv[0], str):
-            self.undos.append(rv)
-            self.redos.append([topic, value])
-            return
-        undo, redo = rv
-        if redo is None:
-            redo = [topic, value]
-        if len(undo):
-            if isinstance(undo[0], str):
-                self.undos.append(undo)
-            else:
-                self.undos.extend(undo)
-        if len(redo):
-            if isinstance(redo[0], str):
-                self.redos.append(redo)
-            else:
-                self.redos.extend(redo)
+        if isinstance(rv[0], str) and len(rv) == 2:
+            self.undos.append(_Command(*rv))
+        else:
+            for topic, value in rv:
+                self.undos.append(_Command(topic, value))
+        self.redos.append(_Command(topic, value))
 
 
 class PubSub:
@@ -147,15 +187,32 @@ class PubSub:
         self._root = _Topic(None, '', meta)
         self._topic_by_name = {}
         self._lock = threading.RLock()
-        self._queue = []  # entries are maps which must contain 'command'
-        self._stack = []
+        self._queue = []  # entries are _Command
+        self._stack = []  # entries are _Command
         self._undo_capture = None
         self.undos = []  # list of _Undo
         self.redos = []  # list of _Undo
-        self.topic_add(UNDO_TOPIC, Metadata(dtype='int', brief='undo previous N actions', default=1, flags=['hide']))
-        self.topic_add(REDO_TOPIC, Metadata(dtype='int', brief='redo previous N actions', default=1, flags=['hide']))
-        self.subscribe(UNDO_TOPIC, self._cmd_undo, flags=['command'])
-        self.subscribe(REDO_TOPIC, self._cmd_redo, flags=['command'])
+
+        self._add_cmd(SUBSCRIBE_TOPIC, self._cmd_subscribe)                 # subscribe must be first
+        self._add_cmd(UNSUBSCRIBE_TOPIC, self._cmd_unsubscribe)
+        self._add_cmd(UNSUBSCRIBE_ALL_TOPIC, self._cmd_unsubscribe_all)
+        self._add_cmd(TOPIC_ADD_TOPIC, self._cmd_topic_add)
+        self._add_cmd(TOPIC_REMOVE_TOPIC, self._cmd_topic_remove)
+        self._add_cmd(UNDO_TOPIC, self._cmd_undo)
+        self._add_cmd(REDO_TOPIC, self._cmd_redo)
+
+    def _add_cmd(self, topic, update_fn):
+        topic_add_value = {
+            'topic': topic,
+            'meta': Metadata(dtype='obj', brief=topic, flags=['hide']),
+        }
+        self._cmd_topic_add(TOPIC_ADD_TOPIC, topic_add_value)
+        subscribe_value = {
+            'topic': topic,
+            'update_fn': update_fn,
+            'flags': ['command']
+        }
+        self._cmd_subscribe(SUBSCRIBE_TOPIC, subscribe_value)
 
     def _cmd_undo(self, topic, value):
         for count in range(value):
@@ -163,8 +220,8 @@ class PubSub:
                 return
             undo = self.undos.pop()
             self.redos.insert(0, undo)
-            for topic, value in undo.undos:
-                self._on_publish({'topic': topic, 'value': value})
+            for cmd in undo.undos:
+                self._process_one(cmd)
         return None
 
     def _cmd_redo(self, topic, value):
@@ -172,8 +229,8 @@ class PubSub:
             if not len(self.redos):
                 return
             undo = self.redos.pop()
-            for topic, value in undo.redos:
-                self._on_publish({'topic': topic, 'value': value})
+            for cmd in undo.redos:
+                self._process_one(cmd)
         return None
 
     def undo(self, count=None):
@@ -184,17 +241,17 @@ class PubSub:
         count = 1 if count is None else int(count)
         self.publish(REDO_TOPIC, count)
 
-    def _send(self, cmd, timeout=None):
+    def _send(self, topic, value, timeout=None):
         thread_id = threading.get_native_id()
         if thread_id == self._thread_id:
             if timeout:
                 raise BlockingIOError()
             if len(self._stack):
-                self._stack[-1].append(cmd)
+                self._stack[-1].append(_Command(topic, value))
             else:
                 with self._lock:
                     was_empty = (len(self._queue) == 0)
-                    self._queue.append(cmd)
+                    self._queue.append(_Command(topic, value))
                 if was_empty:
                     self.process()
             return None
@@ -202,7 +259,7 @@ class PubSub:
         if timeout is not None:
             raise NotImplementedError()
         with self._lock:
-            self._queue.append(cmd)
+            self._queue.append(_Command(topic, value))
         self._notify_fn()
         if timeout is not None:
             raise NotImplementedError()
@@ -226,6 +283,7 @@ class PubSub:
         :raise BlockingIOError: If timeout is provided and invoked from the
             Qt event thread.
         """
+
         timeout = kwargs.pop('timeout', None)
         if len(kwargs):
             meta = Metadata(*args, **kwargs)
@@ -237,7 +295,7 @@ class PubSub:
                 meta = Metadata(**json.loads(x))
             else:
                 raise ValueError('positional metadata arg must be Metadata or json string')
-        return self._send({'command': 'topic_add', 'topic': topic, 'meta': meta}, timeout)
+        return self._send(TOPIC_ADD_TOPIC, {'topic': topic, 'meta': meta}, timeout)
 
     def topic_remove(self, topic: str, timeout=None):
         """Remove a topic and all subtopics.
@@ -249,7 +307,7 @@ class PubSub:
         :raise BlockingIOError: If timeout is provided and invoked from the
             Qt event thread.
         """
-        return self._send({'command': 'topic_remove', 'topic': topic}, timeout)
+        return self._send(TOPIC_REMOVE_TOPIC, {'topic': topic}, timeout)
 
     def publish(self, topic: str, value, timeout=None):
         """Publish a value to a topic.
@@ -262,7 +320,7 @@ class PubSub:
         :raise BlockingIOError: If timeout is provided and invoked from the
             Qt event thread.
         """
-        return self._send({'command': 'publish', 'topic': topic, 'value': value}, timeout)
+        return self._send(topic, value, timeout)
 
     def _topic_get(self, topic) -> _Topic:
         with self._lock:
@@ -291,6 +349,13 @@ class PubSub:
         t = self._topic_get(topic)
         return t.meta
 
+    def _enumerate_recurse(self, t, lead_count):
+        names = []
+        for subtopic in t.children.values():
+            names.append(subtopic.topic_name[lead_count:])
+            names.extend(self._enumerate_recurse(subtopic, lead_count))
+        return names
+
     def enumerate(self, topic, absolute=None, traverse=None):
         """Enumerate the subtopic names of the specified topic.
 
@@ -302,7 +367,16 @@ class PubSub:
             False or None (default) only returns the immediate children.
         :return: The list of subtopic strings.
         """
-        raise NotImplementedError()
+        t = self._topic_get(topic)
+        if bool(traverse):
+            lead_count = 0 if bool(absolute) else len(t.topic_name) + 1
+            return self._enumerate_recurse(t, lead_count)
+        names = t.children.keys()
+        if bool(absolute):
+            names = [f'{topic}/{n}' for n in names]
+        else:
+            names = list(names)
+        return names
 
     def subscribe(self, topic: str, update_fn: callable, flags=None, timeout=None):
         """Subscribe to receive topic updates.
@@ -342,13 +416,12 @@ class PubSub:
             Qt event thread.
         :raise RuntimeError: on error.
         """
-        cmd = {
-            'command': 'subscribe',
+        value = {
             'topic': topic,
             'update_fn': update_fn,
             'flags': flags
         }
-        return self._send(cmd, timeout)
+        return self._send(SUBSCRIBE_TOPIC, value, timeout)
 
     def unsubscribe(self, topic, update_fn: callable, flags=None, timeout=None):
         """Unsubscribe from a topic.
@@ -363,13 +436,12 @@ class PubSub:
             Qt event thread.
         :raise: On error.
         """
-        cmd = {
-            'command': 'unsubscribe',
+        value = {
             'topic': topic,
             'update_fn': update_fn,
             'flags': flags
         }
-        return self._send(cmd, timeout)
+        return self._send(UNSUBSCRIBE_TOPIC, value, timeout)
 
     def unsubscribe_all(self, update_fn: callable, timeout=None):
         """Completely unsubscribe a callback from all topics.
@@ -381,15 +453,11 @@ class PubSub:
             Qt event thread.
         :raise: On error.
         """
-        cmd = {
-            'command': 'unsubscribe_all',
-            'topic': '',
-            'update_fn': update_fn,
-        }
-        return self._send(cmd, timeout)
+        value = {'update_fn': update_fn}
+        return self._send(UNSUBSCRIBE_ALL_TOPIC, value, timeout)
 
-    def _on_topic_add(self, cmd):
-        topic_name, meta = cmd['topic'], cmd['meta']
+    def _cmd_topic_add(self, topic, value):
+        topic_name = value['topic']
         topic_name_parts = topic_name.split('/')
         topic = self._root
         for idx in range(len(topic_name_parts) - 1):
@@ -402,12 +470,24 @@ class PubSub:
                 topic.children[subtopic_name] = subtopic
                 self._topic_by_name[topic_name_new] = subtopic
                 topic = subtopic
-        t = _Topic(topic, topic_name, meta)
+        if 'instance' in value:
+            t = value['instance']
+        else:
+            t = _Topic(topic, topic_name, value['meta'])
         topic.children[topic_name_parts[-1]] = t
         self._topic_by_name[topic_name] = t
+        return [TOPIC_REMOVE_TOPIC, {'topic': value['topic']}]
 
-    def _on_topic_remove(self, cmd):
-        pass
+    def _cmd_topic_remove(self, topic, value):
+        topic = value['topic']
+        try:
+            t = self._topic_get(topic)
+        except KeyError:
+            self._log.debug('topic remove %s but already removed', topic)
+            return None
+        t.parent.children.pop(t.subtopic_name)
+        self._topic_by_name.pop(topic)
+        return [TOPIC_ADD_TOPIC, {'topic': topic, 'instance': t}]
 
     def _publish_retain(self, t, update_fn):
         if not t.subtopic_name.startswith('!'):
@@ -415,10 +495,10 @@ class PubSub:
         for child in t.children.values():
             self._publish_retain(child, update_fn)
 
-    def _on_subscribe(self, cmd):
-        topic = cmd['topic']
-        update_fn = cmd['update_fn']
-        flags = cmd['flags']
+    def _cmd_subscribe(self, topic, value):
+        topic = value['topic']
+        update_fn = value['update_fn']
+        flags = value['flags']
         if flags is None:
             flags = ['pub']
         try:
@@ -434,11 +514,12 @@ class PubSub:
                 t.update_fn[flag].append(update_fn)
         if retain:
             self._publish_retain(t, update_fn)
+        return [UNSUBSCRIBE_TOPIC, value]
 
-    def _on_unsubscribe(self, cmd):
-        topic = cmd['topic']
-        update_fn = cmd['update_fn']
-        flags = cmd['flags']
+    def _cmd_unsubscribe(self, topic, value):
+        topic = value['topic']
+        update_fn = value['update_fn']
+        flags = value['flags']
         if flags is None:
             flags = _SUBSCRIBER_TYPES
         try:
@@ -452,11 +533,28 @@ class PubSub:
                     t.update_fn[flag].remove(update_fn)
                 except ValueError:
                     break
+        return [SUBSCRIBE_TOPIC, value]
 
-    def _on_unsubscribe_all(self, cmd):
-        topic = cmd['topic']
-        update_fn = cmd['update_fn']
-        t = self._root
+    def _unsubscribe_all_recurse(self, t, update_fn, undo_list):
+        for flag, update_fns in t.update_fn.items():
+            flags = []
+            while True:
+                try:
+                    update_fns.remove(update_fn)
+                    flags.append(flag)
+                except ValueError:
+                    break
+            if len(flags):
+                value = {'topic': t.topic_name, 'update_fn': update_fn, 'flags': flags}
+                undo_list.append([SUBSCRIBE_TOPIC, value])
+        for subtopic in t.children.values():
+            self._unsubscribe_all_recurse(subtopic, update_fn, undo_list)
+
+    def _cmd_unsubscribe_all(self, topic, value):
+        update_fn = value['update_fn']
+        undo_list = []
+        self._unsubscribe_all_recurse(self._root, update_fn, undo_list)
+        return undo_list
 
     def _publish_value(self, t, flag, topic_name, value):
         while t is not None:
@@ -464,9 +562,8 @@ class PubSub:
                 fn(topic_name, value)
             t = t.parent
 
-    def _on_publish(self, cmd):
-        topic = cmd['topic']
-        value = cmd['value']
+    def _process_one(self, cmd):
+        topic, value = cmd.topic, cmd.value
         if topic[-1] in _SUFFIX_CHAR:
             topic_name = topic[:-1]
             flag = _SUFFIX_CHAR[topic[-1]]
@@ -493,30 +590,12 @@ class PubSub:
                 t.value = value
         self._publish_value(t, flag, topic_name, value)
 
-    def _process_one(self, cmd):
-        command_name = cmd.get('command', '__command_key_not_found__')
-        method_name = f'_on_{command_name}'
-        try:
-            method = getattr(self, method_name)
-        except AttributeError:
-            msg = f'Command {command_name} not supported'
-            self._log.warning(msg)
-            return msg
-        try:
-            return method(cmd)
-        except:
-            msg = f'Command {command_name} exception'
-            self._log.exception(msg)
-            return msg
-
     def _process(self):
-        rv = None
         while len(self._stack):
             cmd = self._stack[-1].pop(0)
-            rv = self._process_one(cmd)
+            self._process_one(cmd)
             if not len(self._stack[-1]):
                 self._stack.pop()
-        return rv
 
     def process(self):
         """Process all pending actions."""
@@ -528,7 +607,7 @@ class PubSub:
                 except IndexError:
                     break
             assert(len(self._stack) == 0)
-            self._undo_capture = _Undo(cmd['topic'])
+            self._undo_capture = _Undo(cmd.topic)
             self._stack.append([cmd])
             self._process()
             assert (len(self._stack) == 0)
@@ -537,3 +616,25 @@ class PubSub:
             self._undo_capture = None
             count += 1
         return count
+
+    def save(self, fh):
+        do_close = False
+        obj = self._root.to_obj()
+        if isinstance(fh, str):
+            fh = open(fh, 'wb')
+        try:
+            json.dump(obj, fh)
+        finally:
+            if do_close:
+                fh.close()
+
+    def _rebuild_topic_by_name(self, t):
+        self._topic_by_name[t.topic_name] = t
+        for child in t.children.values():
+            self._rebuild_topic_by_name(child)
+
+    def load(self, fh):
+        obj = json.load(fh)
+        self._root.from_obj(obj)
+        self._topic_by_name.clear()
+        self._rebuild_topic_by_name(self._root)

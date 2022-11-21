@@ -18,6 +18,7 @@ Test the paths
 
 import unittest
 from joulescope_ui.pubsub import PubSub
+import io
 
 
 TOPIC1 = 'my/topic/one'
@@ -75,7 +76,7 @@ class TestPubSub(unittest.TestCase):
         p.publish(TOPIC1, 'world')
         self.assertEqual(0, len(self.pub))
 
-    def test_subscribe_all(self):
+    def test_unsubscribe_all(self):
         p = PubSub()
         p.topic_add('my/topic', dtype='node', brief='node')
         p.topic_add('my/topic/sub', dtype='str', brief='my topic', default='hello')
@@ -84,6 +85,9 @@ class TestPubSub(unittest.TestCase):
         p.unsubscribe_all(self._on_publish_fn)
         p.publish('my/topic/sub', 'world')
         self.assertEqual(0, len(self.pub))
+        p.undo(2)  # publish & unsubscribe_all
+        p.publish('my/topic/sub', 'world')
+        self.assertEqual(2, len(self.pub))
 
     def test_undo_redo(self):
         p = PubSub()
@@ -94,3 +98,81 @@ class TestPubSub(unittest.TestCase):
         self.assertEqual('hello', p.query(TOPIC1))
         p.redo()
         self.assertEqual('world', p.query(TOPIC1))
+
+    def test_topic_remove(self):
+        p = PubSub()
+        with self.assertRaises(KeyError):
+            p.query(TOPIC1)
+        p.topic_add(TOPIC1, dtype='str', brief='my topic', default='hello')
+        self.assertEqual('hello', p.query(TOPIC1))
+        p.topic_remove(TOPIC1)
+        with self.assertRaises(KeyError):
+            p.query(TOPIC1)
+
+    def test_enumerate(self):
+        p = PubSub()
+        p.topic_add('base/one', dtype='str', brief='one', default='a')
+        p.topic_add('base/two', dtype='str', brief='one', default='b')
+        p.topic_add('base/three', dtype='str', brief='one', default='c')
+        p.topic_add('base/three/a', dtype='str', brief='one', default='1')
+        p.topic_add('base/three/b', dtype='str', brief='one', default='2')
+        p.topic_add('base/three/c', dtype='str', brief='one', default='3')
+        self.assertEqual(['one', 'two', 'three'], p.enumerate('base'))
+        self.assertEqual(['base/one', 'base/two', 'base/three'], p.enumerate('base', absolute=True))
+        self.assertEqual(['one', 'two', 'three', 'three/a', 'three/b', 'three/c'], p.enumerate('base', traverse=True))
+        self.assertEqual('base/one', p.enumerate('base', absolute=True, traverse=True)[0])
+
+    def test_subscribe_undo(self):
+        p = PubSub()
+        p.topic_add(TOPIC1, dtype='str', brief='my topic', default='hello')
+        p.subscribe(TOPIC1, self._on_publish_fn, flags=['pub'])
+        p.undo()
+        p.publish(TOPIC1, 'world')
+        self.assertEqual(0, len(self.pub))
+        p.subscribe(TOPIC1, self._on_publish_fn, flags=['pub'])
+        p.undo()
+        p.redo()
+        p.publish(TOPIC1, 'world')
+        self.assertEqual(1, len(self.pub))
+
+    def test_unsubscribe_undo(self):
+        p = PubSub()
+        p.topic_add(TOPIC1, dtype='str', brief='my topic', default='hello')
+        p.subscribe(TOPIC1, self._on_publish_fn, flags=['pub'])
+        p.unsubscribe(TOPIC1, self._on_publish_fn, flags=['pub'])
+        p.undo()
+        p.publish(TOPIC1, 'world')
+        self.assertEqual(1, len(self.pub))
+
+    def test_undo_topic_add_and_remove(self):
+        p = PubSub()
+        p.topic_add(TOPIC1, dtype='str', brief='my topic', default='hello')
+        p.undo()
+        with self.assertRaises(KeyError):
+            p.query(TOPIC1)
+        p.redo()
+        self.assertEqual('hello', p.query(TOPIC1))
+        p.topic_remove(TOPIC1)
+        with self.assertRaises(KeyError):
+            p.query(TOPIC1)
+        p.undo()
+        self.assertEqual('hello', p.query(TOPIC1))
+        p.redo()
+        with self.assertRaises(KeyError):
+            p.query(TOPIC1)
+
+    def test_save(self):
+        p1 = PubSub()
+        p1.topic_add(TOPIC1, dtype='str', brief='my topic', default='hello')
+        f = io.StringIO()
+        p1.save(f)
+        s = f.getvalue()
+
+        p2 = PubSub()
+        f = io.StringIO(s)
+        p2.load(f)
+        self.assertEqual('hello', p2.query(TOPIC1))
+
+
+
+    # complicated undo with stack usage
