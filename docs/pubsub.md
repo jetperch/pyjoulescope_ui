@@ -76,8 +76,8 @@ The Joulescope UI uses a topic hierarchy.  The topic name
 is constructed by concatenating each level with '/'.  Leading
 and trailing '/' are not used.  The hierarchy is
 
-* app_common  # shared across all profiles
-  * name: {name}
+* common  # shared across all profiles, saved as common.json
+  * name: {app_name}
   * actions
     * !undo {count}
     * !redo {count}
@@ -88,127 +88,80 @@ and trailing '/' are not used.  The hierarchy is
     * !topic_remove {topic}
   * profile
     * actions 
-      * !add
-      * !remove
-      * !select
+      * !add {name}
+      * !remove {name}
       * !save
-      * !load
-      * !restore
-    * active
-      * name: {name}
-      * description: {description}
-      * filename: {filename}
-    * available:
+      * !load {name}
+    * items
       * {name}
         * name: {name}
         * description: {description}
         * filename: {filename}
-    * start: {previous, ignore, named}
-    * start_name: {profile_name}
-  * paths
+    * settings 
+      * active: {name}
+      * start_mode: {previous, ignore, named}
+      * start_name: {name}
+  * paths 
     * app
-    * config_path
-    * config_file
+    * config
     * log
     * themes
     * update
-  * app_update
-    * check: [start, daily, weekly]
-    * channel: [alpha, beta, stable]
-  * logging
-    * console_level
-    * file_level
-    * module_levels
-      * {module_name}: {level} 
-  * developer
-  * process_priority
-* app
-  * auto_open: [off, first, all, profile]
-  * path
-    * data_path 
-    * data_path_type: ['Use fixed data_path', 'Most recently saved', 'Most recently used']
-    * _mru_saved
-    * _mru_used
-    * _mru_list
-    * mru_count
-  * units
-    * accumulator_default: ['charge', 'energy']   
-    * charge
-    * energy
-    * elapsed_time: ['seconds', 'D:hh:mm:ss']
 * registry
-  * actions
-    * !add
-    * !remove
-  * devices (device registry)
-    * {device}
-      * name: {name}
-      * description: {description}
-      * driver: {package.module.driver}
-      * path: {subtopic}
-      * capabilities
-        * stream: 0, 1
-        * statistics: 0, 1
-      * settings
-        * {subtopic}: {value}
-      * sources
-        * {source}  (for JS110 and JS220)
-          * name
-          * vendor
-          * model
-          * version
-          * serial_number
-          * !statistics
-          * statistics_status
-          * stream_status
-          * !status
-          * signals
-            * {signal}
-              * dtype 
-              * units
-              * sample_rate
-              * !sample_req [t_start, t_end, cbk_topic, cbk_identifier] 
-              * !summary_req [t_start, t_end, t_incr, cbk_topic, cbk_identifier]
-  * drivers (driver registry)
-    * {package.module.driver}
-      * name: {name}
-      * description: {description}
-      * version
-      * device_paths: [{p1}, ...]
-      * defaults
-        * {device} 
-          * {subtopic}: {value} 
-    * jsdrv
-    * jls_v1
-    * jls_v2
-  * plugins (plugin registry)
-    * {package.module.plugin}
-      * name: {name}
-      * description: {description}
-      * settings
-        * {subtopic}: {value}
-  * widgets (widget registry)
-    * {package.module.widget}
-      * {subtopic}: {value}
-* ui
-  * font
-  * theme
-  * actions
-    * !widget_add {widget, }
-    * !widget_remove
-    * !window_add
-    * !window_remove
-  * widgets (currently instantiated)
-    * {package.module.widget}:{id}
-      * name: {name}
-      * settings
-        * {subtopic}: {value}
-  * windows (currently active)
-    * {window}
-      * name: {name}
-      * keep_on_top 
-      * state
-      * widgets: [{widget1/id1}, {widget2/id2}]
+  * classes
+    * actions
+      * !add
+      * !remove
+    * items
+      * {package.module.class}
+        * name: {name}
+        * brief: {brief}
+        * description: {description}
+        * capabilities: []
+        * settings  (optional defaults)
+          * {path}: {value}
+        * version: {version}
+  * objects
+    * actions
+      * !add
+      * !remove
+    * items 
+      * {unique_id}
+        * item: {package.module.item}
+        * metadata
+          * id
+          * name: {name}
+          * brief: {brief}
+          * description: {description}
+          * capabilities: []
+        * parent: {unique_id}
+        * children: [{unique_id1}, ...]
+        * actions
+          * !{action1}
+        * callbacks
+          * !{callback1} 
+        * settings
+          * {path}: {value}
+        * version: {version}
+  * capabilities
+    * {capability}
+      * actions
+        * !add
+        * !remove
+      * list: [{unique_id1}, ...]
+
+Capabilities include:
+* sample_range_tool
+* device_factory
+* device
+* keyboard_shortcut
+* signal_sink (JLS v2 recorder)
+* signal_source (device, JLS v2 reader)
+* statistics_source (device)
+* view
+* widget
+
+
 
 
 ## Changes from 0.10.x to 1.x.x

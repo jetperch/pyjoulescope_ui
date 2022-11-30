@@ -20,22 +20,25 @@ from . import json
 from .metadata import Metadata
 import threading
 import logging
+import os
+import sys
 
 
+_APP_DEFAULT = 'joulescope'
 _SUBSCRIBER_TYPES = ['command', 'pub', 'retain', 'metadata', 'remove', 'completion']
 _SUFFIX_CHAR = {
     '$': 'metadata',
     '~': 'remove',
     '#': 'completion'
 }
-APP_COMMON_ACTIONS_TOPIC = 'app_common/actions'
-UNDO_TOPIC = APP_COMMON_ACTIONS_TOPIC + '/!undo'
-REDO_TOPIC = APP_COMMON_ACTIONS_TOPIC + '/!redo'
-SUBSCRIBE_TOPIC = APP_COMMON_ACTIONS_TOPIC + '/!subscribe'
-UNSUBSCRIBE_TOPIC = APP_COMMON_ACTIONS_TOPIC + '/!unsubscribe'
-UNSUBSCRIBE_ALL_TOPIC = APP_COMMON_ACTIONS_TOPIC + '/!unsubscribe_all'
-TOPIC_ADD_TOPIC = APP_COMMON_ACTIONS_TOPIC + '/!topic_add'
-TOPIC_REMOVE_TOPIC = APP_COMMON_ACTIONS_TOPIC + '/!topic_remove'
+COMMON_ACTIONS_TOPIC = 'common/actions'
+UNDO_TOPIC = COMMON_ACTIONS_TOPIC + '/!undo'
+REDO_TOPIC = COMMON_ACTIONS_TOPIC + '/!redo'
+SUBSCRIBE_TOPIC = COMMON_ACTIONS_TOPIC + '/!subscribe'
+UNSUBSCRIBE_TOPIC = COMMON_ACTIONS_TOPIC + '/!unsubscribe'
+UNSUBSCRIBE_ALL_TOPIC = COMMON_ACTIONS_TOPIC + '/!unsubscribe_all'
+TOPIC_ADD_TOPIC = COMMON_ACTIONS_TOPIC + '/!topic_add'
+TOPIC_REMOVE_TOPIC = COMMON_ACTIONS_TOPIC + '/!topic_remove'
 
 
 class _Topic:
@@ -168,20 +171,15 @@ class _Undo:
 
 
 class PubSub:
-    def __init__(self, notify_fn=None):
+    def __init__(self, app=None):
         """A publish-subscribe implementation combined with the command pattern.
 
-        :param notify_fn: The function to call whenever a new item is
-            ready for processing.
-
+        :param app: The application name.  None uses the default
         """
+        self._app = _APP_DEFAULT if app is None else str(app)
         self._log = logging.getLogger(__name__)
-        if callable(notify_fn):
-            self._notify_fn = notify_fn
-        elif notify_fn is None:
-            self._notify_fn = lambda: None
-        else:
-            raise ValueError('Invalid notify_fn')
+        self._notify_fn = None
+        self.notify_fn = None
         self._thread_id = threading.get_native_id()
         meta = Metadata(dtype='node', brief='root topic')
         self._root = _Topic(None, '', meta)
@@ -200,6 +198,45 @@ class PubSub:
         self._add_cmd(TOPIC_REMOVE_TOPIC, self._cmd_topic_remove)
         self._add_cmd(UNDO_TOPIC, self._cmd_undo)
         self._add_cmd(REDO_TOPIC, self._cmd_redo)
+
+        self._paths_init()
+
+    @property
+    def notify_fn(self):
+        return self._notify_fn
+
+    @notify_fn.setter
+    def notify_fn(self, notify_fn):
+        if callable(notify_fn):
+            self._notify_fn = notify_fn
+        elif notify_fn is None:
+            self._notify_fn = lambda: None
+        else:
+            raise ValueError('Invalid notify_fn')
+
+    def _paths_init(self):
+        if 'win32' in sys.platform:
+            from win32com.shell import shell, shellcon
+            user_path = shell.SHGetFolderPath(0, shellcon.CSIDL_PERSONAL, None, 0)
+            appdata_path = shell.SHGetFolderPath(0, shellcon.CSIDL_LOCAL_APPDATA, None, 0)
+            app_path = os.path.join(appdata_path, self._app)
+        elif 'darwin' in sys.platform:
+            user_path = os.path.join(os.path.expanduser('~'), 'Documents', self._app)
+            app_path = os.path.join(user_path, 'Library', 'Application Support', self._app)
+        elif 'linux' in sys.platform:
+            user_path = os.path.join(os.path.expanduser('~'), 'Documents', self._app)
+            app_path = os.path.join(user_path, '.' + self._app)
+        else:
+            raise RuntimeError('unsupported platform')
+
+        self.topic_add('common', 'node', 'Common topics unaffected by profiles')
+        self.topic_add('common/paths', 'node', 'Common directory and file paths')
+        self.topic_add('common/paths/app', 'str', 'Base application directory', default=app_path)
+        self.topic_add('common/paths/config', 'str', 'Config directory', default=os.path.join(app_path, 'config'))
+        self.topic_add('common/paths/log', 'str', 'Log directory', default=os.path.join(app_path, 'log'))
+        self.topic_add('common/paths/themes', 'str', 'Rendered themes', default=os.path.join(app_path, 'themes'))
+        self.topic_add('common/paths/update', 'str', 'Downloads for application updates', default=os.path.join(app_path, 'update'))
+        self.topic_add('common/paths/data', 'str', 'Data recordings', default=os.path.join(user_path, self._app))
 
     def _add_cmd(self, topic, update_fn):
         topic_add_value = {
@@ -285,7 +322,18 @@ class PubSub:
         """
 
         timeout = kwargs.pop('timeout', None)
-        if len(kwargs):
+        meta = kwargs.pop('meta', None)
+
+        if meta is not None:
+            if len(kwargs):
+                raise ValueError('invalid arguments')
+            elif isinstance(meta, Metadata):
+                pass
+            elif isinstance(meta, str):
+                meta = Metadata(**json.loads(meta))
+            else:
+                raise ValueError('invalid meta argument')
+        elif len(kwargs):
             meta = Metadata(*args, **kwargs)
         elif len(args) == 1:
             x = args[0]
@@ -295,6 +343,8 @@ class PubSub:
                 meta = Metadata(**json.loads(x))
             else:
                 raise ValueError('positional metadata arg must be Metadata or json string')
+        else:
+            meta = Metadata(*args)
         return self._send(TOPIC_ADD_TOPIC, {'topic': topic, 'meta': meta}, timeout)
 
     def topic_remove(self, topic: str, timeout=None):

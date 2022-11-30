@@ -18,7 +18,9 @@ Test the paths
 
 import unittest
 from joulescope_ui.pubsub import PubSub
+from joulescope_ui.metadata import Metadata
 import io
+import json
 
 
 TOPIC1 = 'my/topic/one'
@@ -46,6 +48,16 @@ class TestPubSub(unittest.TestCase):
         p.publish(TOPIC1, 'world')
         self.assertEqual(1, len(self.pub))
         self.assertEqual([TOPIC1, 'world'], self.pub.pop())
+
+    def test_topic_add_variations(self):
+        meta = Metadata('obj', 'my topic')
+        p = PubSub()
+        p.topic_add('t/1', dtype='obj', brief='my topic')
+        p.topic_add('t/2', 'obj', brief='my topic')
+        p.topic_add('t/3', 'obj', 'my topic')
+        p.topic_add('t/4', meta)
+        p.topic_add('t/5', meta=meta)
+        p.topic_add('t/6', meta=json.dumps(meta.to_map()))
 
     def test_no_retain(self):
         p = PubSub()
@@ -173,6 +185,7 @@ class TestPubSub(unittest.TestCase):
         p2.load(f)
         self.assertEqual('hello', p2.query(TOPIC1))
 
-
-
-    # complicated undo with stack usage
+    # todo complicated undo with stack usage
+    # todo profiles
+    # todo settings
+    # todo notify_fn

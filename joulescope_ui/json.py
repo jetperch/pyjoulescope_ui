@@ -42,3 +42,8 @@ def dump(obj, fh):
 
 def load(fh):
     return json.load(fh, object_hook=custom_decoder)
+
+
+def loads(s):
+    return json.loads(s, object_hook=custom_decoder)
+

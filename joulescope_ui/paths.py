@@ -12,85 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# https://doc.qt.io/qt-5/qsettings.html#platform-specific-notes
-
 
 import os
 import shutil
 import sys
-import json
 import logging
-
-
-platform = sys.platform
-APP = 'joulescope'
-DIRS = ['app_path', 'config', 'log', 'firmware', 'themes', 'data', 'update']
-FILES = ['config']
-
-
-def paths_v2(app=None):
-    """Paths for the most recent software version.
-
-    :param app: The optional application name.  None is :data:`APP`.
-    :return: The dict data structure containing 'dirs' key contains
-        keys mapping :data:`DIRS` to their paths.  The 'files' key
-        contains keys mapping :data:`FILES` to their paths.
-    """
-    app = APP if app is None else str(app)
-    if 'win32' in sys.platform:
-        from win32com.shell import shell, shellcon
-        user_path = shell.SHGetFolderPath(0, shellcon.CSIDL_PERSONAL, None, 0)
-        appdata_path = shell.SHGetFolderPath(0, shellcon.CSIDL_LOCAL_APPDATA, None, 0)
-        app_path = os.path.join(appdata_path, app)
-        p = {
-            'dirs': {
-                'app_path': app_path,
-                'config': os.path.join(app_path, 'config'),
-                'log': os.path.join(app_path, 'log'),
-                'firmware': os.path.join(app_path, 'firmware'),
-                'themes': os.path.join(app_path, 'themes'),
-                'data': os.path.join(user_path, app),
-                'update': os.path.join(app_path, 'update'),
-            }
-        }
-
-    elif 'darwin' in sys.platform:
-        user_path = os.path.expanduser('~')
-        app_path = os.path.join(user_path, 'Library', 'Application Support', app)
-        p = {
-            'dirs': {
-                'app_path': app_path,
-                'config': os.path.join(app_path, 'config'),
-                'log': os.path.join(app_path, 'log'),
-                'firmware': os.path.join(app_path, 'firmware'),
-                'themes': os.path.join(app_path, 'themes'),
-                'data': os.path.join(user_path, 'Documents', app),
-                'update': os.path.join(app_path, 'update'),
-            }
-        }
-
-    elif 'linux' in sys.platform:
-        user_path = os.path.expanduser('~')
-        app_path = os.path.join(user_path, '.' + app)
-        p = {
-            'dirs': {
-                'app_path': app_path,
-                'config': os.path.join(app_path, 'config'),
-                'log': os.path.join(app_path, 'log'),
-                'firmware': os.path.join(app_path, 'firmware'),
-                'themes': os.path.join(app_path, 'themes'),
-                'data': os.path.join(user_path, 'Documents', app),
-                'update': os.path.join(app_path, 'update'),
-            }
-        }
-
-    else:
-        raise RuntimeError('unsupported platform')
-
-    p['files'] = {
-        'config': os.path.join(p['dirs']['config'], 'joulescope_config.json'),
-    }
-    return p
 
 
 paths_current = paths_v2

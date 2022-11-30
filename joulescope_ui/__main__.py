@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright 2018 Jetperch LLC
+# Copyright 2018-2022 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,27 +15,11 @@
 # limitations under the License.
 
 import sys
-from joulescope.entry_points.runner import run
 import argparse
-import multiprocessing
-
-
-def _argv_patch():
-    """Add the "ui" command as needed."""
-    for argv in sys.argv[1:]:
-        if argv.startswith('-'):
-            # not fully supported, presume "ui" command.
-            break
-        if argv.endswith('.jls'):
-            # first positional argument is filename, "ui" command.
-            break
-        else:
-            return  # command present
-    sys.argv.insert(1, 'ui')
-
+from .entry_points import ui
 
 if __name__ == '__main__':
-    multiprocessing.freeze_support()
     parser = argparse.ArgumentParser(description='Joulescope™ user interface.')
-    _argv_patch()
-    sys.exit(run())
+    cmd = ui.parser_config(parser)
+    args = parser.parse_args()
+    sys.exit(cmd(args))

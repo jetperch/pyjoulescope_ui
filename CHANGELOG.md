@@ -4,6 +4,15 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 1.0.0
+
+2022 Nov 29
+
+* Migrated to new PubSub implementation from CommandProcessor + Preferences.
+* Migrated to pyjoulescope_driver from pyjoulescope.
+* Removed command line options "device_name" and "window_state".
+
+
 ## 0.10.12
 
 2022 Nov 11
