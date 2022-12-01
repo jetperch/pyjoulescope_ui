@@ -107,61 +107,44 @@ and trailing '/' are not used.  The hierarchy is
     * log
     * themes
     * update
-* registry
-  * classes
-    * actions
+* registry_manager
+  * actions
+    * capability
       * !add
       * !remove
-    * items
-      * {package.module.class}
-        * name: {name}
-        * brief: {brief}
-        * description: {description}
-        * capabilities: []
-        * settings  (optional defaults)
-          * {path}: {value}
-        * version: {version}
-  * objects
-    * actions
+    * registry
       * !add
       * !remove
-    * items 
-      * {unique_id}
-        * item: {package.module.item}
-        * metadata
-          * id
-          * name: {name}
-          * brief: {brief}
-          * description: {description}
-          * capabilities: []
-        * parent: {unique_id}
-        * children: [{unique_id1}, ...]
-        * actions
-          * !{action1}
-        * callbacks
-          * !{callback1} 
-        * settings
-          * {path}: {value}
-        * version: {version}
   * capabilities
     * {capability}
       * actions
         * !add
         * !remove
       * list: [{unique_id1}, ...]
+  * next_unique_id
+* registry
+  * {unique_id}
+    * instance: {python_object} 
+    * instance_of: {unique_id}
+    * capabilities: []
+    * parent: {unique_id}
+    * children: [{unique_id1}, ...]
+    * actions
+      * !{action1}
+    * callbacks
+      * !{callback1} 
+    * settings
+      * {path}: {value}
+      * name: {name}
 
-Capabilities include:
-* sample_range_tool
-* device_factory
-* device
-* keyboard_shortcut
-* signal_sink (JLS v2 recorder)
-* signal_source (device, JLS v2 reader)
-* statistics_source (device)
-* view
-* widget
-
-
+The unique_ids can be any string.  However, the following
+are defined:
+* 'ui', 'help'
+* 'jsdrv'
+* 'jls'
+* '{device}-{serial_number}'
+* '{package.module.class}' for instantiable classes
+* hex string of incrementing integer for dynamic objects
 
 
 ## Changes from 0.10.x to 1.x.x

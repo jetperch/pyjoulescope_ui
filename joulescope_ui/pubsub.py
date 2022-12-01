@@ -39,6 +39,55 @@ UNSUBSCRIBE_TOPIC = COMMON_ACTIONS_TOPIC + '/!unsubscribe'
 UNSUBSCRIBE_ALL_TOPIC = COMMON_ACTIONS_TOPIC + '/!unsubscribe_all'
 TOPIC_ADD_TOPIC = COMMON_ACTIONS_TOPIC + '/!topic_add'
 TOPIC_REMOVE_TOPIC = COMMON_ACTIONS_TOPIC + '/!topic_remove'
+CLS_ACTION_PREFIX = 'on_cls_action_'
+CLS_CALLBACK_PREFIX = 'on_cls_cbk_'
+ACTION_PREFIX = 'on_action_'
+CALLBACK_PREFIX = 'on_cbk_'
+
+
+class REGISTRY_MANAGER_TOPICS:
+    BASE = 'registry_manager'
+    ACTIONS = 'registry_manager/actions'
+    CAPABILITY_ADD = 'registry_manager/actions/capability/!add'
+    CAPABILITY_REMOVE = 'registry_manager/actions/capability/!remove'
+    REGISTRY_ADD = 'registry_manager/actions/registry/!add'
+    REGISTRY_REMOVE = 'registry_manager/actions/registry/!remove'
+    CAPABILITIES = f'registry_manager/capabilities'
+    NEXT_UNIQUE_ID = f'registry_manager/next_unique_id'
+
+
+def _parse_docstr(doc: str, default):
+    if doc is None:
+        return str(default)
+    doc = doc.split('\n\n')[0]
+    doc = doc.replace('\n', ' ')
+    return doc
+
+
+class _Function:
+
+    def __init__(self, fn, signature_type=None):
+        self.fn = fn
+        self.signature_type = signature_type
+        if signature_type is None:
+            fn = getattr(fn, '__func__', fn)
+            code = fn.__code__
+            args = code.co_argcount
+            if code.co_varnames[0] == 'self':
+                args -= 1
+            if not 1 <= args <= 3:
+                raise ValueError(f'invalid function {fn}')
+            self.signature_type = args
+
+    def __call__(self, pubsub, topic: str, value):
+        if self.signature_type == 1:
+            return self.fn(value)
+        elif self.signature_type == 2:
+            return self.fn(topic, value)
+        elif self.signature_type == 3:
+            return self.fn(pubsub, topic, value)
+        else:
+            raise RuntimeError('invalid')
 
 
 class _Topic:
@@ -51,17 +100,25 @@ class _Topic:
         :param meta: The metadata for this topic.
         :param value: The optional initial value.
         """
-        self.update_fn = {}   # Mapping[str, list]
+        self.update_fn = {}   # Mapping[str, list of _Function]
         for stype in _SUBSCRIBER_TYPES:
             self.update_fn[stype] = []
         self.parent = parent
         self.topic_name = topic
         self.subtopic_name = topic.split('/')[-1]
         self._value = None          # for retained values
-        self.children = {}      # Mapping[str, MyTopic]
+        self.children = {}      # Mapping[str, _Topic]
         self.meta = meta
         default = None if meta is None else meta.default
-        self.value = value if value is not None else default
+        if len(self.subtopic_name) and self.subtopic_name[0] != '!':
+            self.value = value if value is not None else default
+
+    def __del__(self):
+        for value in self.update_fn.values():
+            value.clear()
+        self.children.clear()
+        self.parent = None
+        self._value = None
 
     def to_obj(self):
         children = []
@@ -171,11 +228,11 @@ class _Undo:
 
 
 class PubSub:
-    def __init__(self, app=None):
-        """A publish-subscribe implementation combined with the command pattern.
+    """A publish-subscribe implementation combined with the command pattern.
 
-        :param app: The application name.  None uses the default
-        """
+    :param app: The application name.  None uses the default.
+    """
+    def __init__(self, app=None):
         self._app = _APP_DEFAULT if app is None else str(app)
         self._log = logging.getLogger(__name__)
         self._notify_fn = None
@@ -243,15 +300,15 @@ class PubSub:
             'topic': topic,
             'meta': Metadata(dtype='obj', brief=topic, flags=['hide']),
         }
-        self._cmd_topic_add(TOPIC_ADD_TOPIC, topic_add_value)
+        self._cmd_topic_add(topic_add_value)
         subscribe_value = {
             'topic': topic,
             'update_fn': update_fn,
             'flags': ['command']
         }
-        self._cmd_subscribe(SUBSCRIBE_TOPIC, subscribe_value)
+        self._cmd_subscribe(subscribe_value)
 
-    def _cmd_undo(self, topic, value):
+    def _cmd_undo(self, value):
         for count in range(value):
             if not len(self.undos):
                 return
@@ -261,7 +318,7 @@ class PubSub:
                 self._process_one(cmd)
         return None
 
-    def _cmd_redo(self, topic, value):
+    def _cmd_redo(self, value):
         for count in range(value):
             if not len(self.redos):
                 return
@@ -449,7 +506,11 @@ class PubSub:
             - completion: Subscribe to completion code.
               The topic provided to update_fn is topic + '#'.
 
-        :param update_fn: The function(topic, value) to call on each publish.
+        :param update_fn: The function to call on each publish.
+            The function can be one of:
+            * update_fn(value)
+            * update_fn(topic: str, value)
+            * update_fn(pubsub: PubSub, topic: str, value)
             For normal subscriptions, the return value is ignored.
             For a command subscriber, the return value should be
             [undo, redo].
@@ -506,7 +567,17 @@ class PubSub:
         value = {'update_fn': update_fn}
         return self._send(UNSUBSCRIBE_ALL_TOPIC, value, timeout)
 
-    def _cmd_topic_add(self, topic, value):
+    def _topic_by_name_recursive_remove(self, t: _Topic):
+        for subtopic in t.children.values():
+            self._topic_by_name_recursive_remove(subtopic)
+        self._topic_by_name.pop(t.topic_name)
+
+    def _topic_by_name_recursive_add(self, t: _Topic):
+        for subtopic in t.children.values():
+            self._topic_by_name_recursive_add(subtopic)
+        self._topic_by_name[t.topic_name] = t
+
+    def _cmd_topic_add(self, value):
         topic_name = value['topic']
         topic_name_parts = topic_name.split('/')
         topic = self._root
@@ -522,13 +593,15 @@ class PubSub:
                 topic = subtopic
         if 'instance' in value:
             t = value['instance']
+            t.parent = topic
+            self._topic_by_name_recursive_add(t)
         else:
             t = _Topic(topic, topic_name, value['meta'])
         topic.children[topic_name_parts[-1]] = t
         self._topic_by_name[topic_name] = t
         return [TOPIC_REMOVE_TOPIC, {'topic': value['topic']}]
 
-    def _cmd_topic_remove(self, topic, value):
+    def _cmd_topic_remove(self, value):
         topic = value['topic']
         try:
             t = self._topic_get(topic)
@@ -536,18 +609,19 @@ class PubSub:
             self._log.debug('topic remove %s but already removed', topic)
             return None
         t.parent.children.pop(t.subtopic_name)
-        self._topic_by_name.pop(topic)
+        t.parent = None
+        self._topic_by_name_recursive_remove(t)
         return [TOPIC_ADD_TOPIC, {'topic': topic, 'instance': t}]
 
     def _publish_retain(self, t, update_fn):
         if not t.subtopic_name.startswith('!'):
-            update_fn(t.topic_name, t.value)
+            update_fn(self, t.topic_name, t.value)
         for child in t.children.values():
             self._publish_retain(child, update_fn)
 
-    def _cmd_subscribe(self, topic, value):
+    def _cmd_subscribe(self, value):
         topic = value['topic']
-        update_fn = value['update_fn']
+        update_fn = _Function(value['update_fn'])
         flags = value['flags']
         if flags is None:
             flags = ['pub']
@@ -566,7 +640,7 @@ class PubSub:
             self._publish_retain(t, update_fn)
         return [UNSUBSCRIBE_TOPIC, value]
 
-    def _cmd_unsubscribe(self, topic, value):
+    def _cmd_unsubscribe(self, value):
         topic = value['topic']
         update_fn = value['update_fn']
         flags = value['flags']
@@ -578,29 +652,23 @@ class PubSub:
             self._log.warning('Subscribe to unknown topic %s', topic)
             return
         for flag in flags:
-            while True:
-                try:
-                    t.update_fn[flag].remove(update_fn)
-                except ValueError:
-                    break
+            t.update_fn[flag] = [fn for fn in t.update_fn[flag] if fn.fn != update_fn]
         return [SUBSCRIBE_TOPIC, value]
 
     def _unsubscribe_all_recurse(self, t, update_fn, undo_list):
+        flags = []
         for flag, update_fns in t.update_fn.items():
-            flags = []
-            while True:
-                try:
-                    update_fns.remove(update_fn)
-                    flags.append(flag)
-                except ValueError:
-                    break
-            if len(flags):
-                value = {'topic': t.topic_name, 'update_fn': update_fn, 'flags': flags}
-                undo_list.append([SUBSCRIBE_TOPIC, value])
+            updated = [fn for fn in update_fns if fn.fn != update_fn]
+            if len(updated) != len(update_fns):
+                t.update_fn[flag] = updated
+                flags.append(flag)
+        if len(flags):
+            value = {'topic': t.topic_name, 'update_fn': update_fn, 'flags': flags}
+            undo_list.append([SUBSCRIBE_TOPIC, value])
         for subtopic in t.children.values():
             self._unsubscribe_all_recurse(subtopic, update_fn, undo_list)
 
-    def _cmd_unsubscribe_all(self, topic, value):
+    def _cmd_unsubscribe_all(self, value):
         update_fn = value['update_fn']
         undo_list = []
         self._unsubscribe_all_recurse(self._root, update_fn, undo_list)
@@ -609,7 +677,7 @@ class PubSub:
     def _publish_value(self, t, flag, topic_name, value):
         while t is not None:
             for fn in t.update_fn[flag]:
-                fn(topic_name, value)
+                fn(self, topic_name, value)
             t = t.parent
 
     def _process_one(self, cmd):
@@ -630,11 +698,10 @@ class PubSub:
             if t.subtopic_name.startswith('!'):
                 cmds_update_fn = t.update_fn['command']
                 if len(cmds_update_fn):
-                    rv = cmds_update_fn[0](topic, value)
+                    rv = cmds_update_fn[0](self, topic, value)
                     self._undo_capture.cmd_add(topic, value, rv)
-                for fn in t.update_fn['pub']:
-                    fn(topic, value)
-                return
+            elif t.value == value:
+                return  # dedup
             else:
                 self._undo_capture.pub_add(topic_name, t.value, value)
                 t.value = value
@@ -682,6 +749,156 @@ class PubSub:
         self._topic_by_name[t.topic_name] = t
         for child in t.children.values():
             self._rebuild_topic_by_name(child)
+
+    def _registry_add(self, unique_id: str, timeout=None):
+        self.publish(REGISTRY_MANAGER_TOPICS.ACTIONS + '/registry/!add', unique_id, timeout=timeout)
+
+    def _registry_remove(self, unique_id: str, timeout=None):
+        raise NotImplementedError()
+
+    def registry_initialize(self):
+        t = REGISTRY_MANAGER_TOPICS
+        self.topic_add(t.BASE, dtype='node', brief='')
+        self.topic_add(t.ACTIONS, dtype='node', brief='')
+        self.topic_add(t.ACTIONS + '/capability', dtype='node', brief='')
+        self.topic_add(t.CAPABILITY_ADD, dtype='obj', brief='')
+        self.topic_add(t.CAPABILITY_REMOVE, dtype='obj', brief='')
+        self.topic_add(t.ACTIONS + '/registry', dtype='node', brief='')
+        self.topic_add(t.REGISTRY_ADD, dtype='obj', brief='')
+        self.topic_add(t.REGISTRY_REMOVE, dtype='obj', brief='')
+        self.topic_add(t.CAPABILITIES, dtype='node', brief='')
+        self.topic_add(t.NEXT_UNIQUE_ID, dtype='int', brief='', default=1)
+
+    def _on_action_capability_add(self, topic, value):
+        parts = topic.split('/')
+        topic_str = '/'.join(parts[:-1])
+        topic_list_str = topic_str + '/list'
+        t_list = self._topic_by_name[topic_list_str]
+        v = t_list.value + [value]
+        t_list.value = v
+        topic_add_str = topic_str + '/!add'
+        t_add = self._topic_by_name[topic_add_str]
+        self._publish_value(t_add, 'pub', topic_add_str, value)
+        topic_update_str = topic_str + '/!update'
+        t_update = self._topic_by_name[topic_update_str]
+        self._publish_value(t_update, 'pub', topic_update_str, ['+', value, v])
+        self._publish_value(t_list, 'pub', topic_list_str, v)
+
+    def _on_action_capability_remove(self, topic, value):
+        parts = topic.split('/')
+        topic_str = '/'.join(parts[:-1])
+        topic_list_str = topic_str + '/list'
+        t_list = self._topic_by_name[topic_list_str]
+        v = [x for x in t_list.value if x != value]
+        t_list.value = v
+        topic_remove_str = topic_str + '/!remove'
+        t_remove = self._topic_by_name[topic_remove_str]
+        self._publish_value(t_remove, 'pub', topic_remove_str, value)
+        topic_update_str = topic_str + '/!update'
+        t_update = self._topic_by_name[topic_update_str]
+        self._publish_value(t_update, 'pub', topic_update_str, ['-', value, v])
+        self._publish_value(t_list, 'pub', topic_list_str, v)
+
+    def register_capability(self, name):
+        t = REGISTRY_MANAGER_TOPICS.CAPABILITIES + '/' + name
+        self.topic_add(t, dtype='node', brief='')
+        self.topic_add(t + '/!update', dtype='obj', brief='The ["+" or "-", unique_id, unique_ids]')
+        self.register_command(t + '/!add', self._on_action_capability_add)
+        self.register_command(t + '/!remove', self._on_action_capability_remove)
+        self.topic_add(t + '/list', dtype='obj',
+                       brief='The current list of unique_ids with this capability', default=[])
+        self.publish(REGISTRY_MANAGER_TOPICS.CAPABILITY_ADD, name)
+
+    def unregister_capability(self, name):
+        t = REGISTRY_MANAGER_TOPICS.CAPABILITIES + '/' + name
+        self._cmd_topic_remove({'topic': t})
+        self.publish(REGISTRY_MANAGER_TOPICS.CAPABILITY_REMOVE, name)
+
+    def _register_obj(self, obj, unique_id) -> str:
+        doc = obj.__doc__
+        if doc is None:
+            doc = obj.__init__.__doc__
+        doc = _parse_docstr(doc, unique_id)
+        capabilities = getattr(obj, 'CAPABILITIES', [])
+        meta = Metadata(dtype='node', brief=doc)
+        prefix = f'registry/{unique_id}'
+        self.topic_add(prefix, meta=meta)
+        self.topic_add(prefix + '/instance', dtype='obj', brief='class', default=obj, flags=['ro'])
+        self.topic_add(prefix + '/actions', dtype='node', brief='actions')
+        self.topic_add(prefix + '/callbacks', dtype='node', brief='callbacks')
+
+        if isinstance(obj, type):
+            for name, attr in obj.__dict__.items():
+                if isinstance(attr, staticmethod):
+                    if name.startswith(CLS_ACTION_PREFIX):
+                        action_name = name[len(CLS_ACTION_PREFIX):]
+                        topic = prefix + f'/actions/!{action_name}'
+                        self.register_command(topic, attr)
+                    elif name.startswith(CLS_CALLBACK_PREFIX):
+                        action_name = name[len(CLS_CALLBACK_PREFIX):]
+                        topic = prefix + f'/callbacks/!{action_name}'
+                        self.register_command(topic, attr)
+                elif isinstance(attr, classmethod):
+                    if name.startswith(CLS_ACTION_PREFIX) or name.startswith(CLS_CALLBACK_PREFIX):
+                        raise ValueError(f'class methods not supported: {unique_id} {name}')
+        else:
+            for name in obj.__class__.__dict__.keys():
+                if name.startswith(ACTION_PREFIX):
+                    action_name = name[len(ACTION_PREFIX):]
+                    topic = prefix + f'/actions/!{action_name}'
+                    self.register_command(topic, getattr(obj, name))
+                elif name.startswith(CALLBACK_PREFIX):
+                    action_name = name[len(CALLBACK_PREFIX):]
+                    topic = prefix + f'/callbacks/!{action_name}'
+                    self.register_command(topic, getattr(obj, name))
+
+        self.topic_add(prefix + '/capabilities', dtype='obj', brief='', default=capabilities, flags=['ro'])
+        for capability in capabilities:
+            self.publish(REGISTRY_MANAGER_TOPICS.CAPABILITIES + f'/{capability}/!add', unique_id)
+        self._registry_add(unique_id)
+        return f'registry/{unique_id}'
+
+    def register_class(self, cls, unique_id=None) -> str:
+        """Register a class.
+
+        :param cls: The class type to register.
+        :param unique_id: The unique_id to use for this class.
+            None (default) uses the fully-qualified package.module.class name.
+        :type unique_id: str, optional
+        :return: The topic name string.
+        """
+        if unique_id is None:
+            unique_id = f'{cls.__module__}.{cls.__qualname__}'
+        return self._register_obj(cls, unique_id)
+
+    def register_instance(self, obj, unique_id=None) -> str:
+        """Register an instance (object).
+
+        :param obj: The instance to register.
+        :param unique_id: The unique_id to use for this instance.
+            None (default) uses a randomly generated value.
+        :type unique_id: str, optional
+        :return: The topic name string.
+        """
+        if unique_id is None:
+            t = self._topic_by_name[REGISTRY_MANAGER_TOPICS.NEXT_UNIQUE_ID]
+            v = t.value
+            t.value += 1
+            unique_id = f'{v:08x}'
+        return self._register_obj(obj, unique_id)
+
+    def register_command(self, topic: str, fn: callable):
+        """Add a new command topic to the pubsub instance.
+
+        :param topic: The topic string for the command.
+        :param fn: The callable fn(pubsub, topic, value) for the command.
+            The return value determines undo/redo behavior.
+            See :meth:`PubSub.subscribe` for details.
+        """
+        doc_default = topic.split('/')[-1][1:]
+        doc = _parse_docstr(fn.__doc__, doc_default)
+        self.topic_add(topic, dtype='obj', brief=doc)
+        self.subscribe(topic, fn, flags=['command'])
 
     def load(self, fh):
         obj = json.load(fh)

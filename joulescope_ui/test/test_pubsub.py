@@ -13,7 +13,7 @@
 # limitations under the License.
 
 """
-Test the paths
+Test the PubSub implementation
 """
 
 import unittest
@@ -30,10 +30,18 @@ class TestPubSub(unittest.TestCase):
 
     def setUp(self):
         self.pub = []
-        self._on_publish_fn = self._on_publish
+        self._on_publish1_fn = self._on_publish1
+        self._on_publish2_fn = self._on_publish2
+        self._on_publish3_fn = self._on_publish3
 
-    def _on_publish(self, topic, value):
+    def _on_publish1(self, value):
+        self.pub.append([value])
+
+    def _on_publish2(self, topic, value):
         self.pub.append([topic, value])
+
+    def _on_publish3(self, pubsub, topic, value):
+        self.pub.append([pubsub, topic, value])
 
     def test_basic(self):
         p = PubSub()
@@ -41,13 +49,34 @@ class TestPubSub(unittest.TestCase):
         self.assertEqual('hello', p.query(TOPIC1))
         self.assertEqual('my topic', p.metadata(TOPIC1).brief)
         self.assertEqual(0, len(self.pub))
-        p.subscribe(TOPIC1, self._on_publish_fn, flags=['pub', 'retain'])
+        p.subscribe(TOPIC1, self._on_publish2_fn, flags=['pub', 'retain'])
         self.assertEqual(1, len(self.pub))
         self.assertEqual([TOPIC1, 'hello'], self.pub.pop())
         self.assertEqual(0, len(self.pub))
         p.publish(TOPIC1, 'world')
         self.assertEqual(1, len(self.pub))
         self.assertEqual([TOPIC1, 'world'], self.pub.pop())
+
+    def test_basic_dedup(self):
+        p = PubSub()
+        p.topic_add(TOPIC1, dtype='str', brief='my topic', default='default')
+        p.subscribe(TOPIC1, self._on_publish1_fn, flags=['pub'])
+        p.publish(TOPIC1, 'hello')
+        p.publish(TOPIC1, 'hello')
+        p.publish(TOPIC1, 'world')
+        self.assertEqual([['hello'], ['world']], self.pub)
+
+    def test_basic1(self):
+        p = PubSub()
+        p.topic_add(TOPIC1, dtype='str', brief='my topic', default='hello')
+        p.subscribe(TOPIC1, self._on_publish1_fn, flags=['pub', 'retain'])
+        self.assertEqual(['hello'], self.pub.pop())
+
+    def test_basic3(self):
+        p = PubSub()
+        p.topic_add(TOPIC1, dtype='str', brief='my topic', default='hello')
+        p.subscribe(TOPIC1, self._on_publish3_fn, flags=['pub', 'retain'])
+        self.assertEqual([p, TOPIC1, 'hello'], self.pub.pop())
 
     def test_topic_add_variations(self):
         meta = Metadata('obj', 'my topic')
@@ -63,28 +92,28 @@ class TestPubSub(unittest.TestCase):
         p = PubSub()
         p.topic_add('my/topic/!one', dtype='str', brief='my topic', default='hello')
         self.assertEqual(None, p.query('my/topic/!one'))
-        p.subscribe('my/topic/!one', self._on_publish_fn, flags=['pub', 'retain'])
+        p.subscribe('my/topic/!one', self._on_publish2_fn, flags=['pub', 'retain'])
         self.assertEqual(0, len(self.pub))
 
     def test_subscribe_node(self):
         p = PubSub()
         p.topic_add('my/topic', dtype='node', brief='node')
         p.topic_add('my/topic/sub', dtype='str', brief='my topic', default='hello')
-        p.subscribe('my/topic', self._on_publish_fn)
+        p.subscribe('my/topic', self._on_publish2_fn)
         p.publish('my/topic/sub', 'world')
         self.assertEqual(1, len(self.pub))
 
     def test_publish_invalid_topic(self):
         p = PubSub()
-        p.subscribe(TOPIC1, self._on_publish_fn, flags=['pub', 'retain'])
+        p.subscribe(TOPIC1, self._on_publish2_fn, flags=['pub', 'retain'])
         p.publish(TOPIC1, 'world')
         self.assertEqual(0, len(self.pub))
 
     def test_unsubscribe(self):
         p = PubSub()
         p.topic_add(TOPIC1, dtype='str', brief='my topic', default='hello')
-        p.subscribe(TOPIC1, self._on_publish_fn, flags=['pub'])
-        p.unsubscribe(TOPIC1, self._on_publish_fn, flags=['pub'])
+        p.subscribe(TOPIC1, self._on_publish2_fn, flags=['pub'])
+        p.unsubscribe(TOPIC1, self._on_publish2_fn, flags=['pub'])
         p.publish(TOPIC1, 'world')
         self.assertEqual(0, len(self.pub))
 
@@ -92,9 +121,9 @@ class TestPubSub(unittest.TestCase):
         p = PubSub()
         p.topic_add('my/topic', dtype='node', brief='node')
         p.topic_add('my/topic/sub', dtype='str', brief='my topic', default='hello')
-        p.subscribe('my/topic', self._on_publish_fn)
-        p.subscribe('my/topic/sub', self._on_publish_fn)
-        p.unsubscribe_all(self._on_publish_fn)
+        p.subscribe('my/topic', self._on_publish2_fn)
+        p.subscribe('my/topic/sub', self._on_publish2_fn)
+        p.unsubscribe_all(self._on_publish2_fn)
         p.publish('my/topic/sub', 'world')
         self.assertEqual(0, len(self.pub))
         p.undo(2)  # publish & unsubscribe_all
@@ -137,21 +166,21 @@ class TestPubSub(unittest.TestCase):
     def test_subscribe_undo(self):
         p = PubSub()
         p.topic_add(TOPIC1, dtype='str', brief='my topic', default='hello')
-        p.subscribe(TOPIC1, self._on_publish_fn, flags=['pub'])
+        p.subscribe(TOPIC1, self._on_publish2_fn, flags=['pub'])
         p.undo()
         p.publish(TOPIC1, 'world')
         self.assertEqual(0, len(self.pub))
-        p.subscribe(TOPIC1, self._on_publish_fn, flags=['pub'])
+        p.subscribe(TOPIC1, self._on_publish2_fn, flags=['pub'])
         p.undo()
         p.redo()
-        p.publish(TOPIC1, 'world')
+        p.publish(TOPIC1, 'there')
         self.assertEqual(1, len(self.pub))
 
     def test_unsubscribe_undo(self):
         p = PubSub()
         p.topic_add(TOPIC1, dtype='str', brief='my topic', default='hello')
-        p.subscribe(TOPIC1, self._on_publish_fn, flags=['pub'])
-        p.unsubscribe(TOPIC1, self._on_publish_fn, flags=['pub'])
+        p.subscribe(TOPIC1, self._on_publish2_fn, flags=['pub'])
+        p.unsubscribe(TOPIC1, self._on_publish2_fn, flags=['pub'])
         p.undo()
         p.publish(TOPIC1, 'world')
         self.assertEqual(1, len(self.pub))

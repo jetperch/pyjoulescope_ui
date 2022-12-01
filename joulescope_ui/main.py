@@ -17,7 +17,9 @@
 
 from joulescope_ui.logging_util import logging_preconfig, logging_config
 from PySide6 import QtCore, QtGui, QtWidgets
+from .capabilities import CAPABILITIES
 from .error_window import ErrorWindow
+from .help_ui import HelpHtmlMessageBox
 from .pubsub import PubSub
 from .resources import load_resources, load_fonts
 from .joulescope_driver_adapter import DriverWrapper
@@ -25,20 +27,67 @@ import logging
 import appnope
 
 
+def _menu_setup(pubsub, parent, d):
+    k = {}
+    for name, value in d.items():
+        name_safe = name.replace('&', '')
+        if isinstance(value, dict):
+            wroot = QtWidgets.QMenu(parent)
+            wroot.setTitle(name)
+            parent.addAction(wroot.menuAction())
+            w = _menu_setup(pubsub, wroot, value)
+            w['__root__'] = wroot
+        else:
+            w = QtGui.QAction(parent)
+            w.setText(name)
+            if callable(value):
+                w.triggered.connect(value)
+            else:
+                w.triggered.connect(lambda: pubsub.publish(*value))
+            parent.addAction(w)
+        k[name_safe] = w
+    return k
+
+
 class MainWindow(QtWidgets.QMainWindow):
 
     def __init__(self, pubsub):
-        self._pubsub = pubsub
+        self.pubsub = pubsub
         self._log = logging.getLogger(__name__)
 
         super(MainWindow, self).__init__()
+        pubsub.register_instance(self, 'ui')
         self.resize(800, 600)
         icon = QtGui.QIcon()
         icon.addFile(u":/icon_64x64.ico", QtCore.QSize(), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setWindowIcon(icon)
 
         self._menu_bar = QtWidgets.QMenuBar(self)
-        self._jsdrv = DriverWrapper(self._pubsub)
+        self._menu_items = _menu_setup(self.pubsub, self._menu_bar, {
+            '&File': {
+                # '&Open': self.on_recording_open,
+                # 'Open &Recent': {},  # dynamically populated from MRU
+                # '&Preferences': self.on_preferences,
+                '&Exit': ['registry/ui/actions/!close', ''],
+            },
+            # '&Device': {},  # dynamically populated
+            # '&View': {},    # dynamically populated from widgets
+            # '&Tools': {
+            #     '&Clear Accumulator': self._on_accumulators_clear,
+            #     '&Record Statistics': self._on_record_statistics,
+            # },
+            '&Help': {
+                '&Getting Started': ['registry/help_html/actions/!show', 'getting_started'],
+                #'JS220 User\'s Guide': self._help_js220_users_guide,
+                #'JS110 User\'s Guide': self._help_js110_users_guide,
+                #'&View logs...': self._view_logs,
+                'Changelog': ['registry/help_html/actions/!show', 'changelog'],
+                '&Credits': ['registry/help_html/actions/!show', 'credits'],
+                #'&About': self._help_about,
+            }
+        })
+        self.setMenuBar(self._menu_bar)
+        self._jsdrv = DriverWrapper(self.pubsub)
 
         self.show()
 
@@ -47,6 +96,17 @@ class MainWindow(QtWidgets.QMainWindow):
         # todo pubsub save
         self._jsdrv.finalize()
         return super(MainWindow, self).closeEvent(event)
+
+    def on_action_close(self, value):
+        self.close()
+
+
+def pubsub_factory():
+    pubsub = PubSub()
+    pubsub.registry_initialize()
+    for capability in CAPABILITIES:
+        pubsub.register_capability(capability.value)
+    return pubsub
 
 
 def run(log_level=None, file_log_level=None, filename=None):
@@ -65,7 +125,8 @@ def run(log_level=None, file_log_level=None, filename=None):
     app = None
     try:
         logging_preconfig()
-        pubsub = PubSub()
+        pubsub = pubsub_factory()
+        pubsub.register_class(HelpHtmlMessageBox, 'help_html')
         logging_config(pubsub.query('common/paths/log'), stream_log_level=log_level, file_log_level=file_log_level)
         app = QtWidgets.QApplication([])
         resources = load_resources()

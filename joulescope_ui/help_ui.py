@@ -1,4 +1,4 @@
-# Copyright 2019 Jetperch LLC
+# Copyright 2019-2022 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,31 +22,9 @@ from PySide6 import QtCore, QtWidgets
 from . import frozen
 
 
-MY_PATH = os.path.dirname(os.path.abspath(__file__))
-APP_PATH = os.path.dirname(MY_PATH)
-
-
-# Inspired by https://stackoverflow.com/questions/47345776/pyqt5-how-to-add-a-scrollbar-to-a-qmessagebox
-class ScrollMessageBox(QtWidgets.QMessageBox):
-
-    def __init__(self, msg, *args, **kwargs):
-        QtWidgets.QMessageBox.__init__(self, *args, **kwargs)
-        self._scroll = QtWidgets.QScrollArea(self)
-        self._scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self._scroll.setObjectName("help_ui")
-        self._scroll.setWidgetResizable(True)
-        self.content = QtWidgets.QWidget()
-        self._scroll.setWidget(self.content)
-        self._layout = QtWidgets.QVBoxLayout(self.content)
-        self._label = QtWidgets.QLabel(msg, self)
-        self._label.setWordWrap(True)
-        self._label.setOpenExternalLinks(True)
-        self._layout.addWidget(self._label)
-        self.layout().addWidget(self._scroll, 0, 0, 1, self.layout().columnCount())
-        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-
-
-HELP_FILES = {
+_MY_PATH = os.path.dirname(os.path.abspath(__file__))
+_APP_PATH = os.path.dirname(_MY_PATH)
+_HELP_FILES = {
     'changelog': 'CHANGELOG.md',
     'credits': 'CREDITS.html',
     'getting_started': 'getting_started.html',
@@ -60,7 +38,7 @@ def _load_filename(filename):
             if frozen:
                 bin_data = pkgutil.get_data(*path, filename)
             else:
-                fname = os.path.join(APP_PATH, *path, filename)
+                fname = os.path.join(_APP_PATH, *path, filename)
                 with open(fname, 'rb') as f:
                     bin_data = f.read()
             return bin_data.decode('utf-8')
@@ -69,24 +47,51 @@ def _load_filename(filename):
     raise RuntimeError(f'Could not load file: {filename}')
 
 
-def load_help(name):
-    filename = HELP_FILES[name]
+def _load_help(pubsub, name):
+    # style = cmdp.preferences['Appearance/__index__']['generator']['files']['style.html']
+    style = ''
+    filename = _HELP_FILES[name]
     html = _load_filename(filename)
     if filename.endswith('.md'):
         md = markdown.Markdown()
         html = md.convert(html)
-    return html
-
-
-def display_help(parent, cmdp, name):
-    style = cmdp.preferences['Appearance/__index__']['generator']['files']['style.html']
-    logging.getLogger(__name__).info('display_help(%s)', name)
-    html = load_help(name)
     try:
         title = re.search(r'<title>(.*?)<\/title>', html)[1]
     except Exception:
         title = name
     html = html.format(style=style)
-    dialog = ScrollMessageBox(html, parent)
-    dialog.setWindowTitle(title)
-    dialog.exec_()
+    return title, html
+
+
+# Inspired by https://stackoverflow.com/questions/47345776/pyqt5-how-to-add-a-scrollbar-to-a-qmessagebox
+class HelpHtmlMessageBox(QtWidgets.QMessageBox):
+    """Display user-meaningful help information."""
+
+    def __init__(self, pubsub, name):
+        title, html = _load_help(pubsub, name)
+        parent = None  # pubsub.query('registry/ui/instance')
+        QtWidgets.QMessageBox.__init__(self, parent=parent)
+        self.setObjectName("help_html_message_box")
+        self._scroll = QtWidgets.QScrollArea(self)
+        self._scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self._scroll.setObjectName("help_message_scroll")
+        self._scroll.setWidgetResizable(True)
+        self._content = QtWidgets.QWidget()
+        self._scroll.setWidget(self._content)
+        self._layout = QtWidgets.QVBoxLayout(self._content)
+        self._label = QtWidgets.QLabel(html, self)
+        self._label.setWordWrap(True)
+        self._label.setOpenExternalLinks(True)
+        self._layout.addWidget(self._label)
+        self.layout().addWidget(self._scroll, 0, 0, 1, self.layout().columnCount())
+        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.setWindowTitle(title)
+
+    @staticmethod
+    def on_cls_action_show(pubsub, topic, value):
+        log = logging.getLogger(__name__ + f'.{value}')
+        log.info('show start %s', value)
+        dialog = HelpHtmlMessageBox(pubsub, value)
+        log.info('show help dialog')
+        dialog.exec_()
+        log.info('show done')
