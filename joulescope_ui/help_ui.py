@@ -64,18 +64,22 @@ def _load_help(pubsub, name):
 
 
 # Inspired by https://stackoverflow.com/questions/47345776/pyqt5-how-to-add-a-scrollbar-to-a-qmessagebox
-class HelpHtmlMessageBox(QtWidgets.QMessageBox):
+class HelpHtmlMessageBox(QtWidgets.QDialog):
     """Display user-meaningful help information."""
 
     def __init__(self, pubsub, name):
         title, html = _load_help(pubsub, name)
         parent = None  # pubsub.query('registry/ui/instance')
-        QtWidgets.QMessageBox.__init__(self, parent=parent)
+        super().__init__(parent=parent)
         self.setObjectName("help_html_message_box")
+        self._verticalLayout = QtWidgets.QVBoxLayout()
+        self.setLayout(self._verticalLayout)
+
         self._scroll = QtWidgets.QScrollArea(self)
         self._scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self._scroll.setObjectName("help_message_scroll")
         self._scroll.setWidgetResizable(True)
+        self._scroll.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
         self._content = QtWidgets.QWidget()
         self._scroll.setWidget(self._content)
         self._layout = QtWidgets.QVBoxLayout(self._content)
@@ -83,8 +87,14 @@ class HelpHtmlMessageBox(QtWidgets.QMessageBox):
         self._label.setWordWrap(True)
         self._label.setOpenExternalLinks(True)
         self._layout.addWidget(self._label)
-        self.layout().addWidget(self._scroll, 0, 0, 1, self.layout().columnCount())
-        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self._verticalLayout.addWidget(self._scroll)
+
+        self._buttons = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok)
+        self._buttons.accepted.connect(self.accept)
+        self._buttons.rejected.connect(self.reject)
+        self._verticalLayout.addWidget(self._buttons)
+
+        self.resize(600, 400)
         self.setWindowTitle(title)
 
     @staticmethod

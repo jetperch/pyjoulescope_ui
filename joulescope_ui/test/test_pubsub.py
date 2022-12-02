@@ -21,6 +21,7 @@ from joulescope_ui.pubsub import PubSub
 from joulescope_ui.metadata import Metadata
 import io
 import json
+import threading
 
 
 TOPIC1 = 'my/topic/one'
@@ -214,7 +215,30 @@ class TestPubSub(unittest.TestCase):
         p2.load(f)
         self.assertEqual('hello', p2.query(TOPIC1))
 
+    def _on_notify(self):
+        self.pub.append('notify')
+
+    def test_notify_fn_on_main_thread(self):
+        p1 = PubSub()
+        p1.notify_fn = self._on_notify
+        p1.topic_add(TOPIC1, dtype='str', brief='my topic', default='hello')
+        self.assertEqual([], self.pub)
+
+    def test_notify_fn_threaded(self):
+        p1 = PubSub()
+        p1.notify_fn = self._on_notify
+        p1.topic_add(TOPIC1, dtype='str', brief='my topic', default='hello')
+        def run():
+            p1.publish(TOPIC1, 'world')
+
+        t = threading.Thread(target=run)
+        t.start()
+        t.join()
+        self.assertEqual(['notify'], self.pub)
+        self.assertEqual('hello', p1.query(TOPIC1))
+        p1.process()
+        self.assertEqual('world', p1.query(TOPIC1))
+
     # todo complicated undo with stack usage
     # todo profiles
     # todo settings
-    # todo notify_fn

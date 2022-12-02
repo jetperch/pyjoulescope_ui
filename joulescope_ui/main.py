@@ -23,11 +23,31 @@ from .help_ui import HelpHtmlMessageBox
 from .pubsub import PubSub
 from .resources import load_resources, load_fonts
 from .joulescope_driver_adapter import DriverWrapper
-import logging
 import appnope
+import ctypes
+import logging
+import os
+import sys
+
+
+class QResyncEvent(QtCore.QEvent):
+    """An event containing a request for pubsub.process."""
+    EVENT_TYPE = QtCore.QEvent.Type(QtCore.QEvent.registerEventType())
+
+    def __init__(self):
+        QtCore.QEvent.__init__(self, self.EVENT_TYPE)
+
+    def __str__(self):
+        return 'QResyncEvent()'
+
+    def __len__(self):
+        return 0
 
 
 def _menu_setup(pubsub, parent, d):
+    def _publish_factory(pubsub, value):
+        return lambda: pubsub.publish(*value)
+
     k = {}
     for name, value in d.items():
         name_safe = name.replace('&', '')
@@ -43,7 +63,7 @@ def _menu_setup(pubsub, parent, d):
             if callable(value):
                 w.triggered.connect(value)
             else:
-                w.triggered.connect(lambda: pubsub.publish(*value))
+                w.triggered.connect(_publish_factory(pubsub, value))
             parent.addAction(w)
         k[name_safe] = w
     return k
@@ -91,6 +111,19 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.show()
 
+    def event(self, event: QtCore.QEvent):
+        if event.type() == QResyncEvent.EVENT_TYPE:
+            event.accept()
+            self.pubsub.process()
+            return True
+        else:
+            return super(MainWindow, self).event(event)
+
+    def resync_request(self):
+        # safely resynchronize pubsub processing to the main Qt event thread
+        event = QResyncEvent()
+        QtCore.QCoreApplication.postEvent(self, event)
+
     def closeEvent(self, event):
         self._log.info('closeEvent()')
         # todo pubsub save
@@ -109,6 +142,20 @@ def pubsub_factory():
     return pubsub
 
 
+def dpi_awareness_enable():
+    try:
+        log = logging.getLogger()
+        log.info('Configure high DPI scaling')
+        # https://doc.qt.io/qt-6/highdpi.html
+        # https://vicrucann.github.io/tutorials/osg-qt-high-dpi/
+        if sys.platform.startswith('win'):
+            # ctypes.windll.user32.SetProcessDPIAware()
+            ctypes.windll.shcore.SetProcessDpiAwareness(2)
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+    except Exception:
+        log.exception('while configuring high DPI scaling')
+
+
 def run(log_level=None, file_log_level=None, filename=None):
     """Run the Joulescope UI application.
 
@@ -122,17 +169,23 @@ def run(log_level=None, file_log_level=None, filename=None):
 
     :return: 0 on success or error code on failure.
     """
+    # os.environ["QT_SCALE_FACTOR"] = "0.75"
     app = None
     try:
         logging_preconfig()
         pubsub = pubsub_factory()
         pubsub.register_class(HelpHtmlMessageBox, 'help_html')
         logging_config(pubsub.query('common/paths/log'), stream_log_level=log_level, file_log_level=file_log_level)
+        #dpi_awareness_enable()
         app = QtWidgets.QApplication([])
-        resources = load_resources()
-        fonts = load_fonts()
+        #if sys.platform.startswith('win'):
+        #    app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
+        #    app.setAttribute(QtCore.Qt.AA_NativeWindows, True)
+        # resources = load_resources()
+        # fonts = load_fonts()
         appnope.nope()
         ui = MainWindow(pubsub)
+        pubsub.notify_fn = ui.resync_request
         rc = app.exec_()
         del ui
         return rc
