@@ -17,6 +17,7 @@
 
 from joulescope_ui.logging_util import logging_preconfig, logging_config
 from PySide6 import QtCore, QtGui, QtWidgets
+import PySide6QtAds as QtAds
 from .capabilities import CAPABILITIES
 from .error_window import ErrorWindow
 from .help_ui import HelpHtmlMessageBox
@@ -69,6 +70,117 @@ def _menu_setup(pubsub, parent, d):
     return k
 
 
+class Flyout(QtWidgets.QWidget):
+
+    def __init__(self, parent):
+        super(Flyout, self).__init__(parent)
+        self.setObjectName('side_bar_flyout')
+        self.setGeometry(50, 0, 0, 100)
+        self.setStyleSheet('QWidget {\n	background: #D0000000;\n}')
+        self._layout = QtWidgets.QStackedLayout()
+        self._layout.setSpacing(0)
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(self._layout)
+
+        self._label = QtWidgets.QLabel()
+        self._label.setWordWrap(True)
+        self._label.setText('<html><body><p>Page 1</p><p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</p></body></html>')
+        self._layout.addWidget(self._label)
+        self._visible = 0
+        self.show()
+        self.animations = []
+
+    def animate(self, show):
+        for a in self.animations:
+            a.stop()
+        self.animations.clear()
+        x_start = self.width()
+        x_end = 150 if show else 0
+        print(f'animate {show}: {x_start} -> {x_end}')
+        for p in [b'minimumWidth', b'maximumWidth']:
+            a = QtCore.QPropertyAnimation(self, p)
+            a.setDuration(500)
+            a.setStartValue(x_start)
+            a.setEndValue(x_end)
+            a.setEasingCurve(QtCore.QEasingCurve.InOutQuart)
+            a.start()
+            self.animations.append(a)
+        self._visible = show
+
+    def on_cmd_show(self, value):
+        if value == -1:
+            value = 1 if self.isHidden() else 0
+        if value == self._visible:
+            return
+        self.raise_()
+        self.animate(value)
+
+    def on_sidebar_geometry(self, r):
+        width = self.width()
+        g = self.geometry()
+        self.setGeometry(r.right(), r.y(), width, r.height())
+        print(f'{r}: {g} -> {self.geometry()}')
+        self.repaint()
+
+
+class SideBar(QtWidgets.QWidget):
+
+    def __init__(self, parent):
+        super(SideBar, self).__init__(parent)
+        self.setObjectName('side_bar_icons')
+        size_policy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        size_policy.setHeightForWidth(True)
+        self.setSizePolicy(size_policy)
+
+        # Create the flyout widget
+        self._flyout = Flyout(parent)
+
+        self._layout = QtWidgets.QVBoxLayout()
+        self._layout.setSpacing(0)
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(self._layout)
+
+        self._playButton = QtWidgets.QPushButton(self)
+        self._playButton.setObjectName('play')
+        self._playButton.setProperty('blink', False)
+        self._playButton.setCheckable(True)
+        self._playButton.setFlat(True)
+        self._playButton.setProperty('blink', False)
+        self._playButton.setFixedSize(24, 24)
+        self._layout.addWidget(self._playButton)
+
+        self._recordButton = QtWidgets.QPushButton(self)
+        self._recordButton.setObjectName('record')
+        self._recordButton.setEnabled(True)
+        self._recordButton.setProperty('blink', False)
+        self._recordButton.setCheckable(True)
+        self._recordButton.setFlat(True)
+        self._recordButton.setFixedSize(24, 24)
+        self._layout.addWidget(self._recordButton)
+
+        self._recordStatisticsButton = QtWidgets.QPushButton(self)
+        self._recordStatisticsButton.setObjectName('record_statistics')
+        self._recordStatisticsButton.setEnabled(True)
+        self._recordStatisticsButton.setProperty('blink', False)
+        self._recordStatisticsButton.setCheckable(True)
+        self._recordStatisticsButton.setFlat(True)
+        self._recordStatisticsButton.setFixedSize(24, 24)
+        self._layout.addWidget(self._recordStatisticsButton)
+
+        self._spacer = QtWidgets.QSpacerItem(10, 0,
+                                             QtWidgets.QSizePolicy.Minimum,
+                                             QtWidgets.QSizePolicy.Expanding)
+        self._layout.addItem(self._spacer)
+
+        # todo implement fly-out widget
+
+    def on_cmd_show(self, value):
+        self._flyout.on_cmd_show(value)
+
+    def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
+        self._flyout.on_sidebar_geometry(self.geometry())
+
+
 class MainWindow(QtWidgets.QMainWindow):
 
     def __init__(self, pubsub):
@@ -81,6 +193,53 @@ class MainWindow(QtWidgets.QMainWindow):
         icon = QtGui.QIcon()
         icon.addFile(u":/icon_64x64.ico", QtCore.QSize(), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setWindowIcon(icon)
+
+        # Create the central widget with horizontal layout
+        self._central_widget = QtWidgets.QWidget(self)
+        self._central_widget.setObjectName('central_widget')
+        self.setCentralWidget(self._central_widget)
+        size_policy_xx = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        #self._central_widget.setSizePolicy(size_policy_xx)
+        self._central_layout = QtWidgets.QHBoxLayout()
+        self._central_layout.setObjectName('central_layout')
+        self._central_layout.setSpacing(0)
+        self._central_layout.setContentsMargins(0, 0, 0, 0)
+        self._central_widget.setLayout(self._central_layout)
+
+        # Create the singleton icon side-bar
+        self._side_bar = SideBar(self._central_widget)
+        pubsub.register_instance(self._side_bar, 'icon_side_bar')
+        self._central_layout.addWidget(self._side_bar)
+
+        self._dock_widget = QtWidgets.QWidget(self._central_widget)
+        self._dock_widget.setObjectName('main_widget')
+        self._dock_widget.setSizePolicy(size_policy_xx)
+        self._central_layout.addWidget(self._dock_widget)
+
+        self._status_bar = QtWidgets.QStatusBar(self)
+        self._status_bar.setObjectName('status_bar')
+        self.setStatusBar(self._status_bar)
+
+        self._dock_layout = QtWidgets.QVBoxLayout(self._dock_widget)
+        self._dock_layout.setContentsMargins(0, 0, 0, 0)
+        self._dock_manager = QtAds.CDockManager(self._dock_widget)
+        self._dock_layout.addWidget(self._dock_manager)
+
+        # Create a dock widget with the title Label 1 and set the created label
+        # as the dock widget content
+        self.label = QtWidgets.QLabel()
+        self.label.setText('Lorem ipsum dolor sit amet, consectetuer adipiscing elit.')
+        self.dock_widget = QtAds.CDockWidget("Label 1")
+        # self.dock_widget.setWindowTitle('Other')
+        self.dock_widget.setWidget(self.label)
+        self._dock_manager.addDockWidget(QtAds.TopDockWidgetArea, self.dock_widget)
+
+        # Create an example editor
+        self.te = QtWidgets.QPlainTextEdit()
+        self.te.setPlaceholderText("Please enter your text here into this QPlainTextEdit...")
+        self.dock_widget = QtAds.CDockWidget("Editor 1")
+        # self.menuView.addAction(self.dock_widget.toggleViewAction())
+        self._dock_manager.addDockWidget(QtAds.BottomDockWidgetArea, self.dock_widget)
 
         self._menu_bar = QtWidgets.QMenuBar(self)
         self._menu_items = _menu_setup(self.pubsub, self._menu_bar, {
@@ -110,6 +269,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._jsdrv = DriverWrapper(self.pubsub)
 
         self.show()
+        self._side_bar.on_cmd_show(1)
 
     def event(self, event: QtCore.QEvent):
         if event.type() == QResyncEvent.EVENT_TYPE:
@@ -149,6 +309,7 @@ def dpi_awareness_enable():
         # https://doc.qt.io/qt-6/highdpi.html
         # https://vicrucann.github.io/tutorials/osg-qt-high-dpi/
         if sys.platform.startswith('win'):
+            # https://learn.microsoft.com/en-us/windows/win32/api/shellscalingapi/ne-shellscalingapi-process_dpi_awareness
             # ctypes.windll.user32.SetProcessDPIAware()
             ctypes.windll.shcore.SetProcessDpiAwareness(2)
         QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
@@ -181,8 +342,8 @@ def run(log_level=None, file_log_level=None, filename=None):
         #if sys.platform.startswith('win'):
         #    app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps, True)
         #    app.setAttribute(QtCore.Qt.AA_NativeWindows, True)
-        # resources = load_resources()
-        # fonts = load_fonts()
+        resources = load_resources()
+        fonts = load_fonts()
         appnope.nope()
         ui = MainWindow(pubsub)
         pubsub.notify_fn = ui.resync_request
