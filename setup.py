@@ -217,7 +217,7 @@ setuptools.setup(
         "pywin32>=223; platform_system == 'Windows'",
         'pyqtgraph>=0.13.1',
         'PySide6>=6.3.0',
-        'PySide6-QtAds',
+        'PySide6-QtAds==3.8.3.1',
         'python-dateutil>=2.7.3',
         'QtPy',
         # 'pyqtgraph @ https://github.com/jetperch/pyqtgraph/tarball/557e867b377b223589c0c8ffd0799c547965fb46#egg=pyqtgraph-0.11.0.dev1',

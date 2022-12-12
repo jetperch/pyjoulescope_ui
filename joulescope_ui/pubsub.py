@@ -41,8 +41,18 @@ TOPIC_ADD_TOPIC = COMMON_ACTIONS_TOPIC + '/!topic_add'
 TOPIC_REMOVE_TOPIC = COMMON_ACTIONS_TOPIC + '/!topic_remove'
 CLS_ACTION_PREFIX = 'on_cls_action_'
 CLS_CALLBACK_PREFIX = 'on_cls_cbk_'
+CLS_EVENT_PREFIX = 'on_cls_cbk_'
 ACTION_PREFIX = 'on_action_'
 CALLBACK_PREFIX = 'on_cbk_'
+EVENT_PREFIX = 'on_event_'
+
+
+class PUBSUB_TOPICS:
+    PUBSUB_APP_NAME = 'common/name'
+    PUBSUB_PROFILE_ACTION_ADD = 'common/profile/actions/!add'
+    PUBSUB_PROFILE_ACTION_REMOVE = 'common/profile/actions/!remove'
+    PUBSUB_PROFILE_ACTION_SAVE = 'common/profile/actions/!save'
+    PUBSUB_PROFILE_ACTION_LOAD = 'common/profile/actions/!load'
 
 
 class REGISTRY_MANAGER_TOPICS:
@@ -54,6 +64,43 @@ class REGISTRY_MANAGER_TOPICS:
     REGISTRY_REMOVE = 'registry_manager/actions/registry/!remove'
     CAPABILITIES = f'registry_manager/capabilities'
     NEXT_UNIQUE_ID = f'registry_manager/next_unique_id'
+
+
+def get_unique_id(obj):
+    """Get the unique_id.
+
+    :param obj: The source for the unique id, which can be any of:
+        * The topic name string
+        * The unique id string (simply returned)
+        * A registered class or object
+    :return: The unique id string.
+    :raise ValueError: If cannot find the unique id.
+    """
+    if isinstance(obj, str):
+        if obj.startswith('registry/'):
+            return obj.split('/')[1]
+        elif '/' not in obj:
+            return obj  # presume that this is the unique id
+        else:
+            raise ValueError('Invalid unique_id string')
+    if 'unique_id' in obj.__dict__:
+        return obj.unique_id
+    else:
+        raise ValueError('Could not find unique_id')
+
+
+def get_topic_name(obj):
+    """Get the topic name.
+
+    :param obj: The source for the topic name, which can be any of:
+        * The topic name string (simply returned)
+        * The unique id string
+        * A registered class or object
+    :return: The topic name string.
+    :raise ValueError: If cannot find the topic name.
+    """
+    unique_id = get_unique_id(obj)
+    return f'registry/{unique_id}'
 
 
 def _parse_docstr(doc: str, default):
@@ -75,12 +122,14 @@ class _Function:
             args = code.co_argcount
             if code.co_varnames[0] == 'self':
                 args -= 1
-            if not 1 <= args <= 3:
+            if not 0 <= args <= 3:
                 raise ValueError(f'invalid function {fn}')
             self.signature_type = args
 
     def __call__(self, pubsub, topic: str, value):
-        if self.signature_type == 1:
+        if self.signature_type == 0:
+            return self.fn()
+        elif self.signature_type == 1:
             return self.fn(value)
         elif self.signature_type == 2:
             return self.fn(topic, value)
@@ -258,6 +307,12 @@ class PubSub:
 
         self._paths_init()
 
+    def __str__(self):
+        return f'PubSub(app={self._app})'
+
+    def __contains__(self, topic):
+        return topic in self._topic_by_name
+
     @property
     def notify_fn(self):
         return self._notify_fn
@@ -286,12 +341,14 @@ class PubSub:
         else:
             raise RuntimeError('unsupported platform')
 
-        self.topic_add('common', 'node', 'Common topics unaffected by profiles')
+        self.topic_add('common/profile', 'node', 'Profile operations')
+        self.topic_add('common/profile/settings', 'node', 'Profile operations')
+
         self.topic_add('common/paths', 'node', 'Common directory and file paths')
         self.topic_add('common/paths/app', 'str', 'Base application directory', default=app_path)
         self.topic_add('common/paths/config', 'str', 'Config directory', default=os.path.join(app_path, 'config'))
         self.topic_add('common/paths/log', 'str', 'Log directory', default=os.path.join(app_path, 'log'))
-        self.topic_add('common/paths/themes', 'str', 'Rendered themes', default=os.path.join(app_path, 'themes'))
+        self.topic_add('common/paths/styles', 'str', 'Rendered styles', default=os.path.join(app_path, 'styles'))
         self.topic_add('common/paths/update', 'str', 'Downloads for application updates', default=os.path.join(app_path, 'update'))
         self.topic_add('common/paths/data', 'str', 'Data recordings', default=os.path.join(user_path, self._app))
 
@@ -371,6 +428,8 @@ class PubSub:
             * json-formatted string
             * positional arguments for Metadata constructor.
         :param kwargs: The keyword arguments for the Metadata constructor.
+        :param exists_ok: True to skip add if already exists.
+            False (default) will log the exception on duplicate add.
         :param timeout: If None (default), complete asynchronously.
             If specified, the time in seconds to wait for the completion.
         :return: Completion code if timeout, else None.
@@ -380,12 +439,15 @@ class PubSub:
 
         timeout = kwargs.pop('timeout', None)
         meta = kwargs.pop('meta', None)
+        exists_ok = bool(kwargs.pop('exists_ok', False))
 
         if meta is not None:
             if len(kwargs):
                 raise ValueError('invalid arguments')
             elif isinstance(meta, Metadata):
                 pass
+            elif isinstance(meta, dict):
+                meta = Metadata(**meta)
             elif isinstance(meta, str):
                 meta = Metadata(**json.loads(meta))
             else:
@@ -402,7 +464,7 @@ class PubSub:
                 raise ValueError('positional metadata arg must be Metadata or json string')
         else:
             meta = Metadata(*args)
-        return self._send(TOPIC_ADD_TOPIC, {'topic': topic, 'meta': meta}, timeout)
+        return self._send(TOPIC_ADD_TOPIC, {'topic': topic, 'meta': meta, 'exists_ok': exists_ok}, timeout)
 
     def topic_remove(self, topic: str, timeout=None):
         """Remove a topic and all subtopics.
@@ -433,18 +495,26 @@ class PubSub:
         with self._lock:
             return self._topic_by_name[topic]
 
-    def query(self, topic):
+    def query(self, topic, **kwargs):
         """Query the retained value for a topic.
 
         :param topic: The topic string.
+        :param default: If provided, the default value to use when the
+            topic does not exist.
         :return: The value for the topic.
+        :raises KeyError: If topic does not exist
 
         Note that this method returns immediately with the existing retained
         value.  It does not account for any changes that are still queued
         awaiting processing.  To get the resulting values of topics that
         may change, you normally want to subscribe.
         """
-        t = self._topic_get(topic)
+        try:
+            t = self._topic_get(topic)
+        except KeyError:
+            if 'default' in kwargs:
+                return kwargs['default']
+            raise
         return t.value
 
     def metadata(self, topic):
@@ -579,6 +649,7 @@ class PubSub:
 
     def _cmd_topic_add(self, value):
         topic_name = value['topic']
+        exists_ok = value.get('exists_ok', False)
         topic_name_parts = topic_name.split('/')
         topic = self._root
         for idx in range(len(topic_name_parts) - 1):
@@ -591,13 +662,18 @@ class PubSub:
                 topic.children[subtopic_name] = subtopic
                 self._topic_by_name[topic_name_new] = subtopic
                 topic = subtopic
+        subtopic_name = topic_name_parts[-1]
+        if subtopic_name in topic.children:
+            if exists_ok:
+                return
+            raise ValueError(f'topic {topic_name} already exists')
         if 'instance' in value:
             t = value['instance']
             t.parent = topic
             self._topic_by_name_recursive_add(t)
         else:
             t = _Topic(topic, topic_name, value['meta'])
-        topic.children[topic_name_parts[-1]] = t
+        topic.children[subtopic_name] = t
         self._topic_by_name[topic_name] = t
         return [TOPIC_REMOVE_TOPIC, {'topic': value['topic']}]
 
@@ -710,7 +786,10 @@ class PubSub:
     def _process(self):
         while len(self._stack):
             cmd = self._stack[-1].pop(0)
-            self._process_one(cmd)
+            try:
+                self._process_one(cmd)
+            except Exception:
+                self._log.exception('while processing %s', cmd)
             if not len(self._stack[-1]):
                 self._stack.pop()
 
@@ -754,7 +833,7 @@ class PubSub:
         self.publish(REGISTRY_MANAGER_TOPICS.ACTIONS + '/registry/!add', unique_id, timeout=timeout)
 
     def _registry_remove(self, unique_id: str, timeout=None):
-        raise NotImplementedError()
+        self.publish(REGISTRY_MANAGER_TOPICS.ACTIONS + '/registry/!remove', unique_id, timeout=timeout)
 
     def registry_initialize(self):
         t = REGISTRY_MANAGER_TOPICS
@@ -776,9 +855,6 @@ class PubSub:
         t_list = self._topic_by_name[topic_list_str]
         v = t_list.value + [value]
         t_list.value = v
-        topic_add_str = topic_str + '/!add'
-        t_add = self._topic_by_name[topic_add_str]
-        self._publish_value(t_add, 'pub', topic_add_str, value)
         topic_update_str = topic_str + '/!update'
         t_update = self._topic_by_name[topic_update_str]
         self._publish_value(t_update, 'pub', topic_update_str, ['+', value, v])
@@ -800,7 +876,7 @@ class PubSub:
         self._publish_value(t_list, 'pub', topic_list_str, v)
 
     def register_capability(self, name):
-        t = REGISTRY_MANAGER_TOPICS.CAPABILITIES + '/' + name
+        t = f'{REGISTRY_MANAGER_TOPICS.CAPABILITIES}/{name}'
         self.topic_add(t, dtype='node', brief='')
         self.topic_add(t + '/!update', dtype='obj', brief='The ["+" or "-", unique_id, unique_ids]')
         self.register_command(t + '/!add', self._on_action_capability_add)
@@ -814,30 +890,75 @@ class PubSub:
         self._cmd_topic_remove({'topic': t})
         self.publish(REGISTRY_MANAGER_TOPICS.CAPABILITY_REMOVE, name)
 
-    def _register_obj(self, obj, unique_id) -> str:
+    def register(self, obj, unique_id: str = None) -> str:
+        """Register a class or instance.
+
+        :param obj: The class type or instance to register.
+        :param unique_id: The unique_id to use for this class.
+            None (default) determines a suitable unique_id.
+            For classes, the class name.
+            For instances, a randomly generated value.
+        :type unique_id: str, optional
+        :return: The topic name string.
+        """
+        if 'unique_id' in obj.__dict__:  # ignore class attributes for objects
+            self._log.warning('Duplicate registration for %s', obj)
+            return
+        if unique_id is None:
+            if isinstance(obj, type):
+                # Use the unqualified class name
+                # This keeps the string short & readable, but names must avoid collisions.
+                unique_id = obj.__name__
+            else:
+                class_name = obj.__class__.__name__
+                t = self._topic_by_name[REGISTRY_MANAGER_TOPICS.NEXT_UNIQUE_ID]
+                v = t.value
+                t.value += 1
+                unique_id = f'{class_name}:{v:08x}'
+
+        self._log.info('register(obj=%s, unique_id=%s) start', obj, unique_id)
         doc = obj.__doc__
         if doc is None:
             doc = obj.__init__.__doc__
         doc = _parse_docstr(doc, unique_id)
-        capabilities = getattr(obj, 'CAPABILITIES', [])
         meta = Metadata(dtype='node', brief=doc)
-        prefix = f'registry/{unique_id}'
-        self.topic_add(prefix, meta=meta)
-        self.topic_add(prefix + '/instance', dtype='obj', brief='class', default=obj, flags=['ro'])
-        self.topic_add(prefix + '/actions', dtype='node', brief='actions')
-        self.topic_add(prefix + '/callbacks', dtype='node', brief='callbacks')
+        topic_name = get_topic_name(unique_id)
+        self.topic_add(topic_name, meta=meta, exists_ok=True)
+        self.topic_add(f'{topic_name}/instance', dtype='obj', brief='class', default=obj, flags=['ro'], exists_ok=True)
+        self.topic_add(f'{topic_name}/actions', dtype='node', brief='actions', exists_ok=True)
+        self.topic_add(f'{topic_name}/callbacks', dtype='node', brief='callbacks', exists_ok=True)
+        self.topic_add(f'{topic_name}/events', dtype='node', brief='events', exists_ok=True)
+        self.topic_add(f'{topic_name}/settings', dtype='node', brief='settings', exists_ok=True)
 
+        self._register_events(obj, unique_id)
+        self._register_functions(obj, unique_id)
+        self._register_settings(obj, unique_id)
+        obj.unique_id = unique_id
+        obj.topic = topic_name
+        self._registry_add(unique_id)
+        self._register_capabilities(obj, unique_id)
+        self._log.info('register(unique_id=%s) done', unique_id)
+        return topic_name
+
+    def _register_events(self, obj, unique_id: str):
+        topic_name = get_topic_name(unique_id)
+        for event, meta in getattr(obj, 'EVENTS', {}).items():
+            self.topic_add(f'{topic_name}/events/{event}', meta, exists_ok=True)
+
+    def _register_functions(self, obj, unique_id: str):
+        functions = {}
+        topic_name = get_topic_name(unique_id)
         if isinstance(obj, type):
             for name, attr in obj.__dict__.items():
                 if isinstance(attr, staticmethod):
                     if name.startswith(CLS_ACTION_PREFIX):
                         action_name = name[len(CLS_ACTION_PREFIX):]
-                        topic = prefix + f'/actions/!{action_name}'
-                        self.register_command(topic, attr)
+                        topic = f'{topic_name}/actions/!{action_name}'
+                        functions[topic] = self.register_command(topic, attr)
                     elif name.startswith(CLS_CALLBACK_PREFIX):
-                        action_name = name[len(CLS_CALLBACK_PREFIX):]
-                        topic = prefix + f'/callbacks/!{action_name}'
-                        self.register_command(topic, attr)
+                        cbk_name = name[len(CLS_CALLBACK_PREFIX):]
+                        topic = f'{topic_name}/callbacks/!{cbk_name}'
+                        functions[topic] = self.register_command(topic, attr)
                 elif isinstance(attr, classmethod):
                     if name.startswith(CLS_ACTION_PREFIX) or name.startswith(CLS_CALLBACK_PREFIX):
                         raise ValueError(f'class methods not supported: {unique_id} {name}')
@@ -845,60 +966,183 @@ class PubSub:
             for name in obj.__class__.__dict__.keys():
                 if name.startswith(ACTION_PREFIX):
                     action_name = name[len(ACTION_PREFIX):]
-                    topic = prefix + f'/actions/!{action_name}'
-                    self.register_command(topic, getattr(obj, name))
+                    topic = f'{topic_name}/actions/!{action_name}'
+                    functions[topic] = self.register_command(topic, getattr(obj, name))
                 elif name.startswith(CALLBACK_PREFIX):
-                    action_name = name[len(CALLBACK_PREFIX):]
-                    topic = prefix + f'/callbacks/!{action_name}'
-                    self.register_command(topic, getattr(obj, name))
+                    cbk_name = name[len(CALLBACK_PREFIX):]
+                    topic = f'{topic_name}/callbacks/!{cbk_name}'
+                    functions[topic] = self.register_command(topic, getattr(obj, name))
+        obj._pubsub_functions = functions
 
-        self.topic_add(prefix + '/capabilities', dtype='obj', brief='', default=capabilities, flags=['ro'])
+    def _unregister_functions(self, obj, unique_id: str = None):
+        for topic, fn in obj._pubsub_functions.items():
+            self.unregister_command(topic, fn)
+        del obj._pubsub_functions
+
+    def _register_settings(self, obj, unique_id: str):
+        topic_base_name = get_topic_name(unique_id)
+        settings = getattr(obj, 'SETTINGS', {})
+        if not isinstance(obj, type):
+            obj._pubsub_setting_to_topic = {}
+        for setting_name, setting_meta in settings.items():
+            topic_name = f'{topic_base_name}/settings/{setting_name}'
+            if topic_name not in self:
+                self.topic_add(topic_name, meta=setting_meta)
+                if not isinstance(obj, type):
+                    # attempt to set instance default value from class
+                    cls = getattr(obj, '__class__', None)
+                    cls_topic_name = getattr(cls, 'topic', '__invalid_topic_name__')
+                    if cls_topic_name in self:
+                        self.publish(topic_name, self.query(f'{cls_topic_name}/settings/{setting_name}'))
+            if isinstance(obj, type):
+                self._setting_cls_connect(obj, topic_name, setting_name)
+            else:
+                self._setting_connect(obj, topic_name, setting_name)
+
+    def _unregister_settings(self, obj, unique_id):
+        topic_name = get_topic_name(unique_id)
+        settings = getattr(obj, 'SETTINGS', {})
+        for setting_name, setting_meta in settings.items():
+            setting_topic_name = f'{topic_name}/settings/{setting_name}'
+            if isinstance(obj, type):
+                self._setting_cls_disconnect(obj, setting_topic_name, setting_name)
+            else:
+                self._setting_disconnect(obj, setting_topic_name, setting_name)
+
+    def _setting_cls_connect(self, cls, topic_name, setting_name):
+        cls_fn_name = f'on_cls_setting_{setting_name}'
+        obj_fn_name = f'on_setting_{setting_name}'
+        if hasattr(cls, cls_fn_name):
+            fn = getattr(cls, cls_fn_name)
+            self.subscribe(topic_name, fn, flags=['pub', 'retain'])
+        if hasattr(cls, obj_fn_name):
+            return
+        else:
+            # Monkeypatch class to "magically" connect settings attributes to pubsub
+            setting_holder = f'_setting_{setting_name}'
+            setting_orig_value = None
+            if hasattr(cls, setting_name):
+                setting_orig_value = getattr(cls, setting_name)
+            setattr(cls, setting_holder, setting_orig_value)
+
+            def getter(instance_self):
+                return getattr(instance_self, setting_holder)
+
+            def setter(instance_self, value):
+                setattr(instance_self, setting_holder, value)
+                m = getattr(instance_self, '_pubsub_setting_to_topic', {})
+                t, _ = m.get(setting_name, [None, None])
+                if t is not None:
+                    self.publish(t, value)
+
+            setattr(cls, setting_name, property(getter, setter))
+
+    def _setting_cls_disconnect(self, cls, topic_name, setting_name):
+        cls_fn_name = f'on_cls_setting_{setting_name}'
+        obj_fn_name = f'on_setting_{setting_name}'
+        if hasattr(cls, cls_fn_name):
+            fn = getattr(cls, cls_fn_name)
+            self.unsubscribe(topic_name, fn, flags=['pub'])
+        if hasattr(cls, obj_fn_name):
+            return
+        setting_holder = f'_setting_{setting_name}'
+        setting_orig_value = getattr(cls, setting_holder)
+        setattr(cls, setting_name, setting_orig_value)
+        delattr(cls, setting_holder)
+
+    def _setting_connect(self, obj, topic_name, setting_name):
+        def setter(value):
+            setattr(obj, f'_setting_{setting_name}', value)
+
+        fn_name = f'on_setting_{setting_name}'
+        if hasattr(obj, fn_name):
+            fn = getattr(obj, fn_name)
+        else:
+            fn = setter
+        obj._pubsub_setting_to_topic[setting_name] = [topic_name, fn]
+        self.subscribe(topic_name, fn, flags=['pub', 'retain'])
+
+    def _setting_disconnect(self, obj, topic_name, setting_name):
+        topic_name, fn = obj._pubsub_setting_to_topic.pop(setting_name)
+        self.unsubscribe(topic_name, fn, flags=['pub'])
+
+    def _register_capabilities(self, obj, unique_id):
+        topic_name = get_topic_name(unique_id)
+        capabilities = getattr(obj, 'CAPABILITIES', [])
+        capabilities = [c if not hasattr(c, 'value') else c.value for c in capabilities]
+        self.topic_add(f'{topic_name}/capabilities', dtype='obj', brief='', default=capabilities, flags=['ro'], exists_ok=True)
+        existing_capabilities = self.enumerate(REGISTRY_MANAGER_TOPICS.CAPABILITIES)
         for capability in capabilities:
-            self.publish(REGISTRY_MANAGER_TOPICS.CAPABILITIES + f'/{capability}/!add', unique_id)
-        self._registry_add(unique_id)
-        return f'registry/{unique_id}'
+            if capability not in existing_capabilities:
+                self._log.warning(f'unregistered capability: {capability} in {obj}: SKIP')
+                continue
+            capability_topic = REGISTRY_MANAGER_TOPICS.CAPABILITIES + f'/{capability}'
+            self.publish(f'{capability_topic}/!add', unique_id)
 
-    def register_class(self, cls, unique_id=None) -> str:
-        """Register a class.
+    def _unregister_capabilities(self, obj, unique_id):
+        capabilities = getattr(obj, 'CAPABILITIES', [])
+        capabilities = [c if not hasattr(c, 'value') else c.value for c in capabilities]
+        existing_capabilities = self.enumerate(REGISTRY_MANAGER_TOPICS.CAPABILITIES)
+        for capability in capabilities:
+            if capability not in existing_capabilities:
+                continue
+            capability_topic = REGISTRY_MANAGER_TOPICS.CAPABILITIES + f'/{capability}'
+            self.publish(f'{capability_topic}/!remove', unique_id)
 
-        :param cls: The class type to register.
-        :param unique_id: The unique_id to use for this class.
-            None (default) uses the fully-qualified package.module.class name.
-        :type unique_id: str, optional
-        :return: The topic name string.
+    def unregister(self, spec):
+        """Unregister a class or instance.
+
+        :param spec: The class type, instance, topic name or unique id to unregister.
+        :return: The unregistered object.
         """
-        if unique_id is None:
-            unique_id = f'{cls.__module__}.{cls.__qualname__}'
-        return self._register_obj(cls, unique_id)
-
-    def register_instance(self, obj, unique_id=None) -> str:
-        """Register an instance (object).
-
-        :param obj: The instance to register.
-        :param unique_id: The unique_id to use for this instance.
-            None (default) uses a randomly generated value.
-        :type unique_id: str, optional
-        :return: The topic name string.
-        """
-        if unique_id is None:
-            t = self._topic_by_name[REGISTRY_MANAGER_TOPICS.NEXT_UNIQUE_ID]
-            v = t.value
-            t.value += 1
-            unique_id = f'{v:08x}'
-        return self._register_obj(obj, unique_id)
+        try:
+            unique_id = get_unique_id(spec)
+            topic_name = get_topic_name(unique_id)
+        except ValueError:
+            self._log.warning('Could not unregister %s - invalid spec', spec)
+            return None
+        instance_topic_name = f'{topic_name}/instance'
+        obj = self.query(instance_topic_name, default=None)
+        if obj is None:
+            self._log.warning('Could not unregister %s - instance not found', spec)
+            return None
+        self._unregister_capabilities(obj, unique_id)
+        self._registry_remove(unique_id)
+        self._unregister_settings(obj, unique_id)
+        self._unregister_functions(obj, unique_id)
+        self.topic_remove(instance_topic_name)
+        del obj.unique_id
+        del obj.topic
+        return obj
 
     def register_command(self, topic: str, fn: callable):
         """Add a new command topic to the pubsub instance.
 
         :param topic: The topic string for the command.
-        :param fn: The callable fn(pubsub, topic, value) for the command.
+        :param fn: The callable for the command.  The callable may have
+            any of the following signatures:
+            * fn(pubsub, topic, value)
+            * fn(topic, value)
+            * fn(value)
+            * fn()
             The return value determines undo/redo behavior.
             See :meth:`PubSub.subscribe` for details.
+        :return: fn, to allow storage for future unsub
         """
         doc_default = topic.split('/')[-1][1:]
         doc = _parse_docstr(fn.__doc__, doc_default)
-        self.topic_add(topic, dtype='obj', brief=doc)
+        self.topic_add(topic, dtype='obj', brief=doc, exists_ok=True)
         self.subscribe(topic, fn, flags=['command'])
+        return fn
+
+    def unregister_command(self, topic:str, fn: callable):
+        """Remove the registered command handler for a topic.
+
+        :param topic: The topic string for the command.
+        :param fn: The callable for the command provided to
+            :meth:`register_command`, which is used to validate the removal.
+        """
+        return self.unsubscribe(topic, fn, flags=['command'])
 
     def load(self, fh):
         obj = json.load(fh)

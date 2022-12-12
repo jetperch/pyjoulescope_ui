@@ -14,9 +14,41 @@
 
 from .version import __version__
 import sys
+from .pubsub import PubSub
+from .metadata import Metadata
+from .capabilities import CAPABILITIES
 
-__all__ = ['__version__', 'VERSION']
-VERSION = __version__  # deprecated, use __version__
+__all__ = ['__version__', 'pubsub', 'register', 'CAPABILITIES', 'Metadata']
+
+
+def _pubsub_factory() -> PubSub:
+    """Generate and configure the singleton pubsub instance."""
+    p = PubSub()
+    p.registry_initialize()
+    for capability in CAPABILITIES:
+        p.register_capability(capability.value)
+    return p
+
+
+pubsub = _pubsub_factory()  # type: PubSub
+"""Singleton PubSub instance."""
+
+
+def register(obj, unique_id: str = None):
+    """Registration function for classes and instances.
+
+    :param obj: The class type or instance to register.
+    :param unique_id: The unique_id to use for this class.
+        None (default) determines a suitable unique_id.
+        For classes, the class name.
+        For instances, a randomly generated value.
+    :type unique_id: str, optional
+    :return: obj.  Note the difference from func:`PubSub.register`!
+
+    Can be used as a class decorator!
+    """
+    pubsub.register(obj, unique_id)
+    return obj
 
 
 frozen = getattr(sys, 'frozen', False)

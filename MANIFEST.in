@@ -2,10 +2,4 @@ include CHANGELOG.md
 include CREDITS.html
 include LICENSE.txt
 include README.md
-include joulescope_ui/getting_started.html
-include joulescope_ui/preferences.html
-include joulescope_ui/fonts.rcc
-include joulescope_ui/resources.rcc
-include joulescope_ui/themes/README.md
-include joulescope_ui/themes/js1/*
-include joulescope_ui/themes/system/*
+recursive-include joulescope_ui *.svg *.json *.qss *.rcc *.html *.md

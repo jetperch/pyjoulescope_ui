@@ -39,7 +39,11 @@ The Joulescope UI also uses the PubSub implementation to:
   * Save profile to different name 
   * Load arbitrary profile
   * Revert profile to past history, last manual save?
-  * Restore to default for Multimeter & Oscilloscope profiles
+  * Restore to default
+* Support "views" of different widget arrangements within the same profile
+  * Multimeter (default, with reset to default option)
+  * Oscilloscope (default, with reset to default option)
+  * custom
 * Support undo / redo for values & commands
 * Support automatic "preferences" widget population
   * Global, for all preferences in profile
@@ -92,11 +96,6 @@ and trailing '/' are not used.  The hierarchy is
       * !remove {name}
       * !save
       * !load {name}
-    * items
-      * {name}
-        * name: {name}
-        * description: {description}
-        * filename: {filename}
     * settings 
       * active: {name}
       * start_mode: {previous, ignore, named}
@@ -117,23 +116,26 @@ and trailing '/' are not used.  The hierarchy is
       * !remove
   * capabilities
     * {capability}
-      * actions
-        * !add
-        * !remove
+      * !add
+      * !remove
+      * !update
       * list: [{unique_id1}, ...]
   * next_unique_id
 * registry
   * {unique_id}
     * instance: {python_object} 
-    * instance_of: {unique_id}
+    * instance_of: {unique_id}        # for instances
+    * instances: [{unique_id1}, ...]  # for classes
     * capabilities: []
     * parent: {unique_id}
     * children: [{unique_id1}, ...]
-    * actions
+    * actions         # used to control this instance
       * !{action1}
-    * callbacks
-      * !{callback1} 
-    * settings
+    * callbacks       # used to receive replies to actions sent to other instances
+      * !{callback1}
+    * events          # asynchronous events published by this instance
+      * !{event1} 
+    * settings        # settings that control behavior of this instance
       * {path}: {value}
       * name: {name}
 

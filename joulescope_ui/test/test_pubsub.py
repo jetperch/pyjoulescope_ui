@@ -21,10 +21,24 @@ from joulescope_ui.pubsub import PubSub
 from joulescope_ui.metadata import Metadata
 import io
 import json
+import logging
 import threading
 
 
 TOPIC1 = 'my/topic/one'
+
+
+class ListLogHandler(logging.Handler):
+
+    def __init__(self):
+        logging.Handler.__init__(self)
+        self.records = []
+
+    def __len__(self):
+        return len(self.records)
+
+    def emit(self, record):
+        self.records.append(record)
 
 
 class TestPubSub(unittest.TestCase):
@@ -46,7 +60,9 @@ class TestPubSub(unittest.TestCase):
 
     def test_basic(self):
         p = PubSub()
+        self.assertFalse(TOPIC1 in p)
         p.topic_add(TOPIC1, dtype='str', brief='my topic', default='hello')
+        self.assertTrue(TOPIC1 in p)
         self.assertEqual('hello', p.query(TOPIC1))
         self.assertEqual('my topic', p.metadata(TOPIC1).brief)
         self.assertEqual(0, len(self.pub))
@@ -88,6 +104,19 @@ class TestPubSub(unittest.TestCase):
         p.topic_add('t/4', meta)
         p.topic_add('t/5', meta=meta)
         p.topic_add('t/6', meta=json.dumps(meta.to_map()))
+
+    def test_topic_add_duplicate(self):
+        p = PubSub()
+        p.topic_add('t/1', dtype='obj', brief='my topic')
+        h = ListLogHandler()
+        root_log = logging.getLogger()
+        root_log.addHandler(h)
+        root_log.setLevel(logging.WARNING)
+        p.topic_add('t/1', dtype='obj', brief='my topic', exists_ok=True)
+        self.assertEqual(0, len(h))
+        p.topic_add('t/1', dtype='obj', brief='my topic', exists_ok=False)
+        self.assertEqual(1, len(h))
+        root_log.removeHandler(h)
 
     def test_no_retain(self):
         p = PubSub()
