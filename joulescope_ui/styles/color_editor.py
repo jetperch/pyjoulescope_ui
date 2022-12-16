@@ -1,4 +1,4 @@
-# Copyright 2020 Jetperch LLC
+# Copyright 2020-2022 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,45 +13,25 @@
 # limitations under the License.
 
 
-from PySide6 import QtCore, QtWidgets
-from joulescope_ui.themes.color_picker import ColorItem
-import json
+from PySide6 import QtWidgets
+from .color_picker import ColorItem
+from joulescope_ui.styles import color_file
 import os
 
 
 MYPATH = os.path.dirname(os.path.abspath(__file__))
 
 
-def theme_finder():
-    themes = []
-    for fname in os.listdir(MYPATH):
-        path = os.path.join(MYPATH, fname)
-        if not os.path.isdir(path):
-            continue
-        if not os.path.isfile(os.path.join(path, 'index.json')):
-            continue
-        themes.append(fname)
-    return themes
-
-
-class ThemeEditor(QtWidgets.QWidget):
+class ColorEditor(QtWidgets.QWidget):
 
     def __init__(self, parent):
         QtWidgets.QWidget.__init__(self, parent)
-        self._themes = theme_finder()
         self._index = None
 
         self._layout = QtWidgets.QVBoxLayout(self)
         self._top = QtWidgets.QWidget(self)
         self._layout.addWidget(self._top)
         self._top_layout = QtWidgets.QHBoxLayout(self._top)
-
-        self._theme_label = QtWidgets.QLabel('Theme: ', self._top)
-        self._top_layout.addWidget(self._theme_label)
-        self._theme_combo = QtWidgets.QComboBox(self._top)
-        for theme in self._themes:
-            self._theme_combo.addItem(theme)
-        self._top_layout.addWidget(self._theme_combo)
 
         self._middle_scroll = QtWidgets.QScrollArea(self)
         self._middle_scroll.setObjectName(u"middle_scroll")
@@ -62,15 +42,14 @@ class ThemeEditor(QtWidgets.QWidget):
         self._middle_scroll.setWidget(self._middle)
         self._layout.addWidget(self._middle_scroll)
 
-        self._bottom = QtWidgets.QWidget(self)
-        self._bottom_layout = QtWidgets.QHBoxLayout(self._bottom)
-        self._add_button = QtWidgets.QPushButton('Add', self._bottom)
-        self._bottom_layout.addWidget(self._add_button)
-        self._save_button = QtWidgets.QPushButton('Save', self._bottom)
-        self._bottom_layout.addWidget(self._save_button)
-        self._layout.addWidget(self._bottom)
-
-        self.theme_selection(self._theme_combo.currentText())
+        #self._bottom = QtWidgets.QWidget(self)
+        #self._bottom_layout = QtWidgets.QHBoxLayout(self._bottom)
+        #self._add_button = QtWidgets.QPushButton('Add', self._bottom)
+        #self._bottom_layout.addWidget(self._add_button)
+        #self._save_button = QtWidgets.QPushButton('Save', self._bottom)
+        #self._bottom_layout.addWidget(self._save_button)
+        #self._layout.addWidget(self._bottom)
+        self.populate()
 
     def color_list(self):
         colors = []
@@ -82,53 +61,51 @@ class ThemeEditor(QtWidgets.QWidget):
                     colors.append(name)
         return colors
 
-    def theme_selection(self, theme):
-        # todo clear self._middle, self._color_widgets
-
-        if theme not in self._themes:
-            raise ValueError('theme not found')
-        path = os.path.join(MYPATH, theme, 'index.json')
-        with open(path, 'r', encoding='utf-8') as f:
-            self._index = json.load(f)
+    def populate(self):
+        c_dark = color_file.load(os.path.join(MYPATH, '../styles/color_schemes/color_dark.txt'))
+        c_light = color_file.load(os.path.join(MYPATH, '../styles/color_schemes/color_light.txt'))
+        color_map = {
+            'dark': c_dark,
+            'light': c_light,
+        }
+        colors = set(c_dark.keys())
+        colors = colors.union(c_light.keys())
 
         name_label = QtWidgets.QLabel('Color', self._middle)
         self._color_widgets.append(name_label)
         self._grid.addWidget(name_label, 0, 0, 1, 1)
-        for style_idx, style in enumerate(self._index['colors'].keys()):
-            style_label = QtWidgets.QLabel(style, self._middle)
+        for color_scheme_idx, color_scheme in enumerate(color_map.keys()):
+            style_label = QtWidgets.QLabel(color_scheme, self._middle)
             self._color_widgets.append(style_label)
-            self._grid.addWidget(style_label, 0, 1 + style_idx * 2, 1, 2)
+            self._grid.addWidget(style_label, 0, 1 + color_scheme_idx * 2, 1, 2)
 
         row = 1
-        colors = self.color_list()
         max_color_length = max(colors, key=len)
         max_color_length = max(len(max_color_length), 20)
         max_color_length = name_label.fontMetrics().boundingRect('0' * max_color_length).width()
 
-        for name in self.color_list():
+        for name in sorted(colors):
             label = QtWidgets.QLineEdit(name, self._middle)
             label.setMinimumWidth(max_color_length)
             self._grid.addWidget(label, row, 0, 1, 1)
             self._color_widgets.append(label)
-            for style_idx, (style, style_d) in enumerate(self._index['colors'].items()):
-                color = style_d.get(name, '#000000')
+            for color_scheme_idx, color_scheme in enumerate(color_map.values()):
+                color = color_scheme.get(name, '#00000000')
                 w = ColorItem(self._middle, name, color)
                 self._color_widgets.append(w)
-                self._grid.addWidget(w.value_edit, row, 1 + 2 * style_idx, 1, 1)
-                self._grid.addWidget(w.color_label, row, 2 + 2 * style_idx, 1, 1)
+                self._grid.addWidget(w.value_edit, row, 1 + 2 * color_scheme_idx, 1, 1)
+                self._grid.addWidget(w.color_label, row, 2 + 2 * color_scheme_idx, 1, 1)
             row += 1
 
 
-if __name__ == '__main__':
-    import ctypes
-    import sys
-
-    if sys.platform.startswith('win'):
-        ctypes.windll.user32.SetProcessDPIAware()
-    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+def run():
     app = QtWidgets.QApplication()
     window = QtWidgets.QMainWindow()
-    widget = ThemeEditor(window)
+    widget = ColorEditor(window)
     window.setCentralWidget(widget)
     window.show()
-    app.exec_()
+    app.exec()
+
+
+if __name__ == '__main__':
+    run()

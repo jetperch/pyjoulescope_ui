@@ -12,21 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-Test the capabilities
-"""
+from .manager import StyleManager
 
-import unittest
-from joulescope_ui.capabilities import CAPABILITIES
-
-
-class TestCapabilities(unittest.TestCase):
-
-    def test_basic(self):
-        self.assertEqual('signal.source', CAPABILITIES.SIGNAL_SOURCE.value)
-        self.assertEqual('signal.source', str(CAPABILITIES.SIGNAL_SOURCE))
-
-    def test_in(self):
-        self.assertEqual('widget.class', str(CAPABILITIES('widget.class')))
-        with self.assertRaises(ValueError):
-            CAPABILITIES('invalid')
+__all__ = ['StyleManager']

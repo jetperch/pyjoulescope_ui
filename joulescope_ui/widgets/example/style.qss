@@ -1,0 +1,10 @@
+
+QLabel#label1 {
+    background: {% example.bg1 %};
+    color: {% example.fg1 %};
+}
+
+QLabel#label2 {
+    background: {% example.bg2 %};
+    color: {% example.fg2 %};
+}

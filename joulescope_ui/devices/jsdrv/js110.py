@@ -12,21 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-Test the capabilities
-"""
-
-import unittest
 from joulescope_ui.capabilities import CAPABILITIES
+from .device import Device
+from joulescope_ui.metadata import Metadata
 
 
-class TestCapabilities(unittest.TestCase):
+class Js110(Device):
 
-    def test_basic(self):
-        self.assertEqual('signal.source', CAPABILITIES.SIGNAL_SOURCE.value)
-        self.assertEqual('signal.source', str(CAPABILITIES.SIGNAL_SOURCE))
-
-    def test_in(self):
-        self.assertEqual('widget.class', str(CAPABILITIES('widget.class')))
-        with self.assertRaises(ValueError):
-            CAPABILITIES('invalid')
+    def __init__(self, driver, device_path):
+        super().__init__(driver, device_path)

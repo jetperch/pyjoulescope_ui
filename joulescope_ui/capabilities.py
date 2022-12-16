@@ -19,12 +19,6 @@ from enum import Enum
 class CAPABILITIES(Enum):
     """Define the capabilities of a registered class or object."""
 
-    RANGE_TOOL = 'range_tool'
-    """An instantiable analysis tool class
-    
-    See RANGE_TOOL_CLASS and RANGE_TOOL_OBJECT.
-    """
-
     RANGE_TOOL_CLASS = 'range_tool.class'
     """An analysis tool class that operates over a time range.
 
@@ -91,8 +85,12 @@ class CAPABILITIES(Enum):
     STATISTICS_SINK = 'statistics.sink'
     """A sink that consume STATISTICS_SOURCE information."""
 
-    VIEW = 'view'
-    WIDGET = 'widget'  # denotes both class and object
+    VIEW_CLASS = 'view.class'
+    """The central view manager."""
+
+    VIEW_OBJECT = 'view.object'
+    """A view instance."""
+
     WIDGET_CLASS = 'widget.class'
     """A widget class.
     
@@ -101,3 +99,9 @@ class CAPABILITIES(Enum):
     """
 
     WIDGET_OBJECT = 'widget.object'
+
+    def __repr__(self):
+        return "<%s.%s>" % (self.__class__.__name__, self._name_)
+
+    def __str__(self):
+        return self._value_

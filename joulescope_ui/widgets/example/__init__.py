@@ -1,4 +1,4 @@
-# Copyright 2022 Jetperch LLC
+# Copyright 2019-2022 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,21 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-Test the capabilities
-"""
-
-import unittest
-from joulescope_ui.capabilities import CAPABILITIES
-
-
-class TestCapabilities(unittest.TestCase):
-
-    def test_basic(self):
-        self.assertEqual('signal.source', CAPABILITIES.SIGNAL_SOURCE.value)
-        self.assertEqual('signal.source', str(CAPABILITIES.SIGNAL_SOURCE))
-
-    def test_in(self):
-        self.assertEqual('widget.class', str(CAPABILITIES('widget.class')))
-        with self.assertRaises(ValueError):
-            CAPABILITIES('invalid')
+from . import example_widget

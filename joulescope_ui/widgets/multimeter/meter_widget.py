@@ -13,9 +13,9 @@
 # limitations under the License.
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from joulescope.units import three_sig_figs
+#from joulescope.units import three_sig_figs
+from joulescope_ui.capabilities import CAPABILITIES
 from .meter_value_widget import MeterValueWidget
-from joulescope_ui.ui_util import rgba_to_css
 import datetime
 import logging
 log = logging.getLogger(__name__)
@@ -47,11 +47,14 @@ accumulation.  Select <b>Tools → Clear Accumulator</b> to reset them.</p>
 """
 
 
-class MeterWidget(QtWidgets.QWidget):
+class MultimeterWidget(QtWidgets.QWidget):
+    """Display statistics in like a multimeter."""
+    CAPABILITIES = [CAPABILITIES.STATISTICS_SINK]
+    NAME = 'Multimeter'
 
-    def __init__(self, parent, cmdp, state_preference):
-        QtWidgets.QWidget.__init__(self, parent)
-        self._cmdp = cmdp
+    def __init__(self, pubsub):
+        QtWidgets.QWidget.__init__(self)
+        self.pubsub = pubsub
         self._accumulate_duration = 0.0
         self._accumulate_start = None
 
@@ -95,9 +98,9 @@ class MeterWidget(QtWidgets.QWidget):
                 spacer.setMinimumHeight(2)
                 self._grid_layout.addWidget(spacer, idx * 5 - 1, 0, 1, 4)
                 self.spacers.append(spacer)
-            w = MeterValueWidget(self._grid_widget, cmdp, idx * 5, name)
-            w.configure(name.capitalize(), units_short, units_long)
-            self.values[name] = w
+            # w = MeterValueWidget(self._grid_widget, idx * 5, name)
+            #w.configure(name.capitalize(), units_short, units_long)
+            #self.values[name] = w
         self.values['energy'].configure_energy()
 
         self._grid_layout.setColumnStretch(0, 1)
@@ -107,10 +110,10 @@ class MeterWidget(QtWidgets.QWidget):
         self.sizePolicy.setVerticalStretch(0)
         self.setSizePolicy(self.sizePolicy)
         self.retranslateUi()
-        self._cmdp.subscribe('Device/#state/statistics', self._on_device_statistics, update_now=True)
-        cmdp.subscribe('Widgets/Multimeter/font-main', self._on_font_main, update_now=True)
-        cmdp.subscribe('Widgets/Multimeter/font-stats', self._on_font_stats, update_now=True)
-        self._cmdp.subscribe('!Accumulators/reset', self._on_accumulator_reset)
+        #self._cmdp.subscribe('Device/#state/statistics', self._on_device_statistics, update_now=True)
+        #cmdp.subscribe('Widgets/Multimeter/font-main', self._on_font_main, update_now=True)
+        #cmdp.subscribe('Widgets/Multimeter/font-stats', self._on_font_stats, update_now=True)
+        #self._cmdp.subscribe('!Accumulators/reset', self._on_accumulator_reset)
 
     def _on_font_main(self, topic, value):
         font = QtGui.QFont()
@@ -179,23 +182,3 @@ class MeterWidget(QtWidgets.QWidget):
     def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
         self.accumulateButton.setText(_translate("meter_widget", "Accumulate"))
-
-
-def widget_register(cmdp):
-    # https://blog.graphiq.com/finding-the-best-free-fonts-for-numbers-25c54002a895
-    cmdp.define(
-        topic='Widgets/Multimeter/font-main',
-        dtype='font',
-        default="Lato,48,-1,5,87,0,0,0,0,0,Black")
-    cmdp.define(
-        topic='Widgets/Multimeter/font-stats',
-        dtype='font',
-        default="Lato,10,-1,5,87,0,0,0,0,0,Black")
-
-    return {
-        'name': 'Multimeter',
-        'brief': 'Display the average values and statistics.',
-        'class': MeterWidget,
-        'location': QtCore.Qt.RightDockWidgetArea,
-        'singleton': True,
-    }

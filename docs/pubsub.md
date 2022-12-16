@@ -104,7 +104,7 @@ and trailing '/' are not used.  The hierarchy is
     * app
     * config
     * log
-    * themes
+    * styles
     * update
 * registry_manager
   * actions
@@ -141,7 +141,8 @@ and trailing '/' are not used.  The hierarchy is
 
 The unique_ids can be any string.  However, the following
 are defined:
-* 'ui', 'help'
+* 'view': The view class
+* 'help'
 * 'jsdrv'
 * 'jls'
 * '{device}-{serial_number}'

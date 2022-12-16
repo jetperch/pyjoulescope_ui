@@ -1,4 +1,4 @@
-# Copyright 2020 Jetperch LLC
+# Copyright 2020-2022 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,8 +13,6 @@
 # limitations under the License.
 
 
-from joulescope_ui.paths import paths_current
-import copy
 import json
 import logging
 import os
@@ -24,34 +22,7 @@ from PySide6 import QtCore
 
 log = logging.getLogger(__name__)
 MYPATH = os.path.dirname(os.path.abspath(__file__))
-
-
-def loader(name):
-    theme_path = os.path.join(paths_current()['dirs']['themes'], name)
-    theme_index = os.path.join(theme_path, 'index.json')
-    with open(theme_index, 'r', encoding='utf-8') as f:
-        index = json.load(f)
-    theme_css = os.path.join(theme_path, 'style.qss')
-    if not os.path.isfile(theme_css):
-        raise ValueError('generate theme')  # todo
-    f = QtCore.QFile(theme_css)
-    f.open(QtCore.QFile.ReadOnly | QtCore.QFile.Text)
-    stream = QtCore.QTextStream(f)
-    app = QtCore.QCoreApplication.instance()
-    app.setStyleSheet(stream.readAll())
-    return index
-
-
-def preferences_overwrite(index, cmdp):
-    profile = cmdp.preferences.profile
-    if profile == 'default':
-        cmdp.preferences.purge('Appearance/Colors/')
-    else:
-        for name in cmdp.preferences.match('Appearance/Colors/', profile=profile):
-            cmdp.preferences.clear(name, profile)
-    for color, value in index['colors'].items():
-        name = f'Appearance/Colors/{color}'
-        cmdp.preferences.set(name, value, profile)
+PATH = r'C:\Users\Matth\AppData\Local\joulescope\themes'
 
 
 def _theme_source_path(theme_name):
@@ -179,7 +150,7 @@ def theme_configure(index, target_name, target_path=None):
     if isinstance(index, str):
         index = theme_index_loader(index)
     if target_path is None:
-        target_path = paths_current()['dirs']['themes']
+        target_path = PATH
     target_path = os.path.join(target_path, target_name)
     index['generator']['target_path'] = target_path
     return index

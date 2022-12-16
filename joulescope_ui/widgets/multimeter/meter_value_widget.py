@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from joulescope.units import unit_prefix
+# from joulescope.units import unit_prefix
 import numpy as np
 import math
 
@@ -21,9 +21,8 @@ import math
 class MeterValueWidget(QtCore.QObject):
     on_update = QtCore.Signal(object, str)  # [mean, std_dev, min, max, p2p], units : values are formatted strings!
 
-    def __init__(self, parent, cmdp, row, name):
+    def __init__(self, parent, row, name):
         QtCore.QObject.__init__(self, parent)
-        self._cmdp = cmdp
         self._units_short = ''
         self._units_long = ''
         self.v_mean = 0.0

@@ -12,21 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-Test the capabilities
-"""
 
-import unittest
-from joulescope_ui.capabilities import CAPABILITIES
+import joulescope_ui
 
 
-class TestCapabilities(unittest.TestCase):
+class Profile:
 
-    def test_basic(self):
-        self.assertEqual('signal.source', CAPABILITIES.SIGNAL_SOURCE.value)
-        self.assertEqual('signal.source', str(CAPABILITIES.SIGNAL_SOURCE))
+    def __init__(self, pubsub=None):
+        self.pubsub = joulescope_ui.pubsub if pubsub is None else pubsub
+        self.pubsub.register(self, 'profile')
 
-    def test_in(self):
-        self.assertEqual('widget.class', str(CAPABILITIES('widget.class')))
-        with self.assertRaises(ValueError):
-            CAPABILITIES('invalid')
+    def on_action_add(self, value):
+        pass
+
+    def on_action_remove(self, value):
+        pass
+
+    def on_action_save(self):
+        pass
+
+    def on_action_load(self, value):
+        pass
+

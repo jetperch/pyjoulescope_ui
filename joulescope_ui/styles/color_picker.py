@@ -1,4 +1,4 @@
-# Copyright 2020 Jetperch LLC
+# Copyright 2020-2022 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 import re
 
 
-_re_color_pattern = re.compile('#[0-9a-fA-F]*')
+_re_color_pattern = re.compile('#[0-9a-fA-F]+')
 
 
 def color_as_string(color):
@@ -36,7 +36,7 @@ def color_as_qcolor(color):
         if clen == 9:
             color = f'#{color[7:]}{color[1:7]}'  # convert RRGGBBAA to AARRGGBB
         elif clen != 7:
-            raise ValueError('Invalid color')
+            raise ValueError(f'Invalid color {color}')
         return QtGui.QColor(color)
     elif isinstance(color, QtGui.QColor):
         return color
@@ -82,7 +82,7 @@ class QColorLabel(QtWidgets.QLabel):
     @color.setter
     def color(self, value):
         v = color_as_string(value)
-        if v[-2:] == 'FF':
+        if len(v) == 9 and v[-2:] == 'FF':  # remove alpha channel when opaque
             v = v[:-2]
         self._color = v
         self.draw()
@@ -166,10 +166,7 @@ class ColorPicker(QtWidgets.QWidget):
             row += 1
 
 
-if __name__ == '__main__':
-    import ctypes
-    import sys
-
+def run_example():
     style = """\
     QLineEdit {
         color: #101010;
@@ -193,13 +190,14 @@ if __name__ == '__main__':
         'green_alpha80': '#00800080',
         'green_alpha40': '#00800040',
     }
-    if sys.platform.startswith('win'):
-        ctypes.windll.user32.SetProcessDPIAware()
-    QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
     app = QtWidgets.QApplication()
     window = QtWidgets.QMainWindow()
     widget = ColorPicker(window, colors)
     window.setCentralWidget(widget)
     widget.setStyleSheet(style)
     window.show()
-    app.exec_()
+    app.exec()
+
+
+if __name__ == '__main__':
+    run_example()

@@ -1,4 +1,4 @@
-# Copyright 2018 Jetperch LLC
+# Copyright 2018-2022 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,8 +17,10 @@ import sys
 from .pubsub import PubSub
 from .metadata import Metadata
 from .capabilities import CAPABILITIES
+from .locale import N_
+from .styles.manager import styled_widget
 
-__all__ = ['__version__', 'pubsub', 'register', 'CAPABILITIES', 'Metadata']
+__all__ = ['__version__', 'pubsub_singleton', 'register', 'styled_widget', 'CAPABILITIES', 'Metadata', 'N_']
 
 
 def _pubsub_factory() -> PubSub:
@@ -30,7 +32,7 @@ def _pubsub_factory() -> PubSub:
     return p
 
 
-pubsub = _pubsub_factory()  # type: PubSub
+pubsub_singleton = _pubsub_factory()  # type: PubSub
 """Singleton PubSub instance."""
 
 
@@ -47,7 +49,7 @@ def register(obj, unique_id: str = None):
 
     Can be used as a class decorator!
     """
-    pubsub.register(obj, unique_id)
+    pubsub_singleton.register(obj, unique_id)
     return obj
 
 

@@ -82,11 +82,11 @@ def get_unique_id(obj):
         elif '/' not in obj:
             return obj  # presume that this is the unique id
         else:
-            raise ValueError('Invalid unique_id string')
+            raise ValueError(f'Invalid unique_id string {obj}')
     if 'unique_id' in obj.__dict__:
         return obj.unique_id
     else:
-        raise ValueError('Could not find unique_id')
+        raise ValueError(f'Could not find unique_id for {obj}')
 
 
 def get_topic_name(obj):
@@ -890,7 +890,7 @@ class PubSub:
         self._cmd_topic_remove({'topic': t})
         self.publish(REGISTRY_MANAGER_TOPICS.CAPABILITY_REMOVE, name)
 
-    def register(self, obj, unique_id: str = None) -> str:
+    def register(self, obj, unique_id: str = None, parent=None) -> str:
         """Register a class or instance.
 
         :param obj: The class type or instance to register.
@@ -899,6 +899,7 @@ class PubSub:
             For classes, the class name.
             For instances, a randomly generated value.
         :type unique_id: str, optional
+        :param parent: The optional parent unique_id, topic, or object.
         :return: The topic name string.
         """
         if 'unique_id' in obj.__dict__:  # ignore class attributes for objects
@@ -910,12 +911,13 @@ class PubSub:
                 # This keeps the string short & readable, but names must avoid collisions.
                 unique_id = obj.__name__
             else:
-                class_name = obj.__class__.__name__
+                cls_unique_id = getattr(obj.__class__, 'unique_id', obj.__class__.__name__)
                 t = self._topic_by_name[REGISTRY_MANAGER_TOPICS.NEXT_UNIQUE_ID]
                 v = t.value
                 t.value += 1
-                unique_id = f'{class_name}:{v:08x}'
-
+                unique_id = f'{cls_unique_id}:{v:08x}'
+        else:
+            unique_id = get_unique_id(unique_id)
         self._log.info('register(obj=%s, unique_id=%s) start', obj, unique_id)
         doc = obj.__doc__
         if doc is None:
@@ -929,6 +931,27 @@ class PubSub:
         self.topic_add(f'{topic_name}/callbacks', dtype='node', brief='callbacks', exists_ok=True)
         self.topic_add(f'{topic_name}/events', dtype='node', brief='events', exists_ok=True)
         self.topic_add(f'{topic_name}/settings', dtype='node', brief='settings', exists_ok=True)
+        if isinstance(obj, type):
+            self.topic_add(f'{topic_name}/instances', dtype='obj', brief='instances', default=[], exists_ok=True)
+        else:
+            cls_unique_id = getattr(obj.__class__, 'unique_id', None)
+            if cls_unique_id is not None:
+                self.topic_add(f'{topic_name}/instance_of', dtype='str', brief='instance of',
+                               default=cls_unique_id, flags=['ro'], exists_ok=True)
+                instances_topic = get_topic_name(cls_unique_id) + '/instances'
+                instances = self.query(instances_topic)
+                if unique_id not in instances:
+                    self.publish(instances_topic, instances + [unique_id])
+            self.topic_add(f'{topic_name}/parent',
+                           dtype='str', brief='unique id for the parent', default='', exists_ok=True)
+            if parent is not None:
+                self.publish(f'{topic_name}/parent', get_unique_id(parent))
+                children_topic = get_topic_name(parent) + '/children'
+                children = self.query(children_topic)
+                if unique_id not in children:
+                    self.publish(children_topic, children + [unique_id])
+            self.topic_add(f'{topic_name}/children',
+                           dtype='obj', brief='list of unique ids for children', default=[], exists_ok=True)
 
         self._register_events(obj, unique_id)
         self._register_functions(obj, unique_id)
@@ -1069,10 +1092,13 @@ class PubSub:
     def _register_capabilities(self, obj, unique_id):
         topic_name = get_topic_name(unique_id)
         capabilities = getattr(obj, 'CAPABILITIES', [])
-        capabilities = [c if not hasattr(c, 'value') else c.value for c in capabilities]
+        capabilities = [str(c) for c in capabilities]
         self.topic_add(f'{topic_name}/capabilities', dtype='obj', brief='', default=capabilities, flags=['ro'], exists_ok=True)
         existing_capabilities = self.enumerate(REGISTRY_MANAGER_TOPICS.CAPABILITIES)
+        suffix = '.class' if isinstance(obj, type) else '.object'
         for capability in capabilities:
+            if capability[-1] == '@':
+                capability = capability[:-1] + suffix
             if capability not in existing_capabilities:
                 self._log.warning(f'unregistered capability: {capability} in {obj}: SKIP')
                 continue
@@ -1083,7 +1109,10 @@ class PubSub:
         capabilities = getattr(obj, 'CAPABILITIES', [])
         capabilities = [c if not hasattr(c, 'value') else c.value for c in capabilities]
         existing_capabilities = self.enumerate(REGISTRY_MANAGER_TOPICS.CAPABILITIES)
+        suffix = '.class' if isinstance(obj, type) else '.object'
         for capability in capabilities:
+            if capability[-1] == '@':
+                capability = capability[:-1] + suffix
             if capability not in existing_capabilities:
                 continue
             capability_topic = REGISTRY_MANAGER_TOPICS.CAPABILITIES + f'/{capability}'
@@ -1094,6 +1123,9 @@ class PubSub:
 
         :param spec: The class type, instance, topic name or unique id to unregister.
         :return: The unregistered object.
+
+        This feature does not remove the topic.  Future instances registered
+        to this unique_id will be configured with the same settings.
         """
         try:
             unique_id = get_unique_id(spec)

@@ -12,21 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-Test the capabilities
-"""
+import gettext
+import os
 
-import unittest
-from joulescope_ui.capabilities import CAPABILITIES
+__all__ = ['N_']
 
 
-class TestCapabilities(unittest.TestCase):
+# https://docs.python.org/3/library/gettext.html
+# https://www.gnu.org/software/gettext/manual/gettext.html
+# https://www.mattlayman.com/blog/2015/i18n/
+# https://babel.pocoo.org/
 
-    def test_basic(self):
-        self.assertEqual('signal.source', CAPABILITIES.SIGNAL_SOURCE.value)
-        self.assertEqual('signal.source', str(CAPABILITIES.SIGNAL_SOURCE))
 
-    def test_in(self):
-        self.assertEqual('widget.class', str(CAPABILITIES('widget.class')))
-        with self.assertRaises(ValueError):
-            CAPABILITIES('invalid')
+PATH = os.path.dirname(os.path.abspath(__file__))
+translate = gettext.translation('ui', PATH, fallback=True)
+N_ = translate.gettext
