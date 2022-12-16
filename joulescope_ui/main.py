@@ -118,6 +118,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._dock_layout = QtWidgets.QVBoxLayout(self._dock_widget)
         self._dock_layout.setContentsMargins(0, 0, 0, 0)
         QtAds.CDockManager.setConfigFlags(QtAds.CDockManager.DefaultOpaqueConfig)
+        QtAds.CDockManager.setConfigFlags(QtAds.CDockManager.XmlAutoFormattingEnabled)
         self._dock_manager = QtAds.CDockManager(self._dock_widget)
         self._dock_manager.setStyleSheet("")
         self._dock_layout.addWidget(self._dock_manager)

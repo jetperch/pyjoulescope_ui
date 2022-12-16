@@ -16,7 +16,7 @@
 from . import pubsub_singleton, register, N_, sanitize
 from .styles.manager import style_settings
 from .pubsub import get_topic_name, get_unique_id
-from PySide6 import QtWidgets
+from PySide6 import QtCore, QtWidgets
 import PySide6QtAds as QtAds
 import logging
 
@@ -62,6 +62,11 @@ VIEW_SETTINGS = {
         'default': 'dark',
         'options': [['dark', N_('Dark background')], ['light', N_('Light background')]],
     },
+    'ads_state': {
+        'dtype': 'str',
+        'brief': 'The Advanced Docking System state for restoring widget layout.',
+        'default': '',
+    }
 }
 
 
@@ -88,7 +93,11 @@ class View:
         view: View = View._active_instance
         if view is not None:
             _log.info('active view %s: teardown start', view.unique_id)
-            children = pubsub_singleton.query(f'registry/{view.unique_id}/children', default=None)
+            topic = get_topic_name(view.unique_id)
+            ads_state = View._dock_manager.saveState()
+            ads_state = bytes(ads_state).decode('utf-8')
+            pubsub_singleton.publish(f'{topic}/settings/ads_state', ads_state)
+            children = pubsub_singleton.query(f'{topic}/children', default=None)
             for child in children:
                 view.on_action_widget_close(child)
             _log.info('active view %s: teardown done', view.unique_id)
@@ -97,16 +106,20 @@ class View:
         if value in ['', None]:
             return
 
-        view = pubsub_singleton.query(f'registry/{value}/instance', default=None)
+        topic = get_topic_name(value)
+        view = pubsub_singleton.query(f'{topic}/instance', default=None)
         if view is None:
             # should never happen
             _log.warning('active view %s does not exist', value)
             return
         _log.info('active view %s: setup start', view.unique_id)
-        children = pubsub_singleton.query(f'registry/{view.unique_id}/children', default=None)
+        children = pubsub_singleton.query(f'{topic}/children', default=None)
         for child in children:
             view.on_action_widget_open(child)
         View._active_instance = view
+        ads_state = pubsub_singleton.query(f'{topic}/settings/ads_state', default='')
+        if ads_state is not None and len(ads_state):
+            print(View._dock_manager.restoreState(QtCore.QByteArray(ads_state.encode('utf-8'))))
         _log.info('active view %s: setup done', view.unique_id)
 
     @property
@@ -161,9 +174,12 @@ class View:
             cls = pubsub_singleton.query(get_topic_name(cls) + '/instance')
         else:
             unique_id = None
-        obj = cls()
+        obj: QtWidgets.QWidget = cls()
         topic = pubsub_singleton.register(obj, unique_id=unique_id, parent=self)
+        unique_id = get_unique_id(topic)
+        obj.setObjectName(unique_id)
         obj.dock_widget = DockWidget(obj)
+        obj.dock_widget.setObjectName(f'{unique_id}__dock')
         self._dock_manager.addDockWidget(QtAds.TopDockWidgetArea, obj.dock_widget)
         # todo restore children
         return ['registry/view/actions/!widget_close', topic]
