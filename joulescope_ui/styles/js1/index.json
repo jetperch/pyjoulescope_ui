@@ -69,16 +69,6 @@
         ["{basename}_hover{ext}",    {"#000000": "js1.clickable_hover"}],
         ["{basename}_pressed{ext}",  {"#000000": "js1.clickable_pressed"}]
       ]
-    },
-    "copy": {
-      "sources": [
-        "play.svg",
-        "record.svg",
-        "record_statistics.svg"
-      ],
-      "targets": [
-        ["{basename}{ext}", {}]
-      ]
     }
   }
 }

@@ -1,0 +1,4 @@
+example.bg1 = #004000ff
+example.fg1 = #ffffffff
+example.bg2 = #00400080
+example.fg2 = #40ff40ff

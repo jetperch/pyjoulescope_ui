@@ -68,15 +68,3 @@ waveform.font_color = #c0c0c0
 
 dock.close_hover = #A00000
 dock.close_pressed = #D00000
-
-sidebar.play_enabled = #008000
-sidebar.play_blink = #00A000
-sidebar.record_enabled = #A00000
-sidebar.record_blink = #D00000
-sidebar.record_statistics_enabled = #1260a0
-sidebar.record_statistics_blink = #3580D3
-
-example.bg1 = #400000ff
-example.fg1 = #00ff0080
-example.bg2 = #40000080
-example.fg2 = #ffffffff

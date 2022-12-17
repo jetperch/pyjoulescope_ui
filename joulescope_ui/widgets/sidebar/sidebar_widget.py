@@ -16,6 +16,7 @@
 
 from PySide6 import QtCore, QtGui, QtWidgets
 import logging
+from joulescope_ui import styled_widget, N_
 
 
 
@@ -110,6 +111,7 @@ class Flyout(QtWidgets.QWidget):
         self.repaint()
 
 
+@styled_widget(N_('sidebar'))
 class SideBar(QtWidgets.QWidget):
 
     # Note: does NOT implement widget, since not instantiable by user or available as a dock widget.

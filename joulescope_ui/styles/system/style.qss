@@ -63,51 +63,6 @@ QLabel[single_value_label=true] {
 
 
 /****************************************************************************/
-/* Control Widget                                                           */
-/****************************************************************************/
-
-QPushButton#play {
-    border-width: 0px;
-    border-radius: 12;
-    image: url("{% path %}/play.svg"); 
-}
-QPushButton#play:enabled       { background: {% play_enabled %}; }
-QPushButton#play:enabled:hover { background: {% play_blink %}; }
-QPushButton#play:checked       { background: {% play_enabled %}; }
-QPushButton#play:checked:hover { background: {% play_blink %}; }
-QPushButton#play[blink=true]:checked       { background: {% play_blink %}; }
-
-QPushButton#record {
-    border-width: 0px;
-    border-radius: 12;
-    image: url("{% path %}/record.svg"); 
-}
-QPushButton#record:enabled       { background: {% record_enabled %}; }
-QPushButton#record:enabled:hover { background: {% record_blink %}; }
-QPushButton#record:checked       { background: {% record_enabled %}; }
-QPushButton#record:checked:hover { background: {% record_blink %}; }
-QPushButton#record[blink=true]:checked       { background: {% record_blink %}; }
-
-QPushButton#record_statistics {
-    border-width: 0px;
-    border-radius: 6;
-    image: url("{% path %}/record_statistics.svg"); 
-}
-QPushButton#record_statistics:enabled       { background: {% record_statistics_enabled %}; }
-QPushButton#record_statistics:enabled:hover { background: {% record_statistics_blink %}; }
-QPushButton#record_statistics:checked       { background: {% record_statistics_enabled %}; }
-QPushButton#record_statistics:checked:hover { background: {% record_statistics_blink %}; }
-QPushButton#record_statistics[blink=true]:checked       { background: {% record_statistics_blink %}; }
-
-QPushButton#play:disabled,
-QPushButton#record:disabled,
-QPushButton#record_statistics:disabled
-{ 
-    background: {% disabled_foreground %};
-}
-
-
-/****************************************************************************/
 /* Waveform Control Widget                                                  */
 /****************************************************************************/
 

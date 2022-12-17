@@ -1,0 +1,18 @@
+{
+  "type": "theme",
+  "version": 1,
+  "description": "Sidebar theme",
+  "templates": ["style.qss"],
+  "images": {
+    "copy": {
+      "sources": [
+        "play.svg",
+        "record.svg",
+        "record_statistics.svg"
+      ],
+      "targets": [
+        ["{basename}{ext}", {}]
+      ]
+    }
+  }
+}

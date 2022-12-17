@@ -96,8 +96,7 @@ class StyleManager:
         filename = f'{profile}__{view}'
         return os.path.join(path, str_to_filename(filename))
 
-    def on_action_render(self, value):
-        unique_id = get_unique_id(value)
+    def _render_one(self, unique_id, info):
         topic_name = get_topic_name(unique_id)
         target_path = os.path.join(self.path, str_to_filename(unique_id))
         t_start = time.time()
@@ -110,18 +109,20 @@ class StyleManager:
         else:
             cls = instance.__class__
         package = '.'.join(cls.__module__.split('.')[:-1])
-        # for now, presume view
-        theme = self.pubsub.query(f'{topic_name}/settings/theme', default='js1')
-        color_scheme = self.pubsub.query(f'{topic_name}/settings/color_scheme', default='dark')
+        instance_of_unique_id = self.pubsub.query(f'{topic_name}/instance_of', default=None)
+        if instance_of_unique_id is None:
+            instance_of_topic = None
+        else:
+            instance_of_topic = get_topic_name(instance_of_unique_id)
+        children = self.pubsub.query(f'{topic_name}/children', default=[])
         colors = self.pubsub.query(f'{topic_name}/settings/colors', default=None)
-        font_scheme = self.pubsub.query(f'{topic_name}/settings/font_scheme', default='js1')
         fonts = self.pubsub.query(f'{topic_name}/settings/fonts', default=None)
         style_defines = self.pubsub.query(f'{topic_name}/settings/style_defines', default=None)
 
         theme_prefix = 'styles/'
-        index = _get_data(package, 'index.json', default=None, encoding='utf-8')
+        index = _get_data(package, theme_prefix + 'index.json', default=None, encoding='utf-8')
         if index is None:
-            theme_prefix += f'{theme}/'
+            theme_prefix += f'{info["theme"]}/'
             index = _get_data(package, theme_prefix + 'index.json', default=None, encoding='utf-8')
             if index is None:
                 return  # no style to render
@@ -134,8 +135,13 @@ class StyleManager:
         }
 
         if colors is None:
-            colors = _get_data(package, f'styles/color_scheme_{color_scheme}.txt', default='', encoding='utf-8')
-            colors = color_file.parse_str(colors)
+            if instance_of_topic is not None:
+                # get class override colors
+                colors = self.pubsub.query(f'{instance_of_topic}/settings/colors', default=None)
+            if colors is None:
+                # get class default colors
+                colors = _get_data(package, f'styles/color_scheme_{info["color_scheme"]}.txt', default='', encoding='utf-8')
+                colors = color_file.parse_str(colors)
         qss_colors = {}
         for key, value in colors.items():
             r, g, b, a = int(value[1:3], 16), int(value[3:5], 16), int(value[5:7], 16), int(value[7:9], 16)
@@ -146,12 +152,40 @@ class StyleManager:
         #if style_defines is None:
         #    style_defines = _get_data(package, 'styles/style_defines.txt', default={}, encoding='utf-8')
 
-        sub_vars = qss_colors  # todo {**qss_colors, **fonts, **style_defines}
+        sub_vars = {**info['sub_vars'], **qss_colors}  # todo {**qss_colors, **fonts, **style_defines}
+        info['sub_vars'] = sub_vars
         self._render_templates(index, sub_vars)
         self._render_images(index, sub_vars)
         self._publish(index, unique_id)
-        t_duration = time.time() - t_start
         self._log.info('render %s: done in %.3f seconds', unique_id, time.time() - t_start)
+        for child in children:
+            self._render_one(child, info)
+        info['sub_vars'] = sub_vars
+        return info
+
+    def _render_view(self, unique_id):
+        topic_name = get_topic_name(unique_id)
+        # Get the view information
+        info = {
+            'theme': self.pubsub.query(f'{topic_name}/settings/theme', default='js1'),
+            'color_scheme': self.pubsub.query(f'{topic_name}/settings/color_scheme', default='dark'),
+            'font_scheme': self.pubsub.query(f'{topic_name}/settings/font_scheme', default='js1'),
+            'sub_vars': {},
+        }
+        info = self._render_one(unique_id, info)
+        view = self.pubsub.query(f'{topic_name}/instance')
+        for unique_id in view.fixed_widgets:
+            topic_name = get_topic_name(unique_id)
+            obj = self.pubsub.query(f'{topic_name}/instance')
+            self._render_one(unique_id, info)
+        return None  # cannot undo directly, must undo settings
+
+    def on_action_render(self, value):
+        unique_id = get_unique_id(value)
+        while not unique_id.startswith('view:'):
+            topic_name = get_topic_name(unique_id)
+            unique_id = self.pubsub.query(f'{topic_name}/parent')
+        return self._render_view(unique_id)
 
     def _publish(self, index, unique_id):
         style_path = index['render']['templates'].get('style.qss')
@@ -208,14 +242,28 @@ class StyleManager:
                         f.write(svg_out)
 
 
-def styled_widget(name):
+def styled_widget(translated_name):
+    """Construct a widget that supports styles.
+
+    :param translated_name: The translated name for this widget.
+
+    This decorator is a mixin that monkey patches the widget
+    to add style SETTINGS and methods to fully support styles.
+    """
+
+    def on_setting_stylesheet(self, value):
+        self.setStyleSheet(value)
+
+    # todo colors, fonts, style_defines
+
     def inner(cls):
         if not hasattr(cls, 'SETTINGS'):
             cls.SETTINGS = {}
-        for key, value in style_settings(name).items():
+        for key, value in style_settings(translated_name).items():
             cls.SETTINGS.setdefault(key, value)
         cls._colors = None
         cls._fonts = None
         cls._stylesheet = None
+        cls.on_setting_stylesheet = on_setting_stylesheet
         return cls
     return inner
