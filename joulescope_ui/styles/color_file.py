@@ -18,8 +18,8 @@ import re
 
 
 ColorsType = dict[str, str]
-_re_color_pattern = re.compile('^#[0-9a-fA-F]*$')
-_re_update_pattern = re.compile('^(\s*)([^\s=]+)(\s*=\s*)(#[0-9a-fA-F]+)(\s*#?.*$)')
+_re_color_pattern = re.compile(r'^#[0-9a-fA-F]*$')
+_re_update_pattern = re.compile(r'^(\s*)([^\s=]+)(\s*=\s*)(#[0-9a-fA-F]+)(\s*#?.*$)')
 
 
 def load_file(f) -> ColorsType:

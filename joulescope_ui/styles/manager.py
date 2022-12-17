@@ -20,7 +20,9 @@ import re
 from PySide6 import QtGui
 from joulescope_ui import N_, json, pubsub_singleton, get_unique_id, get_topic_name, get_instance
 from joulescope_ui.sanitize import str_to_filename
-from . import color_file
+from . import color_file, parameter_file
+from .color_scheme import COLOR_SCHEMES
+from .font_scheme import FONT_SCHEMES
 from .style_editor import StyleEditorDialog
 import pkgutil
 import time
@@ -79,25 +81,82 @@ def load_colors(obj, color_scheme=None, pubsub=None):
     colors = pubsub.query(f'{topic_name}/settings/colors', default=None)
     if colors is not None:
         return colors
-    if isinstance(obj, type):
+    if isinstance(obj, type):  # object is a class
         cls = obj
-        instance_of_unique_id = pubsub.query(f'{topic_name}/instance_of', default=None)
-        if instance_of_unique_id is not None:
-            # get class override colors
-            instance_of_topic = get_topic_name(instance_of_unique_id)
-            colors = pubsub.query(f'{instance_of_topic}/settings/colors', default=None)
-            if colors is not None:
-                return colors
-    else:
-        cls = obj.__class__
+        # get class override colors
+        instance_of_topic = get_topic_name(cls)
+        colors = pubsub.query(f'{instance_of_topic}/settings/colors', default=None)
+        if colors is not None:
+            return colors
 
-    # get class default colors
-    package = '.'.join(cls.__module__.split('.')[:-1])
-    if color_scheme is None:
-        color_scheme = obj.style_manager_info['color_scheme']
-    colors = _get_data(package, f'styles/color_scheme_{color_scheme}.txt', default='', encoding='utf-8')
-    colors = color_file.parse_str(colors)
-    return colors
+        # get class default colors
+        package = '.'.join(cls.__module__.split('.')[:-1])
+        colors = {}
+        for color_scheme in COLOR_SCHEMES.keys():
+            c = _get_data(package, f'styles/color_scheme_{color_scheme}.txt', default='', encoding='utf-8')
+            c = color_file.parse_str(c)
+            colors[color_scheme] = c
+        return colors
+    else:
+        if color_scheme is None:
+            color_scheme = obj.style_manager_info['color_scheme']
+        colors = load_colors(obj.__class__, pubsub=pubsub)
+        return colors[color_scheme]
+
+
+def load_fonts(obj, font_scheme=None, pubsub=None):
+    if pubsub is None:
+        pubsub = pubsub_singleton
+    obj = get_instance(obj, pubsub=pubsub)
+    topic_name = get_topic_name(obj)
+    entries = pubsub.query(f'{topic_name}/settings/fonts', default=None)
+    if entries is not None:
+        return entries
+    if isinstance(obj, type):  # object is a class
+        cls = obj
+        # get class override entries
+        instance_of_topic = get_topic_name(cls)
+        entries = pubsub.query(f'{instance_of_topic}/settings/fonts', default=None)
+        if entries is not None:
+            return entries
+
+        # get class default entries
+        package = '.'.join(cls.__module__.split('.')[:-1])
+        entries = {}
+        for scheme in FONT_SCHEMES.keys():
+            e = _get_data(package, f'styles/font_scheme_{scheme}.txt', default='', encoding='utf-8')
+            e = parameter_file.parse_str(e)
+            entries[scheme] = e
+        return entries
+    else:
+        if font_scheme is None:
+            font_scheme = obj.style_manager_info['font_scheme']
+        entries = load_fonts(obj.__class__, pubsub=pubsub)
+        return entries[font_scheme]
+
+
+def load_style_defines(obj, pubsub=None):
+    if pubsub is None:
+        pubsub = pubsub_singleton
+    obj = get_instance(obj, pubsub=pubsub)
+    topic_name = get_topic_name(obj)
+    entries = pubsub.query(f'{topic_name}/settings/style_defines', default=None)
+    if entries is not None:
+        return entries
+    if isinstance(obj, type):  # object is a class
+        cls = obj
+        # get class override entries
+        instance_of_topic = get_topic_name(cls)
+        entries = pubsub.query(f'{instance_of_topic}/settings/style_defines', default=None)
+        if entries is not None:
+            return entries
+
+        # get class default entries
+        package = '.'.join(cls.__module__.split('.')[:-1])
+        entries = _get_data(package, f'styles/style_defines.txt', default='', encoding='utf-8')
+        return parameter_file.parse_str(entries)
+    else:
+        return load_style_defines(obj.__class__, pubsub=pubsub)
 
 
 class StyleManager:

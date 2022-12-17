@@ -146,6 +146,13 @@ class ColorItem(QtCore.QObject):
         self.color_label.color = color
         self.color_changed.emit(self._name, self._color)
 
+    def close(self):
+        self.color_label.close()
+        self.value_edit.close()
+        del self.color_label
+        del self.value_edit
+        del self.validator
+
 
 class ColorPicker(QtWidgets.QWidget):
 

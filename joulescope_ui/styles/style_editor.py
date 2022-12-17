@@ -15,6 +15,7 @@
 
 from PySide6 import QtWidgets
 from .color_picker import ColorItem
+from .color_scheme import COLOR_SCHEMES
 from joulescope_ui import pubsub_singleton, N_, get_instance, get_topic_name
 import os
 import logging
@@ -26,34 +27,17 @@ MYPATH = os.path.dirname(os.path.abspath(__file__))
 class ColorEditorWidget(QtWidgets.QWidget):
 
     def __init__(self, parent, obj):
-        from joulescope_ui.styles.manager import load_colors
-
+        self._colors = None
+        self._obj = None
+        self._topic = None
         self._log = logging.getLogger(__name__)
-        self._obj = get_instance(obj)
-        self._topic = get_topic_name(self._obj)
         QtWidgets.QWidget.__init__(self, parent)
         self.setObjectName('color_editor_widget')
         self._grid = QtWidgets.QGridLayout(self)
 
+        self._header_widgets = []
         self._color_widgets = []
-
-        self.colors = load_colors(obj)
-        name_label = QtWidgets.QLabel('Name', self)
-        self._grid.addWidget(name_label, 0, 0, 1, 1)
-        color_label = QtWidgets.QLabel('Color', self)
-        self._grid.addWidget(color_label, 0, 1, 1, 2)
-        self._color_widgets.append([name_label, color_label])
-
-        row = 0
-        for name, color in self.colors.items():
-            row += 1
-            name_label = QtWidgets.QLabel(name, self)
-            self._grid.addWidget(name_label, row, 0, 1, 1)
-            w = ColorItem(self, name, color)
-            self._grid.addWidget(w.value_edit, row, 1, 1, 1)
-            self._grid.addWidget(w.color_label, row, 2, 1, 1)
-            self._color_widgets.append([name_label, w])
-            w.color_changed.connect(self._on_change)
+        self.update_object(obj)
         self.setLayout(self._grid)
 
     def _on_change(self, name, color):
@@ -62,8 +46,61 @@ class ColorEditorWidget(QtWidgets.QWidget):
         elif len(color) != 9:
             self._log.warning('invalid color %s', color)
             return
-        self.colors[name] = color
-        pubsub_singleton.publish(f'{self._topic}/settings/colors', dict(self.colors))
+        self._colors[name] = color
+        pubsub_singleton.publish(f'{self._topic}/settings/colors', dict(self._colors))
+
+    def update_object(self, obj):
+        while len(self._color_widgets):
+            w = self._color_widgets.pop()
+            if isinstance(w, ColorItem):
+                self._grid.removeWidget(w.color_label)
+                self._grid.removeWidget(w.value_edit)
+            else:
+                self._grid.removeWidget(w)
+            w.close()
+        while len(self._header_widgets):
+            w = self._header_widgets.pop()
+            self._grid.removeWidget(w)
+            w.close()
+
+        from joulescope_ui.styles.manager import load_colors
+        self._obj = get_instance(obj)
+        self._topic = get_topic_name(self._obj)
+        self._colors = load_colors(self._obj)
+
+        name_label = QtWidgets.QLabel(N_('Name'), self)
+        self._grid.addWidget(name_label, 0, 0, 1, 1)
+        self._header_widgets.append(name_label)
+        if isinstance(self._obj, type):
+            for col, color_scheme in enumerate(COLOR_SCHEMES.values()):
+                color_label = QtWidgets.QLabel(color_scheme['name'], self)
+                self._grid.addWidget(color_label, 0, 1 + col * 2, 1, 2)
+                self._header_widgets.append(color_label)
+            colors = self._colors
+        else:
+            color_label = QtWidgets.QLabel(N_('Color'), self)
+            self._grid.addWidget(color_label, 0, 1, 1, 2)
+            self._header_widgets.append(color_label)
+            colors = {'__active__': self._colors}
+
+        row_map = {}
+        for col, color in enumerate(colors.values()):
+            for row, (name, value) in enumerate(color.items()):
+                if col == 0:
+                    row_map[name] = row
+                    name_label = QtWidgets.QLabel(name, self)
+                    self._grid.addWidget(name_label, row + 1, 0, 1, 1)
+                    self._color_widgets.append(name_label)
+                elif name in row_map:
+                    row = row_map[name]
+                else:
+                    row = len(row_map)
+                    row_map[name] = row
+                w = ColorItem(self, name, value)
+                self._grid.addWidget(w.value_edit, row + 1, 1 + col * 2, 1, 1)
+                self._grid.addWidget(w.color_label, row + 1, 2 + col * 2, 1, 1)
+                self._color_widgets.append(w)
+                w.color_changed.connect(self._on_change)
 
 
 # todo
@@ -91,7 +128,8 @@ class StyleEditorWidget(QtWidgets.QWidget):
         self._layout.setContentsMargins(0, 0, 0, 0)
 
         self._widgets = []
-        self._widgets.append([ColorEditorWidget(self, self.obj), N_('Colors')])
+        self._color_widget = ColorEditorWidget(self, self.obj)
+        self._widgets.append([self._color_widget, N_('Colors')])
 
         self._tabs = QtWidgets.QTabWidget(self)
         for idx, (widget, title) in enumerate(self._widgets):
@@ -105,14 +143,45 @@ class StyleEditorWidget(QtWidgets.QWidget):
 
         self.setLayout(self._layout)
 
+    def update_object(self, obj):
+        self.obj = get_instance(obj)
+        self._color_widget.update_object(obj)
+
 
 class StyleEditorDialog(QtWidgets.QDialog):
 
     def __init__(self, parent=None, obj=None):
+        self._obj = get_instance(obj)
         QtWidgets.QDialog.__init__(self, parent)
         self.setWindowTitle(N_('Style Editor'))
         self._layout = QtWidgets.QVBoxLayout()
-        self._editor = StyleEditorWidget(self, obj=obj)
+
+        self._header = QtWidgets.QWidget(self)
+        self._header.setObjectName('style_editor_header')
+        if isinstance(self._obj, type):
+            pass  # simple header
+        else:
+            self._grid = QtWidgets.QGridLayout(self._header)
+            self._instance_radio_button = QtWidgets.QRadioButton(N_('Modify this instance'), self._header)
+            self._instance_radio_button.setChecked(True)
+            self._instance_radio_button.toggled.connect(self._update_target)
+            self._instance_button = QtWidgets.QPushButton(self._header)
+            self._instance_button.setText(N_('Clear'))
+            self._class_radio_button = QtWidgets.QRadioButton(N_('Modify class default'), self._header)
+            self._class_radio_button.toggled.connect(self._update_target)
+            self._class_button = QtWidgets.QPushButton(self._header)
+            self._class_button.setText(N_('Clear'))
+            widgets = [
+                [self._instance_radio_button, self._instance_button],
+                [self._class_radio_button, self._class_button]
+            ]
+            for row, row_widgets in enumerate(widgets):
+                for col, widget in enumerate(row_widgets):
+                    self._grid.addWidget(widget, row, col, 1, 1)
+            self._header.setLayout(self._grid)
+        self._layout.addWidget(self._header)
+
+        self._editor = StyleEditorWidget(self, obj=self._obj)
         self._layout.addWidget(self._editor)
 
         self._buttons = QtWidgets.QFrame(self)
@@ -146,3 +215,9 @@ class StyleEditorDialog(QtWidgets.QDialog):
 
         self._layout.addWidget(self._buttons)
         self.setLayout(self._layout)
+
+    def _update_target(self, _):
+        if self._instance_radio_button.isChecked():
+            self._editor.update_object(self._obj)
+        else:
+            self._editor.update_object(self._obj.__class__)
