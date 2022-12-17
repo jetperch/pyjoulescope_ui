@@ -171,7 +171,6 @@ class MainWindow(QtWidgets.QMainWindow):
                                    self._on_change_views, flags=['pub', 'retain'])
         self._pubsub.subscribe('registry_manager/capabilities/widget.class/list',
                                    self._on_change_widgets, flags=['pub', 'retain'])
-        self._pubsub.publish(f'{self._style_manager.topic}/actions/!render', 'view:multimeter')
         self.show()
         # self._side_bar.on_cmd_show(1)
 

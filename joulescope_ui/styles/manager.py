@@ -114,53 +114,52 @@ class StyleManager:
             instance_of_topic = None
         else:
             instance_of_topic = get_topic_name(instance_of_unique_id)
-        children = self.pubsub.query(f'{topic_name}/children', default=[])
-        colors = self.pubsub.query(f'{topic_name}/settings/colors', default=None)
-        fonts = self.pubsub.query(f'{topic_name}/settings/fonts', default=None)
-        style_defines = self.pubsub.query(f'{topic_name}/settings/style_defines', default=None)
 
         theme_prefix = 'styles/'
         index = _get_data(package, theme_prefix + 'index.json', default=None, encoding='utf-8')
         if index is None:
             theme_prefix += f'{info["theme"]}/'
             index = _get_data(package, theme_prefix + 'index.json', default=None, encoding='utf-8')
-            if index is None:
-                return  # no style to render
-        index = json.loads(index)
-        os.makedirs(target_path, exist_ok=True)
-        index['render'] = {
-            'src_package': package,
-            'src_theme_prefix': theme_prefix,
-            'target_path': target_path,
-        }
+        if index is not None:
+            index = json.loads(index)
+            os.makedirs(target_path, exist_ok=True)
+            index['render'] = {
+                'src_package': package,
+                'src_theme_prefix': theme_prefix,
+                'target_path': target_path,
+            }
 
-        if colors is None:
-            if instance_of_topic is not None:
-                # get class override colors
-                colors = self.pubsub.query(f'{instance_of_topic}/settings/colors', default=None)
+            children = self.pubsub.query(f'{topic_name}/children', default=[])
+            colors = self.pubsub.query(f'{topic_name}/settings/colors', default=None)
+            fonts = self.pubsub.query(f'{topic_name}/settings/fonts', default=None)
+            style_defines = self.pubsub.query(f'{topic_name}/settings/style_defines', default=None)
             if colors is None:
-                # get class default colors
-                colors = _get_data(package, f'styles/color_scheme_{info["color_scheme"]}.txt', default='', encoding='utf-8')
-                colors = color_file.parse_str(colors)
-        qss_colors = {}
-        for key, value in colors.items():
-            r, g, b, a = int(value[1:3], 16), int(value[3:5], 16), int(value[5:7], 16), int(value[7:9], 16)
-            qss_colors[key] = f'rgba({r},{g},{b},{a})'
+                if instance_of_topic is not None:
+                    # get class override colors
+                    colors = self.pubsub.query(f'{instance_of_topic}/settings/colors', default=None)
+                if colors is None:
+                    # get class default colors
+                    colors = _get_data(package, f'styles/color_scheme_{info["color_scheme"]}.txt', default='', encoding='utf-8')
+                    colors = color_file.parse_str(colors)
+            qss_colors = {}
+            for key, value in colors.items():
+                r, g, b, a = int(value[1:3], 16), int(value[3:5], 16), int(value[5:7], 16), int(value[7:9], 16)
+                qss_colors[key] = f'rgba({r},{g},{b},{a})'
 
-        #if fonts is None:
-        #    fonts = _get_data(package, f'styles/font_scheme_{font_scheme}.txt', default={}, encoding='utf-8')
-        #if style_defines is None:
-        #    style_defines = _get_data(package, 'styles/style_defines.txt', default={}, encoding='utf-8')
+            #if fonts is None:
+            #    fonts = _get_data(package, f'styles/font_scheme_{font_scheme}.txt', default={}, encoding='utf-8')
+            #if style_defines is None:
+            #    style_defines = _get_data(package, 'styles/style_defines.txt', default={}, encoding='utf-8')
 
-        sub_vars = {**info['sub_vars'], **qss_colors}  # todo {**qss_colors, **fonts, **style_defines}
-        info['sub_vars'] = sub_vars
-        self._render_templates(index, sub_vars)
-        self._render_images(index, sub_vars)
-        self._publish(index, unique_id)
+            sub_vars = {**info['sub_vars'], **qss_colors}  # todo {**qss_colors, **fonts, **style_defines}
+            info['sub_vars'] = sub_vars
+            self._render_templates(index, sub_vars)
+            self._render_images(index, sub_vars)
+            self._publish(index, unique_id)
+        self.style_manager_info = info  # record style manager info for future renderings
         self._log.info('render %s: done in %.3f seconds', unique_id, time.time() - t_start)
         for child in children:
-            self._render_one(child, info)
-        info['sub_vars'] = sub_vars
+            self._render_one(child, dict(info))
         return info
 
     def _render_view(self, unique_id):
@@ -175,17 +174,27 @@ class StyleManager:
         info = self._render_one(unique_id, info)
         view = self.pubsub.query(f'{topic_name}/instance')
         for unique_id in view.fixed_widgets:
-            topic_name = get_topic_name(unique_id)
-            obj = self.pubsub.query(f'{topic_name}/instance')
             self._render_one(unique_id, info)
         return None  # cannot undo directly, must undo settings
 
     def on_action_render(self, value):
         unique_id = get_unique_id(value)
-        while not unique_id.startswith('view:'):
+        if unique_id.startswith('view:'):
+            return self._render_view(unique_id)
+        topic_name = get_topic_name(unique_id)
+        obj = self.pubsub.query(f'{topic_name}/instance')
+        if hasattr(obj, 'style_manager_info'):
+            return self._render_one(unique_id, obj.style_manager_info)
+        while True:
+            if unique_id.startswith('view:'):
+                return self._render_view(unique_id)
             topic_name = get_topic_name(unique_id)
-            unique_id = self.pubsub.query(f'{topic_name}/parent')
-        return self._render_view(unique_id)
+            next_unique_id = self.pubsub.query(f'{topic_name}/parent')
+            next_topic_name = get_topic_name(next_unique_id)
+            next_obj = self.pubsub.query(f'{next_topic_name}/instance')
+            if hasattr(next_obj, 'style_manager_info'):
+                return self._render_one(unique_id, next_obj.style_manager_info)
+            unique_id = next_unique_id
 
     def _publish(self, index, unique_id):
         style_path = index['render']['templates'].get('style.qss')

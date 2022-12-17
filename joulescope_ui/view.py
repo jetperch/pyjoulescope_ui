@@ -188,6 +188,7 @@ class View:
         obj.dock_widget.setObjectName(f'{unique_id}__dock')
         self._dock_manager.addDockWidget(QtAds.TopDockWidgetArea, obj.dock_widget)
         # todo restore children
+        pubsub_singleton.publish(f'registry/StyleManager:00/actions/!render', unique_id)
         return ['registry/view/actions/!widget_close', topic]
 
     def on_action_widget_close(self, value):
