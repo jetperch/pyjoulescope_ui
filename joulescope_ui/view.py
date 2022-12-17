@@ -13,9 +13,8 @@
 # limitations under the License.
 
 
-from . import pubsub_singleton, register, N_, sanitize
+from . import pubsub_singleton, register, N_, sanitize, get_topic_name, get_unique_id, get_instance
 from .styles.manager import style_settings
-from .pubsub import get_topic_name, get_unique_id
 from PySide6 import QtCore, QtWidgets
 import PySide6QtAds as QtAds
 import logging
@@ -113,7 +112,7 @@ class View:
             return
 
         topic = get_topic_name(value)
-        view = pubsub_singleton.query(f'{topic}/instance', default=None)
+        view = get_instance(value, default=None)
         if view is None:
             # should never happen
             _log.warning('active view %s does not exist', value)
@@ -170,14 +169,14 @@ class View:
             or previous opened instance.
         """
         topic = get_topic_name(value)
-        cls = pubsub_singleton.query(topic + '/instance', default=None)
+        cls = get_instance(topic, default=None)
         if cls is None:
             cls = pubsub_singleton.query(topic + '/instance_of', default=None)
             if cls is None:
                 _log.warning('cannot open widget topic=%s', topic)
                 return
             unique_id = get_unique_id(topic)
-            cls = pubsub_singleton.query(get_topic_name(cls) + '/instance')
+            cls = get_instance(cls)
         else:
             unique_id = None
         obj: QtWidgets.QWidget = cls()
@@ -188,7 +187,7 @@ class View:
         obj.dock_widget.setObjectName(f'{unique_id}__dock')
         self._dock_manager.addDockWidget(QtAds.TopDockWidgetArea, obj.dock_widget)
         # todo restore children
-        pubsub_singleton.publish(f'registry/StyleManager:00/actions/!render', unique_id)
+        pubsub_singleton.publish('registry/StyleManager:0/actions/!render', unique_id)
         return ['registry/view/actions/!widget_close', topic]
 
     def on_action_widget_close(self, value):

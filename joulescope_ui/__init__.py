@@ -14,13 +14,13 @@
 
 from .version import __version__
 import sys
-from .pubsub import PubSub
+from .pubsub import PubSub, get_instance, get_topic_name, get_unique_id
 from .metadata import Metadata
 from .capabilities import CAPABILITIES
 from .locale import N_
-from .styles.manager import styled_widget
 
-__all__ = ['__version__', 'pubsub_singleton', 'register', 'styled_widget', 'CAPABILITIES', 'Metadata', 'N_']
+__all__ = ['__version__', 'pubsub_singleton', 'register', 'CAPABILITIES', 'Metadata', 'N_',
+           'get_instance', 'get_topic_name', 'get_unique_id']
 
 
 def _pubsub_factory() -> PubSub:

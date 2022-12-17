@@ -12,8 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PySide6 import QtWidgets
-from joulescope_ui import CAPABILITIES, register, pubsub, Metadata, N_, styled_widget
+from PySide6 import QtWidgets, QtCore
+from joulescope_ui import CAPABILITIES, register, pubsub, Metadata, N_
+from joulescope_ui.styles import styled_widget, style_edit_action_create
+# from joulescope_ui.styles.manager import style_edit_action_create
 
 
 @register
@@ -25,6 +27,7 @@ class ExampleWidget(QtWidgets.QWidget):
 
     def __init__(self):
         super().__init__()
+        self._menu = None
         self._layout = QtWidgets.QVBoxLayout(self)
 
         self._label1 = QtWidgets.QLabel()
@@ -41,3 +44,15 @@ class ExampleWidget(QtWidgets.QWidget):
         self._label3.setObjectName('label3')
         self._label3.setText('Label 3')
         self._layout.addWidget(self._label3)
+
+        self.mousePressEvent = self._on_mousePressEvent
+
+    def _on_mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            event.accept()
+        elif event.button() == QtCore.Qt.RightButton:
+            menu = QtWidgets.QMenu(self)
+            style_action = style_edit_action_create(self, menu)
+            menu.popup(event.globalPos())
+            self._menu = [menu, style_action]
+            event.accept()

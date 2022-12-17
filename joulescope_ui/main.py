@@ -87,7 +87,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._icon.addFile(u":/icon_64x64.ico", QtCore.QSize(), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setWindowIcon(self._icon)
         self._style_manager = StyleManager(self._pubsub)
-        self._pubsub.register(self._style_manager, 'StyleManager:00')
+        self._pubsub.register(self._style_manager, 'StyleManager:0')
 
         # Create the central widget with horizontal layout
         self._central_widget = QtWidgets.QWidget(self)

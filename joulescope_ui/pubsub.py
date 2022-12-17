@@ -103,6 +103,37 @@ def get_topic_name(obj):
     return f'registry/{unique_id}'
 
 
+def get_instance(obj, pubsub=None, **kwargs):
+    """Get the instance.
+
+    :param obj: The source for the topic name, which can be any of:
+        * The topic name string (simply returned)
+        * The unique id string
+        * A registered class or object
+    :param pubsub: The pubsub instance or None.
+        None uses the Joulescope UI singleton instance.
+    :param default: When specified, return this value if the
+        instance cannot be found.
+    :return: The instance.
+    :raise TypeError: If invalid arguments names are provided.
+    :raise KeyError: If cannot find the instance.
+    """
+    if not isinstance(obj, str):
+        return obj
+    has_default = 'default' in kwargs
+    default = kwargs.pop('default', None)
+    if len(kwargs):
+        raise TypeError(f'Unsupported kwargs {kwargs}')
+    if pubsub is None:
+        from joulescope_ui import pubsub_singleton
+        pubsub = pubsub_singleton
+    topic = get_topic_name(obj)
+    if has_default:
+        return pubsub.query(f'{topic}/instance', default=default)
+    else:
+        return pubsub.query(f'{topic}/instance')
+
+
 def _parse_docstr(doc: str, default):
     if doc is None:
         return str(default)

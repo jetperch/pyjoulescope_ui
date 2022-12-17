@@ -16,7 +16,8 @@
 
 from PySide6 import QtCore, QtGui, QtWidgets
 import logging
-from joulescope_ui import styled_widget, N_
+from joulescope_ui import N_
+from joulescope_ui.styles import styled_widget
 
 
 
