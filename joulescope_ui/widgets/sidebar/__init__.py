@@ -12,4 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .example_widget import ExampleWidget
+from .sidebar_widget import SideBar

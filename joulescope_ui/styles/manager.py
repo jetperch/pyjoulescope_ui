@@ -22,6 +22,7 @@ from joulescope_ui.sanitize import str_to_filename
 from joulescope_ui.pubsub import get_unique_id, get_topic_name
 from . import color_file
 import pkgutil
+import time
 
 
 _template_replace = re.compile(r'{%\s*([a-zA-Z0-9_\.]+)\s*%}')
@@ -79,7 +80,6 @@ class StyleManager:
         # self.pubsub.subscribe('registry/ui/settings/theme', self._on_theme, ['pub'])
         # ui_color_scheme_topic = 'registry/ui/settings/color_scheme'
         # self.pubsub.subscribe(ui_color_scheme_topic, self._on_color_scheme, ['pub'])
-        self._log.info('Style path: %s', self.path)
 
         # if self.pubsub.query(ui_color_scheme_topic, default=None) is None:
         #     color_scheme_name = self.pubsub.query('registry/ui/settings/color_scheme_name', default='dark')
@@ -99,7 +99,9 @@ class StyleManager:
     def on_action_render(self, value):
         unique_id = get_unique_id(value)
         topic_name = get_topic_name(unique_id)
-        self._log.info('render %s: start', unique_id)
+        target_path = os.path.join(self.path, str_to_filename(unique_id))
+        t_start = time.time()
+        self._log.info('render %s: start to %s', unique_id, target_path)
         instance = self.pubsub.query(f'{topic_name}/instance', default=None)
         if instance is None:
             return  # nothing to update
@@ -124,7 +126,6 @@ class StyleManager:
             if index is None:
                 return  # no style to render
         index = json.loads(index)
-        target_path = os.path.join(self.path, str_to_filename(unique_id))
         os.makedirs(target_path, exist_ok=True)
         index['render'] = {
             'src_package': package,
@@ -149,7 +150,8 @@ class StyleManager:
         self._render_templates(index, sub_vars)
         self._render_images(index, sub_vars)
         self._publish(index, unique_id)
-        self._log.info('render %s: done', unique_id)
+        t_duration = time.time() - t_start
+        self._log.info('render %s: done in %.3f seconds', unique_id, time.time() - t_start)
 
     def _publish(self, index, unique_id):
         style_path = index['render']['templates'].get('style.qss')

@@ -76,6 +76,7 @@ class View:
     _ui = None
     _dock_manager = None
     _active_instance = None
+    _fixed_widgets = []
 
     def __init__(self):
         self.name = 'Unnamed view'
@@ -86,6 +87,10 @@ class View:
     @property
     def is_active(self):
         return self == View._active_instance
+
+    @staticmethod
+    def on_cls_action_fixed_widget_add(value):
+        View._fixed_widgets.append(value)
 
     @staticmethod
     def on_cls_setting_active(value):
@@ -119,7 +124,7 @@ class View:
         View._active_instance = view
         ads_state = pubsub_singleton.query(f'{topic}/settings/ads_state', default='')
         if ads_state is not None and len(ads_state):
-            print(View._dock_manager.restoreState(QtCore.QByteArray(ads_state.encode('utf-8'))))
+            View._dock_manager.restoreState(QtCore.QByteArray(ads_state.encode('utf-8')))
         _log.info('active view %s: setup done', view.unique_id)
 
     @property

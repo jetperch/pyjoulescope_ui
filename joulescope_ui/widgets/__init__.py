@@ -12,4 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from . import example
+from .example import ExampleWidget
+from .sidebar import SideBar
+

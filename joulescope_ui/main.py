@@ -16,17 +16,16 @@
 # https://wiki.qt.io/Gallery_of_Qt_CSS_Based_Styles
 
 from joulescope_ui import pubsub_singleton, N_
-from joulescope_ui import widgets  # registers all built-in widgets
+from joulescope_ui.widgets import *   # registers all built-in widgets
 from joulescope_ui.logging_util import logging_preconfig, logging_config
 from PySide6 import QtCore, QtGui, QtWidgets
 import PySide6QtAds as QtAds
 from .error_window import ErrorWindow
 from .help_ui import HelpHtmlMessageBox
 from .resources import load_resources, load_fonts
-from .sidebar import SideBar
 from joulescope_ui.devices.jsdrv.jsdrv_wrapper import JsdrvWrapper
 from .styles import StyleManager
-from .view import View
+from .view import View  # registers the view manager
 import appnope
 import logging
 
@@ -81,13 +80,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.view = None
         self._log = logging.getLogger(__name__)
         super(MainWindow, self).__init__()
-        pubsub_singleton.register(self, 'ui')
+        self._pubsub = pubsub_singleton
+        self._pubsub.register(self, 'ui')
         self.resize(800, 600)
         self._icon = QtGui.QIcon()
         self._icon.addFile(u":/icon_64x64.ico", QtCore.QSize(), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setWindowIcon(self._icon)
-        self._style_manager = StyleManager(pubsub_singleton)
-        pubsub_singleton.register(self._style_manager, 'StyleManager:00')
+        self._style_manager = StyleManager(self._pubsub)
+        self._pubsub.register(self._style_manager, 'StyleManager:00')
 
         # Create the central widget with horizontal layout
         self._central_widget = QtWidgets.QWidget(self)
@@ -101,10 +101,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self._central_layout.setContentsMargins(0, 0, 0, 0)
         self._central_widget.setLayout(self._central_layout)
 
-        # Create the singleton icon side-bar
+        # Create the singleton sidebar widget
         self._side_bar = SideBar(self._central_widget)
-        pubsub_singleton.register(self._side_bar, 'icon_side_bar')
         self._central_layout.addWidget(self._side_bar)
+        self._pubsub.register(self._side_bar, 'sidebar:0')
+        self._pubsub.publish('registry/view/actions/!fixed_widget_add', 'sidebar:0')
 
         self._dock_widget = QtWidgets.QWidget(self._central_widget)
         self._dock_widget.setObjectName('main_widget')
@@ -123,19 +124,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self._dock_manager.setStyleSheet("")
         self._dock_layout.addWidget(self._dock_manager)
 
-        pubsub_singleton.publish('registry/view/actions/!ui_connect', {
+        self._pubsub.publish('registry/view/actions/!ui_connect', {
             'ui': self,
             'dock_manager': self._dock_manager,
         })
 
-        pubsub_singleton.publish('registry/view/actions/!add', 'view:multimeter')
-        pubsub_singleton.publish('registry/view:multimeter/settings/name', N_('Multimeter'))
-        pubsub_singleton.publish('registry/view/actions/!add', 'view:oscilloscope')
-        pubsub_singleton.publish('registry/view:oscilloscope/settings/name', N_('Oscilloscope'))
+        self._pubsub.publish('registry/view/actions/!add', 'view:multimeter')
+        self._pubsub.publish('registry/view:multimeter/settings/name', N_('Multimeter'))
+        self._pubsub.publish('registry/view/actions/!add', 'view:oscilloscope')
+        self._pubsub.publish('registry/view:oscilloscope/settings/name', N_('Oscilloscope'))
 
-        pubsub_singleton.publish('registry/view/actions/!widget_open', 'ExampleWidget')
-        pubsub_singleton.publish('registry/view/actions/!widget_open', 'ExampleWidget')
-        #pubsub_singleton.publish('registry/view/actions/!widget_open', 'MultimeterWidget')
+        self._pubsub.publish('registry/view/actions/!widget_open', 'ExampleWidget')
+        self._pubsub.publish('registry/view/actions/!widget_open', 'ExampleWidget')
+        #self._pubsub.publish('registry/view/actions/!widget_open', 'MultimeterWidget')
 
         self._menu_bar = QtWidgets.QMenuBar(self)
         self._menu_items = _menu_setup(self._menu_bar, [
@@ -166,16 +167,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setMenuBar(self._menu_bar)
 
         _device_factory_add()
-        pubsub_singleton.subscribe('registry_manager/capabilities/view.object/list',
+        self._pubsub.subscribe('registry_manager/capabilities/view.object/list',
                                    self._on_change_views, flags=['pub', 'retain'])
-        pubsub_singleton.subscribe('registry_manager/capabilities/widget.class/list',
+        self._pubsub.subscribe('registry_manager/capabilities/widget.class/list',
                                    self._on_change_widgets, flags=['pub', 'retain'])
-        pubsub_singleton.publish(f'{self._style_manager.topic}/actions/!render', 'view:multimeter')
+        self._pubsub.publish(f'{self._style_manager.topic}/actions/!render', 'view:multimeter')
         self.show()
         # self._side_bar.on_cmd_show(1)
 
     def _on_change_views(self, value):
-        active_view = pubsub_singleton.query('registry/view/settings/active', default=None)
+        active_view = self._pubsub.query('registry/view/settings/active', default=None)
         menu, k = self._menu_items['view_menu']
         for action, _ in k.values():
             self._view_menu_group.removeAction(action)
@@ -183,7 +184,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         menu_items = []
         for unique_id in value:
-            name = pubsub_singleton.query(f'registry/{unique_id}/settings/name', default=unique_id)
+            name = self._pubsub.query(f'registry/{unique_id}/settings/name', default=unique_id)
             menu_items.append([unique_id, name, ['registry/view/settings/active', unique_id]])
         self._menu_items['view_menu'] = _menu_setup(menu, menu_items)
 
@@ -199,14 +200,14 @@ class MainWindow(QtWidgets.QMainWindow):
         menu.clear()
         menu_items = []
         for unique_id in value:
-            name = pubsub_singleton.query(f'registry/{unique_id}/settings/name', default=unique_id)
+            name = self._pubsub.query(f'registry/{unique_id}/settings/name', default=unique_id)
             menu_items.append([unique_id, name, ['registry/view/actions/!widget_open', unique_id]])
         self._menu_items['widgets_menu'] = _menu_setup(menu, menu_items)
 
     def event(self, event: QtCore.QEvent):
         if event.type() == QResyncEvent.EVENT_TYPE:
             event.accept()
-            pubsub_singleton.process()
+            self._pubsub.process()
             return True
         else:
             return super(MainWindow, self).event(event)

@@ -15,6 +15,7 @@
 
 
 from PySide6 import QtCore, QtGui, QtWidgets
+import logging
 
 
 
@@ -59,6 +60,7 @@ class Flyout(QtWidgets.QWidget):
 
     def __init__(self, parent):
         super(Flyout, self).__init__(parent)
+        self._log = logging.getLogger(__name__)
         self.setObjectName('side_bar_flyout')
         self.setGeometry(50, 0, 0, 100)
         self.setStyleSheet('QWidget {\n	background: #D0000000;\n}')
@@ -81,7 +83,7 @@ class Flyout(QtWidgets.QWidget):
         self.animations.clear()
         x_start = self.width()
         x_end = 150 if show else 0
-        print(f'animate {show}: {x_start} -> {x_end}')
+        self._log.info(f'animate {show}: {x_start} -> {x_end}')
         for p in [b'minimumWidth', b'maximumWidth']:
             a = QtCore.QPropertyAnimation(self, p)
             a.setDuration(500)
@@ -104,11 +106,13 @@ class Flyout(QtWidgets.QWidget):
         width = self.width()
         g = self.geometry()
         self.setGeometry(r.right(), r.y(), width, r.height())
-        print(f'{r}: {g} -> {self.geometry()}')
+        self._log.info(f'on_sidebar_geometry {r}: {g} -> {self.geometry()}')
         self.repaint()
 
 
 class SideBar(QtWidgets.QWidget):
+
+    # Note: does NOT implement widget, since not instantiable by user or available as a dock widget.
 
     def __init__(self, parent):
         super(SideBar, self).__init__(parent)
