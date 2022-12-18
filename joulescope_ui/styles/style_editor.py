@@ -57,11 +57,11 @@ class ColorEditorWidget(QtWidgets.QWidget):
                 self._grid.removeWidget(w.value_edit)
             else:
                 self._grid.removeWidget(w)
-            w.close()
+            w.deleteLater()
         while len(self._header_widgets):
             w = self._header_widgets.pop()
             self._grid.removeWidget(w)
-            w.close()
+            w.deleteLater()
 
         from joulescope_ui.styles.manager import load_colors
         self._obj = get_instance(obj)

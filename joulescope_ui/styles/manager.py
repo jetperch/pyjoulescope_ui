@@ -262,20 +262,35 @@ class StyleManager:
         return None  # cannot undo directly, must undo settings
 
     def on_action_edit(self, value):
+        unique_id = get_unique_id(value)
         obj = get_instance(value)
+        self._log.info('edit %s: start', unique_id)
         self._dialog = StyleEditorDialog(obj=obj)
+
+        def on_finished(*args, **kwargs):
+            dialog, self._dialog = self._dialog, None
+            dialog.on_finished_fn = None
+            dialog.hide()
+            dialog.deleteLater()
+            self._log.info('edit %s: done', unique_id)
+
+        self._dialog.on_finished_fn = on_finished
+        self._dialog.finished.connect(on_finished)
         self._dialog.show()
-        # todo clear on close
 
     def on_action_render(self, value):
         try:
             unique_id = get_unique_id(value)
         except ValueError:
             return None  # still being registered, will get called later.
+        obj = get_instance(unique_id)
+        if isinstance(obj, type):
+            # Only need to render active widgets of this type
+            # but go ahead and render the entire active view
+            unique_id = self.pubsub.query(f'registry/view/settings/active')
+            obj = get_instance(unique_id)
         if unique_id.startswith('view:'):
             return self._render_view(unique_id)
-        topic_name = get_topic_name(unique_id)
-        obj = self.pubsub.query(f'{topic_name}/instance')
         if hasattr(obj, 'style_manager_info'):
             self._render_one(unique_id, obj.style_manager_info)
             return None
@@ -369,16 +384,13 @@ def styled_widget(translated_name):
     def on_setting_stylesheet(self, value):
         self.setStyleSheet(value)
 
-    def on_setting_colors(self, value):
-        pubsub_singleton.publish(f'registry/StyleManager:0/actions/!render', self)
-
-    def on_setting_fonts(self, value):
-        pubsub_singleton.publish(f'registry/StyleManager:0/actions/!render', self)
-
-    def on_setting_style_defines(self, value):
+    def render(self, value):
         pubsub_singleton.publish(f'registry/StyleManager:0/actions/!render', self)
 
     def inner(cls):
+        def cls_render(value):
+            pubsub_singleton.publish(f'registry/StyleManager:0/actions/!render', cls)
+
         if not hasattr(cls, 'SETTINGS'):
             cls.SETTINGS = {}
         for key, value in style_settings(translated_name).items():
@@ -386,9 +398,12 @@ def styled_widget(translated_name):
         cls._colors = None
         cls._fonts = None
         cls._stylesheet = None
+        cls.on_cls_setting_colors = cls_render
+        cls.on_cls_setting_fonts = cls_render
+        cls.on_cls_setting_style_defines = cls_render
         cls.on_setting_stylesheet = on_setting_stylesheet
-        cls.on_setting_colors = on_setting_colors
-        cls.on_setting_fonts = on_setting_fonts
-        cls.on_setting_style_defines = on_setting_style_defines
+        cls.on_setting_colors = render
+        cls.on_setting_fonts = render
+        cls.on_setting_style_defines = render
         return cls
     return inner
