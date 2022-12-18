@@ -201,11 +201,11 @@ class View:
         instance: QtWidgets.QWidget = pubsub_singleton.query(instance_topic, default=None)
         if instance is not None:
             dock_widget = instance.dock_widget
-            dock_widget.close()
+            dock_widget.deleteLater()
             self._dock_manager.removeDockWidget(dock_widget)
             instance.dock_widget = None
         pubsub_singleton.unregister(topic)
-        instance.close()
+        instance.deleteLater()
         return ['registry/view/actions/!widget_open', topic]
 
     @staticmethod
