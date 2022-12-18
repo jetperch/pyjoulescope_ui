@@ -80,14 +80,14 @@ def load_colors(obj, color_scheme=None, pubsub=None):
     topic_name = get_topic_name(obj)
     colors = pubsub.query(f'{topic_name}/settings/colors', default=None)
     if colors is not None:
-        return colors
+        return dict(colors)
     if isinstance(obj, type):  # object is a class
         cls = obj
         # get class override colors
         instance_of_topic = get_topic_name(cls)
         colors = pubsub.query(f'{instance_of_topic}/settings/colors', default=None)
         if colors is not None:
-            return colors
+            return dict(colors)
 
         # get class default colors
         package = '.'.join(cls.__module__.split('.')[:-1])

@@ -808,7 +808,8 @@ class PubSub:
                     rv = cmds_update_fn[0](self, topic, value)
                     self._undo_capture.cmd_add(topic, value, rv)
             elif t.value == value:
-                return  # dedup
+                # self._log.debug('dedup %s: %s == %s', topic_name, t.value, value)
+                return
             else:
                 self._undo_capture.pub_add(topic_name, t.value, value)
                 t.value = value
