@@ -29,6 +29,7 @@ import time
 
 
 _template_replace = re.compile(r'{%\s*([a-zA-Z0-9_\.]+)\s*%}')
+RENDER_TOPIC = f'registry/StyleManager:0/actions/!render'
 
 
 def style_settings(name):
@@ -230,12 +231,10 @@ class StyleManager:
                 r, g, b, a = int(value[1:3], 16), int(value[3:5], 16), int(value[5:7], 16), int(value[7:9], 16)
                 qss_colors[key] = f'rgba({r},{g},{b},{a})'
 
-            #if fonts is None:
-            #    fonts = _get_data(package, f'styles/font_scheme_{font_scheme}.txt', default={}, encoding='utf-8')
-            #if style_defines is None:
-            #    style_defines = _get_data(package, 'styles/style_defines.txt', default={}, encoding='utf-8')
+            fonts = load_fonts(obj, font_scheme=info['font_scheme'], pubsub=self.pubsub)
+            style_defines = load_style_defines(obj, pubsub=self.pubsub)
 
-            sub_vars = {**info['sub_vars'], **qss_colors}  # todo {**qss_colors, **fonts, **style_defines}
+            sub_vars = {**info['sub_vars'], **style_defines, **fonts, **qss_colors}
             info['sub_vars'] = sub_vars
             self._render_templates(index, sub_vars)
             self._render_images(index, sub_vars)
@@ -282,7 +281,9 @@ class StyleManager:
         try:
             unique_id = get_unique_id(value)
         except ValueError:
-            return None  # still being registered, will get called later.
+            self._log.debug('render None - likely still being registered, will get called later.')
+            return None
+        self._log.info('render %s', value)
         obj = get_instance(unique_id)
         if isinstance(obj, type):
             # Only need to render active widgets of this type
@@ -385,11 +386,12 @@ def styled_widget(translated_name):
         self.setStyleSheet(value)
 
     def render(self, value):
-        pubsub_singleton.publish(f'registry/StyleManager:0/actions/!render', self)
+        pubsub_singleton.publish(RENDER_TOPIC, self)
 
     def inner(cls):
         def cls_render(value):
-            pubsub_singleton.publish(f'registry/StyleManager:0/actions/!render', cls)
+            if RENDER_TOPIC in pubsub_singleton:
+                pubsub_singleton.publish(RENDER_TOPIC, cls)
 
         if not hasattr(cls, 'SETTINGS'):
             cls.SETTINGS = {}

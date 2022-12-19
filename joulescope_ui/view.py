@@ -61,6 +61,12 @@ VIEW_SETTINGS = {
         'default': 'dark',
         'options': [['dark', N_('Dark background')], ['light', N_('Light background')]],
     },
+    'font_scheme': {
+        'dtype': 'str',
+        'brief': N_('The font scheme name.'),
+        'default': 'js1',
+        'options': [['js1', N_('Joulescope standard font theme')]],
+    },
     'ads_state': {
         'dtype': 'str',
         'brief': 'The Advanced Docking System state for restoring widget layout.',

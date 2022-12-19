@@ -13,9 +13,10 @@
 # limitations under the License.
 
 
-from PySide6 import QtWidgets
+from PySide6 import QtWidgets, QtGui, QtCore
 from .color_picker import ColorItem
 from .color_scheme import COLOR_SCHEMES
+from .font_scheme import FONT_SCHEMES
 from joulescope_ui import pubsub_singleton, N_, get_instance, get_topic_name
 import os
 import logging
@@ -37,8 +38,12 @@ class ColorEditorWidget(QtWidgets.QWidget):
 
         self._header_widgets = []
         self._color_widgets = []
+        self._count = 0
         self.update_object(obj)
         self.setLayout(self._grid)
+
+    def __len__(self):
+        return self._count
 
     def _on_change(self, name, color):
         if len(color) == 7:
@@ -49,7 +54,8 @@ class ColorEditorWidget(QtWidgets.QWidget):
         self._colors[name] = color
         pubsub_singleton.publish(f'{self._topic}/settings/colors', dict(self._colors))
 
-    def update_object(self, obj):
+    def clear(self):
+        self._count = 0
         while len(self._color_widgets):
             w = self._color_widgets.pop()
             if isinstance(w, ColorItem):
@@ -63,7 +69,9 @@ class ColorEditorWidget(QtWidgets.QWidget):
             self._grid.removeWidget(w)
             w.deleteLater()
 
+    def update_object(self, obj):
         from joulescope_ui.styles.manager import load_colors
+        self.clear()
         self._obj = get_instance(obj)
         self._topic = get_topic_name(self._obj)
         self._colors = load_colors(self._obj)
@@ -101,19 +109,155 @@ class ColorEditorWidget(QtWidgets.QWidget):
                 self._grid.addWidget(w.color_label, row + 1, 2 + col * 2, 1, 1)
                 self._color_widgets.append(w)
                 w.color_changed.connect(self._on_change)
+        self._count = len(row_map)
 
 
-# todo
-#class FontEditorWidget(QtWidgets.QWidget):
-#
-#    def __init__(self, parent):
-#        QtWidgets.QWidget.__init__(self, parent)
-#
-#
-#class StyleDefineEditorWidget(QtWidgets.QWidget):
-#
-#    def __init__(self, parent):
-#        QtWidgets.QWidget.__init__(self, parent)
+class QFontLabel(QtWidgets.QLabel):
+
+    changed = QtCore.Signal(str, str)
+
+    def __init__(self, parent, name, value):
+        QtWidgets.QLabel.__init__(self, parent)
+        self._name = name
+        self._value = value
+        self.setText('0123456789 µΔσ∫')
+        self._changed()
+
+    def _changed(self):
+        self.setStyleSheet(f'QLabel {{ font: {self._value}; }}')
+
+    def mousePressEvent(self, ev):
+        self.font()
+        font = QtGui.QFont()
+        font.fromString(self._value)
+        ok, font = QtWidgets.QFontDialog.getFont(self.font(), self.parent())
+        if ok:
+            # todo QFont to qss font
+            self._value = font.toString()
+            self._changed()
+            self.changed.emit(self._name, self._value)
+        ev.accept()
+
+
+class FontEditorWidget(QtWidgets.QWidget):
+
+    def __init__(self, parent, obj):
+        QtWidgets.QWidget.__init__(self, parent)
+        self._count = 0
+        self._fonts = None
+        self._obj = None
+        self._topic = None
+        self._log = logging.getLogger(__name__)
+        self.setObjectName('font_editor_widget')
+        self._grid = QtWidgets.QGridLayout(self)
+        self._widgets = []
+        self.update_object(obj)
+        self.setLayout(self._grid)
+
+    def __len__(self):
+        return self._count
+
+    def clear(self):
+        while len(self._widgets):
+            w = self._widgets.pop()
+            self._grid.removeWidget(w)
+            w.deleteLater()
+
+    def update_object(self, obj):
+        from joulescope_ui.styles.manager import load_fonts
+        self.clear()
+        self._obj = get_instance(obj)
+        self._topic = get_topic_name(self._obj)
+        self._fonts = load_fonts(self._obj)
+        name_label = QtWidgets.QLabel(N_('Name'), self)
+        self._grid.addWidget(name_label, 0, 0, 1, 1)
+        self._widgets.append(name_label)
+        if isinstance(self._obj, type):
+            for col, font_scheme in enumerate(FONT_SCHEMES.values()):
+                font_label = QtWidgets.QLabel(font_scheme['name'], self)
+                self._grid.addWidget(font_label, 0, 1 + col, 1, 1)
+                self._widgets.append(font_label)
+            fonts = self._fonts
+        else:
+            font_label = QtWidgets.QLabel(N_('Font'), self)
+            self._grid.addWidget(font_label, 0, 1, 1, 1)
+            self._widgets.append(font_label)
+            fonts = {'__active__': self._fonts}
+
+        row_map = {}
+        for col, fonts_by_scheme in enumerate(fonts.values()):
+            for row, (name, value) in enumerate(fonts_by_scheme.items()):
+                if col == 0:
+                    row_map[name] = row
+                    name_label = QtWidgets.QLabel(name, self)
+                    self._grid.addWidget(name_label, row + 1, 0, 1, 1)
+                    self._widgets.append(name_label)
+                elif name in row_map:
+                    row = row_map[name]
+                else:
+                    row = len(row_map)
+                    row_map[name] = row
+                w = QFontLabel(self, name, value)
+                w.changed.connect(self._on_change)
+                self._grid.addWidget(w, row + 1, 1 + col, 1, 1)
+                self._widgets.append(w)
+                # todo w.changed.connect(self._on_change)
+        self._count = len(row_map)
+
+    def _on_change(self, name, value):
+        self._fonts[name] = value
+        pubsub_singleton.publish(f'{self._topic}/settings/fonts', dict(self._fonts))
+
+
+class StyleDefineEditorWidget(QtWidgets.QWidget):
+
+    def __init__(self, parent, obj):
+        QtWidgets.QWidget.__init__(self, parent)
+        self._entries = None
+        self._obj = None
+        self._topic = None
+        self._log = logging.getLogger(__name__)
+        self.setObjectName('style_define_editor_widget')
+        self._grid = QtWidgets.QGridLayout(self)
+        self._widgets = []
+        self.update_object(obj)
+        self.setLayout(self._grid)
+
+    def __len__(self):
+        return len(self._entries)
+
+    def clear(self):
+        while len(self._widgets):
+            w = self._widgets.pop()
+            self._grid.removeWidget(w)
+            w.deleteLater()
+
+    def update_object(self, obj):
+        from joulescope_ui.styles.manager import load_style_defines
+        self.clear()
+        self._obj = get_instance(obj)
+        self._topic = get_topic_name(self._obj)
+        self._entries = load_style_defines(self._obj)
+        name_label = QtWidgets.QLabel(N_('Name'), self)
+        self._grid.addWidget(name_label, 0, 0, 1, 1)
+        self._widgets.append(name_label)
+        font_label = QtWidgets.QLabel(N_('Define'), self)
+        self._grid.addWidget(font_label, 0, 1, 1, 1)
+        self._widgets.append(font_label)
+
+        for row, (name, value) in enumerate(self._entries.items()):
+            name_label = QtWidgets.QLabel(name, self)
+            self._grid.addWidget(name_label, row + 1, 0, 1, 1)
+            self._widgets.append(name_label)
+            w = QtWidgets.QLineEdit(self)
+            w.setText(value)
+            w.changed.connect(self._on_change)  # todo
+            self._grid.addWidget(w, row + 1, 1, 1, 1)
+            self._widgets.append(w)
+
+    def _on_change(self, name, value):
+        self._entries[name] = value
+        pubsub_singleton.publish(f'{self._topic}/settings/style_defines', dict(self._entries))
 
 
 class StyleEditorWidget(QtWidgets.QWidget):
@@ -128,11 +272,18 @@ class StyleEditorWidget(QtWidgets.QWidget):
         self._layout.setContentsMargins(0, 0, 0, 0)
 
         self._widgets = []
-        self._color_widget = ColorEditorWidget(self, self.obj)
-        self._widgets.append([self._color_widget, N_('Colors')])
+        widgets = [
+            [ColorEditorWidget(self, self.obj), N_('Colors')],
+            [FontEditorWidget(self, self.obj), N_('Fonts')],
+            [StyleDefineEditorWidget(self, self.obj), N_('Defines')],
+        ]
 
         self._tabs = QtWidgets.QTabWidget(self)
-        for idx, (widget, title) in enumerate(self._widgets):
+        for idx, (widget, title) in enumerate(widgets):
+            if not len(widget):
+                widget.deleteLater()
+                continue
+            self._widgets.append([widget])
             scroll = QtWidgets.QScrollArea(self._tabs)
             scroll.setObjectName(widget.objectName() + '_scroll')
             scroll.setWidgetResizable(True)
@@ -156,30 +307,8 @@ class StyleEditorDialog(QtWidgets.QDialog):
         self.setWindowTitle(N_('Style Editor'))
         self._layout = QtWidgets.QVBoxLayout()
 
-        self._header = QtWidgets.QWidget(self)
-        self._header.setObjectName('style_editor_header')
-        if isinstance(self._obj, type):
-            pass  # simple header
-        else:
-            self._grid = QtWidgets.QGridLayout(self._header)
-            self._instance_radio_button = QtWidgets.QRadioButton(N_('Modify this instance'), self._header)
-            self._instance_radio_button.setChecked(True)
-            self._instance_radio_button.toggled.connect(self._update_target)
-            self._instance_button = QtWidgets.QPushButton(self._header)
-            self._instance_button.setText(N_('Clear'))
-            self._class_radio_button = QtWidgets.QRadioButton(N_('Modify class default'), self._header)
-            self._class_radio_button.toggled.connect(self._update_target)
-            self._class_button = QtWidgets.QPushButton(self._header)
-            self._class_button.setText(N_('Clear'))
-            widgets = [
-                [self._instance_radio_button, self._instance_button],
-                [self._class_radio_button, self._class_button]
-            ]
-            for row, row_widgets in enumerate(widgets):
-                for col, widget in enumerate(row_widgets):
-                    self._grid.addWidget(widget, row, col, 1, 1)
-            self._header.setLayout(self._grid)
-        self._layout.addWidget(self._header)
+        # todo name label and lineedit
+        # connect to publish name updates
 
         self._editor = StyleEditorWidget(self, obj=self._obj)
         self._layout.addWidget(self._editor)
@@ -216,8 +345,3 @@ class StyleEditorDialog(QtWidgets.QDialog):
         self._layout.addWidget(self._buttons)
         self.setLayout(self._layout)
 
-    def _update_target(self, _):
-        if self._instance_radio_button.isChecked():
-            self._editor.update_object(self._obj)
-        else:
-            self._editor.update_object(self._obj.__class__)
