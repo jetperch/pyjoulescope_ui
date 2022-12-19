@@ -1,4 +1,4 @@
-# Copyright 2020-2022 Jetperch LLC
+# Copyright 2022 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,21 +13,19 @@
 # limitations under the License.
 
 
-from PySide6 import QtWidgets, QtGui, QtCore
-from .color_picker import ColorItem
-from .color_scheme import COLOR_SCHEMES
-from .font_scheme import FONT_SCHEMES
-from joulescope_ui import pubsub_singleton, N_, get_instance, get_topic_name
-import os
+from PySide6 import QtCore, QtGui, QtWidgets
+from joulescope_ui import pubsub_singleton, N_, register_decorator, \
+    get_instance, get_unique_id, get_topic_name
+from joulescope_ui.styles import styled_widget
+from joulescope_ui.styles.color_picker import ColorItem
+from joulescope_ui.styles.color_scheme import COLOR_SCHEMES
+from joulescope_ui.styles.font_scheme import FONT_SCHEMES
 import logging
-
-
-MYPATH = os.path.dirname(os.path.abspath(__file__))
 
 
 class ColorEditorWidget(QtWidgets.QWidget):
 
-    def __init__(self, parent, obj):
+    def __init__(self, parent=None):
         self._colors = None
         self._obj = None
         self._topic = None
@@ -39,7 +37,6 @@ class ColorEditorWidget(QtWidgets.QWidget):
         self._header_widgets = []
         self._color_widgets = []
         self._count = 0
-        self.update_object(obj)
         self.setLayout(self._grid)
 
     def __len__(self):
@@ -69,7 +66,12 @@ class ColorEditorWidget(QtWidgets.QWidget):
             self._grid.removeWidget(w)
             w.deleteLater()
 
-    def update_object(self, obj):
+    @property
+    def object(self):
+        return self._obj
+
+    @object.setter
+    def object(self, obj):
         from joulescope_ui.styles.manager import load_colors
         self.clear()
         self._obj = get_instance(obj)
@@ -141,7 +143,7 @@ class QFontLabel(QtWidgets.QLabel):
 
 class FontEditorWidget(QtWidgets.QWidget):
 
-    def __init__(self, parent, obj):
+    def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self._count = 0
         self._fonts = None
@@ -151,7 +153,6 @@ class FontEditorWidget(QtWidgets.QWidget):
         self.setObjectName('font_editor_widget')
         self._grid = QtWidgets.QGridLayout(self)
         self._widgets = []
-        self.update_object(obj)
         self.setLayout(self._grid)
 
     def __len__(self):
@@ -163,7 +164,12 @@ class FontEditorWidget(QtWidgets.QWidget):
             self._grid.removeWidget(w)
             w.deleteLater()
 
-    def update_object(self, obj):
+    @property
+    def object(self):
+        return self._obj
+
+    @object.setter
+    def object(self, obj):
         from joulescope_ui.styles.manager import load_fonts
         self.clear()
         self._obj = get_instance(obj)
@@ -211,16 +217,15 @@ class FontEditorWidget(QtWidgets.QWidget):
 
 class StyleDefineEditorWidget(QtWidgets.QWidget):
 
-    def __init__(self, parent, obj):
+    def __init__(self, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
-        self._entries = None
+        self._entries = {}
         self._obj = None
         self._topic = None
         self._log = logging.getLogger(__name__)
         self.setObjectName('style_define_editor_widget')
         self._grid = QtWidgets.QGridLayout(self)
         self._widgets = []
-        self.update_object(obj)
         self.setLayout(self._grid)
 
     def __len__(self):
@@ -232,7 +237,12 @@ class StyleDefineEditorWidget(QtWidgets.QWidget):
             self._grid.removeWidget(w)
             w.deleteLater()
 
-    def update_object(self, obj):
+    @property
+    def object(self):
+        return self._obj
+
+    @object.setter
+    def object(self, obj):
         from joulescope_ui.styles.manager import load_style_defines
         self.clear()
         self._obj = get_instance(obj)
@@ -260,88 +270,66 @@ class StyleDefineEditorWidget(QtWidgets.QWidget):
         pubsub_singleton.publish(f'{self._topic}/settings/style_defines', dict(self._entries))
 
 
-class StyleEditorWidget(QtWidgets.QWidget):
+@register_decorator(unique_id='settings')
+@styled_widget(N_('settings'))
+class SettingsWidget(QtWidgets.QWidget):
 
-    def __init__(self, parent, obj):
-        self.obj = get_instance(obj)
-        QtWidgets.QWidget.__init__(self, parent)
-        self.setObjectName('style_editor_widget')
+    SETTINGS = {
+        'target': {
+            'dtype': 'str',
+            'brief': 'The unique_id for the target widget.',
+            'default': '',
+        }
+    }
+
+    def __init__(self, parent=None):
+        super(SettingsWidget, self).__init__(parent)
+        self._obj = None
+        self.setObjectName(f'settings_widget')
         self._layout = QtWidgets.QVBoxLayout()
-        self._layout.setObjectName('style_editor_layout')
+        self._layout.setObjectName('settings_widget_layout')
         self._layout.setSpacing(0)
         self._layout.setContentsMargins(0, 0, 0, 0)
 
         self._widgets = []
         widgets = [
-            [ColorEditorWidget(self, self.obj), N_('Colors')],
-            [FontEditorWidget(self, self.obj), N_('Fonts')],
-            [StyleDefineEditorWidget(self, self.obj), N_('Defines')],
+            [ColorEditorWidget(self), N_('Colors')],
+            [FontEditorWidget(self), N_('Fonts')],
+            [StyleDefineEditorWidget(self), N_('Defines')],
         ]
 
         self._tabs = QtWidgets.QTabWidget(self)
-        for idx, (widget, title) in enumerate(widgets):
-            if not len(widget):
-                widget.deleteLater()
-                continue
-            self._widgets.append([widget])
+        for widget, title in widgets:
             scroll = QtWidgets.QScrollArea(self._tabs)
             scroll.setObjectName(widget.objectName() + '_scroll')
             scroll.setWidgetResizable(True)
             scroll.setWidget(widget)
             self._tabs.addTab(scroll, title)
-            self._widgets[idx].append(scroll)
+            self._widgets.append([widget, scroll])
         self._layout.addWidget(self._tabs)
-
         self.setLayout(self._layout)
 
-    def update_object(self, obj):
-        self.obj = get_instance(obj)
-        self._color_widget.update_object(obj)
+    def on_setting_target(self, value):
+        if isinstance(value, str) and not len(value):
+            return  # default value, ignore
+        self.object = get_instance(value)
 
+    @property
+    def object(self):
+        return self._obj
 
-class StyleEditorDialog(QtWidgets.QDialog):
+    @object.setter
+    def object(self, obj):
+        for widget, _ in self._widgets:
+            widget.object = obj
+        self._obj = obj
 
-    def __init__(self, parent=None, obj=None):
-        self._obj = get_instance(obj)
-        QtWidgets.QDialog.__init__(self, parent)
-        self.setWindowTitle(N_('Style Editor'))
-        self._layout = QtWidgets.QVBoxLayout()
-
-        # todo name label and lineedit
-        # connect to publish name updates
-
-        self._editor = StyleEditorWidget(self, obj=self._obj)
-        self._layout.addWidget(self._editor)
-
-        self._buttons = QtWidgets.QFrame(self)
-        self._buttons.setObjectName('style_editor_button_frame')
-        self._buttons.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        self._buttons.setFrameShadow(QtWidgets.QFrame.Raised)
-        self._buttons_layout = QtWidgets.QHBoxLayout(self._buttons)
-        self._buttons_layout.setObjectName('style_editor_button_layout')
-        self._buttons_spacer = QtWidgets.QSpacerItem(40, 20,
-                                                     QtWidgets.QSizePolicy.Expanding,
-                                                     QtWidgets.QSizePolicy.Minimum)
-        self._buttons_layout.addItem(self._buttons_spacer)
-
-        self._reset_button = QtWidgets.QPushButton(self._buttons)
-        self._reset_button.setObjectName('style_editor_button_reset')
-        self._reset_button.setText(N_('Reset to Defaults'))
-        self._buttons_layout.addWidget(self._reset_button)
-
-        self._cancel_button = QtWidgets.QPushButton(self._buttons)
-        self._cancel_button.setObjectName('style_editor_button_cancel')
-        self._cancel_button.setText(N_('Cancel'))
-        self._cancel_button.pressed.connect(self.reject)
-        self._buttons_layout.addWidget(self._cancel_button)
-
-        self._ok_button = QtWidgets.QPushButton(self._buttons)
-        self._ok_button.setObjectName('style_editor_button_accept')
-        self._ok_button.setText(N_('Ok'))
-        self._ok_button.pressed.connect(self.accept)
-        self._buttons_layout.addWidget(self._ok_button)
-        self._buttons.setLayout(self._buttons_layout)
-
-        self._layout.addWidget(self._buttons)
-        self.setLayout(self._layout)
-
+    @staticmethod
+    def on_cls_action_edit(pubsub, topic, value):
+        w = SettingsWidget()
+        active_view = pubsub.query('registry/view/settings/active')
+        unique_id = pubsub.register(w, parent=active_view)
+        pubsub.publish('registry/view/actions/!widget_open',
+                       {'value': w, 'floating': True})
+        pubsub.publish(f'{get_topic_name(unique_id)}/settings/target',
+                       get_unique_id(value))

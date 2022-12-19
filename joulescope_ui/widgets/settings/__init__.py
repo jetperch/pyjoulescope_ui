@@ -12,6 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .example import ExampleWidget
-from .sidebar import SideBar
-from .settings import SettingsWidget
+from .settings_widget import SettingsWidget

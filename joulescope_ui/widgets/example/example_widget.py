@@ -14,8 +14,8 @@
 
 from PySide6 import QtWidgets, QtCore
 from joulescope_ui import CAPABILITIES, register, pubsub, Metadata, N_
-from joulescope_ui.styles import styled_widget, style_edit_action_create
-# from joulescope_ui.styles.manager import style_edit_action_create
+from joulescope_ui.widget_tools import settings_action_create
+from joulescope_ui.styles import styled_widget
 
 
 @register
@@ -52,7 +52,7 @@ class ExampleWidget(QtWidgets.QWidget):
             event.accept()
         elif event.button() == QtCore.Qt.RightButton:
             menu = QtWidgets.QMenu(self)
-            style_action = style_edit_action_create(self, menu)
+            style_action = settings_action_create(self, menu)
             menu.popup(event.globalPos())
             self._menu = [menu, style_action]
             event.accept()

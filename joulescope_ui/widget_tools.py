@@ -1,4 +1,4 @@
-# Copyright 2019-2022 Jetperch LLC
+# Copyright 2022 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,6 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .example import ExampleWidget
-from .sidebar import SideBar
-from .settings import SettingsWidget
+
+from PySide6 import QtCore, QtGui, QtWidgets
+from joulescope_ui import pubsub_singleton, N_, register, get_instance, get_unique_id, get_topic_name
+
+
+def settings_action_create(obj, menu):
+    def on_action():
+        pubsub_singleton.publish('registry/settings/actions/!edit', obj)
+
+    action = QtGui.QAction(menu)
+    action.setText(N_('Settings'))
+    action.triggered.connect(on_action)
+    menu.addAction(action)
+    return action

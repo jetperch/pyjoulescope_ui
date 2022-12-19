@@ -17,13 +17,11 @@ import json
 import logging
 import os
 import re
-from PySide6 import QtGui
 from joulescope_ui import N_, json, pubsub_singleton, get_unique_id, get_topic_name, get_instance
 from joulescope_ui.sanitize import str_to_filename
 from . import color_file, parameter_file
 from .color_scheme import COLOR_SCHEMES
 from .font_scheme import FONT_SCHEMES
-from .style_editor import StyleEditorDialog
 import pkgutil
 import time
 
@@ -221,7 +219,6 @@ class StyleManager:
                 'target_path': target_path,
             }
 
-            children = self.pubsub.query(f'{topic_name}/children', default=[])
             fonts = self.pubsub.query(f'{topic_name}/settings/fonts', default=None)
             style_defines = self.pubsub.query(f'{topic_name}/settings/style_defines', default=None)
 
@@ -240,6 +237,7 @@ class StyleManager:
             self._render_images(index, sub_vars)
             self._publish(index, unique_id)
         obj.style_manager_info = info  # record style manager info for future renderings
+        children = self.pubsub.query(f'{topic_name}/children', default=[])
         self._log.info('render %s: done in %.3f seconds', unique_id, time.time() - t_start)
         for child in children:
             self._render_one(child, dict(info))
@@ -259,23 +257,6 @@ class StyleManager:
         for unique_id in view.fixed_widgets:
             self._render_one(unique_id, info)
         return None  # cannot undo directly, must undo settings
-
-    def on_action_edit(self, value):
-        unique_id = get_unique_id(value)
-        obj = get_instance(value)
-        self._log.info('edit %s: start', unique_id)
-        self._dialog = StyleEditorDialog(obj=obj)
-
-        def on_finished(*args, **kwargs):
-            dialog, self._dialog = self._dialog, None
-            dialog.on_finished_fn = None
-            dialog.hide()
-            dialog.deleteLater()
-            self._log.info('edit %s: done', unique_id)
-
-        self._dialog.on_finished_fn = on_finished
-        self._dialog.finished.connect(on_finished)
-        self._dialog.show()
 
     def on_action_render(self, value):
         try:
@@ -360,17 +341,6 @@ class StyleManager:
                     path = os.path.join(target_path, filename)
                     with open(path, 'w', encoding='utf-8') as f:
                         f.write(svg_out)
-
-
-def style_edit_action_create(obj, menu):
-    def on_action():
-        pubsub_singleton.publish('registry/StyleManager:0/actions/!edit', obj)
-
-    action = QtGui.QAction(menu)
-    action.setText(N_('Style'))
-    action.triggered.connect(on_action)
-    menu.addAction(action)
-    return action
 
 
 def styled_widget(translated_name):

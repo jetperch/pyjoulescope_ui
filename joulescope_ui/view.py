@@ -13,7 +13,8 @@
 # limitations under the License.
 
 
-from . import pubsub_singleton, register, N_, sanitize, get_topic_name, get_unique_id, get_instance
+from . import pubsub_singleton, register, N_, sanitize, \
+    get_topic_name, get_unique_id, get_instance
 from .styles.manager import style_settings
 from PySide6 import QtCore, QtWidgets
 import PySide6QtAds as QtAds
@@ -171,30 +172,47 @@ class View:
     def on_action_widget_open(self, value):
         """Create a widget, possibly reusing existing settings.
 
-        :param value: The topic or unique_id for the widget class
-            or previous opened instance.
+        :param value: One of several options:
+            * The class unique_id or instance
+            * The instance unique_id, instance or existing widget object
+            * A dict containing:
+              * value (topic, unique_id, instance): required
+              * floating: True to make floating on top
         """
-        topic = get_topic_name(value)
-        cls = get_instance(topic, default=None)
-        if cls is None:
-            cls = pubsub_singleton.query(topic + '/instance_of', default=None)
-            if cls is None:
-                _log.warning('cannot open widget topic=%s', topic)
-                return
-            unique_id = get_unique_id(topic)
-            cls = get_instance(cls)
+        obj: QtWidgets.QWidget = None
+        floating = False
+        unique_id = None
+        if isinstance(value, dict):
+            floating = bool(value.get('floating', False))
+            spec = value['value']
         else:
-            unique_id = None
-        obj: QtWidgets.QWidget = cls()
-        topic = pubsub_singleton.register(obj, unique_id=unique_id, parent=self)
-        unique_id = get_unique_id(topic)
+            spec = value
+        if isinstance(spec, str):
+            topic = get_topic_name(spec)
+            spec = get_instance(topic, default=None)
+            if spec is None:
+                cls = pubsub_singleton.query(topic + '/instance_of', default=None)
+                if cls is None:
+                    _log.warning('cannot open widget topic=%s', topic)
+                    return
+                unique_id = get_unique_id(topic)
+                spec = get_instance(cls)
+                if spec is None:
+                    _log.warning('widget_open failed for %s', value)
+        if isinstance(spec, type):
+            obj = spec()
+        else:
+            obj = spec
+        unique_id = pubsub_singleton.register(obj, unique_id=unique_id, parent=self)
         obj.setObjectName(unique_id)
         obj.dock_widget = DockWidget(obj)
         obj.dock_widget.setObjectName(f'{unique_id}__dock')
         self._dock_manager.addDockWidget(QtAds.TopDockWidgetArea, obj.dock_widget)
         # todo restore children
         pubsub_singleton.publish('registry/StyleManager:0/actions/!render', unique_id)
-        return ['registry/view/actions/!widget_close', topic]
+        if floating:
+            obj.dock_widget.setFloating()
+        return ['registry/view/actions/!widget_close', unique_id]
 
     def on_action_widget_close(self, value):
         """Destroy an existing widget, preserving settings.
@@ -225,16 +243,15 @@ class View:
     @staticmethod
     def on_cls_action_add(value):
         view = View()
-        topic = pubsub_singleton.register(view, unique_id=value)
+        unique_id = pubsub_singleton.register(view, unique_id=value)
         if View._active_instance is None:
-            pubsub_singleton.publish(f'{View.topic}/settings/active', get_unique_id(topic))
-        return ['registry/view/actions/!remove', topic]
+            pubsub_singleton.publish(f'{View.topic}/settings/active', unique_id)
+        return ['registry/view/actions/!remove', unique_id]
 
     @staticmethod
     def on_cls_action_remove(value):
-        topic = get_topic_name(value)
-        pubsub_singleton.unregister(topic)
-        return ['registry/view/actions/!add', topic]
+        pubsub_singleton.unregister(value)
+        return ['registry/view/actions/!add', get_unique_id(value)]
 
     @staticmethod
     def on_cls_action_ui_connect(value):

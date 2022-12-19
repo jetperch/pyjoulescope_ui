@@ -932,11 +932,13 @@ class PubSub:
             For instances, a randomly generated value.
         :type unique_id: str, optional
         :param parent: The optional parent unique_id, topic, or object.
-        :return: The topic name string.
+        :return: The unique_id string.
         """
         if 'unique_id' in obj.__dict__:  # ignore class attributes for objects
-            self._log.warning('Duplicate registration for %s', obj)
-            return
+            self._log.info('Duplicate registration for %s', obj)
+            if parent is not None:
+                self._parent_add(obj, parent)
+            return obj.unique_id
         if unique_id is None:
             if isinstance(obj, type):
                 # Use the unqualified class name
@@ -976,12 +978,6 @@ class PubSub:
                     self.publish(instances_topic, instances + [unique_id])
             self.topic_add(f'{topic_name}/parent',
                            dtype='str', brief='unique id for the parent', default='', exists_ok=True)
-            if parent is not None:
-                self.publish(f'{topic_name}/parent', get_unique_id(parent))
-                children_topic = get_topic_name(parent) + '/children'
-                children = self.query(children_topic)
-                if unique_id not in children:
-                    self.publish(children_topic, children + [unique_id])
             self.topic_add(f'{topic_name}/children',
                            dtype='obj', brief='list of unique ids for children', default=[], exists_ok=True)
 
@@ -990,10 +986,35 @@ class PubSub:
         self._register_settings(obj, unique_id)
         obj.unique_id = unique_id
         obj.topic = topic_name
+        if parent is not None:
+            self._parent_add(obj, parent)
         self._registry_add(unique_id)
         self._register_capabilities(obj, unique_id)
         self._log.info('register(unique_id=%s) done', unique_id)
-        return topic_name
+        return unique_id
+
+    def _parent_add(self, obj, parent=None):
+        if parent is None:
+            self._parent_remove(obj)
+            return
+        unique_id = get_unique_id(obj)
+        self.publish(f'{get_topic_name(obj)}/parent', get_unique_id(parent))
+        children_topic = f'{get_topic_name(parent)}/children'
+        children = self.query(children_topic)
+        if unique_id not in children:
+            self.publish(children_topic, children + [unique_id])
+
+    def _parent_remove(self, obj):
+        unique_id = get_unique_id(obj)
+        topic = f'{get_topic_name(obj)}/parent'
+        parent = self.query(topic, default=None)
+        if parent is not None:
+            children_topic = f'{get_topic_name(parent)}/children'
+            children = self.query(children_topic)
+            if unique_id in children:
+                children = [x for x in children if x != unique_id]
+                self.publish(children_topic, children)
+            self.publish(topic, None)
 
     def _register_events(self, obj, unique_id: str):
         topic_name = get_topic_name(unique_id)
@@ -1172,6 +1193,7 @@ class PubSub:
             return None
         self._unregister_capabilities(obj, unique_id)
         self._registry_remove(unique_id)
+        self._parent_remove(obj)
         self._unregister_settings(obj, unique_id)
         self._unregister_functions(obj, unique_id)
         self.topic_remove(instance_topic_name)

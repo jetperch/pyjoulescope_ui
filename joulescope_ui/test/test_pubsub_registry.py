@@ -85,7 +85,7 @@ class CapabilitiesClass:
 
     This is a more detailed message.
     """
-    CAPABILITIES = [CAPABILITIES.STATISTICS_SINK, 'view']
+    CAPABILITIES = [CAPABILITIES.STATISTICS_SINK, 'widget@']
 
 
 class TestRegistry(unittest.TestCase):
@@ -103,33 +103,33 @@ class TestRegistry(unittest.TestCase):
         self.calls.append([topic, value])
 
     def test_action1(self):
-        topic = self.p.register(MyClass)
+        unique_id = self.p.register(MyClass)
         MyClass.CALLS.clear()
-        self.assertEqual('registry/MyClass', topic)
-        self.p.publish(f'{topic}/actions/!show1', 'hello world 1')
+        self.assertEqual('MyClass', unique_id)
+        self.p.publish(f'registry/{unique_id}/actions/!show1', 'hello world 1')
         self.assertEqual(MyClass.CALLS, [['action_show1', 'hello world 1']])
 
     def test_action2(self):
-        topic = self.p.register(MyClass)
+        unique_id = self.p.register(MyClass)
         MyClass.CALLS.clear()
-        self.p.publish(f'{topic}/actions/!show2', 'hello world 2')
+        self.p.publish(f'registry/{unique_id}/actions/!show2', 'hello world 2')
         self.assertEqual(MyClass.CALLS, [['action_show2',
-                                          f'{topic}/actions/!show2',
+                                          f'registry/{unique_id}/actions/!show2',
                                           'hello world 2']])
 
     def test_action3(self):
-        topic = self.p.register(MyClass)
+        unique_id = self.p.register(MyClass)
         MyClass.CALLS.clear()
-        self.p.publish(f'{topic}/actions/!show3', 'hello world 3')
+        self.p.publish(f'registry/{unique_id}/actions/!show3', 'hello world 3')
         self.assertEqual(MyClass.CALLS, [['action_show3',
                                           self.p,
-                                          f'{topic}/actions/!show3',
+                                          f'registry/{unique_id}/actions/!show3',
                                           'hello world 3']])
 
     def test_callback(self):
-        topic = self.p.register(MyClass)
+        unique_id = self.p.register(MyClass)
         MyClass.CALLS.clear()
-        self.p.publish(f'{topic}/callbacks/!data', 'hello world')
+        self.p.publish(f'registry/{unique_id}/callbacks/!data', 'hello world')
         self.assertEqual(MyClass.CALLS, [['cbk_data', 'hello world']])
 
     def test_capability(self):
@@ -149,16 +149,16 @@ class TestRegistry(unittest.TestCase):
     def test_register_instance(self):
         obj = MyClass()
         print(obj.__doc__)
-        topic = self.p.register(obj)
-        self.p.publish(f'{topic}/actions/!view1', 'hello world 1')
-        self.p.publish(f'{topic}/callbacks/!update', 'x')
+        unique_id = self.p.register(obj)
+        self.p.publish(f'registry/{unique_id}/actions/!view1', 'hello world 1')
+        self.p.publish(f'registry/{unique_id}/callbacks/!update', 'x')
         self.assertEqual(obj.calls, [['action_view1', 'hello world 1'], ['cbk_update', 'x']])
 
     def test_settings_with_explicit_function(self):
         # class
-        topic = self.p.register(MyClass, unique_id='myclass')
-        self.assertEqual('registry/myclass', topic)
-        param1_cls_topic = f'{topic}/settings/param1'
+        unique_id = self.p.register(MyClass, unique_id='myclass')
+        self.assertEqual('myclass', unique_id)
+        param1_cls_topic = f'registry/{unique_id}/settings/param1'
         self.assertEqual(MyClass.CALLS, [['setting_param1', 'param1_default']])
         MyClass.CALLS.clear()
         self.assertEqual('param1_default', self.p.query(param1_cls_topic))
@@ -182,14 +182,14 @@ class TestRegistry(unittest.TestCase):
             self.p.register_capability(capability.value)
         topics = [
             'registry_manager/capabilities/statistics.sink/!add',
-            'registry_manager/capabilities/view/!add',
+            'registry_manager/capabilities/widget.class/!add',
         ]
         for t in topics:
             self.p.subscribe(t, on_capability, ['pub'])
 
         self.p.register(CapabilitiesClass, unique_id='myclass')
         self.assertIn('registry_manager/capabilities/statistics.sink', self.p)
-        self.assertIn('registry_manager/capabilities/view', self.p)
+        self.assertIn('registry_manager/capabilities/view.class', self.p)
         self.assertEqual([[topics[0], 'myclass'], [topics[1], 'myclass']], calls)
 
 
@@ -247,15 +247,15 @@ class TestRegistryForSimpleClass(unittest.TestCase):
         self.calls.append([topic, value])
 
     def test_settings_simple(self):
-        topic = self.p.register(SimpleClass)
-        param1_cls_topic = f'{topic}/settings/param1'
+        unique_id = self.p.register(SimpleClass)
+        param1_cls_topic = f'registry/{unique_id}/settings/param1'
         self.assertEqual('param1_default', self.p.query(param1_cls_topic))
         self.p.publish(param1_cls_topic, 'new_value')
 
         # instance
         obj = SimpleClass()
-        topic = self.p.register(obj)
-        prefix = f'{topic}/settings'
+        unique_id = self.p.register(obj)
+        prefix = f'registry/{unique_id}/settings'
         self.p.subscribe(prefix, self.on_value, ['pub'])
         self.assertEqual('new_value', obj.param1)
         self.assertEqual('param2_default', obj.param2)

@@ -15,7 +15,7 @@
 # https://stackoverflow.com/questions/11874767/real-time-plotting-in-while-loop-with-matplotlib
 # https://wiki.qt.io/Gallery_of_Qt_CSS_Based_Styles
 
-from joulescope_ui import pubsub_singleton, N_
+from joulescope_ui import pubsub_singleton, N_, get_topic_name
 from joulescope_ui.widgets import *   # registers all built-in widgets
 from joulescope_ui.logging_util import logging_preconfig, logging_config
 from PySide6 import QtCore, QtGui, QtWidgets
@@ -70,8 +70,8 @@ def _menu_setup(parent, d):
 
 def _device_factory_add():
     jsdrv = JsdrvWrapper()
-    jsdrv_topic = pubsub_singleton.register(jsdrv, 'jsdrv')
-    jsdrv.on_pubsub_register(pubsub_singleton, jsdrv_topic)
+    unique_id = pubsub_singleton.register(jsdrv, 'jsdrv')
+    jsdrv.on_pubsub_register(pubsub_singleton, get_topic_name(unique_id))
 
 
 class MainWindow(QtWidgets.QMainWindow):

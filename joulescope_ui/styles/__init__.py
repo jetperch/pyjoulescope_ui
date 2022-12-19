@@ -12,6 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .manager import StyleManager, styled_widget, style_edit_action_create
+from .manager import StyleManager, styled_widget
 
-__all__ = ['StyleManager', 'styled_widget', 'style_edit_action_create']
+__all__ = ['StyleManager', 'styled_widget']
