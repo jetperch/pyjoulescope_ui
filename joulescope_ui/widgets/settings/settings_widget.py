@@ -134,8 +134,11 @@ class QFontLabel(QtWidgets.QLabel):
         font.fromString(self._value)
         ok, font = QtWidgets.QFontDialog.getFont(self.font(), self.parent())
         if ok:
-            # todo QFont to qss font
-            self._value = font.toString()
+            bold = 'bold ' if font.bold() else ''
+            italic = 'italic ' if font.italic() else ''
+            size = f'{font.pointSize()}pt '
+            self._value = f'{bold}{italic}{size}{font.family()}'
+            print(f'font = {self._value}')
             self._changed()
             self.changed.emit(self._name, self._value)
         ev.accept()
