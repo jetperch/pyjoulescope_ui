@@ -1193,7 +1193,6 @@ class PubSub:
             return None
         self._unregister_capabilities(obj, unique_id)
         self._registry_remove(unique_id)
-        self._parent_remove(obj)
         self._unregister_settings(obj, unique_id)
         self._unregister_functions(obj, unique_id)
         self.topic_remove(instance_topic_name)

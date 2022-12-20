@@ -18,13 +18,13 @@ import collections.abc
 
 
 def _validate_str(x):
-    if not isinstance(x, str):
+    if x is not None and not isinstance(x, str):
         raise ValueError(f'validate str failed for {x}')
     return x
 
 
 def _validate_bytes(x):
-    if not isinstance(x, bytes):
+    if x is not None and not isinstance(x, bytes):
         raise ValueError(f'validate bytes failed for {x}')
     return x
 
