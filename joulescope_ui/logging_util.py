@@ -148,8 +148,9 @@ def logging_config(stream_log_level=None, file_log_level=None):
 
     stream_lvl = logging.WARNING if stream_log_level is None else LEVELS[stream_log_level]
     stream_fmt = logging.Formatter(STREAM_VERBOSE_FMT)
-    stream_hnd = logging.StreamHandler()
-    stream_hnd.stream.write(banner)
+    stream = sys.stderr
+    stream.write(banner)
+    stream_hnd = logging.StreamHandler(stream)
     stream_hnd.setFormatter(stream_fmt)
     stream_hnd.setLevel(stream_lvl)
     root_log.addHandler(stream_hnd)

@@ -216,7 +216,7 @@ setuptools.setup(
         'pyperclip>=1.7.0',
         "pywin32>=223; platform_system == 'Windows'",
         'pyqtgraph>=0.13.1',
-        'PySide6>=6.3.0',
+        'PySide6==6.3.2',
         'python-dateutil>=2.7.3',
         # 'pyqtgraph @ https://github.com/jetperch/pyqtgraph/tarball/557e867b377b223589c0c8ffd0799c547965fb46#egg=pyqtgraph-0.11.0.dev1',
         'requests>=2.0.0',

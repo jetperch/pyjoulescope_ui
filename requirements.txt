@@ -9,7 +9,7 @@ pyopengl
 pyperclip>=1.7.0
 pywin32; sys_platform == 'win32'   # python {path_to_python}\scripts\pywin32_postinstall.py -install
 pyqtgraph>=0.13.1
-PySide6>=6.3.0
+PySide6==6.3.2
 python-dateutil>=2.7.3
 PyInstaller>=5.0.1
 requests>=2.0.0
