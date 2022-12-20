@@ -114,6 +114,21 @@ class ColorEditorWidget(QtWidgets.QWidget):
         self._count = len(row_map)
 
 
+def qfont_to_qss_font(qfont: QtGui.QFont) -> str:
+    """Convert QFont to QSS font specification.
+
+    :param qfont: The qfont instance.
+    :return: The qss font string specification.
+        Example: bold italic 12pt "Times New Roman"
+    """
+    # https://doc.qt.io/qt-6/qfont.html
+    # https://doc.qt.io/qt-6/stylesheet-reference.html
+    bold = 'bold ' if qfont.bold() else ''
+    italic = 'italic ' if qfont.italic() else ''
+    size = f'{qfont.pointSize()}pt '
+    return f'{bold}{italic}{size}{qfont.family()}'
+
+
 class QFontLabel(QtWidgets.QLabel):
 
     changed = QtCore.Signal(str, str)
@@ -134,11 +149,7 @@ class QFontLabel(QtWidgets.QLabel):
         font.fromString(self._value)
         ok, font = QtWidgets.QFontDialog.getFont(self.font(), self.parent())
         if ok:
-            bold = 'bold ' if font.bold() else ''
-            italic = 'italic ' if font.italic() else ''
-            size = f'{font.pointSize()}pt '
-            self._value = f'{bold}{italic}{size}{font.family()}'
-            print(f'font = {self._value}')
+            self._value = qfont_to_qss_font(font)
             self._changed()
             self.changed.emit(self._name, self._value)
         ev.accept()
