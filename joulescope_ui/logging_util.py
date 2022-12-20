@@ -155,6 +155,8 @@ def logging_config(stream_log_level=None, file_log_level=None):
         stream_hnd.setFormatter(stream_fmt)
         stream_hnd.setLevel(stream_lvl)
         root_log.addHandler(stream_hnd)
+    else:
+        stream_lvl = logging.CRITICAL
 
     file_lvl = logging.INFO if file_log_level is None else LEVELS[file_log_level]
     if file_lvl < LEVELS['OFF']:
