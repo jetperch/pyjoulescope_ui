@@ -4,6 +4,15 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 0.10.13
+
+2022 Dec 20
+
+* Fixed JS110 charge & energy statistics computation.
+  All prior 0.10.x releases sometimes computed bad values.
+  This issue does not affect the JS220.
+
+
 ## 0.10.12
 
 2022 Nov 11
