@@ -126,7 +126,7 @@ def qfont_to_qss_font(qfont: QtGui.QFont) -> str:
     bold = 'bold ' if qfont.bold() else ''
     italic = 'italic ' if qfont.italic() else ''
     size = f'{qfont.pointSize()}pt '
-    return f'{bold}{italic}{size}{qfont.family()}'
+    return f'{bold}{italic}{size}"{qfont.family()}"'
 
 
 class QFontLabel(QtWidgets.QLabel):

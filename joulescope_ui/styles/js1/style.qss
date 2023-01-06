@@ -522,69 +522,6 @@ QTabBar::tab:right:only-one
 
 
 /****************************************************************************/
-/* QDockWidget                                                              */
-/****************************************************************************/
-
-QDockWidget
-{
-    background: {% base.background %};
-    border: 1px solid {% base.background %};
-    titlebar-close-icon: url("{% path %}/transparent_disabled.svg");
-    titlebar-normal-icon: url("{% path %}/transparent_disabled.svg");
-}
-
-QDockWidget::close-button,
-QDockWidget::float-button
-{
-    padding: 0px;
-    width: 16px;
-    min-width: 16px;
-    max-width: 16px;
-    height: 16px;
-    min-height: 16px;
-    max-height: 16px;
-
-    border-width: 0px;
-    border-radius: 8px;
-    background-color: transparent;
-}
-
-QDockWidget::float-button:enabled
-{
-    border-image: url("{% path %}/undock_disabled.svg");
-}
-
-QDockWidget::float-button:enabled:hover
-{
-    border-image: url("{% path %}/undock_enabled.svg");
-    background-color: {% js1.clickable_hover %}
-}
-
-QDockWidget::float-button:enabled:pressed
-{
-    border-image: url("{% path %}/undock_enabled.svg");
-    background-color: {% js1.clickable_pressed %}
-}
-
-QDockWidget::close-button:enabled
-{
-    border-image: url("{% path %}/close_disabled.svg");
-}
-
-QDockWidget::close-button:enabled:hover
-{
-    border-image: url("{% path %}/close_enabled.svg");
-    background-color: {% dock.close_hover %}
-}
-
-QDockWidget::close-button:enabled:pressed
-{
-    border-image: url("{% path %}/close_enabled.svg");
-    background-color: {% dock.close_pressed %}
-}
-
-
-/****************************************************************************/
 /* QTreeView and branches                                                   */
 /****************************************************************************/
 
@@ -627,6 +564,158 @@ QHeaderView::up-arrow
 {
     image: url("{% path %}/arrow_up_enabled.svg");
 }
+
+
+/****************************************************************************/
+/* Qt Advanced Docking System                                               */
+/****************************************************************************/
+
+/* Based upon https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/blob/master/src/stylesheets/focus_highlighting.css */
+
+/*****************************************************************************
+ * CDockContainerWidget
+ *****************************************************************************/
+
+ads--CDockContainerWidget {
+    background: {% base.background %};
+}
+
+/*****************************************************************************
+ * CDockSplitter
+ *****************************************************************************/
+ads--CDockContainerWidget > QSplitter {
+	padding: 1 0 1 0;
+}
+
+ads--CDockSplitter::handle {
+	background-color: {% base.background %};
+	height: 2px;
+}
+
+/*****************************************************************************
+ * CDockAreaWidget
+ *****************************************************************************/
+ads--CDockAreaWidget {
+	background: {% base.background %};
+}
+
+ads--CDockAreaTitleBar {
+	background: transparent;
+	border-bottom: 2px solid {% base.background_alternate %};
+	padding-bottom: 0px;
+}
+
+ads--CDockAreaWidget[focused="true"] ads--CDockAreaTitleBar {
+	border-bottom: 2px solid {% base.selection_border %};
+}
+
+ads--CTitleBarButton {
+	padding: 0px 0px;
+}
+
+#dockAreaCloseButton, #detachGroupButton, #tabsMenuButton, #tabCloseButton {
+    padding: 0px;
+    width: 16px;
+    min-width: 16px;
+    max-width: 16px;
+    height: 16px;
+    min-height: 16px;
+    max-height: 16px;
+
+    border-width: 0px;
+    border-radius: 8px;
+    background-color: transparent;
+    qproperty-icon: url(""); /* empty image */
+    image: none;
+}
+
+#tabsMenuButton::menu-indicator {
+	image: none;
+}
+
+#tabsMenuButton:enabled {
+	image: url("{% path %}/tabs_menu_disabled.svg");
+}
+
+#tabsMenuButton:enabled:hover {
+	image: url("{% path %}/tabs_menu_enabled.svg");
+	background-color: {% dock.tabs_menu_hover %}
+}
+
+#tabsMenuButton:enabled:pressed {
+	image: url("{% path %}/tabs_menu_enabled.svg");
+	background-color: {% dock.tabs_menu_pressed %}
+}
+
+#detachGroupButton:enabled {
+	image: url("{% path %}/detach_disabled.svg");
+}
+
+#detachGroupButton:enabled:hover {
+	image: url("{% path %}/detach_enabled.svg");
+	background-color: {% dock.detach_hover %}
+}
+
+#detachGroupButton:enabled:pressed {
+	image: url("{% path %}/detach_enabled.svg");
+	background-color: {% dock.detach_pressed %}
+}
+
+#dockAreaCloseButton:enabled {
+	image: url("{% path %}/close_disabled.svg");
+}
+
+#dockAreaCloseButton:enabled:hover {
+	image: url("{% path %}/close_enabled.svg");
+	background-color: {% dock.close_hover %}
+}
+
+#dockAreaCloseButton:enabled:pressed {
+	image: url("{% path %}/close_enabled.svg");
+	background-color: {% dock.close_pressed %}
+}
+
+/*****************************************************************************
+ * CDockWidgetTab
+ *****************************************************************************/
+ads--CDockWidgetTab {
+    color: {% base.foreground %};
+	background: {% base.background %};
+	border-color: {% base.selection_border %};
+	border-style: solid;
+	border-width: 0 1px 0 0;
+	padding: 0 0px;
+	qproperty-iconSize: 16px 16px; /* this is optional in case you would like to change icon size*/
+	qproperty-icon: url(""); /* empty image */
+    image: none;
+}
+
+#dockWidgetTabLabel {
+    background: transparent;
+    border-color: transparent;
+}
+
+ads--CDockWidgetTab[activeTab="true"] {
+	color: {% base.focus_foreground %};
+    /* background: {% base.focus_background %}; */
+	background: qlineargradient(spread : pad, x1 : 0, y1 : 0, x2 : 0, y2 : 0.5, stop : 0
+		{% base.background %}, stop:1 {% base.focus_background %});
+}
+
+#tabCloseButton:enabled {
+	image: url("{% path %}/close_disabled.svg");
+}
+
+#tabCloseButton:enabled:hover {
+	image: url("{% path %}/close_enabled.svg");
+	background-color: {% dock.close_hover %}
+}
+
+#tabCloseButton:enabled:pressed {
+	image: url("{% path %}/close_enabled.svg");
+	background-color: {% dock.close_pressed %}
+}
+
 
 
 /****************************************************************************/

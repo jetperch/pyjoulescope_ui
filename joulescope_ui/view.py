@@ -208,6 +208,8 @@ class View:
         obj.dock_widget = DockWidget(obj)
         obj.dock_widget.setObjectName(f'{unique_id}__dock')
         self._dock_manager.addDockWidget(QtAds.TopDockWidgetArea, obj.dock_widget)
+        tab_widget = obj.dock_widget.tabWidget()
+        tab_widget.setElideMode(QtCore.Qt.TextElideMode.ElideNone)
         # todo restore children
         pubsub_singleton.publish('registry/StyleManager:0/actions/!render', unique_id)
         if floating:

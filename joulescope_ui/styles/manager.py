@@ -226,7 +226,7 @@ class StyleManager:
             qss_colors = {}
             for key, value in colors.items():
                 r, g, b, a = int(value[1:3], 16), int(value[3:5], 16), int(value[5:7], 16), int(value[7:9], 16)
-                qss_colors[key] = f'rgba({r},{g},{b},{a})'
+                qss_colors[key] = f'#{r:02x}{g:02x}{b:02x}{a:02x}'
 
             fonts = load_fonts(obj, font_scheme=info['font_scheme'], pubsub=self.pubsub)
             style_defines = load_style_defines(obj, pubsub=self.pubsub)
@@ -309,18 +309,24 @@ class StyleManager:
             varname = matchobj.group(1)
             if varname == 'path':
                 return target_path
-            return sub_vars[varname]
+            v = sub_vars[varname]
+            if v.startswith('#') and len(v) == 9:
+                r, g, b, a = int(v[1:3], 16), int(v[3:5], 16), int(v[5:7], 16), int(v[7:9], 16)
+                a = a / 255.0
+                v = f'rgba({r},{g},{b},{a})'
+            return v
 
         for template in index['templates']:
             self._log.info('render template %s:%s', package, template)
-            data = pkgutil.get_data(package, theme_prefix + template).decode('utf-8')
+            data = pkgutil.get_data(package, theme_prefix + template)
             if data is None:
                 self._log.warning('template not found: %s', template)
                 return
+            data = data.replace(b'\r\n', b'\n').decode('utf-8')
             s = _template_replace.sub(replace, data)
             path = os.path.join(target_path, template)
             templates[template] = path
-            with open(path, 'w', encoding='utf-8') as f:
+            with open(path, 'wt', encoding='utf-8') as f:
                 f.write(s)
 
     def _render_images(self, index, sub_vars):
@@ -331,13 +337,17 @@ class StyleManager:
         for name, image_set in index['images'].items():
             self._log.info('generate images for %s:%s', package, name)
             for source in image_set['sources']:
-                svg = pkgutil.get_data(package, theme_prefix + source).decode('utf-8')
+                svg = pkgutil.get_data(package, theme_prefix + source)
+                svg = svg.replace(b'\r\n', b'\n').decode('utf-8')
                 basename, ext = os.path.splitext(source)
                 for filename, subs in image_set['targets']:
                     svg_out = svg
                     filename = filename.format(basename=basename, ext=ext)
                     for substr, replace in subs.items():
-                        svg_out = svg_out.replace(substr, sub_vars[replace])
+                        v = sub_vars[replace]
+                        if v.startswith('#') and len(v) == 9:
+                            v = v[:7]
+                        svg_out = svg_out.replace(substr, v)
                     path = os.path.join(target_path, filename)
                     with open(path, 'w', encoding='utf-8') as f:
                         f.write(svg_out)

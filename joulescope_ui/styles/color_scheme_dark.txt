@@ -2,6 +2,8 @@ base.foreground = #E0E0E0
 base.background = #31363b
 base.background_alternate = #404040
 base.tooltip_border = #31363b
+base.focus_foreground = #F0F0F0
+base.focus_background = #404448
 base.focus_border = #3580D3
 base.selection_border = #76797c
 base.selection_color = #101010
@@ -68,3 +70,7 @@ waveform.font_color = #c0c0c0
 
 dock.close_hover = #A00000
 dock.close_pressed = #D00000
+dock.detach_hover = #38a0ed
+dock.detach_pressed = #48c0ff
+dock.tabs_menu_hover = #181818
+dock.tabs_menu_pressed = #000000
