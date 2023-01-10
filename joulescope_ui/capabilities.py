@@ -32,58 +32,72 @@ class CAPABILITIES(Enum):
     DEVICE_FACTORY = 'device_factory'
     """A factory for physically attached devices."""
 
-    DEVICE = 'device'                           # A physically attached device (JS110, JS220)
+    DEVICE_CLASS = 'device.class'  # A physically attached device (JS110, JS220)
+    """Default settings for physically attached devices"""
+
+    DEVICE_OBJECT = 'device.object'            # A physically attached device (JS110, JS220)
     """A physically attached device.
     
     The pubsub object must implement the following:
         * actions/!open
         * actions/!close
-        * settings/name
-        * info: {vendor, model, version, serial_number} read-only 
+        * settings
+          * name
+          * info: {vendor, model, version, serial_number} read-only 
     """
 
-    SIGNAL_SOURCE = 'signal.source'             # device (JS110, JS220), JLS reader
-    """A source that provides signal samples.
+    SOURCE = 'source'             # device (JS110, JS220), JLS reader
+    """A source that provides data.
     
-    The pubsub object must implement the following:
-        * settings/name
-        * sources/{source}/name
-        * sources/{source}/id
-        * sources/{source}/info : {vendor, model, version, serial_number} read-only
-        * sources/{source}/signals: [{source_id}.{signal}, ...] 
-        * signals/{source_id}.{signal}/range [t_start, t_end]
-        * signals/{source_id}.{signal}/!sample_req [t_start, t_end, cbk_topic, cbk_identifier]
-        * signals/{source_id}.{signal}/!summary_req [t_start, t_end, t_incr, cbk_topic, cbk_identifier] 
-    """
-
-    SIGNAL_STREAMING = 'signal.streaming'
-    """A signal source that can provide live data.
-        * signals/{source_id}.{signal}/!signal_sink_add {sink_topic}: Add a sink.
-          range publishes on new data.
-        * signals/{source_id}.{signal}/!signal_sink_remove {sink_topic}: Remove a sink.
-        * setting/signal_streaming_enable: Enable/disable signal streaming.  When true,
-          the device may completely disable signal streaming to save bandwidth & processing
-          until at least one sink is added to a signal. 
-    """
-
-    SIGNAL_SINK = 'signal.sink'                 # JLS recorder
-    """A sink that consumes SIGNAL_SOURCE data."""
-
-    STATISTICS_SOURCE = 'statistics.source'     # device (JS110, JS220)
-    """A source that provides statistics for multimeter-like displays.
+    The pubsub source object must implement the following:
+        * settings
+          * name
+          * statistics 
+          * sources/{source_id}
+            * name
+            * info : {vendor, model, version, serial_number}  (read-only)
+            * signals: [{signal_id}, ...]  (read-only) 
+          * signals/{signal_id}
+            * name 
+            
+    Each STATISTIC_STREAM_SOURCE must also implement:
+        * settings/statistics
+          * frequency_base  (read-only)
+          * rate_divisor
+        * events
+          * statistics/!data
     
-    A statistics source always provides data when the device is open.
-
-    The pubsub object must implement the following:
-        * events/!statistics_data {}  (sink subscribes)
-        * settings/name
-        * settings/statistics_source/enable
-        * settings/statistics_source/frequency
-        * settings/statistics_source/period
+    Each SIGNAL_STREAM_SOURCE must also implement:
+        * settings/signals/{signal_id}
+          * frequency: (may be read-only)
+          * range: [t_start, t_end] (read-only)
+        * events
+          * signals/{signal_id}/!data
+    
+    Each SIGNAL_BUFFER_SOURCE must also implement:
+        * settings/signals/{signal_id}
+          * frequency: (may be read-only)
+          * range: [t_start, t_end] (read-only)
+        * actions/signals/{signal_id}
+            * !sample_req [t_start, t_end, cbk_topic, cbk_identifier]
+            * !summary_req [t_start, t_end, t_incr, cbk_topic, cbk_identifier] 
     """
 
-    STATISTICS_SINK = 'statistics.sink'
-    """A sink that consume STATISTICS_SOURCE information."""
+    SIGNAL_STREAM_SOURCE = 'signal_stream.source'
+    """A signal source that can provide live streaming signal sample data."""
+
+    SIGNAL_STREAM_SINK = 'signal_stream.sink'                 # JLS recorder
+    """A sink that consumes SIGNAL_STREAM_SOURCE data."""
+
+    SIGNAL_BUFFER_SOURCE = 'signal_buffer.source'
+
+    SIGNAL_BUFFER_SINK = 'signal_buffer.sink'
+
+    STATISTIC_STREAM_SOURCE = 'statistics_stream.source'     # device (JS110, JS220)
+    """A source that provides live streaming statistics for multimeter-like displays."""
+
+    STATISTIC_STREAM_SINK = 'statistics_stream.sink'
+    """A sink that consume STATISTIC_STREAM_SOURCE information."""
 
     VIEW_CLASS = 'view.class'
     """The central view manager."""

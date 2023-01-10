@@ -1,0 +1,2 @@
+value.value_font = bold 24pt "Lato"
+value.title_font = 10pt "Lato"

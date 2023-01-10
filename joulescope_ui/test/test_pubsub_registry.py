@@ -70,6 +70,9 @@ class MyClass:
     def on_action_view1(self, value):
         self.calls.append(['action_view1', value])
 
+    def on_action_signals__current__sample_req(self, value):
+        self.calls.append(['i_sample_req', value])
+
     def on_cbk_update(self, value):
         self.calls.append(['cbk_update', value])
 
@@ -85,7 +88,7 @@ class CapabilitiesClass:
 
     This is a more detailed message.
     """
-    CAPABILITIES = [CAPABILITIES.STATISTICS_SINK, 'widget@']
+    CAPABILITIES = [CAPABILITIES.STATISTIC_STREAM_SINK, 'widget@']
 
 
 class TestRegistry(unittest.TestCase):
@@ -153,6 +156,9 @@ class TestRegistry(unittest.TestCase):
         self.p.publish(f'registry/{unique_id}/actions/!view1', 'hello world 1')
         self.p.publish(f'registry/{unique_id}/callbacks/!update', 'x')
         self.assertEqual(obj.calls, [['action_view1', 'hello world 1'], ['cbk_update', 'x']])
+        obj.calls.clear()
+        self.p.publish(f'registry/{unique_id}/actions/signals/current/!sample_req', 'x')
+        self.assertEqual(obj.calls, [['i_sample_req', 'x']])
 
     def test_settings_with_explicit_function(self):
         # class
@@ -181,14 +187,14 @@ class TestRegistry(unittest.TestCase):
         for capability in CAPABILITIES:
             self.p.register_capability(capability.value)
         topics = [
-            'registry_manager/capabilities/statistics.sink/!add',
+            'registry_manager/capabilities/statistics_stream.sink/!add',
             'registry_manager/capabilities/widget.class/!add',
         ]
         for t in topics:
             self.p.subscribe(t, on_capability, ['pub'])
 
         self.p.register(CapabilitiesClass, unique_id='myclass')
-        self.assertIn('registry_manager/capabilities/statistics.sink', self.p)
+        self.assertIn('registry_manager/capabilities/statistics_stream.sink', self.p)
         self.assertIn('registry_manager/capabilities/view.class', self.p)
         self.assertEqual([[topics[0], 'myclass'], [topics[1], 'myclass']], calls)
 

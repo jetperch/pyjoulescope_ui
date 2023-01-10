@@ -142,6 +142,12 @@ def _parse_docstr(doc: str, default):
     return doc
 
 
+def _fn_name_to_topic(s):
+    parts = s.split('__')
+    parts[-1] = '!' + parts[-1]
+    return '/'.join(parts)
+
+
 class _Function:
 
     def __init__(self, fn, signature_type=None):
@@ -1028,12 +1034,14 @@ class PubSub:
             for name, attr in obj.__dict__.items():
                 if isinstance(attr, staticmethod):
                     if name.startswith(CLS_ACTION_PREFIX):
-                        action_name = name[len(CLS_ACTION_PREFIX):]
-                        topic = f'{topic_name}/actions/!{action_name}'
+                        fn_name = name[len(CLS_ACTION_PREFIX):]
+                        fn_topic = _fn_name_to_topic(fn_name)
+                        topic = f'{topic_name}/actions/{fn_topic}'
                         functions[topic] = self.register_command(topic, attr)
                     elif name.startswith(CLS_CALLBACK_PREFIX):
-                        cbk_name = name[len(CLS_CALLBACK_PREFIX):]
-                        topic = f'{topic_name}/callbacks/!{cbk_name}'
+                        fn_name = name[len(CLS_CALLBACK_PREFIX):]
+                        fn_topic = _fn_name_to_topic(fn_name)
+                        topic = f'{topic_name}/callbacks/{fn_topic}'
                         functions[topic] = self.register_command(topic, attr)
                 elif isinstance(attr, classmethod):
                     if name.startswith(CLS_ACTION_PREFIX) or name.startswith(CLS_CALLBACK_PREFIX):
@@ -1041,12 +1049,14 @@ class PubSub:
         else:
             for name in obj.__class__.__dict__.keys():
                 if name.startswith(ACTION_PREFIX):
-                    action_name = name[len(ACTION_PREFIX):]
-                    topic = f'{topic_name}/actions/!{action_name}'
+                    fn_name = name[len(ACTION_PREFIX):]
+                    fn_topic = _fn_name_to_topic(fn_name)
+                    topic = f'{topic_name}/actions/{fn_topic}'
                     functions[topic] = self.register_command(topic, getattr(obj, name))
                 elif name.startswith(CALLBACK_PREFIX):
-                    cbk_name = name[len(CALLBACK_PREFIX):]
-                    topic = f'{topic_name}/callbacks/!{cbk_name}'
+                    fn_name = name[len(CALLBACK_PREFIX):]
+                    fn_topic = _fn_name_to_topic(fn_name)
+                    topic = f'{topic_name}/callbacks/{fn_topic}'
                     functions[topic] = self.register_command(topic, getattr(obj, name))
         obj._pubsub_functions = functions
 

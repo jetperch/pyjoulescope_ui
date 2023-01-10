@@ -17,16 +17,23 @@ from joulescope_ui.metadata import Metadata
 import logging
 
 
+CAPABILITIES_CLASS = [CAPABILITIES.DEVICE_CLASS]
+CAPABILITIES_OBJECT = [
+    CAPABILITIES.DEVICE_OBJECT,
+    CAPABILITIES.SOURCE,
+    CAPABILITIES.STATISTIC_STREAM_SOURCE,
+    CAPABILITIES.SIGNAL_STREAM_SOURCE,
+    CAPABILITIES.SIGNAL_BUFFER_SOURCE,
+]
+
+
 class Device:
     """Joulescope driver."""
-    CAPABILITIES = [CAPABILITIES.DEVICE,
-                    CAPABILITIES.SIGNAL_SOURCE, CAPABILITIES.SIGNAL_STREAMING,
-                    CAPABILITIES.STATISTICS_SOURCE]
-    EVENTS = {
-        '!statistics_data': Metadata('obj', 'Periodic statistics data'),
-    }
+    CAPABILITIES = CAPABILITIES_CLASS
+    EVENTS = {}
 
     def __init__(self, driver, device_path):
+        self.CAPABILITIES = CAPABILITIES_OBJECT
         self._pubsub = driver.pubsub
         self._driver = driver.driver
         while device_path.endswith('/'):

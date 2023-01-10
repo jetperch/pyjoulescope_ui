@@ -72,7 +72,12 @@ VIEW_SETTINGS = {
         'dtype': 'str',
         'brief': 'The Advanced Docking System state for restoring widget layout.',
         'default': '',
-    }
+    },
+    'source': {
+        'dtype': 'str',
+        'brief': 'The default source for emulating "Single Device Mode".',
+        'default': '',
+    },
 }
 
 

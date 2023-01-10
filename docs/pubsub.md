@@ -137,7 +137,7 @@ and trailing '/' are not used.  The hierarchy is
       * !{event1} 
     * settings        # settings that control behavior of this instance
       * {path}: {value}
-      * name: {name}
+      * name: {name}  # the name for this instance - recommended!
 
 The unique_ids can be any string.  However, the following
 are defined:

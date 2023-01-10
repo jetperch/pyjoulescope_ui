@@ -17,14 +17,17 @@ from .device import Device
 from joulescope_ui.metadata import Metadata
 
 
+EVENTS = {
+    'statistics/!data': Metadata('obj', 'Periodic statistics data for each signal.'),
+    'signals/current/!data': Metadata('obj', 'Streaming sample data for the current signal.'),
+    'signals/voltage/!data': Metadata('obj', 'Streaming sample data for the voltage signal.'),
+    'signals/power/!data': Metadata('obj', 'Streaming sample data for the power signal.'),
+    # todo other signals
+}
+
+
+
 class Js220(Device):
-    """Joulescope driver."""
-    CAPABILITIES = [CAPABILITIES.DEVICE,
-                    CAPABILITIES.SIGNAL_SOURCE, CAPABILITIES.SIGNAL_STREAMING,
-                    CAPABILITIES.STATISTICS_SOURCE]
-    EVENTS = {
-        '!statistics_data': Metadata('obj', 'Periodic statistics data'),
-    }
 
     def __init__(self, driver, device_path):
         super().__init__(driver, device_path)
