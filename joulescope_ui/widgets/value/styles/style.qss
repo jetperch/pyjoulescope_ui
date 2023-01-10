@@ -2,11 +2,6 @@
 QLabel#label1 {
     background: {% value.bg1 %};
     color: {% value.fg1 %};
-    font: {% value.font1 %};
+    font: {% value.value_font %};
 }
 
-QLabel#label2 {
-    background: {% value.bg2 %};
-    color: {% value.fg2 %};
-    font: {% value.font2 %};
-}

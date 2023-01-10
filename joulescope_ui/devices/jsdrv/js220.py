@@ -22,15 +22,15 @@ EVENTS = {
     'signals/current/!data': Metadata('obj', 'Streaming sample data for the current signal.'),
     'signals/voltage/!data': Metadata('obj', 'Streaming sample data for the voltage signal.'),
     'signals/power/!data': Metadata('obj', 'Streaming sample data for the power signal.'),
-    # todo other signals
+    # todo other signals, INx, TRIGGER, UART, ...
 }
-
 
 
 class Js220(Device):
 
     def __init__(self, driver, device_path):
         super().__init__(driver, device_path)
+        self.EVENTS = EVENTS
         self._cmd_complete_fn = self._cmd_complete
         self._statistics_offsets = []
         self._on_stats_fn = self._on_stats  # for unsub
@@ -93,5 +93,8 @@ class Js220(Device):
             k['σ2'] = {'value': k['std']['value'] ** 2, 'units': k['std']['units']}
             if 'integral' in k:
                 k['∫'] = k['integral']
+        value['source'] = {
+            'unique_id': self.unique_id,
+        }
         print(value)
-        self._ui_publish('events/!statistics_data', value)
+        self._ui_publish('events/statistics/!data', value)

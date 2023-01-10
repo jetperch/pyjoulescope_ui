@@ -30,13 +30,27 @@ _template_replace = re.compile(r'{%\s*([a-zA-Z0-9_\.]+)\s*%}')
 RENDER_TOPIC = f'registry/StyleManager:0/actions/!render'
 
 
-def style_settings(name):
+def name_setting(name):
+    """Generate the name setting metadata.
+
+    :param name: The translated name.
+    :return: The name setting metadata.
+    """
     return {
-        'name': {
-            'dtype': 'str',
-            'brief': N_('The name for this widget.'),
-            'default': name,
-        },
+        'dtype': 'str',
+        'brief': N_('The name for this widget.'),
+        'default': name,
+    }
+
+
+def style_settings(name):
+    """Generate the style settings.
+
+    :param name: The translated name.
+    :return: The settings dict.
+    """
+    return {
+        'name': name_setting(name),
         'colors': {
             'dtype': 'obj',  # map[color name str, color value str]
             'brief': N_('The active colors'),
@@ -164,8 +178,8 @@ class StyleManager:
         self._log = logging.getLogger(__name__)
         self.pubsub = pubsub
         self._dialog = None
-        # self.pubsub.subscribe('common/paths/styles', self._on_path, ['pub'])  # todo
-        # self.pubsub.subscribe('common/profile/settings/active', self._on_profile, ['pub'])  # todo
+        # self.pubsub.subscribe('common/settings/paths/styles', self._on_path, ['pub'])  # todo
+        # self.pubsub.subscribe('common/settings/profile/active', self._on_profile, ['pub'])  # todo
         # self.pubsub.subscribe('registry/ui/settings/theme', self._on_theme, ['pub'])
         # ui_color_scheme_topic = 'registry/ui/settings/color_scheme'
         # self.pubsub.subscribe(ui_color_scheme_topic, self._on_color_scheme, ['pub'])
@@ -179,8 +193,8 @@ class StyleManager:
 
     @property
     def path(self):
-        path = self.pubsub.query('common/paths/styles')
-        profile = self.pubsub.query('common/profile/settings/active', default='default')
+        path = self.pubsub.query('common/settings/paths/styles')
+        profile = self.pubsub.query('common/settings/profile/active', default='default')
         view = self.pubsub.query('registry/view/settings/active')
         filename = f'{profile}__{view}'
         return os.path.join(path, str_to_filename(filename))

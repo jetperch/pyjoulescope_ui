@@ -1,4 +1,2 @@
 value.bg1 = #004000ff
 value.fg1 = #ffffffff
-value.bg2 = #00400080
-value.fg2 = #40ff40ff

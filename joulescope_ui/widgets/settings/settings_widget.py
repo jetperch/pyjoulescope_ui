@@ -144,9 +144,6 @@ class QFontLabel(QtWidgets.QLabel):
         self.setStyleSheet(f'QLabel {{ font: {self._value}; }}')
 
     def mousePressEvent(self, ev):
-        self.font()
-        font = QtGui.QFont()
-        font.fromString(self._value)
         ok, font = QtWidgets.QFontDialog.getFont(self.font(), self.parent())
         if ok:
             self._value = qfont_to_qss_font(font)

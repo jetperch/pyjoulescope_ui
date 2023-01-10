@@ -15,7 +15,7 @@
 # https://stackoverflow.com/questions/11874767/real-time-plotting-in-while-loop-with-matplotlib
 # https://wiki.qt.io/Gallery_of_Qt_CSS_Based_Styles
 
-from joulescope_ui import pubsub_singleton, N_, get_topic_name
+from joulescope_ui import pubsub_singleton, N_, get_topic_name, PUBSUB_TOPICS
 from joulescope_ui.widgets import *   # registers all built-in widgets
 from joulescope_ui.logging_util import logging_preconfig, logging_config
 from PySide6 import QtCore, QtGui, QtWidgets
@@ -25,6 +25,7 @@ from .help_ui import HelpHtmlMessageBox
 from .resources import load_resources, load_fonts
 from joulescope_ui.devices.jsdrv.jsdrv_wrapper import JsdrvWrapper
 from .styles import StyleManager
+from .app import App
 from .view import View  # registers the view manager
 import appnope
 import logging
@@ -82,6 +83,7 @@ class MainWindow(QtWidgets.QMainWindow):
         super(MainWindow, self).__init__()
         self._pubsub = pubsub_singleton
         self._pubsub.register(self, 'ui')
+        self._app = App().register()
         self.resize(800, 600)
         self._icon = QtGui.QIcon()
         self._icon.addFile(u":/icon_64x64.ico", QtCore.QSize(), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -145,10 +147,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self._pubsub.publish('registry/view/actions/!add', 'view:oscilloscope')
         self._pubsub.publish('registry/view:oscilloscope/settings/name', N_('Oscilloscope'))
 
-        self._pubsub.publish('registry/view/actions/!widget_open', 'ExampleWidget')
-        self._pubsub.publish('registry/view/actions/!widget_open', 'ExampleWidget')
-        #self._pubsub.publish('registry/view/actions/!widget_open', 'MultimeterWidget')
-
         self._menu_bar = QtWidgets.QMenuBar(self)
         self._menu_items = _menu_setup(self._menu_bar, [
             ['file_menu', N_('&File'), [
@@ -182,6 +180,12 @@ class MainWindow(QtWidgets.QMainWindow):
                                    self._on_change_views, flags=['pub', 'retain'])
         self._pubsub.subscribe('registry_manager/capabilities/widget.class/list',
                                    self._on_change_widgets, flags=['pub', 'retain'])
+
+        # todo restore view
+        self._pubsub.publish('registry/view/actions/!widget_open', 'ExampleWidget')
+        self._pubsub.publish('registry/view/actions/!widget_open', 'ExampleWidget')
+        #self._pubsub.publish('registry/view/actions/!widget_open', 'MultimeterWidget')
+
         self.show()
         # self._side_bar.on_cmd_show(1)
 
@@ -253,7 +257,8 @@ def run(log_level=None, file_log_level=None, filename=None):
     try:
         logging_preconfig()
         pubsub_singleton.register(HelpHtmlMessageBox, 'help_html')
-        log_path = pubsub_singleton.query('common/paths/log')
+        pubsub_singleton.publish(PUBSUB_TOPICS.PUBSUB_APP_NAME, N_('Joulescope UI'))
+        log_path = pubsub_singleton.query('common/settings/paths/log')
         logging_config(log_path, stream_log_level=log_level, file_log_level=file_log_level)
         app = QtWidgets.QApplication([])
         resources = load_resources()

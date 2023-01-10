@@ -81,7 +81,6 @@ is constructed by concatenating each level with '/'.  Leading
 and trailing '/' are not used.  The hierarchy is
 
 * common  # shared across all profiles, saved as common.json
-  * name: {app_name}
   * actions
     * !undo {count}
     * !redo {count}
@@ -90,22 +89,23 @@ and trailing '/' are not used.  The hierarchy is
     * !unsubscribe_all {update_fn}
     * !topic_add {topic, metadata}
     * !topic_remove {topic}
-  * profile
-    * actions 
+    * profile
       * !add {name}
       * !remove {name}
       * !save
       * !load {name}
-    * settings 
+  * settings
+    * name: {app_name}
+    * profile 
       * active: {name}
       * start_mode: {previous, ignore, named}
       * start_name: {name}
-  * paths 
-    * app
-    * config
-    * log
-    * styles
-    * update
+    * paths 
+      * app
+      * config
+      * log
+      * styles
+      * update
 * registry_manager
   * actions
     * capability

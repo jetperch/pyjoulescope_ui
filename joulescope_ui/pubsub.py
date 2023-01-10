@@ -48,11 +48,11 @@ EVENT_PREFIX = 'on_event_'
 
 
 class PUBSUB_TOPICS:
-    PUBSUB_APP_NAME = 'common/name'
-    PUBSUB_PROFILE_ACTION_ADD = 'common/profile/actions/!add'
-    PUBSUB_PROFILE_ACTION_REMOVE = 'common/profile/actions/!remove'
-    PUBSUB_PROFILE_ACTION_SAVE = 'common/profile/actions/!save'
-    PUBSUB_PROFILE_ACTION_LOAD = 'common/profile/actions/!load'
+    PUBSUB_APP_NAME = 'common/settings/name'
+    PUBSUB_PROFILE_ACTION_ADD = 'common/actions/profile/!add'
+    PUBSUB_PROFILE_ACTION_REMOVE = 'common/actions/profile/!remove'
+    PUBSUB_PROFILE_ACTION_SAVE = 'common/actions/profile/!save'
+    PUBSUB_PROFILE_ACTION_LOAD = 'common/actions/profile/!load'
 
 
 class REGISTRY_MANAGER_TOPICS:
@@ -378,16 +378,16 @@ class PubSub:
         else:
             raise RuntimeError('unsupported platform')
 
-        self.topic_add('common/profile', 'node', 'Profile operations')
-        self.topic_add('common/profile/settings', 'node', 'Profile operations')
+        self.topic_add('common/actions/profile', 'node', 'Profile actions')
+        self.topic_add('common/settings/profile', 'node', 'Profile settings')
 
-        self.topic_add('common/paths', 'node', 'Common directory and file paths')
-        self.topic_add('common/paths/app', 'str', 'Base application directory', default=app_path)
-        self.topic_add('common/paths/config', 'str', 'Config directory', default=os.path.join(app_path, 'config'))
-        self.topic_add('common/paths/log', 'str', 'Log directory', default=os.path.join(app_path, 'log'))
-        self.topic_add('common/paths/styles', 'str', 'Rendered styles', default=os.path.join(app_path, 'styles'))
-        self.topic_add('common/paths/update', 'str', 'Downloads for application updates', default=os.path.join(app_path, 'update'))
-        self.topic_add('common/paths/data', 'str', 'Data recordings', default=os.path.join(user_path, self._app))
+        self.topic_add('common/settings/paths', 'node', 'Common directory and file paths')
+        self.topic_add('common/settings/paths/app', 'str', 'Base application directory', default=app_path)
+        self.topic_add('common/settings/paths/config', 'str', 'Config directory', default=os.path.join(app_path, 'config'))
+        self.topic_add('common/settings/paths/log', 'str', 'Log directory', default=os.path.join(app_path, 'log'))
+        self.topic_add('common/settings/paths/styles', 'str', 'Rendered styles', default=os.path.join(app_path, 'styles'))
+        self.topic_add('common/settings/paths/update', 'str', 'Downloads for application updates', default=os.path.join(app_path, 'update'))
+        self.topic_add('common/settings/paths/data', 'str', 'Data recordings', default=os.path.join(user_path, self._app))
 
     def _add_cmd(self, topic, update_fn):
         topic_add_value = {
