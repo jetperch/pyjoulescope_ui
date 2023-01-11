@@ -114,6 +114,14 @@ class ColorEditorWidget(QtWidgets.QWidget):
         self._count = len(row_map)
 
 
+_font_weight_map = {
+    QtGui.QFont.Weight.Light: 'light',
+    QtGui.QFont.Weight.Normal: '',
+    QtGui.QFont.Weight.Bold: 'bold',
+    QtGui.QFont.Weight.Black: 'black',
+}
+
+
 def qfont_to_qss_font(qfont: QtGui.QFont) -> str:
     """Convert QFont to QSS font specification.
 
@@ -123,6 +131,8 @@ def qfont_to_qss_font(qfont: QtGui.QFont) -> str:
     """
     # https://doc.qt.io/qt-6/qfont.html
     # https://doc.qt.io/qt-6/stylesheet-reference.html
+    weight = qfont.weight()
+    print(qfont.weight())
     bold = 'bold ' if qfont.bold() else ''
     italic = 'italic ' if qfont.italic() else ''
     size = f'{qfont.pointSize()}pt '

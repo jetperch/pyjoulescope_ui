@@ -31,6 +31,8 @@ def font_as_qfont(s):
             parts.clear()
         elif p == 'bold':
             font.setBold(True)
+        elif p == 'black':
+            font.setWeight(QtGui.QFont.Weight.Black)
         elif p == 'italic':
             font.setItalic(True)
         elif p[0] in '0123456789':
@@ -77,7 +79,7 @@ class ValueWidget(QtWidgets.QWidget):
         self._signals = ['current', 'voltage', 'power', 'charge', 'energy']
         self._main = 'avg'
         self._fields = ['std', 'min', 'max', 'p2p']
-        self.show_sign = False
+        self.show_sign = True
         self.show_titles = False
         self.show_fields = True
         self._on_cbk_statistics_fn = self.on_cbk_statistics
@@ -130,6 +132,9 @@ class ValueWidget(QtWidgets.QWidget):
         x_border, y_border = 10, 10
         y_sep = 6
 
+        background_color = color_as_qcolor(v['value.background'])
+        background_brush = QtGui.QBrush(background_color)
+
         title_color = color_as_qcolor(v['value.title_color'])
         title_font = font_as_qfont(v['value.title_font'])
         title_font_metrics = QtGui.QFontMetrics(title_font)
@@ -138,6 +143,7 @@ class ValueWidget(QtWidgets.QWidget):
 
         main_color = color_as_qcolor(v['value.main_color'])
         main_font = font_as_qfont(v['value.main_font'])
+        print(v['value.main_font'])
         main_font_metrics = QtGui.QFontMetrics(main_font)
         main_char_width = _width(main_font_metrics)
         main_text_width = main_font_metrics.boundingRect('W').width()
@@ -149,7 +155,9 @@ class ValueWidget(QtWidgets.QWidget):
         stats_field_width_max = max([stats_font_metrics.boundingRect(field).width() for field in self._fields])
         stats_space = np.ceil(stats_font_metrics.ascent() * 0.05)
 
-        x_max = x_border + main_char_width * 9 + main_text_width * 2
+        line_color = color_as_qcolor(v['value.line_color'])
+
+        x_max = x_border + main_char_width * 9 + main_text_width * 2 + x_border
         if self.show_fields and len(self._fields):
             x_max += main_text_width // 2 + stats_char_width * 9 + stats_field_width_max
         field_count = len(self._fields) if self.show_fields else 0
@@ -163,16 +171,16 @@ class ValueWidget(QtWidgets.QWidget):
         if signal_len > 1:
             y_max += (signal_len - 1) * y_sep
 
-        line_color = color_as_qcolor(v['value.line_color'])
-        self.setMinimumSize(x_max + x_border, y_max)
-        self.setMaximumSize(x_max + x_border, y_max)
+        self.setMinimumSize(x_max, y_max)
+        self.setMaximumSize(x_max, y_max)
+        painter.fillRect(0, 0, x_max, y_max, background_brush)
 
         for idx, signal_name in enumerate(self._signals):
             y = y_border + idx * (y_signal + y_sep)
             if idx != 0:
                 y_line = y - y_sep // 2
                 painter.setPen(line_color)
-                painter.drawLine(x_border, y_line, x_max, y_line)
+                painter.drawLine(x_border, y_line, x_max - x_border, y_line)
             y_start = y
             x = x_border
 
