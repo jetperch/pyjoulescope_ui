@@ -1,7 +1,3 @@
-
-QLabel#label1 {
-    background: {% value.bg1 %};
-    color: {% value.fg1 %};
-    font: {% value.value_font %};
+QWidget {
+    background: {% value.background %};
 }
-

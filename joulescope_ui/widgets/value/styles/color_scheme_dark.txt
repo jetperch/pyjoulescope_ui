@@ -1,2 +1,5 @@
-value.bg1 = #004000ff
-value.fg1 = #ffffffff
+value.background = #000000ff
+value.title_color = #ffffff80
+value.main_color = #20C020ff
+value.stats_color = #20C020ff
+value.line_color = #80808080

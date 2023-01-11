@@ -13,5 +13,6 @@
 # limitations under the License.
 
 from .manager import StyleManager, styled_widget
+from .color_picker import color_as_qcolor
 
-__all__ = ['StyleManager', 'styled_widget']
+__all__ = ['StyleManager', 'styled_widget', 'color_as_qcolor']
