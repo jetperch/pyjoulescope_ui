@@ -74,10 +74,12 @@ class ValueWidget(QtWidgets.QWidget):
         self._device_active = None
         self._statistics_stream_source = None
         self._source = None
-        self._signals = ['current', 'voltage', 'power']
+        self._signals = ['current', 'voltage', 'power', 'charge', 'energy']
         self._main = 'avg'
         self._fields = ['std', 'min', 'max', 'p2p']
         self.show_sign = False
+        self.show_titles = False
+        self.show_fields = True
         self._on_cbk_statistics_fn = self.on_cbk_statistics
         self._statistics = None  # most recent statistics information
 
@@ -127,91 +129,124 @@ class ValueWidget(QtWidgets.QWidget):
         v = self.style_manager_info['sub_vars']
         x_border, y_border = 10, 10
         y_sep = 6
-        y = y_border
+
+        title_color = color_as_qcolor(v['value.title_color'])
+        title_font = font_as_qfont(v['value.title_font'])
+        title_font_metrics = QtGui.QFontMetrics(title_font)
+        title_space = np.ceil(title_font_metrics.ascent() * 0.05)
+        title_height = title_font_metrics.height() + title_space if self.show_titles else 0
+
+        main_color = color_as_qcolor(v['value.main_color'])
+        main_font = font_as_qfont(v['value.main_font'])
+        main_font_metrics = QtGui.QFontMetrics(main_font)
+        main_char_width = _width(main_font_metrics)
+        main_text_width = main_font_metrics.boundingRect('W').width()
+
+        stats_color = color_as_qcolor(v['value.stats_color'])
+        stats_font = font_as_qfont(v['value.stats_font'])
+        stats_font_metrics = QtGui.QFontMetrics(stats_font)
+        stats_char_width = _width(stats_font_metrics)
+        stats_field_width_max = max([stats_font_metrics.boundingRect(field).width() for field in self._fields])
+        stats_space = np.ceil(stats_font_metrics.ascent() * 0.05)
+
+        x_max = x_border + main_char_width * 9 + main_text_width * 2
+        if self.show_fields and len(self._fields):
+            x_max += main_text_width // 2 + stats_char_width * 9 + stats_field_width_max
+        field_count = len(self._fields) if self.show_fields else 0
+        y1 = title_height + main_font_metrics.height()
+        y2 = stats_font_metrics.height() * field_count
+        if field_count > 1:
+            y2 += (field_count - 1) * stats_space
+        y_signal = max(y1, y2)
+        signal_len = len(self._signals)
+        y_max = y_signal * signal_len + y_border
+        if signal_len > 1:
+            y_max += (signal_len - 1) * y_sep
+
+        line_color = color_as_qcolor(v['value.line_color'])
+        self.setMinimumSize(x_max + x_border, y_max)
+        self.setMaximumSize(x_max + x_border, y_max)
 
         for idx, signal_name in enumerate(self._signals):
+            y = y_border + idx * (y_signal + y_sep)
             if idx != 0:
-                y_line = y + y_sep // 2
-                color = color_as_qcolor(v['value.line_color'])
-                painter.setPen(color)
+                y_line = y - y_sep // 2
+                painter.setPen(line_color)
                 painter.drawLine(x_border, y_line, x_max, y_line)
-                y += y_sep
             y_start = y
             x = x_border
-            color = color_as_qcolor(v['value.title_color'])
-            font = font_as_qfont(v['value.title_font'])
-            painter.setPen(color)
-            painter.setFont(font)
-            m = QtGui.QFontMetrics(font)
-            y += m.ascent()
-            painter.drawText(x, y, f'{self._source} . {signal_name}')
-            y += m.descent() + np.ceil(m.ascent() * 0.05)
 
-            color = color_as_qcolor(v['value.main_color'])
-            font = font_as_qfont(v['value.main_font'])
-            painter.setPen(color)
-            painter.setFont(font)
-
-            m = QtGui.QFontMetrics(font)
-            char_width = _width(m)
-            txt_w = m.boundingRect('W').width() + 1
-            y += m.ascent()
+            if self.show_titles:
+                painter.setPen(title_color)
+                painter.setFont(title_font)
+                y += title_font_metrics.ascent()
+                signal_title = f'{self._source} . {signal_name}'
+                if self._statistics is not None:
+                    if signal_name not in self._statistics['accumulators'] and self._main != 'avg':
+                        signal_title += f' . {self._main}'
+                painter.drawText(x, y, signal_title)
+                y += title_font_metrics.descent() + title_space
 
             if self._statistics is None:
-                return
-            fields_all = [self._main] + self._fields
-            signal = self._statistics['signals'][signal_name]
-            max_value = max([abs(signal[s]['value']) for s in fields_all])
-            _, prefix, scale = unit_prefix(max_value)
+                continue
+
+            painter.setPen(main_color)
+            painter.setFont(main_font)
+            y += main_font_metrics.ascent() + (y_signal - title_height - main_font_metrics.height()) // 2
+
+            if signal_name in self._statistics['accumulators']:
+                signal = self._statistics['accumulators'][signal_name]
+                fields = []
+                signal_value = signal['value']
+                signal_units = signal['units']
+                _, prefix, scale = unit_prefix(signal_value)
+            else:
+                signal = self._statistics['signals'][signal_name]
+                fields = self._fields if self.show_fields else []
+                fields_all = [self._main] + fields
+                max_value = max([abs(signal[s]['value']) for s in fields_all])
+                _, prefix, scale = unit_prefix(max_value)
+                signal_value = signal[self._main]['value']
+                signal_units = signal[self._main]['units']
             if len(prefix) != 1:
                 prefix = ' '
-            v_str = ('%+6f' % (signal[self._main]['value'] / scale))[:8]
+            v_str = ('%+6f' % (signal_value / scale))[:8]
             if v_str[0] != '-' and not self.show_sign:
                 v_str = ' ' + v_str[1:]
             for c in v_str:
-                w = m.boundingRect(c).width()
-                x_offset = (char_width - w) // 2
+                w = main_font_metrics.boundingRect(c).width()
+                x_offset = (main_char_width - w) // 2
                 painter.drawText(x + x_offset, y, c)
-                x += char_width
-            x += char_width
-            for c in prefix + signal[self._main]['units']:
-                w = m.boundingRect(c).width()
-                x_offset = (txt_w - w) // 2
+                x += main_char_width
+            x += main_char_width
+            for c in prefix + signal_units:
+                w = main_font_metrics.boundingRect(c).width()
+                x_offset = (main_text_width - w) // 2
                 painter.drawText(x + x_offset, y, c)
-                x += txt_w
-            x += txt_w // 2
-            y_max1 = y + m.descent()
+                x += main_text_width
 
-            color = color_as_qcolor(v['value.stats_color'])
-            font = font_as_qfont(v['value.stats_font'])
-            painter.setPen(color)
-            painter.setFont(font)
-            m = QtGui.QFontMetrics(font)
-
-            y = y_start
-            char_width = _width(m)
+            painter.setPen(stats_color)
+            painter.setFont(stats_font)
+            y = y_start + (y_signal - y2) // 2
+            x += main_text_width // 2
             x_start = x
 
-            for idx, stat in enumerate(self._fields):
+            for idx, stat in enumerate(fields):
                 if idx == 0:
-                    y += m.ascent()
-                else:
-                    y += np.ceil(m.ascent() * 1.05)
+                    y += stats_space
+                y += stats_font_metrics.ascent()
                 x = x_start
                 v_str = ('%+6f' % (signal[stat]['value'] / scale))[:8]
                 if v_str[0] != '-' and not self.show_sign:
                     v_str = ' ' + v_str[1:]
                 for c in v_str:
-                    w = m.boundingRect(c).width()
-                    x_offset = (char_width - w) // 2
+                    w = stats_font_metrics.boundingRect(c).width()
+                    x_offset = (stats_char_width - w) // 2
                     painter.drawText(x + x_offset, y, c)
-                    x += char_width
-                x += char_width
+                    x += stats_char_width
+                x += stats_char_width
                 painter.drawText(x, y, stat)
-                y += m.descent()
-            x_max = x + max([m.boundingRect(field).width() for field in self._fields])
-            y_max2 = y + m.descent()
-            y = max(y_max1, y_max2)
+                y += stats_font_metrics.descent()
 
         #color = color_as_qcolor('#ff000040')
         #painter.setPen(color)
