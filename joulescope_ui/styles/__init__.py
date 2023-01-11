@@ -1,4 +1,4 @@
-# Copyright 2022 Jetperch LLC
+# Copyright 2022-2023 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from .manager import StyleManager, styled_widget
+from .fonts import font_as_qfont, font_as_qss
 from .color_picker import color_as_qcolor
 
-__all__ = ['StyleManager', 'styled_widget', 'color_as_qcolor']
+__all__ = ['StyleManager', 'styled_widget', 'color_as_qcolor', 'font_as_qfont', 'font_as_qss']

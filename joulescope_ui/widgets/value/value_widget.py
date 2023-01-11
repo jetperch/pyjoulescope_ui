@@ -15,38 +15,9 @@
 from PySide6 import QtWidgets, QtGui, QtCore
 from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topic_name
 from joulescope_ui.widget_tools import settings_action_create
-from joulescope_ui.styles import styled_widget, color_as_qcolor
+from joulescope_ui.styles import styled_widget, color_as_qcolor, font_as_qfont
 from joulescope_ui.units import unit_prefix
 import numpy as np
-
-
-def font_as_qfont(s):
-    font = QtGui.QFont()
-    parts = s.split()
-    while len(parts):
-        p = parts.pop(0)
-        if p[0] == '"':
-            fontname = ' '.join([p] + parts)[1:-1]
-            font.setFamily(fontname)
-            parts.clear()
-        elif p == 'bold':
-            font.setBold(True)
-        elif p == 'black':
-            font.setWeight(QtGui.QFont.Weight.Black)
-        elif p == 'italic':
-            font.setItalic(True)
-        elif p[0] in '0123456789':
-            if p.endswith('pt'):
-                sz = float(p[:-2])
-                font.setPointSizeF(sz)
-            elif p.endswith('px'):
-                sz = int(p[:-2])
-                font.setPixelSize(sz)
-            else:
-                raise ValueError(f'unsupported font size: {p}')
-        else:
-            raise ValueError(f'unsupported font specification: {s}')
-    return font
 
 
 def _width(font_metrics):
@@ -131,6 +102,7 @@ class ValueWidget(QtWidgets.QWidget):
         v = self.style_manager_info['sub_vars']
         x_border, y_border = 10, 10
         y_sep = 6
+        number_example = '8.88888'
 
         background_color = color_as_qcolor(v['value.background'])
         background_brush = QtGui.QBrush(background_color)
@@ -143,23 +115,25 @@ class ValueWidget(QtWidgets.QWidget):
 
         main_color = color_as_qcolor(v['value.main_color'])
         main_font = font_as_qfont(v['value.main_font'])
-        print(v['value.main_font'])
         main_font_metrics = QtGui.QFontMetrics(main_font)
+        main_number_width = main_font_metrics.boundingRect(number_example).width()
         main_char_width = _width(main_font_metrics)
         main_text_width = main_font_metrics.boundingRect('W').width()
 
         stats_color = color_as_qcolor(v['value.stats_color'])
         stats_font = font_as_qfont(v['value.stats_font'])
         stats_font_metrics = QtGui.QFontMetrics(stats_font)
+        stats_number_width = stats_font_metrics.boundingRect(number_example).width()
         stats_char_width = _width(stats_font_metrics)
         stats_field_width_max = max([stats_font_metrics.boundingRect(field).width() for field in self._fields])
         stats_space = np.ceil(stats_font_metrics.ascent() * 0.05)
 
         line_color = color_as_qcolor(v['value.line_color'])
+        # print(f"fonts: {(v['value.main_font'])}   {(v['value.stats_font'])}   {(v['value.title_font'])}")
 
-        x_max = x_border + main_char_width * 9 + main_text_width * 2 + x_border
+        x_max = x_border + main_char_width + main_number_width + main_char_width // 2 + main_text_width * 2 + x_border
         if self.show_fields and len(self._fields):
-            x_max += main_text_width // 2 + stats_char_width * 9 + stats_field_width_max
+            x_max += main_text_width // 2 + stats_char_width + stats_number_width + stats_char_width + stats_field_width_max
         field_count = len(self._fields) if self.show_fields else 0
         y1 = title_height + main_font_metrics.height()
         y2 = stats_font_metrics.height() * field_count
@@ -219,19 +193,17 @@ class ValueWidget(QtWidgets.QWidget):
             if len(prefix) != 1:
                 prefix = ' '
             v_str = ('%+6f' % (signal_value / scale))[:8]
-            if v_str[0] != '-' and not self.show_sign:
-                v_str = ' ' + v_str[1:]
-            for c in v_str:
-                w = main_font_metrics.boundingRect(c).width()
-                x_offset = (main_char_width - w) // 2
-                painter.drawText(x + x_offset, y, c)
-                x += main_char_width
+            if v_str[0] == '-' or self.show_sign:
+                painter.drawText(x, y, v_str[0])
             x += main_char_width
-            for c in prefix + signal_units:
-                w = main_font_metrics.boundingRect(c).width()
-                x_offset = (main_text_width - w) // 2
-                painter.drawText(x + x_offset, y, c)
-                x += main_text_width
+            painter.drawText(x, y, v_str[1:])
+            x += main_number_width + main_char_width // 2
+            w1 = main_font_metrics.boundingRect(signal_units).width()
+            w2 = main_font_metrics.boundingRect(prefix + signal_units).width()
+            x_offset = int(main_text_width * 1.5 - w1 / 2)
+            painter.drawText(x + x_offset - (w2 - w1), y, prefix)
+            painter.drawText(x + x_offset, y, signal_units)
+            x += 2 * main_text_width
 
             painter.setPen(stats_color)
             painter.setFont(stats_font)
@@ -245,14 +217,11 @@ class ValueWidget(QtWidgets.QWidget):
                 y += stats_font_metrics.ascent()
                 x = x_start
                 v_str = ('%+6f' % (signal[stat]['value'] / scale))[:8]
-                if v_str[0] != '-' and not self.show_sign:
-                    v_str = ' ' + v_str[1:]
-                for c in v_str:
-                    w = stats_font_metrics.boundingRect(c).width()
-                    x_offset = (stats_char_width - w) // 2
-                    painter.drawText(x + x_offset, y, c)
-                    x += stats_char_width
+                if v_str[0] == '-' or self.show_sign:
+                    painter.drawText(x, y, v_str[0])
                 x += stats_char_width
+                painter.drawText(x, y, v_str[1:])
+                x += stats_number_width + stats_char_width
                 painter.drawText(x, y, stat)
                 y += stats_font_metrics.descent()
 

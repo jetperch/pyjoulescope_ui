@@ -1,4 +1,4 @@
-# Copyright 2018-2022 Jetperch LLC
+# Copyright 2018-2023 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -182,8 +182,8 @@ class MainWindow(QtWidgets.QMainWindow):
                                    self._on_change_widgets, flags=['pub', 'retain'])
 
         # todo restore view
-        self._pubsub.publish('registry/view/actions/!widget_open', 'ExampleWidget')
-        self._pubsub.publish('registry/view/actions/!widget_open', 'ExampleWidget')
+        #self._pubsub.publish('registry/view/actions/!widget_open', 'ExampleWidget')
+        #self._pubsub.publish('registry/view/actions/!widget_open', 'ExampleWidget')
         self._pubsub.publish('registry/view/actions/!widget_open', 'ValueWidget')
         #self._pubsub.publish('registry/view/actions/!widget_open', 'MultimeterWidget')
 

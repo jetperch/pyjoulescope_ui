@@ -1,4 +1,4 @@
-# Copyright 2022 Jetperch LLC
+# Copyright 2022-2023 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@
 from PySide6 import QtCore, QtGui, QtWidgets
 from joulescope_ui import pubsub_singleton, N_, register_decorator, \
     get_instance, get_unique_id, get_topic_name
-from joulescope_ui.styles import styled_widget
+from joulescope_ui.styles import styled_widget, font_as_qfont, font_as_qss
 from joulescope_ui.styles.color_picker import ColorItem
 from joulescope_ui.styles.color_scheme import COLOR_SCHEMES
 from joulescope_ui.styles.font_scheme import FONT_SCHEMES
@@ -114,31 +114,6 @@ class ColorEditorWidget(QtWidgets.QWidget):
         self._count = len(row_map)
 
 
-_font_weight_map = {
-    QtGui.QFont.Weight.Light: 'light',
-    QtGui.QFont.Weight.Normal: '',
-    QtGui.QFont.Weight.Bold: 'bold',
-    QtGui.QFont.Weight.Black: 'black',
-}
-
-
-def qfont_to_qss_font(qfont: QtGui.QFont) -> str:
-    """Convert QFont to QSS font specification.
-
-    :param qfont: The qfont instance.
-    :return: The qss font string specification.
-        Example: bold italic 12pt "Times New Roman"
-    """
-    # https://doc.qt.io/qt-6/qfont.html
-    # https://doc.qt.io/qt-6/stylesheet-reference.html
-    weight = qfont.weight()
-    print(qfont.weight())
-    bold = 'bold ' if qfont.bold() else ''
-    italic = 'italic ' if qfont.italic() else ''
-    size = f'{qfont.pointSize()}pt '
-    return f'{bold}{italic}{size}"{qfont.family()}"'
-
-
 class QFontLabel(QtWidgets.QLabel):
 
     changed = QtCore.Signal(str, str)
@@ -148,15 +123,16 @@ class QFontLabel(QtWidgets.QLabel):
         self._name = name
         self._value = value
         self.setText('0123456789 µΔσ∫')
+        self.setFont(font_as_qfont(self._value))
         self._changed()
 
     def _changed(self):
-        self.setStyleSheet(f'QLabel {{ font: {self._value}; }}')
+        self.setFont(font_as_qfont(self._value))
 
     def mousePressEvent(self, ev):
-        ok, font = QtWidgets.QFontDialog.getFont(self.font(), self.parent())
+        ok, font = QtWidgets.QFontDialog.getFont(font_as_qfont(self._value), self.parent())
         if ok:
-            self._value = qfont_to_qss_font(font)
+            self._value = font_as_qss(font)
             self._changed()
             self.changed.emit(self._name, self._value)
         ev.accept()
