@@ -37,6 +37,21 @@ class ValueWidget(QtWidgets.QWidget):
             'brief': N_('The statistics data stream source.'),
             'default': None,
         },
+        'show_fields': {
+            'dtype': 'bool',
+            'brief': N_('Show the statistics fields at the right.'),
+            'default': True,
+        },
+        'show_sign': {
+            'dtype': 'bool',
+            'brief': N_('Show a leading + or - sign.'),
+            'default': True,
+        },
+        'show_titles': {
+            'dtype': 'bool',
+            'brief': N_('Show the statistics section title for each signal.'),
+            'default': True,
+        },
     }
 
     def __init__(self):
@@ -50,9 +65,6 @@ class ValueWidget(QtWidgets.QWidget):
         self._signals = ['current', 'voltage', 'power', 'charge', 'energy']
         self._main = 'avg'
         self._fields = ['std', 'min', 'max', 'p2p']
-        self.show_sign = True
-        self.show_titles = False
-        self.show_fields = True
         self._on_cbk_statistics_fn = self.on_cbk_statistics
         self._statistics = None  # most recent statistics information
 
@@ -129,11 +141,11 @@ class ValueWidget(QtWidgets.QWidget):
         stats_space = np.ceil(stats_font_metrics.ascent() * 0.05)
 
         line_color = color_as_qcolor(v['value.line_color'])
-        # print(f"fonts: {(v['value.main_font'])}   {(v['value.stats_font'])}   {(v['value.title_font'])}")
 
         x_max = x_border + main_char_width + main_number_width + main_char_width // 2 + main_text_width * 2 + x_border
         if self.show_fields and len(self._fields):
-            x_max += main_text_width // 2 + stats_char_width + stats_number_width + stats_char_width + stats_field_width_max
+            x_max += (main_text_width // 2 + stats_char_width + stats_number_width +
+                      stats_char_width + stats_field_width_max)
         field_count = len(self._fields) if self.show_fields else 0
         y1 = title_height + main_font_metrics.height()
         y2 = stats_font_metrics.height() * field_count
@@ -162,11 +174,11 @@ class ValueWidget(QtWidgets.QWidget):
                 painter.setPen(title_color)
                 painter.setFont(title_font)
                 y += title_font_metrics.ascent()
-                signal_title = f'{self._source} . {signal_name}'
+                signal_title_parts = [self._source, signal_name]
                 if self._statistics is not None:
                     if signal_name not in self._statistics['accumulators'] and self._main != 'avg':
-                        signal_title += f' . {self._main}'
-                painter.drawText(x, y, signal_title)
+                        signal_title_parts.append(self._main)
+                painter.drawText(x, y, ' . '.join(signal_title_parts))
                 y += title_font_metrics.descent() + title_space
 
             if self._statistics is None:
