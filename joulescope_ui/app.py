@@ -17,6 +17,13 @@ from joulescope_ui import pubsub_singleton, CAPABILITIES, get_topic_name
 import logging
 
 
+_DEFAULT_CAPABILITIES = {
+    CAPABILITIES.STATISTIC_STREAM_SOURCE: 'defaults/statistics_stream_source',
+    CAPABILITIES.SIGNAL_STREAM_SOURCE: 'defaults/signal_stream_source',
+    CAPABILITIES.SIGNAL_BUFFER_SOURCE: 'defaults/signal_buffer_source',
+}
+
+
 class App:
     """Singleton application instance for global settings.
 
@@ -31,48 +38,52 @@ class App:
             'brief': N_('The name for this widget.'),
             'default': N_('app'),
         },
-        'device_active': {
+        'defaults/statistics_stream_source': {
             'dtype': 'str',
-            'brief': N_('The unique_id for the primary active device.'),
+            'brief': N_('The default unique_id for the default statistics streaming source.'),
             'default': None,
         },
-        'device_default': {
+        'defaults/signal_stream_source': {
             'dtype': 'str',
-            'brief': N_('The unique_id for the default device used on the next restart.'),
+            'brief': N_('The unique_id for the default signal streaming source.'),
+            'default': None,
+        },
+        'defaults/signal_buffer_source': {
+            'dtype': 'str',
+            'brief': N_('The unique_id for the default signal buffer source.'),
             'default': None,
         },
     }
 
     def __init__(self):
-        self._on_devices_fn = self._on_devices
-        self._devices: dict[str] = []
-        self._device_default: str = None
-        self._device_active: str = None
         self._log = logging.getLogger(__name__)
+        self._cbks = []
+
+    def _construct_capability_callback(self, capability):
+        def cbk(value):
+            self._on_capability_list(capability, value)
+        return cbk
 
     def register(self):
         pubsub_singleton.register(self, 'app')
-        pubsub_singleton.subscribe(f'registry_manager/capabilities/{CAPABILITIES.DEVICE_OBJECT}/list',
-                                   self._on_devices_fn, ['pub', 'retain'])
+        for capability in _DEFAULT_CAPABILITIES.keys():
+            fn = self._construct_capability_callback(capability)
+            self._cbks.append([capability, fn])
+            pubsub_singleton.subscribe(f'registry_manager/capabilities/{capability}/list',
+                                       fn, ['pub', 'retain'])
         return self
 
-    def on_setting_device_active(self, value):
-        if hasattr(self, 'unique_id'):
-            self._log.info('Set active device: %s', value)
-            self._device_active = value
-
-    def on_setting_device_default(self, value):
-        self._device_default = value
-
-    def _on_devices(self, value):
-        self._devices = list(value)
-        topic = get_topic_name(self.unique_id)
+    def _on_capability_list(self, capability, value):
+        base_topic = get_topic_name(self.unique_id)
+        subtopic = _DEFAULT_CAPABILITIES[capability]
+        topic = f'{base_topic}/settings/{subtopic}'
+        default = pubsub_singleton.query(topic)
         if not len(value):
-            pubsub_singleton.publish(f'{topic}/settings/device_active', None)
-            return
-        if self._device_default is not None and self._device_default in value:
-            pubsub_singleton.publish(f'{topic}/settings/device_active', self._device_default)
+            # no sources found, clear default
+            pubsub_singleton.publish(topic, None)
+        elif default is not None and default in value:
+            # default found in list, keep
+            pass
         else:
-            device = value[0]
-            pubsub_singleton.publish(f'{topic}/settings/device_active', device)
-            pubsub_singleton.publish(f'{topic}/settings/device_default', device)
+            # default not in list, use first item in list
+            pubsub_singleton.publish(topic, value[0])

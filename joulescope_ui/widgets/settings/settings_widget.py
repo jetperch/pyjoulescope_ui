@@ -23,6 +23,48 @@ from joulescope_ui.styles.font_scheme import FONT_SCHEMES
 import logging
 
 
+class SettingsEditorWidget(QtWidgets.QWidget):
+
+    def __init__(self, parent=None):
+        self._obj = None
+        self._widgets = []
+        super().__init__(parent=parent)
+        self.setObjectName('settings_editor_widget')
+        self._grid = QtWidgets.QGridLayout(self)
+        self.setLayout(self._grid)
+
+    def __len__(self):
+        if self._obj is None:
+            return 0
+        settings = getattr(self._obj, 'SETTINGS', {})
+        return len(settings)
+
+    def clear(self):
+        while len(self._widgets):
+            w = self._widgets.pop()
+            self._grid.removeWidget(w)
+            w.deleteLater()
+
+    @property
+    def object(self):
+        return self._obj
+
+    @object.setter
+    def object(self, obj):
+        self.clear()
+        self._obj = get_instance(obj)
+        name_label = QtWidgets.QLabel(N_('Name'), self)
+        self._grid.addWidget(name_label, 0, 0, 1, 1)
+        self._widgets.append(name_label)
+        value_label = QtWidgets.QLabel(N_('Value'), self)
+        self._grid.addWidget(value_label, 0, 1, 1, 2)
+        self._widgets.append(value_label)
+
+        settings = getattr(self._obj, 'SETTINGS', {})
+        for name, setting in settings.items():
+            print(name)
+
+
 class ColorEditorWidget(QtWidgets.QWidget):
 
     def __init__(self, parent=None):
@@ -290,6 +332,7 @@ class SettingsWidget(QtWidgets.QWidget):
 
         self._widgets = []
         widgets = [
+            [SettingsEditorWidget(self), N_('Settings')],
             [ColorEditorWidget(self), N_('Colors')],
             [FontEditorWidget(self), N_('Fonts')],
             [StyleDefineEditorWidget(self), N_('Defines')],

@@ -54,14 +54,12 @@ class ValueWidget(QtWidgets.QWidget):
         },
     }
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent)
         self._menu = None
-        self._layout = QtWidgets.QVBoxLayout(self)
-        self._sources = []
-        self._device_active = None
+        self._sources: list[str] = []   # The list of available source unique_id's
+        self._default_statistics_stream_source = None
         self._statistics_stream_source = None
-        self._source = None
         self._signals = ['current', 'voltage', 'power', 'charge', 'energy']
         self._main = 'avg'
         self._fields = ['std', 'min', 'max', 'p2p']
@@ -69,7 +67,8 @@ class ValueWidget(QtWidgets.QWidget):
         self._statistics = None  # most recent statistics information
 
         self._subscribers = [
-            ['registry/app/settings/device_active', self._on_device_active]
+            ['registry/app/settings/defaults/statistics_stream_source', self._on_default_statistics_stream_source],
+            [f'registry_manager/capabilities/{CAPABILITIES.STATISTIC_STREAM_SOURCE}/list', self._on_statistic_stream_source_list],
         ]
         for topic, fn in self._subscribers:
             pubsub_singleton.subscribe(topic, fn, ['pub', 'retain'])
@@ -83,33 +82,40 @@ class ValueWidget(QtWidgets.QWidget):
         return super(ValueWidget, self).closeEvent(event)
 
     def _disconnect(self):
-        if self._statistics_stream_source is not None:
-            pubsub_singleton.unsubscribe_all(self._on_cbk_statistics_fn)
+        pubsub_singleton.unsubscribe_all(self._on_cbk_statistics_fn)
+
+    @property
+    def source(self):
+        source = self._statistics_stream_source
+        if source in [None, 'default']:
+            source = self._default_statistics_stream_source
+        return source
 
     def _connect(self):
-        source = self._statistics_stream_source
-        if self._statistics_stream_source in [None, 'default']:
-            source = self._device_active
-        if source != self._source:
-            self._disconnect()
-        self._source = source
-        if source is None:
-            pass  # todo
-        else:
-            topic = get_topic_name(self)
-            pubsub_singleton.publish(f'{topic}/settings/statistics_stream_source', source)
+        self._disconnect()
+        source = self.source
+        if source is not None:
             topic = get_topic_name(source)
             pubsub_singleton.subscribe(f'{topic}/events/statistics/!data', self._on_cbk_statistics_fn, ['pub'])
 
-    def _on_device_active(self, value):
-        self._device_active = value
-        self._connect()
+    def _on_default_statistics_stream_source(self, value):
+        source_prev = self.source
+        self._default_statistics_stream_source = value
+        source_next = self.source
+        if source_prev != source_next:
+            self._connect()
+
+    def _on_statistic_stream_source_list(self, value):
+        self._sources = list(value)
 
     def on_cbk_statistics(self, value):
         self._statistics = value
         self.repaint()
 
     def paintEvent(self, event):
+        if self.source is None:
+            return
+
         painter = QtGui.QPainter(self)
         v = self.style_manager_info['sub_vars']
         x_border, y_border = 10, 10
@@ -174,7 +180,7 @@ class ValueWidget(QtWidgets.QWidget):
                 painter.setPen(title_color)
                 painter.setFont(title_font)
                 y += title_font_metrics.ascent()
-                signal_title_parts = [self._source, signal_name]
+                signal_title_parts = [self.source, signal_name]
                 if self._statistics is not None:
                     if signal_name not in self._statistics['accumulators'] and self._main != 'avg':
                         signal_title_parts.append(self._main)

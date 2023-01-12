@@ -38,6 +38,16 @@ class MyClass:
             'brief': 'My first parameter',
             'default': 'param1_default',
         },
+        'a/b/c/p1': {
+            'dtype': 'str',
+            'brief': 'My first hierarchical parameter',
+            'default': 'p1 default',
+        },
+        'a/b/c/p2': {
+            'dtype': 'str',
+            'brief': 'My second hierarchical parameter',
+            'default': 'p2 default',
+        },
     }
     CALLS = []
 
@@ -81,6 +91,9 @@ class MyClass:
 
     def on_setting_param1(self, value):
         self.param1 = value
+
+    def on_setting_a__b__c__p2(self, value):
+        self.calls.append(['p2', value])
 
 
 class CapabilitiesClass:
@@ -155,10 +168,15 @@ class TestRegistry(unittest.TestCase):
         unique_id = self.p.register(obj)
         self.p.publish(f'registry/{unique_id}/actions/!view1', 'hello world 1')
         self.p.publish(f'registry/{unique_id}/callbacks/!update', 'x')
-        self.assertEqual(obj.calls, [['action_view1', 'hello world 1'], ['cbk_update', 'x']])
+        self.assertEqual(obj.calls, [['p2', 'p2 default'], ['action_view1', 'hello world 1'], ['cbk_update', 'x']])
         obj.calls.clear()
         self.p.publish(f'registry/{unique_id}/actions/signals/current/!sample_req', 'x')
         self.assertEqual(obj.calls, [['i_sample_req', 'x']])
+        obj.calls.clear()
+        self.p.publish(f'registry/{unique_id}/settings/a/b/c/p1', 'v1')
+        self.assertEqual(obj._setting_a__b__c__p1, 'v1')
+        self.p.publish(f'registry/{unique_id}/settings/a/b/c/p2', 'v2')
+        self.assertEqual(obj.calls, [['p2', 'v2']])
 
     def test_settings_with_explicit_function(self):
         # class
