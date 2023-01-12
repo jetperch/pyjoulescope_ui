@@ -15,35 +15,64 @@
 
 from PySide6 import QtCore, QtGui, QtWidgets
 from joulescope_ui import pubsub_singleton, N_, register_decorator, \
-    get_instance, get_unique_id, get_topic_name
+    get_instance, get_unique_id, get_topic_name, Metadata
+from joulescope_ui.pubsub import subtopic_to_name
 from joulescope_ui.styles import styled_widget, font_as_qfont, font_as_qss
 from joulescope_ui.styles.color_picker import ColorItem
 from joulescope_ui.styles.color_scheme import COLOR_SCHEMES
 from joulescope_ui.styles.font_scheme import FONT_SCHEMES
+from joulescope_ui.styles.manager import style_settings
 import logging
 
 
-class SettingsEditorWidget(QtWidgets.QWidget):
+class _GridWidget(QtWidgets.QWidget):
+    """Base grid widget for all settings tabs.
+
+    Subclasses use the _widgets and _grid attributes.
+    """
 
     def __init__(self, parent=None):
-        self._obj = None
         self._widgets = []
         super().__init__(parent=parent)
-        self.setObjectName('settings_editor_widget')
+        self.setObjectName('grid_widget')
+        self._layout = QtWidgets.QVBoxLayout()
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        self._grid_widget = QtWidgets.QWidget(self)
         self._grid = QtWidgets.QGridLayout(self)
-        self.setLayout(self._grid)
-
-    def __len__(self):
-        if self._obj is None:
-            return 0
-        settings = getattr(self._obj, 'SETTINGS', {})
-        return len(settings)
+        self._grid_widget.setLayout(self._grid)
+        self._layout.addWidget(self._grid_widget)
+        self._spacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self._layout.addItem(self._spacer)
+        self.setLayout(self._layout)
 
     def clear(self):
         while len(self._widgets):
             w = self._widgets.pop()
             self._grid.removeWidget(w)
             w.deleteLater()
+
+    def __len__(self):
+        rows = self._grid.rowCount()
+        if rows >= 1:
+            return rows - 1
+        else:
+            return 0
+
+
+class SettingsEditorWidget(_GridWidget):
+
+    def __init__(self, parent=None):
+        self._obj = None
+        self._unsub = []
+        self._row = 1
+        super().__init__(parent=parent)
+        self.setObjectName('settings_editor_widget')
+
+    def clear(self):
+        for topic, fn in self._unsub:
+            pubsub_singleton.unsubscribe(topic, fn)
+        self._unsub.clear()
+        super().clear()
 
     @property
     def object(self):
@@ -60,29 +89,71 @@ class SettingsEditorWidget(QtWidgets.QWidget):
         self._grid.addWidget(value_label, 0, 1, 1, 2)
         self._widgets.append(value_label)
 
-        settings = getattr(self._obj, 'SETTINGS', {})
-        for name, setting in settings.items():
-            print(name)
+        topic = f'{get_topic_name(obj)}/settings'
+        styles = style_settings('__invalid_name__')
+        styles.pop('name')
+        settings = pubsub_singleton.enumerate(topic, absolute=False, traverse=True)
+        for setting in settings:
+            if setting in styles:
+                continue
+            self._insert(topic, setting)
+
+    def _insert(self, topic, setting):
+        label = QtWidgets.QLabel(setting, self)
+        self._grid.addWidget(label, self._row, 0, 1, 1)
+        self._widgets.append(label)
+
+        settings_topic = f'{topic}/{setting}'
+        meta: Metadata = pubsub_singleton.metadata(settings_topic)
+        if meta.dtype == 'bool':
+            self._insert_bool(settings_topic)
+        elif meta.dtype == 'str':
+            self._insert_str(settings_topic, meta)
+        else:
+            pass
+        self._row += 1
+
+    def _subscribe(self, topic, update_fn):
+        pubsub_singleton.subscribe(topic, update_fn, ['pub', 'retain'])
+        self._unsub.append((topic, update_fn))
+
+    def _insert_bool(self, topic):
+        widget = QtWidgets.QCheckBox(self)
+        self._grid.addWidget(widget, self._row, 1, 1, 1)
+        self._widgets.append(widget)
+        widget.clicked.connect(lambda: pubsub_singleton.publish(topic, widget.isChecked()))
+
+        def handle(v):
+            block_state = widget.blockSignals(True)
+            widget.setChecked(bool(v))
+            widget.blockSignals(block_state)
+
+        self._subscribe(topic, handle)
+
+    def _insert_str(self, topic, meta):
+        widget = QtWidgets.QLineEdit(self)
+        self._grid.addWidget(widget, self._row, 1, 1, 1)
+        self._widgets.append(widget)
+        widget.textChanged.connect(lambda txt: pubsub_singleton.publish(topic, txt))
+
+        def handle(v):
+            block_state = widget.blockSignals(True)
+            widget.setText(str(v))
+            widget.blockSignals(block_state)
+
+        self._subscribe(topic, handle)
 
 
-class ColorEditorWidget(QtWidgets.QWidget):
+class ColorEditorWidget(_GridWidget):
 
     def __init__(self, parent=None):
         self._colors = None
         self._obj = None
         self._topic = None
         self._log = logging.getLogger(__name__)
-        QtWidgets.QWidget.__init__(self, parent)
+        super().__init__(parent)
         self.setObjectName('color_editor_widget')
-        self._grid = QtWidgets.QGridLayout(self)
-
-        self._header_widgets = []
         self._color_widgets = []
-        self._count = 0
-        self.setLayout(self._grid)
-
-    def __len__(self):
-        return self._count
 
     def _on_change(self, name, color):
         if len(color) == 7:
@@ -94,7 +165,6 @@ class ColorEditorWidget(QtWidgets.QWidget):
         pubsub_singleton.publish(f'{self._topic}/settings/colors', dict(self._colors))
 
     def clear(self):
-        self._count = 0
         while len(self._color_widgets):
             w = self._color_widgets.pop()
             if isinstance(w, ColorItem):
@@ -103,10 +173,7 @@ class ColorEditorWidget(QtWidgets.QWidget):
             else:
                 self._grid.removeWidget(w)
             w.deleteLater()
-        while len(self._header_widgets):
-            w = self._header_widgets.pop()
-            self._grid.removeWidget(w)
-            w.deleteLater()
+        super().clear()
 
     @property
     def object(self):
@@ -122,17 +189,17 @@ class ColorEditorWidget(QtWidgets.QWidget):
 
         name_label = QtWidgets.QLabel(N_('Name'), self)
         self._grid.addWidget(name_label, 0, 0, 1, 1)
-        self._header_widgets.append(name_label)
+        self._widgets.append(name_label)
         if isinstance(self._obj, type):
             for col, color_scheme in enumerate(COLOR_SCHEMES.values()):
                 color_label = QtWidgets.QLabel(color_scheme['name'], self)
                 self._grid.addWidget(color_label, 0, 1 + col * 2, 1, 2)
-                self._header_widgets.append(color_label)
+                self._widgets.append(color_label)
             colors = self._colors
         else:
             color_label = QtWidgets.QLabel(N_('Color'), self)
             self._grid.addWidget(color_label, 0, 1, 1, 2)
-            self._header_widgets.append(color_label)
+            self._widgets.append(color_label)
             colors = {'__active__': self._colors}
 
         row_map = {}
@@ -153,7 +220,6 @@ class ColorEditorWidget(QtWidgets.QWidget):
                 self._grid.addWidget(w.color_label, row + 1, 2 + col * 2, 1, 1)
                 self._color_widgets.append(w)
                 w.color_changed.connect(self._on_change)
-        self._count = len(row_map)
 
 
 class QFontLabel(QtWidgets.QLabel):
@@ -180,28 +246,15 @@ class QFontLabel(QtWidgets.QLabel):
         ev.accept()
 
 
-class FontEditorWidget(QtWidgets.QWidget):
+class FontEditorWidget(_GridWidget):
 
     def __init__(self, parent=None):
-        QtWidgets.QWidget.__init__(self, parent)
-        self._count = 0
+        super().__init__(parent)
         self._fonts = None
         self._obj = None
         self._topic = None
         self._log = logging.getLogger(__name__)
         self.setObjectName('font_editor_widget')
-        self._grid = QtWidgets.QGridLayout(self)
-        self._widgets = []
-        self.setLayout(self._grid)
-
-    def __len__(self):
-        return self._count
-
-    def clear(self):
-        while len(self._widgets):
-            w = self._widgets.pop()
-            self._grid.removeWidget(w)
-            w.deleteLater()
 
     @property
     def object(self):
@@ -247,34 +300,21 @@ class FontEditorWidget(QtWidgets.QWidget):
                 self._grid.addWidget(w, row + 1, 1 + col, 1, 1)
                 self._widgets.append(w)
                 # todo w.changed.connect(self._on_change)
-        self._count = len(row_map)
 
     def _on_change(self, name, value):
         self._fonts[name] = value
         pubsub_singleton.publish(f'{self._topic}/settings/fonts', dict(self._fonts))
 
 
-class StyleDefineEditorWidget(QtWidgets.QWidget):
+class StyleDefineEditorWidget(_GridWidget):
 
     def __init__(self, parent=None):
-        QtWidgets.QWidget.__init__(self, parent)
+        super().__init__(parent)
         self._entries = {}
         self._obj = None
         self._topic = None
         self._log = logging.getLogger(__name__)
         self.setObjectName('style_define_editor_widget')
-        self._grid = QtWidgets.QGridLayout(self)
-        self._widgets = []
-        self.setLayout(self._grid)
-
-    def __len__(self):
-        return len(self._entries)
-
-    def clear(self):
-        while len(self._widgets):
-            w = self._widgets.pop()
-            self._grid.removeWidget(w)
-            w.deleteLater()
 
     @property
     def object(self):

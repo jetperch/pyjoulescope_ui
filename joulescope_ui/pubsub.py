@@ -148,7 +148,7 @@ def _fn_name_to_topic(s):
     return '/'.join(parts)
 
 
-def _subtopic_to_fn_name(s):
+def subtopic_to_name(s):
     s = s.replace('/', '__')
     s = s.replace('.', '_')
     return s
@@ -1143,7 +1143,7 @@ class PubSub:
         delattr(cls, setting_holder)
 
     def _setting_connect(self, obj, topic_name, setting_name):
-        fn_subname = _subtopic_to_fn_name(setting_name)
+        fn_subname = subtopic_to_name(setting_name)
 
         def setter(value):
             setattr(obj, f'_setting_{fn_subname}', value)
