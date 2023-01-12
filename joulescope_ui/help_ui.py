@@ -47,9 +47,7 @@ def _load_filename(filename):
     raise RuntimeError(f'Could not load file: {filename}')
 
 
-def _load_help(pubsub, name):
-    # style = cmdp.preferences['Appearance/__index__']['generator']['files']['style.html']
-    style = ''
+def _load_help(name, style):
     filename = _HELP_FILES[name]
     html = _load_filename(filename)
     if filename.endswith('.md'):
@@ -67,8 +65,13 @@ def _load_help(pubsub, name):
 class HelpHtmlMessageBox(QtWidgets.QDialog):
     """Display user-meaningful help information."""
 
+    dialogs = []
+
     def __init__(self, pubsub, name):
-        title, html = _load_help(pubsub, name)
+        self._log = logging.getLogger(__name__ + f'.{name}')
+        self._log.debug('create start')
+        # style = _load_style(pubsub)  # todo load from current style
+        title, html = _load_help(name, '')
         parent = None  # pubsub.query('registry/ui/instance')
         super().__init__(parent=parent)
         self.setObjectName("help_html_message_box")
@@ -96,12 +99,17 @@ class HelpHtmlMessageBox(QtWidgets.QDialog):
 
         self.resize(600, 400)
         self.setWindowTitle(title)
+        self.finished.connect(self._on_finish)
+
+        self._log.info('open')
+        self.open()
+        HelpHtmlMessageBox.dialogs.append(self)
+
+    def _on_finish(self):
+        self.close()
+        self._log.info('finish')
+        HelpHtmlMessageBox.dialogs.remove(self)
 
     @staticmethod
     def on_cls_action_show(pubsub, topic, value):
-        log = logging.getLogger(__name__ + f'.{value}')
-        log.info('show start %s', value)
-        dialog = HelpHtmlMessageBox(pubsub, value)
-        log.info('show help dialog')
-        dialog.exec_()
-        log.info('show done')
+        HelpHtmlMessageBox(pubsub, value)
