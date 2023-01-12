@@ -33,41 +33,6 @@ js1.button_unchecked_hover = #3580D3
 js1.button_checked_hover = #38a0ed
 js1.button_pressed = #48c0ff
 
-stream_source.active = #007000
-stream_source.warning = #C0A000
-stream_source.error = #A00000
-
-multimeter.foreground = #20AA20
-multimeter.background = #101010
-multimeter.spacer = #404040
-
-single_value.foreground = #20AA20
-single_value.background = #101010
-
-waveform.annotation.diamond = #6060ff
-waveform.annotation.circle = #40c080
-waveform.annotation.hexagon = #c04040
-waveform.annotation.square = #8040c0
-waveform.annotation.star = #c0c000
-waveform.annotation.plus = #40c0c0
-waveform.annotation.cross = #c08040
-waveform.annotation.triangle_up = #40c040
-waveform.annotation.triangle_down = #c040c0
-waveform.annotation.triangle_left = #c0c080
-waveform.annotation.triangle_right = #80c0c0
-waveform.annotation.text = #c0c0c0
-waveform.background = #101010
-waveform.trace1.mean = #ffff40
-waveform.trace1.min_max_trace = #ff4040
-waveform.trace1.min_max_fill = #ff404080
-waveform.marker1 = #40c040
-waveform.marker2 = #4080c8
-waveform.marker3 = #a040a0
-waveform.marker4 = #40a0a0
-waveform.marker5 = #e29740
-waveform.marker6 = #a0a0a0
-waveform.font_color = #c0c0c0
-
 dock.close_hover = #A00000
 dock.close_pressed = #D00000
 dock.detach_hover = #38a0ed

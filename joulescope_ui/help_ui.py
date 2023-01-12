@@ -80,7 +80,7 @@ class HelpHtmlMessageBox(QtWidgets.QDialog):
 
         self._scroll = QtWidgets.QScrollArea(self)
         self._scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self._scroll.setObjectName("help_message_scroll")
+        self._scroll.setObjectName('help_message_scroll')
         self._scroll.setWidgetResizable(True)
         self._scroll.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
         self._content = QtWidgets.QWidget()

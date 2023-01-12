@@ -13,16 +13,320 @@
 # limitations under the License.
 
 from PySide6 import QtWidgets, QtGui, QtCore
-from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topic_name
+from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topic_name, tooltip_format
 from joulescope_ui.widget_tools import settings_action_create
 from joulescope_ui.styles import styled_widget, color_as_qcolor, font_as_qfont
-from joulescope_ui.units import unit_prefix
+from joulescope_ui.units import unit_prefix, three_sig_figs
+from joulescope_ui.ui_util import comboBoxConfig
+import datetime
 import numpy as np
+import logging
+
+
+_DEVICE_TOOLTIP = tooltip_format(
+    N_('Select the source device'),
+    N_("""\
+       The values displayed by this widget come from a single
+       source device.  Select the source device here. 
+       """))
+
+_ACCRUE_TOOLTIP = tooltip_format(
+    N_("Accrue values over time"),
+    N_("""\
+    Current, voltage, and power are normally computed
+    over a single statistics frequency interval.  Press
+    this button to accrue the values indefinitely.
+    Press again to return to normal operation.
+    
+    Note that this button does not affect the charge and energy
+    accumulation.  Both accumulate indefinitely regardless of
+    this button state."""))
+
+
+def duration_to_str(value):
+    if value > 60:
+        h = int(value // 3600)
+        value -= h * 3600
+        m = int(value // 60)
+        value -= m * 60
+        s = int(value // 1)
+        value -= s
+        fract = f'{value:.2f}'[1:]  # remove leading zero
+        msg = f'{h:d}:{m:02d}:{s:02d}{fract}'
+    else:
+        msg = three_sig_figs(value, 's')
+    return msg
 
 
 def _width(font_metrics):
     w = max([font_metrics.boundingRect(c).width() for c in '0123456789+-'])
     return np.ceil(w * 1.05)
+
+
+class _DeviceWidget(QtWidgets.QWidget):
+
+    def __init__(self, parent):
+        self._parent = parent
+        super().__init__(parent=parent)
+        self._layout = QtWidgets.QHBoxLayout()
+        self._layout.setContentsMargins(5, 5, 5, 2)
+
+        self._device_fixed_label = QtWidgets.QLabel(N_('Device'), self)
+        self._device_fixed_label.setToolTip(_DEVICE_TOOLTIP)
+        self._device_select = QtWidgets.QComboBox(parent=self)
+        self._device_select.setToolTip(_DEVICE_TOOLTIP)
+        self._device_select.currentIndexChanged.connect(self._on_device_select)
+        self._device_label = QtWidgets.QLabel(self)
+        self._device_label.hide()
+        self._frequency_fixed_label = QtWidgets.QLabel(N_('Frequency'), self)
+        self._frequency_select = QtWidgets.QComboBox(parent=self)
+
+        self._layout.addWidget(self._device_fixed_label)
+        self._layout.addWidget(self._device_select)
+        self._layout.addWidget(self._device_label)
+        self._horizontalSpacer = QtWidgets.QSpacerItem(0, 0,
+                                                       QtWidgets.QSizePolicy.Expanding,
+                                                       QtWidgets.QSizePolicy.Minimum)
+        self._layout.addItem(self._horizontalSpacer)
+        self._layout.addWidget(self._frequency_fixed_label)
+        self._layout.addWidget(self._frequency_select)
+
+        self.setLayout(self._layout)
+
+    def _on_device_select(self, *args, **kwargs):
+        self._parent.source = self._device_select.currentText()
+
+    def device_list(self, devices):
+        parent = self._parent
+        devices = ['default'] + devices
+        comboBoxConfig(self._device_select, devices, parent.statistics_stream_source)
+
+    def device_show(self, name):
+        if self._device_select.currentText() == 'default':
+            self._device_label.show()
+            self._device_label.setText(name)
+        else:
+            self._device_label.hide()
+
+
+class _ControlWidget(QtWidgets.QWidget):
+
+    def __init__(self, parent):
+        self._log = logging.getLogger(__name__)
+        self.accrue = False
+        super().__init__(parent=parent)
+        self._layout = QtWidgets.QHBoxLayout()
+        self._layout.setContentsMargins(5, 2, 5, 5)
+
+        self._accrue_button = QtWidgets.QPushButton(self)
+        self._accrue_button.setText(N_('Accrue'))
+        self._accrue_button.setCheckable(True)
+        self._accrue_button.setObjectName('accrue_button')
+        self._layout.addWidget(self._accrue_button)
+        self._accrue_button.toggled.connect(self._on_accrue_toggled)
+        self._accrue_button.setToolTip(_ACCRUE_TOOLTIP)
+
+        self._accrue_duration = QtWidgets.QLabel(self)
+        self._layout.addWidget(self._accrue_duration)
+
+        self._spacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self._layout.addItem(self._spacer)
+
+        self._accumulate_label = QtWidgets.QLabel(N_('Accumulate'), self)
+        self._accumulate_duration = QtWidgets.QLabel(self)
+        self._layout.addWidget(self._accumulate_label)
+        self._layout.addWidget(self._accumulate_duration)
+        self.setLayout(self._layout)
+
+    @property
+    def is_accrue(self):
+        return self._accrue_button.isChecked()
+
+    def accrue_duration(self, value, t_start=None):
+        msg = duration_to_str(value)
+        if t_start is not None:
+            msg = f'{msg} | Started at {t_start}'
+        self._accrue_duration.setText(msg)
+
+    def accumulate_duration(self, value):
+        msg = duration_to_str(value)
+        self._accumulate_duration.setText(msg)
+
+    def _on_accrue_toggled(self, checked):
+        self.accrue = bool(checked)
+        self._log.info('Accrue %s', 'start' if self.accrue else 'stop')
+
+
+class _InnerWidget(QtWidgets.QWidget):
+
+    def __init__(self, parent):
+        self._parent: ValueWidget = parent
+        self._menu = None
+        self._statistics = None  # most recent statistics information
+        super().__init__(parent=parent)
+        self._size = (10, 10)
+        self.setFixedSize(*self._size)
+        self.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self._signals = ['current', 'voltage', 'power', 'charge', 'energy']
+        self._main = 'avg'
+        self._fields = ['std', 'min', 'max', 'p2p']
+        self.mousePressEvent = self._on_mousePressEvent
+
+    def on_cbk_statistics(self, value):
+        self._statistics = value
+        self.repaint()
+
+    def paintEvent(self, event):
+        parent = self._parent
+        if parent.source is None:
+            return
+
+        painter = QtGui.QPainter(self)
+        v = parent.style_manager_info['sub_vars']
+        x_border, y_border = 10, 10
+        y_sep = 6
+        number_example = '8.88888'
+
+        background_color = color_as_qcolor(v['value.background'])
+        background_brush = QtGui.QBrush(background_color)
+
+        title_color = color_as_qcolor(v['value.title_color'])
+        title_font = font_as_qfont(v['value.title_font'])
+        title_font_metrics = QtGui.QFontMetrics(title_font)
+        title_space = np.ceil(title_font_metrics.ascent() * 0.05)
+        title_height = title_font_metrics.height() + title_space if parent.show_titles else 0
+
+        main_color = color_as_qcolor(v['value.main_color'])
+        main_font = font_as_qfont(v['value.main_font'])
+        main_font_metrics = QtGui.QFontMetrics(main_font)
+        main_number_width = main_font_metrics.boundingRect(number_example).width()
+        main_char_width = _width(main_font_metrics)
+        main_text_width = main_font_metrics.boundingRect('W').width()
+
+        stats_color = color_as_qcolor(v['value.stats_color'])
+        stats_font = font_as_qfont(v['value.stats_font'])
+        stats_font_metrics = QtGui.QFontMetrics(stats_font)
+        stats_number_width = stats_font_metrics.boundingRect(number_example).width()
+        stats_char_width = _width(stats_font_metrics)
+        stats_field_width_max = max([stats_font_metrics.boundingRect(field).width() for field in self._fields])
+        stats_space = np.ceil(stats_font_metrics.ascent() * 0.05)
+
+        line_color = color_as_qcolor(v['value.line_color'])
+
+        x_max = x_border + main_char_width + main_number_width + main_char_width // 2 + main_text_width * 2 + x_border
+        if parent.show_fields and len(self._fields):
+            x_max += (main_text_width // 2 + stats_char_width + stats_number_width +
+                      stats_char_width + stats_field_width_max)
+        field_count = len(self._fields) if parent.show_fields else 0
+        y1 = title_height + main_font_metrics.height()
+        y2 = stats_font_metrics.height() * field_count
+        if field_count > 1:
+            y2 += (field_count - 1) * stats_space
+        y_signal = max(y1, y2)
+        signal_len = len(self._signals)
+        y_max = y_signal * signal_len + y_border
+        if signal_len > 1:
+            y_max += (signal_len - 1) * y_sep
+
+        sz = (x_max, y_max)
+        if self._size != sz:
+            self._size = sz
+            self.setMinimumSize(x_max, y_max)
+            self.setMaximumSize(x_max, y_max)
+            self.setFixedSize(x_max, y_max)
+            self.geometry()
+
+        painter.fillRect(0, 0, x_max, y_max, background_brush)
+
+        for idx, signal_name in enumerate(self._signals):
+            y = y_border + idx * (y_signal + y_sep)
+            if idx != 0:
+                y_line = y - y_sep // 2
+                painter.setPen(line_color)
+                painter.drawLine(x_border, y_line, x_max - x_border, y_line)
+            y_start = y
+            x = x_border
+
+            if parent.show_titles:
+                painter.setPen(title_color)
+                painter.setFont(title_font)
+                y += title_font_metrics.ascent()
+                signal_title_parts = [parent.source, signal_name]
+                if self._statistics is not None:
+                    if signal_name not in self._statistics['accumulators'] and self._main != 'avg':
+                        signal_title_parts.append(self._main)
+                painter.drawText(x, y, ' . '.join(signal_title_parts))
+                y += title_font_metrics.descent() + title_space
+
+            if self._statistics is None:
+                continue
+
+            painter.setPen(main_color)
+            painter.setFont(main_font)
+            y += main_font_metrics.ascent() + (y_signal - title_height - main_font_metrics.height()) // 2
+
+            if signal_name in self._statistics['accumulators']:
+                signal = self._statistics['accumulators'][signal_name]
+                fields = []
+                signal_value = signal['value']
+                signal_units = signal['units']
+                _, prefix, scale = unit_prefix(signal_value)
+            else:
+                signal = self._statistics['signals'][signal_name]
+                fields = self._fields if parent.show_fields else []
+                fields_all = [self._main] + fields
+                max_value = max([abs(signal[s]['value']) for s in fields_all])
+                _, prefix, scale = unit_prefix(max_value)
+                signal_value = signal[self._main]['value']
+                signal_units = signal[self._main]['units']
+            if len(prefix) != 1:
+                prefix = ' '
+            v_str = ('%+6f' % (signal_value / scale))[:8]
+            if v_str[0] == '-' or parent.show_sign:
+                painter.drawText(x, y, v_str[0])
+            x += main_char_width
+            painter.drawText(x, y, v_str[1:])
+            x += main_number_width + main_char_width // 2
+            w1 = main_font_metrics.boundingRect(signal_units).width()
+            w2 = main_font_metrics.boundingRect(prefix + signal_units).width()
+            x_offset = int(main_text_width * 1.5 - w1 / 2)
+            painter.drawText(x + x_offset - (w2 - w1), y, prefix)
+            painter.drawText(x + x_offset, y, signal_units)
+            x += 2 * main_text_width
+
+            painter.setPen(stats_color)
+            painter.setFont(stats_font)
+            y = y_start + (y_signal - y2) // 2
+            x += main_text_width // 2
+            x_start = x
+
+            for idx, stat in enumerate(fields):
+                if idx == 0:
+                    y += stats_space
+                y += stats_font_metrics.ascent()
+                x = x_start
+                v_str = ('%+6f' % (signal[stat]['value'] / scale))[:8]
+                if v_str[0] == '-' or parent.show_sign:
+                    painter.drawText(x, y, v_str[0])
+                x += stats_char_width
+                painter.drawText(x, y, v_str[1:])
+                x += stats_number_width + stats_char_width
+                painter.drawText(x, y, stat)
+                y += stats_font_metrics.descent()
+
+        #color = color_as_qcolor('#ff000040')
+        #painter.setPen(color)
+        #painter.drawRect(x_border, y_border, x_max - x_border, y - y_border)
+
+    def _on_mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            event.accept()
+        elif event.button() == QtCore.Qt.RightButton:
+            menu = QtWidgets.QMenu(self)
+            style_action = settings_action_create(self._parent, menu)
+            menu.popup(event.globalPos())
+            self._menu = [menu, style_action]
+            event.accept()
 
 
 @register
@@ -55,24 +359,33 @@ class ValueWidget(QtWidgets.QWidget):
     }
 
     def __init__(self, parent=None):
-        super().__init__(parent)
-        self._menu = None
-        self._sources: list[str] = []   # The list of available source unique_id's
+        super().__init__(parent=parent)
+        self.setObjectName('value_widget')
+        self._layout = QtWidgets.QVBoxLayout()
+        self._layout.setContentsMargins(0, 0, 0, 0)
+        self._layout.setSpacing(0)
+        self._device_widget = _DeviceWidget(self)
+        self._control_widget = _ControlWidget(self)
+        self._inner = _InnerWidget(self)
+        self._layout.addWidget(self._device_widget)
+        self._layout.addWidget(self._control_widget)
+        self._layout.addWidget(self._inner)
+        self._spacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self._layout.addItem(self._spacer)
+        self.setLayout(self._layout)
+
         self._default_statistics_stream_source = None
         self._statistics_stream_source = None
-        self._signals = ['current', 'voltage', 'power', 'charge', 'energy']
-        self._main = 'avg'
-        self._fields = ['std', 'min', 'max', 'p2p']
         self._on_cbk_statistics_fn = self.on_cbk_statistics
         self._statistics = None  # most recent statistics information
 
         self._subscribers = [
             ['registry/app/settings/defaults/statistics_stream_source', self._on_default_statistics_stream_source],
-            [f'registry_manager/capabilities/{CAPABILITIES.STATISTIC_STREAM_SOURCE}/list', self._on_statistic_stream_source_list],
+            [f'registry_manager/capabilities/{CAPABILITIES.STATISTIC_STREAM_SOURCE}/list',
+             self._on_statistic_stream_source_list],
         ]
         for topic, fn in self._subscribers:
             pubsub_singleton.subscribe(topic, fn, ['pub', 'retain'])
-        self.mousePressEvent = self._on_mousePressEvent
 
     def closeEvent(self, event):
         self._disconnect()
@@ -91,6 +404,14 @@ class ValueWidget(QtWidgets.QWidget):
             source = self._default_statistics_stream_source
         return source
 
+    @source.setter
+    def source(self, value):
+        s1 = self.source
+        self._statistics_stream_source = value
+        s2 = self.source
+        if s1 != s2:
+            self._connect()
+
     def _connect(self):
         self._disconnect()
         source = self.source
@@ -106,153 +427,47 @@ class ValueWidget(QtWidgets.QWidget):
             self._connect()
 
     def _on_statistic_stream_source_list(self, value):
-        self._sources = list(value)
+        self._device_widget.device_list(value)
+
+    def _accum(self, stats):
+        if self._statistics is None:
+            return stats
+        if stats['source']['unique_id'] != self._statistics['source']['unique_id']:
+            return stats
+        v_start, v_end = self._statistics['time']['samples']['value']
+        v_duration = v_end - v_start
+        x_start, x_end = stats['time']['samples']['value']
+        x_duration = x_end - x_start
+        for signal_name, v in self._statistics['signals'].items():
+            x = stats['signals'][signal_name]
+            x_min, x_max = x['min']['value'], x['max']['value']
+            if np.isfinite(x_min) and np.isfinite(x_max):
+                v['min']['value'] = min(v['min']['value'], x_min)
+                v['max']['value'] = max(v['max']['value'], x_max)
+                v['p2p']['value'] = v['max']['value'] - v['min']['value']
+            x_avg, x_std = x['avg']['value'], x['std']['value']
+            v_avg, v_std = v['avg']['value'], v['std']['value']
+            avg = v_avg + ((x_avg - v_avg) * (x_duration / (x_duration + v_duration)))
+            v['avg']['value'] = avg
+            x_var = x_std * x_std
+            v_var = v_std * v_std
+            v['std']['value'] = 0  # todo variance
+        self._statistics['time']['accum_samples'] = stats['time']['accum_samples']
+        self._statistics['accumulators'] = stats['accumulators']
+        self._statistics['time']['samples']['value'] = [v_start, x_end]
+        return self._statistics
 
     def on_cbk_statistics(self, value):
-        self._statistics = value
-        self.repaint()
-
-    def paintEvent(self, event):
-        if self.source is None:
-            return
-
-        painter = QtGui.QPainter(self)
-        v = self.style_manager_info['sub_vars']
-        x_border, y_border = 10, 10
-        y_sep = 6
-        number_example = '8.88888'
-
-        background_color = color_as_qcolor(v['value.background'])
-        background_brush = QtGui.QBrush(background_color)
-
-        title_color = color_as_qcolor(v['value.title_color'])
-        title_font = font_as_qfont(v['value.title_font'])
-        title_font_metrics = QtGui.QFontMetrics(title_font)
-        title_space = np.ceil(title_font_metrics.ascent() * 0.05)
-        title_height = title_font_metrics.height() + title_space if self.show_titles else 0
-
-        main_color = color_as_qcolor(v['value.main_color'])
-        main_font = font_as_qfont(v['value.main_font'])
-        main_font_metrics = QtGui.QFontMetrics(main_font)
-        main_number_width = main_font_metrics.boundingRect(number_example).width()
-        main_char_width = _width(main_font_metrics)
-        main_text_width = main_font_metrics.boundingRect('W').width()
-
-        stats_color = color_as_qcolor(v['value.stats_color'])
-        stats_font = font_as_qfont(v['value.stats_font'])
-        stats_font_metrics = QtGui.QFontMetrics(stats_font)
-        stats_number_width = stats_font_metrics.boundingRect(number_example).width()
-        stats_char_width = _width(stats_font_metrics)
-        stats_field_width_max = max([stats_font_metrics.boundingRect(field).width() for field in self._fields])
-        stats_space = np.ceil(stats_font_metrics.ascent() * 0.05)
-
-        line_color = color_as_qcolor(v['value.line_color'])
-
-        x_max = x_border + main_char_width + main_number_width + main_char_width // 2 + main_text_width * 2 + x_border
-        if self.show_fields and len(self._fields):
-            x_max += (main_text_width // 2 + stats_char_width + stats_number_width +
-                      stats_char_width + stats_field_width_max)
-        field_count = len(self._fields) if self.show_fields else 0
-        y1 = title_height + main_font_metrics.height()
-        y2 = stats_font_metrics.height() * field_count
-        if field_count > 1:
-            y2 += (field_count - 1) * stats_space
-        y_signal = max(y1, y2)
-        signal_len = len(self._signals)
-        y_max = y_signal * signal_len + y_border
-        if signal_len > 1:
-            y_max += (signal_len - 1) * y_sep
-
-        self.setMinimumSize(x_max, y_max)
-        self.setMaximumSize(x_max, y_max)
-        painter.fillRect(0, 0, x_max, y_max, background_brush)
-
-        for idx, signal_name in enumerate(self._signals):
-            y = y_border + idx * (y_signal + y_sep)
-            if idx != 0:
-                y_line = y - y_sep // 2
-                painter.setPen(line_color)
-                painter.drawLine(x_border, y_line, x_max - x_border, y_line)
-            y_start = y
-            x = x_border
-
-            if self.show_titles:
-                painter.setPen(title_color)
-                painter.setFont(title_font)
-                y += title_font_metrics.ascent()
-                signal_title_parts = [self.source, signal_name]
-                if self._statistics is not None:
-                    if signal_name not in self._statistics['accumulators'] and self._main != 'avg':
-                        signal_title_parts.append(self._main)
-                painter.drawText(x, y, ' . '.join(signal_title_parts))
-                y += title_font_metrics.descent() + title_space
-
-            if self._statistics is None:
-                continue
-
-            painter.setPen(main_color)
-            painter.setFont(main_font)
-            y += main_font_metrics.ascent() + (y_signal - title_height - main_font_metrics.height()) // 2
-
-            if signal_name in self._statistics['accumulators']:
-                signal = self._statistics['accumulators'][signal_name]
-                fields = []
-                signal_value = signal['value']
-                signal_units = signal['units']
-                _, prefix, scale = unit_prefix(signal_value)
-            else:
-                signal = self._statistics['signals'][signal_name]
-                fields = self._fields if self.show_fields else []
-                fields_all = [self._main] + fields
-                max_value = max([abs(signal[s]['value']) for s in fields_all])
-                _, prefix, scale = unit_prefix(max_value)
-                signal_value = signal[self._main]['value']
-                signal_units = signal[self._main]['units']
-            if len(prefix) != 1:
-                prefix = ' '
-            v_str = ('%+6f' % (signal_value / scale))[:8]
-            if v_str[0] == '-' or self.show_sign:
-                painter.drawText(x, y, v_str[0])
-            x += main_char_width
-            painter.drawText(x, y, v_str[1:])
-            x += main_number_width + main_char_width // 2
-            w1 = main_font_metrics.boundingRect(signal_units).width()
-            w2 = main_font_metrics.boundingRect(prefix + signal_units).width()
-            x_offset = int(main_text_width * 1.5 - w1 / 2)
-            painter.drawText(x + x_offset - (w2 - w1), y, prefix)
-            painter.drawText(x + x_offset, y, signal_units)
-            x += 2 * main_text_width
-
-            painter.setPen(stats_color)
-            painter.setFont(stats_font)
-            y = y_start + (y_signal - y2) // 2
-            x += main_text_width // 2
-            x_start = x
-
-            for idx, stat in enumerate(fields):
-                if idx == 0:
-                    y += stats_space
-                y += stats_font_metrics.ascent()
-                x = x_start
-                v_str = ('%+6f' % (signal[stat]['value'] / scale))[:8]
-                if v_str[0] == '-' or self.show_sign:
-                    painter.drawText(x, y, v_str[0])
-                x += stats_char_width
-                painter.drawText(x, y, v_str[1:])
-                x += stats_number_width + stats_char_width
-                painter.drawText(x, y, stat)
-                y += stats_font_metrics.descent()
-
-        #color = color_as_qcolor('#ff000040')
-        #painter.setPen(color)
-        #painter.drawRect(x_border, y_border, x_max - x_border, y - y_border)
-
-    def _on_mousePressEvent(self, event):
-        if event.button() == QtCore.Qt.LeftButton:
-            event.accept()
-        elif event.button() == QtCore.Qt.RightButton:
-            menu = QtWidgets.QMenu(self)
-            style_action = settings_action_create(self, menu)
-            menu.popup(event.globalPos())
-            self._menu = [menu, style_action]
-            event.accept()
+        if self._control_widget.is_accrue:
+            self._statistics = self._accum(value)
+            if 'accum_start' not in self._statistics:
+                self._statistics['accum_start'] = datetime.datetime.now().isoformat().split('.')[0]
+        else:
+            self._statistics = value
+        v_start, v_end = self._statistics['time']['samples']['value']
+        self._device_widget.device_show(self.source)
+        self._control_widget.accrue_duration((v_end - v_start) / 2_000_000, self._statistics.get('accum_start'))
+        a_start, a_end = self._statistics['time']['accum_samples']['value']
+        a_duration = (a_end - a_start) / 2_000_000
+        self._control_widget.accumulate_duration(a_duration)
+        self._inner.on_cbk_statistics(self._statistics)

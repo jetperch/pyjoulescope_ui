@@ -580,6 +580,7 @@ ads--CDockContainerWidget {
     background: {% base.background %};
 }
 
+
 /*****************************************************************************
  * CDockSplitter
  *****************************************************************************/
@@ -717,96 +718,12 @@ ads--CDockWidgetTab[activeTab="true"] {
 }
 
 
+/*****************************************************************************
+ * CDockWidget.ScrollArea
+ *****************************************************************************/
 
-/****************************************************************************/
-/* Joulescope custom settings                                               */
-/****************************************************************************/
-
-
-/****************************************************************************/
-/* Status bar                                                               */
-/****************************************************************************/
-
-/* status bar stream source label */
-QLabel#stream_source[stream=active] {
-    background-color: {% stream_source.active %};
-}
-QLabel#stream_source[stream=warning] {
-    background-color: {% stream_source.warning %};
-}
-QLabel#stream_source[stream=error] {
-    background-color: {% stream_source.error %};
-}
-
-
-/****************************************************************************/
-/* Multimeter                                                               */
-/****************************************************************************/
-
-QWidget[multimeter=true] {
-  padding: 0px;
-  color: {% multimeter.background %};
-  background-color: {% multimeter.background %};
-  border-width: 0px;
-}
-
-QWidget[multimeter_spacer=true] {
-  background-color: {% multimeter.spacer %};
-  border-color: {% multimeter.background %};
-  border-width: 0px;
-}
-
-QLabel[multimeter_label=true] {
-  padding-left: 2px;
-  padding-right: 2px;
-  padding-top: 2px;
-  padding-bottom: 2px; 
-  background-color: {% multimeter.background %}; 
-  color: {% multimeter.foreground %};
-  border-width: 0px;
-}
-
-
-/****************************************************************************/
-/* Single Value Widget                                                      */
-/****************************************************************************/
-
-QLabel[single_value_label=true] {
-  padding-left: 2px;
-  padding-right: 2px;
-  padding-top: 2px;
-  padding-bottom: 2px; 
-  background-color: {% single_value.background %}; 
-  color: {% single_value.foreground %};
-  border-width: 0px;
-}
-
-
-/****************************************************************************/
-/* Waveform Control Widget                                                  */
-/****************************************************************************/
-
-QPushButton[waveform_zoom_icon=true]
-{
-  padding: 0px;
-  width: 24px;
-  min-width: 24px;
-  max-width: 24px;
-  height: 24px;
-  min-height: 24px;
-  max-height: 24px;
-}
-
-QPushButton[waveform_zoom_icon=true]#zoom_in {
-    image: url("{% path %}/zoom_in_enabled.svg"); 
-}
-
-QPushButton[waveform_zoom_icon=true]#zoom_out {
-    image: url("{% path %}/zoom_out_enabled.svg"); 
-}
-
-QPushButton[waveform_zoom_icon=true]#zoom_all {
-    image: url("{% path %}/zoom_all_enabled.svg"); 
+QAbstractScrollArea#dockWidgetScrollArea {
+    background-color: {% base.background %};
 }
 
 
@@ -814,8 +731,8 @@ QPushButton[waveform_zoom_icon=true]#zoom_all {
 /* Help UI                                                                  */
 /****************************************************************************/
 
-QScrollArea#help_ui
+QScrollArea#help_message_scroll
 {
-    min-width:600 px; 
+    min-width:600 px;
     min-height: 400px;
 }
