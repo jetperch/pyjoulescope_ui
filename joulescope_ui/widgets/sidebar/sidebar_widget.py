@@ -15,8 +15,11 @@
 
 from PySide6 import QtCore, QtGui, QtWidgets
 import logging
-from joulescope_ui import N_, register, tooltip_format
+from joulescope_ui import N_, register, tooltip_format, pubsub_singleton
 from joulescope_ui.styles import styled_widget
+from .device_control_widget import DeviceControlWidget
+from .memory_widget import MemoryWidget
+from .widget_settings_widget import WidgetSettingsWidget
 
 
 _SIGNAL_PLAY_TOOLTIP = tooltip_format(
@@ -106,31 +109,36 @@ _SETTINGS_TOOLTIP = tooltip_format(
 
 class Flyout(QtWidgets.QWidget):
 
-    def __init__(self, parent):
-        super(Flyout, self).__init__(parent)
+    def __init__(self, parent, sidebar):
+        self._sidebar = sidebar
+        super().__init__(parent)
+        self._widgets = []
         self._log = logging.getLogger(__name__)
         self.setObjectName('side_bar_flyout')
         self.setGeometry(50, 0, 0, 100)
-        self.setStyleSheet('QWidget {\n	background: #D0000000;\n}')
+        # self.setStyleSheet('QWidget {\n	background: #D0000000;\n}')
         self._layout = QtWidgets.QStackedLayout()
         self._layout.setSpacing(0)
         self._layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(self._layout)
-
-        self._label = QtWidgets.QLabel()
-        self._label.setWordWrap(True)
-        self._label.setText('<html><body><p>Page 1</p><p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit.</p></body></html>')
-        self._layout.addWidget(self._label)
-        self._visible = 0
+        self._visible = -1
         self.show()
         self.animations = []
+
+    def addWidget(self, widget):
+        self._layout.addWidget(widget)
+        idx = len(self._widgets)
+        self._widgets.append(widget)
+        return idx
 
     def animate(self, show):
         for a in self.animations:
             a.stop()
         self.animations.clear()
+        if 0 <= show < len(self._widgets):
+            self._layout.setCurrentIndex(show)
         x_start = self.width()
-        x_end = 150 if show else 0
+        x_end = self._sidebar.flyout_width if show >= 0 else 0
         self._log.info(f'animate {show}: {x_start} -> {x_end}')
         for p in [b'minimumWidth', b'maximumWidth']:
             a = QtCore.QPropertyAnimation(self, p)
@@ -143,11 +151,20 @@ class Flyout(QtWidgets.QWidget):
         self._visible = show
 
     def on_cmd_show(self, value):
+        """Show the widget by index.
+
+        :param value: The widget index or -1 to hide.
+        """
         if value == -1:
-            value = 1 if self.isHidden() else 0
-        if value == self._visible:
-            return
-        self.raise_()
+            if self._visible < 0:
+                return  # duplicate hide
+        elif value < len(self._widgets):
+            if value == self._visible:
+                value = -1  # close on duplicate request
+            else:
+                self.raise_()
+        else:
+            raise ValueError(f'Unsupported value {value}')
         self.animate(value)
 
     def on_sidebar_geometry(self, r):
@@ -164,30 +181,38 @@ class SideBar(QtWidgets.QWidget):
 
     # Note: does NOT implement widget CAPABILITY, since not instantiable by user or available as a dock widget.
 
+    SETTINGS = {
+        'flyout_width': {
+            'dtype': 'int',
+            'brief': N_('The flyout width in pixels.'),
+            'default': 200,
+        },
+    }
+
     def __init__(self, parent):
-        super(SideBar, self).__init__(parent)
+        super().__init__(parent)
         self.setObjectName('side_bar_icons')
         size_policy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         size_policy.setHeightForWidth(True)
         self.setSizePolicy(size_policy)
         self._buttons = {}
         self._buttons_blink = []
+        self._buttons_flyout = []
 
-        # Create the flyout widget
-        self._flyout = Flyout(parent)
+        self._flyout = Flyout(parent, self)
 
         self._layout = QtWidgets.QVBoxLayout()
         self._layout.setSpacing(6)
         self._layout.setContentsMargins(3, 3, 3, 3)
         self.setLayout(self._layout)
 
-        self._add_blink_button('signal_play', _SIGNAL_PLAY_TOOLTIP)
-        self._add_blink_button('signal_record', _SIGNAL_RECORD_TOOLTIP)
-        self._add_blink_button('statistics_play', _STATISTICS_PLAY_TOOLTIP)
-        self._add_blink_button('statistics_record', _STATISTICS_RECORD_TOOLTIP)
-        self._add_button('device', _DEVICE_TOOLTIP)
+        self._add_blink_button('signal_play', _SIGNAL_PLAY_TOOLTIP, 'signal_stream_enable')
+        self._add_blink_button('signal_record', _SIGNAL_RECORD_TOOLTIP, 'signal_stream_record')
+        self._add_blink_button('statistics_play', _STATISTICS_PLAY_TOOLTIP, 'statistics_stream_enable')
+        self._add_blink_button('statistics_record', _STATISTICS_RECORD_TOOLTIP, 'statistics_stream_record')
+        self._add_flyout_button('device', _DEVICE_TOOLTIP, DeviceControlWidget(self))
+        self._add_flyout_button('memory', _MEMORY_TOOLTIP, MemoryWidget(self))
         self._add_button('widgets', _WIDGETS_TOOLTIP)
-        self._add_button('memory', _MEMORY_TOOLTIP)
         self._spacer = QtWidgets.QSpacerItem(10, 0,
                                              QtWidgets.QSizePolicy.Minimum,
                                              QtWidgets.QSizePolicy.Expanding)
@@ -195,20 +220,37 @@ class SideBar(QtWidgets.QWidget):
         self._add_button('help', _HELP_TOOLTIP)
         self._add_button('settings', _SETTINGS_TOOLTIP)
 
+        self.mousePressEvent = self._on_mousePressEvent
         self._blink = True
         self._timer = QtCore.QTimer()
         self._timer.timeout.connect(self._on_timer)
         self._timer.start(1000)
 
-        # todo implement fly-out widget
-        self.on_cmd_show(True)
+    def _on_mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            self.on_cmd_show(-1)
+            event.accept()
 
-    def _add_blink_button(self, name, tooltip):
+    def _add_blink_button(self, name, tooltip, app_setting):
         button = self._add_button(name, tooltip)
         button.setProperty('blink', False)
         button.setCheckable(True)
         self._buttons_blink.append(button)
+
+        def update_from_pubsub(value):
+            block_state = button.blockSignals(True)
+            button.setChecked(bool(value))
+            button.blockSignals(block_state)
+
+        topic = f'registry/app/settings/{app_setting}'
+        pubsub_singleton.subscribe(topic, update_from_pubsub, ['pub', 'retain'])
+        button.toggled.connect(lambda checked: pubsub_singleton.publish(topic, bool(checked)))
         return button
+
+    def _add_flyout_button(self, name, tooltip, widget):
+        button = self._add_button(name, tooltip)
+        idx = self._flyout.addWidget(widget)
+        button.clicked.connect(lambda: self.on_cmd_show(idx))
 
     def _add_button(self, name, tooltip):
         button = QtWidgets.QPushButton(self)

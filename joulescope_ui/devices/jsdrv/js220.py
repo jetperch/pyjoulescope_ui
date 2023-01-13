@@ -14,6 +14,7 @@
 
 from joulescope_ui.capabilities import CAPABILITIES
 from .device import Device
+from joulescope_ui import N_
 from joulescope_ui.metadata import Metadata
 
 
@@ -23,6 +24,96 @@ EVENTS = {
     'signals/voltage/!data': Metadata('obj', 'Streaming sample data for the voltage signal.'),
     'signals/power/!data': Metadata('obj', 'Streaming sample data for the power signal.'),
     # todo other signals, INx, TRIGGER, UART, ...
+}
+
+SETTINGS = {
+    'signal_frequency': {
+        'dtype': 'float',
+        'brief': N_('Signal frequency'),
+        'default': 1_000_000,
+    },
+    'statistics_frequency': {
+        'dtype': 'float',
+        'brief': N_('Statistics frequency'),
+        'default': 2,
+    },
+    'current_range': {
+        'dtype': 'int',
+        'brief': N_('Current range'),
+        'default': -1,  # auto
+    },
+    # current range min
+    # current range max
+    'voltage_range': {
+        'dtype': 'int',
+        'brief': N_('Voltage range'),
+        'default': -1,  # auto
+    },
+    'gpio_voltage': {
+        'dtype': 'int',
+        'brief': N_('GPIO voltage'),
+        'default': 0,  # Vref
+    },
+    'out/0': {
+        'dtype': 'bool',
+        'brief': N_('GPO 0 output value'),
+        'default': False,
+    },
+    'out/1': {
+        'dtype': 'bool',
+        'brief': N_('GPO 1 output value'),
+        'default': False,
+    },
+    'out/T': {
+        'dtype': 'bool',
+        'brief': N_('Trigger output value'),
+        'default': False,
+    },
+    'enable/i': {
+        'dtype': 'bool',
+        'brief': N_('Current'),
+        'default': True,
+    },
+    'enable/v': {
+        'dtype': 'bool',
+        'brief': N_('Voltage'),
+        'default': True,
+    },
+    'enable/p': {
+        'dtype': 'bool',
+        'brief': N_('Power'),
+        'default': False,
+    },
+    'enable/r': {
+        'dtype': 'bool',
+        'brief': N_('Current Range'),
+        'default': False,
+    },
+    'enable/0': {
+        'dtype': 'bool',
+        'brief': N_('General-purpose input 0'),
+        'default': False,
+    },
+    'enable/1': {
+        'dtype': 'bool',
+        'brief': N_('General-purpose input 1'),
+        'default': False,
+    },
+    'enable/2': {
+        'dtype': 'bool',
+        'brief': N_('General-purpose input 2'),
+        'default': False,
+    },
+    'enable/3': {
+        'dtype': 'bool',
+        'brief': N_('General-purpose input 3'),
+        'default': False,
+    },
+    'enable/T': {
+        'dtype': 'bool',
+        'brief': N_('Trigger input'),
+        'default': False,
+    },
 }
 
 

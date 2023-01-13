@@ -38,6 +38,26 @@ class App:
             'brief': N_('The name for this widget.'),
             'default': N_('app'),
         },
+        'statistics_stream_enable': {
+            'dtype': 'bool',
+            'brief': N_('Statistics display control.'),
+            'default': True,
+        },
+        'statistics_stream_record': {
+            'dtype': 'bool',
+            'brief': N_('Statistics record control.'),
+            'default': False,
+        },
+        'signal_stream_enable': {
+            'dtype': 'bool',
+            'brief': N_('Signal stream enable control.'),
+            'default': True,
+        },
+        'signal_stream_record': {
+            'dtype': 'bool',
+            'brief': N_('Signal stream record control.'),
+            'default': False,
+        },
         'defaults/statistics_stream_source': {
             'dtype': 'str',
             'brief': N_('The default unique_id for the default statistics streaming source.'),
