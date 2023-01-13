@@ -1,4 +1,4 @@
-# Copyright 2019-2022 Jetperch LLC
+# Copyright 2019-2023 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,46 +15,93 @@
 
 from PySide6 import QtCore, QtGui, QtWidgets
 import logging
-from joulescope_ui import N_, register
+from joulescope_ui import N_, register, tooltip_format
 from joulescope_ui.styles import styled_widget
 
 
+_SIGNAL_PLAY_TOOLTIP = tooltip_format(
+    N_('Signal sample streaming'),
+    N_("""\
+    Enable to stream sample data from all open sample sources
+    and configure all sample widgets for acquisition mode.
+    
+    Disable to stop sample streaming and configure
+    all sample widgets for buffer mode.  
+    """))
 
-PLAY_TOOLTIP = """\
-<html><head/><body><p>
-<p>Click to stream data from the selected Joulescope.</p>
-Click again to stop data streaming.
-</p></body></html>
-"""
+_SIGNAL_RECORD_TOOLTIP = tooltip_format(
+    N_('Signal sample recording'),
+    N_("""\
+    Click once to enable and start recording streaming signal 
+    sample data to a JLS file.
+    
+    Click again to stop the recording.
+    
+    The recording will capture data from all enabled 
+    sample sources and signals at their configured sample rates.
+    To reduce the file size, you can disable sources, 
+    disable signals, and/or reduce the sample rates.
+    """))
 
-RECORD_TOOLTIP = """\
-<html><head/><body>
-<p>Click to start recording streaming Joulescope data to a file.</p>
+_STATISTICS_PLAY_TOOLTIP = tooltip_format(
+    N_('Statistics display'),
+    N_("""\
+    Enable to display live streaming statistics.
+    
+    Disable to hold the existing values.  New statistics data
+    is processed, but widgets displaying statistics information
+    do not update.
+    """))
 
-<p>Click again to stop the recording. Only new data is recorded.</p>
+_STATISTICS_RECORD_TOOLTIP = tooltip_format(
+    N_('Statistics recording'),
+    N_("""\
+    Click once to enable and start recording streaming statistics
+    data to CSV files.
 
-<p>
-By default, your Joulescope streams and records 2 million
-samples per second which is 8 MB/s.
-You can downsample for smaller file sizes when you do not need the full
-bandwidth.  See File → Preferences → Device → setting → sampling_frequency.
-</p>
-</body></html>
-"""
+    Click again to stop the recording.
+    
+    By default, Joulescopes provide statistics data at 2 Hz.
+    Each device allows you to change this setting to the desired rate.
+    """))
 
-STATISTICS_TOOLTIP = """\
-<html><head/><body>
-<p>Click to start recording statistics Joulescope data to a CSV file.</p>
+_DEVICE_TOOLTIP = tooltip_format(
+    N_('Device control'),
+    N_("""\
+    Click to show the device control widget which displays
+    the connected devices and their settings.  Use this
+    widget to open and close devices and configure their
+    operation.
+    """))
 
-<p>Click again to stop the recording. Only new data is recorded.</p>
+_WIDGETS_TOOLTIP = tooltip_format(
+    N_('Widget settings'),
+    N_("""\
+    Click to show the widget settings which allows you
+    to change the default settings for each widget type.
+    Future widgets you create will use the new defaults.
+    """))
 
-<p>
-By default, your Joulescope records statistics 2 times per second.
-You can adjust this statistics rate.
-See File → Preferences → Device → setting → reduction_frequency.
-</p>
-</body></html>
-"""
+_MEMORY_TOOLTIP = tooltip_format(
+    N_('Memory buffer settings'),
+    N_("""\
+    Streaming signal sample data is stored in your host
+    computer's RAM.  Click this button to show the
+    memory management widget which allows you to 
+    configure the memory used by this Joulescope UI instance.
+    """))
+
+_HELP_TOOLTIP = tooltip_format(
+    N_('Get help'),
+    N_("""\
+    Click to display help options.
+    """))
+
+_SETTINGS_TOOLTIP = tooltip_format(
+    N_('Additional settings and actions'),
+    N_("""\
+    Click to display additional settings and actions.
+    """))
 
 
 class Flyout(QtWidgets.QWidget):
@@ -115,7 +162,7 @@ class Flyout(QtWidgets.QWidget):
 @styled_widget(N_('sidebar'))
 class SideBar(QtWidgets.QWidget):
 
-    # Note: does NOT implement widget, since not instantiable by user or available as a dock widget.
+    # Note: does NOT implement widget CAPABILITY, since not instantiable by user or available as a dock widget.
 
     def __init__(self, parent):
         super(SideBar, self).__init__(parent)
@@ -123,6 +170,8 @@ class SideBar(QtWidgets.QWidget):
         size_policy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         size_policy.setHeightForWidth(True)
         self.setSizePolicy(size_policy)
+        self._buttons = {}
+        self._buttons_blink = []
 
         # Create the flyout widget
         self._flyout = Flyout(parent)
@@ -132,40 +181,19 @@ class SideBar(QtWidgets.QWidget):
         self._layout.setContentsMargins(3, 3, 3, 3)
         self.setLayout(self._layout)
 
-        self._playButton = QtWidgets.QPushButton(self)
-        self._playButton.setObjectName('play')
-        self._playButton.setProperty('blink', False)
-        self._playButton.setCheckable(True)
-        self._playButton.setFlat(True)
-        self._playButton.setProperty('blink', False)
-        self._playButton.setFixedSize(24, 24)
-        self._playButton.setToolTip(PLAY_TOOLTIP)
-        self._layout.addWidget(self._playButton)
-
-        self._recordButton = QtWidgets.QPushButton(self)
-        self._recordButton.setObjectName('record')
-        self._recordButton.setEnabled(True)
-        self._recordButton.setProperty('blink', False)
-        self._recordButton.setCheckable(True)
-        self._recordButton.setFlat(True)
-        self._recordButton.setFixedSize(24, 24)
-        self._recordButton.setToolTip(RECORD_TOOLTIP)
-        self._layout.addWidget(self._recordButton)
-
-        self._recordStatisticsButton = QtWidgets.QPushButton(self)
-        self._recordStatisticsButton.setObjectName('record_statistics')
-        self._recordStatisticsButton.setEnabled(True)
-        self._recordStatisticsButton.setProperty('blink', False)
-        self._recordStatisticsButton.setCheckable(True)
-        self._recordStatisticsButton.setFlat(True)
-        self._recordStatisticsButton.setFixedSize(24, 24)
-        self._recordStatisticsButton.setToolTip(STATISTICS_TOOLTIP)
-        self._layout.addWidget(self._recordStatisticsButton)
-
+        self._add_blink_button('signal_play', _SIGNAL_PLAY_TOOLTIP)
+        self._add_blink_button('signal_record', _SIGNAL_RECORD_TOOLTIP)
+        self._add_blink_button('statistics_play', _STATISTICS_PLAY_TOOLTIP)
+        self._add_blink_button('statistics_record', _STATISTICS_RECORD_TOOLTIP)
+        self._add_button('device', _DEVICE_TOOLTIP)
+        self._add_button('widgets', _WIDGETS_TOOLTIP)
+        self._add_button('memory', _MEMORY_TOOLTIP)
         self._spacer = QtWidgets.QSpacerItem(10, 0,
                                              QtWidgets.QSizePolicy.Minimum,
                                              QtWidgets.QSizePolicy.Expanding)
         self._layout.addItem(self._spacer)
+        self._add_button('help', _HELP_TOOLTIP)
+        self._add_button('settings', _SETTINGS_TOOLTIP)
 
         self._blink = True
         self._timer = QtCore.QTimer()
@@ -173,10 +201,28 @@ class SideBar(QtWidgets.QWidget):
         self._timer.start(1000)
 
         # todo implement fly-out widget
+        self.on_cmd_show(True)
+
+    def _add_blink_button(self, name, tooltip):
+        button = self._add_button(name, tooltip)
+        button.setProperty('blink', False)
+        button.setCheckable(True)
+        self._buttons_blink.append(button)
+        return button
+
+    def _add_button(self, name, tooltip):
+        button = QtWidgets.QPushButton(self)
+        button.setObjectName(name)
+        button.setFlat(True)
+        button.setFixedSize(32, 32)
+        button.setToolTip(tooltip)
+        self._buttons[name] = button
+        self._layout.addWidget(button)
+        return button
 
     def _on_timer(self):
         self._blink = not self._blink
-        for b in [self._playButton, self._recordButton, self._recordStatisticsButton]:
+        for b in self._buttons_blink:
             b.setProperty('blink', self._blink)
             b.style().unpolish(b)
             b.style().polish(b)

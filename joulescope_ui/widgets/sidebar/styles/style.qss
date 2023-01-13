@@ -18,42 +18,56 @@
 /* Control Widget                                                           */
 /****************************************************************************/
 
-QPushButton#play {
+QPushButton {
+    background: transparent;
     border-width: 0px;
-    border-radius: 12;
-    image: url("{% path %}/play.svg");
+    image: none;
 }
-QPushButton#play:enabled       { background: {% sidebar.play_enabled %}; }
-QPushButton#play:enabled:hover { background: {% sidebar.play_blink %}; }
-QPushButton#play:checked       { background: {% sidebar.play_enabled %}; }
-QPushButton#play:checked:hover { background: {% sidebar.play_blink %}; }
-QPushButton#play[blink=true]:checked       { background: {% sidebar.play_blink %}; }
 
-QPushButton#record {
-    border-width: 0px;
-    border-radius: 12;
-    image: url("{% path %}/record.svg");
-}
-QPushButton#record:enabled       { background: {% sidebar.record_enabled %}; }
-QPushButton#record:enabled:hover { background: {% sidebar.record_blink %}; }
-QPushButton#record:checked       { background: {% sidebar.record_enabled %}; }
-QPushButton#record:checked:hover { background: {% sidebar.record_blink %}; }
-QPushButton#record[blink=true]:checked       { background: {% sidebar.record_blink %}; }
+QPushButton#signal_play:disabled      { image: url("{% path %}/signal_play_disabled.svg"); }
+QPushButton#signal_play:enabled       { image: url("{% path %}/signal_play_enabled.svg"); }
+QPushButton#signal_play:enabled:hover { image: url("{% path %}/signal_play_hover.svg"); }
+QPushButton#signal_play:checked       { image: url("{% path %}/signal_pause_enabled.svg"); }
+QPushButton#signal_play:checked:hover { image: url("{% path %}/signal_pause_hover.svg"); }
+QPushButton#signal_play[blink=true]:checked       { image: url("{% path %}/signal_pause_blink.svg"); }
 
-QPushButton#record_statistics {
-    border-width: 0px;
-    border-radius: 6;
-    image: url("{% path %}/record_statistics.svg");
-}
-QPushButton#record_statistics:enabled       { background: {% sidebar.record_statistics_enabled %}; }
-QPushButton#record_statistics:enabled:hover { background: {% sidebar.record_statistics_blink %}; }
-QPushButton#record_statistics:checked       { background: {% sidebar.record_statistics_enabled %}; }
-QPushButton#record_statistics:checked:hover { background: {% sidebar.record_statistics_blink %}; }
-QPushButton#record_statistics[blink=true]:checked       { background: {% sidebar.record_statistics_blink %}; }
+QPushButton#signal_record:disabled      { image: url("{% path %}/signal_record_disabled.svg"); }
+QPushButton#signal_record:enabled       { image: url("{% path %}/signal_record_enabled.svg"); }
+QPushButton#signal_record:enabled:hover { image: url("{% path %}/signal_record_hover.svg"); }
+QPushButton#signal_record:checked       { image: url("{% path %}/signal_stop_enabled.svg"); }
+QPushButton#signal_record:checked:hover { image: url("{% path %}/signal_stop_hover.svg"); }
+QPushButton#signal_record[blink=true]:checked       { image: url("{% path %}/signal_stop_blink.svg"); }
 
-QPushButton#play:disabled,
-QPushButton#record:disabled,
-QPushButton#record_statistics:disabled
-{
-    background: {% js1.disabled_foreground %};
-}
+QPushButton#statistics_play:disabled      { image: url("{% path %}/statistics_play_disabled.svg"); }
+QPushButton#statistics_play:enabled       { image: url("{% path %}/statistics_play_enabled.svg"); }
+QPushButton#statistics_play:enabled:hover { image: url("{% path %}/statistics_play_hover.svg"); }
+QPushButton#statistics_play:checked       { image: url("{% path %}/statistics_pause_enabled.svg"); }
+QPushButton#statistics_play:checked:hover { image: url("{% path %}/statistics_pause_hover.svg"); }
+QPushButton#statistics_play[blink=true]:checked       { image: url("{% path %}/statistics_pause_blink.svg"); }
+
+QPushButton#statistics_record:disabled      { image: url("{% path %}/statistics_record_disabled.svg"); }
+QPushButton#statistics_record:enabled       { image: url("{% path %}/statistics_record_enabled.svg"); }
+QPushButton#statistics_record:enabled:hover { image: url("{% path %}/statistics_record_hover.svg"); }
+QPushButton#statistics_record:checked       { image: url("{% path %}/statistics_stop_enabled.svg"); }
+QPushButton#statistics_record:checked:hover { image: url("{% path %}/statistics_stop_hover.svg"); }
+QPushButton#statistics_record[blink=true]:checked       { image: url("{% path %}/statistics_stop_blink.svg"); }
+
+QPushButton#device:disabled      { image: url("{% path %}/device_disabled.svg"); }
+QPushButton#device:enabled       { image: url("{% path %}/device_enabled.svg"); }
+QPushButton#device:enabled:hover { image: url("{% path %}/device_hover.svg"); }
+
+QPushButton#widgets:disabled      { image: url("{% path %}/widgets_disabled.svg"); }
+QPushButton#widgets:enabled       { image: url("{% path %}/widgets_enabled.svg"); }
+QPushButton#widgets:enabled:hover { image: url("{% path %}/widgets_hover.svg"); }
+
+QPushButton#memory:disabled      { image: url("{% path %}/memory_disabled.svg"); }
+QPushButton#memory:enabled       { image: url("{% path %}/memory_enabled.svg"); }
+QPushButton#memory:enabled:hover { image: url("{% path %}/memory_hover.svg"); }
+
+QPushButton#help:disabled      { image: url("{% path %}/help_disabled.svg"); }
+QPushButton#help:enabled       { image: url("{% path %}/help_enabled.svg"); }
+QPushButton#help:enabled:hover { image: url("{% path %}/help_hover.svg"); }
+
+QPushButton#settings:disabled      { image: url("{% path %}/settings_disabled.svg"); }
+QPushButton#settings:enabled       { image: url("{% path %}/settings_enabled.svg"); }
+QPushButton#settings:enabled:hover { image: url("{% path %}/settings_hover.svg"); }

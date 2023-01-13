@@ -4,11 +4,72 @@
   "description": "Sidebar theme",
   "templates": ["style.qss"],
   "images": {
-    "copy": {
+    "signal_play_pause": {
       "sources": [
         "play.svg",
+        "pause.svg"
+      ],
+      "targets": [
+        ["signal_{basename}_disabled{ext}",  {"#ffffff": "sidebar.foreground", "#000000": "sidebar.disabled", "#888888": "sidebar.disabled"}],
+        ["signal_{basename}_enabled{ext}",   {"#ffffff": "sidebar.foreground", "#000000": "sidebar.play_enabled", "#888888": "sidebar.play_enabled"}],
+        ["signal_{basename}_hover{ext}",     {"#ffffff": "sidebar.foreground", "#000000": "sidebar.play_hover", "#888888": "sidebar.play_hover"}],
+        ["signal_{basename}_blink{ext}",     {"#ffffff": "sidebar.foreground", "#000000": "sidebar.play_blink", "#888888": "sidebar.play_blink"}]
+      ]
+    },
+    "signal_record_stop": {
+      "sources": [
         "record.svg",
-        "record_statistics.svg"
+        "stop.svg"
+      ],
+      "targets": [
+        ["signal_{basename}_disabled{ext}",  {"#ffffff": "sidebar.foreground", "#000000": "sidebar.disabled", "#888888": "sidebar.disabled"}],
+        ["signal_{basename}_enabled{ext}",   {"#ffffff": "sidebar.foreground", "#000000": "sidebar.record_enabled", "#888888": "sidebar.record_enabled"}],
+        ["signal_{basename}_hover{ext}",     {"#ffffff": "sidebar.foreground", "#000000": "sidebar.record_hover", "#888888": "sidebar.record_hover"}],
+        ["signal_{basename}_blink{ext}",     {"#ffffff": "sidebar.foreground", "#000000": "sidebar.record_blink", "#888888": "sidebar.record_blink"}]
+      ]
+    },
+    "statistics_play_pause": {
+      "sources": [
+        "play.svg",
+        "pause.svg"
+      ],
+      "targets": [
+        ["statistics_{basename}_disabled{ext}",  {"#ffffff": "sidebar.disabled", "#000000": "sidebar.disabled", "#888888": "sidebar.play_background"}],
+        ["statistics_{basename}_enabled{ext}",   {"#ffffff": "sidebar.play_enabled", "#000000": "sidebar.play_enabled", "#888888": "sidebar.play_background"}],
+        ["statistics_{basename}_hover{ext}",     {"#ffffff": "sidebar.play_hover", "#000000": "sidebar.play_hover", "#888888": "sidebar.play_background"}],
+        ["statistics_{basename}_blink{ext}",     {"#ffffff": "sidebar.play_blink", "#000000": "sidebar.play_blink", "#888888": "sidebar.play_background"}]
+      ]
+    },
+    "statistics_record_stop": {
+      "sources": [
+        "record.svg",
+        "stop.svg"
+      ],
+      "targets": [
+        ["statistics_{basename}_disabled{ext}",  {"#ffffff": "sidebar.disabled", "#000000": "sidebar.disabled", "#888888": "sidebar.record_background"}],
+        ["statistics_{basename}_enabled{ext}",   {"#ffffff": "sidebar.record_enabled", "#000000": "sidebar.record_enabled", "#888888": "sidebar.record_background"}],
+        ["statistics_{basename}_hover{ext}",     {"#ffffff": "sidebar.record_hover", "#000000": "sidebar.record_hover", "#888888": "sidebar.record_background"}],
+        ["statistics_{basename}_blink{ext}",     {"#ffffff": "sidebar.record_blink", "#000000": "sidebar.record_blink", "#888888": "sidebar.record_background"}]
+      ]
+    },
+
+    "utilities": {
+      "sources": [
+        "device.svg",
+        "widgets.svg",
+        "memory.svg",
+        "help.svg",
+        "settings.svg"
+      ],
+      "targets": [
+        ["{basename}_disabled{ext}",  {"#ffffff": "sidebar.util_disabled", "#000000": "sidebar.disabled", "#888888": "sidebar.util_background"}],
+        ["{basename}_enabled{ext}",   {"#ffffff": "sidebar.util_enabled", "#000000": "sidebar.util_enabled", "#888888": "sidebar.util_background"}],
+        ["{basename}_hover{ext}",     {"#ffffff": "sidebar.util_hover", "#000000": "sidebar.util_hover", "#888888": "sidebar.util_background"}]
+      ]
+    },
+
+    "copy": {
+      "sources": [
       ],
       "targets": [
         ["{basename}{ext}", {}]
