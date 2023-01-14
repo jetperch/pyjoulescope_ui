@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from PySide6 import QtCore, QtGui, QtWidgets
+from joulescope_ui.expanding_widget import ExpandingWidget
 import logging
 from joulescope_ui import N_, register, tooltip_format, pubsub_singleton
 from joulescope_ui.styles import styled_widget
@@ -24,22 +25,20 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         self._parent = parent
         self._unique_id = unique_id
         super().__init__(parent)
+
         self._layout = QtWidgets.QVBoxLayout()
         self._layout.setContentsMargins(0, 0, 0, 0)
+        self._expanding = ExpandingWidget(self)
+        self._expanding.title = unique_id
 
-        self._top_widget = QtWidgets.QWidget(self)
-        self._top_layout = QtWidgets.QHBoxLayout()
-        self._top_layout.setContentsMargins(0, 0, 0, 0)
+        self._body = QtWidgets.QWidget(self)
+        self._body_layout = QtWidgets.QGridLayout(self)
+        self._body_layout.setContentsMargins(0, 0, 0, 0)
+        self._lbl1 = QtWidgets.QLabel('Hello World', self._body)
+        self._body_layout.addWidget(self._lbl1, 0, 0, 1, 1)
+        self._body.setLayout(self._body_layout)
+        self._expanding.body_widget = self._body
 
-
-        self._device_label = QtWidgets.QLabel(unique_id)
-
-        self._top_layout.addWidget(self._device_label)
-        self._top_widget.setLayout(self._top_layout)
-        self._layout.addWidget(self._top_widget)
-
-        self._main = QtWidgets.QWidget(self)
-        self._layout.addWidget(self._main)
-
+        self._layout.addWidget(self._expanding)
         self.setLayout(self._layout)
 

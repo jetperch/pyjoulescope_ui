@@ -728,6 +728,23 @@ QAbstractScrollArea#dockWidgetScrollArea {
 
 
 /****************************************************************************/
+/* ExpandingWidget                                                          */
+/****************************************************************************/
+
+QPushButton#expanding_widget_icon {
+    background: transparent;
+    border-width: 0px;
+    image: none;
+}
+QPushButton#expanding_widget_icon[expanded=true] {
+    image: url("{% path %}/branch_open_enabled.svg");
+}
+QPushButton#expanding_widget_icon[expanded=false] {
+    image: url("{% path %}/branch_closed_enabled.svg");
+}
+
+
+/****************************************************************************/
 /* Help UI                                                                  */
 /****************************************************************************/
 
