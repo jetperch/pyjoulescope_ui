@@ -78,8 +78,6 @@ class _DeviceWidget(QtWidgets.QWidget):
         self._device_select.currentIndexChanged.connect(self._on_device_select)
         self._device_label = QtWidgets.QLabel(self)
         self._device_label.hide()
-        self._frequency_fixed_label = QtWidgets.QLabel(N_('Frequency'), self)
-        self._frequency_select = QtWidgets.QComboBox(parent=self)
 
         self._layout.addWidget(self._device_fixed_label)
         self._layout.addWidget(self._device_select)
@@ -88,8 +86,6 @@ class _DeviceWidget(QtWidgets.QWidget):
                                                        QtWidgets.QSizePolicy.Expanding,
                                                        QtWidgets.QSizePolicy.Minimum)
         self._layout.addItem(self._horizontalSpacer)
-        self._layout.addWidget(self._frequency_fixed_label)
-        self._layout.addWidget(self._frequency_select)
 
         self.setLayout(self._layout)
 
@@ -132,10 +128,6 @@ class _ControlWidget(QtWidgets.QWidget):
         self._spacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self._layout.addItem(self._spacer)
 
-        self._accumulate_label = QtWidgets.QLabel(N_('Accumulate'), self)
-        self._accumulate_duration = QtWidgets.QLabel(self)
-        self._layout.addWidget(self._accumulate_label)
-        self._layout.addWidget(self._accumulate_duration)
         self.setLayout(self._layout)
 
     @property
@@ -147,10 +139,6 @@ class _ControlWidget(QtWidgets.QWidget):
         if t_start is not None:
             msg = f'{msg} | Started at {t_start}'
         self._accrue_duration.setText(msg)
-
-    def accumulate_duration(self, value):
-        msg = duration_to_str(value)
-        self._accumulate_duration.setText(msg)
 
     def _on_accrue_toggled(self, checked):
         self.accrue = bool(checked)
@@ -236,6 +224,11 @@ class _InnerWidget(QtWidgets.QWidget):
             self.setFixedSize(x_max, y_max)
             self.geometry()
 
+        if self._statistics is not None:
+            a_start, a_end = self._statistics['time']['accum_samples']['value']
+            a_duration = (a_end - a_start) / 2_000_000
+            a_duration_txt = duration_to_str(a_duration)
+
         painter.fillRect(0, 0, x_max, y_max, background_brush)
 
         for idx, signal_name in enumerate(self._signals):
@@ -267,7 +260,7 @@ class _InnerWidget(QtWidgets.QWidget):
 
             if signal_name in self._statistics['accumulators']:
                 signal = self._statistics['accumulators'][signal_name]
-                fields = []
+                fields = ['accumulate_duration']
                 signal_value = signal['value']
                 signal_units = signal['units']
                 _, prefix, scale = unit_prefix(signal_value)
@@ -305,13 +298,16 @@ class _InnerWidget(QtWidgets.QWidget):
                     y += stats_space
                 y += stats_font_metrics.ascent()
                 x = x_start
-                v_str = ('%+6f' % (signal[stat]['value'] / scale))[:8]
-                if v_str[0] == '-' or parent.show_sign:
-                    painter.drawText(x, y, v_str[0])
-                x += stats_char_width
-                painter.drawText(x, y, v_str[1:])
-                x += stats_number_width + stats_char_width
-                painter.drawText(x, y, stat)
+                if stat == 'accumulate_duration':
+                    painter.drawText(x, y, a_duration_txt)
+                else:
+                    v_str = ('%+6f' % (signal[stat]['value'] / scale))[:8]
+                    if v_str[0] == '-' or parent.show_sign:
+                        painter.drawText(x, y, v_str[0])
+                    x += stats_char_width
+                    painter.drawText(x, y, v_str[1:])
+                    x += stats_number_width + stats_char_width
+                    painter.drawText(x, y, stat)
                 y += stats_font_metrics.descent()
 
         #color = color_as_qcolor('#ff000040')
@@ -467,7 +463,4 @@ class ValueWidget(QtWidgets.QWidget):
         v_start, v_end = self._statistics['time']['samples']['value']
         self._device_widget.device_show(self.source)
         self._control_widget.accrue_duration((v_end - v_start) / 2_000_000, self._statistics.get('accum_start'))
-        a_start, a_end = self._statistics['time']['accum_samples']['value']
-        a_duration = (a_end - a_start) / 2_000_000
-        self._control_widget.accumulate_duration(a_duration)
         self._inner.on_cbk_statistics(self._statistics)
