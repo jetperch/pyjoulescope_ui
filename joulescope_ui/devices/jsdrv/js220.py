@@ -33,8 +33,17 @@ SETTINGS = {
         'default': 1_000_000,
     },
     'statistics_frequency': {
-        'dtype': 'float',
+        'dtype': 'int',
         'brief': N_('Statistics frequency'),
+        'options': [
+            [100, '100 Hz'],
+            [50, '50 Hz'],
+            [20, '20 Hz'],
+            [10, '10 Hz'],
+            [5, '5 Hz'],
+            [2, '2 Hz'],
+            [1, '1 Hz'],
+        ],
         'default': 2,
     },
     'current_range': {
@@ -119,6 +128,8 @@ SETTINGS = {
 
 class Js220(Device):
 
+    SETTINGS = SETTINGS
+
     def __init__(self, driver, device_path):
         super().__init__(driver, device_path)
         self.EVENTS = EVENTS
@@ -188,3 +199,7 @@ class Js220(Device):
             'unique_id': self.unique_id,
         }
         self._ui_publish('events/statistics/!data', value)
+
+    def on_setting_statistics_frequency(self, value):
+        scnt = 1_000_000 // value
+        self._driver_publish('s/stats/scnt', scnt)
