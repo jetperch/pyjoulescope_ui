@@ -32,14 +32,21 @@ class Device:
     CAPABILITIES = CAPABILITIES_CLASS
     EVENTS = {}
 
-    def __init__(self, driver, device_path):
+    def __init__(self, wrapper, device_path):
         self.CAPABILITIES = CAPABILITIES_OBJECT
-        self._pubsub = driver.pubsub
-        self._driver = driver.driver
+        self._wrapper = wrapper  #: JsdrvWrapper
         while device_path.endswith('/'):
             device_path = device_path[:-1]
         self._log = logging.getLogger(__name__ + '.' + device_path.replace('/', '.'))
         self._path = device_path
+
+    @property
+    def _driver(self):
+        return self._wrapper.driver
+
+    @property
+    def _pubsub(self):
+        return self._wrapper.pubsub
 
     def _driver_topic_make(self, topic):
         if topic[0] != '/':

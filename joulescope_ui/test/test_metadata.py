@@ -25,8 +25,13 @@ class TestMetadata(unittest.TestCase):
     def test_str_basic(self):
         m = Metadata('str', 'My string')
         self.assertEqual('hello world', m.validate('hello world'))
+        m.validate(None)  # None is a valid value
         with self.assertRaises(ValueError):
-            m.validate(None)
+            m.validate(1)
+        with self.assertRaises(ValueError):
+            m.validate(1.0)
+        with self.assertRaises(ValueError):
+            m.validate(b'Hello world')
 
     def test_str_options(self):
         m = Metadata('str', brief='My str', options=[['one', 1], ['two', 2]])
@@ -163,3 +168,7 @@ class TestMetadata(unittest.TestCase):
         self.assertEqual(m.dtype, k['dtype'])
         for key in ['dtype', 'brief', 'detail', 'default', 'options', 'range', 'format', 'flags']:
             self.assertIn(key, k)
+
+    def test_from_meta(self):
+        m1 = Metadata('int', brief='My int', default=42)
+        m2 = Metadata(m1)

@@ -30,7 +30,11 @@ class CAPABILITIES(Enum):
     """An active range tool instance."""
 
     DEVICE_FACTORY = 'device_factory'
-    """A factory for physically attached devices."""
+    """A factory for physically attached devices.
+    
+    The factory must implement the following:
+        * actions/!finalize
+    """
 
     DEVICE_CLASS = 'device.class'  # A physically attached device (JS110, JS220)
     """Default settings for physically attached devices"""

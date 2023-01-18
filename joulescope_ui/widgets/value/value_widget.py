@@ -392,6 +392,7 @@ class ValueWidget(QtWidgets.QWidget):
 
     def _disconnect(self):
         pubsub_singleton.unsubscribe_all(self._on_cbk_statistics_fn)
+        self.repaint()
 
     @property
     def source(self):
@@ -414,6 +415,8 @@ class ValueWidget(QtWidgets.QWidget):
         if source is not None:
             topic = get_topic_name(source)
             pubsub_singleton.subscribe(f'{topic}/events/statistics/!data', self._on_cbk_statistics_fn, ['pub'])
+        self._device_widget.device_show(self.source)
+        self.repaint()
 
     def _on_default_statistics_stream_source(self, value):
         source_prev = self.source

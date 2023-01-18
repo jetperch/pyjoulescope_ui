@@ -94,6 +94,7 @@ class App:
         return self
 
     def _on_capability_list(self, capability, value):
+        self._log.info('Capability %s: %s', capability, value)
         base_topic = get_topic_name(self.unique_id)
         subtopic = _DEFAULT_CAPABILITIES[capability]
         topic = f'{base_topic}/settings/{subtopic}'

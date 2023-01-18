@@ -504,7 +504,7 @@ class PubSub:
             elif isinstance(x, str):
                 meta = Metadata(**json.loads(x))
             else:
-                raise ValueError('positional metadata arg must be Metadata or json string')
+                raise ValueError(f'topic {topic}: positional metadata arg must be Metadata or json string')
         else:
             meta = Metadata(*args)
         return self._send(TOPIC_ADD_TOPIC, {'topic': topic, 'meta': meta, 'exists_ok': exists_ok}, timeout)
@@ -791,7 +791,7 @@ class PubSub:
         update_fn = value['update_fn']
         undo_list = []
         self._unsubscribe_all_recurse(self._root, update_fn, undo_list)
-        return undo_list
+        return undo_list if len(undo_list) else None
 
     def _publish_value(self, t, flag, topic_name, value):
         while t is not None:

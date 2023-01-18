@@ -15,6 +15,7 @@
 
 from PySide6 import QtGui
 import collections.abc
+import json
 
 
 def _validate_str(x):
@@ -122,11 +123,13 @@ _ATTRS = ['dtype', 'brief', 'detail', 'default', 'options', 'range', 'format', '
 
 class Metadata:
 
-    def __init__(self, dtype: str, brief: str, detail=None,
-                 default=None,
-                 options=None, range=None, format=None,
-                 flags=None):
+    def __init__(self, *args, **kwargs):
         """Define and validate topic metadata.
+
+        Metadata(metadata: Metadata)
+        Metadata(d: dict)
+        Metadata(json: str)
+        Metadata(dtype, brief=None, detail=None, default=None, options=None, range=None, format=None, flags=None)
 
         :param dtype: The value data type.
             * obj: can be retained, but cannot be saved across sessions
@@ -159,33 +162,55 @@ class Metadata:
             * ro: This topic cannot be updated.
             * hide: This topic should not appear in the user interface.
             * dev: Developer option that should not be used in production.
-        :return: The metadata map.
         """
-        self.dtype = dtype
-        self.brief = brief
-        self.detail = detail
+        if len(args) == 1 and len(kwargs) == 0:
+            v = args[0]
+            if isinstance(v, Metadata):
+                kwargs = v.to_map()
+            elif isinstance(v, dict):
+                kwargs = v
+            elif isinstance(v, str):
+                kwargs = json.loads(v)
+            else:
+                raise ValueError('invalid meta argument')
+        else:
+            for idx, arg in enumerate(args):
+                kwargs[_ATTRS[idx]] = arg
+
+        if 'dtype' not in kwargs:
+            raise ValueError('dtype required')
+        self.dtype = kwargs['dtype']
+        if not callable(self.dtype) and self.dtype not in _VALIDATORS:
+            raise ValueError(f'unsupported dtype {self.dtype}')
+
+        self.brief = kwargs.get('brief')
+        self.detail = kwargs.get('detail')
         self.default = None
         self.options = None
+        self._options_map = None
         self.range = None
-        self.format = format
-        self.flags = flags
+        self.format = kwargs.get('format')
+        self.flags = kwargs.get('flags')
 
-        if callable(dtype):
-            self._validate_fn = dtype
+        if callable(self.dtype):
+            self._validate_fn = self.dtype
         else:
-            self._validate_fn = _VALIDATORS.get(dtype)
+            self._validate_fn = _VALIDATORS.get(self.dtype)
             if not callable(self._validate_fn):
-                raise ValueError(f'validate invalid dtype={dtype}')
+                raise ValueError(f'validate invalid dtype={self.dtype}')
 
+        options = kwargs.get('options')
         if options is not None:
-            self.options = {}
+            self.options = options
+            self._options_map = {}
             for option in options:
                 x = option[0]
                 for y in option:
-                    self.options[y] = x
+                    self._options_map[y] = x
 
-        if range is not None:
-            r = [int(x) for x in range]
+        v_range = kwargs.get('range')
+        if v_range is not None:
+            r = [int(x) for x in v_range]
             if len(r) == 3:
                 pass
             elif len(r) == 2:
@@ -194,6 +219,7 @@ class Metadata:
                 raise ValueError(f'Invalid range specification range')
             self.range = r
 
+        default = kwargs.get('default')
         if default is not None:
             self.default = self.validate(default)
 
@@ -211,7 +237,7 @@ class Metadata:
         """
         if self.options is not None:
             try:
-                value = self.options[value]
+                value = self._options_map[value]
             except KeyError:
                 raise ValueError(f'value {value} not in options')
         value = self._validate_fn(value)

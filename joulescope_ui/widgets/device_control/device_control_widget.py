@@ -49,7 +49,7 @@ class DeviceControlWidget(QtWidgets.QWidget):
             pubsub_singleton.subscribe(topic, fn, ['pub', 'retain'])
 
     def _on_devices(self, value):
-        for unique_id in self._device_widgets.keys():
+        for unique_id in list(self._device_widgets.keys()):
             if unique_id not in value:
                 self._device_remove(unique_id)
         for unique_id in value:
@@ -59,7 +59,7 @@ class DeviceControlWidget(QtWidgets.QWidget):
     def _device_remove(self, unique_id):
         w = self._device_widgets.pop(unique_id)
         self._layout.removeWidget(w)
-        w.deleteLater(w)
+        w.deleteLater()
 
     def _device_add(self, unique_id):
         w = Js220CtrlWidget(self, unique_id)
