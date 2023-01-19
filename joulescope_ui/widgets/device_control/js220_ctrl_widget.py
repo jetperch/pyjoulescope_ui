@@ -21,6 +21,22 @@ from joulescope_ui.ui_util import comboBoxConfig
 from joulescope_ui.styles import styled_widget
 
 
+_RESET_TO_DEFAULTS_TOOLTIP = tooltip_format(
+    N_('Reset to default settings'),
+    N_('Click this button to reset this device to the default settings'),
+)
+
+
+_CLEAR_ACCUM_TOOLTIP = tooltip_format(
+    N_('Clear accumulators'),
+    N_("""\
+    Click this button to clear the charge and energy accumulators.
+    The "Accrue" feature of the value display widgets, including
+    the multimeter, will be unaffected.\
+    """),
+)
+
+
 class Js220CtrlWidget(QtWidgets.QWidget):
 
     def __init__(self, parent, unique_id):
@@ -29,6 +45,9 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         self._widgets = []
         self._unsub = []  # (topic, fn)
         self._row = 0
+        self._signals = {}
+        self._gpo = {}
+        self._footer = {}
         self._log = logging.getLogger(f'{__name__}.{unique_id}')
         super().__init__(parent)
 
@@ -47,15 +66,115 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         self._layout.addWidget(self._expanding)
         self.setLayout(self._layout)
 
-        for name, value in SETTINGS.items():
-            if name.startswith('out/') or name.startswith('enable/'):
-                continue
-            meta = Metadata(value)
-            self._add(name, Metadata(value))
+        self._add_signal_buttons()
+        self._add_settings()
+        self._add_gpo()
+        self._add_footer()
 
     def _subscribe(self, topic, update_fn):
         pubsub_singleton.subscribe(topic, update_fn, ['pub', 'retain'])
         self._unsub.append((topic, update_fn))
+
+    def _add_signal_buttons(self):
+        widget = QtWidgets.QWidget(self)
+        self._body_layout.addWidget(widget, self._row, 0, 1, 2)
+        self._widgets.append(widget)
+        layout = QtWidgets.QHBoxLayout(widget)
+        layout.setContentsMargins(3, 3, 3, 3)
+        layout.setSpacing(3)
+        widget.setLayout(layout)
+        self._signals = {
+            'widget': widget,
+            'layout': layout,
+            'buttons': [],
+            'spacer': QtWidgets.QSpacerItem(0, 0,
+                                            QtWidgets.QSizePolicy.Expanding,
+                                            QtWidgets.QSizePolicy.Minimum),
+        }
+        for name, value in SETTINGS.items():
+            if not name.startswith('enable/'):
+                continue
+            signal = name[7:]
+            meta = Metadata(value)
+            self._add_signal_button(signal, meta)
+        layout.addItem(self._signals['spacer'])
+        self._row += 1
+
+    def _add_signal_button(self, signal, meta):
+        topic = f'{get_topic_name(self._unique_id)}/settings/enable/{signal}'
+        b = QtWidgets.QPushButton(self._signals['widget'])
+        b.setObjectName('device_control_signal')
+        b.setProperty('signal_level', 0)
+        b.setCheckable(True)
+        b.setText(signal)
+        b.setFixedSize(20, 20)
+        b.setToolTip(tooltip_format(meta.brief, meta.detail))
+
+        def update_from_pubsub(value):
+            block_state = b.blockSignals(True)
+            b.setChecked(bool(value))
+            b.blockSignals(block_state)
+
+        pubsub_singleton.subscribe(topic, update_from_pubsub, ['pub', 'retain'])
+        b.toggled.connect(lambda checked: pubsub_singleton.publish(topic, bool(checked)))
+        self._signals['layout'].addWidget(b)
+        self._signals['buttons'].append(b)
+
+    def _add_gpo(self):
+        lbl = QtWidgets.QLabel(N_('GPO'), self)
+        self._body_layout.addWidget(lbl, self._row, 0, 1, 1)
+        self._widgets.append(lbl)
+
+        widget = QtWidgets.QWidget(self)
+        self._body_layout.addWidget(widget, self._row, 1, 1, 1)
+        self._widgets.append(widget)
+        layout = QtWidgets.QHBoxLayout(widget)
+        layout.setContentsMargins(3, 3, 3, 3)
+        layout.setSpacing(3)
+        widget.setLayout(layout)
+        self._signals = {
+            'widget': widget,
+            'layout': layout,
+            'buttons': [],
+            'spacer': QtWidgets.QSpacerItem(0, 0,
+                                            QtWidgets.QSizePolicy.Expanding,
+                                            QtWidgets.QSizePolicy.Minimum),
+        }
+        for name, value in SETTINGS.items():
+            if not name.startswith('out/'):
+                continue
+            signal = name[4:]
+            meta = Metadata(value)
+            self._add_gpo_button(signal, meta)
+        layout.addItem(self._signals['spacer'])
+        self._row += 1
+
+    def _add_gpo_button(self, signal, meta):
+        topic = f'{get_topic_name(self._unique_id)}/settings/out/{signal}'
+        b = QtWidgets.QPushButton(self._signals['widget'])
+        b.setObjectName('device_ctrl_gpo')
+        b.setCheckable(True)
+        b.setText(signal)
+        b.setFixedSize(20, 20)
+        b.setToolTip(tooltip_format(meta.brief, meta.detail))
+
+        def update_from_pubsub(value):
+            block_state = b.blockSignals(True)
+            b.setChecked(bool(value))
+            b.blockSignals(block_state)
+
+        pubsub_singleton.subscribe(topic, update_from_pubsub, ['pub', 'retain'])
+        b.toggled.connect(lambda checked: pubsub_singleton.publish(topic, bool(checked)))
+        self._signals['layout'].addWidget(b)
+        self._signals['buttons'].append(b)
+
+    def _add_settings(self):
+        for name, value in SETTINGS.items():
+            if name.startswith('out/') or name.startswith('enable/'):
+                continue
+            meta = Metadata(value)
+            if 'hidden' not in meta.flags:
+                self._add(name, meta)
 
     def _add_str(self, name):
         w = QtWidgets.QLineEdit(self)
@@ -110,6 +229,52 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             self._body_layout.addWidget(w, self._row, 1, 1, 1)
             self._widgets.append(w)
         self._row += 1
+
+    def _add_footer(self):
+        widget = QtWidgets.QWidget(self._body)
+        self._body_layout.addWidget(widget, self._row, 0, 1, 2)
+        self._widgets.append(widget)
+        layout = QtWidgets.QHBoxLayout(widget)
+        layout.setContentsMargins(3, 3, 3, 3)
+        layout.setSpacing(3)
+        widget.setLayout(layout)
+
+        b1 = QtWidgets.QPushButton(self._body)
+        b1.setText(N_('Reset to defaults'))
+        b1.setToolTip(_RESET_TO_DEFAULTS_TOOLTIP)
+        b1.clicked.connect(self._reset_to_defaults)
+        layout.addWidget(b1)
+
+        b2 = QtWidgets.QPushButton(self._body)
+        b2.setText(N_('Clear accum'))
+        b2.setToolTip(_CLEAR_ACCUM_TOOLTIP)
+        b2.clicked.connect(self._clear_accumulators)
+        layout.addWidget(b2)
+        self._row += 1
+        self._footer = {
+            'widget': widget,
+            'layout': layout,
+            'buttons': [b1, b2],
+            'spacer': QtWidgets.QSpacerItem(0, 0,
+                                            QtWidgets.QSizePolicy.Expanding,
+                                            QtWidgets.QSizePolicy.Minimum),
+        }
+        layout.addItem(self._footer['spacer'])
+
+    def _reset_to_defaults(self, checked):
+        self._log.info('reset to defaults')
+        topic_base = f'{get_topic_name(self._unique_id)}/settings'
+        # disable all streaming
+        for name in SETTINGS.keys():
+            if name.startswith('enable/'):
+                pubsub_singleton.publish(f'{topic_base}/{name}', False)
+        for name, meta in SETTINGS.items():
+            meta = Metadata(meta)
+            pubsub_singleton.publish(f'{topic_base}/{name}', meta.default)
+
+    def _clear_accumulators(self, checked):
+        self._log.info('clear accumulators')
+        # todo
 
     def clear(self):
         for topic, fn in self._unsub:

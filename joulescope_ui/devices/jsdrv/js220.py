@@ -39,11 +39,32 @@ SETTINGS = {
         'dtype': 'obj',
         'brief': N_('Device information'),
         'default': None,
-        'flags': ['ro'],
+        'flags': ['ro', 'hidden'],
     },
     'signal_frequency': {
-        'dtype': 'float',
+        'dtype': 'int',
         'brief': N_('Signal frequency'),
+        'options': [
+            [1000000, "1 MHz"],
+            [500000, "500 kHz"],
+            [200000, "200 kHz"],
+            [100000, "100 kHz"],
+            [50000, "50 kHz"],
+            [20000, "20 kHz"],
+            [10000, "10 kHz"],
+            [5000, "5 kHz"],
+            [2000, "2 kHz"],
+            [1000, "1 kHz"],
+            [500, "500 Hz"],
+            [200, "200 Hz"],
+            [100, "100 Hz"],
+            [50, "50 Hz"],
+            [20, "20 Hz"],
+            [10, "10 Hz"],
+            [5, "5 Hz"],
+            [2, "2 Hz"],
+            [1, "1 Hz"],
+        ],
         'default': 1_000_000,
     },
     'statistics_frequency': {
@@ -193,6 +214,7 @@ class Js220(Device):
         super().__init__(driver, device_path)
         self.EVENTS = EVENTS
         self.SETTINGS = copy.deepcopy(SETTINGS)
+        print(f'device_path = {device_path}')
         self.SETTINGS['name']['default'] = device_path
         self.SETTINGS['info']['default'] = {
             'vendor': 'Jetperch LLC',

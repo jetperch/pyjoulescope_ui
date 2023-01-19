@@ -191,6 +191,8 @@ class Metadata:
         self.range = None
         self.format = kwargs.get('format')
         self.flags = kwargs.get('flags')
+        if self.flags is None:
+            self.flags = []
 
         if callable(self.dtype):
             self._validate_fn = self.dtype

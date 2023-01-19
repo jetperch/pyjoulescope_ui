@@ -23,7 +23,9 @@ def tooltip_format(header: str, body: str) -> str:
         a paragraph.
     :return: The HTML formatted tooltip.
     """
-    if not body.startswith('<'):
+    if body is None:
+        body = ''
+    elif not body.startswith('<'):
         parts = []
         between = True
         for line in body.split('\n'):
