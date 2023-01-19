@@ -175,6 +175,8 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             meta = Metadata(value)
             if 'hidden' not in meta.flags:
                 self._add(name, meta)
+            if name == 'current_range':
+                pass  # todo add custom ranged slider for min/max selection
 
     def _add_str(self, name):
         w = QtWidgets.QLineEdit(self)
@@ -213,7 +215,9 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         return w
 
     def _add(self, name, meta: Metadata):
+        tooltip = tooltip_format(meta.brief, meta.detail)
         lbl = QtWidgets.QLabel(meta.brief, self)
+        lbl.setToolTip(tooltip)
         self._body_layout.addWidget(lbl, self._row, 0, 1, 1)
         self._widgets.append(lbl)
 
@@ -226,6 +230,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             pass
 
         if w is not None:
+            w.setToolTip(tooltip)
             self._body_layout.addWidget(w, self._row, 1, 1, 1)
             self._widgets.append(w)
         self._row += 1
@@ -270,7 +275,10 @@ class Js220CtrlWidget(QtWidgets.QWidget):
                 pubsub_singleton.publish(f'{topic_base}/{name}', False)
         for name, meta in SETTINGS.items():
             meta = Metadata(meta)
-            pubsub_singleton.publish(f'{topic_base}/{name}', meta.default)
+            value = meta.default
+            if name == 'name':
+                value = self._unique_id
+            pubsub_singleton.publish(f'{topic_base}/{name}', value)
 
     def _clear_accumulators(self, checked):
         self._log.info('clear accumulators')

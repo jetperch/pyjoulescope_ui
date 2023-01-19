@@ -33,6 +33,14 @@ SETTINGS = {
     'name': {
         'dtype': 'str',
         'brief': N_('Device name'),
+        'detail': N_("""\
+        The Joulescope UI automatically populates the device name
+        with the device type and serial number.
+        
+        This setting allows you to change the default, if you wish, to better
+        reflect how you are using your JS220.  This setting is
+        most useful when you are instrumenting a system using 
+        multiple Joulescopes."""),
         'default': None,
     },
     'info': {
@@ -44,6 +52,15 @@ SETTINGS = {
     'signal_frequency': {
         'dtype': 'int',
         'brief': N_('Signal frequency'),
+        'detail': N_("""\
+        This setting controls the output sampling frequency for the 
+        measurement signals current, voltage, and power.  Use this
+        setting to reduce the data storage requirements for long
+        captures where lower temporal accuracy is sufficient. 
+        
+        The JS220 instrument always samples at 2 MHz and 
+        then downsamples to 1 MHz.  This setting controls 
+        additional optional downsampling."""),
         'options': [
             [1000000, "1 MHz"],
             [500000, "500 kHz"],
@@ -70,6 +87,11 @@ SETTINGS = {
     'statistics_frequency': {
         'dtype': 'int',
         'brief': N_('Statistics frequency'),
+        'detail': N_("""\
+            This setting controls the output frequency for 
+            the statistics data that is displayed in the
+            multimeter and value widgets.  Statistics data
+            is computed over the full rate 1 MHz samples."""),
         'options': [
             [100, '100 Hz'],
             [50, '50 Hz'],
@@ -84,6 +106,15 @@ SETTINGS = {
     'current_range': {
         'dtype': 'int',
         'brief': N_('Current range'),
+        'detail': N_("""\
+            Configure the JS220's current range.  Most applications should
+            use the default, "auto".  "off" prohibits current from flowing
+            between the current terminals, which can be used to power off
+            the device under test.  
+            
+            Use the other manual settings with care.  It is very easy to
+            configure a setting that saturates, which will ignore regions
+            of current draw larger than the current range setting."""),
         'options': [
             [-1, 'auto'],
             [129, '10 A'],
@@ -101,6 +132,9 @@ SETTINGS = {
     'voltage_range': {
         'dtype': 'int',
         'brief': N_('Voltage range'),
+        'detail': N_("""\
+            Configure the JS220's voltage range.  Most applications should
+            use the default, "auto"."""),
         'options': [
             # [-1, 'auto'],
             [0, '15 V'],
@@ -111,6 +145,17 @@ SETTINGS = {
     'gpio_voltage': {
         'dtype': 'int',
         'brief': N_('GPIO voltage'),
+        'detail': N_("""\
+            Configure the JS220's reference voltage for the general-purpose
+            inputs and outputs.
+            
+            We recommend using "Vref" when attaching
+            general-purpose outputs (GPO) to other equipment.  Using Vref
+            prevents the GPO from backpowering target devices when they
+            powered down.  The Vref signal and general-purpose inputs
+            are all extremely high impedance to minimize leakage currents.
+            
+            "3.3 V" uses an internally-generated 3.3V reference voltage."""),
         'options': [
             [0, 'Vref'],
             [1, '3.3 V'],
@@ -120,61 +165,82 @@ SETTINGS = {
     'out/0': {
         'dtype': 'bool',
         'brief': N_('GPO 0 output value'),
+        'detail': N_('Turn the general-purpose output 0 on or off.'),
         'default': False,
     },
     'out/1': {
         'dtype': 'bool',
         'brief': N_('GPO 1 output value'),
+        'detail': N_('Turn the general-purpose output 1 on or off.'),
         'default': False,
     },
     'out/T': {
         'dtype': 'bool',
         'brief': N_('Trigger output value'),
+        'detail': N_("""Turn the trigger output on or off.
+        
+            The trigger must also be configured for output for this
+            setting to have any effect."""),
         'default': False,
     },
     'enable/i': {
         'dtype': 'bool',
         'brief': N_('Current'),
+        'detail': N_("""Enable the current signal streaming."""),
         'default': True,
     },
     'enable/v': {
         'dtype': 'bool',
         'brief': N_('Voltage'),
+        'detail': N_("""Enable the voltage signal streaming."""),
         'default': True,
     },
     'enable/p': {
         'dtype': 'bool',
         'brief': N_('Power'),
+        'detail': N_("""Enable the power signal streaming."""),
         'default': False,
     },
     'enable/r': {
         'dtype': 'bool',
         'brief': N_('Current Range'),
+        'detail': N_("""\
+            Enable the streaming for the selected current range.
+        
+            The current range is useful for understanding how your Joulescope
+            autoranges to measure your current signal.  It can also be helpful
+            in separating target system behavior from the small current range
+            switching artifacts."""),
         'default': False,
     },
     'enable/0': {
         'dtype': 'bool',
-        'brief': N_('General-purpose input 0'),
+        'brief': N_('GPI 0'),
+        'detail': N_('Enable the general purpose input 0 signal streaming.'),
         'default': False,
     },
     'enable/1': {
         'dtype': 'bool',
-        'brief': N_('General-purpose input 1'),
+        'brief': N_('GPI 1'),
+        'detail': N_('Enable the general purpose input 0 signal streaming.'),
         'default': False,
     },
     'enable/2': {
         'dtype': 'bool',
-        'brief': N_('General-purpose input 2'),
+        'brief': N_('GPI 2'),
+        'detail': N_('Enable the general purpose input 2 signal streaming.'),
         'default': False,
     },
     'enable/3': {
         'dtype': 'bool',
-        'brief': N_('General-purpose input 3'),
+        'brief': N_('GPI 3'),
+        'detail': N_('Enable the general purpose input 3 signal streaming.'),
         'default': False,
     },
     'enable/T': {
         'dtype': 'bool',
         'brief': N_('Trigger input'),
+        'detail': N_('Enable the trigger input signal streaming.'),
         'default': False,
     },
 }
