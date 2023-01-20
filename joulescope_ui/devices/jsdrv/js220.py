@@ -21,6 +21,13 @@ import queue
 import threading
 
 
+def _version_u32_to_str(v):
+    major = (v >> 24) & 0xff
+    minor = (v >> 16) & 0xff
+    patch = (v & 0xffff)
+    return '.'.join(str(x) for x in [major, minor, patch])
+
+
 EVENTS = {
     'statistics/!data': Metadata('obj', 'Periodic statistics data for each signal.'),
     'signals/current/!data': Metadata('obj', 'Streaming sample data for the current signal.'),
@@ -313,11 +320,15 @@ class Js220(Device):
         self.EVENTS = EVENTS
         self.SETTINGS = copy.deepcopy(SETTINGS)
         self.SETTINGS['name']['default'] = device_path
-        self.SETTINGS['info']['default'] = {
-            'vendor': 'Jetperch LLC',
-            'model': 'JS220',
-            'serial_number': device_path.split('/')[-1],
+        self._info = {
+            'device': {
+                'vendor': 'Jetperch LLC',
+                'model': 'JS220',
+                'serial_number': device_path.split('/')[-1],
+            },
+            'versions': None,
         }
+        self.SETTINGS['info']['default'] = self._info
         self._statistics_offsets = []
         self._on_settings_fn = self._on_settings
         self._on_target_power_app_fn = self._on_target_power_app
@@ -434,6 +445,12 @@ class Js220(Device):
     def _open(self):
         self._log.info('open %s start', self.unique_id)
         self._driver.open(self._path, 'restore')
+        self._info['versions'] = {
+            'hw': str(self._driver_query('c/hw/version') >> 24),
+            'fw': _version_u32_to_str(self._driver_query('c/fw/version')),
+            'fpga': _version_u32_to_str(self._driver_query('s/fpga/version')),
+        }
+        self._ui_publish('settings/info', self._info)
         self._driver_publish('s/stats/ctrl', 1)
         self._driver_subscribe('s/stats/value', 'pub', self._on_stats_fn)
         self._ui_subscribe('settings', self._on_settings_fn, ['pub', 'retain'])

@@ -18,6 +18,7 @@ import logging
 from joulescope_ui import N_, register, tooltip_format, pubsub_singleton, get_topic_name, Metadata
 from joulescope_ui.devices.jsdrv.js220 import SETTINGS
 from joulescope_ui.ui_util import comboBoxConfig
+from .info_dialog import InfoDialog
 import webbrowser
 from joulescope_ui.styles import styled_widget
 
@@ -100,6 +101,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         self._log = logging.getLogger(f'{__name__}.{unique_id}')
         self._buttons_blink = []
         self._target_power_button: QtWidgets.QPushButton = None
+        self._info_button: QtWidgets.QPushButton = None
         super().__init__(parent)
 
         self._layout = QtWidgets.QVBoxLayout()
@@ -126,16 +128,26 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         self._add_footer()
         self._subscribe('registry/ui/events/blink_slow', self._on_blink)
         self._subscribe('registry/app/settings/target_power', self._on_target_power_app)
+        self._subscribe(f'{get_topic_name(self._unique_id)}/settings/state', self._on_setting_state)
 
     def _subscribe(self, topic, update_fn):
         pubsub_singleton.subscribe(topic, update_fn, ['pub', 'retain'])
         self._unsub.append((topic, update_fn))
+
+    def _on_setting_state(self, value):
+        if self._info_button is not None:
+            self._info_button.setEnabled(value == 2)
 
     def _on_target_power_app(self, value):
         b = self._target_power_button
         b.setEnabled(bool(value))
         b.style().unpolish(b)
         b.style().polish(b)
+
+    def _on_info(self, *args, **kwargs):
+        self._log.info('on_info')
+        info = pubsub_singleton.query(f'{get_topic_name(self._unique_id)}/settings/info')
+        InfoDialog(info)
 
     def _construct_header(self):
         w = QtWidgets.QWidget(self._expanding)
@@ -148,6 +160,8 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         layout.addWidget(doc)
 
         info = _construct_pushbutton(w, 'info', tooltip=_INFO_TOOLTIP)
+        info.clicked.connect(self._on_info)
+        self._info_button = info
         layout.addWidget(info)
 
         default_device = self._construct_default_device_button(w)
@@ -443,6 +457,10 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             w = self._widgets.pop()
             self._grid.removeWidget(w)
             w.deleteLater()
+
+    def closeEvent(self, event):
+        self.clear()
+        return super().closeEvent(event)
 
     def _on_blink(self, value):
         for b in self._buttons_blink:

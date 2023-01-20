@@ -30,6 +30,7 @@ QPushButton#doc:enabled:hover { image: url("{% path %}/doc_hover.svg"); }
 /****************************************************************************/
 /* Info button                                                              */
 /****************************************************************************/
+QPushButton#info:disabled      { image: url("{% path %}/info_disabled.svg"); }
 QPushButton#info:enabled       { image: url("{% path %}/info_enabled.svg"); }
 QPushButton#info:enabled:hover { image: url("{% path %}/info_hover.svg"); }
 

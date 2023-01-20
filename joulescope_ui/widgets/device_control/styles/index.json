@@ -34,8 +34,9 @@
         "info.svg"
       ],
       "targets": [
-        ["{basename}_enabled{ext}", {"#000000": "js1.unchecked_enabled", "#888888": "base.foreground_alternate"}],
-        ["{basename}_hover{ext}",   {"#000000": "js1.unchecked_hover", "#888888": "base.foreground_alternate"}]
+        ["{basename}_disabled{ext}", {"#000000": "js1.unchecked_disabled", "#888888": "js1.disabled_foreground"}],
+        ["{basename}_enabled{ext}",  {"#000000": "js1.unchecked_enabled", "#888888": "base.foreground_alternate"}],
+        ["{basename}_hover{ext}",    {"#000000": "js1.unchecked_hover", "#888888": "base.foreground_alternate"}]
       ]
     },
     "open": {

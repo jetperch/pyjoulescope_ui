@@ -20,6 +20,7 @@ import os
 import re
 from PySide6 import QtCore, QtWidgets
 from . import frozen
+from joulescope_ui import pubsub_singleton
 
 
 _MY_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -72,7 +73,7 @@ class HelpHtmlMessageBox(QtWidgets.QDialog):
         self._log.debug('create start')
         # style = _load_style(pubsub)  # todo load from current style
         title, html = _load_help(name, '')
-        parent = None  # pubsub.query('registry/ui/instance')
+        parent = pubsub_singleton.query('registry/ui/instance')
         super().__init__(parent=parent)
         self.setObjectName("help_html_message_box")
         self._verticalLayout = QtWidgets.QVBoxLayout()
