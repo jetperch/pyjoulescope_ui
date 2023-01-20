@@ -205,15 +205,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self._pubsub.publish('registry/view/actions/!widget_open', 'ValueWidget')
         #self._pubsub.publish('registry/view/actions/!widget_open', 'MultimeterWidget')
 
+        self._pubsub.process()
         self.show()
         # self._side_bar.on_cmd_show(1)
 
     def _on_blink_timer(self):
         topic = get_topic_name(self)
         self._blink_count = (self._blink_count + 1) & 0x07
-        self._pubsub.publish(f'{topic}/events/blink_slow', (self._blink_count & 4) != 0)
-        self._pubsub.publish(f'{topic}/events/blink_medium', (self._blink_count & 2) != 0)
         self._pubsub.publish(f'{topic}/events/blink_fast', (self._blink_count & 1) != 0)
+        if (self._blink_count & 1) == 0:
+            self._pubsub.publish(f'{topic}/events/blink_medium', (self._blink_count & 2) != 0)
+        if (self._blink_count & 3) == 0:
+            self._pubsub.publish(f'{topic}/events/blink_slow', (self._blink_count & 4) != 0)
 
     def _on_change_views(self, value):
         active_view = self._pubsub.query('registry/view/settings/active', default=None)
@@ -284,9 +287,10 @@ def run(log_level=None, file_log_level=None, filename=None):
     try:
         logging_preconfig()
         pubsub_singleton.register(HelpHtmlMessageBox, 'help_html')
-        pubsub_singleton.publish(PUBSUB_TOPICS.PUBSUB_APP_NAME, N_('Joulescope UI'))
+        # pubsub_singleton.publish(PUBSUB_TOPICS.PUBSUB_APP_NAME, N_('Joulescope UI'))
         log_path = pubsub_singleton.query('common/settings/paths/log')
         logging_config(log_path, stream_log_level=log_level, file_log_level=file_log_level)
+        pubsub_singleton.process()
         app = QtWidgets.QApplication([])
         resources = load_resources()
         fonts = load_fonts()

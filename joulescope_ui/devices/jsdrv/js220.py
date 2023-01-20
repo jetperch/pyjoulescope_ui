@@ -351,7 +351,7 @@ class Js220(Device):
         if self._thread is not None and self._ui_query('settings/state') == 3:
             self._close_req()
         if self._thread is None:
-            self._log.info('opening')
+            self._log.info('open req start')
             try:
                 while True:
                     self._queue.get(block=False)
@@ -361,6 +361,7 @@ class Js220(Device):
             self._quit = False
             self._thread = threading.Thread(target=self._run)
             self._thread.start()
+            self._log.info('open req done')
 
     def _close_req(self):
         # must be called from UI pubsub thread
@@ -428,11 +429,8 @@ class Js220(Device):
 
     def _run(self):
         self._log.info('thread start')
-        try:
-            self._open()
-        except Exception:
-            self._log.exception('During open')
-            self._ui_publish('settings/state', 'closing')
+        if self._open():
+            self._log.info('thread exit due to open fail')
             return 1
         self._ui_publish('settings/state', 'open')
         self._log.info('thread open complete')
@@ -449,18 +447,29 @@ class Js220(Device):
         return 0
 
     def _open(self):
-        self._log.info('open %s start', self.unique_id)
-        self._driver.open(self._path, 'restore')
-        self._info['versions'] = {
-            'hw': str(self._driver_query('c/hw/version') >> 24),
-            'fw': _version_u32_to_str(self._driver_query('c/fw/version')),
-            'fpga': _version_u32_to_str(self._driver_query('s/fpga/version')),
-        }
-        self._ui_publish('settings/info', self._info)
-        self._driver_publish('s/stats/ctrl', 1)
-        self._driver_subscribe('s/stats/value', 'pub', self._on_stats_fn)
-        self._ui_subscribe('settings', self._on_settings_fn, ['pub', 'retain'])
+        self._log.info('open start')
+        try:
+            self._driver.open(self._path, 'restore')
+        except Exception:
+            self._log.warning('driver open failed')
+            self._ui_publish('settings/state', 'closing')
+            return 1
+        try:
+            self._info['versions'] = {
+                'hw': str(self._driver_query('c/hw/version') >> 24),
+                'fw': _version_u32_to_str(self._driver_query('c/fw/version')),
+                'fpga': _version_u32_to_str(self._driver_query('s/fpga/version')),
+            }
+            self._ui_publish('settings/info', self._info)
+            self._driver_publish('s/stats/ctrl', 1)
+            self._driver_subscribe('s/stats/value', 'pub', self._on_stats_fn)
+            self._ui_subscribe('settings', self._on_settings_fn, ['pub', 'retain'])
+        except Exception:
+            self._log.exception('driver config failed')
+            self._ui_publish('settings/state', 'closing')
+            return 1
         self._log.info('open %s done', self.unique_id)
+        return 0
 
     def _close(self):
         if self.state == 0:  # already closed

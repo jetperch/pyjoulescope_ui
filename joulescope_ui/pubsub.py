@@ -47,7 +47,7 @@ CALLBACK_PREFIX = 'on_cbk_'
 EVENT_PREFIX = 'on_event_'
 
 
-class PUBSUB_TOPICS:
+class PUBSUB_TOPICS:  # todo
     PUBSUB_APP_NAME = 'common/settings/name'
     PUBSUB_PROFILE_ACTION_ADD = 'common/actions/profile/!add'
     PUBSUB_PROFILE_ACTION_REMOVE = 'common/actions/profile/!remove'
