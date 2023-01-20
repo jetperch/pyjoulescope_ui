@@ -24,6 +24,98 @@ _DEFAULT_CAPABILITIES = {
 }
 
 
+SETTINGS = {
+    'name': {
+        'dtype': 'str',
+        'brief': N_('The name for this widget.'),
+        'default': N_('app'),
+    },
+    'target_power': {
+        'dtype': 'bool',
+        'brief': N_('Target power'),
+        'detail': N_("""\
+        Toggle the power enable to all connects targets.
+        
+        This feature forces all connected instruments to disable
+        current flow.  You can use this feature to perform a
+        power cycle reset for the connected target devices.
+             
+        The JS220 disconnects the current terminals.
+        
+        The JS110 disconnects the current from IN+ to OUT+, and
+        the system setup should prevent excessive backwards current."""),
+        'default': True,
+    },
+    'statistics_stream_enable': {
+        'dtype': 'bool',
+        'brief': N_('Statistics display'),
+        'detail': N_("""\
+            Enable to display live streaming statistics.
+            
+            Disable to hold the existing values.  New statistics data
+            is processed, but widgets displaying statistics information
+            do not update."""),
+        'default': True,
+    },
+    'statistics_stream_record': {
+        'dtype': 'bool',
+        'brief': N_('Statistics recording'),
+        'detail': N_("""\
+            Enable to start recording streaming statistics
+            data to CSV files.
+        
+            Disable to stop the recording.
+            
+            By default, Joulescopes provide statistics data at 2 Hz.
+            Each device allows you to change this setting to the desired rate."""),
+        'default': False,
+    },
+    'signal_stream_enable': {
+        'dtype': 'bool',
+        'brief': N_('Signal sample streaming'),
+        'detail': N_("""\
+            Enable to stream sample data from all open sample sources
+            and configure all sample widgets for acquisition mode.
+            
+            Disable to stop sample streaming and configure
+            all sample widgets for buffer mode.  
+            """),
+        'default': True,
+    },
+    'signal_stream_record': {
+        'dtype': 'bool',
+        'brief': N_('Signal sample recording'),
+        'detail': N_("""\
+            Click once to enable and start recording streaming signal 
+            sample data to a JLS file.
+            
+            Click again to stop the recording.
+            
+            The recording will capture data from all enabled 
+            sample sources and signals at their configured sample rates.
+            To reduce the file size, you can disable sources, 
+            disable signals, and/or reduce the sample rates.
+        """),
+        'default': False,
+    },
+    'defaults/statistics_stream_source': {
+        'dtype': 'str',
+        'brief': N_('The default unique_id for the default statistics streaming source.'),
+        'default': None,
+    },
+    'defaults/signal_stream_source': {
+        'dtype': 'str',
+        'brief': N_('The unique_id for the default signal streaming source.'),
+        'default': None,
+    },
+    'defaults/signal_buffer_source': {
+        'dtype': 'str',
+        'brief': N_('The unique_id for the default signal buffer source.'),
+        'default': None,
+    },
+}
+
+
 class App:
     """Singleton application instance for global settings.
 
@@ -32,48 +124,7 @@ class App:
     For profile-invariant global settings, use "common/settings" subtopics.
     """
 
-    SETTINGS = {
-        'name': {
-            'dtype': 'str',
-            'brief': N_('The name for this widget.'),
-            'default': N_('app'),
-        },
-        'statistics_stream_enable': {
-            'dtype': 'bool',
-            'brief': N_('Statistics display control.'),
-            'default': True,
-        },
-        'statistics_stream_record': {
-            'dtype': 'bool',
-            'brief': N_('Statistics record control.'),
-            'default': False,
-        },
-        'signal_stream_enable': {
-            'dtype': 'bool',
-            'brief': N_('Signal stream enable control.'),
-            'default': True,
-        },
-        'signal_stream_record': {
-            'dtype': 'bool',
-            'brief': N_('Signal stream record control.'),
-            'default': False,
-        },
-        'defaults/statistics_stream_source': {
-            'dtype': 'str',
-            'brief': N_('The default unique_id for the default statistics streaming source.'),
-            'default': None,
-        },
-        'defaults/signal_stream_source': {
-            'dtype': 'str',
-            'brief': N_('The unique_id for the default signal streaming source.'),
-            'default': None,
-        },
-        'defaults/signal_buffer_source': {
-            'dtype': 'str',
-            'brief': N_('The unique_id for the default signal buffer source.'),
-            'default': None,
-        },
-    }
+    SETTINGS = SETTINGS
 
     def __init__(self):
         self._log = logging.getLogger(__name__)

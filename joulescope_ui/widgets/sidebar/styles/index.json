@@ -67,7 +67,18 @@
         ["{basename}_hover{ext}",     {"#ffffff": "sidebar.util_hover", "#000000": "sidebar.util_hover", "#888888": "sidebar.util_background"}]
       ]
     },
-
+    "target_power": {
+      "sources": [
+        "target_power.svg"
+      ],
+      "targets": [
+        ["{basename}_disabled_0{ext}", {"#000000": "base.selection_color"}],
+        ["{basename}_disabled_1{ext}", {"#000000": "js1.disabled_foreground"}],
+        ["{basename}_on{ext}",         {"#000000": "target_power.on"}],
+        ["{basename}_off_0{ext}",      {"#000000": "base.selection_color"}],
+        ["{basename}_off_1{ext}",      {"#000000": "target_power.off"}]
+      ]
+    },
     "copy": {
       "sources": [
       ],

@@ -18,14 +18,51 @@ import logging
 from joulescope_ui import N_, register, tooltip_format, pubsub_singleton, get_topic_name, Metadata
 from joulescope_ui.devices.jsdrv.js220 import SETTINGS
 from joulescope_ui.ui_util import comboBoxConfig
+import webbrowser
 from joulescope_ui.styles import styled_widget
 
+
+JS220_USERS_GUIDE_URL = 'https://download.joulescope.com/products/JS220/JS220-K000/users_guide/index.html'
+
+
+_DOC_TOOLTIP = tooltip_format(
+    N_('Device documentation'),
+    N_('Click to display the device documentation PDF.')
+)
+
+_INFO_TOOLTIP = tooltip_format(
+    N_('Device information'),
+    N_('Click to display detailed information about the device.')
+)
+
+_DEFAULT_DEVICE_TOOLTIP = tooltip_format(
+    N_('Select this device as the default'),
+    N_("""\
+    When selected, this device because the default.  All widgets
+    using the default device will use the data provided by this
+    device.
+    
+    When unselected, another device is the default.  Widgets
+    can still be configured to use data from this device.\
+    """),
+)
+
+_OPEN_TOOLTIP = tooltip_format(
+    N_('Open and close the device'),
+    N_("""\
+    When closed, click to attempt to open the device.  The icon
+    will only change on a successful device open.  Only one
+    application can use a Joulescope device at a time.
+    
+    When open, click to close the device.  This allows the device
+    to be used in other programs.\
+    """),
+)
 
 _RESET_TO_DEFAULTS_TOOLTIP = tooltip_format(
     N_('Reset to default settings'),
     N_('Click this button to reset this device to the default settings'),
 )
-
 
 _CLEAR_ACCUM_TOOLTIP = tooltip_format(
     N_('Clear accumulators'),
@@ -35,6 +72,18 @@ _CLEAR_ACCUM_TOOLTIP = tooltip_format(
     the multimeter, will be unaffected.\
     """),
 )
+
+_BUTTON_SIZE = (20, 20)
+
+
+def _construct_pushbutton(parent, name, checkable=False, tooltip=None):
+    b = QtWidgets.QPushButton(parent)
+    b.setObjectName(name)
+    b.setProperty('blink', False)
+    b.setCheckable(checkable)
+    b.setFixedSize(*_BUTTON_SIZE)
+    b.setToolTip(tooltip)
+    return b
 
 
 class Js220CtrlWidget(QtWidgets.QWidget):
@@ -49,6 +98,8 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         self._gpo = {}
         self._footer = {}
         self._log = logging.getLogger(f'{__name__}.{unique_id}')
+        self._buttons_blink = []
+        self._target_power_button: QtWidgets.QPushButton = None
         super().__init__(parent)
 
         self._layout = QtWidgets.QVBoxLayout()
@@ -66,14 +117,115 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         self._layout.addWidget(self._expanding)
         self.setLayout(self._layout)
 
+        self._header_widgets = []
+        self._expanding.header_ex_widget = self._construct_header()
+
         self._add_signal_buttons()
         self._add_settings()
         self._add_gpo()
         self._add_footer()
+        self._subscribe('registry/ui/events/blink_slow', self._on_blink)
+        self._subscribe('registry/app/settings/target_power', self._on_target_power_app)
 
     def _subscribe(self, topic, update_fn):
         pubsub_singleton.subscribe(topic, update_fn, ['pub', 'retain'])
         self._unsub.append((topic, update_fn))
+
+    def _on_target_power_app(self, value):
+        b = self._target_power_button
+        b.setEnabled(bool(value))
+        b.style().unpolish(b)
+        b.style().polish(b)
+
+    def _construct_header(self):
+        w = QtWidgets.QWidget(self._expanding)
+        layout = QtWidgets.QHBoxLayout(w)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(3)
+
+        doc = _construct_pushbutton(w, 'doc', tooltip=_DOC_TOOLTIP)
+        doc.clicked.connect(lambda checked: webbrowser.open_new_tab(JS220_USERS_GUIDE_URL))
+        layout.addWidget(doc)
+
+        info = _construct_pushbutton(w, 'info', tooltip=_INFO_TOOLTIP)
+        layout.addWidget(info)
+
+        default_device = self._construct_default_device_button(w)
+        layout.addWidget(default_device)
+
+        target_power = self._construct_target_power_button(w)
+        layout.addWidget(target_power)
+
+        open_button = self._construct_open_button(w)
+        layout.addWidget(open_button)
+
+        w.setLayout(layout)
+        self._header_widgets = [w, layout, doc, info, default_device, target_power, open_button]
+        return w
+
+    def _construct_default_device_button(self, parent):
+        topics = [
+            'registry/app/settings/defaults/statistics_stream_source',
+            'registry/app/settings/defaults/signal_stream_source',
+        ]
+        b = _construct_pushbutton(parent, 'default_device', checkable=True, tooltip=_DEFAULT_DEVICE_TOOLTIP)
+
+        def update_from_pubsub(value):
+            block_state = b.blockSignals(True)
+            b.setChecked(value == self._unique_id)
+            b.blockSignals(block_state)
+
+        def on_pressed(checked):
+            block_state = b.blockSignals(True)
+            b.setChecked(True)
+            b.blockSignals(block_state)
+            for topic in topics:
+                pubsub_singleton.publish(topic, self._unique_id)
+
+        self._target_power_button = b
+        self._subscribe(topics[0], update_from_pubsub)
+        b.toggled.connect(on_pressed)
+        return b
+
+    def _construct_target_power_button(self, parent):
+        topic = f'{get_topic_name(self._unique_id)}/settings/target_power'
+        meta = pubsub_singleton.metadata(topic)
+        b = _construct_pushbutton(parent, 'target_power', checkable=True,
+                                  tooltip=tooltip_format(meta.brief, meta.detail))
+        self._buttons_blink.append(b)
+
+        def update_from_pubsub(value):
+            block_state = b.blockSignals(True)
+            b.setChecked(bool(value))
+            b.blockSignals(block_state)
+
+        self._target_power_button = b
+        self._subscribe(topic, update_from_pubsub)
+        b.toggled.connect(lambda checked: pubsub_singleton.publish(topic, bool(checked)))
+        return b
+
+    def _construct_open_button(self, parent):
+        self_topic = get_topic_name(self._unique_id)
+        state_topic = f'{self_topic}/settings/state'
+        b = _construct_pushbutton(parent, 'open', checkable=True, tooltip=_OPEN_TOOLTIP)
+
+        def state_from_pubsub(value):
+            checked = (value == 2)  # open (not closed, opening, or closing)
+            block_state = b.blockSignals(True)
+            b.setChecked(checked)
+            b.blockSignals(block_state)
+
+        def on_toggle(checked):
+            checked = bool(checked)
+            block_state = b.blockSignals(True)
+            b.setChecked(not checked)
+            b.blockSignals(block_state)
+            state_req = 1 if checked else 0
+            pubsub_singleton.publish(f'{self_topic}/settings/state_req', state_req)
+
+        self._subscribe(state_topic, state_from_pubsub)
+        b.toggled.connect(on_toggle)
+        return b
 
     def _add_signal_buttons(self):
         widget = QtWidgets.QWidget(self)
@@ -291,3 +443,9 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             w = self._widgets.pop()
             self._grid.removeWidget(w)
             w.deleteLater()
+
+    def _on_blink(self, value):
+        for b in self._buttons_blink:
+            b.setProperty('blink', value)
+            b.style().unpolish(b)
+            b.style().polish(b)

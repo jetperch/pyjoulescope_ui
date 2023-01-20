@@ -101,12 +101,11 @@ class JsdrvWrapper:
         if d.name is None:
             d.name = unique_id
         self.devices[value] = d
-        self.pubsub.publish(f'{get_topic_name(d)}/actions/!open', None)
 
     def _on_device_remove(self, value):
         d = self.devices.pop(value, None)
         if d is not None:
             self._log.info('_on_device_remove %s', get_unique_id(d))
             topic = get_topic_name(d)
-            self.pubsub.publish(f'{topic}/actions/!close', None)
+            self.pubsub.publish(f'{topic}/actions/!finalize', None)
             self.pubsub.unregister(d)

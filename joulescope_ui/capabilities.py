@@ -43,11 +43,12 @@ class CAPABILITIES(Enum):
     """A physically attached device.
     
     The pubsub object must implement the following:
-        * actions/!open
-        * actions/!close
+        * actions/!finalize (on device removal or application close)
         * settings
           * name
-          * info: {vendor, model, version, serial_number} read-only 
+          * info: {vendor, model, version, serial_number} read-only
+          * state: 0:closed, 1:opening, 2:open, 3:closing (read-only for application)
+          * state_req: 0:close, 1:open
     """
 
     SOURCE = 'source'             # device (JS110, JS220), JLS reader

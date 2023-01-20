@@ -49,6 +49,28 @@ SETTINGS = {
         'default': None,
         'flags': ['ro', 'hidden'],
     },
+    'state': {
+        'dtype': 'int',
+        'brief': N_('Device state indicator'),
+        'options': [
+            [0, 'closed'],
+            [1, 'opening'],
+            [2, 'open'],
+            [3, 'closing'],
+        ],
+        'default': 0,
+        'flags': ['ro', 'hidden'],
+    },
+    'state_req': {
+        'dtype': 'int',
+        'brief': N_('Requested device state'),
+        'options': [
+            [0, 'closed'],
+            [1, 'open'],
+        ],
+        'default': 1,
+        'flags': ['ro', 'hidden'],
+    },
     'signal_frequency': {
         'dtype': 'int',
         'brief': N_('Signal frequency'),
@@ -103,14 +125,25 @@ SETTINGS = {
         ],
         'default': 2,
     },
+    'target_power': {
+        'dtype': 'bool',
+        'brief': N_('Target power'),
+        'detail': N_("""\
+            Toggle the connection between the current terminals.
+            
+            When enabled, current flows between the current terminals.
+            When disabled, current cannot flow between the current terminals.
+            In common system setups, this inhibits target power, which can
+            be used to power cycle reset the target device."""),
+        'default': True,
+        'flags': ['hidden'],   # Display in ExpandingWidget's header_ex_widget
+    },
     'current_range': {
         'dtype': 'int',
         'brief': N_('Current range'),
         'detail': N_("""\
             Configure the JS220's current range.  Most applications should
-            use the default, "auto".  "off" prohibits current from flowing
-            between the current terminals, which can be used to power off
-            the device under test.  
+            use the default, "auto".
             
             Use the other manual settings with care.  It is very easy to
             configure a setting that saturates, which will ignore regions
@@ -123,7 +156,6 @@ SETTINGS = {
             [136, '1.8 mA'],
             [144, '180 µA'],
             [160, '18 µA'],
-            [0, 'off'],
         ],
         'default': -1,  # auto
     },
@@ -280,7 +312,6 @@ class Js220(Device):
         super().__init__(driver, device_path)
         self.EVENTS = EVENTS
         self.SETTINGS = copy.deepcopy(SETTINGS)
-        print(f'device_path = {device_path}')
         self.SETTINGS['name']['default'] = device_path
         self.SETTINGS['info']['default'] = {
             'vendor': 'Jetperch LLC',
@@ -289,29 +320,49 @@ class Js220(Device):
         }
         self._statistics_offsets = []
         self._on_settings_fn = self._on_settings
+        self._on_target_power_app_fn = self._on_target_power_app
+        self._pubsub.subscribe('registry/app/settings/target_power', self._on_target_power_app_fn, ['pub', 'retain'])
+
         self._on_stats_fn = self._on_stats  # for unsub
         self._thread = None
+        self._target_power_app = False
         self._queue = queue.Queue()
 
     def _send_to_thread(self, cmd, args=None):
         self._queue.put((cmd, args), block=False)
 
     def finalize(self):
-        self._log.info('finalize')
-        self.on_action_close()
+        self.on_action_finalize()
 
-    def on_action_open(self):
-        self.on_action_close()
-        self._log.info('open')
-        self._thread = threading.Thread(target=self._run)
-        self._thread.start()
+    def _open_req(self):
+        # must be called from UI pubsub thread
+        if self._thread is not None and self._ui_query('settings/state') == 3:
+            self._close_req()
+        if self._thread is None:
+            self._log.info('opening')
+            try:
+                while True:
+                    self._queue.get(block=False)
+            except queue.Empty:
+                pass  # done!
+            self._ui_publish('settings/state', 'opening')
+            self._thread = threading.Thread(target=self._run)
+            self._thread.start()
 
-    def on_action_close(self):
+    def _close_req(self):
+        # must be called from UI pubsub thread
         if self._thread is not None:
-            self._log.info('close')
+            self._log.info('closing')
+            self._ui_publish('settings/state', 'closing')
             self._send_to_thread('close')
             self._thread.join()
             self._thread = None
+            self._ui_publish('settings/state', 'closed')
+            self._log.info('closed')
+
+    def on_action_finalize(self):
+        self._log.info('finalize')
+        self._close_req()
 
     def _run_cmd_settings(self, topic, value):
         self._log.info(f'setting: %s <= %s', topic, value)
@@ -330,22 +381,32 @@ class Js220(Device):
         elif topic == 'statistics_frequency':
             scnt = 1_000_000 // value
             self._driver_publish('s/stats/scnt', scnt)
+        elif topic == 'target_power':
+            self._current_range_update()
         elif topic == 'current_range':
-            value = int(value)
-            if value == 7:
-                self._driver_publish('s/i/range/mode', 'off')
-            elif value == -1:
-                self._driver_publish('s/i/range/mode', 'auto')
-            else:
-                self._driver_publish('s/i/range/select', value)
-                self._driver_publish('s/i/range/mode', 'manual')
+            self._current_range_update()
         elif topic == 'voltage_range':
             self._driver_publish('s/v/range/mode', 'manual')  # todo auto
             self._driver_publish('s/v/range/select', value)
 
+    def _current_range_update(self):
+        if self._target_power_app and self.target_power:
+            if self.current_range == -1:
+                self._log.info('current_range auto')
+                self._driver_publish('s/i/range/mode', 'auto')
+            else:
+                self._log.info('current_range manual %s', self.current_range)
+                self._driver_publish('s/i/range/select', self.current_range)
+                self._driver_publish('s/i/range/mode', 'manual')
+        else:
+            self._log.info('current_range off')
+            self._driver_publish('s/i/range/mode', 'off')
+
     def _run_cmd(self, cmd, args):
         if cmd == 'settings':
             self._run_cmd_settings(*args)
+        elif cmd == 'current_range_update':
+            self._current_range_update()
         elif cmd == 'close':
             pass  # handled in outer wrapper
         else:
@@ -353,7 +414,13 @@ class Js220(Device):
 
     def _run(self):
         self._log.info('thread start')
-        self._open()
+        try:
+            self._open()
+        except Exception:
+            self._log.exception('During open')
+            self._ui_publish('settings/state', 'closing')
+            return 1
+        self._ui_publish('settings/state', 'open')
         self._log.info('thread open complete')
         while True:
             cmd, args = self._queue.get()
@@ -373,7 +440,10 @@ class Js220(Device):
         self._log.info('open %s done', self.unique_id)
 
     def _close(self):
+        if self.state == 0:  # already closed
+            return
         self._log.info('close %s start', self.unique_id)
+        self._ui_publish('settings/state', 'closing')
         self._driver_unsubscribe('s/stats/value', self._on_stats_fn)
         try:
             for t in _ENABLE_MAP.values():
@@ -412,11 +482,23 @@ class Js220(Device):
         }
         self._ui_publish('events/statistics/!data', value)
 
+    def on_setting_state_req(self, value):
+        if value == 0:
+            self._close_req()
+        else:
+            self._open_req()
+
     def _on_settings(self, topic, value):
         if self._thread is None:
             return
         t = f'{get_topic_name(self)}/settings/'
         if not topic.startswith(t):
-            self._log.warning('Invalid settings topic %s', topic)
+            if topic != t[:-1]:
+                self._log.warning('Invalid settings topic %s', topic)
+            return
         topic = topic[len(t):]
         self._send_to_thread('settings', (topic, value))
+
+    def _on_target_power_app(self, value):
+        self._target_power_app = bool(value)
+        self._send_to_thread('current_range_update', None)

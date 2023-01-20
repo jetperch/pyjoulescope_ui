@@ -15,7 +15,7 @@
 # https://stackoverflow.com/questions/11874767/real-time-plotting-in-while-loop-with-matplotlib
 # https://wiki.qt.io/Gallery_of_Qt_CSS_Based_Styles
 
-from joulescope_ui import pubsub_singleton, N_, get_topic_name, PUBSUB_TOPICS, CAPABILITIES
+from joulescope_ui import pubsub_singleton, N_, get_topic_name, PUBSUB_TOPICS, CAPABILITIES, Metadata
 from joulescope_ui.widgets import *   # registers all built-in widgets
 from joulescope_ui.logging_util import logging_preconfig, logging_config
 from PySide6 import QtCore, QtGui, QtWidgets
@@ -84,6 +84,12 @@ def _device_factory_finalize():
 
 class MainWindow(QtWidgets.QMainWindow):
 
+    EVENTS = {
+        'blink_slow': Metadata('bool', 'Periodic slow blink signal (0.5 Hz).'),
+        'blink_medium': Metadata('bool', 'Periodic medium blink signal (1 Hz).'),
+        'blink_fast': Metadata('bool', 'Periodic fast blink signal (2 Hz).'),
+    }
+
     def __init__(self):
         self.view = None
         self._log = logging.getLogger(__name__)
@@ -97,6 +103,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setWindowIcon(self._icon)
         self._style_manager = StyleManager(self._pubsub)
         self._pubsub.register(self._style_manager, 'StyleManager:0')
+
+        self._blink_count = 0
+        self._blink_timer = QtCore.QTimer()
+        self._blink_timer.timeout.connect(self._on_blink_timer)
+        self._blink_timer.start(250)
 
         # Create the central widget with horizontal layout
         self._central_widget = QtWidgets.QWidget(self)
@@ -196,6 +207,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.show()
         # self._side_bar.on_cmd_show(1)
+
+    def _on_blink_timer(self):
+        topic = get_topic_name(self)
+        self._blink_count = (self._blink_count + 1) & 0x07
+        self._pubsub.publish(f'{topic}/events/blink_slow', (self._blink_count & 4) != 0)
+        self._pubsub.publish(f'{topic}/events/blink_medium', (self._blink_count & 2) != 0)
+        self._pubsub.publish(f'{topic}/events/blink_fast', (self._blink_count & 1) != 0)
 
     def _on_change_views(self, value):
         active_view = self._pubsub.query('registry/view/settings/active', default=None)

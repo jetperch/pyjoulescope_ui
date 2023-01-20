@@ -22,52 +22,6 @@ from .memory_widget import MemoryWidget
 from .widget_settings_widget import WidgetSettingsWidget
 
 
-_SIGNAL_PLAY_TOOLTIP = tooltip_format(
-    N_('Signal sample streaming'),
-    N_("""\
-    Enable to stream sample data from all open sample sources
-    and configure all sample widgets for acquisition mode.
-    
-    Disable to stop sample streaming and configure
-    all sample widgets for buffer mode.  
-    """))
-
-_SIGNAL_RECORD_TOOLTIP = tooltip_format(
-    N_('Signal sample recording'),
-    N_("""\
-    Click once to enable and start recording streaming signal 
-    sample data to a JLS file.
-    
-    Click again to stop the recording.
-    
-    The recording will capture data from all enabled 
-    sample sources and signals at their configured sample rates.
-    To reduce the file size, you can disable sources, 
-    disable signals, and/or reduce the sample rates.
-    """))
-
-_STATISTICS_PLAY_TOOLTIP = tooltip_format(
-    N_('Statistics display'),
-    N_("""\
-    Enable to display live streaming statistics.
-    
-    Disable to hold the existing values.  New statistics data
-    is processed, but widgets displaying statistics information
-    do not update.
-    """))
-
-_STATISTICS_RECORD_TOOLTIP = tooltip_format(
-    N_('Statistics recording'),
-    N_("""\
-    Click once to enable and start recording streaming statistics
-    data to CSV files.
-
-    Click again to stop the recording.
-    
-    By default, Joulescopes provide statistics data at 2 Hz.
-    Each device allows you to change this setting to the desired rate.
-    """))
-
 _DEVICE_TOOLTIP = tooltip_format(
     N_('Device control'),
     N_("""\
@@ -206,10 +160,11 @@ class SideBar(QtWidgets.QWidget):
         self._layout.setContentsMargins(3, 3, 3, 3)
         self.setLayout(self._layout)
 
-        self._add_blink_button('signal_play', _SIGNAL_PLAY_TOOLTIP, 'signal_stream_enable')
-        self._add_blink_button('signal_record', _SIGNAL_RECORD_TOOLTIP, 'signal_stream_record')
-        self._add_blink_button('statistics_play', _STATISTICS_PLAY_TOOLTIP, 'statistics_stream_enable')
-        self._add_blink_button('statistics_record', _STATISTICS_RECORD_TOOLTIP, 'statistics_stream_record')
+        self._add_blink_button('target_power', 'target_power')
+        self._add_blink_button('signal_play', 'signal_stream_enable')
+        self._add_blink_button('signal_record', 'signal_stream_record')
+        self._add_blink_button('statistics_play', 'statistics_stream_enable')
+        self._add_blink_button('statistics_record', 'statistics_stream_record')
         self._add_flyout_button('device', _DEVICE_TOOLTIP, DeviceControlWidget(self))
         self._add_flyout_button('memory', _MEMORY_TOOLTIP, MemoryWidget(self))
         self._add_button('widgets', _WIDGETS_TOOLTIP)
@@ -221,17 +176,17 @@ class SideBar(QtWidgets.QWidget):
         self._add_button('settings', _SETTINGS_TOOLTIP)
 
         self.mousePressEvent = self._on_mousePressEvent
-        self._blink = True
-        self._timer = QtCore.QTimer()
-        self._timer.timeout.connect(self._on_timer)
-        self._timer.start(1000)
+        pubsub_singleton.subscribe('registry/ui/events/blink_slow', self._on_blink, ['pub', 'retain'])
 
     def _on_mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
             self.on_cmd_show(-1)
             event.accept()
 
-    def _add_blink_button(self, name, tooltip, app_setting):
+    def _add_blink_button(self, name, app_setting):
+        topic = f'registry/app/settings/{app_setting}'
+        meta = pubsub_singleton.metadata(topic)
+        tooltip = tooltip_format(meta.brief, meta.detail)
         button = self._add_button(name, tooltip)
         button.setProperty('blink', False)
         button.setCheckable(True)
@@ -242,7 +197,6 @@ class SideBar(QtWidgets.QWidget):
             button.setChecked(bool(value))
             button.blockSignals(block_state)
 
-        topic = f'registry/app/settings/{app_setting}'
         pubsub_singleton.subscribe(topic, update_from_pubsub, ['pub', 'retain'])
         button.toggled.connect(lambda checked: pubsub_singleton.publish(topic, bool(checked)))
         return button
@@ -262,10 +216,9 @@ class SideBar(QtWidgets.QWidget):
         self._layout.addWidget(button)
         return button
 
-    def _on_timer(self):
-        self._blink = not self._blink
+    def _on_blink(self, value):
         for b in self._buttons_blink:
-            b.setProperty('blink', self._blink)
+            b.setProperty('blink', value)
             b.style().unpolish(b)
             b.style().polish(b)
 

@@ -313,6 +313,7 @@ class _InnerWidget(QtWidgets.QWidget):
         #color = color_as_qcolor('#ff000040')
         #painter.setPen(color)
         #painter.drawRect(x_border, y_border, x_max - x_border, y - y_border)
+        painter.end()
 
     def _on_mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
