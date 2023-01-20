@@ -18,7 +18,7 @@ from joulescope_ui import pubsub_singleton
 import logging
 
 
-class InfoDialog(QtWidgets.QDialog):
+class DeviceInfoDialog(QtWidgets.QDialog):
 
     dialogs = []
 
@@ -29,36 +29,49 @@ class InfoDialog(QtWidgets.QDialog):
         parent = pubsub_singleton.query('registry/ui/instance')
         super().__init__(parent=parent)
         self.setObjectName("device_info_dialog")
+        self.setWindowTitle('Device Information')
 
-        self._layout = QtWidgets.QGridLayout()
+        self._layout = QtWidgets.QVBoxLayout()
         self.setLayout(self._layout)
+
+        w = QtWidgets.QWidget(self)
+        self._widgets.append(w)
+        self._layout.addWidget(w)
+
+        self._grid = QtWidgets.QGridLayout()
+        self._grid.setContentsMargins(0, 0, 0, 0)
+        w.setLayout(self._grid)
 
         row = 0
 
         for outer_key, outer_value in info.items():
             w = QtWidgets.QLabel(outer_key, self)
-            self._layout.addWidget(w, row, 0, 1, 3)
+            self._grid.addWidget(w, row, 0, 1, 3)
             self._widgets.append(w)
 
             row += 1
             for key, value in outer_value.items():
                 w = QtWidgets.QLabel(key, self)
-                self._layout.addWidget(w, row, 1, 1, 1)
+                self._grid.addWidget(w, row, 1, 1, 1)
                 self._widgets.append(w)
                 w = QtWidgets.QLabel(value, self)
-                self._layout.addWidget(w, row, 2, 1, 1)
+                self._grid.addWidget(w, row, 2, 1, 1)
                 self._widgets.append(w)
                 row += 1
 
-        self.resize(self.sizeHint())
-        self.setWindowTitle('Device Information')
+        self._buttons = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok)
+        self._buttons.accepted.connect(self.accept)
+        self._buttons.rejected.connect(self.reject)
+        self._layout.addWidget(self._buttons)
+
         self.finished.connect(self._on_finish)
 
+        self.resize(self.sizeHint())
         self._log.info('open')
         self.open()
-        InfoDialog.dialogs.append(self)
+        DeviceInfoDialog.dialogs.append(self)
 
     def _on_finish(self):
         self.close()
         self._log.info('finish')
-        InfoDialog.dialogs.remove(self)
+        DeviceInfoDialog.dialogs.remove(self)

@@ -336,6 +336,7 @@ class Js220(Device):
 
         self._on_stats_fn = self._on_stats  # for unsub
         self._thread = None
+        self._quit = False
         self._target_power_app = False
         self._queue = queue.Queue()
 
@@ -357,6 +358,7 @@ class Js220(Device):
             except queue.Empty:
                 pass  # done!
             self._ui_publish('settings/state', 'opening')
+            self._quit = False
             self._thread = threading.Thread(target=self._run)
             self._thread.start()
 
@@ -366,6 +368,7 @@ class Js220(Device):
             self._log.info('closing')
             self._ui_publish('settings/state', 'closing')
             self._send_to_thread('close')
+            self._quit = True
             self._thread.join()
             self._thread = None
             self._ui_publish('settings/state', 'closed')
@@ -433,12 +436,15 @@ class Js220(Device):
             return 1
         self._ui_publish('settings/state', 'open')
         self._log.info('thread open complete')
-        while True:
-            cmd, args = self._queue.get()
+        while not self._quit:
+            try:
+                cmd, args = self._queue.get(timeout=0.1)
+            except queue.Empty:
+                continue
             if cmd == 'close':
-                self._close()
                 break
             self._run_cmd(cmd, args)
+        self._close()
         self._log.info('thread stop')
         return 0
 

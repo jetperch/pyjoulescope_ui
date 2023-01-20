@@ -18,7 +18,7 @@ import logging
 from joulescope_ui import N_, register, tooltip_format, pubsub_singleton, get_topic_name, Metadata
 from joulescope_ui.devices.jsdrv.js220 import SETTINGS
 from joulescope_ui.ui_util import comboBoxConfig
-from .info_dialog import InfoDialog
+from .device_info_dialog import DeviceInfoDialog
 import webbrowser
 from joulescope_ui.styles import styled_widget
 
@@ -147,7 +147,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
     def _on_info(self, *args, **kwargs):
         self._log.info('on_info')
         info = pubsub_singleton.query(f'{get_topic_name(self._unique_id)}/settings/info')
-        InfoDialog(info)
+        DeviceInfoDialog(info)
 
     def _construct_header(self):
         w = QtWidgets.QWidget(self._expanding)
