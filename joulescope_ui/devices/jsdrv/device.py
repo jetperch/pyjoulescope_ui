@@ -32,13 +32,19 @@ class Device:
     CAPABILITIES = CAPABILITIES_CLASS
     EVENTS = {}
 
-    def __init__(self, wrapper, device_path):
+    def __init__(self, wrapper, device_path, unique_id):
         self.CAPABILITIES = CAPABILITIES_OBJECT
         self._wrapper = wrapper  #: JsdrvWrapper
         while device_path.endswith('/'):
             device_path = device_path[:-1]
         self._log = logging.getLogger(__name__ + '.' + device_path.replace('/', '.'))
         self._path = device_path
+        self._driver_subscriptions = []
+
+    def finalize(self):
+        while len(self._driver_subscriptions):
+            t, v = self._driver_subscriptions.pop()
+            self._driver_unsubscribe(t, v)
 
     @property
     def _driver(self):
@@ -60,12 +66,20 @@ class Device:
         return self._driver.query(self._driver_topic_make(topic), timeout)
 
     def _driver_subscribe(self, topic, flags, fn, timeout=None):
-        return self._driver.subscribe(self._driver_topic_make(topic), flags, fn, timeout)
+        rv = self._driver.subscribe(self._driver_topic_make(topic), flags, fn, timeout)
+        if rv == 0:
+            self._driver_subscriptions.append((topic, fn))
+        rv
 
     def _driver_unsubscribe(self, topic, fn, timeout=None):
+        try:
+            self._driver_subscriptions.remove((topic, fn))
+        except ValueError:
+            pass
         return self._driver.unsubscribe(self._driver_topic_make(topic), fn, timeout)
 
     def _driver_unsubscribe_all(self, fn, timeout=None):
+        self._driver_subscriptions = [(t, v) for t, v in self._driver_subscriptions if v != fn]
         return self._driver.unsubscribe(fn, timeout)
 
     def _ui_topic_make(self, topic):

@@ -304,6 +304,19 @@ _ENABLE_MAP = {
 }
 
 
+_SIGNAL_REMAP = {
+    's/i/range/!data': 'signals/r/!data',
+    's/i/!data': 'signals/i/!data',
+    's/v/!data': 'signals/v/!data',
+    's/p/!data': 'signals/p/!data',
+    's/gpi/0/!data': 'signals/0/!data',
+    's/gpi/1/!data': 'signals/1/!data',
+    's/gpi/2/!data': 'signals/2/!data',
+    's/gpi/3/!data': 'signals/3/!data',
+    's/gpi/7/!data': 'signals/T/!data',
+}
+
+
 _GPO_BIT = {
     '0': 1 << 0,
     '1': 1 << 1,
@@ -315,8 +328,8 @@ class Js220(Device):
 
     SETTINGS = SETTINGS
 
-    def __init__(self, driver, device_path):
-        super().__init__(driver, device_path)
+    def __init__(self, driver, device_path, unique_id):
+        super().__init__(driver, device_path, unique_id)
         self.EVENTS = EVENTS
         self.SETTINGS = copy.deepcopy(SETTINGS)
         self.SETTINGS['name']['default'] = device_path
@@ -331,6 +344,8 @@ class Js220(Device):
         self.SETTINGS['info']['default'] = self._info
         self._statistics_offsets = []
         self._on_settings_fn = self._on_settings
+        for key, value in _SIGNAL_REMAP.items():
+            self._signal_forward(key, value, unique_id)
         self._on_target_power_app_fn = self._on_target_power_app
         self._pubsub.subscribe('registry/app/settings/target_power', self._on_target_power_app_fn, ['pub', 'retain'])
 
@@ -340,11 +355,18 @@ class Js220(Device):
         self._target_power_app = False
         self._queue = queue.Queue()
 
+    def _signal_forward(self, dtopic, utopic, unique_id):
+        t = f'{get_topic_name(unique_id)}/{utopic}'
+        self._pubsub.topic_add(t, Metadata('obj', 'signal'), exists_ok=True)
+        self._driver_subscribe(dtopic, ['pub'], lambda _, v: self._pubsub.publish(t, v))
+
     def _send_to_thread(self, cmd, args=None):
         self._queue.put((cmd, args), block=False)
 
     def finalize(self):
         self.on_action_finalize()
+        self._pubsub.unsubscribe('registry/app/settings/target_power', self._on_target_power_app_fn)
+        super().finalize()
 
     def _open_req(self):
         # must be called from UI pubsub thread

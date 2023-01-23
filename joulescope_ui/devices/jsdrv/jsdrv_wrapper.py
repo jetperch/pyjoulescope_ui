@@ -84,6 +84,8 @@ class JsdrvWrapper:
                 self._on_device_remove(value)
 
     def _on_device_add(self, value):
+        _, model, serial_number = value.split('/')
+        unique_id = f'{model.upper()}-{serial_number}'
         if value in self.devices:
             return
         if 'js220' in value:
@@ -93,10 +95,8 @@ class JsdrvWrapper:
         else:
             self._log.info('Unsupported device: %s', value)
             return
-        _, model, serial_number = value.split('/')
-        unique_id = f'{model.upper()}-{serial_number}'
         self._log.info('_on_device_add %s', unique_id)
-        d = cls(self, value)
+        d = cls(self, value, unique_id)
         self.pubsub.register(d, unique_id)
         if d.name is None:
             d.name = unique_id

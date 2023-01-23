@@ -128,11 +128,26 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         self._add_footer()
         self._subscribe('registry/ui/events/blink_slow', self._on_blink)
         self._subscribe('registry/app/settings/target_power', self._on_target_power_app)
-        self._subscribe(f'{get_topic_name(self._unique_id)}/settings/state', self._on_setting_state)
+        topic = get_topic_name(self._unique_id)
+        for signal in ['0', '1', '2', '3', 'T']:
+            self._gpi_subscribe(f'{topic}/signals/{signal}/!data', signal)
+        self._subscribe(f'{topic}/settings/state', self._on_setting_state)
 
     def _subscribe(self, topic, update_fn):
         pubsub_singleton.subscribe(topic, update_fn, ['pub', 'retain'])
         self._unsub.append((topic, update_fn))
+
+    def _gpi_subscribe(self, topic, signal):
+        self._subscribe(topic, lambda v: self._on_gpi_n(signal, v))
+
+    def _on_gpi_n(self, signal, value):
+        d = value.get('data')
+        if d is None or 0 == len(d):
+            self._log.info('Empty GPI %s', signal)
+            return
+        signal_level = (d[0] != 0)
+        b = self._signals['buttons'][signal]
+        b.setProperty('signal_level', signal_level)
 
     def _on_setting_state(self, value):
         if self._info_button is not None:
@@ -252,7 +267,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         self._signals = {
             'widget': widget,
             'layout': layout,
-            'buttons': [],
+            'buttons': {},
             'spacer': QtWidgets.QSpacerItem(0, 0,
                                             QtWidgets.QSizePolicy.Expanding,
                                             QtWidgets.QSizePolicy.Minimum),
@@ -284,7 +299,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         pubsub_singleton.subscribe(topic, update_from_pubsub, ['pub', 'retain'])
         b.toggled.connect(lambda checked: pubsub_singleton.publish(topic, bool(checked)))
         self._signals['layout'].addWidget(b)
-        self._signals['buttons'].append(b)
+        self._signals['buttons'][signal] = b
 
     def _add_gpo(self):
         lbl = QtWidgets.QLabel(N_('GPO'), self)
@@ -298,7 +313,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         layout.setContentsMargins(3, 3, 3, 3)
         layout.setSpacing(3)
         widget.setLayout(layout)
-        self._signals = {
+        self._gpo = {
             'widget': widget,
             'layout': layout,
             'buttons': [],
@@ -312,12 +327,12 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             signal = name[4:]
             meta = Metadata(value)
             self._add_gpo_button(signal, meta)
-        layout.addItem(self._signals['spacer'])
+        layout.addItem(self._gpo['spacer'])
         self._row += 1
 
     def _add_gpo_button(self, signal, meta):
         topic = f'{get_topic_name(self._unique_id)}/settings/out/{signal}'
-        b = QtWidgets.QPushButton(self._signals['widget'])
+        b = QtWidgets.QPushButton(self._gpo['widget'])
         b.setObjectName('device_ctrl_gpo')
         b.setCheckable(True)
         b.setText(signal)
@@ -331,8 +346,8 @@ class Js220CtrlWidget(QtWidgets.QWidget):
 
         pubsub_singleton.subscribe(topic, update_from_pubsub, ['pub', 'retain'])
         b.toggled.connect(lambda checked: pubsub_singleton.publish(topic, bool(checked)))
-        self._signals['layout'].addWidget(b)
-        self._signals['buttons'].append(b)
+        self._gpo['layout'].addWidget(b)
+        self._gpo['buttons'].append(b)
 
     def _add_settings(self):
         for name, value in SETTINGS.items():

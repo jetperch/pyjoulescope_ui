@@ -64,3 +64,8 @@ QPushButton#open:enabled       { image: url("{% path %}/closed_enabled.svg"); }
 QPushButton#open:enabled:hover { image: url("{% path %}/closed_hover.svg"); }
 QPushButton#open:checked       { image: url("{% path %}/open_enabled.svg"); }
 QPushButton#open:checked:hover { image: url("{% path %}/open_hover.svg"); }
+
+
+QPushButton[signal_level=true]:enabled:checked {
+    background-color: #ff0000;
+}
