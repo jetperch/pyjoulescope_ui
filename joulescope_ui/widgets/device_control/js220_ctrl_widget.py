@@ -144,9 +144,14 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         if d is None or 0 == len(d):
             self._log.info('Empty GPI %s', signal)
             return
-        signal_level = (d[0] != 0)
+        signal_level = 1 if (d[0] != 0) else 0
         b = self._signals['buttons'][signal]
-        b.setProperty('signal_level', signal_level)
+        if b.property('signal_level') != signal_level:
+            name = 'device_control_signal_on' if signal_level else 'device_control_signal'
+            b.setObjectName(name)
+            b.setProperty('signal_level', signal_level)
+            b.style().unpolish(b)
+            b.style().polish(b)
 
     def _on_setting_state(self, value):
         if self._info_button is not None:

@@ -66,6 +66,15 @@ QPushButton#open:checked       { image: url("{% path %}/open_enabled.svg"); }
 QPushButton#open:checked:hover { image: url("{% path %}/open_hover.svg"); }
 
 
-QPushButton[signal_level=true]:enabled:checked {
-    background-color: #ff0000;
+/****************************************************************************/
+/* GPI signal buttons                                                       */
+/****************************************************************************/
+QPushButton#device_control_signal_on:checked {
+  border-color: {% devctrl.border %};
+  background-color: {% devctrl.checked %};
+}
+
+QPushButton#device_control_signal_on:checked:hover {
+  border-color: {% devctrl.border %};
+  background-color: {% devctrl.hover %};
 }

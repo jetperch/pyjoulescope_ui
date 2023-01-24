@@ -181,6 +181,27 @@ SETTINGS = {
         ],
         'default': 0,  # todo auto
     },
+    'trigger_dir': {
+        'dtype': 'int',
+        'brief': N_('Trigger direction'),
+        'detail': N_("""\
+            Configure the direction of the JS220's trigger BNC connection.
+            
+            0 (default) configures the BNC trigger for input only.
+            The BNC connection is high-impedance.
+            
+            1 configures the BNC trigger for output.  The BNC connection
+            has 50 Ohm output impedance.
+            
+            In both cases, the trigger input signal is valid, which
+            enables internal inspection and recording of the trigger output.
+        """),
+        'options': [
+            [0, 'input'],
+            [1, 'output'],
+        ],
+        'default': 0,  # input
+    },
     'gpio_voltage': {
         'dtype': 'int',
         'brief': N_('GPIO voltage'),
@@ -425,8 +446,12 @@ class Js220(Device):
         elif topic == 'voltage_range':
             self._driver_publish('s/v/range/mode', 'manual')  # todo auto
             self._driver_publish('s/v/range/select', value)
+        elif topic == 'trigger_dir':
+            self._driver_publish('c/trigger/dir', value)
         elif topic == 'gpio_voltage':
             self._driver_publish('c/gpio/vref', value)
+        elif topic in ['name', 'info', 'state', 'state_req', 'out', 'enable']:
+            pass
         else:
             self._log.warning('Unsupported topic %s', topic)
 
