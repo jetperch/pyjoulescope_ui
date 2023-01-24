@@ -226,7 +226,8 @@ class _InnerWidget(QtWidgets.QWidget):
 
         if self._statistics is not None:
             a_start, a_end = self._statistics['time']['accum_samples']['value']
-            a_duration = (a_end - a_start) / 2_000_000
+            sample_freq = self._statistics['time']['sample_freq']['value']
+            a_duration = (a_end - a_start) / sample_freq
             a_duration_txt = duration_to_str(a_duration)
 
         painter.fillRect(0, 0, x_max, y_max, background_brush)
@@ -465,6 +466,7 @@ class ValueWidget(QtWidgets.QWidget):
         else:
             self._statistics = value
         v_start, v_end = self._statistics['time']['samples']['value']
+        sample_freq = self._statistics['time']['sample_freq']['value']
         self._device_widget.device_show(self.source)
-        self._control_widget.accrue_duration((v_end - v_start) / 2_000_000, self._statistics.get('accum_start'))
+        self._control_widget.accrue_duration((v_end - v_start) / sample_freq, self._statistics.get('accum_start'))
         self._inner.on_cbk_statistics(self._statistics)

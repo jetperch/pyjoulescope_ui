@@ -32,6 +32,7 @@ class DeviceControlWidget(QtWidgets.QWidget):
     CAPABILITIES = ['widget@']
 
     def __init__(self, parent=None):
+        self._log = logging.getLogger(__name__)
         super().__init__(parent=parent)
         self.setObjectName('device_ctrl')
         self._layout = QtWidgets.QVBoxLayout()
@@ -57,11 +58,14 @@ class DeviceControlWidget(QtWidgets.QWidget):
                 self._device_add(unique_id)
 
     def _device_remove(self, unique_id):
+        self._log.info('remove %s', unique_id)
         w = self._device_widgets.pop(unique_id)
         self._layout.removeWidget(w)
+        w.close()
         w.deleteLater()
 
     def _device_add(self, unique_id):
+        self._log.info('add %s', unique_id)
         w = Js220CtrlWidget(self, unique_id)
         self._device_widgets[unique_id] = w
         self._layout.insertWidget(self._layout.count() - 1, w)

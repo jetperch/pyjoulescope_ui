@@ -342,7 +342,7 @@ class Js220(Device):
             'versions': None,
         }
         self.SETTINGS['info']['default'] = self._info
-        self._statistics_offsets = []
+        self._statistics_offsets = None
         self._on_settings_fn = self._on_settings
         for key, value in _SIGNAL_REMAP.items():
             self._signal_forward(key, value, unique_id)
@@ -425,6 +425,10 @@ class Js220(Device):
         elif topic == 'voltage_range':
             self._driver_publish('s/v/range/mode', 'manual')  # todo auto
             self._driver_publish('s/v/range/select', value)
+        elif topic == 'gpio_voltage':
+            self._driver_publish('c/gpio/vref', value)
+        else:
+            self._log.warning('Unsupported topic %s', topic)
 
     def _current_range_update(self):
         if self._target_power_app and self.target_power:
@@ -509,28 +513,15 @@ class Js220(Device):
         self._log.info('close %s done', self.unique_id)
 
     def _on_stats(self, topic, value):
-        period = 1 / 2e6
-        s_start, s_stop = [x * period for x in value['time']['samples']['value']]
-
-        if not len(self._statistics_offsets):
-            duration = s_start
+        if self._statistics_offsets is None:
+            accum_sample_start = value['time']['accum_samples']['value'][-1]
             charge = value['accumulators']['charge']['value']
             energy = value['accumulators']['energy']['value']
-            offsets = [duration, charge, energy]
-            self._statistics_offsets = [duration, charge, energy]
-        duration, charge, energy = self._statistics_offsets
-        value['time']['range'] = {
-            'value': [s_start - duration, s_stop - duration],
-            'units': 's'
-        }
-        value['time']['delta'] = {'value': s_stop - s_start, 'units': 's'}
+            self._statistics_offsets = [accum_sample_start, charge, energy]
+        accum_sample_start, charge, energy = self._statistics_offsets
+        value['time']['accum_samples']['value'][0] = accum_sample_start
         value['accumulators']['charge']['value'] -= charge
         value['accumulators']['energy']['value'] -= energy
-        for k in value['signals'].values():
-            k['µ'] = k['avg']
-            k['σ2'] = {'value': k['std']['value'] ** 2, 'units': k['std']['units']}
-            if 'integral' in k:
-                k['∫'] = k['integral']
         value['source'] = {
             'unique_id': self.unique_id,
         }
@@ -556,3 +547,11 @@ class Js220(Device):
     def _on_target_power_app(self, value):
         self._target_power_app = bool(value)
         self._send_to_thread('current_range_update', None)
+
+    def on_action_accum_clear(self, topic, value):
+        prev_value = self._statistics_offsets
+        if value is None:
+            self._statistics_offsets = None
+        else:
+            self._statistics_offsets = list(value)
+        return topic, prev_value

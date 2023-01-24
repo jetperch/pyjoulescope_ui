@@ -20,7 +20,6 @@ from joulescope_ui.devices.jsdrv.js220 import SETTINGS
 from joulescope_ui.ui_util import comboBoxConfig
 from .device_info_dialog import DeviceInfoDialog
 import webbrowser
-from joulescope_ui.styles import styled_widget
 
 
 JS220_USERS_GUIDE_URL = 'https://download.joulescope.com/products/JS220/JS220-K000/users_guide/index.html'
@@ -296,7 +295,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             b.setChecked(bool(value))
             b.blockSignals(block_state)
 
-        pubsub_singleton.subscribe(topic, update_from_pubsub, ['pub', 'retain'])
+        self._subscribe(topic, update_from_pubsub)
         b.toggled.connect(lambda checked: pubsub_singleton.publish(topic, bool(checked)))
         self._signals['layout'].addWidget(b)
         self._signals['buttons'][signal] = b
@@ -344,7 +343,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             b.setChecked(bool(value))
             b.blockSignals(block_state)
 
-        pubsub_singleton.subscribe(topic, update_from_pubsub, ['pub', 'retain'])
+        self._subscribe(topic, update_from_pubsub)
         b.toggled.connect(lambda checked: pubsub_singleton.publish(topic, bool(checked)))
         self._gpo['layout'].addWidget(b)
         self._gpo['buttons'].append(b)
@@ -463,17 +462,23 @@ class Js220CtrlWidget(QtWidgets.QWidget):
 
     def _clear_accumulators(self, checked):
         self._log.info('clear accumulators')
-        # todo
+        topic = f'{get_topic_name(self._unique_id)}/actions/!accum_clear'
+        pubsub_singleton.publish(topic, None)
 
     def clear(self):
         for topic, fn in self._unsub:
             pubsub_singleton.unsubscribe(topic, fn)
         while len(self._widgets):
             w = self._widgets.pop()
-            self._grid.removeWidget(w)
+            self._body_layout.removeWidget(w)
             w.deleteLater()
 
+    def __del__(self):
+        self._log.info('__del__')
+        self.clear()
+
     def closeEvent(self, event):
+        self._log.info('closeEvent')
         self.clear()
         return super().closeEvent(event)
 
