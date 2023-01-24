@@ -75,6 +75,8 @@ _CLEAR_ACCUM_TOOLTIP = tooltip_format(
 
 _BUTTON_SIZE = (20, 20)
 
+_GPI_SIGNALS = ['0', '1', '2', '3', 'T']
+
 
 def _construct_pushbutton(parent, name, checkable=False, tooltip=None):
     b = QtWidgets.QPushButton(parent)
@@ -128,7 +130,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         self._subscribe('registry/ui/events/blink_slow', self._on_blink)
         self._subscribe('registry/app/settings/target_power', self._on_target_power_app)
         topic = get_topic_name(self._unique_id)
-        for signal in ['0', '1', '2', '3', 'T']:
+        for signal in _GPI_SIGNALS:
             self._gpi_subscribe(f'{topic}/signals/{signal}/!data', signal)
         self._subscribe(f'{topic}/settings/state', self._on_setting_state)
 
@@ -147,6 +149,9 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         signal_level = 1 if (d[0] != 0) else 0
         b = self._signals['buttons'][signal]
         if b.property('signal_level') != signal_level:
+            open = self.findChild(QtWidgets.QPushButton, "open")
+            if not open.isChecked():
+                signal_level = 0
             name = 'device_control_signal_on' if signal_level else 'device_control_signal'
             b.setObjectName(name)
             b.setProperty('signal_level', signal_level)
@@ -215,7 +220,6 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             for topic in topics:
                 pubsub_singleton.publish(topic, self._unique_id)
 
-        self._target_power_button = b
         self._subscribe(topics[0], update_from_pubsub)
         b.toggled.connect(on_pressed)
         return b
@@ -237,6 +241,14 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         b.toggled.connect(lambda checked: pubsub_singleton.publish(topic, bool(checked)))
         return b
 
+    def _gpi_state_clear(self):
+        for signal in _GPI_SIGNALS:
+            b = self._signals['buttons'][signal]
+            b.setObjectName('device_control_signal')
+            b.setProperty('signal_level', 0)
+            b.style().unpolish(b)
+            b.style().polish(b)
+
     def _construct_open_button(self, parent):
         self_topic = get_topic_name(self._unique_id)
         state_topic = f'{self_topic}/settings/state'
@@ -247,6 +259,8 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             block_state = b.blockSignals(True)
             b.setChecked(checked)
             b.blockSignals(block_state)
+            if not checked:
+                self._gpi_state_clear()
 
         def on_toggle(checked):
             checked = bool(checked)
