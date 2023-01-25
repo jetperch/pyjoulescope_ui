@@ -14,7 +14,7 @@
 
 
 from pyjoulescope_driver import Driver
-from joulescope_ui import get_unique_id, get_topic_name, Metadata
+from joulescope_ui import get_unique_id, get_topic_name, Metadata, N_
 from joulescope_ui.capabilities import CAPABILITIES
 from .js110 import Js110
 from .js220 import Js220
@@ -27,6 +27,26 @@ class JsdrvWrapper:
     EVENTS = {
         '!publish': Metadata('obj', 'Resync to UI publish thread')
     }
+    SETTINGS = {
+        'log_level': {
+            'dtype': 'str',
+            'brief': N_('The pyjoulescope_driver log level.'),
+            'options': [
+                ['off', 'off'],
+                ['emergency', 'emergency'],
+                ['alert', 'alert'],
+                ['critical', 'critical'],
+                ['warning', 'warning'],
+                ['notice', 'notice'],
+                ['info', 'info'],
+                ['debug1', 'debug1'],
+                ['debug2', 'debug2'],
+                ['debug3', 'debug3'],
+                ['debug3', 'all'],
+            ],
+            'default': 'notice',
+        },
+    }
 
     def __init__(self):
         self._parent = None
@@ -34,10 +54,9 @@ class JsdrvWrapper:
         self.pubsub = None
         self._topic = None
         self.driver = None
-        self.subscriptions: dict[str, list[callable]] = {}
         self.devices = {}
-        self._on_driver_publish_fn = self._on_driver_publish
-        self._on_event_publish_fn = self._on_event_publish
+        self._ui_subscriptions = []
+        self._driver_subscriptions = []
 
     def on_pubsub_register(self, pubsub):
         topic = get_topic_name(self)
@@ -47,13 +66,32 @@ class JsdrvWrapper:
         self.pubsub = pubsub
         self._topic = topic
         self.driver = Driver()
-        self.driver.log_level = 'INFO'
-        self.pubsub.subscribe(f'{topic}/events/!publish', self._on_event_publish_fn, ['pub'])
-        self.driver.subscribe('@', 'pub', self._on_driver_publish_fn)
+        self._ui_subscribe(f'{topic}/settings/log_level', self._on_log_level, ['retain', 'pub'])
+        self._ui_subscribe(f'{topic}/events/!publish', self._on_event_publish, ['pub'])
+        self.driver.subscribe('@', 'pub', self._on_driver_publish)
         for d in self.driver.device_paths():
             self._log.info('on_pubsub_register add %s', d)
             self._on_driver_publish('@/!add', d)
         self._log.info('on_pubsub_register done %s', topic)
+
+    def clear(self):
+        while len(self._ui_subscriptions):
+            topic, fn, flags = self._ui_subscribe.pop()
+            self.pubsub.unsubscribe(topic, fn, flags)
+        while len(self._driver_subscriptions):
+            topic, fn, flags = self._driver_subscriptions.pop()
+            self.driver.unsubscribe(topic, fn)
+
+    def _ui_subscribe(self, topic: str, update_fn: callable, flags=None, timeout=None):
+        self._ui_subscriptions.append((topic, update_fn, flags))
+        self.pubsub.subscribe(topic, update_fn, flags, timeout)
+
+    def _driver_subscribe(self, topic: str, flags, fn, timeout=None):
+        self._driver_subscriptions.append((topic, fn))
+        self.driver.subscribe(topic, flags, fn, timeout)
+
+    def _on_log_level(self, value):
+        self.driver.log_level = value
 
     def on_action_finalize(self):
         self._log.info('finalize')

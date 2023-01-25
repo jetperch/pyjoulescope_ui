@@ -166,7 +166,7 @@ class _InnerWidget(QtWidgets.QWidget):
 
     def paintEvent(self, event):
         parent = self._parent
-        if parent.source is None:
+        if parent.source is None or not hasattr(parent, 'style_manager_info'):
             return
 
         painter = QtGui.QPainter(self)
