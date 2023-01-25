@@ -33,14 +33,23 @@ class DockWidget(QtAds.CDockWidget):
         self._subscribe_fns = [[f'{topic}/settings/name', self._on_setting_name]]
         for t, fn in self._subscribe_fns:
             pubsub_singleton.subscribe(t, fn, flags=['pub', 'retain'])
-        #self.setFeature()
+        self.setFeatures(
+            QtAds.CDockWidget.DockWidgetClosable |
+            QtAds.CDockWidget.DockWidgetMovable |
+            QtAds.CDockWidget.DockWidgetFloatable |
+            QtAds.CDockWidget.DockWidgetFocusable |
+            QtAds.CDockWidget.DockWidgetDeleteOnClose |
+            QtAds.CDockWidget.DockWidgetForceCloseWithArea |
+            0)
+        self.closeRequested.connect(self._on_close_request)
 
     def _on_setting_name(self, value):
         self.setWindowTitle(value)
 
-    def closeRequested(self):
+    def _on_close_request(self):
         widget = self.widget()
-        _log.info('closeRequested on widget %s', get_unique_id(widget))
+        _log.info('close %s', get_unique_id(widget))
+        widget.close()
         pubsub_singleton.publish('registry/view/actions/!widget_close', get_topic_name(widget))
 
 
