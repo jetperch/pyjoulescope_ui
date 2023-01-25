@@ -73,4 +73,6 @@ class DeviceControlWidget(QtWidgets.QWidget):
     def closeEvent(self, event):
         for topic, fn in self._subscribers:
             pubsub_singleton.unsubscribe(topic, fn)
+        while len(self._device_widgets):
+            self._device_remove(next(iter(self._device_widgets)))
         return super().closeEvent(event)

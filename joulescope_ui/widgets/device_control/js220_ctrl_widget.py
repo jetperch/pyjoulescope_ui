@@ -490,11 +490,8 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         while len(self._widgets):
             w = self._widgets.pop()
             self._body_layout.removeWidget(w)
+            w.close()
             w.deleteLater()
-
-    def __del__(self):
-        self._log.info('__del__')
-        self.clear()
 
     def closeEvent(self, event):
         self._log.info('closeEvent')

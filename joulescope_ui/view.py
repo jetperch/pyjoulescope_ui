@@ -230,9 +230,9 @@ class View:
             dock_widget.deleteLater()
             self._dock_manager.removeDockWidget(dock_widget)
             instance.dock_widget = None
+            instance.close()
+            instance.deleteLater()
         pubsub_singleton.unregister(topic)
-        instance.close()
-        instance.deleteLater()
         return ['registry/view/actions/!widget_open', topic]
 
     @staticmethod
