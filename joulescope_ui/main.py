@@ -202,7 +202,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # todo restore view
         #self._pubsub.publish('registry/view/actions/!widget_open', 'ExampleWidget')
         #self._pubsub.publish('registry/view/actions/!widget_open', 'ExampleWidget')
-        self._pubsub.publish('registry/view/actions/!widget_open', 'ValueWidget')
+        self._pubsub.publish('registry/view/actions/!widget_open', 'MultimeterWidget')
         #self._pubsub.publish('registry/view/actions/!widget_open', 'MultimeterWidget')
 
         self._pubsub.process()

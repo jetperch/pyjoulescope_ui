@@ -17,6 +17,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from joulescope_ui import pubsub_singleton, N_, register_decorator, \
     get_instance, get_unique_id, get_topic_name, Metadata
 from joulescope_ui.pubsub import subtopic_to_name
+from joulescope_ui.ui_util import comboBoxConfig, comboBoxSelectItemByText
 from joulescope_ui.styles import styled_widget, font_as_qfont, font_as_qss
 from joulescope_ui.styles.color_picker import ColorItem
 from joulescope_ui.styles.color_scheme import COLOR_SCHEMES
@@ -105,7 +106,9 @@ class SettingsEditorWidget(_GridWidget):
 
         settings_topic = f'{topic}/{setting}'
         meta: Metadata = pubsub_singleton.metadata(settings_topic)
-        if meta.dtype == 'bool':
+        if meta.options is not None and len(meta.options):
+            self._insert_combobox(settings_topic, meta)
+        elif meta.dtype == 'bool':
             self._insert_bool(settings_topic)
         elif meta.dtype == 'str':
             self._insert_str(settings_topic, meta)
@@ -140,6 +143,19 @@ class SettingsEditorWidget(_GridWidget):
             block_state = widget.blockSignals(True)
             widget.setText(str(v))
             widget.blockSignals(block_state)
+
+        self._subscribe(topic, handle)
+
+    def _insert_combobox(self, topic, meta):
+        widget = QtWidgets.QComboBox(self)
+        self._grid.addWidget(widget, self._row, 1, 1, 1)
+        self._widgets.append(widget)
+        options = [option[1 if len(option) > 1 else 0] for option in meta.options]
+        comboBoxConfig(widget, options, meta.default)
+        widget.currentIndexChanged.connect(lambda idx: pubsub_singleton.publish(topic, options[idx]))
+
+        def handle(v):
+            comboBoxSelectItemByText(widget, v, block=True)
 
         self._subscribe(topic, handle)
 

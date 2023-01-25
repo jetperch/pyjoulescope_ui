@@ -20,7 +20,64 @@ from joulescope_ui.units import unit_prefix, three_sig_figs
 from joulescope_ui.ui_util import comboBoxConfig
 import datetime
 import numpy as np
+import copy
 import logging
+
+
+SETTINGS = {
+    'statistics_stream_source': {
+        'dtype': 'str',
+        'brief': N_('The statistics data stream source.'),
+        'default': None,
+    },
+    'show_device_selection': {
+        'dtype': 'bool',
+        'brief': N_('Show the device selection header.'),
+        'default': True,
+    },
+    'show_accrue': {
+        'dtype': 'bool',
+        'brief': N_('Show the accrue header.'),
+        'default': True,
+    },
+    'show_fields': {
+        'dtype': 'bool',
+        'brief': N_('Show the statistics fields at the right.'),
+        'default': True,
+    },
+    'show_sign': {
+        'dtype': 'bool',
+        'brief': N_('Show a leading + or - sign.'),
+        'default': True,
+    },
+    'show_titles': {
+        'dtype': 'bool',
+        'brief': N_('Show the statistics section title for each signal.'),
+        'default': True,
+    },
+}
+
+def _settings_alter(**kwargs):
+    d = copy.deepcopy(SETTINGS)
+    for key, default in kwargs.items():
+        d[key]['default'] = default
+    return d
+
+
+_MULTIMETER_SETTINGS = _settings_alter(show_titles=False)
+_VALUE_SETTINGS = _settings_alter(show_device_selection=False, show_accrue=False, show_fields=False)
+_VALUE_SETTINGS['signal'] = {
+    'dtype': 'str',
+    'brief': N_('The signal to display.'),
+    'options': [
+        ['current'],
+        ['voltage'],
+        ['power'],
+        ['charge'],
+        ['energy'],
+    ],
+    'default': 'current',
+}
 
 
 _DEVICE_TOOLTIP = tooltip_format(
@@ -105,7 +162,7 @@ class _DeviceWidget(QtWidgets.QWidget):
             self._device_label.hide()
 
 
-class _ControlWidget(QtWidgets.QWidget):
+class _AccrueWidget(QtWidgets.QWidget):
 
     def __init__(self, parent):
         self._log = logging.getLogger(__name__)
@@ -149,7 +206,6 @@ class _InnerWidget(QtWidgets.QWidget):
 
     def __init__(self, parent):
         self._parent: ValueWidget = parent
-        self._menu = None
         self._statistics = None  # most recent statistics information
         super().__init__(parent=parent)
         self._size = (10, 10)
@@ -157,14 +213,14 @@ class _InnerWidget(QtWidgets.QWidget):
         self.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
         self._signals = ['current', 'voltage', 'power', 'charge', 'energy']
         self._main = 'avg'
-        self._fields = ['std', 'min', 'max', 'p2p']
-        self.mousePressEvent = self._on_mousePressEvent
+        self._fields = ['avg', 'std', 'min', 'max', 'p2p']
 
     def on_cbk_statistics(self, value):
         self._statistics = value
         self.repaint()
 
     def paintEvent(self, event):
+        fields = [field for field in self._fields if field != self._main]
         parent = self._parent
         if parent.source is None or not hasattr(parent, 'style_manager_info'):
             return
@@ -202,10 +258,10 @@ class _InnerWidget(QtWidgets.QWidget):
         line_color = color_as_qcolor(v['value.line_color'])
 
         x_max = x_border + main_char_width + main_number_width + main_char_width // 2 + main_text_width * 2 + x_border
-        if parent.show_fields and len(self._fields):
+        if parent.show_fields and len(fields):
             x_max += (main_text_width // 2 + stats_char_width + stats_number_width +
                       stats_char_width + stats_field_width_max)
-        field_count = len(self._fields) if parent.show_fields else 0
+        field_count = len(fields) if parent.show_fields else 0
         y1 = title_height + main_font_metrics.height()
         y2 = stats_font_metrics.height() * field_count
         if field_count > 1:
@@ -267,7 +323,7 @@ class _InnerWidget(QtWidgets.QWidget):
                 _, prefix, scale = unit_prefix(signal_value)
             else:
                 signal = self._statistics['signals'][signal_name]
-                fields = self._fields if parent.show_fields else []
+                fields = fields if parent.show_fields else []
                 fields_all = [self._main] + fields
                 max_value = max([abs(signal[s]['value']) for s in fields_all])
                 _, prefix, scale = unit_prefix(max_value)
@@ -316,57 +372,24 @@ class _InnerWidget(QtWidgets.QWidget):
         #painter.drawRect(x_border, y_border, x_max - x_border, y - y_border)
         painter.end()
 
-    def _on_mousePressEvent(self, event):
-        if event.button() == QtCore.Qt.LeftButton:
-            event.accept()
-        elif event.button() == QtCore.Qt.RightButton:
-            menu = QtWidgets.QMenu(self)
-            style_action = settings_action_create(self._parent, menu)
-            menu.popup(event.globalPos())
-            self._menu = [menu, style_action]
-            event.accept()
 
-
-@register
-@styled_widget(N_('Value'))
-class ValueWidget(QtWidgets.QWidget):
+class _BaseWidget(QtWidgets.QWidget):
     """Display a single value from a statistics stream."""
 
     CAPABILITIES = ['widget@', CAPABILITIES.STATISTIC_STREAM_SINK]
-    SETTINGS = {
-        'statistics_stream_source': {
-            'dtype': 'str',
-            'brief': N_('The statistics data stream source.'),
-            'default': None,
-        },
-        'show_fields': {
-            'dtype': 'bool',
-            'brief': N_('Show the statistics fields at the right.'),
-            'default': True,
-        },
-        'show_sign': {
-            'dtype': 'bool',
-            'brief': N_('Show a leading + or - sign.'),
-            'default': True,
-        },
-        'show_titles': {
-            'dtype': 'bool',
-            'brief': N_('Show the statistics section title for each signal.'),
-            'default': True,
-        },
-    }
 
     def __init__(self, parent=None):
+        self._menu = None
         super().__init__(parent=parent)
         self.setObjectName('value_widget')
         self._layout = QtWidgets.QVBoxLayout()
         self._layout.setContentsMargins(0, 0, 0, 0)
         self._layout.setSpacing(0)
         self._device_widget = _DeviceWidget(self)
-        self._control_widget = _ControlWidget(self)
+        self._accrue_widget = _AccrueWidget(self)
         self._inner = _InnerWidget(self)
         self._layout.addWidget(self._device_widget)
-        self._layout.addWidget(self._control_widget)
+        self._layout.addWidget(self._accrue_widget)
         self._layout.addWidget(self._inner)
         self._spacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self._layout.addItem(self._spacer)
@@ -384,6 +407,8 @@ class ValueWidget(QtWidgets.QWidget):
         ]
         for topic, fn in self._subscribers:
             pubsub_singleton.subscribe(topic, fn, ['pub', 'retain'])
+
+        self.mousePressEvent = self._on_mousePressEvent
 
     def closeEvent(self, event):
         self._disconnect()
@@ -459,7 +484,7 @@ class ValueWidget(QtWidgets.QWidget):
         return self._statistics
 
     def on_cbk_statistics(self, value):
-        if self._control_widget.is_accrue:
+        if self._accrue_widget.is_accrue:
             self._statistics = self._accum(value)
             if 'accum_start' not in self._statistics:
                 self._statistics['accum_start'] = datetime.datetime.now().isoformat().split('.')[0]
@@ -468,5 +493,43 @@ class ValueWidget(QtWidgets.QWidget):
         v_start, v_end = self._statistics['time']['samples']['value']
         sample_freq = self._statistics['time']['sample_freq']['value']
         self._device_widget.device_show(self.source)
-        self._control_widget.accrue_duration((v_end - v_start) / sample_freq, self._statistics.get('accum_start'))
+        self._accrue_widget.accrue_duration((v_end - v_start) / sample_freq, self._statistics.get('accum_start'))
         self._inner.on_cbk_statistics(self._statistics)
+
+    def on_setting_show_device_selection(self, value):
+        self._device_widget.setVisible(bool(value))
+
+    def on_setting_show_accrue(self, value):
+        self._accrue_widget.setVisible(bool(value))
+
+    def _on_mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            event.accept()
+        elif event.button() == QtCore.Qt.RightButton:
+            menu = QtWidgets.QMenu(self)
+            style_action = settings_action_create(self, menu)
+            menu.popup(event.globalPos())
+            self._menu = [menu, style_action]
+            event.accept()
+
+
+@register
+@styled_widget(N_('Multimeter'))
+class MultimeterWidget(_BaseWidget):
+    SETTINGS = _MULTIMETER_SETTINGS
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+
+@register
+@styled_widget(N_('Value'))
+class ValueWidget(_BaseWidget):
+    SETTINGS = _VALUE_SETTINGS
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self._inner._signals = ['current']
+
+    def on_setting_signal(self, value):
+        self._inner._signals = [value]
