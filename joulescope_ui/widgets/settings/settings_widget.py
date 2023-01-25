@@ -23,6 +23,7 @@ from joulescope_ui.styles.color_picker import ColorItem
 from joulescope_ui.styles.color_scheme import COLOR_SCHEMES
 from joulescope_ui.styles.font_scheme import FONT_SCHEMES
 from joulescope_ui.styles.manager import style_settings
+import copy
 import logging
 
 
@@ -178,7 +179,7 @@ class ColorEditorWidget(_GridWidget):
             self._log.warning('invalid color %s', color)
             return
         self._colors[name] = color
-        pubsub_singleton.publish(f'{self._topic}/settings/colors', dict(self._colors))
+        pubsub_singleton.publish(f'{self._topic}/settings/colors', copy.deepcopy(self._colors))
 
     def clear(self):
         while len(self._color_widgets):
@@ -201,7 +202,7 @@ class ColorEditorWidget(_GridWidget):
         self.clear()
         self._obj = get_instance(obj)
         self._topic = get_topic_name(self._obj)
-        self._colors = load_colors(self._obj)
+        self._colors = copy.deepcopy(load_colors(self._obj))
 
         name_label = QtWidgets.QLabel(N_('Name'), self)
         self._grid.addWidget(name_label, 0, 0, 1, 1)

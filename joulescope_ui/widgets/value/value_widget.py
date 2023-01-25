@@ -374,8 +374,6 @@ class _InnerWidget(QtWidgets.QWidget):
 
 
 class _BaseWidget(QtWidgets.QWidget):
-    """Display a single value from a statistics stream."""
-
     CAPABILITIES = ['widget@', CAPABILITIES.STATISTIC_STREAM_SINK]
 
     def __init__(self, parent=None):
@@ -415,7 +413,7 @@ class _BaseWidget(QtWidgets.QWidget):
         for topic, fn in self._subscribers:
             pubsub_singleton.unsubscribe(topic, fn)
         self._statistics = None
-        return super(ValueWidget, self).closeEvent(event)
+        return super().closeEvent(event)
 
     def _disconnect(self):
         pubsub_singleton.unsubscribe_all(self._on_cbk_statistics_fn)
@@ -511,6 +509,9 @@ class _BaseWidget(QtWidgets.QWidget):
             menu.popup(event.globalPos())
             self._menu = [menu, style_action]
             event.accept()
+
+    def on_style_change(self):
+        self.update()
 
 
 @register

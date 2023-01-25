@@ -65,6 +65,12 @@ Each profile globally defines the theme, color_scheme, and font_scheme.
 The style is unique per profile.  However, each widget class and
 widget instance can override the **color scheme**.
 
+The joulescope_ui.styles.manager.styled_widget decorator monkeypatches 
+every widget class.  See the documentation for details.
+
+If a widget implements an on_style_change method, then the style manager
+will call it each time the style changes.
+
 See the following style references:
 
 * [Qt Style Sheet Syntax](https://doc.qt.io/qt-6/stylesheet-syntax.html)

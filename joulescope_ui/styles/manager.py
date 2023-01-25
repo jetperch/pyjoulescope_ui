@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Manage styles for the user interface application."""
+
 
 import json
 import logging
@@ -22,6 +24,7 @@ from joulescope_ui.sanitize import str_to_filename
 from . import color_file, parameter_file
 from .color_scheme import COLOR_SCHEMES
 from .font_scheme import FONT_SCHEMES
+import copy
 import pkgutil
 import time
 
@@ -93,14 +96,14 @@ def load_colors(obj, color_scheme=None, pubsub=None):
     topic_name = get_topic_name(obj)
     colors = pubsub.query(f'{topic_name}/settings/colors', default=None)
     if colors is not None:
-        return dict(colors)
+        return colors
     if isinstance(obj, type):  # object is a class
         cls = obj
         # get class override colors
         instance_of_topic = get_topic_name(cls)
         colors = pubsub.query(f'{instance_of_topic}/settings/colors', default=None)
         if colors is not None:
-            return dict(colors)
+            return colors
 
         # get class default colors
         package = '.'.join(cls.__module__.split('.')[:-1])
@@ -204,7 +207,7 @@ class StyleManager:
         topic_name = get_topic_name(unique_id)
         target_path = os.path.join(self.path, str_to_filename(unique_id))
         t_start = time.time()
-        self._log.info('render %s: start to %s', unique_id, target_path)
+        self._log.info('_render_one(%s): start to %s', unique_id, target_path)
         instance = self.pubsub.query(f'{topic_name}/instance', default=None)
         if instance is None:
             return  # nothing to update
@@ -254,7 +257,9 @@ class StyleManager:
         children = self.pubsub.query(f'{topic_name}/children', default=[])
         self._log.info('render %s: done in %.3f seconds', unique_id, time.time() - t_start)
         for child in children:
-            self._render_one(child, dict(info))
+            self._render_one(child, info)
+        if not isinstance(obj, type) and hasattr(obj, 'on_style_change'):
+            obj.on_style_change()
         return info
 
     def _render_view(self, unique_id):
@@ -278,7 +283,7 @@ class StyleManager:
         except ValueError:
             self._log.debug('render None - likely still being registered, will get called later.')
             return None
-        self._log.info('render %s', value)
+        self._log.info('on_action_render(%s)', value)
         obj = get_instance(unique_id)
         if isinstance(obj, type):
             # Only need to render active widgets of this type
@@ -298,7 +303,7 @@ class StyleManager:
             next_topic_name = get_topic_name(next_unique_id)
             next_obj = self.pubsub.query(f'{next_topic_name}/instance')
             if hasattr(next_obj, 'style_manager_info'):
-                self._render_one(unique_id, next_obj.style_manager_info)
+                self._render_one(unique_id, copy.deepcopy(next_obj.style_manager_info))
                 return None
             unique_id = next_unique_id
 
@@ -373,7 +378,8 @@ def styled_widget(translated_name):
     :param translated_name: The translated name for this widget.
 
     This decorator is a mixin that monkey patches the widget
-    to add style SETTINGS and methods to fully support styles.
+    to add style SETTINGS and methods to fully support styles
+    and adds methods to handle the settings updates.
     """
 
     def on_setting_stylesheet(self, value):
