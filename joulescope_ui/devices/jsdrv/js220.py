@@ -423,7 +423,7 @@ class Js220(Device):
         self._close_req()
 
     def _run_cmd_settings(self, topic, value):
-        self._log.info(f'setting: %s <= %s', topic, value)
+        self._log.info(f'setting(%s): %s <= %s', self, topic, value)
         if topic.startswith('enable/'):
             t = _ENABLE_MAP.get(topic)
             if t is not None:
@@ -526,6 +526,7 @@ class Js220(Device):
         if self.state == 0:  # already closed
             return
         self._log.info('close %s start', self.unique_id)
+        self._ui_unsubscribe('settings', self._on_settings_fn)
         self._ui_publish('settings/state', 'closing')
         self._driver_unsubscribe('s/stats/value', self._on_stats_fn)
         try:

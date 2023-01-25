@@ -41,6 +41,9 @@ class Device:
         self._path = device_path
         self._driver_subscriptions = []
 
+    def __str__(self):
+        return f'Device({self._path})'
+
     def finalize(self):
         while len(self._driver_subscriptions):
             t, v = self._driver_subscriptions.pop()
