@@ -27,7 +27,7 @@ _log = logging.getLogger(__name__)
 class DockWidget(QtAds.CDockWidget):
 
     def __init__(self, widget: QtWidgets.QWidget):
-        super().__init__('temp_title')  # replaced by widget name
+        super().__init__('')  # replaced by widget name
         self.setWidget(widget)
         topic = get_topic_name(widget)
         self._subscribe_fns = [[f'{topic}/settings/name', self._on_setting_name]]

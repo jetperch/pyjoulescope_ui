@@ -16,7 +16,6 @@
 from PySide6 import QtCore, QtGui, QtWidgets
 from joulescope_ui import pubsub_singleton, N_, register_decorator, \
     get_instance, get_unique_id, get_topic_name, Metadata
-from joulescope_ui.pubsub import subtopic_to_name
 from joulescope_ui.ui_util import comboBoxConfig, comboBoxSelectItemByText
 from joulescope_ui.styles import styled_widget, font_as_qfont, font_as_qss
 from joulescope_ui.styles.color_picker import ColorItem
@@ -82,7 +81,11 @@ class SettingsEditorWidget(_GridWidget):
 
     @object.setter
     def object(self, obj):
-        self.clear()
+        if self._obj is not None:
+            self.clear()
+        if obj is None:
+            self._obj = None
+            return
         self._obj = get_instance(obj)
         name_label = QtWidgets.QLabel(N_('Name'), self)
         self._grid.addWidget(name_label, 0, 0, 1, 1)
@@ -199,7 +202,11 @@ class ColorEditorWidget(_GridWidget):
     @object.setter
     def object(self, obj):
         from joulescope_ui.styles.manager import load_colors
-        self.clear()
+        if self._obj is not None:
+            self.clear()
+        if obj is None:
+            self._obj = None
+            return
         self._obj = get_instance(obj)
         self._topic = get_topic_name(self._obj)
         self._colors = copy.deepcopy(load_colors(self._obj))
@@ -280,7 +287,11 @@ class FontEditorWidget(_GridWidget):
     @object.setter
     def object(self, obj):
         from joulescope_ui.styles.manager import load_fonts
-        self.clear()
+        if self._obj is not None:
+            self.clear()
+        if obj is None:
+            self._obj = None
+            return
         self._obj = get_instance(obj)
         self._topic = get_topic_name(self._obj)
         self._fonts = load_fonts(self._obj)
@@ -340,7 +351,11 @@ class StyleDefineEditorWidget(_GridWidget):
     @object.setter
     def object(self, obj):
         from joulescope_ui.styles.manager import load_style_defines
-        self.clear()
+        if self._obj is not None:
+            self.clear()
+        if obj is None:
+            self._obj = None
+            return
         self._obj = get_instance(obj)
         self._topic = get_topic_name(self._obj)
         self._entries = load_style_defines(self._obj)
@@ -382,6 +397,7 @@ class SettingsWidget(QtWidgets.QWidget):
         super(SettingsWidget, self).__init__(parent)
         self._obj = None
         self.setObjectName(f'settings_widget')
+        self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         self._layout = QtWidgets.QVBoxLayout()
         self._layout.setObjectName('settings_widget_layout')
         self._layout.setSpacing(0)
@@ -405,6 +421,10 @@ class SettingsWidget(QtWidgets.QWidget):
             self._widgets.append([widget, scroll])
         self._layout.addWidget(self._tabs)
         self.setLayout(self._layout)
+
+    def closeEvent(self, event):
+        self.object = None
+        return super().closeEvent(event)
 
     def on_setting_target(self, value):
         if isinstance(value, str) and not len(value):

@@ -380,6 +380,7 @@ class _BaseWidget(QtWidgets.QWidget):
         self._menu = None
         super().__init__(parent=parent)
         self.setObjectName('value_widget')
+        self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         self._layout = QtWidgets.QVBoxLayout()
         self._layout.setContentsMargins(0, 0, 0, 0)
         self._layout.setSpacing(0)
