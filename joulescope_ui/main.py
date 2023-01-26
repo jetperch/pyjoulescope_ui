@@ -91,11 +91,10 @@ class MainWindow(QtWidgets.QMainWindow):
     }
 
     def __init__(self):
-        self.view = None
         self._log = logging.getLogger(__name__)
         super(MainWindow, self).__init__()
         self._pubsub = pubsub_singleton
-        self._pubsub.register(self, 'ui')
+        self._pubsub.register(self, 'ui', parent=None)
         self._app = App().register()
         self.resize(800, 600)
         self._icon = QtGui.QIcon()
@@ -121,16 +120,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self._central_layout.setContentsMargins(0, 0, 0, 0)
         self._central_widget.setLayout(self._central_layout)
 
-        # Create the singleton sidebar widget
-        self._side_bar = SideBar(self._central_widget)
-        self._central_layout.addWidget(self._side_bar)
-        self._pubsub.register(self._side_bar, 'sidebar:0')
-        self._pubsub.publish('registry/view/actions/!fixed_widget_add', 'sidebar:0')
-
         self._dock_widget = QtWidgets.QWidget(self._central_widget)
         self._dock_widget.setObjectName('main_widget')
         self._dock_widget.setSizePolicy(size_policy_xx)
-        self._central_layout.addWidget(self._dock_widget)
 
         self._status_bar = QtWidgets.QStatusBar(self)
         self._status_bar.setObjectName('status_bar')
@@ -164,6 +156,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self._pubsub.publish('registry/view:multimeter/settings/name', N_('Multimeter'))
         self._pubsub.publish('registry/view/actions/!add', 'view:oscilloscope')
         self._pubsub.publish('registry/view:oscilloscope/settings/name', N_('Oscilloscope'))
+
+        # Create the singleton sidebar widget
+        self._side_bar = SideBar(self._central_widget)
+        self._side_bar.register()
+        self._central_layout.addWidget(self._side_bar)
+        self._central_layout.addWidget(self._dock_widget)
 
         self._menu_bar = QtWidgets.QMenuBar(self)
         self._menu_items = _menu_setup(self._menu_bar, [
@@ -204,6 +202,7 @@ class MainWindow(QtWidgets.QMainWindow):
         #self._pubsub.publish('registry/view/actions/!widget_open', 'ExampleWidget')
         self._pubsub.publish('registry/view/actions/!widget_open', 'MultimeterWidget')
         #self._pubsub.publish('registry/view/actions/!widget_open', 'MultimeterWidget')
+        self._pubsub.publish('registry/StyleManager:0/actions/!render', None)
 
         self._pubsub.process()
         self.show()

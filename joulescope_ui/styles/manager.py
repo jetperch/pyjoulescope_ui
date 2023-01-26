@@ -93,7 +93,13 @@ def load_colors(obj, color_scheme=None, pubsub=None):
     if pubsub is None:
         pubsub = pubsub_singleton
     obj = get_instance(obj, pubsub=pubsub)
-    topic_name = get_topic_name(obj)
+    try:
+        topic_name = get_topic_name(obj)
+    except ValueError:
+        if isinstance(obj, type):
+            return {'dark': {}, 'light': {}}
+        else:
+            return {}
     colors = pubsub.query(f'{topic_name}/settings/colors', default=None)
     if colors is not None:
         return colors
@@ -124,7 +130,13 @@ def load_fonts(obj, font_scheme=None, pubsub=None):
     if pubsub is None:
         pubsub = pubsub_singleton
     obj = get_instance(obj, pubsub=pubsub)
-    topic_name = get_topic_name(obj)
+    try:
+        topic_name = get_topic_name(obj)
+    except ValueError:
+        if isinstance(obj, type):
+            return {'js1': {}}
+        else:
+            return {}
     entries = pubsub.query(f'{topic_name}/settings/fonts', default=None)
     if entries is not None:
         return entries
@@ -155,7 +167,10 @@ def load_style_defines(obj, pubsub=None):
     if pubsub is None:
         pubsub = pubsub_singleton
     obj = get_instance(obj, pubsub=pubsub)
-    topic_name = get_topic_name(obj)
+    try:
+        topic_name = get_topic_name(obj)
+    except ValueError:
+        return {}
     entries = pubsub.query(f'{topic_name}/settings/style_defines', default=None)
     if entries is not None:
         return entries
@@ -262,7 +277,9 @@ class StyleManager:
             obj.on_style_change()
         return info
 
-    def _render_view(self, unique_id):
+    def _render_view(self, unique_id=None):
+        if unique_id is None:
+            unique_id = self.pubsub.query(f'registry/view/settings/active')
         topic_name = get_topic_name(unique_id)
         # Get the view information
         info = {
@@ -272,12 +289,15 @@ class StyleManager:
             'sub_vars': {},
         }
         info = self._render_one(unique_id, info)
-        view = self.pubsub.query(f'{topic_name}/instance')
-        for unique_id in view.fixed_widgets:
-            self._render_one(unique_id, info)
+        obj = get_instance('ui')
+        obj.style_manager_info = info
+        self._render_one('ui', info)
         return None  # cannot undo directly, must undo settings
 
     def on_action_render(self, value):
+        if value is None:
+            self._render_view()
+            return None
         try:
             unique_id = get_unique_id(value)
         except ValueError:
@@ -285,10 +305,11 @@ class StyleManager:
             return None
         self._log.info('on_action_render(%s)', value)
         obj = get_instance(unique_id)
+        active_view_unique_id = self.pubsub.query(f'registry/view/settings/active')
         if isinstance(obj, type):
             # Only need to render active widgets of this type
             # but go ahead and render the entire active view
-            unique_id = self.pubsub.query(f'registry/view/settings/active')
+            unique_id = active_view_unique_id
             obj = get_instance(unique_id)
         if unique_id.startswith('view:'):
             return self._render_view(unique_id)
@@ -300,6 +321,8 @@ class StyleManager:
                 return self._render_view(unique_id)
             topic_name = get_topic_name(unique_id)
             next_unique_id = self.pubsub.query(f'{topic_name}/parent')
+            if next_unique_id in [None, '']:
+                next_unique_id = active_view_unique_id
             next_topic_name = get_topic_name(next_unique_id)
             next_obj = self.pubsub.query(f'{next_topic_name}/instance')
             if hasattr(next_obj, 'style_manager_info'):

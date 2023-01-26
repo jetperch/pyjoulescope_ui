@@ -1,0 +1,7 @@
+{
+  "type": "theme",
+  "version": 1,
+  "description": "Sidebar Flyout theme",
+  "templates": ["style.qss"],
+  "images": {}
+}

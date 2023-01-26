@@ -80,12 +80,24 @@ class CAPABILITIES(Enum):
           * signals/{signal_id}/!data
     
     Each SIGNAL_BUFFER_SOURCE must also implement:
-        * settings/signals/{signal_id}
-          * frequency: (may be read-only)
-          * range: [t_start, t_end] (read-only)
+        * settings/signals/{signal_id}/name
+        * settings/signals/{signal_id}/meta: obj with keys:
+          * vendor
+          * model
+          * version
+          * serial_number
+          * signal: (current, voltage, power, ...)    
+          * units
+          * source: (unique_id, if not same as this instance)
+          * source_topic: (fully qualified topic, if not from this instance)
+          * sample_freq: (output)
+        * settings/signals/{signal_id}/range: [t_start, t_end] in UTC (read-only)
         * actions/signals/{signal_id}
             * !sample_req [t_start, t_end, cbk_topic, cbk_identifier]
-            * !summary_req [t_start, t_end, t_incr, cbk_topic, cbk_identifier] 
+            * !summary_req [t_start, t_end, t_incr, cbk_topic, cbk_identifier]
+        * events/!signal_add {signal_id}: (optional, only for dynamic sources)
+        * events/!signal_remove {signal_id}:  (optional, only for dynamic sources)
+        * events/signals: list of signal_id 
     """
 
     SIGNAL_STREAM_SOURCE = 'signal_stream.source'

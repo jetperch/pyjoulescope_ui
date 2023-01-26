@@ -77,3 +77,10 @@ QPushButton#target_power[blink=false]:enabled      { image: url("{% path %}/targ
 QPushButton#target_power[blink=true]:enabled       { image: url("{% path %}/target_power_off_1.svg"); }
 QPushButton#target_power[blink=false]:enabled:checked      { image: url("{% path %}/target_power_on.svg"); }
 QPushButton#target_power[blink=true]:enabled:checked       { image: url("{% path %}/target_power_on.svg"); }
+
+
+
+QWidget#flyout {
+    color: #ff8080;
+    background-color: #ff0000;
+}

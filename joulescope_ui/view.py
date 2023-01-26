@@ -91,7 +91,6 @@ class View:
     _ui = None
     _dock_manager = None
     _active_instance = None
-    fixed_widgets = []  # actual widget objects
 
     def __init__(self):
         self.name = 'Unnamed view'
@@ -102,11 +101,6 @@ class View:
     @property
     def is_active(self):
         return self == View._active_instance
-
-    @staticmethod
-    def on_cls_action_fixed_widget_add(value):
-        unique_id = get_unique_id(value)
-        View.fixed_widgets.append(unique_id)
 
     @staticmethod
     def on_cls_setting_active(value):
