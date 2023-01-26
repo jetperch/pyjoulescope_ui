@@ -62,6 +62,16 @@ def _load_help(name, style):
     return title, html
 
 
+def _load_style(pubsub):
+    manager = pubsub.query('registry/StyleManager:0/instance')
+    style_path = os.path.join(manager.path, 'ui', 'style.html')
+    if not os.path.isfile(style_path):
+        return ''
+    with open(style_path, 'rt') as f:
+        style = f.read()
+    return style
+
+
 # Inspired by https://stackoverflow.com/questions/47345776/pyqt5-how-to-add-a-scrollbar-to-a-qmessagebox
 class HelpHtmlMessageBox(QtWidgets.QDialog):
     """Display user-meaningful help information."""
@@ -71,10 +81,11 @@ class HelpHtmlMessageBox(QtWidgets.QDialog):
     def __init__(self, pubsub, name):
         self._log = logging.getLogger(__name__ + f'.{name}')
         self._log.debug('create start')
-        # style = _load_style(pubsub)  # todo load from current style
-        title, html = _load_help(name, '')
+        style = _load_style(pubsub)
+        title, html = _load_help(name, style)
         parent = pubsub_singleton.query('registry/ui/instance')
         super().__init__(parent=parent)
+
         self.setObjectName("help_html_message_box")
         self._verticalLayout = QtWidgets.QVBoxLayout()
         self.setLayout(self._verticalLayout)

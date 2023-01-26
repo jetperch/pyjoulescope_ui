@@ -18,6 +18,7 @@
 from joulescope_ui import pubsub_singleton, N_, get_topic_name, PUBSUB_TOPICS, CAPABILITIES, Metadata
 from joulescope_ui.widgets import *   # registers all built-in widgets
 from joulescope_ui.logging_util import logging_preconfig, logging_config
+from joulescope_ui.styles.manager import style_settings
 from PySide6 import QtCore, QtGui, QtWidgets
 import PySide6QtAds as QtAds
 from .error_window import ErrorWindow
@@ -94,6 +95,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._log = logging.getLogger(__name__)
         super(MainWindow, self).__init__()
         self._pubsub = pubsub_singleton
+        self.SETTINGS = style_settings(N_('UI'))
         self._pubsub.register(self, 'ui', parent=None)
         self._app = App().register()
         self.resize(800, 600)
