@@ -35,6 +35,7 @@ class SignalRecordConfigWidget(QtWidgets.QWidget):
         self._parent = parent
         self._menu = None
         self._dialog = None
+        self._row = 0
         super().__init__(parent=parent)
         self.setObjectName('signal_record_config')
         self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
@@ -43,34 +44,80 @@ class SignalRecordConfigWidget(QtWidgets.QWidget):
         self._filename_label = QtWidgets.QLabel(N_('Filename'), self)
         self._filename = QtWidgets.QLineEdit(self)
         self._filename.setText(_construct_record_filename())
-        self._layout.addWidget(self._filename_label, 0, 0, 1, 1)
-        self._layout.addWidget(self._filename, 0, 1, 1, 1)
+        self._layout.addWidget(self._filename_label, self._row, 0, 1, 1)
+        self._layout.addWidget(self._filename, self._row, 1, 1, 1)
+        self._row += 1
 
         self._location_label = QtWidgets.QLabel(N_('Directory'), self)
         self._location = QtWidgets.QLineEdit(self)
         self._location.setText(pubsub_singleton.query('registry/paths/settings/save_path'))
         self._location_sel = QtWidgets.QPushButton(self)
         self._location_sel.pressed.connect(self._on_location_button)
-        self._layout.addWidget(self._location_label, 1, 0, 1, 1)
-        self._layout.addWidget(self._location, 1, 1, 1, 1)
-        self._layout.addWidget(self._location_sel, 1, 2, 1, 1)
+        self._layout.addWidget(self._location_label, self._row, 0, 1, 1)
+        self._layout.addWidget(self._location, self._row, 1, 1, 1)
+        self._layout.addWidget(self._location_sel, self._row, 2, 1, 1)
+        self._row += 1
 
+        self._source_widgets = {}
         self._signals_to_record_label = QtWidgets.QLabel(N_('Signals to record'), self)
-        self._layout.addWidget(self._signals_to_record_label, 2, 0, 1, 3)
-        # todo add signals
+        self._layout.addWidget(self._signals_to_record_label, self._row, 0, 1, 3)
+        self._row += 1
+        self._sources_add()
 
         self._notes_label = QtWidgets.QLabel(N_('Notes'), self)
-        self._layout.addWidget(self._notes_label, 3, 0, 1, 3)
+        self._layout.addWidget(self._notes_label, self._row, 0, 1, 3)
         self._notes = QtWidgets.QTextEdit(self)
-        self._layout.addWidget(self._notes, 4, 0, 4, 3)
+        self._layout.addWidget(self._notes, self._row + 4, 0, 4, 3)
+        self._row += 5
 
         self.setLayout(self._layout)
 
+    def _sources_add(self):
+        sources = pubsub_singleton.query(f'registry_manager/capabilities/{CAPABILITIES.SIGNAL_STREAM_SOURCE}/list')
+        for source in sorted(sources):
+            topic = get_topic_name(source)
+            name = pubsub_singleton.query(f'{topic}/settings/name')
+            label = QtWidgets.QLabel(f'   {name}', self)
+            self._layout.addWidget(label, self._row, 0, 1, 1)
+            signals = pubsub_singleton.enumerate(f'{topic}/settings/signals')
+
+            signal_widget = QtWidgets.QWidget(self)
+            signal_layout = QtWidgets.QHBoxLayout(signal_widget)
+            signal_layout.setContentsMargins(3, 3, 3, 3)
+            signal_layout.setSpacing(3)
+            signal_widget.setLayout(signal_layout)
+            self._layout.addWidget(signal_widget, self._row, 1, 1, 1)
+            self._row += 1
+
+            signal_widgets = {}
+            for signal_id in signals:
+                enabled = pubsub_singleton.query(f'{topic}/settings/signals/{signal_id}/enable')
+                b = QtWidgets.QPushButton(signal_widget)
+                b.setCheckable(True)
+                b.setEnabled(enabled)
+                b.setChecked(enabled)
+                b.setText(signal_id)
+                b.setFixedSize(20, 20)
+                signal_layout.addWidget(b)
+                signal_widgets[signal_id] = b
+
+            spacer = QtWidgets.QSpacerItem(0, 0,
+                                           QtWidgets.QSizePolicy.Expanding,
+                                           QtWidgets.QSizePolicy.Minimum)
+            signal_layout.addItem(spacer)
+            self._source_widgets[source] = (signal_widgets, signal_widget, signal_layout, label, spacer)
+
     def config(self):
         path = os.path.join(self._location.text(), self._filename.text())
+        signals = []
+        for source, values in self._source_widgets.items():
+            topic = get_topic_name(source)
+            for signal_id, b in values[0].items():
+                if b.isChecked():
+                    signals.append(f'{topic}/events/signals/{signal_id}/!data')
         return {
             'path': path,
-            'signals': [],  # todo
+            'signals': signals,
             'notes': self._notes.toPlainText(),
         }
 

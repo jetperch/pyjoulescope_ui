@@ -30,10 +30,6 @@ def _version_u32_to_str(v):
 
 EVENTS = {
     'statistics/!data': Metadata('obj', 'Periodic statistics data for each signal.'),
-    'signals/current/!data': Metadata('obj', 'Streaming sample data for the current signal.'),
-    'signals/voltage/!data': Metadata('obj', 'Streaming sample data for the voltage signal.'),
-    'signals/power/!data': Metadata('obj', 'Streaming sample data for the power signal.'),
-    # todo other signals, INx, TRIGGER, UART, ...
 }
 
 SETTINGS = {
@@ -77,6 +73,18 @@ SETTINGS = {
         ],
         'default': 1,
         'flags': ['ro', 'hidden'],
+    },
+    'sources/1/name': {
+        'dtype': 'str',
+        'brief': N_('Device name'),
+        'default': None,
+        'flags': ['ro', 'hidden'],  # duplicated from settings/name
+    },
+    'sources/1/info': {
+        'dtype': 'obj',
+        'brief': N_('Device information'),
+        'default': None,
+        'flags': ['ro', 'hidden'],  # duplicated from settings/info['device']
     },
     'signal_frequency': {
         'dtype': 'int',
@@ -243,66 +251,6 @@ SETTINGS = {
             setting to have any effect."""),
         'default': False,
     },
-    'enable/i': {
-        'dtype': 'bool',
-        'brief': N_('Current'),
-        'detail': N_("""Enable the current signal streaming."""),
-        'default': True,
-    },
-    'enable/v': {
-        'dtype': 'bool',
-        'brief': N_('Voltage'),
-        'detail': N_("""Enable the voltage signal streaming."""),
-        'default': True,
-    },
-    'enable/p': {
-        'dtype': 'bool',
-        'brief': N_('Power'),
-        'detail': N_("""Enable the power signal streaming."""),
-        'default': False,
-    },
-    'enable/r': {
-        'dtype': 'bool',
-        'brief': N_('Current Range'),
-        'detail': N_("""\
-            Enable the streaming for the selected current range.
-        
-            The current range is useful for understanding how your Joulescope
-            autoranges to measure your current signal.  It can also be helpful
-            in separating target system behavior from the small current range
-            switching artifacts."""),
-        'default': False,
-    },
-    'enable/0': {
-        'dtype': 'bool',
-        'brief': N_('GPI 0'),
-        'detail': N_('Enable the general purpose input 0 signal streaming.'),
-        'default': False,
-    },
-    'enable/1': {
-        'dtype': 'bool',
-        'brief': N_('GPI 1'),
-        'detail': N_('Enable the general purpose input 0 signal streaming.'),
-        'default': False,
-    },
-    'enable/2': {
-        'dtype': 'bool',
-        'brief': N_('GPI 2'),
-        'detail': N_('Enable the general purpose input 2 signal streaming.'),
-        'default': False,
-    },
-    'enable/3': {
-        'dtype': 'bool',
-        'brief': N_('GPI 3'),
-        'detail': N_('Enable the general purpose input 3 signal streaming.'),
-        'default': False,
-    },
-    'enable/T': {
-        'dtype': 'bool',
-        'brief': N_('Trigger input'),
-        'detail': N_('Enable the trigger input signal streaming.'),
-        'default': False,
-    },
 }
 
 
@@ -312,29 +260,95 @@ _SETTINGS_MAP = {
 }
 
 
-_ENABLE_MAP = {
-    'enable/i': 's/i/ctrl',
-    'enable/v': 's/v/ctrl',
-    'enable/p': 's/p/ctrl',
-    'enable/r': 's/i/range/ctrl',
-    'enable/0': 's/gpi/0/ctrl',
-    'enable/1': 's/gpi/1/ctrl',
-    'enable/2': 's/gpi/2/ctrl',
-    'enable/3': 's/gpi/3/ctrl',
-    'enable/T': 's/gpi/7/ctrl',
-}
+_SIGNALS = {
+    'i': {
+        'name': 'current',
+        'dtype': 'f32',
+        'units': 'A',
+        'brief': N_('Current'),
+        'detail': N_("""Enable the current signal streaming."""),
+        'default': True,
+        'topics': ('s/i/ctrl', 's/i/!data'),
+    },
+    'v': {
+        'name': 'voltage',
+        'dtype': 'f32',
+        'units': 'V',
+        'brief': N_('Voltage'),
+        'detail': N_("""Enable the voltage signal streaming."""),
+        'default': True,
+        'topics': ('s/v/ctrl', 's/v/!data'),
+    },
+    'p': {
+        'name': 'power',
+        'dtype': 'f32',
+        'units': 'W',
+        'brief': N_('Power'),
+        'detail': N_("""Enable the power signal streaming."""),
+        'default': True,
+        'topics': ('s/p/ctrl', 's/p/!data'),
+    },
+    'r': {
+        'name': 'current range',
+        'dtype': 'u8',
+        'units': '',
+        'brief': N_('Current Range'),
+        'detail': N_("""\
+            Enable the streaming for the selected current range.
+    
+            The current range is useful for understanding how your Joulescope
+            autoranges to measure your current signal.  It can also be helpful
+            in separating target system behavior from the small current range
+            switching artifacts."""),
+        'default': False,
+        'topics': ('s/i/range/ctrl', 's/i/range/!data'),
 
-
-_SIGNAL_REMAP = {
-    's/i/range/!data': 'events/signals/r/!data',
-    's/i/!data': 'events/signals/i/!data',
-    's/v/!data': 'events/signals/v/!data',
-    's/p/!data': 'events/signals/p/!data',
-    's/gpi/0/!data': 'events/signals/0/!data',
-    's/gpi/1/!data': 'events/signals/1/!data',
-    's/gpi/2/!data': 'events/signals/2/!data',
-    's/gpi/3/!data': 'events/signals/3/!data',
-    's/gpi/7/!data': 'events/signals/T/!data',
+    },
+    '0': {
+        'name': 'gpi[0]',
+        'dtype': 'u1',
+        'units': '',
+        'brief': N_('GPI 0'),
+        'detail': N_('Enable the general purpose input 0 signal streaming.'),
+        'default': False,
+        'topics': ('s/gpi/0/ctrl', 's/gpi/0/!data'),
+    },
+    '1': {
+        'name': 'gpi[1]',
+        'dtype': 'u1',
+        'units': '',
+        'brief': N_('GPI 1'),
+        'detail': N_('Enable the general purpose input 1 signal streaming.'),
+        'default': False,
+        'topics': ('s/gpi/1/ctrl', 's/gpi/1/!data'),
+    },
+    '2': {
+        'name': 'gpi[2]',
+        'dtype': 'u1',
+        'units': '',
+        'brief': N_('GPI 2'),
+        'detail': N_('Enable the general purpose input 2 signal streaming.'),
+        'default': False,
+        'topics': ('s/gpi/2/ctrl', 's/gpi/2/!data'),
+    },
+    '3': {
+        'name': 'gpi[3]',
+        'dtype': 'u1',
+        'units': '',
+        'brief': N_('GPI 3'),
+        'detail': N_('Enable the general purpose input 3 signal streaming.'),
+        'default': False,
+        'topics': ('s/gpi/3/ctrl', 's/gpi/3/!data'),
+    },
+    'T': {
+        'name': 'trigger_in',
+        'dtype': 'u1',
+        'units': '',
+        'brief': N_('Trigger input'),
+        'detail': N_('Enable the trigger input signal streaming.'),
+        'default': False,
+        'topics': ('s/gpi/7/ctrl', 's/gpi/7/!data'),
+    },
 }
 
 
@@ -345,13 +359,35 @@ _GPO_BIT = {
 }
 
 
+def _populate():
+    global SETTINGS, EVENTS
+    for signal_id, value in _SIGNALS.items():
+        SETTINGS[f'signals/{signal_id}/name'] = {
+            'dtype': 'str',
+            'brief': N_('Signal name'),
+            'flags': ['hidden'],
+            'default': value['brief'],
+        }
+        SETTINGS[f'signals/{signal_id}/enable'] = {
+            'dtype': 'bool',
+            'brief': value['brief'],
+            'detail': value['detail'],
+            'flags': ['hidden'],
+            'default': value['default'],
+        }
+        EVENTS[f'signals/{signal_id}/!data'] = Metadata('obj', 'Signal data')
+
+
+_populate()
+
+
 class Js220(Device):
 
     SETTINGS = SETTINGS
 
     def __init__(self, driver, device_path, unique_id):
         super().__init__(driver, device_path, unique_id)
-        self.EVENTS = EVENTS
+        self.EVENTS = copy.deepcopy(EVENTS)
         self.SETTINGS = copy.deepcopy(SETTINGS)
         self.SETTINGS['name']['default'] = device_path
         self._info = {
@@ -363,10 +399,13 @@ class Js220(Device):
             'versions': None,
         }
         self.SETTINGS['info']['default'] = self._info
+        self.SETTINGS['sources/1/name']['default'] = device_path
+        self.SETTINGS['sources/1/info']['default'] = self._info['device']
+
         self._statistics_offsets = None
         self._on_settings_fn = self._on_settings
-        for key, value in _SIGNAL_REMAP.items():
-            self._signal_forward(key, value, unique_id)
+        for key, value in _SIGNALS.items():
+            self._signal_forward(key, value['topics'][1], unique_id)
         self._on_target_power_app_fn = self._on_target_power_app
         self._pubsub.subscribe('registry/app/settings/target_power', self._on_target_power_app_fn, ['pub', 'retain'])
 
@@ -376,10 +415,33 @@ class Js220(Device):
         self._target_power_app = False
         self._queue = queue.Queue()
 
-    def _signal_forward(self, dtopic, utopic, unique_id):
+    def _signal_forward(self, signal_id, dtopic, unique_id):
+        utopic = f'events/signals/{signal_id}/!data'
         t = f'{get_topic_name(unique_id)}/{utopic}'
         self._pubsub.topic_add(t, Metadata('obj', 'signal'), exists_ok=True)
-        self._driver_subscribe(dtopic, ['pub'], lambda _, v: self._pubsub.publish(t, v))
+        self._driver_subscribe(dtopic, ['pub'], self._signal_forward_factory(signal_id, t))
+
+    def _signal_forward_factory(self, signal_id, utopic):
+        signal_info = _SIGNALS[signal_id]
+        dtype = signal_info['dtype']
+        field = signal_info['name']
+        units = signal_info['units']
+        def fn(dtopic, value):
+            fwd = {
+                'source': self._info['device'],
+                'sample_id': value['sample_id'] // value['decimate_factor'],
+                'sample_freq': value['sample_rate'] // value['decimate_factor'],
+                'time': None,  # todo
+                'field': field,
+                'data': value['data'],
+                'dtype': dtype,
+                'units': units,
+                'origin_sample_id': value['sample_id'],
+                'orig_sample_freq': value['sample_rate'],
+                'orig_decimate_factor': value['decimate_factor'],
+            }
+            self._pubsub.publish(utopic, fwd)
+        return fn
 
     def _send_to_thread(self, cmd, args=None):
         self._queue.put((cmd, args), block=False)
@@ -424,8 +486,9 @@ class Js220(Device):
 
     def _run_cmd_settings(self, topic, value):
         self._log.info(f'setting(%s): %s <= %s', self, topic, value)
-        if topic.startswith('enable/'):
-            t = _ENABLE_MAP.get(topic)
+        if topic.endswith('/enable'):
+            signal_id = topic.split('/')[1]
+            t = _SIGNALS[signal_id]['topics'][0]
             if t is not None:
                 self._driver_publish(t, bool(value))
             else:
@@ -453,10 +516,14 @@ class Js220(Device):
             self._driver_publish('c/trigger/dir', value)
         elif topic == 'gpio_voltage':
             self._driver_publish('c/gpio/vref', value)
-        elif topic in ['name', 'info', 'state', 'state_req', 'out', 'enable']:
+        elif topic == 'name':
+            self._ui_publish('settings/sources/1/name', value)
+        elif topic in ['info', 'state', 'state_req', 'out', 'enable',
+                       'sources', 'sources/1', 'sources/1/info', 'sources/1/name',
+                       'signals']:
             pass
         else:
-            self._log.warning('Unsupported topic %s', topic)
+            self._log.warning('Unsupported topic %s', f'{get_topic_name(self)}/settings/{topic}')
 
     def _current_range_update(self):
         if self._target_power_app and self.target_power:
@@ -533,8 +600,8 @@ class Js220(Device):
         self._ui_publish('settings/state', 'closing')
         self._driver_unsubscribe('s/stats/value', self._on_stats_fn)
         try:
-            for t in _ENABLE_MAP.values():
-                self._driver_publish(t, 0)
+            for t in _SIGNALS.values():
+                self._driver_publish(t['topics'][0], 0)
             self._driver_publish('s/stats/ctrl', 0)
         except RuntimeError as ex:
             self._log.info('Exception during close cleanup: %s', ex)

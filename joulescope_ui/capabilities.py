@@ -23,7 +23,7 @@ class CAPABILITIES(Enum):
     """An analysis tool class that operates over a time range.
 
     The pubsub object must implement the following:
-        * actions/!create
+        * actions/!create:  what is provided?  utc time range, SIGNAL_BUFFER_SOURCE topics? 
     """
 
     RANGE_TOOL_OBJECT = 'range_tool.object'
@@ -36,10 +36,10 @@ class CAPABILITIES(Enum):
         * actions/!finalize
     """
 
-    DEVICE_CLASS = 'device.class'  # A physically attached device (JS110, JS220)
+    DEVICE_CLASS = 'device.class'    # A physically attached device (JS110, JS220)
     """Default settings for physically attached devices"""
 
-    DEVICE_OBJECT = 'device.object'            # A physically attached device (JS110, JS220)
+    DEVICE_OBJECT = 'device.object'  # A physically attached device (JS110, JS220)
     """A physically attached device.
     
     The pubsub object must implement the following:
@@ -55,43 +55,41 @@ class CAPABILITIES(Enum):
     """A source that provides data.
     
     The pubsub source object must implement the following:
-        * settings
-          * name
-          * statistics 
-          * sources/{source_id}
-            * name
-            * info : {vendor, model, version, serial_number}  (read-only)
-            * signals: [{signal_id}, ...]  (read-only) 
-            
-    Each STATISTIC_STREAM_SOURCE must also implement:
-        * settings/statistics
-          * frequency_base  (read-only)
-          * rate_divisor
-        * events
-          * statistics/!data
-    
-    Each SIGNAL_STREAM_SOURCE must also implement:
-        * settings/signals/{signal_id}/name
-        * settings/signals/{signal_id}/meta: (read-only) obj with keys:
+        * settings/name
+        * settings/sources/{source_id}/name
+        * settings/sources/{source_id}/info:  (read-only), recommend
           * vendor
           * model
           * version
           * serial_number
-          * signal: (current, voltage, power, ...)    
-          * units
-          * sample_freq: (output)
-        * settings/signals/{signal_id}/frequency: (may be read-only)
-        * settings/signals/{signal_id}/range: [t_start, t_end] (read-only)
-        * events/signals/{signal_id}/!data
+            
+    Each STATISTIC_STREAM_SOURCE must implement:
+        * events/statistics/!data
     
-    Each SIGNAL_BUFFER_SOURCE must also implement:
+    Each SIGNAL_STREAM_SOURCE must implement:
+        * settings/signals/{signal_id}/name
+        * settings/signals/{signal_id}/enable
+        * events/signals/{signal_id}/!data, obj with
+          * source: source info
+          * sample_id: starting sample id
+          * sample_freq: in Hz
+          * time: starting sample time, in int64 Q30 time
+          * field: (current, voltage, power, current_range, voltage_range, gpi[N])
+          * data
+          * dtype: f32, u8, u1
+          * units
+          * origin_sample_id: starting sample id
+          * origin_sample_freq
+          * origin_decimate_factor
+    
+    Each SIGNAL_BUFFER_SOURCE must implement:
         * settings/signals/{signal_id}/name
         * settings/signals/{signal_id}/meta: obj with keys:
           * vendor
           * model
           * version
           * serial_number
-          * signal: (current, voltage, power, ...)    
+          * field: (current, voltage, power, ...)
           * units
           * source: (unique_id, if not same as this instance)
           * source_topic: (fully qualified topic, if not from this instance)

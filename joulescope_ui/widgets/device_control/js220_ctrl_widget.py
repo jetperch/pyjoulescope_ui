@@ -291,16 +291,16 @@ class Js220CtrlWidget(QtWidgets.QWidget):
                                             QtWidgets.QSizePolicy.Minimum),
         }
         for name, value in SETTINGS.items():
-            if not name.startswith('enable/'):
+            if not name.endswith('/enable'):
                 continue
-            signal = name[7:]
+            signal = name.split('/')[1]
             meta = Metadata(value)
             self._add_signal_button(signal, meta)
         layout.addItem(self._signals['spacer'])
         self._row += 1
 
     def _add_signal_button(self, signal, meta):
-        topic = f'{get_topic_name(self._unique_id)}/settings/enable/{signal}'
+        topic = f'{get_topic_name(self._unique_id)}/settings/signals/{signal}/enable'
         b = QtWidgets.QPushButton(self._signals['widget'])
         b.setObjectName('device_control_signal')
         b.setProperty('signal_level', 0)
@@ -369,7 +369,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
 
     def _add_settings(self):
         for name, value in SETTINGS.items():
-            if name.startswith('out/') or name.startswith('enable/'):
+            if name.startswith('out/') or name.endswith('/enable'):
                 continue
             meta = Metadata(value)
             if 'hidden' not in meta.flags:
@@ -470,7 +470,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         topic_base = f'{get_topic_name(self._unique_id)}/settings'
         # disable all streaming
         for name in SETTINGS.keys():
-            if name.startswith('enable/'):
+            if name.endswith('/enable'):
                 pubsub_singleton.publish(f'{topic_base}/{name}', False)
         for name, meta in SETTINGS.items():
             meta = Metadata(meta)

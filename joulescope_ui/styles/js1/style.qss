@@ -126,22 +126,27 @@ QPushButton
     border-radius: 2px;
 }
 
-QPushButton:checked:!hover
+QPushButton:!enabled
+{
+    background-color: {% js1.disabled_background %};
+}
+
+QPushButton:enabled:checked:!hover
 {
     background-color: {% js1.button_checked %};
 }
 
-QPushButton:!checked:hover
+QPushButton:enabled:!checked:hover
 {
     background-color: {% js1.button_unchecked_hover %};
 }
 
-QPushButton:checked:hover
+QPushButton:enabled:checked:hover
 {
     background-color: {% js1.button_checked_hover %};
 }
 
-QPushButton:pressed
+QPushButton:enabled:pressed
 {
     background-color: {% js1.button_pressed %};
 }

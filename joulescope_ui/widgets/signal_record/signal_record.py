@@ -12,10 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
+from pyjls import Writer, SignalType, DataType
 from joulescope_ui import pubsub_singleton, register, CAPABILITIES
 from .signal_record_config_widget import SignalRecordConfigDialog
+import copy
 import logging
+import numpy as np
+
+
+class ChunkMeta:
+    NOTES = 0
+    UI_META = 0x801
+
+
+_DTYPE_MAP = {
+    'f32': DataType.F32,
+    'u8': DataType.U8,
+    'u1': DataType.U1,
+}
 
 
 @register
@@ -25,11 +39,89 @@ class SignalRecord:
     _instances = []
     _log = logging.getLogger(f'{__name__}.cls')
 
-    def __init__(self):
-        parent = pubsub_singleton.query('registry/ui/instance')
-        super().__init__(parent=parent)
+    def __init__(self, config):
+        parent = pubsub_singleton.query('registry/app/instance')
         self._log = logging.getLogger(f'{__name__}.obj')
         self.CAPABILITIES = [CAPABILITIES.SIGNAL_STREAM_SINK]
+        self._log.info('JLS record to %s', config['path'])
+        self._log.info('JLS record signals: %s', config['signals'])
+        self._jls = Writer(config['path'])
+        self._on_data_fn = self._on_data
+        self._source_idx = 1
+        self._signal_idx = 1
+        self._sources = {}
+        self._signals = {}
+        self._subscribe_entries = []  # (topic, fn, flags)
+
+        notes = config.get('notes')
+        if notes is not None:
+            self._jls.user_data(ChunkMeta.NOTES, notes)
+        pubsub_singleton.register(self, parent=parent)
+
+        for signal in config['signals']:
+            self._subscribe(signal, self._on_data_fn, ['pub'])
+
+    def _subscribe(self, topic, fn, flags):
+        pubsub_singleton.subscribe(topic, fn, flags)
+        self._subscribe_entries.append((topic, fn, flags))
+
+    def _on_data(self, topic, value):
+        if topic not in self._signals:
+            source = topic.split('/')[1]
+            if source not in self._sources:
+                self._source_add(source, value['source'])
+            self._signal_add(source, topic, value)
+        signal_id = self._signals[topic]
+        x = np.ascontiguousarray(value['data'])
+        self._jls.fsr_f32(signal_id, value['sample_id'], x)
+
+    def _source_add(self, unique_id, info):
+        info = copy.deepcopy(info)
+        model = info.get('model', '')
+        serial_number = info.get('serial_number', '')
+        name = f'{model}-{serial_number}'
+        self._jls.source_def(
+            source_id=self._source_idx,
+            name=name,
+            vendor=info['vendor'],
+            model=model,
+            version=info.get('version'),
+            serial_number=serial_number,
+        )
+        info['id'] = self._source_idx
+        info['name'] = name
+        self._sources[unique_id] = info
+        self._source_idx += 1
+
+    def _signal_add(self, source, topic, value):
+        source_info = self._sources[source]
+        source_id = source_info['id']
+        self._jls.signal_def(
+            signal_id=self._signal_idx,
+            source_id=source_id,
+            signal_type=SignalType.FSR,
+            data_type=_DTYPE_MAP[value['dtype']],
+            sample_rate=value['sample_freq'],
+            name=value['field'],
+            units=value['units'],
+        )
+        self._signals[topic] = self._signal_idx
+        self._signal_idx += 1
+
+    def on_action_stop(self, value):
+        self._log.info('stop')
+        jls, self._jls = self._jls, None
+        if jls is None:
+            return
+        for topic, fn, flags in self._subscribe_entries:
+            pubsub_singleton.unsubscribe(topic, fn, flags)
+        self._subscribe_entries.clear()
+        jls.close()
+        if self == SignalRecord._singleton:
+            SignalRecord._singleton = None
+        if self in SignalRecord._instances:
+            SignalRecord._instances.remove(self)
+        pubsub_singleton.unregister(self)
 
     @staticmethod
     def on_cls_action_start_request(pubsub, topic, value):
@@ -39,9 +131,13 @@ class SignalRecord:
     @staticmethod
     def on_cls_action_start(pubsub, topic, value):
         SignalRecord._log.info('on_cls_action_start')
-        pass
+        obj = SignalRecord(value)
+        if SignalRecord._singleton is None:
+            SignalRecord._singleton = obj
+        SignalRecord._instances.append(obj)
 
     @staticmethod
     def on_cls_action_stop(pubsub, topic, value):
-        SignalRecord._log.info('on_cls_action_stop')
-        pass
+        if SignalRecord._singleton is not None:
+            SignalRecord._log.info('on_cls_action_stop')
+            SignalRecord._singleton.on_action_stop(value)

@@ -129,6 +129,8 @@ class SideBar(QtWidgets.QWidget):
     def _on_signal_stream_record_checked(self, checked):
         if bool(checked):
             pubsub_singleton.publish('registry/SignalRecord/actions/!start_request', None)
+        else:
+            pubsub_singleton.publish('registry/SignalRecord/actions/!stop', None)
 
     def _add_blink_button(self, name, app_setting):
         topic = f'registry/app/settings/{app_setting}'
