@@ -131,7 +131,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         self._subscribe('registry/app/settings/target_power', self._on_target_power_app)
         topic = get_topic_name(self._unique_id)
         for signal in _GPI_SIGNALS:
-            self._gpi_subscribe(f'{topic}/signals/{signal}/!data', signal)
+            self._gpi_subscribe(f'{topic}/events/signals/{signal}/!data', signal)
         self._subscribe(f'{topic}/settings/state', self._on_setting_state)
 
     def _subscribe(self, topic, update_fn):

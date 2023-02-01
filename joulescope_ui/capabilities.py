@@ -62,8 +62,6 @@ class CAPABILITIES(Enum):
             * name
             * info : {vendor, model, version, serial_number}  (read-only)
             * signals: [{signal_id}, ...]  (read-only) 
-          * signals/{signal_id}
-            * name 
             
     Each STATISTIC_STREAM_SOURCE must also implement:
         * settings/statistics
@@ -73,11 +71,18 @@ class CAPABILITIES(Enum):
           * statistics/!data
     
     Each SIGNAL_STREAM_SOURCE must also implement:
-        * settings/signals/{signal_id}
-          * frequency: (may be read-only)
-          * range: [t_start, t_end] (read-only)
-        * events
-          * signals/{signal_id}/!data
+        * settings/signals/{signal_id}/name
+        * settings/signals/{signal_id}/meta: (read-only) obj with keys:
+          * vendor
+          * model
+          * version
+          * serial_number
+          * signal: (current, voltage, power, ...)    
+          * units
+          * sample_freq: (output)
+        * settings/signals/{signal_id}/frequency: (may be read-only)
+        * settings/signals/{signal_id}/range: [t_start, t_end] (read-only)
+        * events/signals/{signal_id}/!data
     
     Each SIGNAL_BUFFER_SOURCE must also implement:
         * settings/signals/{signal_id}/name
@@ -97,7 +102,7 @@ class CAPABILITIES(Enum):
             * !summary_req [t_start, t_end, t_incr, cbk_topic, cbk_identifier]
         * events/!signal_add {signal_id}: (optional, only for dynamic sources)
         * events/!signal_remove {signal_id}:  (optional, only for dynamic sources)
-        * events/signals: list of signal_id 
+        * events/signals: list of signal_id
     """
 
     SIGNAL_STREAM_SOURCE = 'signal_stream.source'

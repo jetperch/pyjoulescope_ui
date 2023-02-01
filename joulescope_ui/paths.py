@@ -1,4 +1,4 @@
-# Copyright 2019 Jetperch LLC
+# Copyright 2023 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,86 +12,177 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-import os
-import shutil
-import sys
+from .locale import N_
+from joulescope_ui import pubsub_singleton, CAPABILITIES, get_topic_name
 import logging
 
+_DEFAULT_CAPABILITIES = {
+    CAPABILITIES.STATISTIC_STREAM_SOURCE: 'defaults/statistics_stream_source',
+    CAPABILITIES.SIGNAL_STREAM_SOURCE: 'defaults/signal_stream_source',
+    CAPABILITIES.SIGNAL_BUFFER_SOURCE: 'defaults/signal_buffer_source',
+}
 
-paths_current = paths_v2
-"""Paths for the most current software version"""
+SETTINGS = {
+    'name': {
+        'dtype': 'str',
+        'brief': N_('The name for this widget.'),
+        'default': N_('Paths'),
+    },
+    'save_path': {
+        'dtype': 'str',
+        'brief': N_('Save path'),
+        'detail': N_('The path for saving files.'),
+        'flags': ['ro', 'hidden'],
+        'default': None,
+    },
+    'load_path': {
+        'dtype': 'str',
+        'brief': N_('Load path'),
+        'detail': N_('The path for loading files.'),
+        'flags': ['ro', 'hidden'],
+        'default': None,
+    },
+    'fixed_save_path': {
+        'dtype': 'str',
+        'brief': N_('Save path'),
+        'detail': N_('The fixed path for saving files.'),
+        'default': None,
+    },
+    'fixed_load_path': {
+        'dtype': 'str',
+        'brief': N_('Load path'),
+        'detail': N_('The fixed path used for loading files.'),
+        'default': None,
+    },
+    'most_recent_save_path': {
+        'dtype': 'str',
+        'brief': N_('Most recent save path'),
+        'flags': ['ro'],
+        'default': None,
+    },
+    'most_recent_load_path': {
+        'dtype': 'str',
+        'brief': N_('Most recent load path'),
+        'flags': ['ro'],
+        'default': None,
+    },
+    'most_recent_path': {
+        'dtype': 'str',
+        'brief': N_('Most recent path'),
+        'flags': ['ro'],
+        'default': None,
+    },
+    'load_path_method': {
+        'dtype': 'int',
+        'brief': N_('The load path method'),
+        'detail': N_("""\
+        Select the method to compute the load path.
+        
+        The load path can use a fixed value, the most recently used
+        load path, or the most recently used path.
+        """),
+        'options': [
+            [0, N_('fixed')],
+            [1, N_('Most recent load path')],
+            [2, N_('Most recently used path')],
+        ],
+        'default': 2,
+    },
+    'save_path_method': {
+        'dtype': 'int',
+        'brief': N_('The save path method'),
+        'detail': N_(""""""),
+        'options': [
+            [0, N_('fixed')],
+            [1, N_('Most recent load path')],
+            [2, N_('Most recently used path')],
+        ],
+        'default': 2,
+    },
+    'mru_files': {
+        'dtype': 'obj',
+        'brief': N_('Most recent file list'),
+        'flags': ['ro', 'hidden'],
+        'default': [],
+    },
+    'mru_count': {
+        'dtype': 'int',
+        'brief': N_('Most recently used length'),
+        'options': [
+            [5, '5'],
+            [10, '10'],
+            [25, '25'],
+        ],
+        'default': 10,
+    },
+}
 
 
-def clear(app=None, delete_data=False):
-    """Clear all application data.
+class Paths:
+    """Singleton paths instance for global path settings."""
 
-    :param app: The optional application name.  None is :data:`APP`.
-    :param delete_data: True also delete associated data, which may delete
-        data that the user has created!  Defaults to False.
-    """
-    for key, path in paths_current(app)['dirs'].items():
-        if os.path.isdir(path):
-            if key in ['data'] and not bool(delete_data):
-                continue
-            shutil.rmtree(path)
+    def __init__(self):
+        self._log = logging.getLogger(__name__)
+        self._cbks = []
+        self.SETTINGS = SETTINGS
+        default = pubsub_singleton.query('common/settings/paths/data')
+        for key in ['fixed_save_path', 'fixed_load_path',
+                    'most_recent_save_path', 'most_recent_load_path',
+                    'most_recent_path']:
+            self.SETTINGS[key]['default'] = default
 
+    def register(self):
+        pubsub_singleton.register(self, 'paths')
+        self._update()
+        return self
 
-def initialize(paths):
-    for path in paths['dirs'].values():
-        if not os.path.isdir(path):
-            os.makedirs(path, exist_ok=True)
+    def on_action_mru(self, value):
+        topic = f'{get_topic_name(self)}/settings/mru_files'
+        mru_files = pubsub_singleton.query(topic)
+        mru_files = [value] + mru_files[:(self.mru_count - 1)]
+        pubsub_singleton.publish(topic, mru_files)
 
+    def _update(self):
+        if not hasattr(self, 'unique_id'):
+            return
+        topic = get_topic_name(self)
+        path = [
+            pubsub_singleton.query(f'{topic}/settings/fixed_load_path'),
+            pubsub_singleton.query(f'{topic}/settings/most_recent_load_path'),
+            pubsub_singleton.query(f'{topic}/settings/most_recent_path'),
+        ]
+        idx = pubsub_singleton.query(f'{topic}/settings/load_path_method')
+        pubsub_singleton.publish(f'{topic}/settings/load_path', path[idx])
 
-def data_path(cmdp):
-    """Get the data_path.
+        path = [
+            pubsub_singleton.query(f'{topic}/settings/fixed_save_path'),
+            pubsub_singleton.query(f'{topic}/settings/most_recent_save_path'),
+            pubsub_singleton.query(f'{topic}/settings/most_recent_path'),
+        ]
+        idx = pubsub_singleton.query(f'{topic}/settings/save_path_method')
+        pubsub_singleton.publish(f'{topic}/settings/save_path', path[idx])
 
-    :param cmdp: The :class:joulescope_ui.command_processor.CommandProcessor
-        instance containing the preferences.
-    :return: The data path, which is guaranteed to be valid.
-    :raise ValueError: If no valid path can be found.
+    def on_setting_fixed_save_path(self, value):
+        self._update()
 
-    Side-effect: will update 'General/data_path' parameters if the
-    configured path is not available.
-    """
-    paths = {
-        'Use fixed data_path': cmdp['General/data_path'],
-        'Most recently saved': cmdp['General/_path_most_recently_saved'],
-        'Most recently used': cmdp['General/_path_most_recently_used']
-    }
-    data_path_type = cmdp['General/data_path_type']
-    config_path = paths[data_path_type]
-    paths = [config_path,
-             cmdp.preferences.definition_get('General/data_path')['default'],
-             os.getcwd()]
-    for path in paths:
-        try:
-            if not os.path.isdir(path):
-                os.makedirs(path, exist_ok=True)
-            if config_path != path:
-                cmdp['General/data_path'] = path
-            return path
-        except Exception:
-            logging.getLogger(__name__).info('Invalid path: %s', path)
-    raise ValueError('No path found')
+    def on_setting_fixed_load_path(self, value):
+        self._update()
 
+    def on_setting_most_recent_save_path(self, value):
+        self._update()
 
-def data_path_used_set(cmdp, path):
-    """Set the most recently used data path.
+    def on_setting_most_recent_load_path(self, value):
+        self._update()
 
-    :param cmdp: The :class:joulescope_ui.command_processor.CommandProcessor
-        instance containing the preferences.
-    :param path: The filename path.
-    """
-    cmdp['General/_path_most_recently_used'] = path
+    def on_setting_load_path_method(self, value):
+        self._update()
 
+    def on_setting_save_path_method(self, value):
+        self._update()
 
-def data_path_saved_set(cmdp, path):
-    """Set the most recently saved data path.
-
-    :param cmdp: The :class:joulescope_ui.command_processor.CommandProcessor
-        instance containing the preferences.
-    :param path: The filename path.
-    """
-    cmdp['General/_path_most_recently_used'] = path
-    cmdp['General/_path_most_recently_saved'] = path
+    def on_setting_mru_count(self, value):
+        if hasattr(self, 'unique_id'):
+            topic = f'{get_topic_name(self)}/settings/mru_files'
+            mru_files = pubsub_singleton.query(topic)
+            mru_files = list(mru_files[:value])
+            pubsub_singleton.publish(topic, mru_files)

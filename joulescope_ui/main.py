@@ -27,6 +27,7 @@ from .resources import load_resources, load_fonts
 from joulescope_ui.devices.jsdrv.jsdrv_wrapper import JsdrvWrapper
 from .styles import StyleManager
 from .app import App
+from .paths import Paths
 from .view import View  # registers the view manager
 import appnope
 import logging
@@ -98,6 +99,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.SETTINGS = style_settings(N_('UI'))
         self._pubsub.register(self, 'ui', parent=None)
         self._app = App().register()
+        self._paths = Paths().register()
         self.resize(800, 600)
         self._icon = QtGui.QIcon()
         self._icon.addFile(u":/icon_64x64.ico", QtCore.QSize(), QtGui.QIcon.Normal, QtGui.QIcon.Off)

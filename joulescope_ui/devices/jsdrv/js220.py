@@ -179,7 +179,7 @@ SETTINGS = {
             [0, '15 V'],
             [1, '2 V'],
         ],
-        'default': 0,  # todo auto
+        'default': 0,   # todo -1,
     },
     'trigger_dir': {
         'dtype': 'int',
@@ -326,15 +326,15 @@ _ENABLE_MAP = {
 
 
 _SIGNAL_REMAP = {
-    's/i/range/!data': 'signals/r/!data',
-    's/i/!data': 'signals/i/!data',
-    's/v/!data': 'signals/v/!data',
-    's/p/!data': 'signals/p/!data',
-    's/gpi/0/!data': 'signals/0/!data',
-    's/gpi/1/!data': 'signals/1/!data',
-    's/gpi/2/!data': 'signals/2/!data',
-    's/gpi/3/!data': 'signals/3/!data',
-    's/gpi/7/!data': 'signals/T/!data',
+    's/i/range/!data': 'events/signals/r/!data',
+    's/i/!data': 'events/signals/i/!data',
+    's/v/!data': 'events/signals/v/!data',
+    's/p/!data': 'events/signals/p/!data',
+    's/gpi/0/!data': 'events/signals/0/!data',
+    's/gpi/1/!data': 'events/signals/1/!data',
+    's/gpi/2/!data': 'events/signals/2/!data',
+    's/gpi/3/!data': 'events/signals/3/!data',
+    's/gpi/7/!data': 'events/signals/T/!data',
 }
 
 
@@ -444,8 +444,11 @@ class Js220(Device):
         elif topic == 'current_range':
             self._current_range_update()
         elif topic == 'voltage_range':
-            self._driver_publish('s/v/range/mode', 'manual')  # todo auto
-            self._driver_publish('s/v/range/select', value)
+            if value == -1:
+                self._driver_publish('s/v/range/mode', 'auto')
+            else:
+                self._driver_publish('s/v/range/mode', 'manual')
+                self._driver_publish('s/v/range/select', value)
         elif topic == 'trigger_dir':
             self._driver_publish('c/trigger/dir', value)
         elif topic == 'gpio_voltage':
