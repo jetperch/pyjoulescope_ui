@@ -93,9 +93,10 @@ class SideBar(QtWidgets.QWidget):
         self._add_blink_button('target_power', 'target_power')
         self._add_blink_button('signal_play', 'signal_stream_enable')
         b = self._add_blink_button('signal_record', 'signal_stream_record')
-        b.toggled.connect(self._on_signal_stream_record_checked)
+        b.toggled.connect(self._on_signal_stream_record_toggled)
         self._add_blink_button('statistics_play', 'statistics_stream_enable')
-        self._add_blink_button('statistics_record', 'statistics_stream_record')
+        b = self._add_blink_button('statistics_record', 'statistics_stream_record')
+        b.toggled.connect(self._on_statistics_stream_record_toggled)
         self._add_button('device', _DEVICE_TOOLTIP)
         self._add_button('memory', _MEMORY_TOOLTIP)
         self._add_button('widgets', _WIDGETS_TOOLTIP)
@@ -126,11 +127,17 @@ class SideBar(QtWidgets.QWidget):
             self.on_cmd_show(-1)
             event.accept()
 
-    def _on_signal_stream_record_checked(self, checked):
+    def _on_signal_stream_record_toggled(self, checked):
         if bool(checked):
             pubsub_singleton.publish('registry/SignalRecord/actions/!start_request', None)
         else:
             pubsub_singleton.publish('registry/SignalRecord/actions/!stop', None)
+
+    def _on_statistics_stream_record_toggled(self, checked):
+        if bool(checked):
+            pubsub_singleton.publish('registry/StatisticsRecord/actions/!start_request', None)
+        else:
+            pubsub_singleton.publish('registry/StatisticsRecord/actions/!stop', None)
 
     def _add_blink_button(self, name, app_setting):
         topic = f'registry/app/settings/{app_setting}'

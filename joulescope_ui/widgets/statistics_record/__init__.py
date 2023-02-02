@@ -1,4 +1,4 @@
-# Copyright 2019-2022 Jetperch LLC
+# Copyright 2023 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,10 +12,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .device_control import DeviceControlWidget
-from .example import ExampleWidget
-from .sidebar import SideBar
-from .settings import SettingsWidget
-from .signal_record import SignalRecordConfigWidget, SignalRecord
-from .statistics_record import StatisticsRecordConfigWidget, StatisticsRecord
-from .value import ValueWidget
+from .statistics_record_config_widget import StatisticsRecordConfigWidget
+from .statistics_record import StatisticsRecord

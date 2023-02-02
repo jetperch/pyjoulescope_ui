@@ -87,6 +87,20 @@ _DEVICE_TOOLTIP = tooltip_format(
        source device.  Select the source device here. 
        """))
 
+_HOLD_TOOLTIP = tooltip_format(
+    N_("Hold the display"),
+    N_("""\
+    When selected, prevent the display from updating.
+    
+    The UI also includes a global statistics hold button
+    on the sidebar.  When the global statistics hold button
+    is selected, this button is disabled and has no effect.
+    
+    The displayed values normally update with each new statistics
+    data computed by the device.  When this button is selected,
+    the display will not be updated.  However, the statistics
+    will continue accumulate and accrue (if selected)."""))
+
 _ACCRUE_TOOLTIP = tooltip_format(
     N_("Accrue values over time"),
     N_("""\
@@ -166,10 +180,20 @@ class _AccrueWidget(QtWidgets.QWidget):
 
     def __init__(self, parent):
         self._log = logging.getLogger(__name__)
+        self._hold_local = False
+        self._hold_global = False
         self.accrue = False
         super().__init__(parent=parent)
         self._layout = QtWidgets.QHBoxLayout()
         self._layout.setContentsMargins(5, 2, 5, 5)
+
+        self._hold_button = QtWidgets.QPushButton(self)
+        self._hold_button.setText(N_('Hold'))
+        self._hold_button.setCheckable(True)
+        self._hold_button.setObjectName('hold_button')
+        self._layout.addWidget(self._hold_button)
+        self._hold_button.toggled.connect(self._on_hold_toggled)
+        self._hold_button.setToolTip(_HOLD_TOOLTIP)
 
         self._accrue_button = QtWidgets.QPushButton(self)
         self._accrue_button.setText(N_('Accrue'))
@@ -196,6 +220,29 @@ class _AccrueWidget(QtWidgets.QWidget):
         if t_start is not None:
             msg = f'{msg} | Started at {t_start}'
         self._accrue_duration.setText(msg)
+
+    @property
+    def hold(self):
+        return self._hold_local or self._hold_global
+
+    @property
+    def hold_global(self):
+        return self._hold_global
+
+    @hold_global.setter
+    def hold_global(self, value):
+        print(f'hold_global({value})')
+        value = bool(value)
+        self._hold_button.setEnabled(not value)
+        self._hold_global = value
+
+    def _on_hold_toggled(self, checked):
+        self._hold_local = bool(checked)
+        self._log.info('Hold local %s', 'start' if self._hold_local else 'stop')
+
+    def _on_hold_global(self, value):
+        self._hold_global = bool(value)
+        self._log.info('Hold global %s', 'start' if self._hold_global else 'stop')
 
     def _on_accrue_toggled(self, checked):
         self.accrue = bool(checked)
@@ -397,12 +444,14 @@ class _BaseWidget(QtWidgets.QWidget):
         self._default_statistics_stream_source = None
         self._statistics_stream_source = None
         self._on_cbk_statistics_fn = self.on_cbk_statistics
+        self._on_global_statistics_stream_enable_fn = self._on_global_statistics_stream_enable
         self._statistics = None  # most recent statistics information
 
         self._subscribers = [
             ['registry/app/settings/defaults/statistics_stream_source', self._on_default_statistics_stream_source],
             [f'registry_manager/capabilities/{CAPABILITIES.STATISTIC_STREAM_SOURCE}/list',
              self._on_statistic_stream_source_list],
+            ['registry/app/settings/statistics_stream_enable', self._on_global_statistics_stream_enable_fn],
         ]
         for topic, fn in self._subscribers:
             pubsub_singleton.subscribe(topic, fn, ['pub', 'retain'])
@@ -492,8 +541,12 @@ class _BaseWidget(QtWidgets.QWidget):
         v_start, v_end = self._statistics['time']['samples']['value']
         sample_freq = self._statistics['time']['sample_freq']['value']
         self._device_widget.device_show(self.source)
-        self._accrue_widget.accrue_duration((v_end - v_start) / sample_freq, self._statistics.get('accum_start'))
-        self._inner.on_cbk_statistics(self._statistics)
+        if not self._accrue_widget.hold:
+            self._accrue_widget.accrue_duration((v_end - v_start) / sample_freq, self._statistics.get('accum_start'))
+            self._inner.on_cbk_statistics(self._statistics)
+
+    def _on_global_statistics_stream_enable(self, value):
+        self._accrue_widget.hold_global = not bool(value)
 
     def on_setting_show_device_selection(self, value):
         self._device_widget.setVisible(bool(value))

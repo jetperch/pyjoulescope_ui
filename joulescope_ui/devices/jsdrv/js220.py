@@ -522,6 +522,8 @@ class Js220(Device):
                        'sources', 'sources/1', 'sources/1/info', 'sources/1/name',
                        'signals']:
             pass
+        elif topic.startswith('signals/'):
+            pass
         else:
             self._log.warning('Unsupported topic %s', f'{get_topic_name(self)}/settings/{topic}')
 
