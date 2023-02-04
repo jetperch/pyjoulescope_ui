@@ -23,6 +23,8 @@ https://github.com/pypa/sampleproject
 # Always prefer setuptools over distutils
 import setuptools
 from setuptools.command.sdist import sdist
+from setuptools.command.install import install
+from setuptools.command.develop import develop
 import distutils.cmd
 import os
 import platform
@@ -108,19 +110,17 @@ def update_inno_iss():
         fv.write(''.join(lines))
 
 
-class CustomBuildQt(distutils.cmd.Command):
-    """Custom command to build Qt resource file and Qt user interface modules."""
-
-    description = 'Build Qt resource file and Qt user interface modules.'
-    user_options = []
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
+class CustomDevelopCommand(develop):
+    """Custom develop command to build Qt resource file and Qt user interface modules."""
     def run(self):
+        develop.run(self)
+        convert_qt_ui()
+
+
+class CustomInstallCommand(install):
+    """Custom install command to build Qt resource file and Qt user interface modules."""
+    def run(self):
+        install.run(self)
         convert_qt_ui()
 
 
@@ -154,7 +154,8 @@ setuptools.setup(
     license='Apache 2.0',
 
     cmdclass={
-        'qt': CustomBuildQt,
+        'install': CustomInstallCommand,
+        'develop': CustomDevelopCommand,
         'sdist': CustomSdistCommand,
     },
 
