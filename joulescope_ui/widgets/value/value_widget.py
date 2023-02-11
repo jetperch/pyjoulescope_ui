@@ -231,8 +231,8 @@ class _AccrueWidget(QtWidgets.QWidget):
 
     @hold_global.setter
     def hold_global(self, value):
-        print(f'hold_global({value})')
         value = bool(value)
+        self._log.info('Hold global %s', 'start' if value else 'stop')
         self._hold_button.setEnabled(not value)
         self._hold_global = value
 

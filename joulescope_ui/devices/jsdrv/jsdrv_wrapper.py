@@ -11,7 +11,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+import copy
 
 from pyjoulescope_driver import Driver
 from joulescope_ui import get_unique_id, get_topic_name, Metadata, N_
@@ -19,6 +19,9 @@ from joulescope_ui.capabilities import CAPABILITIES
 from .js110 import Js110
 from .js220 import Js220
 import logging
+
+
+_MEM_RESPONSE_TOPIC = '_/mem/!rsp'
 
 
 class JsdrvWrapper:
@@ -57,6 +60,9 @@ class JsdrvWrapper:
         self.devices = {}
         self._ui_subscriptions = []
         self._driver_subscriptions = []
+        self._mem = {}
+        self._mem_signals_free = list(range(1, 256))
+        self._mem_req = {}
 
     def on_pubsub_register(self, pubsub):
         topic = get_topic_name(self)
@@ -69,10 +75,66 @@ class JsdrvWrapper:
         self._ui_subscribe(f'{topic}/settings/log_level', self._on_log_level, ['retain', 'pub'])
         self._ui_subscribe(f'{topic}/events/!publish', self._on_event_publish, ['pub'])
         self.driver.subscribe('@', 'pub', self._on_driver_publish)
+        self.driver.publish('m/@/!add', 1)  # one and only memory buffer
+        self.driver.subscribe(_MEM_RESPONSE_TOPIC, 'pub', self._on_mem_response)
         for d in self.driver.device_paths():
             self._log.info('on_pubsub_register add %s', d)
             self._on_driver_publish('@/!add', d)
         self._log.info('on_pubsub_register done %s', topic)
+
+    def on_setting_mem__size(self, value):
+        self.driver.publish('m/001/g/size', int(value))
+
+    def on_setting_mem__hold(self, value):
+        self.driver.publish('m/001/g/hold', int(value))
+
+    def on_setting_mem__mode(self, value):
+        self.driver.publish('m/001/g/mode', int(value))
+
+    def on_action_mem__signal__add(self, value):
+        data_topic = value
+        signal_id = self._mem_signals_free.pop(0)
+        self._mem[data_topic] = signal_id
+        self.driver.publish('m/001/a/!add', signal_id)
+        self.driver.publish(f'm/001/s/{signal_id:03d}/topic', data_topic)
+
+    def on_action_mem__signal__remove(self, value):
+        data_topic = value
+        signal_id = self._mem.pop(data_topic)
+        self.driver.publish('m/001/a/!remove', signal_id)
+        self._mem_signals_free.append(0, signal_id)
+
+    def _on_mem_response(self, topic, value):
+        value = copy.deepcopy(value)
+        req_id = value['rsp_id']
+        req = self._mem_req.pop(req_id)
+        value['rsp_topic'] = req[0]
+        value['rsp_id'] = req[1]
+        self.pubsub.publish(value['rsp_topic'], value)
+
+    def on_action_mem__signal__request(self, value):
+        """Request data from the memory buffer.
+
+        :param value: The dict defining the request with keys:
+            * signal: The source data topic for the signal.
+            * time_type: 'utc' or 'samples'
+            * rsp_topic: The arbitrary response topic
+            * rsp_id: The optional and arbitrary response id.
+            * start: The starting time (UTC or samples)
+            * end: The ending time (UTC or samples)
+            * length: The number of requested entries evenly spread from start to end.
+        """
+        value = copy.deepcopy(value)
+        data_topic = value['signal']
+        if data_topic not in self._mem:
+            return  # todo handle
+        signal_id = self._mem[data_topic]
+        req = (value['rsp_topic'], value['rsp_id'])
+        req_id = id(req)
+        self._mem_req[req_id] = req
+        value['rsp_topic'] = _MEM_RESPONSE_TOPIC
+        value['rsp_id'] = req_id
+        self.driver.publish(f'm/001/s/{signal_id:03d}/!req', value)
 
     def clear(self):
         while len(self._ui_subscriptions):
