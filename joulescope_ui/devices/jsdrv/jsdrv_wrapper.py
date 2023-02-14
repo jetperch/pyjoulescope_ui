@@ -19,9 +19,12 @@ from joulescope_ui.capabilities import CAPABILITIES
 from .js110 import Js110
 from .js220 import Js220
 import logging
+import time
 
 
 _MEM_RESPONSE_TOPIC = '_/mem/!rsp'
+_MEM_CLEANUP_PERIOD_S = 1.0   # process memory cleanup with this period (seconds)
+_MEM_EXPIRE_INTERVAL_S = 2.0  # expire entries older than this duration (seconds)
 
 
 class JsdrvWrapper:
@@ -62,7 +65,10 @@ class JsdrvWrapper:
         self._driver_subscriptions = []
         self._mem = {}
         self._mem_signals_free = list(range(1, 256))
-        self._mem_req = {}
+        self._mem_req_fwd = {}  # (pubsub_rsp_topic, pubsub_rsp_id): device_rsp_id
+        self._mem_req_bwd = {}  # device_rsp_id: (pubsub_rsp_topic, pubsub_rsp_id)
+        self._mem_req_time = {}  # device_rsp_id: time_last_used
+        self._mem_collect_time = time.time()
 
     def on_pubsub_register(self, pubsub):
         topic = get_topic_name(self)
@@ -86,7 +92,8 @@ class JsdrvWrapper:
         self.driver.publish('m/001/g/size', int(value))
 
     def on_setting_mem__hold(self, value):
-        self.driver.publish('m/001/g/hold', int(value))
+        value = int(value)
+        self.driver.publish('m/001/g/hold', value)
 
     def on_setting_mem__mode(self, value):
         self.driver.publish('m/001/g/mode', int(value))
@@ -105,12 +112,16 @@ class JsdrvWrapper:
         self._mem_signals_free.append(0, signal_id)
 
     def _on_mem_response(self, topic, value):
+        # will be called from device's pubsub thread
         value = copy.deepcopy(value)
-        req_id = value['rsp_id']
-        req = self._mem_req.pop(req_id)
-        value['rsp_topic'] = req[0]
-        value['rsp_id'] = req[1]
-        self.pubsub.publish(value['rsp_topic'], value)
+        device_req_id = value['rsp_id']
+        try:
+            req = self._mem_req_bwd[device_req_id]
+            value['rsp_topic'] = req[0]
+            value['rsp_id'] = req[1]
+            self.pubsub.publish(value['rsp_topic'], value)
+        except KeyError:
+            self._log.info('Unknown response: req_id=%s', device_req_id)
 
     def on_action_mem__signal__request(self, value):
         """Request data from the memory buffer.
@@ -129,12 +140,30 @@ class JsdrvWrapper:
         if data_topic not in self._mem:
             return  # todo handle
         signal_id = self._mem[data_topic]
-        req = (value['rsp_topic'], value['rsp_id'])
-        req_id = id(req)
-        self._mem_req[req_id] = req
+        pubsub_req = (value['rsp_topic'], value['rsp_id'])
+        if pubsub_req in self._mem_req_fwd:
+            device_req_id = self._mem_req_fwd[pubsub_req]
+        else:
+            # create and add new entry
+            device_req_id = id(pubsub_req)
+            self._mem_req_fwd[pubsub_req] = device_req_id
+            self._mem_req_bwd[device_req_id] = pubsub_req
+        t_now = time.time()
+        self._mem_req_time[device_req_id] = t_now  # update last used time
         value['rsp_topic'] = _MEM_RESPONSE_TOPIC
-        value['rsp_id'] = req_id
+        value['rsp_id'] = device_req_id
         self.driver.publish(f'm/001/s/{signal_id:03d}/!req', value)
+        self._mem_collect(t_now)
+
+    def _mem_collect(self, t_now):
+        if t_now - self._mem_collect_time < _MEM_CLEANUP_PERIOD_S:
+            return
+        for device_req_id, t_last in list(self._mem_req_time.items()):
+            if (t_now - t_last) > _MEM_EXPIRE_INTERVAL_S:
+                pubsub_req = self._mem_req_bwd.pop(device_req_id)
+                del self._mem_req_fwd.pop[pubsub_req]
+                del self._mem_req_time[device_req_id]
+        self._mem_collect_time = t_now
 
     def clear(self):
         while len(self._ui_subscriptions):
