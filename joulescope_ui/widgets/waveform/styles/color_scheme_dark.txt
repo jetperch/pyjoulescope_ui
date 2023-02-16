@@ -1,0 +1,11 @@
+waveform.background = #101010ff
+
+waveform.text_foreground = #A0A0A0ff
+waveform.text_background = #101010A0
+
+waveform.grid_major = #ffffff40
+waveform.grid_minor = #80808010
+waveform.plot_separator = #ffffff20
+waveform.plot_border = #ffffff80
+waveform.plot1_trace = #ffff00ff
+waveform.plot1_fill = #FF404040

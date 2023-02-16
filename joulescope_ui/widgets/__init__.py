@@ -19,3 +19,4 @@ from .settings import SettingsWidget
 from .signal_record import SignalRecordConfigWidget, SignalRecord
 from .statistics_record import StatisticsRecordConfigWidget, StatisticsRecord
 from .value import ValueWidget
+from .waveform import WaveformWidget

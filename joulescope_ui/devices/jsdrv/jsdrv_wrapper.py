@@ -128,11 +128,16 @@ class JsdrvWrapper:
 
         :param value: The dict defining the request with keys:
             * signal: The source data topic for the signal.
-            * time_type: 'utc' or 'samples'
-            * rsp_topic: The arbitrary response topic
-            * rsp_id: The optional and arbitrary response id.
-            * start: The starting time (UTC or samples)
-            * end: The ending time (UTC or samples)
+            * time_type: 'utc' or 'samples'.
+            * rsp_topic: The arbitrary response topic.
+            * rsp_id: The optional and arbitrary response immutable object.
+              Valid values include integers, strings, and callables.
+              If providing method calls, be sure to save the binding to a
+              member variable and reuse the same binding so that deduplication
+              can work correctly.  Otherwise, each call will use a new binding
+              that is different and will not allow deduplication matching.
+            * start: The starting time (UTC or samples).
+            * end: The ending time (UTC or samples).
             * length: The number of requested entries evenly spread from start to end.
         """
         value = copy.deepcopy(value)

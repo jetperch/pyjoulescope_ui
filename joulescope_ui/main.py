@@ -206,6 +206,7 @@ class MainWindow(QtWidgets.QMainWindow):
         #self._pubsub.publish('registry/view/actions/!widget_open', 'ExampleWidget')
         self._pubsub.publish('registry/view/actions/!widget_open', 'MultimeterWidget')
         #self._pubsub.publish('registry/view/actions/!widget_open', 'MultimeterWidget')
+        #self._pubsub.publish('registry/view/actions/!widget_open', 'WaveformWidget')
         self._pubsub.publish('registry/StyleManager:0/actions/!render', None)
 
         self._pubsub.process()

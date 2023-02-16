@@ -12,4 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .waveform import WaveformWidget, widget_register
+from .waveform_widget import WaveformWidget
