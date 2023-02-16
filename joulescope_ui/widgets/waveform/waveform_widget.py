@@ -202,6 +202,9 @@ class WaveformWidget(QWidget):
         x = np.arange(1000, dtype=np.float64)
         x *= 30 / 1000
         y1 = np.sin(x, dtype=np.float64)
+        y1[:100] = np.nan
+        y1[300:400] = np.nan
+        y1[900:] = np.nan
         y2 = np.sin(x / 2, dtype=np.float64)
 
         x64 = np.empty(len(x), dtype=np.int64)
@@ -211,14 +214,14 @@ class WaveformWidget(QWidget):
         self._data['a'] = {
             'x': x64,
             'avg': y1,
-            'std': 0.1,
+            'std': np.full(x64.shape, 0.1),
             'min': y1 - 0.25,
             'max': y1 + 0.25,
         }
         self._data['b'] = {
             'x': x64,
             'avg': y2,
-            'std': 0.02,
+            'std': np.full(x64.shape, 0.02),
             'min': y2 - 0.1,
             'max': y2 + 0.1,
         }
@@ -280,6 +283,23 @@ class WaveformWidget(QWidget):
         p.fillRect(x, y - m.ascent(), r.width(), r.height(), p.brush())
         p.drawText(x, y, txt)
 
+    def _nan_idx(self, data):
+        if data is None:
+            return None
+        if 'nan_idx' in data:
+            return data['nan_idx']
+        nan_idx = np.isnan(data['avg'])
+        data['nan_idx'] = nan_idx
+        data['finite_idx'] = np.logical_not(nan_idx)
+        return nan_idx
+
+    def _finite_idx(self, data):
+        if data is None:
+            return None
+        if 'finite_idx' not in data:
+            self._nan_idx(data)
+        return data['finite_idx']
+
     def _plot_range_auto_update(self, plot):
         if plot['range_mode'] != 'auto':
             return
@@ -289,10 +309,15 @@ class WaveformWidget(QWidget):
             d = self._data.get(source)
             if d is None:
                 continue
+            finite_idx = self._finite_idx(d)
+
             sy_min = d['avg'] if d['min'] is None else d['min']
             sy_max = d['avg'] if d['max'] is None else d['max']
-            y_min.append(np.min(sy_min))
-            y_max.append(np.max(sy_max))
+            sy_min = sy_min[finite_idx]
+            sy_max = sy_max[finite_idx]
+            if len(sy_min):
+                y_min.append(np.min(sy_min))
+                y_max.append(np.max(sy_max))
         if not len(y_min):
             y_min = 0.0
             y_max = 1.0
@@ -336,6 +361,7 @@ class WaveformWidget(QWidget):
         plot1_trace = QPen(color_as_qcolor(v['waveform.plot1_trace']))
         plot1_trace.setWidth(self.trace_width)
         plot1_fill = QBrush(color_as_qcolor(v['waveform.plot1_fill']))
+        plot1_missing = QBrush(color_as_qcolor(v['waveform.plot1_missing']))
 
         axis_font_metrics = QtGui.QFontMetrics(axis_font)
         plot_label_size = axis_font_metrics.boundingRect('WW')
@@ -448,30 +474,62 @@ class WaveformWidget(QWidget):
                 if d is None:
                     continue
                 d_x = self._x_time64_to_pixel(d['x'])
+                finite_idx = self._finite_idx(d)
+                change_idx = np.where(np.diff(finite_idx))[0] + 1
+                if len(change_idx) and not finite_idx[0]:
+                    change_idx[1:]
+                if len(change_idx) == 0:
+                    segment_idx = [[0, len(d_x)]]
+                elif len(change_idx) == 1:
+                    segment_idx = [[0, change_idx[0]]]
+                else:
+                    segment_idx = []
+                    while len(change_idx):
+                        if len(change_idx) == 1:
+                            segment_idx.append([change_idx[0], len(d)])
+                            change_idx = change_idx[1:]
+                        else:
+                            segment_idx.append([change_idx[0], change_idx[1]])
+                            change_idx = change_idx[2:]
+                print(segment_idx)
 
-                if self.show_min_max and d['min'] is not None and d['max'] is not None:
-                    d_y_min = self._y_value_to_pixel(plot, d['min'])
-                    d_y_max = self._y_value_to_pixel(plot, d['max'])
-                    if 'points_min_max' not in d:
-                        d['points_min_max'] = PointsF()
-                    segs, nsegs = d['points_min_max'].set_fill(d_x, d_y_min, d_y_max)
-                    p.setPen(QtGui.Qt.NoPen)
-                    p.setBrush(plot1_fill)
-                    p.drawPolygon(segs)
+                p.setPen(QtGui.Qt.NoPen)
+                p.setBrush(plot1_missing)
+                if len(segment_idx) > 1:
+                    segment_idx_last = segment_idx[0][1]
+                    for idx_start, idx_stop in segment_idx[1:]:
+                        x1 = d_x[segment_idx_last]
+                        x2 = d_x[idx_start]
+                        p.drawRect(x1, y, x2 - x1, h)
+                        segment_idx_last = idx_stop
 
-                    d_y_std_min = self._y_value_to_pixel(plot, d['avg'] - d['std'])
-                    d_y_std_max = self._y_value_to_pixel(plot, d['avg'] + d['std'])
-                    if 'points_std' not in d:
-                        d['points_std'] = PointsF()
-                    segs, nsegs = d['points_std'].set_fill(d_x, d_y_std_min, d_y_std_max)
-                    p.drawPolygon(segs)
+                for idx_start, idx_stop in segment_idx:
+                    d_x_segment = d_x[idx_start:idx_stop]
+                    d_avg = d['avg'][idx_start:idx_stop]
+                    if self.show_min_max and d['min'] is not None and d['max'] is not None:
+                        d_y_min = self._y_value_to_pixel(plot, d['min'][idx_start:idx_stop])
+                        d_y_max = self._y_value_to_pixel(plot, d['max'][idx_start:idx_stop])
+                        if 'points_min_max' not in d:
+                            d['points_min_max'] = PointsF()
+                        segs, nsegs = d['points_min_max'].set_fill(d_x_segment, d_y_min, d_y_max)
+                        p.setPen(QtGui.Qt.NoPen)
+                        p.setBrush(plot1_fill)
+                        p.drawPolygon(segs)
 
-                d_y = self._y_value_to_pixel(plot, d['avg'])
-                if 'points_avg' not in d:
-                    d['points_avg'] = PointsF()
-                segs, nsegs = d['points_avg'].set_line(d_x, d_y)
-                p.setPen(plot1_trace)
-                p.drawPolyline(segs)
+                        d_std = d['std'][idx_start:idx_stop]
+                        d_y_std_min = self._y_value_to_pixel(plot, d_avg - d_std)
+                        d_y_std_max = self._y_value_to_pixel(plot, d_avg + d_std)
+                        if 'points_std' not in d:
+                            d['points_std'] = PointsF()
+                        segs, nsegs = d['points_std'].set_fill(d_x_segment, d_y_std_min, d_y_std_max)
+                        p.drawPolygon(segs)
+
+                    d_y = self._y_value_to_pixel(plot, d_avg)
+                    if 'points_avg' not in d:
+                        d['points_avg'] = PointsF()
+                    segs, nsegs = d['points_avg'].set_line(d_x_segment, d_y)
+                    p.setPen(plot1_trace)
+                    p.drawPolyline(segs)
 
             y += h
 
