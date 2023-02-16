@@ -19,9 +19,11 @@ from PySide6.QtCore import QPointF
 
 from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topic_name, tooltip_format, time64
 from joulescope_ui.styles import styled_widget, color_as_qcolor, font_as_qfont
-from .line_segments import LineSegments, PointsF
+from joulescope_ui.widget_tools import settings_action_create
+from .line_segments import PointsF
 import logging
 import numpy as np
+import os
 from PySide6.QtGui import QPainter, QPen, QBrush, QColor
 from joulescope_ui.units import unit_prefix
 
@@ -225,6 +227,8 @@ class WaveformWidget(QWidget):
 
         self._signals = {}
         self._data = {}
+        self._menu = None
+        self._dialog = None
         self._x_map = (0, 0, 1.0)  # (pixel_offset, time64_offset, time_to_pixel_scale)
 
         self._layout = QtWidgets.QHBoxLayout(self)
@@ -236,6 +240,7 @@ class WaveformWidget(QWidget):
         self._x_geometry_info = []
         self._y_geometry_info = []
         self._mouse_action = None
+        self._clipboard_image = None
         self._data_hack()
 
     def _data_hack(self):
@@ -716,9 +721,114 @@ class WaveformWidget(QWidget):
                 self._mouse_action = ['move.spacer', idx, y, y_start, y]
             else:
                 self._mouse_action = None
+        if event.button() == QtCore.Qt.RightButton:
+            if y_name.startswith('plot.'):
+                idx = int(y_name.split('.')[1])
+                if x_name.startswith('axis'):
+                    self._menu_y_axis(idx, event)
+                elif x_name.startswith('plot'):
+                    self._menu_plot(idx, event)
+                elif x_name.startswith('statistics'):
+                    self._menu_statistics(idx, event)
+            elif y_name == 'header':
+                if x_name.startswith('plot'):
+                    self._menu_header(event)
+
+    def _render_to_pixmap(self):
+        sz = self._graphics.size()
+        sz = QtCore.QSize(sz.width() * 2, sz.height() * 2)
+        pixmap = QtGui.QPixmap(sz)
+        pixmap.setDevicePixelRatio(2)
+        self._graphics.render(pixmap)
+        return pixmap
+
+    def _action_copy_image_to_clipboard(self):
+        self._clipboard_image = self._render_to_pixmap().toImage()
+        QtWidgets.QApplication.clipboard().setImage(self._clipboard_image)
+
+    @QtCore.Slot(int)
+    def _action_save_image_dialog_finish(self, value):
+        self._log.info('finished: %d', value)
+        if value == QtWidgets.QDialog.DialogCode.Accepted:
+            filenames = self._dialog.selectedFiles()
+            if len(filenames) == 1:
+                self._log.info('finished: accept - save')
+                pixmap = self._render_to_pixmap()
+                pixmap.save(filenames[0])
+            else:
+                self._log.info('finished: accept - but no file selected, ignore')
+        else:
+            self._log.info('finished: reject - abort recording')
+        self._dialog.close()
+        self._dialog = None
+
+    def _action_save_image(self):
+        filter_str = 'png (*.png)'
+        filename = time64.filename('.png')
+        path = pubsub_singleton.query('registry/paths/settings/save_path')
+        path = os.path.join(path, filename)
+        dialog = QtWidgets.QFileDialog(self, N_('Save image to file'), path, filter_str)
+        dialog.setFileMode(QtWidgets.QFileDialog.AnyFile)
+        dialog.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
+        dialog.finished.connect(self._action_save_image_dialog_finish)
+        self._dialog = dialog
+        dialog.show()
 
     def plot_mouseReleaseEvent(self, event: QtGui.QMouseEvent):
         event.accept()
         x_name, y_name = self._target_lookup_by_pos(event)
         self._log.info(f'mouse release {x_name, y_name}')
         self._mouse_action = None
+
+    def _menu_show(self, event: QtGui.QMouseEvent):
+        menu = self._menu[0]
+        menu.popup(event.globalPos())
+        return menu
+
+    def _menu_y_axis(self, idx, event: QtGui.QMouseEvent):
+        self._log.info('_menu_y_axis(%s, %s)', idx, event.pos())
+        menu = QtWidgets.QMenu('Waveform context menu', self)
+        style_action = settings_action_create(self, menu)
+        self._menu = [menu,
+                      style_action]
+        return self._menu_show(event)
+
+    def _menu_plot(self, idx, event: QtGui.QMouseEvent):
+        self._log.info('_menu_plot(%s, %s)', idx, event.pos())
+        menu = QtWidgets.QMenu('Waveform context menu', self)
+        annotations = menu.addMenu('&Annotations')
+        anno_x = annotations.addMenu('&Vertical')
+        anno_y = annotations.addMenu('&Horizontal')
+        anno_text = annotations.addMenu('&Text')
+
+        copy_image = menu.addAction(N_('Save image'))
+        copy_image.triggered.connect(self._action_save_image)
+
+        copy_image = menu.addAction(N_('Copy image to clipboard'))
+        copy_image.triggered.connect(self._action_copy_image_to_clipboard)
+
+        style_action = settings_action_create(self, menu)
+        self._menu = [menu,
+                      annotations, anno_x, anno_y, anno_text,
+                      copy_image,
+                      style_action]
+        return self._menu_show(event)
+
+    def _menu_statistics(self, idx, event: QtGui.QMouseEvent):
+        self._log.info('_menu_statistics(%s, %s)', idx, event.pos())
+        menu = QtWidgets.QMenu('Waveform context menu', self)
+        style_action = settings_action_create(self, menu)
+        self._menu = [menu,
+                      style_action]
+        return self._menu_show(event)
+
+    def _menu_header(self, event: QtGui.QMouseEvent):
+        self._log.info('_menu_header(%s)', event.pos())
+        menu = QtWidgets.QMenu('Waveform context menu', self)
+        style_action = settings_action_create(self, menu)
+        self._menu = [menu,
+                      style_action]
+        return self._menu_show(event)
+
+    def on_style_change(self):
+        self.update()

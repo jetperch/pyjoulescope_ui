@@ -91,6 +91,20 @@ def as_datetime(t):
     return datetime.datetime.fromtimestamp(t)
 
 
+def filename(extension=None):
+    """Construct a filename using the current time.
+
+    :param extension: The filename extension, such as '.png'.
+        None (default) uses '.jls'.
+    :return: The filename.
+    """
+
+    extension = '.jls' if extension is None else str(extension)
+    time_start = datetime.datetime.utcnow()
+    timestamp_str = time_start.strftime('%Y%m%d_%H%M%S')
+    return f'{timestamp_str}{extension}'
+
+
 def _local_offset():
     now = datetime.datetime.now()
     local_now = now.astimezone()

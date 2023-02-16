@@ -13,17 +13,10 @@
 # limitations under the License.
 
 from PySide6 import QtWidgets, QtGui, QtCore
-from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topic_name, tooltip_format
+from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topic_name, time64
 from joulescope_ui.styles import styled_widget
-import datetime
 import logging
 import os
-
-
-def _construct_record_filename():
-    time_start = datetime.datetime.utcnow()
-    timestamp_str = time_start.strftime('%Y%m%d_%H%M%S')
-    return f'{timestamp_str}.jls'
 
 
 @register
@@ -43,7 +36,7 @@ class SignalRecordConfigWidget(QtWidgets.QWidget):
 
         self._filename_label = QtWidgets.QLabel(N_('Filename'), self)
         self._filename = QtWidgets.QLineEdit(self)
-        self._filename.setText(_construct_record_filename())
+        self._filename.setText(time64.filename('.jls'))
         self._layout.addWidget(self._filename_label, self._row, 0, 1, 1)
         self._layout.addWidget(self._filename, self._row, 1, 1, 1)
         self._row += 1
