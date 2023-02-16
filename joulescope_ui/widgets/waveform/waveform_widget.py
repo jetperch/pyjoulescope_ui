@@ -17,7 +17,7 @@ from PySide6.QtWidgets import QWidget, QGraphicsView, QGraphicsScene
 from PySide6.QtGui import QPen, QColor, QPolygonF, QPainter
 from PySide6.QtCore import QPointF
 
-from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topic_name, tooltip_format
+from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topic_name, tooltip_format, time64
 from joulescope_ui.styles import styled_widget, color_as_qcolor, font_as_qfont
 from .line_segments import LineSegments, PointsF
 import logging
@@ -27,6 +27,7 @@ from joulescope_ui.units import unit_prefix
 
 
 _AUTO_RANGE_FRACT = 0.50  # autorange when current range smaller than existing range by this fractional amount.
+_BINARY_RANGE = [-0.1, 1.1]
 _PLOT_TYPES = {
     'i': {
         'units': 'A',
@@ -45,15 +46,23 @@ _PLOT_TYPES = {
     },
     '0': {
         'name': N_('General purpose input 0'),
+        'range': _BINARY_RANGE,
     },
     '1': {
         'name': N_('General purpose input 1'),
+        'range': _BINARY_RANGE,
     },
     '2': {
         'name': N_('General purpose input 2'),
+        'range': _BINARY_RANGE,
     },
     '3': {
         'name': N_('General purpose input 3'),
+        'range': _BINARY_RANGE,
+    },
+    'T': {
+        'name': N_('Trigger input'),
+        'range': _BINARY_RANGE,
     },
 }
 
@@ -107,11 +116,12 @@ def _ticks(v_min, v_max, v_spacing_min):
 
     label_max = max(abs(major[0]), abs(major[-1]))
     adjusted_value, prefix, scale = unit_prefix(label_max)
+    scale = 1.0 / scale
     labels = []
     for v in major:
-        s = str(v * scale)
-        if s.endswith('.0'):
-            s = s[:-2]
+        s = f'{v * scale:g}'
+        if s == '-0':
+            s = '0'
         labels.append(s)
 
     return {
@@ -142,7 +152,7 @@ class WaveformWidget(QWidget):
         'x_range': {
             'dtype': 'obj',
             'brief': 'The x-axis range.',
-            'default': [0, 30.0],
+            'default': [0, 30 * time64.SECOND],
             'flags': ['hidden', 'ro'],
         },
         'state': {
@@ -155,7 +165,7 @@ class WaveformWidget(QWidget):
                         'sources': ['a'],  # todo remove hack
                         'height': 200,
                         'range_mode': 'auto',
-                        'range': [0.0, 1.0],
+                        'range': [-0.1, 1.1],
                         'scale': 'linear',
                     },
                     {
@@ -163,7 +173,7 @@ class WaveformWidget(QWidget):
                         'sources': ['b'],  # todo remove hack
                         'height': 200,
                         'range_mode': 'auto',
-                        'range': [0.0, 1.0],
+                        'range': [-0.1, 1.1],
                         'scale': 'linear',
                     },
                 ]
@@ -178,7 +188,7 @@ class WaveformWidget(QWidget):
 
         self._signals = {}
         self._data = {}
-        self._x_map = (0, 0, 1.0)  # (pixel_offset, time_offset, time_to_pixel_scale)
+        self._x_map = (0, 0, 1.0)  # (pixel_offset, time64_offset, time_to_pixel_scale)
 
         self._layout = QtWidgets.QHBoxLayout(self)
         self._layout.setSpacing(0)
@@ -186,34 +196,68 @@ class WaveformWidget(QWidget):
 
         self._graphics = _PlotWidget(self)
         self._layout.addWidget(self._graphics)
+        self._data_hack()
 
-        # data hack
+    def _data_hack(self):
         x = np.arange(1000, dtype=np.float64)
         x *= 30 / 1000
         y1 = np.sin(x, dtype=np.float64)
         y2 = np.sin(x / 2, dtype=np.float64)
+
+        x64 = np.empty(len(x), dtype=np.int64)
+        x64[:] = 0.0
+        x64 += (x * time64.SCALE).astype(np.int64)
+        self.SETTINGS['x_range']['default'] = [x64[0], x64[-1]]
         self._data['a'] = {
-            'x': x,
+            'x': x64,
             'avg': y1,
             'std': 0.1,
             'min': y1 - 0.25,
             'max': y1 + 0.25,
         }
         self._data['b'] = {
-            'x': x,
+            'x': x64,
             'avg': y2,
             'std': 0.02,
             'min': y2 - 0.1,
             'max': y2 + 0.1,
         }
 
-    def _x_time_to_pixel(self, time):
+    def _x_trel_offset(self):
+        offset = self._x_map[1]
+        offset = (offset // time64.SECOND) * time64.SECOND
+        return offset
+
+    def _x_time64_to_pixel(self, time):
         pixel_offset, time_offset, time_to_pixel_scale = self._x_map
         return pixel_offset + (time - time_offset) * time_to_pixel_scale
 
-    def _x_pixel_to_time(self, pixel):
+    def _x_pixel_to_time64(self, pixel):
         pixel_offset, time_offset, time_to_pixel_scale = self._x_map
         return time_offset + (pixel - pixel_offset) * (1.0 / time_to_pixel_scale)
+
+    def _x_time64_to_trel(self, t64):
+        offset = self._x_trel_offset()
+        dt = t64 - offset
+        if isinstance(dt, np.ndarray):
+            dt = dt.astype(np.float64)
+        else:
+            dt = float(dt)
+        return dt / time64.SECOND
+
+    def _x_trel_to_time64(self, trel):
+        offset = self._x_trel_offset()
+        s = trel * time64.SECOND
+        if isinstance(s, np.ndarray):
+            s = s.astype(np.int64)
+            s += np.int64(offset)
+        else:
+            s = int(s) + int(offset)
+        return s
+
+    def _x_trel_to_pixel(self, trel):
+        t64 = self._x_trel_to_time64(trel)
+        return self._x_time64_to_pixel(t64)
 
     def _y_value_to_pixel(self, plot, value):
         pixel_offset, value_offset, value_to_pixel_scale = plot['y_map']
@@ -249,8 +293,12 @@ class WaveformWidget(QWidget):
             sy_max = d['avg'] if d['max'] is None else d['max']
             y_min.append(np.min(sy_min))
             y_max.append(np.max(sy_max))
-        y_min = min(y_min)
-        y_max = max(y_max)
+        if not len(y_min):
+            y_min = 0.0
+            y_max = 1.0
+        else:
+            y_min = min(y_min)
+            y_max = max(y_max)
         r = plot['range']
 
         dy1 = y_max - y_min
@@ -293,66 +341,73 @@ class WaveformWidget(QWidget):
         plot_label_size = axis_font_metrics.boundingRect('WW')
         y_tick_size = axis_font_metrics.boundingRect('888.888')
         y_tick_height_pixels_min = 1.5 * y_tick_size.height()
+        utc_width_pixels = axis_font_metrics.boundingRect('8888-88-88W88:88:88.888888').width()
         x_tick_width_pixels_min = axis_font_metrics.boundingRect('888.888888').width()
+        statistics_size = axis_font_metrics.boundingRect('WWW +888.8888 WW')
 
         left_margin = margin + plot_label_size.width() + margin + y_tick_size.width() + margin
-        right_margin = margin
-
-        x_range = self.x_range
-        x_range_d = x_range[1] - x_range[0]
-        plot_width = widget_w - left_margin - margin
-        x_size = widget_w - left_margin - right_margin
-        x_gain = 0.0 if x_range_d <= 0 else x_size / x_range_d
-        self._x_map = (left_margin, x_range[0], x_gain)
-
-        # Draw top header: markers, UTC time, relative time
-        x_tick_width_time_min = x_tick_width_pixels_min / self._x_map[-1] if x_gain else 0.0
+        right_margin = margin + statistics_size.width() + margin
+        plot_width = widget_w - left_margin - right_margin
 
         p.setPen(text_pen)
         p.setBrush(text_brush)
         p.setFont(axis_font)
 
-        self._draw_text(p, 2, 2 + axis_font_metrics.ascent(), 'markers')
-        self._draw_text(p, 2, 2 + plot_label_size.height() + axis_font_metrics.ascent(), 'UTC')
-        self._draw_text(p, 2, 2 + 2 * plot_label_size.height() + axis_font_metrics.ascent(), 'relative')
-
         # compute total plot height
-        top_margin = plot_label_size.height() * 3
+        top_margin = margin + plot_label_size.height() * 3
         y_end = top_margin
         for plot in self.state['plots']:
             y_end += y_inner_spacing
             y_end += plot['height']
 
-        y = plot_label_size.height() * 2
-        x_grid = _ticks(x_range[0], x_range[1], x_tick_width_time_min)
-        if x_grid is not None:
-            for idx, x in enumerate(self._x_time_to_pixel(x_grid['major'])):
+        # compute time and draw x-axis including UTC, seconds, grid
+        y = margin + 2 * plot_label_size.height()
+        x_range64 = self.x_range
+        x_range_trel = [self._x_time64_to_trel(i) for i in self.x_range]
+        x_duration = x_range_trel[1] - x_range_trel[0]
+        x_gain = 0.0 if x_duration <= 0 else plot_width / (x_duration * time64.SECOND)
+        self._x_map = (left_margin, x_range64[0], x_gain)
+
+        x_tick_width_time_min = x_tick_width_pixels_min / (plot_width / x_duration) if x_gain else 0.0
+        x_grid = _ticks(x_range_trel[0], x_range_trel[1], x_tick_width_time_min)
+        y_text = y + axis_font_metrics.ascent()
+
+        x_offset = self._x_trel_offset()
+        x_offset_str = time64.as_datetime(x_offset).isoformat()
+        p.drawText(left_margin, margin + plot_label_size.height() + axis_font_metrics.ascent(), x_offset_str)
+        p.drawText(margin, y_text, 's')
+        self._draw_text(p, margin, margin + 2 * plot_label_size.height() + axis_font_metrics.ascent(), 's')
+        if x_grid is None:
+            pass
+        else:
+            for idx, x in enumerate(self._x_trel_to_pixel(x_grid['major'])):
                 p.setPen(text_pen)
-                p.drawText(x + 2, y + axis_font_metrics.ascent(), x_grid['labels'][idx])
+                p.drawText(x + 2, y_text, x_grid['labels'][idx])
                 p.setPen(grid_major_pen)
                 p.drawLine(x, y, x, y_end)
             # todo unit_prefix
 
             y = top_margin
             p.setPen(grid_minor_pen)
-            for x in self._x_time_to_pixel(x_grid['minor']):
+            for x in self._x_trel_to_pixel(x_grid['minor']):
                 p.drawLine(x, y, x, y_end)
         y = top_margin
 
         # Draw each plot
-        for plot in self.state['plots']:
+        for plot_idx, plot in enumerate(self.state['plots']):
             h = plot['height']
 
             # draw separator
             p.setPen(QtGui.Qt.NoPen)
             p.setBrush(plot_separator_brush)
-            p.drawRect(0, y + 2, widget_w, y_inner_spacing - 4)
+            p.drawRect(0, y + 3, widget_w, y_inner_spacing - 6)
             y += y_inner_spacing
 
             # draw border
             p.setPen(plot_border_pen)
             p.setBrush(QtGui.Qt.NoBrush)
-            p.drawRect(left_margin, y, plot_width, h)
+            # p.drawRect(left_margin, y, plot_width, h)
+            p.drawLine(left_margin, y, left_margin, y + h)
 
             self._plot_range_auto_update(plot)
             # todo set clip bounds
@@ -360,14 +415,13 @@ class WaveformWidget(QWidget):
             y_scale = h / (y_range[1] - y_range[0])
             plot['y_map'] = (y, y_range[1], y_scale)
 
-            # draw grid
+            # draw y-axis grid
             p.setFont(axis_font)
             y_tick_height_value_min = y_tick_height_pixels_min / plot['y_map'][-1]
             y_grid = _ticks(y_range[0], y_range[1], y_tick_height_value_min)
             if y_grid is not None:
                 for idx, t in enumerate(self._y_value_to_pixel(plot, y_grid['major'])):
                     p.setPen(text_pen)
-
                     s = y_grid['labels'][idx]
                     w = axis_font_metrics.boundingRect(s).width()
                     p.drawText(left_margin - 4 - w, t + axis_font_metrics.ascent() // 2, s)
@@ -393,7 +447,7 @@ class WaveformWidget(QWidget):
                 d = self._data.get(source)
                 if d is None:
                     continue
-                d_x = self._x_time_to_pixel(d['x'])
+                d_x = self._x_time64_to_pixel(d['x'])
 
                 if self.show_min_max and d['min'] is not None and d['max'] is not None:
                     d_y_min = self._y_value_to_pixel(plot, d['min'])
@@ -420,3 +474,8 @@ class WaveformWidget(QWidget):
                 p.drawPolyline(segs)
 
             y += h
+
+        self._draw_markers(p, size)
+
+    def _draw_markers(self, p, size):
+        pass  # todo
