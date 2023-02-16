@@ -104,7 +104,7 @@ class FlyoutWidget(QtWidgets.QWidget):
 
     def on_sidebar_geometry(self, r):
         width = self.width()
-        g = self.geometry()
+        # g = self.geometry()
         self.setGeometry(r.right(), r.y(), width, r.height())
-        self._log.info(f'on_sidebar_geometry {r}: {g} -> {self.geometry()}')
+        # self._log.info(f'on_sidebar_geometry {r}: {g} -> {self.geometry()}')
         self.repaint()

@@ -28,6 +28,10 @@ from joulescope_ui.units import unit_prefix
 
 _AUTO_RANGE_FRACT = 0.50  # autorange when current range smaller than existing range by this fractional amount.
 _BINARY_RANGE = [-0.1, 1.1]
+_MARGIN = 2             # from the outside edges
+_Y_INNER_SPACING = 8    # vertical spacing between plots (includes line)
+_Y_INNER_LINE = 4
+_Y_PLOT_MIN = 16
 _PLOT_TYPES = {
     'i': {
         'units': 'A',
@@ -334,6 +338,62 @@ class WaveformWidget(QWidget):
         f = dy1 * 0.1
         plot['range'] = y_min - f/2, y_max + f
 
+    def _plots_height(self):
+        plots = self.state['plots']
+        k = len(plots)
+        h = 0
+        if k > 1:
+            h += _Y_INNER_SPACING * (k - 1)
+        for plot in plots:
+            h += plot['height']
+        return h
+
+    def _plots_height_adjust(self, h):
+        h_now = self._plots_height()
+        plots = self.state['plots']
+        k = len(plots)
+        if k == 0:
+            return
+        h_spacing = _Y_INNER_SPACING * (k - 1)
+        h_min = _Y_PLOT_MIN * k + h_spacing
+        if h < h_min:
+            h = h_min
+        h_now -= h_spacing
+        h -= h_spacing
+        scale = h / h_now
+        h_new = 0
+        for plot in plots:
+            z = int(np.round(plot['height'] * scale))
+            if z < _Y_PLOT_MIN:
+                z = _Y_PLOT_MIN
+            plot['height'] = z
+            h_new += z
+        dh = h - h_new
+        if 0 == dh:
+            return
+        if dh > 0:
+            plots[0]['height'] += dh
+            return
+        for plot in plots:
+            r = plot['height'] - _Y_PLOT_MIN
+            if r > 0:
+                adj = min(r, dh)
+                plot['height'] -= adj
+                dh -= adj
+                if dh <= 0:
+                    break
+
+    def resizeEvent(self, event):
+        h = event.size().height()
+        v = self.style_manager_info['sub_vars']
+        axis_font = font_as_qfont(v['waveform.axis_font'])
+        axis_font_metrics = QtGui.QFontMetrics(axis_font)
+        plot_label_size = axis_font_metrics.boundingRect('WW')
+        margin = _MARGIN + plot_label_size.height() * 3 + _Y_INNER_SPACING + _MARGIN
+        h -= margin
+        self._plots_height_adjust(h)
+        return super().resizeEvent(event)
+
     def plot_paint(self, p, size):
         """Paint the plot.
 
@@ -348,8 +408,6 @@ class WaveformWidget(QWidget):
         p.fillRect(0, 0, widget_w, widget_h, background_brush)
 
         # compute dimensions
-        margin = 2
-        y_inner_spacing = 8  # includes line
         axis_font = font_as_qfont(v['waveform.axis_font'])
         text_pen = QtGui.QPen(color_as_qcolor(v['waveform.text_foreground']))
         text_brush = QtGui.QBrush(color_as_qcolor(v['waveform.text_background']))
@@ -371,6 +429,8 @@ class WaveformWidget(QWidget):
         x_tick_width_pixels_min = axis_font_metrics.boundingRect('888.888888').width()
         statistics_size = axis_font_metrics.boundingRect('WWW +888.8888 WW')
 
+        margin = _MARGIN
+        y_inner_spacing = _Y_INNER_SPACING
         left_margin = margin + plot_label_size.width() + margin + y_tick_size.width() + margin
         right_margin = margin + statistics_size.width() + margin
         plot_width = widget_w - left_margin - right_margin
@@ -382,9 +442,7 @@ class WaveformWidget(QWidget):
         # compute total plot height
         top_margin = margin + plot_label_size.height() * 3
         y_end = top_margin
-        for plot in self.state['plots']:
-            y_end += y_inner_spacing
-            y_end += plot['height']
+        y_end += self._plots_height()
 
         # compute time and draw x-axis including UTC, seconds, grid
         y = margin + 2 * plot_label_size.height()
@@ -491,7 +549,6 @@ class WaveformWidget(QWidget):
                         else:
                             segment_idx.append([change_idx[0], change_idx[1]])
                             change_idx = change_idx[2:]
-                print(segment_idx)
 
                 p.setPen(QtGui.Qt.NoPen)
                 p.setBrush(plot1_missing)
