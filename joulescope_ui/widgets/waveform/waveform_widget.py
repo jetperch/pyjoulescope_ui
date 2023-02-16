@@ -77,6 +77,7 @@ class _PlotWidget(QWidget):
     def __init__(self, parent):
         self._parent = parent
         super().__init__(parent)
+        self.setMouseTracking(True)
 
     def paintEvent(self, event):
         size = self.width(), self.height()
@@ -84,6 +85,15 @@ class _PlotWidget(QWidget):
         painter.begin(self)
         self._parent.plot_paint(painter, size)
         painter.end()
+
+    def mousePressEvent(self, event):
+        self._parent.plot_mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        self._parent.plot_mouseReleaseEvent(event)
+
+    def mouseMoveEvent(self, event):
+        self._parent.plot_mouseMoveEvent(event)
 
 
 def _tick_spacing(v_min, v_max, v_spacing_min):
@@ -119,11 +129,15 @@ def _ticks(v_min, v_max, v_spacing_min):
     minor = minor[sel_idx]
 
     label_max = max(abs(major[0]), abs(major[-1]))
+    zero_max = label_max / 10_000.0
     adjusted_value, prefix, scale = unit_prefix(label_max)
     scale = 1.0 / scale
     labels = []
     for v in major:
-        s = f'{v * scale:g}'
+        v *= scale
+        if abs(v) < zero_max:
+            v = 0
+        s = f'{v:g}'
         if s == '-0':
             s = '0'
         labels.append(s)
@@ -135,6 +149,25 @@ def _ticks(v_min, v_max, v_spacing_min):
         'unit_prefix': prefix,
     }
     return np.arange(start, v_max, interval, dtype=np.float64), interval
+
+
+def _target_lookup_by_pos(targets, pos):
+    v = 0
+    for sz, name in targets:
+        v += sz
+        if pos < v:
+            break
+    return name
+
+
+def _target_lookup_by_name(targets, name):
+    v = 0
+    for sz, n in targets:
+        v_next = v + sz
+        if name == n:
+            return v, v_next
+        v = v_next
+    raise ValueError(f'target name {name} not found')
 
 
 @register
@@ -200,6 +233,9 @@ class WaveformWidget(QWidget):
 
         self._graphics = _PlotWidget(self)
         self._layout.addWidget(self._graphics)
+        self._x_geometry_info = []
+        self._y_geometry_info = []
+        self._mouse_action = None
         self._data_hack()
 
     def _data_hack(self):
@@ -362,6 +398,8 @@ class WaveformWidget(QWidget):
         h -= h_spacing
         scale = h / h_now
         h_new = 0
+
+        # scale each plot, respecting minimum height
         for plot in plots:
             z = int(np.round(plot['height'] * scale))
             if z < _Y_PLOT_MIN:
@@ -370,26 +408,31 @@ class WaveformWidget(QWidget):
             h_new += z
         dh = h - h_new
         if 0 == dh:
-            return
-        if dh > 0:
-            plots[0]['height'] += dh
-            return
-        for plot in plots:
-            r = plot['height'] - _Y_PLOT_MIN
-            if r > 0:
-                adj = min(r, dh)
-                plot['height'] -= adj
-                dh -= adj
-                if dh <= 0:
-                    break
+            pass     # no residual, great!
+        elif dh > 0:
+            plots[0]['height'] += dh  # add positive residual to first plot
+        else:
+            # distribute negative residual, respecting minimum sizes
+            for plot in plots:
+                r = plot['height'] - _Y_PLOT_MIN
+                if r > 0:
+                    adj = min(r, dh)
+                    plot['height'] -= adj
+                    dh -= adj
+                    if dh <= 0:
+                        break
 
-    def resizeEvent(self, event):
-        h = event.size().height()
+    def _header_height(self):
         v = self.style_manager_info['sub_vars']
         axis_font = font_as_qfont(v['waveform.axis_font'])
         axis_font_metrics = QtGui.QFontMetrics(axis_font)
         plot_label_size = axis_font_metrics.boundingRect('WW')
-        margin = _MARGIN + plot_label_size.height() * 3 + _Y_INNER_SPACING + _MARGIN
+        h = _MARGIN + plot_label_size.height() * 3
+        return h
+
+    def resizeEvent(self, event):
+        h = event.size().height()
+        margin = self._header_height() + _Y_INNER_SPACING + _MARGIN
         h -= margin
         self._plots_height_adjust(h)
         return super().resizeEvent(event)
@@ -440,7 +483,7 @@ class WaveformWidget(QWidget):
         p.setFont(axis_font)
 
         # compute total plot height
-        top_margin = margin + plot_label_size.height() * 3
+        top_margin = self._header_height()
         y_end = top_margin
         y_end += self._plots_height()
 
@@ -477,6 +520,20 @@ class WaveformWidget(QWidget):
                 p.drawLine(x, y, x, y_end)
         y = top_margin
 
+        self._y_geometry_info = [
+            [margin, 'margin'],
+            [top_margin - margin, 'header'],
+            [_Y_INNER_SPACING, 'ignore'],
+        ]
+
+        self._x_geometry_info = [
+            [margin, 'margin'],
+            [left_margin - margin, 'axis'],
+            [plot_width, 'plot'],
+            [statistics_size.width(), 'statistics'],
+            [margin, 'margin']
+        ]
+
         # Draw each plot
         for plot_idx, plot in enumerate(self.state['plots']):
             h = plot['height']
@@ -486,6 +543,9 @@ class WaveformWidget(QWidget):
             p.setBrush(plot_separator_brush)
             p.drawRect(0, y + 3, widget_w, y_inner_spacing - 6)
             y += y_inner_spacing
+            if plot_idx != 0:
+                self._y_geometry_info.append([y_inner_spacing, f'spacer.{plot_idx}'])
+            self._y_geometry_info.append([h, f'plot.{plot_idx}'])
 
             # draw border
             p.setPen(plot_border_pen)
@@ -590,7 +650,75 @@ class WaveformWidget(QWidget):
 
             y += h
 
+        self._y_geometry_info.append([margin, 'margin'])
         self._draw_markers(p, size)
 
     def _draw_markers(self, p, size):
         pass  # todo
+
+    def _target_lookup_by_pos(self, pos):
+        """Get the target object.
+
+        :param pos: The (x, y) widget pixel coordinates or QtGui.QMouseEvent
+        :return: target region tuple (x_name, y_name)
+        """
+        if isinstance(pos, QtGui.QMouseEvent):
+            x, y = pos.pos().x(), pos.pos().y()
+        else:
+            x, y = pos
+        x_name = _target_lookup_by_pos(self._x_geometry_info, x)
+        y_name = _target_lookup_by_pos(self._y_geometry_info, y)
+        return x_name, y_name
+
+    def plot_mouseMoveEvent(self, event: QtGui.QMouseEvent):
+        event.accept()
+        x, y = event.pos().x(), event.pos().y()
+        x_name, y_name = self._target_lookup_by_pos(event)
+        # self._log.debug(f'mouse release {x_name, y_name}')
+        cursor = QtGui.Qt.ArrowCursor
+        if y_name is None:
+            pass
+        elif y_name.startswith('spacer.'):
+            cursor = QtGui.Qt.SizeVerCursor
+        elif y_name.startswith('plot.') and x_name.startswith('plot'):
+            cursor = QtGui.Qt.CrossCursor
+        self.setCursor(cursor)
+
+        if self._mouse_action is not None:
+            action = self._mouse_action[0]
+            if action == 'move.spacer':
+                idx = self._mouse_action[1]
+                dy = y - self._mouse_action[-1]
+                self._mouse_action[-1] = y
+                plots = self.state['plots']
+                h0 = plots[idx - 1]['height']
+                h1 = plots[idx]['height']
+                d0, d1 = h0 + dy, h1 - dy
+                if d0 < _Y_PLOT_MIN:
+                    d1 = h1 + (h0 - _Y_PLOT_MIN)
+                    d0 = _Y_PLOT_MIN
+                if d1 < _Y_PLOT_MIN:
+                    d0 = h0 + (h1 - _Y_PLOT_MIN)
+                    d1 = _Y_PLOT_MIN
+                plots[idx - 1]['height'] = d0
+                plots[idx]['height'] = d1
+                self.repaint()
+
+    def plot_mousePressEvent(self, event: QtGui.QMouseEvent):
+        event.accept()
+        x, y = event.pos().x(), event.pos().y()
+        x_name, y_name = self._target_lookup_by_pos(event)
+        self._log.info(f'mouse press {x_name, y_name}')
+        if event.button() == QtCore.Qt.LeftButton:
+            if y_name.startswith('spacer'):
+                idx = int(y_name.split('.')[1])
+                y_start, _ = _target_lookup_by_name(self._y_geometry_info, y_name)
+                self._mouse_action = ['move.spacer', idx, y, y_start, y]
+            else:
+                self._mouse_action = None
+
+    def plot_mouseReleaseEvent(self, event: QtGui.QMouseEvent):
+        event.accept()
+        x_name, y_name = self._target_lookup_by_pos(event)
+        self._log.info(f'mouse release {x_name, y_name}')
+        self._mouse_action = None
