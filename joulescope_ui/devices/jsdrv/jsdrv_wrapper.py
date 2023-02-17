@@ -1,4 +1,4 @@
-# Copyright 2022 Jetperch LLC
+# Copyright 2022-2023 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,19 +16,21 @@ import copy
 from pyjoulescope_driver import Driver
 from joulescope_ui import get_unique_id, get_topic_name, Metadata, N_
 from joulescope_ui.capabilities import CAPABILITIES
+from .jsdrv_stream_buffer import JsdrvStreamBuffer
 from .js110 import Js110
 from .js220 import Js220
 import logging
 import time
 
 
-_MEM_RESPONSE_TOPIC = '_/mem/!rsp'
-_MEM_CLEANUP_PERIOD_S = 1.0   # process memory cleanup with this period (seconds)
-_MEM_EXPIRE_INTERVAL_S = 2.0  # expire entries older than this duration (seconds)
-
-
 class JsdrvWrapper:
-    """Joulescope driver."""
+    """The singleton Joulescope driver wrapper.
+
+    Provide access to Joulescope devices including the JS220 and JS110.
+    This class wraps a pyjoulescope_driver.Driver instance and relays
+    messages between the UI's pubsub instance and the jsdrv pubsub
+    instance.
+    """
     CAPABILITIES = [CAPABILITIES.DEVICE_FACTORY]
     EVENTS = {
         '!publish': Metadata('obj', 'Resync to UI publish thread')
@@ -63,12 +65,7 @@ class JsdrvWrapper:
         self.devices = {}
         self._ui_subscriptions = []
         self._driver_subscriptions = []
-        self._mem = {}
-        self._mem_signals_free = list(range(1, 256))
-        self._mem_req_fwd = {}  # (pubsub_rsp_topic, pubsub_rsp_id): device_rsp_id
-        self._mem_req_bwd = {}  # device_rsp_id: (pubsub_rsp_topic, pubsub_rsp_id)
-        self._mem_req_time = {}  # device_rsp_id: time_last_used
-        self._mem_collect_time = time.time()
+        self._stream_buffers = {}
 
     def on_pubsub_register(self, pubsub):
         topic = get_topic_name(self)
@@ -81,94 +78,32 @@ class JsdrvWrapper:
         self._ui_subscribe(f'{topic}/settings/log_level', self._on_log_level, ['retain', 'pub'])
         self._ui_subscribe(f'{topic}/events/!publish', self._on_event_publish, ['pub'])
         self.driver.subscribe('@', 'pub', self._on_driver_publish)
-        self.driver.publish('m/@/!add', 1)  # one and only memory buffer
-        self.driver.subscribe(_MEM_RESPONSE_TOPIC, 'pub', self._on_mem_response)
         for d in self.driver.device_paths():
             self._log.info('on_pubsub_register add %s', d)
             self._on_driver_publish('@/!add', d)
         self._log.info('on_pubsub_register done %s', topic)
 
-    def on_setting_mem__size(self, value):
-        self.driver.publish('m/001/g/size', int(value))
+    def on_action_mem__add(self, value):
+        self._log.info('mem add %s', value)
+        mem_id = int(value)
+        if mem_id <= 0 or mem_id >= 16:
+            raise ValueError(f'Invalid mem_id {value}')
+        b = JsdrvStreamBuffer(self, mem_id)
+        self._stream_buffers[mem_id] = b
+        unique_id = f'JsdrvStreamBuffer:{mem_id:03d}'
+        self.pubsub.register(b, unique_id=unique_id)
+        for device in self.devices.values():
+            b.device_add(device)
 
-    def on_setting_mem__hold(self, value):
-        value = int(value)
-        self.driver.publish('m/001/g/hold', value)
-
-    def on_setting_mem__mode(self, value):
-        self.driver.publish('m/001/g/mode', int(value))
-
-    def on_action_mem__signal__add(self, value):
-        data_topic = value
-        signal_id = self._mem_signals_free.pop(0)
-        self._mem[data_topic] = signal_id
-        self.driver.publish('m/001/a/!add', signal_id)
-        self.driver.publish(f'm/001/s/{signal_id:03d}/topic', data_topic)
-
-    def on_action_mem__signal__remove(self, value):
-        data_topic = value
-        signal_id = self._mem.pop(data_topic)
-        self.driver.publish('m/001/a/!remove', signal_id)
-        self._mem_signals_free.append(0, signal_id)
-
-    def _on_mem_response(self, topic, value):
-        # will be called from device's pubsub thread
-        value = copy.deepcopy(value)
-        device_req_id = value['rsp_id']
-        try:
-            req = self._mem_req_bwd[device_req_id]
-            value['rsp_topic'] = req[0]
-            value['rsp_id'] = req[1]
-            self.pubsub.publish(value['rsp_topic'], value)
-        except KeyError:
-            self._log.info('Unknown response: req_id=%s', device_req_id)
-
-    def on_action_mem__signal__request(self, value):
-        """Request data from the memory buffer.
-
-        :param value: The dict defining the request with keys:
-            * signal: The source data topic for the signal.
-            * time_type: 'utc' or 'samples'.
-            * rsp_topic: The arbitrary response topic.
-            * rsp_id: The optional and arbitrary response immutable object.
-              Valid values include integers, strings, and callables.
-              If providing method calls, be sure to save the binding to a
-              member variable and reuse the same binding so that deduplication
-              can work correctly.  Otherwise, each call will use a new binding
-              that is different and will not allow deduplication matching.
-            * start: The starting time (UTC or samples).
-            * end: The ending time (UTC or samples).
-            * length: The number of requested entries evenly spread from start to end.
-        """
-        value = copy.deepcopy(value)
-        data_topic = value['signal']
-        if data_topic not in self._mem:
-            return  # todo handle
-        signal_id = self._mem[data_topic]
-        pubsub_req = (value['rsp_topic'], value['rsp_id'])
-        if pubsub_req in self._mem_req_fwd:
-            device_req_id = self._mem_req_fwd[pubsub_req]
-        else:
-            # create and add new entry
-            device_req_id = id(pubsub_req)
-            self._mem_req_fwd[pubsub_req] = device_req_id
-            self._mem_req_bwd[device_req_id] = pubsub_req
-        t_now = time.time()
-        self._mem_req_time[device_req_id] = t_now  # update last used time
-        value['rsp_topic'] = _MEM_RESPONSE_TOPIC
-        value['rsp_id'] = device_req_id
-        self.driver.publish(f'm/001/s/{signal_id:03d}/!req', value)
-        self._mem_collect(t_now)
-
-    def _mem_collect(self, t_now):
-        if t_now - self._mem_collect_time < _MEM_CLEANUP_PERIOD_S:
+    def on_action_mem_remove(self, value):
+        self._log.info('mem remove %s', value)
+        mem_id = int(value)
+        if mem_id <= 0 or mem_id >= 16:
+            raise ValueError(f'Invalid mem_id {value}')
+        if mem_id not in self._stream_buffers:
             return
-        for device_req_id, t_last in list(self._mem_req_time.items()):
-            if (t_now - t_last) > _MEM_EXPIRE_INTERVAL_S:
-                pubsub_req = self._mem_req_bwd.pop(device_req_id)
-                del self._mem_req_fwd.pop[pubsub_req]
-                del self._mem_req_time[device_req_id]
-        self._mem_collect_time = t_now
+        b = self._stream_buffers.pop(mem_id)
+        self.pubsub.unregister(b, delete=True)
 
     def clear(self):
         while len(self._ui_subscriptions):
@@ -235,10 +170,14 @@ class JsdrvWrapper:
         if d.name is None:
             d.name = unique_id
         self.devices[value] = d
+        for b in self._stream_buffers.values():
+            b.device_add(d)
 
     def _on_device_remove(self, value):
         d = self.devices.pop(value, None)
         if d is not None:
+            for b in self._stream_buffers.values():
+                b.device_remove(d)
             self._log.info('_on_device_remove %s', get_unique_id(d))
             topic = get_topic_name(d)
             self.pubsub.publish(f'{topic}/actions/!finalize', None)

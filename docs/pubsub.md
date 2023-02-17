@@ -150,6 +150,29 @@ are defined:
 * hex string of incrementing integer for dynamic objects
 
 
+## Registration
+
+The pubsub implementation supports object registration and unregistration.
+During this process, registered classes and objects are inspected for
+methods by name.  For classes, the specially named methods are:
+
+* on_cls_action_*
+* on_cls_setting_*
+* on_cls_cbk_*
+* on_cls_event_*
+* on_cls_pubsub_register(pubsub)
+* on_cls_pubsub_unregister(pubsub)
+
+For object (instances), the specially named methods are:
+
+* on_action_*
+* on_setting_*
+* on_cbk_*
+* on_event_*
+* on_pubsub_register(pubsub)
+* on_pubsub_unregister(pubsub)
+
+
 ## Changes from 0.10.x to 1.x.x
 
 The 0.10.x (and earlier) Joulescope UI implementation evolved over time

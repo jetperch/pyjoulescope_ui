@@ -44,6 +44,10 @@ class Device:
     def __str__(self):
         return f'Device({self._path})'
 
+    @property
+    def device_path(self):
+        return self._path
+
     def finalize(self):
         while len(self._driver_subscriptions):
             t, v = self._driver_subscriptions.pop()

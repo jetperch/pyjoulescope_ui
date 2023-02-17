@@ -73,8 +73,9 @@ def _menu_setup(parent, d):
 
 def _device_factory_add():
     jsdrv = JsdrvWrapper()
-    pubsub_singleton.register(jsdrv, 'jsdrv')
-    jsdrv.on_pubsub_register(pubsub_singleton)
+    unique_id = pubsub_singleton.register(jsdrv, 'jsdrv')
+    topic = get_topic_name(unique_id)
+    pubsub_singleton.publish(f'{topic}/actions/mem/!add', 1)  # use singleton memory buffer
 
 
 def _device_factory_finalize():

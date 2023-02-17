@@ -41,7 +41,7 @@ TOPIC_ADD_TOPIC = COMMON_ACTIONS_TOPIC + '/!topic_add'
 TOPIC_REMOVE_TOPIC = COMMON_ACTIONS_TOPIC + '/!topic_remove'
 CLS_ACTION_PREFIX = 'on_cls_action_'
 CLS_CALLBACK_PREFIX = 'on_cls_cbk_'
-CLS_EVENT_PREFIX = 'on_cls_cbk_'
+CLS_EVENT_PREFIX = 'on_cls_event_'
 ACTION_PREFIX = 'on_action_'
 CALLBACK_PREFIX = 'on_cbk_'
 EVENT_PREFIX = 'on_event_'
@@ -1001,6 +1001,7 @@ class PubSub:
         if parent is not None:
             self._parent_add(obj, parent)
         self._registry_add(unique_id)
+        self._register_invoke_callback(obj, unique_id)
         self._register_capabilities(obj, unique_id)
         self._log.info('register(unique_id=%s) done', unique_id)
         return unique_id
@@ -1189,14 +1190,43 @@ class PubSub:
             capability_topic = REGISTRY_MANAGER_TOPICS.CAPABILITIES + f'/{capability}'
             self.publish(f'{capability_topic}/!remove', unique_id)
 
-    def unregister(self, spec):
+    def _invoke_callback(self, obj, method_name):
+        method = getattr(obj, method_name, None)
+        func = getattr(method, '__func__', None)
+        if func is None:
+            return
+        code = func.__code__
+        args = code.co_argcount
+        if code.co_varnames[0] == 'self':
+            args -= 1
+        if args == 0:
+            method()
+        elif args == 1:
+            method(self)
+
+    def _register_invoke_callback(self, obj, unique_id):
+        if isinstance(obj, type):
+            method_name = 'on_cls_pubsub_register'
+        else:
+            method_name = 'on_pubsub_register'
+        self._invoke_callback(obj, method_name)
+
+    def _unregister_invoke_callback(self, obj, unique_id):
+        if isinstance(obj, type):
+            method_name = 'on_cls_pubsub_unregister'
+        else:
+            method_name = 'on_pubsub_unregister'
+        self._invoke_callback(obj, method_name)
+
+    def unregister(self, spec, delete=None):
         """Unregister a class or instance.
 
         :param spec: The class type, instance, topic name or unique id to unregister.
+        :param delete: When True, delete all information from the pubsub instance.
+            When None (default) or false, then the topic and subtopics are not
+            removed.  Future instances registered
+            to this unique_id will be configured with the same settings.
         :return: The unregistered object.
-
-        This feature does not remove the topic.  Future instances registered
-        to this unique_id will be configured with the same settings.
         """
         try:
             unique_id = get_unique_id(spec)
@@ -1210,12 +1240,15 @@ class PubSub:
             self._log.warning('Could not unregister %s - instance not found', spec)
             return None
         self._unregister_capabilities(obj, unique_id)
+        self._unregister_invoke_callback(obj, unique_id)
         self._registry_remove(unique_id)
         self._unregister_settings(obj, unique_id)
         self._unregister_functions(obj, unique_id)
         self.topic_remove(instance_topic_name)
         del obj.unique_id
         del obj.topic
+        if bool(delete):
+            self.topic_remove(topic_name)
         return obj
 
     def register_command(self, topic: str, fn: callable):
@@ -1238,7 +1271,7 @@ class PubSub:
         self.subscribe(topic, fn, flags=['command'])
         return fn
 
-    def unregister_command(self, topic:str, fn: callable):
+    def unregister_command(self, topic: str, fn: callable):
         """Remove the registered command handler for a topic.
 
         :param topic: The topic string for the command.

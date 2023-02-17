@@ -28,6 +28,8 @@ from PySide6.QtGui import QPainter, QPen, QBrush, QColor
 from joulescope_ui.units import unit_prefix
 
 
+_WHEEL_TO_DEGREES = 1.0 / 8.0  # https://doc.qt.io/qt-6/qwheelevent.html#angleDelta
+_WHEEL_TICK_DEGREES = 15.0   # Standard convention
 _AUTO_RANGE_FRACT = 0.50  # autorange when current range smaller than existing range by this fractional amount.
 _BINARY_RANGE = [-0.1, 1.1]
 _MARGIN = 2             # from the outside edges
@@ -96,6 +98,9 @@ class _PlotWidget(QWidget):
 
     def mouseMoveEvent(self, event):
         self._parent.plot_mouseMoveEvent(event)
+
+    def wheelEvent(self, event):
+        self._parent.plot_wheelEvent(event)
 
 
 def _tick_spacing(v_min, v_max, v_spacing_min):
@@ -230,6 +235,8 @@ class WaveformWidget(QWidget):
         self._menu = None
         self._dialog = None
         self._x_map = (0, 0, 1.0)  # (pixel_offset, time64_offset, time_to_pixel_scale)
+        self._mouse_pos = None
+        self._wheel_accum_degrees = np.zeros(2, dtype=np.float64)
 
         self._layout = QtWidgets.QHBoxLayout(self)
         self._layout.setSpacing(0)
@@ -678,6 +685,7 @@ class WaveformWidget(QWidget):
     def plot_mouseMoveEvent(self, event: QtGui.QMouseEvent):
         event.accept()
         x, y = event.pos().x(), event.pos().y()
+        self._mouse_pos = (x, y)
         x_name, y_name = self._target_lookup_by_pos(event)
         # self._log.debug(f'mouse release {x_name, y_name}')
         cursor = QtGui.Qt.ArrowCursor
@@ -801,7 +809,7 @@ class WaveformWidget(QWidget):
         anno_y = annotations.addMenu('&Horizontal')
         anno_text = annotations.addMenu('&Text')
 
-        copy_image = menu.addAction(N_('Save image'))
+        copy_image = menu.addAction(N_('Save image to file'))
         copy_image.triggered.connect(self._action_save_image)
 
         copy_image = menu.addAction(N_('Copy image to clipboard'))
@@ -832,3 +840,31 @@ class WaveformWidget(QWidget):
 
     def on_style_change(self):
         self.update()
+
+    def plot_wheelEvent(self, event: QtGui.QWheelEvent):
+        x_name, y_name = self._target_lookup_by_pos(self._mouse_pos)
+        delta = np.array([event.angleDelta().x(), event.angleDelta().y()], dtype=np.float64)
+        delta *= _WHEEL_TO_DEGREES
+        self._wheel_accum_degrees += delta
+        incr = np.fix(self._wheel_accum_degrees / _WHEEL_TICK_DEGREES)
+        self._wheel_accum_degrees -= incr * _WHEEL_TICK_DEGREES
+        x_delta, y_delta = incr
+
+        if QtCore.Qt.ShiftModifier & event.modifiers():
+            pan = y_delta
+            zoom = 0
+        else:
+            pan = x_delta
+            zoom = y_delta
+        if x_name == 'plot' and y_name.startswith('plot.'):
+            if zoom:
+                print(f'x-axis zoom {zoom}')  # todo
+            if pan:
+                print(f'x-axis pan {pan}')  # todo
+        elif x_name == 'axis' and y_name.startswith('plot.'):
+            idx = int(y_name.split('.')[1])
+            if zoom:
+                print(f'y-axis {idx} zoom {zoom}')  # todo
+            if pan:
+                print(f'y-axis {idx} pan {pan}')  # todo
+

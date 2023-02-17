@@ -23,7 +23,7 @@ class CAPABILITIES(Enum):
     """An analysis tool class that operates over a time range.
 
     The pubsub object must implement the following:
-        * actions/!create:  what is provided?  utc time range, SIGNAL_BUFFER_SOURCE topics? 
+        * actions/!create:  what is provided?  time64 range, SIGNAL_BUFFER_SOURCE topics? 
     """
 
     RANGE_TOOL_OBJECT = 'range_tool.object'
@@ -94,13 +94,21 @@ class CAPABILITIES(Enum):
           * source: (unique_id, if not same as this instance)
           * source_topic: (fully qualified topic, if not from this instance)
           * sample_freq: (output)
-        * settings/signals/{signal_id}/range: [t_start, t_end] in UTC (read-only)
-        * actions/signals/{signal_id}
-            * !sample_req [t_start, t_end, cbk_topic, cbk_identifier]
-            * !summary_req [t_start, t_end, t_incr, cbk_topic, cbk_identifier]
-        * events/!signal_add {signal_id}: (optional, only for dynamic sources)
-        * events/!signal_remove {signal_id}:  (optional, only for dynamic sources)
-        * events/signals: list of signal_id
+        * settings/signals/{signal_id}/range: [t_start, t_end] in time64 (read-only)
+        * actions/signals/{signal_id}/!req obj with keys:
+          * time_start: The start time as time64.
+          * time_end: The end time as time64.
+          * length: The desired number of response entries.
+          * rsp_topic: When computed, the results will be sent to this topic.
+            The results can be either sample data or summary data.
+            To guarantee sample data, specify either time64_end or length.
+            Other requests may return sample data or summary data.
+          * rsp_id: The arbitrary, immutable argument for rsp_topic.  Examples
+            included int, string, and callables.
+        * events/sources/!add {source_id}: (optional, only for dynamic sources)
+        * events/sources/!remove {source_id}:  (optional, only for dynamic sources)
+        * events/signals/!add {signal_id}: (optional, only for dynamic sources)
+        * events/signals/!remove {signal_id}:  (optional, only for dynamic sources)
     """
 
     SIGNAL_STREAM_SOURCE = 'signal_stream.source'
