@@ -23,7 +23,6 @@ CAPABILITIES_OBJECT = [
     CAPABILITIES.SOURCE,
     CAPABILITIES.STATISTIC_STREAM_SOURCE,
     CAPABILITIES.SIGNAL_STREAM_SOURCE,
-    CAPABILITIES.SIGNAL_BUFFER_SOURCE,
 ]
 
 
@@ -76,7 +75,6 @@ class Device:
         rv = self._driver.subscribe(self._driver_topic_make(topic), flags, fn, timeout)
         if rv == 0:
             self._driver_subscriptions.append((topic, fn))
-        rv
 
     def _driver_unsubscribe(self, topic, fn, timeout=None):
         try:

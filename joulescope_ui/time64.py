@@ -32,7 +32,9 @@ https://github.com/jetperch/fitterbap/blob/main/include/fitterbap/time.h
 
 
 import datetime
+import numpy as np
 import time as pytime
+
 
 EPOCH = datetime.datetime(2018, 1, 1, tzinfo=datetime.timezone.utc).timestamp()  # seconds
 SCALE = (1 << 30)
@@ -58,7 +60,7 @@ def as_time64(t):
         * python timestamp
         * integer Joulescope timestamp
     """
-    if isinstance(t, int):
+    if isinstance(t, int) or isinstance(t, np.int64):
         return t
     if isinstance(t, datetime.datetime):
         t = t.timestamp()

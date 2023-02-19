@@ -95,7 +95,8 @@ class CAPABILITIES(Enum):
           * source_topic: (fully qualified topic, if not from this instance)
           * sample_freq: (output)
         * settings/signals/{signal_id}/range: [t_start, t_end] in time64 (read-only)
-        * actions/signals/{signal_id}/!req obj with keys:
+        * actions/!request obj with keys:
+          * signal_id: The signal_id for the request.
           * time_start: The start time as time64.
           * time_end: The end time as time64.
           * length: The desired number of response entries.

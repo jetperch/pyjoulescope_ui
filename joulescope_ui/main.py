@@ -75,7 +75,11 @@ def _device_factory_add():
     jsdrv = JsdrvWrapper()
     unique_id = pubsub_singleton.register(jsdrv, 'jsdrv')
     topic = get_topic_name(unique_id)
+    pubsub_singleton.topic_remove('registry/JsdrvStreamBuffer:001')
+    pubsub_singleton.process()
     pubsub_singleton.publish(f'{topic}/actions/mem/!add', 1)  # use singleton memory buffer
+    pubsub_singleton.process()
+    pubsub_singleton.publish('registry/JsdrvStreamBuffer:001/settings/size', 100_000_000)
 
 
 def _device_factory_finalize():
@@ -310,4 +314,3 @@ def run(log_level=None, file_log_level=None, filename=None):
             app = QtWidgets.QApplication([])
         w = ErrorWindow()
         return app.exec_()
-

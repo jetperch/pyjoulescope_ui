@@ -43,6 +43,11 @@ _SETTINGS = {
         'brief': N_('Name'),
         'default': N_('Joulescope stream buffer'),
     },
+    'size': {
+        'dtype': 'int',
+        'brief': N_('Buffer memory size'),
+        'default': 0,
+    },
 }
 
 _SETTINGS_PER_SOURCE = {
@@ -80,34 +85,13 @@ _SETTINGS_PER_SIGNAL = {
 }
 
 
-"""
-        * settings/signals/{signal_id}/name
-        * settings/signals/{signal_id}/meta: obj with keys:
-          * vendor
-          * model
-          * version
-          * serial_number
-          * field: (current, voltage, power, ...)
-          * units
-          * source: (unique_id, if not same as this instance)
-          * source_topic: (fully qualified topic, if not from this instance)
-          * sample_freq: (output)
-        * settings/signals/{signal_id}/range: [t_start, t_end] in time64 (read-only)
-        * actions/signals/{signal_id}/!req obj with keys:
-          * time_start: The start time as time64.
-          * time_end: The end time as time64.
-          * length: The desired number of response entries.
-          * rsp_topic: When computed, the results will be sent to this topic.
-            The results can be either sample data or summary data.
-            To guarantee sample data, specify either time64_end or length.
-            Other requests may return sample data or summary data.
-          * rsp_id: The arbitrary, immutable argument for rsp_topic.  Examples
-            included int, string, and callables.
-        * actions/!signal_add {signal_id}: (optional, only for dynamic sources)
-        * actions/!signal_remove {signal_id}:  (optional, only for dynamic sources)
-        * settings/sources: list of source_id (read only)
-        * settings/signals: list of signal_id (read only)
-"""
+def defer_until_registered(f):
+    def wrapper(self, value):
+        if self._initialize_cache is not None:
+            self._initialize_cache.append((f, value))
+        else:
+            f(self, value)
+    return wrapper
 
 
 class JsdrvStreamBuffer:
@@ -119,42 +103,51 @@ class JsdrvStreamBuffer:
     CAPABILITIES = []
     EVENTS = {}
 
-    def __init__(self, wrapper, id):
-        self._pubsub = None
+    def __init__(self, wrapper, stream_buffer_id):
+        self.pubsub = None
         self.CAPABILITIES = _CAPABILITIES_OBJECT
         self.EVENTS = _EVENTS
         self.SETTINGS = _SETTINGS
         self._wrapper = wrapper  #: JsdrvWrapper
-        self._id = f'{int(id):03d}'
+        self._initialize_cache = []
+        self._id = f'{int(stream_buffer_id):03d}'
         self._rsp_topic = f'_/mem_{self._id}/!rsp'
         self._log = logging.getLogger(f'{__name__}.{self._id}')
         self._driver_subscriptions = []
-        self._sources = {}
-        self._signals = {}
+        self._sources: dict[str, Device] = {}  # device unique_id -> instance
+        self._signals: dict[str, int] = {}     # signal id ui_str -> buffer_id
+        self._signals_reverse: dict[int, str] = {}  # signal id buffer_id -> ui_str
+        self._device_signal_id_next = 1
         self._device_subscriptions = {}
+
+        self._signals_free = list(range(1, 256))
+        self._req_fwd = {}  # (pubsub_rsp_topic, pubsub_rsp_id): device_rsp_id
+        self._req_bwd = {}  # device_rsp_id: (pubsub_rsp_topic, pubsub_rsp_id)
+        self._req_time = {}  # device_rsp_id: time_last_used
+        self._collect_time = time.time()
 
     def __str__(self):
         return f'JsdrvStreamBuffer({self._id})'
 
-    def device_add(self, device: Device):
+    def on_action_device_add(self, device: Device):
         self._sources[device.unique_id] = device
         topic = get_topic_name(self.unique_id)
         source_topic = f'{topic}/settings/{device.unique_id}'
         for name, meta in _SETTINGS_PER_SOURCE.items():
-            self._pubsub.topic_add(f'{source_topic}/{name}', meta)
+            self.pubsub.topic_add(f'{source_topic}/{name}', meta)
         device_topic = get_topic_name(device)
-        for signal in self._pubsub.enumerate(f'{device_topic}/settings/signals'):
-            self._pubsub.subscribe(f'{device_topic}/settings/signals/{signal}/enable',
-                                   self._on_signal_enable, ['pub', 'retain'])
+        for signal in self.pubsub.enumerate(f'{device_topic}/settings/signals'):
+            self.pubsub.subscribe(f'{device_topic}/settings/signals/{signal}/enable',
+                                  self._on_signal_enable, ['pub', 'retain'])
         # todo publish source info
-        self._pubsub.publish(f'{topic}/events/sources/!add', device.unique_id)
+        self.pubsub.publish(f'{topic}/events/sources/!add', device.unique_id)
 
-    def device_remove(self, device: Device):
+    def on_action_device_remove(self, device):
         topic = get_topic_name(self.unique_id)
         source_topic = f'{topic}/settings/{device.unique_id}'
-        self._pubsub.publish(f'{topic}/events/sources/!remove', device.unique_id)
+        self.pubsub.publish(f'{topic}/events/sources/!remove', device.unique_id)
         for name, meta in _SETTINGS_PER_SOURCE.items():
-            self._pubsub.topic_remove(f'{source_topic}/{name}')
+            self.pubsub.topic_remove(f'{source_topic}/{name}')
         for topic in list(self._device_subscriptions.keys()):
             if topic.startswith(device.device_path):
                 fn = self._device_subscriptions.pop(topic)
@@ -165,87 +158,100 @@ class JsdrvStreamBuffer:
         self._device_subscriptions[topic] = fn
         self._wrapper.driver.subscribe(topic, flags, fn)
 
-    def on_pubsub_register(self, pubsub):
-        self._pubsub = pubsub
-        self._device_publish('m/@/!add', int(self._id))
-        self._device_subscribe(self._rsp_topic, 'pub', self._on_mem_response)
+    def on_pubsub_register(self):
+        self._driver_publish('m/@/!add', int(self._id))
+        self._device_subscribe(self._rsp_topic, 'pub', self._on_buf_response)
+        for fn, value in self._initialize_cache:
+            fn(self, value)
+        self._initialize_cache = None
 
     def on_pubsub_unregister(self):
-        self._wrapper.driver.unsubscribe(self._rsp_topic, 'pub', self._on_mem_response_fn)
         for topic, fn in self._device_subscriptions:
             self._wrapper.driver.unsubscribe(topic, fn)
-        self._device_publish('m/@/!remove', int(self._id))
-        self._pubsub.unsubscribe(self._on_pubsub_req)
+        self._driver_publish('m/@/!remove', int(self._id))
+        self.pubsub.unsubscribe(self._on_pubsub_req)
 
-    def _on_pubsub_req(self, topic, value):
-        """Request data from the buffer.
-
-
-        """
-        print(topic)
+    def _on_device_signal_info(self, topic, value):
+        # device_signal_info m/001/s/001/info {'version': 1, 'field_id': 1, 'index': 0, 'element_type': 4, 'element_size_bits': 32, 'topic': b'u/js220/000415/s/i/!data', 'size_in_utc': 8725724278, 'size_in_samples': 8126464, 'time_range_utc': {'start': 911549982937, 'end': 914237683277, 'length': 2503116}, 'time_range_samples': {'start': 848947077, 'end': 851450193, 'length': 2503116}, 'sample_rate': 1000000.0}
+        buf_id = int(topic.split('/')[-2])
+        signal_id = self._signals_reverse.get(buf_id)
+        if signal_id is not None:
+            t = get_topic_name(self)
+            utc = value['time_range_utc']
+            r = [utc['start'], utc['end']]
+            self.pubsub.publish(f'{t}/settings/signals/{signal_id}/range', r)
 
     def _on_signal_enable(self, topic, value):
         p = topic.split('/')
-        source = p[1]
+        device_unique_id = p[1]
         signal = p[4]
-        signal_id = f'{source}.{signal}'
+        signal_id = f'{device_unique_id}.{signal}'
         value = bool(value)
-        ui_prefix = get_topic_name(self)
-        req_topic = f'{topic}/actions/signals/{signal_id}/!req'
         if value:
-            self._pubsub.register_command(req_topic, self._on_pubsub_req)
-            for key, meta in _SETTINGS_PER_SIGNAL.items():
-                self._pubsub.topic_add(f'{ui_prefix}/settings/signals/{signal_id}/{key}', meta)
-            # todo publish signal metadata
-            self._pubsub.publish(f'{ui_prefix}/events/signals/!add', signal_id)
+            self.on_action_add(signal_id)
         elif signal_id in self._signals:
-            self._pubsub.publish(f'{ui_prefix}/events/signals/!remove', signal_id)
-            self._pubsub.topic_remove(f'{ui_prefix}/settings/signals/{signal_id}')
-            self._pubsub.unregister_command(req_topic, self._on_pubsub_req)
+            self.on_action_remove(signal_id)
 
-    def _device_publish(self, topic, value):
+    def _driver_publish(self, topic, value):
         self._wrapper.driver.publish(topic, value)
 
+    @defer_until_registered
     def on_setting_size(self, value):
-        self._device_publish(f'm/{self._id}/g/size', int(value))
+        self._driver_publish(f'm/{self._id}/g/size', int(value))
 
+    @defer_until_registered
     def on_setting_hold(self, value):
         value = int(value)
-        self._device_publish(f'm/{self._id}/g/hold', value)
+        self._driver_publish(f'm/{self._id}/g/hold', value)
 
+    @defer_until_registered
     def on_setting_mode(self, value):
-        self._device_publish(f'm/{self._id}/g/mode', int(value))
+        self._driver_publish(f'm/{self._id}/g/mode', int(value))
 
-    def on_action_signal__add(self, value):
-        data_topic = value
-        signal_id = self._mem_signals_free.pop(0)
-        self._mem[data_topic] = signal_id
-        self.driver.publish(f'm/{self._id}/a/!add', signal_id)
-        self.driver.publish(f'm/{self._id}/s/{signal_id:03d}/topic', data_topic)
+    def on_action_add(self, signal_id):
+        buf_id = self._signals_free.pop(0)
+        self._signals[signal_id] = buf_id
+        self._signals_reverse[buf_id] = signal_id
+        unique_id, signal = signal_id.split('.')
+        device_path = self._sources[unique_id].device_path
 
-    def on_action_signal__remove(self, value):
-        data_topic = value
-        signal_id = self._mem.pop(data_topic)
-        self.driver.publish(f'm/{self._id}/a/!remove', signal_id)
-        self._mem_signals_free.append(0, signal_id)
+        ui_prefix = get_topic_name(self)
+        for key, meta in _SETTINGS_PER_SIGNAL.items():
+            self.pubsub.topic_add(f'{ui_prefix}/settings/signals/{signal_id}/{key}', meta)
+        self._wrapper.driver.publish(f'm/{self._id}/a/!add', buf_id)
+        device_source = f'{device_path}/s/{signal}/!data'
+        buf_prefix = f'm/{self._id}/s/{buf_id:03d}'
+        self._wrapper.driver.publish(f'{buf_prefix}/topic', device_source)
+        self._device_subscribe(f'{buf_prefix}/info', ['pub', 'pub_retain'], self._on_device_signal_info)
+        # todo publish signal metadata
+        self.pubsub.publish(f'{ui_prefix}/events/signals/!add', signal_id)
 
-    def _on_mem_response(self, topic, value):
+    def on_action_remove(self, signal_id):
+        buf_id = self._signals.pop(signal_id)
+        self._signals_reverse.pop(buf_id)
+        self._signals_free.append(buf_id)
+        self.driver.publish(f'm/{self._id}/a/!remove', buf_id)
+        ui_prefix = get_topic_name(self)
+        self.pubsub.publish(f'{ui_prefix}/events/signals/!remove', signal_id)
+        self.pubsub.topic_remove(f'{ui_prefix}/settings/signals/{signal_id}')
+
+    def _on_buf_response(self, topic, value):
         # will be called from device's pubsub thread
         value = copy.deepcopy(value)
         device_req_id = value['rsp_id']
         try:
-            req = self._mem_req_bwd[device_req_id]
+            req = self._req_bwd[device_req_id]
             value['rsp_topic'] = req[0]
             value['rsp_id'] = req[1]
             self.pubsub.publish(value['rsp_topic'], value)
         except KeyError:
             self._log.info('Unknown response: req_id=%s', device_req_id)
 
-    def on_action_signal__request(self, value):
+    def on_action_request(self, value):
         """Request data from the memory buffer.
 
         :param value: The dict defining the request with keys:
-            * signal: The source data topic for the signal.
+            * signal_id: The signal id for the request
             * time_type: 'utc' or 'samples'.
             * rsp_topic: The arbitrary response topic.
             * rsp_id: The optional and arbitrary response immutable object.
@@ -259,31 +265,29 @@ class JsdrvStreamBuffer:
             * length: The number of requested entries evenly spread from start to end.
         """
         value = copy.deepcopy(value)
-        data_topic = value['signal']
-        if data_topic not in self._mem:
-            return  # todo handle
-        signal_id = self._mem[data_topic]
+        signal_id = value['signal_id']
+        buf_id = self._signals[signal_id]
         pubsub_req = (value['rsp_topic'], value['rsp_id'])
-        if pubsub_req in self._mem_req_fwd:
-            device_req_id = self._mem_req_fwd[pubsub_req]
+        if pubsub_req in self._req_fwd:
+            device_req_id = self._req_fwd[pubsub_req]
         else:
             # create and add new entry
             device_req_id = id(pubsub_req)
-            self._mem_req_fwd[pubsub_req] = device_req_id
-            self._mem_req_bwd[device_req_id] = pubsub_req
+            self._req_fwd[pubsub_req] = device_req_id
+            self._req_bwd[device_req_id] = pubsub_req
         t_now = time.time()
-        self._mem_req_time[device_req_id] = t_now  # update last used time
+        self._req_time[device_req_id] = t_now  # update last used time
         value['rsp_topic'] = self._rsp_topic
         value['rsp_id'] = device_req_id
-        self.driver.publish(f'm/{self._id}/s/{signal_id:03d}/!req', value)
+        self._driver_publish(f'm/{self._id}/s/{buf_id:03d}/!req', value)
         self._mem_collect(t_now)
 
     def _mem_collect(self, t_now):
-        if t_now - self._mem_collect_time < _MEM_CLEANUP_PERIOD_S:
+        if t_now - self._collect_time < _MEM_CLEANUP_PERIOD_S:
             return
-        for device_req_id, t_last in list(self._mem_req_time.items()):
+        for device_req_id, t_last in list(self._req_time.items()):
             if (t_now - t_last) > _MEM_EXPIRE_INTERVAL_S:
-                pubsub_req = self._mem_req_bwd.pop(device_req_id)
-                del self._mem_req_fwd.pop[pubsub_req]
-                del self._mem_req_time[device_req_id]
+                pubsub_req = self._req_bwd.pop(device_req_id)
+                del self._req_fwd.pop[pubsub_req]
+                del self._req_time[device_req_id]
         self._mem_collect_time = t_now

@@ -39,6 +39,7 @@ UNSUBSCRIBE_TOPIC = COMMON_ACTIONS_TOPIC + '/!unsubscribe'
 UNSUBSCRIBE_ALL_TOPIC = COMMON_ACTIONS_TOPIC + '/!unsubscribe_all'
 TOPIC_ADD_TOPIC = COMMON_ACTIONS_TOPIC + '/!topic_add'
 TOPIC_REMOVE_TOPIC = COMMON_ACTIONS_TOPIC + '/!topic_remove'
+REGISTER_COMPLETION = COMMON_ACTIONS_TOPIC + '/!register_completion'
 CLS_ACTION_PREFIX = 'on_cls_action_'
 CLS_CALLBACK_PREFIX = 'on_cls_cbk_'
 CLS_EVENT_PREFIX = 'on_cls_event_'
@@ -347,6 +348,7 @@ class PubSub:
         self._add_cmd(TOPIC_REMOVE_TOPIC, self._cmd_topic_remove)
         self._add_cmd(UNDO_TOPIC, self._cmd_undo)
         self._add_cmd(REDO_TOPIC, self._cmd_redo)
+        self._add_cmd(REGISTER_COMPLETION, self._cmd_register_completion)
 
         self._paths_init()
 
@@ -793,6 +795,11 @@ class PubSub:
         self._unsubscribe_all_recurse(self._root, update_fn, undo_list)
         return undo_list if len(undo_list) else None
 
+    def _cmd_register_completion(self, value):
+        completion_fn = value['completion_fn']
+        completion_fn()
+        return None
+
     def _publish_value(self, t, flag, topic_name, value):
         while t is not None:
             for fn in t.update_fn[flag]:
@@ -996,6 +1003,7 @@ class PubSub:
         self._register_events(obj, unique_id)
         self._register_functions(obj, unique_id)
         self._register_settings(obj, unique_id)
+        obj.pubsub = self
         obj.unique_id = unique_id
         obj.topic = topic_name
         if parent is not None:
@@ -1200,23 +1208,28 @@ class PubSub:
         if code.co_varnames[0] == 'self':
             args -= 1
         if args == 0:
-            method()
+            return lambda: method()
         elif args == 1:
-            method(self)
+            return lambda: method(self)
 
     def _register_invoke_callback(self, obj, unique_id):
         if isinstance(obj, type):
             method_name = 'on_cls_pubsub_register'
         else:
             method_name = 'on_pubsub_register'
-        self._invoke_callback(obj, method_name)
+        fn = self._invoke_callback(obj, method_name)
+        if callable(fn):
+            # post so that it completes after pending default settings process
+            return self._send(REGISTER_COMPLETION, {'completion_fn': fn}, 0)
 
     def _unregister_invoke_callback(self, obj, unique_id):
         if isinstance(obj, type):
             method_name = 'on_cls_pubsub_unregister'
         else:
             method_name = 'on_pubsub_unregister'
-        self._invoke_callback(obj, method_name)
+        fn = self._invoke_callback(obj, method_name)
+        if callable(fn):
+            fn()
 
     def unregister(self, spec, delete=None):
         """Unregister a class or instance.

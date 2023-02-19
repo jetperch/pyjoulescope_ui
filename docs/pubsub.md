@@ -172,6 +172,12 @@ For object (instances), the specially named methods are:
 * on_pubsub_register(pubsub)
 * on_pubsub_unregister(pubsub)
 
+Objects also get the following attributes:
+
+* unique_id
+* topic
+* pubsub
+
 
 ## Changes from 0.10.x to 1.x.x
 

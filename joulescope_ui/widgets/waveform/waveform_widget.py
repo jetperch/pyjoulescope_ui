@@ -206,7 +206,7 @@ class WaveformWidget(QWidget):
                 'plots': [
                     {
                         'quantity': 'i',
-                        'sources': ['a'],  # todo remove hack
+                        'signals': [],  # list of (buffer_unique_id, signal_id)
                         'height': 200,
                         'range_mode': 'auto',
                         'range': [-0.1, 1.1],
@@ -214,7 +214,7 @@ class WaveformWidget(QWidget):
                     },
                     {
                         'quantity': 'v',
-                        'sources': ['b'],  # todo remove hack
+                        'signals': [],
                         'height': 200,
                         'range_mode': 'auto',
                         'range': [-0.1, 1.1],
@@ -228,9 +228,10 @@ class WaveformWidget(QWidget):
 
     def __init__(self, parent=None):
         self._log = logging.getLogger(__name__)
+        self.pubsub = None
         super().__init__(parent)
 
-        self._signals = {}
+        self._on_signal_range_fn = self._on_signal_range
         self._data = {}
         self._menu = None
         self._dialog = None
@@ -248,7 +249,29 @@ class WaveformWidget(QWidget):
         self._y_geometry_info = []
         self._mouse_action = None
         self._clipboard_image = None
-        self._data_hack()
+
+    def on_pubsub_register(self):
+        sources = self.pubsub.query('registry_manager/capabilities/signal_buffer.source/list')
+        if not len(sources):
+            self._log.warning('No default source available')
+            self._data_hack()
+            return
+        source = sources[0]
+        topic = get_topic_name(source)
+        signals = self.pubsub.enumerate(f'{topic}/settings/signals')
+        plots = self.state['plots']
+        for signal in signals:
+            source_id, quantity = signal.split('.')
+            for plot in plots:
+                if plot['quantity'] == quantity:
+                    item = (source, signal)
+                    if item not in plot['signals']:
+                        plot['signals'].append(item)
+                        self.pubsub.subscribe(f'{topic}/settings/signals/{signal}/range',
+                                              self._on_signal_range_fn, ['pub', 'retain'])
+
+    def _on_signal_range(self, topic, value):
+        print(f'signal range {topic} {value}')
 
     def _data_hack(self):
         x = np.arange(1000, dtype=np.float64)
@@ -260,9 +283,10 @@ class WaveformWidget(QWidget):
         y2 = np.sin(x / 2, dtype=np.float64)
 
         x64 = np.empty(len(x), dtype=np.int64)
-        x64[:] = 0.0
+        x64[:] = time64.now()
         x64 += (x * time64.SCALE).astype(np.int64)
-        self.SETTINGS['x_range']['default'] = [x64[0], x64[-1]]
+        self.x_range = [x64[0], x64[-1]]
+
         self._data['a'] = {
             'x': x64,
             'avg': y1,
@@ -357,8 +381,8 @@ class WaveformWidget(QWidget):
             return
         y_min = []
         y_max = []
-        for source in plot['sources']:
-            d = self._data.get(source)
+        for signal in plot['signals']:
+            d = self._data.get(signal)
             if d is None:
                 continue
             finite_idx = self._finite_idx(d)
@@ -502,12 +526,12 @@ class WaveformWidget(QWidget):
         # compute time and draw x-axis including UTC, seconds, grid
         y = margin + 2 * plot_label_size.height()
         x_range64 = self.x_range
-        x_range_trel = [self._x_time64_to_trel(i) for i in self.x_range]
-        x_duration = x_range_trel[1] - x_range_trel[0]
-        x_gain = 0.0 if x_duration <= 0 else plot_width / (x_duration * time64.SECOND)
+        x_duration_s = (x_range64[1] - x_range64[0]) / time64.SECOND
+        x_gain = 0.0 if x_duration_s <= 0 else plot_width / (x_duration_s * time64.SECOND)
         self._x_map = (left_margin, x_range64[0], x_gain)
+        x_range_trel = [self._x_time64_to_trel(i) for i in self.x_range]
 
-        x_tick_width_time_min = x_tick_width_pixels_min / (plot_width / x_duration) if x_gain else 0.0
+        x_tick_width_time_min = x_tick_width_pixels_min / (plot_width / x_duration_s) if x_gain else 0.0
         x_grid = _ticks(x_range_trel[0], x_range_trel[1], x_tick_width_time_min)
         y_text = y + axis_font_metrics.ascent()
 
@@ -599,8 +623,8 @@ class WaveformWidget(QWidget):
                 s = f"{y_grid['unit_prefix']}{plot_units}"
             p.drawText(2, y + (h + axis_font_metrics.ascent()) // 2, s)
 
-            for source in plot['sources']:
-                d = self._data.get(source)
+            for signal in plot['signals']:
+                d = self._data.get(signal)
                 if d is None:
                     continue
                 d_x = self._x_time64_to_pixel(d['x'])

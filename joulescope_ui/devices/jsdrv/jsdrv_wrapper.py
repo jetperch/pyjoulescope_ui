@@ -52,7 +52,7 @@ class JsdrvWrapper:
                 ['debug3', 'debug3'],
                 ['debug3', 'all'],
             ],
-            'default': 'notice',
+            'default': 'info',
         },
     }
 
@@ -92,8 +92,9 @@ class JsdrvWrapper:
         self._stream_buffers[mem_id] = b
         unique_id = f'JsdrvStreamBuffer:{mem_id:03d}'
         self.pubsub.register(b, unique_id=unique_id)
+        topic = get_topic_name(b)
         for device in self.devices.values():
-            b.device_add(device)
+            self.pubsub.publish(f'{topic}/actions/!device_add', device)
 
     def on_action_mem_remove(self, value):
         self._log.info('mem remove %s', value)
@@ -171,13 +172,15 @@ class JsdrvWrapper:
             d.name = unique_id
         self.devices[value] = d
         for b in self._stream_buffers.values():
-            b.device_add(d)
+            topic = get_topic_name(b)
+            self.pubsub.publish(f'{topic}/actions/!device_add', d)
 
     def _on_device_remove(self, value):
         d = self.devices.pop(value, None)
         if d is not None:
             for b in self._stream_buffers.values():
-                b.device_remove(d)
+                topic = get_topic_name(b)
+                self.pubsub.publish(f'{topic}/actions/!device_remove', d)
             self._log.info('_on_device_remove %s', get_unique_id(d))
             topic = get_topic_name(d)
             self.pubsub.publish(f'{topic}/actions/!finalize', None)
