@@ -72,7 +72,7 @@ class UsbInrush:
         d = data.samples_get()
         current = d['signals']['current']['value']
         voltage = d['signals']['voltage']['value']
-        x = np.arange(len(current), dtype=np.float) * (1.0 / data.sample_frequency)
+        x = np.arange(len(current), dtype=np.float64) * (1.0 / data.sample_frequency)
         valid = np.isfinite(current)
         voltage = np.mean(voltage[valid])
         x = x[valid].reshape((-1, 1))
