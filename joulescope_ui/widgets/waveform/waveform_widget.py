@@ -271,7 +271,26 @@ class WaveformWidget(QWidget):
                                               self._on_signal_range_fn, ['pub', 'retain'])
 
     def _on_signal_range(self, topic, value):
-        print(f'signal range {topic} {value}')
+        if value is None:
+            return
+        topic_parts = topic.split('/')
+        signal_id = topic_parts[-2]
+        prefix = '/'.join(topic_parts[:2])
+        topic_req = f'{prefix}/actions/!request'
+        topic_rsp = f'{get_topic_name(self)}/cbk/!response'
+        req = {
+            'signal_id': signal_id,
+            'time_type': 'utc',
+            'rsp_topic': topic_rsp,
+            'rsp_id': 1,
+            'start': value[0],
+            'end': value[1],
+            'length': 100,
+        }
+        self.pubsub.publish(topic_req, req)
+
+    def on_cbk_response(self, topic, value):
+        print(f'response {topic} {value}')
 
     def _data_hack(self):
         x = np.arange(1000, dtype=np.float64)

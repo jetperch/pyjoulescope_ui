@@ -158,6 +158,9 @@ class JsdrvStreamBuffer:
         self._device_subscriptions[topic] = fn
         self._wrapper.driver.subscribe(topic, flags, fn)
 
+    def _driver_publish(self, topic, value):
+        self._wrapper.driver.publish(topic, value)
+
     def on_pubsub_register(self):
         self._driver_publish('m/@/!add', int(self._id))
         self._device_subscribe(self._rsp_topic, 'pub', self._on_buf_response)
@@ -192,9 +195,6 @@ class JsdrvStreamBuffer:
         elif signal_id in self._signals:
             self.on_action_remove(signal_id)
 
-    def _driver_publish(self, topic, value):
-        self._wrapper.driver.publish(topic, value)
-
     @defer_until_registered
     def on_setting_size(self, value):
         self._driver_publish(f'm/{self._id}/g/size', int(value))
@@ -218,10 +218,10 @@ class JsdrvStreamBuffer:
         ui_prefix = get_topic_name(self)
         for key, meta in _SETTINGS_PER_SIGNAL.items():
             self.pubsub.topic_add(f'{ui_prefix}/settings/signals/{signal_id}/{key}', meta)
-        self._wrapper.driver.publish(f'm/{self._id}/a/!add', buf_id)
+        self._driver_publish(f'm/{self._id}/a/!add', buf_id)
         device_source = f'{device_path}/s/{signal}/!data'
         buf_prefix = f'm/{self._id}/s/{buf_id:03d}'
-        self._wrapper.driver.publish(f'{buf_prefix}/topic', device_source)
+        self._driver_publish(f'{buf_prefix}/topic', device_source)
         self._device_subscribe(f'{buf_prefix}/info', ['pub', 'pub_retain'], self._on_device_signal_info)
         # todo publish signal metadata
         self.pubsub.publish(f'{ui_prefix}/events/signals/!add', signal_id)
@@ -230,7 +230,7 @@ class JsdrvStreamBuffer:
         buf_id = self._signals.pop(signal_id)
         self._signals_reverse.pop(buf_id)
         self._signals_free.append(buf_id)
-        self.driver.publish(f'm/{self._id}/a/!remove', buf_id)
+        self._driver_publish(f'm/{self._id}/a/!remove', buf_id)
         ui_prefix = get_topic_name(self)
         self.pubsub.publish(f'{ui_prefix}/events/signals/!remove', signal_id)
         self.pubsub.topic_remove(f'{ui_prefix}/settings/signals/{signal_id}')
@@ -279,7 +279,7 @@ class JsdrvStreamBuffer:
         self._req_time[device_req_id] = t_now  # update last used time
         value['rsp_topic'] = self._rsp_topic
         value['rsp_id'] = device_req_id
-        self._driver_publish(f'm/{self._id}/s/{buf_id:03d}/!req', value)
+        # todo self._driver_publish(f'm/{self._id}/s/{buf_id:03d}/!req', value)
         self._mem_collect(t_now)
 
     def _mem_collect(self, t_now):
