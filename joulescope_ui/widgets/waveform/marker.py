@@ -326,8 +326,8 @@ class Marker(pg.GraphicsObject):
         self.moving = True
         self.start_pos = self.get_pos()
         self.setZValue(Z_MARKER_MOVING)
-        # https://doc.qt.io/qt-5/qt.html#KeyboardModifier-enum
-        if int(QtCore.Qt.ControlModifier.value & ev.modifiers().value) and self.pair is not None:
+        # https://doc.qt.io/qt-6/qt.html#KeyboardModifier-enum
+        if int(QtCore.Qt.KeyboardModifier.ControlModifier & ev.modifiers()) and self.pair is not None:
             self.pair.moving = True
             self.pair.moving_offset = self.pair.get_pos() - self.get_pos()
         if self.pair is not None:
