@@ -6,7 +6,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.0
 
-2023 Jan 24 [in progress]
+2023 Feb 22 [in progress]
 
 * Migrated to new PubSub implementation from CommandProcessor + Preferences.
 * Migrated to pyjoulescope_driver from pyjoulescope.
@@ -14,6 +14,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Restructured to clearly define profiles and views.
 * Implemented clean style management with widget customization.
 * Added localization support.
+* Added new Waveform widget.
 
 
 ## 0.10.12

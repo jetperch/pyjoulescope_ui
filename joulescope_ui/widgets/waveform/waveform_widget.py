@@ -24,6 +24,7 @@ from .line_segments import PointsF
 import logging
 import numpy as np
 import os
+import time
 from PySide6.QtGui import QPainter, QPen, QBrush, QColor
 from joulescope_ui.units import unit_prefix
 
@@ -232,7 +233,6 @@ class WaveformWidget(QWidget):
         super().__init__(parent)
 
         self._on_signal_range_fn = self._on_signal_range
-        self._data = {}
         self._menu = None
         self._dialog = None
         self._x_map = (0, 0, 1.0)  # (pixel_offset, time64_offset, time_to_pixel_scale)
@@ -249,6 +249,13 @@ class WaveformWidget(QWidget):
         self._y_geometry_info = []
         self._mouse_action = None
         self._clipboard_image = None
+        self._signals = {}
+        self._signals_by_rsp_id = {}
+        self._signals_rsp_id_next = 1
+
+        self._refresh_timer = QtCore.QTimer()
+        self._refresh_timer.timeout.connect(self._on_refresh_timer)
+        self._refresh_timer.start(10)
 
     def on_pubsub_register(self):
         sources = self.pubsub.query('registry_manager/capabilities/signal_buffer.source/list')
@@ -261,36 +268,102 @@ class WaveformWidget(QWidget):
         signals = self.pubsub.enumerate(f'{topic}/settings/signals')
         plots = self.state['plots']
         for signal in signals:
+            item = (source, signal)
             source_id, quantity = signal.split('.')
             for plot in plots:
                 if plot['quantity'] == quantity:
-                    item = (source, signal)
                     if item not in plot['signals']:
                         plot['signals'].append(item)
                         self.pubsub.subscribe(f'{topic}/settings/signals/{signal}/range',
                                               self._on_signal_range_fn, ['pub', 'retain'])
 
     def _on_signal_range(self, topic, value):
+        # self._log.info('_on_signal_range(%s, %s)', topic, value)
         if value is None:
             return
         topic_parts = topic.split('/')
+        source = topic_parts[1]
         signal_id = topic_parts[-2]
-        prefix = '/'.join(topic_parts[:2])
-        topic_req = f'{prefix}/actions/!request'
-        topic_rsp = f'{get_topic_name(self)}/cbk/!response'
-        req = {
-            'signal_id': signal_id,
-            'time_type': 'utc',
-            'rsp_topic': topic_rsp,
-            'rsp_id': 1,
-            'start': value[0],
-            'end': value[1],
-            'length': 100,
-        }
-        self.pubsub.publish(topic_req, req)
+        item = (source, signal_id)
+        d = self._signals.get(item)
+        if d is None:
+            d = {
+                'item': item,
+                'source': source,
+                'signal_id': signal_id,
+                'rsp_id': self._signals_rsp_id_next,
+                'data': None,
+            }
+            self._signals[item] = d
+            self._signals_by_rsp_id[self._signals_rsp_id_next] = d
+            self._signals_rsp_id_next += 1
+        d['range'] = value
+        d['changed'] = time.time()
+
+    def _on_refresh_timer(self):
+        x_min = []
+        x_max = []
+        for signal in self._signals.values():
+            x_range = signal['range']
+            x_min.append(x_range[0])
+            x_max.append(x_range[1])
+        if 0 == len(x_min):
+            return
+        x_min, x_max = min(x_min), max(x_max)
+        self.x_range = (x_min, x_max)
+        for signal in self._signals.values():
+            if signal['changed'] is None:
+                continue
+            signal['changed'] = None
+            topic_req = f'registry/{signal["source"]}/actions/!request'
+            topic_rsp = f'{get_topic_name(self)}/callbacks/!response'
+            req = {
+                'signal_id': signal['signal_id'],
+                'time_type': 'utc',
+                'rsp_topic': topic_rsp,
+                'rsp_id': signal['rsp_id'],
+                'start': x_min,
+                'end': x_max,
+                'length': 1000,  # todo adjust based upon widget size
+            }
+            self.pubsub.publish(topic_req, req)
 
     def on_cbk_response(self, topic, value):
-        print(f'response {topic} {value}')
+        utc = value['info']['time_range_utc']
+        if utc['length'] == 0:
+            return
+        x = np.linspace(utc['start'], utc['end'], utc['length'], dtype=np.int64)
+        response_type = value['response_type']
+        rsp_id = value['rsp_id']
+        signal = self._signals_by_rsp_id.get(rsp_id)
+        if signal is None:
+            self._log.warning('Unknown signal rsp_id %s', rsp_id)
+            return
+
+        if response_type == 'samples':
+            pass #self._log.info(f'response samples {length}')
+            y = value['data']
+            signal['data'] = {
+                'x': x,
+                'avg': y,
+                'std': None,
+                'min': None,
+                'max': None,
+            }
+            self.repaint()
+        elif response_type == 'summary':
+            # self._log.info(f'response summary {length}')
+            y = value['data']
+            signal['data'] = {
+                'x': x,
+                'avg': y[:, 0],
+                'std': y[:, 1],
+                'min': y[:, 2],
+                'max': y[:, 3],
+            }
+            self.repaint()
+        else:
+            self._log.warning('unsupported response type: %s', response_type)
 
     def _data_hack(self):
         x = np.arange(1000, dtype=np.float64)
@@ -401,9 +474,10 @@ class WaveformWidget(QWidget):
         y_min = []
         y_max = []
         for signal in plot['signals']:
-            d = self._data.get(signal)
-            if d is None:
+            d = self._signals.get(signal)
+            if d is None or d['data'] is None:
                 continue
+            d = d['data']
             finite_idx = self._finite_idx(d)
 
             sy_min = d['avg'] if d['min'] is None else d['min']
@@ -430,6 +504,8 @@ class WaveformWidget(QWidget):
         plot['range'] = y_min - f/2, y_max + f
 
     def _plots_height(self):
+        if self.state is None:
+            return 0
         plots = self.state['plots']
         k = len(plots)
         h = 0
@@ -441,6 +517,8 @@ class WaveformWidget(QWidget):
 
     def _plots_height_adjust(self, h):
         h_now = self._plots_height()
+        if h_now <= 0:
+            return
         plots = self.state['plots']
         k = len(plots)
         if k == 0:
@@ -478,6 +556,8 @@ class WaveformWidget(QWidget):
                         break
 
     def _header_height(self):
+        if not hasattr(self, 'style_manager_info'):
+            return 0
         v = self.style_manager_info['sub_vars']
         axis_font = font_as_qfont(v['waveform.axis_font'])
         axis_font_metrics = QtGui.QFontMetrics(axis_font)
@@ -498,6 +578,8 @@ class WaveformWidget(QWidget):
         :param p: The QPainter instance.
         :param size: The (width, height) for the plot area.
         """
+        if not hasattr(self, 'style_manager_info'):
+            return
         v = self.style_manager_info['sub_vars']
         widget_w, widget_h = size
 
@@ -546,11 +628,18 @@ class WaveformWidget(QWidget):
         y = margin + 2 * plot_label_size.height()
         x_range64 = self.x_range
         x_duration_s = (x_range64[1] - x_range64[0]) / time64.SECOND
+        if x_duration_s > 0:
+            x_tick_width_time_min = x_tick_width_pixels_min / (plot_width / x_duration_s)
+        else:
+            x_tick_width_time_min = 1e-6
+        tick_spacing = _tick_spacing(x_range64[0], x_range64[1], x_tick_width_time_min)
+        x_offset_pow = 10 ** np.floor(np.log10(tick_spacing))
+        x_offset = int(x_offset_pow * np.floor(x_range64[0] / x_offset_pow))
+
         x_gain = 0.0 if x_duration_s <= 0 else plot_width / (x_duration_s * time64.SECOND)
-        self._x_map = (left_margin, x_range64[0], x_gain)
+        self._x_map = (left_margin, x_offset, x_gain)
         x_range_trel = [self._x_time64_to_trel(i) for i in self.x_range]
 
-        x_tick_width_time_min = x_tick_width_pixels_min / (plot_width / x_duration_s) if x_gain else 0.0
         x_grid = _ticks(x_range_trel[0], x_range_trel[1], x_tick_width_time_min)
         y_text = y + axis_font_metrics.ascent()
 
@@ -643,27 +732,27 @@ class WaveformWidget(QWidget):
             p.drawText(2, y + (h + axis_font_metrics.ascent()) // 2, s)
 
             for signal in plot['signals']:
-                d = self._data.get(signal)
-                if d is None:
+                d = self._signals.get(signal)
+                if d is None or d['data'] is None:
                     continue
+                d = d['data']
                 d_x = self._x_time64_to_pixel(d['x'])
                 finite_idx = self._finite_idx(d)
                 change_idx = np.where(np.diff(finite_idx))[0] + 1
-                if len(change_idx) and not finite_idx[0]:
-                    change_idx[1:]
-                if len(change_idx) == 0:
-                    segment_idx = [[0, len(d_x)]]
-                elif len(change_idx) == 1:
-                    segment_idx = [[0, change_idx[0]]]
-                else:
-                    segment_idx = []
-                    while len(change_idx):
-                        if len(change_idx) == 1:
-                            segment_idx.append([change_idx[0], len(d)])
-                            change_idx = change_idx[1:]
-                        else:
-                            segment_idx.append([change_idx[0], change_idx[1]])
-                            change_idx = change_idx[2:]
+                segment_idx = []
+                if finite_idx[0]:                       # starts with a valid segment
+                    if not len(change_idx):             # best case, all data valid, one segment
+                        segment_idx = [[0, len(d_x)]]
+                    else:                               # NaNs, but starts with valid segment
+                        segment_idx.append([0, change_idx[0]])
+                        change_idx = change_idx[1:]
+                while len(change_idx):
+                    if len(change_idx) == 1:
+                        segment_idx.append([change_idx[0], len(d_x)])
+                        change_idx = change_idx[1:]
+                    else:
+                        segment_idx.append([change_idx[0], change_idx[1]])
+                        change_idx = change_idx[2:]
 
                 p.setPen(QtGui.Qt.NoPen)
                 p.setBrush(plot1_missing)

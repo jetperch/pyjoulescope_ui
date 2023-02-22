@@ -111,7 +111,7 @@ class JsdrvStreamBuffer:
         self._wrapper = wrapper  #: JsdrvWrapper
         self._initialize_cache = []
         self._id = f'{int(stream_buffer_id):03d}'
-        self._rsp_topic = f'_/mem_{self._id}/!rsp'
+        self._rsp_topic = f'm/mem/{self._id}/!rsp'
         self._log = logging.getLogger(f'{__name__}.{self._id}')
         self._driver_subscriptions = []
         self._sources: dict[str, Device] = {}  # device unique_id -> instance
@@ -158,8 +158,9 @@ class JsdrvStreamBuffer:
         self._device_subscriptions[topic] = fn
         self._wrapper.driver.subscribe(topic, flags, fn)
 
-    def _driver_publish(self, topic, value):
-        self._wrapper.driver.publish(topic, value)
+    def _driver_publish(self, topic, value, timeout=None):
+        if self._wrapper.driver is not None:
+            self._wrapper.driver.publish(topic, value, timeout)
 
     def on_pubsub_register(self):
         self._driver_publish('m/@/!add', int(self._id))
@@ -237,6 +238,9 @@ class JsdrvStreamBuffer:
 
     def _on_buf_response(self, topic, value):
         # will be called from device's pubsub thread
+        if value is None:
+            self._log.warning('_on_buf_response called with None')
+            return
         value = copy.deepcopy(value)
         device_req_id = value['rsp_id']
         try:
@@ -279,7 +283,7 @@ class JsdrvStreamBuffer:
         self._req_time[device_req_id] = t_now  # update last used time
         value['rsp_topic'] = self._rsp_topic
         value['rsp_id'] = device_req_id
-        # todo self._driver_publish(f'm/{self._id}/s/{buf_id:03d}/!req', value)
+        self._driver_publish(f'm/{self._id}/s/{buf_id:03d}/!req', value, timeout=0)
         self._mem_collect(t_now)
 
     def _mem_collect(self, t_now):
@@ -288,6 +292,6 @@ class JsdrvStreamBuffer:
         for device_req_id, t_last in list(self._req_time.items()):
             if (t_now - t_last) > _MEM_EXPIRE_INTERVAL_S:
                 pubsub_req = self._req_bwd.pop(device_req_id)
-                del self._req_fwd.pop[pubsub_req]
-                del self._req_time[device_req_id]
+                self._req_time.pop(device_req_id)
+                self._req_fwd.pop(pubsub_req)
         self._mem_collect_time = t_now

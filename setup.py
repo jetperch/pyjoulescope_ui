@@ -1,4 +1,4 @@
-# Copyright 2018-2022 Jetperch LLC
+# Copyright 2018-2023 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ import subprocess
 import shutil
 
 
-JOULESCOPE_VERSION_MIN = '1.0.11'  # also update requirements.txt
+JOULESCOPE_DRIVER_VERSION_MIN = '1.2.0'  # also update requirements.txt
 MYPATH = os.path.abspath(os.path.dirname(__file__))
 VERSION_PATH = os.path.join(MYPATH, 'joulescope_ui', 'version.py')
 
@@ -184,8 +184,6 @@ setuptools.setup(
         'Operating System :: POSIX :: Linux',
 
         # Supported Python versions
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
@@ -204,13 +202,13 @@ setuptools.setup(
     include_package_data=True,
     
     # See https://packaging.python.org/guides/distributing-packages-using-setuptools/#python-requires
-    python_requires='~=3.7',    
+    python_requires='~=3.9',
     
     # See https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         'appnope>=0.1.2',
         'fs',
-        'joulescope>=' + JOULESCOPE_VERSION_MIN,
+        'pyjoulescope_driver>=' + JOULESCOPE_DRIVER_VERSION_MIN,
         'markdown',
         'pyjls>=0.4.2',
         'pyopengl',
@@ -218,7 +216,7 @@ setuptools.setup(
         "pywin32>=223; platform_system == 'Windows'",
         'pyqtgraph>=0.13.1',
         'PySide6>=6.3.0',
-        'PySide6-QtAds==3.8.3.1',
+        'PySide6-QtAds>=3.8.3.1',
         'python-dateutil>=2.7.3',
         'QtPy',
         # 'pyqtgraph @ https://github.com/jetperch/pyqtgraph/tarball/557e867b377b223589c0c8ffd0799c547965fb46#egg=pyqtgraph-0.11.0.dev1',
