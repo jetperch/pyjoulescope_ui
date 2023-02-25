@@ -27,7 +27,7 @@ from .resources import load_resources, load_fonts
 from joulescope_ui.devices.jsdrv.jsdrv_wrapper import JsdrvWrapper
 from .styles import StyleManager
 from .app import App
-from .mem_leak_debugger import MemLeakDebugger
+# from .mem_leak_debugger import MemLeakDebugger
 from .paths import Paths
 from .view import View  # registers the view manager
 import appnope

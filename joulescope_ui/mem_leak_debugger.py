@@ -14,7 +14,10 @@
 
 from PySide6 import QtCore
 import tracemalloc
+import gc
 
+
+# https://docs.python.org/3/library/tracemalloc.html
 # https://www.fugue.co/blog/diagnosing-and-fixing-memory-leaks-in-python.html
 
 
@@ -24,19 +27,16 @@ class MemLeakDebugger(QtCore.QObject):
         super().__init__(parent=parent)
         self._timer = QtCore.QTimer()
         self._timer.timeout.connect(self._on_timer)
-        self._timer.start(2000)
+        self._timer.start(20000)
         self._snapshot = None
-        tracemalloc.start(10)
+        tracemalloc.start()
 
     def _compare_all(self, snapshot):
         print('SNAPSHOT COMPARE:')
-        stats = snapshot.compare_to(self._snapshot, 'filename')
-        for stat in stats[:10]:
-            print("{} new KiB {} total KiB {} new {} total memory blocks: ".format(stat.size_diff / 1024,
-                                                                                   stat.size / 1024,
-                                                                                   stat.count_diff, stat.count))
-            for line in stat.traceback.format():
-                print(line)
+        filters = [tracemalloc.Filter(inclusive=False, filename_pattern='*tracemalloc*')]
+        stats = snapshot.filter_traces(filters).compare_to(self._snapshot, 'lineno')
+        for stat in stats[:25]:
+            print(stat)
 
     def _compare_module(self, snapshot, name):
         filters = [tracemalloc.Filter(inclusive=True, filename_pattern=f'*{name}*')]
@@ -45,11 +45,12 @@ class MemLeakDebugger(QtCore.QObject):
             print(f'{stat.size_diff/1024} {stat.size / 1024} {stat.count_diff} {stat.count}')
             for line in stat.traceback.format():
                 print(line)
+
     def _on_timer(self):
+        gc.collect()
         snapshot = tracemalloc.take_snapshot()
         if self._snapshot is not None:
             self._compare_all(snapshot)
             #self._compare_module(snapshot, 'pubsub')
         else:
-            self._timer.start(10000)
-        self._snapshot = snapshot
+            self._snapshot = snapshot

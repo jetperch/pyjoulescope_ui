@@ -244,6 +244,13 @@ class WaveformWidget(QWidget):
         self.pubsub = None
         super().__init__(parent)
 
+        # Cache Qt default instances to prevent memory leak in Pyside6 6.4.2
+        self._NO_PEN = QtGui.QPen(QtGui.Qt.NoPen)  # prevent memory leak
+        self._NO_BRUSH = QtGui.QBrush(QtGui.Qt.NoBrush)  # prevent memory leak
+        self._CURSOR_ARROW = QtGui.QCursor(QtGui.Qt.ArrowCursor)
+        self._CURSOR_SIZE_VER = QtGui.QCursor(QtGui.Qt.ArrowCursor)
+        self._CURSOR_CROSS = QtGui.QCursor(QtGui.Qt.CrossCursor)
+
         self._on_signal_range_fn = self._on_signal_range
         self._menu = None
         self._dialog = None
@@ -748,7 +755,7 @@ class WaveformWidget(QWidget):
             h = plot['height']
 
             # draw separator
-            p.setPen(QtGui.Qt.NoPen)
+            p.setPen(self._NO_PEN)
             p.setBrush(plot_separator_brush)
             p.drawRect(0, y + 3, widget_w, y_inner_spacing - 6)
             y += y_inner_spacing
@@ -758,7 +765,7 @@ class WaveformWidget(QWidget):
 
             # draw border
             p.setPen(plot_border_pen)
-            p.setBrush(QtGui.Qt.NoBrush)
+            p.setBrush(self._NO_BRUSH)
             # p.drawRect(left_margin, y, plot_width, h)
             p.drawLine(left_margin, y, left_margin, y + h)
 
@@ -819,7 +826,7 @@ class WaveformWidget(QWidget):
                         segment_idx.append([change_idx[0], change_idx[1]])
                         change_idx = change_idx[2:]
 
-                p.setPen(QtGui.Qt.NoPen)
+                p.setPen(self._NO_PEN)
                 p.setBrush(plot1_missing)
                 if len(segment_idx) > 1:
                     segment_idx_last = segment_idx[0][1]
@@ -848,7 +855,7 @@ class WaveformWidget(QWidget):
                             if 'points_min_max' not in d:
                                 d['points_min_max'] = PointsF()
                             segs, nsegs = d['points_min_max'].set_fill(d_x_segment, d_y_min, d_y_max)
-                            p.setPen(QtGui.Qt.NoPen)
+                            p.setPen(self._NO_PEN)
                             p.setBrush(plot1_min_max_fill)
                             p.drawPolygon(segs)
                             if 3 == self.show_min_max:
@@ -902,13 +909,13 @@ class WaveformWidget(QWidget):
         self._mouse_pos = (x, y)
         x_name, y_name = self._target_lookup_by_pos(event)
         # self._log.debug(f'mouse release {x_name, y_name}')
-        cursor = QtGui.Qt.ArrowCursor
+        cursor = self._CURSOR_ARROW
         if y_name is None:
             pass
         elif y_name.startswith('spacer.'):
-            cursor = QtGui.Qt.SizeVerCursor
+            cursor = self._CURSOR_SIZE_VER
         elif y_name.startswith('plot.') and x_name.startswith('plot'):
-            cursor = QtGui.Qt.CrossCursor
+            cursor = self._CURSOR_CROSS
         self.setCursor(cursor)
 
         if self._mouse_action is not None:
