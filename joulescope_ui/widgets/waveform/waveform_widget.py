@@ -137,19 +137,21 @@ def _ticks(v_min, v_max, v_spacing_min):
         k += 1
     minor = minor[sel_idx]
 
-    label_max = max(abs(major[0]), abs(major[-1]))
-    zero_max = label_max / 10_000.0
-    adjusted_value, prefix, scale = unit_prefix(label_max)
-    scale = 1.0 / scale
     labels = []
-    for v in major:
-        v *= scale
-        if abs(v) < zero_max:
-            v = 0
-        s = f'{v:g}'
-        if s == '-0':
-            s = '0'
-        labels.append(s)
+    prefix = ''
+    if len(major):
+        label_max = max(abs(major[0]), abs(major[-1]))
+        zero_max = label_max / 10_000.0
+        adjusted_value, prefix, scale = unit_prefix(label_max)
+        scale = 1.0 / scale
+        for v in major:
+            v *= scale
+            if abs(v) < zero_max:
+                v = 0
+            s = f'{v:g}'
+            if s == '-0':
+                s = '0'
+            labels.append(s)
 
     return {
         'major': major,
@@ -257,8 +259,9 @@ class WaveformWidget(QWidget):
         self._x_map = (0, 0, 0, 1.0)  # (pixel_offset, time64_label_offset, time64_zero_offset, time_to_pixel_scale)
         self._mouse_pos = None
         self._wheel_accum_degrees = np.zeros(2, dtype=np.float64)
+        self._margin = _MARGIN
 
-        self._layout = QtWidgets.QHBoxLayout(self)
+        self._layout = QtWidgets.QVBoxLayout(self)
         self._layout.setSpacing(0)
         self._layout.setContentsMargins(0, 0, 0, 0)
 
@@ -623,13 +626,13 @@ class WaveformWidget(QWidget):
         axis_font = font_as_qfont(v['waveform.axis_font'])
         axis_font_metrics = QtGui.QFontMetrics(axis_font)
         plot_label_size = axis_font_metrics.boundingRect('WW')
-        h = _MARGIN + plot_label_size.height() * 3
+        h = self._margin + plot_label_size.height() * 3
         return h
 
     def resizeEvent(self, event):
         self._repaint_request = True
         h = event.size().height()
-        margin = self._header_height() + _Y_INNER_SPACING + _MARGIN
+        margin = self._header_height() + _Y_INNER_SPACING + self._margin
         h -= margin
         self._plots_height_adjust(h)
         return super().resizeEvent(event)
@@ -681,7 +684,7 @@ class WaveformWidget(QWidget):
         x_tick_width_pixels_min = axis_font_metrics.boundingRect('888.888888').width()
         statistics_size = axis_font_metrics.boundingRect('WWW +888.8888 WW')
 
-        margin = _MARGIN
+        margin = self._margin
         y_inner_spacing = _Y_INNER_SPACING
         left_margin = margin + plot_label_size.width() + margin + y_tick_size.width() + margin
         right_margin = margin + statistics_size.width() + margin
@@ -803,7 +806,7 @@ class WaveformWidget(QWidget):
                 s = plot['quantity']
             else:
                 s = f"{y_grid['unit_prefix']}{plot_units}"
-            p.drawText(2, y + (h + axis_font_metrics.ascent()) // 2, s)
+            p.drawText(self._margin, y + (h + axis_font_metrics.ascent()) // 2, s)
 
             for signal in plot['signals']:
                 d = self._signals.get(signal)
