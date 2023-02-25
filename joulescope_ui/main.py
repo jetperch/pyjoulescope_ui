@@ -27,6 +27,7 @@ from .resources import load_resources, load_fonts
 from joulescope_ui.devices.jsdrv.jsdrv_wrapper import JsdrvWrapper
 from .styles import StyleManager
 from .app import App
+from .mem_leak_debugger import MemLeakDebugger
 from .paths import Paths
 from .view import View  # registers the view manager
 import appnope
@@ -92,9 +93,9 @@ def _device_factory_finalize():
 class MainWindow(QtWidgets.QMainWindow):
 
     EVENTS = {
-        'blink_slow': Metadata('bool', 'Periodic slow blink signal (0.5 Hz).'),
-        'blink_medium': Metadata('bool', 'Periodic medium blink signal (1 Hz).'),
-        'blink_fast': Metadata('bool', 'Periodic fast blink signal (2 Hz).'),
+        'blink_slow': Metadata('bool', 'Periodic slow blink signal (0.5 Hz).', flags=['ro', 'skip_undo']),
+        'blink_medium': Metadata('bool', 'Periodic medium blink signal (1 Hz).', flags=['ro', 'skip_undo']),
+        'blink_fast': Metadata('bool', 'Periodic fast blink signal (2 Hz).', flags=['ro', 'skip_undo']),
     }
 
     def __init__(self):
@@ -216,6 +217,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self._pubsub.process()
         self.show()
+        # self._mem_leak_debugger = MemLeakDebugger(self)
         # self._side_bar.on_cmd_show(1)
 
     def _on_blink_timer(self):

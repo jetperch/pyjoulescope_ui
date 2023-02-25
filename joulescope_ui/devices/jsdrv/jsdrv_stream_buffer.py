@@ -60,7 +60,7 @@ _SETTINGS_PER_SOURCE = {
         'dtype': 'obj',
         'brief': N_('Source information'),
         'default': None,
-        'flags': ['ro', 'hidden'],
+        'flags': ['ro', 'hidden', 'skip_undo'],
     }),
 }
 
@@ -74,13 +74,13 @@ _SETTINGS_PER_SIGNAL = {
         'dtype': 'obj',
         'brief': N_('Signal metadata'),
         'default': None,
-        'flags': ['ro', 'hidden'],
+        'flags': ['ro', 'hidden', 'skip_undo'],
     }),
     'range': Metadata({
         'dtype': 'obj',
         'brief': N_('Signal time range'),
         'default': None,
-        'flags': ['ro', 'hidden'],
+        'flags': ['ro', 'hidden', 'skip_undo'],
     }),
 }
 

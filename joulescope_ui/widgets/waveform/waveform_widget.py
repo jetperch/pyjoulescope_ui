@@ -86,10 +86,9 @@ class _PlotWidget(QWidget):
 
     def paintEvent(self, event):
         size = self.width(), self.height()
-        painter = QtGui.QPainter(self)
-        painter.begin(self)
+        painter = QtGui.QPainter(self)  # calls begin()
         self._parent.plot_paint(painter, size)
-        painter.end()
+        # painter.end()  Automatically called by destructor
 
     def mousePressEvent(self, event):
         self._parent.plot_mousePressEvent(event)
@@ -125,6 +124,8 @@ def _ticks(v_min, v_max, v_spacing_min):
     minor_interval = major_interval / 10.0
     minor_start = major_start - major_interval
     minor = np.arange(minor_start, v_max, minor_interval, dtype=np.float64)
+    if not len(minor):
+        return None
 
     k = 0
     sel_idx = np.zeros(len(minor), dtype=bool)
@@ -190,15 +191,26 @@ class WaveformWidget(QWidget):
             'default': 1,
         },
         'show_min_max': {
-            'dtype': 'bool',
+            'dtype': 'int',
             'brief': N_('Show the minimum and maximum extents fill.'),
-            'default': True,
+            'options': [
+                [0, 'off'],
+                [1, 'lines'],
+                [2, 'fill'],
+                [3, 'fill + std'],
+            ],
+            'default': 3,
+        },
+        'show_fps': {
+            'dtype': 'bool',
+            'brief': N_('Show the frames per second.'),
+            'default': False,
         },
         'x_range': {
             'dtype': 'obj',
             'brief': 'The x-axis range.',
             'default': [0, 30 * time64.SECOND],
-            'flags': ['hidden', 'ro'],
+            'flags': ['hidden', 'ro', 'skip_undo'],  # publish only
         },
         'state': {
             'dtype': 'obj',
@@ -254,8 +266,15 @@ class WaveformWidget(QWidget):
         self._signals_rsp_id_next = 1
 
         self._refresh_timer = QtCore.QTimer()
+        self._refresh_timer.setTimerType(QtGui.Qt.PreciseTimer)
         self._refresh_timer.timeout.connect(self._on_refresh_timer)
-        self._refresh_timer.start(10)
+        self._refresh_timer.start(50)  # = 1 / render_frame_rate
+        self._repaint_request = False
+        self._fps = {
+            'start': time.time(),
+            'times': [],
+            'str': '',
+        }
 
     def on_pubsub_register(self):
         sources = self.pubsub.query('registry_manager/capabilities/signal_buffer.source/list')
@@ -277,6 +296,21 @@ class WaveformWidget(QWidget):
                         self.pubsub.subscribe(f'{topic}/settings/signals/{signal}/range',
                                               self._on_signal_range_fn, ['pub', 'retain'])
 
+    def _update_fps(self):
+        t = time.time()
+        self._fps['times'].append(t)
+        if t - self._fps['start'] >= 1.0:
+            x = np.array(self._fps['times'])
+            x = np.diff(x)
+            self._fps['start'] = t
+            self._fps['times'].clear()
+            if len(x):
+                t_avg = np.mean(x)
+                t_min = np.min(x)
+                t_max = np.max(x)
+                self._fps['str'] = f'{1/t_avg:.2f} Hz (min={t_min*1000:.2f}, max={t_max*1000:.2f} ms)'
+        return None
+
     def _on_signal_range(self, topic, value):
         # self._log.info('_on_signal_range(%s, %s)', topic, value)
         if value is None:
@@ -293,14 +327,22 @@ class WaveformWidget(QWidget):
                 'signal_id': signal_id,
                 'rsp_id': self._signals_rsp_id_next,
                 'data': None,
+                'range': [0, 0],
             }
             self._signals[item] = d
             self._signals_by_rsp_id[self._signals_rsp_id_next] = d
             self._signals_rsp_id_next += 1
-        d['range'] = value
-        d['changed'] = time.time()
+        if value != d['range']:
+            d['range'] = value
+            d['changed'] = time.time()
+            self._repaint_request = True
+        return None
 
     def _on_refresh_timer(self):
+        if self._repaint_request:
+            self.repaint()
+
+    def _request_data(self):
         x_min = []
         x_max = []
         for signal in self._signals.values():
@@ -340,9 +382,23 @@ class WaveformWidget(QWidget):
             self._log.warning('Unknown signal rsp_id %s', rsp_id)
             return
 
+        self._repaint_request = True
         if response_type == 'samples':
-            pass #self._log.info(f'response samples {length}')
+            # self._log.info(f'response samples {length}')
             y = value['data']
+            data_type = value['data_type']
+            if data_type == 'f32':
+                pass
+            elif data_type == 'u1':
+                y = np.unpackbits(y, bitorder='little')
+            elif data_type == 'u4':
+                d = np.empty(len(y) * 2, dtype=np.uint8)
+                d[0::2] = np.logical_and(y, 0x0f)
+                d[1::2] = np.logical_and(np.right_shift(y, 4), 0x0f)
+                y = d
+            else:
+                self._log.warning('Unsupported sample data type: %s', data_type)
+                return
             signal['data'] = {
                 'x': x,
                 'avg': y,
@@ -350,7 +406,6 @@ class WaveformWidget(QWidget):
                 'min': None,
                 'max': None,
             }
-            self.repaint()
         elif response_type == 'summary':
             # self._log.info(f'response summary {length}')
             y = value['data']
@@ -361,7 +416,6 @@ class WaveformWidget(QWidget):
                 'min': y[:, 2],
                 'max': y[:, 3],
             }
-            self.repaint()
         else:
             self._log.warning('unsupported response type: %s', response_type)
 
@@ -566,6 +620,7 @@ class WaveformWidget(QWidget):
         return h
 
     def resizeEvent(self, event):
+        self._repaint_request = True
         h = event.size().height()
         margin = self._header_height() + _Y_INNER_SPACING + _MARGIN
         h -= margin
@@ -573,6 +628,13 @@ class WaveformWidget(QWidget):
         return super().resizeEvent(event)
 
     def plot_paint(self, p, size):
+        try:
+            self._plot_paint(p, size)
+        except Exception:
+            self._log.exception('Exception during drawing')
+        self._request_data()
+
+    def _plot_paint(self, p, size):
         """Paint the plot.
 
         :param p: The QPainter instance.
@@ -580,6 +642,7 @@ class WaveformWidget(QWidget):
         """
         if not hasattr(self, 'style_manager_info'):
             return
+        self._repaint_request = False
         v = self.style_manager_info['sub_vars']
         widget_w, widget_h = size
 
@@ -598,7 +661,9 @@ class WaveformWidget(QWidget):
 
         plot1_trace = QPen(color_as_qcolor(v['waveform.plot1_trace']))
         plot1_trace.setWidth(self.trace_width)
-        plot1_fill = QBrush(color_as_qcolor(v['waveform.plot1_fill']))
+        plot1_min_max_trace = QPen(color_as_qcolor(v['waveform.plot1_min_max_trace']))
+        plot1_min_max_fill = QBrush(color_as_qcolor(v['waveform.plot1_min_max_fill']))
+        plot1_std_fill = QBrush(color_as_qcolor(v['waveform.plot1_std_fill']))
         plot1_missing = QBrush(color_as_qcolor(v['waveform.plot1_missing']))
 
         axis_font_metrics = QtGui.QFontMetrics(axis_font)
@@ -770,20 +835,31 @@ class WaveformWidget(QWidget):
                     if self.show_min_max and d['min'] is not None and d['max'] is not None:
                         d_y_min = self._y_value_to_pixel(plot, d['min'][idx_start:idx_stop])
                         d_y_max = self._y_value_to_pixel(plot, d['max'][idx_start:idx_stop])
-                        if 'points_min_max' not in d:
-                            d['points_min_max'] = PointsF()
-                        segs, nsegs = d['points_min_max'].set_fill(d_x_segment, d_y_min, d_y_max)
-                        p.setPen(QtGui.Qt.NoPen)
-                        p.setBrush(plot1_fill)
-                        p.drawPolygon(segs)
-
-                        d_std = d['std'][idx_start:idx_stop]
-                        d_y_std_min = self._y_value_to_pixel(plot, d_avg - d_std)
-                        d_y_std_max = self._y_value_to_pixel(plot, d_avg + d_std)
-                        if 'points_std' not in d:
-                            d['points_std'] = PointsF()
-                        segs, nsegs = d['points_std'].set_fill(d_x_segment, d_y_std_min, d_y_std_max)
-                        p.drawPolygon(segs)
+                        if 1 == self.show_min_max:
+                            if 'line_min' not in d or 'line_max' not in d:
+                                d['line_min'] = PointsF()
+                                d['line_max'] = PointsF()
+                            p.setPen(plot1_min_max_trace)
+                            segs, nsegs = d['line_min'].set_line(d_x_segment, d_y_min)
+                            p.drawPolyline(segs)
+                            segs, nsegs = d['line_max'].set_line(d_x_segment, d_y_max)
+                            p.drawPolyline(segs)
+                        else:
+                            if 'points_min_max' not in d:
+                                d['points_min_max'] = PointsF()
+                            segs, nsegs = d['points_min_max'].set_fill(d_x_segment, d_y_min, d_y_max)
+                            p.setPen(QtGui.Qt.NoPen)
+                            p.setBrush(plot1_min_max_fill)
+                            p.drawPolygon(segs)
+                            if 3 == self.show_min_max:
+                                d_std = d['std'][idx_start:idx_stop]
+                                d_y_std_min = self._y_value_to_pixel(plot, d_avg - d_std)
+                                d_y_std_max = self._y_value_to_pixel(plot, d_avg + d_std)
+                                if 'points_std' not in d:
+                                    d['points_std'] = PointsF()
+                                segs, nsegs = d['points_std'].set_fill(d_x_segment, d_y_std_min, d_y_std_max)
+                                p.setBrush(plot1_std_fill)
+                                p.drawPolygon(segs)
 
                     d_y = self._y_value_to_pixel(plot, d_avg)
                     if 'points_avg' not in d:
@@ -796,6 +872,10 @@ class WaveformWidget(QWidget):
 
         self._y_geometry_info.append([margin, 'margin'])
         self._draw_markers(p, size)
+        self._update_fps()
+        if self.show_fps:
+            p.setPen(text_pen)
+            p.drawText(10, axis_font_metrics.ascent(), self._fps['str'])
 
     def _draw_markers(self, p, size):
         pass  # todo
@@ -816,6 +896,8 @@ class WaveformWidget(QWidget):
 
     def plot_mouseMoveEvent(self, event: QtGui.QMouseEvent):
         event.accept()
+        if not len(self._x_geometry_info) or not len(self._y_geometry_info):
+            return
         x, y = event.pos().x(), event.pos().y()
         self._mouse_pos = (x, y)
         x_name, y_name = self._target_lookup_by_pos(event)
@@ -973,6 +1055,22 @@ class WaveformWidget(QWidget):
     def on_style_change(self):
         self.update()
 
+    def _on_x_zoom(self, zoom):
+        self._log.info(f'_on_x_zoom {zoom}')
+        # todo
+
+    def _on_x_pan(self, pan):
+        self._log.info(f'_on_x_pan {pan}')
+        # todo
+
+    def _on_y_zoom(self, plot, zoom):
+        self._log.info(f'_on_y_zoom {plot["quantity"]} {zoom}')
+        # todo
+
+    def _on_y_pan(self, plot, pan):
+        self._log.info(f'_on_y_pan {plot["quantity"]} {pan}')
+        # todo
+
     def plot_wheelEvent(self, event: QtGui.QWheelEvent):
         x_name, y_name = self._target_lookup_by_pos(self._mouse_pos)
         delta = np.array([event.angleDelta().x(), event.angleDelta().y()], dtype=np.float64)
@@ -981,22 +1079,24 @@ class WaveformWidget(QWidget):
         incr = np.fix(self._wheel_accum_degrees / _WHEEL_TICK_DEGREES)
         self._wheel_accum_degrees -= incr * _WHEEL_TICK_DEGREES
         x_delta, y_delta = incr
+        delta = y_delta
 
-        if QtCore.Qt.ShiftModifier & event.modifiers():
-            pan = y_delta
-            zoom = 0
-        else:
-            pan = x_delta
-            zoom = y_delta
-        if x_name == 'plot' and y_name.startswith('plot.'):
-            if zoom:
-                print(f'x-axis zoom {zoom}')  # todo
-            if pan:
-                print(f'x-axis pan {pan}')  # todo
-        elif x_name == 'axis' and y_name.startswith('plot.'):
-            idx = int(y_name.split('.')[1])
-            if zoom:
-                print(f'y-axis {idx} zoom {zoom}')  # todo
-            if pan:
-                print(f'y-axis {idx} pan {pan}')  # todo
+        is_pan = QtCore.Qt.KeyboardModifier.ShiftModifier & event.modifiers()
+        if x_delta and not y_delta:
+            delta = x_delta
+            is_pan = True
+        is_y = QtCore.Qt.KeyboardModifier.ControlModifier & event.modifiers()
+
+        if x_name == 'plot' and (y_name == 'header' or not is_y):
+            if is_pan:
+                self._on_x_pan(delta)
+            else:
+                self._on_x_zoom(delta)
+        elif y_name.startswith('plot.') and (is_y or x_name == 'axis'):
+            plot_idx = int(y_name.split('.')[1])
+            plot = self.state['plots'][plot_idx]
+            if is_pan:
+                self._on_y_pan(plot, delta)
+            else:
+                self._on_y_zoom(plot, delta)
 

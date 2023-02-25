@@ -162,6 +162,7 @@ class Metadata:
             * ro: This topic cannot be updated.
             * hide: This topic should not appear in the user interface.
             * dev: Developer option that should not be used in production.
+            * skip_undo: This topic should not be added to the undo list.
         """
         if len(args) == 1 and len(kwargs) == 0:
             v = args[0]

@@ -7,6 +7,9 @@ waveform.grid_major = #ffffff40
 waveform.grid_minor = #80808010
 waveform.plot_separator = #8080ff30
 waveform.plot_border = #ffffff80
+
 waveform.plot1_trace = #ffff00ff
-waveform.plot1_fill = #FF404040
+waveform.plot1_min_max_trace = #FF4040A0
+waveform.plot1_min_max_fill = #FF404060
+waveform.plot1_std_fill = #FF804060
 waveform.plot1_missing = #C0C04030

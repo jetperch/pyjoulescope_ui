@@ -818,7 +818,7 @@ class PubSub:
             t = self._topic_get(topic)
         except KeyError:
             self._log.warning('Publish to unknown topic %s', topic)
-            return
+            return None
         if flag == 'pub':
             value = t.meta.validate(value)
             if t.subtopic_name.startswith('!'):
@@ -828,9 +828,11 @@ class PubSub:
                     self._undo_capture.cmd_add(topic, value, rv)
             elif t.value == value:
                 # self._log.debug('dedup %s: %s == %s', topic_name, t.value, value)
-                return
+                return None
             else:
-                self._undo_capture.pub_add(topic_name, t.value, value)
+                if t.meta is None or 'skip_undo' not in t.meta.flags:
+                    # print(f'{topic_name}')
+                    self._undo_capture.pub_add(topic_name, t.value, value)
                 t.value = value
         self._publish_value(t, flag, topic_name, value)
 
@@ -856,7 +858,7 @@ class PubSub:
             assert(len(self._stack) == 0)
             self._undo_capture = _Undo(cmd.topic)
             self._stack.append([cmd])
-            self._process()
+            t = self._process()
             assert (len(self._stack) == 0)
             if len(self._undo_capture):
                 self.undos.append(self._undo_capture)
