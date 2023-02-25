@@ -168,6 +168,10 @@ class JsdrvStreamBuffer:
         for fn, value in self._initialize_cache:
             fn(self, value)
         self._initialize_cache = None
+        self.pubsub.subscribe('registry/app/settings/signal_stream_enable', self._on_signal_steam_enable, ['pub', 'retain'])
+
+    def _on_signal_steam_enable(self, value):
+        self.on_setting_hold(not bool(value))
 
     def on_pubsub_unregister(self):
         for topic, fn in self._device_subscriptions:
