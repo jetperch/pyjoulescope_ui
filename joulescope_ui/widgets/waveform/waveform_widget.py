@@ -13,14 +13,11 @@
 # limitations under the License.
 
 from PySide6 import QtWidgets, QtGui, QtCore
-from PySide6.QtWidgets import QWidget, QGraphicsView, QGraphicsScene
-from PySide6.QtGui import QPen, QColor, QPolygonF, QPainter
-from PySide6.QtCore import QPointF
-
 from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topic_name, tooltip_format, time64
 from joulescope_ui.styles import styled_widget, color_as_qcolor, font_as_qfont
 from joulescope_ui.widget_tools import settings_action_create
 from .line_segments import PointsF
+import copy
 import logging
 import numpy as np
 import os
@@ -76,7 +73,45 @@ _PLOT_TYPES = {
 }
 
 
-class _PlotWidget(QWidget):
+_STATE_DEFAULT = {
+    'plots': [
+        {
+            'quantity': 'i',
+            'signals': [],  # list of (buffer_unique_id, signal_id)
+            'height': 200,
+            'range_mode': 'auto',
+            'range': [-0.1, 1.1],
+            'scale': 'linear',
+        },
+        {
+            'quantity': 'v',
+            'signals': [],
+            'height': 200,
+            'range_mode': 'auto',
+            'range': [-0.1, 1.1],
+            'scale': 'linear',
+        },
+    ]
+}
+
+
+class _SummaryWidget(QtWidgets.QWidget):
+    def __init__(self, parent):
+        self._parent = parent
+        super().__init__(parent)
+        height = 40
+        self.setMinimumHeight(height)
+        self.setMaximumHeight(height)
+        #self.setMouseTracking(True)
+
+    def paintEvent(self, event):
+        size = self.width(), self.height()
+        painter = QtGui.QPainter(self)  # calls begin()
+        self._parent.plot_summary(painter, size)
+
+
+
+class _PlotWidget(QtWidgets.QWidget):
     """The inner plot widget that simply calls back to the Waveform widget."""
 
     def __init__(self, parent):
@@ -89,6 +124,9 @@ class _PlotWidget(QWidget):
         painter = QtGui.QPainter(self)  # calls begin()
         self._parent.plot_paint(painter, size)
         # painter.end()  Automatically called by destructor
+
+    def resizeEvent(self, event):
+        self._parent.plot_resizeEvent(event)
 
     def mousePressEvent(self, event):
         self._parent.plot_mousePressEvent(event)
@@ -183,7 +221,7 @@ def _target_lookup_by_name(targets, name):
 
 @register
 @styled_widget(N_('Waveform'))
-class WaveformWidget(QWidget):
+class WaveformWidget(QtWidgets.QWidget):
     CAPABILITIES = ['widget@', CAPABILITIES.SIGNAL_BUFFER_SINK]
 
     SETTINGS = {
@@ -217,33 +255,15 @@ class WaveformWidget(QWidget):
         'state': {
             'dtype': 'obj',
             'brief': N_('The waveform state.'),
-            'default': {
-                'plots': [
-                    {
-                        'quantity': 'i',
-                        'signals': [],  # list of (buffer_unique_id, signal_id)
-                        'height': 200,
-                        'range_mode': 'auto',
-                        'range': [-0.1, 1.1],
-                        'scale': 'linear',
-                    },
-                    {
-                        'quantity': 'v',
-                        'signals': [],
-                        'height': 200,
-                        'range_mode': 'auto',
-                        'range': [-0.1, 1.1],
-                        'scale': 'linear',
-                    },
-                ]
-            },
-            'flags': ['hidden'],
+            'default': None,
+            'flags': ['hidden', 'ro'],
         },
     }
 
     def __init__(self, parent=None):
         self._log = logging.getLogger(__name__)
         self.pubsub = None
+        self.state = None
         super().__init__(parent)
 
         # Cache Qt default instances to prevent memory leak in Pyside6 6.4.2
@@ -265,6 +285,9 @@ class WaveformWidget(QWidget):
         self._layout.setSpacing(0)
         self._layout.setContentsMargins(0, 0, 0, 0)
 
+        self._summary = _SummaryWidget(self)
+        self._layout.addWidget(self._summary)
+
         self._graphics = _PlotWidget(self)
         self._layout.addWidget(self._graphics)
         self._x_geometry_info = []
@@ -273,7 +296,7 @@ class WaveformWidget(QWidget):
         self._clipboard_image = None
         self._signals = {}
         self._signals_by_rsp_id = {}
-        self._signals_rsp_id_next = 1
+        self._signals_rsp_id_next = 2  # reserve 1 for summary
 
         self._refresh_timer = QtCore.QTimer()
         self._refresh_timer.setTimerType(QtGui.Qt.PreciseTimer)
@@ -287,6 +310,8 @@ class WaveformWidget(QWidget):
         }
 
     def on_pubsub_register(self):
+        if self.state is None:
+            self.state = copy.deepcopy(_STATE_DEFAULT)
         sources = self.pubsub.query('registry_manager/capabilities/signal_buffer.source/list')
         if not len(sources):
             self._log.warning('No default source available')
@@ -296,15 +321,24 @@ class WaveformWidget(QWidget):
         topic = get_topic_name(source)
         signals = self.pubsub.enumerate(f'{topic}/settings/signals')
         plots = self.state['plots']
+        print(signals)
         for signal in signals:
             item = (source, signal)
             source_id, quantity = signal.split('.')
+            print(plots)
             for plot in plots:
                 if plot['quantity'] == quantity:
                     if item not in plot['signals']:
                         plot['signals'].append(item)
+                        print(f'subscribe {signal}')
                         self.pubsub.subscribe(f'{topic}/settings/signals/{signal}/range',
                                               self._on_signal_range_fn, ['pub', 'retain'])
+        self._repaint_request = True
+
+    def closeEvent(self, event):
+        self.pubsub.unsubscribe_all(self._on_signal_range_fn)
+        self._refresh_timer.stop()
+        return super().closeEvent(event)
 
     def _update_fps(self):
         t = time.time()
@@ -362,23 +396,26 @@ class WaveformWidget(QWidget):
         if 0 == len(x_min):
             return
         x_min, x_max = min(x_min), max(x_max)
-        self.x_range = (x_min, x_max)
+        self.x_range = (x_min, x_max)  # todo support zoom and pan
         for signal in self._signals.values():
             if signal['changed'] is None:
                 continue
             signal['changed'] = None
-            topic_req = f'registry/{signal["source"]}/actions/!request'
-            topic_rsp = f'{get_topic_name(self)}/callbacks/!response'
-            req = {
-                'signal_id': signal['signal_id'],
-                'time_type': 'utc',
-                'rsp_topic': topic_rsp,
-                'rsp_id': signal['rsp_id'],
-                'start': x_min,
-                'end': x_max,
-                'length': 1000,  # todo adjust based upon widget size
-            }
-            self.pubsub.publish(topic_req, req)
+            self._request_signal(signal, self.x_range)
+
+    def _request_signal(self, signal, x_range, rsp_id=None):
+        topic_req = f'registry/{signal["source"]}/actions/!request'
+        topic_rsp = f'{get_topic_name(self)}/callbacks/!response'
+        req = {
+            'signal_id': signal['signal_id'],
+            'time_type': 'utc',
+            'rsp_topic': topic_rsp,
+            'rsp_id': signal['rsp_id'] if rsp_id is None else rsp_id,
+            'start': x_range[0],
+            'end': x_range[1],
+            'length': 1000,  # todo adjust based upon widget size
+        }
+        self.pubsub.publish(topic_req, req)
 
     def on_cbk_response(self, topic, value):
         utc = value['info']['time_range_utc']
@@ -387,10 +424,6 @@ class WaveformWidget(QWidget):
         x = np.linspace(utc['start'], utc['end'], utc['length'], dtype=np.int64)
         response_type = value['response_type']
         rsp_id = value['rsp_id']
-        signal = self._signals_by_rsp_id.get(rsp_id)
-        if signal is None:
-            self._log.warning('Unknown signal rsp_id %s', rsp_id)
-            return
 
         self._repaint_request = True
         if response_type == 'samples':
@@ -409,7 +442,7 @@ class WaveformWidget(QWidget):
             else:
                 self._log.warning('Unsupported sample data type: %s', data_type)
                 return
-            signal['data'] = {
+            data = {
                 'x': x,
                 'avg': y,
                 'std': None,
@@ -419,7 +452,7 @@ class WaveformWidget(QWidget):
         elif response_type == 'summary':
             # self._log.info(f'response summary {length}')
             y = value['data']
-            signal['data'] = {
+            data = {
                 'x': x,
                 'avg': y[:, 0],
                 'std': y[:, 1],
@@ -428,35 +461,13 @@ class WaveformWidget(QWidget):
             }
         else:
             self._log.warning('unsupported response type: %s', response_type)
+            return
 
-    def _data_hack(self):
-        x = np.arange(1000, dtype=np.float64)
-        x *= 30 / 1000
-        y1 = np.sin(x, dtype=np.float64)
-        y1[:100] = np.nan
-        y1[300:400] = np.nan
-        y1[900:] = np.nan
-        y2 = np.sin(x / 2, dtype=np.float64)
-
-        x64 = np.empty(len(x), dtype=np.int64)
-        x64[:] = time64.now()
-        x64 += (x * time64.SCALE).astype(np.int64)
-        self.x_range = [x64[0], x64[-1]]
-
-        self._data['a'] = {
-            'x': x64,
-            'avg': y1,
-            'std': np.full(x64.shape, 0.1),
-            'min': y1 - 0.25,
-            'max': y1 + 0.25,
-        }
-        self._data['b'] = {
-            'x': x64,
-            'avg': y2,
-            'std': np.full(x64.shape, 0.02),
-            'min': y2 - 0.1,
-            'max': y2 + 0.1,
-        }
+        signal = self._signals_by_rsp_id.get(rsp_id)
+        if signal is None:
+            self._log.warning('Unknown signal rsp_id %s', rsp_id)
+            return
+        signal['data'] = data
 
     def _x_trel_offset(self):
         offset = self._x_map[1]
@@ -629,7 +640,21 @@ class WaveformWidget(QWidget):
         h = self._margin + plot_label_size.height() * 3
         return h
 
-    def resizeEvent(self, event):
+    def plot_summary(self, p, size):
+        if not hasattr(self, 'style_manager_info'):
+            return
+        self._repaint_request = False
+        v = self.style_manager_info['sub_vars']
+        widget_w, widget_h = size
+        background_brush = QtGui.QBrush(color_as_qcolor(v['waveform.background']))
+        p.fillRect(0, 0, widget_w, widget_h, background_brush)
+
+        plot1_trace = QPen(color_as_qcolor(v['waveform.plot1_trace']))
+        plot1_trace.setWidth(self.trace_width)
+        plot1_min_max_fill = QBrush(color_as_qcolor(v['waveform.plot1_min_max_fill']))
+
+
+    def plot_resizeEvent(self, event):
         self._repaint_request = True
         h = event.size().height()
         margin = self._header_height() + _Y_INNER_SPACING + self._margin
