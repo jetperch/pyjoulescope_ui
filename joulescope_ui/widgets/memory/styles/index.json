@@ -1,0 +1,7 @@
+{
+  "type": "widget",
+  "version": 1,
+  "templates": ["style.qss"],
+  "style_sheet": "style.qss",
+  "images": {}
+}

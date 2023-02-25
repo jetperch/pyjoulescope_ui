@@ -273,6 +273,9 @@ class WaveformWidget(QtWidgets.QWidget):
         self._CURSOR_SIZE_VER = QtGui.QCursor(QtGui.Qt.SizeVerCursor)
         self._CURSOR_CROSS = QtGui.QCursor(QtGui.Qt.CrossCursor)
 
+        self._on_source_list_fn = self._on_source_list
+        self._on_signal_add_fn = self._on_signal_add
+        self._on_signal_remove_fn = self._on_signal_remove
         self._on_signal_range_fn = self._on_signal_range
         self._menu = None
         self._dialog = None
@@ -309,33 +312,61 @@ class WaveformWidget(QtWidgets.QWidget):
             'str': '',
         }
 
-    def on_pubsub_register(self):
-        if self.state is None:
-            self.state = copy.deepcopy(_STATE_DEFAULT)
-        sources = self.pubsub.query('registry_manager/capabilities/signal_buffer.source/list')
+    def _on_source_list(self, sources):
         if not len(sources):
             self._log.warning('No default source available')
-            self._data_hack()
             return
         source = sources[0]
         topic = get_topic_name(source)
+        print(f'{topic}/settings/signals')
         signals = self.pubsub.enumerate(f'{topic}/settings/signals')
-        plots = self.state['plots']
-        print(signals)
+        try:
+            self.pubsub.query(f'{topic}/events/signals/!add')
+            self.pubsub.subscribe(f'{topic}/events/signals/!add', self._on_signal_add_fn, ['pub'])
+            self.pubsub.subscribe(f'{topic}/events/signals/!remove', self._on_signal_remove_fn, ['pub'])
+        except KeyError:
+            pass
+
         for signal in signals:
-            item = (source, signal)
-            source_id, quantity = signal.split('.')
-            print(plots)
-            for plot in plots:
-                if plot['quantity'] == quantity:
-                    if item not in plot['signals']:
-                        plot['signals'].append(item)
-                        print(f'subscribe {signal}')
-                        self.pubsub.subscribe(f'{topic}/settings/signals/{signal}/range',
-                                              self._on_signal_range_fn, ['pub', 'retain'])
+            self._on_signal_add(f'{topic}/events/signals/!add', signal)
+
+    def _on_signal_add(self, topic, value):
+        self._log.info(f'_on_signal_add({topic}, {value})')
+        source = topic.split('/')[1]
+        signal = value
+        topic = get_topic_name(source)
+        item = (source, signal)
+        if item in self._signals:
+            self._signals[item]['enabled'] = True
+        self.pubsub.subscribe(f'{topic}/settings/signals/{signal}/range',
+                              self._on_signal_range_fn, ['pub', 'retain'])
+        source_id, quantity = signal.split('.')
+        for plot in self.state['plots']:
+            if plot['quantity'] == quantity:
+                if item not in plot['signals']:
+                    plot['signals'].append(item)
         self._repaint_request = True
 
+    def _on_signal_remove(self, topic, value):
+        self._log.info(f'_on_signal_remove({topic}, {value})')
+        source = topic.split('/')[1]
+        signal = value
+        item = (source, signal)
+        for plot in self.state['plots']:
+            if item in plot['signals']:
+                print('remove')
+                plot['signals'].remove(item)
+        if item in self._signals:
+            self._signals[item]['enabled'] = False
+
+    def on_pubsub_register(self):
+        if self.state is None:
+            self.state = copy.deepcopy(_STATE_DEFAULT)
+        self.pubsub.subscribe('registry_manager/capabilities/signal_buffer.source/list',
+                              self._on_source_list_fn, ['pub', 'retain'])
+
     def closeEvent(self, event):
+        self.pubsub.unsubscribe_all(self._on_source_list_fn)
         self.pubsub.unsubscribe_all(self._on_signal_range_fn)
         self._refresh_timer.stop()
         return super().closeEvent(event)
@@ -367,6 +398,7 @@ class WaveformWidget(QtWidgets.QWidget):
         if d is None:
             d = {
                 'item': item,
+                'enabled': True,
                 'source': source,
                 'signal_id': signal_id,
                 'rsp_id': self._signals_rsp_id_next,
@@ -379,7 +411,7 @@ class WaveformWidget(QtWidgets.QWidget):
         if value != d['range']:
             d['range'] = value
             d['changed'] = time.time()
-            self._repaint_request = True
+            self._repaint_request = d['enabled']
         return None
 
     def _on_refresh_timer(self):
@@ -390,18 +422,18 @@ class WaveformWidget(QtWidgets.QWidget):
         x_min = []
         x_max = []
         for signal in self._signals.values():
-            x_range = signal['range']
-            x_min.append(x_range[0])
-            x_max.append(x_range[1])
+            if signal['enabled']:
+                x_range = signal['range']
+                x_min.append(x_range[0])
+                x_max.append(x_range[1])
         if 0 == len(x_min):
             return
         x_min, x_max = min(x_min), max(x_max)
         self.x_range = (x_min, x_max)  # todo support zoom and pan
         for signal in self._signals.values():
-            if signal['changed'] is None:
-                continue
-            signal['changed'] = None
-            self._request_signal(signal, self.x_range)
+            if signal['changed'] and signal['enabled']:
+                signal['changed'] = None
+                self._request_signal(signal, self.x_range)
 
     def _request_signal(self, signal, x_range, rsp_id=None):
         topic_req = f'registry/{signal["source"]}/actions/!request'
@@ -746,7 +778,10 @@ class WaveformWidget(QtWidgets.QWidget):
         y_text = y + axis_font_metrics.ascent()
 
         x_offset = self._x_trel_offset()
-        x_offset_str = time64.as_datetime(x_offset).isoformat()
+        try:
+            x_offset_str = time64.as_datetime(x_offset).isoformat()
+        except OSError as ex:
+            print(ex)
         p.drawText(left_margin, margin + plot_label_size.height() + axis_font_metrics.ascent(), x_offset_str)
         p.drawText(margin, y_text, 's')
         self._draw_text(p, margin, margin + 2 * plot_label_size.height() + axis_font_metrics.ascent(), 's')

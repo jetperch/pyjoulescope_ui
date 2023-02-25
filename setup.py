@@ -210,6 +210,7 @@ setuptools.setup(
         'fs',
         'pyjoulescope_driver>=' + JOULESCOPE_DRIVER_VERSION_MIN,
         'markdown',
+        'psutil',
         'pyjls>=0.4.2',
         'pyopengl',
         'pyperclip>=1.7.0',

@@ -45,8 +45,8 @@ _SETTINGS = {
     },
     'size': {
         'dtype': 'int',
-        'brief': N_('Buffer memory size'),
-        'default': 0,
+        'brief': N_('Buffer memory size in bytes'),
+        'default': int(0.5 * 1024 ** 3),
     },
 }
 
@@ -274,7 +274,11 @@ class JsdrvStreamBuffer:
         """
         value = copy.deepcopy(value)
         signal_id = value['signal_id']
-        buf_id = self._signals[signal_id]
+        try:
+            buf_id = self._signals[signal_id]
+        except KeyError:
+            self._log.info('Request for missing signal %s', signal_id)
+            return None
         pubsub_req = (value['rsp_topic'], value['rsp_id'])
         if pubsub_req in self._req_fwd:
             device_req_id = self._req_fwd[pubsub_req]

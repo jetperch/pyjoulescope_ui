@@ -17,6 +17,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from joulescope_ui import N_, register, tooltip_format, pubsub_singleton
 from joulescope_ui.styles import styled_widget
 from joulescope_ui.widgets import DeviceControlWidget
+from joulescope_ui.widgets import MemoryWidget
 from joulescope_ui.widgets.flyout import FlyoutWidget
 
 
@@ -121,6 +122,11 @@ class SideBar(QtWidgets.QWidget):
         d = DeviceControlWidget()
         unique_id = pubsub.register(d, 'device_control_widget:flyout', parent='flyout:0')
         self.widget_set('device', d)
+
+        # Create the memory flyout widget for the sidebar
+        m = MemoryWidget()
+        unique_id = pubsub.register(m, 'memory_widget:flyout', parent='flyout:0')
+        self.widget_set('memory', m)
 
     def _on_mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:

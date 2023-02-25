@@ -80,7 +80,6 @@ def _device_factory_add():
     pubsub_singleton.process()
     pubsub_singleton.publish(f'{topic}/actions/mem/!add', 1)  # use singleton memory buffer
     pubsub_singleton.process()
-    pubsub_singleton.publish('registry/JsdrvStreamBuffer:001/settings/size', 100_000_000)
 
 
 def _device_factory_finalize():

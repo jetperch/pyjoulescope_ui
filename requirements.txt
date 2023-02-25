@@ -4,6 +4,7 @@ coverage>=4.5.2
 fs
 pyjoulescope_driver>=1.2.0  # also update JOULESCOPE_DRIVER_VERSION_MIN in setup.py
 markdown
+psutil
 pyjls>=0.4.2
 pyopengl
 pyperclip>=1.7.0
