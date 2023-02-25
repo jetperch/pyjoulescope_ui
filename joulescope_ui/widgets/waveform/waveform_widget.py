@@ -254,7 +254,7 @@ class WaveformWidget(QWidget):
         self._on_signal_range_fn = self._on_signal_range
         self._menu = None
         self._dialog = None
-        self._x_map = (0, 0, 1.0)  # (pixel_offset, time64_offset, time_to_pixel_scale)
+        self._x_map = (0, 0, 0, 1.0)  # (pixel_offset, time64_label_offset, time64_zero_offset, time_to_pixel_scale)
         self._mouse_pos = None
         self._wheel_accum_degrees = np.zeros(2, dtype=np.float64)
 
@@ -461,12 +461,12 @@ class WaveformWidget(QWidget):
         return offset
 
     def _x_time64_to_pixel(self, time):
-        pixel_offset, time_offset, time_to_pixel_scale = self._x_map
-        return pixel_offset + (time - time_offset) * time_to_pixel_scale
+        pixel_offset, _, time_zero_offset, time_to_pixel_scale = self._x_map
+        return pixel_offset + (time - time_zero_offset) * time_to_pixel_scale
 
     def _x_pixel_to_time64(self, pixel):
-        pixel_offset, time_offset, time_to_pixel_scale = self._x_map
-        return time_offset + (pixel - pixel_offset) * (1.0 / time_to_pixel_scale)
+        pixel_offset, _, time_zero_offset, time_to_pixel_scale = self._x_map
+        return time_zero_offset + (pixel - pixel_offset) * (1.0 / time_to_pixel_scale)
 
     def _x_time64_to_trel(self, t64):
         offset = self._x_trel_offset()
@@ -705,11 +705,13 @@ class WaveformWidget(QWidget):
         else:
             x_tick_width_time_min = 1e-6
         tick_spacing = _tick_spacing(x_range64[0], x_range64[1], x_tick_width_time_min)
-        x_offset_pow = 10 ** np.floor(np.log10(tick_spacing))
-        x_offset = int(x_offset_pow * np.floor(x_range64[0] / x_offset_pow))
+        x_offset_pow = 10 ** np.ceil(np.log10(tick_spacing))
+        x_offset_pow_t64 = time64.SECOND * x_offset_pow
+        x_label_offset = int(x_offset_pow_t64 * np.floor(x_range64[0] / x_offset_pow_t64))
+        x_zero_offset = x_range64[0]
 
         x_gain = 0.0 if x_duration_s <= 0 else plot_width / (x_duration_s * time64.SECOND)
-        self._x_map = (left_margin, x_offset, x_gain)
+        self._x_map = (left_margin, x_label_offset, x_zero_offset, x_gain)
         x_range_trel = [self._x_time64_to_trel(i) for i in self.x_range]
 
         x_grid = _ticks(x_range_trel[0], x_range_trel[1], x_tick_width_time_min)
