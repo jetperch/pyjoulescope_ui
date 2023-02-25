@@ -248,7 +248,7 @@ class WaveformWidget(QWidget):
         self._NO_PEN = QtGui.QPen(QtGui.Qt.NoPen)  # prevent memory leak
         self._NO_BRUSH = QtGui.QBrush(QtGui.Qt.NoBrush)  # prevent memory leak
         self._CURSOR_ARROW = QtGui.QCursor(QtGui.Qt.ArrowCursor)
-        self._CURSOR_SIZE_VER = QtGui.QCursor(QtGui.Qt.ArrowCursor)
+        self._CURSOR_SIZE_VER = QtGui.QCursor(QtGui.Qt.SizeVerCursor)
         self._CURSOR_CROSS = QtGui.QCursor(QtGui.Qt.CrossCursor)
 
         self._on_signal_range_fn = self._on_signal_range

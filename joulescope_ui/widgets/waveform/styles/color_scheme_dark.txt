@@ -5,7 +5,7 @@ waveform.text_background = #101010A0
 
 waveform.grid_major = #ffffff40
 waveform.grid_minor = #80808010
-waveform.plot_separator = #8080ff30
+waveform.plot_separator = #B0B0ff60
 waveform.plot_border = #ffffff80
 
 waveform.plot1_trace = #ffff00ff
