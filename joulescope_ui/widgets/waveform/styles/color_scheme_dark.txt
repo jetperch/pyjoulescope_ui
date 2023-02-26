@@ -11,5 +11,5 @@ waveform.plot_border = #ffffff80
 waveform.plot1_trace = #ffff00ff
 waveform.plot1_min_max_trace = #FF4040A0
 waveform.plot1_min_max_fill = #FF404060
-waveform.plot1_std_fill = #FF804060
+waveform.plot1_std_fill = #80FF4040
 waveform.plot1_missing = #C0C04030

@@ -184,23 +184,23 @@ def _ticks(v_min, v_max, v_spacing_min):
     return np.arange(start, v_max, interval, dtype=np.float64), interval
 
 
-def _target_lookup_by_pos(targets, pos):
-    v = 0
-    for sz, name in targets:
-        v += sz
-        if pos < v:
-            break
-    return name
-
-
-def _target_lookup_by_name(targets, name):
+def _target_from_list(targets):
+    d = {}
     v = 0
     for sz, n in targets:
         v_next = v + sz
-        if name == n:
-            return v, v_next
+        if n in d:
+            raise RuntimeError(f'Duplicate section name {n}')
+        d[n] = [sz, v, v_next]
         v = v_next
-    raise ValueError(f'target name {name} not found')
+    return d
+
+
+def _target_lookup_by_pos(targets, pos):
+    for name, (_, _, v) in targets.items():
+        if pos < v:
+            break
+    return name
 
 
 @register
@@ -275,8 +275,8 @@ class WaveformWidget(QtWidgets.QWidget):
 
         self._graphics = _PlotWidget(self)
         self._layout.addWidget(self._graphics)
-        self._x_geometry_info = []
-        self._y_geometry_info = []
+        self._x_geometry_info = {}
+        self._y_geometry_info = {}
         self._mouse_action = None
         self._clipboard_image = None
         self._signals = {}
@@ -300,7 +300,6 @@ class WaveformWidget(QtWidgets.QWidget):
             return
         source = sources[0]
         topic = get_topic_name(source)
-        print(f'{topic}/settings/signals')
         signals = self.pubsub.enumerate(f'{topic}/settings/signals')
         try:
             self.pubsub.query(f'{topic}/events/signals/!add')
@@ -336,7 +335,6 @@ class WaveformWidget(QtWidgets.QWidget):
         item = (source, signal)
         for plot in self.state['plots']:
             if item in plot['signals']:
-                print('remove')
                 plot['signals'].remove(item)
         if item in self._signals:
             self._signals[item]['enabled'] = False
@@ -420,6 +418,9 @@ class WaveformWidget(QtWidgets.QWidget):
     def _request_signal(self, signal, x_range, rsp_id=None):
         topic_req = f'registry/{signal["source"]}/actions/!request'
         topic_rsp = f'{get_topic_name(self)}/callbacks/!response'
+        x_info = self._x_geometry_info.get('plot')
+        if x_info is None:
+            return
         req = {
             'signal_id': signal['signal_id'],
             'time_type': 'utc',
@@ -427,7 +428,7 @@ class WaveformWidget(QtWidgets.QWidget):
             'rsp_id': signal['rsp_id'] if rsp_id is None else rsp_id,
             'start': x_range[0],
             'end': x_range[1],
-            'length': 1000,  # todo adjust based upon widget size
+            'length': x_info[0],
         }
         self.pubsub.publish(topic_req, req)
 
@@ -581,7 +582,8 @@ class WaveformWidget(QtWidgets.QWidget):
 
             'plot1_trace': QPen(color_as_qcolor(v['waveform.plot1_trace'])),
             'plot1_min_max_trace': QPen(color_as_qcolor(v['waveform.plot1_min_max_trace'])),
-            'plot1_min_max_fill': QBrush(color_as_qcolor(v['waveform.plot1_min_max_fill'])),
+            'plot1_min_max_fill_pen': QPen(color_as_qcolor(v['waveform.plot1_min_max_fill'])),
+            'plot1_min_max_fill_brush': QBrush(color_as_qcolor(v['waveform.plot1_min_max_fill'])),
             'plot1_std_fill': QBrush(color_as_qcolor(v['waveform.plot1_std_fill'])),
             'plot1_missing': QBrush(color_as_qcolor(v['waveform.plot1_missing'])),
 
@@ -632,32 +634,25 @@ class WaveformWidget(QtWidgets.QWidget):
         f = dy1 * 0.1
         plot['range'] = y_min - f/2, y_max + f
 
-    def _plots_height(self):
-        if self.state is None:
-            return 0
-        plots = self.state['plots']
-        k = len(plots)
-        h = 0
-        if k > 1:
-            h += _Y_INNER_SPACING * (k - 1)
-        for plot in plots:
-            h += plot['height']
-        return h
-
     def _plots_height_adjust(self, h):
-        h_now = self._plots_height()
+        if not len(self._y_geometry_info):
+            return
+        for name, (k, _, _) in self._y_geometry_info.items():
+            if not name.startswith('plot'):
+                h -= k
+        plots = self.state['plots']
+        h_now = 0
+        for plot in plots:
+            h_now += plot['height']
         if h_now <= 0:
             return
         plots = self.state['plots']
         k = len(plots)
         if k == 0:
             return
-        h_spacing = _Y_INNER_SPACING * (k - 1)
-        h_min = _Y_PLOT_MIN * k + h_spacing
+        h_min = _Y_PLOT_MIN * k
         if h < h_min:
             h = h_min
-        h_now -= h_spacing
-        h -= h_spacing
         scale = h / h_now
         h_new = 0
 
@@ -684,20 +679,11 @@ class WaveformWidget(QtWidgets.QWidget):
                     if dh <= 0:
                         break
 
-    def _header_height(self):
-        s = self._style
-        if s is None:
-            return 0
-        h = self._margin + s['plot_label_size'].height() * 3
-        return h
-
     def plot_resizeEvent(self, event):
+        event.accept()
         self._repaint_request = True
         h = event.size().height()
-        margin = self._header_height() + _Y_INNER_SPACING + self._margin
-        h -= margin
         self._plots_height_adjust(h)
-        return super().resizeEvent(event)
 
     def plot_paint(self, p, size):
         try:
@@ -705,6 +691,42 @@ class WaveformWidget(QtWidgets.QWidget):
         except Exception:
             self._log.exception('Exception during drawing')
         self._request_data()
+
+    def _compute_geometry(self, size):
+        s = self._style
+        if s is None:
+            self._x_geometry_info = {}
+            self._y_geometry_info = {}
+            return
+        widget_w, widget_h = size
+
+        margin = self._margin
+        left_width = s['plot_label_size'].width() + margin + s['y_tick_size'].width() + margin
+        right_width = margin + s['statistics_size'].width()
+        plot_width = widget_w - left_width - right_width - 2 * margin
+        y_inner_spacing = _Y_INNER_SPACING
+
+        y_geometry = [
+            [margin, 'margin.top'],
+            [s['plot_label_size'].height() * 3, 'x_axis'],
+            [y_inner_spacing, 'spacer.ignore'],
+        ]
+        for plot_idx, plot in enumerate(self.state['plots']):
+            if plot_idx:
+                y_geometry.append([y_inner_spacing, f'spacer.{plot_idx}'])
+            y_geometry.append([plot['height'], f'plot.{plot_idx}'])
+        y_geometry.append([margin, 'margin.bottom'])
+
+        x_geometry = [
+            [margin, 'margin.left'],
+            [left_width, 'y_axis'],
+            [plot_width, 'plot'],
+            [right_width, 'statistics'],
+            [margin, 'margin.right'],
+        ]
+
+        self._x_geometry_info = _target_from_list(x_geometry)
+        self._y_geometry_info = _target_from_list(y_geometry)
 
     def _plot_paint(self, p, size):
         """Paint the plot.
@@ -718,26 +740,39 @@ class WaveformWidget(QtWidgets.QWidget):
         self._repaint_request = False
         widget_w, widget_h = size
 
-        # draw the background
+        resize = not len(self._y_geometry_info)
+        self._compute_geometry(size)
+        if resize:
+            self._plots_height_adjust(widget_h)
+        self._draw_background(p, size)
+        self._draw_x_axis(p)
+
+        # Draw each plot
+        for plot_idx, plot in enumerate(self.state['plots']):
+            plot['index'] = plot_idx
+            self._draw_plot(p, plot)
+        self._draw_spacers(p)
+        self._draw_markers(p, size)
+        self._draw_fps(p)
+
+    def _draw_background(self, p, size):
+        s = self._style
+        widget_w, widget_h = size
         p.fillRect(0, 0, widget_w, widget_h, s['background_brush'])
 
-        margin = self._margin
-        y_inner_spacing = _Y_INNER_SPACING
-        left_margin = margin + s['plot_label_size'].width() + margin + s['y_tick_size'].width() + margin
-        right_margin = margin + s['statistics_size'].width() + margin
-        plot_width = widget_w - left_margin - right_margin
-
+    def _draw_x_axis(self, p):
+        s = self._style
         p.setPen(s['text_pen'])
         p.setBrush(s['text_brush'])
         p.setFont(s['axis_font'])
 
-        # compute total plot height
-        top_margin = self._header_height()
-        y_end = top_margin
-        y_end += self._plots_height()
-
         # compute time and draw x-axis including UTC, seconds, grid
-        y = margin + 2 * s['plot_label_size'].height()
+        x_axis_height, x_axis_y0, x_axis_y1 = self._y_geometry_info['x_axis']
+        left_width, left_x0, left_x1, = self._x_geometry_info['y_axis']
+        plot_width, plot_x0, plot_x1, = self._x_geometry_info['plot']
+        _, y_end, _, = self._y_geometry_info['margin.bottom']
+
+        y = x_axis_y0 + 2 * s['plot_label_size'].height()
         x_range64 = self.x_range
         x_duration_s = (x_range64[1] - x_range64[0]) / time64.SECOND
         if x_duration_s > 0:
@@ -750,21 +785,18 @@ class WaveformWidget(QtWidgets.QWidget):
         x_label_offset = int(x_offset_pow_t64 * np.floor(x_range64[0] / x_offset_pow_t64))
         x_zero_offset = x_range64[0]
 
-        x_gain = 0.0 if x_duration_s <= 0 else plot_width / (x_duration_s * time64.SECOND)
-        self._x_map = (left_margin, x_label_offset, x_zero_offset, x_gain)
+        x_gain = 0.0 if x_duration_s <= 0 else (plot_width - 1) / (x_duration_s * time64.SECOND)
+        self._x_map = (left_x1, x_label_offset, x_zero_offset, x_gain)
         x_range_trel = [self._x_time64_to_trel(i) for i in self.x_range]
 
         x_grid = _ticks(x_range_trel[0], x_range_trel[1], x_tick_width_time_min)
         y_text = y + s['axis_font_metrics'].ascent()
 
         x_offset = self._x_trel_offset()
-        try:
-            x_offset_str = time64.as_datetime(x_offset).isoformat()
-        except OSError as ex:
-            print(ex)
-        p.drawText(left_margin, margin + s['plot_label_size'].height() + s['axis_font_metrics'].ascent(), x_offset_str)
-        p.drawText(margin, y_text, 's')
-        self._draw_text(p, margin, margin + 2 * s['plot_label_size'].height() + s['axis_font_metrics'].ascent(), 's')
+        x_offset_str = time64.as_datetime(x_offset).isoformat()
+        p.drawText(plot_x0, x_axis_y0 + s['plot_label_size'].height() + s['axis_font_metrics'].ascent(), x_offset_str)
+        p.drawText(left_x0, y_text, 's')
+        self._draw_text(p, left_x0, x_axis_y0 + 2 * s['plot_label_size'].height() + s['axis_font_metrics'].ascent(), 's')
         if x_grid is None:
             pass
         else:
@@ -775,163 +807,157 @@ class WaveformWidget(QtWidgets.QWidget):
                 p.drawLine(x, y, x, y_end)
             # todo unit_prefix
 
-            y = top_margin
             p.setPen(s['grid_minor_pen'])
             for x in self._x_trel_to_pixel(x_grid['minor']):
-                p.drawLine(x, y, x, y_end)
-        y = top_margin
+                p.drawLine(x, x_axis_y1, x, y_end)
 
-        self._y_geometry_info = [
-            [margin, 'margin'],
-            [top_margin - margin, 'header'],
-            [_Y_INNER_SPACING, 'ignore'],
-        ]
+    def _draw_spacers(self, p):
+        s = self._style
+        p.setPen(self._NO_PEN)
+        p.setBrush(s['plot_separator_brush'])
+        _, _, x0 = self._x_geometry_info['margin.left']
+        _, x1, _ = self._x_geometry_info['margin.right']
+        w = x1 - x0
 
-        self._x_geometry_info = [
-            [margin, 'margin'],
-            [left_margin - margin, 'axis'],
-            [plot_width, 'plot'],
-            [s['statistics_size'].width(), 'statistics'],
-            [margin, 'margin']
-        ]
+        for name, (h, y0, y1) in self._y_geometry_info.items():
+            if name.startswith('spacer'):
+                p.drawRect(x0, y0 + 3, w, h - 6)
 
-        # Draw each plot
-        for plot_idx, plot in enumerate(self.state['plots']):
-            h = plot['height']
+    def _draw_plot(self, p, plot):
+        s = self._style
+        h, y0, y1 = self._y_geometry_info[f'plot.{plot["index"]}']
+        w, x0, x1 = self._x_geometry_info['plot']
+        _, left, _, = self._x_geometry_info['y_axis']
 
-            # draw separator
+        # draw border
+        p.setPen(s['plot_border_pen'])
+        p.setBrush(self._NO_BRUSH)
+        # p.drawRect(left_margin, y, plot_width, h)
+        p.drawLine(x0, y0, x0, y1)
+
+        self._plot_range_auto_update(plot)
+        y_range = plot['range']
+        y_scale = h / (y_range[1] - y_range[0])
+        plot['y_map'] = (y0, y_range[1], y_scale)
+
+        # draw y-axis grid
+        p.setFont(s['axis_font'])
+        y_tick_height_value_min = s['y_tick_height_pixels_min'] / plot['y_map'][-1]
+        y_grid = _ticks(y_range[0], y_range[1], y_tick_height_value_min)
+        axis_font_metrics = s['axis_font_metrics']
+        if y_grid is not None:
+            for idx, t in enumerate(self._y_value_to_pixel(plot, y_grid['major'])):
+                p.setPen(s['text_pen'])
+                s_label = y_grid['labels'][idx]
+                font_w = axis_font_metrics.boundingRect(s_label).width()
+                p.drawText(x0 - 4 - font_w, t + axis_font_metrics.ascent() // 2, s_label)
+                p.setPen(s['grid_major_pen'])
+                p.drawLine(x0, t, x1, t)
+
+            # p.setPen(grid_minor_pen)
+            # for t in self._y_value_to_pixel(plot, y_grid['minor']):
+            #    p.drawLine(left_margin, t, left_margin + plot_width, t)
+
+        # draw label
+        plot_type = _PLOT_TYPES[plot['quantity']]
+        p.setPen(s['text_pen'])
+        p.setFont(s['axis_font'])
+        plot_units = plot_type.get('units')
+        if plot_units is None:
+            s_label = plot['quantity']
+        else:
+            s_label = f"{y_grid['unit_prefix']}{plot_units}"
+        p.drawText(left, y0 + (h + axis_font_metrics.ascent()) // 2, s_label)
+
+        p.setClipRect(x0, y0, w, h)
+        for signal in plot['signals']:
+            d = self._signals.get(signal)
+            if d is None or d['data'] is None:
+                continue
+            d = d['data']
+            d_x = self._x_time64_to_pixel(d['x'])
+            if len(d_x) == w:
+                d_x, d_x2 = np.rint(d_x), d_x
+                if np.any(np.abs(d_x - d_x2) > 0.5):
+                    self._log.warning('x does not conform to pixels')
+                    d_x = d_x2
+            finite_idx = self._finite_idx(d)
+            change_idx = np.where(np.diff(finite_idx))[0] + 1
+            segment_idx = []
+            if finite_idx[0]:  # starts with a valid segment
+                if not len(change_idx):  # best case, all data valid, one segment
+                    segment_idx = [[0, len(d_x)]]
+                else:  # NaNs, but starts with valid segment
+                    segment_idx.append([0, change_idx[0]])
+                    change_idx = change_idx[1:]
+            while len(change_idx):
+                if len(change_idx) == 1:
+                    segment_idx.append([change_idx[0], len(d_x)])
+                    change_idx = change_idx[1:]
+                else:
+                    segment_idx.append([change_idx[0], change_idx[1]])
+                    change_idx = change_idx[2:]
+
             p.setPen(self._NO_PEN)
-            p.setBrush(s['plot_separator_brush'])
-            p.drawRect(0, y + 3, widget_w, y_inner_spacing - 6)
-            y += y_inner_spacing
-            if plot_idx != 0:
-                self._y_geometry_info.append([y_inner_spacing, f'spacer.{plot_idx}'])
-            self._y_geometry_info.append([h, f'plot.{plot_idx}'])
+            p.setBrush(s['plot1_missing'])
+            if len(segment_idx) > 1:
+                segment_idx_last = segment_idx[0][1]
+                for idx_start, idx_stop in segment_idx[1:]:
+                    x1 = d_x[segment_idx_last]
+                    x2 = d_x[idx_start]
+                    p.drawRect(x1, y0, x2 - x1, h)
+                    segment_idx_last = idx_stop
 
-            # draw border
-            p.setPen(s['plot_border_pen'])
-            p.setBrush(self._NO_BRUSH)
-            # p.drawRect(left_margin, y, plot_width, h)
-            p.drawLine(left_margin, y, left_margin, y + h)
-
-            self._plot_range_auto_update(plot)
-            # todo set clip bounds
-            y_range = plot['range']
-            y_scale = h / (y_range[1] - y_range[0])
-            plot['y_map'] = (y, y_range[1], y_scale)
-
-            # draw y-axis grid
-            p.setFont(s['axis_font'])
-            y_tick_height_value_min = s['y_tick_height_pixels_min'] / plot['y_map'][-1]
-            y_grid = _ticks(y_range[0], y_range[1], y_tick_height_value_min)
-            axis_font_metrics = s['axis_font_metrics']
-            if y_grid is not None:
-                for idx, t in enumerate(self._y_value_to_pixel(plot, y_grid['major'])):
-                    p.setPen(s['text_pen'])
-                    s_label = y_grid['labels'][idx]
-                    w = axis_font_metrics.boundingRect(s_label).width()
-                    p.drawText(left_margin - 4 - w, t + axis_font_metrics.ascent() // 2, s_label)
-                    p.setPen(s['grid_major_pen'])
-                    p.drawLine(left_margin, t, left_margin + plot_width, t)
-
-                #p.setPen(grid_minor_pen)
-                #for t in self._y_value_to_pixel(plot, y_grid['minor']):
-                #    p.drawLine(left_margin, t, left_margin + plot_width, t)
-
-            # draw label
-            plot_type = _PLOT_TYPES[plot['quantity']]
-            p.setPen(s['text_pen'])
-            p.setFont(s['axis_font'])
-            plot_units = plot_type.get('units')
-            if plot_units is None:
-                s_label = plot['quantity']
-            else:
-                s_label = f"{y_grid['unit_prefix']}{plot_units}"
-            p.drawText(self._margin, y + (h + axis_font_metrics.ascent()) // 2, s_label)
-
-            for signal in plot['signals']:
-                d = self._signals.get(signal)
-                if d is None or d['data'] is None:
-                    continue
-                d = d['data']
-                d_x = self._x_time64_to_pixel(d['x'])
-                finite_idx = self._finite_idx(d)
-                change_idx = np.where(np.diff(finite_idx))[0] + 1
-                segment_idx = []
-                if finite_idx[0]:                       # starts with a valid segment
-                    if not len(change_idx):             # best case, all data valid, one segment
-                        segment_idx = [[0, len(d_x)]]
-                    else:                               # NaNs, but starts with valid segment
-                        segment_idx.append([0, change_idx[0]])
-                        change_idx = change_idx[1:]
-                while len(change_idx):
-                    if len(change_idx) == 1:
-                        segment_idx.append([change_idx[0], len(d_x)])
-                        change_idx = change_idx[1:]
+            for idx_start, idx_stop in segment_idx:
+                d_x_segment = d_x[idx_start:idx_stop]
+                d_avg = d['avg'][idx_start:idx_stop]
+                if self.show_min_max and d['min'] is not None and d['max'] is not None:
+                    d_y_min = self._y_value_to_pixel(plot, d['min'][idx_start:idx_stop])
+                    d_y_max = self._y_value_to_pixel(plot, d['max'][idx_start:idx_stop])
+                    if 1 == self.show_min_max:
+                        if 'line_min' not in d or 'line_max' not in d:
+                            d['line_min'] = PointsF()
+                            d['line_max'] = PointsF()
+                        p.setPen(s['plot1_min_max_trace'])
+                        segs, nsegs = d['line_min'].set_line(d_x_segment, d_y_min)
+                        p.drawPolyline(segs)
+                        segs, nsegs = d['line_max'].set_line(d_x_segment, d_y_max)
+                        p.drawPolyline(segs)
                     else:
-                        segment_idx.append([change_idx[0], change_idx[1]])
-                        change_idx = change_idx[2:]
-
-                p.setPen(self._NO_PEN)
-                p.setBrush(s['plot1_missing'])
-                if len(segment_idx) > 1:
-                    segment_idx_last = segment_idx[0][1]
-                    for idx_start, idx_stop in segment_idx[1:]:
-                        x1 = d_x[segment_idx_last]
-                        x2 = d_x[idx_start]
-                        p.drawRect(x1, y, x2 - x1, h)
-                        segment_idx_last = idx_stop
-
-                for idx_start, idx_stop in segment_idx:
-                    d_x_segment = d_x[idx_start:idx_stop]
-                    d_avg = d['avg'][idx_start:idx_stop]
-                    if self.show_min_max and d['min'] is not None and d['max'] is not None:
-                        d_y_min = self._y_value_to_pixel(plot, d['min'][idx_start:idx_stop])
-                        d_y_max = self._y_value_to_pixel(plot, d['max'][idx_start:idx_stop])
-                        if 1 == self.show_min_max:
-                            if 'line_min' not in d or 'line_max' not in d:
-                                d['line_min'] = PointsF()
-                                d['line_max'] = PointsF()
-                            p.setPen(s['plot1_min_max_trace'])
-                            segs, nsegs = d['line_min'].set_line(d_x_segment, d_y_min)
-                            p.drawPolyline(segs)
-                            segs, nsegs = d['line_max'].set_line(d_x_segment, d_y_max)
-                            p.drawPolyline(segs)
-                        else:
-                            if 'points_min_max' not in d:
-                                d['points_min_max'] = PointsF()
-                            segs, nsegs = d['points_min_max'].set_fill(d_x_segment, d_y_min, d_y_max)
+                        if 'points_min_max' not in d:
+                            d['points_min_max'] = PointsF()
+                        segs, nsegs = d['points_min_max'].set_fill(d_x_segment, d_y_min, d_y_max)
+                        p.setPen(s['plot1_min_max_fill_pen'])
+                        p.setBrush(s['plot1_min_max_fill_brush'])
+                        p.drawPolygon(segs)
+                        if 3 == self.show_min_max:
+                            d_std = d['std'][idx_start:idx_stop]
+                            d_y_std_min = self._y_value_to_pixel(plot, d_avg - d_std)
+                            d_y_std_max = self._y_value_to_pixel(plot, d_avg + d_std)
+                            if 'points_std' not in d:
+                                d['points_std'] = PointsF()
+                            segs, nsegs = d['points_std'].set_fill(d_x_segment, d_y_std_min, d_y_std_max)
                             p.setPen(self._NO_PEN)
-                            p.setBrush(s['plot1_min_max_fill'])
+                            p.setBrush(s['plot1_std_fill'])
                             p.drawPolygon(segs)
-                            if 3 == self.show_min_max:
-                                d_std = d['std'][idx_start:idx_stop]
-                                d_y_std_min = self._y_value_to_pixel(plot, d_avg - d_std)
-                                d_y_std_max = self._y_value_to_pixel(plot, d_avg + d_std)
-                                if 'points_std' not in d:
-                                    d['points_std'] = PointsF()
-                                segs, nsegs = d['points_std'].set_fill(d_x_segment, d_y_std_min, d_y_std_max)
-                                p.setBrush(s['plot1_std_fill'])
-                                p.drawPolygon(segs)
 
-                    d_y = self._y_value_to_pixel(plot, d_avg)
-                    if 'points_avg' not in d:
-                        d['points_avg'] = PointsF()
-                    segs, nsegs = d['points_avg'].set_line(d_x_segment, d_y)
-                    p.setPen(s['plot1_trace'])
-                    p.drawPolyline(segs)
-
-            y += h
-
-        self._y_geometry_info.append([margin, 'margin'])
-        self._draw_markers(p, size)
-        self._update_fps()
-        if self.show_fps:
-            p.setPen(s['text_pen'])
-            p.drawText(10, axis_font_metrics.ascent(), self._fps['str'])
+                d_y = self._y_value_to_pixel(plot, d_avg)
+                if 'points_avg' not in d:
+                    d['points_avg'] = PointsF()
+                segs, nsegs = d['points_avg'].set_line(d_x_segment, d_y)
+                p.setPen(s['plot1_trace'])
+                p.drawPolyline(segs)
+            p.setClipping(False)
 
     def _draw_markers(self, p, size):
         pass  # todo
+
+    def _draw_fps(self, p):
+        s = self._style
+        self._update_fps()
+        if self.show_fps:
+            p.setPen(s['text_pen'])
+            p.drawText(10, s['axis_font_metrics'].ascent(), self._fps['str'])
 
     def _target_lookup_by_pos(self, pos):
         """Get the target object.
@@ -958,7 +984,7 @@ class WaveformWidget(QtWidgets.QWidget):
         cursor = self._CURSOR_ARROW
         if y_name is None:
             pass
-        elif y_name.startswith('spacer.'):
+        elif y_name.startswith('spacer.') and y_name not in ['spacer.ignore']:
             cursor = self._CURSOR_SIZE_VER
         elif y_name.startswith('plot.') and x_name.startswith('plot'):
             cursor = self._CURSOR_CROSS
@@ -990,22 +1016,22 @@ class WaveformWidget(QtWidgets.QWidget):
         x_name, y_name = self._target_lookup_by_pos(event)
         self._log.info(f'mouse press {x_name, y_name}')
         if event.button() == QtCore.Qt.LeftButton:
-            if y_name.startswith('spacer'):
+            if y_name.startswith('spacer') and y_name not in ['spacer.ignore']:
                 idx = int(y_name.split('.')[1])
-                y_start, _ = _target_lookup_by_name(self._y_geometry_info, y_name)
+                _, y_start, _ = self._y_geometry_info[y_name]
                 self._mouse_action = ['move.spacer', idx, y, y_start, y]
             else:
                 self._mouse_action = None
         if event.button() == QtCore.Qt.RightButton:
             if y_name.startswith('plot.'):
                 idx = int(y_name.split('.')[1])
-                if x_name.startswith('axis'):
+                if x_name.startswith('y_axis'):
                     self._menu_y_axis(idx, event)
                 elif x_name.startswith('plot'):
                     self._menu_plot(idx, event)
                 elif x_name.startswith('statistics'):
                     self._menu_statistics(idx, event)
-            elif y_name == 'header':
+            elif y_name == 'x_axis':
                 if x_name.startswith('plot'):
                     self._menu_header(event)
 
@@ -1141,12 +1167,12 @@ class WaveformWidget(QtWidgets.QWidget):
             is_pan = True
         is_y = QtCore.Qt.KeyboardModifier.ControlModifier & event.modifiers()
 
-        if x_name == 'plot' and (y_name == 'header' or not is_y):
+        if x_name == 'plot' and (y_name == 'x_axis' or not is_y):
             if is_pan:
                 self._on_x_pan(delta)
             else:
                 self._on_x_zoom(delta)
-        elif y_name.startswith('plot.') and (is_y or x_name == 'axis'):
+        elif y_name.startswith('plot.') and (is_y or x_name == 'y_axis'):
             plot_idx = int(y_name.split('.')[1])
             plot = self.state['plots'][plot_idx]
             if is_pan:
