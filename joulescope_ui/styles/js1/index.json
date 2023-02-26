@@ -37,10 +37,7 @@
         "arrow_up.svg",
         "close.svg",
         "detach.svg",
-        "tabs_menu.svg",
-        "zoom_all.svg",
-        "zoom_in.svg",
-        "zoom_out.svg"
+        "tabs_menu.svg"
       ],
       "targets": [
         ["{basename}_disabled{ext}", {"#000000": "js1.clickable_disabled"}],

@@ -17,6 +17,7 @@ from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topi
 from joulescope_ui.styles import styled_widget, color_as_qcolor, font_as_qfont
 from joulescope_ui.widget_tools import settings_action_create
 from .line_segments import PointsF
+from .waveform_control import WaveformControlWidget
 import copy
 import logging
 import numpy as np
@@ -101,6 +102,7 @@ class _PlotWidget(QtWidgets.QWidget):
     def __init__(self, parent):
         self._parent = parent
         super().__init__(parent)
+        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.setMouseTracking(True)
 
     def paintEvent(self, event):
@@ -218,10 +220,10 @@ class WaveformWidget(QtWidgets.QWidget):
             'dtype': 'int',
             'brief': N_('Show the minimum and maximum extents fill.'),
             'options': [
-                [0, 'off'],
-                [1, 'lines'],
-                [2, 'fill'],
-                [3, 'fill + std'],
+                [0, N_('off')],
+                [1, N_('lines')],
+                [2, N_('fill 1')],
+                [3, N_('fill 2')],
             ],
             'default': 3,
         },
@@ -275,6 +277,9 @@ class WaveformWidget(QtWidgets.QWidget):
 
         self._graphics = _PlotWidget(self)
         self._layout.addWidget(self._graphics)
+        self._control = WaveformControlWidget(self)
+        self._layout.addWidget(self._control)
+
         self._x_geometry_info = {}
         self._y_geometry_info = {}
         self._mouse_action = None
@@ -344,6 +349,8 @@ class WaveformWidget(QtWidgets.QWidget):
             self.state = copy.deepcopy(_STATE_DEFAULT)
         self.pubsub.subscribe('registry_manager/capabilities/signal_buffer.source/list',
                               self._on_source_list_fn, ['pub', 'retain'])
+        topic = get_topic_name(self)
+        self._control.on_pubsub_register(self.pubsub, topic)
 
     def closeEvent(self, event):
         self.pubsub.unsubscribe_all(self._on_source_list_fn)
@@ -1135,9 +1142,37 @@ class WaveformWidget(QtWidgets.QWidget):
         self._style_cache = None
         self.update()
 
-    def _on_x_zoom(self, zoom):
-        self._log.info(f'_on_x_zoom {zoom}')
-        # todo
+    def on_action_markers(self, value):
+        """Perform a marker action.
+
+        :param value: Either the action string or details for markers.
+            Action strings include: add_single, add_dual, clear_all
+        """
+        self._log.info('markers %s', value)
+        if isinstance(value, str):
+            if value == 'add_single':
+                pass
+            elif value == 'add_dual':
+                pass
+            elif value == 'clear_all':
+                pass
+            else:
+                raise ValueError(f'Unsupported marker action {value}')
+        else:
+            raise NotImplementedError(f'Unsupported marker action {value}')
+
+    def on_action_x_zoom(self, value):
+        """Perform a zoom action.
+
+        :param value: The number of steps to zoom.  Positive zooms in,
+            negative zooms out.
+        """
+        self._log.info('x_zoom %s', value)
+
+    def on_action_x_zoom_all(self):
+        """Perform a zoom action to the full extents.
+        """
+        self._log.info('x_zoom_all')
 
     def _on_x_pan(self, pan):
         self._log.info(f'_on_x_pan {pan}')
@@ -1171,7 +1206,8 @@ class WaveformWidget(QtWidgets.QWidget):
             if is_pan:
                 self._on_x_pan(delta)
             else:
-                self._on_x_zoom(delta)
+                topic = get_topic_name(self)
+                self.pubsub.publish(f'{topic}/actions/!x_zoom', delta)
         elif y_name.startswith('plot.') and (is_y or x_name == 'y_axis'):
             plot_idx = int(y_name.split('.')[1])
             plot = self.state['plots'][plot_idx]
