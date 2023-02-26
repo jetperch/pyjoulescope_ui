@@ -19,7 +19,10 @@ QPushButton#marker_add2,
 QPushButton#marker_clear,
 QPushButton#zoom_in,
 QPushButton#zoom_out,
-QPushButton#zoom_all {
+QPushButton#zoom_all,
+QPushButton#pin_left,
+QPushButton#pin_right
+{
     background: transparent;
     border-width: 0px;
     image: none;
@@ -48,3 +51,13 @@ QPushButton#zoom_out:enabled:hover { image: url("{% path %}/zoom_out_hover.svg")
 QPushButton#zoom_all:disabled      { image: url("{% path %}/zoom_all_disabled.svg"); }
 QPushButton#zoom_all:enabled       { image: url("{% path %}/zoom_all_enabled.svg"); }
 QPushButton#zoom_all:enabled:hover { image: url("{% path %}/zoom_all_hover.svg"); }
+
+QPushButton#pin_left:disabled      { image: url("{% path %}/pin_left_disabled.svg"); }
+QPushButton#pin_left:enabled       { image: url("{% path %}/pin_left_enabled.svg"); }
+QPushButton#pin_left:enabled:hover { image: url("{% path %}/pin_left_hover.svg"); }
+QPushButton#pin_left:checked       { image: url("{% path %}/pin_left_pressed.svg"); }
+
+QPushButton#pin_right:disabled      { image: url("{% path %}/pin_right_disabled.svg"); }
+QPushButton#pin_right:enabled       { image: url("{% path %}/pin_right_enabled.svg"); }
+QPushButton#pin_right:enabled:hover { image: url("{% path %}/pin_right_hover.svg"); }
+QPushButton#pin_right:checked       { image: url("{% path %}/pin_right_pressed.svg"); }

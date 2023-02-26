@@ -23,6 +23,7 @@ def tooltip_format(header: str, body: str) -> str:
         a paragraph.
     :return: The HTML formatted tooltip.
     """
+    is_in_list = False
     if body is None:
         body = ''
     elif not body.startswith('<'):
@@ -36,7 +37,18 @@ def tooltip_format(header: str, body: str) -> str:
                     between = False
                 else:
                     parts.append('\n')
-                parts.append(line)
+                if line.startswith('*'):
+                    if not is_in_list:
+                        parts.append('<ul>')
+                        is_in_list = True
+                    parts.append('<li>')
+                    parts.append(line[1:].strip())
+                    parts.append('</li>')
+                else:
+                    if is_in_list:
+                        parts.append('</ul>')
+                        is_in_list = False
+                    parts.append(line)
             elif not between:
                 parts.append('</p>')
                 between = True

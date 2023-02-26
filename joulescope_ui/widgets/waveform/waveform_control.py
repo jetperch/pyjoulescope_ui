@@ -94,6 +94,22 @@ _TOOLTIP_X_AXIS_ZOOM_ALL = tooltip_format(
     N_("""\
     Click to display the full extents of the x-axis."""))
 
+_TOOLTIP_MIN_MAX = tooltip_format(
+    N_("Show min/max extents"),
+    N_("""\
+    Change how the waveform shows the min/max extents.
+    When zoomed out, each pixel may represent many samples.
+    Displaying the min/max can allow you to see events
+    that may be missed with just the average.
+    
+    "off" only displays the average.
+    
+    "lines" displays the minimum and maximum as separate line traces.
+    
+    "fill 1" displays a filled color between the minimum and maximum.
+    
+    "fill 2" also displays an additional fill for standard deviation."""))
+
 _TOOLTIP_SIGNAL = tooltip_format(
     N_("Show/hide signals"),
     N_("""\
@@ -108,6 +124,7 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._pubsub = None
         self._topic = ''
         self._min_max_topic = None
+        self._subscribe_entries = []
         QtWidgets.QWidget.__init__(self, parent)
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self._buttons = []
@@ -115,6 +132,7 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._layout = QtWidgets.QHBoxLayout(self)
         self._layout.setObjectName("WaveformControlLayout")
         self._layout.setContentsMargins(-1, 1, -1, 1)
+        self._layout.setSpacing(5)
 
         self._markers_label = QtWidgets.QLabel(self)
         self._markers_label.setText('Markers:')
@@ -131,14 +149,19 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._add_button('zoom_in', self._on_x_axis_zoom_in, _TOOLTIP_X_AXIS_ZOOM_IN)
         self._add_button('zoom_out', self._on_x_axis_zoom_out, _TOOLTIP_X_AXIS_ZOOM_OUT)
         self._add_button('zoom_all', self._on_x_axis_zoom_all, _TOOLTIP_X_AXIS_ZOOM_ALL)
+        self._pin_left = self._add_button('pin_left', self._on_pin_left_click, '')
+        self._pin_left.setCheckable(True)
+        self._pin_right = self._add_button('pin_right', self._on_pin_right_click, '')
+        self._pin_right.setCheckable(True)
 
         self._show_min_max_label = QtWidgets.QLabel(self)
         self._show_min_max_label.setText('Min/Max:')
+        self._show_min_max_label.setToolTip(_TOOLTIP_MIN_MAX)
         self._layout.addWidget(self._show_min_max_label)
 
         self._min_max_sel = QtWidgets.QComboBox(self)
+        self._min_max_sel.setToolTip(_TOOLTIP_MIN_MAX)
         self._layout.addWidget(self._min_max_sel)
-        self._on_min_max_fn = self._on_min_max
         self._min_max_sel.currentIndexChanged.connect(self._on_min_max_sel)
 
         self._signals_label = QtWidgets.QLabel(self)
@@ -159,6 +182,10 @@ class WaveformControlWidget(QtWidgets.QWidget):
                                              QtWidgets.QSizePolicy.Minimum)
         self._layout.addItem(self._spacer)
 
+    def _subscribe(self, topic, fn, flags=None):
+        self._pubsub.subscribe(topic, fn, flags)
+        self._subscribe_entries.append((topic, fn))
+
     def on_pubsub_register(self, pubsub, topic):
         self._pubsub = pubsub
         self._topic = topic
@@ -166,16 +193,36 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._min_max_topic = f'{self._topic}/settings/show_min_max'
         meta = self._pubsub.metadata(self._min_max_topic)
         comboBoxConfig(self._min_max_sel, [x[1] for x in meta.options])
-        self._pubsub.subscribe(self._min_max_topic, self._on_min_max, ['pub', 'retain'])
+        self._subscribe(self._min_max_topic, self._on_min_max, ['pub', 'retain'])
+        self._subscribe(f'{self._topic}/settings/pin_left', self._on_pin_left, ['pub', 'retain'])
+        self._subscribe(f'{self._topic}/settings/pin_right', self._on_pin_right, ['pub', 'retain'])
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
-        self._pubsub.unsubscribe(self._min_max_topic, self._on_min_max_fn)
+        for topic, fn in self._subscribe_entries:
+            self._pubsub.unsubscribe(topic, fn)
+        self._subscribe_entries.clear()
         return super().closeEvent(event)
 
     def _on_min_max(self, value):
         block_signals_state = self._min_max_sel.blockSignals(True)
         self._min_max_sel.setCurrentIndex(value)
         self._min_max_sel.blockSignals(block_signals_state)
+
+    def _on_pin_left(self, value):
+        block_signals_state = self._pin_left.blockSignals(True)
+        self._pin_left.setChecked(bool(value))
+        self._pin_left.blockSignals(block_signals_state)
+
+    def _on_pin_right(self, value):
+        block_signals_state = self._pin_right.blockSignals(True)
+        self._pin_right.setChecked(bool(value))
+        self._pin_right.blockSignals(block_signals_state)
+
+    def _on_pin_left_click(self, value):
+        self._pubsub.publish(f'{self._topic}/settings/pin_left', bool(value))
+
+    def _on_pin_right_click(self, value):
+        self._pubsub.publish(f'{self._topic}/settings/pin_right', bool(value))
 
     def _on_min_max_sel(self, index):
         self._pubsub.publish(self._min_max_topic, index)
@@ -188,6 +235,7 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._layout.addWidget(b)
         b.clicked.connect(callback)
         self._buttons.append(b)
+        return b
 
     def _add_signal(self, signal):
         b = QtWidgets.QPushButton(self)
@@ -238,3 +286,11 @@ class WaveformControlWidget(QtWidgets.QWidget):
     @QtCore.Slot(bool)
     def _on_x_axis_zoom_all(self, checked):
         self._pubsub.publish(f'{self._topic}/actions/!x_zoom_all', None)
+
+    @QtCore.Slot(bool)
+    def _on_pin_oldest(self, checked):
+        pass
+
+    @QtCore.Slot(bool)
+    def _on_pin_newest(self, checked):
+        pass

@@ -114,6 +114,10 @@ class _PlotWidget(QtWidgets.QWidget):
     def resizeEvent(self, event):
         self._parent.plot_resizeEvent(event)
 
+    def leaveEvent(self, event):
+        self._parent.plot_leaveEvent(event)
+        return super().leaveEvent(event)
+
     def mousePressEvent(self, event):
         self._parent.plot_mousePressEvent(event)
 
@@ -237,6 +241,16 @@ class WaveformWidget(QtWidgets.QWidget):
             'brief': 'The x-axis range.',
             'default': [0, 30 * time64.SECOND],
             'flags': ['hidden', 'ro', 'skip_undo'],  # publish only
+        },
+        'pin_left': {
+            'dtype': 'bool',
+            'brief': N_('Pin the left-hand side (oldest) data so that it stays in view.'),
+            'default': True,
+        },
+        'pin_right': {
+            'dtype': 'bool',
+            'brief': N_('Pin the right-hand side (newest) data so that it stays in view.'),
+            'default': True,
         },
         'state': {
             'dtype': 'obj',
@@ -691,6 +705,9 @@ class WaveformWidget(QtWidgets.QWidget):
         self._repaint_request = True
         h = event.size().height()
         self._plots_height_adjust(h)
+
+    def plot_leaveEvent(self, event):
+        self.setCursor(self._CURSOR_ARROW)
 
     def plot_paint(self, p, size):
         try:
