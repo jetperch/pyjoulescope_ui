@@ -95,22 +95,6 @@ _STATE_DEFAULT = {
 }
 
 
-class _SummaryWidget(QtWidgets.QWidget):
-    def __init__(self, parent):
-        self._parent = parent
-        super().__init__(parent)
-        height = 40
-        self.setMinimumHeight(height)
-        self.setMaximumHeight(height)
-        #self.setMouseTracking(True)
-
-    def paintEvent(self, event):
-        size = self.width(), self.height()
-        painter = QtGui.QPainter(self)  # calls begin()
-        self._parent.plot_summary(painter, size)
-
-
-
 class _PlotWidget(QtWidgets.QWidget):
     """The inner plot widget that simply calls back to the Waveform widget."""
 
@@ -264,6 +248,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._log = logging.getLogger(__name__)
         self.pubsub = None
         self.state = None
+        self._style_cache = None
         super().__init__(parent)
 
         # Cache Qt default instances to prevent memory leak in Pyside6 6.4.2
@@ -287,9 +272,6 @@ class WaveformWidget(QtWidgets.QWidget):
         self._layout = QtWidgets.QVBoxLayout(self)
         self._layout.setSpacing(0)
         self._layout.setContentsMargins(0, 0, 0, 0)
-
-        self._summary = _SummaryWidget(self)
-        self._layout.addWidget(self._summary)
 
         self._graphics = _PlotWidget(self)
         self._layout.addWidget(self._graphics)
@@ -575,6 +557,46 @@ class WaveformWidget(QtWidgets.QWidget):
             self._nan_idx(data)
         return data['finite_idx']
 
+    @property
+    def _style(self):
+        if self._style_cache is not None:
+            return self._style_cache
+        if not hasattr(self, 'style_manager_info'):
+            self._style_cache = None
+        v = self.style_manager_info['sub_vars']
+
+        axis_font = font_as_qfont(v['waveform.axis_font'])
+        axis_font_metrics = QtGui.QFontMetrics(axis_font)
+        y_tick_size = axis_font_metrics.boundingRect('888.888')
+
+        self._style_cache = {
+            'background_brush': QtGui.QBrush(color_as_qcolor(v['waveform.background'])),
+
+            'text_pen': QtGui.QPen(color_as_qcolor(v['waveform.text_foreground'])),
+            'text_brush': QtGui.QBrush(color_as_qcolor(v['waveform.text_background'])),
+            'grid_major_pen': QtGui.QPen(color_as_qcolor(v['waveform.grid_major'])),
+            'grid_minor_pen': QtGui.QPen(color_as_qcolor(v['waveform.grid_minor'])),
+            'plot_border_pen': QtGui.QPen(color_as_qcolor(v['waveform.plot_border'])),
+            'plot_separator_brush': QtGui.QBrush(color_as_qcolor(v['waveform.plot_separator'])),
+
+            'plot1_trace': QPen(color_as_qcolor(v['waveform.plot1_trace'])),
+            'plot1_min_max_trace': QPen(color_as_qcolor(v['waveform.plot1_min_max_trace'])),
+            'plot1_min_max_fill': QBrush(color_as_qcolor(v['waveform.plot1_min_max_fill'])),
+            'plot1_std_fill': QBrush(color_as_qcolor(v['waveform.plot1_std_fill'])),
+            'plot1_missing': QBrush(color_as_qcolor(v['waveform.plot1_missing'])),
+
+            'axis_font': axis_font,
+            'axis_font_metrics': QtGui.QFontMetrics(axis_font),
+            'plot_label_size': axis_font_metrics.boundingRect('WW'),
+            'y_tick_size': y_tick_size,
+            'y_tick_height_pixels_min': 1.5 * y_tick_size.height(),
+            'utc_width_pixels': axis_font_metrics.boundingRect('8888-88-88W88:88:88.888888').width(),
+            'x_tick_width_pixels_min': axis_font_metrics.boundingRect('888.888888').width(),
+            'statistics_size': axis_font_metrics.boundingRect('WWW +888.8888 WW'),
+        }
+        self._style_cache['plot1_trace'].setWidth(self.trace_width)
+        return self._style_cache
+
     def _plot_range_auto_update(self, plot):
         if plot['range_mode'] != 'auto':
             return
@@ -663,28 +685,11 @@ class WaveformWidget(QtWidgets.QWidget):
                         break
 
     def _header_height(self):
-        if not hasattr(self, 'style_manager_info'):
+        s = self._style
+        if s is None:
             return 0
-        v = self.style_manager_info['sub_vars']
-        axis_font = font_as_qfont(v['waveform.axis_font'])
-        axis_font_metrics = QtGui.QFontMetrics(axis_font)
-        plot_label_size = axis_font_metrics.boundingRect('WW')
-        h = self._margin + plot_label_size.height() * 3
+        h = self._margin + s['plot_label_size'].height() * 3
         return h
-
-    def plot_summary(self, p, size):
-        if not hasattr(self, 'style_manager_info'):
-            return
-        self._repaint_request = False
-        v = self.style_manager_info['sub_vars']
-        widget_w, widget_h = size
-        background_brush = QtGui.QBrush(color_as_qcolor(v['waveform.background']))
-        p.fillRect(0, 0, widget_w, widget_h, background_brush)
-
-        plot1_trace = QPen(color_as_qcolor(v['waveform.plot1_trace']))
-        plot1_trace.setWidth(self.trace_width)
-        plot1_min_max_fill = QBrush(color_as_qcolor(v['waveform.plot1_min_max_fill']))
-
 
     def plot_resizeEvent(self, event):
         self._repaint_request = True
@@ -707,49 +712,24 @@ class WaveformWidget(QtWidgets.QWidget):
         :param p: The QPainter instance.
         :param size: The (width, height) for the plot area.
         """
-        if not hasattr(self, 'style_manager_info'):
+        s = self._style
+        if s is None:
             return
         self._repaint_request = False
-        v = self.style_manager_info['sub_vars']
         widget_w, widget_h = size
 
         # draw the background
-        background_brush = QtGui.QBrush(color_as_qcolor(v['waveform.background']))
-        p.fillRect(0, 0, widget_w, widget_h, background_brush)
-
-        # compute dimensions
-        axis_font = font_as_qfont(v['waveform.axis_font'])
-        text_pen = QtGui.QPen(color_as_qcolor(v['waveform.text_foreground']))
-        text_brush = QtGui.QBrush(color_as_qcolor(v['waveform.text_background']))
-        grid_major_pen = QtGui.QPen(color_as_qcolor(v['waveform.grid_major']))
-        grid_minor_pen = QtGui.QPen(color_as_qcolor(v['waveform.grid_minor']))
-        plot_border_pen = QtGui.QPen(color_as_qcolor(v['waveform.plot_border']))
-        plot_separator_brush = QtGui.QBrush(color_as_qcolor(v['waveform.plot_separator']))
-
-        plot1_trace = QPen(color_as_qcolor(v['waveform.plot1_trace']))
-        plot1_trace.setWidth(self.trace_width)
-        plot1_min_max_trace = QPen(color_as_qcolor(v['waveform.plot1_min_max_trace']))
-        plot1_min_max_fill = QBrush(color_as_qcolor(v['waveform.plot1_min_max_fill']))
-        plot1_std_fill = QBrush(color_as_qcolor(v['waveform.plot1_std_fill']))
-        plot1_missing = QBrush(color_as_qcolor(v['waveform.plot1_missing']))
-
-        axis_font_metrics = QtGui.QFontMetrics(axis_font)
-        plot_label_size = axis_font_metrics.boundingRect('WW')
-        y_tick_size = axis_font_metrics.boundingRect('888.888')
-        y_tick_height_pixels_min = 1.5 * y_tick_size.height()
-        utc_width_pixels = axis_font_metrics.boundingRect('8888-88-88W88:88:88.888888').width()
-        x_tick_width_pixels_min = axis_font_metrics.boundingRect('888.888888').width()
-        statistics_size = axis_font_metrics.boundingRect('WWW +888.8888 WW')
+        p.fillRect(0, 0, widget_w, widget_h, s['background_brush'])
 
         margin = self._margin
         y_inner_spacing = _Y_INNER_SPACING
-        left_margin = margin + plot_label_size.width() + margin + y_tick_size.width() + margin
-        right_margin = margin + statistics_size.width() + margin
+        left_margin = margin + s['plot_label_size'].width() + margin + s['y_tick_size'].width() + margin
+        right_margin = margin + s['statistics_size'].width() + margin
         plot_width = widget_w - left_margin - right_margin
 
-        p.setPen(text_pen)
-        p.setBrush(text_brush)
-        p.setFont(axis_font)
+        p.setPen(s['text_pen'])
+        p.setBrush(s['text_brush'])
+        p.setFont(s['axis_font'])
 
         # compute total plot height
         top_margin = self._header_height()
@@ -757,11 +737,11 @@ class WaveformWidget(QtWidgets.QWidget):
         y_end += self._plots_height()
 
         # compute time and draw x-axis including UTC, seconds, grid
-        y = margin + 2 * plot_label_size.height()
+        y = margin + 2 * s['plot_label_size'].height()
         x_range64 = self.x_range
         x_duration_s = (x_range64[1] - x_range64[0]) / time64.SECOND
         if x_duration_s > 0:
-            x_tick_width_time_min = x_tick_width_pixels_min / (plot_width / x_duration_s)
+            x_tick_width_time_min = s['x_tick_width_pixels_min'] / (plot_width / x_duration_s)
         else:
             x_tick_width_time_min = 1e-6
         tick_spacing = _tick_spacing(x_range64[0], x_range64[1], x_tick_width_time_min)
@@ -775,28 +755,28 @@ class WaveformWidget(QtWidgets.QWidget):
         x_range_trel = [self._x_time64_to_trel(i) for i in self.x_range]
 
         x_grid = _ticks(x_range_trel[0], x_range_trel[1], x_tick_width_time_min)
-        y_text = y + axis_font_metrics.ascent()
+        y_text = y + s['axis_font_metrics'].ascent()
 
         x_offset = self._x_trel_offset()
         try:
             x_offset_str = time64.as_datetime(x_offset).isoformat()
         except OSError as ex:
             print(ex)
-        p.drawText(left_margin, margin + plot_label_size.height() + axis_font_metrics.ascent(), x_offset_str)
+        p.drawText(left_margin, margin + s['plot_label_size'].height() + s['axis_font_metrics'].ascent(), x_offset_str)
         p.drawText(margin, y_text, 's')
-        self._draw_text(p, margin, margin + 2 * plot_label_size.height() + axis_font_metrics.ascent(), 's')
+        self._draw_text(p, margin, margin + 2 * s['plot_label_size'].height() + s['axis_font_metrics'].ascent(), 's')
         if x_grid is None:
             pass
         else:
             for idx, x in enumerate(self._x_trel_to_pixel(x_grid['major'])):
-                p.setPen(text_pen)
+                p.setPen(s['text_pen'])
                 p.drawText(x + 2, y_text, x_grid['labels'][idx])
-                p.setPen(grid_major_pen)
+                p.setPen(s['grid_major_pen'])
                 p.drawLine(x, y, x, y_end)
             # todo unit_prefix
 
             y = top_margin
-            p.setPen(grid_minor_pen)
+            p.setPen(s['grid_minor_pen'])
             for x in self._x_trel_to_pixel(x_grid['minor']):
                 p.drawLine(x, y, x, y_end)
         y = top_margin
@@ -811,7 +791,7 @@ class WaveformWidget(QtWidgets.QWidget):
             [margin, 'margin'],
             [left_margin - margin, 'axis'],
             [plot_width, 'plot'],
-            [statistics_size.width(), 'statistics'],
+            [s['statistics_size'].width(), 'statistics'],
             [margin, 'margin']
         ]
 
@@ -821,7 +801,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
             # draw separator
             p.setPen(self._NO_PEN)
-            p.setBrush(plot_separator_brush)
+            p.setBrush(s['plot_separator_brush'])
             p.drawRect(0, y + 3, widget_w, y_inner_spacing - 6)
             y += y_inner_spacing
             if plot_idx != 0:
@@ -829,7 +809,7 @@ class WaveformWidget(QtWidgets.QWidget):
             self._y_geometry_info.append([h, f'plot.{plot_idx}'])
 
             # draw border
-            p.setPen(plot_border_pen)
+            p.setPen(s['plot_border_pen'])
             p.setBrush(self._NO_BRUSH)
             # p.drawRect(left_margin, y, plot_width, h)
             p.drawLine(left_margin, y, left_margin, y + h)
@@ -841,16 +821,17 @@ class WaveformWidget(QtWidgets.QWidget):
             plot['y_map'] = (y, y_range[1], y_scale)
 
             # draw y-axis grid
-            p.setFont(axis_font)
-            y_tick_height_value_min = y_tick_height_pixels_min / plot['y_map'][-1]
+            p.setFont(s['axis_font'])
+            y_tick_height_value_min = s['y_tick_height_pixels_min'] / plot['y_map'][-1]
             y_grid = _ticks(y_range[0], y_range[1], y_tick_height_value_min)
+            axis_font_metrics = s['axis_font_metrics']
             if y_grid is not None:
                 for idx, t in enumerate(self._y_value_to_pixel(plot, y_grid['major'])):
-                    p.setPen(text_pen)
-                    s = y_grid['labels'][idx]
-                    w = axis_font_metrics.boundingRect(s).width()
-                    p.drawText(left_margin - 4 - w, t + axis_font_metrics.ascent() // 2, s)
-                    p.setPen(grid_major_pen)
+                    p.setPen(s['text_pen'])
+                    s_label = y_grid['labels'][idx]
+                    w = axis_font_metrics.boundingRect(s_label).width()
+                    p.drawText(left_margin - 4 - w, t + axis_font_metrics.ascent() // 2, s_label)
+                    p.setPen(s['grid_major_pen'])
                     p.drawLine(left_margin, t, left_margin + plot_width, t)
 
                 #p.setPen(grid_minor_pen)
@@ -859,14 +840,14 @@ class WaveformWidget(QtWidgets.QWidget):
 
             # draw label
             plot_type = _PLOT_TYPES[plot['quantity']]
-            p.setPen(text_pen)
-            p.setFont(axis_font)
+            p.setPen(s['text_pen'])
+            p.setFont(s['axis_font'])
             plot_units = plot_type.get('units')
             if plot_units is None:
-                s = plot['quantity']
+                s_label = plot['quantity']
             else:
-                s = f"{y_grid['unit_prefix']}{plot_units}"
-            p.drawText(self._margin, y + (h + axis_font_metrics.ascent()) // 2, s)
+                s_label = f"{y_grid['unit_prefix']}{plot_units}"
+            p.drawText(self._margin, y + (h + axis_font_metrics.ascent()) // 2, s_label)
 
             for signal in plot['signals']:
                 d = self._signals.get(signal)
@@ -892,7 +873,7 @@ class WaveformWidget(QtWidgets.QWidget):
                         change_idx = change_idx[2:]
 
                 p.setPen(self._NO_PEN)
-                p.setBrush(plot1_missing)
+                p.setBrush(s['plot1_missing'])
                 if len(segment_idx) > 1:
                     segment_idx_last = segment_idx[0][1]
                     for idx_start, idx_stop in segment_idx[1:]:
@@ -911,7 +892,7 @@ class WaveformWidget(QtWidgets.QWidget):
                             if 'line_min' not in d or 'line_max' not in d:
                                 d['line_min'] = PointsF()
                                 d['line_max'] = PointsF()
-                            p.setPen(plot1_min_max_trace)
+                            p.setPen(s['plot1_min_max_trace'])
                             segs, nsegs = d['line_min'].set_line(d_x_segment, d_y_min)
                             p.drawPolyline(segs)
                             segs, nsegs = d['line_max'].set_line(d_x_segment, d_y_max)
@@ -921,7 +902,7 @@ class WaveformWidget(QtWidgets.QWidget):
                                 d['points_min_max'] = PointsF()
                             segs, nsegs = d['points_min_max'].set_fill(d_x_segment, d_y_min, d_y_max)
                             p.setPen(self._NO_PEN)
-                            p.setBrush(plot1_min_max_fill)
+                            p.setBrush(s['plot1_min_max_fill'])
                             p.drawPolygon(segs)
                             if 3 == self.show_min_max:
                                 d_std = d['std'][idx_start:idx_stop]
@@ -930,14 +911,14 @@ class WaveformWidget(QtWidgets.QWidget):
                                 if 'points_std' not in d:
                                     d['points_std'] = PointsF()
                                 segs, nsegs = d['points_std'].set_fill(d_x_segment, d_y_std_min, d_y_std_max)
-                                p.setBrush(plot1_std_fill)
+                                p.setBrush(s['plot1_std_fill'])
                                 p.drawPolygon(segs)
 
                     d_y = self._y_value_to_pixel(plot, d_avg)
                     if 'points_avg' not in d:
                         d['points_avg'] = PointsF()
                     segs, nsegs = d['points_avg'].set_line(d_x_segment, d_y)
-                    p.setPen(plot1_trace)
+                    p.setPen(s['plot1_trace'])
                     p.drawPolyline(segs)
 
             y += h
@@ -946,7 +927,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._draw_markers(p, size)
         self._update_fps()
         if self.show_fps:
-            p.setPen(text_pen)
+            p.setPen(s['text_pen'])
             p.drawText(10, axis_font_metrics.ascent(), self._fps['str'])
 
     def _draw_markers(self, p, size):
@@ -1125,6 +1106,7 @@ class WaveformWidget(QtWidgets.QWidget):
         return self._menu_show(event)
 
     def on_style_change(self):
+        self._style_cache = None
         self.update()
 
     def _on_x_zoom(self, zoom):
