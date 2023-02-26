@@ -94,6 +94,20 @@ _TOOLTIP_X_AXIS_ZOOM_ALL = tooltip_format(
     N_("""\
     Click to display the full extents of the x-axis."""))
 
+_TOOLTIP_PIN_LEFT = tooltip_format(
+    N_("Pin left"),
+    N_("""\
+    Pin the waveform display to the left side.
+    When enabled, the left side (oldest) data 
+    always remains in view."""))
+
+_TOOLTIP_PIN_RIGHT = tooltip_format(
+    N_("Pin right"),
+    N_("""\
+    Pin the waveform display to the right side.
+    When enabled, the right side (newest) data 
+    always remains in view."""))
+
 _TOOLTIP_MIN_MAX = tooltip_format(
     N_("Show min/max extents"),
     N_("""\
@@ -149,9 +163,9 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._add_button('zoom_in', self._on_x_axis_zoom_in, _TOOLTIP_X_AXIS_ZOOM_IN)
         self._add_button('zoom_out', self._on_x_axis_zoom_out, _TOOLTIP_X_AXIS_ZOOM_OUT)
         self._add_button('zoom_all', self._on_x_axis_zoom_all, _TOOLTIP_X_AXIS_ZOOM_ALL)
-        self._pin_left = self._add_button('pin_left', self._on_pin_left_click, '')
+        self._pin_left = self._add_button('pin_left', self._on_pin_left_click, _TOOLTIP_PIN_LEFT)
         self._pin_left.setCheckable(True)
-        self._pin_right = self._add_button('pin_right', self._on_pin_right_click, '')
+        self._pin_right = self._add_button('pin_right', self._on_pin_right_click, _TOOLTIP_PIN_RIGHT)
         self._pin_right.setCheckable(True)
 
         self._show_min_max_label = QtWidgets.QLabel(self)
@@ -175,6 +189,7 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._signal_layout.setSpacing(3)
         self._signal_holder.setLayout(self._signal_layout)
 
+        self._signals = {}
         for signal in _SIGNALS:
             self._add_signal(signal)
 #
@@ -196,12 +211,24 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._subscribe(self._min_max_topic, self._on_min_max, ['pub', 'retain'])
         self._subscribe(f'{self._topic}/settings/pin_left', self._on_pin_left, ['pub', 'retain'])
         self._subscribe(f'{self._topic}/settings/pin_right', self._on_pin_right, ['pub', 'retain'])
+        self._subscribe(f'{self._topic}/settings/state', self._on_waveform_state, ['pub', 'retain'])
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         for topic, fn in self._subscribe_entries:
             self._pubsub.unsubscribe(topic, fn)
         self._subscribe_entries.clear()
         return super().closeEvent(event)
+
+    def _on_waveform_state(self, value):
+        for plot in value['plots']:
+            name = plot['quantity']
+            try:
+                b = self._signals[name]
+            except KeyError:
+                return
+            block_signals_state = b.blockSignals(True)
+            b.setChecked(plot['enabled'])
+            b.blockSignals(block_signals_state)
 
     def _on_min_max(self, value):
         block_signals_state = self._min_max_sel.blockSignals(True)
@@ -246,14 +273,12 @@ class WaveformControlWidget(QtWidgets.QWidget):
         b.setToolTip(_TOOLTIP_SIGNAL)
         b.setFixedSize(*_BUTTON_SIZE)
         self._signal_layout.addWidget(b)
-        #button.clicked.connect(lambda checked: self._on_signal_button(name, checked))
-        #self._signals[name] = button
+        self._signals[signal] = b
+        b.clicked.connect(lambda checked: self._on_signal_button(signal, checked))
+        return b
 
     def _on_signal_button(self, name, checked):
-        if checked:
-            self._cmdp.invoke('!Widgets/Waveform/Signals/add', name)
-        else:
-            self._cmdp.invoke('!Widgets/Waveform/Signals/remove', name)
+        self._pubsub.publish(f'{self._topic}/actions/!plot_show', [name, checked])
 
     def _on_signals_active(self, topic, value):
         for name, button in self._signals.items():

@@ -75,24 +75,49 @@ _PLOT_TYPES = {
 }
 
 
+def _analog_plot(name, show):
+    return {
+        'quantity': name,
+        'enabled': bool(show),
+        'signals': [],  # list of (buffer_unique_id, signal_id)
+        'height': 200,
+        'range_mode': 'auto',
+        'range': [-0.1, 1.1],
+        'scale': 'linear',
+    }
+
+
+def _digital_plot(name):
+    return {
+        'quantity': name,
+        'enabled': False,
+        'signals': [],  # list of (buffer_unique_id, signal_id)
+        'height': 100,
+        'range_mode': 'auto',
+        'range': [-0.1, 1.1],
+        'scale': 'linear',
+    }
+
+
 _STATE_DEFAULT = {
     'plots': [
+        _analog_plot('i', True),
+        _analog_plot('v', True),
+        _analog_plot('p', False),
         {
-            'quantity': 'i',
-            'signals': [],  # list of (buffer_unique_id, signal_id)
-            'height': 200,
-            'range_mode': 'auto',
-            'range': [-0.1, 1.1],
-            'scale': 'linear',
+                'quantity': 'r',
+                'enabled': False,
+                'signals': [],  # list of (buffer_unique_id, signal_id)
+                'height': 100,
+                'range_mode': 'manual',
+                'range': [-0.1, 7.1],
+                'scale': 'linear',
         },
-        {
-            'quantity': 'v',
-            'signals': [],
-            'height': 200,
-            'range_mode': 'auto',
-            'range': [-0.1, 1.1],
-            'scale': 'linear',
-        },
+        _digital_plot('0'),
+        _digital_plot('1'),
+        _digital_plot('2'),
+        _digital_plot('3'),
+        _digital_plot('T'),
     ]
 }
 
@@ -245,12 +270,12 @@ class WaveformWidget(QtWidgets.QWidget):
         },
         'pin_left': {
             'dtype': 'bool',
-            'brief': N_('Pin the left-hand side (oldest) data so that it stays in view.'),
+            'brief': N_('Pin the left side (oldest) data so that it stays in view.'),
             'default': True,
         },
         'pin_right': {
             'dtype': 'bool',
-            'brief': N_('Pin the right-hand side (newest) data so that it stays in view.'),
+            'brief': N_('Pin the right side (newest) data so that it stays in view.'),
             'default': True,
         },
         'state': {
@@ -362,6 +387,8 @@ class WaveformWidget(QtWidgets.QWidget):
     def on_pubsub_register(self):
         if self.state is None:
             self.state = copy.deepcopy(_STATE_DEFAULT)
+        for plot_index, plot in enumerate(self.state['plots']):
+            plot['index'] = plot_index
         self.pubsub.subscribe('registry_manager/capabilities/signal_buffer.source/list',
                               self._on_source_list_fn, ['pub', 'retain'])
         topic = get_topic_name(self)
@@ -682,18 +709,18 @@ class WaveformWidget(QtWidgets.QWidget):
         for name, (k, _, _) in self._y_geometry_info.items():
             if not name.startswith('plot'):
                 h -= k
-        plots = self.state['plots']
+        plots = [p for p in self.state['plots'] if p['enabled']]
+        k = len(plots)
+        if k == 0:
+            return
         h_now = 0
         for plot in plots:
             h_now += plot['height']
         if h_now <= 0:
             return
-        plots = self.state['plots']
-        k = len(plots)
-        if k == 0:
-            return
         h_min = _Y_PLOT_MIN * k
         if h < h_min:
+            self._log.info('too short')
             h = h_min
         scale = h / h_now
         h_new = 0
@@ -756,9 +783,14 @@ class WaveformWidget(QtWidgets.QWidget):
             [s['plot_label_size'].height() * 3, 'x_axis'],
             [y_inner_spacing, 'spacer.ignore'],
         ]
-        for plot_idx, plot in enumerate(self.state['plots']):
-            if plot_idx:
+        plot_first = True
+        for plot in self.state['plots']:
+            if not plot['enabled']:
+                continue
+            plot_idx = plot['index']
+            if not plot_first:
                 y_geometry.append([y_inner_spacing, f'spacer.{plot_idx}'])
+            plot_first = False
             y_geometry.append([plot['height'], f'plot.{plot_idx}'])
         y_geometry.append([margin, 'margin.bottom'])
 
@@ -793,9 +825,10 @@ class WaveformWidget(QtWidgets.QWidget):
         self._draw_x_axis(p)
 
         # Draw each plot
-        for plot_idx, plot in enumerate(self.state['plots']):
-            plot['index'] = plot_idx
-            self._draw_plot(p, plot)
+        for plot in self.state['plots']:
+            if plot['enabled']:
+                self._draw_plot(p, plot)
+                p.setClipping(False)
         self._draw_spacers(p)
         self._draw_markers(p, size)
         self._draw_fps(p)
@@ -866,7 +899,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
         for name, (h, y0, y1) in self._y_geometry_info.items():
             if name.startswith('spacer'):
-                p.drawRect(x0, y0 + 3, w, h - 6)
+                p.drawRect(x0, y0 + 3, w, 2)
 
     def _draw_plot(self, p, plot):
         s = self._style
@@ -915,6 +948,7 @@ class WaveformWidget(QtWidgets.QWidget):
         p.drawText(left, y0 + (h + axis_font_metrics.ascent()) // 2, s_label)
 
         p.setClipRect(x0, y0, w, h)
+
         for signal in plot['signals']:
             d = self._signals.get(signal)
             if d is None or d['data'] is None:
@@ -992,7 +1026,6 @@ class WaveformWidget(QtWidgets.QWidget):
                 segs, nsegs = d['points_avg'].set_line(d_x_segment, d_y)
                 p.setPen(s['plot1_trace'])
                 p.drawPolyline(segs)
-            p.setClipping(False)
 
     def _draw_markers(self, p, size):
         pass  # todo
@@ -1038,10 +1071,13 @@ class WaveformWidget(QtWidgets.QWidget):
         if self._mouse_action is not None:
             action = self._mouse_action[0]
             if action == 'move.spacer':
-                idx = self._mouse_action[1]
+                plot_idx = self._mouse_action[1]
                 dy = y - self._mouse_action[-1]
                 self._mouse_action[-1] = y
-                plots = self.state['plots']
+                plots = [p for p in self.state['plots'] if p['enabled']]
+                for idx, plot in enumerate(plots):
+                    if plot['index'] == plot_idx:
+                        break
                 h0 = plots[idx - 1]['height']
                 h1 = plots[idx]['height']
                 d0, d1 = h0 + dy, h1 - dy
@@ -1316,3 +1352,20 @@ class WaveformWidget(QtWidgets.QWidget):
                 self._on_y_pan(plot, delta)
             else:
                 self._on_y_zoom(plot, delta)
+
+    def on_action_plot_show(self, value):
+        """Show/hide plots.
+
+        :param value: [quantity, show].  Quantity is the one character
+            identifier for the plot.  show is True to show, false to hide.
+        """
+        self._log.info('plot_show %s', value)
+        quantity, show = value
+        show = bool(show)
+        for plot in self.state['plots']:
+            if plot['quantity'] == quantity:
+                if show != plot['enabled']:
+                    plot['enabled'] = show
+                    self._plots_height_adjust(self._graphics.height())
+                return
+        self._log.warning('plot_show could not match %s', quantity)
