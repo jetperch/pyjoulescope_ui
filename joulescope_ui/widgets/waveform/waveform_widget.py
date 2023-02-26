@@ -27,6 +27,7 @@ from PySide6.QtGui import QPainter, QPen, QBrush, QColor
 from joulescope_ui.units import unit_prefix
 
 
+_ZOOM_FACTOR = np.sqrt(2)
 _WHEEL_TO_DEGREES = 1.0 / 8.0  # https://doc.qt.io/qt-6/qwheelevent.html#angleDelta
 _WHEEL_TICK_DEGREES = 15.0   # Standard convention
 _AUTO_RANGE_FRACT = 0.50  # autorange when current range smaller than existing range by this fractional amount.
@@ -239,7 +240,7 @@ class WaveformWidget(QtWidgets.QWidget):
         'x_range': {
             'dtype': 'obj',
             'brief': 'The x-axis range.',
-            'default': [0, 30 * time64.SECOND],
+            'default': [0, 0],
             'flags': ['hidden', 'ro', 'skip_undo'],  # publish only
         },
         'pin_left': {
@@ -419,7 +420,7 @@ class WaveformWidget(QtWidgets.QWidget):
         if self._repaint_request:
             self.repaint()
 
-    def _request_data(self):
+    def _extents(self):
         x_min = []
         x_max = []
         for signal in self._signals.values():
@@ -429,8 +430,28 @@ class WaveformWidget(QtWidgets.QWidget):
                 x_max.append(x_range[1])
         if 0 == len(x_min):
             return
-        x_min, x_max = min(x_min), max(x_max)
-        self.x_range = (x_min, x_max)  # todo support zoom and pan
+        return min(x_min), max(x_max)
+
+    def _compute_x_range(self):
+        e0, e1 = self._extents()
+        x0, x1 = self.x_range
+        d_e = e1 - e0
+        d_x = x1 - x0
+        d_z = min(d_e, d_x)
+        if x0 == 0 and x1 == 0:
+            return e0, e1
+        elif self.pin_left and self.pin_right:
+            return e0, e1
+        elif self.pin_right:
+            return e1 - d_z, e1
+        elif self.pin_left:
+            return e0, e0 + d_z
+        else:
+            x0 = max(x0, e0)
+            return x0, x0 + d_z
+
+    def _request_data(self):
+        self.x_range = self._compute_x_range()
         for signal in self._signals.values():
             if signal['changed'] and signal['enabled']:
                 signal['changed'] = None
@@ -516,7 +537,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _x_pixel_to_time64(self, pixel):
         pixel_offset, _, time_zero_offset, time_to_pixel_scale = self._x_map
-        return time_zero_offset + (pixel - pixel_offset) * (1.0 / time_to_pixel_scale)
+        return time_zero_offset + int((pixel - pixel_offset) * (1.0 / time_to_pixel_scale))
 
     def _x_time64_to_trel(self, t64):
         offset = self._x_trel_offset()
@@ -1033,6 +1054,23 @@ class WaveformWidget(QtWidgets.QWidget):
                 plots[idx - 1]['height'] = d0
                 plots[idx]['height'] = d1
                 self.repaint()
+            if action == 'x_pan':
+                self._mouse_x_pan(x)
+
+    def _mouse_x_pan(self, x):
+        t0 = self._x_pixel_to_time64(self._mouse_action[1])
+        t1 = self._x_pixel_to_time64(x)
+        self._mouse_action[1] = x
+        e0, e1 = self._extents()
+        dt = t0 - t1
+        x0, x1 = self.x_range
+        d_x = x1 - x0
+        z0, z1 = x0 + dt, x1 + dt
+        if self.pin_left or z0 < e0:
+            z0, z1 = e0, e0 + d_x
+        elif self.pin_right or z1 > e1:
+            z0, z1 = e1 - d_x, e1
+        self.x_range = z0, z1
 
     def plot_mousePressEvent(self, event: QtGui.QMouseEvent):
         event.accept()
@@ -1044,6 +1082,11 @@ class WaveformWidget(QtWidgets.QWidget):
                 idx = int(y_name.split('.')[1])
                 _, y_start, _ = self._y_geometry_info[y_name]
                 self._mouse_action = ['move.spacer', idx, y, y_start, y]
+            elif y_name.startswith('plot') and x_name == 'plot':
+                if self.pin_left or self.pin_right:
+                    pass  # pinned to extents, cannot pan
+                else:
+                    self._mouse_action = ['x_pan', x]
             else:
                 self._mouse_action = None
         if event.button() == QtCore.Qt.RightButton:
@@ -1181,19 +1224,59 @@ class WaveformWidget(QtWidgets.QWidget):
     def on_action_x_zoom(self, value):
         """Perform a zoom action.
 
-        :param value: The number of steps to zoom.  Positive zooms in,
-            negative zooms out.
+        :param value: [steps, center].  Steps is the number of incremental
+            steps to zoom.  Center is the x-axis time center point for the zoom.
+            If Center is None, use the screen center.
         """
+        steps, center = value
+        if steps == 0:
+            return
         self._log.info('x_zoom %s', value)
+        if self.pin_left and self.pin_right:
+            return  # already locked to full extents
+        e0, e1 = self._extents()
+        x0, x1 = self.x_range
+        d_e = e1 - e0
+        d_x = x1 - x0
+        if center is None:
+            center = (x1 + x0) // 2
+        center = max(x0, min(center, x1))
+        f = (center - x0) / d_x
+        if steps < 0:  # zoom out
+            d_x = d_x * _ZOOM_FACTOR
+        else:
+            d_x = d_x / _ZOOM_FACTOR
+        r = min(d_x, d_e)
+        z0, z1 = center - int(r * f), center + int(r * (1 - f))
+        if self.pin_left or z0 < e0:
+            z0, z1 = e0, e0 + r
+        elif self.pin_right or z1 > e1:
+            z0, z1 = e1 - r, e1
+        self._repaint_request = True
+        self.x_range = z0, z1
 
     def on_action_x_zoom_all(self):
         """Perform a zoom action to the full extents.
         """
         self._log.info('x_zoom_all')
+        self._repaint_request = True
+        self.x_range = self._extents()
 
     def _on_x_pan(self, pan):
         self._log.info(f'_on_x_pan {pan}')
-        # todo
+        if self.pin_left or self.pin_right:
+            return  # locked to extents
+        e0, e1 = self._extents()
+        x0, x1 = self.x_range
+        d_x = x1 - x0
+        p = int(d_x * 0.25 * pan)
+        z0, z1 = x0 + p, x1 + p
+        if z0 < e0:
+            z0, z1 = e0, e0 + d_x
+        elif self.pin_right or z1 > e1:
+            z0, z1 = e1 - d_x, e1
+        self._repaint_request = True
+        self.x_range = z0, z1
 
     def _on_y_zoom(self, plot, zoom):
         self._log.info(f'_on_y_zoom {plot["quantity"]} {zoom}')
@@ -1223,8 +1306,9 @@ class WaveformWidget(QtWidgets.QWidget):
             if is_pan:
                 self._on_x_pan(delta)
             else:
+                t = self._x_pixel_to_time64(self._mouse_pos[0])
                 topic = get_topic_name(self)
-                self.pubsub.publish(f'{topic}/actions/!x_zoom', delta)
+                self.pubsub.publish(f'{topic}/actions/!x_zoom', [delta, t])
         elif y_name.startswith('plot.') and (is_y or x_name == 'y_axis'):
             plot_idx = int(y_name.split('.')[1])
             plot = self.state['plots'][plot_idx]
@@ -1232,4 +1316,3 @@ class WaveformWidget(QtWidgets.QWidget):
                 self._on_y_pan(plot, delta)
             else:
                 self._on_y_zoom(plot, delta)
-

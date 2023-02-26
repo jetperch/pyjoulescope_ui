@@ -277,11 +277,11 @@ class WaveformControlWidget(QtWidgets.QWidget):
 
     @QtCore.Slot(bool)
     def _on_x_axis_zoom_in(self, checked):
-        self._pubsub.publish(f'{self._topic}/actions/!x_zoom', 1)
+        self._pubsub.publish(f'{self._topic}/actions/!x_zoom', [1, None])
 
     @QtCore.Slot(bool)
     def _on_x_axis_zoom_out(self, checked):
-        self._pubsub.publish(f'{self._topic}/actions/!x_zoom', -1)
+        self._pubsub.publish(f'{self._topic}/actions/!x_zoom', [-1, None])
 
     @QtCore.Slot(bool)
     def _on_x_axis_zoom_all(self, checked):
