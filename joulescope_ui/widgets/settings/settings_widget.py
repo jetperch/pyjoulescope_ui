@@ -159,7 +159,10 @@ class SettingsEditorWidget(_GridWidget):
         widget.currentIndexChanged.connect(lambda idx: pubsub_singleton.publish(topic, options[idx]))
 
         def handle(v):
-            comboBoxSelectItemByText(widget, v, block=True)
+            if isinstance(v, str):
+                comboBoxSelectItemByText(widget, v, block=True)
+            elif isinstance(v, int):
+                widget.setCurrentIndex(v)
 
         self._subscribe(topic, handle)
 
