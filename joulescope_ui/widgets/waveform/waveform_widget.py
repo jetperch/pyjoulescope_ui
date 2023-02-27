@@ -1190,9 +1190,12 @@ class WaveformWidget(QtWidgets.QWidget):
         y = y0 + f_a
         p.setClipRect(x0, y0, xd, yd)
         x2 = x0 + s['statistics_name_size']
+        x3 = x2 + s['statistics_value_size']
         for name, value in zip(q_names, q_str):
             p.drawText(x0, y, name)
-            p.drawText(x2, y, value)
+            v1, v2 = value.split(' ')
+            p.drawText(x2, y, v1)
+            p.drawText(x3, y, v2)
             y += f_h
         p.setClipping(False)
 
