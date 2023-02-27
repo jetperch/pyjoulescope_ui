@@ -218,13 +218,15 @@ class JsdrvStreamBuffer:
         self._signals[signal_id] = buf_id
         self._signals_reverse[buf_id] = signal_id
         unique_id, signal = signal_id.split('.')
-        device_path = self._sources[unique_id].device_path
+        device = self._sources[unique_id]
+        device_path = device.device_path
 
         ui_prefix = get_topic_name(self)
         for key, meta in _SETTINGS_PER_SIGNAL.items():
             self.pubsub.topic_add(f'{ui_prefix}/settings/signals/{signal_id}/{key}', meta)
         self._driver_publish(f'm/{self._id}/a/!add', buf_id)
-        device_source = f'{device_path}/s/{signal}/!data'
+        subtopic = device.signal_subtopics(signal, 'data')
+        device_source = f'{device_path}/{subtopic}'
         buf_prefix = f'm/{self._id}/s/{buf_id:03d}'
         self._driver_publish(f'{buf_prefix}/topic', device_source)
         self._device_subscribe(f'{buf_prefix}/info', ['pub', 'pub_retain'], self._on_device_signal_info)

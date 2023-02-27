@@ -415,6 +415,21 @@ class Js220(Device):
         self._target_power_app = False
         self._queue = queue.Queue()
 
+    def signal_subtopics(self, signal_id, topic_type):
+        """Query the signal topics.
+
+        :param signal_id: The signal id, such as 'i'.
+        :param topic_type: The topic type to get, one of ['ctrl', 'data'].
+        :return: The subtopic for this device.
+        """
+        s = _SIGNALS[signal_id]
+        topics = s['topics']
+        if topic_type == 'ctrl':
+            return topics[0]
+        elif topic_type == 'data':
+            return topics[1]
+        raise ValueError(f'unsupported topic_type {topic_type}')
+
     def _signal_forward(self, signal_id, dtopic, unique_id):
         utopic = f'events/signals/{signal_id}/!data'
         t = f'{get_topic_name(unique_id)}/{utopic}'

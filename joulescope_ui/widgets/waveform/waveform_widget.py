@@ -93,7 +93,7 @@ def _digital_plot(name):
         'enabled': False,
         'signals': [],  # list of (buffer_unique_id, signal_id)
         'height': 100,
-        'range_mode': 'auto',
+        'range_mode': 'fixed',
         'range': [-0.1, 1.1],
         'scale': 'linear',
     }
@@ -185,7 +185,7 @@ def _ticks(v_min, v_max, v_spacing_min):
     sel_idx = np.zeros(len(minor), dtype=bool)
     sel_idx[:] = True
     sel_idx[0::10] = False
-    while minor_start < v_min:
+    while minor_start < v_min and k < len(sel_idx):
         sel_idx[k] = False
         minor_start += minor_interval
         k += 1
@@ -456,7 +456,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 x_min.append(x_range[0])
                 x_max.append(x_range[1])
         if 0 == len(x_min):
-            return
+            return [0, 0]
         return min(x_min), max(x_max)
 
     def _compute_x_range(self):
@@ -477,10 +477,13 @@ class WaveformWidget(QtWidgets.QWidget):
             x0 = max(x0, e0)
             return x0, x0 + d_z
 
-    def _request_data(self):
+    def _request_data(self, force=False):
+        force = bool(force)
         self.x_range = self._compute_x_range()
         for signal in self._signals.values():
-            if signal['changed'] and signal['enabled']:
+            if not signal['enabled']:
+                continue
+            if force or signal['changed']:
                 signal['changed'] = None
                 self._request_signal(signal, self.x_range)
 
@@ -517,12 +520,12 @@ class WaveformWidget(QtWidgets.QWidget):
             if data_type == 'f32':
                 pass
             elif data_type == 'u1':
-                y = np.unpackbits(y, bitorder='little')
+                y = np.unpackbits(y, bitorder='little')[:len(x)]
             elif data_type == 'u4':
                 d = np.empty(len(y) * 2, dtype=np.uint8)
                 d[0::2] = np.logical_and(y, 0x0f)
                 d[1::2] = np.logical_and(np.right_shift(y, 4), 0x0f)
-                y = d
+                y = d[:len(x)]
             else:
                 self._log.warning('Unsupported sample data type: %s', data_type)
                 return
@@ -703,7 +706,9 @@ class WaveformWidget(QtWidgets.QWidget):
         f = dy1 * 0.1
         plot['range'] = y_min - f/2, y_max + f
 
-    def _plots_height_adjust(self, h):
+    def _plots_height_adjust(self, h=None):
+        if h is None:
+            h = self._graphics.height()
         if not len(self._y_geometry_info):
             return
         for name, (k, _, _) in self._y_geometry_info.items():
@@ -751,8 +756,7 @@ class WaveformWidget(QtWidgets.QWidget):
     def plot_resizeEvent(self, event):
         event.accept()
         self._repaint_request = True
-        h = event.size().height()
-        self._plots_height_adjust(h)
+        self._plots_height_adjust()
 
     def plot_leaveEvent(self, event):
         self.setCursor(self._CURSOR_ARROW)
@@ -764,13 +768,16 @@ class WaveformWidget(QtWidgets.QWidget):
             self._log.exception('Exception during drawing')
         self._request_data()
 
-    def _compute_geometry(self, size):
+    def _compute_geometry(self, size=None):
         s = self._style
         if s is None:
             self._x_geometry_info = {}
             self._y_geometry_info = {}
             return
-        widget_w, widget_h = size
+        if size is None:
+            widget_w, widget_h = self._graphics.width(), self._graphics.height()
+        else:
+            widget_w, widget_h = size
 
         margin = self._margin
         left_width = s['plot_label_size'].width() + margin + s['y_tick_size'].width() + margin
@@ -815,12 +822,11 @@ class WaveformWidget(QtWidgets.QWidget):
         if s is None:
             return
         self._repaint_request = False
-        widget_w, widget_h = size
 
         resize = not len(self._y_geometry_info)
         self._compute_geometry(size)
         if resize:
-            self._plots_height_adjust(widget_h)
+            self._plots_height_adjust()
         self._draw_background(p, size)
         self._draw_x_axis(p)
 
@@ -1107,6 +1113,7 @@ class WaveformWidget(QtWidgets.QWidget):
         elif self.pin_right or z1 > e1:
             z0, z1 = e1 - d_x, e1
         self.x_range = z0, z1
+        self._request_data(True)
 
     def plot_mousePressEvent(self, event: QtGui.QMouseEvent):
         event.accept()
@@ -1290,6 +1297,7 @@ class WaveformWidget(QtWidgets.QWidget):
             z0, z1 = e1 - r, e1
         self._repaint_request = True
         self.x_range = z0, z1
+        self._request_data(True)
 
     def on_action_x_zoom_all(self):
         """Perform a zoom action to the full extents.
@@ -1297,6 +1305,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._log.info('x_zoom_all')
         self._repaint_request = True
         self.x_range = self._extents()
+        self._request_data(True)
 
     def _on_x_pan(self, pan):
         self._log.info(f'_on_x_pan {pan}')
@@ -1313,6 +1322,7 @@ class WaveformWidget(QtWidgets.QWidget):
             z0, z1 = e1 - d_x, e1
         self._repaint_request = True
         self.x_range = z0, z1
+        self._request_data(True)
 
     def _on_y_zoom(self, plot, zoom):
         self._log.info(f'_on_y_zoom {plot["quantity"]} {zoom}')
@@ -1366,6 +1376,8 @@ class WaveformWidget(QtWidgets.QWidget):
             if plot['quantity'] == quantity:
                 if show != plot['enabled']:
                     plot['enabled'] = show
-                    self._plots_height_adjust(self._graphics.height())
+                    self._compute_geometry()
+                    self._plots_height_adjust()
+                    self._request_data(True)
                 return
         self._log.warning('plot_show could not match %s', quantity)
