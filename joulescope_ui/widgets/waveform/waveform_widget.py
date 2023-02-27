@@ -38,7 +38,7 @@ _Y_INNER_LINE = 4
 _Y_PLOT_MIN = 16
 
 
-def _analog_plot(quantity, show, units, name):
+def _analog_plot(quantity, show, units, name, integral=None):
     return {
         'quantity': quantity,
         'name': name,
@@ -49,6 +49,7 @@ def _analog_plot(quantity, show, units, name):
         'range_mode': 'auto',
         'range': [-0.1, 1.1],
         'scale': 'linear',
+        'integral': integral,
     }
 
 
@@ -68,9 +69,9 @@ def _digital_plot(quantity, name):
 
 _STATE_DEFAULT = {
     'plots': [
-        _analog_plot('i', True, 'A', N_('Current')),
+        _analog_plot('i', True, 'A', N_('Current'), 'C'),
         _analog_plot('v', True, 'V', N_('Voltage')),
-        _analog_plot('p', False, 'W', N_('Power')),
+        _analog_plot('p', False, 'W', N_('Power'), 'J'),
         {
                 'quantity': 'r',
                 'name': N_('Current range'),
@@ -87,7 +88,9 @@ _STATE_DEFAULT = {
         _digital_plot('2', N_('General purpose input 2')),
         _digital_plot('3', N_('General purpose input 3')),
         _digital_plot('T', N_('Trigger input')),
-    ]
+    ],
+    'x_marker1': [],  # list of [id, x_pos]
+    'x_marker2': [],  # list of [id, x_pos1, x_pos2]
 }
 
 
@@ -95,6 +98,9 @@ def _si_format(values, units):
     results = []
     if units is None:
         units = ''
+    is_array = hasattr(values, '__len__')
+    if not is_array:
+        values = [values]
     if len(values):
         values = np.array(values)
         max_value = float(np.max(np.abs(values)))
@@ -110,7 +116,7 @@ def _si_format(values, units):
                 v = 0
             v_str = ('%+6f' % v)[:8]
             results.append(f'{v_str}{units_suffix}')
-    return results
+    return results if is_array else results[0]
 
 
 class _PlotWidget(QtWidgets.QWidget):
@@ -258,6 +264,11 @@ class WaveformWidget(QtWidgets.QWidget):
             'brief': N_('Show the statistics on mouse hover.'),
             'default': True,
         },
+        'show_statistics': {
+            'dtype': 'bool',
+            'brief': N_('Show the plot statistics on the right.'),
+            'default': True,
+        },
         'x_range': {
             'dtype': 'obj',
             'brief': 'The x-axis range.',
@@ -385,6 +396,11 @@ class WaveformWidget(QtWidgets.QWidget):
             self.state = copy.deepcopy(_STATE_DEFAULT)
         for plot_index, plot in enumerate(self.state['plots']):
             plot['index'] = plot_index
+            plot['y_region'] = f'plot.{plot_index}'
+            if 'y_marker1' not in plot:
+                plot['y_marker1'] = []
+            if 'y_marker2' not in plot:
+                plot['y_marker2'] = []
         self.pubsub.subscribe('registry_manager/capabilities/signal_buffer.source/list',
                               self._on_source_list_fn, ['pub', 'retain'])
         topic = get_topic_name(self)
@@ -664,7 +680,11 @@ class WaveformWidget(QtWidgets.QWidget):
             'y_tick_height_pixels_min': 1.5 * y_tick_size.height(),
             'utc_width_pixels': axis_font_metrics.boundingRect('8888-88-88W88:88:88.888888').width(),
             'x_tick_width_pixels_min': axis_font_metrics.boundingRect('888.888888').width(),
-            'statistics_size': axis_font_metrics.boundingRect('WWW +888.8888 WW'),
+
+            'statistics_name_size': axis_font_metrics.boundingRect('maxx').width(),
+            'statistics_value_size': axis_font_metrics.boundingRect('+888.888x').width(),
+            'statistics_unit_size': axis_font_metrics.boundingRect('WWW').width(),
+            'statistics_size': axis_font_metrics.boundingRect('maxx+888.888xmA'),
         }
         self._style_cache['plot1_trace'].setWidth(self.trace_width)
         return self._style_cache
@@ -779,7 +799,10 @@ class WaveformWidget(QtWidgets.QWidget):
 
         margin = self._margin
         left_width = s['plot_label_size'].width() + margin + s['y_tick_size'].width() + margin
-        right_width = margin + s['statistics_size'].width()
+        if self.show_statistics:
+            right_width = margin + s['statistics_size'].width()
+        else:
+            right_width = 0
         plot_width = widget_w - left_width - right_width - 2 * margin
         y_inner_spacing = _Y_INNER_SPACING
 
@@ -796,16 +819,17 @@ class WaveformWidget(QtWidgets.QWidget):
             if not plot_first:
                 y_geometry.append([y_inner_spacing, f'spacer.{plot_idx}'])
             plot_first = False
-            y_geometry.append([plot['height'], f'plot.{plot_idx}'])
+            y_geometry.append([plot['height'], plot['y_region']])
         y_geometry.append([margin, 'margin.bottom'])
 
         x_geometry = [
             [margin, 'margin.left'],
             [left_width, 'y_axis'],
             [plot_width, 'plot'],
-            [right_width, 'statistics'],
-            [margin, 'margin.right'],
         ]
+        if right_width:
+            x_geometry.append([right_width, 'statistics'])
+        x_geometry.append([margin, 'margin.right'])
 
         self._x_geometry_info = _target_from_list(x_geometry)
         self._y_geometry_info = _target_from_list(y_geometry)
@@ -833,6 +857,7 @@ class WaveformWidget(QtWidgets.QWidget):
             if plot['enabled']:
                 self._draw_plot(p, plot)
                 p.setClipping(False)
+                self._draw_plot_statistics(p, plot)
         self._draw_spacers(p)
         self._draw_markers(p, size)
         self._draw_fps(p)
@@ -1042,6 +1067,18 @@ class WaveformWidget(QtWidgets.QWidget):
             p.setPen(s['text_pen'])
             p.drawText(10, s['axis_font_metrics'].ascent(), self._fps['str'])
 
+    def _signal_data_get(self, plot):
+        try:
+            if isinstance(plot, str):
+                plot_idx = int(plot.split('.')[1])
+                plot = self.state['plots'][plot_idx]
+            signals = plot['signals']
+            signal = self._signals[signals[0]]
+            data = signal['data']
+            return plot, data
+        except (KeyError, IndexError):
+            return None, None
+
     def _draw_hover(self, p):
         if not self.show_hover:
             return
@@ -1050,12 +1087,9 @@ class WaveformWidget(QtWidgets.QWidget):
         x_name, y_name = self._target_lookup_by_pos(self._mouse_pos)
         if x_name != 'plot' or not y_name.startswith('plot.'):
             return
-        plot_idx = int(y_name.split('.')[1])
-        plot = self.state['plots'][plot_idx]
-        signals = plot['signals']
-        signal = self._signals[signals[0]]
-        data = signal['data']
-
+        plot, data = self._signal_data_get(y_name)
+        if data is None:
+            return
         x_pixels = self._mouse_pos[0]
         x = self._x_pixel_to_time64(x_pixels)
         x_rel = self._x_time64_to_trel(x)
@@ -1100,6 +1134,67 @@ class WaveformWidget(QtWidgets.QWidget):
         p.fillRect(x_pixels, y_pixels, w, h, p.brush())
         p.drawText(x_pixels + margin, y_pixels + margin + f_a, y_txt)
         p.drawText(x_pixels + margin, y_pixels + margin + f_h + f_a, x_txt)
+
+    def _draw_plot_statistics(self, p, plot):
+        if not self.show_statistics:
+            return
+        plot, data = self._signal_data_get(plot)
+        if data is None:
+            return
+        xd, x0, x1 = self._x_geometry_info['statistics']
+        yd, y0, y1 = self._y_geometry_info[plot['y_region']]
+        s = self._style
+        z0, z1 = self.x_range
+        font = s['axis_font']
+        font_metrics = s['axis_font_metrics']
+        f_h = font_metrics.height()
+        f_a = font_metrics.ascent()
+        p.setFont(font)
+        p.setPen(s['text_pen'])
+        p.setBrush(self._NO_BRUSH)
+
+        x_data = data['x']
+        y_data = data['avg']
+        idx_sel = np.logical_and(np.logical_and(x_data >= z0, x_data <= z1), np.isfinite(y_data))
+        y_data = y_data[idx_sel]
+        if not len(y_data):
+            return
+        y_avg = np.mean(y_data)
+        if data['std'] is None:
+            y_std = np.std(y_data)
+        else:
+            y_std = data['std'][idx_sel]
+            y_d = y_data - y_avg
+            y_std = y_std * y_std + y_d * y_d
+            y_std = np.sqrt(np.sum(y_std) / len(y_std))
+        if data['min'] is None:
+            y_min = np.min(y_data)
+        else:
+            y_min = np.min(data['min'][idx_sel])
+        if data['max'] is None:
+            y_max = np.max(y_data)
+        else:
+            y_max = np.max(data['max'][idx_sel])
+        y_rms = np.sqrt(y_avg * y_avg + y_std * y_std)
+        q_names = ['avg', 'std', 'rms', 'min', 'max', 'p2p']
+        q_value = [y_avg, y_std, y_rms, y_min, y_max, y_max - y_min]
+        q_str = _si_format(q_value, plot['units'])
+
+        dt = (z1 - z0) / time64.SECOND
+        integral_units = plot.get('integral')
+        if integral_units is not None:
+            q_names.append('∫')
+            q_str.append(_si_format(y_avg * dt, integral_units))
+        q_names.append('Δt')
+        q_str.append(_si_format(dt, 's'))
+        y = y0 + f_a
+        p.setClipRect(x0, y0, xd, yd)
+        x2 = x0 + s['statistics_name_size']
+        for name, value in zip(q_names, q_str):
+            p.drawText(x0, y, name)
+            p.drawText(x2, y, value)
+            y += f_h
+        p.setClipping(False)
 
     def _target_lookup_by_pos(self, pos):
         """Get the target object.
