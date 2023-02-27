@@ -8,6 +8,8 @@ waveform.grid_minor = #80808010
 waveform.plot_separator = #B0B0ff60
 waveform.plot_border = #ffffff80
 
+waveform.hover = #e0e0e0a0
+
 waveform.plot1_trace = #ffff00ff
 waveform.plot1_min_max_trace = #FF4040A0
 waveform.plot1_min_max_fill = #FF404060

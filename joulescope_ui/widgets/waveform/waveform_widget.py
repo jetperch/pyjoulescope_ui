@@ -24,7 +24,7 @@ import numpy as np
 import os
 import time
 from PySide6.QtGui import QPainter, QPen, QBrush, QColor
-from joulescope_ui.units import unit_prefix
+from joulescope_ui.units import unit_prefix, three_sig_figs
 
 
 _ZOOM_FACTOR = np.sqrt(2)
@@ -36,48 +36,13 @@ _MARGIN = 2             # from the outside edges
 _Y_INNER_SPACING = 8    # vertical spacing between plots (includes line)
 _Y_INNER_LINE = 4
 _Y_PLOT_MIN = 16
-_PLOT_TYPES = {
-    'i': {
-        'units': 'A',
-        'name': N_('Current'),
-    },
-    'v': {
-        'units': 'V',
-        'name': N_('Voltage'),
-    },
-    'p': {
-        'units': 'W',
-        'name': N_('Power'),
-    },
-    'r': {
-        'name': N_('Current range'),
-    },
-    '0': {
-        'name': N_('General purpose input 0'),
-        'range': _BINARY_RANGE,
-    },
-    '1': {
-        'name': N_('General purpose input 1'),
-        'range': _BINARY_RANGE,
-    },
-    '2': {
-        'name': N_('General purpose input 2'),
-        'range': _BINARY_RANGE,
-    },
-    '3': {
-        'name': N_('General purpose input 3'),
-        'range': _BINARY_RANGE,
-    },
-    'T': {
-        'name': N_('Trigger input'),
-        'range': _BINARY_RANGE,
-    },
-}
 
 
-def _analog_plot(name, show):
+def _analog_plot(quantity, show, units, name):
     return {
-        'quantity': name,
+        'quantity': quantity,
+        'name': name,
+        'units': units,
         'enabled': bool(show),
         'signals': [],  # list of (buffer_unique_id, signal_id)
         'height': 200,
@@ -87,25 +52,29 @@ def _analog_plot(name, show):
     }
 
 
-def _digital_plot(name):
+def _digital_plot(quantity, name):
     return {
-        'quantity': name,
+        'quantity': quantity,
+        'name': name,
+        'units': None,
         'enabled': False,
         'signals': [],  # list of (buffer_unique_id, signal_id)
         'height': 100,
         'range_mode': 'fixed',
-        'range': [-0.1, 1.1],
+        'range': _BINARY_RANGE,
         'scale': 'linear',
     }
 
 
 _STATE_DEFAULT = {
     'plots': [
-        _analog_plot('i', True),
-        _analog_plot('v', True),
-        _analog_plot('p', False),
+        _analog_plot('i', True, 'A', N_('Current')),
+        _analog_plot('v', True, 'V', N_('Voltage')),
+        _analog_plot('p', False, 'W', N_('Power')),
         {
                 'quantity': 'r',
+                'name': N_('Current range'),
+                'units': None,
                 'enabled': False,
                 'signals': [],  # list of (buffer_unique_id, signal_id)
                 'height': 100,
@@ -113,13 +82,35 @@ _STATE_DEFAULT = {
                 'range': [-0.1, 7.1],
                 'scale': 'linear',
         },
-        _digital_plot('0'),
-        _digital_plot('1'),
-        _digital_plot('2'),
-        _digital_plot('3'),
-        _digital_plot('T'),
+        _digital_plot('0', N_('General purpose input 0')),
+        _digital_plot('1', N_('General purpose input 1')),
+        _digital_plot('2', N_('General purpose input 2')),
+        _digital_plot('3', N_('General purpose input 3')),
+        _digital_plot('T', N_('Trigger input')),
     ]
 }
+
+
+def _si_format(values, units):
+    results = []
+    if units is None:
+        units = ''
+    if len(values):
+        values = np.array(values)
+        max_value = float(np.max(np.abs(values)))
+        _, prefix, scale = unit_prefix(max_value)
+        scale = 1.0 / scale
+        if len(units) or len(prefix):
+            units_suffix = f' {prefix}{units}'
+        else:
+            units_suffix = ''
+        for v in values:
+            v *= scale
+            if abs(v) < 0.000005:  # minimum display resolution
+                v = 0
+            v_str = ('%+6f' % v)[:8]
+            results.append(f'{v_str}{units_suffix}')
+    return results
 
 
 class _PlotWidget(QtWidgets.QWidget):
@@ -261,6 +252,11 @@ class WaveformWidget(QtWidgets.QWidget):
             'dtype': 'bool',
             'brief': N_('Show the frames per second.'),
             'default': False,
+        },
+        'show_hover': {
+            'dtype': 'bool',
+            'brief': N_('Show the statistics on mouse hover.'),
+            'default': True,
         },
         'x_range': {
             'dtype': 'obj',
@@ -652,6 +648,8 @@ class WaveformWidget(QtWidgets.QWidget):
             'plot_border_pen': QtGui.QPen(color_as_qcolor(v['waveform.plot_border'])),
             'plot_separator_brush': QtGui.QBrush(color_as_qcolor(v['waveform.plot_separator'])),
 
+            'waveform.hover': QBrush(color_as_qcolor(v['waveform.hover'])),
+
             'plot1_trace': QPen(color_as_qcolor(v['waveform.plot1_trace'])),
             'plot1_min_max_trace': QPen(color_as_qcolor(v['waveform.plot1_min_max_trace'])),
             'plot1_min_max_fill_pen': QPen(color_as_qcolor(v['waveform.plot1_min_max_fill'])),
@@ -838,6 +836,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._draw_spacers(p)
         self._draw_markers(p, size)
         self._draw_fps(p)
+        self._draw_hover(p)
 
     def _draw_background(self, p, size):
         s = self._style
@@ -943,10 +942,9 @@ class WaveformWidget(QtWidgets.QWidget):
             #    p.drawLine(left_margin, t, left_margin + plot_width, t)
 
         # draw label
-        plot_type = _PLOT_TYPES[plot['quantity']]
         p.setPen(s['text_pen'])
         p.setFont(s['axis_font'])
-        plot_units = plot_type.get('units')
+        plot_units = plot.get('units')
         if plot_units is None:
             s_label = plot['quantity']
         else:
@@ -1040,8 +1038,68 @@ class WaveformWidget(QtWidgets.QWidget):
         s = self._style
         self._update_fps()
         if self.show_fps:
+            p.setFont(s['axis_font'])
             p.setPen(s['text_pen'])
             p.drawText(10, s['axis_font_metrics'].ascent(), self._fps['str'])
+
+    def _draw_hover(self, p):
+        if not self.show_hover:
+            return
+        if self._mouse_pos is None:
+            return
+        x_name, y_name = self._target_lookup_by_pos(self._mouse_pos)
+        if x_name != 'plot' or not y_name.startswith('plot.'):
+            return
+        plot_idx = int(y_name.split('.')[1])
+        plot = self.state['plots'][plot_idx]
+        signals = plot['signals']
+        signal = self._signals[signals[0]]
+        data = signal['data']
+
+        x_pixels = self._mouse_pos[0]
+        x = self._x_pixel_to_time64(x_pixels)
+        x_rel = self._x_time64_to_trel(x)
+        index = np.abs(data['x'] - x).argmin()
+        y = data['avg'][index]
+        if not np.isfinite(y):
+            return
+        y_pixels = int(np.rint(self._y_value_to_pixel(plot, y)))
+
+        dot_radius = 2
+        dot_diameter = dot_radius * 2
+        s = self._style
+        p.setPen(self._NO_PEN)
+        p.setBrush(s['waveform.hover'])
+        p.drawEllipse(x_pixels - dot_radius, y_pixels - dot_radius, dot_diameter, dot_diameter)
+
+        p.setFont(s['axis_font'])
+        x_txt = _si_format([x_rel], 's')[0]
+        y_txt = _si_format([y], plot['units'])[0]
+        font_metrics = s['axis_font_metrics']
+        margin = 2
+        f_h = font_metrics.height()
+        f_a = font_metrics.ascent()
+        h = 2 * margin + f_h * 2
+        w = 2 * margin + max(font_metrics.boundingRect(x_txt).width(), font_metrics.boundingRect(y_txt).width())
+        y_pixels -= h // 2
+
+        _, x0, x1 = self._x_geometry_info[x_name]
+        _, y0, y1 = self._y_geometry_info[y_name]
+        p.setClipRect(x0, y0, x1 - x0, y1 - y0)
+        x_pixels += dot_radius
+        if x_pixels + w > x1:
+            # show on left side
+            x_pixels -= dot_diameter + w
+        if y_pixels < y0:
+            y_pixels = y0
+        elif y_pixels + h > y1:
+            y_pixels = y1 - h
+
+        p.setPen(s['text_pen'])
+        p.setBrush(s['text_brush'])
+        p.fillRect(x_pixels, y_pixels, w, h, p.brush())
+        p.drawText(x_pixels + margin, y_pixels + margin + f_a, y_txt)
+        p.drawText(x_pixels + margin, y_pixels + margin + f_h + f_a, x_txt)
 
     def _target_lookup_by_pos(self, pos):
         """Get the target object.
@@ -1072,6 +1130,7 @@ class WaveformWidget(QtWidgets.QWidget):
             cursor = self._CURSOR_SIZE_VER
         elif y_name.startswith('plot.') and x_name.startswith('plot'):
             cursor = self._CURSOR_CROSS
+            self._repaint_request = True
         self.setCursor(cursor)
 
         if self._mouse_action is not None:
