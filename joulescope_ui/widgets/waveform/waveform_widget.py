@@ -89,8 +89,11 @@ _STATE_DEFAULT = {
         _digital_plot('3', N_('General purpose input 3')),
         _digital_plot('T', N_('Trigger input')),
     ],
-    'x_marker1': [],  # list of [id, x_pos]
-    'x_marker2': [],  # list of [id, x_pos1, x_pos2]
+    'x_markers': [],  # list of marker dicts with keys:
+        # id: The marker id int
+        # dtype: 'single' or 'dual'
+        # pos1: The marker position in time64
+        # pos2: For single: not present.  For dual: the second marker position in time64.
 }
 
 
@@ -136,10 +139,6 @@ class _PlotWidget(QtWidgets.QWidget):
 
     def resizeEvent(self, event):
         self._parent.plot_resizeEvent(event)
-
-    def leaveEvent(self, event):
-        self._parent.plot_leaveEvent(event)
-        return super().leaveEvent(event)
 
     def mousePressEvent(self, event):
         self._parent.plot_mousePressEvent(event)
@@ -298,6 +297,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self.pubsub = None
         self.state = None
         self._style_cache = None
+        self._x_markers_by_id = {}
         super().__init__(parent)
 
         # Cache Qt default instances to prevent memory leak in Pyside6 6.4.2
@@ -305,6 +305,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._NO_BRUSH = QtGui.QBrush(QtGui.Qt.NoBrush)  # prevent memory leak
         self._CURSOR_ARROW = QtGui.QCursor(QtGui.Qt.ArrowCursor)
         self._CURSOR_SIZE_VER = QtGui.QCursor(QtGui.Qt.SizeVerCursor)
+        self._CURSOR_SIZE_HOR = QtGui.QCursor(QtGui.Qt.SizeHorCursor)
         self._CURSOR_CROSS = QtGui.QCursor(QtGui.Qt.CrossCursor)
 
         self._on_source_list_fn = self._on_source_list
@@ -397,14 +398,14 @@ class WaveformWidget(QtWidgets.QWidget):
         for plot_index, plot in enumerate(self.state['plots']):
             plot['index'] = plot_index
             plot['y_region'] = f'plot.{plot_index}'
-            if 'y_marker1' not in plot:
-                plot['y_marker1'] = []
-            if 'y_marker2' not in plot:
-                plot['y_marker2'] = []
+            if 'y_markers' not in plot:
+                plot['y_markers'] = []
         self.pubsub.subscribe('registry_manager/capabilities/signal_buffer.source/list',
                               self._on_source_list_fn, ['pub', 'retain'])
         topic = get_topic_name(self)
         self._control.on_pubsub_register(self.pubsub, topic)
+        for m in self.state['x_markers']:
+            self._x_markers_by_id[m['id']] = m
 
     def closeEvent(self, event):
         self.pubsub.unsubscribe_all(self._on_source_list_fn)
@@ -573,9 +574,13 @@ class WaveformWidget(QtWidgets.QWidget):
         offset = (offset // time64.SECOND) * time64.SECOND
         return offset
 
-    def _x_time64_to_pixel(self, time):
+    def _x_time64_to_pixel(self, x_time):
         pixel_offset, _, time_zero_offset, time_to_pixel_scale = self._x_map
-        return pixel_offset + (time - time_zero_offset) * time_to_pixel_scale
+        if isinstance(x_time, list):
+            t = (np.array(x_time, np.int64) - time_zero_offset).astype(float)
+        else:
+            t = (x_time - time_zero_offset)
+        return pixel_offset + t * time_to_pixel_scale
 
     def _x_pixel_to_time64(self, pixel):
         pixel_offset, _, time_zero_offset, time_to_pixel_scale = self._x_map
@@ -686,6 +691,13 @@ class WaveformWidget(QtWidgets.QWidget):
             'statistics_unit_size': axis_font_metrics.boundingRect('WWW').width(),
             'statistics_size': axis_font_metrics.boundingRect('maxx+888.888xmA'),
         }
+
+        for k in range(1, 7):
+            c = v[f'waveform.marker{k}']
+            self._style_cache[f'marker{k}_pen'] = QPen(color_as_qcolor(c))
+            self._style_cache[f'marker{k}_fg'] = QBrush(color_as_qcolor(c))
+            self._style_cache[f'marker{k}_bg'] = QBrush(color_as_qcolor(c[:-2] + '20'))
+
         self._style_cache['plot1_trace'].setWidth(self.trace_width)
         return self._style_cache
 
@@ -776,9 +788,6 @@ class WaveformWidget(QtWidgets.QWidget):
         self._repaint_request = True
         self._plots_height_adjust()
 
-    def plot_leaveEvent(self, event):
-        self.setCursor(self._CURSOR_ARROW)
-
     def plot_paint(self, p, size):
         try:
             self._plot_paint(p, size)
@@ -851,6 +860,7 @@ class WaveformWidget(QtWidgets.QWidget):
             self._plots_height_adjust()
         self._draw_background(p, size)
         self._draw_x_axis(p)
+        self._draw_markers_background(p)
 
         # Draw each plot
         for plot in self.state['plots']:
@@ -862,6 +872,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._draw_markers(p, size)
         self._draw_fps(p)
         self._draw_hover(p)
+        self._set_cursor()
 
     def _draw_background(self, p, size):
         s = self._style
@@ -1056,8 +1067,129 @@ class WaveformWidget(QtWidgets.QWidget):
                 p.setPen(s['plot1_trace'])
                 p.drawPolyline(segs)
 
+    def _draw_markers_background(self, p):
+        s = self._style
+        h, y0, _ = self._y_geometry_info['x_axis']
+        _, y1, _ = self._y_geometry_info['margin.bottom']
+        xw, x0, x1 = self._x_geometry_info['plot']
+        p.setClipRect(x0, y0, xw, y1 - y0)
+        for m in self.state['x_markers'][-1::-1]:
+            if m['dtype'] != 'dual':
+                continue
+            x1, x2 = m['pos1'], m['pos2']
+            p1 = np.rint(self._x_time64_to_pixel(x1))
+            p2 = np.rint(self._x_time64_to_pixel(x2))
+            color_index = ((m['id'] - 1) % 6) + 1
+            bg = s[f'marker{color_index}_bg']
+            p.setPen(self._NO_PEN)
+            p.setBrush(bg)
+            p.drawRect(p1, y0, p2 - p1, y1 - y0)
+        p.setClipping(False)
+
     def _draw_markers(self, p, size):
-        pass  # todo
+        s = self._style
+        h, y0, _ = self._y_geometry_info['x_axis']
+        _, y1, _ = self._y_geometry_info['margin.bottom']
+        xw, x0, x1 = self._x_geometry_info['plot']
+        p.setClipRect(x0, y0, xw, y1 - y0)
+
+        for m in self.state['x_markers'][-1::-1]:
+            color_index = ((m['id'] - 1) % 6) + 1
+            pos1 = m['pos1']
+            h = s['axis_font_metrics'].height()
+            w = h // 2
+            he = h // 3
+            pen = s[f'marker{color_index}_pen']
+            fg = s[f'marker{color_index}_fg']
+            bg = s[f'marker{color_index}_bg']
+            p.setPen(self._NO_PEN)
+            p.setBrush(fg)
+            p1 = np.rint(self._x_time64_to_pixel(pos1))
+            yl = y0 + h + he
+            if m.get('flag') is None:
+                m['flag'] = PointsF()
+            if m['dtype'] == 'single':
+                pl = p1 - w
+                pr = p1 + w
+                segs, _ = m['flag'].set_line([pl, pl, p1, pr, pr], [y0, y0 + h, yl, y0 + h, y0])
+                p.drawPolygon(segs)
+                p.setPen(pen)
+                p.drawLine(p1, y0 + h + he, p1, y1)
+                self._draw_single_marker_text(p, m, pos1)
+            else:
+                p2 = np.rint(self._x_time64_to_pixel(m['pos2']))
+                p1r = p1 + w
+                p2l = p2 - w
+                if p2 < p1:
+                    p1, p2 = p2, p1
+                # segs, _ = m['flag'].set_line([p1, p1, p1r, p2l, p2, p2], [y0, yl, y0 + h, y0 + h, yl, y0])
+                #p.drawPolygon(segs)
+                p.setPen(pen)
+                p.drawLine(p1, y0, p1, y1)
+                p.drawLine(p2, y0, p2, y1)
+        p.setClipping(False)
+
+    def _draw_single_marker_text(self, p, m, x):
+        text_pos = m.get('text_pos', 'right')
+        if text_pos == 'off':
+            return
+        s = self._style
+        p0 = np.rint(self._x_time64_to_pixel(x))
+        xp = self._x_pixel_to_time64(p0)
+        font_metrics = s['axis_font_metrics']
+        field_width = font_metrics.boundingRect('maxx').width()
+        value_width = font_metrics.boundingRect('+888.888x').width()
+        unit_width = font_metrics.boundingRect('mA').width()
+        f_a = font_metrics.ascent()
+        f_h = font_metrics.height()
+        p.setFont(s['axis_font'])
+        p.setPen(s['text_pen'])
+        xw, x0, _ = self._x_geometry_info['plot']
+        for plot in self.state['plots']:
+            if not plot['enabled'] or not len(plot['signals']):
+                continue
+            signal = self._signals.get(plot['signals'][0])
+            data = signal['data']
+            s_x = data['x']
+            idx = np.argmin(np.abs(s_x - xp))
+            v_avg = data['avg'][idx]
+            if not np.isfinite(v_avg):
+                continue
+            yh, y0, y1 = self._y_geometry_info[plot['y_region']]
+            p.setClipRect(x0, y0, xw, yh)
+            y = y0 + _MARGIN + f_a
+            if data['std'] is None:
+                txt = _si_format(v_avg, plot['units'])
+                r_w = 2 * _MARGIN + font_metrics.boundingRect(txt).width()
+                r_h = 2 * _MARGIN + f_h
+                if text_pos == 'left':
+                    p1 = p0 - _MARGIN - r_w
+                else:
+                    p1 = p0 + _MARGIN
+                p.fillRect(p1, y0, r_w, r_h, s['text_brush'])
+                p.drawText(p1 + _MARGIN, y + _MARGIN, txt)
+                continue
+            v_std, v_min, v_max = data['std'][idx], data['min'][idx], data['max'][idx]
+            v_rms = np.sqrt(v_avg * v_avg + v_std * v_std)
+            fields = ['avg', 'std', 'rms', 'min', 'max', 'p2p']
+            values = [v_avg, v_std, v_rms, v_min, v_max, v_max - v_min]
+            values = _si_format(values, plot['units'])
+            r_w = _MARGIN * 2 + field_width + value_width + unit_width
+            r_h = f_h * len(values) + 2 * _MARGIN
+            if text_pos == 'left':
+                p1 = p0 - _MARGIN - r_w
+            else:
+                p1 = p0 + _MARGIN
+
+            p.fillRect(p1, y0, r_w, r_h, s['text_brush'])
+            p1 += _MARGIN
+            for field, value in zip(fields, values):
+                v, u = value.split(' ')
+                p.drawText(p1, y, field)
+                p.drawText(p1 + field_width, y, v)
+                p.drawText(p1 + field_width + value_width, y, u)
+                y += f_h
+        p.setClipping(False)
 
     def _draw_fps(self, p):
         s = self._style
@@ -1213,25 +1345,69 @@ class WaveformWidget(QtWidgets.QWidget):
         y_name = _target_lookup_by_pos(self._y_geometry_info, y)
         return x_name, y_name
 
+    def _find_x_marker(self, x):
+        mx = []
+        idx = []
+        pos_idx = []
+        for k, m in enumerate(self.state['x_markers']):
+            mx.append(m['pos1'])
+            idx.append(k)
+            pos_idx.append('pos1')
+            if m['dtype'] == 'dual':
+                mx.append(m['pos2'])
+                pos_idx.append('pos2')
+                idx.append(k)
+        mx = self._x_time64_to_pixel(mx)
+        dx = np.abs(x - mx)
+        z = np.where(dx < 5)[0]
+        if len(z):
+            m_idx = idx[z[0]]
+            pos = pos_idx[z[0]]
+            m = self.state['x_markers'][m_idx]
+            return f'x_marker.{m["id"]}.{pos}'
+        return ''
+
+    def _find_item(self, pos=None):
+        if pos is None:
+            pos = self._mouse_pos
+        if pos is None:
+            return '', '', ''
+        x_name, y_name = self._target_lookup_by_pos(pos)
+        item = ''
+        if y_name is None:
+            pass
+        elif y_name.startswith('spacer.'):
+            if y_name not in ['spacer.ignore']:
+                item = y_name
+        elif y_name.startswith('plot.') and (x_name.startswith('plot') or y_name == 'header'):
+            item = self._find_x_marker(pos[0])
+        return item, x_name, y_name
+
+    def _set_cursor(self, pos=None):
+        if pos is None:
+            pos = self._mouse_pos
+        item, x_name, y_name = self._find_item(pos)
+        cursor = self._CURSOR_ARROW
+        if item.startswith('spacer'):
+            cursor = self._CURSOR_SIZE_VER
+        elif item.startswith('x_marker'):
+            cursor = self._CURSOR_SIZE_HOR
+        elif item.startswith('y_marker'):
+            cursor = self._CURSOR_SIZE_VER
+        self._graphics.setCursor(cursor)
+        return item, x_name, y_name
+
     def plot_mouseMoveEvent(self, event: QtGui.QMouseEvent):
         event.accept()
         if not len(self._x_geometry_info) or not len(self._y_geometry_info):
             return
         x, y = event.pos().x(), event.pos().y()
         self._mouse_pos = (x, y)
-        x_name, y_name = self._target_lookup_by_pos(event)
-        # self._log.debug(f'mouse release {x_name, y_name}')
-        cursor = self._CURSOR_ARROW
-        if y_name is None:
-            pass
-        elif y_name.startswith('spacer.') and y_name not in ['spacer.ignore']:
-            cursor = self._CURSOR_SIZE_VER
-        elif y_name.startswith('plot.') and x_name.startswith('plot'):
-            cursor = self._CURSOR_CROSS
-            self._repaint_request = True
-        self.setCursor(cursor)
+        self._set_cursor()
 
-        if self._mouse_action is not None:
+        if self._mouse_action is None:
+            self._repaint_request = True
+        else:
             action = self._mouse_action[0]
             if action == 'move.spacer':
                 plot_idx = self._mouse_action[1]
@@ -1253,7 +1429,17 @@ class WaveformWidget(QtWidgets.QWidget):
                 plots[idx - 1]['height'] = d0
                 plots[idx]['height'] = d1
                 self.repaint()
-            if action == 'x_pan':
+            elif action == 'move.x_marker':
+                xt = self._x_pixel_to_time64(x)
+                item = self._mouse_action[1]
+                _, m_idx, m_field = item.split('.')
+                m = self._x_markers_by_id[int(m_idx)]
+                m[m_field] = xt
+                if m['dtype'] == 'dual':
+                    self._request_data(True)
+                else:
+                    self.repaint()
+            elif action == 'x_pan':
                 self._mouse_x_pan(x)
 
     def _mouse_x_pan(self, x):
@@ -1275,22 +1461,27 @@ class WaveformWidget(QtWidgets.QWidget):
     def plot_mousePressEvent(self, event: QtGui.QMouseEvent):
         event.accept()
         x, y = event.pos().x(), event.pos().y()
-        x_name, y_name = self._target_lookup_by_pos(event)
-        self._log.info(f'mouse press {x_name, y_name}')
+        item, x_name, y_name = self._find_item((x, y))
+        self._log.info(f'mouse press {item} {x_name} {y_name}')
         if event.button() == QtCore.Qt.LeftButton:
-            if y_name.startswith('spacer') and y_name not in ['spacer.ignore']:
-                idx = int(y_name.split('.')[1])
-                _, y_start, _ = self._y_geometry_info[y_name]
+            if item.startswith('spacer.'):
+                idx = int(item.split('.')[1])
+                _, y_start, _ = self._y_geometry_info[item]
                 self._mouse_action = ['move.spacer', idx, y, y_start, y]
+            elif item.startswith('x_marker.'):
+                self._mouse_action = ['move.x_marker', item]
             elif y_name.startswith('plot') and x_name == 'plot':
                 if self.pin_left or self.pin_right:
                     pass  # pinned to extents, cannot pan
                 else:
+                    self._log.info('x_pan start')
                     self._mouse_action = ['x_pan', x]
             else:
                 self._mouse_action = None
         if event.button() == QtCore.Qt.RightButton:
-            if y_name.startswith('plot.'):
+            if item.startswith('x_marker.'):
+                self._menu_x_marker_single(item, event)
+            elif y_name.startswith('plot.'):
                 idx = int(y_name.split('.')[1])
                 if x_name.startswith('y_axis'):
                     self._menu_y_axis(idx, event)
@@ -1398,11 +1589,126 @@ class WaveformWidget(QtWidgets.QWidget):
                       style_action]
         return self._menu_show(event)
 
+    def _on_x_marker_statistics_show(self, marker, pos):
+        marker['text_pos'] = pos
+        self.repaint()
+
+    def _menu_x_marker_single(self, item, event: QtGui.QMouseEvent):
+        _, idx, _ = item.split('.')
+        idx = int(idx)
+        m = self._x_markers_by_id[idx]
+        pos = m.get('text_pos', 'right')
+
+        menu = QtWidgets.QMenu('Waveform x_marker single context menu', self)
+        show_stats_menu = menu.addMenu(N_('Show statistics'))
+        show_stats_group = QtGui.QActionGroup(show_stats_menu)
+
+        left = show_stats_menu.addAction(N_('Left'))
+        left.setCheckable(True)
+        left.setChecked(pos == 'left')
+        left.triggered.connect(lambda: self._on_x_marker_statistics_show(m, 'left'))
+        show_stats_group.addAction(left)
+
+        right = show_stats_menu.addAction(N_('Right'))
+        right.setCheckable(True)
+        right.setChecked(pos == 'right')
+        right.triggered.connect(lambda: self._on_x_marker_statistics_show(m, 'right'))
+        show_stats_group.addAction(right)
+
+        off = show_stats_menu.addAction(N_('Off'))
+        off.setCheckable(True)
+        off.setChecked(pos == 'off')
+        off.triggered.connect(lambda: self._on_x_marker_statistics_show(m, 'off'))
+        show_stats_group.addAction(off)
+
+        marker_remove = menu.addAction(N_('Remove'))
+        topic = get_topic_name(self)
+        lambda: self.pubsub.publish(f'{topic}/actions/markers', ['remove', idx])
+        marker_remove.triggered.connect(lambda: self.pubsub.publish(f'{topic}/actions/!markers', ['remove', idx]))
+        self._menu = [menu,
+                      show_stats_menu, show_stats_group, left, right, off,
+                      marker_remove]
+        return self._menu_show(event)
+
     def on_style_change(self):
         self._style_cache = None
         self.update()
 
-    def on_action_markers(self, value):
+    def _x_marker_id_next(self):
+        id_all = sorted([z['id'] for z in self.state['x_markers']])
+        idx = 1
+        while len(id_all):
+            k = id_all.pop(0)
+            if idx != k:
+                break
+            idx += 1
+        return idx
+
+    def _x_marker_position(self, xi):
+        xi_init = xi
+        x0, x1 = self.x_range
+        p0, p1 = self._x_time64_to_pixel(x0), self._x_time64_to_pixel(x1)
+        pd = (p1 - p0) // 25
+        pd = min(10, pd)
+        xd = self._x_pixel_to_time64(p0 + pd) - x0
+
+        m1 = [z['pos1'] for z in self.state['x_markers']]
+        m2 = [z['pos2'] for z in self.state['x_markers'] if 'pos2' in z]
+        m = np.array(m1 + m2, dtype=float)
+        if not len(m):
+            return xi
+        while xi < x1:
+            dm = np.min(np.abs(m - xi))
+            if dm >= xd:
+                return xi
+            xi += xd
+        return xi_init  # give up
+
+    def _x_marker_add(self, marker):
+        self._log.info('x_marker_add %s', marker)
+        self.state['x_markers'].append(marker)
+        self._x_markers_by_id[marker['id']] = marker
+        self._request_data(True)
+        return marker
+
+    def _x_marker_remove(self, marker):
+        self._log.info('x_marker_remove %s', marker)
+        if isinstance(marker, int):
+            marker = self._x_markers_by_id.pop(marker)
+            self.state['x_markers'].remove(marker)
+            return marker
+        else:
+            raise ValueError('unsupported remove')
+
+    def _x_marker_add_single(self, pos1=None):
+        if pos1 is None:
+            x0, x1 = self.x_range
+            xc = (x1 + x0) // 2
+            pos1 = self._x_marker_position(xc)
+        marker = {
+            'id': self._x_marker_id_next(),
+            'dtype': 'single',
+            'pos1': pos1,
+        }
+        return self._x_marker_add(marker)
+
+    def _x_marker_add_dual(self, pos1=None, pos2=None):
+        x0, x1 = self.x_range
+        xc = (x1 + x0) // 2
+        xd = (x1 - x0) // 10
+        if pos1 is None:
+            pos1 = self._x_marker_position(xc - xd)
+        if pos2 is None:
+            pos2 = self._x_marker_position(xc + xd)
+        marker = {
+            'id': self._x_marker_id_next(),
+            'dtype': 'dual',
+            'pos1': pos1,
+            'pos2': pos2,
+        }
+        return self._x_marker_add(marker)
+
+    def on_action_markers(self, topic, value):
         """Perform a marker action.
 
         :param value: Either the action string or details for markers.
@@ -1411,15 +1717,27 @@ class WaveformWidget(QtWidgets.QWidget):
         self._log.info('markers %s', value)
         if isinstance(value, str):
             if value == 'add_single':
-                pass
+                m = self._x_marker_add_single()
+                return [topic, ['remove', m['id']]]
             elif value == 'add_dual':
-                pass
+                m = self._x_marker_add_dual()
+                return [topic, ['remove', m['id']]]
             elif value == 'clear_all':
-                pass
+                rv = [topic, ['add', copy.deepcopy(self.state['x_markers'])]]
+                self.state['x_markers'].clear()
+                self._repaint_request = True
+                return rv
             else:
                 raise ValueError(f'Unsupported marker action {value}')
         else:
-            raise NotImplementedError(f'Unsupported marker action {value}')
+            cmd = value[0]
+            if cmd == 'remove':
+                self._x_marker_remove(value[1])
+            elif cmd == 'add':
+                for m in value[1]:
+                    self._x_marker_add(m)
+            else:
+                raise NotImplementedError(f'Unsupported marker action {value}')
 
     def on_action_x_zoom(self, value):
         """Perform a zoom action.
@@ -1433,7 +1751,9 @@ class WaveformWidget(QtWidgets.QWidget):
             return
         self._log.info('x_zoom %s', value)
         if self.pin_left and self.pin_right:
-            return  # already locked to full extents
+            if steps > 0:
+                # zoom in when locked to full extents
+                self.pin_left = False  # unpin from left
         e0, e1 = self._extents()
         x0, x1 = self.x_range
         d_e = e1 - e0
@@ -1452,9 +1772,9 @@ class WaveformWidget(QtWidgets.QWidget):
             z0, z1 = e0, e0 + r
         elif self.pin_right or z1 > e1:
             z0, z1 = e1 - r, e1
-        self._repaint_request = True
         self.x_range = z0, z1
         self._request_data(True)
+        self._repaint_request = True
 
     def on_action_x_zoom_all(self):
         """Perform a zoom action to the full extents.
@@ -1538,3 +1858,4 @@ class WaveformWidget(QtWidgets.QWidget):
                     self._request_data(True)
                 return
         self._log.warning('plot_show could not match %s', quantity)
+

@@ -147,7 +147,6 @@ class PointsF:
         return segs, nsegs
 
 
-
 class LineSegments:
     def __init__(self):
         # "use_native_drawlines" is pending the following issue and code review
