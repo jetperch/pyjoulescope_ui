@@ -96,6 +96,7 @@ _STATE_DEFAULT = {
         # pos2: For single: not present.  For dual: the second marker position in time64.
 }
 
+
 def _si_format(values, units):
     results = []
     if units is None:
@@ -125,8 +126,11 @@ def _statistics_format(labels, values, units):
     values_txt = _si_format(values, units)
     r = []
     for label, value_txt in zip(labels, values_txt):
-        v1, v2 = value_txt.split(' ')
-        r.append((label, v1, v2))
+        v = value_txt.split(' ')
+        if len(v) == 1:
+            r.append((label, v[0], ''))
+        else:
+            r.append((label, v[0], v[1]))
     return r
 
 
@@ -781,6 +785,11 @@ class WaveformWidget(QtWidgets.QWidget):  # todo QtOpenGLWidgets.QOpenGLWidget
         axis_font_metrics = QtGui.QFontMetrics(axis_font)
         y_tick_size = axis_font_metrics.boundingRect('888.888')
 
+        statistics_name_size = axis_font_metrics.boundingRect('maxx').width()
+        statistics_value_size = axis_font_metrics.boundingRect('+888.888x').width()
+        statistics_unit_size = axis_font_metrics.boundingRect('mW').width()
+        statistics_size = _MARGIN * 2 + statistics_name_size + statistics_value_size + statistics_unit_size
+
         self._style_cache = {
             'background_brush': QtGui.QBrush(color_as_qcolor(v['waveform.background'])),
 
@@ -813,10 +822,10 @@ class WaveformWidget(QtWidgets.QWidget):  # todo QtOpenGLWidgets.QOpenGLWidget
             'utc_width_pixels': axis_font_metrics.boundingRect('8888-88-88W88:88:88.888888').width(),
             'x_tick_width_pixels_min': axis_font_metrics.boundingRect('888.888888').width(),
 
-            'statistics_name_size': axis_font_metrics.boundingRect('maxx').width(),
-            'statistics_value_size': axis_font_metrics.boundingRect('+888.888x').width(),
-            'statistics_unit_size': axis_font_metrics.boundingRect('WWW').width(),
-            'statistics_size': axis_font_metrics.boundingRect('maxx+888.888xmA'),
+            'statistics_name_size': statistics_name_size,
+            'statistics_value_size': statistics_value_size,
+            'statistics_unit_size': statistics_unit_size,
+            'statistics_size': statistics_size,
         }
 
         for k in range(1, 7):
@@ -936,7 +945,7 @@ class WaveformWidget(QtWidgets.QWidget):  # todo QtOpenGLWidgets.QOpenGLWidget
         margin = self._margin
         left_width = s['plot_label_size'].width() + margin + s['y_tick_size'].width() + margin
         if self.show_statistics:
-            right_width = margin + s['statistics_size'].width()
+            right_width = margin + s['statistics_size']
         else:
             right_width = 0
         plot_width = widget_w - left_width - right_width - 2 * margin
@@ -1090,6 +1099,7 @@ class WaveformWidget(QtWidgets.QWidget):  # todo QtOpenGLWidgets.QOpenGLWidget
         p.setPen(s['text_pen'])
         p.setBrush(s['text_brush'])
         p.setFont(s['axis_font'])
+        font_metrics = s['axis_font_metrics']
 
         # compute time and draw x-axis including UTC, seconds, grid
         x_axis_height, x_axis_y0, x_axis_y1 = self._y_geometry_info['x_axis']
@@ -1115,21 +1125,30 @@ class WaveformWidget(QtWidgets.QWidget):  # todo QtOpenGLWidgets.QOpenGLWidget
         x_range_trel = [self._x_time64_to_trel(i) for i in self.x_range]
 
         x_grid = _ticks(x_range_trel[0], x_range_trel[1], x_tick_width_time_min)
-        y_text = y + s['axis_font_metrics'].ascent()
+        y_text = y + font_metrics.ascent()
 
         x_offset = self._x_trel_offset()
         x_offset_str = time64.as_datetime(x_offset).isoformat()
-        p.drawText(plot_x0, x_axis_y0 + s['plot_label_size'].height() + s['axis_font_metrics'].ascent(), x_offset_str)
+        p.drawText(plot_x0, x_axis_y0 + s['plot_label_size'].height() + font_metrics.ascent(), x_offset_str)
         p.drawText(left_x0, y_text, 's')
+
+        if self.show_statistics:
+            x_stats = self._x_geometry_info['statistics'][1]
+            dt_str = _si_format(x_duration_s, 's')
+            p.drawText(x_stats + _MARGIN, y_text, f'Δt={dt_str}')
+
         if x_grid is None:
             pass
         else:
             for idx, x in enumerate(self._x_trel_to_pixel(x_grid['major'])):
                 p.setPen(s['text_pen'])
-                p.drawText(x + 2, y_text, x_grid['labels'][idx])
+                x_str = x_grid['labels'][idx]
+                x_start = x + _MARGIN
+                x_end = x_start + font_metrics.boundingRect(x_str).width() + _MARGIN
+                if x_end <= plot_x1:
+                    p.drawText(x_start, y_text, x_str)
                 p.setPen(s['grid_major_pen'])
                 p.drawLine(x, y, x, y_end)
-            # todo unit_prefix
 
             p.setPen(s['grid_minor_pen'])
             for x in self._x_trel_to_pixel(x_grid['minor']):
@@ -1173,10 +1192,15 @@ class WaveformWidget(QtWidgets.QWidget):  # todo QtOpenGLWidgets.QOpenGLWidget
             for idx, t in enumerate(self._y_value_to_pixel(plot, y_grid['major'])):
                 p.setPen(s['text_pen'])
                 s_label = y_grid['labels'][idx]
-                font_w = axis_font_metrics.boundingRect(s_label).width()
-                p.drawText(x0 - 4 - font_w, t + axis_font_metrics.ascent() // 2, s_label)
-                p.setPen(s['grid_major_pen'])
-                p.drawLine(x0, t, x1, t)
+                font_m = axis_font_metrics.boundingRect(s_label)
+                f_ah = axis_font_metrics.ascent() // 2
+                f_y = t + f_ah
+                f_y_up = f_ah
+                f_y_down = f_ah + axis_font_metrics.descent()
+                if f_y - f_y_up > y0 and f_y + f_y_down < y1:
+                    p.drawText(x0 - 4 - font_m.width(), f_y, s_label)
+                    p.setPen(s['grid_major_pen'])
+                    p.drawLine(x0, t, x1, t)
 
             # p.setPen(grid_minor_pen)
             # for t in self._y_value_to_pixel(plot, y_grid['minor']):
@@ -1364,9 +1388,9 @@ class WaveformWidget(QtWidgets.QWidget):  # todo QtOpenGLWidgets.QOpenGLWidget
         elif text_pos == 'off':
             return
         font_metrics = s['axis_font_metrics']
-        field_width = font_metrics.boundingRect('maxx').width()
-        value_width = font_metrics.boundingRect('+888.888x').width()
-        unit_width = font_metrics.boundingRect('mA').width()
+        field_width = s['statistics_name_size']
+        value_width = s['statistics_value_size']
+        unit_width = s['statistics_unit_size']
         f_a = font_metrics.ascent()
         f_h = font_metrics.height()
         p.setFont(s['axis_font'])
@@ -1573,8 +1597,9 @@ class WaveformWidget(QtWidgets.QWidget):  # todo QtOpenGLWidgets.QOpenGLWidget
         if integral_units is not None:
             integral_values = _statistics_format(['∫'], [y_avg * dt], integral_units)
             values.extend(integral_values)
-        values.extend(_statistics_format(['Δt'], [dt], 's'))
+        p.setClipRect(x0, y0, xd, yd)
         self._draw_statistics_text(p, (x0, y0), values)
+        p.setClipping(False)
 
     def _target_lookup_by_pos(self, pos):
         """Get the target object.
@@ -2379,4 +2404,3 @@ class WaveformWidget(QtWidgets.QWidget):  # todo QtOpenGLWidgets.QOpenGLWidget
                     self._request_data(True)
                 return
         self._log.warning('plot_show could not match %s', quantity)
-
