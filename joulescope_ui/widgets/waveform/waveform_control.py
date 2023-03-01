@@ -290,15 +290,15 @@ class WaveformControlWidget(QtWidgets.QWidget):
 
     @QtCore.Slot(bool)
     def _on_markers_single_add(self, checked):
-        self._pubsub.publish(f'{self._topic}/actions/!markers', 'add_single')
+        self._pubsub.publish(f'{self._topic}/actions/!x_markers', 'add_single')
 
     @QtCore.Slot(bool)
     def _on_markers_dual_add(self, checked):
-        self._pubsub.publish(f'{self._topic}/actions/!markers', 'add_dual')
+        self._pubsub.publish(f'{self._topic}/actions/!x_markers', 'add_dual')
 
     @QtCore.Slot(bool)
     def _on_markers_clear(self, checked):
-        self._pubsub.publish(f'{self._topic}/actions/!markers', 'clear_all')
+        self._pubsub.publish(f'{self._topic}/actions/!x_markers', 'clear_all')
 
     @QtCore.Slot(bool)
     def _on_x_axis_zoom_in(self, checked):

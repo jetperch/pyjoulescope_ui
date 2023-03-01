@@ -935,7 +935,6 @@ class WaveformWidget(QtWidgets.QWidget):
         for plot in self.state['plots']:
             if plot['enabled']:
                 self._draw_plot(p, plot)
-                p.setClipping(False)
                 self._draw_plot_statistics(p, plot)
         self._draw_spacers(p)
         self._draw_markers(p, size)
@@ -1135,6 +1134,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 segs, nsegs = d['points_avg'].set_line(d_x_segment, d_y)
                 p.setPen(s['plot1_trace'])
                 p.drawPolyline(segs)
+        p.setClipping(False)
 
     def _draw_markers_background(self, p):
         s = self._style
@@ -1301,6 +1301,7 @@ class WaveformWidget(QtWidgets.QWidget):
             values = _statistics_format(labels, values, plot['units'])
             p0 = np.rint(self._x_time64_to_pixel(m['pos2']))
             self._draw_statistics_text(p, (p0, y0), values, text_pos)
+        p.setClipping(False)
 
     def _draw_fps(self, p):
         s = self._style
@@ -1377,6 +1378,7 @@ class WaveformWidget(QtWidgets.QWidget):
         p.fillRect(x_pixels, y_pixels, w, h, p.brush())
         p.drawText(x_pixels + margin, y_pixels + margin + f_a, y_txt)
         p.drawText(x_pixels + margin, y_pixels + margin + f_h + f_a, x_txt)
+        p.setClipping(False)
 
     def _draw_plot_statistics(self, p, plot):
         if not self.show_statistics:
@@ -1607,7 +1609,7 @@ class WaveformWidget(QtWidgets.QWidget):
                     self._menu_statistics(idx, event)
             elif y_name == 'x_axis':
                 if x_name.startswith('plot'):
-                    self._menu_header(event)
+                    self._menu_x_axis(event)
 
     def _render_to_pixmap(self):
         sz = self._graphics.size()
@@ -1667,9 +1669,54 @@ class WaveformWidget(QtWidgets.QWidget):
         menu.popup(event.globalPos())
         return menu
 
+    def _on_x_add_single_marker(self):
+        x = self._x_pixel_to_time64(self._mouse_pos[0])
+        topic = get_topic_name(self)
+        self.pubsub.publish(f'{topic}/actions/!x_markers', ['add_single', x])
+
+    def _on_x_add_dual_marker(self):
+        x0, x1 = self.x_range
+        x = self._x_pixel_to_time64(self._mouse_pos[0])
+        xd = (x1 - x0) / 10
+        xm = (x1 - x0) / 100  # margin
+        z0, z1 = x - xd, x + xd
+        x0, x1 = x0 + xm, x1 - xm
+        if z0 < x0:
+            z0, z1 = x0, x0 + xd
+        elif z1 > x1:
+            z0, z1 = z1 - xd, x1
+        topic = get_topic_name(self)
+        self.pubsub.publish(f'{topic}/actions/!x_markers', ['add_dual', z0, z1])
+
+    def _on_x_clear_all_markers(self):
+        topic = get_topic_name(self)
+        self.pubsub.publish(f'{topic}/actions/!x_markers', 'clear_all')
+
+    def _menu_add_x_annotations(self, menu: QtWidgets.QMenu):
+        single = QtGui.QAction(N_('Single marker'))
+        menu.addAction(single)
+        single.triggered.connect(self._on_x_add_single_marker)
+        dual = QtGui.QAction(N_('Dual markers'))
+        menu.addAction(dual)
+        dual.triggered.connect(self._on_x_add_dual_marker)
+        clear_all = QtGui.QAction(N_('Clear all'))
+        menu.addAction(clear_all)
+        clear_all.triggered.connect(self._on_x_clear_all_markers)
+        return [single, dual, clear_all]
+
+    def _menu_x_axis(self, event: QtGui.QMouseEvent):
+        self._log.info('_menu_x_axis(%s)', event.pos())
+        menu = QtWidgets.QMenu('Waveform x-axis context menu', self)
+
+        annotations = menu.addMenu(N_('Annotations'))
+        annotations_sub = self._menu_add_x_annotations(annotations)
+        style_action = settings_action_create(self, menu)
+        self._menu = [menu, annotations_sub, style_action]
+        return self._menu_show(event)
+
     def _menu_y_axis(self, idx, event: QtGui.QMouseEvent):
         self._log.info('_menu_y_axis(%s, %s)', idx, event.pos())
-        menu = QtWidgets.QMenu('Waveform context menu', self)
+        menu = QtWidgets.QMenu('Waveform y-axis context menu', self)
         style_action = settings_action_create(self, menu)
         self._menu = [menu,
                       style_action]
@@ -1680,6 +1727,8 @@ class WaveformWidget(QtWidgets.QWidget):
         menu = QtWidgets.QMenu('Waveform context menu', self)
         annotations = menu.addMenu('&Annotations')
         anno_x = annotations.addMenu('&Vertical')
+        anno_x_sub = self._menu_add_x_annotations(anno_x)
+
         anno_y = annotations.addMenu('&Horizontal')
         anno_text = annotations.addMenu('&Text')
 
@@ -1691,21 +1740,13 @@ class WaveformWidget(QtWidgets.QWidget):
 
         style_action = settings_action_create(self, menu)
         self._menu = [menu,
-                      annotations, anno_x, anno_y, anno_text,
+                      annotations, anno_x, anno_x_sub, anno_y, anno_text,
                       copy_image,
                       style_action]
         return self._menu_show(event)
 
     def _menu_statistics(self, idx, event: QtGui.QMouseEvent):
         self._log.info('_menu_statistics(%s, %s)', idx, event.pos())
-        menu = QtWidgets.QMenu('Waveform context menu', self)
-        style_action = settings_action_create(self, menu)
-        self._menu = [menu,
-                      style_action]
-        return self._menu_show(event)
-
-    def _menu_header(self, event: QtGui.QMouseEvent):
-        self._log.info('_menu_header(%s)', event.pos())
         menu = QtWidgets.QMenu('Waveform context menu', self)
         style_action = settings_action_create(self, menu)
         self._menu = [menu,
@@ -1746,8 +1787,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
         marker_remove = menu.addAction(N_('Remove'))
         topic = get_topic_name(self)
-        lambda: self.pubsub.publish(f'{topic}/actions/markers', ['remove', idx])
-        marker_remove.triggered.connect(lambda: self.pubsub.publish(f'{topic}/actions/!markers', ['remove', idx]))
+        marker_remove.triggered.connect(lambda: self.pubsub.publish(f'{topic}/actions/!x_markers', ['remove', idx]))
         self._menu = [menu,
                       show_stats_menu, show_stats_group, left, right, off,
                       marker_remove]
@@ -1831,7 +1871,7 @@ class WaveformWidget(QtWidgets.QWidget):
         }
         return self._x_marker_add(marker)
 
-    def on_action_markers(self, topic, value):
+    def on_action_x_markers(self, topic, value):
         """Perform a marker action.
 
         :param value: Either the action string or details for markers.
@@ -1840,27 +1880,32 @@ class WaveformWidget(QtWidgets.QWidget):
         self._log.info('markers %s', value)
         if isinstance(value, str):
             if value == 'add_single':
-                m = self._x_marker_add_single()
-                return [topic, ['remove', m['id']]]
+                value = [value, None]
             elif value == 'add_dual':
-                m = self._x_marker_add_dual()
-                return [topic, ['remove', m['id']]]
+                value = [value, None, None]
             elif value == 'clear_all':
-                rv = [topic, ['add', copy.deepcopy(self.state['x_markers'])]]
-                self.state['x_markers'].clear()
-                self._repaint_request = True
-                return rv
+                value = [value]
             else:
                 raise ValueError(f'Unsupported marker action {value}')
+        cmd = value[0]
+        if cmd == 'remove':
+            self._x_marker_remove(value[1])
+        elif cmd == 'add_single':
+            m = self._x_marker_add_single(value[1])
+            return [topic, ['remove', m['id']]]
+        elif cmd == 'add_dual':
+            m = self._x_marker_add_dual(value[1], value[2])
+            return [topic, ['remove', m['id']]]
+        elif cmd == 'add':
+            for m in value[1]:
+                self._x_marker_add(m)
+        elif cmd == 'clear_all':
+            rv = [topic, ['add', copy.deepcopy(self.state['x_markers'])]]
+            self.state['x_markers'].clear()
+            self._repaint_request = True
+            return rv
         else:
-            cmd = value[0]
-            if cmd == 'remove':
-                self._x_marker_remove(value[1])
-            elif cmd == 'add':
-                for m in value[1]:
-                    self._x_marker_add(m)
-            else:
-                raise NotImplementedError(f'Unsupported marker action {value}')
+            raise NotImplementedError(f'Unsupported marker action {value}')
 
     def on_action_x_zoom(self, value):
         """Perform a zoom action.
