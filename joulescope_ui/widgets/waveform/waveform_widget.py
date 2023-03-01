@@ -182,6 +182,26 @@ def _marker_from_rsp_id(rsp_id):
     return marker_id, plot_id
 
 
+def _idx_to_segments(finite_idx):
+    length = len(finite_idx)
+    change_idx = np.where(np.diff(finite_idx))[0] + 1
+    segment_idx = []
+    if finite_idx[0]:  # starts with a valid segment
+        if not len(change_idx):  # best case, all data valid, one segment
+            segment_idx = [[0, length]]
+        else:  # NaNs, but starts with valid segment
+            segment_idx.append([0, change_idx[0]])
+            change_idx = change_idx[1:]
+    while len(change_idx):
+        if len(change_idx) == 1:
+            segment_idx.append([change_idx[0], length])
+            change_idx = change_idx[1:]
+        else:
+            segment_idx.append([change_idx[0], change_idx[1]])
+            change_idx = change_idx[2:]
+    return segment_idx
+
+
 class _PlotWidget(QtWidgets.QWidget):
     """The inner plot widget that simply calls back to the Waveform widget."""
 
@@ -358,6 +378,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self.state = None
         self._style_cache = None
         self._x_markers_by_id = {}
+        self._summary_data = None
         super().__init__(parent)
 
         # Cache Qt default instances to prevent memory leak in Pyside6 6.4.2
@@ -553,6 +574,7 @@ class WaveformWidget(QtWidgets.QWidget):
             return x0, x0 + d_z
 
     def _request_data(self, force=False):
+        first = True
         force = bool(force)
         self.x_range = self._compute_x_range()
         for signal in self._signals.values():
@@ -561,6 +583,10 @@ class WaveformWidget(QtWidgets.QWidget):
             if force or signal['changed']:
                 signal['changed'] = None
                 self._request_signal(signal, self.x_range)
+                if first:
+                    summary_length = self._summary_geometry()[2]  # width in pixels
+                    self._request_signal(signal, self._extents(), rsp_id=1, length=summary_length)
+            first = False
         for m in self.state['x_markers']:
             self._request_marker_data(m)
 
@@ -654,6 +680,8 @@ class WaveformWidget(QtWidgets.QWidget):
         if rsp_id > _MARKER_RSP_OFFSET:
             marker_id, plot_id = _marker_from_rsp_id(rsp_id)
             self._marker_data[(marker_id, plot_id)] = data
+        elif rsp_id == 1:
+            self._summary_data = data
         else:
             signal = self._signals_by_rsp_id.get(rsp_id)
             if signal is None:
@@ -764,6 +792,11 @@ class WaveformWidget(QtWidgets.QWidget):
             'plot_separator_brush': QtGui.QBrush(color_as_qcolor(v['waveform.plot_separator'])),
 
             'waveform.hover': QBrush(color_as_qcolor(v['waveform.hover'])),
+
+            'summary_missing': QBrush(color_as_qcolor(v['waveform.summary_missing'])),
+            'summary_trace': QPen(color_as_qcolor(v['waveform.summary_trace'])),
+            'summary_min_max_fill': QBrush(color_as_qcolor(v['waveform.summary_min_max_fill'])),
+            'summary_view': QBrush(color_as_qcolor(v['waveform.summary_view'])),
 
             'plot1_trace': QPen(color_as_qcolor(v['waveform.plot1_trace'])),
             'plot1_min_max_trace': QPen(color_as_qcolor(v['waveform.plot1_min_max_trace'])),
@@ -911,8 +944,10 @@ class WaveformWidget(QtWidgets.QWidget):
 
         y_geometry = [
             [margin, 'margin.top'],
+            [50, 'summary'],
+            [y_inner_spacing, 'spacer.ignore.summary'],
             [s['plot_label_size'].height() * 3, 'x_axis'],
-            [y_inner_spacing, 'spacer.ignore'],
+            [y_inner_spacing, 'spacer.ignore.x_axis'],
         ]
         plot_first = True
         for plot in self.state['plots']:
@@ -953,6 +988,7 @@ class WaveformWidget(QtWidgets.QWidget):
         if resize:
             self._plots_height_adjust()
         self._draw_background(p, size)
+        self._draw_summary(p)
         self._draw_x_axis(p)
         self._draw_markers_background(p)
 
@@ -971,6 +1007,83 @@ class WaveformWidget(QtWidgets.QWidget):
         s = self._style
         widget_w, widget_h = size
         p.fillRect(0, 0, widget_w, widget_h, s['background_brush'])
+
+    def _summary_geometry(self):
+        _, _, x0 = self._x_geometry_info['margin.left']
+        _, x1, _ = self._x_geometry_info['margin.right']
+        yh, y0, _, = self._y_geometry_info['summary']
+        return (x0, y0, x1 - x0, yh)
+
+    def _draw_summary(self, p):
+        s = self._style
+        if self._summary_data is None:
+            return
+        length = len(self._summary_data['x'])
+        if length <= 1:
+            return
+        x0, y0, w, h = self._summary_geometry()
+
+        p.setClipRect(x0, y0, w, h)
+
+        d = self._summary_data
+        d_xp = np.arange(0, length)
+        finite_idx = np.logical_not(np.isnan(d['avg']))
+        segment_idx = _idx_to_segments(finite_idx)
+
+        p.setPen(self._NO_PEN)
+        p.setBrush(s['plot1_missing'])
+        if len(segment_idx) > 1:
+            segment_idx_last = segment_idx[0][1]
+            for idx_start, idx_stop in segment_idx[1:]:
+                z1 = d_xp[segment_idx_last]
+                z2 = d_xp[idx_start]
+                p.drawRect(z1, y0, z2 - z1, h)
+                segment_idx_last = idx_stop
+
+        xe0, xe1 = d['x'][0], d['x'][-1]
+        gain = length / (xe1 - xe0)
+        pr0, pr1 = [int(np.rint(gain * (z - xe0))) for z in self.x_range]
+        pr0, pr1 = max(0, min(pr0, w)), max(0, min(pr1, w))
+        p.fillRect(x0 + pr0, y0, pr1 - pr0, h, s['summary_view'])
+
+        d_y_avg = d['avg'][finite_idx]
+        if not len(d_y_avg):
+            return
+        if d['min'] is not None:
+            y_min = np.min(d['min'][finite_idx])
+        else:
+            y_min = np.min(d_y_avg)
+        if d['max'] is not None:
+            y_max = np.max(d['max'][finite_idx])
+        else:
+            y_max = np.max(d_y_avg)
+        if y_min >= y_max:
+            return
+        y_gain = h / (y_max - y_min)
+
+        def y_value_to_pixel(y):
+            return (y_max - y) * y_gain
+
+        for idx_start, idx_stop in segment_idx:
+            d_x_segment = d_xp[idx_start:idx_stop]
+            d_avg = d['avg'][idx_start:idx_stop]
+            if self.show_min_max and d['min'] is not None and d['max'] is not None:
+                d_y_min = y_value_to_pixel(d['min'][idx_start:idx_stop])
+                d_y_max = y_value_to_pixel(d['max'][idx_start:idx_stop])
+                if 'points_min_max' not in d:
+                    d['points_min_max'] = PointsF()
+                segs, nsegs = d['points_min_max'].set_fill(d_x_segment, d_y_min, d_y_max)
+                p.setPen(self._NO_PEN)
+                p.setBrush(s['summary_min_max_fill'])
+                p.drawPolygon(segs)
+            d_y = y_value_to_pixel(d_avg)
+            if 'points_avg' not in d:
+                d['points_avg'] = PointsF()
+            segs, nsegs = d['points_avg'].set_line(d_x_segment, d_y)
+            p.setPen(s['summary_trace'])
+            p.drawPolyline(segs)
+
+        p.setClipping(False)
 
     def _draw_x_axis(self, p):
         s = self._style
@@ -1093,22 +1206,9 @@ class WaveformWidget(QtWidgets.QWidget):
                 if np.any(np.abs(d_x - d_x2) > 0.5):
                     self._log.warning('x does not conform to pixels')
                     d_x = d_x2
+
             finite_idx = self._finite_idx(d)
-            change_idx = np.where(np.diff(finite_idx))[0] + 1
-            segment_idx = []
-            if finite_idx[0]:  # starts with a valid segment
-                if not len(change_idx):  # best case, all data valid, one segment
-                    segment_idx = [[0, len(d_x)]]
-                else:  # NaNs, but starts with valid segment
-                    segment_idx.append([0, change_idx[0]])
-                    change_idx = change_idx[1:]
-            while len(change_idx):
-                if len(change_idx) == 1:
-                    segment_idx.append([change_idx[0], len(d_x)])
-                    change_idx = change_idx[1:]
-                else:
-                    segment_idx.append([change_idx[0], change_idx[1]])
-                    change_idx = change_idx[2:]
+            segment_idx = _idx_to_segments(finite_idx)
 
             p.setPen(self._NO_PEN)
             p.setBrush(s['plot1_missing'])
@@ -1175,15 +1275,15 @@ class WaveformWidget(QtWidgets.QWidget):
 
             if m['dtype'] == 'dual':
                 dy = _si_format(m['pos2'] - m['pos1'], plot['units'])
-                self._draw_text(p, x0 + _MARGIN, p1, t + '  Δ=' + dy)
+                self._draw_text(p, x0 + _MARGIN, p1 + _MARGIN, t + '  Δ=' + dy)
                 p.setPen(pen)
                 p2 = np.rint(self._y_value_to_pixel(plot, m['pos2']))
                 p.drawLine(x0, p2, x1, p2)
                 p.setPen(s['text_pen'])
                 t = _si_format(m['pos2'], plot['units'])
-                self._draw_text(p, x0 + _MARGIN, p2, t + '  Δ=' + dy)
+                self._draw_text(p, x0 + _MARGIN, p2 + _MARGIN, t + '  Δ=' + dy)
             else:
-                self._draw_text(p, x0 + _MARGIN, p1, t)
+                self._draw_text(p, x0 + _MARGIN, p1 + _MARGIN, t)
 
         p.setClipping(False)
 
@@ -1546,7 +1646,7 @@ class WaveformWidget(QtWidgets.QWidget):
         if y_name is None:
             pass
         elif y_name.startswith('spacer.'):
-            if y_name not in ['spacer.ignore']:
+            if not y_name.startswith('spacer.ignore'):
                 item = y_name
         elif y_name.startswith('plot.') and (x_name.startswith('plot') or y_name == 'header'):
             item = self._find_x_marker(pos[0])

@@ -10,6 +10,11 @@ waveform.plot_border = #ffffff80
 
 waveform.hover = #e0e0e0a0
 
+waveform.summary_missing = #C0C04030
+waveform.summary_trace = #ffff00ff
+waveform.summary_min_max_fill = #FF404060
+waveform.summary_view = #4050FF80
+
 waveform.plot1_trace = #ffff00ff
 waveform.plot1_min_max_trace = #FF4040A0
 waveform.plot1_min_max_fill = #FF404060
