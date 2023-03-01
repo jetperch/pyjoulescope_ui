@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PySide6 import QtWidgets, QtGui, QtCore
+from PySide6 import QtWidgets, QtGui, QtCore  # , QtOpenGLWidgets
 from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topic_name, tooltip_format, time64
 from joulescope_ui.styles import styled_widget, color_as_qcolor, font_as_qfont
 from joulescope_ui.widget_tools import settings_action_create
@@ -313,7 +313,7 @@ def _target_lookup_by_pos(targets, pos):
 
 @register
 @styled_widget(N_('Waveform'))
-class WaveformWidget(QtWidgets.QWidget):
+class WaveformWidget(QtWidgets.QWidget):  # todo QtOpenGLWidgets.QOpenGLWidget
     CAPABILITIES = ['widget@', CAPABILITIES.SIGNAL_BUFFER_SINK]
 
     SETTINGS = {
@@ -1121,7 +1121,6 @@ class WaveformWidget(QtWidgets.QWidget):
         x_offset_str = time64.as_datetime(x_offset).isoformat()
         p.drawText(plot_x0, x_axis_y0 + s['plot_label_size'].height() + s['axis_font_metrics'].ascent(), x_offset_str)
         p.drawText(left_x0, y_text, 's')
-        self._draw_text(p, left_x0, x_axis_y0 + 2 * s['plot_label_size'].height() + s['axis_font_metrics'].ascent(), 's')
         if x_grid is None:
             pass
         else:
