@@ -96,7 +96,6 @@ _STATE_DEFAULT = {
         # pos2: For single: not present.  For dual: the second marker position in time64.
 }
 
-
 def _si_format(values, units):
     results = []
     if units is None:
@@ -129,6 +128,30 @@ def _statistics_format(labels, values, units):
         v1, v2 = value_txt.split(' ')
         r.append((label, v1, v2))
     return r
+
+
+def _marker_action_string_to_command(value):
+    if isinstance(value, str):
+        if value == 'add_single':
+            value = [value, None]
+        elif value == 'add_dual':
+            value = [value, None, None]
+        elif value == 'clear_all':
+            value = [value]
+        else:
+            raise ValueError(f'Unsupported marker action {value}')
+    return value
+
+
+def _marker_id_next(markers):
+    id_all = sorted([z['id'] for z in markers])
+    idx = 1
+    while len(id_all):
+        k = id_all.pop(0)
+        if idx != k:
+            break
+        idx += 1
+    return idx
 
 
 _MARKER_RSP_OFFSET = (1 << 48)
@@ -694,10 +717,12 @@ class WaveformWidget(QtWidgets.QWidget):
         :param y: The y-axis location.
         :param txt: The text to draw
         """
-        m = p.fontMetrics()
-        r = m.boundingRect(txt)
-        p.fillRect(x, y - m.ascent(), r.width(), r.height(), p.brush())
-        p.drawText(x, y, txt)
+        margin = _MARGIN
+        margin2 = _MARGIN * 2
+        metrics = p.fontMetrics()
+        r = metrics.boundingRect(txt)
+        p.fillRect(x, y, r.width() + margin2, r.height() + margin2, p.brush())
+        p.drawText(x + margin, y + margin + metrics.ascent(), txt)
 
     def _nan_idx(self, data):
         if data is None:
@@ -1134,6 +1159,32 @@ class WaveformWidget(QtWidgets.QWidget):
                 segs, nsegs = d['points_avg'].set_line(d_x_segment, d_y)
                 p.setPen(s['plot1_trace'])
                 p.drawPolyline(segs)
+
+        p.setBrush(s['text_brush'])
+        f_a = s['axis_font_metrics'].ascent()
+        for m in plot['y_markers']:
+            color_index = ((m['id'] - 1) % 6) + 1
+            pen = s[f'marker{color_index}_pen']
+            fg = s[f'marker{color_index}_fg']
+            bg = s[f'marker{color_index}_bg']
+            p1 = np.rint(self._y_value_to_pixel(plot, m['pos1']))
+            p.setPen(pen)
+            p.drawLine(x0, p1, x1, p1)
+            p.setPen(s['text_pen'])
+            t = _si_format(m['pos1'], plot['units'])
+
+            if m['dtype'] == 'dual':
+                dy = _si_format(m['pos2'] - m['pos1'], plot['units'])
+                self._draw_text(p, x0 + _MARGIN, p1, t + '  Δ=' + dy)
+                p.setPen(pen)
+                p2 = np.rint(self._y_value_to_pixel(plot, m['pos2']))
+                p.drawLine(x0, p2, x1, p2)
+                p.setPen(s['text_pen'])
+                t = _si_format(m['pos2'], plot['units'])
+                self._draw_text(p, x0 + _MARGIN, p2, t + '  Δ=' + dy)
+            else:
+                self._draw_text(p, x0 + _MARGIN, p1, t)
+
         p.setClipping(False)
 
     def _draw_markers_background(self, p):
@@ -1390,13 +1441,6 @@ class WaveformWidget(QtWidgets.QWidget):
         yd, y0, y1 = self._y_geometry_info[plot['y_region']]
         s = self._style
         z0, z1 = self.x_range
-        font = s['axis_font']
-        font_metrics = s['axis_font_metrics']
-        f_h = font_metrics.height()
-        f_a = font_metrics.ascent()
-        p.setFont(font)
-        p.setPen(s['text_pen'])
-        p.setBrush(self._NO_BRUSH)
 
         x_data = data['x']
         y_data = data['avg']
@@ -1423,26 +1467,15 @@ class WaveformWidget(QtWidgets.QWidget):
         y_rms = np.sqrt(y_avg * y_avg + y_std * y_std)
         q_names = ['avg', 'std', 'rms', 'min', 'max', 'p2p']
         q_value = [y_avg, y_std, y_rms, y_min, y_max, y_max - y_min]
-        q_str = _si_format(q_value, plot['units'])
+        values = _statistics_format(q_names, q_value, plot['units'])
 
         dt = (z1 - z0) / time64.SECOND
         integral_units = plot.get('integral')
         if integral_units is not None:
-            q_names.append('∫')
-            q_str.append(_si_format(y_avg * dt, integral_units))
-        q_names.append('Δt')
-        q_str.append(_si_format(dt, 's'))
-        y = y0 + f_a
-        p.setClipRect(x0, y0, xd, yd)
-        x2 = x0 + s['statistics_name_size']
-        x3 = x2 + s['statistics_value_size']
-        for name, value in zip(q_names, q_str):
-            p.drawText(x0, y, name)
-            v1, v2 = value.split(' ')
-            p.drawText(x2, y, v1)
-            p.drawText(x3, y, v2)
-            y += f_h
-        p.setClipping(False)
+            integral_values = _statistics_format(['∫'], [y_avg * dt], integral_units)
+            values.extend(integral_values)
+        values.extend(_statistics_format(['Δt'], [dt], 's'))
+        self._draw_statistics_text(p, (x0, y0), values)
 
     def _target_lookup_by_pos(self, pos):
         """Get the target object.
@@ -1480,6 +1513,29 @@ class WaveformWidget(QtWidgets.QWidget):
             return f'x_marker.{m["id"]}.{pos}'
         return ''
 
+    def _find_y_marker(self, plot, y):
+        plot = self._plot_get(plot)
+        m_y = []
+        idx = []
+        pos_idx = []
+        for k, m in enumerate(plot['y_markers']):
+            m_y.append(m['pos1'])
+            idx.append(k)
+            pos_idx.append('pos1')
+            if m['dtype'] == 'dual':
+                m_y.append(m['pos2'])
+                pos_idx.append('pos2')
+                idx.append(k)
+        m_p = self._y_value_to_pixel(plot, np.array(m_y))
+        dy = np.abs(y - m_p)
+        z = np.where(dy < 5)[0]
+        if len(z):
+            m_idx = idx[z[0]]
+            pos = pos_idx[z[0]]
+            m = plot['y_markers'][m_idx]
+            return f'{plot["y_region"]}.y_marker.{m["id"]}.{pos}'
+        return ''
+
     def _find_item(self, pos=None):
         if pos is None:
             pos = self._mouse_pos
@@ -1494,6 +1550,8 @@ class WaveformWidget(QtWidgets.QWidget):
                 item = y_name
         elif y_name.startswith('plot.') and (x_name.startswith('plot') or y_name == 'header'):
             item = self._find_x_marker(pos[0])
+            if not item and x_name.startswith('plot'):
+                item = self._find_y_marker(y_name, pos[1])
         return item, x_name, y_name
 
     def _set_cursor(self, pos=None):
@@ -1505,7 +1563,7 @@ class WaveformWidget(QtWidgets.QWidget):
             cursor = self._CURSOR_SIZE_VER
         elif item.startswith('x_marker'):
             cursor = self._CURSOR_SIZE_HOR
-        elif item.startswith('y_marker'):
+        elif 'y_marker' in item:
             cursor = self._CURSOR_SIZE_VER
         self._graphics.setCursor(cursor)
         return item, x_name, y_name
@@ -1552,6 +1610,13 @@ class WaveformWidget(QtWidgets.QWidget):
                     self._request_data(True)
                 else:
                     self.repaint()
+            elif action == 'move.y_marker':
+                item = self._mouse_action[1]
+                _, plot_index, _, m_idx, m_field = item.split('.')
+                plot = self._plot_get(int(plot_index))
+                m = self._y_marker_get(plot, int(m_idx))
+                m[m_field] = self._y_pixel_to_value(plot, y)
+                self.repaint()
             elif action == 'x_pan':
                 self._mouse_x_pan(x)
 
@@ -1588,6 +1653,11 @@ class WaveformWidget(QtWidgets.QWidget):
                     self._mouse_action = None
                 else:
                     self._mouse_action = ['move.x_marker', item]
+            elif 'y_marker' in item:
+                if self._mouse_action is not None:
+                    self._mouse_action = None
+                else:
+                    self._mouse_action = ['move.y_marker', item]
             elif y_name.startswith('plot') and x_name == 'plot':
                 if self.pin_left or self.pin_right:
                     pass  # pinned to extents, cannot pan
@@ -1599,6 +1669,8 @@ class WaveformWidget(QtWidgets.QWidget):
         if event.button() == QtCore.Qt.RightButton:
             if item.startswith('x_marker.'):
                 self._menu_x_marker_single(item, event)
+            elif 'y_marker' in item:
+                self._menu_y_marker_single(item, event)
             elif y_name.startswith('plot.'):
                 idx = int(y_name.split('.')[1])
                 if x_name.startswith('y_axis'):
@@ -1657,7 +1729,7 @@ class WaveformWidget(QtWidgets.QWidget):
         item, x_name, y_name = self._find_item((x, y))
         self._log.info(f'mouse release ({x}, {y}) -> ({item}, {x_name}, {y_name})')
         if self._mouse_pos_start == (x, y):
-            if item.startswith('x_marker'):
+            if item.startswith('x_marker') or 'y_marker' in item:
                 pass  # keep dragging
             else:
                 self._mouse_action = None
@@ -1669,39 +1741,21 @@ class WaveformWidget(QtWidgets.QWidget):
         menu.popup(event.globalPos())
         return menu
 
-    def _on_x_add_single_marker(self):
-        x = self._x_pixel_to_time64(self._mouse_pos[0])
+    def _on_menu_x_marker(self, action):
+        pos = self._x_pixel_to_time64(self._mouse_pos[0])
         topic = get_topic_name(self)
-        self.pubsub.publish(f'{topic}/actions/!x_markers', ['add_single', x])
-
-    def _on_x_add_dual_marker(self):
-        x0, x1 = self.x_range
-        x = self._x_pixel_to_time64(self._mouse_pos[0])
-        xd = (x1 - x0) / 10
-        xm = (x1 - x0) / 100  # margin
-        z0, z1 = x - xd, x + xd
-        x0, x1 = x0 + xm, x1 - xm
-        if z0 < x0:
-            z0, z1 = x0, x0 + xd
-        elif z1 > x1:
-            z0, z1 = z1 - xd, x1
-        topic = get_topic_name(self)
-        self.pubsub.publish(f'{topic}/actions/!x_markers', ['add_dual', z0, z1])
-
-    def _on_x_clear_all_markers(self):
-        topic = get_topic_name(self)
-        self.pubsub.publish(f'{topic}/actions/!x_markers', 'clear_all')
+        self.pubsub.publish(f'{topic}/actions/!x_markers', [action, pos, None])
 
     def _menu_add_x_annotations(self, menu: QtWidgets.QMenu):
         single = QtGui.QAction(N_('Single marker'))
         menu.addAction(single)
-        single.triggered.connect(self._on_x_add_single_marker)
+        single.triggered.connect(lambda: self._on_menu_x_marker('add_single'))
         dual = QtGui.QAction(N_('Dual markers'))
         menu.addAction(dual)
-        dual.triggered.connect(self._on_x_add_dual_marker)
+        dual.triggered.connect(lambda: self._on_menu_x_marker('add_dual'))
         clear_all = QtGui.QAction(N_('Clear all'))
         menu.addAction(clear_all)
-        clear_all.triggered.connect(self._on_x_clear_all_markers)
+        clear_all.triggered.connect(lambda: self._on_menu_x_marker('clear_all'))
         return [single, dual, clear_all]
 
     def _menu_x_axis(self, event: QtGui.QMouseEvent):
@@ -1714,12 +1768,49 @@ class WaveformWidget(QtWidgets.QWidget):
         self._menu = [menu, annotations_sub, style_action]
         return self._menu_show(event)
 
+    def _lookup_plot(self, pos=None):
+        """Lookup the y-axis plot for the y pixel position.
+
+        :param pos: The y-axis pixel position.  None (default) uses
+            the current mouse coordinates.
+        :return: The plot object.  If the current position is not in a
+            plot, then return None.
+        """
+        if pos is None:
+            pos = self._mouse_pos[1]
+        y_name = _target_lookup_by_pos(self._y_geometry_info, pos)
+        if not y_name.startswith('plot.'):
+            return None
+        parts = y_name.split('.')
+        plot_index = int(parts[1])
+        return self.state['plots'][plot_index]
+
+    def _on_menu_y_marker(self, action):
+        plot = self._lookup_plot()
+        if plot is not None:
+            pos = self._y_pixel_to_value(plot, self._mouse_pos[1])
+            topic = get_topic_name(self)
+            self.pubsub.publish(f'{topic}/actions/!y_markers', [action, plot, pos, None])
+
+    def _menu_add_y_annotations(self, menu: QtWidgets.QMenu):
+        single = QtGui.QAction(N_('Single marker'))
+        menu.addAction(single)
+        single.triggered.connect(lambda: self._on_menu_y_marker('add_single'))
+        dual = QtGui.QAction(N_('Dual markers'))
+        menu.addAction(dual)
+        dual.triggered.connect(lambda: self._on_menu_y_marker('add_dual'))
+        clear_all = QtGui.QAction(N_('Clear all'))
+        menu.addAction(clear_all)
+        clear_all.triggered.connect(lambda: self._on_menu_y_marker('clear_all'))
+        return [single, dual, clear_all]
+
     def _menu_y_axis(self, idx, event: QtGui.QMouseEvent):
         self._log.info('_menu_y_axis(%s, %s)', idx, event.pos())
         menu = QtWidgets.QMenu('Waveform y-axis context menu', self)
+        annotations = menu.addMenu(N_('Annotations'))
+        annotations_sub = self._menu_add_y_annotations(annotations)
         style_action = settings_action_create(self, menu)
-        self._menu = [menu,
-                      style_action]
+        self._menu = [menu, annotations, annotations_sub, style_action]
         return self._menu_show(event)
 
     def _menu_plot(self, idx, event: QtGui.QMouseEvent):
@@ -1730,6 +1821,7 @@ class WaveformWidget(QtWidgets.QWidget):
         anno_x_sub = self._menu_add_x_annotations(anno_x)
 
         anno_y = annotations.addMenu('&Horizontal')
+        anno_y_sub = self._menu_add_y_annotations(anno_y)
         anno_text = annotations.addMenu('&Text')
 
         copy_image = menu.addAction(N_('Save image to file'))
@@ -1740,7 +1832,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
         style_action = settings_action_create(self, menu)
         self._menu = [menu,
-                      annotations, anno_x, anno_x_sub, anno_y, anno_text,
+                      annotations, anno_x, anno_x_sub, anno_y, anno_y_sub, anno_text,
                       copy_image,
                       style_action]
         return self._menu_show(event)
@@ -1793,19 +1885,27 @@ class WaveformWidget(QtWidgets.QWidget):
                       marker_remove]
         return self._menu_show(event)
 
+    def _menu_y_marker_single(self, item, event: QtGui.QMouseEvent):
+        _, plot_idx, _, m_idx, m_pos = item.split('.')
+        plot_idx, m_idx = int(plot_idx), int(m_idx)
+        plot = self._plot_get(plot_idx)
+        m = self._y_marker_get(plot, m_idx)
+
+        menu = QtWidgets.QMenu('Waveform y_marker context menu', self)
+        marker_remove = menu.addAction(N_('Remove'))
+        topic = get_topic_name(self)
+        marker_remove.triggered.connect(lambda: self.pubsub.publish(f'{topic}/actions/!y_markers',
+                                                                    ['remove', plot_idx, m_idx]))
+        self._menu = [menu,
+                      marker_remove]
+        return self._menu_show(event)
+
     def on_style_change(self):
         self._style_cache = None
         self.update()
 
     def _x_marker_id_next(self):
-        id_all = sorted([z['id'] for z in self.state['x_markers']])
-        idx = 1
-        while len(id_all):
-            k = id_all.pop(0)
-            if idx != k:
-                break
-            idx += 1
-        return idx
+        return _marker_id_next(self.state['x_markers'])
 
     def _x_marker_position(self, xi):
         xi_init = xi
@@ -1852,12 +1952,17 @@ class WaveformWidget(QtWidgets.QWidget):
             'id': self._x_marker_id_next(),
             'dtype': 'single',
             'pos1': pos1,
+            'pos1_test_pos': 'top',
         }
         return self._x_marker_add(marker)
 
     def _x_marker_add_dual(self, pos1=None, pos2=None):
         x0, x1 = self.x_range
-        xc = (x1 + x0) // 2
+        if pos1 is not None and pos2 is None:
+            xc = pos1
+            pos1 = None
+        else:
+            xc = (x1 + x0) // 2
         xd = (x1 - x0) // 10
         if pos1 is None:
             pos1 = self._x_marker_position(xc - xd)
@@ -1868,28 +1973,30 @@ class WaveformWidget(QtWidgets.QWidget):
             'dtype': 'dual',
             'pos1': pos1,
             'pos2': pos2,
+            'pos1_test_pos': 'top',
+            'pos2_test_pos': 'bottom',
         }
         return self._x_marker_add(marker)
 
     def on_action_x_markers(self, topic, value):
         """Perform a marker action.
 
-        :param value: Either the action string or details for markers.
-            Action strings include: add_single, add_dual, clear_all
+        :param value: Either the action string or [action, args...].
+            Action strings that do not require arguments include:
+            add_single, add_dual, clear_all.  The commands are:
+            * ['add_single', pos]
+            * ['add_dual', center, None]
+            * ['add_dual', pos1, pos2]
+            * ['clear_all']
+            * ['remove', marker_id, ...]
+            * ['add', marker_obj, ...]  # for undo remove
         """
-        self._log.info('markers %s', value)
-        if isinstance(value, str):
-            if value == 'add_single':
-                value = [value, None]
-            elif value == 'add_dual':
-                value = [value, None, None]
-            elif value == 'clear_all':
-                value = [value]
-            else:
-                raise ValueError(f'Unsupported marker action {value}')
+        self._log.info('x_markers %s', value)
+        value = _marker_action_string_to_command(value)
         cmd = value[0]
         if cmd == 'remove':
-            self._x_marker_remove(value[1])
+            m = self._x_marker_remove(value[1])
+            return [topic, ['add', m]]
         elif cmd == 'add_single':
             m = self._x_marker_add_single(value[1])
             return [topic, ['remove', m['id']]]
@@ -1897,11 +2004,158 @@ class WaveformWidget(QtWidgets.QWidget):
             m = self._x_marker_add_dual(value[1], value[2])
             return [topic, ['remove', m['id']]]
         elif cmd == 'add':
-            for m in value[1]:
+            for m in value[1:]:
                 self._x_marker_add(m)
+            return [topic, ['remove'] + value[1:]]
         elif cmd == 'clear_all':
             rv = [topic, ['add', copy.deepcopy(self.state['x_markers'])]]
             self.state['x_markers'].clear()
+            self._repaint_request = True
+            return rv
+        else:
+            raise NotImplementedError(f'Unsupported marker action {value}')
+
+    def _y_marker_id_next(self, plot):
+        return _marker_id_next(plot['y_markers'])
+
+    def _y_marker_position(self, plot, yi):
+        yi_init = yi
+        y0, y1 = plot['range']
+        p0, p1 = self._y_value_to_pixel(plot, y0), self._y_value_to_pixel(plot, y1)
+        pd = (p1 - p0) // 25
+        pd = min(10, pd)
+        xd = self._y_pixel_to_value(plot, p0 + pd) - y0
+        markers = plot['y_markers']
+        m1 = [z['pos1'] for z in markers]
+        m2 = [z['pos2'] for z in markers if 'pos2' in z]
+        m = np.array(m1 + m2, dtype=float)
+        if not len(m):
+            return yi
+        while yi < y1:
+            dm = np.min(np.abs(m - yi))
+            if dm >= xd:
+                return yi
+            yi += xd
+        return yi_init  # give up
+
+    def _y_marker_get(self, plot, marker):
+        if isinstance(marker, int):
+            for m in plot['y_markers']:
+                if m['id'] == marker:
+                    return m
+        elif isinstance(marker, dict):
+            return marker
+        else:
+            raise ValueError(f'Could not find marker {marker}')
+
+    def _y_marker_add(self, plot, marker):
+        self._log.info('y_marker_add %s', marker)
+        plot['y_markers'].append(marker)
+        self._request_data(True)
+        return marker
+
+    def _y_marker_remove(self, plot, marker):
+        self._log.info('y_marker_remove %s %s', plot['y_region'], marker)
+        marker = self._y_marker_get(plot, marker)
+        plot['y_markers'].remove(marker)
+        return marker
+
+    def _y_marker_add_single(self, plot, pos1=None):
+        if pos1 is None:
+            y0, y1 = plot['range']
+            yc = (y1 + y0) // 2
+            pos1 = self._y_marker_position(plot, yc)
+        marker = {
+            'id': self._y_marker_id_next(plot),
+            'dtype': 'single',
+            'pos1': pos1,
+            'plot_index': plot['index'],
+        }
+        return self._y_marker_add(plot, marker)
+
+    def _y_marker_add_dual(self, plot, pos1=None, pos2=None):
+        y0, y1 = plot['range']
+        if pos1 is not None and pos2 is None:
+            yc = pos1
+            pos1 = None
+        else:
+            yc = (y1 + y0) / 2
+        yd = (y1 - y0) / 10
+        if pos1 is None:
+            pos1 = self._y_marker_position(plot, yc - yd)
+        if pos2 is None:
+            pos2 = self._y_marker_position(plot, yc + yd)
+        marker = {
+            'id': self._y_marker_id_next(plot),
+            'dtype': 'dual',
+            'pos1': pos1,
+            'pos2': pos2,
+            'plot_index': plot['index'],
+        }
+        return self._y_marker_add(plot, marker)
+
+    def _plot_get(self, plot):
+        """Get a plot.
+
+        :param plot: The plot specification, which is one of:
+            * The plot index integer.
+            * The plot region name.
+            * The plot instance.
+        :return: The plot instance.
+        :raises ValueError: On invalid plot specifications.
+        :raises KeyError: If the specified plot does not exist.
+        """
+
+        if isinstance(plot, str):
+            parts = plot.split('.')
+            if len(parts) == 2:
+                plot = int(parts[1])
+            else:
+                raise ValueError(f'Unsupported plot string: {plot}')
+        if isinstance(plot, int):
+            plot = self.state['plots'][plot]
+        elif isinstance(plot, dict):
+            pass
+        else:
+            raise ValueError(f'Unsupported plot identifier {plot}')
+        return plot
+
+    def on_action_y_markers(self, topic, value):
+        """Perform a y-axis marker action.
+
+        :param value: Either the action string or [action, args...].
+            Action strings that do not require arguments include:
+            add_single, add_dual, clear_all.  The commands are:
+            * ['add_single', plot, pos]
+            * ['add_dual', plot, center, None]
+            * ['add_dual', plot, pos1, pos2]
+            * ['clear_all', plot]
+            * ['remove', plot, marker_id, ...]
+            * ['add', plot, marker_obj, ...]  # for undo remove
+
+            In all cases, plot can be the plot index or plot object.
+        """
+        self._log.info('y_markers %s', value)
+        value = _marker_action_string_to_command(value)
+        cmd = value[0]
+        plot = self._plot_get(value[1])
+        if cmd == 'remove':
+            for m in value[2:]:
+                self._y_marker_remove(plot, m)
+            return [topic, ['add', plot['index']] + value[2:]]
+        elif cmd == 'add_single':
+            m = self._y_marker_add_single(plot, value[2])
+            return [topic, ['remove', plot['index'], m['id']]]
+        elif cmd == 'add_dual':
+            m = self._y_marker_add_dual(plot, value[2], value[3])
+            return [topic, ['remove', plot['index'], m['id']]]
+        elif cmd == 'add':
+            for m in value[2:]:
+                self._y_marker_add(plot, m)
+            return [topic, ['remove', plot['index']] + value[2:]]
+        elif cmd == 'clear_all':
+            rv = [topic, ['add', copy.deepcopy(plot['y_markers'])]]
+            plot['y_markers'].clear()
             self._repaint_request = True
             return rv
         else:
