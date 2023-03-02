@@ -1483,6 +1483,12 @@ class WaveformWidget(QtWidgets.QWidget):
             v_rms = np.sqrt(v_avg * v_avg + v_std * v_std)
             values = [v_avg, v_std, v_rms, v_min, v_max, v_max - v_min]
             values = _statistics_format(labels, values, plot['units'])
+
+            integral_units = plot.get('integral')
+            if integral_units is not None:
+                integral_values = _statistics_format(['∫'], [v_avg * dt], integral_units)
+                values.extend(integral_values)
+
             p0 = np.rint(self._x_time64_to_pixel(m['pos2']))
             self._draw_statistics_text(p, (p0, y0), values, text_pos)
         p.setClipping(False)
