@@ -13,50 +13,42 @@
 # limitations under the License.
 
 from PySide6 import QtWidgets
-from joulescope_ui import register
-from joulescope_ui.help_ui import format_help
+from joulescope_ui import register, N_, pubsub_singleton
 
 
-_TALK = """\
-<html>
-<head>
-{style}
-</head>
-<body>
-
-<p><a href="https://forum.joulescope.com/">Visit forum</a> ⭐</p>
-
-<p><a href="">Joulescope source code:</a></p>
-<ul>
-<li><a href="https://github.com/jetperch/pyjoulescope_ui">UI</a></li>
-<li><a href="https://github.com/jetperch/joulescope_driver">driver</a></li>
-<li><a href="https://github.com/jetperch/jls">JLS</a> (file format)</li>
-<li><a href="https://github.com/jetperch/pyjoulescope_examples">Python scripting examples</a></li>
-</ul>
-
-<p><a href="https://www.joulescope.com/pages/contact">Contact support</a></p>
-</body>
-"""
-
+_MENU_ITEMS = [
+    ['getting_started', N_('Getting Started'), ['registry/help_html/actions/!show', 'getting_started']],
+    ['changelog', N_('Changelog'), ['registry/help_html/actions/!show', 'changelog']],
+    ['credits', N_('Credits'), ['registry/help_html/actions/!show', 'credits']],
+    ['about', N_('About'), ['registry/help_html/actions/!show', 'about']],
+]
 
 @register
-class HelpWidget(QtWidgets.QWidget):
+class HamburgerWidget(QtWidgets.QWidget):
     CAPABILITIES = []
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.setObjectName('talk_widget')
+        self._widgets = []
+        self.setObjectName('hamburger_widget')
         self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         self._layout = QtWidgets.QVBoxLayout()
         self._layout.setContentsMargins(0, 0, 0, 0)
         self._layout.setSpacing(0)
         self.setLayout(self._layout)
 
-        _, html = format_help('Help', _TALK)
-        self._label = QtWidgets.QLabel(html, self)
-        self._label.setWordWrap(True)
-        self._label.setOpenExternalLinks(True)
-        self._layout.addWidget(self._label)
+        for obj_name, user_name, action in _MENU_ITEMS:
+            self._add_button(obj_name, user_name, action)
 
         self._spacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self._layout.addItem(self._spacer)
+
+    def _add_button(self, obj_name, user_name, action):
+        b = QtWidgets.QPushButton(self)
+        b.setObjectName(obj_name)
+        b.setText(user_name)
+        self._layout.addWidget(b)
+
+        b.clicked.connect(lambda: pubsub_singleton.publish(*action))
+        self._widgets.append(b)
+        return b

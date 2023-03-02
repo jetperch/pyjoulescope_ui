@@ -15,10 +15,11 @@
 # https://stackoverflow.com/questions/11874767/real-time-plotting-in-while-loop-with-matplotlib
 # https://wiki.qt.io/Gallery_of_Qt_CSS_Based_Styles
 
-from joulescope_ui import pubsub_singleton, N_, get_topic_name, PUBSUB_TOPICS, CAPABILITIES, Metadata
+from joulescope_ui import pubsub_singleton, N_, get_topic_name, tooltip_format, CAPABILITIES, Metadata
 from joulescope_ui.widgets import *   # registers all built-in widgets
 from joulescope_ui.logging_util import logging_preconfig, logging_config
 from joulescope_ui.styles.manager import style_settings
+from joulescope_ui.process_monitor import ProcessMonitor
 from PySide6 import QtCore, QtGui, QtWidgets
 import PySide6QtAds as QtAds
 from .error_window import ErrorWindow
@@ -32,6 +33,22 @@ from .paths import Paths
 from .view import View  # registers the view manager
 import appnope
 import logging
+
+
+_CPU_UTILIZATION_TOOLTIP = tooltip_format(
+    N_('CPU utilization'),
+    N_("""\
+    Display the CPU utilization by this application and
+    the total CPU utilization by all applications.
+    The value is displayed in percent."""))
+
+
+_MEMORY_UTILIZATION_TOOLTIP = tooltip_format(
+    N_('Memory utilization'),
+    N_("""\
+    Display the memory (RAM) utilization by this application
+    and by all applications.
+    The value is displayed in percent."""))
 
 
 class QResyncEvent(QtCore.QEvent):
@@ -215,9 +232,26 @@ class MainWindow(QtWidgets.QMainWindow):
         self._pubsub.publish('registry/StyleManager:0/actions/!render', None)
 
         self._pubsub.process()
+
+        self._process_monitor = ProcessMonitor(self)
+        self._process_monitor.update.connect(self._on_process_monitor)
+        self._cpu_utilization = QtWidgets.QLabel(self._status_bar)
+        self._cpu_utilization.setToolTip(_CPU_UTILIZATION_TOOLTIP)
+        self._status_bar.addPermanentWidget(self._cpu_utilization)
+        self._mem_utilization = QtWidgets.QLabel(self._status_bar)
+        self._mem_utilization.setToolTip(_MEMORY_UTILIZATION_TOOLTIP)
+        self._status_bar.addPermanentWidget(self._mem_utilization)
         self.show()
         # self._mem_leak_debugger = MemLeakDebugger(self)
         # self._side_bar.on_cmd_show(1)
+
+    def _on_process_monitor(self, obj):
+        x1 = obj['cpu_utilization']['self']
+        x2 = obj['cpu_utilization']['all']
+        self._cpu_utilization.setText(f'CPU: {x1:.1f}%, {x2:.1f}%')
+        x1 = obj['memory_utilization']['self'] / obj['memory_utilization']['total'] * 100
+        x2 = obj['memory_utilization']['all'] / obj['memory_utilization']['total'] * 100
+        self._mem_utilization.setText(f'Mem: {x1:.1f}%, {x2:.1f}%')
 
     def _on_blink_timer(self):
         topic = get_topic_name(self)
