@@ -50,6 +50,7 @@ class CAPABILITIES(Enum):
         * settings
           * name
           * info: {vendor, model, version, serial_number} read-only
+            version may be a dict with key/value pairs for each versioned subsystem.
           * state: 0:closed, 1:opening, 2:open, 3:closing (read-only for application)
           * state_req: 0:close, 1:open
     """
@@ -96,8 +97,10 @@ class CAPABILITIES(Enum):
           * units
           * source: (unique_id, if not same as this instance)
           * source_topic: (fully qualified topic, if not from this instance)
-          * sample_freq: (output)
-        * settings/signals/{signal_id}/range: [t_start, t_end] in time64 (read-only)
+        * settings/signals/{signal_id}/range: read-only dict with keys:
+          * time64: [t_start, t_end]
+          * samples: {'start': s_start, 'end': s_end, 'length': s_length}
+          * sample_rate: For fixed-rate samples, the sample rate in Hz.
         * actions/!request obj with keys:
           * signal_id: The signal_id for the request.
           * time_start: The start time as time64.

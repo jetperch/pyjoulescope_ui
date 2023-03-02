@@ -337,6 +337,17 @@ class WaveformWidget(QtWidgets.QWidget):
             'brief': N_('The trace width.'),
             'default': 1,
         },
+        'fps': {
+            'dtype': 'int',
+            'brief': N_('The target frames per second.'),
+            'options': [
+                [2, N_('vsync')],
+                [50, N_('20 Hz')],
+                [100, N_('10 Hz')],
+                [200, N_('5 Hz')],
+            ],
+            'default': 50,
+        },
         'show_min_max': {
             'dtype': 'int',
             'brief': N_('Show the minimum and maximum extents fill.'),
@@ -437,7 +448,6 @@ class WaveformWidget(QtWidgets.QWidget):
         self._refresh_timer = QtCore.QTimer()
         self._refresh_timer.setTimerType(QtGui.Qt.PreciseTimer)
         self._refresh_timer.timeout.connect(self._on_refresh_timer)
-        self._refresh_timer.start(50)  # = 1 / render_frame_rate
         self._repaint_request = False
         self._fps = {
             'start': time.time(),
@@ -530,6 +540,7 @@ class WaveformWidget(QtWidgets.QWidget):
         # self._log.info('_on_signal_range(%s, %s)', topic, value)
         if value is None:
             return
+        value = value['time64']
         topic_parts = topic.split('/')
         source = topic_parts[1]
         signal_id = topic_parts[-2]
@@ -543,7 +554,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 'signal_id': signal_id,
                 'rsp_id': self._signals_rsp_id_next,
                 'data': None,
-                'range': [0, 0],
+                'range': None,
             }
             self._signals[item] = d
             self._signals_by_rsp_id[self._signals_rsp_id_next] = d
@@ -2503,3 +2514,8 @@ class WaveformWidget(QtWidgets.QWidget):
                     self._request_data(True)
                 return
         self._log.warning('plot_show could not match %s', quantity)
+
+    def on_setting_fps(self, value):
+        print(f'fps update {value}')
+        self._refresh_timer.stop()
+        self._refresh_timer.start(value)

@@ -115,7 +115,7 @@ class JsdrvStreamBuffer:
         self._log = logging.getLogger(f'{__name__}.{self._id}')
         self._driver_subscriptions = []
         self._sources: dict[str, Device] = {}  # device unique_id -> instance
-        self._signals: dict[str, int] = {}     # signal id ui_str -> buffer_id
+        self._signals: dict[str, [int, object]] = {}     # signal id ui_str -> [buffer_id, meta]
         self._signals_reverse: dict[int, str] = {}  # signal id buffer_id -> ui_str
         self._device_signal_id_next = 1
         self._device_subscriptions = {}
@@ -135,11 +135,12 @@ class JsdrvStreamBuffer:
         source_topic = f'{topic}/settings/{device.unique_id}'
         for name, meta in _SETTINGS_PER_SOURCE.items():
             self.pubsub.topic_add(f'{source_topic}/{name}', meta)
+        self.pubsub.publish(f'{source_topic}/name', device.name)
+        self.pubsub.publish(f'{source_topic}/info', device.info)
         device_topic = get_topic_name(device)
         for signal in self.pubsub.enumerate(f'{device_topic}/settings/signals'):
             self.pubsub.subscribe(f'{device_topic}/settings/signals/{signal}/enable',
                                   self._on_signal_enable, ['pub', 'retain'])
-        # todo publish source info
         self.pubsub.publish(f'{topic}/events/sources/!add', device.unique_id)
 
     def on_action_device_remove(self, device):
@@ -186,7 +187,11 @@ class JsdrvStreamBuffer:
         if signal_id is not None:
             t = get_topic_name(self)
             utc = value['time_range_utc']
-            r = [utc['start'], utc['end']]
+            r = {
+                'time64': [utc['start'], utc['end']],
+                'samples': value['time_range_samples'],
+                'sample_rate': value['time_map']['counter_rate'],
+            }
             self.pubsub.publish(f'{t}/settings/signals/{signal_id}/range', r)
 
     def _on_signal_enable(self, topic, value):
@@ -197,7 +202,7 @@ class JsdrvStreamBuffer:
         value = bool(value)
         if value:
             self.on_action_add(signal_id)
-        elif signal_id in self._signals:
+        elif signal_id in self._signals.keys():
             self.on_action_remove(signal_id)
 
     @defer_until_registered
@@ -215,26 +220,26 @@ class JsdrvStreamBuffer:
 
     def on_action_add(self, signal_id):
         buf_id = self._signals_free.pop(0)
-        self._signals[signal_id] = buf_id
+        self._signals[signal_id] = [buf_id, None]
         self._signals_reverse[buf_id] = signal_id
         unique_id, signal = signal_id.split('.')
         device = self._sources[unique_id]
         device_path = device.device_path
 
         ui_prefix = get_topic_name(self)
+        ui_signal_prefix = f'{ui_prefix}/settings/signals/{signal_id}'
         for key, meta in _SETTINGS_PER_SIGNAL.items():
-            self.pubsub.topic_add(f'{ui_prefix}/settings/signals/{signal_id}/{key}', meta)
+            self.pubsub.topic_add(f'{ui_signal_prefix}/{key}', meta)
         self._driver_publish(f'm/{self._id}/a/!add', buf_id)
         subtopic = device.signal_subtopics(signal, 'data')
         device_source = f'{device_path}/{subtopic}'
         buf_prefix = f'm/{self._id}/s/{buf_id:03d}'
         self._driver_publish(f'{buf_prefix}/topic', device_source)
         self._device_subscribe(f'{buf_prefix}/info', ['pub', 'pub_retain'], self._on_device_signal_info)
-        # todo publish signal metadata
         self.pubsub.publish(f'{ui_prefix}/events/signals/!add', signal_id)
 
     def on_action_remove(self, signal_id):
-        buf_id = self._signals.pop(signal_id)
+        buf_id, _ = self._signals.pop(signal_id)
         self._signals_reverse.pop(buf_id)
         self._signals_free.append(buf_id)
         self._driver_publish(f'm/{self._id}/a/!remove', buf_id)
@@ -277,7 +282,7 @@ class JsdrvStreamBuffer:
         value = copy.deepcopy(value)
         signal_id = value['signal_id']
         try:
-            buf_id = self._signals[signal_id]
+            buf_id, _ = self._signals[signal_id]
         except KeyError:
             self._log.info('Request for missing signal %s', signal_id)
             return None

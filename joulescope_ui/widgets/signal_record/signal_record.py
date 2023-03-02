@@ -28,6 +28,7 @@ class ChunkMeta:
 _DTYPE_MAP = {
     'f32': DataType.F32,
     'u8': DataType.U8,
+    'u4': DataType.U4,
     'u1': DataType.U1,
 }
 

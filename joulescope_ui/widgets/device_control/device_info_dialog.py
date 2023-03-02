@@ -46,18 +46,26 @@ class DeviceInfoDialog(QtWidgets.QDialog):
 
         row = 0
 
-        for outer_key, outer_value in info.items():
-            w = QtWidgets.QLabel(outer_key, self)
-            self._grid.addWidget(w, row, 0, 1, 3)
-            self._widgets.append(w)
-
-            row += 1
-            for key, value in outer_value.items():
+        for key, value in info.items():
+            if isinstance(value, dict):
                 w = QtWidgets.QLabel(key, self)
-                self._grid.addWidget(w, row, 1, 1, 1)
+                self._grid.addWidget(w, row, 0, 1, 3)
+                self._widgets.append(w)
+                row += 1
+                for inner_key, inner_value in value.items():
+                    w = QtWidgets.QLabel(inner_key, self)
+                    self._grid.addWidget(w, row, 1, 1, 1)
+                    self._widgets.append(w)
+                    w = QtWidgets.QLabel(inner_value, self)
+                    self._grid.addWidget(w, row, 2, 1, 1)
+                    self._widgets.append(w)
+                    row += 1
+            else:
+                w = QtWidgets.QLabel(key, self)
+                self._grid.addWidget(w, row, 0, 1, 2)
                 self._widgets.append(w)
                 w = QtWidgets.QLabel(value, self)
-                self._grid.addWidget(w, row, 2, 1, 1)
+                self._grid.addWidget(w, row, 2, 1, 2)
                 self._widgets.append(w)
                 row += 1
 

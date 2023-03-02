@@ -391,16 +391,14 @@ class Js220(Device):
         self.SETTINGS = copy.deepcopy(SETTINGS)
         self.SETTINGS['name']['default'] = device_path
         self._info = {
-            'device': {
-                'vendor': 'Jetperch LLC',
-                'model': 'JS220',
-                'serial_number': device_path.split('/')[-1],
-            },
-            'versions': None,
+            'vendor': 'Jetperch LLC',
+            'model': 'JS220',
+            'version': None,
+            'serial_number': device_path.split('/')[-1],
         }
         self.SETTINGS['info']['default'] = self._info
         self.SETTINGS['sources/1/name']['default'] = device_path
-        self.SETTINGS['sources/1/info']['default'] = self._info['device']
+        self.SETTINGS['sources/1/info']['default'] = self._info
 
         self._statistics_offsets = None
         self._on_settings_fn = self._on_settings
@@ -443,7 +441,7 @@ class Js220(Device):
         units = signal_info['units']
         def fn(dtopic, value):
             fwd = {
-                'source': self._info['device'],
+                'source': self._info,
                 'sample_id': value['sample_id'] // value['decimate_factor'],
                 'sample_freq': value['sample_rate'] // value['decimate_factor'],
                 'time': None,  # todo
@@ -593,7 +591,7 @@ class Js220(Device):
             self._ui_publish('settings/state', 'closing')
             return 1
         try:
-            self._info['versions'] = {
+            self._info['version'] = {
                 'hw': str(self._driver_query('c/hw/version') >> 24),
                 'fw': _version_u32_to_str(self._driver_query('c/fw/version')),
                 'fpga': _version_u32_to_str(self._driver_query('s/fpga/version')),

@@ -154,15 +154,20 @@ class SettingsEditorWidget(_GridWidget):
         widget = QtWidgets.QComboBox(self)
         self._grid.addWidget(widget, self._row, 1, 1, 1)
         self._widgets.append(widget)
+        values = [option[0] for option in meta.options]
         options = [option[1 if len(option) > 1 else 0] for option in meta.options]
-        comboBoxConfig(widget, options, meta.default)
+        if meta.default in values:
+            default = options[values.index(meta.default)]
+        else:
+            default = meta.default
+        comboBoxConfig(widget, options, default)
         widget.currentIndexChanged.connect(lambda idx: pubsub_singleton.publish(topic, options[idx]))
 
         def handle(v):
             if isinstance(v, str):
                 comboBoxSelectItemByText(widget, v, block=True)
             elif isinstance(v, int):
-                widget.setCurrentIndex(v)
+                widget.setCurrentIndex(values.index(v))
 
         self._subscribe(topic, handle)
 

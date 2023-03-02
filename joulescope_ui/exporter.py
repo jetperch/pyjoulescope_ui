@@ -14,6 +14,7 @@
 
 
 from PySide6 import QtCore, QtWidgets
+from pyjls import Writer, SignalType, DataType
 from joulescope_ui import N_, time64, pubsub_singleton, register, register_decorator, get_topic_name
 from joulescope_ui.widgets import ProgressBarWidget
 import datetime
@@ -90,6 +91,13 @@ class ExporterWidget(QtWidgets.QWidget):
         return super().closeEvent(event)
 
 
+def _jls_add_signals(jls, signals):
+    for idx, (source_unique_id, signal_id) in enumerate(signals):
+        meta_topic = f'registry/{source_unique_id}/settings/signals/{signal_id}/meta'
+        meta = pubsub_singleton.query(meta_topic)
+        print(meta)
+
+
 @register_decorator('exporter_worker')
 class ExporterWorker:
     def __init__(self, x_range, kwargs, signals):
@@ -123,12 +131,25 @@ class ExporterWorker:
         self._log.info('thread start')
         progress = f'{get_topic_name(self._progress_bar)}/settings/progress'
         cbk_topic = f'{get_topic_name(self)}/cbk/!data'
-        for i in range(1001):
-            if self._quit:
-                break
-            pubsub_singleton.publish(progress, i / 1000)
-            time.sleep(0.002)
-        self._log.info('thread done')
+        path = self._kwargs['path']
+
+        with Writer(path) as jls:
+            notes = self._kwargs.get('notes')
+            if notes is not None:
+                jls.user_data(0, notes)
+            _jls_add_signals(jls, self._signals)
+
+
+            for i in range(1001):
+                if self._quit:
+                    break
+                pubsub_singleton.publish(progress, i / 1000)
+                time.sleep(0.002)
+        if self._quit:
+            self._log.info('thread done with quit/abort')
+            os.remove(path)
+        else:
+            self._log.info('thread done with success')
 
 
 @register_decorator('exporter')

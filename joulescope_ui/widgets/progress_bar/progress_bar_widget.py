@@ -55,7 +55,6 @@ class ProgressBarWidget(QtWidgets.QDialog):
 
         self.finished.connect(self._on_finished)
 
-        #self.resize(600, 400)
         self.setWindowTitle(N_('Progress'))
         self._log.info('open')
         self.open()
