@@ -35,11 +35,13 @@ class DeviceInfoDialog(QtWidgets.QDialog):
         self.setLayout(self._layout)
 
         w = QtWidgets.QWidget(self)
+        w.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         self._widgets.append(w)
         self._layout.addWidget(w)
 
         self._grid = QtWidgets.QGridLayout()
         self._grid.setContentsMargins(0, 0, 0, 0)
+        self._grid.setSpacing(3)
         w.setLayout(self._grid)
 
         row = 0
@@ -58,6 +60,11 @@ class DeviceInfoDialog(QtWidgets.QDialog):
                 self._grid.addWidget(w, row, 2, 1, 1)
                 self._widgets.append(w)
                 row += 1
+
+        self._spacer = QtWidgets.QSpacerItem(1, 1,
+                                             QtWidgets.QSizePolicy.Minimum,
+                                             QtWidgets.QSizePolicy.Expanding)
+        self._layout.addItem(self._spacer)
 
         self._buttons = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok)
         self._buttons.accepted.connect(self.accept)
