@@ -1325,6 +1325,9 @@ class WaveformWidget(QtWidgets.QWidget):
         h, y0, _ = self._y_geometry_info['x_axis']
         _, y1, _ = self._y_geometry_info['margin.bottom']
         xw, x0, x1 = self._x_geometry_info['plot']
+        font_metrics = s['axis_font_metrics']
+        ya = y0 + _MARGIN + font_metrics.ascent()
+
         p.setClipRect(x0, y0, xw, y1 - y0)
         for m in self.state['x_markers'][-1::-1]:
             if m['dtype'] != 'dual':
@@ -1336,7 +1339,7 @@ class WaveformWidget(QtWidgets.QWidget):
             bg = s[f'marker{color_index}_bg']
             p.setPen(self._NO_PEN)
             p.setBrush(bg)
-            p.drawRect(p1, y0, p2 - p1, y1 - y0)
+            p.drawRect(p1, ya, p2 - p1, y1 - ya)
         p.setClipping(False)
 
     def _draw_markers(self, p, size):
@@ -1344,12 +1347,15 @@ class WaveformWidget(QtWidgets.QWidget):
         h, y0, _ = self._y_geometry_info['x_axis']
         _, y1, _ = self._y_geometry_info['margin.bottom']
         xw, x0, x1 = self._x_geometry_info['plot']
-        p.setClipRect(x0, y0, xw, y1 - y0)
+        font_metrics = s['axis_font_metrics']
+        h = font_metrics.height()
+        f_a = font_metrics.ascent()
+        margin, margin2 = _MARGIN, _MARGIN * 2
+        ya = y0 + margin + f_a
 
         for m in self.state['x_markers'][-1::-1]:
             color_index = ((m['id'] - 1) % 6) + 1
             pos1 = m['pos1']
-            h = s['axis_font_metrics'].height()
             w = h // 2
             he = h // 3
             pen = s[f'marker{color_index}_pen']
@@ -1365,6 +1371,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 pl = p1 - w
                 pr = p1 + w
                 segs, _ = m['flag'].set_line([pl, pl, p1, pr, pr], [y0, y0 + h, yl, y0 + h, y0])
+                p.setClipRect(x0, y0, xw, y1 - y0)
                 p.drawPolygon(segs)
                 p.setPen(pen)
                 p.drawLine(p1, y0 + h + he, p1, y1)
@@ -1375,11 +1382,20 @@ class WaveformWidget(QtWidgets.QWidget):
                 p2l = p2 - w
                 if p2 < p1:
                     p1, p2 = p2, p1
-                # segs, _ = m['flag'].set_line([p1, p1, p1r, p2l, p2, p2], [y0, yl, y0 + h, y0 + h, yl, y0])
-                #p.drawPolygon(segs)
+
+                p.setClipRect(x0, y0, xw, y1 - y0)
                 p.setPen(pen)
-                p.drawLine(p1, y0, p1, y1)
-                p.drawLine(p2, y0, p2, y1)
+                p.drawLine(p1, ya, p1, y1)
+                p.drawLine(p2, ya, p2, y1)
+                dt = abs((m['pos1'] - m['pos2']) / time64.SECOND)
+                dt_str = _si_format(dt, 's')[1:]
+                dt_str_r = font_metrics.boundingRect(dt_str)
+                dt_x = (p1 + p2 - dt_str_r.width()) // 2
+                q1, q2 = dt_x - margin, dt_x + dt_str_r.width() + margin
+                q1, q2 = min(p1, q1), max(p2, q2)
+                p.setPen(s['text_pen'])
+                p.fillRect(q1, y0, q2 - q1, f_a + margin2, p.brush())
+                p.drawText(dt_x, y0 + margin + f_a, dt_str)
                 self._draw_dual_marker_text(p, m)
         p.setClipping(False)
 
