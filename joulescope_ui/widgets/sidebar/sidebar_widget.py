@@ -100,7 +100,7 @@ class SideBar(QtWidgets.QWidget):
         b.toggled.connect(self._on_statistics_stream_record_toggled)
         self._add_button('device', _DEVICE_TOOLTIP)
         self._add_button('memory', _MEMORY_TOOLTIP)
-        self._add_button('widgets', _WIDGETS_TOOLTIP)
+        # todo implement widget settings self._add_button('widgets', _WIDGETS_TOOLTIP)
         self._spacer = QtWidgets.QSpacerItem(10, 0,
                                              QtWidgets.QSizePolicy.Minimum,
                                              QtWidgets.QSizePolicy.Expanding)

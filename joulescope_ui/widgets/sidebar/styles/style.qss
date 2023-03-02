@@ -20,33 +20,33 @@ QPushButton {
     image: none;
 }
 
-QPushButton#signal_play:disabled      { image: url("{% path %}/signal_play_disabled.svg"); }
-QPushButton#signal_play:enabled       { image: url("{% path %}/signal_play_enabled.svg"); }
+QPushButton#signal_play:disabled      { image: url("{% path %}/signal_pause_disabled.svg"); }
+QPushButton#signal_play:enabled       { image: url("{% path %}/signal_pause_enabled.svg"); }
 QPushButton#signal_play:enabled:hover { image: url("{% path %}/signal_play_hover.svg"); }
-QPushButton#signal_play:checked       { image: url("{% path %}/signal_pause_enabled.svg"); }
+QPushButton#signal_play:checked       { image: url("{% path %}/signal_play_enabled.svg"); }
 QPushButton#signal_play:checked:hover { image: url("{% path %}/signal_pause_hover.svg"); }
-QPushButton#signal_play[blink=true]:checked       { image: url("{% path %}/signal_pause_blink.svg"); }
+QPushButton#signal_play[blink=true]:checked:!hover       { image: url("{% path %}/signal_play_blink.svg"); }
 
-QPushButton#signal_record:disabled      { image: url("{% path %}/signal_record_disabled.svg"); }
-QPushButton#signal_record:enabled       { image: url("{% path %}/signal_record_enabled.svg"); }
+QPushButton#signal_record:disabled      { image: url("{% path %}/signal_stop_disabled.svg"); }
+QPushButton#signal_record:enabled       { image: url("{% path %}/signal_stop_enabled.svg"); }
 QPushButton#signal_record:enabled:hover { image: url("{% path %}/signal_record_hover.svg"); }
-QPushButton#signal_record:checked       { image: url("{% path %}/signal_stop_enabled.svg"); }
+QPushButton#signal_record:checked       { image: url("{% path %}/signal_record_enabled.svg"); }
 QPushButton#signal_record:checked:hover { image: url("{% path %}/signal_stop_hover.svg"); }
-QPushButton#signal_record[blink=true]:checked       { image: url("{% path %}/signal_stop_blink.svg"); }
+QPushButton#signal_record[blink=true]:checked:!hover       { image: url("{% path %}/signal_record_blink.svg"); }
 
-QPushButton#statistics_play:disabled      { image: url("{% path %}/statistics_play_disabled.svg"); }
-QPushButton#statistics_play:enabled       { image: url("{% path %}/statistics_play_enabled.svg"); }
+QPushButton#statistics_play:disabled      { image: url("{% path %}/statistics_pause_disabled.svg"); }
+QPushButton#statistics_play:enabled       { image: url("{% path %}/statistics_pause_enabled.svg"); }
 QPushButton#statistics_play:enabled:hover { image: url("{% path %}/statistics_play_hover.svg"); }
-QPushButton#statistics_play:checked       { image: url("{% path %}/statistics_pause_enabled.svg"); }
+QPushButton#statistics_play:checked       { image: url("{% path %}/statistics_play_enabled.svg"); }
 QPushButton#statistics_play:checked:hover { image: url("{% path %}/statistics_pause_hover.svg"); }
-QPushButton#statistics_play[blink=true]:checked       { image: url("{% path %}/statistics_pause_blink.svg"); }
+QPushButton#statistics_play[blink=true]:checked:!hover       { image: url("{% path %}/statistics_play_blink.svg"); }
 
-QPushButton#statistics_record:disabled      { image: url("{% path %}/statistics_record_disabled.svg"); }
-QPushButton#statistics_record:enabled       { image: url("{% path %}/statistics_record_enabled.svg"); }
+QPushButton#statistics_record:disabled      { image: url("{% path %}/statistics_stop_disabled.svg"); }
+QPushButton#statistics_record:enabled       { image: url("{% path %}/statistics_stop_enabled.svg"); }
 QPushButton#statistics_record:enabled:hover { image: url("{% path %}/statistics_record_hover.svg"); }
-QPushButton#statistics_record:checked       { image: url("{% path %}/statistics_stop_enabled.svg"); }
+QPushButton#statistics_record:checked       { image: url("{% path %}/statistics_record_enabled.svg"); }
 QPushButton#statistics_record:checked:hover { image: url("{% path %}/statistics_stop_hover.svg"); }
-QPushButton#statistics_record[blink=true]:checked       { image: url("{% path %}/statistics_stop_blink.svg"); }
+QPushButton#statistics_record[blink=true]:checked:!hover       { image: url("{% path %}/statistics_record_blink.svg"); }
 
 QPushButton#device:disabled      { image: url("{% path %}/device_disabled.svg"); }
 QPushButton#device:enabled       { image: url("{% path %}/device_enabled.svg"); }
