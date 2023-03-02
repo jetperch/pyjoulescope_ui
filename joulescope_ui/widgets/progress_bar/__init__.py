@@ -1,4 +1,4 @@
-# Copyright 2019-2022 Jetperch LLC
+# Copyright 2023 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,15 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .device_control import DeviceControlWidget
-from .example import ExampleWidget
-from .memory import MemoryWidget
-from .hamburger import HamburgerWidget
-from .help import HelpWidget
-from .progress_bar import ProgressBarWidget
-from .sidebar import SideBar
-from .settings import SettingsWidget
-from .signal_record import SignalRecordConfigWidget, SignalRecord
-from .statistics_record import StatisticsRecordConfigWidget, StatisticsRecord
-from .value import ValueWidget
-from .waveform import WaveformWidget
+from .progress_bar_widget import ProgressBarWidget

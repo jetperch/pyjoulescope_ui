@@ -22,8 +22,11 @@ class CAPABILITIES(Enum):
     RANGE_TOOL_CLASS = 'range_tool.class'
     """An analysis tool class that operates over a time range.
 
-    The pubsub object must implement the following:
-        * actions/!create:  what is provided?  time64 range, SIGNAL_BUFFER_SOURCE topics? 
+    The pubsub class must implement the static method on_cls_action_run:
+        * actions/!run:  [(time64_min, time64_max), kwargs, [(source_unique_id, signal_id), ...]]
+          kwargs can be None, {}, or a valid dict.
+          where source_unique_id is for a SIGNAL_BUFFER_SOURCE and 
+          signal_id is for a signal in that source.
     """
 
     RANGE_TOOL_OBJECT = 'range_tool.object'

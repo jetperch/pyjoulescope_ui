@@ -24,6 +24,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 import PySide6QtAds as QtAds
 from .error_window import ErrorWindow
 from .help_ui import HelpHtmlMessageBox
+from .exporter import ExporterDialog  # register the exporter
 from .resources import load_resources, load_fonts
 from joulescope_ui.devices.jsdrv.jsdrv_wrapper import JsdrvWrapper
 from .styles import StyleManager

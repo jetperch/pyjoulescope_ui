@@ -2015,10 +2015,17 @@ class WaveformWidget(QtWidgets.QWidget):
         copy_image = menu.addAction(N_('Copy image to clipboard'))
         copy_image.triggered.connect(self._action_copy_image_to_clipboard)
 
+        export_range = menu.addAction(N_('Export visible data'))
+        export_range.triggered.connect(lambda: self._on_x_export('range'))
+
+        export_all = menu.addAction(N_('Export all data'))
+        export_all.triggered.connect(lambda: self._on_x_export('extents'))
+
         style_action = settings_action_create(self, menu)
         self._menu = [menu,
                       annotations, anno_x, anno_x_sub, anno_y, anno_y_sub, anno_text,
                       copy_image,
+                      export_range, export_all,
                       style_action]
         return self._menu_show(event)
 
@@ -2034,6 +2041,32 @@ class WaveformWidget(QtWidgets.QWidget):
         marker['text_pos'] = pos
         self._repaint_request = True
 
+    def _signals_get(self):
+        signals = []
+        for plot in self.state['plots']:
+            if plot['enabled']:
+                signals.extend(plot['signals'])
+        return signals
+
+    def _on_x_export(self, src):
+        if isinstance(src, int):  # marker_id
+            m = self._x_markers_by_id[src]
+            x0, x1 = m['pos1'], m['pos2']
+            if x0 > x1:
+                x0, x1 = x1, x0
+        elif isinstance(src, str):
+            if src == 'range':
+                x0, x1 = self.x_range
+            elif src == 'extents':
+                x0, x1 = self._extents()
+            else:
+                raise ValueError(f'unsupported x_export source {src}')
+        else:
+            raise ValueError(f'unsupported x_export source {src}')
+        signals = self._signals_get()
+        pubsub_singleton.publish('registry/exporter/actions/!run',
+                                 [(x0, x1), None, signals])
+
     def _menu_x_marker_single(self, item, event: QtGui.QMouseEvent):
         _, idx, _ = item.split('.')
         idx = int(idx)
@@ -2041,6 +2074,10 @@ class WaveformWidget(QtWidgets.QWidget):
         pos = m.get('text_pos', 'right')
 
         menu = QtWidgets.QMenu('Waveform x_marker single context menu', self)
+
+        export = menu.addAction(N_('Export'))
+        export.triggered.connect(lambda: self._on_x_export(idx))
+
         show_stats_menu = menu.addMenu(N_('Show statistics'))
         show_stats_group = QtGui.QActionGroup(show_stats_menu)
 
@@ -2066,6 +2103,7 @@ class WaveformWidget(QtWidgets.QWidget):
         topic = get_topic_name(self)
         marker_remove.triggered.connect(lambda: self.pubsub.publish(f'{topic}/actions/!x_markers', ['remove', idx]))
         self._menu = [menu,
+                      export,
                       show_stats_menu, show_stats_group, left, right, off,
                       marker_remove]
         return self._menu_show(event)
