@@ -572,6 +572,8 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _compute_x_range(self):
         e0, e1 = self._extents()
+        if self.x_range is None:
+            return e0, e1
         x0, x1 = self.x_range
         d_e = e1 - e0
         d_x = x1 - x0
@@ -602,8 +604,9 @@ class WaveformWidget(QtWidgets.QWidget):
                     summary_length = self._summary_geometry()[2]  # width in pixels
                     self._request_signal(signal, self._extents(), rsp_id=1, length=summary_length)
             first = False
-        for m in self.state['x_markers']:
-            self._request_marker_data(m)
+        if self.state is not None:
+            for m in self.state['x_markers']:
+                self._request_marker_data(m)
 
     def _request_marker_data(self, marker):
         if marker['dtype'] != 'dual':
@@ -790,6 +793,7 @@ class WaveformWidget(QtWidgets.QWidget):
             return self._style_cache
         if not hasattr(self, 'style_manager_info'):
             self._style_cache = None
+            return None
         v = self.style_manager_info['sub_vars']
 
         axis_font = font_as_qfont(v['waveform.axis_font'])
