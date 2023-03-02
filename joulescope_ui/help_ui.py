@@ -21,6 +21,7 @@ import re
 from PySide6 import QtCore, QtWidgets
 from . import frozen
 from joulescope_ui import pubsub_singleton
+from joulescope_ui import about
 
 
 _MY_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -49,11 +50,14 @@ def _load_filename(filename):
 
 
 def _load_help(name, style):
-    filename = _HELP_FILES[name]
-    html = _load_filename(filename)
-    if filename.endswith('.md'):
-        md = markdown.Markdown()
-        html = md.convert(html)
+    if name == 'about':
+        html = about.load()
+    else:
+        filename = _HELP_FILES[name]
+        html = _load_filename(filename)
+        if filename.endswith('.md'):
+            md = markdown.Markdown()
+            html = md.convert(html)
     try:
         title = re.search(r'<title>(.*?)<\/title>', html)[1]
     except Exception:
