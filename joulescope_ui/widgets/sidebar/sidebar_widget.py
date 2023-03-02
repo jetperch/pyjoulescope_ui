@@ -18,6 +18,7 @@ from joulescope_ui import N_, register, tooltip_format, pubsub_singleton
 from joulescope_ui.styles import styled_widget
 from joulescope_ui.widgets import DeviceControlWidget
 from joulescope_ui.widgets import MemoryWidget
+from joulescope_ui.widgets import HelpWidget
 from joulescope_ui.widgets.flyout import FlyoutWidget
 
 
@@ -127,6 +128,13 @@ class SideBar(QtWidgets.QWidget):
         m = MemoryWidget()
         unique_id = pubsub.register(m, 'memory_widget:flyout', parent='flyout:0')
         self.widget_set('memory', m)
+
+        # Create the help flyout widget for the sidebar
+        m = HelpWidget()
+        unique_id = pubsub.register(m, 'help_widget:flyout', parent='flyout:0')
+        self.widget_set('help', m)
+
+        # Create the hamburger flyout widget for the sidebar
 
     def _on_mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:

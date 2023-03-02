@@ -49,7 +49,7 @@ def _load_filename(filename):
     raise RuntimeError(f'Could not load file: {filename}')
 
 
-def _load_help(name, style):
+def load_help(name, style=None):
     if name == 'about':
         html = about.load()
     else:
@@ -58,6 +58,12 @@ def _load_help(name, style):
         if filename.endswith('.md'):
             md = markdown.Markdown()
             html = md.convert(html)
+    return format_help(name, html, style)
+
+
+def format_help(name, html, style=None):
+    if style is None:
+        style = load_style()
     try:
         title = re.search(r'<title>(.*?)<\/title>', html)[1]
     except Exception:
@@ -66,7 +72,9 @@ def _load_help(name, style):
     return title, html
 
 
-def _load_style(pubsub):
+def load_style(pubsub=None):
+    if pubsub is None:
+        pubsub = pubsub_singleton
     manager = pubsub.query('registry/StyleManager:0/instance')
     style_path = os.path.join(manager.path, 'ui', 'style.html')
     if not os.path.isfile(style_path):
@@ -85,8 +93,8 @@ class HelpHtmlMessageBox(QtWidgets.QDialog):
     def __init__(self, pubsub, name):
         self._log = logging.getLogger(__name__ + f'.{name}')
         self._log.debug('create start')
-        style = _load_style(pubsub)
-        title, html = _load_help(name, style)
+        style = load_style(pubsub)
+        title, html = load_help(name, style)
         parent = pubsub_singleton.query('registry/ui/instance')
         super().__init__(parent=parent)
 
