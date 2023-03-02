@@ -12,7 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PySide6 import QtWidgets, QtGui, QtCore  # , QtOpenGLWidgets
+from PySide6 import QtWidgets, QtGui, QtCore, QtOpenGLWidgets
+from OpenGL import GL as gl
 from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topic_name, tooltip_format, time64
 from joulescope_ui.styles import styled_widget, color_as_qcolor, font_as_qfont
 from joulescope_ui.widget_tools import settings_action_create
@@ -36,6 +37,8 @@ _MARGIN = 2             # from the outside edges
 _Y_INNER_SPACING = 8    # vertical spacing between plots (includes line)
 _Y_INNER_LINE = 4
 _Y_PLOT_MIN = 16
+_MARKER_RSP_OFFSET = (1 << 48)
+_MARKER_RSP_STEP = 512
 
 
 def _analog_plot(quantity, show, units, name, integral=None):
@@ -158,10 +161,6 @@ def _marker_id_next(markers):
     return idx
 
 
-_MARKER_RSP_OFFSET = (1 << 48)
-_MARKER_RSP_STEP = 512
-
-
 def _marker_to_rsp_id(marker_id, plot_id):
     """Generate a response id for a marker data request.
 
@@ -204,37 +203,6 @@ def _idx_to_segments(finite_idx):
             segment_idx.append([change_idx[0], change_idx[1]])
             change_idx = change_idx[2:]
     return segment_idx
-
-
-class _PlotWidget(QtWidgets.QWidget):
-    """The inner plot widget that simply calls back to the Waveform widget."""
-
-    def __init__(self, parent):
-        self._parent = parent
-        super().__init__(parent)
-        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        self.setMouseTracking(True)
-
-    def paintEvent(self, event):
-        size = self.width(), self.height()
-        painter = QtGui.QPainter(self)  # calls begin()
-        self._parent.plot_paint(painter, size)
-        # painter.end()  Automatically called by destructor
-
-    def resizeEvent(self, event):
-        self._parent.plot_resizeEvent(event)
-
-    def mousePressEvent(self, event):
-        self._parent.plot_mousePressEvent(event)
-
-    def mouseReleaseEvent(self, event):
-        self._parent.plot_mouseReleaseEvent(event)
-
-    def mouseMoveEvent(self, event):
-        self._parent.plot_mouseMoveEvent(event)
-
-    def wheelEvent(self, event):
-        self._parent.plot_wheelEvent(event)
 
 
 def _tick_spacing(v_min, v_max, v_spacing_min):
@@ -315,9 +283,51 @@ def _target_lookup_by_pos(targets, pos):
     return name
 
 
+class _PlotWidget(QtOpenGLWidgets.QOpenGLWidget):
+    """The inner plot widget that simply calls back to the Waveform widget."""
+
+    def __init__(self, parent):
+        self._log = logging.getLogger(__name__ + '.plot')
+        self._parent = parent
+        super().__init__(parent)
+        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.setMouseTracking(True)
+
+    def initializeGL(self) -> None:
+        self._log.info(f"""OpenGL information:
+            Vendor: {gl.glGetString(gl.GL_VENDOR).decode("utf-8")}
+            Renderer: {gl.glGetString(gl.GL_RENDERER).decode("utf-8")}
+            OpenGL Version: {gl.glGetString(gl.GL_VERSION).decode("utf-8")}
+            Shader Version: {gl.glGetString(gl.GL_SHADING_LANGUAGE_VERSION).decode("utf-8")}""")
+        functions = QtGui.QOpenGLFunctions(self.context())
+        functions.initializeOpenGLFunctions()
+
+    def paintEvent(self, event):
+        size = self.width(), self.height()
+        painter = QtGui.QPainter(self)
+        self._parent.plot_paint(painter, size)
+        # painter.end()  Automatically called by destructor
+
+    def resizeEvent(self, event):
+        self._parent.plot_resizeEvent(event)
+        return super().resizeEvent(event)
+
+    def mousePressEvent(self, event):
+        self._parent.plot_mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        self._parent.plot_mouseReleaseEvent(event)
+
+    def mouseMoveEvent(self, event):
+        self._parent.plot_mouseMoveEvent(event)
+
+    def wheelEvent(self, event):
+        self._parent.plot_wheelEvent(event)
+
+
 @register
 @styled_widget(N_('Waveform'))
-class WaveformWidget(QtWidgets.QWidget):  # todo QtOpenGLWidgets.QOpenGLWidget
+class WaveformWidget(QtWidgets.QWidget):
     CAPABILITIES = ['widget@', CAPABILITIES.SIGNAL_BUFFER_SINK]
 
     SETTINGS = {
@@ -545,7 +555,7 @@ class WaveformWidget(QtWidgets.QWidget):  # todo QtOpenGLWidgets.QOpenGLWidget
 
     def _on_refresh_timer(self):
         if self._repaint_request:
-            self.repaint()
+            self._graphics.update()
 
     def _extents(self):
         x_min = []
@@ -1723,7 +1733,7 @@ class WaveformWidget(QtWidgets.QWidget):  # todo QtOpenGLWidgets.QOpenGLWidget
                     d1 = _Y_PLOT_MIN
                 plots[idx - 1]['height'] = d0
                 plots[idx]['height'] = d1
-                self.repaint()
+                self._repaint_request = True
             elif action == 'move.x_marker':
                 xt = self._x_pixel_to_time64(x)
                 item = self._mouse_action[1]
@@ -1733,14 +1743,14 @@ class WaveformWidget(QtWidgets.QWidget):  # todo QtOpenGLWidgets.QOpenGLWidget
                 if m['dtype'] == 'dual':
                     self._request_data(True)
                 else:
-                    self.repaint()
+                    self._repaint_request = True
             elif action == 'move.y_marker':
                 item = self._mouse_action[1]
                 _, plot_index, _, m_idx, m_field = item.split('.')
                 plot = self._plot_get(int(plot_index))
                 m = self._y_marker_get(plot, int(m_idx))
                 m[m_field] = self._y_pixel_to_value(plot, y)
-                self.repaint()
+                self._repaint_request = True
             elif action == 'x_pan':
                 self._mouse_x_pan(x)
 
@@ -1971,7 +1981,7 @@ class WaveformWidget(QtWidgets.QWidget):  # todo QtOpenGLWidgets.QOpenGLWidget
 
     def _on_x_marker_statistics_show(self, marker, pos):
         marker['text_pos'] = pos
-        self.repaint()
+        self._repaint_request = True
 
     def _menu_x_marker_single(self, item, event: QtGui.QMouseEvent):
         _, idx, _ = item.split('.')
