@@ -1079,10 +1079,14 @@ class WaveformWidget(QtWidgets.QWidget):
             y_max = np.max(d_y_avg)
         if y_min >= y_max:
             return
-        y_gain = h / (y_max - y_min)
+        overscan = 0.05
+        y_p2p = y_max - y_min
+        y_ovr = (1 + 2 * overscan) * y_p2p
+        y_top = y_max + y_p2p * overscan
+        y_gain = h / y_ovr
 
         def y_value_to_pixel(y):
-            return (y_max - y) * y_gain
+            return (y_top - y) * y_gain
 
         for idx_start, idx_stop in segment_idx:
             d_x_segment = d_xp[idx_start:idx_stop]
