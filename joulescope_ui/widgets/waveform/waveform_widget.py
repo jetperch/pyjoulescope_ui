@@ -305,6 +305,7 @@ class _PlotWidget(QtOpenGLWidgets.QOpenGLWidget):
     def paintEvent(self, event):
         size = self.width(), self.height()
         painter = QtGui.QPainter(self)
+        painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
         self._parent.plot_paint(painter, size)
         # painter.end()  Automatically called by destructor
 
@@ -1145,7 +1146,7 @@ class WaveformWidget(QtWidgets.QWidget):
         if self.show_statistics:
             x_stats = self._x_geometry_info['statistics'][1]
             dt_str = _si_format(x_duration_s, 's')
-            p.drawText(x_stats + _MARGIN, y_text, f'Δt={dt_str}')
+            p.drawText(x_stats + _MARGIN, y_text, f'Δt={dt_str[1:]}')
 
         if x_grid is None:
             pass
@@ -1352,10 +1353,16 @@ class WaveformWidget(QtWidgets.QWidget):
         f_a = font_metrics.ascent()
         margin, margin2 = _MARGIN, _MARGIN * 2
         ya = y0 + margin + f_a
+        x_min = self._extents()[0]
+        del_idx = []
 
-        for m in self.state['x_markers'][-1::-1]:
+        for idx, m in enumerate(self.state['x_markers'][-1::-1]):
             color_index = ((m['id'] - 1) % 6) + 1
             pos1 = m['pos1']
+            if pos1 < x_min:
+                del_idx.append(-(idx + 1))
+                continue
+
             w = h // 2
             he = h // 3
             pen = s[f'marker{color_index}_pen']
@@ -1377,6 +1384,9 @@ class WaveformWidget(QtWidgets.QWidget):
                 p.drawLine(p1, y0 + h + he, p1, y1)
                 self._draw_single_marker_text(p, m, pos1)
             else:
+                if m['pos2'] < x_min:
+                    del_idx.append(-(idx + 1))
+                    continue
                 p2 = np.rint(self._x_time64_to_pixel(m['pos2']))
                 p1r = p1 + w
                 p2l = p2 - w
@@ -1397,6 +1407,10 @@ class WaveformWidget(QtWidgets.QWidget):
                 p.fillRect(q1, y0, q2 - q1, f_a + margin2, p.brush())
                 p.drawText(dt_x, y0 + margin + f_a, dt_str)
                 self._draw_dual_marker_text(p, m)
+
+        for idx in del_idx:
+            print(f'del {idx}')
+            del self.state['x_markers'][idx]
         p.setClipping(False)
 
     def _draw_statistics_text(self, p: QtGui.QPainter, pos, values, text_pos=None):
@@ -1704,10 +1718,12 @@ class WaveformWidget(QtWidgets.QWidget):
         elif y_name.startswith('spacer.'):
             if not y_name.startswith('spacer.ignore'):
                 item = y_name
-        elif y_name.startswith('plot.') and (x_name.startswith('plot') or y_name == 'header'):
+        elif y_name.startswith('plot.') and x_name.startswith('plot'):
             item = self._find_x_marker(pos[0])
             if not item and x_name.startswith('plot'):
                 item = self._find_y_marker(y_name, pos[1])
+        elif y_name == 'x_axis' and x_name.startswith('plot'):
+            item = self._find_x_marker(pos[0])
         return item, x_name, y_name
 
     def _set_cursor(self, pos=None):
