@@ -1736,6 +1736,8 @@ class WaveformWidget(QtWidgets.QWidget):
                 self._repaint_request = True
             elif action == 'move.x_marker':
                 xt = self._x_pixel_to_time64(x)
+                xr = self.x_range
+                xt = max(xr[0], min(xt, xr[1]))  # bound to range
                 item = self._mouse_action[1]
                 _, m_idx, m_field = item.split('.')
                 m = self._x_markers_by_id[int(m_idx)]
@@ -1749,7 +1751,10 @@ class WaveformWidget(QtWidgets.QWidget):
                 _, plot_index, _, m_idx, m_field = item.split('.')
                 plot = self._plot_get(int(plot_index))
                 m = self._y_marker_get(plot, int(m_idx))
-                m[m_field] = self._y_pixel_to_value(plot, y)
+                yt = self._y_pixel_to_value(plot, y)
+                yr = plot['range']
+                yt = max(yr[0], min(yt, yr[1]))  # bound to range
+                m[m_field] = yt
                 self._repaint_request = True
             elif action == 'x_pan':
                 self._mouse_x_pan(x)
