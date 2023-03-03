@@ -17,6 +17,7 @@ from PySide6 import QtCore, QtWidgets
 from pyjls import Writer, SignalType, DataType
 from joulescope_ui import N_, time64, pubsub_singleton, register, register_decorator, get_topic_name
 from joulescope_ui.widgets import ProgressBarWidget
+from joulescope_ui.jls_v2 import TO_JLS_SIGNAL_NAME
 import datetime
 import logging
 import os
@@ -155,7 +156,7 @@ class ExporterWorker:
                 signal_type=SignalType.FSR,
                 data_type=info['element_type'],
                 sample_rate=info['time_map']['counter_rate'],
-                name=info['name'],
+                name=TO_JLS_SIGNAL_NAME[info['field']],
                 units=info['units'],
             )
             self._signals[(source_unique_id, signal_id)] = {

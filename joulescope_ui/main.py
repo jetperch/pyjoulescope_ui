@@ -24,7 +24,8 @@ from PySide6 import QtCore, QtGui, QtWidgets
 import PySide6QtAds as QtAds
 from .error_window import ErrorWindow
 from .help_ui import HelpHtmlMessageBox
-from .exporter import ExporterDialog  # register the exporter
+from .exporter import ExporterDialog   # register the exporter
+from .jls_source import JlsSource      # register the source
 from .resources import load_resources, load_fonts
 from joulescope_ui.devices.jsdrv.jsdrv_wrapper import JsdrvWrapper
 from .styles import StyleManager
@@ -118,6 +119,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         self._log = logging.getLogger(__name__)
         super(MainWindow, self).__init__()
+        self._dialog = None
         self._pubsub = pubsub_singleton
         self.SETTINGS = style_settings(N_('UI'))
         self._pubsub.register(self, 'ui', parent=None)
@@ -193,13 +195,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self._menu_bar = QtWidgets.QMenuBar(self)
         self._menu_items = _menu_setup(self._menu_bar, [
             ['file_menu', N_('&File'), [
-                # '&Open': self.on_recording_open,
+                ['open', N_('Open'), ['registry/ui/actions/!file_open', '']],
                 # 'Open &Recent': {},  # dynamically populated from MRU
                 # '&Preferences': self.on_preferences,
-                ['exit', N_('&Exit'), ['registry/ui/actions/!close', '']],
+                ['exit', N_('Exit'), ['registry/ui/actions/!close', '']],
             ]],
-            ['view_menu', N_('&View'), []],     # dynamically populated from available views
-            ['widgets_menu', N_('&Widgets'), []],  # dynamically populated from available widgets
+            ['view_menu', N_('View'), []],     # dynamically populated from available views
+            ['widgets_menu', N_('Widgets'), []],  # dynamically populated from available widgets
             # '&Tools': {
             #     '&Clear Accumulator': self._on_accumulators_clear,
             #     '&Record Statistics': self._on_record_statistics,
@@ -305,9 +307,32 @@ class MainWindow(QtWidgets.QMainWindow):
         event = QResyncEvent()
         QtCore.QCoreApplication.postEvent(self, event)
 
+    def on_action_file_open(self):
+        self._log.info('file_open')
+        path = pubsub_singleton.query('registry/paths/settings/save_path')
+        self._dialog = QtWidgets.QFileDialog(self, N_('Select file to open'), path)
+        self._dialog.setNameFilter('Joulescope Data (*.jls)')
+        self._dialog.setFileMode(QtWidgets.QFileDialog.ExistingFile)
+        self._dialog.updateGeometry()
+        self._dialog.open()
+        self._dialog.finished.connect(self._on_file_open_dialog_finished)
+
+    def _on_file_open_dialog_finished(self, result):
+        if result == QtWidgets.QDialog.DialogCode.Accepted:
+            files = self._dialog.selectedFiles()
+            if files and len(files) == 1:
+                path = files[0]
+                self._log.info('file_open %s', path)
+                self._pubsub.publish(f'registry/JlsSource/actions/!open', path)
+            else:
+                self._log.info('file_open invalid files: %s', files)
+        else:
+            self._log.info('file_open cancelled')
+
     def closeEvent(self, event):
         self._log.info('closeEvent()')
         _device_factory_finalize()
+        self._pubsub.publish('registry/JlsSource/actions/!finalize', None)
         # todo pubsub save
         return super(MainWindow, self).closeEvent(event)
 

@@ -11,7 +11,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import copy
 
 from pyjoulescope_driver import Driver
 from joulescope_ui import get_unique_id, get_topic_name, Metadata, N_
@@ -20,7 +19,6 @@ from .jsdrv_stream_buffer import JsdrvStreamBuffer
 from .js110 import Js110
 from .js220 import Js220
 import logging
-import time
 
 
 class JsdrvWrapper:

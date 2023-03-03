@@ -48,6 +48,11 @@ _SETTINGS = {
         'brief': N_('Buffer memory size in bytes'),
         'default': int(0.5 * 1024 ** 3),
     },
+    'signals': {
+        'dtype': 'node',
+        'brief': 'Hold signal settings',
+        'default': None,
+    }
 }
 
 _SETTINGS_PER_SOURCE = {
@@ -270,19 +275,8 @@ class JsdrvStreamBuffer:
     def on_action_request(self, value):
         """Request data from the memory buffer.
 
-        :param value: The dict defining the request with keys:
-            * signal_id: The signal id for the request
-            * time_type: 'utc' or 'samples'.
-            * start: The starting time (utc time64 or samples).
-            * end: The ending time (utc time64 or samples).
-            * length: The number of requested entries evenly spread from start to end.
-            * rsp_topic: The arbitrary response topic.
-            * rsp_id: The optional and arbitrary response immutable object.
-              Valid values include integers, strings, and callables.
-              If providing method calls, be sure to save the binding to a
-              member variable and reuse the same binding so that deduplication
-              can work correctly.  Otherwise, each call will use a new binding
-              that is different and will not allow deduplication matching.
+        :param value: The buffer request structure.
+            See joulescope_ui.capabilities SIGNAL_BUFFER_SOURCE
         """
         value = copy.deepcopy(value)
         signal_id = value['signal_id']

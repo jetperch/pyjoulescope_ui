@@ -94,17 +94,15 @@ class CAPABILITIES(Enum):
           * version
           * serial_number
         * settings/signals/{signal_id}/range: read-only dict with keys:
-          * time64: [t_start, t_end]
+          * utc: [t_start, t_end]
           * samples: {'start': s_start, 'end': s_end, 'length': s_length}
           * sample_rate: For fixed-rate samples, the sample rate in Hz.
         * actions/!request obj with keys:
           * signal_id: The signal_id for the request.
-          
           * time_type: 'utc' or 'samples'.
           * start: The starting time (utc time64 or samples).
           * end: The ending time (utc time64 or samples).
           * length: The number of requested entries evenly spread from start to end.          
-
           * rsp_topic: The arbitrary response topic.  When the computation is
             done, the response message will be sent here.
           * rsp_id: The optional and arbitrary response immutable object.
@@ -113,20 +111,32 @@ class CAPABILITIES(Enum):
             member variable and reuse the same binding so that deduplication
             can work correctly.  Otherwise, each call will use a new binding
             that is different and will not allow deduplication matching.
-          
-          * time_start: The start time as time64.
-          * time_end: The end time as time64.
-          * length: The desired number of response entries.
-          * rsp_topic: When computed, the results will be sent to this topic.
-            The results can be either sample data or summary data.
-            To guarantee sample data, specify either time64_end or length.
-            Other requests may return sample data or summary data.
-          * rsp_id: The arbitrary, immutable argument for rsp_topic.  Examples
-            included int, string, and callables.
         * events/sources/!add {source_id}: (optional, only for dynamic sources)
         * events/sources/!remove {source_id}:  (optional, only for dynamic sources)
         * events/signals/!add {signal_id}: (optional, only for dynamic sources)
         * events/signals/!remove {signal_id}:  (optional, only for dynamic sources)
+        
+    The response is a dict with at least the following keys:
+        * version: The response version = 1
+        * rsp_id: The same rsp_id provided to the request
+        * info: A dict with at least the following keys
+          * field: The field name, one of i, v, p, r, 0, 1, 2, 3, T
+          * units: The units for the values.
+          * time_range_utc:
+            * start
+            * stop
+            * length
+          * time_range_samples:
+            * start
+            * stop
+            * length
+          * time_map
+            * offset_time
+            * offset_counter (samples)
+            * counter_rate (sample rate)
+        * response_type: Either 'samples' or 'summary
+        * data: The data which whose shape is (N, 4) for summary or (N, ) for samples.
+          u4 and u1 data is packed into bytes.
     """
 
     SIGNAL_STREAM_SOURCE = 'signal_stream.source'
