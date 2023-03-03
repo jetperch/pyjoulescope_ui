@@ -188,7 +188,7 @@ class JsdrvStreamBuffer:
             t = get_topic_name(self)
             utc = value['time_range_utc']
             r = {
-                'time64': [utc['start'], utc['end']],
+                'utc': [utc['start'], utc['end']],
                 'samples': value['time_range_samples'],
                 'sample_rate': value['time_map']['counter_rate'],
             }
@@ -220,16 +220,21 @@ class JsdrvStreamBuffer:
 
     def on_action_add(self, signal_id):
         buf_id = self._signals_free.pop(0)
-        self._signals[signal_id] = [buf_id, None]
-        self._signals_reverse[buf_id] = signal_id
         unique_id, signal = signal_id.split('.')
         device = self._sources[unique_id]
+        signal_meta = copy.deepcopy(device.info)
+        self._signals[signal_id] = [buf_id, signal_meta]
+        self._signals_reverse[buf_id] = signal_id
         device_path = device.device_path
 
+        device_signal_id = signal_id.split('.')[1]
+        signal_name = self.pubsub.query(f'{get_topic_name(device)}/settings/signals/{device_signal_id}/name')
         ui_prefix = get_topic_name(self)
         ui_signal_prefix = f'{ui_prefix}/settings/signals/{signal_id}'
         for key, meta in _SETTINGS_PER_SIGNAL.items():
             self.pubsub.topic_add(f'{ui_signal_prefix}/{key}', meta)
+        self.pubsub.publish(f'{ui_signal_prefix}/name', signal_name)
+        self.pubsub.publish(f'{ui_signal_prefix}/meta', signal_meta)
         self._driver_publish(f'm/{self._id}/a/!add', buf_id)
         subtopic = device.signal_subtopics(signal, 'data')
         device_source = f'{device_path}/{subtopic}'
@@ -268,6 +273,9 @@ class JsdrvStreamBuffer:
         :param value: The dict defining the request with keys:
             * signal_id: The signal id for the request
             * time_type: 'utc' or 'samples'.
+            * start: The starting time (utc time64 or samples).
+            * end: The ending time (utc time64 or samples).
+            * length: The number of requested entries evenly spread from start to end.
             * rsp_topic: The arbitrary response topic.
             * rsp_id: The optional and arbitrary response immutable object.
               Valid values include integers, strings, and callables.
@@ -275,9 +283,6 @@ class JsdrvStreamBuffer:
               member variable and reuse the same binding so that deduplication
               can work correctly.  Otherwise, each call will use a new binding
               that is different and will not allow deduplication matching.
-            * start: The starting time (UTC or samples).
-            * end: The ending time (UTC or samples).
-            * length: The number of requested entries evenly spread from start to end.
         """
         value = copy.deepcopy(value)
         signal_id = value['signal_id']

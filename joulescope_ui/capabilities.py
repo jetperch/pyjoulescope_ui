@@ -93,16 +93,27 @@ class CAPABILITIES(Enum):
           * model
           * version
           * serial_number
-          * field: (current, voltage, power, ...)
-          * units
-          * source: (unique_id, if not same as this instance)
-          * source_topic: (fully qualified topic, if not from this instance)
         * settings/signals/{signal_id}/range: read-only dict with keys:
           * time64: [t_start, t_end]
           * samples: {'start': s_start, 'end': s_end, 'length': s_length}
           * sample_rate: For fixed-rate samples, the sample rate in Hz.
         * actions/!request obj with keys:
           * signal_id: The signal_id for the request.
+          
+          * time_type: 'utc' or 'samples'.
+          * start: The starting time (utc time64 or samples).
+          * end: The ending time (utc time64 or samples).
+          * length: The number of requested entries evenly spread from start to end.          
+
+          * rsp_topic: The arbitrary response topic.  When the computation is
+            done, the response message will be sent here.
+          * rsp_id: The optional and arbitrary response immutable object.
+            Valid values include integers, strings, and callables.
+            If providing method calls, be sure to save the binding to a
+            member variable and reuse the same binding so that deduplication
+            can work correctly.  Otherwise, each call will use a new binding
+            that is different and will not allow deduplication matching.
+          
           * time_start: The start time as time64.
           * time_end: The end time as time64.
           * length: The desired number of response entries.

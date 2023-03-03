@@ -20,6 +20,7 @@ from joulescope_ui.widgets import ProgressBarWidget
 import datetime
 import logging
 import os
+import queue
 import threading
 import time
 
@@ -91,31 +92,27 @@ class ExporterWidget(QtWidgets.QWidget):
         return super().closeEvent(event)
 
 
-def _jls_add_signals(jls, signals):
-    for idx, (source_unique_id, signal_id) in enumerate(signals):
-        meta_topic = f'registry/{source_unique_id}/settings/signals/{signal_id}/meta'
-        meta = pubsub_singleton.query(meta_topic)
-        print(meta)
-
-
 @register_decorator('exporter_worker')
 class ExporterWorker:
     def __init__(self, x_range, kwargs, signals):
         self._log = logging.getLogger(f'{__name__}.worker')
         self._x_range = x_range
         self._kwargs = kwargs
-        self._signals = signals
+        self._signals_list = signals
+        self._signals = {}
         unique_id = pubsub_singleton.register(self)
         cancel_topic = f'{get_topic_name(self)}/actions/!cancel'
         self._progress_bar = ProgressBarWidget(N_("Export in progress..."), cancel_topic)
         pubsub_singleton.register(self._progress_bar)
         self._quit = False
         self._log.info('start %s', unique_id)
+        self._queue = queue.Queue()
         self._thread = threading.Thread(target=self.run)
         self._thread.start()
+        self._rsp_id = 1
 
     def on_cbk_data(self, value):
-        print(value)
+        self._queue.put(value, timeout=0.5)
 
     def on_action_cancel(self):
         self._log.info('cancel')
@@ -127,24 +124,117 @@ class ExporterWorker:
         pubsub_singleton.unregister(self)
         self._log.info('finalized')
 
+    def _jls_init(self, jls: Writer):
+        sources = []
+        jls_signal_id = 1
+        for idx, signal in enumerate(self._signals_list):
+            (source_unique_id, signal_id) = signal
+            meta_topic = f'registry/{source_unique_id}/settings/signals/{signal_id}/meta'
+            meta = pubsub_singleton.query(meta_topic)
+            source, signal_id_brief = signal_id.split('.')
+            if source not in sources:
+                sources.append(source)
+                source_idx = source.index(source) + 1
+                version = meta['version']
+                if isinstance(version, dict):
+                    version = version.get('hw')
+                jls.source_def(
+                    source_id=source_idx,
+                    name=source,
+                    vendor=meta['vendor'],
+                    model=meta['model'],
+                    version=version,
+                    serial_number=meta['serial_number'],
+                )
+            r = pubsub_singleton.query(f'{get_topic_name(source_unique_id)}/settings/signals/{signal_id}/range')
+            d = self._request(signal, 'utc', self._x_range[0], 0, 1, 1.0)
+            info = d['info']
+            jls.signal_def(
+                signal_id=jls_signal_id,
+                source_id=source.index(source) + 1,
+                signal_type=SignalType.FSR,
+                data_type=info['element_type'],
+                sample_rate=info['time_map']['counter_rate'],
+                name=info['name'],
+                units=info['units'],
+            )
+            self._signals[(source_unique_id, signal_id)] = {
+                'signal': (source_unique_id, signal_id),
+                'jls_signal_id': jls_signal_id,
+                'info': info,
+                'range': r,
+                'sample_start': info['time_range_samples']['start'],
+                'utc_start': info['time_range_utc']['start'],
+            }
+            jls_signal_id += 1
+
+    def _request(self, signal, time_type, start, end, length, timeout=None):
+        if time_type not in ['utc', 'samples']:
+            raise ValueError(f'invalid time_type: {time_type}')
+        rsp_id = self._rsp_id
+        if isinstance(signal, dict):
+            signal = signal['signal']
+        req = {
+            'signal_id': signal[1],
+            'time_type': time_type,
+            'start': start,
+            'end': end,
+            'length': length,
+            'rsp_topic': f'{get_topic_name(self)}/callbacks/!data',
+            'rsp_id': rsp_id,
+        }
+        self._rsp_id += 1
+        pubsub_singleton.publish(f'{get_topic_name(signal[0])}/actions/!request', req)
+        if timeout is None:
+            return rsp_id
+        t_end = time.time() + timeout
+        while True:
+            timeout = max(0.0, t_end - time.time())
+            rsp = self._queue.get(timeout=timeout)
+            if rsp['rsp_id'] == rsp_id:
+                return rsp
+            else:
+                self._log.warning('discarding message')
+
     def run(self):
         self._log.info('thread start')
         progress = f'{get_topic_name(self._progress_bar)}/settings/progress'
-        cbk_topic = f'{get_topic_name(self)}/cbk/!data'
         path = self._kwargs['path']
 
         with Writer(path) as jls:
             notes = self._kwargs.get('notes')
             if notes is not None:
                 jls.user_data(0, notes)
-            _jls_add_signals(jls, self._signals)
-
-
-            for i in range(1001):
-                if self._quit:
-                    break
-                pubsub_singleton.publish(progress, i / 1000)
-                time.sleep(0.002)
+            self._jls_init(jls)
+            for signal in self._signals.values():
+                utc = signal['utc_start']
+                utc_start, utc_end = self._x_range
+                sample_id = signal['sample_start']
+                sample_id_offset = sample_id
+                jls_signal_id = signal['jls_signal_id']
+                jls.utc(jls_signal_id, 0, time64.as_timestamp(signal['utc_start']))
+                fs = signal['info']['time_map']['counter_rate']
+                count = 0
+                while True:
+                    length = int(((utc_end - utc) / time64.SECOND) * fs)
+                    if length <= 0:
+                        if count:
+                            sample_id_end = info['time_range_samples']['end'] - sample_id_offset
+                            jls.utc(jls_signal_id, sample_id_end, time64.as_timestamp(utc_end))
+                        self._log.info(f'{signal["signal"]}: exported {count} samples')
+                        break
+                    length = min(10_000, length)
+                    d = self._request(signal, 'samples', sample_id, 0, length, timeout=1.0)
+                    info = d['info']
+                    sample_id_start = info['time_range_samples']['start']
+                    if sample_id_start != sample_id:
+                        self._log.warning(f'sample_id mismatch: {sample_id_start} != {sample_id}')
+                        sample_id = sample_id_start
+                    jls.fsr(jls_signal_id, sample_id - sample_id_offset, d['data'])
+                    sample_id += info['time_range_samples']['length']
+                    utc = info['time_range_utc']['end'] + int(time64.SECOND / (fs * 2))
+                    count += length
+            pubsub_singleton.publish(progress, 1.0)
         if self._quit:
             self._log.info('thread done with quit/abort')
             os.remove(path)
@@ -173,7 +263,8 @@ class ExporterDialog(QtWidgets.QDialog):
         ExporterDialog._instances.append(self)
         self._log = logging.getLogger(f'{__name__}.dialog')
 
-        self._log.info(f'start {x_range}, {signals}')
+        duration = (self._x_range[1] - self._x_range[0]) / time64.SECOND
+        self._log.info(f'start {duration} {x_range}, {signals}')
         self.setObjectName('exporter_dialog')
         self._layout = QtWidgets.QVBoxLayout()
         self.setLayout(self._layout)
@@ -218,13 +309,10 @@ class ExporterDialog(QtWidgets.QDialog):
     def on_cls_action_run(value):
         """Run the range tool.
 
-        :param value: [(time64_min, time64_max), kwargs, (source_unique_id, signal_id), ...]
+        :param value: [(time64_min, time64_max), kwargs, [(source_unique_id, signal_id), ...]]
         """
-        x0, x1 = value[0]
-        kwargs = value[1]
-        signals = value[2]
-        dx = (x1 - x0) / time64.SECOND
+        x_range, kwargs, sources = value
         if kwargs is None or not len(kwargs):
-            ExporterDialog(dx, signals)
+            ExporterDialog(x_range, sources)
         else:
             raise NotImplementedError('kwargs not yet supported')

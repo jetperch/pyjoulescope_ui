@@ -544,7 +544,7 @@ class WaveformWidget(QtWidgets.QWidget):
         # self._log.info('_on_signal_range(%s, %s)', topic, value)
         if value is None:
             return
-        value = value['time64']
+        value = value['utc']
         topic_parts = topic.split('/')
         source = topic_parts[1]
         signal_id = topic_parts[-2]
@@ -2527,6 +2527,5 @@ class WaveformWidget(QtWidgets.QWidget):
         self._log.warning('plot_show could not match %s', quantity)
 
     def on_setting_fps(self, value):
-        print(f'fps update {value}')
         self._refresh_timer.stop()
         self._refresh_timer.start(value)

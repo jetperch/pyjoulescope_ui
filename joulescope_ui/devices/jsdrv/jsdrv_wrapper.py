@@ -166,7 +166,7 @@ class JsdrvWrapper:
             self._log.info('Unsupported device: %s', value)
             return
         self._log.info('_on_device_add %s', unique_id)
-        d = cls(self, value, unique_id)
+        d = cls(self, value)
         self.pubsub.register(d, unique_id)
         if d.name is None:
             d.name = unique_id

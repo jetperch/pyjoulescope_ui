@@ -31,7 +31,7 @@ class Device:
     CAPABILITIES = CAPABILITIES_CLASS
     EVENTS = {}
 
-    def __init__(self, wrapper, device_path, unique_id):
+    def __init__(self, wrapper, device_path):
         self.CAPABILITIES = CAPABILITIES_OBJECT
         self._wrapper = wrapper  #: JsdrvWrapper
         while device_path.endswith('/'):

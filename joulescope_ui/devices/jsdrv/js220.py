@@ -385,8 +385,8 @@ class Js220(Device):
 
     SETTINGS = SETTINGS
 
-    def __init__(self, driver, device_path, unique_id):
-        super().__init__(driver, device_path, unique_id)
+    def __init__(self, driver, device_path):
+        super().__init__(driver, device_path)
         self.EVENTS = copy.deepcopy(EVENTS)
         self.SETTINGS = copy.deepcopy(SETTINGS)
         self.SETTINGS['name']['default'] = device_path
@@ -402,8 +402,6 @@ class Js220(Device):
 
         self._statistics_offsets = None
         self._on_settings_fn = self._on_settings
-        for key, value in _SIGNALS.items():
-            self._signal_forward(key, value['topics'][1], unique_id)
         self._on_target_power_app_fn = self._on_target_power_app
         self._pubsub.subscribe('registry/app/settings/target_power', self._on_target_power_app_fn, ['pub', 'retain'])
 
@@ -412,6 +410,13 @@ class Js220(Device):
         self._quit = False
         self._target_power_app = False
         self._queue = queue.Queue()
+
+    def on_pubsub_register(self):
+        topic = get_topic_name(self)
+        self._pubsub.publish(f'{topic}/settings/info', self._info)
+        self._pubsub.publish(f'{topic}/sources/1/info', self._info)
+        for key, value in _SIGNALS.items():
+            self._signal_forward(key, value['topics'][1], self.unique_id)
 
     def signal_subtopics(self, signal_id, topic_type):
         """Query the signal topics.
@@ -596,6 +601,7 @@ class Js220(Device):
                 'fw': _version_u32_to_str(self._driver_query('c/fw/version')),
                 'fpga': _version_u32_to_str(self._driver_query('s/fpga/version')),
             }
+            self._info = copy.deepcopy(self._info)
             self._ui_publish('settings/info', self._info)
             self._driver_publish('s/stats/ctrl', 1)
             self._driver_subscribe('s/stats/value', 'pub', self._on_stats_fn)
