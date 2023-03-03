@@ -39,6 +39,8 @@ _Y_INNER_LINE = 4
 _Y_PLOT_MIN = 16
 _MARKER_RSP_OFFSET = (1 << 48)
 _MARKER_RSP_STEP = 512
+_JS220_AXIS_R = ['10 A', '180 mA', '18 mA', '1.8 mA', '180 µA', '18 µA', 'off', 'off', 'off']
+_JS110_AXIS_R = ['10 A', '2 A', '180 mA', '18 mA', '1.8 mA', '180 µA', '18 µA', 'off', 'off']
 
 
 def _analog_plot(quantity, show, units, name, integral=None):
@@ -217,10 +219,12 @@ def _tick_spacing(v_min, v_max, v_spacing_min):
     raise RuntimeError('tick_spacing calculation failed')
 
 
-def _ticks(v_min, v_max, v_spacing_min):
+def _ticks(v_min, v_max, v_spacing_min, major_interval_min=None):
     major_interval = _tick_spacing(v_min, v_max, v_spacing_min)
     if major_interval <= 0:
         return None
+    if major_interval_min is not None and major_interval < major_interval_min:
+        major_interval = major_interval_min
     major_start = np.ceil(v_min / major_interval) * major_interval
     major = np.arange(major_start, v_max, major_interval, dtype=np.float64)
     minor_interval = major_interval / 10.0
@@ -1219,6 +1223,13 @@ class WaveformWidget(QtWidgets.QWidget):
         y_grid = _ticks(y_range[0], y_range[1], y_tick_height_value_min)
         axis_font_metrics = s['axis_font_metrics']
         if y_grid is not None:
+            if plot['quantity'] == 'r':
+                y_grid = _ticks(y_range[0], y_range[1], y_tick_height_value_min, 1)
+                if len(plot['signals']):
+                    if 'JS220' in plot['signals'][0][1]:
+                        y_grid['labels'] = [_JS220_AXIS_R[int(s_label)] for s_label in y_grid['labels']]
+                    elif 'JS110' in plot['signals'][0][1]:
+                        y_grid['labels'] = [_JS110_AXIS_R[int(s_label)] for s_label in y_grid['labels']]
             for idx, t in enumerate(self._y_value_to_pixel(plot, y_grid['major'])):
                 p.setPen(s['text_pen'])
                 s_label = y_grid['labels'][idx]
