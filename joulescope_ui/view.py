@@ -180,15 +180,23 @@ class View:
             * The class unique_id or instance
             * The instance unique_id, instance or existing widget object
             * A dict containing:
-              * value (topic, unique_id, instance): required
-              * floating: True to make floating on top
+              * value: topic, unique_id, or instance required
+              * args: optional positional arguments for constructor
+              * kwargs: optional keyword arguments for constructor
+              * floating: optional window float control.
+                True to make floating on top.
+                When missing, do not float.
         """
         obj: QtWidgets.QWidget = None
         floating = False
         unique_id = None
+        args = []
+        kwargs = {}
         if isinstance(value, dict):
             floating = bool(value.get('floating', False))
             spec = value['value']
+            args = value.get('args', args)
+            kwargs = value.get('kwargs', kwargs)
         else:
             spec = value
         if isinstance(spec, str):
@@ -204,7 +212,7 @@ class View:
                 if spec is None:
                     _log.warning('widget_open failed for %s', value)
         if isinstance(spec, type):
-            obj = spec()
+            obj = spec(*args, **kwargs)
         else:
             obj = spec
         pubsub_singleton.register(obj, unique_id=unique_id, parent=self)

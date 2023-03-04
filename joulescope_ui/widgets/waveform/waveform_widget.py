@@ -338,6 +338,11 @@ class WaveformWidget(QtWidgets.QWidget):
     CAPABILITIES = ['widget@', CAPABILITIES.SIGNAL_BUFFER_SINK]
 
     SETTINGS = {
+        'source_filter': {
+            'dtype': 'str',
+            'brief': N_('The source filter string.'),
+            'default': '',
+        },
         'trace_width': {
             'dtype': 'int',
             'brief': N_('The trace width.'),
@@ -404,9 +409,14 @@ class WaveformWidget(QtWidgets.QWidget):
         },
     }
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, **kwargs):
+        """Create a new instance.
+
+        :param parent: The QtWidget parent.
+        :param source_filter: The source filter string.
+        """
         self._log = logging.getLogger(__name__)
-        self.pubsub = None
+        self._kwargs = kwargs
         self.state = None
         self._style_cache = None
         self._x_markers_by_id = {}
@@ -465,19 +475,21 @@ class WaveformWidget(QtWidgets.QWidget):
         if not len(sources):
             self._log.warning('No default source available')
             return
-        source = sources[-1]
-        topic = get_topic_name(source)
-        signals = self.pubsub.enumerate(f'{topic}/settings/signals')
-        try:
-            self.pubsub.query(f'{topic}/events/signals/!add')
-            self.pubsub.subscribe(f'{topic}/events/signals/!add', self._on_signal_add_fn, ['pub'])
-            self.pubsub.subscribe(f'{topic}/events/signals/!remove', self._on_signal_remove_fn, ['pub'])
-        except KeyError:
-            pass
+        for source in sources:
+            if not source.startswith(self.source_filter):
+                continue
+            topic = get_topic_name(source)
+            signals = self.pubsub.enumerate(f'{topic}/settings/signals')
+            try:
+                self.pubsub.query(f'{topic}/events/signals/!add')
+                self.pubsub.subscribe(f'{topic}/events/signals/!add', self._on_signal_add_fn, ['pub'])
+                self.pubsub.subscribe(f'{topic}/events/signals/!remove', self._on_signal_remove_fn, ['pub'])
+            except KeyError:
+                pass
 
-        for signal in signals:
-            self._on_signal_add(f'{topic}/events/signals/!add', signal)
-        self._request_data(force=True)
+            for signal in signals:
+                self._on_signal_add(f'{topic}/events/signals/!add', signal)
+            self._request_data(force=True)
 
     def _on_signal_add(self, topic, value):
         self._log.info(f'_on_signal_add({topic}, {value})')
@@ -510,6 +522,8 @@ class WaveformWidget(QtWidgets.QWidget):
     def on_pubsub_register(self):
         if self.state is None:
             self.state = copy.deepcopy(_STATE_DEFAULT)
+        if 'source_filter' in self._kwargs:
+            self.source_filter = self._kwargs['source_filter']
         for plot_index, plot in enumerate(self.state['plots']):
             plot['index'] = plot_index
             plot['y_region'] = f'plot.{plot_index}'
@@ -611,6 +625,8 @@ class WaveformWidget(QtWidgets.QWidget):
     def _request_data(self, force=False):
         first = True
         force = bool(force)
+        if not len(self._x_geometry_info):
+            return
         self.x_range = self._compute_x_range()
         for signal in self._signals.values():
             if not signal['enabled']:

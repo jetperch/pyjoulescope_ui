@@ -225,8 +225,11 @@ class JlsV2:
                 cmd, value = self._queue.get(timeout=0.05)
             except queue.Empty:
                 continue
-            if cmd == 'request':
-                self._handle_request(value)
+            try:
+                if cmd == 'request':
+                    self._handle_request(value)
+            except Exception:
+                self._log.exception(f'While processing {cmd}')
 
 @register
 class JlsSource:

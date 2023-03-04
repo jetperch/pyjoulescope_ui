@@ -231,7 +231,9 @@ class MainWindow(QtWidgets.QMainWindow):
         #self._pubsub.publish('registry/view/actions/!widget_open', 'ExampleWidget')
         #self._pubsub.publish('registry/view/actions/!widget_open', 'MultimeterWidget')
         #self._pubsub.publish('registry/view/actions/!widget_open', 'MultimeterWidget')
-        self._pubsub.publish('registry/view/actions/!widget_open', 'WaveformWidget')
+        self._pubsub.publish('registry/view/actions/!widget_open',
+                             {'value': 'WaveformWidget',
+                              'kwargs': {'source_filter': 'JsdrvStreamBuffer:001'}})
         self._pubsub.publish('registry/StyleManager:0/actions/!render', None)
 
         self._pubsub.process()
@@ -324,6 +326,10 @@ class MainWindow(QtWidgets.QMainWindow):
                 path = files[0]
                 self._log.info('file_open %s', path)
                 self._pubsub.publish(f'registry/JlsSource/actions/!open', path)
+                self._pubsub.publish('registry/view/actions/!widget_open',
+                                     {'value': 'WaveformWidget',
+                                      'kwargs': {'source_filter': 'JlsSource'}})
+                # todo need to close JlsSource on Waveform Widget close.
             else:
                 self._log.info('file_open invalid files: %s', files)
         else:
