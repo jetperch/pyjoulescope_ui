@@ -101,12 +101,12 @@ class ExporterWorker:
         self._kwargs = kwargs
         self._signals_list = signals
         self._signals = {}
-        unique_id = pubsub_singleton.register(self)
+        pubsub_singleton.register(self)
         cancel_topic = f'{get_topic_name(self)}/actions/!cancel'
         self._progress_bar = ProgressBarWidget(N_("Export in progress..."), cancel_topic)
         pubsub_singleton.register(self._progress_bar)
         self._quit = False
-        self._log.info('start %s', unique_id)
+        self._log.info('start %s', self.unique_id)
         self._queue = queue.Queue()
         self._thread = threading.Thread(target=self.run)
         self._thread.start()

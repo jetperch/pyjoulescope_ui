@@ -943,7 +943,7 @@ class PubSub:
         self._cmd_topic_remove({'topic': t})
         self.publish(REGISTRY_MANAGER_TOPICS.CAPABILITY_REMOVE, name)
 
-    def register(self, obj, unique_id: str = None, parent=None) -> str:
+    def register(self, obj, unique_id: str = None, parent=None):
         """Register a class or instance.
 
         :param obj: The class type or instance to register.
@@ -953,13 +953,12 @@ class PubSub:
             For instances, a randomly generated value.
         :type unique_id: str, optional
         :param parent: The optional parent unique_id, topic, or object.
-        :return: The unique_id string.
         """
         if 'unique_id' in obj.__dict__:  # ignore class attributes for objects
             self._log.info('Duplicate registration for %s', obj)
             if parent is not None:
                 self._parent_add(obj, parent)
-            return obj.unique_id
+            return
         if unique_id is None:
             if isinstance(obj, type):
                 # Use the unqualified class name
@@ -1014,7 +1013,6 @@ class PubSub:
         self._register_invoke_callback(obj, unique_id)
         self._register_capabilities(obj, unique_id)
         self._log.info('register(unique_id=%s) done', unique_id)
-        return unique_id
 
     def _parent_add(self, obj, parent=None):
         if parent is None:
@@ -1241,19 +1239,18 @@ class PubSub:
             When None (default) or false, then the topic and subtopics are not
             removed.  Future instances registered
             to this unique_id will be configured with the same settings.
-        :return: The unregistered object.
         """
         try:
             unique_id = get_unique_id(spec)
             topic_name = get_topic_name(unique_id)
         except ValueError:
             self._log.warning('Could not unregister %s - invalid spec', spec)
-            return None
+            return
         instance_topic_name = f'{topic_name}/instance'
         obj = self.query(instance_topic_name, default=None)
         if obj is None:
             self._log.warning('Could not unregister %s - instance not found', spec)
-            return None
+            return
         self._unregister_capabilities(obj, unique_id)
         self._unregister_invoke_callback(obj, unique_id)
         self._registry_remove(unique_id)
@@ -1264,7 +1261,6 @@ class PubSub:
         del obj.topic
         if bool(delete):
             self.topic_remove(topic_name)
-        return obj
 
     def register_command(self, topic: str, fn: callable):
         """Add a new command topic to the pubsub instance.

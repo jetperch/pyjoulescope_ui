@@ -206,7 +206,8 @@ class View:
             obj = spec()
         else:
             obj = spec
-        unique_id = pubsub_singleton.register(obj, unique_id=unique_id, parent=self)
+        pubsub_singleton.register(obj, unique_id=unique_id, parent=self)
+        unique_id = obj.unique_id
         obj.setObjectName(unique_id)
         obj.dock_widget = DockWidget(obj)
         obj.dock_widget.setObjectName(f'{unique_id}__dock')
@@ -249,7 +250,8 @@ class View:
     @staticmethod
     def on_cls_action_add(value):
         view = View()
-        unique_id = pubsub_singleton.register(view, unique_id=value)
+        pubsub_singleton.register(view, unique_id=value)
+        unique_id = view.unique_id
         if View._active_instance is None:
             pubsub_singleton.publish(f'{View.topic}/settings/active', unique_id)
         return ['registry/view/actions/!remove', unique_id]

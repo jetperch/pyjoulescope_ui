@@ -75,8 +75,9 @@ class JlsV2:
         jls = Reader(self._path)
         self._jls = jls
         source_meta = {}
+
         for source_id, source in jls.sources.items():
-            pubsub.topic_add(f'{topic}/settings/sources{source_id}/name',
+            pubsub.topic_add(f'{topic}/settings/sources/{source_id}/name',
                              Metadata('str', 'Source name', source.name))
             meta = {
                 'vendor': source.vendor,
@@ -85,7 +86,7 @@ class JlsV2:
                 'serial_number': source.serial_number,
                 'name': f'{source.model}-{source.serial_number}',
             }
-            pubsub.topic_add(f'{topic}/settings/sources{source_id}/meta',
+            pubsub.topic_add(f'{topic}/settings/sources/{source_id}/meta',
                              Metadata('obj', 'Source metadata', meta))
             source_meta[source_id] = meta
         for signal_id, signal in jls.signals.items():
@@ -235,11 +236,18 @@ class JlsSource:
         self._thread = None
 
     def on_pubsub_register(self):
+        topic = get_topic_name(self)
+        pubsub = self.pubsub
         name = os.path.basename(os.path.splitext(self._path)[0])
-        self.pubsub.publish(f'{get_topic_name(self)}/settings/name', name)
+        _log.info(f'jls_source register {topic}/settings/signals')
+        pubsub.topic_add(f'{topic}/settings/sources', Metadata('node', 'Sources', None))
+        pubsub.topic_add(f'{topic}/settings/signals', Metadata('node', 'Signals', None))
+        pubsub.publish(f'{topic}/settings/name', name)
         if self._version == 2:
+            _log.info('jls_source v2')
             self._jls = JlsV2(self._path, self.pubsub, self.topic)
         elif self.version == 1:
+            _log.info('jls_source v1')
             raise NotImplementedError('jls v1 support not yet added')
         else:
             raise ValueError('Unsupported JLS version')
@@ -258,7 +266,7 @@ class JlsSource:
                 thread.join()
 
     def on_action_close(self):
-        self.pubsub.unregister(self)
+        self.pubsub.unregister(self, delete=True)
         self._close()
 
     def on_action_request(self, value):
@@ -279,3 +287,4 @@ class JlsSource:
         instances = pubsub.query(f'{get_topic_name(JlsSource)}/instances')
         for instance in list(instances):
             pubsub.publish(f'{get_topic_name(instance)}/actions/!close', None)
+        JlsSource.pubsub.unregister(JlsSource, delete=True)

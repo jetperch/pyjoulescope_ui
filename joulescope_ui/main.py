@@ -93,8 +93,8 @@ def _menu_setup(parent, d):
 
 def _device_factory_add():
     jsdrv = JsdrvWrapper()
-    unique_id = pubsub_singleton.register(jsdrv, 'jsdrv')
-    topic = get_topic_name(unique_id)
+    pubsub_singleton.register(jsdrv, 'jsdrv')
+    topic = get_topic_name(jsdrv)
     pubsub_singleton.topic_remove('registry/JsdrvStreamBuffer:001')
     pubsub_singleton.process()
     pubsub_singleton.publish(f'{topic}/actions/mem/!add', 1)  # use singleton memory buffer
