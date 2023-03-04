@@ -148,7 +148,7 @@ class ExporterWorker:
                     serial_number=meta['serial_number'],
                 )
             r = pubsub_singleton.query(f'{get_topic_name(source_unique_id)}/settings/signals/{signal_id}/range')
-            d = self._request(signal, 'utc', self._x_range[0], 0, 1, 1.0)
+            d = self._request(signal, 'utc', self._x_range[0], 0, 1, timeout=1.0)
             info = d['info']
             jls.signal_def(
                 signal_id=jls_signal_id,
@@ -159,13 +159,17 @@ class ExporterWorker:
                 name=TO_JLS_SIGNAL_NAME[info['field']],
                 units=info['units'],
             )
+            utc_start = info['time_range_utc']['start']
+            d_utc = (utc_start - self._x_range[0]) / time64.SECOND
+            if abs(d_utc) > 0.001:
+                self._log.error('UTC error: %.3f: %d %d, %s', d_utc, utc_start, self._x_range[0], d['data'][0])
             self._signals[(source_unique_id, signal_id)] = {
                 'signal': (source_unique_id, signal_id),
                 'jls_signal_id': jls_signal_id,
                 'info': info,
                 'range': r,
                 'sample_start': info['time_range_samples']['start'],
-                'utc_start': info['time_range_utc']['start'],
+                'utc_start': utc_start,
             }
             jls_signal_id += 1
 
@@ -210,10 +214,13 @@ class ExporterWorker:
             for signal in self._signals.values():
                 utc = signal['utc_start']
                 utc_start, utc_end = self._x_range
+                self._log.info('%s: %d %d | %.3f', signal['signal'], utc_start, utc_end,
+                               (utc_end - utc_start) / time64.SECOND)
                 sample_id = signal['sample_start']
                 sample_id_offset = sample_id
                 jls_signal_id = signal['jls_signal_id']
-                jls.utc(jls_signal_id, 0, time64.as_timestamp(signal['utc_start']))
+                self._log.info('utc@start: %d %d', 0, signal['utc_start'])
+                jls.utc(jls_signal_id, 0, signal['utc_start'])
                 fs = signal['info']['time_map']['counter_rate']
                 count = 0
                 while True:
@@ -221,7 +228,8 @@ class ExporterWorker:
                     if length <= 0:
                         if count:
                             sample_id_end = info['time_range_samples']['end'] - sample_id_offset
-                            jls.utc(jls_signal_id, sample_id_end, time64.as_timestamp(utc_end))
+                            self._log.info('utc@end: %d %d', sample_id_end, utc_end)
+                            jls.utc(jls_signal_id, sample_id_end, utc_end)
                         self._log.info(f'{signal["signal"]}: exported {count} samples')
                         break
                     length = min(10_000, length)
@@ -265,7 +273,8 @@ class ExporterDialog(QtWidgets.QDialog):
         self._log = logging.getLogger(f'{__name__}.dialog')
 
         duration = (self._x_range[1] - self._x_range[0]) / time64.SECOND
-        self._log.info(f'start {duration} {x_range}, {signals}')
+        second = self._x_range[0] // time64.SECOND
+        self._log.info(f'start duration={duration}, x_range={x_range}, x0_second={second}, signals={signals}')
         self.setObjectName('exporter_dialog')
         self._layout = QtWidgets.QVBoxLayout()
         self.setLayout(self._layout)

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyjls import Reader, SignalType
+from pyjls import Reader, SignalType, data_type_as_str
 from joulescope_ui import CAPABILITIES, Metadata, time64, register, get_topic_name
 from joulescope_ui.jls_v2 import TO_UI_SIGNAL_NAME
 import copy
@@ -51,6 +51,7 @@ def _jls_version_detect(filename):
 class JlsV2:
 
     def __init__(self, path, pubsub, topic):
+        self._log = logging.getLogger(__name__ + '.jls_v2')
         self._path = path
         self._pubsub = pubsub
         self._topic = topic
@@ -78,7 +79,7 @@ class JlsV2:
 
         for source_id, source in jls.sources.items():
             pubsub.topic_add(f'{topic}/settings/sources/{source_id}/name',
-                             Metadata('str', 'Source name', source.name))
+                             Metadata('str', 'Source name', default=source.name))
             meta = {
                 'vendor': source.vendor,
                 'model': source.model,
@@ -87,7 +88,7 @@ class JlsV2:
                 'name': f'{source.model}-{source.serial_number}',
             }
             pubsub.topic_add(f'{topic}/settings/sources/{source_id}/meta',
-                             Metadata('obj', 'Source metadata', meta))
+                             Metadata('obj', 'Source metadata', default=meta))
             source_meta[source_id] = meta
         for signal_id, signal in jls.signals.items():
             if signal.name not in TO_UI_SIGNAL_NAME:
@@ -102,6 +103,7 @@ class JlsV2:
                         utc_first = entries[0, :]
                     utc_last = entries[-1, :]
                     return False
+
                 jls.utc(signal.signal_id, 0, utc_cbk)
                 if utc_first is None:
                     g = time64.SECOND / signal.sample_rate
@@ -120,9 +122,9 @@ class JlsV2:
             signal_name = f'{source_name}.{signal_subname}'
 
             pubsub.topic_add(f'{topic}/settings/signals/{signal_name}/name',
-                             Metadata('str', 'Signal name', signal.name))
+                             Metadata('str', 'Signal name', default=signal.name))
             pubsub.topic_add(f'{topic}/settings/signals/{signal_name}/meta',
-                             Metadata('obj', 'Signal metadata', signal_meta))
+                             Metadata('obj', 'Signal metadata', default=signal_meta))
             sample_start, sample_end = 0, signal.length - 1
             range_meta = {
                 'utc': [self._time_samples_to_utc(sample_start), self._time_samples_to_utc(sample_end)],
@@ -130,12 +132,13 @@ class JlsV2:
                 'sample_rate': signal.sample_rate,
             }
             pubsub.topic_add(f'{topic}/settings/signals/{signal_name}/range',
-                             Metadata('obj', 'Signal range', range_meta))
+                             Metadata('obj', 'Signal range', default=range_meta))
             self._signals[signal_name] = {
                 'signal_id': signal.signal_id,
                 'sample_rate': signal.sample_rate,
                 'field': signal_subname,
                 'units': signal.units,
+                'data_type': data_type_as_str(signal.data_type),
             }
 
     def _handle_request(self, value):
@@ -152,23 +155,32 @@ class JlsV2:
         else:
             start = value['start']
             end = value['end']
-        interval = start - end + 1
+        interval = end - start + 1
         length = value['length']
         response_type = 'samples'
+        increment = 1
+        data_type = signal['data_type']
 
+        if interval < 0:
+            return
         if end is None:
+            self._log.info('fsr(%d, %d, %d)', signal_id, start, length)
             data = self._jls.fsr(signal_id, start, length)
         elif length is None:
+            self._log.info('fsr(%d, %d, %d)', signal_id, start, interval)
             data = self._jls.fsr(signal_id, start, interval)
         elif length and end and length < (interval // 2):
             # round increment down and increase length as needed
             increment = interval // length
-            length = (end - start + 1 + increment - 1) // increment
-            data = self._jls.fsr_statistics(start, increment, length)
-            data = data[:, :4]  # drop length todo ???
+            length = (end - start + 1) // increment
+            self._log.info('fsr_statistics(%d, %d, %d, %d)', signal_id, start, increment, length)
+            data = self._jls.fsr_statistics(signal_id, start, increment, length)
             response_type = 'summary'
+            data_type = 'f32'
         else:
-            data = self._jls.fsr(signal_id, start, interval)
+            self._log.info('fsr(%d, %d, %d)', signal_id, start, length)
+            data = self._jls.fsr(signal_id, start, length)
+        sample_id_end = start + increment * (length - 1)
 
         info = {
             'version': 1,
@@ -176,12 +188,12 @@ class JlsV2:
             'units': signal['units'],
             'time_range_utc': {
                 'start': self._time_samples_to_utc(start),
-                'end': self._time_samples_to_utc(start + length - 1),
+                'end': self._time_samples_to_utc(end),
                 'length': length,
             },
             'time_range_samples': {
                 'start': start,
-                'end': start + length - 1,
+                'end': sample_id_end,
                 'length': length,
             },
             'time_map': {
@@ -190,12 +202,14 @@ class JlsV2:
                 'counter_rate': signal['sample_rate'],
             },
         }
+        self._log.info(info)
         response = {
             'version': 1,
             'rsp_id': value.get('rsp_id'),
             'info': info,
             'response_type': response_type,
             'data': data,
+            'data_type': data_type,
         }
         self._pubsub.publish(value['rsp_topic'], response)
 
@@ -240,8 +254,8 @@ class JlsSource:
         pubsub = self.pubsub
         name = os.path.basename(os.path.splitext(self._path)[0])
         _log.info(f'jls_source register {topic}/settings/signals')
-        pubsub.topic_add(f'{topic}/settings/sources', Metadata('node', 'Sources', None))
-        pubsub.topic_add(f'{topic}/settings/signals', Metadata('node', 'Signals', None))
+        pubsub.topic_add(f'{topic}/settings/sources', Metadata('node', 'Sources'))
+        pubsub.topic_add(f'{topic}/settings/signals', Metadata('node', 'Signals'))
         pubsub.publish(f'{topic}/settings/name', name)
         if self._version == 2:
             _log.info('jls_source v2')

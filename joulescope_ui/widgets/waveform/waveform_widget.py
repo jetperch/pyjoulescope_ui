@@ -261,7 +261,9 @@ def _ticks(v_min, v_max, v_spacing_min, major_interval_min=None):
 
     return {
         'major': major,
+        'major_interval': major_interval,
         'minor': minor,
+        'minor_interval': minor_interval,
         'labels': labels,
         'unit_prefix': prefix,
     }
@@ -463,7 +465,7 @@ class WaveformWidget(QtWidgets.QWidget):
         if not len(sources):
             self._log.warning('No default source available')
             return
-        source = sources[0]
+        source = sources[-1]
         topic = get_topic_name(source)
         signals = self.pubsub.enumerate(f'{topic}/settings/signals')
         try:
@@ -475,6 +477,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
         for signal in signals:
             self._on_signal_add(f'{topic}/events/signals/!add', signal)
+        self._request_data(force=True)
 
     def _on_signal_add(self, topic, value):
         self._log.info(f'_on_signal_add({topic}, {value})')
@@ -1154,7 +1157,7 @@ class WaveformWidget(QtWidgets.QWidget):
         x_label_offset = int(x_offset_pow_t64 * np.floor(x_range64[0] / x_offset_pow_t64))
         x_zero_offset = x_range64[0]
 
-        x_gain = 0.0 if x_duration_s <= 0 else (plot_width - 1) / (x_duration_s * time64.SECOND)
+        x_gain = 1.0 if x_duration_s <= 0 else (plot_width - 1) / (x_duration_s * time64.SECOND)
         self._x_map = (left_x1, x_label_offset, x_zero_offset, x_gain)
         x_range_trel = [self._x_time64_to_trel(i) for i in self.x_range]
 
@@ -1164,7 +1167,6 @@ class WaveformWidget(QtWidgets.QWidget):
         x_offset = self._x_trel_offset()
         x_offset_str = time64.as_datetime(x_offset).isoformat()
         p.drawText(plot_x0, x_axis_y0 + s['plot_label_size'].height() + font_metrics.ascent(), x_offset_str)
-        p.drawText(left_x0, y_text, 's')
 
         if self.show_statistics:
             x_stats = self._x_geometry_info['statistics'][1]
@@ -1174,6 +1176,7 @@ class WaveformWidget(QtWidgets.QWidget):
         if x_grid is None:
             pass
         else:
+            p.drawText(left_x0, y_text, x_grid['unit_prefix'] + 's')
             for idx, x in enumerate(self._x_trel_to_pixel(x_grid['major'])):
                 p.setPen(s['text_pen'])
                 x_str = x_grid['labels'][idx]
@@ -2425,6 +2428,10 @@ class WaveformWidget(QtWidgets.QWidget):
         x0, x1 = self.x_range
         d_e = e1 - e0
         d_x = x1 - x0
+        if d_e <= 0:
+            return
+        elif d_x <= 0:
+            d_x = d_e
         if center is None:
             center = (x1 + x0) // 2
         center = max(x0, min(center, x1))
