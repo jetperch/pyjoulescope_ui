@@ -301,7 +301,7 @@ class StyleManager:
         try:
             unique_id = get_unique_id(value)
         except ValueError:
-            self._log.debug('render None - likely still being registered, will get called later.')
+            # self._log.debug('render None - likely still being registered, will get called later.')
             return None
         self._log.info('on_action_render(%s)', value)
         obj = get_instance(unique_id)
@@ -320,6 +320,7 @@ class StyleManager:
             if unique_id.startswith('view:'):
                 return self._render_view(unique_id)
             topic_name = get_topic_name(unique_id)
+            self._log.info('find parent for %s', topic_name)
             next_unique_id = self.pubsub.query(f'{topic_name}/parent')
             if next_unique_id in [None, '']:
                 next_unique_id = active_view_unique_id

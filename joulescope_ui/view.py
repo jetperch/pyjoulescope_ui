@@ -129,8 +129,9 @@ class View:
             return
         _log.info('active view %s: setup start', view.unique_id)
         children = pubsub_singleton.query(f'{topic}/children', default=None)
-        for child in children:
-            view.on_action_widget_open(child)
+        if children is not None:
+            for child in children:
+                view.on_action_widget_open(child)
         View._active_instance = view
         ads_state = pubsub_singleton.query(f'{topic}/settings/ads_state', default='')
         if ads_state is not None and len(ads_state):

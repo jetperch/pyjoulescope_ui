@@ -90,7 +90,7 @@ class JsdrvWrapper:
         self._stream_buffers[mem_id] = b
         unique_id = f'JsdrvStreamBuffer:{mem_id:03d}'
         self.pubsub.register(b, unique_id=unique_id)
-        topic = get_topic_name(b)
+        topic = get_topic_name(unique_id)
         for device in self.devices.values():
             self.pubsub.publish(f'{topic}/actions/!device_add', device)
 

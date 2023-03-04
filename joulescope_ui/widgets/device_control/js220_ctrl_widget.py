@@ -259,7 +259,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             block_state = b.blockSignals(True)
             b.setChecked(checked)
             b.blockSignals(block_state)
-            if not checked:
+            if not checked and 'buttons' in self._signals:
                 self._gpi_state_clear()
 
         def on_toggle(checked):

@@ -22,6 +22,7 @@ import threading
 import logging
 import os
 import sys
+import functools
 
 
 _APP_DEFAULT = 'joulescope'
@@ -39,7 +40,6 @@ UNSUBSCRIBE_TOPIC = COMMON_ACTIONS_TOPIC + '/!unsubscribe'
 UNSUBSCRIBE_ALL_TOPIC = COMMON_ACTIONS_TOPIC + '/!unsubscribe_all'
 TOPIC_ADD_TOPIC = COMMON_ACTIONS_TOPIC + '/!topic_add'
 TOPIC_REMOVE_TOPIC = COMMON_ACTIONS_TOPIC + '/!topic_remove'
-REGISTER_COMPLETION = COMMON_ACTIONS_TOPIC + '/!register_completion'
 CLS_ACTION_PREFIX = 'on_cls_action_'
 CLS_CALLBACK_PREFIX = 'on_cls_cbk_'
 CLS_EVENT_PREFIX = 'on_cls_event_'
@@ -320,12 +320,25 @@ class _Undo:
         self.redos.append(_Command(topic, value))
 
 
+def _immediate(fn):
+    @functools.wraps(fn)
+    def wrap(self, *args, **kwargs):
+        try:
+            self._immediate += 1
+            fn(self, *args, **kwargs)
+        finally:
+            self._immediate -= 1
+
+    return wrap
+
+
 class PubSub:
     """A publish-subscribe implementation combined with the command pattern.
 
     :param app: The application name.  None uses the default.
     """
     def __init__(self, app=None):
+        self._immediate = 0
         self._app = _APP_DEFAULT if app is None else str(app)
         self._log = logging.getLogger(__name__)
         self._notify_fn = None
@@ -336,7 +349,7 @@ class PubSub:
         self._topic_by_name = {}
         self._lock = threading.RLock()
         self._queue = []  # entries are _Command
-        self._stack = []  # entries are _Command
+        self._stack = [[]]  # entries are _Command
         self._undo_capture = None
         self.undos = []  # list of _Undo
         self.redos = []  # list of _Undo
@@ -348,7 +361,6 @@ class PubSub:
         self._add_cmd(TOPIC_REMOVE_TOPIC, self._cmd_topic_remove)
         self._add_cmd(UNDO_TOPIC, self._cmd_undo)
         self._add_cmd(REDO_TOPIC, self._cmd_redo)
-        self._add_cmd(REGISTER_COMPLETION, self._cmd_register_completion)
 
         self._paths_init()
 
@@ -442,8 +454,10 @@ class PubSub:
         if thread_id == self._thread_id:
             if timeout:
                 raise BlockingIOError()
-            if len(self._stack):
+            if self._undo_capture is not None:
                 self._stack[-1].append(_Command(topic, value))
+                if self._immediate:
+                    self._process()
             else:
                 with self._lock:
                     was_empty = (len(self._queue) == 0)
@@ -795,11 +809,6 @@ class PubSub:
         self._unsubscribe_all_recurse(self._root, update_fn, undo_list)
         return undo_list if len(undo_list) else None
 
-    def _cmd_register_completion(self, value):
-        completion_fn = value['completion_fn']
-        completion_fn()
-        return None
-
     def _publish_value(self, t, flag, topic_name, value):
         while t is not None:
             for fn in t.update_fn[flag]:
@@ -831,20 +840,23 @@ class PubSub:
                 return None
             else:
                 if t.meta is None or 'skip_undo' not in t.meta.flags:
-                    # print(f'{topic_name}')
                     self._undo_capture.pub_add(topic_name, t.value, value)
                 t.value = value
         self._publish_value(t, flag, topic_name, value)
 
     def _process(self):
-        while len(self._stack):
+        level = len(self._stack) if self._immediate else 1
+        while True:
+            if not len(self._stack[-1]):
+                if len(self._stack) == level:
+                    break
+                self._stack.pop()
+                continue
             cmd = self._stack[-1].pop(0)
             try:
                 self._process_one(cmd)
             except Exception:
                 self._log.exception('while processing %s', cmd)
-            if not len(self._stack[-1]):
-                self._stack.pop()
 
     def process(self):
         """Process all pending actions."""
@@ -855,11 +867,13 @@ class PubSub:
                     cmd = self._queue.pop(0)
                 except IndexError:
                     break
-            assert(len(self._stack) == 0)
+            assert (len(self._stack) == 1)
+            assert (len(self._stack[0]) == 0)
             self._undo_capture = _Undo(cmd.topic)
-            self._stack.append([cmd])
+            self._stack[-1].append(cmd)
             t = self._process()
-            assert (len(self._stack) == 0)
+            assert (len(self._stack) == 1)
+            assert (len(self._stack[0]) == 0)
             if len(self._undo_capture):
                 self.undos.append(self._undo_capture)
             self._undo_capture = None
@@ -928,6 +942,7 @@ class PubSub:
         self._publish_value(t_update, 'pub', topic_update_str, ['-', value, v])
         self._publish_value(t_list, 'pub', topic_list_str, v)
 
+    @_immediate
     def register_capability(self, name):
         t = f'{REGISTRY_MANAGER_TOPICS.CAPABILITIES}/{name}'
         self.topic_add(t, dtype='node', brief='')
@@ -938,11 +953,13 @@ class PubSub:
                        brief='The current list of unique_ids with this capability', default=[])
         self.publish(REGISTRY_MANAGER_TOPICS.CAPABILITY_ADD, name)
 
+    @_immediate
     def unregister_capability(self, name):
         t = REGISTRY_MANAGER_TOPICS.CAPABILITIES + '/' + name
         self._cmd_topic_remove({'topic': t})
         self.publish(REGISTRY_MANAGER_TOPICS.CAPABILITY_REMOVE, name)
 
+    @_immediate
     def register(self, obj, unique_id: str = None, parent=None):
         """Register a class or instance.
 
@@ -1003,10 +1020,11 @@ class PubSub:
 
         self._register_events(obj, unique_id)
         self._register_functions(obj, unique_id)
-        self._register_settings(obj, unique_id)
+        self._register_settings_create(obj, unique_id)
         obj.pubsub = self
         obj.unique_id = unique_id
         obj.topic = topic_name
+        self._register_settings_connect(obj, unique_id)
         if parent is not None:
             self._parent_add(obj, parent)
         self._registry_add(unique_id)
@@ -1080,21 +1098,28 @@ class PubSub:
             self.unregister_command(topic, fn)
         del obj._pubsub_functions
 
-    def _register_settings(self, obj, unique_id: str):
+    def _register_settings_create(self, obj, unique_id: str):
         topic_base_name = get_topic_name(unique_id)
         settings = getattr(obj, 'SETTINGS', {})
         if not isinstance(obj, type):
             obj._pubsub_setting_to_topic = {}
-        for setting_name, setting_meta in settings.items():
+        for setting_name, meta in settings.items():
             topic_name = f'{topic_base_name}/settings/{setting_name}'
             if topic_name not in self:
-                self.topic_add(topic_name, meta=setting_meta)
+                meta = Metadata(meta)
                 if not isinstance(obj, type):
                     # attempt to set instance default value from class
                     cls = getattr(obj, '__class__', None)
                     cls_topic_name = getattr(cls, 'topic', '__invalid_topic_name__')
                     if cls_topic_name in self:
-                        self.publish(topic_name, self.query(f'{cls_topic_name}/settings/{setting_name}'))
+                        meta.default = self.query(f'{cls_topic_name}/settings/{setting_name}')
+                self.topic_add(topic_name, meta=meta)
+
+    def _register_settings_connect(self, obj, unique_id: str):
+        topic_base_name = get_topic_name(unique_id)
+        settings = getattr(obj, 'SETTINGS', {})
+        for setting_name, meta in settings.items():
+            topic_name = f'{topic_base_name}/settings/{setting_name}'
             if isinstance(obj, type):
                 self._setting_cls_connect(obj, topic_name, setting_name)
             else:
@@ -1219,8 +1244,7 @@ class PubSub:
             method_name = 'on_pubsub_register'
         fn = self._invoke_callback(obj, method_name)
         if callable(fn):
-            # post so that it completes after pending default settings process
-            return self._send(REGISTER_COMPLETION, {'completion_fn': fn}, 0)
+            fn()
 
     def _unregister_invoke_callback(self, obj, unique_id):
         if isinstance(obj, type):
@@ -1231,6 +1255,7 @@ class PubSub:
         if callable(fn):
             fn()
 
+    @_immediate
     def unregister(self, spec, delete=None):
         """Unregister a class or instance.
 
@@ -1259,9 +1284,11 @@ class PubSub:
         self.topic_remove(instance_topic_name)
         del obj.unique_id
         del obj.topic
+        del obj.pubsub
         if bool(delete):
             self.topic_remove(topic_name)
 
+    @_immediate
     def register_command(self, topic: str, fn: callable):
         """Add a new command topic to the pubsub instance.
 
@@ -1282,6 +1309,7 @@ class PubSub:
         self.subscribe(topic, fn, flags=['command'])
         return fn
 
+    @_immediate
     def unregister_command(self, topic: str, fn: callable):
         """Remove the registered command handler for a topic.
 

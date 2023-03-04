@@ -453,8 +453,8 @@ class SettingsWidget(QtWidgets.QWidget):
     def on_cls_action_edit(pubsub, topic, value):
         w = SettingsWidget()
         active_view = pubsub.query('registry/view/settings/active')
-        unique_id = pubsub.register(w, parent=active_view)
+        pubsub.register(w, parent=active_view)
         pubsub.publish('registry/view/actions/!widget_open',
                        {'value': w, 'floating': True})
-        pubsub.publish(f'{get_topic_name(unique_id)}/settings/target',
+        pubsub.publish(f'{get_topic_name(w)}/settings/target',
                        get_unique_id(value))

@@ -400,16 +400,16 @@ class Js220(Device):
         self.SETTINGS['sources/1/name']['default'] = device_path
         self.SETTINGS['sources/1/info']['default'] = self._info
 
-        self._statistics_offsets = None
-        self._on_settings_fn = self._on_settings
-        self._on_target_power_app_fn = self._on_target_power_app
-        self._pubsub.subscribe('registry/app/settings/target_power', self._on_target_power_app_fn, ['pub', 'retain'])
-
         self._on_stats_fn = self._on_stats  # for unsub
         self._thread = None
         self._quit = False
         self._target_power_app = False
         self._queue = queue.Queue()
+
+        self._statistics_offsets = None
+        self._on_settings_fn = self._on_settings
+        self._on_target_power_app_fn = self._on_target_power_app
+        self._pubsub.subscribe('registry/app/settings/target_power', self._on_target_power_app_fn, ['pub', 'retain'])
 
     def on_pubsub_register(self):
         topic = get_topic_name(self)

@@ -115,29 +115,29 @@ class SideBar(QtWidgets.QWidget):
 
     def register(self):
         pubsub = pubsub_singleton
-        side_bar_unique_id = pubsub.register(self, 'sidebar:0', parent='ui')
+        pubsub.register(self, 'sidebar:0', parent='ui')
 
         self._flyout = FlyoutWidget(self._parent, self)
-        flyout_unique_id = pubsub.register(self._flyout, 'flyout:0', parent='sidebar:0')
+        pubsub.register(self._flyout, 'flyout:0', parent='sidebar:0')
 
         # Create the device control flyout widget for the sidebar
         d = DeviceControlWidget()
-        unique_id = pubsub.register(d, 'device_control_widget:flyout', parent='flyout:0')
+        pubsub.register(d, 'device_control_widget:flyout', parent='flyout:0')
         self.widget_set('device', d)
 
         # Create the memory flyout widget for the sidebar
         m = MemoryWidget()
-        unique_id = pubsub.register(m, 'memory_widget:flyout', parent='flyout:0')
+        pubsub.register(m, 'memory_widget:flyout', parent='flyout:0')
         self.widget_set('memory', m)
 
         # Create the help flyout widget for the sidebar
         m = HelpWidget()
-        unique_id = pubsub.register(m, 'help_widget:flyout', parent='flyout:0')
+        pubsub.register(m, 'help_widget:flyout', parent='flyout:0')
         self.widget_set('help', m)
 
         # Create the hamburger flyout widget for the sidebar
         m = HamburgerWidget()
-        unique_id = pubsub.register(m, 'hamburger_widget:flyout', parent='flyout:0')
+        pubsub.register(m, 'hamburger_widget:flyout', parent='flyout:0')
         self.widget_set('settings', m)
 
     def _on_mousePressEvent(self, event):
