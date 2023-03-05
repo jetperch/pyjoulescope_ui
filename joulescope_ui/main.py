@@ -20,6 +20,7 @@ from joulescope_ui.widgets import *   # registers all built-in widgets
 from joulescope_ui.logging_util import logging_preconfig, logging_config
 from joulescope_ui.styles.manager import style_settings
 from joulescope_ui.process_monitor import ProcessMonitor
+from joulescope_ui import update_check
 from PySide6 import QtCore, QtGui, QtWidgets
 import PySide6QtAds as QtAds
 from .error_window import ErrorWindow
@@ -35,6 +36,9 @@ from .paths import Paths
 from .view import View  # registers the view manager
 import appnope
 import logging
+
+
+_software_update = None
 
 
 _CPU_UTILIZATION_TOOLTIP = tooltip_format(
@@ -375,6 +379,8 @@ def run(log_level=None, file_log_level=None, filename=None):
         pubsub_singleton.notify_fn = ui.resync_request
         rc = app.exec_()
         del ui
+        if _software_update is not None:
+            update_check.apply(_software_update)
         return rc
     except Exception:
         if app is None:

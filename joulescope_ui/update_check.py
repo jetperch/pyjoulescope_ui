@@ -19,7 +19,6 @@ import json
 import threading
 import platform
 from joulescope_ui import __version__
-from joulescope_ui.paths import paths_current
 import logging
 import hashlib
 import os
@@ -125,11 +124,10 @@ def fetch_info(channel=None):
         active = data.get('active', {}).get(channel, {})
         latest_version = active.get('version', [0, 0, 0])
         if not is_newer(latest_version):
-            log.debug('software up to date: version=%s, latest=%s, channel=%s',
+            log.info('software up to date: version=%s, latest=%s, channel=%s',
                       __version__,
                       version_to_str(latest_version),
                       channel)
-            _download_cleanup()
             return None
         return {
             'channel': channel,
@@ -143,13 +141,7 @@ def fetch_info(channel=None):
         return None
 
 
-def _download_cleanup():
-    path = paths_current()['dirs']['update']
-    shutil.rmtree(path, ignore_errors=True)
-
-
-def _download(url):
-    path = paths_current()['dirs']['update']
+def _download(url, path):
     os.makedirs(path, exist_ok=True)
     fname = url.split('/')[-1]
     path = os.path.join(path, fname)
@@ -186,19 +178,19 @@ def _download(url):
     raise RuntimeError('Invalid sha256 hash')
 
 
-def _run(callback, channel):
+def _run(callback, path, channel):
     try:
         info = fetch_info(channel)
         if info is None:
             return None
+        shutil.rmtree(path, ignore_errors=True)
         info['download_path'] = _download(info['download_url'])
-        #info['changelog_path'] = _download(info['changelog_url'])
         callback(info)
     except Exception:
         log.info('Software update check failed')
 
 
-def check(callback, channel=None):
+def check(callback, path, channel=None):
     """Check for software updates.
 
     :param callback: The function to call if an update is required.
@@ -208,6 +200,7 @@ def check(callback, channel=None):
         * available_version: The available version string.
         * download_path: The path to the available version installer.
         * changelog_path: The path to the changelog for the available version.
+    :param path: The path for storing the software updates.
     :param channel: The software update channel which is in:
         ['alpha', 'beta', 'stable'].  None (default) is equivalent to 'stable'.
     """
@@ -216,7 +209,7 @@ def check(callback, channel=None):
         return
     channel = _validate_channel(channel)
     _platform_name()
-    thread = threading.Thread(name='sw_update_check', target=_run, args=[callback, channel])
+    thread = threading.Thread(name='sw_update_check', target=_run, args=[callback, path, channel])
     thread.daemon = True
     thread.start()
 
