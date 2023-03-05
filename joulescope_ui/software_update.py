@@ -1,4 +1,4 @@
-# Copyright 2019-2022 Jetperch LLC
+# Copyright 2019-2023 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,11 +14,13 @@
 
 """Check for software updates"""
 
+from PySide6 import QtWidgets, QtCore
 import requests
 import json
 import threading
 import platform
-from joulescope_ui import __version__
+from joulescope_ui import __version__, N_, pubsub_singleton, register
+from joulescope_ui.help_ui import load_style
 import logging
 import hashlib
 import os
@@ -26,10 +28,43 @@ import shutil
 import subprocess
 
 
-log = logging.getLogger(__name__)
-URL_BASE = 'https://download.joulescope.com/joulescope_install/'
-URL_INDEX = URL_BASE + 'index_v2.json'
-TIMEOUT = 30.0
+_log = logging.getLogger(__name__)
+_URL_BASE = 'https://download.joulescope.com/joulescope_install/'
+_URL_INDEX = _URL_BASE + 'index_v2.json'
+_TIMEOUT = 30.0
+
+
+_HEADER = """\
+<html>
+<head>
+{style}
+</head>
+<body>
+"""
+
+
+_BODY = """\
+<body>
+<p>{description}</p>
+<table>
+<tr><td>{current_version_label}</td><td>{current_version}</td></tr>
+<tr><td>{available_version_label}</td><td>{available_version}</td></tr>
+<tr><td>{channel_label}</td><td>{channel}</td></tr>
+</table>
+</body>
+</html>
+"""
+
+
+_TITLE = N_('Software update')
+
+
+_SOFTWARE_UPDATE_TXT = {
+    'description': N_('A software update is available:'),
+    'current_version_label': N_('Current version'),
+    'available_version_label': N_('Available version'),
+    'channel_label': N_('Channel'),
+}
 
 
 def _validate_channel(channel):
@@ -109,22 +144,22 @@ def fetch_info(channel=None):
     platform_name = _platform_name()
 
     try:
-        response = requests.get(URL_INDEX, timeout=TIMEOUT)
+        response = requests.get(_URL_INDEX, timeout=_TIMEOUT)
     except Exception:
-        log.warning('Could not connect to software download server')
+        _log.warning('Could not connect to software download server')
         return None
 
     try:
         data = json.loads(response.text)
     except Exception:
-        log.warning('Could not parse software metadata')
+        _log.warning('Could not parse software metadata')
         return None
 
     try:
         active = data.get('active', {}).get(channel, {})
         latest_version = active.get('version', [0, 0, 0])
         if not is_newer(latest_version):
-            log.info('software up to date: version=%s, latest=%s, channel=%s',
+            _log.info('software up to date: version=%s, latest=%s, channel=%s',
                       __version__,
                       version_to_str(latest_version),
                       channel)
@@ -133,11 +168,11 @@ def fetch_info(channel=None):
             'channel': channel,
             'current_version': __version__,
             'available_version': version_to_str(latest_version),
-            'download_url': URL_BASE + active['releases'][platform_name],
-            'changelog_url': URL_BASE + active['changelog']
+            'download_url': _URL_BASE + active['releases'][platform_name],
+            'changelog_url': _URL_BASE + active['changelog']
         }
     except Exception:
-        log.exception('Unexpected error checking available software')
+        _log.exception('Unexpected error checking available software')
         return None
 
 
@@ -147,9 +182,9 @@ def _download(url, path):
     path = os.path.join(path, fname)
 
     try:
-        response = requests.get(url + '.sha256', timeout=TIMEOUT)
+        response = requests.get(url + '.sha256', timeout=_TIMEOUT)
     except Exception:
-        log.warning('Could not download %s', url)
+        _log.warning('Could not download %s', url)
         return None
     sha256_hex = response.text.split(' ')[0]
 
@@ -164,9 +199,9 @@ def _download(url, path):
     if validate_hash():  # skip download if already downloaded
         return path
     try:
-        response = requests.get(url, timeout=TIMEOUT)
+        response = requests.get(url, timeout=_TIMEOUT)
     except Exception:
-        log.warning('Could not download %s', url)
+        _log.warning('Could not download %s', url)
         return None
 
     path_tmp = path + '.tmp'
@@ -184,34 +219,40 @@ def _run(callback, path, channel):
         if info is None:
             return None
         shutil.rmtree(path, ignore_errors=True)
-        info['download_path'] = _download(info['download_url'])
+        info['download_path'] = _download(info['download_url'], path)
         callback(info)
     except Exception:
-        log.info('Software update check failed')
+        _log.exception('Software update check failed')
+        _log.info('Software update check failed')
 
 
 def check(callback, path, channel=None):
     """Check for software updates.
 
-    :param callback: The function to call if an update is required.
-        The signature is callback(info).  The info dict contains keys:
-        * channel: The update channel.
-        * current_version: The currently running version string.
-        * available_version: The available version string.
-        * download_path: The path to the available version installer.
-        * changelog_path: The path to the changelog for the available version.
+    :param callback: The function to call when the check is complete.
+        * On no update needed, callback(None).
+        * On timeout, callback('timeout')
+        * On update available, callback(info).  The info dict contains keys:
+          * channel: The update channel.
+          * current_version: The currently running version string.
+          * available_version: The available version string.
+          * download_path: The path to the available version installer.
+          * changelog_path: The path to the changelog for the available version.
     :param path: The path for storing the software updates.
     :param channel: The software update channel which is in:
         ['alpha', 'beta', 'stable'].  None (default) is equivalent to 'stable'.
+    :return: The software update thread.
     """
     if __version__ == 'UNRELEASED':
-        log.info('Skip software update check: version is UNRELEASED')
+        _log.info('Skip software update check: version is UNRELEASED')
         return
+    _log.info('Start software update check: path=%s, channel=%s', path, channel)
     channel = _validate_channel(channel)
     _platform_name()
     thread = threading.Thread(name='sw_update_check', target=_run, args=[callback, path, channel])
     thread.daemon = True
     thread.start()
+    return thread
 
 
 def apply(info):
@@ -219,6 +260,61 @@ def apply(info):
     if platform.system() == 'Windows':
         flags = subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP
         subprocess.Popen([path, '/SILENT'], creationflags=flags)
+
+
+@register
+class SoftwareUpdateDialog(QtWidgets.QDialog):
+    """Display user-meaningful help information."""
+
+    dialogs = []
+
+    def __init__(self, pubsub, info):
+        _log.debug('create start')
+        self._pubsub = pubsub
+        self._info = info
+        style = load_style()
+        parent = pubsub_singleton.query('registry/ui/instance')
+        super().__init__(parent=parent)
+
+        self.setObjectName("software_update")
+        self._layout = QtWidgets.QVBoxLayout()
+        self.setLayout(self._layout)
+
+        html = _HEADER.format(style=style) + \
+            _BODY.format(**_SOFTWARE_UPDATE_TXT, **info)
+
+        self._label = QtWidgets.QLabel(html, self)
+        self._label.setWordWrap(True)
+        self._label.setOpenExternalLinks(True)
+        self._layout.addWidget(self._label)
+
+        self._buttons = QtWidgets.QDialogButtonBox()
+        self._update = self._buttons.addButton(N_('Update Now'), QtWidgets.QDialogButtonBox.YesRole)
+        self._update.pressed.connect(self.accept)
+        self._later = self._buttons.addButton(N_('Later'), QtWidgets.QDialogButtonBox.NoRole)
+        self._later.pressed.connect(self.reject)
+        self._layout.addWidget(self._buttons)
+
+        self.setWindowTitle(_TITLE)
+        self.finished.connect(self._on_finish)
+
+        _log.info('open')
+        SoftwareUpdateDialog.dialogs.append(self)
+        self.open()
+
+    @QtCore.Slot(int)
+    def _on_finish(self, value):
+        if value == QtWidgets.QDialog.DialogCode.Accepted:
+            _log.info('software update: update now')
+            self._pubsub.publish('registry/ui/actions/!close', {'software_update': self._info})
+        else:
+            _log.info('software update: later')
+        self.close()
+        SoftwareUpdateDialog.dialogs.remove(self)
+
+    @staticmethod
+    def on_cls_action_show(pubsub, topic, value):
+        SoftwareUpdateDialog(pubsub, value)
 
 
 if __name__ == '__main__':

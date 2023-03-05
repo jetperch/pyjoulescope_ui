@@ -20,7 +20,7 @@ from joulescope_ui.widgets import *   # registers all built-in widgets
 from joulescope_ui.logging_util import logging_preconfig, logging_config
 from joulescope_ui.styles.manager import style_settings
 from joulescope_ui.process_monitor import ProcessMonitor
-from joulescope_ui import update_check
+from joulescope_ui import software_update
 from PySide6 import QtCore, QtGui, QtWidgets
 import PySide6QtAds as QtAds
 from .error_window import ErrorWindow
@@ -253,6 +253,22 @@ class MainWindow(QtWidgets.QMainWindow):
         self.show()
         # self._mem_leak_debugger = MemLeakDebugger(self)
         # self._side_bar.on_cmd_show(1)
+        if self._pubsub.query('registry/app/settings/software_update_check'):
+            self._software_update_thread = software_update.check(
+                callback=self._do_cbk,
+                path=self._pubsub.query('common/settings/paths/update'),
+                channel=self._pubsub.query('registry/app/settings/software_update_channel'))
+
+    def _do_cbk(self, v):
+        self._pubsub.publish('registry/ui/callbacks/!software_update', v)
+
+    def on_cbk_software_update(self, value):
+        self._software_update_thread.join()
+        self._software_update_thread = None
+        if not isinstance(value, dict):
+            return
+        print('update')
+        self._pubsub.publish('registry/SoftwareUpdateDialog/actions/!show', value)
 
     def _on_process_monitor(self, obj):
         x1 = obj['cpu_utilization']['self']
@@ -347,6 +363,9 @@ class MainWindow(QtWidgets.QMainWindow):
         return super(MainWindow, self).closeEvent(event)
 
     def on_action_close(self, value):
+        global _software_update
+        if value is not None:
+            _software_update = value.get('software_update')
         self.close()
 
 
@@ -380,7 +399,7 @@ def run(log_level=None, file_log_level=None, filename=None):
         rc = app.exec_()
         del ui
         if _software_update is not None:
-            update_check.apply(_software_update)
+            software_update.apply(_software_update)
         return rc
     except Exception:
         if app is None:

@@ -113,6 +113,21 @@ SETTINGS = {
         'brief': N_('The unique_id for the default signal buffer source.'),
         'default': None,
     },
+    'software_update_check': {
+        'dtype': 'bool',
+        'brief': N_('Check for software updates.'),
+        'default': True,
+    },
+    'software_update_channel': {
+        'dtype': 'str',
+        'brief': N_('The software update channel.'),
+        'default': 'stable',
+        'options': [
+            ['alpha', N_('alpha')],
+            ['beta', N_('beta')],
+            ['stable', N_('stable')],
+        ]
+    }
 }
 
 
