@@ -114,7 +114,8 @@ class View:
             pubsub_singleton.publish(f'{topic}/settings/ads_state', ads_state)
             children = pubsub_singleton.query(f'{topic}/children', default=None)
             for child in children:
-                view.on_action_widget_close(child)
+                _log.debug('widget_suspend %s', value)
+                view._widget_suspend(child)
             _log.info('active view %s: teardown done', view.unique_id)
         View._active_instance = None
 
@@ -187,6 +188,7 @@ class View:
                 True to make floating on top.
                 When missing, do not float.
         """
+        _log.debug('widget_open %s', value)
         obj: QtWidgets.QWidget = None
         floating = False
         unique_id = None
@@ -229,13 +231,22 @@ class View:
             obj.dock_widget.setFloating()
         return ['registry/view/actions/!widget_close', unique_id]
 
-    def on_action_widget_close(self, value):
-        """Destroy an existing widget, preserving settings.
+    def _widget_suspend(self, value, delete=None):
+        """Suspend a widget.
 
         :param value: The topic, unique_id or instance for the
-            widget to destroy.
+            widget to suspend.
+        :param delete: True to also delete the pubsub entries.
+            This prevents state restore.
+        :return: The unique_id for the suspended widget or None
+
+        Suspending a widget closes the Qt Widget with the associated
+        DockWidget, freeing all resources.  However, it preserves the
+        pubsub entries so that it can restore state.  Suspend is
+        normally used when switching views.
         """
-        topic = get_topic_name(value)
+        unique_id = get_unique_id(value)
+        topic = get_topic_name(unique_id)
         instance_topic = f'{topic}/instance'
         instance: QtWidgets.QWidget = pubsub_singleton.query(instance_topic, default=None)
         if instance is not None:
@@ -245,8 +256,23 @@ class View:
             instance.dock_widget = None
             instance.close()
             instance.deleteLater()
-        pubsub_singleton.unregister(topic)
-        return ['registry/view/actions/!widget_open', topic]
+        pubsub_singleton.unregister(topic, delete=delete)
+        return unique_id
+
+    def on_action_widget_close(self, value):
+        """Destroy an existing widget.
+
+        :param value: The topic, unique_id or instance for the
+            widget to destroy.
+
+        Destroying a widget:
+        * Closes the Qt widget and associated DockWidget.
+        * Deletes the associated pubsub entries
+        * Removes the widget from its view.
+        """
+        _log.debug('widget_close %s', value)
+        unique_id = self._widget_suspend(value, delete=True)
+        return ['registry/view/actions/!widget_open', unique_id]  # todo, restore state
 
     @staticmethod
     def on_cls_action_widget_open(value):
@@ -258,6 +284,7 @@ class View:
 
     @staticmethod
     def on_cls_action_add(value):
+        _log.info('add %s', value)
         view = View()
         pubsub_singleton.register(view, unique_id=value)
         unique_id = view.unique_id
@@ -267,6 +294,7 @@ class View:
 
     @staticmethod
     def on_cls_action_remove(value):
+        _log.info('remove %s', value)
         pubsub_singleton.unregister(value)
         return ['registry/view/actions/!add', get_unique_id(value)]
 

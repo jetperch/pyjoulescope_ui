@@ -120,7 +120,7 @@ class MainWindow(QtWidgets.QMainWindow):
         'blink_fast': Metadata('bool', 'Periodic fast blink signal (2 Hz).', flags=['ro', 'skip_undo']),
     }
 
-    def __init__(self):
+    def __init__(self, filename=None):
         self._log = logging.getLogger(__name__)
         super(MainWindow, self).__init__()
         self._dialog = None
@@ -189,6 +189,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self._pubsub.publish('registry/view:multimeter/settings/name', N_('Multimeter'))
         self._pubsub.publish('registry/view/actions/!add', 'view:oscilloscope')
         self._pubsub.publish('registry/view:oscilloscope/settings/name', N_('Oscilloscope'))
+        if filename is not None:
+            self._pubsub.publish('registry/view/actions/!add', 'view:file')
+            self._pubsub.publish('registry/view:file/settings/name', N_('File'))
 
         # Create the singleton sidebar widget
         self._side_bar = SideBar(self._central_widget)
@@ -199,7 +202,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._menu_bar = QtWidgets.QMenuBar(self)
         self._menu_items = _menu_setup(self._menu_bar, [
             ['file_menu', N_('&File'), [
-                ['open', N_('Open'), ['registry/ui/actions/!file_open', '']],
+                ['open', N_('Open'), ['registry/ui/actions/!file_open_request', '']],
                 # 'Open &Recent': {},  # dynamically populated from MRU
                 # '&Preferences': self.on_preferences,
                 ['exit', N_('Exit'), ['registry/ui/actions/!close', '']],
@@ -231,13 +234,16 @@ class MainWindow(QtWidgets.QMainWindow):
                                    self._on_change_widgets, flags=['pub', 'retain'])
 
         # todo restore view
-        #self._pubsub.publish('registry/view/actions/!widget_open', 'ExampleWidget')
-        #self._pubsub.publish('registry/view/actions/!widget_open', 'ExampleWidget')
-        #self._pubsub.publish('registry/view/actions/!widget_open', 'MultimeterWidget')
-        #self._pubsub.publish('registry/view/actions/!widget_open', 'MultimeterWidget')
-        self._pubsub.publish('registry/view/actions/!widget_open',
-                             {'value': 'WaveformWidget',
-                              'kwargs': {'source_filter': 'JsdrvStreamBuffer:001'}})
+        if filename is not None:
+            self._pubsub.publish('registry/view/settings/active', 'view:file')
+            self.on_action_file_open(filename)
+        else:
+            self._pubsub.publish('registry/view/settings/active', 'view:multimeter')
+            self._pubsub.publish('registry/view/actions/!widget_open', 'MultimeterWidget')
+            self._pubsub.publish('registry/view/settings/active', 'view:oscilloscope')
+            self._pubsub.publish('registry/view/actions/!widget_open',
+                                 {'value': 'WaveformWidget',
+                                  'kwargs': {'source_filter': 'JsdrvStreamBuffer:001'}})
         self._pubsub.publish('registry/StyleManager:0/actions/!render', None)
 
         self._pubsub.process()
@@ -268,7 +274,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if not isinstance(value, dict):
             return
         print('update')
-        self._pubsub.publish('registry/SoftwareUpdateDialog/actions/!show', value)
+        self._pubsub.publish('registry/software_update/actions/!show', value)
 
     def _on_process_monitor(self, obj):
         x1 = obj['cpu_utilization']['self']
@@ -329,31 +335,36 @@ class MainWindow(QtWidgets.QMainWindow):
         event = QResyncEvent()
         QtCore.QCoreApplication.postEvent(self, event)
 
-    def on_action_file_open(self):
-        self._log.info('file_open')
+    def on_action_file_open_request(self):
+        """Request file open; prompt user to select file."""
+        self._log.info('file_open_request')
         path = pubsub_singleton.query('registry/paths/settings/save_path')
         self._dialog = QtWidgets.QFileDialog(self, N_('Select file to open'), path)
         self._dialog.setNameFilter('Joulescope Data (*.jls)')
         self._dialog.setFileMode(QtWidgets.QFileDialog.ExistingFile)
         self._dialog.updateGeometry()
         self._dialog.open()
-        self._dialog.finished.connect(self._on_file_open_dialog_finished)
+        self._dialog.finished.connect(self._on_file_open_request_dialog_finished)
 
-    def _on_file_open_dialog_finished(self, result):
+    def _on_file_open_request_dialog_finished(self, result):
         if result == QtWidgets.QDialog.DialogCode.Accepted:
             files = self._dialog.selectedFiles()
             if files and len(files) == 1:
                 path = files[0]
-                self._log.info('file_open %s', path)
-                self._pubsub.publish(f'registry/JlsSource/actions/!open', path)
-                self._pubsub.publish('registry/view/actions/!widget_open',
-                                     {'value': 'WaveformWidget',
-                                      'kwargs': {'source_filter': 'JlsSource'}})
-                # todo need to close JlsSource on Waveform Widget close.
+                self._file_open(path)
             else:
                 self._log.info('file_open invalid files: %s', files)
         else:
             self._log.info('file_open cancelled')
+
+    def on_action_file_open(self, path):
+        """Open the specified file."""
+        self._log.info('file_open %s', path)
+        self._pubsub.publish(f'registry/JlsSource/actions/!open', path)
+        self._pubsub.publish('registry/view/actions/!widget_open',
+                             {'value': 'WaveformWidget',
+                              'kwargs': {'source_filter': 'JlsSource'}})
+        # todo need to close JlsSource on Waveform Widget close.
 
     def closeEvent(self, event):
         self._log.info('closeEvent()')
@@ -394,7 +405,7 @@ def run(log_level=None, file_log_level=None, filename=None):
         resources = load_resources()
         fonts = load_fonts()
         appnope.nope()
-        ui = MainWindow()
+        ui = MainWindow(filename=filename)
         pubsub_singleton.notify_fn = ui.resync_request
         rc = app.exec_()
         del ui

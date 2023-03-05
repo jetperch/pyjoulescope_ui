@@ -536,10 +536,18 @@ class WaveformWidget(QtWidgets.QWidget):
         for m in self.state['x_markers']:
             self._x_markers_by_id[m['id']] = m
 
-    def closeEvent(self, event):
+    def _cleanup(self):
         self.pubsub.unsubscribe_all(self._on_source_list_fn)
         self.pubsub.unsubscribe_all(self._on_signal_range_fn)
+        self.pubsub.unsubscribe_all(self._on_signal_add)
+        self.pubsub.unsubscribe_all(self._on_signal_remove)
         self._refresh_timer.stop()
+
+    def on_pubsub_unregister(self):
+        self._cleanup()
+
+    def closeEvent(self, event):
+        self._cleanup()
         return super().closeEvent(event)
 
     def _update_fps(self):

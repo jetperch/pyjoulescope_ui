@@ -19,7 +19,7 @@ import requests
 import json
 import threading
 import platform
-from joulescope_ui import __version__, N_, pubsub_singleton, register
+from joulescope_ui import __version__, N_, pubsub_singleton, register_decorator
 from joulescope_ui.help_ui import load_style
 import logging
 import hashlib
@@ -262,7 +262,7 @@ def apply(info):
         subprocess.Popen([path, '/SILENT'], creationflags=flags)
 
 
-@register
+@register_decorator('software_update')
 class SoftwareUpdateDialog(QtWidgets.QDialog):
     """Display user-meaningful help information."""
 

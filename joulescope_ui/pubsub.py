@@ -724,8 +724,10 @@ class PubSub:
         subtopic_name = topic_name_parts[-1]
         if subtopic_name in topic.children:
             if exists_ok:
+                self._log.debug('topic add %s - exists', topic_name)
                 return
             raise ValueError(f'topic {topic_name} already exists')
+        self._log.debug('topic add %s', topic_name)
         if 'instance' in value:
             t = value['instance']
             t.parent = topic
@@ -740,6 +742,7 @@ class PubSub:
         topic = value['topic']
         try:
             t = self._topic_get(topic)
+            self._log.debug('topic remove %s', topic)
         except KeyError:
             self._log.debug('topic remove %s but already removed', topic)
             return None
@@ -997,7 +1000,8 @@ class PubSub:
         meta = Metadata(dtype='node', brief=doc)
         topic_name = get_topic_name(unique_id)
         self.topic_add(topic_name, meta=meta, exists_ok=True)
-        self.topic_add(f'{topic_name}/instance', dtype='obj', brief='class', default=obj, flags=['ro'], exists_ok=True)
+        self.topic_add(f'{topic_name}/instance', dtype='obj', brief='class', flags=['ro'], exists_ok=True)
+        self.publish(f'{topic_name}/instance', obj)
         self.topic_add(f'{topic_name}/actions', dtype='node', brief='actions', exists_ok=True)
         self.topic_add(f'{topic_name}/callbacks', dtype='node', brief='callbacks', exists_ok=True)
         self.topic_add(f'{topic_name}/events', dtype='node', brief='events', exists_ok=True)
@@ -1279,6 +1283,8 @@ class PubSub:
         self._unregister_capabilities(obj, unique_id)
         self._unregister_invoke_callback(obj, unique_id)
         self._registry_remove(unique_id)
+        if bool(delete):
+            self._parent_remove(unique_id)
         self._unregister_settings(obj, unique_id)
         self._unregister_functions(obj, unique_id)
         self.topic_remove(instance_topic_name)
