@@ -364,7 +364,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def on_action_close(self, value):
         global _software_update
-        if value is not None:
+        if isinstance(value, dict):
             _software_update = value.get('software_update')
         self.close()
 
