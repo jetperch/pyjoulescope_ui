@@ -114,7 +114,6 @@ class View:
             pubsub_singleton.publish(f'{topic}/settings/ads_state', ads_state)
             children = pubsub_singleton.query(f'{topic}/children', default=None)
             for child in children:
-                _log.debug('widget_suspend %s', value)
                 view._widget_suspend(child)
             _log.info('active view %s: teardown done', view.unique_id)
         View._active_instance = None
@@ -245,6 +244,7 @@ class View:
         pubsub entries so that it can restore state.  Suspend is
         normally used when switching views.
         """
+        _log.debug('widget_suspend(%s, %s)', value, delete)
         unique_id = get_unique_id(value)
         topic = get_topic_name(unique_id)
         instance_topic = f'{topic}/instance'
@@ -256,6 +256,8 @@ class View:
             instance.dock_widget = None
             instance.close()
             instance.deleteLater()
+        for child in pubsub_singleton.query(f'{topic}/children', default=[]):
+            self._widget_suspend(child)
         pubsub_singleton.unregister(topic, delete=delete)
         return unique_id
 

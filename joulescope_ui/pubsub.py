@@ -325,7 +325,7 @@ def _immediate(fn):
     def wrap(self, *args, **kwargs):
         try:
             self._immediate += 1
-            fn(self, *args, **kwargs)
+            return fn(self, *args, **kwargs)
         finally:
             self._immediate -= 1
 
@@ -1001,7 +1001,7 @@ class PubSub:
         topic_name = get_topic_name(unique_id)
         self.topic_add(topic_name, meta=meta, exists_ok=True)
         self.topic_add(f'{topic_name}/instance', dtype='obj', brief='class', flags=['ro'], exists_ok=True)
-        self.publish(f'{topic_name}/instance', obj)
+        self._topic_by_name[f'{topic_name}/instance'].value = obj
         self.topic_add(f'{topic_name}/actions', dtype='node', brief='actions', exists_ok=True)
         self.topic_add(f'{topic_name}/callbacks', dtype='node', brief='callbacks', exists_ok=True)
         self.topic_add(f'{topic_name}/events', dtype='node', brief='events', exists_ok=True)
@@ -1287,7 +1287,7 @@ class PubSub:
             self._parent_remove(unique_id)
         self._unregister_settings(obj, unique_id)
         self._unregister_functions(obj, unique_id)
-        self.topic_remove(instance_topic_name)
+        self._cmd_topic_remove({'topic': instance_topic_name})  # skip undo, do not want instance in undo list
         del obj.unique_id
         del obj.topic
         del obj.pubsub

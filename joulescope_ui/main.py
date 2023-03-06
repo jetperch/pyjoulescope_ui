@@ -238,12 +238,12 @@ class MainWindow(QtWidgets.QMainWindow):
             self._pubsub.publish('registry/view/settings/active', 'view:file')
             self.on_action_file_open(filename)
         else:
-            self._pubsub.publish('registry/view/settings/active', 'view:multimeter')
-            self._pubsub.publish('registry/view/actions/!widget_open', 'MultimeterWidget')
             self._pubsub.publish('registry/view/settings/active', 'view:oscilloscope')
             self._pubsub.publish('registry/view/actions/!widget_open',
                                  {'value': 'WaveformWidget',
                                   'kwargs': {'source_filter': 'JsdrvStreamBuffer:001'}})
+            self._pubsub.publish('registry/view/settings/active', 'view:multimeter')
+            self._pubsub.publish('registry/view/actions/!widget_open', 'MultimeterWidget')
         self._pubsub.publish('registry/StyleManager:0/actions/!render', None)
 
         self._pubsub.process()

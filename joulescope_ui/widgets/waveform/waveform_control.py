@@ -213,10 +213,12 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._subscribe(f'{self._topic}/settings/pin_right', self._on_pin_right, ['pub', 'retain'])
         self._subscribe(f'{self._topic}/settings/state', self._on_waveform_state, ['pub', 'retain'])
 
-    def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+    def on_pubsub_unregister(self):
         for topic, fn in self._subscribe_entries:
             self._pubsub.unsubscribe(topic, fn)
         self._subscribe_entries.clear()
+
+    def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         return super().closeEvent(event)
 
     def _on_waveform_state(self, value):

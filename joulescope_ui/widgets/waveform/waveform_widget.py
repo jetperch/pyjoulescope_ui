@@ -544,6 +544,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._refresh_timer.stop()
 
     def on_pubsub_unregister(self):
+        self._control.on_pubsub_unregister()
         self._cleanup()
 
     def closeEvent(self, event):
@@ -948,7 +949,7 @@ class WaveformWidget(QtWidgets.QWidget):
             return
         h_min = _Y_PLOT_MIN * k
         if h < h_min:
-            self._log.info('too short')
+            self._log.info('_plots_height_adjust too short: %s < %s', h, h_min)
             h = h_min
         scale = h / h_now
         h_new = 0
