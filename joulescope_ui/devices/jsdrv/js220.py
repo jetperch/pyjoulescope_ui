@@ -14,7 +14,7 @@
 
 from joulescope_ui.capabilities import CAPABILITIES
 from .device import Device
-from joulescope_ui import N_, get_topic_name
+from joulescope_ui import N_, get_topic_name, register
 from joulescope_ui.metadata import Metadata
 import copy
 import queue
@@ -381,6 +381,7 @@ def _populate():
 _populate()
 
 
+@register
 class Js220(Device):
 
     SETTINGS = SETTINGS

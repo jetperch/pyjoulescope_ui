@@ -14,6 +14,12 @@
 
 import base64
 import json
+import numpy as np
+import logging
+
+
+_log = logging.getLogger(__name__)
+
 
 
 class CustomEncoder(json.JSONEncoder):
@@ -24,8 +30,14 @@ class CustomEncoder(json.JSONEncoder):
                 '__type__': 'bytes',
                 'data': base64.b64encode(obj).decode('utf-8')
             }
+        elif type(obj) in [np.int8, np.int16, np.int32, np.int64,
+                           np.uint8, np.uint16, np.uint32, np.uint64]:
+            return int(obj)
+        elif type(obj) in [np.float32, np.float64]:
+            return float(obj)
         else:
-            return obj
+            _log.warning('Cannot serialize object: %s %s', type(obj), obj)
+            return None
 
 
 def custom_decoder(obj):
@@ -36,8 +48,12 @@ def custom_decoder(obj):
     return obj
 
 
-def dump(obj, fh):
-    json.dump(obj, fh, cls=CustomEncoder, indent=2)
+def dumps(obj, indent=2):
+    return json.dumps(obj, cls=CustomEncoder, indent=indent)
+
+
+def dump(obj, fh, indent=2):
+    json.dump(obj, fh, cls=CustomEncoder, indent=indent)
 
 
 def load(fh):

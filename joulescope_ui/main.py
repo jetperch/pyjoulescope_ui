@@ -39,6 +39,7 @@ import logging
 
 
 _software_update = None
+_config_clear = None
 
 
 _CPU_UTILIZATION_TOOLTIP = tooltip_format(
@@ -120,7 +121,7 @@ class MainWindow(QtWidgets.QMainWindow):
         'blink_fast': Metadata('bool', 'Periodic fast blink signal (2 Hz).', flags=['ro', 'skip_undo']),
     }
 
-    def __init__(self, filename=None):
+    def __init__(self, filename=None, is_config_load=False):
         self._log = logging.getLogger(__name__)
         super(MainWindow, self).__init__()
         self._dialog = None
@@ -185,13 +186,23 @@ class MainWindow(QtWidgets.QMainWindow):
             'dock_manager': self._dock_manager,
         })
 
-        self._pubsub.publish('registry/view/actions/!add', 'view:multimeter')
-        self._pubsub.publish('registry/view:multimeter/settings/name', N_('Multimeter'))
-        self._pubsub.publish('registry/view/actions/!add', 'view:oscilloscope')
-        self._pubsub.publish('registry/view:oscilloscope/settings/name', N_('Oscilloscope'))
-        if filename is not None:
+        if not is_config_load:
+            self._pubsub.publish('registry/view/actions/!add', 'view:multimeter')
+            self._pubsub.publish('registry/view:multimeter/settings/name', N_('Multimeter'))
+            self._pubsub.publish('registry/view/actions/!add', 'view:oscilloscope')
+            self._pubsub.publish('registry/view:oscilloscope/settings/name', N_('Oscilloscope'))
             self._pubsub.publish('registry/view/actions/!add', 'view:file')
             self._pubsub.publish('registry/view:file/settings/name', N_('File'))
+        else:
+            # open views
+            view_active = self._pubsub.query('registry/view/settings/active')
+            self._pubsub.publish('registry/view/settings/active', None)
+            for view_unique_id in self._pubsub.query('registry/view/instances'):
+                self._pubsub.register(View(), view_unique_id)
+
+            # open JLS sources
+            for source_unique_id in self._pubsub.query('registry/JlsSource/instances', default=[]):
+                self._pubsub.register(JlsSource(), source_unique_id)
 
         # Create the singleton sidebar widget
         self._side_bar = SideBar(self._central_widget)
@@ -205,6 +216,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 ['open', N_('Open'), ['registry/ui/actions/!file_open_request', '']],
                 # 'Open &Recent': {},  # dynamically populated from MRU
                 # '&Preferences': self.on_preferences,
+                ['exit_cfg', N_('Exit and clear config'), ['registry/ui/actions/!close', {'config_clear': True}]],
                 ['exit', N_('Exit'), ['registry/ui/actions/!close', '']],
             ]],
             ['view_menu', N_('View'), []],     # dynamically populated from available views
@@ -234,18 +246,27 @@ class MainWindow(QtWidgets.QMainWindow):
                                    self._on_change_widgets, flags=['pub', 'retain'])
 
         # todo restore view
-        if filename is not None:
+        if is_config_load:
+            self._pubsub.publish('registry/view/settings/active', view_active)
+        elif filename is not None:
             self._pubsub.publish('registry/view/settings/active', 'view:file')
             self.on_action_file_open(filename)
         else:
+            self._pubsub.publish('registry/view/settings/active', 'view:file')
+            self._center(resize=True)
+
             self._pubsub.publish('registry/view/settings/active', 'view:oscilloscope')
             self._pubsub.publish('registry/view/actions/!widget_open',
                                  {'value': 'WaveformWidget',
                                   'kwargs': {'source_filter': 'JsdrvStreamBuffer:001'}})
+            self._center(resize=True)
+
             self._pubsub.publish('registry/view/settings/active', 'view:multimeter')
             self._pubsub.publish('registry/view/actions/!widget_open', 'MultimeterWidget')
-        self._pubsub.publish('registry/StyleManager:0/actions/!render', None)
+            self.resize(580, 560)
+            self._center(resize=False)
 
+        self._pubsub.publish('registry/StyleManager:0/actions/!render', None)
         self._pubsub.process()
 
         self._process_monitor = ProcessMonitor(self)
@@ -256,6 +277,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._mem_utilization = QtWidgets.QLabel(self._status_bar)
         self._mem_utilization.setToolTip(_MEMORY_UTILIZATION_TOOLTIP)
         self._status_bar.addPermanentWidget(self._mem_utilization)
+
         self.show()
         # self._mem_leak_debugger = MemLeakDebugger(self)
         # self._side_bar.on_cmd_show(1)
@@ -264,6 +286,23 @@ class MainWindow(QtWidgets.QMainWindow):
                 callback=self._do_cbk,
                 path=self._pubsub.query('common/settings/paths/update'),
                 channel=self._pubsub.query('registry/app/settings/software_update_channel'))
+
+    def _center(self, resize=None):
+        screen = self.screen()
+        sz = screen.size()
+        sw, sh = sz.width(), sz.height()
+        if resize == True:
+            w, h = int(sw * 0.8), int(sh * 0.8)
+        elif resize == 'preferred':
+            sz = self.sizeHint()
+            w, h = sz.width(), sz.height()
+        else:
+            w, h = self.width(), self.height()
+        x, y = (sw - w) // 2, (sh - h) // 2
+        self.setGeometry(x, y, w, h)
+
+    def on_setting_stylesheet(self, value):
+        self.setStyleSheet(value)
 
     def _do_cbk(self, v):
         self._pubsub.publish('registry/ui/callbacks/!software_update', v)
@@ -351,7 +390,7 @@ class MainWindow(QtWidgets.QMainWindow):
             files = self._dialog.selectedFiles()
             if files and len(files) == 1:
                 path = files[0]
-                self._file_open(path)
+                self._pubsub.publish(f'{get_topic_name(self)}/actions/!file_open', path)
             else:
                 self._log.info('file_open invalid files: %s', files)
         else:
@@ -360,11 +399,25 @@ class MainWindow(QtWidgets.QMainWindow):
     def on_action_file_open(self, path):
         """Open the specified file."""
         self._log.info('file_open %s', path)
-        self._pubsub.publish(f'registry/JlsSource/actions/!open', path)
-        self._pubsub.publish('registry/view/actions/!widget_open',
-                             {'value': 'WaveformWidget',
-                              'kwargs': {'source_filter': 'JlsSource'}})
-        # todo need to close JlsSource on Waveform Widget close.
+        source = None
+        with self._pubsub as p:
+            topic = f'registry_manager/capabilities/{CAPABILITIES.SIGNAL_BUFFER_SOURCE}/list'
+            sources_start = p.query(topic)
+            self._pubsub.publish(f'registry/JlsSource/actions/!open', path)
+            sources_end = p.query(topic)
+            source = sources_end[-1]
+            if source in sources_start:
+                self._log.warning('Could not determine added source')
+                source = None
+        self._pubsub.publish(
+            'registry/view/actions/!widget_open',
+            {
+                'value': 'WaveformWidget',
+                'kwargs': {
+                    'source_filter': 'JlsSource',
+                    'on_widget_close_actions': [[f'{get_topic_name(source)}/actions/!close', None]],
+                 }
+            })
 
     def closeEvent(self, event):
         self._log.info('closeEvent()')
@@ -374,10 +427,24 @@ class MainWindow(QtWidgets.QMainWindow):
         return super(MainWindow, self).closeEvent(event)
 
     def on_action_close(self, value):
-        global _software_update
+        global _software_update, _config_clear
         if isinstance(value, dict):
             _software_update = value.get('software_update')
+            _config_clear = value.get('config_clear')
         self.close()
+
+
+def _finalize():
+    # hack to clean up active view
+    view_topic = 'registry/view/settings/active'
+    active_view = pubsub_singleton.query(view_topic)
+    pubsub_singleton.publish(view_topic, None)
+    pubsub_singleton.process()
+    pubsub_singleton._topic_by_name[view_topic].value = active_view
+    if _config_clear:
+        pubsub_singleton.config_clear()
+    else:
+        pubsub_singleton.save()
 
 
 def run(log_level=None, file_log_level=None, filename=None):
@@ -401,13 +468,20 @@ def run(log_level=None, file_log_level=None, filename=None):
         log_path = pubsub_singleton.query('common/settings/paths/log')
         logging_config(log_path, stream_log_level=log_level, file_log_level=file_log_level)
         pubsub_singleton.process()
+        is_config_load = False
+        try:
+            is_config_load = pubsub_singleton.load()
+        except Exception:
+            logging.getLogger(__name__).exception('pubsub load failed')
+
         app = QtWidgets.QApplication([])
         resources = load_resources()
         fonts = load_fonts()
         appnope.nope()
-        ui = MainWindow(filename=filename)
+        ui = MainWindow(filename=filename, is_config_load=is_config_load)
         pubsub_singleton.notify_fn = ui.resync_request
         rc = app.exec_()
+        _finalize()
         del ui
         if _software_update is not None:
             software_update.apply(_software_update)

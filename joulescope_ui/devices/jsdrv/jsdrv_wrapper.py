@@ -68,8 +68,6 @@ class JsdrvWrapper:
     def on_pubsub_register(self, pubsub):
         topic = get_topic_name(self)
         self._log.info('on_pubsub_register start %s', topic)
-        pubsub.register(Js220)
-        pubsub.register(Js110)
         self.pubsub = pubsub
         self._topic = topic
         self.driver = Driver()

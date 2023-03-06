@@ -173,7 +173,7 @@ class JlsV2:
             # round increment down and increase length as needed
             increment = interval // length
             length = (end - start + 1) // increment
-            self._log.info('fsr_statistics(%d, %d, %d, %d)', signal_id, start, increment, length)
+            # self._log.info('fsr_statistics(%d, %d, %d, %d)', signal_id, start, increment, length)
             data = self._jls.fsr_statistics(signal_id, start, increment, length)
             response_type = 'summary'
             data_type = 'f32'
@@ -202,7 +202,7 @@ class JlsV2:
                 'counter_rate': signal['sample_rate'],
             },
         }
-        self._log.info(info)
+        # self._log.info(info)
         response = {
             'version': 1,
             'rsp_id': value.get('rsp_id'),
@@ -231,43 +231,56 @@ class JlsV2:
             except Exception:
                 self._log.exception(f'While processing {cmd}')
 
+
 @register
 class JlsSource:
     CAPABILITIES = []
-    SETTINGS = {
-        'name': {
-            'dtype': 'str',
-            'brief': 'The name for this JLS stream buffer source',
-            'default': None,
-        },
-    }
+    SETTINGS = {}
 
-    def __init__(self, path):
-        self._path = os.path.abspath(path)
+    def __init__(self, path=None):
+        if path is not None:
+            name = os.path.basename(os.path.splitext(path)[0])
+            path = os.path.abspath(path)
+            if not os.path.isfile(path):
+                raise ValueError(f'File not found: {path}')
+        else:
+            name = 'JlsSource'
+
+        self.SETTINGS = {
+            'name': {
+                'dtype': 'str',
+                'brief': 'The name for this JLS stream buffer source',
+                'default': name,
+            },
+            'path': {
+                'dtype': 'str',
+                'brief': 'The file path.',
+                'default': path,
+            }
+        }
         self._jls = None
         self.pubsub = None
-        if not os.path.isfile(path):
-            raise ValueError(f'File not found: {self._path}')
         self.CAPABILITIES = [CAPABILITIES.SOURCE, CAPABILITIES.SIGNAL_BUFFER_SOURCE]
-        self._version = _jls_version_detect(path)
         self._thread = None
 
     def on_pubsub_register(self):
         topic = get_topic_name(self)
         pubsub = self.pubsub
-        name = os.path.basename(os.path.splitext(self._path)[0])
-        _log.info(f'jls_source register {topic}/settings/signals')
+        path = pubsub.query(f'{topic}/settings/path')
+        _log.info(f'jls_source register {topic}')
+        pubsub.topic_remove(f'{topic}/settings/sources')
+        pubsub.topic_remove(f'{topic}/settings/signals')
         pubsub.topic_add(f'{topic}/settings/sources', Metadata('node', 'Sources'))
         pubsub.topic_add(f'{topic}/settings/signals', Metadata('node', 'Signals'))
-        pubsub.publish(f'{topic}/settings/name', name)
-        if self._version == 2:
+        jls_version = _jls_version_detect(path)
+        if jls_version == 2:
             _log.info('jls_source v2')
-            self._jls = JlsV2(self._path, self.pubsub, self.topic)
-        elif self.version == 1:
+            self._jls = JlsV2(path, self.pubsub, self.topic)
+        elif jls_version == 1:
             _log.info('jls_source v1')
             raise NotImplementedError('jls v1 support not yet added')
         else:
-            raise ValueError('Unsupported JLS version')
+            raise ValueError(f'Unsupported JLS version {jls_version}')
 
         self._thread = threading.Thread(target=self._jls.run)
         self._thread.start()
@@ -283,8 +296,8 @@ class JlsSource:
                 thread.join()
 
     def on_action_close(self):
-        self.pubsub.unregister(self, delete=True)
         self._close()
+        self.pubsub.unregister(self, delete=True)
 
     def on_action_request(self, value):
         self._jls.request(value)
@@ -302,6 +315,7 @@ class JlsSource:
     @staticmethod
     def on_cls_action_finalize(pubsub, topic, value):
         instances = pubsub.query(f'{get_topic_name(JlsSource)}/instances')
-        for instance in list(instances):
-            pubsub.publish(f'{get_topic_name(instance)}/actions/!close', None)
-        JlsSource.pubsub.unregister(JlsSource, delete=True)
+        for instance_unique_id in list(instances):
+            instance = pubsub.query(f'{get_topic_name(instance_unique_id)}/instance', default=None)
+            if instance is not None:
+                instance._close()

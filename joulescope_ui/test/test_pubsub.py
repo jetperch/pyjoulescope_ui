@@ -114,8 +114,8 @@ class TestPubSub(unittest.TestCase):
         root_log.setLevel(logging.WARNING)
         p.topic_add('t/1', dtype='obj', brief='my topic', exists_ok=True)
         self.assertEqual(0, len(h))
-        p.topic_add('t/1', dtype='obj', brief='my topic', exists_ok=False)
-        self.assertEqual(1, len(h))
+        with self.assertRaises(ValueError):
+            p.topic_add('t/1', dtype='obj', brief='my topic', exists_ok=False)
         root_log.removeHandler(h)
 
     def test_no_retain(self):
@@ -233,16 +233,18 @@ class TestPubSub(unittest.TestCase):
             p.query(TOPIC1)
 
     def test_save(self):
+        topic = 'registry/value/settings/my_topic'
         p1 = PubSub()
-        p1.topic_add(TOPIC1, dtype='str', brief='my topic', default='hello')
+        p1.topic_add(topic, dtype='str', brief='my topic', default='hello')
         f = io.StringIO()
         p1.save(f)
         s = f.getvalue()
 
         p2 = PubSub()
+        p2.registry_initialize()
         f = io.StringIO(s)
         p2.load(f)
-        self.assertEqual('hello', p2.query(TOPIC1))
+        self.assertEqual('hello', p2.query(topic))
 
     def _on_notify(self):
         self.pub.append('notify')

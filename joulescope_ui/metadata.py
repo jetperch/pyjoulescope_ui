@@ -254,4 +254,4 @@ class Metadata:
         return value
 
     def to_map(self):
-        return dict([(p, getattr(self, p)) for p in _ATTRS])
+        return dict([(p, getattr(self, p)) for p in _ATTRS if getattr(self, p) is not None])

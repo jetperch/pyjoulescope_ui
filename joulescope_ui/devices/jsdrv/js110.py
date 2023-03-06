@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from joulescope_ui.capabilities import CAPABILITIES
+from joulescope_ui import CAPABILITIES, register, Metadata
 from .device import Device
-from joulescope_ui.metadata import Metadata
 
 
+@register
 class Js110(Device):
 
     def __init__(self, driver, device_path):

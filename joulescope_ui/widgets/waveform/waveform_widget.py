@@ -343,6 +343,12 @@ class WaveformWidget(QtWidgets.QWidget):
             'brief': N_('The source filter string.'),
             'default': '',
         },
+        'on_widget_close_actions': {
+            'dtype': 'obj',
+            'brief': 'The list of [topic, value] to perform on widget close.',
+            'default': [],
+            'flags': ['hidden', 'ro'],
+        },
         'trace_width': {
             'dtype': 'int',
             'brief': N_('The trace width.'),
@@ -414,6 +420,8 @@ class WaveformWidget(QtWidgets.QWidget):
 
         :param parent: The QtWidget parent.
         :param source_filter: The source filter string.
+        :param on_widget_close_actions: List of [topic, value] actions to perform on close.
+            This feature can be used to close associated sources.
         """
         self._log = logging.getLogger(__name__)
         self._kwargs = kwargs
@@ -459,6 +467,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._signals = {}
         self._signals_by_rsp_id = {}
         self._signals_rsp_id_next = 2  # reserve 1 for summary
+        self._signals_data = {}
         self._marker_data = {}  # rsp_id -> data,
 
         self._refresh_timer = QtCore.QTimer()
@@ -475,8 +484,9 @@ class WaveformWidget(QtWidgets.QWidget):
         if not len(sources):
             self._log.warning('No default source available')
             return
+        source_filter = self.pubsub.query(f'{self.topic}/settings/source_filter')
         for source in sources:
-            if not source.startswith(self.source_filter):
+            if not source.startswith(source_filter):
                 continue
             topic = get_topic_name(source)
             signals = self.pubsub.enumerate(f'{topic}/settings/signals')
@@ -523,9 +533,13 @@ class WaveformWidget(QtWidgets.QWidget):
         if self.state is None:
             self.state = copy.deepcopy(_STATE_DEFAULT)
         if 'source_filter' in self._kwargs:
-            self.source_filter = self._kwargs['source_filter']
+            self.pubsub.publish(f'{self.topic}/settings/source_filter', self._kwargs['source_filter'])
+        if 'on_widget_close_actions' in self._kwargs:
+            self.pubsub.publish(f'{self.topic}/settings/on_widget_close_actions',
+                                self._kwargs['on_widget_close_actions'])
         for plot_index, plot in enumerate(self.state['plots']):
             plot['index'] = plot_index
+            plot['signals'] = [tuple(signal) for signal in plot['signals']]
             plot['y_region'] = f'plot.{plot_index}'
             if 'y_markers' not in plot:
                 plot['y_markers'] = []
@@ -550,6 +564,10 @@ class WaveformWidget(QtWidgets.QWidget):
     def closeEvent(self, event):
         self._cleanup()
         return super().closeEvent(event)
+
+    def on_widget_close(self):
+        for topic, value in self.pubsub.query(f'{self.topic}/settings/on_widget_close_actions', default=[]):
+            self.pubsub.publish(topic, value)
 
     def _update_fps(self):
         t = time.time()
@@ -583,7 +601,6 @@ class WaveformWidget(QtWidgets.QWidget):
                 'source': source,
                 'signal_id': signal_id,
                 'rsp_id': self._signals_rsp_id_next,
-                'data': None,
                 'range': None,
             }
             self._signals[item] = d
@@ -742,13 +759,24 @@ class WaveformWidget(QtWidgets.QWidget):
             marker_id, plot_id = _marker_from_rsp_id(rsp_id)
             self._marker_data[(marker_id, plot_id)] = data
         elif rsp_id == 1:
-            self._summary_data = data
+            self._summary_data = {
+                'data': data,
+                'points_avg': PointsF(),
+                'points_min_max': PointsF(),
+            }
         else:
             signal = self._signals_by_rsp_id.get(rsp_id)
             if signal is None:
                 self._log.warning('Unknown signal rsp_id %s', rsp_id)
                 return
-            signal['data'] = data
+            self._signals_data[signal['item']] = {
+                'data': data,
+                'line_min': PointsF(),
+                'line_max': PointsF(),
+                'points_avg': PointsF(),
+                'points_min_max': PointsF(),
+                'points_std': PointsF(),
+            }
 
     def _x_trel_offset(self):
         offset = self._x_map[1]
@@ -902,9 +930,12 @@ class WaveformWidget(QtWidgets.QWidget):
         y_max = []
         for signal in plot['signals']:
             d = self._signals.get(signal)
-            if d is None or d['data'] is None:
+            if d is None:
                 continue
-            d = d['data']
+            sig_d = self._signals_data.get(signal)
+            if sig_d is None:
+                continue
+            d = sig_d['data']
             finite_idx = self._finite_idx(d)
 
             sy_min = d['avg'] if d['min'] is None else d['min']
@@ -1083,16 +1114,17 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _draw_summary(self, p):
         s = self._style
-        if self._summary_data is None:
+        d_sig = self._summary_data
+        if d_sig is None:
             return
-        length = len(self._summary_data['x'])
+        d = d_sig['data']
+        length = len(d['x'])
         if length <= 1:
             return
         x0, y0, w, h = self._summary_geometry()
 
         p.setClipRect(x0, y0, w, h)
 
-        d = self._summary_data
         d_xp = np.arange(0, length)
         finite_idx = np.logical_not(np.isnan(d['avg']))
         segment_idx = _idx_to_segments(finite_idx)
@@ -1141,16 +1173,12 @@ class WaveformWidget(QtWidgets.QWidget):
             if self.show_min_max and d['min'] is not None and d['max'] is not None:
                 d_y_min = y_value_to_pixel(d['min'][idx_start:idx_stop])
                 d_y_max = y_value_to_pixel(d['max'][idx_start:idx_stop])
-                if 'points_min_max' not in d:
-                    d['points_min_max'] = PointsF()
-                segs, nsegs = d['points_min_max'].set_fill(d_x_segment, d_y_min, d_y_max)
+                segs, nsegs = d_sig['points_min_max'].set_fill(d_x_segment, d_y_min, d_y_max)
                 p.setPen(self._NO_PEN)
                 p.setBrush(s['summary_min_max_fill'])
                 p.drawPolygon(segs)
             d_y = y_value_to_pixel(d_avg)
-            if 'points_avg' not in d:
-                d['points_avg'] = PointsF()
-            segs, nsegs = d['points_avg'].set_line(d_x_segment, d_y)
+            segs, nsegs = d_sig['points_avg'].set_line(d_x_segment, d_y)
             p.setPen(s['summary_trace'])
             p.drawPolyline(segs)
 
@@ -1289,9 +1317,12 @@ class WaveformWidget(QtWidgets.QWidget):
 
         for signal in plot['signals']:
             d = self._signals.get(signal)
-            if d is None or d['data'] is None:
+            if d is None:
                 continue
-            d = d['data']
+            sig_d = self._signals_data.get(signal)
+            if sig_d is None:
+                continue
+            d = sig_d['data']
             d_x = self._x_time64_to_pixel(d['x'])
             if len(d_x) == w:
                 d_x, d_x2 = np.rint(d_x), d_x
@@ -1319,18 +1350,13 @@ class WaveformWidget(QtWidgets.QWidget):
                     d_y_min = self._y_value_to_pixel(plot, d['min'][idx_start:idx_stop])
                     d_y_max = self._y_value_to_pixel(plot, d['max'][idx_start:idx_stop])
                     if 1 == self.show_min_max:
-                        if 'line_min' not in d or 'line_max' not in d:
-                            d['line_min'] = PointsF()
-                            d['line_max'] = PointsF()
                         p.setPen(s['plot1_min_max_trace'])
-                        segs, nsegs = d['line_min'].set_line(d_x_segment, d_y_min)
+                        segs, nsegs = sig_d['line_min'].set_line(d_x_segment, d_y_min)
                         p.drawPolyline(segs)
-                        segs, nsegs = d['line_max'].set_line(d_x_segment, d_y_max)
+                        segs, nsegs = sig_d['line_max'].set_line(d_x_segment, d_y_max)
                         p.drawPolyline(segs)
                     else:
-                        if 'points_min_max' not in d:
-                            d['points_min_max'] = PointsF()
-                        segs, nsegs = d['points_min_max'].set_fill(d_x_segment, d_y_min, d_y_max)
+                        segs, nsegs = sig_d['points_min_max'].set_fill(d_x_segment, d_y_min, d_y_max)
                         p.setPen(s['plot1_min_max_fill_pen'])
                         p.setBrush(s['plot1_min_max_fill_brush'])
                         p.drawPolygon(segs)
@@ -1338,17 +1364,13 @@ class WaveformWidget(QtWidgets.QWidget):
                             d_std = d['std'][idx_start:idx_stop]
                             d_y_std_min = self._y_value_to_pixel(plot, d_avg - d_std)
                             d_y_std_max = self._y_value_to_pixel(plot, d_avg + d_std)
-                            if 'points_std' not in d:
-                                d['points_std'] = PointsF()
-                            segs, nsegs = d['points_std'].set_fill(d_x_segment, d_y_std_min, d_y_std_max)
+                            segs, nsegs = sig_d['points_std'].set_fill(d_x_segment, d_y_std_min, d_y_std_max)
                             p.setPen(self._NO_PEN)
                             p.setBrush(s['plot1_std_fill'])
                             p.drawPolygon(segs)
 
                 d_y = self._y_value_to_pixel(plot, d_avg)
-                if 'points_avg' not in d:
-                    d['points_avg'] = PointsF()
-                segs, nsegs = d['points_avg'].set_line(d_x_segment, d_y)
+                segs, nsegs = sig_d['points_avg'].set_line(d_x_segment, d_y)
                 p.setPen(s['plot1_trace'])
                 p.drawPolyline(segs)
 
@@ -1521,21 +1543,24 @@ class WaveformWidget(QtWidgets.QWidget):
         for plot in self.state['plots']:
             if not plot['enabled'] or not len(plot['signals']):
                 continue
-            signal = self._signals.get(plot['signals'][0])
-            data = signal['data']
-            s_x = data['x']
+            signal_index = plot['signals'][0]
+            d_sig = self._signals_data.get(signal_index)
+            if d_sig is None:
+                continue
+            d = d_sig['data']
+            s_x = d['x']
             idx = np.argmin(np.abs(s_x - xp))
-            v_avg = data['avg'][idx]
+            v_avg = d['avg'][idx]
             if not np.isfinite(v_avg):
                 continue
             yh, y0, y1 = self._y_geometry_info[plot['y_region']]
             p.setClipRect(x0, y0, xw, yh)
 
-            if data['std'] is None:
+            if d['std'] is None:
                 labels = ['avg']
                 values = [v_avg]
             else:
-                v_std, v_min, v_max = data['std'][idx], data['min'][idx], data['max'][idx]
+                v_std, v_min, v_max = d['std'][idx], d['min'][idx], d['max'][idx]
                 v_rms = np.sqrt(v_avg * v_avg + v_std * v_std)
                 labels = ['avg', 'std', 'rms', 'min', 'max', 'p2p']
                 values = [v_avg, v_std, v_rms, v_min, v_max, v_max - v_min]
@@ -1595,8 +1620,8 @@ class WaveformWidget(QtWidgets.QWidget):
                 plot_idx = int(plot.split('.')[1])
                 plot = self.state['plots'][plot_idx]
             signals = plot['signals']
-            signal = self._signals[signals[0]]
-            data = signal['data']
+            # signal = self._signals[signals[0]]
+            data = self._signals_data.get(signals[0])
             return plot, data
         except (KeyError, IndexError):
             return None, None
@@ -1612,6 +1637,7 @@ class WaveformWidget(QtWidgets.QWidget):
         plot, data = self._signal_data_get(y_name)
         if data is None:
             return
+        data = data['data']
         x_pixels = self._mouse_pos[0]
         x = self._x_pixel_to_time64(x_pixels)
         x_rel = self._x_time64_to_trel(x)
@@ -1661,9 +1687,10 @@ class WaveformWidget(QtWidgets.QWidget):
     def _draw_plot_statistics(self, p, plot):
         if not self.show_statistics:
             return
-        plot, data = self._signal_data_get(plot)
-        if data is None:
+        plot, sig_data = self._signal_data_get(plot)
+        if sig_data is None:
             return
+        data = sig_data['data']
         xd, x0, x1 = self._x_geometry_info['statistics']
         yd, y0, y1 = self._y_geometry_info[plot['y_region']]
         s = self._style

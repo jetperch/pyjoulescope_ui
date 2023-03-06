@@ -18,6 +18,7 @@ Communication method used to connect the Joulescope UI components.
 
 from . import json
 from .metadata import Metadata
+import copy
 import threading
 import logging
 import os
@@ -216,19 +217,19 @@ class _Topic:
     def to_obj(self):
         children = []
         for n, child in self.children.items():
-            if n[0] == '!':
+            if n[0] == '!' or n in ['instance']:
                 continue
             children.append(child.to_obj())
         return {
             'topic': self.subtopic_name,
             'value': self.value,
-            'meta': self.meta.to_map(),
+            #'meta': self.meta.to_map(),
             'children': children,
         }
 
     def from_obj(self, obj):
         self._value = obj['value']
-        self.meta = Metadata(**obj['meta'])
+        #self.meta = Metadata(**obj['meta'])
         for child_obj in obj['children']:
             child_name = child_obj['topic']
             if child_name in self.children:
@@ -346,7 +347,7 @@ class PubSub:
         self._thread_id = threading.get_native_id()
         meta = Metadata(dtype='node', brief='root topic')
         self._root = _Topic(None, '', meta)
-        self._topic_by_name = {}
+        self._topic_by_name: dict[str, _Topic] = {}
         self._lock = threading.RLock()
         self._queue = []  # entries are _Command
         self._stack = [[]]  # entries are _Command
@@ -369,6 +370,13 @@ class PubSub:
 
     def __contains__(self, topic):
         return topic in self._topic_by_name
+
+    def __enter__(self):
+        self._immediate += 1
+        return self
+
+    def __exit__(self, exception_type, exception_value, exception_traceback):
+        self._immediate -= 1
 
     @property
     def notify_fn(self):
@@ -724,10 +732,10 @@ class PubSub:
         subtopic_name = topic_name_parts[-1]
         if subtopic_name in topic.children:
             if exists_ok:
-                self._log.debug('topic add %s - exists', topic_name)
+                # self._log.debug('topic add %s - exists', topic_name)
                 return
             raise ValueError(f'topic {topic_name} already exists')
-        self._log.debug('topic add %s', topic_name)
+        # self._log.debug('topic add %s', topic_name)
         if 'instance' in value:
             t = value['instance']
             t.parent = topic
@@ -832,7 +840,10 @@ class PubSub:
             self._log.warning('Publish to unknown topic %s', topic)
             return None
         if flag == 'pub':
-            value = t.meta.validate(value)
+            if t.meta is None:
+                self._log.info('Missing metadata for %s', t.topic_name)
+            else:
+                value = t.meta.validate(value)
             if t.subtopic_name.startswith('!'):
                 cmds_update_fn = t.update_fn['command']
                 if len(cmds_update_fn):
@@ -883,17 +894,6 @@ class PubSub:
             count += 1
         return count
 
-    def save(self, fh):
-        do_close = False
-        obj = self._root.to_obj()
-        if isinstance(fh, str):
-            fh = open(fh, 'wb')
-        try:
-            json.dump(obj, fh)
-        finally:
-            if do_close:
-                fh.close()
-
     def _rebuild_topic_by_name(self, t):
         self._topic_by_name[t.topic_name] = t
         for child in t.children.values():
@@ -917,6 +917,7 @@ class PubSub:
         self.topic_add(t.REGISTRY_REMOVE, dtype='obj', brief='')
         self.topic_add(t.CAPABILITIES, dtype='node', brief='')
         self.topic_add(t.NEXT_UNIQUE_ID, dtype='int', brief='', default=1)
+        self.topic_add('registry', dtype='node', brief='')
 
     def _on_action_capability_add(self, topic, value):
         parts = topic.split('/')
@@ -1051,7 +1052,7 @@ class PubSub:
         unique_id = get_unique_id(obj)
         topic = f'{get_topic_name(obj)}/parent'
         parent = self.query(topic, default=None)
-        if parent is not None:
+        if parent not in [None, '']:
             children_topic = f'{get_topic_name(parent)}/children'
             children = self.query(children_topic)
             if unique_id in children:
@@ -1116,8 +1117,15 @@ class PubSub:
                     cls = getattr(obj, '__class__', None)
                     cls_topic_name = getattr(cls, 'topic', '__invalid_topic_name__')
                     if cls_topic_name in self:
-                        meta.default = self.query(f'{cls_topic_name}/settings/{setting_name}')
+                        try:
+                            meta.default = self.query(f'{cls_topic_name}/settings/{setting_name}')
+                        except KeyError:
+                            pass  # use meta default
                 self.topic_add(topic_name, meta=meta)
+            elif not isinstance(obj, type):
+                topic = self._topic_by_name[topic_name]
+                if topic.meta is None:
+                    topic.meta = Metadata(meta)
 
     def _register_settings_connect(self, obj, unique_id: str):
         topic_base_name = get_topic_name(unique_id)
@@ -1292,7 +1300,19 @@ class PubSub:
         del obj.topic
         del obj.pubsub
         if bool(delete):
-            self.topic_remove(topic_name)
+            self._unregister_delete(obj, unique_id)
+
+    def _unregister_delete(self, obj, unique_id):
+        if not isinstance(obj, type):
+            instance_of = self.query(f'{get_topic_name(unique_id)}/instance_of')
+            cls_instance = get_instance(instance_of, default=None)
+            if cls_instance:
+                instances_topic = f'{get_topic_name(cls_instance)}/instances'
+                instances = self.query(instances_topic)
+                if unique_id in instances:
+                    instances = [k for k in instances if k != unique_id]
+                    self.publish(instances_topic, instances)
+        self.topic_remove(get_topic_name(unique_id))
 
     @_immediate
     def register_command(self, topic: str, fn: callable):
@@ -1325,8 +1345,110 @@ class PubSub:
         """
         return self.unsubscribe(topic, fn, flags=['command'])
 
-    def load(self, fh):
-        obj = json.load(fh)
-        self._root.from_obj(obj)
-        self._topic_by_name.clear()
-        self._rebuild_topic_by_name(self._root)
+    def _to_obj(self, topic: str):
+        t: _Topic = self._topic_by_name[topic]
+        result = {
+            'value': t.value
+        }
+        if len(t.children):
+            c = {}
+            result['children'] = c
+            for n, child in t.children.items():
+                if n[0] == '!' or n in ['instance', 'actions', 'callbacks', 'events']:
+                    continue
+                key, value = self._to_obj(child.topic_name)
+                c[key] = value
+        return t.subtopic_name, result
+
+    @property
+    def config_file_path(self):
+        config_path = self.query('common/settings/paths/config')
+        return os.path.join(config_path, 'joulescope_ui_config.json')
+
+    def save(self, fh=None):
+        if fh is None:
+            config_path = self.config_file_path
+            tmp_path = config_path + '.tmp'
+            rv = self.save(tmp_path)
+            os.replace(tmp_path, config_path)
+            return rv
+
+        do_close = False
+        obj = {
+            'type': 'joulescope_ui_config',
+            'version': 1,
+            'common/settings': self._to_obj('common/settings')[1],
+            'registry': self._to_obj('registry')[1],
+        }
+        if isinstance(fh, str):
+            fh = open(fh, 'wt')
+            do_close = True
+        try:
+            json.dump(obj, fh)
+        finally:
+            if do_close:
+                fh.close()
+
+    def _from_obj(self, topic: str, obj):
+        t: _Topic = self._topic_by_name[topic]
+        t.value = obj['value']
+        for ckey, cval in obj.get('children', {}).items():
+            child_topic = f'{topic}/{ckey}'
+            if child_topic not in self._topic_by_name:
+                c_t = _Topic(t, child_topic, None)
+                t.children[ckey] = c_t
+                self._topic_by_name[child_topic] = c_t
+            self._from_obj(child_topic, cval)
+
+    def _update_meta_inner(self, src, dst):
+        # self._log.debug('%s <= %s', dst.topic_name, src.topic_name')
+        if src.meta is not None:
+            dst.meta = Metadata(src.meta)
+        for key, value in src.children.items():
+            if key in dst.children:
+                self._update_meta_inner(value, dst.children[key])
+
+    def _update_meta(self, topic_cls, topic_obj):
+        t_cls = self._topic_by_name[topic_cls]
+        t_obj = self._topic_by_name[topic_obj]
+        src = t_cls.children['settings']
+        dst = t_obj.children['settings']
+        self._update_meta_inner(src, dst)
+
+    def load(self, fh=None):
+        if fh is None:
+            if not os.path.isfile(self.config_file_path):
+                return False
+            return self.load(self.config_file_path)
+
+        do_close = False
+        if isinstance(fh, str):
+            fh = open(fh, 'rt')
+            do_close = True
+        try:
+            obj = json.load(fh)
+        finally:
+            if do_close:
+                fh.close()
+        file_type = obj.get('type')
+        file_version = obj.get('version')
+        if file_type != 'joulescope_ui_config':
+            self._log.warning('load type mismatch: %s != joulescope_ui_config', file_type)
+            return False
+        elif file_version != 1:
+            self._log.warning('load version mismatch: %s != %s', file_version, 1)
+            return False
+        self._from_obj('common/settings', obj['common/settings'])
+        self._from_obj('registry', obj['registry'])
+        t = self._topic_by_name['registry']
+        for key, value in t.children.items():
+            if 'instance_of' in value.children:
+                instance_of = value.children['instance_of'].value
+                if value is None:
+                    continue
+                self._update_meta(f'registry/{instance_of}', value.topic_name)
+        return True
+
+    def config_clear(self):
+        if os.path.isfile(self.config_file_path):
+            os.remove(self.config_file_path)

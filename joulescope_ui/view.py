@@ -82,6 +82,11 @@ VIEW_SETTINGS = {
         'brief': 'The Advanced Docking System state for restoring widget layout.',
         'default': '',
     },
+    'geometry': {
+        'dtype': 'obj',
+        'brief': 'The window size for restoring the view.',
+        'default': None,
+    }
 }
 
 
@@ -106,9 +111,12 @@ class View:
     def on_cls_setting_active(value):
         """Change the active view."""
         view: View = View._active_instance
+        ui = pubsub_singleton.query('registry/ui/instance', default=None)
         if view is not None:
             _log.info('active view %s: teardown start', view.unique_id)
             topic = get_topic_name(view.unique_id)
+            if ui is not None:
+                pubsub_singleton.publish(f'{topic}/settings/geometry', ui.saveGeometry().data())
             ads_state = View._dock_manager.saveState()
             ads_state = bytes(ads_state).decode('utf-8')
             pubsub_singleton.publish(f'{topic}/settings/ads_state', ads_state)
@@ -136,6 +144,9 @@ class View:
         ads_state = pubsub_singleton.query(f'{topic}/settings/ads_state', default='')
         if ads_state is not None and len(ads_state):
             View._dock_manager.restoreState(QtCore.QByteArray(ads_state.encode('utf-8')))
+        geometry = pubsub_singleton.query(f'{topic}/settings/geometry', default=None)
+        if ui is not None and geometry is not None:
+            ui.restoreGeometry(geometry)
         _log.info('active view %s: setup done', view.unique_id)
 
     @property
@@ -250,6 +261,8 @@ class View:
         instance_topic = f'{topic}/instance'
         instance: QtWidgets.QWidget = pubsub_singleton.query(instance_topic, default=None)
         if instance is not None:
+            if delete and hasattr(instance, 'on_widget_close'):
+                instance.on_widget_close()
             dock_widget = instance.dock_widget
             dock_widget.deleteLater()
             self._dock_manager.removeDockWidget(dock_widget)
@@ -268,6 +281,7 @@ class View:
             widget to destroy.
 
         Destroying a widget:
+        * Calls "on_widget_close" method, if exists.
         * Closes the Qt widget and associated DockWidget.
         * Deletes the associated pubsub entries
         * Removes the widget from its view.

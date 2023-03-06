@@ -218,8 +218,11 @@ class StyleManager:
         return os.path.join(path, str_to_filename(filename))
 
     def _render_one(self, unique_id, info):
-        obj = get_instance(unique_id, pubsub=self.pubsub)
         topic_name = get_topic_name(unique_id)
+        obj = get_instance(unique_id, pubsub=self.pubsub, default=None)
+        if obj is None:
+            self._log.warning('Cannot render %s : instance is None', unique_id)
+            return
         target_path = os.path.join(self.path, str_to_filename(unique_id))
         t_start = time.time()
         self._log.info('_render_one(%s): start to %s', unique_id, target_path)
@@ -250,9 +253,6 @@ class StyleManager:
                 'src_theme_prefix': theme_prefix,
                 'target_path': target_path,
             }
-
-            fonts = self.pubsub.query(f'{topic_name}/settings/fonts', default=None)
-            style_defines = self.pubsub.query(f'{topic_name}/settings/style_defines', default=None)
 
             colors = load_colors(obj, color_scheme=info['color_scheme'], pubsub=self.pubsub)
             qss_colors = {}
@@ -303,9 +303,11 @@ class StyleManager:
         except ValueError:
             # self._log.debug('render None - likely still being registered, will get called later.')
             return None
-        self._log.info('on_action_render(%s)', value)
-        obj = get_instance(unique_id)
         active_view_unique_id = self.pubsub.query(f'registry/view/settings/active')
+        self._log.info('on_action_render(%s), view=%s', unique_id, active_view_unique_id)
+        obj = get_instance(unique_id)
+        if active_view_unique_id is None:
+            return
         if isinstance(obj, type):
             # Only need to render active widgets of this type
             # but go ahead and render the entire active view
