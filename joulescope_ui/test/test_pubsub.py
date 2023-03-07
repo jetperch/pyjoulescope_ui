@@ -114,8 +114,8 @@ class TestPubSub(unittest.TestCase):
         root_log.setLevel(logging.WARNING)
         p.topic_add('t/1', dtype='obj', brief='my topic', exists_ok=True)
         self.assertEqual(0, len(h))
-        with self.assertRaises(ValueError):
-            p.topic_add('t/1', dtype='obj', brief='my topic', exists_ok=False)
+        p.topic_add('t/1', dtype='obj', brief='my topic', exists_ok=False)
+        self.assertEqual(1, len(h))
         root_log.removeHandler(h)
 
     def test_no_retain(self):

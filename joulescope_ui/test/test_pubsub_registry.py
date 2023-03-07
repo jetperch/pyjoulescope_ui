@@ -175,7 +175,7 @@ class TestRegistry(unittest.TestCase):
         self.assertEqual(obj.calls, [['i_sample_req', 'x']])
         obj.calls.clear()
         self.p.publish(f'registry/{unique_id}/settings/a/b/c/p1', 'v1')
-        self.assertEqual(obj._setting_a__b__c__p1, 'v1')
+        self.assertEqual(obj.a__b__c__p1, 'v1')
         self.p.publish(f'registry/{unique_id}/settings/a/b/c/p2', 'v2')
         self.assertEqual(obj.calls, [['p2', 'v2']])
 
@@ -303,7 +303,7 @@ class TestRegistryForSimpleClass(unittest.TestCase):
         self.assertEqual('v2', obj.param2)
         self.assertEqual('v3', obj.param3)
 
-        self.p.unregister(SimpleClass)
+        self.p.unregister(obj)
         self.calls.clear()
         obj.param1 = 'no_pub'
         self.assertEqual([], self.calls)

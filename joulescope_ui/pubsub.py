@@ -47,6 +47,7 @@ CLS_EVENT_PREFIX = 'on_cls_event_'
 ACTION_PREFIX = 'on_action_'
 CALLBACK_PREFIX = 'on_cbk_'
 EVENT_PREFIX = 'on_event_'
+_PUBSUB_ATTR = '__pubsub__'
 
 
 class PUBSUB_TOPICS:  # todo
@@ -319,6 +320,80 @@ class _Undo:
             for topic, value in rv:
                 self.undos.append(_Command(topic, value))
         self.redos.append(_Command(topic, value))
+
+
+class _Setting:
+    """A data descriptor that patches attributes.
+
+    Patching must handle the following scenarios:
+    * property (on class)
+    * class attribute
+    * instance attribute
+    * on_setting_{name} function
+
+    This relies upon the class already having the _PUBSUB_ATTR
+    attribute initialized with 'setting_cls' dict.
+
+    This data descriptor intentionally using __init__ rather
+    than using __set_name__ to more easily support monkey patching.
+
+    See https://docs.python.org/3/howto/descriptor.html
+    """
+    def __init__(self, pubsub, cls, name):
+        self.pubsub = pubsub
+        self.name = name
+        self.attr_name = subtopic_to_name(name)
+        self.item = None
+        if hasattr(cls, name):
+            self.item = cls.__dict__[name]
+        cls.__dict__[_PUBSUB_ATTR]['setting_cls'][self.name] = self
+        setattr(cls, name, self)
+
+    # def __set_name__(self, owner, name):
+
+    def __get__(self, obj, objtype=None):
+        if obj is None:
+            raise AttributeError(f'{self.name}')
+        attr = obj.__class__.__dict__[_PUBSUB_ATTR]['setting_cls']
+        if self.name in attr:
+            item = attr[self.name]
+            if isinstance(item, property) and item.fget is not None:
+                return item.fget(obj)
+            elif not self.name in obj.__dict__:
+                obj.__dict__[self.attr_name] = item
+        return obj.__dict__[self.attr_name]
+
+    def __set__(self, obj, value):
+        self._set(obj, value)
+        try:
+            unique_id = obj.__dict__[_PUBSUB_ATTR]['unique_id']
+        except KeyError:
+            return
+        self.pubsub.publish(f'registry/{unique_id}/settings/{self.name}', value)
+
+    def _set(self, obj, value):
+        if _PUBSUB_ATTR in obj.__class__.__dict__:
+            attr = obj.__class__.__dict__[_PUBSUB_ATTR]
+            if 'setting_cls' in attr:
+                attr = attr['setting_cls']
+                if self.name in attr:
+                    item = attr[self.name].item
+                    if isinstance(item, property) and item.fset is not None:
+                        item.fset(obj, value)
+        obj.__dict__[self.attr_name] = value
+
+    def on_publish(self, obj, pubsub, topic: str, value):
+        self._set(obj, value)
+        attr = obj.__dict__[_PUBSUB_ATTR]['setting']
+        fn_name = f'on_setting_{subtopic_to_name(self.name)}'
+        if fn_name not in attr:
+            fn = getattr(obj, fn_name, None)
+            if fn is not None:
+                fn = _Function(fn)
+            attr[fn_name] = fn
+        fn = attr[fn_name]
+        if callable(fn):
+            fn(pubsub, topic, value)
 
 
 def _immediate(fn):
@@ -975,7 +1050,7 @@ class PubSub:
         :type unique_id: str, optional
         :param parent: The optional parent unique_id, topic, or object.
         """
-        if 'unique_id' in obj.__dict__:  # ignore class attributes for objects
+        if _PUBSUB_ATTR in obj.__dict__ and len(obj.__dict__[_PUBSUB_ATTR]):
             self._log.info('Duplicate registration for %s', obj)
             if parent is not None:
                 self._parent_add(obj, parent)
@@ -993,7 +1068,17 @@ class PubSub:
                 unique_id = f'{cls_unique_id}:{v:08x}'
         else:
             unique_id = get_unique_id(unique_id)
-        self._log.info('register(obj=%s, unique_id=%s) start', obj, unique_id)
+        setattr(obj, _PUBSUB_ATTR, {
+            'unique_id': unique_id,
+            'functions': {},    # topic: callable
+            'setting_cls': {},  # topic: object, for existing class attribute
+            'setting': {},
+        })
+        if not isinstance(obj, type):
+            cls = obj.__class__
+            if _PUBSUB_ATTR not in cls.__dict__ or not len(cls.__dict__[_PUBSUB_ATTR]):
+                self.register(cls, cls.__name__ + '.class')
+        self._log.info('register(unique_id=%s, obj=%s) start', unique_id, obj)
         doc = obj.__doc__
         if doc is None:
             doc = obj.__init__.__doc__
@@ -1066,7 +1151,7 @@ class PubSub:
             self.topic_add(f'{topic_name}/events/{event}', meta, exists_ok=True)
 
     def _register_functions(self, obj, unique_id: str):
-        functions = {}
+        functions = obj.__dict__[_PUBSUB_ATTR]['functions']
         topic_name = get_topic_name(unique_id)
         if isinstance(obj, type):
             for name, attr in obj.__dict__.items():
@@ -1096,12 +1181,12 @@ class PubSub:
                     fn_topic = _fn_name_to_topic(fn_name)
                     topic = f'{topic_name}/callbacks/{fn_topic}'
                     functions[topic] = self.register_command(topic, getattr(obj, name))
-        obj._pubsub_functions = functions
 
     def _unregister_functions(self, obj, unique_id: str = None):
-        for topic, fn in obj._pubsub_functions.items():
+        functions = obj.__dict__[_PUBSUB_ATTR].pop('functions')
+        while len(functions):
+            topic, fn = functions.popitem()
             self.unregister_command(topic, fn)
-        del obj._pubsub_functions
 
     def _register_settings_create(self, obj, unique_id: str):
         topic_base_name = get_topic_name(unique_id)
@@ -1114,11 +1199,11 @@ class PubSub:
                 meta = Metadata(meta)
                 if not isinstance(obj, type):
                     # attempt to set instance default value from class
-                    cls = getattr(obj, '__class__', None)
-                    cls_topic_name = getattr(cls, 'topic', '__invalid_topic_name__')
-                    if cls_topic_name in self:
+                    cls_unique_id = obj.__class__.__dict__[_PUBSUB_ATTR]['unique_id']
+                    cls_topic = get_topic_name(cls_unique_id)
+                    if cls_topic in self:
                         try:
-                            meta.default = self.query(f'{cls_topic_name}/settings/{setting_name}')
+                            meta.default = self.query(f'{cls_topic}/settings/{setting_name}')
                         except KeyError:
                             pass  # use meta default
                 self.topic_add(topic_name, meta=meta)
@@ -1137,74 +1222,24 @@ class PubSub:
             else:
                 self._setting_connect(obj, topic_name, setting_name)
 
-    def _unregister_settings(self, obj, unique_id):
-        topic_name = get_topic_name(unique_id)
-        settings = getattr(obj, 'SETTINGS', {})
-        for setting_name, setting_meta in settings.items():
-            setting_topic_name = f'{topic_name}/settings/{setting_name}'
-            if isinstance(obj, type):
-                self._setting_cls_disconnect(obj, setting_topic_name, setting_name)
-            else:
-                self._setting_disconnect(obj, setting_topic_name, setting_name)
-
     def _setting_cls_connect(self, cls, topic_name, setting_name):
-        cls_fn_name = f'on_cls_setting_{setting_name}'
-        obj_fn_name = f'on_setting_{setting_name}'
+        functions = cls.__dict__[_PUBSUB_ATTR]['functions']
+        cls_fn_name = f'on_cls_setting_{subtopic_to_name(setting_name)}'
         if hasattr(cls, cls_fn_name):
             fn = getattr(cls, cls_fn_name)
             self.subscribe(topic_name, fn, flags=['pub', 'retain'])
-        if hasattr(cls, obj_fn_name):
-            return
-        else:
-            # Monkeypatch class to "magically" connect settings attributes to pubsub
-            setting_holder = f'_setting_{setting_name}'
-            setting_orig_value = None
-            if hasattr(cls, setting_name):
-                setting_orig_value = getattr(cls, setting_name)
-            setattr(cls, setting_holder, setting_orig_value)
-
-            def getter(instance_self):
-                return getattr(instance_self, setting_holder)
-
-            def setter(instance_self, value):
-                setattr(instance_self, setting_holder, value)
-                m = getattr(instance_self, '_pubsub_setting_to_topic', {})
-                t, _ = m.get(setting_name, [None, None])
-                if t is not None:
-                    self.publish(t, value)
-
-            setattr(cls, setting_name, property(getter, setter))
-
-    def _setting_cls_disconnect(self, cls, topic_name, setting_name):
-        cls_fn_name = f'on_cls_setting_{setting_name}'
-        obj_fn_name = f'on_setting_{setting_name}'
-        if hasattr(cls, cls_fn_name):
-            fn = getattr(cls, cls_fn_name)
-            self.unsubscribe(topic_name, fn, flags=['pub'])
-        if hasattr(cls, obj_fn_name):
-            return
-        setting_holder = f'_setting_{setting_name}'
-        setting_orig_value = getattr(cls, setting_holder)
-        setattr(cls, setting_name, setting_orig_value)
-        delattr(cls, setting_holder)
+            functions[topic_name] = fn
 
     def _setting_connect(self, obj, topic_name, setting_name):
-        fn_subname = subtopic_to_name(setting_name)
-
-        def setter(value):
-            setattr(obj, f'_setting_{fn_subname}', value)
-
-        fn_name = f'on_setting_{fn_subname}'
-        if hasattr(obj, fn_name):
-            fn = getattr(obj, fn_name)
-        else:
-            fn = setter
-        obj._pubsub_setting_to_topic[setting_name] = [topic_name, fn]
+        functions = obj.__dict__[_PUBSUB_ATTR]['functions']
+        cls = obj.__class__
+        cls_attr = cls.__dict__[_PUBSUB_ATTR]
+        if setting_name not in cls_attr:
+            _Setting(self, cls, setting_name)
+        setting = cls_attr['setting_cls'][setting_name]
+        fn = lambda pubsub, topic, value: setting.on_publish(obj, pubsub, topic, value)
         self.subscribe(topic_name, fn, flags=['pub', 'retain'])
-
-    def _setting_disconnect(self, obj, topic_name, setting_name):
-        topic_name, fn = obj._pubsub_setting_to_topic.pop(setting_name)
-        self.unsubscribe(topic_name, fn, flags=['pub'])
+        functions[topic_name] = fn
 
     def _register_capabilities(self, obj, unique_id):
         topic_name = get_topic_name(unique_id)
@@ -1293,9 +1328,11 @@ class PubSub:
         self._registry_remove(unique_id)
         if bool(delete):
             self._parent_remove(unique_id)
-        self._unregister_settings(obj, unique_id)
+        # settings unsubscribe handled by _unregister_functions
         self._unregister_functions(obj, unique_id)
         self._cmd_topic_remove({'topic': instance_topic_name})  # skip undo, do not want instance in undo list
+        delattr(obj, _PUBSUB_ATTR)
+        # obj.__dict__[_PUBSUB_ATTR].clear()
         del obj.unique_id
         del obj.topic
         del obj.pubsub
