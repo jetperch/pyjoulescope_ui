@@ -16,12 +16,14 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from joulescope_ui.expanding_widget import ExpandingWidget
 import logging
 from joulescope_ui import N_, register, tooltip_format, pubsub_singleton, get_topic_name, Metadata
-from joulescope_ui.devices.jsdrv.js220 import SETTINGS
+from joulescope_ui.devices.jsdrv.js110 import SETTINGS as JS110_SETTINGS
+from joulescope_ui.devices.jsdrv.js220 import SETTINGS as JS220_SETTINGS
 from joulescope_ui.ui_util import comboBoxConfig
 from .device_info_dialog import DeviceInfoDialog
 import webbrowser
 
 
+JS110_USERS_GUIDE_URL = 'https://download.joulescope.com/docs/JoulescopeUsersGuide/index.html'
 JS220_USERS_GUIDE_URL = 'https://download.joulescope.com/products/JS220/JS220-K000/users_guide/index.html'
 
 
@@ -75,8 +77,6 @@ _CLEAR_ACCUM_TOOLTIP = tooltip_format(
 
 _BUTTON_SIZE = (20, 20)
 
-_GPI_SIGNALS = ['0', '1', '2', '3', 'T']
-
 
 def _construct_pushbutton(parent, name, checkable=False, tooltip=None):
     b = QtWidgets.QPushButton(parent)
@@ -92,7 +92,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
 
     def __init__(self, parent, unique_id):
         self._parent = parent
-        self._unique_id = unique_id
+        self.unique_id = unique_id
         self._widgets = []
         self._unsub = []  # (topic, fn)
         self._row = 0
@@ -100,6 +100,16 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         self._gpo = {}
         self._footer = {}
         self._log = logging.getLogger(f'{__name__}.{unique_id}')
+        if 'JS110' in unique_id:
+            self._USERS_GUIDE_URL = JS110_USERS_GUIDE_URL
+            self._DEVICE_SETTINGS = JS110_SETTINGS
+            self._GPI_SIGNALS = ['0', '1']
+        elif 'JS220' in unique_id:
+            self._USERS_GUIDE_URL = JS220_USERS_GUIDE_URL
+            self._DEVICE_SETTINGS = JS220_SETTINGS
+            self._GPI_SIGNALS = ['0', '1', '2', '3', 'T']
+        else:
+            raise ValueError(f'unsupported device {unique_id}')
         self._buttons_blink = []
         self._target_power_button: QtWidgets.QPushButton = None
         self._info_button: QtWidgets.QPushButton = None
@@ -129,10 +139,14 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         self._add_footer()
         self._subscribe('registry/ui/events/blink_slow', self._on_blink)
         self._subscribe('registry/app/settings/target_power', self._on_target_power_app)
-        topic = get_topic_name(self._unique_id)
-        for signal in _GPI_SIGNALS:
+        topic = get_topic_name(self.unique_id)
+        for signal in self._GPI_SIGNALS:
             self._gpi_subscribe(f'{topic}/events/signals/{signal}/!data', signal)
         self._subscribe(f'{topic}/settings/state', self._on_setting_state)
+
+    @property
+    def is_js220(self):
+        return 'JS220' in self.unique_id
 
     def _subscribe(self, topic, update_fn):
         pubsub_singleton.subscribe(topic, update_fn, ['pub', 'retain'])
@@ -170,7 +184,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
 
     def _on_info(self, *args, **kwargs):
         self._log.info('on_info')
-        info = pubsub_singleton.query(f'{get_topic_name(self._unique_id)}/settings/info')
+        info = pubsub_singleton.query(f'{get_topic_name(self.unique_id)}/settings/info')
         DeviceInfoDialog(info)
 
     def _construct_header(self):
@@ -180,13 +194,16 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         layout.setSpacing(3)
 
         doc = _construct_pushbutton(w, 'doc', tooltip=_DOC_TOOLTIP)
-        doc.clicked.connect(lambda checked: webbrowser.open_new_tab(JS220_USERS_GUIDE_URL))
+        doc.clicked.connect(lambda checked: webbrowser.open_new_tab(self._USERS_GUIDE_URL))
         layout.addWidget(doc)
 
-        info = _construct_pushbutton(w, 'info', tooltip=_INFO_TOOLTIP)
-        info.clicked.connect(self._on_info)
-        self._info_button = info
-        layout.addWidget(info)
+        if self.is_js220:
+            info = _construct_pushbutton(w, 'info', tooltip=_INFO_TOOLTIP)
+            info.clicked.connect(self._on_info)
+            self._info_button = info
+            layout.addWidget(info)
+        else:
+            info = None
 
         default_device = self._construct_default_device_button(w)
         layout.addWidget(default_device)
@@ -210,7 +227,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
 
         def update_from_pubsub(value):
             block_state = b.blockSignals(True)
-            b.setChecked(value == self._unique_id)
+            b.setChecked(value == self.unique_id)
             b.blockSignals(block_state)
 
         def on_pressed(checked):
@@ -218,14 +235,14 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             b.setChecked(True)
             b.blockSignals(block_state)
             for topic in topics:
-                pubsub_singleton.publish(topic, self._unique_id)
+                pubsub_singleton.publish(topic, self.unique_id)
 
         self._subscribe(topics[0], update_from_pubsub)
         b.toggled.connect(on_pressed)
         return b
 
     def _construct_target_power_button(self, parent):
-        topic = f'{get_topic_name(self._unique_id)}/settings/target_power'
+        topic = f'{get_topic_name(self.unique_id)}/settings/target_power'
         meta = pubsub_singleton.metadata(topic)
         b = _construct_pushbutton(parent, 'target_power', checkable=True,
                                   tooltip=tooltip_format(meta.brief, meta.detail))
@@ -242,7 +259,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         return b
 
     def _gpi_state_clear(self):
-        for signal in _GPI_SIGNALS:
+        for signal in self._GPI_SIGNALS:
             b = self._signals['buttons'][signal]
             b.setObjectName('device_control_signal')
             b.setProperty('signal_level', 0)
@@ -250,7 +267,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             b.style().polish(b)
 
     def _construct_open_button(self, parent):
-        self_topic = get_topic_name(self._unique_id)
+        self_topic = get_topic_name(self.unique_id)
         state_topic = f'{self_topic}/settings/state'
         b = _construct_pushbutton(parent, 'open', checkable=True, tooltip=_OPEN_TOOLTIP)
 
@@ -290,7 +307,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
                                             QtWidgets.QSizePolicy.Expanding,
                                             QtWidgets.QSizePolicy.Minimum),
         }
-        for name, value in SETTINGS.items():
+        for name, value in self._DEVICE_SETTINGS.items():
             if not name.endswith('/enable'):
                 continue
             signal = name.split('/')[1]
@@ -300,7 +317,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         self._row += 1
 
     def _add_signal_button(self, signal, meta):
-        topic = f'{get_topic_name(self._unique_id)}/settings/signals/{signal}/enable'
+        topic = f'{get_topic_name(self.unique_id)}/settings/signals/{signal}/enable'
         b = QtWidgets.QPushButton(self._signals['widget'])
         b.setObjectName('device_control_signal')
         b.setProperty('signal_level', 0)
@@ -339,7 +356,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
                                             QtWidgets.QSizePolicy.Expanding,
                                             QtWidgets.QSizePolicy.Minimum),
         }
-        for name, value in SETTINGS.items():
+        for name, value in self._DEVICE_SETTINGS.items():
             if not name.startswith('out/'):
                 continue
             signal = name[4:]
@@ -349,7 +366,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         self._row += 1
 
     def _add_gpo_button(self, signal, meta):
-        topic = f'{get_topic_name(self._unique_id)}/settings/out/{signal}'
+        topic = f'{get_topic_name(self.unique_id)}/settings/out/{signal}'
         b = QtWidgets.QPushButton(self._gpo['widget'])
         b.setObjectName('device_ctrl_gpo')
         b.setCheckable(True)
@@ -368,18 +385,19 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         self._gpo['buttons'].append(b)
 
     def _add_settings(self):
-        for name, value in SETTINGS.items():
+        for name, value in self._DEVICE_SETTINGS.items():
             if name.startswith('out/') or name.endswith('/enable'):
                 continue
             meta = Metadata(value)
-            if 'hidden' not in meta.flags:
-                self._add(name, meta)
-            if name == 'current_range':
+            if 'hidden' in meta.flags:
+                continue
+            if name == 'current_range' and self.is_js220:
                 pass  # todo add custom ranged slider for min/max selection
+            self._add(name, meta)
 
     def _add_str(self, name):
         w = QtWidgets.QLineEdit(self)
-        topic = f'{get_topic_name(self._unique_id)}/settings/{name}'
+        topic = f'{get_topic_name(self.unique_id)}/settings/{name}'
         w.textChanged.connect(lambda s: pubsub_singleton.publish(topic, s))
 
         def on_change(v):
@@ -397,7 +415,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         option_values = [o[0] for o in options]
         option_strs = [o[1] for o in options]
         comboBoxConfig(w, option_strs)
-        topic = f'{get_topic_name(self._unique_id)}/settings/{name}'
+        topic = f'{get_topic_name(self.unique_id)}/settings/{name}'
         w.currentIndexChanged.connect(lambda idx: pubsub_singleton.publish(topic, options[idx][0]))
 
         def lookup(v):
@@ -467,21 +485,21 @@ class Js220CtrlWidget(QtWidgets.QWidget):
 
     def _reset_to_defaults(self, checked):
         self._log.info('reset to defaults')
-        topic_base = f'{get_topic_name(self._unique_id)}/settings'
+        topic_base = f'{get_topic_name(self.unique_id)}/settings'
         # disable all streaming
-        for name in SETTINGS.keys():
+        for name in self._DEVICE_SETTINGS.keys():
             if name.endswith('/enable'):
                 pubsub_singleton.publish(f'{topic_base}/{name}', False)
-        for name, meta in SETTINGS.items():
+        for name, meta in self._DEVICE_SETTINGS.items():
             meta = Metadata(meta)
             value = meta.default
             if name == 'name':
-                value = self._unique_id
+                value = self.unique_id
             pubsub_singleton.publish(f'{topic_base}/{name}', value)
 
     def _clear_accumulators(self, checked):
         self._log.info('clear accumulators')
-        topic = f'{get_topic_name(self._unique_id)}/actions/!accum_clear'
+        topic = f'{get_topic_name(self.unique_id)}/actions/!accum_clear'
         pubsub_singleton.publish(topic, None)
 
     def clear(self):

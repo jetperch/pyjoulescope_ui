@@ -448,25 +448,29 @@ class _BaseWidget(QtWidgets.QWidget):
         self._statistics = None  # most recent statistics information
 
         self._subscribers = [
-            ['registry/app/settings/defaults/statistics_stream_source', self._on_default_statistics_stream_source],
+            ['registry/app/settings/defaults/statistics_stream_source',
+             self._on_default_statistics_stream_source],
             [f'registry_manager/capabilities/{CAPABILITIES.STATISTIC_STREAM_SOURCE}/list',
              self._on_statistic_stream_source_list],
-            ['registry/app/settings/statistics_stream_enable', self._on_global_statistics_stream_enable_fn],
+            ['registry/app/settings/statistics_stream_enable',
+             self._on_global_statistics_stream_enable_fn],
         ]
-        for topic, fn in self._subscribers:
-            pubsub_singleton.subscribe(topic, fn, ['pub', 'retain'])
 
         self.mousePressEvent = self._on_mousePressEvent
 
+    def on_pubsub_register(self):
+        for topic, fn in self._subscribers:
+            pubsub_singleton.subscribe(topic, fn, ['pub', 'retain'])
+
     def closeEvent(self, event):
         self._disconnect()
-        for topic, fn in self._subscribers:
-            pubsub_singleton.unsubscribe(topic, fn)
         self._statistics = None
         return super().closeEvent(event)
 
     def _disconnect(self):
         pubsub_singleton.unsubscribe_all(self._on_cbk_statistics_fn)
+        for topic, fn in self._subscribers:
+            pubsub_singleton.unsubscribe(topic, fn)
         self.repaint()
 
     @property

@@ -157,15 +157,13 @@ class JsdrvWrapper:
         if 'js220' in value:
             cls = Js220
         elif 'js110' in value:
-            pass  # cls = DeviceJs110
+            cls = Js110
         else:
             self._log.info('Unsupported device: %s', value)
             return
         self._log.info('_on_device_add %s', unique_id)
         d = cls(self, value)
         self.pubsub.register(d, unique_id)
-        if d.name is None:
-            d.name = unique_id
         self.devices[value] = d
         for b in self._stream_buffers.values():
             topic = get_topic_name(b)
