@@ -344,6 +344,7 @@ class _Setting:
         self.name = name
         self.attr_name = subtopic_to_name(name)
         self.item = None
+        self._log = logging.getLogger(f'{__name__}.Setting.{self.attr_name}')
         if hasattr(cls, name):
             self.item = cls.__dict__[name]
         cls.__dict__[_PUBSUB_ATTR]['setting_cls'][self.name] = self
@@ -382,9 +383,21 @@ class _Setting:
                         item.fset(obj, value)
         obj.__dict__[self.attr_name] = value
 
+    def on_publish_factory(self, obj):
+        def fn(pubsub, topic: str, value):
+            return self.on_publish(obj, pubsub, topic, value)
+        return fn
+
     def on_publish(self, obj, pubsub, topic: str, value):
         self._set(obj, value)
-        attr = obj.__dict__[_PUBSUB_ATTR]['setting']
+        if _PUBSUB_ATTR not in obj.__dict__:
+            self._log.warning('on_publish but no __pubsub__ attr')
+            return
+        attr = obj.__dict__[_PUBSUB_ATTR]
+        if 'setting' not in attr:
+            self._log.warning('on_publish but no setting attr')
+            return
+        attr = attr['setting']
         fn_name = f'on_setting_{subtopic_to_name(self.name)}'
         if fn_name not in attr:
             fn = getattr(obj, fn_name, None)
@@ -960,7 +973,7 @@ class PubSub:
             assert (len(self._stack[0]) == 0)
             self._undo_capture = _Undo(cmd.topic)
             self._stack[-1].append(cmd)
-            t = self._process()
+            self._process()
             assert (len(self._stack) == 1)
             assert (len(self._stack[0]) == 0)
             if len(self._undo_capture):
@@ -1184,9 +1197,13 @@ class PubSub:
 
     def _unregister_functions(self, obj, unique_id: str = None):
         functions = obj.__dict__[_PUBSUB_ATTR].pop('functions')
+        settings_topic = f'{obj.topic}/settings/'
         while len(functions):
             topic, fn = functions.popitem()
-            self.unregister_command(topic, fn)
+            if topic.startswith(settings_topic):
+                self.unsubscribe(topic, fn, flags=['pub'])
+            else:
+                self.unsubscribe(topic, fn, flags=['command'])
 
     def _register_settings_create(self, obj, unique_id: str):
         topic_base_name = get_topic_name(unique_id)
@@ -1237,7 +1254,7 @@ class PubSub:
         if setting_name not in cls_attr:
             _Setting(self, cls, setting_name)
         setting = cls_attr['setting_cls'][setting_name]
-        fn = lambda pubsub, topic, value: setting.on_publish(obj, pubsub, topic, value)
+        fn = setting.on_publish_factory(obj)
         self.subscribe(topic_name, fn, flags=['pub', 'retain'])
         functions[topic_name] = fn
 
