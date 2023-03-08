@@ -13,9 +13,10 @@
 # limitations under the License.
 
 from pyjls import Writer, SignalType, DataType
-from joulescope_ui import pubsub_singleton, register, CAPABILITIES
+from joulescope_ui import pubsub_singleton, register, CAPABILITIES, time64
 from .signal_record_config_widget import SignalRecordConfigDialog
 import copy
+import json
 import logging
 import numpy as np
 
@@ -31,6 +32,9 @@ _DTYPE_MAP = {
     'u4': DataType.U4,
     'u1': DataType.U1,
 }
+
+
+_UTC_INTERVAL = 10 * time64.MINUTE
 
 
 @register
@@ -72,21 +76,32 @@ class SignalRecord:
             if source not in self._sources:
                 self._source_add(source, value['source'])
             self._signal_add(source, topic, value)
-        signal_id = self._signals[topic]
+        signal = self._signals[topic]
+        utc_now = value['utc']
+        utc_last = signal['utc_last']
+        sample_id = value['sample_id']
+        if (utc_now - utc_last) >= _UTC_INTERVAL:
+            self._jls.utc(signal['id'], sample_id, utc_now)
+            signal['time_map'] = None
+        else:
+            signal['time_map'] = [sample_id, utc_last]
         x = np.ascontiguousarray(value['data'])
-        self._jls.fsr_f32(signal_id, value['sample_id'], x)
+        self._jls.fsr_f32(signal['id'], sample_id, x)
 
     def _source_add(self, unique_id, info):
         info = copy.deepcopy(info)
         model = info.get('model', '')
         serial_number = info.get('serial_number', '')
         name = f'{model}-{serial_number}'
+        version = info.get('version')
+        if isinstance(version, dict):
+            version = json.dumps(version)
         self._jls.source_def(
             source_id=self._source_idx,
             name=name,
             vendor=info['vendor'],
             model=model,
-            version=info.get('version'),
+            version=version,
             serial_number=serial_number,
         )
         info['id'] = self._source_idx
@@ -106,7 +121,11 @@ class SignalRecord:
             name=value['field'],
             units=value['units'],
         )
-        self._signals[topic] = self._signal_idx
+        self._signals[topic] = {
+            'id': self._signal_idx,
+            'utc_last': 0,
+            'time_map': None
+        }
         self._signal_idx += 1
 
     def on_action_stop(self, value):
@@ -117,6 +136,11 @@ class SignalRecord:
         for topic, fn, flags in self._subscribe_entries:
             pubsub_singleton.unsubscribe(topic, fn, flags)
         self._subscribe_entries.clear()
+        for signal in self._signals.values():
+            time_map = signal['time_map']
+            if time_map is None:
+                continue
+            jls.utc(signal['id'], *time_map)
         jls.close()
         if self == SignalRecord._singleton:
             SignalRecord._singleton = None

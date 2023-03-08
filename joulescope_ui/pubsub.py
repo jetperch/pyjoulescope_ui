@@ -1131,9 +1131,16 @@ class PubSub:
         if parent is not None:
             self._parent_add(obj, parent)
         self._registry_add(unique_id)
-        self._register_invoke_callback(obj, unique_id)
+        try:
+            register_abort = False
+            self._register_invoke_callback(obj, unique_id)
+        except Exception:
+            register_abort = True
+            self._log.exception('register(unique_id=%s) callback failed', unique_id)
         self._register_capabilities(obj, unique_id)
-        self._log.info('register(unique_id=%s) done', unique_id)
+        self._log.info('register(unique_id=%s) done %s', unique_id, 'ABORT' if register_abort else '')
+        if register_abort:
+            self.unregister(obj, delete=True)
 
     def _parent_add(self, obj, parent=None):
         if parent is None:
@@ -1308,7 +1315,7 @@ class PubSub:
             method_name = 'on_pubsub_register'
         fn = self._invoke_callback(obj, method_name)
         if callable(fn):
-            fn()
+            return fn()
 
     def _unregister_invoke_callback(self, obj, unique_id):
         if isinstance(obj, type):

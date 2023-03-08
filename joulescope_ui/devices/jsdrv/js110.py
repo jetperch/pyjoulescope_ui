@@ -370,6 +370,7 @@ class Js110(Device):
         self.EVENTS = copy.deepcopy(EVENTS)
         self.SETTINGS = copy.deepcopy(SETTINGS)
         self.SETTINGS['name']['default'] = device_path
+        self.SETTINGS['sources/1/name']['default'] = device_path
         self._info = {
             'vendor': 'Jetperch LLC',
             'model': 'JS110',
@@ -381,7 +382,6 @@ class Js110(Device):
             'serial_number': device_path.split('/')[-1],
         }
         self.SETTINGS['info']['default'] = self._info
-        self.SETTINGS['sources/1/name']['default'] = device_path
         self.SETTINGS['sources/1/info']['default'] = self._info
 
         self._param_map = {
@@ -404,12 +404,12 @@ class Js110(Device):
         self._statistics_offsets = None
         self._on_settings_fn = self._on_settings
         self._on_target_power_app_fn = self._on_target_power_app
-        self._pubsub.subscribe('registry/app/settings/target_power', self._on_target_power_app_fn, ['pub', 'retain'])
 
     def on_pubsub_register(self):
         topic = get_topic_name(self)
-        self._pubsub.publish(f'{topic}/settings/info', self._info)
-        self._pubsub.publish(f'{topic}/sources/1/info', self._info)
+        self.pubsub.subscribe('registry/app/settings/target_power', self._on_target_power_app_fn, ['pub', 'retain'])
+        self.pubsub.publish(f'{topic}/settings/info', self._info)
+        self.pubsub.publish(f'{topic}/settings/sources/1/info', self._info)
         for key, value in _SIGNALS.items():
             self._signal_forward(key, value['topics'][1], self.unique_id)
 
@@ -444,7 +444,7 @@ class Js110(Device):
                 'source': self._info,
                 'sample_id': value['sample_id'] // value['decimate_factor'],
                 'sample_freq': value['sample_rate'] // value['decimate_factor'],
-                'time': None,  # todo
+                'utc': value['utc'],
                 'field': field,
                 'dtype': dtype,
                 'units': units,

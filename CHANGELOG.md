@@ -116,14 +116,15 @@ If you find other missing features, please post on the
 * Lots of unused 0.10.x code in repo that needs to be pruned.
 * JS220 cannot stream all channels simultaneously.
 * "Settings" menu does not open to nice sizes.
+* JLS v2 file format does not yet implement corrupted file recovery.
 
 
 ### JS220 features still not implemented
 
 * Soft-fuse
 * UI support for triggers
-* Precision UTC time sync
-* UTC time sync between units
+* Precision UTC time sync (existing UTC time only accurate to ~100 ms)
+* UTC time sync between JS220's
 * UART in / out
 * On-instrument downsampling (host-side downsampling works great)
 
