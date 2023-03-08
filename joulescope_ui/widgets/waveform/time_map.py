@@ -57,7 +57,12 @@ class TimeMap:
         return self.pixel_offset + t * self.time_to_pixel_scale
 
     def pixel_to_time64(self, pixel):
-        return self.time_offset + int((pixel - self.pixel_offset) * (1.0 / self.time_to_pixel_scale))
+        k = (pixel - self.pixel_offset) * (1.0 / self.time_to_pixel_scale)
+        if isinstance(k, np.ndarray):
+            k = np.rint(k).astype(np.int64)
+        else:
+            k = int(k)
+        return self.time_offset + k
 
     def time64_to_trel(self, t64):
         offset = self.trel_offset

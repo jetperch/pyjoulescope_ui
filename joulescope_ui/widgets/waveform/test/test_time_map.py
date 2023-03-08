@@ -18,6 +18,7 @@ Test joulescope_ui.widgets.waveform.time_map
 
 import unittest
 from joulescope_ui.widgets.waveform.time_map import TimeMap, time64
+import numpy as np
 
 
 class TestTimeMap(unittest.TestCase):
@@ -60,6 +61,8 @@ class TestTimeMap(unittest.TestCase):
         self.assertEqual(z_t + w_t, tm.trel_to_time64(t1))
         self.assertEqual(z_p + w_p, tm.trel_to_pixel(t1))
 
+        return tm
+
     def test_normal(self):
         self._convert(time64.YEAR, 100, 200, time64.YEAR + time64.SECOND, time64.SECOND)
 
@@ -68,3 +71,16 @@ class TestTimeMap(unittest.TestCase):
 
     def test_zoom_microsecond(self):
         self._convert(time64.YEAR, 100, 200, time64.YEAR + time64.MICROSECOND, time64.MICROSECOND)
+
+    def test_numpy(self):
+        tm = TimeMap()
+        tm.trel_offset = time64.YEAR
+        z_p, w_p = 100, 200
+        z_t, w_t = time64.YEAR + time64.SECOND, time64.SECOND
+        tm.update(z_p, z_t, w_p / w_t)
+        p1 = np.arange(z_p, z_p + w_p + 1, 10, dtype=np.uint64)
+        t1 = tm.pixel_to_time64(p1)
+        self.assertEqual(z_t, t1[0])
+        self.assertEqual(z_t + w_t, t1[-1])
+        p2 = tm.time64_to_pixel(t1)
+        np.testing.assert_allclose(p1, p2, atol=1e-6)

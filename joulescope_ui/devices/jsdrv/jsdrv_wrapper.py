@@ -126,6 +126,7 @@ class JsdrvWrapper:
         while len(self.devices):
             _, device = self.devices.popitem()
             device.finalize()
+            self.pubsub.unregister(device)
         d, self.driver = self.driver, None
         if d is not None:
             d.finalize()

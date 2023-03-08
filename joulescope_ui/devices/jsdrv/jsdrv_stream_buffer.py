@@ -184,6 +184,7 @@ class JsdrvStreamBuffer:
             self._wrapper.driver.unsubscribe(topic, fn)
         self._driver_publish('m/@/!remove', int(self._id))
         self.pubsub.unsubscribe(self._on_pubsub_req)
+        self.pubsub.topic_remove(f'{get_topic_name(self)}/settings/signals')
 
     def _on_device_signal_info(self, topic, value):
         # device_signal_info m/001/s/001/info {'version': 1, 'field_id': 1, 'index': 0, 'element_type': 4, 'element_size_bits': 32, 'topic': b'u/js220/000415/s/i/!data', 'size_in_utc': 8725724278, 'size_in_samples': 8126464, 'time_range_utc': {'start': 911549982937, 'end': 914237683277, 'length': 2503116}, 'time_range_samples': {'start': 848947077, 'end': 851450193, 'length': 2503116}, 'sample_rate': 1000000.0}

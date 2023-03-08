@@ -106,9 +106,11 @@ If you find other missing features, please post on the
 * Waveform
   * JS220 current range, GPI and trigger channels are time shifted
     from current, voltage, and power.
-  * Time shifts relative to signal when at or near sample level.
+  * Signals shift in time when zoom and pan near sample level.
+    This causes signal events to shift relative to markers
+    and the x-axis.
   * Missing clear streaming buffer button / feature.
-  * Top summary waveform is not correct on file load until zoom/pan.
+  * Top summary waveform is not correct on file open until zoom/pan.
 * Lots of unused 0.10.x code in repo that needs to be pruned.
 * JS220 cannot stream all channels simultaneously.
 * "Settings" menu does not open to nice sizes.

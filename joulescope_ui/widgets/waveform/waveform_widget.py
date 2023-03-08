@@ -540,9 +540,9 @@ class WaveformWidget(QtWidgets.QWidget):
             return self.pubsub.query(topic)
 
     def on_pubsub_register(self):
-        if self.state is None:
-            self.state = copy.deepcopy(_STATE_DEFAULT)
         source_filter = self._source_filter_set()
+        if self.state is None or source_filter in [None, '', 'JsdrvStreamBuffer:001']:
+            self.state = copy.deepcopy(_STATE_DEFAULT)
         if 'on_widget_close_actions' in self._kwargs:
             self.pubsub.publish(f'{self.topic}/settings/on_widget_close_actions',
                                 self._kwargs['on_widget_close_actions'])
@@ -810,21 +810,13 @@ class WaveformWidget(QtWidgets.QWidget):
         p.fillRect(x, y, r.width() + margin2, r.height() + margin2, p.brush())
         p.drawText(x + margin, y + margin + metrics.ascent(), txt)
 
-    def _nan_idx(self, data):
-        if data is None:
-            return None
-        if 'nan_idx' in data:
-            return data['nan_idx']
-        nan_idx = np.isnan(data['avg'])
-        data['nan_idx'] = nan_idx
-        data['finite_idx'] = np.logical_not(nan_idx)
-        return nan_idx
-
     def _finite_idx(self, data):
         if data is None:
             return None
         if 'finite_idx' not in data:
-            self._nan_idx(data)
+            nan_idx = np.isnan(data['avg'])
+            data['nan_idx'] = nan_idx
+            data['finite_idx'] = np.logical_not(nan_idx)
         return data['finite_idx']
 
     @property
