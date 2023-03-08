@@ -373,7 +373,11 @@ class Js110(Device):
         self._info = {
             'vendor': 'Jetperch LLC',
             'model': 'JS110',
-            'version': None,
+            'version': {
+                'hw': '1',
+                'fw': '0.0.0',
+                'fpga': '0.0.0',
+            },
             'serial_number': device_path.split('/')[-1],
         }
         self.SETTINGS['info']['default'] = self._info
@@ -381,7 +385,6 @@ class Js110(Device):
         self.SETTINGS['sources/1/info']['default'] = self._info
 
         self._param_map = {
-            'current_range': 's/i/range/select',
             'voltage_range': 's/v/range/select',
             'gpio_voltage': 's/extio/voltage',
             'out/0': 's/gpo/0/value',
@@ -402,6 +405,13 @@ class Js110(Device):
         self._on_settings_fn = self._on_settings
         self._on_target_power_app_fn = self._on_target_power_app
         self._pubsub.subscribe('registry/app/settings/target_power', self._on_target_power_app_fn, ['pub', 'retain'])
+
+    def on_pubsub_register(self):
+        topic = get_topic_name(self)
+        self._pubsub.publish(f'{topic}/settings/info', self._info)
+        self._pubsub.publish(f'{topic}/sources/1/info', self._info)
+        for key, value in _SIGNALS.items():
+            self._signal_forward(key, value['topics'][1], self.unique_id)
 
     def signal_subtopics(self, signal_id, topic_type):
         """Query the signal topics.
@@ -436,13 +446,14 @@ class Js110(Device):
                 'sample_freq': value['sample_rate'] // value['decimate_factor'],
                 'time': None,  # todo
                 'field': field,
-                'data': value['data'],
                 'dtype': dtype,
                 'units': units,
+                'data': value['data'],
                 'origin_sample_id': value['sample_id'],
                 'orig_sample_freq': value['sample_rate'],
                 'orig_decimate_factor': value['decimate_factor'],
             }
+            fwd['data'] = value['data']
             self._pubsub.publish(utopic, fwd)
         return fn
 
@@ -496,6 +507,8 @@ class Js110(Device):
                 self._driver_publish(t, bool(value))
             else:
                 self._log.warning('invalid enable: %s', topic)
+        elif topic in ['target_power', 'current_range']:
+            self._current_range_update()
         elif topic == 'statistics_frequency':
             scnt = 2_000_000 // value
             self._driver_publish('s/stats/scnt', scnt)
@@ -508,6 +521,10 @@ class Js110(Device):
         elif topic in self._param_map:
             device_topic = self._param_map[topic]
             self._driver_publish(device_topic, value)
+        elif topic in ['info', 'state', 'state_req', 'out', 'enable',
+                       'sources', 'sources/1', 'sources/1/info', 'sources/1/name',
+                       'signals', 'current_ranging']:
+            pass
         elif topic.startswith('signals/'):
             pass
         else:
@@ -515,16 +532,11 @@ class Js110(Device):
 
     def _current_range_update(self):
         if self._target_power_app and self.target_power:
-            if self.current_range == -1:
-                self._log.info('current_range auto')
-                self._driver_publish('s/i/range/mode', 'auto')
-            else:
-                self._log.info('current_range manual %s', self.current_range)
-                self._driver_publish('s/i/range/select', self.current_range)
-                self._driver_publish('s/i/range/mode', 'manual')
+            self._log.info('current_range on %s', self.current_range)
+            self._driver_publish('s/i/range/select', self.current_range)
         else:
             self._log.info('current_range off')
-            self._driver_publish('s/i/range/mode', 'off')
+            self._driver_publish('s/i/range/select', 'off')
 
     def _run_cmd(self, cmd, args):
         if cmd == 'settings':
