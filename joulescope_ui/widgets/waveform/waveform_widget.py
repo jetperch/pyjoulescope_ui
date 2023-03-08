@@ -363,7 +363,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 [100, N_('10 Hz')],
                 [200, N_('5 Hz')],
             ],
-            'default': 50,
+            'default': 2,
         },
         'show_min_max': {
             'dtype': 'int',
@@ -1088,6 +1088,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._draw_background(p, size)
         self._draw_summary(p)
         self._draw_x_axis(p)
+        self._x_markers_remove_expired()
         self._draw_markers_background(p)
 
         # Draw each plot
@@ -1270,7 +1271,10 @@ class WaveformWidget(QtWidgets.QWidget):
 
         self._plot_range_auto_update(plot)
         y_range = plot['range']
-        y_scale = h / (y_range[1] - y_range[0])
+        if y_range[0] >= y_range[1]:
+            y_scale = 1.0
+        else:
+            y_scale = h / (y_range[1] - y_range[0])
         plot['y_map'] = (y0, y_range[1], y_scale)
 
         # draw y-axis grid
@@ -1309,6 +1313,8 @@ class WaveformWidget(QtWidgets.QWidget):
         plot_units = plot.get('units')
         if plot_units is None:
             s_label = plot['quantity']
+        elif y_grid is None:
+            s_label = plot_units
         else:
             s_label = f"{y_grid['unit_prefix']}{plot_units}"
         p.drawText(left, y0 + (h + axis_font_metrics.ascent()) // 2, s_label)
@@ -1420,8 +1426,29 @@ class WaveformWidget(QtWidgets.QWidget):
             bg = s[f'marker{color_index}_bg']
             p.setPen(self._NO_PEN)
             p.setBrush(bg)
-            p.drawRect(p1, ya, p2 - p1, y1 - ya)
+            pd = p2 - p1
+            p.drawRect(p1, ya, pd, y1 - ya)
         p.setClipping(False)
+
+    def _x_markers_remove_expired(self):
+        del_idx = []
+        x_min, x_max = self._extents()
+        for idx, m in enumerate(self.state['x_markers'][-1::-1]):
+            idx_adj = -(idx + 1)
+            x_min = self._extents()[0]
+            pos1 = m['pos1']
+            if not x_min <= pos1 <= x_max:
+                del_idx.append(idx_adj)
+                continue
+            if m['dtype'] == 'single':
+                continue
+            pos2 = m['pos2']
+            if not x_min <= pos2 <= x_max:
+                del_idx.append(idx_adj)
+                continue
+        for idx in del_idx:
+            self._log.info('marker expired %d', idx)
+            del self.state['x_markers'][idx]
 
     def _draw_markers(self, p, size):
         s = self._style
@@ -1434,15 +1461,10 @@ class WaveformWidget(QtWidgets.QWidget):
         margin, margin2 = _MARGIN, _MARGIN * 2
         ya = y0 + margin + f_a
         x_min = self._extents()[0]
-        del_idx = []
 
         for idx, m in enumerate(self.state['x_markers'][-1::-1]):
             color_index = ((m['id'] - 1) % 6) + 1
             pos1 = m['pos1']
-            if pos1 < x_min:
-                del_idx.append(-(idx + 1))
-                continue
-
             w = h // 2
             he = h // 3
             pen = s[f'marker{color_index}_pen']
@@ -1464,12 +1486,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 p.drawLine(p1, y0 + h + he, p1, y1)
                 self._draw_single_marker_text(p, m, pos1)
             else:
-                if m['pos2'] < x_min:
-                    del_idx.append(-(idx + 1))
-                    continue
                 p2 = np.rint(self._x_time64_to_pixel(m['pos2']))
-                p1r = p1 + w
-                p2l = p2 - w
                 if p2 < p1:
                     p1, p2 = p2, p1
 
@@ -1487,10 +1504,6 @@ class WaveformWidget(QtWidgets.QWidget):
                 p.fillRect(q1, y0, q2 - q1, f_a + margin2, p.brush())
                 p.drawText(dt_x, y0 + margin + f_a, dt_str)
                 self._draw_dual_marker_text(p, m)
-
-        for idx in del_idx:
-            print(f'del {idx}')
-            del self.state['x_markers'][idx]
         p.setClipping(False)
 
     def _draw_statistics_text(self, p: QtGui.QPainter, pos, values, text_pos=None):
