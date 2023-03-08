@@ -15,6 +15,7 @@
 from pyjls import Reader, SignalType, data_type_as_str
 from joulescope_ui import CAPABILITIES, Metadata, time64, register, get_topic_name
 from joulescope_ui.jls_v2 import TO_UI_SIGNAL_NAME
+from joulescope_ui.time_map import TimeMap
 import copy
 import logging
 import os
@@ -57,18 +58,10 @@ class JlsV2:
         self._topic = topic
         self._jls = None
         self._quit = False
-        self._time_map = None  # sample_offset, utc_offset_t64, gain_sample_to_utc, gain_utc_to_sample
+        self._time_map = TimeMap()
         self._signals = {}
         self._queue = queue.Queue()
         self.open()
-
-    def _time_samples_to_utc(self, sample):
-        sample_offset, utc_offset_t64, gain_sample_to_utc, _ = self._time_map
-        return int(np.rint((sample - sample_offset) * gain_sample_to_utc)) + utc_offset_t64
-
-    def _time_utc_to_samples(self, utc):
-        sample_offset, utc_offset_t64, _, gain_utc_to_sample = self._time_map
-        return int(np.rint((utc - utc_offset_t64) * gain_utc_to_sample)) + sample_offset
 
     def open(self):
         topic = self._topic
@@ -76,6 +69,7 @@ class JlsV2:
         jls = Reader(self._path)
         self._jls = jls
         source_meta = {}
+        time_map = self._time_map
 
         for source_id, source in jls.sources.items():
             pubsub.topic_add(f'{topic}/settings/sources/{source_id}/name',
@@ -107,14 +101,14 @@ class JlsV2:
                 jls.utc(signal.signal_id, 0, utc_cbk)
                 if utc_first is None:
                     g = time64.SECOND / signal.sample_rate
-                    self._time_map = [0, 0, g, 1.0 / g]
+                    time_map.update(0, 0, 1.0 / g)
                 elif utc_last[0] == utc_first[0]:
-                    self._time_map = [utc_first[0], utc_first[1], g, 1.0 / g]
+                    time_map.update(utc_first[0], utc_first[1], 1.0 / g)
                 else:
                     d_utc = utc_last[1] - utc_first[1]
                     d_sample = utc_last[0] - utc_first[0]
                     g = d_utc / d_sample
-                    self._time_map = [utc_first[0], utc_first[1], g, 1.0 / g]
+                    time_map.update(utc_first[0], utc_first[1], 1.0 / g)
 
             signal_meta = copy.deepcopy(source_meta[signal.source_id])
             source_name = signal_meta['name']
@@ -127,7 +121,7 @@ class JlsV2:
                              Metadata('obj', 'Signal metadata', default=signal_meta))
             sample_start, sample_end = 0, signal.length - 1
             range_meta = {
-                'utc': [self._time_samples_to_utc(sample_start), self._time_samples_to_utc(sample_end)],
+                'utc': [time_map.counter_to_time64(sample_start), time_map.counter_to_time64(sample_end)],
                 'samples': {'start': sample_start, 'end': sample_end, 'length': signal.length},
                 'sample_rate': signal.sample_rate,
             }
@@ -150,8 +144,8 @@ class JlsV2:
         signal = self._signals[value['signal_id']]
         signal_id = signal['signal_id']
         if value['time_type'] == 'utc':
-            start = self._time_utc_to_samples(value['start'])
-            end = self._time_utc_to_samples(value['end'])
+            start = self._time_map.time64_to_counter(value['start'], dtype=np.int64)
+            end = self._time_map.time64_to_counter(value['end'], dtype=np.int64)
         else:
             start = value['start']
             end = value['end']
@@ -187,8 +181,8 @@ class JlsV2:
             'field': signal['field'],
             'units': signal['units'],
             'time_range_utc': {
-                'start': self._time_samples_to_utc(start),
-                'end': self._time_samples_to_utc(end),
+                'start': self._time_map.counter_to_time64(start),
+                'end': self._time_map.counter_to_time64(end),
                 'length': length,
             },
             'time_range_samples': {
@@ -197,8 +191,8 @@ class JlsV2:
                 'length': length,
             },
             'time_map': {
-                'offset_time': self._time_map[1],
-                'offset_counter': self._time_map[0],
+                'offset_time': self._time_map.time_offset,
+                'offset_counter': self._time_map.counter_offset,
                 'counter_rate': signal['sample_rate'],
             },
         }

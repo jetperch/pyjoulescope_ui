@@ -111,6 +111,8 @@ If you find other missing features, please post on the
     and the x-axis.
   * Missing clear streaming buffer button / feature.
   * Top summary waveform is not correct on file open until zoom/pan.
+  * Get rd_fsr_statistics PARAMETER_INVALID[5] when reading from JLS
+    due to reading slightly outside of available bounds.
 * Lots of unused 0.10.x code in repo that needs to be pruned.
 * JS220 cannot stream all channels simultaneously.
 * "Settings" menu does not open to nice sizes.

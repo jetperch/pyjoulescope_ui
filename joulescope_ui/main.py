@@ -399,7 +399,6 @@ class MainWindow(QtWidgets.QMainWindow):
     def on_action_file_open(self, path):
         """Open the specified file."""
         self._log.info('file_open %s', path)
-        source = None
         with self._pubsub as p:
             topic = f'registry_manager/capabilities/{CAPABILITIES.SIGNAL_BUFFER_SOURCE}/list'
             sources_start = p.query(topic)

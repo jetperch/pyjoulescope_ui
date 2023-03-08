@@ -20,21 +20,25 @@ class TimeMap:
     """Define a time map."""
 
     def __init__(self):
-        self.pixel_offset = 0
+        self.counter_offset = 0
         self._trel_offset = 0
         self.time_offset = 0
-        self.time_to_pixel_scale = 1.0
+        self.time_to_counter_scale = 1.0
+        self.counter_to_time_scale = 1.0
 
-    def update(self, pixel_offset, time_offset, scale):
+    def update(self, counter_offset, time_offset, scale):
         """Update the time mapping.
 
-        :param pixel_offset: The pixel offset for zero.
+        :param counter_offset: The pixel offset for zero.
         :param time_offset: The time offset time64 for zero.
         :param scale: The scale to convert time64 to pixels.
         """
-        self.pixel_offset = pixel_offset
+        self.counter_offset = counter_offset
         self.time_offset = time_offset
-        self.time_to_pixel_scale = scale
+        if scale == 0:
+            scale = 1.0
+        self.time_to_counter_scale = scale
+        self.counter_to_time_scale = 1.0 / scale
 
     @property
     def trel_offset(self):
@@ -49,15 +53,20 @@ class TimeMap:
             quantum = time64.SECOND
         self._trel_offset = (value_time64 // quantum) * quantum
 
-    def time64_to_pixel(self, x_time):
+    def time64_to_counter(self, x_time, dtype=None):
         if isinstance(x_time, list):
             t = (np.array(x_time, np.int64) - self.time_offset).astype(float)
         else:
             t = (x_time - self.time_offset)
-        return self.pixel_offset + t * self.time_to_pixel_scale
+        v = self.counter_offset + t * self.time_to_counter_scale
+        if dtype:
+            v = np.rint(v)
+            if isinstance(v, np.ndarray) or isinstance(v, np.number):
+                v = v.astype(dtype)
+        return v
 
-    def pixel_to_time64(self, pixel):
-        k = (pixel - self.pixel_offset) * (1.0 / self.time_to_pixel_scale)
+    def counter_to_time64(self, pixel):
+        k = (pixel - self.counter_offset) * self.counter_to_time_scale
         if isinstance(k, np.ndarray):
             k = np.rint(k).astype(np.int64)
         else:
@@ -83,6 +92,6 @@ class TimeMap:
             s = int(s) + int(offset)
         return s
 
-    def trel_to_pixel(self, trel):
+    def trel_to_counter(self, trel):
         t64 = self.trel_to_time64(trel)
-        return self.time64_to_pixel(t64)
+        return self.time64_to_counter(t64)

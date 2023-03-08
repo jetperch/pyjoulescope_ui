@@ -15,6 +15,7 @@
 from joulescope_ui import N_, CAPABILITIES, register, Metadata, get_topic_name
 from .device import Device
 import copy
+import numpy as np
 import queue
 import threading
 
@@ -499,7 +500,7 @@ class Js110(Device):
         self._close_req()
 
     def _run_cmd_settings(self, topic, value):
-        self._log.info(f'setting(%s): %s <= %s', self, topic, value)
+        self._log.info(f'js110 setting(%s): %s <= %s', self, topic, value)
         if topic.endswith('/enable'):
             signal_id = topic.split('/')[1]
             t = _SIGNALS[signal_id]['topics'][0]
@@ -513,8 +514,10 @@ class Js110(Device):
             scnt = 2_000_000 // value
             self._driver_publish('s/stats/scnt', scnt)
         elif topic == 'current_ranging/samples_window':
-            if value in ['m', 'n']:
-                self._driver_publish('s/i/range/win', value)
+            if value in [1, 'm']:
+                self._driver_publish('s/i/range/win', 'm')
+            if value in [2, 'n']:
+                self._driver_publish('s/i/range/win', 'n')
             else:
                 self._driver_publish('s/i/range/win_sz', int(value) - 256)
                 self._driver_publish('s/i/range/win', 'manual')

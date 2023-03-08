@@ -14,20 +14,19 @@
 
 from PySide6 import QtWidgets, QtGui, QtCore, QtOpenGLWidgets
 from OpenGL import GL as gl
-from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topic_name, tooltip_format, time64
+from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topic_name, time64
 from joulescope_ui.styles import styled_widget, color_as_qcolor, font_as_qfont
 from joulescope_ui.widget_tools import settings_action_create
 from .line_segments import PointsF
 from .waveform_control import WaveformControlWidget
-from .time_map import TimeMap
+from joulescope_ui.time_map import TimeMap
 import copy
 import logging
 import numpy as np
 import os
 import time
-from PySide6.QtGui import QPainter, QPen, QBrush, QColor
-from joulescope_ui.units import unit_prefix, three_sig_figs
-
+from PySide6.QtGui import QPen, QBrush
+from joulescope_ui.units import unit_prefix
 
 _ZOOM_FACTOR = np.sqrt(2)
 _WHEEL_TO_DEGREES = 1.0 / 8.0  # https://doc.qt.io/qt-6/qwheelevent.html#angleDelta
@@ -1192,7 +1191,7 @@ class WaveformWidget(QtWidgets.QWidget):
             pass
         else:
             p.drawText(left_x0, y_text, x_grid['unit_prefix'] + 's')
-            for idx, x in enumerate(self._x_map.trel_to_pixel(x_grid['major'])):
+            for idx, x in enumerate(self._x_map.trel_to_counter(x_grid['major'])):
                 p.setPen(s['text_pen'])
                 x_str = x_grid['labels'][idx]
                 x_start = x + _MARGIN
@@ -1203,7 +1202,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 p.drawLine(x, y, x, y_end)
 
             p.setPen(s['grid_minor_pen'])
-            for x in self._x_map.trel_to_pixel(x_grid['minor']):
+            for x in self._x_map.trel_to_counter(x_grid['minor']):
                 p.drawLine(x, x_axis_y1, x, y_end)
 
     def _draw_spacers(self, p):
@@ -1290,7 +1289,7 @@ class WaveformWidget(QtWidgets.QWidget):
             if sig_d is None:
                 continue
             d = sig_d['data']
-            d_x = self._x_map.time64_to_pixel(d['x'])
+            d_x = self._x_map.time64_to_counter(d['x'])
             if len(d_x) == w:
                 d_x, d_x2 = np.rint(d_x), d_x
                 if np.any(np.abs(d_x - d_x2) > 0.5):
@@ -1381,8 +1380,8 @@ class WaveformWidget(QtWidgets.QWidget):
             if m['dtype'] != 'dual':
                 continue
             x1, x2 = m['pos1'], m['pos2']
-            p1 = np.rint(self._x_map.time64_to_pixel(x1))
-            p2 = np.rint(self._x_map.time64_to_pixel(x2))
+            p1 = np.rint(self._x_map.time64_to_counter(x1))
+            p2 = np.rint(self._x_map.time64_to_counter(x2))
             color_index = ((m['id'] - 1) % 6) + 1
             bg = s[f'marker{color_index}_bg']
             p.setPen(self._NO_PEN)
@@ -1433,7 +1432,7 @@ class WaveformWidget(QtWidgets.QWidget):
             bg = s[f'marker{color_index}_bg']
             p.setPen(self._NO_PEN)
             p.setBrush(fg)
-            p1 = np.rint(self._x_map.time64_to_pixel(pos1))
+            p1 = np.rint(self._x_map.time64_to_counter(pos1))
             yl = y0 + h + he
             if m.get('flag') is None:
                 m['flag'] = PointsF()
@@ -1447,7 +1446,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 p.drawLine(p1, y0 + h + he, p1, y1)
                 self._draw_single_marker_text(p, m, pos1)
             else:
-                p2 = np.rint(self._x_map.time64_to_pixel(m['pos2']))
+                p2 = np.rint(self._x_map.time64_to_counter(m['pos2']))
                 if p2 < p1:
                     p1, p2 = p2, p1
 
@@ -1511,8 +1510,8 @@ class WaveformWidget(QtWidgets.QWidget):
         text_pos = m.get('text_pos', 'right')
         if text_pos == 'off':
             return
-        p0 = np.rint(self._x_map.time64_to_pixel(x))
-        xp = self._x_map.pixel_to_time64(p0)
+        p0 = np.rint(self._x_map.time64_to_counter(x))
+        xp = self._x_map.counter_to_time64(p0)
         xw, x0, _ = self._x_geometry_info['plot']
         for plot in self.state['plots']:
             if not plot['enabled'] or not len(plot['signals']):
@@ -1576,7 +1575,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 integral_values = _statistics_format(['∫'], [v_avg * dt], integral_units)
                 values.extend(integral_values)
 
-            p0 = np.rint(self._x_map.time64_to_pixel(m['pos2']))
+            p0 = np.rint(self._x_map.time64_to_counter(m['pos2']))
             self._draw_statistics_text(p, (p0, y0), values, text_pos)
         p.setClipping(False)
 
@@ -1613,7 +1612,7 @@ class WaveformWidget(QtWidgets.QWidget):
             return
         data = data['data']
         x_pixels = self._mouse_pos[0]
-        x = self._x_map.pixel_to_time64(x_pixels)
+        x = self._x_map.counter_to_time64(x_pixels)
         x_rel = self._x_map.time64_to_trel(x)
         index = np.abs(data['x'] - x).argmin()
         y = data['avg'][index]
@@ -1732,7 +1731,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 mx.append(m['pos2'])
                 pos_idx.append('pos2')
                 idx.append(k)
-        mx = self._x_map.time64_to_pixel(mx)
+        mx = self._x_map.time64_to_counter(mx)
         dx = np.abs(x - mx)
         z = np.where(dx < 5)[0]
         if len(z):
@@ -1832,7 +1831,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 plots[idx]['height'] = d1
                 self._repaint_request = True
             elif action == 'move.x_marker':
-                xt = self._x_map.pixel_to_time64(x)
+                xt = self._x_map.counter_to_time64(x)
                 xr = self.x_range
                 xt = max(xr[0], min(xt, xr[1]))  # bound to range
                 item = self._mouse_action[1]
@@ -1857,8 +1856,8 @@ class WaveformWidget(QtWidgets.QWidget):
                 self._mouse_x_pan(x)
 
     def _mouse_x_pan(self, x):
-        t0 = self._x_map.pixel_to_time64(self._mouse_action[1])
-        t1 = self._x_map.pixel_to_time64(x)
+        t0 = self._x_map.counter_to_time64(self._mouse_action[1])
+        t1 = self._x_map.counter_to_time64(x)
         self._mouse_action[1] = x
         e0, e1 = self._extents()
         dt = t0 - t1
@@ -1979,7 +1978,7 @@ class WaveformWidget(QtWidgets.QWidget):
         return menu
 
     def _on_menu_x_marker(self, action):
-        pos = self._x_map.pixel_to_time64(self._mouse_pos[0])
+        pos = self._x_map.counter_to_time64(self._mouse_pos[0])
         topic = get_topic_name(self)
         self.pubsub.publish(f'{topic}/actions/!x_markers', [action, pos, None])
 
@@ -2185,10 +2184,10 @@ class WaveformWidget(QtWidgets.QWidget):
     def _x_marker_position(self, xi):
         xi_init = xi
         x0, x1 = self.x_range
-        p0, p1 = self._x_map.time64_to_pixel(x0), self._x_map.time64_to_pixel(x1)
+        p0, p1 = self._x_map.time64_to_counter(x0), self._x_map.time64_to_counter(x1)
         pd = (p1 - p0) // 25
         pd = min(10, pd)
-        xd = self._x_map.pixel_to_time64(p0 + pd) - x0
+        xd = self._x_map.counter_to_time64(p0 + pd) - x0
 
         m1 = [z['pos1'] for z in self.state['x_markers']]
         m2 = [z['pos2'] for z in self.state['x_markers'] if 'pos2' in z]
@@ -2479,7 +2478,7 @@ class WaveformWidget(QtWidgets.QWidget):
             z0, z1 = e1 - r, e1
         self.x_range = z0, z1
         if len(value) == 3:  # double check center location
-            pixel = self._x_map.time64_to_pixel(center)
+            pixel = self._x_map.time64_to_counter(center)
             if abs(pixel - value[2]) > 0.5:
                 self._log.warning('center change: %s -> %s', value[2], pixel)
         self._request_data(True)
@@ -2538,7 +2537,7 @@ class WaveformWidget(QtWidgets.QWidget):
             if is_pan:
                 self._on_x_pan(delta)
             else:
-                t = self._x_map.pixel_to_time64(self._mouse_pos[0])
+                t = self._x_map.counter_to_time64(self._mouse_pos[0])
                 topic = get_topic_name(self)
                 self.pubsub.publish(f'{topic}/actions/!x_zoom', [delta, t, self._mouse_pos[0]])
         elif y_name.startswith('plot.') and (is_y or x_name == 'y_axis'):
