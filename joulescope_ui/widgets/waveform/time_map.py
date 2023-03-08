@@ -17,37 +17,51 @@ import numpy as np
 
 
 class TimeMap:
+    """Define a time map."""
 
     def __init__(self):
         self.pixel_offset = 0
-        self.time64_label_offset = 0
-        self.time64_zero_offset = 0
+        self._trel_offset = 0
+        self.time_offset = 0
         self.time_to_pixel_scale = 1.0
 
-    def update(self, pixel_offset, time64_label_offset, time64_zero_offset, time_to_pixel_scale):
-        self.pixel_offset = pixel_offset
-        self.time64_label_offset = time64_label_offset
-        self.time64_zero_offset = time64_zero_offset
-        self.time_to_pixel_scale = time_to_pixel_scale
+    def update(self, pixel_offset, time_offset, scale):
+        """Update the time mapping.
 
+        :param pixel_offset: The pixel offset for zero.
+        :param time_offset: The time offset time64 for zero.
+        :param scale: The scale to convert time64 to pixels.
+        """
+        self.pixel_offset = pixel_offset
+        self.time_offset = time_offset
+        self.time_to_pixel_scale = scale
+
+    @property
     def trel_offset(self):
-        offset = self.time64_label_offset
-        offset = (offset // time64.SECOND) * time64.SECOND
-        return offset
+        return self._trel_offset
+
+    @trel_offset.setter
+    def trel_offset(self, value):
+        self.trel_offset_set(value)
+
+    def trel_offset_set(self, value_time64, quantum=None):
+        if quantum is None:
+            quantum = time64.SECOND
+        self._trel_offset = (value_time64 // quantum) * quantum
 
     def time64_to_pixel(self, x_time):
         if isinstance(x_time, list):
-            t = (np.array(x_time, np.int64) - self.time64_zero_offset).astype(float)
+            t = (np.array(x_time, np.int64) - self.time_offset).astype(float)
         else:
-            t = (x_time - self.time64_zero_offset)
+            t = (x_time - self.time_offset)
         return self.pixel_offset + t * self.time_to_pixel_scale
 
     def pixel_to_time64(self, pixel):
-        return self.time64_zero_offset + int((pixel - self.pixel_offset) * (1.0 / self.time_to_pixel_scale))
+        return self.time_offset + int((pixel - self.pixel_offset) * (1.0 / self.time_to_pixel_scale))
 
     def time64_to_trel(self, t64):
-        offset = self.trel_offset()
-        dt = t64 - offset
+        offset = self.trel_offset
+        dt = t64 - self.trel_offset
         if isinstance(dt, np.ndarray):
             dt = dt.astype(np.float64)
         else:
@@ -55,7 +69,7 @@ class TimeMap:
         return dt / time64.SECOND
 
     def trel_to_time64(self, trel):
-        offset = self.trel_offset()
+        offset = self.trel_offset
         s = trel * time64.SECOND
         if isinstance(s, np.ndarray):
             s = s.astype(np.int64)

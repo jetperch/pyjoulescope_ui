@@ -1181,14 +1181,14 @@ class WaveformWidget(QtWidgets.QWidget):
         x_zero_offset = x_range64[0]
 
         x_gain = 1.0 if x_duration_s <= 0 else (plot_width - 1) / (x_duration_s * time64.SECOND)
-        self._x_map.update(left_x1, x_label_offset, x_zero_offset, x_gain)
+        self._x_map.trel_offset = x_label_offset
+        self._x_map.update(left_x1, x_zero_offset, x_gain)
         x_range_trel = [self._x_map.time64_to_trel(i) for i in self.x_range]
 
         x_grid = _ticks(x_range_trel[0], x_range_trel[1], x_tick_width_time_min)
         y_text = y + font_metrics.ascent()
 
-        x_offset = self._x_map.trel_offset()
-        x_offset_str = time64.as_datetime(x_offset).isoformat()
+        x_offset_str = time64.as_datetime(self._x_map.trel_offset).isoformat()
         p.drawText(plot_x0, x_axis_y0 + s['plot_label_size'].height() + font_metrics.ascent(), x_offset_str)
 
         if self.show_statistics:

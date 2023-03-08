@@ -42,6 +42,12 @@ SECOND = SCALE
 MINUTE = SECOND * 60
 HOUR = MINUTE * 60
 DAY = HOUR * 24
+YEAR = DAY * 365  # common year
+GREGORIAN_YEAR = int(365.2425 * DAY)   # https://en.wikipedia.org/wiki/Year
+
+MILLISECOND = SCALE // 1_000
+MICROSECOND = SCALE // 1_000_000
+NANOSECOND = SCALE // 1_000_000_000  # bad precision!
 
 
 def now():
