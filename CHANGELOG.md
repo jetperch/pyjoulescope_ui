@@ -6,15 +6,136 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.0
 
-2023 Feb 22 [in progress]
+<span style="color:yellow">⚠ ALPHA RELEASE - USE WITH CAUTION ⚠</span> 
+
+The first alpha release for the new Joulescope UI 1.x.
+Limited testing performed.  This release may crash and lose data.
+Not recommended for production use without thorough understanding
+of the issues listed below.
+
+This release features a major overhaul to the Joulescope UI.
+The prior Joulescope UI 0.10.x and earlier has been an excellent tool for the
+past 4 years, but several major architectural choices hampered 
+new feature development and full JS220 support.
+
+Key improvements coming in the 1.x release series include:
+
+* Full JS220 feature support.
+* Greatly improved waveform widget.
+* Support for multiple, simultaneously connected Joulescopes.
+* Langauge localization.
+
+While all of these features are underway, they are not all ready.
+This first alpha release nearly reaches feature parity with 
+the previous 0.10.x release.
+
+
+2023 Mar 7 [in progress]
 
 * Migrated to new PubSub implementation from CommandProcessor + Preferences.
+* New dock window system
+  [ADS](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System).
+* Added sidebar and removed old singleton control widgets.
+* Added statistics "hold" feature to pause Multimeter widget display.
+* Improved buffer memory management - select by RAM not duration #172
 * Migrated to pyjoulescope_driver from pyjoulescope.
 * Removed command line options "device_name" and "window_state".
 * Restructured to clearly define profiles and views.
 * Implemented clean style management with widget customization.
-* Added localization support.
+* Added localization support (but no localization yet).
+* Separated support for JS110 and JS220 controls #175
+* Added high-performance read/write support for JLS v2.  #48
+* Added new Value widget (serves as both Multimeter and Value widgets).
 * Added new Waveform widget.
+  * Improved buffering performance using pyjoulescope_driver backend.
+  * Summary plot displays waveform.
+  * Operates entirely on UTC time #55.
+  * Clearly indicates dropped samples #76.
+  * OpenGL backend for improved rendering performance.
+  * Vertically resize waveforms.
+  * Added current range labels  #162.
+  * Display statistics on hover #61.
+  * Better state management #68.
+* Fixed macOS support #171.
+
+
+### Tips for use
+
+* Settings are still a work in progress.  If you get stuck,
+  select File → Exit and clear config.  You can also manually
+  delete the settings file.
+  * Windows: %LOCALAPPDATA%\joulescope\config\joulescope_ui_config.json
+  * macOS: 
+
+
+### Features temporarily removed
+
+The Joulescope UI 1.x is reconstructed.  We started from a stripped-down
+application and migrated / ported code back in.  We have not yet
+completed this process.  Here are the features that are knowingly
+not included in this release:
+
+* JS110 waveform support (but statistics work).
+* JLS v1 read support.
+* Waveform
+  * analysis tools (range tools) including USB inrush.
+  * text annotations.
+  * Panning using summary waveform.
+  * Save/load annotations to/from file.
+  * y-axis zoom and pan.
+  * y-axis logarithmic scale.
+* Manage (add / delete / reorder) Views.
+* Global settings / style / preferences management.
+* Only dark mode for now: no light or system.
+* Click to copy from Value (Multimeter & Value) widget.
+* Units selection for mAh and mWh.
+* Plugin architecture, which was never fully completed, 
+  will be reintegrated but with new API #14.
+* Most-recently used support
+  * File → Open Recent
+  * Path management
+* ALL key bindings (no key presses work for now)
+
+If you find other missing features, please post on the 
+[Joulescope forum](https://forum.joulescope.com/).
+
+
+### Known issues
+
+* Style settings linked between widgets of same class.
+* Waveform
+  * JS220 current range, GPI and trigger channels are time shifted
+    from current, voltage, and power.
+  * Unusual behavior on waveform zoom when at or near sample level.
+  * Should enforce >| on play.
+  * Should disable both |< and >| on pause or file view.
+  * Missing clear streaming buffer button / feature.
+  * Sometimes JS220 does not start updating waveform without
+    toggling the "Signal sample streaming" play/pause button. 
+  * Top summary waveform is not correct on file load until zoom/pan.
+* Lots of unused 0.10.x code in repo that needs to be pruned.
+* JS220 cannot stream all channels simultaneously.
+* "Settings" menu does not open to nice sizes.
+
+
+### JS220 features still not implemented
+
+* Soft-fuse
+* UI support for triggers
+* Precision UTC time sync
+* UTC time sync between units
+* UART in / out
+* On-instrument downsampling (host-side downsampling works great)
+
+---
+
+## 0.10.13
+
+2022 Dec 20
+
+* Fixed JS110 charge & energy statistics computation.
+  All prior 0.10.x releases sometimes computed bad values.
+  This issue does not affect the JS220.
 
 
 ## 0.10.12
@@ -139,6 +260,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Updated waveform ranges to support JS220.
 * Updated requirements.
 
+---
 
 ## 0.9.11
 
