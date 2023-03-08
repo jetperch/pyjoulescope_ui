@@ -529,11 +529,19 @@ class WaveformWidget(QtWidgets.QWidget):
         if item in self._signals:
             self._signals[item]['enabled'] = False
 
+    def _source_filter_set(self):
+        topic = f'{self.topic}/settings/source_filter'
+        if 'source_filter' in self._kwargs:
+            source_filter = self._kwargs['source_filter']
+            self.pubsub.publish(topic, source_filter)
+            return source_filter
+        else:
+            return self.pubsub.query(topic)
+
     def on_pubsub_register(self):
         if self.state is None:
             self.state = copy.deepcopy(_STATE_DEFAULT)
-        if 'source_filter' in self._kwargs:
-            self.pubsub.publish(f'{self.topic}/settings/source_filter', self._kwargs['source_filter'])
+        source_filter = self._source_filter_set()
         if 'on_widget_close_actions' in self._kwargs:
             self.pubsub.publish(f'{self.topic}/settings/on_widget_close_actions',
                                 self._kwargs['on_widget_close_actions'])
@@ -546,7 +554,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self.pubsub.subscribe('registry_manager/capabilities/signal_buffer.source/list',
                               self._on_source_list_fn, ['pub', 'retain'])
         topic = get_topic_name(self)
-        self._control.on_pubsub_register(self.pubsub, topic)
+        self._control.on_pubsub_register(self.pubsub, topic, source_filter)
         for m in self.state['x_markers']:
             self._x_markers_by_id[m['id']] = m
 
@@ -2477,11 +2485,15 @@ class WaveformWidget(QtWidgets.QWidget):
     def on_action_x_zoom(self, value):
         """Perform a zoom action.
 
-        :param value: [steps, center].  Steps is the number of incremental
-            steps to zoom.  Center is the x-axis time center point for the zoom.
-            If Center is None, use the screen center.
+        :param value: [steps, center, {center_pixels}].
+            * steps: the number of incremental steps to zoom.
+            * center: the x-axis time64 center location for the zoom.
+              If center is None, use the screen center.
+            * center_pixels: the optional center location in screen pixels.
+              When provided, double-check that the zoom operation
+              maintained the center location.
         """
-        steps, center = value
+        steps, center = value[:2]
         if steps == 0:
             return
         self._log.info('x_zoom %s', value)
@@ -2512,6 +2524,10 @@ class WaveformWidget(QtWidgets.QWidget):
         elif self.pin_right or z1 > e1:
             z0, z1 = e1 - r, e1
         self.x_range = z0, z1
+        if len(value) == 3:  # double check center location
+            pixel = self._x_time64_to_pixel(center)
+            if abs(pixel - value[2]) > 0.5:
+                self._log.warning('center change: %s -> %s', value[2], pixel)
         self._request_data(True)
         self._repaint_request = True
 
@@ -2570,7 +2586,7 @@ class WaveformWidget(QtWidgets.QWidget):
             else:
                 t = self._x_pixel_to_time64(self._mouse_pos[0])
                 topic = get_topic_name(self)
-                self.pubsub.publish(f'{topic}/actions/!x_zoom', [delta, t])
+                self.pubsub.publish(f'{topic}/actions/!x_zoom', [delta, t, self._mouse_pos[0]])
         elif y_name.startswith('plot.') and (is_y or x_name == 'y_axis'):
             plot_idx = int(y_name.split('.')[1])
             plot = self.state['plots'][plot_idx]

@@ -131,6 +131,14 @@ SETTINGS = {
 }
 
 
+_SETTINGS_VALUES_AT_START = {
+    'statistics_stream_enable': True,
+    'statistics_stream_record': False,
+    'signal_stream_enable': True,
+    'signal_stream_record': False,
+}
+
+
 class App:
     """Singleton application instance for global settings.
 
@@ -151,12 +159,17 @@ class App:
         return cbk
 
     def register(self):
-        pubsub_singleton.register(self, 'app')
+        p = pubsub_singleton
+        topic = get_topic_name('app')
+        if p.query(f'{topic}/settings/statistics_stream_enable', default=None) is not None:
+            for key, value in _SETTINGS_VALUES_AT_START.items():
+                p.publish(f'{topic}/settings/{key}', value)
+        p.register(self, 'app')
         for capability in _DEFAULT_CAPABILITIES.keys():
             fn = self._construct_capability_callback(capability)
             self._cbks.append([capability, fn])
-            pubsub_singleton.subscribe(f'registry_manager/capabilities/{capability}/list',
-                                       fn, ['pub', 'retain'])
+            p.subscribe(f'registry_manager/capabilities/{capability}/list',
+                        fn, ['pub', 'retain'])
         return self
 
     def _on_capability_list(self, capability, value):

@@ -315,7 +315,7 @@ _SIGNALS = {
             autoranges to measure your current signal.  It can also be helpful
             in separating target system behavior from the small current range
             switching artifacts."""),
-        'default': False,
+        'default': True,
         'topics': ('s/i/range/ctrl', 's/i/range/!data'),
 
     },
@@ -325,7 +325,7 @@ _SIGNALS = {
         'units': '',
         'brief': N_('GPI 0'),
         'detail': N_('Enable the general purpose input 0 signal streaming.'),
-        'default': False,
+        'default': True,
         'topics': ('s/gpi/0/ctrl', 's/gpi/0/!data'),
     },
     '1': {
@@ -334,7 +334,7 @@ _SIGNALS = {
         'units': '',
         'brief': N_('GPI 1'),
         'detail': N_('Enable the general purpose input 1 signal streaming.'),
-        'default': False,
+        'default': True,
         'topics': ('s/gpi/1/ctrl', 's/gpi/1/!data'),
     },
 }

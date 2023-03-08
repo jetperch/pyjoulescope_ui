@@ -201,17 +201,28 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._pubsub.subscribe(topic, fn, flags)
         self._subscribe_entries.append((topic, fn))
 
-    def on_pubsub_register(self, pubsub, topic):
+    @property
+    def is_file_mode(self):
+        return self._source_filter is not None and 'JlsSource' in self._source_filter
+
+    def on_pubsub_register(self, pubsub, topic, source_filter):
         self._pubsub = pubsub
         self._topic = topic
+        self._source_filter = source_filter
 
         self._min_max_topic = f'{self._topic}/settings/show_min_max'
         meta = self._pubsub.metadata(self._min_max_topic)
         comboBoxConfig(self._min_max_sel, [x[1] for x in meta.options])
         self._subscribe(self._min_max_topic, self._on_min_max, ['pub', 'retain'])
-        self._subscribe(f'{self._topic}/settings/pin_left', self._on_pin_left, ['pub', 'retain'])
-        self._subscribe(f'{self._topic}/settings/pin_right', self._on_pin_right, ['pub', 'retain'])
+        pin_mode = ['pub'] if self.is_file_mode else ['pub', 'retain']
+        self._subscribe(f'{self._topic}/settings/pin_left', self._on_pin_left, pin_mode)
+        self._subscribe(f'{self._topic}/settings/pin_right', self._on_pin_right, pin_mode)
         self._subscribe(f'{self._topic}/settings/state', self._on_waveform_state, ['pub', 'retain'])
+        if self.is_file_mode:
+            self._on_pin_left_click(False)
+            self._on_pin_right_click(False)
+        else:
+            self._subscribe('registry/app/settings/signal_stream_enable', self._on_signal_stream_enable, ['pub', 'retain'])
 
     def on_pubsub_unregister(self):
         for topic, fn in self._subscribe_entries:
@@ -231,6 +242,10 @@ class WaveformControlWidget(QtWidgets.QWidget):
             block_signals_state = b.blockSignals(True)
             b.setChecked(plot['enabled'])
             b.blockSignals(block_signals_state)
+
+    def _on_signal_stream_enable(self, value):
+        self._on_pin_left_click(value)
+        self._on_pin_right_click(value)
 
     def _on_min_max(self, value):
         block_signals_state = self._min_max_sel.blockSignals(True)
@@ -321,3 +336,4 @@ class WaveformControlWidget(QtWidgets.QWidget):
     @QtCore.Slot(bool)
     def _on_pin_newest(self, checked):
         pass
+
