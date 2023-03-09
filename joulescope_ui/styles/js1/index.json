@@ -1,0 +1,72 @@
+{
+  "type": "theme",
+  "version": 1,
+  "name": "js1",
+  "description": "Joulescope UI standard theme",
+  "templates": ["style.qss", "style.html"],
+  "images": {
+    "unchecked": {
+      "sources": [
+        "radio_unchecked.svg",
+        "checkbox_unchecked.svg"
+      ],
+      "targets": [
+        ["{basename}_disabled{ext}", {"#000000": "js1.unchecked_disabled"}],
+        ["{basename}_enabled{ext}",  {"#000000": "js1.unchecked_enabled"}],
+        ["{basename}_hover{ext}",    {"#000000": "js1.unchecked_hover"}],
+        ["{basename}_pressed{ext}",  {"#000000": "js1.unchecked_pressed"}]
+      ]
+    },
+    "checked": {
+      "sources": [
+        "radio_checked.svg",
+        "checkbox_checked.svg"
+      ],
+      "targets": [
+        ["{basename}_disabled{ext}", {"#000000": "js1.checked_disabled"}],
+        ["{basename}_enabled{ext}",  {"#000000": "js1.checked_enabled"}],
+        ["{basename}_hover{ext}",    {"#000000": "js1.checked_hover"}],
+        ["{basename}_pressed{ext}",  {"#000000": "js1.checked_pressed"}]
+      ]
+    },
+    "clickable": {
+      "sources": [
+        "arrow_down.svg",
+        "arrow_left.svg",
+        "arrow_right.svg",
+        "arrow_up.svg",
+        "close.svg",
+        "detach.svg",
+        "tabs_menu.svg"
+      ],
+      "targets": [
+        ["{basename}_disabled{ext}", {"#000000": "js1.clickable_disabled"}],
+        ["{basename}_enabled{ext}",  {"#000000": "js1.clickable_enabled"}],
+        ["{basename}_hover{ext}",    {"#000000": "js1.clickable_hover"}],
+        ["{basename}_pressed{ext}",  {"#000000": "js1.clickable_pressed"}]
+      ]
+    },
+    "simple": {
+      "sources": [
+        "hmovetoolbar.svg",
+        "hsepartoolbar.svg",
+        "vmovetoolbar.svg",
+        "vsepartoolbars.svg",
+        "sizegrip.svg",
+        "branch_closed.svg",
+        "branch_end.svg",
+        "branch_end_open.svg",
+        "branch_more.svg",
+        "branch_open.svg",
+        "branch_vline.svg",
+        "transparent.svg"
+      ],
+      "targets": [
+        ["{basename}_disabled{ext}", {"#000000": "js1.clickable_disabled"}],
+        ["{basename}_enabled{ext}",  {"#000000": "js1.clickable_enabled"}],
+        ["{basename}_hover{ext}",    {"#000000": "js1.clickable_hover"}],
+        ["{basename}_pressed{ext}",  {"#000000": "js1.clickable_pressed"}]
+      ]
+    }
+  }
+}

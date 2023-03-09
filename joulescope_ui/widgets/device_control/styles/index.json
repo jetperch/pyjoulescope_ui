@@ -1,0 +1,60 @@
+{
+  "type": "theme",
+  "version": 1,
+  "description": "Sidebar theme",
+  "templates": ["style.qss"],
+  "images": {
+    "target_power": {
+      "sources": [
+        "target_power.svg"
+      ],
+      "targets": [
+        ["{basename}_disabled_0{ext}", {"#000000": "base.selection_color"}],
+        ["{basename}_disabled_1{ext}", {"#000000": "js1.disabled_foreground"}],
+        ["{basename}_on{ext}",         {"#000000": "target_power.on"}],
+        ["{basename}_on_hover{ext}",   {"#000000": "target_power.on_hover"}],
+        ["{basename}_off_0{ext}",      {"#000000": "base.selection_color"}],
+        ["{basename}_off_1{ext}",      {"#000000": "target_power.off"}]
+      ]
+    },
+    "active_checked": {
+      "sources": [
+        "active_checked.svg"
+      ],
+      "targets": [
+        ["{basename}_enabled{ext}", {"#000000": "js1.unchecked_enabled", "#888888": "js1.unchecked_hover"}],
+        ["{basename}_hover{ext}",   {"#000000": "js1.unchecked_hover", "#888888": "js1.unchecked_hover"}]
+      ]
+    },
+    "closed": {
+      "sources": [
+        "active_unchecked.svg",
+        "closed.svg",
+        "doc.svg",
+        "info.svg"
+      ],
+      "targets": [
+        ["{basename}_disabled{ext}", {"#000000": "js1.unchecked_disabled", "#888888": "js1.disabled_foreground"}],
+        ["{basename}_enabled{ext}",  {"#000000": "js1.unchecked_enabled", "#888888": "base.foreground_alternate"}],
+        ["{basename}_hover{ext}",    {"#000000": "js1.unchecked_hover", "#888888": "base.foreground_alternate"}]
+      ]
+    },
+    "open": {
+      "sources": [
+        "open.svg"
+      ],
+      "targets": [
+        ["{basename}_enabled{ext}", {"#000000": "target_power.on"}],
+        ["{basename}_hover{ext}",   {"#000000": "target_power.on_hover"}]
+      ]
+    },
+
+    "copy": {
+      "sources": [
+      ],
+      "targets": [
+        ["{basename}{ext}", {}]
+      ]
+    }
+  }
+}

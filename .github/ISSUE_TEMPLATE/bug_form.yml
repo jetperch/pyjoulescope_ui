@@ -1,6 +1,6 @@
 name: Bug report
 description: File a bug report
-title: "[Bug]: UPDATE TITLE"
+title: "ENTER TITLE"
 labels: ["bug", "triage"]
 assignees:
   - mliberty1
@@ -19,7 +19,8 @@ body:
       label: UI version
       description: What version of our software are you running?
       options:
-        - 0.10.9
+        - 1.0.0
+        - 0.10.13
         - 0.9.11
     validations:
       required: true
@@ -72,5 +73,5 @@ body:
     id: extra-info
     attributes:
       label: Extra information
-      description: Tell us anything that has not been explicitelly asked but could help us.
-      placeholder: Tell us anything usefull
+      description: Tell us anything that has not been explicitly asked but could help us.
+      placeholder: Tell us anything useful

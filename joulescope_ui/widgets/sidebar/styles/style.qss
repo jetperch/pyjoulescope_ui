@@ -1,0 +1,86 @@
+/*
+ * Copyright 2018-2022 Jetperch LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+QPushButton {
+    background: transparent;
+    border-width: 0px;
+    image: none;
+}
+
+QPushButton#signal_play:disabled      { image: url("{% path %}/signal_pause_disabled.svg"); }
+QPushButton#signal_play:enabled       { image: url("{% path %}/signal_pause_enabled.svg"); }
+QPushButton#signal_play:enabled:hover { image: url("{% path %}/signal_play_hover.svg"); }
+QPushButton#signal_play:checked       { image: url("{% path %}/signal_play_enabled.svg"); }
+QPushButton#signal_play:checked:hover { image: url("{% path %}/signal_pause_hover.svg"); }
+QPushButton#signal_play[blink=true]:checked:!hover       { image: url("{% path %}/signal_play_blink.svg"); }
+
+QPushButton#signal_record:disabled      { image: url("{% path %}/signal_stop_disabled.svg"); }
+QPushButton#signal_record:enabled       { image: url("{% path %}/signal_stop_enabled.svg"); }
+QPushButton#signal_record:enabled:hover { image: url("{% path %}/signal_record_hover.svg"); }
+QPushButton#signal_record:checked       { image: url("{% path %}/signal_record_enabled.svg"); }
+QPushButton#signal_record:checked:hover { image: url("{% path %}/signal_stop_hover.svg"); }
+QPushButton#signal_record[blink=true]:checked:!hover       { image: url("{% path %}/signal_record_blink.svg"); }
+
+QPushButton#statistics_play:disabled      { image: url("{% path %}/statistics_pause_disabled.svg"); }
+QPushButton#statistics_play:enabled       { image: url("{% path %}/statistics_pause_enabled.svg"); }
+QPushButton#statistics_play:enabled:hover { image: url("{% path %}/statistics_play_hover.svg"); }
+QPushButton#statistics_play:checked       { image: url("{% path %}/statistics_play_enabled.svg"); }
+QPushButton#statistics_play:checked:hover { image: url("{% path %}/statistics_pause_hover.svg"); }
+QPushButton#statistics_play[blink=true]:checked:!hover       { image: url("{% path %}/statistics_play_blink.svg"); }
+
+QPushButton#statistics_record:disabled      { image: url("{% path %}/statistics_stop_disabled.svg"); }
+QPushButton#statistics_record:enabled       { image: url("{% path %}/statistics_stop_enabled.svg"); }
+QPushButton#statistics_record:enabled:hover { image: url("{% path %}/statistics_record_hover.svg"); }
+QPushButton#statistics_record:checked       { image: url("{% path %}/statistics_record_enabled.svg"); }
+QPushButton#statistics_record:checked:hover { image: url("{% path %}/statistics_stop_hover.svg"); }
+QPushButton#statistics_record[blink=true]:checked:!hover       { image: url("{% path %}/statistics_record_blink.svg"); }
+
+QPushButton#device:disabled      { image: url("{% path %}/device_disabled.svg"); }
+QPushButton#device:enabled       { image: url("{% path %}/device_enabled.svg"); }
+QPushButton#device:enabled:hover { image: url("{% path %}/device_hover.svg"); }
+
+QPushButton#widgets:disabled      { image: url("{% path %}/widgets_disabled.svg"); }
+QPushButton#widgets:enabled       { image: url("{% path %}/widgets_enabled.svg"); }
+QPushButton#widgets:enabled:hover { image: url("{% path %}/widgets_hover.svg"); }
+
+QPushButton#memory:disabled      { image: url("{% path %}/memory_disabled.svg"); }
+QPushButton#memory:enabled       { image: url("{% path %}/memory_enabled.svg"); }
+QPushButton#memory:enabled:hover { image: url("{% path %}/memory_hover.svg"); }
+
+QPushButton#help:disabled      { image: url("{% path %}/help_disabled.svg"); }
+QPushButton#help:enabled       { image: url("{% path %}/help_enabled.svg"); }
+QPushButton#help:enabled:hover { image: url("{% path %}/help_hover.svg"); }
+
+QPushButton#settings:disabled      { image: url("{% path %}/settings_disabled.svg"); }
+QPushButton#settings:enabled       { image: url("{% path %}/settings_enabled.svg"); }
+QPushButton#settings:enabled:hover { image: url("{% path %}/settings_hover.svg"); }
+
+/****************************************************************************/
+/* Target Power toggle button                                               */
+/****************************************************************************/
+QPushButton#target_power[blink=false]:disabled     { image: url("{% path %}/target_power_disabled_0.svg"); }
+QPushButton#target_power[blink=true]:disabled      { image: url("{% path %}/target_power_disabled_1.svg"); }
+QPushButton#target_power[blink=false]:enabled      { image: url("{% path %}/target_power_off_0.svg"); }
+QPushButton#target_power[blink=true]:enabled       { image: url("{% path %}/target_power_off_1.svg"); }
+QPushButton#target_power[blink=false]:enabled:checked      { image: url("{% path %}/target_power_on.svg"); }
+QPushButton#target_power[blink=true]:enabled:checked       { image: url("{% path %}/target_power_on.svg"); }
+
+
+
+QWidget#flyout {
+    color: #ff8080;
+    background-color: #ff0000;
+}

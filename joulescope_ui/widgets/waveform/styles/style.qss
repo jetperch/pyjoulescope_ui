@@ -1,0 +1,63 @@
+/*
+ * Copyright 2018-2022 Jetperch LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+QPushButton#marker_add1,
+QPushButton#marker_add2,
+QPushButton#marker_clear,
+QPushButton#zoom_in,
+QPushButton#zoom_out,
+QPushButton#zoom_all,
+QPushButton#pin_left,
+QPushButton#pin_right
+{
+    background: transparent;
+    border-width: 0px;
+    image: none;
+}
+
+QPushButton#marker_add1:disabled      { image: url("{% path %}/marker_add1_disabled.svg"); }
+QPushButton#marker_add1:enabled       { image: url("{% path %}/marker_add1_enabled.svg"); }
+QPushButton#marker_add1:enabled:hover { image: url("{% path %}/marker_add1_hover.svg"); }
+
+QPushButton#marker_add2:disabled      { image: url("{% path %}/marker_add2_disabled.svg"); }
+QPushButton#marker_add2:enabled       { image: url("{% path %}/marker_add2_enabled.svg"); }
+QPushButton#marker_add2:enabled:hover { image: url("{% path %}/marker_add2_hover.svg"); }
+
+QPushButton#marker_clear:disabled      { image: url("{% path %}/marker_clear_disabled.svg"); }
+QPushButton#marker_clear:enabled       { image: url("{% path %}/marker_clear_enabled.svg"); }
+QPushButton#marker_clear:enabled:hover { image: url("{% path %}/marker_clear_hover.svg"); }
+
+QPushButton#zoom_in:disabled      { image: url("{% path %}/zoom_in_disabled.svg"); }
+QPushButton#zoom_in:enabled       { image: url("{% path %}/zoom_in_enabled.svg"); }
+QPushButton#zoom_in:enabled:hover { image: url("{% path %}/zoom_in_hover.svg"); }
+
+QPushButton#zoom_out:disabled      { image: url("{% path %}/zoom_out_disabled.svg"); }
+QPushButton#zoom_out:enabled       { image: url("{% path %}/zoom_out_enabled.svg"); }
+QPushButton#zoom_out:enabled:hover { image: url("{% path %}/zoom_out_hover.svg"); }
+
+QPushButton#zoom_all:disabled      { image: url("{% path %}/zoom_all_disabled.svg"); }
+QPushButton#zoom_all:enabled       { image: url("{% path %}/zoom_all_enabled.svg"); }
+QPushButton#zoom_all:enabled:hover { image: url("{% path %}/zoom_all_hover.svg"); }
+
+QPushButton#pin_left:disabled      { image: url("{% path %}/pin_left_disabled.svg"); }
+QPushButton#pin_left:enabled       { image: url("{% path %}/pin_left_enabled.svg"); }
+QPushButton#pin_left:enabled:hover { image: url("{% path %}/pin_left_hover.svg"); }
+QPushButton#pin_left:checked       { image: url("{% path %}/pin_left_pressed.svg"); }
+
+QPushButton#pin_right:disabled      { image: url("{% path %}/pin_right_disabled.svg"); }
+QPushButton#pin_right:enabled       { image: url("{% path %}/pin_right_enabled.svg"); }
+QPushButton#pin_right:enabled:hover { image: url("{% path %}/pin_right_hover.svg"); }
+QPushButton#pin_right:checked       { image: url("{% path %}/pin_right_pressed.svg"); }

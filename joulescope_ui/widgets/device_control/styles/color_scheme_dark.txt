@@ -1,0 +1,3 @@
+devctrl.border = #80CC80
+devctrl.checked = #12a0a0
+devctrl.hover = #38eded

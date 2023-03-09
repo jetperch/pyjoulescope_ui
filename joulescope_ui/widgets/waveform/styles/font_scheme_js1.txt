@@ -1,0 +1,1 @@
+waveform.axis_font = 10pt "Lato"

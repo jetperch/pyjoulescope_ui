@@ -1,4 +1,4 @@
-# Copyright 2018 Jetperch LLC
+# Copyright 2018-2022 Jetperch LLC
 # 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,11 +20,6 @@ executes the official Joulescope User Interface software.
 from joulescope_ui.main import run
 from joulescope_ui.logging_util import LEVELS
 
-# QT bug workaround for MacOS Big Sur, added 2020 Nov 20.
-# https://bugreports.qt.io/browse/QTBUG-87014
-import os
-os.environ["QT_MAC_WANTS_LAYER"] = "1"
-
 
 NAME = "ui"
 
@@ -35,23 +30,37 @@ def parser_config(p):
                    default=None,
                    nargs='?',
                    help='The optional filename to display immediately')
-    p.add_argument('--device_name',
-                   help='The device name to search [joulescope]')
     p.add_argument('--console_log_level', '--log_level',
                    choices=list(LEVELS.keys()),
                    help='The console (stdout) log level.')
     p.add_argument('--file_log_level',
                    choices=list(LEVELS.keys()),
                    help='The file log level.')
-    p.add_argument('--window_state',
-                   choices=['normal', 'active', 'minimized', 'maximized', 'fullscreen'],
-                   help='The window state')
+    p.add_argument('--profile',
+                   choices=['cProfile', 'yappi'],
+                   help='Profile the capture')
     return on_cmd
 
 
 def on_cmd(args):
-    return run(device_name=args.device_name,
-               log_level=args.console_log_level,
-               file_log_level=args.file_log_level,
-               filename=args.filename,
-               window_state=args.window_state)
+    def local_run():
+        run(log_level=args.console_log_level,
+            file_log_level=args.file_log_level,
+            filename=args.filename)
+    if args.profile is None:
+        return local_run()
+    elif args.profile == 'cProfile':
+        import cProfile
+        import pstats
+        cProfile.runctx('local_run()', globals(), locals(), "Profile.prof")
+        s = pstats.Stats("Profile.prof")
+        s.strip_dirs().sort_stats("time").print_stats()
+    elif args.profile == 'yappi':
+        import yappi
+        yappi.start()
+        rv = local_run()
+        yappi.get_func_stats().print_all()
+        yappi.get_thread_stats().print_all()
+        return rv
+    else:
+        raise ValueError('bad profile argument')

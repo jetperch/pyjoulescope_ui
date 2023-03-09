@@ -1,0 +1,18 @@
+sidebar.disabled = #808080
+sidebar.play_enabled = #008000
+sidebar.play_hover = #00A000
+sidebar.play_blink = #00A000
+sidebar.record_enabled = #A00000
+sidebar.record_hover = #D00000
+sidebar.record_blink = #D00000
+sidebar.record_statistics_enabled = #1260a0
+sidebar.record_statistics_blink = #3580D3
+sidebar.play_background = #000000
+sidebar.record_background = #000000
+sidebar.foreground = #ffffff
+
+sidebar.util_disabled = #808080
+sidebar.util_enabled = #c0c0c0
+sidebar.util_hover = #ffffc0
+sidebar.util_background = #000000
+sidebar.util_foreground = #ffffff

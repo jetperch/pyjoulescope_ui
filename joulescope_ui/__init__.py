@@ -1,4 +1,4 @@
-# Copyright 2018 Jetperch LLC
+# Copyright 2018-2022 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,9 +14,66 @@
 
 from .version import __version__
 import sys
+from .pubsub import PubSub, get_instance, get_topic_name, get_unique_id, PUBSUB_TOPICS, REGISTRY_MANAGER_TOPICS
+from .metadata import Metadata
+from .tooltip import tooltip_format
+from .capabilities import CAPABILITIES
+from .locale import N_
+from . import time64
 
-__all__ = ['__version__', 'VERSION']
-VERSION = __version__  # deprecated, use __version__
+__all__ = ['__version__', 'pubsub_singleton', 'register', 'register_decorator', 'time64',
+           'PUBSUB_TOPICS', 'REGISTRY_MANAGER_TOPICS',
+           'tooltip_format',
+           'CAPABILITIES', 'Metadata', 'N_',
+           'get_instance', 'get_topic_name', 'get_unique_id']
+
+
+def _pubsub_factory() -> PubSub:
+    """Generate and configure the singleton pubsub instance."""
+    p = PubSub()
+    p.registry_initialize()
+    for capability in CAPABILITIES:
+        p.register_capability(capability.value)
+    return p
+
+
+pubsub_singleton = _pubsub_factory()  # type: PubSub
+"""Singleton PubSub instance."""
+
+
+def register(obj, unique_id: str = None):
+    """Registration function for classes and instances.
+
+    :param obj: The class type or instance to register.
+    :param unique_id: The unique_id to use for this class.
+        None (default) determines a suitable unique_id.
+        For classes, the class name.
+        For instances, a randomly generated value.
+    :type unique_id: str, optional.  When provided,
+        this function CANNOT be used as a class decorator.
+    :return: obj.  Note the difference from func:`PubSub.register`!
+
+    This function can be used as a class decorator as long
+    as no arguments are provided.  Use :meth:`register_decorator`
+    when arguments are required.
+    """
+    pubsub_singleton.register(obj, unique_id)
+    return obj
+
+
+def register_decorator(unique_id: str = None):
+    """Registration function for classes and instances.
+
+    :param unique_id: The unique_id to use for this class.
+        None (default) determines a suitable unique_id.
+        For classes, the class name.
+        For instances, a randomly generated value.
+    :type unique_id: str, optional.
+    :return: The decorator function that calls :meth:`register`.
+    """
+    def fn(obj):
+        return register(obj, unique_id=unique_id)
+    return fn
 
 
 frozen = getattr(sys, 'frozen', False)

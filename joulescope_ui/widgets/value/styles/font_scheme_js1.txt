@@ -1,0 +1,3 @@
+value.title_font = 10pt "Lato"
+value.main_font = black 42pt "Lato"
+value.stats_font = bold 11pt "Lato"

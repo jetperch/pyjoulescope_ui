@@ -1,0 +1,2 @@
+example.font1 = bold 24pt "Lato"
+example.font2 = bold 24pt "Lucida Calligraphy"

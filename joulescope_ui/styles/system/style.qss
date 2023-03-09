@@ -1,0 +1,104 @@
+/****************************************************************************/
+/* Joulescope custom settings                                               */
+/****************************************************************************/
+
+
+/****************************************************************************/
+/* Status bar                                                               */
+/****************************************************************************/
+
+/* status bar stream source label */
+QLabel#stream_source[stream=active] {
+    background-color: {% stream_source_active %};
+}
+QLabel#stream_source[stream=warning] {
+    background-color: {% stream_source_warning %};
+}
+QLabel#stream_source[stream=error] {
+    background-color: {% stream_source_error %};
+}
+
+
+/****************************************************************************/
+/* Multimeter                                                               */
+/****************************************************************************/
+
+QWidget[multimeter=true] {
+  padding: 0px;
+  color: {% multimeter_background %};
+  background-color: {% multimeter_background %};
+  border-width: 0px;
+}
+
+QWidget[multimeter_spacer=true] {
+  background-color: {% multimeter_spacer %};
+  border-color: {% multimeter_background %};
+  border-width: 0px;
+}
+
+QLabel[multimeter_label=true] {
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-top: 2px;
+  padding-bottom: 2px; 
+  background-color: {% multimeter_background %}; 
+  color: {% multimeter_foreground %};
+  border-width: 0px;
+}
+
+
+/****************************************************************************/
+/* Single Value Widget                                                      */
+/****************************************************************************/
+
+QLabel[single_value_label=true] {
+  padding-left: 2px;
+  padding-right: 2px;
+  padding-top: 2px;
+  padding-bottom: 2px; 
+  background-color: {% single_value_background %}; 
+  color: {% single_value_foreground %};
+  border-width: 0px;
+}
+
+
+/****************************************************************************/
+/* Waveform Control Widget                                                  */
+/****************************************************************************/
+
+QPushButton[waveform_zoom_icon=true]
+{
+  padding: 0px;
+  border-width: 1px;
+  border-color: {% disabled_foreground %};
+  border-style: solid;
+  width: 24px;
+  min-width: 24px;
+  max-width: 24px;
+  height: 24px;
+  min-height: 24px;
+  max-height: 24px;
+}
+
+QPushButton[waveform_zoom_icon=true]#zoom_in {
+    image: url("{% path %}/zoom_in.svg"); 
+}
+
+QPushButton[waveform_zoom_icon=true]#zoom_out {
+    image: url("{% path %}/zoom_out.svg"); 
+}
+
+QPushButton[waveform_zoom_icon=true]#zoom_all {
+    image: url("{% path %}/zoom_all.svg"); 
+}
+
+
+/****************************************************************************/
+/* Help UI                                                                  */
+/****************************************************************************/
+
+QScrollArea#help_ui
+{
+    min-width:600 px; 
+    min-height: 400px;
+}

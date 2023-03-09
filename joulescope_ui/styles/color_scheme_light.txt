@@ -1,0 +1,76 @@
+base.foreground = #202020
+base.background = #E0E0E0
+base.background_alternate = #D0D0D0
+base.tooltip_border = #B0B0B0
+base.focus_foreground = #101010
+base.focus_background = #F0F0F0
+base.focus_border = #3580D3
+base.selection_border = #808080
+base.selection_color = #E0E0E0
+base.selection_background_color = #1260a0
+
+js1.disabled_foreground = #808080
+js1.disabled_background = #A0A0A0
+js1.disabled_border = #909090
+js1.input_background = #F0F0F0
+js1.input_border = #808080
+js1.clickable_disabled = #A0A0A0
+js1.clickable_enabled = #404040
+js1.clickable_hover = #38a0ed
+js1.clickable_pressed = #48c0ff
+js1.unchecked_disabled = #A0A0A0
+js1.unchecked_enabled = #202020
+js1.unchecked_hover = #38a0ed
+js1.unchecked_pressed = #48c0ff
+js1.checked_disabled = #A0A0A0
+js1.checked_enabled = #3580D3
+js1.checked_hover = #38a0ed
+js1.checked_pressed = #48c0ff
+js1.button_border = #808080
+js1.button_unchecked = #E0E0E0
+js1.button_checked = #48c0ff
+js1.button_unchecked_hover = #38a0ed
+js1.button_checked_hover = #3580D3
+js1.button_pressed = #1260a0
+
+stream_source.active = #20AA20
+stream_source.warning = #E0E000
+stream_source.error = #F01010
+
+multimeter.foreground = #116180
+multimeter.background = #E8E8E8
+multimeter.spacer = #D0D0D0
+
+single_value.foreground = #116180
+single_value.background = #E8E8E8
+
+waveform.annotation.diamond = #4040C0
+waveform.annotation.circle = #40c080
+waveform.annotation.hexagon = #c04040
+waveform.annotation.square = #8040c0
+waveform.annotation.star = #c0c020
+waveform.annotation.plus = #40c0c0
+waveform.annotation.cross = #c08040
+waveform.annotation.triangle_up = #40c040
+waveform.annotation.triangle_down = #c040c0
+waveform.annotation.triangle_left = #c0c080
+waveform.annotation.triangle_right = #80c0c0
+waveform.annotation.text = #404040
+waveform.background = #F0F0F0
+waveform.trace1.mean = #001435
+waveform.trace1.min_max_trace = #ff4040
+waveform.trace1.min_max_fill = #ff404080
+waveform.marker1 = #40c040
+waveform.marker2 = #4080c8
+waveform.marker3 = #a040a0
+waveform.marker4 = #40a0a0
+waveform.marker5 = #e29740
+waveform.marker6 = #404040
+waveform.font_color = #202020
+
+dock.close_hover = #C01010
+dock.close_pressed = #FF1010
+dock.detach_hover = #38a0ed
+dock.detach_pressed = #48c0ff
+dock.tabs_menu_hover = #F0F0F0
+dock.tabs_menu_pressed = #FFFFFF

@@ -1,4 +1,4 @@
-# Copyright 2018-2022 Jetperch LLC
+# Copyright 2018-2023 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,6 +23,8 @@ https://github.com/pypa/sampleproject
 # Always prefer setuptools over distutils
 import setuptools
 from setuptools.command.sdist import sdist
+from setuptools.command.install import install
+from setuptools.command.develop import develop
 import distutils.cmd
 import os
 import platform
@@ -31,7 +33,7 @@ import subprocess
 import shutil
 
 
-JOULESCOPE_VERSION_MIN = '1.0.15'  # also update requirements.txt
+JOULESCOPE_DRIVER_VERSION_MIN = '1.2.0'  # also update requirements.txt
 MYPATH = os.path.abspath(os.path.dirname(__file__))
 VERSION_PATH = os.path.join(MYPATH, 'joulescope_ui', 'version.py')
 
@@ -108,19 +110,17 @@ def update_inno_iss():
         fv.write(''.join(lines))
 
 
-class CustomBuildQt(distutils.cmd.Command):
-    """Custom command to build Qt resource file and Qt user interface modules."""
-
-    description = 'Build Qt resource file and Qt user interface modules.'
-    user_options = []
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
+class CustomDevelopCommand(develop):
+    """Custom develop command to build Qt resource file and Qt user interface modules."""
     def run(self):
+        develop.run(self)
+        convert_qt_ui()
+
+
+class CustomInstallCommand(install):
+    """Custom install command to build Qt resource file and Qt user interface modules."""
+    def run(self):
+        install.run(self)
         convert_qt_ui()
 
 
@@ -154,7 +154,8 @@ setuptools.setup(
     license='Apache 2.0',
 
     cmdclass={
-        'qt': CustomBuildQt,
+        'install': CustomInstallCommand,
+        'develop': CustomDevelopCommand,
         'sdist': CustomSdistCommand,
     },
 
@@ -183,8 +184,6 @@ setuptools.setup(
         'Operating System :: POSIX :: Linux',
 
         # Supported Python versions
-        'Programming Language :: Python :: 3.7',
-        'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
@@ -203,21 +202,24 @@ setuptools.setup(
     include_package_data=True,
     
     # See https://packaging.python.org/guides/distributing-packages-using-setuptools/#python-requires
-    python_requires='~=3.7',    
+    python_requires='~=3.9',
     
     # See https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         'appnope>=0.1.2',
         'fs',
-        'joulescope>=' + JOULESCOPE_VERSION_MIN,
+        'pyjoulescope_driver>=' + JOULESCOPE_DRIVER_VERSION_MIN,
         'markdown',
-        'pyjls>=0.4.2',
+        'psutil',
+        'pyjls>=0.5.0',
         'pyopengl',
         'pyperclip>=1.7.0',
         "pywin32>=223; platform_system == 'Windows'",
         'pyqtgraph>=0.13.1',
-        'PySide6==6.3.2',
+        'PySide6>=6.3.0',
+        'PySide6-QtAds>=3.8.3.1',
         'python-dateutil>=2.7.3',
+        'QtPy',
         # 'pyqtgraph @ https://github.com/jetperch/pyqtgraph/tarball/557e867b377b223589c0c8ffd0799c547965fb46#egg=pyqtgraph-0.11.0.dev1',
         'requests>=2.0.0',
     ] + PLATFORM_INSTALL_REQUIRES,

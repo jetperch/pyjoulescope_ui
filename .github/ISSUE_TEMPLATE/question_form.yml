@@ -1,6 +1,6 @@
 name: Question
 description: If you need help understanding or using our tool
-title: "[Question]: UPDATE TITLE"
+title: "ENTER TITLE"
 labels: ["question", "triage"]
 assignees:
   - mliberty1
@@ -16,7 +16,8 @@ body:
       label: UI version
       description: What version of our software are you running?
       options:
-        - 0.10.9
+        - 1.0.0
+        - 0.10.13
         - 0.9.11
     validations:
       required: true

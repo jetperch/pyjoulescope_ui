@@ -1,0 +1,30 @@
+waveform.background = #101010ff
+
+waveform.text_foreground = #A0A0A0ff
+waveform.text_background = #101010A0
+
+waveform.grid_major = #ffffff40
+waveform.grid_minor = #80808010
+waveform.plot_separator = #B0B0ff60
+waveform.plot_border = #ffffff80
+
+waveform.hover = #e0e0e0a0
+
+waveform.summary_missing = #C0C04030
+waveform.summary_trace = #ffff00ff
+waveform.summary_min_max_fill = #FF404060
+waveform.summary_view = #4050FF80
+
+waveform.plot1_trace = #ffff00ff
+waveform.plot1_min_max_trace = #FF4040A0
+waveform.plot1_min_max_fill = #FF404060
+waveform.plot1_std_fill = #80FF4040
+waveform.plot1_missing = #C0C04030
+
+waveform.marker_label = #101010A0
+waveform.marker1 = #40c040A0
+waveform.marker2 = #4080c8A0
+waveform.marker3 = #a040a0A0
+waveform.marker4 = #40a0a0A0
+waveform.marker5 = #e29740A0
+waveform.marker6 = #a0a0a0A0

@@ -1,0 +1,4 @@
+memory.base = #8080C0ff
+memory.size = #8080ffff
+memory.available = #101010ff
+memory.used = #a0a0a0ff

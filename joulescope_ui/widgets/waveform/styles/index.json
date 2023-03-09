@@ -1,0 +1,26 @@
+{
+  "type": "widget",
+  "version": 1,
+  "templates": ["style.qss"],
+  "style_sheet": "style.qss",
+  "images": {
+    "clickable": {
+      "sources": [
+        "marker_add1.svg",
+        "marker_add2.svg",
+        "marker_clear.svg",
+        "pin_left.svg",
+        "pin_right.svg",
+        "zoom_all.svg",
+        "zoom_in.svg",
+        "zoom_out.svg"
+      ],
+      "targets": [
+        ["{basename}_disabled{ext}", {"#000000": "js1.clickable_disabled"}],
+        ["{basename}_enabled{ext}",  {"#000000": "js1.clickable_enabled"}],
+        ["{basename}_hover{ext}",    {"#000000": "js1.clickable_hover"}],
+        ["{basename}_pressed{ext}",  {"#000000": "js1.clickable_pressed"}]
+      ]
+    }
+  }
+}

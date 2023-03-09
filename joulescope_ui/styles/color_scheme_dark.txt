@@ -1,0 +1,47 @@
+base.foreground = #E0E0E0
+base.foreground_alternate = #A0A0A0
+base.background = #31363b
+base.background_alternate = #404040
+base.tooltip_border = #31363b
+base.focus_foreground = #F0F0F0
+base.focus_background = #404448
+base.focus_border = #3580D3
+base.selection_border = #76797c
+base.selection_color = #101010
+base.selection_background_color = #3580D3
+
+js1.disabled_foreground = #808080
+js1.disabled_background = #404040
+js1.disabled_border = #76797c
+js1.input_background = #202020
+js1.input_border = #76797c
+js1.clickable_disabled = #606060
+js1.clickable_enabled = #C0C0C0
+js1.clickable_hover = #38a0ed
+js1.clickable_pressed = #48c0ff
+js1.unchecked_disabled = #606060
+js1.unchecked_enabled = #E0E0E0
+js1.unchecked_hover = #38a0ed
+js1.unchecked_pressed = #48c0ff
+js1.checked_disabled = #606060
+js1.checked_enabled = #3580D3
+js1.checked_hover = #38a0ed
+js1.checked_pressed = #48c0ff
+js1.button_border = #808080
+js1.button_unchecked = #202020
+js1.button_checked = #1260a0
+js1.button_unchecked_hover = #3580D3
+js1.button_checked_hover = #38a0ed
+js1.button_pressed = #48c0ff
+
+
+dock.close_hover = #A00000
+dock.close_pressed = #D00000
+dock.detach_hover = #38a0ed
+dock.detach_pressed = #48c0ff
+dock.tabs_menu_hover = #181818
+dock.tabs_menu_pressed = #000000
+
+target_power.on = #00A000
+target_power.on_hover = #00C000
+target_power.off = #D00000

@@ -1,0 +1,32 @@
+<style>
+
+body {
+  color: {% base.foreground %};
+  background-color: {% base.background %};
+}
+
+a:link {
+  color: {% js1.checked_enabled %};
+}
+
+a:hover {
+  color: {% js1.checked_hover %};
+}
+
+a:pressed {
+  color: {% js1.checked_pressed %};
+}
+
+table {
+  border-collapse: collapse;
+}
+
+table, th, td {
+  border: 1px solid {% base.foreground_alternate %};
+}
+
+th, td {
+  padding: 2px;
+}
+
+</style>

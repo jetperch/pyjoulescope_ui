@@ -1,0 +1,5 @@
+value.background = #101010ff
+value.title_color = #ffffff80
+value.main_color = #20C020ff
+value.stats_color = #20C020ff
+value.line_color = #80808080

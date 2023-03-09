@@ -1,6 +1,6 @@
 name: Enhancement request
 description: Propose enhancement to the tool
-title: "[Enhancement]: UPDATE TITLE"
+title: "ENTER TITLE"
 labels: ["enhancement", "triage"]
 assignees:
   - mliberty1
@@ -19,7 +19,8 @@ body:
       label: UI version
       description: What version of our software are you running?
       options:
-        - 0.10.9
+        - 1.0.0
+        - 0.10.13
         - 0.9.11
     validations:
       required: true

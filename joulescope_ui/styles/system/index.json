@@ -1,0 +1,19 @@
+{
+  "type": "theme",
+  "version": 1,
+  "name": "system",
+  "description": "System theme",
+  "templates": ["style.qss", "style.html"],
+  "images": {
+    "copy": {
+      "sources": [
+        "zoom_all.svg",
+        "zoom_in.svg",
+        "zoom_out.svg"
+      ],
+      "targets": [
+        ["{basename}{ext}", {}]
+      ]
+    }  
+  }
+}
