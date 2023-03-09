@@ -124,17 +124,18 @@ class CAPABILITIES(Enum):
           * units: The units for the values.
           * time_range_utc:
             * start
-            * stop
+            * end
             * length
           * time_range_samples:
             * start
-            * stop
+            * end
             * length
           * time_map
             * offset_time
             * offset_counter (samples)
             * counter_rate (sample rate)
-        * response_type: Either 'samples' or 'summary
+        * response_type: Either 'samples' or 'summary'
+        * data_type: one of f32, u4, u1
         * data: The data which whose shape is (N, 4) for summary or (N, ) for samples.
           u4 and u1 data is packed into bytes.
     """

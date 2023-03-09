@@ -21,6 +21,7 @@ from joulescope_ui.logging_util import logging_preconfig, logging_config
 from joulescope_ui.styles.manager import style_settings
 from joulescope_ui.process_monitor import ProcessMonitor
 from joulescope_ui import software_update
+from joulescope_ui.dev_signal_buffer_source import DevSignalBufferSource
 from PySide6 import QtCore, QtGui, QtWidgets
 import PySide6QtAds as QtAds
 from .error_window import ErrorWindow
@@ -97,6 +98,7 @@ def _menu_setup(parent, d):
 
 
 def _device_factory_add():
+    # pubsub_singleton.register(DevSignalBufferSource())
     jsdrv = JsdrvWrapper()
     pubsub_singleton.register(jsdrv, 'jsdrv')
     topic = get_topic_name(jsdrv)
@@ -256,9 +258,10 @@ class MainWindow(QtWidgets.QMainWindow):
             self._center(resize=True)
 
             self._pubsub.publish('registry/view/settings/active', 'view:oscilloscope')
-            self._pubsub.publish('registry/view/actions/!widget_open',
-                                 {'value': 'WaveformWidget',
-                                  'kwargs': {'source_filter': 'JsdrvStreamBuffer:001'}})
+            self._pubsub.publish('registry/view/actions/!widget_open', {
+                'value': 'WaveformWidget',
+                'kwargs': {'source_filter': 'JsdrvStreamBuffer:001'}
+            })
             self._center(resize=True)
 
             self._pubsub.publish('registry/view/settings/active', 'view:multimeter')

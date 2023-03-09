@@ -2479,7 +2479,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self.x_range = z0, z1
         if len(value) == 3:  # double check center location
             pixel = self._x_map.time64_to_counter(center)
-            if abs(pixel - value[2]) > 0.5:
+            if abs(pixel - value[2]) >= 1.0:
                 self._log.warning('center change: %s -> %s', value[2], pixel)
         self._request_data(True)
         self._repaint_request = True
