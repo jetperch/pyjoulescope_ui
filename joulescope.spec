@@ -158,7 +158,7 @@ if sys.platform.startswith('darwin'):
         info_plist={
             'NSPrincipalClass': 'NSApplication',
             'CFBundleName': 'Joulescope',
-            'CFBundleVersion': joulescope_ui.VERSION,
+            'CFBundleVersion': joulescope_ui.__version__,
             'ATSApplicationFontsPath': 'Fonts/',
             'NSHighResolutionCapable': 'True',
         })
