@@ -6,7 +6,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 0.10.14
 
-2023 Feb 21
+2023 Mar 9
 
 * Fixed USB inrush analysis: changed deprecated np.float to np.float64.
 * Fixed deprecated Control key modifiers for dual markers.
