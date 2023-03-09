@@ -124,7 +124,17 @@ If you find other missing features, please post on the
 * UART in / out
 * On-instrument downsampling (host-side downsampling works great)
 
+
 ---
+
+
+## 0.10.14
+
+2023 Mar 9
+
+* Fixed USB inrush analysis: changed deprecated np.float to np.float64.
+* Fixed deprecated Control key modifiers for dual markers.
+
 
 ## 0.10.13
 

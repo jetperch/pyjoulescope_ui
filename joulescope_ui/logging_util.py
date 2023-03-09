@@ -142,13 +142,17 @@ def logging_config(path, stream_log_level=None, file_log_level=None):
             deferred_log_handler = root_log.handlers[0]
     root_log.handlers = []
 
-    stream_lvl = logging.WARNING if stream_log_level is None else LEVELS[stream_log_level]
-    stream_fmt = logging.Formatter(STREAM_VERBOSE_FMT)
-    stream_hnd = logging.StreamHandler()
-    stream_hnd.stream.write(header)
-    stream_hnd.setFormatter(stream_fmt)
-    stream_hnd.setLevel(stream_lvl)
-    root_log.addHandler(stream_hnd)
+    stream = sys.stderr
+    if stream is not None:
+        stream_lvl = logging.WARNING if stream_log_level is None else LEVELS[stream_log_level]
+        stream_fmt = logging.Formatter(STREAM_VERBOSE_FMT)
+        stream.write(header)
+        stream_hnd = logging.StreamHandler(stream)
+        stream_hnd.setFormatter(stream_fmt)
+        stream_hnd.setLevel(stream_lvl)
+        root_log.addHandler(stream_hnd)
+    else:
+        stream_lvl = logging.CRITICAL
 
     file_lvl = logging.INFO if file_log_level is None else LEVELS[file_log_level]
     if file_lvl < LEVELS['OFF']:
