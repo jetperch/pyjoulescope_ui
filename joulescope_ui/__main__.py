@@ -16,7 +16,8 @@
 
 import sys
 import argparse
-from .entry_points import ui
+from joulescope_ui.entry_points import ui
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Joulescope™ user interface.')
