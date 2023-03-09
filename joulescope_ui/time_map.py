@@ -29,9 +29,9 @@ class TimeMap:
     def update(self, counter_offset, time_offset, scale):
         """Update the time mapping.
 
-        :param counter_offset: The pixel offset for zero.
+        :param counter_offset: The counter offset for zero.
         :param time_offset: The time offset time64 for zero.
-        :param scale: The scale to convert time64 to pixels.
+        :param scale: The scale to convert time64 to counter.
         """
         self.counter_offset = counter_offset
         self.time_offset = time_offset
@@ -65,8 +65,8 @@ class TimeMap:
                 v = v.astype(dtype)
         return v
 
-    def counter_to_time64(self, pixel):
-        k = (pixel - self.counter_offset) * self.counter_to_time_scale
+    def counter_to_time64(self, counter):
+        k = (counter - self.counter_offset) * self.counter_to_time_scale
         if isinstance(k, np.ndarray):
             k = np.rint(k).astype(np.int64)
         else:
@@ -74,7 +74,6 @@ class TimeMap:
         return self.time_offset + k
 
     def time64_to_trel(self, t64):
-        offset = self.trel_offset
         dt = t64 - self.trel_offset
         if isinstance(dt, np.ndarray):
             dt = dt.astype(np.float64)

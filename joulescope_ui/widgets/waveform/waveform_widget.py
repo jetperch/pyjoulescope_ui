@@ -341,7 +341,7 @@ class WaveformWidget(QtWidgets.QWidget):
         'source_filter': {
             'dtype': 'str',
             'brief': N_('The source filter string.'),
-            'default': '',
+            'default': 'JsdrvStreamBuffer:001',
         },
         'on_widget_close_actions': {
             'dtype': 'obj',
@@ -507,8 +507,6 @@ class WaveformWidget(QtWidgets.QWidget):
         signal = value
         topic = get_topic_name(source)
         item = (source, signal)
-        if item in self._signals:
-            self._signals[item]['enabled'] = True
         self.pubsub.subscribe(f'{topic}/settings/signals/{signal}/range',
                               self._on_signal_range_fn, ['pub', 'retain'])
         source_id, quantity = signal.split('.')
@@ -528,6 +526,16 @@ class WaveformWidget(QtWidgets.QWidget):
                 plot['signals'].remove(item)
         if item in self._signals:
             self._signals[item]['enabled'] = False
+
+    def is_signal_active(self, source_signal):
+        if not self._signals[source_signal]['enabled']:
+            return False
+        for plot in self.state['plots']:
+            if not plot['enabled']:
+                continue
+            elif source_signal in plot['signals']:
+                return True
+        return False
 
     def _source_filter_set(self):
         topic = f'{self.topic}/settings/source_filter'
@@ -575,6 +583,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def on_widget_close(self):
         for topic, value in self.pubsub.query(f'{self.topic}/settings/on_widget_close_actions', default=[]):
+            self._log.info('waveform close: %s %s', topic, value)
             self.pubsub.publish(topic, value)
 
     def _update_fps(self):
@@ -614,10 +623,11 @@ class WaveformWidget(QtWidgets.QWidget):
             self._signals[item] = d
             self._signals_by_rsp_id[self._signals_rsp_id_next] = d
             self._signals_rsp_id_next += 1
+        d['enabled'] = True
         if value != d['range']:
             d['range'] = value
             d['changed'] = time.time()
-            self._repaint_request = d['enabled']
+            self._repaint_request = self.is_signal_active(item)
         return None
 
     def _on_refresh_timer(self):
@@ -627,14 +637,15 @@ class WaveformWidget(QtWidgets.QWidget):
     def _extents(self):
         x_min = []
         x_max = []
-        for signal in self._signals.values():
-            if signal['enabled']:
+        for key, signal in self._signals.items():
+            if self.is_signal_active(key):
                 x_range = signal['range']
                 x_min.append(x_range[0])
                 x_max.append(x_range[1])
         if 0 == len(x_min):
             return [0, 0]
-        return min(x_min), max(x_max)
+        # return min(x_min), max(x_max)   # todo restore when JLS v2 supports out of range requests
+        return max(x_min), min(x_max)
 
     def _compute_x_range(self):
         e0, e1 = self._extents()
@@ -662,8 +673,11 @@ class WaveformWidget(QtWidgets.QWidget):
         if not len(self._x_geometry_info):
             return
         self.x_range = self._compute_x_range()
-        for signal in self._signals.values():
-            if not signal['enabled']:
+        # x0, x1 = self.x_range
+        # xc = (x0 >> 1) + (x1 >> 1)
+        # self._log.info(f'request x_range({x0}, {x1}) {xc} {time64.as_datetime(xc)}')
+        for key, signal in self._signals.items():
+            if not self.is_signal_active(key):
                 continue
             if force or signal['changed']:
                 signal['changed'] = None
@@ -774,6 +788,9 @@ class WaveformWidget(QtWidgets.QWidget):
             }
         else:
             signal = self._signals_by_rsp_id.get(rsp_id)
+            # x0, x1 = utc['start'], utc['end']
+            # xc = (x0 >> 1) + (x1 >> 1)
+            # self._log.info(f'rsp x_range({x0}, {x1}) {xc} {time64.as_datetime(xc)}')
             if signal is None:
                 self._log.warning('Unknown signal rsp_id %s', rsp_id)
                 return

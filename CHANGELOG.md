@@ -75,7 +75,6 @@ application and migrated / ported code back in.  We have not yet
 completed this process.  Here are the features that are knowingly
 not included in this release:
 
-* JS110 waveform support (but statistics work).
 * JLS v1 read support.
 * Waveform
   * analysis tools (range tools) including USB inrush.
@@ -106,13 +105,10 @@ If you find other missing features, please post on the
 * Waveform
   * JS220 current range, GPI and trigger channels are time shifted
     from current, voltage, and power.
-  * Signals shift in time when zoom and pan near sample level.
-    This causes signal events to shift relative to markers
-    and the x-axis.
   * Missing clear streaming buffer button / feature.
   * Top summary waveform is not correct on file open until zoom/pan.
-  * Get rd_fsr_statistics PARAMETER_INVALID[5] when reading from JLS
-    due to reading slightly outside of available bounds.
+  * Crops view to extents of minimal signal. This avoids a JLS v2
+    rd_fsr_statistics PARAMETER_INVALID[5] when reading beyond bounds.
 * Lots of unused 0.10.x code in repo that needs to be pruned.
 * JS220 cannot stream all channels simultaneously.
 * "Settings" menu does not open to nice sizes.

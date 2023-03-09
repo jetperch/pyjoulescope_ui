@@ -99,16 +99,15 @@ class JlsV2:
                     return False
 
                 jls.utc(signal.signal_id, 0, utc_cbk)
+                g = time64.SECOND / signal.sample_rate
                 if utc_first is None:
-                    g = time64.SECOND / signal.sample_rate
                     time_map.update(0, 0, 1.0 / g)
                 elif utc_last[0] == utc_first[0]:
-                    time_map.update(utc_first[0], utc_first[1], 1.0 / g)
+                    time_map.update(utc_first[0], utc_first[1], g)
                 else:
                     d_utc = utc_last[1] - utc_first[1]
                     d_sample = utc_last[0] - utc_first[0]
-                    g = d_utc / d_sample
-                    time_map.update(utc_first[0], utc_first[1], 1.0 / g)
+                    time_map.update(utc_first[0], utc_first[1], d_sample / d_utc)
 
             signal_meta = copy.deepcopy(source_meta[signal.source_id])
             source_name = signal_meta['name']
@@ -125,6 +124,7 @@ class JlsV2:
                 'samples': {'start': sample_start, 'end': sample_end, 'length': signal.length},
                 'sample_rate': signal.sample_rate,
             }
+            self._log.info(f'{signal.name}: {range_meta}')
             pubsub.topic_add(f'{topic}/settings/signals/{signal_name}/range',
                              Metadata('obj', 'Signal range', default=range_meta))
             self._signals[signal_name] = {
@@ -133,6 +133,7 @@ class JlsV2:
                 'field': signal_subname,
                 'units': signal.units,
                 'data_type': data_type_as_str(signal.data_type),
+                'length': signal.length,
             }
 
     def _handle_request(self, value):
@@ -163,15 +164,16 @@ class JlsV2:
         elif length is None:
             self._log.info('fsr(%d, %d, %d)', signal_id, start, interval)
             data = self._jls.fsr(signal_id, start, interval)
-        elif length and end and length < (interval // 2):
-            # round increment down and increase length as needed
+        elif length and end and length <= (interval // 2):
+            # round increment down
             increment = interval // length
-            length = (end - start + 1) // increment
-            # self._log.info('fsr_statistics(%d, %d, %d, %d)', signal_id, start, increment, length)
+            length = interval // increment
+            self._log.info('fsr_statistics(%d, %d, %d, %d)', signal_id, start, increment, length)
             data = self._jls.fsr_statistics(signal_id, start, increment, length)
             response_type = 'summary'
             data_type = 'f32'
         else:
+            length = interval
             self._log.info('fsr(%d, %d, %d)', signal_id, start, length)
             data = self._jls.fsr(signal_id, start, length)
         sample_id_end = start + increment * (length - 1)
@@ -182,7 +184,7 @@ class JlsV2:
             'units': signal['units'],
             'time_range_utc': {
                 'start': self._time_map.counter_to_time64(start),
-                'end': self._time_map.counter_to_time64(end),
+                'end': self._time_map.counter_to_time64(sample_id_end),
                 'length': length,
             },
             'time_range_samples': {
@@ -224,6 +226,8 @@ class JlsV2:
                     self._handle_request(value)
             except Exception:
                 self._log.exception(f'While processing {cmd}')
+        if self._jls is not None:
+            self._jls.close()
 
 
 @register
@@ -284,10 +288,12 @@ class JlsSource:
 
     def _close(self):
         if self._jls is not None:
+            _log.info('close %s', self.path)
             jls, self._jls, thread, self._thread = self._jls, None, self._thread, None
             jls.quit()
             if thread is not None:
                 thread.join()
+            _log.info('close done %s', self.path)
 
     def on_action_close(self):
         self._close()

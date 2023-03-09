@@ -260,7 +260,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self._pubsub.publish('registry/view/settings/active', 'view:oscilloscope')
             self._pubsub.publish('registry/view/actions/!widget_open', {
                 'value': 'WaveformWidget',
-                'kwargs': {'source_filter': 'JsdrvStreamBuffer:001'}
+                'kwargs': {'source_filter': 'JsdrvStreamBuffer:001'},
             })
             self._center(resize=True)
 

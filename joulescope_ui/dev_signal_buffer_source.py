@@ -139,7 +139,6 @@ class DevSignalBufferSource:
         else:
             raise ValueError(f'invalid time_type {time_type}')
 
-
         rsp = {
             'version': 1,
             'rsp_id': value['rsp_id'],

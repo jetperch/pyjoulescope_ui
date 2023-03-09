@@ -77,14 +77,13 @@ class SignalRecord:
                 self._source_add(source, value['source'])
             self._signal_add(source, topic, value)
         signal = self._signals[topic]
-        utc_now = value['utc']
-        utc_last = signal['utc_last']
         sample_id = value['sample_id']
-        if (utc_now - utc_last) >= _UTC_INTERVAL:
+        utc_now = value['utc']
+        utc = [sample_id, utc_now]
+        if signal['utc_entry_prev'] is None or (utc_now - signal['utc_entry_prev'][1]) >= _UTC_INTERVAL:
             self._jls.utc(signal['id'], sample_id, utc_now)
-            signal['time_map'] = None
-        else:
-            signal['time_map'] = [sample_id, utc_last]
+            signal['utc_entry_prev'] = utc
+        signal['utc_data_prev'] = utc
         x = np.ascontiguousarray(value['data'])
         self._jls.fsr_f32(signal['id'], sample_id, x)
 
@@ -123,8 +122,8 @@ class SignalRecord:
         )
         self._signals[topic] = {
             'id': self._signal_idx,
-            'utc_last': 0,
-            'time_map': None
+            'utc_entry_prev': None,    # the previous UTC entry
+            'utc_data_prev': None,   # the previous UTC info from streaming sample data
         }
         self._signal_idx += 1
 
@@ -137,10 +136,8 @@ class SignalRecord:
             pubsub_singleton.unsubscribe(topic, fn, flags)
         self._subscribe_entries.clear()
         for signal in self._signals.values():
-            time_map = signal['time_map']
-            if time_map is None:
-                continue
-            jls.utc(signal['id'], *time_map)
+            if signal['utc_data_prev'] is not None and signal['utc_data_prev'] != signal['utc_entry_prev']:
+                jls.utc(signal['id'], *signal['utc_data_prev'])
         jls.close()
         if self == SignalRecord._singleton:
             SignalRecord._singleton = None
