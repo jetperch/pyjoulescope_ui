@@ -211,7 +211,7 @@ setuptools.setup(
         'pyjoulescope_driver>=' + JOULESCOPE_DRIVER_VERSION_MIN,
         'markdown',
         'psutil',
-        'pyjls>=0.4.4',
+        'pyjls>=0.5.0',
         'pyopengl',
         'pyperclip>=1.7.0',
         "pywin32>=223; platform_system == 'Windows'",

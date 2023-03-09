@@ -15,7 +15,7 @@
 # https://stackoverflow.com/questions/11874767/real-time-plotting-in-while-loop-with-matplotlib
 # https://wiki.qt.io/Gallery_of_Qt_CSS_Based_Styles
 
-from joulescope_ui import pubsub_singleton, N_, get_topic_name, tooltip_format, CAPABILITIES, Metadata
+from joulescope_ui import pubsub_singleton, N_, get_topic_name, tooltip_format, CAPABILITIES, Metadata, __version__
 from joulescope_ui.widgets import *   # registers all built-in widgets
 from joulescope_ui.logging_util import logging_preconfig, logging_config
 from joulescope_ui.styles.manager import style_settings
@@ -129,6 +129,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self._dialog = None
         self._pubsub = pubsub_singleton
         self.SETTINGS = style_settings(N_('UI'))
+        self.SETTINGS['changelog_version_show'] = {
+            'dtype': 'str',
+            'brief': 'The version for the last changelog show',
+            'default': '__default__',
+        }
         self._pubsub.register(self, 'ui', parent=None)
         self._app = App().register()
         self._paths = Paths().register()
@@ -289,6 +294,12 @@ class MainWindow(QtWidgets.QMainWindow):
                 callback=self._do_cbk,
                 path=self._pubsub.query('common/settings/paths/update'),
                 channel=self._pubsub.query('registry/app/settings/software_update_channel'))
+
+        # display changelog on version change
+        topic = f'{self.topic}/settings/changelog_version_show'
+        if __version__ != self._pubsub.query(topic, default=None):
+            self._pubsub.publish(topic, __version__)
+            self._pubsub.publish('registry/help_html/actions/!show', 'changelog')
 
     def _center(self, resize=None):
         screen = self.screen()

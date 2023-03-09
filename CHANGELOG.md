@@ -30,7 +30,7 @@ This first alpha release nearly reaches feature parity with
 the previous 0.10.x release.
 
 
-2023 Mar 7 [in progress]
+2023 Mar 9
 
 * Migrated to new PubSub implementation from CommandProcessor + Preferences.
 * New dock window system
