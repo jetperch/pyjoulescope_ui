@@ -23,8 +23,8 @@ from joulescope_ui.capabilities import CAPABILITIES
 class TestCapabilities(unittest.TestCase):
 
     def test_basic(self):
-        self.assertEqual('signal.source', CAPABILITIES.SIGNAL_SOURCE.value)
-        self.assertEqual('signal.source', str(CAPABILITIES.SIGNAL_SOURCE))
+        self.assertEqual('signal_stream.source', CAPABILITIES.SIGNAL_STREAM_SOURCE.value)
+        self.assertEqual('signal_stream.source', str(CAPABILITIES.SIGNAL_STREAM_SOURCE))
 
     def test_in(self):
         self.assertEqual('widget.class', str(CAPABILITIES('widget.class')))

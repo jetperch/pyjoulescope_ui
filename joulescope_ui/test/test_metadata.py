@@ -163,7 +163,16 @@ class TestMetadata(unittest.TestCase):
         self.assertEqual(42, m.default)
 
     def test_to_map(self):
-        m = Metadata('int', brief='My int', default=42)
+        m = Metadata(
+            'int',
+            brief='My int',
+            detail='My detail description.',
+            default=42,
+            options=[[1, 'one'], [42, 'answer']],
+            range=[0, 100],
+            format='%d',
+            flags=['hidden'],
+        )
         k = m.to_map()
         self.assertEqual(m.dtype, k['dtype'])
         for key in ['dtype', 'brief', 'detail', 'default', 'options', 'range', 'format', 'flags']:
