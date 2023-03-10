@@ -483,6 +483,7 @@ class PubSub:
         if 'win32' in sys.platform:
             from win32com.shell import shell, shellcon
             user_path = shell.SHGetFolderPath(0, shellcon.CSIDL_PERSONAL, None, 0)
+            user_path = os.path.join(user_path, self._app)
             appdata_path = shell.SHGetFolderPath(0, shellcon.CSIDL_LOCAL_APPDATA, None, 0)
             app_path = os.path.join(appdata_path, self._app)
         elif 'darwin' in sys.platform:
@@ -503,7 +504,7 @@ class PubSub:
         self.topic_add('common/settings/paths/log', 'str', 'Log directory', default=os.path.join(app_path, 'log'))
         self.topic_add('common/settings/paths/styles', 'str', 'Rendered styles', default=os.path.join(app_path, 'styles'))
         self.topic_add('common/settings/paths/update', 'str', 'Downloads for application updates', default=os.path.join(app_path, 'update'))
-        self.topic_add('common/settings/paths/data', 'str', 'Data recordings', default=os.path.join(user_path, self._app))
+        self.topic_add('common/settings/paths/data', 'str', 'Data recordings', default=os.path.join(user_path))
 
     def _add_cmd(self, topic, update_fn):
         topic_add_value = {
