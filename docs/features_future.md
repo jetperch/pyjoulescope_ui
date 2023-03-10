@@ -70,9 +70,6 @@ will be implemented before Joulescope general availability.
     is not included in this feature.
 *   Show a visible "saturation" line (likely in a different color) where the 
     signal is above or below the current y-axis view range.
-*   Add a small navigation window that shows the full extents of the buffer
-    and a box with the view being displayed.
-*   Save waveforms as graphics to image file and clipboard.
 *   Move the selected, active marker using left/right arrow keys.
 *   Add "Zoom to area" feature that zooms both x & y axes.
 
@@ -105,10 +102,8 @@ will be implemented before Joulescope general availability.
 ### Other
 
 *   Add soft-fuse configuration once implemented in Joulescope FPGA.
-*   Automate build: [travis-ci](https://travis-ci.org/).
+*   Automate build.
 *   Measure and automate Joulescope code coverage.
-*   Automatically perform software update when required.  The existing
-    implementation just directs the User to the Joulescope download page.
 *   Add automatic battery life estimation - may need to input battery 
     chemistry type & capacity.
 *   Trigger on waveform: select a waveform.  Then trigger and overlay similar.

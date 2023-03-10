@@ -124,11 +124,11 @@ If you find other missing features, please post on the
   * Top summary waveform is not correct on file open until zoom/pan.
   * Crops view to extents of minimal signal. This avoids a JLS v2
     rd_fsr_statistics PARAMETER_INVALID[5] when reading beyond bounds.
-* Lots of unused 0.10.x code in repo that needs to be pruned.
 * JS220 cannot stream all channels simultaneously.
 * "Settings" menu does not open to nice sizes.
 * JLS v2 file format does not yet implement corrupted file recovery.
 * Menu View does not indicate active view.
+* Device control expanded/hidden status not restored on view switch.
 
 
 ### JS220 features still not implemented

@@ -16,7 +16,7 @@ https://github.com/jetperch/pyjoulescope_ui.
 For the list of changes by release, see the [Changelog](CHANGELOG.md).
 
 The Joulescope UI is under active development, and many features remain
-outstanding. See the [future features document](features_future.md) for details.
+outstanding. See the [future features document](docs/features_future.md) for details.
 
 
 ## Quick start using official distribution
@@ -35,15 +35,15 @@ run directly from source.
 
 ### Install Python
 
-The Joulescope User Interface requires Python 3.8 or newer.
+The Joulescope User Interface requires Python 3.9 or newer.
 We recommend Python 3.10.
-Install [Python 3.8+](https://www.python.org/) on your system and then verify
+Install [Python 3.9+](https://www.python.org/) on your system and then verify
 your python version at the terminal or command line:
 
     > python3 -VV
-    Python 3.10.7 (tags/v3.10.7:6cc6b13, Sep  5 2022, 14:08:36) [MSC v.1933 64 bit (AMD64)]
+    Python 3.10.10 (tags/v3.10.10:aad5f6a, Feb  7 2023, 17:20:36) [MSC v.1929 64 bit (AMD64)]
 
-Ensure that you have Python 3.8 or newer and 64-bit.
+Ensure that you have Python 3.9 or newer and 64-bit.
 
 
 ### Configure virtualenv [optional]
