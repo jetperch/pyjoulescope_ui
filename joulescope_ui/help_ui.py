@@ -32,6 +32,22 @@ _HELP_FILES = {
     'getting_started': 'getting_started.html',
     'preferences': 'preferences.html',
 }
+_MD_HEADER = """\
+<!DOCTYPE html>
+<html lang=en>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>Joulescope Credits</title>
+  {style}
+</head>
+
+<body>
+"""
+_MD_FOOTER = """
+</body>
+</html>
+"""
 
 
 def _load_filename(filename):
@@ -58,6 +74,7 @@ def load_help(name, style=None):
         if filename.endswith('.md'):
             md = markdown.Markdown()
             html = md.convert(html)
+            html = _MD_HEADER + html + _MD_FOOTER
     return format_help(name, html, style)
 
 
