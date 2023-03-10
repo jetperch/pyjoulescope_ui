@@ -253,7 +253,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self._pubsub.subscribe('registry_manager/capabilities/widget.class/list',
                                    self._on_change_widgets, flags=['pub', 'retain'])
 
-        # todo restore view
         if is_config_load:
             self._pubsub.publish('registry/view/settings/active', view_active)
         elif filename is not None:

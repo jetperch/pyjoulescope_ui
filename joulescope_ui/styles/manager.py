@@ -200,18 +200,6 @@ class StyleManager:
         self._log = logging.getLogger(__name__)
         self.pubsub = pubsub
         self._dialog = None
-        # self.pubsub.subscribe('common/settings/paths/styles', self._on_path, ['pub'])  # todo
-        # self.pubsub.subscribe('common/settings/profile/active', self._on_profile, ['pub'])  # todo
-        # self.pubsub.subscribe('registry/ui/settings/theme', self._on_theme, ['pub'])
-        # ui_color_scheme_topic = 'registry/ui/settings/color_scheme'
-        # self.pubsub.subscribe(ui_color_scheme_topic, self._on_color_scheme, ['pub'])
-
-        # if self.pubsub.query(ui_color_scheme_topic, default=None) is None:
-        #     color_scheme_name = self.pubsub.query('registry/ui/settings/color_scheme_name', default='dark')
-        #     color_scheme = self._color_scheme_load(color_scheme_name)
-        #     self.pubsub.publish(ui_color_scheme_topic, color_scheme)
-        # if not os.path.isdir(path):
-        #     self.render()
 
     @property
     def path(self):

@@ -106,6 +106,7 @@ not included in this release:
   * File → Open Recent
   * Path management
 * ALL key bindings (no key presses work for now)
+* Clear accumulator (workaround: close & reopen UI)
 
 If you find other missing features, please post on the 
 [Joulescope forum](https://forum.joulescope.com/).
@@ -129,6 +130,13 @@ If you find other missing features, please post on the
 * JLS v2 file format does not yet implement corrupted file recovery.
 * Menu View does not indicate active view.
 * Device control expanded/hidden status not restored on view switch.
+* UI sometimes hangs on close on Windows.
+* Starting the UI with a different Joulescope causes unusual behavior.
+* Using the UI with multiple Joulescopes is only partially supported.
+  Value / Multimeter is great.  Waveform displays the signals in
+  the same color  without any configuration / selection options.
+* Flyout sidebar menu does not indicate which flyout is active.
+* Value widget does not accrue standard deviation.
 
 
 ### JS220 features still not implemented
