@@ -487,10 +487,10 @@ class PubSub:
             app_path = os.path.join(appdata_path, self._app)
         elif 'darwin' in sys.platform:
             user_path = os.path.join(os.path.expanduser('~'), 'Documents', self._app)
-            app_path = os.path.join(user_path, 'Library', 'Application Support', self._app)
+            app_path = os.path.join(os.path.expanduser('~'), 'Library', 'Application Support', self._app)
         elif 'linux' in sys.platform:
             user_path = os.path.join(os.path.expanduser('~'), 'Documents', self._app)
-            app_path = os.path.join(user_path, '.' + self._app)
+            app_path = os.path.join(os.path.expanduser('~'), '.' + self._app)
         else:
             raise RuntimeError('unsupported platform')
 
@@ -1442,6 +1442,7 @@ class PubSub:
             'registry': self._to_obj('registry')[1],
         }
         if isinstance(fh, str):
+            os.makedirs(os.path.dirname(fh), exist_ok=True)
             fh = open(fh, 'wt')
             do_close = True
         try:

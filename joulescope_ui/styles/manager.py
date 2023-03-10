@@ -31,6 +31,7 @@ import time
 
 _template_replace = re.compile(r'{%\s*([a-zA-Z0-9_\.]+)\s*%}')
 RENDER_TOPIC = f'registry/StyleManager:0/actions/!render'
+_log = logging.getLogger(__name__)
 
 
 def name_setting(name):
@@ -80,9 +81,12 @@ def style_settings(name):
 def _get_data(package, resource, default=None, encoding=None):
     try:
         data = pkgutil.get_data(package, resource)
+        # _log.info('get_data load %s:%s | %s', package, resource, data)
     except FileNotFoundError:
+        # _log.info('get_data could not load %s:%s | %s', package, resource, default)
         data = None
     if data is None:
+        # _log.info('get_data load default %s:%s | %s', package, resource, default)
         data = default
     if isinstance(data, bytes) and encoding is not None:
         data = data.decode(encoding)
@@ -362,10 +366,11 @@ class StyleManager:
             return v
 
         for template in index['templates']:
-            self._log.info('render template %s:%s', package, template)
+            path = theme_prefix + template
+            self._log.info('render template %s:%s', package, path)
             data = pkgutil.get_data(package, theme_prefix + template)
             if data is None:
-                self._log.warning('template not found: %s', template)
+                self._log.warning('template not found: %s', path)
                 return
             data = data.replace(b'\r\n', b'\n').decode('utf-8')
             s = _template_replace.sub(replace, data)

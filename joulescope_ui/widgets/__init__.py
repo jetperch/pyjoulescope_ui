@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from .device_control import DeviceControlWidget
-from .example import ExampleWidget
+# from .example import ExampleWidget
 from .memory import MemoryWidget
 from .hamburger import HamburgerWidget
 from .help import HelpWidget

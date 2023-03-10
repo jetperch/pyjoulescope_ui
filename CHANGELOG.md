@@ -62,10 +62,22 @@ the previous 0.10.x release.
 ### Tips for use
 
 * Settings are still a work in progress.  If you get stuck,
-  select File → Exit and clear config.  You can also manually
-  delete the settings file.
+  select File → "Exit and clear config".  You can also manually
+  delete the settings file:
   * Windows: %LOCALAPPDATA%\joulescope\config\joulescope_ui_config.json
-  * macOS: 
+  * macOS: ~/Library/Application Support/joulescope/config/joulescope_ui_config.json
+  * linux: ~/.joulescope/config/joulescope_ui_config.json
+* Hover the mouse over items to display tooltips
+* Right-click (control click on macOS) for context-sensitive menus.
+* Visit the [forum](https://forum.joulescope.com/) to post 
+  questions, feedback, and issues.  Feel free to also create
+  [GitHub issues](https://github.com/jetperch/pyjoulescope_ui/issues).
+* Before opening a file, select View → File.  While you can open
+  a file in any view, it often helps keep things less confusing
+  if you use a separate view.
+* When you open the UI, it returns exactly to where you left off.
+  This can be confusing if you were viewing a JLS file and you
+  are expecting live data.  Select View → Oscilloscope.
 
 
 ### Features temporarily removed
@@ -103,6 +115,9 @@ If you find other missing features, please post on the
 
 * Style settings linked between widgets of same class.
 * Waveform
+  * The waveform defaults to fastest possible frame rate (vsync),
+    which may not be desirable.  Right click on waveform,
+    select settings, fps to change.
   * JS220 current range, GPI and trigger channels are time shifted
     from current, voltage, and power.
   * Missing clear streaming buffer button / feature.
@@ -113,6 +128,7 @@ If you find other missing features, please post on the
 * JS220 cannot stream all channels simultaneously.
 * "Settings" menu does not open to nice sizes.
 * JLS v2 file format does not yet implement corrupted file recovery.
+* Menu View does not indicate active view.
 
 
 ### JS220 features still not implemented

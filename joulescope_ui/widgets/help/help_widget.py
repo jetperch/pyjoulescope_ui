@@ -15,9 +15,10 @@
 from PySide6 import QtWidgets
 from joulescope_ui import register
 from joulescope_ui.help_ui import format_help
+from joulescope_ui.styles import styled_widget
 
 
-_TALK = """\
+_HELP = """\
 <html>
 <head>
 {style}
@@ -40,23 +41,29 @@ _TALK = """\
 
 
 @register
+@styled_widget('Help')
 class HelpWidget(QtWidgets.QWidget):
     CAPABILITIES = []
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self.setObjectName('talk_widget')
+        self.setObjectName('help_widget')
         self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         self._layout = QtWidgets.QVBoxLayout()
         self._layout.setContentsMargins(0, 0, 0, 0)
         self._layout.setSpacing(0)
         self.setLayout(self._layout)
 
-        _, html = format_help('Help', _TALK)
-        self._label = QtWidgets.QLabel(html, self)
+        self._label = QtWidgets.QLabel('', self)
         self._label.setWordWrap(True)
         self._label.setOpenExternalLinks(True)
         self._layout.addWidget(self._label)
 
         self._spacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self._layout.addItem(self._spacer)
+
+        self.on_style_change()
+
+    def on_style_change(self):
+        _, html = format_help('Help', _HELP)
+        self._label.setText(html)

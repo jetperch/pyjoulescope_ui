@@ -78,9 +78,15 @@ class SignalRecord:
             self._signal_add(source, topic, value)
         signal = self._signals[topic]
         sample_id = value['sample_id']
+        sample_id_offset = signal['sample_id_offset']
+        if sample_id_offset is None:
+            sample_id_offset = sample_id
+            signal['sample_id_offset'] = sample_id
+        sample_id = sample_id - sample_id_offset
         utc_now = value['utc']
         utc = [sample_id, utc_now]
         if signal['utc_entry_prev'] is None or (utc_now - signal['utc_entry_prev'][1]) >= _UTC_INTERVAL:
+            self._log.info('utc %s: %s, %s | offset=%s', signal['name'], sample_id, utc_now, sample_id_offset)
             self._jls.utc(signal['id'], sample_id, utc_now)
             signal['utc_entry_prev'] = utc
         signal['utc_data_prev'] = utc
@@ -122,6 +128,8 @@ class SignalRecord:
         )
         self._signals[topic] = {
             'id': self._signal_idx,
+            'name': value['field'],
+            'sample_id_offset': None,
             'utc_entry_prev': None,    # the previous UTC entry
             'utc_data_prev': None,   # the previous UTC info from streaming sample data
         }
@@ -137,6 +145,7 @@ class SignalRecord:
         self._subscribe_entries.clear()
         for signal in self._signals.values():
             if signal['utc_data_prev'] is not None and signal['utc_data_prev'] != signal['utc_entry_prev']:
+                self._log.info('utc %s: %s', signal['name'], signal['utc_data_prev'])
                 jls.utc(signal['id'], *signal['utc_data_prev'])
         jls.close()
         if self == SignalRecord._singleton:

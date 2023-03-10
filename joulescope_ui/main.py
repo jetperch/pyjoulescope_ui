@@ -436,7 +436,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self._log.info('closeEvent()')
         _device_factory_finalize()
         self._pubsub.publish('registry/JlsSource/actions/!finalize', None)
-        # todo pubsub save
         return super(MainWindow, self).closeEvent(event)
 
     def on_action_close(self, value):

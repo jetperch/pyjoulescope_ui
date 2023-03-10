@@ -15,9 +15,8 @@
 from PySide6 import QtCore, QtGui, QtWidgets
 from joulescope_ui.expanding_widget import ExpandingWidget
 import logging
-from joulescope_ui import N_, register, tooltip_format, pubsub_singleton, get_topic_name, Metadata
-from joulescope_ui.devices.jsdrv.js110 import SETTINGS as JS110_SETTINGS
-from joulescope_ui.devices.jsdrv.js220 import SETTINGS as JS220_SETTINGS
+from joulescope_ui import N_, register, tooltip_format, pubsub_singleton, \
+    get_instance, get_topic_name, Metadata
 from joulescope_ui.ui_util import comboBoxConfig
 from .device_info_dialog import DeviceInfoDialog
 import webbrowser
@@ -102,14 +101,13 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         self._log = logging.getLogger(f'{__name__}.{unique_id}')
         if 'JS110' in unique_id:
             self._USERS_GUIDE_URL = JS110_USERS_GUIDE_URL
-            self._DEVICE_SETTINGS = JS110_SETTINGS
             self._GPI_SIGNALS = ['0', '1']
         elif 'JS220' in unique_id:
             self._USERS_GUIDE_URL = JS220_USERS_GUIDE_URL
-            self._DEVICE_SETTINGS = JS220_SETTINGS
             self._GPI_SIGNALS = ['0', '1', '2', '3', 'T']
         else:
             raise ValueError(f'unsupported device {unique_id}')
+        self._DEVICE_SETTINGS = get_instance(unique_id).SETTINGS
         self._buttons_blink = []
         self._target_power_button: QtWidgets.QPushButton = None
         self._info_button: QtWidgets.QPushButton = None

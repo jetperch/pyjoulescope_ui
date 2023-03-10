@@ -58,7 +58,6 @@ class JlsV2:
         self._topic = topic
         self._jls = None
         self._quit = False
-        self._time_map = TimeMap()
         self._signals = {}
         self._queue = queue.Queue()
         self.open()
@@ -69,7 +68,6 @@ class JlsV2:
         jls = Reader(self._path)
         self._jls = jls
         source_meta = {}
-        time_map = self._time_map
 
         for source_id, source in jls.sources.items():
             pubsub.topic_add(f'{topic}/settings/sources/{source_id}/name',
@@ -85,6 +83,7 @@ class JlsV2:
                              Metadata('obj', 'Source metadata', default=meta))
             source_meta[source_id] = meta
         for signal_id, signal in jls.signals.items():
+            time_map = TimeMap()
             if signal.name not in TO_UI_SIGNAL_NAME:
                 continue  # unsupported by UI, skip
             if signal.signal_type == SignalType.FSR:
@@ -134,6 +133,7 @@ class JlsV2:
                 'units': signal.units,
                 'data_type': data_type_as_str(signal.data_type),
                 'length': signal.length,
+                'time_map': time_map,
             }
 
     def _handle_request(self, value):
@@ -145,8 +145,9 @@ class JlsV2:
         signal = self._signals[value['signal_id']]
         signal_id = signal['signal_id']
         if value['time_type'] == 'utc':
-            start = self._time_map.time64_to_counter(value['start'], dtype=np.int64)
-            end = self._time_map.time64_to_counter(value['end'], dtype=np.int64)
+            time_map = signal['time_map']
+            start = time_map.time64_to_counter(value['start'], dtype=np.int64)
+            end = time_map.time64_to_counter(value['end'], dtype=np.int64)
         else:
             start = value['start']
             end = value['end']
@@ -177,14 +178,15 @@ class JlsV2:
             self._log.info('fsr(%d, %d, %d)', signal_id, start, length)
             data = self._jls.fsr(signal_id, start, length)
         sample_id_end = start + increment * (length - 1)
+        time_map = signal['time_map']
 
         info = {
             'version': 1,
             'field': signal['field'],
             'units': signal['units'],
             'time_range_utc': {
-                'start': self._time_map.counter_to_time64(start),
-                'end': self._time_map.counter_to_time64(sample_id_end),
+                'start': time_map.counter_to_time64(start),
+                'end': time_map.counter_to_time64(sample_id_end),
                 'length': length,
             },
             'time_range_samples': {
@@ -193,8 +195,8 @@ class JlsV2:
                 'length': length,
             },
             'time_map': {
-                'offset_time': self._time_map.time_offset,
-                'offset_counter': self._time_map.counter_offset,
+                'offset_time': time_map.time_offset,
+                'offset_counter': time_map.counter_offset,
                 'counter_rate': signal['sample_rate'],
             },
         }

@@ -15,7 +15,7 @@
 
 from PySide6 import QtCore, QtGui, QtWidgets
 from joulescope_ui import pubsub_singleton, N_, register_decorator, \
-    get_instance, get_unique_id, get_topic_name, Metadata
+    get_instance, get_unique_id, get_topic_name, Metadata, tooltip_format
 from joulescope_ui.ui_util import comboBoxConfig, comboBoxSelectItemByText
 from joulescope_ui.styles import styled_widget, font_as_qfont, font_as_qss
 from joulescope_ui.styles.color_picker import ColorItem
@@ -110,14 +110,19 @@ class SettingsEditorWidget(_GridWidget):
 
         settings_topic = f'{topic}/{setting}'
         meta: Metadata = pubsub_singleton.metadata(settings_topic)
+        tooltip = tooltip_format(meta.brief, meta.detail)
+        label.setToolTip(tooltip)
+        w = None
         if meta.options is not None and len(meta.options):
-            self._insert_combobox(settings_topic, meta)
+            w = self._insert_combobox(settings_topic, meta)
         elif meta.dtype == 'bool':
-            self._insert_bool(settings_topic)
+            w = self._insert_bool(settings_topic)
         elif meta.dtype == 'str':
-            self._insert_str(settings_topic, meta)
+            w = self._insert_str(settings_topic, meta)
         else:
             pass
+        if w is not None:
+            w.setToolTip(tooltip)
         self._row += 1
 
     def _subscribe(self, topic, update_fn):
@@ -136,6 +141,7 @@ class SettingsEditorWidget(_GridWidget):
             widget.blockSignals(block_state)
 
         self._subscribe(topic, handle)
+        return widget
 
     def _insert_str(self, topic, meta):
         widget = QtWidgets.QLineEdit(self)
@@ -149,6 +155,7 @@ class SettingsEditorWidget(_GridWidget):
             widget.blockSignals(block_state)
 
         self._subscribe(topic, handle)
+        return widget
 
     def _insert_combobox(self, topic, meta):
         widget = QtWidgets.QComboBox(self)
@@ -170,6 +177,7 @@ class SettingsEditorWidget(_GridWidget):
                 widget.setCurrentIndex(values.index(v))
 
         self._subscribe(topic, handle)
+        return widget
 
 
 class ColorEditorWidget(_GridWidget):

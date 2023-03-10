@@ -10,6 +10,7 @@
 # hdiutil create ./dist/joulescope.dmg -srcfolder ./dist/joulescope.app -ov
 
 import sys
+import glob
 import os
 import pyqtgraph
 import subprocess
@@ -36,22 +37,32 @@ def find_site_packages():
 
 
 def parse_manifest():
-    add_files = [
-        ('CREDITS.html', 'joulescope_ui'),
-        ('CHANGELOG.md', 'joulescope_ui'),
-    ]
+    add_files = []
     with open(os.path.join(specpath, 'MANIFEST.in'), 'r', encoding='utf-8') as f:
         for line in f.readlines():
             line = line.strip()
-            print(line)
-            if not line.startswith('include'):
+            if not len(line):
                 continue
-            path = line.split(None, maxsplit=1)[-1].strip()
-            if '/' in path:
-                tgt = os.path.dirname(path)
+            parts = line.split()
+            matches = []
+            if parts[0] == 'include':
+                search = os.path.join(specpath, parts[1])
+                matches = glob.glob(search)
+            elif line.startswith('recursive-include'):
+                for pattern in parts[2:]:
+                    search = os.path.join(specpath, parts[1], '**', pattern)
+                    matches.extend(glob.glob(search, recursive=True))
             else:
-                tgt = '.'
-            add_files.append((path, tgt))
+                raise ValueError(f'unsupported MANIFEST.in line: {line}')
+
+            for src in matches:
+                tgt = os.path.dirname(os.path.relpath(src, specpath))
+                if not(tgt):
+                    add_files.append((src, '.'))
+                    add_files.append((src, 'joulescope_ui'))
+                else:
+                    add_files.append((src, tgt))
+    print(add_files)
     return add_files
 
 
