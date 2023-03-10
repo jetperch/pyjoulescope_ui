@@ -21,6 +21,7 @@ from joulescope_ui.logging_util import logging_preconfig, logging_config
 from joulescope_ui.styles.manager import style_settings
 from joulescope_ui.process_monitor import ProcessMonitor
 from joulescope_ui import software_update
+from joulescope_ui.ui_util import show_in_folder
 from joulescope_ui.dev_signal_buffer_source import DevSignalBufferSource
 from PySide6 import QtCore, QtGui, QtWidgets
 import PySide6QtAds as QtAds
@@ -236,8 +237,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 ['getting_started', N_('Getting Started'), ['registry/help_html/actions/!show', 'getting_started']],
                 #'JS220 User\'s Guide': self._help_js220_users_guide,
                 #'JS110 User\'s Guide': self._help_js110_users_guide,
-                #'&View logs...': self._view_logs,
                 ['changelog', N_('Changelog'), ['registry/help_html/actions/!show', 'changelog']],
+                ['view_logs', N_('View logs...'), ['registry/ui/actions/!view_logs', None]],
                 ['credits', N_('Credits'), ['registry/help_html/actions/!show', 'credits']],
                 ['about', N_('About'), ['registry/help_html/actions/!show', 'about']],
             ]],
@@ -431,6 +432,11 @@ class MainWindow(QtWidgets.QMainWindow):
                     'on_widget_close_actions': [[f'{get_topic_name(source)}/actions/!close', None]],
                  }
             })
+
+    def on_action_view_logs(self):
+        path = pubsub_singleton.query('common/settings/paths/log')
+        self._log.info('view logs: %s', path)
+        show_in_folder(path)
 
     def closeEvent(self, event):
         self._log.info('closeEvent()')
