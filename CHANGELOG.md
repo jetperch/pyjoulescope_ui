@@ -13,6 +13,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added JLS v1 support.
 * Fixed dual marker integral value for JLS v2 files #177
 * Fixed waveform export.
+* Added minimum 1 pixel wide rectangle fills in waveform widget.
 
 
 ## 1.0.0

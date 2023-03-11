@@ -1119,14 +1119,14 @@ class WaveformWidget(QtWidgets.QWidget):
             for idx_start, idx_stop in segment_idx[1:]:
                 z1 = d_xp[segment_idx_last]
                 z2 = d_xp[idx_start]
-                p.drawRect(z1, y0, z2 - z1, h)
+                p.drawRect(z1, y0, max(1, z2 - z1), h)
                 segment_idx_last = idx_stop
 
         xe0, xe1 = d['x'][0], d['x'][-1]
         gain = length / (xe1 - xe0)
         pr0, pr1 = [int(np.rint(gain * (z - xe0))) for z in self.x_range]
         pr0, pr1 = max(0, min(pr0, w)), max(0, min(pr1, w))
-        p.fillRect(x0 + pr0, y0, pr1 - pr0, h, s['summary_view'])
+        p.fillRect(x0 + pr0, y0, max(1, pr1 - pr0), h, s['summary_view'])
 
         d_y_avg = d['avg'][finite_idx]
         if not len(d_y_avg):
@@ -1328,7 +1328,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 for idx_start, idx_stop in segment_idx[1:]:
                     x1 = d_x[segment_idx_last]
                     x2 = d_x[idx_start]
-                    p.drawRect(x1, y0, x2 - x1, h)
+                    p.drawRect(x1, y0, max(1, x2 - x1), h)
                     segment_idx_last = idx_stop
 
             for idx_start, idx_stop in segment_idx:
