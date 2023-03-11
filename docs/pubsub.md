@@ -167,7 +167,7 @@ For object (instances), the specially named methods are:
 
 * on_action_*
 * on_setting_*
-* on_cbk_*
+* on_callback_*
 * on_event_*
 * on_pubsub_register(pubsub)
 * on_pubsub_unregister(pubsub)

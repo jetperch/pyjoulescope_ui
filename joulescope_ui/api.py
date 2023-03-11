@@ -89,7 +89,7 @@ class RegisterClassAPI:
         """
         raise NotImplementedError()
 
-    def on_cbk_myname(self, pubsub, topic, value):
+    def on_callback_myname(self, pubsub, topic, value):
         """Register an instance callback under cbk/!myname.
 
         This function can have multiple signature types.

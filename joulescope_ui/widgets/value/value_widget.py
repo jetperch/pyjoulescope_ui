@@ -262,7 +262,7 @@ class _InnerWidget(QtWidgets.QWidget):
         self._main = 'avg'
         self._fields = ['avg', 'std', 'min', 'max', 'p2p']
 
-    def on_cbk_statistics(self, value):
+    def _on_statistics(self, value):
         self._statistics = value
         self.repaint()
 
@@ -443,7 +443,7 @@ class _BaseWidget(QtWidgets.QWidget):
 
         self._default_statistics_stream_source = None
         self._statistics_stream_source = None
-        self._on_cbk_statistics_fn = self.on_cbk_statistics
+        self._on_statistics_fn = self._on_statistics
         self._on_global_statistics_stream_enable_fn = self._on_global_statistics_stream_enable
         self._statistics = None  # most recent statistics information
 
@@ -468,7 +468,7 @@ class _BaseWidget(QtWidgets.QWidget):
         return super().closeEvent(event)
 
     def _disconnect(self):
-        pubsub_singleton.unsubscribe_all(self._on_cbk_statistics_fn)
+        pubsub_singleton.unsubscribe_all(self._on_statistics_fn)
         for topic, fn in self._subscribers:
             pubsub_singleton.unsubscribe(topic, fn)
         self.repaint()
@@ -493,7 +493,7 @@ class _BaseWidget(QtWidgets.QWidget):
         source = self.source
         if source is not None:
             topic = get_topic_name(source)
-            pubsub_singleton.subscribe(f'{topic}/events/statistics/!data', self._on_cbk_statistics_fn, ['pub'])
+            pubsub_singleton.subscribe(f'{topic}/events/statistics/!data', self._on_statistics_fn, ['pub'])
         self._device_widget.device_show(self.source)
         self.repaint()
 
@@ -535,7 +535,7 @@ class _BaseWidget(QtWidgets.QWidget):
         self._statistics['time']['samples']['value'] = [v_start, x_end]
         return self._statistics
 
-    def on_cbk_statistics(self, value):
+    def _on_statistics(self, value):
         if self._accrue_widget.is_accrue:
             self._statistics = self._accum(value)
             if 'accum_start' not in self._statistics:
@@ -547,7 +547,7 @@ class _BaseWidget(QtWidgets.QWidget):
         self._device_widget.device_show(self.source)
         if not self._accrue_widget.hold:
             self._accrue_widget.accrue_duration((v_end - v_start) / sample_freq, self._statistics.get('accum_start'))
-            self._inner.on_cbk_statistics(self._statistics)
+            self._inner._on_statistics(self._statistics)
 
     def _on_global_statistics_stream_enable(self, value):
         self._accrue_widget.hold_global = not bool(value)

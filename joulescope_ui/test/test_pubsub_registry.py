@@ -83,7 +83,7 @@ class MyClass:
     def on_action_signals__current__sample_req(self, value):
         self.calls.append(['i_sample_req', value])
 
-    def on_cbk_update(self, value):
+    def on_callback_update(self, value):
         self.calls.append(['cbk_update', value])
 
     def on_setting_name(self, value):

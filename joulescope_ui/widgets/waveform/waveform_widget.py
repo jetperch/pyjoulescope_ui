@@ -734,7 +734,7 @@ class WaveformWidget(QtWidgets.QWidget):
         }
         self.pubsub.publish(topic_req, req)
 
-    def on_cbk_response(self, topic, value):
+    def on_callback_response(self, topic, value):
         utc = value['info']['time_range_utc']
         if utc['length'] == 0:
             return

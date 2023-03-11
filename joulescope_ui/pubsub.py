@@ -45,7 +45,7 @@ CLS_ACTION_PREFIX = 'on_cls_action_'
 CLS_CALLBACK_PREFIX = 'on_cls_cbk_'
 CLS_EVENT_PREFIX = 'on_cls_event_'
 ACTION_PREFIX = 'on_action_'
-CALLBACK_PREFIX = 'on_cbk_'
+CALLBACK_PREFIX = 'on_callback_'
 EVENT_PREFIX = 'on_event_'
 _PUBSUB_ATTR = '__pubsub__'
 

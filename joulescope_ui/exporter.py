@@ -113,7 +113,7 @@ class ExporterWorker:
         self._thread.start()
         self._rsp_id = 1
 
-    def on_cbk_data(self, value):
+    def on_callback_data(self, value):
         self._queue.put(value, timeout=0.5)
 
     def on_action_cancel(self):

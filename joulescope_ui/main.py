@@ -321,7 +321,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def _do_cbk(self, v):
         self._pubsub.publish('registry/ui/callbacks/!software_update', v)
 
-    def on_cbk_software_update(self, value):
+    def on_callback_software_update(self, value):
         self._software_update_thread.join()
         self._software_update_thread = None
         if not isinstance(value, dict):
