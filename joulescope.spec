@@ -111,6 +111,7 @@ a = Analysis(
         'joulescope.v0.decimators',
         'joulescope.v0.filter_fir',
         'joulescope.v0.pattern_buffer',
+        'joulescope.units',
         'numpy.core._dtype_ctypes',
         'psutil',
         'secrets', 

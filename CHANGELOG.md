@@ -9,7 +9,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 2023 Mar 11 [in progress]
 
 * Deduplicate JLS v2 requests for improved performance.
-* Modified waveform widget to only request dual marker data when needed. 
+* Modified waveform widget to only request dual marker data when needed.
+* Added JLS v1 support.
 
 
 ## 1.0.0

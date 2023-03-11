@@ -34,6 +34,7 @@ import shutil
 
 
 JOULESCOPE_DRIVER_VERSION_MIN = '1.2.0'  # also update requirements.txt
+JOULESCOPE_VERSION_MIN = '1.1.0'         # also update requirements.txt
 MYPATH = os.path.abspath(os.path.dirname(__file__))
 VERSION_PATH = os.path.join(MYPATH, 'joulescope_ui', 'version.py')
 
@@ -208,7 +209,8 @@ setuptools.setup(
     install_requires=[
         'appnope>=0.1.2',
         'fs',
-        'pyjoulescope_driver>=' + JOULESCOPE_DRIVER_VERSION_MIN,
+        f'pyjoulescope_driver>={JOULESCOPE_DRIVER_VERSION_MIN},<2.0.0',
+        f'joulescope>={JOULESCOPE_VERSION_MIN},<2.0.0',
         'markdown',
         'psutil',
         'pyjls>=0.5.0',
@@ -216,12 +218,12 @@ setuptools.setup(
         'pyperclip>=1.7.0',
         "pywin32>=223; platform_system == 'Windows'",
         'pyqtgraph>=0.13.1',
-        'PySide6>=6.3.0',
-        'PySide6-QtAds>=3.8.3.1',
+        'PySide6>=6.3.0,<7.0.0',
+        'PySide6-QtAds>=3.8.3.1,<4.0.0',
         'python-dateutil>=2.7.3',
         'QtPy',
         # 'pyqtgraph @ https://github.com/jetperch/pyqtgraph/tarball/557e867b377b223589c0c8ffd0799c547965fb46#egg=pyqtgraph-0.11.0.dev1',
-        'requests>=2.0.0',
+        'requests>=2.0.0,<3.0.0',
     ] + PLATFORM_INSTALL_REQUIRES,
     
     extras_require={
