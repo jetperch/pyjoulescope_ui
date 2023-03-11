@@ -144,28 +144,30 @@ class JlsV2:
             return None
         signal = self._signals[req['signal_id']]
         signal_id = signal['signal_id']
+        req_end = req.get('end', 0)
+        length = req.get('length', 0)
         if req['time_type'] == 'utc':
             time_map = signal['time_map']
             start = time_map.time64_to_counter(req['start'], dtype=np.int64)
-            end = time_map.time64_to_counter(req['end'], dtype=np.int64)
+            end = time_map.time64_to_counter(req_end, dtype=np.int64)
         else:
             start = req['start']
-            end = req['end']
+            end = req_end
         interval = end - start + 1
-        length = req['length']
         response_type = 'samples'
         increment = 1
         data_type = signal['data_type']
 
-        if interval < 0:
-            return
-        if end is None:
+        if not req_end:
             self._log.info('fsr(%d, %d, %d)', signal_id, start, length)
             data = self._jls.fsr(signal_id, start, length)
-        elif length is None:
+        elif interval < 0:
+            self._log.warning('req with interval < 0: %r', req)
+            return None
+        elif not length:
             self._log.info('fsr(%d, %d, %d)', signal_id, start, interval)
             data = self._jls.fsr(signal_id, start, interval)
-        elif length and end and length <= (interval // 2):
+        elif length and req_end and length <= (interval // 2):
             # round increment down
             increment = interval // length
             length = interval // increment

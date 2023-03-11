@@ -143,9 +143,9 @@ class JlsSource:
                     value = requests.pop()
                     try:
                         rsp = self._jls.process(value)
+                        self.pubsub.publish(value['rsp_topic'], rsp)
                     except Exception:
                         _log.exception('During jls process')
-                    self.pubsub.publish(value['rsp_topic'], rsp)
                 continue
             if cmd == 'request':
                 key = (value['rsp_topic'], value['rsp_id'])

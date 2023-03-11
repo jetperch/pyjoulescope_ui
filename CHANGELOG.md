@@ -11,7 +11,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Deduplicate JLS v2 requests for improved performance.
 * Modified waveform widget to only request dual marker data when needed.
 * Added JLS v1 support.
-* Fixed dual marker integral value for JLS v2 files #177 
+* Fixed dual marker integral value for JLS v2 files #177
+* Fixed waveform export.
 
 
 ## 1.0.0

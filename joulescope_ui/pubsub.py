@@ -1052,6 +1052,9 @@ class PubSub:
         self._cmd_topic_remove({'topic': t})
         self.publish(REGISTRY_MANAGER_TOPICS.CAPABILITY_REMOVE, name)
 
+    def _reg_topic(self, topic, meta):
+        self._cmd_topic_add({'topic': topic, 'meta': meta, 'exists_ok': True})
+
     @_immediate
     def register(self, obj, unique_id: str = None, parent=None):
         """Register a class or instance.
@@ -1099,28 +1102,28 @@ class PubSub:
         doc = _parse_docstr(doc, unique_id)
         meta = Metadata(dtype='node', brief=doc)
         topic_name = get_topic_name(unique_id)
-        self.topic_add(topic_name, meta=meta, exists_ok=True)
-        self.topic_add(f'{topic_name}/instance', dtype='obj', brief='class', flags=['ro'], exists_ok=True)
+        self._reg_topic(topic_name, meta)
+        self._reg_topic(f'{topic_name}/instance', Metadata(dtype='obj', brief='class', flags=['ro']))
         self._topic_by_name[f'{topic_name}/instance'].value = obj
-        self.topic_add(f'{topic_name}/actions', dtype='node', brief='actions', exists_ok=True)
-        self.topic_add(f'{topic_name}/callbacks', dtype='node', brief='callbacks', exists_ok=True)
-        self.topic_add(f'{topic_name}/events', dtype='node', brief='events', exists_ok=True)
-        self.topic_add(f'{topic_name}/settings', dtype='node', brief='settings', exists_ok=True)
+        self._reg_topic(f'{topic_name}/actions', Metadata(dtype='node', brief='actions'))
+        self._reg_topic(f'{topic_name}/callbacks', Metadata(dtype='node', brief='callbacks'))
+        self._reg_topic(f'{topic_name}/events', Metadata(dtype='node', brief='events'))
+        self._reg_topic(f'{topic_name}/settings', Metadata(dtype='node', brief='settings'))
         if isinstance(obj, type):
-            self.topic_add(f'{topic_name}/instances', dtype='obj', brief='instances', default=[], exists_ok=True)
+            self._reg_topic(f'{topic_name}/instances', Metadata(dtype='obj', brief='instances', default=[]))
         else:
             cls_unique_id = getattr(obj.__class__, 'unique_id', None)
             if cls_unique_id is not None:
-                self.topic_add(f'{topic_name}/instance_of', dtype='str', brief='instance of',
-                               default=cls_unique_id, flags=['ro'], exists_ok=True)
+                self._reg_topic(f'{topic_name}/instance_of',
+                                Metadata(dtype='str', brief='instance of', default=cls_unique_id, flags=['ro']))
                 instances_topic = get_topic_name(cls_unique_id) + '/instances'
                 instances = self.query(instances_topic)
                 if unique_id not in instances:
                     self.publish(instances_topic, instances + [unique_id])
-            self.topic_add(f'{topic_name}/parent',
-                           dtype='str', brief='unique id for the parent', default='', exists_ok=True)
-            self.topic_add(f'{topic_name}/children',
-                           dtype='obj', brief='list of unique ids for children', default=[], exists_ok=True)
+            self._reg_topic(f'{topic_name}/parent',
+                            Metadata(dtype='str', brief='unique id for the parent', default=''))
+            self._reg_topic(f'{topic_name}/children',
+                            Metadata(dtype='obj', brief='list of unique ids for children', default=[]))
 
         self._register_events(obj, unique_id)
         self._register_functions(obj, unique_id)

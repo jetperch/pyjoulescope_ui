@@ -178,6 +178,8 @@ class JlsV1:
         """
         if self._jls is None:
             return None
+        req_end = req.get('end', 0)
+        length = req.get('length', 0)
         if req['time_type'] == 'utc':
             time_map = self._time_map
             start = time_map.time64_to_counter(req['start'], dtype=np.int64)
@@ -187,19 +189,19 @@ class JlsV1:
             end = req['end']
         signal_id = req['signal_id']
         interval = end - start + 1
-        length = req['length']
         response_type = 'samples'
         increment = 1
         signal_name = signal_id.split('.')[-1]
         signal = SIGNALS_V1[signal_name]
 
-        if interval < 0:
-            return
-        if end is None:
+        if not req_end:
             data = self._samples_get(signal_name, start, length)
-        elif length is None:
+        elif interval < 0:
+            self._log.warning('req with interval < 0: %r', req)
+            return None
+        elif not length:
             data = self._samples_get(signal_name, start, interval)
-        elif length and end and length <= (interval // 2):
+        elif length and req_end and length <= (interval // 2):
             data, increment = self._summary_get(signal_name, start, length, interval)
             length = data.shape[0]
             response_type = 'summary'

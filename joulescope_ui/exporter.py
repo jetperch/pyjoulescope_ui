@@ -19,6 +19,7 @@ from joulescope_ui import N_, time64, pubsub_singleton, register, register_decor
 from joulescope_ui.widgets import ProgressBarWidget
 from joulescope_ui.jls_v2 import TO_JLS_SIGNAL_NAME
 import datetime
+import json
 import logging
 import os
 import queue
@@ -138,7 +139,7 @@ class ExporterWorker:
                 source_idx = source.index(source) + 1
                 version = meta['version']
                 if isinstance(version, dict):
-                    version = version.get('hw')
+                    version = json.dumps(version)
                 jls.source_def(
                     source_id=source_idx,
                     name=source,
@@ -148,13 +149,13 @@ class ExporterWorker:
                     serial_number=meta['serial_number'],
                 )
             r = pubsub_singleton.query(f'{get_topic_name(source_unique_id)}/settings/signals/{signal_id}/range')
-            d = self._request(signal, 'utc', self._x_range[0], 0, 1, timeout=1.0)
+            d = self._request(signal, 'utc', self._x_range[0], 0, 1, timeout=5.0)
             info = d['info']
             jls.signal_def(
                 signal_id=jls_signal_id,
                 source_id=source.index(source) + 1,
                 signal_type=SignalType.FSR,
-                data_type=info['element_type'],
+                data_type=d['data_type'],
                 sample_rate=info['time_map']['counter_rate'],
                 name=TO_JLS_SIGNAL_NAME[info['field']],
                 units=info['units'],
