@@ -49,6 +49,33 @@ def _jls_version_detect(filename):
         raise RuntimeError('unsupported file prefix')
 
 
+class _Dedup:
+    """A deduplicating FIFO dict.
+
+    A normal dict with popitem would work, but popitem
+    operates in LIFO order.  This implementation ensures
+    FIFO order by using a separate list to keep key order.
+
+    See https://docs.python.org/3/library/stdtypes.html?highlight=popitem#dict.popitem
+    """
+
+    def __init__(self):
+        self._dict = {}
+        self._order = []
+
+    def __len__(self):
+        return len(self._order)
+
+    def insert(self, key, value):
+        if key not in self._dict:
+            self._order.append(key)
+        self._dict[key] = value
+
+    def pop(self):
+        key = self._order.pop(0)
+        return self._dict.pop(key)
+
+
 class JlsV2:
 
     def __init__(self, path, pubsub, topic):
@@ -220,7 +247,6 @@ class JlsSource:
     SETTINGS = {}
 
     def __init__(self, path=None):
-        self._quit = False
         self._queue = queue.Queue()
 
         if path is not None:
@@ -274,23 +300,34 @@ class JlsSource:
         self._close()
 
     def run(self):
-        while not self._quit:
+        do_quit = False
+        requests = _Dedup()
+        while not do_quit:
+            timeout = 0.0 if len(requests) else 2.0
             try:
-                cmd, value = self._queue.get(timeout=0.05)
+                cmd, value = self._queue.get(timeout=timeout)
             except queue.Empty:
-                continue
-            try:
-                if cmd == 'request':
-                    rsp = self._jls.process(value)
+                if len(requests):
+                    value = requests.pop()
+                    try:
+                        rsp = self._jls.process(value)
+                    except Exception:
+                        _log.exception('During jls process')
                     self.pubsub.publish(value['rsp_topic'], rsp)
-            except Exception:
-                self._log.exception(f'While processing {cmd}')
+                continue
+            if cmd == 'request':
+                key = (value['rsp_topic'], value['rsp_id'])
+                requests.insert(key, value)
+            elif cmd == 'close':
+                do_quit = True
+            else:
+                _log.warning('unsupported command %s', cmd)
 
     def close(self):
         _log.info('close %s', self.path)
-        self._quit = True
         jls, self._jls, thread, self._thread = self._jls, None, self._thread, None
         if thread is not None:
+            self._queue.put(['close', None])
             thread.join()
         if jls is not None:
             jls.close()

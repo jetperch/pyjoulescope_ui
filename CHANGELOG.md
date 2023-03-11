@@ -4,6 +4,13 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 1.0.1
+
+2023 Mar 11 [in progress]
+
+* Deduplicate JLS v2 requests for improved performance. 
+
+
 ## 1.0.0
 
 <span style="color:yellow">⚠ ALPHA RELEASE - USE WITH CAUTION ⚠</span> 
