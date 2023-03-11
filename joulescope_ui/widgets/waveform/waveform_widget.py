@@ -99,6 +99,7 @@ _STATE_DEFAULT = {
         # dtype: 'single' or 'dual'
         # pos1: The marker position in time64
         # pos2: For single: not present.  For dual: the second marker position in time64.
+        # changed: if position changed and data request needed
 }
 
 
@@ -676,19 +677,23 @@ class WaveformWidget(QtWidgets.QWidget):
         # x0, x1 = self.x_range
         # xc = (x0 >> 1) + (x1 >> 1)
         # self._log.info(f'request x_range({x0}, {x1}) {xc} {time64.as_datetime(xc)}')
+        changed = False
         for key, signal in self._signals.items():
             if not self.is_signal_active(key):
                 continue
             if force or signal['changed']:
                 signal['changed'] = None
                 self._request_signal(signal, self.x_range)
+                changed = True
                 if first:
                     summary_length = self._summary_geometry()[2]  # width in pixels
                     self._request_signal(signal, self._extents(), rsp_id=1, length=summary_length)
             first = False
         if self.state is not None:
             for m in self.state['x_markers']:
-                self._request_marker_data(m)
+                if m.get('changed', True) or changed:
+                    m['changed'] = False
+                    self._request_marker_data(m)
 
     def _request_marker_data(self, marker):
         if marker['dtype'] != 'dual':
@@ -1854,6 +1859,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 item = self._mouse_action[1]
                 _, m_idx, m_field = item.split('.')
                 m = self._x_markers_by_id[int(m_idx)]
+                m['changed'] = True
                 m[m_field] = xt
                 if m['dtype'] == 'dual':
                     self._request_data(True)
@@ -2244,6 +2250,7 @@ class WaveformWidget(QtWidgets.QWidget):
             'dtype': 'single',
             'pos1': pos1,
             'pos1_test_pos': 'top',
+            'changed': True,
         }
         return self._x_marker_add(marker)
 
@@ -2266,6 +2273,7 @@ class WaveformWidget(QtWidgets.QWidget):
             'pos2': pos2,
             'pos1_test_pos': 'top',
             'pos2_test_pos': 'bottom',
+            'changed': True,
         }
         return self._x_marker_add(marker)
 
