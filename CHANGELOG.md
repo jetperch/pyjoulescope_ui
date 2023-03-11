@@ -6,9 +6,14 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.1
 
+<span style="color:yellow">⚠ ALPHA RELEASE - USE WITH CAUTION ⚠</span> 
+
+Improves upon 1.0.0 but still alpha quality.  See the 1.0.0 release
+notes below for how to usage notes.
+
 2023 Mar 11 [in progress]
 
-* Deduplicate JLS v2 requests for improved performance.
+* Deduplicated JLS v2 requests for improved performance.
 * Modified waveform widget to only request dual marker data when needed.
 * Added JLS v1 support.
 * Fixed dual marker integral value for JLS v2 files #177

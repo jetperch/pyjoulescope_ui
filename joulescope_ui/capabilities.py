@@ -23,10 +23,15 @@ class CAPABILITIES(Enum):
     """An analysis tool class that operates over a time range.
 
     The pubsub class must implement the static method on_cls_action_run:
-        * actions/!run:  [(time64_min, time64_max), kwargs, [(source_unique_id, signal_id), ...]]
-          kwargs can be None, {}, or a valid dict.
-          where source_unique_id is for a SIGNAL_BUFFER_SOURCE and 
-          signal_id is for a signal in that source.
+        * actions/!run: dict with the following keys:
+          * x_range: (time64_min, time64_max)
+          * signals: [(source_unique_id, signal_id), ...]]
+            where source_unique_id is for a SIGNAL_BUFFER_SOURCE and 
+            signal_id is for a signal in that source.
+          * signal_default: (source_unique_id, signal_id)
+            optional: The selected signal (if available) that should
+            be used for the analysis if only one signal is required. 
+          * kwargs: optional arguments for the command.
     """
 
     RANGE_TOOL_OBJECT = 'range_tool.object'

@@ -320,10 +320,8 @@ class ExporterDialog(QtWidgets.QDialog):
     def on_cls_action_run(value):
         """Run the range tool.
 
-        :param value: [(time64_min, time64_max), kwargs, [(source_unique_id, signal_id), ...]]
+        :param value: See CAPABILITIES.RANGE_TOOL_CLASS
         """
-        x_range, kwargs, sources = value
-        if kwargs is None or not len(kwargs):
-            ExporterDialog(x_range, sources)
-        else:
-            raise NotImplementedError('kwargs not yet supported')
+        x_range = value['x_range']
+        signals = value['signals']
+        ExporterDialog(x_range, signals)

@@ -2138,8 +2138,11 @@ class WaveformWidget(QtWidgets.QWidget):
         else:
             raise ValueError(f'unsupported x_export source {src}')
         signals = self._signals_get()
-        pubsub_singleton.publish('registry/exporter/actions/!run',
-                                 [(x0, x1), None, signals])
+        # Use CAPABILITIES.RANGE_TOOL_CLASS value format.
+        pubsub_singleton.publish('registry/exporter/actions/!run', {
+            'x_range': (x0, x1),
+            'signals': signals,
+        })
 
     def _menu_x_marker_single(self, item, event: QtGui.QMouseEvent):
         _, idx, _ = item.split('.')
