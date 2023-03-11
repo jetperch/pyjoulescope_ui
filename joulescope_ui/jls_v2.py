@@ -177,7 +177,7 @@ class JlsV2:
             length = interval
             self._log.info('fsr(%d, %d, %d)', signal_id, start, length)
             data = self._jls.fsr(signal_id, start, length)
-        sample_id_end = start + increment * (length - 1)
+        sample_id_end = start + increment * length - 1
         time_map = signal['time_map']
 
         info = {
