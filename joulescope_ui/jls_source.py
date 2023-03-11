@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from pyjls import Reader, SignalType, data_type_as_str
-from joulescope_ui import CAPABILITIES, Metadata, time64, register, get_topic_name
+from joulescope_ui import CAPABILITIES, Metadata, time64, register, get_topic_name, get_instance
 from joulescope_ui.jls_v2 import TO_UI_SIGNAL_NAME
 from joulescope_ui.time_map import TimeMap
 import copy
@@ -54,17 +54,13 @@ class JlsV2:
     def __init__(self, path, pubsub, topic):
         self._log = logging.getLogger(__name__ + '.jls_v2')
         self._path = path
-        self._pubsub = pubsub
-        self._topic = topic
         self._jls = None
-        self._quit = False
         self._signals = {}
-        self._queue = queue.Queue()
-        self.open()
+        self.open(pubsub, topic)
 
-    def open(self):
-        topic = self._topic
-        pubsub = self._pubsub
+    def open(self, pubsub, topic):
+        if self._jls is not None:
+            self.close()
         jls = Reader(self._path)
         self._jls = jls
         source_meta = {}
@@ -136,23 +132,25 @@ class JlsV2:
                 'time_map': time_map,
             }
 
-    def _handle_request(self, value):
+    def process(self, req):
         """Handle a buffer request.
 
-        :param value: The buffer request structure.
+        :param req: The buffer request structure.
             See joulescope_ui.capabilities SIGNAL_BUFFER_SOURCE
         """
-        signal = self._signals[value['signal_id']]
+        if self._jls is None:
+            return None
+        signal = self._signals[req['signal_id']]
         signal_id = signal['signal_id']
-        if value['time_type'] == 'utc':
+        if req['time_type'] == 'utc':
             time_map = signal['time_map']
-            start = time_map.time64_to_counter(value['start'], dtype=np.int64)
-            end = time_map.time64_to_counter(value['end'], dtype=np.int64)
+            start = time_map.time64_to_counter(req['start'], dtype=np.int64)
+            end = time_map.time64_to_counter(req['end'], dtype=np.int64)
         else:
-            start = value['start']
-            end = value['end']
+            start = req['start']
+            end = req['end']
         interval = end - start + 1
-        length = value['length']
+        length = req['length']
         response_type = 'samples'
         increment = 1
         data_type = signal['data_type']
@@ -201,35 +199,19 @@ class JlsV2:
             },
         }
         # self._log.info(info)
-        response = {
+        return {
             'version': 1,
-            'rsp_id': value.get('rsp_id'),
+            'rsp_id': req.get('rsp_id'),
             'info': info,
             'response_type': response_type,
             'data': data,
             'data_type': data_type,
         }
-        self._pubsub.publish(value['rsp_topic'], response)
 
-    def quit(self):
-        self._quit = True
-
-    def request(self, value):
-        self._queue.put(['request', value])
-
-    def run(self):
-        while not self._quit:
-            try:
-                cmd, value = self._queue.get(timeout=0.05)
-            except queue.Empty:
-                continue
-            try:
-                if cmd == 'request':
-                    self._handle_request(value)
-            except Exception:
-                self._log.exception(f'While processing {cmd}')
-        if self._jls is not None:
-            self._jls.close()
+    def close(self):
+        jls, self._jls = self._jls, None
+        if jls is not None:
+            jls.close()
 
 
 @register
@@ -238,6 +220,9 @@ class JlsSource:
     SETTINGS = {}
 
     def __init__(self, path=None):
+        self._quit = False
+        self._queue = queue.Queue()
+
         if path is not None:
             name = os.path.basename(os.path.splitext(path)[0])
             path = os.path.abspath(path)
@@ -275,34 +260,48 @@ class JlsSource:
         jls_version = _jls_version_detect(path)
         if jls_version == 2:
             _log.info('jls_source v2')
-            self._jls = JlsV2(path, self.pubsub, self.topic)
+            self._jls = JlsV2(path, pubsub, topic)
         elif jls_version == 1:
             _log.info('jls_source v1')
             raise NotImplementedError('jls v1 support not yet added')
         else:
             raise ValueError(f'Unsupported JLS version {jls_version}')
 
-        self._thread = threading.Thread(target=self._jls.run)
+        self._thread = threading.Thread(target=self.run)
         self._thread.start()
 
     def on_pubsub_unregister(self):
         self._close()
 
-    def _close(self):
-        if self._jls is not None:
-            _log.info('close %s', self.path)
-            jls, self._jls, thread, self._thread = self._jls, None, self._thread, None
-            jls.quit()
-            if thread is not None:
-                thread.join()
-            _log.info('close done %s', self.path)
+    def run(self):
+        while not self._quit:
+            try:
+                cmd, value = self._queue.get(timeout=0.05)
+            except queue.Empty:
+                continue
+            try:
+                if cmd == 'request':
+                    rsp = self._jls.process(value)
+                    self.pubsub.publish(value['rsp_topic'], rsp)
+            except Exception:
+                self._log.exception(f'While processing {cmd}')
+
+    def close(self):
+        _log.info('close %s', self.path)
+        self._quit = True
+        jls, self._jls, thread, self._thread = self._jls, None, self._thread, None
+        if thread is not None:
+            thread.join()
+        if jls is not None:
+            jls.close()
+        _log.info('close done %s', self.path)
 
     def on_action_close(self):
-        self._close()
+        self.close()
         self.pubsub.unregister(self, delete=True)
 
     def on_action_request(self, value):
-        self._jls.request(value)
+        self._queue.put(['request', value])
 
     @staticmethod
     def on_cls_action_open(pubsub, topic, value):
@@ -318,6 +317,6 @@ class JlsSource:
     def on_cls_action_finalize(pubsub, topic, value):
         instances = pubsub.query(f'{get_topic_name(JlsSource)}/instances')
         for instance_unique_id in list(instances):
-            instance = pubsub.query(f'{get_topic_name(instance_unique_id)}/instance', default=None)
+            instance = get_instance(instance_unique_id, default=None)
             if instance is not None:
-                instance._close()
+                instance.close()
