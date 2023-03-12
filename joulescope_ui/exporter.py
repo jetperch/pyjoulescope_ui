@@ -14,18 +14,14 @@
 
 
 from PySide6 import QtCore, QtWidgets
-from pyjls import Writer, SignalType, DataType
+from pyjls import Writer, SignalType
 from joulescope_ui import N_, time64, pubsub_singleton, register_decorator, get_topic_name
 from joulescope_ui.range_tool import RangeToolBase
-from joulescope_ui.widgets import ProgressBarWidget
 from joulescope_ui.jls_v2 import TO_JLS_SIGNAL_NAME
 import datetime
 import json
 import logging
 import os
-import queue
-import threading
-import time
 
 
 def _construct_record_filename(extension=None):
@@ -95,8 +91,70 @@ class ExporterWidget(QtWidgets.QWidget):
         return super().closeEvent(event)
 
 
-@register_decorator('exporter_worker')
-class ExporterWorker(RangeToolBase):
+class ExporterDialog(QtWidgets.QDialog):
+    _instances = []
+
+    def __init__(self, value):
+        self.CAPABILITIES = []
+        self._value = value
+        parent = pubsub_singleton.query('registry/ui/instance')
+        super().__init__(parent=parent)
+        ExporterDialog._instances.append(self)
+        self._log = logging.getLogger(f'{__name__}.dialog')
+
+        x_range = value['x_range']
+        duration = (x_range[1] - x_range[0]) / time64.SECOND
+        second = x_range[0] // time64.SECOND
+        self._log.info('start duration=%r, x_range=%r, x0_second=%r, signals=%r',
+                       duration, x_range, second, value['signals'])
+        self.setObjectName('exporter_dialog')
+        self._layout = QtWidgets.QVBoxLayout()
+        self.setLayout(self._layout)
+        self._w = ExporterWidget(self)
+        self._layout.addWidget(self._w)
+        self._spacer = QtWidgets.QSpacerItem(10, 0,
+                                             QtWidgets.QSizePolicy.Minimum,
+                                             QtWidgets.QSizePolicy.Expanding)
+        self._layout.addItem(self._spacer)
+
+        self._buttons = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
+        self._buttons.accepted.connect(self.accept)
+        self._buttons.rejected.connect(self.reject)
+        self._layout.addWidget(self._buttons)
+        self.finished.connect(self._on_finished)
+
+        self.resize(600, 400)
+        self.setWindowTitle(N_('Configure export'))
+        self._log.info('open')
+        pubsub_singleton.register(self)
+        self.open()
+
+    @QtCore.Slot(int)
+    def _on_finished(self, value):
+        self._log.info('finished: %d', value)
+
+        if value == QtWidgets.QDialog.DialogCode.Accepted:
+            path = self._w.path
+            self._log.info('finished: accept - start export to %s', path)
+            kwargs = self._value.get('kwargs', None)
+            if kwargs is None:
+                kwargs = {}
+                self._value['kwargs'] = kwargs
+            kwargs['path'] = path
+            w = Exporter(self._value)
+            pubsub_singleton.register(w)
+        else:
+            self._log.info('finished: reject - abort export')  # no action required
+        self.close()
+
+    def close(self):
+        super().close()
+        pubsub_singleton.unregister(self)
+        ExporterDialog._instances.remove(self)
+
+
+@register_decorator('exporter')
+class Exporter(RangeToolBase):
 
     def __init__(self, value):
         self._signals = {}
@@ -209,76 +267,6 @@ class ExporterWorker(RangeToolBase):
             os.remove(path)
         else:
             self._log.info('thread done with success')
-
-
-@register_decorator('exporter')
-class ExporterDialog(QtWidgets.QDialog):
-    CAPABILITIES = ['range_tool@']
-    SETTINGS = {
-        'progress': {
-            'dtype': 'float',
-            'brief': N_('The fractional progress.'),
-            'default': 0.0,
-        },
-    }
-    _instances = []
-
-    def __init__(self, value):
-        self._value = value
-        parent = pubsub_singleton.query('registry/ui/instance')
-        super().__init__(parent=parent)
-        ExporterDialog._instances.append(self)
-        self._log = logging.getLogger(f'{__name__}.dialog')
-
-        x_range = value['x_range']
-        duration = (x_range[1] - x_range[0]) / time64.SECOND
-        second = x_range[0] // time64.SECOND
-        self._log.info('start duration=%r, x_range=%r, x0_second=%r, signals=%r',
-                       duration, x_range, second, value['signals'])
-        self.setObjectName('exporter_dialog')
-        self._layout = QtWidgets.QVBoxLayout()
-        self.setLayout(self._layout)
-        self._w = ExporterWidget(self)
-        self._layout.addWidget(self._w)
-        self._spacer = QtWidgets.QSpacerItem(10, 0,
-                                             QtWidgets.QSizePolicy.Minimum,
-                                             QtWidgets.QSizePolicy.Expanding)
-        self._layout.addItem(self._spacer)
-
-        self._buttons = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
-        self._buttons.accepted.connect(self.accept)
-        self._buttons.rejected.connect(self.reject)
-        self._layout.addWidget(self._buttons)
-        self.finished.connect(self._on_finished)
-
-        self.resize(600, 400)
-        self.setWindowTitle(N_('Configure export'))
-        self._log.info('open')
-        pubsub_singleton.register(self)
-        self.open()
-
-    @QtCore.Slot(int)
-    def _on_finished(self, value):
-        self._log.info('finished: %d', value)
-
-        if value == QtWidgets.QDialog.DialogCode.Accepted:
-            path = self._w.path
-            self._log.info('finished: accept - start export to %s', path)
-            kwargs = self._value.get('kwargs', None)
-            if kwargs is None:
-                kwargs = {}
-                self._value['kwargs'] = kwargs
-            kwargs['path'] = path
-            w = ExporterWorker(self._value)
-            pubsub_singleton.register(w)
-        else:
-            self._log.info('finished: reject - abort export')  # no action required
-        self.close()
-
-    def close(self):
-        super().close()
-        pubsub_singleton.unregister(self)
-        ExporterDialog._instances.remove(self)
 
     @staticmethod
     def on_cls_action_run(value):
