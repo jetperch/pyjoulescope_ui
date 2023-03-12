@@ -70,7 +70,7 @@ class MyClass:
         MyClass.CALLS.append(['action_show3', pubsub, topic, value])
 
     @staticmethod
-    def on_cls_cbk_data(pubsub, topic, value):
+    def on_cls_callback_data(pubsub, topic, value):
         MyClass.CALLS.append(['cbk_data', value])
 
     @staticmethod
@@ -79,6 +79,9 @@ class MyClass:
 
     def on_action_view1(self, value):
         self.calls.append(['action_view1', value])
+
+    def on_action_view2(self, value):
+        self.calls.append(['action_view2', value])
 
     def on_action_signals__current__sample_req(self, value):
         self.calls.append(['i_sample_req', value])
@@ -94,6 +97,22 @@ class MyClass:
 
     def on_setting_a__b__c__p2(self, value):
         self.calls.append(['p2', value])
+
+
+class MySubClass(MyClass):
+
+    def __init__(self):
+        super().__init__()
+
+    @staticmethod
+    def on_cls_action_show1(value):
+        MyClass.CALLS.append(['sub_action_show1', value])
+
+    def on_action_view1(self, value):
+        self.calls.append(['sub_action_view1', value])
+
+    def on_setting_param1(self, value):
+        self.calls.append(['sub_param1', value])
 
 
 class CapabilitiesClass:
@@ -216,6 +235,40 @@ class TestRegistry(unittest.TestCase):
         self.assertIn('registry_manager/capabilities/statistics_stream.sink', self.p)
         self.assertIn('registry_manager/capabilities/view.class', self.p)
         self.assertEqual([[topics[0], 'myclass'], [topics[1], 'myclass']], calls)
+
+
+class TestRegistrySubclass(unittest.TestCase):
+
+    def setUp(self):
+        MyClass.CALLS.clear()
+        self.p = PubSub()
+        self.p.registry_initialize()
+        self.calls = []
+
+    def tearDown(self) -> None:
+        if hasattr(MySubClass, 'unique_id'):
+            self.p.unregister(MySubClass)
+
+    def test_cls_action(self):
+        self.p.register(MySubClass)
+        MyClass.CALLS.clear()
+        self.p.publish(f'registry/{MySubClass.unique_id}/actions/!show1', 'hello world 1')
+        self.p.publish(f'registry/{MySubClass.unique_id}/actions/!show2', 'hello world 2')
+        self.assertEqual(
+            [
+                ['sub_action_show1', 'hello world 1'],
+                ['action_show2', f'registry/{MySubClass.unique_id}/actions/!show2', 'hello world 2']
+            ],
+            MyClass.CALLS
+        )
+
+    def test_obj_action(self):
+        c = MySubClass()
+        self.p.register(c)
+        c.calls.clear()
+        self.p.publish(f'registry/{c.unique_id}/actions/!view1', 'v1')
+        self.p.publish(f'registry/{c.unique_id}/actions/!view2', 'v2')
+        self.assertEqual([['sub_action_view1', 'v1'], ['action_view2', 'v2']], c.calls)
 
 
 class SimpleClass:

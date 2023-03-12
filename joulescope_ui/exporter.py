@@ -15,7 +15,8 @@
 
 from PySide6 import QtCore, QtWidgets
 from pyjls import Writer, SignalType, DataType
-from joulescope_ui import N_, time64, pubsub_singleton, register, register_decorator, get_topic_name
+from joulescope_ui import N_, time64, pubsub_singleton, register_decorator, get_topic_name
+from joulescope_ui.range_tool import RangeToolBase
 from joulescope_ui.widgets import ProgressBarWidget
 from joulescope_ui.jls_v2 import TO_JLS_SIGNAL_NAME
 import datetime
@@ -95,41 +96,23 @@ class ExporterWidget(QtWidgets.QWidget):
 
 
 @register_decorator('exporter_worker')
-class ExporterWorker:
-    def __init__(self, x_range, kwargs, signals):
-        self._log = logging.getLogger(f'{__name__}.worker')
-        self._x_range = x_range
-        self._kwargs = kwargs
-        self._signals_list = signals
+class ExporterWorker(RangeToolBase):
+
+    def __init__(self, value):
         self._signals = {}
-        pubsub_singleton.register(self)
-        cancel_topic = f'{get_topic_name(self)}/actions/!cancel'
-        self._progress_bar = ProgressBarWidget(N_("Export in progress..."), cancel_topic)
-        pubsub_singleton.register(self._progress_bar)
-        self._quit = False
-        self._log.info('start %s', self.unique_id)
-        self._queue = queue.Queue()
-        self._thread = threading.Thread(target=self.run)
-        self._thread.start()
-        self._rsp_id = 1
-
-    def on_callback_data(self, value):
-        self._queue.put(value, timeout=0.5)
-
-    def on_action_cancel(self):
-        self._log.info('cancel')
-        self._quit = True
-        self.on_action_finalize()
-
-    def on_action_finalize(self):
-        self._thread.join()
-        pubsub_singleton.unregister(self)
-        self._log.info('finalized')
+        super().__init__(
+            value=value,
+            name=N_('Export'),
+            brief=N_('Export data to a JLS file'),
+            description=N_("""\
+                Exporting data to a JLS file.  You can open this file
+                later to display the exported data.""")
+        )
 
     def _jls_init(self, jls: Writer):
         sources = []
         jls_signal_id = 1
-        for idx, signal in enumerate(self._signals_list):
+        for idx, signal in enumerate(self.signals):
             (source_unique_id, signal_id) = signal
             meta_topic = f'registry/{source_unique_id}/settings/signals/{signal_id}/meta'
             meta = pubsub_singleton.query(meta_topic)
@@ -149,7 +132,7 @@ class ExporterWorker:
                     serial_number=meta['serial_number'],
                 )
             r = pubsub_singleton.query(f'{get_topic_name(source_unique_id)}/settings/signals/{signal_id}/range')
-            d = self._request(signal, 'utc', self._x_range[0], 0, 1, timeout=5.0)
+            d = self.request(signal, 'utc', self.x_range[0], 0, 1, timeout=5.0)
             info = d['info']
             jls.signal_def(
                 signal_id=jls_signal_id,
@@ -161,9 +144,9 @@ class ExporterWorker:
                 units=info['units'],
             )
             utc_start = info['time_range_utc']['start']
-            d_utc = (utc_start - self._x_range[0]) / time64.SECOND
+            d_utc = (utc_start - self.x_range[0]) / time64.SECOND
             if abs(d_utc) > 0.001:
-                self._log.error('UTC error: %.3f: %d %d, %s', d_utc, utc_start, self._x_range[0], d['data'][0])
+                self._log.error('UTC error: %.3f: %d %d, %s', d_utc, utc_start, self.x_range[0], d['data'][0])
             self._signals[(source_unique_id, signal_id)] = {
                 'signal': (source_unique_id, signal_id),
                 'jls_signal_id': jls_signal_id,
@@ -174,47 +157,21 @@ class ExporterWorker:
             }
             jls_signal_id += 1
 
-    def _request(self, signal, time_type, start, end, length, timeout=None):
-        if time_type not in ['utc', 'samples']:
-            raise ValueError(f'invalid time_type: {time_type}')
-        rsp_id = self._rsp_id
-        if isinstance(signal, dict):
-            signal = signal['signal']
-        req = {
-            'signal_id': signal[1],
-            'time_type': time_type,
-            'start': start,
-            'end': end,
-            'length': length,
-            'rsp_topic': f'{get_topic_name(self)}/callbacks/!data',
-            'rsp_id': rsp_id,
-        }
-        self._rsp_id += 1
-        pubsub_singleton.publish(f'{get_topic_name(signal[0])}/actions/!request', req)
-        if timeout is None:
-            return rsp_id
-        t_end = time.time() + timeout
-        while True:
-            timeout = max(0.0, t_end - time.time())
-            rsp = self._queue.get(timeout=timeout)
-            if rsp['rsp_id'] == rsp_id:
-                return rsp
-            else:
-                self._log.warning('discarding message')
-
-    def run(self):
+    def _run(self):
         self._log.info('thread start')
-        progress = f'{get_topic_name(self._progress_bar)}/settings/progress'
-        path = self._kwargs['path']
+        path = self.kwargs['path']
+        progress_iter = 1.0 / len(self.signals)
 
         with Writer(path) as jls:
-            notes = self._kwargs.get('notes')
+            notes = self.kwargs.get('notes')
             if notes is not None:
                 jls.user_data(0, notes)
             self._jls_init(jls)
-            for signal in self._signals.values():
+            for signal_idx, signal in enumerate(self._signals.values()):
+                if self.abort:
+                    break
                 utc = signal['utc_start']
-                utc_start, utc_end = self._x_range
+                utc_start, utc_end = self.x_range
                 self._log.info('%s: %d %d | %.3f', signal['signal'], utc_start, utc_end,
                                (utc_end - utc_start) / time64.SECOND)
                 sample_id = signal['sample_start']
@@ -224,17 +181,18 @@ class ExporterWorker:
                 jls.utc(jls_signal_id, 0, signal['utc_start'])
                 fs = signal['info']['time_map']['counter_rate']
                 count = 0
-                while True:
-                    length = int(((utc_end - utc) / time64.SECOND) * fs)
-                    if length <= 0:
+                length_total = int(((utc_end - utc) / time64.SECOND) * fs)
+                while not self.abort:
+                    length_remaining = int(((utc_end - utc) / time64.SECOND) * fs)
+                    if length_remaining <= 0:
                         if count:
                             sample_id_end = info['time_range_samples']['end'] - sample_id_offset
                             self._log.info('utc@end: %d %d', sample_id_end, utc_end)
                             jls.utc(jls_signal_id, sample_id_end, utc_end)
                         self._log.info(f'{signal["signal"]}: exported {count} samples')
                         break
-                    length = min(10_000, length)
-                    d = self._request(signal, 'samples', sample_id, 0, length, timeout=1.0)
+                    length = min(10_000, length_remaining)
+                    d = self.request(signal, 'samples', sample_id, 0, length, timeout=1.0)
                     info = d['info']
                     sample_id_start = info['time_range_samples']['start']
                     if sample_id_start != sample_id:
@@ -244,8 +202,9 @@ class ExporterWorker:
                     sample_id += info['time_range_samples']['length']
                     utc = info['time_range_utc']['end'] + int(time64.SECOND / (fs * 2))
                     count += length
-            pubsub_singleton.publish(progress, 1.0)
-        if self._quit:
+                    self.progress((signal_idx + (1 - length_remaining / length_total)) * progress_iter)
+
+        if self.abort:
             self._log.info('thread done with quit/abort')
             os.remove(path)
         else:
@@ -264,18 +223,18 @@ class ExporterDialog(QtWidgets.QDialog):
     }
     _instances = []
 
-    def __init__(self, x_range, signals):
-        self._x_range = x_range
-        self._signals = signals
-        self._progress = None
+    def __init__(self, value):
+        self._value = value
         parent = pubsub_singleton.query('registry/ui/instance')
         super().__init__(parent=parent)
         ExporterDialog._instances.append(self)
         self._log = logging.getLogger(f'{__name__}.dialog')
 
-        duration = (self._x_range[1] - self._x_range[0]) / time64.SECOND
-        second = self._x_range[0] // time64.SECOND
-        self._log.info(f'start duration={duration}, x_range={x_range}, x0_second={second}, signals={signals}')
+        x_range = value['x_range']
+        duration = (x_range[1] - x_range[0]) / time64.SECOND
+        second = x_range[0] // time64.SECOND
+        self._log.info('start duration=%r, x_range=%r, x0_second=%r, signals=%r',
+                       duration, x_range, second, value['signals'])
         self.setObjectName('exporter_dialog')
         self._layout = QtWidgets.QVBoxLayout()
         self.setLayout(self._layout)
@@ -305,8 +264,13 @@ class ExporterDialog(QtWidgets.QDialog):
         if value == QtWidgets.QDialog.DialogCode.Accepted:
             path = self._w.path
             self._log.info('finished: accept - start export to %s', path)
-            kwargs = {'path': path}
-            ExporterWorker(self._x_range, kwargs, self._signals)
+            kwargs = self._value.get('kwargs', None)
+            if kwargs is None:
+                kwargs = {}
+                self._value['kwargs'] = kwargs
+            kwargs['path'] = path
+            w = ExporterWorker(self._value)
+            pubsub_singleton.register(w)
         else:
             self._log.info('finished: reject - abort export')  # no action required
         self.close()
@@ -322,6 +286,4 @@ class ExporterDialog(QtWidgets.QDialog):
 
         :param value: See CAPABILITIES.RANGE_TOOL_CLASS
         """
-        x_range = value['x_range']
-        signals = value['signals']
-        ExporterDialog(x_range, signals)
+        ExporterDialog(value)

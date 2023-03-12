@@ -158,7 +158,7 @@ methods by name.  For classes, the specially named methods are:
 
 * on_cls_action_*
 * on_cls_setting_*
-* on_cls_cbk_*
+* on_cls_callback_*
 * on_cls_event_*
 * on_cls_pubsub_register(pubsub)
 * on_cls_pubsub_unregister(pubsub)

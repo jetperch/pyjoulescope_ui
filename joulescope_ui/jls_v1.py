@@ -137,7 +137,7 @@ class JlsV1:
 
     def _samples_get(self, signal_name, start, length):
         signal = SIGNALS_V1[signal_name]
-        self._log.info('_samples_get(%s, %d, %d)', signal['id'], start, length)
+        # self._log.info('_samples_get(%s, %d, %d)', signal['id'], start, length)
         data = self._samples_get_inner(start, start + length)
         return data['signals'][signal['samples_name']]['value']
 
@@ -146,7 +146,7 @@ class JlsV1:
         # round increment down
         increment = interval // length
         length = interval // increment
-        self._log.info('fsr_statistics(%s, %d, %d, %d)', signal['id'], start, increment, length)
+        # self._log.info('fsr_statistics(%s, %d, %d, %d)', signal['id'], start, increment, length)
         if length == 1:
             data = self._jls.statistics_get(start, start + length * increment, units='samples')
             data = data['signals'][signal['samples_name']]

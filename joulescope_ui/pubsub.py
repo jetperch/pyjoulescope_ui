@@ -42,7 +42,7 @@ UNSUBSCRIBE_ALL_TOPIC = COMMON_ACTIONS_TOPIC + '/!unsubscribe_all'
 TOPIC_ADD_TOPIC = COMMON_ACTIONS_TOPIC + '/!topic_add'
 TOPIC_REMOVE_TOPIC = COMMON_ACTIONS_TOPIC + '/!topic_remove'
 CLS_ACTION_PREFIX = 'on_cls_action_'
-CLS_CALLBACK_PREFIX = 'on_cls_cbk_'
+CLS_CALLBACK_PREFIX = 'on_cls_callback_'
 CLS_EVENT_PREFIX = 'on_cls_event_'
 ACTION_PREFIX = 'on_action_'
 CALLBACK_PREFIX = 'on_callback_'
@@ -1178,33 +1178,42 @@ class PubSub:
         functions = obj.__dict__[_PUBSUB_ATTR]['functions']
         topic_name = get_topic_name(unique_id)
         if isinstance(obj, type):
-            for name, attr in obj.__dict__.items():
-                if isinstance(attr, staticmethod):
-                    if name.startswith(CLS_ACTION_PREFIX):
-                        fn_name = name[len(CLS_ACTION_PREFIX):]
+            while obj != object:
+                for name, attr in obj.__dict__.items():
+                    if isinstance(attr, staticmethod):
+                        if name.startswith(CLS_ACTION_PREFIX):
+                            fn_name = name[len(CLS_ACTION_PREFIX):]
+                            fn_topic = _fn_name_to_topic(fn_name)
+                            topic = f'{topic_name}/actions/{fn_topic}'
+                            if topic not in functions:
+                                functions[topic] = self.register_command(topic, attr)
+                        elif name.startswith(CLS_CALLBACK_PREFIX):
+                            fn_name = name[len(CLS_CALLBACK_PREFIX):]
+                            fn_topic = _fn_name_to_topic(fn_name)
+                            topic = f'{topic_name}/callbacks/{fn_topic}'
+                            if topic not in functions:
+                                functions[topic] = self.register_command(topic, attr)
+                    elif isinstance(attr, classmethod):
+                        if name.startswith(CLS_ACTION_PREFIX) or name.startswith(CLS_CALLBACK_PREFIX):
+                            raise ValueError(f'class methods not supported: {unique_id} {name}')
+                obj = obj.__base__
+        else:
+            cls = obj.__class__
+            while cls != object:
+                for name in cls.__dict__.keys():
+                    if name.startswith(ACTION_PREFIX):
+                        fn_name = name[len(ACTION_PREFIX):]
                         fn_topic = _fn_name_to_topic(fn_name)
                         topic = f'{topic_name}/actions/{fn_topic}'
-                        functions[topic] = self.register_command(topic, attr)
-                    elif name.startswith(CLS_CALLBACK_PREFIX):
-                        fn_name = name[len(CLS_CALLBACK_PREFIX):]
+                        if topic not in functions:
+                            functions[topic] = self.register_command(topic, getattr(obj, name))
+                    elif name.startswith(CALLBACK_PREFIX):
+                        fn_name = name[len(CALLBACK_PREFIX):]
                         fn_topic = _fn_name_to_topic(fn_name)
                         topic = f'{topic_name}/callbacks/{fn_topic}'
-                        functions[topic] = self.register_command(topic, attr)
-                elif isinstance(attr, classmethod):
-                    if name.startswith(CLS_ACTION_PREFIX) or name.startswith(CLS_CALLBACK_PREFIX):
-                        raise ValueError(f'class methods not supported: {unique_id} {name}')
-        else:
-            for name in obj.__class__.__dict__.keys():
-                if name.startswith(ACTION_PREFIX):
-                    fn_name = name[len(ACTION_PREFIX):]
-                    fn_topic = _fn_name_to_topic(fn_name)
-                    topic = f'{topic_name}/actions/{fn_topic}'
-                    functions[topic] = self.register_command(topic, getattr(obj, name))
-                elif name.startswith(CALLBACK_PREFIX):
-                    fn_name = name[len(CALLBACK_PREFIX):]
-                    fn_topic = _fn_name_to_topic(fn_name)
-                    topic = f'{topic_name}/callbacks/{fn_topic}'
-                    functions[topic] = self.register_command(topic, getattr(obj, name))
+                        if topic not in functions:
+                            functions[topic] = self.register_command(topic, getattr(obj, name))
+                cls = cls.__base__
 
     def _unregister_functions(self, obj, unique_id: str = None):
         functions = obj.__dict__[_PUBSUB_ATTR].pop('functions')

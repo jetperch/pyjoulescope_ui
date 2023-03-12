@@ -63,7 +63,7 @@ class RegisterClassAPI:
         raise NotImplementedError()
 
     @staticmethod
-    def on_cls_cbk_myname(topic: str, value):
+    def on_cls_callback_myname(topic: str, value):
         """Register a class callback under cbk/!myname.
 
         This function can have multiple signature types.

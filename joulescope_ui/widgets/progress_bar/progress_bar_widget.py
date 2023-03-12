@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from PySide6 import QtWidgets, QtCore
-from joulescope_ui import pubsub_singleton, register_decorator, N_
+from joulescope_ui import pubsub_singleton, register_decorator, N_, tooltip_format
 import logging
 
 
@@ -27,9 +27,12 @@ class ProgressBarWidget(QtWidgets.QDialog):
             'default': 0.0,
         },
     }
+    _instances = {}
 
-    def __init__(self, description, cancel_action_topic=None):
-        self._cancel_action_topic = cancel_action_topic
+    def __init__(self):
+        self._brief = ''
+        self._description = ''
+        self.cancel_topic = None
         parent = pubsub_singleton.query('registry/ui/instance')
         super().__init__(parent=parent)
         self.setObjectName('progress_bar_widget')
@@ -40,7 +43,7 @@ class ProgressBarWidget(QtWidgets.QDialog):
         self._layout = QtWidgets.QVBoxLayout()
         self.setLayout(self._layout)
 
-        self._label = QtWidgets.QLabel(description, self)
+        self._label = QtWidgets.QLabel('', self)
         self._layout.addWidget(self._label)
 
         self._progress = QtWidgets.QProgressBar(self)
@@ -59,6 +62,26 @@ class ProgressBarWidget(QtWidgets.QDialog):
         self._log.info('open')
         self.open()
 
+    def name(self, value):
+        self._label.setText(value)
+
+    def _update_tooltip(self):
+        tooltip = tooltip_format(self._brief, self._description)
+        self._label.setToolTip(tooltip)
+        self._progress.setToolTip(tooltip)
+
+    def brief(self, *args):
+        if len(args):
+            self._brief = args[0]
+            self._update_tooltip()
+        return self._brief
+
+    def description(self, *args):
+        if len(args):
+            self._description = args[0]
+            self._update_tooltip()
+        return self._description
+
     def on_pubsub_register(self):
         self._log.info(f'register {self.unique_id}')
 
@@ -68,8 +91,8 @@ class ProgressBarWidget(QtWidgets.QDialog):
             self._log.info('complete')
         else:
             self._log.info('cancel')
-            if self._cancel_action_topic is not None:
-                pubsub_singleton.publish(self._cancel_action_topic, None)
+            if self.cancel_topic is not None:
+                pubsub_singleton.publish(self.cancel_topic, None)
         self.close()
 
     def close(self):
@@ -84,3 +107,49 @@ class ProgressBarWidget(QtWidgets.QDialog):
         self._progress.setValue(v)
         if value >= 1.0:
             self.accept()
+
+    @staticmethod
+    def on_cls_action_update(value):
+        """Create, update, and/or close a progress bar.
+
+        :param value: The update dict which contains:
+            * id: The identifier for this progress.  You can often use the
+              unique_id of the originator.  If this id is not yet known,
+              this call will create a new progress bar.
+            * progress: The fractional progress from 0 to 1.0.  If 1.0,
+              then the progress bar will close automatically.
+            * cancel_topic: The topic to publish with value None on cancel.
+            * name: The localized, user-meaningful name for this progress bar.
+              Will be cached whenever provided.
+            * brief: The localized brief description for this progress bar.
+              Will be cached whenever provided.
+            * description: The localized, detailed description for the progress bar.
+              Will be cached whenever provided.
+
+        Normally, the originator provides cancel_topic, name, brief, and
+        description at the initial call with progress 0.0.  It then only provides
+        id and progress for subsequent calls.  The originator must call with
+        progress 1.0 to close the progress bar.
+        """
+        my_id = value['id']
+        progress = value['progress']
+        if progress >= 1.0:
+            if my_id not in ProgressBarWidget._instances:
+                return
+            instance = ProgressBarWidget._instances.pop(my_id)
+            instance.accept()  # causes close
+            return
+        elif my_id not in ProgressBarWidget._instances:
+            instance = ProgressBarWidget()
+            pubsub_singleton.register(instance)
+            ProgressBarWidget._instances[my_id] = instance
+        instance = ProgressBarWidget._instances[my_id]
+        instance.progress = progress
+        if 'cancel_topic' in value:
+            instance.cancel_topic = value['cancel_topic']
+        if 'name' in value:
+            instance.name(value['name'])
+        if 'brief' in value:
+            instance.brief(value['brief'])
+        if 'description' in value:
+            instance.description(value['description'])

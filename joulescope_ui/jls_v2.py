@@ -159,25 +159,25 @@ class JlsV2:
         data_type = signal['data_type']
 
         if not req_end:
-            self._log.info('fsr(%d, %d, %d)', signal_id, start, length)
+            # self._log.info('fsr(%d, %d, %d)', signal_id, start, length)
             data = self._jls.fsr(signal_id, start, length)
         elif interval < 0:
-            self._log.warning('req with interval < 0: %r', req)
+            # self._log.warning('req with interval < 0: %r', req)
             return None
         elif not length:
-            self._log.info('fsr(%d, %d, %d)', signal_id, start, interval)
+            # self._log.info('fsr(%d, %d, %d)', signal_id, start, interval)
             data = self._jls.fsr(signal_id, start, interval)
         elif length and req_end and length <= (interval // 2):
             # round increment down
             increment = interval // length
             length = interval // increment
-            self._log.info('fsr_statistics(%d, %d, %d, %d)', signal_id, start, increment, length)
+            # self._log.info('fsr_statistics(%d, %d, %d, %d)', signal_id, start, increment, length)
             data = self._jls.fsr_statistics(signal_id, start, increment, length)
             response_type = 'summary'
             data_type = 'f32'
         else:
             length = interval
-            self._log.info('fsr(%d, %d, %d)', signal_id, start, length)
+            # self._log.info('fsr(%d, %d, %d)', signal_id, start, length)
             data = self._jls.fsr(signal_id, start, length)
         sample_id_end = start + increment * length - 1
         time_map = signal['time_map']
