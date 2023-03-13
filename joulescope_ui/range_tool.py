@@ -12,8 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-from joulescope_ui import get_topic_name
+import numpy as np
+from joulescope_ui import get_topic_name, time64
+from joulescope_ui.time_map import TimeMap
 import logging
 import queue
 import threading
@@ -84,6 +85,7 @@ class RangeTool:
         :param end: The ending time, inclusive.
         :param length: The number of entries to receive.
         :param timeout: The timeout in float seconds.  None uses the default.
+        :return: See CAPABILITIES.SIGNAL_BUFFER_SOURCE response.
 
         To guarantee that you receive a sample response, provide either
         end or length.  If you provide end and length, then you may
@@ -104,23 +106,60 @@ class RangeTool:
             'rsp_topic': self.rsp_topic,
             'rsp_id': rsp_id,
         }
-        self._rsp_id += 1
-        self.pubsub.publish(f'{get_topic_name(signal[0])}/actions/!request', req)
-        if timeout == 0:
-            return rsp_id
-        if timeout is None:
-            timeout = _TIMEOUT_DEFAULT
-        t_end = time.time() + timeout
+        rsp_total = None
+
         while True:
-            timeout = max(0.0, t_end - time.time())
-            try:
-                rsp = self.pop(timeout=timeout)
-            except queue.Empty:
-                raise TimeoutError(f'request timed out for {signal}')
-            if rsp['rsp_id'] == rsp_id:
-                return rsp
+            self._rsp_id += 1
+            self.pubsub.publish(f'{get_topic_name(signal[0])}/actions/!request', req)
+            if timeout == 0:
+                return rsp_id
+            if timeout is None:
+                timeout = _TIMEOUT_DEFAULT
+            t_end = time.time() + timeout
+            while True:
+                timeout = max(0.0, t_end - time.time())
+                try:
+                    rsp = self.pop(timeout=timeout)
+                except queue.Empty:
+                    raise TimeoutError(f'request timed out for {signal}')
+                if rsp['rsp_id'] == rsp_id:
+                    break
+                else:
+                    self._log.warning('discarding message')
+            fs = rsp['info']['time_map']['counter_rate']
+            period_t64 = (1.0 / fs) * time64.SECOND
+            if req['time_type'] == 'samples':
+                is_done = rsp['info']['time_range_samples']['end'] >= req['end']
             else:
-                self._log.warning('discarding message')
+                is_done = rsp['info']['time_range_utc']['end'] + period_t64 >= req['end']
+            if is_done and rsp_total is None:
+                return rsp
+            if rsp_total is None:
+                rsp_total = rsp
+                rsp_total['data'] = [rsp_total['data']]
+                if rsp['response_type'] != 'samples':
+                    raise RuntimeError('Only support concat for sample responses')
+                if req['time_type'] == 'utc':
+                    # convert to samples
+                    tm = TimeMap()
+                    tm_entry = rsp['info']['time_map']
+                    scale = tm_entry['counter_rate'] / time64.SECOND
+                    tm.update(tm_entry['offset_counter'], tm_entry['offset_time'], scale)
+                    req['time_type'] = 'samples'
+                    req['length'] = 0
+                    req['end'] = int(np.rint(tm.time64_to_counter(end)))
+            else:
+                rsp_total['data'].append(rsp['data'])
+            req['start'] = rsp['info']['time_range_samples']['end']
+            if req['length']:
+                req['length'] -= rsp['info']['time_range_samples']['length']
+            rsp_total['info']['time_range_utc']['end'] = rsp['info']['time_range_utc']['end']
+            rsp_total['info']['time_range_utc']['length'] += rsp['info']['time_range_utc']['length']
+            rsp_total['info']['time_range_samples']['end'] = rsp['info']['time_range_samples']['end']
+            rsp_total['info']['time_range_samples']['length'] += rsp['info']['time_range_samples']['length']
+            if is_done:
+                rsp_total['data'] = np.concatenate(rsp_total['data'])
+                return rsp_total
 
     def progress_start(self, progress_id, name, cancel_topic=None, brief=None, description=None):
         """Start tracking progress.
@@ -164,43 +203,43 @@ class RangeTool:
 
 
 class RangeToolBase:
+    """The subclass MUST define the following class attributes:
+
+    NAME: The localized name for this range tool.
+        This name will be displayed in menus.
+    BRIEF: The localized brief description for this range tool.
+        This will be used for tooltips.
+    DESCRIPTION: The more detailed description for this instance.
+        This will be used for tooltips.
+    """
 
     CAPABILITIES = ['range_tool@']
     _instances = []
 
-    def __init__(self, value, name, brief=None, description=None):
+    def __init__(self, value):
         """Configure this instance.
 
         :param value: The range-tool value.  See CAPABILITIES.RANGE_TOOL_CLASS
             for the definition.
-        :param name: The localized name for this instance.
-        :param brief: The localized brief description for this instance.
-        :param description: The more detailed description for this instance.
         """
-        self._log = logging.getLogger(f'{__name__}.{name}')
+        self._log = logging.getLogger(f'{__name__}.{self.NAME}')
         RangeToolBase._instances.append(self)
         self.x_range = value['x_range']
         self.signals = value['signals']
-        self.kwargs = value['kwargs']
-        self._name = name
-        self._brief = brief
-        self._description = description
+        self.kwargs = value.get('kwargs', {})
         self.value = value
         self._rt = RangeTool(value)
         self._thread = None
-        self._name = None
-        self._brief = None
-        self._description = None
 
     def on_pubsub_register(self):
         self._rt.rsp_topic = f'{get_topic_name(self.topic)}/callbacks/!data'
         self._rt.pubsub = self.pubsub
         self._rt.progress_start(
             progress_id=self.unique_id,
-            name=self._name,
+            name=self.NAME,
             cancel_topic=f'{get_topic_name(self)}/actions/!cancel',
-            brief=self._brief,
-            description=self._description,
+            brief=self.BRIEF,
+            description=self.DESCRIPTION,
         )
         self._log.info('start %s', self.unique_id)
         self._thread = threading.Thread(target=self.__run_outer)
@@ -255,10 +294,17 @@ class RangeToolBase:
             self.pubsub.publish(f'{get_topic_name(self)}/actions/!finalize', None)
 
     def _run(self):
+        """The subclass should define this method to perform processing.
+
+        Note that this runs from a python thread, so Qt interactions are not
+        possible.  Use pubsub_singleton.publish to invoke actions on the
+        Qt event thread.
+        """
         raise NotImplementedError()
 
     def on_callback_data(self, value):
-        self._rt.push(value)
+        if self._rt is not None:
+            self._rt.push(value)
 
     def on_action_finalize(self):
         self._log.info('finalize')

@@ -124,7 +124,7 @@ class ExporterDialog(QtWidgets.QDialog):
         self.finished.connect(self._on_finished)
 
         self.resize(600, 400)
-        self.setWindowTitle(N_('Configure export'))
+        self.setWindowTitle(N_('Export configuration'))
         self._log.info('open')
         pubsub_singleton.register(self)
         self.open()
@@ -155,17 +155,15 @@ class ExporterDialog(QtWidgets.QDialog):
 
 @register_decorator('exporter')
 class Exporter(RangeToolBase):
+    NAME = N_('Exporter')
+    BRIEF = N_('Export data to a JLS file')
+    DESCRIPTION = N_("""\
+                Exporting data to a JLS file.  You can open this file
+                later to display the exported data.""")
 
     def __init__(self, value):
         self._signals = {}
-        super().__init__(
-            value=value,
-            name=N_('Export'),
-            brief=N_('Export data to a JLS file'),
-            description=N_("""\
-                Exporting data to a JLS file.  You can open this file
-                later to display the exported data.""")
-        )
+        super().__init__(value=value)
 
     def _jls_init(self, jls: Writer):
         sources = []
@@ -249,7 +247,7 @@ class Exporter(RangeToolBase):
                             jls.utc(jls_signal_id, sample_id_end, utc_end)
                         self._log.info(f'{signal["signal"]}: exported {count} samples')
                         break
-                    length = min(10_000, length_remaining)
+                    length = min(100_000, length_remaining)
                     d = self.request(signal, 'samples', sample_id, 0, length, timeout=1.0)
                     info = d['info']
                     sample_id_start = info['time_range_samples']['start']

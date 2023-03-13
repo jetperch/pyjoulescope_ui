@@ -44,8 +44,10 @@ TOPIC_REMOVE_TOPIC = COMMON_ACTIONS_TOPIC + '/!topic_remove'
 CLS_ACTION_PREFIX = 'on_cls_action_'
 CLS_CALLBACK_PREFIX = 'on_cls_callback_'
 CLS_EVENT_PREFIX = 'on_cls_event_'
+CLS_SETTING_PREFIX = 'on_cls_setting_'
 ACTION_PREFIX = 'on_action_'
 CALLBACK_PREFIX = 'on_callback_'
+SETTING_PREFIX = 'on_setting_'
 EVENT_PREFIX = 'on_event_'
 _PUBSUB_ATTR = '__pubsub__'
 
@@ -398,7 +400,7 @@ class _Setting:
             self._log.warning('on_publish but no setting attr')
             return
         attr = attr['setting']
-        fn_name = f'on_setting_{subtopic_to_name(self.name)}'
+        fn_name = f'{SETTING_PREFIX}{subtopic_to_name(self.name)}'
         if fn_name not in attr:
             fn = getattr(obj, fn_name, None)
             if fn is not None:
@@ -1261,7 +1263,7 @@ class PubSub:
 
     def _setting_cls_connect(self, cls, topic_name, setting_name):
         functions = cls.__dict__[_PUBSUB_ATTR]['functions']
-        cls_fn_name = f'on_cls_setting_{subtopic_to_name(setting_name)}'
+        cls_fn_name = f'{CLS_SETTING_PREFIX}{subtopic_to_name(setting_name)}'
         if hasattr(cls, cls_fn_name):
             fn = getattr(cls, cls_fn_name)
             self.subscribe(topic_name, fn, flags=['pub', 'retain'])

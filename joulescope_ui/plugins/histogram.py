@@ -12,132 +12,225 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from PySide6 import QtCore, QtWidgets
+from joulescope_ui import register, N_, pubsub_singleton
+from joulescope_ui.range_tool import RangeToolBase
 import logging
 import numpy as np
 import pyqtgraph as pg
-from PySide6 import QtWidgets
-from .histogram_config_widget import Ui_Dialog
-from . import plugin_helpers
+from .plugin_helpers import calculate_histogram, normalize_hist
+from joulescope_ui.styles import styled_widget
 
 
-log = logging.getLogger(__name__)
-
-PLUGIN = {
-    'name': 'Histogram',
-    'description': 'Histogram for current/voltage data',
-}
-
-
+_NAME = N_('Histogram')
 _NORMALIZATIONS = {
-    'Frequency Distribution': ('count', 'Sample Count'),
     'Discrete Probability Distribution': ('unity', 'Probability'),
+    'Frequency Distribution': ('count', 'Sample Count'),
     'Probability Density Distribution': ('density', 'Probability Density'),
 }
 
 
-class Histogram:
+class HistogramRangeToolDialog(QtWidgets.QDialog):
+    _instances = []
 
-    def __init__(self):
-        self._cfg = None
-        self.hist = np.asarray([])
-        self.bin_edges = np.asarray([])
-        self._win = None
-        self._label = None
+    def __init__(self, value):
+        self.CAPABILITIES = []
+        self._value = value
+        parent = pubsub_singleton.query('registry/ui/instance')
+        super().__init__(parent=parent)
+        HistogramRangeToolDialog._instances.append(self)
+        self._log = logging.getLogger(f'{__name__}.dialog')
+        self.setObjectName('histogram_range_tool_dialog')
+        self._layout = QtWidgets.QVBoxLayout()
+        self.setLayout(self._layout)
+        self._form = QtWidgets.QFormLayout()
+
+        self._num_bins_label = QtWidgets.QLabel(N_('Number of bins (0 for auto)'), self)
+        self._form.setWidget(0, QtWidgets.QFormLayout.LabelRole, self._num_bins_label)
+        self._num_bins = QtWidgets.QSpinBox(self)
+        self._num_bins.setMaximum(1000)
+        self._form.setWidget(0, QtWidgets.QFormLayout.FieldRole, self._num_bins)
+
+        self._signal_label = QtWidgets.QLabel(N_('Signal'), self)
+        self._form.setWidget(1, QtWidgets.QFormLayout.LabelRole, self._signal_label)
+        self._signal = QtWidgets.QComboBox(self)
+        self._form.setWidget(1, QtWidgets.QFormLayout.FieldRole, self._signal)
+        for _, signal in value['signals']:
+            self._signal.addItem(signal)
+
+        self._type_label = QtWidgets.QLabel(N_('Histogram type'), self)
+        self._form.setWidget(2, QtWidgets.QFormLayout.LabelRole, self._type_label)
+        self._normalization = QtWidgets.QComboBox(self)
+        self._form.setWidget(2, QtWidgets.QFormLayout.FieldRole, self._normalization)
+        for name in _NORMALIZATIONS.keys():
+            self._normalization.addItem(name)
+
+        self._layout.addLayout(self._form)
+        self._buttons = QtWidgets.QDialogButtonBox(self)
+        self._buttons.setOrientation(QtCore.Qt.Horizontal)
+        self._buttons.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel | QtWidgets.QDialogButtonBox.Ok)
+        self._layout.addWidget(self._buttons)
+
+        self._buttons.accepted.connect(self.accept)
+        self._buttons.rejected.connect(self.reject)
+        self.finished.connect(self._on_finished)
+
+        self.resize(400, 173)
+        self.setWindowTitle(N_('Histogram configuration'))
+        self._log.info('open')
+        pubsub_singleton.register(self)
+        self.open()
+
+    @QtCore.Slot(int)
+    def _on_finished(self, value):
+        self._log.info('finished: %d', value)
+
+        if value == QtWidgets.QDialog.DialogCode.Accepted:
+            self._log.info('finished: accept - start histogram')
+            self._value['kwargs'] = {
+                'num_bins': int(self._num_bins.value()),
+                'signal': self._value['signals'][self._signal.currentIndex()],
+                'norm': str(self._normalization.currentText()),
+            }
+            w = HistogramRangeTool(self._value)
+            pubsub_singleton.register(w)
+        else:
+            self._log.info('finished: reject - abort export')  # no action required
+        self.close()
+
+    def close(self):
+        super().close()
+        pubsub_singleton.unregister(self)
+        self.__class__._instances.remove(self)
+
+
+@register
+@styled_widget(_NAME)
+class HistogramRangeToolWidget(QtWidgets.QWidget):
+
+    SETTINGS = {
+        'data': {
+            'dtype': 'obj',
+            'brief': 'Hold the histogram data',
+            'default': None,
+            'flags': ['hidden'],
+        }
+    }
+
+    def __init__(self, data=None):
+        self._data = data
+        self._hist = None
+        self._bin_edges = None
         self._bg = None
+        super().__init__()
+        self._layout = QtWidgets.QHBoxLayout(self)
+        self._layout.setSpacing(0)
+        self._layout.setContentsMargins(0, 0, 0, 0)
 
-    def run_pre(self, data):
-        rv = HistogramDialog().exec_()
-        if rv is None:
-            return 'Cancelled'
-        self._cfg = rv
-
-    def run(self, data):
-        norm = _NORMALIZATIONS[self._cfg['norm']][0]
-        signal = self._cfg['signal']
-        num_bins = self._cfg['num_bins']
-
-        hist, bin_edges = plugin_helpers.calculate_histogram(data, num_bins, signal)
-        self.hist, _bin_edges = plugin_helpers.normalize_hist(hist, bin_edges, norm)
-        self.bin_edges = _bin_edges[:-1]
-
-    def run_post(self, data):
-        if self.hist.size == 0 or self.bin_edges.size == 0:
-            log.exception('Histogram is empty')
-            return
-
-        self._win = pg.GraphicsLayoutWidget(show=True, title='Histogram')
+        self._win = pg.GraphicsLayoutWidget(parent=self, title=_NAME)
+        self._win.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self._layout.addWidget(self._win)
         p = self._win.addPlot(row=1, col=0)
+        self._p = p
         p.getAxis('left').setGrid(128)
         p.getAxis('bottom').setGrid(128)
-
         self._label = pg.LabelItem(justify='right')
-        width = self.bin_edges[1] - self.bin_edges[0]
-        brushes = [(128, 128, 128)] * len(self.bin_edges)
-        self._bg = pg.BarGraphItem(
-            x0=self.bin_edges, height=self.hist, width=width, brushes=brushes)
         self.prev_hover_index = 0
-
-        p.addItem(self._bg)
         self._win.addItem(self._label, row=0, col=0)
 
-        left_axis_label = _NORMALIZATIONS[self._cfg['norm']][1]
-        p.setLabels(left=left_axis_label, bottom=self._cfg['signal'])
-        p.setXRange(self.bin_edges[0], self.bin_edges[-1], padding=0.05)
-        p.setYRange(np.nanmin(self.hist), np.nanmax(self.hist), padding=0.05)
+        self.proxy = pg.SignalProxy(p.scene().sigMouseMoved, rateLimit=60, slot=self._on_mouse_moved)
 
-        def mouseMoved(evt):
-            pos = evt[0]
-            if p.sceneBoundingRect().contains(pos):
-                mousePoint = p.vb.mapSceneToView(pos)
-                xval = mousePoint.x()
-                index = np.searchsorted(self.bin_edges, xval) - 1
-                if index >= 0 and index < len(self.bin_edges):
-                    self._label.setText(
-                        "<span style='font-size: 12pt'>{}={:.5f}</span>,   <span style='color: yellow; font-size:12pt'>{}: {:.5f}</span>".format(
-                            self._cfg['signal'], mousePoint.x(), left_axis_label, self.hist[index])
-                    )
-                    self._bg.opts['brushes'][self.prev_hover_index] = (128, 128, 128)
-                    self._bg.opts['brushes'][index] = (213, 224, 61)
-                    self.prev_hover_index = index
-                    self._bg.drawPicture()
+    def on_pubsub_register(self):
+        if self._data is not None:
+            self.data = self._data
 
-        self.proxy = pg.SignalProxy(
-            p.scene().sigMouseMoved, rateLimit=60, slot=mouseMoved)
+    @QtCore.Slot(object)
+    def _on_mouse_moved(self, evt):
+        pos = evt[0]
+        if self._hist is None or self.data is None:
+            return
+        p = self._p
+        if p.sceneBoundingRect().contains(pos):
+            mouse_point = p.vb.mapSceneToView(pos)
+            xval = mouse_point.x()
+            index = np.searchsorted(self._bin_edges, xval) - 1
+            signal_name = self.data['signal_name']
+            axis_label = self.data['axis_label']
+            if index >= 0 and index < len(self._bin_edges):
+                self._label.setText(
+                    "<span style='font-size: 12pt'>{}={:.5f}</span>,   <span style='color: yellow; font-size:12pt'>{}: {:.5f}</span>".format(
+                        signal_name, mouse_point.x(), axis_label, self._hist[index])
+                )
+                self._brushes[self.prev_hover_index] = (128, 128, 128)
+                self._brushes[index] = (213, 224, 61)
+                self._bg.setOpts(brushes=self._brushes)
+                self.prev_hover_index = index
 
-        self._win.closeEvent = lambda evt: data.on_tool_finished()
-        return True
+    def on_setting_data(self, value):
+        if value is None:
+            self._hist = None
+            self._bin_edges = None
+            return
+        self._hist = np.array(value['hist'], dtype=float)
+        self._bin_edges = np.array(value['bin_edges'], dtype=float)
+        signal_name = value['signal_name']
+        axis_label = value['axis_label']
+
+        if self._bg is not None:
+            self._p.removeItem(self._bg)
+        self._bg = pg.BarGraphItem(
+            x0=self._bin_edges,
+            height=self._hist,
+            width=self._bin_edges[1] - self._bin_edges[0],
+            brushes=[(128, 128, 128)] * len(self._bin_edges),
+        )
+        self._brushes = [(128, 128, 128)] * len(self._bin_edges)
+        self._p.addItem(self._bg)
+        self._p.setXRange(self._bin_edges[0], self._bin_edges[-1], padding=0.05)
+        self._p.setYRange(np.nanmin(self._hist), np.nanmax(self._hist), padding=0.05)
+        self._p.setLabels(left=axis_label, bottom=signal_name)
+        value['hist'] = self._hist.tolist()  # json-serializable
+        value['bin_edges'] = self._bin_edges.tolist()  # json-serializable
 
 
-class HistogramDialog(QtWidgets.QDialog):
-    def __init__(self):
-        QtWidgets.QDialog.__init__(self)
-        self.ui = Ui_Dialog()
-        self.ui.setupUi(self)
-        self.ui.signal.addItem("current")
-        self.ui.signal.addItem("voltage")
-        self.ui.signal.addItem("power")
-        for name in _NORMALIZATIONS.keys():
-            self.ui.normalization.addItem(name)
+@register
+class HistogramRangeTool(RangeToolBase):
+    NAME = _NAME
+    BRIEF = N_('Compute histogram over the range')
+    DESCRIPTION = N_("""\
+        Compute a histogram of the signal's data values over the
+        selected range.""")
 
-    def exec_(self):
-        if QtWidgets.QDialog.exec_(self) == 1:
-            num_bins = int(self.ui.num_bins.value())
-            signal = str(self.ui.signal.currentText())
-            norm = str(self.ui.normalization.currentText())
-            return {
-                'num_bins': num_bins,
-                'signal': signal,
-                'norm': norm
-            }
-        else:
-            return None
+    def __init__(self, value):
+        super().__init__(value)
 
+    def _run(self):
+        kwargs = self.kwargs
+        num_bins = kwargs['num_bins']
+        signal = kwargs['signal']
+        _, signal_id = signal
+        norm, norm_label = _NORMALIZATIONS[kwargs['norm']]
 
-def plugin_register(api):
-    """Register the example plugin.
+        hist, bin_edges = calculate_histogram(self, self.value, signal, num_bins)
+        hist, bin_edges = normalize_hist(hist, bin_edges, norm)
+        bin_edges = bin_edges[:-1]
+        if hist.size == 0 or bin_edges.size == 0:
+            self._log.error('Histogram is empty')
+            return
 
-    :param api: The :class:`PluginServiceAPI` instance.
-    :return: True on success any other value on failure.
-    """
-    api.range_tool_register('Analysis/Histogram', Histogram)
-    return True
+        self.pubsub.publish('registry/view/actions/!widget_open', {
+            'value': 'HistogramRangeToolWidget',
+            'kwargs': {
+                'data': {
+                    'hist': hist,
+                    'bin_edges': bin_edges,
+                    'signal_name': signal_id,
+                    'axis_label': norm_label,
+                },
+            },
+            'floating': True,
+        })
+
+    @staticmethod
+    def on_cls_action_run(value):
+        HistogramRangeToolDialog(value)

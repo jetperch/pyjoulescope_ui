@@ -36,6 +36,7 @@ from .app import App
 # from .mem_leak_debugger import MemLeakDebugger
 from .paths import Paths
 from .view import View  # registers the view manager
+import joulescope_ui.plugins   # register plugins
 import appnope
 import logging
 
@@ -127,6 +128,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, filename=None, is_config_load=False):
         self._log = logging.getLogger(__name__)
         super(MainWindow, self).__init__()
+        self.setWindowTitle('Joulescope')
         self._dialog = None
         self._pubsub = pubsub_singleton
         self.SETTINGS = style_settings(N_('UI'))

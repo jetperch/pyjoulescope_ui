@@ -11,7 +11,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 Improves upon 1.0.0 but still alpha quality.  See the 1.0.0 release
 notes below for how to usage notes.
 
-2023 Mar 11 [in progress]
+2023 Mar 13 [in progress]
 
 * Deduplicated JLS v2 requests for improved performance.
 * Modified waveform widget to only request dual marker data when needed.
@@ -19,6 +19,9 @@ notes below for how to usage notes.
 * Fixed dual marker integral value for JLS v2 files #177
 * Fixed waveform export.
 * Added minimum 1 pixel wide rectangle fills in waveform widget.
+* Added individual statistics display to each marker of dual markers. 
+* Added range RangeTool and RangeToolBase.  Refactored "export".
+* Added back range tools: USB Inrush, histogram.
 
 
 ## 1.0.0

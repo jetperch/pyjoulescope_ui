@@ -1,4 +1,4 @@
-# Copyright 2019 Jetperch LLC
+# Copyright 2019-2023 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,15 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from . import usb_inrush, histogram, cdf, ccdf, frequency, max_window
+from .usb_inrush import UsbInrush
+from .histogram import HistogramRangeTool
+
+#from . import usb_inrush, histogram, cdf, ccdf, frequency, max_window
 # from . import example_01, example_02
 
-PLUGINS_BUILTIN = [
-    usb_inrush,
-    histogram,
-    cdf,
-    ccdf,
-    frequency,
-    max_window,
-    # example_01, example_02,
-]
+# PLUGINS_BUILTIN = [
+#     usb_inrush,
+#     histogram,
+#     cdf,
+#     ccdf,
+#     frequency,
+#     max_window,
+#     # example_01, example_02,
+# ]
+#

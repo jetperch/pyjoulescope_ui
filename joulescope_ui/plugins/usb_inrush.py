@@ -1,4 +1,4 @@
-# Copyright 2018 Jetperch LLC
+# Copyright 2018-2023 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,28 +14,21 @@
 
 
 # https://www.usb.org/document-library/usbet20
-# "C:\Program Files (x86)\USB-IF Test Suite\USBET20\USBET20.exe"
 
+from joulescope_ui import register, N_, time64
+from joulescope_ui.range_tool import RangeToolBase
 import datetime
 import numpy as np
-import tempfile
 import os
 import subprocess
 import logging
 
 
-log = logging.getLogger(__name__)
+_log = logging.getLogger(__name__)
 USBET20_PATHS = [
     r"C:\Program Files\USB-IF Test Suite\USBET20\USBET20.exe",
     r"C:\Program Files (x86)\USB-IF Test Suite\USBET20\USBET20.exe",
 ]
-
-
-PLUGIN = {
-    'name': 'USB Inrush',
-    'description': 'Run the USBET tool validate USB inrush current',
-    # config: additional configuration options for this plugin
-}
 
 
 def find_usbet20():
@@ -43,10 +36,6 @@ def find_usbet20():
     if len(path):
         return path[0]
     return None
-
-
-def is_available():
-    return find_usbet20() is not None
 
 
 def construct_path(base_path):
@@ -59,20 +48,51 @@ def construct_path(base_path):
     return p
 
 
-class UsbInrush:
+class UsbInrush(RangeToolBase):
+    NAME = N_('USB Inrush')
+    BRIEF = N_('Perform USB Inrush testing')
+    DESCRIPTION = N_("""\
+        Use dual markers to select at least 100 milliseconds
+        after enabling power to the target device.  This tool
+        will send the selected data to the USBET tool for analysis.""")
 
-    def run(self, data):  # RangeToolInvocation
-        dpath = construct_path(data.cmdp['General/data_path'])
-        duration = data.sample_count / data.sample_frequency
-        if not is_available():
-            return f'USBET tool not found.'
-        if not 0.1 < duration < 0.5:  # todo: confirm range
-            return f'Invalid duration {duration:.2f}, must be between 0.1 and 0.5 seconds.'
+    def __init__(self, value):
+        self._signals = {}
+        super().__init__(value)
+
+    def _find_signals(self):
+        for source_id, signal_id in self.signals:
+            if signal_id.endswith('.i'):
+                v = signal_id.split('.')[0] + '.v'
+                if (source_id, v) in self.signals:
+                    return (source_id, signal_id), (source_id, v)
+        return None, None
+
+    def _run(self):
+        dpath = self.pubsub.query('common/settings/paths/data')
+        dpath = construct_path(dpath)
+        duration = (self.x_range[1] - self.x_range[0]) / time64.SECOND
+
         usbet20_path = find_usbet20()
-        d = data.samples_get()
-        current = d['signals']['current']['value']
-        voltage = d['signals']['voltage']['value']
-        x = np.arange(len(current), dtype=np.float64) * (1.0 / data.sample_frequency)
+        if usbet20_path is None:
+            self.error('USBET tool not found.')
+            return
+        elif not 0.1 < duration < 0.5:
+            self.error(f'Invalid duration {duration:.2f}, must be between 0.1 and 0.5 seconds.')
+            return
+
+        i_signal, v_signal = self._find_signals()
+        if i_signal is None or v_signal is None:
+            self.error(f'Current and voltage signals not found.')
+            return
+
+        i = self.request(i_signal, 'utc', *self.x_range, 0, timeout=30000.0)
+        v = self.request(v_signal, 'utc', *self.x_range, 0, timeout=30000.0)
+        fs = i['info']['time_map']['counter_rate']
+
+        current = i['data']
+        voltage = v['data']
+        x = np.arange(len(current), dtype=np.float64) * (1.0 / fs)
         valid = np.isfinite(current)
         voltage = np.mean(voltage[valid])
         x = x[valid].reshape((-1, 1))
@@ -83,20 +103,21 @@ class UsbInrush:
         with open(filename, 'wt') as f:
             np.savetxt(f, values, ['%.8f', '%.3f'], delimiter=',')
         args = ','.join(['usbinrushcheck', filename, '%.3f' % voltage])
-        log.info('Running USBET20')
+        _log.info('Running USBET20')
         rv = subprocess.run([usbet20_path, args], capture_output=True)
-        log.info('USBET returned %s\nSTDERR: %s\nSTDOUT: %s', rv.returncode, rv.stderr, rv.stdout)
+        _log.info('USBET returned %s\nSTDERR: %s\nSTDOUT: %s', rv.returncode, rv.stderr, rv.stdout)
+
+    @staticmethod
+    def on_cls_action_run(pubsub, topic, value):
+        pubsub.register(UsbInrush(value))
 
 
-def plugin_register(api):
-    """Register the USB Inrush plugin.
-
-    :param api: The :class:`PluginServiceAPI` instance.
-    :return: True on success any other value on failure.
+def usb_inrush_register():
+    """Register the USB Inrush range tool if USBET is available.
     """
-    if not is_available():
-        log.info('USBET20 tool not found - skip usb_inrush plugin')
-        return True  # not an error, normal operation
+    path = find_usbet20()
+    if path is not None:
+        register(UsbInrush)
 
-    api.range_tool_register('Analysis/USB Inrush', UsbInrush)
-    return True
+
+usb_inrush_register()

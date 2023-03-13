@@ -14,7 +14,7 @@
 
 from PySide6 import QtWidgets, QtGui, QtCore, QtOpenGLWidgets
 from OpenGL import GL as gl
-from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topic_name, time64
+from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topic_name, get_instance, time64
 from joulescope_ui.styles import styled_widget, color_as_qcolor, font_as_qfont
 from joulescope_ui.widget_tools import settings_action_create
 from .line_segments import PointsF
@@ -100,6 +100,8 @@ _STATE_DEFAULT = {
         # pos1: The marker position in time64
         # pos2: For single: not present.  For dual: the second marker position in time64.
         # changed: if position changed and data request needed
+        # text_pos1: The text position for marker 1
+        # text_pos2: The text position for marker 2
 }
 
 
@@ -192,6 +194,8 @@ def _idx_to_segments(finite_idx):
     length = len(finite_idx)
     change_idx = np.where(np.diff(finite_idx))[0] + 1
     segment_idx = []
+    if finite_idx is None or not len(finite_idx):
+        return []  # empty
     if finite_idx[0]:  # starts with a valid segment
         if not len(change_idx):  # best case, all data valid, one segment
             segment_idx = [[0, length]]
@@ -759,6 +763,8 @@ class WaveformWidget(QtWidgets.QWidget):
             else:
                 self._log.warning('Unsupported sample data type: %s', data_type)
                 return
+            if len(x) != len(y):
+                assert(len(x) == len(y))
             data = {
                 'x': x,
                 'avg': y,
@@ -1485,7 +1491,8 @@ class WaveformWidget(QtWidgets.QWidget):
                 p.setPen(s['text_pen'])
                 p.fillRect(q1, y0, q2 - q1, f_a + margin2, p.brush())
                 p.drawText(dt_x, y0 + margin + f_a, dt_str)
-                self._draw_dual_marker_text(p, m)
+                self._draw_dual_marker_text(p, m, 'text_pos1')
+                self._draw_dual_marker_text(p, m, 'text_pos2')
         p.setClipping(False)
 
     def _draw_statistics_text(self, p: QtGui.QPainter, pos, values, text_pos=None):
@@ -1529,7 +1536,7 @@ class WaveformWidget(QtWidgets.QWidget):
             y1 += f_h
 
     def _draw_single_marker_text(self, p, m, x):
-        text_pos = m.get('text_pos', 'right')
+        text_pos = m.get('text_pos1', 'right')
         if text_pos == 'off':
             return
         p0 = np.rint(self._x_map.time64_to_counter(x))
@@ -1563,8 +1570,9 @@ class WaveformWidget(QtWidgets.QWidget):
             self._draw_statistics_text(p, (p0, y0), values, text_pos)
         p.setClipping(False)
 
-    def _draw_dual_marker_text(self, p, m):
-        text_pos = m.get('text_pos', 'right')
+    def _draw_dual_marker_text(self, p, m, text_pos_key):
+        text_pos_default = 'off' if text_pos_key == 'text_pos1' else 'right'
+        text_pos = m.get(text_pos_key, text_pos_default)
         if text_pos == 'off':
             return
         marker_id = m['id']
@@ -1597,7 +1605,8 @@ class WaveformWidget(QtWidgets.QWidget):
                 integral_values = _statistics_format(['∫'], [v_avg * dt], integral_units)
                 values.extend(integral_values)
 
-            p0 = np.rint(self._x_map.time64_to_counter(m['pos2']))
+            pos_field = text_pos_key.split('_')[-1]
+            p0 = np.rint(self._x_map.time64_to_counter(m[pos_field]))
             self._draw_statistics_text(p, (p0, y0), values, text_pos)
         p.setClipping(False)
 
@@ -1633,6 +1642,8 @@ class WaveformWidget(QtWidgets.QWidget):
         if data is None:
             return
         data = data['data']
+        if not len(data['avg']):
+            return
         x_pixels = self._mouse_pos[0]
         x = self._x_map.counter_to_time64(x_pixels)
         x_rel = self._x_map.time64_to_trel(x)
@@ -2111,8 +2122,8 @@ class WaveformWidget(QtWidgets.QWidget):
                       style_action]
         return self._menu_show(event)
 
-    def _on_x_marker_statistics_show(self, marker, pos):
-        marker['text_pos'] = pos
+    def _on_x_marker_statistics_show(self, marker, text_pos_key, pos):
+        marker[text_pos_key] = pos
         self._repaint_request = True
 
     def _signals_get(self):
@@ -2144,16 +2155,44 @@ class WaveformWidget(QtWidgets.QWidget):
             'signals': signals,
         })
 
+    def _on_range_tool(self, unique_id, marker_idx):
+        m = self._x_markers_by_id[marker_idx]
+        x0, x1 = m['pos1'], m['pos2']
+        if x0 > x1:
+            x0, x1 = x1, x0
+        pubsub_singleton.publish(f'registry/{unique_id}/actions/!run', {
+            'x_range': (x0, x1),
+            'signals': self._signals_get(),
+        })
+
+    def _construct_analysis_menu_action(self, analysis_menu, unique_id, idx):
+        cls = get_instance(unique_id)
+        action = analysis_menu.addAction(cls.NAME)
+        action.triggered.connect(lambda: self._on_range_tool(unique_id, idx))
+        return action
+
     def _menu_x_marker_single(self, item, event: QtGui.QMouseEvent):
-        _, idx, _ = item.split('.')
+        dynamic_items = []
+        _, idx, pos_text = item.split('.')
         idx = int(idx)
         m = self._x_markers_by_id[idx]
-        pos = m.get('text_pos', 'right')
+        is_dual = m.get('dtype') == 'dual'
+        pos = m.get(f'text_{pos_text}', 'right')
 
-        menu = QtWidgets.QMenu('Waveform x_marker single context menu', self)
+        menu = QtWidgets.QMenu('Waveform x_marker context menu', self)
 
         export = menu.addAction(N_('Export'))
         export.triggered.connect(lambda: self._on_x_export(idx))
+
+        if is_dual:
+            analysis_menu = menu.addMenu(N_('Analysis'))
+            dynamic_items.append(analysis_menu)
+            range_tools = self.pubsub.query('registry_manager/capabilities/range_tool.class/list')
+            for unique_id in range_tools:
+                if unique_id == 'exporter':
+                    continue  # special, has own menu item
+                action = self._construct_analysis_menu_action(analysis_menu, unique_id, idx)
+                dynamic_items.append(action)
 
         show_stats_menu = menu.addMenu(N_('Show statistics'))
         show_stats_group = QtGui.QActionGroup(show_stats_menu)
@@ -2161,25 +2200,25 @@ class WaveformWidget(QtWidgets.QWidget):
         left = show_stats_menu.addAction(N_('Left'))
         left.setCheckable(True)
         left.setChecked(pos == 'left')
-        left.triggered.connect(lambda: self._on_x_marker_statistics_show(m, 'left'))
+        left.triggered.connect(lambda: self._on_x_marker_statistics_show(m, f'text_{pos_text}', 'left'))
         show_stats_group.addAction(left)
 
         right = show_stats_menu.addAction(N_('Right'))
         right.setCheckable(True)
         right.setChecked(pos == 'right')
-        right.triggered.connect(lambda: self._on_x_marker_statistics_show(m, 'right'))
+        right.triggered.connect(lambda: self._on_x_marker_statistics_show(m, f'text_{pos_text}', 'right'))
         show_stats_group.addAction(right)
 
         off = show_stats_menu.addAction(N_('Off'))
         off.setCheckable(True)
         off.setChecked(pos == 'off')
-        off.triggered.connect(lambda: self._on_x_marker_statistics_show(m, 'off'))
+        off.triggered.connect(lambda: self._on_x_marker_statistics_show(m, f'text_{pos_text}', 'off'))
         show_stats_group.addAction(off)
 
         marker_remove = menu.addAction(N_('Remove'))
         topic = get_topic_name(self)
         marker_remove.triggered.connect(lambda: self.pubsub.publish(f'{topic}/actions/!x_markers', ['remove', idx]))
-        self._menu = [menu,
+        self._menu = [menu, dynamic_items,
                       export,
                       show_stats_menu, show_stats_group, left, right, off,
                       marker_remove]
@@ -2239,6 +2278,7 @@ class WaveformWidget(QtWidgets.QWidget):
         if isinstance(marker, int):
             marker = self._x_markers_by_id.pop(marker)
             self.state['x_markers'].remove(marker)
+            self._repaint_request = True
             return marker
         else:
             raise ValueError('unsupported remove')
@@ -2252,8 +2292,9 @@ class WaveformWidget(QtWidgets.QWidget):
             'id': self._x_marker_id_next(),
             'dtype': 'single',
             'pos1': pos1,
-            'pos1_test_pos': 'top',
             'changed': True,
+            'text_pos1': 'right',
+            'text_pos2': 'off',
         }
         return self._x_marker_add(marker)
 
@@ -2274,9 +2315,9 @@ class WaveformWidget(QtWidgets.QWidget):
             'dtype': 'dual',
             'pos1': pos1,
             'pos2': pos2,
-            'pos1_test_pos': 'top',
-            'pos2_test_pos': 'bottom',
             'changed': True,
+            'text_pos1': 'off',
+            'text_pos2': 'right',
         }
         return self._x_marker_add(marker)
 
