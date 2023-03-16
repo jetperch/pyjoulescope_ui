@@ -26,6 +26,34 @@ _TIMEOUT_DEFAULT = 5.0
 _PROGRESS_TOPIC = 'registry/progress/actions/!update'
 
 
+def rsp_as_f32(rsp):
+    """Get the data as f32 type.
+
+    :param rsp: The CAPABILITIES.SIGNAL_BUFFER_SOURCE response,
+        such as from RangeTool.request.
+    :return: The np.ndarray with dtype=np.float32 regardless
+        of the rsp['data_type'].  Coerce as needed.
+    """
+    length = rsp['info']['time_range_samples']['length']
+    if rsp['response_type'] != 'samples':
+        return rsp['data']
+    y = rsp['data']
+    data_type = rsp['data_type']
+    if data_type == 'f32':
+        pass
+    elif data_type == 'u1':
+        y = np.unpackbits(y, bitorder='little')[:length]
+    elif data_type == 'u4':
+        d = np.empty(len(y) * 2, dtype=np.uint8)
+        d[0::2] = np.logical_and(y, 0x0f)
+        d[1::2] = np.logical_and(np.right_shift(y, 4), 0x0f)
+        y = d[:length]
+    else:
+        raise ValueError(f'unsupported data_type {data_type}')
+    return y
+
+
+
 class RangeTool:
     """Provides common range tool behaviors.
 
