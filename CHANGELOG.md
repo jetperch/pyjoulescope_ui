@@ -10,7 +10,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 * Reintegrate max_window range tool.
 * Fixed command line filename open for JLS file association.
-* Added back ctrl-left-click on dual markers to move both. 
+* Added back ctrl-left-click on dual markers to move both.
+* Added software update install support for macOS and Ubuntu.
 
 
 ## 1.0.1

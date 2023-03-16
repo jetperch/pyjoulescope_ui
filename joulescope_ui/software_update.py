@@ -21,6 +21,7 @@ import threading
 import platform
 from joulescope_ui import __version__, N_, pubsub_singleton, register_decorator
 from joulescope_ui.help_ui import load_style
+from joulescope_ui.ui_util import show_in_folder
 import logging
 import hashlib
 import os
@@ -260,6 +261,11 @@ def apply(info):
     if platform.system() == 'Windows':
         flags = subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP
         subprocess.Popen([path, '/SILENT'], creationflags=flags)
+    elif platform.system == 'Darwin':
+        flags = subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP
+        subprocess.Popen(['hdiutil', 'attach', '-autoopen', path], creationflags=flags)
+    else:
+        show_in_folder(os.path.dirname(path))
 
 
 @register_decorator('software_update')
