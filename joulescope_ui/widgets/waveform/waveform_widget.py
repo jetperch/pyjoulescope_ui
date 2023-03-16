@@ -1874,22 +1874,30 @@ class WaveformWidget(QtWidgets.QWidget):
                 xt = self._x_map.counter_to_time64(x)
                 xr = self.x_range
                 xt = max(xr[0], min(xt, xr[1]))  # bound to range
-                item = self._mouse_action[1]
+                item, move_both = self._mouse_action[1:3]
                 _, m_idx, m_field = item.split('.')
                 m = self._x_markers_by_id[int(m_idx)]
                 m['changed'] = True
-                m[m_field] = xt
+                xd = xt - m[m_field]
+                m[m_field] += xd
                 if m['dtype'] == 'dual':
+                    if move_both:
+                        m_field = 'pos1' if m_field == 'pos2' else 'pos2'
+                        m[m_field] += xd
                     self._request_marker_data(m)
             elif action == 'move.y_marker':
-                item = self._mouse_action[1]
+                item, move_both = self._mouse_action[1:3]
                 _, plot_index, _, m_idx, m_field = item.split('.')
                 plot = self._plot_get(int(plot_index))
                 m = self._y_marker_get(plot, int(m_idx))
                 yt = self._y_pixel_to_value(plot, y)
                 yr = plot['range']
                 yt = max(yr[0], min(yt, yr[1]))  # bound to range
-                m[m_field] = yt
+                yd = yt - m[m_field]
+                m[m_field] += yd
+                if m['dtype'] == 'dual' and move_both:
+                    m_field = 'pos1' if m_field == 'pos2' else 'pos2'
+                    m[m_field] += yd
             elif action == 'x_pan':
                 self._mouse_x_pan(x)
             elif action == 'y_pan':
@@ -1933,6 +1941,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._log.info(f'mouse press ({x}, {y}) -> ({item}, {x_name}, {y_name})')
         if self._mouse_action is None:
             self._mouse_pos_start = (x, y)
+        is_ctrl = bool(QtCore.Qt.KeyboardModifier.ControlModifier & event.modifiers())
         if event.button() == QtCore.Qt.LeftButton:
             if item.startswith('spacer.'):
                 idx = int(item.split('.')[1])
@@ -1942,12 +1951,13 @@ class WaveformWidget(QtWidgets.QWidget):
                 if self._mouse_action is not None:
                     self._mouse_action = None
                 else:
-                    self._mouse_action = ['move.x_marker', item]
+
+                    self._mouse_action = ['move.x_marker', item, is_ctrl]
             elif 'y_marker' in item:
                 if self._mouse_action is not None:
                     self._mouse_action = None
                 else:
-                    self._mouse_action = ['move.y_marker', item]
+                    self._mouse_action = ['move.y_marker', item, is_ctrl]
             elif y_name.startswith('plot') and x_name == 'plot':
                 if self.pin_left or self.pin_right:
                     pass  # pinned to extents, cannot pan
