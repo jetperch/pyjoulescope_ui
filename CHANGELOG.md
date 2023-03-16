@@ -21,7 +21,7 @@ notes below for additional usage guidelines.
 * Added minimum 1 pixel wide rectangle fills in waveform widget.
 * Added individual statistics display to each marker of dual markers. 
 * Added range RangeTool and RangeToolBase.  Refactored "export".
-* Added back range tools: USB Inrush, histogram.
+* Added back range tools: USB Inrush, histogram, frequency.
 * Fixed waveform widget summary display x-axis.
 * Reduced waveform widget signal requests for more consistent frame rate.
 * Fixed low samples rates, like 10 Hz (pyjoulescope_driver 1.2.1).

@@ -14,6 +14,7 @@
 
 from .usb_inrush import UsbInrush
 from .histogram import HistogramRangeTool
+from .frequency import FrequencyRangeTool
 
 #from . import usb_inrush, histogram, cdf, ccdf, frequency, max_window
 # from . import example_01, example_02

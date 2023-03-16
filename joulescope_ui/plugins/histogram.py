@@ -34,7 +34,6 @@ class HistogramRangeToolDialog(QtWidgets.QDialog):
     _instances = []
 
     def __init__(self, value):
-        self.CAPABILITIES = []
         self._value = value
         parent = pubsub_singleton.query('registry/ui/instance')
         super().__init__(parent=parent)
