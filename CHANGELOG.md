@@ -4,6 +4,14 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 1.0.2
+
+2023 Mar 17 [in progress]
+
+* Reintegrate max_window range tool.
+* Fixed command line filename open for JLS file association.
+
+
 ## 1.0.1
 
 <span style="color:yellow">⚠ ALPHA RELEASE - USE WITH CAUTION ⚠</span> 

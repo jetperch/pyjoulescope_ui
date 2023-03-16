@@ -265,12 +265,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._pubsub.subscribe('registry_manager/capabilities/widget.class/list',
                                self._on_change_widgets, flags=['pub', 'retain'])
 
-        if is_config_load:
-            self._pubsub.publish('registry/view/settings/active', view_active)
-        elif filename is not None:
-            self._pubsub.publish('registry/view/settings/active', 'view:file')
-            self.on_action_file_open(filename)
-        else:
+        if not is_config_load:
             self._pubsub.publish('registry/view/settings/active', 'view:file')
             self._center(resize=True)
 
@@ -285,6 +280,12 @@ class MainWindow(QtWidgets.QMainWindow):
             self._pubsub.publish('registry/view/actions/!widget_open', 'MultimeterWidget')
             self.resize(580, 560)
             self._center(resize=False)
+
+        if filename is not None:
+            self._pubsub.publish('registry/view/settings/active', 'view:file')
+            self.on_action_file_open(filename)
+        elif is_config_load:
+            self._pubsub.publish('registry/view/settings/active', view_active)
 
         self._pubsub.publish('registry/StyleManager:0/actions/!render', None)
         self._pubsub.process()
