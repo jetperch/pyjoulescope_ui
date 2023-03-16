@@ -36,6 +36,7 @@ notes below for additional usage guidelines.
 * Added PubSub process count monitor to status bar.
 * Modified "Clear config and exit" to also clear rendered views.
 * Open floating dock widgets to (800, 600) size.
+* Fixed view menu to have radio buttons.
 
 
 ## 1.0.0

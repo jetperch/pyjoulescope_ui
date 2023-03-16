@@ -260,9 +260,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
         _device_factory_add()
         self._pubsub.subscribe('registry_manager/capabilities/view.object/list',
-                                   self._on_change_views, flags=['pub', 'retain'])
+                               self._on_change_views, flags=['pub', 'retain'])
+        self._pubsub.subscribe('registry/view/settings/active', self._on_change_views, flags=['pub'])
         self._pubsub.subscribe('registry_manager/capabilities/widget.class/list',
-                                   self._on_change_widgets, flags=['pub', 'retain'])
+                               self._on_change_widgets, flags=['pub', 'retain'])
 
         if is_config_load:
             self._pubsub.publish('registry/view/settings/active', view_active)
@@ -364,6 +365,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self._pubsub_process_count_last = c
 
     def _on_change_views(self, value):
+        value = self._pubsub.query('registry_manager/capabilities/view.object/list')
         active_view = self._pubsub.query('registry/view/settings/active', default=None)
         menu, k = self._menu_items['view_menu']
         for action, _ in k.values():
@@ -374,13 +376,12 @@ class MainWindow(QtWidgets.QMainWindow):
         for unique_id in value:
             name = self._pubsub.query(f'registry/{unique_id}/settings/name', default=unique_id)
             menu_items.append([unique_id, name, ['registry/view/settings/active', unique_id]])
-        self._menu_items['view_menu'] = _menu_setup(menu, menu_items)
+        self._menu_items['view_menu'][1] = _menu_setup(menu, menu_items)
 
-        k = self._menu_items['widgets_menu'][1]  # map of children
+        k = self._menu_items['view_menu'][1]  # map of children
         for view_unique_id, (action, _) in k.items():
-            action.setCheckable()
-            if view_unique_id == active_view:
-                action.setChecked()
+            action.setCheckable(True)
+            action.setChecked(view_unique_id == active_view)
             self._view_menu_group.addAction(action)
 
     def _on_change_widgets(self, value):
@@ -390,7 +391,7 @@ class MainWindow(QtWidgets.QMainWindow):
         for unique_id in value:
             name = self._pubsub.query(f'registry/{unique_id}/settings/name', default=unique_id)
             menu_items.append([unique_id, name, ['registry/view/actions/!widget_open', unique_id]])
-        self._menu_items['widgets_menu'] = _menu_setup(menu, menu_items)
+        self._menu_items['widgets_menu'][1] = _menu_setup(menu, menu_items)
 
     def event(self, event: QtCore.QEvent):
         if event.type() == QResyncEvent.EVENT_TYPE:
