@@ -19,6 +19,8 @@ Test the range tool implementation
 import unittest
 from joulescope_ui.range_tool import RangeTool
 from joulescope_ui import time64
+from joulescope_ui.time_map import TimeMap
+import numpy as np
 from unittest.mock import Mock
 
 
@@ -58,8 +60,48 @@ class PubSub:
 
     def publish(self, topic, value):
         if topic.endswith('!request'):
-            # todo construct response
-            rsp = value
+            tm = TimeMap()
+            tm.update(100_000_000, time64.YEAR, 1_000_000)
+            if value['time_type'] == 'utc':
+                utc_start = value['start']
+                utc_end = value['end']
+                length = value['length']
+                sample_start = tm.time64_to_counter(utc_start)
+                sample_end = tm.time64_to_counter(utc_end)
+            elif value['time_type'] == 'samples':
+                sample_start = value['start']
+                sample_end = value['end']
+                length = value['length']
+                utc_start = tm.counter_to_time64(sample_start)
+                utc_end = tm.counter_to_time64(sample_end)
+            else:
+                raise ValueError()
+            rsp = {
+                'version': 1,
+                'rsp_id': value['rsp_id'],
+                'info': {
+                    'field': value['signal_id'].split('.')[-1],
+                    'units': '',
+                    'time_range_utc': {
+                        'start': utc_start,
+                        'end': utc_end,
+                        'length': length,
+                    },
+                    'time_range_samples': {
+                        'start': sample_start,
+                        'end': sample_end,
+                        'length': length,
+                    },
+                    'time_map': {
+                        'offset_time': tm.time_offset,
+                        'offset_counter': tm.counter_offset,
+                        'counter_rate': tm.time_to_counter_scale * time64.SECOND,
+                    },
+                },
+                'response_type': 'samples',
+                'data_type': 'f32',
+                'data': np.zeros(10, dtype=np.float32),
+            }
             for cbk in self._subscribe.get(value['rsp_topic'], []):
                 cbk(rsp)
 

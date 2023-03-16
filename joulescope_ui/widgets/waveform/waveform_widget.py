@@ -363,7 +363,7 @@ class WaveformWidget(QtWidgets.QWidget):
             'dtype': 'int',
             'brief': N_('The target frames per second.'),
             'options': [
-                [2, N_('vsync')],
+                [5, N_('vsync'), 2],
                 [50, N_('20 Hz')],
                 [100, N_('10 Hz')],
                 [200, N_('5 Hz')],
@@ -430,7 +430,6 @@ class WaveformWidget(QtWidgets.QWidget):
         """
         self._log = logging.getLogger(__name__)
         self._kwargs = kwargs
-        self.state = None
         self._style_cache = None
         self._x_markers_by_id = {}
         self._summary_data = None
@@ -504,7 +503,6 @@ class WaveformWidget(QtWidgets.QWidget):
 
             for signal in signals:
                 self._on_signal_add(f'{topic}/events/signals/!add', signal)
-            self._request_data(force=True)
 
     def _on_signal_add(self, topic, value):
         self._log.info(f'_on_signal_add({topic}, {value})')
@@ -519,6 +517,7 @@ class WaveformWidget(QtWidgets.QWidget):
             if plot['quantity'] == quantity:
                 if item not in plot['signals']:
                     plot['signals'].append(item)
+                    self._plot_data_invalidate(plot)
         self._repaint_request = True
 
     def _on_signal_remove(self, topic, value):
@@ -531,6 +530,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 plot['signals'].remove(item)
         if item in self._signals:
             self._signals[item]['enabled'] = False
+        self._repaint_request = True
 
     def is_signal_active(self, source_signal):
         if not self._signals[source_signal]['enabled']:
@@ -553,8 +553,12 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def on_pubsub_register(self):
         source_filter = self._source_filter_set()
-        if self.state is None or source_filter in [None, '', 'JsdrvStreamBuffer:001']:
+        if self.state is None:
             self.state = copy.deepcopy(_STATE_DEFAULT)
+        elif source_filter in [None, '', 'JsdrvStreamBuffer:001']:
+            for plot in self.state['plots']:
+                plot['signals'] = []
+            self.state['x_markers'] = []
         if 'on_widget_close_actions' in self._kwargs:
             self.pubsub.publish(f'{self.topic}/settings/on_widget_close_actions',
                                 self._kwargs['on_widget_close_actions'])
@@ -632,7 +636,7 @@ class WaveformWidget(QtWidgets.QWidget):
         if value != d['range']:
             d['range'] = value
             d['changed'] = time.time()
-            self._repaint_request = self.is_signal_active(item)
+            self._repaint_request |= self.is_signal_active(item)
         return None
 
     def _on_refresh_timer(self):
@@ -1108,13 +1112,19 @@ class WaveformWidget(QtWidgets.QWidget):
             return
         d = d_sig['data']
         length = len(d['x'])
-        if length <= 1:
-            return
         x0, y0, w, h = self._summary_geometry()
+        x = d['x']
+        xe0, xe1 = x[0], x[-1]
+        dxe = xe1 - xe0
+        if length <= 1 or w <= 1 or dxe <= 1e-15:
+            return
+        x_gain = w / dxe
 
+        def x_value_to_pixel(v):
+            return (v - xe0) * x_gain + x0
+
+        xp = x_value_to_pixel(x)
         p.setClipRect(x0, y0, w, h)
-
-        d_xp = np.arange(0, length)
         finite_idx = np.logical_not(np.isnan(d['avg']))
         segment_idx = _idx_to_segments(finite_idx)
 
@@ -1123,14 +1133,13 @@ class WaveformWidget(QtWidgets.QWidget):
         if len(segment_idx) > 1:
             segment_idx_last = segment_idx[0][1]
             for idx_start, idx_stop in segment_idx[1:]:
-                z1 = d_xp[segment_idx_last]
-                z2 = d_xp[idx_start]
+                z1 = xp[segment_idx_last]
+                z2 = xp[idx_start]
                 p.drawRect(z1, y0, max(1, z2 - z1), h)
                 segment_idx_last = idx_stop
 
-        xe0, xe1 = d['x'][0], d['x'][-1]
-        gain = length / (xe1 - xe0)
-        pr0, pr1 = [int(np.rint(gain * (z - xe0))) for z in self.x_range]
+        xp_range = np.rint(x_value_to_pixel(np.array(self.x_range)))
+        pr0, pr1 = int(xp_range[0]), int(xp_range[-1])
         pr0, pr1 = max(0, min(pr0, w)), max(0, min(pr1, w))
         p.fillRect(x0 + pr0, y0, max(1, pr1 - pr0), h, s['summary_view'])
 
@@ -1157,7 +1166,7 @@ class WaveformWidget(QtWidgets.QWidget):
             return (y_top - y) * y_gain
 
         for idx_start, idx_stop in segment_idx:
-            d_x_segment = d_xp[idx_start:idx_stop]
+            d_x_segment = xp[idx_start:idx_stop]
             d_avg = d['avg'][idx_start:idx_stop]
             if self.show_min_max and d['min'] is not None and d['max'] is not None:
                 d_y_min = y_value_to_pixel(d['min'][idx_start:idx_stop])
@@ -1838,10 +1847,9 @@ class WaveformWidget(QtWidgets.QWidget):
         x, y = event.pos().x(), event.pos().y()
         self._mouse_pos = (x, y)
         self._set_cursor()
+        self._repaint_request = True
 
-        if self._mouse_action is None:
-            self._repaint_request = True
-        else:
+        if self._mouse_action is not None:
             action = self._mouse_action[0]
             if action == 'move.spacer':
                 plot_idx = self._mouse_action[1]
@@ -1862,7 +1870,6 @@ class WaveformWidget(QtWidgets.QWidget):
                     d1 = _Y_PLOT_MIN
                 plots[idx - 1]['height'] = d0
                 plots[idx]['height'] = d1
-                self._repaint_request = True
             elif action == 'move.x_marker':
                 xt = self._x_map.counter_to_time64(x)
                 xr = self.x_range
@@ -1873,9 +1880,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 m['changed'] = True
                 m[m_field] = xt
                 if m['dtype'] == 'dual':
-                    self._request_data(True)
-                else:
-                    self._repaint_request = True
+                    self._request_marker_data(m)
             elif action == 'move.y_marker':
                 item = self._mouse_action[1]
                 _, plot_index, _, m_idx, m_field = item.split('.')
@@ -1885,7 +1890,6 @@ class WaveformWidget(QtWidgets.QWidget):
                 yr = plot['range']
                 yt = max(yr[0], min(yt, yr[1]))  # bound to range
                 m[m_field] = yt
-                self._repaint_request = True
             elif action == 'x_pan':
                 self._mouse_x_pan(x)
 
@@ -1903,8 +1907,7 @@ class WaveformWidget(QtWidgets.QWidget):
         elif self.pin_right or z1 > e1:
             z0, z1 = e1 - d_x, e1
         self.x_range = z0, z1
-
-        self._request_data(True)
+        self._plot_data_invalidate()
 
     def plot_mousePressEvent(self, event: QtGui.QMouseEvent):
         event.accept()
@@ -2270,7 +2273,6 @@ class WaveformWidget(QtWidgets.QWidget):
         self._log.info('x_marker_add %s', marker)
         self.state['x_markers'].append(marker)
         self._x_markers_by_id[marker['id']] = marker
-        self._request_data(True)
         return marker
 
     def _x_marker_remove(self, marker):
@@ -2278,7 +2280,6 @@ class WaveformWidget(QtWidgets.QWidget):
         if isinstance(marker, int):
             marker = self._x_markers_by_id.pop(marker)
             self.state['x_markers'].remove(marker)
-            self._repaint_request = True
             return marker
         else:
             raise ValueError('unsupported remove')
@@ -2319,6 +2320,7 @@ class WaveformWidget(QtWidgets.QWidget):
             'text_pos1': 'off',
             'text_pos2': 'right',
         }
+
         return self._x_marker_add(marker)
 
     def on_action_x_markers(self, topic, value):
@@ -2337,6 +2339,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._log.info('x_markers %s', value)
         value = _marker_action_string_to_command(value)
         cmd = value[0]
+        self._repaint_request = True
         if cmd == 'remove':
             m = self._x_marker_remove(value[1])
             return [topic, ['add', m]]
@@ -2353,7 +2356,6 @@ class WaveformWidget(QtWidgets.QWidget):
         elif cmd == 'clear_all':
             rv = [topic, ['add', copy.deepcopy(self.state['x_markers'])]]
             self.state['x_markers'].clear()
-            self._repaint_request = True
             return rv
         else:
             raise NotImplementedError(f'Unsupported marker action {value}')
@@ -2394,7 +2396,6 @@ class WaveformWidget(QtWidgets.QWidget):
     def _y_marker_add(self, plot, marker):
         self._log.info('y_marker_add %s', marker)
         plot['y_markers'].append(marker)
-        self._request_data(True)
         return marker
 
     def _y_marker_remove(self, plot, marker):
@@ -2482,6 +2483,7 @@ class WaveformWidget(QtWidgets.QWidget):
         value = _marker_action_string_to_command(value)
         cmd = value[0]
         plot = self._plot_get(value[1])
+        self._repaint_request = True
         if cmd == 'remove':
             for m in value[2:]:
                 self._y_marker_remove(plot, m)
@@ -2499,7 +2501,6 @@ class WaveformWidget(QtWidgets.QWidget):
         elif cmd == 'clear_all':
             rv = [topic, ['add', copy.deepcopy(plot['y_markers'])]]
             plot['y_markers'].clear()
-            self._repaint_request = True
             return rv
         else:
             raise NotImplementedError(f'Unsupported marker action {value}')
@@ -2550,16 +2551,14 @@ class WaveformWidget(QtWidgets.QWidget):
             pixel = self._x_map.time64_to_counter(center)
             if abs(pixel - value[2]) >= 1.0:
                 self._log.warning('center change: %s -> %s', value[2], pixel)
-        self._request_data(True)
-        self._repaint_request = True
+        self._plot_data_invalidate()
 
     def on_action_x_zoom_all(self):
         """Perform a zoom action to the full extents.
         """
         self._log.info('x_zoom_all')
-        self._repaint_request = True
+        self._plot_data_invalidate()
         self.x_range = self._extents()
-        self._request_data(True)
 
     def _on_x_pan(self, pan):
         self._log.info(f'_on_x_pan {pan}')
@@ -2574,9 +2573,8 @@ class WaveformWidget(QtWidgets.QWidget):
             z0, z1 = e0, e0 + d_x
         elif self.pin_right or z1 > e1:
             z0, z1 = e1 - d_x, e1
-        self._repaint_request = True
+        self._plot_data_invalidate()
         self.x_range = z0, z1
-        self._request_data(True)
 
     def _on_y_zoom(self, plot, zoom):
         self._log.info(f'_on_y_zoom {plot["quantity"]} {zoom}')
@@ -2617,6 +2615,18 @@ class WaveformWidget(QtWidgets.QWidget):
             else:
                 self._on_y_zoom(plot, delta)
 
+    def _plot_data_invalidate(self, plot=None):
+        if plot is None:
+            for plot in self.state['plots']:
+                self._plot_data_invalidate(plot)
+            return
+        if not plot['enabled']:
+            return
+        for signal in plot['signals']:
+            if signal in self._signals:
+                self._signals[signal]['changed'] = True
+                self._repaint_request = True
+
     def on_action_plot_show(self, value):
         """Show/hide plots.
 
@@ -2632,10 +2642,10 @@ class WaveformWidget(QtWidgets.QWidget):
                     plot['enabled'] = show
                     self._compute_geometry()
                     self._plots_height_adjust()
-                    self._request_data(True)
+                    self._plot_data_invalidate(plot)
                 return
         self._log.warning('plot_show could not match %s', quantity)
 
     def on_setting_fps(self, value):
-        self._refresh_timer.stop()
+        self._log.info('fps: period = %s ms', value)
         self._refresh_timer.start(value)

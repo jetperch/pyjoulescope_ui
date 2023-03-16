@@ -414,7 +414,14 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         option_strs = [o[1] for o in options]
         comboBoxConfig(w, option_strs)
         topic = f'{get_topic_name(self.unique_id)}/settings/{name}'
-        w.currentIndexChanged.connect(lambda idx: pubsub_singleton.publish(topic, options[idx][0]))
+        if name in ['signal_frequency']:
+            def fn(idx):
+                pubsub_singleton.publish('registry/JsdrvStreamBuffer:001/actions/!clear', None)
+                pubsub_singleton.publish(topic, options[idx][0])
+                pubsub_singleton.publish('registry/JsdrvStreamBuffer:001/actions/!clear', None)
+            w.currentIndexChanged.connect(fn)
+        else:
+            w.currentIndexChanged.connect(lambda idx: pubsub_singleton.publish(topic, options[idx][0]))
 
         def lookup(v):
             try:
@@ -519,3 +526,11 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             b.setProperty('blink', value)
             b.style().unpolish(b)
             b.style().polish(b)
+
+    @property
+    def expanded(self):
+        return self._expanding.expanded
+
+    @expanded.setter
+    def expanded(self, value):
+        self._expanding.expanded = value

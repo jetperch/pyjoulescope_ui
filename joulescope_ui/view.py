@@ -238,7 +238,10 @@ class View:
         # todo restore children
         pubsub_singleton.publish('registry/StyleManager:0/actions/!render', unique_id)
         if floating:
-            obj.dock_widget.setFloating()
+            dw = obj.dock_widget
+            dw.setFloating()
+            c = dw.floatingDockContainer()
+            c.resize(800, 600)
         return ['registry/view/actions/!widget_close', unique_id]
 
     def _widget_suspend(self, value, delete=None):

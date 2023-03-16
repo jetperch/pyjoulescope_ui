@@ -67,6 +67,7 @@ class DeviceControlWidget(QtWidgets.QWidget):
     def _device_add(self, unique_id):
         self._log.info('add %s', unique_id)
         w = Js220CtrlWidget(self, unique_id)
+        w.expanded = True
         self._device_widgets[unique_id] = w
         self._layout.insertWidget(self._layout.count() - 1, w)
 

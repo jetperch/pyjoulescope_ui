@@ -78,7 +78,6 @@ class HistogramRangeToolDialog(QtWidgets.QDialog):
         self.resize(400, 173)
         self.setWindowTitle(N_('Histogram configuration'))
         self._log.info('open')
-        pubsub_singleton.register(self)
         self.open()
 
     @QtCore.Slot(int)
@@ -95,12 +94,11 @@ class HistogramRangeToolDialog(QtWidgets.QDialog):
             w = HistogramRangeTool(self._value)
             pubsub_singleton.register(w)
         else:
-            self._log.info('finished: reject - abort export')  # no action required
+            self._log.info('finished: reject - abort histogram')  # no action required
         self.close()
 
     def close(self):
         super().close()
-        pubsub_singleton.unregister(self)
         self.__class__._instances.remove(self)
 
 

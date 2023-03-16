@@ -429,6 +429,7 @@ class PubSub:
     :param app: The application name.  None uses the default.
     """
     def __init__(self, app=None):
+        self._process_count = 0
         self._immediate = 0
         self._app = _APP_DEFAULT if app is None else str(app)
         self._log = logging.getLogger(__name__)
@@ -467,6 +468,10 @@ class PubSub:
 
     def __exit__(self, exception_type, exception_value, exception_traceback):
         self._immediate -= 1
+
+    @property
+    def process_count(self):
+        return self._process_count
 
     @property
     def notify_fn(self):
@@ -557,6 +562,7 @@ class PubSub:
                 self._stack[-1].append(_Command(topic, value))
                 if self._immediate:
                     self._process()
+                    self._process_count += 1
             else:
                 with self._lock:
                     was_empty = (len(self._queue) == 0)
@@ -702,7 +708,10 @@ class PubSub:
             False or None (default) only returns the immediate children.
         :return: The list of subtopic strings.
         """
-        t = self._topic_get(topic)
+        try:
+            t = self._topic_get(topic)
+        except KeyError:
+            return []
         if bool(traverse):
             lead_count = 0 if bool(absolute) else len(t.topic_name) + 1
             return self._enumerate_recurse(t, lead_count)
@@ -982,6 +991,7 @@ class PubSub:
             if len(self._undo_capture):
                 self.undos.append(self._undo_capture)
             self._undo_capture = None
+            self._process_count += 1
             count += 1
         return count
 
@@ -1500,8 +1510,11 @@ class PubSub:
 
         do_close = False
         if isinstance(fh, str):
+            self._log.info('load %s', fh)
             fh = open(fh, 'rt')
             do_close = True
+        else:
+            self._log.info('load filehandle')
         try:
             obj = json.load(fh)
         finally:

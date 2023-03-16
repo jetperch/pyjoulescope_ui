@@ -39,10 +39,19 @@ from .view import View  # registers the view manager
 import joulescope_ui.plugins   # register plugins
 import appnope
 import logging
+import os
+import shutil
 
 
 _software_update = None
 _config_clear = None
+
+
+_PUBSUB_UTILIZATION_TOOLTIP = tooltip_format(
+    N_('PubSub utilization'),
+    N_("""\
+    Display the number of actions processed by the
+    publish-subscribe broker in each second."""))
 
 
 _CPU_UTILIZATION_TOOLTIP = tooltip_format(
@@ -104,7 +113,6 @@ def _device_factory_add():
     jsdrv = JsdrvWrapper()
     pubsub_singleton.register(jsdrv, 'jsdrv')
     topic = get_topic_name(jsdrv)
-    pubsub_singleton.topic_remove('registry/JsdrvStreamBuffer:001')
     pubsub_singleton.process()
     pubsub_singleton.publish(f'{topic}/actions/mem/!add', 1)  # use singleton memory buffer
     pubsub_singleton.process()
@@ -131,6 +139,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setWindowTitle('Joulescope')
         self._dialog = None
         self._pubsub = pubsub_singleton
+        self._pubsub_process_count_last = self._pubsub.process_count
         self.SETTINGS = style_settings(N_('UI'))
         self.SETTINGS['changelog_version_show'] = {
             'dtype': 'str',
@@ -226,7 +235,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 ['open', N_('Open'), ['registry/ui/actions/!file_open_request', '']],
                 # 'Open &Recent': {},  # dynamically populated from MRU
                 # '&Preferences': self.on_preferences,
-                ['exit_cfg', N_('Exit and clear config'), ['registry/ui/actions/!close', {'config_clear': True}]],
+                ['exit_cfg', N_('Clear config and exit'), ['registry/ui/actions/!close', {'config_clear': True}]],
                 ['exit', N_('Exit'), ['registry/ui/actions/!close', '']],
             ]],
             ['view_menu', N_('View'), []],     # dynamically populated from available views
@@ -279,6 +288,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self._pubsub.publish('registry/StyleManager:0/actions/!render', None)
         self._pubsub.process()
 
+        self._pubsub_utilization = QtWidgets.QLabel(self._status_bar)
+        self._pubsub_utilization.setToolTip(_PUBSUB_UTILIZATION_TOOLTIP)
+        self._status_bar.addPermanentWidget(self._pubsub_utilization)
         self._process_monitor = ProcessMonitor(self)
         self._process_monitor.update.connect(self._on_process_monitor)
         self._cpu_utilization = QtWidgets.QLabel(self._status_bar)
@@ -347,6 +359,9 @@ class MainWindow(QtWidgets.QMainWindow):
             self._pubsub.publish(f'{topic}/events/blink_medium', (self._blink_count & 2) != 0)
         if (self._blink_count & 3) == 0:
             self._pubsub.publish(f'{topic}/events/blink_slow', (self._blink_count & 4) != 0)
+            c = self._pubsub.process_count
+            self._pubsub_utilization.setText(f'PubSub: {c - self._pubsub_process_count_last}')
+            self._pubsub_process_count_last = c
 
     def _on_change_views(self, value):
         active_view = self._pubsub.query('registry/view/settings/active', default=None)
@@ -461,6 +476,9 @@ def _finalize():
     pubsub_singleton.process()
     pubsub_singleton._topic_by_name[view_topic].value = active_view
     if _config_clear:
+        path = pubsub_singleton.query('common/settings/paths/styles')
+        if len(path) and os.path.isdir(path):
+            shutil.rmtree(path, ignore_errors=True)
         pubsub_singleton.config_clear()
     else:
         pubsub_singleton.save()

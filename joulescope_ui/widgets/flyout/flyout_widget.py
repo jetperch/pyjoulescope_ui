@@ -101,6 +101,7 @@ class FlyoutWidget(QtWidgets.QWidget):
         else:
             raise ValueError(f'Unsupported value {value}')
         self.animate(value)
+        return value
 
     def on_sidebar_geometry(self, r):
         width = self.width()

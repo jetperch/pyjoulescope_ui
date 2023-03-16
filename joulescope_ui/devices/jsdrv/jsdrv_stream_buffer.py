@@ -48,11 +48,36 @@ _SETTINGS = {
         'brief': N_('Buffer memory size in bytes'),
         'default': int(0.5 * 1024 ** 3),
     },
+    'sources': {
+        'dtype': 'node',
+        'brief': 'Hold source settings',
+        'default': None,
+        'flags': ['hidden'],
+    },
     'signals': {
         'dtype': 'node',
         'brief': 'Hold signal settings',
         'default': None,
+        'flags': ['hidden'],
+    },
+    'clear_on_play': {
+        'dtype': 'bool',
+        'brief': 'Clear on play',
+        'detail': """\
+            When signal sample streaming is paused, the stream buffer pauses
+            sample accumulation.  This setting controls what happens on play
+            when streaming resumes.
+            
+            When unset, the buffer continues to accumulate samples into the
+            existing buffer data.  This mode treats the pause duration as
+            missing samples.
+            
+            When set, the buffer is cleared and all prior data is purged.
+            The buffer functions as if sample streaming started for the
+            first time.""",
+        'default': True,
     }
+
 }
 
 _SETTINGS_PER_SOURCE = {
@@ -124,6 +149,7 @@ class JsdrvStreamBuffer:
         self._signals_reverse: dict[int, str] = {}  # signal id buffer_id -> ui_str
         self._device_signal_id_next = 1
         self._device_subscriptions = {}
+        self._pubsub_subscriptions = []
 
         self._signals_free = list(range(1, 256))
         self._req_fwd = {}  # (pubsub_rsp_topic, pubsub_rsp_id): device_rsp_id
@@ -137,7 +163,7 @@ class JsdrvStreamBuffer:
     def on_action_device_add(self, device: Device):
         self._sources[device.unique_id] = device
         topic = get_topic_name(self.unique_id)
-        source_topic = f'{topic}/settings/{device.unique_id}'
+        source_topic = f'{topic}/settings/sources/{device.unique_id}'
         for name, meta in _SETTINGS_PER_SOURCE.items():
             self.pubsub.topic_add(f'{source_topic}/{name}', meta)
         self.pubsub.publish(f'{source_topic}/name', device.name)
@@ -169,6 +195,11 @@ class JsdrvStreamBuffer:
             self._wrapper.driver.publish(topic, value, timeout)
 
     def on_pubsub_register(self):
+        topic = get_topic_name(self)
+        for t in self.pubsub.enumerate(f'{topic}/settings/sources', absolute=True):
+            self.pubsub.topic_remove(t)
+        for t in self.pubsub.enumerate(f'{topic}/settings/signals', absolute=True):
+            self.pubsub.topic_remove(t)
         self._driver_publish('m/@/!add', int(self._id))
         self._device_subscribe(self._rsp_topic, 'pub', self._on_buf_response)
         for fn, value in self._initialize_cache:
@@ -177,13 +208,14 @@ class JsdrvStreamBuffer:
         self.pubsub.subscribe('registry/app/settings/signal_stream_enable', self._on_signal_steam_enable, ['pub', 'retain'])
 
     def _on_signal_steam_enable(self, value):
+        if value and self.clear_on_play:
+            self.on_action_clear()
         self.on_setting_hold(not bool(value))
 
     def on_pubsub_unregister(self):
         for topic, fn in self._device_subscriptions:
             self._wrapper.driver.unsubscribe(topic, fn)
         self._driver_publish('m/@/!remove', int(self._id))
-        self.pubsub.unsubscribe(self._on_pubsub_req)
         self.pubsub.topic_remove(f'{get_topic_name(self)}/settings/signals')
 
     def _on_device_signal_info(self, topic, value):
@@ -257,6 +289,9 @@ class JsdrvStreamBuffer:
         ui_prefix = get_topic_name(self)
         self.pubsub.publish(f'{ui_prefix}/events/signals/!remove', signal_id)
         self.pubsub.topic_remove(f'{ui_prefix}/settings/signals/{signal_id}')
+
+    def on_action_clear(self):
+        self._driver_publish(f'm/{self._id}/g/!clear', 0)
 
     def _on_buf_response(self, topic, value):
         # will be called from device's pubsub thread

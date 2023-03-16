@@ -15,7 +15,7 @@
 
 from PySide6 import QtCore, QtGui, QtWidgets
 from joulescope_ui import N_, register, tooltip_format, pubsub_singleton
-from joulescope_ui.styles import styled_widget
+from joulescope_ui.styles import styled_widget, color_as_qcolor
 from joulescope_ui.widgets import DeviceControlWidget
 from joulescope_ui.widgets import MemoryWidget
 from joulescope_ui.widgets import HelpWidget
@@ -83,7 +83,11 @@ class SideBar(QtWidgets.QWidget):
         size_policy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         size_policy.setHeightForWidth(True)
         self.setSizePolicy(size_policy)
-        self._buttons = {}
+        self._style_cache = None
+        self._selected_area = None
+        self._selected_area_brush = QtGui.QBrush
+        self._buttons_by_name = {}
+        self._buttons_by_flyout_idx = {}
         self._buttons_blink = []
         self._buttons_flyout = []
         self._flyout: FlyoutWidget = None
@@ -176,8 +180,10 @@ class SideBar(QtWidgets.QWidget):
         return button
 
     def widget_set(self, name, widget):
-        button = self._buttons[name]
+        button = self._buttons_by_name[name]
+        button.setProperty('selected', False)
         idx = self._flyout.addWidget(widget)
+        self._buttons_by_flyout_idx[idx] = button
         button.clicked.connect(lambda: self.on_cmd_show(idx))
 
     def _add_button(self, name, tooltip):
@@ -186,7 +192,7 @@ class SideBar(QtWidgets.QWidget):
         button.setFlat(True)
         button.setFixedSize(32, 32)
         button.setToolTip(tooltip)
-        self._buttons[name] = button
+        self._buttons_by_name[name] = button
         self._layout.addWidget(button)
         return button
 
@@ -197,7 +203,40 @@ class SideBar(QtWidgets.QWidget):
             b.style().polish(b)
 
     def on_cmd_show(self, value):
-        self._flyout.on_cmd_show(value)
+        value = self._flyout.on_cmd_show(value)
+        if value is not None and value >= 0:
+            button = self._buttons_by_flyout_idx[value]
+            self._selected_area = button.geometry()
+        else:
+            self._selected_area = None
+        self.update()
+
+    def paintEvent(self, event):
+        s = self._style
+        if s is None:
+            return
+        if self._selected_area is not None:
+            r = self.geometry()
+            x, w = r.x(), r.width()
+            r = self._selected_area
+            y, h = r.y() - 3, r.height() + 6
+            painter = QtGui.QPainter(self)
+            painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
+            painter.fillRect(x, y, w, h, s['selected_background_brush'])
+            painter.fillRect(x + w - 1, y, 2, h, s['selected_side_brush'])
 
     def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
         self._flyout.on_sidebar_geometry(self.geometry())
+
+    @property
+    def _style(self):
+        if self._style_cache is not None:
+            return self._style_cache
+        if not hasattr(self, 'style_manager_info'):
+            self._style_cache = None
+            return None
+        v = self.style_manager_info['sub_vars']
+        self._style_cache = {
+            'selected_background_brush': QtGui.QBrush(color_as_qcolor(v['sidebar.util_background'])),
+            'selected_side_brush': QtGui.QBrush(color_as_qcolor(v['sidebar.util_foreground'])),
+        }

@@ -90,8 +90,10 @@ class SignalRecord:
             self._jls.utc(signal['id'], sample_id, utc_now)
             signal['utc_entry_prev'] = utc
         signal['utc_data_prev'] = utc
-        x = np.ascontiguousarray(value['data'])
-        self._jls.fsr_f32(signal['id'], sample_id, x)
+        x = value['data']
+        if len(x):
+            x = np.ascontiguousarray(x)
+            self._jls.fsr_f32(signal['id'], sample_id, x)
 
     def _source_add(self, unique_id, info):
         info = copy.deepcopy(info)

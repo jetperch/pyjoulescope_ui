@@ -14,13 +14,15 @@
 
 from PySide6 import QtWidgets, QtGui, QtCore
 from joulescope_ui import N_, register
+from joulescope_ui.tooltip import tooltip_format
 from joulescope_ui.styles import styled_widget, color_as_qcolor, font_as_qfont
 import numpy as np
 import os
 import psutil
 
-
-_TOPIC = 'registry/JsdrvStreamBuffer:001/settings/size'
+_TOPIC = 'registry/JsdrvStreamBuffer:001'
+_TOPIC_CLEAR_ON_PLAY = f'{_TOPIC}/settings/clear_on_play'
+_TOPIC_SIZE = f'{_TOPIC}/settings/size'
 _GB_FACTOR = 1024 ** 3
 _SZ_MIN = int(0.01 * _GB_FACTOR)
 
@@ -198,6 +200,16 @@ class MemoryWidget(QtWidgets.QWidget):
             self._grid_layout.addWidget(self._widgets[f'{s}_value'], row, 1)
             self._grid_layout.addWidget(self._widgets[f'{s}_units'], row, 2)
 
+        self._clear = QtWidgets.QPushButton(N_('Clear'), self)
+        self._clear.pressed.connect(self._on_clear)
+        self._layout.addWidget(self._clear)
+
+        self._clear_on_play = QtWidgets.QPushButton(N_('Clear on play'), self)
+        self._clear_on_play.clicked.connect(self._on_clear_on_play)
+        self._clear_on_play.setCheckable(True)
+        self._layout.addWidget(self._clear_on_play)
+        self._clear_on_play_fn = lambda v: self._clear_on_play.setChecked(bool(v))
+
         self._spacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self._layout.addItem(self._spacer)
 
@@ -226,18 +238,29 @@ class MemoryWidget(QtWidgets.QWidget):
     def _on_timer(self):
         if self._base == 0:
             mem = _mem_proc()
-            sz = self.pubsub.query(_TOPIC)
+            sz = self.pubsub.query(_TOPIC_SIZE)
             if mem > sz:
                 self._base = mem - sz
             else:
                 self._base = mem
-            self.pubsub.subscribe(_TOPIC, self._on_size_fn, ['pub', 'retain'])
+            self.pubsub.subscribe(_TOPIC_CLEAR_ON_PLAY, self._clear_on_play_fn, ['pub', 'retain'])
+            self.pubsub.subscribe(_TOPIC_SIZE, self._on_size_fn, ['pub', 'retain'])
+            meta = self.pubsub.metadata(_TOPIC_CLEAR_ON_PLAY)
+            self._clear_on_play.setToolTip(tooltip_format(meta.brief, meta.detail))
+
             self._timer.start(1000)
         if not self._memset.is_active:
             self._update()
 
+    def _on_clear(self):
+        self.pubsub.publish(f'{_TOPIC}/actions/!clear', None)
+
+    def _on_clear_on_play(self, value):
+        self.pubsub.publish(_TOPIC_CLEAR_ON_PLAY, bool(value))
+
     def closeEvent(self, event):
-        self.pubsub.unsubscribe(_TOPIC, self._on_size_fn)
+        self.pubsub.unsubscribe(_TOPIC_CLEAR_ON_PLAY, self._clear_on_play_fn)
+        self.pubsub.unsubscribe(_TOPIC_SIZE, self._on_size_fn)
         return super().closeEvent(event)
 
     @property
@@ -246,7 +269,7 @@ class MemoryWidget(QtWidgets.QWidget):
 
     @size.setter
     def size(self, value):
-        self.pubsub.publish(_TOPIC, int(value))
+        self.pubsub.publish(_TOPIC_SIZE, int(value))
 
     def _on_size(self, value):
         self._size = int(value)

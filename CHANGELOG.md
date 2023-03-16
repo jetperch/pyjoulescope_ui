@@ -9,9 +9,9 @@ This file contains the list of changes made to pyjoulescope_ui.
 <span style="color:yellow">⚠ ALPHA RELEASE - USE WITH CAUTION ⚠</span> 
 
 Improves upon 1.0.0 but still alpha quality.  See the 1.0.0 release
-notes below for how to usage notes.
+notes below for additional usage guidelines.
 
-2023 Mar 13 [in progress]
+2023 Mar 16 [in progress]
 
 * Deduplicated JLS v2 requests for improved performance.
 * Modified waveform widget to only request dual marker data when needed.
@@ -22,6 +22,18 @@ notes below for how to usage notes.
 * Added individual statistics display to each marker of dual markers. 
 * Added range RangeTool and RangeToolBase.  Refactored "export".
 * Added back range tools: USB Inrush, histogram.
+* Fixed waveform widget summary display x-axis.
+* Reduced waveform widget signal requests for more consistent frame rate.
+* Fixed low samples rates, like 10 Hz (pyjoulescope_driver 1.2.1).
+* Added memory stream buffer Clear and "Clear on play" buttons.
+* Preserve memory stream buffer settings between invocations. 
+* Open device widget expanded.
+* Added active sidebar flyout indication.
+* Added clear memory buffer on sample rate change.
+* Added signal_record check to ignore zero length sample messages. 
+* Added PubSub process count monitor to status bar.
+* Modified "Clear config and exit" to also clear rendered views.
+* Open floating dock widgets to (800, 600) size.
 
 
 ## 1.0.0

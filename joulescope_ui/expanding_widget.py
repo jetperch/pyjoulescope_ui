@@ -119,6 +119,15 @@ class ExpandingWidget(QtWidgets.QWidget):
             self._body_show = not self._body_show
             self.animate()
 
+    @property
+    def expanded(self):
+        return self._body_show
+
+    @expanded.setter
+    def expanded(self, value):
+        self._body_show = bool(value)
+        self.animate()
+
     def _on_header_mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
             event.accept()

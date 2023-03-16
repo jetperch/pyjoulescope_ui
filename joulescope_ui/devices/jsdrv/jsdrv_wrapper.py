@@ -100,7 +100,7 @@ class JsdrvWrapper:
         if mem_id not in self._stream_buffers:
             return
         b = self._stream_buffers.pop(mem_id)
-        self.pubsub.unregister(b, delete=True)
+        self.pubsub.unregister(b)
 
     def clear(self):
         while len(self._ui_subscriptions):
