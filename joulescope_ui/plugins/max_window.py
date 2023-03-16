@@ -12,88 +12,150 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from joulescope_ui import N_, time64, register, pubsub_singleton, get_topic_name
+from joulescope_ui.range_tool import RangeToolBase, rsp_as_f32
 import logging
 import numpy as np
-import pyqtgraph as pg
-from PySide6 import QtWidgets
-from .max_window_config_widget import Ui_Dialog
-from . import plugin_helpers
+from PySide6 import QtCore, QtWidgets
 
 
-log = logging.getLogger(__name__)
+@register
+class MaxWindowRangeTool(RangeToolBase):
+    NAME = N_('Max window')
+    BRIEF = N_('Find the maximum value window')
+    DESCRIPTION = N_("""\
+        Search the range for the window that has the maximum value.
+        This is an exhaustive search made by sliding the window 
+        duration across the entire range.
+        
+        When complete, this tool will add dual markers to the
+        waveform.""")
 
-PLUGIN = {
-    'name': 'Max Window',
-    'description': 'Maximum sum of voltage/current/power samples in a given time window',
-}
+    def __init__(self, value):
+        super().__init__(value)
 
-
-class MaxWindow:
-
-    def __init__(self):
-        self._cfg = None
-        self.data = None
-
-    def run_pre(self, data):
-        max_time_len = data.time_range[1] - data.time_range[0]
-        rv = MaxWindowDialog(max_time_len).exec_()
-        if rv is None:
-            return 'Cancelled'
-        self._cfg = rv
-
-    def run(self, data):
-        time_len = self._cfg['time_len']
-        signal = self._cfg['signal']
-
-        max_sum, start, end = plugin_helpers.max_sum_in_window(data, signal, time_len)
-
-        self.data = {
-            'max_sum': max_sum,
-            'start': start,
-            'end': end
-        }
-
-    def run_post(self, data):
-        if not self.data:
-            log.exception('Max Window function failed to produce data')
+    def _run(self):
+        origin = self.value.get('origin')
+        kwargs = self.kwargs
+        utc_width = kwargs['width']  # in float seconds
+        signal = kwargs['signal']
+        d = self.request(signal, 'utc', *self.x_range, 1)
+        fs = d['info']['time_map']['counter_rate']
+        t_start = d['info']['time_range_utc']['start']
+        t_end = d['info']['time_range_utc']['end']
+        t_width = t_end - t_start
+        s_now = d['info']['time_range_samples']['start']
+        s_end = d['info']['time_range_samples']['end'] + 1
+        length = s_end - s_now
+        if length > 250_000_000:
+            self.error('window size too big')
             return
+        width = int(np.rint(utc_width * fs))
+        if width > length:
+            self.error('width > region')
+            return
+        rsp = self.request(signal, 'samples', s_now, 0, s_end - s_now)
+        data = rsp_as_f32(rsp)
+        i0 = 0
+        i1 = width
+        m = np.sum(data[i0:i1])
+        max_v = m
+        max_i = 0
+        progress_counter = 0
+        while i1 < length:
+            m += data[i1] - data[i0]
+            if m > max_v:
+                m = max_v
+                max_i = i0
+            i0 += 1
+            i1 += 1
+            progress_counter += 1
+            if progress_counter >= 10_000:
+                self.progress(i0 / length)
+                progress_counter = 0
 
-        start_time = self.data['start'] / data.sample_frequency
-        end_time = self.data['end'] / data.sample_frequency
+        pos0 = max_i / (length - 1) * t_width + t_start
+        pos1 = (max_i + width) / (length - 1) * t_width + t_start
+        if origin is not None and 'Waveform' in origin:
+            action = ['add_dual', pos0, pos1]
+            pubsub_singleton.publish(f'{get_topic_name(origin)}/actions/!x_markers', action)
+        else:
+            self._log.info('Found range: %r', [pos0, pos1])
 
-        data.marker_dual_add(start_time, end_time)
+    @staticmethod
+    def on_cls_action_run(value):
+        MaxWindowDialog(value)
 
 
 class MaxWindowDialog(QtWidgets.QDialog):
-    def __init__(self, max_time_len):
-        QtWidgets.QDialog.__init__(self)
-        self.ui = Ui_Dialog()
-        self.ui.setupUi(self)
-        self.ui.signal.addItem("current")
-        self.ui.signal.addItem("voltage")
-        self.ui.signal.addItem("power")
-        self.ui.time_len.setMaximum(max_time_len)
-        starting_value = 10 ** np.round(np.log10(max_time_len / 1000))
-        value = min(max_time_len, max(0.00001, starting_value))
-        self.ui.time_len.setValue(value)
+    _instances = []
 
-    def exec_(self):
-        if QtWidgets.QDialog.exec_(self) == 1:
-            time_len = float(self.ui.time_len.value())
-            signal = str(self.ui.signal.currentText())
-            return {
-                'time_len': time_len,
-                'signal': signal,
+    def __init__(self, value):
+        self._value = value
+        parent = pubsub_singleton.query('registry/ui/instance')
+        super().__init__(parent=parent)
+        self.__class__._instances.append(self)
+        self._log = logging.getLogger(f'{__name__}.dialog')
+        self.setWindowTitle(N_('Max Window configuration'))
+        self.resize(368, 123)
+
+        x0, x1 = value['x_range']
+        xd = (x1 - x0) / time64.SECOND
+
+        self._layout = QtWidgets.QVBoxLayout(self)
+        self._form = QtWidgets.QFormLayout()
+        self._width_label = QtWidgets.QLabel(N_('Width of window (in seconds)'), self)
+        self._form.setWidget(0, QtWidgets.QFormLayout.LabelRole, self._width_label)
+        self._width = QtWidgets.QDoubleSpinBox(self)
+        self._width.setObjectName(u"time_len")
+        self._width.setDecimals(5)
+        self._width.setMinimum(10e-6)
+        xd = min(100., xd)
+        starting_value = 10 ** np.round(np.log10(xd / 1000))
+        self._width.setValue(max(10e-6, starting_value))
+        self._width.setMaximum(xd)
+        self._width.setSingleStep(min(0.1, xd / 100))
+        self._width.setStepType(QtWidgets.QAbstractSpinBox.AdaptiveDecimalStepType)
+        self._form.setWidget(0, QtWidgets.QFormLayout.FieldRole, self._width)
+
+        self._signal_label = QtWidgets.QLabel(N_('Signal'), self)
+        self._form.setWidget(1, QtWidgets.QFormLayout.LabelRole, self._signal_label)
+
+        self._signal = QtWidgets.QComboBox(self)
+        self._form.setWidget(1, QtWidgets.QFormLayout.FieldRole, self._signal)
+        for _, signal in value['signals']:
+            self._signal.addItem(signal)
+
+        self._layout.addLayout(self._form)
+
+        self._layout.addLayout(self._form)
+        self._buttons = QtWidgets.QDialogButtonBox(self)
+        self._buttons.setOrientation(QtCore.Qt.Horizontal)
+        self._buttons.setStandardButtons(QtWidgets.QDialogButtonBox.Cancel | QtWidgets.QDialogButtonBox.Ok)
+        self._layout.addWidget(self._buttons)
+
+        self._buttons.accepted.connect(self.accept)
+        self._buttons.rejected.connect(self.reject)
+        self.finished.connect(self._on_finished)
+        self._log.info('open')
+        self.open()
+
+    @QtCore.Slot(int)
+    def _on_finished(self, value):
+        self._log.info('finished: %d', value)
+
+        if value == QtWidgets.QDialog.DialogCode.Accepted:
+            self._log.info('finished: accept - start max window')
+            self._value['kwargs'] = {
+                'width': float(self._width.value()),
+                'signal': self._value['signals'][self._signal.currentIndex()],
             }
+            w = MaxWindowRangeTool(self._value)
+            pubsub_singleton.register(w)
         else:
-            return None
+            self._log.info('finished: reject - abort')  # no action required
+        self.close()
 
-
-def plugin_register(api):
-    """Register the example plugin.
-
-    :param api: The :class:`PluginServiceAPI` instance.
-    :return: True on success any other value on failure.
-    """
-    api.range_tool_register('Analysis/Max Window', MaxWindow)
-    return True
+    def close(self):
+        super().close()
+        self.__class__._instances.remove(self)

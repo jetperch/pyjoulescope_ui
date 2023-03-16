@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from joulescope_ui import register, N_, pubsub_singleton
-from joulescope_ui.range_tool import RangeToolBase
+from joulescope_ui.range_tool import RangeToolBase, rsp_as_f32
 import logging
 import numpy as np
 import pyqtgraph as pg
@@ -31,26 +31,6 @@ _WINDOWS = {
     'hanning': np.hanning,
     'rectangular': np.ones,
 }
-
-
-def _rsp_as_f32(rsp):
-    length = rsp['info']['time_range_samples']['length']
-    if rsp['response_type'] != 'samples':
-        return rsp['data']
-    y = rsp['data']
-    data_type = rsp['data_type']
-    if data_type == 'f32':
-        pass
-    elif data_type == 'u1':
-        y = np.unpackbits(y, bitorder='little')[:length]
-    elif data_type == 'u4':
-        d = np.empty(len(y) * 2, dtype=np.uint8)
-        d[0::2] = np.logical_and(y, 0x0f)
-        d[1::2] = np.logical_and(np.right_shift(y, 4), 0x0f)
-        y = d[:length]
-    else:
-        raise ValueError(f'unsupported data_type {data_type}')
-    return y
 
 
 @register
@@ -97,7 +77,7 @@ class FrequencyRangeTool(RangeToolBase):
         while s_now < s_end:
             length = min(int(fs), s_end - s_now)
             rsp = self.request(signal, 'samples', s_now, 0, length)
-            d = _rsp_as_f32(rsp)
+            d = rsp_as_f32(rsp)
             data_offset = 0
             d_len = len(d)
             while (d_len + x_offset) >= nfft:
@@ -113,6 +93,7 @@ class FrequencyRangeTool(RangeToolBase):
             x[x_offset:(x_offset + d_len)] = d[data_offset:]
             x_offset += d_len
             s_now += length
+            self.progress(s_now / (length + 1))
 
         y *= (1.0 / k)  # average
         y = 20 * np.log10(y)  # convert to dB
