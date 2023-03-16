@@ -1892,6 +1892,8 @@ class WaveformWidget(QtWidgets.QWidget):
                 m[m_field] = yt
             elif action == 'x_pan':
                 self._mouse_x_pan(x)
+            elif action == 'y_pan':
+                self._mouse_y_pan(y)
 
     def _mouse_x_pan(self, x):
         t0 = self._x_map.counter_to_time64(self._mouse_action[1])
@@ -1908,6 +1910,21 @@ class WaveformWidget(QtWidgets.QWidget):
             z0, z1 = e1 - d_x, e1
         self.x_range = z0, z1
         self._plot_data_invalidate()
+
+    def _mouse_y_pan(self, y1):
+        idx = self._mouse_action[1]
+        plot = self.state['plots'][idx]
+        if plot['range_mode'] == 'fixed':
+            return
+        plot['range_mode'] = 'manual'
+        y0 = self._mouse_action[2]
+        self._mouse_action[2] = y1
+        y0 = self._y_pixel_to_value(plot, y0)
+        y1 = self._y_pixel_to_value(plot, y1)
+        dy = y1 - y0
+        r0, r1 = plot['range']
+        plot['range'] = r0 - dy, r1 - dy
+        self._repaint_request
 
     def plot_mousePressEvent(self, event: QtGui.QMouseEvent):
         event.accept()
@@ -1937,6 +1954,10 @@ class WaveformWidget(QtWidgets.QWidget):
                 else:
                     self._log.info('x_pan start')
                     self._mouse_action = ['x_pan', x]
+            elif y_name.startswith('plot.') and x_name.startswith('y_axis'):
+                idx = int(y_name.split('.')[1])
+                self._log.info('y_pan start')
+                self._mouse_action = ['y_pan', idx, y]
             else:
                 self._mouse_action = None
         if event.button() == QtCore.Qt.RightButton:
@@ -2077,13 +2098,35 @@ class WaveformWidget(QtWidgets.QWidget):
         clear_all.triggered.connect(lambda: self._on_menu_y_marker('clear_all'))
         return [single, dual, clear_all]
 
+    def _on_menu_y_range_mode(self, idx, value):
+        plot = self.state['plots'][idx]
+        plot['range_mode'] = value
+        self._repaint_request = True
+
     def _menu_y_axis(self, idx, event: QtGui.QMouseEvent):
         self._log.info('_menu_y_axis(%s, %s)', idx, event.pos())
         menu = QtWidgets.QMenu('Waveform y-axis context menu', self)
+        plot = self.state['plots'][idx]
         annotations = menu.addMenu(N_('Annotations'))
         annotations_sub = self._menu_add_y_annotations(annotations)
+        if plot['range_mode'] != 'fixed':
+            range_mode = menu.addMenu(N_('Range'))
+            range_group = QtGui.QActionGroup(range_mode)
+            range_group.setExclusive(True)
+            range_mode_auto = QtGui.QAction(N_('Auto'), range_group, checkable=True)
+            range_mode_auto.setChecked(plot['range_mode'] == 'auto')
+            range_mode.addAction(range_mode_auto)
+            range_mode_auto.triggered.connect(lambda: self._on_menu_y_range_mode(idx, 'auto'))
+            range_mode_manual = QtGui.QAction(N_('Manual'), range_group, checkable=True)
+            range_mode_manual.setChecked(plot['range_mode'] == 'manual')
+            range_mode.addAction(range_mode_manual)
+            range_mode_manual.triggered.connect(lambda: self._on_menu_y_range_mode(idx, 'manual'))
+            range_menu = [range_mode, range_group, range_mode_auto, range_mode_manual]
+        else:
+            range_menu = []
+
         style_action = settings_action_create(self, menu)
-        self._menu = [menu, annotations, annotations_sub, style_action]
+        self._menu = [menu, annotations, annotations_sub, range_menu, style_action]
         return self._menu_show(event)
 
     def _menu_plot(self, idx, event: QtGui.QMouseEvent):
@@ -2165,7 +2208,9 @@ class WaveformWidget(QtWidgets.QWidget):
             x0, x1 = x1, x0
         pubsub_singleton.publish(f'registry/{unique_id}/actions/!run', {
             'x_range': (x0, x1),
+            'origin': self.unique_id,
             'signals': self._signals_get(),
+            #  todo 'signal_default':
         })
 
     def _construct_analysis_menu_action(self, analysis_menu, unique_id, idx):
@@ -2576,13 +2621,38 @@ class WaveformWidget(QtWidgets.QWidget):
         self._plot_data_invalidate()
         self.x_range = z0, z1
 
-    def _on_y_zoom(self, plot, zoom):
-        self._log.info(f'_on_y_zoom {plot["quantity"]} {zoom}')
-        # todo
+    def on_action_y_zoom(self, value):
+        """Perform a y-axis zoom action.
+
+        :param value: [plot_idx, steps, center, {center_pixels}].
+            * plot_idx: The plot index to zoom.
+            * steps: the number of incremental steps to zoom.
+            * center: the x-axis time64 center location for the zoom.
+              If center is None, use the screen center.
+            * center_pixels: the optional center location in screen pixels.
+              When provided, double-check that the zoom operation
+              maintained the center location.
+        """
+        plot_idx, steps, center = value[:3]
+        plot = self.state['plots'][plot_idx]
+        self._log.info('y_zoom(%s, %r, %r)',  plot['quantity'], steps, center)
+        if plot['range_mode'] == 'fixed':
+            return
+        if plot['range_mode'] == 'auto':
+            plot['range_mode'] = 'manual'
+        y_min, y_max = plot['range']
+        d_y = y_max - y_min
+        f = (center - y_min) / d_y
+        d_y *= _ZOOM_FACTOR ** -steps
+        plot['range'] = center - d_y * f, center + d_y * (1 - f)
+        self._repaint_request = True
 
     def _on_y_pan(self, plot, pan):
-        self._log.info(f'_on_y_pan {plot["quantity"]} {pan}')
-        # todo
+        self._log.info(f'_on_y_pan(%sr, %r)', plot['quantity'], pan)
+        y0, y1 = plot['range']
+        a = (y1 - y0) * 0.25 * pan
+        plot['range'] = y0 + a, y1 + a
+        self._repaint_request = True
 
     def plot_wheelEvent(self, event: QtGui.QWheelEvent):
         x_name, y_name = self._target_lookup_by_pos(self._mouse_pos)
@@ -2613,7 +2683,10 @@ class WaveformWidget(QtWidgets.QWidget):
             if is_pan:
                 self._on_y_pan(plot, delta)
             else:
-                self._on_y_zoom(plot, delta)
+                y_pixel = self._mouse_pos[1]
+                y = self._y_pixel_to_value(plot, y_pixel)
+                topic = get_topic_name(self)
+                self.pubsub.publish(f'{topic}/actions/!y_zoom', [plot_idx, delta, y, y_pixel])
 
     def _plot_data_invalidate(self, plot=None):
         if plot is None:

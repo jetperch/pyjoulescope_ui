@@ -25,6 +25,7 @@ class CAPABILITIES(Enum):
     The pubsub class must implement the static method on_cls_action_run:
         * actions/!run: dict with the following keys:
           * x_range: (time64_min, time64_max)
+          * origin: The unique_id for the originator.
           * signals: [(source_unique_id, signal_id), ...]]
             where source_unique_id is for a SIGNAL_BUFFER_SOURCE and 
             signal_id is for a signal in that source.
