@@ -6,6 +6,11 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.2
 
+<span style="color:yellow">⚠ ALPHA RELEASE - USE WITH CAUTION ⚠</span> 
+
+Improves upon 1.0.1 but still alpha quality.  See the 1.0.0 release
+notes below for additional usage guidelines.
+
 2023 Mar 17
 
 * Reintegrate max_window range tool.
