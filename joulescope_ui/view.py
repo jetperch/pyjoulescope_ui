@@ -267,8 +267,11 @@ class View:
             if delete and hasattr(instance, 'on_widget_close'):
                 instance.on_widget_close()
             dock_widget = instance.dock_widget
-            dock_widget.deleteLater()
-            self._dock_manager.removeDockWidget(dock_widget)
+            try:
+                dock_widget.deleteLater()
+                self._dock_manager.removeDockWidget(dock_widget)
+            except Exception:
+                _log.exception('Delete or remove dock widget raised exception')
             instance.dock_widget = None
             instance.close()
             instance.deleteLater()

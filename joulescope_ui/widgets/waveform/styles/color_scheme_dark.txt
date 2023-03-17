@@ -1,6 +1,6 @@
 waveform.background = #101010ff
 
-waveform.text_foreground = #A0A0A0ff
+waveform.text_foreground = #C0C0C0ff
 waveform.text_background = #101010A0
 
 waveform.grid_major = #ffffff40

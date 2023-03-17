@@ -12,6 +12,11 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Fixed command line filename open for JLS file association.
 * Added back ctrl-left-click on dual markers to move both.
 * Added software update install support for macOS and Ubuntu.
+* Added standard deviation accrue to value widget.
+* Fixed stream buffer resume that failed due to duplicate topic_add.
+* Added dock widget removal exception handler on underlying C++ object already free.
+* Added waveform control_location setting.
+* Fixed waveform y-axis autoscaling when range difference was zero.
 
 
 ## 1.0.1

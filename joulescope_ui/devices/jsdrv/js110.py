@@ -524,6 +524,8 @@ class Js110(Device):
         elif topic in self._param_map:
             device_topic = self._param_map[topic]
             self._driver_publish(device_topic, value)
+        elif topic == 'name':
+            self._ui_publish('settings/sources/1/name', value)
         elif topic in ['info', 'state', 'state_req', 'out', 'enable',
                        'sources', 'sources/1', 'sources/1/info', 'sources/1/name',
                        'signals', 'current_ranging']:

@@ -165,7 +165,7 @@ class JsdrvStreamBuffer:
         topic = get_topic_name(self.unique_id)
         source_topic = f'{topic}/settings/sources/{device.unique_id}'
         for name, meta in _SETTINGS_PER_SOURCE.items():
-            self.pubsub.topic_add(f'{source_topic}/{name}', meta)
+            self.pubsub.topic_add(f'{source_topic}/{name}', meta, exists_ok=True)
         self.pubsub.publish(f'{source_topic}/name', device.name)
         self.pubsub.publish(f'{source_topic}/info', device.info)
         device_topic = get_topic_name(device)
@@ -270,7 +270,7 @@ class JsdrvStreamBuffer:
         ui_prefix = get_topic_name(self)
         ui_signal_prefix = f'{ui_prefix}/settings/signals/{signal_id}'
         for key, meta in _SETTINGS_PER_SIGNAL.items():
-            self.pubsub.topic_add(f'{ui_signal_prefix}/{key}', meta)
+            self.pubsub.topic_add(f'{ui_signal_prefix}/{key}', meta, exists_ok=True)
         self.pubsub.publish(f'{ui_signal_prefix}/name', signal_name)
         self.pubsub.publish(f'{ui_signal_prefix}/meta', signal_meta)
         self._driver_publish(f'm/{self._id}/a/!add', buf_id)

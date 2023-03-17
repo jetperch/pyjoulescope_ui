@@ -29,7 +29,7 @@ class JsdrvWrapper:
     messages between the UI's pubsub instance and the jsdrv pubsub
     instance.
     """
-    CAPABILITIES = [CAPABILITIES.DEVICE_FACTORY]
+    CAPABILITIES = []
     EVENTS = {
         '!publish': Metadata('obj', 'Resync to UI publish thread')
     }
@@ -55,6 +55,7 @@ class JsdrvWrapper:
     }
 
     def __init__(self):
+        self.CAPABILITIES = [CAPABILITIES.DEVICE_FACTORY]
         self._parent = None
         self._log = logging.getLogger(__name__)
         self.pubsub = None
@@ -78,6 +79,10 @@ class JsdrvWrapper:
             self._log.info('on_pubsub_register add %s', d)
             self._on_driver_publish('@/!add', d)
         self._log.info('on_pubsub_register done %s', topic)
+
+    def on_pubsub_unregister(self):
+        for d in list(self.devices.keys()):
+            self._on_device_remove(d)
 
     def on_action_mem__add(self, value):
         self._log.info('mem add %s', value)
@@ -180,3 +185,4 @@ class JsdrvWrapper:
             topic = get_topic_name(d)
             self.pubsub.publish(f'{topic}/actions/!finalize', None)
             self.pubsub.unregister(d)
+

@@ -263,8 +263,8 @@ class StyleManager:
         obj.style_manager_info = info  # record style manager info for future renderings
         children = self.pubsub.query(f'{topic_name}/children', default=[])
         self._log.info('render %s: done in %.3f seconds', unique_id, time.time() - t_start)
-        #for child in children:
-        #    self._render_one(child, info)
+        for child in children:
+            self._render_one(child, info)
         if not isinstance(obj, type) and hasattr(obj, 'on_style_change'):
             obj.on_style_change()
         return info

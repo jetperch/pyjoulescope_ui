@@ -215,6 +215,8 @@ def _idx_to_segments(finite_idx):
 def _tick_spacing(v_min, v_max, v_spacing_min):
     if v_spacing_min <= 0:
         return 0.0
+    if not np.isfinite(v_min) or not np.isfinite(v_max):
+        return 0.0
     target_spacing = v_spacing_min
     power10 = 10 ** np.floor(np.log10(v_spacing_min))
     intervals = np.array([1., 2., 5., 10., 20., 50., 100.]) * power10
@@ -222,6 +224,7 @@ def _tick_spacing(v_min, v_max, v_spacing_min):
         if interval >= target_spacing:
             return interval
     raise RuntimeError('tick_spacing calculation failed')
+    return 0.0
 
 
 def _ticks(v_min, v_max, v_spacing_min, major_interval_min=None):
@@ -418,6 +421,16 @@ class WaveformWidget(QtWidgets.QWidget):
             'default': None,
             'flags': ['hidden', 'ro'],
         },
+        'control_location': {
+            'dtype': 'str',
+            'brief': N_('Control location'),
+            'default': 'bottom',
+            'options': [
+                ['off', N_('off')],
+                ['top', N_('top')],
+                ['bottom', N_('bottom')],
+            ],
+        },
     }
 
     def __init__(self, parent=None, **kwargs):
@@ -483,6 +496,18 @@ class WaveformWidget(QtWidgets.QWidget):
             'times': [],
             'str': '',
         }
+
+    def on_setting_control_location(self, value):
+        if value == 'off':
+            self._control.setVisible(False)
+            return
+        self._layout.removeWidget(self._control)
+        if value == 'top':
+            pos = 0
+        else:
+            pos = -1
+        self._layout.insertWidget(pos, self._control)
+        self._control.setVisible(True)
 
     def _on_source_list(self, sources):
         if not len(sources):
@@ -945,7 +970,7 @@ class WaveformWidget(QtWidgets.QWidget):
             y_max = max(y_max)
         r = plot['range']
 
-        dy1 = y_max - y_min
+        dy1 = max(1e-9, y_max - y_min)
         dy2 = r[1] - r[0]
 
         if y_min >= r[0] and y_max <= r[1] and dy1 / (dy2 + 1e-15) > _AUTO_RANGE_FRACT:
@@ -2601,11 +2626,11 @@ class WaveformWidget(QtWidgets.QWidget):
             z0, z1 = e0, e0 + r
         elif self.pin_right or z1 > e1:
             z0, z1 = e1 - r, e1
-        self.x_range = z0, z1
-        if len(value) == 3:  # double check center location
+        elif len(value) == 3:  # double check center location
             pixel = self._x_map.time64_to_counter(center)
             if abs(pixel - value[2]) >= 1.0:
                 self._log.warning('center change: %s -> %s', value[2], pixel)
+        self.x_range = z0, z1
         self._plot_data_invalidate()
 
     def on_action_x_zoom_all(self):
