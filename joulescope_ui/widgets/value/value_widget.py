@@ -524,12 +524,17 @@ class _BaseWidget(QtWidgets.QWidget):
                 v['max']['value'] = max(v['max']['value'], x_max)
                 v['p2p']['value'] = v['max']['value'] - v['min']['value']
             x_avg, x_std = x['avg']['value'], x['std']['value']
-            v_avg, v_std = v['avg']['value'], v['std']['value']
-            avg = v_avg + ((x_avg - v_avg) * (x_duration / (x_duration + v_duration)))
-            v['avg']['value'] = avg
-            x_var = x_std * x_std
-            v_var = v_std * v_std
-            v['std']['value'] = 0  # todo variance
+            if np.isfinite(x_avg) and np.isfinite(x_std):
+                v_avg, v_std = v['avg']['value'], v['std']['value']
+                avg = v_avg + ((x_avg - v_avg) * (x_duration / (x_duration + v_duration)))
+                v['avg']['value'] = avg
+                x_diff = x_avg - avg
+                v_diff = v_avg - avg
+                x_var = x_std * x_std
+                v_var = v_std * v_std
+                s = ((v_var + v_diff * v_diff) * v_duration +
+                     (x_var + x_diff * x_diff) * x_duration)
+                v['std']['value'] = np.sqrt(s / (x_duration + v_duration - 1))
         self._statistics['time']['accum_samples'] = stats['time']['accum_samples']
         self._statistics['accumulators'] = stats['accumulators']
         self._statistics['time']['samples']['value'] = [v_start, x_end]
