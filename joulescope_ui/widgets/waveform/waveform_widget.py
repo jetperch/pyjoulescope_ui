@@ -2680,6 +2680,16 @@ class WaveformWidget(QtWidgets.QWidget):
         self._plot_data_invalidate()
         self.x_range = z0, z1
 
+    def on_action_y_zoom_all(self):
+        """Restore all plots to y-axis auto ranging mode."""
+        self._log.info('y_zoom_all')
+        has_change = False
+        for plot in self.state['plots']:
+            if plot['range_mode'] == 'manual':
+                plot['range_mode'] = 'auto'
+                has_change = True
+        self._repaint_request |= has_change
+
     def on_action_y_zoom(self, value):
         """Perform a y-axis zoom action.
 

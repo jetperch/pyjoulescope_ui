@@ -19,6 +19,7 @@ notes below for additional usage guidelines.
   * Improved zoom/pan mouse interaction. 
   * Added x-axis pan to summary waveform.
   * Added "Y-axis auto range" to plot context menu.
+  * Added Y zoom all control.
 
 
 ## 1.0.2

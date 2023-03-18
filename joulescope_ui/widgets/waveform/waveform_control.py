@@ -108,6 +108,14 @@ _TOOLTIP_PIN_RIGHT = tooltip_format(
     When enabled, the right side (newest) data 
     always remains in view."""))
 
+_TOOLTIP_Y_AXIS_ZOOM_ALL = tooltip_format(
+    N_("Y zoom all"),
+    N_("""\
+    Click to reset the y-axis of all plots to auto ranging mode.
+    
+    This operation does not affect the fixed range plots such
+    as the general purpose inputs."""))
+
 _TOOLTIP_MIN_MAX = tooltip_format(
     N_("Show min/max extents"),
     N_("""\
@@ -167,6 +175,7 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._pin_left.setCheckable(True)
         self._pin_right = self._add_button('pin_right', self._on_pin_right_click, _TOOLTIP_PIN_RIGHT)
         self._pin_right.setCheckable(True)
+        self._add_button('y_zoom_all', self._on_y_axis_zoom_all, _TOOLTIP_Y_AXIS_ZOOM_ALL)
 
         self._show_min_max_label = QtWidgets.QLabel(self)
         self._show_min_max_label.setText('Min/Max:')
@@ -337,3 +346,6 @@ class WaveformControlWidget(QtWidgets.QWidget):
     def _on_pin_newest(self, checked):
         pass
 
+    @QtCore.Slot(bool)
+    def _on_y_axis_zoom_all(self, checked):
+        self._pubsub.publish(f'{self._topic}/actions/!y_zoom_all', None)

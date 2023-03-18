@@ -13,7 +13,8 @@
         "pin_right.svg",
         "zoom_all.svg",
         "zoom_in.svg",
-        "zoom_out.svg"
+        "zoom_out.svg",
+        "y_zoom_all.svg"
       ],
       "targets": [
         ["{basename}_disabled{ext}", {"#000000": "js1.clickable_disabled"}],

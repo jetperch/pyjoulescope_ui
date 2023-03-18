@@ -20,6 +20,7 @@ QPushButton#marker_clear,
 QPushButton#zoom_in,
 QPushButton#zoom_out,
 QPushButton#zoom_all,
+QPushButton#y_zoom_all,
 QPushButton#pin_left,
 QPushButton#pin_right
 {
@@ -61,3 +62,7 @@ QPushButton#pin_right:disabled      { image: url("{% path %}/pin_right_disabled.
 QPushButton#pin_right:enabled       { image: url("{% path %}/pin_right_enabled.svg"); }
 QPushButton#pin_right:enabled:hover { image: url("{% path %}/pin_right_hover.svg"); }
 QPushButton#pin_right:checked       { image: url("{% path %}/pin_right_pressed.svg"); }
+
+QPushButton#y_zoom_all:disabled      { image: url("{% path %}/y_zoom_all_disabled.svg"); }
+QPushButton#y_zoom_all:enabled       { image: url("{% path %}/y_zoom_all_enabled.svg"); }
+QPushButton#y_zoom_all:enabled:hover { image: url("{% path %}/y_zoom_all_hover.svg"); }
