@@ -2043,7 +2043,7 @@ class WaveformWidget(QtWidgets.QWidget):
     def _action_save_image(self):
         filter_str = 'png (*.png)'
         filename = time64.filename('.png')
-        path = pubsub_singleton.query('registry/paths/settings/save_path')
+        path = pubsub_singleton.query('registry/paths/settings/path')
         path = os.path.join(path, filename)
         dialog = QtWidgets.QFileDialog(self, N_('Save image to file'), path, filter_str)
         dialog.setFileMode(QtWidgets.QFileDialog.AnyFile)

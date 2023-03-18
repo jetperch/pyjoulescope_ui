@@ -48,6 +48,7 @@ class StatisticsRecord:
         self._file = open(filename, 'wt')
         self._offsets = None
 
+        pubsub_singleton.publish('registry/paths/actions/!mru_save', filename)
         pubsub_singleton.register(self, parent=parent)
         pubsub_singleton.subscribe(self._topic, self._on_data_fn, ['pub'])
 

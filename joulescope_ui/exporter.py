@@ -48,7 +48,7 @@ class ExporterWidget(QtWidgets.QWidget):
 
         self._location_label = QtWidgets.QLabel(N_('Directory'), self)
         self._location = QtWidgets.QLineEdit(self)
-        self._location.setText(pubsub_singleton.query('registry/paths/settings/save_path'))
+        self._location.setText(pubsub_singleton.query('registry/paths/settings/path'))
         self._location_sel = QtWidgets.QPushButton(self)
         self._location_sel.pressed.connect(self._on_location_button)
         self._layout.addWidget(self._location_label, self._row, 0, 1, 1)
@@ -265,6 +265,7 @@ class Exporter(RangeToolBase):
             os.remove(path)
         else:
             self._log.info('thread done with success')
+            pubsub_singleton.publish('registry/paths/actions/!mru_save', path)
 
     @staticmethod
     def on_cls_action_run(value):

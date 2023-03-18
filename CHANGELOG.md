@@ -4,6 +4,19 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 1.0.3
+
+<span style="color:yellow">⚠ ALPHA RELEASE - USE WITH CAUTION ⚠</span> 
+
+Improves upon 1.0.2 but still alpha quality.  See the 1.0.0 release
+notes below for additional usage guidelines.
+
+2023 Mar 18 [in progress]
+
+* Added File->Open recent.
+* Added default load/save path, defaults to most recently used. 
+
+
 ## 1.0.2
 
 <span style="color:yellow">⚠ ALPHA RELEASE - USE WITH CAUTION ⚠</span> 

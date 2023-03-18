@@ -48,9 +48,10 @@ class SignalRecord:
         parent = pubsub_singleton.query('registry/app/instance')
         self._log = logging.getLogger(f'{__name__}.obj')
         self.CAPABILITIES = [CAPABILITIES.SIGNAL_STREAM_SINK]
-        self._log.info('JLS record to %s', config['path'])
+        path = config['path']
+        self._log.info('JLS record to %s', path)
         self._log.info('JLS record signals: %s', config['signals'])
-        self._jls = Writer(config['path'])
+        self._jls = Writer(path)
         self._on_data_fn = self._on_data
         self._source_idx = 1
         self._signal_idx = 1
@@ -61,6 +62,7 @@ class SignalRecord:
         notes = config.get('notes')
         if notes is not None:
             self._jls.user_data(ChunkMeta.NOTES, notes)
+        pubsub_singleton.publish('registry/paths/actions/!mru_save', path)
         pubsub_singleton.register(self, parent=parent)
 
         for signal in config['signals']:

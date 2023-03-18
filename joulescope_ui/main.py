@@ -233,7 +233,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._menu_items = _menu_setup(self._menu_bar, [
             ['file_menu', N_('&File'), [
                 ['open', N_('Open'), ['registry/ui/actions/!file_open_request', '']],
-                # 'Open &Recent': {},  # dynamically populated from MRU
+                ['open_recent_menu', N_('Open recent'), []],  # dynamically populated from MRU
                 # '&Preferences': self.on_preferences,
                 ['exit_cfg', N_('Clear config and exit'), ['registry/ui/actions/!close', {'config_clear': True}]],
                 ['exit', N_('Exit'), ['registry/ui/actions/!close', '']],
@@ -257,6 +257,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._view_menu_group = QtGui.QActionGroup(self._menu_items['view_menu'][0])
         self._view_menu_group.setExclusive(True)
         self.setMenuBar(self._menu_bar)
+        self._pubsub.subscribe('registry/paths/settings/mru_files', self._on_mru, flags=['pub', 'retain'])
 
         _device_factory_add()
         self._pubsub.subscribe('registry_manager/capabilities/view.object/list',
@@ -365,6 +366,21 @@ class MainWindow(QtWidgets.QMainWindow):
             self._pubsub_utilization.setText(f'PubSub: {c - self._pubsub_process_count_last}')
             self._pubsub_process_count_last = c
 
+    def _on_mru(self, value):
+        _, items = self._menu_items['file_menu']
+        open_recent_list = items['open_recent_menu']
+        menu, _ = open_recent_list
+        menu.clear()
+        if not len(value):
+            menu.menuAction().setVisible(False)
+            return
+        menu.menuAction().setVisible(True)
+        menu_items = []
+        topic = get_topic_name(self)
+        for idx, mru in enumerate(value):
+            menu_items.append([str(idx), mru, [f'{topic}/actions/!file_open', mru]])
+        open_recent_list[1] = _menu_setup(menu, menu_items)
+
     def _on_change_views(self, value):
         value = self._pubsub.query('registry_manager/capabilities/view.object/list')
         active_view = self._pubsub.query('registry/view/settings/active', default=None)
@@ -410,7 +426,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def on_action_file_open_request(self):
         """Request file open; prompt user to select file."""
         self._log.info('file_open_request')
-        path = pubsub_singleton.query('registry/paths/settings/save_path')
+        path = pubsub_singleton.query('registry/paths/settings/path')
         self._dialog = QtWidgets.QFileDialog(self, N_('Select file to open'), path)
         self._dialog.setNameFilter('Joulescope Data (*.jls)')
         self._dialog.setFileMode(QtWidgets.QFileDialog.ExistingFile)

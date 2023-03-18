@@ -125,6 +125,7 @@ class JlsSource:
         else:
             raise ValueError(f'Unsupported JLS version {jls_version}')
 
+        pubsub.publish('registry/paths/actions/!mru_load', path)
         self._thread = threading.Thread(target=self.run)
         self._thread.start()
 

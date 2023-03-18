@@ -15,6 +15,8 @@
 from .locale import N_
 from joulescope_ui import pubsub_singleton, CAPABILITIES, get_topic_name
 import logging
+import os
+
 
 _DEFAULT_CAPABILITIES = {
     CAPABILITIES.STATISTIC_STREAM_SOURCE: 'defaults/statistics_stream_source',
@@ -28,30 +30,17 @@ SETTINGS = {
         'brief': N_('The name for this widget.'),
         'default': N_('Paths'),
     },
-    'save_path': {
+    'path': {
         'dtype': 'str',
-        'brief': N_('Save path'),
-        'detail': N_('The path for saving files.'),
+        'brief': N_('Default path'),
+        'detail': N_('The default path for loading and saving files.'),
         'flags': ['ro', 'hidden'],
         'default': None,
     },
-    'load_path': {
+    'fixed_path': {
         'dtype': 'str',
-        'brief': N_('Load path'),
-        'detail': N_('The path for loading files.'),
-        'flags': ['ro', 'hidden'],
-        'default': None,
-    },
-    'fixed_save_path': {
-        'dtype': 'str',
-        'brief': N_('Save path'),
-        'detail': N_('The fixed path for saving files.'),
-        'default': None,
-    },
-    'fixed_load_path': {
-        'dtype': 'str',
-        'brief': N_('Load path'),
-        'detail': N_('The fixed path used for loading files.'),
+        'brief': N_('Fixed default path'),
+        'detail': N_('The fixed default path for loading and saving files.'),
         'default': None,
     },
     'most_recent_save_path': {
@@ -72,32 +61,17 @@ SETTINGS = {
         'flags': ['ro'],
         'default': None,
     },
-    'load_path_method': {
+    'path_method': {
         'dtype': 'int',
-        'brief': N_('The load path method'),
-        'detail': N_("""\
-        Select the method to compute the load path.
-        
-        The load path can use a fixed value, the most recently used
-        load path, or the most recently used path.
-        """),
-        'options': [
-            [0, N_('fixed')],
-            [1, N_('Most recent load path')],
-            [2, N_('Most recently used path')],
-        ],
-        'default': 2,
-    },
-    'save_path_method': {
-        'dtype': 'int',
-        'brief': N_('The save path method'),
+        'brief': N_('The default path method'),
         'detail': N_(""""""),
         'options': [
-            [0, N_('fixed')],
-            [1, N_('Most recent load path')],
-            [2, N_('Most recently used path')],
+            [0, N_('Fixed')],
+            [1, N_('Most recent save path')],
+            [2, N_('Most recent load path')],
+            [3, N_('Most recently used path')],
         ],
-        'default': 2,
+        'default': 3,
     },
     'mru_files': {
         'dtype': 'obj',
@@ -126,7 +100,7 @@ class Paths:
         self._cbks = []
         self.SETTINGS = SETTINGS
         default = pubsub_singleton.query('common/settings/paths/data')
-        for key in ['fixed_save_path', 'fixed_load_path',
+        for key in ['fixed_path',
                     'most_recent_save_path', 'most_recent_load_path',
                     'most_recent_path']:
             self.SETTINGS[key]['default'] = default
@@ -136,36 +110,43 @@ class Paths:
         self._update()
         return self
 
-    def on_action_mru(self, value):
+    def _update_mru(self, value):
+        value = os.path.abspath(value)
         topic = f'{get_topic_name(self)}/settings/mru_files'
         mru_files = pubsub_singleton.query(topic)
+        mru_files = [f for f in mru_files if f != value]
         mru_files = [value] + mru_files[:(self.mru_count - 1)]
         pubsub_singleton.publish(topic, mru_files)
+        return os.path.dirname(value)
+
+    def on_action_mru_save(self, value):
+        self._log.info('mru_save %s', value)
+        path = self._update_mru(value)
+        pubsub_singleton.publish(f'{get_topic_name(self)}/settings/most_recent_save_path', path)
+        pubsub_singleton.publish(f'{get_topic_name(self)}/settings/most_recent_path', path)
+
+    def on_action_mru_load(self, value):
+        self._log.info('mru_load %s', value)
+        path = self._update_mru(value)
+        pubsub_singleton.publish(f'{get_topic_name(self)}/settings/most_recent_load_path', path)
+        pubsub_singleton.publish(f'{get_topic_name(self)}/settings/most_recent_path', path)
 
     def _update(self):
         if not hasattr(self, 'unique_id'):
             return
         topic = get_topic_name(self)
-        path = [
-            pubsub_singleton.query(f'{topic}/settings/fixed_load_path'),
+        paths = [
+            pubsub_singleton.query(f'{topic}/settings/fixed_path'),
+            pubsub_singleton.query(f'{topic}/settings/most_recent_save_path'),
             pubsub_singleton.query(f'{topic}/settings/most_recent_load_path'),
             pubsub_singleton.query(f'{topic}/settings/most_recent_path'),
         ]
-        idx = pubsub_singleton.query(f'{topic}/settings/load_path_method')
-        pubsub_singleton.publish(f'{topic}/settings/load_path', path[idx])
+        idx = pubsub_singleton.query(f'{topic}/settings/path_method')
+        path = paths[idx]
+        pubsub_singleton.publish(f'{topic}/settings/path', path)
+        self._log.info('path %s', path)
 
-        path = [
-            pubsub_singleton.query(f'{topic}/settings/fixed_save_path'),
-            pubsub_singleton.query(f'{topic}/settings/most_recent_save_path'),
-            pubsub_singleton.query(f'{topic}/settings/most_recent_path'),
-        ]
-        idx = pubsub_singleton.query(f'{topic}/settings/save_path_method')
-        pubsub_singleton.publish(f'{topic}/settings/save_path', path[idx])
-
-    def on_setting_fixed_save_path(self, value):
-        self._update()
-
-    def on_setting_fixed_load_path(self, value):
+    def on_setting_fixed_path(self, value):
         self._update()
 
     def on_setting_most_recent_save_path(self, value):
@@ -174,10 +155,10 @@ class Paths:
     def on_setting_most_recent_load_path(self, value):
         self._update()
 
-    def on_setting_load_path_method(self, value):
+    def on_setting_most_recent_path(self, value):
         self._update()
 
-    def on_setting_save_path_method(self, value):
+    def on_setting_path_method(self, value):
         self._update()
 
     def on_setting_mru_count(self, value):
