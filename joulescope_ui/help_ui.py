@@ -20,7 +20,7 @@ import os
 import re
 from PySide6 import QtCore, QtWidgets
 from . import frozen
-from joulescope_ui import pubsub_singleton
+from joulescope_ui import pubsub_singleton, get_instance
 from joulescope_ui import about
 
 
@@ -92,13 +92,11 @@ def format_help(name, html, style=None):
 def load_style(pubsub=None):
     if pubsub is None:
         pubsub = pubsub_singleton
-    manager = pubsub.query('registry/StyleManager:0/instance')
-    style_path = os.path.join(manager.path, 'ui', 'style.html')
-    if not os.path.isfile(style_path):
+    view = pubsub.query('registry/view/settings/active')
+    view = get_instance(view)
+    if view is None or view.style_obj is None:
         return ''
-    with open(style_path, 'rt') as f:
-        style = f.read()
-    return style
+    return view.style_obj['templates']['style.html']
 
 
 # Inspired by https://stackoverflow.com/questions/47345776/pyqt5-how-to-add-a-scrollbar-to-a-qmessagebox

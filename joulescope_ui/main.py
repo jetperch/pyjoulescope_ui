@@ -153,8 +153,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self._icon = QtGui.QIcon()
         self._icon.addFile(u":/icon_64x64.ico", QtCore.QSize(), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setWindowIcon(self._icon)
-        self._style_manager = StyleManager(self._pubsub)
-        self._pubsub.register(self._style_manager, 'StyleManager:0')
+        self._style_manager = StyleManager()
+        self._pubsub.register(self._style_manager, 'style')
 
         self._blink_count = 0
         self._blink_timer = QtCore.QTimer()
@@ -288,7 +288,8 @@ class MainWindow(QtWidgets.QMainWindow):
         elif is_config_load:
             self._pubsub.publish('registry/view/settings/active', view_active)
 
-        self._pubsub.publish('registry/StyleManager:0/actions/!render', None)
+        self._pubsub.publish('registry/style/settings/enable', True)
+        self._pubsub.publish('registry/style/actions/!render', None)
         self._pubsub.process()
 
         self._pubsub_utilization = QtWidgets.QLabel(self._status_bar)

@@ -163,6 +163,8 @@ class Metadata:
             * hide: This topic should not appear in the user interface.
             * dev: Developer option that should not be used in production.
             * skip_undo: This topic should not be added to the undo list.
+            * tmp: Temporary value that is not persisted.
+            * noinit: Do not attempt to get default value from class or persist.
         """
         if len(args) == 1 and len(kwargs) == 0:
             v = args[0]

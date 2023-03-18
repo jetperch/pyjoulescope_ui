@@ -1246,7 +1246,7 @@ class PubSub:
             topic_name = f'{topic_base_name}/settings/{setting_name}'
             if topic_name not in self:
                 meta = Metadata(meta)
-                if not isinstance(obj, type):
+                if not isinstance(obj, type) and 'noinit' not in meta.flags:
                     # attempt to set instance default value from class
                     cls_unique_id = obj.__class__.__dict__[_PUBSUB_ATTR]['unique_id']
                     cls_topic = get_topic_name(cls_unique_id)
@@ -1441,6 +1441,8 @@ class PubSub:
             result['children'] = c
             for n, child in t.children.items():
                 if n[0] == '!' or n in ['instance', 'actions', 'callbacks', 'events']:
+                    continue
+                if child.meta is not None and 'tmp' in child.meta.flags:
                     continue
                 key, value = self._to_obj(child.topic_name)
                 c[key] = value

@@ -20,7 +20,7 @@ import os
 import shutil
 import unittest
 from joulescope_ui.pubsub import PubSub
-from joulescope_ui.styles import StyleManager
+from joulescope_ui.styles import manager
 
 
 class Ui:
@@ -37,12 +37,14 @@ class TestStyleManager(unittest.TestCase):
 
     def setUp(self):
         self.pubsub = PubSub(app='joulescope_ui_style_test')
+        manager.pubsub_singleton, self._pubsub_singleton_orig = self.pubsub, manager.pubsub_singleton
         self.ui = Ui(self.pubsub)
         self.app_path = self.pubsub.query('common/settings/paths/app')
         self.styles_path = self.pubsub.query('common/settings/paths/styles')
-        self.mgr = StyleManager(self.pubsub)
+        self.mgr = manager.StyleManager()
 
     def tearDown(self):
+        manager.pubsub_singleton = self._pubsub_singleton_orig
         shutil.rmtree(self.app_path, ignore_errors=True)
 
     def test_basic(self):

@@ -187,6 +187,7 @@ class ColorEditorWidget(_GridWidget):
         self._obj = None
         self._topic = None
         self._log = logging.getLogger(__name__)
+        self._color_scheme = pubsub_singleton.query('registry/style/settings/color_scheme', default='dark')
         super().__init__(parent)
         self.setObjectName('color_editor_widget')
         self._color_widgets = []
@@ -198,7 +199,16 @@ class ColorEditorWidget(_GridWidget):
             self._log.warning('invalid color %s', color)
             return
         self._colors[name] = color
-        pubsub_singleton.publish(f'{self._topic}/settings/colors', copy.deepcopy(self._colors))
+        topic = f'{self._topic}/settings/colors'
+        colors = pubsub_singleton.query(topic)
+        if colors is None:
+            colors = {self._color_scheme: {name: color}}
+        else:
+            colors = copy.deepcopy(colors)
+            if self._color_scheme not in colors:
+                colors[self._color_scheme] = {}
+            colors[self._color_scheme][name] = color
+        pubsub_singleton.publish(f'{self._topic}/settings/colors', colors)
 
     def clear(self):
         while len(self._color_widgets):
@@ -217,30 +227,42 @@ class ColorEditorWidget(_GridWidget):
 
     @object.setter
     def object(self, obj):
-        from joulescope_ui.styles.manager import load_colors
         if self._obj is not None:
             self.clear()
+            self._obj = None
         if obj is None:
             self._obj = None
             return
         self._obj = get_instance(obj)
+        if not hasattr(obj, 'style_obj') or obj.style_obj is None:
+            return
         self._topic = get_topic_name(self._obj)
-        self._colors = copy.deepcopy(load_colors(self._obj))
 
         name_label = QtWidgets.QLabel(N_('Name'), self)
         self._grid.addWidget(name_label, 0, 0, 1, 1)
         self._widgets.append(name_label)
+        cls = obj.__class__
+        colors = copy.deepcopy(cls._style_cls['load']['colors'])
+        cls_colors = pubsub_singleton.query(f'{get_topic_name(obj.__class__)}/settings/colors')
+        if cls_colors is not None:
+            for color_scheme, k in cls_colors.items():
+                for color_name, color_value in k.items():
+                    colors[color_scheme][color_name] = color_value
         if isinstance(self._obj, type):
             for col, color_scheme in enumerate(COLOR_SCHEMES.values()):
                 color_label = QtWidgets.QLabel(color_scheme['name'], self)
                 self._grid.addWidget(color_label, 0, 1 + col * 2, 1, 2)
                 self._widgets.append(color_label)
-            colors = self._colors
         else:
+            colors = colors[self._color_scheme]
+            if obj.colors is not None:
+                for key, value in obj.colors[self._color_scheme].items():
+                    colors[key] = value
             color_label = QtWidgets.QLabel(N_('Color'), self)
             self._grid.addWidget(color_label, 0, 1, 1, 2)
             self._widgets.append(color_label)
-            colors = {'__active__': self._colors}
+            colors = {'__active__': colors}
+        self._colors = colors
 
         row_map = {}
         for col, color in enumerate(colors.values()):
@@ -293,6 +315,7 @@ class FontEditorWidget(_GridWidget):
         self._fonts = None
         self._obj = None
         self._topic = None
+        self._font_scheme = pubsub_singleton.query('registry/style/settings/font_scheme', default='js1')
         self._log = logging.getLogger(__name__)
         self.setObjectName('font_editor_widget')
 
@@ -302,52 +325,59 @@ class FontEditorWidget(_GridWidget):
 
     @object.setter
     def object(self, obj):
-        from joulescope_ui.styles.manager import load_fonts
         if self._obj is not None:
             self.clear()
+            self._obj = None
         if obj is None:
             self._obj = None
             return
         self._obj = get_instance(obj)
         self._topic = get_topic_name(self._obj)
-        self._fonts = load_fonts(self._obj)
+        if not hasattr(obj, 'style_obj') or obj.style_obj is None:
+            return
+        cls = obj.__class__
+
         name_label = QtWidgets.QLabel(N_('Name'), self)
         self._grid.addWidget(name_label, 0, 0, 1, 1)
         self._widgets.append(name_label)
-        if isinstance(self._obj, type):
-            for col, font_scheme in enumerate(FONT_SCHEMES.values()):
-                font_label = QtWidgets.QLabel(font_scheme['name'], self)
-                self._grid.addWidget(font_label, 0, 1 + col, 1, 1)
-                self._widgets.append(font_label)
-            fonts = self._fonts
-        else:
+
+        fonts = copy.deepcopy(cls._style_cls['load']['fonts'][self._font_scheme])
+        cls_fonts = pubsub_singleton.query(f'{get_topic_name(obj.__class__)}/settings/fonts')
+        if cls_fonts is not None:
+            for font_name, font_value in cls_fonts[self._font_scheme].items():
+                fonts[font_name] = font_value
+        if not isinstance(self._obj, type):
+            if obj.fonts is not None:
+                for key, value in obj.fonts[self._font_scheme].items():
+                    fonts[key] = value
             font_label = QtWidgets.QLabel(N_('Font'), self)
             self._grid.addWidget(font_label, 0, 1, 1, 1)
             self._widgets.append(font_label)
-            fonts = {'__active__': self._fonts}
+        self._fonts = fonts
 
         row_map = {}
-        for col, fonts_by_scheme in enumerate(fonts.values()):
-            for row, (name, value) in enumerate(fonts_by_scheme.items()):
-                if col == 0:
-                    row_map[name] = row
-                    name_label = QtWidgets.QLabel(name, self)
-                    self._grid.addWidget(name_label, row + 1, 0, 1, 1)
-                    self._widgets.append(name_label)
-                elif name in row_map:
-                    row = row_map[name]
-                else:
-                    row = len(row_map)
-                    row_map[name] = row
-                w = QFontLabel(self, name, value)
-                w.changed.connect(self._on_change)
-                self._grid.addWidget(w, row + 1, 1 + col, 1, 1)
-                self._widgets.append(w)
-                # todo w.changed.connect(self._on_change)
+        for row, (name, value) in enumerate(fonts.items()):
+            row_map[name] = row
+            name_label = QtWidgets.QLabel(name, self)
+            self._grid.addWidget(name_label, row + 1, 0, 1, 1)
+            self._widgets.append(name_label)
+            w = QFontLabel(self, name, value)
+            w.changed.connect(self._on_change)
+            self._grid.addWidget(w, row + 1, 1, 1, 1)
+            self._widgets.append(w)
 
     def _on_change(self, name, value):
         self._fonts[name] = value
-        pubsub_singleton.publish(f'{self._topic}/settings/fonts', dict(self._fonts))
+        topic = f'{self._topic}/settings/fonts'
+        fonts = pubsub_singleton.query(topic)
+        if fonts is None:
+            fonts = {self._font_scheme: {name: value}}
+        else:
+            fonts = copy.deepcopy(fonts)
+            if self._font_scheme not in fonts:
+                fonts[self._font_scheme] = {}
+            fonts[self._font_scheme][name] = value
+        pubsub_singleton.publish(f'{self._topic}/settings/fonts', fonts)
 
 
 class StyleDefineEditorWidget(_GridWidget):
@@ -366,15 +396,29 @@ class StyleDefineEditorWidget(_GridWidget):
 
     @object.setter
     def object(self, obj):
-        from joulescope_ui.styles.manager import load_style_defines
         if self._obj is not None:
             self.clear()
+            self._obj = None
         if obj is None:
             self._obj = None
             return
-        self._obj = get_instance(obj)
+        if not hasattr(obj, 'style_obj') or obj.style_obj is None:
+            return
+
+        obj = get_instance(obj)
+        self._obj = obj
         self._topic = get_topic_name(self._obj)
-        self._entries = load_style_defines(self._obj)
+        cls = obj.__class__
+        entries = copy.deepcopy(cls._style_cls['load']['style_defines'])
+        cls_entries = pubsub_singleton.query(f'{get_topic_name(obj.__class__)}/settings/style_defines')
+        if cls_entries is not None:
+            for e_name, e_value in cls_entries.items():
+                entries[e_name] = e_value
+        if not isinstance(obj, type) and obj.style_defines is not None:
+            for e_name, e_value in obj.style_defines.items():
+                entries[e_name] = e_value
+        self._entries = entries
+
         name_label = QtWidgets.QLabel(N_('Name'), self)
         self._grid.addWidget(name_label, 0, 0, 1, 1)
         self._widgets.append(name_label)

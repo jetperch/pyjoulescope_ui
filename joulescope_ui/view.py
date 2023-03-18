@@ -110,6 +110,8 @@ class View:
     @staticmethod
     def on_cls_setting_active(value):
         """Change the active view."""
+        style_enable_topic = 'registry/style/settings/enable'
+        pubsub_singleton.publish(style_enable_topic, False)
         view: View = View._active_instance
         ui = pubsub_singleton.query('registry/ui/instance', default=None)
         if view is not None:
@@ -147,6 +149,8 @@ class View:
         geometry = pubsub_singleton.query(f'{topic}/settings/geometry', default=None)
         if ui is not None and geometry is not None:
             ui.restoreGeometry(geometry)
+        pubsub_singleton.publish(style_enable_topic, True)
+        view._render()
         _log.info('active view %s: setup done', view.unique_id)
 
     @property
@@ -179,10 +183,6 @@ class View:
         self._colors = value
         if self.is_active:
             self._render()
-
-    def on_setting_stylesheet(self, value):
-        if self.is_active:
-            View._ui.setStyleSheet(value)
 
     def on_action_widget_open(self, value):
         """Create a widget, possibly reusing existing settings.
@@ -236,7 +236,7 @@ class View:
         tab_widget = obj.dock_widget.tabWidget()
         tab_widget.setElideMode(QtCore.Qt.TextElideMode.ElideNone)
         # todo restore children
-        pubsub_singleton.publish('registry/StyleManager:0/actions/!render', unique_id)
+        pubsub_singleton.publish('registry/style/actions/!render', unique_id)
         if floating:
             dw = obj.dock_widget
             dw.setFloating()
@@ -327,15 +327,7 @@ class View:
         View._dock_manager = value['dock_manager']
 
     def _render(self):
-        return  # todo?
-        p = pubsub_singleton
-        profile = p.query('common/profile/settings/active')
-        view = self.unique_id
-        path = p.query('common/paths/styles')
-        filename = sanitize(f'{profile}__{view}')
-        path = os.path.join(path, filename)
-        print('RENDER')
-        pass  # todo
+        pubsub_singleton.publish('registry/style/actions/!render', get_unique_id(self))
 
 
 register(View, 'view')

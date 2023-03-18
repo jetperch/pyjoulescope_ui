@@ -269,11 +269,11 @@ class _InnerWidget(QtWidgets.QWidget):
     def paintEvent(self, event):
         fields = [field for field in self._fields if field != self._main]
         parent = self._parent
-        if parent.source is None or not hasattr(parent, 'style_manager_info'):
+        if parent.source is None or parent.style_obj is None:
             return
 
         painter = QtGui.QPainter(self)
-        v = parent.style_manager_info['sub_vars']
+        v = parent.style_obj['vars']
         x_border, y_border = 10, 10
         y_sep = 6
         number_example = '8.88888'

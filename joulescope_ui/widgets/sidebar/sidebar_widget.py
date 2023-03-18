@@ -232,10 +232,10 @@ class SideBar(QtWidgets.QWidget):
     def _style(self):
         if self._style_cache is not None:
             return self._style_cache
-        if not hasattr(self, 'style_manager_info'):
+        if self.style_obj is None:
             self._style_cache = None
             return None
-        v = self.style_manager_info['sub_vars']
+        v = self.style_obj['vars']
         self._style_cache = {
             'selected_background_brush': QtGui.QBrush(color_as_qcolor(v['sidebar.util_background'])),
             'selected_side_brush': QtGui.QBrush(color_as_qcolor(v['sidebar.util_foreground'])),

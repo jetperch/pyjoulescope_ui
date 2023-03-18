@@ -79,9 +79,9 @@ class MemSet(QtWidgets.QWidget):
         return pixels
 
     def paintEvent(self, event):
-        if not hasattr(self._parent, 'style_manager_info'):
+        if self._parent.style_obj is None:
             return
-        v = self._parent.style_manager_info['sub_vars']
+        v = self._parent.style_obj['vars']
         widget_w, widget_h = self.width(), self.height()
         p = QtGui.QPainter(self)
 
