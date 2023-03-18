@@ -237,51 +237,33 @@ class ColorEditorWidget(_GridWidget):
         if not hasattr(obj, 'style_obj') or obj.style_obj is None:
             return
         self._topic = get_topic_name(self._obj)
+        cls = obj.__class__
+        colors = copy.deepcopy(cls._style_cls['load']['colors'][self._color_scheme])
+        cls_colors = pubsub_singleton.query(f'{get_topic_name(obj.__class__)}/settings/colors')
+        if cls_colors is not None:
+            for color_name, color_value in cls_colors[self._color_scheme].items():
+                colors[color_name] = color_value
+        if not isinstance(self._obj, type):
+            if obj.colors is not None:
+                for key, value in obj.colors[self._color_scheme].items():
+                    colors[key] = value
+        self._colors = colors
 
         name_label = QtWidgets.QLabel(N_('Name'), self)
         self._grid.addWidget(name_label, 0, 0, 1, 1)
         self._widgets.append(name_label)
-        cls = obj.__class__
-        colors = copy.deepcopy(cls._style_cls['load']['colors'])
-        cls_colors = pubsub_singleton.query(f'{get_topic_name(obj.__class__)}/settings/colors')
-        if cls_colors is not None:
-            for color_scheme, k in cls_colors.items():
-                for color_name, color_value in k.items():
-                    colors[color_scheme][color_name] = color_value
-        if isinstance(self._obj, type):
-            for col, color_scheme in enumerate(COLOR_SCHEMES.values()):
-                color_label = QtWidgets.QLabel(color_scheme['name'], self)
-                self._grid.addWidget(color_label, 0, 1 + col * 2, 1, 2)
-                self._widgets.append(color_label)
-        else:
-            colors = colors[self._color_scheme]
-            if obj.colors is not None:
-                for key, value in obj.colors[self._color_scheme].items():
-                    colors[key] = value
-            color_label = QtWidgets.QLabel(N_('Color'), self)
-            self._grid.addWidget(color_label, 0, 1, 1, 2)
-            self._widgets.append(color_label)
-            colors = {'__active__': colors}
-        self._colors = colors
-
-        row_map = {}
-        for col, color in enumerate(colors.values()):
-            for row, (name, value) in enumerate(color.items()):
-                if col == 0:
-                    row_map[name] = row
-                    name_label = QtWidgets.QLabel(name, self)
-                    self._grid.addWidget(name_label, row + 1, 0, 1, 1)
-                    self._color_widgets.append(name_label)
-                elif name in row_map:
-                    row = row_map[name]
-                else:
-                    row = len(row_map)
-                    row_map[name] = row
-                w = ColorItem(self, name, value)
-                self._grid.addWidget(w.value_edit, row + 1, 1 + col * 2, 1, 1)
-                self._grid.addWidget(w.color_label, row + 1, 2 + col * 2, 1, 1)
-                self._color_widgets.append(w)
-                w.color_changed.connect(self._on_change)
+        color_label = QtWidgets.QLabel(N_('Color'), self)
+        self._grid.addWidget(color_label, 0, 1, 1, 2)
+        self._widgets.append(color_label)
+        for row, (name, value) in enumerate(self._colors.items()):
+            name_label = QtWidgets.QLabel(name, self)
+            self._grid.addWidget(name_label, row + 1, 0, 1, 1)
+            self._color_widgets.append(name_label)
+            w = ColorItem(self, name, value)
+            self._grid.addWidget(w.value_edit, row + 1, 1, 1, 1)
+            self._grid.addWidget(w.color_label, row + 1, 2, 1, 1)
+            self._color_widgets.append(w)
+            w.color_changed.connect(self._on_change)
 
 
 class QFontLabel(QtWidgets.QLabel):
@@ -337,10 +319,6 @@ class FontEditorWidget(_GridWidget):
             return
         cls = obj.__class__
 
-        name_label = QtWidgets.QLabel(N_('Name'), self)
-        self._grid.addWidget(name_label, 0, 0, 1, 1)
-        self._widgets.append(name_label)
-
         fonts = copy.deepcopy(cls._style_cls['load']['fonts'][self._font_scheme])
         cls_fonts = pubsub_singleton.query(f'{get_topic_name(obj.__class__)}/settings/fonts')
         if cls_fonts is not None:
@@ -350,14 +328,16 @@ class FontEditorWidget(_GridWidget):
             if obj.fonts is not None:
                 for key, value in obj.fonts[self._font_scheme].items():
                     fonts[key] = value
-            font_label = QtWidgets.QLabel(N_('Font'), self)
-            self._grid.addWidget(font_label, 0, 1, 1, 1)
-            self._widgets.append(font_label)
         self._fonts = fonts
 
-        row_map = {}
+        name_label = QtWidgets.QLabel(N_('Name'), self)
+        self._grid.addWidget(name_label, 0, 0, 1, 1)
+        self._widgets.append(name_label)
+        font_label = QtWidgets.QLabel(N_('Font'), self)
+        self._grid.addWidget(font_label, 0, 1, 1, 1)
+        self._widgets.append(font_label)
+
         for row, (name, value) in enumerate(fonts.items()):
-            row_map[name] = row
             name_label = QtWidgets.QLabel(name, self)
             self._grid.addWidget(name_label, row + 1, 0, 1, 1)
             self._widgets.append(name_label)
