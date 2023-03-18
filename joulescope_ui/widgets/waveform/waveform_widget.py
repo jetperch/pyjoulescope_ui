@@ -2182,6 +2182,8 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _menu_plot(self, idx, event: QtGui.QMouseEvent):
         self._log.info('_menu_plot(%s, %s)', idx, event.pos())
+        dynamic = []
+        plot = self.state['plots'][idx]
         menu = QtWidgets.QMenu('Waveform context menu', self)
         annotations = menu.addMenu('&Annotations')
         anno_x = annotations.addMenu('&Vertical')
@@ -2190,6 +2192,11 @@ class WaveformWidget(QtWidgets.QWidget):
         anno_y = annotations.addMenu('&Horizontal')
         anno_y_sub = self._menu_add_y_annotations(anno_y)
         anno_text = annotations.addMenu('&Text')
+
+        if plot['range_mode'] == 'manual':
+            range_mode = menu.addAction(N_('Y-axis auto range'))
+            range_mode.triggered.connect(lambda: self._on_menu_y_range_mode(idx, 'auto'))
+            dynamic.append(range_mode)
 
         copy_image = menu.addAction(N_('Save image to file'))
         copy_image.triggered.connect(self._action_save_image)
@@ -2205,6 +2212,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
         style_action = settings_action_create(self, menu)
         self._menu = [menu,
+                      dynamic,
                       annotations, anno_x, anno_x_sub, anno_y, anno_y_sub, anno_text,
                       copy_image,
                       export_range, export_all,
