@@ -2739,6 +2739,13 @@ class WaveformWidget(QtWidgets.QWidget):
             is_pan = True
         is_y = QtCore.Qt.KeyboardModifier.ControlModifier & event.modifiers()
 
+        if y_name == 'summary':
+            if is_pan:
+                self._on_x_pan(delta)
+            else:
+                t = (self.x_range[0] + self.x_range[1]) / 2
+                topic = get_topic_name(self)
+                self.pubsub.publish(f'{topic}/actions/!x_zoom', [delta, t])
         if x_name == 'plot' and (y_name == 'x_axis' or not is_y):
             if is_pan:
                 self._on_x_pan(delta)
