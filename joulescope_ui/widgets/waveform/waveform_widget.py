@@ -463,6 +463,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._menu = None
         self._dialog = None
         self._x_map = TimeMap()
+        self._x_summary_map = TimeMap()
         self._mouse_pos = None
         self._mouse_pos_start = None
         self._wheel_accum_degrees = np.zeros(2, dtype=np.float64)
@@ -1144,11 +1145,9 @@ class WaveformWidget(QtWidgets.QWidget):
         if length <= 1 or w <= 1 or dxe <= 1e-15:
             return
         x_gain = w / dxe
+        self._x_summary_map.update(x0, xe0, x_gain)
 
-        def x_value_to_pixel(v):
-            return (v - xe0) * x_gain + x0
-
-        xp = x_value_to_pixel(x)
+        xp = self._x_summary_map.time64_to_counter(x)
         p.setClipRect(x0, y0, w, h)
         finite_idx = np.logical_not(np.isnan(d['avg']))
         segment_idx = _idx_to_segments(finite_idx)
@@ -1163,7 +1162,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 p.drawRect(z1, y0, max(1, z2 - z1), h)
                 segment_idx_last = idx_stop
 
-        xp_range = np.rint(x_value_to_pixel(np.array(self.x_range)))
+        xp_range = np.rint(self._x_summary_map.time64_to_counter(np.array(self.x_range)))
         pr0, pr1 = int(xp_range[0]), int(xp_range[-1])
         pr0, pr1 = max(0, min(pr0, w)), max(0, min(pr1, w))
         p.fillRect(x0 + pr0, y0, max(1, pr1 - pr0), h, s['summary_view'])
@@ -1925,13 +1924,12 @@ class WaveformWidget(QtWidgets.QWidget):
                     m[m_field] += yd
             elif action == 'x_pan':
                 self._mouse_x_pan(x)
+            elif action == 'x_pan_summary':
+                self._mouse_x_pan_summary(x)
             elif action == 'y_pan':
                 self._mouse_y_pan(y)
 
-    def _mouse_x_pan(self, x):
-        t0 = self._x_map.counter_to_time64(self._mouse_action[1])
-        t1 = self._x_map.counter_to_time64(x)
-        self._mouse_action[1] = x
+    def _x_pan(self, t0, t1):
         e0, e1 = self._extents()
         dt = t0 - t1
         x0, x1 = self.x_range
@@ -1943,6 +1941,18 @@ class WaveformWidget(QtWidgets.QWidget):
             z0, z1 = e1 - d_x, e1
         self.x_range = z0, z1
         self._plot_data_invalidate()
+
+    def _mouse_x_pan(self, x):
+        t0 = self._x_map.counter_to_time64(self._mouse_action[1])
+        t1 = self._x_map.counter_to_time64(x)
+        self._mouse_action[1] = x
+        self._x_pan(t0, t1)
+
+    def _mouse_x_pan_summary(self, x):
+        t1 = self._x_summary_map.counter_to_time64(self._mouse_action[1])
+        t0 = self._x_summary_map.counter_to_time64(x)
+        self._mouse_action[1] = x
+        self._x_pan(t0, t1)
 
     def _mouse_y_pan(self, y1):
         idx = self._mouse_action[1]
@@ -1963,10 +1973,10 @@ class WaveformWidget(QtWidgets.QWidget):
         event.accept()
         x, y = event.pos().x(), event.pos().y()
         item, x_name, y_name = self._find_item((x, y))
-        self._log.info(f'mouse press ({x}, {y}) -> ({item}, {x_name}, {y_name})')
+        is_ctrl = bool(QtCore.Qt.KeyboardModifier.ControlModifier & event.modifiers())
+        self._log.info(f'mouse press ({x}, {y}) -> ({item}, {x_name}, {y_name}) is_ctrl={is_ctrl}')
         if self._mouse_action is None:
             self._mouse_pos_start = (x, y)
-        is_ctrl = bool(QtCore.Qt.KeyboardModifier.ControlModifier & event.modifiers())
         if event.button() == QtCore.Qt.LeftButton:
             if item.startswith('spacer.'):
                 idx = int(item.split('.')[1])
@@ -1983,13 +1993,19 @@ class WaveformWidget(QtWidgets.QWidget):
                     self._mouse_action = None
                 else:
                     self._mouse_action = ['move.y_marker', item, is_ctrl]
-            elif y_name.startswith('plot') and x_name == 'plot':
+            elif y_name == 'summary':
+                if self.pin_left or self.pin_right:
+                    pass  # pinned to extents, cannot pan
+                else:
+                    self._log.info('x_pan_summary start')
+                    self._mouse_action = ['x_pan_summary', x]
+            elif not is_ctrl and (y_name.startswith('plot.') or y_name == 'x_axis') and x_name == 'plot':
                 if self.pin_left or self.pin_right:
                     pass  # pinned to extents, cannot pan
                 else:
                     self._log.info('x_pan start')
                     self._mouse_action = ['x_pan', x]
-            elif y_name.startswith('plot.') and x_name.startswith('y_axis'):
+            elif y_name.startswith('plot.') and (x_name.startswith('y_axis') or (is_ctrl and x_name == 'plot')):
                 idx = int(y_name.split('.')[1])
                 self._log.info('y_pan start')
                 self._mouse_action = ['y_pan', idx, y]

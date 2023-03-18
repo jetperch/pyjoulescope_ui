@@ -14,7 +14,10 @@ notes below for additional usage guidelines.
 2023 Mar 18 [in progress]
 
 * Added File->Open recent.
-* Added default load/save path, defaults to most recently used. 
+* Added default load/save path, defaults to most recently used.
+* Improved waveform widget.
+  * Improved zoom/pan mouse interaction. 
+  * Added x-axis pan to summary waveform.
 
 
 ## 1.0.2
