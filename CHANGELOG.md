@@ -24,6 +24,7 @@ notes below for additional usage guidelines.
 * Fixed intermittent timeout broken for API calls (pyjoulescope_driver 1.2.2).
 * Fixed max window range tool.
 * Added automatic JLS waveform widget naming using JLS filename.
+* Fixed JLS open and waveform widget to support simultaneous files.
 
 
 ## 1.0.2

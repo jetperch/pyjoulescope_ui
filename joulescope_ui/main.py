@@ -457,7 +457,7 @@ class MainWindow(QtWidgets.QMainWindow):
             source = sources_end[-1]
             if source in sources_start:
                 self._log.warning('Could not determine added source')
-                source = None
+                source = 'JlsSource'
         name = os.path.splitext(os.path.basename(path))[0]
         self._pubsub.publish(
             'registry/view/actions/!widget_open',
@@ -465,7 +465,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 'value': 'WaveformWidget',
                 'kwargs': {
                     'name': name,
-                    'source_filter': 'JlsSource',
+                    'source_filter': source,
                     'on_widget_close_actions': [[f'{get_topic_name(source)}/actions/!close', None]],
                  }
             })
