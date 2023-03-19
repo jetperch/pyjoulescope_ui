@@ -21,6 +21,7 @@ notes below for additional usage guidelines.
   * Added "Y-axis auto range" to plot context menu.
   * Added Y zoom all control.
 * Improved styles to separate incorrect sharing between objects. 
+* Fixed intermittent timeout broken for API calls (pyjoulescope_driver 1.2.2).
 
 
 ## 1.0.2
