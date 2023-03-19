@@ -22,6 +22,7 @@ notes below for additional usage guidelines.
   * Added Y zoom all control.
 * Improved styles to separate incorrect sharing between objects. 
 * Fixed intermittent timeout broken for API calls (pyjoulescope_driver 1.2.2).
+* Fixed max window range tool.
 
 
 ## 1.0.2

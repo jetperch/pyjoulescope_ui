@@ -157,7 +157,10 @@ class RangeTool:
             fs = rsp['info']['time_map']['counter_rate']
             period_t64 = (1.0 / fs) * time64.SECOND
             if req['time_type'] == 'samples':
-                is_done = rsp['info']['time_range_samples']['end'] >= req['end']
+                end = req['end']
+                if end == 0:
+                    end = req['start'] + req['length'] - 1
+                is_done = rsp['info']['time_range_samples']['end'] >= end
             else:
                 is_done = rsp['info']['time_range_utc']['end'] + period_t64 >= req['end']
             if is_done and rsp_total is None:
