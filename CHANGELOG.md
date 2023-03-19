@@ -25,6 +25,7 @@ notes below for additional usage guidelines.
 * Fixed max window range tool.
 * Added automatic JLS waveform widget naming using JLS filename.
 * Fixed JLS open and waveform widget to support simultaneous files.
+* Added context menu to waveform summary signal selection.
 
 
 ## 1.0.2

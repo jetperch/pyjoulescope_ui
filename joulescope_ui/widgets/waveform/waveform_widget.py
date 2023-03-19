@@ -432,6 +432,11 @@ class WaveformWidget(QtWidgets.QWidget):
                 ['bottom', N_('bottom')],
             ],
         },
+        'summary_signal': {
+            'dtype': 'obj',
+            'brief': N_('The signal to show in the summary.'),
+            'default': None,
+        }
     }
 
     def __init__(self, parent=None, **kwargs):
@@ -589,6 +594,8 @@ class WaveformWidget(QtWidgets.QWidget):
             for plot in self.state['plots']:
                 plot['signals'] = []
             self.state['x_markers'] = []
+        if self.summary_signal is not None:
+            self.summary_signal = tuple(self.summary_signal)
         if 'on_widget_close_actions' in self._kwargs:
             self.pubsub.publish(f'{self.topic}/settings/on_widget_close_actions',
                                 self._kwargs['on_widget_close_actions'])
@@ -684,30 +691,29 @@ class WaveformWidget(QtWidgets.QWidget):
         if 0 == len(x_min):
             return [0, 0]
         # return min(x_min), max(x_max)   # todo restore when JLS v2 supports out of range requests
-        return max(x_min), min(x_max)
+        return [max(x_min), min(x_max)]
 
     def _compute_x_range(self):
         e0, e1 = self._extents()
-        if self.x_range is None:
+        if self.x_range is None or self.x_range == [0, 0]:
             return e0, e1
         x0, x1 = self.x_range
         d_e = e1 - e0
         d_x = x1 - x0
         d_z = min(d_e, d_x)
-        if x0 == 0 and x1 == 0:
-            return e0, e1
+        if (x0 == 0 and x1 == 0) or d_x == 0:
+            return [e0, e1]
         elif self.pin_left and self.pin_right:
-            return e0, e1
+            return [e0, e1]
         elif self.pin_right:
-            return e1 - d_z, e1
+            return [e1 - d_z, e1]
         elif self.pin_left:
-            return e0, e0 + d_z
+            return [e0, e0 + d_z]
         else:
             x0 = max(x0, e0)
-            return x0, x0 + d_z
+            return [x0, x0 + d_z]
 
     def _request_data(self, force=False):
-        first = True
         force = bool(force)
         if not len(self._x_geometry_info):
             return
@@ -716,6 +722,21 @@ class WaveformWidget(QtWidgets.QWidget):
         # xc = (x0 >> 1) + (x1 >> 1)
         # self._log.info(f'request x_range({x0}, {x1}) {xc} {time64.as_datetime(xc)}')
         changed = False
+
+        # Get the signal for the summary waveform
+        if len(self._signals):
+            summary_signal = self.summary_signal
+            summary_signal = self._signals.get(summary_signal)
+            if summary_signal is None:
+                candidates = [k for k in self._signals.keys() if k[1].endswith('.i')]
+                if len(candidates):
+                    summary_signal = self._signals[candidates[0]]
+                else:
+                    summary_signal = next(iter(self._signals.values()))
+            if summary_signal.get('changed', False):
+                summary_length = self._summary_geometry()[2]  # width in pixels
+                self._request_signal(summary_signal, self._extents(), rsp_id=1, length=summary_length)
+
         for key, signal in self._signals.items():
             if not self.is_signal_active(key):
                 continue
@@ -723,10 +744,6 @@ class WaveformWidget(QtWidgets.QWidget):
                 signal['changed'] = None
                 self._request_signal(signal, self.x_range)
                 changed = True
-                if first:
-                    summary_length = self._summary_geometry()[2]  # width in pixels
-                    self._request_signal(signal, self._extents(), rsp_id=1, length=summary_length)
-            first = False
         if self.state is not None:
             for m in self.state['x_markers']:
                 if m.get('changed', True) or changed:
@@ -1736,7 +1753,6 @@ class WaveformWidget(QtWidgets.QWidget):
         data = sig_data['data']
         xd, x0, x1 = self._x_geometry_info['statistics']
         yd, y0, y1 = self._y_geometry_info[plot['y_region']]
-        s = self._style
         z0, z1 = self.x_range
 
         x_data = data['x']
@@ -1935,7 +1951,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _x_pan(self, t0, t1):
         e0, e1 = self._extents()
-        dt = t0 - t1
+        dt = int(t0 - t1)
         x0, x1 = self.x_range
         d_x = x1 - x0
         z0, z1 = x0 + dt, x1 + dt
@@ -1943,7 +1959,7 @@ class WaveformWidget(QtWidgets.QWidget):
             z0, z1 = e0, e0 + d_x
         elif self.pin_right or z1 > e1:
             z0, z1 = e1 - d_x, e1
-        self.x_range = z0, z1
+        self.x_range = [z0, z1]
         self._plot_data_invalidate()
 
     def _mouse_x_pan(self, x):
@@ -2031,6 +2047,8 @@ class WaveformWidget(QtWidgets.QWidget):
             elif y_name == 'x_axis':
                 if x_name.startswith('plot'):
                     self._menu_x_axis(event)
+            elif y_name == 'summary':
+                self._menu_summary(event)
 
     def _render_to_pixmap(self):
         sz = self._graphics.size()
@@ -2350,6 +2368,31 @@ class WaveformWidget(QtWidgets.QWidget):
                       marker_remove]
         return self._menu_show(event)
 
+    def _menu_summary_signal(self, menu, signal):
+        def action():
+            self.summary_signal = signal
+
+        a = menu.addAction(' '.join(signal))
+        a.triggered.connect(action)
+        return a
+
+    def _menu_summary(self, event: QtGui.QMouseEvent):
+        self._log.info('_menu_summary(%s)', event.pos())
+        menu = QtWidgets.QMenu('Waveform summary context menu', self)
+        signal_menu = QtWidgets.QMenu('Signal', menu)
+        menu.addMenu(signal_menu)
+        signals = []
+        selected = self.summary_signal
+        for item, signal in self._signals.items():
+            if selected is None:
+                selected = item
+            a = self._menu_summary_signal(signal_menu, item)
+            signals.append(a)
+            a.setChecked(item == selected)
+        style_action = settings_action_create(self, menu)
+        self._menu = [menu, signal_menu, signals, style_action]
+        return self._menu_show(event)
+
     def on_style_change(self):
         self._style_cache = None
         self.update()
@@ -2658,7 +2701,7 @@ class WaveformWidget(QtWidgets.QWidget):
             pixel = self._x_map.time64_to_counter(center)
             if abs(pixel - value[2]) >= 1.0:
                 self._log.warning('center change: %s -> %s', value[2], pixel)
-        self.x_range = z0, z1
+        self.x_range = [z0, z1]
         self._plot_data_invalidate()
 
     def on_action_x_zoom_all(self):
@@ -2682,7 +2725,7 @@ class WaveformWidget(QtWidgets.QWidget):
         elif self.pin_right or z1 > e1:
             z0, z1 = e1 - d_x, e1
         self._plot_data_invalidate()
-        self.x_range = z0, z1
+        self.x_range = [z0, z1]
 
     def on_action_y_zoom_all(self):
         """Restore all plots to y-axis auto ranging mode."""
@@ -2769,13 +2812,20 @@ class WaveformWidget(QtWidgets.QWidget):
                 self.pubsub.publish(f'{topic}/actions/!y_zoom', [plot_idx, delta, y, y_pixel])
 
     def _plot_data_invalidate(self, plot=None):
+        try:
+            plots = self.state['plots']
+        except (AttributeError, KeyError, TypeError):
+            return
         if plot is None:
-            for plot in self.state['plots']:
-                self._plot_data_invalidate(plot)
+            for signal in self._signals.values():
+                signal['changed'] = True
+            self._repaint_request = True
             return
         if not plot['enabled']:
             return
         for signal in plot['signals']:
+            if not isinstance(signal, tuple):
+                return  # on_pubsub_register not called yet
             if signal in self._signals:
                 self._signals[signal]['changed'] = True
                 self._repaint_request = True
@@ -2796,9 +2846,23 @@ class WaveformWidget(QtWidgets.QWidget):
                     self._compute_geometry()
                     self._plots_height_adjust()
                     self._plot_data_invalidate(plot)
+                    self.x_range = self._compute_x_range()
+                    self._repaint_request = True
                 return
         self._log.warning('plot_show could not match %s', quantity)
+
+    def on_setting_pin_left(self):
+        self._plot_data_invalidate()
+
+    def on_setting_pin_right(self):
+        self._plot_data_invalidate()
+
+    def on_setting_show_min_max(self):
+        self._repaint_request = True
 
     def on_setting_fps(self, value):
         self._log.info('fps: period = %s ms', value)
         self._refresh_timer.start(value)
+
+    def on_setting_summary_signal(self):
+        self._plot_data_invalidate()
