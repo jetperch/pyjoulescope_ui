@@ -11,7 +11,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 Improves upon 1.0.2 but still alpha quality.  See the 1.0.0 release
 notes below for additional usage guidelines.
 
-2023 Mar 18 [in progress]
+2023 Mar 19 [in progress]
 
 * Added File->Open recent.
 * Added default load/save path, defaults to most recently used.
@@ -23,6 +23,7 @@ notes below for additional usage guidelines.
 * Improved styles to separate incorrect sharing between objects. 
 * Fixed intermittent timeout broken for API calls (pyjoulescope_driver 1.2.2).
 * Fixed max window range tool.
+* Added automatic JLS waveform widget naming using JLS filename.
 
 
 ## 1.0.2

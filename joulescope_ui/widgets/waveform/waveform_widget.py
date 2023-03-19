@@ -28,6 +28,7 @@ import time
 from PySide6.QtGui import QPen, QBrush
 from joulescope_ui.units import unit_prefix
 
+_NAME = N_('Waveform')
 _ZOOM_FACTOR = np.sqrt(2)
 _WHEEL_TO_DEGREES = 1.0 / 8.0  # https://doc.qt.io/qt-6/qwheelevent.html#angleDelta
 _WHEEL_TICK_DEGREES = 15.0   # Standard convention
@@ -341,7 +342,7 @@ class _PlotWidget(QtOpenGLWidgets.QOpenGLWidget):
 
 
 @register
-@styled_widget(N_('Waveform'))
+@styled_widget(_NAME)
 class WaveformWidget(QtWidgets.QWidget):
     CAPABILITIES = ['widget@', CAPABILITIES.SIGNAL_BUFFER_SINK]
 
@@ -579,9 +580,12 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def on_pubsub_register(self):
         source_filter = self._source_filter_set()
+        is_device = source_filter in [None, '', 'JsdrvStreamBuffer:001']
         if self.state is None:
             self.state = copy.deepcopy(_STATE_DEFAULT)
-        elif source_filter in [None, '', 'JsdrvStreamBuffer:001']:
+            if not is_device:
+                self.name = self._kwargs.get('name', _NAME)
+        elif is_device:  # clear prior state
             for plot in self.state['plots']:
                 plot['signals'] = []
             self.state['x_markers'] = []
