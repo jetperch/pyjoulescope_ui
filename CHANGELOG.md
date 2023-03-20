@@ -4,7 +4,7 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
-## 1.0.4
+## 1.0.5
 
 <span style="color:yellow">⚠ ALPHA RELEASE - USE WITH CAUTION ⚠</span> 
 
@@ -30,6 +30,7 @@ notes below for additional usage guidelines.
 * Reintegrated CDF and CCDF range tools.
 * Added left-click on Value widget to copy value to clipboard.
 * Fixed software update on macOS to open dmg file.
+* Fixed macOS dynlib not found (1.0.3 & 1.0.4).
 
 
 ## 1.0.2

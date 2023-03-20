@@ -26,7 +26,8 @@ import functools
 
 # Only use joulescope package for the JLS v1 support
 # Cannot use backend '1' since we use pyjoulescope_driver directly
-os.environ['JOULESCOPE_BACKEND'] = '0'
+# Cannot use backend '0' since macOS depends on libusb dynlibs that we do not package.
+os.environ['JOULESCOPE_BACKEND'] = 'none'
 
 from joulescope.data_recorder import DataReader
 
