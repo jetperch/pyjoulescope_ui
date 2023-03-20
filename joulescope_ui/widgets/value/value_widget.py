@@ -252,6 +252,7 @@ class _AccrueWidget(QtWidgets.QWidget):
 class _InnerWidget(QtWidgets.QWidget):
 
     def __init__(self, parent):
+        self._log = logging.getLogger(__name__ + '.inner')
         self._parent: ValueWidget = parent
         self._statistics = None  # most recent statistics information
         super().__init__(parent=parent)
@@ -261,6 +262,9 @@ class _InnerWidget(QtWidgets.QWidget):
         self._signals = ['current', 'voltage', 'power', 'charge', 'energy']
         self._main = 'avg'
         self._fields = ['avg', 'std', 'min', 'max', 'p2p']
+        self._geometry = None
+        self._clipboard = None
+        self.setMouseTracking(True)
 
     def _on_statistics(self, value):
         self._statistics = value
@@ -335,6 +339,17 @@ class _InnerWidget(QtWidgets.QWidget):
 
         painter.fillRect(0, 0, x_max, y_max, background_brush)
 
+        self._geometry = {
+            'y_border': y_border,
+            'y_signal': y_signal,
+            'y_sep': y_sep,
+            'y_stats_space': stats_space,
+            'y_stats': stats_font_metrics.height(),
+            'x_stats': None,
+            'fields': {},  # signal_idx -> list of available fields
+            'values': {},  # signal_idx -> field_name -> value
+        }
+
         for idx, signal_name in enumerate(self._signals):
             y = y_border + idx * (y_signal + y_sep)
             if idx != 0:
@@ -379,8 +394,10 @@ class _InnerWidget(QtWidgets.QWidget):
             if len(prefix) != 1:
                 prefix = ' '
             v_str = ('%+6f' % (signal_value / scale))[:8]
+            v_str_idx = 1
             if v_str[0] == '-' or parent.show_sign:
                 painter.drawText(x, y, v_str[0])
+                v_str_idx = 0
             x += main_char_width
             painter.drawText(x, y, v_str[1:])
             x += main_number_width + main_char_width // 2
@@ -390,34 +407,91 @@ class _InnerWidget(QtWidgets.QWidget):
             painter.drawText(x + x_offset - (w2 - w1), y, prefix)
             painter.drawText(x + x_offset, y, signal_units)
             x += 2 * main_text_width
+            self._geometry['values'][idx] = {'avg': f'{v_str[v_str_idx:]} {prefix}{signal_units}'}
 
             painter.setPen(stats_color)
             painter.setFont(stats_font)
             y = y_start + (y_signal - y2) // 2
             x += main_text_width // 2
             x_start = x
+            self._geometry['fields'][idx] = fields
 
-            for idx, stat in enumerate(fields):
-                if idx == 0:
+            for field_idx, stat in enumerate(fields):
+                if field_idx == 0:
                     y += stats_space
                 y += stats_font_metrics.ascent()
                 x = x_start
+                self._geometry['x_stats'] = x
                 if stat == 'accumulate_duration':
                     painter.drawText(x, y, a_duration_txt)
                 else:
                     v_str = ('%+6f' % (signal[stat]['value'] / scale))[:8]
+                    v_str_idx = 1
                     if v_str[0] == '-' or parent.show_sign:
                         painter.drawText(x, y, v_str[0])
+                        v_str_idx = 0
                     x += stats_char_width
                     painter.drawText(x, y, v_str[1:])
                     x += stats_number_width + stats_char_width
                     painter.drawText(x, y, stat)
+                    self._geometry['values'][idx][stat] = f'{v_str[v_str_idx:]} {prefix}{signal_units}'
                 y += stats_font_metrics.descent()
 
         #color = color_as_qcolor('#ff000040')
         #painter.setPen(color)
         #painter.drawRect(x_border, y_border, x_max - x_border, y - y_border)
         painter.end()
+
+    def _pos_to_item(self, x, y):
+        if self._geometry is None:
+            return None
+        if y < self._geometry['y_border']:
+            return None
+        y -= self._geometry['y_border']
+        y_signal = self._geometry['y_signal']
+        y_sep = self._geometry['y_sep']
+        y_height = y_signal + y_sep
+        idx = int(y // y_height)
+        if idx >= len(self._signals):
+            return None
+        z = y - idx * y_height
+        if z > y_signal:  # in separator
+            return None
+        x_stats = self._geometry.get('x_stats')
+        result = {
+            'signal_idx': idx,
+        }
+        if x_stats is not None and x >= x_stats:
+            fields = self._geometry['fields'][idx]
+            y_stats_space = self._geometry['y_stats_space']
+            y_stats = self._geometry['y_stats']
+            if z < y_stats_space:
+                return None
+            k = int(z // y_stats)
+            if k >= len(fields):
+                return None
+            result['field'] = fields[k]
+        else:
+            result['field'] = 'avg'
+        return result
+
+    def mouseMoveEvent(self, event: QtGui.QMouseEvent):
+        event.accept()
+
+    def mousePressEvent(self, event):
+        if self._geometry is None:
+            return
+        x, y = event.pos().x(), event.pos().y()
+        item = self._pos_to_item(x, y)
+        if item is None:
+            return
+        try:
+            value = self._geometry['values'][item['signal_idx']][item['field']]
+        except KeyError:
+            return
+        self._log.info('copy value to clipboard: %s', value)
+        self._clipboard = value
+        QtWidgets.QApplication.clipboard().setText(self._clipboard)
 
 
 class _BaseWidget(QtWidgets.QWidget):

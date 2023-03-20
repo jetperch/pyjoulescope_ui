@@ -11,7 +11,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 Improves upon 1.0.2 but still alpha quality.  See the 1.0.0 release
 notes below for additional usage guidelines.
 
-2023 Mar 19 [in progress]
+2023 Mar 20
 
 * Added File->Open recent.
 * Added default load/save path, defaults to most recently used.
@@ -28,6 +28,7 @@ notes below for additional usage guidelines.
 * Added context menu to waveform summary signal selection.
 * Added Tools → Clear Accumulators.
 * Reintegrated CDF and CCDF range tools.
+* Added left-click on Value widget to copy value to clipboard.
 
 
 ## 1.0.2
