@@ -258,12 +258,12 @@ def check(callback, path, channel=None):
 
 def apply(info):
     path = info['download_path']
+    _log.info('software update apply: %s', path)
     if platform.system() == 'Windows':
         flags = subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP
         subprocess.Popen([path, '/SILENT'], creationflags=flags)
-    elif platform.system == 'Darwin':
-        flags = subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP
-        subprocess.Popen(['hdiutil', 'attach', '-autoopen', path], creationflags=flags)
+    elif platform.system() == 'Darwin':
+        subprocess.run(['hdiutil', 'attach', '-autoopen', path])
     else:
         show_in_folder(os.path.dirname(path))
 
