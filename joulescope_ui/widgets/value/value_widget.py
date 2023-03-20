@@ -479,6 +479,8 @@ class _InnerWidget(QtWidgets.QWidget):
         event.accept()
 
     def mousePressEvent(self, event):
+        if event.button() != QtCore.Qt.LeftButton:
+            return super().mousePressEvent(event)
         if self._geometry is None:
             return
         x, y = event.pos().x(), event.pos().y()
