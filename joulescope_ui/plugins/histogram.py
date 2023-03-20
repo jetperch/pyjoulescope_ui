@@ -44,18 +44,18 @@ class HistogramRangeToolDialog(QtWidgets.QDialog):
         self.setLayout(self._layout)
         self._form = QtWidgets.QFormLayout()
 
-        self._num_bins_label = QtWidgets.QLabel(N_('Number of bins (0 for auto)'), self)
-        self._form.setWidget(0, QtWidgets.QFormLayout.LabelRole, self._num_bins_label)
-        self._num_bins = QtWidgets.QSpinBox(self)
-        self._num_bins.setMaximum(1000)
-        self._form.setWidget(0, QtWidgets.QFormLayout.FieldRole, self._num_bins)
-
         self._signal_label = QtWidgets.QLabel(N_('Signal'), self)
-        self._form.setWidget(1, QtWidgets.QFormLayout.LabelRole, self._signal_label)
+        self._form.setWidget(0, QtWidgets.QFormLayout.LabelRole, self._signal_label)
         self._signal = QtWidgets.QComboBox(self)
-        self._form.setWidget(1, QtWidgets.QFormLayout.FieldRole, self._signal)
+        self._form.setWidget(0, QtWidgets.QFormLayout.FieldRole, self._signal)
         for _, signal in value['signals']:
             self._signal.addItem(signal)
+
+        self._num_bins_label = QtWidgets.QLabel(N_('Number of bins (0 for auto)'), self)
+        self._form.setWidget(1, QtWidgets.QFormLayout.LabelRole, self._num_bins_label)
+        self._num_bins = QtWidgets.QSpinBox(self)
+        self._num_bins.setMaximum(1000)
+        self._form.setWidget(1, QtWidgets.QFormLayout.FieldRole, self._num_bins)
 
         self._type_label = QtWidgets.QLabel(N_('Histogram type'), self)
         self._form.setWidget(2, QtWidgets.QFormLayout.LabelRole, self._type_label)
@@ -86,8 +86,8 @@ class HistogramRangeToolDialog(QtWidgets.QDialog):
         if value == QtWidgets.QDialog.DialogCode.Accepted:
             self._log.info('finished: accept - start histogram')
             self._value['kwargs'] = {
-                'num_bins': int(self._num_bins.value()),
                 'signal': self._value['signals'][self._signal.currentIndex()],
+                'num_bins': int(self._num_bins.value()),
                 'norm': str(self._normalization.currentText()),
             }
             w = HistogramRangeTool(self._value)
@@ -156,7 +156,7 @@ class HistogramRangeToolWidget(QtWidgets.QWidget):
             if index >= 0 and index < len(self._bin_edges):
                 self._label.setText(
                     "<span style='font-size: 12pt'>{}={:.5f}</span>,   <span style='color: yellow; font-size:12pt'>{}: {:.5f}</span>".format(
-                        signal_name, mouse_point.x(), axis_label, self._hist[index])
+                        signal_name, xval, axis_label, self._hist[index])
                 )
                 self._brushes[self.prev_hover_index] = (128, 128, 128)
                 self._brushes[index] = (213, 224, 61)

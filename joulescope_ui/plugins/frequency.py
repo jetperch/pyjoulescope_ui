@@ -173,6 +173,7 @@ class FrequencyRangeToolWidget(QtWidgets.QWidget):
             mousePoint = p.vb.mapSceneToView(pos)
             xval = mousePoint.x()
             idx = np.searchsorted(self._f, xval)
+            idx = min(max(0, idx), len(self._f) - 1)
             xval = self._f[idx]
             yval = self._y[idx]
             self._label.setText(f'x={xval:.1f} Hz, y={yval:.3f} dB')

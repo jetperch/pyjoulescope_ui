@@ -60,17 +60,3 @@ def normalize_hist(hist, bin_edges, norm: str = None):
         log.error('_normalize_hist invalid normalization: %s', norm)
     gain = 1 / hist.sum()
     return hist * gain, bin_edges
-
-
-def cdf(data, signal):
-    hist, bin_edges = calculate_histogram(data, bins=0, signal=signal)
-    normed, bin_edges = normalize_hist(hist, bin_edges, norm='unity')
-    _cdf = np.zeros(len(normed))
-    for i, hist_val in enumerate(normed):
-        _cdf[i] = _cdf[i - 1] + hist_val
-    return _cdf, bin_edges
-
-
-def ccdf(data, signal):
-    _cdf, bin_edges = cdf(data, signal=signal)
-    return 1 - _cdf, bin_edges

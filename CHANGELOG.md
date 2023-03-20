@@ -27,6 +27,7 @@ notes below for additional usage guidelines.
 * Fixed JLS open and waveform widget to support simultaneous files.
 * Added context menu to waveform summary signal selection.
 * Added Tools → Clear Accumulators.
+* Reintegrated CDF and CCDF range tools.
 
 
 ## 1.0.2
