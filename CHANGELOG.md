@@ -26,6 +26,7 @@ notes below for additional usage guidelines.
 * Added automatic JLS waveform widget naming using JLS filename.
 * Fixed JLS open and waveform widget to support simultaneous files.
 * Added context menu to waveform summary signal selection.
+* Added Tools → Clear Accumulators.
 
 
 ## 1.0.2

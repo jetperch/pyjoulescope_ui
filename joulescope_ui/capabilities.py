@@ -75,6 +75,7 @@ class CAPABILITIES(Enum):
             
     Each STATISTIC_STREAM_SOURCE must implement:
         * events/statistics/!data
+        * actions/!accum_clear
     
     Each SIGNAL_STREAM_SOURCE must implement:
         * settings/signals/{signal_id}/name

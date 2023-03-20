@@ -240,10 +240,9 @@ class MainWindow(QtWidgets.QMainWindow):
             ]],
             ['view_menu', N_('View'), []],     # dynamically populated from available views
             ['widgets_menu', N_('Widgets'), []],  # dynamically populated from available widgets
-            # '&Tools': {
-            #     '&Clear Accumulator': self._on_accumulators_clear,
-            #     '&Record Statistics': self._on_record_statistics,
-            # },
+            ['tools_menu', N_('Tools'), [
+                ['accum_clear', N_('Clear Accumulators'), ['registry/ui/actions/!accum_clear', None]]
+            ]],
             ['help_menu', N_('&Help'), [
                 ['getting_started', N_('Getting Started'), ['registry/help_html/actions/!show', 'getting_started']],
                 #'JS220 User\'s Guide': self._help_js220_users_guide,
@@ -469,6 +468,11 @@ class MainWindow(QtWidgets.QMainWindow):
                     'on_widget_close_actions': [[f'{get_topic_name(source)}/actions/!close', None]],
                  }
             })
+
+    def on_action_accum_clear(self, value):
+        sources = pubsub_singleton.query('registry_manager/capabilities/statistics_stream.source/list')
+        for source in sources:
+            pubsub_singleton.publish(f'{get_topic_name(source)}/actions/!accum_clear', value)
 
     def on_action_view_logs(self):
         path = pubsub_singleton.query('common/settings/paths/log')
