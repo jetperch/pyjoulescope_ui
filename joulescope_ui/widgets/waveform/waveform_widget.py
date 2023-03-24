@@ -1412,6 +1412,8 @@ class WaveformWidget(QtWidgets.QWidget):
                             d_std = d['std'][idx_start:idx_stop]
                             d_y_std_min = self._y_value_to_pixel(plot, d_avg - d_std)
                             d_y_std_max = self._y_value_to_pixel(plot, d_avg + d_std)
+                            d_y_std_min = np.amin(np.vstack([d_y_std_min, d_y_min]), axis=0)
+                            d_y_std_max = np.amax(np.vstack([d_y_std_max, d_y_max]), axis=0)
                             segs, nsegs = sig_d['points_std'].set_fill(d_x_segment, d_y_std_min, d_y_std_max)
                             p.setPen(self._NO_PEN)
                             p.setBrush(s['plot1_std_fill'])
