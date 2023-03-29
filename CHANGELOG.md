@@ -15,6 +15,7 @@ notes below for additional usage guidelines.
 
 * Added settings widget support for None metadata. 
 * Added waveform std bound to min/max range.
+* Moved time64 to pyjoulescope_driver.
 
 
 ## 1.0.5

@@ -19,10 +19,11 @@ from .metadata import Metadata
 from .tooltip import tooltip_format
 from .capabilities import CAPABILITIES
 from .locale import N_
-from . import time64
+from pyjoulescope_driver import time64
 
 
-__all__ = ['__version__', 'pubsub_singleton', 'register', 'register_decorator', 'time64',
+__all__ = ['__version__', 'pubsub_singleton', 'register', 'register_decorator',
+           'time64',
            'PUBSUB_TOPICS', 'REGISTRY_MANAGER_TOPICS',
            'tooltip_format',
            'CAPABILITIES', 'Metadata', 'N_',
