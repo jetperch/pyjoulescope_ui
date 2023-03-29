@@ -19,6 +19,7 @@ notes below for additional usage guidelines.
 * Added exception handling on close/delete widget.
 * Fixed waveform widget save/copy image.
 * Adjusted default waveform fps to 20 Hz (not vsync).
+* Fixed JLS v2 recording to include current range when requested. 
 
 
 ## 1.0.5

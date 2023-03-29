@@ -127,7 +127,7 @@ class SignalRecord:
             signal_type=SignalType.FSR,
             data_type=_DTYPE_MAP[value['dtype']],
             sample_rate=value['sample_freq'],
-            name=value['field'],
+            name=value['field'].replace(' ', '_'),
             units=value['units'],
         )
         self._signals[topic] = {
