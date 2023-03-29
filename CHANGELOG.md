@@ -20,6 +20,7 @@ notes below for additional usage guidelines.
 * Fixed waveform widget save/copy image.
 * Adjusted default waveform fps to 20 Hz (not vsync).
 * Fixed JLS v2 recording to include current range when requested. 
+* Fixed JLS v2 to display correctly when only has single UTC entry.
 
 
 ## 1.0.5

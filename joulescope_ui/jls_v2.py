@@ -97,9 +97,9 @@ class JlsV2:
                     return False
 
                 jls.utc(signal.signal_id, 0, utc_cbk)
-                g = time64.SECOND / signal.sample_rate
+                g = signal.sample_rate / time64.SECOND
                 if utc_first is None:
-                    time_map.update(0, 0, 1.0 / g)
+                    time_map.update(0, 0, g)
                 elif utc_last[0] == utc_first[0]:
                     time_map.update(utc_first[0], utc_first[1], g)
                 else:
