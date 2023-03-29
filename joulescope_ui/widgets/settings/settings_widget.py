@@ -110,8 +110,11 @@ class SettingsEditorWidget(_GridWidget):
 
         settings_topic = f'{topic}/{setting}'
         meta: Metadata = pubsub_singleton.metadata(settings_topic)
-        tooltip = tooltip_format(meta.brief, meta.detail)
-        label.setToolTip(tooltip)
+        if meta is not None:
+            tooltip = tooltip_format(meta.brief, meta.detail)
+            label.setToolTip(tooltip)
+        else:
+            tooltip = None
         w = None
         if meta.options is not None and len(meta.options):
             w = self._insert_combobox(settings_topic, meta)
@@ -121,7 +124,7 @@ class SettingsEditorWidget(_GridWidget):
             w = self._insert_str(settings_topic, meta)
         else:
             pass
-        if w is not None:
+        if w is not None and tooltip is not None:
             w.setToolTip(tooltip)
         self._row += 1
 

@@ -11,8 +11,9 @@ This file contains the list of changes made to pyjoulescope_ui.
 Improves upon 1.0.5 but still alpha quality.  See the 1.0.0 release
 notes below for additional usage guidelines.
 
-2023 Mar 27 [in progress]
+2023 Mar 29 [in progress]
 
+* Added settings widget support for None metadata. 
 * Added waveform std bound to min/max range.
 
 
