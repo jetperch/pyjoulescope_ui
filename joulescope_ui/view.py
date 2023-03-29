@@ -273,8 +273,11 @@ class View:
             except Exception:
                 _log.exception('Delete or remove dock widget raised exception')
             instance.dock_widget = None
-            instance.close()
-            instance.deleteLater()
+            try:
+                instance.close()
+                instance.deleteLater()
+            except Exception:
+                _log.exception('Close or delete widget raised exception')
         for child in pubsub_singleton.query(f'{topic}/children', default=[]):
             self._widget_suspend(child)
         pubsub_singleton.unregister(topic, delete=delete)
