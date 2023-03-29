@@ -17,6 +17,8 @@ notes below for additional usage guidelines.
 * Added waveform std bound to min/max range.
 * Moved time64 to pyjoulescope_driver.
 * Added exception handling on close/delete widget.
+* Fixed waveform widget save/copy image.
+* Adjusted default waveform fps to 20 Hz (not vsync).
 
 
 ## 1.0.5

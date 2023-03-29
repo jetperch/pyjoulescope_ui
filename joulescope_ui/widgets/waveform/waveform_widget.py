@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PySide6 import QtWidgets, QtGui, QtCore, QtOpenGLWidgets
+from PySide6 import QtWidgets, QtGui, QtCore, QtOpenGLWidgets, QtOpenGL
 from OpenGL import GL as gl
 from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topic_name, get_instance, time64
 from joulescope_ui.styles import styled_widget, color_as_qcolor, font_as_qfont
@@ -317,12 +317,16 @@ class _PlotWidget(QtOpenGLWidgets.QOpenGLWidget):
         functions = QtGui.QOpenGLFunctions(self.context())
         functions.initializeOpenGLFunctions()
 
-    def paintEvent(self, event):
+    def paintGL(self):
         size = self.width(), self.height()
         painter = QtGui.QPainter(self)
         painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
-        self._parent.plot_paint(painter, size)
-        # painter.end()  Automatically called by destructor
+        painter.beginNativePainting()
+        try:
+            self._parent.plot_paint(painter, size)
+        finally:
+            painter.endNativePainting()
+        painter.end()
 
     def resizeEvent(self, event):
         self._parent.plot_resizeEvent(event)
@@ -372,7 +376,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 [100, N_('10 Hz')],
                 [200, N_('5 Hz')],
             ],
-            'default': 2,
+            'default': 50,
         },
         'show_min_max': {
             'dtype': 'int',
@@ -2052,16 +2056,11 @@ class WaveformWidget(QtWidgets.QWidget):
             elif y_name == 'summary':
                 self._menu_summary(event)
 
-    def _render_to_pixmap(self):
-        sz = self._graphics.size()
-        sz = QtCore.QSize(sz.width() * 2, sz.height() * 2)
-        pixmap = QtGui.QPixmap(sz)
-        pixmap.setDevicePixelRatio(2)
-        self._graphics.render(pixmap)
-        return pixmap
+    def _render_to_image(self):
+        return self._graphics.grabFramebuffer()
 
     def _action_copy_image_to_clipboard(self):
-        self._clipboard_image = self._render_to_pixmap().toImage()
+        self._clipboard_image = self._render_to_image()
         QtWidgets.QApplication.clipboard().setImage(self._clipboard_image)
 
     @QtCore.Slot(int)
@@ -2071,8 +2070,8 @@ class WaveformWidget(QtWidgets.QWidget):
             filenames = self._dialog.selectedFiles()
             if len(filenames) == 1:
                 self._log.info('finished: accept - save')
-                pixmap = self._render_to_pixmap()
-                pixmap.save(filenames[0])
+                img = self._render_to_image()
+                img.save(filenames[0])
             else:
                 self._log.info('finished: accept - but no file selected, ignore')
         else:
