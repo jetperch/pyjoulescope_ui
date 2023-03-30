@@ -11,7 +11,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 Improves upon 1.0.5 but still alpha quality.  See the 1.0.0 release
 notes below for additional usage guidelines.
 
-2023 Mar 29 [in progress]
+2023 Mar 30
 
 * Added settings widget support for None metadata. 
 * Added waveform std bound to min/max range.
@@ -21,6 +21,8 @@ notes below for additional usage guidelines.
 * Adjusted default waveform fps to 20 Hz (not vsync).
 * Fixed JLS v2 recording to include current range when requested. 
 * Fixed JLS v2 to display correctly when only has single UTC entry.
+* Fixed crash due to invalid time ranges at start (pyjoulescope_driver 1.3.0).
+* Updated to PySide6-QtAds 4.0.1.2, which fixes dock/undock crash.
 
 
 ## 1.0.5

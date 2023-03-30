@@ -55,7 +55,7 @@ def have_native_drawlines_array():
     return success
 
 
-_have_native_drawlines_array = have_native_drawlines_array()
+_have_native_drawlines_array = False  # have_native_drawlines_array()
 
 
 class PrimitiveArray:
