@@ -1467,6 +1467,7 @@ class PubSub:
             'version': 1,
             'common/settings': self._to_obj('common/settings')[1],
             'registry': self._to_obj('registry')[1],
+            REGISTRY_MANAGER_TOPICS.NEXT_UNIQUE_ID: self._topic_get(REGISTRY_MANAGER_TOPICS.NEXT_UNIQUE_ID).value,
         }
         if isinstance(fh, str):
             os.makedirs(os.path.dirname(fh), exist_ok=True)
@@ -1530,6 +1531,8 @@ class PubSub:
         elif file_version != 1:
             self._log.warning('load version mismatch: %s != %s', file_version, 1)
             return False
+        if REGISTRY_MANAGER_TOPICS.NEXT_UNIQUE_ID in obj:
+            self._topic_get(REGISTRY_MANAGER_TOPICS.NEXT_UNIQUE_ID).value = obj[REGISTRY_MANAGER_TOPICS.NEXT_UNIQUE_ID]
         self._from_obj('common/settings', obj['common/settings'])
         self._from_obj('registry', obj['registry'])
         t = self._topic_by_name['registry']

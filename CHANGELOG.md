@@ -15,6 +15,7 @@ notes below for additional usage guidelines.
 
 * Added logarithmic y-axis scale to waveform widget.
 * Bounded waveform widget x-axis zoom.
+* Added save/load next unique id to prevent instances incorrectly sharing state.
 
 
 ## 1.0.6 
