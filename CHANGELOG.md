@@ -16,6 +16,7 @@ notes below for additional usage guidelines.
 * Added logarithmic y-axis scale to waveform widget.
 * Bounded waveform widget x-axis zoom.
 * Added save/load next unique id to prevent instances incorrectly sharing state.
+* Fixed font parsing & settings to work directly with QSS.
 
 
 ## 1.0.6 
