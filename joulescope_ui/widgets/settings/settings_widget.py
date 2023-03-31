@@ -276,20 +276,31 @@ class QFontLabel(QtWidgets.QLabel):
     def __init__(self, parent, name, value):
         QtWidgets.QLabel.__init__(self, parent)
         self._name = name
-        self._value = value
+        self._value = font_as_qss(value)
+        self._dialog = None
         self.setText('0123456789 µΔσ∫')
-        self.setFont(font_as_qfont(self._value))
         self._changed()
 
     def _changed(self):
-        self.setFont(font_as_qfont(self._value))
+        self.setStyleSheet(f"QWidget {{ font: {self._value}; }}")
+        self.style().unpolish(self)
+        self.style().polish(self)
 
-    def mousePressEvent(self, ev):
-        ok, font = QtWidgets.QFontDialog.getFont(font_as_qfont(self._value), self.parent())
-        if ok:
-            self._value = font_as_qss(font)
+    @QtCore.Slot(int)
+    def _on_finished(self, value):
+        if self._dialog is None:
+            return
+        if value == QtWidgets.QDialog.DialogCode.Accepted:
+            self._value = font_as_qss(self._dialog.currentFont())
             self._changed()
             self.changed.emit(self._name, self._value)
+        self._dialog.close()
+        self._dialog = None
+
+    def mousePressEvent(self, ev):
+        self._dialog = QtWidgets.QFontDialog(font_as_qfont(self._value), self.parent())
+        self._dialog.finished.connect(self._on_finished)
+        self._dialog.open()
         ev.accept()
 
 

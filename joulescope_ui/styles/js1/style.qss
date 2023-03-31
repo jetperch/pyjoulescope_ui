@@ -25,6 +25,7 @@ QWidget
     border-image: none;
     border: 1px solid {% base.background %};
     outline: 0;
+    font: {% base.body_font %};
 }
 
 QAbstractScrollArea,
