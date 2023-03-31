@@ -27,6 +27,8 @@ import os
 import time
 from PySide6.QtGui import QPen, QBrush
 from joulescope_ui.units import unit_prefix
+from collections.abc import Iterable
+
 
 _NAME = N_('Waveform')
 _ZOOM_FACTOR = np.sqrt(2)
@@ -42,6 +44,8 @@ _MARKER_RSP_OFFSET = (1 << 48)
 _MARKER_RSP_STEP = 512
 _JS220_AXIS_R = ['10 A', '180 mA', '18 mA', '1.8 mA', '180 µA', '18 µA', 'off', 'off', 'off']
 _JS110_AXIS_R = ['10 A', '2 A', '180 mA', '18 mA', '1.8 mA', '180 µA', '18 µA', 'off', 'off']
+_EXP_TABLE = ['⁰', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹']
+_LOGARITHMIC_ZERO_DEFAULT = -9
 
 
 def _analog_plot(quantity, show, units, name, integral=None):
@@ -55,6 +59,7 @@ def _analog_plot(quantity, show, units, name, integral=None):
         'range_mode': 'auto',
         'range': [-0.1, 1.1],
         'scale': 'linear',
+        'logarithmic_zero': _LOGARITHMIC_ZERO_DEFAULT,
         'integral': integral,
     }
 
@@ -228,7 +233,11 @@ def _tick_spacing(v_min, v_max, v_spacing_min):
     return 0.0
 
 
-def _ticks(v_min, v_max, v_spacing_min, major_interval_min=None):
+def _ticks(v_min, v_max, v_spacing_min, major_interval_min=None, logarithmic_zero=None):
+    """Compute the axis tick locations.
+
+    :param v_min: The minimum value, in transformed coordinates.
+    """
     major_interval = _tick_spacing(v_min, v_max, v_spacing_min)
     if major_interval <= 0:
         return None
@@ -257,16 +266,38 @@ def _ticks(v_min, v_max, v_spacing_min, major_interval_min=None):
     if len(major):
         label_max = max(abs(major[0]), abs(major[-1]))
         zero_max = label_max / 10_000.0
-        adjusted_value, prefix, scale = unit_prefix(label_max)
-        scale = 1.0 / scale
-        for v in major:
-            v *= scale
-            if abs(v) < zero_max:
-                v = 0
-            s = f'{v:g}'
-            if s == '-0':
-                s = '0'
-            labels.append(s)
+        if logarithmic_zero is not None:
+            prefix = ''
+            for v in major:
+                if v == 0:
+                    s = labels.append('0')
+                    continue
+                v_abs = int(abs(v) + logarithmic_zero)
+                if v_abs < 0:
+                    v_abs = abs(v_abs)
+                    s = '10⁻'
+                else:
+                    s = '10'
+                if v < 0:
+                    s = '-' + s
+                digits = []
+                if v_abs == 0:
+                    digits = [_EXP_TABLE[0]]
+                while v_abs:
+                    digits.append(_EXP_TABLE[v_abs % 10])
+                    v_abs //= 10
+                labels.append(s + ''.join(digits[-1::-1]))
+        else:
+            adjusted_value, prefix, scale = unit_prefix(label_max)
+            scale = 1.0 / scale
+            for v in major:
+                v *= scale
+                if abs(v) < zero_max:
+                    v = 0
+                s = f'{v:g}'
+                if s == '-0':
+                    s = '0'
+                labels.append(s)
 
     return {
         'major': major,
@@ -607,6 +638,7 @@ class WaveformWidget(QtWidgets.QWidget):
             plot['index'] = plot_index
             plot['signals'] = [tuple(signal) for signal in plot['signals']]
             plot['y_region'] = f'plot.{plot_index}'
+            plot.setdefault('logarithmic_zero', _LOGARITHMIC_ZERO_DEFAULT)
             if 'y_markers' not in plot:
                 plot['y_markers'] = []
         self.pubsub.subscribe('registry_manager/capabilities/signal_buffer.source/list',
@@ -869,13 +901,61 @@ class WaveformWidget(QtWidgets.QWidget):
                 'points_std': PointsF(),
             }
 
-    def _y_value_to_pixel(self, plot, value):
+    def _y_transform_fwd(self, plot, value):
+        scale = plot.get('scale', 'linear')
+        if scale == 'linear':
+            return value
+        elif scale == 'logarithmic':
+            is_iterable = isinstance(value, Iterable)
+            if is_iterable and not isinstance(value, np.ndarray):
+                y = np.array(value)
+            else:
+                y = value
+            y_pow_zero = plot['logarithmic_zero']
+            y_bias = 10 ** (y_pow_zero - 2)
+            y_sign = np.sign(y)
+            y_abs = np.abs(y)
+            y = np.log10(y_abs + y_bias) - y_pow_zero
+            if is_iterable:
+                y[y < 0] = 0
+            else:
+                y = max(0, y)
+            y *= y_sign
+            return y
+        else:
+            raise ValueError(f'unsupported y-axis scale: {scale}')
+
+    def _y_transform_rev(self, plot, value):
+        scale = plot.get('scale', 'linear')
+        if scale == 'linear':
+            return value
+        elif scale == 'logarithmic':
+            is_iterable = isinstance(value, Iterable)
+            if is_iterable and not isinstance(value, np.ndarray):
+                y = np.array(value)
+            else:
+                y = value
+            y_pow_zero = plot['logarithmic_zero']
+            y_sign = np.sign(y)
+            y_abs = np.abs(y)
+            y = 10 ** (y_abs + y_pow_zero)
+            y *= y_sign
+            return y
+        else:
+            raise ValueError(f'unsupported y-axis scale: {scale}')
+
+    def _y_value_to_pixel(self, plot, value, skip_transform=None):
+        if not bool(skip_transform):
+            value = self._y_transform_fwd(plot, value)
         pixel_offset, value_offset, value_to_pixel_scale = plot['y_map']
         return pixel_offset + (value_offset - value) * value_to_pixel_scale
 
-    def _y_pixel_to_value(self, plot, pixel):
+    def _y_pixel_to_value(self, plot, pixel, skip_transform=None):
         pixel_offset, value_offset, value_to_pixel_scale = plot['y_map']
-        return (pixel_offset - pixel) * (1.0 / value_to_pixel_scale) + value_offset
+        value = (pixel_offset - pixel) * (1.0 / value_to_pixel_scale) + value_offset
+        if not bool(skip_transform):
+            value = self._y_transform_rev(plot, value)
+        return value
 
     def _draw_text(self, p, x, y, txt):
         """Draws text over existing items.
@@ -995,9 +1075,9 @@ class WaveformWidget(QtWidgets.QWidget):
             y_min = min(y_min)
             y_max = max(y_max)
         r = plot['range']
-
+        y_min, y_max = self._y_transform_fwd(plot, [y_min, y_max])
         dy1 = max(1e-9, y_max - y_min)
-        dy2 = r[1] - r[0]
+        dy2 = abs(r[1] - r[0])
 
         if y_min >= r[0] and y_max <= r[1] and dy1 / (dy2 + 1e-15) > _AUTO_RANGE_FRACT:
             return
@@ -1316,7 +1396,7 @@ class WaveformWidget(QtWidgets.QWidget):
         p.drawLine(x0, y0, x0, y1)
 
         self._plot_range_auto_update(plot)
-        y_range = plot['range']
+        y_range = plot['range']  # in transformed coordinates
         if y_range[0] >= y_range[1]:
             y_scale = 1.0
         else:
@@ -1324,9 +1404,17 @@ class WaveformWidget(QtWidgets.QWidget):
         plot['y_map'] = (y0, y_range[1], y_scale)
 
         # draw y-axis grid
+        if plot['scale'] == 'logarithmic':
+            major_interval_min = 1
+            logarithmic_zero = plot['logarithmic_zero']
+        else:
+            major_interval_min = None
+            logarithmic_zero = None
         p.setFont(s['axis_font'])
         y_tick_height_value_min = s['y_tick_height_pixels_min'] / plot['y_map'][-1]
-        y_grid = _ticks(y_range[0], y_range[1], y_tick_height_value_min)
+        y_grid = _ticks(y_range[0], y_range[1], y_tick_height_value_min,
+                        major_interval_min=major_interval_min,
+                        logarithmic_zero=logarithmic_zero)
         axis_font_metrics = s['axis_font_metrics']
         if y_grid is not None:
             if plot['quantity'] == 'r':
@@ -1336,7 +1424,7 @@ class WaveformWidget(QtWidgets.QWidget):
                         y_grid['labels'] = [_JS220_AXIS_R[int(s_label)] for s_label in y_grid['labels']]
                     elif 'JS110' in plot['signals'][0][1]:
                         y_grid['labels'] = [_JS110_AXIS_R[int(s_label)] for s_label in y_grid['labels']]
-            for idx, t in enumerate(self._y_value_to_pixel(plot, y_grid['major'])):
+            for idx, t in enumerate(self._y_value_to_pixel(plot, y_grid['major'], skip_transform=True)):
                 p.setPen(s['text_pen'])
                 s_label = y_grid['labels'][idx]
                 font_m = axis_font_metrics.boundingRect(s_label)
@@ -1390,9 +1478,9 @@ class WaveformWidget(QtWidgets.QWidget):
             if len(segment_idx) > 1:
                 segment_idx_last = segment_idx[0][1]
                 for idx_start, idx_stop in segment_idx[1:]:
-                    x1 = d_x[segment_idx_last]
-                    x2 = d_x[idx_start]
-                    p.drawRect(x1, y0, max(1, x2 - x1), h)
+                    xa = d_x[segment_idx_last]
+                    xb = d_x[idx_start]
+                    p.drawRect(xa, y0, max(1, xb - xa), h)
                     segment_idx_last = idx_stop
 
             for idx_start, idx_stop in segment_idx:
@@ -1940,14 +2028,15 @@ class WaveformWidget(QtWidgets.QWidget):
                 _, plot_index, _, m_idx, m_field = item.split('.')
                 plot = self._plot_get(int(plot_index))
                 m = self._y_marker_get(plot, int(m_idx))
-                yt = self._y_pixel_to_value(plot, y)
+                yt = self._y_pixel_to_value(plot, y, skip_transform=True)
+                yd = yt - self._y_transform_fwd(plot, m[m_field])
                 yr = plot['range']
                 yt = max(yr[0], min(yt, yr[1]))  # bound to range
-                yd = yt - m[m_field]
-                m[m_field] += yd
+                y = self._y_value_to_pixel(plot, yt, skip_transform=True)
+                m[m_field] = self._y_pixel_to_value(plot, y)
                 if m['dtype'] == 'dual' and move_both:
                     m_field = 'pos1' if m_field == 'pos2' else 'pos2'
-                    m[m_field] += yd
+                    m[m_field] = self._y_transform_rev(plot, yd + self._y_transform_fwd(plot, m[m_field]))
             elif action == 'x_pan':
                 self._mouse_x_pan(x)
             elif action == 'x_pan_summary':
@@ -1988,8 +2077,8 @@ class WaveformWidget(QtWidgets.QWidget):
         plot['range_mode'] = 'manual'
         y0 = self._mouse_action[2]
         self._mouse_action[2] = y1
-        y0 = self._y_pixel_to_value(plot, y0)
-        y1 = self._y_pixel_to_value(plot, y1)
+        y0 = self._y_pixel_to_value(plot, y0, skip_transform=True)
+        y1 = self._y_pixel_to_value(plot, y1, skip_transform=True)
         dy = y1 - y0
         r0, r1 = plot['range']
         plot['range'] = r0 - dy, r1 - dy
@@ -2172,6 +2261,21 @@ class WaveformWidget(QtWidgets.QWidget):
         clear_all.triggered.connect(lambda: self._on_menu_y_marker('clear_all'))
         return [single, dual, clear_all]
 
+    def _on_menu_y_scale_mode(self, idx, value):
+        plot = self.state['plots'][idx]
+        if value != plot['scale']:
+            plot['scale'] = value
+            plot['range_mode'] = 'auto'
+            self._repaint_request = True
+
+    def _on_menu_y_logarithmic_zero(self, idx, value):
+        plot = self.state['plots'][idx]
+        if value != plot['logarithmic_zero']:
+            plot['logarithmic_zero'] = value
+            plot['scale'] = 'logarithmic'
+            plot['range_mode'] = 'auto'
+            self._repaint_request = True
+
     def _on_menu_y_range_mode(self, idx, value):
         plot = self.state['plots'][idx]
         plot['range_mode'] = value
@@ -2199,8 +2303,43 @@ class WaveformWidget(QtWidgets.QWidget):
         else:
             range_menu = []
 
+        if plot['quantity'] in ['i', 'p']:
+            scale = plot['scale']
+            scale_mode = menu.addMenu(N_('Scale'))
+            scale_group = QtGui.QActionGroup(scale_mode)
+            scale_group.setExclusive(True)
+            scale_mode_auto = QtGui.QAction(N_('Linear'), scale_group, checkable=True)
+            scale_mode_auto.setChecked(scale == 'linear')
+            scale_mode.addAction(scale_mode_auto)
+            scale_mode_auto.triggered.connect(lambda: self._on_menu_y_scale_mode(idx, 'linear'))
+            scale_mode_manual = QtGui.QAction(N_('Logarithmic'), scale_group, checkable=True)
+            scale_mode_manual.setChecked(scale == 'logarithmic')
+            scale_mode.addAction(scale_mode_manual)
+            scale_mode_manual.triggered.connect(lambda: self._on_menu_y_scale_mode(idx, 'logarithmic'))
+            scale_menu = [scale_mode, scale_group, scale_mode_auto, scale_mode_manual]
+
+            if scale == 'logarithmic':
+                z = plot['logarithmic_zero']
+                logarithmic_zero = menu.addMenu(N_('Logarithmic zero'))
+                logarithmic_group = QtGui.QActionGroup(logarithmic_zero)
+                logarithmic_group.setExclusive(True)
+                scale_menu.extend([logarithmic_zero, logarithmic_group])
+
+                def logarithm_action_gen(value):
+                    v = QtGui.QAction(f'{value:d}', logarithmic_group, checkable=True)
+                    v.setChecked(value == z)
+                    logarithmic_zero.addAction(v)
+                    v.triggered.connect(lambda: self._on_menu_y_logarithmic_zero(idx, value))
+                    scale_menu.append(v)
+                    return v
+
+                for v in range(1, -10, -1):
+                    logarithm_action_gen(v)
+        else:
+            scale_menu = []
+
         style_action = settings_action_create(self, menu)
-        self._menu = [menu, annotations, annotations_sub, range_menu, style_action]
+        self._menu = [menu, annotations, annotations_sub, scale_menu, range_menu, style_action]
         return self._menu_show(event)
 
     def _menu_plot(self, idx, event: QtGui.QMouseEvent):
@@ -2516,24 +2655,26 @@ class WaveformWidget(QtWidgets.QWidget):
         return _marker_id_next(plot['y_markers'])
 
     def _y_marker_position(self, plot, yi):
+        yi = self._y_transform_fwd(plot, yi)
         yi_init = yi
         y0, y1 = plot['range']
-        p0, p1 = self._y_value_to_pixel(plot, y0), self._y_value_to_pixel(plot, y1)
+        p0 = self._y_value_to_pixel(plot, y0, skip_transform=True)
+        p1 = self._y_value_to_pixel(plot, y1, skip_transform=True)
         pd = (p1 - p0) // 25
         pd = min(10, pd)
-        xd = self._y_pixel_to_value(plot, p0 + pd) - y0
+        xd = self._y_pixel_to_value(plot, p0 + pd, skip_transform=True) - y0
         markers = plot['y_markers']
-        m1 = [z['pos1'] for z in markers]
-        m2 = [z['pos2'] for z in markers if 'pos2' in z]
+        m1 = [self._y_transform_fwd(plot, z['pos1']) for z in markers]
+        m2 = [self._y_transform_fwd(plot, z['pos2']) for z in markers if 'pos2' in z]
         m = np.array(m1 + m2, dtype=float)
         if not len(m):
-            return yi
+            return self._y_transform_rev(plot, yi)
         while yi < y1:
             dm = np.min(np.abs(m - yi))
             if dm >= xd:
-                return yi
+                return self._y_transform_rev(plot, yi)
             yi += xd
-        return yi_init  # give up
+        return self._y_transform_rev(plot, yi_init)  # give up
 
     def _y_marker_get(self, plot, marker):
         if isinstance(marker, int):
@@ -2570,17 +2711,24 @@ class WaveformWidget(QtWidgets.QWidget):
         return self._y_marker_add(plot, marker)
 
     def _y_marker_add_dual(self, plot, pos1=None, pos2=None):
-        y0, y1 = plot['range']
-        if pos1 is not None and pos2 is None:
-            yc = pos1
-            pos1 = None
+        self._log.info(f'_y_marker_add_dual({pos1}, {pos2})')
+        if pos1 is not None and pos2 is not None:
+            pass  # use the provided values.
         else:
-            yc = (y1 + y0) / 2
-        yd = (y1 - y0) / 10
-        if pos1 is None:
-            pos1 = self._y_marker_position(plot, yc - yd)
-        if pos2 is None:
-            pos2 = self._y_marker_position(plot, yc + yd)
+            y0, y1 = plot['range']
+            if pos1 is not None:
+                yc = self._y_transform_fwd(plot, pos1)
+                print(f'pos1 {pos1} => yc {yc}')
+                pos1 = None
+            else:
+                yc = (y1 + y0) / 2
+                print(f'yc={yc}')
+            yd = (y1 - y0) / 10
+            print(f'yd={yd}')
+            if pos1 is None:
+                pos1 = self._y_marker_position(plot, self._y_transform_rev(plot, yc - yd))
+            if pos2 is None:
+                pos2 = self._y_marker_position(plot, self._y_transform_rev(plot, yc + yd))
         marker = {
             'id': self._y_marker_id_next(plot),
             'dtype': 'dual',
@@ -2588,6 +2736,8 @@ class WaveformWidget(QtWidgets.QWidget):
             'pos2': pos2,
             'plot_index': plot['index'],
         }
+        if pos1 > 1:
+            print(marker)
         return self._y_marker_add(plot, marker)
 
     def _plot_get(self, plot):
@@ -2744,7 +2894,7 @@ class WaveformWidget(QtWidgets.QWidget):
         :param value: [plot_idx, steps, center, {center_pixels}].
             * plot_idx: The plot index to zoom.
             * steps: the number of incremental steps to zoom.
-            * center: the x-axis time64 center location for the zoom.
+            * center: the y-axis center location for the zoom.
               If center is None, use the screen center.
             * center_pixels: the optional center location in screen pixels.
               When provided, double-check that the zoom operation
@@ -2757,6 +2907,7 @@ class WaveformWidget(QtWidgets.QWidget):
             return
         if plot['range_mode'] == 'auto':
             plot['range_mode'] = 'manual'
+        center = self._y_transform_fwd(plot, center)
         y_min, y_max = plot['range']
         d_y = y_max - y_min
         f = (center - y_min) / d_y

@@ -4,6 +4,18 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 1.0.7
+
+<span style="color:yellow">⚠ ALPHA RELEASE - USE WITH CAUTION ⚠</span> 
+
+Improves upon 1.0.6 but still alpha quality.  See the 1.0.0 release
+notes below for additional usage guidelines.
+
+2023 Mar 31 [in progress]
+
+* Added logarithmic y-axis scale.
+
+
 ## 1.0.6 
 
 <span style="color:yellow">⚠ ALPHA RELEASE - USE WITH CAUTION ⚠</span> 
