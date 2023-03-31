@@ -2711,20 +2711,16 @@ class WaveformWidget(QtWidgets.QWidget):
         return self._y_marker_add(plot, marker)
 
     def _y_marker_add_dual(self, plot, pos1=None, pos2=None):
-        self._log.info(f'_y_marker_add_dual({pos1}, {pos2})')
         if pos1 is not None and pos2 is not None:
             pass  # use the provided values.
         else:
             y0, y1 = plot['range']
             if pos1 is not None:
                 yc = self._y_transform_fwd(plot, pos1)
-                print(f'pos1 {pos1} => yc {yc}')
                 pos1 = None
             else:
                 yc = (y1 + y0) / 2
-                print(f'yc={yc}')
             yd = (y1 - y0) / 10
-            print(f'yd={yd}')
             if pos1 is None:
                 pos1 = self._y_marker_position(plot, self._y_transform_rev(plot, yc - yd))
             if pos2 is None:
@@ -2736,8 +2732,6 @@ class WaveformWidget(QtWidgets.QWidget):
             'pos2': pos2,
             'plot_index': plot['index'],
         }
-        if pos1 > 1:
-            print(marker)
         return self._y_marker_add(plot, marker)
 
     def _plot_get(self, plot):
@@ -2842,7 +2836,7 @@ class WaveformWidget(QtWidgets.QWidget):
             d_x = d_x * _ZOOM_FACTOR
         else:
             d_x = d_x / _ZOOM_FACTOR
-        r = min(d_x, d_e)
+        r = max(min(d_x, d_e), time64.MICROSECOND)
         z0, z1 = center - int(r * f), center + int(r * (1 - f))
         if self.pin_left or z0 < e0:
             z0, z1 = e0, e0 + r

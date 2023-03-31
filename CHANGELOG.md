@@ -13,7 +13,8 @@ notes below for additional usage guidelines.
 
 2023 Mar 31 [in progress]
 
-* Added logarithmic y-axis scale.
+* Added logarithmic y-axis scale to waveform widget.
+* Bounded waveform widget x-axis zoom.
 
 
 ## 1.0.6 
