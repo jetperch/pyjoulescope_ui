@@ -693,7 +693,7 @@ ads--CDockWidgetTab {
 	border-width: 0 1px 0 0;
 	padding: 0 0px;
 	qproperty-iconSize: 16px 16px; /* this is optional in case you would like to change icon size*/
-	qproperty-icon: url(""); /* empty image */
+	/* qproperty-icon: url(""); empty image */
     image: none;
 }
 
