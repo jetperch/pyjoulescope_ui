@@ -263,6 +263,9 @@ class JsdrvStreamBuffer:
         self._driver_publish(f'm/{self._id}/g/mode', int(value))
 
     def on_action_add(self, signal_id):
+        if signal_id in self._signals:
+            self._log.info('add duplicate %s', signal_id)
+            return
         self._log.info('add %s', signal_id)
         buf_id = self._signals_free.pop(0)
         unique_id, signal = signal_id.split('.')
