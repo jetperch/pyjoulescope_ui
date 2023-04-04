@@ -161,6 +161,7 @@ class JsdrvStreamBuffer:
         return f'JsdrvStreamBuffer({self._id})'
 
     def on_action_device_add(self, device: Device):
+        self._log.info('device_add %s', device.unique_id)
         self._sources[device.unique_id] = device
         topic = get_topic_name(self.unique_id)
         source_topic = f'{topic}/settings/sources/{device.unique_id}'
@@ -175,7 +176,12 @@ class JsdrvStreamBuffer:
         self.pubsub.publish(f'{topic}/events/sources/!add', device.unique_id)
 
     def on_action_device_remove(self, device):
+        self._log.info('device_remove %s', device.unique_id)
         topic = get_topic_name(self.unique_id)
+        signals = list(self._signals.keys())
+        for signal_id in signals:
+            if signal_id.split('.')[0] == device.unique_id:
+                self.on_action_remove(signal_id)
         source_topic = f'{topic}/settings/{device.unique_id}'
         self.pubsub.publish(f'{topic}/events/sources/!remove', device.unique_id)
         for name, meta in _SETTINGS_PER_SOURCE.items():
@@ -257,6 +263,7 @@ class JsdrvStreamBuffer:
         self._driver_publish(f'm/{self._id}/g/mode', int(value))
 
     def on_action_add(self, signal_id):
+        self._log.info('add %s', signal_id)
         buf_id = self._signals_free.pop(0)
         unique_id, signal = signal_id.split('.')
         device = self._sources[unique_id]
@@ -282,6 +289,7 @@ class JsdrvStreamBuffer:
         self.pubsub.publish(f'{ui_prefix}/events/signals/!add', signal_id)
 
     def on_action_remove(self, signal_id):
+        self._log.info('remove %s', signal_id)
         buf_id, _ = self._signals.pop(signal_id)
         self._signals_reverse.pop(buf_id)
         self._signals_free.append(buf_id)
