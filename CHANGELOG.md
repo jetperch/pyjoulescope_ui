@@ -19,6 +19,8 @@ notes below for additional usage guidelines.
 * Fixed font parsing & settings to work directly with QSS.
 * Fixed fail on subsequent launch with JS110 connected on macOS.
 * Fixed intermittent export fail.
+* Increased process priority.
+  * Windows NORMAL -> HIGH   
 
 
 ## 1.0.6 
