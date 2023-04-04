@@ -21,6 +21,7 @@ from joulescope_ui.jls_v2 import TO_JLS_SIGNAL_NAME
 import datetime
 import json
 import logging
+import numpy as np
 import os
 
 
@@ -254,7 +255,8 @@ class Exporter(RangeToolBase):
                     if sample_id_start != sample_id:
                         self._log.warning(f'sample_id mismatch: {sample_id_start} != {sample_id}')
                         sample_id = sample_id_start
-                    jls.fsr(jls_signal_id, sample_id - sample_id_offset, d['data'])
+                    data = np.ascontiguousarray(d['data'])
+                    jls.fsr(jls_signal_id, sample_id - sample_id_offset, data)
                     sample_id += info['time_range_samples']['length']
                     utc = info['time_range_utc']['end'] + int(time64.SECOND / (fs * 2))
                     count += length
