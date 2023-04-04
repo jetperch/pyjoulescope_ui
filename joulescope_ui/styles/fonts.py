@@ -12,6 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+"""Manage fonts.
+
+The Joulescope UI often looks better with tabular fonts or
+monospaced fonts.
+"""
+
 
 from PySide6 import QtGui
 

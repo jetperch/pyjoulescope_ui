@@ -31,7 +31,7 @@ def load_resources():
     for r in resource_list:
         _log.debug('load_resources %s', r)
         b = pkgutil.get_data(*r)
-        QtCore.QResource.registerResourceData(b)
+        assert(QtCore.QResource.registerResourceData(b))
         resources.append(b)
         resource_names.append('/'.join(r))
     resource_names = [f'    {r}' for r in resource_names]
@@ -42,11 +42,11 @@ def load_resources():
 def load_fonts():
     _log.info('load_fonts start')
     font_list = []
-    iterator = QtCore.QDirIterator(':/fonts/', QtCore.QDirIterator.Subdirectories)
+    iterator = QtCore.QDirIterator(':/fonts', flags=QtCore.QDirIterator.Subdirectories)
     while iterator.hasNext():
         resource_path = iterator.next()
         if resource_path.endswith('.ttf'):
-            _log.debug('load_fonts %s', resource_path)
+            # _log.debug('load_fonts %s', resource_path)
             rv = QtGui.QFontDatabase.addApplicationFont(resource_path)
             if rv == -1:
                 _log.warning(f'Could not load font {resource_path}')

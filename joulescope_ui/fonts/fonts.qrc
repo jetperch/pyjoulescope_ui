@@ -1,7 +1,55 @@
-<RCC>
-  <qresource prefix='fonts'>
-    <file>Lato/Lato-Regular.ttf</file>
-    <file>Lato/Lato-Bold.ttf</file>
+<!DOCTYPE RCC>
+<RCC version="1.0">
+  <qresource prefix='/fonts'>
+    <file>DSEG14-Modern/DSEG14Modern-Bold.ttf</file>
+    <file>DSEG14-Modern/DSEG14Modern-BoldItalic.ttf</file>
+    <file>DSEG14-Modern/DSEG14Modern-Italic.ttf</file>
+    <file>DSEG14-Modern/DSEG14Modern-Light.ttf</file>
+    <file>DSEG14-Modern/DSEG14Modern-LightItalic.ttf</file>
+    <file>DSEG14-Modern/DSEG14Modern-Regular.ttf</file>
+
+    <file>Hack/Hack-Bold.ttf</file>
+    <file>Hack/Hack-BoldItalic.ttf</file>
+    <file>Hack/Hack-Italic.ttf</file>
+    <file>Hack/Hack-Regular.ttf</file>
+
     <file>Lato/Lato-Black.ttf</file>
+    <file>Lato/Lato-BlackItalic.ttf</file>
+    <file>Lato/Lato-Bold.ttf</file>
+    <file>Lato/Lato-BoldItalic.ttf</file>
+    <file>Lato/Lato-Italic.ttf</file>
+    <file>Lato/Lato-Light.ttf</file>
+    <file>Lato/Lato-LightItalic.ttf</file>
+    <file>Lato/Lato-Regular.ttf</file>
+    <file>Lato/Lato-Thin.ttf</file>
+    <file>Lato/Lato-ThinItalic.ttf</file>
+
+    <file>SourceCodePro/SourceCodePro-Black.ttf</file>
+    <file>SourceCodePro/SourceCodePro-BlackIt.ttf</file>
+    <file>SourceCodePro/SourceCodePro-Bold.ttf</file>
+    <file>SourceCodePro/SourceCodePro-BoldIt.ttf</file>
+    <file>SourceCodePro/SourceCodePro-ExtraLight.ttf</file>
+    <file>SourceCodePro/SourceCodePro-ExtraLightIt.ttf</file>
+    <file>SourceCodePro/SourceCodePro-It.ttf</file>
+    <file>SourceCodePro/SourceCodePro-Light.ttf</file>
+    <file>SourceCodePro/SourceCodePro-LightIt.ttf</file>
+    <file>SourceCodePro/SourceCodePro-Medium.ttf</file>
+    <file>SourceCodePro/SourceCodePro-MediumIt.ttf</file>
+    <file>SourceCodePro/SourceCodePro-Regular.ttf</file>
+    <file>SourceCodePro/SourceCodePro-SemiBold.ttf</file>
+    <file>SourceCodePro/SourceCodePro-SemiBoldIt.ttf</file>
+
+    <file>SourceSerifPro/SourceSerifPro-Black.ttf</file>
+    <file>SourceSerifPro/SourceSerifPro-BlackItalic.ttf</file>
+    <file>SourceSerifPro/SourceSerifPro-Bold.ttf</file>
+    <file>SourceSerifPro/SourceSerifPro-BoldItalic.ttf</file>
+    <file>SourceSerifPro/SourceSerifPro-ExtraLight.ttf</file>
+    <file>SourceSerifPro/SourceSerifPro-ExtraLightItalic.ttf</file>
+    <file>SourceSerifPro/SourceSerifPro-Italic.ttf</file>
+    <file>SourceSerifPro/SourceSerifPro-Light.ttf</file>
+    <file>SourceSerifPro/SourceSerifPro-LightItalic.ttf</file>
+    <file>SourceSerifPro/SourceSerifPro-Regular.ttf</file>
+    <file>SourceSerifPro/SourceSerifPro-SemiBold.ttf</file>
+    <file>SourceSerifPro/SourceSerifPro-SemiBoldItalic.ttf</file>
   </qresource>
 </RCC>
