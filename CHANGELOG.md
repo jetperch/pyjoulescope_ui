@@ -11,7 +11,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 Improves upon 1.0.6 but still alpha quality.  See the 1.0.0 release
 notes below for additional usage guidelines.
 
-2023 Apr 4 [in progress]
+2023 Apr 4
 
 * Added logarithmic y-axis scale to waveform widget.
 * Bounded waveform widget x-axis zoom.
@@ -19,8 +19,7 @@ notes below for additional usage guidelines.
 * Fixed font parsing & settings to work directly with QSS.
 * Fixed fail on subsequent launch with JS110 connected on macOS.
 * Fixed intermittent export fail.
-* Increased process priority.
-  * Windows NORMAL -> HIGH   
+* Increased process and backend thread priority for Windows.
 
 
 ## 1.0.6 
