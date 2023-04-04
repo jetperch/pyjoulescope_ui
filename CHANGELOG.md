@@ -18,6 +18,7 @@ notes below for additional usage guidelines.
 * Added save/load next unique id to prevent instances incorrectly sharing state.
 * Fixed font parsing & settings to work directly with QSS.
 * Fixed fail on subsequent launch with JS110 connected on macOS.
+* Fixed intermittent export fail.
 
 
 ## 1.0.6 

@@ -375,6 +375,9 @@ class _PlotWidget(QtOpenGLWidgets.QOpenGLWidget):
     def wheelEvent(self, event):
         self._parent.plot_wheelEvent(event)
 
+    def render_to_image(self):
+        return self.grabFramebuffer()
+
 
 @register
 @styled_widget(_NAME)
@@ -2146,7 +2149,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 self._menu_summary(event)
 
     def _render_to_image(self):
-        return self._graphics.grabFramebuffer()
+        return self._graphics.render_to_image()
 
     def _action_copy_image_to_clipboard(self):
         self._clipboard_image = self._render_to_image()
@@ -2450,10 +2453,11 @@ class WaveformWidget(QtWidgets.QWidget):
 
         menu = QtWidgets.QMenu('Waveform x_marker context menu', self)
 
-        export = menu.addAction(N_('Export'))
-        export.triggered.connect(lambda: self._on_x_export(idx))
-
         if is_dual:
+            export = menu.addAction(N_('Export'))
+            export.triggered.connect(lambda: self._on_x_export(idx))
+            dynamic_items.append(export)
+
             analysis_menu = menu.addMenu(N_('Analysis'))
             dynamic_items.append(analysis_menu)
             range_tools = self.pubsub.query('registry_manager/capabilities/range_tool.class/list')
@@ -2488,7 +2492,6 @@ class WaveformWidget(QtWidgets.QWidget):
         topic = get_topic_name(self)
         marker_remove.triggered.connect(lambda: self.pubsub.publish(f'{topic}/actions/!x_markers', ['remove', idx]))
         self._menu = [menu, dynamic_items,
-                      export,
                       show_stats_menu, show_stats_group, left, right, off,
                       marker_remove]
         return self._menu_show(event)
