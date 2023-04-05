@@ -538,8 +538,10 @@ class WaveformWidget(QtWidgets.QWidget):
         self._repaint_request = False
         self._fps = {
             'start': time.time(),
+            'thread_durations': [],
+            'time_durations': [],
             'times': [],
-            'str': '',
+            'str': [],
         }
 
     def on_setting_control_location(self, value):
@@ -671,19 +673,29 @@ class WaveformWidget(QtWidgets.QWidget):
             self._log.info('waveform close: %s %s', topic, value)
             self.pubsub.publish(topic, value)
 
-    def _update_fps(self):
+    def _update_fps(self, thread_duration, time_duration):
         t = time.time()
         self._fps['times'].append(t)
+        self._fps['thread_durations'].append(thread_duration)
+        self._fps['time_durations'].append(time_duration)
         if t - self._fps['start'] >= 1.0:
             x = np.array(self._fps['times'])
             x = np.diff(x)
+            d1 = np.array(self._fps['thread_durations'])
+            d2 = np.array(self._fps['time_durations'])
             self._fps['start'] = t
             self._fps['times'].clear()
+            self._fps['thread_durations'].clear()
+            self._fps['time_durations'].clear()
+            self._fps['str'].clear()
             if len(x):
-                t_avg = np.mean(x)
-                t_min = np.min(x)
-                t_max = np.max(x)
-                self._fps['str'] = f'{1/t_avg:.2f} Hz (min={t_min*1000:.2f}, max={t_max*1000:.2f} ms)'
+                self._fps['str'].append(f'{1 / np.mean(x):.2f} fps')
+            for name, v in [('interval', x), ('thread_duration', d1), ('time_duration', d2)]:
+                if not len(v):
+                    continue
+                v *= 1000  # convert from seconds to milliseconds
+                v_avg, v_min, v_max = np.mean(v), np.min(v), np.max(v)
+                self._fps['str'].append(f'{name} avg={v_avg:.2f}, min={v_min:.2f}, max={v_max:.2f} ms')
         return None
 
     def _on_signal_range(self, topic, value):
@@ -1205,6 +1217,8 @@ class WaveformWidget(QtWidgets.QWidget):
         s = self._style
         if s is None:
             return
+        t_thread_start = time.thread_time_ns()
+        t_time_start = time.time_ns()
         self._repaint_request = False
 
         resize = not len(self._y_geometry_info)
@@ -1224,9 +1238,13 @@ class WaveformWidget(QtWidgets.QWidget):
                 self._draw_plot_statistics(p, plot)
         self._draw_spacers(p)
         self._draw_markers(p, size)
-        self._draw_fps(p)
         self._draw_hover(p)
         self._set_cursor()
+
+        thread_duration = (time.thread_time_ns() - t_thread_start) / 1e9
+        time_duration = (time.time_ns() - t_time_start) / 1e9
+        self._update_fps(thread_duration, time_duration)
+        self._draw_fps(p, )
 
     def _draw_background(self, p, size):
         s = self._style
@@ -1763,11 +1781,14 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _draw_fps(self, p):
         s = self._style
-        self._update_fps()
         if self.show_fps:
             p.setFont(s['axis_font'])
             p.setPen(s['text_pen'])
-            p.drawText(10, s['axis_font_metrics'].ascent(), self._fps['str'])
+            y = s['axis_font_metrics'].ascent()
+            y_incr = s['axis_font_metrics'].height()
+            for s in self._fps['str']:
+                p.drawText(10, y, s)
+                y += y_incr
 
     def _signal_data_get(self, plot):
         try:
