@@ -258,7 +258,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setMenuBar(self._menu_bar)
         self._pubsub.subscribe('registry/paths/settings/mru_files', self._on_mru, flags=['pub', 'retain'])
 
-        _device_factory_add()
         self._pubsub.subscribe('registry_manager/capabilities/view.object/list',
                                self._on_change_views, flags=['pub', 'retain'])
         self._pubsub.subscribe('registry/view/settings/active', self._on_change_views, flags=['pub'])
@@ -317,6 +316,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if __version__ != self._pubsub.query(topic, default=None):
             self._pubsub.publish(topic, __version__)
             self._pubsub.publish('registry/help_html/actions/!show', 'changelog')
+        self.resync_request()
 
     def _center(self, resize=None):
         screen = self.screen()
@@ -481,7 +481,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def closeEvent(self, event):
         self._log.info('closeEvent()')
-        _device_factory_finalize()
         self._pubsub.publish('registry/JlsSource/actions/!finalize', None)
         return super(MainWindow, self).closeEvent(event)
 
@@ -542,7 +541,9 @@ def run(log_level=None, file_log_level=None, filename=None):
         appnope.nope()
         ui = MainWindow(filename=filename, is_config_load=is_config_load)
         pubsub_singleton.notify_fn = ui.resync_request
+        _device_factory_add()
         rc = app.exec_()
+        _device_factory_finalize()
         _finalize()
         del ui
         if _software_update is not None:

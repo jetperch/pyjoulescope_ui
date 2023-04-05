@@ -12,9 +12,10 @@ This file contains the list of changes made to pyjoulescope_ui.
 Improves upon 1.0.7 but still alpha quality.  See the 1.0.0 release
 notes below for additional usage guidelines.
 
-2023 Apr 4 [in progress]
+2023 Apr 5 [in progress]
 
 * Fixed unplug/replug creating duplicate sample stream buffers.
+* Added JS220 firmware update.
 
 
 ## 1.0.7

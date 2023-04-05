@@ -16,6 +16,7 @@ from joulescope_ui.capabilities import CAPABILITIES
 from .device import Device
 from joulescope_ui import N_, get_topic_name, register
 from joulescope_ui.metadata import Metadata
+from pyjoulescope_driver import release, program
 import copy
 import queue
 import threading
@@ -27,6 +28,8 @@ def _version_u32_to_str(v):
     patch = (v & 0xffff)
     return '.'.join(str(x) for x in [major, minor, patch])
 
+
+_PROGRESS_TOPIC = 'registry/progress/actions/!update'
 
 EVENTS = {
     'statistics/!data': Metadata('obj', 'Periodic statistics data for each signal.'),
@@ -254,6 +257,23 @@ _SETTINGS_CLASS = {
             setting to have any effect."""),
         'default': False,
     },
+    'firmware_channel': {
+        'dtype': 'str',
+        'brief': 'Firmware update channel',
+        'detail': """The maturity level for firmware updates.
+        
+            We strongly recommend keeping the default "stable"
+            unless you are a Joulescope developer.""",
+        'options': [['alpha', 'alpha'], ['beta', 'beta'], ['stable', 'stable']],
+        'default': 'stable',
+        'flags': ['hide', 'dev'],
+    },
+    'firmware_available': {
+        'dtype': 'obj',
+        'brief': 'Firmware update available.',
+        'default': None,  # or dict of name: [current, available]
+        'flags': ['hide', 'tmp', 'ro'],
+    },
 }
 
 
@@ -409,6 +429,7 @@ class Js220(Device):
         self.SETTINGS['sources/1/info']['default'] = self._info
 
         self._on_stats_fn = self._on_stats  # for unsub
+        self._driver_device_open = False
         self._thread = None
         self._quit = False
         self._target_power_app = False
@@ -495,14 +516,14 @@ class Js220(Device):
             self._log.info('open req done')
 
     def _close_req(self):
+        t, self._thread = self._thread, None
         # must be called from UI pubsub thread
-        if self._thread is not None:
+        if t is not None:
             self._log.info('closing')
             self._ui_publish('settings/state', 'closing')
             self._send_to_thread('close')
             self._quit = True
-            self._thread.join()
-            self._thread = None
+            t.join()
             self._ui_publish('settings/state', 'closed')
             self._log.info('closed')
 
@@ -576,6 +597,61 @@ class Js220(Device):
         else:
             self._log.warning('Unhandled cmd: %s', cmd)
 
+    def _is_firmware_update_available(self):
+        try:
+            image = release.release_get(self.firmware_channel)
+            segments = release.release_to_segments(image)
+            ctrl_app = segments[release.SUBTYPE_CTRL_APP]
+            fpga = segments[release.SUBTYPE_SENSOR_FPGA]
+        except Exception:
+            self._log.info('firmware_update_available: Could not parse firmware image')
+            return None
+        ctrl_app_now = self._driver_query('c/fw/version')
+        fpga_now = self._driver_query('s/fpga/version')
+        if ctrl_app_now >= ctrl_app['version'] and fpga_now >= fpga['version']:
+            self._log.info('firmware_update_available %s: up to date', self.unique_id)
+            return None
+        v = program.version_to_str
+        rv = {
+            'ctrl_app': [v(ctrl_app_now), v(ctrl_app['version'])],
+            'fpga': [v(fpga_now), v(fpga['version'])]
+        }
+        self._log.info('firmware_update_available %s: %s', self.unique_id, rv)
+        return rv
+
+    def _firmware_update(self):
+        if self.firmware_available is None:
+            return False
+        try:
+            image = release.release_get(self.firmware_channel)
+        except Exception:
+            self._log.info('Could not parse firmware image')
+            return False
+        self._close()
+        self._log.info('firmware_update: start')
+        self.firmware_available = None
+        self._driver.open(self._path, 'restore')
+
+        def on_progress(completion, msg):
+            value = {
+                'id': f'{self.unique_id}.firmware_update',
+                'progress': completion,
+                'name': N_('Update') + ' ' + self.unique_id,
+                'brief': msg,
+            }
+            self._pubsub.publish(_PROGRESS_TOPIC, value)
+
+        rv = program.release_program(self._driver, self.device_path, image,
+                                     progress=on_progress)
+        versions_before = dict(rv[0])
+        result = ['firmware_update: complete']
+        for key, value in rv[1]:
+            v = versions_before.get(key, '?.?.?')
+            result.append(f'    {key:10s}  {v} => {value}')
+        self._log.info('\n'.join(result))
+        self._ui_publish('')
+        return True
+
     def _run(self):
         self._log.info('thread start')
         if self._open():
@@ -583,6 +659,10 @@ class Js220(Device):
             return 1
         self._ui_publish('settings/state', 'open')
         self._log.info('thread open complete')
+        self.firmware_available = self._is_firmware_update_available()
+        if self.firmware_available is not None:
+            self._quit |= self._firmware_update()
+
         while not self._quit:
             try:
                 cmd, args = self._queue.get(timeout=0.1)
@@ -618,11 +698,13 @@ class Js220(Device):
             self._log.exception('driver config failed')
             self._ui_publish('settings/state', 'closing')
             return 1
+        self._driver_device_open = True
         self._log.info('open %s done', self.unique_id)
         return 0
 
     def _close(self):
-        if self.state == 0:  # already closed
+        if not self._driver_device_open:
+            self._log.info('close %s when already closed', self.unique_id)
             return
         self._log.info('close %s start', self.unique_id)
         self._ui_unsubscribe('settings', self._on_settings_fn)
@@ -635,6 +717,7 @@ class Js220(Device):
         except RuntimeError as ex:
             self._log.info('Exception during close cleanup: %s', ex)
         self._driver.close(self._path)
+        self._driver_device_open = False
         self._log.info('close %s done', self.unique_id)
 
     def _on_stats(self, topic, value):
