@@ -16,6 +16,7 @@ notes below for additional usage guidelines.
 
 * Fixed unplug/replug creating duplicate sample stream buffers.
 * Added JS220 firmware update.
+* Fixed metadata flag 'hidden' -> 'hide'.
 
 
 ## 1.0.7

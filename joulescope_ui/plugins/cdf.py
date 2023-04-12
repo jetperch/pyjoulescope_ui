@@ -77,7 +77,7 @@ class CdfRangeToolWidget(QtWidgets.QWidget):
             'dtype': 'obj',
             'brief': 'Hold the data',
             'default': None,
-            'flags': ['hidden'],
+            'flags': ['hide'],
         }
     }
 

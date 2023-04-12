@@ -52,13 +52,13 @@ _SETTINGS = {
         'dtype': 'node',
         'brief': 'Hold source settings',
         'default': None,
-        'flags': ['hidden'],
+        'flags': ['hide'],
     },
     'signals': {
         'dtype': 'node',
         'brief': 'Hold signal settings',
         'default': None,
-        'flags': ['hidden'],
+        'flags': ['hide'],
     },
     'clear_on_play': {
         'dtype': 'bool',
@@ -90,7 +90,7 @@ _SETTINGS_PER_SOURCE = {
         'dtype': 'obj',
         'brief': N_('Source information'),
         'default': None,
-        'flags': ['ro', 'hidden', 'skip_undo'],
+        'flags': ['ro', 'hide', 'skip_undo'],
     }),
 }
 
@@ -104,13 +104,13 @@ _SETTINGS_PER_SIGNAL = {
         'dtype': 'obj',
         'brief': N_('Signal metadata'),
         'default': None,
-        'flags': ['ro', 'hidden', 'skip_undo'],
+        'flags': ['ro', 'hide', 'skip_undo'],
     }),
     'range': Metadata({
         'dtype': 'obj',
         'brief': N_('Signal time range'),
         'default': None,
-        'flags': ['ro', 'hidden', 'skip_undo'],
+        'flags': ['ro', 'hide', 'skip_undo'],
     }),
 }
 

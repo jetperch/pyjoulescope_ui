@@ -387,7 +387,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             if name.startswith('out/') or name.endswith('/enable'):
                 continue
             meta = Metadata(value)
-            if 'hidden' in meta.flags:
+            if 'hide' in meta.flags:
                 continue
             if name == 'current_range' and self.is_js220:
                 pass  # todo add custom ranged slider for min/max selection

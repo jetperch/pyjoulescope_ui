@@ -34,7 +34,7 @@ SETTINGS = {
         'dtype': 'str',
         'brief': N_('Default path'),
         'detail': N_('The default path for loading and saving files.'),
-        'flags': ['ro', 'hidden'],
+        'flags': ['ro', 'hide'],
         'default': None,
     },
     'fixed_path': {
@@ -76,7 +76,7 @@ SETTINGS = {
     'mru_files': {
         'dtype': 'obj',
         'brief': N_('Most recent file list'),
-        'flags': ['ro', 'hidden'],
+        'flags': ['ro', 'hide'],
         'default': [],
     },
     'mru_count': {

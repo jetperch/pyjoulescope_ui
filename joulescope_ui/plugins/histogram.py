@@ -110,7 +110,7 @@ class HistogramRangeToolWidget(QtWidgets.QWidget):
             'dtype': 'obj',
             'brief': 'Hold the histogram data',
             'default': None,
-            'flags': ['hidden'],
+            'flags': ['hide'],
         }
     }
 

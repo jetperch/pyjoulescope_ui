@@ -53,7 +53,7 @@ _SETTINGS_OBJ_ONLY = {
         'dtype': 'obj',
         'brief': N_('Device information'),
         'default': None,
-        'flags': ['ro', 'hidden'],
+        'flags': ['ro', 'hide'],
     },
     'state': {
         'dtype': 'int',
@@ -65,7 +65,7 @@ _SETTINGS_OBJ_ONLY = {
             [3, 'closing'],
         ],
         'default': 0,
-        'flags': ['ro', 'hidden'],
+        'flags': ['ro', 'hide'],
     },
     'state_req': {
         'dtype': 'int',
@@ -75,19 +75,19 @@ _SETTINGS_OBJ_ONLY = {
             [1, 'open'],
         ],
         'default': 1,
-        'flags': ['ro', 'hidden'],
+        'flags': ['ro', 'hide'],
     },
     'sources/1/name': {
         'dtype': 'str',
         'brief': N_('Device name'),
         'default': None,
-        'flags': ['ro', 'hidden'],  # duplicated from settings/name
+        'flags': ['ro', 'hide'],  # duplicated from settings/name
     },
     'sources/1/info': {
         'dtype': 'obj',
         'brief': N_('Device information'),
         'default': None,
-        'flags': ['ro', 'hidden'],  # duplicated from settings/info['device']
+        'flags': ['ro', 'hide'],  # duplicated from settings/info['device']
     },
 }
 
@@ -157,7 +157,7 @@ _SETTINGS_CLASS = {
             In common system setups, this inhibits target power, which can
             be used to power cycle reset the target device."""),
         'default': True,
-        'flags': ['hidden'],   # Display in ExpandingWidget's header_ex_widget
+        'flags': ['hide'],   # Display in ExpandingWidget's header_ex_widget
     },
     'current_range': {
         'dtype': 'int',
@@ -259,8 +259,8 @@ _SETTINGS_CLASS = {
     },
     'firmware_channel': {
         'dtype': 'str',
-        'brief': 'Firmware update channel',
-        'detail': """The maturity level for firmware updates.
+        'brief': 'FW channel',
+        'detail': """The maturity level channel for firmware updates.
         
             We strongly recommend keeping the default "stable"
             unless you are a Joulescope developer.""",
@@ -270,7 +270,11 @@ _SETTINGS_CLASS = {
     },
     'firmware_available': {
         'dtype': 'obj',
-        'brief': 'Firmware update available.',
+        'brief': 'FW available',
+        'detail': '''Firmware update availability.
+        
+            None when no firmware update is available.
+            Map of subname: [current, available] when available.''',
         'default': None,  # or dict of name: [current, available]
         'flags': ['hide', 'tmp', 'ro'],
     },
@@ -388,14 +392,14 @@ def _populate():
         _SETTINGS_CLASS[f'signals/{signal_id}/name'] = {
             'dtype': 'str',
             'brief': N_('Signal name'),
-            'flags': ['hidden'],
+            'flags': ['hide'],
             'default': value['brief'],
         }
         _SETTINGS_CLASS[f'signals/{signal_id}/enable'] = {
             'dtype': 'bool',
             'brief': value['brief'],
             'detail': value['detail'],
-            'flags': ['hidden'],
+            'flags': ['hide'],
             'default': value['default'],
         }
         EVENTS[f'signals/{signal_id}/!data'] = Metadata('obj', 'Signal data')
@@ -567,7 +571,8 @@ class Js220(Device):
             self._ui_publish('settings/sources/1/name', value)
         elif topic in ['info', 'state', 'state_req', 'out', 'enable',
                        'sources', 'sources/1', 'sources/1/info', 'sources/1/name',
-                       'signals']:
+                       'signals',
+                       'firmware_available', 'firmware_channel']:
             pass
         elif topic.startswith('signals/'):
             pass

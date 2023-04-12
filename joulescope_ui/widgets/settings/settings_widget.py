@@ -104,17 +104,18 @@ class SettingsEditorWidget(_GridWidget):
             self._insert(topic, setting)
 
     def _insert(self, topic, setting):
+        settings_topic = f'{topic}/{setting}'
+        meta: Metadata = pubsub_singleton.metadata(settings_topic)
+        if meta is None:
+            tooltip = None
+        elif 'hide' in meta.flags:
+            return
+        else:
+            tooltip = tooltip_format(meta.brief, meta.detail)
+
         label = QtWidgets.QLabel(setting, self)
         self._grid.addWidget(label, self._row, 0, 1, 1)
         self._widgets.append(label)
-
-        settings_topic = f'{topic}/{setting}'
-        meta: Metadata = pubsub_singleton.metadata(settings_topic)
-        if meta is not None:
-            tooltip = tooltip_format(meta.brief, meta.detail)
-            label.setToolTip(tooltip)
-        else:
-            tooltip = None
         w = None
         if meta.options is not None and len(meta.options):
             w = self._insert_combobox(settings_topic, meta)

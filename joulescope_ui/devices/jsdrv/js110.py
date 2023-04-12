@@ -42,7 +42,7 @@ SETTINGS = {
         'dtype': 'obj',
         'brief': N_('Device information'),
         'default': None,
-        'flags': ['ro', 'hidden'],
+        'flags': ['ro', 'hide'],
     },
     'state': {
         'dtype': 'int',
@@ -54,7 +54,7 @@ SETTINGS = {
             [3, 'closing'],
         ],
         'default': 0,
-        'flags': ['ro', 'hidden'],
+        'flags': ['ro', 'hide'],
     },
     'state_req': {
         'dtype': 'int',
@@ -64,19 +64,19 @@ SETTINGS = {
             [1, 'open'],
         ],
         'default': 1,
-        'flags': ['ro', 'hidden'],
+        'flags': ['ro', 'hide'],
     },
     'sources/1/name': {
         'dtype': 'str',
         'brief': N_('Device name'),
         'default': None,
-        'flags': ['ro', 'hidden'],  # duplicated from settings/name
+        'flags': ['ro', 'hide'],  # duplicated from settings/name
     },
     'sources/1/info': {
         'dtype': 'obj',
         'brief': N_('Device information'),
         'default': None,
-        'flags': ['ro', 'hidden'],  # duplicated from settings/info['device']
+        'flags': ['ro', 'hide'],  # duplicated from settings/info['device']
     },
     'signal_frequency': {
         'dtype': 'int',
@@ -145,7 +145,7 @@ SETTINGS = {
             In common system setups, this inhibits target power, which can
             be used to power cycle reset the target device."""),
         'default': True,
-        'flags': ['hidden'],  # Display in ExpandingWidget's header_ex_widget
+        'flags': ['hide'],  # Display in ExpandingWidget's header_ex_widget
     },
     'current_range': {
         'dtype': 'int',
@@ -347,14 +347,14 @@ def _populate():
         SETTINGS[f'signals/{signal_id}/name'] = {
             'dtype': 'str',
             'brief': N_('Signal name'),
-            'flags': ['hidden'],
+            'flags': ['hide'],
             'default': value['brief'],
         }
         SETTINGS[f'signals/{signal_id}/enable'] = {
             'dtype': 'bool',
             'brief': value['brief'],
             'detail': value['detail'],
-            'flags': ['hidden'],
+            'flags': ['hide'],
             'default': value['default'],
         }
         EVENTS[f'signals/{signal_id}/!data'] = Metadata('obj', 'Signal data')

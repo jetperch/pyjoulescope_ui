@@ -171,7 +171,7 @@ class TestMetadata(unittest.TestCase):
             options=[[1, 'one'], [42, 'answer']],
             range=[0, 100],
             format='%d',
-            flags=['hidden'],
+            flags=['hide'],
         )
         k = m.to_map()
         self.assertEqual(m.dtype, k['dtype'])

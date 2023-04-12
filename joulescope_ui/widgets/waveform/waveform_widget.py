@@ -394,7 +394,7 @@ class WaveformWidget(QtWidgets.QWidget):
             'dtype': 'obj',
             'brief': 'The list of [topic, value] to perform on widget close.',
             'default': [],
-            'flags': ['hidden', 'ro'],
+            'flags': ['hide', 'ro'],
         },
         'trace_width': {
             'dtype': 'int',
@@ -442,7 +442,7 @@ class WaveformWidget(QtWidgets.QWidget):
             'dtype': 'obj',
             'brief': 'The x-axis range.',
             'default': [0, 0],
-            'flags': ['hidden', 'ro', 'skip_undo'],  # publish only
+            'flags': ['hide', 'ro', 'skip_undo'],  # publish only
         },
         'pin_left': {
             'dtype': 'bool',
@@ -458,7 +458,7 @@ class WaveformWidget(QtWidgets.QWidget):
             'dtype': 'obj',
             'brief': N_('The waveform state.'),
             'default': None,
-            'flags': ['hidden', 'ro'],
+            'flags': ['hide', 'ro'],
         },
         'control_location': {
             'dtype': 'str',
