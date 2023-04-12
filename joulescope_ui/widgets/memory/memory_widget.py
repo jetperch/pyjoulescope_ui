@@ -16,6 +16,7 @@ from PySide6 import QtWidgets, QtGui, QtCore
 from joulescope_ui import N_, register
 from joulescope_ui.tooltip import tooltip_format
 from joulescope_ui.styles import styled_widget, color_as_qcolor, font_as_qfont
+from joulescope_ui.units import elapsed_time_formatter
 import numpy as np
 import os
 import psutil
@@ -286,21 +287,6 @@ class MemoryWidget(QtWidgets.QWidget):
 
     def _on_duration(self, value):
         dt = 0.0 if value is None else float(value)
-        s = ''
-        units = ''
-        if value < 60:
-            s = f'{value:.2f}'
-            units = 's'
-        else:
-            for d, fmt, u in [(3600, '{x:d}:', 'h:'), (60, '{x:02d}:', 'mm:'), (1, '{x:02d}', 'ss')]:
-                x = int(dt / d)
-                dt -= x * d
-                if x <= 0 and not len(s):
-                    continue
-                s += fmt.format(x=x)
-                units += u
-            while len(s) and s[0] == '0':
-                s = s[1:]
-                units = units[1:]
-        self._widgets[f'duration_value'].setText(s)
-        self._widgets[f'duration_units'].setText(units)
+        time_str, units_str = elapsed_time_formatter(dt, fmt='standard', precision=3)
+        self._widgets[f'duration_value'].setText(time_str)
+        self._widgets[f'duration_units'].setText(units_str)

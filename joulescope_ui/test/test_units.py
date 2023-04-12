@@ -36,12 +36,18 @@ class TestUnits(unittest.TestCase):
         self.assertEqual({'value': 3600, 'units': 'J'}, units.convert_units(1, 'Wh', 'J'))
 
     def test_elapsed_time_formatter(self):
-        self.assertEqual('1 s', units.elapsed_time_formatter(1))
-        self.assertEqual('1000 s', units.elapsed_time_formatter(1000.1))
-        self.assertEqual('2:01', units.elapsed_time_formatter(121, fmt='standard'))
-        self.assertEqual('20:01', units.elapsed_time_formatter(1201, fmt='standard'))
-        self.assertEqual('1:02:03', units.elapsed_time_formatter(3723, fmt='standard'))
-        self.assertEqual('1:02:03:04', units.elapsed_time_formatter(93784, fmt='standard'))
+        self.assertEqual(('1.00000', 's'), units.elapsed_time_formatter(1))
+        self.assertEqual(('1', 's'), units.elapsed_time_formatter(1, trim_trailing_zeros=True))
+        self.assertEqual(('1.10000', 's'), units.elapsed_time_formatter(1.1))
+        self.assertEqual(('1.1', 's'), units.elapsed_time_formatter(1.1, trim_trailing_zeros=True))
+        self.assertEqual(('1.1', 's'), units.elapsed_time_formatter(1.11111111111111, precision=2))
+        self.assertEqual(('1.11111', 's'), units.elapsed_time_formatter(1.11111111111111))
+        self.assertEqual(('1000.10', 's'), units.elapsed_time_formatter(1000.1))
+        self.assertEqual(('2:01.000', 'm:ss'), units.elapsed_time_formatter(121, fmt='standard'))
+        self.assertEqual(('2:01', 'm:ss'), units.elapsed_time_formatter(121, fmt='standard', precision=0))
+        self.assertEqual(('20:01.00', 'mm:ss'), units.elapsed_time_formatter(1201, fmt='standard'))
+        self.assertEqual(('1:02:03.00', 'h:mm:ss'), units.elapsed_time_formatter(3723, fmt='standard'))
+        self.assertEqual(('2:05:49:44', 'D:hh:mm:ss'), units.elapsed_time_formatter(193784, fmt='standard'))
 
     def assertClose(self, expected, actual):
         np.testing.assert_almost_equal(expected[0], actual[0])

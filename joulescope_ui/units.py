@@ -21,6 +21,7 @@ http://pythonhosted.org/quantities/.
 
 
 import re
+import numpy as np
 
 # https://www.regular-expressions.info/floatingpoint.html
 #RE_IS_NUMBER = re.compile('^([-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+))')
@@ -162,41 +163,67 @@ def convert_units(value, input_units, output_units):
         'units': input_units}
 
 
-def elapsed_time_formatter(seconds, cmdp=None, fmt=None):
+def elapsed_time_formatter(seconds, fmt=None, precision=None, trim_trailing_zeros=None):
     """Format time in seconds to a string.
 
     :param seconds: The elapsed time in seconds.
-    :param cmdp: The optional CommandProcessor containing the time formatting options.
     :param fmt: The optional format string containing:
         * 'seconds': Display time in seconds.
         * 'standard': Display time as D:hh:mm:ss.
-    :return: The elapsed time string.
+    :param precision: The integer precision to display given in
+        powers of 10.  This parameter determines the number of
+        fractional seconds digits.
+    :param trim_trailing_zeros: When True, trim any trailing fractional
+        zero digits.  When False (default), keep full precision.
+    :return: The tuple of elapsed time string and units string.
     """
-    seconds = int(seconds)  # drop fractions
+    precision = 6 if precision is None else int(precision)
+    x = float(seconds)
+    x_pow = int(np.ceil(np.log10(x) + 1e-15))
+    fract_digits = min(max(precision - x_pow, 0), precision)
+    fract_fmt = '{x:.' + str(fract_digits) + 'f}'
     fmt = 'seconds' if fmt is None else str(fmt)
-    if cmdp is not None:
-        if isinstance(cmdp, str):
-            fmt = cmdp
-        else:
-            fmt = cmdp['Units/elapsed_time']
     if seconds >= 60 and fmt in ['D:hh:mm:ss', 'conventional', 'standard']:
-        days = seconds // (24 * 60 * 60)
-        seconds -= days * (24 * 60 * 60)
-        hours = seconds // (60 * 60)
-        seconds -= hours * (60 * 60)
-        minutes = seconds // 60
-        seconds -= minutes * 60
-        time_parts = f'{days}:{hours:02d}:{minutes:02d}:{seconds:02d}'.split(':')
+        days = int(x / (24 * 60 * 60))
+        x -= days * (24 * 60 * 60)
+        hours = int(x / (60 * 60))
+        x -= hours * (60 * 60)
+        minutes = int(x / 60)
+        x -= minutes * 60
+        seconds_str = fract_fmt.format(x=x)
+        if '.' in seconds_str:
+            if seconds_str[1] == '.':
+                seconds_str = '0' + seconds_str
+        elif len(seconds_str) == 1:
+            seconds_str = '0' + seconds_str
+        time_parts = f'{days}:{hours:02d}:{minutes:02d}:{seconds_str}'.split(':')
+        units_parts = 'D:hh:mm:ss'.split(':')
         while True:
             p = time_parts[0]
             p_zero = '0' * len(p)
             if p == p_zero:
                 time_parts.pop(0)
+                units_parts.pop(0)
             else:
                 break
         time_str = ':'.join(time_parts)
+        units_str = ':'.join(units_parts)
         while time_str[0] == '0':
             time_str = time_str[1:]
-        return time_str
+            if len(units_str) >= 2 and units_str[1] != ':':
+                units_str = units_str[1:]
+        return time_str, units_str
     else:
-        return f'{seconds} s'
+        units_str = 's'
+        if fract_digits:
+            time_str = fract_fmt.format(x=x)
+        else:
+            time_str = str(int(x))
+
+    if bool(trim_trailing_zeros) and '.' in time_str:
+        while time_str[-1] == '0':
+            time_str = time_str[:-1]
+        if time_str[-1] == '.':
+            time_str = time_str[:-1]
+
+    return time_str, units_str
