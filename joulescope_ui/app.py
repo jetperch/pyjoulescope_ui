@@ -127,7 +127,16 @@ SETTINGS = {
             ['beta', N_('beta')],
             ['stable', N_('stable')],
         ]
-    }
+    },
+    'units': {
+        'dtype': 'str',
+        'brief': N_('The units to display.'),
+        'options': [
+            ['SI', N_('International System of Units (SI)')],
+            ['Xh', N_('Customary units (Ah and Wh)')],
+        ],
+        'default': 'SI',
+    },
 }
 
 

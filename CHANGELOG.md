@@ -20,6 +20,7 @@ notes below for additional usage guidelines.
 * Added duration to memory widget.
 * Increased default sidebar flyout width from 250 to 300. 
 * Added accumulator widget.
+* Added support for customary Ah & Wh units.
 
 
 ## 1.0.7

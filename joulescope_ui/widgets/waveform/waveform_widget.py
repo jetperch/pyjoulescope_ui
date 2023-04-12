@@ -26,7 +26,7 @@ import numpy as np
 import os
 import time
 from PySide6.QtGui import QPen, QBrush
-from joulescope_ui.units import unit_prefix
+from joulescope_ui.units import convert_units, UNITS_SETTING, unit_prefix
 from collections.abc import Iterable
 
 
@@ -474,7 +474,8 @@ class WaveformWidget(QtWidgets.QWidget):
             'dtype': 'obj',
             'brief': N_('The signal to show in the summary.'),
             'default': None,
-        }
+        },
+        'units': UNITS_SETTING,
     }
 
     def __init__(self, parent=None, **kwargs):
@@ -1771,7 +1772,8 @@ class WaveformWidget(QtWidgets.QWidget):
 
             integral_units = plot.get('integral')
             if integral_units is not None:
-                integral_values = _statistics_format(['∫'], [v_avg * dt], integral_units)
+                integral_v, integral_units = convert_units(v_avg * dt, integral_units, self.units)
+                integral_values = _statistics_format(['∫'], [integral_v], integral_units)
                 values.extend(integral_values)
 
             pos_field = text_pos_key.split('_')[-1]
@@ -1903,7 +1905,8 @@ class WaveformWidget(QtWidgets.QWidget):
         dt = (z1 - z0) / time64.SECOND
         integral_units = plot.get('integral')
         if integral_units is not None:
-            integral_values = _statistics_format(['∫'], [y_avg * dt], integral_units)
+            integral_v, integral_units = convert_units(y_avg * dt, integral_units, self.units)
+            integral_values = _statistics_format(['∫'], [integral_v], integral_units)
             values.extend(integral_values)
         p.setClipRect(x0, y0, xd, yd)
         self._draw_statistics_text(p, (x0, y0), values)

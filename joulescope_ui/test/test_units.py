@@ -24,16 +24,12 @@ import numpy as np
 class TestUnits(unittest.TestCase):
 
     def test_charge(self):
-        self.assertEqual({'value': 1, 'units': 'C'}, units.convert_units(1, 'C', 'C'))
-        self.assertEqual({'value': 1 / 3600, 'units': 'Ah'}, units.convert_units(1, 'C', 'Ah'))
-        self.assertEqual({'value': 1, 'units': 'Ah'}, units.convert_units(1, 'Ah', 'Ah'))
-        self.assertEqual({'value': 3600, 'units': 'C'}, units.convert_units(1, 'Ah', 'C'))
+        self.assertEqual((1, 'C'), units.convert_units(1, 'C', 'SI'))
+        self.assertEqual((1 / 3600, 'Ah'), units.convert_units(1, 'C', 'Xh'))
 
     def test_energy(self):
-        self.assertEqual({'value': 1, 'units': 'J'}, units.convert_units(1, 'J', 'J'))
-        self.assertEqual({'value': 1 / 3600, 'units': 'Wh'}, units.convert_units(1, 'J', 'Wh'))
-        self.assertEqual({'value': 1, 'units': 'Wh'}, units.convert_units(1, 'Wh', 'Wh'))
-        self.assertEqual({'value': 3600, 'units': 'J'}, units.convert_units(1, 'Wh', 'J'))
+        self.assertEqual((1, 'J'), units.convert_units(1, 'J', 'J'))
+        self.assertEqual((1 / 3600, 'Wh'), units.convert_units(1, 'J', 'Xh'))
 
     def test_elapsed_time_formatter(self):
         self.assertEqual(('1.00000', 's'), units.elapsed_time_formatter(1))

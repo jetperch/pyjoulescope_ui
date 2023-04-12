@@ -16,7 +16,7 @@ from PySide6 import QtWidgets, QtGui, QtCore
 from joulescope_ui import N_, register, CAPABILITIES, pubsub_singleton, get_topic_name
 from joulescope_ui.widget_tools import settings_action_create
 from joulescope_ui.styles import styled_widget
-from joulescope_ui.units import unit_prefix, elapsed_time_formatter
+from joulescope_ui.units import UNITS_SETTING, convert_units, unit_prefix, elapsed_time_formatter
 import logging
 
 
@@ -40,15 +40,7 @@ SETTINGS = {
         'brief': N_('Show the statistics section title for each signal.'),
         'default': True,
     },
-    'units': {
-        'dtype': 'str',
-        'brief': N_('The units to display.'),
-        'options': [
-            ['SI'],
-            ['Xh'],
-        ],
-        'default': 'SI',
-    }
+    'units': UNITS_SETTING,
 }
 
 @register
@@ -132,15 +124,10 @@ class AccumulatorWidget(QtWidgets.QWidget):
     def _on_statistic_stream_source_list(self, value):
         self._devices = ['default'] + value
 
-    def _on_statistics(self, value):
+    def _on_statistics(self, pubsub, topic, value):
         self._statistics = value
         signal = value['accumulators'][self.field]
-        signal_value = signal['value']
-        signal_units = signal['units']
-        if self.units == 'Xh':
-            signal_value /= 3600.0
-            signal_units = 'Wh' if signal_units == 'J' else 'Ah'
-
+        signal_value, signal_units = convert_units(signal['value'], signal['units'], self.units)
         _, prefix, scale = unit_prefix(signal_value)
         v_str = ('%+6f' % (signal_value / scale))[:8]
 

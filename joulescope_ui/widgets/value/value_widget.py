@@ -16,7 +16,7 @@ from PySide6 import QtWidgets, QtGui, QtCore
 from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topic_name, tooltip_format
 from joulescope_ui.widget_tools import settings_action_create
 from joulescope_ui.styles import styled_widget, color_as_qcolor, font_as_qfont
-from joulescope_ui.units import unit_prefix, three_sig_figs
+from joulescope_ui.units import UNITS_SETTING, convert_units, unit_prefix, three_sig_figs
 from joulescope_ui.ui_util import comboBoxConfig
 import datetime
 import numpy as np
@@ -55,6 +55,7 @@ SETTINGS = {
         'brief': N_('Show the statistics section title for each signal.'),
         'default': True,
     },
+    'units': UNITS_SETTING,
 }
 
 def _settings_alter(**kwargs):
@@ -380,8 +381,7 @@ class _InnerWidget(QtWidgets.QWidget):
             if signal_name in self._statistics['accumulators']:
                 signal = self._statistics['accumulators'][signal_name]
                 fields = ['accumulate_duration']
-                signal_value = signal['value']
-                signal_units = signal['units']
+                signal_value, signal_units = convert_units(signal['value'], signal['units'], self._parent.units)
                 _, prefix, scale = unit_prefix(signal_value)
             else:
                 signal = self._statistics['signals'][signal_name]

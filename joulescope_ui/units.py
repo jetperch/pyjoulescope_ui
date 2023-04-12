@@ -22,10 +22,22 @@ http://pythonhosted.org/quantities/.
 
 import re
 import numpy as np
+from joulescope_ui import N_, pubsub_singleton
+
 
 # https://www.regular-expressions.info/floatingpoint.html
 #RE_IS_NUMBER = re.compile('^([-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+))')
 RE_IS_NUMBER = re.compile('^\s*([-+]?[0-9]*\.?[0-9]+)\s*(.*)')
+UNITS_SETTING = {
+    'dtype': 'str',
+    'brief': N_('The units to display.'),
+    'options': [
+        ['default', N_('Use the application defaults')],
+        ['SI', N_('International System of Units (SI)')],
+        ['Xh', N_('Customary units (Ah and Wh)')],
+    ],
+    'default': 'default',
+}
 
 
 _UNIT_PREFIX = [
@@ -64,15 +76,6 @@ FIELD_UNITS_SI = {
 FIELD_UNITS_INTEGRAL = {
     'current': 'charge',
     'power': 'energy',
-}
-
-
-UNIT_CONVERTER = {
-    # (from, to): conversion function
-    ('C', 'Ah'): lambda x: x / 3600.0,
-    ('Ah', 'C'): lambda x: x * 3600.0,
-    ('J', 'Wh'): lambda x: x / 3600.0,
-    ('Wh', 'J'): lambda x: x * 3600.0,
 }
 
 
@@ -151,16 +154,17 @@ def str_to_number(s):
     return number
 
 
-def convert_units(value, input_units, output_units):
-    key = (input_units, output_units)
-    fn = UNIT_CONVERTER.get(key)
-    if fn is not None:
-        return {
-            'value': fn(value),
-            'units': output_units}
-    return {
-        'value': value,
-        'units': input_units}
+def convert_units(x, x_units, unit_setting):
+    if x_units not in ['C', 'J']:
+        return x, x_units
+    if unit_setting == 'default':
+        unit_setting = pubsub_singleton.query('registry/app/settings/units', default='SI')
+    if unit_setting == 'Xh':
+        x /= 3600
+        y_units = 'Wh' if x_units == 'J' else 'Ah'
+    else:
+        y_units = x_units
+    return x, y_units
 
 
 def elapsed_time_formatter(seconds, fmt=None, precision=None, trim_trailing_zeros=None):
