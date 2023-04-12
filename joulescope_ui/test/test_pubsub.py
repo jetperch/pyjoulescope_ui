@@ -235,6 +235,7 @@ class TestPubSub(unittest.TestCase):
     def test_save(self):
         topic = 'registry/value/settings/my_topic'
         p1 = PubSub()
+        p1.topic_add('registry_manager/next_unique_id', dtype='int', brief='next_unique_id', default=1)
         p1.topic_add(topic, dtype='str', brief='my topic', default='hello')
         f = io.StringIO()
         p1.save(f)
