@@ -72,7 +72,7 @@ class SideBar(QtWidgets.QWidget):
         'flyout_width': {
             'dtype': 'int',
             'brief': N_('The flyout width in pixels.'),
-            'default': 250,
+            'default': 300,
         },
     }
 

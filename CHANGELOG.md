@@ -18,6 +18,7 @@ notes below for additional usage guidelines.
 * Added JS220 firmware update.
 * Fixed metadata flag 'hidden' -> 'hide'.
 * Added duration to memory widget.
+* Increased default sidebar flyout width from 250 to 300. 
 
 
 ## 1.0.7
