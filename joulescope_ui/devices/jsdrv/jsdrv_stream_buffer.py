@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from joulescope_ui import CAPABILITIES, N_, Metadata, get_topic_name
+from pyjoulescope_driver import time64
 from .device import Device
 import copy
 import logging
@@ -47,6 +48,12 @@ _SETTINGS = {
         'dtype': 'int',
         'brief': N_('Buffer memory size in bytes'),
         'default': int(0.5 * 1024 ** 3),
+    },
+    'duration': {
+        'dtype': 'float',
+        'brief': N_('Buffer memory duration in seconds'),
+        'default': 0.0,
+        'flags': ['ro', 'tmp'],
     },
     'sources': {
         'dtype': 'node',
@@ -228,8 +235,10 @@ class JsdrvStreamBuffer:
         # device_signal_info m/001/s/001/info {'version': 1, 'field_id': 1, 'index': 0, 'element_type': 4, 'element_size_bits': 32, 'topic': b'u/js220/000415/s/i/!data', 'size_in_utc': 8725724278, 'size_in_samples': 8126464, 'time_range_utc': {'start': 911549982937, 'end': 914237683277, 'length': 2503116}, 'time_range_samples': {'start': 848947077, 'end': 851450193, 'length': 2503116}, 'sample_rate': 1000000.0}
         buf_id = int(topic.split('/')[-2])
         signal_id = self._signals_reverse.get(buf_id)
+        duration = value['size_in_utc'] / time64.SECOND
+        t = get_topic_name(self)
+        self.pubsub.publish(f'{t}/settings/duration', duration)
         if signal_id is not None:
-            t = get_topic_name(self)
             utc = value['time_range_utc']
             r = {
                 'utc': [utc['start'], utc['end']],

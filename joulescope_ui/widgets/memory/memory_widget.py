@@ -23,6 +23,7 @@ import psutil
 _TOPIC = 'registry/JsdrvStreamBuffer:001'
 _TOPIC_CLEAR_ON_PLAY = f'{_TOPIC}/settings/clear_on_play'
 _TOPIC_SIZE = f'{_TOPIC}/settings/size'
+_TOPIC_DURATION = f'{_TOPIC}/settings/duration'
 _GB_FACTOR = 1024 ** 3
 _SZ_MIN = int(0.01 * _GB_FACTOR)
 
@@ -160,6 +161,7 @@ class MemoryWidget(QtWidgets.QWidget):
 
     def __init__(self, parent=None):
         self._on_size_fn = self._on_size
+        self._on_duration_fn = self._on_duration
         self._base = 0
         self._size = 0  # in bytes
         self._used = 0
@@ -193,9 +195,12 @@ class MemoryWidget(QtWidgets.QWidget):
             'used_label': QtWidgets.QLabel(N_('Used RAM size'), self._grid_widget),
             'used_value': QtWidgets.QLabel(f'0', self._grid_widget),
             'used_units': QtWidgets.QLabel('GB', self._grid_widget),
+            'duration_label': QtWidgets.QLabel(N_('Duration'), self._grid_widget),
+            'duration_value': QtWidgets.QLabel('', self._grid_widget),
+            'duration_units': QtWidgets.QLabel('', self._grid_widget),
         }
 
-        for row, s in enumerate(['size', 'available', 'used', 'total']):
+        for row, s in enumerate(['size', 'available', 'used', 'total', 'duration']):
             self._grid_layout.addWidget(self._widgets[f'{s}_label'], row, 0)
             self._grid_layout.addWidget(self._widgets[f'{s}_value'], row, 1)
             self._grid_layout.addWidget(self._widgets[f'{s}_units'], row, 2)
@@ -245,6 +250,7 @@ class MemoryWidget(QtWidgets.QWidget):
                 self._base = mem
             self.pubsub.subscribe(_TOPIC_CLEAR_ON_PLAY, self._clear_on_play_fn, ['pub', 'retain'])
             self.pubsub.subscribe(_TOPIC_SIZE, self._on_size_fn, ['pub', 'retain'])
+            self.pubsub.subscribe(_TOPIC_DURATION, self._on_duration_fn, ['pub', 'retain'])
             meta = self.pubsub.metadata(_TOPIC_CLEAR_ON_PLAY)
             self._clear_on_play.setToolTip(tooltip_format(meta.brief, meta.detail))
 
@@ -277,3 +283,24 @@ class MemoryWidget(QtWidgets.QWidget):
         self._widgets['size_value'].setText(s)
         self._memset.update_size(value)
         self._update(value)
+
+    def _on_duration(self, value):
+        dt = 0.0 if value is None else float(value)
+        s = ''
+        units = ''
+        if value < 60:
+            s = f'{value:.2f}'
+            units = 's'
+        else:
+            for d, fmt, u in [(3600, '{x:d}:', 'h:'), (60, '{x:02d}:', 'mm:'), (1, '{x:02d}', 'ss')]:
+                x = int(dt / d)
+                dt -= x * d
+                if x <= 0 and not len(s):
+                    continue
+                s += fmt.format(x=x)
+                units += u
+            while len(s) and s[0] == '0':
+                s = s[1:]
+                units = units[1:]
+        self._widgets[f'duration_value'].setText(s)
+        self._widgets[f'duration_units'].setText(units)
