@@ -179,7 +179,7 @@ def elapsed_time_formatter(seconds, fmt=None, precision=None, trim_trailing_zero
     """
     precision = 6 if precision is None else int(precision)
     x = float(seconds)
-    x_pow = int(np.ceil(np.log10(x) + 1e-15))
+    x_pow = int(np.ceil(np.log10(abs(x) + 1e-15)))
     fract_digits = min(max(precision - x_pow, 0), precision)
     fract_fmt = '{x:.' + str(fract_digits) + 'f}'
     fmt = 'seconds' if fmt is None else str(fmt)

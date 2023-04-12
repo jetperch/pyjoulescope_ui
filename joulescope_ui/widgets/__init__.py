@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from .accumulator import AccumulatorWidget
 from .device_control import DeviceControlWidget
 # from .example import ExampleWidget
 from .memory import MemoryWidget

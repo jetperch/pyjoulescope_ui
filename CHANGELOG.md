@@ -19,6 +19,7 @@ notes below for additional usage guidelines.
 * Fixed metadata flag 'hidden' -> 'hide'.
 * Added duration to memory widget.
 * Increased default sidebar flyout width from 250 to 300. 
+* Added accumulator widget.
 
 
 ## 1.0.7

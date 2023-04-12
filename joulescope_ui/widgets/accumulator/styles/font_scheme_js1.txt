@@ -1,0 +1,1 @@
+accumulator.font = bold 14pt "Lato"
