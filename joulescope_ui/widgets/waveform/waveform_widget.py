@@ -15,6 +15,7 @@
 from PySide6 import QtWidgets, QtGui, QtCore, QtOpenGLWidgets, QtOpenGL
 from OpenGL import GL as gl
 from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topic_name, get_instance, time64
+from joulescope_ui.shortcuts import Shortcuts
 from joulescope_ui.styles import styled_widget, color_as_qcolor, font_as_qfont
 from joulescope_ui.widget_tools import settings_action_create
 from .line_segments import PointsF
@@ -507,6 +508,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._on_signal_range_fn = self._on_signal_range
         self._menu = None
         self._dialog = None
+        self._shortcuts = Shortcuts(self)
         self._x_map = TimeMap()
         self._x_summary_map = TimeMap()
         self._mouse_pos = None
@@ -653,12 +655,26 @@ class WaveformWidget(QtWidgets.QWidget):
         self._control.on_pubsub_register(self.pubsub, topic, source_filter)
         for m in self.state['x_markers']:
             self._x_markers_by_id[m['id']] = m
+        self._shortcuts_add()
+
+    def _shortcuts_add(self):
+        topic = get_topic_name(self)
+        self._shortcuts.add(QtCore.Qt.Key_Asterisk, f'{topic}/actions/!x_zoom_all')
+        # self._shortcuts.add(QtCore.Qt.Key_Delete,  # clear annotations
+        # self._shortcuts.add(QtCore.Qt.Key_Backspace, # clear annotations
+        self._shortcuts.add(QtCore.Qt.Key_Left, f'{topic}/actions/!x_pan', -1)
+        self._shortcuts.add(QtCore.Qt.Key_Right, f'{topic}/actions/!x_pan', 1)
+        self._shortcuts.add(QtCore.Qt.Key_Up, f'{topic}/actions/!x_zoom', [1, None])
+        self._shortcuts.add(QtCore.Qt.Key_Down, f'{topic}/actions/!x_zoom', [-1, None])
+        self._shortcuts.add(QtCore.Qt.Key_Plus, f'{topic}/actions/!x_zoom', [1, None])
+        self._shortcuts.add(QtCore.Qt.Key_Minus, f'{topic}/actions/!x_zoom', [-1, None])
 
     def _cleanup(self):
         self.pubsub.unsubscribe_all(self._on_source_list_fn)
         self.pubsub.unsubscribe_all(self._on_signal_range_fn)
         self.pubsub.unsubscribe_all(self._on_signal_add)
         self.pubsub.unsubscribe_all(self._on_signal_remove)
+        self._shortcuts.clear()
         self._refresh_timer.stop()
 
     def on_pubsub_unregister(self):
@@ -2883,8 +2899,8 @@ class WaveformWidget(QtWidgets.QWidget):
         self._plot_data_invalidate()
         self.x_range = self._extents()
 
-    def _on_x_pan(self, pan):
-        self._log.info(f'_on_x_pan {pan}')
+    def on_action_x_pan(self, pan):
+        self._log.info(f'on_action_x_pan {pan}')
         if self.pin_left or self.pin_right:
             return  # locked to extents
         e0, e1 = self._extents()
@@ -2961,14 +2977,14 @@ class WaveformWidget(QtWidgets.QWidget):
 
         if y_name == 'summary':
             if is_pan:
-                self._on_x_pan(delta)
+                self.on_action_x_pan(delta)
             else:
                 t = (self.x_range[0] + self.x_range[1]) / 2
                 topic = get_topic_name(self)
                 self.pubsub.publish(f'{topic}/actions/!x_zoom', [delta, t])
         if x_name == 'plot' and (y_name == 'x_axis' or not is_y):
             if is_pan:
-                self._on_x_pan(delta)
+                self.on_action_x_pan(delta)
             else:
                 t = self._x_map.counter_to_time64(self._mouse_pos[0])
                 topic = get_topic_name(self)

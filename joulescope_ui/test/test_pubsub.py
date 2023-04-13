@@ -271,6 +271,20 @@ class TestPubSub(unittest.TestCase):
         p1.process()
         self.assertEqual('world', p1.query(TOPIC1))
 
+    def test_bool_toggle(self):
+        p1 = PubSub()
+        p1.topic_add(TOPIC1, dtype='bool', brief='my topic', default=False)
+        p1.process()
+        self.assertEqual(False, p1.query(TOPIC1))
+
+        p1.publish(TOPIC1, '!')
+        p1.process()
+        self.assertEqual(True, p1.query(TOPIC1))
+
+        p1.publish(TOPIC1, '__toggle__')
+        p1.process()
+        self.assertEqual(False, p1.query(TOPIC1))
+
     # todo complicated undo with stack usage
     # todo profiles
     # todo settings

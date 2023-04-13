@@ -943,7 +943,10 @@ class PubSub:
             if t.meta is None:
                 self._log.info('Missing metadata for %s', t.topic_name)
             else:
-                value = t.meta.validate(value)
+                if t.meta.dtype == 'bool' and value in ['!', '~', '__toggle__']:
+                    value = not t.value
+                else:
+                    value = t.meta.validate(value)
             if t.subtopic_name.startswith('!'):
                 cmds_update_fn = t.update_fn['command']
                 if len(cmds_update_fn):

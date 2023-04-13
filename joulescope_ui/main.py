@@ -16,6 +16,8 @@
 # https://wiki.qt.io/Gallery_of_Qt_CSS_Based_Styles
 
 from joulescope_ui import pubsub_singleton, N_, get_topic_name, tooltip_format, CAPABILITIES, Metadata, __version__
+from joulescope_ui.pubsub import UNDO_TOPIC, REDO_TOPIC
+from joulescope_ui.shortcuts import Shortcuts
 from joulescope_ui.widgets import *   # registers all built-in widgets
 from joulescope_ui.logging_util import logging_preconfig, logging_config
 from joulescope_ui.styles.manager import style_settings
@@ -140,6 +142,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._dialog = None
         self._pubsub = pubsub_singleton
         self._pubsub_process_count_last = self._pubsub.process_count
+        self._shortcuts = Shortcuts(self)
         self.SETTINGS = style_settings(N_('UI'))
         self.SETTINGS['changelog_version_show'] = {
             'dtype': 'str',
@@ -301,6 +304,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self._mem_utilization = QtWidgets.QLabel(self._status_bar)
         self._mem_utilization.setToolTip(_MEMORY_UTILIZATION_TOOLTIP)
         self._status_bar.addPermanentWidget(self._mem_utilization)
+
+        self._shortcuts.add(QtGui.QKeySequence.Undo, UNDO_TOPIC, None)
+        self._shortcuts.add(QtGui.QKeySequence.Redo, REDO_TOPIC, None)
+        self._shortcuts.add(QtCore.Qt.Key_Space, 'registry/app/settings/signal_stream_enable', '__toggle__')
 
         self.show()
         # self._mem_leak_debugger = MemLeakDebugger(self)

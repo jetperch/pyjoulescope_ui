@@ -24,6 +24,7 @@ notes below for additional usage guidelines.
 * Added global settings support.
   * Added sidebar direct link. 
   * Added Settings Widget to Widget menu bar.
+* Added keyboard shortcuts to main and waveform widget.
 
 
 ## 1.0.7
