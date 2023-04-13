@@ -81,11 +81,13 @@ VIEW_SETTINGS = {
         'dtype': 'str',
         'brief': 'The Advanced Docking System state for restoring widget layout.',
         'default': '',
+        'flags': ['hide'],
     },
     'geometry': {
         'dtype': 'obj',
         'brief': 'The window size for restoring the view.',
         'default': None,
+        'flags': ['hide'],
     }
 }
 

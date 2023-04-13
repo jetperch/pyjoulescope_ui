@@ -56,9 +56,9 @@
     "utilities": {
       "sources": [
         "device.svg",
-        "widgets.svg",
-        "memory.svg",
         "help.svg",
+        "memory.svg",
+        "misc.svg",
         "settings.svg"
       ],
       "targets": [

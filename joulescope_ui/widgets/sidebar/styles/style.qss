@@ -60,13 +60,17 @@ QPushButton#memory:disabled      { image: url("{% path %}/memory_disabled.svg");
 QPushButton#memory:enabled       { image: url("{% path %}/memory_enabled.svg"); }
 QPushButton#memory:enabled:hover { image: url("{% path %}/memory_hover.svg"); }
 
+QPushButton#settings:disabled      { image: url("{% path %}/settings_disabled.svg"); }
+QPushButton#settings:enabled       { image: url("{% path %}/settings_enabled.svg"); }
+QPushButton#settings:enabled:hover { image: url("{% path %}/settings_hover.svg"); }
+
 QPushButton#help:disabled      { image: url("{% path %}/help_disabled.svg"); }
 QPushButton#help:enabled       { image: url("{% path %}/help_enabled.svg"); }
 QPushButton#help:enabled:hover { image: url("{% path %}/help_hover.svg"); }
 
-QPushButton#settings:disabled      { image: url("{% path %}/settings_disabled.svg"); }
-QPushButton#settings:enabled       { image: url("{% path %}/settings_enabled.svg"); }
-QPushButton#settings:enabled:hover { image: url("{% path %}/settings_hover.svg"); }
+QPushButton#misc:disabled      { image: url("{% path %}/misc_disabled.svg"); }
+QPushButton#misc:enabled       { image: url("{% path %}/misc_enabled.svg"); }
+QPushButton#misc:enabled:hover { image: url("{% path %}/misc_hover.svg"); }
 
 /****************************************************************************/
 /* Target Power toggle button                                               */

@@ -29,15 +29,7 @@ _DEVICE_TOOLTIP = tooltip_format(
     Click to show the device control widget which displays
     the connected devices and their settings.  Use this
     widget to open and close devices and configure their
-    operation.
-    """))
-
-_WIDGETS_TOOLTIP = tooltip_format(
-    N_('Widget settings'),
-    N_("""\
-    Click to show the widget settings which allows you
-    to change the default settings for each widget type.
-    Future widgets you create will use the new defaults.
+    operation.\
     """))
 
 _MEMORY_TOOLTIP = tooltip_format(
@@ -46,19 +38,30 @@ _MEMORY_TOOLTIP = tooltip_format(
     Streaming signal sample data is stored in your host
     computer's RAM.  Click this button to show the
     memory management widget which allows you to 
-    configure the memory used by this Joulescope UI instance.
+    configure the memory used by this Joulescope UI instance.\
+    """))
+
+_SETTINGS_TOOLTIP = tooltip_format(
+    N_('Settings'),
+    N_("""\
+    Click to show the settings which allows you
+    to change the global, default, and individual
+    instance settings for devices and widgets.
+    
+    Default changes may not affect existing instances,
+    and may only apply to future instances.\
     """))
 
 _HELP_TOOLTIP = tooltip_format(
     N_('Get help'),
     N_("""\
-    Click to display help options.
+    Click to display help options.\
     """))
 
-_SETTINGS_TOOLTIP = tooltip_format(
+_MISC_TOOLTIP = tooltip_format(
     N_('Additional settings and actions'),
     N_("""\
-    Click to display additional settings and actions.
+    Click to display additional settings and actions.\
     """))
 
 
@@ -106,13 +109,14 @@ class SideBar(QtWidgets.QWidget):
         b.toggled.connect(self._on_statistics_stream_record_toggled)
         self._add_button('device', _DEVICE_TOOLTIP)
         self._add_button('memory', _MEMORY_TOOLTIP)
-        # todo implement widget settings self._add_button('widgets', _WIDGETS_TOOLTIP)
+        b = self._add_button('settings', _SETTINGS_TOOLTIP)
+        b.clicked.connect(self._on_settings_pressed)
         self._spacer = QtWidgets.QSpacerItem(10, 0,
                                              QtWidgets.QSizePolicy.Minimum,
                                              QtWidgets.QSizePolicy.Expanding)
         self._layout.addItem(self._spacer)
         self._add_button('help', _HELP_TOOLTIP)
-        self._add_button('settings', _SETTINGS_TOOLTIP)
+        self._add_button('misc', _MISC_TOOLTIP)
 
         self.mousePressEvent = self._on_mousePressEvent
         pubsub_singleton.subscribe('registry/ui/events/blink_slow', self._on_blink, ['pub', 'retain'])
@@ -142,7 +146,7 @@ class SideBar(QtWidgets.QWidget):
         # Create the hamburger flyout widget for the sidebar
         m = HamburgerWidget()
         pubsub.register(m, 'hamburger_widget:flyout', parent='flyout:0')
-        self.widget_set('settings', m)
+        self.widget_set('misc', m)
 
     def _on_mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
@@ -160,6 +164,12 @@ class SideBar(QtWidgets.QWidget):
             pubsub_singleton.publish('registry/StatisticsRecord/actions/!start_request', None)
         else:
             pubsub_singleton.publish('registry/StatisticsRecord/actions/!stop', None)
+
+    def _on_settings_pressed(self, checked):
+        pubsub_singleton.publish('registry/view/actions/!widget_open', {
+            'value': 'registry/settings',
+            'floating': True,
+        })
 
     def _add_blink_button(self, name, app_setting):
         topic = f'registry/app/settings/{app_setting}'

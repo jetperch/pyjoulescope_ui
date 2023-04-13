@@ -19,11 +19,12 @@ from joulescope_ui import pubsub_singleton, N_, register_decorator, \
 from joulescope_ui.ui_util import comboBoxConfig, comboBoxSelectItemByText
 from joulescope_ui.styles import styled_widget, font_as_qfont, font_as_qss
 from joulescope_ui.styles.color_picker import ColorItem
-from joulescope_ui.styles.color_scheme import COLOR_SCHEMES
-from joulescope_ui.styles.font_scheme import FONT_SCHEMES
 from joulescope_ui.styles.manager import style_settings
 import copy
 import logging
+
+
+_NAME = N_('Settings')
 
 
 class _GridWidget(QtWidgets.QWidget):
@@ -81,12 +82,13 @@ class SettingsEditorWidget(_GridWidget):
 
     @object.setter
     def object(self, obj):
+        obj = get_instance(obj, default=None)
         if self._obj is not None:
             self.clear()
         if obj is None:
             self._obj = None
             return
-        self._obj = get_instance(obj)
+        self._obj = obj
         name_label = QtWidgets.QLabel(N_('Name'), self)
         self._grid.addWidget(name_label, 0, 0, 1, 1)
         self._widgets.append(name_label)
@@ -107,7 +109,7 @@ class SettingsEditorWidget(_GridWidget):
         settings_topic = f'{topic}/{setting}'
         meta: Metadata = pubsub_singleton.metadata(settings_topic)
         if meta is None:
-            tooltip = None
+            return
         elif 'hide' in meta.flags:
             return
         else:
@@ -190,7 +192,7 @@ class ColorEditorWidget(_GridWidget):
         self._colors = None
         self._obj = None
         self._topic = None
-        self._log = logging.getLogger(__name__)
+        self._log = logging.getLogger(__name__ + '.color')
         self._color_scheme = pubsub_singleton.query('registry/style/settings/color_scheme', default='dark')
         super().__init__(parent)
         self.setObjectName('color_editor_widget')
@@ -231,23 +233,24 @@ class ColorEditorWidget(_GridWidget):
 
     @object.setter
     def object(self, obj):
+        obj = get_instance(obj, default=None)
         if self._obj is not None:
             self.clear()
             self._obj = None
         if obj is None:
             self._obj = None
             return
-        self._obj = get_instance(obj)
+        self._obj = obj
         if not hasattr(obj, 'style_obj') or obj.style_obj is None:
             return
-        self._topic = get_topic_name(self._obj)
+        self._topic = get_topic_name(obj)
         cls = obj.__class__
         colors = copy.deepcopy(cls._style_cls['load']['colors'][self._color_scheme])
         cls_colors = pubsub_singleton.query(f'{get_topic_name(obj.__class__)}/settings/colors')
         if cls_colors is not None:
             for color_name, color_value in cls_colors[self._color_scheme].items():
                 colors[color_name] = color_value
-        if not isinstance(self._obj, type):
+        if not isinstance(obj, type):
             if obj.colors is not None:
                 for key, value in obj.colors[self._color_scheme].items():
                     colors[key] = value
@@ -313,7 +316,7 @@ class FontEditorWidget(_GridWidget):
         self._obj = None
         self._topic = None
         self._font_scheme = pubsub_singleton.query('registry/style/settings/font_scheme', default='js1')
-        self._log = logging.getLogger(__name__)
+        self._log = logging.getLogger(__name__ + '.font')
         self.setObjectName('font_editor_widget')
 
     @property
@@ -322,14 +325,15 @@ class FontEditorWidget(_GridWidget):
 
     @object.setter
     def object(self, obj):
+        obj = get_instance(obj, default=None)
         if self._obj is not None:
             self.clear()
             self._obj = None
         if obj is None:
             self._obj = None
             return
-        self._obj = get_instance(obj)
-        self._topic = get_topic_name(self._obj)
+        self._obj = obj
+        self._topic = get_topic_name(obj)
         if not hasattr(obj, 'style_obj') or obj.style_obj is None:
             return
         cls = obj.__class__
@@ -339,7 +343,7 @@ class FontEditorWidget(_GridWidget):
         if cls_fonts is not None:
             for font_name, font_value in cls_fonts[self._font_scheme].items():
                 fonts[font_name] = font_value
-        if not isinstance(self._obj, type):
+        if not isinstance(obj, type):
             if obj.fonts is not None:
                 for key, value in obj.fonts[self._font_scheme].items():
                     fonts[key] = value
@@ -382,7 +386,7 @@ class StyleDefineEditorWidget(_GridWidget):
         self._entries = {}
         self._obj = None
         self._topic = None
-        self._log = logging.getLogger(__name__)
+        self._log = logging.getLogger(__name__ + '.style')
         self.setObjectName('style_define_editor_widget')
 
     @property
@@ -391,6 +395,7 @@ class StyleDefineEditorWidget(_GridWidget):
 
     @object.setter
     def object(self, obj):
+        obj = get_instance(obj, default=None)
         if self._obj is not None:
             self.clear()
             self._obj = None
@@ -400,9 +405,8 @@ class StyleDefineEditorWidget(_GridWidget):
         if not hasattr(obj, 'style_obj') or obj.style_obj is None:
             return
 
-        obj = get_instance(obj)
         self._obj = obj
-        self._topic = get_topic_name(self._obj)
+        self._topic = get_topic_name(obj)
         cls = obj.__class__
         entries = copy.deepcopy(cls._style_cls['load']['style_defines'])
         cls_entries = pubsub_singleton.query(f'{get_topic_name(obj.__class__)}/settings/style_defines')
@@ -436,27 +440,87 @@ class StyleDefineEditorWidget(_GridWidget):
         pubsub_singleton.publish(f'{self._topic}/settings/style_defines', dict(self._entries))
 
 
+def _class_items(capability):
+    entries = []
+    classes = pubsub_singleton.query(f'registry_manager/capabilities/{capability}/list')
+    for clz in classes:
+        instances = pubsub_singleton.query(f'{get_topic_name(clz)}/instances')
+        children = [[None, x, None] for x in instances if get_instance(x, default=None) is not None]
+        entries.append([None, clz, children])
+    return entries
+
+
+class SelectorWidget(QtWidgets.QTreeView):
+
+    def __init__(self, parent=None):
+        self._parent = parent
+        super().__init__(parent)
+        self.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
+        self.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.SizeAdjustPolicy.AdjustToContents)
+        self.setHorizontalScrollBarPolicy(QtGui.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self._model = QtGui.QStandardItemModel(self)
+        self._model.setHorizontalHeaderLabels(['Name'])
+
+        self.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+        self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        self.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.setModel(self._model)
+        self.setHeaderHidden(True)
+        self.selectionModel().currentChanged.connect(self._on_changed)
+
+        items = [
+            # [name, unique_id, children]
+            [N_('Common'), 'app', None],
+            # [None, 'ui', None],
+            [None, 'paths', None],
+            [N_('View defaults'), 'view', None],
+            [N_('View'), pubsub_singleton.query('registry/view/settings/active'), None],
+            [N_('Devices'), '', _class_items('device.class')],
+            [N_('Widgets'), '', _class_items('widget.class')],
+        ]
+
+        self._populate(self._model.invisibleRootItem(), items)
+
+    @QtCore.Slot(object, object)
+    def _on_changed(self, model_index, model_index_old):
+        unique_id = self._model.data(model_index, QtCore.Qt.UserRole + 1)
+        if len(unique_id):
+            self._parent.object = unique_id
+        else:
+            self._parent.object = None
+
+    def _populate(self, parent, items):
+        for name, unique_id, children in items:
+            if name is None:
+                name = pubsub_singleton.query(f'{get_topic_name(unique_id)}/settings/name', default=unique_id)
+            child_item = QtGui.QStandardItem(name)
+            child_item.setData(unique_id, QtCore.Qt.UserRole + 1)
+            parent.appendRow(child_item)
+            if children is not None:
+                self._populate(child_item, children)
+
+
 @register_decorator(unique_id='settings')
-@styled_widget(N_('settings'))
-class SettingsWidget(QtWidgets.QWidget):
+@styled_widget(_NAME)
+class SettingsWidget(QtWidgets.QSplitter):
+    CAPABILITIES = ['widget@']
 
     SETTINGS = {
         'target': {
             'dtype': 'str',
             'brief': 'The unique_id for the target widget.',
-            'default': '',
+            'default': None,
         }
     }
 
     def __init__(self, parent=None):
+        self._log = logging.getLogger(__name__)
         super(SettingsWidget, self).__init__(parent)
         self._obj = None
         self.setObjectName(f'settings_widget')
-        self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
-        self._layout = QtWidgets.QVBoxLayout()
-        self._layout.setObjectName('settings_widget_layout')
-        self._layout.setSpacing(0)
-        self._layout.setContentsMargins(0, 0, 0, 0)
+        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+
+        self._left = SelectorWidget(self)
 
         self._widgets = []
         widgets = [
@@ -467,15 +531,18 @@ class SettingsWidget(QtWidgets.QWidget):
         ]
 
         self._tabs = QtWidgets.QTabWidget(self)
+        self._tabs.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         for widget, title in widgets:
+            widget.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
             scroll = QtWidgets.QScrollArea(self._tabs)
             scroll.setObjectName(widget.objectName() + '_scroll')
             scroll.setWidgetResizable(True)
             scroll.setWidget(widget)
             self._tabs.addTab(scroll, title)
             self._widgets.append([widget, scroll])
-        self._layout.addWidget(self._tabs)
-        self.setLayout(self._layout)
+
+        self.addWidget(self._left)
+        self.addWidget(self._tabs)
 
     def closeEvent(self, event):
         self.object = None
@@ -484,7 +551,8 @@ class SettingsWidget(QtWidgets.QWidget):
     def on_setting_target(self, value):
         if isinstance(value, str) and not len(value):
             return  # default value, ignore
-        self.object = get_instance(value)
+        self._left.setVisible(value is None)
+        self.object = get_instance(value, default=None)
 
     @property
     def object(self):
@@ -492,6 +560,8 @@ class SettingsWidget(QtWidgets.QWidget):
 
     @object.setter
     def object(self, obj):
+        obj_str = '[None]' if obj is None else get_unique_id(obj)
+        self._log.info('object <= %s', obj_str)
         for widget, _ in self._widgets:
             widget.object = obj
         self._obj = obj

@@ -40,13 +40,13 @@ _SETTINGS_OBJ_ONLY = {
         'dtype': 'str',
         'brief': N_('Device name'),
         'detail': N_("""\
-    The Joulescope UI automatically populates the device name
-    with the device type and serial number.
-
-    This setting allows you to change the default, if you wish, to better
-    reflect how you are using your JS220.  This setting is
-    most useful when you are instrumenting a system using 
-    multiple Joulescopes."""),
+            The Joulescope UI automatically populates the device name
+            with the device type and serial number.
+        
+            This setting allows you to change the default, if you wish, to better
+            reflect how you are using your JS220.  This setting is
+            most useful when you are instrumenting a system using 
+            multiple Joulescopes."""),
         'default': None,
     },
     'info': {
@@ -96,14 +96,14 @@ _SETTINGS_CLASS = {
         'dtype': 'int',
         'brief': N_('Signal frequency'),
         'detail': N_("""\
-        This setting controls the output sampling frequency for the 
-        measurement signals current, voltage, and power.  Use this
-        setting to reduce the data storage requirements for long
-        captures where lower temporal accuracy is sufficient. 
-        
-        The JS220 instrument always samples at 2 MHz and 
-        then downsamples to 1 MHz.  This setting controls 
-        additional optional downsampling."""),
+            This setting controls the output sampling frequency for the 
+            measurement signals current, voltage, and power.  Use this
+            setting to reduce the data storage requirements for long
+            captures where lower temporal accuracy is sufficient. 
+            
+            The JS220 instrument always samples at 2 MHz and 
+            then downsamples to 1 MHz.  This setting controls 
+            additional optional downsampling."""),
         'options': [
             [1000000, "1 MHz"],
             [500000, "500 kHz"],
@@ -408,7 +408,6 @@ def _populate():
 _populate()
 
 
-@register
 class Js220(Device):
 
     SETTINGS = _SETTINGS_CLASS
@@ -768,3 +767,6 @@ class Js220(Device):
         else:
             self._statistics_offsets = list(value)
         return topic, prev_value
+
+
+register(Js220, 'JS220')

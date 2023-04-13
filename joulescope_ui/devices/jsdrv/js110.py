@@ -24,18 +24,18 @@ EVENTS = {
     'statistics/!data': Metadata('obj', 'Periodic statistics data for each signal.'),
 }
 
-SETTINGS = {
+_SETTINGS_OBJ_ONLY = {
     'name': {
         'dtype': 'str',
         'brief': N_('Device name'),
         'detail': N_("""\
-        The Joulescope UI automatically populates the device name
-        with the device type and serial number.
-
-        This setting allows you to change the default, if you wish, to better
-        reflect how you are using your JS110.  This setting is
-        most useful when you are instrumenting a system using 
-        multiple Joulescopes."""),
+            The Joulescope UI automatically populates the device name
+            with the device type and serial number.
+    
+            This setting allows you to change the default, if you wish, to better
+            reflect how you are using your JS110.  This setting is
+            most useful when you are instrumenting a system using 
+            multiple Joulescopes."""),
         'default': None,
     },
     'info': {
@@ -78,6 +78,10 @@ SETTINGS = {
         'default': None,
         'flags': ['ro', 'hide'],  # duplicated from settings/info['device']
     },
+}
+
+
+_SETTINGS_CLASS = {
     'signal_frequency': {
         'dtype': 'int',
         'brief': N_('Signal frequency'),
@@ -342,15 +346,15 @@ _SIGNALS = {
 
 
 def _populate():
-    global SETTINGS, EVENTS
+    global _SETTINGS_OBJ_ONLY, EVENTS
     for signal_id, value in _SIGNALS.items():
-        SETTINGS[f'signals/{signal_id}/name'] = {
+        _SETTINGS_OBJ_ONLY[f'signals/{signal_id}/name'] = {
             'dtype': 'str',
             'brief': N_('Signal name'),
             'flags': ['hide'],
             'default': value['brief'],
         }
-        SETTINGS[f'signals/{signal_id}/enable'] = {
+        _SETTINGS_OBJ_ONLY[f'signals/{signal_id}/enable'] = {
             'dtype': 'bool',
             'brief': value['brief'],
             'detail': value['detail'],
@@ -363,14 +367,19 @@ def _populate():
 _populate()
 
 
-@register
 class Js110(Device):
+
+    SETTINGS = _SETTINGS_CLASS
 
     def __init__(self, driver, device_path):
         super().__init__(driver, device_path)
+        _, model, serial_number = device_path.split('/')
+        name = f'{model.upper()}-{serial_number}'
         self.EVENTS = copy.deepcopy(EVENTS)
-        self.SETTINGS = copy.deepcopy(SETTINGS)
-        self.SETTINGS['name']['default'] = device_path
+        self.SETTINGS = copy.deepcopy(_SETTINGS_CLASS)
+        for key, value in _SETTINGS_OBJ_ONLY.items():
+            self.SETTINGS[key] = copy.deepcopy(value)
+        self.SETTINGS['name']['default'] = name
         self.SETTINGS['sources/1/name']['default'] = device_path
         self._info = {
             'vendor': 'Jetperch LLC',
@@ -655,3 +664,6 @@ class Js110(Device):
         else:
             self._statistics_offsets = list(value)
         return topic, prev_value
+
+
+register(Js110, 'JS110')

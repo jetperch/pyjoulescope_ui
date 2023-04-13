@@ -12,7 +12,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 Improves upon 1.0.7 but still alpha quality.  See the 1.0.0 release
 notes below for additional usage guidelines.
 
-2023 Apr 12 [in progress]
+2023 Apr 13 [in progress]
 
 * Fixed unplug/replug creating duplicate sample stream buffers.
 * Added JS220 firmware update.
@@ -21,6 +21,9 @@ notes below for additional usage guidelines.
 * Increased default sidebar flyout width from 250 to 300. 
 * Added accumulator widget.
 * Added support for customary Ah & Wh units.
+* Added global settings support.
+  * Added sidebar direct link. 
+  * Added Settings Widget to Widget menu bar.
 
 
 ## 1.0.7
