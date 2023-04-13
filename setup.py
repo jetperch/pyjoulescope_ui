@@ -33,8 +33,8 @@ import subprocess
 import shutil
 
 
-JOULESCOPE_DRIVER_VERSION_MIN = '1.3.1'  # also update requirements.txt
-JOULESCOPE_VERSION_MIN = '1.1.2'         # also update requirements.txt
+JOULESCOPE_DRIVER_VERSION_MIN = '1.3.2'  # also update requirements.txt
+JOULESCOPE_VERSION_MIN = '1.1.3'         # also update requirements.txt
 MYPATH = os.path.abspath(os.path.dirname(__file__))
 VERSION_PATH = os.path.join(MYPATH, 'joulescope_ui', 'version.py')
 
