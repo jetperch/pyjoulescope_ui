@@ -59,6 +59,8 @@ class DeviceControlWidget(QtWidgets.QWidget):
 
     def _device_remove(self, unique_id):
         self._log.info('remove %s', unique_id)
+        if '-UPDATER' in unique_id:
+            return  # todo
         w = self._device_widgets.pop(unique_id)
         self._layout.removeWidget(w)
         w.close()
@@ -66,6 +68,8 @@ class DeviceControlWidget(QtWidgets.QWidget):
 
     def _device_add(self, unique_id):
         self._log.info('add %s', unique_id)
+        if '-UPDATER' in unique_id:
+            return  # todo
         w = Js220CtrlWidget(self, unique_id)
         w.expanded = True
         self._device_widgets[unique_id] = w

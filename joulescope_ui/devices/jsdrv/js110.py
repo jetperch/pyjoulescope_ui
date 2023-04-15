@@ -514,25 +514,25 @@ class Js110(Device):
             signal_id = topic.split('/')[1]
             t = _SIGNALS[signal_id]['topics'][0]
             if t is not None:
-                self._driver_publish(t, bool(value))
+                self._driver_publish(t, bool(value), timeout=0)
             else:
                 self._log.warning('invalid enable: %s', topic)
         elif topic in ['target_power', 'current_range']:
             self._current_range_update()
         elif topic == 'statistics_frequency':
             scnt = 2_000_000 // value
-            self._driver_publish('s/stats/scnt', scnt)
+            self._driver_publish('s/stats/scnt', scnt, timeout=0)
         elif topic == 'current_ranging/samples_window':
             if value in [1, 'm']:
-                self._driver_publish('s/i/range/win', 'm')
+                self._driver_publish('s/i/range/win', 'm', timeout=0)
             if value in [2, 'n']:
-                self._driver_publish('s/i/range/win', 'n')
+                self._driver_publish('s/i/range/win', 'n', timeout=0)
             else:
-                self._driver_publish('s/i/range/win_sz', int(value) - 256)
-                self._driver_publish('s/i/range/win', 'manual')
+                self._driver_publish('s/i/range/win_sz', int(value) - 256, timeout=0)
+                self._driver_publish('s/i/range/win', 'manual', timeout=0)
         elif topic in self._param_map:
             device_topic = self._param_map[topic]
-            self._driver_publish(device_topic, value)
+            self._driver_publish(device_topic, value, timeout=0)
         elif topic == 'name':
             self._ui_publish('settings/sources/1/name', value)
         elif topic in ['info', 'state', 'state_req', 'out', 'enable',
@@ -547,10 +547,10 @@ class Js110(Device):
     def _current_range_update(self):
         if self._target_power_app and self.target_power:
             self._log.info('current_range on %s', self.current_range)
-            self._driver_publish('s/i/range/select', self.current_range)
+            self._driver_publish('s/i/range/select', self.current_range, timeout=0)
         else:
             self._log.info('current_range off')
-            self._driver_publish('s/i/range/select', 'off')
+            self._driver_publish('s/i/range/select', 'off', timeout=0)
 
     def _run_cmd(self, cmd, args):
         if cmd == 'settings':
@@ -593,9 +593,9 @@ class Js110(Device):
             self._info['version'] = {'hw': 1}  # could get more info
             self._info = copy.deepcopy(self._info)
             self._ui_publish('settings/info', self._info)
-            self._driver_publish('s/i/lsb_src', 2)
-            self._driver_publish('s/v/lsb_src', 3)
-            self._driver_publish('s/stats/ctrl', 1)
+            self._driver_publish('s/i/lsb_src', 2, timeout=0)
+            self._driver_publish('s/v/lsb_src', 3, timeout=0)
+            self._driver_publish('s/stats/ctrl', 1, timeout=0)
             self._driver_subscribe('s/stats/value', 'pub', self._on_stats_fn)
             self._ui_subscribe('settings', self._on_settings_fn, ['pub', 'retain'])
         except Exception:
@@ -614,7 +614,7 @@ class Js110(Device):
         self._driver_unsubscribe('s/stats/value', self._on_stats_fn)
         try:
             for t in _SIGNALS.values():
-                self._driver_publish(t['topics'][0], 0)
+                self._driver_publish(t['topics'][0], 0, timeout=0)
             self._driver_publish('s/stats/ctrl', 0)
         except RuntimeError as ex:
             self._log.info('Exception during close cleanup: %s', ex)

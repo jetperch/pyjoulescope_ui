@@ -168,6 +168,8 @@ class JsdrvStreamBuffer:
         return f'JsdrvStreamBuffer({self._id})'
 
     def on_action_device_add(self, device: Device):
+        if '-UPDATER' in device.unique_id:
+            return
         self._log.info('device_add %s', device.unique_id)
         self._sources[device.unique_id] = device
         topic = get_topic_name(self.unique_id)
@@ -183,6 +185,8 @@ class JsdrvStreamBuffer:
         self.pubsub.publish(f'{topic}/events/sources/!add', device.unique_id)
 
     def on_action_device_remove(self, device):
+        if '-UPDATER' in device.unique_id:
+            return
         self._log.info('device_remove %s', device.unique_id)
         topic = get_topic_name(self.unique_id)
         signals = list(self._signals.keys())

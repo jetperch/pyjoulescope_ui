@@ -18,6 +18,7 @@ from joulescope_ui.capabilities import CAPABILITIES
 from .jsdrv_stream_buffer import JsdrvStreamBuffer
 from .js110 import Js110
 from .js220 import Js220
+from .js220_updater import Js220Updater
 import logging
 
 
@@ -160,10 +161,13 @@ class JsdrvWrapper:
         unique_id = f'{model.upper()}-{serial_number}'
         if value in self.devices:
             return
-        if 'js220' in value:
+        if '/js220/' in value:
             cls = Js220
-        elif 'js110' in value:
+        elif '/js110/' in value:
             cls = Js110
+        elif '/&js220/' in value:
+            unique_id = unique_id[1:] + '-UPDATER'
+            cls = Js220Updater
         else:
             self._log.info('Unsupported device: %s', value)
             return
@@ -171,16 +175,18 @@ class JsdrvWrapper:
         d = cls(self, value)
         self.pubsub.register(d, unique_id)
         self.devices[value] = d
-        for b in self._stream_buffers.values():
-            topic = get_topic_name(b)
-            self.pubsub.publish(f'{topic}/actions/!device_add', d)
+        if '-UPDATER' not in unique_id:
+            for b in self._stream_buffers.values():
+                topic = get_topic_name(b)
+                self.pubsub.publish(f'{topic}/actions/!device_add', d)
 
     def _on_device_remove(self, value):
         d = self.devices.pop(value, None)
         if d is not None:
-            for b in self._stream_buffers.values():
-                topic = get_topic_name(b)
-                self.pubsub.publish(f'{topic}/actions/!device_remove', d)
+            if '-UPDATER' not in d.unique_id:
+                for b in self._stream_buffers.values():
+                    topic = get_topic_name(b)
+                    self.pubsub.publish(f'{topic}/actions/!device_remove', d)
             self._log.info('_on_device_remove %s', get_unique_id(d))
             topic = get_topic_name(d)
             self.pubsub.publish(f'{topic}/actions/!finalize', None)

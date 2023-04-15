@@ -14,6 +14,11 @@ notes below for additional usage guidelines.
 2023 Apr 15 [in progress]
 
 * Improved pyjoulescope_driver stability (version 1.3.3).
+* Improved firmware update.
+  * Does not block Qt event thread.
+  * Added recovery (handles JS220's in updater).
+* Improved JS220 close error handling. 
+* Removed unnecessary timeouts for driver publish that lock Qt event thread. 
 
 
 ## 1.0.8

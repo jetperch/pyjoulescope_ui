@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from joulescope_ui.capabilities import CAPABILITIES
 from .device import Device
 from joulescope_ui import N_, get_topic_name, register
 from joulescope_ui.metadata import Metadata
@@ -540,32 +539,32 @@ class Js220(Device):
             signal_id = topic.split('/')[1]
             t = _SIGNALS[signal_id]['topics'][0]
             if t is not None:
-                self._driver_publish(t, bool(value))
+                self._driver_publish(t, bool(value), timeout=0)
             else:
                 self._log.warning('invalid enable: %s', topic)
         elif topic.startswith('out/'):
             v = _GPO_BIT[topic[4:]]
             t = 's/gpo/+/!set' if bool(value) else 's/gpo/+/!clr'
-            self._driver_publish(t, v)
+            self._driver_publish(t, v, timeout=0)
         elif topic == 'signal_frequency':
-            self._driver_publish('h/fs', int(value))
+            self._driver_publish('h/fs', int(value), timeout=0)
         elif topic == 'statistics_frequency':
             scnt = 1_000_000 // value
-            self._driver_publish('s/stats/scnt', scnt)
+            self._driver_publish('s/stats/scnt', scnt, timeout=0)
         elif topic == 'target_power':
             self._current_range_update()
         elif topic == 'current_range':
             self._current_range_update()
         elif topic == 'voltage_range':
             if value == -1:
-                self._driver_publish('s/v/range/mode', 'auto')
+                self._driver_publish('s/v/range/mode', 'auto', timeout=0)
             else:
-                self._driver_publish('s/v/range/mode', 'manual')
-                self._driver_publish('s/v/range/select', value)
+                self._driver_publish('s/v/range/mode', 'manual', timeout=0)
+                self._driver_publish('s/v/range/select', value, timeout=0)
         elif topic == 'trigger_dir':
-            self._driver_publish('c/trigger/dir', value)
+            self._driver_publish('c/trigger/dir', value, timeout=0)
         elif topic == 'gpio_voltage':
-            self._driver_publish('c/gpio/vref', value)
+            self._driver_publish('c/gpio/vref', value, timeout=0)
         elif topic == 'name':
             self._ui_publish('settings/sources/1/name', value)
         elif topic in ['info', 'state', 'state_req', 'out', 'enable',
@@ -582,14 +581,14 @@ class Js220(Device):
         if self._target_power_app and self.target_power:
             if self.current_range == -1:
                 self._log.info('current_range auto')
-                self._driver_publish('s/i/range/mode', 'auto')
+                self._driver_publish('s/i/range/mode', 'auto', timeout=0)
             else:
                 self._log.info('current_range manual %s', self.current_range)
-                self._driver_publish('s/i/range/select', self.current_range)
-                self._driver_publish('s/i/range/mode', 'manual')
+                self._driver_publish('s/i/range/select', self.current_range, timeout=0)
+                self._driver_publish('s/i/range/mode', 'manual', timeout=0)
         else:
             self._log.info('current_range off')
-            self._driver_publish('s/i/range/mode', 'off')
+            self._driver_publish('s/i/range/mode', 'off', timeout=0)
 
     def _run_cmd(self, cmd, args):
         if cmd == 'settings':
@@ -623,39 +622,6 @@ class Js220(Device):
         self._log.info('firmware_update_available %s: %s', self.unique_id, rv)
         return rv
 
-    def _firmware_update(self):
-        if self.firmware_available is None:
-            return False
-        try:
-            image = release.release_get(self.firmware_channel)
-        except Exception:
-            self._log.info('Could not parse firmware image')
-            return False
-        self._close()
-        self._log.info('firmware_update: start')
-        self.firmware_available = None
-        self._driver.open(self._path, 'restore')
-
-        def on_progress(completion, msg):
-            value = {
-                'id': f'{self.unique_id}.firmware_update',
-                'progress': completion,
-                'name': N_('Update') + ' ' + self.unique_id,
-                'brief': msg,
-            }
-            self._pubsub.publish(_PROGRESS_TOPIC, value)
-
-        rv = program.release_program(self._driver, self.device_path, image,
-                                     progress=on_progress)
-        versions_before = dict(rv[0])
-        result = ['firmware_update: complete']
-        for key, value in rv[1]:
-            v = versions_before.get(key, '?.?.?')
-            result.append(f'    {key:10s}  {v} => {value}')
-        self._log.info('\n'.join(result))
-        self._ui_publish('')
-        return True
-
     def _run(self):
         self._log.info('thread start')
         if self._open():
@@ -665,7 +631,9 @@ class Js220(Device):
         self._log.info('thread open complete')
         self.firmware_available = self._is_firmware_update_available()
         if self.firmware_available is not None:
-            self._quit |= self._firmware_update()
+            self._log.info('firmware_update: start by reset to update1')
+            self._driver_publish('h/!reset', 'update1')
+            self._quit = True
 
         while not self._quit:
             try:
@@ -695,7 +663,7 @@ class Js220(Device):
             }
             self._info = copy.deepcopy(self._info)
             self._ui_publish('settings/info', self._info)
-            self._driver_publish('s/stats/ctrl', 1)
+            self._driver_publish('s/stats/ctrl', 1, timeout=0)
             self._driver_subscribe('s/stats/value', 'pub', self._on_stats_fn)
             self._ui_subscribe('settings', self._on_settings_fn, ['pub', 'retain'])
         except Exception:
@@ -716,11 +684,14 @@ class Js220(Device):
         self._driver_unsubscribe('s/stats/value', self._on_stats_fn)
         try:
             for t in _SIGNALS.values():
-                self._driver_publish(t['topics'][0], 0)
+                self._driver_publish(t['topics'][0], 0, timeout=0)
             self._driver_publish('s/stats/ctrl', 0)
-        except RuntimeError as ex:
+        except Exception as ex:
             self._log.info('Exception during close cleanup: %s', ex)
-        self._driver.close(self._path)
+        try:
+            self._driver.close(self._path)
+        except Exception as ex:
+            self._log.info('Exception during driver close: %s', ex)
         self._driver_device_open = False
         self._log.info('close %s done', self.unique_id)
 
