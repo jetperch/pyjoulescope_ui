@@ -4,6 +4,18 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 1.0.9
+
+<span style="color:yellow">⚠ ALPHA RELEASE - USE WITH CAUTION ⚠</span> 
+
+Improves upon 1.0.7 but still alpha quality.  See the 1.0.0 release
+notes below for additional usage guidelines.
+
+2023 Apr 15 [in progress]
+
+* Improved pyjoulescope_driver stability (version 1.3.3).
+
+
 ## 1.0.8
 
 <span style="color:yellow">⚠ ALPHA RELEASE - USE WITH CAUTION ⚠</span> 
