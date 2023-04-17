@@ -232,6 +232,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self._central_layout.addWidget(self._side_bar)
         self._central_layout.addWidget(self._dock_widget)
 
+        self._signal_record_status = RecordStatusWidget(self, 'SignalRecord')
+        self._pubsub.register(self._signal_record_status, 'SignalRecord:0', parent='ui')
+        self._status_bar.addPermanentWidget(self._signal_record_status)
+
+        self._statistics_record_status = RecordStatusWidget(self, 'StatisticsRecord')
+        self._pubsub.register(self._statistics_record_status, 'StatisticsRecord:0', parent='ui')
+        self._status_bar.addPermanentWidget(self._statistics_record_status)
+
         self._menu_bar = QtWidgets.QMenuBar(self)
         self._menu_items = _menu_setup(self._menu_bar, [
             ['file_menu', N_('&File'), [
@@ -292,11 +300,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self._pubsub.publish('registry/style/settings/enable', True)
         self._pubsub.publish('registry/style/actions/!render', None)
         self._pubsub.process()
-
-        self._signal_record_status = RecordStatusWidget(self, 'SignalRecord')
-        self._status_bar.addPermanentWidget(self._signal_record_status)
-        self._statistics_record_status = RecordStatusWidget(self, 'StatisticsRecord')
-        self._status_bar.addPermanentWidget(self._statistics_record_status)
 
         self._pubsub_utilization = QtWidgets.QLabel(self._status_bar)
         self._pubsub_utilization.setToolTip(_PUBSUB_UTILIZATION_TOOLTIP)

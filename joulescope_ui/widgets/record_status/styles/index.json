@@ -1,0 +1,24 @@
+{
+  "type": "theme",
+  "version": 1,
+  "description": "Record status theme",
+  "templates": ["style.qss"],
+  "images": {
+    "signal_record": {
+      "sources": [
+        "record.svg"
+      ],
+      "targets": [
+        ["signal_{basename}{ext}",   {"#ffffff": "record_status.foreground", "#000000": "record_status.enabled", "#888888": "record_status.enabled"}]
+      ]
+    },
+    "statistics_record": {
+      "sources": [
+        "record.svg"
+      ],
+      "targets": [
+        ["statistics_{basename}{ext}",   {"#ffffff": "record_status.enabled", "#000000": "record_status.enabled", "#888888": "record_status.background"}]
+      ]
+    }
+  }
+}

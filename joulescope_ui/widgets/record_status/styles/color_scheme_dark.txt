@@ -1,0 +1,3 @@
+record_status.foreground = #ffffff
+record_status.background = #000000
+record_status.enabled = #A00000

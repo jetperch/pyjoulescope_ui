@@ -20,7 +20,7 @@ _UNIQUE_IDS = {
 
 @register
 @styled_widget(N_('Record Status'))
-class RecordStatusWidget(QtWidgets.QLabel):
+class RecordStatusWidget(QtWidgets.QWidget):
 
     # Note: does NOT implement widget CAPABILITY, since not instantiable by user or available as a dock widget.
 
@@ -31,6 +31,21 @@ class RecordStatusWidget(QtWidgets.QLabel):
         self._brief = _UNIQUE_IDS[source_unique_id]
         super().__init__(parent=parent)
         self.setVisible(False)
+
+        self._layout = QtWidgets.QHBoxLayout()
+        self._layout.setSpacing(0)
+        self._layout.setContentsMargins(0, 0, 0, 0)
+
+        self._icon = QtWidgets.QLabel(self)
+        self._icon.setFixedSize(20, 20)
+        self._icon.setObjectName(source_unique_id)
+        self._layout.addWidget(self._icon)
+
+        self._text = QtWidgets.QLabel(self)
+        self._layout.addWidget(self._text)
+
+        self.setLayout(self._layout)
+
         topic = get_topic_name(source_unique_id)
         pubsub_singleton.subscribe(f'{topic}/actions/!start', self._on_start, ['pub'])
         pubsub_singleton.subscribe(f'{topic}/actions/!stop', self._on_stop, ['pub'])
@@ -49,15 +64,12 @@ class RecordStatusWidget(QtWidgets.QLabel):
             detail = f'{_PATH}{path}\n\n{filenames_str}'
 
         self._time = time.time()
-        self.setToolTip(tooltip_format(
-            N_('Signal recording in progres'),
-            detail,
-        ))
+        self.setToolTip(tooltip_format(self._brief, detail))
         self.setVisible(True)
 
     def _on_stop(self):
         self._time = None
-        self.setText('')
+        self._text.setText('')
         self.setToolTip('')
         self.setVisible(False)
 
@@ -67,4 +79,4 @@ class RecordStatusWidget(QtWidgets.QLabel):
             s, u = elapsed_time_formatter(duration, precision=1, trim_trailing_zeros=True)
             if u:
                 s = f'{s} {u}'
-            self.setText(s)
+            self._text.setText(s)

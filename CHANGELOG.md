@@ -11,14 +11,15 @@ This file contains the list of changes made to pyjoulescope_ui.
 Improves upon 1.0.7 but still alpha quality.  See the 1.0.0 release
 notes below for additional usage guidelines.
 
-2023 Apr 15 [in progress]
+2023 Apr 17 [in progress]
 
 * Improved pyjoulescope_driver stability (version 1.3.3).
 * Improved firmware update.
   * Does not block Qt event thread.
   * Added recovery (handles JS220's in updater).
 * Improved JS220 close error handling. 
-* Removed unnecessary timeouts for driver publish that lock Qt event thread. 
+* Removed unnecessary timeouts for driver publish that lock Qt event thread.
+* Added record status to status bar.
 
 
 ## 1.0.8
