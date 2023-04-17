@@ -293,6 +293,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self._pubsub.publish('registry/style/actions/!render', None)
         self._pubsub.process()
 
+        self._signal_record_status = RecordStatusWidget(self, 'SignalRecord')
+        self._status_bar.addPermanentWidget(self._signal_record_status)
+        self._statistics_record_status = RecordStatusWidget(self, 'StatisticsRecord')
+        self._status_bar.addPermanentWidget(self._statistics_record_status)
+
         self._pubsub_utilization = QtWidgets.QLabel(self._status_bar)
         self._pubsub_utilization.setToolTip(_PUBSUB_UTILIZATION_TOOLTIP)
         self._status_bar.addPermanentWidget(self._pubsub_utilization)
