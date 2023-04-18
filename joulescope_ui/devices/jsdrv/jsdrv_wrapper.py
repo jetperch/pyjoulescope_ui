@@ -32,7 +32,7 @@ class JsdrvWrapper:
     """
     CAPABILITIES = []
     EVENTS = {
-        '!publish': Metadata('obj', 'Resync to UI publish thread')
+        '!publish': Metadata('obj', 'Resync to UI publish thread'),
     }
     SETTINGS = {
         'log_level': {
@@ -53,6 +53,12 @@ class JsdrvWrapper:
             ],
             'default': 'info',
         },
+        'device_ids': {
+            'dtype': 'obj',  # list of unique_id
+            'brief': 'The connected jsdrv devices',
+            'default': None,
+            'flags': ['hide', 'tmp', 'noinit']
+        }
     }
 
     def __init__(self):
@@ -72,6 +78,8 @@ class JsdrvWrapper:
         self._log.info('on_pubsub_register start %s', topic)
         self.pubsub = pubsub
         self._topic = topic
+        self.devices = {}
+        self.device_ids = []
         self.driver = Driver()
         self._ui_subscribe(f'{topic}/settings/log_level', self._on_log_level, ['retain', 'pub'])
         self._ui_subscribe(f'{topic}/events/!publish', self._on_event_publish, ['pub'])
@@ -175,20 +183,13 @@ class JsdrvWrapper:
         d = cls(self, value)
         self.pubsub.register(d, unique_id)
         self.devices[value] = d
-        if '-UPDATER' not in unique_id:
-            for b in self._stream_buffers.values():
-                topic = get_topic_name(b)
-                self.pubsub.publish(f'{topic}/actions/!device_add', d)
+        self.device_ids = sorted([d.unique_id for d in self.devices.values()])
 
     def _on_device_remove(self, value):
         d = self.devices.pop(value, None)
         if d is not None:
-            if '-UPDATER' not in d.unique_id:
-                for b in self._stream_buffers.values():
-                    topic = get_topic_name(b)
-                    self.pubsub.publish(f'{topic}/actions/!device_remove', d)
             self._log.info('_on_device_remove %s', get_unique_id(d))
             topic = get_topic_name(d)
             self.pubsub.publish(f'{topic}/actions/!finalize', None)
             self.pubsub.unregister(d)
-
+            self.device_ids = sorted([d.unique_id for d in self.devices.values()])

@@ -23,6 +23,7 @@ notes below for additional usage guidelines.
 * Switched to monochromatic waveform traces. (prep for multiple traces)
 * Added light color scheme.
 * Fixed defect with settings widget not populating current value.
+* Fixed waveform widget to work with device open/close & insert/remove.
 
 
 ## 1.0.8

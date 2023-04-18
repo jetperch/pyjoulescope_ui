@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from joulescope_ui import CAPABILITIES, N_, Metadata, get_topic_name
+from joulescope_ui import CAPABILITIES, N_, Metadata, get_topic_name, get_unique_id, get_instance
 from pyjoulescope_driver import time64
 from .device import Device
 import copy
@@ -151,12 +151,13 @@ class JsdrvStreamBuffer:
         self._rsp_topic = f'm/mem/{self._id}/!rsp'
         self._log = logging.getLogger(f'{__name__}.{self._id}')
         self._driver_subscriptions = []
-        self._sources: dict[str, Device] = {}  # device unique_id -> instance
+        self._sources: dict[str, str] = {}  # device unique_id -> device_path
         self._signals: dict[str, [int, object]] = {}     # signal id ui_str -> [buffer_id, meta]
         self._signals_reverse: dict[int, str] = {}  # signal id buffer_id -> ui_str
         self._device_signal_id_next = 1
         self._device_subscriptions = {}
         self._pubsub_subscriptions = []
+        self._pubsub_device_subscriptions = {}  # device_id: [(topic, fn), ...]
 
         self._signals_free = list(range(1, 256))
         self._req_fwd = {}  # (pubsub_rsp_topic, pubsub_rsp_id): device_rsp_id
@@ -167,41 +168,89 @@ class JsdrvStreamBuffer:
     def __str__(self):
         return f'JsdrvStreamBuffer({self._id})'
 
-    def on_action_device_add(self, device: Device):
+    def _on_device_ids(self, value):
+        self._log.info('_on_device_ids %s', value)
+        existing = set(self._sources.keys())
+        for unique_id in value:
+            if unique_id not in self._sources:
+                self._on_device_add(unique_id)
+            try:
+                existing.remove(unique_id)
+            except KeyError:
+                pass
+        for device in existing:
+            self._on_device_remove(device)
+
+    def _on_device_add(self, device):
+        unique_id = get_unique_id(device)
+        device = get_instance(unique_id)
         if '-UPDATER' in device.unique_id:
             return
-        self._log.info('device_add %s', device.unique_id)
-        self._sources[device.unique_id] = device
+        self._log.info('device_add %s', unique_id)
+        self._sources[unique_id] = device.device_path
         topic = get_topic_name(self.unique_id)
-        source_topic = f'{topic}/settings/sources/{device.unique_id}'
+        source_topic = f'{topic}/settings/sources/{unique_id}'
         for name, meta in _SETTINGS_PER_SOURCE.items():
             self.pubsub.topic_add(f'{source_topic}/{name}', meta, exists_ok=True)
         self.pubsub.publish(f'{source_topic}/name', device.name)
         self.pubsub.publish(f'{source_topic}/info', device.info)
-        device_topic = get_topic_name(device)
-        for signal in self.pubsub.enumerate(f'{device_topic}/settings/signals'):
-            self.pubsub.subscribe(f'{device_topic}/settings/signals/{signal}/enable',
-                                  self._on_signal_enable, ['pub', 'retain'])
-        self.pubsub.publish(f'{topic}/events/sources/!add', device.unique_id)
+        self._ui_device_subscribe(device, 'settings/state',
+                                  self._on_device_state, ['pub', 'retain'])
 
-    def on_action_device_remove(self, device):
-        if '-UPDATER' in device.unique_id:
+    def _on_device_state(self, topic, value):
+        unique_id = topic.split('/')[1]
+        if '-UPDATER' in unique_id:
             return
-        self._log.info('device_remove %s', device.unique_id)
+        if value == 2:  # open
+            self._on_device_open(unique_id)
+        else:
+            self._on_device_close(unique_id)  # may have duplicate close
+
+    def _on_device_open(self, device):
+        device_id = get_unique_id(device)
+        self._log.info('device_open %s', device_id)
+        device_topic = get_topic_name(device_id)
+        for signal in self.pubsub.enumerate(f'{device_topic}/settings/signals'):
+            self._ui_device_subscribe(device_id, f'settings/signals/{signal}/enable',
+                                      self._on_signal_enable, ['pub', 'retain'])
         topic = get_topic_name(self.unique_id)
+        self.pubsub.publish(f'{topic}/events/sources/!add', device_id)
+
+    def _on_device_close(self, device):
+        device_id = get_unique_id(device)
+        if len(self._pubsub_device_subscriptions.get(device_id, [])) <= 1:
+            return
+        self._log.info('device_close %s', device_id)
+        topic = get_topic_name(self.unique_id)
+        self.pubsub.publish(f'{topic}/events/sources/!remove', device_id)
         signals = list(self._signals.keys())
         for signal_id in signals:
-            if signal_id.split('.')[0] == device.unique_id:
+            if signal_id.split('.')[0] == device_id:
                 self.on_action_remove(signal_id)
-        source_topic = f'{topic}/settings/{device.unique_id}'
-        self.pubsub.publish(f'{topic}/events/sources/!remove', device.unique_id)
+        subs, self._pubsub_device_subscriptions[device_id] = self._pubsub_device_subscriptions[device_id], []
+        for topic, fn in subs:
+            if '/settings/state' in topic:
+                self._pubsub_device_subscriptions[device_id].append((topic, fn))
+            else:
+                self.pubsub.unsubscribe(topic, fn)
+        self._pubsub_device_subscriptions[device_id] = self._pubsub_device_subscriptions[device_id][:1]
+
+    def _on_device_remove(self, device):
+        unique_id = get_unique_id(device)
+        device_path = self._sources.pop(unique_id)
+        if '-UPDATER' in unique_id:
+            return
+        self._log.info('device_remove %s', unique_id)
+        topic = get_topic_name(self.unique_id)
+        source_topic = f'{topic}/settings/{unique_id}'
+        for topic, fn in self._pubsub_device_subscriptions.pop(unique_id, []):
+            self.pubsub.unsubscribe(topic, fn)
         for name, meta in _SETTINGS_PER_SOURCE.items():
             self.pubsub.topic_remove(f'{source_topic}/{name}')
         for topic in list(self._device_subscriptions.keys()):
-            if topic.startswith(device.device_path):
+            if topic.startswith(device_path):
                 fn = self._device_subscriptions.pop(topic)
                 self._wrapper.driver.unsubscribe(topic, fn)
-        del self._sources[device.unique_id]
 
     def _device_subscribe(self, topic, flags, fn):
         self._device_subscriptions[topic] = fn
@@ -210,6 +259,19 @@ class JsdrvStreamBuffer:
     def _driver_publish(self, topic, value, timeout=None):
         if self._wrapper.driver is not None:
             self._wrapper.driver.publish(topic, value, timeout)
+
+    def _ui_subscribe(self, topic, fn, flags=None):
+        self.pubsub.subscribe(topic, fn, flags)
+        self._pubsub_subscriptions.append((topic, fn))
+
+    def _ui_device_subscribe(self, device, topic, fn, flags=None):
+        unique_id = get_unique_id(device)
+        if unique_id not in self._pubsub_device_subscriptions:
+            self._pubsub_device_subscriptions[unique_id] = []
+        base_topic = get_topic_name(unique_id)
+        topic = f'{base_topic}/{topic}'
+        self.pubsub.subscribe(topic, fn, flags)
+        self._pubsub_device_subscriptions[unique_id].append((topic, fn))
 
     def on_pubsub_register(self):
         topic = get_topic_name(self)
@@ -222,7 +284,13 @@ class JsdrvStreamBuffer:
         for fn, value in self._initialize_cache:
             fn(self, value)
         self._initialize_cache = None
-        self.pubsub.subscribe('registry/app/settings/signal_stream_enable', self._on_signal_steam_enable, ['pub', 'retain'])
+        self._ui_subscribe('registry/jsdrv/settings/device_ids', self._on_device_ids, ['pub', 'retain'])
+        self._ui_subscribe('registry/app/settings/signal_stream_enable', self._on_signal_steam_enable, ['pub', 'retain'])
+
+    def on_pubsub_unregister(self):
+        for topic, fn in self._pubsub_subscriptions:
+            self.pubsub.unsubscribe(topic, fn)
+        self._pubsub_subscriptions.clear()
 
     def _on_signal_steam_enable(self, value):
         if value and self.clear_on_play:
@@ -282,14 +350,16 @@ class JsdrvStreamBuffer:
         self._log.info('add %s', signal_id)
         buf_id = self._signals_free.pop(0)
         unique_id, signal = signal_id.split('.')
-        device = self._sources[unique_id]
+        device = get_instance(unique_id)
+        device_path = self._sources[unique_id]
+        device_topic = get_topic_name(unique_id)
         signal_meta = copy.deepcopy(device.info)
         self._signals[signal_id] = [buf_id, signal_meta]
         self._signals_reverse[buf_id] = signal_id
-        device_path = device.device_path
+        device_path = device_path
 
         device_signal_id = signal_id.split('.')[1]
-        signal_name = self.pubsub.query(f'{get_topic_name(device)}/settings/signals/{device_signal_id}/name')
+        signal_name = self.pubsub.query(f'{device_topic}/settings/signals/{device_signal_id}/name')
         ui_prefix = get_topic_name(self)
         ui_signal_prefix = f'{ui_prefix}/settings/signals/{signal_id}'
         for key, meta in _SETTINGS_PER_SIGNAL.items():
