@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from joulescope_ui import N_, CAPABILITIES, register, Metadata, get_topic_name
-from .device import Device
+from .device import Device, CAPABILITIES_OBJECT_OPEN
 import copy
 import numpy as np
 import queue
@@ -569,6 +569,7 @@ class Js110(Device):
             return 1
         self._ui_publish('settings/state', 'open')
         self._log.info('thread open complete')
+        self._pubsub.capabilities_append(self, CAPABILITIES_OBJECT_OPEN)
         while not self._quit:
             try:
                 cmd, args = self._queue.get(timeout=0.1)
@@ -578,6 +579,7 @@ class Js110(Device):
                 break
             self._run_cmd(cmd, args)
         self._close()
+        self._pubsub.capabilities_remove(self, CAPABILITIES_OBJECT_OPEN)
         self._log.info('thread stop')
         return 0
 

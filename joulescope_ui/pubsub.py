@@ -1391,6 +1391,48 @@ class PubSub:
         if bool(delete):
             self._unregister_delete(obj, unique_id)
 
+    @_immediate
+    def capabilities_append(self, spec, capabilities):
+        """Dynamically add new capabilities to a registered instance.
+
+        :param spec: The target instance, topic name or unique id.
+        :param capabilities: The list of capabilities to add.
+        """
+        obj = get_instance(spec)
+        unique_id = get_unique_id(obj)
+        obj_caps = getattr(obj, 'CAPABILITIES', [])
+        capabilities = [str(c) for c in capabilities]
+        existing_capabilities = self.enumerate(REGISTRY_MANAGER_TOPICS.CAPABILITIES)
+        for capability in capabilities:
+            if capability in obj_caps:
+                continue
+            if capability not in existing_capabilities:
+                self._log.warning(f'unregistered capability: {capability} in {obj}: SKIP')
+                continue
+            capability_topic = REGISTRY_MANAGER_TOPICS.CAPABILITIES + f'/{capability}'
+            self.publish(f'{capability_topic}/!add', unique_id)
+            obj_caps.append(capability)
+        setattr(obj, 'CAPABILITIES', copy.deepcopy(obj_caps))
+
+    @_immediate
+    def capabilities_remove(self, spec, capabilities):
+        """Dynamically remove capabilities from a registered instance.
+
+        :param spec: The target instance, topic name or unique id.
+        :param capabilities: The list of capabilities to remove.
+        """
+        obj = get_instance(spec)
+        unique_id = get_unique_id(obj)
+        obj_caps = getattr(obj, 'CAPABILITIES', [])
+        capabilities = [str(c) for c in capabilities]
+        for capability in capabilities:
+            if capability not in obj_caps:
+                continue
+            capability_topic = REGISTRY_MANAGER_TOPICS.CAPABILITIES + f'/{capability}'
+            self.publish(f'{capability_topic}/!remove', unique_id)
+            obj_caps.remove(capability)
+        setattr(obj, 'CAPABILITIES', copy.deepcopy(obj_caps))
+
     def _unregister_delete(self, obj, unique_id):
         if not isinstance(obj, type):
             instance_of = self.query(f'{get_topic_name(unique_id)}/instance_of')
