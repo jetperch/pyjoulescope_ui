@@ -10,16 +10,14 @@ waveform.plot_border = #ffffff80
 
 waveform.hover = #e0e0e0a0
 
-waveform.summary_missing = #C0C04030
 waveform.summary_trace = #ffff00ff
-waveform.summary_min_max_fill = #FF404060
-waveform.summary_view = #4050FF80
+waveform.summary_view = #1260a080
 
-waveform.plot1_trace = #ffff00ff
-waveform.plot1_min_max_trace = #FF4040A0
-waveform.plot1_min_max_fill = #FF404060
-waveform.plot1_std_fill = #80FF4040
-waveform.plot1_missing = #C0C04030
+# Use yellow, cyan, magenta, green
+waveform.trace1 = #ffff00ff
+waveform.trace2 = #00ffffff
+waveform.trace3 = #ff00ffff
+waveform.trace4 = #00ff00ff
 
 waveform.marker_label = #101010A0
 waveform.marker1 = #40c040A0

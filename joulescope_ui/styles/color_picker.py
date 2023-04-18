@@ -20,17 +20,26 @@ import re
 _re_color_pattern = re.compile('#[0-9a-fA-F]+')
 
 
-def color_as_string(color):
+def color_as_string(color, alpha=None):
     if isinstance(color, QtGui.QColor):
         value = f'{color.rgba():08X}'
-        return f'#{value[2:]}{value[:2]}'  # convert AARRGGBB to RRGGBBAA
+        color = f'#{value[2:]}{value[:2]}'  # convert AARRGGBB to RRGGBBAA
     elif isinstance(color, str):
-        return color
+        pass
     else:
         raise ValueError(f'Invalid color type: {type(color)}')
+    if alpha is not None:
+        if isinstance(alpha, str):
+            opacity = int(alpha, 0)
+        elif isinstance(alpha, float):
+            opacity = int(alpha * 255)
+        color = f'{color[:-2]}{alpha:02x}'
+    return color
 
 
-def color_as_qcolor(color):
+def color_as_qcolor(color, alpha=None):
+    if alpha is not None:
+        color = color_as_string(color, alpha)
     if isinstance(color, str):
         clen = len(color)
         if clen == 9:

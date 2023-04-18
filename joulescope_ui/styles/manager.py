@@ -357,9 +357,11 @@ class StyleManager:
                 if child in objs:
                     self.on_action_render(child)
             return
-        theme = self.pubsub.query('registry/style/settings/theme', default='js1')
-        color_scheme = self.pubsub.query('registry/style/settings/color_scheme', default='dark')
-        font_scheme = self.pubsub.query('registry/style/settings/font_scheme', default='js1')
+        active_view = self.pubsub.query('registry/view/settings/active', default='view')
+        active_view_topic = get_topic_name(active_view)
+        theme = self.pubsub.query(f'{active_view_topic}/settings/theme', default='js1')
+        color_scheme = self.pubsub.query(f'{active_view_topic}/settings/color_scheme', default='dark')
+        font_scheme = self.pubsub.query(f'{active_view_topic}/settings/font_scheme', default='js1')
         is_styled = _render_obj(obj, self.path, theme, color_scheme, font_scheme)
         children = self.pubsub.query(f'{get_topic_name(obj)}/children', default=[])
         _log.info('rendered %s in %.3f', value, time.time() - t_start)

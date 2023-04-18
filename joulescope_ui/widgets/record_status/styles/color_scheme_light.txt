@@ -1,6 +1,3 @@
-sidebar.play_enabled = #008000
-sidebar.play_blink = #00A000
-sidebar.record_enabled = #C01010
-sidebar.record_blink = #FF1010
-sidebar.record_statistics_enabled = #1260a0
-sidebar.record_statistics_blink = #3580D3
+record_status.foreground = #ffffff
+record_status.background = #010101
+record_status.enabled = #A00000

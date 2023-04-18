@@ -1,3 +1,3 @@
-accumulator.background = #101010ff
-accumulator.title_color = #ffffff80
-accumulator.main_color = #20C020ff
+accumulator.background = #F0F0F0ff
+accumulator.title_color = #00000080
+accumulator.main_color = #008000

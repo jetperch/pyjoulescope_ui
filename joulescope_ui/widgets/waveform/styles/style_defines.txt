@@ -1,0 +1,6 @@
+
+waveform.trace_alpha = 0xff
+waveform.min_max_trace_alpha = 0x60
+waveform.min_max_fill_alpha = 0x40
+waveform.std_fill_alpha = 0x30
+waveform.missing_alpha = 0x20

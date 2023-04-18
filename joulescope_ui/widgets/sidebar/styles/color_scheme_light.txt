@@ -1,6 +1,18 @@
+sidebar.disabled = #808080
 sidebar.play_enabled = #008000
-sidebar.play_blink = #00A000
-sidebar.record_enabled = #C01010
-sidebar.record_blink = #FF1010
+sidebar.play_hover = #108010ff
+sidebar.play_blink = #10a010ff
+sidebar.record_enabled = #A00000
+sidebar.record_hover = #D00000
+sidebar.record_blink = #D00000
 sidebar.record_statistics_enabled = #1260a0
 sidebar.record_statistics_blink = #3580D3
+sidebar.play_background = #ffffff
+sidebar.record_background = #ffffff
+sidebar.foreground = #ffffff
+
+sidebar.util_disabled = #808080
+sidebar.util_enabled = #404040
+sidebar.util_hover = #000040
+sidebar.util_background = #ffffff
+sidebar.util_foreground = #010101

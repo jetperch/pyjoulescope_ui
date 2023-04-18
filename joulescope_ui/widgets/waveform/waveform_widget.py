@@ -16,7 +16,7 @@ from PySide6 import QtWidgets, QtGui, QtCore, QtOpenGLWidgets, QtOpenGL
 from OpenGL import GL as gl
 from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topic_name, get_instance, time64
 from joulescope_ui.shortcuts import Shortcuts
-from joulescope_ui.styles import styled_widget, color_as_qcolor, font_as_qfont
+from joulescope_ui.styles import styled_widget, color_as_qcolor, color_as_string, font_as_qfont
 from joulescope_ui.widget_tools import settings_action_create
 from .line_segments import PointsF
 from .waveform_control import WaveformControlWidget
@@ -1031,6 +1031,18 @@ class WaveformWidget(QtWidgets.QWidget):
         statistics_unit_size = axis_font_metrics.boundingRect('mW').width()
         statistics_size = _MARGIN * 2 + statistics_name_size + statistics_value_size + statistics_unit_size
 
+        trace_alpha = int(v['waveform.trace_alpha'], 0)
+        min_max_trace_alpha = int(v['waveform.min_max_trace_alpha'], 0)
+        min_max_fill_alpha = int(v['waveform.min_max_fill_alpha'], 0)
+        std_fill_alpha = int(v['waveform.std_fill_alpha'], 0)
+        missing_alpha = int(v['waveform.missing_alpha'], 0)
+
+        summary_trace = color_as_string(v['waveform.summary_trace'], alpha=0xff)
+        trace1 = color_as_string(v['waveform.trace1'], alpha=0xff)
+        trace2 = color_as_string(v['waveform.trace2'], alpha=0xff)
+        trace3 = color_as_string(v['waveform.trace3'], alpha=0xff)
+        trace4 = color_as_string(v['waveform.trace4'], alpha=0xff)
+
         self._style_cache = {
             'background_brush': QtGui.QBrush(color_as_qcolor(v['waveform.background'])),
 
@@ -1043,17 +1055,47 @@ class WaveformWidget(QtWidgets.QWidget):
 
             'waveform.hover': QBrush(color_as_qcolor(v['waveform.hover'])),
 
-            'summary_missing': QBrush(color_as_qcolor(v['waveform.summary_missing'])),
-            'summary_trace': QPen(color_as_qcolor(v['waveform.summary_trace'])),
-            'summary_min_max_fill': QBrush(color_as_qcolor(v['waveform.summary_min_max_fill'])),
+            'summary_missing': QBrush(color_as_qcolor(summary_trace, alpha=missing_alpha)),
+            'summary_trace': QPen(color_as_qcolor(summary_trace, alpha=trace_alpha)),
+            'summary_min_max_fill': QBrush(color_as_qcolor(summary_trace, alpha=min_max_fill_alpha)),
             'summary_view': QBrush(color_as_qcolor(v['waveform.summary_view'])),
 
-            'plot1_trace': QPen(color_as_qcolor(v['waveform.plot1_trace'])),
-            'plot1_min_max_trace': QPen(color_as_qcolor(v['waveform.plot1_min_max_trace'])),
-            'plot1_min_max_fill_pen': QPen(color_as_qcolor(v['waveform.plot1_min_max_fill'])),
-            'plot1_min_max_fill_brush': QBrush(color_as_qcolor(v['waveform.plot1_min_max_fill'])),
-            'plot1_std_fill': QBrush(color_as_qcolor(v['waveform.plot1_std_fill'])),
-            'plot1_missing': QBrush(color_as_qcolor(v['waveform.plot1_missing'])),
+            'plot_trace': [
+                QPen(color_as_qcolor(trace1, alpha=trace_alpha)),
+                QPen(color_as_qcolor(trace2, alpha=trace_alpha)),
+                QPen(color_as_qcolor(trace3, alpha=trace_alpha)),
+                QPen(color_as_qcolor(trace4, alpha=trace_alpha)),
+            ],
+            'plot_min_max_trace': [
+                QPen(color_as_qcolor(trace1, alpha=min_max_trace_alpha)),
+                QPen(color_as_qcolor(trace2, alpha=min_max_trace_alpha)),
+                QPen(color_as_qcolor(trace3, alpha=min_max_trace_alpha)),
+                QPen(color_as_qcolor(trace4, alpha=min_max_trace_alpha)),
+            ],
+            'plot_min_max_fill_pen': [
+                QPen(color_as_qcolor(trace1, alpha=min_max_fill_alpha)),
+                QPen(color_as_qcolor(trace2, alpha=min_max_fill_alpha)),
+                QPen(color_as_qcolor(trace3, alpha=min_max_fill_alpha)),
+                QPen(color_as_qcolor(trace4, alpha=min_max_fill_alpha)),
+            ],
+            'plot_min_max_fill_brush': [
+                QBrush(color_as_qcolor(trace1, alpha=min_max_fill_alpha)),
+                QBrush(color_as_qcolor(trace2, alpha=min_max_fill_alpha)),
+                QBrush(color_as_qcolor(trace3, alpha=min_max_fill_alpha)),
+                QBrush(color_as_qcolor(trace4, alpha=min_max_fill_alpha)),
+            ],
+            'plot_std_fill': [
+                QBrush(color_as_qcolor(trace1, alpha=std_fill_alpha)),
+                QBrush(color_as_qcolor(trace2, alpha=std_fill_alpha)),
+                QBrush(color_as_qcolor(trace3, alpha=std_fill_alpha)),
+                QBrush(color_as_qcolor(trace4, alpha=std_fill_alpha)),
+            ],
+            'plot_missing': [
+                QBrush(color_as_qcolor(trace1, alpha=missing_alpha)),
+                QBrush(color_as_qcolor(trace2, alpha=missing_alpha)),
+                QBrush(color_as_qcolor(trace3, alpha=missing_alpha)),
+                QBrush(color_as_qcolor(trace4, alpha=missing_alpha)),
+            ],
 
             'axis_font': axis_font,
             'axis_font_metrics': QtGui.QFontMetrics(axis_font),
@@ -1075,7 +1117,8 @@ class WaveformWidget(QtWidgets.QWidget):
             self._style_cache[f'marker{k}_fg'] = QBrush(color_as_qcolor(c))
             self._style_cache[f'marker{k}_bg'] = QBrush(color_as_qcolor(c[:-2] + '20'))
 
-        self._style_cache['plot1_trace'].setWidth(self.trace_width)
+        for trace in self._style_cache['plot_trace']:
+            trace.setWidth(self.trace_width)
         return self._style_cache
 
     def _plot_range_auto_update(self, plot):
@@ -1296,13 +1339,12 @@ class WaveformWidget(QtWidgets.QWidget):
         segment_idx = _idx_to_segments(finite_idx)
 
         p.setPen(self._NO_PEN)
-        p.setBrush(s['plot1_missing'])
         if len(segment_idx) > 1:
             segment_idx_last = segment_idx[0][1]
             for idx_start, idx_stop in segment_idx[1:]:
                 z1 = xp[segment_idx_last]
                 z2 = xp[idx_start]
-                p.drawRect(z1, y0, max(1, z2 - z1), h)
+                p.fillRect(z1, y0, max(1, z2 - z1), h, s['summary_missing'])
                 segment_idx_last = idx_stop
 
         xp_range = np.rint(self._x_summary_map.time64_to_counter(np.array(self.x_range)))
@@ -1494,6 +1536,7 @@ class WaveformWidget(QtWidgets.QWidget):
         p.setClipRect(x0, y0, w, h)
 
         for signal in plot['signals']:
+            trace_idx = 0
             d = self._signals.get(signal)
             if d is None:
                 continue
@@ -1512,7 +1555,7 @@ class WaveformWidget(QtWidgets.QWidget):
             segment_idx = _idx_to_segments(finite_idx)
 
             p.setPen(self._NO_PEN)
-            p.setBrush(s['plot1_missing'])
+            p.setBrush(s['plot_missing'][trace_idx])
             if len(segment_idx) > 1:
                 segment_idx_last = segment_idx[0][1]
                 for idx_start, idx_stop in segment_idx[1:]:
@@ -1528,15 +1571,15 @@ class WaveformWidget(QtWidgets.QWidget):
                     d_y_min = self._y_value_to_pixel(plot, d['min'][idx_start:idx_stop])
                     d_y_max = self._y_value_to_pixel(plot, d['max'][idx_start:idx_stop])
                     if 1 == self.show_min_max:
-                        p.setPen(s['plot1_min_max_trace'])
+                        p.setPen(s['plot_min_max_trace'][trace_idx])
                         segs, nsegs = sig_d['line_min'].set_line(d_x_segment, d_y_min)
                         p.drawPolyline(segs)
                         segs, nsegs = sig_d['line_max'].set_line(d_x_segment, d_y_max)
                         p.drawPolyline(segs)
                     else:
                         segs, nsegs = sig_d['points_min_max'].set_fill(d_x_segment, d_y_min, d_y_max)
-                        p.setPen(s['plot1_min_max_fill_pen'])
-                        p.setBrush(s['plot1_min_max_fill_brush'])
+                        p.setPen(s['plot_min_max_fill_pen'][trace_idx])
+                        p.setBrush(s['plot_min_max_fill_brush'][trace_idx])
                         p.drawPolygon(segs)
                         if 3 == self.show_min_max:
                             d_std = d['std'][idx_start:idx_stop]
@@ -1546,12 +1589,12 @@ class WaveformWidget(QtWidgets.QWidget):
                             d_y_std_max = np.amax(np.vstack([d_y_std_max, d_y_max]), axis=0)
                             segs, nsegs = sig_d['points_std'].set_fill(d_x_segment, d_y_std_min, d_y_std_max)
                             p.setPen(self._NO_PEN)
-                            p.setBrush(s['plot1_std_fill'])
+                            p.setBrush(s['plot_std_fill'][trace_idx])
                             p.drawPolygon(segs)
 
                 d_y = self._y_value_to_pixel(plot, d_avg)
                 segs, nsegs = sig_d['points_avg'].set_line(d_x_segment, d_y)
-                p.setPen(s['plot1_trace'])
+                p.setPen(s['plot_trace'][trace_idx])
                 p.drawPolyline(segs)
 
         p.setBrush(s['text_brush'])

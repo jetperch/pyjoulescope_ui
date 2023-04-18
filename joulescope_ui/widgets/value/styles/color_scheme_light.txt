@@ -1,4 +1,5 @@
-example.bg1 = #C00000ff
-example.fg1 = #00400080
-example.bg2 = #C0000080
-example.fg2 = #000000ff
+value.background = #ecececff
+value.title_color = #01010180
+value.main_color = #108010ff
+value.stats_color = #108010ff
+value.line_color = #80808080

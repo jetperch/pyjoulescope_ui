@@ -20,6 +20,8 @@ notes below for additional usage guidelines.
 * Improved JS220 close error handling. 
 * Removed unnecessary timeouts for driver publish that lock Qt event thread.
 * Added record status to status bar.
+* Switched to monochromatic waveform traces. (prep for multiple traces)
+* Added light color scheme.
 
 
 ## 1.0.8

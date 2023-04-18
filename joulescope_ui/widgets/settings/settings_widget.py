@@ -431,9 +431,12 @@ class StyleDefineEditorWidget(_GridWidget):
             self._widgets.append(name_label)
             w = QtWidgets.QLineEdit(self)
             w.setText(value)
-            w.changed.connect(self._on_change)  # todo
+            self._connect(name, w)
             self._grid.addWidget(w, row + 1, 1, 1, 1)
             self._widgets.append(w)
+
+    def _connect(self, name, w):
+        w.textChanged.connect(lambda value: self._on_change(name, value))
 
     def _on_change(self, name, value):
         self._entries[name] = value

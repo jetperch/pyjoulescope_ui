@@ -58,6 +58,7 @@ VIEW_SETTINGS = {
         'dtype': 'str',
         'brief': 'The unique_id for the active view instance.',
         'default': '',
+        'flags': ['hide'],
     },
     'theme': {
         'dtype': 'str',
@@ -101,9 +102,6 @@ class View:
 
     def __init__(self):
         self.name = 'Unnamed view'
-        self._theme = 'js1'
-        self._color_scheme = 'dark'
-        self._colors = None
 
     @property
     def is_active(self):
@@ -155,34 +153,15 @@ class View:
         view._render()
         _log.info('active view %s: setup done', view.unique_id)
 
-    @property
-    def theme(self):
-        return self._theme
-
-    @theme.setter
-    def theme(self, value):
-        self._theme = value
+    def on_setting_theme(self):
         if self.is_active:
             self._render()
 
-    @property
-    def color_scheme(self):
-        return self._color_scheme
-
-    @color_scheme.setter
-    def color_scheme(self, value):
-        self._color_scheme = value
-        self._colors = None
+    def on_setting_color_scheme(self):
         if self.is_active:
             self._render()
 
-    @property
-    def colors(self):
-        return self.colors
-
-    @colors.setter
-    def colors(self, value):
-        self._colors = value
+    def on_setting_colors(self):
         if self.is_active:
             self._render()
 

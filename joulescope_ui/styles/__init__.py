@@ -14,6 +14,6 @@
 
 from .manager import StyleManager, styled_widget
 from .fonts import font_as_qfont, font_as_qss
-from .color_picker import color_as_qcolor
+from .color_picker import color_as_qcolor, color_as_string
 
-__all__ = ['StyleManager', 'styled_widget', 'color_as_qcolor', 'font_as_qfont', 'font_as_qss']
+__all__ = ['StyleManager', 'styled_widget', 'color_as_qcolor', 'color_as_string', 'font_as_qfont', 'font_as_qss']
