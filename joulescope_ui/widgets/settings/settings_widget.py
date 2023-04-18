@@ -195,7 +195,9 @@ class ColorEditorWidget(_GridWidget):
         self._obj = None
         self._topic = None
         self._log = logging.getLogger(__name__ + '.color')
-        self._color_scheme = pubsub_singleton.query('registry/style/settings/color_scheme', default='dark')
+        active_view = pubsub_singleton.query('registry/view/settings/active', default='view')
+        active_view_topic = get_topic_name(active_view)
+        self._color_scheme = pubsub_singleton.query(f'{active_view_topic}/settings/color_scheme', default='dark')
         super().__init__(parent)
         self.setObjectName('color_editor_widget')
         self._color_widgets = []
@@ -253,7 +255,7 @@ class ColorEditorWidget(_GridWidget):
             for color_name, color_value in cls_colors[self._color_scheme].items():
                 colors[color_name] = color_value
         if not isinstance(obj, type):
-            if obj.colors is not None:
+            if obj.colors is not None and obj.colors.get(self._color_scheme) is not None:
                 for key, value in obj.colors[self._color_scheme].items():
                     colors[key] = value
         self._colors = colors
@@ -317,7 +319,9 @@ class FontEditorWidget(_GridWidget):
         self._fonts = None
         self._obj = None
         self._topic = None
-        self._font_scheme = pubsub_singleton.query('registry/style/settings/font_scheme', default='js1')
+        active_view = pubsub_singleton.query('registry/view/settings/active', default='view')
+        active_view_topic = get_topic_name(active_view)
+        self._font_scheme = pubsub_singleton.query(f'{active_view_topic}/settings/font_scheme', default='js1')
         self._log = logging.getLogger(__name__ + '.font')
         self.setObjectName('font_editor_widget')
 
