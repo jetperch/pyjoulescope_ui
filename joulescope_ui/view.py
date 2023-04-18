@@ -311,7 +311,7 @@ class View:
         View._dock_manager = value['dock_manager']
 
     def _render(self):
-        pubsub_singleton.publish('registry/style/actions/!render', get_unique_id(self))
+        pubsub_singleton.publish('registry/style/actions/!render', None)
 
 
 register(View, 'view')

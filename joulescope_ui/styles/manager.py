@@ -281,8 +281,7 @@ def _render_obj(obj, path, theme, color_scheme, font_scheme):
         cls = obj.__class__
     path = os.path.join(path, str_to_filename(obj.unique_id))
     if hasattr(cls, 'unique_id'):
-        if getattr(cls, '_style_cls', None) is None:
-            _render_cls(cls, theme, color_scheme, font_scheme)
+        _render_cls(cls, theme, color_scheme, font_scheme)
         style_cls = cls._style_cls
         if cls_mirror:
             obj.__class__._style_cls = style_cls
@@ -364,7 +363,8 @@ class StyleManager:
         font_scheme = self.pubsub.query(f'{active_view_topic}/settings/font_scheme', default='js1')
         is_styled = _render_obj(obj, self.path, theme, color_scheme, font_scheme)
         children = self.pubsub.query(f'{get_topic_name(obj)}/children', default=[])
-        _log.info('rendered %s in %.3f', value, time.time() - t_start)
+        _log.info('rendered %s [theme=%s, color_scheme=%s, font_scheme=%s], in %.3f',
+                  value, theme, color_scheme, font_scheme, time.time() - t_start)
         for child in children:
             self._render(child)
         if is_styled:
