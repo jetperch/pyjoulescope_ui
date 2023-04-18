@@ -5,19 +5,19 @@ waveform.text_background = #f0f0f0A0
 
 waveform.grid_major = #00000040
 waveform.grid_minor = #80808010
-waveform.plot_separator = #50500060
+waveform.plot_separator = #0000A080
 waveform.plot_border = #00000080
 
 waveform.hover = #202020a0
 
 waveform.summary_trace = #0000A0ff
-waveform.summary_view = #c0c00060
+waveform.summary_view = #0000FF20
 
 # Use blue, magenta, green, yellow
-waveform.trace1 = #0000A0ff
-waveform.trace2 = #A000A0ff
-waveform.trace3 = #00A000ff
-waveform.trace4 = #A0A000ff
+waveform.trace1 = #000080ff
+waveform.trace2 = #800080ff
+waveform.trace3 = #008000ff
+waveform.trace4 = #808000ff
 
 waveform.marker_label = #101010A0
 waveform.marker1 = #40c040A0
