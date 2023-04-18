@@ -22,6 +22,7 @@ notes below for additional usage guidelines.
 * Added record status to status bar.
 * Switched to monochromatic waveform traces. (prep for multiple traces)
 * Added light color scheme.
+* Fixed defect with settings widget not populating current value.
 
 
 ## 1.0.8

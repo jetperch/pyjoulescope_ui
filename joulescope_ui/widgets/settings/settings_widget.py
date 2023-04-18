@@ -177,10 +177,12 @@ class SettingsEditorWidget(_GridWidget):
         widget.currentIndexChanged.connect(lambda idx: pubsub_singleton.publish(topic, options[idx]))
 
         def handle(v):
-            if isinstance(v, str):
-                comboBoxSelectItemByText(widget, v, block=True)
-            elif isinstance(v, int):
+            if v in values:
                 widget.setCurrentIndex(values.index(v))
+            elif v in options:
+                widget.setCurrentIndex(options.index(v))
+            else:
+                raise ValueError(f'Unable to match {v} in {values} or {options}')
 
         self._subscribe(topic, handle)
         return widget
