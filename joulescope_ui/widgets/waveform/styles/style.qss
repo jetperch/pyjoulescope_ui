@@ -66,3 +66,20 @@ QPushButton#pin_right:checked       { image: url("{% path %}/pin_right_pressed.s
 QPushButton#y_zoom_all:disabled      { image: url("{% path %}/y_zoom_all_disabled.svg"); }
 QPushButton#y_zoom_all:enabled       { image: url("{% path %}/y_zoom_all_enabled.svg"); }
 QPushButton#y_zoom_all:enabled:hover { image: url("{% path %}/y_zoom_all_hover.svg"); }
+
+
+QLabel#WaveformSingleSourceColor_0 {
+    background-color: {% waveform.trace1 %};
+}
+
+QLabel#WaveformSingleSourceColor_1 {
+    background-color: {% waveform.trace2 %};
+}
+
+QLabel#WaveformSingleSourceColor_2 {
+    background-color: {% waveform.trace3 %};
+}
+
+QLabel#WaveformSingleSourceColor_3 {
+    background-color: {% waveform.trace4 %};
+}

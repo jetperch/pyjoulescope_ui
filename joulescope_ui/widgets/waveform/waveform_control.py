@@ -201,7 +201,7 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._signals = {}
         for signal in _SIGNALS:
             self._add_signal(signal)
-#
+
         self._spacer = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding,
                                              QtWidgets.QSizePolicy.Minimum)
         self._layout.addItem(self._spacer)

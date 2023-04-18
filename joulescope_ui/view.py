@@ -65,6 +65,7 @@ VIEW_SETTINGS = {
         'brief': N_('The active theme.'),
         'default': 'js1',
         'options': [['js1', N_('Joulescope standard theme')], ['system', N_('System OS-specific theme')]],
+        'flags': ['hide'],
     },
     'color_scheme': {
         'dtype': 'str',
