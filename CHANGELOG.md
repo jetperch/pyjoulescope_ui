@@ -11,7 +11,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 Improves upon 1.0.7 but still alpha quality.  See the 1.0.0 release
 notes below for additional usage guidelines.
 
-2023 Apr 19 [in progress]
+2023 Apr 19
 
 * Improved pyjoulescope_driver stability (version 1.3.3).
 * Improved firmware update.
