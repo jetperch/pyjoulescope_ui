@@ -534,6 +534,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._signals_rsp_id_next = 2  # reserve 1 for summary
         self._signals_data = {}
         self._marker_data = {}  # rsp_id -> data,
+        self._subsource_order = []
 
         self._refresh_timer = QtCore.QTimer()
         self._refresh_timer.setTimerType(QtGui.Qt.PreciseTimer)
@@ -604,7 +605,7 @@ class WaveformWidget(QtWidgets.QWidget):
             if item in plot['signals']:
                 plot['signals'].remove(item)
         if item in self._signals:
-            self._signals[item]['enabled'] = False
+            del self._signals[item]
         self._repaint_request = True
 
     def is_signal_active(self, source_signal):
@@ -1121,6 +1122,15 @@ class WaveformWidget(QtWidgets.QWidget):
             trace.setWidth(self.trace_width)
         return self._style_cache
 
+    def _subsource_order_update(self):
+        sources = set()
+        for (source_id, signal_id), signal in self._signals.items():
+            if not signal['enabled']:
+                continue
+            subsource = signal_id.split('.')[0]
+            sources.add(f'{source_id}/{subsource}')
+        self._subsource_order = list(sources)
+
     def _plot_range_auto_update(self, plot):
         if plot['range_mode'] != 'auto':
             return
@@ -1292,6 +1302,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._draw_markers_background(p)
 
         # Draw each plot
+        self._subsource_order_update()
         for plot in self.state['plots']:
             if plot['enabled']:
                 self._draw_plot(p, plot)
@@ -1536,7 +1547,8 @@ class WaveformWidget(QtWidgets.QWidget):
         p.setClipRect(x0, y0, w, h)
 
         for signal in plot['signals']:
-            trace_idx = 0
+            subsource = f'{signal[0]}/{signal[1].split(".")[0]}'
+            trace_idx = self._subsource_order.index(subsource)
             d = self._signals.get(signal)
             if d is None:
                 continue
