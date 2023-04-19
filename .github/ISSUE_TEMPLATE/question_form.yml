@@ -5,7 +5,7 @@ labels: ["question", "triage"]
 assignees:
   - mliberty1
 body:
-  - type: input
+  - type: dropdown
     id: Joulescope-model
     attributes:
       label: Joulescope model

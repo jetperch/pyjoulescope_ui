@@ -8,7 +8,7 @@ body:
   - type: markdown
     attributes:
       value: Thanks for taking the time to fill out this bug report!
-  - type: input
+  - type: dropdown
     id: Joulescope-model
     attributes:
       label: Joulescope model
