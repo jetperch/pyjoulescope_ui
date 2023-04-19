@@ -1547,14 +1547,14 @@ class WaveformWidget(QtWidgets.QWidget):
         p.setClipRect(x0, y0, w, h)
 
         for signal in plot['signals']:
-            subsource = f'{signal[0]}/{signal[1].split(".")[0]}'
-            trace_idx = self._subsource_order.index(subsource)
             d = self._signals.get(signal)
-            if d is None:
+            if d is None or not d['enabled']:
                 continue
             sig_d = self._signals_data.get(signal)
             if sig_d is None:
                 continue
+            subsource = f'{signal[0]}/{signal[1].split(".")[0]}'
+            trace_idx = self._subsource_order.index(subsource)
             d = sig_d['data']
             d_x = self._x_map.time64_to_counter(d['x'])
             if len(d_x) == w:
