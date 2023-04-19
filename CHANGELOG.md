@@ -24,6 +24,8 @@ notes below for additional usage guidelines.
 * Added light color scheme.
 * Fixed defect with settings widget not populating current value.
 * Fixed waveform widget to work with device open/close & insert/remove.
+* Fixed pubsub reregister for class properties.
+* Fixed multimeter not respected default source.
 
 
 ## 1.0.8

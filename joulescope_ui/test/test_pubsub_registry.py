@@ -404,3 +404,53 @@ class TestRegistryClassSettings(unittest.TestCase):
                 obj.param1 = 'no_pub'
                 self.assertEqual([], calls)
                 p.unsubscribe(prefix, on_value)
+
+
+class DynamicCapabilities:
+    CAPABILITIES = ['cls']
+
+    def __init__(self):
+        self.CAPABILITIES = ['obj']
+
+
+class TestDynamicCapabilities(unittest.TestCase):
+
+    def setUp(self):
+        self.calls = []
+        self.p = PubSub()
+        self.p.registry_initialize()
+        for cap in ['cls', 'obj', '1', '2', '3']:
+            self.p.register_capability(cap)
+            self.p.subscribe(f'registry_manager/capabilities/{cap}/list', self.on_cap_list, ['pub'])
+
+    def tearDown(self) -> None:
+        pass
+
+    def on_cap_list(self, topic, value):
+        self.calls.append((topic, value))
+
+    def test_static(self):
+        self.p.register(DynamicCapabilities)
+        self.assertEqual([('registry_manager/capabilities/cls/list', ['DynamicCapabilities'])], self.calls)
+        self.calls.clear()
+        obj = DynamicCapabilities()
+
+        self.p.register(obj, 'caps')
+        self.assertEqual([('registry_manager/capabilities/obj/list', ['caps'])], self.calls)
+        self.calls.clear()
+
+        self.p.capabilities_append(obj, ['1', '2'])
+        expect = [
+            ('registry_manager/capabilities/1/list', ['caps']),
+            ('registry_manager/capabilities/2/list', ['caps'])
+        ]
+        self.assertEqual(expect, self.calls)
+        self.calls.clear()
+
+        self.p.capabilities_remove(obj, ['1'])
+        self.assertEqual([('registry_manager/capabilities/1/list', [])], self.calls)
+        self.calls.clear()
+
+        self.p.capabilities_append(obj, ['1'])
+        self.assertEqual([('registry_manager/capabilities/1/list', ['caps'])], self.calls)
+        self.calls.clear()

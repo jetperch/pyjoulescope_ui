@@ -538,15 +538,22 @@ class _BaseWidget(QtWidgets.QWidget):
         for topic, fn in self._subscribers:
             pubsub_singleton.subscribe(topic, fn, ['pub', 'retain'])
 
-    def closeEvent(self, event):
+    def on_pubsub_unregister(self):
+        self._pubsub_disconnect()
+
+    def _pubsub_disconnect(self):
         self._disconnect()
+        for topic, fn in self._subscribers:
+            pubsub_singleton.unsubscribe(topic, fn)
+        self._subscribers.clear()
         self._statistics = None
+
+    def closeEvent(self, event):
+        self._pubsub_disconnect()
         return super().closeEvent(event)
 
     def _disconnect(self):
         pubsub_singleton.unsubscribe_all(self._on_statistics_fn)
-        for topic, fn in self._subscribers:
-            pubsub_singleton.unsubscribe(topic, fn)
         self.repaint()
 
     @property
