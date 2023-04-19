@@ -495,6 +495,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         for name in self._DEVICE_SETTINGS.keys():
             if name.endswith('/enable'):
                 pubsub_singleton.publish(f'{topic_base}/{name}', False)
+        pubsub_singleton.publish(f'{topic_base}/state_req', 0)
         for name, meta in self._DEVICE_SETTINGS.items():
             meta = Metadata(meta)
             value = meta.default
