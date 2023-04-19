@@ -9,15 +9,15 @@ body:
     attributes:
       value: Thanks for taking the time to share your ideas!
   - type: input
-    id: source
+    id: Joulescope-model
     attributes:
-      label: Joulescope-model
+      label: Joulescope model
       description: Enter the Joulescope model connected to your computer.
       multiple: true
       options:
         - JS220
         - JS110
-        - other / not applicable
+        - other
   - type: dropdown
     id: version
     attributes:
