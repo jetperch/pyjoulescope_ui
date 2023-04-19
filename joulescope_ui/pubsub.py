@@ -49,7 +49,8 @@ ACTION_PREFIX = 'on_action_'
 CALLBACK_PREFIX = 'on_callback_'
 SETTING_PREFIX = 'on_setting_'
 EVENT_PREFIX = 'on_event_'
-_PUBSUB_ATTR = '__pubsub__'
+_PUBSUB_CLS_ATTR = '__pubsub_cls__'
+_PUBSUB_OBJ_ATTR = '__pubsub_obj__'
 
 
 class PUBSUB_TOPICS:  # todo
@@ -69,6 +70,10 @@ class REGISTRY_MANAGER_TOPICS:
     REGISTRY_REMOVE = 'registry_manager/actions/registry/!remove'
     CAPABILITIES = f'registry_manager/capabilities'
     NEXT_UNIQUE_ID = f'registry_manager/next_unique_id'
+
+
+def _pubsub_attr(x):
+    return _PUBSUB_CLS_ATTR if isinstance(x, type) else _PUBSUB_OBJ_ATTR
 
 
 def get_unique_id(obj):
@@ -333,7 +338,7 @@ class _Setting:
     * instance attribute
     * on_setting_{name} function
 
-    This relies upon the class already having the _PUBSUB_ATTR
+    This relies upon the class already having the _PUBSUB_CLS_ATTR
     attribute initialized with 'setting_cls' dict.
 
     This data descriptor intentionally using __init__ rather
@@ -349,7 +354,7 @@ class _Setting:
         self._log = logging.getLogger(f'{__name__}.Setting.{self.attr_name}')
         if hasattr(cls, name):
             self.item = cls.__dict__[name]
-        cls.__dict__[_PUBSUB_ATTR]['setting_cls'][self.name] = self
+        cls.__dict__[_PUBSUB_CLS_ATTR]['setting_cls'][self.name] = self
         setattr(cls, name, self)
 
     # def __set_name__(self, owner, name):
@@ -357,7 +362,7 @@ class _Setting:
     def __get__(self, obj, objtype=None):
         if obj is None:
             raise AttributeError(f'{self.name}')
-        attr = obj.__class__.__dict__[_PUBSUB_ATTR]['setting_cls']
+        attr = obj.__class__.__dict__[_PUBSUB_CLS_ATTR]['setting_cls']
         if self.name in attr:
             item = attr[self.name]
             if isinstance(item, property) and item.fget is not None:
@@ -369,14 +374,15 @@ class _Setting:
     def __set__(self, obj, value):
         self._set(obj, value)
         try:
-            unique_id = obj.__dict__[_PUBSUB_ATTR]['unique_id']
+            unique_id = obj.__dict__[_PUBSUB_OBJ_ATTR]['unique_id']
         except KeyError:
             return
         self.pubsub.publish(f'registry/{unique_id}/settings/{self.name}', value)
 
     def _set(self, obj, value):
-        if _PUBSUB_ATTR in obj.__class__.__dict__:
-            attr = obj.__class__.__dict__[_PUBSUB_ATTR]
+        cls = obj.__class__
+        if _PUBSUB_CLS_ATTR in cls.__dict__:
+            attr = cls.__dict__[_PUBSUB_CLS_ATTR]
             if 'setting_cls' in attr:
                 attr = attr['setting_cls']
                 if self.name in attr:
@@ -392,10 +398,10 @@ class _Setting:
 
     def on_publish(self, obj, pubsub, topic: str, value):
         self._set(obj, value)
-        if _PUBSUB_ATTR not in obj.__dict__:
+        if _PUBSUB_OBJ_ATTR not in obj.__dict__:
             self._log.warning('on_publish but no __pubsub__ attr')
             return
-        attr = obj.__dict__[_PUBSUB_ATTR]
+        attr = obj.__dict__[_PUBSUB_OBJ_ATTR]
         if 'setting' not in attr:
             self._log.warning('on_publish but no setting attr')
             return
@@ -1082,7 +1088,8 @@ class PubSub:
         :type unique_id: str, optional
         :param parent: The optional parent unique_id, topic, or object.
         """
-        if _PUBSUB_ATTR in obj.__dict__ and len(obj.__dict__[_PUBSUB_ATTR]):
+        pubsub_attr = _pubsub_attr(obj)
+        if pubsub_attr in obj.__dict__ and len(obj.__dict__[pubsub_attr]):
             self._log.info('Duplicate registration for %s', obj)
             if parent is not None:
                 self._parent_add(obj, parent)
@@ -1100,7 +1107,7 @@ class PubSub:
                 unique_id = f'{cls_unique_id}:{v:08x}'
         else:
             unique_id = get_unique_id(unique_id)
-        setattr(obj, _PUBSUB_ATTR, {
+        setattr(obj, pubsub_attr, {
             'unique_id': unique_id,
             'functions': {},    # topic: callable
             'setting_cls': {},  # topic: object, for existing class attribute
@@ -1108,7 +1115,7 @@ class PubSub:
         })
         if not isinstance(obj, type):
             cls = obj.__class__
-            if _PUBSUB_ATTR not in cls.__dict__ or not len(cls.__dict__[_PUBSUB_ATTR]):
+            if _PUBSUB_CLS_ATTR not in cls.__dict__ or not len(cls.__dict__[_PUBSUB_CLS_ATTR]):
                 self.register(cls, cls.__name__ + '.class')
         self._log.info('register(unique_id=%s, obj=%s) start', unique_id, obj)
         doc = obj.__doc__
@@ -1141,7 +1148,7 @@ class PubSub:
                             Metadata(dtype='obj', brief='list of unique ids for children', default=[]))
 
         self._register_events(obj, unique_id)
-        self._register_functions(obj, unique_id)
+        self._register_functions(obj, unique_id)  # on_action and on_callback, but not on_setting
         self._register_settings_create(obj, unique_id)
         obj.pubsub = self
         obj.unique_id = unique_id
@@ -1190,7 +1197,8 @@ class PubSub:
             self.topic_add(f'{topic_name}/events/{event}', meta, exists_ok=True)
 
     def _register_functions(self, obj, unique_id: str):
-        functions = obj.__dict__[_PUBSUB_ATTR]['functions']
+        pubsub_attr = _pubsub_attr(obj)
+        functions = obj.__dict__[pubsub_attr]['functions']
         topic_name = get_topic_name(unique_id)
         if isinstance(obj, type):
             while obj != object:
@@ -1231,7 +1239,7 @@ class PubSub:
                 cls = cls.__base__
 
     def _unregister_functions(self, obj, unique_id: str = None):
-        functions = obj.__dict__[_PUBSUB_ATTR].pop('functions')
+        functions = obj.__dict__[_pubsub_attr(obj)].pop('functions')
         settings_topic = f'{obj.topic}/settings/'
         while len(functions):
             topic, fn = functions.popitem()
@@ -1251,7 +1259,7 @@ class PubSub:
                 meta = Metadata(meta)
                 if not isinstance(obj, type) and 'noinit' not in meta.flags:
                     # attempt to set instance default value from class
-                    cls_unique_id = obj.__class__.__dict__[_PUBSUB_ATTR]['unique_id']
+                    cls_unique_id = obj.__class__.__dict__[_PUBSUB_CLS_ATTR]['unique_id']
                     cls_topic = get_topic_name(cls_unique_id)
                     if cls_topic in self:
                         try:
@@ -1275,7 +1283,7 @@ class PubSub:
                 self._setting_connect(obj, topic_name, setting_name)
 
     def _setting_cls_connect(self, cls, topic_name, setting_name):
-        functions = cls.__dict__[_PUBSUB_ATTR]['functions']
+        functions = cls.__dict__[_PUBSUB_CLS_ATTR]['functions']
         cls_fn_name = f'{CLS_SETTING_PREFIX}{subtopic_to_name(setting_name)}'
         if hasattr(cls, cls_fn_name):
             fn = getattr(cls, cls_fn_name)
@@ -1283,10 +1291,10 @@ class PubSub:
             functions[topic_name] = fn
 
     def _setting_connect(self, obj, topic_name, setting_name):
-        functions = obj.__dict__[_PUBSUB_ATTR]['functions']
+        functions = obj.__dict__[_PUBSUB_OBJ_ATTR]['functions']
         cls = obj.__class__
-        cls_attr = cls.__dict__[_PUBSUB_ATTR]
-        if setting_name not in cls_attr:
+        cls_attr = cls.__dict__[_PUBSUB_CLS_ATTR]
+        if setting_name not in cls_attr['setting_cls']:
             _Setting(self, cls, setting_name)
         setting = cls_attr['setting_cls'][setting_name]
         fn = setting.on_publish_factory(obj)
@@ -1383,13 +1391,20 @@ class PubSub:
         # settings unsubscribe handled by _unregister_functions
         self._unregister_functions(obj, unique_id)
         self._cmd_topic_remove({'topic': instance_topic_name})  # skip undo, do not want instance in undo list
-        delattr(obj, _PUBSUB_ATTR)
-        # obj.__dict__[_PUBSUB_ATTR].clear()
+        if isinstance(obj, type):
+            self._unregister_class_settings(obj)
+        delattr(obj, _pubsub_attr(obj))
         del obj.unique_id
         del obj.topic
         del obj.pubsub
         if bool(delete):
             self._unregister_delete(obj, unique_id)
+
+    def _unregister_class_settings(self, cls):
+        attr = cls.__dict__[_PUBSUB_CLS_ATTR]
+        for setting, v in attr['setting_cls'].items():
+            if v.item is not None:
+                setattr(cls, setting, v.item)
 
     @_immediate
     def capabilities_append(self, spec, capabilities):

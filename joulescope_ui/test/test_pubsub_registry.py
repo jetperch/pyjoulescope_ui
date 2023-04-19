@@ -271,7 +271,7 @@ class TestRegistrySubclass(unittest.TestCase):
         self.assertEqual([['sub_action_view1', 'v1'], ['action_view2', 'v2']], c.calls)
 
 
-class SimpleClass:
+class SettingsClass:
 
     SETTINGS = {
         'name': {
@@ -282,7 +282,7 @@ class SimpleClass:
         'param1': {
             'dtype': 'str',
             'brief': 'My first simple parameter',
-            'default': 'param1_default',
+            'default': 'param1_default_in_settings',
         },
         'param2': {
             'dtype': 'str',
@@ -294,69 +294,113 @@ class SimpleClass:
             'brief': 'My third parameter with no defs',
             'default': 'param3_default',
         },
+        'param4': {
+            'dtype': 'str',
+            'brief': 'My fourth parameter with function',
+            'default': 'param4_default',
+        },
     }
 
     def __init__(self):
         self.name = 'instance name'         # assignment ignored, but makes IDEs happy
         self.param1 = 'instance param1'     # assignment ignored, but makes IDEs happy
-        self._param2 = 'instance param2'    # assignment ignored, but makes IDEs happy
+        self.param2_value = 'instance param2'    # assignment ignored, but makes IDEs happy
+        self.param4_value = 'instance param4'
         # param3 not defined here, generated automatically
 
     @property
     def param2(self):
-        return self._param2
+        return self.param2_value
 
     @param2.setter
     def param2(self, value):
-        self._param2 = value
+        self.param2_value = value
+
+    def on_setting_param4(self, value):
+        self.param4_value = value
 
 
-class TestRegistryForSimpleClass(unittest.TestCase):
+class TestRegistryClassSettings(unittest.TestCase):
 
-    def setUp(self):
-        self.p = PubSub()
-        self.p.registry_initialize()
-        self.calls = []
+    def test_settings(self):
+        p = PubSub()
+        calls = []
+        p.registry_initialize()
+        p.register(SettingsClass)
 
-    def teardown(self):
-        self.p.unregister(SimpleClass)
+        for iteration in range(5):
+            with self.subTest(iteration=iteration):
+                if iteration >= 3:
+                    p.unregister(SettingsClass, delete=(iteration == 4))
+                    p.register(SettingsClass)
 
-    def on_value(self, topic, value):
-        self.calls.append([topic, value])
+                # change class default topic
+                param1_cls_topic = f'registry/{SettingsClass.unique_id}/settings/param1'
+                p.publish(param1_cls_topic, 'param1_default')
 
-    def test_settings_simple(self):
-        self.p.register(SimpleClass)
-        param1_cls_topic = f'registry/{SimpleClass.unique_id}/settings/param1'
-        self.assertEqual('param1_default', self.p.query(param1_cls_topic))
-        self.p.publish(param1_cls_topic, 'new_value')
+                obj = SettingsClass()
+                p.register(obj, 'obj')
+                prefix = f'registry/{obj.unique_id}/settings'
 
-        # instance
-        obj = SimpleClass()
-        self.p.register(obj)
-        prefix = f'registry/{obj.unique_id}/settings'
-        self.p.subscribe(prefix, self.on_value, ['pub'])
-        self.assertEqual('new_value', obj.param1)
-        self.assertEqual('param2_default', obj.param2)
-        self.assertEqual('param3_default', obj.param3)
-        self.assertEqual([], self.calls)
-        obj.param1 = 'p1'
-        obj.param2 = 'p2'
-        obj.param3 = 'p3'
-        expect = [
-            [f'{prefix}/param1', 'p1'],
-            [f'{prefix}/param2', 'p2'],
-            [f'{prefix}/param3', 'p3']
-        ]
-        self.assertEqual(expect, self.calls)
-        self.calls.clear()
-        self.p.publish(f'{prefix}/param1', 'v1')
-        self.p.publish(f'{prefix}/param2', 'v2')
-        self.p.publish(f'{prefix}/param3', 'v3')
-        self.assertEqual('v1', obj.param1)
-        self.assertEqual('v2', obj.param2)
-        self.assertEqual('v3', obj.param3)
+                def on_value(topic, value):
+                    calls.append([topic, value])
 
-        self.p.unregister(obj)
-        self.calls.clear()
-        obj.param1 = 'no_pub'
-        self.assertEqual([], self.calls)
+                if iteration in [0, 2]:
+                    self.assertEqual('param1_default', obj.param1)
+                    self.assertEqual('param2_default', obj.param2)
+                    self.assertEqual('param2_default', obj.param2_value)
+                    self.assertEqual('param3_default', obj.param3)
+                    self.assertEqual('param4_default', obj.param4_value)
+                else:
+                    self.assertEqual('1', obj.param1)
+                    self.assertEqual('2', obj.param2)
+                    self.assertEqual('2', obj.param2_value)
+                    self.assertEqual('3', obj.param3)
+                    self.assertEqual('4', obj.param4_value)
+
+                for i in range(1, 5):
+                    self.assertEqual(getattr(obj, f'param{i}'), p.query(f'{prefix}/param{i}'))
+
+                # instance
+                p.subscribe(prefix, on_value, ['pub'])
+                self.assertEqual([], calls)
+                obj.param1 = 'p1'
+                obj.param2 = 'p2'
+                obj.param3 = 'p3'
+                obj.param4 = 'p4'
+                expect = [
+                    [f'{prefix}/param1', 'p1'],
+                    [f'{prefix}/param2', 'p2'],
+                    [f'{prefix}/param3', 'p3'],
+                    [f'{prefix}/param4', 'p4'],
+                ]
+                self.assertEqual(expect, calls)
+                calls.clear()
+
+                # Set from pubsub
+                p.publish(f'{prefix}/param1', 'v1')
+                p.publish(f'{prefix}/param2', 'v2')
+                p.publish(f'{prefix}/param3', 'v3')
+                p.publish(f'{prefix}/param4', 'v4')
+                self.assertEqual('v1', obj.param1)
+                self.assertEqual('v2', obj.param2_value)
+                self.assertEqual('v3', obj.param3)
+                self.assertEqual('v4', obj.param4_value)
+
+                # Set from instance
+                obj.param1 = '1'
+                obj.param2 = '2'
+                obj.param3 = '3'
+                obj.param4 = '4'
+                self.assertEqual('1', p.query(f'{prefix}/param1'))
+                self.assertEqual('2', p.query(f'{prefix}/param2'))
+                self.assertEqual('2', obj.param2_value)
+                self.assertEqual('3', p.query(f'{prefix}/param3'))
+                self.assertEqual('4', p.query(f'{prefix}/param4'))
+                self.assertEqual('4', obj.param4_value)
+
+                p.unregister(obj, delete=(iteration == 1))
+                calls.clear()
+                obj.param1 = 'no_pub'
+                self.assertEqual([], calls)
+                p.unsubscribe(prefix, on_value)
