@@ -6,19 +6,25 @@ assignees:
   - mliberty1
 body:
   - type: input
-    id: Joulescope-SN
+    id: source
     attributes:
-      label: Joulescope serial number
-      description: Please copy serial number in back of Joulescope
+      label: Joulescope-model
+      description: Enter the Joulescope model connected to your computer.
+      multiple: true
+      options:
+        - JS220
+        - JS110
+        - other / not applicable
   - type: dropdown
     id: version
     attributes:
       label: UI version
       description: What version of our software are you running?
       options:
-        - 1.0.0
+        - 1.0.9
         - 0.10.13
         - 0.9.11
+        - other
     validations:
       required: true
   - type: textarea
