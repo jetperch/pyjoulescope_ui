@@ -188,11 +188,11 @@ _SETTINGS_CLASS = {
             Configure the JS220's voltage range.  Most applications should
             use the default, "auto"."""),
         'options': [
-            # [-1, 'auto'],
+            [-1, 'auto'],
             [0, '15 V'],
             [1, '2 V'],
         ],
-        'default': 0,   # todo -1,
+        'default': -1,
     },
     'trigger_dir': {
         'dtype': 'int',
@@ -321,6 +321,10 @@ _SIGNALS = {
         'brief': N_('Current Range'),
         'detail': N_("""\
             Enable the streaming for the selected current range.
+            
+            ⚠ When enabled, no more than 3 GPIO signals (0, 1, 2, 3, T)
+            may be enabled.  If you attempt to enable too many signals,
+            then the UI will display no data for any signal.
     
             The current range is useful for understanding how your Joulescope
             autoranges to measure your current signal.  It can also be helpful
