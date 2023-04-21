@@ -877,8 +877,8 @@ class WaveformWidget(QtWidgets.QWidget):
                 y = np.unpackbits(y, bitorder='little')[:len(x)]
             elif data_type == 'u4':
                 d = np.empty(len(y) * 2, dtype=np.uint8)
-                d[0::2] = np.logical_and(y, 0x0f)
-                d[1::2] = np.logical_and(np.right_shift(y, 4), 0x0f)
+                d[0::2] = np.bitwise_and(y, 0x0f)
+                d[1::2] = np.bitwise_and(np.right_shift(y, 4), 0x0f)
                 y = d[:len(x)]
             else:
                 self._log.warning('Unsupported sample data type: %s', data_type)

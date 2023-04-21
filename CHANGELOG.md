@@ -4,6 +4,18 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 1.0.10
+
+<span style="color:yellow">⚠ ALPHA RELEASE - USE WITH CAUTION ⚠</span> 
+
+Continued improvements but still alpha quality.  See the 1.0.0 release
+notes below for additional usage guidelines.
+
+2023 Apr 21 [in progress]
+
+* Fixed current range constrained to 0 or 1 at high zoom levels.
+
+
 ## 1.0.9
 
 <span style="color:yellow">⚠ ALPHA RELEASE - USE WITH CAUTION ⚠</span> 
