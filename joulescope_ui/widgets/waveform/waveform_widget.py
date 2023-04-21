@@ -609,7 +609,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._repaint_request = True
 
     def is_signal_active(self, source_signal):
-        if not self._signals[source_signal]['enabled']:
+        if source_signal not in self._signals:
             return False
         for plot in self.state['plots']:
             if not plot['enabled']:
@@ -717,7 +717,6 @@ class WaveformWidget(QtWidgets.QWidget):
         return None
 
     def _on_signal_range(self, topic, value):
-        # self._log.info('_on_signal_range(%s, %s)', topic, value)
         if value is None:
             return
         value = value['utc']
@@ -725,11 +724,16 @@ class WaveformWidget(QtWidgets.QWidget):
         source = topic_parts[1]
         signal_id = topic_parts[-2]
         item = (source, signal_id)
+        if value == [0, 0]:  # no data
+            self._log.info('_on_signal_range(%s, %s) remove', topic, value)
+            self._signals.pop(item, None)
+            self._repaint_request = True
+            return
         d = self._signals.get(item)
         if d is None:
+            self._log.info('_on_signal_range(%s, %s) add', topic, value)
             d = {
                 'item': item,
-                'enabled': True,
                 'source': source,
                 'signal_id': signal_id,
                 'rsp_id': self._signals_rsp_id_next,
@@ -738,11 +742,10 @@ class WaveformWidget(QtWidgets.QWidget):
             self._signals[item] = d
             self._signals_by_rsp_id[self._signals_rsp_id_next] = d
             self._signals_rsp_id_next += 1
-        d['enabled'] = True
         if value != d['range']:
             d['range'] = value
             d['changed'] = time.time()
-            self._repaint_request |= self.is_signal_active(item)
+            self._repaint_request = True
         return None
 
     def _on_refresh_timer(self):
@@ -1125,8 +1128,6 @@ class WaveformWidget(QtWidgets.QWidget):
     def _subsource_order_update(self):
         sources = set()
         for (source_id, signal_id), signal in self._signals.items():
-            if not signal['enabled']:
-                continue
             subsource = signal_id.split('.')[0]
             sources.add(f'{source_id}/{subsource}')
         self._subsource_order = list(sources)
@@ -1548,7 +1549,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
         for signal in plot['signals']:
             d = self._signals.get(signal)
-            if d is None or not d['enabled']:
+            if d is None:
                 continue
             sig_d = self._signals_data.get(signal)
             if sig_d is None:
