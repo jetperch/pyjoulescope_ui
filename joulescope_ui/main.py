@@ -49,6 +49,30 @@ _software_update = None
 _config_clear = None
 
 
+_SETTINGS = {
+    'changelog_version_show': {
+        'dtype': 'str',
+        'brief': 'The version for the last changelog show',
+        'default': '__default__',
+        'flags': ['hide'],
+    },
+    'status_bar': {
+        'dtype': 'str',
+        'brief': N_('The UI status bar display mode'),
+        'detail': N_('''\
+            This setting controls the amount of detail shown on
+            the status bar at the bottom of the UI window.
+            You should usually leave this set to "normal" unless
+            you want more detail concerning the UI internal operation.'''),
+        'options': [
+            ['normal', N_('Normal')],
+            ['troubleshoot', N_('Troubleshoot')],
+        ],
+        'default': 'normal',
+    },
+}
+
+
 _PUBSUB_UTILIZATION_TOOLTIP = tooltip_format(
     N_('PubSub utilization'),
     N_("""\
@@ -144,20 +168,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self._pubsub_process_count_last = self._pubsub.process_count
         self._shortcuts = Shortcuts(self)
         self.SETTINGS = style_settings(N_('UI'))
-        self.SETTINGS['changelog_version_show'] = {
-            'dtype': 'str',
-            'brief': 'The version for the last changelog show',
-            'default': '__default__',
-        }
-        self._pubsub.register(self, 'ui', parent=None)
+        for key, value in _SETTINGS.items():
+            self.SETTINGS[key] = value
         self._app = App().register()
         self._paths = Paths().register()
         self.resize(800, 600)
         self._icon = QtGui.QIcon()
         self._icon.addFile(u":/icon_64x64.ico", QtCore.QSize(), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setWindowIcon(self._icon)
-        self._style_manager = StyleManager()
-        self._pubsub.register(self._style_manager, 'style')
 
         self._blink_count = 0
         self._blink_timer = QtCore.QTimer()
@@ -202,6 +220,20 @@ class MainWindow(QtWidgets.QMainWindow):
         self._dock_manager = QtAds.CDockManager(self._dock_widget)
         self._dock_manager.setStyleSheet("")
         self._dock_layout.addWidget(self._dock_manager)
+
+        self._pubsub_utilization = QtWidgets.QLabel(self._status_bar)
+        self._pubsub_utilization.setToolTip(_PUBSUB_UTILIZATION_TOOLTIP)
+        self._status_bar.addPermanentWidget(self._pubsub_utilization)
+        self._cpu_utilization = QtWidgets.QLabel(self._status_bar)
+        self._cpu_utilization.setToolTip(_CPU_UTILIZATION_TOOLTIP)
+        self._status_bar.addPermanentWidget(self._cpu_utilization)
+        self._mem_utilization = QtWidgets.QLabel(self._status_bar)
+        self._mem_utilization.setToolTip(_MEMORY_UTILIZATION_TOOLTIP)
+        self._status_bar.addPermanentWidget(self._mem_utilization)
+
+        self._pubsub.register(self, 'ui', parent=None)
+        self._style_manager = StyleManager()
+        self._pubsub.register(self._style_manager, 'style')
 
         self._pubsub.publish('registry/view/actions/!ui_connect', {
             'ui': self,
@@ -301,17 +333,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self._pubsub.publish('registry/style/actions/!render', None)
         self._pubsub.process()
 
-        self._pubsub_utilization = QtWidgets.QLabel(self._status_bar)
-        self._pubsub_utilization.setToolTip(_PUBSUB_UTILIZATION_TOOLTIP)
-        self._status_bar.addPermanentWidget(self._pubsub_utilization)
         self._process_monitor = ProcessMonitor(self)
         self._process_monitor.update.connect(self._on_process_monitor)
-        self._cpu_utilization = QtWidgets.QLabel(self._status_bar)
-        self._cpu_utilization.setToolTip(_CPU_UTILIZATION_TOOLTIP)
-        self._status_bar.addPermanentWidget(self._cpu_utilization)
-        self._mem_utilization = QtWidgets.QLabel(self._status_bar)
-        self._mem_utilization.setToolTip(_MEMORY_UTILIZATION_TOOLTIP)
-        self._status_bar.addPermanentWidget(self._mem_utilization)
 
         self._shortcuts.add(QtGui.QKeySequence.Undo, UNDO_TOPIC, None)
         self._shortcuts.add(QtGui.QKeySequence.Redo, REDO_TOPIC, None)
@@ -332,6 +355,12 @@ class MainWindow(QtWidgets.QMainWindow):
             self._pubsub.publish(topic, __version__)
             self._pubsub.publish('registry/help_html/actions/!show', 'changelog')
         self.resync_request()
+
+    def on_setting_status_bar(self, value):
+        visible = (value != 'normal')
+        self._pubsub_utilization.setVisible(visible)
+        self._cpu_utilization.setVisible(visible)
+        self._mem_utilization.setVisible(visible)
 
     def _center(self, resize=None):
         screen = self.screen()

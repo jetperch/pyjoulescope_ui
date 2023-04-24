@@ -11,11 +11,12 @@ This file contains the list of changes made to pyjoulescope_ui.
 Continued improvements but still alpha quality.  See the 1.0.0 release
 notes below for additional usage guidelines.
 
-2023 Apr 21 [in progress]
+2023 Apr 24 [in progress]
 
 * Fixed current range constrained to 0 or 1 at high zoom levels.
-* Updated to pyjoulescope_driver 1.3.4.
+* Updated to pyjoulescope_driver 1.3.4 and sensor FPGA 1.0.4.
 * Fixed Memory Widget "Clear" not clearing when streaming is paused.
+* Hide status bar troubleshooting details by default.
 
 
 ## 1.0.9

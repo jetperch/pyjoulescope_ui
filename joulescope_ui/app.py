@@ -27,7 +27,7 @@ _DEFAULT_CAPABILITIES = {
 SETTINGS = {
     'name': {
         'dtype': 'str',
-        'brief': N_('The name for this widget.'),
+        'brief': N_('The name for this application.'),
         'default': N_('app'),
     },
     'target_power': {

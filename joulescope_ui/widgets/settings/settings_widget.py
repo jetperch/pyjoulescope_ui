@@ -25,6 +25,7 @@ import logging
 
 
 _NAME = N_('Settings')
+_STYLE_AVOID = ['ui']  # list of unique_id values to not display style info
 
 
 class _GridWidget(QtWidgets.QWidget):
@@ -244,13 +245,15 @@ class ColorEditorWidget(_GridWidget):
         if obj is None:
             self._obj = None
             return
-        self._obj = obj
+        if obj.unique_id in _STYLE_AVOID:
+            return
         if not hasattr(obj, 'style_obj') or obj.style_obj is None:
             return
+        self._obj = obj
         self._topic = get_topic_name(obj)
         cls = obj.__class__
         colors = copy.deepcopy(cls._style_cls['load']['colors'][self._color_scheme])
-        cls_colors = pubsub_singleton.query(f'{get_topic_name(obj.__class__)}/settings/colors')
+        cls_colors = pubsub_singleton.query(f'{get_topic_name(obj.__class__)}/settings/colors', default=None)
         if cls_colors is not None:
             for color_name, color_value in cls_colors[self._color_scheme].items():
                 colors[color_name] = color_value
@@ -338,14 +341,18 @@ class FontEditorWidget(_GridWidget):
         if obj is None:
             self._obj = None
             return
-        self._obj = obj
-        self._topic = get_topic_name(obj)
+        if obj.unique_id in ['ui']:
+            return
+        if obj.unique_id in _STYLE_AVOID:
+            return
         if not hasattr(obj, 'style_obj') or obj.style_obj is None:
             return
+        self._obj = obj
+        self._topic = get_topic_name(obj)
         cls = obj.__class__
 
         fonts = copy.deepcopy(cls._style_cls['load']['fonts'][self._font_scheme])
-        cls_fonts = pubsub_singleton.query(f'{get_topic_name(obj.__class__)}/settings/fonts')
+        cls_fonts = pubsub_singleton.query(f'{get_topic_name(obj.__class__)}/settings/fonts', default=None)
         if cls_fonts is not None:
             for font_name, font_value in cls_fonts[self._font_scheme].items():
                 fonts[font_name] = font_value
@@ -415,7 +422,7 @@ class StyleDefineEditorWidget(_GridWidget):
         self._topic = get_topic_name(obj)
         cls = obj.__class__
         entries = copy.deepcopy(cls._style_cls['load']['style_defines'])
-        cls_entries = pubsub_singleton.query(f'{get_topic_name(obj.__class__)}/settings/style_defines')
+        cls_entries = pubsub_singleton.query(f'{get_topic_name(obj.__class__)}/settings/style_defines', default=None)
         if cls_entries is not None:
             for e_name, e_value in cls_entries.items():
                 entries[e_name] = e_value
@@ -480,7 +487,7 @@ class SelectorWidget(QtWidgets.QTreeView):
         items = [
             # [name, unique_id, children]
             [N_('Common'), 'app', None],
-            # [None, 'ui', None],
+            [None, 'ui', None],
             [None, 'paths', None],
             [N_('View defaults'), 'view', None],
             [N_('View'), pubsub_singleton.query('registry/view/settings/active'), None],
