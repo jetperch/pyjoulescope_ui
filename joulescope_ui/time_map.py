@@ -49,9 +49,17 @@ class TimeMap:
         self.trel_offset_set(value)
 
     def trel_offset_set(self, value_time64, quantum=None):
-        if quantum is None:
-            quantum = time64.SECOND
-        self._trel_offset = (value_time64 // quantum) * quantum
+        value_time64 = int(value_time64)
+        if quantum in [0, None]:
+            self._trel_offset = value_time64
+            return
+        if quantum < time64.SECOND:
+            seconds = time64.SECOND * (value_time64 // time64.SECOND)
+            fract = int(np.floor((value_time64 - seconds) / quantum) * quantum)
+            value_time64 = seconds + fract
+        else:
+            value_time64 = int(np.floor(value_time64 / quantum) * quantum)
+        self._trel_offset = value_time64
 
     def time64_to_counter(self, x_time, dtype=None):
         if isinstance(x_time, list):

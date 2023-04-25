@@ -28,6 +28,7 @@ import os
 import time
 from PySide6.QtGui import QPen, QBrush
 from joulescope_ui.units import convert_units, UNITS_SETTING, unit_prefix
+from . import axis_ticks
 from collections.abc import Iterable
 
 
@@ -45,7 +46,6 @@ _MARKER_RSP_OFFSET = (1 << 48)
 _MARKER_RSP_STEP = 512
 _JS220_AXIS_R = ['10 A', '180 mA', '18 mA', '1.8 mA', '180 µA', '18 µA', 'off', 'off', 'off']
 _JS110_AXIS_R = ['10 A', '2 A', '180 mA', '18 mA', '1.8 mA', '180 µA', '18 µA', 'off', 'off']
-_EXP_TABLE = ['⁰', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹']
 _LOGARITHMIC_ZERO_DEFAULT = -9
 
 
@@ -217,98 +217,6 @@ def _idx_to_segments(finite_idx):
             segment_idx.append([change_idx[0], change_idx[1]])
             change_idx = change_idx[2:]
     return segment_idx
-
-
-def _tick_spacing(v_min, v_max, v_spacing_min):
-    if v_spacing_min <= 0:
-        return 0.0
-    if not np.isfinite(v_min) or not np.isfinite(v_max):
-        return 0.0
-    target_spacing = v_spacing_min
-    power10 = 10 ** np.floor(np.log10(v_spacing_min))
-    intervals = np.array([1., 2., 5., 10., 20., 50., 100.]) * power10
-    for interval in intervals:
-        if interval >= target_spacing:
-            return interval
-    raise RuntimeError('tick_spacing calculation failed')
-    return 0.0
-
-
-def _ticks(v_min, v_max, v_spacing_min, major_interval_min=None, logarithmic_zero=None):
-    """Compute the axis tick locations.
-
-    :param v_min: The minimum value, in transformed coordinates.
-    """
-    major_interval = _tick_spacing(v_min, v_max, v_spacing_min)
-    if major_interval <= 0:
-        return None
-    if major_interval_min is not None and major_interval < major_interval_min:
-        major_interval = major_interval_min
-    major_start = np.ceil(v_min / major_interval) * major_interval
-    major = np.arange(major_start, v_max, major_interval, dtype=np.float64)
-    minor_interval = major_interval / 10.0
-    minor_start = major_start - major_interval
-    minor = np.arange(minor_start, v_max, minor_interval, dtype=np.float64)
-    if not len(minor):
-        return None
-
-    k = 0
-    sel_idx = np.zeros(len(minor), dtype=bool)
-    sel_idx[:] = True
-    sel_idx[0::10] = False
-    while minor_start < v_min and k < len(sel_idx):
-        sel_idx[k] = False
-        minor_start += minor_interval
-        k += 1
-    minor = minor[sel_idx]
-
-    labels = []
-    prefix = ''
-    if len(major):
-        label_max = max(abs(major[0]), abs(major[-1]))
-        zero_max = label_max / 10_000.0
-        if logarithmic_zero is not None:
-            prefix = ''
-            for v in major:
-                if v == 0:
-                    s = labels.append('0')
-                    continue
-                v_abs = int(abs(v) + logarithmic_zero)
-                if v_abs < 0:
-                    v_abs = abs(v_abs)
-                    s = '10⁻'
-                else:
-                    s = '10'
-                if v < 0:
-                    s = '-' + s
-                digits = []
-                if v_abs == 0:
-                    digits = [_EXP_TABLE[0]]
-                while v_abs:
-                    digits.append(_EXP_TABLE[v_abs % 10])
-                    v_abs //= 10
-                labels.append(s + ''.join(digits[-1::-1]))
-        else:
-            adjusted_value, prefix, scale = unit_prefix(label_max)
-            scale = 1.0 / scale
-            for v in major:
-                v *= scale
-                if abs(v) < zero_max:
-                    v = 0
-                s = f'{v:g}'
-                if s == '-0':
-                    s = '0'
-                labels.append(s)
-
-    return {
-        'major': major,
-        'major_interval': major_interval,
-        'minor': minor,
-        'minor_interval': minor_interval,
-        'labels': labels,
-        'unit_prefix': prefix,
-    }
-    return np.arange(start, v_max, interval, dtype=np.float64), interval
 
 
 def _target_from_list(targets):
@@ -1417,28 +1325,18 @@ class WaveformWidget(QtWidgets.QWidget):
         _, y_end, _, = self._y_geometry_info['margin.bottom']
 
         y = x_axis_y0 + 2 * s['plot_label_size'].height()
+        major_count_max = plot_width / s['x_tick_width_pixels_min']
         x_range64 = self.x_range
         x_duration_s = (x_range64[1] - x_range64[0]) / time64.SECOND
-        if x_duration_s > 0:
-            x_tick_width_time_min = s['x_tick_width_pixels_min'] / (plot_width / x_duration_s)
+        if (plot_width > 1) and (x_duration_s > 0):
+            x_gain = (plot_width - 1) / (x_duration_s * time64.SECOND)
         else:
-            x_tick_width_time_min = 1e-6
-        tick_spacing = _tick_spacing(x_range64[0], x_range64[1], x_tick_width_time_min)
-        x_offset_pow = 10 ** np.ceil(np.log10(tick_spacing))
-        x_offset_pow_t64 = time64.SECOND * x_offset_pow
-        x_label_offset = int(x_offset_pow_t64 * np.floor(x_range64[0] / x_offset_pow_t64))
-        x_zero_offset = x_range64[0]
+            x_gain = 1.0
+        x_grid = axis_ticks.x_ticks(x_range64[0], x_range64[1], major_count_max)
+        self._x_map.update(left_x1, x_range64[0], x_gain)
+        self._x_map.trel_offset = x_grid['offset']
 
-        x_gain = 1.0 if x_duration_s <= 0 else (plot_width - 1) / (x_duration_s * time64.SECOND)
-        self._x_map.trel_offset = x_label_offset
-        self._x_map.update(left_x1, x_zero_offset, x_gain)
-        x_range_trel = [self._x_map.time64_to_trel(i) for i in self.x_range]
-
-        x_grid = _ticks(x_range_trel[0], x_range_trel[1], x_tick_width_time_min)
         y_text = y + font_metrics.ascent()
-
-        x_offset_str = time64.as_datetime(self._x_map.trel_offset).isoformat()
-        p.drawText(plot_x0, x_axis_y0 + s['plot_label_size'].height() + font_metrics.ascent(), x_offset_str)
 
         if self.show_statistics:
             x_stats = self._x_geometry_info['statistics'][1]
@@ -1448,7 +1346,8 @@ class WaveformWidget(QtWidgets.QWidget):
         if x_grid is None:
             pass
         else:
-            p.drawText(left_x0, y_text, x_grid['unit_prefix'] + 's')
+            p.drawText(left_x0, x_axis_y0 + s['plot_label_size'].height() + font_metrics.ascent(), x_grid['offset_str'])
+            p.drawText(left_x0, y_text, x_grid['units'])
             for idx, x in enumerate(self._x_map.trel_to_counter(x_grid['major'])):
                 p.setPen(s['text_pen'])
                 x_str = x_grid['labels'][idx]
@@ -1504,13 +1403,13 @@ class WaveformWidget(QtWidgets.QWidget):
             logarithmic_zero = None
         p.setFont(s['axis_font'])
         y_tick_height_value_min = s['y_tick_height_pixels_min'] / plot['y_map'][-1]
-        y_grid = _ticks(y_range[0], y_range[1], y_tick_height_value_min,
+        y_grid = axis_ticks.ticks(y_range[0], y_range[1], y_tick_height_value_min,
                         major_interval_min=major_interval_min,
                         logarithmic_zero=logarithmic_zero)
         axis_font_metrics = s['axis_font_metrics']
         if y_grid is not None:
             if plot['quantity'] == 'r':
-                y_grid = _ticks(y_range[0], y_range[1], y_tick_height_value_min, 1)
+                y_grid = axis_ticks.ticks(y_range[0], y_range[1], y_tick_height_value_min, 1)
                 if len(plot['signals']):
                     if 'JS220' in plot['signals'][0][1]:
                         y_grid['labels'] = [_JS220_AXIS_R[int(s_label)] for s_label in y_grid['labels']]
@@ -2938,9 +2837,9 @@ class WaveformWidget(QtWidgets.QWidget):
         r = max(min(d_x, d_e), time64.MICROSECOND)
         z0, z1 = center - int(r * f), center + int(r * (1 - f))
         if self.pin_left or z0 < e0:
-            z0, z1 = e0, e0 + r
+            z0, z1 = e0, int(e0 + r)
         elif self.pin_right or z1 > e1:
-            z0, z1 = e1 - r, e1
+            z0, z1 = int(e1 - r), e1
         elif len(value) == 3:  # double check center location
             pixel = self._x_map.time64_to_counter(center)
             if abs(pixel - value[2]) >= 1.0:
