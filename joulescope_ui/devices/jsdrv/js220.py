@@ -264,7 +264,7 @@ _SETTINGS_CLASS = {
             We strongly recommend keeping the default "stable"
             unless you are a Joulescope developer.""",
         'options': [['alpha', 'alpha'], ['beta', 'beta'], ['stable', 'stable']],
-        'default': 'stable',
+        'default': 'beta',
         'flags': ['hide', 'dev'],
     },
     'firmware_available': {
@@ -282,7 +282,6 @@ _SETTINGS_CLASS = {
 
 _SETTINGS_MAP = {
     'signal_frequency': 'h/fs',
-
 }
 
 
