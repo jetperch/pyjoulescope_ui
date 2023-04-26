@@ -11,15 +11,16 @@ This file contains the list of changes made to pyjoulescope_ui.
 Continued improvements but still alpha quality.  See the 1.0.0 release
 notes below for additional usage guidelines.
 
-2023 Apr 24 [in progress]
+2023 Apr 26
 
 * Fixed current range constrained to 0 or 1 at high zoom levels.
-* Updated to pyjoulescope_driver 1.3.4 and sensor FPGA 1.0.4.
+* Updated to pyjoulescope_driver 1.3.4..
 * Fixed Memory Widget "Clear" not clearing when streaming is paused.
 * Hide status bar troubleshooting details by default.
 * Improved waveform time axis to display conventional time format.
 * Removed default quantization from time_map trel_offset.
 * Fixed x_range inaccuracy due to unit corruption (int->float) when pinned.
+* Updated to pyjls 0.6.0.
 
 
 ## 1.0.9

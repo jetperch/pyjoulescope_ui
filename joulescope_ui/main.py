@@ -213,7 +213,7 @@ class MainWindow(QtWidgets.QMainWindow):
             | QtAds.CDockManager.FloatingContainerHasWidgetTitle
             | QtAds.CDockManager.XmlAutoFormattingEnabled
             | QtAds.CDockManager.OpaqueSplitterResize
-            | QtAds.CDockManager.OpaqueUndocking
+            # | QtAds.CDockManager.OpaqueUndocking
             | QtAds.CDockManager.FocusHighlighting
             | QtAds.CDockManager.MiddleMouseButtonClosesTab
         )
