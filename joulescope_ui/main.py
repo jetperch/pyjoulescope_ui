@@ -340,6 +340,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._shortcuts.add(QtGui.QKeySequence.Redo, REDO_TOPIC, None)
         self._shortcuts.add(QtCore.Qt.Key_Space, 'registry/app/settings/signal_stream_enable', '__toggle__')
 
+        self.setAcceptDrops(True)
         self.show()
         # self._mem_leak_debugger = MemLeakDebugger(self)
         # self._side_bar.on_cmd_show(1)
@@ -355,6 +356,19 @@ class MainWindow(QtWidgets.QMainWindow):
             self._pubsub.publish(topic, __version__)
             self._pubsub.publish('registry/help_html/actions/!show', 'changelog')
         self.resync_request()
+
+    def dragEnterEvent(self, event):
+        if event.mimeData().hasText():
+            txt = event.mimeData().text()
+            if txt.startswith('file:///') and txt.endswith('.jls'):
+                event.acceptProposedAction()
+
+    def dropEvent(self, event):  # QDropEvent
+        if event.mimeData().hasText():
+            txt = event.mimeData().text()
+            if txt.startswith('file:///') and txt.endswith('.jls'):
+                self._pubsub.publish(f'{get_topic_name(self)}/actions/!file_open', txt[8:])
+                event.acceptProposedAction()
 
     def on_setting_status_bar(self, value):
         visible = (value != 'normal')

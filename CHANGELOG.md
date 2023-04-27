@@ -14,6 +14,7 @@ notes below for additional usage guidelines.
 2023 Apr 28 [in progress]
 
 * Fixed Accumulate widget to respect global statistics play/pause.
+* Added drag & drop support for JLS files from File Explorer into UI.
 
 
 ## 1.0.11
