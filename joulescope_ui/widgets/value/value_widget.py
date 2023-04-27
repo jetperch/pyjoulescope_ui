@@ -520,7 +520,6 @@ class _BaseWidget(QtWidgets.QWidget):
         self._default_statistics_stream_source = None
         self._statistics_stream_source = None
         self._on_statistics_fn = self._on_statistics
-        self._on_global_statistics_stream_enable_fn = self._on_global_statistics_stream_enable
         self._statistics = None  # most recent statistics information
 
         self._subscribers = [
@@ -529,7 +528,7 @@ class _BaseWidget(QtWidgets.QWidget):
             [f'registry_manager/capabilities/{CAPABILITIES.STATISTIC_STREAM_SOURCE}/list',
              self._on_statistic_stream_source_list],
             ['registry/app/settings/statistics_stream_enable',
-             self._on_global_statistics_stream_enable_fn],
+             self._on_global_statistics_stream_enable],
         ]
 
         self.mousePressEvent = self._on_mousePressEvent

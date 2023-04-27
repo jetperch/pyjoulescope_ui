@@ -4,6 +4,18 @@
 This file contains the list of changes made to pyjoulescope_ui.
 
 
+## 1.0.12
+
+<span style="color:yellow">⚠ ALPHA RELEASE - USE WITH CAUTION ⚠</span> 
+
+Continued improvements but still alpha quality.  See the 1.0.0 release
+notes below for additional usage guidelines.
+
+2023 Apr 28 [in progress]
+
+* Fixed Accumulate widget to respect global statistics play/pause.
+
+
 ## 1.0.11
 
 <span style="color:yellow">⚠ ALPHA RELEASE - USE WITH CAUTION ⚠</span> 

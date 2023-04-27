@@ -64,6 +64,7 @@ class AccumulatorWidget(QtWidgets.QWidget):
         self._layout.setContentsMargins(0, 0, 0, 0)
         self._layout.setSpacing(0)
         self.setLayout(self._layout)
+        self._hold_global = False
 
         self._accum_label = QtWidgets.QLabel(parent=self)
         self._accum_label.setObjectName('accum')
@@ -74,6 +75,8 @@ class AccumulatorWidget(QtWidgets.QWidget):
              self._on_default_statistics_stream_source],
             [f'registry_manager/capabilities/{CAPABILITIES.STATISTIC_STREAM_SOURCE}/list',
              self._on_statistic_stream_source_list],
+            ['registry/app/settings/statistics_stream_enable',
+             self._on_global_statistics_stream_enable],
         ]
 
     def on_pubsub_register(self):
@@ -124,7 +127,12 @@ class AccumulatorWidget(QtWidgets.QWidget):
     def _on_statistic_stream_source_list(self, value):
         self._devices = ['default'] + value
 
+    def _on_global_statistics_stream_enable(self, value):
+        self._hold_global = not bool(value)
+
     def _on_statistics(self, pubsub, topic, value):
+        if self._hold_global:
+            return
         self._statistics = value
         signal = value['accumulators'][self.field]
         signal_value, signal_units = convert_units(signal['value'], signal['units'], self.units)
