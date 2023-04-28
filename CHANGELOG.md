@@ -14,6 +14,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 ### Changes
 
 * Fixed UI widgets in undocked windows not restored on subsequent UI launches.
+* Updated README and docs.
  
 
 ### Known issues

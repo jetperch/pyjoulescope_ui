@@ -4,59 +4,13 @@
 This document captures the Joulescope™ User Interface (UI) future features. 
 The UI is under active development, and many features remain outstanding. 
 
-## Terminology
+### Joulsecope JS220
 
-*   **User** references anyone who uses Joulescope.  The primary target
-    audience includes PCB designers, FPGA developers, electrical engineers,
-    hardware engineers, firmware engineers, microcontroller engineers, 
-    software engineers, software application developers, hobbyists and makers. 
-    Joulescope can also be used as a general-purpose instrument by
-    students and scientists.
-
-
-## Guiding stories
-
-The development of any product requires choices.  The Joulescope developers
-have used the following three stories to guide development.
-
-
-### Story 1
-
-> As a User, I want to quickly and easily see the immediate energy consumption
-> of my target device so that I can measure its present operating state.
-
-The Joulescope multimeter view fulfills the needs of this story. 
-The multimeter view displays current, voltage, power and energy updated 
-each 1/2 second time window. The multimeter view also displays statistics 
-including standard deviation,
-minimum, maximum and peak-to-peak over the same window.
-
-
-### Story 2
-
-> As a User, I want to see changes to current, voltage and power over time so
-> that I can understand how changes to my target device's state affect
-> power consumption.
-
-The oscilloscope view intends to fulfill the needs of this story. Different
-**Users** have slightly different needs. The Joulescope UI must successfully
-balance ease of use and sufficient analytical features.
-
-
-### Story 3
-
-> As a User, I want to understand how changes that I make during development
-> affect the target device's energy consumption so that I can develop quality,
-> energy-efficient products.
-
-As of Jan 2019, this story is still largely unfulfilled by the software. 
-**Users** must manually record and compare their findings.
-
-
-## Features
-
-This section captures potential future features. Many features shown below
-will be implemented before Joulescope general availability.
+* Soft-fuse
+* UTC timesync using NTP-like protocol over USB
+* UTC timesync using BNC trigger IN/OUT
+* On-instrument downsampling
+* UART RX and TX
 
 
 ### Oscilloscope
@@ -101,7 +55,6 @@ will be implemented before Joulescope general availability.
 
 ### Other
 
-*   Add soft-fuse configuration once implemented in Joulescope FPGA.
 *   Automate build.
 *   Measure and automate Joulescope code coverage.
 *   Add automatic battery life estimation - may need to input battery 
@@ -111,6 +64,55 @@ will be implemented before Joulescope general availability.
     When done, feed estimation tool where you can set the period of each 
     identified process to estimate energy consumption per desired timescale
     or even battery life.
-*   Save user-defined Views. Allow user to select saved views in addition to 
-    Multimeter and Oscilloscope. Also allow user to set startup view preference.
-*   Energy display should have a context menu with a Clear option.
+
+---
+
+## Guiding stories
+
+The development of any product requires choices.  The Joulescope developers
+have used the following three stories to guide development.
+
+
+### Terminology
+
+*   **User** references anyone who uses Joulescope.  The primary target
+    audience includes PCB designers, FPGA developers, electrical engineers,
+    hardware engineers, firmware engineers, microcontroller engineers, 
+    software engineers, software application developers, hobbyists and makers. 
+    Joulescope can also be used as a general-purpose instrument by
+    students and scientists.
+
+
+
+
+### Story 1
+
+> As a User, I want to quickly and easily see the immediate energy consumption
+> of my target device so that I can measure its present operating state.
+
+The Joulescope multimeter view fulfills the needs of this story. 
+The multimeter view displays current, voltage, power and energy updated 
+each 1/2 second time window. The multimeter view also displays statistics 
+including standard deviation,
+minimum, maximum and peak-to-peak over the same window.
+
+
+### Story 2
+
+> As a User, I want to see changes to current, voltage and power over time so
+> that I can understand how changes to my target device's state affect
+> power consumption.
+
+The oscilloscope view intends to fulfill the needs of this story. Different
+**Users** have slightly different needs. The Joulescope UI must successfully
+balance ease of use and sufficient analytical features.
+
+
+### Story 3
+
+> As a User, I want to understand how changes that I make during development
+> affect the target device's energy consumption so that I can develop quality,
+> energy-efficient products.
+
+As of 2023, we are finally starting to address this with multiple waveform
+window support and multiple device support in the Joulescope UI 1.0.

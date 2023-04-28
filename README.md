@@ -1,30 +1,45 @@
 
-# Joulescope UI
+# ![Joulescope](https://download.joulescope.com/press/joulescope_logo-PNG-Transparent-Exact-Small.png "Joulescope Logo")
 
-Welcome to Joulescope™!  Joulescope is an affordable, precision DC energy
+
+Welcome to the Joulescope™ User Interface software repo!
+Joulescope is an affordable, precision DC energy
 analyzer that enables you to build better products.
 Joulescope™ accurately and simultaneously measures the voltage and current
 supplied to your target device, and it then computes power and energy.
 For more information on Joulescope, see
 [www.joulescope.com](https://www.joulescope.com).
 
-This repository contains the Joulescope graphical user interface (UI).
+This repository contains the Joulescope's graphical User Interface (UI).
 The UI runs on a host computer and communicates with the Joulescope device
 over USB.  The application source code is available at
 https://github.com/jetperch/pyjoulescope_ui.  
 
-For the list of changes by release, see the [Changelog](CHANGELOG.md).
+The software is highly configurable.  Here is the Multimeter view on Windows 11:
 
-The Joulescope UI is under active development, and many features remain
-outstanding. See the [future features document](docs/features_future.md) for details.
+![Multimeter View](docs/multimeter.png | width=509px)
+
+And here is the Oscilloscope waveform view on Windows 11:
+
+![Oscilloscope View](docs/oscilloscope.png)
+
+For more information, see:
+
+* [Tips](docs/tips.md): for using the UI.
+* [Changelog](CHANGELOG.md): list of changes by release
+* [Future features](docs/features_future.md)
+* [Developer notes](docs/dev.md)
+* [PubSub](docs/pubsub.md)
 
 
 ## Quick start using official distribution
 
-We provide an official distribution that is prebuit for Windows, macOS and
-Ubuntu 20.04LTS.
-[Download](https://www.joulescope.com/download) the application distribution
-for your platform and install it.  
+We provide official distributions for Windows, macOS and Ubuntu 22.04LTS.
+
+You can download the latest and previous alpha, beta, and stable builds
+[here](https://download.joulescope.com/joulescope_install/index_v2.html).
+Visit the main [download](https://www.joulescope.com/download) 
+page for the latest stable build.
 
 
 ## Run as python package
@@ -36,7 +51,7 @@ run directly from source.
 ### Install Python
 
 The Joulescope User Interface requires Python 3.9 or newer.
-We recommend Python 3.10.
+We recommend Python 3.11.
 Install [Python 3.9+](https://www.python.org/) on your system and then verify
 your python version at the terminal or command line:
 
@@ -121,7 +136,7 @@ Clone and configure the Joulescope UI from the terminal or command line:
 
 Build the QT resources:
 
-    python3 setup.py qt
+    python3 setup.py sdist
 
 As long as the current directory is the source directory, you can run:
 
@@ -154,15 +169,19 @@ Joulescope driver:
 
     pip3 uninstall joulescope
     cd {path/to/repos}
+    git clone https://github.com/jetperch/joulescope_driver.git
+    cd joulescope_driver
+    pip3 install -U -r requirements.txt
+    python3 setup.py build_ext --inplace && python -m unittest
     git clone https://github.com/jetperch/pyjoulescope.git
     cd pyjoulescope
     pip3 install -U -r requirements.txt    
-    python3 setup.py build_ext --inplace
+    python3 setup.py build_ext --inplace && python -m unittest
 
 You should then modify your python path to find both the UI and driver
 source paths. On Windows:
 
-    set PYTHONPATH={C:\path\to\repos}\pyjoulescope;{C:\path\to\repos}\pyjoulescope_ui
+    set PYTHONPATH={C:\path\to\repos}\joulescope_driver;C:\path\to\repos}\pyjoulescope;{C:\path\to\repos}\pyjoulescope_ui
 
 and on POSIX (Linux, Mac OS X with homebrew):
 
