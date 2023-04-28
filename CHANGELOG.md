@@ -11,11 +11,11 @@ This file contains the list of changes made to pyjoulescope_ui.
 Continued improvements but still alpha quality.  See the 1.0.0 release
 notes below for additional usage guidelines.
 
-2023 Apr 28 [in progress]
+2023 Apr 28
 
 * Fixed Accumulate widget to respect global statistics play/pause.
 * Added drag & drop support for JLS files from File Explorer into UI.
-* Fixed JLS record, export and read broken.
+* Fixed broken JLS record, export and read.
 
 
 ## 1.0.11
