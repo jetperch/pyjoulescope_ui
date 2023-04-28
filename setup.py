@@ -25,7 +25,6 @@ import setuptools
 from setuptools.command.sdist import sdist
 from setuptools.command.install import install
 from setuptools.command.develop import develop
-import distutils.cmd
 import os
 import platform
 import sys
@@ -33,7 +32,7 @@ import subprocess
 import shutil
 
 
-JOULESCOPE_DRIVER_VERSION_MIN = '1.3.5'  # also update requirements.txt
+JOULESCOPE_DRIVER_VERSION_MIN = '1.3.7'  # also update requirements.txt
 JOULESCOPE_VERSION_MIN = '1.1.3'         # also update requirements.txt
 MYPATH = os.path.abspath(os.path.dirname(__file__))
 VERSION_PATH = os.path.join(MYPATH, 'joulescope_ui', 'version.py')
@@ -213,7 +212,7 @@ setuptools.setup(
         f'joulescope>={JOULESCOPE_VERSION_MIN},<2.0.0',
         'markdown',
         'psutil',
-        'pyjls>=0.6.0',
+        'pyjls>=0.6.2',
         'pyopengl',
         'pyperclip>=1.7.0',
         "pywin32>=223; platform_system == 'Windows'",

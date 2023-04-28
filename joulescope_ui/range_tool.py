@@ -181,13 +181,13 @@ class RangeTool:
                     req['end'] = int(np.rint(tm.time64_to_counter(end)))
             else:
                 rsp_total['data'].append(rsp['data'])
-            req['start'] = rsp['info']['time_range_samples']['end']
+                rsp_total['info']['time_range_utc']['end'] = rsp['info']['time_range_utc']['end']
+                rsp_total['info']['time_range_utc']['length'] += rsp['info']['time_range_utc']['length']
+                rsp_total['info']['time_range_samples']['end'] = rsp['info']['time_range_samples']['end']
+                rsp_total['info']['time_range_samples']['length'] += rsp['info']['time_range_samples']['length']
+            req['start'] = rsp['info']['time_range_samples']['end'] + 1
             if req['length']:
                 req['length'] -= rsp['info']['time_range_samples']['length']
-            rsp_total['info']['time_range_utc']['end'] = rsp['info']['time_range_utc']['end']
-            rsp_total['info']['time_range_utc']['length'] += rsp['info']['time_range_utc']['length']
-            rsp_total['info']['time_range_samples']['end'] = rsp['info']['time_range_samples']['end']
-            rsp_total['info']['time_range_samples']['length'] += rsp['info']['time_range_samples']['length']
             if is_done:
                 rsp_total['data'] = np.concatenate(rsp_total['data'])
                 return rsp_total

@@ -15,6 +15,7 @@ notes below for additional usage guidelines.
 
 * Fixed Accumulate widget to respect global statistics play/pause.
 * Added drag & drop support for JLS files from File Explorer into UI.
+* Fixed JLS record, export and read broken.
 
 
 ## 1.0.11
