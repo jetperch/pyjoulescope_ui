@@ -1521,6 +1521,7 @@ class PubSub:
             os.replace(tmp_path, config_path)
             return rv
 
+        self._log.info('save %r', fh)
         do_close = False
         obj = {
             'type': 'joulescope_ui_config',

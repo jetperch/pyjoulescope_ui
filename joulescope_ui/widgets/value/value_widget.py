@@ -180,7 +180,7 @@ class _DeviceWidget(QtWidgets.QWidget):
 class _AccrueWidget(QtWidgets.QWidget):
 
     def __init__(self, parent):
-        self._log = logging.getLogger(__name__)
+        self._log = logging.getLogger(__name__ + '.accrue')
         self._hold_local = False
         self._hold_global = False
         self.accrue = False
@@ -500,6 +500,7 @@ class _BaseWidget(QtWidgets.QWidget):
     CAPABILITIES = ['widget@', CAPABILITIES.STATISTIC_STREAM_SINK]
 
     def __init__(self, parent=None):
+        self._log = logging.getLogger(__name__ + '.base')
         self._menu = None
         super().__init__(parent=parent)
         self.setObjectName('value_widget')
@@ -548,6 +549,7 @@ class _BaseWidget(QtWidgets.QWidget):
         self._statistics = None
 
     def closeEvent(self, event):
+        self._log.info('closeEvent')
         self._pubsub_disconnect()
         return super().closeEvent(event)
 

@@ -539,6 +539,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def closeEvent(self, event):
         self._log.info('closeEvent()')
+        _profile_save()
         self._pubsub.publish('registry/JlsSource/actions/!finalize', None)
         return super(MainWindow, self).closeEvent(event)
 
@@ -550,20 +551,22 @@ class MainWindow(QtWidgets.QMainWindow):
         self.close()
 
 
-def _finalize():
+def _profile_save():
     # hack to clean up active view
     view_topic = 'registry/view/settings/active'
     active_view = pubsub_singleton.query(view_topic)
     pubsub_singleton.publish(view_topic, None)
     pubsub_singleton.process()
     pubsub_singleton._topic_by_name[view_topic].value = active_view
+    pubsub_singleton.save()
+
+
+def _finalize():
     if _config_clear:
         path = pubsub_singleton.query('common/settings/paths/styles')
         if len(path) and os.path.isdir(path):
             shutil.rmtree(path, ignore_errors=True)
         pubsub_singleton.config_clear()
-    else:
-        pubsub_singleton.save()
 
 
 def run(log_level=None, file_log_level=None, filename=None):

@@ -3,6 +3,37 @@
 
 This file contains the list of changes made to pyjoulescope_ui.
 
+---
+
+## 1.0.14
+
+<span style="color:#6090ff">🛈 BETA RELEASE 🛈</span> 
+
+2023 Apr 28 [in progress]
+
+### Changes
+
+* Fixed UI widgets in undocked windows not restored on subsequent UI launches.
+ 
+
+### Known issues
+
+1. Partial Qt Hang (Waveform no longer updates, some Qt actions still work)
+   on one Windows PC with Intel graphics.  Problem does not occur with
+   other widgets.  We suspected an OpenGL issue.
+2. Undo / redo support is not working
+
+### Missing features
+
+The following features are planned for the first v1.0.x stable release,
+but they are not yet present in this release:
+
+* View management (add, remove, reorder)
+* Profile management (save, load)
+* Text annotations
+* JS220 current range min/max configuration
+
+---
 
 ## 1.0.12
 
@@ -17,6 +48,7 @@ notes below for additional usage guidelines.
 * Added drag & drop support for JLS files from File Explorer into UI.
 * Fixed broken JLS record, export and read.
 
+---
 
 ## 1.0.11
 
@@ -29,6 +61,7 @@ notes below for additional usage guidelines.
 
 * Added pyjoulescope_driver 1.3.5 with updated JS220 firmware.
 
+---
 
 ## 1.0.10
 
@@ -48,6 +81,7 @@ notes below for additional usage guidelines.
 * Fixed x_range inaccuracy due to unit corruption (int->float) when pinned.
 * Updated to pyjls 0.6.0.
 
+---
 
 ## 1.0.9
 
@@ -72,6 +106,7 @@ notes below for additional usage guidelines.
 * Fixed pubsub reregister for class properties.
 * Fixed multimeter not respected default source.
 
+---
 
 ## 1.0.8
 
@@ -94,6 +129,7 @@ notes below for additional usage guidelines.
   * Added Settings Widget to Widget menu bar.
 * Added keyboard shortcuts to main and waveform widget.
 
+---
 
 ## 1.0.7
 
@@ -112,6 +148,7 @@ notes below for additional usage guidelines.
 * Fixed intermittent export fail.
 * Increased process and backend thread priority for Windows.
 
+---
 
 ## 1.0.6 
 
@@ -133,6 +170,7 @@ notes below for additional usage guidelines.
 * Fixed crash due to invalid time ranges at start (pyjoulescope_driver 1.3.0).
 * Updated to PySide6-QtAds 4.0.1.2, which fixes dock/undock crash.
 
+---
 
 ## 1.0.5
 
@@ -162,6 +200,7 @@ notes below for additional usage guidelines.
 * Fixed software update on macOS to open dmg file.
 * Fixed macOS dynlib not found (1.0.3 & 1.0.4).
 
+---
 
 ## 1.0.2
 
@@ -182,6 +221,7 @@ notes below for additional usage guidelines.
 * Added waveform control_location setting.
 * Fixed waveform y-axis autoscaling when range difference was zero.
 
+---
 
 ## 1.0.1
 
@@ -217,6 +257,7 @@ notes below for additional usage guidelines.
 * Open floating dock widgets to (800, 600) size.
 * Fixed view menu to have radio buttons.
 
+---
 
 ## 1.0.0
 
