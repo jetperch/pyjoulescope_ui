@@ -17,7 +17,7 @@ https://github.com/jetperch/pyjoulescope_ui.
 
 The software is highly configurable.  Here is the Multimeter view on Windows 11:
 
-![Multimeter View](docs/multimeter.png | width=509px)
+<img src="docs/multimeter.png" width="509" />
 
 And here is the Oscilloscope waveform view on Windows 11:
 
