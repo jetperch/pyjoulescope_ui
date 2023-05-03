@@ -1,0 +1,20 @@
+{
+  "type": "widget",
+  "version": 1,
+  "templates": ["style.qss"],
+  "style_sheet": "style.qss",
+  "images": {
+    "clickable": {
+      "sources": [
+        "add.svg",
+        "move.svg",
+        "reset.svg",
+        "delete.svg"
+      ],
+      "targets": [
+        ["{basename}_enabled{ext}",  {"#000000": "js1.clickable_enabled"}],
+        ["{basename}_hover{ext}",    {"#000000": "js1.clickable_hover"}]
+      ]
+    }
+  }
+}

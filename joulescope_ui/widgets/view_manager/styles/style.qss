@@ -1,0 +1,39 @@
+/*
+ * Copyright 2018-2022 Jetperch LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+QPushButton#view_reset,
+QPushButton#view_delete,
+QPushButton#view_add
+{
+    background: transparent;
+    border-width: 0px;
+    image: none;
+}
+
+QLabel#move {
+    background: transparent;
+    border-width: 0px;
+    image: url("{% path %}/move_enabled.svg");
+}
+
+QPushButton#view_reset:enabled       { image: url("{% path %}/reset_enabled.svg"); }
+QPushButton#view_reset:enabled:hover { image: url("{% path %}/reset_hover.svg"); }
+
+QPushButton#view_delete:enabled       { image: url("{% path %}/delete_enabled.svg"); }
+QPushButton#view_delete:enabled:hover { image: url("{% path %}/delete_hover.svg"); }
+
+QPushButton#view_add:enabled       { image: url("{% path %}/add_enabled.svg"); }
+QPushButton#view_add:enabled:hover { image: url("{% path %}/add_hover.svg"); }

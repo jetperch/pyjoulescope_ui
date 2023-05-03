@@ -38,7 +38,6 @@ class ProgressBarWidget(QtWidgets.QDialog):
         self.setObjectName('progress_bar_widget')
         self._log = logging.getLogger(__name__)
         self._log.info(f'start')
-        self._layout = QtWidgets.QVBoxLayout()
 
         self._layout = QtWidgets.QVBoxLayout()
         self.setLayout(self._layout)

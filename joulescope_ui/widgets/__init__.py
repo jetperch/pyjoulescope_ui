@@ -14,6 +14,7 @@
 
 from .accumulator import AccumulatorWidget
 from .device_control import DeviceControlWidget
+from .draggable_list_widget import DraggableListWidget
 # from .example import ExampleWidget
 from .memory import MemoryWidget
 from .hamburger import HamburgerWidget
@@ -25,4 +26,5 @@ from .settings import SettingsWidget
 from .signal_record import SignalRecordConfigWidget, SignalRecord
 from .statistics_record import StatisticsRecordConfigWidget, StatisticsRecord
 from .value import ValueWidget
+from .view_manager import ViewManagerWidget, ViewManagerDialog
 from .waveform import WaveformWidget

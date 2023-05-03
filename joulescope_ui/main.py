@@ -47,6 +47,7 @@ import shutil
 
 _software_update = None
 _config_clear = None
+_log = logging.getLogger(__name__)
 
 
 _SETTINGS = {
@@ -145,10 +146,14 @@ def _device_factory_add():
 
 
 def _device_factory_finalize():
+    _log.info('_device_factory_finalize enter')
     factories = pubsub_singleton.query(f'registry_manager/capabilities/{CAPABILITIES.DEVICE_FACTORY}/list')
     for factory in factories:
+        _log.info('_device_factory_finalize %s', factory)
         topic = f'registry/{factory}/actions/!finalize'
         pubsub_singleton.publish(topic, None)
+    pubsub_singleton.process()
+    _log.info('_device_factory_finalize done')
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -440,7 +445,7 @@ class MainWindow(QtWidgets.QMainWindow):
         open_recent_list[1] = _menu_setup(menu, menu_items)
 
     def _on_change_views(self, value):
-        value = self._pubsub.query('registry_manager/capabilities/view.object/list')
+        value = self._pubsub.query('registry/view/instances')
         active_view = self._pubsub.query('registry/view/settings/active', default=None)
         menu, k = self._menu_items['view_menu']
         for action, _ in k.values():
@@ -451,13 +456,28 @@ class MainWindow(QtWidgets.QMainWindow):
         for unique_id in value:
             name = self._pubsub.query(f'registry/{unique_id}/settings/name', default=unique_id)
             menu_items.append([unique_id, name, ['registry/view/settings/active', unique_id]])
-        self._menu_items['view_menu'][1] = _menu_setup(menu, menu_items)
+        m = _menu_setup(menu, menu_items)
+
+        m['_separator1'] = (None, menu.addSeparator())
+        manage_action = QtGui.QAction(N_('Manage'))
+        manage_action.triggered.connect(self._on_view_manage)
+        menu.addAction(manage_action)
+        m['_hello'] = (manage_action, None)
+
+        self._menu_items['view_menu'][1] = m
 
         k = self._menu_items['view_menu'][1]  # map of children
         for view_unique_id, (action, _) in k.items():
+            if view_unique_id[0] == '_':
+                continue
             action.setCheckable(True)
             action.setChecked(view_unique_id == active_view)
             self._view_menu_group.addAction(action)
+
+    def _on_view_manage(self):
+        self._log.info('View Manage')
+        dialog = ViewManagerDialog(self)
+        dialog.finished.connect(lambda x: self._on_change_views(None))
 
     def _on_change_widgets(self, value):
         menu, _ = self._menu_items['widgets_menu']
@@ -538,17 +558,19 @@ class MainWindow(QtWidgets.QMainWindow):
         show_in_folder(path)
 
     def closeEvent(self, event):
-        self._log.info('closeEvent()')
+        self._log.info('closeEvent() start')
         _profile_save()
         self._pubsub.publish('registry/JlsSource/actions/!finalize', None)
-        return super(MainWindow, self).closeEvent(event)
+        event.accept()
+        self._log.info('closeEvent() done')
 
     def on_action_close(self, value):
         global _software_update, _config_clear
         if isinstance(value, dict):
             _software_update = value.get('software_update')
             _config_clear = value.get('config_clear')
-        self.close()
+        # call self.close() on the Qt Event loop later
+        QtCore.QMetaObject.invokeMethod(self, 'close', QtCore.Qt.ConnectionType.QueuedConnection)
 
 
 def _profile_save():
@@ -563,6 +585,7 @@ def _profile_save():
 
 def _finalize():
     if _config_clear:
+        _log.info('finalize: config clear')
         path = pubsub_singleton.query('common/settings/paths/styles')
         if len(path) and os.path.isdir(path):
             shutil.rmtree(path, ignore_errors=True)
@@ -589,12 +612,13 @@ def run(log_level=None, file_log_level=None, filename=None):
         # pubsub_singleton.publish(PUBSUB_TOPICS.PUBSUB_APP_NAME, N_('Joulescope UI'))
         log_path = pubsub_singleton.query('common/settings/paths/log')
         logging_config(log_path, stream_log_level=log_level, file_log_level=file_log_level)
+
         pubsub_singleton.process()
         is_config_load = False
         try:
             is_config_load = pubsub_singleton.load()
         except Exception:
-            logging.getLogger(__name__).exception('pubsub load failed')
+            _log.exception('pubsub load failed')
 
         app = QtWidgets.QApplication([])
         resources = load_resources()
@@ -603,12 +627,15 @@ def run(log_level=None, file_log_level=None, filename=None):
         ui = MainWindow(filename=filename, is_config_load=is_config_load)
         pubsub_singleton.notify_fn = ui.resync_request
         _device_factory_add()
-        rc = app.exec_()
+        _log.info('app.exec start')
+        rc = app.exec()
+        _log.info('app.exec done')
         _device_factory_finalize()
         _finalize()
         del ui
         if _software_update is not None:
             software_update.apply(_software_update)
+        _log.info('exit %s', rc)
         return rc
     except Exception:
         if app is None:

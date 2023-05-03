@@ -98,10 +98,12 @@ QMenu::item
     border: 0px solid {% js1.input_background %};
 }
 
+/*
 QMenu::item:!off:!on
 {
     padding: 0.5ex 3em 0.5ex 1.8em;
 }
+*/
 
 QMenu::item:selected
 {
@@ -111,10 +113,16 @@ QMenu::item:selected
 QMenu::separator
 {
     height: 2px;
-    color: {% base.background_alternate %};
-    background-color: transparent;
-    margin-left: 1ex;
-    margin-right: 1ex;
+    background: {% base.background_alternate %};
+    margin-left: 2px;
+    margin-right: 2px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+QMenu::indicator {
+    width: 12px;
+    height: 12px;
 }
 
 QPushButton
@@ -126,6 +134,7 @@ QPushButton
     padding: 2px;
     border-radius: 2px;
 }
+
 
 QPushButton:!enabled
 {

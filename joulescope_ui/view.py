@@ -96,13 +96,13 @@ VIEW_SETTINGS = {
 
 class View:
     CAPABILITIES = ['view@']
-    SETTINGS = {**VIEW_SETTINGS, **style_settings(N_('View'))}
+    SETTINGS = {**VIEW_SETTINGS, **style_settings(N_('New View'))}
     _ui = None
     _dock_manager = None
     _active_instance = None
 
     def __init__(self):
-        self.name = 'Unnamed view'
+        pass
 
     @property
     def is_active(self):
@@ -302,7 +302,10 @@ class View:
     @staticmethod
     def on_cls_action_remove(value):
         _log.info('remove %s', value)
-        pubsub_singleton.unregister(value)
+        unique_id = get_unique_id(value)
+        if unique_id == View._active_instance:
+            raise ValueError('Cannot remove active view')
+        pubsub_singleton.unregister(value, delete=True)
         return ['registry/view/actions/!add', get_unique_id(value)]
 
     @staticmethod

@@ -9,13 +9,16 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 <span style="color:#6090ff">🛈 BETA RELEASE 🛈</span> 
 
-2023 Apr 28 [in progress]
+2023 May 3 [in progress]
 
 ### Changes
 
 * Fixed UI widgets in undocked windows not restored on subsequent UI launches.
 * Updated README and docs.
- 
+* Fixed threads not closing on exit (pubsub not processed).
+* Added view manager (reorder, rename, add, reset/delete).
+* Improved main window menu style.
+
 
 ### Known issues
 
