@@ -14,6 +14,7 @@
 
 from .accumulator import AccumulatorWidget
 from .device_control import DeviceControlWidget
+from .double_slider import DoubleSlider
 from .draggable_list_widget import DraggableListWidget
 # from .example import ExampleWidget
 from .memory import MemoryWidget
