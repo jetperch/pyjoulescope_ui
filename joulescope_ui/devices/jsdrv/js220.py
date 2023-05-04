@@ -90,6 +90,7 @@ _SETTINGS_OBJ_ONLY = {
     },
 }
 
+
 _SETTINGS_CLASS = {
     'signal_frequency': {
         'dtype': 'int',
@@ -179,8 +180,20 @@ _SETTINGS_CLASS = {
         ],
         'default': -1,  # auto
     },
-    # current range min
-    # current range max
+    'current_range_limits': {
+        'dtype': 'obj',  # [int, int]
+        'brief': N_('Limits'),
+        'detail': N_("""\
+            Configure the autoranging current limits.
+            
+            This setting is only effective when the Current Range
+            is set to "auto".
+            
+            You can use this setting to limit the current range and
+            improve autoranging accuracy when you know your application
+            current is more limited than the full measurement range."""),
+        'default': [0, 5],
+    },
     'voltage_range': {
         'dtype': 'int',
         'brief': N_('Voltage range'),
@@ -557,6 +570,17 @@ class Js220(Device):
             self._current_range_update()
         elif topic == 'current_range':
             self._current_range_update()
+        elif topic == 'current_range_limits':
+            if value is None:
+                i_min, i_max = 0, 5
+            else:
+                i_min, i_max = value
+            i_min = min(5, max(0, i_min))
+            i_max = min(5, max(0, i_max))
+            if i_min > i_max:
+                i_min, i_max = i_max, i_min
+            self._driver_publish('s/i/range/min', i_min, timeout=0)
+            self._driver_publish('s/i/range/max', i_max, timeout=0)
         elif topic == 'voltage_range':
             if value == -1:
                 self._driver_publish('s/v/range/mode', 'auto', timeout=0)

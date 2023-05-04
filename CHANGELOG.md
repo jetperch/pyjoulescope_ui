@@ -18,6 +18,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Fixed threads not closing on exit (pubsub not processed).
 * Added view manager (reorder, rename, add, reset/delete).
 * Improved main window menu style.
+* Added current range limit slider to JS220 control widget.
 
 
 ### Known issues
@@ -32,10 +33,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 The following features are planned for the first v1.0.x stable release,
 but they are not yet present in this release:
 
-* View management (add, remove, reorder)
 * Profile management (save, load)
 * Text annotations
-* JS220 current range min/max configuration
 
 ---
 

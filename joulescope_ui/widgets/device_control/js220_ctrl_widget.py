@@ -1,4 +1,4 @@
-# 2023 Jetperch LLC
+# Copyright 2023 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,8 +17,10 @@ from joulescope_ui.expanding_widget import ExpandingWidget
 import logging
 from joulescope_ui import N_, register, tooltip_format, pubsub_singleton, \
     get_instance, get_topic_name, Metadata
+from joulescope_ui.styles import color_as_qcolor
 from joulescope_ui.ui_util import comboBoxConfig
 from .device_info_dialog import DeviceInfoDialog
+from .current_limits import CurrentLimits
 import webbrowser
 
 
@@ -93,6 +95,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         self._parent = parent
         self.unique_id = unique_id
         self._widgets = []
+        self._control_widgets = {}  # name, widget
         self._unsub = []  # (topic, fn)
         self._row = 0
         self._signals = {}
@@ -389,8 +392,6 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             meta = Metadata(value)
             if 'hide' in meta.flags:
                 continue
-            if name == 'current_range' and self.is_js220:
-                pass  # todo add custom ranged slider for min/max selection
             self._add(name, meta)
 
     def _add_str(self, name):
@@ -403,6 +404,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             w.setText(str(v))
             w.blockSignals(block_state)
 
+        self._control_widgets[name] = w
         self._subscribe(topic, on_change)
         return w
 
@@ -423,6 +425,9 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         else:
             w.currentIndexChanged.connect(lambda idx: pubsub_singleton.publish(topic, options[idx][0]))
 
+        if name == 'current_range':
+            w.currentIndexChanged.connect(self._on_current_range)
+
         def lookup(v):
             try:
                 idx = option_values.index(v)
@@ -433,11 +438,37 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             w.setCurrentIndex(idx)
             w.blockSignals(block_state)
 
+        self._control_widgets[name] = w
         self._subscribe(topic, lookup)
         return w
 
+    def _add_current_range_limits(self, name, meta: Metadata):
+        w = CurrentLimits(self)
+        topic = f'{get_topic_name(self.unique_id)}/settings/{name}'
+        self._control_widgets[name] = w
+        w.values_changed.connect(lambda v0, v1: pubsub_singleton.publish(topic, [v0, v1]))
+        combobox = self._control_widgets.get('current_range', None)
+        if combobox is not None:
+            self._on_current_range(combobox.currentIndex())
+        self._subscribe(topic, w.values_set)
+        return w
+
+    def _on_current_range(self, v):
+        w = self._control_widgets.get('current_range_limits', None)
+        if w is not None:
+            w.setVisible(v == 0)
+
     def _add(self, name, meta: Metadata):
         tooltip = tooltip_format(meta.brief, meta.detail)
+
+        if name == 'current_range_limits':
+            w = self._add_current_range_limits(name, meta)
+            w.setToolTip(tooltip)
+            self._body_layout.addWidget(w, self._row, 0, 1, 2)
+            self._widgets.append(w)
+            self._row += 1
+            return
+
         lbl = QtWidgets.QLabel(meta.brief, self)
         lbl.setToolTip(tooltip)
         self._body_layout.addWidget(lbl, self._row, 0, 1, 1)
@@ -448,10 +479,9 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             w = self._add_combobox(name, meta)
         elif meta.dtype == 'str':
             w = self._add_str(name)
-        else:
-            pass
 
         if w is not None:
+            w.setParent(self)
             w.setToolTip(tooltip)
             self._body_layout.addWidget(w, self._row, 1, 1, 1)
             self._widgets.append(w)
@@ -535,3 +565,14 @@ class Js220CtrlWidget(QtWidgets.QWidget):
     @expanded.setter
     def expanded(self, value):
         self._expanding.expanded = value
+
+    def on_parent_style_change(self, style_obj):
+        if style_obj is None:
+            return
+        v = style_obj['vars']
+        w = self._control_widgets.get('current_range_limits', None)
+        if w is not None:
+            w.slider.background = color_as_qcolor(v['base.background_alternate'])
+            w.slider.foreground = color_as_qcolor(v['js1.button_checked'])
+            w.slider.handles = color_as_qcolor(v['base.foreground_alternate'])
+

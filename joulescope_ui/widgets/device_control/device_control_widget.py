@@ -74,6 +74,8 @@ class DeviceControlWidget(QtWidgets.QWidget):
         w.expanded = True
         self._device_widgets[unique_id] = w
         self._layout.insertWidget(self._layout.count() - 1, w)
+        if hasattr(w, 'on_parent_style_change'):
+            w.on_parent_style_change(self.style_obj)
 
     def closeEvent(self, event):
         for topic, fn in self._subscribers:
@@ -81,3 +83,8 @@ class DeviceControlWidget(QtWidgets.QWidget):
         while len(self._device_widgets):
             self._device_remove(next(iter(self._device_widgets)))
         return super().closeEvent(event)
+
+    def on_style_change(self):
+        for w in self._device_widgets.values():
+            if hasattr(w, 'on_parent_style_change'):
+                w.on_parent_style_change(self.style_obj)

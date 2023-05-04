@@ -171,7 +171,6 @@ QComboBox
     background: {% js1.input_background %};
     selection-background-color: {% js1.clickable_hover %};
     padding: 0.5ex;
-    min-width: 10ex;
 }
 
 QComboBox QAbstractItemView  /* The popup */
@@ -179,7 +178,6 @@ QComboBox QAbstractItemView  /* The popup */
     background: {% js1.input_background %};
     selection-background-color: {% js1.clickable_hover %};
     padding: 0.5ex;
-    min-width: 20ex;
 }
 
 QComboBox:on  /* shift the text when the popup opens */
