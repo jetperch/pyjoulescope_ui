@@ -238,7 +238,7 @@ def _target_lookup_by_pos(targets, pos):
     return name
 
 
-class _PlotWidget(QtOpenGLWidgets.QOpenGLWidget):
+class _PlotOpenGLWidget(QtOpenGLWidgets.QOpenGLWidget):
     """The inner plot widget that simply calls back to the Waveform widget."""
 
     def __init__(self, parent):
@@ -286,6 +286,48 @@ class _PlotWidget(QtOpenGLWidgets.QOpenGLWidget):
 
     def render_to_image(self):
         return self.grabFramebuffer()
+
+
+class _PlotWidget(QtWidgets.QWidget):
+    """The inner plot widget that simply calls back to the Waveform widget."""
+
+    def __init__(self, parent):
+        self._log = logging.getLogger(__name__ + '.plot')
+        self._parent = parent
+        super().__init__(parent)
+        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.setMouseTracking(True)
+
+    def paintEvent(self, ev):
+        size = self.width(), self.height()
+        painter = QtGui.QPainter(self)
+        painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
+        self._parent.plot_paint(painter, size)
+        painter.end()
+
+    def resizeEvent(self, event):
+        self._parent.plot_resizeEvent(event)
+        return super().resizeEvent(event)
+
+    def mousePressEvent(self, event):
+        self._parent.plot_mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        self._parent.plot_mouseReleaseEvent(event)
+
+    def mouseMoveEvent(self, event):
+        self._parent.plot_mouseMoveEvent(event)
+
+    def wheelEvent(self, event):
+        self._parent.plot_wheelEvent(event)
+
+    def render_to_image(self):
+        sz = self.size()
+        sz = QtCore.QSize(sz.width() * 2, sz.height() * 2)
+        pixmap = QtGui.QPixmap(sz)
+        pixmap.setDevicePixelRatio(2)
+        self.render(pixmap)
+        return pixmap.toImage()
 
 
 @register
@@ -345,6 +387,11 @@ class WaveformWidget(QtWidgets.QWidget):
         'show_statistics': {
             'dtype': 'bool',
             'brief': N_('Show the plot statistics on the right.'),
+            'default': True,
+        },
+        'opengl': {
+            'dtype': 'bool',
+            'brief': N_('Use OpenGL rendering.'),
             'default': True,
         },
         'x_range': {
@@ -428,7 +475,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._layout.setSpacing(0)
         self._layout.setContentsMargins(0, 0, 0, 0)
 
-        self._graphics = _PlotWidget(self)
+        self._graphics = _PlotOpenGLWidget(self)
         self._layout.addWidget(self._graphics)
         self._control = WaveformControlWidget(self)
         self._layout.addWidget(self._control)
@@ -455,6 +502,18 @@ class WaveformWidget(QtWidgets.QWidget):
             'times': [],
             'str': [],
         }
+
+    def on_setting_opengl(self, value):
+        value = bool(value)
+        cls = _PlotOpenGLWidget if value else _PlotWidget
+        if isinstance(self._graphics, cls):
+            return
+        index = self._layout.indexOf(self._graphics)
+        self._layout.removeWidget(self._graphics)
+        self._graphics.close()
+        self._graphics.deleteLater()
+        self._graphics = cls(self)
+        self._layout.insertWidget(index, self._graphics)
 
     def on_setting_control_location(self, value):
         if value == 'off':
