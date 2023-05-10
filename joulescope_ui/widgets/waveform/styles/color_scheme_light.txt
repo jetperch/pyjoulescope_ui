@@ -26,3 +26,16 @@ waveform.marker3 = #a040a0A0
 waveform.marker4 = #40a0a0A0
 waveform.marker5 = #e29740A0
 waveform.marker6 = #a0a0a0A0
+
+waveform.annotation_shape0 = #4040C0
+waveform.annotation_shape1 = #40c080
+waveform.annotation_shape2 = #c04040
+waveform.annotation_shape3 = #8040c0
+waveform.annotation_shape4 = #c0c020
+waveform.annotation_shape5 = #40c0c0
+waveform.annotation_shape6 = #c08040
+waveform.annotation_shape7 = #40c040
+waveform.annotation_shape8 = #c040c0
+waveform.annotation_shape9 = #c0c080
+waveform.annotation_shape10 = #80c0c0
+waveform.annotation_text = #404040

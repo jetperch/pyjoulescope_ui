@@ -9,7 +9,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 <span style="color:#6090ff">🛈 BETA RELEASE 🛈</span> 
 
-2023 May 8 [in progress]
+2023 May 10 [in progress]
 
 ### Changes
 
@@ -20,6 +20,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Improved main window menu style.
 * Added current range limit slider to JS220 control widget.
 * Added option to use QWidget (not OpenGL widget) for waveform widget plot.
+* Added text annotations [in progress].
 
 
 ### Known issues
@@ -29,13 +30,6 @@ This file contains the list of changes made to pyjoulescope_ui.
    other widgets.  We suspected an OpenGL issue.
 2. Undo / redo support is not working
 
-### Missing features
-
-The following features are planned for the first v1.0.x stable release,
-but they are not yet present in this release:
-
-* Profile management (save, load)
-* Text annotations
 
 ---
 
