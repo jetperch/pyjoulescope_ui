@@ -19,7 +19,7 @@ from joulescope_ui.shortcuts import Shortcuts
 from joulescope_ui.styles import styled_widget, color_as_qcolor, color_as_string, font_as_qfont
 from joulescope_ui.widget_tools import settings_action_create
 from .line_segments import PointsF
-from .text_annotation import TextAnnotationDialog, SHAPES_DEF
+from .text_annotation import TextAnnotationDialog, SHAPES_DEF, Y_POSITION_MODE
 from .waveform_control import WaveformControlWidget
 from joulescope_ui.time_map import TimeMap
 import copy
@@ -2245,7 +2245,6 @@ class WaveformWidget(QtWidgets.QWidget):
                 x_map = ta_plot['x_map']
                 x_map_idx = np.where(x_map[:, 1] == a_id)[0][0]
                 x_map[x_map_idx, 0] = xt
-                ta_plot['x_map'] = np.sort(x_map, axis=0)
 
                 # bound to y range
                 if a['y_mode'] == 'manual':
@@ -2345,7 +2344,7 @@ class WaveformWidget(QtWidgets.QWidget):
             if item.startswith('x_marker.'):
                 self._menu_x_marker_single(item, event)
             elif item.startswith('text_annotation.'):
-                print(f'{item} right-click')
+                self._menu_text_annotation_context(item, event)
             elif 'y_marker' in item:
                 self._menu_y_marker_single(item, event)
             elif y_name.startswith('plot.'):
@@ -2577,6 +2576,7 @@ class WaveformWidget(QtWidgets.QWidget):
         topic = get_topic_name(self)
         if action == 'add':
             kwargs = {
+                # new, so no id
                 'plot': plot['index'],
                 'text': '',
                 'text_show': True,
@@ -2762,6 +2762,78 @@ class WaveformWidget(QtWidgets.QWidget):
                       show_stats_menu, show_stats_group, left, right, off,
                       marker_remove]
         return self._menu_show(event)
+
+    def _menu_text_annotation_context(self, item, event):
+        a_id = int(item.split('.')[-1])
+        a = self._text_annotations['items'][a_id]
+        menu = QtWidgets.QMenu('Waveform text annotation context menu', self)
+
+        edit = menu.addAction(N_('Edit'))
+        edit.triggered.connect(lambda: self._on_text_annotation_edit(a_id))
+
+        show = menu.addAction(N_('Show text'))
+        show.setCheckable(True)
+        show.setChecked(a['text_show'])
+        show.toggled.connect(lambda value: self._on_text_annotation_show(a_id, value))
+
+        menu_items = []
+        y_mode = menu.addMenu(N_('Y mode'))
+        y_mode_group = QtGui.QActionGroup(y_mode)
+
+        def y_mode_item(value, name):
+            m = y_mode.addAction(name)
+            m.setCheckable(True)
+            m.setChecked(a['y_mode'] == value)
+            m.triggered.connect(lambda: self._on_text_annotation_y_mode(a_id, value))
+            y_mode_group.addAction(m)
+            return m
+
+        menu_items.append([y_mode_item(*value) for value in Y_POSITION_MODE])
+
+        shape = menu.addMenu(N_('Shape'))
+        shape_group = QtGui.QActionGroup(shape)
+
+        def shape_item(index, name):
+            m = shape.addAction(name)
+            m.setCheckable(True)
+            m.setChecked(a['shape'] == index)
+            m.triggered.connect(lambda: self._on_text_annotation_shape(a_id, index))
+            shape_group.addAction(m)
+            return m
+
+        menu_items.append([shape_item(index, value[1]) for index, value in enumerate(SHAPES_DEF)])
+
+        remove = menu.addAction(N_('Remove'))
+        remove.triggered.connect(lambda: self._on_text_annotation_remove(a_id))
+
+        self._menu = [
+            menu, edit, show, y_mode, y_mode_group, shape, shape_group, remove,
+        ]
+
+        return self._menu_show(event)
+
+    def _on_text_annotation_edit(self, a_id):
+        a = self._text_annotations['items'][a_id]
+        TextAnnotationDialog(self, self.unique_id, a).show()
+
+    def _on_text_annotation_show(self, a_id, value):
+        a = self._text_annotations['items'][a_id]
+        a['text_show'] = bool(value)
+        self._repaint_request = True
+
+    def _on_text_annotation_y_mode(self, a_id, value):
+        a = self._text_annotations['items'][a_id]
+        a['y_mode'] = value
+        self._repaint_request = True
+
+    def _on_text_annotation_shape(self, a_id, index):
+        a = self._text_annotations['items'][a_id]
+        a['shape'] = index
+        self._repaint_request = True
+
+    def _on_text_annotation_remove(self, a_id):
+        a = self._text_annotations['items'][a_id]
+        self._text_annotation_remove(a)
 
     def _menu_y_marker_single(self, item, event: QtGui.QMouseEvent):
         _, plot_idx, _, m_idx, m_pos = item.split('.')
@@ -3106,10 +3178,7 @@ class WaveformWidget(QtWidgets.QWidget):
             v['x_map_alloc'] = x_map_alloc * 2
             np.resize(x_map, (v, 2))
             x_map[x_map_alloc:, 0] = np.iinfo(np.int64).max
-        idx = np.searchsorted(x_map[:, 0], a['x'])
-        x_map[idx + 1:, :] = x_map[idx:-1, :]
-        x_map[idx, 0] = a['x']
-        x_map[idx, 1] = a['id']
+        x_map[v['x_map_length'] - 1, :] = a['x'], a['id']
         self._repaint_request = True
 
     def _text_annotation_remove(self, a):
@@ -3128,18 +3197,18 @@ class WaveformWidget(QtWidgets.QWidget):
             pass
 
         p = self._text_annotations['plots'][plot['index']]
-        idx = np.where(p['x_pos'][:, 1] == a_id)[0]
+        x_map = p['x_map']
+        idx = np.where(x_map[:, 1] == a_id)[0]
         idx_len = len(idx)
         if idx_len == 0:
             self._log.warning('_text_annotation_remove but missing in x_pos list')
+        elif idx_len > 1:
+            self._log.warning('_text_annotation_remove but too many entries')
         else:
-            x_pos = p['x_pos']
-            if idx_len > 1:
-                self._log.warning('_text_annotation_remove but too many entries')
-            for k in idx[-1::-1]:
-                x_pos[k:-1, :] = x_pos[k + 1:, :]
-            x_pos[-idx_len:, 0] = np.iinfo(np.int64).max
-            p['x_pos_length'] -= idx_len
+            k = p['x_map_length']
+            x_map[idx[0]:(k - 1), :] = x_map[(idx[0] + 1):k, :]
+            p['x_map_length'] = k - 1
+        self._repaint_request = True
 
     def on_action_text_annotation(self, topic, value):
         """Perform a text annotation action.
