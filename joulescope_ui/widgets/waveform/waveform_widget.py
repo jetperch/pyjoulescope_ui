@@ -2690,6 +2690,8 @@ class WaveformWidget(QtWidgets.QWidget):
         pubsub_singleton.publish('registry/exporter/actions/!run', {
             'x_range': (x0, x1),
             'signals': signals,
+            'start_callbacks': [f'{get_topic_name(self)}/callbacks/!annotation_save'],
+            'done_callbacks': [],
         })
 
     def _on_range_tool(self, unique_id, marker_idx):
@@ -3209,6 +3211,22 @@ class WaveformWidget(QtWidgets.QWidget):
             x_map[idx[0]:(k - 1), :] = x_map[(idx[0] + 1):k, :]
             p['x_map_length'] = k - 1
         self._repaint_request = True
+
+    def on_callback_annotation_save(self, value):
+        """Export callback to save annotations.
+
+        :param value: The value dict with keys (see _on_x_export):
+            * x_range: The (x0, x1) time64 range.
+            * signals: The list of signals to export
+            * path: The user-selected export path for the main data file.
+        """
+        x0, x1 = value['x_range']
+        path_base, path_ext = os.path.splitext(value['path'])
+        path = f'{path_base}.anno{path_ext}'
+
+        # get x-axis single and dual markers
+        # get y-axis single and dual markers for each plot
+        # get text annotations for each plot
 
     def on_action_text_annotation(self, topic, value):
         """Perform a text annotation action.
