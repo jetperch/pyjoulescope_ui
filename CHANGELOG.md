@@ -9,7 +9,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 <span style="color:#6090ff">🛈 BETA RELEASE 🛈</span> 
 
-2023 May 11 [in progress]
+2023 May 12 [in progress]
 
 ### Changes
 

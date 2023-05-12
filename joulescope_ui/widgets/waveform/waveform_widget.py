@@ -22,6 +22,7 @@ from .line_segments import PointsF
 from .text_annotation import TextAnnotationDialog, SHAPES_DEF, Y_POSITION_MODE
 from .waveform_control import WaveformControlWidget
 from joulescope_ui.time_map import TimeMap
+from collections import OrderedDict
 import copy
 import logging
 import numpy as np
@@ -31,36 +32,6 @@ from PySide6.QtGui import QPen, QBrush
 from joulescope_ui.units import convert_units, UNITS_SETTING, unit_prefix
 from . import axis_ticks
 from collections.abc import Iterable
-
-
-"""
-TEXT ANNOTATIONS:
-
-Each text_annotation is {
-    'id': id
-    'plot': plot_id,
-    'text': str,
-    'text_show': bool,
-    'shape': shape_id,
-    'x': 0,  # i64 timestamp
-    'y': None, # in signal coordinates 
-    'y_mode': one of ['manual', 'centered']
-}
-Additional potential future keys include: 
-    * shape_size
-    * shape_color
-    * text_font
-    * text_size
-
-Each plot contains a text_annotation key with the unordered list
-of unsaved annotations that will be reloaded on next program invocation.
-The preferred way to save larger number of annotations is in 
-an ".anno.jls" file.
-
-The waveform widget also maintains a "private" _text_annotations
-member that is used to dynamically manage the text annotations.
-This member is not saved across invocations.
-"""
 
 
 _NAME = N_('Waveform')
@@ -79,6 +50,9 @@ _JS220_AXIS_R = ['10 A', '180 mA', '18 mA', '1.8 mA', '180 µA', '18 µA', 'off'
 _JS110_AXIS_R = ['10 A', '2 A', '180 mA', '18 mA', '1.8 mA', '180 µA', '18 µA', 'off', 'off']
 _LOGARITHMIC_ZERO_DEFAULT = -9
 _TEXT_ANNOTATION_X_POS_ALLOC = 64
+_ANNOTATION_TEXT_MOD = (1 << 48)
+_ANNOTATION_Y_MOD = ((1 << 16) + 2)   # must be multiple of plot colors
+_MARKER_SELECT_DISTANCE_PIXELS = 5
 
 
 def _analog_plot(quantity, show, units, name, integral=None):
@@ -136,15 +110,6 @@ _STATE_DEFAULT = {
         _digital_plot('3', N_('General purpose input 3')),
         _digital_plot('T', N_('Trigger input')),
     ],
-    'x_markers': [],  # list of marker dicts with keys:
-        # id: The marker id int
-        # dtype: 'single' or 'dual'
-        # pos1: The marker position in time64
-        # pos2: For single: not present.  For dual: the second marker position in time64.
-        # changed: if position changed and data request needed
-        # text_pos1: The text position for marker 1
-        # text_pos2: The text position for marker 2
-    'text_annotation_next_id': 0,
 }
 
 
@@ -452,6 +417,12 @@ class WaveformWidget(QtWidgets.QWidget):
             'default': None,
             'flags': ['hide', 'ro'],
         },
+        'annotations': {
+            'dtype': 'obj',
+            'brief': N_('The annotations.'),
+            'default': None,
+            'flags': ['hide', 'ro', 'skip_undo', 'tmp'],
+        },
         'control_location': {
             'dtype': 'str',
             'brief': N_('Control location'),
@@ -481,7 +452,6 @@ class WaveformWidget(QtWidgets.QWidget):
         self._log = logging.getLogger(__name__)
         self._kwargs = kwargs
         self._style_cache = None
-        self._x_markers_by_id = {}
         self._summary_data = None
         super().__init__(parent)
 
@@ -526,8 +496,6 @@ class WaveformWidget(QtWidgets.QWidget):
         self._signals_data = {}
         self._marker_data = {}  # rsp_id -> data,
         self._subsource_order = []
-
-        self._text_annotations = None
 
         self._refresh_timer = QtCore.QTimer()
         self._refresh_timer.setTimerType(QtGui.Qt.PreciseTimer)
@@ -642,7 +610,21 @@ class WaveformWidget(QtWidgets.QWidget):
         elif is_device:  # clear prior state
             for plot in self.state['plots']:
                 plot['signals'] = []
-            self.state['x_markers'] = []
+        self.annotations = {
+            'next_id': 0,
+            'x': OrderedDict(),
+            'y': [],
+            'text': [],
+        }
+        for _ in self.state['plots']:
+            self.annotations['y'].append(OrderedDict())
+            e = np.zeros((_TEXT_ANNOTATION_X_POS_ALLOC, 2), dtype=np.int64)
+            e[:, 0] = np.iinfo(np.int64).max
+            self.annotations['text'].append({
+                'items': {},
+                'x_lookup': e,
+                'x_lookup_length': 0,
+            })
         if self.summary_signal is not None:
             self.summary_signal = tuple(self.summary_signal)
         if 'on_widget_close_actions' in self._kwargs:
@@ -653,14 +635,10 @@ class WaveformWidget(QtWidgets.QWidget):
             plot['signals'] = [tuple(signal) for signal in plot['signals']]
             plot['y_region'] = f'plot.{plot_index}'
             plot.setdefault('logarithmic_zero', _LOGARITHMIC_ZERO_DEFAULT)
-            if 'y_markers' not in plot:
-                plot['y_markers'] = []
         self.pubsub.subscribe('registry_manager/capabilities/signal_buffer.source/list',
                               self._on_source_list_fn, ['pub', 'retain'])
         topic = get_topic_name(self)
         self._control.on_pubsub_register(self.pubsub, topic, source_filter)
-        for m in self.state['x_markers']:
-            self._x_markers_by_id[m['id']] = m
         self._shortcuts_add()
 
     def _shortcuts_add(self):
@@ -822,7 +800,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 self._request_signal(signal, self.x_range)
                 changed = True
         if self.state is not None:
-            for m in self.state['x_markers']:
+            for m in self.annotations['x'].values():
                 if m.get('changed', True) or changed:
                     m['changed'] = False
                     self._request_marker_data(m)
@@ -916,7 +894,7 @@ class WaveformWidget(QtWidgets.QWidget):
         data['time_range_utc'] = utc
         data['time_range_samples'] = value['info']['time_range_samples']
 
-        if rsp_id > _MARKER_RSP_OFFSET:
+        if rsp_id >= _MARKER_RSP_OFFSET:
             marker_id, plot_id = _marker_from_rsp_id(rsp_id)
             self._marker_data[(marker_id, plot_id)] = data
         elif rsp_id == 1:
@@ -1619,8 +1597,8 @@ class WaveformWidget(QtWidgets.QWidget):
 
         p.setBrush(s['text_brush'])
         f_a = s['axis_font_metrics'].ascent()
-        for m in plot['y_markers']:
-            color_index = ((m['id'] - 1) % 6) + 1
+        for m in self.annotations['y'][plot['index']].values():
+            color_index = self._marker_color_index(m)
             pen = s[f'marker{color_index}_pen']
             fg = s[f'marker{color_index}_fg']
             bg = s[f'marker{color_index}_bg']
@@ -1644,6 +1622,9 @@ class WaveformWidget(QtWidgets.QWidget):
 
         p.setClipping(False)
 
+    def _marker_color_index(self, m):
+        return (m['id'] % 6) + 1
+
     def _draw_markers_background(self, p):
         s = self._style
         h, y0, _ = self._y_geometry_info['x_axis']
@@ -1653,13 +1634,13 @@ class WaveformWidget(QtWidgets.QWidget):
         ya = y0 + _MARGIN + font_metrics.ascent()
 
         p.setClipRect(x0, y0, xw, y1 - y0)
-        for m in self.state['x_markers'][-1::-1]:
+        for m in self.annotations['x'].values():
             if m['dtype'] != 'dual':
                 continue
             x1, x2 = m['pos1'], m['pos2']
             p1 = np.rint(self._x_map.time64_to_counter(x1))
             p2 = np.rint(self._x_map.time64_to_counter(x2))
-            color_index = ((m['id'] - 1) % 6) + 1
+            color_index = self._marker_color_index(m)
             bg = s[f'marker{color_index}_bg']
             p.setPen(self._NO_PEN)
             p.setBrush(bg)
@@ -1670,7 +1651,7 @@ class WaveformWidget(QtWidgets.QWidget):
     def _x_markers_remove_expired(self):
         del_idx = []
         x_min, x_max = self._extents()
-        for idx, m in enumerate(self.state['x_markers'][-1::-1]):
+        for idx, m in enumerate(self.annotations['x'].values()):
             idx_adj = -(idx + 1)
             x_min = self._extents()[0]
             pos1 = m['pos1']
@@ -1685,7 +1666,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 continue
         for idx in del_idx:
             self._log.info('marker expired %d', idx)
-            del self.state['x_markers'][idx]
+            del self.annotations['x'][idx]
 
     def _draw_markers(self, p, size):
         s = self._style
@@ -1699,8 +1680,8 @@ class WaveformWidget(QtWidgets.QWidget):
         ya = y0 + margin + f_a
         x_min = self._extents()[0]
 
-        for idx, m in enumerate(self.state['x_markers'][-1::-1]):
-            color_index = ((m['id'] - 1) % 6) + 1
+        for idx, m in enumerate(self.annotations['x'].values()):
+            color_index = self._marker_color_index(m)
             pos1 = m['pos1']
             w = h // 2
             he = h // 3
@@ -1991,41 +1972,77 @@ class WaveformWidget(QtWidgets.QWidget):
         self._draw_statistics_text(p, (x0, y0), values)
         p.setClipping(False)
 
+    def _annotation_next_id(self, annotation_type: str, plot_index=None):
+        next_idx = 0
+        prefix = annotation_type[0]
+        if prefix == 'x':
+            for idx in sorted(list(self.annotations['x'].keys())):
+                if idx != next_idx:
+                    break
+                next_idx += 1
+        elif prefix == 'y':
+            for idx in sorted(list(self.annotations['y'][plot_index].keys())):
+                idx_mod = idx % _ANNOTATION_Y_MOD
+                if idx_mod != next_idx:
+                    break
+                next_idx += 1
+            next_idx += _ANNOTATION_Y_MOD * (plot_index + 1)
+        elif prefix == 't':
+            next_idx = self.annotations['next_id']
+            self.annotations['next_id'] = next_idx + 1
+            next_idx += _ANNOTATION_TEXT_MOD * (plot_index + 1)
+        else:
+            raise ValueError('could not assign annotation id')
+        self._log.info('_annotation_next_id(%s, %s) => %s',
+                       annotation_type, plot_index, next_idx)
+        return next_idx
+
+    def _annotation_lookup(self, a_id):
+        if isinstance(a_id, dict):
+            return a_id  # presume that it is a valid text annotation
+        elif isinstance(a_id, int):
+            if a_id < _ANNOTATION_Y_MOD:
+                return self.annotations['x'][a_id]
+            elif a_id < _ANNOTATION_TEXT_MOD:
+                plot_index = (a_id // _ANNOTATION_Y_MOD) - 1
+                return self.annotations['y'][plot_index][a_id]
+            else:
+                plot_index = (a_id // _ANNOTATION_TEXT_MOD) - 1
+                return self.annotations['text'][plot_index]['items'][a_id]
+        raise RuntimeError(f'annotation {a_id} not found')
+
     def _text_annotation_nearest(self, plot, x, y, d_max):
-        if self._text_annotations is None:
-            return None
-        items = self._text_annotations['items']
-        entry = self._text_annotations['plots'][plot['index']]
-        x_map = entry['x_map'][:entry['x_map_length'], :]
-        x_v = self._x_map.time64_to_counter(x_map[:, 0])
-        x_map_idx = np.abs(x_v - x) < d_max  # possible entries
-        x_map = x_map[x_map_idx, :]
-        x_v = x_v[x_map_idx]
+        plot_entry = self.annotations['text'][plot['index']]
+        items = plot_entry['items']
+        x_lookup_length = plot_entry['x_lookup_length']
+        x_lookup = plot_entry['x_lookup'][:x_lookup_length, :]
+        x_v = self._x_map.time64_to_counter(x_lookup[:, 0])
+        x_lookup_idx = np.abs(x_v - x) < d_max  # possible entries
+        x_lookup = x_lookup[x_lookup_idx, :]
+        x_v = x_v[x_lookup_idx]
         if not len(x_v):
             return None
         y_range = plot['range']
         y_center = (y_range[1] + y_range[0]) / 2
         y_v = np.array([(y_center if items[a_id]['y_mode'] == 'centered' else items[a_id]['y'])
-                        for a_id in x_map[:, 1]], dtype=float)
+                        for a_id in x_lookup[:, 1]], dtype=float)
         y_v = self._y_value_to_pixel(plot, y_v)
         d = (x_v - x) ** 2 + (y_v - y) ** 2
         idx = np.argmin(d)
         if d[idx] < (d_max ** 2):
-            return items[x_map[idx, 1]]
+            return items[x_lookup[idx, 1]]
         return None
 
     def _draw_text_annotations(self, p, plot):
-        if self._text_annotations is None:
-            return
-        items = self._text_annotations['items']
-        entry = self._text_annotations['plots'][plot['index']]
-        k = entry['x_map_length']
-        if k <= 0:
+        plot_entry = self.annotations['text'][plot['index']]
+        items = plot_entry['items']
+        x_lookup_length = plot_entry['x_lookup_length']
+        x_lookup = plot_entry['x_lookup'][:x_lookup_length, :]
+        if not len(x_lookup):
             return
         x0, x1 = self.x_range
-        x_map = entry['x_map'][:entry['x_map_length'], :]
-        t = x_map[:, 0]
-        view = x_map.compress(np.logical_and(t >= x0, t <= x1), axis=0)
+        t = x_lookup[:, 0]
+        view = x_lookup.compress(np.logical_and(t >= x0, t <= x1), axis=0)
         view[:, 0] = self._x_map.time64_to_counter(view[:, 0])
         if not len(view):
             return
@@ -2077,26 +2094,30 @@ class WaveformWidget(QtWidgets.QWidget):
         return x_name, y_name
 
     def _find_x_marker(self, x):
-        mx = []
-        idx = []
-        pos_idx = []
-        for k, m in enumerate(self.state['x_markers']):
-            mx.append(m['pos1'])
-            idx.append(k)
-            pos_idx.append('pos1')
+        marker_info = []  # x, marker, pos
+        for m in reversed(self.annotations['x'].values()):
+            marker_info.append([m['pos1'], m, 'pos1'])
             if m['dtype'] == 'dual':
-                mx.append(m['pos2'])
-                pos_idx.append('pos2')
-                idx.append(k)
+                marker_info.append([m['pos2'], m, 'pos2'])
+        mx = np.array([e[0] for e in marker_info], dtype=np.int64)
         mx = self._x_map.time64_to_counter(mx)
         dx = np.abs(x - mx)
-        z = np.where(dx < 5)[0]
+        z = np.where(dx < _MARKER_SELECT_DISTANCE_PIXELS)[0]
         if len(z):
-            m_idx = idx[z[0]]
-            pos = pos_idx[z[0]]
-            m = self.state['x_markers'][m_idx]
-            return f'x_marker.{m["id"]}.{pos}'
+            _, marker, pos = marker_info[z[0]]
+            return f'x_marker.{marker["id"]}.{pos}'
         return ''
+
+    def _item_parse_x_marker(self, item: str, activate=None) -> (dict, str):
+        parts = item.split('.')
+        if len(parts) != 3 or parts[0] != 'x_marker':
+            raise ValueError(f'invalid x_marker spec: {item}')
+        marker_id, pos = parts[1:]
+        marker_id = int(marker_id)
+        marker = self._annotation_lookup(marker_id)
+        if bool(activate):
+            self.annotations['x'].move_to_end(marker_id)
+        return marker, pos
 
     def _find_text_annotation(self, plot, x, y, distance):
         plot = self._plot_get(plot)
@@ -2105,28 +2126,39 @@ class WaveformWidget(QtWidgets.QWidget):
             return ''
         return f'text_annotation.{a["id"]}'
 
+    def _item_parse_text_annotation(self, item) -> dict:
+        parts = item.split('.')
+        if len(parts) != 2 or parts[0] != 'text_annotation':
+            raise ValueError(f'invalid text_annotation spec: {item}')
+        return self._annotation_lookup(int(parts[1]))
+
     def _find_y_marker(self, plot, y):
         plot = self._plot_get(plot)
-        m_y = []
-        idx = []
-        pos_idx = []
-        for k, m in enumerate(plot['y_markers']):
-            m_y.append(m['pos1'])
-            idx.append(k)
-            pos_idx.append('pos1')
+        plot_index = plot['index']
+        marker_info = []  # y, marker, pos
+        for m in reversed(self.annotations['y'][plot_index].values()):
+            marker_info.append([m['pos1'], m, 'pos1'])
             if m['dtype'] == 'dual':
-                m_y.append(m['pos2'])
-                pos_idx.append('pos2')
-                idx.append(k)
-        m_p = self._y_value_to_pixel(plot, np.array(m_y))
-        dy = np.abs(y - m_p)
-        z = np.where(dy < 5)[0]
+                marker_info.append([m['pos2'], m, 'pos2'])
+        my = np.array([e[0] for e in marker_info], dtype=float)
+        my = self._y_value_to_pixel(plot, my)
+        dy = np.abs(y - my)
+        z = np.where(dy < _MARKER_SELECT_DISTANCE_PIXELS)[0]
         if len(z):
-            m_idx = idx[z[0]]
-            pos = pos_idx[z[0]]
-            m = plot['y_markers'][m_idx]
-            return f'{plot["y_region"]}.y_marker.{m["id"]}.{pos}'
+            _, marker, pos = marker_info[z[0]]
+            return f'y_marker.{marker["id"]}.{pos}'
         return ''
+
+    def _item_parse_y_marker(self, item: str, activate=None) -> (dict, str):
+        parts = item.split('.')
+        if len(parts) != 3 or parts[0] != 'y_marker':
+            raise ValueError(f'invalid y_marker spec: {item}')
+        marker_id, pos = parts[1:]
+        marker_id = int(marker_id)
+        marker = self._annotation_lookup(marker_id)
+        if bool(activate):
+            self.annotations['y'][marker['plot_index']].move_to_end(marker_id)
+        return marker, pos
 
     def _find_item(self, pos=None):
         if pos is None:
@@ -2200,8 +2232,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 xr = self.x_range
                 xt = max(xr[0], min(xt, xr[1]))  # bound to range
                 item, move_both = self._mouse_action[1:3]
-                _, m_idx, m_field = item.split('.')
-                m = self._x_markers_by_id[int(m_idx)]
+                m, m_field = self._item_parse_x_marker(item)
                 m['changed'] = True
                 xd = xt - m[m_field]
                 m[m_field] += xd
@@ -2212,9 +2243,8 @@ class WaveformWidget(QtWidgets.QWidget):
                     self._request_marker_data(m)
             elif action == 'move.y_marker':
                 item, move_both = self._mouse_action[1:3]
-                _, plot_index, _, m_idx, m_field = item.split('.')
-                plot = self._plot_get(int(plot_index))
-                m = self._y_marker_get(plot, int(m_idx))
+                m, m_field = self._item_parse_y_marker(item)
+                plot = self._plot_get(m['plot_index'])
                 yt = self._y_pixel_to_value(plot, y, skip_transform=True)
                 yd = yt - self._y_transform_fwd(plot, m[m_field])
                 yr = plot['range']
@@ -2232,19 +2262,18 @@ class WaveformWidget(QtWidgets.QWidget):
                 self._mouse_y_pan(y)
             elif action == 'move.text_annotation':
                 item, is_ctrl = self._mouse_action[1:3]
-                a_id = int(item.split('.')[-1])
-                a = self._text_annotations['items'][a_id]
-                plot = self._plot_get(a['plot'])
+                a = self._item_parse_text_annotation(item)
+                plot = self._plot_get(a['plot_index'])
 
                 # bound to x range
                 xt = self._x_map.counter_to_time64(x)
                 xr = self.x_range
                 xt = max(xr[0], min(xt, xr[1]))  # bound to x range
                 a['x'] = xt
-                ta_plot = self._text_annotations['plots'][plot['index']]
-                x_map = ta_plot['x_map']
-                x_map_idx = np.where(x_map[:, 1] == a_id)[0][0]
-                x_map[x_map_idx, 0] = xt
+                entry = self.annotations['text'][plot['index']]
+                x_lookup = entry['x_lookup']
+                x_lookup_idx = np.where(x_lookup[:, 1] == a['id'])[0][0]
+                x_lookup[x_lookup_idx, 0] = xt
 
                 # bound to y range
                 if a['y_mode'] == 'manual':
@@ -2311,6 +2340,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 if self._mouse_action is not None:
                     self._mouse_action = None
                 else:
+                    self._item_parse_x_marker(item, activate=True)
                     self._mouse_action = ['move.x_marker', item, is_ctrl]
             elif item.startswith('text_annotation.'):
                 if self._mouse_action is not None:
@@ -2321,6 +2351,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 if self._mouse_action is not None:
                     self._mouse_action = None
                 else:
+                    self._item_parse_y_marker(item, activate=True)
                     self._mouse_action = ['move.y_marker', item, is_ctrl]
             elif y_name == 'summary':
                 if self.pin_left or self.pin_right:
@@ -2405,8 +2436,7 @@ class WaveformWidget(QtWidgets.QWidget):
             if item.startswith('x_marker') or 'y_marker' in item:
                 pass  # keep dragging
             elif item.startswith('text_annotation.') and self._mouse_action is not None:
-                a_id = int(item.split('.')[-1])
-                a = self._text_annotations['items'][a_id]
+                a = self._item_parse_text_annotation(item)
                 is_ctrl = self._mouse_action[-1]
                 if is_ctrl:
                     a['text_show'] = not a['text_show']
@@ -2577,7 +2607,7 @@ class WaveformWidget(QtWidgets.QWidget):
         if action == 'add':
             kwargs = {
                 # new, so no id
-                'plot': plot['index'],
+                'plot_index': plot['index'],
                 'text': '',
                 'text_show': True,
                 'shape': 0,
@@ -2591,7 +2621,9 @@ class WaveformWidget(QtWidgets.QWidget):
             self.pubsub.publish(f'{topic}/actions/!text_annotation', [action, plot['index']])
 
     def _on_menu_annotations_clear_all(self):
-        pass
+        self._on_menu_x_marker('clear_all')
+        self._on_menu_y_marker('clear_all')
+        self._on_menu_text_annotation('clear_all')
 
     def _menu_add_text_annotations(self, menu: QtWidgets.QMenu):
         add = QtGui.QAction(N_('Add'))
@@ -2672,7 +2704,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _on_x_export(self, src):
         if isinstance(src, int):  # marker_id
-            m = self._x_markers_by_id[src]
+            m = self._annotation_lookup(src)
             x0, x1 = m['pos1'], m['pos2']
             if x0 > x1:
                 x0, x1 = x1, x0
@@ -2695,7 +2727,7 @@ class WaveformWidget(QtWidgets.QWidget):
         })
 
     def _on_range_tool(self, unique_id, marker_idx):
-        m = self._x_markers_by_id[marker_idx]
+        m = self._annotation_lookup(marker_idx)
         x0, x1 = m['pos1'], m['pos2']
         if x0 > x1:
             x0, x1 = x1, x0
@@ -2713,10 +2745,8 @@ class WaveformWidget(QtWidgets.QWidget):
         return action
 
     def _menu_x_marker_single(self, item, event: QtGui.QMouseEvent):
+        m, pos_text = self._item_parse_x_marker(item)
         dynamic_items = []
-        _, idx, pos_text = item.split('.')
-        idx = int(idx)
-        m = self._x_markers_by_id[idx]
         is_dual = m.get('dtype') == 'dual'
         pos = m.get(f'text_{pos_text}', 'right')
 
@@ -2724,7 +2754,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
         if is_dual:
             export = menu.addAction(N_('Export'))
-            export.triggered.connect(lambda: self._on_x_export(idx))
+            export.triggered.connect(lambda: self._on_x_export(m['id']))
             dynamic_items.append(export)
 
             analysis_menu = menu.addMenu(N_('Analysis'))
@@ -2733,7 +2763,7 @@ class WaveformWidget(QtWidgets.QWidget):
             for unique_id in range_tools:
                 if unique_id == 'exporter':
                     continue  # special, has own menu item
-                action = self._construct_analysis_menu_action(analysis_menu, unique_id, idx)
+                action = self._construct_analysis_menu_action(analysis_menu, unique_id, m['id'])
                 dynamic_items.append(action)
 
         show_stats_menu = menu.addMenu(N_('Show statistics'))
@@ -2759,24 +2789,23 @@ class WaveformWidget(QtWidgets.QWidget):
 
         marker_remove = menu.addAction(N_('Remove'))
         topic = get_topic_name(self)
-        marker_remove.triggered.connect(lambda: self.pubsub.publish(f'{topic}/actions/!x_markers', ['remove', idx]))
+        marker_remove.triggered.connect(lambda: self.pubsub.publish(f'{topic}/actions/!x_markers', ['remove', m['id']]))
         self._menu = [menu, dynamic_items,
                       show_stats_menu, show_stats_group, left, right, off,
                       marker_remove]
         return self._menu_show(event)
 
     def _menu_text_annotation_context(self, item, event):
-        a_id = int(item.split('.')[-1])
-        a = self._text_annotations['items'][a_id]
+        a = self._item_parse_text_annotation(item)
         menu = QtWidgets.QMenu('Waveform text annotation context menu', self)
 
         edit = menu.addAction(N_('Edit'))
-        edit.triggered.connect(lambda: self._on_text_annotation_edit(a_id))
+        edit.triggered.connect(lambda: self._on_text_annotation_edit(a['id']))
 
         show = menu.addAction(N_('Show text'))
         show.setCheckable(True)
         show.setChecked(a['text_show'])
-        show.toggled.connect(lambda value: self._on_text_annotation_show(a_id, value))
+        show.toggled.connect(lambda value: self._on_text_annotation_show(a['id'], value))
 
         menu_items = []
         y_mode = menu.addMenu(N_('Y mode'))
@@ -2786,7 +2815,7 @@ class WaveformWidget(QtWidgets.QWidget):
             m = y_mode.addAction(name)
             m.setCheckable(True)
             m.setChecked(a['y_mode'] == value)
-            m.triggered.connect(lambda: self._on_text_annotation_y_mode(a_id, value))
+            m.triggered.connect(lambda: self._on_text_annotation_y_mode(a['id'], value))
             y_mode_group.addAction(m)
             return m
 
@@ -2799,14 +2828,14 @@ class WaveformWidget(QtWidgets.QWidget):
             m = shape.addAction(name)
             m.setCheckable(True)
             m.setChecked(a['shape'] == index)
-            m.triggered.connect(lambda: self._on_text_annotation_shape(a_id, index))
+            m.triggered.connect(lambda: self._on_text_annotation_shape(a['id'], index))
             shape_group.addAction(m)
             return m
 
         menu_items.append([shape_item(index, value[1]) for index, value in enumerate(SHAPES_DEF)])
 
         remove = menu.addAction(N_('Remove'))
-        remove.triggered.connect(lambda: self._on_text_annotation_remove(a_id))
+        remove.triggered.connect(lambda: self._on_text_annotation_remove(a['id']))
 
         self._menu = [
             menu, edit, show, y_mode, y_mode_group, shape, shape_group, remove,
@@ -2815,39 +2844,35 @@ class WaveformWidget(QtWidgets.QWidget):
         return self._menu_show(event)
 
     def _on_text_annotation_edit(self, a_id):
-        a = self._text_annotations['items'][a_id]
+        a = self._annotation_lookup(a_id)
         TextAnnotationDialog(self, self.unique_id, a).show()
 
     def _on_text_annotation_show(self, a_id, value):
-        a = self._text_annotations['items'][a_id]
+        a = self._annotation_lookup(a_id)
         a['text_show'] = bool(value)
         self._repaint_request = True
 
     def _on_text_annotation_y_mode(self, a_id, value):
-        a = self._text_annotations['items'][a_id]
+        a = self._annotation_lookup(a_id)
         a['y_mode'] = value
         self._repaint_request = True
 
     def _on_text_annotation_shape(self, a_id, index):
-        a = self._text_annotations['items'][a_id]
+        a = self._annotation_lookup(a_id)
         a['shape'] = index
         self._repaint_request = True
 
     def _on_text_annotation_remove(self, a_id):
-        a = self._text_annotations['items'][a_id]
+        a = self._annotation_lookup(a_id)
         self._text_annotation_remove(a)
 
     def _menu_y_marker_single(self, item, event: QtGui.QMouseEvent):
-        _, plot_idx, _, m_idx, m_pos = item.split('.')
-        plot_idx, m_idx = int(plot_idx), int(m_idx)
-        plot = self._plot_get(plot_idx)
-        m = self._y_marker_get(plot, m_idx)
-
+        m, m_pos = self._item_parse_y_marker(item)
         menu = QtWidgets.QMenu('Waveform y_marker context menu', self)
         marker_remove = menu.addAction(N_('Remove'))
         topic = get_topic_name(self)
         marker_remove.triggered.connect(lambda: self.pubsub.publish(f'{topic}/actions/!y_markers',
-                                                                    ['remove', plot_idx, m_idx]))
+                                                                    ['remove', m['plot_index'], m['id']]))
         self._menu = [menu,
                       marker_remove]
         return self._menu_show(event)
@@ -2882,9 +2907,6 @@ class WaveformWidget(QtWidgets.QWidget):
         self._repaint_request = True
         self.update()
 
-    def _x_marker_id_next(self):
-        return _marker_id_next(self.state['x_markers'])
-
     def _x_marker_position(self, xi):
         xi_init = xi
         x0, x1 = self.x_range
@@ -2893,8 +2915,8 @@ class WaveformWidget(QtWidgets.QWidget):
         pd = min(10, pd)
         xd = self._x_map.counter_to_time64(p0 + pd) - x0
 
-        m1 = [z['pos1'] for z in self.state['x_markers']]
-        m2 = [z['pos2'] for z in self.state['x_markers'] if 'pos2' in z]
+        m1 = [z['pos1'] for z in self.annotations['x'].values()]
+        m2 = [z['pos2'] for z in self.annotations['x'].values() if 'pos2' in z]
         m = np.array(m1 + m2, dtype=float)
         if not len(m):
             return xi
@@ -2907,15 +2929,16 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _x_marker_add(self, marker):
         self._log.info('x_marker_add %s', marker)
-        self.state['x_markers'].append(marker)
-        self._x_markers_by_id[marker['id']] = marker
+        self.annotations['x'][marker['id']] = marker
         return marker
 
     def _x_marker_remove(self, marker):
         self._log.info('x_marker_remove %s', marker)
         if isinstance(marker, int):
-            marker = self._x_markers_by_id.pop(marker)
-            self.state['x_markers'].remove(marker)
+            marker = self.annotations['x'].pop(marker)
+            return marker
+        elif isinstance(marker, dict):
+            marker = self.annotations['x'].pop(marker['id'])
             return marker
         else:
             raise ValueError('unsupported remove')
@@ -2926,7 +2949,7 @@ class WaveformWidget(QtWidgets.QWidget):
             xc = (x1 + x0) // 2
             pos1 = self._x_marker_position(xc)
         marker = {
-            'id': self._x_marker_id_next(),
+            'id': self._annotation_next_id('x'),
             'dtype': 'single',
             'pos1': pos1,
             'changed': True,
@@ -2948,7 +2971,7 @@ class WaveformWidget(QtWidgets.QWidget):
         if pos2 is None:
             pos2 = self._x_marker_position(xc + xd)
         marker = {
-            'id': self._x_marker_id_next(),
+            'id': self._annotation_next_id('x'),
             'dtype': 'dual',
             'pos1': pos1,
             'pos2': pos2,
@@ -2990,14 +3013,10 @@ class WaveformWidget(QtWidgets.QWidget):
                 self._x_marker_add(m)
             return [topic, ['remove'] + value[1:]]
         elif cmd == 'clear_all':
-            rv = [topic, ['add', copy.deepcopy(self.state['x_markers'])]]
-            self.state['x_markers'].clear()
-            return rv
+            self.annotations['x'], rv = OrderedDict(), self.annotations['x']
+            return None
         else:
             raise NotImplementedError(f'Unsupported marker action {value}')
-
-    def _y_marker_id_next(self, plot):
-        return _marker_id_next(plot['y_markers'])
 
     def _y_marker_position(self, plot, yi):
         yi = self._y_transform_fwd(plot, yi)
@@ -3008,9 +3027,9 @@ class WaveformWidget(QtWidgets.QWidget):
         pd = (p1 - p0) // 25
         pd = min(10, pd)
         xd = self._y_pixel_to_value(plot, p0 + pd, skip_transform=True) - y0
-        markers = plot['y_markers']
-        m1 = [self._y_transform_fwd(plot, z['pos1']) for z in markers]
-        m2 = [self._y_transform_fwd(plot, z['pos2']) for z in markers if 'pos2' in z]
+        items = self.annotations['y'][plot['index']]
+        m1 = [self._y_transform_fwd(plot, z['pos1']) for z in items.values()]
+        m2 = [self._y_transform_fwd(plot, z['pos2']) for z in items.values() if 'pos2' in z]
         m = np.array(m1 + m2, dtype=float)
         if not len(m):
             return self._y_transform_rev(plot, yi)
@@ -3021,25 +3040,15 @@ class WaveformWidget(QtWidgets.QWidget):
             yi += xd
         return self._y_transform_rev(plot, yi_init)  # give up
 
-    def _y_marker_get(self, plot, marker):
-        if isinstance(marker, int):
-            for m in plot['y_markers']:
-                if m['id'] == marker:
-                    return m
-        elif isinstance(marker, dict):
-            return marker
-        else:
-            raise ValueError(f'Could not find marker {marker}')
-
-    def _y_marker_add(self, plot, marker):
-        self._log.info('y_marker_add %s', marker)
-        plot['y_markers'].append(marker)
+    def _y_marker_add(self, marker):
+        self._log.info('y_marker_add(%s)', marker)
+        self.annotations['y'][marker['plot_index']][marker['id']] = marker
         return marker
 
-    def _y_marker_remove(self, plot, marker):
-        self._log.info('y_marker_remove %s %s', plot['y_region'], marker)
-        marker = self._y_marker_get(plot, marker)
-        plot['y_markers'].remove(marker)
+    def _y_marker_remove(self, marker):
+        self._log.info('y_marker_remove(%s)', marker)
+        marker = self._annotation_lookup(marker)
+        del self.annotations['y'][marker['plot_index']][marker['id']]
         return marker
 
     def _y_marker_add_single(self, plot, pos1=None):
@@ -3047,13 +3056,14 @@ class WaveformWidget(QtWidgets.QWidget):
             y0, y1 = plot['range']
             yc = (y1 + y0) // 2
             pos1 = self._y_marker_position(plot, yc)
+        plot_index = plot['index']
         marker = {
-            'id': self._y_marker_id_next(plot),
+            'id': self._annotation_next_id('y', plot_index),
             'dtype': 'single',
             'pos1': pos1,
-            'plot_index': plot['index'],
+            'plot_index': plot_index,
         }
-        return self._y_marker_add(plot, marker)
+        return self._y_marker_add(marker)
 
     def _y_marker_add_dual(self, plot, pos1=None, pos2=None):
         if pos1 is not None and pos2 is not None:
@@ -3070,14 +3080,15 @@ class WaveformWidget(QtWidgets.QWidget):
                 pos1 = self._y_marker_position(plot, self._y_transform_rev(plot, yc - yd))
             if pos2 is None:
                 pos2 = self._y_marker_position(plot, self._y_transform_rev(plot, yc + yd))
+        plot_index = plot['index']
         marker = {
-            'id': self._y_marker_id_next(plot),
+            'id': self._annotation_next_id('y', plot_index),
             'dtype': 'dual',
             'pos1': pos1,
             'pos2': pos2,
-            'plot_index': plot['index'],
+            'plot_index': plot_index,
         }
-        return self._y_marker_add(plot, marker)
+        return self._y_marker_add(marker)
 
     def _plot_get(self, plot):
         """Get a plot.
@@ -3127,89 +3138,58 @@ class WaveformWidget(QtWidgets.QWidget):
         value = _marker_action_string_to_command(value)
         cmd = value[0]
         plot = self._plot_get(value[1])
+        plot_index = plot['index']
         self._repaint_request = True
         if cmd == 'remove':
             for m in value[2:]:
-                self._y_marker_remove(plot, m)
-            return [topic, ['add', plot['index']] + value[2:]]
+                self._y_marker_remove(m)
+            return [topic, ['add', plot_index] + value[2:]]
         elif cmd == 'add_single':
             m = self._y_marker_add_single(plot, value[2])
-            return [topic, ['remove', plot['index'], m['id']]]
+            return [topic, ['remove', plot_index, m['id']]]
         elif cmd == 'add_dual':
             m = self._y_marker_add_dual(plot, value[2], value[3])
-            return [topic, ['remove', plot['index'], m['id']]]
+            return [topic, ['remove', plot_index, m['id']]]
         elif cmd == 'add':
             for m in value[2:]:
-                self._y_marker_add(plot, m)
-            return [topic, ['remove', plot['index']] + value[2:]]
+                self._y_marker_add(m)
+            return [topic, ['remove', plot_index] + value[2:]]
         elif cmd == 'clear_all':
-            rv = [topic, ['add', copy.deepcopy(plot['y_markers'])]]
-            plot['y_markers'].clear()
-            return rv
+            self.annotations['y'][plot_index], items = OrderedDict(), self.annotations['y'][plot_index]
+            return [topic, ['add', list(items.values())]]
         else:
             raise NotImplementedError(f'Unsupported marker action {value}')
 
     def _text_annotation_add(self, a):
-        if self._text_annotations is None:
-            plots_value = []
-            for _ in self.state['plots']:
-                e = np.zeros((_TEXT_ANNOTATION_X_POS_ALLOC, 2), dtype=np.int64)
-                e[:, 0] = np.iinfo(np.int64).max
-                plots_value.append({
-                    'x_map': e,   # rows of [time64, annotation_id]
-                    'x_map_length': 0,  # valid entries in x_map
-                    'x_map_alloc': _TEXT_ANNOTATION_X_POS_ALLOC,  # total entries in x_map
-                })
-            self._text_annotations = {
-                'plots': plots_value,
-                'items': {}  # id: item
-            }
+        plot_index = a['plot_index']
         if 'id' not in a:
-            a_id = self.state.get('text_annotation_next_id', 0)
-            a['id'] = a_id
-            self.state['text_annotation_next_id'] = a_id + 1
-        self._text_annotations['items'][a['id']] = a
-
-        plot = self._plot_get(a['plot'])
-        plot_idx = plot['index']
-        v = self._text_annotations['plots'][plot_idx]
-        v['x_map_length'] += 1
-        x_map_alloc = v['x_map_alloc']
-        x_map = v['x_map']
-        while v['x_map_length'] >= v['x_map_alloc']:
-            v['x_map_alloc'] = x_map_alloc * 2
-            np.resize(x_map, (v, 2))
-            x_map[x_map_alloc:, 0] = np.iinfo(np.int64).max
-        x_map[v['x_map_length'] - 1, :] = a['x'], a['id']
+            a['id'] = self._annotation_next_id('text', plot_index)
+        entry = self.annotations['text'][plot_index]
+        entry['items'][a['id']] = a
+        x_lookup_length = entry['x_lookup_length']
+        x_lookup = entry['x_lookup']
+        if (x_lookup_length + 1) > len(x_lookup):
+            np.resize(x_lookup, (len(x_lookup) * 2, 2))
+            x_lookup[x_lookup_length:, 0] = np.iinfo(np.int64).max
+        x_lookup[x_lookup_length, :] = a['x'], a['id']
+        entry['x_lookup_length'] += 1
         self._repaint_request = True
 
     def _text_annotation_remove(self, a):
-        if self._text_annotations is None:
-            self._log.warning('_text_annotation_remove but no annotations exist')
-            return
-        items = self._text_annotations['items']
-        if isinstance(a, int):
-            a = items[a]
+        entry = self.annotations['text'][a['plot_index']]
+        a = self._annotation_lookup(a)
         a_id = a['id']
-        items.pop(a_id)
-        plot = self._plot_get(a['plot'])
-        try:
-            plot['text_annotations'].remove(a)
-        except ValueError:
-            pass
-
-        p = self._text_annotations['plots'][plot['index']]
-        x_map = p['x_map']
-        idx = np.where(x_map[:, 1] == a_id)[0]
+        x_lookup = entry['x_lookup']
+        idx = np.where(x_lookup[:, 1] == a_id)[0]
         idx_len = len(idx)
         if idx_len == 0:
             self._log.warning('_text_annotation_remove but missing in x_pos list')
         elif idx_len > 1:
             self._log.warning('_text_annotation_remove but too many entries')
         else:
-            k = p['x_map_length']
-            x_map[idx[0]:(k - 1), :] = x_map[(idx[0] + 1):k, :]
-            p['x_map_length'] = k - 1
+            k = entry['x_lookup_length']
+            x_lookup[idx[0]:(k - 1), :] = x_lookup[(idx[0] + 1):k, :]
+            entry['x_lookup_length'] -= 1
         self._repaint_request = True
 
     def on_callback_annotation_save(self, value):
@@ -3245,6 +3225,7 @@ class WaveformWidget(QtWidgets.QWidget):
         """
         self._log.info('text_annotation %s', value)
         action = value[0]
+        self._repaint_request = True
         if action == 'add':
             for a in value[1:]:
                 self._text_annotation_add(a)
@@ -3254,35 +3235,26 @@ class WaveformWidget(QtWidgets.QWidget):
             for a in value[1:]:
                 self._text_annotation_remove(a)
         elif action in ['text_hide_all', 'text_show_all']:
-            if self._text_annotations is None:
-                return
             show = (action == 'text_show_all')
             if len(value) == 1:
                 plot_ids = [p['index'] for p in self.state['plots']]
             else:
                 plot_ids = value[1:]
             for plot_id in plot_ids:
-                plot = self._plot_get(plot_id)
-                items = self._text_annotations['items']
-                p = self._text_annotations['plots'][plot['index']]
-                for a_id in p['x_map'][:, 1]:
-                    items[a_id]['text_show'] = show
+                entry = self.annotations['text'][plot_id]
+                for item in entry['items'].values():
+                    item['text_show'] = show
         elif action in ['clear_all']:
-            if self._text_annotations is None:
-                return
             if len(value) == 1:
                 plot_ids = [p['index'] for p in self.state['plots']]
             else:
                 plot_ids = value[1:]
             for plot_id in plot_ids:
-                items = self._text_annotations['items']
-                plot = self._plot_get(plot_id)
-                plot['text_annotations'] = []
-                p = self._text_annotations['plots'][plot['index']]
-                for a_id in p['x_map'][:p['x_map_length'], 1]:
-                    items.pop(a_id)
-                p['x_map_length'] = 0
-                p['x_map'][:, 0] = np.iinfo(np.int64).max
+                entry = self.annotations['text'][plot_id]
+                self.annotations['text'][plot_id]['items'], items = OrderedDict(), self.annotations['text'][plot_id]['items']
+                entry['x_lookup_length'] = 0
+                entry['x_lookup'][:, 0] = np.iinfo(np.int64).max
+                return [topic, ['add', list(items.values())]]
         else:
             raise ValueError(f'unsupported text_annotation action {action}')
         self._repaint_request = True
