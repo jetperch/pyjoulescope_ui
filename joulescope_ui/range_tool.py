@@ -257,6 +257,7 @@ class RangeToolBase:
         RangeToolBase._instances.append(self)
         self.x_range = value['x_range']
         self.signals = value['signals']
+        self.range_tool_kwargs = value.get('range_tool', {})
         self.kwargs = value.get('kwargs', {})
         self.value = value
         self._rt = RangeTool(value)
@@ -320,7 +321,11 @@ class RangeToolBase:
             self._rt.error(msg)
 
     def __run_outer(self):
+        for cbk in self.range_tool_kwargs.get('start_callbacks', []):
+            self.pubsub.publish(cbk, self.value)
         self._run()
+        for cbk in self.range_tool_kwargs.get('done_callbacks', []):
+            self.pubsub.publish(cbk, self.value)
         if not self.abort:
             self.pubsub.publish(f'{get_topic_name(self)}/actions/!finalize', None)
 

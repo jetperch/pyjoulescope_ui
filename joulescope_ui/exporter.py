@@ -145,8 +145,6 @@ class ExporterDialog(QtWidgets.QDialog):
             w = Exporter(self._value)
             pubsub_singleton.register(w)
             self._value['path'] = path
-            for topic in self._value.get('start_callbacks', []):
-                pubsub_singleton.publish(topic, self._value)
         else:
             self._log.info('finished: reject - abort export')  # no action required
         self.close()

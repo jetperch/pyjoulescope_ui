@@ -18,10 +18,12 @@ from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topi
 from joulescope_ui.shortcuts import Shortcuts
 from joulescope_ui.styles import styled_widget, color_as_qcolor, color_as_string, font_as_qfont
 from joulescope_ui.widget_tools import settings_action_create
+from joulescope_ui.exporter import TO_JLS_SIGNAL_NAME
 from .line_segments import PointsF
 from .text_annotation import TextAnnotationDialog, SHAPES_DEF, Y_POSITION_MODE
 from .waveform_control import WaveformControlWidget
 from joulescope_ui.time_map import TimeMap
+import pyjls
 from collections import OrderedDict
 import copy
 import logging
@@ -1291,7 +1293,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._draw_background(p, size)
         self._draw_summary(p)
         self._draw_x_axis(p)
-        self._x_markers_remove_expired()
+        self._annotations_remove_expired()
         self._draw_markers_background(p)
 
         # Draw each plot
@@ -1648,25 +1650,44 @@ class WaveformWidget(QtWidgets.QWidget):
             p.drawRect(p1, ya, pd, y1 - ya)
         p.setClipping(False)
 
-    def _x_markers_remove_expired(self):
-        del_idx = []
-        x_min, x_max = self._extents()
-        for idx, m in enumerate(self.annotations['x'].values()):
-            idx_adj = -(idx + 1)
-            x_min = self._extents()[0]
+    def _x_markers_filter(self, x_range):
+        inside = []
+        outside = []
+        x_min, x_max = x_range
+        for m_id, m in self.annotations['x'].items():
             pos1 = m['pos1']
             if not x_min <= pos1 <= x_max:
-                del_idx.append(idx_adj)
+                outside.append(m_id)
                 continue
             if m['dtype'] == 'single':
                 continue
             pos2 = m['pos2']
             if not x_min <= pos2 <= x_max:
-                del_idx.append(idx_adj)
+                outside.append(m_id)
                 continue
-        for idx in del_idx:
-            self._log.info('marker expired %d', idx)
-            del self.annotations['x'][idx]
+            inside.append(m_id)
+        return inside, outside
+
+    def _text_annotations_filter(self, x_range, plot_index):
+        inside = []
+        outside = []
+        x_min, x_max = x_range
+        for a_id, a in self.annotations['text'][plot_index]['items'].items():
+            if x_min <= a['x'] <= x_max:
+                inside.append(a_id)
+            else:
+                outside.append(a_id)
+        return inside, outside
+
+    def _annotations_remove_expired(self):
+        x_range = self._extents()
+        _, outside = self._x_markers_filter(x_range)
+        for m_id in outside:
+            del self.annotations['x'][m_id]
+        for plot_index, entry in enumerate(self.annotations['text']):
+            _, outside = self._text_annotations_filter(x_range, plot_index)
+            for a_id in outside:
+                self._text_annotation_remove(a_id)
 
     def _draw_markers(self, p, size):
         s = self._style
@@ -2702,6 +2723,19 @@ class WaveformWidget(QtWidgets.QWidget):
                 signals.extend(plot['signals'])
         return signals
 
+    def _annotations_filter(self, x_range):
+        r = {}
+        inside, _ = self._x_markers_filter(x_range)
+        r['x'] = [self.annotations['x'][m_id] for m_id in inside]
+        x_range = self._extents()
+        _, outside = self._x_markers_filter(x_range)
+        for m_id in outside:
+            del self.annotations['x'][m_id]
+        for plot_index, entry in enumerate(self.annotations['text']):
+            _, outside = self._text_annotations_filter(x_range, plot_index)
+            for a_id in outside:
+                self._text_annotation_remove(a_id)
+
     def _on_x_export(self, src):
         if isinstance(src, int):  # marker_id
             m = self._annotation_lookup(src)
@@ -2717,13 +2751,16 @@ class WaveformWidget(QtWidgets.QWidget):
                 raise ValueError(f'unsupported x_export source {src}')
         else:
             raise ValueError(f'unsupported x_export source {src}')
+
         signals = self._signals_get()
         # Use CAPABILITIES.RANGE_TOOL_CLASS value format.
         pubsub_singleton.publish('registry/exporter/actions/!run', {
             'x_range': (x0, x1),
             'signals': signals,
-            'start_callbacks': [f'{get_topic_name(self)}/callbacks/!annotation_save'],
-            'done_callbacks': [],
+            'range_tool': {
+                'start_callbacks': [f'{get_topic_name(self)}/callbacks/!annotation_save'],
+                'done_callbacks': [],
+            }
         })
 
     def _on_range_tool(self, unique_id, marker_idx):
@@ -3200,13 +3237,62 @@ class WaveformWidget(QtWidgets.QWidget):
             * signals: The list of signals to export
             * path: The user-selected export path for the main data file.
         """
+        self._log.info('on_callback_annotation_save start')
         x0, x1 = value['x_range']
         path_base, path_ext = os.path.splitext(value['path'])
         path = f'{path_base}.anno{path_ext}'
+        sample_rate = 1_000_000
 
-        # get x-axis single and dual markers
-        # get y-axis single and dual markers for each plot
-        # get text annotations for each plot
+        def x_map(x_i64):
+            return int(round((x_i64 - x0) * (sample_rate / time64.SECOND)))
+
+        with pyjls.Writer(path) as w:
+            w.source_def(source_id=1, name='annotations', vendor='-', model='-',
+                         version='-', serial_number='-')
+            signal_id = 1
+            for plot in self.state['plots']:
+                z = []
+                if not plot['enabled']:
+                    continue
+                plot_index = plot['index']
+                w.signal_def(signal_id=signal_id, source_id=1, sample_rate=sample_rate,
+                             name=TO_JLS_SIGNAL_NAME[plot['quantity']], units=plot['units'])
+                w.utc(signal_id, x_map(x0), x0)
+                w.utc(signal_id, x_map(x1), x1)
+
+                # Add y-axis markers at start
+                for m_id in self.annotations['y'][plot_index].values():
+                    m = self._annotation_lookup(m_id)
+                    if m['dtype'] == 'single':
+                        z.append([signal_id, x0, m['pos1'], pyjls.AnnotationType.HMARKER, 0, f'{m_id}'])
+                    elif m['dtype'] == 'dual':
+                        z.append([signal_id, x0, m['pos1'], pyjls.AnnotationType.HMARKER, 0, f'{m_id}a'])
+                        z.append([signal_id, x0, m['pos2'], pyjls.AnnotationType.HMARKER, 0, f'{m_id}b'])
+
+                # Add x-axis markers, but only to first signal
+                if signal_id == 1:
+                    inside, _ = self._x_markers_filter((x0, x1))
+                    for m_id in inside:
+                        m = self._annotation_lookup(m_id)
+                        if m['dtype'] == 'single':
+                            z.append([signal_id, m['pos1'], None, pyjls.AnnotationType.VMARKER, 0, f'{m_id}'])
+                        elif m['dtype'] == 'dual':
+                            z.append([signal_id, m['pos1'], None, pyjls.AnnotationType.VMARKER, 0, f'{m_id}a'])
+                            z.append([signal_id, m['pos2'], None, pyjls.AnnotationType.VMARKER, 0, f'{m_id}b'])
+
+                # Add text annotations
+                inside, _ = self._text_annotations_filter((x0, x1), plot_index)
+                for a_id in inside:
+                    a = self._annotation_lookup(a_id)
+                    y = a['y'] if a['y_mode'] == 'manual' else None
+                    z.append([signal_id, a['x'], y, pyjls.AnnotationType.TEXT, a['shape'], a['text']])
+
+                for e in sorted(z, key=lambda e: e[1]):
+                    signal_id, x, y, dtype, group_id, data = e
+                    x = x_map(x)
+                    w.annotation(signal_id, x, y, dtype, group_id, data)
+                signal_id += 1
+        self._log.info('on_callback_annotation_save done')
 
     def on_action_text_annotation(self, topic, value):
         """Perform a text annotation action.
