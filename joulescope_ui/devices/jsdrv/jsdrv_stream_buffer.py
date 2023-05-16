@@ -430,6 +430,9 @@ class JsdrvStreamBuffer:
         self._driver_publish(f'm/{self._id}/s/{buf_id:03d}/!req', value, timeout=0)
         self._mem_collect(t_now)
 
+    def on_action_annotations_request(self, value):
+        self.pubsub.publish(value['rsp_topic'], None)
+
     def _mem_collect(self, t_now):
         if t_now - self._collect_time < _MEM_CLEANUP_PERIOD_S:
             return

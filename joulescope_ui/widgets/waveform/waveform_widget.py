@@ -64,7 +64,6 @@ def _analog_plot(quantity, show, units, name, integral=None):
         'units': units,
         'enabled': bool(show),
         'signals': [],  # list of (buffer_unique_id, signal_id)
-        'text_annotations': [],
         'height': 200,
         'range_mode': 'auto',
         'range': [-0.1, 1.1],
@@ -81,7 +80,6 @@ def _digital_plot(quantity, name):
         'units': None,
         'enabled': False,
         'signals': [],  # list of (buffer_unique_id, signal_id)
-        'text_annotations': [],
         'height': 100,
         'range_mode': 'fixed',
         'range': _BINARY_RANGE,
@@ -100,7 +98,6 @@ _STATE_DEFAULT = {
                 'units': None,
                 'enabled': False,
                 'signals': [],  # list of (buffer_unique_id, signal_id)
-                'text_annotations': [],
                 'height': 100,
                 'range_mode': 'manual',
                 'range': [-0.1, 7.1],
@@ -492,6 +489,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._y_geometry_info = {}
         self._mouse_action = None
         self._clipboard_image = None
+        self._sources = {}
         self._signals = {}
         self._signals_by_rsp_id = {}
         self._signals_rsp_id_next = 2  # reserve 1 for summary
@@ -543,6 +541,9 @@ class WaveformWidget(QtWidgets.QWidget):
         for source in sources:
             if not source.startswith(source_filter):
                 continue
+            if source in self._sources:
+                continue
+            self._sources[source] = True
             topic = get_topic_name(source)
             signals = self.pubsub.enumerate(f'{topic}/settings/signals')
             try:
@@ -551,9 +552,36 @@ class WaveformWidget(QtWidgets.QWidget):
                 self.pubsub.subscribe(f'{topic}/events/signals/!remove', self._on_signal_remove_fn, ['pub'])
             except KeyError:
                 pass
-
             for signal in signals:
                 self._on_signal_add(f'{topic}/events/signals/!add', signal)
+            self.pubsub.publish(f'{topic}/actions/!annotations_request',
+                                {'rsp_topic': f'{self.topic}/callbacks/!annotations'})
+
+    def on_callback_annotations(self, value):
+        if value is None:
+            return
+        for a in value:
+            if a['annotation_type'] == 'text':
+                plot = self._plot_get(a['plot_name'])
+                a['plot_index'] = plot['index']
+                self._text_annotation_add(a)
+            elif a['annotation_type'] == 'y':
+                plot = self._plot_get(a['plot_name'])
+                if a['dtype'] == 'single':
+                    self._y_marker_add_single(plot, a['pos1'])
+                elif a['dtype'] == 'dual':
+                    self._y_marker_add_dual(plot, a['pos1'], a['pos2'])
+                else:
+                    self._log.warning('unsupported y dtype %s', a['dtype'])
+            elif a['annotation_type'] == 'x':
+                if a['dtype'] == 'single':
+                    self._x_marker_add_single(a['pos1'])
+                elif a['dtype'] == 'dual':
+                    self._x_marker_add_dual(a['pos1'], a['pos2'])
+                else:
+                    self._log.warning('unsupported x dtype %s', a['dtype'])
+            else:
+                self._log.warning('unsupported annotation_type %s', a['annotation_type'])
 
     def _on_signal_add(self, topic, value):
         self._log.info(f'_on_signal_add({topic}, {value})')
@@ -612,21 +640,25 @@ class WaveformWidget(QtWidgets.QWidget):
         elif is_device:  # clear prior state
             for plot in self.state['plots']:
                 plot['signals'] = []
-        self.annotations = {
-            'next_id': 0,
-            'x': OrderedDict(),
-            'y': [],
-            'text': [],
-        }
-        for _ in self.state['plots']:
-            self.annotations['y'].append(OrderedDict())
-            e = np.zeros((_TEXT_ANNOTATION_X_POS_ALLOC, 2), dtype=np.int64)
-            e[:, 0] = np.iinfo(np.int64).max
-            self.annotations['text'].append({
-                'items': {},
-                'x_lookup': e,
-                'x_lookup_length': 0,
-            })
+        if self.annotations is None:
+            self.annotations = {
+                'next_id': 0,
+                'x': OrderedDict(),
+                'y': [],
+                'text': [],
+            }
+            for _ in self.state['plots']:
+                self.annotations['y'].append(OrderedDict())
+                e = np.zeros((_TEXT_ANNOTATION_X_POS_ALLOC, 2), dtype=np.int64)
+                e[:, 0] = np.iinfo(np.int64).max
+                self.annotations['text'].append({
+                    'items': {},
+                    'x_lookup': e,
+                    'x_lookup_length': 0,
+                })
+        else:  # restore OrderedDict:
+            self.annotations['x'] = OrderedDict(self.annotations['x'])
+            self.annotations['y'] = [OrderedDict(y) for y in self.annotations['y']]
         if self.summary_signal is not None:
             self.summary_signal = tuple(self.summary_signal)
         if 'on_widget_close_actions' in self._kwargs:
@@ -1292,7 +1324,8 @@ class WaveformWidget(QtWidgets.QWidget):
             self._plots_height_adjust()
         self._draw_background(p, size)
         self._draw_summary(p)
-        self._draw_x_axis(p)
+        if not self._draw_x_axis(p):
+            return  # plot is not valid
         self._annotations_remove_expired()
         self._draw_markers_background(p)
 
@@ -1419,7 +1452,7 @@ class WaveformWidget(QtWidgets.QWidget):
         if (plot_width > 1) and (x_duration_s > 0):
             x_gain = (plot_width - 1) / (x_duration_s * time64.SECOND)
         else:
-            x_gain = 1.0
+            return False
         x_grid = axis_ticks.x_ticks(x_range64[0], x_range64[1], major_count_max)
         self._x_map.update(left_x1, x_range64[0], x_gain)
         self._x_map.trel_offset = x_grid['offset']
@@ -1449,6 +1482,7 @@ class WaveformWidget(QtWidgets.QWidget):
             p.setPen(s['grid_minor_pen'])
             for x in self._x_map.trel_to_counter(x_grid['minor']):
                 p.drawLine(x, x_axis_y1, x, y_end)
+        return True
 
     def _draw_spacers(self, p):
         s = self._style
@@ -1640,6 +1674,8 @@ class WaveformWidget(QtWidgets.QWidget):
             if m['dtype'] != 'dual':
                 continue
             x1, x2 = m['pos1'], m['pos2']
+            if x2 < x1:
+                x1, x2 = x2, x1
             p1 = np.rint(self._x_map.time64_to_counter(x1))
             p2 = np.rint(self._x_map.time64_to_counter(x2))
             color_index = self._marker_color_index(m)
@@ -1659,12 +1695,11 @@ class WaveformWidget(QtWidgets.QWidget):
             if not x_min <= pos1 <= x_max:
                 outside.append(m_id)
                 continue
-            if m['dtype'] == 'single':
-                continue
-            pos2 = m['pos2']
-            if not x_min <= pos2 <= x_max:
-                outside.append(m_id)
-                continue
+            if m['dtype'] == 'double':
+                pos2 = m['pos2']
+                if not x_min <= pos2 <= x_max:
+                    outside.append(m_id)
+                    continue
             inside.append(m_id)
         return inside, outside
 
@@ -2068,7 +2103,7 @@ class WaveformWidget(QtWidgets.QWidget):
         if not len(view):
             return
         x_range = self._x_map.time64_to_counter([x0, x1])
-        y_range = self._y_value_to_pixel(plot, plot['range'])
+        y_range = self._y_value_to_pixel(plot, np.array(plot['range'], dtype=float))
         y_center = int((y_range[0] + y_range[1]) / 2)
         p.setClipRect(x_range[0], y_range[0], x_range[1] - x_range[0], y_range[1] - y_range[0])
 
@@ -3132,7 +3167,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
         :param plot: The plot specification, which is one of:
             * The plot index integer.
-            * The plot region name.
+            * The plot region name or plot quantity.
             * The plot instance.
         :return: The plot instance.
         :raises ValueError: On invalid plot specifications.
@@ -3261,8 +3296,8 @@ class WaveformWidget(QtWidgets.QWidget):
                 w.utc(signal_id, x_map(x1), x1)
 
                 # Add y-axis markers at start
-                for m_id in self.annotations['y'][plot_index].values():
-                    m = self._annotation_lookup(m_id)
+                for m in self.annotations['y'][plot_index].values():
+                    m_id = (m['id'] % _ANNOTATION_Y_MOD) + 1
                     if m['dtype'] == 'single':
                         z.append([signal_id, x0, m['pos1'], pyjls.AnnotationType.HMARKER, 0, f'{m_id}'])
                     elif m['dtype'] == 'dual':
@@ -3274,6 +3309,7 @@ class WaveformWidget(QtWidgets.QWidget):
                     inside, _ = self._x_markers_filter((x0, x1))
                     for m_id in inside:
                         m = self._annotation_lookup(m_id)
+                        m_id += 1  # convert to 1-indexed
                         if m['dtype'] == 'single':
                             z.append([signal_id, m['pos1'], None, pyjls.AnnotationType.VMARKER, 0, f'{m_id}'])
                         elif m['dtype'] == 'dual':

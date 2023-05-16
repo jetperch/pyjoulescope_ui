@@ -9,7 +9,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 <span style="color:#6090ff">🛈 BETA RELEASE 🛈</span> 
 
-2023 May 12 [in progress]
+2023 May 16
 
 ### Changes
 
@@ -20,7 +20,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Improved main window menu style.
 * Added current range limit slider to JS220 control widget.
 * Added option to use QWidget (not OpenGL widget) for waveform widget plot.
-* Added text annotations [in progress].
+* Added text annotations.
+* Added annotations save on export.  Automatically load on open. 
 
 
 ### Known issues

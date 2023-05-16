@@ -118,6 +118,12 @@ class CAPABILITIES(Enum):
             member variable and reuse the same binding so that deduplication
             can work correctly.  Otherwise, each call will use a new binding
             that is different and will not allow deduplication matching.
+        * actions/!annotations_request with keys:
+          * rsp_topic: The arbitrary response topic called with list of 
+            annotations.  See joulescope_ui/widgets/waveform/annotations.md for 
+            definition, with two differences:
+            1. Entries also contain an annotation_type field: x, y, text
+            2. Entries contain plot_name rather than plot_index.
         * events/sources/!add {source_id}: (optional, only for dynamic sources)
         * events/sources/!remove {source_id}:  (optional, only for dynamic sources)
         * events/signals/!add {signal_id}: (optional, only for dynamic sources)

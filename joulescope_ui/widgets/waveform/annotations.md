@@ -18,8 +18,8 @@ is stored in the "annotation" setting with the following structure
   * pos1: The marker position in time64
   * pos2: For single: not present.  For dual: the second marker position in time64.
   * changed: if position changed and data request needed
-  * text_pos1: The text position for marker 1
-  * text_pos2: The text position for marker 2
+  * text_pos1: The text position for marker 1, one of ['left', 'right', 'off']
+  * text_pos2: The text position for marker 2, one of ['left', 'right', 'off']
 * y: The list of OrderedDict, one for each plot.  Each OrderedDict contains:
   * id: The annotation id, assigned "compressed"
   * dtype: 'single' or 'dual'

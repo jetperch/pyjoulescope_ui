@@ -15,6 +15,7 @@
 from joulescope_ui import CAPABILITIES, Metadata, register, get_topic_name, get_instance
 from joulescope_ui.jls_v1 import JlsV1
 from joulescope_ui.jls_v2 import JlsV2
+from joulescope_ui.jls_v2_annotations import load as annotations_load
 import logging
 import os
 import queue
@@ -172,6 +173,14 @@ class JlsSource:
 
     def on_action_request(self, value):
         self._queue.put(['request', value])
+
+    def on_action_annotations_request(self, value):
+        base, ext = os.path.splitext(self.path)
+        path = f'{base}.anno{ext}'
+        rsp_topic = value['rsp_topic']
+        if not os.path.isfile(path):
+            self.pubsub.publish(rsp_topic, None)
+        annotations_load(path, self.pubsub, rsp_topic)
 
     @staticmethod
     def on_cls_action_open(pubsub, topic, value):
