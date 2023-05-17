@@ -15,6 +15,10 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 * Fixed "Device Control" widget not opening & closing cleanly.
 * Fixed installation on Ubuntu from packages (joulescope_driver 1.3.9).
+* Improved JLS annotations.
+  * Added support for multiple JLS annotations files "base.anno*.jls".
+  * Redirected JLS annotation file open to base JLS file open.
+  * On dual x-marker export, exclude outer exported x-markers.
 
 
 ## 1.0.14

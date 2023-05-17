@@ -22,119 +22,122 @@ import numpy as np
 _CHUNK_SIZE = 1024
 
 
-def _run(path, pubsub, rsp_topic):
+def _run(paths, pubsub, rsp_topic):
     _log = logging.getLogger(__name__)
-    with Reader(path) as jls:
-        for signal_id, signal in jls.signals.items():
-            if signal.name not in TO_UI_SIGNAL_NAME:
-                if signal.name != 'global_annotation_signal':
-                    _log.warning('unsupported signal name: %s', signal.name)
-                continue
-            signal_name = TO_UI_SIGNAL_NAME[signal.name]
-            dual_vmarkers = {}
-            dual_hmarkers = {}
+    if isinstance(paths, str):
+        paths = [paths]
+    for path in paths:
+        with Reader(path) as jls:
+            for signal_id, signal in jls.signals.items():
+                if signal.name not in TO_UI_SIGNAL_NAME:
+                    if signal.name != 'global_annotation_signal':
+                        _log.warning('unsupported signal name: %s', signal.name)
+                    continue
+                signal_name = TO_UI_SIGNAL_NAME[signal.name]
+                dual_vmarkers = {}
+                dual_hmarkers = {}
 
-            # force UTC load
-            if signal.signal_type == SignalType.FSR:
-                jls.sample_id_to_timestamp(signal_id, signal.sample_id_offset)
-
-            annotations = []
-
-            def _on_annotation(timestamp, y, annotation_type, group_id, data):
-                nonlocal annotations
-                # print(f'{timestamp}, {y}, {annotation_type}, {group_id}, {data}')
+                # force UTC load
                 if signal.signal_type == SignalType.FSR:
-                    timestamp = jls.sample_id_to_timestamp(signal_id, timestamp)
-                elif signal.signal_type == SignalType.VSR:
-                    pass  # already in UTC seconds
-                else:
-                    raise RuntimeError(f'invalid signal type {signal.signal_type}')
+                    jls.sample_id_to_timestamp(signal_id, signal.sample_id_offset)
 
-                if annotation_type == AnnotationType.TEXT:
-                    a = {
-                        'annotation_type': 'text',
-                        'plot_name': signal_name,
-                        'text': data,
-                        'text_show': True,
-                        'shape': group_id,
-                        'x': timestamp,
-                        'y': y,
-                        'y_mode': 'manual' if y is not None and np.isfinite(y) else 'centered'
-                    }
-                    annotations.append(a)
-                elif annotation_type == AnnotationType.VMARKER:
-                    if data[-1] in 'ab':
-                        name = data[:-1]
-                        if name in dual_vmarkers:
-                            a = dual_vmarkers.pop(name)
-                            key = 'pos1' if (data[-1] == 'a') else 'pos1'
-                            a[key] = timestamp
-                            annotations.append(a)
+                annotations = []
+
+                def _on_annotation(timestamp, y, annotation_type, group_id, data):
+                    nonlocal annotations
+                    # print(f'{timestamp}, {y}, {annotation_type}, {group_id}, {data}')
+                    if signal.signal_type == SignalType.FSR:
+                        timestamp = jls.sample_id_to_timestamp(signal_id, timestamp)
+                    elif signal.signal_type == SignalType.VSR:
+                        pass  # already in UTC seconds
+                    else:
+                        raise RuntimeError(f'invalid signal type {signal.signal_type}')
+
+                    if annotation_type == AnnotationType.TEXT:
+                        a = {
+                            'annotation_type': 'text',
+                            'plot_name': signal_name,
+                            'text': data,
+                            'text_show': True,
+                            'shape': group_id,
+                            'x': timestamp,
+                            'y': y,
+                            'y_mode': 'manual' if y is not None and np.isfinite(y) else 'centered'
+                        }
+                        annotations.append(a)
+                    elif annotation_type == AnnotationType.VMARKER:
+                        if data[-1] in 'ab':
+                            name = data[:-1]
+                            if name in dual_vmarkers:
+                                a = dual_vmarkers.pop(name)
+                                key = 'pos1' if (data[-1] == 'a') else 'pos1'
+                                a[key] = timestamp
+                                annotations.append(a)
+                            else:
+                                dual_vmarkers[name] = {
+                                    'annotation_type': 'x',
+                                    'dtype': 'dual',
+                                    'pos1': timestamp,
+                                    'pos2': timestamp,
+                                    'changed': True,
+                                    'text_pos1': 'right',
+                                    'text_pos2': 'off',
+                                }
                         else:
-                            dual_vmarkers[name] = {
+                            a = {
                                 'annotation_type': 'x',
-                                'dtype': 'dual',
+                                'dtype': 'single',
                                 'pos1': timestamp,
-                                'pos2': timestamp,
                                 'changed': True,
                                 'text_pos1': 'right',
-                                'text_pos2': 'off',
                             }
-                    else:
-                        a = {
-                            'annotation_type': 'x',
-                            'dtype': 'single',
-                            'pos1': timestamp,
-                            'changed': True,
-                            'text_pos1': 'right',
-                        }
-                        annotations.append(a)
-                elif annotation_type == AnnotationType.HMARKER:
-                    if data[-1] in 'ab':
-                        name = data[:-1]
-                        if name in dual_hmarkers:
-                            a = dual_hmarkers.pop(name)
-                            key = 'pos1' if (data[-1] == 'a') else 'pos1'
-                            a[key] = y
                             annotations.append(a)
+                    elif annotation_type == AnnotationType.HMARKER:
+                        if data[-1] in 'ab':
+                            name = data[:-1]
+                            if name in dual_hmarkers:
+                                a = dual_hmarkers.pop(name)
+                                key = 'pos1' if (data[-1] == 'a') else 'pos1'
+                                a[key] = y
+                                annotations.append(a)
+                            else:
+                                dual_hmarkers[name] = {
+                                    'annotation_type': 'y',
+                                    'plot_name': signal_name,
+                                    'dtype': 'dual',
+                                    'pos1': y,
+                                    'pos2': y,
+                                    'changed': True,
+                                }
                         else:
-                            dual_hmarkers[name] = {
+                            a = {
                                 'annotation_type': 'y',
                                 'plot_name': signal_name,
-                                'dtype': 'dual',
+                                'dtype': 'single',
                                 'pos1': y,
-                                'pos2': y,
                                 'changed': True,
                             }
+                            annotations.append(a)
                     else:
-                        a = {
-                            'annotation_type': 'y',
-                            'plot_name': signal_name,
-                            'dtype': 'single',
-                            'pos1': y,
-                            'changed': True,
-                        }
-                        annotations.append(a)
-                else:
-                    _log.warning('Unsupported annotation type %s', annotation_type)
+                        _log.warning('Unsupported annotation type %s', annotation_type)
 
-                if len(annotations) >= _CHUNK_SIZE:
+                    if len(annotations) >= _CHUNK_SIZE:
+                        pubsub.publish(rsp_topic, annotations)
+                        annotations = []  # New list, cannot clear
+
+                    return False
+
+                jls.annotations(signal_id, 0, _on_annotation)
+                if len(annotations):
                     pubsub.publish(rsp_topic, annotations)
-                    annotations = []  # New list, cannot clear
-
-                return False
-
-            jls.annotations(signal_id, 0, _on_annotation)
-            if len(annotations):
-                pubsub.publish(rsp_topic, annotations)
-                annotations = []
+                    annotations = []
 
     pubsub.publish(rsp_topic, None)  # done indication
 
 
-def load(path, pubsub, rsp_topic):
+def load(paths, pubsub, rsp_topic):
     kwargs = {
-        'path': path,
+        'paths': paths,
         'pubsub': pubsub,
         'rsp_topic': rsp_topic,
     }

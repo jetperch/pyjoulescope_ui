@@ -1695,9 +1695,12 @@ class WaveformWidget(QtWidgets.QWidget):
             if not x_min <= pos1 <= x_max:
                 outside.append(m_id)
                 continue
-            if m['dtype'] == 'double':
+            if m['dtype'] == 'dual':
                 pos2 = m['pos2']
                 if not x_min <= pos2 <= x_max:
+                    outside.append(m_id)
+                    continue
+                if x_min == pos1 and x_max == pos2:
                     outside.append(m_id)
                     continue
             inside.append(m_id)
