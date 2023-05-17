@@ -350,6 +350,16 @@ class WaveformWidget(QtWidgets.QWidget):
         'trace_width': {
             'dtype': 'int',
             'brief': N_('The trace width.'),
+            'options': [
+                [1, '1'],
+                [2, '2'],
+                [4, '4'],
+                [6, '6'],
+                [8, '8'],
+                [10, '10'],
+                [12, '12'],
+                [15, '15'],
+            ],
             'default': 1,
         },
         'fps': {
@@ -1154,6 +1164,11 @@ class WaveformWidget(QtWidgets.QWidget):
         for trace in self._style_cache['plot_trace']:
             trace.setWidth(self.trace_width)
         return self._style_cache
+
+    def on_setting_trace_width(self, value):
+        for trace in self._style_cache['plot_trace']:
+            trace.setWidth(value)
+        self._repaint_request = True
 
     def _subsource_order_update(self):
         sources = set()

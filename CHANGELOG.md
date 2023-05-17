@@ -9,9 +9,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 <span style="color:#6090ff">🛈 BETA RELEASE 🛈</span> 
 
-2023 May 17 [in progress]
-
-### Changes
+2023 May 17
 
 * Fixed "Device Control" widget not opening & closing cleanly.
 * Fixed installation on Ubuntu from packages (joulescope_driver 1.3.9).
@@ -22,6 +20,7 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Added annotation save menu option.
 * Fixed Waveform widget not fully unsubscribing.
 * Fixed units preferences to take effect immediately #119.
+* Added Waveform widget trace_width support.
 
 
 ## 1.0.14
@@ -47,7 +46,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 1. Partial Qt Hang (Waveform no longer updates, some Qt actions still work)
    on one Windows PC with Intel graphics.  Problem does not occur with
-   other widgets.  We suspected an OpenGL issue.
+   other widgets.  We suspected an OpenGL issue.  Unchecking the "opengl"
+   setting and changing min/max to lines works around the issue. 
 2. Undo / redo support is not working
 
 
