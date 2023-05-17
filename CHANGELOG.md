@@ -20,6 +20,8 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Redirected JLS annotation file open to base JLS file open.
   * On dual x-marker export, exclude outer exported x-markers.
   * Added annotation save menu option.
+* Fixed Waveform widget not fully unsubscribing.
+* Fixed units preferences to take effect immediately #119.
 
 
 ## 1.0.14

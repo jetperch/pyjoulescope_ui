@@ -530,9 +530,13 @@ class _BaseWidget(QtWidgets.QWidget):
              self._on_statistic_stream_source_list],
             ['registry/app/settings/statistics_stream_enable',
              self._on_global_statistics_stream_enable],
+            ['registry/app/settings/units', self._on_update],
         ]
 
         self.mousePressEvent = self._on_mousePressEvent
+
+    def _on_update(self):
+        self.update()
 
     def on_pubsub_register(self):
         for topic, fn in self._subscribers:

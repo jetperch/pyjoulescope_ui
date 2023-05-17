@@ -462,10 +462,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._CURSOR_SIZE_HOR = QtGui.QCursor(QtGui.Qt.SizeHorCursor)
         self._CURSOR_CROSS = QtGui.QCursor(QtGui.Qt.CrossCursor)
 
-        self._on_source_list_fn = self._on_source_list
-        self._on_signal_add_fn = self._on_signal_add
-        self._on_signal_remove_fn = self._on_signal_remove
-        self._on_signal_range_fn = self._on_signal_range
+        self._subscribe_list = []
         self._menu = None
         self._dialog = None
         self._shortcuts = Shortcuts(self)
@@ -509,6 +506,10 @@ class WaveformWidget(QtWidgets.QWidget):
             'str': [],
         }
 
+    def _subscribe(self, topic: str, update_fn: callable, flags=None, timeout=None):
+        self._subscribe_list.append((topic, update_fn))
+        return self.pubsub.subscribe(topic, update_fn, flags, timeout)
+
     def on_setting_opengl(self, value):
         value = bool(value)
         cls = _PlotOpenGLWidget if value else _PlotWidget
@@ -548,8 +549,8 @@ class WaveformWidget(QtWidgets.QWidget):
             signals = self.pubsub.enumerate(f'{topic}/settings/signals')
             try:
                 self.pubsub.query(f'{topic}/events/signals/!add')
-                self.pubsub.subscribe(f'{topic}/events/signals/!add', self._on_signal_add_fn, ['pub'])
-                self.pubsub.subscribe(f'{topic}/events/signals/!remove', self._on_signal_remove_fn, ['pub'])
+                self._subscribe(f'{topic}/events/signals/!add', self._on_signal_add, ['pub'])
+                self._subscribe(f'{topic}/events/signals/!remove', self._on_signal_remove, ['pub'])
             except KeyError:
                 pass
             for signal in signals:
@@ -589,8 +590,8 @@ class WaveformWidget(QtWidgets.QWidget):
         signal = value
         topic = get_topic_name(source)
         item = (source, signal)
-        self.pubsub.subscribe(f'{topic}/settings/signals/{signal}/range',
-                              self._on_signal_range_fn, ['pub', 'retain'])
+        self._subscribe(f'{topic}/settings/signals/{signal}/range',
+                        self._on_signal_range, ['pub', 'retain'])
         source_id, quantity = signal.split('.')
         for plot in self.state['plots']:
             if plot['quantity'] == quantity:
@@ -669,11 +670,15 @@ class WaveformWidget(QtWidgets.QWidget):
             plot['signals'] = [tuple(signal) for signal in plot['signals']]
             plot['y_region'] = f'plot.{plot_index}'
             plot.setdefault('logarithmic_zero', _LOGARITHMIC_ZERO_DEFAULT)
-        self.pubsub.subscribe('registry_manager/capabilities/signal_buffer.source/list',
-                              self._on_source_list_fn, ['pub', 'retain'])
+        self._subscribe('registry_manager/capabilities/signal_buffer.source/list',
+                        self._on_source_list, ['pub', 'retain'])
         topic = get_topic_name(self)
         self._control.on_pubsub_register(self.pubsub, topic, source_filter)
         self._shortcuts_add()
+        self._subscribe('registry/app/settings/units', self._update_on_publish, ['pub'])
+
+    def _update_on_publish(self):
+        self._repaint_request = True
 
     def _shortcuts_add(self):
         topic = get_topic_name(self)
@@ -688,10 +693,9 @@ class WaveformWidget(QtWidgets.QWidget):
         self._shortcuts.add(QtCore.Qt.Key_Minus, f'{topic}/actions/!x_zoom', [-1, None])
 
     def _cleanup(self):
-        self.pubsub.unsubscribe_all(self._on_source_list_fn)
-        self.pubsub.unsubscribe_all(self._on_signal_range_fn)
-        self.pubsub.unsubscribe_all(self._on_signal_add)
-        self.pubsub.unsubscribe_all(self._on_signal_remove)
+        for topic, fn in self._subscribe_list:
+            self.pubsub.unsubscribe(topic, fn)
+        self._subscribe_list.clear()
         self._shortcuts.clear()
         self._refresh_timer.stop()
 
