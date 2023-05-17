@@ -5,6 +5,18 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.0.15
+
+<span style="color:#6090ff">🛈 BETA RELEASE 🛈</span> 
+
+2023 May 17 [in progress]
+
+### Changes
+
+* Fixed "Device Control" widget not opening & closing cleanly.
+* Fixed installation on Ubuntu from packages (joulescope_driver 1.3.9).
+
+
 ## 1.0.14
 
 <span style="color:#6090ff">🛈 BETA RELEASE 🛈</span> 
