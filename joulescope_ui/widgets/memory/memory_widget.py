@@ -241,6 +241,10 @@ class MemoryWidget(QtWidgets.QWidget):
         self._timer.timeout.connect(self._on_timer)
         self._timer.start(100)
 
+    def on_pubsub_unregister(self):
+        self.pubsub.unsubscribe(_TOPIC_CLEAR_ON_PLAY, self._clear_on_play_fn)
+        self.pubsub.unsubscribe(_TOPIC_SIZE, self._on_size_fn)
+
     def _on_timer(self):
         if self._base == 0:
             mem = _mem_proc()
@@ -264,11 +268,6 @@ class MemoryWidget(QtWidgets.QWidget):
 
     def _on_clear_on_play(self, value):
         self.pubsub.publish(_TOPIC_CLEAR_ON_PLAY, bool(value))
-
-    def closeEvent(self, event):
-        self.pubsub.unsubscribe(_TOPIC_CLEAR_ON_PLAY, self._clear_on_play_fn)
-        self.pubsub.unsubscribe(_TOPIC_SIZE, self._on_size_fn)
-        return super().closeEvent(event)
 
     @property
     def size(self):

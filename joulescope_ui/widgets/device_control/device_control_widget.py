@@ -46,8 +46,18 @@ class DeviceControlWidget(QtWidgets.QWidget):
         self._subscribers = [
             [f'registry_manager/capabilities/{CAPABILITIES.DEVICE_OBJECT}/list', self._on_devices],
         ]
+
+    def on_pubsub_register(self):
+        self._log.info('register')
         for topic, fn in self._subscribers:
             pubsub_singleton.subscribe(topic, fn, ['pub', 'retain'])
+
+    def on_pubsub_unregister(self):
+        self._log.info('unregister')
+        for topic, fn in self._subscribers:
+            pubsub_singleton.unsubscribe(topic, fn)
+        while len(self._device_widgets):
+            self._device_remove(next(iter(self._device_widgets)))
 
     def _on_devices(self, value):
         for unique_id in list(self._device_widgets.keys()):
@@ -77,14 +87,10 @@ class DeviceControlWidget(QtWidgets.QWidget):
         if hasattr(w, 'on_parent_style_change'):
             w.on_parent_style_change(self.style_obj)
 
-    def closeEvent(self, event):
-        for topic, fn in self._subscribers:
-            pubsub_singleton.unsubscribe(topic, fn)
-        while len(self._device_widgets):
-            self._device_remove(next(iter(self._device_widgets)))
-        return super().closeEvent(event)
-
     def on_style_change(self):
         for w in self._device_widgets.values():
             if hasattr(w, 'on_parent_style_change'):
-                w.on_parent_style_change(self.style_obj)
+                try:
+                    w.on_parent_style_change(self.style_obj)
+                except Exception:
+                    pass
