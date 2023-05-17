@@ -2679,6 +2679,15 @@ class WaveformWidget(QtWidgets.QWidget):
         else:
             self.pubsub.publish(f'{topic}/actions/!text_annotation', [action, plot['index']])
 
+    def _on_menu_annotations_save(self):
+        for source in self._sources.keys():
+            if source.startswith('JlsSource'):
+                break
+        path = self.pubsub.query(f'{get_topic_name(source)}/settings/path')
+        path_base, path_ext = os.path.splitext(path)
+        anno_path = f'{path_base}.anno{path_ext}'
+        self.on_callback_annotation_save({'path': anno_path})
+
     def _on_menu_annotations_clear_all(self):
         self._on_menu_x_marker('clear_all')
         self._on_menu_y_marker('clear_all')
@@ -2704,14 +2713,20 @@ class WaveformWidget(QtWidgets.QWidget):
         dynamic = []
         plot = self.state['plots'][idx]
         menu = QtWidgets.QMenu('Waveform context menu', self)
-        annotations = menu.addMenu('&Annotations')
-        anno_x = annotations.addMenu('&Vertical')
+        annotations = menu.addMenu(N_('Annotations'))
+        anno_x = annotations.addMenu(N_('Vertical'))
         anno_x_sub = self._menu_add_x_annotations(anno_x)
 
-        anno_y = annotations.addMenu('&Horizontal')
+        anno_y = annotations.addMenu(N_('Horizontal'))
         anno_y_sub = self._menu_add_y_annotations(anno_y)
-        anno_text = annotations.addMenu('&Text')
+        anno_text = annotations.addMenu(N_('Text'))
         anno_text_sub = self._menu_add_text_annotations(anno_text)
+        for source in self._sources.keys():
+            if source.startswith('JlsSource'):
+                anno_save = annotations.addAction(N_('Save'))
+                anno_save.triggered.connect(self._on_menu_annotations_save)
+                dynamic.append(anno_save)
+                break
         anno_clear_all = annotations.addAction(N_('Clear all'))
         anno_clear_all.triggered.connect(self._on_menu_annotations_clear_all)
 
@@ -3271,12 +3286,12 @@ class WaveformWidget(QtWidgets.QWidget):
         """Export callback to save annotations.
 
         :param value: The value dict with keys (see _on_x_export):
-            * x_range: The (x0, x1) time64 range.
-            * signals: The list of signals to export
+            * x_range: The (x0, x1) time64 range.  Use extents if not provided.
+            * signals: The list of signals to export.
             * path: The user-selected export path for the main data file.
         """
         self._log.info('on_callback_annotation_save start')
-        x0, x1 = value['x_range']
+        x0, x1 = value.get('x_range', self._extents())
         path_base, path_ext = os.path.splitext(value['path'])
         path = f'{path_base}.anno{path_ext}'
         sample_rate = 1_000_000
