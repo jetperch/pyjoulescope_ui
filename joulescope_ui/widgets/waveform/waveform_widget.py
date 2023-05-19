@@ -19,7 +19,7 @@ from joulescope_ui.shortcuts import Shortcuts
 from joulescope_ui.styles import styled_widget, color_as_qcolor, color_as_string, font_as_qfont
 from joulescope_ui.widget_tools import settings_action_create
 from joulescope_ui.exporter import TO_JLS_SIGNAL_NAME
-from .line_segments import PointsF, PrimitiveArray
+from .line_segments import PointsF
 from .text_annotation import TextAnnotationDialog, SHAPES_DEF, Y_POSITION_MODE
 from .waveform_control import WaveformControlWidget
 from joulescope_ui.time_map import TimeMap
@@ -502,6 +502,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._signals_by_rsp_id = {}
         self._signals_rsp_id_next = 2  # reserve 1 for summary
         self._signals_data = {}
+        self._points = PointsF()
         self._marker_data = {}  # rsp_id -> data,
         self._subsource_order = []
 
@@ -746,8 +747,6 @@ class WaveformWidget(QtWidgets.QWidget):
                 v *= 1000  # convert from seconds to milliseconds
                 v_avg, v_min, v_max = np.mean(v), np.min(v), np.max(v)
                 self._fps['str'].append(f'{name} avg={v_avg:.2f}, min={v_min:.2f}, max={v_max:.2f} ms')
-            resize_count, PrimitiveArray._resize_count = PrimitiveArray._resize_count, 0
-            self._fps['str'].append(f'resize_count {resize_count}')
         return None
 
     def _on_signal_range(self, topic, value):
@@ -950,10 +949,7 @@ class WaveformWidget(QtWidgets.QWidget):
             self._marker_data[(marker_id, plot_id)] = data
         elif rsp_id == 1:
             if self._summary_data is None:
-                self._summary_data = {
-                    'points_avg': PointsF(),
-                    'points_min_max': PointsF(),
-                }
+                self._summary_data = {}
             self._summary_data['data'] = data
         else:
             signal = self._signals_by_rsp_id.get(rsp_id)
@@ -964,13 +960,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 self._log.warning('Unknown signal rsp_id %s', rsp_id)
                 return
             if signal['item'] not in self._signals_data:
-                self._signals_data[signal['item']] = {
-                    'line_min': PointsF(),
-                    'line_max': PointsF(),
-                    'points_avg': PointsF(),
-                    'points_min_max': PointsF(),
-                    'points_std': PointsF(),
-                }
+                self._signals_data[signal['item']] = {}
             self._signals_data[signal['item']]['data'] = data
 
     def _y_transform_fwd(self, plot, value):
@@ -1444,12 +1434,12 @@ class WaveformWidget(QtWidgets.QWidget):
             if self.show_min_max and d['min'] is not None and d['max'] is not None:
                 d_y_min = y_value_to_pixel(d['min'][idx_start:idx_stop])
                 d_y_max = y_value_to_pixel(d['max'][idx_start:idx_stop])
-                segs = d_sig['points_min_max'].set_fill(d_x_segment, d_y_min, d_y_max)
+                segs = self._points.set_fill(d_x_segment, d_y_min, d_y_max)
                 p.setPen(self._NO_PEN)
                 p.setBrush(s['summary_min_max_fill'])
                 p.drawPolygon(segs)
             d_y = y_value_to_pixel(d_avg)
-            segs = d_sig['points_avg'].set_line(d_x_segment, d_y)
+            segs = self._points.set_line(d_x_segment, d_y)
             p.setPen(s['summary_trace'])
             p.drawPolyline(segs)
 
@@ -1629,12 +1619,12 @@ class WaveformWidget(QtWidgets.QWidget):
                     d_y_max = self._y_value_to_pixel(plot, d['max'][idx_start:idx_stop])
                     if 1 == self.show_min_max:
                         p.setPen(s['plot_min_max_trace'][trace_idx])
-                        segs = sig_d['line_min'].set_line(d_x_segment, d_y_min)
+                        segs = self._points.set_line(d_x_segment, d_y_min)
                         p.drawPolyline(segs)
-                        segs = sig_d['line_max'].set_line(d_x_segment, d_y_max)
+                        segs = self._points.set_line(d_x_segment, d_y_max)
                         p.drawPolyline(segs)
                     else:
-                        segs = sig_d['points_min_max'].set_fill(d_x_segment, d_y_min, d_y_max)
+                        segs = self._points.set_fill(d_x_segment, d_y_min, d_y_max)
                         p.setPen(s['plot_min_max_fill_pen'][trace_idx])
                         p.setBrush(s['plot_min_max_fill_brush'][trace_idx])
                         p.drawPolygon(segs)
@@ -1644,13 +1634,13 @@ class WaveformWidget(QtWidgets.QWidget):
                             d_y_std_max = self._y_value_to_pixel(plot, d_avg + d_std)
                             d_y_std_min = np.amin(np.vstack([d_y_std_min, d_y_min]), axis=0)
                             d_y_std_max = np.amax(np.vstack([d_y_std_max, d_y_max]), axis=0)
-                            segs = sig_d['points_std'].set_fill(d_x_segment, d_y_std_min, d_y_std_max)
+                            segs = self._points.set_fill(d_x_segment, d_y_std_min, d_y_std_max)
                             p.setPen(self._NO_PEN)
                             p.setBrush(s['plot_std_fill'][trace_idx])
                             p.drawPolygon(segs)
 
                 d_y = self._y_value_to_pixel(plot, d_avg)
-                segs = sig_d['points_avg'].set_line(d_x_segment, d_y)
+                segs = self._points.set_line(d_x_segment, d_y)
                 p.setPen(s['plot_trace'][trace_idx])
                 p.drawPolyline(segs)
 
@@ -1779,7 +1769,7 @@ class WaveformWidget(QtWidgets.QWidget):
             if m['dtype'] == 'single':
                 pl = p1 - w
                 pr = p1 + w
-                segs = m['flag'].set_line([pl, pl, p1, pr, pr], [y0, y0 + h, yl, y0 + h, y0])
+                segs = self._points.set_line([pl, pl, p1, pr, pr], [y0, y0 + h, yl, y0 + h, y0])
                 p.setClipRect(x0, y0, xw, y1 - y0)
                 p.drawPolygon(segs)
                 p.setPen(pen)
