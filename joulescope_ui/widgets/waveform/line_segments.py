@@ -1,5 +1,5 @@
 # This code is taken from pyqtgraph
-# Edits have been made to simply for PySide6 only
+# Edits have been made to simplify for PySide6 only
 
 # Copyright (c) 2012  University of North Carolina at Chapel Hill
 # Luke Campagnola    ('luke.campagnola@%s.com' % 'gmail')
@@ -27,12 +27,13 @@
 # pyqtgraph/Qt/__init__.py
 # pyqtgraph/graphicsItems/PlotCurveItem.py
 
-from PySide6 import QtCore, QtGui, QtWidgets
+from PySide6 import QtCore, QtGui
 import shiboken6
-import numpy as np
-import ctypes
 import itertools
 import numpy as np
+
+
+_OVERSIZE_MAX = 50
 
 
 def have_native_drawlines_array():
@@ -59,6 +60,8 @@ _have_native_drawlines_array = False  # have_native_drawlines_array()
 
 
 class PrimitiveArray:
+    _resize_count = 0
+
     # Note: This class is an internal implementation detail and is not part
     #       of the public API.
     #
@@ -91,9 +94,17 @@ class PrimitiveArray:
         self.use_ptr_to_array = use_array
         self.resize(0)
 
+    def __len__(self):
+        if self._ndarray is None:
+            return 0
+        return len(self._ndarray)
+
     def resize(self, size):
-        if self._ndarray is not None and len(self._ndarray) == size:
-            return
+        if self._ndarray is not None:
+            sz = len(self._ndarray)
+            if size <= sz <= (size + _OVERSIZE_MAX):
+                return
+            # print(f'resize {sz} -> {size}')
 
         if self.use_ptr_to_array:
             array = np.empty((size, self._nfields), dtype=np.float64)
@@ -104,6 +115,7 @@ class PrimitiveArray:
                 itertools.count(array.ctypes.data, array.strides[0]),
                 itertools.repeat(self._Klass, array.shape[0])))
 
+        PrimitiveArray._resize_count += 1
         self._ndarray = array
 
     def __len__(self):
@@ -132,102 +144,30 @@ class PointsF:
         assert(k == len(y_min))
         assert(k == len(y_max))
         segs, memory = self._get(nsegs)
+        n = len(self.array) // 2
+
         memory[:k, 0] = x
         memory[:k, 1] = y_min
-        memory[k:, 0] = x[::-1]
-        memory[k:, 1] = y_max[::-1]
-        return segs, nsegs
+        memory[n:(n + k), 0] = x[::-1]
+        memory[n:(n + k), 1] = y_max[::-1]
+
+        if n > k:
+            memory[k:n, 0] = x[-1]
+            memory[k:n, 1] = y_min[-1]
+            memory[(n + k):2 * n, 0] = x[0]
+            memory[(n + k):2 * n, 1] = y_max[0]
+        return segs
 
     def set_line(self, x, y):
-        nsegs = len(x)
-        assert(nsegs == len(y))
-        segs, memory = self._get(nsegs)
-        memory[:, 0] = x
-        memory[:, 1] = y
-        return segs, nsegs
+        k = len(x)
+        assert(k == len(y))
+        segs, memory = self._get(k)
+        n = len(self.array)
 
+        memory[:k, 0] = x
+        memory[:k, 1] = y
 
-class LineSegments:
-    def __init__(self):
-        # "use_native_drawlines" is pending the following issue and code review
-        # https://bugreports.qt.io/projects/PYSIDE/issues/PYSIDE-1924
-        # https://codereview.qt-project.org/c/pyside/pyside-setup/+/415702
-        self.use_native_drawlines = _have_native_drawlines_array
-        self.array = PrimitiveArray(QtCore.QLineF, 4, use_array=self.use_native_drawlines)
-
-    def get(self, size):
-        self.array.resize(size)
-        return self.array.instances(), self.array.ndarray()
-
-    def arrayToLineSegments(self, x, y, connect, finiteCheck):
-        # analogue of arrayToQPath taking the same parameters
-        if len(x) < 2:
-            return [],
-
-        connect_array = None
-        if isinstance(connect, np.ndarray):
-            # the last element is not used
-            connect_array, connect = np.asarray(connect[:-1], dtype=bool), 'array'
-
-        all_finite = True
-        if finiteCheck or connect == 'finite':
-            mask = np.isfinite(x) & np.isfinite(y)
-            all_finite = np.all(mask)
-
-        if connect == 'all':
-            if not all_finite:
-                # remove non-finite points, if any
-                x = x[mask]
-                y = y[mask]
-
-        elif connect == 'finite':
-            if all_finite:
-                connect = 'all'
-            else:
-                # each non-finite point affects the segment before and after
-                connect_array = mask[:-1] & mask[1:]
-
-        elif connect in ['pairs', 'array']:
-            if not all_finite:
-                # replicate the behavior of arrayToQPath
-                #backfill_idx = fn._compute_backfill_indices(mask)
-                #x = x[backfill_idx]
-                #y = y[backfill_idx]
-                raise RuntimeError('???')
-
-        segs = []
-        nsegs = 0
-
-        if connect == 'all':
-            nsegs = len(x) - 1
-            if nsegs:
-                segs, memory = self.get(nsegs)
-                memory[:, 0] = x[:-1]
-                memory[:, 2] = x[1:]
-                memory[:, 1] = y[:-1]
-                memory[:, 3] = y[1:]
-
-        elif connect == 'pairs':
-            nsegs = len(x) // 2
-            if nsegs:
-                segs, memory = self.get(nsegs)
-                memory = memory.reshape((-1, 2))
-                memory[:, 0] = x[:nsegs * 2]
-                memory[:, 1] = y[:nsegs * 2]
-
-        elif connect_array is not None:
-            # the following are handled here
-            # - 'array'
-            # - 'finite' with non-finite elements
-            nsegs = np.count_nonzero(connect_array)
-            if nsegs:
-                segs, memory = self.get(nsegs)
-                memory[:, 0] = x[:-1][connect_array]
-                memory[:, 2] = x[1:][connect_array]
-                memory[:, 1] = y[:-1][connect_array]
-                memory[:, 3] = y[1:][connect_array]
-
-        if nsegs and self.use_native_drawlines:
-            return segs, nsegs
-        else:
-            return segs,
+        if n > k:
+            memory[k:n, 0] = x[-1]
+            memory[k:n, 1] = y[-1]
+        return segs

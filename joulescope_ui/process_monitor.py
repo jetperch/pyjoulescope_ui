@@ -17,6 +17,7 @@ from PySide6 import QtCore, QtGui
 import numpy as np
 import os
 import psutil
+import time
 
 
 class ProcessMonitor(QtCore.QObject):
@@ -27,37 +28,46 @@ class ProcessMonitor(QtCore.QObject):
         self._pid = os.getpid()
         self._process = psutil.Process(self._pid)
 
-        self._idx = 0
-        self._utilization = np.zeros((10, 4), dtype=float)
+        # state
+        self._time = time.time()
+        self._process_time_ns = time.process_time_ns()
+        self._cpu_count = psutil.cpu_count()
+        psutil.cpu_times_percent(0)
 
         self._timer = QtCore.QTimer()
         self._timer.setTimerType(QtGui.Qt.PreciseTimer)
         self._timer.timeout.connect(self._on_timer)
-        self._timer.start(100)  # = 1 / render_frame_rate
+        self._timer.start(1000)  # = 1 / render_frame_rate
 
     def _on_timer(self):
+        time_now = time.time()
+        process_time_ns = time.process_time_ns()
+        dt = time_now - self._time
+
+        process_time_self = (process_time_ns - self._process_time_ns) / (1e9 * dt * self._cpu_count) * 100
+        process_time_all = 100 - psutil.cpu_times_percent(0).idle
+        mem = self._process.memory_info().rss
         vm = psutil.virtual_memory()
-        self._utilization[self._idx, 0] = self._process.cpu_percent() / psutil.cpu_count()
-        self._utilization[self._idx, 1] = psutil.cpu_percent()
-        self._utilization[self._idx, 2] = self._process.memory_info().rss
-        self._utilization[self._idx, 3] = vm.used
-        self._idx += 1
-        if self._idx >= 10:
-            v = np.mean(self._utilization, axis=0)
-            data = {
-                'cpu_utilization': {
-                    'self': v[0],
-                    'all': v[1],
-                    'units': '%',
-                },
-                'memory_utilization': {
-                    'self': v[2],
-                    'all': v[3],
-                    'total': vm.total,
-                    'units': 'B',
-                },
-            }
-            self.update.emit(data)
-            self._idx = 0
 
-
+        data = {
+            'cpu_utilization': {
+                'self': process_time_self,
+                'all': process_time_all,
+                'units': '%',
+            },
+            'memory_utilization': {
+                'self': mem,
+                'available': vm.available,
+                'total': vm.total,
+                'units': 'B',
+            },
+            'memory_utilization_percent': {
+                'self': mem / vm.total * 100,
+                'used': vm.percent,
+                'available': 100 - vm.percent,
+                'units': '%',
+            },
+        }
+        self.update.emit(data)
+        self._time = time_now
+        self._process_time_ns = process_time_ns

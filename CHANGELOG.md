@@ -5,6 +5,16 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.0.16
+
+2023 May 19
+
+* Improved Waveform widget performance.
+* Reduced process monitor CPU loading.
+* Improved joulescope_driver performance on Windows.
+* Fixed memory leak.
+
+
 ## 1.0.15
 
 <span style="color:#6090ff">🛈 BETA RELEASE 🛈</span> 

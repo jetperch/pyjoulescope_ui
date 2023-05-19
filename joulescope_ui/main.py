@@ -413,9 +413,10 @@ class MainWindow(QtWidgets.QMainWindow):
         x1 = obj['cpu_utilization']['self']
         x2 = obj['cpu_utilization']['all']
         self._cpu_utilization.setText(f'CPU: {x1:.1f}%, {x2:.1f}%')
-        x1 = obj['memory_utilization']['self'] / obj['memory_utilization']['total'] * 100
-        x2 = obj['memory_utilization']['all'] / obj['memory_utilization']['total'] * 100
-        self._mem_utilization.setText(f'Mem: {x1:.1f}%, {x2:.1f}%')
+        x1 = obj['memory_utilization']['self'] / 1e6
+        x2 = obj['memory_utilization_percent']['self']
+        x3 = obj['memory_utilization_percent']['used']
+        self._mem_utilization.setText(f'Mem: {x1:.0f} MB {x2:.0f}%, {x3:.0f}%')
 
     def _on_blink_timer(self):
         topic = get_topic_name(self)
