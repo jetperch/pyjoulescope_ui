@@ -53,19 +53,19 @@ _SETTINGS = {
         'dtype': 'float',
         'brief': N_('Buffer memory duration in seconds'),
         'default': 0.0,
-        'flags': ['ro', 'tmp'],
+        'flags': ['ro', 'tmp', 'skip_undo'],
     },
     'sources': {
         'dtype': 'node',
         'brief': 'Hold source settings',
         'default': None,
-        'flags': ['hide'],
+        'flags': ['hide', 'skip_undo'],
     },
     'signals': {
         'dtype': 'node',
         'brief': 'Hold signal settings',
         'default': None,
-        'flags': ['hide'],
+        'flags': ['hide', 'skip_undo'],
     },
     'clear_on_play': {
         'dtype': 'bool',
