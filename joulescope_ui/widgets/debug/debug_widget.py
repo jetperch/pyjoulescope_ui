@@ -38,12 +38,19 @@ class DebugWidget(QtWidgets.QWidget):
     """A debug widget for developers."""
 
     CAPABILITIES = ['widget@']
+    SETTINGS = {
+        'state': {
+            'dtype': 'obj',
+            'brief': N_('The debug state.'),
+            'flags': ['hide', 'dev', 'noinit', 'tmp'],
+        }
+    }
 
     def __init__(self):
         super().__init__()
+        self._state = None
         self._menu = None
         self._layout = QtWidgets.QGridLayout(self)
-        self._cprofile = None
 
         self._profile_label = QtWidgets.QLabel('cProfile', self)
         self._profile = QtWidgets.QPushButton(self)
@@ -52,7 +59,6 @@ class DebugWidget(QtWidgets.QWidget):
         self._profile.toggled.connect(self._on_profile)
         self._layout.addWidget(self._profile_label, 0, 0, 1, 1)
         self._layout.addWidget(self._profile, 0, 1, 1, 1)
-        self._profile_path = None
 
         self._snakeviz_label = QtWidgets.QLabel(self)
         self._snakeviz_label.setOpenExternalLinks(True)
@@ -75,13 +81,22 @@ class DebugWidget(QtWidgets.QWidget):
         self._layout.addWidget(self._memory_label, 2, 0, 1, 1)
         self._layout.addWidget(self._memory_baseline, 2, 1, 1, 1)
         self._layout.addWidget(self._memory_compare, 3, 1, 1, 1)
-        self._baseline_snapshot = None
 
+        self._text_note = QtWidgets.QLabel('OUTPUT (automatically copied to clipboard)', self)
+        self._layout.addWidget(self._text_note, 4, 0, 1, 2)
         self._text = QtWidgets.QTextEdit()
-        self._layout.addWidget(self._text, 4, 0, 5, 2)
-        self._text_note = QtWidgets.QLabel('Contexts automatically copied to clipboard', self)
-        self._layout.addWidget(self._text_note, 9, 0, 2, 1)
+        self._layout.addWidget(self._text, 5, 0, 5, 2)
         self._text_clipboard = None
+
+    def on_pubsub_register(self):
+        self._state = pubsub_singleton.query('registry/DebugWidget/settings/state')
+        if self._state is None:
+            self._state = {
+                'profile': None,
+                'profile_path': None,
+                'snapshot': None
+            }
+            pubsub_singleton.publish('registry/DebugWidget/settings/state', self._state)
 
     def _on_profile(self, checked):
         p = pubsub_singleton.query('common/settings/paths/log')
@@ -91,39 +106,42 @@ class DebugWidget(QtWidgets.QWidget):
             if not os.path.isfile(path):
                 break
             idx += 1
-        self._profile_path = path
+        self._state['profile_path'] = path
+        profile = self._state['profile']
 
         if checked:
-            self._cprofile = cProfile.Profile()
-            self._cprofile.enable()
-        else:
-            self._cprofile.disable()
-            self._cprofile.dump_stats(path)
+            profile = cProfile.Profile()
+            profile.enable()
+            self._state['profile'] = profile
+        elif profile is not None:
+            profile.disable()
+            profile.dump_stats(path)
             t = StringIO()
             s = pstats.Stats(path, stream=t)
             s.strip_dirs().sort_stats("time").print_stats()
-            self._cprofile = None
+            self._state['profile'] = None
             self._text_set(t.getvalue())
             self._snakeviz_label.setText(_SNAKEVIZ.format(path=path))
 
     def _on_snakeviz_copy(self):
-        text = f'snakeviz {self._profile_path}'
+        path = self._state['profile_path']
+        text = f'snakeviz {path}'
         self._text_clipboard = text
         QtWidgets.QApplication.clipboard().setText(self._text_clipboard)
 
     def _on_memory_baseline(self):
-        if self._baseline_snapshot is None:
+        if self._state['snapshot'] is None:
             tracemalloc.start()
         gc.collect()
-        self._baseline_snapshot = tracemalloc.take_snapshot()
+        self._state['snapshot'] = tracemalloc.take_snapshot()
 
     def _on_memory_compare(self):
         gc.collect()
-        if self._baseline_snapshot is None:
+        if self._state['snapshot'] is None:
             return
         snapshot = tracemalloc.take_snapshot()
         filters = [tracemalloc.Filter(inclusive=False, filename_pattern='*tracemalloc*')]
-        stats = snapshot.filter_traces(filters).compare_to(self._baseline_snapshot, 'lineno')
+        stats = snapshot.filter_traces(filters).compare_to(self._state['snapshot'], 'lineno')
         self._text_set('\n'.join([str(s) for s in stats]))
 
     def _text_set(self, txt):

@@ -53,7 +53,7 @@ class PrimitiveArray:
             sz = len(self._ndarray)
             if size <= sz:
                 return
-            print(f'resize {sz} -> {size}')
+            # print(f'resize {sz} -> {size}')
 
         # size = int(size * _OVERSIZE_FRACT)
         array = np.empty((size, self._nfields), dtype=np.float64)
