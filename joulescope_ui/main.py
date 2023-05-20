@@ -71,6 +71,11 @@ _SETTINGS = {
         ],
         'default': 'normal',
     },
+    'debug': {
+        'dtype': 'bool',
+        'brief': N_('Enable debug mode.'),
+        'default': False,
+    },
 }
 
 
@@ -380,6 +385,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self._pubsub_utilization.setVisible(visible)
         self._cpu_utilization.setVisible(visible)
         self._mem_utilization.setVisible(visible)
+
+    def on_setting_debug(self, value):
+        if bool(value):
+            self._pubsub.register(DebugWidget)
+        else:
+            self._pubsub.unregister(DebugWidget)
 
     def _center(self, resize=None):
         screen = self.screen()

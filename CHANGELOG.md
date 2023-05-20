@@ -10,6 +10,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 2023 May 19 [in progress]
 
 * Improved Waveform widget performance by using only one PointsF array.
+* Added debug widget.
 
 
 ## 1.0.16
