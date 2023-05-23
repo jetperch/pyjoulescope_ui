@@ -125,16 +125,19 @@ class JlsV1:
         pubsub.topic_add(f'{topic}/settings/sources/1/name',
                          Metadata('str', 'Source name', default=source_name))
         pubsub.topic_add(f'{topic}/settings/sources/1/meta',
-                         Metadata('obj', 'Source metadata', default=meta))
+                         Metadata('obj', 'Source metadata', default=meta,
+                                  flags=['hide', 'ro', 'skip_undo']))
 
         for signal in SIGNALS_V1.keys():
             signal_id = f'1.{signal}'
             pubsub.topic_add(f'{topic}/settings/signals/{signal_id}/name',
                              Metadata('str', 'Signal name', default=signal))
             pubsub.topic_add(f'{topic}/settings/signals/{signal_id}/meta',
-                             Metadata('obj', 'Signal metadata', default=meta))
+                             Metadata('obj', 'Signal metadata', default=meta,
+                                      flags=['hide', 'ro', 'skip_undo']))
             pubsub.topic_add(f'{topic}/settings/signals/{signal_id}/range',
-                             Metadata('obj', 'Signal range', default=time_range))
+                             Metadata('obj', 'Signal range', default=time_range,
+                                      flags=['hide', 'ro', 'skip_undo']))
 
     def _samples_get(self, signal_name, start, length):
         signal = SIGNALS_V1[signal_name]

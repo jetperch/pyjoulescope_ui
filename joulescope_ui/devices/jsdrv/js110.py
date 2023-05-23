@@ -42,7 +42,7 @@ _SETTINGS_OBJ_ONLY = {
         'dtype': 'obj',
         'brief': N_('Device information'),
         'default': None,
-        'flags': ['ro', 'hide'],
+        'flags': ['ro', 'hide', 'skip_undo'],
     },
     'state': {
         'dtype': 'int',
@@ -54,7 +54,7 @@ _SETTINGS_OBJ_ONLY = {
             [3, 'closing'],
         ],
         'default': 0,
-        'flags': ['ro', 'hide'],
+        'flags': ['ro', 'hide', 'skip_undo'],
     },
     'state_req': {
         'dtype': 'int',
@@ -70,13 +70,13 @@ _SETTINGS_OBJ_ONLY = {
         'dtype': 'str',
         'brief': N_('Device name'),
         'default': None,
-        'flags': ['ro', 'hide'],  # duplicated from settings/name
+        'flags': ['ro', 'hide', 'skip_undo'],  # duplicated from settings/name
     },
     'sources/1/info': {
         'dtype': 'obj',
         'brief': N_('Device information'),
         'default': None,
-        'flags': ['ro', 'hide'],  # duplicated from settings/info['device']
+        'flags': ['ro', 'hide', 'skip_undo'],  # duplicated from settings/info['device']
     },
 }
 

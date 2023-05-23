@@ -32,7 +32,8 @@ class JsdrvWrapper:
     """
     CAPABILITIES = []
     EVENTS = {
-        '!publish': Metadata('obj', 'Resync to UI publish thread'),
+        '!publish': Metadata('obj', 'Resync to UI publish thread',
+                             flags=['ro', 'hide', 'tmp', 'skip_undo']),
     }
     SETTINGS = {
         'log_level': {
@@ -57,7 +58,7 @@ class JsdrvWrapper:
             'dtype': 'obj',  # list of unique_id
             'brief': 'The connected jsdrv devices',
             'default': None,
-            'flags': ['hide', 'tmp', 'noinit']
+            'flags': ['hide', 'tmp', 'noinit', 'skip_undo']
         }
     }
 

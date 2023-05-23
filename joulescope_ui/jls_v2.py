@@ -79,7 +79,8 @@ class JlsV2:
                 'name': f'{source.model}-{source.serial_number}',
             }
             pubsub.topic_add(f'{topic}/settings/sources/{source_id}/meta',
-                             Metadata('obj', 'Source metadata', default=meta))
+                             Metadata('obj', 'Source metadata', default=meta,
+                                      flags=['hide', 'ro', 'skip_undo']))
             source_meta[source_id] = meta
         for signal_id, signal in jls.signals.items():
             time_map = TimeMap()
@@ -115,7 +116,8 @@ class JlsV2:
             pubsub.topic_add(f'{topic}/settings/signals/{signal_name}/name',
                              Metadata('str', 'Signal name', default=signal.name))
             pubsub.topic_add(f'{topic}/settings/signals/{signal_name}/meta',
-                             Metadata('obj', 'Signal metadata', default=signal_meta))
+                             Metadata('obj', 'Signal metadata', default=signal_meta,
+                                      flags=['hide', 'ro', 'skip_undo']))
             sample_start, sample_end = 0, signal.length - 1
             range_meta = {
                 'utc': [time_map.counter_to_time64(sample_start), time_map.counter_to_time64(sample_end)],
@@ -124,7 +126,8 @@ class JlsV2:
             }
             self._log.info(f'{signal.name}: {range_meta}')
             pubsub.topic_add(f'{topic}/settings/signals/{signal_name}/range',
-                             Metadata('obj', 'Signal range', default=range_meta))
+                             Metadata('obj', 'Signal range', default=range_meta,
+                                      flags=['hide', 'ro', 'skip_undo']))
             self._signals[signal_name] = {
                 'signal_id': signal.signal_id,
                 'sample_rate': signal.sample_rate,

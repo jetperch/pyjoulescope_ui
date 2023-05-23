@@ -116,8 +116,8 @@ class JlsSource:
         _log.info(f'jls_source register {topic}')
         pubsub.topic_remove(f'{topic}/settings/sources')
         pubsub.topic_remove(f'{topic}/settings/signals')
-        pubsub.topic_add(f'{topic}/settings/sources', Metadata('node', 'Sources'))
-        pubsub.topic_add(f'{topic}/settings/signals', Metadata('node', 'Signals'))
+        pubsub.topic_add(f'{topic}/settings/sources', Metadata('node', 'Sources', flags=['hide', 'ro', 'skip_undo']))
+        pubsub.topic_add(f'{topic}/settings/signals', Metadata('node', 'Signals', flags=['hide', 'ro', 'skip_undo']))
         jls_version = _jls_version_detect(path)
         if jls_version == 2:
             _log.info('jls_source v2')
