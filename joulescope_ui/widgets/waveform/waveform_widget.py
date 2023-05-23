@@ -3382,11 +3382,13 @@ class WaveformWidget(QtWidgets.QWidget):
         if action == 'add':
             for a in value[1:]:
                 self._text_annotation_add(a)
+            return [topic, ['remove', a]]
         elif action == 'update':
             pass  # text_annotation entry modified in place
         elif action == 'remove':
             for a in value[1:]:
                 self._text_annotation_remove(a)
+            return [topic, ['add', a]]
         elif action in ['text_hide_all', 'text_show_all']:
             show = (action == 'text_show_all')
             if len(value) == 1:
@@ -3397,20 +3399,39 @@ class WaveformWidget(QtWidgets.QWidget):
                 entry = self.annotations['text'][plot_id]
                 for item in entry['items'].values():
                     item['text_show'] = show
+            return [topic, ['text_hide_all' if show else 'text_show_all'] + value[1:]]
         elif action in ['clear_all']:
             if len(value) == 1:
                 plot_ids = [p['index'] for p in self.state['plots']]
             else:
                 plot_ids = value[1:]
+            all_items = []
             for plot_id in plot_ids:
                 entry = self.annotations['text'][plot_id]
                 self.annotations['text'][plot_id]['items'], items = OrderedDict(), self.annotations['text'][plot_id]['items']
                 entry['x_lookup_length'] = 0
                 entry['x_lookup'][:, 0] = np.iinfo(np.int64).max
-                return [topic, ['add', list(items.values())]]
+                all_items.extend(items.values())
+            return [topic, ['add', all_items]]
         else:
             raise ValueError(f'unsupported text_annotation action {action}')
-        self._repaint_request = True
+
+    def on_action_x_range(self, topic, value):
+        """Set the x-axis range.
+
+        :param topic: The topic name.
+        :param value: The [x_min, x_max] range.
+        """
+        e0, e1 = self._extents()
+        x0, x1 = self.x_range
+        z0, z1 = value
+        if z1 < z0:
+            z0, z1 = z1, z0
+        z0 = min(max(z0, e0), e1)
+        z1 = min(max(z1, e0), e1)
+        self.x_range = [z0, z1]
+        self._plot_data_invalidate()
+        return [topic, [x0, x1]]
 
     def on_action_x_zoom(self, value):
         """Perform a zoom action.
@@ -3459,13 +3480,16 @@ class WaveformWidget(QtWidgets.QWidget):
                 self._log.warning('center change: %s -> %s', value[2], pixel)
         self.x_range = [z0, z1]
         self._plot_data_invalidate()
+        return [f'{get_topic_name(self)}/actions/!x_range', [x0, x1]]
 
     def on_action_x_zoom_all(self):
         """Perform a zoom action to the full extents.
         """
         self._log.info('x_zoom_all')
+        x0, x1 = self.x_range
         self._plot_data_invalidate()
         self.x_range = self._extents()
+        return [f'{get_topic_name(self)}/actions/!x_range', [x0, x1]]
 
     def on_action_x_pan(self, pan):
         self._log.info(f'on_action_x_pan {pan}')
@@ -3482,6 +3506,7 @@ class WaveformWidget(QtWidgets.QWidget):
             z0, z1 = e1 - d_x, e1
         self._plot_data_invalidate()
         self.x_range = [z0, z1]
+        return [f'{get_topic_name(self)}/actions/!x_range', [x0, x1]]
 
     def on_action_y_zoom_all(self):
         """Restore all plots to y-axis auto ranging mode."""
@@ -3492,6 +3517,25 @@ class WaveformWidget(QtWidgets.QWidget):
                 plot['range_mode'] = 'auto'
                 has_change = True
         self._repaint_request |= has_change
+
+    def on_action_y_range(self, topic, value):
+        """Set the y-axis range.
+
+        :param topic: The topic name.
+        :param value: The [plot_idx, y_min, y_max] range entry or list of entries.
+        """
+        if not len(value):
+            return None
+        rv = []
+        if isinstance(value[0], int):
+            value = [value]
+        for plot_idx, z0, z1 in value:
+            plot = self.state['plots'][plot_idx]
+            y0, y1 = plot['range']
+            plot['range'] = [z0, z1]
+            rv.append([plot_idx, y0, y1])
+        self._repaint_request = True
+        return [topic, rv]
 
     def on_action_y_zoom(self, value):
         """Perform a y-axis zoom action.
@@ -3519,13 +3563,27 @@ class WaveformWidget(QtWidgets.QWidget):
         d_y *= _ZOOM_FACTOR ** -steps
         plot['range'] = center - d_y * f, center + d_y * (1 - f)
         self._repaint_request = True
+        return [f'{get_topic_name(self)}/actions/!y_range', [plot_idx, y_min, y_max]]
 
-    def _on_y_pan(self, plot, pan):
-        self._log.info(f'_on_y_pan(%sr, %r)', plot['quantity'], pan)
+    def on_action_y_pan(self, value):
+        """Pan the plot's y-axis.
+
+        :param value: [plot_idx, mode, pan].
+            * plot_idx: The plot index to zoom.
+            * mode: 'relative' to full-scale or 'absolute'.
+            * pan: The amount to pan.
+        """
+        plot_idx, mode, pan = value[:3]
+        plot = self.state['plots'][plot_idx]
+        self._log.info(f'y_pan(%sr, %r, %r)', plot['quantity'], mode, pan)
         y0, y1 = plot['range']
-        a = (y1 - y0) * 0.25 * pan
+        if mode == 'relative':
+            a = (y1 - y0) * 0.25 * pan
+        else:
+            a = pan
         plot['range'] = y0 + a, y1 + a
         self._repaint_request = True
+        return [f'{get_topic_name(self)}/actions/!y_range', [plot_idx, y0, y1]]
 
     def plot_wheelEvent(self, event: QtGui.QWheelEvent):
         x_name, y_name = self._target_lookup_by_pos(self._mouse_pos)
@@ -3560,12 +3618,12 @@ class WaveformWidget(QtWidgets.QWidget):
         elif y_name.startswith('plot.') and (is_y or x_name == 'y_axis'):
             plot_idx = int(y_name.split('.')[1])
             plot = self.state['plots'][plot_idx]
+            topic = get_topic_name(self)
             if is_pan:
-                self._on_y_pan(plot, delta)
+                self.pubsub.publish(f'{topic}/actions/!y_pan', [plot_idx, 'relative', delta])
             else:
                 y_pixel = self._mouse_pos[1]
                 y = self._y_pixel_to_value(plot, y_pixel)
-                topic = get_topic_name(self)
                 self.pubsub.publish(f'{topic}/actions/!y_zoom', [plot_idx, delta, y, y_pixel])
 
     def _plot_data_invalidate(self, plot=None):
@@ -3587,7 +3645,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 self._signals[signal]['changed'] = True
                 self._repaint_request = True
 
-    def on_action_plot_show(self, value):
+    def on_action_plot_show(self, topic, value):
         """Show/hide plots.
 
         :param value: [quantity, show].  Quantity is the one character
@@ -3605,7 +3663,7 @@ class WaveformWidget(QtWidgets.QWidget):
                     self._plot_data_invalidate(plot)
                     self.x_range = self._compute_x_range()
                     self._repaint_request = True
-                return
+                return [topic, [quantity, not show]]
         self._log.warning('plot_show could not match %s', quantity)
 
     def on_setting_pin_left(self):

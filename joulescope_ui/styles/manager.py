@@ -247,12 +247,13 @@ def _render_templates(obj, path):
 def _update_vars(v, d, subkey=None):
     if d is None:
         return
-    if subkey is not None:
-        d = d.get(subkey, None)
-        if d is None:
-            return
-    for name, value in d.items():
-        v[name] = value
+    try:
+        if subkey is not None:
+            d = d[subkey]
+        for name, value in d.items():
+            v[name] = value
+    except (TypeError, KeyError, AttributeError):
+        return
 
 
 def _render_cls(cls, theme, color_scheme, font_scheme):
@@ -403,8 +404,7 @@ def styled_widget(translated_name):
     """
 
     def render(self, value):
-        if value is not None:
-            pubsub_singleton.publish(RENDER_TOPIC, self)
+        pubsub_singleton.publish(RENDER_TOPIC, self)
 
     def inner(cls):
         def cls_render(value):

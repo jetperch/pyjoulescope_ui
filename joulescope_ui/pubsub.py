@@ -475,6 +475,7 @@ class PubSub:
 
     def _cmd_undo(self, value):
         if value == 'clear':
+            self._log.info('undo clear')
             self.undos.clear()
             return None
         value = 1 if value is None else int(value)
@@ -482,6 +483,7 @@ class PubSub:
             if not len(self.undos):
                 return
             cmd = self.undos.pop()
+            self._log.info('undo %s: %s', cmd, cmd.undo)
             self.redos.insert(0, cmd)
             for topic, value in cmd.undo:
                 self._process_inner(_Command(topic, value))
@@ -489,6 +491,7 @@ class PubSub:
 
     def _cmd_redo(self, value):
         if value == 'clear':
+            self._log.info('redo clear')
             self.redos.clear()
             return None
         value = 1 if value is None else int(value)
@@ -497,6 +500,7 @@ class PubSub:
                 return
             cmd = self.redos.pop(0)
             self.undos.append(cmd)
+            self._log.info('redo %s: %s', cmd, cmd.redo)
             for topic, value in cmd.redo:
                 self._process_inner(_Command(topic, value))
         return None
@@ -919,8 +923,11 @@ class PubSub:
                 return None
             else:
                 if capture_undo:
-                    cmd.redo = [(cmd.topic, value)]
-                    cmd.undo = [(cmd.topic, t.value)]
+                    if len(self.undos) and self.undos[-1].topic == cmd.topic:
+                        self.undos[-1].value = value  # coalesce
+                    else:
+                        cmd.redo = [(cmd.topic, value)]
+                        cmd.undo = [(cmd.topic, t.value)]
                 t.value = value
         self._publish_value(t, flag, topic_name, value)
 
@@ -929,7 +936,6 @@ class PubSub:
         try:
             self._process_inner(cmd)
             if self._process_level == 1 and cmd.undo:
-                print(f'undo {cmd}')
                 self.undos.append(cmd)
         finally:
             self._process_count += 1

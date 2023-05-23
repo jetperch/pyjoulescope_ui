@@ -194,17 +194,11 @@ class View:
         else:
             spec = value
         if isinstance(spec, str):
-            topic = get_topic_name(spec)
-            spec = get_instance(topic, default=None)
-            if spec is None:
-                cls = pubsub_singleton.query(topic + '/instance_of', default=None)
-                if cls is None:
-                    _log.warning('cannot open widget topic=%s', topic)
-                    return
-                unique_id = get_unique_id(topic)
-                spec = get_instance(cls)
-                if spec is None:
-                    _log.warning('widget_open failed for %s', value)
+            cls_unique_id = get_unique_id(spec)
+            if ':' in spec:
+                unique_id = spec
+                cls_unique_id = unique_id.split(':')[0]
+            spec = get_instance(cls_unique_id, default=None)
         if isinstance(spec, type):
             obj = spec(*args, **kwargs)
         else:
@@ -217,14 +211,17 @@ class View:
         self._dock_manager.addDockWidget(QtAds.TopDockWidgetArea, obj.dock_widget)
         tab_widget = obj.dock_widget.tabWidget()
         tab_widget.setElideMode(QtCore.Qt.TextElideMode.ElideNone)
-        # todo restore children
         pubsub_singleton.publish('registry/style/actions/!render', unique_id)
         if floating:
             dw = obj.dock_widget
             dw.setFloating()
             c = dw.floatingDockContainer()
             c.resize(800, 600)
-        return ['registry/view/actions/!widget_close', unique_id]
+        if getattr(obj, 'view_skip_undo', False):
+            return None
+        else:
+            return [['registry/view/actions/!widget_close', unique_id],
+                    ['registry/view/actions/!widget_open', unique_id]]
 
     def _widget_suspend(self, value, delete=None):
         """Suspend a widget.
@@ -278,8 +275,14 @@ class View:
         * Removes the widget from its view.
         """
         _log.debug('widget_close %s', value)
+        skip_undo = getattr(get_instance(value),'view_skip_undo', False)
+        # todo save settings and dock geometry for undo
         unique_id = self._widget_suspend(value, delete=True)
-        return ['registry/view/actions/!widget_open', unique_id]  # todo, restore state
+        if skip_undo:
+            return None
+        else:
+            return [['registry/view/actions/!widget_open', unique_id],
+                    ['registry/view/actions/!widget_close', unique_id]]
 
     @staticmethod
     def on_cls_action_widget_open(value):
@@ -297,7 +300,8 @@ class View:
         unique_id = view.unique_id
         if View._active_instance is None:
             pubsub_singleton.publish(f'{View.topic}/settings/active', unique_id)
-        return ['registry/view/actions/!remove', unique_id]
+        return [['registry/view/actions/!remove', unique_id],
+                ['registry/view/actions/!add', unique_id]]
 
     @staticmethod
     def on_cls_action_remove(value):
@@ -306,7 +310,9 @@ class View:
         if unique_id == View._active_instance:
             raise ValueError('Cannot remove active view')
         pubsub_singleton.unregister(value, delete=True)
-        return ['registry/view/actions/!add', get_unique_id(value)]
+
+        return [['registry/view/actions/!add', unique_id],
+                ['registry/view/actions/!remove', unique_id]]
 
     @staticmethod
     def on_cls_action_ui_connect(value):

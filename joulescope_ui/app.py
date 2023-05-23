@@ -56,6 +56,7 @@ SETTINGS = {
             is processed, but widgets displaying statistics information
             do not update."""),
         'default': True,
+        'flags': ['skip_undo'],
     },
     'statistics_stream_record': {
         'dtype': 'bool',
@@ -69,6 +70,7 @@ SETTINGS = {
             By default, Joulescopes provide statistics data at 2 Hz.
             Each device allows you to change this setting to the desired rate."""),
         'default': False,
+        'flags': ['skip_undo'],
     },
     'signal_stream_enable': {
         'dtype': 'bool',
@@ -81,6 +83,7 @@ SETTINGS = {
             all sample widgets for buffer mode.  
             """),
         'default': True,
+        'flags': ['skip_undo'],
     },
     'signal_stream_record': {
         'dtype': 'bool',
@@ -97,6 +100,7 @@ SETTINGS = {
             disable signals, and/or reduce the sample rates.
         """),
         'default': False,
+        'flags': ['skip_undo'],
     },
     'defaults/statistics_stream_source': {
         'dtype': 'str',
