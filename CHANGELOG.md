@@ -7,10 +7,17 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.17
 
-2023 May 19 [in progress]
+2023 May 23 [in progress]
 
 * Improved Waveform widget performance by using only one PointsF array.
 * Added debug widget.
+* Added "skip_undo" to settings metadata flags as needed.
+* Reworked pubsub for better undo / redo support.
+  * Fixed memory leak (excessive undo / redo information). 
+  * Immediately process publish on pubsub thread.
+  * Removed hierarchical undo/redo capture.
+  * Add option to skip undo/redo for core pubsub actions. 
+  * Added undo clear and redo clear.
 
 
 ## 1.0.16

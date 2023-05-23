@@ -57,7 +57,7 @@ VIEW_SETTINGS = {
     'active': {
         'dtype': 'str',
         'brief': 'The unique_id for the active view instance.',
-        'default': '',
+        'default': None,
         'flags': ['hide'],
     },
     'theme': {

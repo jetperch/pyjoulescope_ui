@@ -23,7 +23,6 @@ import threading
 import logging
 import os
 import sys
-import functools
 
 
 _APP_DEFAULT = 'joulescope'
@@ -272,61 +271,18 @@ class _Topic:
 
 class _Command:
 
-    def __init__(self, topic, value):
+    def __init__(self, topic, value, is_core=False):
         self.topic = topic
         self.value = value
+        self.is_core = bool(is_core)
+        self.undo = None  # list of [topic, value] entries
+        self.redo = None  # list of [topic, value] entries
 
     def __str__(self):
         return f'_Command({repr(self.topic)}, {self.value})'
 
     def __repr__(self):
         return f'_Command({repr(self.topic)}, {repr(self.value)})'
-
-
-class _Undo:
-
-    def __init__(self, topic, undos=None, redos=None):
-        self.topic = topic
-        self.undos = [] if undos is None else undos  # list of _Command
-        self.redos = [] if redos is None else redos  # list of _Command
-
-    def __str__(self):
-        return self.topic
-
-    def __repr__(self):
-        return f'_Undo({repr(self.topic)}, {repr(self.undos)}, {repr(self.redos)})'
-
-    def __len__(self):
-        return len(self.undos)
-
-    def pub_add(self, topic: str, old_value, new_value):
-        """Add an undo/redo for a publish.
-
-        :param topic: The publish topic name.
-        :param old_value: The original retained topic value.
-        :param new_value: The new topic value being published.
-        """
-        self.undos.append(_Command(topic, old_value))
-        self.redos.append(_Command(topic, new_value))
-
-    def cmd_add(self, topic: str, value, rv):
-        """Add an undo/redo for a command.
-
-        :param topic: The command topic name.
-        :param value: The value for the command.
-        :param rv: The return value from the command processing function,
-            which is one of:
-            * None: No undo/redo support
-            * [undo_topic, undo_value]
-        """
-        if rv is None:
-            return
-        if isinstance(rv[0], str) and len(rv) == 2:
-            self.undos.append(_Command(*rv))
-        else:
-            for topic, value in rv:
-                self.undos.append(_Command(topic, value))
-        self.redos.append(_Command(topic, value))
 
 
 class _Setting:
@@ -417,26 +373,20 @@ class _Setting:
             fn(pubsub, topic, value)
 
 
-def _immediate(fn):
-    @functools.wraps(fn)
-    def wrap(self, *args, **kwargs):
-        try:
-            self._immediate += 1
-            return fn(self, *args, **kwargs)
-        finally:
-            self._immediate -= 1
-
-    return wrap
-
-
 class PubSub:
     """A publish-subscribe implementation combined with the command pattern.
 
     :param app: The application name.  None uses the default.
+    :param skip_core_undo: When True, only support undo/redo for top-level
+        publish, which best supports registered objects.  This mode
+        skip undo/redo for all core operations
+        including topic add, topic remove, subscribe, unsubscribe,
+        register and unregister.
     """
-    def __init__(self, app=None):
-        self._process_count = 0
-        self._immediate = 0
+    def __init__(self, app=None, skip_core_undo=None):
+        self._skip_core_undo = bool(skip_core_undo)
+        self._process_level = 0
+        self._process_count = 0  # for top-level queue
         self._app = _APP_DEFAULT if app is None else str(app)
         self._log = logging.getLogger(__name__)
         self._notify_fn = None
@@ -446,11 +396,9 @@ class PubSub:
         self._root = _Topic(None, '', meta)
         self._topic_by_name: dict[str, _Topic] = {}
         self._lock = threading.RLock()
-        self._queue = []  # entries are _Command
-        self._stack = [[]]  # entries are _Command
-        self._undo_capture = None
-        self.undos = []  # list of _Undo
-        self.redos = []  # list of _Undo
+        self._queue: list[_Command] = []
+        self.undos: list[_Command] = []
+        self.redos: list[_Command] = []
 
         self._add_cmd(SUBSCRIBE_TOPIC, self._cmd_subscribe)                 # subscribe must be first
         self._add_cmd(UNSUBSCRIBE_TOPIC, self._cmd_unsubscribe)
@@ -467,13 +415,6 @@ class PubSub:
 
     def __contains__(self, topic):
         return topic in self._topic_by_name
-
-    def __enter__(self):
-        self._immediate += 1
-        return self
-
-    def __exit__(self, exception_type, exception_value, exception_traceback):
-        self._immediate -= 1
 
     @property
     def process_count(self):
@@ -533,64 +474,61 @@ class PubSub:
         self._cmd_subscribe(subscribe_value)
 
     def _cmd_undo(self, value):
+        if value == 'clear':
+            self.undos.clear()
+            return None
+        value = 1 if value is None else int(value)
         for count in range(value):
             if not len(self.undos):
                 return
-            undo = self.undos.pop()
-            self.redos.insert(0, undo)
-            for cmd in undo.undos:
-                self._process_one(cmd)
+            cmd = self.undos.pop()
+            self.redos.insert(0, cmd)
+            for topic, value in cmd.undo:
+                self._process_inner(_Command(topic, value))
         return None
 
     def _cmd_redo(self, value):
+        if value == 'clear':
+            self.redos.clear()
+            return None
+        value = 1 if value is None else int(value)
         for count in range(value):
             if not len(self.redos):
                 return
-            undo = self.redos.pop()
-            for cmd in undo.redos:
-                self._process_one(cmd)
+            cmd = self.redos.pop(0)
+            self.undos.append(cmd)
+            for topic, value in cmd.redo:
+                self._process_inner(_Command(topic, value))
         return None
 
     def undo(self, count=None):
-        count = 1 if count is None else int(count)
         self.publish(UNDO_TOPIC, count)
 
     def redo(self, count=None):
-        count = 1 if count is None else int(count)
         self.publish(REDO_TOPIC, count)
 
-    def _send(self, topic, value, timeout=None):
+    def _send(self, cmd: _Command, defer=None):
         thread_id = threading.get_native_id()
         if thread_id == self._thread_id:
-            if timeout:
-                raise BlockingIOError()
-            if self._undo_capture is not None:
-                self._stack[-1].append(_Command(topic, value))
-                if self._immediate:
-                    self._process()
-                    self._process_count += 1
+            if defer is None:
+                return self._process(cmd)
             else:
                 with self._lock:
-                    was_empty = (len(self._queue) == 0)
-                    self._queue.append(_Command(topic, value))
-                if was_empty:
-                    self.process()
-            return None
-
-        if timeout is not None:
-            raise NotImplementedError()
-        with self._lock:
-            self._queue.append(_Command(topic, value))
+                    if defer == 0:
+                        self._queue.insert(0, cmd)
+                    else:
+                        self._queue.append(cmd)
+        else:
+            with self._lock:
+                self._queue.append(cmd)
         self._notify_fn()
-        if timeout is not None:
-            raise NotImplementedError()
 
     def topic_add(self, topic: str, *args, **kwargs):
         """Define and create a new topic.
 
-        topic_add(topic, meta: Metadata, timeout=None)
-        topic_add(topic, meta: json_str, timeout=None)
-        topic_add(topic, *args, **kwargs, timeout=None) -> topic_add(topic, Metadata(*args, **kwargs))
+        topic_add(topic, meta: Metadata)
+        topic_add(topic, meta: json_str)
+        topic_add(topic, *args, **kwargs) -> topic_add(topic, Metadata(*args, **kwargs))
 
         :param topic: The fully-qualified topic name.
         :param args: The metadata either as:
@@ -600,14 +538,8 @@ class PubSub:
         :param kwargs: The keyword arguments for the Metadata constructor.
         :param exists_ok: True to skip add if already exists.
             False (default) will log the exception on duplicate add.
-        :param timeout: If None (default), complete asynchronously.
-            If specified, the time in seconds to wait for the completion.
-        :return: Completion code if timeout, else None.
-        :raise BlockingIOError: If timeout is provided and invoked from the
-            Qt event thread.
+        :return: None.
         """
-
-        timeout = kwargs.pop('timeout', None)
         meta = kwargs.pop('meta', None)
         exists_ok = bool(kwargs.pop('exists_ok', False))
 
@@ -634,32 +566,40 @@ class PubSub:
                 raise ValueError(f'topic {topic}: positional metadata arg must be Metadata or json string')
         else:
             meta = Metadata(*args)
-        return self._send(TOPIC_ADD_TOPIC, {'topic': topic, 'meta': meta, 'exists_ok': exists_ok}, timeout)
+        cmd = _Command(TOPIC_ADD_TOPIC, {'topic': topic, 'meta': meta, 'exists_ok': exists_ok}, is_core=True)
+        return self._send(cmd)
 
-    def topic_remove(self, topic: str, timeout=None):
+    def topic_remove(self, topic: str):
         """Remove a topic and all subtopics.
 
         :param topic: The fully-qualified topic name to remove.
-        :param timeout: If None (default), complete asynchronously.
-            If specified, the time in seconds to wait for the completion.
-        :return: Completion code if timeout, else None.
-        :raise BlockingIOError: If timeout is provided and invoked from the
-            Qt event thread.
+        :return: None.
         """
-        return self._send(TOPIC_REMOVE_TOPIC, {'topic': topic}, timeout)
+        cmd = _Command(TOPIC_REMOVE_TOPIC, {'topic': topic}, is_core=True)
+        return self._send(cmd)
 
-    def publish(self, topic: str, value, timeout=None):
+    def publish(self, topic: str, value, defer=None):
         """Publish a value to a topic.
 
         :param topic: The topic string.
         :param value: The value, which must pass validation for the topic.
-        :param timeout: If None (default), complete asynchronously.
-            If specified, the time in seconds to wait for the completion.
-        :return: Completion code if timeout, else None.
-        :raise BlockingIOError: If timeout is provided and invoked from the
-            Qt event thread.
+        :param defer: Optionally defer the publish, even when called on the
+            pubsub thread.  This allows for
+        :return: None.
+
+        When called from outside the pubsub thread, the publish will be
+        queued to the publish thread and performed at a later time.
+
+        You can get this same behavior on the publish thread by
+        setting "defer" to True.  This will also add a potential undo/redo
+        entry for this publish.
+
+        Publish calls initiating from the pubsub thread are processed
+        immediately, but only the top-level publish gets undo/redo support.
+        Top-level publish calls must handle their undo state.
         """
-        return self._send(topic, value, timeout)
+        cmd = _Command(topic, value)
+        return self._send(cmd, defer=defer)
 
     def _topic_get(self, topic) -> _Topic:
         with self._lock:
@@ -728,7 +668,7 @@ class PubSub:
             names = list(names)
         return names
 
-    def subscribe(self, topic: str, update_fn: callable, flags=None, timeout=None):
+    def subscribe(self, topic: str, update_fn: callable, flags=None):
         """Subscribe to receive topic updates.
 
         :param self: The driver instance.
@@ -754,9 +694,15 @@ class PubSub:
             * update_fn(value)
             * update_fn(topic: str, value)
             * update_fn(pubsub: PubSub, topic: str, value)
+
             For normal subscriptions, the return value is ignored.
-            For a command subscriber, the return value should be
-            [undo, redo].
+
+            For a command subscriber, a return value of None means that
+            no undo / redo support is available.  Otherwise, the return value
+            must be [undo, redo].  Both undo and redo should be a [topic, value]
+            entry.  "redo" may also be None, and the entry will be the same as the
+            publish command.
+
             Note that this instance stores a weakref to update_fn so that
             subscribing does not keep the subscriber alive.  Therefore,
             update_fn must remain referenced externally.
@@ -764,10 +710,6 @@ class PubSub:
             To prevent unintentionally having update_fn go out of scope,
             the caller must maintain a local reference, which can also
             be used to unsubscribe.
-        :param timeout: If None (default), complete asynchronously.
-            If specified, the time in seconds to wait for the completion.
-        :raise BlockingIOError: If timeout is provided and invoked from the
-            Qt event thread.
         :raise RuntimeError: on error.
         """
         value = {
@@ -775,19 +717,16 @@ class PubSub:
             'update_fn': update_fn,
             'flags': flags
         }
-        return self._send(SUBSCRIBE_TOPIC, value, timeout)
+        cmd = _Command(SUBSCRIBE_TOPIC, value, is_core=True)
+        return self._send(cmd)
 
-    def unsubscribe(self, topic, update_fn: callable, flags=None, timeout=None):
+    def unsubscribe(self, topic, update_fn: callable, flags=None):
         """Unsubscribe from a topic.
 
         :param topic: The topic name string.
         :param update_fn: The function previously provided to :func:`subscribe`.
         :param flags: The flags to unsubscribe.  None (default) unsubscribes
             from all.
-        :param timeout: If None (default), complete asynchronously.
-            If specified, the time in seconds to wait for the completion.
-        :raise BlockingIOError: If timeout is provided and invoked from the
-            Qt event thread.
         :raise: On error.
         """
         value = {
@@ -795,20 +734,18 @@ class PubSub:
             'update_fn': update_fn,
             'flags': flags
         }
-        return self._send(UNSUBSCRIBE_TOPIC, value, timeout)
+        cmd = _Command(UNSUBSCRIBE_TOPIC, value, is_core=True)
+        return self._send(cmd)
 
-    def unsubscribe_all(self, update_fn: callable, timeout=None):
+    def unsubscribe_all(self, update_fn: callable):
         """Completely unsubscribe a callback from all topics.
 
         :param update_fn: The function previously provided to :func:`subscribe`.
-        :param timeout: If None (default), complete asynchronously.
-            If specified, the time in seconds to wait for the completion.
-        :raise BlockingIOError: If timeout is provided and invoked from the
-            Qt event thread.
         :raise: On error.
         """
         value = {'update_fn': update_fn}
-        return self._send(UNSUBSCRIBE_ALL_TOPIC, value, timeout)
+        cmd = _Command(UNSUBSCRIBE_ALL_TOPIC, value, is_core=True)
+        return self._send(cmd)
 
     def _topic_by_name_recursive_remove(self, t: _Topic):
         for subtopic in t.children.values():
@@ -932,7 +869,7 @@ class PubSub:
                 fn(self, topic_name, value)
             t = t.parent
 
-    def _process_one(self, cmd):
+    def _process_inner(self, cmd: _Command):
         topic, value = cmd.topic, cmd.value
         if topic[-1] in _SUFFIX_CHAR:
             topic_name = topic[:-1]
@@ -953,33 +890,53 @@ class PubSub:
                     value = not t.value
                 else:
                     value = t.meta.validate(value)
+
+            if t.meta is not None and 'skip_undo' in t.meta.flags:
+                capture_undo = False
+            elif self._skip_core_undo and cmd.is_core:
+                capture_undo = False
+            else:
+                capture_undo = True
+
             if t.subtopic_name.startswith('!'):
                 cmds_update_fn = t.update_fn['command']
                 if len(cmds_update_fn):
-                    rv = cmds_update_fn[0](self, topic, value)
-                    self._undo_capture.cmd_add(topic, value, rv)
+                    return_value = cmds_update_fn[0](self, topic, value)
+                    if capture_undo and return_value is not None:
+                        if isinstance(return_value[0], str):
+                            return_value = [[return_value], None]
+                        undo, redo = return_value
+                        if redo is None:
+                            redo = [(cmd.topic, value)]
+                        if isinstance(undo[0], str):
+                            undo = [undo]
+                        if isinstance(redo[0], str):
+                            redo = [redo]
+                        cmd.undo = undo
+                        cmd.redo = redo
             elif t.value == value:
                 # self._log.debug('dedup %s: %s == %s', topic_name, t.value, value)
                 return None
             else:
-                if t.meta is None or 'skip_undo' not in t.meta.flags:
-                    self._undo_capture.pub_add(topic_name, t.value, value)
+                if capture_undo:
+                    cmd.redo = [(cmd.topic, value)]
+                    cmd.undo = [(cmd.topic, t.value)]
                 t.value = value
         self._publish_value(t, flag, topic_name, value)
 
-    def _process(self):
-        level = len(self._stack) if self._immediate else 1
-        while True:
-            if not len(self._stack[-1]):
-                if len(self._stack) == level:
-                    break
-                self._stack.pop()
-                continue
-            cmd = self._stack[-1].pop(0)
-            try:
-                self._process_one(cmd)
-            except Exception:
-                self._log.exception('while processing %s', cmd)
+    def _process(self, cmd: _Command):
+        self._process_level += 1
+        try:
+            self._process_inner(cmd)
+            if self._process_level == 1 and cmd.undo:
+                print(f'undo {cmd}')
+                self.undos.append(cmd)
+        finally:
+            self._process_count += 1
+            self._process_level -= 1
+            if self._process_level < 0:
+                self._log.warning('Invalid process level')
+                self._process_level = 0
 
     def process(self):
         """Process all pending actions."""
@@ -990,17 +947,10 @@ class PubSub:
                     cmd = self._queue.pop(0)
                 except IndexError:
                     break
-            assert (len(self._stack) == 1)
-            assert (len(self._stack[0]) == 0)
-            self._undo_capture = _Undo(cmd.topic)
-            self._stack[-1].append(cmd)
-            self._process()
-            assert (len(self._stack) == 1)
-            assert (len(self._stack[0]) == 0)
-            if len(self._undo_capture):
-                self.undos.append(self._undo_capture)
-            self._undo_capture = None
-            self._process_count += 1
+            try:
+                self._process(cmd)
+            except Exception:
+                self._log.exception('process %s', cmd)
             count += 1
         return count
 
@@ -1009,11 +959,11 @@ class PubSub:
         for child in t.children.values():
             self._rebuild_topic_by_name(child)
 
-    def _registry_add(self, unique_id: str, timeout=None):
-        self.publish(REGISTRY_MANAGER_TOPICS.ACTIONS + '/registry/!add', unique_id, timeout=timeout)
+    def _registry_add(self, unique_id: str):
+        self.publish(REGISTRY_MANAGER_TOPICS.ACTIONS + '/registry/!add', unique_id)
 
-    def _registry_remove(self, unique_id: str, timeout=None):
-        self.publish(REGISTRY_MANAGER_TOPICS.ACTIONS + '/registry/!remove', unique_id, timeout=timeout)
+    def _registry_remove(self, unique_id: str):
+        self.publish(REGISTRY_MANAGER_TOPICS.ACTIONS + '/registry/!remove', unique_id)
 
     def registry_initialize(self):
         t = REGISTRY_MANAGER_TOPICS
@@ -1040,6 +990,7 @@ class PubSub:
         t_update = self._topic_by_name[topic_update_str]
         self._publish_value(t_update, 'pub', topic_update_str, ['+', value, v])
         self._publish_value(t_list, 'pub', topic_list_str, v)
+        return None
 
     def _on_action_capability_remove(self, topic, value):
         parts = topic.split('/')
@@ -1055,8 +1006,8 @@ class PubSub:
         t_update = self._topic_by_name[topic_update_str]
         self._publish_value(t_update, 'pub', topic_update_str, ['-', value, v])
         self._publish_value(t_list, 'pub', topic_list_str, v)
+        return None
 
-    @_immediate
     def register_capability(self, name):
         t = f'{REGISTRY_MANAGER_TOPICS.CAPABILITIES}/{name}'
         self.topic_add(t, dtype='node', brief='')
@@ -1067,7 +1018,6 @@ class PubSub:
                        brief='The current list of unique_ids with this capability', default=[])
         self.publish(REGISTRY_MANAGER_TOPICS.CAPABILITY_ADD, name)
 
-    @_immediate
     def unregister_capability(self, name):
         t = REGISTRY_MANAGER_TOPICS.CAPABILITIES + '/' + name
         self._cmd_topic_remove({'topic': t})
@@ -1076,7 +1026,6 @@ class PubSub:
     def _reg_topic(self, topic, meta):
         self._cmd_topic_add({'topic': topic, 'meta': meta, 'exists_ok': True})
 
-    @_immediate
     def register(self, obj, unique_id: str = None, parent=None):
         """Register a class or instance.
 
@@ -1132,20 +1081,25 @@ class PubSub:
         self._reg_topic(f'{topic_name}/events', Metadata(dtype='node', brief='events'))
         self._reg_topic(f'{topic_name}/settings', Metadata(dtype='node', brief='settings'))
         if isinstance(obj, type):
-            self._reg_topic(f'{topic_name}/instances', Metadata(dtype='obj', brief='instances', default=[]))
+            self._reg_topic(f'{topic_name}/instances',
+                            Metadata(dtype='obj', brief='instances', default=[],
+                                     flags=['hide', 'skip_undo']))
         else:
             cls_unique_id = getattr(obj.__class__, 'unique_id', None)
             if cls_unique_id is not None:
                 self._reg_topic(f'{topic_name}/instance_of',
-                                Metadata(dtype='str', brief='instance of', default=cls_unique_id, flags=['ro']))
+                                Metadata(dtype='str', brief='instance of', default=cls_unique_id,
+                                         flags=['hide', 'ro', 'skip_undo']))
                 instances_topic = get_topic_name(cls_unique_id) + '/instances'
                 instances = self.query(instances_topic)
                 if unique_id not in instances:
                     self.publish(instances_topic, instances + [unique_id])
             self._reg_topic(f'{topic_name}/parent',
-                            Metadata(dtype='str', brief='unique id for the parent', default=''))
+                            Metadata(dtype='str', brief='unique id for the parent', default='',
+                                     flags=['hide', 'skip_undo']))
             self._reg_topic(f'{topic_name}/children',
-                            Metadata(dtype='obj', brief='list of unique ids for children', default=[]))
+                            Metadata(dtype='obj', brief='list of unique ids for children', default=[],
+                                     flags=['hide', 'skip_undo']))
 
         self._register_events(obj, unique_id)
         self._register_functions(obj, unique_id)  # on_action and on_callback, but not on_setting
@@ -1362,7 +1316,6 @@ class PubSub:
         if callable(fn):
             fn()
 
-    @_immediate
     def unregister(self, spec, delete=None):
         """Unregister a class or instance.
 
@@ -1406,7 +1359,6 @@ class PubSub:
             if v.item is not None:
                 setattr(cls, setting, v.item)
 
-    @_immediate
     def capabilities_append(self, spec, capabilities):
         """Dynamically add new capabilities to a registered instance.
 
@@ -1429,7 +1381,6 @@ class PubSub:
             obj_caps.append(capability)
         setattr(obj, 'CAPABILITIES', copy.deepcopy(obj_caps))
 
-    @_immediate
     def capabilities_remove(self, spec, capabilities):
         """Dynamically remove capabilities from a registered instance.
 
@@ -1460,7 +1411,6 @@ class PubSub:
                     self.publish(instances_topic, instances)
         self.topic_remove(get_topic_name(unique_id))
 
-    @_immediate
     def register_command(self, topic: str, fn: callable):
         """Add a new command topic to the pubsub instance.
 
@@ -1481,7 +1431,6 @@ class PubSub:
         self.subscribe(topic, fn, flags=['command'])
         return fn
 
-    @_immediate
     def unregister_command(self, topic: str, fn: callable):
         """Remove the registered command handler for a topic.
 

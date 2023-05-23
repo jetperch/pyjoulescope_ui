@@ -122,9 +122,9 @@ class JsdrvWrapper:
             topic, fn, flags = self._driver_subscriptions.pop()
             self.driver.unsubscribe(topic, fn)
 
-    def _ui_subscribe(self, topic: str, update_fn: callable, flags=None, timeout=None):
+    def _ui_subscribe(self, topic: str, update_fn: callable, flags=None):
         self._ui_subscriptions.append((topic, update_fn, flags))
-        self.pubsub.subscribe(topic, update_fn, flags, timeout)
+        self.pubsub.subscribe(topic, update_fn, flags)
 
     def _driver_subscribe(self, topic: str, flags, fn, timeout=None):
         self._driver_subscriptions.append((topic, fn))

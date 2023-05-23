@@ -97,17 +97,17 @@ class Device:
             topic = '/' + topic
         return self.topic + topic
 
-    def _ui_publish(self, topic: str, value, timeout=None):
-        return self._pubsub.publish(self._ui_topic_make(topic), value, timeout)
+    def _ui_publish(self, topic: str, value):
+        return self._pubsub.publish(self._ui_topic_make(topic), value)
 
     def _ui_query(self, topic):
         return self._pubsub.query(self._ui_topic_make(topic))
 
-    def _ui_subscribe(self, topic: str, update_fn: callable, flags=None, timeout=None):
-        return self._pubsub.subscribe(self._ui_topic_make(topic), update_fn, flags, timeout)
+    def _ui_subscribe(self, topic: str, update_fn: callable, flags=None):
+        return self._pubsub.subscribe(self._ui_topic_make(topic), update_fn, flags)
 
-    def _ui_unsubscribe(self, topic, update_fn: callable, flags=None, timeout=None):
-        return self._pubsub.unsubscribe(self._ui_topic_make(topic), update_fn, flags, timeout)
+    def _ui_unsubscribe(self, topic, update_fn: callable, flags=None):
+        return self._pubsub.unsubscribe(self._ui_topic_make(topic), update_fn, flags)
 
-    def _ui_unsubscribe_all(self, update_fn: callable, timeout=None):
-        return self._pubsub.unsubscribe_all(update_fn, timeout)
+    def _ui_unsubscribe_all(self, update_fn: callable):
+        return self._pubsub.unsubscribe_all(update_fn)

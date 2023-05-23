@@ -350,6 +350,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self._shortcuts.add(QtGui.QKeySequence.Redo, REDO_TOPIC, None)
         self._shortcuts.add(QtCore.Qt.Key_Space, 'registry/app/settings/signal_stream_enable', '__toggle__')
 
+        self._pubsub.publish(UNDO_TOPIC, 'clear', defer=True)
+        self._pubsub.publish(REDO_TOPIC, 'clear', defer=True)
+
         self.setAcceptDrops(True)
         self.show()
         # self._mem_leak_debugger = MemLeakDebugger(self)

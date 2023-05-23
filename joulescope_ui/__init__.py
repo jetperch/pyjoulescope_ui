@@ -32,7 +32,7 @@ __all__ = ['__version__', 'pubsub_singleton', 'register', 'register_decorator',
 
 def _pubsub_factory() -> PubSub:
     """Generate and configure the singleton pubsub instance."""
-    p = PubSub()
+    p = PubSub(skip_core_undo=True)
     p.registry_initialize()
     for capability in CAPABILITIES:
         p.register_capability(capability.value)

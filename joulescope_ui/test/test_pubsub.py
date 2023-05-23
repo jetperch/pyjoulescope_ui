@@ -28,19 +28,6 @@ import threading
 TOPIC1 = 'my/topic/one'
 
 
-class ListLogHandler(logging.Handler):
-
-    def __init__(self):
-        logging.Handler.__init__(self)
-        self.records = []
-
-    def __len__(self):
-        return len(self.records)
-
-    def emit(self, record):
-        self.records.append(record)
-
-
 class TestPubSub(unittest.TestCase):
 
     def setUp(self):
@@ -108,15 +95,9 @@ class TestPubSub(unittest.TestCase):
     def test_topic_add_duplicate(self):
         p = PubSub()
         p.topic_add('t/1', dtype='obj', brief='my topic')
-        h = ListLogHandler()
-        root_log = logging.getLogger()
-        root_log.addHandler(h)
-        root_log.setLevel(logging.WARNING)
         p.topic_add('t/1', dtype='obj', brief='my topic', exists_ok=True)
-        self.assertEqual(0, len(h))
-        p.topic_add('t/1', dtype='obj', brief='my topic', exists_ok=False)
-        self.assertEqual(1, len(h))
-        root_log.removeHandler(h)
+        with self.assertRaises(ValueError):
+            p.topic_add('t/1', dtype='obj', brief='my topic', exists_ok=False)
 
     def test_no_retain(self):
         p = PubSub()
@@ -155,10 +136,6 @@ class TestPubSub(unittest.TestCase):
         p.subscribe('my/topic/sub', self._on_publish2_fn)
         p.unsubscribe_all(self._on_publish2_fn)
         p.publish('my/topic/sub', 'world')
-        self.assertEqual(0, len(self.pub))
-        p.undo(2)  # publish & unsubscribe_all
-        p.publish('my/topic/sub', 'world')
-        self.assertEqual(2, len(self.pub))
 
     def test_undo_redo(self):
         p = PubSub()

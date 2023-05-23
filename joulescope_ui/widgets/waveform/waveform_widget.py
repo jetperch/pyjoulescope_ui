@@ -518,9 +518,9 @@ class WaveformWidget(QtWidgets.QWidget):
             'str': [],
         }
 
-    def _subscribe(self, topic: str, update_fn: callable, flags=None, timeout=None):
+    def _subscribe(self, topic: str, update_fn: callable, flags=None):
         self._subscribe_list.append((topic, update_fn))
-        return self.pubsub.subscribe(topic, update_fn, flags, timeout)
+        return self.pubsub.subscribe(topic, update_fn, flags)
 
     def on_setting_opengl(self, value):
         value = bool(value)
