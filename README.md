@@ -59,6 +59,8 @@ your python version at the terminal or command line:
     Python 3.10.10 (tags/v3.10.10:aad5f6a, Feb  7 2023, 17:20:36) [MSC v.1929 64 bit (AMD64)]
 
 Ensure that you have Python 3.9 or newer and 64-bit.
+For macOS, you [install Homebrew](https://docs.brew.sh/Installation)
+to [install python](https://docs.brew.sh/Homebrew-and-Python).
 
 
 ### Configure virtualenv [optional]
@@ -93,40 +95,30 @@ Activate the virtual environment whenever you start a new terminal:
     . ~/venv/joulescope/bin/activate
 
 
-### Option 1: Install from pypi
+### Install using pypi
 
 Installation from pypi is easy:
 
-    pip3 install -U joulescope_ui
+    pip3 install -U --upgrade-strategy=eager joulescope_ui
     
 If you just want to run the latest released version of the UI, use this option!
 
+### Run
 
-### Option 2: Clone, install and run from source
-
-Clone and configure the Joulescope UI from the terminal or command line:
-
-    git clone https://github.com/jetperch/pyjoulescope_ui.git
-    cd pyjoulescope_ui
-    pip3 install -U -r requirements.txt
-
-Make any optional modifications you want to the source code.  Then build and
-install the source:
-
-    python3 setup.py sdist
-    pip3 install dist/joulescope_ui-{version}.tar.gz
-
-You can then run from any directory:
+Whenever you want to run the Joulescope UI:
 
     python3 -m joulescope_ui
 
-If you see an error importing win32api on Windows, you should try running this
-command from an Administrator command prompt:
+If you are on Windows, you may need "python" rather than "python3":
 
-   python {path_to_python}\scripts\pywin32_postinstall.py -install
+    python -m joulescope_ui
+
+The joulescope package also contains an executable, so you can often type:
+
+    joulescope ui
 
 
-### Option 3: Develop the UI
+## Developer Howto
 
 Clone and configure the Joulescope UI from the terminal or command line:
 
@@ -143,14 +135,19 @@ As long as the current directory is the source directory, you can run:
     python3 -m joulescope_ui
 
 If you want to run from another directory, you will need to add the source
-to your PYTHONPATH environment variable.  On Windows:
+to your PYTHONPATH environment variable.  
+
+Windows using command prompt:
 
     set PYTHONPATH={C:\path\to\repos}\pyjoulescope_ui
 
-and on POSIX (Linux, Mac OS X with homebrew):
+Windows using PowerShell:
+
+    $env:PYTHONPATH = "{C:\path\to\repos}\pyjoulescope_ui"
+
+POSIX shells (most Linux, macOS X with homebrew):
 
     export PYTHONPATH={path/to/repos}/pyjoulescope_ui
-
 
 To also distribute the UI on macOS, you need to install XCode and then
 configure node:
@@ -161,11 +158,9 @@ configure node:
 You will also need to install the signing certificate using
 Applications/Utilities/Keychain Access.
 
-
-### Option 4: Develop both UI and driver
-
 If you also want to simultaneously develop the Joulescope UI and the
-Joulescope driver:
+Joulescope driver, you can include the joulescope_driver in 
+your PYTHONPATH and build in place:
 
     pip3 uninstall joulescope
     cd {path/to/repos}
@@ -186,8 +181,6 @@ source paths. On Windows:
 and on POSIX (Linux, Mac OS X with homebrew):
 
     export PYTHONPATH={path/to/repos}/pyjoulescope:{path/to/repos}/pyjoulescope_ui
-
-Follow the instructions from Option 3 to configure and run the UI.
 
 
 ## License
