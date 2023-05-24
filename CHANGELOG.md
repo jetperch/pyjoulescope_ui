@@ -7,7 +7,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.17
 
-2023 May 23 [in progress]
+2023 May 24
 
 * Improved Waveform widget performance by using only one PointsF array.
 * Added debug widget.
@@ -18,6 +18,14 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Removed hierarchical undo/redo capture.
   * Add option to skip undo/redo for core pubsub actions. 
   * Added undo clear and redo clear.
+
+
+### Known issues
+
+1. Sidebar icons do not update on color scheme change #183
+2. UI crashes when recording to JLS fills drive #185
+3. Waveform widget does not implement undo / redo for all features #188
+4. Widget close then undo does not restore state #189
 
 
 ## 1.0.16
