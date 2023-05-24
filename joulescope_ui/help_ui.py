@@ -72,7 +72,7 @@ def load_help(name, style=None):
         filename = _HELP_FILES[name]
         html = _load_filename(filename)
         if filename.endswith('.md'):
-            md = markdown.Markdown()
+            md = markdown.Markdown(tab_length=2)
             html = md.convert(html)
             html = _MD_HEADER + html + _MD_FOOTER
     return format_help(name, html, style)
