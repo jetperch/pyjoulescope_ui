@@ -34,25 +34,28 @@ SETTINGS = {
         'dtype': 'bool',
         'brief': N_('Target power'),
         'detail': N_("""\
-        Toggle the power enable to all connects targets.
-        
-        This feature forces all connected instruments to disable
-        current flow.  You can use this feature to perform a
-        power cycle reset for the connected target devices.
-             
-        The JS220 disconnects the current terminals.
-        
-        The JS110 disconnects the current from IN+ to OUT+, and
-        the system setup should prevent excessive backwards current."""),
+            Toggle the power to all connected targets.
+            
+            This feature forces all connected instruments to disable
+            current flow.  You can use this feature to perform a
+            power cycle reset for the connected target devices.
+                 
+            The JS220 disconnects the current terminals.
+            
+            The JS110 disconnects the current from IN+ to OUT+.
+            The system setup must prevent excessive backwards current."""),
         'default': True,
     },
     'statistics_stream_enable': {
         'dtype': 'bool',
         'brief': N_('Statistics display'),
         'detail': N_("""\
-            Enable to display live streaming statistics.
+            Click to toggle live streaming statistics.
             
-            Disable to hold the existing values.  New statistics data
+            When enabled, the widgets will display the statistics data
+            as it arrives from the connected instruments.
+            
+            When disabled, hold the existing values.  New statistics data
             is processed, but widgets displaying statistics information
             do not update."""),
         'default': True,
@@ -62,10 +65,10 @@ SETTINGS = {
         'dtype': 'bool',
         'brief': N_('Statistics recording'),
         'detail': N_("""\
-            Enable to start recording streaming statistics
-            data to CSV files.
-        
-            Disable to stop the recording.
+            Click to control streaming statistics data recording.
+            
+            Click once to start a recording to a CSV file.
+            Click again to stop the recording.
             
             By default, Joulescopes provide statistics data at 2 Hz.
             Each device allows you to change this setting to the desired rate."""),
@@ -76,10 +79,12 @@ SETTINGS = {
         'dtype': 'bool',
         'brief': N_('Signal sample streaming'),
         'detail': N_("""\
-            Enable to stream sample data from all open sample sources
+            Click to toggle sample data streaming.
+            
+            When enabled, stream sample data from all open sample sources
             and configure all sample widgets for acquisition mode.
             
-            Disable to stop sample streaming and configure
+            When disabled, stop sample streaming and configure
             all sample widgets for buffer mode.  
             """),
         'default': True,
@@ -89,9 +94,9 @@ SETTINGS = {
         'dtype': 'bool',
         'brief': N_('Signal sample recording'),
         'detail': N_("""\
-            Click once to enable and start recording streaming signal 
-            sample data to a JLS file.
+            Click to control signal sample recording.
             
+            Click once to start a recording to a JLS file.
             Click again to stop the recording.
             
             The recording will capture data from all enabled 
