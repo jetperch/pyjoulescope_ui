@@ -532,7 +532,7 @@ class MainWindow(QtWidgets.QMainWindow):
             files = self._dialog.selectedFiles()
             if files and len(files) == 1:
                 path = files[0]
-                self._pubsub.publish(f'{get_topic_name(self)}/actions/!file_open', path)
+                self._pubsub.publish(f'{get_topic_name(self)}/actions/!file_open', path, defer=True)
             else:
                 self._log.info('file_open invalid files: %s', files)
         else:
@@ -541,15 +541,14 @@ class MainWindow(QtWidgets.QMainWindow):
     def on_action_file_open(self, path):
         """Open the specified file."""
         self._log.info('file_open %s', path)
-        with self._pubsub as p:
-            topic = f'registry_manager/capabilities/{CAPABILITIES.SIGNAL_BUFFER_SOURCE}/list'
-            sources_start = p.query(topic)
-            self._pubsub.publish(f'registry/JlsSource/actions/!open', path)
-            sources_end = p.query(topic)
-            source = sources_end[-1]
-            if source in sources_start:
-                self._log.warning('Could not determine added source')
-                source = 'JlsSource'
+        topic = f'registry_manager/capabilities/{CAPABILITIES.SIGNAL_BUFFER_SOURCE}/list'
+        sources_start = self._pubsub.query(topic)
+        self._pubsub.publish(f'registry/JlsSource/actions/!open', path)
+        sources_end = self._pubsub.query(topic)
+        source = sources_end[-1]
+        if source in sources_start:
+            self._log.warning('Could not determine added source')
+            source = 'JlsSource'
         name = os.path.splitext(os.path.basename(path))[0]
         self._pubsub.publish(
             'registry/view/actions/!widget_open',
