@@ -52,6 +52,7 @@ class SignalRecord:
         self._log.info('JLS record to %s', path)
         self._log.info('JLS record signals: %s', config['signals'])
         self._jls = Writer(path)
+        self._log.info('Writer started')
         self._on_data_fn = self._on_data
         self._source_idx = 1
         self._signal_idx = 1
@@ -73,6 +74,8 @@ class SignalRecord:
         self._subscribe_entries.append((topic, fn, flags))
 
     def _on_data(self, topic, value):
+        if self._jls is None:
+            return
         if topic not in self._signals:
             source = topic.split('/')[1]
             if source not in self._sources:
