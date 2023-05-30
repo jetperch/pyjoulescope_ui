@@ -1107,6 +1107,7 @@ class PubSub:
                             Metadata(dtype='obj', brief='list of unique ids for children', default=[],
                                      flags=['hide', 'skip_undo']))
 
+        obj.pubsub_is_registered = False
         self._register_events(obj, unique_id)
         self._register_functions(obj, unique_id)  # on_action and on_callback, but not on_setting
         self._register_settings_create(obj, unique_id)
@@ -1127,6 +1128,8 @@ class PubSub:
         self._log.info('register(unique_id=%s) done %s', unique_id, 'ABORT' if register_abort else '')
         if register_abort:
             self.unregister(obj, delete=True)
+        else:
+            obj.pubsub_is_registered = True
 
     def _parent_add(self, obj, parent=None):
         if parent is None:

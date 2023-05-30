@@ -404,7 +404,8 @@ def styled_widget(translated_name):
     """
 
     def render(self, value):
-        pubsub_singleton.publish(RENDER_TOPIC, self)
+        if getattr(self, 'pubsub_is_registered', False):
+            pubsub_singleton.publish(RENDER_TOPIC, self)
 
     def inner(cls):
         def cls_render(value):
