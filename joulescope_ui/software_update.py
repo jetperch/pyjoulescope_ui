@@ -117,11 +117,9 @@ def _platform_name():
         release_major = int(release.split('.')[0])
         if release_major >= 12:
             if platform.machine() == 'arm64':
-                return 'macos_12_0_arm64'
+                return f'macos_{release_major}_0_arm64'
             else:
-                return 'macos_12_0_x86_64'
-        elif release_major == 10:
-            return 'macos_10_15_x86_64'
+                return f'macos_{release_major}_0_x86_64'
         else:
             raise RuntimeError(f'unsupported macOS version {release}')
     else:
