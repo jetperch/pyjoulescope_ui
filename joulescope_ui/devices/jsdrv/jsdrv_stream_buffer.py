@@ -152,7 +152,7 @@ class JsdrvStreamBuffer:
         self._log = logging.getLogger(f'{__name__}.{self._id}')
         self._driver_subscriptions = []
         self._sources: dict[str, str] = {}  # device unique_id -> device_path
-        self._signals: dict[str, [int, object]] = {}     # signal id ui_str -> [buffer_id, meta]
+        self._signals: dict[str, [int, object, float]] = {}     # signal id ui_str -> [buffer_id, meta, duration]
         self._signals_reverse: dict[int, str] = {}  # signal id buffer_id -> ui_str
         self._device_signal_id_next = 1
         self._device_subscriptions = {}
@@ -308,6 +308,8 @@ class JsdrvStreamBuffer:
         buf_id = int(topic.split('/')[-2])
         signal_id = self._signals_reverse.get(buf_id)
         duration = value['size_in_utc'] / time64.SECOND
+        self._signals[signal_id][-1] = duration
+        duration = min([x[-1] for x in self._signals.values()])
         t = get_topic_name(self)
         self.pubsub.publish(f'{t}/settings/duration', duration)
         if signal_id is not None:
@@ -344,7 +346,7 @@ class JsdrvStreamBuffer:
         self._driver_publish(f'm/{self._id}/g/mode', int(value))
 
     def on_action_add(self, signal_id):
-        if signal_id in self._signals:
+        if signal_id in self._signals.keys():
             self._log.info('add duplicate %s', signal_id)
             return
         self._log.info('add %s', signal_id)
@@ -354,7 +356,7 @@ class JsdrvStreamBuffer:
         device_path = self._sources[unique_id]
         device_topic = get_topic_name(unique_id)
         signal_meta = copy.deepcopy(device.info)
-        self._signals[signal_id] = [buf_id, signal_meta]
+        self._signals[signal_id] = [buf_id, signal_meta, 0.0]
         self._signals_reverse[buf_id] = signal_id
         device_path = device_path
 
@@ -376,7 +378,7 @@ class JsdrvStreamBuffer:
 
     def on_action_remove(self, signal_id):
         self._log.info('remove %s', signal_id)
-        buf_id, _ = self._signals.pop(signal_id)
+        buf_id = self._signals.pop(signal_id)[0]
         self._signals_reverse.pop(buf_id)
         self._signals_free.append(buf_id)
         self._driver_publish(f'm/{self._id}/a/!remove', buf_id)
@@ -411,7 +413,7 @@ class JsdrvStreamBuffer:
         value = copy.deepcopy(value)
         signal_id = value['signal_id']
         try:
-            buf_id, _ = self._signals[signal_id]
+            buf_id = self._signals[signal_id][0]
         except KeyError:
             self._log.info('Request for missing signal %s', signal_id)
             return None

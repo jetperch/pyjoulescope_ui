@@ -3279,8 +3279,8 @@ class WaveformWidget(QtWidgets.QWidget):
         self._repaint_request = True
 
     def _text_annotation_remove(self, a):
-        entry = self.annotations['text'][a['plot_index']]
         a = self._annotation_lookup(a)
+        entry = self.annotations['text'][a['plot_index']]
         a_id = a['id']
         x_lookup = entry['x_lookup']
         idx = np.where(x_lookup[:, 1] == a_id)[0]
@@ -3290,9 +3290,9 @@ class WaveformWidget(QtWidgets.QWidget):
         elif idx_len > 1:
             self._log.warning('_text_annotation_remove but too many entries')
         else:
-            k = entry['x_lookup_length']
-            x_lookup[idx[0]:(k - 1), :] = x_lookup[(idx[0] + 1):k, :]
+            x_lookup[idx[0]:-1, :] = x_lookup[(idx[0] + 1):, :]
             entry['x_lookup_length'] -= 1
+        del self.annotations['text'][a['plot_index']]['items'][a_id]
         self._repaint_request = True
 
     def on_callback_annotation_save(self, value):

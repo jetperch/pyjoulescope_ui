@@ -242,8 +242,11 @@ class MemoryWidget(QtWidgets.QWidget):
         self._timer.start(100)
 
     def on_pubsub_unregister(self):
+        self._timer.stop()
+        self._timer = None
         self.pubsub.unsubscribe(_TOPIC_CLEAR_ON_PLAY, self._clear_on_play_fn)
         self.pubsub.unsubscribe(_TOPIC_SIZE, self._on_size_fn)
+        self.pubsub.unsubscribe(_TOPIC_DURATION, self._on_duration_fn)
 
     def _on_timer(self):
         if self._base == 0:

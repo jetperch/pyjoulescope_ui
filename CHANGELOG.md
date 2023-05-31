@@ -5,6 +5,14 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.0.19
+
+2023 May 31
+
+* Fixed text annotation remove.
+* Fixed MemoryWidget still referenced after close (timer & pubsub).
+* Fixed MemoryWidget "duration" oscillation.
+
 
 ## 1.0.18
 
