@@ -8,7 +8,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.18
 
-2023 May 31 [in progress]
+2023 May 31
 
 * Fixed JLS v2 open not working by correcting pubsub use.
 * Deferred initial widget rendering.
@@ -17,6 +17,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Improved topic descriptions. 
 * Modified macOS software update to query exact OS version. 
 * Improved JLS v2 writer logging and error handling.
+* Fixed JLS v2 recording with pyjls 0.7.0. 
 
 
 ## 1.0.17

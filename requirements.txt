@@ -2,11 +2,11 @@ appnope>=0.1.2
 check-manifest>=0.37
 coverage>=4.5.2
 fs
-pyjoulescope_driver>=1.3.11,<2.0.0  # also update JOULESCOPE_DRIVER_VERSION_MIN in setup.py
-joulescope>=1.1.5,<2.0.0           # also update JOULESCOPE_VERSION_MIN in setup.py
+pyjoulescope_driver>=1.3.12,<2.0.0  # also update JOULESCOPE_DRIVER_VERSION_MIN in setup.py
+joulescope>=1.1.6,<2.0.0           # also update JOULESCOPE_VERSION_MIN in setup.py
 markdown
 psutil
-pyjls>=0.6.3
+pyjls>=0.7.0
 pyopengl
 pyperclip>=1.7.0
 pywin32; sys_platform == 'win32'   # python {path_to_python}\scripts\pywin32_postinstall.py -install
