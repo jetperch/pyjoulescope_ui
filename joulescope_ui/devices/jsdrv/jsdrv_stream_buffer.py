@@ -308,10 +308,11 @@ class JsdrvStreamBuffer:
         buf_id = int(topic.split('/')[-2])
         signal_id = self._signals_reverse.get(buf_id)
         duration = value['size_in_utc'] / time64.SECOND
-        self._signals[signal_id][-1] = duration
-        duration = min([x[-1] for x in self._signals.values()])
         t = get_topic_name(self)
-        self.pubsub.publish(f'{t}/settings/duration', duration)
+        if signal_id in self._signals:
+            self._signals[signal_id][-1] = duration
+            duration = min([x[-1] for x in self._signals.values()])
+            self.pubsub.publish(f'{t}/settings/duration', duration)
         if signal_id is not None:
             utc = value['time_range_utc']
             r = {

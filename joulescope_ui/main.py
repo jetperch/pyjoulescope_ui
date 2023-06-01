@@ -420,7 +420,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._software_update_thread = None
         if not isinstance(value, dict):
             return
-        print('update')
+        self._log.info('Display software update available dialog')
         self._pubsub.publish('registry/software_update/actions/!show', value)
 
     def _on_process_monitor(self, obj):

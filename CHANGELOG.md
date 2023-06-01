@@ -5,6 +5,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.0.20
+
+2023 Jun 1 [in progress]
+
+* Fixed stream buffer warning.
+
+
 ## 1.0.19
 
 2023 May 31
