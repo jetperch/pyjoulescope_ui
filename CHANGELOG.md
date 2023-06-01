@@ -13,6 +13,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Fixed software update action incorrect when running python package. #192
 * Display "Getting Started" on first UI run.
 * Added help link to the new Joulescope UI User's Guide.
+* Fixed missing folder icon. #191
 
 
 ## 1.0.19

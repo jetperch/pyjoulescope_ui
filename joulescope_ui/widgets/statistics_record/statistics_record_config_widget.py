@@ -46,6 +46,8 @@ class StatisticsRecordConfigWidget(QtWidgets.QWidget):
         self._location.setText(pubsub_singleton.query('registry/paths/settings/path'))
         self._location_sel = QtWidgets.QPushButton(self)
         self._location_sel.pressed.connect(self._on_location_button)
+        icon = self._location_sel.style().standardIcon(QtWidgets.QStyle.StandardPixmap.SP_DirIcon)
+        self._location_sel.setIcon(icon)
         self._layout.addWidget(self._location_label, self._row, 0, 1, 2)
         self._layout.addWidget(self._location, self._row, 2, 1, 1)
         self._layout.addWidget(self._location_sel, self._row, 3, 1, 1)
