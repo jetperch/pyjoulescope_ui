@@ -16,16 +16,12 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from joulescope_ui.expanding_widget import ExpandingWidget
 import logging
 from joulescope_ui import N_, register, tooltip_format, pubsub_singleton, \
-    get_instance, get_topic_name, Metadata
+    get_instance, get_topic_name, Metadata, urls
 from joulescope_ui.styles import color_as_qcolor
 from joulescope_ui.ui_util import comboBoxConfig
 from .device_info_dialog import DeviceInfoDialog
 from .current_limits import CurrentLimits
 import webbrowser
-
-
-JS110_USERS_GUIDE_URL = 'https://download.joulescope.com/docs/JoulescopeUsersGuide/index.html'
-JS220_USERS_GUIDE_URL = 'https://download.joulescope.com/products/JS220/JS220-K000/users_guide/index.html'
 
 
 _DOC_TOOLTIP = tooltip_format(
@@ -103,10 +99,10 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         self._footer = {}
         self._log = logging.getLogger(f'{__name__}.{unique_id}')
         if 'JS110' in unique_id:
-            self._USERS_GUIDE_URL = JS110_USERS_GUIDE_URL
+            self._USERS_GUIDE_URL = urls.JS110_USERS_GUIDE
             self._GPI_SIGNALS = ['0', '1']
         elif 'JS220' in unique_id:
-            self._USERS_GUIDE_URL = JS220_USERS_GUIDE_URL
+            self._USERS_GUIDE_URL = urls.JS220_USERS_GUIDE
             self._GPI_SIGNALS = ['0', '1', '2', '3', 'T']
         else:
             raise ValueError(f'unsupported device {unique_id}')

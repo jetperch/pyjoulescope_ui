@@ -24,6 +24,7 @@ from joulescope_ui.styles.manager import style_settings
 from joulescope_ui.process_monitor import ProcessMonitor
 from joulescope_ui import software_update
 from joulescope_ui.ui_util import show_in_folder
+from joulescope_ui import urls
 from joulescope_ui.dev_signal_buffer_source import DevSignalBufferSource
 from PySide6 import QtCore, QtGui, QtWidgets
 import PySide6QtAds as QtAds
@@ -43,11 +44,13 @@ import appnope
 import logging
 import os
 import shutil
+import webbrowser
 
 
 _software_update = None
 _config_clear = None
 _log = logging.getLogger(__name__)
+
 
 
 _SETTINGS = {
@@ -298,6 +301,7 @@ class MainWindow(QtWidgets.QMainWindow):
             ]],
             ['help_menu', N_('&Help'), [
                 ['getting_started', N_('Getting Started'), ['registry/help_html/actions/!show', 'getting_started']],
+                ['users_guide', N_("User's Guide"), ['registry/ui/actions/!url_open', urls.UI_USERS_GUIDE]],
                 #'JS220 User\'s Guide': self._help_js220_users_guide,
                 #'JS110 User\'s Guide': self._help_js110_users_guide,
                 ['changelog', N_('Changelog'), ['registry/help_html/actions/!show', 'changelog']],
@@ -574,6 +578,9 @@ class MainWindow(QtWidgets.QMainWindow):
         path = pubsub_singleton.query('common/settings/paths/log')
         self._log.info('view logs: %s', path)
         show_in_folder(path)
+
+    def on_action_url_open(self, value):
+        webbrowser.open_new_tab(value)
 
     def closeEvent(self, event):
         self._log.info('closeEvent() start')

@@ -13,17 +13,19 @@
 # limitations under the License.
 
 from PySide6 import QtWidgets
-from joulescope_ui import register
+from joulescope_ui import register, urls
 from joulescope_ui.help_ui import format_help
 from joulescope_ui.styles import styled_widget
 
 
-_HELP = """\
+_HELP = f"""\
 <html>
 <head>
-{style}
+{{style}}
 </head>
 <body>
+
+<p><a href="{urls.UI_USERS_GUIDE}">UI User's Guide</a></p>
 
 <p><a href="https://forum.joulescope.com/">Visit forum</a> ⭐</p>
 
