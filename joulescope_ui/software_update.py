@@ -27,6 +27,7 @@ import hashlib
 import os
 import shutil
 import subprocess
+import sys
 
 
 _log = logging.getLogger(__name__)
@@ -52,6 +53,16 @@ _BODY = """\
 <tr><td>{available_version_label}</td><td>{available_version}</td></tr>
 <tr><td>{channel_label}</td><td>{channel}</td></tr>
 </table>
+</body>
+</html>
+"""
+
+
+_PROMPT = """\
+<body>
+<p>We have detected that you are running the Joulescope UI
+from a python package or source.</p>
+<p>To update your python packages, issue the following command:</p>
 </body>
 </html>
 """
@@ -271,6 +282,7 @@ class SoftwareUpdateDialog(QtWidgets.QDialog):
     """Display user-meaningful help information."""
 
     dialogs = []
+    _clipboard = None
 
     def __init__(self, pubsub, info):
         _log.debug('create start')
@@ -292,12 +304,29 @@ class SoftwareUpdateDialog(QtWidgets.QDialog):
         self._label.setOpenExternalLinks(True)
         self._layout.addWidget(self._label)
 
+        self._is_frozen = getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS')
         self._buttons = QtWidgets.QDialogButtonBox()
-        self._update = self._buttons.addButton(N_('Update Now'), QtWidgets.QDialogButtonBox.YesRole)
-        self._update.pressed.connect(self.accept)
-        self._later = self._buttons.addButton(N_('Later'), QtWidgets.QDialogButtonBox.NoRole)
-        self._later.pressed.connect(self.reject)
-        self._layout.addWidget(self._buttons)
+        if self._is_frozen:
+            self._buttons = QtWidgets.QDialogButtonBox()
+            self._update = self._buttons.addButton(N_('Update Now'), QtWidgets.QDialogButtonBox.YesRole)
+            self._update.pressed.connect(self.accept)
+            self._later = self._buttons.addButton(N_('Later'), QtWidgets.QDialogButtonBox.NoRole)
+            self._later.pressed.connect(self.reject)
+            self._layout.addWidget(self._buttons)
+        else:
+            html = _HEADER.format(style=style) + _PROMPT
+            self._action_prompt = QtWidgets.QLabel(html, self)
+            self._action_txt = f'{sys.orig_argv[0]} -m pip install -U --upgrade-strategy=eager joulescope_ui'
+            self._action = QtWidgets.QLabel(self._action_txt, self)
+            self._action_copy = QtWidgets.QPushButton(N_('Copy to clipboard'), self)
+            self._action_copy.pressed.connect(self._on_action_copy)
+            self._layout.addWidget(self._action_prompt)
+            self._layout.addWidget(self._action)
+            self._layout.addWidget(self._action_copy)
+
+            self._ok = self._buttons.addButton(N_('OK'), QtWidgets.QDialogButtonBox.YesRole)
+            self._ok.pressed.connect(self.accept)
+            self._layout.addWidget(self._buttons)
 
         self.setWindowTitle(_TITLE)
         self.finished.connect(self._on_finish)
@@ -306,9 +335,15 @@ class SoftwareUpdateDialog(QtWidgets.QDialog):
         SoftwareUpdateDialog.dialogs.append(self)
         self.open()
 
+    def _on_action_copy(self):
+        SoftwareUpdateDialog._clipboard = self._action_txt
+        QtWidgets.QApplication.clipboard().setText(self._action_txt)
+
     @QtCore.Slot(int)
     def _on_finish(self, value):
-        if value == QtWidgets.QDialog.DialogCode.Accepted:
+        if not self._is_frozen:
+            _log.info('software update: not frozen')
+        elif value == QtWidgets.QDialog.DialogCode.Accepted:
             _log.info('software update: update now')
             self._pubsub.publish('registry/ui/actions/!close', {'software_update': self._info})
         else:
