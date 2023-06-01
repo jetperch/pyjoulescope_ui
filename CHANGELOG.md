@@ -11,6 +11,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 * Fixed stream buffer warning.
 * Fixed software update action incorrect when running python package. #192
+* Display "Getting Started" on first UI run.
 
 
 ## 1.0.19

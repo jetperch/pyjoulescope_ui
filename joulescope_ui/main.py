@@ -54,7 +54,7 @@ _SETTINGS = {
     'changelog_version_show': {
         'dtype': 'str',
         'brief': 'The version for the last changelog show',
-        'default': '__default__',
+        'default': None,
         'flags': ['hide'],
     },
     'status_bar': {
@@ -365,7 +365,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # display changelog on version change
         topic = f'{self.topic}/settings/changelog_version_show'
-        if __version__ != self._pubsub.query(topic, default=None):
+        changelog_version_show = self._pubsub.query(topic, default=None)
+        if changelog_version_show is None:
+            self._pubsub.publish(topic, __version__)
+            self._pubsub.publish('registry/help_html/actions/!show', 'getting_started')
+        elif __version__ != self._pubsub.query(topic, default=None):
             self._pubsub.publish(topic, __version__)
             self._pubsub.publish('registry/help_html/actions/!show', 'changelog')
         self.resync_request()
