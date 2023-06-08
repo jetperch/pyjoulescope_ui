@@ -144,6 +144,7 @@ exe = EXE(
     console=False,
     icon='joulescope_ui/resources/icon.ico',
     codesign_identity=MACOS_CODE_SIGN,
+    target_arch='universal2' if sys.platform.startswith('darwin') else 'x86_64'
 )
 
 coll = COLLECT(

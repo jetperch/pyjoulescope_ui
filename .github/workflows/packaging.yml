@@ -49,6 +49,9 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
+      - name: Install Ubuntu dependencies
+        run: sudo apt install -y libudev-dev libusb-1.0-0-dev qt6-base-dev qt6-3d-dev
+
       - name: Display version
         run: python -VV
 
@@ -100,6 +103,10 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install Ubuntu dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: sudo apt install -y libudev-dev libusb-1.0-0-dev qt6-base-dev qt6-3d-dev
 
       - name: Install python dependencies
         run: |
