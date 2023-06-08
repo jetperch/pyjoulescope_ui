@@ -111,11 +111,17 @@ jobs:
       - name: Install the Joulescope UI package
         run: python -m pip install -f dist joulescope_ui
 
+      - name: Find python path
+        shell: bash
+        id: find_python
+        run: echo "filename=$(python -c \"import joulescope_ui, os; print(os.path.dirname(joulescope_ui.__file__))\")" >> $GITHUB_OUTPUT
+
       - name: Install pyinstaller
         run: python -m pip install pyinstaller
 
       - name: Build installer
         run: pyinstaller joulescope.spec
+        working-directory: ${{steps.find_python.outputs.filename}}
 
       - name: Upload installer
         uses: actions/upload-artifact@v3
