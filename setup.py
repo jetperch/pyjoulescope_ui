@@ -115,13 +115,6 @@ class CustomDevelopCommand(develop):
         convert_qt_ui()
 
 
-class CustomInstallCommand(install):
-    """Custom install command to build Qt resource file and Qt user interface modules."""
-    def run(self):
-        install.run(self)
-        convert_qt_ui()
-
-
 class CustomSdistCommand(sdist):
     def run(self):
         update_inno_iss()
@@ -152,7 +145,6 @@ setuptools.setup(
     license='Apache 2.0',
 
     cmdclass={
-        'install': CustomInstallCommand,
         'develop': CustomDevelopCommand,
         'sdist': CustomSdistCommand,
     },
