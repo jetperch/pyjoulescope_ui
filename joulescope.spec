@@ -79,8 +79,6 @@ if sys.platform.startswith('win'):
     EXE_NAME = 'joulescope'
     HIDDEN_IMPORTS = []
     BINARIES = [  # uses winusb which comes with Windows
-        ('C:\\Windows\\System32\\msvcp100.dll', '.'),
-        ('C:\\Windows\\System32\\msvcr100.dll', '.'),
         ('C:\\Windows\\System32\\msvcp140.dll', '.'),
         ('C:\\Windows\\System32\\msvcp140_1.dll', '.'),
         ('C:\\Windows\\System32\\msvcp140_2.dll', '.'),
@@ -157,10 +155,11 @@ coll = COLLECT(
     name='joulescope',
 )
 
-
+for key, value in os.environ.items():
+    print(f'{key} = {value}')
 is_ci = os.environ.get('CI', False)
+print(f'is_ci = {is_ci}')
 os.makedirs('install', exist_ok=True)
-
 
 if sys.platform.startswith('darwin'):
     # https://blog.macsales.com/28492-create-your-own-custom-icons-in-10-7-5-or-later
