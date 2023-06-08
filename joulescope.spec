@@ -199,17 +199,9 @@ if sys.platform.startswith('darwin'):
                         '--deep', './dist/joulescope.app'],
                        cwd=specpath)
 
-        # subprocess.run(['hdiutil', 'create', './dist/joulescope_%s.dmg' % VERSION_STR,
-        #                 '-srcfolder', './dist/joulescope.app', '-ov'],
-        #                 cwd=specpath)
         print('create dmg')
         dmg_file = 'install/joulescope_%s.dmg' % VERSION_STR
         subprocess.run(['./node_modules/appdmg/bin/appdmg.js', 'appdmg.json', dmg_file])
-
-        # xcrun altool --notarize-app --primary-bundle-id "com.jetperch.joulescope" --username "matt.liberty@jetperch.com" --password "@keychain:Developer-altool" --file "dist/joulescope_0_9_11.dmg"
-        # xcrun altool --notarization-info "7c927036-3c17-4f03-ba24-d49420b1e81d" --username "matt.liberty@jetperch.com" --password "@keychain:Developer-altool"
-        # spctl -a -t open --context context:primary-signature dmg_file
-        # xcrun stapler staple dist/joulescope_0_9_11.dmg
 
 elif sys.platform == 'win32':
     if is_ci:

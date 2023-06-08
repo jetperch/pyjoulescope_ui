@@ -23,7 +23,6 @@ https://github.com/pypa/sampleproject
 # Always prefer setuptools over distutils
 import setuptools
 from setuptools.command.sdist import sdist
-from setuptools.command.install import install
 from setuptools.command.develop import develop
 import os
 import platform

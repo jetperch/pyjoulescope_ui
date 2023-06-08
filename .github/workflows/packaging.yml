@@ -60,10 +60,10 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install build wheel pytest
 
-      - name: Build sdist
-        run: python -m build --sdist
+      - name: Build package
+        run: python -m build --no-isolation
 
-      - name: Install the wheel
+      - name: Install package
         run: python -m pip install -f dist joulescope_ui
 
       - name: Run python unit tests
@@ -78,9 +78,7 @@ jobs:
 
   build_installers:
     name: Build on ${{ matrix.os }}
-    if: github.event_name == 'push'  # self-hosted windows installer, security concern
-    needs:
-      - build_sdist
+    if: github.event_name == 'push'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -88,16 +86,8 @@ jobs:
         os: ["ubuntu-latest", "windows-latest", "macos-latest"]
 
     steps:
-      - name: Download sdist
-        uses: actions/download-artifact@v3
-        with:
-          name: sdist
-          path: dist/
-
-      - name: Find sdist filename
-        shell: bash
-        id: find_sdist_filename
-        run: echo "filename=$(ls dist/*.tar.gz)" >> $GITHUB_OUTPUT
+      - name: Checkout repo
+        uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v4
@@ -108,22 +98,17 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt install -y libudev-dev libusb-1.0-0-dev qt6-base-dev qt6-3d-dev
 
-      - name: Install the Joulescope UI package
-        run: python -m pip install -f dist joulescope_ui
+      - name: Build package
+        run: python -m build --no-isolation
 
-      - name: Find python path
-        shell: bash
-        id: find_python
-        run: |
-          UI_PATH=$(python -c "import joulescope_ui, os; print(os.path.dirname(joulescope_ui.__file__))")
-          echo "filename=$UI_PATH" >> $GITHUB_OUTPUT
+      - name: Install package
+        run: python -m pip install -f dist joulescope_ui
 
       - name: Install pyinstaller
         run: python -m pip install pyinstaller
 
       - name: Build installer
         run: pyinstaller joulescope.spec
-        working-directory: ${{steps.find_python.outputs.filename}}
 
       - name: Upload installer
         uses: actions/upload-artifact@v3
@@ -136,6 +121,7 @@ jobs:
     name: Publish installers
     if: github.event_name == 'push' && startswith(github.ref, 'refs/tags/v')
     needs:
+      - build_sdist
       - build_installers
     runs-on: ubuntu-latest
     permissions:
