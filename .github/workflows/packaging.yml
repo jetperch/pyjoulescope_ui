@@ -114,7 +114,9 @@ jobs:
       - name: Find python path
         shell: bash
         id: find_python
-        run: echo "filename=$(python -c \"import joulescope_ui, os; print(os.path.dirname(joulescope_ui.__file__))\")" >> $GITHUB_OUTPUT
+        run: |
+          UI_PATH=$(python -c "import joulescope_ui, os; print(os.path.dirname(joulescope_ui.__file__))")
+          echo "filename=$UI_PATH" >> $GITHUB_OUTPUT
 
       - name: Install pyinstaller
         run: python -m pip install pyinstaller
