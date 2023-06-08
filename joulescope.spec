@@ -157,6 +157,10 @@ coll = COLLECT(
 )
 
 
+is_ci = os.environ.get('CI', False)
+os.makedirs('install', exist_ok=True)
+
+
 if sys.platform.startswith('darwin'):
     # https://blog.macsales.com/28492-create-your-own-custom-icons-in-10-7-5-or-later
     # iconutil --convert icns joulescope_ui/resources/icon.iconset
@@ -177,38 +181,47 @@ if sys.platform.startswith('darwin'):
 
     print('unsign app')
     subprocess.run(['codesign', '--remove', '--all-architectures',
-                    './dist/joulescope.app'],
-                   cwd=specpath)
-    print('sign app')
-    subprocess.run(['codesign',
-                    '-s', MACOS_CODE_SIGN,
-                    '--options', 'runtime',
-                    '--entitlements', './entitlements.plist',
-                    '--deep', './dist/joulescope.app'],
+                   './dist/joulescope.app'],
                    cwd=specpath)
 
-    # subprocess.run(['hdiutil', 'create', './dist/joulescope_%s.dmg' % VERSION_STR,
-    #                 '-srcfolder', './dist/joulescope.app', '-ov'],
-    #                 cwd=specpath)
-    print('create dmg')
-    dmg_file = 'dist/joulescope_%s.dmg' % VERSION_STR
-    subprocess.run(['./node_modules/appdmg/bin/appdmg.js', 'appdmg.json', dmg_file])
+    if is_ci:
+        subprocess.run(['tar', 'czvf',
+                    '../install/joulescope_%s.app.tar.gz' % VERSION_STR,
+                    'joulescope.app'],
+                    cwd=os.path.join(specpath, 'dist'))
+    else:
+        print('sign app')
+        subprocess.run(['codesign',
+                        '-s', MACOS_CODE_SIGN,
+                        '--options', 'runtime',
+                        '--entitlements', './entitlements.plist',
+                        '--deep', './dist/joulescope.app'],
+                       cwd=specpath)
 
-    # xcrun altool --notarize-app --primary-bundle-id "com.jetperch.joulescope" --username "matt.liberty@jetperch.com" --password "@keychain:Developer-altool" --file "dist/joulescope_0_9_11.dmg"
-    # xcrun altool --notarization-info "7c927036-3c17-4f03-ba24-d49420b1e81d" --username "matt.liberty@jetperch.com" --password "@keychain:Developer-altool"
-    # spctl -a -t open --context context:primary-signature dmg_file
-    # xcrun stapler staple dist/joulescope_0_9_11.dmg
+        # subprocess.run(['hdiutil', 'create', './dist/joulescope_%s.dmg' % VERSION_STR,
+        #                 '-srcfolder', './dist/joulescope.app', '-ov'],
+        #                 cwd=specpath)
+        print('create dmg')
+        dmg_file = 'install/joulescope_%s.dmg' % VERSION_STR
+        subprocess.run(['./node_modules/appdmg/bin/appdmg.js', 'appdmg.json', dmg_file])
+
+        # xcrun altool --notarize-app --primary-bundle-id "com.jetperch.joulescope" --username "matt.liberty@jetperch.com" --password "@keychain:Developer-altool" --file "dist/joulescope_0_9_11.dmg"
+        # xcrun altool --notarization-info "7c927036-3c17-4f03-ba24-d49420b1e81d" --username "matt.liberty@jetperch.com" --password "@keychain:Developer-altool"
+        # spctl -a -t open --context context:primary-signature dmg_file
+        # xcrun stapler staple dist/joulescope_0_9_11.dmg
 
 elif sys.platform == 'win32':
-    subprocess.run(['C:\Program Files (x86)\Inno Setup 6\ISCC.exe', 
-                    'joulescope.iss'],
-                    cwd=specpath)
+    if is_ci:
+        shutil.make_archive(f'install/joulescope_{VERSION_STR}.zip', 'zip', 'dist/joulescope')
+    else:
+        subprocess.run(['C:\Program Files (x86)\Inno Setup 6\ISCC.exe',
+                        'joulescope.iss'],
+                        cwd=specpath)
 
 elif sys.platform == 'linux':
     os.rename(os.path.join(specpath, 'dist/joulescope'),
               os.path.join(specpath, 'dist/joulescope_%s' % VERSION_STR))
     subprocess.run(['tar', 'czvf',
-                    'joulescope_%s.tar.gz' % VERSION_STR,
+                    '../install/joulescope_%s.tar.gz' % VERSION_STR,
                     'joulescope_%s/' % VERSION_STR],
                     cwd=os.path.join(specpath, 'dist'))
-

@@ -5,6 +5,15 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+
+## 1.0.21
+
+2023 Jun 8
+
+* Switched to "stable" update channel by default.
+* Added GitHub Actions build.
+
+
 ## 1.0.20
 
 2023 Jun 1

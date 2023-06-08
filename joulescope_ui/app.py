@@ -130,7 +130,7 @@ SETTINGS = {
     'software_update_channel': {
         'dtype': 'str',
         'brief': N_('The software update channel.'),
-        'default': 'alpha',  #  todo change to stable for first stable release
+        'default': 'stable',
         'options': [
             ['alpha', N_('alpha')],
             ['beta', N_('beta')],

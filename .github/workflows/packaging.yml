@@ -1,0 +1,143 @@
+# Copyright 2021-2023 Jetperch LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# GitHub actions
+# See documentation: https://docs.github.com/en/actions
+# https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+# CMake example: https://github.com/Mizux/cmake-cpp/blob/main/.github/workflows/amd64_windows.yml
+
+
+name: Packaging
+
+on: ['push', 'pull_request']
+
+
+env:
+  PYTHON_VERSION: '3.11'
+
+
+jobs:
+
+  build_sdist:
+    name: Build sdist
+    runs-on: ubuntu-latest
+    steps:
+      - name: Display info
+        run: |
+          echo "github.event_name=$GITHUB_EVENT_NAME"
+          echo "github.ref=$GITHUB_REF"
+          echo "github.ref_type=$GITHUB_REF_TYPE"
+          echo "runner.os=$RUNNER_OS"
+          echo "runner.arch=$RUNNER_ARCH"
+
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Display version
+        run: python -VV
+
+      - name: Install python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build wheel pytest
+
+      - name: Build sdist
+        run: python -m build --sdist
+
+      - name: Install the wheel
+        run: python -m pip install -f dist joulescope_ui
+
+      - name: Run python unit tests
+        run: pytest --pyargs joulescope_ui
+
+      - name: Upload python source package
+        uses: actions/upload-artifact@v3
+        with:
+          name: sdist
+          path: dist/*.tar.gz
+          if-no-files-found: error
+
+  build_installers:
+    name: Build on ${{ matrix.os }}
+    if: github.event_name == 'push'  # self-hosted windows installer, security concern
+    needs:
+      - build_sdist
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-latest", "windows-latest", "macos-latest"]
+
+    steps:
+      - name: Download sdist
+        uses: actions/download-artifact@v3
+        with:
+          name: sdist
+          path: dist/
+
+      - name: Find sdist filename
+        shell: bash
+        id: find_sdist_filename
+        run: echo "filename=$(ls dist/*.tar.gz)" >> $GITHUB_OUTPUT
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install joulescope_ui
+
+      - name: Build installer
+        run: pyinstaller joulescope.spec
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v3
+        with:
+          name: installers
+          path: install/*
+          if-no-files-found: error
+
+  publish:
+    name: Publish installers
+    if: github.event_name == 'push' && startswith(github.ref, 'refs/tags/v')
+    needs:
+      - build_installers
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download installer artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: installers
+          path: installers/
+
+      - name: Display artifacts
+        shell: bash
+        run: ls installers/*
+
+      - name: Publish Release assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            installers/*

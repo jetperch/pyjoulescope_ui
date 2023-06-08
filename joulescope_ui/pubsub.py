@@ -52,7 +52,7 @@ _PUBSUB_CLS_ATTR = '__pubsub_cls__'
 _PUBSUB_OBJ_ATTR = '__pubsub_obj__'
 
 
-class PUBSUB_TOPICS:  # todo
+class PUBSUB_TOPICS:  # todo support profiles
     PUBSUB_APP_NAME = 'common/settings/name'
     PUBSUB_PROFILE_ACTION_ADD = 'common/actions/profile/!add'
     PUBSUB_PROFILE_ACTION_REMOVE = 'common/actions/profile/!remove'
