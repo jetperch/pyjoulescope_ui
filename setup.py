@@ -197,7 +197,7 @@ setuptools.setup(
     install_requires=[
         'appnope>=0.1.2',
         'fs',
-        'pyjoulescope_driver>=1.3.14,<2.0.0',
+        'pyjoulescope_driver>=1.3.15,<2.0.0',
         'joulescope>=1.1.7,<2.0.0',
         'markdown',
         'psutil',
