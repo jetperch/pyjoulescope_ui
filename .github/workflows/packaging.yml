@@ -108,10 +108,8 @@ jobs:
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt install -y libudev-dev libusb-1.0-0-dev qt6-base-dev qt6-3d-dev
 
-      - name: Install python dependencies
-        run: |
-          python -m pip install --upgrade pip
-          python -m pip install joulescope_ui
+      - name: Install the Joulescope UI package
+        run: python -m pip install -f dist joulescope_ui
 
       - name: Build installer
         run: pyinstaller joulescope.spec
