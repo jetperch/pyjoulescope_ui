@@ -155,11 +155,7 @@ coll = COLLECT(
     name='joulescope',
 )
 
-for key, value in os.environ.items():
-    print(f'{key} = {value}')
-is_ci = os.environ.get('CI', False)
-print(f'is_ci = {is_ci}')
-os.makedirs('install', exist_ok=True)
+os.makedirs('dist_installer', exist_ok=True)
 
 if sys.platform.startswith('darwin'):
     # https://blog.macsales.com/28492-create-your-own-custom-icons-in-10-7-5-or-later
@@ -184,28 +180,25 @@ if sys.platform.startswith('darwin'):
                    './dist/joulescope.app'],
                    cwd=specpath)
 
-    if is_ci:
-        subprocess.run(['tar', 'czvf',
-                    '../install/joulescope_%s.app.tar.gz' % VERSION_STR,
-                    'joulescope.app'],
-                    cwd=os.path.join(specpath, 'dist'))
-    else:
-        print('sign app')
-        subprocess.run(['codesign',
-                        '-s', MACOS_CODE_SIGN,
-                        '--options', 'runtime',
-                        '--entitlements', './entitlements.plist',
-                        '--deep', './dist/joulescope.app'],
-                       cwd=specpath)
+    print('sign app')
+    subprocess.run(['codesign',
+                    '-s', MACOS_CODE_SIGN,
+                    '--options', 'runtime',
+                    '--entitlements', './entitlements.plist',
+                    '--deep', './dist/joulescope.app'],
+                   cwd=specpath)
 
-        print('create dmg')
-        dmg_file = 'install/joulescope_%s.dmg' % VERSION_STR
-        subprocess.run(['./node_modules/appdmg/bin/appdmg.js', 'appdmg.json', dmg_file])
+    print('create dmg')
+    dmg_file = 'dist_installer/joulescope_%s.dmg' % VERSION_STR
+    subprocess.run(['./node_modules/appdmg/bin/appdmg.js', 'appdmg.json', dmg_file])
 
 elif sys.platform == 'win32':
-    if is_ci:
-        shutil.make_archive(f'install/joulescope_{VERSION_STR}.zip', 'zip', 'dist/joulescope')
+    if os.environ.get('CI', 'false').lower() == 'true':
+        print('Running from CI: produce ZIP archive')
+        shutil.make_archive(f'dist_installer/joulescope_{VERSION_STR}.zip', 'zip', 'dist/joulescope')
+        # future: forward to installer maker?
     else:
+        print('Create Inno Setup installer')
         subprocess.run(['C:\Program Files (x86)\Inno Setup 6\ISCC.exe',
                         'joulescope.iss'],
                         cwd=specpath)
@@ -214,6 +207,6 @@ elif sys.platform == 'linux':
     os.rename(os.path.join(specpath, 'dist/joulescope'),
               os.path.join(specpath, 'dist/joulescope_%s' % VERSION_STR))
     subprocess.run(['tar', 'czvf',
-                    '../install/joulescope_%s.tar.gz' % VERSION_STR,
+                    '../dist_installer/joulescope_%s.tar.gz' % VERSION_STR,
                     'joulescope_%s/' % VERSION_STR],
                     cwd=os.path.join(specpath, 'dist'))

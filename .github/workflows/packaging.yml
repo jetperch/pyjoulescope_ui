@@ -107,14 +107,28 @@ jobs:
       - name: Install pyinstaller
         run: python -m pip install pyinstaller
 
+      - name: Install macOS signing certificate
+        if: matrix.os == 'macos-latest'
+        env:
+          MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
+          MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
+          MACOS_KEYCHAIN_PWD: adrudfkyY45309i58c
+        run: |
+          echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
+          security create-keychain -p $MACOS_KEYCHAIN_PWD build.keychain
+          security default-keychain -s build.keychain
+          security unlock-keychain -p $MACOS_KEYCHAIN_PWD build.keychain
+          security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $MACOS_KEYCHAIN_PWD build.keychain
+
       - name: Build installer
         run: pyinstaller joulescope.spec
 
-      - name: Upload installer
+      - name: Save installer artifact
         uses: actions/upload-artifact@v3
         with:
           name: installers
-          path: install/*
+          path: dist_installer/*
           if-no-files-found: error
 
   publish:
@@ -132,14 +146,14 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: installers
-          path: installers/
+          path: dist_installer/
 
       - name: Display artifacts
         shell: bash
-        run: ls installers/*
+        run: ls dist_installer/*
 
       - name: Publish Release assets
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            installers/*
+            dist_installer/*
