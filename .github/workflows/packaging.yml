@@ -100,7 +100,7 @@ jobs:
           CERTIFICATE_APP: ${{ secrets.MACOS_CERTIFICATE_APP }}
           CERTIFICATE_INSTALLER:  ${{ secrets.MACOS_CERTIFICATE_INSTALLER }}
           CERTIFICATE_APP_PATH: ${{ runner.temp }}/certificate_app.p12
-          ERTIFICATE_INSTALLER_PATH: ${{ runner.temp }}/certificate_installer.p12
+          CERTIFICATE_INSTALLER_PATH: ${{ runner.temp }}/certificate_installer.p12
           CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
           KEYCHAIN_PWD: adrudfkyY45309i58c
           KEYCHAIN_PATH: ${{ runner.temp }}/build-keychain-db
