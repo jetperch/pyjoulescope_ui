@@ -94,6 +94,12 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
+      - name: Patch macOS to universal2
+        if: matrix.os == 'macos-latest'
+        run: |
+          lipo -info $(which python)
+          pip freeze
+
       - name: Install Ubuntu dependencies
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt install -y libudev-dev libusb-1.0-0-dev qt6-base-dev qt6-3d-dev
