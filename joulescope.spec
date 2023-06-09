@@ -189,6 +189,7 @@ if sys.platform.startswith('darwin'):
                    cwd=specpath)
 
     print('create dmg')
+    subprocess.run(['npm', 'install'])
     dmg_file = 'dist_installer/joulescope_%s.dmg' % VERSION_STR
     subprocess.run(['./node_modules/appdmg/bin/appdmg.js', 'appdmg.json', dmg_file])
 

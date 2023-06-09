@@ -94,19 +94,31 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
-      - name: Install macOS signing certificate
+      - name: Install macOS certificates
         if: matrix.os == 'macos-latest'
         env:
-          MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
-          MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
-          MACOS_KEYCHAIN_PWD: adrudfkyY45309i58c
-        run: |
-          echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
-          security create-keychain -p $MACOS_KEYCHAIN_PWD build.keychain
-          security default-keychain -s build.keychain
-          security unlock-keychain -p $MACOS_KEYCHAIN_PWD build.keychain
-          security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
-          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $MACOS_KEYCHAIN_PWD build.keychain
+          CERTIFICATE_APP: ${{ secrets.MACOS_CERTIFICATE_APP }}
+          CERTIFICATE_INSTALLER:  ${{ secrets.MACOS_CERTIFICATE_INSTALLER }}
+          CERTIFICATE_APP_PATH: ~/certificate_app.p12
+          ERTIFICATE_INSTALLER_PATH: ~/certificate_installer.p12
+          CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
+          KEYCHAIN_PWD: adrudfkyY45309i58c
+          KEYCHAIN_PATH: ~/build-keychain-db
+        run: | 
+          echo $CERTIFICATE_APP | base64 --decode -o $CERTIFICATE_APP_PATH
+          echo $CERTIFICATE_INSTALLER | base64 --decode -o $CERTIFICATE_INSTALLER_PATH
+          curl -O https://www.apple.com/certificateauthority/DeveloperIDCA.cer
+          curl -O https://www.apple.com/certificateauthority/DeveloperIDG2CA.cer
+          curl -O https://www.apple.com/certificateauthority/AppleWWDRCAG2.cer
+          curl -O https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer
+          curl -O https://www.apple.com/certificateauthority/AppleRootCA-G2.cer
+          security create-keychain -p "$KEYCHAIN_PWD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PWD" $KEYCHAIN_PATH
+          security default-keychain -s $KEYCHAIN_PATH
+          security import $CERTIFICATE_APP_PATH -P "$CERTIFICATE_PWD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security import $CERTIFICATE_INSTALLER_PATH -P "$CERTIFICATE_PWD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security add-certificates -k $KEYCHAIN_PATH DeveloperIDCA.cer DeveloperIDG2CA.cer AppleWWDRCAG2.cer AppleWWDRCAG3.cer AppleRootCA-G2.cer
 
       - name: Install Ubuntu dependencies
         if: matrix.os == 'ubuntu-latest'
@@ -126,6 +138,15 @@ jobs:
 
       - name: Build installer
         run: pyinstaller joulescope.spec
+
+      - name: macOS notarize
+        if: matrix.os == 'macos-latest'
+        env:
+          APPLE_ID: ${{ secrets.MACOS_NOTARYTOOL_APPLE_ID }}
+          NOTARYTOOL_PWD: ${{ secrets.MACOS_NOTARYTOOL_PWD }}
+        run: |
+          xcrun notarytool submit dist_installer/joulescope.dmg --apple-id "$APPLE_ID" --team-id "WFRS3L8Y7Y" --password "$NOTARYTOOL_PWD" --wait
+          xcrun stapler staple dist_installer/joulescope.dmg
 
       - name: Save installer artifact
         uses: actions/upload-artifact@v3
