@@ -139,14 +139,19 @@ jobs:
       - name: Build installer
         run: pyinstaller joulescope.spec
 
+      - name: Find installer filename
+        shell: bash
+        id: installer_filename
+        run: echo "filename=$(ls dist_installer/*.*)" >> $GITHUB_OUTPUT
+
       - name: macOS notarize
         if: matrix.os == 'macos-latest'
         env:
           APPLE_ID: ${{ secrets.MACOS_NOTARYTOOL_APPLE_ID }}
           NOTARYTOOL_PWD: ${{ secrets.MACOS_NOTARYTOOL_PWD }}
         run: |
-          xcrun notarytool submit dist_installer/joulescope.dmg --apple-id "$APPLE_ID" --team-id "WFRS3L8Y7Y" --password "$NOTARYTOOL_PWD" --wait
-          xcrun stapler staple dist_installer/joulescope.dmg
+          xcrun notarytool submit ${{ steps.installer_filename.outputs.filename }} --apple-id "$APPLE_ID" --team-id "WFRS3L8Y7Y" --password "$NOTARYTOOL_PWD" --wait
+          xcrun stapler staple ${{ steps.installer_filename.outputs.filename }}
 
       - name: Save installer artifact
         uses: actions/upload-artifact@v3
