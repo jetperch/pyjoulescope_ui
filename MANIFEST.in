@@ -2,5 +2,7 @@ include CHANGELOG.md
 include CREDITS.html
 include LICENSE.txt
 include README.md
+include joulescope.iss
 recursive-include joulescope_ui *.svg *.json *.qss *.rcc *.html *.md *.txt *.py
 include joulescope_ui/test/*.jls
+include joulescope_ui/resources/icon.ico

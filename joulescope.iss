@@ -29,7 +29,7 @@ ArchitecturesInstallIn64BitMode=x64
 DefaultDirName={autopf}\{#MyAppName}
 DisableProgramGroupPage=yes
 LicenseFile=LICENSE.txt
-OutputDir=build_installer
+OutputDir=..\
 OutputBaseFilename=joulescope_setup_{#MyAppVersionUnderscores}
 SetupIconFile=joulescope_ui\resources\icon.ico
 UninstallDisplayIcon={app}\joulescope.exe
@@ -45,11 +45,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"
 
 [Files]
-Source: "dist\joulescope\joulescope.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "dist\joulescope\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "CHANGELOG.md"; DestDir: "{app}"; Flags: ignoreversion
-Source: "LICENSE.txt"; DestDir: "{app}"; Flags: ignoreversion
-Source: "README.md"; DestDir: "{app}"; Flags: ignoreversion
+Source: "*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [InstallDelete]

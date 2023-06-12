@@ -196,13 +196,13 @@ if sys.platform.startswith('darwin'):
 elif sys.platform == 'win32':
     if os.environ.get('CI', 'false').lower() == 'true':
         print('Running from CI: produce ZIP archive')
-        shutil.make_archive(f'dist_installer/joulescope_{VERSION_STR}.zip', 'zip', 'dist/joulescope')
+        shutil.make_archive(f'dist_installer/joulescope_{VERSION_STR}', 'zip', 'dist/joulescope')
         # future: forward to installer maker?
     else:
         print('Create Inno Setup installer')
         subprocess.run(['C:\Program Files (x86)\Inno Setup 6\ISCC.exe',
                         'joulescope.iss'],
-                        cwd=specpath)
+                        cwd=os.path.join(specpath, 'dist', 'joulescope')
 
 elif sys.platform == 'linux':
     os.rename(os.path.join(specpath, 'dist/joulescope'),

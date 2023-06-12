@@ -104,6 +104,8 @@ jobs:
           CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
           KEYCHAIN_PWD: adrudfkyY45309i58c
           KEYCHAIN_PATH: ${{ runner.temp }}/build-keychain-db
+        # https://developer.apple.com/forums/thread/701581
+        # https://www.apple.com/certificateauthority/
         run: | 
           echo $CERTIFICATE_APP | base64 --decode -o $CERTIFICATE_APP_PATH
           echo $CERTIFICATE_INSTALLER | base64 --decode -o $CERTIFICATE_INSTALLER_PATH
@@ -149,6 +151,7 @@ jobs:
         env:
           APPLE_ID: ${{ secrets.MACOS_NOTARYTOOL_APPLE_ID }}
           NOTARYTOOL_PWD: ${{ secrets.MACOS_NOTARYTOOL_PWD }}
+        # https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution/customizing_the_notarization_workflow
         run: |
           xcrun notarytool submit ${{ steps.installer_filename.outputs.filename }} --apple-id "$APPLE_ID" --team-id "WFRS3L8Y7Y" --password "$NOTARYTOOL_PWD" --wait
           xcrun stapler staple ${{ steps.installer_filename.outputs.filename }}
