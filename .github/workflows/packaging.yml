@@ -129,7 +129,7 @@ jobs:
           which python
           python -VV
           python -m pip install --upgrade pip
-          python -m pip install -U --update-strategy eager -r requirements.txt
+          python -m pip install -U --upgrade-strategy eager -r requirements.txt
           python -m pip install pyinstaller
           which pyinstaller
 
