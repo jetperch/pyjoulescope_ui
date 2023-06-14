@@ -197,11 +197,11 @@ setuptools.setup(
     install_requires=[
         'appnope>=0.1.2',
         'fs',
-        'pyjoulescope_driver>=1.3.15,<2.0.0',
+        'pyjoulescope_driver>=1.3.16,<2.0.0',
         'joulescope>=1.1.7,<2.0.0',
         'markdown',
         'psutil',
-        'pyjls>=0.7.1',
+        'pyjls>=0.7.2',
         'pyopengl',
         'pyperclip>=1.7.0',
         "pywin32>=223; platform_system == 'Windows'",

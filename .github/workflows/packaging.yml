@@ -50,13 +50,11 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install Ubuntu dependencies
-        run: sudo apt install -y libudev-dev libusb-1.0-0-dev qt6-base-dev qt6-3d-dev
-
-      - name: Display version
-        run: python -VV
+        run: sudo apt install -y libudev-dev qt6-base-dev qt6-3d-dev
 
       - name: Install python dependencies
         run: |
+          python -VV
           python -m pip install --upgrade pip
           python -m pip install build wheel pytest
 
@@ -124,19 +122,22 @@ jobs:
 
       - name: Install Ubuntu dependencies
         if: matrix.os == 'ubuntu-latest'
-        run: sudo apt install -y libudev-dev libusb-1.0-0-dev qt6-base-dev qt6-3d-dev
+        run: sudo apt install -y libudev-dev qt6-base-dev qt6-3d-dev
 
       - name: Install python dependencies
-        run: python -m pip install -r requirements.txt
+        run: |
+          which python
+          python -VV
+          python -m pip install --upgrade pip
+          python -m pip install -U --update-strategy eager -r requirements.txt
+          python -m pip install pyinstaller
+          which pyinstaller
 
       - name: Patch macOS to universal2
         run: python ci/macos_universal2.py
 
       - name: Create local files
         run: python setup.py sdist
-
-      - name: Install pyinstaller
-        run: python -m pip install pyinstaller
 
       - name: Build installer
         run: pyinstaller joulescope.spec

@@ -55,11 +55,12 @@ We recommend Python 3.11.
 Install [Python 3.9+](https://www.python.org/) on your system and then verify
 your python version at the terminal or command line:
 
-    > python3 -VV
-    Python 3.10.10 (tags/v3.10.10:aad5f6a, Feb  7 2023, 17:20:36) [MSC v.1929 64 bit (AMD64)]
+    > python -VV
+    Python 3.11.4 (tags/v3.11.4:d2340ef, Jun  7 2023, 05:45:37) [MSC v.1934 64 bit (AMD64)]
 
 Ensure that you have Python 3.9 or newer and 64-bit.
-For macOS, you [install Homebrew](https://docs.brew.sh/Installation)
+For macOS, you can also use
+[Homebrew](https://docs.brew.sh/Installation)
 to [install python](https://docs.brew.sh/Homebrew-and-Python).
 
 
@@ -77,18 +78,18 @@ of your system.
 
 Install virtualenv and create a new virtual environment:
 
-    python3 -v venv c:\venv\joulescope
+    python -v venv c:\venv\joulescope
 
 Activate the virtual environment whenever you start a new terminal:
 
     c:\venv\joulescope\Scripts\activate
 
 
-#### For POSIX including (Linux, Mac OS X with homebrew):
+#### For POSIX including (Linux, macOS):
 
 Install virtualenv and create a new virtual environment:
 
-    python3 -m venv ~/venv/joulescope
+    python -m venv ~/venv/joulescope
 
 Activate the virtual environment whenever you start a new terminal:
 
@@ -99,7 +100,7 @@ Activate the virtual environment whenever you start a new terminal:
 
 Installation from pypi is easy:
 
-    pip3 install -U --upgrade-strategy=eager joulescope_ui
+    python -m pip install -U --upgrade-strategy=eager joulescope_ui
     
 If you just want to run the latest released version of the UI, use this option!
 
@@ -107,11 +108,10 @@ If you just want to run the latest released version of the UI, use this option!
 
 Whenever you want to run the Joulescope UI:
 
-    python3 -m joulescope_ui
-
-If you are on Windows, you may need "python" rather than "python3":
-
     python -m joulescope_ui
+
+Depending upon your system, you may need to replace "python" 
+with "python3" or the full path to your python executable.
 
 The joulescope package also contains an executable, so you can often type:
 
@@ -124,15 +124,15 @@ Clone and configure the Joulescope UI from the terminal or command line:
 
     git clone https://github.com/jetperch/pyjoulescope_ui.git
     cd pyjoulescope_ui
-    pip3 install -U -r requirements.txt
+    python -m pip install -U --upgrade-strategy eager -r requirements.txt
 
 Build the QT resources:
 
-    python3 setup.py sdist
+    python setup.py sdist
 
 As long as the current directory is the source directory, you can run:
 
-    python3 -m joulescope_ui
+    python -m joulescope_ui
 
 If you want to run from another directory, you will need to add the source
 to your PYTHONPATH environment variable.  
@@ -145,12 +145,12 @@ Windows using PowerShell:
 
     $env:PYTHONPATH = "{C:\path\to\repos}\pyjoulescope_ui"
 
-POSIX shells (most Linux, macOS X with homebrew):
+POSIX shells (most Linux, macOS with homebrew):
 
     export PYTHONPATH={path/to/repos}/pyjoulescope_ui
 
 To also distribute the UI on macOS, you need to install XCode and then
-configure node:
+configure node.  If using homebrew:
 
     brew install node
     npm install
@@ -167,11 +167,11 @@ your PYTHONPATH and build in place:
     git clone https://github.com/jetperch/joulescope_driver.git
     cd joulescope_driver
     pip3 install -U -r requirements.txt
-    python3 setup.py build_ext --inplace && python -m unittest
+    python setup.py build_ext --inplace && python -m unittest
     git clone https://github.com/jetperch/pyjoulescope.git
     cd pyjoulescope
     pip3 install -U -r requirements.txt    
-    python3 setup.py build_ext --inplace && python -m unittest
+    python setup.py build_ext --inplace && python -m unittest
 
 You should then modify your python path to find both the UI and driver
 source paths. On Windows:

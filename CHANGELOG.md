@@ -6,12 +6,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 ---
 
 
-## 1.0.21
+## 1.0.22
 
-2023 Jun 8
+2023 Jun 14
 
 * Switched to "stable" update channel by default.
 * Added GitHub Actions build.
+* Improved macOS build: universal2 for macOS 11, 12, 13.
 
 
 ## 1.0.20
