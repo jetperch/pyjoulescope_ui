@@ -102,7 +102,28 @@ Installation from pypi is easy:
 
     python -m pip install -U --upgrade-strategy=eager joulescope_ui
     
-If you just want to run the latest released version of the UI, use this option!
+If you just want to run the latest released version of the UI.
+
+For Linux, you need to perform additional steps.  Here are steps for
+Ubuntu:
+
+    sudo apt install libudev-dev libxcb-cursor0
+    wget https://raw.githubusercontent.com/jetperch/joulescope_driver/main/99-joulescope.rules
+    sudo cp 99-joulescope.rules /etc/udev/rules.d/
+    sudo udevadm control --reload-rules
+
+If you receive the error:
+`Could not load the Qt platform plugin "xcb" in "" even though it was found`,
+you need to install additional dependencies.  First identify the 
+missing dependencies:
+
+    export QT_DEBUG_PLUGINS=1
+    python3 -m joulescope_ui
+
+Then install them using apt or your distribution's package manager.
+The Joulescope UI uses Qt6, and you can find the Qt6 dependencies
+[here](https://doc.qt.io/qt-6/linux-requirements.html).
+
 
 ### Run
 
