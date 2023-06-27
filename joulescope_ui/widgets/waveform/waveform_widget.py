@@ -285,7 +285,7 @@ class _PlotOpenGLWidget(QtOpenGLWidgets.QOpenGLWidget):
     def wheelEvent(self, event):
         self._parent.plot_wheelEvent(event)
 
-    def render_to_image(self):
+    def render_to_image(self) -> QtGui.QImage:
         return self.grabFramebuffer()
 
 
@@ -322,7 +322,7 @@ class _PlotWidget(QtWidgets.QWidget):
     def wheelEvent(self, event):
         self._parent.plot_wheelEvent(event)
 
-    def render_to_image(self):
+    def render_to_image(self) -> QtGui.QImage:
         sz = self.size()
         sz = QtCore.QSize(sz.width() * 2, sz.height() * 2)
         pixmap = QtGui.QPixmap(sz)
@@ -2464,7 +2464,7 @@ class WaveformWidget(QtWidgets.QWidget):
             elif y_name == 'summary':
                 self._menu_summary(event)
 
-    def _render_to_image(self):
+    def _render_to_image(self) -> QtGui.QImage:
         return self._graphics.render_to_image()
 
     def _action_copy_image_to_clipboard(self):
@@ -2477,9 +2477,16 @@ class WaveformWidget(QtWidgets.QWidget):
         if value == QtWidgets.QDialog.DialogCode.Accepted:
             filenames = self._dialog.selectedFiles()
             if len(filenames) == 1:
-                self._log.info('finished: accept - save')
+                filename = filenames[0]
+                _, ext = os.path.splitext(filename)
+                if ext in [None, '']:
+                    filename += '.png'
+                elif ext[1:].lower() not in ['bmp', 'jpg', 'jpeg', 'png', 'ppm', 'xbm', 'xpm']:
+                    filename += '.png'
+                self._log.info('finished: accept - save: %s', filename)
                 img = self._render_to_image()
-                img.save(filenames[0])
+                if not img.save(filename):
+                    self._log.warning('Could not save image: %s', filename)
             else:
                 self._log.info('finished: accept - but no file selected, ignore')
         else:

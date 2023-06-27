@@ -9,7 +9,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 2023 Jun 27 [in progress]
 
-* 
+* Fixed silent failure on waveform widget save image when extension omitted.  #196
 
 
 ## 1.0.22
