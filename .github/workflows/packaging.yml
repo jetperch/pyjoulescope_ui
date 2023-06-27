@@ -154,6 +154,7 @@ jobs:
           NOTARYTOOL_PWD: ${{ secrets.MACOS_NOTARYTOOL_PWD }}
         # https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution/customizing_the_notarization_workflow
         run: |
+          ls -al ${{ steps.installer_filename.outputs.filename }}
           xcrun notarytool submit ${{ steps.installer_filename.outputs.filename }} --apple-id "$APPLE_ID" --team-id "WFRS3L8Y7Y" --password "$NOTARYTOOL_PWD" --wait
           xcrun stapler staple ${{ steps.installer_filename.outputs.filename }}
 
