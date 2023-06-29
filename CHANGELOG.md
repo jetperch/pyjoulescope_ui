@@ -7,9 +7,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.23
 
-2023 Jun 27 [in progress]
+2023 Jun 29
 
 * Fixed silent failure on waveform widget save image when extension omitted.  #196
+* Fixed JLS v1 files voltage display incorrect.  #198
+  * Affects recordings made with UI 0.10 and earlier. 
+  * Fixes voltage waveform when zoomed in. 
+  * Fixes voltage dual marker statistics.
 
 
 ## 1.0.22

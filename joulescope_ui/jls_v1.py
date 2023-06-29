@@ -42,7 +42,7 @@ SIGNALS_V1 = {
     'v': {
         'index': 1,
         'name': 'voltage',
-        'samples_name': 'current',
+        'samples_name': 'voltage',
         'units': 'V',
     },
     'p': {
