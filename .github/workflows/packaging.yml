@@ -173,6 +173,7 @@ jobs:
       - build_installers
     runs-on: ubuntu-latest
     permissions:
+      id-token: write
       contents: write
 
     steps:
