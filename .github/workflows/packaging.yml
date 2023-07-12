@@ -157,7 +157,7 @@ jobs:
         run: echo "filename=$(ls dist_installer/*.*)" >> $GITHUB_OUTPUT
 
       - name: macOS notarize
-        if: matrix.os == 'macos-latest'
+        if: matrix.os == 'macos-latest' && github.event_name == 'push' && startswith(github.ref, 'refs/tags/v')
         env:
           APPLE_ID: ${{ secrets.MACOS_NOTARYTOOL_APPLE_ID }}
           NOTARYTOOL_PWD: ${{ secrets.MACOS_NOTARYTOOL_PWD }}
