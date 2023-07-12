@@ -58,6 +58,11 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install build wheel pytest
 
+      - name: Copy files to patch build
+        run: |
+          cp CHANGELOG.md joulescope_ui/
+          cp CREDITS.html joulescope_ui/
+
       - name: Build package
         run: python -m build
 
