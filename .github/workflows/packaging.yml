@@ -50,7 +50,9 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install Ubuntu dependencies
-        run: sudo apt install -y libudev-dev qt6-base-dev qt6-3d-dev
+        run: |
+          sudo apt update
+          sudo apt install -y libudev-dev qt6-base-dev qt6-3d-dev
 
       - name: Install python dependencies
         run: |
@@ -127,7 +129,9 @@ jobs:
 
       - name: Install Ubuntu dependencies
         if: matrix.os == 'ubuntu-latest'
-        run: sudo apt install -y libudev-dev qt6-base-dev qt6-3d-dev
+        run: |
+          sudo apt update
+          sudo apt install -y libudev-dev qt6-base-dev qt6-3d-dev
 
       - name: Install python dependencies
         run: |
