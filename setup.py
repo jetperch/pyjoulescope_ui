@@ -189,7 +189,7 @@ setuptools.setup(
     packages=setuptools.find_packages(exclude=['docs', 'test', 'dist', 'build']),
 
     include_package_data=True,
-    
+
     # See https://packaging.python.org/guides/distributing-packages-using-setuptools/#python-requires
     python_requires='~=3.9',
     
@@ -197,8 +197,8 @@ setuptools.setup(
     install_requires=[
         'appnope>=0.1.2',
         'fs',
-        'pyjoulescope_driver>=1.3.16,<2.0.0',
-        'joulescope>=1.1.7,<2.0.0',
+        'pyjoulescope_driver>=1.3.17,<2.0.0',
+        'joulescope>=1.1.8,<2.0.0',
         'markdown',
         'psutil',
         'pyjls>=0.7.2',

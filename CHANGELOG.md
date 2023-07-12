@@ -5,6 +5,15 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.0.24
+
+2023 Jul 12 [in progress]
+
+* Bumped dependency versions:
+  * joulescope 1.1.7 -> 1.1.8
+  * pyjoulescope_driver 1.3.16 -> 1.3.17
+
+
 ## 1.0.23
 
 2023 Jun 29
