@@ -268,7 +268,7 @@ class _InnerWidget(QtWidgets.QWidget):
         self.setMouseTracking(True)
 
     def _on_statistics(self, value):
-        self._statistics = value
+        self._statistics = copy.deepcopy(value)
         self.repaint()
 
     def paintEvent(self, event):
