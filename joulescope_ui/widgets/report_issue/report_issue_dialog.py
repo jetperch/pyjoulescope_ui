@@ -44,9 +44,13 @@ class ReportIssueDialog(QtWidgets.QDialog):
         ReportIssueDialog.dialogs.append(self)
 
     def _on_finish(self):
+        self._submit.finished.disconnect()
         self.close()
         ReportIssueDialog.dialogs.remove(self)
 
     @staticmethod
     def on_cls_action_show(pubsub, topic, value):
-        ReportIssueDialog().open()
+        dialog = ReportIssueDialog(value)
+        if value is not None:
+            dialog.setModal(True)
+        dialog.open()

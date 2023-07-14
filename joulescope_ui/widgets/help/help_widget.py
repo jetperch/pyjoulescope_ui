@@ -74,7 +74,7 @@ class HelpWidget(QtWidgets.QWidget):
         self.on_style_change()
 
     def _on_report_issue(self):
-        pubsub_singleton.publish('registry/report_issue/actions/!show', None)
+        pubsub_singleton.publish('registry/report_issue/actions/!show', self)
 
     def on_style_change(self):
         _, html = format_help('Help', _HELP)

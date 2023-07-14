@@ -306,7 +306,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 #'JS220 User\'s Guide': self._help_js220_users_guide,
                 #'JS110 User\'s Guide': self._help_js110_users_guide,
                 ['changelog', N_('Changelog'), ['registry/help_html/actions/!show', 'changelog']],
-                ['report_issue', N_('Report Issue'), ['registry/report_issue/actions/!show', 'report_issue']],
+                ['report_issue', N_('Report Issue'), ['registry/report_issue/actions/!show', self]],
                 ['view_logs', N_('View logs...'), ['registry/ui/actions/!view_logs', None]],
                 ['credits', N_('Credits'), ['registry/help_html/actions/!show', 'credits']],
                 ['about', N_('About'), ['registry/help_html/actions/!show', 'about']],

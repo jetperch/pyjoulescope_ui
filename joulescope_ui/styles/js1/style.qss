@@ -60,6 +60,19 @@ QPlainTextEdit:!read-only:hover
     border-color: {% base.focus_border %};
 }
 
+QGroupBox
+{
+    border: 1px solid {% base.selection_border %};
+    margin-top: 1ex;
+}
+
+QGroupBox::title
+{
+    subcontrol-origin: margin;
+    subcontrol-position: top center; /* position at the top center */
+    padding: 0 3px;
+}
+
 QMenuBar
 {
     spacing: 2ex;

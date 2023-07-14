@@ -139,7 +139,7 @@ class SideBar(QtWidgets.QWidget):
         self.widget_set('memory', m)
 
         # Create the help flyout widget for the sidebar
-        m = HelpWidget()
+        m = HelpWidget(self._flyout)
         pubsub.register(m, 'help_widget:flyout', parent='flyout:0')
         self.widget_set('help', m)
 

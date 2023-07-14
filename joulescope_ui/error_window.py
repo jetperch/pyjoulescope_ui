@@ -33,12 +33,19 @@ _RECOVERY = N_("Select an error recovery option.")
 _CONTACT_FILE = os.path.join(pubsub_singleton.query('common/settings/paths/config'), 'contact.json')
 
 
+class SubmitThread(QtCore.QThread):
+
+    def run(self):
+        reporter.publish()
+
+
 class SubmitWidget(QtWidgets.QWidget):
 
     finished = QtCore.Signal()
 
     def __init__(self, parent, report_path):
         self._parent = parent
+        self._thread = None
         super().__init__(parent=parent)
         self._report_path = report_path
         self._layout = QtWidgets.QVBoxLayout(self)
@@ -118,7 +125,10 @@ class SubmitWidget(QtWidgets.QWidget):
     def _on_view(self):
         ZipInspectorDialog(self._parent, self._report_path)
 
+    @QtCore.Slot()
     def _on_submit(self):
+        self.setEnabled(False)
+        self._submit.pressed.disconnect()
         contact = {
             'first_name': self._first_name.text(),
             'email': self._email.text(),
@@ -128,7 +138,12 @@ class SubmitWidget(QtWidgets.QWidget):
             json.dump(contact, f)
         description = self._description_edit.toPlainText()
         reporter.update_description(self._report_path, description)
-        reporter.publish()
+        self._thread = SubmitThread()
+        self._thread.finished.connect(self._on_submit_finished)
+        self._thread.start()
+
+    @QtCore.Slot()
+    def _on_submit_finished(self):
         self.finished.emit()
 
 
