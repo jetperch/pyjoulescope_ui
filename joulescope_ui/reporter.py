@@ -132,8 +132,15 @@ def create(subtype, description=None, exception=None):
         'platform': platform_info(),
     }
 
-    log_files = sorted(os.listdir(LOG_PATH))[-4:]
-    config_files = sorted(os.listdir(CONFIG_PATH))
+    try:
+        log_files = sorted(os.listdir(LOG_PATH))[-4:]
+    except FileNotFoundError:
+        log_files = []
+    try:
+        config_files = sorted(os.listdir(CONFIG_PATH))
+    except FileNotFoundError:
+        config_files = []
+
     with zipfile.ZipFile(path, mode='w') as z:
         try:
             if isinstance(exception, Exception):
