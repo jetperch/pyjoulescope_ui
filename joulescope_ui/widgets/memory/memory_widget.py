@@ -260,7 +260,8 @@ class MemoryWidget(QtWidgets.QWidget):
             self.pubsub.subscribe(_TOPIC_SIZE, self._on_size_fn, ['pub', 'retain'])
             self.pubsub.subscribe(_TOPIC_DURATION, self._on_duration_fn, ['pub', 'retain'])
             meta = self.pubsub.metadata(_TOPIC_CLEAR_ON_PLAY)
-            self._clear_on_play.setToolTip(tooltip_format(meta.brief, meta.detail))
+            if meta is not None:
+                self._clear_on_play.setToolTip(tooltip_format(meta.brief, meta.detail))
 
             self._timer.start(1000)
         if not self._memset.is_active:
