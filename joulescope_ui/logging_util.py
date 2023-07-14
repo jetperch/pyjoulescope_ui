@@ -112,7 +112,7 @@ class DeferredLogHandler(logging.Handler):
         self.records.append(record)
 
 
-def logging_preconfig():
+def preconfig():
     """Capture log in memory until :func:`logging_config`."""
     root_log = logging.getLogger()
     root_log.handlers = []
@@ -120,7 +120,7 @@ def logging_preconfig():
     root_log.setLevel(logging.WARNING)
 
 
-def logging_config(path, stream_log_level=None, file_log_level=None):
+def config(path, stream_log_level=None, file_log_level=None):
     """Configure logging.
 
     :param path: The path for the log files.
@@ -171,3 +171,10 @@ def logging_config(path, stream_log_level=None, file_log_level=None):
         for record in deferred_log_handler.records:
             root_log.handle(record)
         deferred_log_handler.records.clear()
+
+
+def flush_all():
+    root_log = logging.getLogger()
+    for h in root_log.handlers:
+        if hasattr(h, 'stream'):
+            h.flush()

@@ -19,7 +19,8 @@ from joulescope_ui import pubsub_singleton, N_, get_topic_name, tooltip_format, 
 from joulescope_ui.pubsub import UNDO_TOPIC, REDO_TOPIC
 from joulescope_ui.shortcuts import Shortcuts
 from joulescope_ui.widgets import *   # registers all built-in widgets
-from joulescope_ui.logging_util import logging_preconfig, logging_config
+from joulescope_ui import logging_util
+from joulescope_ui.reporter import create as reporter_create
 from joulescope_ui.styles.manager import style_settings
 from joulescope_ui.process_monitor import ProcessMonitor
 from joulescope_ui import software_update
@@ -44,6 +45,7 @@ import appnope
 import logging
 import os
 import shutil
+import sys
 import webbrowser
 
 
@@ -191,9 +193,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setWindowIcon(self._icon)
 
         self._blink_count = 0
-        self._blink_timer = QtCore.QTimer()
-        self._blink_timer.timeout.connect(self._on_blink_timer)
-        self._blink_timer.start(250)
+        self._blink_timer = None
 
         # Create the central widget with horizontal layout
         self._central_widget = QtWidgets.QWidget(self)
@@ -377,6 +377,10 @@ class MainWindow(QtWidgets.QMainWindow):
             self._pubsub.publish(topic, __version__)
             self._pubsub.publish('registry/help_html/actions/!show', 'changelog')
         self.resync_request()
+
+        self._blink_timer = QtCore.QTimer()
+        self._blink_timer.timeout.connect(self._on_blink_timer)
+        self._blink_timer.start(250)
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasText():
@@ -584,6 +588,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def closeEvent(self, event):
         self._log.info('closeEvent() start')
+        self._blink_timer.stop()
         _profile_save()
         self._pubsub.publish('registry/JlsSource/actions/!finalize', None)
         event.accept()
@@ -630,13 +635,14 @@ def run(log_level=None, file_log_level=None, filename=None):
 
     :return: 0 on success or error code on failure.
     """
-    app = None
+    ui = None
+    app = QtWidgets.QApplication([])
     try:
-        logging_preconfig()
+        logging_util.preconfig()
         pubsub_singleton.register(HelpHtmlMessageBox, 'help_html')
         # pubsub_singleton.publish(PUBSUB_TOPICS.PUBSUB_APP_NAME, N_('Joulescope UI'))
         log_path = pubsub_singleton.query('common/settings/paths/log')
-        logging_config(log_path, stream_log_level=log_level, file_log_level=file_log_level)
+        logging_util.config(log_path, stream_log_level=log_level, file_log_level=file_log_level)
 
         pubsub_singleton.process()
         is_config_load = False
@@ -645,25 +651,36 @@ def run(log_level=None, file_log_level=None, filename=None):
         except Exception:
             _log.exception('pubsub load failed')
 
-        app = QtWidgets.QApplication([])
         resources = load_resources()
         fonts = load_fonts()
         appnope.nope()
+
         ui = MainWindow(filename=filename, is_config_load=is_config_load)
         pubsub_singleton.notify_fn = ui.resync_request
         _device_factory_add()
-        _log.info('app.exec start')
-        rc = app.exec()
-        _log.info('app.exec done')
-        _device_factory_finalize()
-        _finalize()
-        del ui
-        if _software_update is not None:
-            software_update.apply(_software_update)
-        _log.info('exit %s', rc)
-        return rc
-    except Exception:
-        if app is None:
-            app = QtWidgets.QApplication([])
-        w = ErrorWindow()
-        return app.exec_()
+        try:
+            _log.info('app.exec start')
+            rc = app.exec()
+            _log.info('app.exec done')
+        finally:
+            _device_factory_finalize()
+            _finalize()
+        ui = None
+        try:
+            if _software_update is not None:
+                software_update.apply(_software_update)
+        except Exception:
+            print('could not apply software update')
+
+    except Exception as ex:
+        logging_util.flush_all()
+        path = reporter_create('crash', exception=ex)
+        if ui is not None:
+            ui.hide()
+            ui.close()
+        ui = ErrorWindow(report_path=path)
+        app.exec()
+        rc = 1
+
+    _log.info('exit %s', rc)
+    sys.exit(rc)

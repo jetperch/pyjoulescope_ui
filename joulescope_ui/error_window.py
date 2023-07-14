@@ -1,4 +1,4 @@
-# Copyright 2018-2022 Jetperch LLC
+# Copyright 2018-2023 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,83 +12,191 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-
-from .logging_util import log_info
-import io
-import pyperclip
-from PySide6.QtCore import QSize, Qt
-from PySide6.QtGui import QIcon
-from PySide6.QtWidgets import QLabel, QMainWindow, QSizePolicy, QVBoxLayout, QWidget
-import traceback
-
-
-_ERROR_MESSAGE = """\
-<html>
-<head>
-</head>
-<body>
-<h2>Unexpected Error</h2>
-<p>The Joulescope UI encountered an error,<br/>
-and it cannot start correctly.<p>
-<p>Please report this error by contacting us:
-<ul>
-   <li><a href="https://www.joulescope.com/contact">Contact form</a></li>
-   <li><a href="https://forum.joulescope.com/">Joulescope forum</a></li>
-   <li><a href="https://github.com/jetperch/pyjoulescope_ui/issues">GitHub</a></li>
-</ul>
-</p>
-<p>Please include the text below,<br/>
-which has been automatically copied to your clipboard.</p>
-<pre>
-{msg_err}
-</pre>
-</body></html>
-"""
+from joulescope_ui import N_, pubsub_singleton
+from joulescope_ui import reporter
+from joulescope_ui import versioned_file
+from joulescope_ui.zip_inspector import ZipInspectorDialog
+from PySide6 import QtCore, QtGui, QtWidgets
+import json
+import markdown
+import os
 
 
-class ErrorWindow(QMainWindow):
+_INTRO = N_("The Joulescope UI encountered an error, and it cannot start correctly.")
+_TROUBLESHOOT = N_("We are here to help troubleshoot! Fill in the details below, and click Submit.")
+_HELP = f'<p>{_INTRO}</p><p>{_TROUBLESHOOT}</p>'
+_CONTACT_TEXT = N_("""\
+    Please consider providing your contact information.
+    If you provide your contact information, we may contact
+    you to assist with troubleshooting this issue.""")
+_HTML = "<html><head></head><body>{body}</body></html>"
+_RECOVERY = N_("Select an error recovery option.")
+_CONTACT_FILE = os.path.join(pubsub_singleton.query('common/settings/paths/config'), 'contact.json')
 
-    def __init__(self):
-        super(ErrorWindow, self).__init__()
-        with io.StringIO() as f:
-            traceback.print_exc(file=f)
-            t = f.getvalue()
 
-        msg_err = '\n'.join([
-            "--------------------",
-            f"Exception on Joulescope UI startup. ",
-            '',
-            t,
-            'info = ' + log_info(),
-            "--------------------",
-        ])
-        pyperclip.copy(msg_err)
-        msg = _ERROR_MESSAGE.format(msg_err=msg_err)
+class SubmitWidget(QtWidgets.QWidget):
 
-        self.setObjectName('ErrorWindow')
-        self.resize(600, 300)
+    finished = QtCore.Signal()
 
-        icon = QIcon()
-        icon.addFile(u":/icon_64x64.ico", QSize(), QIcon.Normal, QIcon.Off)
+    def __init__(self, parent, report_path):
+        self._parent = parent
+        super().__init__(parent=parent)
+        self._report_path = report_path
+        self._layout = QtWidgets.QVBoxLayout(self)
+        self._help_label = QtWidgets.QLabel(_HTML.format(body=_HELP), self)
+        self._help_label.setWordWrap(True)
+        self._layout.addWidget(self._help_label)
+
+        try:
+            with open(_CONTACT_FILE, 'rt') as f:
+                contact = json.load(f)
+        except Exception:
+            contact = {}
+
+        self._contact = QtWidgets.QGroupBox(N_('Contact information'), parent=self)
+        self._contact_layout = QtWidgets.QGridLayout(self._contact)
+        self._contact_details = QtWidgets.QLabel(_HTML.format(body=_CONTACT_TEXT), self._contact)
+        self._contact_details.setWordWrap(True)
+        self._first_name_label = QtWidgets.QLabel(N_('First name'), self._contact)
+        self._first_name = QtWidgets.QLineEdit(self._contact)
+        self._first_name.setText(contact.get('first_name', ''))
+        self._email_label = QtWidgets.QLabel(N_('Email'), self._contact)
+        self._email = QtWidgets.QLineEdit(self._contact)
+        self._email.setText(contact.get('email', ''))
+        self._contact_layout.addWidget(self._contact_details, 0, 0, 1, 2)
+        self._contact_layout.addWidget(self._first_name_label, 1, 0, 1, 1)
+        self._contact_layout.addWidget(self._first_name, 1, 1, 1, 1)
+        self._contact_layout.addWidget(self._email_label, 2, 0, 1, 1)
+        self._contact_layout.addWidget(self._email, 2, 1, 1, 1)
+        self._contact.setLayout(self._contact_layout)
+        self._layout.addWidget(self._contact)
+
+        self._description = QtWidgets.QGroupBox(N_('Description'), parent=self)
+        self._description.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self._description_layout = QtWidgets.QVBoxLayout(self._description)
+        self._description_tabs = QtWidgets.QTabWidget(self._description)
+        self._description_tabs.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self._description_edit = QtWidgets.QTextEdit(self._description_tabs)
+        self._description_view = QtWidgets.QLabel(self._description_tabs)
+        self._description_view.setWordWrap(True)
+        self._description_view.setAlignment(QtCore.Qt.AlignTop)
+        self._description_tabs.addTab(self._description_edit, N_('Edit'))
+        self._description_tabs.addTab(self._description_view, N_('View'))
+        self._description_layout.addWidget(self._description_tabs)
+        self._description.setLayout(self._description_layout)
+        self._layout.addWidget(self._description)
+
+        self._buttons = QtWidgets.QWidget(self)
+        self._buttons_layout = QtWidgets.QHBoxLayout(self._buttons)
+        self._skip = QtWidgets.QPushButton(N_('Skip'), self._buttons)
+        self._view = QtWidgets.QPushButton(N_('View'), self._buttons)
+        self._submit = QtWidgets.QPushButton(N_('Submit'), self._buttons)
+        self._buttons_layout.addWidget(self._skip)
+        self._buttons_layout.addWidget(self._view)
+        self._buttons_layout.addWidget(self._submit)
+        self._buttons.setLayout(self._buttons_layout)
+        self._layout.addWidget(self._buttons)
+
+        self._description_tabs.currentChanged.connect(self._on_description_tab_changed)
+        self._skip.pressed.connect(self._on_skip)
+        self._view.pressed.connect(self._on_view)
+        self._submit.pressed.connect(self._on_submit)
+
+        self.setLayout(self._layout)
+
+    def _on_description_tab_changed(self, index):
+        if index == 1:
+            md = markdown.Markdown(tab_length=2)
+            html = md.convert(self._description_edit.toPlainText())
+            html = '<html><head></head><body>' + html + '</body></html>'
+            self._description_view.setText(html)
+
+    def _on_skip(self):
+        os.remove(self._report_path)
+        self.finished.emit()
+
+    def _on_view(self):
+        ZipInspectorDialog(self._parent, self._report_path)
+
+    def _on_submit(self):
+        contact = {
+            'first_name': self._first_name.text(),
+            'email': self._email.text(),
+        }
+        reporter.update_contact(self._report_path, contact)
+        with open(_CONTACT_FILE, 'wt') as f:
+            json.dump(contact, f)
+        description = self._description_edit.toPlainText()
+        reporter.update_description(self._report_path, description)
+        reporter.publish()
+        self.finished.emit()
+
+
+class RecoveryWidget(QtWidgets.QWidget):
+
+    finished = QtCore.Signal()
+
+    def __init__(self, parent):
+        super().__init__(parent=parent)
+        self._layout = QtWidgets.QVBoxLayout(self)
+        self._help_label = QtWidgets.QLabel(_HTML.format(body=_RECOVERY), self)
+        self._help_label.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self._help_label.setWordWrap(True)
+        self._layout.addWidget(self._help_label)
+
+        self._revert1 = QtWidgets.QPushButton(N_('Revert to previous configuration'), self)
+        self._defaults = QtWidgets.QPushButton(N_('Revert to defaults'), self)
+        self._exit = QtWidgets.QPushButton(N_('Exit'), self)
+        self._layout.addWidget(self._revert1)
+        self._layout.addWidget(self._defaults)
+        self._layout.addWidget(self._exit)
+
+        self._revert1.pressed.connect(self._on_revert)
+        self._defaults.pressed.connect(self._on_defaults)
+        self._exit.pressed.connect(self._on_exit)
+
+    def _on_revert(self):
+        versioned_file.revert(pubsub_singleton.config_file_path, 1)
+        self.finished.emit()
+
+    def _on_defaults(self):
+        versioned_file.remove(pubsub_singleton.config_file_path)
+        self.finished.emit()
+
+    def _on_exit(self):
+        self.finished.emit()
+
+
+class ErrorWindow(QtWidgets.QMainWindow):
+
+    def __init__(self, parent=None, report_path=None):
+        super().__init__(parent)
+        icon = QtGui.QIcon()
+        icon.addFile(u":/icon_64x64.ico", QtCore.QSize(), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.setWindowIcon(icon)
-        self.setWindowTitle('Joulescope UI Launch Error')
+        self.setWindowTitle(N_('Error'))
 
-        self.centralwidget = QWidget(self)
-        self.centralwidget.setObjectName('centralwidget')
-        self.verticalLayout = QVBoxLayout(self.centralwidget)
-        self.verticalLayout.setObjectName(u"verticalLayout")
-        self.label = QLabel(self.centralwidget)
-        self.label.setObjectName(u"label")
-        sizePolicy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
-        self.label.setSizePolicy(sizePolicy)
+        self._submit = SubmitWidget(self, report_path)
+        self._submit.finished.connect(self._on_submit_finished)
 
-        self.label.setText(msg)
-        self.label.setTextInteractionFlags(Qt.TextBrowserInteraction)
-        self.label.setOpenExternalLinks(True)
+        self._recovery = RecoveryWidget(self)
+        self._recovery.finished.connect(self.close)
+        self._recovery.hide()
 
-        self.verticalLayout.addWidget(self.label)
-        self.setCentralWidget(self.centralwidget)
+        self.setCentralWidget(self._submit)
+
+        screen = QtGui.QGuiApplication.screenAt(self.geometry().center())
+        if screen is not None:
+            geometry = screen.geometry()
+            self.resize(0.4 * geometry.width(), 0.6 * geometry.height())
+        else:
+            self.resize(600, 500)
         self.show()
+
+    def _on_submit_finished(self):
+        self._submit.hide()
+        self.setCentralWidget(self._recovery)
+        self._recovery.show()
+
+    def closeEvent(self, event):
+        event.accept()

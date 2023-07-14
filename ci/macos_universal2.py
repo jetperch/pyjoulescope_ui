@@ -51,6 +51,7 @@ def is_universal2_file(path):
     rv = _run_cmd(f'lipo -info {path}')
     return not ('Non-fat' in rv.stdout)
 
+
 def is_universal2(package):
     rv = _run_cmd(f'pip show -f {package}')
     header = True

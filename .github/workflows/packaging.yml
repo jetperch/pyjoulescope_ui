@@ -65,6 +65,9 @@ jobs:
           cp CHANGELOG.md joulescope_ui/
           cp CREDITS.html joulescope_ui/
 
+      - name: Update tokens using GitHub secrets
+        run: python ci/tokens.py
+
       - name: Build package
         run: python -m build
 
@@ -144,6 +147,9 @@ jobs:
 
       - name: Patch macOS to universal2
         run: python ci/macos_universal2.py
+
+      - name: Update tokens using GitHub secrets
+        run: python ci/tokens.py
 
       - name: Create local files
         run: python setup.py sdist

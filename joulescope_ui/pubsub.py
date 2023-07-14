@@ -16,8 +16,10 @@
 Communication method used to connect the Joulescope UI components.
 """
 
-from . import json
-from .metadata import Metadata
+import json
+from joulescope_ui import json
+from joulescope_ui import versioned_file
+from joulescope_ui.metadata import Metadata
 import copy
 import threading
 import logging
@@ -456,6 +458,7 @@ class PubSub:
         self.topic_add('common/settings/paths/app', 'str', 'Base application directory', default=app_path)
         self.topic_add('common/settings/paths/config', 'str', 'Config directory', default=os.path.join(app_path, 'config'))
         self.topic_add('common/settings/paths/log', 'str', 'Log directory', default=os.path.join(app_path, 'log'))
+        self.topic_add('common/settings/paths/reporter', 'str', 'Reporter directory', default=os.path.join(app_path, 'reporter'))
         self.topic_add('common/settings/paths/styles', 'str', 'Rendered styles', default=os.path.join(app_path, 'styles'))
         self.topic_add('common/settings/paths/update', 'str', 'Downloads for application updates', default=os.path.join(app_path, 'update'))
         self.topic_add('common/settings/paths/data', 'str', 'Data recordings', default=os.path.join(user_path))
@@ -1473,11 +1476,7 @@ class PubSub:
 
     def save(self, fh=None):
         if fh is None:
-            config_path = self.config_file_path
-            tmp_path = config_path + '.tmp'
-            rv = self.save(tmp_path)
-            os.replace(tmp_path, config_path)
-            return rv
+            fh = self.config_file_path
 
         self._log.info('save %r', fh)
         do_close = False
@@ -1490,7 +1489,7 @@ class PubSub:
         }
         if isinstance(fh, str):
             os.makedirs(os.path.dirname(fh), exist_ok=True)
-            fh = open(fh, 'wt')
+            fh = versioned_file.open(fh, 'wt')
             do_close = True
         try:
             json.dump(obj, fh)
@@ -1533,7 +1532,7 @@ class PubSub:
         do_close = False
         if isinstance(fh, str):
             self._log.info('load %s', fh)
-            fh = open(fh, 'rt')
+            fh = versioned_file.open(fh, 'rt')
             do_close = True
         else:
             self._log.info('load filehandle')
@@ -1565,4 +1564,6 @@ class PubSub:
 
     def config_clear(self):
         if os.path.isfile(self.config_file_path):
+            with versioned_file.open(self.config_file_path, 'wt') as fh:
+                fh.write('')
             os.remove(self.config_file_path)

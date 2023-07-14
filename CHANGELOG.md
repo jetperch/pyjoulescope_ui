@@ -11,6 +11,9 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 * Added CHANGELOG.md and CREDITS.html to package data #207
 * Fixed Multimeter widget hold not holding on resize #203
+* Improved launch error handling.
+  * Bundle error information and submit to support #210
+  * Prompt the user with recovery options #204
 * Bumped dependency versions:
   * joulescope 1.1.7 -> 1.1.8
   * pyjoulescope_driver 1.3.16 -> 1.3.17
