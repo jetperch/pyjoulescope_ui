@@ -83,15 +83,14 @@ class AccumulatorWidget(QtWidgets.QWidget):
         for topic, fn in self._subscribers:
             pubsub_singleton.subscribe(topic, fn, ['pub', 'retain'])
 
-    def closeEvent(self, event):
+    def on_pubsub_unregister(self):
         self._disconnect()
         self._statistics = None
-        return super().closeEvent(event)
+        for topic, fn in self._subscribers:
+            pubsub_singleton.unsubscribe(topic, fn)
 
     def _disconnect(self):
         pubsub_singleton.unsubscribe_all(self._on_statistics_fn)
-        for topic, fn in self._subscribers:
-            pubsub_singleton.unsubscribe(topic, fn)
         self.repaint()
 
     @property
@@ -124,8 +123,17 @@ class AccumulatorWidget(QtWidgets.QWidget):
         if source_prev != source_next:
             self._connect()
 
+    def on_setting_statistics_stream_source(self, value):
+        source_prev = self.source
+        self._statistics_stream_source = value
+        source_next = self.source
+        if source_prev != source_next:
+            self._connect()
+
     def _on_statistic_stream_source_list(self, value):
         self._devices = ['default'] + value
+        self._disconnect()
+        self._connect()
 
     def _on_global_statistics_stream_enable(self, value):
         self._hold_global = not bool(value)
@@ -185,7 +193,29 @@ class AccumulatorWidget(QtWidgets.QWidget):
             menu.addAction(units_toggle)
             units_toggle.triggered.connect(lambda: self._on_units(toggle_units))
 
+            source_menu = menu.addMenu(N_('Source'))
+            source_group = QtGui.QActionGroup(source_menu)
+            source_group.setExclusive(True)
+            source_menu_items = []
+            for device in self._devices:
+                a = QtGui.QAction(device, source_group, checkable=True)
+                if device == 'default':
+                    a.setChecked(self._statistics_stream_source in [None, 'default'])
+                else:
+                    a.setChecked(device == self._statistics_stream_source)
+                a.triggered.connect(self._construct_source_action(device))
+                source_menu.addAction(a)
+                source_menu_items.append(a)
+
             style_action = settings_action_create(self, menu)
             menu.popup(event.globalPos())
-            self._menu = [menu, field_toggle, units_toggle, style_action]
+            self._menu = [
+                menu, field_toggle, units_toggle,
+                source_group, source_menu, source_menu_items,
+                style_action]
             event.accept()
+
+    def _construct_source_action(self, source):
+        def fn():
+            self.statistics_stream_source = source
+        return fn

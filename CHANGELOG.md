@@ -14,6 +14,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Improved launch error handling.
   * Bundle error information and submit to support #210
   * Prompt the user with recovery options #204
+* Added source selection to Accumulator Widget #201 
 * Added manual "Report Issue" option. 
 * Renamed joulescope_ui.json to joulescope_ui.json_plus to avoid name collision. 
 * Bumped dependency versions:
