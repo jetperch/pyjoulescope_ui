@@ -22,9 +22,8 @@ import markdown
 import os
 
 
-_INTRO = N_("The Joulescope UI encountered an error, and it cannot start correctly.")
+_ERROR_INTRO = N_("The Joulescope UI encountered an error, and it cannot start correctly.")
 _TROUBLESHOOT = N_("We are here to help troubleshoot! Fill in the details below, and click Submit.")
-_HELP = f'<p>{_INTRO}</p><p>{_TROUBLESHOOT}</p>'
 _CONTACT_TEXT = N_("""\
     Please consider providing your contact information.
     If you provide your contact information, we may contact
@@ -43,7 +42,7 @@ class SubmitWidget(QtWidgets.QWidget):
         super().__init__(parent=parent)
         self._report_path = report_path
         self._layout = QtWidgets.QVBoxLayout(self)
-        self._help_label = QtWidgets.QLabel(_HTML.format(body=_HELP), self)
+        self._help_label = QtWidgets.QLabel(_HTML.format(body=_TROUBLESHOOT), self)
         self._help_label.setWordWrap(True)
         self._layout.addWidget(self._help_label)
 
@@ -88,17 +87,17 @@ class SubmitWidget(QtWidgets.QWidget):
 
         self._buttons = QtWidgets.QWidget(self)
         self._buttons_layout = QtWidgets.QHBoxLayout(self._buttons)
-        self._skip = QtWidgets.QPushButton(N_('Skip'), self._buttons)
+        self._abort = QtWidgets.QPushButton(N_('Abort'), self._buttons)
         self._view = QtWidgets.QPushButton(N_('View'), self._buttons)
         self._submit = QtWidgets.QPushButton(N_('Submit'), self._buttons)
-        self._buttons_layout.addWidget(self._skip)
+        self._buttons_layout.addWidget(self._abort)
         self._buttons_layout.addWidget(self._view)
         self._buttons_layout.addWidget(self._submit)
         self._buttons.setLayout(self._buttons_layout)
         self._layout.addWidget(self._buttons)
 
         self._description_tabs.currentChanged.connect(self._on_description_tab_changed)
-        self._skip.pressed.connect(self._on_skip)
+        self._abort.pressed.connect(self._on_abort)
         self._view.pressed.connect(self._on_view)
         self._submit.pressed.connect(self._on_submit)
 
@@ -111,8 +110,9 @@ class SubmitWidget(QtWidgets.QWidget):
             html = '<html><head></head><body>' + html + '</body></html>'
             self._description_view.setText(html)
 
-    def _on_skip(self):
-        os.remove(self._report_path)
+    def _on_abort(self):
+        if os.path.isfile(self._report_path):
+            os.remove(self._report_path)
         self.finished.emit()
 
     def _on_view(self):
@@ -130,6 +130,7 @@ class SubmitWidget(QtWidgets.QWidget):
         reporter.update_description(self._report_path, description)
         reporter.publish()
         self.finished.emit()
+
 
 
 class RecoveryWidget(QtWidgets.QWidget):
@@ -176,6 +177,12 @@ class ErrorWindow(QtWidgets.QMainWindow):
         self.setWindowIcon(icon)
         self.setWindowTitle(N_('Error'))
 
+        self._center = QtWidgets.QWidget(self)
+        self._layout = QtWidgets.QVBoxLayout(self._center)
+
+        self._help_label = QtWidgets.QLabel(_HTML.format(body=_ERROR_INTRO), self)
+        self._help_label.setWordWrap(True)
+
         self._submit = SubmitWidget(self, report_path)
         self._submit.finished.connect(self._on_submit_finished)
 
@@ -183,7 +190,10 @@ class ErrorWindow(QtWidgets.QMainWindow):
         self._recovery.finished.connect(self.close)
         self._recovery.hide()
 
-        self.setCentralWidget(self._submit)
+        self._layout.addWidget(self._help_label)
+        self._layout.addWidget(self._submit)
+        self._center.setLayout(self._layout)
+        self.setCentralWidget(self._center)
 
         screen = QtGui.QGuiApplication.screenAt(self.geometry().center())
         if screen is not None:
@@ -195,7 +205,8 @@ class ErrorWindow(QtWidgets.QMainWindow):
 
     def _on_submit_finished(self):
         self._submit.hide()
-        self.setCentralWidget(self._recovery)
+        self._layout.removeWidget(self._submit)
+        self._layout.addWidget(self._recovery)
         self._recovery.show()
 
     def closeEvent(self, event):

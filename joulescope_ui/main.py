@@ -31,6 +31,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 import PySide6QtAds as QtAds
 from .error_window import ErrorWindow
 from .help_ui import HelpHtmlMessageBox
+from joulescope_ui.widgets.report_issue import ReportIssueDialog
 from .exporter import ExporterDialog   # register the exporter
 from .jls_source import JlsSource      # register the source
 from .resources import load_resources, load_fonts
@@ -305,6 +306,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 #'JS220 User\'s Guide': self._help_js220_users_guide,
                 #'JS110 User\'s Guide': self._help_js110_users_guide,
                 ['changelog', N_('Changelog'), ['registry/help_html/actions/!show', 'changelog']],
+                ['report_issue', N_('Report Issue'), ['registry/report_issue/actions/!show', 'report_issue']],
                 ['view_logs', N_('View logs...'), ['registry/ui/actions/!view_logs', None]],
                 ['credits', N_('Credits'), ['registry/help_html/actions/!show', 'credits']],
                 ['about', N_('About'), ['registry/help_html/actions/!show', 'about']],
@@ -405,7 +407,11 @@ class MainWindow(QtWidgets.QMainWindow):
         if bool(value):
             self._pubsub.register(DebugWidget)
         else:
-            self._pubsub.unregister(DebugWidget)
+            try:
+                self._pubsub.query('registry/DebugWidget')
+                self._pubsub.unregister(DebugWidget)
+            except KeyError:
+                pass
 
     def _center(self, resize=None):
         screen = self.screen()
@@ -640,6 +646,7 @@ def run(log_level=None, file_log_level=None, filename=None):
     try:
         logging_util.preconfig()
         pubsub_singleton.register(HelpHtmlMessageBox, 'help_html')
+        pubsub_singleton.register(ReportIssueDialog, 'report_issue')
         # pubsub_singleton.publish(PUBSUB_TOPICS.PUBSUB_APP_NAME, N_('Joulescope UI'))
         log_path = pubsub_singleton.query('common/settings/paths/log')
         logging_util.config(log_path, stream_log_level=log_level, file_log_level=file_log_level)

@@ -590,7 +590,7 @@ class PubSub:
         :param topic: The topic string.
         :param value: The value, which must pass validation for the topic.
         :param defer: Optionally defer the publish, even when called on the
-            pubsub thread.  This allows for
+            pubsub thread.
         :return: None.
 
         When called from outside the pubsub thread, the publish will be
