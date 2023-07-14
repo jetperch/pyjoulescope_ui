@@ -66,6 +66,8 @@ jobs:
           cp CREDITS.html joulescope_ui/
 
       - name: Update tokens using GitHub secrets
+        env:
+          JOULESCOPE_UI_REPORTER_TOKEN: ${{ secrets.JOULESCOPE_UI_REPORTER_TOKEN }}
         run: python ci/tokens.py
 
       - name: Build package
@@ -149,6 +151,8 @@ jobs:
         run: python ci/macos_universal2.py
 
       - name: Update tokens using GitHub secrets
+        env:
+          JOULESCOPE_UI_REPORTER_TOKEN: ${{ secrets.JOULESCOPE_UI_REPORTER_TOKEN }}
         run: python ci/tokens.py
 
       - name: Create local files

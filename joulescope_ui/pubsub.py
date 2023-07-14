@@ -16,8 +16,7 @@
 Communication method used to connect the Joulescope UI components.
 """
 
-import json
-from joulescope_ui import json
+from joulescope_ui import json_plus as json
 from joulescope_ui import versioned_file
 from joulescope_ui.metadata import Metadata
 import copy

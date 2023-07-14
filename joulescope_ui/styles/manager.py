@@ -15,11 +15,11 @@
 """Manage styles for the user interface application."""
 
 
-import json
 import logging
 import os
 import re
-from joulescope_ui import N_, json, pubsub_singleton, get_unique_id, get_topic_name, get_instance
+from joulescope_ui import N_, pubsub_singleton, get_unique_id, get_topic_name, get_instance
+from joulescope_ui import json_plus as json
 from joulescope_ui.sanitize import str_to_filename
 from . import color_file, parameter_file
 from .color_scheme import COLOR_SCHEMES

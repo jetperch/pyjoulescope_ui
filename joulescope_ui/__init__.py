@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from .version import __version__
-import json
 import sys
 from .pubsub import PubSub, get_instance, get_topic_name, get_unique_id, PUBSUB_TOPICS, REGISTRY_MANAGER_TOPICS
 from .metadata import Metadata
