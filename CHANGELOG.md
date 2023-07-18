@@ -7,7 +7,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.24
 
-2023 Jul 14 [in progress]
+2023 Jul 18 [in progress]
 
 * Added CHANGELOG.md and CREDITS.html to package data #207
 * Fixed Multimeter widget hold not holding on resize #203
@@ -16,6 +16,7 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Prompt the user with recovery options #204
 * Added source selection to Accumulator Widget #201
 * Added dual marker Δt interval entry on context menu #202
+* Added relative time x-axis marker mode #200
 * Added manual "Report Issue" option. 
 * Renamed joulescope_ui.json to joulescope_ui.json_plus to avoid name collision. 
 * Bumped dependency versions:

@@ -449,6 +449,15 @@ class WaveformWidget(QtWidgets.QWidget):
             'brief': N_('The signal to show in the summary.'),
             'default': None,
         },
+        'x_axis_annotation_mode': {
+            'dtype': 'str',
+            'brief': N_('X-axis annotation mode'),
+            'default': 'absolute',
+            'options': [
+                ['absolute', N_('Absolute')],
+                ['relative', N_('Relative')],
+            ],
+        },
         'units': UNITS_SETTING,
     }
 
@@ -852,6 +861,12 @@ class WaveformWidget(QtWidgets.QWidget):
                 changed = True
         if self.state is not None:
             for m in self.annotations['x'].values():
+                if m.get('mode', 'absolute') == 'relative':
+                    if 'rel1' in m:
+                        m['pos1'] = self.x_range[1] + m['rel1']
+                    if 'rel2' in m:
+                        m['pos2'] = self.x_range[1] + m['rel2']
+                    m['changed'] = True
                 if m.get('changed', True) or changed:
                     m['changed'] = False
                     self._request_marker_data(m)
@@ -1735,7 +1750,8 @@ class WaveformWidget(QtWidgets.QWidget):
         x_range = self._extents()
         _, outside = self._x_markers_filter(x_range)
         for m_id in outside:
-            del self.annotations['x'][m_id]
+            if self.annotations['x'][m_id].get('mode', 'absolute') == 'absolute':
+                del self.annotations['x'][m_id]
         for plot_index, entry in enumerate(self.annotations['text']):
             _, outside = self._text_annotations_filter(x_range, plot_index)
             for a_id in outside:
@@ -2309,10 +2325,15 @@ class WaveformWidget(QtWidgets.QWidget):
                 m['changed'] = True
                 xd = xt - m[m_field]
                 m[m_field] += xd
+                is_relative = m.get('mode', 'absolute') == 'relative'
+                if is_relative:
+                    m['rel' + m_field[-1]] = m[m_field] - xr[1]
                 if m['dtype'] == 'dual':
                     if move_both:
                         m_field = 'pos1' if m_field == 'pos2' else 'pos2'
                         m[m_field] += xd
+                        if is_relative:
+                            m['rel' + m_field[-1]] = m[m_field] - xr[1]
                     self._request_marker_data(m)
             elif action == 'move.y_marker':
                 item, move_both = self._mouse_action[1:3]
@@ -2547,10 +2568,27 @@ class WaveformWidget(QtWidgets.QWidget):
         dual = QtGui.QAction(N_('Dual markers'))
         menu.addAction(dual)
         dual.triggered.connect(lambda: self._on_menu_x_marker('add_dual'))
+
+        mode = menu.addMenu(N_('Mode'))
+        mode_group = QtGui.QActionGroup(mode)
+        mode_group.setExclusive(True)
+        mode_absolute = QtGui.QAction(N_('Absolute'), mode_group, checkable=True)
+        mode_absolute.setChecked(self.x_axis_annotation_mode == 'absolute')  # todo
+        mode.addAction(mode_absolute)
+        mode_absolute.triggered.connect(lambda: self._on_menu_x_mode('absolute'))
+
+        mode_relative = QtGui.QAction(N_('Relative'), mode_group, checkable=True)
+        mode_relative.setChecked(self.x_axis_annotation_mode == 'relative')
+        mode.addAction(mode_relative)
+        mode_relative.triggered.connect(lambda: self._on_menu_x_mode('relative'))
+
         clear_all = QtGui.QAction(N_('Clear all'))
         menu.addAction(clear_all)
         clear_all.triggered.connect(lambda: self._on_menu_x_marker('clear_all'))
-        return [single, dual, clear_all]
+        return [single, dual, [mode, mode_group, mode_absolute, mode_relative], clear_all]
+
+    def _on_menu_x_mode(self, mode):
+        self.x_axis_annotation_mode = mode
 
     def _menu_x_axis(self, event: QtGui.QMouseEvent):
         self._log.info('_menu_x_axis(%s)', event.pos())
@@ -2857,7 +2895,11 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _on_x_interval(self, m, pos_text, interval):
         other_pos = 'pos2' if pos_text == 'pos1' else 'pos1'
+        if m.get('mode', 'absolute') == 'relative':
+            pos_text = 'rel' + pos_text[-1]
+            other_pos = 'rel' + other_pos[-1]
         m[other_pos] = m[pos_text] + int(interval * time64.SECOND)
+        m['changed'] = True
         self._request_marker_data(m)
 
     def _menu_x_marker_single(self, item, event: QtGui.QMouseEvent):
@@ -3077,11 +3119,15 @@ class WaveformWidget(QtWidgets.QWidget):
         marker = {
             'id': self._annotation_next_id('x'),
             'dtype': 'single',
+            'mode': self.x_axis_annotation_mode,
             'pos1': pos1,
             'changed': True,
             'text_pos1': 'right',
             'text_pos2': 'off',
         }
+        if self.x_axis_annotation_mode == 'relative':
+            marker['mode'] = 'relative'
+            marker['rel1'] = pos1 - x1
         return self._x_marker_add(marker)
 
     def _x_marker_add_dual(self, pos1=None, pos2=None):
@@ -3099,12 +3145,17 @@ class WaveformWidget(QtWidgets.QWidget):
         marker = {
             'id': self._annotation_next_id('x'),
             'dtype': 'dual',
+            'mode': self.x_axis_annotation_mode,
             'pos1': pos1,
             'pos2': pos2,
             'changed': True,
             'text_pos1': 'off',
             'text_pos2': 'right',
         }
+        if self.x_axis_annotation_mode == 'relative':
+            marker['mode'] = 'relative'
+            marker['rel1'] = pos1 - x1
+            marker['rel2'] = pos2 - x1
 
         return self._x_marker_add(marker)
 
