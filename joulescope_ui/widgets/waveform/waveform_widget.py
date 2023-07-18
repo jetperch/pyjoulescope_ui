@@ -22,6 +22,7 @@ from joulescope_ui.exporter import TO_JLS_SIGNAL_NAME
 from .line_segments import PointsF
 from .text_annotation import TextAnnotationDialog, SHAPES_DEF, Y_POSITION_MODE
 from .waveform_control import WaveformControlWidget
+from .interval_widget import IntervalWidget
 from joulescope_ui.time_map import TimeMap
 import pyjls
 from collections import OrderedDict
@@ -2854,6 +2855,11 @@ class WaveformWidget(QtWidgets.QWidget):
         action.triggered.connect(lambda: self._on_range_tool(unique_id, idx))
         return action
 
+    def _on_x_interval(self, m, pos_text, interval):
+        other_pos = 'pos2' if pos_text == 'pos1' else 'pos1'
+        m[other_pos] = m[pos_text] + int(interval * time64.SECOND)
+        self._request_marker_data(m)
+
     def _menu_x_marker_single(self, item, event: QtGui.QMouseEvent):
         m, pos_text = self._item_parse_x_marker(item)
         dynamic_items = []
@@ -2875,6 +2881,16 @@ class WaveformWidget(QtWidgets.QWidget):
                     continue  # special, has own menu item
                 action = self._construct_analysis_menu_action(analysis_menu, unique_id, m['id'])
                 dynamic_items.append(action)
+
+            other_pos = 'pos2' if pos_text == 'pos1' else 'pos1'
+            interval_menu = menu.addMenu(N_('Interval'))
+            interval = (m[other_pos] - m[pos_text]) / time64.SECOND
+            interval_widget = IntervalWidget(self, interval)
+            interval_widget.value.connect(lambda x: self._on_x_interval(m, pos_text, x))
+            interval_action = QtWidgets.QWidgetAction(interval_menu)
+            interval_action.setDefaultWidget(interval_widget)
+            interval_menu.addAction(interval_action)
+            dynamic_items.append([interval_menu, interval_widget, interval_action])
 
         show_stats_menu = menu.addMenu(N_('Show statistics'))
         show_stats_group = QtGui.QActionGroup(show_stats_menu)
