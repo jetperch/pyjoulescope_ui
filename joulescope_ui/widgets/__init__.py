@@ -22,6 +22,7 @@ from .debug import DebugWidget
 from .memory import MemoryWidget
 from .hamburger import HamburgerWidget
 from .help import HelpWidget
+from .jls_info import JlsInfoWidget
 from .progress_bar import ProgressBarWidget
 from .record_status import RecordStatusWidget
 from .sidebar import SideBar

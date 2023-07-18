@@ -21,9 +21,22 @@ The JLS v2 reader and common definitions for JLS v2 file format use.
 from joulescope_ui import Metadata, time64
 from joulescope_ui.time_map import TimeMap
 import logging
-from pyjls import Reader, SignalType, data_type_as_str
+from pyjls import Reader, SignalType, data_type_as_str, DataType
 import copy
 import numpy as np
+
+
+class ChunkMeta:
+    NOTES = 0
+    UI_META = 0x8001
+
+
+DTYPE_MAP = {
+    'f32': DataType.F32,
+    'u8': DataType.U8,
+    'u4': DataType.U4,
+    'u1': DataType.U1,
+}
 
 
 TO_JLS_SIGNAL_NAME = {
@@ -68,20 +81,29 @@ class JlsV2:
         self._jls = jls
         source_meta = {}
 
+        def on_user_data_notes(chunk_meta_u16, data):
+            if chunk_meta_u16 == ChunkMeta.NOTES and data is not None:
+                pubsub.publish(f'{topic}/settings/notes', data)
+                return True
+            return False
+
+        jls.user_data(on_user_data_notes)
+
         for source_id, source in jls.sources.items():
             pubsub.topic_add(f'{topic}/settings/sources/{source_id}/name',
                              Metadata('str', 'Source name', default=source.name))
-            meta = {
+            info = {
+                'source': str(source_id),
                 'vendor': source.vendor,
                 'model': source.model,
                 'version': source.version,
                 'serial_number': source.serial_number,
                 'name': f'{source.model}-{source.serial_number}',
             }
-            pubsub.topic_add(f'{topic}/settings/sources/{source_id}/meta',
-                             Metadata('obj', 'Source metadata', default=meta,
+            pubsub.topic_add(f'{topic}/settings/sources/{source_id}/info',
+                             Metadata('obj', 'Source metadata', default=info,
                                       flags=['hide', 'ro', 'skip_undo']))
-            source_meta[source_id] = meta
+            source_meta[source_id] = info
         for signal_id, signal in jls.signals.items():
             time_map = TimeMap()
             if signal.name not in TO_UI_SIGNAL_NAME:

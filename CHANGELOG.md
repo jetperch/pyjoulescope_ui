@@ -17,6 +17,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added source selection to Accumulator Widget #201
 * Added dual marker Δt interval entry on context menu #202
 * Added relative time x-axis marker mode #200
+* Added JLS info widget #209
 * Added manual "Report Issue" option. 
 * Renamed joulescope_ui.json to joulescope_ui.json_plus to avoid name collision. 
 * Bumped dependency versions:

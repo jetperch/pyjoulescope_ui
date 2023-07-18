@@ -38,7 +38,8 @@ class ExpandingWidget(QtWidgets.QWidget):
         self._header_icon.setObjectName('expanding_widget_icon')
         self._header_icon.setProperty('expanded', False)
         self._header_icon.clicked.connect(self._toggle_body)
-        self._header_title = QtWidgets.QLabel('title?', self._header)
+        self._header_title = QtWidgets.QLabel('', self._header)
+        self._header_title_active = self._header_title
         self._spacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self._layout.addWidget(self._header_icon, 0, 0, 1, 1)
         self._header_layout.addWidget(self._header_title)
@@ -51,11 +52,23 @@ class ExpandingWidget(QtWidgets.QWidget):
 
     @property
     def title(self):
-        return self._header_title.text()
+        if self._header_title_active == self._header_title:
+            return self._header_title.text()
+        return self._header_title_active
 
     @title.setter
     def title(self, txt):
-        self._header_title.setText(txt)
+        if isinstance(txt, str):
+            self._header_title.setText(txt)
+            if self._header_title_active == self._header_title:
+                return
+            txt = self._header_title
+        if not isinstance(txt, QtWidgets.QWidget):
+            raise ValueError('invalid value %s', txt)
+        self._header_title_active.setVisible(False)
+        self._layout.replaceWidget(self._header_title_active, txt)
+        txt.setVisible(True)
+        self._header_title_active = txt
 
     @property
     def body_widget(self):

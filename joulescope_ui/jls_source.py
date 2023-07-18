@@ -102,7 +102,12 @@ class JlsSource:
                 'dtype': 'str',
                 'brief': 'The file path.',
                 'default': path,
-            }
+            },
+            'notes': {
+                'dtype': 'str',
+                'brief': 'The user notes.',
+                'default': '',
+            },
         }
         self._jls = None
         self.pubsub = None

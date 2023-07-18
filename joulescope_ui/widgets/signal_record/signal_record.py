@@ -12,26 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyjls import Writer, SignalType, DataType
+from pyjls import Writer, SignalType
 from joulescope_ui import pubsub_singleton, register, CAPABILITIES, time64
+from joulescope_ui.jls_v2 import ChunkMeta, DTYPE_MAP
 from .signal_record_config_widget import SignalRecordConfigDialog
 import copy
 import json
 import logging
 import numpy as np
-
-
-class ChunkMeta:
-    NOTES = 0
-    UI_META = 0x801
-
-
-_DTYPE_MAP = {
-    'f32': DataType.F32,
-    'u8': DataType.U8,
-    'u4': DataType.U4,
-    'u1': DataType.U1,
-}
 
 
 _UTC_INTERVAL = 10 * time64.MINUTE
@@ -123,7 +111,7 @@ class SignalRecord:
             signal_id=self._signal_idx,
             source_id=source_id,
             signal_type=SignalType.FSR,
-            data_type=_DTYPE_MAP[value['dtype']],
+            data_type=DTYPE_MAP[value['dtype']],
             sample_rate=value['sample_freq'],
             name=value['field'].replace(' ', '_'),
             units=value['units'],
