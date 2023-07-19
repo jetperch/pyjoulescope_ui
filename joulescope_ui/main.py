@@ -53,7 +53,8 @@ import webbrowser
 _software_update = None
 _config_clear = None
 _log = logging.getLogger(__name__)
-
+_UI_WINDOW_TITLE = 'Joulescope'
+_JLS_WINDOW_TITLE = 'Joulescope file viewer'
 
 
 _SETTINGS = {
@@ -179,7 +180,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._log = logging.getLogger(__name__)
         self._filename = filename
         super(MainWindow, self).__init__()
-        self.setWindowTitle('Joulescope')
+        self.setWindowTitle(_UI_WINDOW_TITLE if filename is None else _JLS_WINDOW_TITLE)
         self._dialog = None
         self._pubsub = pubsub_singleton
         self._pubsub_process_count_last = self._pubsub.process_count

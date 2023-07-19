@@ -19,7 +19,7 @@
 [build-system]
 # Minimum requirements for the build system to execute.
 requires = [
-    "PySide6>=6.5.0",
+    "PySide6>=6.5.1.1",
     "setuptools>=42",
     "wheel",
 ]

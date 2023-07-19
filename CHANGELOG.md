@@ -28,6 +28,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Bumped dependency versions:
   * joulescope 1.1.7 -> 1.1.8
   * pyjoulescope_driver 1.3.16 -> 1.3.17
+  * PySide6 6.5.0 -> 6.5.1.1
+  * PySide6-QtAds 4.0.3 -> 4.1.0
 
 
 ## 1.0.23
