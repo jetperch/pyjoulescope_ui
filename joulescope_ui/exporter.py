@@ -52,6 +52,8 @@ class ExporterWidget(QtWidgets.QWidget):
         self._location.setText(pubsub_singleton.query('registry/paths/settings/path'))
         self._location_sel = QtWidgets.QPushButton(self)
         self._location_sel.pressed.connect(self._on_location_button)
+        icon = self._location_sel.style().standardIcon(QtWidgets.QStyle.StandardPixmap.SP_DirIcon)
+        self._location_sel.setIcon(icon)
         self._layout.addWidget(self._location_label, self._row, 0, 1, 1)
         self._layout.addWidget(self._location, self._row, 1, 1, 1)
         self._layout.addWidget(self._location_sel, self._row, 2, 1, 1)
@@ -59,16 +61,27 @@ class ExporterWidget(QtWidgets.QWidget):
 
         self._filename_label = QtWidgets.QLabel(N_('Filename'), self)
         self._layout.addWidget(self._filename_label, self._row, 0, 1, 1)
-
         self._filename = QtWidgets.QLineEdit(self)
         self._filename.setText(_construct_record_filename())
         self._layout.addWidget(self._filename, self._row, 1, 1, 2)
+        self._row += 1
+
+        self._notes_label = QtWidgets.QLabel(N_('Notes'), self)
+        self._layout.addWidget(self._notes_label, self._row, 0, 1, 3)
+        self._row += 1
+        self._notes = QtWidgets.QPlainTextEdit(self)
+        self._layout.addWidget(self._notes, self._row, 0, 1, 3)
+        self._row += 1
 
         self.setLayout(self._layout)
 
     @property
     def path(self):
         return os.path.join(self._location.text(), self._filename.text())
+
+    @property
+    def notes(self):
+        return self._notes.toPlainText()
 
     def _on_location_button(self):
         path = self._location.text()
@@ -113,10 +126,6 @@ class ExporterDialog(QtWidgets.QDialog):
         self.setLayout(self._layout)
         self._w = ExporterWidget(self)
         self._layout.addWidget(self._w)
-        self._spacer = QtWidgets.QSpacerItem(10, 0,
-                                             QtWidgets.QSizePolicy.Minimum,
-                                             QtWidgets.QSizePolicy.Expanding)
-        self._layout.addItem(self._spacer)
 
         self._buttons = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
         self._buttons.accepted.connect(self.accept)
@@ -142,6 +151,7 @@ class ExporterDialog(QtWidgets.QDialog):
                 kwargs = {}
                 self._value['kwargs'] = kwargs
             kwargs['path'] = path
+            kwargs['notes'] = self._w.notes
             w = Exporter(self._value)
             pubsub_singleton.register(w)
             self._value['path'] = path
@@ -222,7 +232,7 @@ class Exporter(RangeToolBase):
 
         with Writer(path) as jls:
             notes = self.kwargs.get('notes')
-            if notes is not None:
+            if notes is not None and isinstance(notes, str) and len(notes):
                 jls.user_data(0, notes)
             self._jls_init(jls)
             for signal_idx, signal in enumerate(self._signals.values()):
