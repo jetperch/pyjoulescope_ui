@@ -5,6 +5,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.0.25
+
+2023 Jul 19
+
+* Fix menubar on macOS when dialog shown at start.
+
+
 ## 1.0.24
 
 2023 Jul 19
@@ -26,7 +33,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added manual "Report Issue" option.
 * Added waveform right-click on Δt to manually set. 
 * Added notes widget #93
-* Renamed joulescope_ui.json to joulescope_ui.json_plus to avoid name collision. 
+* Renamed joulescope_ui.json to joulescope_ui.json_plus to avoid name collision.
 * Bumped dependency versions:
   * joulescope 1.1.7 -> 1.1.8
   * pyjoulescope_driver 1.3.16 -> 1.3.17

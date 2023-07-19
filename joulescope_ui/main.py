@@ -376,6 +376,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self._shortcuts.add(QtGui.QKeySequence.Redo, REDO_TOPIC, None)
         self._shortcuts.add(QtCore.Qt.Key_Space, 'registry/app/settings/signal_stream_enable', '__toggle__')
 
+        if filename is None:
+            self.setAcceptDrops(True)
+        self.show()
+
         self._pubsub.publish(UNDO_TOPIC, 'clear', defer=True)
         self._pubsub.publish(REDO_TOPIC, 'clear', defer=True)
 
@@ -403,9 +407,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._blink_timer = QtCore.QTimer()
         self._blink_timer.timeout.connect(self._on_blink_timer)
         self._blink_timer.start(250)
-        if filename is None:
-            self.setAcceptDrops(True)
-        self.show()
+
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasText():
