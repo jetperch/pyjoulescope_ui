@@ -409,6 +409,7 @@ class PubSub:
         self._add_cmd(UNDO_TOPIC, self._cmd_undo)
         self._add_cmd(REDO_TOPIC, self._cmd_redo)
 
+        self.config_filename = None
         self._paths_init()
 
     def __str__(self):
@@ -1470,8 +1471,11 @@ class PubSub:
 
     @property
     def config_file_path(self):
+        fname = 'joulescope_ui_config.json'
+        if self.config_filename is not None:
+            fname = self.config_filename
         config_path = self.query('common/settings/paths/config')
-        return os.path.join(config_path, 'joulescope_ui_config.json')
+        return os.path.join(config_path, fname)
 
     def save(self, fh=None):
         if fh is None:

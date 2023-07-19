@@ -147,7 +147,6 @@ class SubmitWidget(QtWidgets.QWidget):
         self.finished.emit()
 
 
-
 class RecoveryWidget(QtWidgets.QWidget):
 
     finished = QtCore.Signal()

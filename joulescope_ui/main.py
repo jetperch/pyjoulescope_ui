@@ -177,6 +177,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def __init__(self, filename=None, is_config_load=False):
         self._log = logging.getLogger(__name__)
+        self._filename = filename
         super(MainWindow, self).__init__()
         self.setWindowTitle('Joulescope')
         self._dialog = None
@@ -201,23 +202,17 @@ class MainWindow(QtWidgets.QMainWindow):
         self._central_widget.setObjectName('central_widget')
         self.setCentralWidget(self._central_widget)
         size_policy_xx = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-        #self._central_widget.setSizePolicy(size_policy_xx)
+        self._central_widget.setSizePolicy(size_policy_xx)
         self._central_layout = QtWidgets.QHBoxLayout()
         self._central_layout.setObjectName('central_layout')
         self._central_layout.setSpacing(0)
         self._central_layout.setContentsMargins(0, 0, 0, 0)
         self._central_widget.setLayout(self._central_layout)
 
-        self._dock_widget = QtWidgets.QWidget(self._central_widget)
-        self._dock_widget.setObjectName('main_widget')
-        self._dock_widget.setSizePolicy(size_policy_xx)
-
         self._status_bar = QtWidgets.QStatusBar(self)
         self._status_bar.setObjectName('status_bar')
         self.setStatusBar(self._status_bar)
 
-        self._dock_layout = QtWidgets.QVBoxLayout(self._dock_widget)
-        self._dock_layout.setContentsMargins(0, 0, 0, 0)
         QtAds.CDockManager.setConfigFlags(
             0
             | QtAds.CDockManager.DockAreaHasCloseButton
@@ -231,9 +226,10 @@ class MainWindow(QtWidgets.QMainWindow):
             | QtAds.CDockManager.FocusHighlighting
             | QtAds.CDockManager.MiddleMouseButtonClosesTab
         )
-        self._dock_manager = QtAds.CDockManager(self._dock_widget)
-        self._dock_manager.setStyleSheet("")
-        self._dock_layout.addWidget(self._dock_manager)
+        self._dock_manager = QtAds.CDockManager(self._central_widget)
+        self._dock_manager.setStyleSheet('')
+        self._dock_manager.setSizePolicy(size_policy_xx)
+        self._central_layout.addWidget(self._dock_manager)
 
         self._pubsub_utilization = QtWidgets.QLabel(self._status_bar)
         self._pubsub_utilization.setToolTip(_PUBSUB_UTILIZATION_TOOLTIP)
@@ -253,8 +249,20 @@ class MainWindow(QtWidgets.QMainWindow):
             'ui': self,
             'dock_manager': self._dock_manager,
         })
+        self._pubsub.process()
 
-        if not is_config_load:
+        if filename is not None:
+            if not is_config_load:
+                self._pubsub.publish('registry/view/actions/!add', 'view:file')
+                self._pubsub.publish('registry/view:file/settings/name', N_('File'))
+            else:
+                self._pubsub.publish('registry/view/settings/active', None)
+                self._pubsub.register(View(), 'view:file')
+                self._pubsub.publish('registry/view/settings/active', 'view:file')
+            self.on_action_file_open(filename)
+            self._center(resize=True)
+
+        elif not is_config_load:
             self._pubsub.publish('registry/view/actions/!add', 'view:multimeter')
             self._pubsub.publish('registry/view:multimeter/settings/name', N_('Multimeter'))
             self._pubsub.publish('registry/view/actions/!add', 'view:oscilloscope')
@@ -272,78 +280,89 @@ class MainWindow(QtWidgets.QMainWindow):
             for source_unique_id in self._pubsub.query('registry/JlsSource/instances', default=[]):
                 self._pubsub.register(JlsSource(), source_unique_id)
 
-        # Create the singleton sidebar widget
-        self._side_bar = SideBar(self._central_widget)
-        self._side_bar.register()
-        self._central_layout.addWidget(self._side_bar)
-        self._central_layout.addWidget(self._dock_widget)
-
-        self._signal_record_status = RecordStatusWidget(self, 'SignalRecord')
-        self._pubsub.register(self._signal_record_status, 'SignalRecord:0', parent='ui')
-        self._status_bar.addPermanentWidget(self._signal_record_status)
-
-        self._statistics_record_status = RecordStatusWidget(self, 'StatisticsRecord')
-        self._pubsub.register(self._statistics_record_status, 'StatisticsRecord:0', parent='ui')
-        self._status_bar.addPermanentWidget(self._statistics_record_status)
-
-        self._menu_bar = QtWidgets.QMenuBar(self)
-        self._menu_items = _menu_setup(self._menu_bar, [
-            ['file_menu', N_('&File'), [
-                ['open', N_('Open'), ['registry/ui/actions/!file_open_request', '']],
-                ['open_recent_menu', N_('Open recent'), []],  # dynamically populated from MRU
-                # '&Preferences': self.on_preferences,
-                ['exit_cfg', N_('Clear config and exit'), ['registry/ui/actions/!close', {'config_clear': True}]],
-                ['exit', N_('Exit'), ['registry/ui/actions/!close', '']],
-            ]],
-            ['view_menu', N_('View'), []],     # dynamically populated from available views
-            ['widgets_menu', N_('Widgets'), []],  # dynamically populated from available widgets
-            ['tools_menu', N_('Tools'), [
-                ['accum_clear', N_('Clear Accumulators'), ['registry/ui/actions/!accum_clear', None]]
-            ]],
-            ['help_menu', N_('&Help'), [
+        help_menu = ['help_menu', N_('&Help'), [
                 ['getting_started', N_('Getting Started'), ['registry/help_html/actions/!show', 'getting_started']],
                 ['users_guide', N_("User's Guide"), ['registry/ui/actions/!url_open', urls.UI_USERS_GUIDE]],
-                #'JS220 User\'s Guide': self._help_js220_users_guide,
-                #'JS110 User\'s Guide': self._help_js110_users_guide,
                 ['changelog', N_('Changelog'), ['registry/help_html/actions/!show', 'changelog']],
                 ['report_issue', N_('Report Issue'), ['registry/report_issue/actions/!show', self]],
                 ['view_logs', N_('View logs...'), ['registry/ui/actions/!view_logs', None]],
                 ['credits', N_('Credits'), ['registry/help_html/actions/!show', 'credits']],
                 ['about', N_('About'), ['registry/help_html/actions/!show', 'about']],
-            ]],
-        ])
-        self._view_menu_group = QtGui.QActionGroup(self._menu_items['view_menu'][0])
-        self._view_menu_group.setExclusive(True)
-        self.setMenuBar(self._menu_bar)
-        self._pubsub.subscribe('registry/paths/settings/mru_files', self._on_mru, flags=['pub', 'retain'])
+            ]]
 
-        self._pubsub.subscribe('registry_manager/capabilities/view.object/list',
-                               self._on_change_views, flags=['pub', 'retain'])
-        self._pubsub.subscribe('registry/view/settings/active', self._on_change_views, flags=['pub'])
-        self._pubsub.subscribe('registry_manager/capabilities/widget.class/list',
-                               self._on_change_widgets, flags=['pub', 'retain'])
+        if filename is None:
+            # Create the singleton sidebar widget
+            self._side_bar = SideBar(self._central_widget)
+            self._side_bar.register()
+            self._central_layout.insertWidget(0, self._side_bar)
 
-        if not is_config_load:
-            self._pubsub.publish('registry/view/settings/active', 'view:file')
-            self._center(resize=True)
+            self._signal_record_status = RecordStatusWidget(self, 'SignalRecord')
+            self._pubsub.register(self._signal_record_status, 'SignalRecord:0', parent='ui')
+            self._status_bar.addPermanentWidget(self._signal_record_status)
 
-            self._pubsub.publish('registry/view/settings/active', 'view:oscilloscope')
-            self._pubsub.publish('registry/view/actions/!widget_open', {
-                'value': 'WaveformWidget',
-                'kwargs': {'source_filter': 'JsdrvStreamBuffer:001'},
-            })
-            self._center(resize=True)
+            self._statistics_record_status = RecordStatusWidget(self, 'StatisticsRecord')
+            self._pubsub.register(self._statistics_record_status, 'StatisticsRecord:0', parent='ui')
+            self._status_bar.addPermanentWidget(self._statistics_record_status)
 
-            self._pubsub.publish('registry/view/settings/active', 'view:multimeter')
-            self._pubsub.publish('registry/view/actions/!widget_open', 'MultimeterWidget')
-            self.resize(580, 560)
-            self._center(resize=False)
+            self._menu_bar = QtWidgets.QMenuBar(self)
+            self._menu_items = _menu_setup(self._menu_bar, [
+                ['file_menu', N_('&File'), [
+                    ['open', N_('Open'), ['registry/ui/actions/!file_open_request', '']],
+                    ['open_recent_menu', N_('Open recent'), []],  # dynamically populated from MRU
+                    # '&Preferences': self.on_preferences,
+                    ['exit_cfg', N_('Clear config and exit'), ['registry/ui/actions/!close', {'config_clear': True}]],
+                    ['exit', N_('Exit'), ['registry/ui/actions/!close', '']],
+                ]],
+                ['view_menu', N_('View'), []],     # dynamically populated from available views
+                ['widgets_menu', N_('Widgets'), []],  # dynamically populated from available widgets
+                ['tools_menu', N_('Tools'), [
+                    ['accum_clear', N_('Clear Accumulators'), ['registry/ui/actions/!accum_clear', None]]
+                ]],
+                help_menu,
+            ])
+            self._view_menu_group = QtGui.QActionGroup(self._menu_items['view_menu'][0])
+            self._view_menu_group.setExclusive(True)
+            self.setMenuBar(self._menu_bar)
+            self._pubsub.subscribe('registry/paths/settings/mru_files', self._on_mru, flags=['pub', 'retain'])
 
-        if filename is not None:
-            self._pubsub.publish('registry/view/settings/active', 'view:file')
-            self.on_action_file_open(filename)
-        elif is_config_load:
-            self._pubsub.publish('registry/view/settings/active', view_active)
+            self._pubsub.subscribe('registry_manager/capabilities/view.object/list',
+                                   self._on_change_views, flags=['pub', 'retain'])
+            self._pubsub.subscribe('registry/view/settings/active', self._on_change_views, flags=['pub'])
+            self._pubsub.subscribe('registry_manager/capabilities/widget.class/list',
+                                   self._on_change_widgets, flags=['pub', 'retain'])
+
+            if not is_config_load:
+                self._pubsub.publish('registry/view/settings/active', 'view:file')
+                self._center(resize=True)
+
+                self._pubsub.publish('registry/view/settings/active', 'view:oscilloscope')
+                self._pubsub.publish('registry/view/actions/!widget_open', {
+                    'value': 'WaveformWidget',
+                    'kwargs': {'source_filter': 'JsdrvStreamBuffer:001'},
+                })
+                self._center(resize=True)
+
+                self._pubsub.publish('registry/view/settings/active', 'view:multimeter')
+                self._pubsub.publish('registry/view/actions/!widget_open', 'MultimeterWidget')
+                self.resize(580, 560)
+                self._center(resize=False)
+            else:
+                self._pubsub.publish('registry/view/settings/active', view_active)
+        else:
+            self._menu_bar = QtWidgets.QMenuBar(self)
+            self._menu_items = _menu_setup(self._menu_bar, [
+                ['file_menu', N_('&File'), [
+                    ['info', N_('Info'), ['registry/view/actions/!widget_open', 'JlsInfoWidget']],
+                    ['settings', N_('Settings'), ['registry/view/actions/!widget_open', {
+                        'value': 'registry/settings',
+                        'floating': True,
+                    }]],
+                    ['exit_cfg', N_('Clear config and exit'), ['registry/ui/actions/!close', {'config_clear': True}]],
+                    ['exit', N_('Exit'), ['registry/ui/actions/!close', '']],
+                ]],
+                help_menu,
+            ])
+            self.setMenuBar(self._menu_bar)
 
         self._pubsub.publish('registry/style/settings/enable', True)
         self._pubsub.publish('registry/style/actions/!render', None)
@@ -359,8 +378,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self._pubsub.publish(UNDO_TOPIC, 'clear', defer=True)
         self._pubsub.publish(REDO_TOPIC, 'clear', defer=True)
 
-        self.setAcceptDrops(True)
-        self.show()
         # self._mem_leak_debugger = MemLeakDebugger(self)
         # self._side_bar.on_cmd_show(1)
         if self._pubsub.query('registry/app/settings/software_update_check'):
@@ -372,7 +389,9 @@ class MainWindow(QtWidgets.QMainWindow):
         # display changelog on version change
         topic = f'{self.topic}/settings/changelog_version_show'
         changelog_version_show = self._pubsub.query(topic, default=None)
-        if changelog_version_show is None:
+        if filename is not None:
+            pass  # show nothing
+        elif changelog_version_show is None:
             self._pubsub.publish(topic, __version__)
             self._pubsub.publish('registry/help_html/actions/!show', 'getting_started')
         elif __version__ != self._pubsub.query(topic, default=None):
@@ -383,6 +402,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self._blink_timer = QtCore.QTimer()
         self._blink_timer.timeout.connect(self._on_blink_timer)
         self._blink_timer.start(250)
+        if filename is None:
+            self.setAcceptDrops(True)
+        self.show()
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasText():
@@ -595,7 +617,9 @@ class MainWindow(QtWidgets.QMainWindow):
     def closeEvent(self, event):
         self._log.info('closeEvent() start')
         self._blink_timer.stop()
-        _profile_save()
+        if self._filename is not None:
+            pubsub_singleton.publish('registry/view/actions/!widget_close', '*')
+        pubsub_singleton.publish('registry/view/actions/!ui_disconnect', None)
         self._pubsub.publish('registry/JlsSource/actions/!finalize', None)
         event.accept()
         self._log.info('closeEvent() done')
@@ -607,16 +631,6 @@ class MainWindow(QtWidgets.QMainWindow):
             _config_clear = value.get('config_clear')
         # call self.close() on the Qt Event loop later
         QtCore.QMetaObject.invokeMethod(self, 'close', QtCore.Qt.ConnectionType.QueuedConnection)
-
-
-def _profile_save():
-    # hack to clean up active view
-    view_topic = 'registry/view/settings/active'
-    active_view = pubsub_singleton.query(view_topic)
-    pubsub_singleton.publish(view_topic, None)
-    pubsub_singleton.process()
-    pubsub_singleton._topic_by_name[view_topic].value = active_view
-    pubsub_singleton.save()
 
 
 def _finalize():
@@ -652,6 +666,8 @@ def run(log_level=None, file_log_level=None, filename=None):
         logging_util.config(log_path, stream_log_level=log_level, file_log_level=file_log_level)
 
         pubsub_singleton.process()
+        if filename is not None:
+            pubsub_singleton.config_filename = 'joulescope_ui_file_config.json'
         is_config_load = False
         try:
             is_config_load = pubsub_singleton.load()
@@ -664,15 +680,20 @@ def run(log_level=None, file_log_level=None, filename=None):
 
         ui = MainWindow(filename=filename, is_config_load=is_config_load)
         pubsub_singleton.notify_fn = ui.resync_request
-        _device_factory_add()
+        if filename is None:
+            _device_factory_add()
         try:
             _log.info('app.exec start')
             rc = app.exec()
             _log.info('app.exec done')
         finally:
-            _device_factory_finalize()
+            if filename is None:
+                _device_factory_finalize()
             _finalize()
         ui = None
+        if not _config_clear:
+            pubsub_singleton.save()
+
         try:
             if _software_update is not None:
                 software_update.apply(_software_update)

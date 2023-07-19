@@ -275,7 +275,7 @@ class View:
         * Removes the widget from its view.
         """
         _log.debug('widget_close %s', value)
-        skip_undo = getattr(get_instance(value),'view_skip_undo', False)
+        skip_undo = getattr(get_instance(value), 'view_skip_undo', False)
         # todo save settings and dock geometry for undo
         unique_id = self._widget_suspend(value, delete=True)
         if skip_undo:
@@ -290,7 +290,13 @@ class View:
 
     @staticmethod
     def on_cls_action_widget_close(value):
-        return View._active_instance.on_action_widget_close(value)
+        if value == '*':
+            topic = get_topic_name(View._active_instance)
+            for widget in pubsub_singleton.query(f'{topic}/children'):
+                View._active_instance.on_action_widget_close(widget)
+            return None
+        else:
+            return View._active_instance.on_action_widget_close(value)
 
     @staticmethod
     def on_cls_action_add(value):
@@ -319,6 +325,16 @@ class View:
         """Connect the UI to the widget"""
         View._ui = value['ui']
         View._dock_manager = value['dock_manager']
+
+    @staticmethod
+    def on_cls_action_ui_disconnect(value):
+        """Disconnect the UI."""
+        # hack to clean up active view
+        view_topic = 'registry/view/settings/active'
+        active_view = pubsub_singleton.query(view_topic)
+        pubsub_singleton.publish(view_topic, None)
+        pubsub_singleton.process()
+        pubsub_singleton._topic_by_name[view_topic].value = active_view
 
     def _render(self):
         pubsub_singleton.publish('registry/style/actions/!render', None)
