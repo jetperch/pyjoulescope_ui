@@ -23,7 +23,8 @@ This file contains the list of changes made to pyjoulescope_ui.
   When open files using file association, just view the file.
   Does not affect "normal" configuration or open widgets.
 * Fixed elided tab text in dock manager.
-* Added manual "Report Issue" option. 
+* Added manual "Report Issue" option.
+* Added waveform right-click on Δt to manually set. 
 * Renamed joulescope_ui.json to joulescope_ui.json_plus to avoid name collision. 
 * Bumped dependency versions:
   * joulescope 1.1.7 -> 1.1.8

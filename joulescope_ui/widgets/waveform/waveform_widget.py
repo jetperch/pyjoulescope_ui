@@ -2483,6 +2483,8 @@ class WaveformWidget(QtWidgets.QWidget):
             elif y_name == 'x_axis':
                 if x_name.startswith('plot'):
                     self._menu_x_axis(event)
+                elif x_name.startswith('statistics'):
+                    self._menu_dt(event)
             elif y_name == 'summary':
                 self._menu_summary(event)
 
@@ -2815,6 +2817,41 @@ class WaveformWidget(QtWidgets.QWidget):
                       export_range, export_all,
                       style_action]
         return self._menu_show(event)
+
+    def _menu_dt(self, event: QtGui.QMouseEvent):
+        self._log.info('_menu_dt(%s)', event.pos())
+        menu = QtWidgets.QMenu('Waveform context menu', self)
+        x0, x1 = self.x_range
+        interval = abs(x1 - x0) / time64.SECOND
+        interval_widget = IntervalWidget(self, interval)
+        interval_widget.value.connect(self._on_dt_interval)
+        interval_action = QtWidgets.QWidgetAction(menu)
+        interval_action.setDefaultWidget(interval_widget)
+        menu.addAction(interval_action)
+
+        self._menu = [menu, interval_widget, interval_action]
+        return self._menu_show(event)
+
+    def _on_dt_interval(self, dt):
+        e0, e1 = self._extents()
+        er = e1 - e0
+        dt = int(dt * time64.SECOND)
+        dt = min(dt, er)
+        if dt < er and self.pin_left and self.pin_right:
+            self.pin_left = False  # unpin from left
+
+        x0, x1 = self.x_range
+        xc = (x1 + x0) // 2
+        dt_half = dt // 2
+        x0, x1 = xc - dt_half, xc + dt_half
+        if self.pin_left or x0 < e0:
+            x0, x1 = e0, e0 + dt
+        elif self.pin_right or x1 > e0:
+            x0, x1 = e1 - dt, e1
+        self.x_range = [x0, x1]
+        self._plot_data_invalidate()
+
+        self._repaint_request = True
 
     def _menu_statistics(self, idx, event: QtGui.QMouseEvent):
         self._log.info('_menu_statistics(%s, %s)', idx, event.pos())
