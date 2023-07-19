@@ -17,7 +17,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added source selection to Accumulator Widget #201
 * Added dual marker Δt interval entry on context menu #202
 * Added relative time x-axis marker mode #200
-* Added JLS info widget #209
+* Added JLS info widget #209 #93
 * Added export notes and dir icon.
 * Added JLS viewer mode with separate configuration #205
   When open files using file association, just view the file.
@@ -25,6 +25,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Fixed elided tab text in dock manager.
 * Added manual "Report Issue" option.
 * Added waveform right-click on Δt to manually set. 
+* Added notes widget #93
 * Renamed joulescope_ui.json to joulescope_ui.json_plus to avoid name collision. 
 * Bumped dependency versions:
   * joulescope 1.1.7 -> 1.1.8
