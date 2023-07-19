@@ -208,9 +208,9 @@ class View:
         obj.setObjectName(unique_id)
         obj.dock_widget = DockWidget(obj)
         obj.dock_widget.setObjectName(f'{unique_id}__dock')
-        self._dock_manager.addDockWidget(QtAds.TopDockWidgetArea, obj.dock_widget)
         tab_widget = obj.dock_widget.tabWidget()
         tab_widget.setElideMode(QtCore.Qt.TextElideMode.ElideNone)
+        self._dock_manager.addDockWidget(QtAds.TopDockWidgetArea, obj.dock_widget)
         pubsub_singleton.publish('registry/style/actions/!render', unique_id)
         if floating:
             dw = obj.dock_widget
