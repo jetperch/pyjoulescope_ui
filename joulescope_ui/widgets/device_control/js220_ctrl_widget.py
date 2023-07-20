@@ -406,6 +406,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
 
     def _add_combobox(self, name, meta: Metadata):
         w = QtWidgets.QComboBox(self)
+        w.setSizeAdjustPolicy(QtWidgets.QComboBox.SizeAdjustPolicy.AdjustToContents)
 
         options = meta.options
         option_values = [o[0] for o in options]

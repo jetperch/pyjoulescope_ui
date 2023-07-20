@@ -49,6 +49,7 @@ class JlsInfoWidget(QtWidgets.QWidget):
         self._source_layout = QtWidgets.QHBoxLayout(self._source_widget)
         self._source_label = QtWidgets.QLabel(N_('Source'), self._source_widget)
         self._source_combobox = QtWidgets.QComboBox(self._source_widget)
+        self._source_combobox.setSizeAdjustPolicy(QtWidgets.QComboBox.SizeAdjustPolicy.AdjustToContents)
         self._source_layout.addWidget(self._source_label)
         self._source_layout.addWidget(self._source_combobox)
         self._source_spacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)

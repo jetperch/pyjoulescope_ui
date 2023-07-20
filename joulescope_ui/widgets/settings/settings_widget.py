@@ -166,6 +166,7 @@ class SettingsEditorWidget(_GridWidget):
 
     def _insert_combobox(self, topic, meta):
         widget = QtWidgets.QComboBox(self)
+        widget.setSizeAdjustPolicy(QtWidgets.QComboBox.SizeAdjustPolicy.AdjustToContents)
         self._grid.addWidget(widget, self._row, 1, 1, 1)
         self._widgets.append(widget)
         values = [option[0] for option in meta.options]

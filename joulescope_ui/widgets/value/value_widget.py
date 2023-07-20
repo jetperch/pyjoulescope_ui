@@ -58,6 +58,7 @@ SETTINGS = {
     'units': UNITS_SETTING,
 }
 
+
 def _settings_alter(**kwargs):
     d = copy.deepcopy(SETTINGS)
     for key, default in kwargs.items():
@@ -140,7 +141,7 @@ class _DeviceWidget(QtWidgets.QWidget):
     def __init__(self, parent):
         self._parent = parent
         super().__init__(parent=parent)
-        self._layout = QtWidgets.QHBoxLayout()
+        self._layout = QtWidgets.QHBoxLayout(self)
         self._layout.setContentsMargins(5, 5, 5, 2)
 
         self._device_fixed_label = QtWidgets.QLabel(N_('Device'), self)
@@ -148,6 +149,7 @@ class _DeviceWidget(QtWidgets.QWidget):
         self._device_select = QtWidgets.QComboBox(parent=self)
         self._device_select.setToolTip(_DEVICE_TOOLTIP)
         self._device_select.currentIndexChanged.connect(self._on_device_select)
+        self._device_select.setSizeAdjustPolicy(QtWidgets.QComboBox.SizeAdjustPolicy.AdjustToContents)
         self._device_label = QtWidgets.QLabel(self)
         self._device_label.hide()
 
@@ -158,8 +160,6 @@ class _DeviceWidget(QtWidgets.QWidget):
                                                        QtWidgets.QSizePolicy.Expanding,
                                                        QtWidgets.QSizePolicy.Minimum)
         self._layout.addItem(self._horizontalSpacer)
-
-        self.setLayout(self._layout)
 
     def _on_device_select(self, *args, **kwargs):
         self._parent.source = self._device_select.currentText()
