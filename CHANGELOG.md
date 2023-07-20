@@ -13,6 +13,7 @@ This file contains the list of changes made to pyjoulescope_ui.
   Also fixed a few other combobox widths.
 * Added more detail to Help -> About.
 * Fixed waveform add relative signal x-axis marker.
+* Added manual size entry to Memory widget.
 
 
 ## 1.0.25

@@ -155,6 +155,26 @@ class MemSet(QtWidgets.QWidget):
             self.abort()
 
 
+class MemSizeWidget(QtWidgets.QLineEdit):
+
+    value = QtCore.Signal(float)
+
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
+        self._validator = QtGui.QDoubleValidator(self)
+        self._validator.setRange(_SZ_MIN / _GB_FACTOR, 1, 3)
+        self.setValidator(self._validator)
+        self.editingFinished.connect(self._on_finished)
+
+    def max_set(self, value):
+        value = float(value)
+        self._validator.setTop(value)
+
+    def _on_finished(self):
+        value = float(self.text()) * _GB_FACTOR
+        self.value.emit(value)
+
+
 @register
 @styled_widget(N_('Memory'))
 class MemoryWidget(QtWidgets.QWidget):
@@ -183,9 +203,11 @@ class MemoryWidget(QtWidgets.QWidget):
         self._layout.addWidget(self._grid_widget)
 
         vm = psutil.virtual_memory()
+        self._mem_size_widget = MemSizeWidget(self._grid_widget)
+        self._mem_size_widget.value.connect(self._on_mem_size_text)
         self._widgets = {
             'size_label': QtWidgets.QLabel(N_('Memory buffer size'), self._grid_widget),
-            'size_value': QtWidgets.QLabel(f'0', self._grid_widget),
+            'size_value': self._mem_size_widget,
             'size_units': QtWidgets.QLabel('GB', self._grid_widget),
             'total_label': QtWidgets.QLabel(N_('Total RAM size'), self._grid_widget),
             'total_value': QtWidgets.QLabel(_format(vm.total), self._grid_widget),
@@ -232,6 +254,7 @@ class MemoryWidget(QtWidgets.QWidget):
         self._widgets['used_value'].setText(s)
 
         available = vm.total - (self._base + size + used)
+        self._mem_size_widget.max_set(available / _GB_FACTOR)
         s = _format(available)
         self._widgets['available_value'].setText(s)
         self._memset.update(self._base, available, used)
@@ -287,6 +310,10 @@ class MemoryWidget(QtWidgets.QWidget):
         self._widgets['size_value'].setText(s)
         self._memset.update_size(value)
         self._update(value)
+
+    def _on_mem_size_text(self, size):
+        self.size = size
+        self._on_size(size)
 
     def _on_duration(self, value):
         dt = 0.0 if value is None else float(value)
