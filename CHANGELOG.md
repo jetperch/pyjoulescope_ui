@@ -12,6 +12,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Fixed Value / Multimeter widget source combobox width.
   Also fixed a few other combobox widths.
 * Added more detail to Help -> About.
+* Fixed waveform add relative signal x-axis marker.
 
 
 ## 1.0.25

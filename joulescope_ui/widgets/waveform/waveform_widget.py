@@ -3149,8 +3149,8 @@ class WaveformWidget(QtWidgets.QWidget):
             raise ValueError('unsupported remove')
 
     def _x_marker_add_single(self, pos1=None):
+        x0, x1 = self.x_range
         if pos1 is None:
-            x0, x1 = self.x_range
             xc = (x1 + x0) // 2
             pos1 = self._x_marker_position(xc)
         marker = {
