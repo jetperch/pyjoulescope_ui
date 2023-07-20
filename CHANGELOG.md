@@ -5,12 +5,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
-## 1.0.25
+## 1.0.26
 
 2023 Jul 20 [in progress]
 
 * Fixed Value / Multimeter widget source combobox width.
   Also fixed a few other combobox widths.
+* Added more detail to Help -> About.
 
 
 ## 1.0.25

@@ -16,6 +16,8 @@
 from joulescope_ui import __version__ as ui_version
 from pyjoulescope_driver import __version__ as jsdrv_version
 from pyjls import __version__ as jls_version
+import platform
+import sys
 
 
 _HEADER = """\
@@ -35,6 +37,9 @@ _ABOUT = """\
 Joulescope UI version {ui_version}<br/> 
 Joulescope driver version {jsdrv_version}<br/>
 JLS version {jls_version}<br/>
+Python {sys_version}<br/>
+Platform {platform}<br/>
+Processor {processor}<br/>
 <a href="https://www.joulescope.com">https://www.joulescope.com</a>
 
 <pre>
@@ -60,5 +65,9 @@ def load():
     txt = _ABOUT.format(
         ui_version=ui_version,
         jsdrv_version=jsdrv_version,
-        jls_version=jls_version)
+        jls_version=jls_version,
+        sys_version=sys.version,
+        platform=platform.platform(),
+        processor=platform.processor(),
+    )
     return _HEADER + txt + _FOOTER
