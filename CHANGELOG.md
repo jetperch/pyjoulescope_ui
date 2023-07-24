@@ -7,13 +7,16 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.26
 
-2023 Jul 20 [in progress]
+2023 Jul 24 [in progress]
 
 * Fixed Value / Multimeter widget source combobox width.
   Also fixed a few other combobox widths.
 * Added more detail to Help -> About.
 * Fixed waveform add relative signal x-axis marker.
 * Added manual size entry to Memory widget.
+* Bumped pyjoulescope_driver from 1.3.17 to 1.3.18, which
+  fixes dual markers showing incorrect values #213
+* Bumped pyjls from 0.7.2 to 0.7.3.
 
 
 ## 1.0.25
