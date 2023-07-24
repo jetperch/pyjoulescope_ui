@@ -861,12 +861,6 @@ class WaveformWidget(QtWidgets.QWidget):
                 changed = True
         if self.state is not None:
             for m in self.annotations['x'].values():
-                if m.get('mode', 'absolute') == 'relative':
-                    if 'rel1' in m:
-                        m['pos1'] = self.x_range[1] + m['rel1']
-                    if 'rel2' in m:
-                        m['pos2'] = self.x_range[1] + m['rel2']
-                    m['changed'] = True
                 if m.get('changed', True) or changed:
                     m['changed'] = False
                     self._request_marker_data(m)
@@ -1356,6 +1350,7 @@ class WaveformWidget(QtWidgets.QWidget):
         if not self._draw_x_axis(p):
             return  # plot is not valid
         self._annotations_remove_expired()
+        self._x_marker_relative_update()
         self._draw_markers_background(p)
 
         # Draw each plot
@@ -1755,8 +1750,22 @@ class WaveformWidget(QtWidgets.QWidget):
             for a_id in outside:
                 self._text_annotation_remove(a_id)
 
+    def _x_marker_relative_update(self):
+        _, e1 = self._extents()
+        for idx, m in enumerate(self.annotations['x'].values()):
+            if m.get('mode', 'absolute') == 'relative':
+                for idx in range(1, 3):
+                    rel_key, pos_key = f'rel{idx}', f'pos{idx}'
+                    if rel_key in m:
+                        m_pos = e1 + m[rel_key]
+                        if m[pos_key] != m_pos:
+                            m['changed'] = True
+                            self._request_marker_data(m)
+                        m[pos_key] = m_pos
+
     def _draw_markers(self, p, size):
         s = self._style
+        _, e1 = self._extents()
         h, y0, _ = self._y_geometry_info['x_axis']
         _, y1, _ = self._y_geometry_info['margin.bottom']
         xw, x0, x1 = self._x_geometry_info['plot']
@@ -1765,7 +1774,6 @@ class WaveformWidget(QtWidgets.QWidget):
         f_a = font_metrics.ascent()
         margin, margin2 = _MARGIN, _MARGIN * 2
         ya = y0 + margin + f_a
-        x_min = self._extents()[0]
 
         for idx, m in enumerate(self.annotations['x'].values()):
             color_index = self._marker_color_index(m)
@@ -2316,6 +2324,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 plots[idx]['height'] = d1
             elif action == 'move.x_marker':
                 xt = self._x_map.counter_to_time64(x)
+                e1 = self._extents()[1]
                 xr = self.x_range
                 xt = max(xr[0], min(xt, xr[1]))  # bound to range
                 item, move_both = self._mouse_action[1:3]
@@ -2324,22 +2333,21 @@ class WaveformWidget(QtWidgets.QWidget):
                 xd = xt - m[m_field]
                 m[m_field] += xd
                 is_relative = m.get('mode', 'absolute') == 'relative'
-                if m['dtype'] == 'dual':
-                    if move_both:
-                        m_field2 = 'pos1' if m_field == 'pos2' else 'pos2'
-                        m[m_field2] += xd
-                        if m[m_field2] < xr[0]:
-                            dx = xr[0] - m[m_field2]
-                        elif m[m_field2] > xr[1]:
-                            dx = xr[1] - m[m_field2]
-                        else:
-                            dx = 0
-                        m[m_field] += dx
-                        m[m_field2] += dx
-                        if is_relative:
-                            m['rel' + m_field2[-1]] = m[m_field2] - xr[1]
+                if m['dtype'] == 'dual' and move_both:
+                    m_field2 = 'pos1' if m_field == 'pos2' else 'pos2'
+                    m[m_field2] += xd
+                    if m[m_field2] < xr[0]:
+                        dx = xr[0] - m[m_field2]
+                    elif m[m_field2] > xr[1]:
+                        dx = xr[1] - m[m_field2]
+                    else:
+                        dx = 0
+                    m[m_field] += dx
+                    m[m_field2] += dx
+                    if is_relative:
+                        m['rel' + m_field2[-1]] = m[m_field2] - e1
                 if is_relative:
-                    m['rel' + m_field[-1]] = m[m_field] - xr[1]
+                    m['rel' + m_field[-1]] = m[m_field] - e1
                 self._request_marker_data(m)
             elif action == 'move.y_marker':
                 item, move_both = self._mouse_action[1:3]
@@ -3170,7 +3178,7 @@ class WaveformWidget(QtWidgets.QWidget):
         }
         if self.x_axis_annotation_mode == 'relative':
             marker['mode'] = 'relative'
-            marker['rel1'] = pos1 - x1
+            marker['rel1'] = pos1 - self._extents()[1]
         return self._x_marker_add(marker)
 
     def _x_marker_add_dual(self, pos1=None, pos2=None):
@@ -3196,9 +3204,10 @@ class WaveformWidget(QtWidgets.QWidget):
             'text_pos2': 'right',
         }
         if self.x_axis_annotation_mode == 'relative':
+            e1 = self._extents()[1]
             marker['mode'] = 'relative'
-            marker['rel1'] = pos1 - x1
-            marker['rel2'] = pos2 - x1
+            marker['rel1'] = pos1 - e1
+            marker['rel2'] = pos2 - e1
 
         return self._x_marker_add(marker)
 

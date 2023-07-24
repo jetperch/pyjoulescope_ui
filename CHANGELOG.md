@@ -5,6 +5,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.0.27
+
+2023 Jul 25 [in progress]
+
+* Fixed waveform relative dual markers on zoom. 
+
+
 ## 1.0.26
 
 2023 Jul 24
