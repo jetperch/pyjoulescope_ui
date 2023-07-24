@@ -1729,9 +1729,6 @@ class WaveformWidget(QtWidgets.QWidget):
                 if not x_min <= pos2 <= x_max:
                     outside.append(m_id)
                     continue
-                if x_min == pos1 and x_max == pos2:
-                    outside.append(m_id)
-                    continue
             inside.append(m_id)
         return inside, outside
 
@@ -1751,6 +1748,7 @@ class WaveformWidget(QtWidgets.QWidget):
         _, outside = self._x_markers_filter(x_range)
         for m_id in outside:
             if self.annotations['x'][m_id].get('mode', 'absolute') == 'absolute':
+                self._log.info(f"marker remove: x_range={self.x_range} marker={self.annotations['x'][m_id]}")
                 del self.annotations['x'][m_id]
         for plot_index, entry in enumerate(self.annotations['text']):
             _, outside = self._text_annotations_filter(x_range, plot_index)
@@ -2326,15 +2324,23 @@ class WaveformWidget(QtWidgets.QWidget):
                 xd = xt - m[m_field]
                 m[m_field] += xd
                 is_relative = m.get('mode', 'absolute') == 'relative'
-                if is_relative:
-                    m['rel' + m_field[-1]] = m[m_field] - xr[1]
                 if m['dtype'] == 'dual':
                     if move_both:
-                        m_field = 'pos1' if m_field == 'pos2' else 'pos2'
-                        m[m_field] += xd
+                        m_field2 = 'pos1' if m_field == 'pos2' else 'pos2'
+                        m[m_field2] += xd
+                        if m[m_field2] < xr[0]:
+                            dx = xr[0] - m[m_field2]
+                        elif m[m_field2] > xr[1]:
+                            dx = xr[1] - m[m_field2]
+                        else:
+                            dx = 0
+                        m[m_field] += dx
+                        m[m_field2] += dx
                         if is_relative:
-                            m['rel' + m_field[-1]] = m[m_field] - xr[1]
-                    self._request_marker_data(m)
+                            m['rel' + m_field2[-1]] = m[m_field2] - xr[1]
+                if is_relative:
+                    m['rel' + m_field[-1]] = m[m_field] - xr[1]
+                self._request_marker_data(m)
             elif action == 'move.y_marker':
                 item, move_both = self._mouse_action[1:3]
                 m, m_field = self._item_parse_y_marker(item)
@@ -3455,6 +3461,8 @@ class WaveformWidget(QtWidgets.QWidget):
                         if m['dtype'] == 'single':
                             z.append([signal_id, m['pos1'], None, pyjls.AnnotationType.VMARKER, 0, f'{m_id}'])
                         elif m['dtype'] == 'dual':
+                            if m['pos1'] <= x0 and m['pos2'] >= x1:
+                                continue
                             z.append([signal_id, m['pos1'], None, pyjls.AnnotationType.VMARKER, 0, f'{m_id}a'])
                             z.append([signal_id, m['pos2'], None, pyjls.AnnotationType.VMARKER, 0, f'{m_id}b'])
 

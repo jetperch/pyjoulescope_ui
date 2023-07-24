@@ -17,6 +17,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Bumped pyjoulescope_driver from 1.3.17 to 1.3.18, which
   fixes dual markers showing incorrect values #213
 * Bumped pyjls from 0.7.2 to 0.7.3.
+* Fixed dual marker failure on edge #214
 
 
 ## 1.0.25
