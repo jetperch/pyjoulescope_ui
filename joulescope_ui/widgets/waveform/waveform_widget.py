@@ -3573,6 +3573,8 @@ class WaveformWidget(QtWidgets.QWidget):
             d_x = d_e
         if center is None:
             center = (x1 + x0) // 2
+        elif not isinstance(center, int):
+            raise ValueError(f'center is not int: {type(center)} {center}')
         center = max(x0, min(center, x1))
         f = (center - x0) / d_x
         if steps < 0:  # zoom out
@@ -3716,7 +3718,7 @@ class WaveformWidget(QtWidgets.QWidget):
             if is_pan:
                 self.on_action_x_pan(delta)
             else:
-                t = (self.x_range[0] + self.x_range[1]) / 2
+                t = (self.x_range[0] + self.x_range[1]) // 2
                 topic = get_topic_name(self)
                 self.pubsub.publish(f'{topic}/actions/!x_zoom', [delta, t])
         if x_name == 'plot' and (y_name == 'x_axis' or not is_y):
