@@ -9,7 +9,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 2023 Jul 25 [in progress]
 
-* Fixed waveform relative dual markers on zoom. 
+* Fixed waveform relative dual markers on zoom.
+* Added status and response time to report issue widget #212
 
 
 ## 1.0.26

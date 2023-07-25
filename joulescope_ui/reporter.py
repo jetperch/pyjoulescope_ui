@@ -199,6 +199,7 @@ def create(subtype, description=None, exception=None):
 
 
 def publish():
+    results = []
     for fname in sorted(os.listdir(REPORTER_PATH), reverse=True):
         try:
             r = requests.get(_API_URL, params={'token': REPORTER_TOKEN})
@@ -206,6 +207,7 @@ def publish():
                 print(f'Could not get publish url: status code {r.status_code}')
                 continue
             upload = r.json()
+            key = upload['Key'].split('.')[0]
             headers = {
                 'Content-Type': 'application/octet-stream',
             }
@@ -215,8 +217,11 @@ def publish():
             r = requests.put(upload['uploadURL'], headers=headers, data=data)
             if r.status_code == 200:
                 os.remove(path)
+                results.append(f'Uploaded {key}')
             else:
                 print(f'publish failed with status code {r.status_code}')
+                results.append(f'Error {r.status_code} while uploading {key}')
         except Exception:
             traceback.print_exception()
             print(f'could not publish {fname}')
+    return results
