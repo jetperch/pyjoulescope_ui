@@ -3592,8 +3592,9 @@ class WaveformWidget(QtWidgets.QWidget):
             d_x = d_e
         if center is None:
             center = (x1 + x0) // 2
-        elif not isinstance(center, int):
+        elif isinstance(center, float):
             raise ValueError(f'center is not int: {type(center)} {center}')
+        center = int(center)
         center = max(x0, min(center, x1))
         f = (center - x0) / d_x
         if steps < 0:  # zoom out

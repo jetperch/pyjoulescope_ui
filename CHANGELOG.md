@@ -5,6 +5,14 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+
+## 1.0.28
+
+2023 Jul 25
+
+* Fixed waveform file display not zooming.
+
+
 ## 1.0.27
 
 2023 Jul 25
