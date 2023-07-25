@@ -832,6 +832,7 @@ class WaveformWidget(QtWidgets.QWidget):
         force = bool(force)
         if not len(self._x_geometry_info):
             return
+        _, e1 = self._extents()
         self.x_range = self._compute_x_range()
         # x0, x1 = self.x_range
         # xc = (x0 >> 1) + (x1 >> 1)
@@ -861,6 +862,13 @@ class WaveformWidget(QtWidgets.QWidget):
                 changed = True
         if self.state is not None:
             for m in self.annotations['x'].values():
+                if m.get('mode', 'absolute') == 'relative':
+                    for k in range(1, 2 if m['dtype'] == 'single' else 3):
+                        m_pos = e1 + m[f'rel{k}']
+                        if m[f'pos{k}'] != m_pos:
+                            m['changed'] = True
+                        m[f'pos_next{k}'] = m_pos
+
                 if m.get('changed', True) or changed:
                     m['changed'] = False
                     self._request_marker_data(m)
@@ -880,7 +888,10 @@ class WaveformWidget(QtWidgets.QWidget):
                 'signal_id': signal[0][1],
             }
             rsp_id = _marker_to_rsp_id(marker_id, plot['index'])
-            x0, x1 = marker['pos1'], marker['pos2']
+            if marker.get('mode', 'absolute') == 'relative':
+                x0, x1 = marker['pos_next1'], marker['pos_next2']
+            else:
+                x0, x1 = marker['pos1'], marker['pos2']
             if x0 > x1:
                 x0, x1 = x1, x0
             self._request_signal(signal, (x0, x1), rsp_id=rsp_id, length=1)
@@ -1350,7 +1361,7 @@ class WaveformWidget(QtWidgets.QWidget):
         if not self._draw_x_axis(p):
             return  # plot is not valid
         self._annotations_remove_expired()
-        self._x_marker_relative_update()
+        self._draw_update_markers()
         self._draw_markers_background(p)
 
         # Draw each plot
@@ -1682,6 +1693,13 @@ class WaveformWidget(QtWidgets.QWidget):
 
         p.setClipping(False)
 
+    def _draw_update_markers(self):
+        for m in self.annotations['x'].values():
+            if m.get('mode', 'absolute') == 'relative':
+                m['pos1'] = m.get('pos_next1', m['pos1'])
+                if m['dtype'] == 'dual':
+                    m['pos2'] = m.get('pos_next2', m['pos2'])
+
     def _marker_color_index(self, m):
         return (m['id'] % 6) + 1
 
@@ -1750,22 +1768,8 @@ class WaveformWidget(QtWidgets.QWidget):
             for a_id in outside:
                 self._text_annotation_remove(a_id)
 
-    def _x_marker_relative_update(self):
-        _, e1 = self._extents()
-        for idx, m in enumerate(self.annotations['x'].values()):
-            if m.get('mode', 'absolute') == 'relative':
-                for idx in range(1, 3):
-                    rel_key, pos_key = f'rel{idx}', f'pos{idx}'
-                    if rel_key in m:
-                        m_pos = e1 + m[rel_key]
-                        if m[pos_key] != m_pos:
-                            m['changed'] = True
-                            self._request_marker_data(m)
-                        m[pos_key] = m_pos
-
     def _draw_markers(self, p, size):
         s = self._style
-        _, e1 = self._extents()
         h, y0, _ = self._y_geometry_info['x_axis']
         _, y1, _ = self._y_geometry_info['margin.bottom']
         xw, x0, x1 = self._x_geometry_info['plot']
@@ -2348,7 +2352,6 @@ class WaveformWidget(QtWidgets.QWidget):
                         m['rel' + m_field2[-1]] = m[m_field2] - e1
                 if is_relative:
                     m['rel' + m_field[-1]] = m[m_field] - e1
-                self._request_marker_data(m)
             elif action == 'move.y_marker':
                 item, move_both = self._mouse_action[1:3]
                 m, m_field = self._item_parse_y_marker(item)
@@ -2951,7 +2954,6 @@ class WaveformWidget(QtWidgets.QWidget):
             other_pos = 'rel' + other_pos[-1]
         m[other_pos] = m[pos_text] + int(interval * time64.SECOND)
         m['changed'] = True
-        self._request_marker_data(m)
 
     def _menu_x_marker_single(self, item, event: QtGui.QMouseEvent):
         m, pos_text = self._item_parse_x_marker(item)
