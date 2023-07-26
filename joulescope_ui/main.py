@@ -114,7 +114,7 @@ class QResyncEvent(QtCore.QEvent):
     EVENT_TYPE = QtCore.QEvent.Type(QtCore.QEvent.registerEventType())
 
     def __init__(self):
-        QtCore.QEvent.__init__(self, self.EVENT_TYPE)
+        super().__init__(self.EVENT_TYPE)
 
     def __str__(self):
         return 'QResyncEvent()'
@@ -179,6 +179,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, filename=None, is_config_load=False):
         self._log = logging.getLogger(__name__)
         self._filename = filename
+        self._resync_event = None
         super(MainWindow, self).__init__()
         self.setWindowTitle(_UI_WINDOW_TITLE if filename is None else _JLS_WINDOW_TITLE)
         self._dialog = None
@@ -549,6 +550,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def event(self, event: QtCore.QEvent):
         if event.type() == QResyncEvent.EVENT_TYPE:
             event.accept()
+            self._resync_event = None
             self._pubsub.process()
             return True
         else:
@@ -556,8 +558,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def resync_request(self):
         # safely resynchronize pubsub processing to the main Qt event thread
-        event = QResyncEvent()
-        QtCore.QCoreApplication.postEvent(self, event)
+        if self._resync_event is None:
+            self._resync_event = QResyncEvent()
+            QtCore.QCoreApplication.postEvent(self, self._resync_event)
 
     def on_action_file_open_request(self):
         """Request file open; prompt user to select file."""

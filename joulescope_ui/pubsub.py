@@ -424,6 +424,14 @@ class PubSub:
 
     @property
     def notify_fn(self):
+        """The notification function when a publish is ready to process.
+
+        Systems can use this notification function to resynchronize
+        process() calls to a single thread.
+
+        This function is guaranteed to be called within a lock, so only
+        one call will be active at a time.
+        """
         return self._notify_fn
 
     @notify_fn.setter
@@ -525,10 +533,11 @@ class PubSub:
                         self._queue.insert(0, cmd)
                     else:
                         self._queue.append(cmd)
+                    self._notify_fn()
         else:
             with self._lock:
                 self._queue.append(cmd)
-        self._notify_fn()
+                self._notify_fn()
 
     def topic_add(self, topic: str, *args, **kwargs):
         """Define and create a new topic.
