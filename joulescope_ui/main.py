@@ -409,7 +409,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self._blink_timer.timeout.connect(self._on_blink_timer)
         self._blink_timer.start(250)
 
-
     def dragEnterEvent(self, event):
         if event.mimeData().hasText():
             txt = event.mimeData().text()

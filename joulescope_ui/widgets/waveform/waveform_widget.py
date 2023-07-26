@@ -56,6 +56,7 @@ _TEXT_ANNOTATION_X_POS_ALLOC = 64
 _ANNOTATION_TEXT_MOD = (1 << 48)
 _ANNOTATION_Y_MOD = ((1 << 16) + 2)   # must be multiple of plot colors
 _MARKER_SELECT_DISTANCE_PIXELS = 5
+_MIN_REFRESH_PERIOD = 2.0  # seconds
 
 
 def _analog_plot(quantity, show, units, name, integral=None):
@@ -473,6 +474,9 @@ class WaveformWidget(QtWidgets.QWidget):
         self._kwargs = kwargs
         self._style_cache = None
         self._summary_data = None
+        self._repaint_request = False
+        self._repaint_pending = False
+        self._repaint_pending_time_prev = time.time()
         super().__init__(parent)
 
         # Cache Qt default instances to prevent memory leak in Pyside6 6.4.2
@@ -519,7 +523,6 @@ class WaveformWidget(QtWidgets.QWidget):
         self._refresh_timer = QtCore.QTimer()
         self._refresh_timer.setTimerType(QtGui.Qt.PreciseTimer)
         self._refresh_timer.timeout.connect(self._on_refresh_timer)
-        self._repaint_request = False
         self._fps = {
             'start': time.time(),
             'thread_durations': [],
@@ -792,7 +795,11 @@ class WaveformWidget(QtWidgets.QWidget):
         return None
 
     def _on_refresh_timer(self):
-        if self._repaint_request:
+        t = time.time()
+        dt = t - self._repaint_pending_time_prev
+        if (dt >= _MIN_REFRESH_PERIOD) or (self._repaint_request and not self._repaint_pending):
+            self._repaint_pending, self._repaint_request = True, False
+            self._repaint_pending_time_prev = t
             self._graphics.update()
 
     def _extents(self):
@@ -1287,6 +1294,8 @@ class WaveformWidget(QtWidgets.QWidget):
             self._plot_paint(p, size)
         except Exception:
             self._log.exception('Exception during drawing')
+        finally:
+            self._repaint_pending = False
         self._request_data()
 
     def _compute_geometry(self, size=None):
@@ -1350,7 +1359,6 @@ class WaveformWidget(QtWidgets.QWidget):
             return
         t_thread_start = time.thread_time_ns()
         t_time_start = time.time_ns()
-        self._repaint_request = False
 
         resize = not len(self._y_geometry_info)
         self._compute_geometry(size)
@@ -2432,7 +2440,7 @@ class WaveformWidget(QtWidgets.QWidget):
         dy = y1 - y0
         r0, r1 = plot['range']
         plot['range'] = r0 - dy, r1 - dy
-        self._repaint_request
+        self._repaint_request = True
 
     def plot_mousePressEvent(self, event: QtGui.QMouseEvent):
         event.accept()
@@ -2867,7 +2875,6 @@ class WaveformWidget(QtWidgets.QWidget):
             x0, x1 = e1 - dt, e1
         self.x_range = [x0, x1]
         self._plot_data_invalidate()
-
         self._repaint_request = True
 
     def _menu_statistics(self, idx, event: QtGui.QMouseEvent):

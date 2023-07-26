@@ -11,6 +11,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 2023 Jul 26 [in progress]
 
 * Improved pubsub publish resynchronization.
+* Improved waveform repaint synchronization.
 
 
 ## 1.0.28
