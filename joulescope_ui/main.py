@@ -647,6 +647,15 @@ def _finalize():
         pubsub_singleton.config_clear()
 
 
+def _opengl_config():
+    fmt = QtGui.QSurfaceFormat()
+    fmt.setDepthBufferSize(24)
+    fmt.setStencilBufferSize(8)
+    fmt.setVersion(4, 4)
+    fmt.setProfile(QtGui.QSurfaceFormat.OpenGLContextProfile.CoreProfile)
+    QtGui.QSurfaceFormat.setDefaultFormat(fmt)
+
+
 def run(log_level=None, file_log_level=None, filename=None):
     """Run the Joulescope UI application.
 
@@ -661,6 +670,7 @@ def run(log_level=None, file_log_level=None, filename=None):
     :return: 0 on success or error code on failure.
     """
     ui = None
+    _opengl_config()
     app = QtWidgets.QApplication([])
     try:
         logging_util.preconfig()
