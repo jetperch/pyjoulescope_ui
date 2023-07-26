@@ -56,7 +56,6 @@ _TEXT_ANNOTATION_X_POS_ALLOC = 64
 _ANNOTATION_TEXT_MOD = (1 << 48)
 _ANNOTATION_Y_MOD = ((1 << 16) + 2)   # must be multiple of plot colors
 _MARKER_SELECT_DISTANCE_PIXELS = 5
-_MIN_REFRESH_PERIOD = 2.0  # seconds
 
 
 def _analog_plot(quantity, show, units, name, integral=None):
@@ -333,6 +332,13 @@ class _PlotWidget(QtWidgets.QWidget):
         return pixmap.toImage()
 
 
+class PaintState:
+    IDLE = 0
+    READY = 1
+    PROCESSING = 2
+    WAIT = 3
+
+
 @register
 @styled_widget(_NAME)
 class WaveformWidget(QtWidgets.QWidget):
@@ -375,6 +381,11 @@ class WaveformWidget(QtWidgets.QWidget):
                 [200, N_('5 Hz')],
             ],
             'default': 50,
+        },
+        'paint_delay': {  # prevent system starvation through repaint
+            'dtype': 'int',
+            'brief': N_('The minimum interval between repaint in milliseconds.'),
+            'default': 4,
         },
         'show_min_max': {
             'dtype': 'int',
@@ -474,9 +485,15 @@ class WaveformWidget(QtWidgets.QWidget):
         self._kwargs = kwargs
         self._style_cache = None
         self._summary_data = None
-        self._repaint_request = False
-        self._repaint_pending = False
-        self._repaint_pending_time_prev = time.time()
+
+        # manage repainting
+        self.__repaint_request = False
+        self._paint_state = PaintState.IDLE
+        self._paint_timer = QtCore.QTimer()
+        self._paint_timer.setTimerType(QtGui.Qt.PreciseTimer)
+        self._paint_timer.setSingleShot(True)
+        self._paint_timer.timeout.connect(self._on_paint_timer)
+
         super().__init__(parent)
 
         # Cache Qt default instances to prevent memory leak in Pyside6 6.4.2
@@ -520,9 +537,6 @@ class WaveformWidget(QtWidgets.QWidget):
         self._marker_data = {}  # rsp_id -> data,
         self._subsource_order = []
 
-        self._refresh_timer = QtCore.QTimer()
-        self._refresh_timer.setTimerType(QtGui.Qt.PreciseTimer)
-        self._refresh_timer.timeout.connect(self._on_refresh_timer)
         self._fps = {
             'start': time.time(),
             'thread_durations': [],
@@ -702,6 +716,10 @@ class WaveformWidget(QtWidgets.QWidget):
         self._shortcuts_add()
         self._subscribe('registry/app/settings/units', self._update_on_publish, ['pub'])
 
+        self._repaint_request = True
+        self._paint_state = PaintState.READY
+        self._paint_timer.start(1)
+
     def _update_on_publish(self):
         self._repaint_request = True
 
@@ -722,7 +740,8 @@ class WaveformWidget(QtWidgets.QWidget):
             self.pubsub.unsubscribe(topic, fn)
         self._subscribe_list.clear()
         self._shortcuts.clear()
-        self._refresh_timer.stop()
+        self._paint_timer.stop()
+        self._paint_state = PaintState.IDLE
 
     def on_pubsub_unregister(self):
         self._control.on_pubsub_unregister()
@@ -794,12 +813,21 @@ class WaveformWidget(QtWidgets.QWidget):
             self._repaint_request = True
         return None
 
-    def _on_refresh_timer(self):
-        t = time.time()
-        dt = t - self._repaint_pending_time_prev
-        if (dt >= _MIN_REFRESH_PERIOD) or (self._repaint_request and not self._repaint_pending):
-            self._repaint_pending, self._repaint_request = True, False
-            self._repaint_pending_time_prev = t
+    @property
+    def _repaint_request(self):
+        return self.__repaint_request
+
+    @_repaint_request.setter
+    def _repaint_request(self, value):
+        self.__repaint_request |= value
+        if self.__repaint_request and self._paint_state == PaintState.READY:
+            self._graphics.update()
+
+    def _on_paint_timer(self):
+        if self._paint_state != PaintState.WAIT:
+            self._log.warning('Unexpected paint state: %s', self._paint_state)
+        self._paint_state = PaintState.READY
+        if self.__repaint_request:
             self._graphics.update()
 
     def _extents(self):
@@ -1290,13 +1318,22 @@ class WaveformWidget(QtWidgets.QWidget):
         self._plots_height_adjust()
 
     def plot_paint(self, p, size):
+        if self._paint_state != PaintState.READY:
+            return
+        self._paint_state = PaintState.PROCESSING
+        t_time_start = time.time_ns()
         try:
             self._plot_paint(p, size)
         except Exception:
             self._log.exception('Exception during drawing')
-        finally:
-            self._repaint_pending = False
+
         self._request_data()
+
+        t_time_end = time.time_ns()
+        t_duration_ms = np.ceil(1e-6 * (t_time_end - t_time_start) + 0.5)
+        self._paint_state = PaintState.WAIT
+        wait = max(self.paint_delay, int(self.fps - t_duration_ms))
+        self._paint_timer.start(wait)
 
     def _compute_geometry(self, size=None):
         s = self._style
@@ -1368,6 +1405,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._draw_summary(p)
         if not self._draw_x_axis(p):
             return  # plot is not valid
+        self.__repaint_request = False
         self._annotations_remove_expired()
         self._draw_update_markers()
         self._draw_markers_background(p)
@@ -3817,7 +3855,6 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def on_setting_fps(self, value):
         self._log.info('fps: period = %s ms', value)
-        self._refresh_timer.start(value)
 
     def on_setting_summary_signal(self):
         self._plot_data_invalidate()
