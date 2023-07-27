@@ -161,7 +161,7 @@ class ExporterDialog(QtWidgets.QDialog):
 
     def close(self):
         super().close()
-        pubsub_singleton.unregister(self)
+        pubsub_singleton.unregister(self, delete=True)
         ExporterDialog._instances.remove(self)
 
 

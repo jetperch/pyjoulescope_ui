@@ -434,7 +434,7 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             try:
                 self._pubsub.query('registry/DebugWidget')
-                self._pubsub.unregister(DebugWidget)
+                self._pubsub.unregister(DebugWidget, delete=True)
             except KeyError:
                 pass
 

@@ -141,7 +141,7 @@ class SignalRecord:
             SignalRecord._singleton = None
         if self in SignalRecord._instances:
             SignalRecord._instances.remove(self)
-        pubsub_singleton.unregister(self)
+        pubsub_singleton.unregister(self, delete=True)
 
     @staticmethod
     def on_cls_action_start_request(pubsub, topic, value):

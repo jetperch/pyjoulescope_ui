@@ -53,7 +53,6 @@ def rsp_as_f32(rsp):
     return y
 
 
-
 class RangeTool:
     """Provides common range tool behaviors.
 
@@ -344,8 +343,8 @@ class RangeToolBase:
 
     def on_action_finalize(self):
         self._log.info('finalize')
-        self.on_pubsub_unregister()
+        self.pubsub.unregister(self, delete=True)
 
     def on_action_cancel(self):
         self._log.info('cancel')
-        self.on_pubsub_unregister()
+        self.pubsub.unregister(self, delete=True)
