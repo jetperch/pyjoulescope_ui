@@ -1,4 +1,4 @@
-# Copyright 2018-2023 Jetperch LLC
+# Copyright 2023 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,9 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from . import ui, zip_inspector
+"""
+Inspect error report ZIP files.
+"""
 
-__all__ = [ui, zip_inspector]
-"""This list of available command modules.  Each module must contain a 
-parser_config(subparser) function.  The function must return the callable(args)
-that will be executed for the command."""
+from joulescope_ui.zip_inspector import ZipInspectorDialog
+from PySide6 import QtWidgets
+
+
+def parser_config(p):
+    """Start the Joulescope graphical user interface."""
+    p.add_argument('path',
+                   help='The path to display')
+    return on_cmd
+
+
+def on_cmd(args):
+    app = QtWidgets.QApplication([])
+    dialog = ZipInspectorDialog(None, args.path)
+    rc = app.exec()

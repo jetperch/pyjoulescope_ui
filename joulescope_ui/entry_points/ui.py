@@ -21,9 +21,6 @@ from joulescope_ui.main import run
 from joulescope_ui.logging_util import LEVELS
 
 
-NAME = "ui"
-
-
 def parser_config(p):
     """Start the Joulescope graphical user interface."""
     p.add_argument('filename',

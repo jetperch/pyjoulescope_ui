@@ -10,6 +10,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 2023 Jul 27 [in progress]
 
 * Fixed multiple objects to delete themselves on unregister.
+* Added zip_inspector entry point.
 
 
 ## 1.0.29

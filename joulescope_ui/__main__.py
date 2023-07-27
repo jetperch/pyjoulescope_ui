@@ -16,11 +16,49 @@
 
 import sys
 import argparse
-from joulescope_ui.entry_points import ui
+from joulescope_ui import entry_points
+
+
+def get_parser():
+    entry_point_names = []
+    parser = argparse.ArgumentParser(
+        description='Joulescope UI command line tools.',
+    )
+    subparsers = parser.add_subparsers(
+        dest='subparser_name',
+        help='The command to execute')
+
+    for entry_point in entry_points.__all__:
+        default_name = entry_point.__name__.split('.')[-1]
+        name = getattr(entry_point, 'NAME', default_name)
+        entry_point_names.append(name)
+        cfg_fn = entry_point.parser_config
+        p = subparsers.add_parser(name, help=cfg_fn.__doc__)
+        cmd_fn = cfg_fn(p)
+        if not callable(cmd_fn):
+            raise ValueError(f'Invalid command function for {name}')
+        p.set_defaults(func=cmd_fn)
+
+    subparsers.add_parser('help',
+                          help='Display the command help. ' +
+                               'Use [command] --help to display help for a specific command.')
+
+    return parser, entry_point_names
+
+
+def run():
+    parser, entry_point_names = get_parser()
+    if len(sys.argv) == 1:
+        sys.argv.append('ui')
+    elif sys.argv[1] not in entry_point_names:
+        sys.argv.insert(1, 'ui')
+
+    args = parser.parse_args()
+    if args.subparser_name is None or args.subparser_name.lower() in ['help']:
+        parser.print_help()
+        parser.exit()
+    return args.func(args)
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Joulescope™ user interface.')
-    cmd = ui.parser_config(parser)
-    args = parser.parse_args()
-    sys.exit(cmd(args))
+    sys.exit(run())
