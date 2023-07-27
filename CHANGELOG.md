@@ -8,11 +8,12 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.29
 
-2023 Jul 26
+2023 Jul 27
 
 * Improved pubsub publish resynchronization.
 * Improved waveform repaint synchronization.
-* Reduced OpenGL from 4.6 (default) to 4.4 to fix Intel UHD graphics.
+* Reduced OpenGL from 4.6 (default) to 4.4 (helps Intel UHD graphics?)
+* Fixed "abort" button on report issue widget.
 
 
 ## 1.0.28

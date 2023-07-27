@@ -45,6 +45,7 @@ _HOLIDAYS = {
     (datetime.date(2023, 12, 22), datetime.date(2024, 1, 1)),
     (datetime.date(2024, 2, 17), datetime.date(2024, 2, 19)),
 }
+_clipboard = None
 
 
 class SubmitThread(QtCore.QThread):
@@ -61,6 +62,7 @@ class SubmitConfigureWidget(QtWidgets.QWidget):
 
     started = QtCore.Signal()
     finished = QtCore.Signal()
+    aborted = QtCore.Signal()
 
     def __init__(self, parent, report_path):
         self._parent = parent
@@ -148,7 +150,7 @@ class SubmitConfigureWidget(QtWidgets.QWidget):
     def _on_abort(self):
         if os.path.isfile(self._report_path):
             os.remove(self._report_path)
-        self.finished.emit()
+        self.aborted.emit()
 
     def _on_view(self):
         ZipInspectorDialog(self._parent, self._report_path)
@@ -199,8 +201,11 @@ class SubmitStatusWidget(QtWidgets.QWidget):
         self._buttons = None
 
     def results(self, results):
+        global _clipboard
         self._status_label.setText(N_('Submit completed.'))
-        self._results_label.setText(results)
+        _clipboard = results
+        QtWidgets.QApplication.clipboard().setText(_clipboard)
+        self._results_label.setText(results + '\n(copied to clipboard)')
         self._update_response()
         self._buttons = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok)
         self._buttons.accepted.connect(self.finished.emit)
@@ -236,6 +241,7 @@ class SubmitWidget(QtWidgets.QWidget):
         self._config = SubmitConfigureWidget(parent, report_path)
         self._config.started.connect(self._on_submit_started)
         self._config.finished.connect(self._on_config_finished)
+        self._config.aborted.connect(self._on_config_aborted)
         self._layout.addWidget(self._config)
 
         self._status = SubmitStatusWidget(parent)
@@ -250,6 +256,11 @@ class SubmitWidget(QtWidgets.QWidget):
 
     def _on_config_finished(self):
         self._status.results(self._config.results)
+
+    def _on_config_aborted(self):
+        self._config.hide()
+        self._layout.removeWidget(self._config)
+        self.finished.emit()
 
     def _on_status_finished(self):
         self._status.hide()
