@@ -112,6 +112,8 @@ class View:
     def on_cls_setting_active(value):
         """Change the active view."""
         style_enable_topic = 'registry/style/settings/enable'
+        if style_enable_topic not in pubsub_singleton:
+            return
         pubsub_singleton.publish(style_enable_topic, False)
         view: View = View._active_instance
         ui = pubsub_singleton.query('registry/ui/instance', default=None)
