@@ -930,7 +930,7 @@ class PubSub:
                             redo = [redo]
                         cmd.undo = undo
                         cmd.redo = redo
-            elif t.value == value:
+            elif t.value == value and t.meta is not None and t.meta.dtype != 'none':
                 # self._log.debug('dedup %s: %s == %s', topic_name, t.value, value)
                 return None
             else:

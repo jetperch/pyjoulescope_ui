@@ -7,10 +7,11 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.30
 
-2023 Jul 27 [in progress]
+2023 Aug 1 [in progress]
 
 * Fixed multiple objects to delete themselves on unregister.
 * Added zip_inspector entry point.
+* Added disk free monitor to automatically close JLS recordings  #185
 
 
 ## 1.0.29

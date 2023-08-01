@@ -32,6 +32,7 @@ import PySide6QtAds as QtAds
 from .error_window import ErrorWindow
 from .help_ui import HelpHtmlMessageBox
 from joulescope_ui.widgets.report_issue import ReportIssueDialog
+from joulescope_ui.disk_monitor import DiskMonitor
 from .exporter import ExporterDialog   # register the exporter
 from .jls_source import JlsSource      # register the source
 from .resources import load_resources, load_fonts
@@ -404,6 +405,9 @@ class MainWindow(QtWidgets.QMainWindow):
             self._pubsub.publish(topic, __version__)
             self._pubsub.publish('registry/help_html/actions/!show', 'changelog')
         self.resync_request()
+
+        self._pubsub.register(DiskMonitor)
+        self._pubsub.register(DiskMonitor(), 'DiskMonitor:0')
 
         self._blink_timer = QtCore.QTimer()
         self._blink_timer.timeout.connect(self._on_blink_timer)

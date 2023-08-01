@@ -16,6 +16,7 @@ from pyjls import Writer, SignalType
 from joulescope_ui import pubsub_singleton, register, CAPABILITIES, time64
 from joulescope_ui.jls_v2 import ChunkMeta, DTYPE_MAP
 from .signal_record_config_widget import SignalRecordConfigDialog
+from .disk_full_dialog import DiskFullDialog
 import copy
 import json
 import logging
@@ -23,6 +24,10 @@ import numpy as np
 
 
 _UTC_INTERVAL = 10 * time64.MINUTE
+_DISK_MONITOR_BASE = 'registry/DiskMonitor:0'
+_DISK_MONITOR_ADD = f'{_DISK_MONITOR_BASE}/actions/!add'
+_DISK_MONITOR_REMOVE = f'{_DISK_MONITOR_BASE}/actions/!remove'
+_DISK_MONITOR_FULL = f'{_DISK_MONITOR_BASE}/events/full'
 
 
 @register
@@ -39,6 +44,7 @@ class SignalRecord:
         path = config['path']
         self._log.info('JLS record to %s', path)
         self._log.info('JLS record signals: %s', config['signals'])
+        self._path = path
         self._jls = Writer(path)
         self._log.info('Writer started')
         self._on_data_fn = self._on_data
@@ -56,6 +62,9 @@ class SignalRecord:
 
         for signal in config['signals']:
             self._subscribe(signal, self._on_data_fn, ['pub'])
+
+        pubsub_singleton.publish(_DISK_MONITOR_ADD, self._path)
+        self._subscribe(_DISK_MONITOR_FULL, self._on_disk_full, ['pub'])
 
     def _subscribe(self, topic, fn, flags):
         pubsub_singleton.subscribe(topic, fn, flags)
@@ -124,6 +133,13 @@ class SignalRecord:
         }
         self._signal_idx += 1
 
+    def _on_disk_full(self, pubsub, topic, value):
+        if self._path in value:
+            self._log.info('disk full: stop JLS recording %s', self._path)
+            pubsub_singleton.publish('registry/SignalRecord/actions/!stop', None)
+            pubsub_singleton.publish('registry/app/settings/signal_stream_record', False)
+            DiskFullDialog(pubsub, value)
+
     def on_action_stop(self, value):
         self._log.info('stop')
         jls, self._jls = self._jls, None
@@ -142,6 +158,7 @@ class SignalRecord:
         if self in SignalRecord._instances:
             SignalRecord._instances.remove(self)
         pubsub_singleton.unregister(self, delete=True)
+        pubsub_singleton.publish(_DISK_MONITOR_REMOVE, self._path)
 
     @staticmethod
     def on_cls_action_start_request(pubsub, topic, value):
