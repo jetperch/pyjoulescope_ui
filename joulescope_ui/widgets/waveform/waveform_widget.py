@@ -736,6 +736,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._shortcuts.add(QtCore.Qt.Key_Minus, f'{topic}/actions/!x_zoom', [-1, None])
 
     def _cleanup(self):
+        self._log.info('waveform cleanup %d', len(self._subscribe_list))
         for topic, fn in self._subscribe_list:
             self.pubsub.unsubscribe(topic, fn)
         self._subscribe_list.clear()
@@ -752,6 +753,7 @@ class WaveformWidget(QtWidgets.QWidget):
         return super().closeEvent(event)
 
     def on_widget_close(self):
+        self._log.info('waveform close: %s %s')
         for topic, value in self.pubsub.query(f'{self.topic}/settings/on_widget_close_actions', default=[]):
             self._log.info('waveform close: %s %s', topic, value)
             self.pubsub.publish(topic, value)

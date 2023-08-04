@@ -239,8 +239,8 @@ class View:
         pubsub entries so that it can restore state.  Suspend is
         normally used when switching views.
         """
-        _log.debug('widget_suspend(%s, %s)', value, delete)
         unique_id = get_unique_id(value)
+        _log.info('widget_suspend(%s, delete=%s)', unique_id, delete)
         topic = get_topic_name(unique_id)
         instance_topic = f'{topic}/instance'
         instance: QtWidgets.QWidget = pubsub_singleton.query(instance_topic, default=None)
@@ -249,16 +249,19 @@ class View:
                 instance.on_widget_close()
             dock_widget = instance.dock_widget
             try:
-                dock_widget.deleteLater()
-                self._dock_manager.removeDockWidget(dock_widget)
+                if dock_widget is None:
+                    _log.info(f'widget_suspend {topic}: dock_widget is None')
+                else:
+                    dock_widget.deleteLater()
+                    self._dock_manager.removeDockWidget(dock_widget)
             except Exception:
-                _log.exception('Delete or remove dock widget raised exception')
+                _log.exception(f'widget_suspend {topic}: Delete or remove dock widget raised exception')
             instance.dock_widget = None
             try:
                 instance.close()
                 instance.deleteLater()
             except Exception:
-                _log.exception('Close or delete widget raised exception')
+                _log.exception(f'widget_suspend {topic}: Close or delete widget raised exception')
         for child in pubsub_singleton.query(f'{topic}/children', default=[]):
             self._widget_suspend(child)
         pubsub_singleton.unregister(topic, delete=delete)
@@ -334,6 +337,7 @@ class View:
         # hack to clean up active view
         view_topic = 'registry/view/settings/active'
         active_view = pubsub_singleton.query(view_topic)
+        _log.info('disconnect ui: active_view=%s', active_view)
         pubsub_singleton.publish(view_topic, None)
         pubsub_singleton.process()
         pubsub_singleton._topic_by_name[view_topic].value = active_view

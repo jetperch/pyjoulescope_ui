@@ -357,7 +357,10 @@ class StyleManager:
                 if child in objs:
                     self.on_action_render(child)
             return
-        active_view = self.pubsub.query('registry/view/settings/active', default='view')
+        active_view = self.pubsub.query('registry/view/settings/active', default=None)
+        if active_view is None:
+            _log.warning('render requested - ignored, no active view')
+            return
         active_view_topic = get_topic_name(active_view)
         theme = self.pubsub.query(f'{active_view_topic}/settings/theme', default='js1')
         color_scheme = self.pubsub.query(f'{active_view_topic}/settings/color_scheme', default='dark')

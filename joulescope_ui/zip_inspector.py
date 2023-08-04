@@ -94,6 +94,7 @@ class ZipInspectorWidget(QtWidgets.QWidget):
         self._zip = ListWidget(self)
         self._filename = ListWidget(self)
         self._contents = QtWidgets.QPlainTextEdit(self)
+        self._contents.setReadOnly(True)
         self._contents.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
 
         self._layout.addWidget(self._zip_label, 0, 0, 1, 1)

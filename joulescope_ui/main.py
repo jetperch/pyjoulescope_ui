@@ -275,6 +275,9 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             # open views
             view_active = self._pubsub.query('registry/view/settings/active')
+            if view_active is None:
+                self._log.warning(f'view_active is None, use "view:multimeter"')
+                view_active = 'view:multimeter'
             self._pubsub.publish('registry/view/settings/active', None)
             for view_unique_id in self._pubsub.query('registry/view/instances'):
                 self._pubsub.register(View(), view_unique_id)
