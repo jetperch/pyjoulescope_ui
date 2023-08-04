@@ -9,12 +9,19 @@
         "target_power.svg"
       ],
       "targets": [
-        ["{basename}_disabled_0{ext}", {"#000000": "base.selection_color"}],
-        ["{basename}_disabled_1{ext}", {"#000000": "js1.disabled_foreground"}],
         ["{basename}_on{ext}",         {"#000000": "target_power.on"}],
-        ["{basename}_on_hover{ext}",   {"#000000": "target_power.on_hover"}],
-        ["{basename}_off_0{ext}",      {"#000000": "base.selection_color"}],
-        ["{basename}_off_1{ext}",      {"#000000": "target_power.off"}]
+        ["{basename}_on_hover{ext}",   {"#000000": "target_power.on_hover"}]
+      ]
+    },
+    "target_power_off": {
+      "sources": [
+        "target_power_off.svg"
+      ],
+      "targets": [
+        ["target_power_disabled_0{ext}", {"#000000": "base.selection_color", "#808080": "js1.disabled_foreground"}],
+        ["target_power_disabled_1{ext}", {"#808080": "base.selection_color", "#000000": "js1.disabled_foreground"}],
+        ["target_power_off_0{ext}",      {"#000000": "base.selection_color", "#808080": "target_power.off"}],
+        ["target_power_off_1{ext}",      {"#808080": "base.selection_color", "#000000": "target_power.off"}]
       ]
     },
     "active_checked": {

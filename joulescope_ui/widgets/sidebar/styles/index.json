@@ -74,9 +74,16 @@
       "targets": [
         ["{basename}_disabled_0{ext}", {"#000000": "base.selection_color"}],
         ["{basename}_disabled_1{ext}", {"#000000": "js1.disabled_foreground"}],
-        ["{basename}_on{ext}",         {"#000000": "target_power.on"}],
-        ["{basename}_off_0{ext}",      {"#000000": "base.selection_color"}],
-        ["{basename}_off_1{ext}",      {"#000000": "target_power.off"}]
+        ["{basename}_on{ext}",         {"#000000": "target_power.on"}]
+      ]
+    },
+    "target_power_off": {
+      "sources": [
+        "target_power_off.svg"
+      ],
+      "targets": [
+        ["{basename}_0{ext}",      {"#ffffff": "sidebar.foreground", "#808080": "target_power.off", "#000000": "sidebar.play_background"}],
+        ["{basename}_1{ext}",      {"#ffffff": "sidebar.foreground", "#000000": "target_power.off", "#808080": "sidebar.play_background"}]
       ]
     },
     "copy": {
