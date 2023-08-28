@@ -7,12 +7,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.30
 
-2023 Aug 4 [in progress]
+2023 Aug 28 [in progress]
 
 * Fixed multiple objects to delete themselves on unregister.
 * Added zip_inspector entry point.
 * Added disk free monitor to automatically close JLS recordings  #185
 * Improved target power on/off icon  #218
+* Fixed Waveform widget "mWh" right-hand statistics truncation.
 
 
 ## 1.0.29

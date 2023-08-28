@@ -1116,7 +1116,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
         statistics_name_size = axis_font_metrics.boundingRect('maxx').width()
         statistics_value_size = axis_font_metrics.boundingRect('+888.888x').width()
-        statistics_unit_size = axis_font_metrics.boundingRect('mW').width()
+        statistics_unit_size = axis_font_metrics.boundingRect('mWh').width()
         statistics_size = _MARGIN * 2 + statistics_name_size + statistics_value_size + statistics_unit_size
 
         trace_alpha = int(v['waveform.trace_alpha'], 0)
