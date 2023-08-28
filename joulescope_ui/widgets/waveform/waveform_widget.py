@@ -1244,8 +1244,12 @@ class WaveformWidget(QtWidgets.QWidget):
             d = sig_d['data']
             finite_idx = self._finite_idx(d)
 
-            sy_min = d['avg'] if d['min'] is None else d['min']
-            sy_max = d['avg'] if d['max'] is None else d['max']
+            if 0 == self.show_min_max:
+                sy_min = d['avg']
+                sy_max = d['avg']
+            else:
+                sy_min = d['avg'] if d['min'] is None else d['min']
+                sy_max = d['avg'] if d['max'] is None else d['max']
             sy_min = sy_min[finite_idx]
             sy_max = sy_max[finite_idx]
             if len(sy_min):

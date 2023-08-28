@@ -14,6 +14,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added disk free monitor to automatically close JLS recordings  #185
 * Improved target power on/off icon  #218
 * Fixed Waveform widget "mWh" right-hand statistics truncation.
+* Fixed Waveform widget y-axis auto ranging when Min/Max is off.
 
 
 ## 1.0.29
