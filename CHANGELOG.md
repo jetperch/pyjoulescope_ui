@@ -7,7 +7,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.30
 
-2023 Aug 28 [in progress]
+2023 Sep 11 [in progress]
 
 * Fixed multiple objects to delete themselves on unregister.
 * Added zip_inspector entry point.
@@ -15,6 +15,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Improved target power on/off icon  #218
 * Fixed Waveform widget "mWh" right-hand statistics truncation.
 * Fixed Waveform widget y-axis auto ranging when Min/Max is off.
+* Added CI Windows installer signing using Azure HSM signing key.
 
 
 ## 1.0.29

@@ -27,7 +27,7 @@ VERSION_STR = joulescope_ui.__version__.replace('.', '_')
 MACOS_CODE_SIGN = 'Developer ID Application: Jetperch LLC (WFRS3L8Y7Y)'
 PYQTGRAPH_PATH = os.path.dirname(pyqtgraph.__file__)
 PYJOULESCOPE_DRIVER_PATH = os.path.dirname(pyjoulescope_driver.__file__)
-INNO_SETUP_PATH = r'C:\Program Files (x86)\Inno Setup 6\ISCC.exe'
+INNO_SETUP_PATH = "ISCC.exe"
 
 
 def find_site_packages():
@@ -195,14 +195,9 @@ if sys.platform.startswith('darwin'):
     subprocess.run(['./node_modules/appdmg/bin/appdmg.js', 'appdmg.json', dmg_file])
 
 elif sys.platform == 'win32':
-    if os.environ.get('CI', 'false').lower() == 'true':
-        print('Running from CI: produce ZIP archive')
-        shutil.make_archive(f'dist_installer/joulescope_{VERSION_STR}', 'zip', 'dist/joulescope')
-        # future: forward to installer maker?
-    else:
-        print('Create Inno Setup installer')
-        subprocess.run([INNO_SETUP_PATH, 'joulescope.iss'],
-                        cwd=os.path.join(specpath, 'dist', 'joulescope'))
+    print('Create Inno Setup installer')
+    subprocess.run([INNO_SETUP_PATH, 'joulescope.iss'],
+                    cwd=os.path.join(specpath, 'dist', 'joulescope'))
 
 elif sys.platform == 'linux':
     os.rename(os.path.join(specpath, 'dist/joulescope'),
