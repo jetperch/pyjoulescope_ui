@@ -166,17 +166,20 @@ jobs:
         id: installer_filename
         run: echo "filename=$(ls dist_installer/*.*)" >> $GITHUB_OUTPUT
 
+      - name: Windows AzureSignTool install
+        if: matrix.os == 'windows-latest' && github.event_name == 'push'
+        run: dotnet tool install --global AzureSignTool
+
       - name: Windows Sign
         if: matrix.os == 'windows-latest' && github.event_name == 'push'
-        run: |
-          dotnet tool install --global AzureSignTool
-          AzureSignTool sign \
-            -kvu "${{ secrets.AZURE_KEY_VAULT_URI }}" \
-            -kvi "${{ secrets.AZURE_CLIENT_ID }}" \
-            -kvt "${{ secrets.AZURE_TENANT_ID }}" \
-            -kvs "${{ secrets.AZURE_CLIENT_SECRET }}" \
-            -kvc ${{ secrets.AZURE_CERT_NAME }} \
-            -tr http://timestamp.digicert.com \
+        run: >
+          AzureSignTool sign
+            -kvu "${{ secrets.AZURE_KEY_VAULT_URI }}"
+            -kvi "${{ secrets.AZURE_CLIENT_ID }}"
+            -kvt "${{ secrets.AZURE_TENANT_ID }}"
+            -kvs "${{ secrets.AZURE_CLIENT_SECRET }}"
+            -kvc ${{ secrets.AZURE_CERT_NAME }}
+            -tr http://timestamp.digicert.com
             -v "${{ steps.installer_filename.outputs.filename }}"
 
       - name: macOS notarize
