@@ -33,6 +33,7 @@ from .error_window import ErrorWindow
 from .help_ui import HelpHtmlMessageBox
 from joulescope_ui.widgets.report_issue import ReportIssueDialog
 from joulescope_ui.disk_monitor import DiskMonitor
+from joulescope_ui.error_dialog import ErrorMessageBox
 from .exporter import ExporterDialog   # register the exporter
 from .jls_source import JlsSource      # register the source
 from .resources import load_resources, load_fonts
@@ -626,6 +627,14 @@ class MainWindow(QtWidgets.QMainWindow):
     def on_action_url_open(self, value):
         webbrowser.open_new_tab(value)
 
+    def on_action_error_msg(self, value):
+        self._log.info('error_msg %s', value)
+        ErrorMessageBox(self, value)
+
+    def on_action_status_msg(self, value):
+        self._log.info('status_msg %s', value)
+        self._status_bar.showMessage(value, timeout=3000)
+
     def closeEvent(self, event):
         self._log.info('closeEvent() start')
         self._blink_timer.stop()
@@ -723,6 +732,7 @@ def run(log_level=None, file_log_level=None, filename=None):
             print('could not apply software update')
 
     except Exception as ex:
+        _log.exception('UI crash')
         logging_util.flush_all()
         path = reporter_create('crash', exception=ex)
         if ui is not None:

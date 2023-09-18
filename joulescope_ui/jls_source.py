@@ -124,14 +124,17 @@ class JlsSource:
         pubsub.topic_add(f'{topic}/settings/sources', Metadata('node', 'Sources', flags=['hide', 'ro', 'skip_undo']))
         pubsub.topic_add(f'{topic}/settings/signals', Metadata('node', 'Signals', flags=['hide', 'ro', 'skip_undo']))
         jls_version = _jls_version_detect(path)
-        if jls_version == 2:
-            _log.info('jls_source v2')
-            self._jls = JlsV2(path, pubsub, topic)
-        elif jls_version == 1:
-            _log.info('jls_source v1')
-            self._jls = JlsV1(path, pubsub, topic)
-        else:
-            raise ValueError(f'Unsupported JLS version {jls_version}')
+        try:
+            if jls_version == 2:
+                _log.info('jls_source v2')
+                self._jls = JlsV2(path, pubsub, topic)
+            elif jls_version == 1:
+                _log.info('jls_source v1')
+                self._jls = JlsV1(path, pubsub, topic)
+            else:
+                raise ValueError(f'Unsupported JLS version {jls_version}')
+        except Exception as ex:
+            pubsub.publish('registry/ui/actions/!error_msg', f'Could not load JLS file\n{path}\n{ex}')
 
         pubsub.publish('registry/paths/actions/!mru_load', path)
         self._thread = threading.Thread(target=self.run)

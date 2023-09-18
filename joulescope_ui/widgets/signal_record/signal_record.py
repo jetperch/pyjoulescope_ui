@@ -21,6 +21,7 @@ import copy
 import json
 import logging
 import numpy as np
+import time
 
 
 _UTC_INTERVAL = 10 * time64.MINUTE
@@ -46,6 +47,7 @@ class SignalRecord:
         self._log.info('JLS record signals: %s', config['signals'])
         self._path = path
         self._jls = Writer(path)
+        self._jls.flags = Writer.FLAG_DROP_ON_OVERFLOW
         self._log.info('Writer started')
         self._on_data_fn = self._on_data
         self._source_idx = 1
@@ -53,6 +55,10 @@ class SignalRecord:
         self._sources = {}
         self._signals = {}
         self._subscribe_entries = []  # (topic, fn, flags)
+        self._status = {
+            'time_last': time.time(),
+            'dropped': 0,
+        }
 
         notes = config.get('notes')
         if notes is not None:
@@ -90,7 +96,15 @@ class SignalRecord:
         x = value['data']
         if len(x):
             x = np.ascontiguousarray(x)
-            self._jls.fsr_f32(signal['id'], sample_id, x)
+            try:
+                self._jls.fsr(signal['id'], sample_id, x)
+            except Exception:
+                self._status['dropped'] += len(x)
+                t_now = time.time()
+                if t_now >= (1.0 + self._status['time_last']):
+                    dropped, self._status['dropped'] = self._status['dropped'], 0
+                    pubsub_singleton.publish('registry/ui/actions/!status_msg', f'JLS write dropped {dropped} samples')
+                    self._status['time_last'] = t_now
 
     def _source_add(self, unique_id, info):
         info = copy.deepcopy(info)

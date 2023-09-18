@@ -201,7 +201,7 @@ setuptools.setup(
         'joulescope>=1.1.8,<2.0.0',
         'markdown',
         'psutil',
-        'pyjls>=0.7.2',
+        'pyjls>=0.8.1',
         'pyopengl',
         'pyperclip>=1.7.0',
         "pywin32>=223; platform_system == 'Windows'",

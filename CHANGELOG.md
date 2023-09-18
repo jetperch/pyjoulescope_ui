@@ -7,7 +7,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.30
 
-2023 Sep 11 [in progress]
+2023 Sep 18
 
 * Fixed multiple objects to delete themselves on unregister.
 * Added zip_inspector entry point.
@@ -16,6 +16,15 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Fixed Waveform widget "mWh" right-hand statistics truncation.
 * Fixed Waveform widget y-axis auto ranging when Min/Max is off.
 * Added CI Windows installer signing using Azure HSM signing key.
+* Improved JLS recordings
+  * Migrated to pyjls 0.8.1
+    * Automatically repair truncated files.
+    * Added real-time mode that drops files rather than blocking PubSub.
+  * Added error display when cannot open JLS  #217
+  * Removed JLS blocking writes when streaming data (keep for export).
+  * Display status message when JLS recording cannot keep up.
+  * Added support for omitting data & reconstructing omitted data.
+    BUT no UI configuration support yet.
 
 
 ## 1.0.29

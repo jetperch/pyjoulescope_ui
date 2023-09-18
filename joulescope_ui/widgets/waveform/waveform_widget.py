@@ -965,11 +965,11 @@ class WaveformWidget(QtWidgets.QWidget):
             # self._log.info(f'response samples {length}')
             y = value['data']
             data_type = value['data_type']
-            if data_type == 'f32':
+            if data_type in ['f32', 'f64', 'u8', 'u16', 'u32', 'u64', 'i8', 'i16', 'i32', 'i64']:
                 pass
             elif data_type == 'u1':
                 y = np.unpackbits(y, bitorder='little')[:len(x)]
-            elif data_type == 'u4':
+            elif data_type in ['u4', 'i4']:
                 d = np.empty(len(y) * 2, dtype=np.uint8)
                 d[0::2] = np.bitwise_and(y, 0x0f)
                 d[1::2] = np.bitwise_and(np.right_shift(y, 4), 0x0f)
@@ -1067,6 +1067,8 @@ class WaveformWidget(QtWidgets.QWidget):
     def _y_value_to_pixel(self, plot, value, skip_transform=None):
         if not bool(skip_transform):
             value = self._y_transform_fwd(plot, value)
+        if 'y_map' not in plot:
+            return 0
         pixel_offset, value_offset, value_to_pixel_scale = plot['y_map']
         return pixel_offset + (value_offset - value) * value_to_pixel_scale
 
