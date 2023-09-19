@@ -194,6 +194,14 @@ jobs:
           xcrun notarytool submit ${{ steps.installer_filename.outputs.filename }} --apple-id "$APPLE_ID" --team-id "WFRS3L8Y7Y" --password "$NOTARYTOOL_PWD" --wait
           xcrun stapler staple ${{ steps.installer_filename.outputs.filename }}
 
+      - name: Save changelog
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v3
+        with:
+          name: installers
+          path: CHANGELOG.md
+          if-no-files-found: error
+
       - name: Save installer artifact
         uses: actions/upload-artifact@v3
         with:
