@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from pyjls import Writer, SignalType
-from joulescope_ui import pubsub_singleton, register, CAPABILITIES, time64
+from joulescope_ui import N_, pubsub_singleton, register, CAPABILITIES, time64
 from joulescope_ui.jls_v2 import ChunkMeta, DTYPE_MAP
 from .signal_record_config_widget import SignalRecordConfigDialog
 from .disk_full_dialog import DiskFullDialog
@@ -46,8 +46,14 @@ class SignalRecord:
         self._log.info('JLS record to %s', path)
         self._log.info('JLS record signals: %s', config['signals'])
         self._path = path
-        self._jls = Writer(path)
-        self._jls.flags = Writer.FLAG_DROP_ON_OVERFLOW
+        try:
+            self._jls = Writer(path)
+            self._jls.flags = Writer.FLAG_DROP_ON_OVERFLOW
+        except Exception as ex:
+            pubsub_singleton.publish('registry/ui/actions/!error_msg',
+                                     N_('Could not open file for write')
+                                     + f'\n{ex}\n{path}')
+            raise
         self._log.info('Writer started')
         self._on_data_fn = self._on_data
         self._source_idx = 1

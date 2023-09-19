@@ -5,6 +5,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.0.31
+
+2023 Sep 19 [in progress]
+
+* Fixed recording to a bad / missing path silently fails  #223
+
+
 ## 1.0.30
 
 2023 Sep 18
