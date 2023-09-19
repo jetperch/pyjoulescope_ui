@@ -123,8 +123,10 @@ class SignalRecordConfigWidget(QtWidgets.QWidget):
 
     def _on_file_button(self):
         path = os.path.join(self._location.text(), self._filename.text())
-        self._dialog = QtWidgets.QFileDialog(self._parent, N_('Select save location'), path)
+        filter_ = 'Joulescope Data (*.jls)'
+        self._dialog = QtWidgets.QFileDialog(self._parent, N_('Select save location'), path, filter_)
         self._dialog.setFileMode(QtWidgets.QFileDialog.AnyFile)
+        self._dialog.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
         self._dialog.setDefaultSuffix('.jls')
         self._dialog.updateGeometry()
         self._dialog.open()
