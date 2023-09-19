@@ -37,8 +37,13 @@ class SignalRecordConfigWidget(QtWidgets.QWidget):
         self._filename_label = QtWidgets.QLabel(N_('Filename'), self)
         self._filename = QtWidgets.QLineEdit(self)
         self._filename.setText(time64.filename('.jls'))
+        self._file_sel = QtWidgets.QPushButton(self)
+        self._file_sel.pressed.connect(self._on_file_button)
+        icon = self._file_sel.style().standardIcon(QtWidgets.QStyle.StandardPixmap.SP_FileIcon)
+        self._file_sel.setIcon(icon)
         self._layout.addWidget(self._filename_label, self._row, 0, 1, 1)
         self._layout.addWidget(self._filename, self._row, 1, 1, 1)
+        self._layout.addWidget(self._file_sel, self._row, 2, 1, 1)
         self._row += 1
 
         self._location_label = QtWidgets.QLabel(N_('Directory'), self)
@@ -115,6 +120,26 @@ class SignalRecordConfigWidget(QtWidgets.QWidget):
             'signals': signals,
             'notes': self._notes.toPlainText(),
         }
+
+    def _on_file_button(self):
+        path = os.path.join(self._location.text(), self._filename.text())
+        self._dialog = QtWidgets.QFileDialog(self._parent, N_('Select save location'), path)
+        self._dialog.setFileMode(QtWidgets.QFileDialog.AnyFile)
+        self._dialog.setDefaultSuffix('.jls')
+        self._dialog.updateGeometry()
+        self._dialog.open()
+        self._dialog.finished.connect(self._on_file_dialog_finished)
+
+    def _on_file_dialog_finished(self, result):
+        if result == QtWidgets.QDialog.DialogCode.Accepted:
+            files = self._dialog.selectedFiles()
+            if files and len(files) == 1:
+                self._location.setText(os.path.dirname(files[0]))
+                self._filename.setText(os.path.basename(files[0]))
+        else:
+            pass
+        self._dialog.close()
+        self._dialog = None
 
     def _on_location_button(self):
         path = self._location.text()

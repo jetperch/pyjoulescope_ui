@@ -10,6 +10,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 2023 Sep 19 [in progress]
 
 * Fixed recording to a bad / missing path silently fails  #223
+* Added automatic default user data path creation, helps with #223.
+* Added option to specify full JLS record filename path.
 
 
 ## 1.0.30
