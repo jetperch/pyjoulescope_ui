@@ -239,6 +239,13 @@ def _target_lookup_by_pos(targets, pos):
     return name
 
 
+def _gl_get_string(string_id):
+    try:
+        return gl.glGetString(string_id).decode("utf-8")
+    except Exception:
+        return '__unknown__'
+
+
 class _PlotOpenGLWidget(QtOpenGLWidgets.QOpenGLWidget):
     """The inner plot widget that simply calls back to the Waveform widget."""
 
@@ -251,13 +258,13 @@ class _PlotOpenGLWidget(QtOpenGLWidgets.QOpenGLWidget):
         self.setMouseTracking(True)
 
     def initializeGL(self) -> None:
-        self._log.info(f"""OpenGL information:
-            Vendor: {gl.glGetString(gl.GL_VENDOR).decode("utf-8")}
-            Renderer: {gl.glGetString(gl.GL_RENDERER).decode("utf-8")}
-            OpenGL Version: {gl.glGetString(gl.GL_VERSION).decode("utf-8")}
-            Shader Version: {gl.glGetString(gl.GL_SHADING_LANGUAGE_VERSION).decode("utf-8")}""")
         functions = QtGui.QOpenGLFunctions(self.context())
         functions.initializeOpenGLFunctions()
+        self._log.info(f"""OpenGL information:
+            Vendor: {_gl_get_string(gl.GL_VENDOR)}
+            Renderer: {_gl_get_string(gl.GL_RENDERER)}
+            OpenGL Version: {_gl_get_string(gl.GL_VERSION)}
+            Shader Version: {_gl_get_string(gl.GL_SHADING_LANGUAGE_VERSION)}""")
 
     def paintGL(self):
         size = self.width(), self.height()

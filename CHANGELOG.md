@@ -5,6 +5,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.0.32
+
+2023 Sep 28 [in progress]
+
+* Added exception catch to GL string get.
+
+
 ## 1.0.31
 
 2023 Sep 19
