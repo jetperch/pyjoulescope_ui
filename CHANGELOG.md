@@ -10,6 +10,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 2023 Sep 28 [in progress]
 
 * Added exception catch to GL string get.
+* Added Waveform widget "auto" marker statistics text position as default  #224
 
 
 ## 1.0.31

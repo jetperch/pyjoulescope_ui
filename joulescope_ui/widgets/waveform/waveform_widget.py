@@ -1881,18 +1881,19 @@ class WaveformWidget(QtWidgets.QWidget):
                 p.setPen(s['text_pen'])
                 p.fillRect(q1, y0, q2 - q1, f_a + margin2, p.brush())
                 p.drawText(dt_x, y0 + margin + f_a, dt_str)
-                self._draw_dual_marker_text(p, m, 'text_pos1')
-                self._draw_dual_marker_text(p, m, 'text_pos2')
+                txp = ['left', 'right'] if m['pos1'] < m['pos2'] else ['right', 'left']
+                self._draw_dual_marker_text(p, m, 'text_pos1', txp[0])
+                self._draw_dual_marker_text(p, m, 'text_pos2', txp[1])
         p.setClipping(False)
 
-    def _draw_statistics_text(self, p: QtGui.QPainter, pos, values, text_pos=None):
+    def _draw_statistics_text(self, p: QtGui.QPainter, pos, values, text_pos=None, text_pos_auto_default=None):
         """Draw statistics text.
 
         :param p: The QPainter.
         :param pos: The (x, y) position for the text corner in pixels.
         :param values: The iterable of (name, value, units).
-        :param text_pos: The text position which is one of [right, left, off].
-            None (default) is equivalent to right.
+        :param text_pos: The text position which is one of [auto, right, left, off].
+            None (default) is equivalent to auto.
         """
         s = self._style
         if text_pos is None:
@@ -1911,8 +1912,22 @@ class WaveformWidget(QtWidgets.QWidget):
 
         r_w = 2 * _MARGIN + field_width + value_width + unit_width
         r_h = 2 * _MARGIN + f_h * len(values)
+        xl = x0 - _MARGIN - r_w
+        xr = x0 + _MARGIN + r_w
+
+        if text_pos == 'auto':
+            if text_pos_auto_default is None:
+                text_pos_auto_default = 'right'
+            z0, z1 = np.rint(self._x_map.time64_to_counter(self.x_range))
+            if xl < z0:
+                text_pos = 'right'
+            elif xr > z1:
+                text_pos = 'left'
+            else:
+                text_pos = text_pos_auto_default
+
         if text_pos == 'left':
-            x1 = x0 - _MARGIN - r_w
+            x1 = xl
         else:
             x1 = x0 + _MARGIN
         y1 = y0
@@ -1926,7 +1941,7 @@ class WaveformWidget(QtWidgets.QWidget):
             y1 += f_h
 
     def _draw_single_marker_text(self, p, m, x):
-        text_pos = m.get('text_pos1', 'right')
+        text_pos = m.get('text_pos1', 'auto')
         if text_pos == 'off':
             return
         p0 = np.rint(self._x_map.time64_to_counter(x))
@@ -1960,8 +1975,8 @@ class WaveformWidget(QtWidgets.QWidget):
             self._draw_statistics_text(p, (p0, y0), values, text_pos)
         p.setClipping(False)
 
-    def _draw_dual_marker_text(self, p, m, text_pos_key):
-        text_pos_default = 'off' if text_pos_key == 'text_pos1' else 'right'
+    def _draw_dual_marker_text(self, p, m, text_pos_key, text_pos_auto_default):
+        text_pos_default = 'off' if text_pos_key == 'text_pos1' else 'auto'
         text_pos = m.get(text_pos_key, text_pos_default)
         if text_pos == 'off':
             return
@@ -1998,7 +2013,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
             pos_field = text_pos_key.split('_')[-1]
             p0 = np.rint(self._x_map.time64_to_counter(m[pos_field]))
-            self._draw_statistics_text(p, (p0, y0), values, text_pos)
+            self._draw_statistics_text(p, (p0, y0), values, text_pos, text_pos_auto_default=text_pos_auto_default)
         p.setClipping(False)
 
     def _draw_fps(self, p):
@@ -3019,7 +3034,7 @@ class WaveformWidget(QtWidgets.QWidget):
         m, pos_text = self._item_parse_x_marker(item)
         dynamic_items = []
         is_dual = m.get('dtype') == 'dual'
-        pos = m.get(f'text_{pos_text}', 'right')
+        pos = m.get(f'text_{pos_text}', 'auto')
 
         menu = QtWidgets.QMenu('Waveform x_marker context menu', self)
 
@@ -3050,6 +3065,12 @@ class WaveformWidget(QtWidgets.QWidget):
         show_stats_menu = menu.addMenu(N_('Show statistics'))
         show_stats_group = QtGui.QActionGroup(show_stats_menu)
 
+        auto = show_stats_menu.addAction(N_('Auto'))
+        auto.setCheckable(True)
+        auto.setChecked(pos == 'auto')
+        auto.triggered.connect(lambda: self._on_x_marker_statistics_show(m, f'text_{pos_text}', 'auto'))
+        show_stats_group.addAction(auto)
+
         left = show_stats_menu.addAction(N_('Left'))
         left.setCheckable(True)
         left.setChecked(pos == 'left')
@@ -3072,7 +3093,7 @@ class WaveformWidget(QtWidgets.QWidget):
         topic = get_topic_name(self)
         marker_remove.triggered.connect(lambda: self.pubsub.publish(f'{topic}/actions/!x_markers', ['remove', m['id']]))
         self._menu = [menu, dynamic_items,
-                      show_stats_menu, show_stats_group, left, right, off,
+                      show_stats_menu, show_stats_group, auto, left, right, off,
                       marker_remove]
         return self._menu_show(event)
 
@@ -3235,7 +3256,7 @@ class WaveformWidget(QtWidgets.QWidget):
             'mode': self.x_axis_annotation_mode,
             'pos1': pos1,
             'changed': True,
-            'text_pos1': 'right',
+            'text_pos1': 'auto',
             'text_pos2': 'off',
         }
         if self.x_axis_annotation_mode == 'relative':
@@ -3263,7 +3284,7 @@ class WaveformWidget(QtWidgets.QWidget):
             'pos2': pos2,
             'changed': True,
             'text_pos1': 'off',
-            'text_pos2': 'right',
+            'text_pos2': 'auto',
         }
         if self.x_axis_annotation_mode == 'relative':
             e1 = self._extents()[1]
