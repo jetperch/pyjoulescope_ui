@@ -196,7 +196,8 @@ if sys.platform.startswith('darwin'):
 
 elif sys.platform == 'win32':
     print('Create Inno Setup installer')
-    subprocess.run([INNO_SETUP_PATH, 'joulescope.iss'],
+    subprocess.run([INNO_SETUP_PATH,
+                    os.path.join(specpath, 'joulescope.iss')],
                     cwd=os.path.join(specpath, 'dist', 'joulescope'))
 
 elif sys.platform == 'linux':
