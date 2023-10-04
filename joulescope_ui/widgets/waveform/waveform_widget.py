@@ -49,8 +49,10 @@ _Y_INNER_LINE = 4
 _Y_PLOT_MIN = 16
 _MARKER_RSP_OFFSET = (1 << 48)
 _MARKER_RSP_STEP = 512
-_JS220_AXIS_R = ['10 A', '180 mA', '18 mA', '1.8 mA', '180 µA', '18 µA', 'off', 'off', 'off']
-_JS110_AXIS_R = ['10 A', '2 A', '180 mA', '18 mA', '1.8 mA', '180 µA', '18 µA', 'off', 'off']
+_JS220_AXIS_R = {0: '10 A', 1: '180 mA', 2: '18 mA', 3: '1.8 mA', 4: '180 µA', 5: '18 µA',
+                 6: 'off', 7: 'off', 8: 'off'}
+_JS110_AXIS_R = {0: '10 A', 1: '2 A', 2: '180 mA', 3: ' 18 mA', 4: '1.8 mA', 5: '180 µA', 6: '18 µA',
+                 7: 'off', 8: 'off'}
 _LOGARITHMIC_ZERO_DEFAULT = -9
 _TEXT_ANNOTATION_X_POS_ALLOC = 64
 _ANNOTATION_TEXT_MOD = (1 << 48)
@@ -58,7 +60,7 @@ _ANNOTATION_Y_MOD = ((1 << 16) + 2)   # must be multiple of plot colors
 _MARKER_SELECT_DISTANCE_PIXELS = 5
 
 
-def _analog_plot(quantity, show, units, name, integral=None):
+def _analog_plot(quantity, show, units, name, integral=None, range_bounds=None):
     return {
         'quantity': quantity,
         'name': name,
@@ -68,6 +70,7 @@ def _analog_plot(quantity, show, units, name, integral=None):
         'height': 200,
         'range_mode': 'auto',
         'range': [-0.1, 1.1],
+        'range_bounds': range_bounds,
         'scale': 'linear',
         'logarithmic_zero': _LOGARITHMIC_ZERO_DEFAULT,
         'integral': integral,
@@ -90,9 +93,9 @@ def _digital_plot(quantity, name):
 
 _STATE_DEFAULT = {
     'plots': [
-        _analog_plot('i', True, 'A', N_('Current'), 'C'),
-        _analog_plot('v', True, 'V', N_('Voltage')),
-        _analog_plot('p', False, 'W', N_('Power'), 'J'),
+        _analog_plot('i', True, 'A', N_('Current'), 'C', range_bounds=[-50, 50]),
+        _analog_plot('v', True, 'V', N_('Voltage'), range_bounds=[-250, 250]),
+        _analog_plot('p', False, 'W', N_('Power'), 'J', range_bounds=[-1000, 1000]),
         {
                 'quantity': 'r',
                 'name': N_('Current range'),
@@ -101,7 +104,8 @@ _STATE_DEFAULT = {
                 'signals': [],  # list of (buffer_unique_id, signal_id)
                 'height': 100,
                 'range_mode': 'manual',
-                'range': [-0.1, 7.1],
+                'range': [-0.5, 7.25],
+                'range_bounds': [-0.5, 8.25],
                 'scale': 'linear',
         },
         _digital_plot('0', N_('General purpose input 0')),
@@ -1272,13 +1276,18 @@ class WaveformWidget(QtWidgets.QWidget):
             y_max = max(y_max)
         r = plot['range']
         y_min, y_max = self._y_transform_fwd(plot, [y_min, y_max])
-        dy1 = max(1e-9, y_max - y_min)
+        dy1 = y_max - y_min
         dy2 = abs(r[1] - r[0])
-
-        if y_min >= r[0] and y_max <= r[1] and dy1 / (dy2 + 1e-15) > _AUTO_RANGE_FRACT:
+        if dy1 <= 1e-9:
+            if plot['quantity'] == 'r':
+                f = 0.25
+            else:
+                f = y_min * 1e-6 + 1e-9  # Bound to work with 32-bit floating point
+        elif y_min >= r[0] and y_max <= r[1] and dy1 / (dy2 + 1e-15) > _AUTO_RANGE_FRACT:
             return
-        f = dy1 * 0.1
-        plot['range'] = y_min - f/2, y_max + f
+        else:
+            f = (dy1 * 0.1) / 2
+        plot['range'] = y_min - f, y_max + f
 
     def _plots_height_adjust(self, h=None):
         if h is None:
@@ -1630,9 +1639,9 @@ class WaveformWidget(QtWidgets.QWidget):
                 y_grid = axis_ticks.ticks(y_range[0], y_range[1], y_tick_height_value_min, 1)
                 if len(plot['signals']):
                     if 'JS220' in plot['signals'][0][1]:
-                        y_grid['labels'] = [_JS220_AXIS_R[int(s_label)] for s_label in y_grid['labels']]
+                        y_grid['labels'] = [_JS220_AXIS_R.get(int(s_label), '') for s_label in y_grid['labels']]
                     elif 'JS110' in plot['signals'][0][1]:
-                        y_grid['labels'] = [_JS110_AXIS_R[int(s_label)] for s_label in y_grid['labels']]
+                        y_grid['labels'] = [_JS110_AXIS_R.get(int(s_label), '') for s_label in y_grid['labels']]
             for idx, t in enumerate(self._y_value_to_pixel(plot, y_grid['major'], skip_transform=True)):
                 p.setPen(s['text_pen'])
                 s_label = y_grid['labels'][idx]
@@ -3775,7 +3784,15 @@ class WaveformWidget(QtWidgets.QWidget):
         d_y = y_max - y_min
         f = (center - y_min) / d_y
         d_y *= _ZOOM_FACTOR ** -steps
-        plot['range'] = center - d_y * f, center + d_y * (1 - f)
+        plot['range'] = [center - d_y * f, center + d_y * (1 - f)]
+        b = plot.get('range_bounds', None)
+        if b is not None:
+            if plot['range'][0] < b[0]:
+                plot['range'][1] = min(plot['range'][1] + (b[0] - plot['range'][0]), b[1])
+                plot['range'][0] = b[0]
+            elif plot['range'][1] > b[1]:
+                plot['range'][0] = max(plot['range'][0] - (plot['range'][1] - b[1]), b[0])
+                plot['range'][1] = b[1]
         self._repaint_request = True
         return [f'{get_topic_name(self)}/actions/!y_range', [plot_idx, y_min, y_max]]
 

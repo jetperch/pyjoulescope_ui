@@ -222,8 +222,6 @@ def ticks(v_min, v_max, v_spacing_min, major_interval_min=None, logarithmic_zero
     labels = []
     prefix = ''
     if len(major):
-        label_max = max(abs(major[0]), abs(major[-1]))
-        zero_max = label_max / 10_000.0
         if logarithmic_zero is not None:
             prefix = ''
             for v in major:
@@ -246,10 +244,11 @@ def ticks(v_min, v_max, v_spacing_min, major_interval_min=None, logarithmic_zero
                     v_abs //= 10
                 labels.append(s + ''.join(digits[-1::-1]))
         else:
+            label_max = max(abs(major[0]), abs(major[-1]))
             adjusted_value, prefix, scale = unit_prefix(label_max)
             scale = 1.0 / scale
-            for v in major:
-                v *= scale
+            zero_max = (label_max * scale) / 10_000.0
+            for v in major * scale:
                 if abs(v) < zero_max:
                     v = 0
                 s = f'{v:g}'
