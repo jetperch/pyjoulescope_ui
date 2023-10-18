@@ -694,7 +694,6 @@ class Js220(Device):
             self._ui_publish('settings/info', self._info)
             self._driver_publish('s/stats/ctrl', 1, timeout=0)
             self._driver_subscribe('s/stats/value', 'pub', self._on_stats_fn)
-            self._driver_publish('s/dbg/mode', 'fpga_dev')
             self._ui_subscribe('settings', self._on_settings_fn, ['pub', 'retain'])
         except Exception:
             self._log.exception('driver config failed')
