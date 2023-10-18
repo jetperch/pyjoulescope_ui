@@ -667,7 +667,7 @@ def _opengl_config():
     fmt = QtGui.QSurfaceFormat()
     fmt.setDepthBufferSize(24)
     fmt.setStencilBufferSize(8)
-    fmt.setVersion(4, 4)
+    fmt.setVersion(3, 3)
     fmt.setProfile(QtGui.QSurfaceFormat.OpenGLContextProfile.CoreProfile)
     QtGui.QSurfaceFormat.setDefaultFormat(fmt)
 
