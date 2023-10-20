@@ -350,7 +350,10 @@ class StyleManager:
 
     def _render(self, value):
         t_start = time.time()
-        obj = get_instance(value)
+        try:
+            obj = get_instance(value)
+        except KeyError:
+            return
         if isinstance(obj, type):
             objs = _objs_in_view()
             for child in pubsub_singleton.query(f'{get_topic_name(obj)}/children'):

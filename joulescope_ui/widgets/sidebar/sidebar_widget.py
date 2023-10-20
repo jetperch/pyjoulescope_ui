@@ -14,7 +14,7 @@
 
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from joulescope_ui import N_, register, tooltip_format, pubsub_singleton
+from joulescope_ui import N_, register, tooltip_format, pubsub_singleton, get_instance
 from joulescope_ui.styles import styled_widget, color_as_qcolor
 from joulescope_ui.widgets import DeviceControlWidget
 from joulescope_ui.widgets import MemoryWidget
@@ -89,10 +89,8 @@ class SideBar(QtWidgets.QWidget):
         self._style_cache = None
         self._selected_area = None
         self._selected_area_brush = QtGui.QBrush
-        self._buttons_by_name = {}
-        self._buttons_by_flyout_idx = {}
+        self._buttons = {}
         self._buttons_blink = []
-        self._buttons_flyout = []
         self._flyout: FlyoutWidget = None
 
         self._layout = QtWidgets.QVBoxLayout()
@@ -107,16 +105,15 @@ class SideBar(QtWidgets.QWidget):
         self._add_blink_button('statistics_play', 'statistics_stream_enable')
         b = self._add_blink_button('statistics_record', 'statistics_stream_record')
         b.toggled.connect(self._on_statistics_stream_record_toggled)
-        self._add_button('device', _DEVICE_TOOLTIP)
-        self._add_button('memory', _MEMORY_TOOLTIP)
-        b = self._add_button('settings', _SETTINGS_TOOLTIP)
-        b.clicked.connect(self._on_settings_pressed)
+        self._add_button('device', _DEVICE_TOOLTIP, 'DeviceControlWidget', 'device_control_widget:flyout')
+        self._add_button('memory', _MEMORY_TOOLTIP, 'MemoryWidget', 'memory_widget:flyout')
+        self._add_button('settings', _SETTINGS_TOOLTIP, 'settings', 'settings:flyout', width=500)
         self._spacer = QtWidgets.QSpacerItem(10, 0,
                                              QtWidgets.QSizePolicy.Minimum,
                                              QtWidgets.QSizePolicy.Expanding)
         self._layout.addItem(self._spacer)
-        self._add_button('help', _HELP_TOOLTIP)
-        self._add_button('misc', _MISC_TOOLTIP)
+        self._add_button('help', _HELP_TOOLTIP, 'HelpWidget', 'help_widget:flyout')
+        self._add_button('misc', _MISC_TOOLTIP, 'HamburgerWidget', 'hamburger_widget:flyout')
 
         self.mousePressEvent = self._on_mousePressEvent
         pubsub_singleton.subscribe('registry/ui/events/blink_slow', self._on_blink, ['pub', 'retain'])
@@ -124,33 +121,12 @@ class SideBar(QtWidgets.QWidget):
     def register(self):
         pubsub = pubsub_singleton
         pubsub.register(self, 'sidebar:0', parent='ui')
-
         self._flyout = FlyoutWidget(self._parent, self)
         pubsub.register(self._flyout, 'flyout:0', parent='sidebar:0')
 
-        # Create the device control flyout widget for the sidebar
-        d = DeviceControlWidget()
-        pubsub.register(d, 'device_control_widget:flyout', parent='flyout:0')
-        self.widget_set('device', d)
-
-        # Create the memory flyout widget for the sidebar
-        m = MemoryWidget()
-        pubsub.register(m, 'memory_widget:flyout', parent='flyout:0')
-        self.widget_set('memory', m)
-
-        # Create the help flyout widget for the sidebar
-        m = HelpWidget(self._flyout)
-        pubsub.register(m, 'help_widget:flyout', parent='flyout:0')
-        self.widget_set('help', m)
-
-        # Create the hamburger flyout widget for the sidebar
-        m = HamburgerWidget()
-        pubsub.register(m, 'hamburger_widget:flyout', parent='flyout:0')
-        self.widget_set('misc', m)
-
     def _on_mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
-            self.on_cmd_show(-1)
+            self.on_cmd_show(None)
             event.accept()
 
     def _on_signal_stream_record_toggled(self, checked):
@@ -189,20 +165,22 @@ class SideBar(QtWidgets.QWidget):
         button.toggled.connect(lambda checked: pubsub_singleton.publish(topic, bool(checked)))
         return button
 
-    def widget_set(self, name, widget):
-        button = self._buttons_by_name[name]
-        button.setProperty('selected', False)
-        idx = self._flyout.addWidget(widget)
-        self._buttons_by_flyout_idx[idx] = button
-        button.clicked.connect(lambda: self.on_cmd_show(idx))
-
-    def _add_button(self, name, tooltip):
+    def _add_button(self, name, tooltip, clz=None, unique_id=None, width=None):
         button = QtWidgets.QPushButton(self)
         button.setObjectName(name)
         button.setFlat(True)
         button.setFixedSize(32, 32)
         button.setToolTip(tooltip)
-        self._buttons_by_name[name] = button
+        self._buttons[name] = {
+            'name': name,
+            'button': button,
+            'class': clz,
+            'unique_id': unique_id,
+            'width': 300 if width is None else int(width),
+        }
+        if clz is not None:
+            button.setProperty('selected', False)
+            button.clicked.connect(lambda: self.on_cmd_show(name))
         self._layout.addWidget(button)
         return button
 
@@ -212,13 +190,22 @@ class SideBar(QtWidgets.QWidget):
             b.style().unpolish(b)
             b.style().polish(b)
 
-    def on_cmd_show(self, value):
-        value = self._flyout.on_cmd_show(value)
-        if value is not None and value >= 0:
-            button = self._buttons_by_flyout_idx[value]
-            self._selected_area = button.geometry()
-        else:
+    def on_cmd_show(self, name):
+        w = self._buttons.get(name, {}).get('widget')
+        if name is None or (w is not None and w == self._flyout.widget()):
+            self._flyout.flyout_widget_set(None)
             self._selected_area = None
+        else:
+            v = self._buttons[name]
+            if v.get('widget') is None:
+                clz = get_instance(v['class'])
+                w = clz(parent=self._flyout)
+                w.setContentsMargins(5, 5, 5, 5)
+                pubsub_singleton.register(w, v['unique_id'], parent='flyout:0')
+                v['widget'] = w
+                pubsub_singleton.publish(f'registry/style/actions/!render', w)
+            self._flyout.flyout_widget_set(v['widget'], v['width'])
+            self._selected_area = v['button'].geometry()
         self.update()
 
     def paintEvent(self, event):
@@ -236,7 +223,8 @@ class SideBar(QtWidgets.QWidget):
             painter.fillRect(x + w - 1, y, 2, h, s['selected_side_brush'])
 
     def resizeEvent(self, event: QtGui.QResizeEvent) -> None:
-        self._flyout.on_sidebar_geometry(self.geometry())
+        if self._flyout is not None:
+            self._flyout.on_sidebar_geometry(self.geometry())
 
     @property
     def _style(self):
