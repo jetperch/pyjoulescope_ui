@@ -76,6 +76,6 @@ class FlyoutWidget(QtWidgets.QScrollArea):
         if self.width() == 0:
             return
         pos = self.mapFromGlobal(QtGui.QCursor.pos())
-        if pos.x() > 0:
+        if (pos.x() + 1) >= self.width():
             self._sidebar.on_cmd_show(None)
         return super().leaveEvent(event)
