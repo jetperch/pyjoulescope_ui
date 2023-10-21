@@ -19,7 +19,6 @@ import logging
 from logging import FileHandler
 import time
 import datetime
-import faulthandler
 import json
 import os
 import sys
@@ -161,7 +160,9 @@ def config(path, stream_log_level=None, file_log_level=None):
         file_hnd.stream.write(header)
         file_hnd.setFormatter(file_fmt)
         file_hnd.setLevel(file_lvl)
-        faulthandler.enable(file=file_hnd.stream)
+        # Removed faulthandler due to complications
+        # See https://bugreports.qt.io/browse/PYSIDE-2501
+        # faulthandler.enable(file=file_hnd.stream)
         root_log.addHandler(file_hnd)
 
     root_log.setLevel(min([stream_lvl, file_lvl]))
