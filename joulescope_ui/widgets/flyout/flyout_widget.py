@@ -66,6 +66,7 @@ class FlyoutWidget(QtWidgets.QScrollArea):
             w = self.takeWidget()
             if w is not None:
                 w.hide()
+        self.animations.clear()
 
     def on_sidebar_geometry(self, r):
         width = self.width()
@@ -77,5 +78,6 @@ class FlyoutWidget(QtWidgets.QScrollArea):
             return
         pos = self.mapFromGlobal(QtGui.QCursor.pos())
         if (pos.x() + 1) >= self.width():
-            self._sidebar.on_cmd_show(None)
+            if len(self.animations) == 0 or self.animations[-1].endValue() != 0:
+                self._sidebar.on_cmd_show(None)
         return super().leaveEvent(event)
