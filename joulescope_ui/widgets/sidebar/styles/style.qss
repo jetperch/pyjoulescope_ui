@@ -81,3 +81,11 @@ QPushButton#target_power[blink=false]:enabled      { image: url("{% path %}/targ
 QPushButton#target_power[blink=true]:enabled       { image: url("{% path %}/target_power_off_1.svg"); }
 QPushButton#target_power[blink=false]:enabled:checked      { image: url("{% path %}/target_power_on.svg"); }
 QPushButton#target_power[blink=true]:enabled:checked       { image: url("{% path %}/target_power_on.svg"); }
+
+/****************************************************************************/
+/* Fuse engaged button                                                      */
+/****************************************************************************/
+QPushButton#fuse[blink=false]           { image: url("{% path %}/fuse_normal.svg"); }
+QPushButton#fuse[blink=true]            { image: url("{% path %}/fuse_normal.svg"); }
+QPushButton#fuse[blink=false]:checked   { image: url("{% path %}/fuse_engaged_0.svg"); }
+QPushButton#fuse[blink=true]:checked    { image: url("{% path %}/fuse_engaged_1.svg"); }

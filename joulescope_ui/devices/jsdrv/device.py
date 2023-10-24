@@ -44,6 +44,7 @@ class Device:
         self._log = logging.getLogger(__name__ + '.' + device_path.replace('/', '.'))
         self._path = device_path
         self._driver_subscriptions = []
+        self._ui_subscriptions = []
 
     def __str__(self):
         return f'Device({self._path})'
@@ -55,7 +56,10 @@ class Device:
     def finalize(self):
         while len(self._driver_subscriptions):
             t, v = self._driver_subscriptions.pop()
-            self._driver_unsubscribe(t, v)
+            self._driver.unsubscribe(self._driver_topic_make(t), v)
+        while len(self._ui_subscriptions):
+            t, v, f = self._ui_subscriptions.pop()
+            self._pubsub.unsubscribe(t, v, flags=[f])
 
     @property
     def _driver(self):
@@ -82,15 +86,20 @@ class Device:
             self._driver_subscriptions.append((topic, fn))
 
     def _driver_unsubscribe(self, topic, fn, timeout=None):
-        try:
-            self._driver_subscriptions.remove((topic, fn))
-        except ValueError:
-            pass
-        return self._driver.unsubscribe(self._driver_topic_make(topic), fn, timeout)
+        s, self._driver_subscriptions = self._driver_subscriptions, []
+        for t, f in s:
+            if t == topic and f == fn:  # "==" works for bound methods
+                self._driver.unsubscribe(self._driver_topic_make(t), f, timeout)
+            else:
+                self._driver_subscriptions.append((t, f))
 
     def _driver_unsubscribe_all(self, fn, timeout=None):
-        self._driver_subscriptions = [(t, v) for t, v in self._driver_subscriptions if v != fn]
-        return self._driver.unsubscribe(fn, timeout)
+        s, self._driver_subscriptions = self._driver_subscriptions, []
+        for t, f in s:
+            if f == fn:  # "==" works for bound methods
+                self._driver.unsubscribe(f, timeout)
+            else:
+                self._driver_subscriptions.append((t, f))
 
     def _ui_topic_make(self, topic):
         if topic[0] != '/':
@@ -103,11 +112,30 @@ class Device:
     def _ui_query(self, topic):
         return self._pubsub.query(self._ui_topic_make(topic))
 
-    def _ui_subscribe(self, topic: str, update_fn: callable, flags=None):
-        return self._pubsub.subscribe(self._ui_topic_make(topic), update_fn, flags)
+    def _ui_subscribe(self, topic: str, update_fn: callable, flags=None, absolute_topic=False):
+        if not bool(absolute_topic):
+            topic = self._ui_topic_make(topic)
+        flags = ['pub'] if flags is None else flags
+        for flag in flags:
+            self._ui_subscriptions.append((topic, update_fn, flag))
+        return self._pubsub.subscribe(topic, update_fn, flags)
 
     def _ui_unsubscribe(self, topic, update_fn: callable, flags=None):
-        return self._pubsub.unsubscribe(self._ui_topic_make(topic), update_fn, flags)
+        topic = self._ui_topic_make(topic)
+        flags = ['pub'] if flags is None else flags
+        s, self._ui_subscriptions = self._ui_subscriptions, []
+        for s_topic, s_update_fn, s_flag in s:
+            if s_topic == topic and s_update_fn == update_fn and s_flag in flags:  # "==" works for bound methods
+                pass
+            else:
+                self._ui_subscriptions.append((s_topic, s_update_fn, s_flag))
+        return self._pubsub.unsubscribe(topic, update_fn, flags)
 
     def _ui_unsubscribe_all(self, update_fn: callable):
+        s, self._ui_subscriptions = self._ui_subscriptions, []
+        for s_topic, s_update_fn, s_flag in s:
+            if s_update_fn == update_fn:  # "==" works for bound methods
+                pass
+            else:
+                self._ui_subscriptions.append((s_topic, s_update_fn, s_flag))
         return self._pubsub.unsubscribe_all(update_fn)

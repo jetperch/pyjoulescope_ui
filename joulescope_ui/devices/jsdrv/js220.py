@@ -21,12 +21,18 @@ import queue
 import threading
 
 
-def _version_u32_to_str(v):
+def _version_u32_to_tuple(v):
     major = (v >> 24) & 0xff
     minor = (v >> 16) & 0xff
     patch = (v & 0xffff)
-    return '.'.join(str(x) for x in [major, minor, patch])
+    return (major, minor, patch)
 
+
+def _version_tuple_to_str(v):
+    return '.'.join(str(x) for x in v)
+
+
+_FUSE_IDS = [0, 1, 30, 31]
 
 _PROGRESS_TOPIC = 'registry/progress/actions/!update'
 
@@ -289,6 +295,32 @@ _SETTINGS_CLASS = {
         'default': None,  # or dict of name: [current, available]
         'flags': ['hide', 'tmp', 'ro'],
     },
+
+    'fuse_enable_0': {
+        'dtype': 'bool',
+        'brief': 'Enable/disable the fuse',
+        'detail': 'sdfsd',
+        'default': False,
+        'flags': ['hide'],
+    },
+    'fuse_enable_1': {
+        'dtype': 'bool',
+        'brief': 'Enable/disable the fuse',
+        'detail': 'fdsaf',
+        'default': False,
+        'flags': ['hide'],
+    },
+    'fuse_engaged': {
+        'dtype': 'int',
+        'brief': 'Engaged fuse bitmap.',
+        'detail': '''The bitmap of engaged fuses.
+        
+            0 is normal operation.
+            1 is engaged.
+            Use !fuse_clear to reset.''',
+        'default': 0,
+        'flags': ['hide', 'tmp', 'ro'],
+    },
 }
 
 
@@ -445,24 +477,37 @@ class Js220(Device):
         self.SETTINGS['sources/1/name']['default'] = name
         self.SETTINGS['sources/1/info']['default'] = self._info
 
-        self._on_stats_fn = self._on_stats  # for unsub
         self._driver_device_open = False
         self._thread = None
         self._quit = False
         self._target_power_app = False
         self._queue = queue.Queue()
+        self._firmware_version = 0
+        self._fpga_version = 0
 
         self._statistics_offsets = None
-        self._on_settings_fn = self._on_settings
-        self._on_target_power_app_fn = self._on_target_power_app
 
     def on_pubsub_register(self):
         topic = get_topic_name(self)
-        self.pubsub.subscribe('registry/app/settings/target_power', self._on_target_power_app_fn, ['pub', 'retain'])
+        self._ui_subscribe('registry/app/settings/target_power', self._on_target_power_app,
+                           ['pub', 'retain'], absolute_topic=True)
+        self._ui_subscribe('registry/app/settings/fuse_engaged', self._on_fuse_engaged_app,
+                           ['pub', 'retain'], absolute_topic=True)
         self.pubsub.publish(f'{topic}/settings/info', self._info)
         self.pubsub.publish(f'{topic}/sources/1/info', self._info)
         for key, value in _SIGNALS.items():
             self._signal_forward(key, value['topics'][1], self.unique_id)
+
+    def _on_fuse_engaged(self, topic, value):
+        fuse_id = int(topic.split('/')[-2])
+        mask = 1 << fuse_id
+        if bool(value):
+            self._log.info('Fuse %d engaged', fuse_id)
+            self.fuse_engaged |= mask
+            self.pubsub.publish('registry/app/settings/fuse_engaged', 1)
+        elif self.fuse_engaged & mask:
+            self._log.info('Fuse %d reset', fuse_id)
+            self.fuse_engaged &= ~mask
 
     def signal_subtopics(self, signal_id, topic_type):
         """Query the signal topics.
@@ -512,7 +557,6 @@ class Js220(Device):
 
     def finalize(self):
         self.on_action_finalize()
-        self._pubsub.unsubscribe('registry/app/settings/target_power', self._on_target_power_app_fn)
         super().finalize()
 
     def _open_req(self):
@@ -596,10 +640,22 @@ class Js220(Device):
         elif topic in ['info', 'state', 'state_req', 'out', 'enable',
                        'sources', 'sources/1', 'sources/1/info', 'sources/1/name',
                        'signals',
-                       'firmware_available', 'firmware_channel']:
+                       'firmware_available', 'firmware_channel',
+                       'fuse_engaged']:
             pass
         elif topic.startswith('signals/'):
             pass
+        elif topic.startswith('fuse_enable_'):
+            if self.has_fuse_support:
+                fuse_id = topic.split('_')[-1]
+                self._driver_publish(f's/fuse/{fuse_id}/en', bool(value))
+        elif topic == 'fuse_clear':
+            if self.has_fuse_support:
+                self._log.info('Fuse clear %s', value)
+                if value in [None, False, True]:  # reset all
+                    self._driver_publish(f's/fuse/+/!clear', 0)
+                elif value in _FUSE_IDS:
+                    self._driver_publish(f's/fuse/{value}/engaged', 0)
         else:
             self._log.warning('Unsupported topic %s', f'{get_topic_name(self)}/settings/{topic}')
 
@@ -685,16 +741,22 @@ class Js220(Device):
             self._ui_publish('settings/state', 'closing')
             return 1
         try:
+            self._firmware_version = _version_u32_to_tuple(self._driver_query('c/fw/version'))
+            self._fpga_version = _version_u32_to_tuple(self._driver_query('s/fpga/version'))
             self._info['version'] = {
                 'hw': str(self._driver_query('c/hw/version') >> 24),
-                'fw': _version_u32_to_str(self._driver_query('c/fw/version')),
-                'fpga': _version_u32_to_str(self._driver_query('s/fpga/version')),
+                'fw': _version_tuple_to_str(self._firmware_version),
+                'fpga': _version_tuple_to_str(self._fpga_version),
             }
             self._info = copy.deepcopy(self._info)
             self._ui_publish('settings/info', self._info)
             self._driver_publish('s/stats/ctrl', 1, timeout=0)
-            self._driver_subscribe('s/stats/value', 'pub', self._on_stats_fn)
-            self._ui_subscribe('settings', self._on_settings_fn, ['pub', 'retain'])
+            self._driver_subscribe('s/stats/value', 'pub', self._on_stats)
+            if self.has_fuse_support:
+                for fuse_id in _FUSE_IDS:
+                    self._driver_subscribe(f's/fuse/{fuse_id}/engaged', ['pub', 'pub_retain'], self._on_fuse_engaged)
+                self._ui_subscribe('registry/app/actions/!fuse_clear', self.on_action_fuse_clear, ['pub'])
+            self._ui_subscribe('settings', self._on_settings, ['pub', 'retain'])
         except Exception:
             self._log.exception('driver config failed')
             self._ui_publish('settings/state', 'closing')
@@ -703,20 +765,27 @@ class Js220(Device):
         self._log.info('open %s done', self.unique_id)
         return 0
 
+    @property
+    def has_fuse_support(self):
+        return (self._firmware_version >= (1, 1, 0)) and (self._fpga_version >= (1, 1, 0))
+
     def _close(self):
         if not self._driver_device_open:
             self._log.info('close %s when already closed', self.unique_id)
             return
         self._log.info('close %s start', self.unique_id)
-        self._ui_unsubscribe('settings', self._on_settings_fn)
+        self._ui_unsubscribe('settings', self._on_settings)
         self._ui_publish('settings/state', 'closing')
-        self._driver_unsubscribe('s/stats/value', self._on_stats_fn)
+        self._driver_unsubscribe('s/stats/value', self._on_stats)
         try:
             for t in _SIGNALS.values():
                 self._driver_publish(t['topics'][0], 0, timeout=0)
             self._driver_publish('s/stats/ctrl', 0)
         except Exception as ex:
             self._log.info('Exception during close cleanup: %s', ex)
+        if self.has_fuse_support:
+            for fuse_id in _FUSE_IDS:
+                self._driver_unsubscribe(f's/fuse/{fuse_id}/engaged', self._on_fuse_engaged)
         try:
             self._driver.close(self._path)
         except Exception as ex:
@@ -760,6 +829,10 @@ class Js220(Device):
         self._target_power_app = bool(value)
         self._send_to_thread('current_range_update', None)
 
+    def _on_fuse_engaged_app(self, value):
+        if value in [0, False, None]:
+            self._send_to_thread('settings', ('fuse_clear', None))
+
     def on_action_accum_clear(self, topic, value):
         prev_value = self._statistics_offsets
         if value is None:
@@ -767,6 +840,9 @@ class Js220(Device):
         else:
             self._statistics_offsets = list(value)
         return topic, prev_value
+
+    def on_action_fuse_clear(self, topic, value):
+        self._send_to_thread('settings', ('fuse_clear', value))
 
 
 register(Js220, 'JS220')

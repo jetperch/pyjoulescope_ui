@@ -95,6 +95,7 @@ class SideBar(QtWidgets.QWidget):
         self.setLayout(self._layout)
 
         self._add_blink_button('target_power', 'target_power')
+        self._add_blink_button('fuse', 'fuse_engaged', clear_only=True)
         self._add_blink_button('signal_play', 'signal_stream_enable')
         self._add_blink_button('signal_record', 'signal_stream_record')
         self._add_blink_button('statistics_play', 'statistics_stream_enable')
@@ -129,7 +130,7 @@ class SideBar(QtWidgets.QWidget):
             'floating': True,
         })
 
-    def _add_blink_button(self, name, app_setting):
+    def _add_blink_button(self, name, app_setting, clear_only=False):
         topic = f'registry/app/settings/{app_setting}'
         meta = pubsub_singleton.metadata(topic)
         tooltip = tooltip_format(meta.brief, meta.detail)
@@ -139,8 +140,10 @@ class SideBar(QtWidgets.QWidget):
         self._buttons_blink.append(button)
 
         def update_from_pubsub(value):
+            value = bool(value)
             block_state = button.blockSignals(True)
-            button.setChecked(bool(value))
+            button.setChecked(value)
+            button.setDisabled(clear_only and not value)
             button.blockSignals(block_state)
 
         pubsub_singleton.subscribe(topic, update_from_pubsub, ['pub', 'retain'])

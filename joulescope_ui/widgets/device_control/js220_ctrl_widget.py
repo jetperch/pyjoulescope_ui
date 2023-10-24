@@ -21,6 +21,7 @@ from joulescope_ui.styles import color_as_qcolor
 from joulescope_ui.ui_util import comboBoxConfig
 from .device_info_dialog import DeviceInfoDialog
 from .current_limits import CurrentLimits
+from .fuse import FuseWidget
 import webbrowser
 
 
@@ -133,6 +134,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         self._add_signal_buttons()
         self._add_settings()
         self._add_gpo()
+        self._add_fuses()
         self._add_footer()
         self._subscribe('registry/ui/events/blink_slow', self._on_blink)
         self._subscribe('registry/app/settings/target_power', self._on_target_power_app)
@@ -483,6 +485,17 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             self._body_layout.addWidget(w, self._row, 1, 1, 1)
             self._widgets.append(w)
         self._row += 1
+
+    def _add_fuses(self):
+        fuses = {
+            0: FuseWidget(self, self.unique_id, 0),
+            1: FuseWidget(self, self.unique_id, 1),
+            30: FuseWidget(self, self.unique_id, 30),
+            31: FuseWidget(self, self.unique_id, 31),
+        }
+        for widget in fuses.values():
+            self._body_layout.addWidget(widget, self._row, 0, 1, 2)
+            self._row += 1
 
     def _add_footer(self):
         widget = QtWidgets.QWidget(self._body)

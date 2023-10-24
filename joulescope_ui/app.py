@@ -46,6 +46,17 @@ SETTINGS = {
             The system setup must prevent excessive backwards current."""),
         'default': True,
     },
+    'fuse_engaged': {
+        'dtype': 'bool',
+        'brief': N_('Fuse engaged indicator'),
+        'detail': N_("""\
+            This indicator becomes active when at least one connected
+            instrument has an engaged fuse.  Instruments with 
+            engaged fuses prevent current flow until cleared.  
+            
+            Press to clear."""),
+        'default': False,
+    },
     'statistics_stream_enable': {
         'dtype': 'bool',
         'brief': N_('Statistics display'),
