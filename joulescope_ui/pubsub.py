@@ -855,7 +855,7 @@ class PubSub:
         try:
             t = self._topic_get(topic)
         except KeyError:
-            self._log.warning('Subscribe to unknown topic %s', topic)
+            self._log.warning('Unsubscribe to unknown topic %s', topic)
             return
         for flag in flags:
             t.update_fn[flag] = [fn for fn in t.update_fn[flag] if fn.fn != update_fn]
