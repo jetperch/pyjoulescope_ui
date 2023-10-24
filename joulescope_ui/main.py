@@ -15,7 +15,8 @@
 # https://stackoverflow.com/questions/11874767/real-time-plotting-in-while-loop-with-matplotlib
 # https://wiki.qt.io/Gallery_of_Qt_CSS_Based_Styles
 
-from joulescope_ui import pubsub_singleton, N_, get_topic_name, tooltip_format, CAPABILITIES, Metadata, __version__
+from joulescope_ui import pubsub_singleton, N_, get_topic_name, get_instance, \
+    tooltip_format, CAPABILITIES, Metadata, __version__
 from joulescope_ui.pubsub import UNDO_TOPIC, REDO_TOPIC
 from joulescope_ui.shortcuts import Shortcuts
 from joulescope_ui.widgets import *   # registers all built-in widgets
@@ -248,6 +249,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self._pubsub.register(self, 'ui', parent=None)
         self._style_manager = StyleManager()
         self._pubsub.register(self._style_manager, 'style')
+        self._pubsub.subscribe('registry/app/settings/signal_stream_record',
+                               get_instance('SignalRecord').on_cls_action_toggled, ['pub'])
+        self._pubsub.subscribe('registry/app/settings/statistics_stream_record',
+                               get_instance('StatisticsRecord').on_cls_action_toggled, ['pub'])
 
         self._pubsub.publish('registry/view/actions/!ui_connect', {
             'ui': self,
@@ -636,12 +641,15 @@ class MainWindow(QtWidgets.QMainWindow):
         self._status_bar.showMessage(value, timeout=3000)
 
     def closeEvent(self, event):
+        pubsub = self._pubsub
         self._log.info('closeEvent() start')
         self._blink_timer.stop()
         if self._filename is not None:
-            pubsub_singleton.publish('registry/view/actions/!widget_close', '*')
-        pubsub_singleton.publish('registry/view/actions/!ui_disconnect', None)
-        self._pubsub.publish('registry/JlsSource/actions/!finalize', None)
+            pubsub.publish('registry/view/actions/!widget_close', '*')
+        pubsub.publish('registry/app/settings/signal_stream_record', False)
+        pubsub.publish('registry/app/settings/statistics_stream_record', False)
+        pubsub.publish('registry/view/actions/!ui_disconnect', None)
+        pubsub.publish('registry/JlsSource/actions/!finalize', None)
         event.accept()
         self._log.info('closeEvent() done')
 

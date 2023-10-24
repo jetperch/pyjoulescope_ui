@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from pyjls import Writer, SignalType, DataType
-from joulescope_ui import pubsub_singleton, register, CAPABILITIES
+from joulescope_ui import pubsub_singleton, register, CAPABILITIES, Metadata, get_topic_name
 from .statistics_record_config_widget import StatisticsRecordConfigDialog
 import copy
 import logging
@@ -37,6 +37,9 @@ class StatisticsRecord:
     CAPABILITIES = []
     _instances = []
     _log = logging.getLogger(f'{__name__}.cls')
+    EVENTS = {
+        '!stop': Metadata('bool', 'Recording stopped', flags=['ro', 'skip_undo']),
+    }
 
     def __init__(self, topic, filename):
         parent = pubsub_singleton.query('registry/app/instance')
@@ -90,11 +93,6 @@ class StatisticsRecord:
         pubsub_singleton.unregister(self, delete=True)
 
     @staticmethod
-    def on_cls_action_start_request(pubsub, topic, value):
-        StatisticsRecord._log.info('on_cls_action_start_request')
-        StatisticsRecordConfigDialog()
-
-    @staticmethod
     def on_cls_action_start(pubsub, topic, value):
         StatisticsRecord._log.info('on_cls_action_start')
         for topic, filename in value:
@@ -102,8 +100,13 @@ class StatisticsRecord:
             StatisticsRecord._instances.append(obj)
 
     @staticmethod
-    def on_cls_action_stop(pubsub, topic, value):
-        StatisticsRecord._log.info('on_cls_action_stop')
-        while len(StatisticsRecord._instances):
-            obj = StatisticsRecord._instances.pop()
-            obj.on_action_stop(value)
+    def on_cls_action_toggled(pubsub, topic, value):
+        if bool(value):
+            StatisticsRecord._log.info('start_request')
+            StatisticsRecordConfigDialog()
+        else:
+            StatisticsRecord._log.info('stop')
+            while len(StatisticsRecord._instances):
+                obj = StatisticsRecord._instances.pop()
+                obj.on_action_stop(value)
+            pubsub.publish(f'{get_topic_name(StatisticsRecord)}/events/!stop', True)

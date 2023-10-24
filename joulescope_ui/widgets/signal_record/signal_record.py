@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from pyjls import Writer, SignalType
-from joulescope_ui import N_, pubsub_singleton, register, CAPABILITIES, time64
+from joulescope_ui import N_, pubsub_singleton, register, CAPABILITIES, time64, Metadata, get_topic_name
 from joulescope_ui.jls_v2 import ChunkMeta, DTYPE_MAP
 from .signal_record_config_widget import SignalRecordConfigDialog
 from .disk_full_dialog import DiskFullDialog
@@ -37,6 +37,9 @@ class SignalRecord:
     _singleton = None  # not strictly singleton, but target of class actions.
     _instances = []
     _log = logging.getLogger(f'{__name__}.cls')
+    EVENTS = {
+        '!stop': Metadata('bool', 'Recording stopped', flags=['ro', 'skip_undo']),
+    }
 
     def __init__(self, config):
         parent = pubsub_singleton.query('registry/app/instance')
@@ -181,11 +184,6 @@ class SignalRecord:
         pubsub_singleton.publish(_DISK_MONITOR_REMOVE, self._path)
 
     @staticmethod
-    def on_cls_action_start_request(pubsub, topic, value):
-        SignalRecord._log.info('on_cls_action_start_request')
-        SignalRecordConfigDialog()
-
-    @staticmethod
     def on_cls_action_start(pubsub, topic, value):
         SignalRecord._log.info('on_cls_action_start')
         obj = SignalRecord(value)
@@ -194,7 +192,11 @@ class SignalRecord:
         SignalRecord._instances.append(obj)
 
     @staticmethod
-    def on_cls_action_stop(pubsub, topic, value):
-        if SignalRecord._singleton is not None:
-            SignalRecord._log.info('on_cls_action_stop')
+    def on_cls_action_toggled(pubsub, topic, value):
+        if bool(value):
+            SignalRecord._log.info('start_request')
+            SignalRecordConfigDialog()
+        elif SignalRecord._singleton is not None:
+            SignalRecord._log.info('stop')
             SignalRecord._singleton.on_action_stop(value)
+            pubsub.publish(f'{get_topic_name(SignalRecord)}/events/!stop', True)

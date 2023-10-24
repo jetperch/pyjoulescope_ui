@@ -60,7 +60,7 @@ class RecordStatusWidget(QtWidgets.QWidget):
 
         topic = get_topic_name(source_unique_id)
         pubsub_singleton.subscribe(f'{topic}/actions/!start', self._on_start, ['pub'])
-        pubsub_singleton.subscribe(f'{topic}/actions/!stop', self._on_stop, ['pub'])
+        pubsub_singleton.subscribe(f'{topic}/events/!stop', self._on_stop, ['pub'])
         pubsub_singleton.subscribe('registry/ui/events/blink_fast', self._on_tick, ['pub'])
 
     def _on_start(self, value):

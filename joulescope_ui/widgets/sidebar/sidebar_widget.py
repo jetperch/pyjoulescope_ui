@@ -16,10 +16,6 @@
 from PySide6 import QtCore, QtGui, QtWidgets
 from joulescope_ui import N_, register, tooltip_format, pubsub_singleton, get_instance
 from joulescope_ui.styles import styled_widget, color_as_qcolor
-from joulescope_ui.widgets import DeviceControlWidget
-from joulescope_ui.widgets import MemoryWidget
-from joulescope_ui.widgets import HelpWidget
-from joulescope_ui.widgets import HamburgerWidget
 from joulescope_ui.widgets.flyout import FlyoutWidget
 
 
@@ -100,11 +96,9 @@ class SideBar(QtWidgets.QWidget):
 
         self._add_blink_button('target_power', 'target_power')
         self._add_blink_button('signal_play', 'signal_stream_enable')
-        b = self._add_blink_button('signal_record', 'signal_stream_record')
-        b.toggled.connect(self._on_signal_stream_record_toggled)
+        self._add_blink_button('signal_record', 'signal_stream_record')
         self._add_blink_button('statistics_play', 'statistics_stream_enable')
-        b = self._add_blink_button('statistics_record', 'statistics_stream_record')
-        b.toggled.connect(self._on_statistics_stream_record_toggled)
+        self._add_blink_button('statistics_record', 'statistics_stream_record')
         self._add_button('device', _DEVICE_TOOLTIP, 'DeviceControlWidget', 'device_control_widget:flyout')
         self._add_button('memory', _MEMORY_TOOLTIP, 'MemoryWidget', 'memory_widget:flyout')
         self._add_button('settings', _SETTINGS_TOOLTIP, 'settings', 'settings:flyout', width=500)
@@ -128,18 +122,6 @@ class SideBar(QtWidgets.QWidget):
         if event.button() == QtCore.Qt.LeftButton:
             self.on_cmd_show(None)
             event.accept()
-
-    def _on_signal_stream_record_toggled(self, checked):
-        if bool(checked):
-            pubsub_singleton.publish('registry/SignalRecord/actions/!start_request', None)
-        else:
-            pubsub_singleton.publish('registry/SignalRecord/actions/!stop', None)
-
-    def _on_statistics_stream_record_toggled(self, checked):
-        if bool(checked):
-            pubsub_singleton.publish('registry/StatisticsRecord/actions/!start_request', None)
-        else:
-            pubsub_singleton.publish('registry/StatisticsRecord/actions/!stop', None)
 
     def _on_settings_pressed(self, checked):
         pubsub_singleton.publish('registry/view/actions/!widget_open', {
