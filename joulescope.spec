@@ -198,7 +198,7 @@ elif sys.platform == 'win32':
     print('Create Inno Setup installer')
     subprocess.run([INNO_SETUP_PATH,
                     os.path.join(specpath, 'joulescope.iss')],
-                    cwd=os.path.join(specpath, 'dist', 'joulescope'))
+                    cwd=os.path.join(specpath))
 
 elif sys.platform == 'linux':
     os.rename(os.path.join(specpath, 'dist/joulescope'),
