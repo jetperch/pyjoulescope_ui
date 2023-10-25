@@ -81,9 +81,8 @@ class Device:
         return self._driver.query(self._driver_topic_make(topic), timeout)
 
     def _driver_subscribe(self, topic, flags, fn, timeout=None):
-        rv = self._driver.subscribe(self._driver_topic_make(topic), flags, fn, timeout)
-        if rv == 0:
-            self._driver_subscriptions.append((topic, fn))
+        self._driver.subscribe(self._driver_topic_make(topic), flags, fn, timeout)
+        self._driver_subscriptions.append((topic, fn))
 
     def _driver_unsubscribe(self, topic, fn, timeout=None):
         s, self._driver_subscriptions = self._driver_subscriptions, []
@@ -93,11 +92,11 @@ class Device:
             else:
                 self._driver_subscriptions.append((t, f))
 
-    def _driver_unsubscribe_all(self, fn, timeout=None):
+    def _driver_unsubscribe_all(self, fn=None, timeout=None):
         s, self._driver_subscriptions = self._driver_subscriptions, []
         for t, f in s:
-            if f == fn:  # "==" works for bound methods
-                self._driver.unsubscribe(f, timeout)
+            if fn is None or f == fn:  # "==" works for bound methods
+                self._driver.unsubscribe_all(f, timeout)
             else:
                 self._driver_subscriptions.append((t, f))
 

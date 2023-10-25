@@ -7,8 +7,12 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.32
 
-2023 Oct 25 [in progress]
+2023 Oct 25
 
+* Added software controlled fuse support.
+* Updated to pyjoulescope_driver 1.3.19 which includes
+  JS220 FPGA & FW to 1.1.0 with fuse support.
+* Updated to pyjls 0.8.2 with improved truncation recovery.
 * Added exception catch to GL string get.
 * Added Waveform widget "auto" marker statistics text position as default  #224
 * Improved Waveform widget autoranging  #228
@@ -18,7 +22,6 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Added vertical scroll bar to flyout.
   * Converted settings widget to flyout, not pop-over.
 * Added automatic recording close on app exit  #232 
-* Added software controlled fuse support.
 
 
 ## 1.0.31

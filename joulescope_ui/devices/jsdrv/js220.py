@@ -284,7 +284,7 @@ _SETTINGS_CLASS = {
             We recommend keeping the default "stable"
             unless you are a Joulescope developer.""",
         'options': [['alpha', 'alpha'], ['beta', 'beta'], ['stable', 'stable']],
-        'default': 'beta',
+        'default': 'stable',
     },
     'firmware_available': {
         'dtype': 'obj',
@@ -802,16 +802,13 @@ class Js220(Device):
         self._log.info('close %s start', self.unique_id)
         self._ui_unsubscribe('settings', self._on_settings)
         self._ui_publish('settings/state', 'closing')
-        self._driver_unsubscribe('s/stats/value', self._on_stats)
+        self._driver_unsubscribe_all()
         try:
             for t in _SIGNALS.values():
                 self._driver_publish(t['topics'][0], 0, timeout=0)
             self._driver_publish('s/stats/ctrl', 0)
         except Exception as ex:
             self._log.info('Exception during close cleanup: %s', ex)
-        if self.has_fuse_support:
-            for fuse_id in _FUSE_IDS:
-                self._driver_unsubscribe(f's/fuse/{fuse_id}/engaged', self._on_fuse_engaged)
         try:
             self._driver.close(self._path)
         except Exception as ex:
