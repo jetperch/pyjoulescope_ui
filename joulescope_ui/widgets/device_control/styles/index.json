@@ -55,6 +55,20 @@
         ["{basename}_hover{ext}",   {"#000000": "target_power.on_hover"}]
       ]
     },
+    "fuse_normal": {
+      "sources": ["fuse_normal.svg"],
+      "targets": [
+        ["{basename}{ext}",          {"#000000": "target_power.on"}],
+        ["{basename}_disabled{ext}", {"#000000": "js1.unchecked_disabled"}]
+      ]
+    },
+    "fuse_engaged": {
+      "sources": ["fuse_engaged.svg"],
+      "targets": [
+        ["{basename}_0{ext}",      {"#ffffff": "sidebar.foreground", "#808080": "target_power.off", "#000000": "sidebar.play_background"}],
+        ["{basename}_1{ext}",      {"#ffffff": "sidebar.foreground", "#000000": "target_power.off", "#808080": "sidebar.play_background"}]
+      ]
+    },
 
     "copy": {
       "sources": [

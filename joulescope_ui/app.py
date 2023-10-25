@@ -216,3 +216,6 @@ class App:
         else:
             # default not in list, use first item in list
             pubsub_singleton.publish(topic, value[0])
+
+    def on_action_fuse_clear_all(self):
+        pass

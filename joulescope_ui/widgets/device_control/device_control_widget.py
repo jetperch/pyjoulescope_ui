@@ -35,12 +35,11 @@ class DeviceControlWidget(QtWidgets.QWidget):
         self._log = logging.getLogger(__name__)
         super().__init__(parent=parent)
         self.setObjectName('device_ctrl')
-        self._layout = QtWidgets.QVBoxLayout()
+        self._layout = QtWidgets.QVBoxLayout(self)
         self._layout.setContentsMargins(0, 0, 0, 0)
         self._layout.setSpacing(0)
         self._spacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self._layout.addItem(self._spacer)
-        self.setLayout(self._layout)
         self._device_widgets = {}
 
         self._subscribers = [

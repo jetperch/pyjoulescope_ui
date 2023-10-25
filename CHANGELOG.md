@@ -7,7 +7,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.32
 
-2023 Oct 20 [in progress]
+2023 Oct 25 [in progress]
 
 * Added exception catch to GL string get.
 * Added Waveform widget "auto" marker statistics text position as default  #224
@@ -17,6 +17,8 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Automatically close when mouse leaves to the right.
   * Added vertical scroll bar to flyout.
   * Converted settings widget to flyout, not pop-over.
+* Added automatic recording close on app exit  #232 
+* Added software controlled fuse support.
 
 
 ## 1.0.31

@@ -47,6 +47,16 @@ _DEFAULT_DEVICE_TOOLTIP = tooltip_format(
     """),
 )
 
+_FUSE_TOOLTIP = tooltip_format(
+    N_('Fuse engaged indicator'),
+    N_("""\
+    This indicator becomes active when at least one connected
+    instrument has an engaged fuse.  Instruments with 
+    engaged fuses prevent current flow until cleared.  
+            
+    Press to clear.""")
+)
+
 _OPEN_TOOLTIP = tooltip_format(
     N_('Open and close the device'),
     N_("""\
@@ -74,16 +84,6 @@ _CLEAR_ACCUM_TOOLTIP = tooltip_format(
 )
 
 _BUTTON_SIZE = (20, 20)
-
-
-def _construct_pushbutton(parent, name, checkable=False, tooltip=None):
-    b = QtWidgets.QPushButton(parent)
-    b.setObjectName(name)
-    b.setProperty('blink', False)
-    b.setCheckable(checkable)
-    b.setFixedSize(*_BUTTON_SIZE)
-    b.setToolTip(tooltip)
-    return b
 
 
 class Js220CtrlWidget(QtWidgets.QWidget):
@@ -186,18 +186,28 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         info = pubsub_singleton.query(f'{get_topic_name(self.unique_id)}/settings/info')
         DeviceInfoDialog(info)
 
+    def _construct_pushbutton(self, name, checkable=False, tooltip=None):
+        b = QtWidgets.QPushButton()
+        b.setObjectName(name)
+        b.setProperty('blink', False)
+        b.setCheckable(checkable)
+        b.setFixedSize(*_BUTTON_SIZE)
+        b.setToolTip(tooltip)
+        self._widgets.append(b)
+        return b
+
     def _construct_header(self):
         w = QtWidgets.QWidget(self._expanding)
         layout = QtWidgets.QHBoxLayout(w)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(3)
 
-        doc = _construct_pushbutton(w, 'doc', tooltip=_DOC_TOOLTIP)
+        doc = self._construct_pushbutton('doc', tooltip=_DOC_TOOLTIP)
         doc.clicked.connect(lambda checked: webbrowser.open_new_tab(self._USERS_GUIDE_URL))
         layout.addWidget(doc)
 
         if self.is_js220:
-            info = _construct_pushbutton(w, 'info', tooltip=_INFO_TOOLTIP)
+            info = self._construct_pushbutton('info', tooltip=_INFO_TOOLTIP)
             info.clicked.connect(self._on_info)
             self._info_button = info
             layout.addWidget(info)
@@ -206,6 +216,10 @@ class Js220CtrlWidget(QtWidgets.QWidget):
 
         default_device = self._construct_default_device_button(w)
         layout.addWidget(default_device)
+
+        if self.is_js220:
+            fuse = self._construct_fuse_button(w)
+            layout.addWidget(fuse)
 
         target_power = self._construct_target_power_button(w)
         layout.addWidget(target_power)
@@ -222,7 +236,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             'registry/app/settings/defaults/statistics_stream_source',
             'registry/app/settings/defaults/signal_stream_source',
         ]
-        b = _construct_pushbutton(parent, 'default_device', checkable=True, tooltip=_DEFAULT_DEVICE_TOOLTIP)
+        b = self._construct_pushbutton('default_device', checkable=True, tooltip=_DEFAULT_DEVICE_TOOLTIP)
 
         def update_from_pubsub(value):
             block_state = b.blockSignals(True)
@@ -240,11 +254,34 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         b.toggled.connect(on_pressed)
         return b
 
+    def _construct_fuse_button(self, parent):
+        topic = get_topic_name(self.unique_id)
+        b = self._construct_pushbutton('fuse', checkable=True, tooltip=_FUSE_TOOLTIP)
+        self._buttons_blink.append(b)
+
+        def update_from_pubsub(value):
+            value = bool(value)
+            block_signals = b.blockSignals(True)
+            b.setChecked(value)
+            b.blockSignals(block_signals)
+
+        def on_toggled(checked):
+            if not bool(checked):
+                pubsub_singleton.publish(f'{topic}/actions/!fuse_clear', None)
+            else:
+                block_signals = b.blockSignals(True)
+                b.setChecked(not checked)
+                b.blockSignals(block_signals)
+
+        self._subscribe(f'{topic}/settings/fuse_engaged', update_from_pubsub)
+        b.toggled.connect(on_toggled)
+        return b
+
     def _construct_target_power_button(self, parent):
         topic = f'{get_topic_name(self.unique_id)}/settings/target_power'
         meta = pubsub_singleton.metadata(topic)
-        b = _construct_pushbutton(parent, 'target_power', checkable=True,
-                                  tooltip=tooltip_format(meta.brief, meta.detail))
+        b = self._construct_pushbutton('target_power', checkable=True,
+                                       tooltip=tooltip_format(meta.brief, meta.detail))
         self._buttons_blink.append(b)
 
         def update_from_pubsub(value):
@@ -268,7 +305,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
     def _construct_open_button(self, parent):
         self_topic = get_topic_name(self.unique_id)
         state_topic = f'{self_topic}/settings/state'
-        b = _construct_pushbutton(parent, 'open', checkable=True, tooltip=_OPEN_TOOLTIP)
+        b = self._construct_pushbutton('open', checkable=True, tooltip=_OPEN_TOOLTIP)
 
         def state_from_pubsub(value):
             checked = (value == 2)  # open (not closed, opening, or closing)
@@ -307,7 +344,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
                                             QtWidgets.QSizePolicy.Minimum),
         }
         for name, value in self._DEVICE_SETTINGS.items():
-            if not name.endswith('/enable'):
+            if 'fuse' in name or not name.endswith('/enable'):
                 continue
             signal = name.split('/')[1]
             meta = Metadata(value)
@@ -487,15 +524,10 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         self._row += 1
 
     def _add_fuses(self):
-        fuses = {
-            0: FuseWidget(self, self.unique_id, 0),
-            1: FuseWidget(self, self.unique_id, 1),
-            30: FuseWidget(self, self.unique_id, 30),
-            31: FuseWidget(self, self.unique_id, 31),
-        }
-        for widget in fuses.values():
-            self._body_layout.addWidget(widget, self._row, 0, 1, 2)
-            self._row += 1
+        w = FuseWidget(self, self.unique_id)
+        self._body_layout.addWidget(w, self._row, 0, 1, 2)
+        self._row += 1
+        self._widgets.append(w)
 
     def _add_footer(self):
         widget = QtWidgets.QWidget(self._body)

@@ -13,6 +13,7 @@
 # limitations under the License.
 
 from .device import Device, CAPABILITIES_OBJECT_OPEN
+from .js220_fuse import fuse_to_config
 from joulescope_ui import N_, get_topic_name, register
 from joulescope_ui.metadata import Metadata
 from pyjoulescope_driver import release, program
@@ -296,18 +297,30 @@ _SETTINGS_CLASS = {
         'flags': ['hide', 'tmp', 'ro'],
     },
 
-    'fuse_enable_0': {
+    'fuse/0/enable': {
         'dtype': 'bool',
         'brief': 'Enable/disable the fuse',
-        'detail': 'sdfsd',
         'default': False,
         'flags': ['hide'],
     },
-    'fuse_enable_1': {
+    'fuse/0/config': {
+        'dtype': 'obj',
+        'brief': 'Fuse configuration',
+        'detail': 'The fuse configuration',
+        'default': fuse_to_config(1.0, 2.0, 0.25),
+        'flags': ['hide'],
+    },
+    'fuse/1/enable': {
         'dtype': 'bool',
         'brief': 'Enable/disable the fuse',
-        'detail': 'fdsaf',
         'default': False,
+        'flags': ['hide'],
+    },
+    'fuse/1/config': {
+        'dtype': 'obj',
+        'brief': 'Fuse configuration',
+        'detail': 'The fuse configuration',
+        'default': fuse_to_config(1.0, 2.0, 0.25),
         'flags': ['hide'],
     },
     'fuse_engaged': {
@@ -491,7 +504,7 @@ class Js220(Device):
         topic = get_topic_name(self)
         self._ui_subscribe('registry/app/settings/target_power', self._on_target_power_app,
                            ['pub', 'retain'], absolute_topic=True)
-        self._ui_subscribe('registry/app/settings/fuse_engaged', self._on_fuse_engaged_app,
+        self._ui_subscribe('registry/app/actions/!fuse_clear_all', self._on_fuse_engaged_app,
                            ['pub', 'retain'], absolute_topic=True)
         self.pubsub.publish(f'{topic}/settings/info', self._info)
         self.pubsub.publish(f'{topic}/sources/1/info', self._info)
@@ -594,7 +607,24 @@ class Js220(Device):
 
     def _run_cmd_settings(self, topic, value):
         self._log.info(f'setting(%s): %s <= %s', self, topic, value)
-        if topic.endswith('/enable'):
+        if topic.startswith('fuse/'):
+            fuse_id = topic.split('/')[1]
+            enable_topic = f's/fuse/{fuse_id}/en'
+            if not self.has_fuse_support:
+                pass
+            elif topic.endswith('/enable'):
+                en = bool(value)
+                self._log.info(f"fuse {fuse_id}: en={en}")
+                self._driver_publish(enable_topic, en)
+            elif topic.endswith('/config'):
+                en = self._driver_query(enable_topic)
+                if en:
+                    self._driver_publish(enable_topic, False)
+                self._driver_publish(f's/fuse/{fuse_id}/F', value['js220_fq'])
+                self._driver_publish(f's/fuse/{fuse_id}/K', value['js220_kq'])
+                self._driver_publish(enable_topic, en)
+                self._log.info(f"fuse {fuse_id}: F={value['js220_fq']}, K={value['js220_fq']}, en={en}")
+        elif topic.endswith('/enable'):
             signal_id = topic.split('/')[1]
             t = _SIGNALS[signal_id]['topics'][0]
             if t is not None:
@@ -645,10 +675,6 @@ class Js220(Device):
             pass
         elif topic.startswith('signals/'):
             pass
-        elif topic.startswith('fuse_enable_'):
-            if self.has_fuse_support:
-                fuse_id = topic.split('_')[-1]
-                self._driver_publish(f's/fuse/{fuse_id}/en', bool(value))
         elif topic == 'fuse_clear':
             if self.has_fuse_support:
                 self._log.info('Fuse clear %s', value)

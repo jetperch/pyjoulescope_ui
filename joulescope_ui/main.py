@@ -18,6 +18,7 @@
 from joulescope_ui import pubsub_singleton, N_, get_topic_name, get_instance, \
     tooltip_format, CAPABILITIES, Metadata, __version__
 from joulescope_ui.pubsub import UNDO_TOPIC, REDO_TOPIC
+from joulescope_ui.pubsub_aggregator import PubsubAggregator
 from joulescope_ui.shortcuts import Shortcuts
 from joulescope_ui.widgets import *   # registers all built-in widgets
 from joulescope_ui import logging_util
@@ -414,6 +415,9 @@ class MainWindow(QtWidgets.QMainWindow):
             self._pubsub.publish(topic, __version__)
             self._pubsub.publish('registry/help_html/actions/!show', 'changelog')
         self.resync_request()
+
+        self._fuse_aggregator = PubsubAggregator(self._pubsub, 'device.object', 'settings/fuse_engaged', any,
+                                                 'registry/app/settings/fuse_engaged')
 
         self._pubsub.register(DiskMonitor)
         self._pubsub.register(DiskMonitor(), 'DiskMonitor:0')

@@ -95,7 +95,9 @@ class SideBar(QtWidgets.QWidget):
         self.setLayout(self._layout)
 
         self._add_blink_button('target_power', 'target_power')
-        self._add_blink_button('fuse', 'fuse_engaged', clear_only=True)
+        b = self._add_blink_button('fuse', 'fuse_engaged', clear_only=True)
+        b.toggled.disconnect()
+        b.toggled.connect(lambda checked: pubsub_singleton.publish('registry/app/actions/!fuse_clear_all', None))
         self._add_blink_button('signal_play', 'signal_stream_enable')
         self._add_blink_button('signal_record', 'signal_stream_record')
         self._add_blink_button('statistics_play', 'statistics_stream_enable')

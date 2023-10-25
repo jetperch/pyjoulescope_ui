@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#doc, #info, #default_device, #target_power, #open {
+#doc, #info, #default_device, #fuse, #target_power, #open {
     background: transparent;
     border-width: 0px;
     image: none;
@@ -78,3 +78,13 @@ QPushButton#device_control_signal_on:checked:hover {
   border-color: {% devctrl.border %};
   background-color: {% devctrl.hover %};
 }
+
+/****************************************************************************/
+/* Fuse engaged button                                                      */
+/****************************************************************************/
+QPushButton#fuse[blink=false]:disabled          { image: url("{% path %}/fuse_normal_disabled.svg"); }
+QPushButton#fuse[blink=true]:disabled           { image: url("{% path %}/fuse_normal_disabled.svg"); }
+QPushButton#fuse[blink=false]:enabled           { image: url("{% path %}/fuse_normal.svg"); }
+QPushButton#fuse[blink=true]:enabled            { image: url("{% path %}/fuse_normal.svg"); }
+QPushButton#fuse[blink=false]:enabled:checked   { image: url("{% path %}/fuse_engaged_0.svg"); }
+QPushButton#fuse[blink=true]:enabled:checked    { image: url("{% path %}/fuse_engaged_1.svg"); }
