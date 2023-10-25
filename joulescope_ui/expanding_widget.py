@@ -26,7 +26,7 @@ class ExpandingWidget(QtWidgets.QWidget):
         self._animations = []
         self._animation_group = None
         super().__init__(parent=parent)
-        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
 
         self._layout = QtWidgets.QVBoxLayout(self)
         self._layout.setContentsMargins(0, 0, 0, 0)
@@ -52,12 +52,6 @@ class ExpandingWidget(QtWidgets.QWidget):
         self._header.mousePressEvent = self._on_header_mousePressEvent
         self._header.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         self._layout.addWidget(self._header)
-
-        self._body = QtWidgets.QWidget(self)
-        self._body_layout = QtWidgets.QVBoxLayout(self._body)
-        self._body_layout.setContentsMargins(12, 0, 0, 0)
-        self._body_layout.setSpacing(0)
-        self._layout.addWidget(self._body)
 
     @property
     def title(self):
@@ -86,14 +80,13 @@ class ExpandingWidget(QtWidgets.QWidget):
     @body_widget.setter
     def body_widget(self, w: QtWidgets.QWidget):
         if self._contents is not None:
-            self._body_layout.removeWidget(self._contents)
-            self._contents = None
+            self._layout.removeWidget(self._contentsy)
         if w is not None:
             if self._show is not None:
                 w.setMaximumHeight(0)
                 w.hide()
             self._contents = w
-            self._body_layout.addWidget(w)
+            self._layout.addWidget(w)
         self.animate()
 
     @property
@@ -204,16 +197,23 @@ def demo():
 
     for idx in range(3):
         e1 = ExpandingWidget()
-        e1.title = f'Expanding {idx}'
+        e1.title = f'Expanding {idx}.1'
         z1 = body_contents()
         e1.body_widget = z1[0]
 
         e2 = ExpandingWidget()
-        e2.title = f'Sub {idx}'
+        e2.title = f'Sub {idx}.2'
         z2 = body_contents()
         e2.body_widget = z2[0]
+
+        e3 = ExpandingWidget()
+        e3.title = f'Sub {idx}.3'
+        z3 = body_contents()
+        e3.body_widget = z3[0]
+        z2[1].addWidget(e3)
+
         z1[1].addWidget(e2)
-        widgets.append([e1, e2, z1, z2])
+        widgets.append([e1, e2, z1, z2, e3, z3])
         layout.addWidget(e1)
 
     spacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
