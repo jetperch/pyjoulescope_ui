@@ -5,12 +5,12 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
-## 1.0.34
+## 1.0.35
 
-2023 Oct 25
+2023 Oct 26
 
 * Added software controlled fuse support.
-* Updated to pyjoulescope_driver 1.3.19 which includes
+* Updated to pyjoulescope_driver 1.3.20 which includes
   JS220 FPGA & FW to 1.1.0 with fuse support.
 * Updated to pyjls 0.8.2 with improved truncation recovery.
 * Added exception catch to GL string get.
