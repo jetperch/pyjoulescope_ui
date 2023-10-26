@@ -524,10 +524,11 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         self._row += 1
 
     def _add_fuses(self):
-        w = FuseWidget(self, self.unique_id)
-        self._body_layout.addWidget(w, self._row, 0, 1, 2)
-        self._row += 1
-        self._widgets.append(w)
+        if self.is_js220:
+            w = FuseWidget(self, self.unique_id)
+            self._body_layout.addWidget(w, self._row, 0, 1, 2)
+            self._row += 1
+            self._widgets.append(w)
 
     def _add_footer(self):
         widget = QtWidgets.QWidget(self._body)
