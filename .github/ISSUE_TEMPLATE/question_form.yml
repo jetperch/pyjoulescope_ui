@@ -21,7 +21,7 @@ body:
       label: UI version
       description: What version of our software are you running?
       options:
-        - 1.0.32
+        - 1.0.35
         - 1.0.31
         - other
     validations:
