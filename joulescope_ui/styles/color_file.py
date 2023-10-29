@@ -82,7 +82,7 @@ def parse_str(s: str) -> ColorsType:
         if len(value) == 7:
             value = value + 'ff'
         elif len(value) != 9:
-            raise ValueError('Invalid color')
+            raise ValueError(f'Invalid color {line_num} : {line} -> {value}')
         colors[name] = value
     return colors
 

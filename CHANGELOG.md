@@ -5,6 +5,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.0.36
+
+2023 Oct 29
+
+* Removed device control widget's color dependency on sidebar.
+
+
 ## 1.0.35
 
 2023 Oct 26
