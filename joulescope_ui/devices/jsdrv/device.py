@@ -14,6 +14,7 @@
 
 from joulescope_ui.capabilities import CAPABILITIES
 from joulescope_ui.metadata import Metadata
+import copy
 import logging
 
 
@@ -37,7 +38,7 @@ class Device:
     EVENTS = {}
 
     def __init__(self, wrapper, device_path):
-        self.CAPABILITIES = CAPABILITIES_OBJECT
+        self.CAPABILITIES = copy.deepcopy(CAPABILITIES_OBJECT)
         self._wrapper = wrapper  #: JsdrvWrapper
         while device_path.endswith('/'):
             device_path = device_path[:-1]
