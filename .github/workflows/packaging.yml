@@ -132,6 +132,11 @@ jobs:
           security import $CERTIFICATE_INSTALLER_PATH -P "$CERTIFICATE_PWD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security add-certificates -k $KEYCHAIN_PATH DeveloperIDCA.cer DeveloperIDG2CA.cer AppleWWDRCAG2.cer AppleWWDRCAG3.cer AppleRootCA-G2.cer
 
+      - name: Windows AzureSignTool install
+        # https://melatonin.dev/blog/how-to-code-sign-windows-installers-with-an-ev-cert-on-github-actions/
+        if: matrix.os == 'windows-latest'
+        run: dotnet tool install --global AzureSignTool
+
       - name: Install Ubuntu dependencies
         if: matrix.os == 'ubuntu-latest'
         run: |
@@ -151,6 +156,7 @@ jobs:
         # rebuilding the pyinstaller bootloader helps reduce false positives.
         shell: bash
         run: |
+          pip uninstall pyinstaller
           git clone --depth 1 --branch v6.1.0 https://github.com/pyinstaller/pyinstaller.git pyinstaller
           cd ./pyinstaller/bootloader
           python ./waf all --target-arch=64bit --leak-detector --static-zlib
@@ -158,10 +164,6 @@ jobs:
           pip install .
           cd ..
           rm -rf ./pyinstaller
-
-      - name: Install pyinstaller
-        if: matrix.os != 'windows-latest'
-        run: python -m pip install pyinstaller==6.1
 
       - name: Patch macOS to universal2
         run: python ci/macos_universal2.py
@@ -175,29 +177,18 @@ jobs:
         run: python setup.py sdist
 
       - name: Build installer
+        env:
+          AZURE_KEY_VAULT_URI: ${{ secrets.AZURE_KEY_VAULT_URI }}
+          AZURE_CLIENT_ID:  ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_CERT_NAME: ${{ secrets.AZURE_CERT_NAME }}
         run: pyinstaller joulescope.spec
 
       - name: Find installer filename
         shell: bash
         id: installer_filename
         run: echo "filename=$(ls dist_installer/*.*)" >> $GITHUB_OUTPUT
-
-      - name: Windows AzureSignTool install
-        if: matrix.os == 'windows-latest'
-        run: dotnet tool install --global AzureSignTool
-
-      - name: Windows Sign
-        # https://melatonin.dev/blog/how-to-code-sign-windows-installers-with-an-ev-cert-on-github-actions/
-        if: matrix.os == 'windows-latest'
-        run: >
-          AzureSignTool sign 
-          -kvu "${{ secrets.AZURE_KEY_VAULT_URI }}" 
-          -kvi "${{ secrets.AZURE_CLIENT_ID }}" 
-          -kvt "${{ secrets.AZURE_TENANT_ID }}" 
-          -kvs "${{ secrets.AZURE_CLIENT_SECRET }}" 
-          -kvc ${{ secrets.AZURE_CERT_NAME }} 
-          -tr http://timestamp.digicert.com 
-          -v "${{ steps.installer_filename.outputs.filename }}"
 
       - name: macOS notarize
         if: matrix.os == 'macos-latest' && github.event_name == 'push' && startswith(github.ref, 'refs/tags/v')
