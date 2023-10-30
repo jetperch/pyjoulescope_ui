@@ -201,7 +201,7 @@ elif sys.platform == 'win32':
         if AZURE_KEY_VAULT_URI is None:
             return
         print(f'signing {path}')
-        subprocess.run(['AzureSignTool', 'sign'
+        subprocess.run(['AzureSignTool', 'sign',
           '-kvu', os.getenv('AZURE_KEY_VAULT_URI'),
           '-kvi', os.getenv('AZURE_CLIENT_ID'),
           '-kvt', os.getenv('AZURE_TENANT_ID'),
@@ -218,7 +218,7 @@ elif sys.platform == 'win32':
                     os.path.join(specpath, 'joulescope.iss')],
                     cwd=os.path.join(specpath))
     installer_exe = os.listdir('./dist_installer')[0]
-    sign(installer_exe)
+    sign(os.path.join(f'./dist_installer/{installer_exe}')
 
 elif sys.platform == 'linux':
     os.rename(os.path.join(specpath, 'dist/joulescope'),
