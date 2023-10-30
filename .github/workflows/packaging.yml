@@ -156,7 +156,7 @@ jobs:
         # rebuilding the pyinstaller bootloader helps reduce false positives.
         shell: bash
         run: |
-          pip uninstall pyinstaller
+          pip uninstall -y pyinstaller
           git clone --depth 1 --branch v6.1.0 https://github.com/pyinstaller/pyinstaller.git pyinstaller
           cd ./pyinstaller/bootloader
           python ./waf all --target-arch=64bit --leak-detector --static-zlib
