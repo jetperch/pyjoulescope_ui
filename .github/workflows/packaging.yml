@@ -151,7 +151,7 @@ jobs:
           python -m pip install -U --upgrade-strategy eager -r requirements.txt
 
       - name: Build pyinstaller
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == '__skip__'
         # Antivirus software often flags pyinstaller as malicious.
         # rebuilding the pyinstaller bootloader helps reduce false positives.
         shell: bash
