@@ -211,14 +211,14 @@ elif sys.platform == 'win32':
           '-v', path,
         ])
 
-    app_exe = './dist/joulescope/joulescope.exe'
+    app_exe = fr'.\dist\joulescope\joulescope.exe'
     sign(app_exe)
     print('Create Inno Setup installer')
     subprocess.run([INNO_SETUP_PATH,
                     os.path.join(specpath, 'joulescope.iss')],
                     cwd=os.path.join(specpath))
-    installer_exe = os.listdir('./dist_installer')[0]
-    sign(f'./dist_installer/{installer_exe}')
+    installer_exe = os.listdir(r'.\dist_installer')[0]
+    sign(fr'.\dist_installer\{installer_exe}')
 
 elif sys.platform == 'linux':
     os.rename(os.path.join(specpath, 'dist/joulescope'),
