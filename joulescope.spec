@@ -218,7 +218,7 @@ elif sys.platform == 'win32':
                     os.path.join(specpath, 'joulescope.iss')],
                     cwd=os.path.join(specpath))
     installer_exe = os.listdir('./dist_installer')[0]
-    sign(os.path.join(f'./dist_installer/{installer_exe}')
+    sign(f'./dist_installer/{installer_exe}')
 
 elif sys.platform == 'linux':
     os.rename(os.path.join(specpath, 'dist/joulescope'),
