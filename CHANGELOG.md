@@ -10,8 +10,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 2023 Oct 30
 
 * Fixed devices not correctly added to CAPABILITIES  #234.
-* Added pyinstaller bootloader rebuild to Windows release process
-  to reduce antivirus false positives.
+* Signed the joulescope.exe application for Windows distribution. 
 
 
 ## 1.0.36

@@ -150,21 +150,6 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install -U --upgrade-strategy eager -r requirements.txt
 
-      - name: Build pyinstaller
-        if: matrix.os == '__skip__'
-        # Antivirus software often flags pyinstaller as malicious.
-        # rebuilding the pyinstaller bootloader helps reduce false positives.
-        shell: bash
-        run: |
-          pip uninstall -y pyinstaller
-          git clone --depth 1 --branch v6.1.0 https://github.com/pyinstaller/pyinstaller.git pyinstaller
-          cd ./pyinstaller/bootloader
-          python ./waf all --target-arch=64bit --leak-detector --static-zlib
-          cd ..
-          pip install .
-          cd ..
-          rm -rf ./pyinstaller
-
       - name: Patch macOS to universal2
         run: python ci/macos_universal2.py
 
