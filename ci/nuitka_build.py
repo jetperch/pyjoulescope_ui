@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import platform
 import os
 import shutil
 import subprocess
@@ -22,7 +23,11 @@ _PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _INNO_SETUP_PATH = "ISCC.exe"
 
 
-def sign(path):
+def is_windows():
+    return platform.system() == 'Windows'
+
+
+def azure_sign(path):
     # https://melatonin.dev/blog/how-to-code-sign-windows-installers-with-an-ev-cert-on-github-actions/
     AZURE_KEY_VAULT_URI = os.getenv('AZURE_KEY_VAULT_URI')
     if AZURE_KEY_VAULT_URI is None:
@@ -40,7 +45,12 @@ def sign(path):
     rc.check_returncode()
 
 
-def run():
+def sign(path):
+    if is_windows():
+        azure_sign(path)
+
+
+def nuitka():
     # https://nuitka.net/index.html
     print('Run Nuitka')
     rc = subprocess.run(
@@ -64,20 +74,25 @@ def run():
             '--include-data-files=README.md=README.md',
             '--windows-icon-from-ico=joulescope_ui/resources/icon.ico',
             '--disable-console',
+            '--assume-yes-for-downloads',
             'joulescope_ui',
         ],
         cwd=_PATH,
     )
     rc.check_returncode()
 
-    dist_path = os.path.join(_PATH, 'dist')
-    os.makedirs(dist_path, exist_ok=True)
-    dist_path = os.path.join(dist_path, 'joulescope')
-    shutil.move(os.path.join(_PATH, 'joulescope_ui.dist'), dist_path)
-    os.rename(os.path.join(dist_path, 'joulescope_ui.exe'), os.path.join(dist_path, 'joulescope.exe'))
+    path = os.path.join(_PATH, 'dist')
+    os.makedirs(path, exist_ok=True)
+    path = os.path.join(path, 'joulescope')
+    shutil.move(os.path.join(_PATH, 'joulescope_ui.dist'), path)
+    return path
+
+
+def windows_release(path):
+    os.rename(os.path.join(path, 'joulescope_ui.exe'), os.path.join(path, 'joulescope.exe'))
 
     # sign the executable
-    sign(os.path.join(dist_path, 'joulescope.exe'))
+    sign(os.path.join(path, 'joulescope.exe'))
 
     print('Create Inno Setup installer')
     rc = subprocess.run(
@@ -90,14 +105,20 @@ def run():
     rc.check_returncode()
 
     # sign the installer
-    installer_exe = os.listdir(r'.\dist_installer')[0]
-    sign(fr'.\dist_installer\{installer_exe}')
+    installer_path = os.path.join(_PATH, 'dist_installer')
+    installer_exe = os.path.join(installer_path, os.listdir(installer_path)[0])
+    installer_exe_base, installer_exe_ext = os.path.splitext(installer_exe)
+    installer_final = f'{installer_exe_base}_nuitka{installer_exe_ext}'
+    os.rename(installer_exe, installer_final)
+    sign(installer_final)
     return 0
 
 
 if __name__ == '__main__':
     try:
-        rv = run()
+        dist_path = nuitka()
+        if is_windows():
+            windows_release(dist_path)
     except Exception as ex:
         print(ex)
         rv = 1

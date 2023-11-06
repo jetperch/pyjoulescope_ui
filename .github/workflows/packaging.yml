@@ -94,7 +94,12 @@ jobs:
       fail-fast: false
       matrix:
         os: ["ubuntu-latest", "windows-latest", "macos-latest"]
-
+        dist: ["pyinstaller", "nuitka"]
+        exclude:
+          - os: ubuntu-latest
+            dist: nuitka
+          - os: macos-latest
+            dist: nuitka
     steps:
       - name: Checkout repo
         uses: actions/checkout@v3
@@ -163,17 +168,23 @@ jobs:
         run: python setup.py sdist
 
       - name: Build Windows installer
-        if: matrix.os == 'windows-latest'
+        if: matrix.dist == 'nuitka'
         env:
           AZURE_KEY_VAULT_URI: ${{ secrets.AZURE_KEY_VAULT_URI }}
-          AZURE_CLIENT_ID:  ${{ secrets.AZURE_CLIENT_ID }}
-          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID:     ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID:     ${{ secrets.AZURE_TENANT_ID }}
           AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-          AZURE_CERT_NAME: ${{ secrets.AZURE_CERT_NAME }}
-        run: python ci/win_build.py
+          AZURE_CERT_NAME:     ${{ secrets.AZURE_CERT_NAME }}
+        run: python ci/nuitka_build.py
 
       - name: Build installer
-        if: matrix.os != 'windows-latest'
+        if: matrix.dist == 'pyinstaller'
+        env:
+          AZURE_KEY_VAULT_URI: ${{ secrets.AZURE_KEY_VAULT_URI }}
+          AZURE_CLIENT_ID:     ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID:     ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+          AZURE_CERT_NAME:     ${{ secrets.AZURE_CERT_NAME }}
         run: pyinstaller joulescope.spec
 
       - name: Find installer filename
