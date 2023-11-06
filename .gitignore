@@ -9,6 +9,8 @@ node_modules
 *.pyd
 *.egg-info
 .DS_Store
+joulescope_ui.build
+joulescope_ui.dist
 
 joulescope_ui/.gitignore
 
