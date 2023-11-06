@@ -87,7 +87,7 @@ jobs:
           if-no-files-found: error
 
   build_installers:
-    name: Build on ${{ matrix.os }}
+    name: Build ${{ matrix.os }}, ${{ matrix.dist }}
     if: github.event_name == 'push'
     runs-on: ${{ matrix.os }}
     strategy:

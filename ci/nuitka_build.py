@@ -115,6 +115,7 @@ def windows_release(path):
 
 
 if __name__ == '__main__':
+    rv = 0
     try:
         dist_path = nuitka()
         if is_windows():
