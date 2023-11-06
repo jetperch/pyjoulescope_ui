@@ -148,6 +148,7 @@ jobs:
           which python
           python -VV
           python -m pip install --upgrade pip
+          python -m pip install nuitka
           python -m pip install -U --upgrade-strategy eager -r requirements.txt
 
       - name: Patch macOS to universal2
@@ -161,13 +162,18 @@ jobs:
       - name: Create local files
         run: python setup.py sdist
 
-      - name: Build installer
+      - name: Build Windows installer
+        if: matrix.os == 'windows-latest'
         env:
           AZURE_KEY_VAULT_URI: ${{ secrets.AZURE_KEY_VAULT_URI }}
           AZURE_CLIENT_ID:  ${{ secrets.AZURE_CLIENT_ID }}
           AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
           AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
           AZURE_CERT_NAME: ${{ secrets.AZURE_CERT_NAME }}
+        run: python ci/win_build.py
+
+      - name: Build installer
+        if: matrix.os != 'windows-latest'
         run: pyinstaller joulescope.spec
 
       - name: Find installer filename

@@ -5,6 +5,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.0.38
+
+2023 Nov 6
+
+* Switched from PyInstaller to Nuitka for MS Windows.  
+
+
 ## 1.0.37
 
 2023 Oct 30

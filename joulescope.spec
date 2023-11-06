@@ -209,14 +209,14 @@ elif sys.platform == 'win32':
           '-kvc', os.getenv('AZURE_CERT_NAME'),
           '-tr', 'http://timestamp.digicert.com',
           '-v', path,
-        ])
+        ]).check_returncode()
 
     app_exe = fr'.\dist\joulescope\joulescope.exe'
     sign(app_exe)
     print('Create Inno Setup installer')
     subprocess.run([INNO_SETUP_PATH,
                     os.path.join(specpath, 'joulescope.iss')],
-                    cwd=os.path.join(specpath))
+                    cwd=os.path.join(specpath)).check_returncode()
     installer_exe = os.listdir(r'.\dist_installer')[0]
     sign(fr'.\dist_installer\{installer_exe}')
 
