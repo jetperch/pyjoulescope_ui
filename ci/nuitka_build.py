@@ -62,6 +62,7 @@ def nuitka():
             '--assume-yes-for-downloads',
             '--plugin-enable=pyside6',
             '--python-flag=-m',
+            '--include-module=ctypes.util',
             '--include-module=joulescope.v0.driver',
             '--include-module=joulescope.v0.decimators',
             '--include-module=joulescope.v0.filter_fir',
@@ -74,9 +75,10 @@ def nuitka():
             '--include-data-files=LICENSE.txt=LICENSE.txt',
             '--include-data-files=README.md=README.md',
             '--windows-icon-from-ico=joulescope_ui/resources/icon.ico',
-            #'--disable-console',  # todo uncomment
+            '--disable-console',
             #'--force-stdout-spec=%HOME%/joulescope_%TIME%_%PID%.out.txt',
             #'--force-stderr-spec=%HOME%/joulescope_%TIME%_%PID%.err.txt',
+            '--output-filename=joulescope',
             'joulescope_ui',
         ],
         cwd=_PATH,
@@ -87,12 +89,11 @@ def nuitka():
     os.makedirs(path, exist_ok=True)
     path = os.path.join(path, 'joulescope')
     shutil.move(os.path.join(_PATH, 'joulescope_ui.dist'), path)
+
     return path
 
 
 def windows_release(path):
-    os.rename(os.path.join(path, 'joulescope_ui.exe'), os.path.join(path, 'joulescope.exe'))
-
     # sign the executable
     sign(os.path.join(path, 'joulescope.exe'))
 
