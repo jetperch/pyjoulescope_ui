@@ -167,25 +167,23 @@ jobs:
       - name: Create local files
         run: python setup.py sdist
 
-      - name: Build Windows installer
+      - name: Build with Nuitka
         if: matrix.dist == 'nuitka'
-        env:
-          AZURE_KEY_VAULT_URI: ${{ secrets.AZURE_KEY_VAULT_URI }}
-          AZURE_CLIENT_ID:     ${{ secrets.AZURE_CLIENT_ID }}
-          AZURE_TENANT_ID:     ${{ secrets.AZURE_TENANT_ID }}
-          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-          AZURE_CERT_NAME:     ${{ secrets.AZURE_CERT_NAME }}
         run: python ci/nuitka_build.py
 
-      - name: Build installer
+      - name: Build with PyInstaller
         if: matrix.dist == 'pyinstaller'
+        run: pyinstaller joulescope.spec
+
+      - name: Build Windows installer
+        if: matrix.os == 'windows-latest'
         env:
           AZURE_KEY_VAULT_URI: ${{ secrets.AZURE_KEY_VAULT_URI }}
           AZURE_CLIENT_ID:     ${{ secrets.AZURE_CLIENT_ID }}
           AZURE_TENANT_ID:     ${{ secrets.AZURE_TENANT_ID }}
           AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
           AZURE_CERT_NAME:     ${{ secrets.AZURE_CERT_NAME }}
-        run: pyinstaller joulescope.spec
+        run: python ci/windows_installer.py
 
       - name: Find installer filename
         shell: bash
