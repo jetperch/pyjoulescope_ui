@@ -183,7 +183,7 @@ jobs:
           AZURE_TENANT_ID:     ${{ secrets.AZURE_TENANT_ID }}
           AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
           AZURE_CERT_NAME:     ${{ secrets.AZURE_CERT_NAME }}
-        run: python ci/windows_installer.py
+        run: python ci/windows_installer.py ${{ matrix.dist }}
 
       - name: Find installer filename
         shell: bash
