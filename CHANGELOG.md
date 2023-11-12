@@ -7,9 +7,9 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.38
 
-2023 Nov 6
+2023 Nov 12
 
-* Added Nuitka build for MS Windows in addition to pyinstaller.  
+* Added Nuitka commercial build for MS Windows in addition to pyinstaller.
 
 
 ## 1.0.37

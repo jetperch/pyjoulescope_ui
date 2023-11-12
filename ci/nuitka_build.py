@@ -21,18 +21,36 @@ import sys
 _PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
+def _changelog_version():
+    path = os.path.join(_PATH, 'CHANGELOG.md')
+    with open(path, 'rt') as f:
+        for line in f:
+            if line.startswith('## '):
+                version = line.split(' ')[1]
+                return version
+
+
 def nuitka():
     # https://nuitka.net/index.html
-    print('Run Nuitka')
+    version = _changelog_version()
+    print(f'Release Joulescope UI {version} using Nuitka')
     rc = subprocess.run(
         [
             sys.executable,
             '-m',
             'nuitka',
             '--standalone',
+            '--company-name=Jetperch LLC',
+            '--product-name=Joulescope UI',
+            '--file-version=' + version,
+            '--product-version=' + version,
+            '--file-description=Joulescope UI',
+            '--copyright=2023 Jetperch LLC',
             '--assume-yes-for-downloads',
             '--plugin-enable=pyside6',
             '--python-flag=-m',
+            '--python-flag=no_docstrings',
+            '--msvc=latest',  # for Windows
             '--include-module=ctypes.util',
             '--include-module=joulescope.v0.driver',
             '--include-module=joulescope.v0.decimators',

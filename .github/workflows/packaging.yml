@@ -153,7 +153,6 @@ jobs:
           which python
           python -VV
           python -m pip install --upgrade pip
-          python -m pip install nuitka
           python -m pip install -U --upgrade-strategy eager -r requirements.txt
 
       - name: Patch macOS to universal2
@@ -169,7 +168,9 @@ jobs:
 
       - name: Build with Nuitka
         if: matrix.dist == 'nuitka'
-        run: python ci/nuitka_build.py
+        run: |
+          pip install "git+https://${{ secrets.NUITKA_TOKEN }}@github.com/Nuitka/Nuitka-commercial.git#egg=nuitka"
+          python ci/nuitka_build.py
 
       - name: Build with PyInstaller
         if: matrix.dist == 'pyinstaller'
