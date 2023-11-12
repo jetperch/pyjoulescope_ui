@@ -542,26 +542,36 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         b1 = QtWidgets.QPushButton(self._body)
         b1.setText(N_('Reset to defaults'))
         b1.setToolTip(_RESET_TO_DEFAULTS_TOOLTIP)
-        b1.clicked.connect(self._reset_to_defaults)
+        b1.pressed.connect(self._reset_to_defaults)
         layout.addWidget(b1)
 
         b2 = QtWidgets.QPushButton(self._body)
         b2.setText(N_('Clear accum'))
         b2.setToolTip(_CLEAR_ACCUM_TOOLTIP)
-        b2.clicked.connect(self._clear_accumulators)
+        b2.pressed.connect(self._clear_accumulators)
         layout.addWidget(b2)
+
+        if self.is_js220:
+            b3 = QtWidgets.QPushButton(self._body)
+            b3.setText(N_('Calibrate'))
+            b3.setToolTip(_CLEAR_ACCUM_TOOLTIP)
+            b3.clicked.connect(self._calibrate)
+            layout.addWidget(b3)
+        else:
+            b3 = None
+
         self._row += 1
         self._footer = {
             'widget': widget,
             'layout': layout,
-            'buttons': [b1, b2],
+            'buttons': [b1, b2, b3],
             'spacer': QtWidgets.QSpacerItem(0, 0,
                                             QtWidgets.QSizePolicy.Expanding,
                                             QtWidgets.QSizePolicy.Minimum),
         }
         layout.addItem(self._footer['spacer'])
 
-    def _reset_to_defaults(self, checked):
+    def _reset_to_defaults(self):
         self._log.info('reset to defaults')
         topic_base = f'{get_topic_name(self.unique_id)}/settings'
         # disable all streaming
@@ -576,10 +586,21 @@ class Js220CtrlWidget(QtWidgets.QWidget):
                 value = self.unique_id
             pubsub_singleton.publish(f'{topic_base}/{name}', value)
 
-    def _clear_accumulators(self, checked):
+    def _clear_accumulators(self):
         self._log.info('clear accumulators')
         topic = f'{get_topic_name(self.unique_id)}/actions/!accum_clear'
         pubsub_singleton.publish(topic, None)
+
+    def _calibrate(self):
+        self._log.info('calibrate')
+        widget_def = {
+            'value': 'JS220CalibrationWidget',
+            'kwargs': {
+                'device': self.unique_id,
+            },
+            'floating': True,
+        }
+        pubsub_singleton.publish('registry/view/actions/!widget_open', widget_def)
 
     def clear(self):
         for topic, fn in self._unsub:

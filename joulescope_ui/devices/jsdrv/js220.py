@@ -698,6 +698,17 @@ class Js220(Device):
             self._log.info('current_range off')
             self._driver_publish('s/i/range/mode', 'off', timeout=0)
 
+    def _run_direct(self, value):
+        action = value['action']
+        if action == 'publish':
+            self._driver_publish(value['topic'], value['value'], timeout=value.get('timeout'))
+        elif action == 'subscribe':
+            self._driver_subscribe(value['topic'], value['flags'], value['fn'], timeout=value.get('timeout'))
+        elif action == 'unsubscribe':
+            self._driver_unsubscribe(value['topic'], value['fn'], timeout=value.get('timeout'))
+        else:
+            self._log.warning('Unhandled direct action: %s', action)
+
     def _run_cmd(self, cmd, args):
         if cmd == 'settings':
             self._run_cmd_settings(*args)
@@ -705,6 +716,8 @@ class Js220(Device):
             self._current_range_update()
         elif cmd == 'close':
             pass  # handled in outer wrapper
+        elif cmd == 'direct':
+            self._run_direct(args)
         else:
             self._log.warning('Unhandled cmd: %s', cmd)
 
@@ -866,6 +879,9 @@ class Js220(Device):
 
     def on_action_fuse_clear(self, topic, value):
         self._send_to_thread('settings', ('fuse_clear', value))
+
+    def on_action_direct(self, topic, value):
+        self._send_to_thread('direct', value)
 
 
 register(Js220, 'JS220')

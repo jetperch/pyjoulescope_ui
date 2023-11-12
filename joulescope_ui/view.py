@@ -205,6 +205,9 @@ class View:
             obj = spec(*args, **kwargs)
         else:
             obj = spec
+        if obj is None:
+            _log.warning('Could not open %s', spec)
+            return
         pubsub_singleton.register(obj, unique_id=unique_id, parent=self)
         unique_id = obj.unique_id
         obj.setObjectName(unique_id)

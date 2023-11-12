@@ -11,6 +11,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 * Added Nuitka commercial build for MS Windows in addition to pyinstaller.
 * Bumped pyjoulescope_driver to 1.4.0 with JS220 FW 1.1.1.
+* Added JS220 current offset calibration and voltage offset calibration.
 
 
 ## 1.0.37

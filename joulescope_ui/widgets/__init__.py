@@ -23,6 +23,7 @@ from .memory import MemoryWidget
 from .hamburger import HamburgerWidget
 from .help import HelpWidget
 from .jls_info import JlsInfoWidget
+from .js220_cal import JS220CalibrationWidget
 from .notes import NotesWidget
 from .progress_bar import ProgressBarWidget
 from .record_status import RecordStatusWidget
