@@ -10,6 +10,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 2023 Nov 12
 
 * Added Nuitka commercial build for MS Windows in addition to pyinstaller.
+* Bumped pyjoulescope_driver to 1.4.0 with JS220 FW 1.1.1.
 
 
 ## 1.0.37
