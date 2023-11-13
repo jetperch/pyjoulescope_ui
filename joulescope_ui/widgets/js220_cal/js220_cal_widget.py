@@ -31,8 +31,7 @@ The Joulescope JS220 is designed to meet its specifications
 without recalibration.  You can use offset calibration to
 further reduce the offset error.  If you wish to perform
 scale calibration, ensure that your test setup gives a 
-sufficient test uncertainty ratio (TUR) to actually
-improve upon the factory calibration."""
+sufficient test uncertainty ratio (TUR)."""
 
 _FACTORY = N_('Restore factory calibration')
 _START = N_('Start')

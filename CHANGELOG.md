@@ -5,6 +5,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.0.39
+
+2023 Nov 13
+
+* Fixed tooltip for JS220 "Calibrate" button.
+
+
 ## 1.0.38
 
 2023 Nov 12

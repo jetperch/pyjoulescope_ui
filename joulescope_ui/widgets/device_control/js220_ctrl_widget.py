@@ -83,6 +83,16 @@ _CLEAR_ACCUM_TOOLTIP = tooltip_format(
     """),
 )
 
+_CALIBRATE_TOOLTIP = tooltip_format(
+    N_('Calibrate'),
+    N_("""\
+    Click this button to recalibrate your Joulescope JS220.
+    Recalibration is not required for normal operation.
+    Performing calibration can improve accuracy by
+    accounting for the existing temperature and aging effects.\
+    """),
+)
+
 _BUTTON_SIZE = (20, 20)
 
 
@@ -554,7 +564,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         if self.is_js220:
             b3 = QtWidgets.QPushButton(self._body)
             b3.setText(N_('Calibrate'))
-            b3.setToolTip(_CLEAR_ACCUM_TOOLTIP)
+            b3.setToolTip(_CALIBRATE_TOOLTIP)
             b3.clicked.connect(self._calibrate)
             layout.addWidget(b3)
         else:
