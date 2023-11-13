@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from joulescope_ui import pubsub_singleton, frozen, __version__
+from joulescope_ui import pubsub_singleton, is_release, __version__
 from joulescope_ui.tokens import REPORTER_TOKEN
 import datetime
 import importlib.metadata
@@ -61,7 +61,7 @@ def platform_info() -> dict:
             'available': vm.total - vm.used,
             'total': vm.total,
         },
-        'frozen': frozen,
+        'is_release': is_release,
     }
 
 

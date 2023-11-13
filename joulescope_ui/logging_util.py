@@ -24,7 +24,7 @@ import os
 import sys
 import platform
 from . import __version__ as UI_VERSION
-from . import frozen
+from . import is_release
 
 
 EXPIRATION_SECONDS = 7 * 24 * 60 * 60  # 7 days
@@ -73,7 +73,7 @@ def log_info():
             'platform': platform.platform(),
             'processor': platform.processor(),
             'executable': sys.executable,
-            'frozen': frozen,
+            'is_release': is_release,
         }
     }
     return json.dumps(info, indent=2)

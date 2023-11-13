@@ -19,7 +19,7 @@ import requests
 import json
 import threading
 import platform
-from joulescope_ui import __version__, N_, pubsub_singleton, register_decorator
+from joulescope_ui import __version__, N_, is_release, pubsub_singleton, register_decorator
 from joulescope_ui.help_ui import load_style
 from joulescope_ui.ui_util import show_in_folder
 import logging
@@ -304,9 +304,8 @@ class SoftwareUpdateDialog(QtWidgets.QDialog):
         self._label.setOpenExternalLinks(True)
         self._layout.addWidget(self._label)
 
-        self._is_frozen = getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS')
         self._buttons = QtWidgets.QDialogButtonBox()
-        if self._is_frozen:
+        if is_release:
             self._buttons = QtWidgets.QDialogButtonBox()
             self._update = self._buttons.addButton(N_('Update Now'), QtWidgets.QDialogButtonBox.YesRole)
             self._update.pressed.connect(self.accept)
@@ -341,8 +340,8 @@ class SoftwareUpdateDialog(QtWidgets.QDialog):
 
     @QtCore.Slot(int)
     def _on_finish(self, value):
-        if not self._is_frozen:
-            _log.info('software update: not frozen')
+        if not is_release:
+            _log.info('software update: not a release')
         elif value == QtWidgets.QDialog.DialogCode.Accepted:
             _log.info('software update: update now')
             self._pubsub.publish('registry/ui/actions/!close', {'software_update': self._info})

@@ -23,6 +23,7 @@ from pyjoulescope_driver import time64
 
 
 __all__ = ['__version__', 'pubsub_singleton', 'register', 'register_decorator',
+           'is_release',
            'time64',
            'PUBSUB_TOPICS', 'REGISTRY_MANAGER_TOPICS',
            'tooltip_format',
@@ -78,6 +79,6 @@ def register_decorator(unique_id: str = None):
     return fn
 
 
-frozen = getattr(sys, 'frozen', False)
-if frozen:
-    frozen = getattr(sys, '_MEIPASS', frozen)
+is_pyinstaller = getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS')
+is_nuitka = '__compiled__' in globals()
+is_release = is_pyinstaller or is_nuitka

@@ -19,7 +19,6 @@ import markdown
 import os
 import re
 from PySide6 import QtCore, QtWidgets
-from . import frozen
 from joulescope_ui import pubsub_singleton, get_instance
 from joulescope_ui import about
 
@@ -53,12 +52,13 @@ _MD_FOOTER = """
 def _load_filename(filename):
     for path in [['joulescope_ui'], []]:
         try:
-            if frozen:
-                bin_data = pkgutil.get_data(*path, filename)
-            else:
+            fname = os.path.join(_APP_PATH, *path, filename)
+            if os.path.isfile(fname):
                 fname = os.path.join(_APP_PATH, *path, filename)
                 with open(fname, 'rb') as f:
                     bin_data = f.read()
+            else:
+                bin_data = pkgutil.get_data(*path, filename)
             return bin_data.decode('utf-8')
         except Exception:
             pass

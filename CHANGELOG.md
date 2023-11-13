@@ -5,16 +5,10 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
-## 1.0.39
+
+## 1.0.40
 
 2023 Nov 13
-
-* Fixed tooltip for JS220 "Calibrate" button.
-
-
-## 1.0.38
-
-2023 Nov 12
 
 * Added Nuitka commercial build for MS Windows in addition to pyinstaller.
 * Bumped pyjoulescope_driver to 1.4.0 with JS220 FW 1.1.1.
