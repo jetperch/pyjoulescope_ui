@@ -33,8 +33,9 @@ platform_out = 'macos_12_0_universal2'
 def _run_cmd(cmd):
     print(f'RUN {cmd}')
     rv = subprocess.run(cmd, shell=True, capture_output=True, encoding='utf-8')
-    print(f'STDOUT:\n{rv.stdout}')
-    print(f'STDERR:\n{rv.stderr}')
+    print(rv.stdout)
+    if bool(rv.stderr):
+        print(f'STDERR:\n{rv.stderr}')
     if rv.returncode:
         print(f'RUN FAILED {rv}')
         rv.check_returncode()
@@ -83,24 +84,28 @@ def run():
     _run_cmd('pip install -U delocate --report pip_install_delocate.json')
     with open('pip_install_delocate.json', 'rt') as f:
         delocate_report = json.load(f)
+    os.remove('pip_install_delocate.json')
     delocate_packages = [x['metadata']['name'] for x in delocate_report['install']]
+    print(f'delocate_packages: {" ".join(delocate_packages)}')
 
     os.system('rm *.whl')
     rv = _run_cmd('pip list --format json')
     packages = json.loads(rv.stdout)
     for package in packages:
-        if package in delocate_packages:
-            continue
         name = package['name']
         version = package['version']
-        if not is_universal2(name):
+        if name in delocate_packages:
+            print(f'SKIP {name} in delocate_packages')
+        elif not is_universal2(name):
             print(f'PATCH {name}')
             f1 = _run_pip_download(f'pip download --only-binary :all: --platform {platform1} {name}=={version}')
             f2 = _run_pip_download(f'pip download --only-binary :all: --platform {platform2} {name}=={version}')
             _run_cmd(f'delocate-fuse {f1} {f2} -w .')
             _run_cmd(f'pip install --force-reinstall -f . {f1}')
+        else:
+            print(f'SKIP {name} already universal2')
 
-    _run_cmd(f'pip uninstall {" ".join(delocate_packages)}')
+    _run_cmd(f'pip uninstall -y {" ".join(delocate_packages)}')
     return 0
 
 
