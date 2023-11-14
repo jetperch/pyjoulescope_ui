@@ -172,6 +172,13 @@ jobs:
           pip install "git+https://${{ secrets.NUITKA_TOKEN }}@github.com/Nuitka/Nuitka-commercial.git#egg=nuitka"
           python ci/nuitka_build.py
 
+      - name: Save Nuitka report
+        if: matrix.dist == 'nuitka'
+        uses: actions/upload-artifact@v3
+        with:
+          name: nuitka_report
+          path: nuitka_report.xml
+
       - name: Build with PyInstaller
         if: matrix.dist == 'pyinstaller'
         run: pyinstaller joulescope.spec

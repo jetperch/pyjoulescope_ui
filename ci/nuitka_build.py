@@ -31,9 +31,15 @@ def _changelog_version():
 
 
 def nuitka():
-    # https://nuitka.net/index.html
+    dist_path = os.path.join(_PATH, 'dist')
+    dst_path = os.path.join(dist_path, 'joulescope')
+    if os.path.isdir(dst_path):
+        shutil.rmtree(dst_path)
+
     version = _changelog_version()
     print(f'Release Joulescope UI {version} using Nuitka')
+
+    # https://nuitka.net/index.html
     rc = subprocess.run(
         [
             sys.executable,
@@ -50,6 +56,7 @@ def nuitka():
             '--plugin-enable=pyside6',
             '--python-flag=-m',
             '--python-flag=no_docstrings',
+            '--python-flag=isolated',
             '--msvc=latest',  # for Windows
             '--include-module=ctypes.util',
             '--include-module=joulescope.v0.driver',
@@ -67,6 +74,7 @@ def nuitka():
             '--disable-console',
             #'--force-stdout-spec=%HOME%/joulescope_%TIME%_%PID%.out.txt',
             #'--force-stderr-spec=%HOME%/joulescope_%TIME%_%PID%.err.txt',
+            '--report=nuitka_report.xml',
             '--output-filename=joulescope',
             'joulescope_ui',
         ],
@@ -74,10 +82,8 @@ def nuitka():
     )
     rc.check_returncode()
 
-    path = os.path.join(_PATH, 'dist')
-    os.makedirs(path, exist_ok=True)
-    path = os.path.join(path, 'joulescope')
-    shutil.move(os.path.join(_PATH, 'joulescope_ui.dist'), path)
+    os.makedirs(dist_path, exist_ok=True)
+    shutil.move(os.path.join(_PATH, 'joulescope_ui.dist'), dst_path)
     return 0
 
 

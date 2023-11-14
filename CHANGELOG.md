@@ -6,6 +6,15 @@ This file contains the list of changes made to pyjoulescope_ui.
 ---
 
 
+## 1.0.41
+
+2023 Nov 14
+
+* Attempted to further reduce potential anti-virus false positive detection.
+  * Added '--python-flag=isolated' to Nuitka build. 
+  * Added Nuitka report.
+
+
 ## 1.0.40
 
 2023 Nov 13
