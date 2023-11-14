@@ -33,8 +33,11 @@ platform_out = 'macos_12_0_universal2'
 def _run_cmd(cmd):
     print(f'RUN {cmd}')
     rv = subprocess.run(cmd, shell=True, capture_output=True, encoding='utf-8')
+    print(f'STDOUT:\n{rv.stdout}')
+    print(f'STDERR:\n{rv.stderr}')
     if rv.returncode:
-        raise RuntimeError(f'command failed {rv}:\n{cmd}\n{rv.stdout}\n{rv.stderr}')
+        print(f'RUN FAILED {rv}')
+        rv.check_returncode()
     return rv
 
 
@@ -44,7 +47,8 @@ def _run_pip_download(cmd):
         if line.startswith('Saved '):
             filename = line.split(' ', 1)[1]
             return filename
-    raise RuntimeError(f'Could not parse return filename:\n{rv.stdout}')
+    print(f'PIP_DOWNLOAD could not parse return filename')
+    raise RuntimeError(f'PIP_DOWNLOAD could not parse return filename')
 
 
 def is_universal2_file(path):
@@ -75,11 +79,18 @@ def run():
         return 0
     if not is_universal2_file(sys.executable):
         print(f'WARNING: python executable is not universal2: {sys.executable}')
-    _run_cmd('pip install -U delocate')
+
+    _run_cmd('pip install -U delocate --report pip_install_delocate.json')
+    with open('pip_install_delocate.json', 'rt') as f:
+        delocate_report = json.load(f)
+    delocate_packages = [x['metadata']['name'] for x in delocate_report['install']]
+
     os.system('rm *.whl')
     rv = _run_cmd('pip list --format json')
     packages = json.loads(rv.stdout)
     for package in packages:
+        if package in delocate_packages:
+            continue
         name = package['name']
         version = package['version']
         if not is_universal2(name):
@@ -88,6 +99,8 @@ def run():
             f2 = _run_pip_download(f'pip download --only-binary :all: --platform {platform2} {name}=={version}')
             _run_cmd(f'delocate-fuse {f1} {f2} -w .')
             _run_cmd(f'pip install --force-reinstall -f . {f1}')
+
+    _run_cmd(f'pip uninstall {" ".join(delocate_packages)}')
     return 0
 
 
