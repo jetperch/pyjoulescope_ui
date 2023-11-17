@@ -35,7 +35,7 @@ class VersionedFile:
 
     def __init__(self, path, version_count=None):
         self._path = path
-        self._tmp_path = version_path(path, 'tmp')
+        self._tmp_path = version_path(path, f'tmp_{os.getpid()}')
         self._mode = None
         self._version_count = version_count
         self._fh = None
