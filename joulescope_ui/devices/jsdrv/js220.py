@@ -507,7 +507,7 @@ class Js220(Device):
         self._ui_subscribe('registry/app/actions/!fuse_clear_all', self._on_fuse_engaged_app,
                            ['pub', 'retain'], absolute_topic=True)
         self.pubsub.publish(f'{topic}/settings/info', self._info)
-        self.pubsub.publish(f'{topic}/sources/1/info', self._info)
+        self.pubsub.publish(f'{topic}/settings/sources/1/info', self._info)
         for key, value in _SIGNALS.items():
             self._signal_forward(key, value['topics'][1], self.unique_id)
 
@@ -671,7 +671,7 @@ class Js220(Device):
                        'sources', 'sources/1', 'sources/1/info', 'sources/1/name',
                        'signals',
                        'firmware_available', 'firmware_channel',
-                       'fuse_engaged']:
+                       'fuse_engaged', 'fuse']:
             pass
         elif topic.startswith('signals/'):
             pass
@@ -794,7 +794,6 @@ class Js220(Device):
             if self.has_fuse_support:
                 for fuse_id in _FUSE_IDS:
                     self._driver_subscribe(f's/fuse/{fuse_id}/engaged', ['pub', 'pub_retain'], self._on_fuse_engaged)
-                self._ui_subscribe('registry/app/actions/!fuse_clear', self.on_action_fuse_clear, ['pub'])
             self._ui_subscribe('settings', self._on_settings, ['pub', 'retain'])
         except Exception:
             self._log.exception('driver config failed')
