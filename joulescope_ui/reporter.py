@@ -32,6 +32,7 @@ CONFIG_PATH = pubsub_singleton.query('common/settings/paths/config')
 LOG_PATH = pubsub_singleton.query('common/settings/paths/log')
 REPORTER_PATH = pubsub_singleton.query('common/settings/paths/reporter')
 _API_URL = 'https://k9x78sjeqi.execute-api.us-east-1.amazonaws.com/uploads'
+_LOG_FILES_MAX = 10
 
 
 def platform_info() -> dict:
@@ -133,7 +134,7 @@ def create(subtype, description=None, exception=None):
     }
 
     try:
-        log_files = sorted(os.listdir(LOG_PATH))[-4:]
+        log_files = sorted(os.listdir(LOG_PATH))[-_LOG_FILES_MAX:]
     except FileNotFoundError:
         log_files = []
     try:

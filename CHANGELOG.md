@@ -13,6 +13,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Deferred Waveform render_to_image operations to synchronize.  Fixes #239.
 * Added app "opengl" setting and use "desktop" by default.
 * Fixed js220 device settings log warnings. 
+* Increased the max number of logs from 4 to 10 included in issue reports.
+
 
 ## 1.0.42
 
