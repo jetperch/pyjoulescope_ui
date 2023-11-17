@@ -117,6 +117,8 @@ class SettingsEditorWidget(_GridWidget):
             tooltip = tooltip_format(meta.brief, meta.detail)
 
         label = QtWidgets.QLabel(setting, self)
+        if tooltip is not None:
+            label.setToolTip(tooltip)
         self._grid.addWidget(label, self._row, 0, 1, 1)
         self._widgets.append(label)
         w = None

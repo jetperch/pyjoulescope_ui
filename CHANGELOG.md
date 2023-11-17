@@ -15,6 +15,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Fixed js220 device settings log warnings. 
 * Increased the max number of logs from 4 to 10 included in issue reports.
 * Changed VersionedFile to use temp file with process ID to avoid collisions.
+* Display tooltips for Settings widget labels, not just values.
 
 
 ## 1.0.42
