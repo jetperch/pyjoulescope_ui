@@ -17,7 +17,8 @@ from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topi
 from joulescope_ui.widget_tools import settings_action_create
 from joulescope_ui.styles import styled_widget, color_as_qcolor, font_as_qfont
 from joulescope_ui.units import UNITS_SETTING, convert_units, unit_prefix, three_sig_figs
-from joulescope_ui.ui_util import comboBoxConfig
+from joulescope_ui.ui_util import comboBoxConfig, comboBoxSelectItemByText
+from joulescope_ui.source_selector import SourceSelector
 import datetime
 import numpy as np
 import copy
@@ -148,7 +149,7 @@ class _DeviceWidget(QtWidgets.QWidget):
         self._device_fixed_label.setToolTip(_DEVICE_TOOLTIP)
         self._device_select = QtWidgets.QComboBox(parent=self)
         self._device_select.setToolTip(_DEVICE_TOOLTIP)
-        self._device_select.currentIndexChanged.connect(self._on_device_select)
+        self._device_select.currentTextChanged.connect(self._parent.source_selector.source_set)
         self._device_select.setSizeAdjustPolicy(QtWidgets.QComboBox.SizeAdjustPolicy.AdjustToContents)
         self._device_label = QtWidgets.QLabel(self)
         self._device_label.hide()
@@ -161,16 +162,17 @@ class _DeviceWidget(QtWidgets.QWidget):
                                                        QtWidgets.QSizePolicy.Minimum)
         self._layout.addItem(self._horizontalSpacer)
 
-    def _on_device_select(self, *args, **kwargs):
-        self._parent.source = self._device_select.currentText()
-
     def device_list(self, devices):
-        parent = self._parent
-        devices = ['default'] + devices
-        comboBoxConfig(self._device_select, devices, parent.statistics_stream_source)
+        comboBoxConfig(self._device_select, devices, self._parent.source_selector.value)
+
+    def device_select(self):
+        comboBoxSelectItemByText(self._device_select, self._parent.source_selector.value)
 
     def device_show(self, name):
-        if self._device_select.currentText() == 'default':
+        if name is None:
+            self._device_label.show()
+            self._device_label.setText(N_('Not present'))
+        elif self._device_select.currentText() == 'default':
             self._device_label.show()
             self._device_label.setText(name)
         else:
@@ -274,7 +276,8 @@ class _InnerWidget(QtWidgets.QWidget):
     def paintEvent(self, event):
         fields = [field for field in self._fields if field != self._main]
         parent = self._parent
-        if parent.source is None or parent.style_obj is None:
+        resolved = parent.source_selector.resolved()
+        if resolved is None or parent.style_obj is None:
             return
 
         painter = QtGui.QPainter(self)
@@ -364,7 +367,7 @@ class _InnerWidget(QtWidgets.QWidget):
                 painter.setPen(title_color)
                 painter.setFont(title_font)
                 y += title_font_metrics.ascent()
-                signal_title_parts = [parent.source, signal_name]
+                signal_title_parts = [resolved, signal_name]
                 if self._statistics is not None:
                     if signal_name not in self._statistics['accumulators'] and self._main != 'avg':
                         signal_title_parts.append(self._main)
@@ -504,6 +507,12 @@ class _BaseWidget(QtWidgets.QWidget):
         self._menu = None
         super().__init__(parent=parent)
         self.setObjectName('value_widget')
+
+        self.source_selector = SourceSelector(self, 'statistics_stream')
+        self.source_selector.source_changed.connect(self._on_source_changed)
+        self.source_selector.sources_changed.connect(self._on_sources_changed)
+        self.source_selector.resolved_changed.connect(self._on_resolved_changed)
+
         self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         self._layout = QtWidgets.QVBoxLayout()
         self._layout.setContentsMargins(0, 0, 0, 0)
@@ -518,16 +527,10 @@ class _BaseWidget(QtWidgets.QWidget):
         self._layout.addItem(self._spacer)
         self.setLayout(self._layout)
 
-        self._default_statistics_stream_source = None
-        self._statistics_stream_source = None
         self._on_statistics_fn = self._on_statistics
         self._statistics = None  # most recent statistics information
 
         self._subscribers = [
-            ['registry/app/settings/defaults/statistics_stream_source',
-             self._on_default_statistics_stream_source],
-            [f'registry_manager/capabilities/{CAPABILITIES.STATISTIC_STREAM_SOURCE}/list',
-             self._on_statistic_stream_source_list],
             ['registry/app/settings/statistics_stream_enable',
              self._on_global_statistics_stream_enable],
             ['registry/app/settings/units', self._on_update],
@@ -539,10 +542,27 @@ class _BaseWidget(QtWidgets.QWidget):
         self.update()
 
     def on_pubsub_register(self):
+        topic = f'{get_topic_name(self)}/settings/statistics_stream_source'
+        self.source_selector.settings_topic = topic
+        self.source_selector.on_pubsub_register()
+
         for topic, fn in self._subscribers:
             pubsub_singleton.subscribe(topic, fn, ['pub', 'retain'])
+        self._connect()
+
+    def _on_source_changed(self, value):
+        self._device_widget.device_select()
+        self._device_widget.device_show(value)
+        self.repaint()
+
+    def _on_sources_changed(self, value):
+        self._device_widget.device_list(value)
+
+    def _on_resolved_changed(self, value):
+        self._connect()
 
     def on_pubsub_unregister(self):
+        self.source_selector.on_pubsub_unregister()
         self._pubsub_disconnect()
 
     def _pubsub_disconnect(self):
@@ -561,39 +581,15 @@ class _BaseWidget(QtWidgets.QWidget):
         pubsub_singleton.unsubscribe_all(self._on_statistics_fn)
         self.repaint()
 
-    @property
-    def source(self):
-        source = self._statistics_stream_source
-        if source in [None, 'default']:
-            source = self._default_statistics_stream_source
-        return source
-
-    @source.setter
-    def source(self, value):
-        s1 = self.source
-        self._statistics_stream_source = value
-        s2 = self.source
-        if s1 != s2:
-            self._connect()
-
     def _connect(self):
         self._disconnect()
-        source = self.source
-        if source is not None:
-            topic = get_topic_name(source)
+        resolved = self.source_selector.resolved()
+        if resolved is None:
+            self._device_widget.device_show(None)
+        else:
+            topic = get_topic_name(resolved)
             pubsub_singleton.subscribe(f'{topic}/events/statistics/!data', self._on_statistics_fn, ['pub'])
-        self._device_widget.device_show(self.source)
         self.repaint()
-
-    def _on_default_statistics_stream_source(self, value):
-        source_prev = self.source
-        self._default_statistics_stream_source = value
-        source_next = self.source
-        if source_prev != source_next:
-            self._connect()
-
-    def _on_statistic_stream_source_list(self, value):
-        self._device_widget.device_list(value)
 
     def _accum(self, stats):
         if self._statistics is None:
@@ -637,7 +633,7 @@ class _BaseWidget(QtWidgets.QWidget):
             self._statistics = value
         v_start, v_end = self._statistics['time']['samples']['value']
         sample_freq = self._statistics['time']['sample_freq']['value']
-        self._device_widget.device_show(self.source)
+        self._device_widget.device_show(self.source_selector.resolved())
         if not self._accrue_widget.hold:
             self._accrue_widget.accrue_duration((v_end - v_start) / sample_freq, self._statistics.get('accum_start'))
             self._inner._on_statistics(self._statistics)
@@ -656,9 +652,12 @@ class _BaseWidget(QtWidgets.QWidget):
             event.accept()
         elif event.button() == QtCore.Qt.RightButton:
             menu = QtWidgets.QMenu(self)
+            source_menu, source_menu_items = self.source_selector.submenu_factory(menu)
             style_action = settings_action_create(self, menu)
             menu.popup(event.globalPos())
-            self._menu = [menu, style_action]
+            self._menu = [menu,
+                          source_menu, source_menu_items,
+                          style_action]
             event.accept()
 
     def on_style_change(self):

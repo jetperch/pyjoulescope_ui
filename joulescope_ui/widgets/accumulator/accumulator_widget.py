@@ -14,6 +14,7 @@
 
 from PySide6 import QtWidgets, QtGui, QtCore
 from joulescope_ui import N_, register, CAPABILITIES, pubsub_singleton, get_topic_name
+from joulescope_ui.source_selector import SourceSelector
 from joulescope_ui.widget_tools import settings_action_create
 from joulescope_ui.styles import styled_widget
 from joulescope_ui.units import UNITS_SETTING, convert_units, unit_prefix, elapsed_time_formatter
@@ -53,13 +54,16 @@ class AccumulatorWidget(QtWidgets.QWidget):
         self._log = logging.getLogger(__name__)
         self._menu = None
         self._clipboard = None
-        self._default_statistics_stream_source = None
-        self._statistics_stream_source = None
         self._statistics = None
         self._on_statistics_fn = self._on_statistics
         self._devices = ['default']
         super().__init__(parent=parent)
         self.setObjectName('accumulator_widget')
+
+        self.source_selector = SourceSelector(self, 'statistics_stream')
+        self.source_selector.source_changed.connect(self._on_source_changed)
+        self.source_selector.resolved_changed.connect(self._on_resolved_changed)
+
         self._layout = QtWidgets.QVBoxLayout()
         self._layout.setContentsMargins(0, 0, 0, 0)
         self._layout.setSpacing(0)
@@ -71,19 +75,20 @@ class AccumulatorWidget(QtWidgets.QWidget):
         self._layout.addWidget(self._accum_label)
 
         self._subscribers = [
-            ['registry/app/settings/defaults/statistics_stream_source',
-             self._on_default_statistics_stream_source],
-            [f'registry_manager/capabilities/{CAPABILITIES.STATISTIC_STREAM_SOURCE}/list',
-             self._on_statistic_stream_source_list],
             ['registry/app/settings/statistics_stream_enable',
              self._on_global_statistics_stream_enable],
         ]
 
     def on_pubsub_register(self):
+        topic = f'{get_topic_name(self)}/settings/statistics_stream_source'
+        self.source_selector.settings_topic = topic
+        self.source_selector.on_pubsub_register()
+
         for topic, fn in self._subscribers:
             pubsub_singleton.subscribe(topic, fn, ['pub', 'retain'])
 
     def on_pubsub_unregister(self):
+        self.source_selector.on_pubsub_unregister()
         self._disconnect()
         self._statistics = None
         for topic, fn in self._subscribers:
@@ -93,46 +98,18 @@ class AccumulatorWidget(QtWidgets.QWidget):
         pubsub_singleton.unsubscribe_all(self._on_statistics_fn)
         self.repaint()
 
-    @property
-    def source(self):
-        source = self._statistics_stream_source
-        if source in [None, 'default']:
-            source = self._default_statistics_stream_source
-        return source
-
-    @source.setter
-    def source(self, value):
-        s1 = self.source
-        self._statistics_stream_source = value
-        s2 = self.source
-        if s1 != s2:
-            self._connect()
-
     def _connect(self):
         self._disconnect()
-        source = self.source
+        source = self.source_selector.resolved()
         if source is not None:
             topic = get_topic_name(source)
             pubsub_singleton.subscribe(f'{topic}/events/statistics/!data', self._on_statistics_fn, ['pub'])
         self.repaint()
 
-    def _on_default_statistics_stream_source(self, value):
-        source_prev = self.source
-        self._default_statistics_stream_source = value
-        source_next = self.source
-        if source_prev != source_next:
-            self._connect()
+    def _on_source_changed(self, value):
+        self.repaint()
 
-    def on_setting_statistics_stream_source(self, value):
-        source_prev = self.source
-        self._statistics_stream_source = value
-        source_next = self.source
-        if source_prev != source_next:
-            self._connect()
-
-    def _on_statistic_stream_source_list(self, value):
-        self._devices = ['default'] + value
-        self._disconnect()
+    def _on_resolved_changed(self, value):
         self._connect()
 
     def _on_global_statistics_stream_enable(self, value):
@@ -193,25 +170,13 @@ class AccumulatorWidget(QtWidgets.QWidget):
             menu.addAction(units_toggle)
             units_toggle.triggered.connect(lambda: self._on_units(toggle_units))
 
-            source_menu = menu.addMenu(N_('Source'))
-            source_group = QtGui.QActionGroup(source_menu)
-            source_group.setExclusive(True)
-            source_menu_items = []
-            for device in self._devices:
-                a = QtGui.QAction(device, source_group, checkable=True)
-                if device == 'default':
-                    a.setChecked(self._statistics_stream_source in [None, 'default'])
-                else:
-                    a.setChecked(device == self._statistics_stream_source)
-                a.triggered.connect(self._construct_source_action(device))
-                source_menu.addAction(a)
-                source_menu_items.append(a)
+            source_menu, source_menu_items = self.source_selector.submenu_factory(menu)
 
             style_action = settings_action_create(self, menu)
             menu.popup(event.globalPos())
             self._menu = [
                 menu, field_toggle, units_toggle,
-                source_group, source_menu, source_menu_items,
+                source_menu, source_menu_items,
                 style_action]
             event.accept()
 
