@@ -675,7 +675,17 @@ def _finalize():
         pubsub_singleton.config_clear()
 
 
-def _opengl_config():
+def _opengl_config(renderer):
+    renderer_map = {
+        'desktop': QtCore.Qt.AA_UseDesktopOpenGL,
+        'angle': QtCore.Qt.AA_UseOpenGLES,
+        'software': QtCore.Qt.AA_UseSoftwareOpenGL,
+    }
+    renderer = renderer_map.get(renderer, None)
+    if renderer is not None:
+        QtCore.QCoreApplication.setAttribute(renderer)
+    QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+    QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
     fmt = QtGui.QSurfaceFormat()
     fmt.setDepthBufferSize(24)
     fmt.setStencilBufferSize(8)
@@ -697,9 +707,8 @@ def run(log_level=None, file_log_level=None, filename=None):
 
     :return: 0 on success or error code on failure.
     """
+    app = None
     ui = None
-    _opengl_config()
-    app = QtWidgets.QApplication([])
     try:
         logging_util.preconfig()
         pubsub_singleton.register(HelpHtmlMessageBox, 'help_html')
@@ -717,6 +726,9 @@ def run(log_level=None, file_log_level=None, filename=None):
         except Exception:
             _log.exception('pubsub load failed')
 
+        opengl_renderer = pubsub_singleton.query('registry/app/settings/opengl', default='desktop')
+        _opengl_config(opengl_renderer)
+        app = QtWidgets.QApplication([])
         resources = load_resources()
         fonts = load_fonts()
         appnope.nope()
@@ -746,6 +758,8 @@ def run(log_level=None, file_log_level=None, filename=None):
     except Exception as ex:
         _log.exception('UI crash')
         logging_util.flush_all()
+        if app is None:
+            app = QtWidgets.QApplication([])
         path = reporter_create('crash', exception=ex)
         if ui is not None:
             ui.hide()

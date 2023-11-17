@@ -157,6 +157,26 @@ SETTINGS = {
         ],
         'default': 'SI',
     },
+    'opengl': {
+        'dtype': 'str',
+        'brief': N_('Select the OpenGL rendering method.'),
+        'detail': N_("""\
+            This application uses OpenGL to accelerate graphics rendering.
+            OpenGL has multiple options for rendering, which varies between
+            platforms.  By default, this application uses "desktop" rendering.
+            If OpenGL is not well-supported by your graphics drivers, 
+            you can select "software" rendering.
+            
+            Selecting "ANGLE" may break copy as image and save as image. 
+        """),
+        'options': [
+            ['desktop', N_('desktop')],
+            ['angle', 'ANGLE'],
+            ['software', N_('software')],
+            ['dynamic', N_('Autodetect')],
+        ],
+        'default': 'desktop',
+    }
 }
 
 

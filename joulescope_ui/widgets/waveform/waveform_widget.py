@@ -257,6 +257,7 @@ class _PlotOpenGLWidget(QtOpenGLWidgets.QOpenGLWidget):
         self._log = logging.getLogger(__name__ + '.plot')
         self._parent = parent
         self._antialiasing = QtGui.QPainter.RenderHint.Antialiasing
+        self._render_cbk = None
         super().__init__(parent)
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.setMouseTracking(True)
@@ -280,6 +281,9 @@ class _PlotOpenGLWidget(QtOpenGLWidgets.QOpenGLWidget):
         finally:
             painter.endNativePainting()
         painter.end()
+        render_cbk, self._render_cbk = self._render_cbk, None
+        if callable(render_cbk):
+            render_cbk(self.render_to_image())
 
     def resizeEvent(self, event):
         self._parent.plot_resizeEvent(event)
@@ -296,6 +300,9 @@ class _PlotOpenGLWidget(QtOpenGLWidgets.QOpenGLWidget):
 
     def wheelEvent(self, event):
         self._parent.plot_wheelEvent(event)
+
+    def render_callback(self, fn):
+        self._render_cbk = fn
 
     def render_to_image(self) -> QtGui.QImage:
         return self.grabFramebuffer()
@@ -307,6 +314,7 @@ class _PlotWidget(QtWidgets.QWidget):
     def __init__(self, parent):
         self._log = logging.getLogger(__name__ + '.plot')
         self._parent = parent
+        self._render_cbk = None
         super().__init__(parent)
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.setMouseTracking(True)
@@ -317,6 +325,9 @@ class _PlotWidget(QtWidgets.QWidget):
         painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
         self._parent.plot_paint(painter, size)
         painter.end()
+        render_cbk, self._render_cbk = self._render_cbk, None
+        if callable(render_cbk):
+            render_cbk(self.render_to_image())
 
     def resizeEvent(self, event):
         self._parent.plot_resizeEvent(event)
@@ -333,6 +344,9 @@ class _PlotWidget(QtWidgets.QWidget):
 
     def wheelEvent(self, event):
         self._parent.plot_wheelEvent(event)
+
+    def render_callback(self, fn):
+        self._render_cbk = fn
 
     def render_to_image(self) -> QtGui.QImage:
         sz = self.size()
@@ -2590,12 +2604,15 @@ class WaveformWidget(QtWidgets.QWidget):
             elif y_name == 'summary':
                 self._menu_summary(event)
 
-    def _render_to_image(self) -> QtGui.QImage:
-        return self._graphics.render_to_image()
+    def _render_to_image(self, cbk) -> QtGui.QImage:
+        return self._graphics.render_callback(cbk)
+        self._repaint_request = True
 
     def _action_copy_image_to_clipboard(self):
-        self._clipboard_image = self._render_to_image()
-        QtWidgets.QApplication.clipboard().setImage(self._clipboard_image)
+        def on_image(img: QtGui.QImage):
+            self._clipboard_image = img
+            QtWidgets.QApplication.clipboard().setImage(self._clipboard_image)
+        self._render_to_image(on_image)
 
     @QtCore.Slot(int)
     def _action_save_image_dialog_finish(self, value):
@@ -2610,9 +2627,10 @@ class WaveformWidget(QtWidgets.QWidget):
                 elif ext[1:].lower() not in ['bmp', 'jpg', 'jpeg', 'png', 'ppm', 'xbm', 'xpm']:
                     filename += '.png'
                 self._log.info('finished: accept - save: %s', filename)
-                img = self._render_to_image()
-                if not img.save(filename):
-                    self._log.warning('Could not save image: %s', filename)
+                def on_image(img: QtGui.QImage):
+                    if not img.save(filename):
+                        self._log.warning('Could not save image: %s', filename)
+                self._render_to_image(on_image)
             else:
                 self._log.info('finished: accept - but no file selected, ignore')
         else:

@@ -6,6 +6,14 @@ This file contains the list of changes made to pyjoulescope_ui.
 ---
 
 
+## 1.0.43
+
+2023 Nov 17 [in progress]
+
+* Deferred Waveform render_to_image operations to synchronize.  Fixes #239.
+* Added app "opengl" setting and use "desktop" by default.
+
+
 ## 1.0.42
 
 2023 Nov 14
