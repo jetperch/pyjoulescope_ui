@@ -17,6 +17,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Changed VersionedFile to use temp file with process ID to avoid collisions.
 * Display tooltips for Settings widget labels, not just values.
 * Fixed device selection in Multimeter, Value, and Accumulator widgets.  #233
+* Fixed software_update to log warning (not exception) on unsupported platform.
 
 
 ## 1.0.42

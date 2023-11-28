@@ -132,9 +132,11 @@ def _platform_name():
             else:
                 return f'macos_{release_major}_0_x86_64'
         else:
-            raise RuntimeError(f'unsupported macOS version {release}')
+            _log.warning(f'unsupported macOS version {release}')
+            return None
     else:
-        raise RuntimeError(f'unsupported platform {psys}')
+        _log.warning(f'unsupported platform {psys}')
+        return None
 
 
 def fetch_info(channel=None):
@@ -152,6 +154,8 @@ def fetch_info(channel=None):
     """
     channel = _validate_channel(channel)
     platform_name = _platform_name()
+    if platform_name is None:
+        return None
 
     try:
         response = requests.get(_URL_INDEX, timeout=_TIMEOUT)
@@ -255,10 +259,11 @@ def check(callback, path, channel=None):
     """
     if __version__ == 'UNRELEASED':
         _log.info('Skip software update check: version is UNRELEASED')
-        return
+        return None
     _log.info('Start software update check: path=%s, channel=%s', path, channel)
     channel = _validate_channel(channel)
-    _platform_name()
+    if _platform_name() is None:
+        return None
     thread = threading.Thread(name='sw_update_check', target=_run, args=[callback, path, channel])
     thread.daemon = True
     thread.start()
