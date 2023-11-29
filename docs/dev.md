@@ -1,5 +1,16 @@
 
 
+## Guiding Principles
+
+* Single instrument support must be automatic and seamless, 
+  even if swap instruments.
+* Multiple instrument support and controls should be hidden if possible when
+  only have a single instrument.  If not hidden, they must not be 
+  intrusive or needed.
+* When multiple instruments are connected, automatically show multiple 
+  instrument controls 
+
+
 ## Notes
 
 * [PubSub](pubsub.md)

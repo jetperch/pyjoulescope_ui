@@ -193,7 +193,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.SETTINGS = style_settings(N_('UI'))
         for key, value in _SETTINGS.items():
             self.SETTINGS[key] = value
-        self._app = App().register()
+        self._app = App().register(mode='normal' if filename is None else 'file_viewer')
         self._paths = Paths().register()
         self.resize(800, 600)
         self._icon = QtGui.QIcon()
@@ -269,29 +269,32 @@ class MainWindow(QtWidgets.QMainWindow):
                 self._pubsub.publish('registry/view/settings/active', None)
                 self._pubsub.register(View(), 'view:file')
                 self._pubsub.publish('registry/view/settings/active', 'view:file')
-            self.on_action_file_open(filename)
+            source = self.on_action_file_open(filename)
+            self._pubsub.publish('registry/app/settings/defaults/signal_buffer_source', source)
             self._center(resize=True)
 
-        elif not is_config_load:
-            self._pubsub.publish('registry/view/actions/!add', 'view:multimeter')
-            self._pubsub.publish('registry/view:multimeter/settings/name', N_('Multimeter'))
-            self._pubsub.publish('registry/view/actions/!add', 'view:oscilloscope')
-            self._pubsub.publish('registry/view:oscilloscope/settings/name', N_('Oscilloscope'))
-            self._pubsub.publish('registry/view/actions/!add', 'view:file')
-            self._pubsub.publish('registry/view:file/settings/name', N_('File'))
         else:
-            # open views
-            view_active = self._pubsub.query('registry/view/settings/active')
-            if view_active is None:
-                self._log.warning(f'view_active is None, use "view:multimeter"')
-                view_active = 'view:multimeter'
-            self._pubsub.publish('registry/view/settings/active', None)
-            for view_unique_id in self._pubsub.query('registry/view/instances'):
-                self._pubsub.register(View(), view_unique_id)
-
+            _device_factory_add()
             # open JLS sources
             for source_unique_id in self._pubsub.query('registry/JlsSource/instances', default=[]):
                 self._pubsub.register(JlsSource(), source_unique_id)
+
+            if not is_config_load:
+                self._pubsub.publish('registry/view/actions/!add', 'view:multimeter')
+                self._pubsub.publish('registry/view:multimeter/settings/name', N_('Multimeter'))
+                self._pubsub.publish('registry/view/actions/!add', 'view:oscilloscope')
+                self._pubsub.publish('registry/view:oscilloscope/settings/name', N_('Oscilloscope'))
+                self._pubsub.publish('registry/view/actions/!add', 'view:file')
+                self._pubsub.publish('registry/view:file/settings/name', N_('File'))
+            else:
+                # open views
+                view_active = self._pubsub.query('registry/view/settings/active')
+                if view_active is None:
+                    self._log.warning(f'view_active is None, use "view:multimeter"')
+                    view_active = 'view:multimeter'
+                self._pubsub.publish('registry/view/settings/active', None)
+                for view_unique_id in self._pubsub.query('registry/view/instances'):
+                    self._pubsub.register(View(), view_unique_id)
 
         help_menu = ['help_menu', N_('&Help'), [
                 ['getting_started', N_('Getting Started'), ['registry/help_html/actions/!show', 'getting_started']],
@@ -476,8 +479,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self._pubsub.publish('registry/ui/callbacks/!software_update', v)
 
     def on_callback_software_update(self, value):
-        self._software_update_thread.join()
-        self._software_update_thread = None
+        update_thread, self._software_update_thread = self._software_update_thread, None
+        if update_thread is not None:
+            update_thread.join()
         if not isinstance(value, dict):
             return
         self._log.info('Display software update available dialog')
@@ -622,6 +626,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     'on_widget_close_actions': [[f'{get_topic_name(source)}/actions/!close', None]],
                  }
             })
+        return source
 
     def on_action_accum_clear(self, value):
         sources = pubsub_singleton.query('registry_manager/capabilities/statistics_stream.source/list')
@@ -735,8 +740,6 @@ def run(log_level=None, file_log_level=None, filename=None):
 
         ui = MainWindow(filename=filename, is_config_load=is_config_load)
         pubsub_singleton.notify_fn = ui.resync_request
-        if filename is None:
-            _device_factory_add()
         try:
             _log.info('app.exec start')
             rc = app.exec()

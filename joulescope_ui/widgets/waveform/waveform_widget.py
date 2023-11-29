@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PySide6 import QtWidgets, QtGui, QtCore, QtOpenGLWidgets, QtOpenGL
+from PySide6 import QtWidgets, QtGui, QtCore, QtOpenGLWidgets
 from OpenGL import GL as gl
 from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topic_name, get_instance, time64
 from joulescope_ui.shortcuts import Shortcuts
@@ -22,6 +22,7 @@ from joulescope_ui.exporter import TO_JLS_SIGNAL_NAME
 from .line_segments import PointsF
 from .text_annotation import TextAnnotationDialog, SHAPES_DEF, Y_POSITION_MODE
 from .waveform_control import WaveformControlWidget
+from .waveform_source_widget import WaveformSourceWidget
 from .interval_widget import IntervalWidget
 from joulescope_ui.time_map import TimeMap
 import pyjls
@@ -115,6 +116,9 @@ _STATE_DEFAULT = {
         _digital_plot('T', N_('Trigger input')),
     ],
 }
+
+
+_QUANTITIES = [p['quantity'] for p in _STATE_DEFAULT['plots']]
 
 
 def _si_format(values, units):
@@ -483,7 +487,7 @@ class WaveformWidget(QtWidgets.QWidget):
         },
         'summary_signal': {
             'dtype': 'obj',
-            'brief': N_('The signal to show in the summary.'),
+            'brief': N_('The signal quantity to show in the summary.'),
             'default': None,
         },
         'x_axis_annotation_mode': {
@@ -496,6 +500,24 @@ class WaveformWidget(QtWidgets.QWidget):
             ],
         },
         'units': UNITS_SETTING,
+        'sub sources': {  # list of [f'{source}.{device}']
+            'dtype': 'obj',  # automatically updated on add / remove
+            'brief': N_('The available subsources.'),
+            'default': [],
+            'flags': ['hide', 'ro', 'skip_undo', 'tmp'],
+        },
+        'trace_subsources': {  # list of f'{source}.{device}' or 'default' with 4 entries
+            'dtype': 'obj',  # updated by user
+            'brief': N_('The selected subsources for each trace.'),
+            'default': ['default', None, None, None],
+            'flags': ['hide'],
+        },
+        'trace_priority': {
+            'dtype': 'obj',  # updated by user
+            'brief': N_('The trace priority: highest int value on top, None is off.'),
+            'default': [0, None, None, None],
+            'flags': ['hide'],
+        },
     }
 
     def __init__(self, parent=None, **kwargs):
@@ -546,6 +568,8 @@ class WaveformWidget(QtWidgets.QWidget):
 
         self._graphics = _PlotWidget(self)
         self._layout.addWidget(self._graphics)
+        self._trace_widget = WaveformSourceWidget(self)
+        self._layout.addWidget(self._trace_widget)
         self._control = WaveformControlWidget(self)
         self._layout.addWidget(self._control)
 
@@ -553,14 +577,12 @@ class WaveformWidget(QtWidgets.QWidget):
         self._y_geometry_info = {}
         self._mouse_action = None
         self._clipboard_image = None
-        self._sources = {}
-        self._signals = {}
+        self._signals = {}      # keys of '{source}.{device}.{quantity}' like JsdrvStreamBuffer:001.JS220-001122.i
         self._signals_by_rsp_id = {}
         self._signals_rsp_id_next = 2  # reserve 1 for summary
         self._signals_data = {}
         self._points = PointsF()
         self._marker_data = {}  # rsp_id -> data,
-        self._subsource_order = []
 
         self._fps = {
             'start': time.time(),
@@ -598,26 +620,43 @@ class WaveformWidget(QtWidgets.QWidget):
         self._layout.insertWidget(pos, self._control)
         self._control.setVisible(True)
 
+    @property
+    def _sources(self):
+        values = {}
+        for signal_id in self._signals.keys():
+            values[signal_id.split('.')[0]] = True
+        return list(values.keys())
+
+    def _subsources_update(self):
+        values = {}
+        for signal_id in self._signals.keys():
+            source, device, quantity = signal_id.split('.')
+            subsource = f'{source}.{device}'
+            values[subsource] = True
+        subsources = sorted(values.keys())
+        self.pubsub.publish(f'{self.topic}/settings/subsources', subsources)
+
     def _on_source_list(self, sources):
         if not len(sources):
             self._log.warning('No default source available')
             return
         source_filter = self.pubsub.query(f'{self.topic}/settings/source_filter')
-        for source in sources:
-            if not source.startswith(source_filter):
+        src_prev = self._sources
+
+        for source in sorted(sources):
+            if source_filter and not source.startswith(source_filter):
                 continue
-            if source in self._sources:
+            if source in src_prev:
                 continue
-            self._sources[source] = True
             topic = get_topic_name(source)
-            signals = self.pubsub.enumerate(f'{topic}/settings/signals')
             try:
                 self.pubsub.query(f'{topic}/events/signals/!add')
                 self._subscribe(f'{topic}/events/signals/!add', self._on_signal_add, ['pub'])
                 self._subscribe(f'{topic}/events/signals/!remove', self._on_signal_remove, ['pub'])
             except KeyError:
                 pass
-            for signal in signals:
+            signals = self.pubsub.enumerate(f'{topic}/settings/signals')
+            for signal in sorted(signals):
                 self._on_signal_add(f'{topic}/events/signals/!add', signal)
             self.pubsub.publish(f'{topic}/actions/!annotations_request',
                                 {'rsp_topic': f'{self.topic}/callbacks/!annotations'})
@@ -651,38 +690,38 @@ class WaveformWidget(QtWidgets.QWidget):
     def _on_signal_add(self, topic, value):
         self._log.info(f'_on_signal_add({topic}, {value})')
         source = topic.split('/')[1]
-        signal = value
+        device, quantity = value.split('.')
         topic = get_topic_name(source)
-        item = (source, signal)
-        self._subscribe(f'{topic}/settings/signals/{signal}/range',
+        signal_id = f'{source}.{device}.{quantity}'
+        self._subscribe(f'{topic}/settings/signals/{value}/range',
                         self._on_signal_range, ['pub', 'retain'])
-        source_id, quantity = signal.split('.')
         for plot in self.state['plots']:
             if plot['quantity'] == quantity:
-                if item not in plot['signals']:
-                    plot['signals'].append(item)
+                if signal_id not in plot['signals']:
+                    plot['signals'].append(signal_id)
                     self._plot_data_invalidate(plot)
         self._repaint_request = True
 
     def _on_signal_remove(self, topic, value):
         self._log.info(f'_on_signal_remove({topic}, {value})')
         source = topic.split('/')[1]
-        signal = value
-        item = (source, signal)
+        device, quantity = value.split('.')
+        signal_id = f'{source}.{device}.{quantity}'
         for plot in self.state['plots']:
-            if item in plot['signals']:
-                plot['signals'].remove(item)
-        if item in self._signals:
-            del self._signals[item]
+            if signal_id in plot['signals']:
+                plot['signals'].remove(signal_id)
+        if signal_id in self._signals:
+            del self._signals[signal_id]
         self._repaint_request = True
+        self._subsources_update()
 
-    def is_signal_active(self, source_signal):
-        if source_signal not in self._signals:
+    def is_signal_active(self, signal_id):  # in form '{source}.{device}.{quantity}'
+        if signal_id not in self._signals:
             return False
         for plot in self.state['plots']:
             if not plot['enabled']:
                 continue
-            elif source_signal in plot['signals']:
+            elif signal_id in plot['signals']:
                 return True
         return False
 
@@ -696,6 +735,7 @@ class WaveformWidget(QtWidgets.QWidget):
             return self.pubsub.query(topic)
 
     def on_pubsub_register(self):
+        self._trace_widget.on_pubsub_register(self.pubsub)
         source_filter = self._source_filter_set()
         is_device = source_filter in [None, '', 'JsdrvStreamBuffer:001']
         if self.state is None:
@@ -724,8 +764,10 @@ class WaveformWidget(QtWidgets.QWidget):
         else:  # restore OrderedDict:
             self.annotations['x'] = OrderedDict(self.annotations['x'])
             self.annotations['y'] = [OrderedDict(y) for y in self.annotations['y']]
-        if self.summary_signal is not None:
-            self.summary_signal = tuple(self.summary_signal)
+        if self.summary_signal is None or isinstance(self.summary_signal, str):
+            pass
+        else:
+            self.summary_signal = '.'.join(self.summary_signal)
         if 'on_widget_close_actions' in self._kwargs:
             self.pubsub.publish(f'{self.topic}/settings/on_widget_close_actions',
                                 self._kwargs['on_widget_close_actions'])
@@ -770,6 +812,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._paint_state = PaintState.IDLE
 
     def on_pubsub_unregister(self):
+        self._trace_widget.on_pubsub_unregister(self.pubsub)
         self._control.on_pubsub_unregister()
         self._cleanup()
 
@@ -814,26 +857,26 @@ class WaveformWidget(QtWidgets.QWidget):
         value = value['utc']
         topic_parts = topic.split('/')
         source = topic_parts[1]
-        signal_id = topic_parts[-2]
-        item = (source, signal_id)
+        device, quantity = topic_parts[-2].split('.')
+        signal_id = f'{source}.{device}.{quantity}'
         if value == [0, 0]:  # no data
             self._log.info('_on_signal_range(%s, %s) remove', topic, value)
-            self._signals.pop(item, None)
+            self._signals.pop(signal_id, None)
             self._repaint_request = True
+            self._subsources_update()
             return
-        d = self._signals.get(item)
+        d = self._signals.get(signal_id)
         if d is None:
             self._log.info('_on_signal_range(%s, %s) add', topic, value)
             d = {
-                'item': item,
-                'source': source,
-                'signal_id': signal_id,
+                'id': signal_id,
                 'rsp_id': self._signals_rsp_id_next,
                 'range': None,
             }
-            self._signals[item] = d
+            self._signals[signal_id] = d
             self._signals_by_rsp_id[self._signals_rsp_id_next] = d
             self._signals_rsp_id_next += 1
+            self._subsources_update()
         if value != d['range']:
             d['range'] = value
             d['changed'] = time.time()
@@ -860,8 +903,8 @@ class WaveformWidget(QtWidgets.QWidget):
     def _extents(self):
         x_min = []
         x_max = []
-        for key, signal in self._signals.items():
-            if self.is_signal_active(key):
+        for signal_id, signal in self._signals.items():
+            if self.is_signal_active(signal_id):
                 x_range = signal['range']
                 x_min.append(x_range[0])
                 x_max.append(x_range[1])
@@ -902,21 +945,20 @@ class WaveformWidget(QtWidgets.QWidget):
         changed = False
 
         # Get the signal for the summary waveform
-        if len(self._signals):
-            summary_signal = self.summary_signal
-            summary_signal = self._signals.get(summary_signal)
-            if summary_signal is None:
-                candidates = [k for k in self._signals.keys() if k[1].endswith('.i')]
-                if len(candidates):
-                    summary_signal = self._signals[candidates[0]]
-                else:
-                    summary_signal = next(iter(self._signals.values()))
-            if summary_signal.get('changed', False):
-                summary_length = self._summary_geometry()[2]  # width in pixels
-                self._request_signal(summary_signal, self._extents(), rsp_id=1, length=summary_length)
+        summary_signal = self._signals.get(self.summary_signal)
+        if summary_signal is None:
+            for ending in ['.i', '.v', '.p']:
+                for signal_id, signal in self._signals.items():
+                    if signal_id.endswith(ending):
+                        self.summary_signal = signal_id
+                        summary_signal = self._signals[signal_id]
+                        break
+        if summary_signal is not None and summary_signal.get('changed', False):
+            summary_length = self._summary_geometry()[2]  # width in pixels
+            self._request_signal(summary_signal, self._extents(), rsp_id=1, length=summary_length)
 
-        for key, signal in self._signals.items():
-            if not self.is_signal_active(key):
+        for signal_id, signal in self._signals.items():
+            if not self.is_signal_active(signal_id):
                 continue
             if force or signal['changed']:
                 signal['changed'] = None
@@ -959,7 +1001,8 @@ class WaveformWidget(QtWidgets.QWidget):
             self._request_signal(signal, (x0, x1), rsp_id=rsp_id, length=1)
 
     def _request_signal(self, signal, x_range, rsp_id=None, length=None):
-        topic_req = f'registry/{signal["source"]}/actions/!request'
+        source, subsignal_id = signal['id'].split('.', 1)
+        topic_req = f'registry/{source}/actions/!request'
         topic_rsp = f'{get_topic_name(self)}/callbacks/!response'
         if length is None:
             x_info = self._x_geometry_info.get('plot')
@@ -967,7 +1010,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 return
             length = x_info[0]
         req = {
-            'signal_id': signal['signal_id'],
+            'signal_id': subsignal_id,
             'time_type': 'utc',
             'rsp_topic': topic_rsp,
             'rsp_id': signal['rsp_id'] if rsp_id is None else rsp_id,
@@ -1042,9 +1085,9 @@ class WaveformWidget(QtWidgets.QWidget):
             if signal is None:
                 self._log.warning('Unknown signal rsp_id %s', rsp_id)
                 return
-            if signal['item'] not in self._signals_data:
-                self._signals_data[signal['item']] = {}
-            self._signals_data[signal['item']]['data'] = data
+            if signal['id'] not in self._signals_data:
+                self._signals_data[signal['id']] = {}
+            self._signals_data[signal['id']]['data'] = data
 
     def _y_transform_fwd(self, plot, value):
         scale = plot.get('scale', 'linear')
@@ -1249,23 +1292,16 @@ class WaveformWidget(QtWidgets.QWidget):
                 trace.setWidth(value)
             self._repaint_request = True
 
-    def _subsource_order_update(self):
-        sources = set()
-        for (source_id, signal_id), signal in self._signals.items():
-            subsource = signal_id.split('.')[0]
-            sources.add(f'{source_id}/{subsource}')
-        self._subsource_order = list(sources)
-
     def _plot_range_auto_update(self, plot):
         if plot['range_mode'] != 'auto':
             return
         y_min = []
         y_max = []
-        for signal in plot['signals']:
-            d = self._signals.get(signal)
+        for signal_id in plot['signals']:
+            d = self._signals.get(signal_id)
             if d is None:
                 continue
-            sig_d = self._signals_data.get(signal)
+            sig_d = self._signals_data.get(signal_id)
             if sig_d is None:
                 continue
             d = sig_d['data']
@@ -1449,7 +1485,6 @@ class WaveformWidget(QtWidgets.QWidget):
         self._draw_markers_background(p)
 
         # Draw each plot
-        self._subsource_order_update()
         for plot in self.state['plots']:
             if plot['enabled']:
                 self._draw_plot(p, plot)
@@ -1687,15 +1722,14 @@ class WaveformWidget(QtWidgets.QWidget):
 
         p.setClipRect(x0, y0, w, h)
 
-        for signal in plot['signals']:
-            d = self._signals.get(signal)
+        for trace_idx, signal_id in enumerate(plot['signals']):
+            # todo fix trace_idx
+            d = self._signals.get(signal_id)
             if d is None:
                 continue
-            sig_d = self._signals_data.get(signal)
+            sig_d = self._signals_data.get(signal_id)
             if sig_d is None:
                 continue
-            subsource = f'{signal[0]}/{signal[1].split(".")[0]}'
-            trace_idx = self._subsource_order.index(subsource)
             d = sig_d['data']
             d_x = self._x_map.time64_to_counter(d['x'])
             if len(d_x) == w:
@@ -1973,8 +2007,9 @@ class WaveformWidget(QtWidgets.QWidget):
         for plot in self.state['plots']:
             if not plot['enabled'] or not len(plot['signals']):
                 continue
-            signal_index = plot['signals'][0]
-            d_sig = self._signals_data.get(signal_index)
+            # todo use active subsource
+            signal_id = plot['signals'][0]
+            d_sig = self._signals_data.get(signal_id)
             if d_sig is None:
                 continue
             d = d_sig['data']
@@ -2056,7 +2091,6 @@ class WaveformWidget(QtWidgets.QWidget):
                 plot_idx = int(plot.split('.')[1])
                 plot = self.state['plots'][plot_idx]
             signals = plot['signals']
-            # signal = self._signals[signals[0]]
             data = self._signals_data.get(signals[0])
             return plot, data
         except (KeyError, IndexError):
@@ -2861,13 +2895,12 @@ class WaveformWidget(QtWidgets.QWidget):
             self.pubsub.publish(f'{topic}/actions/!text_annotation', [action, plot['index']])
 
     def _on_menu_annotations_save(self):
-        for source in self._sources.keys():
+        for source in self._sources:
             if source.startswith('JlsSource'):
-                break
-        path = self.pubsub.query(f'{get_topic_name(source)}/settings/path')
-        path_base, path_ext = os.path.splitext(path)
-        anno_path = f'{path_base}.anno{path_ext}'
-        self.on_callback_annotation_save({'path': anno_path})
+                path = self.pubsub.query(f'{get_topic_name(source)}/settings/path')
+                path_base, path_ext = os.path.splitext(path)
+                anno_path = f'{path_base}.anno{path_ext}'
+                self.on_callback_annotation_save({'path': anno_path})
 
     def _on_menu_annotations_clear_all(self):
         self._on_menu_x_marker('clear_all')
@@ -2902,7 +2935,7 @@ class WaveformWidget(QtWidgets.QWidget):
         anno_y_sub = self._menu_add_y_annotations(anno_y)
         anno_text = annotations.addMenu(N_('Text'))
         anno_text_sub = self._menu_add_text_annotations(anno_text)
-        for source in self._sources.keys():
+        for source in self._sources:
             if source.startswith('JlsSource'):
                 anno_save = annotations.addAction(N_('Save'))
                 anno_save.triggered.connect(self._on_menu_annotations_save)
@@ -3206,11 +3239,11 @@ class WaveformWidget(QtWidgets.QWidget):
                       marker_remove]
         return self._menu_show(event)
 
-    def _menu_summary_signal(self, menu, signal):
+    def _menu_summary_signal(self, menu, signal_id):
         def action():
-            self.summary_signal = signal
+            self.summary_signal = signal_id
 
-        a = menu.addAction(' '.join(signal))
+        a = menu.addAction(signal_id.split('.', 1)[-1])
         a.triggered.connect(action)
         return a
 
@@ -3221,12 +3254,12 @@ class WaveformWidget(QtWidgets.QWidget):
         menu.addMenu(signal_menu)
         signals = []
         selected = self.summary_signal
-        for item, signal in self._signals.items():
+        for signal_id, signal in self._signals.items():
             if selected is None:
-                selected = item
-            a = self._menu_summary_signal(signal_menu, item)
+                selected = signal_id
+            a = self._menu_summary_signal(signal_menu, signal_id)
             signals.append(a)
-            a.setChecked(item == selected)
+            a.setChecked(signal_id == selected)
         style_action = settings_action_create(self, menu)
         self._menu = [menu, signal_menu, signals, style_action]
         return self._menu_show(event)

@@ -156,6 +156,10 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._layout.setContentsMargins(-1, 1, -1, 1)
         self._layout.setSpacing(5)
 
+        # non-expanding to left-justify
+        self._spacer_l = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
+        self._layout.addItem(self._spacer_l)
+
         self._markers_label = QtWidgets.QLabel(self)
         self._markers_label.setText('Markers:')
         self._layout.addWidget(self._markers_label)
@@ -202,9 +206,8 @@ class WaveformControlWidget(QtWidgets.QWidget):
         for signal in _SIGNALS:
             self._add_signal(signal)
 
-        self._spacer = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding,
-                                             QtWidgets.QSizePolicy.Minimum)
-        self._layout.addItem(self._spacer)
+        self._spacer_r = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self._layout.addItem(self._spacer_r)
 
     def _subscribe(self, topic, fn, flags=None):
         self._pubsub.subscribe(topic, fn, flags)

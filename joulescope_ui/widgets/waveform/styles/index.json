@@ -22,6 +22,30 @@
         ["{basename}_hover{ext}",    {"#000000": "js1.clickable_hover"}],
         ["{basename}_pressed{ext}",  {"#000000": "js1.clickable_pressed"}]
       ]
+    },
+    "trace": {
+      "sources": ["trace.svg"],
+      "targets": [
+        ["{basename}1_off{ext}",     {"#ffffff": "js1.clickable_disabled", "#444444": "base.background"}],
+        ["{basename}1_offh{ext}",    {"#ffffff": "js1.clickable_disabled", "#444444": "js1.clickable_hover"}],
+        ["{basename}1_on{ext}",      {"#ffffff": "waveform.trace1", "#444444": "base.background"}],
+        ["{basename}1_onh{ext}",     {"#ffffff": "waveform.trace1", "#444444": "js1.clickable_hover"}],
+
+        ["{basename}2_off{ext}",     {"#ffffff": "js1.clickable_disabled", "#444444": "base.background"}],
+        ["{basename}2_offh{ext}",    {"#ffffff": "js1.clickable_disabled", "#444444": "js1.clickable_hover"}],
+        ["{basename}2_on{ext}",      {"#ffffff": "waveform.trace2", "#444444": "base.background"}],
+        ["{basename}2_onh{ext}",     {"#ffffff": "waveform.trace2", "#444444": "js1.clickable_hover"}],
+
+        ["{basename}3_off{ext}",     {"#ffffff": "js1.clickable_disabled", "#444444": "base.background"}],
+        ["{basename}3_offh{ext}",    {"#ffffff": "js1.clickable_disabled", "#444444": "js1.clickable_hover"}],
+        ["{basename}3_on{ext}",      {"#ffffff": "waveform.trace3", "#444444": "base.background"}],
+        ["{basename}3_onh{ext}",     {"#ffffff": "waveform.trace3", "#444444": "js1.clickable_hover"}],
+
+        ["{basename}4_off{ext}",     {"#ffffff": "js1.clickable_disabled", "#444444": "base.background"}],
+        ["{basename}4_offh{ext}",    {"#ffffff": "js1.clickable_disabled", "#444444": "js1.clickable_hover"}],
+        ["{basename}4_on{ext}",      {"#ffffff": "waveform.trace4", "#444444": "base.background"}],
+        ["{basename}4_onh{ext}",     {"#ffffff": "waveform.trace4", "#444444": "js1.clickable_hover"}]
+      ]
     }
   }
 }
