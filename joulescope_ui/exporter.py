@@ -180,31 +180,30 @@ class Exporter(RangeToolBase):
     def _jls_init(self, jls: Writer):
         sources = []
         jls_signal_id = 1
-        for idx, signal in enumerate(self.signals):
-            (source_unique_id, signal_id) = signal
-            meta_topic = f'registry/{source_unique_id}/settings/signals/{signal_id}/meta'
+        for idx, signal_id in enumerate(self.signals):
+            source, device, quantity = signal_id.split('.')
+            meta_topic = f'registry/{source}/settings/signals/{device}.{quantity}/meta'
             meta = pubsub_singleton.query(meta_topic)
-            source, signal_id_brief = signal_id.split('.')
-            if source not in sources:
-                sources.append(source)
-                source_idx = source.index(source) + 1
+            if device not in sources:
+                sources.append(device)
+                source_idx = sources.index(device) + 1
                 version = meta['version']
                 if isinstance(version, dict):
                     version = json.dumps(version)
                 jls.source_def(
                     source_id=source_idx,
-                    name=source,
+                    name=device,
                     vendor=meta['vendor'],
                     model=meta['model'],
                     version=version,
                     serial_number=meta['serial_number'],
                 )
-            r = pubsub_singleton.query(f'{get_topic_name(source_unique_id)}/settings/signals/{signal_id}/range')
-            d = self.request(signal, 'utc', self.x_range[0], 0, 1, timeout=5.0)
+            r = pubsub_singleton.query(f'registry/{source}/settings/signals/{device}.{quantity}/range')
+            d = self.request(signal_id, 'utc', self.x_range[0], 0, 1, timeout=5.0)
             info = d['info']
             jls.signal_def(
                 signal_id=jls_signal_id,
-                source_id=source.index(source) + 1,
+                source_id=sources.index(device) + 1,
                 signal_type=SignalType.FSR,
                 data_type=d['data_type'],
                 sample_rate=info['time_map']['counter_rate'],
@@ -215,8 +214,8 @@ class Exporter(RangeToolBase):
             d_utc = (utc_start - self.x_range[0]) / time64.SECOND
             if abs(d_utc) > 0.001:
                 self._log.error('UTC error: %.3f: %d %d, %s', d_utc, utc_start, self.x_range[0], d['data'][0])
-            self._signals[(source_unique_id, signal_id)] = {
-                'signal': (source_unique_id, signal_id),
+            self._signals[signal_id] = {
+                'signal': signal_id,
                 'jls_signal_id': jls_signal_id,
                 'info': info,
                 'range': r,
@@ -260,7 +259,7 @@ class Exporter(RangeToolBase):
                         self._log.info(f'{signal["signal"]}: exported {count} samples')
                         break
                     length = min(100_000, length_remaining)
-                    d = self.request(signal, 'samples', sample_id, 0, length, timeout=1.0)
+                    d = self.request(signal['signal'], 'samples', sample_id, 0, length, timeout=1.0)
                     info = d['info']
                     sample_id_start = info['time_range_samples']['start']
                     if sample_id_start != sample_id:

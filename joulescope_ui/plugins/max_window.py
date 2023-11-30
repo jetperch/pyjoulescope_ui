@@ -123,8 +123,9 @@ class MaxWindowDialog(QtWidgets.QDialog):
 
         self._signal = QtWidgets.QComboBox(self)
         self._form.setWidget(1, QtWidgets.QFormLayout.FieldRole, self._signal)
-        for _, signal in value['signals']:
-            self._signal.addItem(signal)
+        for signal_id in value['signals']:
+            signal_name = '.'.join(signal_id.split('.')[-2:])
+            self._signal.addItem(signal_name)
 
         self._layout.addLayout(self._form)
 

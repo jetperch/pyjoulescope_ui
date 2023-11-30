@@ -8,7 +8,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.43
 
-2023 Nov 29 [in progress]
+2023 Nov 30
 
 * Deferred Waveform render_to_image operations to synchronize.  Fixes #239.
 * Added app "opengl" setting and use "desktop" by default.
@@ -22,6 +22,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Updated pyjoulescope_driver 1.4.0 -> 1.4.1 with fw 1.2.0 and FPGA 1.2.0.
   * Improved JS220 UTC time sync with FW 1.2.0 & FPGA 1.2.0 support.
   * Improved JS220 skip / drop sample handling.
+* Modified internal signal_id format.
 
 
 ## 1.0.42

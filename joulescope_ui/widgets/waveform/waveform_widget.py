@@ -654,7 +654,12 @@ class WaveformWidget(QtWidgets.QWidget):
                 continue
             subsource = subsources[idx]
             if subsource == 'default':
-                subsource = self._default_source
+                if self.source_filter.startswith('JsdrvStreamBuffer:001'):
+                    subsource = self._default_source
+                elif len(self.subsources):
+                    subsource = self.subsources[0]
+                else:
+                    subsource = None
             if subsource is None:
                 continue
             if quantity is not None:
@@ -3112,12 +3117,21 @@ class WaveformWidget(QtWidgets.QWidget):
         x0, x1 = m['pos1'], m['pos2']
         if x0 > x1:
             x0, x1 = x1, x0
-        pubsub_singleton.publish(f'registry/{unique_id}/actions/!run', {
+        value = {
             'x_range': (x0, x1),
             'origin': self.unique_id,
             'signals': self._signals_get(),
-            #  todo 'signal_default':
-        })
+        }
+        y_name = self._find_item(self._mouse_pos)[-1]
+        if y_name.startswith('plot.'):
+            plot_idx = int(y_name.split('.')[1])
+            quantity = self.state['plots'][plot_idx]['quantity']
+            value['quantity'] = quantity
+            traces = self._traces(quantity)
+            if len(traces):
+                value['signal_default'] = f'{traces[0][1]}.{quantity}'
+
+        pubsub_singleton.publish(f'registry/{unique_id}/actions/!run', value)
 
     def _construct_analysis_menu_action(self, analysis_menu, unique_id, idx):
         cls = get_instance(unique_id)
@@ -4005,4 +4019,10 @@ class WaveformWidget(QtWidgets.QWidget):
         self._log.info('fps: period = %s ms', value)
 
     def on_setting_summary_quantity(self):
+        self._plot_data_invalidate()
+
+    def on_setting_trace_subsources(self):
+        self._plot_data_invalidate()
+
+    def on_setting_trace_priority(self):
         self._plot_data_invalidate()
