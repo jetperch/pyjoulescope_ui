@@ -8,16 +8,21 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.43
 
-2023 Nov 17 [in progress]
+2023 Nov 30
 
 * Deferred Waveform render_to_image operations to synchronize.  Fixes #239.
 * Added app "opengl" setting and use "desktop" by default.
-* Fixed js220 device settings log warnings. 
+  Select "software" to workaround Intel UHD graphics issue #216. 
+* Fixed JS220 device settings log warnings. 
 * Increased the max number of logs from 4 to 10 included in issue reports.
 * Changed VersionedFile to use temp file with process ID to avoid collisions.
 * Display tooltips for Settings widget labels, not just values.
 * Fixed device selection in Multimeter, Value, and Accumulator widgets.  #233
 * Fixed software_update to log warning (not exception) on unsupported platform.
+* Updated pyjoulescope_driver 1.4.0 -> 1.4.1 with fw 1.2.0 and FPGA 1.2.0.
+  * Improved JS220 UTC time sync with FW 1.2.0 & FPGA 1.2.0 support.
+  * Improved JS220 skip / drop sample handling.
+* Modified internal signal_id format.
 
 
 ## 1.0.42

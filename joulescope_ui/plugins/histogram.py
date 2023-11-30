@@ -48,8 +48,9 @@ class HistogramRangeToolDialog(QtWidgets.QDialog):
         self._form.setWidget(0, QtWidgets.QFormLayout.LabelRole, self._signal_label)
         self._signal = QtWidgets.QComboBox(self)
         self._form.setWidget(0, QtWidgets.QFormLayout.FieldRole, self._signal)
-        for _, signal in value['signals']:
-            self._signal.addItem(signal)
+        for idx, signal_id in enumerate(value['signals']):
+            signal_name = '.'.join(signal_id.split('.')[-2:])
+            self._signal.addItem(signal_name)
 
         self._num_bins_label = QtWidgets.QLabel(N_('Number of bins (0 for auto)'), self)
         self._form.setWidget(1, QtWidgets.QFormLayout.LabelRole, self._num_bins_label)
@@ -204,11 +205,10 @@ class HistogramRangeTool(RangeToolBase):
     def _run(self):
         kwargs = self.kwargs
         num_bins = kwargs['num_bins']
-        signal = kwargs['signal']
-        _, signal_id = signal
+        signal_id = kwargs['signal']
         norm, norm_label = _NORMALIZATIONS[kwargs['norm']]
 
-        hist, bin_edges = calculate_histogram(self, self.value, signal, num_bins)
+        hist, bin_edges = calculate_histogram(self, self.value, signal_id, num_bins)
         hist, bin_edges = normalize_hist(hist, bin_edges, norm)
         bin_edges = bin_edges[:-1]
         if hist.size == 0 or bin_edges.size == 0:

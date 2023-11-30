@@ -95,18 +95,18 @@ class RangeTool:
     def signal_query(self, signal, setting):
         """Query the signals settings.
 
-        :param signal: The (source_unique_id, signal_id).
+        :param signal: The signal_id
         :param setting: The signal setting, one of [name, meta, range]
             as defined by CAPABILITIES.SIGNAL_BUFFER_SOURCE.
         """
-        source_unique_id, signal_id = signal
-        topic = get_topic_name(source_unique_id)
-        return self.pubsub.query(f'{topic}/settings/signals/{signal_id}/{setting}')
+        source, device, quantity = signal.split('.')
+        topic = get_topic_name(source)
+        return self.pubsub.query(f'{topic}/settings/signals/{device}.{quantity}/{setting}')
 
-    def request(self, signal, time_type, start, end, length, timeout=None):
+    def request(self, signal_id: str, time_type, start, end, length, timeout=None):
         """Request data from the signal buffer.
 
-        :param signal: The (source_id, signal_id) signal definition.
+        :param signal_id: The signal_id string as '{source}.{device}.{quantity}'
         :param time_type: utc or samples.
         :param start: The starting time, inclusive.
         :param end: The ending time, inclusive.
@@ -121,11 +121,11 @@ class RangeTool:
         assert(self.rsp_topic is not None)
         if time_type not in ['utc', 'samples']:
             raise ValueError(f'invalid time_type: {time_type}')
+        source, device, quantity = signal_id.split('.')
+
         rsp_id = self._rsp_id
-        if isinstance(signal, dict):
-            signal = signal['signal']
         req = {
-            'signal_id': signal[1],
+            'signal_id': signal_id,
             'time_type': time_type,
             'start': start,
             'end': end,
@@ -137,7 +137,7 @@ class RangeTool:
 
         while True:
             self._rsp_id += 1
-            self.pubsub.publish(f'{get_topic_name(signal[0])}/actions/!request', req)
+            self.pubsub.publish(f'{get_topic_name(source)}/actions/!request', req)
             if timeout == 0:
                 return rsp_id
             if timeout is None:
@@ -148,7 +148,7 @@ class RangeTool:
                 try:
                     rsp = self.pop(timeout=timeout)
                 except queue.Empty:
-                    raise TimeoutError(f'request timed out for {signal}')
+                    raise TimeoutError(f'request timed out for {signal_id}')
                 if rsp['rsp_id'] == rsp_id:
                     break
                 else:
@@ -229,7 +229,7 @@ class RangeTool:
 
         :param msg: The error message.
         """
-        self.pubsub.publish('registry/app/actions/!error', msg)
+        self.pubsub.publish('registry/ui/actions/!error_msg', msg)
 
 
 class RangeToolBase:

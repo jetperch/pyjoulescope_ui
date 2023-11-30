@@ -61,11 +61,14 @@ class UsbInrush(RangeToolBase):
         super().__init__(value)
 
     def _find_signals(self):
-        for source_id, signal_id in self.signals:
+        for signal_id in self.signals:
             if signal_id.endswith('.i'):
-                v = signal_id.split('.')[0] + '.v'
-                if (source_id, v) in self.signals:
-                    return (source_id, signal_id), (source_id, v)
+                i_signal_id = signal_id
+                signal_parts = signal_id.split('.')[:-1]
+                signal_parts.append('v')
+                v_signal_id = '.'.join(signal_parts)
+                if v_signal_id in self.signals:
+                    return i_signal_id, v_signal_id
         return None, None
 
     def _run(self):

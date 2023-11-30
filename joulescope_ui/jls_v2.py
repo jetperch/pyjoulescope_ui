@@ -168,7 +168,8 @@ class JlsV2:
         """
         if self._jls is None:
             return None
-        signal = self._signals[req['signal_id']]
+        signal_id = '.'.join(req['signal_id'].split('.')[-2:])
+        signal = self._signals[signal_id]
         signal_id = signal['signal_id']
         req_end = req.get('end', 0)
         length = req.get('length', 0)

@@ -30,16 +30,17 @@ class PubSub:
     def __init__(self):
         self.x_range = [time64.HOUR, time64.HOUR + time64.SECOND * 5]
         self.signals = {
-            ('source1', 'dev1.i'): {},
-            ('source1', 'dev1.v'): {}
+            'source1.dev1.i': {},
+            'source1.dev1.v': {}
         }
         self.topics = {}
         self._subscribe = {}
 
-        for source_id, signal_id in self.signals.keys():
-            self.topics[f'registry/{source_id}/settings/signals/{signal_id}/name'] = signal_id
-            self.topics[f'registry/{source_id}/settings/signals/{signal_id}/meta'] = 'meta'
-            self.topics[f'registry/{source_id}/settings/signals/{signal_id}/range'] = self.x_range
+        for signal_id in self.signals.keys():
+            source, device, quantity = signal_id.split('.')
+            self.topics[f'registry/{source}/settings/signals/{device}.{quantity}/name'] = signal_id
+            self.topics[f'registry/{source}/settings/signals/{device}.{quantity}/meta'] = 'meta'
+            self.topics[f'registry/{source}/settings/signals/{device}.{quantity}/range'] = self.x_range
 
     def range_tool_init_value(self):
         return {

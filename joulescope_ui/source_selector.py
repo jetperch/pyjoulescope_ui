@@ -14,7 +14,7 @@
 
 
 from PySide6 import QtCore, QtGui
-from joulescope_ui import N_, CAPABILITIES, pubsub_singleton
+from joulescope_ui import N_, CAPABILITIES, pubsub_singleton, get_topic_name
 
 
 _SOURCE_DEF = {
@@ -56,37 +56,57 @@ class SourceSelector(QtCore.QObject):
         self.value = None     # includes "default", mirrors settings_topic
         self.sources = ['default']  # includes default and nonpresent but selected source
         self._list = []             # actual sources list
+        self._source_type = source_type
+        self._signal_buffer_sources = {}  # the top-level sources mapped to subsources
         source_def = _SOURCE_DEF[source_type]
         super().__init__(parent)
         self._subscribers = [
-            (source_def[0], self._on_default),
-            (source_def[1], self._on_list),
-            (settings_topic, self.source_set),
+            [settings_topic, self.source_set, ('pub', 'retain')],
+            [source_def[0], self._on_default, ('pub', 'retain')],
+            [source_def[1], self._on_list, ('pub', 'retain')],
         ]
+
+    def _subscribe(self, topic, fn, flags):
+        self._subscribers.append((topic, fn, flags))
+        if self._is_registered and topic is not None:
+            self._pubsub.subscribe(topic, fn, flags)
+
+    def _unsubscribe(self, topic):
+        if topic is None:
+            return
+        for idx, entry in enumerate(self._subscribers):
+            if topic == entry[0]:
+                self._pubsub.unsubscribe(*entry)
+                self._subscribers.pop(idx)
+                return
 
     @property
     def settings_topic(self):
-        return self._subscribers[-1][0]
+        return self._subscribers[0][0]
 
     @settings_topic.setter
     def settings_topic(self, value):
-        t, fn = self._subscribers[-1]
+        t, fn, flags = self._subscribers[0]
         if t is not None and self._is_registered:
             self._pubsub.unsubscribe(t, fn)
-        self._subscribers.append((value, fn))
+        self._subscribers[0][0] = value
         if self._is_registered:
-            self._pubsub.subscribe(value, fn, ['pub', 'retain'])
+            self._pubsub.subscribe(value, fn, flags)
 
     def on_pubsub_register(self):
         self._is_registered = True
-        for topic, fn in self._subscribers:
-            self._pubsub.subscribe(topic, fn, ['pub', 'retain'])
-        topic = self._subscribers[-1][0]
-        self.source_set(self._pubsub.query(topic))
+        for topic, fn, flags in self._subscribers:
+            if topic is not None:
+                self._pubsub.subscribe(topic, fn, flags)
+        topic = self._subscribers[0][0]
+        if topic is not None:
+            value_prev = self._pubsub.query(topic)
+            self.source_set(value_prev)
 
     def on_pubsub_unregister(self):
-        for topic, fn in self._subscribers:
-            self._pubsub.unsubscribe(topic, fn)
+        for topic, fn, flags in self._subscribers:
+            if topic is not None:
+                self._pubsub.unsubscribe(topic, fn, flags)
         self._is_registered = False
 
     def resolved(self):
@@ -94,6 +114,8 @@ class SourceSelector(QtCore.QObject):
         source = self.value
         if source in [None, 'default']:
             source = self._default
+        if source == 'off':
+            return None
         if source not in self._list:
             return None
         return source
@@ -110,9 +132,9 @@ class SourceSelector(QtCore.QObject):
         if value == self.value:
             return
         self.value = value
-        self._on_list(self._list)
+        self._on_list_inner(self._list)
         self.source_changed.emit(self.value)
-        if self._is_registered:
+        if self._is_registered and self.settings_topic is not None:
             self._pubsub.publish(self.settings_topic, value)
         resolved_new = self.resolved()
         if resolved_new != resolved_prev:
@@ -131,7 +153,72 @@ class SourceSelector(QtCore.QObject):
         if resolved_new != resolved_prev:
             self.resolved_changed.emit(resolved_new)
 
-    def _on_list(self, value):
+    def _buffer_signal_update(self):
+        sources = {}
+        for source, signals in self._signal_buffer_sources.items():
+            for signal in signals:
+                source_id, quantity = signal.split('.')
+                sources[f'{source}.{source_id}'] = 1
+        sources = list(sources.keys())
+        self._on_list_inner(sources)
+
+    def _buffer_signal_add(self, topic, value):
+        source = topic.split('/')[1]
+        signal = value
+        if source not in self._signal_buffer_sources:
+            self._signal_buffer_sources[source] = []
+        signals = self._signal_buffer_sources[source]
+        if signal not in signals:
+            signals.append(signal)
+
+    def _buffer_signal_remove(self, topic, value):
+        source = topic.split('/')[1]
+        signal = value
+        if source in self._signal_buffer_sources:
+            signals = self._signal_buffer_sources[source]
+            if signal in signals:
+                signals.remove(signal)
+
+    def _buffer_signal_add_update(self, topic, value):
+        self._buffer_signal_add(topic, value)
+        self._buffer_signal_update()
+
+    def _buffer_signal_remove_update(self, topic, value):
+        self._buffer_signal_remove(topic, value)
+        self._buffer_signal_update()
+
+    def _buffer_add(self, unique_id):
+        topic = get_topic_name(unique_id)
+        try:
+            self._pubsub.query(f'{topic}/events/signals/!add')
+            self._subscribe(f'{topic}/events/signals/!add', self._buffer_signal_add_update, ['pub'])
+            self._subscribe(f'{topic}/events/signals/!remove', self._buffer_signal_remove_update, ['pub'])
+        except KeyError:
+            pass
+        signals = self._pubsub.enumerate(f'{topic}/settings/signals')
+        for signal in signals:
+            self._buffer_signal_add(topic, signal)
+        self._buffer_signal_update()
+
+    def _buffer_remove(self, unique_id):
+        topic = get_topic_name(unique_id)
+        try:
+            self._pubsub.query(f'{topic}/events/signals/!add')
+            self._unsubscribe(f'{topic}/events/signals/!add')
+            self._unsubscribe(f'{topic}/events/signals/!remove')
+        except KeyError:
+            pass
+        self._buffer_signal_update()
+
+    def _on_list_signal_buffer(self, value):
+        for v in value:
+            if v not in self._signal_buffer_sources:
+                self._buffer_add(v)
+        for v in self._signal_buffer_sources.keys():
+            if v not in value:
+                self._buffer_remove(v)
+
+    def _on_list_inner(self, value):
         resolved_prev = self.resolved()
         sources = ['default'] + value
         list_prev, self._list = self._list, list(value)
@@ -139,7 +226,7 @@ class SourceSelector(QtCore.QObject):
         self.list_changed.emit(self._list)
 
         v = self.value
-        if v is not None and v not in sources:
+        if v is not None and v not in sources and v != 'off':
             sources.append(v)
         if sources != sources_prev:
             self.sources_changed.emit(sources)
@@ -151,6 +238,12 @@ class SourceSelector(QtCore.QObject):
             self.resolved_changed.emit(resolved_new)
         elif resolved_new not in self._list and resolved_new in list_prev:
             self.resolved_new.emit(None)
+
+    def _on_list(self, value):
+        if self._source_type == 'signal_buffer':
+            return self._on_list_signal_buffer(value)
+        else:
+            self._on_list_inner(value)
 
     def _construct_source_action(self, source):
         def fn():

@@ -225,8 +225,9 @@ class FrequencyRangeToolDialog(QtWidgets.QDialog):
 
         self._signal = QtWidgets.QComboBox(self)
         self._signal.setObjectName("signalComboBox")
-        for _, signal in value['signals']:
-            self._signal.addItem(signal)
+        for signal_id in value['signals']:
+            signal_name = '.'.join(signal_id.split('.')[-2:])
+            self._signal.addItem(signal_name)
         self._layout.addWidget(self._signal, 0, 1, 1, 1)
 
         self._windowLabel = QtWidgets.QLabel(self)

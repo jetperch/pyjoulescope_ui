@@ -245,6 +245,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         topics = [
             'registry/app/settings/defaults/statistics_stream_source',
             'registry/app/settings/defaults/signal_stream_source',
+            'registry/app/settings/defaults/signal_buffer_source',
         ]
         b = self._construct_pushbutton('default_device', checkable=True, tooltip=_DEFAULT_DEVICE_TOOLTIP)
 
@@ -259,6 +260,8 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             b.blockSignals(block_state)
             for topic in topics:
                 pubsub_singleton.publish(topic, self.unique_id)
+            pubsub_singleton.publish('registry/app/settings/defaults/signal_buffer_source',
+                                     f'JsdrvStreamBuffer:001.{self.unique_id}')
 
         self._subscribe(topics[0], update_from_pubsub)
         b.toggled.connect(on_pressed)

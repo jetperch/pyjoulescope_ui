@@ -177,8 +177,9 @@ class CdfRangeToolDialog(QtWidgets.QDialog):
         self._layout.addWidget(self._signal_label, 0, 0, 1, 1)
         self._signal = QtWidgets.QComboBox(self)
         self._signal.setObjectName("signalComboBox")
-        for _, signal in value['signals']:
-            self._signal.addItem(signal)
+        for signal_id in value['signals']:
+            signal_name = '.'.join(signal_id.split('.')[-2:])
+            self._signal.addItem(signal_name)
         self._layout.addWidget(self._signal, 0, 1, 1, 1)
 
         self._num_bins_label = QtWidgets.QLabel(N_('Number of bins (0 for auto)'), self)

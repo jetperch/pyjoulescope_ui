@@ -30,6 +30,17 @@ SETTINGS = {
         'brief': N_('The name for this application.'),
         'default': N_('app'),
     },
+    'mode': {
+        'dtype': 'str',
+        'brief': 'The application mode for this invocation',
+        'default': 'uninitialized',
+        'options': [
+            ['uninitialized'],  # default, changed at app start
+            ['normal'],         # "normal" behavior
+            ['file_viewer'],    # file viewer, for ".jls" file association.
+        ],
+        'flags': ['ro', 'hide', 'tmp', 'noinit', 'skip_undo'],
+    },
     'target_power': {
         'dtype': 'bool',
         'brief': N_('Target power'),
@@ -176,7 +187,7 @@ SETTINGS = {
             ['dynamic', N_('Autodetect')],
         ],
         'default': 'desktop',
-    }
+    },
 }
 
 
@@ -207,7 +218,7 @@ class App:
             self._on_capability_list(capability, value)
         return cbk
 
-    def register(self):
+    def register(self, mode=None):
         p = pubsub_singleton
         topic = get_topic_name('app')
         if p.query(f'{topic}/settings/statistics_stream_enable', default=None) is not None:
@@ -219,6 +230,8 @@ class App:
             self._cbks.append([capability, fn])
             p.subscribe(f'registry_manager/capabilities/{capability}/list',
                         fn, ['pub', 'retain'])
+        if mode is not None:
+            p.publish(f'{topic}/settings/mode', mode)
         return self
 
     def _on_capability_list(self, capability, value):
@@ -228,14 +241,17 @@ class App:
         topic = f'{base_topic}/settings/{subtopic}'
         default = pubsub_singleton.query(topic)
         if not len(value):
-            # no sources found, clear default
-            pubsub_singleton.publish(topic, None)
+            value = None
         elif default is not None and default in value:
             # default found in list, keep
-            pass
+            return
         else:
             # default not in list, use first item in list
-            pubsub_singleton.publish(topic, value[0])
+            value = value[0]
+        pubsub_singleton.publish(topic, value)
+        if capability == CAPABILITIES.SIGNAL_STREAM_SOURCE:
+            pubsub_singleton.publish('registry/app/settings/defaults/signal_buffer_source',
+                                     f'JsdrvStreamBuffer:001.{value}')
 
     def on_action_fuse_clear_all(self):
         pass

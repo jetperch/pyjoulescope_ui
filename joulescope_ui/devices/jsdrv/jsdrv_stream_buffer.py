@@ -413,6 +413,8 @@ class JsdrvStreamBuffer:
         """
         value = copy.deepcopy(value)
         signal_id = value['signal_id']
+        signal_id_parts = signal_id.split('.')
+        signal_id = '.'.join(signal_id_parts[-2:])
         try:
             buf_id = self._signals[signal_id][0]
         except KeyError:

@@ -26,12 +26,15 @@ class CAPABILITIES(Enum):
         * actions/!run: dict with the following keys:
           * x_range: (time64_min, time64_max)
           * origin: The unique_id for the originator.
-          * signals: [(source_unique_id, signal_id), ...]]
-            where source_unique_id is for a SIGNAL_BUFFER_SOURCE and 
-            signal_id is for a signal in that source.
-          * signal_default: (source_unique_id, signal_id)
+          * signals: [signal_id, ...]
+            where signal_id is in the form '{source}.{device}.{quantity}'.
+            source is the unique_id of the source.
+            '{device}.{quantity} is the subsignal_id for that source.
+          * signal_default: signal_id.
             optional: The selected signal (if available) that should
-            be used for the analysis if only one signal is required. 
+            be used for the analysis if only one signal is required.
+          * quantity: One of the quantity strings, like 'i'.
+            optional: The active quantity for the range tool.    
           * kwargs: optional arguments for the command.
     """
 

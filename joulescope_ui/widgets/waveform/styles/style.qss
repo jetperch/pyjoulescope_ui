@@ -22,7 +22,11 @@ QPushButton#zoom_out,
 QPushButton#zoom_all,
 QPushButton#y_zoom_all,
 QPushButton#pin_left,
-QPushButton#pin_right
+QPushButton#pin_right,
+QPushButton#trace_1,
+QPushButton#trace_2,
+QPushButton#trace_3,
+QPushButton#trace_4
 {
     background: transparent;
     border-width: 0px;
@@ -67,19 +71,57 @@ QPushButton#y_zoom_all:disabled      { image: url("{% path %}/y_zoom_all_disable
 QPushButton#y_zoom_all:enabled       { image: url("{% path %}/y_zoom_all_enabled.svg"); }
 QPushButton#y_zoom_all:enabled:hover { image: url("{% path %}/y_zoom_all_hover.svg"); }
 
+QPushButton#trace_1                  { image: url("{% path %}/trace1_off.svg"); }
+QPushButton#trace_1:hover            { image: url("{% path %}/trace1_offh.svg"); }
+QPushButton#trace_1:checked          { image: url("{% path %}/trace1_on.svg"); }
+QPushButton#trace_1:checked:hover    { image: url("{% path %}/trace1_onh.svg"); }
 
-QLabel#WaveformSingleSourceColor_0 {
-    background-color: {% waveform.trace1 %};
+QPushButton#trace_2:!checked:!hover  { image: url("{% path %}/trace2_off.svg"); }
+QPushButton#trace_2:!checked:hover   { image: url("{% path %}/trace2_offh.svg"); }
+QPushButton#trace_2:checked:!hover   { image: url("{% path %}/trace2_on.svg"); }
+QPushButton#trace_2:checked:hover    { image: url("{% path %}/trace2_onh.svg"); }
+
+QPushButton#trace_3:!checked:!hover  { image: url("{% path %}/trace3_off.svg"); }
+QPushButton#trace_3:!checked:hover   { image: url("{% path %}/trace3_offh.svg"); }
+QPushButton#trace_3:checked:!hover   { image: url("{% path %}/trace3_on.svg"); }
+QPushButton#trace_3:checked:hover    { image: url("{% path %}/trace3_onh.svg"); }
+
+QPushButton#trace_4:!checked:!hover  { image: url("{% path %}/trace4_off.svg"); }
+QPushButton#trace_4:!checked:hover   { image: url("{% path %}/trace4_offh.svg"); }
+QPushButton#trace_4:checked:!hover   { image: url("{% path %}/trace4_on.svg"); }
+QPushButton#trace_4:checked:hover    { image: url("{% path %}/trace4_onh.svg"); }
+
+
+QFrame#trace_widget_1[active="false"],
+QFrame#trace_widget_2[active="false"],
+QFrame#trace_widget_3[active="false"],
+QFrame#trace_widget_4[active="false"]
+{
+    border: 1px solid transparent;
+    border-radius: 5px;
 }
 
-QLabel#WaveformSingleSourceColor_1 {
-    background-color: {% waveform.trace2 %};
+
+QFrame#trace_widget_1[active="true"]
+{
+    border: 1px solid {% waveform.trace1 %};
+    border-radius: 5px;
 }
 
-QLabel#WaveformSingleSourceColor_2 {
-    background-color: {% waveform.trace3 %};
+QFrame#trace_widget_2[active="true"]
+{
+    border: 1px solid {% waveform.trace2 %};
+    border-radius: 5px;
 }
 
-QLabel#WaveformSingleSourceColor_3 {
-    background-color: {% waveform.trace4 %};
+QFrame#trace_widget_3[active="true"]
+{
+    border: 1px solid {% waveform.trace3 %};
+    border-radius: 5px;
+}
+
+QFrame#trace_widget_4[active="true"]
+{
+    border: 1px solid {% waveform.trace4 %};
+    border-radius: 5px;
 }
