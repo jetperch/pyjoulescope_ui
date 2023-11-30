@@ -61,9 +61,9 @@ class SourceSelector(QtCore.QObject):
         source_def = _SOURCE_DEF[source_type]
         super().__init__(parent)
         self._subscribers = [
-            (source_def[0], self._on_default, ('pub', 'retain')),
-            (source_def[1], self._on_list, ('pub', 'retain')),
-            (settings_topic, self.source_set, ('pub', 'retain')),
+            [settings_topic, self.source_set, ('pub', 'retain')],
+            [source_def[0], self._on_default, ('pub', 'retain')],
+            [source_def[1], self._on_list, ('pub', 'retain')],
         ]
 
     def _subscribe(self, topic, fn, flags):
@@ -82,14 +82,14 @@ class SourceSelector(QtCore.QObject):
 
     @property
     def settings_topic(self):
-        return self._subscribers[2][0]
+        return self._subscribers[0][0]
 
     @settings_topic.setter
     def settings_topic(self, value):
-        t, fn, flags = self._subscribers[2]
+        t, fn, flags = self._subscribers[0]
         if t is not None and self._is_registered:
             self._pubsub.unsubscribe(t, fn)
-        self._subscribers.append((value, fn, flags))
+        self._subscribers[0][0] = value
         if self._is_registered:
             self._pubsub.subscribe(value, fn, flags)
 
@@ -98,9 +98,10 @@ class SourceSelector(QtCore.QObject):
         for topic, fn, flags in self._subscribers:
             if topic is not None:
                 self._pubsub.subscribe(topic, fn, flags)
-        topic = self._subscribers[2][0]
+        topic = self._subscribers[0][0]
         if topic is not None:
-            self.source_set(self._pubsub.query(topic))
+            value_prev = self._pubsub.query(topic)
+            self.source_set(value_prev)
 
     def on_pubsub_unregister(self):
         for topic, fn, flags in self._subscribers:

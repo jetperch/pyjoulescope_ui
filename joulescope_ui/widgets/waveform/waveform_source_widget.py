@@ -102,6 +102,9 @@ class _Trace(QtWidgets.QFrame):
         if self._priority is None or self._subsource is None:
             self._name.setText(N_('off'))
         else:
+            block_signals_state = self._trace.blockSignals(True)
+            self._trace.setChecked(True)
+            self._trace.blockSignals(block_signals_state)
             device = self._subsource.split('.')[-1]
             self._name.setText(device)
         self.setProperty('active', self._priority == 0)
@@ -110,6 +113,7 @@ class _Trace(QtWidgets.QFrame):
 
     def on_subsources(self, subsources):
         self._subsources = list(subsources)
+        self._update()
 
     def on_trace_subsource(self, subsource):
         self._subsource = subsource
@@ -117,10 +121,6 @@ class _Trace(QtWidgets.QFrame):
 
     def on_trace_priority(self, priority):
         self._priority = priority
-        if priority == 0:
-            block_signals_state = self._trace.blockSignals(True)
-            self._trace.setChecked(True)
-            self._trace.blockSignals(block_signals_state)
         self._update()
 
     def _on_enable(self, enabled):
@@ -129,10 +129,8 @@ class _Trace(QtWidgets.QFrame):
         if enabled:
             value = [None if x is None else x - 1 for x in value]
             value[self._index] = 0
-            self._name.setText(self._subsource)
         else:
             value[self._index] = None
-            self._name.setText('off')
         self.pubsub.publish(topic, value)
 
     def _on_name_mousePressEvent(self, event):
@@ -157,6 +155,9 @@ class WaveformSourceWidget(QtWidgets.QWidget):
     def __init__(self, parent):
         self._traces = []
         self._parent = parent
+        self._subsources = []
+        self._trace_subsources = ['default', None, None, None]
+        self._trace_priorities = [0, None, None, None],
         QtWidgets.QWidget.__init__(self, parent)
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.setObjectName("WaveformSourceWidget")
@@ -177,6 +178,7 @@ class WaveformSourceWidget(QtWidgets.QWidget):
         self._layout.addItem(self._spacer_r)
 
         self._subscribers = []
+        self._visible_update()
 
     @property
     def topic(self):
@@ -186,18 +188,35 @@ class WaveformSourceWidget(QtWidgets.QWidget):
     def pubsub(self):
         return self._parent.pubsub
 
+    def _is_needed(self):
+        if len(self._subsources) > 1:
+            return True
+        if self._trace_subsources != ['default', None, None, None]:
+            return True
+        if self._trace_priorities[1:] != [None, None, None]:
+            return True
+        return False
+
+    def _visible_update(self):
+        self.setVisible(self._is_needed())
+
     def _on_subsources(self, topic, value):
+        self._subsources = value
         for idx, trace in enumerate(self._traces):
             trace.on_subsources(value)
+        self._visible_update()
 
     def _on_trace_subsources(self, topic, value):
+        self._trace_subsources = value
         for idx, trace in enumerate(self._traces):
             trace.on_trace_subsource(value[idx])
+        self._visible_update()
 
     def _on_trace_priority(self, topic, value):
-        print(f'trace priority: {value}')
+        self._trace_priorities = value
         for idx, trace in enumerate(self._traces):
             trace.on_trace_priority(value[idx])
+        self._visible_update()
 
     def on_pubsub_register(self, pubsub):
         topic = self.topic

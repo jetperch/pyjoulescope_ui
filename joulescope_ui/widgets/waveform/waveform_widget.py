@@ -118,7 +118,7 @@ _STATE_DEFAULT = {
 }
 
 
-_QUANTITIES = [p['quantity'] for p in _STATE_DEFAULT['plots']]
+_QUANTITIES = [[p['quantity'], p['name']] for p in _STATE_DEFAULT['plots']]
 
 
 def _si_format(values, units):
@@ -485,10 +485,11 @@ class WaveformWidget(QtWidgets.QWidget):
                 ['bottom', N_('bottom')],
             ],
         },
-        'summary_signal': {
-            'dtype': 'obj',
+        'summary_quantity': {
+            'dtype': 'str',
             'brief': N_('The signal quantity to show in the summary.'),
-            'default': None,
+            'options': _QUANTITIES,
+            'default': 'i',
         },
         'x_axis_annotation_mode': {
             'dtype': 'str',
@@ -500,7 +501,7 @@ class WaveformWidget(QtWidgets.QWidget):
             ],
         },
         'units': UNITS_SETTING,
-        'sub sources': {  # list of [f'{source}.{device}']
+        'subsources': {  # list of [f'{source}.{device}']
             'dtype': 'obj',  # automatically updated on add / remove
             'brief': N_('The available subsources.'),
             'default': [],
@@ -532,6 +533,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._kwargs = kwargs
         self._style_cache = None
         self._summary_data = None
+        self._default_source = None
 
         # manage repainting
         self.__repaint_request = False
@@ -636,6 +638,32 @@ class WaveformWidget(QtWidgets.QWidget):
         subsources = sorted(values.keys())
         self.pubsub.publish(f'{self.topic}/settings/subsources', subsources)
 
+    def _traces(self, quantity=None):
+        """Get the active traces.
+
+        :param quantity: The optional plot quantity.  When specified,
+            ensure that signal_id exists.
+        :return: ordered list of [trace_idx, subsource]
+            The first entry has the highest priority.
+            Trace_idx starts from 0.
+        """
+        data = []
+        subsources = self.trace_subsources
+        for idx, priority in enumerate(self.trace_priority):
+            if priority is None:
+                continue
+            subsource = subsources[idx]
+            if subsource == 'default':
+                subsource = self._default_source
+            if subsource is None:
+                continue
+            if quantity is not None:
+                signal_id = f'{subsource}.{quantity}'
+                if signal_id not in self._signals:
+                    continue
+            data.append([priority, idx, subsource])
+        return [[idx, subsource] for _, idx, subsource in sorted(data, reverse=True)]
+
     def _on_source_list(self, sources):
         if not len(sources):
             self._log.warning('No default source available')
@@ -695,11 +723,6 @@ class WaveformWidget(QtWidgets.QWidget):
         signal_id = f'{source}.{device}.{quantity}'
         self._subscribe(f'{topic}/settings/signals/{value}/range',
                         self._on_signal_range, ['pub', 'retain'])
-        for plot in self.state['plots']:
-            if plot['quantity'] == quantity:
-                if signal_id not in plot['signals']:
-                    plot['signals'].append(signal_id)
-                    self._plot_data_invalidate(plot)
         self._repaint_request = True
 
     def _on_signal_remove(self, topic, value):
@@ -707,9 +730,6 @@ class WaveformWidget(QtWidgets.QWidget):
         source = topic.split('/')[1]
         device, quantity = value.split('.')
         signal_id = f'{source}.{device}.{quantity}'
-        for plot in self.state['plots']:
-            if signal_id in plot['signals']:
-                plot['signals'].remove(signal_id)
         if signal_id in self._signals:
             del self._signals[signal_id]
         self._repaint_request = True
@@ -718,10 +738,8 @@ class WaveformWidget(QtWidgets.QWidget):
     def is_signal_active(self, signal_id):  # in form '{source}.{device}.{quantity}'
         if signal_id not in self._signals:
             return False
-        for plot in self.state['plots']:
-            if not plot['enabled']:
-                continue
-            elif signal_id in plot['signals']:
+        for subsource in self.subsources:
+            if signal_id.startswith(subsource):
                 return True
         return False
 
@@ -742,9 +760,6 @@ class WaveformWidget(QtWidgets.QWidget):
             self.state = copy.deepcopy(_STATE_DEFAULT)
             if not is_device:
                 self.name = self._kwargs.get('name', _NAME)
-        elif is_device:  # clear prior state
-            for plot in self.state['plots']:
-                plot['signals'] = []
         if self.annotations is None:
             self.annotations = {
                 'next_id': 0,
@@ -764,16 +779,11 @@ class WaveformWidget(QtWidgets.QWidget):
         else:  # restore OrderedDict:
             self.annotations['x'] = OrderedDict(self.annotations['x'])
             self.annotations['y'] = [OrderedDict(y) for y in self.annotations['y']]
-        if self.summary_signal is None or isinstance(self.summary_signal, str):
-            pass
-        else:
-            self.summary_signal = '.'.join(self.summary_signal)
         if 'on_widget_close_actions' in self._kwargs:
             self.pubsub.publish(f'{self.topic}/settings/on_widget_close_actions',
                                 self._kwargs['on_widget_close_actions'])
         for plot_index, plot in enumerate(self.state['plots']):
             plot['index'] = plot_index
-            plot['signals'] = [tuple(signal) for signal in plot['signals']]
             plot['y_region'] = f'plot.{plot_index}'
             plot.setdefault('logarithmic_zero', _LOGARITHMIC_ZERO_DEFAULT)
         self._subscribe('registry_manager/capabilities/signal_buffer.source/list',
@@ -782,12 +792,18 @@ class WaveformWidget(QtWidgets.QWidget):
         self._control.on_pubsub_register(self.pubsub, topic, source_filter)
         self._shortcuts_add()
         self._subscribe('registry/app/settings/units', self._update_on_publish, ['pub'])
+        self._subscribe('registry/app/settings/defaults/signal_buffer_source',
+                        self._on_default_signal_buffer_source, ['pub', 'retain'])
 
         self._repaint_request = True
         self._paint_state = PaintState.READY
         self._paint_timer.start(1)
 
     def _update_on_publish(self):
+        self._repaint_request = True
+
+    def _on_default_signal_buffer_source(self, value):
+        self._default_source = value
         self._repaint_request = True
 
     def _shortcuts_add(self):
@@ -945,17 +961,13 @@ class WaveformWidget(QtWidgets.QWidget):
         changed = False
 
         # Get the signal for the summary waveform
-        summary_signal = self._signals.get(self.summary_signal)
-        if summary_signal is None:
-            for ending in ['.i', '.v', '.p']:
-                for signal_id, signal in self._signals.items():
-                    if signal_id.endswith(ending):
-                        self.summary_signal = signal_id
-                        summary_signal = self._signals[signal_id]
-                        break
-        if summary_signal is not None and summary_signal.get('changed', False):
-            summary_length = self._summary_geometry()[2]  # width in pixels
-            self._request_signal(summary_signal, self._extents(), rsp_id=1, length=summary_length)
+        traces = self._traces(self.summary_quantity)
+        if len(traces):
+            signal_id = f'{traces[0][1]}.{self.summary_quantity}'
+            summary_signal = self._signals.get(signal_id, None)
+            if summary_signal is not None and summary_signal.get('changed', False):
+                summary_length = self._summary_geometry()[2]  # width in pixels
+                self._request_signal(summary_signal, self._extents(), rsp_id=1, length=summary_length)
 
         for signal_id, signal in self._signals.items():
             if not self.is_signal_active(signal_id):
@@ -981,16 +993,16 @@ class WaveformWidget(QtWidgets.QWidget):
         if marker['dtype'] != 'dual':
             return
         marker_id = marker['id']
+        traces = self._traces()  # list of [idx, subsource]
+        if not traces:
+            return
         for plot in self.state['plots']:
             if not plot['enabled']:
                 continue
-            signal = plot['signals']
-            if not len(signal):
+            quantity = plot['quantity']
+            signal_id = f'{traces[0][1]}.{quantity}'
+            if signal_id not in self._signals:
                 continue
-            signal = {
-                'source': signal[0][0],
-                'signal_id': signal[0][1],
-            }
             rsp_id = _marker_to_rsp_id(marker_id, plot['index'])
             if marker.get('mode', 'absolute') == 'relative':
                 x0, x1 = marker['pos_next1'], marker['pos_next2']
@@ -998,9 +1010,11 @@ class WaveformWidget(QtWidgets.QWidget):
                 x0, x1 = marker['pos1'], marker['pos2']
             if x0 > x1:
                 x0, x1 = x1, x0
-            self._request_signal(signal, (x0, x1), rsp_id=rsp_id, length=1)
+            self._request_signal(signal_id, (x0, x1), rsp_id=rsp_id, length=1)
 
     def _request_signal(self, signal, x_range, rsp_id=None, length=None):
+        if isinstance(signal, str):
+            signal = self._signals[signal]
         source, subsignal_id = signal['id'].split('.', 1)
         topic_req = f'registry/{source}/actions/!request'
         topic_rsp = f'{get_topic_name(self)}/callbacks/!response'
@@ -1297,7 +1311,8 @@ class WaveformWidget(QtWidgets.QWidget):
             return
         y_min = []
         y_max = []
-        for signal_id in plot['signals']:
+        for _, subsource in self._traces():
+            signal_id = f'{subsource}.{plot["quantity"]}'
             d = self._signals.get(signal_id)
             if d is None:
                 continue
@@ -1558,13 +1573,26 @@ class WaveformWidget(QtWidgets.QWidget):
             y_max = np.max(d['max'][finite_idx])
         else:
             y_max = np.max(d_y_avg)
-        if y_min >= y_max:
-            return
         overscan = 0.05
-        y_p2p = y_max - y_min
-        y_ovr = (1 + 2 * overscan) * y_p2p
-        y_top = y_max + y_p2p * overscan
-        y_gain = h / y_ovr
+        if y_min >= y_max:
+            y_margin = 1e-3
+            y_top = y_max + y_margin
+            y_gain = h / (2 * y_margin)
+        else:
+            y_p2p = y_max - y_min
+            y_ovr = (1 + 2 * overscan) * y_p2p
+            y_top = y_max + y_p2p * overscan
+            y_gain = h / y_ovr
+
+        quantity = self.summary_quantity
+        traces = self._traces(quantity)
+        if len(traces):
+            trace_idx, subsource = traces[0]
+            pen = s['plot_trace'][trace_idx]
+            brush = s[f'plot_min_max_fill_brush'][trace_idx]
+        else:
+            pen = s['summary_trace']
+            brush = s['summary_min_max_fill']
 
         def y_value_to_pixel(y):
             return (y_top - y) * y_gain
@@ -1577,11 +1605,11 @@ class WaveformWidget(QtWidgets.QWidget):
                 d_y_max = y_value_to_pixel(d['max'][idx_start:idx_stop])
                 segs = self._points.set_fill(d_x_segment, d_y_min, d_y_max)
                 p.setPen(self._NO_PEN)
-                p.setBrush(s['summary_min_max_fill'])
+                p.setBrush(brush)
                 p.drawPolygon(segs)
             d_y = y_value_to_pixel(d_avg)
             segs = self._points.set_line(d_x_segment, d_y)
-            p.setPen(s['summary_trace'])
+            p.setPen(pen)
             p.drawPolyline(segs)
 
         p.setClipping(False)
@@ -1651,6 +1679,10 @@ class WaveformWidget(QtWidgets.QWidget):
                 p.drawRect(x0, y0 + 3, w, 2)
 
     def _draw_plot(self, p, plot):
+        quantity = plot['quantity']
+        traces = self._traces(quantity)
+        if not len(traces):
+            return
         s = self._style
         h, y0, y1 = self._y_geometry_info[f'plot.{plot["index"]}']
         w, x0, x1 = self._x_geometry_info['plot']
@@ -1684,13 +1716,13 @@ class WaveformWidget(QtWidgets.QWidget):
                         logarithmic_zero=logarithmic_zero)
         axis_font_metrics = s['axis_font_metrics']
         if y_grid is not None:
-            if plot['quantity'] == 'r':
+            if quantity == 'r':
                 y_grid = axis_ticks.ticks(y_range[0], y_range[1], y_tick_height_value_min, 1)
-                if len(plot['signals']):
-                    if 'JS220' in plot['signals'][0][1]:
-                        y_grid['labels'] = [_JS220_AXIS_R.get(int(s_label), '') for s_label in y_grid['labels']]
-                    elif 'JS110' in plot['signals'][0][1]:
-                        y_grid['labels'] = [_JS110_AXIS_R.get(int(s_label), '') for s_label in y_grid['labels']]
+                subsource = traces[0][1]
+                if 'JS220' in subsource:
+                    y_grid['labels'] = [_JS220_AXIS_R.get(int(s_label), '') for s_label in y_grid['labels']]
+                elif 'JS110' in subsource:
+                    y_grid['labels'] = [_JS110_AXIS_R.get(int(s_label), '') for s_label in y_grid['labels']]
             for idx, t in enumerate(self._y_value_to_pixel(plot, y_grid['major'], skip_transform=True)):
                 p.setPen(s['text_pen'])
                 s_label = y_grid['labels'][idx]
@@ -1713,7 +1745,7 @@ class WaveformWidget(QtWidgets.QWidget):
         p.setFont(s['axis_font'])
         plot_units = plot.get('units')
         if plot_units is None:
-            s_label = plot['quantity']
+            s_label = quantity
         elif y_grid is None:
             s_label = plot_units
         else:
@@ -1722,8 +1754,8 @@ class WaveformWidget(QtWidgets.QWidget):
 
         p.setClipRect(x0, y0, w, h)
 
-        for trace_idx, signal_id in enumerate(plot['signals']):
-            # todo fix trace_idx
+        for trace_idx, subsource in traces[-1::-1]:
+            signal_id = f'{subsource}.{quantity}'
             d = self._signals.get(signal_id)
             if d is None:
                 continue
@@ -1998,6 +2030,9 @@ class WaveformWidget(QtWidgets.QWidget):
             y1 += f_h
 
     def _draw_single_marker_text(self, p, m, x):
+        traces = self._traces()
+        if not len(traces):
+            return
         text_pos = m.get('text_pos1', 'auto')
         if text_pos == 'off':
             return
@@ -2005,10 +2040,10 @@ class WaveformWidget(QtWidgets.QWidget):
         xp = self._x_map.counter_to_time64(p0)
         xw, x0, _ = self._x_geometry_info['plot']
         for plot in self.state['plots']:
-            if not plot['enabled'] or not len(plot['signals']):
+            if not plot['enabled']:
                 continue
-            # todo use active subsource
-            signal_id = plot['signals'][0]
+            quantity = plot['quantity']
+            signal_id = f'{traces[0][1]}.{quantity}'
             d_sig = self._signals_data.get(signal_id)
             if d_sig is None:
                 continue
@@ -2041,7 +2076,7 @@ class WaveformWidget(QtWidgets.QWidget):
         marker_id = m['id']
         xw, x0, _ = self._x_geometry_info['plot']
         for plot in self.state['plots']:
-            if not plot['enabled'] or not len(plot['signals']):
+            if not plot['enabled']:
                 continue
             plot_id = plot['index']
             key = (marker_id, plot_id)
@@ -2086,12 +2121,16 @@ class WaveformWidget(QtWidgets.QWidget):
                 y += y_incr
 
     def _signal_data_get(self, plot):
+        traces = self._traces()
+        if not len(traces):
+            return None, None
         try:
             if isinstance(plot, str):
                 plot_idx = int(plot.split('.')[1])
                 plot = self.state['plots'][plot_idx]
-            signals = plot['signals']
-            data = self._signals_data.get(signals[0])
+            quantity = plot['quantity']
+            signal_id = f'{traces[0][1]}.{quantity}'
+            data = self._signals_data.get(signal_id)
             return plot, data
         except (KeyError, IndexError):
             return None, None
@@ -3019,9 +3058,13 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _signals_get(self):
         signals = []
-        for plot in self.state['plots']:
-            if plot['enabled']:
-                signals.extend(plot['signals'])
+        for _, subsource in self._traces():
+            for plot in self.state['plots']:
+                if plot['enabled']:
+                    quantity = plot['quantity']
+                    signal_id = f'{subsource}.{quantity}'
+                    if signal_id in self._signals:
+                        signals.append(signal_id)
         return signals
 
     def _annotations_filter(self, x_range):
@@ -3239,11 +3282,11 @@ class WaveformWidget(QtWidgets.QWidget):
                       marker_remove]
         return self._menu_show(event)
 
-    def _menu_summary_signal(self, menu, signal_id):
+    def _menu_summary_quantity(self, menu, quantity, name):
         def action():
-            self.summary_signal = signal_id
+            self.summary_quantity = quantity
 
-        a = menu.addAction(signal_id.split('.', 1)[-1])
+        a = menu.addAction(name)
         a.triggered.connect(action)
         return a
 
@@ -3252,16 +3295,18 @@ class WaveformWidget(QtWidgets.QWidget):
         menu = QtWidgets.QMenu('Waveform summary context menu', self)
         signal_menu = QtWidgets.QMenu('Signal', menu)
         menu.addMenu(signal_menu)
-        signals = []
-        selected = self.summary_signal
-        for signal_id, signal in self._signals.items():
-            if selected is None:
-                selected = signal_id
-            a = self._menu_summary_signal(signal_menu, signal_id)
-            signals.append(a)
-            a.setChecked(signal_id == selected)
+        self._menu = [menu, signal_menu]
+        selected = self.summary_quantity
+        for plot in self.state['plots']:
+            quantity = plot['quantity']
+            traces = self._traces(plot['quantity'])
+            if len(traces) == 0:
+                continue
+            a = self._menu_summary_quantity(signal_menu, quantity=quantity, name=plot['name'])
+            self._menu.append(a)
+            a.setChecked(quantity == selected)
         style_action = settings_action_create(self, menu)
-        self._menu = [menu, signal_menu, signals, style_action]
+        self._menu.append(style_action)
         return self._menu_show(event)
 
     def on_style_change(self):
@@ -3920,12 +3965,11 @@ class WaveformWidget(QtWidgets.QWidget):
             return
         if not plot['enabled']:
             return
-        for signal in plot['signals']:
-            if not isinstance(signal, tuple):
-                return  # on_pubsub_register not called yet
-            if signal in self._signals:
-                self._signals[signal]['changed'] = True
-                self._repaint_request = True
+        quantity = plot['quantity']
+        for _, subsource  in self._traces(quantity):
+            signal_id = f'{subsource}.{quantity}'
+            self._signals[signal_id]['changed'] = True
+            self._repaint_request = True
 
     def on_action_plot_show(self, topic, value):
         """Show/hide plots.
@@ -3960,5 +4004,5 @@ class WaveformWidget(QtWidgets.QWidget):
     def on_setting_fps(self, value):
         self._log.info('fps: period = %s ms', value)
 
-    def on_setting_summary_signal(self):
+    def on_setting_summary_quantity(self):
         self._plot_data_invalidate()

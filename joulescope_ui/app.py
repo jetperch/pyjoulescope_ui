@@ -251,7 +251,7 @@ class App:
         pubsub_singleton.publish(topic, value)
         if capability == CAPABILITIES.SIGNAL_STREAM_SOURCE:
             pubsub_singleton.publish('registry/app/settings/defaults/signal_buffer_source',
-                                     f'JsdrvStreamBuffer:001/{value}')
+                                     f'JsdrvStreamBuffer:001.{value}')
 
     def on_action_fuse_clear_all(self):
         pass
