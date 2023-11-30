@@ -95,13 +95,13 @@ class RangeTool:
     def signal_query(self, signal, setting):
         """Query the signals settings.
 
-        :param signal: The (source_unique_id, signal_id).
+        :param signal: The signal_id
         :param setting: The signal setting, one of [name, meta, range]
             as defined by CAPABILITIES.SIGNAL_BUFFER_SOURCE.
         """
-        source_unique_id, signal_id = signal
-        topic = get_topic_name(source_unique_id)
-        return self.pubsub.query(f'{topic}/settings/signals/{signal_id}/{setting}')
+        source, device, quantity = signal.split('.')
+        topic = get_topic_name(source)
+        return self.pubsub.query(f'{topic}/settings/signals/{device}.{quantity}/{setting}')
 
     def request(self, signal_id: str, time_type, start, end, length, timeout=None):
         """Request data from the signal buffer.
