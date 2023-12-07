@@ -927,6 +927,8 @@ class WaveformWidget(QtWidgets.QWidget):
         for signal_id, signal in self._signals.items():
             if self.is_signal_active(signal_id):
                 x_range = signal['range']
+                if x_range is None or x_range[0] is None or x_range[1] is None:
+                    continue
                 x_min.append(x_range[0])
                 x_max.append(x_range[1])
         if 0 == len(x_min):
@@ -977,7 +979,7 @@ class WaveformWidget(QtWidgets.QWidget):
         for signal_id, signal in self._signals.items():
             if not self.is_signal_active(signal_id):
                 continue
-            if force or signal['changed']:
+            if force or signal.get('changed', None):
                 signal['changed'] = None
                 self._request_signal(signal, self.x_range)
                 changed = True

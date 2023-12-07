@@ -5,6 +5,17 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.0.44
+
+2023 Dec 7
+
+* Fixed device open when UI started with device open in another app.
+  When other app closes device, can now open in the UI.
+* Improved Waveform widget error handling.
+* Updated pyjoulescope_driver 1.4.1 -> 1.4.2 with FW 1.2.1 and FPGA 1.2.1.
+  * Improved JS220 communication robustness
+  * Improved JS110 time sync long-term stability.
+
 
 ## 1.0.43
 

@@ -56,14 +56,10 @@ _SETTINGS_OBJ_ONLY = {
         'default': 0,
         'flags': ['ro', 'hide', 'skip_undo'],
     },
-    'state_req': {
-        'dtype': 'int',
-        'brief': N_('Requested device state'),
-        'options': [
-            [0, 'closed'],
-            [1, 'open'],
-        ],
-        'default': 1,
+    'auto_open': {
+        'dtype': 'bool',
+        'brief': N_('Attempt to automatically open'),
+        'default': True,
         'flags': ['ro', 'hide'],
     },
     'sources/1/name': {
@@ -422,6 +418,9 @@ class Js110(Device):
         self.pubsub.publish(f'{topic}/settings/sources/1/info', self._info)
         for key, value in _SIGNALS.items():
             self._signal_forward(key, value['topics'][1], self.unique_id)
+        if self.auto_open:
+            self._log.info('auto open')
+            self._open_req()
 
     def signal_subtopics(self, signal_id, topic_type):
         """Query the signal topics.
@@ -535,7 +534,7 @@ class Js110(Device):
             self._driver_publish(device_topic, value, timeout=0)
         elif topic == 'name':
             self._ui_publish('settings/sources/1/name', value)
-        elif topic in ['info', 'state', 'state_req', 'out', 'enable',
+        elif topic in ['info', 'state', 'auto_open', 'out', 'enable',
                        'sources', 'sources/1', 'sources/1/info', 'sources/1/name',
                        'signals', 'current_ranging']:
             pass
@@ -638,7 +637,8 @@ class Js110(Device):
         }
         self._ui_publish('events/statistics/!data', value)
 
-    def on_setting_state_req(self, value):
+    def on_action_state_req(self, value):
+        self.auto_open = bool(value)
         if value == 0:
             self._close_req()
         else:

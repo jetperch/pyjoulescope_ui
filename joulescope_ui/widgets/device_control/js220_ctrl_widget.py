@@ -334,7 +334,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             b.setChecked(not checked)
             b.blockSignals(block_state)
             state_req = 1 if checked else 0
-            pubsub_singleton.publish(f'{self_topic}/settings/state_req', state_req)
+            pubsub_singleton.publish(f'{self_topic}/actions/!state_req', state_req)
 
         self._subscribe(state_topic, state_from_pubsub)
         b.toggled.connect(on_toggle)
@@ -591,7 +591,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         for name in self._DEVICE_SETTINGS.keys():
             if name.endswith('/enable'):
                 pubsub_singleton.publish(f'{topic_base}/{name}', False)
-        pubsub_singleton.publish(f'{topic_base}/state_req', 0)
+        pubsub_singleton.publish(f'{get_topic_name(self.unique_id)}/actions/!state_req', 0)
         for name, meta in self._DEVICE_SETTINGS.items():
             meta = Metadata(meta)
             value = meta.default

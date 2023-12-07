@@ -56,12 +56,12 @@ class CAPABILITIES(Enum):
     
     The pubsub object must implement the following:
         * actions/!finalize (on device removal or application close)
+        * actions/!state_req 0:close, 1:open
         * settings
           * name
           * info: {vendor, model, version, serial_number} read-only
             version may be a dict with key/value pairs for each versioned subsystem.
           * state: 0:closed, 1:opening, 2:open, 3:closing (read-only for application)
-          * state_req: 0:close, 1:open
     """
 
     SOURCE = 'source'             # device (JS110, JS220), JLS reader

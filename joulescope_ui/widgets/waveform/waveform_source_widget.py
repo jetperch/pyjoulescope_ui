@@ -193,13 +193,10 @@ class WaveformSourceWidget(QtWidgets.QWidget):
             return True
         if not len(self._subsources):
             return False
-        for subsource in ['default', self._subsources[0]]:
-            try:
-                idx = self._trace_subsources.index(subsource)
-                if self._trace_priorities[idx] is not None:
-                    return False
-            except ValueError:
-                pass
+        if self._trace_priorities[1:] != [None, None, None]:
+            return True
+        for self._trace_subsources[0] in ['default', self._subsources[0]]:
+            return False
         return True
 
     def _visible_update(self):

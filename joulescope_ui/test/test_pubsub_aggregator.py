@@ -63,16 +63,6 @@ class MyDevice:
                 'default': 0,
                 'flags': ['ro', 'hide', 'skip_undo'],
             },
-            'state_req': {
-                'dtype': 'int',
-                'brief': N_('Requested device state'),
-                'options': [
-                    [0, 'closed'],
-                    [1, 'open'],
-                ],
-                'default': 1,
-                'flags': ['ro', 'hide'],
-            },
     }
 
 
