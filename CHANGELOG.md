@@ -5,7 +5,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
-## 1.0.44
+## 1.0.45
 
 2023 Dec 7
 
@@ -15,6 +15,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Updated pyjoulescope_driver 1.4.1 -> 1.4.2 with FW 1.2.1 and FPGA 1.2.1.
   * Improved JS220 communication robustness
   * Improved JS110 time sync long-term stability.
+* Forced Nuitka 1.8.6 (1.9.3 causes crashes in Waveform widget).
+* Bumped PySide6 to 6.6.0 with PySide6-QtAds to 4.1.0.2.
 
 
 ## 1.0.43

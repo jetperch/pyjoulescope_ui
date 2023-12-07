@@ -30,7 +30,8 @@ class ReportIssueDialog(QtWidgets.QDialog):
 
         self._layout = QtWidgets.QVBoxLayout(self)
         self._submit = SubmitWidget(self, path)
-        self._submit.finished.connect(self._on_finish)
+        self._on_finish_fn = self._on_finish
+        self._submit.finished.connect(self._on_finish_fn)
         self._layout.addWidget(self._submit)
         self.setLayout(self._layout)
 
@@ -44,7 +45,7 @@ class ReportIssueDialog(QtWidgets.QDialog):
         ReportIssueDialog.dialogs.append(self)
 
     def _on_finish(self):
-        self._submit.finished.disconnect()
+        self._submit.finished.disconnect(self._on_finish_fn)
         self.close()
         ReportIssueDialog.dialogs.remove(self)
 

@@ -95,8 +95,7 @@ class SideBar(QtWidgets.QWidget):
         self.setLayout(self._layout)
 
         self._add_blink_button('target_power', 'target_power')
-        b = self._add_blink_button('fuse', 'fuse_engaged', clear_only=True)
-        b.toggled.disconnect()
+        b = self._add_blink_button('fuse', 'fuse_engaged', clear_only=True, skip_connect=True)
         b.toggled.connect(lambda checked: pubsub_singleton.publish('registry/app/actions/!fuse_clear_all', None))
         self._add_blink_button('signal_play', 'signal_stream_enable')
         self._add_blink_button('signal_record', 'signal_stream_record')
@@ -132,7 +131,7 @@ class SideBar(QtWidgets.QWidget):
             'floating': True,
         })
 
-    def _add_blink_button(self, name, app_setting, clear_only=False):
+    def _add_blink_button(self, name, app_setting, clear_only=False, skip_connect=False):
         topic = f'registry/app/settings/{app_setting}'
         meta = pubsub_singleton.metadata(topic)
         tooltip = tooltip_format(meta.brief, meta.detail)
@@ -149,7 +148,8 @@ class SideBar(QtWidgets.QWidget):
             button.blockSignals(block_state)
 
         pubsub_singleton.subscribe(topic, update_from_pubsub, ['pub', 'retain'])
-        button.toggled.connect(lambda checked: pubsub_singleton.publish(topic, bool(checked)))
+        if not bool(skip_connect):
+            button.toggled.connect(lambda checked: pubsub_singleton.publish(topic, bool(checked)))
         return button
 
     def _add_button(self, name, tooltip, clz=None, unique_id=None, width=None):

@@ -127,7 +127,8 @@ class SubmitConfigureWidget(QtWidgets.QWidget):
         self._description_tabs.currentChanged.connect(self._on_description_tab_changed)
         self._abort.pressed.connect(self._on_abort)
         self._view.pressed.connect(self._on_view)
-        self._submit.pressed.connect(self._on_submit)
+        self._on_submit_fn = self._on_submit
+        self._submit.pressed.connect(self._on_submit_fn)
 
         self.setLayout(self._layout)
 
@@ -158,7 +159,7 @@ class SubmitConfigureWidget(QtWidgets.QWidget):
     @QtCore.Slot()
     def _on_submit(self):
         self.setEnabled(False)
-        self._submit.pressed.disconnect()
+        self._submit.pressed.disconnect(self._on_submit_fn)
         contact = {
             'first_name': self._first_name.text(),
             'email': self._email.text(),
