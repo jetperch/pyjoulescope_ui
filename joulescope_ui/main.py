@@ -686,15 +686,19 @@ def _opengl_config(renderer):
         'angle': QtCore.Qt.AA_UseOpenGLES,
         'software': QtCore.Qt.AA_UseSoftwareOpenGL,
     }
-    renderer = renderer_map.get(renderer, None)
-    if renderer is not None:
-        QtCore.QCoreApplication.setAttribute(renderer)
+    renderer_qt = renderer_map.get(renderer, None)
+    if renderer_qt is not None:
+        _log.info('OpenGL render map: %s', renderer)
+        QtCore.QCoreApplication.setAttribute(renderer_qt)
     QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
     QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
     fmt = QtGui.QSurfaceFormat()
     fmt.setDepthBufferSize(24)
     fmt.setStencilBufferSize(8)
-    fmt.setVersion(3, 3)
+    if renderer == 'software':
+        fmt.setVersion(2, 1)
+    else:
+        fmt.setVersion(3, 3)
     fmt.setProfile(QtGui.QSurfaceFormat.OpenGLContextProfile.CoreProfile)
     QtGui.QSurfaceFormat.setDefaultFormat(fmt)
 
