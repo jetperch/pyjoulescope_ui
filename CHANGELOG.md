@@ -19,6 +19,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Forced Nuitka 1.8.6 (1.9.3 causes crashes in Waveform widget).
 * Bumped PySide6 to 6.6.0 with PySide6-QtAds to 4.1.0.2.
 * Specified OpenGL 2.1 for "software" renderer (was 3.3 for all).
+* Added *.png to MANIFSET.in to fix "pip install".  #242
 
 
 ## 1.0.43
