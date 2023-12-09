@@ -12,10 +12,11 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Fixed device open when UI started with device open in another app.
   When other app closes device, can now open in the UI.
 * Improved Waveform widget error handling.
-* Updated pyjoulescope_driver 1.4.1 -> 1.4.5 with FW 1.2.1 and FPGA 1.2.1.
+* Updated pyjoulescope_driver 1.4.1 -> 1.4.6 with FW 1.2.1 and FPGA 1.2.1.
   * Improved JS220 communication robustness
   * Improved JS110 time sync long-term stability.
   * Fixed stream buffer use-after-free and remove timeout.
+  * Fixed year on POSIX (macOS & Linux) systems.  #241
 * Forced Nuitka 1.8.6 (1.9.3 causes crashes in Waveform widget).
 * Bumped PySide6 to 6.6.0 with PySide6-QtAds to 4.1.0.2.
 * Specified OpenGL 2.1 for "software" renderer (was 3.3 for all).
