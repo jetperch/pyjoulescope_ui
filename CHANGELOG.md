@@ -7,7 +7,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.46
 
-2023 Dec 9 [in progress]
+2023 Dec 9
 
 * Fixed device open when UI started with device open in another app.
   When other app closes device, can now open in the UI.
@@ -22,6 +22,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Specified OpenGL 2.1 for "software" renderer (was 3.3 for all).
 * Added *.png to MANIFSET.in to fix "pip install".  #242
 * Added CONTRIBUTING.md and CODE_OF_CONDUCT.md.  Updated docs. #151
+* Fixed streaming Waveform widget not showing waveforms after opening JLS file.
 
 
 ## 1.0.43

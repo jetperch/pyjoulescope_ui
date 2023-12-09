@@ -743,7 +743,7 @@ class WaveformWidget(QtWidgets.QWidget):
     def is_signal_active(self, signal_id):  # in form '{source}.{device}.{quantity}'
         if signal_id not in self._signals:
             return False
-        for subsource in self.subsources:
+        for _, subsource in self._traces():
             if signal_id.startswith(subsource):
                 return True
         return False

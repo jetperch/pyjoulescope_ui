@@ -248,7 +248,8 @@ class App:
         else:
             # default not in list, use first item in list
             value = value[0]
-        pubsub_singleton.publish(topic, value)
+        if capability != CAPABILITIES.SIGNAL_BUFFER_SOURCE:
+            pubsub_singleton.publish(topic, value)
         if capability == CAPABILITIES.SIGNAL_STREAM_SOURCE:
             pubsub_singleton.publish('registry/app/settings/defaults/signal_buffer_source',
                                      f'JsdrvStreamBuffer:001.{value}')
