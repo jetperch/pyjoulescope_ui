@@ -3,14 +3,14 @@
 
 
 Welcome to the Joulescope™ User Interface software repo!
-Joulescope is an affordable, precision DC energy
+Joulescope is an affordable, precision energy
 analyzer that enables you to build better products.
 Joulescope™ accurately and simultaneously measures the voltage and current
 supplied to your target device, and it then computes power and energy.
 For more information on Joulescope, see
 [www.joulescope.com](https://www.joulescope.com).
 
-This repository contains the Joulescope's graphical User Interface (UI).
+This repository contains the Joulescope graphical User Interface (UI).
 The UI runs on a host computer and communicates with the Joulescope device
 over USB.  The application source code is available at
 https://github.com/jetperch/pyjoulescope_ui.  
@@ -19,7 +19,7 @@ The software is highly configurable.  Here is the Multimeter view on Windows 11:
 
 <img src="docs/multimeter.png" width="509" />
 
-And here is the Oscilloscope waveform view on Windows 11:
+And here is the Oscilloscope view on Windows 11:
 
 ![Oscilloscope View](docs/oscilloscope.png)
 
@@ -28,6 +28,8 @@ For more information, see:
 * [Tips](docs/tips.md): for using the UI.
 * [Changelog](CHANGELOG.md): list of changes by release
 * [Future features](docs/features_future.md)
+* [Contributing](CONTRIBUTING.md)
+* [Code of Conduct](CODE_OF_CONDUCT.md)
 * [Developer notes](docs/dev.md)
 * [PubSub](docs/pubsub.md)
 
@@ -36,10 +38,11 @@ For more information, see:
 
 We provide official distributions for Windows, macOS and Ubuntu 22.04LTS.
 
-You can download the latest and previous alpha, beta, and stable builds
-[here](https://download.joulescope.com/joulescope_install/index_v2.html).
 Visit the main [download](https://www.joulescope.com/download) 
 page for the latest stable build.
+
+You can download the latest and previous alpha, beta, and stable builds
+[here](https://download.joulescope.com/joulescope_install/index_v2.html).
 
 
 ## Run as python package
