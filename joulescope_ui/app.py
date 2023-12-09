@@ -178,7 +178,9 @@ SETTINGS = {
             If OpenGL is not well-supported by your graphics drivers, 
             you can select "software" rendering.
             
-            Selecting "ANGLE" may break copy as image and save as image. 
+            Selecting "ANGLE" may break copy as image and save as image.
+            
+            UI restart required for change to take effect. 
         """),
         'options': [
             ['desktop', N_('desktop')],

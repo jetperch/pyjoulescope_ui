@@ -16,9 +16,14 @@ import os
 import shutil
 import subprocess
 import sys
+import PySide6
 
 
 _PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Nuitka only includes OpenGL software lib for QML or "all", so include manually
+_PYSIDE6_PATH = os.path.dirname(PySide6.__file__)
+_OPENGL32SW = os.path.join(_PYSIDE6_PATH, 'opengl32sw.dll').replace(r'\\', '/')
 
 
 def _changelog_version():
@@ -70,6 +75,7 @@ def nuitka():
             '--include-data-files=CREDITS.html=CREDITS.html',
             '--include-data-files=LICENSE.txt=LICENSE.txt',
             '--include-data-files=README.md=README.md',
+            f'--include-data-file={_OPENGL32SW}=.',  # include OpenGL software renderer (for Intel UHD)
             '--windows-icon-from-ico=joulescope_ui/resources/icon.ico',
             '--disable-console',
             #'--force-stdout-spec=%HOME%/joulescope_%TIME%_%PID%.out.txt',
