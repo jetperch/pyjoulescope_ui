@@ -40,9 +40,8 @@ def platform_info() -> dict:
 
     :return: A dict containing information about the host system.
     """
-    cpufreq = psutil.cpu_freq()
     vm = psutil.virtual_memory()
-    return {
+    rv = {
         'python': sys.version,
         'python_impl': platform.python_implementation(),
         'executable': sys.executable,
@@ -52,11 +51,6 @@ def platform_info() -> dict:
             'physical': psutil.cpu_count(logical=False),
             'logical': psutil.cpu_count(logical=True),
         },
-        'cpu_frequency': {
-            'current': cpufreq.current,
-            'min': cpufreq.min,
-            'max': cpufreq.max,
-        },
         'ram': {
             'used': vm.used,
             'available': vm.total - vm.used,
@@ -64,6 +58,16 @@ def platform_info() -> dict:
         },
         'is_release': is_release,
     }
+    try:
+        cpufreq = psutil.cpu_freq()
+        rv['cpu_frequency'] = {
+            'current': cpufreq.current,
+            'min': cpufreq.min,
+            'max': cpufreq.max,
+        }
+    except Exception:
+        pass  # broken on Mac M's (arm64).
+    return rv
 
 
 def package_versions():
