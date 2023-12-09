@@ -138,6 +138,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         self._layout.addWidget(self._expanding)
         self.setLayout(self._layout)
 
+        self._header_disable_widgets = []
         self._header_widgets = []
         self._expanding.header_ex_widget = self._construct_header()
 
@@ -224,21 +225,25 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         else:
             info = None
 
-        default_device = self._construct_default_device_button(w)
-        layout.addWidget(default_device)
-
         if self.is_js220:
             fuse = self._construct_fuse_button(w)
             layout.addWidget(fuse)
+            self._header_disable_widgets.append(fuse)
+        else:
+            fuse = None
 
         target_power = self._construct_target_power_button(w)
         layout.addWidget(target_power)
+
+        default_device = self._construct_default_device_button(w)
+        layout.addWidget(default_device)
 
         open_button = self._construct_open_button(w)
         layout.addWidget(open_button)
 
         w.setLayout(layout)
-        self._header_widgets = [w, layout, doc, info, default_device, target_power, open_button]
+        self._header_disable_widgets.extend([target_power, default_device])
+        self._header_widgets = [w, layout, doc, info, fuse, target_power, default_device, open_button]
         return w
 
     def _construct_default_device_button(self, parent):
@@ -320,11 +325,16 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         state_topic = f'{self_topic}/settings/state'
         b = self._construct_pushbutton('open', checkable=True, tooltip=_OPEN_TOOLTIP)
 
+        def on_update(value):
+            for w in self._header_disable_widgets:
+                w.setEnabled(value)
+
         def state_from_pubsub(value):
             checked = (value == 2)  # open (not closed, opening, or closing)
             block_state = b.blockSignals(True)
             b.setChecked(checked)
             b.blockSignals(block_state)
+            on_update(checked)
             if not checked and 'buttons' in self._signals:
                 self._gpi_state_clear()
 
@@ -333,6 +343,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             block_state = b.blockSignals(True)
             b.setChecked(not checked)
             b.blockSignals(block_state)
+            on_update(checked)
             state_req = 1 if checked else 0
             pubsub_singleton.publish(f'{self_topic}/actions/!state_req', state_req)
 

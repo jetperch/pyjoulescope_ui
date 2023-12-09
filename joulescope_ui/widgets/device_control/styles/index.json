@@ -36,7 +36,7 @@
     "closed": {
       "sources": [
         "active_unchecked.svg",
-        "closed.svg",
+        "device_close.svg",
         "doc.svg",
         "info.svg"
       ],
@@ -48,7 +48,7 @@
     },
     "open": {
       "sources": [
-        "open.svg"
+        "device_open.svg"
       ],
       "targets": [
         ["{basename}_enabled{ext}", {"#000000": "target_power.on"}],

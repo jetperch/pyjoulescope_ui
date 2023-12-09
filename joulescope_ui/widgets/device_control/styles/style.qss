@@ -60,10 +60,10 @@ QPushButton#target_power[blink=true]:enabled:checked:hover { image: url("{% path
 /****************************************************************************/
 /* Open toggle button                                                       */
 /****************************************************************************/
-QPushButton#open:enabled       { image: url("{% path %}/closed_enabled.svg"); }
-QPushButton#open:enabled:hover { image: url("{% path %}/closed_hover.svg"); }
-QPushButton#open:checked       { image: url("{% path %}/open_enabled.svg"); }
-QPushButton#open:checked:hover { image: url("{% path %}/open_hover.svg"); }
+QPushButton#open:enabled       { image: url("{% path %}/device_close_enabled.svg"); }
+QPushButton#open:enabled:hover { image: url("{% path %}/device_close_hover.svg"); }
+QPushButton#open:checked       { image: url("{% path %}/device_open_enabled.svg"); }
+QPushButton#open:checked:hover { image: url("{% path %}/device_open_hover.svg"); }
 
 
 /****************************************************************************/

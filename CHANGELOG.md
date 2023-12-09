@@ -24,6 +24,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added *.png to MANIFSET.in to fix "pip install".  #242
 * Added CONTRIBUTING.md and CODE_OF_CONDUCT.md.  Updated docs. #151
 * Fixed streaming Waveform widget not showing waveforms after opening JLS file.
+* Improved Device Control widget device open/close.
 
 
 ## 1.0.43
