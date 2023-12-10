@@ -25,6 +25,7 @@ from .waveform_control import WaveformControlWidget
 from .waveform_source_widget import WaveformSourceWidget
 from .interval_widget import IntervalWidget
 from joulescope_ui.time_map import TimeMap
+from joulescope_ui.intel_graphics_dialog import intel_graphics_dialog
 import pyjls
 from collections import OrderedDict
 import copy
@@ -269,11 +270,14 @@ class _PlotOpenGLWidget(QtOpenGLWidgets.QOpenGLWidget):
     def initializeGL(self) -> None:
         functions = QtGui.QOpenGLFunctions(self.context())
         functions.initializeOpenGLFunctions()
+        vendor = _gl_get_string(gl.GL_VENDOR)
         self._log.info(f"""OpenGL information:
-            Vendor: {_gl_get_string(gl.GL_VENDOR)}
+            Vendor: {vendor}
             Renderer: {_gl_get_string(gl.GL_RENDERER)}
             OpenGL Version: {_gl_get_string(gl.GL_VERSION)}
             Shader Version: {_gl_get_string(gl.GL_SHADING_LANGUAGE_VERSION)}""")
+        if 'Intel' in vendor:
+            intel_graphics_dialog(self)
 
     def paintGL(self):
         size = self.width(), self.height()

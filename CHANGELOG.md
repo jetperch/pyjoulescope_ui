@@ -7,7 +7,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.47
 
-2023 Dec 10 [in progress]
+2023 Dec 10
 
 * Fixed device open when UI started with device open in another app.
   When other app closes device, can now open in the UI.
@@ -20,7 +20,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Forced Nuitka 1.8.6 (1.9.3 causes crashes in Waveform widget).
 * Bumped PySide6 to 6.6.0 with PySide6-QtAds to 4.1.0.2.
 * Specified OpenGL 2.1 for "software" renderer (was 3.3 for all).
-* Included opengl32sw.dll in Windows distribution.
+* Included opengl32sw.dll in Windows distribution.  #216
+* Added dialog prompt to switch from Intel to software OpenGL renderer.  #216
 * Added *.png to MANIFSET.in to fix "pip install".  #242
 * Added CONTRIBUTING.md and CODE_OF_CONDUCT.md.  Updated docs. #151
 * Fixed streaming Waveform widget not showing waveforms after opening JLS file.
