@@ -2692,7 +2692,7 @@ class WaveformWidget(QtWidgets.QWidget):
         return self._graphics.render_callback(cbk)
         self._repaint_request = True
 
-    def _action_copy_image_to_clipboard(self):
+    def _action_copy_image_to_clipboard(self, checked=False):
         def on_image(img: QtGui.QImage):
             self._clipboard_image = img
             QtWidgets.QApplication.clipboard().setImage(self._clipboard_image)
@@ -2722,7 +2722,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._dialog.close()
         self._dialog = None
 
-    def _action_save_image(self):
+    def _action_save_image(self, checked=False):
         filter_str = 'png (*.png)'
         filename = time64.filename('.png')
         path = pubsub_singleton.query('registry/paths/settings/path')
@@ -2770,10 +2770,10 @@ class WaveformWidget(QtWidgets.QWidget):
     def _menu_add_x_annotations(self, menu: QtWidgets.QMenu):
         single = QtGui.QAction(N_('Single marker'))
         menu.addAction(single)
-        single.triggered.connect(lambda: self._on_menu_x_marker('add_single'))
+        single.triggered.connect(lambda checked=False: self._on_menu_x_marker('add_single'))
         dual = QtGui.QAction(N_('Dual markers'))
         menu.addAction(dual)
-        dual.triggered.connect(lambda: self._on_menu_x_marker('add_dual'))
+        dual.triggered.connect(lambda checked=False: self._on_menu_x_marker('add_dual'))
 
         mode = menu.addMenu(N_('Mode'))
         mode_group = QtGui.QActionGroup(mode)
@@ -2781,16 +2781,16 @@ class WaveformWidget(QtWidgets.QWidget):
         mode_absolute = QtGui.QAction(N_('Absolute'), mode_group, checkable=True)
         mode_absolute.setChecked(self.x_axis_annotation_mode == 'absolute')  # todo
         mode.addAction(mode_absolute)
-        mode_absolute.triggered.connect(lambda: self._on_menu_x_mode('absolute'))
+        mode_absolute.triggered.connect(lambda checked=False: self._on_menu_x_mode('absolute'))
 
         mode_relative = QtGui.QAction(N_('Relative'), mode_group, checkable=True)
         mode_relative.setChecked(self.x_axis_annotation_mode == 'relative')
         mode.addAction(mode_relative)
-        mode_relative.triggered.connect(lambda: self._on_menu_x_mode('relative'))
+        mode_relative.triggered.connect(lambda checked=False: self._on_menu_x_mode('relative'))
 
         clear_all = QtGui.QAction(N_('Clear all'))
         menu.addAction(clear_all)
-        clear_all.triggered.connect(lambda: self._on_menu_x_marker('clear_all'))
+        clear_all.triggered.connect(lambda checked=False: self._on_menu_x_marker('clear_all'))
         return [single, dual, [mode, mode_group, mode_absolute, mode_relative], clear_all]
 
     def _on_menu_x_mode(self, mode):
@@ -2833,13 +2833,13 @@ class WaveformWidget(QtWidgets.QWidget):
     def _menu_add_y_annotations(self, menu: QtWidgets.QMenu):
         single = QtGui.QAction(N_('Single marker'))
         menu.addAction(single)
-        single.triggered.connect(lambda: self._on_menu_y_marker('add_single'))
+        single.triggered.connect(lambda checked=False: self._on_menu_y_marker('add_single'))
         dual = QtGui.QAction(N_('Dual markers'))
         menu.addAction(dual)
-        dual.triggered.connect(lambda: self._on_menu_y_marker('add_dual'))
+        dual.triggered.connect(lambda checked=False: self._on_menu_y_marker('add_dual'))
         clear_all = QtGui.QAction(N_('Clear all'))
         menu.addAction(clear_all)
-        clear_all.triggered.connect(lambda: self._on_menu_y_marker('clear_all'))
+        clear_all.triggered.connect(lambda checked=False: self._on_menu_y_marker('clear_all'))
         return [single, dual, clear_all]
 
     def _on_menu_y_scale_mode(self, idx, value):
@@ -2875,11 +2875,11 @@ class WaveformWidget(QtWidgets.QWidget):
             range_mode_auto = QtGui.QAction(N_('Auto'), range_group, checkable=True)
             range_mode_auto.setChecked(plot['range_mode'] == 'auto')
             range_mode.addAction(range_mode_auto)
-            range_mode_auto.triggered.connect(lambda: self._on_menu_y_range_mode(idx, 'auto'))
+            range_mode_auto.triggered.connect(lambda checked=False: self._on_menu_y_range_mode(idx, 'auto'))
             range_mode_manual = QtGui.QAction(N_('Manual'), range_group, checkable=True)
             range_mode_manual.setChecked(plot['range_mode'] == 'manual')
             range_mode.addAction(range_mode_manual)
-            range_mode_manual.triggered.connect(lambda: self._on_menu_y_range_mode(idx, 'manual'))
+            range_mode_manual.triggered.connect(lambda checked=False: self._on_menu_y_range_mode(idx, 'manual'))
             range_menu = [range_mode, range_group, range_mode_auto, range_mode_manual]
         else:
             range_menu = []
@@ -2892,11 +2892,11 @@ class WaveformWidget(QtWidgets.QWidget):
             scale_mode_auto = QtGui.QAction(N_('Linear'), scale_group, checkable=True)
             scale_mode_auto.setChecked(scale == 'linear')
             scale_mode.addAction(scale_mode_auto)
-            scale_mode_auto.triggered.connect(lambda: self._on_menu_y_scale_mode(idx, 'linear'))
+            scale_mode_auto.triggered.connect(lambda checked=False: self._on_menu_y_scale_mode(idx, 'linear'))
             scale_mode_manual = QtGui.QAction(N_('Logarithmic'), scale_group, checkable=True)
             scale_mode_manual.setChecked(scale == 'logarithmic')
             scale_mode.addAction(scale_mode_manual)
-            scale_mode_manual.triggered.connect(lambda: self._on_menu_y_scale_mode(idx, 'logarithmic'))
+            scale_mode_manual.triggered.connect(lambda checked=False: self._on_menu_y_scale_mode(idx, 'logarithmic'))
             scale_menu = [scale_mode, scale_group, scale_mode_auto, scale_mode_manual]
 
             if scale == 'logarithmic':
@@ -2910,7 +2910,7 @@ class WaveformWidget(QtWidgets.QWidget):
                     v = QtGui.QAction(f'{value:d}', logarithmic_group, checkable=True)
                     v.setChecked(value == z)
                     logarithmic_zero.addAction(v)
-                    v.triggered.connect(lambda: self._on_menu_y_logarithmic_zero(idx, value))
+                    v.triggered.connect(lambda checked=False: self._on_menu_y_logarithmic_zero(idx, value))
                     scale_menu.append(v)
                     return v
 
@@ -2944,7 +2944,7 @@ class WaveformWidget(QtWidgets.QWidget):
         else:
             self.pubsub.publish(f'{topic}/actions/!text_annotation', [action, plot['index']])
 
-    def _on_menu_annotations_save(self):
+    def _on_menu_annotations_save(self, checked=False):
         for source in self._sources:
             if source.startswith('JlsSource'):
                 path = self.pubsub.query(f'{get_topic_name(source)}/settings/path')
@@ -2952,7 +2952,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 anno_path = f'{path_base}.anno{path_ext}'
                 self.on_callback_annotation_save({'path': anno_path})
 
-    def _on_menu_annotations_clear_all(self):
+    def _on_menu_annotations_clear_all(self, checked=False):
         self._on_menu_x_marker('clear_all')
         self._on_menu_y_marker('clear_all')
         self._on_menu_text_annotation('clear_all')
@@ -2960,16 +2960,16 @@ class WaveformWidget(QtWidgets.QWidget):
     def _menu_add_text_annotations(self, menu: QtWidgets.QMenu):
         add = QtGui.QAction(N_('Add'))
         menu.addAction(add)
-        add.triggered.connect(lambda: self._on_menu_text_annotation('add'))
+        add.triggered.connect(lambda checked=False: self._on_menu_text_annotation('add'))
         hide = QtGui.QAction(N_('Hide all text'))
         menu.addAction(hide)
-        hide.triggered.connect(lambda: self._on_menu_text_annotation('text_hide_all'))
+        hide.triggered.connect(lambda checked=False: self._on_menu_text_annotation('text_hide_all'))
         show = QtGui.QAction(N_('Show all text'))
         menu.addAction(show)
-        show.triggered.connect(lambda: self._on_menu_text_annotation('text_show_all'))
+        show.triggered.connect(lambda checked=False: self._on_menu_text_annotation('text_show_all'))
         clear_all = QtGui.QAction(N_('Clear all'))
         menu.addAction(clear_all)
-        clear_all.triggered.connect(lambda: self._on_menu_text_annotation('clear_all'))
+        clear_all.triggered.connect(lambda checked=False: self._on_menu_text_annotation('clear_all'))
         return [add, hide, show, clear_all]
 
     def _menu_plot(self, idx, event: QtGui.QMouseEvent):
@@ -2996,7 +2996,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
         if plot['range_mode'] == 'manual':
             range_mode = menu.addAction(N_('Y-axis auto range'))
-            range_mode.triggered.connect(lambda: self._on_menu_y_range_mode(idx, 'auto'))
+            range_mode.triggered.connect(lambda checked=False: self._on_menu_y_range_mode(idx, 'auto'))
             dynamic.append(range_mode)
 
         copy_image = menu.addAction(N_('Save image to file'))
@@ -3006,10 +3006,10 @@ class WaveformWidget(QtWidgets.QWidget):
         copy_image.triggered.connect(self._action_copy_image_to_clipboard)
 
         export_range = menu.addAction(N_('Export visible data'))
-        export_range.triggered.connect(lambda: self._on_x_export('range'))
+        export_range.triggered.connect(lambda checked=False: self._on_x_export('range'))
 
         export_all = menu.addAction(N_('Export all data'))
-        export_all.triggered.connect(lambda: self._on_x_export('extents'))
+        export_all.triggered.connect(lambda checked=False: self._on_x_export('extents'))
 
         style_action = settings_action_create(self, menu)
         self._menu = [menu,
@@ -3142,7 +3142,7 @@ class WaveformWidget(QtWidgets.QWidget):
     def _construct_analysis_menu_action(self, analysis_menu, unique_id, idx):
         cls = get_instance(unique_id)
         action = analysis_menu.addAction(cls.NAME)
-        action.triggered.connect(lambda: self._on_range_tool(unique_id, idx))
+        action.triggered.connect(lambda checked=False: self._on_range_tool(unique_id, idx))
         return action
 
     def _on_x_interval(self, m, pos_text, interval):
@@ -3163,7 +3163,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
         if is_dual:
             export = menu.addAction(N_('Export'))
-            export.triggered.connect(lambda: self._on_x_export(m['id']))
+            export.triggered.connect(lambda checked=False: self._on_x_export(m['id']))
             dynamic_items.append(export)
 
             analysis_menu = menu.addMenu(N_('Analysis'))
@@ -3191,30 +3191,30 @@ class WaveformWidget(QtWidgets.QWidget):
         auto = show_stats_menu.addAction(N_('Auto'))
         auto.setCheckable(True)
         auto.setChecked(pos == 'auto')
-        auto.triggered.connect(lambda: self._on_x_marker_statistics_show(m, f'text_{pos_text}', 'auto'))
+        auto.triggered.connect(lambda checked=False: self._on_x_marker_statistics_show(m, f'text_{pos_text}', 'auto'))
         show_stats_group.addAction(auto)
 
         left = show_stats_menu.addAction(N_('Left'))
         left.setCheckable(True)
         left.setChecked(pos == 'left')
-        left.triggered.connect(lambda: self._on_x_marker_statistics_show(m, f'text_{pos_text}', 'left'))
+        left.triggered.connect(lambda checked=False: self._on_x_marker_statistics_show(m, f'text_{pos_text}', 'left'))
         show_stats_group.addAction(left)
 
         right = show_stats_menu.addAction(N_('Right'))
         right.setCheckable(True)
         right.setChecked(pos == 'right')
-        right.triggered.connect(lambda: self._on_x_marker_statistics_show(m, f'text_{pos_text}', 'right'))
+        right.triggered.connect(lambda checked=False: self._on_x_marker_statistics_show(m, f'text_{pos_text}', 'right'))
         show_stats_group.addAction(right)
 
         off = show_stats_menu.addAction(N_('Off'))
         off.setCheckable(True)
         off.setChecked(pos == 'off')
-        off.triggered.connect(lambda: self._on_x_marker_statistics_show(m, f'text_{pos_text}', 'off'))
+        off.triggered.connect(lambda checked=False: self._on_x_marker_statistics_show(m, f'text_{pos_text}', 'off'))
         show_stats_group.addAction(off)
 
         marker_remove = menu.addAction(N_('Remove'))
         topic = get_topic_name(self)
-        marker_remove.triggered.connect(lambda: self.pubsub.publish(f'{topic}/actions/!x_markers', ['remove', m['id']]))
+        marker_remove.triggered.connect(lambda checked=False: self.pubsub.publish(f'{topic}/actions/!x_markers', ['remove', m['id']]))
         self._menu = [menu, dynamic_items,
                       show_stats_menu, show_stats_group, auto, left, right, off,
                       marker_remove]
@@ -3225,7 +3225,7 @@ class WaveformWidget(QtWidgets.QWidget):
         menu = QtWidgets.QMenu('Waveform text annotation context menu', self)
 
         edit = menu.addAction(N_('Edit'))
-        edit.triggered.connect(lambda: self._on_text_annotation_edit(a['id']))
+        edit.triggered.connect(lambda checked=False: self._on_text_annotation_edit(a['id']))
 
         show = menu.addAction(N_('Show text'))
         show.setCheckable(True)
@@ -3240,7 +3240,7 @@ class WaveformWidget(QtWidgets.QWidget):
             m = y_mode.addAction(name)
             m.setCheckable(True)
             m.setChecked(a['y_mode'] == value)
-            m.triggered.connect(lambda: self._on_text_annotation_y_mode(a['id'], value))
+            m.triggered.connect(lambda checked=False: self._on_text_annotation_y_mode(a['id'], value))
             y_mode_group.addAction(m)
             return m
 
@@ -3253,14 +3253,14 @@ class WaveformWidget(QtWidgets.QWidget):
             m = shape.addAction(name)
             m.setCheckable(True)
             m.setChecked(a['shape'] == index)
-            m.triggered.connect(lambda: self._on_text_annotation_shape(a['id'], index))
+            m.triggered.connect(lambda checked=False: self._on_text_annotation_shape(a['id'], index))
             shape_group.addAction(m)
             return m
 
         menu_items.append([shape_item(index, value[1]) for index, value in enumerate(SHAPES_DEF)])
 
         remove = menu.addAction(N_('Remove'))
-        remove.triggered.connect(lambda: self._on_text_annotation_remove(a['id']))
+        remove.triggered.connect(lambda checked=False: self._on_text_annotation_remove(a['id']))
 
         self._menu = [
             menu, edit, show, y_mode, y_mode_group, shape, shape_group, remove,
@@ -3296,14 +3296,14 @@ class WaveformWidget(QtWidgets.QWidget):
         menu = QtWidgets.QMenu('Waveform y_marker context menu', self)
         marker_remove = menu.addAction(N_('Remove'))
         topic = get_topic_name(self)
-        marker_remove.triggered.connect(lambda: self.pubsub.publish(f'{topic}/actions/!y_markers',
-                                                                    ['remove', m['plot_index'], m['id']]))
+        marker_remove.triggered.connect(lambda checked=False: self.pubsub.publish(f'{topic}/actions/!y_markers',
+                                        ['remove', m['plot_index'], m['id']]))
         self._menu = [menu,
                       marker_remove]
         return self._menu_show(event)
 
     def _menu_summary_quantity(self, menu, quantity, name):
-        def action():
+        def action(checked=False):
             self.summary_quantity = quantity
 
         a = menu.addAction(name)

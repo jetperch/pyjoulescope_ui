@@ -246,7 +246,7 @@ class SourceSelector(QtCore.QObject):
             self._on_list_inner(value)
 
     def _construct_source_action(self, source):
-        def fn():
+        def fn(checked=False):
             self.source_set(source)
         return fn
 

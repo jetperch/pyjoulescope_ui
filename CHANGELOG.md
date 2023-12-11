@@ -5,6 +5,14 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.0.48
+
+2023 Dec 11 [in progress]
+
+* Updated QAction.triggered callback signatures from fn() to fn(checked=False)
+  to eliminate warnings with Nuitka compiled code.
+
+
 ## 1.0.47
 
 2023 Dec 10

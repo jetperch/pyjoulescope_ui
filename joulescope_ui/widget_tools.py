@@ -18,7 +18,7 @@ from joulescope_ui import pubsub_singleton, N_, register, get_instance, get_uniq
 
 
 def settings_action_create(obj, menu):
-    def on_action():
+    def on_action(checked=False):
         pubsub_singleton.publish('registry/settings/actions/!edit', obj)
 
     action = QtGui.QAction(menu)

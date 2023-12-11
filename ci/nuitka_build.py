@@ -80,6 +80,7 @@ def nuitka():
             '--disable-console',
             #'--force-stdout-spec=%HOME%/joulescope_%TIME%_%PID%.out.txt',
             #'--force-stderr-spec=%HOME%/joulescope_%TIME%_%PID%.err.txt',
+            #'--debug',
             '--report=nuitka_report.xml',
             '--output-filename=joulescope',
             'joulescope_ui',

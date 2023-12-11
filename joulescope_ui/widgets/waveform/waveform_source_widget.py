@@ -90,7 +90,7 @@ class _Trace(QtWidgets.QFrame):
 
     def _name_menu_factory(self, subsource):
         topic = f'{self.topic}/settings/trace_subsources'
-        def on_action():
+        def on_action(checked=False):
             value = self.pubsub.query(topic)
             if value[self._index] != subsource:
                 value = list(value)

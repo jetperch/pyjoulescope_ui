@@ -129,7 +129,7 @@ class QResyncEvent(QtCore.QEvent):
 
 def _menu_setup(parent, d):
     def _publish_factory(value):
-        return lambda: pubsub_singleton.publish(*value)
+        return lambda checked=False: pubsub_singleton.publish(*value)
 
     k = {}
     for name_safe, name, value in d:
@@ -553,7 +553,7 @@ class MainWindow(QtWidgets.QMainWindow):
             action.setChecked(view_unique_id == active_view)
             self._view_menu_group.addAction(action)
 
-    def _on_view_manage(self):
+    def _on_view_manage(self, checked=False):
         self._log.info('View Manage')
         dialog = ViewManagerDialog(self)
         dialog.finished.connect(lambda x: self._on_change_views(None))

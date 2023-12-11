@@ -158,7 +158,7 @@ class AccumulatorWidget(QtWidgets.QWidget):
                 action = N_('Show energy')
             field_toggle = QtGui.QAction(action)
             menu.addAction(field_toggle)
-            field_toggle.triggered.connect(lambda: self._on_field(toggle_field))
+            field_toggle.triggered.connect(lambda checked=False: self._on_field(toggle_field))
 
             if self.units == 'SI':
                 toggle_units = 'Xh'
@@ -168,7 +168,7 @@ class AccumulatorWidget(QtWidgets.QWidget):
                 action_units = 'J' if self.field == 'energy' else 'C'
             units_toggle = QtGui.QAction(N_('Set units') + ': ' + action_units)
             menu.addAction(units_toggle)
-            units_toggle.triggered.connect(lambda: self._on_units(toggle_units))
+            units_toggle.triggered.connect(lambda checked=False: self._on_units(toggle_units))
 
             source_menu, source_menu_items = self.source_selector.submenu_factory(menu)
 
