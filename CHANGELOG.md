@@ -7,15 +7,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.48
 
-2023 Dec 11 [in progress]
-
-* Updated QAction.triggered callback signatures from fn() to fn(checked=False)
-  to eliminate warnings with Nuitka compiled code.
-
-
-## 1.0.47
-
-2023 Dec 10
+2023 Dec 11
 
 * Fixed device open when UI started with device open in another app.
   When other app closes device, can now open in the UI.
@@ -34,6 +26,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added CONTRIBUTING.md and CODE_OF_CONDUCT.md.  Updated docs. #151
 * Fixed streaming Waveform widget not showing waveforms after opening JLS file.
 * Improved Device Control widget device open/close.
+* Updated QAction.triggered callback signatures from fn() to fn(checked=False)
+  to eliminate warnings with Nuitka compiled code.
 
 
 ## 1.0.43

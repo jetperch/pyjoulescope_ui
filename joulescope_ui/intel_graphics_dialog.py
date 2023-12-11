@@ -70,6 +70,7 @@ class IntelGraphicsDialog(QtWidgets.QDialog):
         self.finished.connect(self._on_finish)
 
         self.open()
+        IntelGraphicsDialog.shown = True
         IntelGraphicsDialog.dialogs.append(self)
 
     def _on_finish(self):
