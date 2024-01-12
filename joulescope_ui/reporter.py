@@ -58,6 +58,7 @@ def platform_info() -> dict:
         },
         'is_release': is_release,
     }
+
     try:
         cpufreq = psutil.cpu_freq()
         rv['cpu_frequency'] = {
@@ -67,6 +68,16 @@ def platform_info() -> dict:
         }
     except Exception:
         pass  # broken on Mac M's (arm64).
+
+    try:
+        import winreg
+        key = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE, r'HARDWARE\DESCRIPTION\System\CentralProcessor\0')
+        rv['cpu_name'] = winreg.QueryValueEx(key, 'ProcessorNameString')[0]
+        winreg.CloseKey(key)
+    except Exception:
+        # py-cpuinfo is slow and uses multiprocesssing (too complicated)
+        pass  # no worries, only works on Windows
+
     return rv
 
 
