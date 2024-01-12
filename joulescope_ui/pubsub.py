@@ -470,7 +470,7 @@ class PubSub:
         self.topic_add('common/settings/paths/reporter', 'str', 'Reporter directory', default=os.path.join(app_path, 'reporter'))
         self.topic_add('common/settings/paths/styles', 'str', 'Rendered styles', default=os.path.join(app_path, 'styles'))
         self.topic_add('common/settings/paths/update', 'str', 'Downloads for application updates', default=os.path.join(app_path, 'update'))
-        self.topic_add('common/settings/paths/data', 'str', 'Data recordings', default=os.path.join(user_path))
+        self.topic_add('common/settings/paths/data', 'str', 'Data recordings', default=user_path)
 
     def _add_cmd(self, topic, update_fn):
         topic_add_value = {
