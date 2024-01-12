@@ -4,10 +4,9 @@
 This document captures the Joulescope™ User Interface (UI) future features. 
 The UI is under active development, and many features remain outstanding. 
 
+
 ### Joulsecope JS220
 
-* Soft-fuse
-* UTC timesync using NTP-like protocol over USB
 * UTC timesync using BNC trigger IN/OUT
 * On-instrument downsampling
 * UART RX and TX
