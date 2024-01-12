@@ -1,4 +1,4 @@
-# Copyright 2018-2023 Jetperch LLC
+# Copyright 2018-2024 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -39,11 +39,17 @@ Our offices are closed for holiday from {start_date} to {end_date}.
 We will respond within {response_time} business days when we return on {return_date}.""")
 _HOLIDAYS = {
     # (datetime.date.today(), datetime.date.today() + datetime.timedelta(7)),  # for testing
-    (datetime.date(2023, 8, 12), datetime.date(2023, 8, 27)),
-    (datetime.date(2023, 9, 2), datetime.date(2023, 9, 4)),
-    (datetime.date(2023, 11, 18), datetime.date(2023, 11, 26)),
-    (datetime.date(2023, 12, 22), datetime.date(2024, 1, 1)),
-    (datetime.date(2024, 2, 17), datetime.date(2024, 2, 19)),
+    (datetime.date(2024,  1, 31), datetime.date(2024,  1, 31)),  # out of office
+    (datetime.date(2024,  2, 17), datetime.date(2024,  2, 19)),  # President's Day weekend
+    (datetime.date(2024,  3, 23), datetime.date(2024,  4,  1)),  # Spring break
+    (datetime.date(2024,  4,  6), datetime.date(2024,  4, 14)),  # Embedded World
+    (datetime.date(2024,  5, 25), datetime.date(2024,  5, 27)),  # Memorial Day weekend
+    (datetime.date(2024,  7,  4), datetime.date(2024,  7,  7)),  # 4th of July extend long weekend
+    (datetime.date(2024,  8,  9), datetime.date(2024,  8, 25)),  # Summer vacation
+    (datetime.date(2024,  8, 31), datetime.date(2024,  9,  2)),  # Labor Day weekend
+    (datetime.date(2024, 10, 5),  datetime.date(2024, 10, 13)),  # Embedded World North America
+    (datetime.date(2024, 11, 28), datetime.date(2024, 12,  1)),  # US Thanksgiving
+    (datetime.date(2024, 12, 21), datetime.date(2024,  1,  5)),  # Holiday & New Years break
 }
 _clipboard = None
 

@@ -12,6 +12,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Dropped Python 3.9 support as static methods are not callable until 3.10.
   See https://docs.python.org/3/whatsnew/3.10.html
 * Updated Intel OpenGL dialog text.
+* Updated 2024 out-of-office days.
 
 
 ## 1.0.48
