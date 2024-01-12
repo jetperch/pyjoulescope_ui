@@ -1,4 +1,4 @@
-# Copyright 2023 Jetperch LLC
+# Copyright 2023-2024 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,18 +21,32 @@ _OPENGL_RENDERER_TOPIC = 'registry/app/settings/opengl'
 
 
 _MSG = N_("""<html><body>
-<p>This computer has Intel graphics, which may result in application
-crashes due to known problems with Intel graphics drivers.
-If the computer has a discrete graphics card, then you can adjust 
+<p>This computer has Intel graphics.
+If the computer has a discrete graphics card, please adjust 
 your graphics settings to run 
 this application using the graphics card.</p>
 
-<p>If the computer only has Intel graphics, then we can switch to
-the software OpenGL renderer which is stable but slightly slower.
+<p>If the computer only has Intel graphics, we recommend that you
+update your graphics drivers.  You can download the latest graphics
+drivers from
+<a href="https://www.intel.com/content/www/us/en/search.html#sort=relevancy&f:@tabfilter=[Downloads]&f:@stm_10385_en=[Graphics]">Intel</a>.
+</p>
+
+<p>If you observe strange graphics hangs with the latest Intel driver as shown in 
+<a href="https://github.com/jetperch/pyjoulescope_ui/issues/216">issue #216</a>,
+then you can switch to the software OpenGL renderer.
+The software OpenGL renderer is more stable, but it runs slower
+possibly causing performance issues.  On a small number of computers,
+it does not run correctly causing a white application screen.
 You will need to close and reopen this application for the change
 to take effect.</p>
 
 <p>Would you like to switch to the software OpenGL renderer?</p>
+
+<p>If you are unsure, select "No" and leave "Do not show again" unchecked.
+If you observe the graphics hangs, you can select "Yes" in the future.
+You can select the OpenGL renderer at any time using
+Widgets → Settings → Common → opengl.  The default is "desktop".</p>
 
 </body></html>""")
 
@@ -52,6 +66,7 @@ class IntelGraphicsDialog(QtWidgets.QDialog):
 
         self._label = QtWidgets.QLabel(_MSG, self)
         self._label.setWordWrap(True)
+        self._label.setOpenExternalLinks(True)
         self._layout.addWidget(self._label)
 
         self._spacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
