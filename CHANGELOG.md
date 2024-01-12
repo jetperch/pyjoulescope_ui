@@ -5,6 +5,14 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.0.49
+
+2024 Jan 12 [in progress]
+
+* Dropped Python 3.9 support as static methods are not callable until 3.10.
+  See https://docs.python.org/3/whatsnew/3.10.html
+
+
 ## 1.0.48
 
 2023 Dec 11

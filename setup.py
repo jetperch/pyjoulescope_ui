@@ -173,7 +173,6 @@ setuptools.setup(
         'Operating System :: POSIX :: Linux',
 
         # Supported Python versions
-        'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
@@ -192,7 +191,7 @@ setuptools.setup(
     include_package_data=True,
 
     # See https://packaging.python.org/guides/distributing-packages-using-setuptools/#python-requires
-    python_requires='~=3.9',
+    python_requires='~=3.10',
     
     # See https://packaging.python.org/en/latest/requirements.html
     install_requires=[
