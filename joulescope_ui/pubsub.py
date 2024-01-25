@@ -1567,12 +1567,19 @@ class PubSub:
         self._from_obj('common/settings', obj['common/settings'])
         self._from_obj('registry', obj['registry'])
         t = self._topic_by_name['registry']
+        keys_to_remove = []
         for key, value in t.children.items():
             if 'instance_of' in value.children:
                 instance_of = value.children['instance_of'].value
                 if value is None:
                     continue
-                self._update_meta(f'registry/{instance_of}', value.topic_name)
+                try:
+                    self._update_meta(f'registry/{instance_of}', value.topic_name)
+                except:
+                    self._log.warning('Could not instantiate %s, removing', key)
+                    keys_to_remove.append(key)
+        for key in keys_to_remove:
+            self.topic_remove(f'registry/{key}')
         return True
 
     def config_clear(self):

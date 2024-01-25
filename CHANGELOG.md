@@ -13,6 +13,7 @@ This file contains the list of changes made to pyjoulescope_ui.
   See https://docs.python.org/3/whatsnew/3.10.html
 * Updated Intel OpenGL dialog text.
 * Updated 2024 out-of-office days.
+* Added widget class not found handling on config load.
 
 
 ## 1.0.48
