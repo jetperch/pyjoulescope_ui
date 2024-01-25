@@ -34,7 +34,7 @@ import numpy as np
 import os
 import time
 from PySide6.QtGui import QPen, QBrush
-from joulescope_ui.units import convert_units, UNITS_SETTING, unit_prefix
+from joulescope_ui.units import convert_units, UNITS_SETTING, unit_prefix, prefix_to_scale
 from . import axis_ticks
 from collections.abc import Iterable
 
@@ -78,6 +78,7 @@ def _analog_plot(quantity, show, units, name, integral=None, range_bounds=None):
         'scale': 'linear',
         'logarithmic_zero': _LOGARITHMIC_ZERO_DEFAULT,
         'integral': integral,
+        'prefix_preferred': 'auto',
     }
 
 
@@ -92,6 +93,7 @@ def _digital_plot(quantity, name):
         'range_mode': 'fixed',
         'range': _BINARY_RANGE,
         'scale': 'linear',
+        'prefix_preferred': 'auto',
     }
 
 
@@ -124,7 +126,7 @@ _STATE_DEFAULT = {
 _QUANTITIES = [[p['quantity'], p['name']] for p in _STATE_DEFAULT['plots']]
 
 
-def _si_format(values, units):
+def _si_format(values, units, prefix_preferred=None):
     results = []
     if units is None:
         units = ''
@@ -135,6 +137,11 @@ def _si_format(values, units):
         values = np.array(values)
         max_value = float(np.max(np.abs(values)))
         _, prefix, scale = unit_prefix(max_value)
+        if prefix_preferred not in [None, 'auto']:
+            p_scale = prefix_to_scale(prefix_preferred)
+            if 0.00001 <= (max_value / p_scale) < 1_000_000:
+                prefix, scale = prefix_preferred, p_scale
+
         scale = 1.0 / scale
         if len(units) or len(prefix):
             units_suffix = f' {prefix}{units}'
@@ -149,8 +156,8 @@ def _si_format(values, units):
     return results if is_array else results[0]
 
 
-def _statistics_format(labels, values, units):
-    values_txt = _si_format(values, units)
+def _statistics_format(labels, values, units, prefix_preferred=None):
+    values_txt = _si_format(values, units, prefix_preferred)
     r = []
     for label, value_txt in zip(labels, values_txt):
         v = value_txt.split(' ')
@@ -805,6 +812,7 @@ class WaveformWidget(QtWidgets.QWidget):
             plot['index'] = plot_index
             plot['y_region'] = f'plot.{plot_index}'
             plot.setdefault('logarithmic_zero', _LOGARITHMIC_ZERO_DEFAULT)
+            plot.setdefault('prefix_preferred', 'auto')
         self._subscribe('registry_manager/capabilities/signal_buffer.source/list',
                         self._on_source_list, ['pub', 'retain'])
         topic = get_topic_name(self)
@@ -1724,21 +1732,18 @@ class WaveformWidget(QtWidgets.QWidget):
         plot['y_map'] = (y0, y_range[1], y_scale)
 
         # draw y-axis grid
-        if plot['scale'] == 'logarithmic':
-            major_interval_min = 1
-            logarithmic_zero = plot['logarithmic_zero']
-        else:
-            major_interval_min = None
-            logarithmic_zero = None
         p.setFont(s['axis_font'])
-        y_tick_height_value_min = s['y_tick_height_pixels_min'] / plot['y_map'][-1]
-        y_grid = axis_ticks.ticks(y_range[0], y_range[1], y_tick_height_value_min,
-                        major_interval_min=major_interval_min,
-                        logarithmic_zero=logarithmic_zero)
+        major_max = h / s['y_tick_height_pixels_min']
+        if plot['scale'] == 'logarithmic':
+            y_grid = axis_ticks.ticks(y_range[0], y_range[1], 1.0, major_max=major_max,
+                                      logarithmic_zero=plot['logarithmic_zero'])
+        else:
+            v_spacing_min = 1 if quantity == 'r' else None
+            y_grid = axis_ticks.ticks(y_range[0], y_range[1], v_spacing_min, major_max=major_max,
+                                      prefix_preferred=plot['prefix_preferred'])
         axis_font_metrics = s['axis_font_metrics']
         if y_grid is not None:
             if quantity == 'r':
-                y_grid = axis_ticks.ticks(y_range[0], y_range[1], y_tick_height_value_min, 1)
                 subsource = traces[0][1]
                 if 'JS220' in subsource:
                     y_grid['labels'] = [_JS220_AXIS_R.get(int(s_label), '') for s_label in y_grid['labels']]
@@ -2085,7 +2090,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 v_rms = np.sqrt(v_avg * v_avg + v_std * v_std)
                 labels = ['avg', 'std', 'rms', 'min', 'max', 'p2p']
                 values = [v_avg, v_std, v_rms, v_min, v_max, v_max - v_min]
-            values = _statistics_format(labels, values, plot['units'])
+            values = _statistics_format(labels, values, plot['units'], plot['prefix_preferred'])
             self._draw_statistics_text(p, (p0, y0), values, text_pos)
         p.setClipping(False)
 
@@ -2117,12 +2122,12 @@ class WaveformWidget(QtWidgets.QWidget):
             labels = ['avg', 'std', 'rms', 'min', 'max', 'p2p']
             v_rms = np.sqrt(v_avg * v_avg + v_std * v_std)
             values = [v_avg, v_std, v_rms, v_min, v_max, v_max - v_min]
-            values = _statistics_format(labels, values, plot['units'])
+            values = _statistics_format(labels, values, plot['units'], plot['prefix_preferred'])
 
             integral_units = plot.get('integral')
             if integral_units is not None:
                 integral_v, integral_units = convert_units(v_avg * dt, integral_units, self.units)
-                integral_values = _statistics_format(['∫'], [integral_v], integral_units)
+                integral_values = _statistics_format(['∫'], [integral_v], integral_units, None)
                 values.extend(integral_values)
 
             pos_field = text_pos_key.split('_')[-1]
@@ -2252,13 +2257,13 @@ class WaveformWidget(QtWidgets.QWidget):
         y_rms = np.sqrt(y_avg * y_avg + y_std * y_std)
         q_names = ['avg', 'std', 'rms', 'min', 'max', 'p2p']
         q_value = [y_avg, y_std, y_rms, y_min, y_max, y_max - y_min]
-        values = _statistics_format(q_names, q_value, plot['units'])
+        values = _statistics_format(q_names, q_value, plot['units'], plot['prefix_preferred'])
 
         dt = (z1 - z0) / time64.SECOND
         integral_units = plot.get('integral')
         if integral_units is not None:
             integral_v, integral_units = convert_units(y_avg * dt, integral_units, self.units)
-            integral_values = _statistics_format(['∫'], [integral_v], integral_units)
+            integral_values = _statistics_format(['∫'], [integral_v], integral_units, None)
             values.extend(integral_values)
         p.setClipRect(x0, y0, xd, yd)
         self._draw_statistics_text(p, (x0, y0), values)
@@ -2897,6 +2902,12 @@ class WaveformWidget(QtWidgets.QWidget):
             plot['range_mode'] = 'auto'
             self._repaint_request = True
 
+    def _on_menu_y_prefix_preferred(self, idx, value):
+        plot = self.state['plots'][idx]
+        if value != plot['prefix_preferred']:
+            plot['prefix_preferred'] = value
+            self._repaint_request = True
+
     def _on_menu_y_range_mode(self, idx, value):
         plot = self.state['plots'][idx]
         plot['range_mode'] = value
@@ -2959,8 +2970,27 @@ class WaveformWidget(QtWidgets.QWidget):
         else:
             scale_menu = []
 
+        prefix_items = []
+        if plot['quantity'] in ['i', 'v', 'p'] and plot['scale'] != 'logarithmic':
+            z = plot['prefix_preferred']
+            prefix_menu = menu.addMenu(N_('Preferred prefix'))
+            prefix_group = QtGui.QActionGroup(prefix_menu)
+            prefix_group.setExclusive(True)
+            prefix_items.append([prefix_menu, prefix_group])
+
+            def prefix_action_gen(value):
+                v = QtGui.QAction(value, prefix_group, checkable=True)
+                v.setChecked(value == z)
+                prefix_menu.addAction(v)
+                v.triggered.connect(lambda checked=False: self._on_menu_y_prefix_preferred(idx, value))
+                prefix_items.append(v)
+                return v
+
+            for prefix in ['auto', '', 'm', 'µ', 'n']:
+                prefix_action_gen(prefix)
+
         style_action = settings_action_create(self, menu)
-        self._menu = [menu, annotations, annotations_sub, scale_menu, range_menu, style_action]
+        self._menu = [menu, annotations, annotations_sub, scale_menu, range_menu, prefix_items, style_action]
         return self._menu_show(event)
 
     def _on_menu_text_annotation(self, action):

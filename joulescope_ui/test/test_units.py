@@ -23,6 +23,15 @@ import numpy as np
 
 class TestUnits(unittest.TestCase):
 
+    def test_prefix_to_scale(self):
+        self.assertEqual(1e3, units.prefix_to_scale('k'))
+        self.assertEqual(1, units.prefix_to_scale(''))
+        self.assertEqual(1e-3, units.prefix_to_scale('m'))
+        self.assertEqual(1e-6, units.prefix_to_scale('µ'))
+        self.assertEqual(1e-6, units.prefix_to_scale('u'))
+        self.assertEqual(1e-6, units.prefix_to_scale('µ'))  # \u03BC greek small letter mu
+        self.assertEqual(1e-9, units.prefix_to_scale('n'))
+
     def test_charge(self):
         self.assertEqual((1, 'C'), units.convert_units(1, 'C', 'SI'))
         self.assertEqual((1 / 3600, 'Ah'), units.convert_units(1, 'C', 'Xh'))

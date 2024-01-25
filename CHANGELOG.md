@@ -22,6 +22,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Modified Export all data to work when streaming  #246
 * Added zoom to dual markers in Waveform widget  #243
 * Added Waveform widget move both dual markers when click on top Δt bar  #247
+* Added preferred units to Waveform widget i, v, p plots  #248
 
 
 ## 1.0.48

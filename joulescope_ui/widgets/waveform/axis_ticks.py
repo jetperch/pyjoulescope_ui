@@ -14,7 +14,7 @@
 
 import numpy as np
 from joulescope_ui import time64
-from joulescope_ui.units import unit_prefix
+from joulescope_ui.units import unit_prefix, prefix_to_scale
 
 
 _EXP_TABLE = ['⁰', '¹', '²', '³', '⁴', '⁵', '⁶', '⁷', '⁸', '⁹']
@@ -191,16 +191,29 @@ def x_ticks(x0, x1, major_count_max):
     }
 
 
-def ticks(v_min, v_max, v_spacing_min, major_interval_min=None, logarithmic_zero=None):
+def ticks(v_min, v_max, v_spacing_min=None, major_max=None, logarithmic_zero=None, prefix_preferred=None):
     """Compute the axis tick locations.
 
-    :param v_min: The minimum value, in transformed coordinates.
+    :param v_min: The minimum value (inclusive).
+    :param v_max: The maximum value (exclusive).
+    :param v_spacing_min: The minimum spacing between major intervals.
+    :param major_max: The optional maximum number of major intervals
+    :param logarithmic_zero: The power of 10 to use as zero for signed value support.
+    :param prefix_preferred: The optional preferred prefix.
+        Ignored when logarithmic_zero is provided.
     """
+    v_diff = v_max - v_min
+    if major_max is not None:
+        v_lim = v_diff / major_max
+        if v_spacing_min is not None:
+            v_count = abs(v_max - v_min) / v_spacing_min
+            if v_count > major_max:
+                v_spacing_min = v_diff / major_max
+        else:
+            v_spacing_min = v_lim
     major_interval = tick_spacing(v_min, v_max, v_spacing_min)
     if major_interval <= 0:
         return None
-    if major_interval_min is not None and major_interval < major_interval_min:
-        major_interval = major_interval_min
     major_start = np.ceil(v_min / major_interval) * major_interval
     major = np.arange(major_start, v_max, major_interval, dtype=np.float64)
     minor_interval = major_interval / 10.0
@@ -246,8 +259,13 @@ def ticks(v_min, v_max, v_spacing_min, major_interval_min=None, logarithmic_zero
         else:
             label_max = max(abs(major[0]), abs(major[-1]))
             adjusted_value, prefix, scale = unit_prefix(label_max)
+            if prefix_preferred not in [None, 'auto']:
+                p_scale = prefix_to_scale(prefix_preferred)
+                p_label_max = label_max / p_scale
+                if 0.001 <= p_label_max < 100_000:
+                    prefix, scale = prefix_preferred, p_scale
             scale = 1.0 / scale
-            zero_max = (label_max * scale) / 10_000.0
+            zero_max = (label_max * scale) / 100_000.0
             for v in major * scale:
                 if abs(v) < zero_max:
                     v = 0
@@ -255,7 +273,6 @@ def ticks(v_min, v_max, v_spacing_min, major_interval_min=None, logarithmic_zero
                 if s == '-0':
                     s = '0'
                 labels.append(s)
-
     return {
         'major': major,
         'major_interval': major_interval,

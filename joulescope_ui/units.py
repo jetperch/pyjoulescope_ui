@@ -79,6 +79,15 @@ FIELD_UNITS_INTEGRAL = {
 }
 
 
+def prefix_to_scale(prefix: str) -> float:
+    """Convert a prefix character to the corresponding scale factor.
+
+    :param prefix: The prefix string.
+    :return: The scale factor for this prefix.
+    """
+    return _PREFIX_MAP[prefix]
+
+
 def unit_prefix(value):
     """Get the unit prefix and adjust value.
 
