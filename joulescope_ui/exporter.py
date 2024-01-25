@@ -117,10 +117,13 @@ class ExporterDialog(QtWidgets.QDialog):
         self._log = logging.getLogger(f'{__name__}.dialog')
 
         x_range = value['x_range']
-        duration = (x_range[1] - x_range[0]) / time64.SECOND
-        second = x_range[0] // time64.SECOND
-        self._log.info('start duration=%r, x_range=%r, x0_second=%r, signals=%r',
-                       duration, x_range, second, value['signals'])
+        if callable(x_range):
+            self._log.info('start x_range is callable, defer')
+        else:
+            duration = (x_range[1] - x_range[0]) / time64.SECOND
+            second = x_range[0] // time64.SECOND
+            self._log.info('start duration=%r, x_range=%r, x0_second=%r, signals=%r',
+                           duration, x_range, second, value['signals'])
         self.setObjectName('exporter_dialog')
         self._layout = QtWidgets.QVBoxLayout()
         self.setLayout(self._layout)

@@ -66,6 +66,8 @@ class RangeTool:
     def __init__(self, value):
         self.pubsub = None
         self.x_range = value['x_range']
+        if callable(self.x_range):
+            self.x_range = self.x_range()
         assert(len(self.x_range) == 2)
         assert(self.x_range[0] <= self.x_range[1])
         self.signals = value['signals']
@@ -254,12 +256,13 @@ class RangeToolBase:
         """
         self._log = logging.getLogger(f'{__name__}.{self.NAME}')
         RangeToolBase._instances.append(self)
-        self.x_range = value['x_range']
         self.signals = value['signals']
         self.range_tool_kwargs = value.get('range_tool', {})
         self.kwargs = value.get('kwargs', {})
         self.value = value
         self._rt = RangeTool(value)
+        self.x_range = self._rt.x_range
+        value['x_range'] = self.x_range  # modify in place (necessary for callables)
         self._thread = None
 
     def on_pubsub_register(self):

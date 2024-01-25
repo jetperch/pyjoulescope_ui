@@ -60,6 +60,7 @@ _TEXT_ANNOTATION_X_POS_ALLOC = 64
 _ANNOTATION_TEXT_MOD = (1 << 48)
 _ANNOTATION_Y_MOD = ((1 << 16) + 2)   # must be multiple of plot colors
 _MARKER_SELECT_DISTANCE_PIXELS = 5
+_EXPORT_WHILE_STREAMING_START_OFFSET = time64.SECOND  # not sure of any better way...
 
 
 def _analog_plot(quantity, show, units, name, integral=None, range_bounds=None):
@@ -760,6 +761,14 @@ class WaveformWidget(QtWidgets.QWidget):
             return source_filter
         else:
             return self.pubsub.query(topic)
+
+    def _is_streaming(self):
+        if not self.pubsub.query(f'registry/app/settings/signal_stream_enable'):
+            return False
+        source_filter = self.pubsub.query(f'{self.topic}/settings/source_filter')
+        if source_filter is not None and 'JlsSource' in source_filter:
+            return False
+        return True
 
     def on_pubsub_register(self):
         self._trace_widget.on_pubsub_register(self.pubsub)
@@ -3091,26 +3100,38 @@ class WaveformWidget(QtWidgets.QWidget):
             for a_id in outside:
                 self._text_annotation_remove(a_id)
 
-    def _on_x_export(self, src):
+    def _on_x_export_range(self, src):
         if isinstance(src, int):  # marker_id
             m = self._annotation_lookup(src)
             x0, x1 = m['pos1'], m['pos2']
             if x0 > x1:
                 x0, x1 = x1, x0
+            return x0, x1
         elif isinstance(src, str):
+            e0, e1 = self._extents()
             if src == 'range':
                 x0, x1 = self.x_range
             elif src == 'extents':
-                x0, x1 = self._extents()
+                x0, x1 = e0, e1
             else:
                 raise ValueError(f'unsupported x_export source {src}')
+            if self._is_streaming():
+                self._log.info('export on streaming: enforce start buffer')
+                x0 = min(max(x0, e0 + _EXPORT_WHILE_STREAMING_START_OFFSET), e1)
+            return x0, x1
         else:
             raise ValueError(f'unsupported x_export source {src}')
+
+    def _on_x_export(self, src):
+        x_range = self._on_x_export_range(src)
+        if self._is_streaming():
+            # defer final range computation using a callable
+            x_range = lambda: self._on_x_export_range(src)
 
         signals = self._signals_get()
         # Use CAPABILITIES.RANGE_TOOL_CLASS value format.
         pubsub_singleton.publish('registry/exporter/actions/!run', {
-            'x_range': (x0, x1),
+            'x_range': x_range,
             'signals': signals,
             'range_tool': {
                 'start_callbacks': [f'{get_topic_name(self)}/callbacks/!annotation_save'],
