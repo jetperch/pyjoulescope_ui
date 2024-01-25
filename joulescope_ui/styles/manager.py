@@ -415,8 +415,9 @@ def styled_widget(translated_name):
 
     def inner(cls):
         def cls_render(value):
-            if RENDER_TOPIC in pubsub_singleton:
-                pubsub_singleton.publish(RENDER_TOPIC, cls)
+            if getattr(cls, 'pubsub_is_registered', False):
+                if RENDER_TOPIC in pubsub_singleton:
+                    pubsub_singleton.publish(RENDER_TOPIC, cls)
 
         if not hasattr(cls, 'SETTINGS'):
             cls.SETTINGS = {}
