@@ -7,7 +7,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.49
 
-2024 Jan 12 [in progress]
+2024 Jan 25 [in progress]
 
 * Dropped Python 3.9 support as static methods are not callable until 3.10.
   See https://docs.python.org/3/whatsnew/3.10.html
@@ -18,6 +18,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Improved "developer" mode.
   * Renamed "debug" mode to "developer" mode.
   * Automatically close developer widgets on setting disable.
+* Added WindowStaysOnTopHint to HelpHtmlMessageBox  #245 
 
 
 ## 1.0.48

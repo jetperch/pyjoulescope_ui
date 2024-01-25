@@ -114,6 +114,7 @@ class HelpHtmlMessageBox(QtWidgets.QDialog):
         super().__init__(parent=parent)
 
         self.setObjectName("help_html_message_box")
+        self.setWindowFlag(QtCore.Qt.WindowType.WindowStaysOnTopHint)
         self._verticalLayout = QtWidgets.QVBoxLayout()
         self.setLayout(self._verticalLayout)
 
