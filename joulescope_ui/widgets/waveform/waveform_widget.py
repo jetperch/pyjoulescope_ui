@@ -2400,6 +2400,17 @@ class WaveformWidget(QtWidgets.QWidget):
             return f'x_marker.{marker["id"]}.{pos}'
         return ''
 
+    def _find_x_marker_banner(self, x):
+        for m in reversed(self.annotations['x'].values()):
+            if m['dtype'] != 'dual':
+                continue
+            x0, x1 = self._x_map.time64_to_counter(m['pos1']), self._x_map.time64_to_counter(m['pos2'])
+            if x0 > x1:
+                x0, x1 = x1, x0
+            if x0 <= x <= x1:
+                return f'x_marker.{m["id"]}.pos1'
+        return ''
+
     def _item_parse_x_marker(self, item: str, activate=None) -> (dict, str):
         parts = item.split('.')
         if len(parts) != 3 or parts[0] != 'x_marker':
@@ -2524,10 +2535,10 @@ class WaveformWidget(QtWidgets.QWidget):
                 e1 = self._extents()[1]
                 xr = self.x_range
                 xt = max(xr[0], min(xt, xr[1]))  # bound to range
-                item, move_both = self._mouse_action[1:3]
+                item, x_offset, move_both = self._mouse_action[1:4]
                 m, m_field = self._item_parse_x_marker(item)
                 m['changed'] = True
-                xd = xt - m[m_field]
+                xd = xt - x_offset - m[m_field]
                 m[m_field] += xd
                 is_relative = m.get('mode', 'absolute') == 'relative'
                 if m['dtype'] == 'dual' and move_both:
@@ -2627,6 +2638,13 @@ class WaveformWidget(QtWidgets.QWidget):
         plot['range'] = r0 - dy, r1 - dy
         self._repaint_request = True
 
+    def _x_marker_move_start(self, item, x, move_both):
+        xt = self._x_map.counter_to_time64(x)
+        m, pos = self._item_parse_x_marker(item, activate=True)
+        x0 = m[pos]
+        x_offset = xt - x0
+        self._mouse_action = ['move.x_marker', item, x_offset, move_both]
+
     def plot_mousePressEvent(self, event: QtGui.QMouseEvent):
         event.accept()
         x, y = event.pos().x(), event.pos().y()
@@ -2644,8 +2662,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 if self._mouse_action is not None:
                     self._mouse_action = None
                 else:
-                    self._item_parse_x_marker(item, activate=True)
-                    self._mouse_action = ['move.x_marker', item, is_ctrl]
+                    self._x_marker_move_start(item, x, is_ctrl)
             elif item.startswith('text_annotation.'):
                 if self._mouse_action is not None:
                     self._mouse_action = None
@@ -2663,7 +2680,20 @@ class WaveformWidget(QtWidgets.QWidget):
                 else:
                     self._log.info('x_pan_summary start')
                     self._mouse_action = ['x_pan_summary', x]
-            elif not is_ctrl and (y_name.startswith('plot.') or y_name == 'x_axis') and x_name == 'plot':
+            elif y_name == 'x_axis' and x_name == 'plot':
+                y0 = self._y_geometry_info['x_axis'][1]
+                y1 = y0 + self._style['axis_font_metrics'].ascent() + _MARGIN * 2
+                if y0 <= y <= y1:
+                    item = self._find_x_marker_banner(x)
+                    if item:
+                        self._x_marker_move_start(item, x, True)
+                        return
+                if self.pin_left or self.pin_right:
+                    pass  # pinned to extents, cannot pan
+                else:
+                    self._log.info('x_pan start')
+                    self._mouse_action = ['x_pan', x]
+            elif not is_ctrl and y_name.startswith('plot.') and x_name == 'plot':
                 if self.pin_left or self.pin_right:
                     pass  # pinned to extents, cannot pan
                 else:
