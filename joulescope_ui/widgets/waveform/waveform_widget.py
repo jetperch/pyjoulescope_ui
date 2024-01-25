@@ -61,6 +61,7 @@ _ANNOTATION_TEXT_MOD = (1 << 48)
 _ANNOTATION_Y_MOD = ((1 << 16) + 2)   # must be multiple of plot colors
 _MARKER_SELECT_DISTANCE_PIXELS = 5
 _EXPORT_WHILE_STREAMING_START_OFFSET = time64.SECOND  # not sure of any better way...
+_X_MARKER_ZOOM_LEVELS = [100, 90, 75, 50, 33, 25, 10]
 
 
 def _analog_plot(quantity, show, units, name, integral=None, range_bounds=None):
@@ -3166,6 +3167,18 @@ class WaveformWidget(QtWidgets.QWidget):
         action.triggered.connect(lambda checked=False: self._on_range_tool(unique_id, idx))
         return action
 
+    def _on_x_marker_zoom(self, marker_idx, zoom_level):
+        m = self._annotation_lookup(marker_idx)
+        z0, z1 = m['pos1'], m['pos2']
+        zc = (z1 + z0) / 2
+        zd = abs(z1 - z0) / (2 * float(zoom_level))
+        z0, z1 = int(zc - zd), int(zc + zd)
+        pubsub_singleton.publish(f'{self.topic}/actions/!x_zoom_to', [z0, z1])
+
+    def _construct_x_marker_zoom_menu_action(self, zoom_menu, idx, zoom_level):
+        action = zoom_menu.addAction(f'{zoom_level}%')
+        action.triggered.connect(lambda checked=False: self._on_x_marker_zoom(idx, zoom_level / 100.0))
+
     def _on_x_interval(self, m, pos_text, interval):
         other_pos = 'pos2' if pos_text == 'pos1' else 'pos1'
         if m.get('mode', 'absolute') == 'relative':
@@ -3205,6 +3218,12 @@ class WaveformWidget(QtWidgets.QWidget):
             interval_action.setDefaultWidget(interval_widget)
             interval_menu.addAction(interval_action)
             dynamic_items.append([interval_menu, interval_widget, interval_action])
+
+            zoom_menu = menu.addMenu(N_('Zoom'))
+            dynamic_items.append(analysis_menu)
+            for zoom_level in _X_MARKER_ZOOM_LEVELS:
+                action = self._construct_x_marker_zoom_menu_action(zoom_menu, m['id'], zoom_level)
+                dynamic_items.append(action)
 
         show_stats_menu = menu.addMenu(N_('Show statistics'))
         show_stats_group = QtGui.QActionGroup(show_stats_menu)
@@ -3841,6 +3860,31 @@ class WaveformWidget(QtWidgets.QWidget):
         self.x_range = [z0, z1]
         self._plot_data_invalidate()
         return [f'{get_topic_name(self)}/actions/!x_range', [x0, x1]]
+
+    def on_action_x_zoom_to(self, value):
+        """Perform a zoom action to an exact region
+
+        :param value: [x0, x1].
+            * x0: The starting time.
+            * x1: The ending time.
+        """
+        undo_x_range = list(self.x_range)
+        z0, z1 = value
+        e0, e1 = self._extents()
+        if z0 < e0:
+            z1 += e0 - z0
+            z0 = e0
+        if z1 > e1:
+            z0 -= z1 - e1
+            z1 = e1
+            z0 = max(z0, e0)
+        if z0 > e0:
+            self.pin_left = False
+        if z1 < e1:
+            self.pin_right = False
+        self.x_range = [z0, z1]
+        self._plot_data_invalidate()
+        return [f'{get_topic_name(self)}/actions/!x_range', undo_x_range]
 
     def on_action_x_zoom_all(self):
         """Perform a zoom action to the full extents.

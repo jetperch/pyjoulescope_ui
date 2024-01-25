@@ -20,6 +20,7 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Automatically close developer widgets on setting disable.
 * Added WindowStaysOnTopHint to HelpHtmlMessageBox  #245
 * Modified Export all data to work when streaming  #246
+* Added zoom to dual markers in Waveform widget  #243
 
 
 ## 1.0.48
