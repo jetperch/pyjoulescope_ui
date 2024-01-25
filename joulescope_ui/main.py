@@ -59,6 +59,9 @@ _config_clear = None
 _log = logging.getLogger(__name__)
 _UI_WINDOW_TITLE = 'Joulescope'
 _JLS_WINDOW_TITLE = 'Joulescope file viewer'
+_DEVELOPER_WIDGETS = [
+    DebugWidget,
+]
 
 
 _SETTINGS = {
@@ -82,9 +85,9 @@ _SETTINGS = {
         ],
         'default': 'normal',
     },
-    'debug': {
+    'developer': {
         'dtype': 'bool',
-        'brief': N_('Enable debug mode.'),
+        'brief': N_('Enable developer mode.'),
         'default': False,
     },
 }
@@ -448,15 +451,20 @@ class MainWindow(QtWidgets.QMainWindow):
         self._cpu_utilization.setVisible(visible)
         self._mem_utilization.setVisible(visible)
 
-    def on_setting_debug(self, value):
+    def on_setting_developer(self, value):
         if bool(value):
-            self._pubsub.register(DebugWidget)
+            for cls in _DEVELOPER_WIDGETS:
+                self._pubsub.register(cls)
         else:
-            try:
-                self._pubsub.query('registry/DebugWidget')
-                self._pubsub.unregister(DebugWidget, delete=True)
-            except KeyError:
-                pass
+            for cls in _DEVELOPER_WIDGETS:
+                if getattr(cls, 'pubsub_is_registered', False):
+                    try:
+                        self._pubsub.query(cls.topic)
+                        for instance in self._pubsub.query(f'{cls.topic}/instances'):
+                            self._pubsub.publish('registry/view/actions/!widget_close', instance)
+                        self._pubsub.unregister(cls, delete=True)
+                    except KeyError:
+                        pass
 
     def _center(self, resize=None):
         screen = self.screen()

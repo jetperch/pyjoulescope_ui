@@ -15,6 +15,9 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Updated 2024 out-of-office days.
 * Added widget class not found handling on config load.
 * Deferred rendering on class registration.
+* Improved "developer" mode.
+  * Renamed "debug" mode to "developer" mode.
+  * Automatically close developer widgets on setting disable.
 
 
 ## 1.0.48
