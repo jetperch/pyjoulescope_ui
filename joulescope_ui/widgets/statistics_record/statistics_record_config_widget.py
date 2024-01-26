@@ -15,9 +15,13 @@
 from PySide6 import QtWidgets, QtGui, QtCore
 from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topic_name, tooltip_format
 from joulescope_ui.styles import styled_widget
+from joulescope_ui.ui_util import comboBoxConfig
 import datetime
 import logging
 import os
+
+
+_TIME_FORMAT_OPTIONS = ['relative', 'UTC', 'off']
 
 
 def _construct_record_filename(device):
@@ -51,6 +55,13 @@ class StatisticsRecordConfigWidget(QtWidgets.QWidget):
         self._layout.addWidget(self._location_label, self._row, 0, 1, 2)
         self._layout.addWidget(self._location, self._row, 2, 1, 1)
         self._layout.addWidget(self._location_sel, self._row, 3, 1, 1)
+        self._row += 1
+
+        self._time_format_label = QtWidgets.QLabel(N_('Time Format'), self)
+        self._time_format = QtWidgets.QComboBox(self)
+        comboBoxConfig(self._time_format, _TIME_FORMAT_OPTIONS, [_TIME_FORMAT_OPTIONS[0]])
+        self._layout.addWidget(self._time_format_label, self._row, 0, 1, 2)
+        self._layout.addWidget(self._time_format, self._row, 2, 1, 1)
         self._row += 1
 
         self._source_widgets = {}
@@ -87,6 +98,12 @@ class StatisticsRecordConfigWidget(QtWidgets.QWidget):
                 topic = f'{get_topic_name(source)}/events/statistics/!data'
                 filename = os.path.join(path, filename.text())
                 sources.append([topic, filename])
+        return {
+            'sources': sources,
+            'config': {
+                'time_format': self._time_format.currentText(),
+            }
+        }
         return sources
 
     def _on_location_button(self):

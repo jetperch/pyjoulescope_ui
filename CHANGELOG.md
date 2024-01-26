@@ -7,7 +7,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.49
 
-2024 Jan 25 [in progress]
+2024 Jan 26 [in progress]
 
 * Dropped Python 3.9 support as static methods are not callable until 3.10.
   See https://docs.python.org/3/whatsnew/3.10.html
@@ -23,6 +23,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added zoom to dual markers in Waveform widget  #243
 * Added Waveform widget move both dual markers when click on top Δt bar  #247
 * Added preferred units to Waveform widget i, v, p plots  #248
+* Added time format options to CSV statistics recording  #231
 
 
 ## 1.0.48

@@ -64,14 +64,15 @@ class RecordStatusWidget(QtWidgets.QWidget):
         pubsub_singleton.subscribe('registry/ui/events/blink_fast', self._on_tick, ['pub'])
 
     def _on_start(self, value):
+        sources = value['sources']
         try:
-            path = value['path']
+            path = sources['path']
             filename = os.path.basename(path)
             path = os.path.dirname(path)
             detail = f'{_PATH}{path}\n\n{_FILENAME}{filename}'
         except TypeError:
-            path = os.path.dirname(value[0][-1])
-            filenames = [os.path.basename(x[-1]) for x in value]
+            path = os.path.dirname(sources[0][-1])
+            filenames = [os.path.basename(x[-1]) for x in sources]
             filenames_str = '\n'.join(filenames)
             detail = f'{_PATH}{path}\n\n{filenames_str}'
 
