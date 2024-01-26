@@ -24,6 +24,7 @@ from .text_annotation import TextAnnotationDialog, SHAPES_DEF, Y_POSITION_MODE
 from .waveform_control import WaveformControlWidget
 from .waveform_source_widget import WaveformSourceWidget
 from .interval_widget import IntervalWidget
+from .y_range_widget import YRangeWidget
 from joulescope_ui.time_map import TimeMap
 from joulescope_ui.intel_graphics_dialog import intel_graphics_dialog
 import pyjls
@@ -2913,6 +2914,14 @@ class WaveformWidget(QtWidgets.QWidget):
         plot['range_mode'] = value
         self._repaint_request = True
 
+    def _on_menu_y_range_exact(self, idx, y_range, range_mode_manual=None):
+        if range_mode_manual is not None:
+            range_mode_manual.setChecked(True)
+        plot = self.state['plots'][idx]
+        plot['range_mode'] = 'manual'
+        plot['range'] = y_range
+        self._repaint_request = True
+
     def _menu_y_axis(self, idx, event: QtGui.QMouseEvent):
         self._log.info('_menu_y_axis(%s, %s)', idx, event.pos())
         menu = QtWidgets.QMenu('Waveform y-axis context menu', self)
@@ -2923,15 +2932,26 @@ class WaveformWidget(QtWidgets.QWidget):
             range_mode = menu.addMenu(N_('Range'))
             range_group = QtGui.QActionGroup(range_mode)
             range_group.setExclusive(True)
+
             range_mode_auto = QtGui.QAction(N_('Auto'), range_group, checkable=True)
             range_mode_auto.setChecked(plot['range_mode'] == 'auto')
             range_mode.addAction(range_mode_auto)
             range_mode_auto.triggered.connect(lambda checked=False: self._on_menu_y_range_mode(idx, 'auto'))
+
             range_mode_manual = QtGui.QAction(N_('Manual'), range_group, checkable=True)
             range_mode_manual.setChecked(plot['range_mode'] == 'manual')
             range_mode.addAction(range_mode_manual)
             range_mode_manual.triggered.connect(lambda checked=False: self._on_menu_y_range_mode(idx, 'manual'))
-            range_menu = [range_mode, range_group, range_mode_auto, range_mode_manual]
+
+            range_mode_exact_menu = range_mode.addMenu(N_('Exact'))
+            range_widget = YRangeWidget(self, plot['range'], plot['units'])
+            range_widget.value.connect(lambda y_range: self._on_menu_y_range_exact(idx, y_range, range_mode_manual))
+            range_action = QtWidgets.QWidgetAction(range_mode_exact_menu)
+            range_action.setDefaultWidget(range_widget)
+            range_mode_exact_menu.addAction(range_action)
+
+            range_menu = [range_mode, range_group, range_mode_auto, range_mode_manual,
+                          range_mode_exact_menu, range_action, range_widget]
         else:
             range_menu = []
 
