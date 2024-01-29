@@ -14,6 +14,7 @@
 
 
 from PySide6 import QtCore, QtGui, QtWidgets
+from .unique_strings_widget import UniqueStringsWidget
 from joulescope_ui import pubsub_singleton, N_, register_decorator, \
     get_instance, get_unique_id, get_topic_name, Metadata, tooltip_format
 from joulescope_ui.ui_util import comboBoxConfig, comboBoxSelectItemByText
@@ -122,7 +123,9 @@ class SettingsEditorWidget(_GridWidget):
         self._grid.addWidget(label, self._row, 0, 1, 1)
         self._widgets.append(label)
         w = None
-        if meta.options is not None and len(meta.options):
+        if meta.dtype == 'unique_strings':
+            w = self._insert_unique_strings(settings_topic, meta)
+        elif meta.options is not None and len(meta.options):
             w = self._insert_combobox(settings_topic, meta)
         elif meta.dtype == 'bool':
             w = self._insert_bool(settings_topic)
@@ -190,6 +193,18 @@ class SettingsEditorWidget(_GridWidget):
 
         self._subscribe(topic, handle)
         return widget
+
+    def _insert_unique_strings(self, topic, meta):
+        w = UniqueStringsWidget(self, meta.options)
+        self._grid.addWidget(w, self._row, 1, 1, 1)
+        self._widgets.append(w)
+        w.changed.connect(lambda v: pubsub_singleton.publish(topic, v))
+
+        def handle(v):
+            w.value = v
+
+        self._subscribe(topic, handle)
+        return w
 
 
 class ColorEditorWidget(_GridWidget):

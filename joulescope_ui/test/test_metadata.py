@@ -162,6 +162,23 @@ class TestMetadata(unittest.TestCase):
         m = Metadata('int', brief='My int', default=42)
         self.assertEqual(42, m.default)
 
+    def test_unique_strings(self):
+        m = Metadata('unique_strings',
+                     brief='My unique strings list',
+                     default=['a', 'b'],
+                     options=[
+                         ['a', 'alpha'],
+                         ['b', 'beta', 'butter'],
+                         ['c', 'charlie'],
+                     ])
+        self.assertEqual(['a', 'b'], m.default)
+        self.assertEqual(['a', 'c'], m.validate(['alpha', 'charlie']))
+        self.assertEqual(['b'], m.validate(['butter']))
+        with self.assertRaises(ValueError):
+            m.validate(['d'])
+        with self.assertRaises(ValueError):
+            m.validate(['beta', 'butter'])
+
     def test_to_map(self):
         m = Metadata(
             'int',

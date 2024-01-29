@@ -25,6 +25,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added preferred units to Waveform widget i, v, p plots  #248
 * Added time format options to CSV statistics recording  #231
 * Added option to set exact plot y-axis range in Waveform widget  #126
+* Added support for Waveform widget precision and quantity selection  #130
 
 
 ## 1.0.48

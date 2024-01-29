@@ -81,6 +81,10 @@ def _validate_node(x):
     raise ValueError(f'validate node cannot assign value: {x}')
 
 
+def _validate_unique_strings(x):
+    return [_validate_str(z) for z in x]
+
+
 _INT_RANGE = {
     'u8': (0, 2 ** 8),
     'u16': (0, 2 ** 16),
@@ -115,6 +119,7 @@ _VALIDATORS = {
     'color': _validate_color,
     'none': _validate_none,
     'node': _validate_node,
+    'unique_strings': _validate_unique_strings,
 }
 
 
@@ -142,6 +147,9 @@ class Metadata:
             * color
             * none (used for events without values)
             * node (hierarchical node only, publish not allowed)
+            * unique_strings: A ordered list of unique strings.
+              If options is given, the list contents are constrained to the
+              options elements.
         :param brief: (required) The brief description for this topic (required).
         :param detail: (recommended) The detailed description for this topic (recommended).
         :param default: (optional) The default initial value for the topic.
@@ -242,10 +250,17 @@ class Metadata:
         """
         if self.options is not None:
             try:
-                value = self._options_map[value]
+                if self.dtype == 'unique_strings':
+                    value = [self._options_map[v] for v in value]
+                else:
+                    value = self._options_map[value]
             except KeyError:
                 raise ValueError(f'value {value} not in options')
         value = self._validate_fn(value)
+        if self.dtype == 'unique_strings':
+            d = dict([v, None] for v in value)
+            if len(d) != len(value):
+                raise ValueError(f'value {value} contains duplicates')
         if self.range is not None:
             x_min, x_max, x_step = self.range
             if not x_min <= value <= x_max:

@@ -19,6 +19,8 @@ from joulescope_ui.shortcuts import Shortcuts
 from joulescope_ui.styles import styled_widget, color_as_qcolor, color_as_string, font_as_qfont
 from joulescope_ui.widget_tools import settings_action_create
 from joulescope_ui.exporter import TO_JLS_SIGNAL_NAME
+from .quantities import X_QUANTITY_OPTIONS, PRECISION_OPTIONS, quantities_format
+from .quantities import si_format as quantities_si_format
 from .line_segments import PointsF
 from .text_annotation import TextAnnotationDialog, SHAPES_DEF, Y_POSITION_MODE
 from .waveform_control import WaveformControlWidget
@@ -125,48 +127,13 @@ _STATE_DEFAULT = {
 
 
 _QUANTITIES = [[p['quantity'], p['name']] for p in _STATE_DEFAULT['plots']]
+_QUANTITIES_TO_NAME = dict([[p['quantity'], p['name']] for p in _STATE_DEFAULT['plots']])
+_NAME_TO_QUANTITIES = dict([[p['name'], p['quantity']] for p in _STATE_DEFAULT['plots']])
 
 
-def _si_format(values, units, prefix_preferred=None):
-    results = []
-    if units is None:
-        units = ''
-    is_array = hasattr(values, '__len__')
-    if not is_array:
-        values = [values]
-    if len(values):
-        values = np.array(values)
-        max_value = float(np.max(np.abs(values)))
-        _, prefix, scale = unit_prefix(max_value)
-        if prefix_preferred not in [None, 'auto']:
-            p_scale = prefix_to_scale(prefix_preferred)
-            if 0.00001 <= (max_value / p_scale) < 1_000_000:
-                prefix, scale = prefix_preferred, p_scale
-
-        scale = 1.0 / scale
-        if len(units) or len(prefix):
-            units_suffix = f' {prefix}{units}'
-        else:
-            units_suffix = ''
-        for v in values:
-            v *= scale
-            if abs(v) < 0.000005:  # minimum display resolution
-                v = 0
-            v_str = ('%+6f' % v)[:8]
-            results.append(f'{v_str}{units_suffix}')
-    return results if is_array else results[0]
-
-
-def _statistics_format(labels, values, units, prefix_preferred=None):
-    values_txt = _si_format(values, units, prefix_preferred)
-    r = []
-    for label, value_txt in zip(labels, values_txt):
-        v = value_txt.split(' ')
-        if len(v) == 1:
-            r.append((label, v[0], ''))
-        else:
-            r.append((label, v[0], v[1]))
-    return r
+def _si_format(value, units, prefix_preferred=None, precision=None):
+    value_strs, units = quantities_si_format([value], units, prefix_preferred, precision)
+    return value_strs[0] + ' ' + units
 
 
 def _marker_action_string_to_command(value):
@@ -455,6 +422,18 @@ class WaveformWidget(QtWidgets.QWidget):
             'dtype': 'bool',
             'brief': N_('Show the plot statistics on the right.'),
             'default': True,
+        },
+        'quantities': {
+            'dtype': 'unique_strings',
+            'brief': N_('The quantities to display by default.'),
+            'default': [option[0] for option in X_QUANTITY_OPTIONS],
+            'options': X_QUANTITY_OPTIONS,
+        },
+        'precision': {
+            'dtype': 'int',
+            'brief': N_('The precision to display in digits.'),
+            'default': 6,
+            'options': PRECISION_OPTIONS,
         },
         'opengl': {
             'dtype': 'bool',
@@ -1673,7 +1652,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
         if self.show_statistics:
             x_stats = self._x_geometry_info['statistics'][1]
-            dt_str = _si_format(x_duration_s, 's')
+            dt_str = _si_format(x_duration_s, 's', precision=self.precision)
             p.drawText(x_stats + _MARGIN, y_text, f'Δt={dt_str[1:]}')
 
         if x_grid is None:
@@ -1854,16 +1833,16 @@ class WaveformWidget(QtWidgets.QWidget):
             p.setPen(pen)
             p.drawLine(x0, p1, x1, p1)
             p.setPen(s['text_pen'])
-            t = _si_format(m['pos1'], plot['units'])
+            t = _si_format(m['pos1'], plot['units'], precision=self.precision)
 
             if m['dtype'] == 'dual':
-                dy = _si_format(m['pos2'] - m['pos1'], plot['units'])
+                dy = _si_format(m['pos2'] - m['pos1'], plot['units'], precision=self.precision)
                 self._draw_text(p, x0 + _MARGIN, p1 + _MARGIN, t + '  Δ=' + dy)
                 p.setPen(pen)
                 p2 = np.rint(self._y_value_to_pixel(plot, m['pos2']))
                 p.drawLine(x0, p2, x1, p2)
                 p.setPen(s['text_pen'])
-                t = _si_format(m['pos2'], plot['units'])
+                t = _si_format(m['pos2'], plot['units'], precision=self.precision)
                 self._draw_text(p, x0 + _MARGIN, p2 + _MARGIN, t + '  Δ=' + dy)
             else:
                 self._draw_text(p, x0 + _MARGIN, p1 + _MARGIN, t)
@@ -1989,7 +1968,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 p.drawLine(p1, ya, p1, y1)
                 p.drawLine(p2, ya, p2, y1)
                 dt = abs((m['pos1'] - m['pos2']) / time64.SECOND)
-                dt_str = _si_format(dt, 's')[1:]
+                dt_str = _si_format(dt, 's', precision=self.precision)[1:]
                 dt_str_r = font_metrics.boundingRect(dt_str)
                 dt_x = (p1 + p2 - dt_str_r.width()) // 2
                 q1, q2 = dt_x - margin, dt_x + dt_str_r.width() + margin
@@ -2011,14 +1990,18 @@ class WaveformWidget(QtWidgets.QWidget):
         :param text_pos: The text position which is one of [auto, right, left, off].
             None (default) is equivalent to auto.
         """
+        if not len(values):
+            return
         s = self._style
         if text_pos is None:
             text_pos = 'right'
         elif text_pos == 'off':
             return
+
         font_metrics = s['axis_font_metrics']
         field_width = s['statistics_name_size']
-        value_width = s['statistics_value_size']
+        value_width = max([font_metrics.boundingRect(v[1]).width() for v in values])
+        value_width += font_metrics.boundingRect('x').width()
         unit_width = s['statistics_unit_size']
         f_a = font_metrics.ascent()
         f_h = font_metrics.height()
@@ -2083,16 +2066,27 @@ class WaveformWidget(QtWidgets.QWidget):
             yh, y0, y1 = self._y_geometry_info[plot['y_region']]
             p.setClipRect(x0, y0, xw, yh)
 
-            if d['std'] is None:
-                labels = ['avg']
-                values = [v_avg]
-            else:
+            units, prefix_preferred = plot['units'], plot['prefix_preferred']
+            if d['std'] is not None:
                 v_std, v_min, v_max = d['std'][idx], d['min'][idx], d['max'][idx]
                 v_rms = np.sqrt(v_avg * v_avg + v_std * v_std)
-                labels = ['avg', 'std', 'rms', 'min', 'max', 'p2p']
-                values = [v_avg, v_std, v_rms, v_min, v_max, v_max - v_min]
-            values = _statistics_format(labels, values, plot['units'], plot['prefix_preferred'])
-            self._draw_statistics_text(p, (p0, y0), values, text_pos)
+                values = {
+                    'avg': (v_avg, units),
+                    'std': (v_std, units),
+                    'rms': (v_rms, units),
+                    'min': (v_min, units),
+                    'max': (v_max, units),
+                    'p2p': (v_max - v_min, units),
+                }
+            else:
+                values = {
+                    'avg': (v_avg, units),
+                }
+
+            quantities = m.get('quantities', self.quantities)
+            precision = self.precision
+            text = quantities_format(quantities, values, prefix_preferred=prefix_preferred, precision=precision)
+            self._draw_statistics_text(p, (p0, y0), text, text_pos)
         p.setClipping(False)
 
     def _draw_dual_marker_text(self, p, m, text_pos_key, text_pos_auto_default):
@@ -2117,23 +2111,32 @@ class WaveformWidget(QtWidgets.QWidget):
             v_avg = float(data['avg'][0])
             if not np.isfinite(v_avg):
                 continue
-            v_std = float(data['std'][0])
-            v_min = float(data['min'][0])
-            v_max = float(data['max'][0])
-            labels = ['avg', 'std', 'rms', 'min', 'max', 'p2p']
-            v_rms = np.sqrt(v_avg * v_avg + v_std * v_std)
-            values = [v_avg, v_std, v_rms, v_min, v_max, v_max - v_min]
-            values = _statistics_format(labels, values, plot['units'], plot['prefix_preferred'])
+            units, prefix_preferred = plot['units'], plot['prefix_preferred']
+            if data['std'] is None:
+                values = {'avg': (v_avg, units)}
+            else:
+                v_std = float(data['std'][0])
+                v_min = float(data['min'][0])
+                v_max = float(data['max'][0])
+                values = {
+                    'avg': (v_avg, units),
+                    'std': (v_std, units),
+                    'rms': (np.sqrt(v_avg * v_avg + v_std * v_std), units),
+                    'min': (v_min, units),
+                    'max': (v_max, units),
+                    'p2p': (v_max - v_min, units),
+                }
+                integral_units = plot.get('integral')
+                if integral_units is not None:
+                    integral_v, integral_units = convert_units(v_avg * dt, integral_units, self.units)
+                    values['integral'] = (integral_v, integral_units)
 
-            integral_units = plot.get('integral')
-            if integral_units is not None:
-                integral_v, integral_units = convert_units(v_avg * dt, integral_units, self.units)
-                integral_values = _statistics_format(['∫'], [integral_v], integral_units, None)
-                values.extend(integral_values)
-
+            quantities = m.get('quantities', self.quantities)
+            precision = self.precision
+            text = quantities_format(quantities, values, prefix_preferred=prefix_preferred, precision=precision)
             pos_field = text_pos_key.split('_')[-1]
             p0 = np.rint(self._x_map.time64_to_counter(m[pos_field]))
-            self._draw_statistics_text(p, (p0, y0), values, text_pos, text_pos_auto_default=text_pos_auto_default)
+            self._draw_statistics_text(p, (p0, y0), text, text_pos, text_pos_auto_default=text_pos_auto_default)
         p.setClipping(False)
 
     def _draw_fps(self, p):
@@ -2193,8 +2196,8 @@ class WaveformWidget(QtWidgets.QWidget):
         p.drawEllipse(x_pixels - dot_radius, y_pixels - dot_radius, dot_diameter, dot_diameter)
 
         p.setFont(s['axis_font'])
-        x_txt = _si_format([x_rel], 's')[0]
-        y_txt = _si_format([y], plot['units'])[0]
+        x_txt = _si_format(x_rel, 's', precision=self.precision)
+        y_txt = _si_format(y, plot['units'], precision=self.precision)
         font_metrics = s['axis_font_metrics']
         margin = 2
         f_h = font_metrics.height()
@@ -2256,18 +2259,27 @@ class WaveformWidget(QtWidgets.QWidget):
         else:
             y_max = np.max(data['max'][idx_sel])
         y_rms = np.sqrt(y_avg * y_avg + y_std * y_std)
-        q_names = ['avg', 'std', 'rms', 'min', 'max', 'p2p']
-        q_value = [y_avg, y_std, y_rms, y_min, y_max, y_max - y_min]
-        values = _statistics_format(q_names, q_value, plot['units'], plot['prefix_preferred'])
 
+        units, prefix_preferred = plot['units'], plot['prefix_preferred']
+        values = {
+            'avg': (y_avg, units),
+            'std': (y_std, units),
+            'rms': (y_rms, units),
+            'min': (y_min, units),
+            'max': (y_max, units),
+            'p2p': (y_max - y_min, units),
+        }
         dt = (z1 - z0) / time64.SECOND
         integral_units = plot.get('integral')
         if integral_units is not None:
             integral_v, integral_units = convert_units(y_avg * dt, integral_units, self.units)
-            integral_values = _statistics_format(['∫'], [integral_v], integral_units, None)
-            values.extend(integral_values)
+            values['integral'] = (integral_v, integral_units)
+
+        quantities = self.quantities
+        precision = self.precision
+        text = quantities_format(quantities, values, prefix_preferred=prefix_preferred, precision=precision)
         p.setClipRect(x0, y0, xd, yd)
-        self._draw_statistics_text(p, (x0, y0), values)
+        self._draw_statistics_text(p, (x0, y0), text)
         p.setClipping(False)
 
     def _annotation_next_id(self, annotation_type: str, plot_index=None):
@@ -3267,6 +3279,10 @@ class WaveformWidget(QtWidgets.QWidget):
         m[other_pos] = m[pos_text] + int(interval * time64.SECOND)
         m['changed'] = True
 
+    def _on_x_marker_quantities_changed(self, m, x):
+        m['quantities'] = x
+        self._repaint_request = True
+
     def _menu_x_marker_single(self, item, event: QtGui.QMouseEvent):
         m, pos_text = self._item_parse_x_marker(item)
         dynamic_items = []
@@ -3334,7 +3350,8 @@ class WaveformWidget(QtWidgets.QWidget):
 
         marker_remove = menu.addAction(N_('Remove'))
         topic = get_topic_name(self)
-        marker_remove.triggered.connect(lambda checked=False: self.pubsub.publish(f'{topic}/actions/!x_markers', ['remove', m['id']]))
+        marker_remove.triggered.connect(lambda checked=False: self.pubsub.publish(f'{topic}/actions/!x_markers',
+                                                                                  ['remove', m['id']]))
         self._menu = [menu, dynamic_items,
                       show_stats_menu, show_stats_group, auto, left, right, off,
                       marker_remove]
@@ -3475,7 +3492,7 @@ class WaveformWidget(QtWidgets.QWidget):
         return xi_init  # give up
 
     def _x_marker_add(self, marker):
-        self._log.info('x_marker_add %s', marker)
+        self._log.info('x_marker_add %s', marker['id'])
         self.annotations['x'][marker['id']] = marker
         return marker
 
