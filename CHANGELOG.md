@@ -18,6 +18,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Improved "developer" mode.
   * Renamed "debug" mode to "developer" mode.
   * Automatically close developer widgets on setting disable.
+  * Added Publish Spy Widget.
 * Added WindowStaysOnTopHint to HelpHtmlMessageBox  #245
 * Modified Export all data to work when streaming  #246
 * Added zoom to dual markers in Waveform widget  #243

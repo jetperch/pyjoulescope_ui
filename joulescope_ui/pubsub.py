@@ -395,7 +395,7 @@ class PubSub:
         self._thread_id = threading.get_native_id()
         meta = Metadata(dtype='node', brief='root topic')
         self._root = _Topic(None, '', meta)
-        self._topic_by_name: dict[str, _Topic] = {}
+        self._topic_by_name: dict[str, _Topic] = {'': self._root}
         self._lock = threading.RLock()
         self._queue: list[_Command] = []
         self.undos: list[_Command] = []

@@ -18,6 +18,7 @@ from .draggable_list_widget import DraggableListWidget
 from .accumulator import AccumulatorWidget
 from .device_control import DeviceControlWidget
 from .debug import DebugWidget
+from .publish_spy import PublishSpyWidget
 # from .example import ExampleWidget
 from .memory import MemoryWidget
 from .hamburger import HamburgerWidget

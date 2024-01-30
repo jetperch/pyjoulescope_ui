@@ -61,6 +61,7 @@ _UI_WINDOW_TITLE = 'Joulescope'
 _JLS_WINDOW_TITLE = 'Joulescope file viewer'
 _DEVELOPER_WIDGETS = [
     DebugWidget,
+    PublishSpyWidget,
 ]
 
 
