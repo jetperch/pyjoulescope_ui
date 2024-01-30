@@ -35,8 +35,9 @@ drivers from
 <p>If you observe strange graphics hangs with the latest Intel driver as shown in 
 <a href="https://github.com/jetperch/pyjoulescope_ui/issues/216">issue #216</a>,
 then you can switch to the software OpenGL renderer.
-The software OpenGL renderer is more stable, but it runs slower
-possibly causing performance issues.  On a small number of computers,
+The software OpenGL renderer may work around Intel driver instabilities, 
+but it runs slower possibly causing performance issues.
+On a small number of computers,
 it does not run correctly causing a white application screen.
 You will need to close and reopen this application for the change
 to take effect.</p>
