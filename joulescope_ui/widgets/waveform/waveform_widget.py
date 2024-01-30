@@ -423,6 +423,11 @@ class WaveformWidget(QtWidgets.QWidget):
             'brief': N_('Show the plot statistics on the right.'),
             'default': True,
         },
+        'show_frequency': {
+            'dtype': 'bool',
+            'brief': N_('Show frequency for dual markers and statistics.'),
+            'default': False,
+        },
         'quantities': {
             'dtype': 'unique_strings',
             'brief': N_('The quantities to display by default.'),
@@ -1208,9 +1213,8 @@ class WaveformWidget(QtWidgets.QWidget):
         y_tick_size = axis_font_metrics.boundingRect('888.888')
 
         statistics_name_size = axis_font_metrics.boundingRect('maxx').width()
-        statistics_value_size = axis_font_metrics.boundingRect('+888.888x').width()
+        statistics_value_size = 0
         statistics_unit_size = axis_font_metrics.boundingRect('mWh').width()
-        statistics_size = _MARGIN * 2 + statistics_name_size + statistics_value_size + statistics_unit_size
 
         trace_alpha = int(v['waveform.trace_alpha'], 0)
         min_max_trace_alpha = int(v['waveform.min_max_trace_alpha'], 0)
@@ -1289,7 +1293,7 @@ class WaveformWidget(QtWidgets.QWidget):
             'statistics_name_size': statistics_name_size,
             'statistics_value_size': statistics_value_size,
             'statistics_unit_size': statistics_unit_size,
-            'statistics_size': statistics_size,
+            'statistics_size': 0,
         }
 
         for k in range(1, 7):
@@ -1307,6 +1311,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._style_cache['waveform.annotation_font'] = annotation_font
         self._style_cache['waveform.annotation_font_metrics'] = QtGui.QFontMetrics(annotation_font)
         self.on_setting_trace_width(self.trace_width)
+        self._invalidate_geometry()
         return self._style_cache
 
     def on_setting_trace_width(self, value):
@@ -1445,9 +1450,10 @@ class WaveformWidget(QtWidgets.QWidget):
             widget_w, widget_h = size
 
         margin = self._margin
+        axis_font_metrics = s['axis_font_metrics']
         left_width = s['plot_label_size'].width() + margin + s['y_tick_size'].width() + margin
         if self.show_statistics:
-            right_width = margin + s['statistics_size']
+            right_width = s['statistics_size']
         else:
             right_width = 0
         plot_width = widget_w - left_width - right_width - 2 * margin
@@ -1457,7 +1463,7 @@ class WaveformWidget(QtWidgets.QWidget):
             [margin, 'margin.top'],
             [50, 'summary'],
             [y_inner_spacing, 'spacer.ignore.summary'],
-            [s['plot_label_size'].height() * 3, 'x_axis'],
+            [3 * axis_font_metrics.height() + 3 * margin, 'x_axis'],
             [y_inner_spacing, 'spacer.ignore.x_axis'],
         ]
         plot_first = True
@@ -1482,6 +1488,16 @@ class WaveformWidget(QtWidgets.QWidget):
 
         self._x_geometry_info = _target_from_list(x_geometry)
         self._y_geometry_info = _target_from_list(y_geometry)
+
+    def _invalidate_geometry(self):
+        if self._style_cache is None:
+            return
+        s = self._style
+        axis_font_metrics = s['axis_font_metrics']
+        s['statistics_value_size'] = axis_font_metrics.boundingRect('+x.' + ('8' * self.precision)).width()
+        s['statistics_size'] = (_MARGIN * 2 + s['statistics_name_size'] +
+                                s['statistics_value_size'] + s['statistics_unit_size'])
+        self._compute_geometry()
 
     def _plot_paint(self, p, size):
         """Paint the plot.
@@ -1636,7 +1652,13 @@ class WaveformWidget(QtWidgets.QWidget):
         plot_width, plot_x0, plot_x1, = self._x_geometry_info['plot']
         _, y_end, _, = self._y_geometry_info['margin.bottom']
 
-        y = x_axis_y0 + 2 * s['plot_label_size'].height()
+        label_h = s['axis_font_metrics'].height()
+        label_a = s['axis_font_metrics'].ascent()
+        y = x_axis_y0 + 3 * label_h + 3 * self._margin
+        # y0_text = y - 3 * label_h - 2 * self._margin + label_a
+        y1_text = y - 2 * label_h - self._margin + label_a
+        y2_text = y - 1 * label_h + label_a
+
         major_count_max = plot_width / s['x_tick_width_pixels_min']
         x_range64 = self.x_range
         x_duration_s = (x_range64[1] - x_range64[0]) / time64.SECOND
@@ -1648,25 +1670,26 @@ class WaveformWidget(QtWidgets.QWidget):
         self._x_map.update(left_x1, x_range64[0], x_gain)
         self._x_map.trel_offset = x_grid['offset']
 
-        y_text = y + font_metrics.ascent()
-
         if self.show_statistics:
             x_stats = self._x_geometry_info['statistics'][1]
             dt_str = _si_format(x_duration_s, 's', precision=self.precision)
-            p.drawText(x_stats + _MARGIN, y_text, f'Δt={dt_str[1:]}')
+            p.drawText(x_stats + _MARGIN, y2_text, f'Δt={dt_str[1:]}')
+            if x_duration_s > 0 and self.show_frequency:
+                f_str = _si_format(1.0 / x_duration_s, 'Hz', precision=self.precision)
+                p.drawText(x_stats + _MARGIN, y1_text, f'F={f_str[1:]}')
 
         if x_grid is None:
             pass
         else:
-            p.drawText(left_x0, x_axis_y0 + s['plot_label_size'].height() + font_metrics.ascent(), x_grid['offset_str'])
-            p.drawText(left_x0, y_text, x_grid['units'])
+            p.drawText(left_x0, y1_text, x_grid['offset_str'])
+            p.drawText(left_x0, y2_text, x_grid['units'])
             for idx, x in enumerate(self._x_map.trel_to_counter(x_grid['major'])):
                 p.setPen(s['text_pen'])
                 x_str = x_grid['labels'][idx]
                 x_start = x + _MARGIN
                 x_end = x_start + font_metrics.boundingRect(x_str).width() + _MARGIN
                 if x_end <= plot_x1:
-                    p.drawText(x_start, y_text, x_str)
+                    p.drawText(x_start, y2_text, x_str)
                 p.setPen(s['grid_major_pen'])
                 p.drawLine(x, y, x, y_end)
 
@@ -1861,11 +1884,12 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _draw_markers_background(self, p):
         s = self._style
-        h, y0, _ = self._y_geometry_info['x_axis']
+        _, y0, _ = self._y_geometry_info['x_axis']
         _, y1, _ = self._y_geometry_info['margin.bottom']
         xw, x0, x1 = self._x_geometry_info['plot']
         font_metrics = s['axis_font_metrics']
-        ya = y0 + _MARGIN + font_metrics.ascent()
+        yh = font_metrics.height()
+        ya = y0 + 2 * self._margin + yh
 
         p.setClipRect(x0, y0, xw, y1 - y0)
         for m in self.annotations['x'].values():
@@ -1881,7 +1905,8 @@ class WaveformWidget(QtWidgets.QWidget):
             p.setPen(self._NO_PEN)
             p.setBrush(bg)
             pd = p2 - p1
-            p.drawRect(p1, ya, pd, y1 - ya)
+            yf = ya + yh if self.show_frequency else ya
+            p.drawRect(p1, yf, pd, y1 - yf)
         p.setClipping(False)
 
     def _x_markers_filter(self, x_range):
@@ -1926,60 +1951,74 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _draw_markers(self, p, size):
         s = self._style
-        h, y0, _ = self._y_geometry_info['x_axis']
+        _, y0, _ = self._y_geometry_info['x_axis']
         _, y1, _ = self._y_geometry_info['margin.bottom']
         xw, x0, x1 = self._x_geometry_info['plot']
         font_metrics = s['axis_font_metrics']
-        h = font_metrics.height()
+        f_h = font_metrics.height()
         f_a = font_metrics.ascent()
         margin, margin2 = _MARGIN, _MARGIN * 2
-        ya = y0 + margin + f_a
+        ya = y0 + margin2 + f_h
 
         for idx, m in enumerate(self.annotations['x'].values()):
             color_index = self._marker_color_index(m)
             pos1 = m['pos1']
-            w = h // 2
-            he = h // 3
+            w = f_h // 2
+            he = f_h // 3
             pen = s[f'marker{color_index}_pen']
             fg = s[f'marker{color_index}_fg']
             bg = s[f'marker{color_index}_bg']
             p.setPen(self._NO_PEN)
             p.setBrush(fg)
             p1 = np.rint(self._x_map.time64_to_counter(pos1))
-            yl = y0 + h + he
+            yl = y0 + f_h + he
             if m.get('flag') is None:
                 m['flag'] = PointsF()
             if m['dtype'] == 'single':
                 pl = p1 - w
                 pr = p1 + w
-                segs = self._points.set_line([pl, pl, p1, pr, pr], [y0, y0 + h, yl, y0 + h, y0])
+                segs = self._points.set_line([pl, pl, p1, pr, pr], [y0, y0 + f_h, yl, y0 + f_h, y0])
                 p.setClipRect(x0, y0, xw, y1 - y0)
                 p.drawPolygon(segs)
                 p.setPen(pen)
-                p.drawLine(p1, y0 + h + he, p1, y1)
+                p.drawLine(p1, y0 + f_h + he, p1, y1)
                 self._draw_single_marker_text(p, m, pos1)
             else:
                 p2 = np.rint(self._x_map.time64_to_counter(m['pos2']))
                 if p2 < p1:
                     p1, p2 = p2, p1
-
+                dt = abs((m['pos1'] - m['pos2']) / time64.SECOND)
+                dt_str = _si_format(dt, 's', precision=self.precision)[1:]
+                dt_w = font_metrics.boundingRect(dt_str).width()
+                f_str, f_w = '', 0
+                fill_h = f_h + margin2
+                if self.show_frequency:
+                    if dt > 0:
+                        f_str = _si_format(1.0 / dt, 'Hz', precision=self.precision)[1:]
+                        f_w = font_metrics.boundingRect(f_str).width()
+                    fill_h += f_h
+                    ya += f_h
+                w = max(dt_w, f_w)
                 p.setClipRect(x0, y0, xw, y1 - y0)
                 p.setPen(pen)
                 p.drawLine(p1, ya, p1, y1)
                 p.drawLine(p2, ya, p2, y1)
-                dt = abs((m['pos1'] - m['pos2']) / time64.SECOND)
-                dt_str = _si_format(dt, 's', precision=self.precision)[1:]
-                dt_str_r = font_metrics.boundingRect(dt_str)
-                dt_x = (p1 + p2 - dt_str_r.width()) // 2
-                q1, q2 = dt_x - margin, dt_x + dt_str_r.width() + margin
+                dt_x = (p1 + p2 - w) // 2
+                q1, q2 = dt_x - margin, dt_x + w + margin
                 q1, q2 = min(p1, q1), max(p2, q2)
                 p.setPen(s['text_pen'])
-                p.fillRect(q1, y0, q2 - q1, f_a + margin2, p.brush())
+                p.fillRect(q1, y0, q2 - q1, fill_h, p.brush())
                 p.drawText(dt_x, y0 + margin + f_a, dt_str)
+                if self.show_frequency and dt > 0:
+                    f_x = (p1 + p2 - f_w) // 2
+                    p.drawText(f_x, y0 + margin + f_a + f_h, f_str)
                 txp = ['left', 'right'] if m['pos1'] < m['pos2'] else ['right', 'left']
                 self._draw_dual_marker_text(p, m, 'text_pos1', txp[0])
                 self._draw_dual_marker_text(p, m, 'text_pos2', txp[1])
         p.setClipping(False)
+
+    def on_setting_precision(self):
+        self._invalidate_geometry()
 
     def _draw_statistics_text(self, p: QtGui.QPainter, pos, values, text_pos=None, text_pos_auto_default=None):
         """Draw statistics text.
@@ -2000,8 +2039,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
         font_metrics = s['axis_font_metrics']
         field_width = s['statistics_name_size']
-        value_width = max([font_metrics.boundingRect(v[1]).width() for v in values])
-        value_width += font_metrics.boundingRect('x').width()
+        value_width = s['statistics_value_size']
         unit_width = s['statistics_unit_size']
         f_a = font_metrics.ascent()
         f_h = font_metrics.height()
