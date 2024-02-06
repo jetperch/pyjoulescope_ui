@@ -64,18 +64,16 @@ class RecordStatusWidget(QtWidgets.QWidget):
         pubsub_singleton.subscribe('registry/ui/events/blink_fast', self._on_tick, ['pub'])
 
     def _on_start(self, value):
-        sources = value['sources']
-        try:
-            path = sources['path']
-            filename = os.path.basename(path)
-            path = os.path.dirname(path)
-            detail = f'{_PATH}{path}\n\n{_FILENAME}{filename}'
-        except TypeError:
-            path = os.path.dirname(sources[0][-1])
-            filenames = [os.path.basename(x[-1]) for x in sources]
-            filenames_str = '\n'.join(filenames)
-            detail = f'{_PATH}{path}\n\n{filenames_str}'
-
+        if 'path' in value:
+            # JLS sample recording from SignalRecordConfigWidget
+            path = os.path.dirname(value['path'])
+            sources = [value['path']]
+        else:  # statistics recording from StatisticsRecordConfigWidget
+            sources = [s[-1] for s in value['sources']]
+            path = os.path.dirname(sources[0])
+        filenames = [os.path.basename(s) for s in sources]
+        filenames_str = '\n'.join(filenames)
+        detail = f'{_PATH}{path}\n\n{filenames_str}'
         self._time = time.time()
         self.setToolTip(tooltip_format(self._brief, detail))
         self.setVisible(True)
