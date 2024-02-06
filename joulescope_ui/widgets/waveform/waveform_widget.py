@@ -1497,7 +1497,6 @@ class WaveformWidget(QtWidgets.QWidget):
         s['statistics_value_size'] = axis_font_metrics.boundingRect('+x.' + ('8' * self.precision)).width()
         s['statistics_size'] = (_MARGIN * 2 + s['statistics_name_size'] +
                                 s['statistics_value_size'] + s['statistics_unit_size'])
-        self._compute_geometry()
 
     def _plot_paint(self, p, size):
         """Paint the plot.
