@@ -26,8 +26,8 @@ from joulescope_ui import N_, pubsub_singleton
 
 
 # https://www.regular-expressions.info/floatingpoint.html
-#RE_IS_NUMBER = re.compile('^([-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+))')
-RE_IS_NUMBER = re.compile('^\s*([-+]?[0-9]*\.?[0-9]+)\s*(.*)')
+#RE_IS_NUMBER = re.compile(r'^([-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+))')
+RE_IS_NUMBER = re.compile(r'^\s*([-+]?[0-9]*\.?[0-9]+)\s*(.*)')
 UNITS_SETTING = {
     'dtype': 'str',
     'brief': N_('The units to display.'),

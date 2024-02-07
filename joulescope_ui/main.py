@@ -1,4 +1,4 @@
-# Copyright 2018-2023 Jetperch LLC
+# Copyright 2018-2024 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,11 +23,13 @@ from joulescope_ui.shortcuts import Shortcuts
 from joulescope_ui.widgets import *   # registers all built-in widgets
 from joulescope_ui import logging_util
 from joulescope_ui.reporter import create as reporter_create
+from joulescope_ui.safe_mode import safe_mode_dialog
 from joulescope_ui.styles.manager import style_settings
 from joulescope_ui.process_monitor import ProcessMonitor
 from joulescope_ui import software_update
 from joulescope_ui.ui_util import show_in_folder
 from joulescope_ui import urls
+from joulescope_ui.shift_key import is_shift_pressed
 from joulescope_ui.dev_signal_buffer_source import DevSignalBufferSource
 from PySide6 import QtCore, QtGui, QtWidgets
 import PySide6QtAds as QtAds
@@ -55,6 +57,7 @@ import webbrowser
 
 
 _software_update = None
+_config_save = True
 _config_clear = None
 _log = logging.getLogger(__name__)
 _UI_WINDOW_TITLE = 'Joulescope'
@@ -167,7 +170,7 @@ def _device_factory_add():
 
 def _device_factory_finalize():
     _log.info('_device_factory_finalize enter')
-    factories = pubsub_singleton.query(f'registry_manager/capabilities/{CAPABILITIES.DEVICE_FACTORY}/list')
+    factories = pubsub_singleton.query(f'registry_manager/capabilities/{CAPABILITIES.DEVICE_FACTORY}/list', default=[])
     for factory in factories:
         _log.info('_device_factory_finalize %s', factory)
         topic = f'registry/{factory}/actions/!finalize'
@@ -672,21 +675,39 @@ class MainWindow(QtWidgets.QMainWindow):
         self._log.info('closeEvent() done')
 
     def on_action_close(self, value):
-        global _software_update, _config_clear
+        global _software_update, _config_save, _config_clear
         if isinstance(value, dict):
             _software_update = value.get('software_update')
             _config_clear = value.get('config_clear')
+            if _config_clear:
+                _config_save = False
         # call self.close() on the Qt Event loop later
         QtCore.QMetaObject.invokeMethod(self, 'close', QtCore.Qt.ConnectionType.QueuedConnection)
 
 
 def _finalize():
+    if _config_save:
+        try:
+            _log.info('finalize: config save')
+            pubsub_singleton.save()
+        except Exception:
+            _log.error('Configuration save failed')
+
     if _config_clear:
-        _log.info('finalize: config clear')
-        path = pubsub_singleton.query('common/settings/paths/styles')
-        if len(path) and os.path.isdir(path):
-            shutil.rmtree(path, ignore_errors=True)
-        pubsub_singleton.config_clear()
+        try:
+            _log.info('finalize: config clear')
+            topics = [
+                'common/settings/paths/styles',
+                'common/settings/paths/reporter',
+                'common/settings/paths/update',
+            ]
+            for topic in topics:
+                path = pubsub_singleton.query(topic, default='')
+                if len(path) and os.path.isdir(path):
+                    shutil.rmtree(path, ignore_errors=True)
+                pubsub_singleton.config_clear()
+        except Exception:
+            _log.error('Configuration clear failed')
 
 
 def _opengl_config(renderer):
@@ -711,7 +732,7 @@ def _opengl_config(renderer):
         QtGui.QSurfaceFormat.setDefaultFormat(fmt)
 
 
-def run(log_level=None, file_log_level=None, filename=None):
+def run(log_level=None, file_log_level=None, filename=None, safe_mode=False):
     """Run the Joulescope UI application.
 
     :param log_level: The logging level for the stdout console stream log.
@@ -721,11 +742,14 @@ def run(log_level=None, file_log_level=None, filename=None):
         The allowed levels are in :data:`joulescope_ui.logging_util.LEVELS`.
         None (default) uses the configuration value.
     :param filename: The optional filename to display immediately.
+    :param safe_mode: When True, start in safe mode.
 
     :return: 0 on success or error code on failure.
     """
+    global _software_update, _config_save, _config_clear
     app = None
     ui = None
+    rc = 1
     try:
         logging_util.preconfig()
         pubsub_singleton.register(HelpHtmlMessageBox, 'help_html')
@@ -738,41 +762,57 @@ def run(log_level=None, file_log_level=None, filename=None):
         if filename is not None:
             pubsub_singleton.config_filename = 'joulescope_ui_file_config.json'
         is_config_load = False
-        try:
-            is_config_load = pubsub_singleton.load()
-        except Exception:
-            _log.exception('pubsub load failed')
+        safe_mode = is_shift_pressed() or bool(safe_mode)
+        if safe_mode:
+            _log.info('Safe mode selected')
+        else:
+            try:
+                is_config_load = pubsub_singleton.load()
+            except Exception:
+                _log.exception('pubsub load failed')
+            opengl_renderer = pubsub_singleton.query('registry/app/settings/opengl', default='desktop')
+            _opengl_config(opengl_renderer)
 
-        # Qt 6 defaults to HighDPI, the following settings are deprecated
-        # QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
-        # QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
-
-        opengl_renderer = pubsub_singleton.query('registry/app/settings/opengl', default='desktop')
-        _opengl_config(opengl_renderer)
         app = QtWidgets.QApplication([])
-        resources = load_resources()
-        fonts = load_fonts()
-        appnope.nope()
+        action_close = False
+        if safe_mode:
+            safe_mode_config = safe_mode_dialog()
+            if safe_mode_config.get('configuration_load', False):
+                try:
+                    is_config_load = pubsub_singleton.load()
+                except Exception:
+                    _log.exception('pubsub load failed')
+            _config_save = safe_mode_config.get('configuration_save', True)
+            _config_clear = safe_mode_config.get('configuration_clear', True)
+            if safe_mode_config['action'] == 'report_issue':
+                raise RuntimeError('Safe mode report issue')
+            elif safe_mode_config['action'] == 'close':
+                action_close = True
 
-        ui = MainWindow(filename=filename, is_config_load=is_config_load)
-        pubsub_singleton.notify_fn = ui.resync_request
         try:
-            _log.info('app.exec start')
-            rc = app.exec()
-            _log.info('app.exec done')
+            if not action_close:
+                resources = load_resources()
+                fonts = load_fonts()
+                appnope.nope()
+
+                ui = MainWindow(filename=filename, is_config_load=is_config_load)
+                pubsub_singleton.notify_fn = ui.resync_request
+                try:
+                    _log.info('app.exec start')
+                    rc = app.exec()
+                    _log.info('app.exec done')
+                finally:
+                    ui = None
+                    if filename is None:
+                        _device_factory_finalize()
         finally:
-            if filename is None:
-                _device_factory_finalize()
             _finalize()
-        ui = None
-        if not _config_clear:
-            pubsub_singleton.save()
 
         try:
             if _software_update is not None:
                 software_update.apply(_software_update)
         except Exception:
-            print('could not apply software update')
+            _log.error('could not apply software update')
 
     except Exception as ex:
         _log.exception('UI crash')

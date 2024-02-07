@@ -5,9 +5,9 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
-## 1.0.49
+## 1.0.50
 
-2024 Jan 30
+2024 Feb 7 [in progress]
 
 * Dropped Python 3.9 support as static methods are not callable until 3.10.
   See https://docs.python.org/3/whatsnew/3.10.html
@@ -29,6 +29,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added support for Waveform widget precision and quantity selection  #130
 * Added clock widget with support for local and UTC time.
 * Added path info the issue report index.
+* Added safe mode (Hold shift key at launch until window shows)  #250
 
 
 ## 1.0.48

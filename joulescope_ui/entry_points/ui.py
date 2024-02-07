@@ -36,6 +36,9 @@ def parser_config(p):
     p.add_argument('--profile',
                    choices=['cProfile', 'yappi'],
                    help='Profile the capture')
+    p.add_argument('--safe_mode', '-s',
+                   action='store_true',
+                   help='Start in safe mode for recovery')
     return on_cmd
 
 
@@ -43,7 +46,8 @@ def on_cmd(args):
     def local_run():
         run(log_level=args.console_log_level,
             file_log_level=args.file_log_level,
-            filename=args.filename)
+            filename=args.filename,
+            safe_mode=args.safe_mode)
     if args.profile is None:
         return local_run()
     elif args.profile == 'cProfile':
