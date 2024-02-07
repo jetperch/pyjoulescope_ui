@@ -28,6 +28,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added option to set exact plot y-axis range in Waveform widget  #126
 * Added support for Waveform widget precision and quantity selection  #130
 * Added clock widget with support for local and UTC time.
+* Added path info the issue report index.
 
 
 ## 1.0.48

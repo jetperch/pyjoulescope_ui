@@ -23,6 +23,7 @@ import pkgutil
 import platform
 import psutil
 import requests
+import shutil
 import sys
 import traceback
 import zipfile
@@ -31,8 +32,35 @@ import zipfile
 CONFIG_PATH = pubsub_singleton.query('common/settings/paths/config')
 LOG_PATH = pubsub_singleton.query('common/settings/paths/log')
 REPORTER_PATH = pubsub_singleton.query('common/settings/paths/reporter')
+DATA_PATH = pubsub_singleton.query('common/settings/paths/data')
 _API_URL = 'https://k9x78sjeqi.execute-api.us-east-1.amazonaws.com/uploads'
 _LOG_FILES_MAX = 10
+
+
+def _path_info(path):
+    try:
+        real_path = os.path.realpath(path)
+        disk_path = real_path
+    except Exception:
+        real_path = '__fail__'
+        disk_path = path
+
+    try:
+        drive = os.path.splitdrive(disk_path)[0]
+    except Exception:
+        drive = '__fail__'
+
+    try:
+        disk_free = shutil.disk_usage(disk_path).free
+    except Exception:
+        disk_free = '__fail__'
+
+    return {
+        'path': path,
+        'real_path': real_path,
+        'drive': drive,
+        'free': disk_free,
+    }
 
 
 def platform_info() -> dict:
@@ -77,6 +105,16 @@ def platform_info() -> dict:
     except Exception:
         # py-cpuinfo is slow and uses multiprocesssing (too complicated)
         pass  # no worries, only works on Windows
+
+    try:
+        rv['paths'] = {
+            'config': _path_info(CONFIG_PATH),
+            'log': _path_info(LOG_PATH),
+            'reporter': _path_info(REPORTER_PATH),
+            'data': _path_info(DATA_PATH),
+        }
+    except Exception:
+        pass
 
     return rv
 
