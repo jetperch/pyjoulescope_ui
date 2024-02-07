@@ -699,17 +699,16 @@ def _opengl_config(renderer):
     if renderer_qt is not None:
         _log.info('OpenGL render map: %s', renderer)
         QtCore.QCoreApplication.setAttribute(renderer_qt)
-    QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
-    QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
-    fmt = QtGui.QSurfaceFormat()
-    fmt.setDepthBufferSize(24)
-    fmt.setStencilBufferSize(8)
-    if renderer == 'software':
-        fmt.setVersion(2, 1)
-    else:
-        fmt.setVersion(3, 3)
-    fmt.setProfile(QtGui.QSurfaceFormat.OpenGLContextProfile.CoreProfile)
-    QtGui.QSurfaceFormat.setDefaultFormat(fmt)
+    if renderer != 'unspec':
+        fmt = QtGui.QSurfaceFormat()
+        fmt.setDepthBufferSize(24)
+        fmt.setStencilBufferSize(8)
+        if renderer == 'software':
+            fmt.setVersion(2, 1)
+        else:
+            fmt.setVersion(3, 3)
+        fmt.setProfile(QtGui.QSurfaceFormat.OpenGLContextProfile.CoreProfile)
+        QtGui.QSurfaceFormat.setDefaultFormat(fmt)
 
 
 def run(log_level=None, file_log_level=None, filename=None):
@@ -743,6 +742,10 @@ def run(log_level=None, file_log_level=None, filename=None):
             is_config_load = pubsub_singleton.load()
         except Exception:
             _log.exception('pubsub load failed')
+
+        # Qt 6 defaults to HighDPI, the following settings are deprecated
+        # QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+        # QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
 
         opengl_renderer = pubsub_singleton.query('registry/app/settings/opengl', default='desktop')
         _opengl_config(opengl_renderer)

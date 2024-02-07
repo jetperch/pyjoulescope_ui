@@ -187,6 +187,7 @@ SETTINGS = {
             ['angle', 'ANGLE'],
             ['software', N_('software')],
             ['dynamic', N_('Autodetect')],
+            ['unspec', N_('Not specified')],
         ],
         'default': 'desktop',
     },
