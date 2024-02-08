@@ -146,12 +146,12 @@ class View:
             for child in children:
                 view.on_action_widget_open(child)
         View._active_instance = view
-        ads_state = pubsub_singleton.query(f'{topic}/settings/ads_state', default='')
-        if ads_state is not None and len(ads_state):
-            View._dock_manager.restoreState(QtCore.QByteArray(ads_state.encode('utf-8')))
         geometry = pubsub_singleton.query(f'{topic}/settings/geometry', default=None)
         if ui is not None and geometry is not None:
             ui.restoreGeometry(geometry)
+        ads_state = pubsub_singleton.query(f'{topic}/settings/ads_state', default='')
+        if ads_state is not None and len(ads_state):
+            View._dock_manager.restoreState(QtCore.QByteArray(ads_state.encode('utf-8')))
         pubsub_singleton.publish(style_enable_topic, True)
         view._render()
         _log.info('active view %s: setup done', view.unique_id)

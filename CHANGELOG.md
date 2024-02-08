@@ -30,6 +30,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added clock widget with support for local and UTC time.
 * Added path info the issue report index.
 * Added safe mode (Hold shift key at launch until window shows)  #250
+* Modified view activate to restore geometry before dock state.
 
 
 ## 1.0.48
