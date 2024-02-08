@@ -586,14 +586,16 @@ class PubSub:
         cmd = _Command(TOPIC_ADD_TOPIC, {'topic': topic, 'meta': meta, 'exists_ok': exists_ok}, is_core=True)
         return self._send(cmd)
 
-    def topic_remove(self, topic: str):
+    def topic_remove(self, topic: str, defer=None):
         """Remove a topic and all subtopics.
 
         :param topic: The fully-qualified topic name to remove.
+        :param defer: Optionally defer the remove, even when called on the
+            pubsub thread.
         :return: None.
         """
         cmd = _Command(TOPIC_REMOVE_TOPIC, {'topic': topic}, is_core=True)
-        return self._send(cmd)
+        return self._send(cmd, defer=defer)
 
     def publish(self, topic: str, value, defer=None):
         """Publish a value to a topic.

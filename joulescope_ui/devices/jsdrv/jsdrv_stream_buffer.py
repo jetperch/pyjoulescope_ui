@@ -227,13 +227,10 @@ class JsdrvStreamBuffer:
         for signal_id in signals:
             if signal_id.split('.')[0] == device_id:
                 self.on_action_remove(signal_id)
-        subs, self._pubsub_device_subscriptions[device_id] = self._pubsub_device_subscriptions[device_id], []
+        subs = self._pubsub_device_subscriptions[device_id]
+        subs, self._pubsub_device_subscriptions[device_id] = subs[1:], subs[:1]
         for topic, fn in subs:
-            if '/settings/state' in topic:
-                self._pubsub_device_subscriptions[device_id].append((topic, fn))
-            else:
-                self.pubsub.unsubscribe(topic, fn)
-        self._pubsub_device_subscriptions[device_id] = self._pubsub_device_subscriptions[device_id][:1]
+            self.pubsub.unsubscribe(topic, fn)
 
     def _on_device_remove(self, device):
         unique_id = get_unique_id(device)
@@ -287,19 +284,19 @@ class JsdrvStreamBuffer:
         self._ui_subscribe('registry/jsdrv/settings/device_ids', self._on_device_ids, ['pub', 'retain'])
         self._ui_subscribe('registry/app/settings/signal_stream_enable', self._on_signal_steam_enable, ['pub', 'retain'])
 
-    def on_pubsub_unregister(self):
-        for topic, fn in self._pubsub_subscriptions:
-            self.pubsub.unsubscribe(topic, fn)
-        self._pubsub_subscriptions.clear()
-
     def _on_signal_steam_enable(self, value):
         if value and self.clear_on_play:
             self.on_action_clear()
         self.on_setting_hold(not bool(value))
 
     def on_pubsub_unregister(self):
+        self._log.info('unregister')
+        for topic, fn in self._pubsub_subscriptions:
+            self.pubsub.unsubscribe(topic, fn)
+        self._pubsub_subscriptions.clear()
         for topic, fn in self._device_subscriptions:
             self._wrapper.driver.unsubscribe(topic, fn)
+        self._device_subscriptions.clear()
         self._driver_publish('m/@/!remove', int(self._id))
         self.pubsub.topic_remove(f'{get_topic_name(self)}/settings/signals')
 
@@ -385,7 +382,7 @@ class JsdrvStreamBuffer:
         self._driver_publish(f'm/{self._id}/a/!remove', buf_id)
         ui_prefix = get_topic_name(self)
         self.pubsub.publish(f'{ui_prefix}/events/signals/!remove', signal_id)
-        self.pubsub.topic_remove(f'{ui_prefix}/settings/signals/{signal_id}')
+        self.pubsub.topic_remove(f'{ui_prefix}/settings/signals/{signal_id}', defer=True)
 
     def on_action_clear(self):
         self._driver_publish(f'm/{self._id}/g/!clear', 0)
