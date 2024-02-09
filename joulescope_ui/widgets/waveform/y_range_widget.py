@@ -47,13 +47,13 @@ class YRangeWidget(QtWidgets.QWidget):
     value = QtCore.Signal(object)  # y_range = [y_min, y_max]
 
     def __init__(self, parent, y_range, unit):
+        self._widgets = {}
         self._y_range = y_range
         QtWidgets.QWidget.__init__(self, parent)
         self._prefix_index = 0
         self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         self.setObjectName('YRangeWidget')
 
-        self._widgets = {}
         self._layout = QtWidgets.QGridLayout(self)
         self._layout.setObjectName('YRangeWidgetLayout')
         self._layout.setContentsMargins(0, 0, 0, 0)
@@ -63,8 +63,8 @@ class YRangeWidget(QtWidgets.QWidget):
         y_max = max(abs(y_range[0]), abs(y_range[1]))
         prefix = _prefix_select(y_max)
 
-        self.construct(N_('max'), y_range[1] / prefix[-1])
-        self.construct(N_('min'), y_range[0] / prefix[-1])
+        self.construct('max', N_('max'), y_range[1] / prefix[-1])
+        self.construct('min', N_('min'), y_range[0] / prefix[-1])
         self.construct_prefix(unit, prefix)
 
     def construct_prefix(self, unit, prefix):
@@ -79,7 +79,7 @@ class YRangeWidget(QtWidgets.QWidget):
         self._widgets['prefix'] = [sel, label]
         self._row += 1
 
-    def construct(self, txt, v):
+    def construct(self, name, txt, v):
         label = QtWidgets.QLabel(txt, self)
         self._layout.addWidget(label, self._row, 0, 1, 1)
 
@@ -90,7 +90,7 @@ class YRangeWidget(QtWidgets.QWidget):
         self._layout.addWidget(edit, self._row, 1, 1, 1)
         edit.editingFinished.connect(self._on_value)
 
-        self._widgets[txt] = [edit, label]
+        self._widgets[name] = [edit, label, validator]
         self._row += 1
 
     def _on_value(self):

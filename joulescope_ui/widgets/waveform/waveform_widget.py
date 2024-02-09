@@ -2993,14 +2993,14 @@ class WaveformWidget(QtWidgets.QWidget):
             range_mode_manual.triggered.connect(lambda checked=False: self._on_menu_y_range_mode(idx, 'manual'))
 
             range_mode_exact_menu = range_mode.addMenu(N_('Exact'))
-            range_widget = YRangeWidget(self, plot['range'], plot['units'])
+            range_widget = YRangeWidget(range_mode_exact_menu, plot['range'], plot['units'])
             range_widget.value.connect(lambda y_range: self._on_menu_y_range_exact(idx, y_range, range_mode_manual))
             range_action = QtWidgets.QWidgetAction(range_mode_exact_menu)
             range_action.setDefaultWidget(range_widget)
             range_mode_exact_menu.addAction(range_action)
 
             range_menu = [range_mode, range_group, range_mode_auto, range_mode_manual,
-                          range_mode_exact_menu, range_action, range_widget]
+                          range_mode_exact_menu, range_widget, range_action]
         else:
             range_menu = []
 
@@ -3034,14 +3034,14 @@ class WaveformWidget(QtWidgets.QWidget):
                     scale_menu.append(v)
                     return v
 
-                for v in range(1, -10, -1):
-                    logarithm_action_gen(v)
+                for log_power in range(1, -10, -1):
+                    logarithm_action_gen(log_power)
         else:
             scale_menu = []
 
         prefix_items = []
         if plot['quantity'] in ['i', 'v', 'p'] and plot['scale'] != 'logarithmic':
-            z = plot['prefix_preferred']
+            prefix_preferred = plot['prefix_preferred']
             prefix_menu = menu.addMenu(N_('Preferred prefix'))
             prefix_group = QtGui.QActionGroup(prefix_menu)
             prefix_group.setExclusive(True)
@@ -3049,7 +3049,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
             def prefix_action_gen(value):
                 v = QtGui.QAction(value, prefix_group, checkable=True)
-                v.setChecked(value == z)
+                v.setChecked(value == prefix_preferred)
                 prefix_menu.addAction(v)
                 v.triggered.connect(lambda checked=False: self._on_menu_y_prefix_preferred(idx, value))
                 prefix_items.append(v)
@@ -3059,7 +3059,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 prefix_action_gen(prefix)
 
         style_action = settings_action_create(self, menu)
-        self._menu = [menu, annotations, annotations_sub, scale_menu, range_menu, prefix_items, style_action]
+        self._menu = [menu, annotations, annotations_sub, range_menu, scale_menu, prefix_items, style_action]
         return self._menu_show(event)
 
     def _on_menu_text_annotation(self, action):
