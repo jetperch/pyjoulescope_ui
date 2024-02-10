@@ -159,6 +159,11 @@ SETTINGS = {
             ['stable', N_('stable')],
         ]
     },
+    'device_update_check': {
+        'dtype': 'bool',
+        'brief': N_('Check for device firmware updates.'),
+        'default': True,
+    },
     'units': {
         'dtype': 'str',
         'brief': N_('The units to display.'),

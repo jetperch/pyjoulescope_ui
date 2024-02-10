@@ -17,7 +17,7 @@ from .draggable_list_widget import DraggableListWidget
 
 from .accumulator import AccumulatorWidget
 from .clock import ClockWidget
-from .device_control import DeviceControlWidget
+from .device_control import DeviceControlWidget, DeviceUpdateDialog
 from .debug import DebugWidget
 # from .example import ExampleWidget
 from .memory import MemoryWidget

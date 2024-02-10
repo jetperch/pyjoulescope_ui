@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from .device import Device
-from joulescope_ui import N_, CAPABILITIES, get_topic_name, register
+from joulescope_ui import N_, CAPABILITIES, get_topic_name, register, Metadata
 from pyjoulescope_driver.release import release_get, release_to_segments, \
     SUBTYPE_CTRL_APP, SUBTYPE_CTRL_UPDATER2, \
     SUBTYPE_CTRL_UPDATER1, SUBTYPE_SENSOR_FPGA, \
@@ -39,7 +39,6 @@ TARGET_ID_TO_NAMES = {
 }
 
 
-_PROGRESS_TOPIC = 'registry/progress/actions/!update'
 _ST_INITIAL          = 0
 _ST_UPDATER1_VERSION = 1
 _ST_UPDATER2_VERSION = 2
@@ -76,6 +75,9 @@ class Js220Updater(Device):
             'flags': ['ro', 'tmp'],
         },
     }
+    EVENTS = {
+        '!progress': Metadata('obj', 'progress'),
+    }
 
     def __init__(self, driver, device_path):
         super().__init__(driver, device_path)
@@ -99,8 +101,9 @@ class Js220Updater(Device):
             0.65,  # FPGA program
             1.00,  # App program
         ])
-        _, model, serial_number = device_path[1:].split('/')
-        name = f'{model.upper()}-{serial_number}'
+        _, model, serial_number = device_path.split('/')
+        name = f'{model[1:].upper()}-{serial_number}'
+        self._device_id = name
         self.SETTINGS = copy.deepcopy(Js220Updater.SETTINGS)
         self.SETTINGS['name'] = {
             'dtype': 'str',
@@ -144,12 +147,12 @@ class Js220Updater(Device):
         p = p0 + (p1 - p0) * float(progress)
         self._ui_publish('settings/progress', p)
         value = {
-            'id': str(self.unique_id),
+            'updater_id': self.unique_id,
+            'device_id': self._device_id,
             'progress': p,
-            'name': N_('Update') + ' ' + self.unique_id.replace('-UPDATER', ''),
             'brief': '',
         }
-        self._pubsub.publish(_PROGRESS_TOPIC, value)
+        self._pubsub.publish('registry/JS220_Updater/events/!progress', value)
 
     @property
     def firmware_channel(self):

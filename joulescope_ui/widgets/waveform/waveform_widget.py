@@ -536,7 +536,7 @@ class WaveformWidget(QtWidgets.QWidget):
         # manage repainting
         self.__repaint_request = False
         self._paint_state = PaintState.IDLE
-        self._paint_timer = QtCore.QTimer()
+        self._paint_timer = QtCore.QTimer(self)
         self._paint_timer.setTimerType(QtGui.Qt.PreciseTimer)
         self._paint_timer.setSingleShot(True)
         self._paint_timer.timeout.connect(self._on_paint_timer)

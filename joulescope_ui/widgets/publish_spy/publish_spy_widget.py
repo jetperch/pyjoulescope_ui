@@ -127,7 +127,7 @@ class PublishSpyWidget(QtWidgets.QWidget):
             return
         self._stop()
         self._data_capture = {}
-        self._timer = QtCore.QTimer()
+        self._timer = QtCore.QTimer(self)
         self._timer.setTimerType(QtGui.Qt.PreciseTimer)
         self._timer.timeout.connect(self._on_timer)
         self._timer.start(1000)

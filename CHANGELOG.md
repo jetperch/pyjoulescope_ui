@@ -7,7 +7,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.50
 
-2024 Feb 7 [in progress]
+2024 Feb 10 [in progress]
 
 * Dropped Python 3.9 support as static methods are not callable until 3.10.
   See https://docs.python.org/3/whatsnew/3.10.html
@@ -31,6 +31,12 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added path info the issue report index.
 * Added safe mode (Hold shift key at launch until window shows)  #250
 * Modified view activate to restore geometry before dock state.
+* Improved JsdrvStreamBuffer shutdown to prevent log warnings.
+* Added startup dialog sequencing.
+* Improved device update.
+  * Defer update for several seconds to help insure system stability. 
+  * Prompt user.
+  * Update sequentially to minimize any update failure risks.
 
 
 ## 1.0.48

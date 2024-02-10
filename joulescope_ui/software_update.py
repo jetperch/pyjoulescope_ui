@@ -230,10 +230,9 @@ def _download(url, path):
 def _run(callback, path, channel):
     try:
         info = fetch_info(channel)
-        if info is None:
-            return None
-        shutil.rmtree(path, ignore_errors=True)
-        info['download_path'] = _download(info['download_url'], path)
+        if info is not None:
+            shutil.rmtree(path, ignore_errors=True)
+            info['download_path'] = _download(info['download_url'], path)
         callback(info)
     except Exception:
         _log.exception('Software update check failed')
@@ -289,10 +288,11 @@ class SoftwareUpdateDialog(QtWidgets.QDialog):
     dialogs = []
     _clipboard = None
 
-    def __init__(self, pubsub, info):
+    def __init__(self, pubsub, info, done_action=None):
         _log.debug('create start')
         self._pubsub = pubsub
         self._info = info
+        self._done_action = done_action
         style = load_style()
         parent = pubsub_singleton.query('registry/ui/instance')
         super().__init__(parent=parent)
@@ -345,6 +345,8 @@ class SoftwareUpdateDialog(QtWidgets.QDialog):
 
     @QtCore.Slot(int)
     def _on_finish(self, value):
+        if self not in SoftwareUpdateDialog.dialogs:
+            return  # duplicate finish
         if not is_release:
             _log.info('software update: not a release')
         elif value == QtWidgets.QDialog.DialogCode.Accepted:
@@ -354,10 +356,13 @@ class SoftwareUpdateDialog(QtWidgets.QDialog):
             _log.info('software update: later')
         self.close()
         SoftwareUpdateDialog.dialogs.remove(self)
+        if self._done_action is not None:
+            self._pubsub.publish(*self._done_action, defer=True)
 
     @staticmethod
     def on_cls_action_show(pubsub, topic, value):
-        SoftwareUpdateDialog(pubsub, value)
+        info, done_action = value
+        SoftwareUpdateDialog(pubsub, info, done_action)
 
 
 if __name__ == '__main__':

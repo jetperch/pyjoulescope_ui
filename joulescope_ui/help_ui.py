@@ -105,8 +105,14 @@ class HelpHtmlMessageBox(QtWidgets.QDialog):
 
     dialogs = []
 
-    def __init__(self, pubsub, name):
+    def __init__(self, pubsub, value):
+        if isinstance(value, str):
+            name = value
+            self._done_action = None
+        else:
+            name, self._done_action = value
         self._log = logging.getLogger(__name__ + f'.{name}')
+        self._pubsub = pubsub
         self._log.debug('create start')
         style = load_style(pubsub)
         title, html = load_help(name, style)
@@ -149,6 +155,8 @@ class HelpHtmlMessageBox(QtWidgets.QDialog):
         self.close()
         self._log.info('finish')
         HelpHtmlMessageBox.dialogs.remove(self)
+        if self._done_action is not None:
+            self._pubsub.publish(*self._done_action)
 
     @staticmethod
     def on_cls_action_show(pubsub, topic, value):

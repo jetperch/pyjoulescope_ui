@@ -31,6 +31,7 @@ from joulescope_ui.ui_util import show_in_folder
 from joulescope_ui import urls
 from joulescope_ui.shift_key import is_shift_pressed
 from joulescope_ui.dev_signal_buffer_source import DevSignalBufferSource
+from joulescope_ui.devices.device_update import DeviceUpdate
 from PySide6 import QtCore, QtGui, QtWidgets
 import PySide6QtAds as QtAds
 from .error_window import ErrorWindow
@@ -196,6 +197,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self._dialog = None
         self._pubsub = pubsub_singleton
         self._pubsub_process_count_last = self._pubsub.process_count
+        self._pend_queue = []
+        self._software_update_status = None
+        self._device_update = None
         self._shortcuts = Shortcuts(self)
         self.SETTINGS = style_settings(N_('UI'))
         for key, value in _SETTINGS.items():
@@ -405,36 +409,125 @@ class MainWindow(QtWidgets.QMainWindow):
         self._pubsub.publish(UNDO_TOPIC, 'clear', defer=True)
         self._pubsub.publish(REDO_TOPIC, 'clear', defer=True)
 
-        # self._mem_leak_debugger = MemLeakDebugger(self)
-        # self._side_bar.on_cmd_show(1)
-        if self._pubsub.query('registry/app/settings/software_update_check'):
-            self._software_update_thread = software_update.check(
-                callback=self._do_cbk,
-                path=self._pubsub.query('common/settings/paths/update'),
-                channel=self._pubsub.query('registry/app/settings/software_update_channel'))
-
-        # display changelog on version change
-        topic = f'{self.topic}/settings/changelog_version_show'
-        changelog_version_show = self._pubsub.query(topic, default=None)
-        if filename is not None:
-            pass  # show nothing
-        elif changelog_version_show is None:
-            self._pubsub.publish(topic, __version__)
-            self._pubsub.publish('registry/help_html/actions/!show', 'getting_started')
-        elif __version__ != self._pubsub.query(topic, default=None):
-            self._pubsub.publish(topic, __version__)
-            self._pubsub.publish('registry/help_html/actions/!show', 'changelog')
+        if filename is None:
+            self._startup_display_maybe()
+        self._startup_software_check()
+        self._device_update_check()
         self.resync_request()
-
         self._fuse_aggregator = PubsubAggregator(self._pubsub, 'device.object', 'settings/fuse_engaged', any,
                                                  'registry/app/settings/fuse_engaged')
 
         self._pubsub.register(DiskMonitor)
         self._pubsub.register(DiskMonitor(), 'DiskMonitor:0')
 
-        self._blink_timer = QtCore.QTimer()
+        self._blink_timer = QtCore.QTimer(self)
         self._blink_timer.timeout.connect(self._on_blink_timer)
         self._blink_timer.start(250)
+
+    def _startup_display_maybe(self):
+        # display changelog on version change
+        topic = f'{self.topic}/settings/changelog_version_show'
+        changelog_version_show = self._pubsub.query(topic, default=None)
+        self._pubsub.publish(topic, __version__)
+        if changelog_version_show is None:
+            self._pubsub.publish(topic, __version__)
+            show = 'getting_started'
+        elif __version__ != changelog_version_show:
+            show = 'changelog'
+        else:
+            return
+        self._pubsub.publish(f'{self.topic}/actions/!pend', {
+            'id': show,
+            'actions': [[
+                'registry/help_html/actions/!show',
+                [show, [f'{self.topic}/callbacks/!pend_done', show]]
+            ]],
+        })
+
+    def _startup_software_check(self):
+        if not self._pubsub.query('registry/app/settings/software_update_check'):
+            return
+        self._software_update_status = {
+            'id': 'software_update',
+            'actions': [[f'{self.topic}/actions/!software_update', None]],
+        }
+        self._pubsub.publish(f'{self.topic}/actions/!pend', self._software_update_status)
+        self._software_update_thread = software_update.check(
+            callback=self._do_cbk,
+            path=self._pubsub.query('common/settings/paths/update'),
+            channel=self._pubsub.query('registry/app/settings/software_update_channel'))
+
+    def _device_update_check(self):
+        if not self._pubsub.query('registry/app/settings/device_update_check'):
+            return
+        self._device_update = DeviceUpdate(self, self._pubsub)
+
+        def on_enabled():
+            done_action = [f'{self.topic}/callbacks/!pend_done', 'device_update']
+            if self._device_update.is_available():
+                DeviceUpdateDialog(self, self._pubsub, done_action)
+            else:
+                self._pubsub.publish(*done_action)
+
+        def on_start():
+            self._device_update.enabled.connect(on_enabled)
+            self._device_update.enable()
+
+        self._pubsub.publish(f'{self.topic}/actions/!pend', {
+            'id': 'device_update',
+            'actions': [on_start],
+        })
+
+    def _pend_actions_process(self, actions):
+        for action in actions:
+            try:
+                if callable(action):
+                    action()
+                else:
+                    self._pubsub.publish(*action, defer=True)
+            except Exception:
+                self._log.exception('While processing %s', action)
+
+    def _pend_invoke(self):
+        if not len(self._pend_queue):
+            return
+        value = self._pend_queue[0]
+        self._pend_actions_process(value['actions'])
+
+    def on_action_pend(self, value):
+        """Pend an action.
+
+        :param value: The dict containing:
+            * id: The identifier which must be provided to callbacks/!pend_done to
+              complete the pended action.
+            * actions: The list of actions to perform at start.
+            * completions: The optional list of actions to perform at completion.
+
+        Each action may be:
+        * python callable
+        * iterable of pubsub.publish [topic, value]
+
+        The pended action queue is primarily intended to manage dialog
+        displays and checks at UI startup.  However, it can be used anytime
+        to perform and ordered sequence of actions.
+        """
+        self._log.info('action pend %s', value)
+        self._pend_queue.append(value)
+        if len(self._pend_queue) == 1:
+            self._pend_invoke()
+
+    def on_callback_pend_done(self, value):
+        self._log.info('action pend done %s', value)
+        if not len(self._pend_queue):
+            self._log.warning(f'pend done {value} but nothing pending')
+            return
+        pend_id = self._pend_queue[0].get('id')
+        if pend_id != value:
+            self._log.warning(f'pend done for {value}, but expect {pend_id} ({self._pend_queue[0]}')
+            return
+        pend = self._pend_queue.pop(0)
+        self._pend_actions_process(pend.get('completions', []))
+        self._pend_invoke()
 
     def dragEnterEvent(self, event):
         if event.mimeData().hasText():
@@ -494,10 +587,20 @@ class MainWindow(QtWidgets.QMainWindow):
         update_thread, self._software_update_thread = self._software_update_thread, None
         if update_thread is not None:
             update_thread.join()
-        if not isinstance(value, dict):
-            return
+        self._software_update_status['value'] = value
+        if self._pend_queue[0] == self._software_update_status:
+            self._pubsub.publish(f'{self.topic}/actions/!software_update', value)
+
+    def on_action_software_update(self, value):
+        if 'value' not in self._software_update_status:
+            return  # check not yet completed
         self._log.info('Display software update available dialog')
-        self._pubsub.publish('registry/software_update/actions/!show', value)
+        done_action = [f'{self.topic}/callbacks/!pend_done', 'software_update']
+        if value is None:
+            self._pubsub.publish(*done_action)
+        else:
+            self._pubsub.publish('registry/software_update/actions/!show',
+                                 [self._software_update_status['value'], done_action])
 
     def _on_process_monitor(self, obj):
         x1 = obj['cpu_utilization']['self']

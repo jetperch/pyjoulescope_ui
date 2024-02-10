@@ -25,7 +25,7 @@ class MemLeakDebugger(QtCore.QObject):
 
     def __init__(self, parent=None):
         super().__init__(parent=parent)
-        self._timer = QtCore.QTimer()
+        self._timer = QtCore.QTimer(self)
         self._timer.timeout.connect(self._on_timer)
         self._timer.start(20000)
         self._snapshot = None

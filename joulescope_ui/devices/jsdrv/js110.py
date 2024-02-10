@@ -540,6 +540,8 @@ class Js110(Device):
             pass
         elif topic.startswith('signals/'):
             pass
+        elif topic in ['state_req']:
+            pass  # ignore: obsolete and removed
         else:
             self._log.warning('Unsupported topic %s', f'{get_topic_name(self)}/settings/{topic}')
 

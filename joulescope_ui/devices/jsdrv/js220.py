@@ -282,7 +282,7 @@ _SETTINGS_CLASS = {
         'options': [['alpha', 'alpha'], ['beta', 'beta'], ['stable', 'stable']],
         'default': 'stable',
     },
-    'firmware_available': {
+    'update_available': {
         'dtype': 'obj',
         'brief': 'FW available',
         'detail': '''Firmware update availability.
@@ -669,7 +669,7 @@ class Js220(Device):
         elif topic in ['info', 'state', 'auto_open', 'out', 'enable',
                        'sources', 'sources/1', 'sources/1/info', 'sources/1/name',
                        'signals',
-                       'firmware_available', 'firmware_channel',
+                       'update_available', 'firmware_channel',
                        'fuse_engaged', 'fuse']:
             pass
         elif topic.startswith('signals/'):
@@ -681,6 +681,8 @@ class Js220(Device):
                     self._driver_publish(f's/fuse/+/!clear', 0)
                 elif value in _FUSE_IDS:
                     self._driver_publish(f's/fuse/{value}/engaged', 0)
+        elif topic in ['state_req']:
+            pass  # ignore: obsolete and removed
         else:
             self._log.warning('Unsupported topic %s', f'{get_topic_name(self)}/settings/{topic}')
 
@@ -717,30 +719,30 @@ class Js220(Device):
             pass  # handled in outer wrapper
         elif cmd == 'direct':
             self._run_direct(args)
+        elif cmd == 'device_update':
+            self._log.info('device_update: initiate by resetting to update1')
+            self._driver_publish('h/!reset', 'update1')
+            self._quit = True
         else:
             self._log.warning('Unhandled cmd: %s', cmd)
 
-    def _is_firmware_update_available(self):
+    def _device_update_check(self):
         try:
             image = release.release_get(self.firmware_channel)
             segments = release.release_to_segments(image)
             ctrl_app = segments[release.SUBTYPE_CTRL_APP]
             fpga = segments[release.SUBTYPE_SENSOR_FPGA]
         except Exception:
-            self._log.info('firmware_update_available: Could not parse firmware image')
-            return None
+            self._log.warning('device_update_available: Could not parse firmware image')
+            self.update_available = None
+            return
         ctrl_app_now = self._driver_query('c/fw/version')
         fpga_now = self._driver_query('s/fpga/version')
-        if ctrl_app_now >= ctrl_app['version'] and fpga_now >= fpga['version']:
-            self._log.info('firmware_update_available %s: up to date', self.unique_id)
-            return None
         v = program.version_to_str
-        rv = {
-            'ctrl_app': [v(ctrl_app_now), v(ctrl_app['version'])],
+        self.update_available = {
+            'fw': [v(ctrl_app_now), v(ctrl_app['version'])],
             'fpga': [v(fpga_now), v(fpga['version'])]
         }
-        self._log.info('firmware_update_available %s: %s', self.unique_id, rv)
-        return rv
 
     def _run(self):
         self._log.info('thread start')
@@ -749,13 +751,8 @@ class Js220(Device):
             return 1
         self._ui_publish('settings/state', 'open')
         self._log.info('thread open complete')
-        self.firmware_available = self._is_firmware_update_available()
-        if self.firmware_available is not None:
-            self._log.info('firmware_update: start by reset to update1')
-            self._driver_publish('h/!reset', 'update1')
-            self._quit = True
-        else:
-            self._pubsub.capabilities_append(self, CAPABILITIES_OBJECT_OPEN)
+        self._device_update_check()
+        self._pubsub.capabilities_append(self, CAPABILITIES_OBJECT_OPEN)
 
         while not self._quit:
             try:
@@ -848,6 +845,9 @@ class Js220(Device):
             self._close_req()
         else:
             self._open_req()
+
+    def on_action_device_update(self, value):
+        self._send_to_thread('device_update', None)
 
     def _on_settings(self, topic, value):
         if self._thread is None:

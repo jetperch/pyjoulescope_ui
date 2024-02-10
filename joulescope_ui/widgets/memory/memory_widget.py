@@ -260,7 +260,7 @@ class MemoryWidget(QtWidgets.QWidget):
         self._memset.update(self._base, available, used)
 
     def on_pubsub_register(self):
-        self._timer = QtCore.QTimer()
+        self._timer = QtCore.QTimer(self)
         self._timer.timeout.connect(self._on_timer)
         self._timer.start(100)
 

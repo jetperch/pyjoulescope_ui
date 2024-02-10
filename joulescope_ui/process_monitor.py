@@ -34,7 +34,7 @@ class ProcessMonitor(QtCore.QObject):
         self._cpu_count = psutil.cpu_count()
         psutil.cpu_times_percent(0)
 
-        self._timer = QtCore.QTimer()
+        self._timer = QtCore.QTimer(self)
         self._timer.setTimerType(QtGui.Qt.PreciseTimer)
         self._timer.timeout.connect(self._on_timer)
         self._timer.start(1000)  # = 1 / render_frame_rate

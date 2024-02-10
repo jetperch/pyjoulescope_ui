@@ -13,3 +13,4 @@
 # limitations under the License.
 
 from .device_control_widget import DeviceControlWidget
+from .device_update_dialog import DeviceUpdateDialog
