@@ -63,12 +63,6 @@ _config_clear = None
 _log = logging.getLogger(__name__)
 _UI_WINDOW_TITLE = 'Joulescope'
 _JLS_WINDOW_TITLE = 'Joulescope file viewer'
-_DEVELOPER_WIDGETS = [
-    DebugWidget,
-    PublishSpyWidget,
-]
-
-
 _SETTINGS = {
     'changelog_version_show': {
         'dtype': 'str',
@@ -550,10 +544,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def on_setting_developer(self, value):
         if bool(value):
-            for cls in _DEVELOPER_WIDGETS:
+            for cls in DEVELOPER_WIDGETS:
                 self._pubsub.register(cls)
         else:
-            for cls in _DEVELOPER_WIDGETS:
+            for cls in DEVELOPER_WIDGETS:
                 if getattr(cls, 'pubsub_is_registered', False):
                     try:
                         self._pubsub.query(cls.topic)

@@ -33,8 +33,8 @@ _SNAKEVIZ = """\
 """
 
 
-@styled_widget(N_('Debug'))
-class DebugWidget(QtWidgets.QWidget):
+@styled_widget(N_('Profile'))
+class ProfileWidget(QtWidgets.QWidget):
     """A debug widget for developers."""
 
     CAPABILITIES = ['widget@']
@@ -89,14 +89,14 @@ class DebugWidget(QtWidgets.QWidget):
         self._text_clipboard = None
 
     def on_pubsub_register(self):
-        self._state = pubsub_singleton.query('registry/DebugWidget/settings/state')
+        self._state = pubsub_singleton.query('registry/ProfileWidget/settings/state')
         if self._state is None:
             self._state = {
                 'profile': None,
                 'profile_path': None,
                 'snapshot': None
             }
-            pubsub_singleton.publish('registry/DebugWidget/settings/state', self._state)
+            pubsub_singleton.publish('registry/ProfileWidget/settings/state', self._state)
 
     def _on_profile(self, checked):
         p = pubsub_singleton.query('common/settings/paths/log')

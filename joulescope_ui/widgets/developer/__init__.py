@@ -12,4 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .debug_widget import DebugWidget
+from .log_view_widget import LogViewWidget
+from .profile_widget import ProfileWidget
+from .publish_spy_widget import PublishSpyWidget
+
+DEVELOPER_WIDGETS = [LogViewWidget, ProfileWidget, PublishSpyWidget]

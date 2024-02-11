@@ -18,7 +18,7 @@ from .draggable_list_widget import DraggableListWidget
 from .accumulator import AccumulatorWidget
 from .clock import ClockWidget
 from .device_control import DeviceControlWidget, DeviceUpdateDialog
-from .debug import DebugWidget
+from .developer import DEVELOPER_WIDGETS
 # from .example import ExampleWidget
 from .memory import MemoryWidget
 from .hamburger import HamburgerWidget
@@ -27,7 +27,6 @@ from .jls_info import JlsInfoWidget
 from .js220_cal import JS220CalibrationWidget
 from .notes import NotesWidget
 from .progress_bar import ProgressBarWidget
-from .publish_spy import PublishSpyWidget
 from .record_status import RecordStatusWidget
 from .sidebar import SideBar
 from .settings import SettingsWidget
