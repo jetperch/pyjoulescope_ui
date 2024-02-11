@@ -533,6 +533,8 @@ class WaveformWidget(QtWidgets.QWidget):
         self._summary_data = None
         self._default_source = None
 
+        super().__init__(parent)
+
         # manage repainting
         self.__repaint_request = False
         self._paint_state = PaintState.IDLE
@@ -540,8 +542,6 @@ class WaveformWidget(QtWidgets.QWidget):
         self._paint_timer.setTimerType(QtGui.Qt.PreciseTimer)
         self._paint_timer.setSingleShot(True)
         self._paint_timer.timeout.connect(self._on_paint_timer)
-
-        super().__init__(parent)
 
         # Cache Qt default instances to prevent memory leak in Pyside6 6.4.2
         self._NO_PEN = QtGui.QPen(QtGui.Qt.NoPen)  # prevent memory leak
