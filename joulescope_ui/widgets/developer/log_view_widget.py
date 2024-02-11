@@ -74,7 +74,6 @@ class LogViewWidget(QtWidgets.QWidget):
     }
 
     def __init__(self, parent=None):
-        self._items = []
         self.EVENTS = {}
         self._log = logging.getLogger()
         self._handler = None
@@ -88,6 +87,7 @@ class LogViewWidget(QtWidgets.QWidget):
         self._layout.addWidget(self._demo_button)
 
         self._model = QtGui.QStandardItemModel(self)
+        self._model.setHorizontalHeaderLabels(_TABLE_COLUMNS)
         self._table = QtWidgets.QTableView(self)
         self._table.setObjectName('log_view_table')
         self._table.setModel(self._model)

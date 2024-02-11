@@ -418,6 +418,12 @@ class PubSub:
     def __contains__(self, topic):
         return topic in self._topic_by_name
 
+    def __iter__(self):
+        thread_id = threading.get_native_id()
+        if thread_id != self._thread_id:
+            raise RuntimeError('can only iterate on pubsub thread')
+        return self._topic_by_name.keys().__iter__()
+
     @property
     def process_count(self):
         return self._process_count

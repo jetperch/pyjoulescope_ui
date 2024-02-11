@@ -15,5 +15,6 @@
 from .log_view_widget import LogViewWidget
 from .profile_widget import ProfileWidget
 from .publish_spy_widget import PublishSpyWidget
+from .pubsub_explorer_widget import PubSubExplorerWidget
 
-DEVELOPER_WIDGETS = [LogViewWidget, ProfileWidget, PublishSpyWidget]
+DEVELOPER_WIDGETS = [LogViewWidget, ProfileWidget, PublishSpyWidget, PubSubExplorerWidget]

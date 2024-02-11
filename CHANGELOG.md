@@ -21,6 +21,7 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Renamed Debug widget to Profile widget.
   * Added Publish Spy widget.
   * Added Log View widget.
+  * Added PubSub Explorer widget.
 * Added WindowStaysOnTopHint to HelpHtmlMessageBox  #245
 * Modified Export all data to work when streaming  #246
 * Added zoom to dual markers in Waveform widget  #243
