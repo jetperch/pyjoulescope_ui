@@ -27,6 +27,7 @@ _TOPIC_SIZE = f'{_TOPIC}/settings/size'
 _TOPIC_DURATION = f'{_TOPIC}/settings/duration'
 _GB_FACTOR = 1024 ** 3
 _SZ_MIN = int(0.01 * _GB_FACTOR)
+_COLOR_TEXT = '   '
 
 
 def _mem_proc():
@@ -190,8 +191,8 @@ class MemoryWidget(QtWidgets.QWidget):
         self.setObjectName('memory_widget')
         self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         self._layout = QtWidgets.QVBoxLayout()
-        self._layout.setContentsMargins(0, 0, 0, 0)
-        self._layout.setSpacing(0)
+        self._layout.setContentsMargins(4, 4, 4, 4)
+        self._layout.setSpacing(6)
         self.setLayout(self._layout)
 
         self._memset = MemSet(self)
@@ -199,6 +200,7 @@ class MemoryWidget(QtWidgets.QWidget):
 
         self._grid_widget = QtWidgets.QWidget(parent=self)
         self._grid_layout = QtWidgets.QGridLayout()
+        self._grid_layout.setContentsMargins(0, 10, 0, 10)
         self._grid_widget.setLayout(self._grid_layout)
         self._layout.addWidget(self._grid_widget)
 
@@ -206,27 +208,35 @@ class MemoryWidget(QtWidgets.QWidget):
         self._mem_size_widget = MemSizeWidget(self._grid_widget)
         self._mem_size_widget.value.connect(self._on_mem_size_text)
         self._widgets = {
+            'size_color': QtWidgets.QLabel(_COLOR_TEXT, self._grid_widget),
             'size_label': QtWidgets.QLabel(N_('Memory buffer size'), self._grid_widget),
             'size_value': self._mem_size_widget,
             'size_units': QtWidgets.QLabel('GB', self._grid_widget),
+            'total_color': QtWidgets.QLabel(_COLOR_TEXT, self._grid_widget),
             'total_label': QtWidgets.QLabel(N_('Total RAM size'), self._grid_widget),
             'total_value': QtWidgets.QLabel(_format(vm.total), self._grid_widget),
             'total_units': QtWidgets.QLabel('GB', self._grid_widget),
+            'available_color': QtWidgets.QLabel(_COLOR_TEXT, self._grid_widget),
             'available_label': QtWidgets.QLabel(N_('Available RAM size'), self._grid_widget),
             'available_value': QtWidgets.QLabel(f'0', self._grid_widget),
             'available_units': QtWidgets.QLabel('GB', self._grid_widget),
+            'used_color': QtWidgets.QLabel(_COLOR_TEXT, self._grid_widget),
             'used_label': QtWidgets.QLabel(N_('Used RAM size'), self._grid_widget),
             'used_value': QtWidgets.QLabel(f'0', self._grid_widget),
             'used_units': QtWidgets.QLabel('GB', self._grid_widget),
+            'duration_color': QtWidgets.QLabel(_COLOR_TEXT, self._grid_widget),
             'duration_label': QtWidgets.QLabel(N_('Duration'), self._grid_widget),
             'duration_value': QtWidgets.QLabel('', self._grid_widget),
             'duration_units': QtWidgets.QLabel('', self._grid_widget),
         }
 
         for row, s in enumerate(['size', 'available', 'used', 'total', 'duration']):
-            self._grid_layout.addWidget(self._widgets[f'{s}_label'], row, 0)
-            self._grid_layout.addWidget(self._widgets[f'{s}_value'], row, 1)
-            self._grid_layout.addWidget(self._widgets[f'{s}_units'], row, 2)
+            color_widget = self._widgets[f'{s}_color']
+            color_widget.setObjectName(f'{s}_color')
+            self._grid_layout.addWidget(color_widget, row, 0)
+            self._grid_layout.addWidget(self._widgets[f'{s}_label'], row, 1)
+            self._grid_layout.addWidget(self._widgets[f'{s}_value'], row, 2)
+            self._grid_layout.addWidget(self._widgets[f'{s}_units'], row, 3)
 
         self._clear = QtWidgets.QPushButton(N_('Clear'), self)
         self._clear.pressed.connect(self._on_clear)
