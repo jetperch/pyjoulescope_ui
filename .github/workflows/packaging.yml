@@ -1,4 +1,4 @@
-# Copyright 2021-2023 Jetperch LLC
+# Copyright 2021-2024 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -42,10 +42,10 @@ jobs:
           echo "runner.arch=$RUNNER_ARCH"
 
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -80,7 +80,7 @@ jobs:
         run: pytest --pyargs joulescope_ui
 
       - name: Upload python source package
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: sdist
           path: dist/*.tar.gz
@@ -102,10 +102,10 @@ jobs:
             dist: nuitka
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -174,9 +174,9 @@ jobs:
 
       - name: Save Nuitka report
         if: matrix.dist == 'nuitka'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: nuitka_report
+          name: nuitka_report-${{ matrix.os }}-${{ matrix.dist }}
           path: nuitka_report.xml
 
       - name: Build with PyInstaller
@@ -211,16 +211,16 @@ jobs:
 
       - name: Save changelog
         if: matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: installers
+          name: installers-changelog
           path: CHANGELOG.md
           if-no-files-found: error
 
       - name: Save installer artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: installers
+          name: installers-${{ matrix.os }}-${{ matrix.dist }}
           path: dist_installer/*
           if-no-files-found: error
 
@@ -237,15 +237,16 @@ jobs:
 
     steps:
       - name: Download python sdist artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: sdist
           path: dist/
 
       - name: Download installer artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: installers
+          pattern: installers-*
+          merge-multiple: true
           path: dist_installer/
 
       - name: Display artifacts
@@ -253,7 +254,7 @@ jobs:
         run: ls dist_installer/*
 
       - name: Publish packages to PyPi
-        uses: pypa/gh-action-pypi-publish@v1.8.6
+        uses: pypa/gh-action-pypi-publish@v1.8.11
         with:
           print-hash: true
 
