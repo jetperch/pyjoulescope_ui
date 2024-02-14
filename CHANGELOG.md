@@ -7,7 +7,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.50
 
-2024 Feb 12 [in progress]
+2024 Feb 14
 
 * Dropped Python 3.9 support as static methods are not callable until 3.10.
   See https://docs.python.org/3/whatsnew/3.10.html
@@ -41,6 +41,9 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Prompt user.
   * Update sequentially to minimize any update failure risks.
 * Added color legend to Memory widget.
+* Updated pyjls from 0.9.1 to 0.9.2 to improve corrupted JLS file handling.
+* Updated pyjoulescope_driver from 1.4.6 to 1.4.7.
+* Updated joulescope from 1.1.8 to 1.1.12.
 
 
 ## 1.0.48
