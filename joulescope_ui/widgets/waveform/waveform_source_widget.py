@@ -146,7 +146,7 @@ class _Trace(QtWidgets.QFrame):
                 a.triggered.connect(self._name_menu_factory(fullname))
                 menu.addAction(a)
                 self._menu.append(a)
-            menu.popup(event.globalPos())
+            menu.popup(event.globalPosition().toPoint())
         event.accept()
 
 

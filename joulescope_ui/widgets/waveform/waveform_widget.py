@@ -2433,7 +2433,7 @@ class WaveformWidget(QtWidgets.QWidget):
         :return: target region tuple (x_name, y_name)
         """
         if isinstance(pos, QtGui.QMouseEvent):
-            x, y = pos.pos().x(), pos.pos().y()
+            x, y = pos.position().x(), pos.position().y()
         else:
             x, y = pos
         x_name = _target_lookup_by_pos(self._x_geometry_info, x)
@@ -2559,7 +2559,7 @@ class WaveformWidget(QtWidgets.QWidget):
         event.accept()
         if not len(self._x_geometry_info) or not len(self._y_geometry_info):
             return
-        x, y = event.pos().x(), event.pos().y()
+        x, y = event.position().x(), event.position().y()
         self._mouse_pos = (x, y)
         self._set_cursor()
         self._repaint_request = True
@@ -2702,7 +2702,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def plot_mousePressEvent(self, event: QtGui.QMouseEvent):
         event.accept()
-        x, y = event.pos().x(), event.pos().y()
+        x, y = event.position().x(), event.position().y()
         item, x_name, y_name = self._find_item((x, y))
         is_ctrl = bool(QtCore.Qt.KeyboardModifier.ControlModifier & event.modifiers())
         self._log.info(f'mouse press ({x}, {y}) -> ({item}, {x_name}, {y_name}) is_ctrl={is_ctrl}')
@@ -2831,7 +2831,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def plot_mouseReleaseEvent(self, event: QtGui.QMouseEvent):
         event.accept()
-        x, y = event.pos().x(), event.pos().y()
+        x, y = event.position().x(), event.position().y()
         item, x_name, y_name = self._find_item((x, y))
         self._log.info(f'mouse release ({x}, {y}) -> ({item}, {x_name}, {y_name})')
         if self._mouse_pos_start == (x, y):
@@ -2854,7 +2854,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _menu_show(self, event: QtGui.QMouseEvent):
         menu = self._menu[0]
-        menu.popup(event.globalPos())
+        menu.popup(event.globalPosition().toPoint())
         return menu
 
     def _on_menu_x_marker(self, action):
@@ -2892,7 +2892,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self.x_axis_annotation_mode = mode
 
     def _menu_x_axis(self, event: QtGui.QMouseEvent):
-        self._log.info('_menu_x_axis(%s)', event.pos())
+        self._log.info('_menu_x_axis(%s)', event.position())
         menu = QtWidgets.QMenu('Waveform x-axis context menu', self)
 
         annotations = menu.addMenu(N_('Annotations'))
@@ -2972,7 +2972,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._repaint_request = True
 
     def _menu_y_axis(self, idx, event: QtGui.QMouseEvent):
-        self._log.info('_menu_y_axis(%s, %s)', idx, event.pos())
+        self._log.info('_menu_y_axis(%s, %s)', idx, event.position())
         menu = QtWidgets.QMenu('Waveform y-axis context menu', self)
         plot = self.state['plots'][idx]
         annotations = menu.addMenu(N_('Annotations'))
@@ -3112,7 +3112,7 @@ class WaveformWidget(QtWidgets.QWidget):
         return [add, hide, show, clear_all]
 
     def _menu_plot(self, idx, event: QtGui.QMouseEvent):
-        self._log.info('_menu_plot(%s, %s)', idx, event.pos())
+        self._log.info('_menu_plot(%s, %s)', idx, event.position())
         dynamic = []
         plot = self.state['plots'][idx]
         menu = QtWidgets.QMenu('Waveform context menu', self)
@@ -3161,7 +3161,7 @@ class WaveformWidget(QtWidgets.QWidget):
         return self._menu_show(event)
 
     def _menu_dt(self, event: QtGui.QMouseEvent):
-        self._log.info('_menu_dt(%s)', event.pos())
+        self._log.info('_menu_dt(%s)', event.position())
         menu = QtWidgets.QMenu('Waveform context menu', self)
         x0, x1 = self.x_range
         interval = abs(x1 - x0) / time64.SECOND
@@ -3195,7 +3195,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._repaint_request = True
 
     def _menu_statistics(self, idx, event: QtGui.QMouseEvent):
-        self._log.info('_menu_statistics(%s, %s)', idx, event.pos())
+        self._log.info('_menu_statistics(%s, %s)', idx, event.position())
         menu = QtWidgets.QMenu('Waveform context menu', self)
         style_action = settings_action_create(self, menu)
         self._menu = [menu,
@@ -3485,7 +3485,7 @@ class WaveformWidget(QtWidgets.QWidget):
         return a
 
     def _menu_summary(self, event: QtGui.QMouseEvent):
-        self._log.info('_menu_summary(%s)', event.pos())
+        self._log.info('_menu_summary(%s)', event.position())
         menu = QtWidgets.QMenu('Waveform summary context menu', self)
         signal_menu = QtWidgets.QMenu('Signal', menu)
         menu.addMenu(signal_menu)

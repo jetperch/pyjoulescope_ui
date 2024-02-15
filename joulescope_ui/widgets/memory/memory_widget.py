@@ -113,7 +113,7 @@ class MemSet(QtWidgets.QWidget):
 
     def mouseMoveEvent(self, event: QtGui.QMouseEvent):
         event.accept()
-        x = event.pos().x()
+        x = event.position().x()
         if self.is_mouse_active(x):
             cursor = self._CURSOR_SIZE_HOR
         else:
@@ -137,7 +137,7 @@ class MemSet(QtWidgets.QWidget):
 
     def mousePressEvent(self, event):
         event.accept()
-        x = event.pos().x()
+        x = event.position().x()
         if event.button() == QtCore.Qt.LeftButton:
             if self._drag is None and self.is_mouse_active(x):
                 self._drag = np.copy(self.sizes)

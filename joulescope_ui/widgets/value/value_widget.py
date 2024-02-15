@@ -486,7 +486,7 @@ class _InnerWidget(QtWidgets.QWidget):
             return super().mousePressEvent(event)
         if self._geometry is None:
             return
-        x, y = event.pos().x(), event.pos().y()
+        x, y = event.position().x(), event.position().y()
         item = self._pos_to_item(x, y)
         if item is None:
             return
@@ -654,7 +654,7 @@ class _BaseWidget(QtWidgets.QWidget):
             menu = QtWidgets.QMenu(self)
             source_menu, source_menu_items = self.source_selector.submenu_factory(menu)
             style_action = settings_action_create(self, menu)
-            menu.popup(event.globalPos())
+            menu.popup(event.globalPosition().toPoint())
             self._menu = [menu,
                           source_menu, source_menu_items,
                           style_action]

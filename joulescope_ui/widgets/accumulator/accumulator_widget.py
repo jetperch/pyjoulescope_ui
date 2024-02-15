@@ -173,7 +173,7 @@ class AccumulatorWidget(QtWidgets.QWidget):
             source_menu, source_menu_items = self.source_selector.submenu_factory(menu)
 
             style_action = settings_action_create(self, menu)
-            menu.popup(event.globalPos())
+            menu.popup(event.globalPosition().toPoint())
             self._menu = [
                 menu, field_toggle, units_toggle,
                 source_menu, source_menu_items,

@@ -53,6 +53,6 @@ class ExampleWidget(QtWidgets.QWidget):
         elif event.button() == QtCore.Qt.RightButton:
             menu = QtWidgets.QMenu(self)
             style_action = settings_action_create(self, menu)
-            menu.popup(event.globalPos())
+            menu.popup(event.globalPosition().toPoint())
             self._menu = [menu, style_action]
             event.accept()
