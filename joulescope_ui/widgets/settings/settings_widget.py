@@ -221,6 +221,7 @@ class ColorEditorWidget(_GridWidget):
         self.setObjectName('color_editor_widget')
         self._color_widgets = []
 
+    @QtCore.Slot(str, str)
     def _on_change(self, name, color):
         if len(color) == 7:
             color += 'ff'
@@ -396,6 +397,7 @@ class FontEditorWidget(_GridWidget):
             self._grid.addWidget(w, row + 1, 1, 1, 1)
             self._widgets.append(w)
 
+    @QtCore.Slot(str, str)
     def _on_change(self, name, value):
         self._fonts[name] = value
         topic = f'{self._topic}/settings/fonts'

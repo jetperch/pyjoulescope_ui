@@ -39,6 +39,7 @@ class ProcessMonitor(QtCore.QObject):
         self._timer.timeout.connect(self._on_timer)
         self._timer.start(1000)  # = 1 / render_frame_rate
 
+    @QtCore.Slot()
     def _on_timer(self):
         time_now = time.time()
         process_time_ns = time.process_time_ns()

@@ -61,6 +61,7 @@ class FlyoutWidget(QtWidgets.QScrollArea):
             a.start()
             self.animations.append(a)
 
+    @QtCore.Slot()
     def _on_animation_finished(self):
         if self.width() == 0:
             w = self.takeWidget()

@@ -596,6 +596,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self._pubsub.publish('registry/software_update/actions/!show',
                                  [self._software_update_status['value'], done_action])
 
+    @QtCore.Slot(object)
     def _on_process_monitor(self, obj):
         x1 = obj['cpu_utilization']['self']
         x2 = obj['cpu_utilization']['all']

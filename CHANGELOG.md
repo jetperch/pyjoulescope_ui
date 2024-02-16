@@ -45,6 +45,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Updated pyjoulescope_driver from 1.4.6 to 1.4.7.
 * Updated joulescope from 1.1.8 to 1.1.12.
 * Converted deprecated QMouseEvent method calls to supported methods.
+* Added missing menu items to menu widget storage.
+* Added QtCore.Slot decorator to PySide6/Qt6 slots.
 
 
 ## 1.0.48

@@ -100,6 +100,7 @@ class QColorLabel(QtWidgets.QLabel):
     def qcolor(self):
         return color_as_qcolor(self.color)
 
+    @QtCore.Slot(QtGui.QColor)
     def _on_current_color_changed(self, color):
         self.color = color
         self.color_changed.emit(self.color)
@@ -140,6 +141,7 @@ class ColorItem(QtCore.QObject):
         self.color_label = QColorLabel(parent, color)
         self.color_label.color_changed.connect(self._on_color)
 
+    @QtCore.Slot(str)
     def _on_text(self, text):
         if self.value_edit.hasAcceptableInput():
             self.value_edit.setProperty('has_acceptable_input', True)
@@ -149,6 +151,7 @@ class ColorItem(QtCore.QObject):
         self.value_edit.style().unpolish(self.value_edit)
         self.value_edit.style().polish(self.value_edit)
 
+    @QtCore.Slot(QtGui.QColor)
     def _on_color(self, color):
         self._color = color
         self.value_edit.setText(color)

@@ -550,14 +550,17 @@ class _BaseWidget(QtWidgets.QWidget):
             pubsub_singleton.subscribe(topic, fn, ['pub', 'retain'])
         self._connect()
 
+    @QtCore.Slot(object)
     def _on_source_changed(self, value):
         self._device_widget.device_select()
         self._device_widget.device_show(value)
         self.repaint()
 
+    @QtCore.Slot(object)
     def _on_sources_changed(self, value):
         self._device_widget.device_list(value)
 
+    @QtCore.Slot(object)
     def _on_resolved_changed(self, value):
         self._connect()
 

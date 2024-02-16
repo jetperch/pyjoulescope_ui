@@ -93,6 +93,7 @@ class YRangeWidget(QtWidgets.QWidget):
         self._widgets[name] = [edit, label, validator]
         self._row += 1
 
+    @QtCore.Slot()
     def _on_value(self):
         y_range = []
         for field in ['min', 'max']:
@@ -102,6 +103,7 @@ class YRangeWidget(QtWidgets.QWidget):
             y_range.append(v * scale)
         self.value.emit(y_range)
 
+    @QtCore.Slot(int)
     def _on_prefix(self, idx):
         s1 = _PREFIXES[self._prefix_index][1]
         s2 = _PREFIXES[idx][1]

@@ -198,6 +198,7 @@ class _MainWindow(QtWidgets.QMainWindow):
         self.resize(800, 600)
         self.show()
 
+    @QtCore.Slot(object)
     def _on_order_changed(self, items):
         names = [w.name for w in items]
         print(', '.join(names))

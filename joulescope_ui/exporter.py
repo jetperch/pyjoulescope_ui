@@ -83,6 +83,7 @@ class ExporterWidget(QtWidgets.QWidget):
     def notes(self):
         return self._notes.toPlainText()
 
+    @QtCore.Slot()
     def _on_location_button(self):
         path = self._location.text()
         self._dialog = QtWidgets.QFileDialog(self._parent, N_('Select save location'), path)

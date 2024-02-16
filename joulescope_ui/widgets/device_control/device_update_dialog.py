@@ -114,11 +114,13 @@ class DeviceUpdateDialog(QtWidgets.QDialog):
             self._subscribe(topic, self._on_progress, ['pub'])
         self.open()
 
+    @QtCore.Slot()
     def _on_select_all(self):
         self._log.info('select all')
         for widgets in self._devices.values():
             widgets[0].setChecked(True)
 
+    @QtCore.Slot()
     def _on_select_none(self):
         self._log.info('select none')
         for widgets in self._devices.values():
@@ -127,6 +129,7 @@ class DeviceUpdateDialog(QtWidgets.QDialog):
     def _status_set(self, status):
         self._status.setText(_STATUS[status])
 
+    @QtCore.Slot()
     def _on_ok(self):
         if self._ok.text() == _OK:
             self.accept()
@@ -180,6 +183,7 @@ class DeviceUpdateDialog(QtWidgets.QDialog):
         for column, widget in enumerate(self._header):
             self._grid_layout.addWidget(widget, 0, column, 1, 1)
 
+    @QtCore.Slot()
     def update_devices(self):
         if self._devices_update_map is not None:
             return  # skip refresh while updating devices
@@ -265,6 +269,7 @@ class DeviceUpdateDialog(QtWidgets.QDialog):
         self.pubsub.subscribe(topic, fn, flags)
         self._subscriptions.append([topic, fn])
 
+    @QtCore.Slot()
     def _on_finish(self):
         if self not in DeviceUpdateDialog.dialogs:
             return  # duplicate finish

@@ -72,6 +72,7 @@ class ListWidget(QtWidgets.QListWidget):
         else:
             return None
 
+    @QtCore.Slot(QtWidgets.QListWidgetItem)
     def _on_item_clicked(self, item):
         item = self._items[self.currentRow()]
         self.selected.emit(item)
@@ -134,6 +135,7 @@ class ZipInspectorWidget(QtWidgets.QWidget):
             items.append(item)
         self._zip.set_items(items, default)
 
+    @QtCore.Slot(str)
     def _on_zip(self, item):
         _log.info('on_zip %s', item)
         if self._zipfile is not None:
@@ -147,6 +149,7 @@ class ZipInspectorWidget(QtWidgets.QWidget):
             infos[info.filename] = info
         self._filename.set_items(sorted(infos.keys()))
 
+    @QtCore.Slot(str)
     def _on_filename(self, item):
         self._contents.clear()
         if self._zipfile is not None:

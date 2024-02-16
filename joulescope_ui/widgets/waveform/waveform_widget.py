@@ -921,6 +921,7 @@ class WaveformWidget(QtWidgets.QWidget):
         if self.__repaint_request and self._paint_state == PaintState.READY:
             self._graphics.update()
 
+    @QtCore.Slot()
     def _on_paint_timer(self):
         if self._paint_state != PaintState.WAIT:
             self._log.warning('Unexpected paint state: %s', self._paint_state)
@@ -2898,7 +2899,7 @@ class WaveformWidget(QtWidgets.QWidget):
         annotations = menu.addMenu(N_('Annotations'))
         annotations_sub = self._menu_add_x_annotations(annotations)
         style_action = settings_action_create(self, menu)
-        self._menu = [menu, annotations_sub, style_action]
+        self._menu = [menu, annotations, annotations_sub, style_action]
         return self._menu_show(event)
 
     def _lookup_plot(self, pos=None):
@@ -3437,7 +3438,7 @@ class WaveformWidget(QtWidgets.QWidget):
         remove.triggered.connect(lambda checked=False: self._on_text_annotation_remove(a['id']))
 
         self._menu = [
-            menu, edit, show, y_mode, y_mode_group, shape, shape_group, remove,
+            menu, edit, show, y_mode, y_mode_group, shape, shape_group, remove, menu_items,
         ]
 
         return self._menu_show(event)

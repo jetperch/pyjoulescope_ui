@@ -47,6 +47,7 @@ class ErrorMessageBox(QtWidgets.QDialog):
         self.open()
         ErrorMessageBox.dialogs.append(self)
 
+    @QtCore.Slot()
     def _on_finish(self):
         self.close()
         ErrorMessageBox.dialogs.remove(self)

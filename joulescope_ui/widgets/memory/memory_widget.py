@@ -171,6 +171,7 @@ class MemSizeWidget(QtWidgets.QLineEdit):
         value = float(value)
         self._validator.setTop(value)
 
+    @QtCore.Slot()
     def _on_finished(self):
         value = float(self.text()) * _GB_FACTOR
         self.value.emit(value)
@@ -321,6 +322,7 @@ class MemoryWidget(QtWidgets.QWidget):
         self._memset.update_size(value)
         self._update(value)
 
+    @QtCore.Slot(str)
     def _on_mem_size_text(self, size):
         self.size = size
         self._on_size(size)

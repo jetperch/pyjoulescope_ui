@@ -66,6 +66,7 @@ class SafeModeDialog(QtWidgets.QDialog):
 
         self.open()
 
+    @QtCore.Slot()
     def _on_finish(self):
         self.close()
 

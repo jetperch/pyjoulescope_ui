@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PySide6 import QtWidgets
+from PySide6 import QtCore, QtWidgets
 from joulescope_ui import N_, pubsub_singleton
 from joulescope_ui.styles import styled_widget
 import cProfile
@@ -98,6 +98,7 @@ class ProfileWidget(QtWidgets.QWidget):
             }
             pubsub_singleton.publish('registry/ProfileWidget/settings/state', self._state)
 
+    @QtCore.Slot(bool)
     def _on_profile(self, checked):
         p = pubsub_singleton.query('common/settings/paths/log')
         idx = 0
@@ -123,18 +124,21 @@ class ProfileWidget(QtWidgets.QWidget):
             self._text_set(t.getvalue())
             self._snakeviz_label.setText(_SNAKEVIZ.format(path=path))
 
+    @QtCore.Slot()
     def _on_snakeviz_copy(self):
         path = self._state['profile_path']
         text = f'snakeviz {path}'
         self._text_clipboard = text
         QtWidgets.QApplication.clipboard().setText(self._text_clipboard)
 
+    @QtCore.Slot()
     def _on_memory_baseline(self):
         if self._state['snapshot'] is None:
             tracemalloc.start()
         gc.collect()
         self._state['snapshot'] = tracemalloc.take_snapshot()
 
+    @QtCore.Slot()
     def _on_memory_compare(self):
         gc.collect()
         if self._state['snapshot'] is None:

@@ -147,6 +147,7 @@ class SubmitConfigureWidget(QtWidgets.QWidget):
             return ''
         return '\n'.join(r)
 
+    @QtCore.Slot(int)
     def _on_description_tab_changed(self, index):
         if index == 1:
             md = markdown.Markdown(tab_length=2)

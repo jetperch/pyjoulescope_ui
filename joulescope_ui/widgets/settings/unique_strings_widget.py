@@ -113,10 +113,12 @@ class UniqueStringsWidget(QtWidgets.QWidget):
         for v in values:
             self._available.addItem(v)
 
+    @QtCore.Slot(str)
     def _on_line_edit(self, txt):
         self._value = txt.split(',')
         self.changed.emit(self._value)
 
+    @QtCore.Slot()
     def _on_changed(self):
         self._value = [self._str_to_option[self._selected.item(idx).text()] for idx in range(self._selected.count())]
         self.changed.emit(self._value)

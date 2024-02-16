@@ -76,6 +76,7 @@ class DeviceUpdate(QtCore.QObject):
         if timer is not None:
             timer.stop()
 
+    @QtCore.Slot()
     def _on_timer(self):
         emit_enable = False
         if self._state == self.ST_ENABLING:

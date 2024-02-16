@@ -46,6 +46,7 @@ class DockWidget(QtAds.CDockWidget):
     def _on_setting_name(self, value):
         self.setWindowTitle(value)
 
+    @QtCore.Slot()
     def _on_close_request(self):
         widget = self.widget()
         _log.info('close %s', get_unique_id(widget))

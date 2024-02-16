@@ -280,6 +280,7 @@ class WaveformControlWidget(QtWidgets.QWidget):
     def _on_pin_right_click(self, value):
         self._pubsub.publish(f'{self._topic}/settings/pin_right', bool(value))
 
+    @QtCore.Slot(int)
     def _on_min_max_sel(self, index):
         self._pubsub.publish(self._min_max_topic, index)
 

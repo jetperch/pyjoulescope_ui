@@ -132,6 +132,7 @@ class ExpandingWidget(QtWidgets.QWidget):
         self._animation_group = g
         g.start()
 
+    @QtCore.Slot(object)
     def _on_value_changed(self, v):
         w = self.parentWidget()
         while w is not None:
@@ -140,6 +141,7 @@ class ExpandingWidget(QtWidgets.QWidget):
                 w._contents.setFixedHeight(h)
             w = w.parentWidget()
 
+    @QtCore.Slot()
     def _toggle_body(self):
         if self._contents is not None:
             self._show = not self._show

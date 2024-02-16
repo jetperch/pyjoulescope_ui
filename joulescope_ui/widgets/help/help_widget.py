@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PySide6 import QtWidgets
+from PySide6 import QtCore, QtWidgets
 from joulescope_ui import N_, register, urls, pubsub_singleton
 from joulescope_ui.help_ui import format_help
 from joulescope_ui.styles import styled_widget
@@ -73,6 +73,7 @@ class HelpWidget(QtWidgets.QWidget):
 
         self.on_style_change()
 
+    @QtCore.Slot()
     def _on_report_issue(self):
         pubsub_singleton.publish('registry/report_issue/actions/!show', self)
 

@@ -151,6 +151,7 @@ class HelpHtmlMessageBox(QtWidgets.QDialog):
         self.open()
         HelpHtmlMessageBox.dialogs.append(self)
 
+    @QtCore.Slot()
     def _on_finish(self):
         self.close()
         self._log.info('finish')

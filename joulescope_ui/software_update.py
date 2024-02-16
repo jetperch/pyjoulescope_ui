@@ -339,6 +339,7 @@ class SoftwareUpdateDialog(QtWidgets.QDialog):
         SoftwareUpdateDialog.dialogs.append(self)
         self.open()
 
+    @QtCore.Slot()
     def _on_action_copy(self):
         SoftwareUpdateDialog._clipboard = self._action_txt
         QtWidgets.QApplication.clipboard().setText(self._action_txt)

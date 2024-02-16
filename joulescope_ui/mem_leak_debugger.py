@@ -46,6 +46,7 @@ class MemLeakDebugger(QtCore.QObject):
             for line in stat.traceback.format():
                 print(line)
 
+    @QtCore.Slot()
     def _on_timer(self):
         gc.collect()
         snapshot = tracemalloc.take_snapshot()

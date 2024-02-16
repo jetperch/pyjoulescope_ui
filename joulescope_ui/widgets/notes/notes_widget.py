@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PySide6 import QtWidgets
+from PySide6 import QtCore, QtWidgets
 from joulescope_ui import N_, register
 from joulescope_ui.styles import styled_widget
 
@@ -41,6 +41,7 @@ class NotesWidget(QtWidgets.QWidget):
         self._edit.textChanged.connect(self._on_text_changed)
         self._layout.addWidget(self._edit)
 
+    @QtCore.Slot()
     def _on_text_changed(self):
         self.value = self._edit.toHtml()
 

@@ -89,6 +89,7 @@ class IntelGraphicsDialog(QtWidgets.QDialog):
         IntelGraphicsDialog.shown = True
         IntelGraphicsDialog.dialogs.append(self)
 
+    @QtCore.Slot()
     def _on_finish(self):
         pubsub_singleton.publish(_PROMPT_TOPIC, not self._checkbox.isChecked())
         if self.result():
