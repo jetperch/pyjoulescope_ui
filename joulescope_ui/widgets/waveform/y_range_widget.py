@@ -46,9 +46,10 @@ class YRangeWidget(QtWidgets.QWidget):
 
     value = QtCore.Signal(object)  # y_range = [y_min, y_max]
 
-    def __init__(self, parent, y_range, unit):
+    def __init__(self, parent, y_range, unit, fn=None):
         self._widgets = {}
         self._y_range = y_range
+        self._fn = fn
         QtWidgets.QWidget.__init__(self, parent)
         self._prefix_index = 0
         self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
@@ -102,6 +103,8 @@ class YRangeWidget(QtWidgets.QWidget):
             scale = _PREFIXES[self._prefix_index][-1]
             y_range.append(v * scale)
         self.value.emit(y_range)
+        if callable(self._fn):
+            self._fn(y_range)
 
     @QtCore.Slot(int)
     def _on_prefix(self, idx):

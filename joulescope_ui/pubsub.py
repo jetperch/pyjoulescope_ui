@@ -173,7 +173,7 @@ class _Function:
             fn = getattr(fn, '__func__', fn)
             code = fn.__code__
             args = code.co_argcount
-            if code.co_varnames[0] == 'self':
+            if args and code.co_varnames[0] == 'self':
                 args -= 1
             if not 0 <= args <= 3:
                 raise ValueError(f'invalid function {fn}')
@@ -1321,7 +1321,7 @@ class PubSub:
             return
         code = func.__code__
         args = code.co_argcount
-        if code.co_varnames[0] == 'self':
+        if args and code.co_varnames[0] == 'self':
             args -= 1
         if args == 0:
             return lambda: method()

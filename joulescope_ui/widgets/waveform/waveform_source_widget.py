@@ -19,6 +19,7 @@ WARNING: this widget and feature is still under development.
 """
 
 from joulescope_ui import N_, tooltip_format
+from joulescope_ui.widget_tools import CallableAction, settings_action_create, context_menu_show
 from joulescope_ui.source_selector import SourceSelector
 from joulescope_ui.ui_util import comboBoxConfig
 from PySide6 import QtCore, QtGui, QtWidgets
@@ -47,7 +48,6 @@ class _Trace(QtWidgets.QFrame):
 
     def __init__(self, parent, index):
         self._index = index
-        self._menu = []
         self._subsources = []
         self._subsource = None
         self._priority = None
@@ -134,20 +134,18 @@ class _Trace(QtWidgets.QFrame):
         self.pubsub.publish(topic, value)
 
     def _on_name_mousePressEvent(self, event):
+        event.accept()
         if event.button() == QtCore.Qt.LeftButton:
             self._on_enable(True)
         elif event.button() == QtCore.Qt.RightButton:
             menu = QtWidgets.QMenu(self)
-            self._menu.clear()
-            self._menu = [menu]
+            group = QtGui.QActionGroup(menu)
+            group.setExclusive(True)
             for fullname in ['default'] + self._subsources:
                 subsource = fullname.split('.')[-1]
-                a = QtGui.QAction(subsource, menu)
-                a.triggered.connect(self._name_menu_factory(fullname))
-                menu.addAction(a)
-                self._menu.append(a)
-            menu.popup(event.globalPosition().toPoint())
-        event.accept()
+                CallableAction(group, subsource, self._name_menu_factory(fullname),
+                               checkable=True, checked=(fullname == self._subsource))
+            context_menu_show(menu, event)
 
 
 class WaveformSourceWidget(QtWidgets.QWidget):

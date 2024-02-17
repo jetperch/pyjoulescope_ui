@@ -17,6 +17,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from joulescope_ui import N_, register, tooltip_format, pubsub_singleton, get_instance
 from joulescope_ui.styles import styled_widget, color_as_qcolor
 from joulescope_ui.widgets.flyout import FlyoutWidget
+from joulescope_ui.widget_tools import CallableSlotAdapter
 
 
 _DEVICE_TOOLTIP = tooltip_format(
@@ -96,7 +97,7 @@ class SideBar(QtWidgets.QWidget):
 
         self._add_blink_button('target_power', 'target_power')
         b = self._add_blink_button('fuse', 'fuse_engaged', clear_only=True, skip_connect=True)
-        b.toggled.connect(lambda checked: pubsub_singleton.publish('registry/app/actions/!fuse_clear_all', None))
+        b.pressed.connect(self._on_fuse_button_pressed)
         self._add_blink_button('signal_play', 'signal_stream_enable')
         self._add_blink_button('signal_record', 'signal_stream_record')
         self._add_blink_button('statistics_play', 'statistics_stream_enable')
@@ -113,6 +114,9 @@ class SideBar(QtWidgets.QWidget):
 
         self.mousePressEvent = self._on_mousePressEvent
         pubsub_singleton.subscribe('registry/ui/events/blink_slow', self._on_blink, ['pub', 'retain'])
+
+    def _on_fuse_button_pressed(self):
+        pubsub_singleton.publish('registry/app/actions/!fuse_clear_all', None)
 
     def register(self):
         pubsub = pubsub_singleton
@@ -149,7 +153,8 @@ class SideBar(QtWidgets.QWidget):
 
         pubsub_singleton.subscribe(topic, update_from_pubsub, ['pub', 'retain'])
         if not bool(skip_connect):
-            button.toggled.connect(lambda checked: pubsub_singleton.publish(topic, bool(checked)))
+            adapter = CallableSlotAdapter(button, lambda checked: pubsub_singleton.publish(topic, bool(checked)))
+            button.toggled.connect(adapter.slot)
         return button
 
     def _add_button(self, name, tooltip, clz=None, unique_id=None, width=None):
@@ -167,7 +172,8 @@ class SideBar(QtWidgets.QWidget):
         }
         if clz is not None:
             button.setProperty('selected', False)
-            button.clicked.connect(lambda: self.on_cmd_show(name))
+            adapter = CallableSlotAdapter(button, lambda: self.on_cmd_show(name))
+            button.clicked.connect(adapter.slot)
         self._layout.addWidget(button)
         return button
 

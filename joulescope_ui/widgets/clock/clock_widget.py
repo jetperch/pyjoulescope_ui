@@ -15,7 +15,7 @@
 from PySide6 import QtCore, QtWidgets
 from joulescope_ui import N_, register
 from joulescope_ui.styles import styled_widget
-from joulescope_ui.widget_tools import settings_action_create
+from joulescope_ui.widget_tools import settings_action_create, context_menu_show
 from datetime import datetime
 
 
@@ -73,11 +73,10 @@ class ClockWidget(QtWidgets.QWidget):
         self.pubsub.unsubscribe(_TOPIC, self._on_update_fn, ['pub'])
 
     def mousePressEvent(self, event):
+        event.accept()
         if event.button() == QtCore.Qt.LeftButton:
-            event.accept()
+            pass
         elif event.button() == QtCore.Qt.RightButton:
             menu = QtWidgets.QMenu(self)
-            style_action = settings_action_create(self, menu)
-            menu.popup(event.globalPosition().toPoint())
-            self._menu = [menu, style_action]
-            event.accept()
+            settings_action_create(self, menu)
+            context_menu_show(menu, event)

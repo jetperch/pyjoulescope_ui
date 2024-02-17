@@ -19,6 +19,7 @@ from joulescope_ui import N_, register, tooltip_format, pubsub_singleton, \
     get_instance, get_topic_name, Metadata, urls
 from joulescope_ui.styles import color_as_qcolor
 from joulescope_ui.ui_util import comboBoxConfig
+from joulescope_ui.widget_tools import CallableSlotAdapter
 from .device_info_dialog import DeviceInfoDialog
 from .current_limits import CurrentLimits
 from .fuse import FuseWidget
@@ -207,6 +208,10 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         self._widgets.append(b)
         return b
 
+    @QtCore.Slot()
+    def _on_doc_clicked(self):
+        webbrowser.open_new_tab(self._USERS_GUIDE_URL)
+
     def _construct_header(self):
         w = QtWidgets.QWidget(self._expanding)
         layout = QtWidgets.QHBoxLayout(w)
@@ -214,7 +219,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         layout.setSpacing(3)
 
         doc = self._construct_pushbutton('doc', tooltip=_DOC_TOOLTIP)
-        doc.clicked.connect(lambda checked: webbrowser.open_new_tab(self._USERS_GUIDE_URL))
+        doc.clicked.connect(self._on_doc_clicked)
         layout.addWidget(doc)
 
         if self.is_js220:
@@ -309,7 +314,8 @@ class Js220CtrlWidget(QtWidgets.QWidget):
 
         self._target_power_button = b
         self._subscribe(topic, update_from_pubsub)
-        b.toggled.connect(lambda checked: pubsub_singleton.publish(topic, bool(checked)))
+        adapter = CallableSlotAdapter(b, lambda checked: pubsub_singleton.publish(topic, bool(checked)))
+        b.toggled.connect(adapter.slot)
         return b
 
     def _gpi_state_clear(self):
@@ -392,7 +398,8 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             b.blockSignals(block_state)
 
         self._subscribe(topic, update_from_pubsub)
-        b.toggled.connect(lambda checked: pubsub_singleton.publish(topic, bool(checked)))
+        adapter = CallableSlotAdapter(b, lambda checked: pubsub_singleton.publish(topic, bool(checked)))
+        b.toggled.connect(adapter.slot)
         self._signals['layout'].addWidget(b)
         self._signals['buttons'][signal] = b
 
@@ -440,7 +447,8 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             b.blockSignals(block_state)
 
         self._subscribe(topic, update_from_pubsub)
-        b.toggled.connect(lambda checked: pubsub_singleton.publish(topic, bool(checked)))
+        adapter = CallableSlotAdapter(b, lambda checked: pubsub_singleton.publish(topic, bool(checked)))
+        b.toggled.connect(adapter.slot)
         self._gpo['layout'].addWidget(b)
         self._gpo['buttons'].append(b)
 
@@ -456,7 +464,8 @@ class Js220CtrlWidget(QtWidgets.QWidget):
     def _add_str(self, name):
         w = QtWidgets.QLineEdit(self)
         topic = f'{get_topic_name(self.unique_id)}/settings/{name}'
-        w.textChanged.connect(lambda s: pubsub_singleton.publish(topic, s))
+        adapter = CallableSlotAdapter(w, lambda s: pubsub_singleton.publish(topic, s))
+        w.textChanged.connect(adapter.slot)
 
         def on_change(v):
             block_state = w.blockSignals(True)
@@ -481,9 +490,11 @@ class Js220CtrlWidget(QtWidgets.QWidget):
                 pubsub_singleton.publish('registry/JsdrvStreamBuffer:001/actions/!clear', None)
                 pubsub_singleton.publish(topic, options[idx][0])
                 pubsub_singleton.publish('registry/JsdrvStreamBuffer:001/actions/!clear', None)
-            w.currentIndexChanged.connect(fn)
         else:
-            w.currentIndexChanged.connect(lambda idx: pubsub_singleton.publish(topic, options[idx][0]))
+            def fn(idx):
+                pubsub_singleton.publish(topic, options[idx][0])
+        adapter = CallableSlotAdapter(w, fn)
+        w.currentIndexChanged.connect(adapter.slot)
 
         if name == 'current_range':
             w.currentIndexChanged.connect(self._on_current_range)
@@ -506,7 +517,8 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         w = CurrentLimits(self)
         topic = f'{get_topic_name(self.unique_id)}/settings/{name}'
         self._control_widgets[name] = w
-        w.values_changed.connect(lambda v0, v1: pubsub_singleton.publish(topic, [v0, v1]))
+        adapter = CallableSlotAdapter(w, lambda v0, v1: pubsub_singleton.publish(topic, [v0, v1]))
+        w.values_changed.connect(adapter.slot)
         combobox = self._control_widgets.get('current_range', None)
         if combobox is not None:
             self._on_current_range(combobox.currentIndex())

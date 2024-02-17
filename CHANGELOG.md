@@ -47,6 +47,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Converted deprecated QMouseEvent method calls to supported methods.
 * Added missing menu items to menu widget storage.
 * Added QtCore.Slot decorator to PySide6/Qt6 slots.
+* Improved QMenu and Qt Slot memory management and object lifecycle management.
 
 
 ## 1.0.48

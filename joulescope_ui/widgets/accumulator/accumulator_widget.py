@@ -15,7 +15,7 @@
 from PySide6 import QtWidgets, QtGui, QtCore
 from joulescope_ui import N_, register, CAPABILITIES, pubsub_singleton, get_topic_name
 from joulescope_ui.source_selector import SourceSelector
-from joulescope_ui.widget_tools import settings_action_create
+from joulescope_ui.widget_tools import CallableAction, settings_action_create, context_menu_show
 from joulescope_ui.styles import styled_widget
 from joulescope_ui.units import UNITS_SETTING, convert_units, unit_prefix, elapsed_time_formatter
 import logging
@@ -144,6 +144,7 @@ class AccumulatorWidget(QtWidgets.QWidget):
         self.repaint()
 
     def mousePressEvent(self, event):
+        event.accept()
         if event.button() == QtCore.Qt.LeftButton:
             self._clipboard = self._accum_label.text()
             self._log.info('copy value to clipboard: %s', self._clipboard)
@@ -156,9 +157,7 @@ class AccumulatorWidget(QtWidgets.QWidget):
             else:
                 toggle_field = 'energy'
                 action = N_('Show energy')
-            field_toggle = QtGui.QAction(action)
-            menu.addAction(field_toggle)
-            field_toggle.triggered.connect(lambda checked=False: self._on_field(toggle_field))
+            CallableAction(menu, action, lambda: self._on_field(toggle_field))
 
             if self.units == 'SI':
                 toggle_units = 'Xh'
@@ -166,19 +165,11 @@ class AccumulatorWidget(QtWidgets.QWidget):
             else:
                 toggle_units = 'SI'
                 action_units = 'J' if self.field == 'energy' else 'C'
-            units_toggle = QtGui.QAction(N_('Set units') + ': ' + action_units)
-            menu.addAction(units_toggle)
-            units_toggle.triggered.connect(lambda checked=False: self._on_units(toggle_units))
+            CallableAction(menu, N_('Set units') + ': ' + action_units, lambda: self._on_units(toggle_units))
 
-            source_menu, source_menu_items = self.source_selector.submenu_factory(menu)
-
-            style_action = settings_action_create(self, menu)
-            menu.popup(event.globalPosition().toPoint())
-            self._menu = [
-                menu, field_toggle, units_toggle,
-                source_menu, source_menu_items,
-                style_action]
-            event.accept()
+            self.source_selector.submenu_factory(menu)
+            settings_action_create(self, menu)
+            context_menu_show(menu, event)
 
     def _construct_source_action(self, source):
         def fn():

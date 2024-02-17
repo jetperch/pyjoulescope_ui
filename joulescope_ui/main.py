@@ -633,7 +633,7 @@ class MainWindow(QtWidgets.QMainWindow):
             menu_items.append([str(idx), mru, [f'{topic}/actions/!file_open', mru]])
         open_recent_list[1] = _menu_setup(menu, menu_items)
 
-    def _on_change_views(self, value):
+    def _on_change_views(self, value=None):
         value = self._pubsub.query('registry/view/instances')
         active_view = self._pubsub.query('registry/view/settings/active', default=None)
         menu, k = self._menu_items['view_menu']
@@ -665,8 +665,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def _on_view_manage(self, checked=False):
         self._log.info('View Manage')
-        dialog = ViewManagerDialog(self)
-        dialog.finished.connect(lambda x: self._on_change_views(None))
+        ViewManagerDialog(self)
 
     def _on_change_widgets(self, value):
         menu, _ = self._menu_items['widgets_menu']

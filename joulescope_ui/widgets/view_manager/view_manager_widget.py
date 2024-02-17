@@ -164,13 +164,11 @@ class ViewManagerWidget(QtWidgets.QWidget):
 
 class ViewManagerDialog(QtWidgets.QDialog):
 
-    _instances = []
-
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self._layout = QtWidgets.QVBoxLayout(self)
 
-        self._widget = ViewManagerWidget(self)
+        self._widget = ViewManagerWidget()
         self._layout.addWidget(self._widget)
         pubsub_singleton.register(self._widget, parent='ui')
         pubsub_singleton.publish(RENDER_TOPIC, self._widget)
@@ -180,11 +178,7 @@ class ViewManagerDialog(QtWidgets.QDialog):
 
         self.setWindowTitle(N_('View Manager'))
         self.open()
-        ViewManagerDialog._instances.append(self)
 
     def _on_finish(self):
         pubsub_singleton.unregister(self._widget, delete=True)
         self._widget.cleanup()
-        while self in ViewManagerDialog._instances:
-            ViewManagerDialog._instances.remove(self)
-

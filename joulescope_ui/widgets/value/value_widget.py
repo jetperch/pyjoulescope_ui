@@ -14,7 +14,7 @@
 
 from PySide6 import QtWidgets, QtGui, QtCore
 from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topic_name, tooltip_format
-from joulescope_ui.widget_tools import settings_action_create
+from joulescope_ui.widget_tools import settings_action_create, context_menu_show
 from joulescope_ui.styles import styled_widget, color_as_qcolor, font_as_qfont
 from joulescope_ui.units import UNITS_SETTING, convert_units, unit_prefix, three_sig_figs
 from joulescope_ui.ui_util import comboBoxConfig, comboBoxSelectItemByText
@@ -651,17 +651,14 @@ class _BaseWidget(QtWidgets.QWidget):
         self._accrue_widget.setVisible(bool(value))
 
     def _on_mousePressEvent(self, event):
+        event.accept()
         if event.button() == QtCore.Qt.LeftButton:
-            event.accept()
+            pass
         elif event.button() == QtCore.Qt.RightButton:
             menu = QtWidgets.QMenu(self)
-            source_menu, source_menu_items = self.source_selector.submenu_factory(menu)
-            style_action = settings_action_create(self, menu)
-            menu.popup(event.globalPosition().toPoint())
-            self._menu = [menu,
-                          source_menu, source_menu_items,
-                          style_action]
-            event.accept()
+            self.source_selector.submenu_factory(menu)
+            settings_action_create(self, menu)
+            context_menu_show(menu, event)
 
     def on_style_change(self):
         self.update()

@@ -14,6 +14,7 @@
 
 from PySide6 import QtWidgets
 from joulescope_ui import register, N_, pubsub_singleton
+from joulescope_ui.widget_tools import CallableSlotAdapter
 
 
 _MENU_ITEMS = [
@@ -48,7 +49,7 @@ class HamburgerWidget(QtWidgets.QWidget):
         b.setObjectName(obj_name)
         b.setText(user_name)
         self._layout.addWidget(b)
-
-        b.clicked.connect(lambda: pubsub_singleton.publish(*action))
+        adapter = CallableSlotAdapter(b, lambda: pubsub_singleton.publish(*action))
+        b.clicked.connect(adapter.slot)
         self._widgets.append(b)
         return b

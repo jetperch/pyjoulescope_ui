@@ -14,7 +14,7 @@
 
 from PySide6 import QtWidgets, QtCore
 from joulescope_ui import CAPABILITIES, register, pubsub, Metadata, N_
-from joulescope_ui.widget_tools import settings_action_create
+from joulescope_ui.widget_tools import settings_action_create, context_menu_show
 from joulescope_ui.styles import styled_widget
 
 
@@ -48,11 +48,10 @@ class ExampleWidget(QtWidgets.QWidget):
         self.mousePressEvent = self._on_mousePressEvent
 
     def _on_mousePressEvent(self, event):
+        event.accept()
         if event.button() == QtCore.Qt.LeftButton:
-            event.accept()
+            pass
         elif event.button() == QtCore.Qt.RightButton:
             menu = QtWidgets.QMenu(self)
-            style_action = settings_action_create(self, menu)
-            menu.popup(event.globalPosition().toPoint())
-            self._menu = [menu, style_action]
-            event.accept()
+            settings_action_create(self, menu)
+            context_menu_show(menu, event)

@@ -15,6 +15,7 @@
 
 from PySide6 import QtCore, QtGui
 from joulescope_ui import N_, CAPABILITIES, pubsub_singleton, get_topic_name
+from joulescope_ui.widget_tools import CallableAction
 
 
 _SOURCE_DEF = {
@@ -254,11 +255,6 @@ class SourceSelector(QtCore.QObject):
         source_menu = menu.addMenu(N_('Source'))
         source_group = QtGui.QActionGroup(source_menu)
         source_group.setExclusive(True)
-        source_menu_items = [source_group]
         for device in ['default'] + self._list:
-            a = QtGui.QAction(device, source_group, checkable=True)
-            a.setChecked(device == self.value)
-            a.triggered.connect(self._construct_source_action(device))
-            source_menu.addAction(a)
-            source_menu_items.append(a)
-        return source_menu, source_menu_items
+            CallableAction(source_group, device, self._construct_source_action(device),
+                           checkable=True, checked=(device == self.value))

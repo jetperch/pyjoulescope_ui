@@ -21,6 +21,7 @@ from joulescope_ui.ui_util import comboBoxConfig, comboBoxSelectItemByText
 from joulescope_ui.styles import styled_widget, font_as_qfont, font_as_qss
 from joulescope_ui.styles.color_picker import ColorItem
 from joulescope_ui.styles.manager import style_settings
+from joulescope_ui.widget_tools import CallableSlotAdapter
 import copy
 import logging
 
@@ -145,7 +146,8 @@ class SettingsEditorWidget(_GridWidget):
         widget = QtWidgets.QCheckBox(self)
         self._grid.addWidget(widget, self._row, 1, 1, 1)
         self._widgets.append(widget)
-        widget.clicked.connect(lambda: pubsub_singleton.publish(topic, widget.isChecked()))
+        adapter = CallableSlotAdapter(widget, lambda: pubsub_singleton.publish(topic, widget.isChecked()))
+        widget.clicked.connect(adapter.slot)
 
         def handle(v):
             block_state = widget.blockSignals(True)
@@ -159,7 +161,8 @@ class SettingsEditorWidget(_GridWidget):
         widget = QtWidgets.QLineEdit(self)
         self._grid.addWidget(widget, self._row, 1, 1, 1)
         self._widgets.append(widget)
-        widget.textChanged.connect(lambda txt: pubsub_singleton.publish(topic, txt))
+        adapter = CallableSlotAdapter(widget, lambda txt: pubsub_singleton.publish(topic, txt))
+        widget.textChanged.connect(adapter.slot)
 
         def handle(v):
             block_state = widget.blockSignals(True)
@@ -181,7 +184,8 @@ class SettingsEditorWidget(_GridWidget):
         else:
             default = meta.default
         comboBoxConfig(widget, options, default)
-        widget.currentIndexChanged.connect(lambda idx: pubsub_singleton.publish(topic, options[idx]))
+        adapter = CallableSlotAdapter(widget, lambda idx: pubsub_singleton.publish(topic, options[idx]))
+        widget.currentIndexChanged.connect(adapter.slot)
 
         def handle(v):
             if v in values:
@@ -198,7 +202,8 @@ class SettingsEditorWidget(_GridWidget):
         w = UniqueStringsWidget(self, meta.options)
         self._grid.addWidget(w, self._row, 1, 1, 1)
         self._widgets.append(w)
-        w.changed.connect(lambda v: pubsub_singleton.publish(topic, v))
+        adapter = CallableSlotAdapter(w, lambda v: pubsub_singleton.publish(topic, v))
+        w.changed.connect(adapter.slot)
 
         def handle(v):
             w.value = v
@@ -469,7 +474,8 @@ class StyleDefineEditorWidget(_GridWidget):
             self._widgets.append(w)
 
     def _connect(self, name, w):
-        w.textChanged.connect(lambda value: self._on_change(name, value))
+        adapter = CallableSlotAdapter(w, lambda value: self._on_change(name, value))
+        w.textChanged.connect(adapter.slot)
 
     def _on_change(self, name, value):
         self._entries[name] = value

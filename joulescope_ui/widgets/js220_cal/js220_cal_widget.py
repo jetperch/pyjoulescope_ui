@@ -16,6 +16,7 @@ from PySide6 import QtWidgets, QtGui, QtCore
 import pkgutil
 from joulescope_ui import N_, register, CAPABILITIES, pubsub_singleton, get_topic_name, get_instance
 from joulescope_ui.styles import styled_widget
+from joulescope_ui.widget_tools import CallableSlotAdapter
 from pyjoulescope_driver import calibration_hash
 import time
 import logging
@@ -313,7 +314,6 @@ class _CalibrationThread(QtCore.QThread):
 class _ContentsWidget(QtWidgets.QWidget):
 
     def __init__(self, parent, device):
-        self._parent = parent
         self._log = logging.getLogger(__name__)
         self._device = device
         self._widgets = []
@@ -339,7 +339,7 @@ class _ContentsWidget(QtWidgets.QWidget):
 
         self._factory_button = QtWidgets.QPushButton(_FACTORY)
         self._layout.addWidget(self._factory_button)
-        self._factory_button.pressed.connect(lambda: self._parent.calibrate('factory_restore'))
+        self._factory_button.pressed.connect(self._on_factory_button_pressed)
 
         self._spacer = QtWidgets.QSpacerItem(0, 0,
                                              QtWidgets.QSizePolicy.Minimum,
@@ -354,8 +354,11 @@ class _ContentsWidget(QtWidgets.QWidget):
         self._button_layout.addItem(self._button_spacer)
         self._exit_button = QtWidgets.QPushButton(_EXIT)
         self._button_layout.addWidget(self._exit_button)
-        self._exit_button.pressed.connect(self._parent.exit)
+        self._exit_button.pressed.connect(parent.exit)
         self._layout.addWidget(self._button_widget)
+
+    def _on_factory_button_pressed(self):
+        self.parent().calibrate('factory_restore')
 
     def _add_operation(self, op_name):
         row = self._op_layout.rowCount()
@@ -364,7 +367,8 @@ class _ContentsWidget(QtWidgets.QWidget):
         button_widget = QtWidgets.QPushButton(_START)
         self._op_layout.addWidget(name_widget, row, 0, 1, 1)
         self._op_layout.addWidget(button_widget, row, 1, 1, 1)
-        button_widget.pressed.connect(lambda: self._parent.start(op_name))
+        adapter = CallableSlotAdapter(button_widget, lambda: self.parent().start(op_name))
+        button_widget.pressed.connect(adapter.slot)
         self._widgets.append((name_widget, button_widget))
 
 
@@ -373,6 +377,7 @@ class _SetupWidget(QtWidgets.QWidget):
     def __init__(self, parent, device, op_name):
         self._log = logging.getLogger(__name__)
         self._device = device
+        self._op_name = op_name
         super().__init__(parent=parent)
         self.setObjectName('js220_calibration_setup_widget')
         self._layout = QtWidgets.QVBoxLayout(self)
@@ -410,7 +415,11 @@ class _SetupWidget(QtWidgets.QWidget):
         self._layout.addWidget(self._button_widget)
 
         self._cancel_button.pressed.connect(parent.cancel)
-        self._start_button.pressed.connect(lambda: parent.calibrate(op_name))
+        self._start_button.pressed.connect(self._on_start_button_pressed)
+
+    @QtCore.Slot()
+    def _on_start_button_pressed(self):
+        self.parent().calibrate(self._op_name)
 
 
 class _WaitWidget(QtWidgets.QWidget):

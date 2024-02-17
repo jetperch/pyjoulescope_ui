@@ -14,6 +14,7 @@
 
 from joulescope_ui import pubsub_singleton, N_, get_topic_name, tooltip_format
 from joulescope_ui.ui_util import comboBoxConfig
+from joulescope_ui.widget_tools import CallableSlotAdapter
 from PySide6 import QtCore, QtGui, QtWidgets
 import sys
 import logging
@@ -304,7 +305,8 @@ class WaveformControlWidget(QtWidgets.QWidget):
         b.setFixedSize(*_BUTTON_SIZE)
         self._signal_layout.addWidget(b)
         self._signals[signal] = b
-        b.clicked.connect(lambda checked: self._on_signal_button(signal, checked))
+        adapter = CallableSlotAdapter(b, lambda checked: self._on_signal_button(signal, checked))
+        b.clicked.connect(adapter.slot)
         return b
 
     def _on_signal_button(self, name, checked):
