@@ -134,9 +134,10 @@ class PubSubExplorerWidget(QtWidgets.QWidget):
     def _on_changed(self, model_index, model_index_old):
         topic = self._model.data(model_index, QtCore.Qt.UserRole + 1)
         self._detail.topic = topic
-        for idx, (_, fn) in enumerate(self._subscriptions):
+        for idx, (topic, fn) in enumerate(self._subscriptions):
             if fn == self._on_value_fn:
                 self._subscriptions.pop(idx)
+                self.pubsub.unsubscribe(topic, fn)
                 break
         self._subscribe(topic, self._on_value_fn, ['pub', 'retain'])
 

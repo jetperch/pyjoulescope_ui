@@ -99,7 +99,7 @@ class PublishSpyWidget(QtWidgets.QWidget):
 
     def _on_values(self):
         self._model.setHorizontalHeaderLabels(_VALUE_TABLE_COLUMNS)
-        self._pps.setText(f'{len(self._data_display)} total per second</html>')
+        self._pps.setText(f'<html>{len(self._data_display)} total per second</html>')
         for topic, value in self._data_display:
             row = [QtGui.QStandardItem(topic), QtGui.QStandardItem(value)]
             for e in row:
