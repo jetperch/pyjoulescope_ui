@@ -37,14 +37,13 @@ class RecordStatusWidget(QtWidgets.QWidget):
     # Note: does NOT implement widget CAPABILITY, since not instantiable by user or available as a dock widget.
 
     def __init__(self, parent, source_unique_id):
-        self._parent = parent
         self._time = None
         self._source_unique_id = source_unique_id
         self._brief = _UNIQUE_IDS[source_unique_id]
         super().__init__(parent=parent)
         self.setVisible(False)
 
-        self._layout = QtWidgets.QHBoxLayout()
+        self._layout = QtWidgets.QHBoxLayout(self)
         self._layout.setSpacing(0)
         self._layout.setContentsMargins(0, 0, 0, 0)
 
@@ -55,8 +54,6 @@ class RecordStatusWidget(QtWidgets.QWidget):
 
         self._text = QtWidgets.QLabel(self)
         self._layout.addWidget(self._text)
-
-        self.setLayout(self._layout)
 
         topic = get_topic_name(source_unique_id)
         pubsub_singleton.subscribe(f'{topic}/actions/!start', self._on_start, ['pub'])

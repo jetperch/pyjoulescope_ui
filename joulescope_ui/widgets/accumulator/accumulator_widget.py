@@ -64,10 +64,9 @@ class AccumulatorWidget(QtWidgets.QWidget):
         self.source_selector.source_changed.connect(self._on_source_changed)
         self.source_selector.resolved_changed.connect(self._on_resolved_changed)
 
-        self._layout = QtWidgets.QVBoxLayout()
+        self._layout = QtWidgets.QVBoxLayout(self)
         self._layout.setContentsMargins(0, 0, 0, 0)
         self._layout.setSpacing(0)
-        self.setLayout(self._layout)
         self._hold_global = False
 
         self._accum_label = QtWidgets.QLabel(parent=self)

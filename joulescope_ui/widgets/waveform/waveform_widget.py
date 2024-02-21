@@ -237,7 +237,6 @@ class _PlotOpenGLWidget(QtOpenGLWidgets.QOpenGLWidget):
 
     def __init__(self, parent):
         self._log = logging.getLogger(__name__ + '.plot')
-        self._parent = parent
         self._antialiasing = QtGui.QPainter.RenderHint.Antialiasing
         self._render_cbk = None
         super().__init__(parent)
@@ -262,7 +261,7 @@ class _PlotOpenGLWidget(QtOpenGLWidgets.QOpenGLWidget):
         painter.setRenderHint(self._antialiasing)
         painter.beginNativePainting()
         try:
-            self._parent.plot_paint(painter, size)
+            self.parent().plot_paint(painter, size)
         finally:
             painter.endNativePainting()
         painter.end()
@@ -271,20 +270,20 @@ class _PlotOpenGLWidget(QtOpenGLWidgets.QOpenGLWidget):
             render_cbk(self.render_to_image())
 
     def resizeEvent(self, event):
-        self._parent.plot_resizeEvent(event)
+        self.parent().plot_resizeEvent(event)
         return super().resizeEvent(event)
 
     def mousePressEvent(self, event):
-        self._parent.plot_mousePressEvent(event)
+        self.parent().plot_mousePressEvent(event)
 
     def mouseReleaseEvent(self, event):
-        self._parent.plot_mouseReleaseEvent(event)
+        self.parent().plot_mouseReleaseEvent(event)
 
     def mouseMoveEvent(self, event):
-        self._parent.plot_mouseMoveEvent(event)
+        self.parent().plot_mouseMoveEvent(event)
 
     def wheelEvent(self, event):
-        self._parent.plot_wheelEvent(event)
+        self.parent().plot_wheelEvent(event)
 
     def render_callback(self, fn):
         self._render_cbk = fn
@@ -298,7 +297,6 @@ class _PlotWidget(QtWidgets.QWidget):
 
     def __init__(self, parent):
         self._log = logging.getLogger(__name__ + '.plot')
-        self._parent = parent
         self._render_cbk = None
         super().__init__(parent)
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
@@ -308,27 +306,27 @@ class _PlotWidget(QtWidgets.QWidget):
         size = self.width(), self.height()
         painter = QtGui.QPainter(self)
         painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
-        self._parent.plot_paint(painter, size)
+        self.parent().plot_paint(painter, size)
         painter.end()
         render_cbk, self._render_cbk = self._render_cbk, None
         if callable(render_cbk):
             render_cbk(self.render_to_image())
 
     def resizeEvent(self, event):
-        self._parent.plot_resizeEvent(event)
+        self.parent().plot_resizeEvent(event)
         return super().resizeEvent(event)
 
     def mousePressEvent(self, event):
-        self._parent.plot_mousePressEvent(event)
+        self.parent().plot_mousePressEvent(event)
 
     def mouseReleaseEvent(self, event):
-        self._parent.plot_mouseReleaseEvent(event)
+        self.parent().plot_mouseReleaseEvent(event)
 
     def mouseMoveEvent(self, event):
-        self._parent.plot_mouseMoveEvent(event)
+        self.parent().plot_mouseMoveEvent(event)
 
     def wheelEvent(self, event):
-        self._parent.plot_wheelEvent(event)
+        self.parent().plot_wheelEvent(event)
 
     def render_callback(self, fn):
         self._render_cbk = fn

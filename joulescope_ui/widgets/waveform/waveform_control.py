@@ -201,7 +201,6 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._signal_layout = QtWidgets.QHBoxLayout(self._signal_holder)
         self._signal_layout.setContentsMargins(3, 0, 3, 0)
         self._signal_layout.setSpacing(3)
-        self._signal_holder.setLayout(self._signal_layout)
 
         self._signals = {}
         for signal in _SIGNALS:

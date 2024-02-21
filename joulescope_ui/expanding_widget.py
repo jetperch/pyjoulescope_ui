@@ -19,7 +19,6 @@ import logging
 class ExpandingWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
         self._log = logging.getLogger(__name__)
-        self._parent = parent
         self._header_ex_widget = None
         self._contents: QtWidgets.QWidget = None
         self._show = False
@@ -48,7 +47,6 @@ class ExpandingWidget(QtWidgets.QWidget):
         self._spacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self._header_layout.addWidget(self._header_title)
         self._header_layout.addItem(self._spacer)
-        self._header.setLayout(self._header_layout)
         self._header.mousePressEvent = self._on_header_mousePressEvent
         self._header.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         self._layout.addWidget(self._header)

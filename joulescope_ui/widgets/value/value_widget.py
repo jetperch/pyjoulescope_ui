@@ -140,7 +140,6 @@ def _width(font_metrics):
 class _DeviceWidget(QtWidgets.QWidget):
 
     def __init__(self, parent):
-        self._parent = parent
         super().__init__(parent=parent)
         self._layout = QtWidgets.QHBoxLayout(self)
         self._layout.setContentsMargins(5, 5, 5, 2)
@@ -149,7 +148,7 @@ class _DeviceWidget(QtWidgets.QWidget):
         self._device_fixed_label.setToolTip(_DEVICE_TOOLTIP)
         self._device_select = QtWidgets.QComboBox(parent=self)
         self._device_select.setToolTip(_DEVICE_TOOLTIP)
-        self._device_select.currentTextChanged.connect(self._parent.source_selector.source_set)
+        self._device_select.currentTextChanged.connect(parent.source_selector.source_set)
         self._device_select.setSizeAdjustPolicy(QtWidgets.QComboBox.SizeAdjustPolicy.AdjustToContents)
         self._device_label = QtWidgets.QLabel(self)
         self._device_label.hide()
@@ -163,10 +162,10 @@ class _DeviceWidget(QtWidgets.QWidget):
         self._layout.addItem(self._horizontalSpacer)
 
     def device_list(self, devices):
-        comboBoxConfig(self._device_select, devices, self._parent.source_selector.value)
+        comboBoxConfig(self._device_select, devices, self.parent().source_selector.value)
 
     def device_select(self):
-        comboBoxSelectItemByText(self._device_select, self._parent.source_selector.value)
+        comboBoxSelectItemByText(self._device_select, self.parent().source_selector.value)
 
     def device_show(self, name):
         if name is None:
@@ -187,7 +186,7 @@ class _AccrueWidget(QtWidgets.QWidget):
         self._hold_global = False
         self.accrue = False
         super().__init__(parent=parent)
-        self._layout = QtWidgets.QHBoxLayout()
+        self._layout = QtWidgets.QHBoxLayout(self)
         self._layout.setContentsMargins(5, 2, 5, 5)
 
         self._hold_button = QtWidgets.QPushButton(self)
@@ -211,8 +210,6 @@ class _AccrueWidget(QtWidgets.QWidget):
 
         self._spacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self._layout.addItem(self._spacer)
-
-        self.setLayout(self._layout)
 
     @property
     def is_accrue(self):
@@ -256,7 +253,6 @@ class _InnerWidget(QtWidgets.QWidget):
 
     def __init__(self, parent):
         self._log = logging.getLogger(__name__ + '.inner')
-        self._parent: ValueWidget = parent
         self._statistics = None  # most recent statistics information
         super().__init__(parent=parent)
         self._size = (10, 10)
@@ -275,7 +271,7 @@ class _InnerWidget(QtWidgets.QWidget):
 
     def paintEvent(self, event):
         fields = [field for field in self._fields if field != self._main]
-        parent = self._parent
+        parent: ValueWidget = self.parent()
         resolved = parent.source_selector.resolved()
         if resolved is None or parent.style_obj is None:
             return
@@ -384,7 +380,7 @@ class _InnerWidget(QtWidgets.QWidget):
             if signal_name in self._statistics['accumulators']:
                 signal = self._statistics['accumulators'][signal_name]
                 fields = ['accumulate_duration']
-                signal_value, signal_units = convert_units(signal['value'], signal['units'], self._parent.units)
+                signal_value, signal_units = convert_units(signal['value'], signal['units'], parent.units)
                 _, prefix, scale = unit_prefix(signal_value)
             else:
                 signal = self._statistics['signals'][signal_name]
@@ -514,7 +510,7 @@ class _BaseWidget(QtWidgets.QWidget):
         self.source_selector.resolved_changed.connect(self._on_resolved_changed)
 
         self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
-        self._layout = QtWidgets.QVBoxLayout()
+        self._layout = QtWidgets.QVBoxLayout(self)
         self._layout.setContentsMargins(0, 0, 0, 0)
         self._layout.setSpacing(0)
         self._device_widget = _DeviceWidget(self)
@@ -525,7 +521,6 @@ class _BaseWidget(QtWidgets.QWidget):
         self._layout.addWidget(self._inner)
         self._spacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self._layout.addItem(self._spacer)
-        self.setLayout(self._layout)
 
         self._on_statistics_fn = self._on_statistics
         self._statistics = None  # most recent statistics information

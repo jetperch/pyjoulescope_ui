@@ -33,10 +33,9 @@ class HamburgerWidget(QtWidgets.QWidget):
         self._widgets = []
         self.setObjectName('hamburger_widget')
         self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
-        self._layout = QtWidgets.QVBoxLayout()
+        self._layout = QtWidgets.QVBoxLayout(self)
         self._layout.setContentsMargins(0, 0, 0, 0)
         self._layout.setSpacing(0)
-        self.setLayout(self._layout)
 
         for obj_name, user_name, action in _MENU_ITEMS:
             self._add_button(obj_name, user_name, action)

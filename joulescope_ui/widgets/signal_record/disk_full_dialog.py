@@ -22,8 +22,6 @@ _MESSAGE = N_('The disk is full')
 class DiskFullDialog(QtWidgets.QDialog):
     """Display disk full notification."""
 
-    dialogs = []
-
     def __init__(self, pubsub, paths):
         paths_msg = '<br/>'.join(paths)
         html = f'<html><body><p>{_MESSAGE}</p><p>{paths_msg}</p></body></html>'
@@ -47,9 +45,7 @@ class DiskFullDialog(QtWidgets.QDialog):
         self.finished.connect(self._on_finish)
 
         self.open()
-        DiskFullDialog.dialogs.append(self)
 
     def _on_finish(self):
         self.close()
-        DiskFullDialog.dialogs.remove(self)
 

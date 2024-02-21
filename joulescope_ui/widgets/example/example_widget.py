@@ -25,8 +25,8 @@ class ExampleWidget(QtWidgets.QWidget):
 
     CAPABILITIES = ['widget@']
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
         self._menu = None
         self._layout = QtWidgets.QVBoxLayout(self)
 

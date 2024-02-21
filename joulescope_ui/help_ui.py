@@ -103,8 +103,6 @@ def load_style(pubsub=None):
 class HelpHtmlMessageBox(QtWidgets.QDialog):
     """Display user-meaningful help information."""
 
-    dialogs = []
-
     def __init__(self, pubsub, value):
         if isinstance(value, str):
             name = value
@@ -121,8 +119,7 @@ class HelpHtmlMessageBox(QtWidgets.QDialog):
 
         self.setObjectName("help_html_message_box")
         self.setWindowFlag(QtCore.Qt.WindowType.WindowStaysOnTopHint)
-        self._verticalLayout = QtWidgets.QVBoxLayout()
-        self.setLayout(self._verticalLayout)
+        self._verticalLayout = QtWidgets.QVBoxLayout(self)
 
         self._scroll = QtWidgets.QScrollArea(self)
         self._scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
@@ -149,13 +146,11 @@ class HelpHtmlMessageBox(QtWidgets.QDialog):
 
         self._log.info('open')
         self.open()
-        HelpHtmlMessageBox.dialogs.append(self)
 
     @QtCore.Slot()
     def _on_finish(self):
         self.close()
         self._log.info('finish')
-        HelpHtmlMessageBox.dialogs.remove(self)
         if self._done_action is not None:
             self._pubsub.publish(*self._done_action)
 

@@ -158,6 +158,8 @@ class Switch(QAbstractButton):
 
 def main():
     app = QApplication([])
+    w = QWidget()
+    layout = QHBoxLayout(w)
 
     # Thumb size < track size (Gitlab style)
     s1 = Switch()
@@ -173,16 +175,13 @@ def main():
     s4 = Switch(thumb_radius=11, track_radius=8)
     s4.setEnabled(False)
 
-    l = QHBoxLayout()
-    l.addWidget(s1)
-    l.addWidget(s2)
-    l.addWidget(s3)
-    l.addWidget(s4)
-    w = QWidget()
-    w.setLayout(l)
+    layout.addWidget(s1)
+    layout.addWidget(s2)
+    layout.addWidget(s3)
+    layout.addWidget(s4)
     w.show()
 
-    app.exec_()
+    app.exec()
 
 
 if __name__ == '__main__':

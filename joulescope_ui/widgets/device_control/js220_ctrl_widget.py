@@ -100,7 +100,6 @@ _BUTTON_SIZE = (20, 20)
 class Js220CtrlWidget(QtWidgets.QWidget):
 
     def __init__(self, parent, unique_id):
-        self._parent = parent
         self.unique_id = unique_id
         self._widgets = []
         self._control_widgets = {}  # name, widget
@@ -124,20 +123,17 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         self._info_button: QtWidgets.QPushButton = None
         super().__init__(parent)
 
-        self._layout = QtWidgets.QVBoxLayout()
+        self._layout = QtWidgets.QVBoxLayout(self)
         self._layout.setContentsMargins(0, 0, 0, 0)
+
         self._expanding = ExpandingWidget(self)
         self._expanding.title = unique_id
-
-        self._body = QtWidgets.QWidget(self)
-        self._body_layout = QtWidgets.QGridLayout(self)
+        self._body = QtWidgets.QWidget(self._expanding)
+        self._body_layout = QtWidgets.QGridLayout(self._body)
         self._body_layout.setContentsMargins(0, 0, 0, 0)
         self._body_layout.setSpacing(1)
-        self._body.setLayout(self._body_layout)
         self._expanding.body_widget = self._body
-
         self._layout.addWidget(self._expanding)
-        self.setLayout(self._layout)
 
         self._header_disable_widgets = []
         self._header_widgets = []
@@ -246,7 +242,6 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         open_button = self._construct_open_button(w)
         layout.addWidget(open_button)
 
-        w.setLayout(layout)
         self._header_disable_widgets.extend([target_power, default_device])
         self._header_widgets = [w, layout, doc, info, fuse, target_power, default_device, open_button]
         return w
@@ -364,7 +359,6 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         layout = QtWidgets.QHBoxLayout(widget)
         layout.setContentsMargins(3, 3, 3, 3)
         layout.setSpacing(3)
-        widget.setLayout(layout)
         self._signals = {
             'widget': widget,
             'layout': layout,
@@ -414,7 +408,6 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         layout = QtWidgets.QHBoxLayout(widget)
         layout.setContentsMargins(3, 3, 3, 3)
         layout.setSpacing(3)
-        widget.setLayout(layout)
         self._gpo = {
             'widget': widget,
             'layout': layout,
@@ -573,7 +566,6 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         layout = QtWidgets.QHBoxLayout(widget)
         layout.setContentsMargins(3, 3, 3, 3)
         layout.setSpacing(3)
-        widget.setLayout(layout)
 
         b1 = QtWidgets.QPushButton(self._body)
         b1.setText(N_('Reset to defaults'))

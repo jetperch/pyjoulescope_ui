@@ -38,14 +38,13 @@ def _construct_record_filename(extension=None):
 class ExporterWidget(QtWidgets.QWidget):
 
     def __init__(self, parent=None):
-        self._parent = parent
         self._menu = None
         self._dialog = None
         self._row = 0
         super().__init__(parent=parent)
         self.setObjectName('exporter_widget')
         self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
-        self._layout = QtWidgets.QGridLayout()
+        self._layout = QtWidgets.QGridLayout(self)
 
         self._location_label = QtWidgets.QLabel(N_('Directory'), self)
         self._location = QtWidgets.QLineEdit(self)
@@ -73,8 +72,6 @@ class ExporterWidget(QtWidgets.QWidget):
         self._layout.addWidget(self._notes, self._row, 0, 1, 3)
         self._row += 1
 
-        self.setLayout(self._layout)
-
     @property
     def path(self):
         return os.path.join(self._location.text(), self._filename.text())
@@ -86,7 +83,7 @@ class ExporterWidget(QtWidgets.QWidget):
     @QtCore.Slot()
     def _on_location_button(self):
         path = self._location.text()
-        self._dialog = QtWidgets.QFileDialog(self._parent, N_('Select save location'), path)
+        self._dialog = QtWidgets.QFileDialog(self.parent(), N_('Select save location'), path)
         self._dialog.setFileMode(QtWidgets.QFileDialog.Directory)
         self._dialog.updateGeometry()
         self._dialog.open()
@@ -107,14 +104,12 @@ class ExporterWidget(QtWidgets.QWidget):
 
 
 class ExporterDialog(QtWidgets.QDialog):
-    _instances = []
 
     def __init__(self, value):
         self.CAPABILITIES = []
         self._value = value
         parent = pubsub_singleton.query('registry/ui/instance')
         super().__init__(parent=parent)
-        ExporterDialog._instances.append(self)
         self._log = logging.getLogger(f'{__name__}.dialog')
 
         x_range = value['x_range']
@@ -126,8 +121,7 @@ class ExporterDialog(QtWidgets.QDialog):
             self._log.info('start duration=%r, x_range=%r, x0_second=%r, signals=%r',
                            duration, x_range, second, value['signals'])
         self.setObjectName('exporter_dialog')
-        self._layout = QtWidgets.QVBoxLayout()
-        self.setLayout(self._layout)
+        self._layout = QtWidgets.QVBoxLayout(self)
         self._w = ExporterWidget(self)
         self._layout.addWidget(self._w)
 
@@ -166,7 +160,6 @@ class ExporterDialog(QtWidgets.QDialog):
     def close(self):
         super().close()
         pubsub_singleton.unregister(self, delete=True)
-        ExporterDialog._instances.remove(self)
 
 
 @register_decorator('exporter')

@@ -248,8 +248,6 @@ class DoubleSliderDemo(QtWidgets.QMainWindow):
         self.double_slider.values_changed.connect(self._on_values)
         self.double_slider.values = (3, 5)  # order is corrected
 
-        self.setLayout(layout)
-
     @QtCore.Slot(int, int)
     def _on_values(self, v_min, v_max):
         self.v_min.setText(str(v_min))

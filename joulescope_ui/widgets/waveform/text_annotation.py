@@ -71,9 +71,6 @@ Y_POSITION_MODE_NAMES = [v[1] for v in Y_POSITION_MODE]
 
 
 class TextAnnotationDialog(QtWidgets.QDialog):
-
-    _instances = []
-
     """Edit text annotations.
 
     :param parent: The parent widget.
@@ -166,7 +163,6 @@ class TextAnnotationDialog(QtWidgets.QDialog):
 
         self.cancelButton.setText('Cancel')
         self.okButton.setText('OK')
-        TextAnnotationDialog._instances.append(self)
         self.finished.connect(self._on_finished)
 
     def _update(self):
@@ -195,10 +191,6 @@ class TextAnnotationDialog(QtWidgets.QDialog):
         if 'id' not in self._annotation:
             topic = get_topic_name(self._unique_id)
             pubsub_singleton.publish(f'{topic}/actions/!text_annotation', ['add', self._annotation])
-        try:
-            TextAnnotationDialog._instances.remove(self)
-        except ValueError:
-            pass
         self.close()
 
 

@@ -19,12 +19,9 @@ from joulescope_ui import N_
 class ErrorMessageBox(QtWidgets.QDialog):
     """Display user-meaningful help information."""
 
-    dialogs = []
-
     def __init__(self, parent, value):
         super().__init__(parent=parent)
         self.setWindowFlag(QtCore.Qt.WindowType.WindowStaysOnTopHint)
-
         self.setObjectName("error_dialog")
         self._layout = QtWidgets.QVBoxLayout(self)
 
@@ -45,9 +42,7 @@ class ErrorMessageBox(QtWidgets.QDialog):
         self.finished.connect(self._on_finish)
 
         self.open()
-        ErrorMessageBox.dialogs.append(self)
 
     @QtCore.Slot()
     def _on_finish(self):
         self.close()
-        ErrorMessageBox.dialogs.remove(self)

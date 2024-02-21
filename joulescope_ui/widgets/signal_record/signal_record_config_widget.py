@@ -25,14 +25,13 @@ class SignalRecordConfigWidget(QtWidgets.QWidget):
     CAPABILITIES = []  # no widget, since not directly instantiable
 
     def __init__(self, parent=None):
-        self._parent = parent
         self._menu = None
         self._dialog = None
         self._row = 0
         super().__init__(parent=parent)
         self.setObjectName('signal_record_config')
         self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
-        self._layout = QtWidgets.QGridLayout()
+        self._layout = QtWidgets.QGridLayout(self)
 
         self._filename_label = QtWidgets.QLabel(N_('Filename'), self)
         self._filename = QtWidgets.QLineEdit(self)
@@ -70,8 +69,6 @@ class SignalRecordConfigWidget(QtWidgets.QWidget):
         self._layout.addWidget(self._notes, self._row + 4, 0, 4, 3)
         self._row += 5
 
-        self.setLayout(self._layout)
-
     def _sources_add(self):
         sources = pubsub_singleton.query(f'registry_manager/capabilities/{CAPABILITIES.SIGNAL_STREAM_SOURCE}/list')
         for source in sorted(sources):
@@ -85,7 +82,6 @@ class SignalRecordConfigWidget(QtWidgets.QWidget):
             signal_layout = QtWidgets.QHBoxLayout(signal_widget)
             signal_layout.setContentsMargins(3, 3, 3, 3)
             signal_layout.setSpacing(3)
-            signal_widget.setLayout(signal_layout)
             self._layout.addWidget(signal_widget, self._row, 1, 1, 1)
             self._row += 1
 
@@ -124,7 +120,7 @@ class SignalRecordConfigWidget(QtWidgets.QWidget):
     def _on_file_button(self):
         path = os.path.join(self._location.text(), self._filename.text())
         filter_ = 'Joulescope Data (*.jls)'
-        self._dialog = QtWidgets.QFileDialog(self._parent, N_('Select save location'), path, filter_)
+        self._dialog = QtWidgets.QFileDialog(self.parent(), N_('Select save location'), path, filter_)
         self._dialog.setFileMode(QtWidgets.QFileDialog.AnyFile)
         self._dialog.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
         self._dialog.setDefaultSuffix('.jls')
@@ -145,7 +141,7 @@ class SignalRecordConfigWidget(QtWidgets.QWidget):
 
     def _on_location_button(self):
         path = self._location.text()
-        self._dialog = QtWidgets.QFileDialog(self._parent, N_('Select save location'), path)
+        self._dialog = QtWidgets.QFileDialog(self.parent(), N_('Select save location'), path)
         self._dialog.setFileMode(QtWidgets.QFileDialog.Directory)
         self._dialog.updateGeometry()
         self._dialog.open()
@@ -166,18 +162,15 @@ class SignalRecordConfigWidget(QtWidgets.QWidget):
 
 
 class SignalRecordConfigDialog(QtWidgets.QDialog):
-    _singleton = None
 
     def __init__(self):
         parent = pubsub_singleton.query('registry/ui/instance')
         super().__init__(parent=parent)
-        SignalRecordConfigDialog._singleton = self
         self._log = logging.getLogger(f'{__name__}.dialog')
 
         self._log.info('start')
         self.setObjectName("signal_record_config_dialog")
-        self._layout = QtWidgets.QVBoxLayout()
-        self.setLayout(self._layout)
+        self._layout = QtWidgets.QVBoxLayout(self)
 
         self._w = SignalRecordConfigWidget(self)
         self._layout.addWidget(self._w)
@@ -210,7 +203,6 @@ class SignalRecordConfigDialog(QtWidgets.QDialog):
             self._log.info('finished: reject - abort recording')
             pubsub_singleton.publish('registry/app/settings/signal_stream_record', False)
         self.close()
-        SignalRecordConfigDialog._singleton = None
 
     @staticmethod
     def on_cls_action_show():

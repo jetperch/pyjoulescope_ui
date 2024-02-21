@@ -168,7 +168,7 @@ class ViewManagerDialog(QtWidgets.QDialog):
         super().__init__(parent=parent)
         self._layout = QtWidgets.QVBoxLayout(self)
 
-        self._widget = ViewManagerWidget()
+        self._widget = ViewManagerWidget(self)
         self._layout.addWidget(self._widget)
         pubsub_singleton.register(self._widget, parent='ui')
         pubsub_singleton.publish(RENDER_TOPIC, self._widget)

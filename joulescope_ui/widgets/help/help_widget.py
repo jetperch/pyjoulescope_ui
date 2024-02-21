@@ -54,10 +54,9 @@ class HelpWidget(QtWidgets.QWidget):
         super().__init__(parent=parent)
         self.setObjectName('help_widget')
         self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
-        self._layout = QtWidgets.QVBoxLayout()
+        self._layout = QtWidgets.QVBoxLayout(self)
         self._layout.setContentsMargins(0, 0, 0, 0)
         self._layout.setSpacing(0)
-        self.setLayout(self._layout)
 
         self._label = QtWidgets.QLabel('', self)
         self._label.setWordWrap(True)

@@ -15,9 +15,9 @@
 import logging
 import numpy as np
 from math import ceil
-from collections import deque
 
-log = logging.getLogger(__name__)
+
+_log = logging.getLogger(__name__)
 
 
 def calculate_histogram(range_tool, range_tool_value, signal, num_bins: int = 0):
@@ -57,6 +57,6 @@ def normalize_hist(hist, bin_edges, norm: str = None):
     elif norm == 'count':
         return hist, bin_edges
     elif norm not in ['unity', None]:
-        log.error('_normalize_hist invalid normalization: %s', norm)
+        _log.error('_normalize_hist invalid normalization: %s', norm)
     gain = 1 / hist.sum()
     return hist * gain, bin_edges

@@ -285,7 +285,6 @@ def apply(info):
 class SoftwareUpdateDialog(QtWidgets.QDialog):
     """Display user-meaningful help information."""
 
-    dialogs = []
     _clipboard = None
 
     def __init__(self, pubsub, info, done_action=None):
@@ -296,10 +295,8 @@ class SoftwareUpdateDialog(QtWidgets.QDialog):
         style = load_style()
         parent = pubsub_singleton.query('registry/ui/instance')
         super().__init__(parent=parent)
-
         self.setObjectName("software_update")
-        self._layout = QtWidgets.QVBoxLayout()
-        self.setLayout(self._layout)
+        self._layout = QtWidgets.QVBoxLayout(self)
 
         html = _HEADER.format(style=style) + \
             _BODY.format(**_SOFTWARE_UPDATE_TXT, **info)
@@ -336,7 +333,6 @@ class SoftwareUpdateDialog(QtWidgets.QDialog):
         self.finished.connect(self._on_finish)
 
         _log.info('open')
-        SoftwareUpdateDialog.dialogs.append(self)
         self.open()
 
     @QtCore.Slot()
@@ -356,7 +352,6 @@ class SoftwareUpdateDialog(QtWidgets.QDialog):
         else:
             _log.info('software update: later')
         self.close()
-        SoftwareUpdateDialog.dialogs.remove(self)
         if self._done_action is not None:
             self._pubsub.publish(*self._done_action, defer=True)
 

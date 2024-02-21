@@ -204,13 +204,11 @@ class FrequencyRangeToolWidget(QtWidgets.QWidget):
 
 
 class FrequencyRangeToolDialog(QtWidgets.QDialog):
-    _instances = []
 
     def __init__(self, value):
         self._value = value
         parent = pubsub_singleton.query('registry/ui/instance')
         super().__init__(parent=parent)
-        FrequencyRangeToolDialog._instances.append(self)
         self._log = logging.getLogger(f'{__name__}.dialog')
         self.setObjectName('FrequencyRangeToolDialog')
         self.setWindowTitle(N_('Frequency configuration'))
@@ -293,4 +291,3 @@ class FrequencyRangeToolDialog(QtWidgets.QDialog):
 
     def close(self):
         super().close()
-        self.__class__._instances.remove(self)

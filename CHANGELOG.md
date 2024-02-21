@@ -7,7 +7,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.51
 
-2024 Feb 16
+2024 Feb 21 [in progress]
 
 * Dropped Python 3.9 support as static methods are not callable until 3.10.
   See https://docs.python.org/3/whatsnew/3.10.html
@@ -48,6 +48,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added missing menu items to menu widget storage.
 * Added QtCore.Slot decorator to PySide6/Qt6 slots.
 * Improved QMenu and Qt Slot memory management and object lifecycle management.
+* Updated credits to include missing entries.
 
 
 ## 1.0.48

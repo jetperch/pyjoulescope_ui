@@ -79,7 +79,6 @@ class QColorLabel(QtWidgets.QLabel):
 
     def __init__(self, parent, color):
         QtWidgets.QLabel.__init__(self, parent)
-        self._parent = parent
         self._color = color  # as "#RRGGBB" or "#RRGGBB"
         self._picture = QtGui.QPicture()
         self.draw()
@@ -106,7 +105,7 @@ class QColorLabel(QtWidgets.QLabel):
         self.color_changed.emit(self.color)
 
     def mousePressEvent(self, ev):
-        dialog = QtWidgets.QColorDialog(self.qcolor, self._parent)
+        dialog = QtWidgets.QColorDialog(self.qcolor, self.parent())
         dialog.setOption(QtWidgets.QColorDialog.ColorDialogOption.ShowAlphaChannel, True)
         color = self.color
         dialog.currentColorChanged.connect(self._on_current_color_changed)
@@ -159,8 +158,6 @@ class ColorItem(QtCore.QObject):
         self.color_changed.emit(self._name, self._color)
 
     def deleteLater(self):
-        self.color_label.deleteLater()
-        self.value_edit.deleteLater()
         self.color_label = None
         self.value_edit = None
         self.validator = None

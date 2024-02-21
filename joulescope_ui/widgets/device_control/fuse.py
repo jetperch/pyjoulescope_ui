@@ -58,7 +58,6 @@ _FUSE_STATE = N_("Fuse state indicator.  When enabled and engaged, click to clea
 class FuseSubWidget(QtWidgets.QWidget):
 
     def __init__(self, parent, unique_id, fuse_id):
-        self._parent = parent
         self.unique_id = unique_id
         self.fuse_id = fuse_id
         self._value_prev = None
@@ -221,7 +220,6 @@ class FuseSubWidget(QtWidgets.QWidget):
 class FuseWidget(QtWidgets.QWidget):
 
     def __init__(self, parent, unique_id):
-        self._parent = parent
         self.unique_id = unique_id
         self._widgets = []
         self._blink_buttons = []

@@ -86,7 +86,6 @@ class SafeModeDialog(QtWidgets.QDialog):
         }
 
 
-
 def safe_mode_dialog():
     dialog = SafeModeDialog()
     dialog.exec()

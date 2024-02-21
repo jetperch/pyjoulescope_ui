@@ -31,17 +31,14 @@ _NORMALIZATIONS = {
 
 
 class HistogramRangeToolDialog(QtWidgets.QDialog):
-    _instances = []
 
     def __init__(self, value):
         self._value = value
         parent = pubsub_singleton.query('registry/ui/instance')
         super().__init__(parent=parent)
-        HistogramRangeToolDialog._instances.append(self)
         self._log = logging.getLogger(f'{__name__}.dialog')
         self.setObjectName('histogram_range_tool_dialog')
-        self._layout = QtWidgets.QVBoxLayout()
-        self.setLayout(self._layout)
+        self._layout = QtWidgets.QVBoxLayout(self)
         self._form = QtWidgets.QFormLayout()
 
         self._signal_label = QtWidgets.QLabel(N_('Signal'), self)
@@ -99,7 +96,6 @@ class HistogramRangeToolDialog(QtWidgets.QDialog):
 
     def close(self):
         super().close()
-        self.__class__._instances.remove(self)
 
 
 @register

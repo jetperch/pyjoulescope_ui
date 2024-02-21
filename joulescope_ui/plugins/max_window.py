@@ -88,13 +88,11 @@ class MaxWindowRangeTool(RangeToolBase):
 
 
 class MaxWindowDialog(QtWidgets.QDialog):
-    _instances = []
 
     def __init__(self, value):
         self._value = value
         parent = pubsub_singleton.query('registry/ui/instance')
         super().__init__(parent=parent)
-        self.__class__._instances.append(self)
         self._log = logging.getLogger(f'{__name__}.dialog')
         self.setWindowTitle(N_('Max Window configuration'))
         self.resize(368, 123)
@@ -159,4 +157,3 @@ class MaxWindowDialog(QtWidgets.QDialog):
 
     def close(self):
         super().close()
-        self.__class__._instances.remove(self)

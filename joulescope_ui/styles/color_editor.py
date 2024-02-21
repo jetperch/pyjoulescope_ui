@@ -36,7 +36,7 @@ class ColorEditor(QtWidgets.QWidget):
         self._middle_scroll = QtWidgets.QScrollArea(self)
         self._middle_scroll.setObjectName(u"middle_scroll")
         self._middle_scroll.setWidgetResizable(True)
-        self._middle = QtWidgets.QWidget(self)
+        self._middle = QtWidgets.QWidget(self._middle_scroll)
         self._color_widgets = []
         self._grid = QtWidgets.QGridLayout(self._middle)
         self._middle_scroll.setWidget(self._middle)

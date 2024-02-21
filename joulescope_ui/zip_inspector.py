@@ -105,7 +105,6 @@ class ZipInspectorWidget(QtWidgets.QWidget):
         self._layout.addWidget(self._filename, 1, 1, 1, 1)
         self._layout.addWidget(self._contents, 1, 2, 1, 1)
         self._layout.setColumnStretch(2, 2)
-        self.setLayout(self._layout)
 
         self._zip.selected.connect(self._on_zip)
         self._filename.selected.connect(self._on_filename)
@@ -163,8 +162,6 @@ class ZipInspectorWidget(QtWidgets.QWidget):
 
 class ZipInspectorDialog(QtWidgets.QDialog):
 
-    dialogs = []
-
     def __init__(self, parent, path):
         super().__init__(parent=parent)
         self._layout = QtWidgets.QVBoxLayout(self)
@@ -176,7 +173,6 @@ class ZipInspectorDialog(QtWidgets.QDialog):
         self._layout.addWidget(self._buttons)
 
         self.setWindowTitle(_TITLE)
-        ZipInspectorDialog.dialogs.append(self)
         self.finished.connect(self._on_finish)
 
         screen = QtGui.QGuiApplication.screenAt(self.geometry().center())
@@ -191,4 +187,3 @@ class ZipInspectorDialog(QtWidgets.QDialog):
     def _on_finish(self, value):
         self._zip_inspector.finalize()
         self.close()
-        ZipInspectorDialog.dialogs.remove(self)

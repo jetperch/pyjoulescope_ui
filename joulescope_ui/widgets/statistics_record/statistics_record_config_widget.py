@@ -36,14 +36,13 @@ class StatisticsRecordConfigWidget(QtWidgets.QWidget):
     CAPABILITIES = []  # no widget, since not directly instantiable
 
     def __init__(self, parent=None):
-        self._parent = parent
         self._menu = None
         self._dialog = None
         self._row = 0
         super().__init__(parent=parent)
         self.setObjectName('signal_record_config')
         self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
-        self._layout = QtWidgets.QGridLayout()
+        self._layout = QtWidgets.QGridLayout(self)
 
         self._location_label = QtWidgets.QLabel(N_('Directory'), self)
         self._location = QtWidgets.QLineEdit(self)
@@ -66,8 +65,6 @@ class StatisticsRecordConfigWidget(QtWidgets.QWidget):
 
         self._source_widgets = {}
         self._sources_add()
-
-        self.setLayout(self._layout)
 
     def _sources_add(self):
         sources = pubsub_singleton.query(f'registry_manager/capabilities/{CAPABILITIES.STATISTIC_STREAM_SOURCE}/list')
@@ -108,7 +105,7 @@ class StatisticsRecordConfigWidget(QtWidgets.QWidget):
 
     def _on_location_button(self):
         path = self._location.text()
-        self._dialog = QtWidgets.QFileDialog(self._parent, N_('Select save location'), path)
+        self._dialog = QtWidgets.QFileDialog(self.parent(), N_('Select save location'), path)
         self._dialog.setFileMode(QtWidgets.QFileDialog.Directory)
         self._dialog.updateGeometry()
         self._dialog.open()
@@ -129,18 +126,15 @@ class StatisticsRecordConfigWidget(QtWidgets.QWidget):
 
 
 class StatisticsRecordConfigDialog(QtWidgets.QDialog):
-    _singleton = None
 
     def __init__(self):
         parent = pubsub_singleton.query('registry/ui/instance')
         super().__init__(parent=parent)
-        StatisticsRecordConfigDialog._singleton = self
         self._log = logging.getLogger(f'{__name__}.dialog')
 
         self._log.info('start')
         self.setObjectName("signal_record_config_dialog")
-        self._layout = QtWidgets.QVBoxLayout()
-        self.setLayout(self._layout)
+        self._layout = QtWidgets.QVBoxLayout(self)
 
         self._w = StatisticsRecordConfigWidget(self)
         self._layout.addWidget(self._w)
@@ -173,7 +167,6 @@ class StatisticsRecordConfigDialog(QtWidgets.QDialog):
             self._log.info('finished: reject - abort recording')
             pubsub_singleton.publish('registry/app/settings/statistics_stream_record', False)
         self.close()
-        StatisticsRecordConfigDialog._singleton = None
 
     @staticmethod
     def on_cls_action_show():

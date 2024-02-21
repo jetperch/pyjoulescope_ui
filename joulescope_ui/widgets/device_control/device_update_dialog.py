@@ -52,8 +52,6 @@ _SCAN_DELAY_MS = 2000
 class DeviceUpdateDialog(QtWidgets.QDialog):
     """Device firmware/FPGA update control and status widget."""
 
-    dialogs = []
-
     def __init__(self, parent, pubsub, done_action):
         self.pubsub = pubsub
         self._done_action = done_action
@@ -101,7 +99,6 @@ class DeviceUpdateDialog(QtWidgets.QDialog):
         self._layout.addWidget(self._buttons)
 
         self.finished.connect(self._on_finish)
-        DeviceUpdateDialog.dialogs.append(self)
         self._clear()
 
         self._timer = QtCore.QTimer(self)
@@ -271,14 +268,11 @@ class DeviceUpdateDialog(QtWidgets.QDialog):
 
     @QtCore.Slot()
     def _on_finish(self):
-        if self not in DeviceUpdateDialog.dialogs:
-            return  # duplicate finish
         self._log.info('finish')
         for topic, fn in self._subscriptions:
             self.pubsub.unsubscribe(topic, fn)
         self._subscriptions.clear()
         self.close()
-        DeviceUpdateDialog.dialogs.remove(self)
         if self._done_action is not None:
             self.pubsub.publish(*self._done_action)
 

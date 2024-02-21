@@ -20,9 +20,7 @@ from joulescope_ui import reporter
 
 class ReportIssueDialog(QtWidgets.QDialog):
 
-    dialogs = []
-
-    def __init__(self, parent=None):
+    def __init__(self, parent):
         super().__init__(parent=parent)
 
         logging_util.flush_all()
@@ -33,7 +31,6 @@ class ReportIssueDialog(QtWidgets.QDialog):
         self._on_finish_fn = self._on_finish
         self._submit.finished.connect(self._on_finish_fn)
         self._layout.addWidget(self._submit)
-        self.setLayout(self._layout)
 
         screen = QtGui.QGuiApplication.screenAt(self.geometry().center())
         if screen is not None:
@@ -42,12 +39,9 @@ class ReportIssueDialog(QtWidgets.QDialog):
         else:
             self.resize(600, 500)
 
-        ReportIssueDialog.dialogs.append(self)
-
     def _on_finish(self):
         self._submit.finished.disconnect(self._on_finish_fn)
         self.close()
-        ReportIssueDialog.dialogs.remove(self)
 
     @staticmethod
     def on_cls_action_show(pubsub, topic, value):

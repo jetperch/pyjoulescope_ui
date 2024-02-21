@@ -35,7 +35,7 @@ class CurrentLimits(QtWidgets.QWidget):
         super().__init__(parent)
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
 
-        self._layout = QtWidgets.QHBoxLayout()
+        self._layout = QtWidgets.QHBoxLayout(self)
         self._layout.setContentsMargins(0, 0, 0, 0)
         self._layout.setSpacing(4)
         self._spacer = QtWidgets.QSpacerItem(20, 0,
@@ -59,7 +59,6 @@ class CurrentLimits(QtWidgets.QWidget):
         self._layout.addWidget(self.v_min)
         self._layout.addWidget(self.slider)
         self._layout.addWidget(self.v_max)
-        self.setLayout(self._layout)
 
     def _on_slider_values_changed(self, v0, v1):
         v_min_block = self.v_min.blockSignals(True)

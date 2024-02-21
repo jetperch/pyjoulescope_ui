@@ -64,7 +64,6 @@ class JsdrvWrapper:
 
     def __init__(self):
         self.CAPABILITIES = [CAPABILITIES.DEVICE_FACTORY]
-        self._parent = None
         self._log = logging.getLogger(__name__)
         self.pubsub = None
         self._topic = None

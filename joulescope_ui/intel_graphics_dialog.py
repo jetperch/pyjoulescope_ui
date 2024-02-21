@@ -55,7 +55,6 @@ Widgets → Settings → Common → opengl.  The default is "desktop".</p>
 class IntelGraphicsDialog(QtWidgets.QDialog):
     """Display OpenGL dialog to change to software renderer."""
 
-    dialogs = []
     shown = False
 
     def __init__(self, parent):
@@ -87,7 +86,6 @@ class IntelGraphicsDialog(QtWidgets.QDialog):
 
         self.open()
         IntelGraphicsDialog.shown = True
-        IntelGraphicsDialog.dialogs.append(self)
 
     @QtCore.Slot()
     def _on_finish(self):
@@ -95,7 +93,6 @@ class IntelGraphicsDialog(QtWidgets.QDialog):
         if self.result():
             pubsub_singleton.publish(_OPENGL_RENDERER_TOPIC, 'software')
         self.close()
-        IntelGraphicsDialog.dialogs.remove(self)
 
 
 def intel_graphics_dialog(parent=None):

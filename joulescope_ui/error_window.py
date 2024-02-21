@@ -71,7 +71,6 @@ class SubmitConfigureWidget(QtWidgets.QWidget):
     aborted = QtCore.Signal()
 
     def __init__(self, parent, report_path):
-        self._parent = parent
         self._thread = None
         super().__init__(parent=parent)
         self._report_path = report_path
@@ -101,7 +100,6 @@ class SubmitConfigureWidget(QtWidgets.QWidget):
         self._contact_layout.addWidget(self._first_name, 1, 1, 1, 1)
         self._contact_layout.addWidget(self._email_label, 2, 0, 1, 1)
         self._contact_layout.addWidget(self._email, 2, 1, 1, 1)
-        self._contact.setLayout(self._contact_layout)
         self._layout.addWidget(self._contact)
 
         self._description = QtWidgets.QGroupBox(N_('Description'), parent=self)
@@ -116,7 +114,6 @@ class SubmitConfigureWidget(QtWidgets.QWidget):
         self._description_tabs.addTab(self._description_edit, N_('Edit'))
         self._description_tabs.addTab(self._description_view, N_('View as Markdown'))
         self._description_layout.addWidget(self._description_tabs)
-        self._description.setLayout(self._description_layout)
         self._layout.addWidget(self._description)
 
         self._buttons = QtWidgets.QWidget(self)
@@ -127,7 +124,6 @@ class SubmitConfigureWidget(QtWidgets.QWidget):
         self._buttons_layout.addWidget(self._abort)
         self._buttons_layout.addWidget(self._view)
         self._buttons_layout.addWidget(self._submit)
-        self._buttons.setLayout(self._buttons_layout)
         self._layout.addWidget(self._buttons)
 
         self._description_tabs.currentChanged.connect(self._on_description_tab_changed)
@@ -135,8 +131,6 @@ class SubmitConfigureWidget(QtWidgets.QWidget):
         self._view.pressed.connect(self._on_view)
         self._on_submit_fn = self._on_submit
         self._submit.pressed.connect(self._on_submit_fn)
-
-        self.setLayout(self._layout)
 
     @property
     def results(self):
@@ -161,7 +155,7 @@ class SubmitConfigureWidget(QtWidgets.QWidget):
         self.aborted.emit()
 
     def _on_view(self):
-        ZipInspectorDialog(self._parent, self._report_path)
+        ZipInspectorDialog(self.parent(), self._report_path)
 
     @QtCore.Slot()
     def _on_submit(self):
@@ -241,7 +235,6 @@ class SubmitWidget(QtWidgets.QWidget):
     finished = QtCore.Signal()
 
     def __init__(self, parent, report_path):
-        self._parent = parent
         self._thread = None
         super().__init__(parent=parent)
         self._layout = QtWidgets.QVBoxLayout(self)
@@ -335,7 +328,6 @@ class ErrorWindow(QtWidgets.QMainWindow):
 
         self._layout.addWidget(self._help_label)
         self._layout.addWidget(self._submit)
-        self._center.setLayout(self._layout)
         self.setCentralWidget(self._center)
 
         screen = QtGui.QGuiApplication.screenAt(self.geometry().center())

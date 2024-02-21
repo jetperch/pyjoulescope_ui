@@ -42,7 +42,6 @@ def _format(sz):
 class MemSet(QtWidgets.QWidget):
 
     def __init__(self, parent=None):
-        self._parent = parent
         self.sizes = np.array([0, 0, 0, 1], dtype=float)
         super().__init__(parent=parent)
         self._height = 30
@@ -71,7 +70,7 @@ class MemSet(QtWidgets.QWidget):
             self.sizes[1] = size
 
     def show_size(self, size):
-        self._parent._on_size(size)
+        self.parent()._on_size(size)
         self.repaint()
 
     def _pixel_boundaries(self):
@@ -82,9 +81,9 @@ class MemSet(QtWidgets.QWidget):
         return pixels
 
     def paintEvent(self, event):
-        if self._parent.style_obj is None:
+        if self.parent().style_obj is None:
             return
-        v = self._parent.style_obj['vars']
+        v = self.parent().style_obj['vars']
         widget_w, widget_h = self.width(), self.height()
         p = QtGui.QPainter(self)
 
@@ -150,7 +149,7 @@ class MemSet(QtWidgets.QWidget):
         if self._drag is None:
             return
         if event.button() == QtCore.Qt.LeftButton:
-            self._parent.size = self.sizes[1]
+            self.parent().size = self.sizes[1]
             self._drag = None
         else:
             self.abort()
@@ -188,21 +187,20 @@ class MemoryWidget(QtWidgets.QWidget):
         self._base = 0
         self._size = 0  # in bytes
         self._used = 0
+        self._timer = None
         super().__init__(parent=parent)
         self.setObjectName('memory_widget')
         self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
-        self._layout = QtWidgets.QVBoxLayout()
+        self._layout = QtWidgets.QVBoxLayout(self)
         self._layout.setContentsMargins(4, 4, 4, 4)
         self._layout.setSpacing(6)
-        self.setLayout(self._layout)
 
         self._memset = MemSet(self)
         self._layout.addWidget(self._memset)
 
         self._grid_widget = QtWidgets.QWidget(parent=self)
-        self._grid_layout = QtWidgets.QGridLayout()
+        self._grid_layout = QtWidgets.QGridLayout(self._grid_widget)
         self._grid_layout.setContentsMargins(0, 10, 0, 10)
-        self._grid_widget.setLayout(self._grid_layout)
         self._layout.addWidget(self._grid_widget)
 
         vm = psutil.virtual_memory()
@@ -252,8 +250,6 @@ class MemoryWidget(QtWidgets.QWidget):
         self._spacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self._layout.addItem(self._spacer)
 
-        self._timer = None
-
     def _update(self, size=None):
         if size is None:
             size = self._size
@@ -276,8 +272,9 @@ class MemoryWidget(QtWidgets.QWidget):
         self._timer.start(100)
 
     def on_pubsub_unregister(self):
-        self._timer.stop()
-        self._timer = None
+        if self._timer is not None:
+            self._timer.stop()
+            self._timer = None
         self.pubsub.unsubscribe(_TOPIC_CLEAR_ON_PLAY, self._clear_on_play_fn)
         self.pubsub.unsubscribe(_TOPIC_SIZE, self._on_size_fn)
         self.pubsub.unsubscribe(_TOPIC_DURATION, self._on_duration_fn)

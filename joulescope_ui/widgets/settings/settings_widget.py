@@ -40,15 +40,13 @@ class _GridWidget(QtWidgets.QWidget):
         self._widgets = []
         super().__init__(parent=parent)
         self.setObjectName('grid_widget')
-        self._layout = QtWidgets.QVBoxLayout()
+        self._layout = QtWidgets.QVBoxLayout(self)
         self._layout.setContentsMargins(0, 0, 0, 0)
         self._grid_widget = QtWidgets.QWidget(self)
-        self._grid = QtWidgets.QGridLayout(self)
-        self._grid_widget.setLayout(self._grid)
+        self._grid = QtWidgets.QGridLayout(self._grid_widget)
         self._layout.addWidget(self._grid_widget)
         self._spacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self._layout.addItem(self._spacer)
-        self.setLayout(self._layout)
 
     def clear(self):
         while len(self._widgets):
@@ -495,7 +493,6 @@ def _class_items(capability):
 class SelectorWidget(QtWidgets.QTreeView):
 
     def __init__(self, parent=None):
-        self._parent = parent
         super().__init__(parent)
         self.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
         self.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.SizeAdjustPolicy.AdjustToContents)
@@ -527,9 +524,9 @@ class SelectorWidget(QtWidgets.QTreeView):
     def _on_changed(self, model_index, model_index_old):
         unique_id = self._model.data(model_index, QtCore.Qt.UserRole + 1)
         if len(unique_id):
-            self._parent.object = unique_id
+            self.parent().object = unique_id
         else:
-            self._parent.object = None
+            self.parent().object = None
 
     def _populate(self, parent, items):
         for name, unique_id, children in items:
@@ -557,21 +554,18 @@ class SettingsWidget(QtWidgets.QSplitter):
 
     def __init__(self, parent=None):
         self._log = logging.getLogger(__name__)
-        super(SettingsWidget, self).__init__(parent)
         self._obj = None
+        self._widgets = []
+        super(SettingsWidget, self).__init__(parent)
         self.setObjectName(f'settings_widget')
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
-
         self._left = SelectorWidget(self)
-
-        self._widgets = []
         widgets = [
             [SettingsEditorWidget(self), N_('Settings')],
             [ColorEditorWidget(self), N_('Colors')],
             [FontEditorWidget(self), N_('Fonts')],
             [StyleDefineEditorWidget(self), N_('Defines')],
         ]
-
         self._tabs = QtWidgets.QTabWidget(self)
         self._tabs.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         for widget, title in widgets:

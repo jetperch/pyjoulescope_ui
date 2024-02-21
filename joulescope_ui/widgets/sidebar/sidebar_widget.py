@@ -77,7 +77,6 @@ class SideBar(QtWidgets.QWidget):
     }
 
     def __init__(self, parent):
-        self._parent = parent
         super().__init__(parent)
         self.setObjectName('side_bar_icons')
         size_policy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
@@ -90,10 +89,9 @@ class SideBar(QtWidgets.QWidget):
         self._buttons_blink = []
         self._flyout: FlyoutWidget = None
 
-        self._layout = QtWidgets.QVBoxLayout()
+        self._layout = QtWidgets.QVBoxLayout(self)
         self._layout.setSpacing(6)
         self._layout.setContentsMargins(3, 3, 3, 3)
-        self.setLayout(self._layout)
 
         self._add_blink_button('target_power', 'target_power')
         b = self._add_blink_button('fuse', 'fuse_engaged', clear_only=True, skip_connect=True)
@@ -121,7 +119,7 @@ class SideBar(QtWidgets.QWidget):
     def register(self):
         pubsub = pubsub_singleton
         pubsub.register(self, 'sidebar:0', parent='ui')
-        self._flyout = FlyoutWidget(self._parent, self)
+        self._flyout = FlyoutWidget(self.parent(), self)
         pubsub.register(self._flyout, 'flyout:0', parent='sidebar:0')
 
     def _on_mousePressEvent(self, event):

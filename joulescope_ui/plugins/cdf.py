@@ -157,13 +157,11 @@ class CdfRangeToolWidget(QtWidgets.QWidget):
 
 
 class CdfRangeToolDialog(QtWidgets.QDialog):
-    _instances = []
 
     def __init__(self, value):
         self._value = value
         parent = pubsub_singleton.query('registry/ui/instance')
         super().__init__(parent=parent)
-        CdfRangeToolDialog._instances.append(self)
         self._log = logging.getLogger(f'{__name__}.dialog')
         self.setObjectName('CdfRangeToolDialog')
         self.setWindowTitle(N_('CDF configuration'))
@@ -225,4 +223,3 @@ class CdfRangeToolDialog(QtWidgets.QDialog):
 
     def close(self):
         super().close()
-        self.__class__._instances.remove(self)

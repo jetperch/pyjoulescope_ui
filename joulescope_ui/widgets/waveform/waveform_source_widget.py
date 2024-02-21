@@ -51,7 +51,6 @@ class _Trace(QtWidgets.QFrame):
         self._subsources = []
         self._subsource = None
         self._priority = None
-        self._parent = parent
         super().__init__(parent)
         self.setProperty('active', False)
         self.setObjectName(f'trace_widget_{index + 1}')
@@ -78,11 +77,11 @@ class _Trace(QtWidgets.QFrame):
 
     @property
     def topic(self):
-        return self._parent.topic
+        return self.parent().topic
 
     @property
     def pubsub(self):
-        return self._parent.pubsub
+        return self.parent().pubsub
 
     @QtCore.Slot(bool)
     def _on_clicked(self, checked):
@@ -152,7 +151,6 @@ class WaveformSourceWidget(QtWidgets.QWidget):
 
     def __init__(self, parent):
         self._traces = []
-        self._parent = parent
         self._subsources = []
         self._trace_subsources = ['default', None, None, None]
         self._trace_priorities = [0, None, None, None],
@@ -180,11 +178,11 @@ class WaveformSourceWidget(QtWidgets.QWidget):
 
     @property
     def topic(self):
-        return self._parent.topic
+        return self.parent().topic
 
     @property
     def pubsub(self):
-        return self._parent.pubsub
+        return self.parent().pubsub
 
     def _is_needed(self):
         if len(self._subsources) > 1:

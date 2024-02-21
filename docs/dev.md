@@ -19,6 +19,52 @@
   instrument controls.
 
 
+## Qt / PySide6 memory model and object lifetime
+
+To correctly manage memory in PySide6:
+
+* Ensure all QObjects get a parent, except for the few top-level QObjects. 
+  You only need to maintain a Python reference to the QObjects without 
+  a parent. You may opt to keep a reference to QObjects you need to 
+  manipulate through code and not just Signal / Slot connections.
+  The following methods assign ownership:
+  * QWidget (and child class) constructors with parent argument.
+  * QLayout: addWidget(), addItem(), setParent()
+  * QWidgetAction: setDefaultWidget()
+  * QStatusBar: addPermanentWidget()
+* When using Signals and Slots, any callable works as a slot in Python. 
+  Avoid the temptation and stick to QObjects with Slot methods. 
+  Qt is designed for this.
+* If you do want to use a lambda for a Slot, use a wrapper QObject 
+  with a Slot method that invokes the lambda.
+* Note that Qt automatically deletes all children when the 
+  parent is deleted.
+* Note that Qt automatically disconnects all Signals and Slots for 
+  a QObject when that QObject is deleted.
+* Use QObject.deleteLater() to delete QObjects.
+* Keep QObject Python references local. Use Signals and Slots to communicate,
+  especially between parent-child Widgets. For larger applications, 
+  Signals & Slots communication has scaling challenges. Consider using PubSub.
+
+General Guidance:
+
+* Avoid QLayout.setLayout().
+  Pass the parent widget in the constructor for all layouts.
+* Use QObject.parent() rather than store separate member references.
+* Maintaining local QWidget member references is not required 
+  unless you need to programmatically manipulate
+  to QWidget (not just signals & slots) or you want to remove the widget
+  from the layout but keep it (usually hidden).
+  Default to not storing local member references.
+* All QDialog's must have the main window (or a child widget) as
+  the parent, which is necessary for both memory management and styles.
+* Mark all slots using the `QtCore.Slot` decorator.
+  See [docs](https://doc.qt.io/qtforpython-6/tutorials/basictutorial/signals_and_slots.html#the-slot-class).
+
+
+See [forum post](https://forum.qt.io/topic/154590/pyside6-memory-model-and-qobject-lifetime-management/11)
+
+
 ## Notes
 
 * [PubSub](pubsub.md)

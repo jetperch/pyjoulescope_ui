@@ -35,7 +35,6 @@ class TopicFilterWidget(QtWidgets.QWidget):
 class TopicDetailWidget(QtWidgets.QWidget):
 
     def __init__(self, parent=None):
-        self._parent = parent
         self._row = 0
         self._widgets = {}
         self._meta: Metadata = None
@@ -57,7 +56,7 @@ class TopicDetailWidget(QtWidgets.QWidget):
 
     @property
     def pubsub(self):
-        return self._parent.pubsub
+        return self.parent().pubsub
 
     def _on_publish_button(self):
         value = self._publish_value.text()

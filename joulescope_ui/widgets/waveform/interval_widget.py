@@ -74,6 +74,7 @@ class IntervalWidget(QtWidgets.QWidget):
         self._units.currentIndexChanged.connect(self._on_units)
         self._layout.addWidget(self._units)
 
+    @QtCore.Slot()
     def _on_value(self):
         txt = self._value.text()
         value = float(txt)
@@ -82,6 +83,7 @@ class IntervalWidget(QtWidgets.QWidget):
         value *= scale
         self.value.emit(value)
 
+    @QtCore.Slot(int)
     def _on_units(self, idx):
         txt = self._value.text()
         value = float(txt)

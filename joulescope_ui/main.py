@@ -214,11 +214,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setCentralWidget(self._central_widget)
         size_policy_xx = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self._central_widget.setSizePolicy(size_policy_xx)
-        self._central_layout = QtWidgets.QHBoxLayout()
+        self._central_layout = QtWidgets.QHBoxLayout(self._central_widget)
         self._central_layout.setObjectName('central_layout')
         self._central_layout.setSpacing(0)
         self._central_layout.setContentsMargins(0, 0, 0, 0)
-        self._central_widget.setLayout(self._central_layout)
 
         self._status_bar = QtWidgets.QStatusBar(self)
         self._status_bar.setObjectName('status_bar')
@@ -639,6 +638,8 @@ class MainWindow(QtWidgets.QMainWindow):
         menu, k = self._menu_items['view_menu']
         for action, _ in k.values():
             self._view_menu_group.removeAction(action)
+            if action is not None:
+                action.deleteLater()
         menu.clear()
 
         menu_items = []

@@ -20,8 +20,6 @@ import logging
 
 class DeviceInfoDialog(QtWidgets.QDialog):
 
-    dialogs = []
-
     def __init__(self, info):
         self._log = logging.getLogger(__name__)
         self._log.debug('create start')
@@ -31,18 +29,15 @@ class DeviceInfoDialog(QtWidgets.QDialog):
         self.setObjectName("device_info_dialog")
         self.setWindowTitle('Device Information')
 
-        self._layout = QtWidgets.QVBoxLayout()
-        self.setLayout(self._layout)
+        self._layout = QtWidgets.QVBoxLayout(self)
 
         w = QtWidgets.QWidget(self)
         w.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         self._widgets.append(w)
         self._layout.addWidget(w)
-
-        self._grid = QtWidgets.QGridLayout()
+        self._grid = QtWidgets.QGridLayout(w)
         self._grid.setContentsMargins(0, 0, 0, 0)
         self._grid.setSpacing(3)
-        w.setLayout(self._grid)
 
         row = 0
 
@@ -84,9 +79,7 @@ class DeviceInfoDialog(QtWidgets.QDialog):
         self.resize(self.sizeHint())
         self._log.info('open')
         self.open()
-        DeviceInfoDialog.dialogs.append(self)
 
     def _on_finish(self):
         self.close()
         self._log.info('finish')
-        DeviceInfoDialog.dialogs.remove(self)
