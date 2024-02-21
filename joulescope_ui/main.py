@@ -28,6 +28,7 @@ from joulescope_ui.styles.manager import style_settings
 from joulescope_ui.process_monitor import ProcessMonitor
 from joulescope_ui import software_update
 from joulescope_ui.ui_util import show_in_folder
+from joulescope_ui.widget_tools import CallableAction
 from joulescope_ui import urls
 from joulescope_ui.shift_key import is_shift_pressed
 from joulescope_ui.dev_signal_buffer_source import DevSignalBufferSource
@@ -138,17 +139,12 @@ def _menu_setup(parent, d):
         if name_safe.endswith('_menu'):
             menu = QtWidgets.QMenu(parent)
             menu.setTitle(name)
+            menu.setObjectName(name_safe)
             parent.addAction(menu.menuAction())
             w = [menu, _menu_setup(menu, value)]
         else:
-            action = QtGui.QAction(parent)
-            action.setText(name)
-            if callable(value):
-                action.triggered.connect(value)
-            else:
-                action.triggered.connect(_publish_factory(value))
-            parent.addAction(action)
-            w = [action, None]
+            fn = value if callable(value) else _publish_factory(value)
+            w = [CallableAction(parent, name, fn), None]
         k[name_safe] = w
     return k
 
@@ -340,14 +336,14 @@ class MainWindow(QtWidgets.QMainWindow):
                 ]],
                 help_menu,
             ])
-            self._view_menu_group = QtGui.QActionGroup(self._menu_items['view_menu'][0])
+            self._view_menu: QtWidgets.QMenu = self._menu_bar.findChild(QtWidgets.QMenu, 'view_menu')
+            self._view_menu_group = QtGui.QActionGroup(self._view_menu)
             self._view_menu_group.setExclusive(True)
+            self._view_menu_actions = []
+            self._view_menu.aboutToShow.connect(self._on_view_menu_show)
+            self._view_menu.aboutToHide.connect(self._on_view_menu_hide)
             self.setMenuBar(self._menu_bar)
             self._pubsub.subscribe('registry/paths/settings/mru_files', self._on_mru, flags=['pub', 'retain'])
-
-            self._pubsub.subscribe('registry_manager/capabilities/view.object/list',
-                                   self._on_change_views, flags=['pub', 'retain'])
-            self._pubsub.subscribe('registry/view/settings/active', self._on_change_views, flags=['pub'])
             self._pubsub.subscribe('registry_manager/capabilities/widget.class/list',
                                    self._on_change_widgets, flags=['pub', 'retain'])
 
@@ -632,39 +628,36 @@ class MainWindow(QtWidgets.QMainWindow):
             menu_items.append([str(idx), mru, [f'{topic}/actions/!file_open', mru]])
         open_recent_list[1] = _menu_setup(menu, menu_items)
 
-    def _on_change_views(self, value=None):
-        value = self._pubsub.query('registry/view/instances')
-        active_view = self._pubsub.query('registry/view/settings/active', default=None)
-        menu, k = self._menu_items['view_menu']
-        for action, _ in k.values():
+    @QtCore.Slot()
+    def _on_view_menu_hide(self):
+        for action in self._view_menu_actions:
+            self._view_menu.removeAction(action)
             self._view_menu_group.removeAction(action)
-            if action is not None:
-                action.deleteLater()
-        menu.clear()
+            action.deleteLater()
+        self._view_menu_actions.clear()
 
-        menu_items = []
-        for unique_id in value:
+    @QtCore.Slot()
+    def _on_view_menu_show(self):
+        self._on_view_menu_hide()
+        menu, group = self._view_menu, self._view_menu_group
+        view_instances = self._pubsub.query('registry/view/instances')
+        active_view = self._pubsub.query('registry/view/settings/active', default=None)
+
+        def construct(unique_id):
             name = self._pubsub.query(f'registry/{unique_id}/settings/name', default=unique_id)
-            menu_items.append([unique_id, name, ['registry/view/settings/active', unique_id]])
-        m = _menu_setup(menu, menu_items)
-
-        m['_separator1'] = (None, menu.addSeparator())
-        manage_action = QtGui.QAction(N_('Manage'))
-        manage_action.triggered.connect(self._on_view_manage)
-        menu.addAction(manage_action)
-        m['_hello'] = (manage_action, None)
-
-        self._menu_items['view_menu'][1] = m
-
-        k = self._menu_items['view_menu'][1]  # map of children
-        for view_unique_id, (action, _) in k.items():
-            if view_unique_id[0] == '_':
-                continue
+            action = CallableAction(group, name,
+                                    lambda: self._pubsub.publish('registry/view/settings/active', unique_id))
             action.setCheckable(True)
-            action.setChecked(view_unique_id == active_view)
-            self._view_menu_group.addAction(action)
+            action.setChecked(unique_id == active_view)
+            menu.addAction(action)
+            return action
+        self._view_menu_actions = [construct(unique_id) for unique_id in view_instances]
+        separator = menu.addSeparator()
+        manage = CallableAction(menu, N_('Manage'), self._on_view_manage)
+        self._view_menu_actions.extend([separator, manage])
 
-    def _on_view_manage(self, checked=False):
+    @QtCore.Slot()
+    def _on_view_manage(self):
         self._log.info('View Manage')
         ViewManagerDialog(self)
 
