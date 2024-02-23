@@ -58,7 +58,7 @@ class StatisticsRecordConfigWidget(QtWidgets.QWidget):
 
         self._time_format_label = QtWidgets.QLabel(N_('Time Format'), self)
         self._time_format = QtWidgets.QComboBox(self)
-        comboBoxConfig(self._time_format, _TIME_FORMAT_OPTIONS, [_TIME_FORMAT_OPTIONS[0]])
+        comboBoxConfig(self._time_format, _TIME_FORMAT_OPTIONS, _TIME_FORMAT_OPTIONS[0])
         self._layout.addWidget(self._time_format_label, self._row, 0, 1, 2)
         self._layout.addWidget(self._time_format, self._row, 2, 1, 1)
         self._row += 1
