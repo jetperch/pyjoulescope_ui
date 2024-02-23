@@ -17,7 +17,8 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from .unique_strings_widget import UniqueStringsWidget
 from joulescope_ui import pubsub_singleton, N_, register_decorator, \
     get_instance, get_unique_id, get_topic_name, Metadata, tooltip_format
-from joulescope_ui.ui_util import comboBoxConfig, comboBoxSelectItemByText
+from joulescope_ui.pubsub_proxy import PubSubProxy
+from joulescope_ui.ui_util import comboBoxConfig
 from joulescope_ui.styles import styled_widget, font_as_qfont, font_as_qss
 from joulescope_ui.styles.color_picker import ColorItem
 from joulescope_ui.styles.manager import style_settings
@@ -65,17 +66,11 @@ class _GridWidget(QtWidgets.QWidget):
 class SettingsEditorWidget(_GridWidget):
 
     def __init__(self, parent=None):
+        self.pubsub = None
         self._obj = None
-        self._unsub = []
         self._row = 1
         super().__init__(parent=parent)
         self.setObjectName('settings_editor_widget')
-
-    def clear(self):
-        for topic, fn in self._unsub:
-            pubsub_singleton.unsubscribe(topic, fn)
-        self._unsub.clear()
-        super().clear()
 
     @property
     def object(self):
@@ -100,7 +95,7 @@ class SettingsEditorWidget(_GridWidget):
         topic = f'{get_topic_name(obj)}/settings'
         styles = style_settings('__invalid_name__')
         styles.pop('name')
-        settings = pubsub_singleton.enumerate(topic, absolute=False, traverse=True)
+        settings = self.pubsub.enumerate(topic, absolute=False, traverse=True)
         for setting in settings:
             if setting in styles:
                 continue
@@ -108,7 +103,7 @@ class SettingsEditorWidget(_GridWidget):
 
     def _insert(self, topic, setting):
         settings_topic = f'{topic}/{setting}'
-        meta: Metadata = pubsub_singleton.metadata(settings_topic)
+        meta: Metadata = self.pubsub.metadata(settings_topic)
         if meta is None:
             return
         elif 'hide' in meta.flags:
@@ -136,15 +131,11 @@ class SettingsEditorWidget(_GridWidget):
             w.setToolTip(tooltip)
         self._row += 1
 
-    def _subscribe(self, topic, update_fn):
-        pubsub_singleton.subscribe(topic, update_fn, ['pub', 'retain'])
-        self._unsub.append((topic, update_fn))
-
     def _insert_bool(self, topic):
         widget = QtWidgets.QCheckBox(self)
         self._grid.addWidget(widget, self._row, 1, 1, 1)
         self._widgets.append(widget)
-        adapter = CallableSlotAdapter(widget, lambda: pubsub_singleton.publish(topic, widget.isChecked()))
+        adapter = CallableSlotAdapter(widget, lambda: self.pubsub.publish(topic, widget.isChecked()))
         widget.clicked.connect(adapter.slot)
 
         def handle(v):
@@ -152,14 +143,14 @@ class SettingsEditorWidget(_GridWidget):
             widget.setChecked(bool(v))
             widget.blockSignals(block_state)
 
-        self._subscribe(topic, handle)
+        self.pubsub.subscribe(topic, handle, ['pub', 'retain'])
         return widget
 
     def _insert_str(self, topic, meta):
         widget = QtWidgets.QLineEdit(self)
         self._grid.addWidget(widget, self._row, 1, 1, 1)
         self._widgets.append(widget)
-        adapter = CallableSlotAdapter(widget, lambda txt: pubsub_singleton.publish(topic, txt))
+        adapter = CallableSlotAdapter(widget, lambda txt: self.pubsub.publish(topic, txt))
         widget.textChanged.connect(adapter.slot)
 
         def handle(v):
@@ -167,7 +158,7 @@ class SettingsEditorWidget(_GridWidget):
             widget.setText(str(v))
             widget.blockSignals(block_state)
 
-        self._subscribe(topic, handle)
+        self.pubsub.subscribe(topic, handle, ['pub', 'retain'])
         return widget
 
     def _insert_combobox(self, topic, meta):
@@ -182,7 +173,7 @@ class SettingsEditorWidget(_GridWidget):
         else:
             default = meta.default
         comboBoxConfig(widget, options, default)
-        adapter = CallableSlotAdapter(widget, lambda idx: pubsub_singleton.publish(topic, options[idx]))
+        adapter = CallableSlotAdapter(widget, lambda idx: self.pubsub.publish(topic, options[idx]))
         widget.currentIndexChanged.connect(adapter.slot)
 
         def handle(v):
@@ -193,33 +184,32 @@ class SettingsEditorWidget(_GridWidget):
             else:
                 raise ValueError(f'Unable to match {v} in {values} or {options}')
 
-        self._subscribe(topic, handle)
+        self.pubsub.subscribe(topic, handle, ['pub', 'retain'])
         return widget
 
     def _insert_unique_strings(self, topic, meta):
         w = UniqueStringsWidget(self, meta.options)
         self._grid.addWidget(w, self._row, 1, 1, 1)
         self._widgets.append(w)
-        adapter = CallableSlotAdapter(w, lambda v: pubsub_singleton.publish(topic, v))
+        adapter = CallableSlotAdapter(w, lambda v: self.pubsub.publish(topic, v))
         w.changed.connect(adapter.slot)
 
         def handle(v):
             w.value = v
 
-        self._subscribe(topic, handle)
+        self.pubsub.subscribe(topic, handle, ['pub', 'retain'])
         return w
 
 
 class ColorEditorWidget(_GridWidget):
 
     def __init__(self, parent=None):
+        self.pubsub = None
         self._colors = None
         self._obj = None
         self._topic = None
         self._log = logging.getLogger(__name__ + '.color')
-        active_view = pubsub_singleton.query('registry/view/settings/active', default='view')
-        active_view_topic = get_topic_name(active_view)
-        self._color_scheme = pubsub_singleton.query(f'{active_view_topic}/settings/color_scheme', default='dark')
+        self._color_scheme = None
         super().__init__(parent)
         self.setObjectName('color_editor_widget')
         self._color_widgets = []
@@ -233,7 +223,7 @@ class ColorEditorWidget(_GridWidget):
             return
         self._colors[name] = color
         topic = f'{self._topic}/settings/colors'
-        colors = pubsub_singleton.query(topic)
+        colors = self.pubsub.query(topic)
         if colors is None:
             colors = {self._color_scheme: {name: color}}
         else:
@@ -241,7 +231,7 @@ class ColorEditorWidget(_GridWidget):
             if self._color_scheme not in colors:
                 colors[self._color_scheme] = {}
             colors[self._color_scheme][name] = color
-        pubsub_singleton.publish(f'{self._topic}/settings/colors', colors)
+        self.pubsub.publish(f'{self._topic}/settings/colors', colors)
 
     def clear(self):
         while len(self._color_widgets):
@@ -260,6 +250,10 @@ class ColorEditorWidget(_GridWidget):
 
     @object.setter
     def object(self, obj):
+        active_view = self.pubsub.query('registry/view/settings/active', default='view')
+        active_view_topic = get_topic_name(active_view)
+        self._color_scheme = self.pubsub.query(f'{active_view_topic}/settings/color_scheme', default='dark')
+
         obj = get_instance(obj, default=None)
         if self._obj is not None:
             self.clear()
@@ -275,7 +269,7 @@ class ColorEditorWidget(_GridWidget):
         self._topic = get_topic_name(obj)
         cls = obj.__class__
         colors = copy.deepcopy(cls._style_cls['load']['colors'][self._color_scheme])
-        cls_colors = pubsub_singleton.query(f'{get_topic_name(obj.__class__)}/settings/colors', default=None)
+        cls_colors = self.pubsub.query(f'{get_topic_name(obj.__class__)}/settings/colors', default=None)
         if cls_colors is not None:
             for color_name, color_value in cls_colors[self._color_scheme].items():
                 colors[color_name] = color_value
@@ -340,13 +334,12 @@ class QFontLabel(QtWidgets.QLabel):
 class FontEditorWidget(_GridWidget):
 
     def __init__(self, parent=None):
+        self.pubsub = None
+        self._font_scheme = None
         super().__init__(parent)
         self._fonts = None
         self._obj = None
         self._topic = None
-        active_view = pubsub_singleton.query('registry/view/settings/active', default='view')
-        active_view_topic = get_topic_name(active_view)
-        self._font_scheme = pubsub_singleton.query(f'{active_view_topic}/settings/font_scheme', default='js1')
         self._log = logging.getLogger(__name__ + '.font')
         self.setObjectName('font_editor_widget')
 
@@ -356,6 +349,10 @@ class FontEditorWidget(_GridWidget):
 
     @object.setter
     def object(self, obj):
+        active_view = self.pubsub.query('registry/view/settings/active', default='view')
+        active_view_topic = get_topic_name(active_view)
+        self._font_scheme = self.pubsub.query(f'{active_view_topic}/settings/font_scheme', default='js1')
+
         obj = get_instance(obj, default=None)
         if self._obj is not None:
             self.clear()
@@ -374,7 +371,7 @@ class FontEditorWidget(_GridWidget):
         cls = obj.__class__
 
         fonts = copy.deepcopy(cls._style_cls['load']['fonts'][self._font_scheme])
-        cls_fonts = pubsub_singleton.query(f'{get_topic_name(obj.__class__)}/settings/fonts', default=None)
+        cls_fonts = self.pubsub.query(f'{get_topic_name(obj.__class__)}/settings/fonts', default=None)
         if cls_fonts is not None:
             for font_name, font_value in cls_fonts[self._font_scheme].items():
                 fonts[font_name] = font_value
@@ -404,7 +401,7 @@ class FontEditorWidget(_GridWidget):
     def _on_change(self, name, value):
         self._fonts[name] = value
         topic = f'{self._topic}/settings/fonts'
-        fonts = pubsub_singleton.query(topic)
+        fonts = self.pubsub.query(topic)
         if fonts is None:
             fonts = {self._font_scheme: {name: value}}
         else:
@@ -412,12 +409,13 @@ class FontEditorWidget(_GridWidget):
             if self._font_scheme not in fonts:
                 fonts[self._font_scheme] = {}
             fonts[self._font_scheme][name] = value
-        pubsub_singleton.publish(f'{self._topic}/settings/fonts', fonts)
+        self.pubsub.publish(f'{self._topic}/settings/fonts', fonts)
 
 
 class StyleDefineEditorWidget(_GridWidget):
 
     def __init__(self, parent=None):
+        self.pubsub = None
         super().__init__(parent)
         self._entries = {}
         self._obj = None
@@ -445,7 +443,7 @@ class StyleDefineEditorWidget(_GridWidget):
         self._topic = get_topic_name(obj)
         cls = obj.__class__
         entries = copy.deepcopy(cls._style_cls['load']['style_defines'])
-        cls_entries = pubsub_singleton.query(f'{get_topic_name(obj.__class__)}/settings/style_defines', default=None)
+        cls_entries = self.pubsub.query(f'{get_topic_name(obj.__class__)}/settings/style_defines', default=None)
         if cls_entries is not None:
             for e_name, e_value in cls_entries.items():
                 entries[e_name] = e_value
@@ -477,7 +475,7 @@ class StyleDefineEditorWidget(_GridWidget):
 
     def _on_change(self, name, value):
         self._entries[name] = value
-        pubsub_singleton.publish(f'{self._topic}/settings/style_defines', dict(self._entries))
+        self.pubsub.publish(f'{self._topic}/settings/style_defines', dict(self._entries))
 
 
 def _class_items(capability):
@@ -493,6 +491,7 @@ def _class_items(capability):
 class SelectorWidget(QtWidgets.QTreeView):
 
     def __init__(self, parent=None):
+        self.pubsub = None
         super().__init__(parent)
         self.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
         self.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.SizeAdjustPolicy.AdjustToContents)
@@ -507,36 +506,43 @@ class SelectorWidget(QtWidgets.QTreeView):
         self.setHeaderHidden(True)
         self.selectionModel().currentChanged.connect(self._on_changed)
 
+    @QtCore.Slot(object, object)
+    def _on_changed(self, model_index, model_index_old):
+        unique_id = self._model.data(model_index, QtCore.Qt.UserRole + 1)
+        if unique_id is not None and len(unique_id):
+            self.parent().object = unique_id
+        else:
+            self.parent().object = None
+
+    def _populate(self, parent, items, selected_unique_id):
+        for name, unique_id, children in items:
+            if name is None:
+                name = self.pubsub.query(f'{get_topic_name(unique_id)}/settings/name', default=unique_id)
+            child_item = QtGui.QStandardItem(name)
+            child_item.setData(unique_id, QtCore.Qt.UserRole + 1)
+            parent.appendRow(child_item)
+            if selected_unique_id == unique_id:
+                self.selectionModel().select(child_item.index(), QtCore.QItemSelectionModel.Select)
+            if children is not None:
+                self._populate(child_item, children, selected_unique_id)
+
+    def populate(self, view):
+        block_state = self._model.blockSignals(True)
+        self._model.removeRows(0, self._model.rowCount())
         items = [
             # [name, unique_id, children]
             [N_('Common'), 'app', None],
             [None, 'ui', None],
             [None, 'paths', None],
             [N_('View defaults'), 'view', None],
-            [N_('View'), pubsub_singleton.query('registry/view/settings/active'), None],
+            [N_('View'), view, None],
             [N_('Devices'), '', _class_items('device.class')],
             [N_('Widgets'), '', _class_items('widget.class')],
         ]
-
-        self._populate(self._model.invisibleRootItem(), items)
-
-    @QtCore.Slot(object, object)
-    def _on_changed(self, model_index, model_index_old):
-        unique_id = self._model.data(model_index, QtCore.Qt.UserRole + 1)
-        if len(unique_id):
-            self.parent().object = unique_id
-        else:
-            self.parent().object = None
-
-    def _populate(self, parent, items):
-        for name, unique_id, children in items:
-            if name is None:
-                name = pubsub_singleton.query(f'{get_topic_name(unique_id)}/settings/name', default=unique_id)
-            child_item = QtGui.QStandardItem(name)
-            child_item.setData(unique_id, QtCore.Qt.UserRole + 1)
-            parent.appendRow(child_item)
-            if children is not None:
-                self._populate(child_item, children)
+        obj = self.parent().object
+        selected_unique_id = None if obj is None else get_unique_id(obj)
+        self._populate(self._model.invisibleRootItem(), items, selected_unique_id)
+        self._model.blockSignals(block_state)
 
 
 @register_decorator(unique_id='settings')
@@ -556,18 +562,22 @@ class SettingsWidget(QtWidgets.QSplitter):
         self._log = logging.getLogger(__name__)
         self._obj = None
         self._widgets = []
+        self._object_pubsub = None
         super(SettingsWidget, self).__init__(parent)
         self.setObjectName(f'settings_widget')
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self._left = SelectorWidget(self)
+        self.addWidget(self._left)
+        self._tabs = QtWidgets.QTabWidget(self)
+        self._tabs.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
+        self.addWidget(self._tabs)
+
         widgets = [
             [SettingsEditorWidget(self), N_('Settings')],
             [ColorEditorWidget(self), N_('Colors')],
             [FontEditorWidget(self), N_('Fonts')],
             [StyleDefineEditorWidget(self), N_('Defines')],
         ]
-        self._tabs = QtWidgets.QTabWidget(self)
-        self._tabs.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         for widget, title in widgets:
             widget.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
             scroll = QtWidgets.QScrollArea(self._tabs)
@@ -577,11 +587,10 @@ class SettingsWidget(QtWidgets.QSplitter):
             self._tabs.addTab(scroll, title)
             self._widgets.append([widget, scroll])
 
-        self.addWidget(self._left)
-        self.addWidget(self._tabs)
-
     def closeEvent(self, event):
         self.object = None
+        if self._object_pubsub is not None:
+            self._object_pubsub.unsubscribe_all()
         return super().closeEvent(event)
 
     def on_setting_target(self, value):
@@ -596,11 +605,22 @@ class SettingsWidget(QtWidgets.QSplitter):
 
     @object.setter
     def object(self, obj):
+        if self._object_pubsub is not None:
+            self._object_pubsub.unsubscribe_all()
+        self._object_pubsub = PubSubProxy(self.pubsub)
         obj_str = '[None]' if obj is None else get_unique_id(obj)
         self._log.info('object <= %s', obj_str)
         for widget, _ in self._widgets:
+            widget.pubsub = self._object_pubsub
             widget.object = obj
         self._obj = obj
+
+    def _on_view_active(self, value):
+        self._left.populate(value)
+
+    def on_pubsub_register(self):
+        self._left.pubsub = self.pubsub
+        self.pubsub.subscribe('registry/view/settings/active', self._on_view_active, ['pub', 'retain'])
 
     @staticmethod
     def on_cls_action_edit(pubsub, topic, value):

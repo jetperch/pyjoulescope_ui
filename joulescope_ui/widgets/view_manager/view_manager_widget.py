@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PySide6 import QtWidgets, QtGui, QtCore
-from joulescope_ui import N_, pubsub_singleton, get_topic_name, register
+from PySide6 import QtWidgets, QtCore
+from joulescope_ui import N_, get_topic_name, register
 from joulescope_ui.styles import styled_widget
 from joulescope_ui.widgets import DraggableListWidget
 from joulescope_ui.styles.manager import RENDER_TOPIC
@@ -26,13 +26,12 @@ _SPECIAL_VIEWS = ['view:multimeter', 'view:oscilloscope', 'view:file']
 
 class _ViewItem(QtWidgets.QWidget):
 
-    def __init__(self, parent, unique_id):
-        super().__init__(parent)
+    def __init__(self, parent, unique_id, pubsub):
         self.unique_id = unique_id
+        self.pubsub = pubsub
+        super().__init__(parent)
         self._layout = QtWidgets.QHBoxLayout(self)
         self._layout.setContentsMargins(0, 6, 0, 6)
-
-        self._on_pubsub_name_fn = self._on_pubsub_name
 
         self._move_start = QtWidgets.QLabel(self)
         self._move_start.setObjectName('move')
@@ -60,47 +59,43 @@ class _ViewItem(QtWidgets.QWidget):
             self._action.setObjectName('view_delete')
             self._action.clicked.connect(self._on_view_delete)
 
-        pubsub_singleton.subscribe(f'{get_topic_name(self.unique_id)}/settings/name',
-                                   self._on_pubsub_name_fn, ['pub', 'retain'])
-
-    def disconnect(self):
-        pubsub_singleton.unsubscribe(f'{get_topic_name(self.unique_id)}/settings/name', self._on_pubsub_name_fn)
+        self.pubsub.subscribe(f'{get_topic_name(self.unique_id)}/settings/name',
+                              self._on_pubsub_name, ['pub', 'retain'])
 
     def _on_pubsub_name(self, value):
         if value != self._name.text():
             self._name.setText(value)
 
     def _on_name_changed(self, name):
-        pubsub_singleton.publish(f'{get_topic_name(self.unique_id)}/settings/name', name)
+        self.pubsub.publish(f'{get_topic_name(self.unique_id)}/settings/name', name)
 
     @property
     def is_active_view(self):
-        active_view = pubsub_singleton.query('registry/view/settings/active')
+        active_view = self.pubsub.query('registry/view/settings/active')
         return active_view == self.unique_id
 
     def _on_view_reset(self, checked):
-        active_view = pubsub_singleton.query('registry/view/settings/active')
-        pubsub_singleton.publish('registry/view/settings/active', self.unique_id)
-        for child in pubsub_singleton.query(f'registry/{self.unique_id}/children'):
-            pubsub_singleton.publish('registry/view/actions/!widget_close', child)
+        active_view = self.pubsub.query('registry/view/settings/active')
+        self.pubsub.publish('registry/view/settings/active', self.unique_id)
+        for child in self.pubsub.query(f'registry/{self.unique_id}/children'):
+            self.pubsub.publish('registry/view/actions/!widget_close', child)
 
         if self.unique_id == 'view:multimeter':
-            pubsub_singleton.publish('registry/view/actions/!widget_open', 'MultimeterWidget')
+            self.pubsub.publish('registry/view/actions/!widget_open', 'MultimeterWidget')
         elif self.unique_id == 'view:oscilloscope':
-            pubsub_singleton.publish('registry/view/actions/!widget_open', {
+            self.pubsub.publish('registry/view/actions/!widget_open', {
                 'value': 'WaveformWidget',
                 'kwargs': {'source_filter': 'JsdrvStreamBuffer:001'},
             })
-        pubsub_singleton.publish('registry/view/settings/active', active_view)
+        self.pubsub.publish('registry/view/settings/active', active_view)
 
     def _on_view_delete(self, checked):
         if self.is_active_view:
-            items = pubsub_singleton.query(_VIEW_LIST_TOPIC)
+            items = self.pubsub.query(_VIEW_LIST_TOPIC)
             next_view = items[0] if items[0] != self.unique_id else items[1]
-            pubsub_singleton.publish('registry/view/settings/active', next_view)
-        pubsub_singleton.publish('registry/view/actions/!remove', self.unique_id)
+            self.pubsub.publish('registry/view/settings/active', next_view)
+        self.pubsub.publish('registry/view/actions/!remove', self.unique_id)
         self.parentWidget().item_remove(self)
-        self.disconnect()
 
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton and self._move_start.underMouse():
@@ -114,16 +109,12 @@ class _ViewItem(QtWidgets.QWidget):
 class ViewManagerWidget(QtWidgets.QWidget):
     """Manage the views."""
 
-    def __init__(self, parent=None):
+    def __init__(self, parent):
         super().__init__(parent=parent)
         self._menu = None
         self._layout = QtWidgets.QVBoxLayout(self)
 
         self._view_list = DraggableListWidget(self)
-        views = pubsub_singleton.query(_VIEW_LIST_TOPIC)
-        for unique_id in views:
-            item = _ViewItem(self, unique_id)
-            self._view_list.item_add(item)
         self._layout.addWidget(self._view_list)
         self._view_list.order_changed.connect(self._on_order_changed)
 
@@ -145,33 +136,36 @@ class ViewManagerWidget(QtWidgets.QWidget):
         self.ok_button = QtWidgets.QPushButton('OK')
         self._bottom_layout.addWidget(self.ok_button)
 
+    def on_pubsub_register(self):
+        views = self.pubsub.query(_VIEW_LIST_TOPIC)
+        for unique_id in views:
+            item = _ViewItem(self, unique_id, self.pubsub)
+            self._view_list.item_add(item)
+
     def _on_add(self, checked):
         name = N_('New View')
         view = View()
-        pubsub_singleton.register(view)
-        pubsub_singleton.publish(f'{get_topic_name(view)}/settings/name', name)
-        item = _ViewItem(self, view.unique_id)
+        self.pubsub.register(view)
+        self.pubsub.publish(f'{get_topic_name(view)}/settings/name', name)
+        item = _ViewItem(self, view.unique_id, self.pubsub)
         self._view_list.item_add(item)
 
     def _on_order_changed(self, items):
         unique_ids = [item.unique_id for item in items]
-        pubsub_singleton.publish(_VIEW_LIST_TOPIC, unique_ids)
-
-    def cleanup(self):
-        for item in self._view_list.items:
-            item.disconnect()
+        self.pubsub.publish(_VIEW_LIST_TOPIC, unique_ids)
 
 
 class ViewManagerDialog(QtWidgets.QDialog):
 
-    def __init__(self, parent=None):
+    def __init__(self, parent, pubsub):
+        self.pubsub = pubsub
         super().__init__(parent=parent)
         self._layout = QtWidgets.QVBoxLayout(self)
 
         self._widget = ViewManagerWidget(self)
         self._layout.addWidget(self._widget)
-        pubsub_singleton.register(self._widget, parent='ui')
-        pubsub_singleton.publish(RENDER_TOPIC, self._widget)
+        self.pubsub.register(self._widget, parent='ui')
+        self.pubsub.publish(RENDER_TOPIC, self._widget)
 
         self._widget.ok_button.pressed.connect(self.accept)
         self.finished.connect(self._on_finish)
@@ -179,6 +173,9 @@ class ViewManagerDialog(QtWidgets.QDialog):
         self.setWindowTitle(N_('View Manager'))
         self.open()
 
+    @QtCore.Slot()
     def _on_finish(self):
-        pubsub_singleton.unregister(self._widget, delete=True)
-        self._widget.cleanup()
+        w, self._widget = self._widget, None
+        if w is not None:
+            self.pubsub.unregister(w, delete=True)
+            self.deleteLater()

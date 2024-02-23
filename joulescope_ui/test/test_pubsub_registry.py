@@ -454,3 +454,29 @@ class TestDynamicCapabilities(unittest.TestCase):
         self.p.capabilities_append(obj, ['1'])
         self.assertEqual([('registry_manager/capabilities/1/list', ['caps'])], self.calls)
         self.calls.clear()
+
+
+class TestPubsubMember(unittest.TestCase):
+
+    def setUp(self):
+        self.calls = []
+
+    def tearDown(self) -> None:
+        pass
+
+    def _callback(self, value):
+        self.calls.append(value)
+
+    def test_unregister_unsub(self):
+        p = PubSub()
+        p.registry_initialize()
+        topic = 'my/topic/one'
+        p.topic_add(topic, dtype='str', brief='my topic', default='default')
+        p.register(self)
+        self.pubsub.subscribe(topic, self._callback)
+        p.publish(topic, 'hello')
+        self.assertEqual(['hello'], self.calls)
+        self.calls.clear()
+        p.unregister(self)
+        p.publish(topic, 'world')
+        self.assertEqual([], self.calls)

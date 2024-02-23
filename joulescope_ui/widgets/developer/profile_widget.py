@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from PySide6 import QtCore, QtWidgets
-from joulescope_ui import N_, pubsub_singleton
+from joulescope_ui import N_
 from joulescope_ui.styles import styled_widget
 import cProfile
 from io import StringIO
@@ -89,18 +89,18 @@ class ProfileWidget(QtWidgets.QWidget):
         self._text_clipboard = None
 
     def on_pubsub_register(self):
-        self._state = pubsub_singleton.query('registry/ProfileWidget/settings/state')
+        self._state = self.pubsub.query('registry/ProfileWidget/settings/state')
         if self._state is None:
             self._state = {
                 'profile': None,
                 'profile_path': None,
                 'snapshot': None
             }
-            pubsub_singleton.publish('registry/ProfileWidget/settings/state', self._state)
+            self.pubsub.publish('registry/ProfileWidget/settings/state', self._state)
 
     @QtCore.Slot(bool)
     def _on_profile(self, checked):
-        p = pubsub_singleton.query('common/settings/paths/log')
+        p = self.pubsub.query('common/settings/paths/log')
         idx = 0
         while True:
             path = os.path.join(p, f'{idx:04d}.profile')

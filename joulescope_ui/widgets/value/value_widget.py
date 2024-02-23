@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from PySide6 import QtWidgets, QtGui, QtCore
-from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topic_name, tooltip_format
+from joulescope_ui import CAPABILITIES, register, N_, get_topic_name, tooltip_format
 from joulescope_ui.widget_tools import settings_action_create, context_menu_show
 from joulescope_ui.styles import styled_widget, color_as_qcolor, font_as_qfont
 from joulescope_ui.units import UNITS_SETTING, convert_units, unit_prefix, three_sig_figs
@@ -522,27 +522,15 @@ class _BaseWidget(QtWidgets.QWidget):
         self._spacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self._layout.addItem(self._spacer)
 
-        self._on_statistics_fn = self._on_statistics
         self._statistics = None  # most recent statistics information
-
-        self._subscribers = [
-            ['registry/app/settings/statistics_stream_enable',
-             self._on_global_statistics_stream_enable],
-            ['registry/app/settings/units', self._on_update],
-        ]
-
         self.mousePressEvent = self._on_mousePressEvent
-
-    def _on_update(self):
-        self.update()
 
     def on_pubsub_register(self):
         topic = f'{get_topic_name(self)}/settings/statistics_stream_source'
-        self.source_selector.settings_topic = topic
-        self.source_selector.on_pubsub_register()
-
-        for topic, fn in self._subscribers:
-            pubsub_singleton.subscribe(topic, fn, ['pub', 'retain'])
+        self.source_selector.on_pubsub_register(self.pubsub, topic)
+        self.pubsub.subscribe('registry/app/settings/statistics_stream_enable',
+                              self._on_global_statistics_stream_enable)
+        self.pubsub.subscribe('registry/app/settings/units', lambda: self.update())
         self._connect()
 
     @QtCore.Slot(object)
@@ -559,34 +547,14 @@ class _BaseWidget(QtWidgets.QWidget):
     def _on_resolved_changed(self, value):
         self._connect()
 
-    def on_pubsub_unregister(self):
-        self.source_selector.on_pubsub_unregister()
-        self._pubsub_disconnect()
-
-    def _pubsub_disconnect(self):
-        self._disconnect()
-        for topic, fn in self._subscribers:
-            pubsub_singleton.unsubscribe(topic, fn)
-        self._subscribers.clear()
-        self._statistics = None
-
-    def closeEvent(self, event):
-        self._log.info('closeEvent')
-        self._pubsub_disconnect()
-        return super().closeEvent(event)
-
-    def _disconnect(self):
-        pubsub_singleton.unsubscribe_all(self._on_statistics_fn)
-        self.repaint()
-
     def _connect(self):
-        self._disconnect()
+        self.pubsub.unsubscribe_all(self._on_statistics)
         resolved = self.source_selector.resolved()
         if resolved is None:
             self._device_widget.device_show(None)
         else:
             topic = get_topic_name(resolved)
-            pubsub_singleton.subscribe(f'{topic}/events/statistics/!data', self._on_statistics_fn, ['pub'])
+            self.pubsub.subscribe(f'{topic}/events/statistics/!data', self._on_statistics, ['pub'])
         self.repaint()
 
     def _accum(self, stats):

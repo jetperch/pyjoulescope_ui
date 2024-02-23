@@ -137,6 +137,14 @@ class TestPubSub(unittest.TestCase):
         p.publish(TOPIC1, 'world')
         self.assertEqual(0, len(self.pub))
 
+    def test_unsubscribe_by_obj(self):
+        p = PubSub()
+        p.topic_add(TOPIC1, dtype='str', brief='my topic', default='hello')
+        obj = p.subscribe(TOPIC1, self._on_publish2, flags=['pub'])
+        p.unsubscribe(obj)
+        p.publish(TOPIC1, 'world')
+        self.assertEqual(0, len(self.pub))
+
     def test_unsubscribe_all(self):
         p = PubSub()
         p.topic_add('my/topic', dtype='node', brief='node')

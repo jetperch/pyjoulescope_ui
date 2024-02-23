@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PySide6 import QtCore, QtGui, QtWidgets
+from PySide6 import QtCore, QtWidgets
 from joulescope_ui.expanding_widget import ExpandingWidget
 import logging
-from joulescope_ui import N_, register, tooltip_format, pubsub_singleton, \
-    get_instance, get_topic_name, Metadata, urls
+from joulescope_ui import N_, tooltip_format, get_instance, get_topic_name, Metadata, urls
+from joulescope_ui.pubsub_proxy import PubSubProxy
 from joulescope_ui.styles import color_as_qcolor
 from joulescope_ui.ui_util import comboBoxConfig
 from joulescope_ui.widget_tools import CallableSlotAdapter
@@ -99,11 +99,12 @@ _BUTTON_SIZE = (20, 20)
 
 class Js220CtrlWidget(QtWidgets.QWidget):
 
-    def __init__(self, parent, unique_id):
+    def __init__(self, parent, unique_id, pubsub):
         self.unique_id = unique_id
+        pubsub = PubSubProxy(pubsub)
+        self.pubsub = pubsub
         self._widgets = []
         self._control_widgets = {}  # name, widget
-        self._unsub = []  # (topic, fn)
         self._row = 0
         self._signals = {}
         self._gpo = {}
@@ -144,23 +145,19 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         self._add_gpo()
         self._add_fuses()
         self._add_footer()
-        self._subscribe('registry/ui/events/blink_slow', self._on_blink)
-        self._subscribe('registry/app/settings/target_power', self._on_target_power_app)
+        pubsub.subscribe('registry/ui/events/blink_slow', self._on_blink, ['pub', 'retain'])
+        pubsub.subscribe('registry/app/settings/target_power', self._on_target_power_app, ['pub', 'retain'])
         topic = get_topic_name(self.unique_id)
         for signal in self._GPI_SIGNALS:
             self._gpi_subscribe(f'{topic}/events/signals/{signal}/!data', signal)
-        self._subscribe(f'{topic}/settings/state', self._on_setting_state)
+        pubsub.subscribe(f'{topic}/settings/state', self._on_setting_state, ['pub', 'retain'])
 
     @property
     def is_js220(self):
         return 'JS220' in self.unique_id
 
-    def _subscribe(self, topic, update_fn):
-        pubsub_singleton.subscribe(topic, update_fn, ['pub', 'retain'])
-        self._unsub.append((topic, update_fn))
-
     def _gpi_subscribe(self, topic, signal):
-        self._subscribe(topic, lambda v: self._on_gpi_n(signal, v))
+        self.pubsub.subscribe(topic, lambda v: self._on_gpi_n(signal, v))
 
     def _on_gpi_n(self, signal, value):
         d = value.get('data')
@@ -191,8 +188,8 @@ class Js220CtrlWidget(QtWidgets.QWidget):
 
     def _on_info(self, *args, **kwargs):
         self._log.info('on_info')
-        info = pubsub_singleton.query(f'{get_topic_name(self.unique_id)}/settings/info')
-        DeviceInfoDialog(info)
+        info = self.pubsub.query(f'{get_topic_name(self.unique_id)}/settings/info')
+        DeviceInfoDialog(info, self.pubsub)
 
     def _construct_pushbutton(self, name, checkable=False, tooltip=None):
         b = QtWidgets.QPushButton()
@@ -264,11 +261,11 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             b.setChecked(True)
             b.blockSignals(block_state)
             for topic in topics:
-                pubsub_singleton.publish(topic, self.unique_id)
-            pubsub_singleton.publish('registry/app/settings/defaults/signal_buffer_source',
-                                     f'JsdrvStreamBuffer:001.{self.unique_id}')
+                self.pubsub.publish(topic, self.unique_id)
+            self.pubsub.publish('registry/app/settings/defaults/signal_buffer_source',
+                                f'JsdrvStreamBuffer:001.{self.unique_id}')
 
-        self._subscribe(topics[0], update_from_pubsub)
+        self.pubsub.subscribe(topics[0], update_from_pubsub, ['pub', 'retain'])
         b.toggled.connect(on_pressed)
         return b
 
@@ -285,19 +282,19 @@ class Js220CtrlWidget(QtWidgets.QWidget):
 
         def on_toggled(checked):
             if not bool(checked):
-                pubsub_singleton.publish(f'{topic}/actions/!fuse_clear', None)
+                self.pubsub.publish(f'{topic}/actions/!fuse_clear', None)
             else:
                 block_signals = b.blockSignals(True)
                 b.setChecked(not checked)
                 b.blockSignals(block_signals)
 
-        self._subscribe(f'{topic}/settings/fuse_engaged', update_from_pubsub)
+        self.pubsub.subscribe(f'{topic}/settings/fuse_engaged', update_from_pubsub, ['pub', 'retain'])
         b.toggled.connect(on_toggled)
         return b
 
     def _construct_target_power_button(self, parent):
         topic = f'{get_topic_name(self.unique_id)}/settings/target_power'
-        meta = pubsub_singleton.metadata(topic)
+        meta = self.pubsub.metadata(topic)
         b = self._construct_pushbutton('target_power', checkable=True,
                                        tooltip=tooltip_format(meta.brief, meta.detail))
         self._buttons_blink.append(b)
@@ -308,8 +305,8 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             b.blockSignals(block_state)
 
         self._target_power_button = b
-        self._subscribe(topic, update_from_pubsub)
-        adapter = CallableSlotAdapter(b, lambda checked: pubsub_singleton.publish(topic, bool(checked)))
+        self.pubsub.subscribe(topic, update_from_pubsub, ['pub', 'retain'])
+        adapter = CallableSlotAdapter(b, lambda checked: self.pubsub.publish(topic, bool(checked)))
         b.toggled.connect(adapter.slot)
         return b
 
@@ -346,9 +343,9 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             b.blockSignals(block_state)
             on_update(checked)
             state_req = 1 if checked else 0
-            pubsub_singleton.publish(f'{self_topic}/actions/!state_req', state_req)
+            self.pubsub.publish(f'{self_topic}/actions/!state_req', state_req)
 
-        self._subscribe(state_topic, state_from_pubsub)
+        self.pubsub.subscribe(state_topic, state_from_pubsub, ['pub', 'retain'])
         b.toggled.connect(on_toggle)
         return b
 
@@ -391,8 +388,8 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             b.setChecked(bool(value))
             b.blockSignals(block_state)
 
-        self._subscribe(topic, update_from_pubsub)
-        adapter = CallableSlotAdapter(b, lambda checked: pubsub_singleton.publish(topic, bool(checked)))
+        self.pubsub.subscribe(topic, update_from_pubsub, ['pub', 'retain'])
+        adapter = CallableSlotAdapter(b, lambda checked: self.pubsub.publish(topic, bool(checked)))
         b.toggled.connect(adapter.slot)
         self._signals['layout'].addWidget(b)
         self._signals['buttons'][signal] = b
@@ -439,8 +436,8 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             b.setChecked(bool(value))
             b.blockSignals(block_state)
 
-        self._subscribe(topic, update_from_pubsub)
-        adapter = CallableSlotAdapter(b, lambda checked: pubsub_singleton.publish(topic, bool(checked)))
+        self.pubsub.subscribe(topic, update_from_pubsub, ['pub', 'retain'])
+        adapter = CallableSlotAdapter(b, lambda checked: self.pubsub.publish(topic, bool(checked)))
         b.toggled.connect(adapter.slot)
         self._gpo['layout'].addWidget(b)
         self._gpo['buttons'].append(b)
@@ -457,7 +454,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
     def _add_str(self, name):
         w = QtWidgets.QLineEdit(self)
         topic = f'{get_topic_name(self.unique_id)}/settings/{name}'
-        adapter = CallableSlotAdapter(w, lambda s: pubsub_singleton.publish(topic, s))
+        adapter = CallableSlotAdapter(w, lambda s: self.pubsub.publish(topic, s))
         w.textChanged.connect(adapter.slot)
 
         def on_change(v):
@@ -466,7 +463,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             w.blockSignals(block_state)
 
         self._control_widgets[name] = w
-        self._subscribe(topic, on_change)
+        self.pubsub.subscribe(topic, on_change, ['pub', 'retain'])
         return w
 
     def _add_combobox(self, name, meta: Metadata):
@@ -480,12 +477,12 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         topic = f'{get_topic_name(self.unique_id)}/settings/{name}'
         if name in ['signal_frequency']:
             def fn(idx):
-                pubsub_singleton.publish('registry/JsdrvStreamBuffer:001/actions/!clear', None)
-                pubsub_singleton.publish(topic, options[idx][0])
-                pubsub_singleton.publish('registry/JsdrvStreamBuffer:001/actions/!clear', None)
+                self.pubsub.publish('registry/JsdrvStreamBuffer:001/actions/!clear', None)
+                self.pubsub.publish(topic, options[idx][0])
+                self.pubsub.publish('registry/JsdrvStreamBuffer:001/actions/!clear', None)
         else:
             def fn(idx):
-                pubsub_singleton.publish(topic, options[idx][0])
+                self.pubsub.publish(topic, options[idx][0])
         adapter = CallableSlotAdapter(w, fn)
         w.currentIndexChanged.connect(adapter.slot)
 
@@ -503,19 +500,19 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             w.blockSignals(block_state)
 
         self._control_widgets[name] = w
-        self._subscribe(topic, lookup)
+        self.pubsub.subscribe(topic, lookup, ['pub', 'retain'])
         return w
 
     def _add_current_range_limits(self, name, meta: Metadata):
         w = CurrentLimits(self)
         topic = f'{get_topic_name(self.unique_id)}/settings/{name}'
         self._control_widgets[name] = w
-        adapter = CallableSlotAdapter(w, lambda v0, v1: pubsub_singleton.publish(topic, [v0, v1]))
+        adapter = CallableSlotAdapter(w, lambda v0, v1: self.pubsub.publish(topic, [v0, v1]))
         w.values_changed.connect(adapter.slot)
         combobox = self._control_widgets.get('current_range', None)
         if combobox is not None:
             self._on_current_range(combobox.currentIndex())
-        self._subscribe(topic, w.values_set)
+        self.pubsub.subscribe(topic, w.values_set, ['pub', 'retain'])
         return w
 
     def _on_current_range(self, v):
@@ -554,7 +551,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
 
     def _add_fuses(self):
         if self.is_js220:
-            w = FuseWidget(self, self.unique_id)
+            w = FuseWidget(self, self.unique_id, self.pubsub)
             self._body_layout.addWidget(w, self._row, 0, 1, 2)
             self._row += 1
             self._widgets.append(w)
@@ -605,19 +602,19 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         # disable all streaming
         for name in self._DEVICE_SETTINGS.keys():
             if name.endswith('/enable'):
-                pubsub_singleton.publish(f'{topic_base}/{name}', False)
-        pubsub_singleton.publish(f'{get_topic_name(self.unique_id)}/actions/!state_req', 0)
+                self.pubsub.publish(f'{topic_base}/{name}', False)
+        self.pubsub.publish(f'{get_topic_name(self.unique_id)}/actions/!state_req', 0)
         for name, meta in self._DEVICE_SETTINGS.items():
             meta = Metadata(meta)
             value = meta.default
             if name == 'name':
                 value = self.unique_id
-            pubsub_singleton.publish(f'{topic_base}/{name}', value)
+            self.pubsub.publish(f'{topic_base}/{name}', value)
 
     def _clear_accumulators(self):
         self._log.info('clear accumulators')
         topic = f'{get_topic_name(self.unique_id)}/actions/!accum_clear'
-        pubsub_singleton.publish(topic, None)
+        self.pubsub.publish(topic, None)
 
     def _calibrate(self):
         self._log.info('calibrate')
@@ -628,16 +625,15 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             },
             'floating': True,
         }
-        pubsub_singleton.publish('registry/view/actions/!widget_open', widget_def)
+        self.pubsub.publish('registry/view/actions/!widget_open', widget_def)
 
     def clear(self):
-        for topic, fn in self._unsub:
-            pubsub_singleton.unsubscribe(topic, fn)
         while len(self._widgets):
             w = self._widgets.pop()
             self._body_layout.removeWidget(w)
             w.close()
             w.deleteLater()
+        self.pubsub.unsubscribe_all()
 
     def closeEvent(self, event):
         self._log.info('closeEvent')
@@ -667,4 +663,3 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             w.slider.background = color_as_qcolor(v['base.background_alternate'])
             w.slider.foreground = color_as_qcolor(v['js1.button_checked'])
             w.slider.handles = color_as_qcolor(v['base.foreground_alternate'])
-

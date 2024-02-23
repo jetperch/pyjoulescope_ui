@@ -7,7 +7,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.51
 
-2024 Feb 21 [in progress]
+2024 Feb 23 [in progress]
 
 * Dropped Python 3.9 support as static methods are not callable until 3.10.
   See https://docs.python.org/3/whatsnew/3.10.html
@@ -49,6 +49,12 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added QtCore.Slot decorator to PySide6/Qt6 slots.
 * Improved QMenu and Qt Slot memory management and object lifecycle management.
 * Updated credits to include missing entries.
+* Improved pubsub registration and callback management  #254
+  * Added auto unsubscribe on object unregister to fix dangling subscribes.
+  * Improved bound method handling to reduce memory leaks.
+  * Reduced the number of pubsub_singleton usages.
+  * Added subscribe() return object for use with unsubscribe().
+  * Fixed settings widget to update on view changes  #253
 
 
 ## 1.0.48

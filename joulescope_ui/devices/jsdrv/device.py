@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from joulescope_ui.capabilities import CAPABILITIES
-from joulescope_ui.metadata import Metadata
 import copy
 import logging
 
@@ -45,7 +44,6 @@ class Device:
         self._log = logging.getLogger(__name__ + '.' + device_path.replace('/', '.'))
         self._path = device_path
         self._driver_subscriptions = []
-        self._ui_subscriptions = []
 
     def __str__(self):
         return f'Device({self._path})'
@@ -58,17 +56,10 @@ class Device:
         while len(self._driver_subscriptions):
             t, v = self._driver_subscriptions.pop()
             self._driver.unsubscribe(self._driver_topic_make(t), v)
-        while len(self._ui_subscriptions):
-            t, v, f = self._ui_subscriptions.pop()
-            self._pubsub.unsubscribe(t, v, flags=[f])
 
     @property
     def _driver(self):
         return self._wrapper.driver
-
-    @property
-    def _pubsub(self):
-        return self._wrapper.pubsub
 
     def _driver_topic_make(self, topic):
         if topic[0] != '/':
@@ -107,35 +98,19 @@ class Device:
         return self.topic + topic
 
     def _ui_publish(self, topic: str, value):
-        return self._pubsub.publish(self._ui_topic_make(topic), value)
+        return self.pubsub.publish(self._ui_topic_make(topic), value)
 
     def _ui_query(self, topic):
-        return self._pubsub.query(self._ui_topic_make(topic))
+        return self.pubsub.query(self._ui_topic_make(topic))
 
     def _ui_subscribe(self, topic: str, update_fn: callable, flags=None, absolute_topic=False):
         if not bool(absolute_topic):
             topic = self._ui_topic_make(topic)
-        flags = ['pub'] if flags is None else flags
-        for flag in flags:
-            self._ui_subscriptions.append((topic, update_fn, flag))
-        return self._pubsub.subscribe(topic, update_fn, flags)
+        return self.pubsub.subscribe(topic, update_fn, flags)
 
-    def _ui_unsubscribe(self, topic, update_fn: callable, flags=None):
+    def _ui_unsubscribe(self, topic, update_fn: callable):
         topic = self._ui_topic_make(topic)
-        flags = ['pub'] if flags is None else flags
-        s, self._ui_subscriptions = self._ui_subscriptions, []
-        for s_topic, s_update_fn, s_flag in s:
-            if s_topic == topic and s_update_fn == update_fn and s_flag in flags:  # "==" works for bound methods
-                pass
-            else:
-                self._ui_subscriptions.append((s_topic, s_update_fn, s_flag))
-        return self._pubsub.unsubscribe(topic, update_fn, flags)
+        return self.pubsub.unsubscribe(topic, update_fn)
 
     def _ui_unsubscribe_all(self, update_fn: callable):
-        s, self._ui_subscriptions = self._ui_subscriptions, []
-        for s_topic, s_update_fn, s_flag in s:
-            if s_update_fn == update_fn:  # "==" works for bound methods
-                pass
-            else:
-                self._ui_subscriptions.append((s_topic, s_update_fn, s_flag))
-        return self._pubsub.unsubscribe_all(update_fn)
+        return self.pubsub.unsubscribe_all(update_fn)

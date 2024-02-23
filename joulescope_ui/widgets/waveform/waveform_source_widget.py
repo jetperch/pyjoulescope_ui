@@ -19,9 +19,7 @@ WARNING: this widget and feature is still under development.
 """
 
 from joulescope_ui import N_, tooltip_format
-from joulescope_ui.widget_tools import CallableAction, settings_action_create, context_menu_show
-from joulescope_ui.source_selector import SourceSelector
-from joulescope_ui.ui_util import comboBoxConfig
+from joulescope_ui.widget_tools import CallableAction, context_menu_show
 from PySide6 import QtCore, QtGui, QtWidgets
 import logging
 
@@ -173,7 +171,6 @@ class WaveformSourceWidget(QtWidgets.QWidget):
         self._spacer_r = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self._layout.addItem(self._spacer_r)
 
-        self._subscribers = []
         self._visible_update()
 
     @property
@@ -218,14 +215,6 @@ class WaveformSourceWidget(QtWidgets.QWidget):
 
     def on_pubsub_register(self, pubsub):
         topic = self.topic
-        self._subscribers = [
-            [f'{topic}/settings/subsources', self._on_subsources, ['pub', 'retain']],
-            [f'{topic}/settings/trace_subsources', self._on_trace_subsources, ['pub', 'retain']],
-            [f'{topic}/settings/trace_priority', self._on_trace_priority, ['pub', 'retain']],
-        ]
-        for topic, fn, flags in self._subscribers:
-            pubsub.subscribe(topic, fn, flags)
-
-    def on_pubsub_unregister(self, pubsub):
-        for topic, fn, flags in self._subscribers:
-            pubsub.unsubscribe(topic, fn, flags)
+        pubsub.subscribe(f'{topic}/settings/subsources', self._on_subsources, ['pub', 'retain'])
+        pubsub.subscribe(f'{topic}/settings/trace_subsources', self._on_trace_subsources, ['pub', 'retain'])
+        pubsub.subscribe(f'{topic}/settings/trace_priority', self._on_trace_priority, ['pub', 'retain'])

@@ -156,7 +156,6 @@ class JsdrvStreamBuffer:
         self._signals_reverse: dict[int, str] = {}  # signal id buffer_id -> ui_str
         self._device_signal_id_next = 1
         self._device_subscriptions = {}
-        self._pubsub_subscriptions = []
         self._pubsub_device_subscriptions = {}  # device_id: [(topic, fn), ...]
 
         self._signals_free = list(range(1, 256))
@@ -259,7 +258,6 @@ class JsdrvStreamBuffer:
 
     def _ui_subscribe(self, topic, fn, flags=None):
         self.pubsub.subscribe(topic, fn, flags)
-        self._pubsub_subscriptions.append((topic, fn))
 
     def _ui_device_subscribe(self, device, topic, fn, flags=None):
         unique_id = get_unique_id(device)
@@ -291,9 +289,6 @@ class JsdrvStreamBuffer:
 
     def on_pubsub_unregister(self):
         self._log.info('unregister')
-        for topic, fn in self._pubsub_subscriptions:
-            self.pubsub.unsubscribe(topic, fn)
-        self._pubsub_subscriptions.clear()
         for topic, fn in self._device_subscriptions:
             self._wrapper.driver.unsubscribe(topic, fn)
         self._device_subscriptions.clear()

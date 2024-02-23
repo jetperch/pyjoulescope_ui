@@ -12,13 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PySide6 import QtWidgets, QtGui, QtCore
-from joulescope_ui import N_, register, CAPABILITIES, pubsub_singleton, get_topic_name
+from PySide6 import QtWidgets
+from joulescope_ui import N_, register, CAPABILITIES
 from joulescope_ui.ui_util import comboBoxConfig
-from joulescope_ui.widget_tools import settings_action_create
 from joulescope_ui.styles import styled_widget
-from joulescope_ui.exporter import TO_JLS_SIGNAL_NAME
-import logging
 
 
 SETTINGS = {
@@ -61,18 +58,13 @@ class JlsInfoWidget(QtWidgets.QWidget):
         self._text.setLineWrapMode(QtWidgets.QPlainTextEdit.LineWrapMode.NoWrap)
         self._layout.addWidget(self._text)
 
-        self._subscribers = [
-            [f'registry_manager/capabilities/{CAPABILITIES.SIGNAL_BUFFER_SOURCE}/list',
-             self._on_signal_buffer_source_list],
-        ]
-
     def _on_signal_buffer_source_list(self, sources):
         self._sources = [s for s in sources if s.startswith('JlsSource:')]
-        self._source_names = [pubsub_singleton.query(f'registry/{s}/settings/name') for s in self._sources]
+        self._source_names = [self.pubsub.query(f'registry/{s}/settings/name') for s in self._sources]
         active_source = self.active_source
         comboBoxConfig(self._source_combobox, self._source_names, active_source)
         prefix = f'registry/{active_source}'
-        notes = pubsub_singleton.query(f'{prefix}/settings/notes', default=None)
+        notes = self.pubsub.query(f'{prefix}/settings/notes', default=None)
         txt = []
 
         if notes:
@@ -80,21 +72,21 @@ class JlsInfoWidget(QtWidgets.QWidget):
             txt.append('------')
 
         sources = {}
-        for source_idx in pubsub_singleton.enumerate(f'{prefix}/settings/sources'):
+        for source_idx in self.pubsub.enumerate(f'{prefix}/settings/sources'):
             sources[source_idx] = {
                 'source_idx': source_idx,
-                'name': pubsub_singleton.query(f'{prefix}/settings/sources/{source_idx}/name', default=None),
-                'info': pubsub_singleton.query(f'{prefix}/settings/sources/{source_idx}/info', default=None),
+                'name': self.pubsub.query(f'{prefix}/settings/sources/{source_idx}/name', default=None),
+                'info': self.pubsub.query(f'{prefix}/settings/sources/{source_idx}/info', default=None),
                 'signals': [],
             }
-        for signal_idx in pubsub_singleton.enumerate(f'{prefix}/settings/signals'):
-            meta = pubsub_singleton.query(f'{prefix}/settings/signals/{signal_idx}/meta', default=None)
+        for signal_idx in self.pubsub.enumerate(f'{prefix}/settings/signals'):
+            meta = self.pubsub.query(f'{prefix}/settings/signals/{signal_idx}/meta', default=None)
             source_idx = meta['source']
             signal = {
                 'signal_idx': signal_idx,
-                'name': pubsub_singleton.query(f'{prefix}/settings/signals/{signal_idx}/name', default=None),
+                'name': self.pubsub.query(f'{prefix}/settings/signals/{signal_idx}/name', default=None),
                 'meta': meta,
-                'range': pubsub_singleton.query(f'{prefix}/settings/signals/{signal_idx}/range', default=None),
+                'range': self.pubsub.query(f'{prefix}/settings/signals/{signal_idx}/range', default=None),
             }
             sources[source_idx]['signals'].append(signal)
         for source_idx, source in sources.items():
@@ -115,9 +107,5 @@ class JlsInfoWidget(QtWidgets.QWidget):
             return self._sources[0]
 
     def on_pubsub_register(self):
-        for topic, fn in self._subscribers:
-            pubsub_singleton.subscribe(topic, fn, ['pub', 'retain'])
-
-    def on_pubsub_unregister(self):
-        for topic, fn in self._subscribers:
-            pubsub_singleton.unsubscribe(topic, fn)
+        self.pubsub.subscribe(f'registry_manager/capabilities/{CAPABILITIES.SIGNAL_BUFFER_SOURCE}/list',
+                              self._on_signal_buffer_source_list, ['pub', 'retain'])

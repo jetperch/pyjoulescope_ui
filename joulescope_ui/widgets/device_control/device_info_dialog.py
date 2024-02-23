@@ -14,17 +14,16 @@
 
 
 from PySide6 import QtWidgets
-from joulescope_ui import pubsub_singleton
 import logging
 
 
 class DeviceInfoDialog(QtWidgets.QDialog):
 
-    def __init__(self, info):
+    def __init__(self, info, pubsub):
         self._log = logging.getLogger(__name__)
         self._log.debug('create start')
         self._widgets = []
-        parent = pubsub_singleton.query('registry/ui/instance')
+        parent = pubsub.query('registry/ui/instance')
         super().__init__(parent=parent)
         self.setObjectName("device_info_dialog")
         self.setWindowTitle('Device Information')

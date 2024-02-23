@@ -14,7 +14,7 @@
 
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from joulescope_ui import N_, register, tooltip_format, pubsub_singleton, get_instance
+from joulescope_ui import N_, register, tooltip_format, get_instance
 from joulescope_ui.styles import styled_widget, color_as_qcolor
 from joulescope_ui.widgets.flyout import FlyoutWidget
 from joulescope_ui.widget_tools import CallableSlotAdapter
@@ -93,6 +93,13 @@ class SideBar(QtWidgets.QWidget):
         self._layout.setSpacing(6)
         self._layout.setContentsMargins(3, 3, 3, 3)
 
+    def _on_fuse_button_pressed(self):
+        self.pubsub.publish('registry/app/actions/!fuse_clear_all', None)
+
+    def register(self, pubsub):
+        pubsub.register(self, 'sidebar:0', parent='ui')
+        self._flyout = FlyoutWidget(self.parent(), self)
+        self.pubsub.register(self._flyout, 'flyout:0', parent='sidebar:0')
         self._add_blink_button('target_power', 'target_power')
         b = self._add_blink_button('fuse', 'fuse_engaged', clear_only=True, skip_connect=True)
         b.pressed.connect(self._on_fuse_button_pressed)
@@ -110,32 +117,22 @@ class SideBar(QtWidgets.QWidget):
         self._add_button('help', _HELP_TOOLTIP, 'HelpWidget', 'help_widget:flyout')
         self._add_button('misc', _MISC_TOOLTIP, 'HamburgerWidget', 'hamburger_widget:flyout')
 
-        self.mousePressEvent = self._on_mousePressEvent
-        pubsub_singleton.subscribe('registry/ui/events/blink_slow', self._on_blink, ['pub', 'retain'])
+        self.pubsub.subscribe('registry/ui/events/blink_slow', self._on_blink, ['pub', 'retain'])
 
-    def _on_fuse_button_pressed(self):
-        pubsub_singleton.publish('registry/app/actions/!fuse_clear_all', None)
-
-    def register(self):
-        pubsub = pubsub_singleton
-        pubsub.register(self, 'sidebar:0', parent='ui')
-        self._flyout = FlyoutWidget(self.parent(), self)
-        pubsub.register(self._flyout, 'flyout:0', parent='sidebar:0')
-
-    def _on_mousePressEvent(self, event):
+    def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
             self.on_cmd_show(None)
             event.accept()
 
     def _on_settings_pressed(self, checked):
-        pubsub_singleton.publish('registry/view/actions/!widget_open', {
+        self.pubsub.publish('registry/view/actions/!widget_open', {
             'value': 'registry/settings',
             'floating': True,
         })
 
     def _add_blink_button(self, name, app_setting, clear_only=False, skip_connect=False):
         topic = f'registry/app/settings/{app_setting}'
-        meta = pubsub_singleton.metadata(topic)
+        meta = self.pubsub.metadata(topic)
         tooltip = tooltip_format(meta.brief, meta.detail)
         button = self._add_button(name, tooltip)
         button.setProperty('blink', False)
@@ -149,9 +146,9 @@ class SideBar(QtWidgets.QWidget):
             button.setDisabled(clear_only and not value)
             button.blockSignals(block_state)
 
-        pubsub_singleton.subscribe(topic, update_from_pubsub, ['pub', 'retain'])
+        self.pubsub.subscribe(topic, update_from_pubsub, ['pub', 'retain'])
         if not bool(skip_connect):
-            adapter = CallableSlotAdapter(button, lambda checked: pubsub_singleton.publish(topic, bool(checked)))
+            adapter = CallableSlotAdapter(button, lambda checked: self.pubsub.publish(topic, bool(checked)))
             button.toggled.connect(adapter.slot)
         return button
 
@@ -192,9 +189,9 @@ class SideBar(QtWidgets.QWidget):
                 clz = get_instance(v['class'])
                 w = clz(parent=self._flyout)
                 w.setContentsMargins(5, 5, 5, 5)
-                pubsub_singleton.register(w, v['unique_id'], parent='flyout:0')
+                self.pubsub.register(w, v['unique_id'], parent='flyout:0')
                 v['widget'] = w
-                pubsub_singleton.publish(f'registry/style/actions/!render', w)
+                self.pubsub.publish(f'registry/style/actions/!render', w)
             self._flyout.flyout_widget_set(v['widget'], v['width'])
             self._selected_area = v['button'].geometry()
         self.update()

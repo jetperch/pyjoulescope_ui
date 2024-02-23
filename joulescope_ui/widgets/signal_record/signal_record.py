@@ -34,7 +34,6 @@ _DISK_MONITOR_FULL = f'{_DISK_MONITOR_BASE}/events/full'
 @register
 class SignalRecord:
     CAPABILITIES = []
-    _singleton = None  # not strictly singleton, but target of class actions.
     _instances = []
     _log = logging.getLogger(f'{__name__}.cls')
     EVENTS = {
@@ -58,12 +57,10 @@ class SignalRecord:
                                      + f'\n{ex}\n{path}')
             raise
         self._log.info('Writer started')
-        self._on_data_fn = self._on_data
         self._source_idx = 1
         self._signal_idx = 1
         self._sources = {}
         self._signals = {}
-        self._subscribe_entries = []  # (topic, fn, flags)
         self._status = {
             'time_last': time.time(),
             'dropped': 0,
@@ -72,18 +69,14 @@ class SignalRecord:
         notes = config.get('notes')
         if notes is not None:
             self._jls.user_data(ChunkMeta.NOTES, notes)
-        pubsub_singleton.publish('registry/paths/actions/!mru_save', path)
         pubsub_singleton.register(self, parent=parent)
 
         for signal in config['signals']:
-            self._subscribe(signal, self._on_data_fn, ['pub'])
+            self.pubsub.subscribe(signal, self._on_data, ['pub'])
 
-        pubsub_singleton.publish(_DISK_MONITOR_ADD, self._path)
-        self._subscribe(_DISK_MONITOR_FULL, self._on_disk_full, ['pub'])
-
-    def _subscribe(self, topic, fn, flags):
-        pubsub_singleton.subscribe(topic, fn, flags)
-        self._subscribe_entries.append((topic, fn, flags))
+        self.pubsub.publish(_DISK_MONITOR_ADD, self._path)
+        self.pubsub.subscribe(_DISK_MONITOR_FULL, self._on_disk_full, ['pub'])
+        self.pubsub.publish('registry/paths/actions/!mru_save', path)
 
     def _on_data(self, topic, value):
         if self._jls is None:
@@ -112,7 +105,7 @@ class SignalRecord:
                 t_now = time.time()
                 if t_now >= (1.0 + self._status['time_last']):
                     dropped, self._status['dropped'] = self._status['dropped'], 0
-                    pubsub_singleton.publish('registry/ui/actions/!status_msg', f'JLS write dropped {dropped} samples')
+                    self.pubsub.publish('registry/ui/actions/!status_msg', f'JLS write dropped {dropped} samples')
                     self._status['time_last'] = t_now
 
     def _source_add(self, unique_id, info):
@@ -159,8 +152,8 @@ class SignalRecord:
     def _on_disk_full(self, pubsub, topic, value):
         if self._path in value:
             self._log.info('disk full: stop JLS recording %s', self._path)
-            pubsub_singleton.publish('registry/SignalRecord/actions/!stop', None)
-            pubsub_singleton.publish('registry/app/settings/signal_stream_record', False)
+            self.pubsub.publish('registry/SignalRecord/actions/!stop', None)
+            self.pubsub.publish('registry/app/settings/signal_stream_record', False)
             DiskFullDialog(pubsub, value)
 
     def on_action_stop(self, value):
@@ -168,27 +161,20 @@ class SignalRecord:
         jls, self._jls = self._jls, None
         if jls is None:
             return
-        for topic, fn, flags in self._subscribe_entries:
-            pubsub_singleton.unsubscribe(topic, fn, flags)
-        self._subscribe_entries.clear()
         for signal in self._signals.values():
             if signal['utc_data_prev'] is not None and signal['utc_data_prev'] != signal['utc_entry_prev']:
                 self._log.info('utc %s: %s', signal['name'], signal['utc_data_prev'])
                 jls.utc(signal['id'], *signal['utc_data_prev'])
         jls.close()
-        if self == SignalRecord._singleton:
-            SignalRecord._singleton = None
         if self in SignalRecord._instances:
             SignalRecord._instances.remove(self)
-        pubsub_singleton.unregister(self, delete=True)
-        pubsub_singleton.publish(_DISK_MONITOR_REMOVE, self._path)
+        self.pubsub.unregister(self, delete=True)
+        self.pubsub.publish(_DISK_MONITOR_REMOVE, self._path)
 
     @staticmethod
     def on_cls_action_start(pubsub, topic, value):
         SignalRecord._log.info('on_cls_action_start')
         obj = SignalRecord(value)
-        if SignalRecord._singleton is None:
-            SignalRecord._singleton = obj
         SignalRecord._instances.append(obj)
 
     @staticmethod
@@ -196,7 +182,9 @@ class SignalRecord:
         if bool(value):
             SignalRecord._log.info('start_request')
             SignalRecordConfigDialog()
-        elif SignalRecord._singleton is not None:
+        else:
             SignalRecord._log.info('stop')
-            SignalRecord._singleton.on_action_stop(value)
+            while len(SignalRecord._instances):
+                obj = SignalRecord._instances.pop()
+                obj.on_action_stop(value)
             pubsub.publish(f'{get_topic_name(SignalRecord)}/events/!stop', True)

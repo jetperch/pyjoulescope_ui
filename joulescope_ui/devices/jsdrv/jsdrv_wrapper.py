@@ -65,8 +65,6 @@ class JsdrvWrapper:
     def __init__(self):
         self.CAPABILITIES = [CAPABILITIES.DEVICE_FACTORY]
         self._log = logging.getLogger(__name__)
-        self.pubsub = None
-        self._topic = None
         self.driver = None
         self.devices = {}
         self._ui_subscriptions = []
@@ -76,8 +74,6 @@ class JsdrvWrapper:
     def on_pubsub_register(self, pubsub):
         topic = get_topic_name(self)
         self._log.info('on_pubsub_register start %s', topic)
-        self.pubsub = pubsub
-        self._topic = topic
         self.devices = {}
         self.device_ids = []
         self.driver = Driver()

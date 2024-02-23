@@ -45,17 +45,9 @@ class DiskMonitor:
     def __init__(self):
         self._log = logging.getLogger(__name__)
         self._paths = []
-        self._subscribers = [
-            (TIMER_TOPIC, self._on_timer),
-        ]
 
     def on_pubsub_register(self):
-        for topic, fn in self._subscribers:
-            self.pubsub.subscribe(topic, fn, ['pub'])
-
-    def on_pubsub_unregister(self):
-        for topic, fn in self._subscribers:
-            self.pubsub.unsubscribe(topic, fn)
+        self.pubsub.subscribe(TIMER_TOPIC, self._on_timer, ['pub'])
 
     def _on_timer(self):
         free_list = []

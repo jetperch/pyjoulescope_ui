@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from PySide6 import QtWidgets
-from joulescope_ui import N_, get_topic_name, pubsub_singleton, register, tooltip_format
+from joulescope_ui import N_, get_topic_name, register, tooltip_format
 from joulescope_ui.styles import styled_widget
 from joulescope_ui.units import elapsed_time_formatter
 import os
@@ -55,10 +55,11 @@ class RecordStatusWidget(QtWidgets.QWidget):
         self._text = QtWidgets.QLabel(self)
         self._layout.addWidget(self._text)
 
-        topic = get_topic_name(source_unique_id)
-        pubsub_singleton.subscribe(f'{topic}/actions/!start', self._on_start, ['pub'])
-        pubsub_singleton.subscribe(f'{topic}/events/!stop', self._on_stop, ['pub'])
-        pubsub_singleton.subscribe('registry/ui/events/blink_fast', self._on_tick, ['pub'])
+    def on_pubsub_register(self):
+        topic = get_topic_name(self._source_unique_id)
+        self.pubsub.subscribe(f'{topic}/actions/!start', self._on_start, ['pub'])
+        self.pubsub.subscribe(f'{topic}/events/!stop', self._on_stop, ['pub'])
+        self.pubsub.subscribe('registry/ui/events/blink_fast', self._on_tick, ['pub'])
 
     def _on_start(self, value):
         if 'path' in value:

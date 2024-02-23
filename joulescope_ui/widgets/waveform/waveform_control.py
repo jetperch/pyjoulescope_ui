@@ -144,10 +144,9 @@ _SIGNALS = ['i', 'v', 'p', 'r', '0', '1', '2', '3', 'T']
 class WaveformControlWidget(QtWidgets.QWidget):
 
     def __init__(self, parent):
-        self._pubsub = None
-        self._topic = ''
+        self.pubsub = None
+        self.topic = ''
         self._min_max_topic = None
-        self._subscribe_entries = []
         QtWidgets.QWidget.__init__(self, parent)
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self._buttons = []
@@ -209,37 +208,29 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._spacer_r = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self._layout.addItem(self._spacer_r)
 
-    def _subscribe(self, topic, fn, flags=None):
-        self._pubsub.subscribe(topic, fn, flags)
-        self._subscribe_entries.append((topic, fn))
-
     @property
     def is_file_mode(self):
         return self._source_filter is not None and 'JlsSource' in self._source_filter
 
     def on_pubsub_register(self, pubsub, topic, source_filter):
-        self._pubsub = pubsub
-        self._topic = topic
+        self.pubsub = pubsub
+        self.topic = topic
         self._source_filter = source_filter
 
-        self._min_max_topic = f'{self._topic}/settings/show_min_max'
-        meta = self._pubsub.metadata(self._min_max_topic)
+        self._min_max_topic = f'{self.topic}/settings/show_min_max'
+        meta = self.pubsub.metadata(self._min_max_topic)
         comboBoxConfig(self._min_max_sel, [x[1] for x in meta.options])
-        self._subscribe(self._min_max_topic, self._on_min_max, ['pub', 'retain'])
+        pubsub.subscribe(self._min_max_topic, self._on_min_max, ['pub', 'retain'])
         pin_mode = ['pub'] if self.is_file_mode else ['pub', 'retain']
-        self._subscribe(f'{self._topic}/settings/pin_left', self._on_pin_left, pin_mode)
-        self._subscribe(f'{self._topic}/settings/pin_right', self._on_pin_right, pin_mode)
-        self._subscribe(f'{self._topic}/settings/state', self._on_waveform_state, ['pub', 'retain'])
+        pubsub.subscribe(f'{self.topic}/settings/pin_left', self._on_pin_left, pin_mode)
+        pubsub.subscribe(f'{self.topic}/settings/pin_right', self._on_pin_right, pin_mode)
+        pubsub.subscribe(f'{self.topic}/settings/state', self._on_waveform_state, ['pub', 'retain'])
         if self.is_file_mode:
             self._on_pin_left_click(False)
             self._on_pin_right_click(False)
         else:
-            self._subscribe('registry/app/settings/signal_stream_enable', self._on_signal_stream_enable, ['pub', 'retain'])
-
-    def on_pubsub_unregister(self):
-        for topic, fn in self._subscribe_entries:
-            self._pubsub.unsubscribe(topic, fn)
-        self._subscribe_entries.clear()
+            pubsub.subscribe('registry/app/settings/signal_stream_enable',
+                             self._on_signal_stream_enable, ['pub', 'retain'])
 
     def closeEvent(self, event: QtGui.QCloseEvent) -> None:
         return super().closeEvent(event)
@@ -274,15 +265,17 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._pin_right.setChecked(bool(value))
         self._pin_right.blockSignals(block_signals_state)
 
+    @QtCore.Slot(bool)
     def _on_pin_left_click(self, value):
-        self._pubsub.publish(f'{self._topic}/settings/pin_left', bool(value))
+        self.pubsub.publish(f'{self.topic}/settings/pin_left', bool(value))
 
+    @QtCore.Slot(bool)
     def _on_pin_right_click(self, value):
-        self._pubsub.publish(f'{self._topic}/settings/pin_right', bool(value))
+        self.pubsub.publish(f'{self.topic}/settings/pin_right', bool(value))
 
     @QtCore.Slot(int)
     def _on_min_max_sel(self, index):
-        self._pubsub.publish(self._min_max_topic, index)
+        self.pubsub.publish(self._min_max_topic, index)
 
     def _add_button(self, name, callback, tooltip):
         b = QtWidgets.QPushButton(self)
@@ -309,7 +302,7 @@ class WaveformControlWidget(QtWidgets.QWidget):
         return b
 
     def _on_signal_button(self, name, checked):
-        self._pubsub.publish(f'{self._topic}/actions/!plot_show', [name, checked])
+        self.pubsub.publish(f'{self.topic}/actions/!plot_show', [name, checked])
 
     def _on_signals_active(self, topic, value):
         for name, button in self._signals.items():
@@ -321,27 +314,27 @@ class WaveformControlWidget(QtWidgets.QWidget):
 
     @QtCore.Slot(bool)
     def _on_markers_single_add(self, checked):
-        self._pubsub.publish(f'{self._topic}/actions/!x_markers', 'add_single')
+        self.pubsub.publish(f'{self.topic}/actions/!x_markers', 'add_single')
 
     @QtCore.Slot(bool)
     def _on_markers_dual_add(self, checked):
-        self._pubsub.publish(f'{self._topic}/actions/!x_markers', 'add_dual')
+        self.pubsub.publish(f'{self.topic}/actions/!x_markers', 'add_dual')
 
     @QtCore.Slot(bool)
     def _on_markers_clear(self, checked):
-        self._pubsub.publish(f'{self._topic}/actions/!x_markers', 'clear_all')
+        self.pubsub.publish(f'{self.topic}/actions/!x_markers', 'clear_all')
 
     @QtCore.Slot(bool)
     def _on_x_axis_zoom_in(self, checked):
-        self._pubsub.publish(f'{self._topic}/actions/!x_zoom', [1, None])
+        self.pubsub.publish(f'{self.topic}/actions/!x_zoom', [1, None])
 
     @QtCore.Slot(bool)
     def _on_x_axis_zoom_out(self, checked):
-        self._pubsub.publish(f'{self._topic}/actions/!x_zoom', [-1, None])
+        self.pubsub.publish(f'{self.topic}/actions/!x_zoom', [-1, None])
 
     @QtCore.Slot(bool)
     def _on_x_axis_zoom_all(self, checked):
-        self._pubsub.publish(f'{self._topic}/actions/!x_zoom_all', None)
+        self.pubsub.publish(f'{self.topic}/actions/!x_zoom_all', None)
 
     @QtCore.Slot(bool)
     def _on_pin_oldest(self, checked):
@@ -353,4 +346,4 @@ class WaveformControlWidget(QtWidgets.QWidget):
 
     @QtCore.Slot(bool)
     def _on_y_axis_zoom_all(self, checked):
-        self._pubsub.publish(f'{self._topic}/actions/!y_zoom_all', None)
+        self.pubsub.publish(f'{self.topic}/actions/!y_zoom_all', None)

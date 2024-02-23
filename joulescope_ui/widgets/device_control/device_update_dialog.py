@@ -14,6 +14,7 @@
 
 from PySide6 import QtCore, QtGui, QtWidgets
 from joulescope_ui import N_, CAPABILITIES, get_topic_name
+from joulescope_ui.pubsub_proxy import PubSubProxy
 from joulescope_ui.styles import styled_widget
 from joulescope_ui.devices.device_update import is_device_update_available, is_js220_update_available
 import logging
@@ -53,10 +54,9 @@ class DeviceUpdateDialog(QtWidgets.QDialog):
     """Device firmware/FPGA update control and status widget."""
 
     def __init__(self, parent, pubsub, done_action):
-        self.pubsub = pubsub
+        self.pubsub = PubSubProxy(pubsub)
         self._done_action = done_action
         self._devices = {}
-        self._subscriptions = []
         self._log = logging.getLogger(__name__)
         self._devices_update_list = []
         self._devices_update_map = None
@@ -106,9 +106,9 @@ class DeviceUpdateDialog(QtWidgets.QDialog):
         self._timer.setSingleShot(True)
         self._timer.start(_SCAN_DELAY_MS)
 
-        self._subscribe(_DEVICE_TOPIC, self._on_device_list, ['pub', 'retain'])
+        self.pubsub.subscribe(_DEVICE_TOPIC, self._on_device_list, ['pub', 'retain'])
         for topic in _PROGRESS_TOPICS:
-            self._subscribe(topic, self._on_progress, ['pub'])
+            self.pubsub.subscribe(topic, self._on_progress, ['pub'])
         self.open()
 
     @QtCore.Slot()
@@ -262,16 +262,10 @@ class DeviceUpdateDialog(QtWidgets.QDialog):
         self._timer.start(_SCAN_DELAY_MS)
         self._status_set('scan')
 
-    def _subscribe(self, topic, fn, flags):
-        self.pubsub.subscribe(topic, fn, flags)
-        self._subscriptions.append([topic, fn])
-
     @QtCore.Slot()
     def _on_finish(self):
         self._log.info('finish')
-        for topic, fn in self._subscriptions:
-            self.pubsub.unsubscribe(topic, fn)
-        self._subscriptions.clear()
+        self.pubsub.unsubscribe_all()
         self.close()
         if self._done_action is not None:
             self.pubsub.publish(*self._done_action)

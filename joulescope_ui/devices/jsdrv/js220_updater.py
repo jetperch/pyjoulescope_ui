@@ -152,13 +152,13 @@ class Js220Updater(Device):
             'progress': p,
             'brief': '',
         }
-        self._pubsub.publish('registry/JS220_Updater/events/!progress', value)
+        self.pubsub.publish('registry/JS220_Updater/events/!progress', value)
 
     @property
     def firmware_channel(self):
         unique_id = self.unique_id.replace('-UPDATER', '')
         topic = f'{get_topic_name(unique_id)}/settings/firmware_channel'
-        return self._pubsub.query(topic, default='stable')
+        return self.pubsub.query(topic, default='stable')
 
     def erase(self, subtype):
         target = TARGETS[subtype]

@@ -14,7 +14,7 @@
 
 from PySide6 import QtWidgets, QtGui, QtCore
 import pkgutil
-from joulescope_ui import N_, register, CAPABILITIES, pubsub_singleton, get_topic_name, get_instance
+from joulescope_ui import N_, register, get_topic_name
 from joulescope_ui.styles import styled_widget
 from joulescope_ui.widget_tools import CallableSlotAdapter
 from pyjoulescope_driver import calibration_hash
@@ -100,11 +100,12 @@ class _CalibrationThread(QtCore.QThread):
     progress = QtCore.Signal(str)
     warning = QtCore.Signal(str)
 
-    def __init__(self, parent, device, op_name):
+    def __init__(self, parent, device, op_name, pubsub):
         self._log = logging.getLogger(__name__ + '.calibration')
         self._device = device
         self._topic = get_topic_name(self._device)
         self._op_name = op_name
+        self.pubsub = pubsub
         self._device_state = {}
         self._cal_read_data = []
         self._adc_data = {0: [], 1: [], 2: [], 3: []}
@@ -141,7 +142,7 @@ class _CalibrationThread(QtCore.QThread):
         return np.mean(np.concatenate(self._adc_data[signal]))
 
     def _direct_subscribe(self, topic, flags, fn):
-        pubsub_singleton.publish(f'{self._topic}/actions/!direct', {
+        self.pubsub.publish(f'{self._topic}/actions/!direct', {
             'action': 'subscribe',
             'topic': topic,
             'flags': flags,
@@ -149,21 +150,21 @@ class _CalibrationThread(QtCore.QThread):
         })
 
     def _direct_unsubscribe(self, topic, fn):
-        pubsub_singleton.publish(f'{self._topic}/actions/!direct', {
+        self.pubsub.publish(f'{self._topic}/actions/!direct', {
             'action': 'unsubscribe',
             'topic': topic,
             'fn': fn,
         })
 
     def _direct_publish(self, topic, value):
-        pubsub_singleton.publish(f'{self._topic}/actions/!direct', {
+        self.pubsub.publish(f'{self._topic}/actions/!direct', {
             'action': 'publish',
             'topic': topic,
             'value': value,
         })
 
     def _state_save(self):
-        signals = pubsub_singleton.enumerate(f'{self._topic}/settings/signals')
+        signals = self.pubsub.enumerate(f'{self._topic}/settings/signals')
         enables = [f'signals/{signal}/enable' for signal in signals]
         settings = enables + [
             'current_range',
@@ -171,9 +172,9 @@ class _CalibrationThread(QtCore.QThread):
         ]
         for setting in settings:
             topic = f'{self._topic}/settings/{setting}'
-            self._device_state[topic] = pubsub_singleton.query(topic)
+            self._device_state[topic] = self.pubsub.query(topic)
         for enable in enables:
-            pubsub_singleton.publish(f'{self._topic}/settings/{enable}', False)
+            self.pubsub.publish(f'{self._topic}/settings/{enable}', False)
         for adc in self._adc_data.keys():
             self._direct_subscribe(f's/adc/{adc}/!data', ['pub'], self._on_adc_data_fn)
         for cal in _CALIBRATIONS:
@@ -184,7 +185,7 @@ class _CalibrationThread(QtCore.QThread):
         for adc in self._adc_data.keys():
             self._direct_unsubscribe(f's/adc/{adc}/!data', self._on_adc_data_fn)
         for topic, value in self._device_state.items():
-            pubsub_singleton.publish(topic, value)
+            self.pubsub.publish(topic, value)
         for cal in _CALIBRATIONS:
             self._direct_unsubscribe(f'h/mem/s/{cal}/!rdata', self._on_calibration_read_data_fn)
         time.sleep(0.1)
@@ -247,7 +248,7 @@ class _CalibrationThread(QtCore.QThread):
 
         self._progress('Current range 10 A for adc0')
         self._adc_data_clear()
-        pubsub_singleton.publish(current_range_topic, '10 A')
+        self.pubsub.publish(current_range_topic, '10 A')
         self._direct_publish(f's/adc/0/ctrl', 'on')
         while not self._adc_data_wait([0], _DURATION_SAMPLES):
             time.sleep(0.01)
@@ -257,7 +258,7 @@ class _CalibrationThread(QtCore.QThread):
         for idx, current_range in enumerate(_CURRENT_RANGES):
             self._progress(f'Current range {current_range} for adc1 & adc2')
             self._adc_data_clear()
-            pubsub_singleton.publish(current_range_topic, current_range)
+            self.pubsub.publish(current_range_topic, current_range)
             time.sleep(0.1)
             self._direct_publish(f's/adc/1/ctrl', 'on')
             self._direct_publish(f's/adc/2/ctrl', 'on')
@@ -273,12 +274,12 @@ class _CalibrationThread(QtCore.QThread):
     def _run_voltage_offset(self):
         cal_update = {}
         current_range_topic = f'{self._topic}/settings/current_range'
-        pubsub_singleton.publish(current_range_topic, _CURRENT_RANGES[-1])
+        self.pubsub.publish(current_range_topic, _CURRENT_RANGES[-1])
         voltage_range_topic = f'{self._topic}/settings/voltage_range'
         for idx, voltage_range in enumerate(_VOLTAGE_RANGES):
             self._progress(f'Voltage range {voltage_range}')
             self._adc_data_clear()
-            pubsub_singleton.publish(voltage_range_topic, voltage_range)
+            self.pubsub.publish(voltage_range_topic, voltage_range)
             time.sleep(0.1)
             self._direct_publish(f's/adc/3/ctrl', 'on')
             while not self._adc_data_wait([3], _DURATION_SAMPLES):
@@ -503,7 +504,7 @@ class JS220CalibrationWidget(QtWidgets.QWidget):
     def calibrate(self, op_name):
         widget = _WaitWidget(self)
         self._body_set(widget)
-        self._thread = _CalibrationThread(self, self._device, op_name)
+        self._thread = _CalibrationThread(self, self._device, op_name, self.pubsub)
         self._thread.progress.connect(widget.progress)
         self._thread.warning.connect(widget.warning)
         self._thread.finished.connect(self.thread_finished)
@@ -520,4 +521,4 @@ class JS220CalibrationWidget(QtWidgets.QWidget):
         self._body_set(_ContentsWidget(self, self._device))
 
     def exit(self):
-        pubsub_singleton.publish('registry/view/actions/!widget_close', self)
+        self.pubsub.publish('registry/view/actions/!widget_close', self)

@@ -182,8 +182,6 @@ class MemoryWidget(QtWidgets.QWidget):
     CAPABILITIES = ['widget@']
 
     def __init__(self, parent=None):
-        self._on_size_fn = self._on_size
-        self._on_duration_fn = self._on_duration
         self._base = 0
         self._size = 0  # in bytes
         self._used = 0
@@ -242,10 +240,9 @@ class MemoryWidget(QtWidgets.QWidget):
         self._layout.addWidget(self._clear)
 
         self._clear_on_play = QtWidgets.QPushButton(N_('Clear on play'), self)
-        self._clear_on_play.clicked.connect(self._on_clear_on_play)
+        self._clear_on_play.clicked.connect(self._on_clear_on_play_clicked)
         self._clear_on_play.setCheckable(True)
         self._layout.addWidget(self._clear_on_play)
-        self._clear_on_play_fn = lambda v: self._clear_on_play.setChecked(bool(v))
 
         self._spacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self._layout.addItem(self._spacer)
@@ -275,9 +272,6 @@ class MemoryWidget(QtWidgets.QWidget):
         if self._timer is not None:
             self._timer.stop()
             self._timer = None
-        self.pubsub.unsubscribe(_TOPIC_CLEAR_ON_PLAY, self._clear_on_play_fn)
-        self.pubsub.unsubscribe(_TOPIC_SIZE, self._on_size_fn)
-        self.pubsub.unsubscribe(_TOPIC_DURATION, self._on_duration_fn)
 
     def _on_timer(self):
         if self._base == 0:
@@ -287,9 +281,9 @@ class MemoryWidget(QtWidgets.QWidget):
                 self._base = mem - sz
             else:
                 self._base = mem
-            self.pubsub.subscribe(_TOPIC_CLEAR_ON_PLAY, self._clear_on_play_fn, ['pub', 'retain'])
-            self.pubsub.subscribe(_TOPIC_SIZE, self._on_size_fn, ['pub', 'retain'])
-            self.pubsub.subscribe(_TOPIC_DURATION, self._on_duration_fn, ['pub', 'retain'])
+            self.pubsub.subscribe(_TOPIC_CLEAR_ON_PLAY, self._on_clear_on_play_publish, ['pub', 'retain'])
+            self.pubsub.subscribe(_TOPIC_SIZE, self._on_size, ['pub', 'retain'])
+            self.pubsub.subscribe(_TOPIC_DURATION, self._on_duration, ['pub', 'retain'])
             meta = self.pubsub.metadata(_TOPIC_CLEAR_ON_PLAY)
             if meta is not None:
                 self._clear_on_play.setToolTip(tooltip_format(meta.brief, meta.detail))
@@ -301,8 +295,11 @@ class MemoryWidget(QtWidgets.QWidget):
     def _on_clear(self):
         self.pubsub.publish(f'{_TOPIC}/actions/!clear', None)
 
-    def _on_clear_on_play(self, value):
+    def _on_clear_on_play_clicked(self, value):
         self.pubsub.publish(_TOPIC_CLEAR_ON_PLAY, bool(value))
+
+    def _on_clear_on_play_publish(self, value):
+        self._clear_on_play.setChecked(bool(value))
 
     @property
     def size(self):

@@ -18,6 +18,8 @@ Communication method used to connect the Joulescope UI components.
 
 from joulescope_ui import json_plus as json
 from joulescope_ui import versioned_file
+from joulescope_ui.pubsub_proxy import PubSubProxy
+from joulescope_ui.pubsub_callable import PubSubCallable
 from joulescope_ui.metadata import Metadata
 import copy
 import threading
@@ -162,34 +164,6 @@ def subtopic_to_name(s):
     s = s.replace('/', '__')
     s = s.replace('.', '_')
     return s
-
-
-class _Function:
-
-    def __init__(self, fn, signature_type=None):
-        self.fn = fn
-        self.signature_type = signature_type
-        if signature_type is None:
-            fn = getattr(fn, '__func__', fn)
-            code = fn.__code__
-            args = code.co_argcount
-            if args and code.co_varnames[0] == 'self':
-                args -= 1
-            if not 0 <= args <= 3:
-                raise ValueError(f'invalid function {fn}')
-            self.signature_type = args
-
-    def __call__(self, pubsub, topic: str, value):
-        if self.signature_type == 0:
-            return self.fn()
-        elif self.signature_type == 1:
-            return self.fn(value)
-        elif self.signature_type == 2:
-            return self.fn(topic, value)
-        elif self.signature_type == 3:
-            return self.fn(pubsub, topic, value)
-        else:
-            raise RuntimeError('invalid')
 
 
 class _Topic:
@@ -367,7 +341,7 @@ class _Setting:
         if fn_name not in attr:
             fn = getattr(obj, fn_name, None)
             if fn is not None:
-                fn = _Function(fn)
+                fn = PubSubCallable(fn)
             attr[fn_name] = fn
         fn = attr[fn_name]
         if callable(fn):
@@ -698,6 +672,30 @@ class PubSub:
 
         :param self: The driver instance.
         :param topic: Subscribe to this topic string.
+        :param update_fn: The function to call on each publish.
+            The function can be one of:
+            * update_fn(value)
+            * update_fn(topic: str, value)
+            * update_fn(pubsub: PubSub, topic: str, value)
+
+            For normal subscriptions, the return value is ignored.
+
+            For a command subscriber, a return value of None means that
+            no undo / redo support is available.  Otherwise, the return value
+            must be [undo, redo].  Both undo and redo should be a [topic, value]
+            entry.  "redo" may also be None, and the entry will be the same as the
+            publish command.
+
+            The pubsub instance decomposes bound methods.  It stores a weakref
+            to the instance so that subscribing does not keep the subscriber
+            alive.  If the instance is no longer valid on a publish attempt,
+            then the pubsub instance skips that subscription and automatically
+            unsubscribes.
+
+            For normal functions and lambdas, this instance will store
+            a normal reference.  Any objects in the lambda scope will
+            be prevented from being garbage collected by this reference.
+
         :param flags: The list of flags for this subscription.
             None (default) is equivalent to ['pub'].
 
@@ -713,39 +711,20 @@ class PubSub:
               The topic provided to update_fn is topic + '~'.
             - completion: Subscribe to completion code.
               The topic provided to update_fn is topic + '#'.
-
-        :param update_fn: The function to call on each publish.
-            The function can be one of:
-            * update_fn(value)
-            * update_fn(topic: str, value)
-            * update_fn(pubsub: PubSub, topic: str, value)
-
-            For normal subscriptions, the return value is ignored.
-
-            For a command subscriber, a return value of None means that
-            no undo / redo support is available.  Otherwise, the return value
-            must be [undo, redo].  Both undo and redo should be a [topic, value]
-            entry.  "redo" may also be None, and the entry will be the same as the
-            publish command.
-
-            Note that this instance stores a weakref to update_fn so that
-            subscribing does not keep the subscriber alive.  Therefore,
-            update_fn must remain referenced externally.
-            Lambdas, local functions, and bound methods all go out of scope.
-            To prevent unintentionally having update_fn go out of scope,
-            the caller must maintain a local reference, which can also
-            be used to unsubscribe.
         :raise RuntimeError: on error.
         """
+        if not isinstance(update_fn, PubSubCallable):
+            update_fn = PubSubCallable(update_fn, topic)
         value = {
             'topic': topic,
             'update_fn': update_fn,
             'flags': flags
         }
         cmd = _Command(SUBSCRIBE_TOPIC, value, is_core=True)
-        return self._send(cmd)
+        self._send(cmd)
+        return update_fn
 
-    def unsubscribe(self, topic, update_fn: callable, flags=None):
+    def unsubscribe(self, topic, update_fn: callable = None, flags=None):
         """Unsubscribe from a topic.
 
         :param topic: The topic name string.
@@ -754,6 +733,10 @@ class PubSub:
             from all.
         :raise: On error.
         """
+        if isinstance(topic, PubSubCallable):
+            if update_fn is not None:
+                self._log.warning('Ignoring update_fn when topic is unsub object')
+            topic, update_fn = topic.topic, topic
         value = {
             'topic': topic,
             'update_fn': update_fn,
@@ -835,7 +818,9 @@ class PubSub:
 
     def _cmd_subscribe(self, value):
         topic = value['topic']
-        update_fn = _Function(value['update_fn'])
+        update_fn = value['update_fn']
+        if not isinstance(update_fn, PubSubCallable):
+            update_fn = PubSubCallable(update_fn)
         flags = value['flags']
         if flags is None:
             flags = ['pub']
@@ -857,6 +842,8 @@ class PubSub:
     def _cmd_unsubscribe(self, value):
         topic = value['topic']
         update_fn = value['update_fn']
+        if not isinstance(update_fn, PubSubCallable):
+            update_fn = PubSubCallable(update_fn)
         flags = value['flags']
         if flags is None:
             flags = _SUBSCRIBER_TYPES
@@ -866,13 +853,13 @@ class PubSub:
             self._log.warning('Unsubscribe to unknown topic %s', topic)
             return
         for flag in flags:
-            t.update_fn[flag] = [fn for fn in t.update_fn[flag] if fn.fn != update_fn]
+            t.update_fn[flag] = [fn for fn in t.update_fn[flag] if fn != update_fn]
         return [SUBSCRIBE_TOPIC, value]
 
     def _unsubscribe_all_recurse(self, t, update_fn, undo_list):
         flags = []
         for flag, update_fns in t.update_fn.items():
-            updated = [fn for fn in update_fns if fn.fn != update_fn]
+            updated = [fn for fn in update_fns if fn != update_fn]
             if len(updated) != len(update_fns):
                 t.update_fn[flag] = updated
                 flags.append(flag)
@@ -884,6 +871,8 @@ class PubSub:
 
     def _cmd_unsubscribe_all(self, value):
         update_fn = value['update_fn']
+        if not isinstance(update_fn, PubSubCallable):
+            update_fn = PubSubCallable(update_fn)
         undo_list = []
         self._unsubscribe_all_recurse(self._root, update_fn, undo_list)
         return undo_list if len(undo_list) else None
@@ -1084,7 +1073,9 @@ class PubSub:
         else:
             unique_id = get_unique_id(unique_id)
         setattr(obj, pubsub_attr, {
+            'is_registered': False,
             'unique_id': unique_id,
+            'topic_name': get_topic_name(unique_id),
             'functions': {},    # topic: callable
             'setting_cls': {},  # topic: object, for existing class attribute
             'setting': {},
@@ -1128,11 +1119,10 @@ class PubSub:
                             Metadata(dtype='obj', brief='list of unique ids for children', default=[],
                                      flags=['hide', 'skip_undo']))
 
-        obj.pubsub_is_registered = False
         self._register_events(obj, unique_id)
         self._register_functions(obj, unique_id)  # on_action and on_callback, but not on_setting
         self._register_settings_create(obj, unique_id)
-        obj.pubsub = self
+        obj.pubsub = PubSubProxy(self)
         obj.unique_id = unique_id
         obj.topic = topic_name
         self._register_settings_connect(obj, unique_id)
@@ -1150,7 +1140,7 @@ class PubSub:
         if register_abort:
             self.unregister(obj, delete=True)
         else:
-            obj.pubsub_is_registered = True
+            getattr(obj, pubsub_attr)['is_registered'] = True
 
     def _parent_add(self, obj, parent=None):
         if parent is None:
@@ -1366,6 +1356,7 @@ class PubSub:
         if obj is None:
             self._log.warning('Could not unregister %s - instance not found', spec)
             return
+        obj.pubsub.unsubscribe_all()
         self._unregister_capabilities(obj, unique_id)
         self._unregister_invoke_callback(obj, unique_id)
         self._registry_remove(unique_id)
@@ -1595,3 +1586,17 @@ class PubSub:
             with versioned_file.open(self.config_file_path, 'wt') as fh:
                 fh.write('')
             os.remove(self.config_file_path)
+
+
+def is_pubsub_registered(obj):
+    """Query if the object is registered to a pubsub instance.
+
+    :param obj: The instance, string unique_id, or string topic.
+    :return: True if registered, False otherwise.
+    """
+    try:
+        if isinstance(obj, str):
+            obj = get_instance(obj)
+        return getattr(obj, _pubsub_attr(obj))['is_registered']
+    except Exception:
+        return False

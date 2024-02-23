@@ -17,7 +17,7 @@
 
 from joulescope_ui import pubsub_singleton, N_, get_topic_name, get_instance, \
     tooltip_format, CAPABILITIES, Metadata, __version__
-from joulescope_ui.pubsub import UNDO_TOPIC, REDO_TOPIC
+from joulescope_ui.pubsub import UNDO_TOPIC, REDO_TOPIC, is_pubsub_registered
 from joulescope_ui.pubsub_aggregator import PubsubAggregator
 from joulescope_ui.shortcuts import Shortcuts
 from joulescope_ui.widgets import *   # registers all built-in widgets
@@ -185,11 +185,8 @@ class MainWindow(QtWidgets.QMainWindow):
         super(MainWindow, self).__init__()
         self.setWindowTitle(_UI_WINDOW_TITLE if filename is None else _JLS_WINDOW_TITLE)
         self._dialog = None
-        self._pubsub = pubsub_singleton
-        self._pubsub_process_count_last = self._pubsub.process_count
         self._pend_queue = []
         self._software_update_status = None
-        self._device_update = None
         self._shortcuts = Shortcuts(self)
         self.SETTINGS = style_settings(N_('UI'))
         for key, value in _SETTINGS.items():
@@ -247,54 +244,56 @@ class MainWindow(QtWidgets.QMainWindow):
         self._mem_utilization.setToolTip(_MEMORY_UTILIZATION_TOOLTIP)
         self._status_bar.addPermanentWidget(self._mem_utilization)
 
-        self._pubsub.register(self, 'ui', parent=None)
-        self._style_manager = StyleManager()
-        self._pubsub.register(self._style_manager, 'style')
-        self._pubsub.subscribe('registry/app/settings/signal_stream_record',
-                               get_instance('SignalRecord').on_cls_action_toggled, ['pub'])
-        self._pubsub.subscribe('registry/app/settings/statistics_stream_record',
-                               get_instance('StatisticsRecord').on_cls_action_toggled, ['pub'])
+        pubsub_singleton.register(self, 'ui', parent=None)
+        self._pubsub_process_count_last = pubsub_singleton.process_count
 
-        self._pubsub.publish('registry/view/actions/!ui_connect', {
+        self._style_manager = StyleManager()
+        self.pubsub.register(self._style_manager, 'style')
+        self.pubsub.subscribe('registry/app/settings/signal_stream_record',
+                              get_instance('SignalRecord').on_cls_action_toggled, ['pub'])
+        self.pubsub.subscribe('registry/app/settings/statistics_stream_record',
+                              get_instance('StatisticsRecord').on_cls_action_toggled, ['pub'])
+
+        self.pubsub.publish('registry/view/actions/!ui_connect', {
             'ui': self,
             'dock_manager': self._dock_manager,
         })
-        self._pubsub.process()
+        pubsub_singleton.process()
 
         if filename is not None:
             if not is_config_load:
-                self._pubsub.publish('registry/view/actions/!add', 'view:file')
-                self._pubsub.publish('registry/view:file/settings/name', N_('File'))
+                self.pubsub.publish('registry/view/actions/!add', 'view:file')
+                self.pubsub.publish('registry/view:file/settings/name', N_('File'))
             else:
-                self._pubsub.publish('registry/view/settings/active', None)
-                self._pubsub.register(View(), 'view:file')
-                self._pubsub.publish('registry/view/settings/active', 'view:file')
+                self.pubsub.publish('registry/view/settings/active', None)
+                self.pubsub.register(View(), 'view:file')
+                self.pubsub.publish('registry/view/settings/active', 'view:file')
             source = self.on_action_file_open(filename)
-            self._pubsub.publish('registry/app/settings/defaults/signal_buffer_source', source)
+            self.pubsub.publish('registry/app/settings/defaults/signal_buffer_source', source)
             self._center(resize=True)
 
         else:
             _device_factory_add()
             # open JLS sources
-            for source_unique_id in self._pubsub.query('registry/JlsSource/instances', default=[]):
-                self._pubsub.register(JlsSource(), source_unique_id)
+            for source_unique_id in self.pubsub.query('registry/JlsSource/instances', default=[]):
+                self.pubsub.register(JlsSource(), source_unique_id)
 
             if not is_config_load:
-                self._pubsub.publish('registry/view/actions/!add', 'view:multimeter')
-                self._pubsub.publish('registry/view:multimeter/settings/name', N_('Multimeter'))
-                self._pubsub.publish('registry/view/actions/!add', 'view:oscilloscope')
-                self._pubsub.publish('registry/view:oscilloscope/settings/name', N_('Oscilloscope'))
-                self._pubsub.publish('registry/view/actions/!add', 'view:file')
-                self._pubsub.publish('registry/view:file/settings/name', N_('File'))
+                self.pubsub.publish('registry/view/actions/!add', 'view:multimeter')
+                self.pubsub.publish('registry/view:multimeter/settings/name', N_('Multimeter'))
+                self.pubsub.publish('registry/view/actions/!add', 'view:oscilloscope')
+                self.pubsub.publish('registry/view:oscilloscope/settings/name', N_('Oscilloscope'))
+                self.pubsub.publish('registry/view/actions/!add', 'view:file')
+                self.pubsub.publish('registry/view:file/settings/name', N_('File'))
             else:
                 # open views
-                view_active = self._pubsub.query('registry/view/settings/active')
+                view_active = self.pubsub.query('registry/view/settings/active')
                 if view_active is None:
                     self._log.warning(f'view_active is None, use "view:multimeter"')
                     view_active = 'view:multimeter'
-                self._pubsub.publish('registry/view/settings/active', None)
-                for view_unique_id in self._pubsub.query('registry/view/instances'):
-                    self._pubsub.register(View(), view_unique_id)
+                self.pubsub.publish('registry/view/settings/active', None)
+                for view_unique_id in self.pubsub.query('registry/view/instances'):
+                    self.pubsub.register(View(), view_unique_id)
 
         help_menu = ['help_menu', N_('&Help'), [
                 ['getting_started', N_('Getting Started'), ['registry/help_html/actions/!show', 'getting_started']],
@@ -309,15 +308,15 @@ class MainWindow(QtWidgets.QMainWindow):
         if filename is None:
             # Create the singleton sidebar widget
             self._side_bar = SideBar(self._central_widget)
-            self._side_bar.register()
+            self._side_bar.register(self.pubsub)
             self._central_layout.insertWidget(0, self._side_bar)
 
             self._signal_record_status = RecordStatusWidget(self, 'SignalRecord')
-            self._pubsub.register(self._signal_record_status, 'SignalRecord:0', parent='ui')
+            self.pubsub.register(self._signal_record_status, 'SignalRecord:0', parent='ui')
             self._status_bar.addPermanentWidget(self._signal_record_status)
 
             self._statistics_record_status = RecordStatusWidget(self, 'StatisticsRecord')
-            self._pubsub.register(self._statistics_record_status, 'StatisticsRecord:0', parent='ui')
+            self.pubsub.register(self._statistics_record_status, 'StatisticsRecord:0', parent='ui')
             self._status_bar.addPermanentWidget(self._statistics_record_status)
 
             self._menu_bar = QtWidgets.QMenuBar(self)
@@ -343,27 +342,27 @@ class MainWindow(QtWidgets.QMainWindow):
             self._view_menu.aboutToShow.connect(self._on_view_menu_show)
             self._view_menu.aboutToHide.connect(self._on_view_menu_hide)
             self.setMenuBar(self._menu_bar)
-            self._pubsub.subscribe('registry/paths/settings/mru_files', self._on_mru, flags=['pub', 'retain'])
-            self._pubsub.subscribe('registry_manager/capabilities/widget.class/list',
-                                   self._on_change_widgets, flags=['pub', 'retain'])
+            self.pubsub.subscribe('registry/paths/settings/mru_files', self._on_mru, flags=['pub', 'retain'])
+            self.pubsub.subscribe('registry_manager/capabilities/widget.class/list',
+                                  self._on_change_widgets, flags=['pub', 'retain'])
 
             if not is_config_load:
-                self._pubsub.publish('registry/view/settings/active', 'view:file')
+                self.pubsub.publish('registry/view/settings/active', 'view:file')
                 self._center(resize=True)
 
-                self._pubsub.publish('registry/view/settings/active', 'view:oscilloscope')
-                self._pubsub.publish('registry/view/actions/!widget_open', {
+                self.pubsub.publish('registry/view/settings/active', 'view:oscilloscope')
+                self.pubsub.publish('registry/view/actions/!widget_open', {
                     'value': 'WaveformWidget',
                     'kwargs': {'source_filter': 'JsdrvStreamBuffer:001'},
                 })
                 self._center(resize=True)
 
-                self._pubsub.publish('registry/view/settings/active', 'view:multimeter')
-                self._pubsub.publish('registry/view/actions/!widget_open', 'MultimeterWidget')
+                self.pubsub.publish('registry/view/settings/active', 'view:multimeter')
+                self.pubsub.publish('registry/view/actions/!widget_open', 'MultimeterWidget')
                 self.resize(580, 560)
                 self._center(resize=False)
             else:
-                self._pubsub.publish('registry/view/settings/active', view_active)
+                self.pubsub.publish('registry/view/settings/active', view_active)
         else:
             self._menu_bar = QtWidgets.QMenuBar(self)
             self._menu_items = _menu_setup(self._menu_bar, [
@@ -380,9 +379,9 @@ class MainWindow(QtWidgets.QMainWindow):
             ])
             self.setMenuBar(self._menu_bar)
 
-        self._pubsub.publish('registry/style/settings/enable', True)
-        self._pubsub.publish('registry/style/actions/!render', None)
-        self._pubsub.process()
+        self.pubsub.publish('registry/style/settings/enable', True)
+        self.pubsub.publish('registry/style/actions/!render', None)
+        pubsub_singleton.process()
 
         self._process_monitor = ProcessMonitor(self)
         self._process_monitor.update.connect(self._on_process_monitor)
@@ -395,19 +394,19 @@ class MainWindow(QtWidgets.QMainWindow):
             self.setAcceptDrops(True)
         self.show()
 
-        self._pubsub.publish(UNDO_TOPIC, 'clear', defer=True)
-        self._pubsub.publish(REDO_TOPIC, 'clear', defer=True)
+        self.pubsub.publish(UNDO_TOPIC, 'clear', defer=True)
+        self.pubsub.publish(REDO_TOPIC, 'clear', defer=True)
 
         if filename is None:
             self._startup_display_maybe()
         self._startup_software_check()
         self._device_update_check()
         self.resync_request()
-        self._fuse_aggregator = PubsubAggregator(self._pubsub, 'device.object', 'settings/fuse_engaged', any,
+        self._fuse_aggregator = PubsubAggregator(self.pubsub, 'device.object', 'settings/fuse_engaged', any,
                                                  'registry/app/settings/fuse_engaged')
 
-        self._pubsub.register(DiskMonitor)
-        self._pubsub.register(DiskMonitor(), 'DiskMonitor:0')
+        self.pubsub.register(DiskMonitor)
+        self.pubsub.register(DiskMonitor(), 'DiskMonitor:0')
 
         self._blink_timer = QtCore.QTimer(self)
         self._blink_timer.timeout.connect(self._on_blink_timer)
@@ -416,16 +415,16 @@ class MainWindow(QtWidgets.QMainWindow):
     def _startup_display_maybe(self):
         # display changelog on version change
         topic = f'{self.topic}/settings/changelog_version_show'
-        changelog_version_show = self._pubsub.query(topic, default=None)
-        self._pubsub.publish(topic, __version__)
+        changelog_version_show = self.pubsub.query(topic, default=None)
+        self.pubsub.publish(topic, __version__)
         if changelog_version_show is None:
-            self._pubsub.publish(topic, __version__)
+            self.pubsub.publish(topic, __version__)
             show = 'getting_started'
         elif __version__ != changelog_version_show:
             show = 'changelog'
         else:
             return
-        self._pubsub.publish(f'{self.topic}/actions/!pend', {
+        self.pubsub.publish(f'{self.topic}/actions/!pend', {
             'id': show,
             'actions': [[
                 'registry/help_html/actions/!show',
@@ -434,35 +433,36 @@ class MainWindow(QtWidgets.QMainWindow):
         })
 
     def _startup_software_check(self):
-        if not self._pubsub.query('registry/app/settings/software_update_check'):
+        if not self.pubsub.query('registry/app/settings/software_update_check'):
             return
         self._software_update_status = {
             'id': 'software_update',
             'actions': [[f'{self.topic}/actions/!software_update', None]],
         }
-        self._pubsub.publish(f'{self.topic}/actions/!pend', self._software_update_status)
+        self.pubsub.publish(f'{self.topic}/actions/!pend', self._software_update_status)
         self._software_update_thread = software_update.check(
             callback=self._do_cbk,
-            path=self._pubsub.query('common/settings/paths/update'),
-            channel=self._pubsub.query('registry/app/settings/software_update_channel'))
+            path=self.pubsub.query('common/settings/paths/update'),
+            channel=self.pubsub.query('registry/app/settings/software_update_channel'))
 
     def _device_update_check(self):
-        if not self._pubsub.query('registry/app/settings/device_update_check'):
+        if not self.pubsub.query('registry/app/settings/device_update_check'):
             return
-        self._device_update = DeviceUpdate(self, self._pubsub)
+        device_update = DeviceUpdate(self, self.pubsub)
 
         def on_enabled():
             done_action = [f'{self.topic}/callbacks/!pend_done', 'device_update']
-            if self._device_update.is_available():
-                DeviceUpdateDialog(self, self._pubsub, done_action)
+            if device_update.is_available():
+                DeviceUpdateDialog(self, self.pubsub, done_action)
             else:
-                self._pubsub.publish(*done_action)
+                self.pubsub.publish(*done_action)
+            device_update.deleteLater()
 
         def on_start():
-            self._device_update.enabled.connect(on_enabled)
-            self._device_update.enable()
+            device_update.enabled.connect(on_enabled)
+            device_update.enable()
 
-        self._pubsub.publish(f'{self.topic}/actions/!pend', {
+        self.pubsub.publish(f'{self.topic}/actions/!pend', {
             'id': 'device_update',
             'actions': [on_start],
         })
@@ -473,7 +473,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 if callable(action):
                     action()
                 else:
-                    self._pubsub.publish(*action, defer=True)
+                    self.pubsub.publish(*action, defer=True)
             except Exception:
                 self._log.exception('While processing %s', action)
 
@@ -528,7 +528,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if event.mimeData().hasText():
             txt = event.mimeData().text()
             if txt.startswith('file:///') and txt.endswith('.jls'):
-                self._pubsub.publish(f'{get_topic_name(self)}/actions/!file_open', txt[8:])
+                self.pubsub.publish(f'{get_topic_name(self)}/actions/!file_open', txt[8:])
                 event.acceptProposedAction()
 
     def on_setting_status_bar(self, value):
@@ -540,15 +540,15 @@ class MainWindow(QtWidgets.QMainWindow):
     def on_setting_developer(self, value):
         if bool(value):
             for cls in DEVELOPER_WIDGETS:
-                self._pubsub.register(cls)
+                self.pubsub.register(cls)
         else:
             for cls in DEVELOPER_WIDGETS:
-                if getattr(cls, 'pubsub_is_registered', False):
+                if is_pubsub_registered(cls):
                     try:
-                        self._pubsub.query(cls.topic)
-                        for instance in self._pubsub.query(f'{cls.topic}/instances'):
-                            self._pubsub.publish('registry/view/actions/!widget_close', instance)
-                        self._pubsub.unregister(cls, delete=True)
+                        self.pubsub.query(cls.topic)
+                        for instance in self.pubsub.query(f'{cls.topic}/instances'):
+                            self.pubsub.publish('registry/view/actions/!widget_close', instance)
+                        self.pubsub.unregister(cls, delete=True)
                     except KeyError:
                         pass
 
@@ -570,7 +570,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setStyleSheet(value)
 
     def _do_cbk(self, v):
-        self._pubsub.publish('registry/ui/callbacks/!software_update', v)
+        self.pubsub.publish('registry/ui/callbacks/!software_update', v)
 
     def on_callback_software_update(self, value):
         update_thread, self._software_update_thread = self._software_update_thread, None
@@ -578,7 +578,7 @@ class MainWindow(QtWidgets.QMainWindow):
             update_thread.join()
         self._software_update_status['value'] = value
         if self._pend_queue[0] == self._software_update_status:
-            self._pubsub.publish(f'{self.topic}/actions/!software_update', value)
+            self.pubsub.publish(f'{self.topic}/actions/!software_update', value)
 
     def on_action_software_update(self, value):
         if 'value' not in self._software_update_status:
@@ -586,10 +586,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self._log.info('Display software update available dialog')
         done_action = [f'{self.topic}/callbacks/!pend_done', 'software_update']
         if value is None:
-            self._pubsub.publish(*done_action)
+            self.pubsub.publish(*done_action)
         else:
-            self._pubsub.publish('registry/software_update/actions/!show',
-                                 [self._software_update_status['value'], done_action])
+            self.pubsub.publish('registry/software_update/actions/!show',
+                                [self._software_update_status['value'], done_action])
 
     @QtCore.Slot(object)
     def _on_process_monitor(self, obj):
@@ -604,12 +604,12 @@ class MainWindow(QtWidgets.QMainWindow):
     def _on_blink_timer(self):
         topic = get_topic_name(self)
         self._blink_count = (self._blink_count + 1) & 0x07
-        self._pubsub.publish(f'{topic}/events/blink_fast', (self._blink_count & 1) != 0)
+        self.pubsub.publish(f'{topic}/events/blink_fast', (self._blink_count & 1) != 0)
         if (self._blink_count & 1) == 0:
-            self._pubsub.publish(f'{topic}/events/blink_medium', (self._blink_count & 2) != 0)
+            self.pubsub.publish(f'{topic}/events/blink_medium', (self._blink_count & 2) != 0)
         if (self._blink_count & 3) == 0:
-            self._pubsub.publish(f'{topic}/events/blink_slow', (self._blink_count & 4) != 0)
-            c = self._pubsub.process_count
+            self.pubsub.publish(f'{topic}/events/blink_slow', (self._blink_count & 4) != 0)
+            c = pubsub_singleton.process_count
             self._pubsub_utilization.setText(f'PubSub: {c - self._pubsub_process_count_last}')
             self._pubsub_process_count_last = c
 
@@ -640,13 +640,13 @@ class MainWindow(QtWidgets.QMainWindow):
     def _on_view_menu_show(self):
         self._on_view_menu_hide()
         menu, group = self._view_menu, self._view_menu_group
-        view_instances = self._pubsub.query('registry/view/instances')
-        active_view = self._pubsub.query('registry/view/settings/active', default=None)
+        view_instances = self.pubsub.query('registry/view/instances')
+        active_view = self.pubsub.query('registry/view/settings/active', default=None)
 
         def construct(unique_id):
-            name = self._pubsub.query(f'registry/{unique_id}/settings/name', default=unique_id)
+            name = self.pubsub.query(f'registry/{unique_id}/settings/name', default=unique_id)
             action = CallableAction(group, name,
-                                    lambda: self._pubsub.publish('registry/view/settings/active', unique_id))
+                                    lambda: self.pubsub.publish('registry/view/settings/active', unique_id))
             action.setCheckable(True)
             action.setChecked(unique_id == active_view)
             menu.addAction(action)
@@ -659,14 +659,14 @@ class MainWindow(QtWidgets.QMainWindow):
     @QtCore.Slot()
     def _on_view_manage(self):
         self._log.info('View Manage')
-        ViewManagerDialog(self)
+        ViewManagerDialog(self, self.pubsub)
 
     def _on_change_widgets(self, value):
         menu, _ = self._menu_items['widgets_menu']
         menu.clear()
         menu_items = []
         for unique_id in value:
-            name = self._pubsub.query(f'registry/{unique_id}/settings/name', default=unique_id)
+            name = self.pubsub.query(f'registry/{unique_id}/settings/name', default=unique_id)
             menu_items.append([unique_id, name, ['registry/view/actions/!widget_open', unique_id]])
         self._menu_items['widgets_menu'][1] = _menu_setup(menu, menu_items)
 
@@ -674,7 +674,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if event.type() == QResyncEvent.EVENT_TYPE:
             event.accept()
             self._resync_event = None
-            self._pubsub.process()
+            pubsub_singleton.process()
             return True
         else:
             return super(MainWindow, self).event(event)
@@ -688,7 +688,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def on_action_file_open_request(self):
         """Request file open; prompt user to select file."""
         self._log.info('file_open_request')
-        path = pubsub_singleton.query('registry/paths/settings/path')
+        path = self.pubsub.query('registry/paths/settings/path')
         self._dialog = QtWidgets.QFileDialog(self, N_('Select file to open'), path)
         self._dialog.setNameFilter('Joulescope Data (*.jls)')
         self._dialog.setFileMode(QtWidgets.QFileDialog.ExistingFile)
@@ -701,7 +701,7 @@ class MainWindow(QtWidgets.QMainWindow):
             files = self._dialog.selectedFiles()
             if files and len(files) == 1:
                 path = files[0]
-                self._pubsub.publish(f'{get_topic_name(self)}/actions/!file_open', path, defer=True)
+                self.pubsub.publish(f'{get_topic_name(self)}/actions/!file_open', path, defer=True)
             else:
                 self._log.info('file_open invalid files: %s', files)
         else:
@@ -711,15 +711,15 @@ class MainWindow(QtWidgets.QMainWindow):
         """Open the specified file."""
         self._log.info('file_open %s', path)
         topic = f'registry_manager/capabilities/{CAPABILITIES.SIGNAL_BUFFER_SOURCE}/list'
-        sources_start = self._pubsub.query(topic)
-        self._pubsub.publish(f'registry/JlsSource/actions/!open', path)
-        sources_end = self._pubsub.query(topic)
+        sources_start = self.pubsub.query(topic)
+        self.pubsub.publish(f'registry/JlsSource/actions/!open', path)
+        sources_end = self.pubsub.query(topic)
         source = sources_end[-1]
         if source in sources_start:
             self._log.warning('Could not determine added source')
             source = 'JlsSource'
         name = os.path.splitext(os.path.basename(path))[0]
-        self._pubsub.publish(
+        self.pubsub.publish(
             'registry/view/actions/!widget_open',
             {
                 'value': 'WaveformWidget',
@@ -732,12 +732,12 @@ class MainWindow(QtWidgets.QMainWindow):
         return source
 
     def on_action_accum_clear(self, value):
-        sources = pubsub_singleton.query('registry_manager/capabilities/statistics_stream.source/list')
+        sources = self.pubsub.query('registry_manager/capabilities/statistics_stream.source/list')
         for source in sources:
-            pubsub_singleton.publish(f'{get_topic_name(source)}/actions/!accum_clear', value)
+            self.pubsub.publish(f'{get_topic_name(source)}/actions/!accum_clear', value)
 
     def on_action_view_logs(self):
-        path = pubsub_singleton.query('common/settings/paths/log')
+        path = self.pubsub.query('common/settings/paths/log')
         self._log.info('view logs: %s', path)
         show_in_folder(path)
 
@@ -753,7 +753,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._status_bar.showMessage(value, timeout=3000)
 
     def closeEvent(self, event):
-        pubsub = self._pubsub
+        pubsub = self.pubsub
         self._log.info('closeEvent() start')
         self._blink_timer.stop()
         if self._filename is not None:

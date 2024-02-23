@@ -14,7 +14,7 @@
 
 
 from PySide6 import QtCore, QtGui
-from joulescope_ui import N_, CAPABILITIES, pubsub_singleton, get_topic_name
+from joulescope_ui import N_, CAPABILITIES, get_topic_name
 from joulescope_ui.widget_tools import CallableAction
 
 
@@ -42,73 +42,38 @@ class SourceSelector(QtCore.QObject):
     resolved_changed = QtCore.Signal(object)  # excludes "default", None if not present, for processing
     list_changed = QtCore.Signal(object)      # excludes "default", duplicates capabilities list
 
-    def __init__(self, parent, source_type: str, settings_topic=None, pubsub=None):
+    def __init__(self, parent, source_type: str):
         """Manage the source selection with default and removal persistence.
 
         :param parent: The parent object.
         :param source_type: The source type string which is on of:
             [statistics_stream, signal_stream, signal_buffer]
-        :param settings_topic: The settings topic for source changes.
-        :param pubsub: The PubSub instance or None to use the singleton.
         """
-        self._is_registered = False
-        self._pubsub = pubsub_singleton if pubsub is None else pubsub
+        self.pubsub = None
         self._default = None
         self.value = None     # includes "default", mirrors settings_topic
         self.sources = ['default']  # includes default and nonpresent but selected source
         self._list = []             # actual sources list
         self._source_type = source_type
         self._signal_buffer_sources = {}  # the top-level sources mapped to subsources
-        source_def = _SOURCE_DEF[source_type]
+        self._settings_topic = None
         super().__init__(parent)
-        self._subscribers = [
-            [settings_topic, self.source_set, ('pub', 'retain')],
-            [source_def[0], self._on_default, ('pub', 'retain')],
-            [source_def[1], self._on_list, ('pub', 'retain')],
-        ]
 
-    def _subscribe(self, topic, fn, flags):
-        self._subscribers.append((topic, fn, flags))
-        if self._is_registered and topic is not None:
-            self._pubsub.subscribe(topic, fn, flags)
+    def on_pubsub_register(self, pubsub, settings_topic=None):
+        """Register this instance.
 
-    def _unsubscribe(self, topic):
-        if topic is None:
-            return
-        for idx, entry in enumerate(self._subscribers):
-            if topic == entry[0]:
-                self._pubsub.unsubscribe(*entry)
-                self._subscribers.pop(idx)
-                return
-
-    @property
-    def settings_topic(self):
-        return self._subscribers[0][0]
-
-    @settings_topic.setter
-    def settings_topic(self, value):
-        t, fn, flags = self._subscribers[0]
-        if t is not None and self._is_registered:
-            self._pubsub.unsubscribe(t, fn)
-        self._subscribers[0][0] = value
-        if self._is_registered:
-            self._pubsub.subscribe(value, fn, flags)
-
-    def on_pubsub_register(self):
-        self._is_registered = True
-        for topic, fn, flags in self._subscribers:
-            if topic is not None:
-                self._pubsub.subscribe(topic, fn, flags)
-        topic = self._subscribers[0][0]
-        if topic is not None:
-            value_prev = self._pubsub.query(topic)
+        :param pubsub: The pubsub instance to use.
+        :param settings_topic: The settings topic for source changes.
+        """
+        self.pubsub = pubsub
+        source_def = _SOURCE_DEF[self._source_type]
+        pubsub.subscribe(source_def[0], self._on_default, ['pub', 'retain'])
+        pubsub.subscribe(source_def[1], self._on_list, ['pub', 'retain'])
+        if settings_topic is not None:
+            self._settings_topic = settings_topic
+            pubsub.subscribe(settings_topic, self.source_set, ['pub', 'retain'])
+            value_prev = self.pubsub.query(settings_topic)
             self.source_set(value_prev)
-
-    def on_pubsub_unregister(self):
-        for topic, fn, flags in self._subscribers:
-            if topic is not None:
-                self._pubsub.unsubscribe(topic, fn, flags)
-        self._is_registered = False
 
     def resolved(self):
         """Resolve "default" to get the true active source."""
@@ -135,8 +100,8 @@ class SourceSelector(QtCore.QObject):
         self.value = value
         self._on_list_inner(self._list)
         self.source_changed.emit(self.value)
-        if self._is_registered and self.settings_topic is not None:
-            self._pubsub.publish(self.settings_topic, value)
+        if self._settings_topic is not None:
+            self.pubsub.publish(self._settings_topic, value)
         resolved_new = self.resolved()
         if resolved_new != resolved_prev:
             if resolved_new not in self._list:
@@ -191,12 +156,12 @@ class SourceSelector(QtCore.QObject):
     def _buffer_add(self, unique_id):
         topic = get_topic_name(unique_id)
         try:
-            self._pubsub.query(f'{topic}/events/signals/!add')
-            self._subscribe(f'{topic}/events/signals/!add', self._buffer_signal_add_update, ['pub'])
-            self._subscribe(f'{topic}/events/signals/!remove', self._buffer_signal_remove_update, ['pub'])
+            self.pubsub.query(f'{topic}/events/signals/!add')
+            self.pubsub.subscribe(f'{topic}/events/signals/!add', self._buffer_signal_add_update, ['pub'])
+            self.pubsub.subscribe(f'{topic}/events/signals/!remove', self._buffer_signal_remove_update, ['pub'])
         except KeyError:
             pass
-        signals = self._pubsub.enumerate(f'{topic}/settings/signals')
+        signals = self.pubsub.enumerate(f'{topic}/settings/signals')
         for signal in signals:
             self._buffer_signal_add(topic, signal)
         self._buffer_signal_update()
@@ -204,9 +169,9 @@ class SourceSelector(QtCore.QObject):
     def _buffer_remove(self, unique_id):
         topic = get_topic_name(unique_id)
         try:
-            self._pubsub.query(f'{topic}/events/signals/!add')
-            self._unsubscribe(f'{topic}/events/signals/!add')
-            self._unsubscribe(f'{topic}/events/signals/!remove')
+            self.pubsub.query(f'{topic}/events/signals/!add')
+            self.pubsub.unsubscribe(f'{topic}/events/signals/!add', self._buffer_signal_add_update)
+            self.pubsub.unsubscribe(f'{topic}/events/signals/!remove', self._buffer_signal_remove_update)
         except KeyError:
             pass
         self._buffer_signal_update()

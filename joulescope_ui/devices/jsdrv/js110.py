@@ -401,19 +401,15 @@ class Js110(Device):
             'signal_frequency': 'h/fs',
         }
 
-        self._on_stats_fn = self._on_stats  # for unsub
         self._thread = None
         self._quit = False
         self._target_power_app = False
         self._queue = queue.Queue()
-
         self._statistics_offsets = None
-        self._on_settings_fn = self._on_settings
-        self._on_target_power_app_fn = self._on_target_power_app
 
     def on_pubsub_register(self):
         topic = get_topic_name(self)
-        self.pubsub.subscribe('registry/app/settings/target_power', self._on_target_power_app_fn, ['pub', 'retain'])
+        self.pubsub.subscribe('registry/app/settings/target_power', self._on_target_power_app, ['pub', 'retain'])
         self.pubsub.publish(f'{topic}/settings/info', self._info)
         self.pubsub.publish(f'{topic}/settings/sources/1/info', self._info)
         for key, value in _SIGNALS.items():
@@ -440,7 +436,7 @@ class Js110(Device):
     def _signal_forward(self, signal_id, dtopic, unique_id):
         utopic = f'events/signals/{signal_id}/!data'
         t = f'{get_topic_name(unique_id)}/{utopic}'
-        self._pubsub.topic_add(t, Metadata('obj', 'signal'), exists_ok=True)
+        self.pubsub.topic_add(t, Metadata('obj', 'signal'), exists_ok=True)
         self._driver_subscribe(dtopic, ['pub'], self._signal_forward_factory(signal_id, t))
 
     def _signal_forward_factory(self, signal_id, utopic):
@@ -463,7 +459,7 @@ class Js110(Device):
                 'orig_decimate_factor': value['decimate_factor'],
             }
             fwd['data'] = value['data']
-            self._pubsub.publish(utopic, fwd)
+            self.pubsub.publish(utopic, fwd)
         return fn
 
     def _send_to_thread(self, cmd, args=None):
@@ -471,7 +467,7 @@ class Js110(Device):
 
     def finalize(self):
         self.on_action_finalize()
-        self._pubsub.unsubscribe('registry/app/settings/target_power', self._on_target_power_app_fn)
+        self.pubsub.unsubscribe('registry/app/settings/target_power', self._on_target_power_app)
         super().finalize()
 
     def _open_req(self):
@@ -570,7 +566,7 @@ class Js110(Device):
             return 1
         self._ui_publish('settings/state', 'open')
         self._log.info('thread open complete')
-        self._pubsub.capabilities_append(self, CAPABILITIES_OBJECT_OPEN)
+        self.pubsub.capabilities_append(self, CAPABILITIES_OBJECT_OPEN)
         while not self._quit:
             try:
                 cmd, args = self._queue.get(timeout=0.1)
@@ -580,7 +576,7 @@ class Js110(Device):
                 break
             self._run_cmd(cmd, args)
         self._close()
-        self._pubsub.capabilities_remove(self, CAPABILITIES_OBJECT_OPEN)
+        self.pubsub.capabilities_remove(self, CAPABILITIES_OBJECT_OPEN)
         self._log.info('thread stop')
         return 0
 
@@ -599,8 +595,8 @@ class Js110(Device):
             self._driver_publish('s/i/lsb_src', 2, timeout=0)
             self._driver_publish('s/v/lsb_src', 3, timeout=0)
             self._driver_publish('s/stats/ctrl', 1, timeout=0)
-            self._driver_subscribe('s/stats/value', 'pub', self._on_stats_fn)
-            self._ui_subscribe('settings', self._on_settings_fn, ['pub', 'retain'])
+            self._driver_subscribe('s/stats/value', 'pub', self._on_stats)
+            self._ui_subscribe('settings', self._on_settings, ['pub', 'retain'])
         except Exception:
             self._log.exception('driver config failed')
             self._ui_publish('settings/state', 'closing')
@@ -612,9 +608,9 @@ class Js110(Device):
         if self.state == 0:  # already closed
             return
         self._log.info('close %s start', self.unique_id)
-        self._ui_unsubscribe('settings', self._on_settings_fn)
+        self._ui_unsubscribe('settings', self._on_settings)
         self._ui_publish('settings/state', 'closing')
-        self._driver_unsubscribe('s/stats/value', self._on_stats_fn)
+        self._driver_unsubscribe('s/stats/value', self._on_stats)
         try:
             for t in _SIGNALS.values():
                 self._driver_publish(t['topics'][0], 0, timeout=0)

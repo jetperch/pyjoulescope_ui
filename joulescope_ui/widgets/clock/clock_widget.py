@@ -49,12 +49,10 @@ class ClockWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
         self._menu = None
         super().__init__(parent=parent)
-        self._on_update_fn = self._on_update
         self.setObjectName('clock_widget')
         self._layout = QtWidgets.QVBoxLayout(self)
         self._layout.setContentsMargins(0, 0, 0, 0)
         self._layout.setSpacing(0)
-
         self._time_str = QtWidgets.QLabel(self)
         self._layout.addWidget(self._time_str)
 
@@ -67,10 +65,7 @@ class ClockWidget(QtWidgets.QWidget):
         self._time_str.setText(s)
 
     def on_pubsub_register(self):
-        self.pubsub.subscribe(_TOPIC, self._on_update_fn, ['pub'])
-
-    def on_pubsub_unregister(self):
-        self.pubsub.unsubscribe(_TOPIC, self._on_update_fn, ['pub'])
+        self.pubsub.subscribe(_TOPIC, self._on_update, ['pub'])
 
     def mousePressEvent(self, event):
         event.accept()

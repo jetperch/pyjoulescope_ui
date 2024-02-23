@@ -14,7 +14,7 @@
 
 from PySide6 import QtCore, QtGui, QtWidgets
 from joulescope_ui.expanding_widget import ExpandingWidget
-from joulescope_ui import N_, tooltip_format, pubsub_singleton, get_topic_name
+from joulescope_ui import N_, tooltip_format, get_topic_name
 from joulescope_ui.devices.jsdrv.js220_fuse import fuse_to_config, fuse_curve
 import pyqtgraph as pg
 import numpy as np
@@ -57,14 +57,14 @@ _FUSE_STATE = N_("Fuse state indicator.  When enabled and engaged, click to clea
 
 class FuseSubWidget(QtWidgets.QWidget):
 
-    def __init__(self, parent, unique_id, fuse_id):
+    def __init__(self, parent, unique_id, fuse_id, pubsub):
         self.unique_id = unique_id
         self.fuse_id = fuse_id
+        self.pubsub = pubsub
         self._value_prev = None
         self._widgets = []
         self._engaged_button = None
         self._row = 0
-        self._unsub = []  # (topic, fn)
         super().__init__(parent)
         self._top_layout = QtWidgets.QVBoxLayout(self)
         self._top_layout.setContentsMargins(0, 0, 0, 0)
@@ -114,8 +114,8 @@ class FuseSubWidget(QtWidgets.QWidget):
         self._layout.addWidget(self._p, self._row, 0, 1, 3)
         self._row += 1
 
-        self._subscribe(f'{topic}/settings/fuse/{self.fuse_id}/config', self._on_config)
-        self._subscribe('registry/ui/events/blink_slow', self._on_blink)
+        self.pubsub.subscribe(f'{topic}/settings/fuse/{self.fuse_id}/config', self._on_config, ['pub', 'retain'])
+        self.pubsub.subscribe('registry/ui/events/blink_slow', self._on_blink, ['pub', 'retain'])
 
     def _on_config(self, topic, value):
         if value is self._value_prev:
@@ -131,7 +131,7 @@ class FuseSubWidget(QtWidgets.QWidget):
         self._value_prev = fuse_to_config(self._t1.value(), self._t2.value(), self._d.value())
         topic = get_topic_name(self.unique_id)
         topic = f'{topic}/settings/fuse/{self.fuse_id}/config'
-        pubsub_singleton.publish(topic, self._value_prev)
+        self.pubsub.publish(topic, self._value_prev)
         self._update()
 
     def _update(self):
@@ -167,18 +167,6 @@ class FuseSubWidget(QtWidgets.QWidget):
         self._widgets.append(widgets)
         self._row += 1
 
-    def _subscribe(self, topic, update_fn):
-        pubsub_singleton.subscribe(topic, update_fn, ['pub', 'retain'])
-        self._unsub.append((topic, update_fn))
-
-    def clear(self):
-        for topic, fn in self._unsub:
-            pubsub_singleton.unsubscribe(topic, fn)
-
-    def closeEvent(self, event):
-        self.clear()
-        return super().closeEvent(event)
-
     def _on_blink(self, value):
         for b in [self._engaged_button]:
             b.setProperty('blink', value)
@@ -209,22 +197,22 @@ class FuseSubWidget(QtWidgets.QWidget):
             self._engaged_button.setEnabled(value)
 
         def on_toggled(checked):
-            pubsub_singleton.publish(topic, checked)
+            self.pubsub.publish(topic, checked)
             self._engaged_button.setEnabled(checked)
 
-        self._subscribe(topic, update_from_pubsub)
+        self.pubsub.subscribe(topic, update_from_pubsub, ['pub', 'retain'])
         b.toggled.connect(on_toggled)
         return b
 
 
 class FuseWidget(QtWidgets.QWidget):
 
-    def __init__(self, parent, unique_id):
+    def __init__(self, parent, unique_id, pubsub):
         self.unique_id = unique_id
+        self.pubsub = pubsub
         self._widgets = []
         self._blink_buttons = []
         self._row = 0
-        self._unsub = []  # (topic, fn)
         super().__init__(parent)
         self._top_layout = QtWidgets.QVBoxLayout(self)
         self._top_layout.setContentsMargins(0, 0, 0, 0)
@@ -244,13 +232,13 @@ class FuseWidget(QtWidgets.QWidget):
 
         self._body = QtWidgets.QWidget()
         self._layout = QtWidgets.QVBoxLayout(self._body)
-        self._fuse1 = FuseSubWidget(self, unique_id, 0)
+        self._fuse1 = FuseSubWidget(self, unique_id, 0, self.pubsub)
         self._layout.addWidget(self._fuse1)
-        self._fuse2 = FuseSubWidget(self, unique_id, 1)
+        self._fuse2 = FuseSubWidget(self, unique_id, 1, self.pubsub)
         self._layout.addWidget(self._fuse2)
         self._expanding.body_widget = self._body
 
-        self._subscribe('registry/ui/events/blink_slow', self._on_blink)
+        self.pubsub.subscribe('registry/ui/events/blink_slow', self._on_blink, ['pub', 'retain'])
 
     def _on_blink(self, value):
         for b in self._blink_buttons:
@@ -288,27 +276,13 @@ class FuseWidget(QtWidgets.QWidget):
                 b.setChecked(False)
                 b.blockSignals(block)
             else:
-                pubsub_singleton.publish(f'{topic}/actions/!fuse_clear', fuse_id)
+                self.pubsub.publish(f'{topic}/actions/!fuse_clear', fuse_id)
 
         self._blink_buttons.append(b)
-        self._subscribe(f'{topic}/settings/fuse_engaged', update_from_pubsub)
+        self.pubsub.subscribe(f'{topic}/settings/fuse_engaged', update_from_pubsub, ['pub', 'retain'])
         b.toggled.connect(on_toggled)
         if fuse_id < 30:
             b.setEnabled(False)
-            self._subscribe(f'{topic}/settings/fuse/{fuse_id}/enable', enable_from_pubsub)
+            self.pubsub.subscribe(f'{topic}/settings/fuse/{fuse_id}/enable', enable_from_pubsub, ['pub', 'retain'])
 
         return b
-
-    def _subscribe(self, topic, update_fn):
-        pubsub_singleton.subscribe(topic, update_fn, ['pub', 'retain'])
-        self._unsub.append((topic, update_fn))
-
-    def clear(self):
-        for topic, fn in self._unsub:
-            pubsub_singleton.unsubscribe(topic, fn)
-        self._fuse1.clear()
-        self._fuse2.clear()
-
-    def closeEvent(self, event):
-        self.clear()
-        return super().closeEvent(event)

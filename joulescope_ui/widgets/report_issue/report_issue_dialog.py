@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PySide6 import QtGui, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 from joulescope_ui import logging_util
 from joulescope_ui.error_window import SubmitWidget
 from joulescope_ui import reporter
@@ -28,8 +28,7 @@ class ReportIssueDialog(QtWidgets.QDialog):
 
         self._layout = QtWidgets.QVBoxLayout(self)
         self._submit = SubmitWidget(self, path)
-        self._on_finish_fn = self._on_finish
-        self._submit.finished.connect(self._on_finish_fn)
+        self._submit.finished.connect(self._on_finish)
         self._layout.addWidget(self._submit)
 
         screen = QtGui.QGuiApplication.screenAt(self.geometry().center())
@@ -39,8 +38,9 @@ class ReportIssueDialog(QtWidgets.QDialog):
         else:
             self.resize(600, 500)
 
+    @QtCore.Slot()
     def _on_finish(self):
-        self._submit.finished.disconnect(self._on_finish_fn)
+        self._submit.finished.disconnect(self._on_finish)
         self.close()
 
     @staticmethod

@@ -19,7 +19,7 @@ Test joulescope_ui.source_selector
 import unittest
 from joulescope_ui.source_selector import SourceSelector
 from joulescope_ui import CAPABILITIES, Metadata
-from joulescope_ui.pubsub import PubSub
+from joulescope_ui.pubsub import PubSub, PubSubProxy
 
 
 _DEFAULT_TOPICS = [
@@ -46,12 +46,13 @@ class TestSourceSelector(unittest.TestCase):
         for topic in _DEFAULT_TOPICS:
             p.topic_add(topic, Metadata('obj', brief='default', default='default'))
         p.topic_add(self.topic, Metadata('obj', brief='topic', default='default'))
-        self.p = p
+        self.pubsub = p
+        self.p = PubSubProxy(p)
         self.s = None
 
     def factory(self, source_type):
-        self.s = SourceSelector(None, source_type, self.topic, pubsub=self.p)
-        self.s.on_pubsub_register()
+        self.s = SourceSelector(None, source_type)
+        self.s.on_pubsub_register(self.p, self.topic)
 
         self.source_changed_calls = []
         self.resolved_changed_calls = []
@@ -62,7 +63,7 @@ class TestSourceSelector(unittest.TestCase):
         self.s.sources_changed.connect(lambda x: self.sources_changed_calls.append(x))
 
     def tearDown(self):
-        self.s.on_pubsub_unregister()
+        self.p.unsubscribe_all()
 
     def test_init(self):
         self.factory('statistics_stream')

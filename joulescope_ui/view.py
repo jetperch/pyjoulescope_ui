@@ -30,9 +30,7 @@ class DockWidget(QtAds.CDockWidget):
         super().__init__('')  # replaced by widget name
         self.setWidget(widget)
         topic = get_topic_name(widget)
-        self._subscribe_fns = [[f'{topic}/settings/name', self._on_setting_name]]
-        for t, fn in self._subscribe_fns:
-            pubsub_singleton.subscribe(t, fn, flags=['pub', 'retain'])
+        widget.pubsub.subscribe(f'{topic}/settings/name', self._on_setting_name, ['pub', 'retain'])
         self.setFeatures(
             QtAds.CDockWidget.DockWidgetClosable |
             QtAds.CDockWidget.DockWidgetMovable |
@@ -43,6 +41,7 @@ class DockWidget(QtAds.CDockWidget):
             0)
         self.closeRequested.connect(self._on_close_request)
 
+    @QtCore.Slot(str)
     def _on_setting_name(self, value):
         self.setWindowTitle(value)
 
@@ -50,7 +49,6 @@ class DockWidget(QtAds.CDockWidget):
     def _on_close_request(self):
         widget = self.widget()
         _log.info('close %s', get_unique_id(widget))
-        widget.close()
         pubsub_singleton.publish('registry/view/actions/!widget_close', get_topic_name(widget))
 
 
@@ -251,18 +249,20 @@ class View:
         if instance is not None:
             if delete and hasattr(instance, 'on_widget_close'):
                 instance.on_widget_close()
-            dock_widget = instance.dock_widget
+            dock_widget, instance.dock_widget = instance.dock_widget, None
             try:
                 if dock_widget is None:
                     _log.info(f'widget_suspend {topic}: dock_widget is None')
                 else:
-                    dock_widget.deleteLater()
+                    dock_widget.takeWidget()
                     self._dock_manager.removeDockWidget(dock_widget)
+                    dock_widget.setParent(None)
+                    dock_widget.deleteLater()
             except Exception:
                 _log.exception(f'widget_suspend {topic}: Delete or remove dock widget raised exception')
-            instance.dock_widget = None
             try:
                 instance.close()
+                instance.setParent(None)
                 instance.deleteLater()
             except Exception:
                 _log.exception(f'widget_suspend {topic}: Close or delete widget raised exception')

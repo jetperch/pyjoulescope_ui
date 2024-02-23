@@ -99,9 +99,7 @@ class PubSubExplorerWidget(QtWidgets.QWidget):
 
     def __init__(self, parent=None):
         self._items = {}
-        self._subscriptions = []
         super().__init__(parent=parent)
-        self._on_value_fn = self._on_value
         self._layout = QtWidgets.QVBoxLayout(self)
 
         self._filter = TopicFilterWidget(self)
@@ -134,12 +132,8 @@ class PubSubExplorerWidget(QtWidgets.QWidget):
     def _on_changed(self, model_index, model_index_old):
         topic = self._model.data(model_index, QtCore.Qt.UserRole + 1)
         self._detail.topic = topic
-        for idx, (topic, fn) in enumerate(self._subscriptions):
-            if fn == self._on_value_fn:
-                self._subscriptions.pop(idx)
-                self.pubsub.unsubscribe(topic, fn)
-                break
-        self._subscribe(topic, self._on_value_fn, ['pub', 'retain'])
+        self.pubsub.unsubscribe_all(self._on_value)
+        self.pubsub.subscribe(topic, self._on_value, ['pub', 'retain'])
 
     def _on_value(self, topic, value):
         self._detail.value(value)
@@ -183,16 +177,7 @@ class PubSubExplorerWidget(QtWidgets.QWidget):
         item.parent().takeRow(item.row())
         del item
 
-    def _subscribe(self, topic: str, update_fn: callable, flags=None):
-        self.pubsub.subscribe(topic, update_fn, flags)
-        self._subscriptions.append((topic, update_fn))
-
     def on_pubsub_register(self):
         self._populate()
-        self._subscribe(TOPIC_ADD_TOPIC, self._on_topic_add, ['pub'])
-        self._subscribe(TOPIC_REMOVE_TOPIC, self._on_topic_remove, ['pub'])
-
-    def on_pubsub_unregister(self):
-        for topic, update_fn in self._subscriptions:
-            self.pubsub.unsubscribe(topic, update_fn)
-        self._subscriptions.clear()
+        self.pubsub.subscribe(TOPIC_ADD_TOPIC, self._on_topic_add, ['pub'])
+        self.pubsub.subscribe(TOPIC_REMOVE_TOPIC, self._on_topic_remove, ['pub'])

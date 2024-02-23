@@ -242,8 +242,8 @@ class App:
         for capability in _DEFAULT_CAPABILITIES.keys():
             fn = self._construct_capability_callback(capability)
             self._cbks.append([capability, fn])
-            p.subscribe(f'registry_manager/capabilities/{capability}/list',
-                        fn, ['pub', 'retain'])
+            self.pubsub.subscribe(f'registry_manager/capabilities/{capability}/list',
+                                  fn, ['pub', 'retain'])
         if mode is not None:
             p.publish(f'{topic}/settings/mode', mode)
         return self

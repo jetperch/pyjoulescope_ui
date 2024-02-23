@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from PySide6 import QtWidgets, QtGui, QtCore
-from joulescope_ui import N_, register, CAPABILITIES, pubsub_singleton, get_topic_name
+from joulescope_ui import N_, register, CAPABILITIES, get_topic_name
 from joulescope_ui.source_selector import SourceSelector
 from joulescope_ui.widget_tools import CallableAction, settings_action_create, context_menu_show
 from joulescope_ui.styles import styled_widget
@@ -55,7 +55,7 @@ class AccumulatorWidget(QtWidgets.QWidget):
         self._menu = None
         self._clipboard = None
         self._statistics = None
-        self._on_statistics_fn = self._on_statistics
+        self._subscription = None
         self._devices = ['default']
         super().__init__(parent=parent)
         self.setObjectName('accumulator_widget')
@@ -73,41 +73,26 @@ class AccumulatorWidget(QtWidgets.QWidget):
         self._accum_label.setObjectName('accum')
         self._layout.addWidget(self._accum_label)
 
-        self._subscribers = [
-            ['registry/app/settings/statistics_stream_enable',
-             self._on_global_statistics_stream_enable],
-        ]
-
     def on_pubsub_register(self):
         topic = f'{get_topic_name(self)}/settings/statistics_stream_source'
-        self.source_selector.settings_topic = topic
-        self.source_selector.on_pubsub_register()
-
-        for topic, fn in self._subscribers:
-            pubsub_singleton.subscribe(topic, fn, ['pub', 'retain'])
-
-    def on_pubsub_unregister(self):
-        self.source_selector.on_pubsub_unregister()
-        self._disconnect()
-        self._statistics = None
-        for topic, fn in self._subscribers:
-            pubsub_singleton.unsubscribe(topic, fn)
-
-    def _disconnect(self):
-        pubsub_singleton.unsubscribe_all(self._on_statistics_fn)
-        self.repaint()
+        self.source_selector.on_pubsub_register(self.pubsub, topic)
+        self.pubsub.subscribe('registry/app/settings/statistics_stream_enable',
+                              self._on_global_statistics_stream_enable,
+                              ['pub', 'retain'])
 
     def _connect(self):
-        self._disconnect()
+        self.pubsub.unsubscribe(self._subscription)
         source = self.source_selector.resolved()
         if source is not None:
             topic = get_topic_name(source)
-            pubsub_singleton.subscribe(f'{topic}/events/statistics/!data', self._on_statistics_fn, ['pub'])
+            self._subscription = self.pubsub.subscribe(f'{topic}/events/statistics/!data', self._on_statistics, ['pub'])
         self.repaint()
 
+    @QtCore.Slot()
     def _on_source_changed(self, value):
         self.repaint()
 
+    @QtCore.Slot()
     def _on_resolved_changed(self, value):
         self._connect()
 

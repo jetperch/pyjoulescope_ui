@@ -12,15 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PySide6 import QtWidgets, QtGui, QtCore
-from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topic_name, tooltip_format
+from PySide6 import QtWidgets
+from joulescope_ui import CAPABILITIES, register,  N_
 from .js220_ctrl_widget import Js220CtrlWidget
-from joulescope_ui.widget_tools import settings_action_create
-from joulescope_ui.styles import styled_widget, color_as_qcolor, font_as_qfont
-from joulescope_ui.units import unit_prefix, three_sig_figs
-from joulescope_ui.ui_util import comboBoxConfig
-import datetime
-import numpy as np
+from joulescope_ui.styles import styled_widget
 import logging
 
 
@@ -40,54 +35,43 @@ class DeviceControlWidget(QtWidgets.QWidget):
         self._layout.setSpacing(0)
         self._spacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self._layout.addItem(self._spacer)
-        self._device_widgets = {}
-
-        self._subscribers = [
-            [f'registry_manager/capabilities/{CAPABILITIES.DEVICE_OBJECT}/list', self._on_devices],
-        ]
 
     def on_pubsub_register(self):
         self._log.info('register')
-        for topic, fn in self._subscribers:
-            pubsub_singleton.subscribe(topic, fn, ['pub', 'retain'])
-
-    def on_pubsub_unregister(self):
-        self._log.info('unregister')
-        for topic, fn in self._subscribers:
-            pubsub_singleton.unsubscribe(topic, fn)
-        while len(self._device_widgets):
-            self._device_remove(next(iter(self._device_widgets)))
+        self.pubsub.subscribe(f'registry_manager/capabilities/{CAPABILITIES.DEVICE_OBJECT}/list',
+                              self._on_devices, ['pub', 'retain'])
 
     def _on_devices(self, value):
-        for unique_id in list(self._device_widgets.keys()):
+        devices = [obj.unique_id for obj in self.children() if hasattr(obj, 'unique_id')]
+        for unique_id in devices:
             if unique_id not in value:
                 self._device_remove(unique_id)
         for unique_id in value:
-            if unique_id not in self._device_widgets:
+            if unique_id not in devices:
                 self._device_add(unique_id)
 
     def _device_remove(self, unique_id):
         self._log.info('remove %s', unique_id)
         if '-UPDATER' in unique_id:
             return  # todo
-        w = self._device_widgets.pop(unique_id)
-        self._layout.removeWidget(w)
-        w.close()
-        w.deleteLater()
+        for w in self.children():
+            if getattr(w, 'unique_id', None) == unique_id:
+                self._layout.removeWidget(w)
+                w.close()
+                w.deleteLater()
 
     def _device_add(self, unique_id):
         self._log.info('add %s', unique_id)
         if '-UPDATER' in unique_id:
             return  # todo
-        w = Js220CtrlWidget(self, unique_id)
+        w = Js220CtrlWidget(self, unique_id, self.pubsub)
         w.expanded = True
-        self._device_widgets[unique_id] = w
         self._layout.insertWidget(self._layout.count() - 1, w)
         if hasattr(w, 'on_parent_style_change'):
             w.on_parent_style_change(self.style_obj)
 
     def on_style_change(self):
-        for w in self._device_widgets.values():
+        for w in self.children():
             if hasattr(w, 'on_parent_style_change'):
                 try:
                     w.on_parent_style_change(self.style_obj)

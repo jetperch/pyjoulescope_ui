@@ -35,8 +35,6 @@ class PublishSpyWidget(QtWidgets.QWidget):
         self._data_capture = {}
         self._items = []
         super().__init__(parent=parent)
-        self._on_value_fn = self._on_value
-
         self._layout = QtWidgets.QVBoxLayout(self)
 
         self._top = QtWidgets.QWidget(self)
@@ -107,8 +105,9 @@ class PublishSpyWidget(QtWidgets.QWidget):
             self._items.append(row)
             self._model.appendRow(row)
 
+    @QtCore.Slot()
     def _on_timer(self):
-        if self.pubsub is None or not self._enabled:
+        if not self._enabled:
             return
         self._model.clear()
         self._items = []
@@ -123,19 +122,16 @@ class PublishSpyWidget(QtWidgets.QWidget):
             self._data_capture = []
 
     def _start(self):
-        if self.pubsub is None:
-            return
         self._stop()
         self._data_capture = {}
         self._timer = QtCore.QTimer(self)
         self._timer.setTimerType(QtGui.Qt.PreciseTimer)
         self._timer.timeout.connect(self._on_timer)
         self._timer.start(1000)
-        self.pubsub.subscribe('', self._on_value_fn, ['pub'])
+        self.pubsub.subscribe('', self._on_value, ['pub'])
 
     def _stop(self):
-        if self.pubsub is not None:
-            self.pubsub.unsubscribe('', self._on_value_fn, ['pub'])
+        self.pubsub.unsubscribe('', self._on_value)
         if self._timer is not None:
             self._timer.stop()
             self._timer = None

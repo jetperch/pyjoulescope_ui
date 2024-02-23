@@ -40,14 +40,13 @@ class StatisticsRecord:
         self._log = logging.getLogger(f'{__name__}.obj')
         self.CAPABILITIES = [CAPABILITIES.STATISTIC_STREAM_SINK]
         self._log.info('JLS record %s to %s', topic, filename)
-        self._on_data_fn = self._on_data
         self._file = open(filename, 'wt')
         self._offsets = None
         self._time_format_str = ''
 
         pubsub_singleton.publish('registry/paths/actions/!mru_save', filename)
         pubsub_singleton.register(self, parent=parent)
-        pubsub_singleton.subscribe(self._topic, self._on_data_fn, ['pub'])
+        pubsub_singleton.subscribe(self._topic, self._on_data, ['pub'])
 
     def _on_data(self, topic, value):
         if self._file is None:
@@ -99,7 +98,7 @@ class StatisticsRecord:
 
     def on_action_stop(self, value):
         self._log.info('stop')
-        pubsub_singleton.unsubscribe(self._topic, self._on_data_fn, ['pub'])
+        pubsub_singleton.unsubscribe(self._topic, self._on_data, ['pub'])
         f, self._file = self._file, None
         f.close()
         if self in StatisticsRecord._instances:

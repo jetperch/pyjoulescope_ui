@@ -47,50 +47,33 @@ def is_device_update_available():
 
 
 class DeviceUpdate(QtCore.QObject):
+    """Wait until device list is stable for 2 seconds.
 
-    available = QtCore.Signal()
+    :param parent: The parent QObject.
+    :param pubsub: The pubsub instance.
+    """
+
     enabled = QtCore.Signal()
 
-    ST_IDLE = 'idle'
-    ST_ENABLING = 'enabling'
-    ST_ENABLED = 'enabled'
-
-    def __init__(self, parent, pubsub):
-        self._pubsub = pubsub
-        self._timer = None
-        self._state = self.ST_IDLE
+    def __init__(self, parent: QtCore.QObject, pubsub):
+        self.pubsub = pubsub
         super().__init__(parent)
-        self._on_device_list_fn = self._on_device_list
+        self._timer = QtCore.QTimer(self)
+        self._timer.setSingleShot(True)
+        self._timer.timeout.connect(self._on_timer)
 
     def enable(self):
-        if self._state == self.ST_IDLE:
-            self._timer = QtCore.QTimer(self)
-            self._timer.setSingleShot(True)
-            self._timer.timeout.connect(self._on_timer)
-            self._timer.start(_TIMER_DELAY_MS)
-            self._state = self.ST_ENABLING
-
-    def disable(self):
-        self._pubsub.unsubscribe(DEVICE_LIST_TOPIC, self._on_device_list_fn)
-        timer, self._timer = self._timer, None
-        if timer is not None:
-            timer.stop()
+        self.pubsub.subscribe(DEVICE_LIST_TOPIC, self._on_device_list, ['pub', 'retain'])
+        self._timer.start(_TIMER_DELAY_MS)
 
     @QtCore.Slot()
     def _on_timer(self):
-        emit_enable = False
-        if self._state == self.ST_ENABLING:
-            self._pubsub.subscribe(DEVICE_LIST_TOPIC, self._on_device_list_fn, ['pub'])
-            self._state = self.ST_ENABLED
-            emit_enable = True
-        if is_device_update_available():
-            self.available.emit()
-        if emit_enable:
-            self.enabled.emit()
+        self.pubsub.unsubscribe(DEVICE_LIST_TOPIC, self._on_device_list)
+        self._timer.stop()
+        self.enabled.emit()
 
     def _on_device_list(self):
-        if self._timer is not None:
-            self._timer.start(_TIMER_DELAY_MS)
+        self._timer.start(_TIMER_DELAY_MS)
 
     def is_available(self):
         return is_device_update_available()

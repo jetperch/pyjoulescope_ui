@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from PySide6 import QtWidgets, QtCore
-from joulescope_ui import CAPABILITIES, register, pubsub, Metadata, N_
+from joulescope_ui import register, N_
 from joulescope_ui.widget_tools import settings_action_create, context_menu_show
 from joulescope_ui.styles import styled_widget
 

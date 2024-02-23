@@ -14,7 +14,7 @@
 
 from PySide6 import QtWidgets, QtGui, QtCore, QtOpenGLWidgets
 from OpenGL import GL as gl
-from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topic_name, get_instance, time64
+from joulescope_ui import CAPABILITIES, register, N_, get_topic_name, get_instance, time64
 from joulescope_ui.shortcuts import Shortcuts
 from joulescope_ui.styles import styled_widget, color_as_qcolor, color_as_string, font_as_qfont
 from joulescope_ui.widget_tools import CallableAction, CallableSlotAdapter, settings_action_create, context_menu_show
@@ -549,7 +549,6 @@ class WaveformWidget(QtWidgets.QWidget):
         self._CURSOR_SIZE_HOR = QtGui.QCursor(QtGui.Qt.SizeHorCursor)
         self._CURSOR_CROSS = QtGui.QCursor(QtGui.Qt.CrossCursor)
 
-        self._subscribe_list = []
         self._dialog = None
         self._shortcuts = Shortcuts(self)
         self._x_map = TimeMap()
@@ -588,10 +587,6 @@ class WaveformWidget(QtWidgets.QWidget):
             'times': [],
             'str': [],
         }
-
-    def _subscribe(self, topic: str, update_fn: callable, flags=None):
-        self._subscribe_list.append((topic, update_fn))
-        return self.pubsub.subscribe(topic, update_fn, flags)
 
     def on_setting_opengl(self, value):
         value = bool(value)
@@ -679,8 +674,8 @@ class WaveformWidget(QtWidgets.QWidget):
             topic = get_topic_name(source)
             try:
                 self.pubsub.query(f'{topic}/events/signals/!add')
-                self._subscribe(f'{topic}/events/signals/!add', self._on_signal_add, ['pub'])
-                self._subscribe(f'{topic}/events/signals/!remove', self._on_signal_remove, ['pub'])
+                self.pubsub.subscribe(f'{topic}/events/signals/!add', self._on_signal_add, ['pub'])
+                self.pubsub.subscribe(f'{topic}/events/signals/!remove', self._on_signal_remove, ['pub'])
             except KeyError:
                 pass
             signals = self.pubsub.enumerate(f'{topic}/settings/signals')
@@ -721,8 +716,8 @@ class WaveformWidget(QtWidgets.QWidget):
         device, quantity = value.split('.')
         topic = get_topic_name(source)
         signal_id = f'{source}.{device}.{quantity}'
-        self._subscribe(f'{topic}/settings/signals/{value}/range',
-                        self._on_signal_range, ['pub', 'retain'])
+        self.pubsub.subscribe(f'{topic}/settings/signals/{value}/range',
+                              self._on_signal_range, ['pub', 'retain'])
         self._repaint_request = True
 
     def _on_signal_remove(self, topic, value):
@@ -795,14 +790,14 @@ class WaveformWidget(QtWidgets.QWidget):
             plot['y_region'] = f'plot.{plot_index}'
             plot.setdefault('logarithmic_zero', _LOGARITHMIC_ZERO_DEFAULT)
             plot.setdefault('prefix_preferred', 'auto')
-        self._subscribe('registry_manager/capabilities/signal_buffer.source/list',
-                        self._on_source_list, ['pub', 'retain'])
+        self.pubsub.subscribe('registry_manager/capabilities/signal_buffer.source/list',
+                              self._on_source_list, ['pub', 'retain'])
         topic = get_topic_name(self)
         self._control.on_pubsub_register(self.pubsub, topic, source_filter)
         self._shortcuts_add()
-        self._subscribe('registry/app/settings/units', self._update_on_publish, ['pub'])
-        self._subscribe('registry/app/settings/defaults/signal_buffer_source',
-                        self._on_default_signal_buffer_source, ['pub', 'retain'])
+        self.pubsub.subscribe('registry/app/settings/units', self._update_on_publish, ['pub'])
+        self.pubsub.subscribe('registry/app/settings/defaults/signal_buffer_source',
+                              self._on_default_signal_buffer_source, ['pub', 'retain'])
 
         self._repaint_request = True
         self._paint_state = PaintState.READY
@@ -828,17 +823,11 @@ class WaveformWidget(QtWidgets.QWidget):
         self._shortcuts.add(QtCore.Qt.Key_Minus, f'{topic}/actions/!x_zoom', [-1, None])
 
     def _cleanup(self):
-        self._log.info('waveform cleanup %d', len(self._subscribe_list))
-        for topic, fn in self._subscribe_list:
-            self.pubsub.unsubscribe(topic, fn)
-        self._subscribe_list.clear()
         self._shortcuts.clear()
         self._paint_timer.stop()
         self._paint_state = PaintState.IDLE
 
     def on_pubsub_unregister(self):
-        self._trace_widget.on_pubsub_unregister(self.pubsub)
-        self._control.on_pubsub_unregister()
         self._cleanup()
 
     def closeEvent(self, event):
@@ -2818,7 +2807,7 @@ class WaveformWidget(QtWidgets.QWidget):
     def _action_save_image(self, checked=False):
         filter_str = 'png (*.png)'
         filename = time64.filename('.png')
-        path = pubsub_singleton.query('registry/paths/settings/path')
+        path = self.pubsub.query('registry/paths/settings/path')
         path = os.path.join(path, filename)
         dialog = QtWidgets.QFileDialog(self, N_('Save image to file'), path, filter_str)
         dialog.setFileMode(QtWidgets.QFileDialog.AnyFile)
@@ -3211,7 +3200,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
         signals = self._signals_get()
         # Use CAPABILITIES.RANGE_TOOL_CLASS value format.
-        pubsub_singleton.publish('registry/exporter/actions/!run', {
+        self.pubsub.publish('registry/exporter/actions/!run', {
             'x_range': x_range,
             'signals': signals,
             'range_tool': {
@@ -3239,7 +3228,7 @@ class WaveformWidget(QtWidgets.QWidget):
             if len(traces):
                 value['signal_default'] = f'{traces[0][1]}.{quantity}'
 
-        pubsub_singleton.publish(f'registry/{unique_id}/actions/!run', value)
+        self.pubsub.publish(f'registry/{unique_id}/actions/!run', value)
 
     def _construct_analysis_menu_action(self, menu, unique_id, idx):
         cls = get_instance(unique_id)
@@ -3251,7 +3240,7 @@ class WaveformWidget(QtWidgets.QWidget):
         zc = (z1 + z0) / 2
         zd = abs(z1 - z0) / (2 * float(zoom_level))
         z0, z1 = int(zc - zd), int(zc + zd)
-        pubsub_singleton.publish(f'{self.topic}/actions/!x_zoom_to', [z0, z1])
+        self.pubsub.publish(f'{self.topic}/actions/!x_zoom_to', [z0, z1])
 
     def _construct_x_marker_zoom_menu_action(self, menu, idx, zoom_level):
         CallableAction(menu, f'{zoom_level}%', lambda: self._on_x_marker_zoom(idx, zoom_level / 100.0))

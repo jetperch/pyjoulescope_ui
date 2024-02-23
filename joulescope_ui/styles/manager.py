@@ -18,7 +18,7 @@
 import logging
 import os
 import re
-from joulescope_ui import N_, pubsub_singleton, get_unique_id, get_topic_name, get_instance
+from joulescope_ui import N_, pubsub_singleton, get_unique_id, get_topic_name, get_instance, is_pubsub_registered
 from joulescope_ui import json_plus as json
 from joulescope_ui.sanitize import str_to_filename
 from . import color_file, parameter_file
@@ -410,12 +410,12 @@ def styled_widget(translated_name):
     """
 
     def render(self, value):
-        if getattr(self, 'pubsub_is_registered', False):
+        if is_pubsub_registered(self):
             pubsub_singleton.publish(RENDER_TOPIC, self)
 
     def inner(cls):
         def cls_render(value):
-            if getattr(cls, 'pubsub_is_registered', False):
+            if is_pubsub_registered(cls):
                 if RENDER_TOPIC in pubsub_singleton:
                     pubsub_singleton.publish(RENDER_TOPIC, cls)
 

@@ -539,7 +539,7 @@ class Js220(Device):
     def _signal_forward(self, signal_id, dtopic, unique_id):
         utopic = f'events/signals/{signal_id}/!data'
         t = f'{get_topic_name(unique_id)}/{utopic}'
-        self._pubsub.topic_add(t, Metadata('obj', 'signal'), exists_ok=True)
+        self.pubsub.topic_add(t, Metadata('obj', 'signal'), exists_ok=True)
         self._driver_subscribe(dtopic, ['pub'], self._signal_forward_factory(signal_id, t))
 
     def _signal_forward_factory(self, signal_id, utopic):
@@ -561,7 +561,7 @@ class Js220(Device):
                 'orig_sample_freq': value['sample_rate'],
                 'orig_decimate_factor': value['decimate_factor'],
             }
-            self._pubsub.publish(utopic, fwd)
+            self.pubsub.publish(utopic, fwd)
         return fn
 
     def _send_to_thread(self, cmd, args=None):
@@ -752,7 +752,7 @@ class Js220(Device):
         self._ui_publish('settings/state', 'open')
         self._log.info('thread open complete')
         self._device_update_check()
-        self._pubsub.capabilities_append(self, CAPABILITIES_OBJECT_OPEN)
+        self.pubsub.capabilities_append(self, CAPABILITIES_OBJECT_OPEN)
 
         while not self._quit:
             try:
@@ -763,7 +763,7 @@ class Js220(Device):
                 break
             self._run_cmd(cmd, args)
         self._close()
-        self._pubsub.capabilities_remove(self, CAPABILITIES_OBJECT_OPEN)
+        self.pubsub.capabilities_remove(self, CAPABILITIES_OBJECT_OPEN)
         self._log.info('thread stop')
         return 0
 
