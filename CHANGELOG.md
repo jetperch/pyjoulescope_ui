@@ -5,7 +5,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
-## 1.0.51
+## 1.0.52
 
 2024 Feb 23
 

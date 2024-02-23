@@ -328,19 +328,18 @@ class MainWindow(QtWidgets.QMainWindow):
                     ['exit_cfg', N_('Clear config and exit'), ['registry/ui/actions/!close', {'config_clear': True}]],
                     ['exit', N_('Exit'), ['registry/ui/actions/!close', '']],
                 ]],
-                ['view_menu', N_('View'), []],     # dynamically populated from available views
+                ['view_menu', N_('View'), []],        # dynamically populated from available views
                 ['widgets_menu', N_('Widgets'), []],  # dynamically populated from available widgets
                 ['tools_menu', N_('Tools'), [
                     ['accum_clear', N_('Clear Accumulators'), ['registry/ui/actions/!accum_clear', None]]
                 ]],
                 help_menu,
             ])
-            self._view_menu: QtWidgets.QMenu = self._menu_bar.findChild(QtWidgets.QMenu, 'view_menu')
-            self._view_menu_group = QtGui.QActionGroup(self._view_menu)
+            view_menu = self._menu_items['view_menu'][0]
+            self._view_menu_group = QtGui.QActionGroup(view_menu)
             self._view_menu_group.setExclusive(True)
-            self._view_menu_actions = []
-            self._view_menu.aboutToShow.connect(self._on_view_menu_show)
-            self._view_menu.aboutToHide.connect(self._on_view_menu_hide)
+            view_menu.aboutToShow.connect(self._on_view_menu_show)
+            self._on_view_menu_show()
             self.setMenuBar(self._menu_bar)
             self.pubsub.subscribe('registry/paths/settings/mru_files', self._on_mru, flags=['pub', 'retain'])
             self.pubsub.subscribe('registry_manager/capabilities/widget.class/list',
@@ -629,32 +628,34 @@ class MainWindow(QtWidgets.QMainWindow):
         open_recent_list[1] = _menu_setup(menu, menu_items)
 
     @QtCore.Slot()
-    def _on_view_menu_hide(self):
-        for action in self._view_menu_actions:
-            self._view_menu.removeAction(action)
-            self._view_menu_group.removeAction(action)
-            action.deleteLater()
-        self._view_menu_actions.clear()
-
-    @QtCore.Slot()
     def _on_view_menu_show(self):
-        self._on_view_menu_hide()
-        menu, group = self._view_menu, self._view_menu_group
+        menu, action_map = self._menu_items['view_menu']
+        group = self._view_menu_group
+
+        # Clear existing menu items
+        for view_unique_id, (action, _) in action_map.items():
+            if view_unique_id[0] != '_':
+                group.removeAction(action)
+            action.setParent(None)
+            action.deleteLater()
+        menu.clear()
+
+        # Construct menu items
         view_instances = self.pubsub.query('registry/view/instances')
         active_view = self.pubsub.query('registry/view/settings/active', default=None)
-
-        def construct(unique_id):
+        menu_items = []
+        for unique_id in view_instances:
             name = self.pubsub.query(f'registry/{unique_id}/settings/name', default=unique_id)
-            action = CallableAction(group, name,
-                                    lambda: self.pubsub.publish('registry/view/settings/active', unique_id))
+            menu_items.append([unique_id, name, ['registry/view/settings/active', unique_id]])
+        m = _menu_setup(menu, menu_items)
+        for view_unique_id, (action, _) in m.items():
             action.setCheckable(True)
-            action.setChecked(unique_id == active_view)
-            menu.addAction(action)
-            return action
-        self._view_menu_actions = [construct(unique_id) for unique_id in view_instances]
+            action.setChecked(view_unique_id == active_view)
+            group.addAction(action)
         separator = menu.addSeparator()
         manage = CallableAction(menu, N_('Manage'), self._on_view_manage)
-        self._view_menu_actions.extend([separator, manage])
+        m['_separator'] = [separator, None]
+        m['_manage'] = [manage, None]
 
     @QtCore.Slot()
     def _on_view_manage(self):
