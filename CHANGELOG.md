@@ -7,7 +7,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.51
 
-2024 Feb 23 [in progress]
+2024 Feb 23
 
 * Dropped Python 3.9 support as static methods are not callable until 3.10.
   See https://docs.python.org/3/whatsnew/3.10.html
@@ -44,6 +44,12 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Updated pyjls from 0.9.1 to 0.9.2 to improve corrupted JLS file handling.
 * Updated pyjoulescope_driver from 1.4.6 to 1.4.7.
 * Updated joulescope from 1.1.8 to 1.1.12.
+* Updated PySide6-QtAds from 4.1.0.2 to 
+  [4.2.1](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases)
+  and PySide6 from 6.2.0 to 
+  [6.2.2](https://code.qt.io/cgit/qt/qtreleasenotes.git/about/qt/6.6.2/release-note.md).
+  The new versions address a number of stability issues.
+* Removed unused pyperclip dependency.
 * Converted deprecated QMouseEvent method calls to supported methods.
 * Added missing menu items to menu widget storage.
 * Added QtCore.Slot decorator to PySide6/Qt6 slots.

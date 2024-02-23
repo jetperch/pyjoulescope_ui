@@ -8,11 +8,10 @@ markdown
 psutil
 pyjls>=0.9.2
 pyopengl
-pyperclip>=1.7.0
 pywin32; sys_platform == 'win32'   # python {path_to_python}\scripts\pywin32_postinstall.py -install
-pyqtgraph>=0.13.2
-PySide6>=6.6.0,<7.0.0
-PySide6-QtAds>=4.1.0.2,<5.0.0
+pyqtgraph>=0.13.3
+PySide6>=6.6.2,<7.0.0
+PySide6-QtAds>=4.2.1,<5.0.0
 python-dateutil>=2.7.3
 PyInstaller>=6.1.0,<7.0.0
 QtPy
