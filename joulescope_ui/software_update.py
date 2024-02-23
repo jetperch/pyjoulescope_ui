@@ -296,6 +296,7 @@ class SoftwareUpdateDialog(QtWidgets.QDialog):
         parent = pubsub_singleton.query('registry/ui/instance')
         super().__init__(parent=parent)
         self.setObjectName("software_update")
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self._layout = QtWidgets.QVBoxLayout(self)
 
         html = _HEADER.format(style=style) + \
@@ -342,8 +343,6 @@ class SoftwareUpdateDialog(QtWidgets.QDialog):
 
     @QtCore.Slot(int)
     def _on_finish(self, value):
-        if self not in SoftwareUpdateDialog.dialogs:
-            return  # duplicate finish
         if not is_release:
             _log.info('software update: not a release')
         elif value == QtWidgets.QDialog.DialogCode.Accepted:
@@ -351,9 +350,9 @@ class SoftwareUpdateDialog(QtWidgets.QDialog):
             self._pubsub.publish('registry/ui/actions/!close', {'software_update': self._info})
         else:
             _log.info('software update: later')
-        self.close()
         if self._done_action is not None:
             self._pubsub.publish(*self._done_action, defer=True)
+        self.close()
 
     @staticmethod
     def on_cls_action_show(pubsub, topic, value):

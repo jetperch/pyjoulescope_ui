@@ -36,6 +36,7 @@ class ProgressBarWidget(QtWidgets.QDialog):
         parent = pubsub_singleton.query('registry/ui/instance')
         super().__init__(parent=parent)
         self.setObjectName('progress_bar_widget')
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self._log = logging.getLogger(__name__)
         self._log.info(f'start')
         self._layout = QtWidgets.QVBoxLayout(self)

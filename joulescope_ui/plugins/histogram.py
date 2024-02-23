@@ -38,6 +38,7 @@ class HistogramRangeToolDialog(QtWidgets.QDialog):
         super().__init__(parent=parent)
         self._log = logging.getLogger(f'{__name__}.dialog')
         self.setObjectName('histogram_range_tool_dialog')
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self._layout = QtWidgets.QVBoxLayout(self)
         self._form = QtWidgets.QFormLayout()
 
@@ -93,9 +94,6 @@ class HistogramRangeToolDialog(QtWidgets.QDialog):
         else:
             self._log.info('finished: reject - abort histogram')  # no action required
         self.close()
-
-    def close(self):
-        super().close()
 
 
 @register

@@ -22,6 +22,7 @@ class ReportIssueDialog(QtWidgets.QDialog):
 
     def __init__(self, parent):
         super().__init__(parent=parent)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         logging_util.flush_all()
         path = reporter.create('user')

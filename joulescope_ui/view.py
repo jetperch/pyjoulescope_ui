@@ -36,7 +36,6 @@ class DockWidget(QtAds.CDockWidget):
             QtAds.CDockWidget.DockWidgetMovable |
             QtAds.CDockWidget.DockWidgetFloatable |
             QtAds.CDockWidget.DockWidgetFocusable |
-            QtAds.CDockWidget.DockWidgetDeleteOnClose |
             QtAds.CDockWidget.DockWidgetForceCloseWithArea |
             0)
         self.closeRequested.connect(self._on_close_request)

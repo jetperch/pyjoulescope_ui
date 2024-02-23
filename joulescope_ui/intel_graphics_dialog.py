@@ -60,6 +60,7 @@ class IntelGraphicsDialog(QtWidgets.QDialog):
     def __init__(self, parent):
         super().__init__(parent=parent)
         self.setWindowFlag(QtCore.Qt.WindowType.WindowStaysOnTopHint)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         self.setObjectName("opengl_dialog")
         self._layout = QtWidgets.QVBoxLayout(self)

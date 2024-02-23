@@ -21,6 +21,7 @@ class ErrorMessageBox(QtWidgets.QDialog):
 
     def __init__(self, parent, value):
         super().__init__(parent=parent)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setWindowFlag(QtCore.Qt.WindowType.WindowStaysOnTopHint)
         self.setObjectName("error_dialog")
         self._layout = QtWidgets.QVBoxLayout(self)

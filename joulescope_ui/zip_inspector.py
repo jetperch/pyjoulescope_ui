@@ -164,6 +164,7 @@ class ZipInspectorDialog(QtWidgets.QDialog):
 
     def __init__(self, parent, path):
         super().__init__(parent=parent)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self._layout = QtWidgets.QVBoxLayout(self)
         self._zip_inspector = ZipInspectorWidget(self, path)
         self._layout.addWidget(self._zip_inspector)

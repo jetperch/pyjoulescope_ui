@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from joulescope_ui import N_
-from PySide6 import QtWidgets
+from PySide6 import QtCore, QtWidgets
 
 
 _MESSAGE = N_('The disk is full')
@@ -27,8 +27,8 @@ class DiskFullDialog(QtWidgets.QDialog):
         html = f'<html><body><p>{_MESSAGE}</p><p>{paths_msg}</p></body></html>'
         parent = pubsub.query('registry/ui/instance')
         super().__init__(parent=parent)
-
         self.setObjectName('disk_monitor_dialog')
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self._layout = QtWidgets.QVBoxLayout(self)
 
         self._label = QtWidgets.QLabel(html, self)
@@ -46,6 +46,6 @@ class DiskFullDialog(QtWidgets.QDialog):
 
         self.open()
 
+    @QtCore.Slot()
     def _on_finish(self):
         self.close()
-

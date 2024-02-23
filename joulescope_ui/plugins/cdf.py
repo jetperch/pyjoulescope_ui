@@ -164,6 +164,7 @@ class CdfRangeToolDialog(QtWidgets.QDialog):
         super().__init__(parent=parent)
         self._log = logging.getLogger(f'{__name__}.dialog')
         self.setObjectName('CdfRangeToolDialog')
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setWindowTitle(N_('CDF configuration'))
         self.resize(350, 180)
         self.verticalLayout = QtWidgets.QVBoxLayout(self)
@@ -220,6 +221,3 @@ class CdfRangeToolDialog(QtWidgets.QDialog):
         else:
             self._log.info('finished: reject - abort cdf')  # no action required
         self.close()
-
-    def close(self):
-        super().close()

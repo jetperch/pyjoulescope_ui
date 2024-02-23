@@ -160,6 +160,7 @@ class ViewManagerDialog(QtWidgets.QDialog):
     def __init__(self, parent, pubsub):
         self.pubsub = pubsub
         super().__init__(parent=parent)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self._layout = QtWidgets.QVBoxLayout(self)
 
         self._widget = ViewManagerWidget(self)
@@ -178,4 +179,4 @@ class ViewManagerDialog(QtWidgets.QDialog):
         w, self._widget = self._widget, None
         if w is not None:
             self.pubsub.unregister(w, delete=True)
-            self.deleteLater()
+        self.close()

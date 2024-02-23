@@ -95,6 +95,7 @@ class MaxWindowDialog(QtWidgets.QDialog):
         super().__init__(parent=parent)
         self._log = logging.getLogger(f'{__name__}.dialog')
         self.setWindowTitle(N_('Max Window configuration'))
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.resize(368, 123)
 
         x0, x1 = value['x_range']
@@ -154,6 +155,3 @@ class MaxWindowDialog(QtWidgets.QDialog):
         else:
             self._log.info('finished: reject - abort')  # no action required
         self.close()
-
-    def close(self):
-        super().close()

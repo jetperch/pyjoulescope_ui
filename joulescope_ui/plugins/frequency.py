@@ -211,6 +211,7 @@ class FrequencyRangeToolDialog(QtWidgets.QDialog):
         super().__init__(parent=parent)
         self._log = logging.getLogger(f'{__name__}.dialog')
         self.setObjectName('FrequencyRangeToolDialog')
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setWindowTitle(N_('Frequency configuration'))
         self.resize(259, 140)
         self.verticalLayout = QtWidgets.QVBoxLayout(self)
@@ -288,6 +289,3 @@ class FrequencyRangeToolDialog(QtWidgets.QDialog):
         else:
             self._log.info('finished: reject - abort frequency')  # no action required
         self.close()
-
-    def close(self):
-        super().close()

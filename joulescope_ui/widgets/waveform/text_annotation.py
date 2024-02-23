@@ -82,9 +82,10 @@ class TextAnnotationDialog(QtWidgets.QDialog):
     """
     def __init__(self, parent, unique_id, annotation):
         self._unique_id = unique_id
-        QtWidgets.QDialog.__init__(self, parent)
         self._annotation = annotation
+        super().__init__(parent)
         self.setObjectName('TextAnnotationDialog')
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.setWindowTitle('Edit annotation')
         self.resize(300, 100)
         self.setModal(True)

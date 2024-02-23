@@ -164,12 +164,12 @@ class SignalRecordConfigWidget(QtWidgets.QWidget):
 class SignalRecordConfigDialog(QtWidgets.QDialog):
 
     def __init__(self):
+        self._log = logging.getLogger(f'{__name__}.dialog')
+        self._log.info('start')
         parent = pubsub_singleton.query('registry/ui/instance')
         super().__init__(parent=parent)
-        self._log = logging.getLogger(f'{__name__}.dialog')
-
-        self._log.info('start')
         self.setObjectName("signal_record_config_dialog")
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self._layout = QtWidgets.QVBoxLayout(self)
 
         self._w = SignalRecordConfigWidget(self)

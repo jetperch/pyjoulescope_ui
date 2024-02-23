@@ -110,6 +110,7 @@ class ExporterDialog(QtWidgets.QDialog):
         self._value = value
         parent = pubsub_singleton.query('registry/ui/instance')
         super().__init__(parent=parent)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self._log = logging.getLogger(f'{__name__}.dialog')
 
         x_range = value['x_range']
@@ -158,8 +159,8 @@ class ExporterDialog(QtWidgets.QDialog):
         self.close()
 
     def close(self):
-        super().close()
         pubsub_singleton.unregister(self, delete=True)
+        super().close()
 
 
 @register_decorator('exporter')

@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-from PySide6 import QtWidgets
+from PySide6 import QtCore, QtWidgets
 import logging
 
 
@@ -27,6 +27,7 @@ class DeviceInfoDialog(QtWidgets.QDialog):
         super().__init__(parent=parent)
         self.setObjectName("device_info_dialog")
         self.setWindowTitle('Device Information')
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         self._layout = QtWidgets.QVBoxLayout(self)
 
@@ -79,6 +80,7 @@ class DeviceInfoDialog(QtWidgets.QDialog):
         self._log.info('open')
         self.open()
 
+    @QtCore.Slot()
     def _on_finish(self):
-        self.close()
         self._log.info('finish')
+        self.close()

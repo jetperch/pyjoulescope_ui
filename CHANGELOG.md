@@ -5,7 +5,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
-## 1.0.52
+## 1.0.53
 
 2024 Feb 23
 
@@ -61,6 +61,7 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Reduced the number of pubsub_singleton usages.
   * Added subscribe() return object for use with unsubscribe().
   * Fixed settings widget to update on view changes  #253
+* Fixed QDialog memory management.
 
 
 ## 1.0.48

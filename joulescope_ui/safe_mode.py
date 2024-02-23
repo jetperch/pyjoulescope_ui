@@ -22,6 +22,7 @@ class SafeModeDialog(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super().__init__(parent=parent)
         self.setWindowFlag(QtCore.Qt.WindowType.WindowStaysOnTopHint)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         self.setObjectName("safe_mode_dialog")
         self._layout = QtWidgets.QVBoxLayout(self)

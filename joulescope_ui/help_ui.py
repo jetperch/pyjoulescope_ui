@@ -116,9 +116,9 @@ class HelpHtmlMessageBox(QtWidgets.QDialog):
         title, html = load_help(name, style)
         parent = pubsub_singleton.query('registry/ui/instance')
         super().__init__(parent=parent)
-
         self.setObjectName("help_html_message_box")
         self.setWindowFlag(QtCore.Qt.WindowType.WindowStaysOnTopHint)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self._verticalLayout = QtWidgets.QVBoxLayout(self)
 
         self._scroll = QtWidgets.QScrollArea(self)
@@ -149,10 +149,10 @@ class HelpHtmlMessageBox(QtWidgets.QDialog):
 
     @QtCore.Slot()
     def _on_finish(self):
-        self.close()
         self._log.info('finish')
         if self._done_action is not None:
             self._pubsub.publish(*self._done_action)
+        self.close()
 
     @staticmethod
     def on_cls_action_show(pubsub, topic, value):

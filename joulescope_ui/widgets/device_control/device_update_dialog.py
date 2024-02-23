@@ -61,6 +61,7 @@ class DeviceUpdateDialog(QtWidgets.QDialog):
         self._devices_update_list = []
         self._devices_update_map = None
         super().__init__(parent)
+        self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.resize(600, 400)
         self._layout = QtWidgets.QVBoxLayout(self)
         self._layout.setContentsMargins(0, 0, 0, 0)
@@ -266,9 +267,9 @@ class DeviceUpdateDialog(QtWidgets.QDialog):
     def _on_finish(self):
         self._log.info('finish')
         self.pubsub.unsubscribe_all()
-        self.close()
         if self._done_action is not None:
             self.pubsub.publish(*self._done_action)
+        self.close()
 
     @staticmethod
     def on_show(pubsub, topic, value):
