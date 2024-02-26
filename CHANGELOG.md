@@ -5,9 +5,9 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
-## 1.0.53
+## 1.0.54
 
-2024 Feb 23
+2024 Feb 26
 
 * Dropped Python 3.9 support as static methods are not callable until 3.10.
   See https://docs.python.org/3/whatsnew/3.10.html
@@ -62,6 +62,7 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Added subscribe() return object for use with unsubscribe().
   * Fixed settings widget to update on view changes  #253
 * Fixed QDialog memory management.
+* Improved widget open / close handling.
 
 
 ## 1.0.48

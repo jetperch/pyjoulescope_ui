@@ -1,4 +1,4 @@
-# Copyright 2022 Jetperch LLC
+# Copyright 2022-2024 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -74,8 +74,12 @@ class REGISTRY_MANAGER_TOPICS:
     NEXT_UNIQUE_ID = f'registry_manager/next_unique_id'
 
 
-def _pubsub_attr(x):
+def _pubsub_attr_name(x):
     return _PUBSUB_CLS_ATTR if isinstance(x, type) else _PUBSUB_OBJ_ATTR
+
+
+def pubsub_attr(x):
+    return getattr(x, _pubsub_attr_name(x))
 
 
 def get_unique_id(obj):
@@ -1053,7 +1057,7 @@ class PubSub:
         :type unique_id: str, optional
         :param parent: The optional parent unique_id, topic, or object.
         """
-        pubsub_attr = _pubsub_attr(obj)
+        pubsub_attr = _pubsub_attr_name(obj)
         if pubsub_attr in obj.__dict__ and len(obj.__dict__[pubsub_attr]):
             self._log.info('Duplicate registration for %s', obj)
             if parent is not None:
@@ -1171,7 +1175,7 @@ class PubSub:
             self.topic_add(f'{topic_name}/events/{event}', meta, exists_ok=True)
 
     def _register_functions(self, obj, unique_id: str):
-        pubsub_attr = _pubsub_attr(obj)
+        pubsub_attr = _pubsub_attr_name(obj)
         functions = obj.__dict__[pubsub_attr]['functions']
         topic_name = get_topic_name(unique_id)
         if isinstance(obj, type):
@@ -1213,7 +1217,7 @@ class PubSub:
                 cls = cls.__base__
 
     def _unregister_functions(self, obj, unique_id: str = None):
-        functions = obj.__dict__[_pubsub_attr(obj)].pop('functions')
+        functions = obj.__dict__[_pubsub_attr_name(obj)].pop('functions')
         settings_topic = f'{obj.topic}/settings/'
         while len(functions):
             topic, fn = functions.popitem()
@@ -1367,7 +1371,7 @@ class PubSub:
         self._cmd_topic_remove({'topic': instance_topic_name})  # skip undo, do not want instance in undo list
         if isinstance(obj, type):
             self._unregister_class_settings(obj)
-        delattr(obj, _pubsub_attr(obj))
+        delattr(obj, _pubsub_attr_name(obj))
         del obj.unique_id
         del obj.topic
         del obj.pubsub
@@ -1597,6 +1601,6 @@ def is_pubsub_registered(obj):
     try:
         if isinstance(obj, str):
             obj = get_instance(obj)
-        return getattr(obj, _pubsub_attr(obj))['is_registered']
+        return getattr(obj, _pubsub_attr_name(obj))['is_registered']
     except Exception:
         return False

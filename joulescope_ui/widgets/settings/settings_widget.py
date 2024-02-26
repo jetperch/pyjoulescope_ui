@@ -250,10 +250,6 @@ class ColorEditorWidget(_GridWidget):
 
     @object.setter
     def object(self, obj):
-        active_view = self.pubsub.query('registry/view/settings/active', default='view')
-        active_view_topic = get_topic_name(active_view)
-        self._color_scheme = self.pubsub.query(f'{active_view_topic}/settings/color_scheme', default='dark')
-
         obj = get_instance(obj, default=None)
         if self._obj is not None:
             self.clear()
@@ -265,6 +261,9 @@ class ColorEditorWidget(_GridWidget):
             return
         if not hasattr(obj, 'style_obj') or obj.style_obj is None:
             return
+        active_view = self.pubsub.query('registry/view/settings/active', default='view')
+        active_view_topic = get_topic_name(active_view)
+        self._color_scheme = self.pubsub.query(f'{active_view_topic}/settings/color_scheme', default='dark')
         self._obj = obj
         self._topic = get_topic_name(obj)
         cls = obj.__class__
@@ -349,10 +348,6 @@ class FontEditorWidget(_GridWidget):
 
     @object.setter
     def object(self, obj):
-        active_view = self.pubsub.query('registry/view/settings/active', default='view')
-        active_view_topic = get_topic_name(active_view)
-        self._font_scheme = self.pubsub.query(f'{active_view_topic}/settings/font_scheme', default='js1')
-
         obj = get_instance(obj, default=None)
         if self._obj is not None:
             self.clear()
@@ -366,6 +361,9 @@ class FontEditorWidget(_GridWidget):
             return
         if not hasattr(obj, 'style_obj') or obj.style_obj is None:
             return
+        active_view = self.pubsub.query('registry/view/settings/active', default='view')
+        active_view_topic = get_topic_name(active_view)
+        self._font_scheme = self.pubsub.query(f'{active_view_topic}/settings/font_scheme', default='js1')
         self._obj = obj
         self._topic = get_topic_name(obj)
         cls = obj.__class__

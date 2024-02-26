@@ -1,4 +1,4 @@
-# Copyright 2019-2023 Jetperch LLC
+# Copyright 2019-2024 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -358,7 +358,7 @@ class WaveformWidget(QtWidgets.QWidget):
             'brief': N_('The source filter string.'),
             'default': 'JsdrvStreamBuffer:001',
         },
-        'on_widget_close_actions': {
+        'close_actions': {
             'dtype': 'obj',
             'brief': 'The list of [topic, value] to perform on widget close.',
             'default': [],
@@ -522,7 +522,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
         :param parent: The QtWidget parent.
         :param source_filter: The source filter string.
-        :param on_widget_close_actions: List of [topic, value] actions to perform on close.
+        :param close_actions: List of [topic, value] actions to perform on close.
             This feature can be used to close associated sources.
         """
         self._log = logging.getLogger(__name__)
@@ -782,9 +782,9 @@ class WaveformWidget(QtWidgets.QWidget):
         else:  # restore OrderedDict:
             self.annotations['x'] = OrderedDict(self.annotations['x'])
             self.annotations['y'] = [OrderedDict(y) for y in self.annotations['y']]
-        if 'on_widget_close_actions' in self._kwargs:
-            self.pubsub.publish(f'{self.topic}/settings/on_widget_close_actions',
-                                self._kwargs['on_widget_close_actions'])
+        if 'close_actions' in self._kwargs:
+            self.pubsub.publish(f'{self.topic}/settings/close_actions',
+                                self._kwargs['close_actions'])
         for plot_index, plot in enumerate(self.state['plots']):
             plot['index'] = plot_index
             plot['y_region'] = f'plot.{plot_index}'
@@ -822,21 +822,11 @@ class WaveformWidget(QtWidgets.QWidget):
         self._shortcuts.add(QtCore.Qt.Key_Plus, f'{topic}/actions/!x_zoom', [1, None])
         self._shortcuts.add(QtCore.Qt.Key_Minus, f'{topic}/actions/!x_zoom', [-1, None])
 
-    def _cleanup(self):
+    def on_pubsub_unregister(self):
         self._shortcuts.clear()
         self._paint_timer.stop()
         self._paint_state = PaintState.IDLE
-
-    def on_pubsub_unregister(self):
-        self._cleanup()
-
-    def closeEvent(self, event):
-        self._cleanup()
-        return super().closeEvent(event)
-
-    def on_widget_close(self):
-        self._log.info('waveform close: %s %s')
-        for topic, value in self.pubsub.query(f'{self.topic}/settings/on_widget_close_actions', default=[]):
+        for topic, value in self.pubsub.query(f'{self.topic}/settings/close_actions', default=[]):
             self._log.info('waveform close: %s %s', topic, value)
             self.pubsub.publish(topic, value)
 
@@ -1024,16 +1014,17 @@ class WaveformWidget(QtWidgets.QWidget):
             if x_info is None:
                 return
             length = x_info[0]
-        req = {
-            'signal_id': subsignal_id,
-            'time_type': 'utc',
-            'rsp_topic': topic_rsp,
-            'rsp_id': signal['rsp_id'] if rsp_id is None else rsp_id,
-            'start': x_range[0],
-            'end': x_range[1],
-            'length': length,
-        }
-        self.pubsub.publish(topic_req, req)
+        if length > 0:
+            req = {
+                'signal_id': subsignal_id,
+                'time_type': 'utc',
+                'rsp_topic': topic_rsp,
+                'rsp_id': signal['rsp_id'] if rsp_id is None else rsp_id,
+                'start': x_range[0],
+                'end': x_range[1],
+                'length': length,
+            }
+            self.pubsub.publish(topic_req, req, defer=True)
 
     def on_callback_response(self, topic, value):
         utc = value['info']['time_range_utc']

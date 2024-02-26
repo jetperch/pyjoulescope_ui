@@ -1,4 +1,4 @@
-# Copyright 2023 Jetperch LLC
+# Copyright 2023-2024 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,6 +14,7 @@
 
 from PySide6 import QtCore, QtWidgets
 from joulescope_ui import N_
+from joulescope_ui.pubsub import UNDO_TOPIC, REDO_TOPIC
 from joulescope_ui.styles import styled_widget
 import cProfile
 from io import StringIO
@@ -70,6 +71,11 @@ class ProfileWidget(QtWidgets.QWidget):
         self._layout.addWidget(self._snakeviz_copy, 1, 1, 1, 1)
 
         self._memory_label = QtWidgets.QLabel('Memory', self)
+        undo_redo_clear = QtWidgets.QPushButton('PubSub undo/redo clear', self)
+        undo_redo_clear.pressed.connect(self._on_undo_redo_clear)
+        garbage_collect = QtWidgets.QPushButton('Garbage collect', self)
+        garbage_collect.pressed.connect(self._on_garbage_collect)
+
         self._memory_baseline = QtWidgets.QPushButton(self)
         self._memory_baseline.setText('Baseline')
         self._memory_baseline.pressed.connect(self._on_memory_baseline)
@@ -79,13 +85,13 @@ class ProfileWidget(QtWidgets.QWidget):
         self._memory_compare.pressed.connect(self._on_memory_compare)
 
         self._layout.addWidget(self._memory_label, 2, 0, 1, 1)
-        self._layout.addWidget(self._memory_baseline, 2, 1, 1, 1)
-        self._layout.addWidget(self._memory_compare, 3, 1, 1, 1)
-
-        self._text_note = QtWidgets.QLabel('OUTPUT (automatically copied to clipboard)', self)
-        self._layout.addWidget(self._text_note, 4, 0, 1, 2)
+        self._layout.addWidget(undo_redo_clear, 2, 1, 1, 1)
+        self._layout.addWidget(garbage_collect, 3, 1, 1, 1)
+        self._layout.addWidget(self._memory_baseline, 4, 1, 1, 1)
+        self._layout.addWidget(self._memory_compare, 5, 1, 1, 1)
+        self._layout.addWidget(QtWidgets.QLabel('OUTPUT (automatically copied to clipboard)'), 6, 0, 1, 2)
         self._text = QtWidgets.QTextEdit()
-        self._layout.addWidget(self._text, 5, 0, 5, 2)
+        self._layout.addWidget(self._text, 7, 0, 5, 2)
         self._text_clipboard = None
 
     def on_pubsub_register(self):
@@ -130,6 +136,16 @@ class ProfileWidget(QtWidgets.QWidget):
         text = f'snakeviz {path}'
         self._text_clipboard = text
         QtWidgets.QApplication.clipboard().setText(self._text_clipboard)
+
+    @QtCore.Slot()
+    def _on_undo_redo_clear(self):
+        self.pubsub.publish(UNDO_TOPIC, 'clear')
+        self.pubsub.publish(REDO_TOPIC, 'clear')
+
+    @QtCore.Slot()
+    def _on_garbage_collect(self):
+        gc.collect()
+        gc.collect()
 
     @QtCore.Slot()
     def _on_memory_baseline(self):

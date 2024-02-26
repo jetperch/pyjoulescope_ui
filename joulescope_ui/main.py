@@ -727,7 +727,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 'kwargs': {
                     'name': name,
                     'source_filter': source,
-                    'on_widget_close_actions': [[f'{get_topic_name(source)}/actions/!close', None]],
+                    'close_actions': [[f'{get_topic_name(source)}/actions/!close', None]],
                  }
             })
         return source

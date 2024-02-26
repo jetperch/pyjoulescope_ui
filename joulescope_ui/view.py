@@ -1,4 +1,4 @@
-# Copyright 2022 Jetperch LLC
+# Copyright 2022-2024 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -15,10 +15,12 @@
 
 from . import pubsub_singleton, register, N_, sanitize, \
     get_topic_name, get_unique_id, get_instance
+from joulescope_ui.pubsub import pubsub_attr
 from .styles.manager import style_settings
 from PySide6 import QtCore, QtWidgets
 import PySide6QtAds as QtAds
 import logging
+import weakref
 
 
 _log = logging.getLogger(__name__)
@@ -26,21 +28,24 @@ _log = logging.getLogger(__name__)
 
 class DockWidget(QtAds.CDockWidget):
 
-    def __init__(self, widget: QtWidgets.QWidget):
-        super().__init__('')  # replaced by widget name
-        self.setWidget(widget)
+    def __init__(self, widget: QtWidgets.QWidget, parent=None):
+        unique_id = get_unique_id(widget)
         topic = get_topic_name(widget)
+        name = widget.pubsub.query(f'{topic}/settings/name')
+        super().__init__(name, parent)
+        self.setObjectName(f'{unique_id}__dock')
+        self.setWidget(widget)
         widget.pubsub.subscribe(f'{topic}/settings/name', self._on_setting_name, ['pub', 'retain'])
         self.setFeatures(
             QtAds.CDockWidget.DockWidgetClosable |
             QtAds.CDockWidget.DockWidgetMovable |
             QtAds.CDockWidget.DockWidgetFloatable |
             QtAds.CDockWidget.DockWidgetFocusable |
+            QtAds.CDockWidget.CustomCloseHandling |
             QtAds.CDockWidget.DockWidgetForceCloseWithArea |
             0)
         self.closeRequested.connect(self._on_close_request)
 
-    @QtCore.Slot(str)
     def _on_setting_name(self, value):
         self.setWindowTitle(value)
 
@@ -209,22 +214,27 @@ class View:
         pubsub_singleton.register(obj, unique_id=unique_id, parent=self)
         unique_id = obj.unique_id
         obj.setObjectName(unique_id)
-        obj.dock_widget = DockWidget(obj)
-        obj.dock_widget.setObjectName(f'{unique_id}__dock')
-        tab_widget = obj.dock_widget.tabWidget()
+        obj.destroyed.connect(self._on_destroyed)
+        dock_widget = DockWidget(obj)
+        dock_widget.destroyed.connect(self._on_destroyed)
+        pubsub_attr(obj)['dock_widget'] = weakref.ref(dock_widget)
+        tab_widget = dock_widget.tabWidget()
         tab_widget.setElideMode(QtCore.Qt.TextElideMode.ElideNone)
-        self._dock_manager.addDockWidget(QtAds.TopDockWidgetArea, obj.dock_widget)
+        self._dock_manager.addDockWidget(QtAds.TopDockWidgetArea, dock_widget)
         pubsub_singleton.publish('registry/style/actions/!render', unique_id)
         if floating:
-            dw = obj.dock_widget
-            dw.setFloating()
-            c = dw.floatingDockContainer()
+            dock_widget.setFloating()
+            c = dock_widget.floatingDockContainer()
             c.resize(800, 600)
         if getattr(obj, 'view_skip_undo', False):
             return None
         else:
             return [['registry/view/actions/!widget_close', unique_id],
                     ['registry/view/actions/!widget_open', unique_id]]
+
+    @QtCore.Slot(QtCore.QObject)
+    def _on_destroyed(self, obj):
+        _log.debug('Destroyed %s', obj)
 
     def _widget_suspend(self, value, delete=None):
         """Suspend a widget.
@@ -245,29 +255,27 @@ class View:
         topic = get_topic_name(unique_id)
         instance_topic = f'{topic}/instance'
         instance: QtWidgets.QWidget = pubsub_singleton.query(instance_topic, default=None)
+        for child in pubsub_singleton.query(f'{topic}/children', default=[]):
+            _log.info('widget_suspend_child %s', child)
+            self._widget_suspend(child, delete)
+        if instance is None:
+            dock_widget = self._dock_manager.findChild(DockWidget, f'{unique_id}__dock')
+        else:
+            dock_widget = pubsub_attr(instance).get('dock_widget', None)
+            if dock_widget is not None:
+                dock_widget = dock_widget()  # weakref
+        pubsub_singleton.unregister(topic, delete=delete)
         if instance is not None:
-            if delete and hasattr(instance, 'on_widget_close'):
-                instance.on_widget_close()
-            dock_widget, instance.dock_widget = instance.dock_widget, None
+            instance.close()
             try:
                 if dock_widget is None:
                     _log.info(f'widget_suspend {topic}: dock_widget is None')
+                    instance.deleteLater()
                 else:
-                    dock_widget.takeWidget()
                     self._dock_manager.removeDockWidget(dock_widget)
-                    dock_widget.setParent(None)
                     dock_widget.deleteLater()
             except Exception:
                 _log.exception(f'widget_suspend {topic}: Delete or remove dock widget raised exception')
-            try:
-                instance.close()
-                instance.setParent(None)
-                instance.deleteLater()
-            except Exception:
-                _log.exception(f'widget_suspend {topic}: Close or delete widget raised exception')
-        for child in pubsub_singleton.query(f'{topic}/children', default=[]):
-            self._widget_suspend(child)
-        pubsub_singleton.unregister(topic, delete=delete)
         return unique_id
 
     def on_action_widget_close(self, value):
@@ -277,7 +285,6 @@ class View:
             widget to destroy.
 
         Destroying a widget:
-        * Calls "on_widget_close" method, if exists.
         * Closes the Qt widget and associated DockWidget.
         * Deletes the associated pubsub entries
         * Removes the widget from its view.
