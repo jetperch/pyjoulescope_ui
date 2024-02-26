@@ -5,7 +5,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
-## 1.0.56
+## 1.0.57
 
 2024 Feb 26
 
@@ -42,9 +42,9 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Update sequentially to minimize any update failure risks.
 * Added color legend to Memory widget.
 * Updated pyjls from 0.9.1 to 0.9.2 to improve corrupted JLS file handling.
-* Updated pyjoulescope_driver from 1.4.6 to 1.4.7.
+* Updated pyjoulescope_driver from 1.4.6 to 1.4.8.
 * Updated joulescope from 1.1.8 to 1.1.12.
-* Updated PySide6-QtAds from 4.1.0.2 to 
+* Updated PySide6-QtAds from 4.1.0.2 to
   [4.2.1](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases)
   and PySide6 from 6.2.0 to 
   [6.2.2](https://code.qt.io/cgit/qt/qtreleasenotes.git/about/qt/6.6.2/release-note.md).
@@ -63,6 +63,7 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Fixed settings widget to update on view changes  #253
 * Fixed QDialog memory management.
 * Improved widget open / close handling.
+* Upgraded to Nuitka 2.0.3. 
 
 
 ## 1.0.48

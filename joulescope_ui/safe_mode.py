@@ -20,6 +20,7 @@ class SafeModeDialog(QtWidgets.QDialog):
     """The safe mode operation selection dialog."""
 
     def __init__(self, parent=None):
+        self._result = None
         super().__init__(parent=parent)
         self.setWindowFlag(QtCore.Qt.WindowType.WindowStaysOnTopHint)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
@@ -69,27 +70,26 @@ class SafeModeDialog(QtWidgets.QDialog):
 
     @QtCore.Slot()
     def _on_finish(self):
-        self.close()
-
-    def config(self):
         if self._action_close.isChecked():
             action = 'close'
         elif self._action_report_issue.isChecked():
             action = 'report_issue'
         else:
             action = 'normal'
-        self.result()
-        return {
+        self._result = {
             'configuration_load': self._config_load.isChecked(),
             'configuration_save': self._config_save.isChecked(),
             'configuration_clear': self._config_clear.isChecked(),
             'action': action,
         }
+        self.close()
+
+    def config(self):
+        return self._result
 
 
 def safe_mode_dialog():
     dialog = SafeModeDialog()
     dialog.exec()
     config = dialog.config()
-    dialog.deleteLater()
     return config
