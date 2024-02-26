@@ -298,7 +298,7 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._signal_layout.addWidget(b)
         self._signals[signal] = b
         adapter = CallableSlotAdapter(b, lambda checked: self._on_signal_button(signal, checked))
-        b.clicked.connect(adapter.slot)
+        b.toggled.connect(adapter.slot)
         return b
 
     def _on_signal_button(self, name, checked):
