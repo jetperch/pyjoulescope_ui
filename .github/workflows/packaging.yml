@@ -169,7 +169,7 @@ jobs:
       - name: Build with Nuitka
         if: matrix.dist == 'nuitka'
         run: |
-          pip install "git+https://${{ secrets.NUITKA_TOKEN }}@github.com/Nuitka/Nuitka-commercial.git@2.0.3#egg=nuitka"
+          pip install "git+https://${{ secrets.NUITKA_TOKEN }}@github.com/Nuitka/Nuitka-commercial.git@2.0.5#egg=nuitka"
           python ci/nuitka_build.py
 
       - name: Save Nuitka report

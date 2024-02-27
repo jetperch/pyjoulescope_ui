@@ -17,8 +17,9 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from .unique_strings_widget import UniqueStringsWidget
 from joulescope_ui import pubsub_singleton, N_, register_decorator, \
     get_instance, get_unique_id, get_topic_name, Metadata, tooltip_format
+from joulescope_ui.pubsub import REGISTRY_MANAGER_TOPICS
 from joulescope_ui.pubsub_proxy import PubSubProxy
-from joulescope_ui.ui_util import comboBoxConfig
+from joulescope_ui.ui_util import comboBoxConfig, clear_layout
 from joulescope_ui.styles import styled_widget, font_as_qfont, font_as_qss
 from joulescope_ui.styles.color_picker import ColorItem
 from joulescope_ui.styles.manager import style_settings
@@ -38,7 +39,6 @@ class _GridWidget(QtWidgets.QWidget):
     """
 
     def __init__(self, parent=None):
-        self._widgets = []
         super().__init__(parent=parent)
         self.setObjectName('grid_widget')
         self._layout = QtWidgets.QVBoxLayout(self)
@@ -50,10 +50,7 @@ class _GridWidget(QtWidgets.QWidget):
         self._layout.addItem(self._spacer)
 
     def clear(self):
-        while len(self._widgets):
-            w = self._widgets.pop()
-            self._grid.removeWidget(w)
-            w.deleteLater()
+        clear_layout(self._grid)
 
     def __len__(self):
         rows = self._grid.rowCount()
@@ -87,10 +84,8 @@ class SettingsEditorWidget(_GridWidget):
         self._obj = obj
         name_label = QtWidgets.QLabel(N_('Name'), self)
         self._grid.addWidget(name_label, 0, 0, 1, 1)
-        self._widgets.append(name_label)
         value_label = QtWidgets.QLabel(N_('Value'), self)
         self._grid.addWidget(value_label, 0, 1, 1, 2)
-        self._widgets.append(value_label)
 
         topic = f'{get_topic_name(obj)}/settings'
         styles = style_settings('__invalid_name__')
@@ -115,7 +110,6 @@ class SettingsEditorWidget(_GridWidget):
         if tooltip is not None:
             label.setToolTip(tooltip)
         self._grid.addWidget(label, self._row, 0, 1, 1)
-        self._widgets.append(label)
         w = None
         if meta.dtype == 'unique_strings':
             w = self._insert_unique_strings(settings_topic, meta)
@@ -134,7 +128,6 @@ class SettingsEditorWidget(_GridWidget):
     def _insert_bool(self, topic):
         widget = QtWidgets.QCheckBox(self)
         self._grid.addWidget(widget, self._row, 1, 1, 1)
-        self._widgets.append(widget)
         adapter = CallableSlotAdapter(widget, lambda: self.pubsub.publish(topic, widget.isChecked()))
         widget.clicked.connect(adapter.slot)
 
@@ -149,7 +142,6 @@ class SettingsEditorWidget(_GridWidget):
     def _insert_str(self, topic, meta):
         widget = QtWidgets.QLineEdit(self)
         self._grid.addWidget(widget, self._row, 1, 1, 1)
-        self._widgets.append(widget)
         adapter = CallableSlotAdapter(widget, lambda txt: self.pubsub.publish(topic, txt))
         widget.textChanged.connect(adapter.slot)
 
@@ -165,7 +157,6 @@ class SettingsEditorWidget(_GridWidget):
         widget = QtWidgets.QComboBox(self)
         widget.setSizeAdjustPolicy(QtWidgets.QComboBox.SizeAdjustPolicy.AdjustToContents)
         self._grid.addWidget(widget, self._row, 1, 1, 1)
-        self._widgets.append(widget)
         values = [option[0] for option in meta.options]
         options = [option[1 if len(option) > 1 else 0] for option in meta.options]
         if meta.default in values:
@@ -190,7 +181,6 @@ class SettingsEditorWidget(_GridWidget):
     def _insert_unique_strings(self, topic, meta):
         w = UniqueStringsWidget(self, meta.options)
         self._grid.addWidget(w, self._row, 1, 1, 1)
-        self._widgets.append(w)
         adapter = CallableSlotAdapter(w, lambda v: self.pubsub.publish(topic, v))
         w.changed.connect(adapter.slot)
 
@@ -234,14 +224,9 @@ class ColorEditorWidget(_GridWidget):
         self.pubsub.publish(f'{self._topic}/settings/colors', colors)
 
     def clear(self):
-        while len(self._color_widgets):
-            w = self._color_widgets.pop()
-            if isinstance(w, ColorItem):
-                self._grid.removeWidget(w.color_label)
-                self._grid.removeWidget(w.value_edit)
-            else:
-                self._grid.removeWidget(w)
+        for w in self._color_widgets:
             w.deleteLater()
+        self._color_widgets.clear()
         super().clear()
 
     @property
@@ -280,14 +265,11 @@ class ColorEditorWidget(_GridWidget):
 
         name_label = QtWidgets.QLabel(N_('Name'), self)
         self._grid.addWidget(name_label, 0, 0, 1, 1)
-        self._widgets.append(name_label)
         color_label = QtWidgets.QLabel(N_('Color'), self)
         self._grid.addWidget(color_label, 0, 1, 1, 2)
-        self._widgets.append(color_label)
         for row, (name, value) in enumerate(self._colors.items()):
             name_label = QtWidgets.QLabel(name, self)
             self._grid.addWidget(name_label, row + 1, 0, 1, 1)
-            self._color_widgets.append(name_label)
             w = ColorItem(self, name, value)
             self._grid.addWidget(w.value_edit, row + 1, 1, 1, 1)
             self._grid.addWidget(w.color_label, row + 1, 2, 1, 1)
@@ -381,19 +363,15 @@ class FontEditorWidget(_GridWidget):
 
         name_label = QtWidgets.QLabel(N_('Name'), self)
         self._grid.addWidget(name_label, 0, 0, 1, 1)
-        self._widgets.append(name_label)
         font_label = QtWidgets.QLabel(N_('Font'), self)
         self._grid.addWidget(font_label, 0, 1, 1, 1)
-        self._widgets.append(font_label)
 
         for row, (name, value) in enumerate(fonts.items()):
             name_label = QtWidgets.QLabel(name, self)
             self._grid.addWidget(name_label, row + 1, 0, 1, 1)
-            self._widgets.append(name_label)
             w = QFontLabel(self, name, value)
             w.changed.connect(self._on_change)
             self._grid.addWidget(w, row + 1, 1, 1, 1)
-            self._widgets.append(w)
 
     @QtCore.Slot(str, str)
     def _on_change(self, name, value):
@@ -452,20 +430,16 @@ class StyleDefineEditorWidget(_GridWidget):
 
         name_label = QtWidgets.QLabel(N_('Name'), self)
         self._grid.addWidget(name_label, 0, 0, 1, 1)
-        self._widgets.append(name_label)
         font_label = QtWidgets.QLabel(N_('Define'), self)
         self._grid.addWidget(font_label, 0, 1, 1, 1)
-        self._widgets.append(font_label)
 
         for row, (name, value) in enumerate(self._entries.items()):
             name_label = QtWidgets.QLabel(name, self)
             self._grid.addWidget(name_label, row + 1, 0, 1, 1)
-            self._widgets.append(name_label)
             w = QtWidgets.QLineEdit(self)
             w.setText(value)
             self._connect(name, w)
             self._grid.addWidget(w, row + 1, 1, 1, 1)
-            self._widgets.append(w)
 
     def _connect(self, name, w):
         adapter = CallableSlotAdapter(w, lambda value: self._on_change(name, value))
@@ -490,6 +464,7 @@ class SelectorWidget(QtWidgets.QTreeView):
 
     def __init__(self, parent=None):
         self.pubsub = None
+        self._log = logging.getLogger(__name__ + '.selector')
         super().__init__(parent)
         self.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
         self.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.SizeAdjustPolicy.AdjustToContents)
@@ -507,26 +482,54 @@ class SelectorWidget(QtWidgets.QTreeView):
     @QtCore.Slot(object, object)
     def _on_changed(self, model_index, model_index_old):
         unique_id = self._model.data(model_index, QtCore.Qt.UserRole + 1)
-        if unique_id is not None and len(unique_id):
-            self.parent().object = unique_id
-        else:
-            self.parent().object = None
+        self._log.info('on_changed(%s)', unique_id)
+        self.parent().object = unique_id
 
-    def _populate(self, parent, items, selected_unique_id):
-        for name, unique_id, children in items:
-            if name is None:
-                name = self.pubsub.query(f'{get_topic_name(unique_id)}/settings/name', default=unique_id)
-            child_item = QtGui.QStandardItem(name)
-            child_item.setData(unique_id, QtCore.Qt.UserRole + 1)
-            parent.appendRow(child_item)
-            if selected_unique_id == unique_id:
-                self.selectionModel().select(child_item.index(), QtCore.QItemSelectionModel.Select)
+    def _populate(self, parent, items):
+        existing = []
+        current = [x[1] for x in items]
+        for row in range(parent.rowCount() - 1, -1, -1):
+            child_item = parent.child(row, 0)
+            if child_item is None:
+                continue
+            unique_id = child_item.data(QtCore.Qt.UserRole + 1)
+            if unique_id not in current:
+                self._log.debug('remove row=%s, unique_id=%s', row, unique_id)
+                parent.removeRow(row)
+            else:
+                existing.append(unique_id)
+        for row, (name, unique_id, children) in enumerate(items):
+            if unique_id not in existing:
+                if name is None:
+                    name = self.pubsub.query(f'{get_topic_name(unique_id)}/settings/name', default=unique_id)
+                self._log.debug(f'insert row={row}, unique_id={unique_id}, name={name}')
+                child_item = QtGui.QStandardItem(name)
+                child_item.setData(unique_id, QtCore.Qt.UserRole + 1)
+                if row >= parent.rowCount():
+                    parent.appendRow([child_item])
+                else:
+                    parent.insertRow(row, [child_item])
+            child_item = parent.child(row, 0)
+            if child_item.data(QtCore.Qt.UserRole + 1) != unique_id:
+                self._log.warning('sync warning')
             if children is not None:
-                self._populate(child_item, children, selected_unique_id)
+                self._populate(child_item, children)
+            elif child_item.rowCount():
+                child_item.removeRows(0, child_item.rowCount())
+            row += 1
 
-    def populate(self, view):
-        block_state = self._model.blockSignals(True)
-        self._model.removeRows(0, self._model.rowCount())
+    def _has_unique_id(self, parent, unique_id):
+        for row in range(parent.rowCount()):
+            child_item = parent.child(row, 0)
+            if child_item.data(QtCore.Qt.UserRole + 1) == unique_id:
+                return True
+            if child_item.rowCount():
+                if self._has_unique_id(parent, child_item):
+                    return True
+        return False
+
+    def populate(self):
+        view = self.pubsub.query('registry/view/settings/active')
         items = [
             # [name, unique_id, children]
             [N_('Common'), 'app', None],
@@ -534,13 +537,10 @@ class SelectorWidget(QtWidgets.QTreeView):
             [None, 'paths', None],
             [N_('View defaults'), 'view', None],
             [N_('View'), view, None],
-            [N_('Devices'), '', _class_items('device.class')],
-            [N_('Widgets'), '', _class_items('widget.class')],
+            [N_('Devices'), '__devices__', _class_items('device.class')],
+            [N_('Widgets'), '__widgets__', _class_items('widget.class')],
         ]
-        obj = self.parent().object
-        selected_unique_id = None if obj is None else get_unique_id(obj)
-        self._populate(self._model.invisibleRootItem(), items, selected_unique_id)
-        self._model.blockSignals(block_state)
+        self._populate(self._model.invisibleRootItem(), items)
 
 
 @register_decorator(unique_id='settings')
@@ -561,7 +561,7 @@ class SettingsWidget(QtWidgets.QSplitter):
         self._obj = None
         self._widgets = []
         self._object_pubsub = None
-        super(SettingsWidget, self).__init__(parent)
+        super().__init__(parent)
         self.setObjectName(f'settings_widget')
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self._left = SelectorWidget(self)
@@ -587,8 +587,10 @@ class SettingsWidget(QtWidgets.QSplitter):
 
     def closeEvent(self, event):
         self.object = None
+        self._widgets.clear()
         if self._object_pubsub is not None:
             self._object_pubsub.unsubscribe_all()
+            self._object_pubsub = None
         return super().closeEvent(event)
 
     def on_setting_target(self, value):
@@ -613,12 +615,14 @@ class SettingsWidget(QtWidgets.QSplitter):
             widget.object = obj
         self._obj = obj
 
-    def _on_view_active(self, value):
-        self._left.populate(value)
+    def _on_populate(self):
+        self._left.populate()
 
     def on_pubsub_register(self):
         self._left.pubsub = self.pubsub
-        self.pubsub.subscribe('registry/view/settings/active', self._on_view_active, ['pub', 'retain'])
+        self.pubsub.subscribe('registry/view/settings/active', self._on_populate, ['pub', 'retain'])
+        for c in [REGISTRY_MANAGER_TOPICS.REGISTRY_ADD, REGISTRY_MANAGER_TOPICS.REGISTRY_REMOVE]:
+            self.pubsub.subscribe(c, self._on_populate, ['pub'])
 
     @staticmethod
     def on_cls_action_edit(pubsub, topic, value):

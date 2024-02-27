@@ -5,9 +5,9 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
-## 1.0.57
+## 1.0.58
 
-2024 Feb 26
+2024 Feb 27
 
 * Dropped Python 3.9 support as static methods are not callable until 3.10.
   See https://docs.python.org/3/whatsnew/3.10.html
@@ -63,7 +63,8 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Fixed settings widget to update on view changes  #253
 * Fixed QDialog memory management.
 * Improved widget open / close handling.
-* Upgraded to Nuitka 2.0.3. 
+* Upgraded to Nuitka 2.0.5. 
+* Fixed sidebar widget  #257  #258
 
 
 ## 1.0.48

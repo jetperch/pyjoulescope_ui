@@ -1132,7 +1132,6 @@ class PubSub:
         self._register_settings_connect(obj, unique_id)
         if parent is not None:
             self._parent_add(obj, parent)
-        self._registry_add(unique_id)
         try:
             register_abort = False
             self._register_invoke_callback(obj, unique_id)
@@ -1145,6 +1144,7 @@ class PubSub:
             self.unregister(obj, delete=True)
         else:
             getattr(obj, pubsub_attr)['is_registered'] = True
+            self._registry_add(unique_id)
 
     def _parent_add(self, obj, parent=None):
         if parent is None:
@@ -1363,7 +1363,6 @@ class PubSub:
         obj.pubsub.unsubscribe_all()
         self._unregister_capabilities(obj, unique_id)
         self._unregister_invoke_callback(obj, unique_id)
-        self._registry_remove(unique_id)
         if bool(delete):
             self._parent_remove(unique_id)
         # settings unsubscribe handled by _unregister_functions
@@ -1377,6 +1376,7 @@ class PubSub:
         del obj.pubsub
         if bool(delete):
             self._unregister_delete(obj, unique_id)
+        self._registry_remove(unique_id)
 
     def _unregister_class_settings(self, cls):
         attr = cls.__dict__[_PUBSUB_CLS_ATTR]

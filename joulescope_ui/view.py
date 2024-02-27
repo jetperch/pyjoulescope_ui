@@ -144,9 +144,13 @@ class View:
             _log.warning('active view %s does not exist', value)
             return
         _log.info('active view %s: setup start', view.unique_id)
-        geometry = pubsub_singleton.query(f'{topic}/settings/geometry', default=None)
-        if ui is not None and geometry is not None:
+        if ui is None:
+            geometry = None
+        else:
+            geometry = pubsub_singleton.query(f'{topic}/settings/geometry', default=None)
+        if geometry is not None:
             ui.restoreGeometry(geometry)
+
         children = pubsub_singleton.query(f'{topic}/children', default=None)
         if children is not None:
             for child in children:
@@ -155,6 +159,9 @@ class View:
         ads_state = pubsub_singleton.query(f'{topic}/settings/ads_state', default='')
         if ads_state is not None and len(ads_state):
             View._dock_manager.restoreState(QtCore.QByteArray(ads_state.encode('utf-8')))
+        if geometry is not None:
+            # Ubuntu needs restoreGeometry after ADS restore state
+            ui.restoreGeometry(geometry)
         pubsub_singleton.publish(style_enable_topic, True)
         view._render()
         _log.info('active view %s: setup done', view.unique_id)
