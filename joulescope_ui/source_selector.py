@@ -221,5 +221,6 @@ class SourceSelector(QtCore.QObject):
         source_group = QtGui.QActionGroup(source_menu)
         source_group.setExclusive(True)
         for device in ['default'] + self._list:
-            CallableAction(source_group, device, self._construct_source_action(device),
+            name = self.pubsub.query(f'{get_topic_name(device)}/settings/name', default=device)
+            CallableAction(source_group, name, self._construct_source_action(device),
                            checkable=True, checked=(device == self.value))

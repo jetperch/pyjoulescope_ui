@@ -10,7 +10,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 2024 Feb 28 [in progress]
 
 * Modified sidebar buttons to disable when no Joulescopes connected.
-* Renamed "plugins" to "range_tools".
+* Renamed "plugins" directory to "range_tools".
+* Modified widgets to display device name, not model-serial_number  #256
 
 
 ## 1.0.58

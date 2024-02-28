@@ -144,11 +144,13 @@ class _DeviceWidget(QtWidgets.QWidget):
         self._layout = QtWidgets.QHBoxLayout(self)
         self._layout.setContentsMargins(5, 5, 5, 2)
 
+        self._device_unique_ids = []
+        self._device_names = []
         self._device_fixed_label = QtWidgets.QLabel(N_('Device'), self)
         self._device_fixed_label.setToolTip(_DEVICE_TOOLTIP)
         self._device_select = QtWidgets.QComboBox(parent=self)
         self._device_select.setToolTip(_DEVICE_TOOLTIP)
-        self._device_select.currentTextChanged.connect(parent.source_selector.source_set)
+        self._device_select.currentIndexChanged.connect(self._on_device_select)
         self._device_select.setSizeAdjustPolicy(QtWidgets.QComboBox.SizeAdjustPolicy.AdjustToContents)
         self._device_label = QtWidgets.QLabel(self)
         self._device_label.hide()
@@ -161,19 +163,41 @@ class _DeviceWidget(QtWidgets.QWidget):
                                                        QtWidgets.QSizePolicy.Minimum)
         self._layout.addItem(self._horizontalSpacer)
 
+    def _on_device_select(self, idx):
+        device = self._device_unique_ids[idx]
+        self.parent().source_selector.source_set(device)
+
+    def _unique_id_to_name(self, unique_id):
+        pubsub = self.parent().pubsub
+        return pubsub.query(f'{get_topic_name(unique_id)}/settings/name', default=unique_id)
+
+    def _name_to_unique_id(self, name):
+        try:
+            idx = self._device_unique_ids.index(self.parent().source_selector.value)
+            return self._device_names[idx]
+        except Exception:
+            return name
+
     def device_list(self, devices):
-        comboBoxConfig(self._device_select, devices, self.parent().source_selector.value)
+        self._device_unique_ids = list(devices)
+        self._device_names = [self._unique_id_to_name(unique_id) for unique_id in devices]
+        comboBoxConfig(self._device_select, self._device_names)
+        self.device_select()
 
     def device_select(self):
-        comboBoxSelectItemByText(self._device_select, self.parent().source_selector.value)
+        try:
+            idx = self._device_unique_ids.index(self.parent().source_selector.value)
+            self._device_select.setCurrentIndex(idx)
+        except Exception:
+            pass
 
-    def device_show(self, name):
-        if name is None:
+    def device_show(self, unique_id):
+        if unique_id is None:
             self._device_label.show()
             self._device_label.setText(N_('Not present'))
         elif self._device_select.currentText() == 'default':
             self._device_label.show()
-            self._device_label.setText(name)
+            self._device_label.setText(self._unique_id_to_name(unique_id))
         else:
             self._device_label.hide()
 

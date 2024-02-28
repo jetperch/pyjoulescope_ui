@@ -18,7 +18,7 @@ Allow the user to configure the source devices displayed on the waveform.
 WARNING: this widget and feature is still under development.
 """
 
-from joulescope_ui import N_, tooltip_format
+from joulescope_ui import N_, tooltip_format, get_topic_name
 from joulescope_ui.widget_tools import CallableAction, context_menu_show
 from PySide6 import QtCore, QtGui, QtWidgets
 import logging
@@ -95,6 +95,10 @@ class _Trace(QtWidgets.QFrame):
                 self.pubsub.publish(topic, value)
         return on_action
 
+    def _source_to_name(self, source):
+        subsource = source.split('.')[-1]
+        return self.pubsub.query(f'{get_topic_name(subsource)}/settings/name', default=subsource)
+
     def _update(self):
         if self._priority is None or self._subsource is None:
             self._name.setText(N_('off'))
@@ -102,8 +106,8 @@ class _Trace(QtWidgets.QFrame):
             block_signals_state = self._trace.blockSignals(True)
             self._trace.setChecked(True)
             self._trace.blockSignals(block_signals_state)
-            device = self._subsource.split('.')[-1]
-            self._name.setText(device)
+            name = self._source_to_name(self._subsource)
+            self._name.setText(name)
         self.setProperty('active', self._priority == 0)
         self.style().unpolish(self)
         self.style().polish(self)
@@ -139,8 +143,8 @@ class _Trace(QtWidgets.QFrame):
             group = QtGui.QActionGroup(menu)
             group.setExclusive(True)
             for fullname in ['default'] + self._subsources:
-                subsource = fullname.split('.')[-1]
-                CallableAction(group, subsource, self._name_menu_factory(fullname),
+                name = self._source_to_name(fullname)
+                CallableAction(group, name, self._name_menu_factory(fullname),
                                checkable=True, checked=(fullname == self._subsource))
             context_menu_show(menu, event)
 
