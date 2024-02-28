@@ -5,6 +5,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.0.59
+
+2024 Feb 28 [in progress]
+
+* Modified sidebar buttons to disable when no Joulescopes connected.
+
+
 ## 1.0.58
 
 2024 Feb 27

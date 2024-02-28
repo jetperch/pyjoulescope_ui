@@ -308,7 +308,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if filename is None:
             # Create the singleton sidebar widget
             self._side_bar = SideBar(self._central_widget)
-            self._side_bar.register(self.pubsub)
+            self.pubsub.register(self._side_bar, 'sidebar:0', parent='ui')
             self._central_layout.insertWidget(0, self._side_bar)
 
             self._signal_record_status = RecordStatusWidget(self, 'SignalRecord')

@@ -72,7 +72,7 @@
         "target_power.svg"
       ],
       "targets": [
-        ["{basename}_disabled_0{ext}", {"#000000": "base.selection_color"}],
+        ["{basename}_disabled_0{ext}", {"#000000": "sidebar.disabled"}],
         ["{basename}_disabled_1{ext}", {"#000000": "js1.disabled_foreground"}],
         ["{basename}_on{ext}",         {"#000000": "target_power.on"}]
       ]

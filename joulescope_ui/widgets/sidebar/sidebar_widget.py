@@ -14,11 +14,14 @@
 
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from joulescope_ui import N_, register, tooltip_format, get_instance
+from joulescope_ui import N_, register, tooltip_format, get_instance, CAPABILITIES
 from joulescope_ui.styles import styled_widget, color_as_qcolor
 from joulescope_ui.widgets.flyout import FlyoutWidget
 from joulescope_ui.widget_tools import CallableSlotAdapter
 
+
+_STATISTIC_STREAM_SOURCE_TOPIC = f'registry_manager/capabilities/{CAPABILITIES.STATISTIC_STREAM_SOURCE}/list'
+_SIGNAL_STREAM_SOURCE_TOPIC = f'registry_manager/capabilities/{CAPABILITIES.SIGNAL_STREAM_SOURCE}/list'
 
 _DEVICE_TOOLTIP = tooltip_format(
     N_('Device control'),
@@ -86,7 +89,7 @@ class SideBar(QtWidgets.QWidget):
         self._selected_area = None
         self._selected_area_brush = QtGui.QBrush
         self._buttons = {}
-        self._buttons_blink = []
+        self._buttons_blink = {}
         self._flyout: FlyoutWidget = None
 
         self._layout = QtWidgets.QVBoxLayout(self)
@@ -96,8 +99,7 @@ class SideBar(QtWidgets.QWidget):
     def _on_fuse_button_pressed(self):
         self.pubsub.publish('registry/app/actions/!fuse_clear_all', None)
 
-    def register(self, pubsub):
-        pubsub.register(self, 'sidebar:0', parent='ui')
+    def on_pubsub_register(self, pubsub):
         self._flyout = FlyoutWidget(self.parent(), self)
         self.pubsub.register(self._flyout, 'flyout:0', parent='sidebar:0')
         self._add_blink_button('target_power', 'target_power')
@@ -118,6 +120,8 @@ class SideBar(QtWidgets.QWidget):
         self._add_button('misc', _MISC_TOOLTIP, 'HamburgerWidget', 'hamburger_widget:flyout')
 
         self.pubsub.subscribe('registry/ui/events/blink_slow', self._on_blink, ['pub', 'retain'])
+        self.pubsub.subscribe(_STATISTIC_STREAM_SOURCE_TOPIC, self._on_statistics_stream_source_list, ['pub', 'retain'])
+        self.pubsub.subscribe(_SIGNAL_STREAM_SOURCE_TOPIC, self._on_signal_stream_source_list, ['pub', 'retain'])
 
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
@@ -130,14 +134,29 @@ class SideBar(QtWidgets.QWidget):
             'floating': True,
         })
 
+    def _buttons_enable(self, value, names):
+        x = bool(len(value))
+        for name in names:
+            b = self._buttons_blink[name]
+            b.setEnabled(x)
+            if not x:
+                b.setProperty('disabling', True)
+
+    def _on_statistics_stream_source_list(self, value):
+        self._buttons_enable(value, ['signal_play', 'signal_record'])
+
+    def _on_signal_stream_source_list(self, value):
+        self._buttons_enable(value, ['statistics_play', 'statistics_record', 'target_power'])
+
     def _add_blink_button(self, name, app_setting, clear_only=False, skip_connect=False):
         topic = f'registry/app/settings/{app_setting}'
         meta = self.pubsub.metadata(topic)
         tooltip = tooltip_format(meta.brief, meta.detail)
         button = self._add_button(name, tooltip)
         button.setProperty('blink', False)
+        button.setProperty('disabling', False)
         button.setCheckable(True)
-        self._buttons_blink.append(button)
+        self._buttons_blink[name] = button
 
         def update_from_pubsub(value):
             value = bool(value)
@@ -173,10 +192,14 @@ class SideBar(QtWidgets.QWidget):
         return button
 
     def _on_blink(self, value):
-        for b in self._buttons_blink:
-            b.setProperty('blink', value)
-            b.style().unpolish(b)
-            b.style().polish(b)
+        for b in self._buttons_blink.values():
+            disabling = b.property('disabling')
+            if disabling:
+                b.setProperty('disabling', False)
+            if b.isEnabled() or disabling:
+                b.setProperty('blink', value and not disabling)
+                b.style().unpolish(b)
+                b.style().polish(b)
 
     def on_cmd_show(self, name):
         w = self._buttons.get(name, {}).get('widget')
