@@ -49,7 +49,7 @@ from .app import App
 # from .mem_leak_debugger import MemLeakDebugger
 from .paths import Paths
 from .view import View  # registers the view manager
-import joulescope_ui.plugins   # register plugins
+import joulescope_ui.range_tools   # register range_tools
 import appnope
 import logging
 import os

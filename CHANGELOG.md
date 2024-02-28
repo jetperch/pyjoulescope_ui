@@ -10,6 +10,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 2024 Feb 28 [in progress]
 
 * Modified sidebar buttons to disable when no Joulescopes connected.
+* Renamed "plugins" to "range_tools".
 
 
 ## 1.0.58
