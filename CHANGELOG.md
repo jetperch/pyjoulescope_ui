@@ -12,6 +12,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Modified sidebar buttons to disable when no Joulescopes connected.
 * Renamed "plugins" directory to "range_tools".
 * Modified widgets to display device name, not model-serial_number  #256
+* Added optional Waveform widget feature to set the plot label  #255
 
 
 ## 1.0.58

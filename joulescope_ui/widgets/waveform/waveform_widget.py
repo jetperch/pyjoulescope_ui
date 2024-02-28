@@ -790,6 +790,8 @@ class WaveformWidget(QtWidgets.QWidget):
             plot['y_region'] = f'plot.{plot_index}'
             plot.setdefault('logarithmic_zero', _LOGARITHMIC_ZERO_DEFAULT)
             plot.setdefault('prefix_preferred', 'auto')
+            if 'label' not in plot:
+                plot['label'] = '' if ('integral' in plot) else plot['quantity']
         self.pubsub.subscribe('registry_manager/capabilities/signal_buffer.source/list',
                               self._on_source_list, ['pub', 'retain'])
         topic = get_topic_name(self)
@@ -1262,7 +1264,6 @@ class WaveformWidget(QtWidgets.QWidget):
 
             'axis_font': axis_font,
             'axis_font_metrics': QtGui.QFontMetrics(axis_font),
-            'plot_label_size': axis_font_metrics.boundingRect('WW'),
             'y_tick_size': y_tick_size,
             'y_tick_height_pixels_min': 1.5 * y_tick_size.height(),
             'utc_width_pixels': axis_font_metrics.boundingRect('8888-88-88W88:88:88.888888').width(),
@@ -1429,7 +1430,9 @@ class WaveformWidget(QtWidgets.QWidget):
 
         margin = self._margin
         axis_font_metrics = s['axis_font_metrics']
-        left_width = s['plot_label_size'].width() + margin + s['y_tick_size'].width() + margin
+        plot_labels = [plot.get('label', '') for plot in self.state['plots']] + ['WW']
+        left_width = max([axis_font_metrics.boundingRect(label).width() for label in plot_labels])
+        left_width += margin + s['y_tick_size'].width() + margin
         if self.show_statistics:
             right_width = s['statistics_size']
         else:
@@ -1749,17 +1752,20 @@ class WaveformWidget(QtWidgets.QWidget):
         # draw label
         p.setPen(s['text_pen'])
         p.setFont(s['axis_font'])
+        plot_name = plot.get('label', '')
         plot_units = plot.get('units')
-        if plot_units is None:
-            s_label = quantity
-        elif y_grid is None:
-            s_label = plot_units
+        if plot_units is not None and y_grid is not None:
+            plot_units = f"{y_grid['unit_prefix']}{plot_units}"
+        if not plot_units:
+            p.drawText(left, y0 + (h + axis_font_metrics.ascent()) // 2, plot_name)
+        elif not plot_name:
+            p.drawText(left, y0 + (h + axis_font_metrics.ascent()) // 2, plot_units)
         else:
-            s_label = f"{y_grid['unit_prefix']}{plot_units}"
-        p.drawText(left, y0 + (h + axis_font_metrics.ascent()) // 2, s_label)
+            y_center = y0 + h // 2
+            p.drawText(left, y_center - axis_font_metrics.ascent(), plot_name)
+            p.drawText(left, y_center + axis_font_metrics.height(), plot_units)
 
         p.setClipRect(x0, y0, w, h)
-
         for trace_idx, subsource in traces[-1::-1]:
             signal_id = f'{subsource}.{quantity}'
             d = self._signals.get(signal_id)
@@ -2955,6 +2961,11 @@ class WaveformWidget(QtWidgets.QWidget):
         plot['range'] = y_range
         self._repaint_request = True
 
+    def _on_plot_label_set(self, idx, txt):
+        plot = self.state['plots'][idx]
+        plot['label'] = txt
+        self._repaint_request = True
+
     def _menu_y_axis(self, idx, event: QtGui.QMouseEvent):
         self._log.info('_menu_y_axis(%s, %s)', idx, event.position())
         menu = QtWidgets.QMenu('Waveform y-axis context menu', self)
@@ -3022,6 +3033,14 @@ class WaveformWidget(QtWidgets.QWidget):
 
             for prefix in ['auto', '', 'm', 'µ', 'n']:
                 prefix_action_gen(prefix)
+
+        name_menu = menu.addMenu(N_('Name'))
+        name_edit = QtWidgets.QLineEdit(plot.get('label', ''))
+        name_slot = CallableSlotAdapter(name_edit, lambda: self._on_plot_label_set(idx, name_edit.text()))
+        name_edit.textChanged.connect(name_slot.slot)
+        name_action = QtWidgets.QWidgetAction(name_menu)
+        name_action.setDefaultWidget(name_edit)
+        name_menu.addAction(name_action)
 
         settings_action_create(self, menu)
         return context_menu_show(menu, event)
