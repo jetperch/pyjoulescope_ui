@@ -22,6 +22,7 @@ from joulescope_ui.pubsub_aggregator import PubsubAggregator
 from joulescope_ui.shortcuts import Shortcuts
 from joulescope_ui.widgets import *   # registers all built-in widgets
 from joulescope_ui import logging_util
+from joulescope_ui.plugins import PluginManager
 from joulescope_ui.reporter import create as reporter_create
 from joulescope_ui.safe_mode import safe_mode_dialog
 from joulescope_ui.styles.manager import style_settings
@@ -304,6 +305,9 @@ class MainWindow(QtWidgets.QMainWindow):
                 ['credits', N_('Credits'), ['registry/help_html/actions/!show', 'credits']],
                 ['about', N_('About'), ['registry/help_html/actions/!show', 'about']],
             ]]
+
+        self._plugins = PluginManager(self)
+        self.pubsub.register(self._plugins, 'plugins', parent='ui')
 
         if filename is None:
             # Create the singleton sidebar widget

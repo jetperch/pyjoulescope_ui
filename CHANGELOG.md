@@ -5,6 +5,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.1.0
+
+2024 Feb 28 [in progress]
+
+* Added plugin framework with live code reload  #14
+
+
 ## 1.0.59
 
 2024 Feb 28 [in progress]

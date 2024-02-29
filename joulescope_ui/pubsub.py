@@ -68,8 +68,8 @@ class REGISTRY_MANAGER_TOPICS:
     ACTIONS = 'registry_manager/actions'
     CAPABILITY_ADD = 'registry_manager/actions/capability/!add'
     CAPABILITY_REMOVE = 'registry_manager/actions/capability/!remove'
-    REGISTRY_ADD = 'registry_manager/actions/registry/!add'
-    REGISTRY_REMOVE = 'registry_manager/actions/registry/!remove'
+    REGISTRY_ADD = 'registry_manager/actions/registry/!add'        # value=unique_id
+    REGISTRY_REMOVE = 'registry_manager/actions/registry/!remove'  # value=unique_id
     CAPABILITIES = f'registry_manager/capabilities'
     NEXT_UNIQUE_ID = f'registry_manager/next_unique_id'
 
@@ -453,6 +453,7 @@ class PubSub:
         self.topic_add('common/settings/paths/log', 'str', 'Log directory', default=os.path.join(app_path, 'log'))
         self.topic_add('common/settings/paths/reporter', 'str', 'Reporter directory', default=os.path.join(app_path, 'reporter'))
         self.topic_add('common/settings/paths/styles', 'str', 'Rendered styles', default=os.path.join(app_path, 'styles'))
+        self.topic_add('common/settings/paths/plugins', 'str', 'Plugin directory', default=os.path.join(app_path, 'plugins'))
         self.topic_add('common/settings/paths/update', 'str', 'Downloads for application updates', default=os.path.join(app_path, 'update'))
         self.topic_add('common/settings/paths/data', 'str', 'Data recordings', default=user_path)
 
@@ -1315,7 +1316,7 @@ class PubSub:
             return
         code = func.__code__
         args = code.co_argcount
-        if args and code.co_varnames[0] == 'self':
+        if args and code.co_varnames[0] in ['cls', 'self']:
             args -= 1
         if args == 0:
             return lambda: method()
@@ -1360,6 +1361,7 @@ class PubSub:
         if obj is None:
             self._log.warning('Could not unregister %s - instance not found', spec)
             return
+        self._log.info('unregister(unique_id=%s, obj=%s) start', unique_id, obj)
         obj.pubsub.unsubscribe_all()
         self._unregister_capabilities(obj, unique_id)
         self._unregister_invoke_callback(obj, unique_id)
