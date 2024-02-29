@@ -210,6 +210,7 @@ setuptools.setup(
         'python-dateutil>=2.7.3',
         'QtPy',
         'requests>=2.0.0,<3.0.0',
+        'watchdog>=4.0.0',
     ] + PLATFORM_INSTALL_REQUIRES,
     
     extras_require={

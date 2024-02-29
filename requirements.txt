@@ -16,4 +16,5 @@ python-dateutil>=2.7.3
 PyInstaller>=6.1.0,<7.0.0
 QtPy
 requests>=2.0.0,<3.0.0
+watchdog>=4.0.0
 wheel
