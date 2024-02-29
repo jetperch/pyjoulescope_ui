@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 _BUTTON_SIZE = (20, 20)
 
 _MARKER_REPOSITIION = tooltip_format(
-    N_(""),
+    "",
     N_("""\
     When selected, prevent the display from updating.
 

@@ -64,9 +64,8 @@ SETTINGS = {
     'path_method': {
         'dtype': 'int',
         'brief': N_('The default path method'),
-        'detail': N_(""""""),
         'options': [
-            [0, N_('Fixed')],
+            [0, N_('Fixed path')],
             [1, N_('Most recent save path')],
             [2, N_('Most recent load path')],
             [3, N_('Most recently used path')],

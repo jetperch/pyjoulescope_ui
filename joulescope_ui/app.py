@@ -27,8 +27,9 @@ _DEFAULT_CAPABILITIES = {
 SETTINGS = {
     'name': {
         'dtype': 'str',
-        'brief': N_('The name for this application.'),
-        'default': N_('app'),
+        'brief': 'The name for this application.',
+        'default': 'app',
+        'flags': ['ro', 'hide'],
     },
     'mode': {
         'dtype': 'str',
@@ -53,8 +54,8 @@ SETTINGS = {
                  
             The JS220 disconnects the current terminals.
             
-            The JS110 disconnects the current from IN+ to OUT+.
-            The system setup must prevent excessive backwards current."""),
+            The JS110 disconnects the current from IN+ to OUT+, but
+            the system setup must prevent excessive backwards current."""),
         'default': True,
     },
     'fuse_engaged': {

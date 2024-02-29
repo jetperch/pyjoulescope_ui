@@ -1,0 +1,2693 @@
+# Translations template for joulescope_ui.
+# Copyright (C) 2024 ORGANIZATION
+# This file is distributed under the same license as the joulescope_ui
+# project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: joulescope_ui 1.0.59\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2024-02-29 17:51-0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.14.0\n"
+
+#: joulescope_ui/app.py:47 joulescope_ui/devices/jsdrv/js110.py:139
+#: joulescope_ui/devices/jsdrv/js220.py:154
+msgid "Target power"
+msgstr ""
+
+#: joulescope_ui/app.py:48
+msgid ""
+"            Toggle the power to all connected targets.\n"
+"            \n"
+"            This feature forces all connected instruments to disable\n"
+"            current flow.  You can use this feature to perform a\n"
+"            power cycle reset for the connected target devices.\n"
+"                 \n"
+"            The JS220 disconnects the current terminals.\n"
+"            \n"
+"            The JS110 disconnects the current from IN+ to OUT+, but\n"
+"            the system setup must prevent excessive backwards current."
+msgstr ""
+
+#: joulescope_ui/app.py:63
+#: joulescope_ui/widgets/device_control/js220_ctrl_widget.py:52
+msgid "Fuse engaged indicator"
+msgstr ""
+
+#: joulescope_ui/app.py:64
+msgid ""
+"            This indicator becomes active when at least one connected\n"
+"            instrument has an engaged fuse.  Instruments with \n"
+"            engaged fuses prevent current flow until cleared.  \n"
+"            \n"
+"            Press to clear."
+msgstr ""
+
+#: joulescope_ui/app.py:74
+msgid "Statistics display"
+msgstr ""
+
+#: joulescope_ui/app.py:75
+msgid ""
+"            Click to toggle live streaming statistics.\n"
+"            \n"
+"            When enabled, the widgets will display the statistics data\n"
+"            as it arrives from the connected instruments.\n"
+"            \n"
+"            When disabled, hold the existing values.  New statistics data"
+"\n"
+"            is processed, but widgets displaying statistics information\n"
+"            do not update."
+msgstr ""
+
+#: joulescope_ui/app.py:89
+msgid "Statistics recording"
+msgstr ""
+
+#: joulescope_ui/app.py:90
+msgid ""
+"            Click to control streaming statistics data recording.\n"
+"            \n"
+"            Click once to start a recording to a CSV file.\n"
+"            Click again to stop the recording.\n"
+"            \n"
+"            By default, Joulescopes provide statistics data at 2 Hz.\n"
+"            Each device allows you to change this setting to the desired "
+"rate."
+msgstr ""
+
+#: joulescope_ui/app.py:103
+msgid "Signal sample streaming"
+msgstr ""
+
+#: joulescope_ui/app.py:104
+msgid ""
+"            Click to toggle sample data streaming.\n"
+"            \n"
+"            When enabled, stream sample data from all open sample sources"
+"\n"
+"            and configure all sample widgets for acquisition mode.\n"
+"            \n"
+"            When disabled, stop sample streaming and configure\n"
+"            all sample widgets for buffer mode.  \n"
+"            "
+msgstr ""
+
+#: joulescope_ui/app.py:118
+msgid "Signal sample recording"
+msgstr ""
+
+#: joulescope_ui/app.py:119
+msgid ""
+"            Click to control signal sample recording.\n"
+"            \n"
+"            Click once to start a recording to a JLS file.\n"
+"            Click again to stop the recording.\n"
+"            \n"
+"            The recording will capture data from all enabled \n"
+"            sample sources and signals at their configured sample rates.\n"
+"            To reduce the file size, you can disable sources, \n"
+"            disable signals, and/or reduce the sample rates.\n"
+"        "
+msgstr ""
+
+#: joulescope_ui/app.py:135
+msgid "The default unique_id for the default statistics streaming source."
+msgstr ""
+
+#: joulescope_ui/app.py:140
+msgid "The unique_id for the default signal streaming source."
+msgstr ""
+
+#: joulescope_ui/app.py:145
+msgid "The unique_id for the default signal buffer source."
+msgstr ""
+
+#: joulescope_ui/app.py:150
+msgid "Check for software updates."
+msgstr ""
+
+#: joulescope_ui/app.py:155
+msgid "The software update channel."
+msgstr ""
+
+#: joulescope_ui/app.py:158
+msgid "alpha"
+msgstr ""
+
+#: joulescope_ui/app.py:159
+msgid "beta"
+msgstr ""
+
+#: joulescope_ui/app.py:160
+msgid "stable"
+msgstr ""
+
+#: joulescope_ui/app.py:165
+msgid "Check for device firmware updates."
+msgstr ""
+
+#: joulescope_ui/app.py:170 joulescope_ui/units.py:33
+msgid "The units to display."
+msgstr ""
+
+#: joulescope_ui/app.py:172 joulescope_ui/units.py:36
+msgid "International System of Units (SI)"
+msgstr ""
+
+#: joulescope_ui/app.py:173 joulescope_ui/units.py:37
+msgid "Customary units (Ah and Wh)"
+msgstr ""
+
+#: joulescope_ui/app.py:179
+msgid "Select the OpenGL rendering method."
+msgstr ""
+
+#: joulescope_ui/app.py:180
+msgid ""
+"            This application uses OpenGL to accelerate graphics "
+"rendering.\n"
+"            OpenGL has multiple options for rendering, which varies "
+"between\n"
+"            platforms.  By default, this application uses \"desktop\" "
+"rendering.\n"
+"            If OpenGL is not well-supported by your graphics drivers, \n"
+"            you can select \"software\" rendering.\n"
+"            \n"
+"            Selecting \"ANGLE\" may break copy as image and save as "
+"image.\n"
+"            \n"
+"            UI restart required for change to take effect. \n"
+"        "
+msgstr ""
+
+#: joulescope_ui/app.py:192
+msgid "desktop"
+msgstr ""
+
+#: joulescope_ui/app.py:194
+msgid "software"
+msgstr ""
+
+#: joulescope_ui/app.py:195
+msgid "Autodetect"
+msgstr ""
+
+#: joulescope_ui/app.py:196
+msgid "Not specified"
+msgstr ""
+
+#: joulescope_ui/app.py:202
+msgid "Prompt to switch from Intel graphics to software renderer."
+msgstr ""
+
+#: joulescope_ui/error_dialog.py:42 joulescope_ui/error_window.py:313
+msgid "Error"
+msgstr ""
+
+#: joulescope_ui/error_window.py:26
+msgid "The Joulescope UI encountered an error, and it cannot start correctly."
+msgstr ""
+
+#: joulescope_ui/error_window.py:27
+msgid ""
+"We are here to help troubleshoot! Fill in the details below, and click "
+"Submit."
+msgstr ""
+
+#: joulescope_ui/error_window.py:28
+msgid ""
+"    Please consider providing your contact information.\n"
+"    If you provide your contact information, we may contact\n"
+"    you to assist with troubleshooting this issue."
+msgstr ""
+
+#: joulescope_ui/error_window.py:33
+msgid "Select an error recovery option."
+msgstr ""
+
+#: joulescope_ui/error_window.py:37
+msgid ""
+"Our offices are closed for holiday from {start_date} to {end_date}.\n"
+"We will respond within {response_time} business days when we return on "
+"{return_date}."
+msgstr ""
+
+#: joulescope_ui/error_window.py:88
+msgid "Contact information"
+msgstr ""
+
+#: joulescope_ui/error_window.py:92
+msgid "First name"
+msgstr ""
+
+#: joulescope_ui/error_window.py:95
+msgid "Email"
+msgstr ""
+
+#: joulescope_ui/error_window.py:105
+msgid "Description"
+msgstr ""
+
+#: joulescope_ui/error_window.py:114
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3322
+msgid "Edit"
+msgstr ""
+
+#: joulescope_ui/error_window.py:115
+msgid "View as Markdown"
+msgstr ""
+
+#: joulescope_ui/error_window.py:121
+msgid "Abort"
+msgstr ""
+
+#: joulescope_ui/error_window.py:122 joulescope_ui/main.py:335
+#: joulescope_ui/widgets/settings/settings_widget.py:539
+msgid "View"
+msgstr ""
+
+#: joulescope_ui/error_window.py:123
+msgid "Submit"
+msgstr ""
+
+#: joulescope_ui/error_window.py:189
+msgid "Submit in progress."
+msgstr ""
+
+#: joulescope_ui/error_window.py:206
+msgid "Submit completed."
+msgstr ""
+
+#: joulescope_ui/error_window.py:283
+msgid "Revert to previous configuration"
+msgstr ""
+
+#: joulescope_ui/error_window.py:284
+msgid "Revert to defaults"
+msgstr ""
+
+#: joulescope_ui/error_window.py:285 joulescope_ui/main.py:333
+#: joulescope_ui/main.py:379
+#: joulescope_ui/widgets/js220_cal/js220_cal_widget.py:40
+msgid "Exit"
+msgstr ""
+
+#: joulescope_ui/exporter.py:49
+#: joulescope_ui/widgets/signal_record/signal_record_config_widget.py:48
+#: joulescope_ui/widgets/statistics_record/statistics_record_config_widget.py:47
+msgid "Directory"
+msgstr ""
+
+#: joulescope_ui/exporter.py:61
+#: joulescope_ui/widgets/signal_record/signal_record_config_widget.py:36
+#: joulescope_ui/zip_inspector.py:92
+msgid "Filename"
+msgstr ""
+
+#: joulescope_ui/exporter.py:68 joulescope_ui/widgets/notes/notes_widget.py:21
+#: joulescope_ui/widgets/signal_record/signal_record_config_widget.py:66
+msgid "Notes"
+msgstr ""
+
+#: joulescope_ui/exporter.py:86
+#: joulescope_ui/widgets/signal_record/signal_record_config_widget.py:123
+#: joulescope_ui/widgets/signal_record/signal_record_config_widget.py:144
+#: joulescope_ui/widgets/statistics_record/statistics_record_config_widget.py:108
+msgid "Select save location"
+msgstr ""
+
+#: joulescope_ui/exporter.py:136
+msgid "Export configuration"
+msgstr ""
+
+#: joulescope_ui/exporter.py:168
+msgid "Exporter"
+msgstr ""
+
+#: joulescope_ui/exporter.py:169
+msgid "Export data to a JLS file"
+msgstr ""
+
+#: joulescope_ui/exporter.py:170
+msgid ""
+"                Exporting data to a JLS file.  You can open this file\n"
+"                later to display the exported data."
+msgstr ""
+
+#: joulescope_ui/intel_graphics_dialog.py:23
+msgid ""
+"<html><body>\n"
+"<p>This computer has Intel graphics.\n"
+"If the computer has a discrete graphics card, please adjust \n"
+"your graphics settings to run \n"
+"this application using the graphics card.</p>\n"
+"\n"
+"<p>If the computer only has Intel graphics, we recommend that you\n"
+"update your graphics drivers.  You can download the latest graphics\n"
+"drivers from\n"
+"<a "
+"href=\"https://www.intel.com/content/www/us/en/search.html#sort=relevancy&f:@tabfilter=[Downloads]&f:@stm_10385_en=[Graphics]\">Intel</a>."
+"\n"
+"</p>\n"
+"\n"
+"<p>If you observe strange graphics hangs with the latest Intel driver as "
+"shown in \n"
+"<a href=\"https://github.com/jetperch/pyjoulescope_ui/issues/216\">issue "
+"#216</a>,\n"
+"then you can switch to the software OpenGL renderer.\n"
+"The software OpenGL renderer may work around Intel driver instabilities,"
+" \n"
+"but it runs slower possibly causing performance issues.\n"
+"On a small number of computers,\n"
+"it does not run correctly causing a white application screen.\n"
+"You will need to close and reopen this application for the change\n"
+"to take effect.</p>\n"
+"\n"
+"<p>Would you like to switch to the software OpenGL renderer?</p>\n"
+"\n"
+"<p>If you are unsure, select \"No\" and leave \"Do not show again\" "
+"unchecked.\n"
+"If you observe the graphics hangs, you can select \"Yes\" in the future.\n"
+"You can select the OpenGL renderer at any time using\n"
+"Widgets → Settings → Common → opengl.  The default is \"desktop\".</p>\n"
+"\n"
+"</body></html>"
+msgstr ""
+
+#: joulescope_ui/intel_graphics_dialog.py:76
+msgid "Do not show again"
+msgstr ""
+
+#: joulescope_ui/intel_graphics_dialog.py:85
+msgid "Intel graphics detected"
+msgstr ""
+
+#: joulescope_ui/main.py:77
+msgid "The UI status bar display mode"
+msgstr ""
+
+#: joulescope_ui/main.py:78
+msgid ""
+"            This setting controls the amount of detail shown on\n"
+"            the status bar at the bottom of the UI window.\n"
+"            You should usually leave this set to \"normal\" unless\n"
+"            you want more detail concerning the UI internal operation."
+msgstr ""
+
+#: joulescope_ui/main.py:84 joulescope_ui/safe_mode.py:43
+msgid "Normal"
+msgstr ""
+
+#: joulescope_ui/main.py:85
+msgid "Troubleshoot"
+msgstr ""
+
+#: joulescope_ui/main.py:91
+msgid "Enable developer mode."
+msgstr ""
+
+#: joulescope_ui/main.py:98
+msgid "PubSub utilization"
+msgstr ""
+
+#: joulescope_ui/main.py:99
+msgid ""
+"    Display the number of actions processed by the\n"
+"    publish-subscribe broker in each second."
+msgstr ""
+
+#: joulescope_ui/main.py:105
+msgid "CPU utilization"
+msgstr ""
+
+#: joulescope_ui/main.py:106
+msgid ""
+"    Display the CPU utilization by this application and\n"
+"    the total CPU utilization by all applications.\n"
+"    The value is displayed in percent."
+msgstr ""
+
+#: joulescope_ui/main.py:113
+msgid "Memory utilization"
+msgstr ""
+
+#: joulescope_ui/main.py:114
+msgid ""
+"    Display the memory (RAM) utilization by this application\n"
+"    and by all applications.\n"
+"    The value is displayed in percent."
+msgstr ""
+
+#: joulescope_ui/main.py:192
+msgid "UI"
+msgstr ""
+
+#: joulescope_ui/main.py:267 joulescope_ui/main.py:288
+msgid "File"
+msgstr ""
+
+#: joulescope_ui/main.py:284 joulescope_ui/widgets/value/value_widget.py:655
+msgid "Multimeter"
+msgstr ""
+
+#: joulescope_ui/main.py:286
+msgid "Oscilloscope"
+msgstr ""
+
+#: joulescope_ui/main.py:299
+msgid "&Help"
+msgstr ""
+
+#: joulescope_ui/main.py:300
+#: joulescope_ui/widgets/hamburger/hamburger_widget.py:21
+msgid "Getting Started"
+msgstr ""
+
+#: joulescope_ui/main.py:301
+msgid "User's Guide"
+msgstr ""
+
+#: joulescope_ui/main.py:302
+#: joulescope_ui/widgets/hamburger/hamburger_widget.py:22
+msgid "Changelog"
+msgstr ""
+
+#: joulescope_ui/main.py:303 joulescope_ui/widgets/help/help_widget.py:45
+msgid "Report Issue"
+msgstr ""
+
+#: joulescope_ui/main.py:304
+msgid "View logs..."
+msgstr ""
+
+#: joulescope_ui/main.py:305
+#: joulescope_ui/widgets/hamburger/hamburger_widget.py:23
+msgid "Credits"
+msgstr ""
+
+#: joulescope_ui/main.py:306
+#: joulescope_ui/widgets/hamburger/hamburger_widget.py:24
+msgid "About"
+msgstr ""
+
+#: joulescope_ui/main.py:328 joulescope_ui/main.py:372
+msgid "&File"
+msgstr ""
+
+#: joulescope_ui/main.py:329
+msgid "Open"
+msgstr ""
+
+#: joulescope_ui/main.py:330
+msgid "Open recent"
+msgstr ""
+
+#: joulescope_ui/main.py:332 joulescope_ui/main.py:378
+msgid "Clear config and exit"
+msgstr ""
+
+#: joulescope_ui/main.py:336
+#: joulescope_ui/widgets/settings/settings_widget.py:541
+msgid "Widgets"
+msgstr ""
+
+#: joulescope_ui/main.py:337
+msgid "Tools"
+msgstr ""
+
+#: joulescope_ui/main.py:338
+msgid "Clear Accumulators"
+msgstr ""
+
+#: joulescope_ui/main.py:373
+msgid "Info"
+msgstr ""
+
+#: joulescope_ui/main.py:374 joulescope_ui/widget_tools.py:92
+#: joulescope_ui/widgets/settings/settings_widget.py:31
+#: joulescope_ui/widgets/settings/settings_widget.py:574
+#: joulescope_ui/widgets/sidebar/sidebar_widget.py:45
+msgid "Settings"
+msgstr ""
+
+#: joulescope_ui/main.py:660
+msgid "Manage"
+msgstr ""
+
+#: joulescope_ui/main.py:697
+msgid "Select file to open"
+msgstr ""
+
+#: joulescope_ui/paths.py:30 joulescope_ui/styles/manager.py:46
+msgid "The name for this widget."
+msgstr ""
+
+#: joulescope_ui/paths.py:31
+msgid "Paths"
+msgstr ""
+
+#: joulescope_ui/paths.py:35
+msgid "Default path"
+msgstr ""
+
+#: joulescope_ui/paths.py:36
+msgid "The default path for loading and saving files."
+msgstr ""
+
+#: joulescope_ui/paths.py:42
+msgid "Fixed default path"
+msgstr ""
+
+#: joulescope_ui/paths.py:43
+msgid "The fixed default path for loading and saving files."
+msgstr ""
+
+#: joulescope_ui/paths.py:48 joulescope_ui/paths.py:69
+msgid "Most recent save path"
+msgstr ""
+
+#: joulescope_ui/paths.py:54 joulescope_ui/paths.py:70
+msgid "Most recent load path"
+msgstr ""
+
+#: joulescope_ui/paths.py:60
+msgid "Most recent path"
+msgstr ""
+
+#: joulescope_ui/paths.py:66
+msgid "The default path method"
+msgstr ""
+
+#: joulescope_ui/paths.py:68
+msgid "Fixed path"
+msgstr ""
+
+#: joulescope_ui/paths.py:71
+msgid "Most recently used path"
+msgstr ""
+
+#: joulescope_ui/paths.py:77
+msgid "Most recent file list"
+msgstr ""
+
+#: joulescope_ui/paths.py:83
+msgid "Most recently used length"
+msgstr ""
+
+#: joulescope_ui/safe_mode.py:31
+msgid "Options"
+msgstr ""
+
+#: joulescope_ui/safe_mode.py:34
+msgid "Load configuration on start"
+msgstr ""
+
+#: joulescope_ui/safe_mode.py:36
+msgid "Save configuration on exit"
+msgstr ""
+
+#: joulescope_ui/safe_mode.py:38
+msgid "Clear configuration on exit"
+msgstr ""
+
+#: joulescope_ui/safe_mode.py:41
+msgid "Action"
+msgstr ""
+
+#: joulescope_ui/safe_mode.py:45
+msgid "Report issue"
+msgstr ""
+
+#: joulescope_ui/safe_mode.py:47
+msgid "Close"
+msgstr ""
+
+#: joulescope_ui/safe_mode.py:66
+msgid "Safe Mode Configuration"
+msgstr ""
+
+#: joulescope_ui/software_update.py:71
+msgid "Software update"
+msgstr ""
+
+#: joulescope_ui/software_update.py:75
+msgid "A software update is available:"
+msgstr ""
+
+#: joulescope_ui/software_update.py:76
+msgid "Current version"
+msgstr ""
+
+#: joulescope_ui/software_update.py:77
+msgid "Available version"
+msgstr ""
+
+#: joulescope_ui/software_update.py:78
+msgid "Channel"
+msgstr ""
+
+#: joulescope_ui/software_update.py:313
+msgid "Update Now"
+msgstr ""
+
+#: joulescope_ui/software_update.py:315
+msgid "Later"
+msgstr ""
+
+#: joulescope_ui/software_update.py:323
+msgid "Copy to clipboard"
+msgstr ""
+
+#: joulescope_ui/software_update.py:329
+#: joulescope_ui/widgets/device_control/device_update_dialog.py:43
+msgid "OK"
+msgstr ""
+
+#: joulescope_ui/source_selector.py:220
+#: joulescope_ui/widgets/developer/log_view_widget.py:30
+#: joulescope_ui/widgets/jls_info/jls_info_widget.py:47
+msgid "Source"
+msgstr ""
+
+#: joulescope_ui/units.py:35
+msgid "Use the application defaults"
+msgstr ""
+
+#: joulescope_ui/view.py:68
+msgid "The active theme."
+msgstr ""
+
+#: joulescope_ui/view.py:70
+msgid "Joulescope standard theme"
+msgstr ""
+
+#: joulescope_ui/view.py:70
+msgid "System OS-specific theme"
+msgstr ""
+
+#: joulescope_ui/view.py:75
+msgid "The color scheme name."
+msgstr ""
+
+#: joulescope_ui/view.py:77
+msgid "Dark background"
+msgstr ""
+
+#: joulescope_ui/view.py:77
+msgid "Light background"
+msgstr ""
+
+#: joulescope_ui/view.py:81
+msgid "The font scheme name."
+msgstr ""
+
+#: joulescope_ui/view.py:83
+msgid "Joulescope standard font theme"
+msgstr ""
+
+#: joulescope_ui/view.py:102
+#: joulescope_ui/widgets/view_manager/view_manager_widget.py:146
+msgid "New View"
+msgstr ""
+
+#: joulescope_ui/zip_inspector.py:23
+msgid "ZIP Inspector"
+msgstr ""
+
+#: joulescope_ui/zip_inspector.py:91
+msgid "ZIP File"
+msgstr ""
+
+#: joulescope_ui/zip_inspector.py:93
+msgid "Contents"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:30
+#: joulescope_ui/devices/jsdrv/js110.py:67
+#: joulescope_ui/devices/jsdrv/js220.py:47
+#: joulescope_ui/devices/jsdrv/js220.py:84
+#: joulescope_ui/test/test_pubsub_aggregator.py:37
+msgid "Device name"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:31
+msgid ""
+"            The Joulescope UI automatically populates the device name\n"
+"            with the device type and serial number.\n"
+"    \n"
+"            This setting allows you to change the default, if you wish, "
+"to better\n"
+"            reflect how you are using your JS110.  This setting is\n"
+"            most useful when you are instrumenting a system using \n"
+"            multiple Joulescopes."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:43
+#: joulescope_ui/devices/jsdrv/js110.py:73
+#: joulescope_ui/devices/jsdrv/js220.py:60
+#: joulescope_ui/devices/jsdrv/js220.py:90
+#: joulescope_ui/test/test_pubsub_aggregator.py:50
+#: joulescope_ui/widgets/device_control/js220_ctrl_widget.py:35
+msgid "Device information"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:49
+#: joulescope_ui/devices/jsdrv/js220.py:66
+#: joulescope_ui/test/test_pubsub_aggregator.py:56
+msgid "Device state indicator"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:61
+#: joulescope_ui/devices/jsdrv/js220.py:78
+msgid "Attempt to automatically open"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:83
+#: joulescope_ui/devices/jsdrv/js220.py:100
+msgid "Signal frequency"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:84
+msgid ""
+"        This setting controls the output sampling frequency for the \n"
+"        measurement signals current, voltage, and power.  Use this\n"
+"        setting to reduce the data storage requirements for long\n"
+"        captures where lower temporal accuracy is sufficient. \n"
+"\n"
+"        The JS110 instrument always samples at 2 MHz and sends the\n"
+"        raw samples to the host.\n"
+"        This setting controls additional optional downsampling\n"
+"        that is performed on the host."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:120
+#: joulescope_ui/devices/jsdrv/js220.py:135
+msgid "Statistics frequency"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:121
+msgid ""
+"            This setting controls the output frequency for \n"
+"            the statistics data that is displayed in the\n"
+"            multimeter and value widgets.  Statistics data\n"
+"            is computed over the full rate 2 MHz samples."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:140
+msgid ""
+"            Toggle the connection between the current terminals.\n"
+"\n"
+"            When enabled, current flows between the current terminals.\n"
+"            When disabled, current cannot flow between the current "
+"terminals.\n"
+"            In common system setups, this inhibits target power, which "
+"can\n"
+"            be used to power cycle reset the target device."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:152
+#: joulescope_ui/devices/jsdrv/js220.py:167
+#: joulescope_ui/widgets/waveform/waveform_widget.py:110
+msgid "Current range"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:153
+msgid ""
+"            Configure the J110's current range.  Most applications should"
+"\n"
+"            use the default, \"auto\".\n"
+"\n"
+"            Use the other manual settings with care.  It is very easy to\n"
+"            configure a setting that saturates, which will ignore regions"
+"\n"
+"            of current draw larger than the current range setting."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:174
+#: joulescope_ui/devices/jsdrv/js220.py:202
+msgid "Voltage range"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:175
+msgid "            Configure the JS110's voltage range."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:185
+#: joulescope_ui/devices/jsdrv/js220.py:236
+msgid "GPIO voltage"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:186
+msgid ""
+"            Configure the JS110's reference voltage for the general-"
+"purpose\n"
+"            inputs and outputs.\n"
+"            \n"
+"            The JS110's general-purpose outputs always remain powered.\n"
+"            When set to \"1\", this can backpower unpowered targets."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:207
+#: joulescope_ui/devices/jsdrv/js220.py:256
+msgid "GPO 0 output value"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:208
+#: joulescope_ui/devices/jsdrv/js220.py:257
+msgid "Turn the general-purpose output 0 on or off."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:213
+#: joulescope_ui/devices/jsdrv/js220.py:262
+msgid "GPO 1 output value"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:214
+#: joulescope_ui/devices/jsdrv/js220.py:263
+msgid "Turn the general-purpose output 1 on or off."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:219
+msgid "IRF type"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:220
+msgid ""
+"            Configure the current range filter (IRF) type which "
+"determines\n"
+"            the filtering mechanism applied on current range changes.\n"
+"            We do not recommend changing these settings for normal "
+"operation.\n"
+"                     \n"
+"            \"interp\" is the default setting which interpolates over\n"
+"            the samples in the window using the value computed by\n"
+"            the pre and post values.  This gives the most intuitive "
+"behavior.\n"
+"            \n"
+"            \"mean\" sets all samples in the window to the mean value.\n"
+"            This results in a straight horizontal line that allows\n"
+"            you to clearly see current range changes while still\n"
+"            providing the best long-term current range measurement.\n"
+"            \n"
+"            \"NaN\" sets all samples in the window to NaN.\n"
+"            \n"
+"            \"off\" disables the current range filtering, and you will ' "
+"+\n"
+"            see additional current range switching artifacts."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:248
+msgid "IRF pre"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:249
+msgid ""
+"            The number of samples before the current range window\n"
+"            used to determine the mean.\n"
+"            This value is ignored for all other IRF types."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:258
+msgid "IRF window"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:259
+msgid ""
+"            Use \"n\" for automatic duration based upon known response "
+"time.\n"
+"            Use \"m\" for shorter automatic duration that may result in "
+"min/max distortion.\n"
+"            Use any other value to specify a fixed, manual window "
+"duration in samples."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:268
+msgid "IRF post"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:269
+msgid ""
+"            The number of samples after the current range window\n"
+"            used to determine the mean.\n"
+"            This value is ignored for all other IRF types."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:284
+#: joulescope_ui/devices/jsdrv/js220.py:346
+#: joulescope_ui/widgets/waveform/waveform_widget.py:105
+msgid "Current"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:285
+#: joulescope_ui/devices/jsdrv/js220.py:347
+msgid "Enable the current signal streaming."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:293
+#: joulescope_ui/devices/jsdrv/js220.py:355
+#: joulescope_ui/widgets/waveform/waveform_widget.py:106
+msgid "Voltage"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:294
+#: joulescope_ui/devices/jsdrv/js220.py:356
+msgid "Enable the voltage signal streaming."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:302
+#: joulescope_ui/devices/jsdrv/js220.py:364
+#: joulescope_ui/widgets/waveform/waveform_widget.py:107
+msgid "Power"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:303
+#: joulescope_ui/devices/jsdrv/js220.py:365
+msgid "Enable the power signal streaming."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:311
+#: joulescope_ui/devices/jsdrv/js220.py:373
+msgid "Current Range"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:312
+msgid ""
+"            Enable the streaming for the selected current range.\n"
+"\n"
+"            The current range is useful for understanding how your "
+"Joulescope\n"
+"            autoranges to measure your current signal.  It can also be "
+"helpful\n"
+"            in separating target system behavior from the small current "
+"range\n"
+"            switching artifacts."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:327
+#: joulescope_ui/devices/jsdrv/js220.py:393
+msgid "GPI 0"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:328
+#: joulescope_ui/devices/jsdrv/js220.py:394
+msgid "Enable the general purpose input 0 signal streaming."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:336
+#: joulescope_ui/devices/jsdrv/js220.py:402
+msgid "GPI 1"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:337
+#: joulescope_ui/devices/jsdrv/js220.py:403
+msgid "Enable the general purpose input 1 signal streaming."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js110.py:349
+#: joulescope_ui/devices/jsdrv/js220.py:449
+#: joulescope_ui/devices/jsdrv/jsdrv_stream_buffer.py:108
+msgid "Signal name"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js220.py:48
+msgid ""
+"            The Joulescope UI automatically populates the device name\n"
+"            with the device type and serial number.\n"
+"        \n"
+"            This setting allows you to change the default, if you wish, "
+"to better\n"
+"            reflect how you are using your JS220.  This setting is\n"
+"            most useful when you are instrumenting a system using \n"
+"            multiple Joulescopes."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js220.py:101
+msgid ""
+"            This setting controls the output sampling frequency for the \n"
+"            measurement signals current, voltage, and power.  Use this\n"
+"            setting to reduce the data storage requirements for long\n"
+"            captures where lower temporal accuracy is sufficient. \n"
+"            \n"
+"            The JS220 instrument always samples at 2 MHz and \n"
+"            then downsamples to 1 MHz.  This setting controls \n"
+"            additional optional downsampling."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js220.py:136
+msgid ""
+"            This setting controls the output frequency for \n"
+"            the statistics data that is displayed in the\n"
+"            multimeter and value widgets.  Statistics data\n"
+"            is computed over the full rate 1 MHz samples."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js220.py:155
+msgid ""
+"            Toggle the connection between the current terminals.\n"
+"            \n"
+"            When enabled, current flows between the current terminals.\n"
+"            When disabled, current cannot flow between the current "
+"terminals.\n"
+"            In common system setups, this inhibits target power, which "
+"can\n"
+"            be used to power cycle reset the target device."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js220.py:168
+msgid ""
+"            Configure the JS220's current range.  Most applications "
+"should\n"
+"            use the default, \"auto\".\n"
+"            \n"
+"            Use the other manual settings with care.  It is very easy to\n"
+"            configure a setting that saturates, which will ignore regions"
+"\n"
+"            of current draw larger than the current range setting."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js220.py:188
+msgid "Limits"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js220.py:189
+msgid ""
+"            Configure the autoranging current limits.\n"
+"            \n"
+"            This setting is only effective when the Current Range\n"
+"            is set to \"auto\".\n"
+"            \n"
+"            You can use this setting to limit the current range and\n"
+"            improve autoranging accuracy when you know your application\n"
+"            current is more limited than the full measurement range."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js220.py:203
+msgid ""
+"            Configure the JS220's voltage range.  Most applications "
+"should\n"
+"            use the default, \"auto\"."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js220.py:215
+msgid "Trigger direction"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js220.py:216
+msgid ""
+"            Configure the direction of the JS220's trigger BNC "
+"connection.\n"
+"            \n"
+"            0 (default) configures the BNC trigger for input only.\n"
+"            The BNC connection is high-impedance.\n"
+"            \n"
+"            1 configures the BNC trigger for output.  The BNC connection\n"
+"            has 50 Ohm output impedance.\n"
+"            \n"
+"            In both cases, the trigger input signal is valid, which\n"
+"            enables internal inspection and recording of the trigger "
+"output.\n"
+"        "
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js220.py:237
+msgid ""
+"            Configure the JS220's reference voltage for the general-"
+"purpose\n"
+"            inputs and outputs.\n"
+"            \n"
+"            We recommend using \"Vref\" when attaching\n"
+"            general-purpose outputs (GPO) to other equipment.  Using Vref"
+"\n"
+"            prevents the GPO from backpowering target devices when they\n"
+"            powered down.  The Vref signal and general-purpose inputs\n"
+"            are all extremely high impedance to minimize leakage "
+"currents.\n"
+"            \n"
+"            \"3.3 V\" uses an internally-generated 3.3V reference voltage."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js220.py:268
+msgid "Trigger output value"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js220.py:269
+msgid ""
+"Turn the trigger output on or off.\n"
+"        \n"
+"            The trigger must also be configured for output for this\n"
+"            setting to have any effect."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js220.py:374
+msgid ""
+"            Enable the streaming for the selected current range.\n"
+"            \n"
+"            ⚠ When enabled, no more than 3 GPIO signals (0, 1, 2, 3, T)\n"
+"            may be enabled.  If you attempt to enable too many signals,\n"
+"            then the UI will display no data for any signal.\n"
+"    \n"
+"            The current range is useful for understanding how your "
+"Joulescope\n"
+"            autoranges to measure your current signal.  It can also be "
+"helpful\n"
+"            in separating target system behavior from the small current "
+"range\n"
+"            switching artifacts."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js220.py:411
+msgid "GPI 2"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js220.py:412
+msgid "Enable the general purpose input 2 signal streaming."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js220.py:420
+msgid "GPI 3"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js220.py:421
+msgid "Enable the general purpose input 3 signal streaming."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js220.py:429
+#: joulescope_ui/widgets/waveform/waveform_widget.py:124
+msgid "Trigger input"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js220.py:430
+msgid "Enable the trigger input signal streaming."
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/js220_updater.py:64
+msgid "Firmware update state"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/jsdrv_stream_buffer.py:44
+#: joulescope_ui/devices/jsdrv/jsdrv_stream_buffer.py:93
+#: joulescope_ui/devices/jsdrv/jsdrv_stream_buffer.py:107
+#: joulescope_ui/plugins/selector.py:58
+#: joulescope_ui/widgets/settings/settings_widget.py:85
+#: joulescope_ui/widgets/settings/settings_widget.py:266
+#: joulescope_ui/widgets/settings/settings_widget.py:364
+#: joulescope_ui/widgets/settings/settings_widget.py:431
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3037
+msgid "Name"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/jsdrv_stream_buffer.py:45
+msgid "Joulescope stream buffer"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/jsdrv_stream_buffer.py:49
+msgid "Buffer memory size in bytes"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/jsdrv_stream_buffer.py:54
+msgid "Buffer memory duration in seconds"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/jsdrv_stream_buffer.py:94
+msgid "Source name"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/jsdrv_stream_buffer.py:98
+msgid "Source information"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/jsdrv_stream_buffer.py:112
+msgid "Signal metadata"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/jsdrv_stream_buffer.py:118
+msgid "Signal time range"
+msgstr ""
+
+#: joulescope_ui/devices/jsdrv/jsdrv_wrapper.py:41
+msgid "The pyjoulescope_driver log level."
+msgstr ""
+
+#: joulescope_ui/plugins/selector.py:32
+msgid "Plugins"
+msgstr ""
+
+#: joulescope_ui/plugins/selector.py:59
+#: joulescope_ui/widgets/device_control/device_update_dialog.py:26
+msgid "Version"
+msgstr ""
+
+#: joulescope_ui/plugins/selector.py:60
+msgid "Active"
+msgstr ""
+
+#: joulescope_ui/plugins/selector.py:128
+msgid "Monitor"
+msgstr ""
+
+#: joulescope_ui/range_tools/cdf.py:29
+msgid "Compute the Cumulative Distribution Function"
+msgstr ""
+
+#: joulescope_ui/range_tools/cdf.py:30
+msgid ""
+"        The Cumulative Distribution Function (CDF) value is the "
+"probability\n"
+"        that a signal's value is less than or equal to the x-axis value.\n"
+"        \n"
+"        When use to analyze current or power, this graphically indicates "
+"the\n"
+"        time spent below in each current mode.  Compared to a histogram,\n"
+"        the CDF makes it easier to compare the amount of time in each "
+"mode\n"
+"        by simply measuring the change in the y-axis value."
+msgstr ""
+
+#: joulescope_ui/range_tools/cdf.py:147
+msgid "Probability"
+msgstr ""
+
+#: joulescope_ui/range_tools/cdf.py:168
+msgid "CDF configuration"
+msgstr ""
+
+#: joulescope_ui/range_tools/cdf.py:184
+#: joulescope_ui/range_tools/histogram.py:53
+msgid "Number of bins (0 for auto)"
+msgstr ""
+
+#: joulescope_ui/range_tools/cdf.py:190
+msgid "Complimentary"
+msgstr ""
+
+#: joulescope_ui/range_tools/frequency.py:24
+msgid "Frequency"
+msgstr ""
+
+#: joulescope_ui/range_tools/frequency.py:39
+msgid "Compute frequency spectrum over the range"
+msgstr ""
+
+#: joulescope_ui/range_tools/frequency.py:40
+msgid ""
+"        Compute the frequency spectrum to analyze the frequency\n"
+"        content of the signal's data values over the\n"
+"        selected range."
+msgstr ""
+
+#: joulescope_ui/range_tools/frequency.py:215
+msgid "Frequency configuration"
+msgstr ""
+
+#: joulescope_ui/range_tools/histogram.py:25
+msgid "Histogram"
+msgstr ""
+
+#: joulescope_ui/range_tools/histogram.py:45
+#: joulescope_ui/range_tools/max_window.py:120
+msgid "Signal"
+msgstr ""
+
+#: joulescope_ui/range_tools/histogram.py:59
+msgid "Histogram type"
+msgstr ""
+
+#: joulescope_ui/range_tools/histogram.py:77
+msgid "Histogram configuration"
+msgstr ""
+
+#: joulescope_ui/range_tools/histogram.py:191
+msgid "Compute histogram over the range"
+msgstr ""
+
+#: joulescope_ui/range_tools/histogram.py:192
+msgid ""
+"        Compute a histogram of the signal's data values over the\n"
+"        selected range."
+msgstr ""
+
+#: joulescope_ui/range_tools/max_window.py:24
+msgid "Max window"
+msgstr ""
+
+#: joulescope_ui/range_tools/max_window.py:25
+msgid "Find the maximum value window"
+msgstr ""
+
+#: joulescope_ui/range_tools/max_window.py:26
+msgid ""
+"        Search the range for the window that has the maximum value.\n"
+"        This is an exhaustive search made by sliding the window \n"
+"        duration across the entire range.\n"
+"        \n"
+"        When complete, this tool will add dual markers to the\n"
+"        waveform."
+msgstr ""
+
+#: joulescope_ui/range_tools/max_window.py:97
+msgid "Max Window configuration"
+msgstr ""
+
+#: joulescope_ui/range_tools/max_window.py:106
+msgid "Width of window (in seconds)"
+msgstr ""
+
+#: joulescope_ui/range_tools/usb_inrush.py:52
+msgid "USB Inrush"
+msgstr ""
+
+#: joulescope_ui/range_tools/usb_inrush.py:53
+msgid "Perform USB Inrush testing"
+msgstr ""
+
+#: joulescope_ui/range_tools/usb_inrush.py:54
+msgid ""
+"        Use dual markers to select at least 100 milliseconds\n"
+"        after enabling power to the target device.  This tool\n"
+"        will send the selected data to the USBET tool for analysis."
+msgstr ""
+
+#: joulescope_ui/styles/color_scheme.py:21
+msgid "dark"
+msgstr ""
+
+#: joulescope_ui/styles/color_scheme.py:22
+msgid "Light foreground elements on a dark background"
+msgstr ""
+
+#: joulescope_ui/styles/color_scheme.py:26
+msgid "light"
+msgstr ""
+
+#: joulescope_ui/styles/color_scheme.py:27
+msgid "Dark foreground elements on a light background"
+msgstr ""
+
+#: joulescope_ui/styles/font_scheme.py:21
+msgid "default"
+msgstr ""
+
+#: joulescope_ui/styles/font_scheme.py:22
+msgid "Joulescope default font scheme"
+msgstr ""
+
+#: joulescope_ui/test/test_pubsub_aggregator.py:38
+msgid ""
+"                    The Joulescope UI automatically populates the device "
+"name\n"
+"                    with the device type and serial number.\n"
+"                \n"
+"                    This setting allows you to change the default, if you"
+" wish, to better\n"
+"                    reflect how you are using your JS220.  This setting "
+"is\n"
+"                    most useful when you are instrumenting a system using"
+" \n"
+"                    multiple Joulescopes."
+msgstr ""
+
+#: joulescope_ui/widgets/accumulator/accumulator_widget.py:27
+#: joulescope_ui/widgets/value/value_widget.py:31
+msgid "The statistics data stream source."
+msgstr ""
+
+#: joulescope_ui/widgets/accumulator/accumulator_widget.py:32
+#: joulescope_ui/widgets/value/value_widget.py:74
+msgid "The signal to display."
+msgstr ""
+
+#: joulescope_ui/widgets/accumulator/accumulator_widget.py:34
+msgid "charge"
+msgstr ""
+
+#: joulescope_ui/widgets/accumulator/accumulator_widget.py:35
+msgid "energy"
+msgstr ""
+
+#: joulescope_ui/widgets/accumulator/accumulator_widget.py:41
+#: joulescope_ui/widgets/value/value_widget.py:56
+msgid "Show the statistics section title for each signal."
+msgstr ""
+
+#: joulescope_ui/widgets/accumulator/accumulator_widget.py:48
+msgid "Accumulator"
+msgstr ""
+
+#: joulescope_ui/widgets/accumulator/accumulator_widget.py:140
+msgid "Show charge"
+msgstr ""
+
+#: joulescope_ui/widgets/accumulator/accumulator_widget.py:143
+msgid "Show energy"
+msgstr ""
+
+#: joulescope_ui/widgets/accumulator/accumulator_widget.py:152
+msgid "Set units"
+msgstr ""
+
+#: joulescope_ui/widgets/clock/clock_widget.py:26
+msgid "Clock"
+msgstr ""
+
+#: joulescope_ui/widgets/clock/clock_widget.py:33
+msgid "The time zone."
+msgstr ""
+
+#: joulescope_ui/widgets/clock/clock_widget.py:35
+msgid "Local"
+msgstr ""
+
+#: joulescope_ui/widgets/clock/clock_widget.py:36
+msgid "UTC"
+msgstr ""
+
+#: joulescope_ui/widgets/clock/clock_widget.py:42
+msgid "The format string"
+msgstr ""
+
+#: joulescope_ui/widgets/developer/log_view_widget.py:30
+msgid "Timestamp"
+msgstr ""
+
+#: joulescope_ui/widgets/developer/log_view_widget.py:30
+msgid "Level"
+msgstr ""
+
+#: joulescope_ui/widgets/developer/log_view_widget.py:30
+msgid "Message"
+msgstr ""
+
+#: joulescope_ui/widgets/developer/log_view_widget.py:60
+msgid "Log View"
+msgstr ""
+
+#: joulescope_ui/widgets/developer/log_view_widget.py:85
+msgid "Demo"
+msgstr ""
+
+#: joulescope_ui/widgets/developer/profile_widget.py:37
+msgid "Profile"
+msgstr ""
+
+#: joulescope_ui/widgets/developer/profile_widget.py:45
+msgid "The debug state."
+msgstr ""
+
+#: joulescope_ui/widgets/developer/publish_spy_widget.py:20
+msgid "Count"
+msgstr ""
+
+#: joulescope_ui/widgets/developer/publish_spy_widget.py:20
+#: joulescope_ui/widgets/developer/publish_spy_widget.py:21
+msgid "Topic"
+msgstr ""
+
+#: joulescope_ui/widgets/developer/publish_spy_widget.py:21
+#: joulescope_ui/widgets/settings/settings_widget.py:87
+#: joulescope_ui/widgets/value/value_widget.py:664
+msgid "Value"
+msgstr ""
+
+#: joulescope_ui/widgets/developer/publish_spy_widget.py:24
+msgid "Publish Spy"
+msgstr ""
+
+#: joulescope_ui/widgets/developer/publish_spy_widget.py:42
+msgid "Capture"
+msgstr ""
+
+#: joulescope_ui/widgets/developer/publish_spy_widget.py:47
+msgid "Topics"
+msgstr ""
+
+#: joulescope_ui/widgets/developer/publish_spy_widget.py:48
+msgid "Values"
+msgstr ""
+
+#: joulescope_ui/widgets/developer/pubsub_explorer_widget.py:28
+msgid "Filter: "
+msgstr ""
+
+#: joulescope_ui/widgets/developer/pubsub_explorer_widget.py:94
+msgid "PubSub Explorer"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/device_control_widget.py:23
+msgid "Device Control"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/device_update_dialog.py:24
+#: joulescope_ui/widgets/device_control/device_update_dialog.py:44
+msgid "Update"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/device_update_dialog.py:25
+#: joulescope_ui/widgets/value/value_widget.py:149
+msgid "Device"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/device_update_dialog.py:27
+#: joulescope_ui/widgets/progress_bar/progress_bar_widget.py:59
+msgid "Progress"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/device_update_dialog.py:31
+msgid "Device scan in progress."
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/device_update_dialog.py:32
+msgid "No updates available."
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/device_update_dialog.py:33
+msgid ""
+"        <p>Before starting updates, ensure that Joulescopes are plugged "
+"directly\n"
+"        into a USB port on the host computer.</p>  \n"
+"        <p>Do not use any USB hubs, docks or adapters.</p>"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/device_update_dialog.py:37
+msgid "Device update is in progress.  Please wait."
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/device_update_dialog.py:38
+msgid "Device update completed."
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/device_update_dialog.py:40
+msgid "Select all"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/device_update_dialog.py:41
+msgid "Select none"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/device_update_dialog.py:42
+#: joulescope_ui/widgets/js220_cal/js220_cal_widget.py:39
+msgid "Cancel"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/device_update_dialog.py:52
+msgid "Device Update"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/fuse.py:24
+msgid "Fuse 1"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/fuse.py:25
+msgid "Fuse 2"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/fuse.py:26
+msgid "Range fuse"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/fuse.py:27
+msgid "Max fuse"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/fuse.py:33
+msgid "Fuse trip threshold"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/fuse.py:34
+msgid "Any current above this threshold will eventually trip the fuse."
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/fuse.py:38
+msgid "Fuse speed threshold"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/fuse.py:39
+msgid "The fuse trips in Duration at this constant current."
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/fuse.py:43
+msgid "Fuse duration"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/fuse.py:44
+msgid "The fuse trips in this Duration at Threshold 2 current."
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/fuse.py:48
+msgid "Fuse dissipation time constant"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/fuse.py:49
+#, python-format
+msgid ""
+"    The exponential decay time constant.\n"
+"    The fuse dissipates 63.2% of accumulated energy in this duration.    "
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/fuse.py:55
+msgid "Fuse state indicator.  When enabled and engaged, click to clear."
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/fuse.py:89
+msgid "Threshold 1"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/fuse.py:90
+msgid "Threshold 2"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/fuse.py:91
+#: joulescope_ui/widgets/memory/memory_widget.py:225
+msgid "Duration"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/fuse.py:103
+msgid "Fuse response"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/fuse.py:104
+msgid "Time (s)"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/fuse.py:105
+msgid "Current (A)"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/fuse.py:221
+msgid "Fuse"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/js220_ctrl_widget.py:30
+msgid "Device documentation"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/js220_ctrl_widget.py:31
+msgid "Click to display the device documentation PDF."
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/js220_ctrl_widget.py:36
+msgid "Click to display detailed information about the device."
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/js220_ctrl_widget.py:40
+msgid "Select this device as the default"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/js220_ctrl_widget.py:41
+msgid ""
+"    When selected, this device because the default.  All widgets\n"
+"    using the default device will use the data provided by this\n"
+"    device.\n"
+"    \n"
+"    When unselected, another device is the default.  Widgets\n"
+"    can still be configured to use data from this device.    "
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/js220_ctrl_widget.py:53
+msgid ""
+"    This indicator becomes active when at least one connected\n"
+"    instrument has an engaged fuse.  Instruments with \n"
+"    engaged fuses prevent current flow until cleared.  \n"
+"            \n"
+"    Press to clear."
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/js220_ctrl_widget.py:62
+msgid "Open and close the device"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/js220_ctrl_widget.py:63
+msgid ""
+"    When closed, click to attempt to open the device.  The icon\n"
+"    will only change on a successful device open.  Only one\n"
+"    application can use a Joulescope device at a time.\n"
+"    \n"
+"    When open, click to close the device.  This allows the device\n"
+"    to be used in other programs.    "
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/js220_ctrl_widget.py:74
+msgid "Reset to default settings"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/js220_ctrl_widget.py:75
+msgid "Click this button to reset this device to the default settings"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/js220_ctrl_widget.py:79
+msgid "Clear accumulators"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/js220_ctrl_widget.py:80
+msgid ""
+"    Click this button to clear the charge and energy accumulators.\n"
+"    The \"Accrue\" feature of the value display widgets, including\n"
+"    the multimeter, will be unaffected.    "
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/js220_ctrl_widget.py:88
+#: joulescope_ui/widgets/device_control/js220_ctrl_widget.py:581
+msgid "Calibrate"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/js220_ctrl_widget.py:89
+msgid ""
+"    Click this button to recalibrate your Joulescope JS220.\n"
+"    Recalibration is not required for normal operation.\n"
+"    Performing calibration can improve accuracy by\n"
+"    accounting for the existing temperature and aging effects.    "
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/js220_ctrl_widget.py:398
+msgid "GPO"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/js220_ctrl_widget.py:568
+msgid "Reset to defaults"
+msgstr ""
+
+#: joulescope_ui/widgets/device_control/js220_ctrl_widget.py:574
+msgid "Clear accum"
+msgstr ""
+
+#: joulescope_ui/widgets/example/example_widget.py:22
+msgid "Example"
+msgstr ""
+
+#: joulescope_ui/widgets/flyout/flyout_widget.py:26
+msgid "flyout"
+msgstr ""
+
+#: joulescope_ui/widgets/jls_info/jls_info_widget.py:24
+msgid "The JLS data stream source."
+msgstr ""
+
+#: joulescope_ui/widgets/jls_info/jls_info_widget.py:30
+msgid "JLS Info"
+msgstr ""
+
+#: joulescope_ui/widgets/js220_cal/js220_cal_widget.py:37
+msgid "Restore factory calibration"
+msgstr ""
+
+#: joulescope_ui/widgets/js220_cal/js220_cal_widget.py:38
+msgid "Start"
+msgstr ""
+
+#: joulescope_ui/widgets/js220_cal/js220_cal_widget.py:41
+msgid "Calibration in progress"
+msgstr ""
+
+#: joulescope_ui/widgets/js220_cal/js220_cal_widget.py:42
+msgid "Please wait..."
+msgstr ""
+
+#: joulescope_ui/widgets/js220_cal/js220_cal_widget.py:44
+msgid "Disconnect all sensor terminals"
+msgstr ""
+
+#: joulescope_ui/widgets/js220_cal/js220_cal_widget.py:45
+msgid ""
+"Short together Voltage+, Voltage-, and Current+ using wires.\n"
+"\n"
+"If you are using the BNC front panel, simply connect Voltage to Current."
+msgstr ""
+
+#: joulescope_ui/widgets/js220_cal/js220_cal_widget.py:54
+msgid "Current offset"
+msgstr ""
+
+#: joulescope_ui/widgets/js220_cal/js220_cal_widget.py:63
+msgid "Voltage offset"
+msgstr ""
+
+#: joulescope_ui/widgets/js220_cal/js220_cal_widget.py:458
+msgid "JS220 Calibration"
+msgstr ""
+
+#: joulescope_ui/widgets/js220_cal/js220_cal_widget.py:464
+msgid "The target device."
+msgstr ""
+
+#: joulescope_ui/widgets/js220_cal/js220_cal_widget.py:486
+msgid "Calibration"
+msgstr ""
+
+#: joulescope_ui/widgets/memory/memory_widget.py:180
+msgid "Memory"
+msgstr ""
+
+#: joulescope_ui/widgets/memory/memory_widget.py:209
+msgid "Memory buffer size"
+msgstr ""
+
+#: joulescope_ui/widgets/memory/memory_widget.py:213
+msgid "Total RAM size"
+msgstr ""
+
+#: joulescope_ui/widgets/memory/memory_widget.py:217
+msgid "Available RAM size"
+msgstr ""
+
+#: joulescope_ui/widgets/memory/memory_widget.py:221
+msgid "Used RAM size"
+msgstr ""
+
+#: joulescope_ui/widgets/memory/memory_widget.py:238
+msgid "Clear"
+msgstr ""
+
+#: joulescope_ui/widgets/memory/memory_widget.py:242
+msgid "Clear on play"
+msgstr ""
+
+#: joulescope_ui/widgets/notes/notes_widget.py:28
+msgid "The notes value."
+msgstr ""
+
+#: joulescope_ui/widgets/record_status/record_status_widget.py:23
+msgid "Path: "
+msgstr ""
+
+#: joulescope_ui/widgets/record_status/record_status_widget.py:24
+msgid "Filename: "
+msgstr ""
+
+#: joulescope_ui/widgets/record_status/record_status_widget.py:28
+msgid "Signal recording in progress"
+msgstr ""
+
+#: joulescope_ui/widgets/record_status/record_status_widget.py:29
+msgid "Statistics recording in progress"
+msgstr ""
+
+#: joulescope_ui/widgets/record_status/record_status_widget.py:34
+msgid "Record Status"
+msgstr ""
+
+#: joulescope_ui/widgets/settings/settings_widget.py:268
+msgid "Color"
+msgstr ""
+
+#: joulescope_ui/widgets/settings/settings_widget.py:366
+msgid "Font"
+msgstr ""
+
+#: joulescope_ui/widgets/settings/settings_widget.py:433
+msgid "Define"
+msgstr ""
+
+#: joulescope_ui/widgets/settings/settings_widget.py:535
+msgid "Common"
+msgstr ""
+
+#: joulescope_ui/widgets/settings/settings_widget.py:538
+msgid "View defaults"
+msgstr ""
+
+#: joulescope_ui/widgets/settings/settings_widget.py:540
+msgid "Devices"
+msgstr ""
+
+#: joulescope_ui/widgets/settings/settings_widget.py:575
+msgid "Colors"
+msgstr ""
+
+#: joulescope_ui/widgets/settings/settings_widget.py:576
+msgid "Fonts"
+msgstr ""
+
+#: joulescope_ui/widgets/settings/settings_widget.py:577
+msgid "Defines"
+msgstr ""
+
+#: joulescope_ui/widgets/settings/unique_strings_widget.py:50
+msgid "Available"
+msgstr ""
+
+#: joulescope_ui/widgets/settings/unique_strings_widget.py:58
+msgid "Selected"
+msgstr ""
+
+#: joulescope_ui/widgets/sidebar/sidebar_widget.py:27
+msgid "Device control"
+msgstr ""
+
+#: joulescope_ui/widgets/sidebar/sidebar_widget.py:28
+msgid ""
+"    Click to show the device control widget which displays\n"
+"    the connected devices and their settings.  Use this\n"
+"    widget to open and close devices and configure their\n"
+"    operation.    "
+msgstr ""
+
+#: joulescope_ui/widgets/sidebar/sidebar_widget.py:36
+msgid "Memory buffer settings"
+msgstr ""
+
+#: joulescope_ui/widgets/sidebar/sidebar_widget.py:37
+msgid ""
+"    Streaming signal sample data is stored in your host\n"
+"    computer's RAM.  Click this button to show the\n"
+"    memory management widget which allows you to \n"
+"    configure the memory used by this Joulescope UI instance.    "
+msgstr ""
+
+#: joulescope_ui/widgets/sidebar/sidebar_widget.py:46
+msgid ""
+"    Click to show the settings which allows you\n"
+"    to change the global, default, and individual\n"
+"    instance settings for devices and widgets.\n"
+"    \n"
+"    Default changes may not affect existing instances,\n"
+"    and may only apply to future instances.    "
+msgstr ""
+
+#: joulescope_ui/widgets/sidebar/sidebar_widget.py:56
+msgid "Get help"
+msgstr ""
+
+#: joulescope_ui/widgets/sidebar/sidebar_widget.py:57
+msgid "    Click to display help options.    "
+msgstr ""
+
+#: joulescope_ui/widgets/sidebar/sidebar_widget.py:62
+msgid "Additional settings and actions"
+msgstr ""
+
+#: joulescope_ui/widgets/sidebar/sidebar_widget.py:63
+msgid "    Click to display additional settings and actions.    "
+msgstr ""
+
+#: joulescope_ui/widgets/sidebar/sidebar_widget.py:69
+#: joulescope_ui/widgets/view_manager/view_manager_widget.py:108
+msgid "sidebar"
+msgstr ""
+
+#: joulescope_ui/widgets/sidebar/sidebar_widget.py:77
+msgid "The flyout width in pixels."
+msgstr ""
+
+#: joulescope_ui/widgets/signal_record/disk_full_dialog.py:19
+msgid "The disk is full"
+msgstr ""
+
+#: joulescope_ui/widgets/signal_record/signal_record.py:56
+msgid "Could not open file for write"
+msgstr ""
+
+#: joulescope_ui/widgets/signal_record/signal_record_config_widget.py:23
+msgid "SignalRecordConfig"
+msgstr ""
+
+#: joulescope_ui/widgets/signal_record/signal_record_config_widget.py:61
+msgid "Signals to record"
+msgstr ""
+
+#: joulescope_ui/widgets/signal_record/signal_record_config_widget.py:190
+#: joulescope_ui/widgets/statistics_record/statistics_record_config_widget.py:154
+msgid "Configure signal recording"
+msgstr ""
+
+#: joulescope_ui/widgets/statistics_record/statistics_record_config_widget.py:34
+msgid "StatisticsRecordConfig"
+msgstr ""
+
+#: joulescope_ui/widgets/statistics_record/statistics_record_config_widget.py:59
+msgid "Time Format"
+msgstr ""
+
+#: joulescope_ui/widgets/value/value_widget.py:36
+msgid "Show the device selection header."
+msgstr ""
+
+#: joulescope_ui/widgets/value/value_widget.py:41
+msgid "Show the accrue header."
+msgstr ""
+
+#: joulescope_ui/widgets/value/value_widget.py:46
+msgid "Show the statistics fields at the right."
+msgstr ""
+
+#: joulescope_ui/widgets/value/value_widget.py:51
+msgid "Show a leading + or - sign."
+msgstr ""
+
+#: joulescope_ui/widgets/value/value_widget.py:87
+msgid "Select the source device"
+msgstr ""
+
+#: joulescope_ui/widgets/value/value_widget.py:88
+msgid ""
+"       The values displayed by this widget come from a single\n"
+"       source device.  Select the source device here. \n"
+"       "
+msgstr ""
+
+#: joulescope_ui/widgets/value/value_widget.py:94
+msgid "Hold the display"
+msgstr ""
+
+#: joulescope_ui/widgets/value/value_widget.py:95
+msgid ""
+"    When selected, prevent the display from updating.\n"
+"    \n"
+"    The UI also includes a global statistics hold button\n"
+"    on the sidebar.  When the global statistics hold button\n"
+"    is selected, this button is disabled and has no effect.\n"
+"    \n"
+"    The displayed values normally update with each new statistics\n"
+"    data computed by the device.  When this button is selected,\n"
+"    the display will not be updated.  However, the statistics\n"
+"    will continue accumulate and accrue (if selected)."
+msgstr ""
+
+#: joulescope_ui/widgets/value/value_widget.py:108
+msgid "Accrue values over time"
+msgstr ""
+
+#: joulescope_ui/widgets/value/value_widget.py:109
+msgid ""
+"    Current, voltage, and power are normally computed\n"
+"    over a single statistics frequency interval.  Press\n"
+"    this button to accrue the values indefinitely.\n"
+"    Press again to return to normal operation.\n"
+"    \n"
+"    Note that this button does not affect the charge and energy\n"
+"    accumulation.  Both accumulate indefinitely regardless of\n"
+"    this button state."
+msgstr ""
+
+#: joulescope_ui/widgets/value/value_widget.py:197
+msgid "Not present"
+msgstr ""
+
+#: joulescope_ui/widgets/value/value_widget.py:217
+msgid "Hold"
+msgstr ""
+
+#: joulescope_ui/widgets/value/value_widget.py:225
+msgid "Accrue"
+msgstr ""
+
+#: joulescope_ui/widgets/view_manager/view_manager_widget.py:174
+msgid "View Manager"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/quantities.py:21
+msgid "avg"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/quantities.py:22
+msgid "std"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/quantities.py:23
+msgid "rms"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/quantities.py:24
+#: joulescope_ui/widgets/waveform/y_range_widget.py:68
+msgid "min"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/quantities.py:25
+#: joulescope_ui/widgets/waveform/y_range_widget.py:67
+msgid "max"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/quantities.py:26
+msgid "p2p"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/quantities.py:27
+msgid "∫"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/text_annotation.py:52
+msgid "diamond"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/text_annotation.py:53
+msgid "circle"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/text_annotation.py:54
+msgid "hexagon"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/text_annotation.py:55
+msgid "square"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/text_annotation.py:56
+msgid "star"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/text_annotation.py:57
+msgid "plus"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/text_annotation.py:58
+msgid "cross"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/text_annotation.py:59
+msgid "triangle up"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/text_annotation.py:60
+msgid "triangle down"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/text_annotation.py:61
+msgid "triangle right"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/text_annotation.py:62
+msgid "triangle left"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/text_annotation.py:66
+#: joulescope_ui/widgets/waveform/waveform_widget.py:2983
+msgid "Manual"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/text_annotation.py:67
+msgid "Centered"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/text_annotation.py:99
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3098
+msgid "Text"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/text_annotation.py:107
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3323
+msgid "Show text"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/text_annotation.py:116
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3335
+msgid "Shape"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/text_annotation.py:126
+msgid "Y Mode"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_control.py:27
+msgid ""
+"    When selected, prevent the display from updating.\n"
+"\n"
+"    The UI also includes a global statistics hold button\n"
+"    on the sidebar.  When the global statistics hold button\n"
+"    is selected, this button is disabled and has no effect.\n"
+"\n"
+"    The displayed values normally update with each new statistics\n"
+"    data computed by the device.  When this button is selected,\n"
+"    the display will not be updated.  However, the statistics\n"
+"    will continue accumulate and accrue (if selected)."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_control.py:47
+msgid "Add single marker"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_control.py:48
+msgid ""
+"    Click to add a single marker to the waveform.\n"
+"    \n"
+"    To reposition the marker, left click on the marker, \n"
+"    move the mouse to the new location,\n"
+"    and the left click again.\n"
+"    \n"
+"    You can also add a marker by right-clicking on the x-axis\n"
+"    or in the plot area."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_control.py:59
+msgid "Add dual markers"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_control.py:60
+msgid ""
+"    Click to add a dual markers to the waveform.\n"
+"\n"
+"    To reposition the marker, left click on the marker, \n"
+"    move the mouse to the new location,\n"
+"    and the left click again.\n"
+"\n"
+"    You can also add a dual markers by right-clicking on the x-axis\n"
+"    or in the plot area."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_control.py:71
+msgid "Clear all markers"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_control.py:72
+msgid ""
+"    Click to clear all markers from the waveform.\n"
+"    This operation removes both single markers\n"
+"    and dual markers."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_control.py:78
+msgid "Zoom in"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_control.py:79
+msgid ""
+"    Click to zoom in along the time x-axis.\n"
+"    \n"
+"    You can also zoom by positioning the mouse over the waveform and \n"
+"    then using the scroll wheel."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_control.py:86
+msgid "Zoom out"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_control.py:87
+msgid ""
+"    Click to zoom out along the time x-axis.\n"
+"\n"
+"    You can also zoom by positioning the mouse over the waveform and \n"
+"    then using the scroll wheel."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_control.py:94
+msgid "Zoom all"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_control.py:95
+msgid "    Click to display the full extents of the x-axis."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_control.py:99
+msgid "Pin left"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_control.py:100
+msgid ""
+"    Pin the waveform display to the left side.\n"
+"    When enabled, the left side (oldest) data \n"
+"    always remains in view."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_control.py:106
+msgid "Pin right"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_control.py:107
+msgid ""
+"    Pin the waveform display to the right side.\n"
+"    When enabled, the right side (newest) data \n"
+"    always remains in view."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_control.py:113
+msgid "Y zoom all"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_control.py:114
+msgid ""
+"    Click to reset the y-axis of all plots to auto ranging mode.\n"
+"    \n"
+"    This operation does not affect the fixed range plots such\n"
+"    as the general purpose inputs."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_control.py:121
+msgid "Show min/max extents"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_control.py:122
+msgid ""
+"    Change how the waveform shows the min/max extents.\n"
+"    When zoomed out, each pixel may represent many samples.\n"
+"    Displaying the min/max can allow you to see events\n"
+"    that may be missed with just the average.\n"
+"    \n"
+"    \"off\" only displays the average.\n"
+"    \n"
+"    \"lines\" displays the minimum and maximum as separate line traces.\n"
+"    \n"
+"    \"fill 1\" displays a filled color between the minimum and maximum.\n"
+"    \n"
+"    \"fill 2\" also displays an additional fill for standard deviation."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_control.py:137
+msgid "Show/hide signals"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_control.py:138
+msgid "    Click to toggle the signal axis display in the Waveform widget."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_source_widget.py:29
+msgid "Enable trace"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_source_widget.py:30
+msgid ""
+"    Click to toggle this trace.\n"
+"    \n"
+"    When enabled, the waveform will display this trace.\n"
+"    \n"
+"    When disabled, the waveform will hide this trace."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_source_widget.py:37
+msgid "Select the source"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_source_widget.py:38
+msgid ""
+"    Select the source for this trace.\n"
+"    \n"
+"    \"default\" will use the default source which is normally configured\n"
+"    using the Device Control widget."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_source_widget.py:104
+#: joulescope_ui/widgets/waveform/waveform_widget.py:402
+#: joulescope_ui/widgets/waveform/waveform_widget.py:479
+msgid "off"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:45
+msgid "Waveform"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:120
+msgid "General purpose input 0"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:121
+msgid "General purpose input 1"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:122
+msgid "General purpose input 2"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:123
+msgid "General purpose input 3"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:358
+msgid "The source filter string."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:369
+msgid "The trace width."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:384
+msgid "The target frames per second."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:386
+msgid "vsync"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:387
+msgid "20 Hz"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:388
+msgid "10 Hz"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:389
+msgid "5 Hz"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:395
+msgid "The minimum interval between repaint in milliseconds."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:400
+msgid "Show the minimum and maximum extents fill."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:403
+msgid "lines"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:404
+msgid "fill 1"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:405
+msgid "fill 2"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:411
+msgid "Show the frames per second."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:416
+msgid "Show the statistics on mouse hover."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:421
+msgid "Show the plot statistics on the right."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:426
+msgid "Show frequency for dual markers and statistics."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:431
+msgid "The quantities to display by default."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:437
+msgid "The precision to display in digits."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:443
+msgid "Use OpenGL rendering."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:454
+msgid "Pin the left side (oldest) data so that it stays in view."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:459
+msgid "Pin the right side (newest) data so that it stays in view."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:464
+msgid "The waveform state."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:470
+msgid "The annotations."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:476
+msgid "Control location"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:480
+msgid "top"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:481
+msgid "bottom"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:486
+msgid "The signal quantity to show in the summary."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:492
+msgid "X-axis annotation mode"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:495
+#: joulescope_ui/widgets/waveform/waveform_widget.py:2863
+msgid "Absolute"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:496
+#: joulescope_ui/widgets/waveform/waveform_widget.py:2868
+msgid "Relative"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:502
+msgid "The available subsources."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:508
+msgid "The selected subsources for each trace."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:514
+msgid "The trace priority: highest int value on top, None is off."
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:2809
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3110
+msgid "Save image to file"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:2857
+#: joulescope_ui/widgets/waveform/waveform_widget.py:2926
+msgid "Single marker"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:2858
+#: joulescope_ui/widgets/waveform/waveform_widget.py:2927
+msgid "Dual markers"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:2860
+msgid "Mode"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:2873
+#: joulescope_ui/widgets/waveform/waveform_widget.py:2928
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3086
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3104
+msgid "Clear all"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:2884
+#: joulescope_ui/widgets/waveform/waveform_widget.py:2973
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3092
+msgid "Annotations"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:2976
+msgid "Range"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:2980
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3303
+msgid "Auto"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:2986
+msgid "Exact"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:2995
+msgid "Scale"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:2998
+msgid "Linear"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3003
+msgid "Logarithmic"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3011
+msgid "Logarithmic zero"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3025
+msgid "Preferred prefix"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3083
+msgid "Add"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3084
+msgid "Hide all text"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3085
+msgid "Show all text"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3093
+msgid "Vertical"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3096
+msgid "Horizontal"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3102
+msgid "Save"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3107
+msgid "Y-axis auto range"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3111
+msgid "Copy image to clipboard"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3112
+msgid "Export visible data"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3113
+msgid "Export all data"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3279
+msgid "Export"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3280
+msgid "Analysis"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3288
+msgid "Interval"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3297
+msgid "Zoom"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3301
+msgid "Show statistics"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3306
+msgid "Left"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3309
+msgid "Right"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3312
+msgid "Off"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3315
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3343
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3372
+msgid "Remove"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/waveform_widget.py:3326
+msgid "Y mode"
+msgstr ""
+
+#: joulescope_ui/widgets/waveform/y_range_widget.py:72
+msgid "Units"
+msgstr ""
+

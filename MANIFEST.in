@@ -4,5 +4,6 @@ include LICENSE.txt
 include README.md
 include joulescope.iss
 recursive-include joulescope_ui *.svg *.json *.qss *.rcc *.html *.md *.txt *.py *.png
+recursive-include joulescope_ui/locale *
 include joulescope_ui/test/*.jls
 include joulescope_ui/resources/icon.ico
