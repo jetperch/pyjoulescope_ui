@@ -1,4 +1,4 @@
-# Copyright 2018-2023 Jetperch LLC
+# Copyright 2018-2024 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,36 +14,36 @@
 
 
 from joulescope_ui import __version__ as ui_version
+from joulescope_ui import N_
 from pyjoulescope_driver import __version__ as jsdrv_version
 from pyjls import __version__ as jls_version
 import platform
 import sys
 
 
-_HEADER = """\
-<html>
-<head>
-<title>About the Joulescope UI</title>
-{style}
+_TITLE = N_('About the Joulescope UI')
+_VERSIONS = N_('Version Information')
+
+
+ABOUT = f"""\
+<html><head>
+<title>{_TITLE}</title>
+{{style}}
 </head>
-"""
-
-
-_FOOTER = '</html>'
-
-
-_ABOUT = """\
 <body>
-Joulescope UI version {ui_version}<br/> 
-Joulescope driver version {jsdrv_version}<br/>
-JLS version {jls_version}<br/>
-Python {sys_version}<br/>
-Platform {platform}<br/>
-Processor {processor}<br/>
-<a href="https://www.joulescope.com">https://www.joulescope.com</a>
+<p><a href="https://www.joulescope.com">https://www.joulescope.com</a></p>
+<p>{_VERSIONS}:</p>
+<table>
+<tr><td>UI</td><td>{ui_version}</td></tr>
+<tr><td>driver</td><td>{jsdrv_version}</td></tr> 
+<tr><td>JLS</td><td>{jls_version}</td></tr>
+<tr><td>Python</td><td>{sys.version}</td></tr>
+<tr><td>Platform</td><td>{platform.platform()}</td></tr>
+<tr><td>Processor</td><td>{platform.processor()}</td></tr>
+</table>
 
 <pre>
-Copyright 2018-2023 Jetperch LLC
+Copyright 2018-2024 Jetperch LLC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -58,16 +58,5 @@ See the License for the specific language governing permissions and
 limitations under the License.
 </pre>
 </body>
+</html>
 """
-
-
-def load():
-    txt = _ABOUT.format(
-        ui_version=ui_version,
-        jsdrv_version=jsdrv_version,
-        jls_version=jls_version,
-        sys_version=sys.version,
-        platform=platform.platform(),
-        processor=platform.processor(),
-    )
-    return _HEADER + txt + _FOOTER

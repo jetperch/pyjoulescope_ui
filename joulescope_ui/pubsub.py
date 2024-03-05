@@ -1143,6 +1143,7 @@ class PubSub:
         self._log.info('register(unique_id=%s) done %s', unique_id, 'ABORT' if register_abort else '')
         if register_abort:
             self.unregister(obj, delete=True)
+            raise RuntimeError(f'register(unique_id={unique_id}) aborted')
         else:
             getattr(obj, pubsub_attr)['is_registered'] = True
             self._registry_add(unique_id)

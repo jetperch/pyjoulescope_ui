@@ -42,7 +42,7 @@ class ProfileWidget(QtWidgets.QWidget):
     SETTINGS = {
         'state': {
             'dtype': 'obj',
-            'brief': N_('The debug state.'),
+            'brief': 'The debug state.',
             'flags': ['hide', 'dev', 'noinit', 'tmp'],
         }
     }

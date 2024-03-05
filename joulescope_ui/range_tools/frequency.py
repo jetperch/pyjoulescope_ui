@@ -37,10 +37,8 @@ _WINDOWS = {
 class FrequencyRangeTool(RangeToolBase):
     NAME = _NAME
     BRIEF = N_('Compute frequency spectrum over the range')
-    DESCRIPTION = N_("""\
-        Compute the frequency spectrum to analyze the frequency
-        content of the signal's data values over the
-        selected range.""")
+    DESCRIPTION = N_("""Compute the frequency spectrum to analyze the frequency
+        content of the signal's data values over the selected range.""")
 
     def __init__(self, value):
         super().__init__(value)

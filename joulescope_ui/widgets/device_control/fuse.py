@@ -46,10 +46,8 @@ _DURATION_TOOLTIP = tooltip_format(
 
 _TIME_CONSTANT_TOOLTIP = tooltip_format(
     N_('Fuse dissipation time constant'),
-    N_("""\
-    The exponential decay time constant.
-    The fuse dissipates 63.2% of accumulated energy in this duration.\
-    """)
+    N_("""The exponential decay time constant.
+    The fuse dissipates 63.2% of accumulated energy in this duration.""")
 )
 
 _FUSE_STATE = N_("Fuse state indicator.  When enabled and engaged, click to clear.")
@@ -101,8 +99,8 @@ class FuseSubWidget(QtWidgets.QWidget):
         # add plot
         self._i = np.arange(0, 10.001, 0.001)
         self._p = pg.PlotWidget(parent=self._body, title=N_('Fuse response'))
-        self._p.setLabel('left', N_('Time (s)'))
-        self._p.setLabel('bottom', N_('Current (A)'))
+        self._p.setLabel('left', N_('Time') + ' (s)')
+        self._p.setLabel('bottom', N_('Current') + ' (A)')
         self._p.showGrid(True, True, alpha=0.8)
         self._p.setMinimumHeight(200)
         self._p.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)

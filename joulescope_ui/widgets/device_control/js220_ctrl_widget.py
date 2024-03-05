@@ -15,7 +15,7 @@
 from PySide6 import QtCore, QtWidgets
 from joulescope_ui.expanding_widget import ExpandingWidget
 import logging
-from joulescope_ui import N_, tooltip_format, get_instance, get_topic_name, Metadata, urls
+from joulescope_ui import N_, P_, tooltip_format, get_instance, get_topic_name, Metadata, urls
 from joulescope_ui.pubsub_proxy import PubSubProxy
 from joulescope_ui.styles import color_as_qcolor
 from joulescope_ui.ui_util import comboBoxConfig
@@ -38,36 +38,33 @@ _INFO_TOOLTIP = tooltip_format(
 
 _DEFAULT_DEVICE_TOOLTIP = tooltip_format(
     N_('Select this device as the default'),
-    N_("""\
-    When selected, this device because the default.  All widgets
-    using the default device will use the data provided by this
-    device.
-    
-    When unselected, another device is the default.  Widgets
-    can still be configured to use data from this device.\
-    """),
+    P_([
+        N_("""When selected, this device because the default.  All widgets
+        using the default device will use the data provided by this device."""),
+        N_("""When unselected, another device is the default.  Widgets
+        can still be configured to use data from this device.""")
+    ])
 )
 
 _FUSE_TOOLTIP = tooltip_format(
     N_('Fuse engaged indicator'),
-    N_("""\
-    This indicator becomes active when at least one connected
-    instrument has an engaged fuse.  Instruments with 
-    engaged fuses prevent current flow until cleared.  
-            
-    Press to clear.""")
+    P_([
+        N_("""This indicator becomes active when this device has
+        at least one engaged fuse.
+        Engaged fuses prevent current flow until cleared."""),
+        N_('Press to clear.')
+    ])
 )
 
 _OPEN_TOOLTIP = tooltip_format(
     N_('Open and close the device'),
-    N_("""\
-    When closed, click to attempt to open the device.  The icon
-    will only change on a successful device open.  Only one
-    application can use a Joulescope device at a time.
-    
-    When open, click to close the device.  This allows the device
-    to be used in other programs.\
-    """),
+    P_([
+        N_("""When closed, click to attempt to open the device.  The icon
+        will only change on a successful device open.  Only one
+        application can use a Joulescope device at a time."""),
+        N_("""When open, click to close the device.  This allows the device
+        to be used in other programs.""")
+    ])
 )
 
 _RESET_TO_DEFAULTS_TOOLTIP = tooltip_format(
@@ -77,21 +74,17 @@ _RESET_TO_DEFAULTS_TOOLTIP = tooltip_format(
 
 _CLEAR_ACCUM_TOOLTIP = tooltip_format(
     N_('Clear accumulators'),
-    N_("""\
-    Click this button to clear the charge and energy accumulators.
+    N_("""Click this button to clear the charge and energy accumulators.
     The "Accrue" feature of the value display widgets, including
-    the multimeter, will be unaffected.\
-    """),
+    the multimeter, will be unaffected."""),
 )
 
 _CALIBRATE_TOOLTIP = tooltip_format(
     N_('Calibrate'),
-    N_("""\
-    Click this button to recalibrate your Joulescope JS220.
+    N_("""Click this button to recalibrate your Joulescope JS220.
     Recalibration is not required for normal operation.
     Performing calibration can improve accuracy by
-    accounting for the existing temperature and aging effects.\
-    """),
+    accounting for the existing temperature and aging effects."""),
 )
 
 _BUTTON_SIZE = (20, 20)

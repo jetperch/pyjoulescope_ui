@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from .locale import N_
-from joulescope_ui import pubsub_singleton, CAPABILITIES, get_topic_name
+from joulescope_ui import pubsub_singleton, CAPABILITIES, get_topic_name, P_
 import logging
 
 
@@ -45,88 +45,73 @@ SETTINGS = {
     'target_power': {
         'dtype': 'bool',
         'brief': N_('Target power'),
-        'detail': N_("""\
-            Toggle the power to all connected targets.
-            
-            This feature forces all connected instruments to disable
-            current flow.  You can use this feature to perform a
-            power cycle reset for the connected target devices.
-                 
-            The JS220 disconnects the current terminals.
-            
-            The JS110 disconnects the current from IN+ to OUT+, but
-            the system setup must prevent excessive backwards current."""),
+        'detail': P_([
+            N_('Toggle the power to all connected targets.'),
+            N_("""This feature forces all connected instruments to disable
+               current flow.  You can use this feature to perform a
+               power cycle reset for the connected target devices."""),
+            N_('The JS220 disconnects the current terminals.'),
+            N_("""The JS110 disconnects the current from IN+ to OUT+, but
+               the system setup must prevent excessive backwards current.""")]),
         'default': True,
     },
     'fuse_engaged': {
         'dtype': 'bool',
         'brief': N_('Fuse engaged indicator'),
-        'detail': N_("""\
-            This indicator becomes active when at least one connected
-            instrument has an engaged fuse.  Instruments with 
-            engaged fuses prevent current flow until cleared.  
-            
-            Press to clear."""),
+        'detail': P_([
+            N_("""This indicator becomes active when at least one connected
+            instrument has an engaged fuse.  Instruments with
+            engaged fuses prevent current flow until cleared."""),
+            N_('Press to clear.')]),
         'default': False,
     },
     'statistics_stream_enable': {
         'dtype': 'bool',
         'brief': N_('Statistics display'),
-        'detail': N_("""\
-            Click to toggle live streaming statistics.
-            
-            When enabled, the widgets will display the statistics data
-            as it arrives from the connected instruments.
-            
-            When disabled, hold the existing values.  New statistics data
+        'detail': P_([
+            N_('Click to toggle live streaming statistics.'),
+            N_("""When enabled, the widgets will display the statistics data
+            as it arrives from the connected instruments."""),
+            N_("""When disabled, hold the existing values.  New statistics data
             is processed, but widgets displaying statistics information
-            do not update."""),
+            do not update.""")]),
         'default': True,
         'flags': ['skip_undo'],
     },
     'statistics_stream_record': {
         'dtype': 'bool',
         'brief': N_('Statistics recording'),
-        'detail': N_("""\
-            Click to control streaming statistics data recording.
-            
-            Click once to start a recording to a CSV file.
-            Click again to stop the recording.
-            
-            By default, Joulescopes provide statistics data at 2 Hz.
-            Each device allows you to change this setting to the desired rate."""),
+        'detail': P_([
+            N_('Click to control streaming statistics data recording.'),
+            N_('Click once to start a recording to a CSV file. Click again to stop the recording.'),
+            N_("""By default, Joulescopes provide statistics data at 2 Hz.
+            Each device allows you to change this setting to the desired rate.""")]),
         'default': False,
         'flags': ['skip_undo'],
     },
     'signal_stream_enable': {
         'dtype': 'bool',
         'brief': N_('Signal sample streaming'),
-        'detail': N_("""\
-            Click to toggle sample data streaming.
-            
-            When enabled, stream sample data from all open sample sources
-            and configure all sample widgets for acquisition mode.
-            
-            When disabled, stop sample streaming and configure
-            all sample widgets for buffer mode.  
-            """),
+        'detail': P_([
+            N_('Click to toggle sample data streaming.'),
+            N_("""When enabled, stream sample data from all open sample sources
+            and configure all sample widgets for acquisition mode."""),
+            N_("""When disabled, stop sample streaming and configure
+            all sample widgets for buffer mode.""")]),
         'default': True,
         'flags': ['skip_undo'],
     },
     'signal_stream_record': {
         'dtype': 'bool',
         'brief': N_('Signal sample recording'),
-        'detail': N_("""\
-            Click to control signal sample recording.
-            
-            Click once to start a recording to a JLS file.
-            Click again to stop the recording.
-            
-            The recording will capture data from all enabled 
+        'detail': P_([
+            N_('Click to control signal sample recording.'),
+            N_("""Click once to start a recording to a JLS file.
+            Click again to stop the recording."""),
+            N_("""The recording will capture data from all enabled
             sample sources and signals at their configured sample rates.
-            To reduce the file size, you can disable sources, 
-            disable signals, and/or reduce the sample rates.
-        """),
+            To reduce the file size, you can disable sources,
+            disable signals, and/or reduce the sample rates.""")]),
         'default': False,
         'flags': ['skip_undo'],
     },
@@ -177,17 +162,14 @@ SETTINGS = {
     'opengl': {
         'dtype': 'str',
         'brief': N_('Select the OpenGL rendering method.'),
-        'detail': N_("""\
-            This application uses OpenGL to accelerate graphics rendering.
+        'detail': P_([
+            N_("""This application uses OpenGL to accelerate graphics rendering.
             OpenGL has multiple options for rendering, which varies between
             platforms.  By default, this application uses "desktop" rendering.
-            If OpenGL is not well-supported by your graphics drivers, 
-            you can select "software" rendering.
-            
-            Selecting "ANGLE" may break copy as image and save as image.
-            
-            UI restart required for change to take effect. 
-        """),
+            If OpenGL is not well-supported by your graphics drivers,
+            you can select "software" rendering."""),
+            N_('Selecting "ANGLE" may break copy as image and save as image.'),
+            N_('UI restart required for change to take effect.')]),
         'options': [
             ['desktop', N_('desktop')],
             ['angle', 'ANGLE'],

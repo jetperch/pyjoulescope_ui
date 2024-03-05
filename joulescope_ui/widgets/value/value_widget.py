@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from PySide6 import QtWidgets, QtGui, QtCore
-from joulescope_ui import CAPABILITIES, register, N_, get_topic_name, tooltip_format
+from joulescope_ui import CAPABILITIES, register, N_, P_, get_topic_name, tooltip_format
 from joulescope_ui.widget_tools import settings_action_create, context_menu_show
 from joulescope_ui.styles import styled_widget, color_as_qcolor, font_as_qfont
 from joulescope_ui.units import UNITS_SETTING, convert_units, unit_prefix, three_sig_figs
@@ -92,30 +92,28 @@ _DEVICE_TOOLTIP = tooltip_format(
 
 _HOLD_TOOLTIP = tooltip_format(
     N_("Hold the display"),
-    N_("""\
-    When selected, prevent the display from updating.
-    
-    The UI also includes a global statistics hold button
-    on the sidebar.  When the global statistics hold button
-    is selected, this button is disabled and has no effect.
-    
-    The displayed values normally update with each new statistics
-    data computed by the device.  When this button is selected,
-    the display will not be updated.  However, the statistics
-    will continue accumulate and accrue (if selected)."""))
+    P_([
+        N_("When selected, prevent the display from updating."),
+        N_("""The UI also includes a global statistics hold button
+        on the sidebar.  When the global statistics hold button
+        is selected, this button is disabled and has no effect."""),
+        N_("""The displayed values normally update with each new statistics
+        data computed by the device.  When this button is selected,
+        the display will not be updated.  However, the statistics
+        will continue accumulate and accrue (if selected).""")
+    ]))
 
 _ACCRUE_TOOLTIP = tooltip_format(
     N_("Accrue values over time"),
-    N_("""\
-    Current, voltage, and power are normally computed
-    over a single statistics frequency interval.  Press
-    this button to accrue the values indefinitely.
-    Press again to return to normal operation.
-    
-    Note that this button does not affect the charge and energy
-    accumulation.  Both accumulate indefinitely regardless of
-    this button state."""))
-
+    P_([
+        N_("""Current, voltage, and power are normally computed
+        over a single statistics frequency interval.  Press
+        this button to accrue the values indefinitely.
+        Press again to return to normal operation."""),
+        N_("""Note that this button does not affect the charge and energy
+        accumulation.  Both accumulate indefinitely regardless of
+        this button state.""")
+    ]))
 
 def duration_to_str(value):
     if value > 60:

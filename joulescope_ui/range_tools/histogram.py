@@ -24,9 +24,9 @@ from joulescope_ui.styles import styled_widget
 
 _NAME = N_('Histogram')
 _NORMALIZATIONS = {
-    'Discrete Probability Distribution': ('unity', 'Probability'),
-    'Frequency Distribution': ('count', 'Sample Count'),
-    'Probability Density Distribution': ('density', 'Probability Density'),
+    N_('Discrete Probability Distribution'): ('unity', 'Probability'),
+    N_('Frequency Distribution'): ('count', 'Sample Count'),
+    N_('Probability Density Distribution'): ('density', 'Probability Density'),
 }
 
 
@@ -189,9 +189,8 @@ class HistogramRangeToolWidget(QtWidgets.QWidget):
 class HistogramRangeTool(RangeToolBase):
     NAME = _NAME
     BRIEF = N_('Compute histogram over the range')
-    DESCRIPTION = N_("""\
-        Compute a histogram of the signal's data values over the
-        selected range.""")
+    DESCRIPTION = N_("""Compute a histogram of the signal's data values 
+        over the selected range.""")
 
     def __init__(self, value):
         super().__init__(value)

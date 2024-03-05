@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-from joulescope_ui import register, N_, pubsub_singleton
+from joulescope_ui import register, N_, pubsub_singleton, P_
 from joulescope_ui.range_tool import RangeToolBase
 from .plugin_helpers import calculate_histogram, normalize_hist
 import logging
@@ -27,14 +27,13 @@ from joulescope_ui.styles import styled_widget
 class CdfRangeTool(RangeToolBase):
     NAME = 'CDF'
     BRIEF = N_('Compute the Cumulative Distribution Function')
-    DESCRIPTION = N_("""\
-        The Cumulative Distribution Function (CDF) value is the probability
-        that a signal's value is less than or equal to the x-axis value.
-        
-        When use to analyze current or power, this graphically indicates the
+    DESCRIPTION = P_([
+        N_("""The Cumulative Distribution Function (CDF) value is the probability
+        that a signal's value is less than or equal to the x-axis value."""),
+        N_("""When use to analyze current or power, this graphically indicates the
         time spent below in each current mode.  Compared to a histogram,
         the CDF makes it easier to compare the amount of time in each mode
-        by simply measuring the change in the y-axis value.""")
+        by simply measuring the change in the y-axis value.""")])
 
     def __init__(self, value):
         super().__init__(value)

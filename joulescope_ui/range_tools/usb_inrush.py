@@ -51,8 +51,7 @@ def construct_path(base_path):
 class UsbInrush(RangeToolBase):
     NAME = N_('USB Inrush')
     BRIEF = N_('Perform USB Inrush testing')
-    DESCRIPTION = N_("""\
-        Use dual markers to select at least 100 milliseconds
+    DESCRIPTION = N_("""Use dual markers to select at least 100 milliseconds
         after enabling power to the target device.  This tool
         will send the selected data to the USBET tool for analysis.""")
 

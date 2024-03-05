@@ -12,11 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from joulescope_ui import N_
 from joulescope_ui.capabilities import CAPABILITIES
 import copy
 import logging
 
-
+CURRENT_RANGE_SHORT = N_("Enable the streaming for the selected current range.")
+CURRENT_RANGE_LONG = N_("""The current range is useful for understanding how
+your Joulescope autoranges to measure your current signal.
+It can also be helpful in separating target system behavior from the 
+small current range switching artifacts.""")
 CAPABILITIES_CLASS = [CAPABILITIES.DEVICE_CLASS]
 CAPABILITIES_OBJECT = [
     CAPABILITIES.DEVICE_OBJECT,

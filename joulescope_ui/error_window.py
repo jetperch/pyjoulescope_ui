@@ -25,17 +25,14 @@ import os
 
 _ERROR_INTRO = N_("The Joulescope UI encountered an error, and it cannot start correctly.")
 _TROUBLESHOOT = N_("We are here to help troubleshoot! Fill in the details below, and click Submit.")
-_CONTACT_TEXT = N_("""\
-    Please consider providing your contact information.
-    If you provide your contact information, we may contact
-    you to assist with troubleshooting this issue.""")
+_CONTACT_TEXT = N_("""Please provide your contact information so that we can contact you
+and assist with troubleshooting this issue.""")
 _HTML = "<html><head></head><body>{body}</body></html>"
 _RECOVERY = N_("Select an error recovery option.")
 _CONTACT_FILE = os.path.join(pubsub_singleton.query('common/settings/paths/config'), 'contact.json')
 _RESPONSE_TIME_DAYS = 2
 _TYPICAL_RESPONSE_TIME = N_(f'Typical response time: {_RESPONSE_TIME_DAYS} business days')
-_HOLIDAY = N_("""\
-Our offices are closed for holiday from {start_date} to {end_date}.
+_HOLIDAY = N_("""Our offices are closed for holiday from {start_date} to {end_date}.
 We will respond within {response_time} business days when we return on {return_date}.""")
 _HOLIDAYS = {
     # (datetime.date.today(), datetime.date.today() + datetime.timedelta(7)),  # for testing

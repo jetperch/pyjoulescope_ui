@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from joulescope_ui import N_, time64, register, pubsub_singleton, get_topic_name
+from joulescope_ui import N_, time64, register, pubsub_singleton, get_topic_name, P_
 from joulescope_ui.range_tool import RangeToolBase, rsp_as_f32
 import logging
 import numpy as np
@@ -23,13 +23,12 @@ from PySide6 import QtCore, QtWidgets
 class MaxWindowRangeTool(RangeToolBase):
     NAME = N_('Max window')
     BRIEF = N_('Find the maximum value window')
-    DESCRIPTION = N_("""\
-        Search the range for the window that has the maximum value.
+    DESCRIPTION = P_([
+        N_("""Search the range for the window that has the maximum value.
         This is an exhaustive search made by sliding the window 
-        duration across the entire range.
-        
-        When complete, this tool will add dual markers to the
-        waveform.""")
+        duration across the entire range."""),
+        N_("""When complete, this tool will add dual markers to the
+        waveform.""")])
 
     def __init__(self, value):
         super().__init__(value)

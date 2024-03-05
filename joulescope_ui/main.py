@@ -28,6 +28,7 @@ from joulescope_ui.safe_mode import safe_mode_dialog
 from joulescope_ui.styles.manager import style_settings
 from joulescope_ui.process_monitor import ProcessMonitor
 from joulescope_ui import software_update
+from joulescope_ui.intel_graphics_dialog import intel_graphics_dialog
 from joulescope_ui.ui_util import show_in_folder
 from joulescope_ui.widget_tools import CallableAction
 from joulescope_ui import urls
@@ -75,8 +76,7 @@ _SETTINGS = {
     'status_bar': {
         'dtype': 'str',
         'brief': N_('The UI status bar display mode'),
-        'detail': N_('''\
-            This setting controls the amount of detail shown on
+        'detail': N_('''This setting controls the amount of detail shown on
             the status bar at the bottom of the UI window.
             You should usually leave this set to "normal" unless
             you want more detail concerning the UI internal operation.'''),
@@ -96,23 +96,20 @@ _SETTINGS = {
 
 _PUBSUB_UTILIZATION_TOOLTIP = tooltip_format(
     N_('PubSub utilization'),
-    N_("""\
-    Display the number of actions processed by the
+    N_("""Display the number of actions processed by the
     publish-subscribe broker in each second."""))
 
 
 _CPU_UTILIZATION_TOOLTIP = tooltip_format(
     N_('CPU utilization'),
-    N_("""\
-    Display the CPU utilization by this application and
+    N_("""Display the CPU utilization by this application and
     the total CPU utilization by all applications.
     The value is displayed in percent."""))
 
 
 _MEMORY_UTILIZATION_TOOLTIP = tooltip_format(
     N_('Memory utilization'),
-    N_("""\
-    Display the memory (RAM) utilization by this application
+    N_("""Display the memory (RAM) utilization by this application
     and by all applications.
     The value is displayed in percent."""))
 
@@ -328,7 +325,6 @@ class MainWindow(QtWidgets.QMainWindow):
                 ['file_menu', N_('&File'), [
                     ['open', N_('Open'), ['registry/ui/actions/!file_open_request', '']],
                     ['open_recent_menu', N_('Open recent'), []],  # dynamically populated from MRU
-                    # '&Preferences': self.on_preferences,
                     ['exit_cfg', N_('Clear config and exit'), ['registry/ui/actions/!close', {'config_clear': True}]],
                     ['exit', N_('Exit'), ['registry/ui/actions/!close', '']],
                 ]],
@@ -434,6 +430,9 @@ class MainWindow(QtWidgets.QMainWindow):
                 [show, [f'{self.topic}/callbacks/!pend_done', show]]
             ]],
         })
+
+    def on_action_intel_graphics_dialog_show(self, value):
+        intel_graphics_dialog(self.pubsub, value)
 
     def _startup_software_check(self):
         if not self.pubsub.query('registry/app/settings/software_update_check'):

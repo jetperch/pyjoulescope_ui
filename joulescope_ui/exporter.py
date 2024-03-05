@@ -167,9 +167,8 @@ class ExporterDialog(QtWidgets.QDialog):
 class Exporter(RangeToolBase):
     NAME = N_('Exporter')
     BRIEF = N_('Export data to a JLS file')
-    DESCRIPTION = N_("""\
-                Exporting data to a JLS file.  You can open this file
-                later to display the exported data.""")
+    DESCRIPTION = N_("""Exporting data to a JLS file.  You can open this file
+    later to display the exported data.""")
 
     def __init__(self, value):
         self._signals = {}

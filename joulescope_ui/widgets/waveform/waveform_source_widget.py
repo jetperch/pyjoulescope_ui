@@ -18,7 +18,7 @@ Allow the user to configure the source devices displayed on the waveform.
 WARNING: this widget and feature is still under development.
 """
 
-from joulescope_ui import N_, tooltip_format, get_topic_name
+from joulescope_ui import N_, P_, tooltip_format, get_topic_name
 from joulescope_ui.widget_tools import CallableAction, context_menu_show
 from PySide6 import QtCore, QtGui, QtWidgets
 import logging
@@ -27,19 +27,19 @@ log = logging.getLogger(__name__)
 _BUTTON_SIZE = (20, 20)
 _TOOLTIP_TRACE_BUTTON = tooltip_format(
     N_("Enable trace"),
-    N_("""\
-    Click to toggle this trace.
-    
-    When enabled, the waveform will display this trace.
-    
-    When disabled, the waveform will hide this trace."""))
+    P_([
+        N_("Click to toggle this trace."),
+        N_("When enabled, the waveform will display this trace."),
+        N_("When disabled, the waveform will hide this trace."),
+    ]))
+
 _TOOLTIP_TRACE_SOURCE = tooltip_format(
     N_("Select the source"),
-    N_("""\
-    Select the source for this trace.
-    
-    "default" will use the default source which is normally configured
-    using the Device Control widget."""))
+    P_([
+        N_("Select the source for this trace."),
+        N_('''"default" will use the default source which is normally configured
+        using the Device Control widget.'''),
+    ]))
 
 
 class _Trace(QtWidgets.QFrame):

@@ -14,7 +14,7 @@
 
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from joulescope_ui import N_, register, tooltip_format, get_instance, CAPABILITIES
+from joulescope_ui import N_, P_, register, tooltip_format, get_instance, CAPABILITIES
 from joulescope_ui.styles import styled_widget, color_as_qcolor
 from joulescope_ui.widgets.flyout import FlyoutWidget
 from joulescope_ui.widget_tools import CallableSlotAdapter
@@ -25,44 +25,35 @@ _SIGNAL_STREAM_SOURCE_TOPIC = f'registry_manager/capabilities/{CAPABILITIES.SIGN
 
 _DEVICE_TOOLTIP = tooltip_format(
     N_('Device control'),
-    N_("""\
-    Click to show the device control widget which displays
+    N_("""Click to show the device control widget which displays
     the connected devices and their settings.  Use this
     widget to open and close devices and configure their
-    operation.\
-    """))
+    operation."""))
 
 _MEMORY_TOOLTIP = tooltip_format(
     N_('Memory buffer settings'),
-    N_("""\
-    Streaming signal sample data is stored in your host
+    N_("""Streaming signal sample data is stored in your host
     computer's RAM.  Click this button to show the
-    memory management widget which allows you to 
-    configure the memory used by this Joulescope UI instance.\
-    """))
+    memory management widget which allows you to
+    configure the memory used by this Joulescope UI instance."""))
 
 _SETTINGS_TOOLTIP = tooltip_format(
     N_('Settings'),
-    N_("""\
-    Click to show the settings which allows you
-    to change the global, default, and individual
-    instance settings for devices and widgets.
-    
-    Default changes may not affect existing instances,
-    and may only apply to future instances.\
-    """))
+    P_([
+        N_("""Click to show the settings which allows you
+        to change the global, default, and individual
+        instance settings for devices and widgets."""),
+        N_("""Default changes may not affect existing instances,
+        and may only apply to future instances.""")
+    ]))
 
 _HELP_TOOLTIP = tooltip_format(
     N_('Get help'),
-    N_("""\
-    Click to display help options.\
-    """))
+    N_("Click to display help options."))
 
 _MISC_TOOLTIP = tooltip_format(
     N_('Additional settings and actions'),
-    N_("""\
-    Click to display additional settings and actions.\
-    """))
+    N_("Click to display additional settings and actions."))
 
 
 @register

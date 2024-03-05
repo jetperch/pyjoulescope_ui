@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from .device import Device, CAPABILITIES_OBJECT_OPEN
+from .device import Device, CAPABILITIES_OBJECT_OPEN, CURRENT_RANGE_SHORT, CURRENT_RANGE_LONG
 from .js220_fuse import fuse_to_config
-from joulescope_ui import N_, get_topic_name, register
+from joulescope_ui import N_, get_topic_name, register, P_
 from joulescope_ui.metadata import Metadata
 from pyjoulescope_driver import release, program
 import copy
@@ -45,14 +45,13 @@ _SETTINGS_OBJ_ONLY = {
     'name': {
         'dtype': 'str',
         'brief': N_('Device name'),
-        'detail': N_("""\
-            The Joulescope UI automatically populates the device name
-            with the device type and serial number.
-        
-            This setting allows you to change the default, if you wish, to better
-            reflect how you are using your JS220.  This setting is
-            most useful when you are instrumenting a system using 
-            multiple Joulescopes."""),
+        'detail': P_([
+            N_("""The Joulescope UI automatically populates the device name
+            with the device type and serial number."""),
+            N_("""This setting allows you to change the default, if you wish,
+            to better reflect how you are using your JS220.  This setting is
+            most useful when you are instrumenting a system using
+            multiple Joulescopes.""")]),
         'default': None,
     },
     'info': {
@@ -98,15 +97,14 @@ _SETTINGS_CLASS = {
     'signal_frequency': {
         'dtype': 'int',
         'brief': N_('Signal frequency'),
-        'detail': N_("""\
-            This setting controls the output sampling frequency for the 
+        'detail': P_([
+            N_("""This setting controls the output sampling frequency for the
             measurement signals current, voltage, and power.  Use this
             setting to reduce the data storage requirements for long
-            captures where lower temporal accuracy is sufficient. 
-            
-            The JS220 instrument always samples at 2 MHz and 
-            then downsamples to 1 MHz.  This setting controls 
-            additional optional downsampling."""),
+            captures where lower temporal accuracy is sufficient."""),
+            N_("""The JS220 instrument always samples at 2 MHz and
+            then downsamples to 1 MHz.  This setting controls
+            additional optional downsampling.""")]),
         'options': [
             [1000000, "1 MHz"],
             [500000, "500 kHz"],
@@ -133,8 +131,7 @@ _SETTINGS_CLASS = {
     'statistics_frequency': {
         'dtype': 'int',
         'brief': N_('Statistics frequency'),
-        'detail': N_("""\
-            This setting controls the output frequency for 
+        'detail': N_("""This setting controls the output frequency for
             the statistics data that is displayed in the
             multimeter and value widgets.  Statistics data
             is computed over the full rate 1 MHz samples."""),
@@ -152,26 +149,24 @@ _SETTINGS_CLASS = {
     'target_power': {
         'dtype': 'bool',
         'brief': N_('Target power'),
-        'detail': N_("""\
-            Toggle the connection between the current terminals.
-            
-            When enabled, current flows between the current terminals.
+        'detail': P_([
+            N_("Toggle the connection between the current terminals."),
+            N_("""When enabled, current flows between the current terminals.
             When disabled, current cannot flow between the current terminals.
             In common system setups, this inhibits target power, which can
-            be used to power cycle reset the target device."""),
+            be used to power cycle reset the target device.""")]),
         'default': True,
         'flags': ['hide'],   # Display in ExpandingWidget's header_ex_widget
     },
     'current_range': {
         'dtype': 'int',
         'brief': N_('Current range'),
-        'detail': N_("""\
-            Configure the JS220's current range.  Most applications should
-            use the default, "auto".
-            
-            Use the other manual settings with care.  It is very easy to
+        'detail': P_([
+            N_("""Configure the JS220's current range.  Most applications should
+            use the default, "auto"."""),
+            N_("""Use the other manual settings with care.  It is very easy to
             configure a setting that saturates, which will ignore regions
-            of current draw larger than the current range setting."""),
+            of current draw larger than the current range setting.""")]),
         'options': [
             [-1, 'auto'],
             [129, '10 A'],
@@ -186,23 +181,20 @@ _SETTINGS_CLASS = {
     'current_range_limits': {
         'dtype': 'obj',  # [int, int]
         'brief': N_('Limits'),
-        'detail': N_("""\
-            Configure the autoranging current limits.
-            
-            This setting is only effective when the Current Range
-            is set to "auto".
-            
-            You can use this setting to limit the current range and
+        'detail': P_([
+            N_("""Configure the autoranging current limits."""),
+            N_("""This setting is only effective when the Current Range
+            is set to "auto"."""),
+            N_("""You can use this setting to limit the current range and
             improve autoranging accuracy when you know your application
-            current is more limited than the full measurement range."""),
+            current is more limited than the full measurement range.""")]),
         'default': [0, 5],
     },
     'voltage_range': {
         'dtype': 'int',
         'brief': N_('Voltage range'),
-        'detail': N_("""\
-            Configure the JS220's voltage range.  Most applications should
-            use the default, "auto"."""),
+        'detail': N_("""Configure the JS220's voltage range. \
+            Most applications should use the default, "auto"."""),
         'options': [
             [-1, 'auto'],
             [0, '15 V'],
@@ -213,18 +205,14 @@ _SETTINGS_CLASS = {
     'trigger_dir': {
         'dtype': 'int',
         'brief': N_('Trigger direction'),
-        'detail': N_("""\
-            Configure the direction of the JS220's trigger BNC connection.
-            
-            0 (default) configures the BNC trigger for input only.
-            The BNC connection is high-impedance.
-            
-            1 configures the BNC trigger for output.  The BNC connection
-            has 50 Ohm output impedance.
-            
-            In both cases, the trigger input signal is valid, which
-            enables internal inspection and recording of the trigger output.
-        """),
+        'detail': P_([
+            N_("Configure the direction of the JS220's trigger BNC connection."),
+            N_("""0 (default) configures the BNC trigger for input only.
+            The BNC connection is high-impedance."""),
+            N_("""1 configures the BNC trigger for output.  The BNC connection
+            has 50 Ohm output impedance."""),
+            N_("""In both cases, the trigger input signal is valid, which
+            enables internal inspection and recording of the trigger output.""")]),
         'options': [
             [0, 'input'],
             [1, 'output'],
@@ -234,17 +222,15 @@ _SETTINGS_CLASS = {
     'gpio_voltage': {
         'dtype': 'int',
         'brief': N_('GPIO voltage'),
-        'detail': N_("""\
-            Configure the JS220's reference voltage for the general-purpose
-            inputs and outputs.
-            
-            We recommend using "Vref" when attaching
+        'detail': P_([
+            N_("""Configure the JS220's reference voltage for the general-purpose
+            inputs and outputs."""),
+            N_("""We recommend using "Vref" when attaching
             general-purpose outputs (GPO) to other equipment.  Using Vref
             prevents the GPO from backpowering target devices when they
             powered down.  The Vref signal and general-purpose inputs
-            are all extremely high impedance to minimize leakage currents.
-            
-            "3.3 V" uses an internally-generated 3.3V reference voltage."""),
+            are all extremely high impedance to minimize leakage currents."""),
+            N_('''"3.3 V" uses an internally-generated 3.3V reference voltage.''')]),
         'options': [
             [0, 'Vref'],
             [1, '3.3 V'],
@@ -266,29 +252,29 @@ _SETTINGS_CLASS = {
     'out/T': {
         'dtype': 'bool',
         'brief': N_('Trigger output value'),
-        'detail': N_("""Turn the trigger output on or off.
-        
-            The trigger must also be configured for output for this
-            setting to have any effect."""),
+        'detail': P_([
+            N_("""Turn the trigger output on or off."""),
+            N_("""The trigger must also be configured for output for this
+            setting to have any effect.""")]),
         'default': False,
     },
     'firmware_channel': {
         'dtype': 'str',
         'brief': 'FW channel',
-        'detail': """The maturity level channel for firmware updates.
-        
-            We recommend keeping the default "stable"
-            unless you are a Joulescope developer.""",
+        'detail': P_([
+            N_('The maturity level channel for firmware updates.'),
+            N_("""We recommend keeping the default "stable"
+            unless you are a Joulescope developer.""")]),
         'options': [['alpha', 'alpha'], ['beta', 'beta'], ['stable', 'stable']],
         'default': 'stable',
     },
     'update_available': {
         'dtype': 'obj',
         'brief': 'FW available',
-        'detail': '''Firmware update availability.
-        
-            None when no firmware update is available.
-            Map of subname: [current, available] when available.''',
+        'detail': P_([
+            N_('Firmware update availability.'),
+            N_('''None when no firmware update is available.
+            Map of subname: [current, available] when available.''')]),
         'default': None,  # or dict of name: [current, available]
         'flags': ['hide', 'tmp', 'ro'],
     },
@@ -371,17 +357,12 @@ _SIGNALS = {
         'dtype': 'u8',
         'units': '',
         'brief': N_('Current Range'),
-        'detail': N_("""\
-            Enable the streaming for the selected current range.
-            
-            ⚠ When enabled, no more than 3 GPIO signals (0, 1, 2, 3, T)
-            may be enabled.  If you attempt to enable too many signals,
-            then the UI will display no data for any signal.
-    
-            The current range is useful for understanding how your Joulescope
-            autoranges to measure your current signal.  It can also be helpful
-            in separating target system behavior from the small current range
-            switching artifacts."""),
+        'detail': P_([
+            CURRENT_RANGE_SHORT,
+            N_("""⚠ When enabled, no more than 3 GPIO signals (0, 1, 2, 3, T) \
+            may be enabled.  If you attempt to enable too many signals, \
+            then the UI will display no data for any signal."""),
+            CURRENT_RANGE_LONG]),
         'default': False,
         'topics': ('s/i/range/ctrl', 's/i/range/!data'),
 

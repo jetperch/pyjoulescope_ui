@@ -105,7 +105,7 @@ class _ViewItem(QtWidgets.QWidget):
 
 
 @register
-@styled_widget(N_('sidebar'))
+@styled_widget(N_('View Manager'))
 class ViewManagerWidget(QtWidgets.QWidget):
     """Manage the views."""
 

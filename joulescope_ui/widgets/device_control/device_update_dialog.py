@@ -26,14 +26,15 @@ _COLUMNS = [
     N_('Version'),
     N_('Progress'),
 ]
+_STATUS1 = N_("""Before starting updates, ensure that Joulescopes are plugged directly
+into a USB port on the host computer.""")
+_STATUS2 = N_('Do not use any USB hubs, docks or adapters')
+
 _STATUS = {
     None: '',
     'scan': N_('Device scan in progress.'),
     'no_updates': N_('No updates available.'),
-    'updates': '<html><body>' + N_("""\
-        <p>Before starting updates, ensure that Joulescopes are plugged directly
-        into a USB port on the host computer.</p>  
-        <p>Do not use any USB hubs, docks or adapters.</p>""") + '</body></html>',
+    'updates': f'<html><body><p>{_STATUS1}</p><p>{_STATUS2}</p></body></html>',
     'in_progress': N_('Device update is in progress.  Please wait.'),
     'complete': N_('Device update completed.'),
 }

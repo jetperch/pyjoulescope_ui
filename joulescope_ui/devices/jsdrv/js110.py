@@ -12,10 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from joulescope_ui import N_, CAPABILITIES, register, Metadata, get_topic_name
-from .device import Device, CAPABILITIES_OBJECT_OPEN
+from joulescope_ui import N_, register, Metadata, get_topic_name, P_
+from .device import Device, CAPABILITIES_OBJECT_OPEN, CURRENT_RANGE_SHORT, CURRENT_RANGE_LONG
 import copy
-import numpy as np
 import queue
 import threading
 
@@ -28,14 +27,13 @@ _SETTINGS_OBJ_ONLY = {
     'name': {
         'dtype': 'str',
         'brief': N_('Device name'),
-        'detail': N_("""\
-            The Joulescope UI automatically populates the device name
-            with the device type and serial number.
-    
-            This setting allows you to change the default, if you wish, to better
+        'detail': P_([
+            N_("""The Joulescope UI automatically populates the device name
+            with the device type and serial number."""),
+            N_("""This setting allows you to change the default, if you wish, to better
             reflect how you are using your JS110.  This setting is
-            most useful when you are instrumenting a system using 
-            multiple Joulescopes."""),
+            most useful when you are instrumenting a system using
+            multiple Joulescopes.""")]),
         'default': None,
     },
     'info': {
@@ -81,16 +79,15 @@ _SETTINGS_CLASS = {
     'signal_frequency': {
         'dtype': 'int',
         'brief': N_('Signal frequency'),
-        'detail': N_("""\
-        This setting controls the output sampling frequency for the 
-        measurement signals current, voltage, and power.  Use this
-        setting to reduce the data storage requirements for long
-        captures where lower temporal accuracy is sufficient. 
-
-        The JS110 instrument always samples at 2 MHz and sends the
-        raw samples to the host.
-        This setting controls additional optional downsampling
-        that is performed on the host."""),
+        'detail': P_([
+            N_("""This setting controls the output sampling frequency for the
+            measurement signals current, voltage, and power.  Use this
+            setting to reduce the data storage requirements for long
+            captures where lower temporal accuracy is sufficient."""),
+            N_("""The JS110 instrument always samples at 2 MHz and sends the
+            raw samples to the host.
+            This setting controls additional optional downsampling
+            that is performed on the host.""")]),
         'options': [
             [2000000, "2 MHz"],
             [1000000, "1 MHz"],
@@ -118,8 +115,7 @@ _SETTINGS_CLASS = {
     'statistics_frequency': {
         'dtype': 'int',
         'brief': N_('Statistics frequency'),
-        'detail': N_("""\
-            This setting controls the output frequency for 
+        'detail': N_("""This setting controls the output frequency for
             the statistics data that is displayed in the
             multimeter and value widgets.  Statistics data
             is computed over the full rate 2 MHz samples."""),
@@ -137,26 +133,24 @@ _SETTINGS_CLASS = {
     'target_power': {
         'dtype': 'bool',
         'brief': N_('Target power'),
-        'detail': N_("""\
-            Toggle the connection between the current terminals.
-
-            When enabled, current flows between the current terminals.
+        'detail': P_([
+            N_('Toggle the connection between the current terminals.'),
+            N_("""When enabled, current flows between the current terminals.
             When disabled, current cannot flow between the current terminals.
             In common system setups, this inhibits target power, which can
-            be used to power cycle reset the target device."""),
+            be used to power cycle reset the target device.""")]),
         'default': True,
         'flags': ['hide'],  # Display in ExpandingWidget's header_ex_widget
     },
     'current_range': {
         'dtype': 'int',
         'brief': N_('Current range'),
-        'detail': N_("""\
-            Configure the J110's current range.  Most applications should
-            use the default, "auto".
-
-            Use the other manual settings with care.  It is very easy to
+        'detail': P_([
+            N_("""Configure the J110's current range.  Most applications should
+            use the default, "auto"."""),
+            N_("""Use the other manual settings with care.  It is very easy to
             configure a setting that saturates, which will ignore regions
-            of current draw larger than the current range setting."""),
+            of current draw larger than the current range setting.""")]),
         'options': [
             [0x80, 'auto'],
             [0x01, '10 A'],
@@ -172,8 +166,7 @@ _SETTINGS_CLASS = {
     'voltage_range': {
         'dtype': 'int',
         'brief': N_('Voltage range'),
-        'detail': N_("""\
-            Configure the JS110's voltage range."""),
+        'detail': N_("""Configure the JS110's voltage range."""),
         'options': [
             [0, '15 V'],
             [1, '5 V'],
@@ -183,12 +176,11 @@ _SETTINGS_CLASS = {
     'gpio_voltage': {
         'dtype': 'int',
         'brief': N_('GPIO voltage'),
-        'detail': N_("""\
-            Configure the JS110's reference voltage for the general-purpose
-            inputs and outputs.
-            
-            The JS110's general-purpose outputs always remain powered.
-            When set to "1", this can backpower unpowered targets."""),
+        'detail': P_([
+            N_("""Configure the JS110's reference voltage for the general-purpose
+            inputs and outputs."""),
+            N_("""The JS110's general-purpose outputs always remain powered.
+            When set to "1", this can backpower unpowered targets.""")]),
         'options': [
             [0,    'off'],
             [1800, '1.8 V'],
@@ -217,24 +209,20 @@ _SETTINGS_CLASS = {
     'current_ranging/type': {
         'dtype': 'int',
         'brief': N_('IRF type'),
-        'detail': N_("""\
-            Configure the current range filter (IRF) type which determines
+        'detail': P_([
+            N_("""Configure the current range filter (IRF) type which determines
             the filtering mechanism applied on current range changes.
-            We do not recommend changing these settings for normal operation.
-                     
-            "interp" is the default setting which interpolates over
+            We do not recommend changing these settings for normal operation."""),
+            N_('''"interp" is the default setting which interpolates over
             the samples in the window using the value computed by
-            the pre and post values.  This gives the most intuitive behavior.
-            
-            "mean" sets all samples in the window to the mean value.
+            the pre and post values.  This gives the most intuitive behavior.'''),
+            N_('''"mean" sets all samples in the window to the mean value.
             This results in a straight horizontal line that allows
             you to clearly see current range changes while still
-            providing the best long-term current range measurement.
-            
-            "NaN" sets all samples in the window to NaN.
-            
-            "off" disables the current range filtering, and you will ' +
-            see additional current range switching artifacts."""),
+            providing the best long-term current range measurement.'''),
+            N_('"NaN" sets all samples in the window to NaN.'),
+            N_('''"off" disables the current range filtering, and you will
+            see additional current range switching artifacts.''')]),
         'default': 'interp',
         'options': [
             [0, 'off'],
@@ -246,8 +234,7 @@ _SETTINGS_CLASS = {
     'current_ranging/samples_pre': {
         'dtype': 'int',
         'brief': N_('IRF pre'),
-        'detail': N_("""\
-            The number of samples before the current range window
+        'detail': N_("""The number of samples before the current range window
             used to determine the mean.
             This value is ignored for all other IRF types."""),
         'default': 1,
@@ -256,8 +243,7 @@ _SETTINGS_CLASS = {
     'current_ranging/samples_window': {
         'dtype': 'int',
         'brief': N_('IRF window'),
-        'detail': N_("""\
-            Use "n" for automatic duration based upon known response time.
+        'detail': N_("""Use "n" for automatic duration based upon known response time.
             Use "m" for shorter automatic duration that may result in min/max distortion.
             Use any other value to specify a fixed, manual window duration in samples."""),
         'default': 2,
@@ -266,8 +252,7 @@ _SETTINGS_CLASS = {
     'current_ranging/samples_post': {
         'dtype': 'int',
         'brief': N_('IRF post'),
-        'detail': N_("""\
-            The number of samples after the current range window
+        'detail': N_("""The number of samples after the current range window
             used to determine the mean.
             This value is ignored for all other IRF types."""),
         'default': 1,
@@ -309,13 +294,9 @@ _SIGNALS = {
         'dtype': 'u8',
         'units': '',
         'brief': N_('Current Range'),
-        'detail': N_("""\
-            Enable the streaming for the selected current range.
-
-            The current range is useful for understanding how your Joulescope
-            autoranges to measure your current signal.  It can also be helpful
-            in separating target system behavior from the small current range
-            switching artifacts."""),
+        'detail': P_([
+            CURRENT_RANGE_SHORT,
+            CURRENT_RANGE_LONG]),
         'default': True,
         'topics': ('s/i/range/ctrl', 's/i/range/!data'),
 

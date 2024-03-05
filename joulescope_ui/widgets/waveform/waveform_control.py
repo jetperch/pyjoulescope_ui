@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from joulescope_ui import pubsub_singleton, N_, get_topic_name, tooltip_format
+from joulescope_ui import pubsub_singleton, N_, get_topic_name, P_, tooltip_format
 from joulescope_ui.ui_util import comboBoxConfig
 from joulescope_ui.widget_tools import CallableSlotAdapter
 from PySide6 import QtCore, QtGui, QtWidgets
@@ -21,122 +21,90 @@ import logging
 log = logging.getLogger(__name__)
 
 _BUTTON_SIZE = (20, 20)
-
-_MARKER_REPOSITIION = tooltip_format(
-    "",
-    N_("""\
-    When selected, prevent the display from updating.
-
-    The UI also includes a global statistics hold button
-    on the sidebar.  When the global statistics hold button
-    is selected, this button is disabled and has no effect.
-
-    The displayed values normally update with each new statistics
-    data computed by the device.  When this button is selected,
-    the display will not be updated.  However, the statistics
-    will continue accumulate and accrue (if selected)."""))
-
-
-MARKER_REPOSITIION = """\
-<p>To reposition the marker, left click on the marker, move the mouse to the new location,
-and the left click again.</p>
-"""
+_MARKER_REPOSITION = N_("""To reposition the marker, left click on the marker, 
+move the mouse to the new location, and the left click again.""")
 
 
 _TOOLTIP_MARKER_SINGLE_ADD = tooltip_format(
     N_("Add single marker"),
-    N_("""\
-    Click to add a single marker to the waveform.
-    
-    To reposition the marker, left click on the marker, 
-    move the mouse to the new location,
-    and the left click again.
-    
-    You can also add a marker by right-clicking on the x-axis
-    or in the plot area."""))
+    P_([
+        N_("Click to add a single marker to the waveform."),
+        _MARKER_REPOSITION,
+        N_("""You can also add a marker by right-clicking on the x-axis
+        or in the plot area.""")
+    ]))
 
 _TOOLTIP_MARKER_DUAL_ADD = tooltip_format(
     N_("Add dual markers"),
-    N_("""\
-    Click to add a dual markers to the waveform.
-
-    To reposition the marker, left click on the marker, 
-    move the mouse to the new location,
-    and the left click again.
-
-    You can also add a dual markers by right-clicking on the x-axis
-    or in the plot area."""))
+    P_([
+        N_("Click to add a dual markers to the waveform."),
+        _MARKER_REPOSITION,
+        N_("""You can also add a dual markers by right-clicking on the x-axis
+        or in the plot area.""")
+    ]))
 
 _TOOLTIP_MARKER_CLEAR = tooltip_format(
     N_("Clear all markers"),
-    N_("""\
-    Click to clear all markers from the waveform.
+    N_("""Click to clear all markers from the waveform.
     This operation removes both single markers
     and dual markers."""))
 
 _TOOLTIP_X_AXIS_ZOOM_IN = tooltip_format(
     N_("Zoom in"),
-    N_("""\
-    Click to zoom in along the time x-axis.
-    
-    You can also zoom by positioning the mouse over the waveform and 
-    then using the scroll wheel."""))
+    P_([
+        N_("Click to zoom in along the time x-axis."),
+        N_("""You can also zoom by positioning the mouse over the waveform and
+        then using the scroll wheel."""),
+    ]))
 
 _TOOLTIP_X_AXIS_ZOOM_OUT = tooltip_format(
     N_("Zoom out"),
-    N_("""\
-    Click to zoom out along the time x-axis.
-
-    You can also zoom by positioning the mouse over the waveform and 
-    then using the scroll wheel."""))
+    P_([
+        N_("Click to zoom out along the time x-axis."),
+        N_("""You can also zoom by positioning the mouse over the waveform and
+        then using the scroll wheel."""),
+    ]))
 
 _TOOLTIP_X_AXIS_ZOOM_ALL = tooltip_format(
     N_("Zoom all"),
-    N_("""\
-    Click to display the full extents of the x-axis."""))
+    N_("Click to display the full extents of the x-axis."))
 
 _TOOLTIP_PIN_LEFT = tooltip_format(
     N_("Pin left"),
-    N_("""\
-    Pin the waveform display to the left side.
-    When enabled, the left side (oldest) data 
+    N_("""Pin the waveform display to the left side.
+    When enabled, the left side (oldest) data
     always remains in view."""))
 
 _TOOLTIP_PIN_RIGHT = tooltip_format(
     N_("Pin right"),
-    N_("""\
-    Pin the waveform display to the right side.
-    When enabled, the right side (newest) data 
+    N_("""Pin the waveform display to the right side.
+    When enabled, the right side (newest) data
     always remains in view."""))
 
 _TOOLTIP_Y_AXIS_ZOOM_ALL = tooltip_format(
     N_("Y zoom all"),
-    N_("""\
-    Click to reset the y-axis of all plots to auto ranging mode.
-    
-    This operation does not affect the fixed range plots such
-    as the general purpose inputs."""))
+    P_([
+        N_("Click to reset the y-axis of all plots to auto ranging mode."),
+        N_("""This operation does not affect the fixed range plots such
+        as the general purpose inputs.""")
+    ]))
 
 _TOOLTIP_MIN_MAX = tooltip_format(
     N_("Show min/max extents"),
-    N_("""\
-    Change how the waveform shows the min/max extents.
-    When zoomed out, each pixel may represent many samples.
-    Displaying the min/max can allow you to see events
-    that may be missed with just the average.
-    
-    "off" only displays the average.
-    
-    "lines" displays the minimum and maximum as separate line traces.
-    
-    "fill 1" displays a filled color between the minimum and maximum.
-    
-    "fill 2" also displays an additional fill for standard deviation."""))
+    P_([
+        N_("""Change how the waveform shows the min/max extents.
+        When zoomed out, each pixel may represent many samples.
+        Displaying the min/max can allow you to see events
+        that may be missed with just the average."""),
+        N_('"off" only displays the average.'),
+        N_('"lines" displays the minimum and maximum as separate line traces.'),
+        N_('"fill 1" displays a filled color between the minimum and maximum.'),
+        N_('"fill 2" also displays an additional fill for standard deviation.'),
+    ]))
 
 _TOOLTIP_SIGNAL = tooltip_format(
     N_("Show/hide signals"),
-    N_("""\
-    Click to toggle the signal axis display in the Waveform widget."""))
+    N_("Click to toggle the signal axis display in the Waveform widget."))
 
 _SIGNALS = ['i', 'v', 'p', 'r', '0', '1', '2', '3', 'T']
 

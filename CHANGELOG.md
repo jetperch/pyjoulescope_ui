@@ -10,6 +10,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 2024 Feb 28 [in progress]
 
 * Added plugin framework with live code reload  #14
+* Restructured code to support human language translation.
+* Added Intel graphics dialog to display sequence  #245
 
 
 ## 1.0.59

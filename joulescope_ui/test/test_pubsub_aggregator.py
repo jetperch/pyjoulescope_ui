@@ -19,7 +19,7 @@ Test the registry
 import unittest
 from joulescope_ui.pubsub import PubSub
 from joulescope_ui.pubsub_aggregator import PubsubAggregator, all_except_empty
-from joulescope_ui import CAPABILITIES, N_, Metadata
+from joulescope_ui import Metadata
 
 
 class MyDevice:
@@ -34,26 +34,26 @@ class MyDevice:
         self.SETTINGS = {
             'name': {
                 'dtype': 'str',
-                'brief': N_('Device name'),
-                'detail': N_("""\
+                'brief': 'Device name',
+                'detail': """\
                     The Joulescope UI automatically populates the device name
                     with the device type and serial number.
                 
                     This setting allows you to change the default, if you wish, to better
                     reflect how you are using your JS220.  This setting is
                     most useful when you are instrumenting a system using 
-                    multiple Joulescopes."""),
+                    multiple Joulescopes.""",
                 'default': None,
             },
             'info': {
                 'dtype': 'obj',
-                'brief': N_('Device information'),
+                'brief': 'Device information',
                 'default': None,
                 'flags': ['ro', 'hide', 'skip_undo'],
             },
             'state': {
                 'dtype': 'int',
-                'brief': N_('Device state indicator'),
+                'brief': 'Device state indicator',
                 'options': [
                     [0, 'closed'],
                     [1, 'opening'],

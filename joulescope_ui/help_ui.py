@@ -20,7 +20,8 @@ import os
 import re
 from PySide6 import QtCore, QtWidgets
 from joulescope_ui import pubsub_singleton, get_instance
-from joulescope_ui import about
+from joulescope_ui.about import ABOUT
+from joulescope_ui.getting_started import GETTING_STARTED
 
 
 _MY_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -28,8 +29,6 @@ _APP_PATH = os.path.dirname(_MY_PATH)
 _HELP_FILES = {
     'changelog': 'CHANGELOG.md',
     'credits': 'CREDITS.html',
-    'getting_started': 'getting_started.html',
-    'preferences': 'preferences.html',
 }
 _MD_HEADER = """\
 <!DOCTYPE html>
@@ -67,7 +66,9 @@ def _load_filename(filename):
 
 def load_help(name, style=None):
     if name == 'about':
-        html = about.load()
+        html = ABOUT
+    elif name == 'getting_started':
+        html = GETTING_STARTED
     else:
         filename = _HELP_FILES[name]
         html = _load_filename(filename)
@@ -132,6 +133,9 @@ class HelpHtmlMessageBox(QtWidgets.QDialog):
         self._label = QtWidgets.QLabel(html, self)
         self._label.setWordWrap(True)
         self._label.setOpenExternalLinks(True)
+        self._label.setTextInteractionFlags(
+            QtCore.Qt.TextSelectableByMouse | QtCore.Qt.LinksAccessibleByMouse |
+            QtCore.Qt.TextSelectableByKeyboard | QtCore.Qt.LinksAccessibleByKeyboard)
         self._layout.addWidget(self._label)
         self._verticalLayout.addWidget(self._scroll)
 

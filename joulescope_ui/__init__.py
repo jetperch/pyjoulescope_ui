@@ -28,8 +28,16 @@ __all__ = ['__version__', 'pubsub_singleton', 'register', 'register_decorator', 
            'time64',
            'PUBSUB_TOPICS', 'REGISTRY_MANAGER_TOPICS',
            'tooltip_format',
-           'CAPABILITIES', 'Metadata', 'N_',
+           'N_', 'PARAGRAPH_SEPARATOR', 'P_',
+           'CAPABILITIES', 'Metadata',
            'get_instance', 'get_topic_name', 'get_unique_id']
+
+
+PARAGRAPH_SEPARATOR = '\n\n'
+
+
+def P_(text_list):
+    return PARAGRAPH_SEPARATOR.join(text_list)
 
 
 def _pubsub_factory() -> PubSub:

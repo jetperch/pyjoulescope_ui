@@ -14,7 +14,7 @@
 
 from PySide6 import QtWidgets, QtGui, QtCore
 import pkgutil
-from joulescope_ui import N_, register, get_topic_name
+from joulescope_ui import N_, P_, register, get_topic_name
 from joulescope_ui.styles import styled_widget
 from joulescope_ui.widget_tools import CallableSlotAdapter
 from pyjoulescope_driver import calibration_hash
@@ -23,16 +23,14 @@ import logging
 import numpy as np
 
 
-_CAUTION = """\
-⚠ Before performing calibration, ensure that you save any 
-data in the UI that you wish to keep."""
+_CAUTION = N_("""⚠ Before performing calibration, ensure that you save any 
+data in the UI that you wish to keep.""")
 
-_CALIBRATION_NOTE = """\
-The Joulescope JS220 is designed to meet its specifications
-without recalibration.  You can use offset calibration to
+_CALIBRATION_NOTE = N_("""The Joulescope JS220 is designed to meet its
+specifications without recalibration.  You can use offset calibration to
 further reduce the offset error.  If you wish to perform
-scale calibration, ensure that your test setup gives a 
-sufficient test uncertainty ratio (TUR)."""
+scale calibration, ensure that your test setup gives a
+sufficient test uncertainty ratio (TUR).""")
 
 _FACTORY = N_('Restore factory calibration')
 _START = N_('Start')
@@ -42,11 +40,10 @@ _CALIBRATION_TITLE = N_('Calibration in progress')
 _CALIBRATION_BODY = N_('Please wait...')
 
 _CURRENT_CAL_TEXT = N_('Disconnect all sensor terminals')
-_VOLTAGE_CAL_TEXT = N_("""\
-Short together Voltage+, Voltage-, and Current+ using wires.
-
-If you are using the BNC front panel, simply connect Voltage to Current.\
-""")
+_VOLTAGE_CAL_TEXT = P_([
+    N_("Short together Voltage+, Voltage-, and Current+ using wires."),
+    N_("If you are using the BNC front panel, simply connect Voltage to Current.")
+])
 
 
 _OPERATION = {

@@ -40,8 +40,8 @@ class ClockWidget(QtWidgets.QWidget):
         'string_format': {
             'dtype': 'str',
             'brief': N_('The format string'),
-            'detail': """\
-                For syntax, see Python datetime.datetime.strftime""",
+            'detail': N_('For the complete syntax, see Python package {package}').format(
+                package='datetime.datetime.strftime'),
             'default': '%Y-%m-%d %H:%M:%S',
         }
     }

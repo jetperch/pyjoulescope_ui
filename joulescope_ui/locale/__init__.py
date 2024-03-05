@@ -14,16 +14,15 @@
 
 import gettext
 import os
+import re
 
 __all__ = ['N_']
-
-
-# https://docs.python.org/3/library/gettext.html
-# https://www.gnu.org/software/gettext/manual/gettext.html
-# https://www.mattlayman.com/blog/2015/i18n/
-# https://babel.pocoo.org/
-
-
+_whitespace = r'\s+'
 PATH = os.path.dirname(os.path.abspath(__file__))
 translate = gettext.translation('ui', PATH, fallback=True)
-N_ = translate.gettext
+
+
+def N_(txt):
+    txt = txt.strip()
+    txt = re.sub(_whitespace, ' ', txt)
+    return translate.gettext(txt)

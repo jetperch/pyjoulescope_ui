@@ -58,12 +58,15 @@ jobs:
         run: |
           python -VV
           python -m pip install --upgrade pip
-          python -m pip install build wheel pytest
+          python -m pip install build wheel pytest babel polib
 
       - name: Copy files to patch build
         run: |
           cp CHANGELOG.md joulescope_ui/
           cp CREDITS.html joulescope_ui/
+
+      - name: Update translations
+        run: python ci/translations.py
 
       - name: Update tokens using GitHub secrets
         env:
