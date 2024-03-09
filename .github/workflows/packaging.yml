@@ -161,7 +161,7 @@ jobs:
           python -VV
           python -m pip install --upgrade pip
           python -m pip install -U --upgrade-strategy eager -r requirements.txt
-          python -m pip install polib
+          python -m pip install babel polib deepl
 
       - name: Patch macOS to universal2
         run: python ci/macos_universal2.py
