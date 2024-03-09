@@ -19,7 +19,7 @@ strings already surrounded by the "N_" function.
 To update the POT file:
 
 ```
-pip install babel polib
+pip install babel polib deepl
 python ci/translations.py
 ```
 
