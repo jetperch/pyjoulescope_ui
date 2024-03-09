@@ -47,7 +47,7 @@ _DURATION_TOOLTIP = tooltip_format(
 _TIME_CONSTANT_TOOLTIP = tooltip_format(
     N_('Fuse dissipation time constant'),
     N_("""The exponential decay time constant.
-    The fuse dissipates 63.2% of accumulated energy in this duration.""")
+    The fuse dissipates 63.2 percent of accumulated energy in this duration.""")
 )
 
 _FUSE_STATE = N_("Fuse state indicator.  When enabled and engaged, click to clear.")

@@ -1,0 +1,3168 @@
+# French translations for PROJECT.
+# Copyright (C) 2024 Jetperch LLC
+# This file is distributed under the same license as the PROJECT project.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PROJECT 1.1.0\n"
+"Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
+"POT-Creation-Date: 2024-03-09 12:56-0500\n"
+"PO-Revision-Date: 2024-03-07 17:35-0500\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language: fr\n"
+"Language-Team: fr <LL@li.org>\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.14.0\n"
+
+#: about.py:24
+msgid "About the Joulescope UI"
+msgstr "A propos de l'interface utilisateur Joulescope"
+
+#: about.py:25
+msgid "Version Information"
+msgstr "Information sur la version"
+
+#: app.py:47 devices/jsdrv/js110.py:135 devices/jsdrv/js220.py:151
+msgid "Target power"
+msgstr "Puissance cible"
+
+#: app.py:49
+msgid "Toggle the power to all connected targets."
+msgstr "Permet de mettre sous tension toutes les cibles connectées."
+
+#: app.py:50
+msgid ""
+"This feature forces all connected instruments to disable current flow. "
+"You can use this feature to perform a power cycle reset for the connected"
+" target devices."
+msgstr ""
+"Cette fonction force tous les instruments connectés à désactiver le flux "
+"de courant. Vous pouvez utiliser cette fonction pour effectuer une "
+"réinitialisation du cycle d'alimentation des appareils cibles connectés."
+
+#: app.py:53
+msgid "The JS220 disconnects the current terminals."
+msgstr "Le JS220 déconnecte les bornes de courant."
+
+#: app.py:54
+msgid ""
+"The JS110 disconnects the current from IN+ to OUT+, but the system setup "
+"must prevent excessive backwards current."
+msgstr ""
+"Le JS110 déconnecte le courant de IN+ à OUT+, mais la configuration du "
+"système doit empêcher un courant de retour excessif."
+
+#: app.py:60 widgets/device_control/js220_ctrl_widget.py:50
+msgid "Fuse engaged indicator"
+msgstr "Indicateur de fusible engagé"
+
+#: app.py:62
+msgid ""
+"This indicator becomes active when at least one connected instrument has "
+"an engaged fuse. Instruments with engaged fuses prevent current flow "
+"until cleared."
+msgstr ""
+"Cet indicateur devient actif lorsqu'au moins un instrument connecté a un "
+"fusible engagé. Les instruments dont les fusibles sont engagés empêchent "
+"le passage du courant jusqu'à ce qu'ils soient libérés."
+
+#: app.py:65 widgets/device_control/js220_ctrl_widget.py:55
+msgid "Press to clear."
+msgstr "Appuyer sur pour effacer."
+
+#: app.py:70
+msgid "Statistics display"
+msgstr "Affichage des statistiques"
+
+#: app.py:72
+msgid "Click to toggle live streaming statistics."
+msgstr "Cliquez pour afficher les statistiques en direct."
+
+#: app.py:73
+msgid ""
+"When enabled, the widgets will display the statistics data as it arrives "
+"from the connected instruments."
+msgstr ""
+"Lorsqu'ils sont activés, les widgets affichent les données statistiques "
+"au fur et à mesure qu'elles sont transmises par les instruments "
+"connectés."
+
+#: app.py:75
+msgid ""
+"When disabled, hold the existing values. New statistics data is "
+"processed, but widgets displaying statistics information do not update."
+msgstr ""
+"Lorsqu'elle est désactivée, les valeurs existantes sont conservées. Les "
+"nouvelles données statistiques sont traitées, mais les widgets affichant "
+"les informations statistiques ne sont pas mis à jour."
+
+#: app.py:83
+msgid "Statistics recording"
+msgstr "Enregistrement des statistiques"
+
+#: app.py:85
+msgid "Click to control streaming statistics data recording."
+msgstr ""
+"Cliquez sur ce bouton pour contrôler l'enregistrement des données "
+"statistiques en continu."
+
+#: app.py:86
+msgid ""
+"Click once to start a recording to a CSV file. Click again to stop the "
+"recording."
+msgstr ""
+"Cliquez une fois pour démarrer l'enregistrement dans un fichier CSV. "
+"Cliquez à nouveau pour arrêter l'enregistrement."
+
+#: app.py:87
+msgid ""
+"By default, Joulescopes provide statistics data at 2 Hz. Each device "
+"allows you to change this setting to the desired rate."
+msgstr ""
+"Par défaut, les Joulescopes fournissent des données statistiques à 2 Hz. "
+"Chaque appareil vous permet de modifier ce paramètre à la fréquence "
+"souhaitée."
+
+#: app.py:94
+msgid "Signal sample streaming"
+msgstr "Streaming d'échantillons de signaux"
+
+#: app.py:96
+msgid "Click to toggle sample data streaming."
+msgstr "Cliquez sur ce bouton pour activer le flux de données de l'échantillon."
+
+#: app.py:97
+msgid ""
+"When enabled, stream sample data from all open sample sources and "
+"configure all sample widgets for acquisition mode."
+msgstr ""
+"Lorsque cette option est activée, les données d'échantillons sont "
+"transmises en continu à partir de toutes les sources d'échantillons "
+"ouvertes et tous les widgets d'échantillons sont configurés pour le mode "
+"d'acquisition."
+
+#: app.py:99
+msgid ""
+"When disabled, stop sample streaming and configure all sample widgets for"
+" buffer mode."
+msgstr ""
+"Lorsqu'il est désactivé, il arrête le flux d'échantillons et configure "
+"tous les widgets d'échantillons en mode tampon."
+
+#: app.py:106
+msgid "Signal sample recording"
+msgstr "Enregistrement d'échantillons de signaux"
+
+#: app.py:108
+msgid "Click to control signal sample recording."
+msgstr ""
+"Cliquez sur ce bouton pour contrôler l'enregistrement des échantillons de"
+" signaux."
+
+#: app.py:109
+msgid ""
+"Click once to start a recording to a JLS file. Click again to stop the "
+"recording."
+msgstr ""
+"Cliquez une fois pour démarrer un enregistrement dans un fichier JLS. "
+"Cliquez à nouveau pour arrêter l'enregistrement."
+
+#: app.py:111
+msgid ""
+"The recording will capture data from all enabled sample sources and "
+"signals at their configured sample rates. To reduce the file size, you "
+"can disable sources, disable signals, and/or reduce the sample rates."
+msgstr ""
+"L'enregistrement capturera les données de toutes les sources "
+"d'échantillonnage et de tous les signaux activés à leur fréquence "
+"d'échantillonnage configurée. Pour réduire la taille du fichier, vous "
+"pouvez désactiver les sources et les signaux et/ou réduire les taux "
+"d'échantillonnage."
+
+#: app.py:120
+msgid "The default unique_id for the default statistics streaming source."
+msgstr ""
+"L'identifiant unique par défaut de la source de flux de statistiques par "
+"défaut."
+
+#: app.py:125
+msgid "The unique_id for the default signal streaming source."
+msgstr "L'identifiant unique de la source de diffusion de signaux par défaut."
+
+#: app.py:130
+msgid "The unique_id for the default signal buffer source."
+msgstr "L'identifiant unique de la source de tampon de signal par défaut."
+
+#: app.py:135
+msgid "Check for software updates."
+msgstr "Vérifier les mises à jour du logiciel."
+
+#: app.py:140
+msgid "The software update channel."
+msgstr "Le canal de mise à jour du logiciel."
+
+#: app.py:143
+msgid "alpha"
+msgstr "alpha"
+
+#: app.py:144
+msgid "beta"
+msgstr "bêta"
+
+#: app.py:145
+msgid "stable"
+msgstr "stable"
+
+#: app.py:150
+msgid "Check for device firmware updates."
+msgstr "Vérifier les mises à jour du micrologiciel de l'appareil."
+
+#: app.py:155 units.py:33
+msgid "The units to display."
+msgstr "Les unités à afficher."
+
+#: app.py:157 units.py:36
+msgid "International System of Units (SI)"
+msgstr "Système international d'unités (SI)"
+
+#: app.py:158 units.py:37
+msgid "Customary units (Ah and Wh)"
+msgstr "Unités coutumières (Ah et Wh)"
+
+#: app.py:164
+msgid "Select the OpenGL rendering method."
+msgstr "Sélectionnez la méthode de rendu OpenGL."
+
+#: app.py:166
+msgid ""
+"This application uses OpenGL to accelerate graphics rendering. OpenGL has"
+" multiple options for rendering, which varies between platforms. By "
+"default, this application uses \"desktop\" rendering. If OpenGL is not "
+"well-supported by your graphics drivers, you can select \"software\" "
+"rendering."
+msgstr ""
+"Cette application utilise OpenGL pour accélérer le rendu graphique. "
+"OpenGL dispose de plusieurs options de rendu, qui varient d'une plate-"
+"forme à l'autre. Par défaut, cette application utilise le rendu "
+"\"desktop\". Si OpenGL n'est pas bien supporté par vos pilotes "
+"graphiques, vous pouvez sélectionner le rendu \"logiciel\"."
+
+#: app.py:171
+msgid "Selecting \"ANGLE\" may break copy as image and save as image."
+msgstr ""
+"La sélection de \"ANGLE\" peut interrompre la copie en tant qu'image et "
+"l'enregistrement en tant qu'image."
+
+#: app.py:172
+msgid "UI restart required for change to take effect."
+msgstr ""
+"Le redémarrage de l'interface utilisateur est nécessaire pour que le "
+"changement prenne effet."
+
+#: app.py:174
+msgid "desktop"
+msgstr "bureau"
+
+#: app.py:176
+msgid "software"
+msgstr "logiciel"
+
+#: app.py:177
+msgid "Autodetect"
+msgstr "Autodétection"
+
+#: app.py:178
+msgid "Not specified"
+msgstr "Non spécifié"
+
+#: app.py:184
+msgid "Prompt to switch from Intel graphics to software renderer."
+msgstr "Invite à passer de la carte graphique Intel au moteur de rendu logiciel."
+
+#: error_dialog.py:42 error_window.py:311
+msgid "Error"
+msgstr "Erreur"
+
+#: error_window.py:25
+msgid "The Joulescope UI encountered an error, and it cannot start correctly."
+msgstr ""
+"L'interface utilisateur du Joulescope a rencontré une erreur et ne peut "
+"pas démarrer correctement."
+
+#: error_window.py:26
+msgid ""
+"We are here to help troubleshoot! Fill in the details below, and click "
+"Submit."
+msgstr ""
+"Nous sommes là pour vous aider à résoudre vos problèmes ! Remplissez les "
+"champs ci-dessous et cliquez sur Envoyer."
+
+#: error_window.py:27
+msgid ""
+"Please provide your contact information so that we can contact you and "
+"assist with troubleshooting this issue."
+msgstr ""
+"Veuillez indiquer vos coordonnées afin que nous puissions vous contacter "
+"et vous aider à résoudre ce problème."
+
+#: error_window.py:30
+msgid "Select an error recovery option."
+msgstr "Sélectionnez une option de récupération des erreurs."
+
+#: error_window.py:34
+msgid ""
+"Our offices are currently closed until {return_date}. We will respond "
+"within {response_time} business days after we return."
+msgstr ""
+"Nos bureaux sont actuellement fermés jusqu'à {return_date}. Nous vous "
+"répondrons dans les {response_time} jours ouvrables suivant notre retour."
+
+#: error_window.py:51
+msgid "Submit failed. Ensure that your computer can access the internet."
+msgstr ""
+"L'envoi a échoué. Assurez-vous que votre ordinateur peut accéder à "
+"l'internet."
+
+#: error_window.py:52
+msgid "Submit completed successfully."
+msgstr "L'envoi a été effectué avec succès."
+
+#: error_window.py:86
+msgid "Contact information"
+msgstr "Informations sur les contacts"
+
+#: error_window.py:90
+msgid "First name"
+msgstr "Prénom"
+
+#: error_window.py:93
+msgid "Email"
+msgstr "Courriel"
+
+#: error_window.py:103
+msgid "Description"
+msgstr "Description"
+
+#: error_window.py:112 widgets/waveform/waveform_widget.py:3330
+msgid "Edit"
+msgstr "Editer"
+
+#: error_window.py:113
+msgid "View as Markdown"
+msgstr "Voir comme Markdown"
+
+#: error_window.py:119
+msgid "Abort"
+msgstr "Abandonner"
+
+#: error_window.py:120 main.py:331 widgets/settings/settings_widget.py:539
+msgid "View"
+msgstr "Voir"
+
+#: error_window.py:121
+msgid "Submit"
+msgstr "Soumettre"
+
+#: error_window.py:185
+msgid "Submit in progress."
+msgstr "Soumission en cours."
+
+#: error_window.py:281
+msgid "Revert to previous configuration"
+msgstr "Revenir à la configuration précédente"
+
+#: error_window.py:282
+msgid "Revert to defaults"
+msgstr "Revenir aux valeurs par défaut"
+
+#: error_window.py:283 main.py:329 main.py:375
+#: widgets/js220_cal/js220_cal_widget.py:38
+msgid "Exit"
+msgstr "Sortie"
+
+#: exporter.py:49 widgets/signal_record/signal_record_config_widget.py:48
+#: widgets/statistics_record/statistics_record_config_widget.py:47
+msgid "Directory"
+msgstr "Annuaire"
+
+#: exporter.py:61 widgets/signal_record/signal_record_config_widget.py:36
+#: zip_inspector.py:92
+msgid "Filename"
+msgstr "Nom de fichier"
+
+#: exporter.py:68 widgets/notes/notes_widget.py:21
+#: widgets/signal_record/signal_record_config_widget.py:66
+msgid "Notes"
+msgstr "Notes"
+
+#: exporter.py:86 widgets/signal_record/signal_record_config_widget.py:123
+#: widgets/signal_record/signal_record_config_widget.py:144
+#: widgets/statistics_record/statistics_record_config_widget.py:108
+msgid "Select save location"
+msgstr "Sélectionner l'emplacement de l'enregistrement"
+
+#: exporter.py:136
+msgid "Export configuration"
+msgstr "Exporter la configuration"
+
+#: exporter.py:168
+msgid "Exporter"
+msgstr "Exportateur"
+
+#: exporter.py:169
+msgid "Export data to a JLS file"
+msgstr "Exporter des données vers un fichier JLS"
+
+#: exporter.py:170
+msgid ""
+"Exporting data to a JLS file. You can open this file later to display the"
+" exported data."
+msgstr ""
+"Exportation des données vers un fichier JLS. Vous pouvez ouvrir ce "
+"fichier ultérieurement pour afficher les données exportées."
+
+#: getting_started.py:20
+msgid "Getting Started with Your Joulescope"
+msgstr "Mise en route du Joulescope"
+
+#: getting_started.py:22
+msgid "Safety"
+msgstr "Sécurité"
+
+#: getting_started.py:23
+msgid "The voltage between any sensor port must never exceed ±15V"
+msgstr "La tension entre les ports des capteurs ne doit jamais dépasser ±15V."
+
+#: getting_started.py:24
+msgid "The JS220 sensor ports are Current+, Current-, Voltage+, Voltage-"
+msgstr ""
+"Les ports des capteurs du JS220 sont Courant+, Courant-, Tension+, "
+"Tension-."
+
+#: getting_started.py:25
+msgid "The JS110 sensor ports are IN+, IN- OUT+, and OUT-"
+msgstr "Les ports du capteur JS110 sont IN+, IN- OUT+ et OUT-."
+
+#: getting_started.py:26
+msgid ""
+"The sensor ports are electrically isolated from USB. The voltage between "
+"any sensor port and USB ground must never exceed ±48V. The GPI/O and "
+"trigger ports are referenced to USB ground."
+msgstr ""
+"Les ports des capteurs sont isolés électriquement de l'USB. La tension "
+"entre un port de capteur et la masse de l'USB ne doit jamais dépasser "
+"±48V. Les ports GPI/O et de déclenchement sont référencés à la masse USB."
+
+#: getting_started.py:30
+msgid "Connect"
+msgstr "Connecter"
+
+#: getting_started.py:31
+msgid ""
+"Connect Joulescope's USB port to your computer using the provided cable. "
+"Use an adapter or suitable cable if your computer only has USB Type C "
+"ports."
+msgstr ""
+"Connectez le port USB du Joulescope à votre ordinateur à l'aide du câble "
+"fourni. Utilisez un adaptateur ou un câble approprié si votre ordinateur "
+"ne dispose que de ports USB de type C."
+
+#: getting_started.py:33
+msgid ""
+"For the JS220, connect the current port between the power supply and the "
+"device under test. Connect the voltage port to the power supply. See the "
+"Joulescope JS220 User's Guide for more connection examples."
+msgstr ""
+"Pour le JS220, connectez le port de courant entre l'alimentation et "
+"l'appareil testé. Connecter le port de tension à l'alimentation. Voir le "
+"Guide de l'utilisateur du Joulescope JS220 pour plus d'exemples de "
+"connexion."
+
+#: getting_started.py:36
+msgid ""
+"For the JS110, connect the Joulescope IN port to your power supply. "
+"Connect the Joulescope OUT port to your target device."
+msgstr ""
+"Pour le JS110, connectez le port Joulescope IN à votre alimentation "
+"électrique. Connectez le port Joulescope OUT à votre appareil cible."
+
+#: getting_started.py:39
+msgid "Measure"
+msgstr "Mesure"
+
+#: getting_started.py:40
+msgid ""
+"The Joulescope software starts in the Multimeter View displaying the "
+"value current, voltage, power, and energy."
+msgstr ""
+"Le logiciel Joulescope démarre en mode Multimètre et affiche les valeurs "
+"de courant, de tension, de puissance et d'énergie."
+
+#: getting_started.py:42
+msgid ""
+"Select View → Oscilloscope to switch to the Oscilloscope View and explore"
+" changes over time."
+msgstr ""
+"Sélectionnez Vue → Oscilloscope pour passer à la vue Oscilloscope et "
+"explorer les changements au fil du temps."
+
+#: getting_started.py:44
+msgid "Press the Play/Pause button to start and stop sample streaming."
+msgstr ""
+"Appuyez sur le bouton Play/Pause pour démarrer et arrêter la diffusion "
+"d'échantillons."
+
+#: getting_started.py:45
+msgid "Use the scroll wheel to zoom the time x-axis."
+msgstr "Utilisez la molette de défilement pour agrandir l'axe des x du temps."
+
+#: getting_started.py:46
+msgid "Left-click and drag to pan in time."
+msgstr ""
+"Cliquez avec le bouton gauche de la souris et faites glisser pour "
+"effectuer un panoramique dans le temps."
+
+#: getting_started.py:47
+msgid "Right-click for context sensitive menus and more options."
+msgstr ""
+"Cliquez avec le bouton droit de la souris pour accéder à des menus "
+"contextuels et à d'autres options."
+
+#: getting_started.py:48
+msgid ""
+"Control-click or two finger click for context sensitive menus and more "
+"options."
+msgstr ""
+"Contrôle-clic ou clic à deux doigts pour des menus contextuels et plus "
+"d'options."
+
+#: getting_started.py:53
+msgid "Support"
+msgstr "Soutien"
+
+#: getting_started.py:54
+msgid ""
+"Click on the help icon at the bottom left for more information and "
+"support options."
+msgstr ""
+"Cliquez sur l'icône d'aide en bas à gauche pour plus d'informations et "
+"d'options d'assistance."
+
+#: intel_graphics_dialog.py:22
+msgid ""
+"This computer has Intel graphics. If the computer has a discrete graphics"
+" card, please adjust your graphics settings to run this application using"
+" the graphics card."
+msgstr ""
+"Cet ordinateur est équipé d'une carte graphique Intel. Si l'ordinateur "
+"est équipé d'une carte graphique discrète, veuillez ajuster vos "
+"paramètres graphiques pour exécuter cette application en utilisant la "
+"carte graphique."
+
+#: intel_graphics_dialog.py:26
+msgid ""
+"If the computer only has Intel graphics, we recommend that you update "
+"your graphics drivers. You can download the latest graphics drivers from "
+"your computer manufacturer or Intel."
+msgstr ""
+"Si l'ordinateur n'est équipé que de cartes graphiques Intel, nous vous "
+"recommandons de mettre à jour vos pilotes graphiques. Vous pouvez "
+"télécharger les derniers pilotes graphiques auprès du fabricant de votre "
+"ordinateur ou d'Intel."
+
+#: intel_graphics_dialog.py:29
+msgid "You may observe strange graphics hangs with the latest Intel driver."
+msgstr ""
+"Il se peut que vous observiez des blocages graphiques étranges avec le "
+"dernier pilote Intel."
+
+#: intel_graphics_dialog.py:30
+msgid ""
+"If this happens on your computer, then you can switch to the software "
+"OpenGL renderer. The software OpenGL renderer may work around Intel "
+"driver instabilities, but it runs slower possibly causing performance "
+"issues. On a small number of computers, it does not run correctly causing"
+" a white application screen. You will need to close and reopen this "
+"application for the change to take effect."
+msgstr ""
+"Si cela se produit sur votre ordinateur, vous pouvez passer au moteur de "
+"rendu OpenGL logiciel. Le moteur de rendu OpenGL logiciel peut contourner"
+" les instabilités des pilotes Intel, mais il fonctionne plus lentement, "
+"ce qui peut entraîner des problèmes de performance. Sur un petit nombre "
+"d'ordinateurs, il ne fonctionne pas correctement, ce qui entraîne un "
+"écran d'application blanc. Vous devrez fermer et rouvrir cette "
+"application pour que le changement prenne effet."
+
+#: intel_graphics_dialog.py:38
+msgid "Would you like to switch to the software OpenGL renderer?"
+msgstr "Souhaitez-vous passer au logiciel de rendu OpenGL ?"
+
+#: intel_graphics_dialog.py:39
+msgid ""
+"If you are unsure, select \"No\" and leave \"Do not show again\" "
+"unchecked. If you observe the graphics hangs, you can select \"Yes\" in "
+"the future. You can select the OpenGL renderer at any time using Widgets "
+"→ Settings → Common → opengl. The default is \"desktop\"."
+msgstr ""
+"Si vous n'êtes pas sûr, sélectionnez \"Non\" et ne cochez pas la case "
+"\"Ne pas réapparaître\". Si vous observez que les graphiques se bloquent,"
+" vous pouvez sélectionner \"Oui\" à l'avenir. Vous pouvez sélectionner le"
+" moteur de rendu OpenGL à tout moment en utilisant Widgets → Settings → "
+"Common → opengl. La valeur par défaut est \"desktop\"."
+
+#: intel_graphics_dialog.py:82
+msgid "Do not show again"
+msgstr "Ne plus montrer"
+
+#: intel_graphics_dialog.py:91
+msgid "Intel graphics detected"
+msgstr "Graphique Intel détecté"
+
+#: main.py:78
+msgid "The UI status bar display mode"
+msgstr "Mode d'affichage de la barre d'état de l'interface utilisateur"
+
+#: main.py:79
+msgid ""
+"This setting controls the amount of detail shown on the status bar at the"
+" bottom of the UI window. You should usually leave this set to \"normal\""
+" unless you want more detail concerning the UI internal operation."
+msgstr ""
+"Ce paramètre contrôle la quantité de détails affichés dans la barre "
+"d'état au bas de la fenêtre de l'interface utilisateur. Vous devriez "
+"généralement laisser ce paramètre sur \"normal\", à moins que vous ne "
+"souhaitiez obtenir plus de détails sur le fonctionnement interne de "
+"l'interface utilisateur."
+
+#: main.py:84 safe_mode.py:43
+msgid "Normal"
+msgstr "Normal"
+
+#: main.py:85
+msgid "Troubleshoot"
+msgstr "Dépannage"
+
+#: main.py:91
+msgid "Enable developer mode."
+msgstr "Activer le mode développeur."
+
+#: main.py:98
+msgid "PubSub utilization"
+msgstr "Utilisation de PubSub"
+
+#: main.py:99
+msgid ""
+"Display the number of actions processed by the publish-subscribe broker "
+"in each second."
+msgstr ""
+"Affiche le nombre d'actions traitées par le courtier de publication et "
+"d'abonnement chaque seconde."
+
+#: main.py:104
+msgid "CPU utilization"
+msgstr "Utilisation de l'unité centrale"
+
+#: main.py:105
+msgid ""
+"Display the CPU utilization by this application and the total CPU "
+"utilization by all applications. The value is displayed in percent."
+msgstr ""
+"Affiche l'utilisation du processeur par cette application et "
+"l'utilisation totale du processeur par toutes les applications. La valeur"
+" est affichée en pourcentage."
+
+#: main.py:111
+msgid "Memory utilization"
+msgstr "Utilisation de la mémoire"
+
+#: main.py:112
+msgid ""
+"Display the memory (RAM) utilization by this application and by all "
+"applications. The value is displayed in percent."
+msgstr ""
+"Affiche l'utilisation de la mémoire (RAM) par cette application et par "
+"toutes les applications. La valeur est affichée en pourcentage."
+
+#: main.py:189
+msgid "UI"
+msgstr "UI"
+
+#: main.py:264 main.py:285
+msgid "File"
+msgstr "Fichier"
+
+#: main.py:281 widgets/value/value_widget.py:653
+msgid "Multimeter"
+msgstr "Multimètre"
+
+#: main.py:283
+msgid "Oscilloscope"
+msgstr "Oscilloscope"
+
+#: main.py:296
+msgid "&Help"
+msgstr "&Aide"
+
+#: main.py:297 widgets/hamburger/hamburger_widget.py:21
+msgid "Getting Started"
+msgstr "Pour commencer"
+
+#: main.py:298
+msgid "User's Guide"
+msgstr "Guide de l'utilisateur"
+
+#: main.py:299 widgets/hamburger/hamburger_widget.py:22
+msgid "Changelog"
+msgstr "Changelog"
+
+#: main.py:300 widgets/help/help_widget.py:59
+msgid "Report Issue"
+msgstr "Numéro du rapport"
+
+#: main.py:301
+msgid "View logs..."
+msgstr "Voir les journaux..."
+
+#: main.py:302 widgets/hamburger/hamburger_widget.py:23
+msgid "Credits"
+msgstr "Crédits"
+
+#: main.py:303 widgets/hamburger/hamburger_widget.py:24
+msgid "About"
+msgstr "A propos de"
+
+#: main.py:325 main.py:368
+msgid "&File"
+msgstr "&Fichier"
+
+#: main.py:326
+msgid "Open"
+msgstr "Ouvrir"
+
+#: main.py:327
+msgid "Open recent"
+msgstr "Ouvert récent"
+
+#: main.py:328 main.py:374
+msgid "Clear config and exit"
+msgstr "Effacer la configuration et quitter"
+
+#: main.py:332 widgets/settings/settings_widget.py:541
+msgid "Widgets"
+msgstr "Widgets"
+
+#: main.py:333
+msgid "Tools"
+msgstr "Outils"
+
+#: main.py:334
+msgid "Clear Accumulators"
+msgstr "Vider les accumulateurs"
+
+#: main.py:369
+msgid "Info"
+msgstr "Info"
+
+#: main.py:370 widget_tools.py:92 widgets/settings/settings_widget.py:31
+#: widgets/settings/settings_widget.py:574 widgets/sidebar/sidebar_widget.py:41
+msgid "Settings"
+msgstr "Paramètres"
+
+#: main.py:659
+msgid "Manage"
+msgstr "Gérer"
+
+#: main.py:696
+msgid "Select file to open"
+msgstr "Sélectionner le fichier à ouvrir"
+
+#: paths.py:30 styles/manager.py:46
+msgid "The name for this widget."
+msgstr "Le nom de ce widget."
+
+#: paths.py:31
+msgid "Paths"
+msgstr "Chemins"
+
+#: paths.py:35
+msgid "Default path"
+msgstr "Chemin par défaut"
+
+#: paths.py:36
+msgid "The default path for loading and saving files."
+msgstr ""
+"Chemin d'accès par défaut pour le chargement et l'enregistrement des "
+"fichiers."
+
+#: paths.py:42
+msgid "Fixed default path"
+msgstr "Correction du chemin d'accès par défaut"
+
+#: paths.py:43
+msgid "The fixed default path for loading and saving files."
+msgstr ""
+"Chemin d'accès fixe par défaut pour le chargement et l'enregistrement des"
+" fichiers."
+
+#: paths.py:48 paths.py:69
+msgid "Most recent save path"
+msgstr "Chemin de sauvegarde le plus récent"
+
+#: paths.py:54 paths.py:70
+msgid "Most recent load path"
+msgstr "Chemin de charge le plus récent"
+
+#: paths.py:60
+msgid "Most recent path"
+msgstr "Chemin le plus récent"
+
+#: paths.py:66
+msgid "The default path method"
+msgstr "La méthode du chemin d'accès par défaut"
+
+#: paths.py:68
+msgid "Fixed path"
+msgstr "Chemin fixe"
+
+#: paths.py:71
+msgid "Most recently used path"
+msgstr "Dernier chemin utilisé"
+
+#: paths.py:77
+msgid "Most recent file list"
+msgstr "Liste des fichiers les plus récents"
+
+#: paths.py:83
+msgid "Most recently used length"
+msgstr "Dernière longueur utilisée"
+
+#: safe_mode.py:31
+msgid "Options"
+msgstr "Options"
+
+#: safe_mode.py:34
+msgid "Load configuration on start"
+msgstr "Chargement de la configuration au démarrage"
+
+#: safe_mode.py:36
+msgid "Save configuration on exit"
+msgstr "Sauvegarde de la configuration à la sortie"
+
+#: safe_mode.py:38
+msgid "Clear configuration on exit"
+msgstr "Effacer la configuration à la sortie"
+
+#: safe_mode.py:41
+msgid "Action"
+msgstr "Action"
+
+#: safe_mode.py:45
+msgid "Report issue"
+msgstr "Question du rapport"
+
+#: safe_mode.py:47
+msgid "Close"
+msgstr "Fermer"
+
+#: safe_mode.py:66
+msgid "Safe Mode Configuration"
+msgstr "Configuration du mode sans échec"
+
+#: software_update.py:71
+msgid "Software update"
+msgstr "Mise à jour du logiciel"
+
+#: software_update.py:75
+msgid "A software update is available:"
+msgstr "Une mise à jour du logiciel est disponible :"
+
+#: software_update.py:76
+msgid "Current version"
+msgstr "Version actuelle"
+
+#: software_update.py:77
+msgid "Available version"
+msgstr "Version disponible"
+
+#: software_update.py:78
+msgid "Channel"
+msgstr "Chaîne"
+
+#: software_update.py:313
+msgid "Update Now"
+msgstr "Mise à jour"
+
+#: software_update.py:315
+msgid "Later"
+msgstr "Plus tard"
+
+#: software_update.py:323
+msgid "Copy to clipboard"
+msgstr "Copier dans le presse-papiers"
+
+#: software_update.py:329 widgets/device_control/device_update_dialog.py:44
+msgid "OK"
+msgstr "OK"
+
+#: source_selector.py:220 widgets/developer/log_view_widget.py:30
+#: widgets/jls_info/jls_info_widget.py:47
+msgid "Source"
+msgstr "Source"
+
+#: units.py:35
+msgid "Use the application defaults"
+msgstr "Utiliser les valeurs par défaut de l'application"
+
+#: view.py:68
+msgid "The active theme."
+msgstr "Le thème actif."
+
+#: view.py:70
+msgid "Joulescope standard theme"
+msgstr "Thème standard du Joulescope"
+
+#: view.py:70
+msgid "System OS-specific theme"
+msgstr "Système Thème spécifique au système d'exploitation"
+
+#: view.py:75
+msgid "The color scheme name."
+msgstr "Le nom de la palette de couleurs."
+
+#: view.py:77
+msgid "Dark background"
+msgstr "Fond sombre"
+
+#: view.py:77
+msgid "Light background"
+msgstr "Fond clair"
+
+#: view.py:81
+msgid "The font scheme name."
+msgstr "Le nom du schéma de polices."
+
+#: view.py:83
+msgid "Joulescope standard font theme"
+msgstr "Thème de police standard Joulescope"
+
+#: view.py:102 widgets/view_manager/view_manager_widget.py:146
+msgid "New View"
+msgstr "Nouvelle vue"
+
+#: zip_inspector.py:23
+msgid "ZIP Inspector"
+msgstr "Inspecteur ZIP"
+
+#: zip_inspector.py:91
+msgid "ZIP File"
+msgstr "Fichier ZIP"
+
+#: zip_inspector.py:93
+msgid "Contents"
+msgstr "Contenu"
+
+#: devices/jsdrv/device.py:20
+msgid "Enable the streaming for the selected current range."
+msgstr "Active la diffusion en continu pour la plage de courant sélectionnée."
+
+#: devices/jsdrv/device.py:21
+msgid ""
+"The current range is useful for understanding how your Joulescope "
+"autoranges to measure your current signal. It can also be helpful in "
+"separating target system behavior from the small current range switching "
+"artifacts."
+msgstr ""
+"La gamme de courant est utile pour comprendre comment votre Joulescope "
+"s'autorange pour mesurer votre signal de courant. Elle peut également "
+"être utile pour séparer le comportement du système cible des artefacts de"
+" commutation de la petite plage de courant."
+
+#: devices/jsdrv/js110.py:29 devices/jsdrv/js110.py:65
+#: devices/jsdrv/js220.py:47 devices/jsdrv/js220.py:83
+msgid "Device name"
+msgstr "Nom de l'appareil"
+
+#: devices/jsdrv/js110.py:31 devices/jsdrv/js220.py:49
+msgid ""
+"The Joulescope UI automatically populates the device name with the device"
+" type and serial number."
+msgstr ""
+"L'interface utilisateur Joulescope remplit automatiquement le nom de "
+"l'appareil avec le type d'appareil et le numéro de série."
+
+#: devices/jsdrv/js110.py:33
+msgid ""
+"This setting allows you to change the default, if you wish, to better "
+"reflect how you are using your JS110. This setting is most useful when "
+"you are instrumenting a system using multiple Joulescopes."
+msgstr ""
+"Ce paramètre vous permet de modifier la valeur par défaut, si vous le "
+"souhaitez, afin de mieux refléter la manière dont vous utilisez votre "
+"JS110. Ce paramètre est particulièrement utile lorsque vous instrumentez "
+"un système utilisant plusieurs Joulescopes."
+
+#: devices/jsdrv/js110.py:41 devices/jsdrv/js110.py:71
+#: devices/jsdrv/js220.py:59 devices/jsdrv/js220.py:89
+#: widgets/device_control/js220_ctrl_widget.py:35
+msgid "Device information"
+msgstr "Informations sur l'appareil"
+
+#: devices/jsdrv/js110.py:47 devices/jsdrv/js220.py:65
+msgid "Device state indicator"
+msgstr "Indicateur d'état de l'appareil"
+
+#: devices/jsdrv/js110.py:59 devices/jsdrv/js220.py:77
+msgid "Attempt to automatically open"
+msgstr "Tentative d'ouverture automatique"
+
+#: devices/jsdrv/js110.py:81 devices/jsdrv/js220.py:99
+msgid "Signal frequency"
+msgstr "Fréquence du signal"
+
+#: devices/jsdrv/js110.py:83 devices/jsdrv/js220.py:101
+msgid ""
+"This setting controls the output sampling frequency for the measurement "
+"signals current, voltage, and power. Use this setting to reduce the data "
+"storage requirements for long captures where lower temporal accuracy is "
+"sufficient."
+msgstr ""
+"Ce paramètre contrôle la fréquence d'échantillonnage de sortie pour les "
+"signaux de mesure du courant, de la tension et de la puissance. Ce "
+"paramètre permet de réduire les exigences en matière de stockage des "
+"données pour les captures de longue durée, lorsqu'une précision "
+"temporelle moindre est suffisante."
+
+#: devices/jsdrv/js110.py:87
+msgid ""
+"The JS110 instrument always samples at 2 MHz and sends the raw samples to"
+" the host. This setting controls additional optional downsampling that is"
+" performed on the host."
+msgstr ""
+"L'instrument JS110 échantillonne toujours à 2 MHz et envoie les "
+"échantillons bruts à l'hôte. Ce paramètre contrôle le sous-"
+"échantillonnage optionnel supplémentaire effectué sur l'hôte."
+
+#: devices/jsdrv/js110.py:117 devices/jsdrv/js220.py:133
+msgid "Statistics frequency"
+msgstr "Fréquence des statistiques"
+
+#: devices/jsdrv/js110.py:118
+msgid ""
+"This setting controls the output frequency for the statistics data that "
+"is displayed in the multimeter and value widgets. Statistics data is "
+"computed over the full rate 2 MHz samples."
+msgstr ""
+"Ce paramètre contrôle la fréquence de sortie des données statistiques "
+"affichées dans les widgets multimètre et valeur. Les données statistiques"
+" sont calculées sur des échantillons à pleine cadence de 2 MHz."
+
+#: devices/jsdrv/js110.py:137 devices/jsdrv/js220.py:153
+msgid "Toggle the connection between the current terminals."
+msgstr "Basculer la connexion entre les bornes de courant."
+
+#: devices/jsdrv/js110.py:138 devices/jsdrv/js220.py:154
+msgid ""
+"When enabled, current flows between the current terminals. When disabled,"
+" current cannot flow between the current terminals. In common system "
+"setups, this inhibits target power, which can be used to power cycle "
+"reset the target device."
+msgstr ""
+"Lorsqu'il est activé, le courant circule entre les bornes de courant. "
+"Lorsqu'il est désactivé, le courant ne peut pas circuler entre les bornes"
+" de courant. Dans les configurations de système courantes, cela inhibe "
+"l'alimentation de la cible, ce qui peut être utilisé pour réinitialiser "
+"le dispositif cible par cycle d'alimentation."
+
+#: devices/jsdrv/js110.py:147 devices/jsdrv/js220.py:163
+#: widgets/waveform/waveform_widget.py:109
+msgid "Current range"
+msgstr "Gamme actuelle"
+
+#: devices/jsdrv/js110.py:149
+msgid ""
+"Configure the J110's current range. Most applications should use the "
+"default, \"auto\"."
+msgstr ""
+"Configurez la plage de courant de la J110. La plupart des applications "
+"devraient utiliser la valeur par défaut, \"auto\"."
+
+#: devices/jsdrv/js110.py:151 devices/jsdrv/js220.py:167
+msgid ""
+"Use the other manual settings with care. It is very easy to configure a "
+"setting that saturates, which will ignore regions of current draw larger "
+"than the current range setting."
+msgstr ""
+"Utilisez les autres réglages manuels avec précaution. Il est très facile "
+"de configurer un réglage qui sature, c'est-à-dire qui ignore les zones de"
+" consommation de courant plus importantes que le réglage de la plage de "
+"courant."
+
+#: devices/jsdrv/js110.py:168 devices/jsdrv/js220.py:195
+msgid "Voltage range"
+msgstr "Plage de tension"
+
+#: devices/jsdrv/js110.py:169
+msgid "Configure the JS110's voltage range."
+msgstr "Configurez la plage de tension de la JS110."
+
+#: devices/jsdrv/js110.py:178 devices/jsdrv/js220.py:224
+msgid "GPIO voltage"
+msgstr "Tension GPIO"
+
+#: devices/jsdrv/js110.py:180
+msgid ""
+"Configure the JS110's reference voltage for the general-purpose inputs "
+"and outputs."
+msgstr ""
+"Configurez la tension de référence de la JS110 pour les entrées et "
+"sorties à usage général."
+
+#: devices/jsdrv/js110.py:182
+msgid ""
+"The JS110's general-purpose outputs always remain powered. When set to "
+"\"1\", this can backpower unpowered targets."
+msgstr ""
+"Les sorties à usage général de la JS110 restent toujours alimentées. "
+"Lorsqu'elle est réglée sur \"1\", cette fonction permet de réalimenter "
+"des cibles non alimentées."
+
+#: devices/jsdrv/js110.py:199 devices/jsdrv/js220.py:242
+msgid "GPO 0 output value"
+msgstr "Valeur de sortie GPO 0"
+
+#: devices/jsdrv/js110.py:200 devices/jsdrv/js220.py:243
+msgid "Turn the general-purpose output 0 on or off."
+msgstr "Active ou désactive la sortie polyvalente 0."
+
+#: devices/jsdrv/js110.py:205 devices/jsdrv/js220.py:248
+msgid "GPO 1 output value"
+msgstr "Valeur de sortie GPO 1"
+
+#: devices/jsdrv/js110.py:206 devices/jsdrv/js220.py:249
+msgid "Turn the general-purpose output 1 on or off."
+msgstr "Permet d'activer ou de désactiver la sortie polyvalente 1."
+
+#: devices/jsdrv/js110.py:211
+msgid "IRF type"
+msgstr "Type d'IRF"
+
+#: devices/jsdrv/js110.py:213
+msgid ""
+"Configure the current range filter (IRF) type which determines the "
+"filtering mechanism applied on current range changes. We do not recommend"
+" changing these settings for normal operation."
+msgstr ""
+"Configurez le type de filtre de plage actuel (IRF) qui détermine le "
+"mécanisme de filtrage appliqué aux changements de plage actuels. Il n'est"
+" pas recommandé de modifier ces paramètres dans le cadre d'un "
+"fonctionnement normal."
+
+#: devices/jsdrv/js110.py:216
+msgid ""
+"\"interp\" is the default setting which interpolates over the samples in "
+"the window using the value computed by the pre and post values. This "
+"gives the most intuitive behavior."
+msgstr ""
+"\"interp\" est le paramètre par défaut qui interpole les échantillons de "
+"la fenêtre en utilisant la valeur calculée par les valeurs pre et post. "
+"Il s'agit du comportement le plus intuitif."
+
+#: devices/jsdrv/js110.py:219
+msgid ""
+"\"mean\" sets all samples in the window to the mean value. This results "
+"in a straight horizontal line that allows you to clearly see current "
+"range changes while still providing the best long-term current range "
+"measurement."
+msgstr ""
+"\"mean\" règle tous les échantillons de la fenêtre sur la valeur moyenne."
+" Il en résulte une ligne horizontale droite qui vous permet de voir "
+"clairement les changements de la gamme actuelle tout en fournissant la "
+"meilleure mesure de la gamme actuelle à long terme."
+
+#: devices/jsdrv/js110.py:223
+msgid "\"NaN\" sets all samples in the window to NaN."
+msgstr "\"NaN\" définit tous les échantillons de la fenêtre à NaN."
+
+#: devices/jsdrv/js110.py:224
+msgid ""
+"\"off\" disables the current range filtering, and you will see additional"
+" current range switching artifacts."
+msgstr ""
+"\"off\" désactive le filtrage de la plage de courant, et vous verrez des "
+"artefacts supplémentaires de commutation de la plage de courant."
+
+#: devices/jsdrv/js110.py:236
+msgid "IRF pre"
+msgstr "IRF pour"
+
+#: devices/jsdrv/js110.py:237
+msgid ""
+"The number of samples before the current range window used to determine "
+"the mean. This value is ignored for all other IRF types."
+msgstr ""
+"Le nombre d'échantillons avant la fenêtre de la plage actuelle utilisée "
+"pour déterminer la moyenne. Cette valeur est ignorée pour tous les autres"
+" types d'IRF."
+
+#: devices/jsdrv/js110.py:245
+msgid "IRF window"
+msgstr "Fenêtre IRF"
+
+#: devices/jsdrv/js110.py:246
+msgid ""
+"Use \"n\" for automatic duration based upon known response time. Use "
+"\"m\" for shorter automatic duration that may result in min/max "
+"distortion. Use any other value to specify a fixed, manual window "
+"duration in samples."
+msgstr ""
+"Utilisez \"n\" pour une durée automatique basée sur un temps de réponse "
+"connu. Utilisez \"m\" pour une durée automatique plus courte qui peut "
+"entraîner une distorsion min/max. Utilisez toute autre valeur pour "
+"spécifier une durée de fenêtre manuelle fixe en échantillons."
+
+#: devices/jsdrv/js110.py:254
+msgid "IRF post"
+msgstr "Poste IRF"
+
+#: devices/jsdrv/js110.py:255
+msgid ""
+"The number of samples after the current range window used to determine "
+"the mean. This value is ignored for all other IRF types."
+msgstr ""
+"Le nombre d'échantillons après la fenêtre de l'intervalle actuel utilisé "
+"pour déterminer la moyenne. Cette valeur est ignorée pour tous les autres"
+" types d'IRF."
+
+#: devices/jsdrv/js110.py:269 devices/jsdrv/js220.py:332
+#: widgets/device_control/fuse.py:103 widgets/waveform/waveform_widget.py:104
+msgid "Current"
+msgstr "Actuel"
+
+#: devices/jsdrv/js110.py:270 devices/jsdrv/js220.py:333
+msgid "Enable the current signal streaming."
+msgstr "Activer la diffusion du signal actuel."
+
+#: devices/jsdrv/js110.py:278 devices/jsdrv/js220.py:341
+#: widgets/waveform/waveform_widget.py:105
+msgid "Voltage"
+msgstr "Voltage"
+
+#: devices/jsdrv/js110.py:279 devices/jsdrv/js220.py:342
+msgid "Enable the voltage signal streaming."
+msgstr "Active le flux de signaux de tension."
+
+#: devices/jsdrv/js110.py:287 devices/jsdrv/js220.py:350
+#: widgets/waveform/waveform_widget.py:106
+msgid "Power"
+msgstr "Puissance"
+
+#: devices/jsdrv/js110.py:288 devices/jsdrv/js220.py:351
+msgid "Enable the power signal streaming."
+msgstr "Activer le flux de signaux d'alimentation."
+
+#: devices/jsdrv/js110.py:296 devices/jsdrv/js220.py:359
+msgid "Current Range"
+msgstr "Gamme actuelle"
+
+#: devices/jsdrv/js110.py:308 devices/jsdrv/js220.py:374
+msgid "GPI 0"
+msgstr "GPI 0"
+
+#: devices/jsdrv/js110.py:309 devices/jsdrv/js220.py:375
+msgid "Enable the general purpose input 0 signal streaming."
+msgstr "Active le flux de signaux de l'entrée générale 0."
+
+#: devices/jsdrv/js110.py:317 devices/jsdrv/js220.py:383
+msgid "GPI 1"
+msgstr "GPI 1"
+
+#: devices/jsdrv/js110.py:318 devices/jsdrv/js220.py:384
+msgid "Enable the general purpose input 1 signal streaming."
+msgstr "Active le flux de signaux de l'entrée générale 1."
+
+#: devices/jsdrv/js110.py:330 devices/jsdrv/js220.py:430
+#: devices/jsdrv/jsdrv_stream_buffer.py:108
+msgid "Signal name"
+msgstr "Nom du signal"
+
+#: devices/jsdrv/js220.py:51
+msgid ""
+"This setting allows you to change the default, if you wish, to better "
+"reflect how you are using your JS220. This setting is most useful when "
+"you are instrumenting a system using multiple Joulescopes."
+msgstr ""
+"Ce paramètre vous permet de modifier la valeur par défaut, si vous le "
+"souhaitez, afin de mieux refléter la façon dont vous utilisez votre "
+"JS220. Ce réglage est particulièrement utile lorsque vous instrumentez un"
+" système utilisant plusieurs Joulescopes."
+
+#: devices/jsdrv/js220.py:105
+msgid ""
+"The JS220 instrument always samples at 2 MHz and then downsamples to 1 "
+"MHz. This setting controls additional optional downsampling."
+msgstr ""
+"L'instrument JS220 échantillonne toujours à 2 MHz et sous-échantillonne "
+"ensuite à 1 MHz. Ce paramètre contrôle le sous-échantillonnage optionnel "
+"supplémentaire."
+
+#: devices/jsdrv/js220.py:134
+msgid ""
+"This setting controls the output frequency for the statistics data that "
+"is displayed in the multimeter and value widgets. Statistics data is "
+"computed over the full rate 1 MHz samples."
+msgstr ""
+"Ce paramètre contrôle la fréquence de sortie des données statistiques "
+"affichées dans les widgets multimètre et valeur. Les données statistiques"
+" sont calculées sur des échantillons à taux plein de 1 MHz."
+
+#: devices/jsdrv/js220.py:165
+msgid ""
+"Configure the JS220's current range. Most applications should use the "
+"default, \"auto\"."
+msgstr ""
+"Configurer la gamme de courant du JS220. La plupart des applications "
+"devraient utiliser la valeur par défaut, \"auto\"."
+
+#: devices/jsdrv/js220.py:183
+msgid "Limits"
+msgstr "Limites"
+
+#: devices/jsdrv/js220.py:185
+msgid "Configure the autoranging current limits."
+msgstr "Configurer les limites de courant à changement automatique."
+
+#: devices/jsdrv/js220.py:186
+msgid "This setting is only effective when the Current Range is set to \"auto\"."
+msgstr ""
+"Ce réglage n'est effectif que lorsque la plage de courant est réglée sur "
+"\"auto\"."
+
+#: devices/jsdrv/js220.py:188
+msgid ""
+"You can use this setting to limit the current range and improve "
+"autoranging accuracy when you know your application current is more "
+"limited than the full measurement range."
+msgstr ""
+"Vous pouvez utiliser ce paramètre pour limiter la plage de courant et "
+"améliorer la précision de l'étalonnage automatique lorsque vous savez que"
+" le courant de votre application est plus limité que la plage de mesure "
+"complète."
+
+#: devices/jsdrv/js220.py:196
+msgid ""
+"Configure the JS220's voltage range. Most applications should use the "
+"default, \"auto\"."
+msgstr ""
+"Configurer la plage de tension du JS220. La plupart des applications "
+"devraient utiliser la valeur par défaut, \"auto\"."
+
+#: devices/jsdrv/js220.py:207
+msgid "Trigger direction"
+msgstr "Direction du déclenchement"
+
+#: devices/jsdrv/js220.py:209
+msgid "Configure the direction of the JS220's trigger BNC connection."
+msgstr "Configurer la direction de la connexion BNC de déclenchement du JS220."
+
+#: devices/jsdrv/js220.py:210
+msgid ""
+"0 (default) configures the BNC trigger for input only. The BNC connection"
+" is high-impedance."
+msgstr ""
+"0 (par défaut) configure le déclencheur BNC pour l'entrée uniquement. La "
+"connexion BNC est à haute impédance."
+
+#: devices/jsdrv/js220.py:212
+msgid ""
+"1 configures the BNC trigger for output. The BNC connection has 50 Ohm "
+"output impedance."
+msgstr ""
+"1 configure le déclencheur BNC pour la sortie. La connexion BNC a une "
+"impédance de sortie de 50 Ohm."
+
+#: devices/jsdrv/js220.py:214
+msgid ""
+"In both cases, the trigger input signal is valid, which enables internal "
+"inspection and recording of the trigger output."
+msgstr ""
+"Dans les deux cas, le signal d'entrée de déclenchement est valide, ce qui"
+" permet l'inspection interne et l'enregistrement de la sortie de "
+"déclenchement."
+
+#: devices/jsdrv/js220.py:226
+msgid ""
+"Configure the JS220's reference voltage for the general-purpose inputs "
+"and outputs."
+msgstr ""
+"Configurer la tension de référence du JS220 pour les entrées et sorties à"
+" usage général."
+
+#: devices/jsdrv/js220.py:228
+msgid ""
+"We recommend using \"Vref\" when attaching general-purpose outputs (GPO) "
+"to other equipment. Using Vref prevents the GPO from backpowering target "
+"devices when they powered down. The Vref signal and general-purpose "
+"inputs are all extremely high impedance to minimize leakage currents."
+msgstr ""
+"Il est recommandé d'utiliser \"Vref\" lorsque l'on relie des sorties à "
+"usage général (GPO) à d'autres équipements. L'utilisation de Vref permet "
+"d'éviter que les GPO ne rétroalimentent les appareils cibles lorsqu'ils "
+"sont hors tension. Le signal Vref et les entrées à usage général ont tous"
+" une impédance extrêmement élevée afin de minimiser les courants de "
+"fuite."
+
+#: devices/jsdrv/js220.py:233
+msgid "\"3.3 V\" uses an internally-generated 3.3V reference voltage."
+msgstr "\"3,3 V\" utilise une tension de référence de 3,3 V générée en interne."
+
+#: devices/jsdrv/js220.py:254
+msgid "Trigger output value"
+msgstr "Valeur de la sortie de déclenchement"
+
+#: devices/jsdrv/js220.py:256
+msgid "Turn the trigger output on or off."
+msgstr "Permet d'activer ou de désactiver la sortie de déclenchement."
+
+#: devices/jsdrv/js220.py:257
+msgid ""
+"The trigger must also be configured for output for this setting to have "
+"any effect."
+msgstr ""
+"Le déclencheur doit également être configuré pour la sortie pour que ce "
+"réglage ait un effet."
+
+#: devices/jsdrv/js220.py:265
+msgid "The maturity level channel for firmware updates."
+msgstr "Le canal de niveau de maturité pour les mises à jour du micrologiciel."
+
+#: devices/jsdrv/js220.py:266
+msgid ""
+"We recommend keeping the default \"stable\" unless you are a Joulescope "
+"developer."
+msgstr ""
+"Nous recommandons de conserver la valeur par défaut \"stable\", sauf si "
+"vous êtes un développeur de Joulescope."
+
+#: devices/jsdrv/js220.py:275
+msgid "Firmware update availability."
+msgstr "Disponibilité de la mise à jour du micrologiciel."
+
+#: devices/jsdrv/js220.py:276
+msgid ""
+"None when no firmware update is available. Map of subname: [current, "
+"available] when available."
+msgstr ""
+"Aucune lorsqu'aucune mise à jour du micrologiciel n'est disponible. Carte"
+" du sous-nom : [current, available] lorsqu'elle est disponible."
+
+#: devices/jsdrv/js220.py:362
+msgid ""
+"⚠ When enabled, no more than 3 GPIO signals (0, 1, 2, 3, T) may be "
+"enabled. If you attempt to enable too many signals, then the UI will "
+"display no data for any signal."
+msgstr ""
+"Lorsqu'ils sont activés, les signaux GPIO (0, 1, 2, 3, T) ne peuvent pas "
+"être plus de 3. Si vous tentez d'activer trop de signaux, l'interface "
+"utilisateur n'affichera aucune donnée pour aucun signal."
+
+#: devices/jsdrv/js220.py:392
+msgid "GPI 2"
+msgstr "GPI 2"
+
+#: devices/jsdrv/js220.py:393
+msgid "Enable the general purpose input 2 signal streaming."
+msgstr "Active le flux de signaux de l'entrée générale 2."
+
+#: devices/jsdrv/js220.py:401
+msgid "GPI 3"
+msgstr "GPI 3"
+
+#: devices/jsdrv/js220.py:402
+msgid "Enable the general purpose input 3 signal streaming."
+msgstr "Active le flux de signaux de l'entrée générale 3."
+
+#: devices/jsdrv/js220.py:410 widgets/waveform/waveform_widget.py:123
+msgid "Trigger input"
+msgstr "Entrée de déclenchement"
+
+#: devices/jsdrv/js220.py:411
+msgid "Enable the trigger input signal streaming."
+msgstr "Active le flux du signal d'entrée de déclenchement."
+
+#: devices/jsdrv/js220_updater.py:64
+msgid "Firmware update state"
+msgstr "État de la mise à jour du micrologiciel"
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:44
+#: devices/jsdrv/jsdrv_stream_buffer.py:93
+#: devices/jsdrv/jsdrv_stream_buffer.py:107 plugins/selector.py:58
+#: widgets/settings/settings_widget.py:85
+#: widgets/settings/settings_widget.py:266
+#: widgets/settings/settings_widget.py:364
+#: widgets/settings/settings_widget.py:431
+#: widgets/waveform/waveform_widget.py:3045
+msgid "Name"
+msgstr "Nom"
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:45
+msgid "Joulescope stream buffer"
+msgstr "Tampon de flux Joulescope"
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:49
+msgid "Buffer memory size in bytes"
+msgstr "Taille de la mémoire tampon en octets"
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:54
+msgid "Buffer memory duration in seconds"
+msgstr "Durée de la mémoire tampon en secondes"
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:94
+msgid "Source name"
+msgstr "Nom de la source"
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:98
+msgid "Source information"
+msgstr "Source d'information"
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:112
+msgid "Signal metadata"
+msgstr "Métadonnées du signal"
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:118
+msgid "Signal time range"
+msgstr "Durée du signal"
+
+#: devices/jsdrv/jsdrv_wrapper.py:41
+msgid "The pyjoulescope_driver log level."
+msgstr "Le niveau de journalisation de pyjoulescope_driver."
+
+#: plugins/selector.py:32
+msgid "Plugins"
+msgstr "Plugins"
+
+#: plugins/selector.py:59 widgets/device_control/device_update_dialog.py:26
+msgid "Version"
+msgstr "Version"
+
+#: plugins/selector.py:60
+msgid "Active"
+msgstr "Actif"
+
+#: plugins/selector.py:128
+msgid "Monitor"
+msgstr "Moniteur"
+
+#: range_tools/cdf.py:29
+msgid "Compute the Cumulative Distribution Function"
+msgstr "Calculer la fonction de distribution cumulative"
+
+#: range_tools/cdf.py:31
+msgid ""
+"The Cumulative Distribution Function (CDF) value is the probability that "
+"a signal's value is less than or equal to the x-axis value."
+msgstr ""
+"La valeur de la fonction de distribution cumulative (FDC) est la "
+"probabilité que la valeur d'un signal soit inférieure ou égale à la "
+"valeur de l'axe des x."
+
+#: range_tools/cdf.py:33
+msgid ""
+"When use to analyze current or power, this graphically indicates the time"
+" spent below in each current mode. Compared to a histogram, the CDF makes"
+" it easier to compare the amount of time in each mode by simply measuring"
+" the change in the y-axis value."
+msgstr ""
+"Lorsqu'elle est utilisée pour analyser le courant ou la puissance, elle "
+"indique graphiquement le temps passé dans chaque mode de courant. Par "
+"rapport à un histogramme, la FCD permet de comparer plus facilement le "
+"temps passé dans chaque mode en mesurant simplement la variation de la "
+"valeur de l'axe des ordonnées."
+
+#: range_tools/cdf.py:146
+msgid "Probability"
+msgstr "Probabilité"
+
+#: range_tools/cdf.py:167
+msgid "CDF configuration"
+msgstr "Configuration du CDF"
+
+#: range_tools/cdf.py:183 range_tools/histogram.py:53
+msgid "Number of bins (0 for auto)"
+msgstr "Nombre de bacs (0 pour auto)"
+
+#: range_tools/cdf.py:189
+msgid "Complimentary"
+msgstr "Gratuit"
+
+#: range_tools/frequency.py:24
+msgid "Frequency"
+msgstr "Fréquence"
+
+#: range_tools/frequency.py:39
+msgid "Compute frequency spectrum over the range"
+msgstr "Calculer le spectre de fréquence sur la plage"
+
+#: range_tools/frequency.py:40
+msgid ""
+"Compute the frequency spectrum to analyze the frequency content of the "
+"signal's data values over the selected range."
+msgstr ""
+"Le calcul du spectre de fréquence permet d'analyser le contenu "
+"fréquentiel des valeurs de données du signal sur la plage sélectionnée."
+
+#: range_tools/frequency.py:213
+msgid "Frequency configuration"
+msgstr "Configuration de la fréquence"
+
+#: range_tools/histogram.py:25
+msgid "Histogram"
+msgstr "Histogramme"
+
+#: range_tools/histogram.py:27
+msgid "Discrete Probability Distribution"
+msgstr "Distribution de probabilité discrète"
+
+#: range_tools/histogram.py:28
+msgid "Frequency Distribution"
+msgstr "Distribution des fréquences"
+
+#: range_tools/histogram.py:29
+msgid "Probability Density Distribution"
+msgstr "Distribution de densité de probabilité"
+
+#: range_tools/histogram.py:45 range_tools/max_window.py:119
+msgid "Signal"
+msgstr "Signal"
+
+#: range_tools/histogram.py:59
+msgid "Histogram type"
+msgstr "Type d'histogramme"
+
+#: range_tools/histogram.py:77
+msgid "Histogram configuration"
+msgstr "Configuration de l'histogramme"
+
+#: range_tools/histogram.py:191
+msgid "Compute histogram over the range"
+msgstr "Calculer l'histogramme sur la plage"
+
+#: range_tools/histogram.py:192
+msgid "Compute a histogram of the signal's data values over the selected range."
+msgstr ""
+"Calculer un histogramme des valeurs de données du signal sur la plage "
+"sélectionnée."
+
+#: range_tools/max_window.py:24
+msgid "Max window"
+msgstr "Fenêtre maximale"
+
+#: range_tools/max_window.py:25
+msgid "Find the maximum value window"
+msgstr "Trouver la fenêtre de valeur maximale"
+
+#: range_tools/max_window.py:27
+msgid ""
+"Search the range for the window that has the maximum value. This is an "
+"exhaustive search made by sliding the window duration across the entire "
+"range."
+msgstr ""
+"Recherche dans l'intervalle la fenêtre qui a la valeur maximale. Il "
+"s'agit d'une recherche exhaustive effectuée en faisant glisser la durée "
+"de la fenêtre sur l'ensemble de la plage."
+
+#: range_tools/max_window.py:30
+msgid "When complete, this tool will add dual markers to the waveform."
+msgstr ""
+"Une fois terminé, cet outil ajoutera des marqueurs doubles à la forme "
+"d'onde."
+
+#: range_tools/max_window.py:96
+msgid "Max Window configuration"
+msgstr "Configuration maximale des fenêtres"
+
+#: range_tools/max_window.py:105
+msgid "Width of window (in seconds)"
+msgstr "Largeur de la fenêtre (en secondes)"
+
+#: range_tools/usb_inrush.py:52
+msgid "USB Inrush"
+msgstr "Appel de courant USB"
+
+#: range_tools/usb_inrush.py:53
+msgid "Perform USB Inrush testing"
+msgstr "Effectuer un test d'appel de courant USB"
+
+#: range_tools/usb_inrush.py:54
+msgid ""
+"Use dual markers to select at least 100 milliseconds after enabling power"
+" to the target device. This tool will send the selected data to the USBET"
+" tool for analysis."
+msgstr ""
+"Utilisez des marqueurs doubles pour sélectionner au moins 100 "
+"millisecondes après l'activation de l'alimentation du dispositif cible. "
+"Cet outil enverra les données sélectionnées à l'outil USBET pour analyse."
+
+#: styles/color_scheme.py:21
+msgid "dark"
+msgstr "sombre"
+
+#: styles/color_scheme.py:22
+msgid "Light foreground elements on a dark background"
+msgstr "Éléments de premier plan clairs sur fond sombre"
+
+#: styles/color_scheme.py:26
+msgid "light"
+msgstr "lumière"
+
+#: styles/color_scheme.py:27
+msgid "Dark foreground elements on a light background"
+msgstr "Éléments de premier plan foncés sur fond clair"
+
+#: styles/font_scheme.py:21
+msgid "default"
+msgstr "par défaut"
+
+#: styles/font_scheme.py:22
+msgid "Joulescope default font scheme"
+msgstr "Schéma de police par défaut de Joulescope"
+
+#: widgets/accumulator/accumulator_widget.py:27
+#: widgets/value/value_widget.py:31
+msgid "The statistics data stream source."
+msgstr "La source du flux de données statistiques."
+
+#: widgets/accumulator/accumulator_widget.py:32
+#: widgets/value/value_widget.py:74
+msgid "The signal to display."
+msgstr "Le signal à afficher."
+
+#: widgets/accumulator/accumulator_widget.py:34
+msgid "charge"
+msgstr "charge"
+
+#: widgets/accumulator/accumulator_widget.py:35
+msgid "energy"
+msgstr "l'énergie"
+
+#: widgets/accumulator/accumulator_widget.py:41
+#: widgets/value/value_widget.py:56
+msgid "Show the statistics section title for each signal."
+msgstr "Afficher le titre de la section statistique pour chaque signal."
+
+#: widgets/accumulator/accumulator_widget.py:48
+msgid "Accumulator"
+msgstr "Accumulateur"
+
+#: widgets/accumulator/accumulator_widget.py:140
+msgid "Show charge"
+msgstr "Frais de représentation"
+
+#: widgets/accumulator/accumulator_widget.py:143
+msgid "Show energy"
+msgstr "Montrer l'énergie"
+
+#: widgets/accumulator/accumulator_widget.py:152
+msgid "Set units"
+msgstr "Définir les unités"
+
+#: widgets/clock/clock_widget.py:26
+msgid "Clock"
+msgstr "Horloge"
+
+#: widgets/clock/clock_widget.py:33
+msgid "The time zone."
+msgstr "Le fuseau horaire."
+
+#: widgets/clock/clock_widget.py:35
+msgid "Local"
+msgstr "Localisation"
+
+#: widgets/clock/clock_widget.py:36
+msgid "UTC"
+msgstr "UTC"
+
+#: widgets/clock/clock_widget.py:42
+msgid "The format string"
+msgstr "La chaîne de format"
+
+#: widgets/clock/clock_widget.py:43
+msgid "For the complete syntax, see Python package {package}"
+msgstr "Pour la syntaxe complète, voir Python package {package}"
+
+#: widgets/developer/log_view_widget.py:30
+msgid "Timestamp"
+msgstr "Horodatage"
+
+#: widgets/developer/log_view_widget.py:30
+msgid "Level"
+msgstr "Niveau"
+
+#: widgets/developer/log_view_widget.py:30
+msgid "Message"
+msgstr "Message"
+
+#: widgets/developer/log_view_widget.py:60
+msgid "Log View"
+msgstr "Vue du journal"
+
+#: widgets/developer/log_view_widget.py:85
+msgid "Demo"
+msgstr "Démonstration"
+
+#: widgets/developer/profile_widget.py:37
+msgid "Profile"
+msgstr "Profil"
+
+#: widgets/developer/publish_spy_widget.py:20
+msgid "Count"
+msgstr "Compter"
+
+#: widgets/developer/publish_spy_widget.py:20
+#: widgets/developer/publish_spy_widget.py:21
+msgid "Topic"
+msgstr "Sujet"
+
+#: widgets/developer/publish_spy_widget.py:21
+#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:662
+msgid "Value"
+msgstr "Valeur"
+
+#: widgets/developer/publish_spy_widget.py:24
+msgid "Publish Spy"
+msgstr "Publier l'espion"
+
+#: widgets/developer/publish_spy_widget.py:42
+msgid "Capture"
+msgstr "Capture"
+
+#: widgets/developer/publish_spy_widget.py:47
+msgid "Topics"
+msgstr "Thèmes"
+
+#: widgets/developer/publish_spy_widget.py:48
+msgid "Values"
+msgstr "Valeurs"
+
+#: widgets/developer/pubsub_explorer_widget.py:28
+msgid "Filter:"
+msgstr "Filtre :"
+
+#: widgets/developer/pubsub_explorer_widget.py:94
+msgid "PubSub Explorer"
+msgstr "PubSub Explorer"
+
+#: widgets/device_control/device_control_widget.py:23
+msgid "Device Control"
+msgstr "Contrôle des appareils"
+
+#: widgets/device_control/device_update_dialog.py:24
+#: widgets/device_control/device_update_dialog.py:45
+msgid "Update"
+msgstr "Mise à jour"
+
+#: widgets/device_control/device_update_dialog.py:25
+#: widgets/value/value_widget.py:147
+msgid "Device"
+msgstr "Dispositif"
+
+#: widgets/device_control/device_update_dialog.py:27
+#: widgets/progress_bar/progress_bar_widget.py:59
+msgid "Progress"
+msgstr "Progrès"
+
+#: widgets/device_control/device_update_dialog.py:29
+msgid ""
+"Before starting updates, ensure that Joulescopes are plugged directly "
+"into a USB port on the host computer."
+msgstr ""
+"Avant de commencer les mises à jour, assurez-vous que les Joulescopes "
+"sont branchés directement sur un port USB de l'ordinateur hôte."
+
+#: widgets/device_control/device_update_dialog.py:31
+msgid "Do not use any USB hubs, docks or adapters"
+msgstr ""
+"N'utilisez pas de concentrateurs, de stations d'accueil ou d'adaptateurs "
+"USB."
+
+#: widgets/device_control/device_update_dialog.py:35
+msgid "Device scan in progress."
+msgstr "Analyse de l'appareil en cours."
+
+#: widgets/device_control/device_update_dialog.py:36
+msgid "No updates available."
+msgstr "Aucune mise à jour n'est disponible."
+
+#: widgets/device_control/device_update_dialog.py:38
+msgid "Device update is in progress. Please wait."
+msgstr "La mise à jour de l'appareil est en cours. Veuillez patienter."
+
+#: widgets/device_control/device_update_dialog.py:39
+msgid "Device update completed."
+msgstr "La mise à jour du dispositif est terminée."
+
+#: widgets/device_control/device_update_dialog.py:41
+msgid "Select all"
+msgstr "Tout sélectionner"
+
+#: widgets/device_control/device_update_dialog.py:42
+msgid "Select none"
+msgstr "Sélectionner aucun"
+
+#: widgets/device_control/device_update_dialog.py:43
+#: widgets/js220_cal/js220_cal_widget.py:37
+msgid "Cancel"
+msgstr "Annuler"
+
+#: widgets/device_control/device_update_dialog.py:53
+msgid "Device Update"
+msgstr "Mise à jour de l'appareil"
+
+#: widgets/device_control/fuse.py:24
+msgid "Fuse 1"
+msgstr "Fusible 1"
+
+#: widgets/device_control/fuse.py:25
+msgid "Fuse 2"
+msgstr "Fusible 2"
+
+#: widgets/device_control/fuse.py:26
+msgid "Range fuse"
+msgstr "Fusible de gamme"
+
+#: widgets/device_control/fuse.py:27
+msgid "Max fuse"
+msgstr "Fusible max."
+
+#: widgets/device_control/fuse.py:33
+msgid "Fuse trip threshold"
+msgstr "Seuil de déclenchement du fusible"
+
+#: widgets/device_control/fuse.py:34
+msgid "Any current above this threshold will eventually trip the fuse."
+msgstr "Tout courant supérieur à ce seuil finit par déclencher le fusible."
+
+#: widgets/device_control/fuse.py:38
+msgid "Fuse speed threshold"
+msgstr "Seuil de vitesse des fusibles"
+
+#: widgets/device_control/fuse.py:39
+msgid "The fuse trips in Duration at this constant current."
+msgstr "Le fusible se déclenche en durée à ce courant constant."
+
+#: widgets/device_control/fuse.py:43
+msgid "Fuse duration"
+msgstr "Fuse duration"
+
+#: widgets/device_control/fuse.py:44
+msgid "The fuse trips in this Duration at Threshold 2 current."
+msgstr "Le fusible se déclenche dans cette durée au courant du seuil 2."
+
+#: widgets/device_control/fuse.py:48
+msgid "Fuse dissipation time constant"
+msgstr "Constante de temps de dissipation des fusibles"
+
+#: widgets/device_control/fuse.py:49
+msgid ""
+"The exponential decay time constant. The fuse dissipates 63.2 percent of "
+"accumulated energy in this duration."
+msgstr ""
+"La constante de temps de la décroissance exponentielle. Le fusible "
+"dissipe 63,2 % de l'énergie accumulée pendant cette durée."
+
+#: widgets/device_control/fuse.py:53
+msgid "Fuse state indicator. When enabled and engaged, click to clear."
+msgstr ""
+"Indicateur de l'état du fusible. Lorsqu'il est activé et engagé, cliquer "
+"pour l'effacer."
+
+#: widgets/device_control/fuse.py:87
+msgid "Threshold 1"
+msgstr "Seuil 1"
+
+#: widgets/device_control/fuse.py:88
+msgid "Threshold 2"
+msgstr "Seuil 2"
+
+#: widgets/device_control/fuse.py:89 widgets/memory/memory_widget.py:225
+msgid "Duration"
+msgstr "Duration"
+
+#: widgets/device_control/fuse.py:101
+msgid "Fuse response"
+msgstr "Réponse des fusibles"
+
+#: widgets/device_control/fuse.py:102
+msgid "Time"
+msgstr "L'heure"
+
+#: widgets/device_control/fuse.py:219
+msgid "Fuse"
+msgstr "Fusible"
+
+#: widgets/device_control/js220_ctrl_widget.py:30
+msgid "Device documentation"
+msgstr "Device documentation"
+
+#: widgets/device_control/js220_ctrl_widget.py:31
+msgid "Click to display the device documentation PDF."
+msgstr "Cliquez sur pour afficher la documentation de l'appareil en format PDF."
+
+#: widgets/device_control/js220_ctrl_widget.py:36
+msgid "Click to display detailed information about the device."
+msgstr "Cliquez sur pour afficher des informations détaillées sur l'appareil."
+
+#: widgets/device_control/js220_ctrl_widget.py:40
+msgid "Select this device as the default"
+msgstr "Sélectionner cet appareil comme l'appareil par défaut"
+
+#: widgets/device_control/js220_ctrl_widget.py:42
+msgid ""
+"When selected, this device because the default. All widgets using the "
+"default device will use the data provided by this device."
+msgstr ""
+"Lorsque cette option est sélectionnée, ce dispositif devient le "
+"dispositif par défaut. Tous les widgets utilisant le dispositif par "
+"défaut utiliseront les données fournies par ce dispositif."
+
+#: widgets/device_control/js220_ctrl_widget.py:44
+msgid ""
+"When unselected, another device is the default. Widgets can still be "
+"configured to use data from this device."
+msgstr ""
+"Lorsque cette option n'est pas sélectionnée, un autre appareil est "
+"utilisé par défaut. Les widgets peuvent toujours être configurés pour "
+"utiliser les données de cet appareil."
+
+#: widgets/device_control/js220_ctrl_widget.py:52
+msgid ""
+"This indicator becomes active when this device has at least one engaged "
+"fuse. Engaged fuses prevent current flow until cleared."
+msgstr ""
+"Cet indicateur devient actif lorsque l'appareil a au moins un fusible "
+"enclenché. Les fusibles engagés empêchent le passage du courant jusqu'à "
+"ce qu'ils soient éliminés."
+
+#: widgets/device_control/js220_ctrl_widget.py:60
+msgid "Open and close the device"
+msgstr "Ouvrir et fermer le dispositif"
+
+#: widgets/device_control/js220_ctrl_widget.py:62
+msgid ""
+"When closed, click to attempt to open the device. The icon will only "
+"change on a successful device open. Only one application can use a "
+"Joulescope device at a time."
+msgstr ""
+"Lorsqu'il est fermé, cliquez sur pour tenter d'ouvrir le dispositif. "
+"L'icône ne changera que si l'ouverture de l'appareil est réussie. Une "
+"seule application peut utiliser un appareil Joulescope à la fois."
+
+#: widgets/device_control/js220_ctrl_widget.py:65
+msgid ""
+"When open, click to close the device. This allows the device to be used "
+"in other programs."
+msgstr ""
+"Lorsqu'il est ouvert, cliquez sur pour le fermer. Cela permet d'utiliser "
+"l'appareil dans d'autres programmes."
+
+#: widgets/device_control/js220_ctrl_widget.py:71
+msgid "Reset to default settings"
+msgstr "Rétablir les paramètres par défaut"
+
+#: widgets/device_control/js220_ctrl_widget.py:72
+msgid "Click this button to reset this device to the default settings"
+msgstr ""
+"Cliquez sur ce bouton pour rétablir les paramètres par défaut de "
+"l'appareil."
+
+#: widgets/device_control/js220_ctrl_widget.py:76
+msgid "Clear accumulators"
+msgstr "Effacer les accumulateurs"
+
+#: widgets/device_control/js220_ctrl_widget.py:77
+msgid ""
+"Click this button to clear the charge and energy accumulators. The "
+"\"Accrue\" feature of the value display widgets, including the "
+"multimeter, will be unaffected."
+msgstr ""
+"Cliquez sur ce bouton pour effacer les accumulateurs de charge et "
+"d'énergie. La fonction \"Accrue\" des widgets d'affichage des valeurs, y "
+"compris le multimètre, n'est pas affectée."
+
+#: widgets/device_control/js220_ctrl_widget.py:83
+#: widgets/device_control/js220_ctrl_widget.py:574
+msgid "Calibrate"
+msgstr "Calibrer"
+
+#: widgets/device_control/js220_ctrl_widget.py:84
+msgid ""
+"Click this button to recalibrate your Joulescope JS220. Recalibration is "
+"not required for normal operation. Performing calibration can improve "
+"accuracy by accounting for the existing temperature and aging effects."
+msgstr ""
+"Cliquez sur ce bouton pour recalibrer votre Joulescope JS220. Le "
+"recalibrage n'est pas nécessaire pour un fonctionnement normal. "
+"L'étalonnage peut améliorer la précision en tenant compte des effets de "
+"la température et du vieillissement."
+
+#: widgets/device_control/js220_ctrl_widget.py:391
+msgid "GPO"
+msgstr "GPO"
+
+#: widgets/device_control/js220_ctrl_widget.py:561
+msgid "Reset to defaults"
+msgstr "Réinitialisation aux valeurs par défaut"
+
+#: widgets/device_control/js220_ctrl_widget.py:567
+msgid "Clear accum"
+msgstr "Accumulation claire"
+
+#: widgets/example/example_widget.py:22
+msgid "Example"
+msgstr "Exemple"
+
+#: widgets/flyout/flyout_widget.py:26
+msgid "flyout"
+msgstr "sortie en avion"
+
+#: widgets/help/help_widget.py:20
+msgid "User's Guides"
+msgstr "Guides de l'utilisateur"
+
+#: widgets/help/help_widget.py:21
+msgid "User Interface"
+msgstr "Interface utilisateur"
+
+#: widgets/help/help_widget.py:22
+msgid "Joulescope UI User's Guide"
+msgstr "Joulescope UI User's Guide"
+
+#: widgets/help/help_widget.py:23
+msgid "Visit the Joulescope forum"
+msgstr "Visitez le forum Joulescope"
+
+#: widgets/help/help_widget.py:24
+msgid "Joulescope source code"
+msgstr "Joulescope source code"
+
+#: widgets/help/help_widget.py:25
+msgid "file format"
+msgstr "format de fichier"
+
+#: widgets/help/help_widget.py:26
+msgid "examples"
+msgstr "exemples"
+
+#: widgets/help/help_widget.py:27
+msgid "Contact support"
+msgstr "Contacter le support"
+
+#: widgets/jls_info/jls_info_widget.py:24
+msgid "The JLS data stream source."
+msgstr "La source du flux de données JLS."
+
+#: widgets/jls_info/jls_info_widget.py:30
+msgid "JLS Info"
+msgstr "JLS Info"
+
+#: widgets/js220_cal/js220_cal_widget.py:26
+msgid ""
+"⚠ Before performing calibration, ensure that you save any data in the UI "
+"that you wish to keep."
+msgstr ""
+"⚠ Avant de procéder à l'étalonnage, veillez à sauvegarder toutes les "
+"données de l'interface utilisateur que vous souhaitez conserver."
+
+#: widgets/js220_cal/js220_cal_widget.py:29
+msgid ""
+"The Joulescope JS220 is designed to meet its specifications without "
+"recalibration. You can use offset calibration to further reduce the "
+"offset error. If you wish to perform scale calibration, ensure that your "
+"test setup gives a sufficient test uncertainty ratio (TUR)."
+msgstr ""
+"Le Joulescope JS220 est conçu pour répondre à ses spécifications sans "
+"recalibrage. Vous pouvez utiliser l'étalonnage du décalage pour réduire "
+"davantage l'erreur de décalage. Si vous souhaitez effectuer un étalonnage"
+" de l'échelle, assurez-vous que votre configuration de test donne un "
+"rapport d'incertitude de test (TUR) suffisant."
+
+#: widgets/js220_cal/js220_cal_widget.py:35
+msgid "Restore factory calibration"
+msgstr "Rétablir l'étalonnage d'usine"
+
+#: widgets/js220_cal/js220_cal_widget.py:36
+msgid "Start"
+msgstr "Démarrage"
+
+#: widgets/js220_cal/js220_cal_widget.py:39
+msgid "Calibration in progress"
+msgstr "Etalonnage en cours"
+
+#: widgets/js220_cal/js220_cal_widget.py:40
+msgid "Please wait..."
+msgstr "Veuillez patienter..."
+
+#: widgets/js220_cal/js220_cal_widget.py:42
+msgid "Disconnect all sensor terminals"
+msgstr "Déconnecter toutes les bornes du capteur"
+
+#: widgets/js220_cal/js220_cal_widget.py:44
+msgid "Short together Voltage+, Voltage-, and Current+ using wires."
+msgstr "Court-circuitez la tension+, la tension- et le courant+ à l'aide de fils."
+
+#: widgets/js220_cal/js220_cal_widget.py:45
+msgid "If you are using the BNC front panel, simply connect Voltage to Current."
+msgstr ""
+"Si vous utilisez le panneau frontal BNC, connectez simplement la tension "
+"au courant."
+
+#: widgets/js220_cal/js220_cal_widget.py:51
+msgid "Current offset"
+msgstr "Décalage actuel"
+
+#: widgets/js220_cal/js220_cal_widget.py:60
+msgid "Voltage offset"
+msgstr "Décalage de tension"
+
+#: widgets/js220_cal/js220_cal_widget.py:455
+msgid "JS220 Calibration"
+msgstr "JS220 Calibration"
+
+#: widgets/js220_cal/js220_cal_widget.py:461
+msgid "The target device."
+msgstr "L'appareil cible."
+
+#: widgets/js220_cal/js220_cal_widget.py:483
+msgid "Calibration"
+msgstr "Calibrage"
+
+#: widgets/memory/memory_widget.py:180
+msgid "Memory"
+msgstr "Mémoire"
+
+#: widgets/memory/memory_widget.py:209
+msgid "Memory buffer size"
+msgstr "Taille de la mémoire tampon"
+
+#: widgets/memory/memory_widget.py:213
+msgid "Total RAM size"
+msgstr "Taille totale de la mémoire vive"
+
+#: widgets/memory/memory_widget.py:217
+msgid "Available RAM size"
+msgstr "Taille de la mémoire vive disponible"
+
+#: widgets/memory/memory_widget.py:221
+msgid "Used RAM size"
+msgstr "Taille de la mémoire vive utilisée"
+
+#: widgets/memory/memory_widget.py:238
+msgid "Clear"
+msgstr "Clair"
+
+#: widgets/memory/memory_widget.py:242
+msgid "Clear on play"
+msgstr "Clair sur le jeu"
+
+#: widgets/notes/notes_widget.py:28
+msgid "The notes value."
+msgstr "La valeur des notes."
+
+#: widgets/record_status/record_status_widget.py:23
+msgid "Path:"
+msgstr "Trajectoire :"
+
+#: widgets/record_status/record_status_widget.py:24
+msgid "Filename:"
+msgstr "Nom de fichier :"
+
+#: widgets/record_status/record_status_widget.py:28
+msgid "Signal recording in progress"
+msgstr "Enregistrement du signal en cours"
+
+#: widgets/record_status/record_status_widget.py:29
+msgid "Statistics recording in progress"
+msgstr "Enregistrement des statistiques en cours"
+
+#: widgets/record_status/record_status_widget.py:34
+msgid "Record Status"
+msgstr "Statut de l'enregistrement"
+
+#: widgets/settings/settings_widget.py:268
+msgid "Color"
+msgstr "Couleur"
+
+#: widgets/settings/settings_widget.py:366
+msgid "Font"
+msgstr "Police"
+
+#: widgets/settings/settings_widget.py:433
+msgid "Define"
+msgstr "Définir"
+
+#: widgets/settings/settings_widget.py:535
+msgid "Common"
+msgstr "Communs"
+
+#: widgets/settings/settings_widget.py:538
+msgid "View defaults"
+msgstr "Afficher les valeurs par défaut"
+
+#: widgets/settings/settings_widget.py:540
+msgid "Devices"
+msgstr "Dispositifs"
+
+#: widgets/settings/settings_widget.py:575
+msgid "Colors"
+msgstr "Couleurs"
+
+#: widgets/settings/settings_widget.py:576
+msgid "Fonts"
+msgstr "Polices de caractères"
+
+#: widgets/settings/settings_widget.py:577
+msgid "Defines"
+msgstr "Définit"
+
+#: widgets/settings/unique_strings_widget.py:50
+msgid "Available"
+msgstr "Disponible"
+
+#: widgets/settings/unique_strings_widget.py:58
+msgid "Selected"
+msgstr "Sélectionné"
+
+#: widgets/sidebar/sidebar_widget.py:27
+msgid "Device control"
+msgstr "Contrôle des appareils"
+
+#: widgets/sidebar/sidebar_widget.py:28
+msgid ""
+"Click to show the device control widget which displays the connected "
+"devices and their settings. Use this widget to open and close devices and"
+" configure their operation."
+msgstr ""
+"Cliquez sur ce bouton pour afficher le widget de contrôle des appareils "
+"qui présente les appareils connectés et leurs paramètres. Utilisez ce "
+"widget pour ouvrir et fermer les appareils et configurer leur "
+"fonctionnement."
+
+#: widgets/sidebar/sidebar_widget.py:34
+msgid "Memory buffer settings"
+msgstr "Réglages de la mémoire tampon"
+
+#: widgets/sidebar/sidebar_widget.py:35
+msgid ""
+"Streaming signal sample data is stored in your host computer's RAM. Click"
+" this button to show the memory management widget which allows you to "
+"configure the memory used by this Joulescope UI instance."
+msgstr ""
+"Les données d'échantillonnage des signaux en continu sont stockées dans "
+"la mémoire vive de votre ordinateur hôte. Cliquez sur ce bouton pour "
+"afficher le widget de gestion de la mémoire qui vous permet de configurer"
+" la mémoire utilisée par cette instance de l'interface utilisateur "
+"Joulescope."
+
+#: widgets/sidebar/sidebar_widget.py:43
+msgid ""
+"Click to show the settings which allows you to change the global, "
+"default, and individual instance settings for devices and widgets."
+msgstr ""
+"Cliquez sur pour afficher les paramètres qui vous permettent de modifier "
+"les paramètres globaux, par défaut et individuels des appareils et des "
+"widgets."
+
+#: widgets/sidebar/sidebar_widget.py:46
+msgid ""
+"Default changes may not affect existing instances, and may only apply to "
+"future instances."
+msgstr ""
+"Les modifications par défaut peuvent ne pas affecter les instances "
+"existantes et ne s'appliquer qu'aux instances futures."
+
+#: widgets/sidebar/sidebar_widget.py:51
+msgid "Get help"
+msgstr "Obtenir de l'aide"
+
+#: widgets/sidebar/sidebar_widget.py:52
+msgid "Click to display help options."
+msgstr "Cliquez sur ce bouton pour afficher les options d'aide."
+
+#: widgets/sidebar/sidebar_widget.py:55
+msgid "Additional settings and actions"
+msgstr "Paramètres et actions supplémentaires"
+
+#: widgets/sidebar/sidebar_widget.py:56
+msgid "Click to display additional settings and actions."
+msgstr "Cliquez sur ce bouton pour afficher d'autres paramètres et actions."
+
+#: widgets/sidebar/sidebar_widget.py:60
+msgid "sidebar"
+msgstr "barre latérale"
+
+#: widgets/sidebar/sidebar_widget.py:68
+msgid "The flyout width in pixels."
+msgstr "La largeur du flyout en pixels."
+
+#: widgets/signal_record/disk_full_dialog.py:19
+msgid "The disk is full"
+msgstr "Le disque est plein"
+
+#: widgets/signal_record/signal_record.py:56
+msgid "Could not open file for write"
+msgstr "Impossible d'ouvrir le fichier en écriture"
+
+#: widgets/signal_record/signal_record_config_widget.py:23
+msgid "SignalRecordConfig"
+msgstr "SignalRecordConfig"
+
+#: widgets/signal_record/signal_record_config_widget.py:61
+msgid "Signals to record"
+msgstr "Signaux à enregistrer"
+
+#: widgets/signal_record/signal_record_config_widget.py:190
+#: widgets/statistics_record/statistics_record_config_widget.py:154
+msgid "Configure signal recording"
+msgstr "Configuration de l'enregistrement des signaux"
+
+#: widgets/statistics_record/statistics_record_config_widget.py:34
+msgid "StatisticsRecordConfig"
+msgstr "StatisticsRecordConfig"
+
+#: widgets/statistics_record/statistics_record_config_widget.py:59
+msgid "Time Format"
+msgstr "Format de l'heure"
+
+#: widgets/value/value_widget.py:36
+msgid "Show the device selection header."
+msgstr "Affiche l'en-tête de sélection de l'appareil."
+
+#: widgets/value/value_widget.py:41
+msgid "Show the accrue header."
+msgstr "Afficher l'en-tête de la régularisation."
+
+#: widgets/value/value_widget.py:46
+msgid "Show the statistics fields at the right."
+msgstr "Afficher les champs de statistiques à droite."
+
+#: widgets/value/value_widget.py:51
+msgid "Show a leading + or - sign."
+msgstr "Afficher un signe + ou -."
+
+#: widgets/value/value_widget.py:87
+msgid "Select the source device"
+msgstr "Sélectionner l'appareil source"
+
+#: widgets/value/value_widget.py:88
+msgid ""
+"The values displayed by this widget come from a single source device. "
+"Select the source device here."
+msgstr ""
+"Les valeurs affichées par ce widget proviennent d'un seul appareil "
+"source. Sélectionnez ici l'appareil source."
+
+#: widgets/value/value_widget.py:94
+msgid "Hold the display"
+msgstr "Maintenir l'affichage"
+
+#: widgets/value/value_widget.py:96
+msgid "When selected, prevent the display from updating."
+msgstr ""
+"Lorsque cette option est sélectionnée, l'affichage ne peut pas être mis à"
+" jour."
+
+#: widgets/value/value_widget.py:97
+msgid ""
+"The UI also includes a global statistics hold button on the sidebar. When"
+" the global statistics hold button is selected, this button is disabled "
+"and has no effect."
+msgstr ""
+"L'interface utilisateur comprend également un bouton de maintien des "
+"statistiques globales dans la barre latérale. Lorsque le bouton de "
+"maintien des statistiques globales est sélectionné, ce bouton est "
+"désactivé et n'a aucun effet."
+
+#: widgets/value/value_widget.py:100
+msgid ""
+"The displayed values normally update with each new statistics data "
+"computed by the device. When this button is selected, the display will "
+"not be updated. However, the statistics will continue accumulate and "
+"accrue (if selected)."
+msgstr ""
+"Les valeurs affichées sont normalement mises à jour avec chaque nouvelle "
+"donnée statistique calculée par l'appareil. Lorsque ce bouton est "
+"sélectionné, l'affichage n'est pas mis à jour. Cependant, les "
+"statistiques continueront à s'accumuler et à se cumuler (si sélectionné)."
+
+#: widgets/value/value_widget.py:107
+msgid "Accrue values over time"
+msgstr "Accumuler des valeurs au fil du temps"
+
+#: widgets/value/value_widget.py:109
+msgid ""
+"Current, voltage, and power are normally computed over a single "
+"statistics frequency interval. Press this button to accrue the values "
+"indefinitely. Press again to return to normal operation."
+msgstr ""
+"Le courant, la tension et la puissance sont normalement calculés sur un "
+"seul intervalle de fréquence statistique. Appuyez sur ce bouton pour "
+"accumuler les valeurs indéfiniment. Appuyez à nouveau sur ce bouton pour "
+"revenir au fonctionnement normal."
+
+#: widgets/value/value_widget.py:113
+msgid ""
+"Note that this button does not affect the charge and energy accumulation."
+" Both accumulate indefinitely regardless of this button state."
+msgstr ""
+"Notez que ce bouton n'affecte pas l'accumulation de charge et d'énergie. "
+"Les deux s'accumulent indéfiniment quel que soit l'état de ce bouton."
+
+#: widgets/value/value_widget.py:195
+msgid "Not present"
+msgstr "Absent"
+
+#: widgets/value/value_widget.py:215
+msgid "Hold"
+msgstr "Tenir"
+
+#: widgets/value/value_widget.py:223
+msgid "Accrue"
+msgstr "Accrue"
+
+#: widgets/view_manager/view_manager_widget.py:108
+#: widgets/view_manager/view_manager_widget.py:174
+msgid "View Manager"
+msgstr "Voir le gestionnaire"
+
+#: widgets/waveform/quantities.py:21
+msgid "avg"
+msgstr "moyenne"
+
+#: widgets/waveform/quantities.py:22
+msgid "std"
+msgstr "std"
+
+#: widgets/waveform/quantities.py:23
+msgid "rms"
+msgstr "rms"
+
+#: widgets/waveform/quantities.py:24 widgets/waveform/y_range_widget.py:68
+msgid "min"
+msgstr "min"
+
+#: widgets/waveform/quantities.py:25 widgets/waveform/y_range_widget.py:67
+msgid "max"
+msgstr "max"
+
+#: widgets/waveform/quantities.py:26
+msgid "p2p"
+msgstr "p2p"
+
+#: widgets/waveform/quantities.py:27
+msgid "∫"
+msgstr "∫"
+
+#: widgets/waveform/text_annotation.py:52
+msgid "diamond"
+msgstr "diamant"
+
+#: widgets/waveform/text_annotation.py:53
+msgid "circle"
+msgstr "cercle"
+
+#: widgets/waveform/text_annotation.py:54
+msgid "hexagon"
+msgstr "hexagone"
+
+#: widgets/waveform/text_annotation.py:55
+msgid "square"
+msgstr "carré"
+
+#: widgets/waveform/text_annotation.py:56
+msgid "star"
+msgstr "étoile"
+
+#: widgets/waveform/text_annotation.py:57
+msgid "plus"
+msgstr "plus"
+
+#: widgets/waveform/text_annotation.py:58
+msgid "cross"
+msgstr "croiser"
+
+#: widgets/waveform/text_annotation.py:59
+msgid "triangle up"
+msgstr "triangle vers le haut"
+
+#: widgets/waveform/text_annotation.py:60
+msgid "triangle down"
+msgstr "triangle vers le bas"
+
+#: widgets/waveform/text_annotation.py:61
+msgid "triangle right"
+msgstr "triangle droit"
+
+#: widgets/waveform/text_annotation.py:62
+msgid "triangle left"
+msgstr "triangle gauche"
+
+#: widgets/waveform/text_annotation.py:66
+#: widgets/waveform/waveform_widget.py:2991
+msgid "Manual"
+msgstr "Manuel"
+
+#: widgets/waveform/text_annotation.py:67
+msgid "Centered"
+msgstr "Centré"
+
+#: widgets/waveform/text_annotation.py:99
+#: widgets/waveform/waveform_widget.py:3106
+msgid "Text"
+msgstr "Texte"
+
+#: widgets/waveform/text_annotation.py:107
+#: widgets/waveform/waveform_widget.py:3331
+msgid "Show text"
+msgstr "Afficher le texte"
+
+#: widgets/waveform/text_annotation.py:116
+#: widgets/waveform/waveform_widget.py:3343
+msgid "Shape"
+msgstr "Forme"
+
+#: widgets/waveform/text_annotation.py:126
+msgid "Y Mode"
+msgstr "Y Mode"
+
+#: widgets/waveform/waveform_control.py:24
+msgid ""
+"To reposition the marker, left click on the marker, move the mouse to the"
+" new location, and the left click again."
+msgstr ""
+"Pour repositionner le marqueur, cliquez avec le bouton gauche de la "
+"souris sur le marqueur, déplacez la souris jusqu'au nouvel emplacement et"
+" cliquez à nouveau avec le bouton gauche de la souris."
+
+#: widgets/waveform/waveform_control.py:29
+msgid "Add single marker"
+msgstr "Ajouter un marqueur unique"
+
+#: widgets/waveform/waveform_control.py:31
+msgid "Click to add a single marker to the waveform."
+msgstr "Cliquez sur ce bouton pour ajouter un seul marqueur à la forme d'onde."
+
+#: widgets/waveform/waveform_control.py:33
+msgid ""
+"You can also add a marker by right-clicking on the x-axis or in the plot "
+"area."
+msgstr ""
+"Vous pouvez également ajouter un marqueur en cliquant avec le bouton "
+"droit de la souris sur l'axe des x ou dans la zone de tracé."
+
+#: widgets/waveform/waveform_control.py:38
+msgid "Add dual markers"
+msgstr "Ajouter des marqueurs doubles"
+
+#: widgets/waveform/waveform_control.py:40
+msgid "Click to add a dual markers to the waveform."
+msgstr "Cliquez sur ce bouton pour ajouter un double marqueur à la forme d'onde."
+
+#: widgets/waveform/waveform_control.py:42
+msgid ""
+"You can also add a dual markers by right-clicking on the x-axis or in the"
+" plot area."
+msgstr ""
+"Vous pouvez également ajouter un double marqueur en cliquant avec le "
+"bouton droit de la souris sur l'axe des x ou dans la zone de tracé."
+
+#: widgets/waveform/waveform_control.py:47
+msgid "Clear all markers"
+msgstr "Effacer tous les marqueurs"
+
+#: widgets/waveform/waveform_control.py:48
+msgid ""
+"Click to clear all markers from the waveform. This operation removes both"
+" single markers and dual markers."
+msgstr ""
+"Cliquez sur pour effacer tous les marqueurs de la forme d'onde. Cette "
+"opération supprime à la fois les marqueurs simples et les marqueurs "
+"doubles."
+
+#: widgets/waveform/waveform_control.py:53
+msgid "Zoom in"
+msgstr "Zoom avant"
+
+#: widgets/waveform/waveform_control.py:55
+msgid "Click to zoom in along the time x-axis."
+msgstr "Cliquez pour zoomer sur l'axe des x du temps."
+
+#: widgets/waveform/waveform_control.py:56
+#: widgets/waveform/waveform_control.py:64
+msgid ""
+"You can also zoom by positioning the mouse over the waveform and then "
+"using the scroll wheel."
+msgstr ""
+"Vous pouvez également zoomer en positionnant la souris sur la forme "
+"d'onde et en utilisant la molette de défilement."
+
+#: widgets/waveform/waveform_control.py:61
+msgid "Zoom out"
+msgstr "Zoom arrière"
+
+#: widgets/waveform/waveform_control.py:63
+msgid "Click to zoom out along the time x-axis."
+msgstr "Cliquez pour faire un zoom arrière sur l'axe des x du temps."
+
+#: widgets/waveform/waveform_control.py:69
+msgid "Zoom all"
+msgstr "Zoom sur tout"
+
+#: widgets/waveform/waveform_control.py:70
+msgid "Click to display the full extents of the x-axis."
+msgstr "Cliquez sur ce bouton pour afficher la totalité de l'axe des abscisses."
+
+#: widgets/waveform/waveform_control.py:73
+msgid "Pin left"
+msgstr "Goupille gauche"
+
+#: widgets/waveform/waveform_control.py:74
+msgid ""
+"Pin the waveform display to the left side. When enabled, the left side "
+"(oldest) data always remains in view."
+msgstr ""
+"Épingle l'affichage de la forme d'onde sur le côté gauche. Lorsque cette "
+"option est activée, les données du côté gauche (les plus anciennes) "
+"restent toujours visibles."
+
+#: widgets/waveform/waveform_control.py:79
+msgid "Pin right"
+msgstr "Broche droite"
+
+#: widgets/waveform/waveform_control.py:80
+msgid ""
+"Pin the waveform display to the right side. When enabled, the right side "
+"(newest) data always remains in view."
+msgstr ""
+"Épingle l'affichage de la forme d'onde sur le côté droit. Lorsque cette "
+"option est activée, les données du côté droit (les plus récentes) restent"
+" toujours visibles."
+
+#: widgets/waveform/waveform_control.py:85
+msgid "Y zoom all"
+msgstr "Y zoomer tous"
+
+#: widgets/waveform/waveform_control.py:87
+msgid "Click to reset the y-axis of all plots to auto ranging mode."
+msgstr ""
+"Cliquez sur ce bouton pour réinitialiser l'axe des ordonnées de tous les "
+"tracés en mode d'échelonnement automatique."
+
+#: widgets/waveform/waveform_control.py:88
+msgid ""
+"This operation does not affect the fixed range plots such as the general "
+"purpose inputs."
+msgstr ""
+"Cette opération n'affecte pas les parcelles à plage fixe telles que les "
+"entrées à usage général."
+
+#: widgets/waveform/waveform_control.py:93
+msgid "Show min/max extents"
+msgstr "Afficher les extensions min/max"
+
+#: widgets/waveform/waveform_control.py:95
+msgid ""
+"Change how the waveform shows the min/max extents. When zoomed out, each "
+"pixel may represent many samples. Displaying the min/max can allow you to"
+" see events that may be missed with just the average."
+msgstr ""
+"Modifie la façon dont la forme d'onde affiche les étendues min/max. En "
+"cas de zoom arrière, chaque pixel peut représenter de nombreux "
+"échantillons. L'affichage des valeurs min/max peut vous permettre de voir"
+" des événements que vous n'auriez pas remarqués si vous n'aviez que la "
+"moyenne."
+
+#: widgets/waveform/waveform_control.py:99
+msgid "\"off\" only displays the average."
+msgstr "L'option \"off\" n'affiche que la moyenne."
+
+#: widgets/waveform/waveform_control.py:100
+msgid "\"lines\" displays the minimum and maximum as separate line traces."
+msgstr ""
+"\"lignes\" affiche le minimum et le maximum sous forme de lignes "
+"distinctes."
+
+#: widgets/waveform/waveform_control.py:101
+msgid "\"fill 1\" displays a filled color between the minimum and maximum."
+msgstr "\"fill 1\" affiche une couleur remplie entre le minimum et le maximum."
+
+#: widgets/waveform/waveform_control.py:102
+msgid "\"fill 2\" also displays an additional fill for standard deviation."
+msgstr ""
+"L'option \"fill 2\" permet également d'afficher un remplissage "
+"supplémentaire pour l'écart-type."
+
+#: widgets/waveform/waveform_control.py:106
+msgid "Show/hide signals"
+msgstr "Afficher/masquer les signaux"
+
+#: widgets/waveform/waveform_control.py:107
+msgid "Click to toggle the signal axis display in the Waveform widget."
+msgstr ""
+"Cliquez sur ce bouton pour basculer l'affichage de l'axe du signal dans "
+"le widget de la forme d'onde."
+
+#: widgets/waveform/waveform_source_widget.py:29
+msgid "Enable trace"
+msgstr "Activer la trace"
+
+#: widgets/waveform/waveform_source_widget.py:31
+msgid "Click to toggle this trace."
+msgstr "Cliquez pour activer cette trace."
+
+#: widgets/waveform/waveform_source_widget.py:32
+msgid "When enabled, the waveform will display this trace."
+msgstr "Lorsqu'elle est activée, la forme d'onde affiche cette trace."
+
+#: widgets/waveform/waveform_source_widget.py:33
+msgid "When disabled, the waveform will hide this trace."
+msgstr "Lorsqu'elle est désactivée, la forme d'onde cache cette trace."
+
+#: widgets/waveform/waveform_source_widget.py:37
+msgid "Select the source"
+msgstr "Sélectionner la source"
+
+#: widgets/waveform/waveform_source_widget.py:39
+msgid "Select the source for this trace."
+msgstr "Sélectionnez la source de cette trace."
+
+#: widgets/waveform/waveform_source_widget.py:40
+msgid ""
+"\"default\" will use the default source which is normally configured "
+"using the Device Control widget."
+msgstr ""
+"default\" utilisera la source par défaut qui est normalement configurée à"
+" l'aide du widget \"Device Control\"."
+
+#: widgets/waveform/waveform_source_widget.py:104
+#: widgets/waveform/waveform_widget.py:401
+#: widgets/waveform/waveform_widget.py:478
+msgid "off"
+msgstr "éteint"
+
+#: widgets/waveform/waveform_widget.py:44
+msgid "Waveform"
+msgstr "Forme d'onde"
+
+#: widgets/waveform/waveform_widget.py:119
+msgid "General purpose input 0"
+msgstr "Entrée générale 0"
+
+#: widgets/waveform/waveform_widget.py:120
+msgid "General purpose input 1"
+msgstr "Entrée générale 1"
+
+#: widgets/waveform/waveform_widget.py:121
+msgid "General purpose input 2"
+msgstr "Entrée générale 2"
+
+#: widgets/waveform/waveform_widget.py:122
+msgid "General purpose input 3"
+msgstr "Entrée générale 3"
+
+#: widgets/waveform/waveform_widget.py:357
+msgid "The source filter string."
+msgstr "La chaîne du filtre source."
+
+#: widgets/waveform/waveform_widget.py:368
+msgid "The trace width."
+msgstr "La largeur de la trace."
+
+#: widgets/waveform/waveform_widget.py:383
+msgid "The target frames per second."
+msgstr "Le nombre d'images cibles par seconde."
+
+#: widgets/waveform/waveform_widget.py:385
+msgid "vsync"
+msgstr "vsync"
+
+#: widgets/waveform/waveform_widget.py:386
+msgid "20 Hz"
+msgstr "20 Hz"
+
+#: widgets/waveform/waveform_widget.py:387
+msgid "10 Hz"
+msgstr "10 Hz"
+
+#: widgets/waveform/waveform_widget.py:388
+msgid "5 Hz"
+msgstr "5 Hz"
+
+#: widgets/waveform/waveform_widget.py:394
+msgid "The minimum interval between repaint in milliseconds."
+msgstr "Intervalle minimum entre deux repeints, en millisecondes."
+
+#: widgets/waveform/waveform_widget.py:399
+msgid "Show the minimum and maximum extents fill."
+msgstr "Afficher les remplissages minimum et maximum des étendues."
+
+#: widgets/waveform/waveform_widget.py:402
+msgid "lines"
+msgstr "lignes"
+
+#: widgets/waveform/waveform_widget.py:403
+msgid "fill 1"
+msgstr "remplir 1"
+
+#: widgets/waveform/waveform_widget.py:404
+msgid "fill 2"
+msgstr "remplir 2"
+
+#: widgets/waveform/waveform_widget.py:410
+msgid "Show the frames per second."
+msgstr "Afficher les images par seconde."
+
+#: widgets/waveform/waveform_widget.py:415
+msgid "Show the statistics on mouse hover."
+msgstr "Afficher les statistiques au passage de la souris."
+
+#: widgets/waveform/waveform_widget.py:420
+msgid "Show the plot statistics on the right."
+msgstr "Montrer les statistiques de la parcelle sur la droite."
+
+#: widgets/waveform/waveform_widget.py:425
+msgid "Show frequency for dual markers and statistics."
+msgstr "Afficher la fréquence des marqueurs doubles et des statistiques."
+
+#: widgets/waveform/waveform_widget.py:430
+msgid "The quantities to display by default."
+msgstr "Les quantités à afficher par défaut."
+
+#: widgets/waveform/waveform_widget.py:436
+msgid "The precision to display in digits."
+msgstr "La précision à afficher en chiffres."
+
+#: widgets/waveform/waveform_widget.py:442
+msgid "Use OpenGL rendering."
+msgstr "Utiliser le rendu OpenGL."
+
+#: widgets/waveform/waveform_widget.py:453
+msgid "Pin the left side (oldest) data so that it stays in view."
+msgstr ""
+"Épinglez les données de gauche (les plus anciennes) pour qu'elles restent"
+" visibles."
+
+#: widgets/waveform/waveform_widget.py:458
+msgid "Pin the right side (newest) data so that it stays in view."
+msgstr ""
+"Épinglez les données de droite (les plus récentes) pour qu'elles restent "
+"visibles."
+
+#: widgets/waveform/waveform_widget.py:463
+msgid "The waveform state."
+msgstr "L'état de la forme d'onde."
+
+#: widgets/waveform/waveform_widget.py:469
+msgid "The annotations."
+msgstr "Les annotations."
+
+#: widgets/waveform/waveform_widget.py:475
+msgid "Control location"
+msgstr "Emplacement du contrôle"
+
+#: widgets/waveform/waveform_widget.py:479
+msgid "top"
+msgstr "sommet"
+
+#: widgets/waveform/waveform_widget.py:480
+msgid "bottom"
+msgstr "fond"
+
+#: widgets/waveform/waveform_widget.py:485
+msgid "The signal quantity to show in the summary."
+msgstr "La quantité de signal à afficher dans le résumé."
+
+#: widgets/waveform/waveform_widget.py:491
+msgid "X-axis annotation mode"
+msgstr "Mode d'annotation de l'axe X"
+
+#: widgets/waveform/waveform_widget.py:494
+#: widgets/waveform/waveform_widget.py:2871
+msgid "Absolute"
+msgstr "Absolu"
+
+#: widgets/waveform/waveform_widget.py:495
+#: widgets/waveform/waveform_widget.py:2876
+msgid "Relative"
+msgstr "Relative"
+
+#: widgets/waveform/waveform_widget.py:501
+msgid "The available subsources."
+msgstr "Les sous-sources disponibles."
+
+#: widgets/waveform/waveform_widget.py:507
+msgid "The selected subsources for each trace."
+msgstr "Les sous-sources sélectionnées pour chaque trace."
+
+#: widgets/waveform/waveform_widget.py:513
+msgid "The trace priority: highest int value on top, None is off."
+msgstr ""
+"La priorité de la trace : la valeur int la plus élevée est en haut, None "
+"est désactivé."
+
+#: widgets/waveform/waveform_widget.py:2817
+#: widgets/waveform/waveform_widget.py:3118
+msgid "Save image to file"
+msgstr "Enregistrer l'image dans un fichier"
+
+#: widgets/waveform/waveform_widget.py:2865
+#: widgets/waveform/waveform_widget.py:2934
+msgid "Single marker"
+msgstr "Marqueur unique"
+
+#: widgets/waveform/waveform_widget.py:2866
+#: widgets/waveform/waveform_widget.py:2935
+msgid "Dual markers"
+msgstr "Double marqueur"
+
+#: widgets/waveform/waveform_widget.py:2868
+msgid "Mode"
+msgstr "Mode"
+
+#: widgets/waveform/waveform_widget.py:2881
+#: widgets/waveform/waveform_widget.py:2936
+#: widgets/waveform/waveform_widget.py:3094
+#: widgets/waveform/waveform_widget.py:3112
+msgid "Clear all"
+msgstr "Tout effacer"
+
+#: widgets/waveform/waveform_widget.py:2892
+#: widgets/waveform/waveform_widget.py:2981
+#: widgets/waveform/waveform_widget.py:3100
+msgid "Annotations"
+msgstr "Annotations"
+
+#: widgets/waveform/waveform_widget.py:2984
+msgid "Range"
+msgstr "Range"
+
+#: widgets/waveform/waveform_widget.py:2988
+#: widgets/waveform/waveform_widget.py:3311
+msgid "Auto"
+msgstr "Voiture"
+
+#: widgets/waveform/waveform_widget.py:2994
+msgid "Exact"
+msgstr "Exactement"
+
+#: widgets/waveform/waveform_widget.py:3003
+msgid "Scale"
+msgstr "Escaliers"
+
+#: widgets/waveform/waveform_widget.py:3006
+msgid "Linear"
+msgstr "Linéaire"
+
+#: widgets/waveform/waveform_widget.py:3011
+msgid "Logarithmic"
+msgstr "Logarithmique"
+
+#: widgets/waveform/waveform_widget.py:3019
+msgid "Logarithmic zero"
+msgstr "Zéro logarithmique"
+
+#: widgets/waveform/waveform_widget.py:3033
+msgid "Preferred prefix"
+msgstr "Préfixe préféré"
+
+#: widgets/waveform/waveform_widget.py:3091
+msgid "Add"
+msgstr "Ajouter"
+
+#: widgets/waveform/waveform_widget.py:3092
+msgid "Hide all text"
+msgstr "Cacher tout le texte"
+
+#: widgets/waveform/waveform_widget.py:3093
+msgid "Show all text"
+msgstr "Afficher tout le texte"
+
+#: widgets/waveform/waveform_widget.py:3101
+msgid "Vertical"
+msgstr "Vertical"
+
+#: widgets/waveform/waveform_widget.py:3104
+msgid "Horizontal"
+msgstr "Horizontal"
+
+#: widgets/waveform/waveform_widget.py:3110
+msgid "Save"
+msgstr "Économiser"
+
+#: widgets/waveform/waveform_widget.py:3115
+msgid "Y-axis auto range"
+msgstr "Plage automatique de l'axe Y"
+
+#: widgets/waveform/waveform_widget.py:3119
+msgid "Copy image to clipboard"
+msgstr "Copier l'image dans le presse-papiers"
+
+#: widgets/waveform/waveform_widget.py:3120
+msgid "Export visible data"
+msgstr "Export visible data"
+
+#: widgets/waveform/waveform_widget.py:3121
+msgid "Export all data"
+msgstr "Exporter toutes les données"
+
+#: widgets/waveform/waveform_widget.py:3287
+msgid "Export"
+msgstr "Exportation"
+
+#: widgets/waveform/waveform_widget.py:3288
+msgid "Analysis"
+msgstr "Analyse"
+
+#: widgets/waveform/waveform_widget.py:3296
+msgid "Interval"
+msgstr "Intervalle"
+
+#: widgets/waveform/waveform_widget.py:3305
+msgid "Zoom"
+msgstr "Zoom"
+
+#: widgets/waveform/waveform_widget.py:3309
+msgid "Show statistics"
+msgstr "Afficher les statistiques"
+
+#: widgets/waveform/waveform_widget.py:3314
+msgid "Left"
+msgstr "Gauche"
+
+#: widgets/waveform/waveform_widget.py:3317
+msgid "Right"
+msgstr "Droit"
+
+#: widgets/waveform/waveform_widget.py:3320
+msgid "Off"
+msgstr "Arrêt"
+
+#: widgets/waveform/waveform_widget.py:3323
+#: widgets/waveform/waveform_widget.py:3351
+#: widgets/waveform/waveform_widget.py:3380
+msgid "Remove"
+msgstr "Retirer"
+
+#: widgets/waveform/waveform_widget.py:3334
+msgid "Y mode"
+msgstr "Mode Y"
+
+#: widgets/waveform/y_range_widget.py:72
+msgid "Units"
+msgstr "Unités"
+
+#~ msgid "Typical response time: %(days)s business days"
+#~ msgstr "Temps de réponse typique : %(jours)s jours ouvrables"
+

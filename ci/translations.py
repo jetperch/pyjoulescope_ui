@@ -13,17 +13,31 @@
 # limitations under the License.
 
 
-# pip install babel polib
+# pip install babel polib deepl
 
 from babel.messages.frontend import CommandLineInterface
+import deepl
 import polib
 import os
 import re
 import sys
 
 
+LOCALES = [
+    'ar',       # Arabic
+    'de',       # German
+    'el',       # Greek
+    # 'en',     # English
+    'es',       # Spanish
+    'fr',       # French
+    'ja',       # Japanese
+    'ko',       # Korean
+    # 'pt-BR',    # Portuguese (Brazil)
+    'zh',       # Chinese (simplified)
+]
 _PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_PO_FILE = os.path.join(_PATH, 'joulescope_ui', 'locale', 'joulescope_ui.pot')
+LOCALE_PATH = os.path.join(_PATH, 'joulescope_ui', 'locale')
+POT_FILE = os.path.join(LOCALE_PATH, 'joulescope_ui.pot')
 _whitespace = r'\s+'
 
 
@@ -41,7 +55,7 @@ def run_babel():
         '--copyright-holder=Jetperch LLC',
         f'--version={__version__}',
         f"--input-dirs=.",
-        f"--output-file={_PO_FILE}",
+        f"--output-file={POT_FILE}",
     ]
     rv = CommandLineInterface().run(babel_args)
     if rv not in [None, 0]:
@@ -54,15 +68,89 @@ def _msgid_process(txt):
     return txt
 
 
-def run_po_patch():
+def run_pot_patch():
     print('Update POT msgid entries')
-    pofile = polib.pofile(_PO_FILE)
+    pofile = polib.pofile(POT_FILE)
     for entry in pofile:
         entry.msgid = _msgid_process(entry.msgid)
-    pofile.save(_PO_FILE)
+    pofile.save(POT_FILE)
     return 0
+
+
+def run_po_update():
+    data = {}
+    for locale in LOCALES:
+        path = os.path.join(LOCALE_PATH, locale, 'LC_MESSAGES')
+        os.makedirs(path, exist_ok=True)
+        outputfile = os.path.join(path, 'joulescope_ui.po')
+        if not os.path.isfile(outputfile):
+            print(f'create {locale}')
+            babel_args = [
+                sys.argv[0],
+                'init',
+                '-i', POT_FILE,
+                '-o', outputfile,
+                '-l', locale,
+            ]
+        else:
+            print(f'update {locale}')
+            babel_args = [
+                sys.argv[0],
+                'update',
+                '-i', POT_FILE,
+                '-o', outputfile,
+                '-l', locale,
+                '--previous',
+            ]
+        rv = CommandLineInterface().run(babel_args)
+        if rv not in [None, 0]:
+            raise RuntimeError(f'BABEL failed with {rv}')
+        data[locale] = outputfile
+    return data
+
+
+def _text_patch(s):
+    return s
+
+
+def _text_unpatch(s):
+    return s
+
+
+def run_deepl(data):
+    translator = deepl.Translator(os.getenv('DEEPL_AUTH'))
+    for locale, path in data.items():
+        pofile = polib.pofile(path)
+        entries = pofile.untranslated_entries()
+        text = [_text_patch(e.msgid) for e in entries]
+        if len(text):
+            print(f'{locale}: Translating {len(text)} entries')
+            result = translator.translate_text(text, target_lang=locale, tag_handling='html')
+            for r, entry in zip(result, entries):
+                entry.msgstr = _text_unpatch(r.text)
+            pofile.save(path)
+
+
+def run_compile(data):
+    for locale, path_in in data.items():
+        path_out = path_in.replace('.po', '.mo')
+        print(f'compile {locale}')
+        babel_args = [
+            sys.argv[0],
+            'compile',
+            '-i', path_in,
+            '-o', path_out,
+            '-l', locale,
+            '--statistics',
+        ]
+        rv = CommandLineInterface().run(babel_args)
+        if rv not in [None, 0]:
+            raise RuntimeError(f'BABEL failed with {rv}')
 
 
 if __name__ == '__main__':
     run_babel()
-    run_po_patch()
+    run_pot_patch()
+    data = run_po_update()
+    run_deepl(data)
+    run_compile(data)

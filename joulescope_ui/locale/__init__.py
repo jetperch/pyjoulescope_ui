@@ -19,7 +19,7 @@ import re
 __all__ = ['N_']
 _whitespace = r'\s+'
 PATH = os.path.dirname(os.path.abspath(__file__))
-translate = gettext.translation('ui', PATH, fallback=True)
+translate = gettext.translation('joulescope_ui', PATH, fallback=True)
 
 
 def N_(txt):

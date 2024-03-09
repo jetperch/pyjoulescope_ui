@@ -23,6 +23,8 @@ pip install babel polib
 python ci/translations.py
 ```
 
+To create a new translation, simply add the locale to 
+LOCALES in ci/translations.py.
 
 
 ## References

@@ -170,7 +170,7 @@ def create(subtype, description=None, exception=None):
     :param exception: The Exception instance, if available.
     :return: The path to the error report ZIP file.
     """
-    d = datetime.datetime.utcnow()
+    d = datetime.datetime.now(datetime.UTC)
     time_str = d.strftime('%Y%m%d_%H%M%S')
     filename = f'{time_str}.zip'
     path = os.path.join(REPORTER_PATH, filename)
@@ -253,28 +253,33 @@ def create(subtype, description=None, exception=None):
 
 
 def publish():
+    """Publish results.
+
+    :return: The list of [path, status_code, status_msg].  If status_msg is None,
+        the
+    """
     results = []
     for fname in sorted(os.listdir(REPORTER_PATH), reverse=True):
         try:
+            path = os.path.join(REPORTER_PATH, fname)
             r = requests.get(_API_URL, params={'token': REPORTER_TOKEN})
             if r.status_code != 200:
-                print(f'Could not get publish url: status code {r.status_code}')
-                continue
-            upload = r.json()
-            key = upload['Key'].split('.')[0]
-            headers = {
-                'Content-Type': 'application/octet-stream',
-            }
-            path = os.path.join(REPORTER_PATH, fname)
-            with open(path, 'rb') as f:
-                data = f.read()
-            r = requests.put(upload['uploadURL'], headers=headers, data=data)
-            if r.status_code == 200:
-                os.remove(path)
-                results.append(f'Uploaded {key}')
+                msg = f'Could not get publish url: status code {r.status_code}'
             else:
-                print(f'publish failed with status code {r.status_code}')
-                results.append(f'Error {r.status_code} while uploading {key}')
+                upload = r.json()
+                key = upload['Key'].split('.')[0]
+                headers = {
+                    'Content-Type': 'application/octet-stream',
+                }
+                with open(path, 'rb') as f:
+                    data = f.read()
+                r = requests.put(upload['uploadURL'], headers=headers, data=data)
+                if r.status_code == 200:
+                    os.remove(path)
+                    msg = f'Uploaded {key}'
+                else:
+                    msg = f'publish failed with status code {r.status_code}'
+            results.append([path, r.status_code, msg])
         except Exception:
             traceback.print_exception()
             print(f'could not publish {fname}')

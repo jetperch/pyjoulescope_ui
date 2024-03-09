@@ -22,7 +22,6 @@ import json
 import markdown
 import os
 
-
 _ERROR_INTRO = N_("The Joulescope UI encountered an error, and it cannot start correctly.")
 _TROUBLESHOOT = N_("We are here to help troubleshoot! Fill in the details below, and click Submit.")
 _CONTACT_TEXT = N_("""Please provide your contact information so that we can contact you
@@ -32,8 +31,8 @@ _RECOVERY = N_("Select an error recovery option.")
 _CONTACT_FILE = os.path.join(pubsub_singleton.query('common/settings/paths/config'), 'contact.json')
 _RESPONSE_TIME_DAYS = 2
 _TYPICAL_RESPONSE_TIME = N_(f'Typical response time: {_RESPONSE_TIME_DAYS} business days')
-_HOLIDAY = N_("""Our offices are closed for holiday from {start_date} to {end_date}.
-We will respond within {response_time} business days when we return on {return_date}.""")
+_HOLIDAY = N_("""Our offices are currently closed until {return_date}.
+We will respond within {response_time} business days after we return.""")
 _HOLIDAYS = {
     # (datetime.date.today(), datetime.date.today() + datetime.timedelta(7)),  # for testing
     (datetime.date(2024,  1, 31), datetime.date(2024,  1, 31)),  # out of office
@@ -49,6 +48,8 @@ _HOLIDAYS = {
     (datetime.date(2024, 12, 21), datetime.date(2024,  1,  5)),  # Holiday & New Years break
 }
 _clipboard = None
+_SUBMIT_FAILED = N_('Submit failed. Ensure that your computer can access the internet.')
+_SUBMIT_SUCCESS = N_('Submit completed successfully.')
 
 
 class SubmitThread(QtCore.QThread):
@@ -130,12 +131,10 @@ class SubmitConfigureWidget(QtWidgets.QWidget):
 
     @property
     def results(self):
-        r = None
-        if self._thread is not None:
-            r = self._thread.results
-        if r is None:
-            return ''
-        return '\n'.join(r)
+        if self._thread is None:
+            return []
+        else:
+            return self._thread.results
 
     @QtCore.Slot(int)
     def _on_description_tab_changed(self, index):
@@ -200,11 +199,15 @@ class SubmitStatusWidget(QtWidgets.QWidget):
 
     def results(self, results):
         global _clipboard
-        self._status_label.setText(N_('Submit completed.'))
-        _clipboard = results
-        QtWidgets.QApplication.clipboard().setText(_clipboard)
-        self._results_label.setText(results + '\n(copied to clipboard)')
-        self._update_response()
+        if len(results) and all([r[1] == 200 for r in results]):
+            self._status_label.setText(_SUBMIT_SUCCESS)
+            result_str = '\n'.join([f'{os.path.basename(r[0])} : {r[2]}' for r in results])
+            _clipboard = result_str
+            QtWidgets.QApplication.clipboard().setText(_clipboard)
+            self._results_label.setText(result_str + '\n(copied to clipboard)')
+            self._update_response()
+        else:
+            self._status_label.setText(_SUBMIT_FAILED)
         self._buttons = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok)
         self._buttons.accepted.connect(self.finished.emit)
         self._buttons.rejected.connect(self.finished.emit)
@@ -216,8 +219,6 @@ class SubmitStatusWidget(QtWidgets.QWidget):
         for d_start, d_end in _HOLIDAYS:
             if today_plus >= d_start and today <= d_end:
                 txt = _HOLIDAY.format(
-                    start_date=d_start.isoformat(),
-                    end_date=d_end.isoformat(),
                     return_date=(d_end + datetime.timedelta(1)).isoformat(),
                     response_time=_RESPONSE_TIME_DAYS,
                 )
