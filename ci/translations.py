@@ -16,10 +16,12 @@
 # pip install babel polib deepl
 
 from babel.messages.frontend import CommandLineInterface
+import argparse
 import deepl
 import polib
 import os
 import re
+import subprocess
 import sys
 
 
@@ -45,8 +47,29 @@ with open(os.path.join(_PATH, 'joulescope_ui', 'version.py'), 'rt') as f:
     __version__ = f.readline().split('=')[1].strip()[1:-1]
 
 
-def run_babel():
+def parser_config():
+    """Capture streaming samples to a JLS v2 file."""
+    p = argparse.ArgumentParser(
+        description='Joulescope UI translation support',
+    )
+    p.add_argument('--preserve-create-date',
+                   action='store_true',
+                   help='Preserve the POT file creation date.')
+    p.add_argument('--error-if-changed',
+                   action='store_true',
+                   help='Return an error if the POT or PO files change.')
+    p.add_argument('--compile-only',
+                   action='store_true',
+                   help='Compile PO to MO only.')
+    return p
+
+
+def run_babel(preserve_create_date=False):
     os.chdir(os.path.join(_PATH, 'joulescope_ui'))
+    if bool(preserve_create_date) and os.path.isfile(POT_FILE):
+        metadata = polib.pofile(POT_FILE).metadata
+    else:
+        metadata = None
     babel_args = [
         sys.argv[0],
         'extract',
@@ -60,6 +83,10 @@ def run_babel():
     rv = CommandLineInterface().run(babel_args)
     if rv not in [None, 0]:
         raise RuntimeError(f'BABEL failed with {rv}')
+    if metadata is not None:
+        pofile = polib.pofile(POT_FILE)
+        pofile.metadata['POT-Creation-Date'] = metadata['POT-Creation-Date']
+        pofile.save(POT_FILE)
 
 
 def _msgid_process(txt):
@@ -131,8 +158,17 @@ def run_deepl(data):
             pofile.save(path)
 
 
-def run_compile(data):
-    for locale, path_in in data.items():
+def is_git_changed():
+    rv = subprocess.run(['git', 'diff', '--ignore-all-space', '--exit-code'])
+    return rv.returncode != 0
+
+
+def run_compile():
+    for locale in os.listdir(LOCALE_PATH):
+        path_in = os.path.join(LOCALE_PATH, locale, 'LC_MESSAGES', 'joulescope_ui.po')
+        if not os.path.isfile(path_in):
+            continue
+        pass
         path_out = path_in.replace('.po', '.mo')
         print(f'compile {locale}')
         babel_args = [
@@ -148,9 +184,19 @@ def run_compile(data):
             raise RuntimeError(f'BABEL failed with {rv}')
 
 
+def run():
+    args = parser_config().parse_args()
+    if not args.compile_only:
+        run_babel(preserve_create_date=args.preserve_create_date)
+        run_pot_patch()
+        data = run_po_update()
+        run_deepl(data)
+    if args.error_if_changed and is_git_changed():
+        print('ERROR: POT and/or PO file(s) changed')
+        return 1
+    run_compile()
+    return 0
+
+
 if __name__ == '__main__':
-    run_babel()
-    run_pot_patch()
-    data = run_po_update()
-    run_deepl(data)
-    run_compile(data)
+    sys.exit(run())
