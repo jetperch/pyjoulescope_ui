@@ -65,7 +65,9 @@ jobs:
           cp CHANGELOG.md joulescope_ui/
           cp CREDITS.html joulescope_ui/
 
-      - name: Check that translations are up-to-date and compile
+      - name: Check that translations are up-to-date and compile translations
+        env:
+          DEEPL_AUTH: ${{ secrets.DEEPL_AUTH }}
         run: python ci/translations.py --preserve-create-date --error-if-changed
 
       - name: Update tokens using GitHub secrets
