@@ -156,7 +156,7 @@ def config(path, stream_log_level=None, file_log_level=None):
     file_lvl = logging.INFO if file_log_level is None else LEVELS[file_log_level]
     if file_lvl < LEVELS['OFF']:
         file_fmt = logging.Formatter(FILE_FMT)
-        file_hnd = FileHandler(filename=filename)
+        file_hnd = FileHandler(filename=filename, encoding='utf-8')
         file_hnd.stream.write(header)
         file_hnd.setFormatter(file_fmt)
         file_hnd.setLevel(file_lvl)
