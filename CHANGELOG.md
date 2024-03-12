@@ -15,6 +15,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added optional Waveform widget feature to set the plot label  #255
 * Added JLS v1 support to JLS Info Widget  #259
 * Fixed JLS reopen support by adding optional on_pubsub_delete callback  #260
+* Added "dots" to each Waveform widget sample when sufficiently zoomed in  #261
+* Added snap to sample for Waveform widget hover display. 
 
 
 ## 1.0.58
