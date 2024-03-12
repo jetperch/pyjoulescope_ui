@@ -162,6 +162,7 @@ methods by name.  For classes, the specially named methods are:
 * on_cls_event_*
 * on_cls_pubsub_register(pubsub)
 * on_cls_pubsub_unregister(pubsub)
+* on_cls_pubsub_delete(pubsub)
 
 For object (instances), the specially named methods are:
 
@@ -171,27 +172,13 @@ For object (instances), the specially named methods are:
 * on_event_*
 * on_pubsub_register(pubsub)
 * on_pubsub_unregister(pubsub)
+* on_pubsub_delete(pubsub)
 
 Registration also assigns the following attributes:
 
 * unique_id
 * topic
 * pubsub
-
-
-## Changes from 0.10.x to 1.x.x
-
-The 0.10.x (and earlier) Joulescope UI implementation evolved over time
-and features a 
-command processor ([Wikipedia](https://en.wikipedia.org/wiki/Command_pattern))
-coupled with a preferences implementation.  Together, these form a
-PubSub implementation.  While this supports shared state and PubSub,
-the multiple profile implementation with defaults was confusing.  Some items
-should never be overwritten, and too many things that could be overwritten
-were unclear when moving between profiles.  The existing implementation was
-also not well-structured to support to split registries and active entities.
-The 1.x.x implementation upgrades the existing implementation to provide 
-even more robustness and scalability.
 
 
 ## References

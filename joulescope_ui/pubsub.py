@@ -1340,6 +1340,15 @@ class PubSub:
         if callable(fn):
             fn()
 
+    def _delete_invoke_callback(self, obj):
+        if isinstance(obj, type):
+            method_name = 'on_cls_pubsub_delete'
+        else:
+            method_name = 'on_pubsub_delete'
+        fn = self._invoke_callback(obj, method_name)
+        if callable(fn):
+            fn()
+
     def unregister(self, spec, delete=None):
         """Unregister a class or instance.
 
@@ -1365,6 +1374,7 @@ class PubSub:
         self._unregister_invoke_callback(obj, unique_id)
         if bool(delete):
             self._parent_remove(unique_id)
+            self._delete_invoke_callback(obj)
         # settings unsubscribe handled by _unregister_functions
         self._unregister_functions(obj, unique_id)
         self._cmd_topic_remove({'topic': instance_topic_name})  # skip undo, do not want instance in undo list

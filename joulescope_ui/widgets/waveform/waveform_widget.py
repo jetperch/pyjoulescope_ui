@@ -828,6 +828,8 @@ class WaveformWidget(QtWidgets.QWidget):
         self._shortcuts.clear()
         self._paint_timer.stop()
         self._paint_state = PaintState.IDLE
+
+    def on_pubsub_delete(self):
         for topic, value in self.pubsub.query(f'{self.topic}/settings/close_actions', default=[]):
             self._log.info('waveform close: %s %s', topic, value)
             self.pubsub.publish(topic, value)

@@ -7,13 +7,14 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.0.59
 
-2024 Mar 12 [in progress]
+2024 Mar 12
 
 * Modified sidebar buttons to disable when no Joulescopes connected.
 * Renamed "plugins" directory to "range_tools".
 * Modified widgets to display device name, not model-serial_number  #256
 * Added optional Waveform widget feature to set the plot label  #255
-* Added JLS v1 support to JLS Info Widget  #259 
+* Added JLS v1 support to JLS Info Widget  #259
+* Fixed JLS reopen support by adding optional on_pubsub_delete callback  #260
 
 
 ## 1.0.58
