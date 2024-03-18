@@ -5,6 +5,14 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.0.60
+
+2024 Mar 18
+
+* Fixed JS110 performance degradation (blocking status in device thread) 
+  using pyjoulescope_driver 1.4.8 → 1.4.9.
+
+
 ## 1.0.59
 
 2024 Mar 12
