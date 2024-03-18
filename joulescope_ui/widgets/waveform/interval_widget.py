@@ -36,9 +36,12 @@ _TIME_UNITS = [
 
 def _unit_select(interval_seconds):
     interval_seconds = abs(interval_seconds)
-    for idx, (unit_name, unit_scale) in enumerate(_TIME_UNITS):
-        if interval_seconds < unit_scale:
-            break
+    if interval_seconds < 1e-14:
+        idx = 4
+    else:
+        for idx, (unit_name, unit_scale) in enumerate(_TIME_UNITS):
+            if interval_seconds < unit_scale:
+                break
     idx = max(0, idx - 1)
     txt, scale = _TIME_UNITS[idx]
     return idx, txt, scale
@@ -46,10 +49,10 @@ def _unit_select(interval_seconds):
 
 class IntervalWidget(QtWidgets.QWidget):
 
-    value = QtCore.Signal(float)
+    value_changed = QtCore.Signal(float)
 
-    def __init__(self, parent, interval_seconds):
-        self._interval_seconds = interval_seconds
+    def __init__(self, parent, interval_seconds=None):
+        self._unit_idx = 0
         QtWidgets.QWidget.__init__(self, parent)
         self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         self.setObjectName('IntervalWidget')
@@ -59,29 +62,40 @@ class IntervalWidget(QtWidgets.QWidget):
         self._layout.setContentsMargins(0, 0, 0, 0)
         self._layout.setSpacing(5)
 
-        self._unit_idx, unit_name, unit_scale = _unit_select(interval_seconds)
-        value = interval_seconds / unit_scale
-
         self._value = QtWidgets.QLineEdit(self)
-        self._value.setText(f'{value:g}')
+        self._value.setText(f'0.0')
         self._value_validator = QtGui.QDoubleValidator(self)
         self._value.setValidator(self._value_validator)
         self._value.editingFinished.connect(self._on_value)
         self._layout.addWidget(self._value)
 
         self._units = QtWidgets.QComboBox(self)
-        comboBoxConfig(self._units, [x[0] for x in _TIME_UNITS], unit_name)
         self._units.currentIndexChanged.connect(self._on_units)
         self._layout.addWidget(self._units)
 
-    @QtCore.Slot()
-    def _on_value(self):
+        self.value = 0.0 if interval_seconds is None else float(interval_seconds)
+
+    @property
+    def value(self):
         txt = self._value.text()
         value = float(txt)
         idx = self._units.currentIndex()
         scale = _TIME_UNITS[idx][1]
         value *= scale
-        self.value.emit(value)
+        return value
+
+    @value.setter
+    def value(self, interval_seconds):
+        self._unit_idx, unit_name, unit_scale = _unit_select(interval_seconds)
+        v = interval_seconds / unit_scale
+        block = self._value.blockSignals(True)
+        self._value.setText(f'{v:g}')
+        self._value.blockSignals(block)
+        comboBoxConfig(self._units, [x[0] for x in _TIME_UNITS], unit_name)
+
+    @QtCore.Slot()
+    def _on_value(self):
+        self.value_changed.emit(self.value)
 
     @QtCore.Slot(int)
     def _on_units(self, idx):

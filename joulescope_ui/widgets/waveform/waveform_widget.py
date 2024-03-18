@@ -3128,7 +3128,7 @@ class WaveformWidget(QtWidgets.QWidget):
         x0, x1 = self.x_range
         interval = abs(x1 - x0) / time64.SECOND
         interval_widget = IntervalWidget(self, interval)
-        interval_widget.value.connect(self._on_dt_interval)
+        interval_widget.value_changed.connect(self._on_dt_interval)
         interval_action = QtWidgets.QWidgetAction(menu)
         interval_action.setDefaultWidget(interval_widget)
         menu.addAction(interval_action)
@@ -3297,7 +3297,7 @@ class WaveformWidget(QtWidgets.QWidget):
             interval = (m[other_pos] - m[pos_text]) / time64.SECOND
             interval_widget = IntervalWidget(self, interval)
             adapter = CallableSlotAdapter(interval_widget, lambda x: self._on_x_interval(m, pos_text, x))
-            interval_widget.value.connect(adapter.slot)
+            interval_widget.value_changed.connect(adapter.slot)
             interval_action = QtWidgets.QWidgetAction(interval_menu)
             interval_action.setDefaultWidget(interval_widget)
             interval_menu.addAction(interval_action)

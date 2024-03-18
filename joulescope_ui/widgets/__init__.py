@@ -32,6 +32,7 @@ from .sidebar import SideBar
 from .settings import SettingsWidget
 from .signal_record import SignalRecordConfigWidget, SignalRecord
 from .statistics_record import StatisticsRecordConfigWidget, StatisticsRecord
+from .trigger import TriggerWidget
 from .value import ValueWidget
 from .view_manager import ViewManagerWidget, ViewManagerDialog
 from .waveform import WaveformWidget

@@ -1,0 +1,2 @@
+trigger.title_background = #256090
+trigger.title_foreground = #E0E0E0
