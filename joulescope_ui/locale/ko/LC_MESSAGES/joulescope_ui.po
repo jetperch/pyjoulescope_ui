@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-03-09 12:56-0500\n"
+"POT-Creation-Date: 2024-03-19 13:13-0400\n"
 "PO-Revision-Date: 2024-03-07 17:35-0500\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language: ko\n"
 "Language-Team: ko <LL@li.org>\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Language: ko\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.14.0\n"
 
 #: about.py:24
@@ -36,12 +36,12 @@ msgstr "연결된 모든 대상의 전원을 토글합니다."
 
 #: app.py:50
 msgid ""
-"This feature forces all connected instruments to disable current flow. "
-"You can use this feature to perform a power cycle reset for the connected"
-" target devices."
+"This feature forces all connected instruments to disable current flow. You "
+"can use this feature to perform a power cycle reset for the connected target"
+" devices."
 msgstr ""
-"이 기능은 연결된 모든 계측기에서 전류 흐름을 강제로 비활성화합니다. 이 기능을 사용하여 연결된 대상 장치에 대한 전원 주기 "
-"재설정을 수행할 수 있습니다."
+"이 기능은 연결된 모든 계측기에서 전류 흐름을 강제로 비활성화합니다. 이 기능을 사용하여 연결된 대상 장치에 대한 전원 주기 재설정을 "
+"수행할 수 있습니다."
 
 #: app.py:53
 msgid "The JS220 disconnects the current terminals."
@@ -59,12 +59,12 @@ msgstr "퓨즈 연결 표시기"
 
 #: app.py:62
 msgid ""
-"This indicator becomes active when at least one connected instrument has "
-"an engaged fuse. Instruments with engaged fuses prevent current flow "
-"until cleared."
+"This indicator becomes active when at least one connected instrument has an "
+"engaged fuse. Instruments with engaged fuses prevent current flow until "
+"cleared."
 msgstr ""
-"연결된 계측기 중 하나 이상에 퓨즈가 연결된 경우 이 표시등이 활성화됩니다. 퓨즈가 연결된 계측기는 퓨즈가 해제될 때까지 전류 "
-"흐름을 차단합니다."
+"연결된 계측기 중 하나 이상에 퓨즈가 연결된 경우 이 표시등이 활성화됩니다. 퓨즈가 연결된 계측기는 퓨즈가 해제될 때까지 전류 흐름을 "
+"차단합니다."
 
 #: app.py:65 widgets/device_control/js220_ctrl_widget.py:55
 msgid "Press to clear."
@@ -86,8 +86,8 @@ msgstr "활성화하면 위젯은 연결된 기기에서 수신되는 통계 데
 
 #: app.py:75
 msgid ""
-"When disabled, hold the existing values. New statistics data is "
-"processed, but widgets displaying statistics information do not update."
+"When disabled, hold the existing values. New statistics data is processed, "
+"but widgets displaying statistics information do not update."
 msgstr "비활성화하면 기존 값을 유지합니다. 새 통계 데이터는 처리되지만 통계 정보를 표시하는 위젯은 업데이트되지 않습니다."
 
 #: app.py:83
@@ -106,8 +106,8 @@ msgstr "한 번 클릭하면 CSV 파일로 녹화를 시작합니다. 녹화를 
 
 #: app.py:87
 msgid ""
-"By default, Joulescopes provide statistics data at 2 Hz. Each device "
-"allows you to change this setting to the desired rate."
+"By default, Joulescopes provide statistics data at 2 Hz. Each device allows "
+"you to change this setting to the desired rate."
 msgstr "기본적으로 줄스코프는 2Hz로 통계 데이터를 제공합니다. 각 디바이스에서 이 설정을 원하는 속도로 변경할 수 있습니다."
 
 #: app.py:94
@@ -120,14 +120,14 @@ msgstr "샘플 데이터 스트리밍을 토글하려면 클릭합니다."
 
 #: app.py:97
 msgid ""
-"When enabled, stream sample data from all open sample sources and "
-"configure all sample widgets for acquisition mode."
+"When enabled, stream sample data from all open sample sources and configure "
+"all sample widgets for acquisition mode."
 msgstr "활성화하면 열려 있는 모든 샘플 소스에서 샘플 데이터를 스트리밍하고 수집 모드에 대한 모든 샘플 위젯을 구성합니다."
 
 #: app.py:99
 msgid ""
-"When disabled, stop sample streaming and configure all sample widgets for"
-" buffer mode."
+"When disabled, stop sample streaming and configure all sample widgets for "
+"buffer mode."
 msgstr "비활성화하면 샘플 스트리밍을 중지하고 모든 샘플 위젯을 버퍼 모드로 구성합니다."
 
 #: app.py:106
@@ -146,12 +146,12 @@ msgstr "한 번 클릭하면 JLS 파일로 녹화를 시작합니다. 녹화를 
 
 #: app.py:111
 msgid ""
-"The recording will capture data from all enabled sample sources and "
-"signals at their configured sample rates. To reduce the file size, you "
-"can disable sources, disable signals, and/or reduce the sample rates."
+"The recording will capture data from all enabled sample sources and signals "
+"at their configured sample rates. To reduce the file size, you can disable "
+"sources, disable signals, and/or reduce the sample rates."
 msgstr ""
-"녹화는 활성화된 모든 샘플 소스 및 신호에서 설정된 샘플 레이트로 데이터를 캡처합니다. 파일 크기를 줄이려면 소스를 비활성화하거나 "
-"신호를 비활성화하거나 샘플 속도를 낮추면 됩니다."
+"녹화는 활성화된 모든 샘플 소스 및 신호에서 설정된 샘플 레이트로 데이터를 캡처합니다. 파일 크기를 줄이려면 소스를 비활성화하거나 신호를"
+" 비활성화하거나 샘플 속도를 낮추면 됩니다."
 
 #: app.py:120
 msgid "The default unique_id for the default statistics streaming source."
@@ -207,15 +207,14 @@ msgstr "OpenGL 렌더링 방법을 선택합니다."
 
 #: app.py:166
 msgid ""
-"This application uses OpenGL to accelerate graphics rendering. OpenGL has"
-" multiple options for rendering, which varies between platforms. By "
-"default, this application uses \"desktop\" rendering. If OpenGL is not "
-"well-supported by your graphics drivers, you can select \"software\" "
-"rendering."
+"This application uses OpenGL to accelerate graphics rendering. OpenGL has "
+"multiple options for rendering, which varies between platforms. By default, "
+"this application uses \"desktop\" rendering. If OpenGL is not well-supported"
+" by your graphics drivers, you can select \"software\" rendering."
 msgstr ""
-"이 애플리케이션은 OpenGL을 사용하여 그래픽 렌더링을 가속화합니다. OpenGL에는 플랫폼마다 다른 여러 렌더링 옵션이 "
-"있습니다. 기본적으로 이 애플리케이션은 \"데스크톱\" 렌더링을 사용합니다. 그래픽 드라이버에서 OpenGL을 제대로 지원하지 않는"
-" 경우 \"소프트웨어\" 렌더링을 선택할 수 있습니다."
+"이 애플리케이션은 OpenGL을 사용하여 그래픽 렌더링을 가속화합니다. OpenGL에는 플랫폼마다 다른 여러 렌더링 옵션이 있습니다. "
+"기본적으로 이 애플리케이션은 \"데스크톱\" 렌더링을 사용합니다. 그래픽 드라이버에서 OpenGL을 제대로 지원하지 않는 경우 "
+"\"소프트웨어\" 렌더링을 선택할 수 있습니다."
 
 #: app.py:171
 msgid "Selecting \"ANGLE\" may break copy as image and save as image."
@@ -271,11 +270,10 @@ msgstr "오류 복구 옵션을 선택합니다."
 
 #: error_window.py:34
 msgid ""
-"Our offices are currently closed until {return_date}. We will respond "
-"within {response_time} business days after we return."
+"Our offices are currently closed until {return_date}. We will respond within"
+" {response_time} business days after we return."
 msgstr ""
-"현재 {return_date}까지 사무실이 휴무입니다. 복귀 후 영업일 기준 {response_time}일 이내에 답변해 "
-"드리겠습니다."
+"현재 {return_date}까지 사무실이 휴무입니다. 복귀 후 영업일 기준 {response_time}일 이내에 답변해 드리겠습니다."
 
 #: error_window.py:51
 msgid "Submit failed. Ensure that your computer can access the internet."
@@ -301,7 +299,7 @@ msgstr "이메일"
 msgid "Description"
 msgstr "설명"
 
-#: error_window.py:112 widgets/waveform/waveform_widget.py:3330
+#: error_window.py:112 widgets/waveform/waveform_widget.py:3346
 msgid "Edit"
 msgstr "편집"
 
@@ -373,8 +371,8 @@ msgstr "데이터를 JLS 파일로 내보내기"
 
 #: exporter.py:170
 msgid ""
-"Exporting data to a JLS file. You can open this file later to display the"
-" exported data."
+"Exporting data to a JLS file. You can open this file later to display the "
+"exported data."
 msgstr "데이터를 JLS 파일로 내보내기. 나중에 이 파일을 열어 내보낸 데이터를 표시할 수 있습니다."
 
 #: getting_started.py:20
@@ -399,9 +397,9 @@ msgstr "JS110 센서 포트는 IN+, IN- OUT+, OUT-입니다."
 
 #: getting_started.py:26
 msgid ""
-"The sensor ports are electrically isolated from USB. The voltage between "
-"any sensor port and USB ground must never exceed ±48V. The GPI/O and "
-"trigger ports are referenced to USB ground."
+"The sensor ports are electrically isolated from USB. The voltage between any"
+" sensor port and USB ground must never exceed ±48V. The GPI/O and trigger "
+"ports are referenced to USB ground."
 msgstr ""
 "센서 포트는 USB로부터 전기적으로 절연되어 있습니다. 센서 포트와 USB 접지 사이의 전압은 ±48V를 초과하지 않아야 합니다. "
 "GPI/O 및 트리거 포트는 USB 접지를 기준으로 합니다."
@@ -412,12 +410,11 @@ msgstr "연결"
 
 #: getting_started.py:31
 msgid ""
-"Connect Joulescope's USB port to your computer using the provided cable. "
-"Use an adapter or suitable cable if your computer only has USB Type C "
-"ports."
+"Connect Joulescope's USB port to your computer using the provided cable. Use"
+" an adapter or suitable cable if your computer only has USB Type C ports."
 msgstr ""
-"제공된 케이블을 사용하여 줄스코프의 USB 포트를 컴퓨터에 연결합니다. 컴퓨터에 USB C타입 포트만 있는 경우 어댑터 또는 적합한"
-" 케이블을 사용하세요."
+"제공된 케이블을 사용하여 줄스코프의 USB 포트를 컴퓨터에 연결합니다. 컴퓨터에 USB C타입 포트만 있는 경우 어댑터 또는 적합한 "
+"케이블을 사용하세요."
 
 #: getting_started.py:33
 msgid ""
@@ -425,13 +422,13 @@ msgid ""
 "device under test. Connect the voltage port to the power supply. See the "
 "Joulescope JS220 User's Guide for more connection examples."
 msgstr ""
-"JS220의 경우 전원 공급 장치와 테스트 중인 장치 사이에 전류 포트를 연결합니다. 전압 포트를 전원 공급 장치에 연결합니다. 더"
-" 많은 연결 예는 줄스코프 JS220 사용 안내서를 참조하세요."
+"JS220의 경우 전원 공급 장치와 테스트 중인 장치 사이에 전류 포트를 연결합니다. 전압 포트를 전원 공급 장치에 연결합니다. 더 많은"
+" 연결 예는 줄스코프 JS220 사용 안내서를 참조하세요."
 
 #: getting_started.py:36
 msgid ""
-"For the JS110, connect the Joulescope IN port to your power supply. "
-"Connect the Joulescope OUT port to your target device."
+"For the JS110, connect the Joulescope IN port to your power supply. Connect "
+"the Joulescope OUT port to your target device."
 msgstr "JS110의 경우, 줄스코프 IN 포트를 전원 공급 장치에 연결합니다. 줄스코프 OUT 포트를 대상 장치에 연결합니다."
 
 #: getting_started.py:39
@@ -440,14 +437,14 @@ msgstr "측정"
 
 #: getting_started.py:40
 msgid ""
-"The Joulescope software starts in the Multimeter View displaying the "
-"value current, voltage, power, and energy."
+"The Joulescope software starts in the Multimeter View displaying the value "
+"current, voltage, power, and energy."
 msgstr "줄스코프 소프트웨어는 전류, 전압, 전력 및 에너지 값을 표시하는 멀티미터 보기에서 시작됩니다."
 
 #: getting_started.py:42
 msgid ""
-"Select View → Oscilloscope to switch to the Oscilloscope View and explore"
-" changes over time."
+"Select View → Oscilloscope to switch to the Oscilloscope View and explore "
+"changes over time."
 msgstr "보기 → 오실로스코프를 선택하여 오실로스코프 보기로 전환하고 시간 경과에 따른 변화를 살펴봅니다."
 
 #: getting_started.py:44
@@ -478,27 +475,27 @@ msgstr "지원"
 
 #: getting_started.py:54
 msgid ""
-"Click on the help icon at the bottom left for more information and "
-"support options."
+"Click on the help icon at the bottom left for more information and support "
+"options."
 msgstr "자세한 정보와 지원 옵션을 보려면 왼쪽 하단의 도움말 아이콘을 클릭하세요."
 
 #: intel_graphics_dialog.py:22
 msgid ""
-"This computer has Intel graphics. If the computer has a discrete graphics"
-" card, please adjust your graphics settings to run this application using"
-" the graphics card."
+"This computer has Intel graphics. If the computer has a discrete graphics "
+"card, please adjust your graphics settings to run this application using the"
+" graphics card."
 msgstr ""
-"이 컴퓨터에는 인텔 그래픽이 있습니다. 컴퓨터에 외장 그래픽 카드가 있는 경우 그래픽 카드를 사용하여 이 애플리케이션을 실행하려면 "
-"그래픽 설정을 조정하세요."
+"이 컴퓨터에는 인텔 그래픽이 있습니다. 컴퓨터에 외장 그래픽 카드가 있는 경우 그래픽 카드를 사용하여 이 애플리케이션을 실행하려면 그래픽"
+" 설정을 조정하세요."
 
 #: intel_graphics_dialog.py:26
 msgid ""
-"If the computer only has Intel graphics, we recommend that you update "
-"your graphics drivers. You can download the latest graphics drivers from "
-"your computer manufacturer or Intel."
+"If the computer only has Intel graphics, we recommend that you update your "
+"graphics drivers. You can download the latest graphics drivers from your "
+"computer manufacturer or Intel."
 msgstr ""
-"컴퓨터에 인텔 그래픽만 있는 경우 그래픽 드라이버를 업데이트하는 것이 좋습니다. 컴퓨터 제조업체 또는 인텔에서 최신 그래픽 "
-"드라이버를 다운로드할 수 있습니다."
+"컴퓨터에 인텔 그래픽만 있는 경우 그래픽 드라이버를 업데이트하는 것이 좋습니다. 컴퓨터 제조업체 또는 인텔에서 최신 그래픽 드라이버를 "
+"다운로드할 수 있습니다."
 
 #: intel_graphics_dialog.py:29
 msgid "You may observe strange graphics hangs with the latest Intel driver."
@@ -506,12 +503,12 @@ msgstr "최신 인텔 드라이버를 사용하면 이상한 그래픽이 중단
 
 #: intel_graphics_dialog.py:30
 msgid ""
-"If this happens on your computer, then you can switch to the software "
-"OpenGL renderer. The software OpenGL renderer may work around Intel "
-"driver instabilities, but it runs slower possibly causing performance "
-"issues. On a small number of computers, it does not run correctly causing"
-" a white application screen. You will need to close and reopen this "
-"application for the change to take effect."
+"If this happens on your computer, then you can switch to the software OpenGL"
+" renderer. The software OpenGL renderer may work around Intel driver "
+"instabilities, but it runs slower possibly causing performance issues. On a "
+"small number of computers, it does not run correctly causing a white "
+"application screen. You will need to close and reopen this application for "
+"the change to take effect."
 msgstr ""
 "컴퓨터에서 이 문제가 발생하면 소프트웨어 OpenGL 렌더러로 전환할 수 있습니다. 소프트웨어 OpenGL 렌더러는 인텔 드라이버 "
 "불안정성을 해결할 수 있지만 실행 속도가 느려져 성능 문제를 일으킬 수 있습니다. 소수의 컴퓨터에서는 제대로 실행되지 않아 흰색 "
@@ -523,14 +520,14 @@ msgstr "소프트웨어 OpenGL 렌더러로 전환하시겠습니까?"
 
 #: intel_graphics_dialog.py:39
 msgid ""
-"If you are unsure, select \"No\" and leave \"Do not show again\" "
-"unchecked. If you observe the graphics hangs, you can select \"Yes\" in "
-"the future. You can select the OpenGL renderer at any time using Widgets "
-"→ Settings → Common → opengl. The default is \"desktop\"."
+"If you are unsure, select \"No\" and leave \"Do not show again\" unchecked. "
+"If you observe the graphics hangs, you can select \"Yes\" in the future. You"
+" can select the OpenGL renderer at any time using Widgets → Settings → "
+"Common → opengl. The default is \"desktop\"."
 msgstr ""
-"확실하지 않은 경우 \"아니요\"를 선택하고 \"다시 표시하지 않음\"을 선택하지 않은 상태로 둡니다. 그래픽이 멈추는 것을 "
-"확인하면 나중에 \"예\"를 선택할 수 있습니다. 위젯 → 설정 → 일반 → opengl을 사용하여 언제든지 OpenGL 렌더러를 "
-"선택할 수 있습니다. 기본값은 \"데스크톱\"입니다."
+"확실하지 않은 경우 \"아니요\"를 선택하고 \"다시 표시하지 않음\"을 선택하지 않은 상태로 둡니다. 그래픽이 멈추는 것을 확인하면 "
+"나중에 \"예\"를 선택할 수 있습니다. 위젯 → 설정 → 일반 → opengl을 사용하여 언제든지 OpenGL 렌더러를 선택할 수 "
+"있습니다. 기본값은 \"데스크톱\"입니다."
 
 #: intel_graphics_dialog.py:82
 msgid "Do not show again"
@@ -546,12 +543,12 @@ msgstr "UI 상태 표시줄 표시 모드"
 
 #: main.py:79
 msgid ""
-"This setting controls the amount of detail shown on the status bar at the"
-" bottom of the UI window. You should usually leave this set to \"normal\""
-" unless you want more detail concerning the UI internal operation."
+"This setting controls the amount of detail shown on the status bar at the "
+"bottom of the UI window. You should usually leave this set to \"normal\" "
+"unless you want more detail concerning the UI internal operation."
 msgstr ""
-"이 설정은 UI 창 하단의 상태 표시줄에 표시되는 세부 정보의 양을 제어합니다. UI 내부 작업에 대한 자세한 정보를 원하지 않는 "
-"한 일반적으로 이 설정을 \"보통\"으로 두는 것이 좋습니다."
+"이 설정은 UI 창 하단의 상태 표시줄에 표시되는 세부 정보의 양을 제어합니다. UI 내부 작업에 대한 자세한 정보를 원하지 않는 한 "
+"일반적으로 이 설정을 \"보통\"으로 두는 것이 좋습니다."
 
 #: main.py:84 safe_mode.py:43
 msgid "Normal"
@@ -571,8 +568,8 @@ msgstr "PubSub 활용"
 
 #: main.py:99
 msgid ""
-"Display the number of actions processed by the publish-subscribe broker "
-"in each second."
+"Display the number of actions processed by the publish-subscribe broker in "
+"each second."
 msgstr "게시-구독 브로커가 초당 처리한 작업 수를 표시합니다."
 
 #: main.py:104
@@ -676,7 +673,8 @@ msgid "Info"
 msgstr "정보"
 
 #: main.py:370 widget_tools.py:92 widgets/settings/settings_widget.py:31
-#: widgets/settings/settings_widget.py:574 widgets/sidebar/sidebar_widget.py:41
+#: widgets/settings/settings_widget.py:574
+#: widgets/sidebar/sidebar_widget.py:41
 msgid "Settings"
 msgstr "설정"
 
@@ -875,13 +873,12 @@ msgstr "선택한 현재 범위에 대해 스트리밍을 활성화합니다."
 
 #: devices/jsdrv/device.py:21
 msgid ""
-"The current range is useful for understanding how your Joulescope "
-"autoranges to measure your current signal. It can also be helpful in "
-"separating target system behavior from the small current range switching "
-"artifacts."
+"The current range is useful for understanding how your Joulescope autoranges"
+" to measure your current signal. It can also be helpful in separating target"
+" system behavior from the small current range switching artifacts."
 msgstr ""
-"전류 범위는 줄스코프가 현재 신호를 측정하기 위해 자동 범위를 설정하는 방법을 이해하는 데 유용합니다. 또한 작은 전류 범위의 "
-"스위칭 아티팩트에서 대상 시스템 동작을 분리하는 데 도움이 될 수 있습니다."
+"전류 범위는 줄스코프가 현재 신호를 측정하기 위해 자동 범위를 설정하는 방법을 이해하는 데 유용합니다. 또한 작은 전류 범위의 스위칭 "
+"아티팩트에서 대상 시스템 동작을 분리하는 데 도움이 될 수 있습니다."
 
 #: devices/jsdrv/js110.py:29 devices/jsdrv/js110.py:65
 #: devices/jsdrv/js220.py:47 devices/jsdrv/js220.py:83
@@ -890,15 +887,15 @@ msgstr "장치 이름"
 
 #: devices/jsdrv/js110.py:31 devices/jsdrv/js220.py:49
 msgid ""
-"The Joulescope UI automatically populates the device name with the device"
-" type and serial number."
+"The Joulescope UI automatically populates the device name with the device "
+"type and serial number."
 msgstr "줄스코프 UI는 디바이스 유형과 일련 번호로 디바이스 이름을 자동으로 입력합니다."
 
 #: devices/jsdrv/js110.py:33
 msgid ""
 "This setting allows you to change the default, if you wish, to better "
-"reflect how you are using your JS110. This setting is most useful when "
-"you are instrumenting a system using multiple Joulescopes."
+"reflect how you are using your JS110. This setting is most useful when you "
+"are instrumenting a system using multiple Joulescopes."
 msgstr ""
 "이 설정을 사용하면 원하는 경우 JS110 사용 방식을 더 잘 반영하도록 기본값을 변경할 수 있습니다. 이 설정은 여러 줄스코프를 "
 "사용하여 시스템을 계측할 때 가장 유용합니다."
@@ -928,17 +925,17 @@ msgid ""
 "storage requirements for long captures where lower temporal accuracy is "
 "sufficient."
 msgstr ""
-"이 설정은 측정 신호 전류, 전압 및 전력에 대한 출력 샘플링 주파수를 제어합니다. 이 설정을 사용하면 낮은 시간 정확도로도 충분한"
-" 장시간 캡처에 필요한 데이터 저장 공간을 줄일 수 있습니다."
+"이 설정은 측정 신호 전류, 전압 및 전력에 대한 출력 샘플링 주파수를 제어합니다. 이 설정을 사용하면 낮은 시간 정확도로도 충분한 "
+"장시간 캡처에 필요한 데이터 저장 공간을 줄일 수 있습니다."
 
 #: devices/jsdrv/js110.py:87
 msgid ""
-"The JS110 instrument always samples at 2 MHz and sends the raw samples to"
-" the host. This setting controls additional optional downsampling that is"
-" performed on the host."
+"The JS110 instrument always samples at 2 MHz and sends the raw samples to "
+"the host. This setting controls additional optional downsampling that is "
+"performed on the host."
 msgstr ""
-"JS110 기기는 항상 2MHz로 샘플링하고 원시 샘플을 호스트로 전송합니다. 이 설정은 호스트에서 수행되는 추가 옵션 다운샘플링을"
-" 제어합니다."
+"JS110 기기는 항상 2MHz로 샘플링하고 원시 샘플을 호스트로 전송합니다. 이 설정은 호스트에서 수행되는 추가 옵션 다운샘플링을 "
+"제어합니다."
 
 #: devices/jsdrv/js110.py:117 devices/jsdrv/js220.py:133
 msgid "Statistics frequency"
@@ -946,9 +943,9 @@ msgstr "통계 빈도"
 
 #: devices/jsdrv/js110.py:118
 msgid ""
-"This setting controls the output frequency for the statistics data that "
-"is displayed in the multimeter and value widgets. Statistics data is "
-"computed over the full rate 2 MHz samples."
+"This setting controls the output frequency for the statistics data that is "
+"displayed in the multimeter and value widgets. Statistics data is computed "
+"over the full rate 2 MHz samples."
 msgstr ""
 "이 설정은 멀티미터 및 값 위젯에 표시되는 통계 데이터의 출력 주파수를 제어합니다. 통계 데이터는 전체 속도 2MHz 샘플에 걸쳐 "
 "계산됩니다."
@@ -959,16 +956,16 @@ msgstr "현재 터미널 간의 연결을 전환합니다."
 
 #: devices/jsdrv/js110.py:138 devices/jsdrv/js220.py:154
 msgid ""
-"When enabled, current flows between the current terminals. When disabled,"
-" current cannot flow between the current terminals. In common system "
-"setups, this inhibits target power, which can be used to power cycle "
-"reset the target device."
+"When enabled, current flows between the current terminals. When disabled, "
+"current cannot flow between the current terminals. In common system setups, "
+"this inhibits target power, which can be used to power cycle reset the "
+"target device."
 msgstr ""
-"활성화하면 현재 단자 간에 전류가 흐릅니다. 비활성화하면 현재 단자 사이에 전류가 흐르지 않습니다. 일반적인 시스템 설정에서 이 "
-"기능은 타겟 전력을 억제하여 타겟 디바이스의 전원 사이클을 재설정하는 데 사용할 수 있습니다."
+"활성화하면 현재 단자 간에 전류가 흐릅니다. 비활성화하면 현재 단자 사이에 전류가 흐르지 않습니다. 일반적인 시스템 설정에서 이 기능은 "
+"타겟 전력을 억제하여 타겟 디바이스의 전원 사이클을 재설정하는 데 사용할 수 있습니다."
 
 #: devices/jsdrv/js110.py:147 devices/jsdrv/js220.py:163
-#: widgets/waveform/waveform_widget.py:109
+#: widgets/waveform/waveform_widget.py:110
 msgid "Current range"
 msgstr "현재 범위"
 
@@ -983,7 +980,8 @@ msgid ""
 "Use the other manual settings with care. It is very easy to configure a "
 "setting that saturates, which will ignore regions of current draw larger "
 "than the current range setting."
-msgstr "다른 수동 설정은 주의해서 사용하세요. 현재 범위 설정보다 큰 전류 소모 영역을 무시하는 포화 설정은 매우 쉽게 구성할 수 있습니다."
+msgstr ""
+"다른 수동 설정은 주의해서 사용하세요. 현재 범위 설정보다 큰 전류 소모 영역을 무시하는 포화 설정은 매우 쉽게 구성할 수 있습니다."
 
 #: devices/jsdrv/js110.py:168 devices/jsdrv/js220.py:195
 msgid "Voltage range"
@@ -999,8 +997,8 @@ msgstr "GPIO 전압"
 
 #: devices/jsdrv/js110.py:180
 msgid ""
-"Configure the JS110's reference voltage for the general-purpose inputs "
-"and outputs."
+"Configure the JS110's reference voltage for the general-purpose inputs and "
+"outputs."
 msgstr "범용 입력 및 출력에 대한 JS110의 기준 전압을 구성합니다."
 
 #: devices/jsdrv/js110.py:182
@@ -1008,8 +1006,8 @@ msgid ""
 "The JS110's general-purpose outputs always remain powered. When set to "
 "\"1\", this can backpower unpowered targets."
 msgstr ""
-"JS110의 범용 출력은 항상 전원이 공급되는 상태로 유지됩니다. \"1\"로 설정하면 전원이 공급되지 않는 타겟에 전원을 공급할 "
-"수 있습니다."
+"JS110의 범용 출력은 항상 전원이 공급되는 상태로 유지됩니다. \"1\"로 설정하면 전원이 공급되지 않는 타겟에 전원을 공급할 수 "
+"있습니다."
 
 #: devices/jsdrv/js110.py:199 devices/jsdrv/js220.py:242
 msgid "GPO 0 output value"
@@ -1033,31 +1031,30 @@ msgstr "IRF 유형"
 
 #: devices/jsdrv/js110.py:213
 msgid ""
-"Configure the current range filter (IRF) type which determines the "
-"filtering mechanism applied on current range changes. We do not recommend"
-" changing these settings for normal operation."
+"Configure the current range filter (IRF) type which determines the filtering"
+" mechanism applied on current range changes. We do not recommend changing "
+"these settings for normal operation."
 msgstr ""
 "현재 범위 변경에 적용되는 필터링 메커니즘을 결정하는 현재 범위 필터(IRF) 유형을 구성합니다. 정상적인 작동을 위해 이 설정을 "
 "변경하지 않는 것이 좋습니다."
 
 #: devices/jsdrv/js110.py:216
 msgid ""
-"\"interp\" is the default setting which interpolates over the samples in "
-"the window using the value computed by the pre and post values. This "
-"gives the most intuitive behavior."
+"\"interp\" is the default setting which interpolates over the samples in the"
+" window using the value computed by the pre and post values. This gives the "
+"most intuitive behavior."
 msgstr ""
 "\"interp\"는 창에서 사전 및 사후 값으로 계산된 값을 사용하여 샘플을 보간하는 기본 설정입니다. 가장 직관적인 동작을 "
 "제공합니다."
 
 #: devices/jsdrv/js110.py:219
 msgid ""
-"\"mean\" sets all samples in the window to the mean value. This results "
-"in a straight horizontal line that allows you to clearly see current "
-"range changes while still providing the best long-term current range "
-"measurement."
+"\"mean\" sets all samples in the window to the mean value. This results in a"
+" straight horizontal line that allows you to clearly see current range "
+"changes while still providing the best long-term current range measurement."
 msgstr ""
-"\"평균\"은 창의 모든 샘플을 평균값으로 설정합니다. 이렇게 하면 현재 범위 변화를 명확하게 볼 수 있는 직선의 수평선이 "
-"표시되며, 동시에 최상의 장기 전류 범위 측정값을 제공합니다."
+"\"평균\"은 창의 모든 샘플을 평균값으로 설정합니다. 이렇게 하면 현재 범위 변화를 명확하게 볼 수 있는 직선의 수평선이 표시되며, "
+"동시에 최상의 장기 전류 범위 측정값을 제공합니다."
 
 #: devices/jsdrv/js110.py:223
 msgid "\"NaN\" sets all samples in the window to NaN."
@@ -1065,8 +1062,8 @@ msgstr "\"NaN\"은 창에 있는 모든 샘플을 NaN으로 설정합니다."
 
 #: devices/jsdrv/js110.py:224
 msgid ""
-"\"off\" disables the current range filtering, and you will see additional"
-" current range switching artifacts."
+"\"off\" disables the current range filtering, and you will see additional "
+"current range switching artifacts."
 msgstr "\"끄기\"를 선택하면 현재 범위 필터링이 비활성화되며, 현재 범위 전환 아티팩트가 추가로 표시됩니다."
 
 #: devices/jsdrv/js110.py:236
@@ -1075,8 +1072,8 @@ msgstr "IRF용"
 
 #: devices/jsdrv/js110.py:237
 msgid ""
-"The number of samples before the current range window used to determine "
-"the mean. This value is ignored for all other IRF types."
+"The number of samples before the current range window used to determine the "
+"mean. This value is ignored for all other IRF types."
 msgstr "평균을 결정하는 데 사용되는 현재 범위 창 이전의 샘플 수입니다. 이 값은 다른 모든 IRF 유형에서는 무시됩니다."
 
 #: devices/jsdrv/js110.py:245
@@ -1085,13 +1082,12 @@ msgstr "IRF 창"
 
 #: devices/jsdrv/js110.py:246
 msgid ""
-"Use \"n\" for automatic duration based upon known response time. Use "
-"\"m\" for shorter automatic duration that may result in min/max "
-"distortion. Use any other value to specify a fixed, manual window "
-"duration in samples."
+"Use \"n\" for automatic duration based upon known response time. Use \"m\" "
+"for shorter automatic duration that may result in min/max distortion. Use "
+"any other value to specify a fixed, manual window duration in samples."
 msgstr ""
-"알려진 응답 시간을 기준으로 자동 지속 시간을 설정하려면 \"n\"을 사용합니다. 최소/최대 왜곡이 발생할 수 있는 더 짧은 자동 "
-"기간의 경우 \"m\"을 사용합니다. 샘플에서 고정된 수동 창 기간을 지정하려면 다른 값을 사용합니다."
+"알려진 응답 시간을 기준으로 자동 지속 시간을 설정하려면 \"n\"을 사용합니다. 최소/최대 왜곡이 발생할 수 있는 더 짧은 자동 기간의"
+" 경우 \"m\"을 사용합니다. 샘플에서 고정된 수동 창 기간을 지정하려면 다른 값을 사용합니다."
 
 #: devices/jsdrv/js110.py:254
 msgid "IRF post"
@@ -1099,12 +1095,12 @@ msgstr "IRF 게시물"
 
 #: devices/jsdrv/js110.py:255
 msgid ""
-"The number of samples after the current range window used to determine "
-"the mean. This value is ignored for all other IRF types."
+"The number of samples after the current range window used to determine the "
+"mean. This value is ignored for all other IRF types."
 msgstr "평균을 결정하는 데 사용되는 현재 범위 창 이후의 샘플 수입니다. 이 값은 다른 모든 IRF 유형에서는 무시됩니다."
 
 #: devices/jsdrv/js110.py:269 devices/jsdrv/js220.py:332
-#: widgets/device_control/fuse.py:103 widgets/waveform/waveform_widget.py:104
+#: widgets/device_control/fuse.py:103 widgets/waveform/waveform_widget.py:105
 msgid "Current"
 msgstr "현재"
 
@@ -1113,7 +1109,7 @@ msgid "Enable the current signal streaming."
 msgstr "현재 신호 스트리밍을 활성화합니다."
 
 #: devices/jsdrv/js110.py:278 devices/jsdrv/js220.py:341
-#: widgets/waveform/waveform_widget.py:105
+#: widgets/waveform/waveform_widget.py:106
 msgid "Voltage"
 msgstr "전압"
 
@@ -1122,7 +1118,7 @@ msgid "Enable the voltage signal streaming."
 msgstr "전압 신호 스트리밍을 활성화합니다."
 
 #: devices/jsdrv/js110.py:287 devices/jsdrv/js220.py:350
-#: widgets/waveform/waveform_widget.py:106
+#: widgets/waveform/waveform_widget.py:107
 msgid "Power"
 msgstr "전원"
 
@@ -1158,23 +1154,24 @@ msgstr "신호 이름"
 #: devices/jsdrv/js220.py:51
 msgid ""
 "This setting allows you to change the default, if you wish, to better "
-"reflect how you are using your JS220. This setting is most useful when "
-"you are instrumenting a system using multiple Joulescopes."
+"reflect how you are using your JS220. This setting is most useful when you "
+"are instrumenting a system using multiple Joulescopes."
 msgstr ""
 "이 설정을 사용하면 원하는 경우 JS220 사용 방식을 더 잘 반영하도록 기본값을 변경할 수 있습니다. 이 설정은 여러 줄스코프를 "
 "사용하여 시스템을 계측할 때 가장 유용합니다."
 
 #: devices/jsdrv/js220.py:105
 msgid ""
-"The JS220 instrument always samples at 2 MHz and then downsamples to 1 "
-"MHz. This setting controls additional optional downsampling."
-msgstr "JS220 기기는 항상 2MHz로 샘플링한 다음 1MHz로 다운샘플링합니다. 이 설정은 추가적인 옵션 다운샘플링을 제어합니다."
+"The JS220 instrument always samples at 2 MHz and then downsamples to 1 MHz. "
+"This setting controls additional optional downsampling."
+msgstr ""
+"JS220 기기는 항상 2MHz로 샘플링한 다음 1MHz로 다운샘플링합니다. 이 설정은 추가적인 옵션 다운샘플링을 제어합니다."
 
 #: devices/jsdrv/js220.py:134
 msgid ""
-"This setting controls the output frequency for the statistics data that "
-"is displayed in the multimeter and value widgets. Statistics data is "
-"computed over the full rate 1 MHz samples."
+"This setting controls the output frequency for the statistics data that is "
+"displayed in the multimeter and value widgets. Statistics data is computed "
+"over the full rate 1 MHz samples."
 msgstr ""
 "이 설정은 멀티미터 및 값 위젯에 표시되는 통계 데이터의 출력 주파수를 제어합니다. 통계 데이터는 전체 속도 1MHz 샘플에 걸쳐 "
 "계산됩니다."
@@ -1199,12 +1196,12 @@ msgstr "이 설정은 현재 범위가 '자동'으로 설정된 경우에만 유
 
 #: devices/jsdrv/js220.py:188
 msgid ""
-"You can use this setting to limit the current range and improve "
-"autoranging accuracy when you know your application current is more "
-"limited than the full measurement range."
+"You can use this setting to limit the current range and improve autoranging "
+"accuracy when you know your application current is more limited than the "
+"full measurement range."
 msgstr ""
-"이 설정을 사용하면 애플리케이션 전류가 전체 측정 범위보다 더 제한되어 있는 경우 전류 범위를 제한하고 자동 범위 정확도를 향상시킬"
-" 수 있습니다."
+"이 설정을 사용하면 애플리케이션 전류가 전체 측정 범위보다 더 제한되어 있는 경우 전류 범위를 제한하고 자동 범위 정확도를 향상시킬 수 "
+"있습니다."
 
 #: devices/jsdrv/js220.py:196
 msgid ""
@@ -1222,8 +1219,8 @@ msgstr "JS220의 트리거 BNC 연결 방향을 구성합니다."
 
 #: devices/jsdrv/js220.py:210
 msgid ""
-"0 (default) configures the BNC trigger for input only. The BNC connection"
-" is high-impedance."
+"0 (default) configures the BNC trigger for input only. The BNC connection is"
+" high-impedance."
 msgstr "0(기본값)은 입력 전용 BNC 트리거를 구성합니다. BNC 연결은 고임피던스입니다."
 
 #: devices/jsdrv/js220.py:212
@@ -1240,20 +1237,20 @@ msgstr "두 경우 모두 트리거 입력 신호가 유효하므로 트리거 �
 
 #: devices/jsdrv/js220.py:226
 msgid ""
-"Configure the JS220's reference voltage for the general-purpose inputs "
-"and outputs."
+"Configure the JS220's reference voltage for the general-purpose inputs and "
+"outputs."
 msgstr "범용 입력 및 출력에 대한 JS220의 기준 전압을 구성합니다."
 
 #: devices/jsdrv/js220.py:228
 msgid ""
-"We recommend using \"Vref\" when attaching general-purpose outputs (GPO) "
-"to other equipment. Using Vref prevents the GPO from backpowering target "
-"devices when they powered down. The Vref signal and general-purpose "
-"inputs are all extremely high impedance to minimize leakage currents."
+"We recommend using \"Vref\" when attaching general-purpose outputs (GPO) to "
+"other equipment. Using Vref prevents the GPO from backpowering target "
+"devices when they powered down. The Vref signal and general-purpose inputs "
+"are all extremely high impedance to minimize leakage currents."
 msgstr ""
-"범용 출력(GPO)을 다른 장비에 연결할 때는 'Vref'를 사용하는 것이 좋습니다. Vref를 사용하면 전원이 꺼졌을 때 GPO가"
-" 대상 장치에 백파워를 공급하는 것을 방지할 수 있습니다. Vref 신호와 범용 입력은 모두 누설 전류를 최소화하기 위해 임피던스가"
-" 매우 높습니다."
+"범용 출력(GPO)을 다른 장비에 연결할 때는 'Vref'를 사용하는 것이 좋습니다. Vref를 사용하면 전원이 꺼졌을 때 GPO가 대상"
+" 장치에 백파워를 공급하는 것을 방지할 수 있습니다. Vref 신호와 범용 입력은 모두 누설 전류를 최소화하기 위해 임피던스가 매우 "
+"높습니다."
 
 #: devices/jsdrv/js220.py:233
 msgid "\"3.3 V\" uses an internally-generated 3.3V reference voltage."
@@ -1269,8 +1266,8 @@ msgstr "트리거 출력을 켜거나 끕니다."
 
 #: devices/jsdrv/js220.py:257
 msgid ""
-"The trigger must also be configured for output for this setting to have "
-"any effect."
+"The trigger must also be configured for output for this setting to have any "
+"effect."
 msgstr "이 설정을 적용하려면 트리거도 출력용으로 구성해야 합니다."
 
 #: devices/jsdrv/js220.py:265
@@ -1295,12 +1292,12 @@ msgstr "사용 가능한 펌웨어 업데이트가 없는 경우 없음. 하위 
 
 #: devices/jsdrv/js220.py:362
 msgid ""
-"⚠ When enabled, no more than 3 GPIO signals (0, 1, 2, 3, T) may be "
-"enabled. If you attempt to enable too many signals, then the UI will "
-"display no data for any signal."
+"⚠ When enabled, no more than 3 GPIO signals (0, 1, 2, 3, T) may be enabled. "
+"If you attempt to enable too many signals, then the UI will display no data "
+"for any signal."
 msgstr ""
-"활성화하면 3개 이하의 GPIO 신호(0, 1, 2, 3, T)만 활성화할 수 있습니다. 너무 많은 신호를 활성화하려고 하면 UI에"
-" 어떤 신호에 대한 데이터도 표시되지 않습니다."
+"활성화하면 3개 이하의 GPIO 신호(0, 1, 2, 3, T)만 활성화할 수 있습니다. 너무 많은 신호를 활성화하려고 하면 UI에 어떤"
+" 신호에 대한 데이터도 표시되지 않습니다."
 
 #: devices/jsdrv/js220.py:392
 msgid "GPI 2"
@@ -1318,7 +1315,7 @@ msgstr "GPI 3"
 msgid "Enable the general purpose input 3 signal streaming."
 msgstr "범용 입력 3 신호 스트리밍을 활성화합니다."
 
-#: devices/jsdrv/js220.py:410 widgets/waveform/waveform_widget.py:123
+#: devices/jsdrv/js220.py:410 widgets/waveform/waveform_widget.py:124
 msgid "Trigger input"
 msgstr "트리거 입력"
 
@@ -1337,7 +1334,7 @@ msgstr "펌웨어 업데이트 상태"
 #: widgets/settings/settings_widget.py:266
 #: widgets/settings/settings_widget.py:364
 #: widgets/settings/settings_widget.py:431
-#: widgets/waveform/waveform_widget.py:3045
+#: widgets/waveform/waveform_widget.py:3061
 msgid "Name"
 msgstr "이름"
 
@@ -1395,19 +1392,19 @@ msgstr "누적 분포 함수 계산"
 
 #: range_tools/cdf.py:31
 msgid ""
-"The Cumulative Distribution Function (CDF) value is the probability that "
-"a signal's value is less than or equal to the x-axis value."
+"The Cumulative Distribution Function (CDF) value is the probability that a "
+"signal's value is less than or equal to the x-axis value."
 msgstr "누적 분포 함수(CDF) 값은 신호의 값이 X축 값보다 작거나 같을 확률입니다."
 
 #: range_tools/cdf.py:33
 msgid ""
-"When use to analyze current or power, this graphically indicates the time"
-" spent below in each current mode. Compared to a histogram, the CDF makes"
-" it easier to compare the amount of time in each mode by simply measuring"
-" the change in the y-axis value."
+"When use to analyze current or power, this graphically indicates the time "
+"spent below in each current mode. Compared to a histogram, the CDF makes it "
+"easier to compare the amount of time in each mode by simply measuring the "
+"change in the y-axis value."
 msgstr ""
-"전류 또는 전력 분석에 사용하는 경우 각 전류 모드에서 소요된 시간을 그래픽으로 표시합니다. 히스토그램과 비교했을 때, CDF는 "
-"Y축 값의 변화를 측정하는 것만으로 각 모드에서 소요된 시간을 쉽게 비교할 수 있습니다."
+"전류 또는 전력 분석에 사용하는 경우 각 전류 모드에서 소요된 시간을 그래픽으로 표시합니다. 히스토그램과 비교했을 때, CDF는 Y축 "
+"값의 변화를 측정하는 것만으로 각 모드에서 소요된 시간을 쉽게 비교할 수 있습니다."
 
 #: range_tools/cdf.py:146
 msgid "Probability"
@@ -1460,6 +1457,7 @@ msgid "Probability Density Distribution"
 msgstr "확률 밀도 분포"
 
 #: range_tools/histogram.py:45 range_tools/max_window.py:119
+#: widgets/trigger/trigger_widget.py:129
 msgid "Signal"
 msgstr "신호"
 
@@ -1476,7 +1474,8 @@ msgid "Compute histogram over the range"
 msgstr "범위에 대한 히스토그램 계산"
 
 #: range_tools/histogram.py:192
-msgid "Compute a histogram of the signal's data values over the selected range."
+msgid ""
+"Compute a histogram of the signal's data values over the selected range."
 msgstr "선택한 범위에서 신호의 데이터 값에 대한 히스토그램을 계산합니다."
 
 #: range_tools/max_window.py:24
@@ -1516,12 +1515,12 @@ msgstr "USB 인러시 테스트 수행"
 
 #: range_tools/usb_inrush.py:54
 msgid ""
-"Use dual markers to select at least 100 milliseconds after enabling power"
-" to the target device. This tool will send the selected data to the USBET"
-" tool for analysis."
+"Use dual markers to select at least 100 milliseconds after enabling power to"
+" the target device. This tool will send the selected data to the USBET tool "
+"for analysis."
 msgstr ""
-"이중 마커를 사용하여 대상 장치에 전원을 켠 후 최소 100밀리초를 선택합니다. 이 도구는 선택한 데이터를 분석을 위해 USBET "
-"도구로 전송합니다."
+"이중 마커를 사용하여 대상 장치에 전원을 켠 후 최소 100밀리초를 선택합니다. 이 도구는 선택한 데이터를 분석을 위해 USBET 도구로"
+" 전송합니다."
 
 #: styles/color_scheme.py:21
 msgid "dark"
@@ -1693,8 +1692,8 @@ msgstr "진행 상황"
 
 #: widgets/device_control/device_update_dialog.py:29
 msgid ""
-"Before starting updates, ensure that Joulescopes are plugged directly "
-"into a USB port on the host computer."
+"Before starting updates, ensure that Joulescopes are plugged directly into a"
+" USB port on the host computer."
 msgstr "업데이트를 시작하기 전에 줄스코프가 호스트 컴퓨터의 USB 포트에 직접 연결되어 있는지 확인하세요."
 
 #: widgets/device_control/device_update_dialog.py:31
@@ -1797,6 +1796,7 @@ msgid "Threshold 2"
 msgstr "임계값 2"
 
 #: widgets/device_control/fuse.py:89 widgets/memory/memory_widget.py:225
+#: widgets/trigger/trigger_widget.py:35 widgets/trigger/trigger_widget.py:131
 msgid "Duration"
 msgstr "기간"
 
@@ -1852,17 +1852,17 @@ msgstr "장치 열기 및 닫기"
 
 #: widgets/device_control/js220_ctrl_widget.py:62
 msgid ""
-"When closed, click to attempt to open the device. The icon will only "
-"change on a successful device open. Only one application can use a "
-"Joulescope device at a time."
+"When closed, click to attempt to open the device. The icon will only change "
+"on a successful device open. Only one application can use a Joulescope "
+"device at a time."
 msgstr ""
-"닫혀 있으면 클릭하여 장치를 열려고 시도합니다. 장치가 성공적으로 열릴 때만 아이콘이 변경됩니다. 한 번에 하나의 애플리케이션만 "
-"줄스코프 디바이스를 사용할 수 있습니다."
+"닫혀 있으면 클릭하여 장치를 열려고 시도합니다. 장치가 성공적으로 열릴 때만 아이콘이 변경됩니다. 한 번에 하나의 애플리케이션만 줄스코프"
+" 디바이스를 사용할 수 있습니다."
 
 #: widgets/device_control/js220_ctrl_widget.py:65
 msgid ""
-"When open, click to close the device. This allows the device to be used "
-"in other programs."
+"When open, click to close the device. This allows the device to be used in "
+"other programs."
 msgstr "열려 있으면 클릭하여 장치를 닫습니다. 이렇게 하면 다른 프로그램에서 장치를 사용할 수 있습니다."
 
 #: widgets/device_control/js220_ctrl_widget.py:71
@@ -1880,9 +1880,10 @@ msgstr "누산기 지우기"
 #: widgets/device_control/js220_ctrl_widget.py:77
 msgid ""
 "Click this button to clear the charge and energy accumulators. The "
-"\"Accrue\" feature of the value display widgets, including the "
-"multimeter, will be unaffected."
-msgstr "충전 및 에너지 누산기를 지우려면 이 버튼을 클릭합니다. 멀티미터를 포함한 값 표시 위젯의 '누적' 기능은 영향을 받지 않습니다."
+"\"Accrue\" feature of the value display widgets, including the multimeter, "
+"will be unaffected."
+msgstr ""
+"충전 및 에너지 누산기를 지우려면 이 버튼을 클릭합니다. 멀티미터를 포함한 값 표시 위젯의 '누적' 기능은 영향을 받지 않습니다."
 
 #: widgets/device_control/js220_ctrl_widget.py:83
 #: widgets/device_control/js220_ctrl_widget.py:574
@@ -1891,12 +1892,12 @@ msgstr "보정"
 
 #: widgets/device_control/js220_ctrl_widget.py:84
 msgid ""
-"Click this button to recalibrate your Joulescope JS220. Recalibration is "
-"not required for normal operation. Performing calibration can improve "
-"accuracy by accounting for the existing temperature and aging effects."
+"Click this button to recalibrate your Joulescope JS220. Recalibration is not"
+" required for normal operation. Performing calibration can improve accuracy "
+"by accounting for the existing temperature and aging effects."
 msgstr ""
-"줄스코프 JS220을 재보정하려면 이 버튼을 클릭하세요. 정상 작동을 위해서는 재교정이 필요하지 않습니다. 캘리브레이션을 수행하면 "
-"기존의 온도 및 노화 효과를 고려하여 정확도를 향상시킬 수 있습니다."
+"줄스코프 JS220을 재보정하려면 이 버튼을 클릭하세요. 정상 작동을 위해서는 재교정이 필요하지 않습니다. 캘리브레이션을 수행하면 기존의"
+" 온도 및 노화 효과를 고려하여 정확도를 향상시킬 수 있습니다."
 
 #: widgets/device_control/js220_ctrl_widget.py:391
 msgid "GPO"
@@ -1967,12 +1968,12 @@ msgstr "보정을 수행하기 전에 유지하려는 모든 데이터를 UI에 
 #: widgets/js220_cal/js220_cal_widget.py:29
 msgid ""
 "The Joulescope JS220 is designed to meet its specifications without "
-"recalibration. You can use offset calibration to further reduce the "
-"offset error. If you wish to perform scale calibration, ensure that your "
-"test setup gives a sufficient test uncertainty ratio (TUR)."
+"recalibration. You can use offset calibration to further reduce the offset "
+"error. If you wish to perform scale calibration, ensure that your test setup"
+" gives a sufficient test uncertainty ratio (TUR)."
 msgstr ""
-"줄스코프 JS220은 재보정 없이도 사양을 충족하도록 설계되었습니다. 오프셋 보정을 사용하여 오프셋 오차를 더욱 줄일 수 있습니다."
-" 스케일 교정을 수행하려는 경우 테스트 설정이 충분한 테스트 불확실성 비율(TUR)을 제공하는지 확인하세요."
+"줄스코프 JS220은 재보정 없이도 사양을 충족하도록 설계되었습니다. 오프셋 보정을 사용하여 오프셋 오차를 더욱 줄일 수 있습니다. "
+"스케일 교정을 수행하려는 경우 테스트 설정이 충분한 테스트 불확실성 비율(TUR)을 제공하는지 확인하세요."
 
 #: widgets/js220_cal/js220_cal_widget.py:35
 msgid "Restore factory calibration"
@@ -1999,7 +2000,8 @@ msgid "Short together Voltage+, Voltage-, and Current+ using wires."
 msgstr "전선을 사용하여 전압+, 전압- 및 전류+를 함께 단락시킵니다."
 
 #: widgets/js220_cal/js220_cal_widget.py:45
-msgid "If you are using the BNC front panel, simply connect Voltage to Current."
+msgid ""
+"If you are using the BNC front panel, simply connect Voltage to Current."
 msgstr "BNC 전면 패널을 사용하는 경우 전압을 전류에 연결하기만 하면 됩니다."
 
 #: widgets/js220_cal/js220_cal_widget.py:51
@@ -2124,9 +2126,9 @@ msgstr "디바이스 제어"
 
 #: widgets/sidebar/sidebar_widget.py:28
 msgid ""
-"Click to show the device control widget which displays the connected "
-"devices and their settings. Use this widget to open and close devices and"
-" configure their operation."
+"Click to show the device control widget which displays the connected devices"
+" and their settings. Use this widget to open and close devices and configure"
+" their operation."
 msgstr ""
 "클릭하면 연결된 장치와 해당 설정을 표시하는 장치 제어 위젯이 표시됩니다. 이 위젯을 사용하여 장치를 열고 닫고 작동을 구성할 수 "
 "있습니다."
@@ -2137,17 +2139,17 @@ msgstr "메모리 버퍼 설정"
 
 #: widgets/sidebar/sidebar_widget.py:35
 msgid ""
-"Streaming signal sample data is stored in your host computer's RAM. Click"
-" this button to show the memory management widget which allows you to "
+"Streaming signal sample data is stored in your host computer's RAM. Click "
+"this button to show the memory management widget which allows you to "
 "configure the memory used by this Joulescope UI instance."
 msgstr ""
-"스트리밍 신호 샘플 데이터는 호스트 컴퓨터의 RAM에 저장됩니다. 이 버튼을 클릭하면 이 줄스코프 UI 인스턴스에서 사용하는 "
-"메모리를 구성할 수 있는 메모리 관리 위젯이 표시됩니다."
+"스트리밍 신호 샘플 데이터는 호스트 컴퓨터의 RAM에 저장됩니다. 이 버튼을 클릭하면 이 줄스코프 UI 인스턴스에서 사용하는 메모리를 "
+"구성할 수 있는 메모리 관리 위젯이 표시됩니다."
 
 #: widgets/sidebar/sidebar_widget.py:43
 msgid ""
-"Click to show the settings which allows you to change the global, "
-"default, and individual instance settings for devices and widgets."
+"Click to show the settings which allows you to change the global, default, "
+"and individual instance settings for devices and widgets."
 msgstr "클릭하면 디바이스 및 위젯의 전역, 기본 및 개별 인스턴스 설정을 변경할 수 있는 설정이 표시됩니다."
 
 #: widgets/sidebar/sidebar_widget.py:46
@@ -2209,6 +2211,125 @@ msgstr "StatisticsRecordConfig"
 msgid "Time Format"
 msgstr "시간 형식"
 
+#: widgets/trigger/trigger_widget.py:34
+msgid "Edge"
+msgstr "Edge"
+
+#: widgets/trigger/trigger_widget.py:47
+msgid "Always"
+msgstr "항상"
+
+#: widgets/trigger/trigger_widget.py:48
+#, fuzzy
+#| msgid "New View"
+msgid "Never"
+msgstr "새 보기"
+
+#: widgets/trigger/trigger_widget.py:54
+msgid "between"
+msgstr "사이"
+
+#: widgets/trigger/trigger_widget.py:55
+msgid "outside"
+msgstr "외부"
+
+#: widgets/trigger/trigger_widget.py:84
+#, fuzzy
+#| msgid "The source filter string."
+msgid "The source instrument."
+msgstr "소스 필터 문자열입니다."
+
+#: widgets/trigger/trigger_widget.py:92
+#, fuzzy
+#| msgid "Signal"
+msgid "Single"
+msgstr "신호"
+
+#: widgets/trigger/trigger_widget.py:93
+#, fuzzy
+#| msgid "Contents"
+msgid "Continuous"
+msgstr "콘텐츠"
+
+#: widgets/trigger/trigger_widget.py:128
+#, fuzzy
+#| msgid "IRF type"
+msgid "Type"
+msgstr "IRF 유형"
+
+#: widgets/trigger/trigger_widget.py:130
+#, fuzzy
+#| msgid "Action"
+msgid "Condition"
+msgstr "액션"
+
+#: widgets/trigger/trigger_widget.py:383
+#, fuzzy
+#| msgid "Signal sample recording"
+msgid "Start signal sample recording"
+msgstr "신호 샘플 기록"
+
+#: widgets/trigger/trigger_widget.py:384 widgets/trigger/trigger_widget.py:397
+msgid "Config"
+msgstr "구성"
+
+#: widgets/trigger/trigger_widget.py:388
+#, fuzzy
+#| msgid "Trigger direction"
+msgid "Pretrigger duration"
+msgstr "트리거 방향"
+
+#: widgets/trigger/trigger_widget.py:396
+#, fuzzy
+#| msgid "Statistics recording"
+msgid "Start statistics recording"
+msgstr "통계 기록"
+
+#: widgets/trigger/trigger_widget.py:404
+#, fuzzy
+#| msgid "Set units"
+msgid "Set output"
+msgstr "단위 설정"
+
+#: widgets/trigger/trigger_widget.py:416
+#: widgets/waveform/waveform_control.py:29
+msgid "Add single marker"
+msgstr "단일 마커 추가"
+
+#: widgets/trigger/trigger_widget.py:484
+#, fuzzy
+#| msgid "Trigger input"
+msgid "Trigger"
+msgstr "트리거 입력"
+
+#: widgets/trigger/trigger_widget.py:502
+msgid "No sources found"
+msgstr "출처를 찾을 수 없습니다."
+
+#: widgets/trigger/trigger_widget.py:522
+#, fuzzy
+#| msgid "Histogram configuration"
+msgid "Start Condition"
+msgstr "히스토그램 구성"
+
+#: widgets/trigger/trigger_widget.py:525
+#, fuzzy
+#| msgid "Action"
+msgid "Start Actions"
+msgstr "액션"
+
+#: widgets/trigger/trigger_widget.py:528
+#, fuzzy
+#| msgid "Histogram configuration"
+msgid "Stop Condition"
+msgstr "히스토그램 구성"
+
+#: widgets/trigger/trigger_widget.py:531
+#, fuzzy
+#| msgid "Options"
+msgid "Stop Actions"
+msgstr "옵션"
+
 #: widgets/value/value_widget.py:36
 msgid "Show the device selection header."
 msgstr "장치 선택 헤더를 표시합니다."
@@ -2231,8 +2352,8 @@ msgstr "소스 장치 선택"
 
 #: widgets/value/value_widget.py:88
 msgid ""
-"The values displayed by this widget come from a single source device. "
-"Select the source device here."
+"The values displayed by this widget come from a single source device. Select"
+" the source device here."
 msgstr "이 위젯에 표시되는 값은 단일 소스 디바이스에서 가져온 것입니다. 여기에서 소스 장치를 선택합니다."
 
 #: widgets/value/value_widget.py:94
@@ -2245,19 +2366,18 @@ msgstr "선택하면 디스플레이가 업데이트되지 않도록 합니다."
 
 #: widgets/value/value_widget.py:97
 msgid ""
-"The UI also includes a global statistics hold button on the sidebar. When"
-" the global statistics hold button is selected, this button is disabled "
-"and has no effect."
+"The UI also includes a global statistics hold button on the sidebar. When "
+"the global statistics hold button is selected, this button is disabled and "
+"has no effect."
 msgstr ""
-"UI에는 사이드바에 글로벌 통계 보류 버튼도 있습니다. 글로벌 통계 보류 버튼을 선택하면 이 버튼은 비활성화되며 아무런 효과가 "
-"없습니다."
+"UI에는 사이드바에 글로벌 통계 보류 버튼도 있습니다. 글로벌 통계 보류 버튼을 선택하면 이 버튼은 비활성화되며 아무런 효과가 없습니다."
 
 #: widgets/value/value_widget.py:100
 msgid ""
-"The displayed values normally update with each new statistics data "
-"computed by the device. When this button is selected, the display will "
-"not be updated. However, the statistics will continue accumulate and "
-"accrue (if selected)."
+"The displayed values normally update with each new statistics data computed "
+"by the device. When this button is selected, the display will not be "
+"updated. However, the statistics will continue accumulate and accrue (if "
+"selected)."
 msgstr ""
 "표시되는 값은 일반적으로 디바이스에서 계산된 새로운 통계 데이터가 있을 때마다 업데이트됩니다. 이 버튼을 선택하면 디스플레이가 "
 "업데이트되지 않습니다. 그러나 통계는 계속 누적되고 누적됩니다(선택한 경우)."
@@ -2268,17 +2388,17 @@ msgstr "시간 경과에 따른 가치 누적"
 
 #: widgets/value/value_widget.py:109
 msgid ""
-"Current, voltage, and power are normally computed over a single "
-"statistics frequency interval. Press this button to accrue the values "
-"indefinitely. Press again to return to normal operation."
+"Current, voltage, and power are normally computed over a single statistics "
+"frequency interval. Press this button to accrue the values indefinitely. "
+"Press again to return to normal operation."
 msgstr ""
-"전류, 전압 및 전력은 일반적으로 단일 통계 주파수 간격에 걸쳐 계산됩니다. 이 버튼을 누르면 값을 무한정 누적합니다. 다시 누르면"
-" 정상 작동으로 돌아갑니다."
+"전류, 전압 및 전력은 일반적으로 단일 통계 주파수 간격에 걸쳐 계산됩니다. 이 버튼을 누르면 값을 무한정 누적합니다. 다시 누르면 정상"
+" 작동으로 돌아갑니다."
 
 #: widgets/value/value_widget.py:113
 msgid ""
-"Note that this button does not affect the charge and energy accumulation."
-" Both accumulate indefinitely regardless of this button state."
+"Note that this button does not affect the charge and energy accumulation. "
+"Both accumulate indefinitely regardless of this button state."
 msgstr "이 버튼은 충전 및 에너지 축적에 영향을 주지 않습니다. 둘 다 이 버튼 상태와 관계없이 무기한으로 누적됩니다."
 
 #: widgets/value/value_widget.py:195
@@ -2371,7 +2491,7 @@ msgid "triangle left"
 msgstr "왼쪽 삼각형"
 
 #: widgets/waveform/text_annotation.py:66
-#: widgets/waveform/waveform_widget.py:2991
+#: widgets/waveform/waveform_widget.py:3007
 msgid "Manual"
 msgstr "매뉴얼"
 
@@ -2380,17 +2500,17 @@ msgid "Centered"
 msgstr "중앙"
 
 #: widgets/waveform/text_annotation.py:99
-#: widgets/waveform/waveform_widget.py:3106
+#: widgets/waveform/waveform_widget.py:3122
 msgid "Text"
 msgstr "텍스트"
 
 #: widgets/waveform/text_annotation.py:107
-#: widgets/waveform/waveform_widget.py:3331
+#: widgets/waveform/waveform_widget.py:3347
 msgid "Show text"
 msgstr "텍스트 표시"
 
 #: widgets/waveform/text_annotation.py:116
-#: widgets/waveform/waveform_widget.py:3343
+#: widgets/waveform/waveform_widget.py:3359
 msgid "Shape"
 msgstr "모양"
 
@@ -2400,13 +2520,9 @@ msgstr "Y 패션"
 
 #: widgets/waveform/waveform_control.py:24
 msgid ""
-"To reposition the marker, left click on the marker, move the mouse to the"
-" new location, and the left click again."
+"To reposition the marker, left click on the marker, move the mouse to the "
+"new location, and the left click again."
 msgstr "마커의 위치를 변경하려면 마커를 왼쪽 클릭하고 마우스를 새 위치로 이동한 다음 다시 왼쪽 클릭합니다."
-
-#: widgets/waveform/waveform_control.py:29
-msgid "Add single marker"
-msgstr "단일 마커 추가"
 
 #: widgets/waveform/waveform_control.py:31
 msgid "Click to add a single marker to the waveform."
@@ -2428,8 +2544,8 @@ msgstr "클릭하여 파형에 이중 마커를 추가합니다."
 
 #: widgets/waveform/waveform_control.py:42
 msgid ""
-"You can also add a dual markers by right-clicking on the x-axis or in the"
-" plot area."
+"You can also add a dual markers by right-clicking on the x-axis or in the "
+"plot area."
 msgstr "X축 또는 플롯 영역에서 마우스 오른쪽 버튼을 클릭하여 이중 마커를 추가할 수도 있습니다."
 
 #: widgets/waveform/waveform_control.py:47
@@ -2438,8 +2554,8 @@ msgstr "모든 마커 지우기"
 
 #: widgets/waveform/waveform_control.py:48
 msgid ""
-"Click to clear all markers from the waveform. This operation removes both"
-" single markers and dual markers."
+"Click to clear all markers from the waveform. This operation removes both "
+"single markers and dual markers."
 msgstr "파형에서 모든 마커를 지우려면 클릭합니다. 이 작업은 단일 마커와 이중 마커를 모두 제거합니다."
 
 #: widgets/waveform/waveform_control.py:53
@@ -2453,8 +2569,8 @@ msgstr "클릭하여 시간 x축을 따라 확대합니다."
 #: widgets/waveform/waveform_control.py:56
 #: widgets/waveform/waveform_control.py:64
 msgid ""
-"You can also zoom by positioning the mouse over the waveform and then "
-"using the scroll wheel."
+"You can also zoom by positioning the mouse over the waveform and then using "
+"the scroll wheel."
 msgstr "파형 위에 마우스를 올려놓고 스크롤 휠을 사용하여 확대/축소할 수도 있습니다."
 
 #: widgets/waveform/waveform_control.py:61
@@ -2514,11 +2630,11 @@ msgstr "최소/최대 확장자 표시"
 #: widgets/waveform/waveform_control.py:95
 msgid ""
 "Change how the waveform shows the min/max extents. When zoomed out, each "
-"pixel may represent many samples. Displaying the min/max can allow you to"
-" see events that may be missed with just the average."
+"pixel may represent many samples. Displaying the min/max can allow you to "
+"see events that may be missed with just the average."
 msgstr ""
-"파형에서 최소/최대 범위를 표시하는 방식을 변경합니다. 축소하면 각 픽셀이 많은 샘플을 나타낼 수 있습니다. 최소/최대값을 표시하면"
-" 평균만으로는 놓칠 수 있는 이벤트를 확인할 수 있습니다."
+"파형에서 최소/최대 범위를 표시하는 방식을 변경합니다. 축소하면 각 픽셀이 많은 샘플을 나타낼 수 있습니다. 최소/최대값을 표시하면 "
+"평균만으로는 놓칠 수 있는 이벤트를 확인할 수 있습니다."
 
 #: widgets/waveform/waveform_control.py:99
 msgid "\"off\" only displays the average."
@@ -2570,13 +2686,13 @@ msgstr "이 추적의 소스를 선택합니다."
 
 #: widgets/waveform/waveform_source_widget.py:40
 msgid ""
-"\"default\" will use the default source which is normally configured "
-"using the Device Control widget."
+"\"default\" will use the default source which is normally configured using "
+"the Device Control widget."
 msgstr "\"default\"는 일반적으로 디바이스 제어 위젯을 사용하여 구성되는 기본 소스를 사용합니다."
 
 #: widgets/waveform/waveform_source_widget.py:104
-#: widgets/waveform/waveform_widget.py:401
-#: widgets/waveform/waveform_widget.py:478
+#: widgets/waveform/waveform_widget.py:402
+#: widgets/waveform/waveform_widget.py:479
 msgid "off"
 msgstr "꺼짐"
 
@@ -2584,300 +2700,300 @@ msgstr "꺼짐"
 msgid "Waveform"
 msgstr "파형"
 
-#: widgets/waveform/waveform_widget.py:119
+#: widgets/waveform/waveform_widget.py:120
 msgid "General purpose input 0"
 msgstr "범용 입력 0"
 
-#: widgets/waveform/waveform_widget.py:120
+#: widgets/waveform/waveform_widget.py:121
 msgid "General purpose input 1"
 msgstr "범용 입력 1"
 
-#: widgets/waveform/waveform_widget.py:121
+#: widgets/waveform/waveform_widget.py:122
 msgid "General purpose input 2"
 msgstr "범용 입력 2"
 
-#: widgets/waveform/waveform_widget.py:122
+#: widgets/waveform/waveform_widget.py:123
 msgid "General purpose input 3"
 msgstr "범용 입력 3"
 
-#: widgets/waveform/waveform_widget.py:357
+#: widgets/waveform/waveform_widget.py:358
 msgid "The source filter string."
 msgstr "소스 필터 문자열입니다."
 
-#: widgets/waveform/waveform_widget.py:368
+#: widgets/waveform/waveform_widget.py:369
 msgid "The trace width."
 msgstr "트레이스 너비입니다."
 
-#: widgets/waveform/waveform_widget.py:383
+#: widgets/waveform/waveform_widget.py:384
 msgid "The target frames per second."
 msgstr "초당 목표 프레임 수입니다."
 
-#: widgets/waveform/waveform_widget.py:385
+#: widgets/waveform/waveform_widget.py:386
 msgid "vsync"
 msgstr "vsync"
 
-#: widgets/waveform/waveform_widget.py:386
+#: widgets/waveform/waveform_widget.py:387
 msgid "20 Hz"
 msgstr "20Hz"
 
-#: widgets/waveform/waveform_widget.py:387
+#: widgets/waveform/waveform_widget.py:388
 msgid "10 Hz"
 msgstr "10Hz"
 
-#: widgets/waveform/waveform_widget.py:388
+#: widgets/waveform/waveform_widget.py:389
 msgid "5 Hz"
 msgstr "5Hz"
 
-#: widgets/waveform/waveform_widget.py:394
+#: widgets/waveform/waveform_widget.py:395
 msgid "The minimum interval between repaint in milliseconds."
 msgstr "다시 칠하기 사이의 최소 간격(밀리초)입니다."
 
-#: widgets/waveform/waveform_widget.py:399
+#: widgets/waveform/waveform_widget.py:400
 msgid "Show the minimum and maximum extents fill."
 msgstr "최소 및 최대 범위 채우기를 표시합니다."
 
-#: widgets/waveform/waveform_widget.py:402
+#: widgets/waveform/waveform_widget.py:403
 msgid "lines"
 msgstr "라인"
 
-#: widgets/waveform/waveform_widget.py:403
+#: widgets/waveform/waveform_widget.py:404
 msgid "fill 1"
 msgstr "채우기 1"
 
-#: widgets/waveform/waveform_widget.py:404
+#: widgets/waveform/waveform_widget.py:405
 msgid "fill 2"
 msgstr "채우기 2"
 
-#: widgets/waveform/waveform_widget.py:410
+#: widgets/waveform/waveform_widget.py:411
 msgid "Show the frames per second."
 msgstr "초당 프레임을 표시합니다."
 
-#: widgets/waveform/waveform_widget.py:415
+#: widgets/waveform/waveform_widget.py:416
 msgid "Show the statistics on mouse hover."
 msgstr "마우스 오버에 대한 통계를 표시합니다."
 
-#: widgets/waveform/waveform_widget.py:420
+#: widgets/waveform/waveform_widget.py:421
 msgid "Show the plot statistics on the right."
 msgstr "오른쪽에 플롯 통계를 표시합니다."
 
-#: widgets/waveform/waveform_widget.py:425
+#: widgets/waveform/waveform_widget.py:426
 msgid "Show frequency for dual markers and statistics."
 msgstr "이중 마커 및 통계에 대한 빈도를 표시합니다."
 
-#: widgets/waveform/waveform_widget.py:430
+#: widgets/waveform/waveform_widget.py:431
 msgid "The quantities to display by default."
 msgstr "기본적으로 표시할 수량입니다."
 
-#: widgets/waveform/waveform_widget.py:436
+#: widgets/waveform/waveform_widget.py:437
 msgid "The precision to display in digits."
 msgstr "숫자로 표시할 수 있는 정밀도."
 
-#: widgets/waveform/waveform_widget.py:442
+#: widgets/waveform/waveform_widget.py:443
 msgid "Use OpenGL rendering."
 msgstr "OpenGL 렌더링을 사용합니다."
 
-#: widgets/waveform/waveform_widget.py:453
+#: widgets/waveform/waveform_widget.py:454
 msgid "Pin the left side (oldest) data so that it stays in view."
 msgstr "왼쪽(가장 오래된) 데이터를 고정하여 보기에 표시되도록 합니다."
 
-#: widgets/waveform/waveform_widget.py:458
+#: widgets/waveform/waveform_widget.py:459
 msgid "Pin the right side (newest) data so that it stays in view."
 msgstr "오른쪽(최신) 데이터를 고정하여 보기에 표시되도록 합니다."
 
-#: widgets/waveform/waveform_widget.py:463
+#: widgets/waveform/waveform_widget.py:464
 msgid "The waveform state."
 msgstr "파형 상태입니다."
 
-#: widgets/waveform/waveform_widget.py:469
+#: widgets/waveform/waveform_widget.py:470
 msgid "The annotations."
 msgstr "주석."
 
-#: widgets/waveform/waveform_widget.py:475
+#: widgets/waveform/waveform_widget.py:476
 msgid "Control location"
 msgstr "제어 위치"
 
-#: widgets/waveform/waveform_widget.py:479
+#: widgets/waveform/waveform_widget.py:480
 msgid "top"
 msgstr "top"
 
-#: widgets/waveform/waveform_widget.py:480
+#: widgets/waveform/waveform_widget.py:481
 msgid "bottom"
 msgstr "하단"
 
-#: widgets/waveform/waveform_widget.py:485
+#: widgets/waveform/waveform_widget.py:486
 msgid "The signal quantity to show in the summary."
 msgstr "요약에 표시할 신호 수량입니다."
 
-#: widgets/waveform/waveform_widget.py:491
+#: widgets/waveform/waveform_widget.py:492
 msgid "X-axis annotation mode"
 msgstr "X축 주석 모드"
 
-#: widgets/waveform/waveform_widget.py:494
-#: widgets/waveform/waveform_widget.py:2871
+#: widgets/waveform/waveform_widget.py:495
+#: widgets/waveform/waveform_widget.py:2887
 msgid "Absolute"
 msgstr "절대"
 
-#: widgets/waveform/waveform_widget.py:495
-#: widgets/waveform/waveform_widget.py:2876
+#: widgets/waveform/waveform_widget.py:496
+#: widgets/waveform/waveform_widget.py:2892
 msgid "Relative"
 msgstr "상대"
 
-#: widgets/waveform/waveform_widget.py:501
+#: widgets/waveform/waveform_widget.py:502
 msgid "The available subsources."
 msgstr "사용 가능한 하위 소스입니다."
 
-#: widgets/waveform/waveform_widget.py:507
+#: widgets/waveform/waveform_widget.py:508
 msgid "The selected subsources for each trace."
 msgstr "각 추적에 대해 선택한 하위 소스입니다."
 
-#: widgets/waveform/waveform_widget.py:513
+#: widgets/waveform/waveform_widget.py:514
 msgid "The trace priority: highest int value on top, None is off."
 msgstr "추적 우선순위: 가장 높은 int 값이 맨 위에, 없음은 꺼져 있습니다."
 
-#: widgets/waveform/waveform_widget.py:2817
-#: widgets/waveform/waveform_widget.py:3118
+#: widgets/waveform/waveform_widget.py:2833
+#: widgets/waveform/waveform_widget.py:3134
 msgid "Save image to file"
 msgstr "파일에 이미지 저장"
 
-#: widgets/waveform/waveform_widget.py:2865
-#: widgets/waveform/waveform_widget.py:2934
+#: widgets/waveform/waveform_widget.py:2881
+#: widgets/waveform/waveform_widget.py:2950
 msgid "Single marker"
 msgstr "단일 마커"
 
-#: widgets/waveform/waveform_widget.py:2866
-#: widgets/waveform/waveform_widget.py:2935
+#: widgets/waveform/waveform_widget.py:2882
+#: widgets/waveform/waveform_widget.py:2951
 msgid "Dual markers"
 msgstr "듀얼 마커"
 
-#: widgets/waveform/waveform_widget.py:2868
+#: widgets/waveform/waveform_widget.py:2884
 msgid "Mode"
 msgstr "모드"
 
-#: widgets/waveform/waveform_widget.py:2881
-#: widgets/waveform/waveform_widget.py:2936
-#: widgets/waveform/waveform_widget.py:3094
-#: widgets/waveform/waveform_widget.py:3112
+#: widgets/waveform/waveform_widget.py:2897
+#: widgets/waveform/waveform_widget.py:2952
+#: widgets/waveform/waveform_widget.py:3110
+#: widgets/waveform/waveform_widget.py:3128
 msgid "Clear all"
 msgstr "모두 지우기"
 
-#: widgets/waveform/waveform_widget.py:2892
-#: widgets/waveform/waveform_widget.py:2981
-#: widgets/waveform/waveform_widget.py:3100
+#: widgets/waveform/waveform_widget.py:2908
+#: widgets/waveform/waveform_widget.py:2997
+#: widgets/waveform/waveform_widget.py:3116
 msgid "Annotations"
 msgstr "주석"
 
-#: widgets/waveform/waveform_widget.py:2984
+#: widgets/waveform/waveform_widget.py:3000
 msgid "Range"
 msgstr "범위"
 
-#: widgets/waveform/waveform_widget.py:2988
-#: widgets/waveform/waveform_widget.py:3311
+#: widgets/waveform/waveform_widget.py:3004
+#: widgets/waveform/waveform_widget.py:3327
 msgid "Auto"
 msgstr "자동차"
 
-#: widgets/waveform/waveform_widget.py:2994
+#: widgets/waveform/waveform_widget.py:3010
 msgid "Exact"
 msgstr "정확한"
 
-#: widgets/waveform/waveform_widget.py:3003
+#: widgets/waveform/waveform_widget.py:3019
 msgid "Scale"
 msgstr "계단"
 
-#: widgets/waveform/waveform_widget.py:3006
+#: widgets/waveform/waveform_widget.py:3022
 msgid "Linear"
 msgstr "리니어"
 
-#: widgets/waveform/waveform_widget.py:3011
+#: widgets/waveform/waveform_widget.py:3027
 msgid "Logarithmic"
 msgstr "로그"
 
-#: widgets/waveform/waveform_widget.py:3019
+#: widgets/waveform/waveform_widget.py:3035
 msgid "Logarithmic zero"
 msgstr "로그 0"
 
-#: widgets/waveform/waveform_widget.py:3033
+#: widgets/waveform/waveform_widget.py:3049
 msgid "Preferred prefix"
 msgstr "기본 접두사"
 
-#: widgets/waveform/waveform_widget.py:3091
+#: widgets/waveform/waveform_widget.py:3107
 msgid "Add"
 msgstr "추가"
 
-#: widgets/waveform/waveform_widget.py:3092
+#: widgets/waveform/waveform_widget.py:3108
 msgid "Hide all text"
 msgstr "모든 텍스트 숨기기"
 
-#: widgets/waveform/waveform_widget.py:3093
+#: widgets/waveform/waveform_widget.py:3109
 msgid "Show all text"
 msgstr "모든 텍스트 표시"
 
-#: widgets/waveform/waveform_widget.py:3101
+#: widgets/waveform/waveform_widget.py:3117
 msgid "Vertical"
 msgstr "세로"
 
-#: widgets/waveform/waveform_widget.py:3104
+#: widgets/waveform/waveform_widget.py:3120
 msgid "Horizontal"
 msgstr "수평"
 
-#: widgets/waveform/waveform_widget.py:3110
+#: widgets/waveform/waveform_widget.py:3126
 msgid "Save"
 msgstr "저장"
 
-#: widgets/waveform/waveform_widget.py:3115
+#: widgets/waveform/waveform_widget.py:3131
 msgid "Y-axis auto range"
 msgstr "Y축 자동 범위"
 
-#: widgets/waveform/waveform_widget.py:3119
+#: widgets/waveform/waveform_widget.py:3135
 msgid "Copy image to clipboard"
 msgstr "이미지를 클립보드에 복사"
 
-#: widgets/waveform/waveform_widget.py:3120
+#: widgets/waveform/waveform_widget.py:3136
 msgid "Export visible data"
 msgstr "가시 데이터 내보내기"
 
-#: widgets/waveform/waveform_widget.py:3121
+#: widgets/waveform/waveform_widget.py:3137
 msgid "Export all data"
 msgstr "모든 데이터 내보내기"
 
-#: widgets/waveform/waveform_widget.py:3287
+#: widgets/waveform/waveform_widget.py:3303
 msgid "Export"
 msgstr "내보내기"
 
-#: widgets/waveform/waveform_widget.py:3288
+#: widgets/waveform/waveform_widget.py:3304
 msgid "Analysis"
 msgstr "분석"
 
-#: widgets/waveform/waveform_widget.py:3296
+#: widgets/waveform/waveform_widget.py:3312
 msgid "Interval"
 msgstr "간격"
 
-#: widgets/waveform/waveform_widget.py:3305
+#: widgets/waveform/waveform_widget.py:3321
 msgid "Zoom"
 msgstr "Zoom"
 
-#: widgets/waveform/waveform_widget.py:3309
+#: widgets/waveform/waveform_widget.py:3325
 msgid "Show statistics"
 msgstr "통계 보기"
 
-#: widgets/waveform/waveform_widget.py:3314
+#: widgets/waveform/waveform_widget.py:3330
 msgid "Left"
 msgstr "왼쪽"
 
-#: widgets/waveform/waveform_widget.py:3317
+#: widgets/waveform/waveform_widget.py:3333
 msgid "Right"
 msgstr "오른쪽"
 
-#: widgets/waveform/waveform_widget.py:3320
+#: widgets/waveform/waveform_widget.py:3336
 msgid "Off"
 msgstr "꺼짐"
 
-#: widgets/waveform/waveform_widget.py:3323
-#: widgets/waveform/waveform_widget.py:3351
-#: widgets/waveform/waveform_widget.py:3380
+#: widgets/waveform/waveform_widget.py:3339
+#: widgets/waveform/waveform_widget.py:3367
+#: widgets/waveform/waveform_widget.py:3396
 msgid "Remove"
 msgstr "제거"
 
-#: widgets/waveform/waveform_widget.py:3334
+#: widgets/waveform/waveform_widget.py:3350
 msgid "Y mode"
 msgstr "Y 모드"
 
@@ -2887,4 +3003,3 @@ msgstr "단위"
 
 #~ msgid "Typical response time: %(days)s business days"
 #~ msgstr "일반적인 응답 시간: 영업일 기준 %(일)"
-

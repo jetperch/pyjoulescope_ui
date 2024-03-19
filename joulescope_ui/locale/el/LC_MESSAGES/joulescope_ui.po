@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-03-09 12:56-0500\n"
+"POT-Creation-Date: 2024-03-19 13:13-0400\n"
 "PO-Revision-Date: 2024-03-07 17:35-0500\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language: el\n"
 "Language-Team: el <LL@li.org>\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Language: el\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "Generated-By: Babel 2.14.0\n"
 
 #: about.py:24
@@ -36,14 +36,14 @@ msgstr "Εναλλαγή της τροφοδοσίας σε όλους τους 
 
 #: app.py:50
 msgid ""
-"This feature forces all connected instruments to disable current flow. "
-"You can use this feature to perform a power cycle reset for the connected"
-" target devices."
+"This feature forces all connected instruments to disable current flow. You "
+"can use this feature to perform a power cycle reset for the connected target"
+" devices."
 msgstr ""
-"Αυτή η λειτουργία αναγκάζει όλα τα συνδεδεμένα όργανα να απενεργοποιήσουν"
-" τη ροή ρεύματος. Μπορείτε να χρησιμοποιήσετε αυτή τη λειτουργία για να "
-"εκτελέσετε επαναφορά κύκλου λειτουργίας για τις συνδεδεμένες "
-"συσκευές-στόχους."
+"Αυτή η λειτουργία αναγκάζει όλα τα συνδεδεμένα όργανα να απενεργοποιήσουν τη"
+" ροή ρεύματος. Μπορείτε να χρησιμοποιήσετε αυτή τη λειτουργία για να "
+"εκτελέσετε επαναφορά κύκλου λειτουργίας για τις συνδεδεμένες συσκευές-"
+"στόχους."
 
 #: app.py:53
 msgid "The JS220 disconnects the current terminals."
@@ -63,13 +63,13 @@ msgstr "Ένδειξη ενεργοποιημένης ασφάλειας"
 
 #: app.py:62
 msgid ""
-"This indicator becomes active when at least one connected instrument has "
-"an engaged fuse. Instruments with engaged fuses prevent current flow "
-"until cleared."
+"This indicator becomes active when at least one connected instrument has an "
+"engaged fuse. Instruments with engaged fuses prevent current flow until "
+"cleared."
 msgstr ""
-"Αυτή η ένδειξη ενεργοποιείται όταν τουλάχιστον ένα συνδεδεμένο όργανο "
-"έχει ενεργοποιημένη ασφάλεια. Τα όργανα με ενεργοποιημένες ασφάλειες "
-"εμποδίζουν τη ροή ρεύματος έως ότου εκκαθαριστούν."
+"Αυτή η ένδειξη ενεργοποιείται όταν τουλάχιστον ένα συνδεδεμένο όργανο έχει "
+"ενεργοποιημένη ασφάλεια. Τα όργανα με ενεργοποιημένες ασφάλειες εμποδίζουν "
+"τη ροή ρεύματος έως ότου εκκαθαριστούν."
 
 #: app.py:65 widgets/device_control/js220_ctrl_widget.py:55
 msgid "Press to clear."
@@ -88,17 +88,17 @@ msgid ""
 "When enabled, the widgets will display the statistics data as it arrives "
 "from the connected instruments."
 msgstr ""
-"Όταν είναι ενεργοποιημένο, τα widgets θα εμφανίζουν τα στατιστικά "
-"δεδομένα καθώς φθάνουν από τα συνδεδεμένα όργανα."
+"Όταν είναι ενεργοποιημένο, τα widgets θα εμφανίζουν τα στατιστικά δεδομένα "
+"καθώς φθάνουν από τα συνδεδεμένα όργανα."
 
 #: app.py:75
 msgid ""
-"When disabled, hold the existing values. New statistics data is "
-"processed, but widgets displaying statistics information do not update."
+"When disabled, hold the existing values. New statistics data is processed, "
+"but widgets displaying statistics information do not update."
 msgstr ""
-"Όταν είναι απενεργοποιημένη, διατηρεί τις υπάρχουσες τιμές. "
-"Επεξεργάζονται νέα στατιστικά δεδομένα, αλλά τα widgets που εμφανίζουν "
-"πληροφορίες στατιστικών στοιχείων δεν ενημερώνονται."
+"Όταν είναι απενεργοποιημένη, διατηρεί τις υπάρχουσες τιμές. Επεξεργάζονται "
+"νέα στατιστικά δεδομένα, αλλά τα widgets που εμφανίζουν πληροφορίες "
+"στατιστικών στοιχείων δεν ενημερώνονται."
 
 #: app.py:83
 msgid "Statistics recording"
@@ -113,17 +113,16 @@ msgid ""
 "Click once to start a recording to a CSV file. Click again to stop the "
 "recording."
 msgstr ""
-"Κάντε κλικ μία φορά για να ξεκινήσετε την εγγραφή σε ένα αρχείο CSV. "
-"Κάντε ξανά κλικ για να σταματήσετε την εγγραφή."
+"Κάντε κλικ μία φορά για να ξεκινήσετε την εγγραφή σε ένα αρχείο CSV. Κάντε "
+"ξανά κλικ για να σταματήσετε την εγγραφή."
 
 #: app.py:87
 msgid ""
-"By default, Joulescopes provide statistics data at 2 Hz. Each device "
-"allows you to change this setting to the desired rate."
+"By default, Joulescopes provide statistics data at 2 Hz. Each device allows "
+"you to change this setting to the desired rate."
 msgstr ""
-"Από προεπιλογή, τα Joulescopes παρέχουν στατιστικά δεδομένα στα 2 Hz. "
-"Κάθε συσκευή σας επιτρέπει να αλλάξετε αυτή τη ρύθμιση στον επιθυμητό "
-"ρυθμό."
+"Από προεπιλογή, τα Joulescopes παρέχουν στατιστικά δεδομένα στα 2 Hz. Κάθε "
+"συσκευή σας επιτρέπει να αλλάξετε αυτή τη ρύθμιση στον επιθυμητό ρυθμό."
 
 #: app.py:94
 msgid "Signal sample streaming"
@@ -135,20 +134,20 @@ msgstr "Κάντε κλικ για να ενεργοποιήσετε τη ροή
 
 #: app.py:97
 msgid ""
-"When enabled, stream sample data from all open sample sources and "
-"configure all sample widgets for acquisition mode."
+"When enabled, stream sample data from all open sample sources and configure "
+"all sample widgets for acquisition mode."
 msgstr ""
-"Όταν είναι ενεργοποιημένη, η ροή δεδομένων δειγμάτων από όλες τις "
-"ανοικτές πηγές δειγμάτων και η διαμόρφωση όλων των widgets δειγμάτων για "
-"τη λειτουργία λήψης."
+"Όταν είναι ενεργοποιημένη, η ροή δεδομένων δειγμάτων από όλες τις ανοικτές "
+"πηγές δειγμάτων και η διαμόρφωση όλων των widgets δειγμάτων για τη "
+"λειτουργία λήψης."
 
 #: app.py:99
 msgid ""
-"When disabled, stop sample streaming and configure all sample widgets for"
-" buffer mode."
+"When disabled, stop sample streaming and configure all sample widgets for "
+"buffer mode."
 msgstr ""
-"Όταν είναι απενεργοποιημένη, διακόπτεται η ροή δειγμάτων και ρυθμίζονται "
-"όλα τα widgets δειγμάτων για λειτουργία buffer."
+"Όταν είναι απενεργοποιημένη, διακόπτεται η ροή δειγμάτων και ρυθμίζονται όλα"
+" τα widgets δειγμάτων για λειτουργία buffer."
 
 #: app.py:106
 msgid "Signal sample recording"
@@ -163,19 +162,19 @@ msgid ""
 "Click once to start a recording to a JLS file. Click again to stop the "
 "recording."
 msgstr ""
-"Κάντε κλικ μία φορά για να ξεκινήσετε την εγγραφή σε ένα αρχείο JLS. "
-"Κάντε ξανά κλικ για να σταματήσετε την εγγραφή."
+"Κάντε κλικ μία φορά για να ξεκινήσετε την εγγραφή σε ένα αρχείο JLS. Κάντε "
+"ξανά κλικ για να σταματήσετε την εγγραφή."
 
 #: app.py:111
 msgid ""
-"The recording will capture data from all enabled sample sources and "
-"signals at their configured sample rates. To reduce the file size, you "
-"can disable sources, disable signals, and/or reduce the sample rates."
+"The recording will capture data from all enabled sample sources and signals "
+"at their configured sample rates. To reduce the file size, you can disable "
+"sources, disable signals, and/or reduce the sample rates."
 msgstr ""
 "Η εγγραφή θα καταγράφει δεδομένα από όλες τις ενεργοποιημένες πηγές "
-"δειγμάτων και σήματα με τους ρυθμούς δειγματοληψίας που έχουν ρυθμιστεί. "
-"Για να μειώσετε το μέγεθος του αρχείου, μπορείτε να απενεργοποιήσετε τις "
-"πηγές, να απενεργοποιήσετε τα σήματα ή/και να μειώσετε τους ρυθμούς "
+"δειγμάτων και σήματα με τους ρυθμούς δειγματοληψίας που έχουν ρυθμιστεί. Για"
+" να μειώσετε το μέγεθος του αρχείου, μπορείτε να απενεργοποιήσετε τις πηγές,"
+" να απενεργοποιήσετε τα σήματα ή/και να μειώσετε τους ρυθμούς "
 "δειγματοληψίας."
 
 #: app.py:120
@@ -234,17 +233,16 @@ msgstr "Επιλέξτε τη μέθοδο απόδοσης OpenGL."
 
 #: app.py:166
 msgid ""
-"This application uses OpenGL to accelerate graphics rendering. OpenGL has"
-" multiple options for rendering, which varies between platforms. By "
-"default, this application uses \"desktop\" rendering. If OpenGL is not "
-"well-supported by your graphics drivers, you can select \"software\" "
-"rendering."
+"This application uses OpenGL to accelerate graphics rendering. OpenGL has "
+"multiple options for rendering, which varies between platforms. By default, "
+"this application uses \"desktop\" rendering. If OpenGL is not well-supported"
+" by your graphics drivers, you can select \"software\" rendering."
 msgstr ""
 "Αυτή η εφαρμογή χρησιμοποιεί την OpenGL για να επιταχύνει την απόδοση "
-"γραφικών. Η OpenGL διαθέτει πολλαπλές επιλογές για την απόδοση, οι οποίες"
-" διαφέρουν μεταξύ των πλατφορμών. Από προεπιλογή, αυτή η εφαρμογή "
-"χρησιμοποιεί την απόδοση \"desktop\". Εάν η OpenGL δεν υποστηρίζεται καλά"
-" από τους οδηγούς γραφικών σας, μπορείτε να επιλέξετε την απόδοση "
+"γραφικών. Η OpenGL διαθέτει πολλαπλές επιλογές για την απόδοση, οι οποίες "
+"διαφέρουν μεταξύ των πλατφορμών. Από προεπιλογή, αυτή η εφαρμογή "
+"χρησιμοποιεί την απόδοση \"desktop\". Εάν η OpenGL δεν υποστηρίζεται καλά "
+"από τους οδηγούς γραφικών σας, μπορείτε να επιλέξετε την απόδοση "
 "\"λογισμικού\"."
 
 #: app.py:171
@@ -292,8 +290,8 @@ msgid ""
 "We are here to help troubleshoot! Fill in the details below, and click "
 "Submit."
 msgstr ""
-"Είμαστε εδώ για να σας βοηθήσουμε στην αντιμετώπιση προβλημάτων! "
-"Συμπληρώστε τα παρακάτω στοιχεία και κάντε κλικ στο κουμπί Υποβολή."
+"Είμαστε εδώ για να σας βοηθήσουμε στην αντιμετώπιση προβλημάτων! Συμπληρώστε"
+" τα παρακάτω στοιχεία και κάντε κλικ στο κουμπί Υποβολή."
 
 #: error_window.py:27
 msgid ""
@@ -301,8 +299,8 @@ msgid ""
 "assist with troubleshooting this issue."
 msgstr ""
 "Παρακαλούμε δώστε τα στοιχεία επικοινωνίας σας ώστε να μπορέσουμε να "
-"επικοινωνήσουμε μαζί σας και να σας βοηθήσουμε στην αντιμετώπιση αυτού "
-"του προβλήματος."
+"επικοινωνήσουμε μαζί σας και να σας βοηθήσουμε στην αντιμετώπιση αυτού του "
+"προβλήματος."
 
 #: error_window.py:30
 msgid "Select an error recovery option."
@@ -310,12 +308,11 @@ msgstr "Επιλέξτε μια επιλογή αποκατάστασης σφά
 
 #: error_window.py:34
 msgid ""
-"Our offices are currently closed until {return_date}. We will respond "
-"within {response_time} business days after we return."
+"Our offices are currently closed until {return_date}. We will respond within"
+" {response_time} business days after we return."
 msgstr ""
 "Τα γραφεία μας είναι προς το παρόν κλειστά μέχρι την {return_date}. Θα "
-"απαντήσουμε εντός {response_time} εργάσιμων ημερών μετά την επιστροφή "
-"μας."
+"απαντήσουμε εντός {response_time} εργάσιμων ημερών μετά την επιστροφή μας."
 
 #: error_window.py:51
 msgid "Submit failed. Ensure that your computer can access the internet."
@@ -343,7 +340,7 @@ msgstr "Ηλεκτρονικό ταχυδρομείο"
 msgid "Description"
 msgstr "Περιγραφή"
 
-#: error_window.py:112 widgets/waveform/waveform_widget.py:3330
+#: error_window.py:112 widgets/waveform/waveform_widget.py:3346
 msgid "Edit"
 msgstr "Επεξεργασία"
 
@@ -415,8 +412,8 @@ msgstr "Εξαγωγή δεδομένων σε αρχείο JLS"
 
 #: exporter.py:170
 msgid ""
-"Exporting data to a JLS file. You can open this file later to display the"
-" exported data."
+"Exporting data to a JLS file. You can open this file later to display the "
+"exported data."
 msgstr ""
 "Εξαγωγή δεδομένων σε αρχείο JLS. Μπορείτε να ανοίξετε αυτό το αρχείο "
 "αργότερα για να εμφανίσετε τα εξαγόμενα δεδομένα."
@@ -432,8 +429,8 @@ msgstr "Ασφάλεια"
 #: getting_started.py:23
 msgid "The voltage between any sensor port must never exceed ±15V"
 msgstr ""
-"Η τάση μεταξύ οποιασδήποτε θύρας αισθητήρα δεν πρέπει ποτέ να υπερβαίνει "
-"τα ±15V."
+"Η τάση μεταξύ οποιασδήποτε θύρας αισθητήρα δεν πρέπει ποτέ να υπερβαίνει τα "
+"±15V."
 
 #: getting_started.py:24
 msgid "The JS220 sensor ports are Current+, Current-, Voltage+, Voltage-"
@@ -447,14 +444,14 @@ msgstr "Οι θύρες του αισθητήρα JS110 είναι IN+, IN- OUT+
 
 #: getting_started.py:26
 msgid ""
-"The sensor ports are electrically isolated from USB. The voltage between "
-"any sensor port and USB ground must never exceed ±48V. The GPI/O and "
-"trigger ports are referenced to USB ground."
+"The sensor ports are electrically isolated from USB. The voltage between any"
+" sensor port and USB ground must never exceed ±48V. The GPI/O and trigger "
+"ports are referenced to USB ground."
 msgstr ""
-"Οι θύρες αισθητήρων είναι ηλεκτρικά απομονωμένες από τις θύρες USB. Η "
-"τάση μεταξύ οποιασδήποτε θύρας αισθητήρα και της γείωσης USB δεν πρέπει "
-"ποτέ να υπερβαίνει τα ±48V. Οι θύρες GPI/O και σκανδαλισμού αναφέρονται "
-"στη γείωση USB."
+"Οι θύρες αισθητήρων είναι ηλεκτρικά απομονωμένες από τις θύρες USB. Η τάση "
+"μεταξύ οποιασδήποτε θύρας αισθητήρα και της γείωσης USB δεν πρέπει ποτέ να "
+"υπερβαίνει τα ±48V. Οι θύρες GPI/O και σκανδαλισμού αναφέρονται στη γείωση "
+"USB."
 
 #: getting_started.py:30
 msgid "Connect"
@@ -462,13 +459,12 @@ msgstr "Συνδέστε το"
 
 #: getting_started.py:31
 msgid ""
-"Connect Joulescope's USB port to your computer using the provided cable. "
-"Use an adapter or suitable cable if your computer only has USB Type C "
-"ports."
+"Connect Joulescope's USB port to your computer using the provided cable. Use"
+" an adapter or suitable cable if your computer only has USB Type C ports."
 msgstr ""
-"Συνδέστε τη θύρα USB του Joulescope στον υπολογιστή σας χρησιμοποιώντας "
-"το παρεχόμενο καλώδιο. Χρησιμοποιήστε προσαρμογέα ή κατάλληλο καλώδιο, "
-"εάν ο υπολογιστής σας διαθέτει μόνο θύρες USB τύπου C."
+"Συνδέστε τη θύρα USB του Joulescope στον υπολογιστή σας χρησιμοποιώντας το "
+"παρεχόμενο καλώδιο. Χρησιμοποιήστε προσαρμογέα ή κατάλληλο καλώδιο, εάν ο "
+"υπολογιστής σας διαθέτει μόνο θύρες USB τύπου C."
 
 #: getting_started.py:33
 msgid ""
@@ -476,18 +472,17 @@ msgid ""
 "device under test. Connect the voltage port to the power supply. See the "
 "Joulescope JS220 User's Guide for more connection examples."
 msgstr ""
-"Για το JS220, συνδέστε τη θύρα ρεύματος μεταξύ του τροφοδοτικού και της "
-"υπό δοκιμή συσκευής. Συνδέστε τη θύρα τάσης με το τροφοδοτικό. Ανατρέξτε "
-"στον Οδηγό χρήσης του Joulescope JS220 για περισσότερα παραδείγματα "
-"σύνδεσης."
+"Για το JS220, συνδέστε τη θύρα ρεύματος μεταξύ του τροφοδοτικού και της υπό "
+"δοκιμή συσκευής. Συνδέστε τη θύρα τάσης με το τροφοδοτικό. Ανατρέξτε στον "
+"Οδηγό χρήσης του Joulescope JS220 για περισσότερα παραδείγματα σύνδεσης."
 
 #: getting_started.py:36
 msgid ""
-"For the JS110, connect the Joulescope IN port to your power supply. "
-"Connect the Joulescope OUT port to your target device."
+"For the JS110, connect the Joulescope IN port to your power supply. Connect "
+"the Joulescope OUT port to your target device."
 msgstr ""
-"Για το JS110, συνδέστε τη θύρα Joulescope IN στην παροχή ρεύματος. "
-"Συνδέστε τη θύρα Joulescope OUT στη συσκευή-στόχο σας."
+"Για το JS110, συνδέστε τη θύρα Joulescope IN στην παροχή ρεύματος. Συνδέστε "
+"τη θύρα Joulescope OUT στη συσκευή-στόχο σας."
 
 #: getting_started.py:39
 msgid "Measure"
@@ -495,29 +490,30 @@ msgstr "Μέτρο"
 
 #: getting_started.py:40
 msgid ""
-"The Joulescope software starts in the Multimeter View displaying the "
-"value current, voltage, power, and energy."
+"The Joulescope software starts in the Multimeter View displaying the value "
+"current, voltage, power, and energy."
 msgstr ""
-"Το λογισμικό Joulescope ξεκινάει στην προβολή πολυμέτρου εμφανίζοντας τις"
-" τιμές ρεύματος, τάσης, ισχύος και ενέργειας."
+"Το λογισμικό Joulescope ξεκινάει στην προβολή πολυμέτρου εμφανίζοντας τις "
+"τιμές ρεύματος, τάσης, ισχύος και ενέργειας."
 
 #: getting_started.py:42
 msgid ""
-"Select View → Oscilloscope to switch to the Oscilloscope View and explore"
-" changes over time."
+"Select View → Oscilloscope to switch to the Oscilloscope View and explore "
+"changes over time."
 msgstr ""
-"Επιλέξτε Προβολή → Παλμογράφος για να μεταβείτε στην προβολή παλμογράφου "
-"και να εξερευνήσετε τις αλλαγές με την πάροδο του χρόνου."
+"Επιλέξτε Προβολή → Παλμογράφος για να μεταβείτε στην προβολή παλμογράφου και"
+" να εξερευνήσετε τις αλλαγές με την πάροδο του χρόνου."
 
 #: getting_started.py:44
 msgid "Press the Play/Pause button to start and stop sample streaming."
 msgstr ""
-"Πατήστε το κουμπί Αναπαραγωγή/Παύση για να ξεκινήσετε και να σταματήσετε "
-"τη ροή δειγμάτων."
+"Πατήστε το κουμπί Αναπαραγωγή/Παύση για να ξεκινήσετε και να σταματήσετε τη "
+"ροή δειγμάτων."
 
 #: getting_started.py:45
 msgid "Use the scroll wheel to zoom the time x-axis."
-msgstr "Χρησιμοποιήστε τον τροχό κύλισης για να μεγεθύνετε τον άξονα x του χρόνου."
+msgstr ""
+"Χρησιμοποιήστε τον τροχό κύλισης για να μεγεθύνετε τον άξονα x του χρόνου."
 
 #: getting_started.py:46
 msgid "Left-click and drag to pan in time."
@@ -525,7 +521,8 @@ msgstr "Κάντε αριστερό κλικ και σύρετε για να μ�
 
 #: getting_started.py:47
 msgid "Right-click for context sensitive menus and more options."
-msgstr "Δεξί κλικ για μενού με ευαισθησία περιβάλλοντος και περισσότερες επιλογές."
+msgstr ""
+"Δεξί κλικ για μενού με ευαισθησία περιβάλλοντος και περισσότερες επιλογές."
 
 #: getting_started.py:48
 msgid ""
@@ -541,32 +538,32 @@ msgstr "Υποστήριξη"
 
 #: getting_started.py:54
 msgid ""
-"Click on the help icon at the bottom left for more information and "
-"support options."
+"Click on the help icon at the bottom left for more information and support "
+"options."
 msgstr ""
-"Κάντε κλικ στο εικονίδιο βοήθειας κάτω αριστερά για περισσότερες "
-"πληροφορίες και επιλογές υποστήριξης."
+"Κάντε κλικ στο εικονίδιο βοήθειας κάτω αριστερά για περισσότερες πληροφορίες"
+" και επιλογές υποστήριξης."
 
 #: intel_graphics_dialog.py:22
 msgid ""
-"This computer has Intel graphics. If the computer has a discrete graphics"
-" card, please adjust your graphics settings to run this application using"
-" the graphics card."
+"This computer has Intel graphics. If the computer has a discrete graphics "
+"card, please adjust your graphics settings to run this application using the"
+" graphics card."
 msgstr ""
 "Αυτός ο υπολογιστής διαθέτει γραφικά Intel. Εάν ο υπολογιστής διαθέτει "
-"διακριτή κάρτα γραφικών, παρακαλούμε προσαρμόστε τις ρυθμίσεις γραφικών "
-"για να εκτελέσετε αυτή την εφαρμογή χρησιμοποιώντας την κάρτα γραφικών."
+"διακριτή κάρτα γραφικών, παρακαλούμε προσαρμόστε τις ρυθμίσεις γραφικών για "
+"να εκτελέσετε αυτή την εφαρμογή χρησιμοποιώντας την κάρτα γραφικών."
 
 #: intel_graphics_dialog.py:26
 msgid ""
-"If the computer only has Intel graphics, we recommend that you update "
-"your graphics drivers. You can download the latest graphics drivers from "
-"your computer manufacturer or Intel."
+"If the computer only has Intel graphics, we recommend that you update your "
+"graphics drivers. You can download the latest graphics drivers from your "
+"computer manufacturer or Intel."
 msgstr ""
-"Εάν ο υπολογιστής διαθέτει μόνο γραφικά Intel, σας συνιστούμε να "
-"ενημερώσετε τα προγράμματα οδήγησης γραφικών σας. Μπορείτε να κατεβάσετε "
-"τα πιο πρόσφατα προγράμματα οδήγησης γραφικών από τον κατασκευαστή του "
-"υπολογιστή σας ή την Intel."
+"Εάν ο υπολογιστής διαθέτει μόνο γραφικά Intel, σας συνιστούμε να ενημερώσετε"
+" τα προγράμματα οδήγησης γραφικών σας. Μπορείτε να κατεβάσετε τα πιο "
+"πρόσφατα προγράμματα οδήγησης γραφικών από τον κατασκευαστή του υπολογιστή "
+"σας ή την Intel."
 
 #: intel_graphics_dialog.py:29
 msgid "You may observe strange graphics hangs with the latest Intel driver."
@@ -576,20 +573,20 @@ msgstr ""
 
 #: intel_graphics_dialog.py:30
 msgid ""
-"If this happens on your computer, then you can switch to the software "
-"OpenGL renderer. The software OpenGL renderer may work around Intel "
-"driver instabilities, but it runs slower possibly causing performance "
-"issues. On a small number of computers, it does not run correctly causing"
-" a white application screen. You will need to close and reopen this "
-"application for the change to take effect."
+"If this happens on your computer, then you can switch to the software OpenGL"
+" renderer. The software OpenGL renderer may work around Intel driver "
+"instabilities, but it runs slower possibly causing performance issues. On a "
+"small number of computers, it does not run correctly causing a white "
+"application screen. You will need to close and reopen this application for "
+"the change to take effect."
 msgstr ""
 "Αν αυτό συμβαίνει στον υπολογιστή σας, τότε μπορείτε να μεταβείτε στον "
 "renderer λογισμικού OpenGL. Ο αναπαραγωγέας λογισμικού OpenGL μπορεί να "
-"παρακάμπτει τις αστάθειες του προγράμματος οδήγησης Intel, αλλά τρέχει "
-"πιο αργά, προκαλώντας ενδεχομένως προβλήματα απόδοσης. Σε έναν μικρό "
-"αριθμό υπολογιστών, δεν εκτελείται σωστά προκαλώντας λευκή οθόνη "
-"εφαρμογής. Θα χρειαστεί να κλείσετε και να ανοίξετε ξανά αυτή την "
-"εφαρμογή για να τεθεί σε ισχύ η αλλαγή."
+"παρακάμπτει τις αστάθειες του προγράμματος οδήγησης Intel, αλλά τρέχει πιο "
+"αργά, προκαλώντας ενδεχομένως προβλήματα απόδοσης. Σε έναν μικρό αριθμό "
+"υπολογιστών, δεν εκτελείται σωστά προκαλώντας λευκή οθόνη εφαρμογής. Θα "
+"χρειαστεί να κλείσετε και να ανοίξετε ξανά αυτή την εφαρμογή για να τεθεί σε"
+" ισχύ η αλλαγή."
 
 #: intel_graphics_dialog.py:38
 msgid "Would you like to switch to the software OpenGL renderer?"
@@ -597,16 +594,16 @@ msgstr "Θα θέλατε να μεταβείτε στο λογισμικό απ
 
 #: intel_graphics_dialog.py:39
 msgid ""
-"If you are unsure, select \"No\" and leave \"Do not show again\" "
-"unchecked. If you observe the graphics hangs, you can select \"Yes\" in "
-"the future. You can select the OpenGL renderer at any time using Widgets "
-"→ Settings → Common → opengl. The default is \"desktop\"."
+"If you are unsure, select \"No\" and leave \"Do not show again\" unchecked. "
+"If you observe the graphics hangs, you can select \"Yes\" in the future. You"
+" can select the OpenGL renderer at any time using Widgets → Settings → "
+"Common → opengl. The default is \"desktop\"."
 msgstr ""
-"Αν δεν είστε σίγουροι, επιλέξτε \"Όχι\" και αφήστε το \"Να μην εμφανιστεί"
-" ξανά\" χωρίς τσεκάρισμα. Εάν παρατηρήσετε ότι τα γραφικά κολλάνε, "
-"μπορείτε να επιλέξετε \"Ναι\" στο μέλλον. Μπορείτε ανά πάσα στιγμή να "
-"επιλέξετε τον renderer OpenGL χρησιμοποιώντας τη λειτουργία Widgets → "
-"Settings → Common → opengl. Η προεπιλογή είναι \"desktop\"."
+"Αν δεν είστε σίγουροι, επιλέξτε \"Όχι\" και αφήστε το \"Να μην εμφανιστεί "
+"ξανά\" χωρίς τσεκάρισμα. Εάν παρατηρήσετε ότι τα γραφικά κολλάνε, μπορείτε "
+"να επιλέξετε \"Ναι\" στο μέλλον. Μπορείτε ανά πάσα στιγμή να επιλέξετε τον "
+"renderer OpenGL χρησιμοποιώντας τη λειτουργία Widgets → Settings → Common → "
+"opengl. Η προεπιλογή είναι \"desktop\"."
 
 #: intel_graphics_dialog.py:82
 msgid "Do not show again"
@@ -622,14 +619,14 @@ msgstr "Ο τρόπος εμφάνισης της γραμμής κατάστα�
 
 #: main.py:79
 msgid ""
-"This setting controls the amount of detail shown on the status bar at the"
-" bottom of the UI window. You should usually leave this set to \"normal\""
-" unless you want more detail concerning the UI internal operation."
+"This setting controls the amount of detail shown on the status bar at the "
+"bottom of the UI window. You should usually leave this set to \"normal\" "
+"unless you want more detail concerning the UI internal operation."
 msgstr ""
-"Αυτή η ρύθμιση ελέγχει την ποσότητα των λεπτομερειών που εμφανίζονται στη"
-" γραμμή κατάστασης στο κάτω μέρος του παραθύρου UI. Συνήθως θα πρέπει να "
-"την αφήσετε να ρυθμιστεί στην τιμή \"normal\", εκτός αν θέλετε "
-"περισσότερες λεπτομέρειες σχετικά με την εσωτερική λειτουργία του UI."
+"Αυτή η ρύθμιση ελέγχει την ποσότητα των λεπτομερειών που εμφανίζονται στη "
+"γραμμή κατάστασης στο κάτω μέρος του παραθύρου UI. Συνήθως θα πρέπει να την "
+"αφήσετε να ρυθμιστεί στην τιμή \"normal\", εκτός αν θέλετε περισσότερες "
+"λεπτομέρειες σχετικά με την εσωτερική λειτουργία του UI."
 
 #: main.py:84 safe_mode.py:43
 msgid "Normal"
@@ -649,11 +646,11 @@ msgstr "Χρήση PubSub"
 
 #: main.py:99
 msgid ""
-"Display the number of actions processed by the publish-subscribe broker "
-"in each second."
+"Display the number of actions processed by the publish-subscribe broker in "
+"each second."
 msgstr ""
-"Εμφάνιση του αριθμού των ενεργειών που επεξεργάζεται ο μεσίτης "
-"δημοσιεύσεων-συνδρομών σε κάθε δευτερόλεπτο."
+"Εμφάνιση του αριθμού των ενεργειών που επεξεργάζεται ο μεσίτης δημοσιεύσεων-"
+"συνδρομών σε κάθε δευτερόλεπτο."
 
 #: main.py:104
 msgid "CPU utilization"
@@ -664,9 +661,9 @@ msgid ""
 "Display the CPU utilization by this application and the total CPU "
 "utilization by all applications. The value is displayed in percent."
 msgstr ""
-"Εμφάνιση της χρήσης της CPU από αυτή την εφαρμογή και της συνολικής "
-"χρήσης της CPU από όλες τις εφαρμογές. Η τιμή εμφανίζεται σε ποσοστό επί "
-"τοις εκατό."
+"Εμφάνιση της χρήσης της CPU από αυτή την εφαρμογή και της συνολικής χρήσης "
+"της CPU από όλες τις εφαρμογές. Η τιμή εμφανίζεται σε ποσοστό επί τοις "
+"εκατό."
 
 #: main.py:111
 msgid "Memory utilization"
@@ -677,8 +674,8 @@ msgid ""
 "Display the memory (RAM) utilization by this application and by all "
 "applications. The value is displayed in percent."
 msgstr ""
-"Εμφάνιση της χρήσης της μνήμης (RAM) από αυτή την εφαρμογή και από όλες "
-"τις εφαρμογές. Η τιμή εμφανίζεται σε ποσοστό επί τοις εκατό."
+"Εμφάνιση της χρήσης της μνήμης (RAM) από αυτή την εφαρμογή και από όλες τις "
+"εφαρμογές. Η τιμή εμφανίζεται σε ποσοστό επί τοις εκατό."
 
 #: main.py:189
 msgid "UI"
@@ -761,7 +758,8 @@ msgid "Info"
 msgstr "Πληροφορίες"
 
 #: main.py:370 widget_tools.py:92 widgets/settings/settings_widget.py:31
-#: widgets/settings/settings_widget.py:574 widgets/sidebar/sidebar_widget.py:41
+#: widgets/settings/settings_widget.py:574
+#: widgets/sidebar/sidebar_widget.py:41
 msgid "Settings"
 msgstr "Ρυθμίσεις"
 
@@ -796,8 +794,7 @@ msgstr "Σταθερή προεπιλεγμένη διαδρομή"
 #: paths.py:43
 msgid "The fixed default path for loading and saving files."
 msgstr ""
-"Η σταθερή προεπιλεγμένη διαδρομή για τη φόρτωση και την αποθήκευση "
-"αρχείων."
+"Η σταθερή προεπιλεγμένη διαδρομή για τη φόρτωση και την αποθήκευση αρχείων."
 
 #: paths.py:48 paths.py:69
 msgid "Most recent save path"
@@ -962,16 +959,14 @@ msgstr "Ενεργοποίηση της ροής για την επιλεγμέ�
 
 #: devices/jsdrv/device.py:21
 msgid ""
-"The current range is useful for understanding how your Joulescope "
-"autoranges to measure your current signal. It can also be helpful in "
-"separating target system behavior from the small current range switching "
-"artifacts."
+"The current range is useful for understanding how your Joulescope autoranges"
+" to measure your current signal. It can also be helpful in separating target"
+" system behavior from the small current range switching artifacts."
 msgstr ""
-"Το εύρος ρεύματος είναι χρήσιμο για την κατανόηση του τρόπου με τον οποίο"
-" το Joulescope σας αυτορυθμίζεται για να μετρήσει το τρέχον σήμα σας. "
-"Μπορεί επίσης να είναι χρήσιμο για το διαχωρισμό της συμπεριφοράς του "
-"συστήματος στόχου από τα τεχνουργήματα μεταγωγής του μικρού εύρους "
-"ρεύματος."
+"Το εύρος ρεύματος είναι χρήσιμο για την κατανόηση του τρόπου με τον οποίο το"
+" Joulescope σας αυτορυθμίζεται για να μετρήσει το τρέχον σήμα σας. Μπορεί "
+"επίσης να είναι χρήσιμο για το διαχωρισμό της συμπεριφοράς του συστήματος "
+"στόχου από τα τεχνουργήματα μεταγωγής του μικρού εύρους ρεύματος."
 
 #: devices/jsdrv/js110.py:29 devices/jsdrv/js110.py:65
 #: devices/jsdrv/js220.py:47 devices/jsdrv/js220.py:83
@@ -980,22 +975,22 @@ msgstr "Όνομα συσκευής"
 
 #: devices/jsdrv/js110.py:31 devices/jsdrv/js220.py:49
 msgid ""
-"The Joulescope UI automatically populates the device name with the device"
-" type and serial number."
+"The Joulescope UI automatically populates the device name with the device "
+"type and serial number."
 msgstr ""
-"Το UI του Joulescope συμπληρώνει αυτόματα το όνομα της συσκευής με τον "
-"τύπο της συσκευής και τον σειριακό αριθμό."
+"Το UI του Joulescope συμπληρώνει αυτόματα το όνομα της συσκευής με τον τύπο "
+"της συσκευής και τον σειριακό αριθμό."
 
 #: devices/jsdrv/js110.py:33
 msgid ""
 "This setting allows you to change the default, if you wish, to better "
-"reflect how you are using your JS110. This setting is most useful when "
-"you are instrumenting a system using multiple Joulescopes."
+"reflect how you are using your JS110. This setting is most useful when you "
+"are instrumenting a system using multiple Joulescopes."
 msgstr ""
-"Αυτή η ρύθμιση σας επιτρέπει να αλλάξετε την προεπιλεγμένη ρύθμιση, εάν "
-"το επιθυμείτε, ώστε να αντικατοπτρίζει καλύτερα τον τρόπο με τον οποίο "
-"χρησιμοποιείτε το JS110. Αυτή η ρύθμιση είναι πιο χρήσιμη όταν "
-"ενοργανώνετε ένα σύστημα που χρησιμοποιεί πολλά Joulescopes."
+"Αυτή η ρύθμιση σας επιτρέπει να αλλάξετε την προεπιλεγμένη ρύθμιση, εάν το "
+"επιθυμείτε, ώστε να αντικατοπτρίζει καλύτερα τον τρόπο με τον οποίο "
+"χρησιμοποιείτε το JS110. Αυτή η ρύθμιση είναι πιο χρήσιμη όταν ενοργανώνετε "
+"ένα σύστημα που χρησιμοποιεί πολλά Joulescopes."
 
 #: devices/jsdrv/js110.py:41 devices/jsdrv/js110.py:71
 #: devices/jsdrv/js220.py:59 devices/jsdrv/js220.py:89
@@ -1023,18 +1018,18 @@ msgid ""
 "sufficient."
 msgstr ""
 "Αυτή η ρύθμιση ελέγχει τη συχνότητα δειγματοληψίας εξόδου για τα σήματα "
-"μέτρησης ρεύματος, τάσης και ισχύος. Χρησιμοποιήστε αυτή τη ρύθμιση για "
-"να μειώσετε τις απαιτήσεις αποθήκευσης δεδομένων για μεγάλες λήψεις όπου "
-"αρκεί χαμηλότερη χρονική ακρίβεια."
+"μέτρησης ρεύματος, τάσης και ισχύος. Χρησιμοποιήστε αυτή τη ρύθμιση για να "
+"μειώσετε τις απαιτήσεις αποθήκευσης δεδομένων για μεγάλες λήψεις όπου αρκεί "
+"χαμηλότερη χρονική ακρίβεια."
 
 #: devices/jsdrv/js110.py:87
 msgid ""
-"The JS110 instrument always samples at 2 MHz and sends the raw samples to"
-" the host. This setting controls additional optional downsampling that is"
-" performed on the host."
+"The JS110 instrument always samples at 2 MHz and sends the raw samples to "
+"the host. This setting controls additional optional downsampling that is "
+"performed on the host."
 msgstr ""
-"Το όργανο JS110 δειγματοληπτεί πάντα στα 2 MHz και στέλνει τα ακατέργαστα"
-" δείγματα στον κεντρικό υπολογιστή. Αυτή η ρύθμιση ελέγχει την πρόσθετη "
+"Το όργανο JS110 δειγματοληπτεί πάντα στα 2 MHz και στέλνει τα ακατέργαστα "
+"δείγματα στον κεντρικό υπολογιστή. Αυτή η ρύθμιση ελέγχει την πρόσθετη "
 "προαιρετική υποδειγματοληψία που εκτελείται στον κεντρικό υπολογιστή."
 
 #: devices/jsdrv/js110.py:117 devices/jsdrv/js220.py:133
@@ -1043,13 +1038,13 @@ msgstr "Στατιστική συχνότητα"
 
 #: devices/jsdrv/js110.py:118
 msgid ""
-"This setting controls the output frequency for the statistics data that "
-"is displayed in the multimeter and value widgets. Statistics data is "
-"computed over the full rate 2 MHz samples."
+"This setting controls the output frequency for the statistics data that is "
+"displayed in the multimeter and value widgets. Statistics data is computed "
+"over the full rate 2 MHz samples."
 msgstr ""
-"Αυτή η ρύθμιση ελέγχει τη συχνότητα εξόδου για τα στατιστικά δεδομένα που"
-" εμφανίζονται στο πολύμετρο και στα widgets τιμών. Τα στατιστικά δεδομένα"
-" υπολογίζονται σε δείγματα πλήρους ρυθμού 2 MHz."
+"Αυτή η ρύθμιση ελέγχει τη συχνότητα εξόδου για τα στατιστικά δεδομένα που "
+"εμφανίζονται στο πολύμετρο και στα widgets τιμών. Τα στατιστικά δεδομένα "
+"υπολογίζονται σε δείγματα πλήρους ρυθμού 2 MHz."
 
 #: devices/jsdrv/js110.py:137 devices/jsdrv/js220.py:153
 msgid "Toggle the connection between the current terminals."
@@ -1057,10 +1052,10 @@ msgstr "Εναλλαγή της σύνδεσης μεταξύ των ακροδ�
 
 #: devices/jsdrv/js110.py:138 devices/jsdrv/js220.py:154
 msgid ""
-"When enabled, current flows between the current terminals. When disabled,"
-" current cannot flow between the current terminals. In common system "
-"setups, this inhibits target power, which can be used to power cycle "
-"reset the target device."
+"When enabled, current flows between the current terminals. When disabled, "
+"current cannot flow between the current terminals. In common system setups, "
+"this inhibits target power, which can be used to power cycle reset the "
+"target device."
 msgstr ""
 "Όταν είναι ενεργοποιημένο, το ρεύμα ρέει μεταξύ των ακροδεκτών ρεύματος. "
 "Όταν είναι απενεργοποιημένη, το ρεύμα δεν μπορεί να ρέει μεταξύ των "
@@ -1069,7 +1064,7 @@ msgstr ""
 "τροφοδοσίας και την επαναφορά της συσκευής στόχου."
 
 #: devices/jsdrv/js110.py:147 devices/jsdrv/js220.py:163
-#: widgets/waveform/waveform_widget.py:109
+#: widgets/waveform/waveform_widget.py:110
 msgid "Current range"
 msgstr "Τρέχον εύρος"
 
@@ -1078,8 +1073,8 @@ msgid ""
 "Configure the J110's current range. Most applications should use the "
 "default, \"auto\"."
 msgstr ""
-"Διαμορφώστε το εύρος ρεύματος του J110. Οι περισσότερες εφαρμογές θα "
-"πρέπει να χρησιμοποιούν την προεπιλεγμένη τιμή \"auto\"."
+"Διαμορφώστε το εύρος ρεύματος του J110. Οι περισσότερες εφαρμογές θα πρέπει "
+"να χρησιμοποιούν την προεπιλεγμένη τιμή \"auto\"."
 
 #: devices/jsdrv/js110.py:151 devices/jsdrv/js220.py:167
 msgid ""
@@ -1088,9 +1083,8 @@ msgid ""
 "than the current range setting."
 msgstr ""
 "Χρησιμοποιήστε τις άλλες χειροκίνητες ρυθμίσεις με προσοχή. Είναι πολύ "
-"εύκολο να διαμορφώσετε μια ρύθμιση που κορεστεί, η οποία θα αγνοεί "
-"περιοχές ρεύματος που απορροφούν ρεύμα μεγαλύτερο από τη ρύθμιση του "
-"εύρους ρεύματος."
+"εύκολο να διαμορφώσετε μια ρύθμιση που κορεστεί, η οποία θα αγνοεί περιοχές "
+"ρεύματος που απορροφούν ρεύμα μεγαλύτερο από τη ρύθμιση του εύρους ρεύματος."
 
 #: devices/jsdrv/js110.py:168 devices/jsdrv/js220.py:195
 msgid "Voltage range"
@@ -1106,8 +1100,8 @@ msgstr "Τάση GPIO"
 
 #: devices/jsdrv/js110.py:180
 msgid ""
-"Configure the JS110's reference voltage for the general-purpose inputs "
-"and outputs."
+"Configure the JS110's reference voltage for the general-purpose inputs and "
+"outputs."
 msgstr ""
 "Διαμορφώστε την τάση αναφοράς του JS110 για τις εισόδους και τις εξόδους "
 "γενικής χρήσης."
@@ -1143,36 +1137,35 @@ msgstr "Τύπος IRF"
 
 #: devices/jsdrv/js110.py:213
 msgid ""
-"Configure the current range filter (IRF) type which determines the "
-"filtering mechanism applied on current range changes. We do not recommend"
-" changing these settings for normal operation."
+"Configure the current range filter (IRF) type which determines the filtering"
+" mechanism applied on current range changes. We do not recommend changing "
+"these settings for normal operation."
 msgstr ""
-"Ρυθμίστε τον τύπο φίλτρου τρέχουσας περιοχής (IRF), ο οποίος καθορίζει "
-"τον μηχανισμό φιλτραρίσματος που εφαρμόζεται στις αλλαγές της τρέχουσας "
+"Ρυθμίστε τον τύπο φίλτρου τρέχουσας περιοχής (IRF), ο οποίος καθορίζει τον "
+"μηχανισμό φιλτραρίσματος που εφαρμόζεται στις αλλαγές της τρέχουσας "
 "περιοχής. Δεν συνιστούμε την αλλαγή αυτών των ρυθμίσεων για κανονική "
 "λειτουργία."
 
 #: devices/jsdrv/js110.py:216
 msgid ""
-"\"interp\" is the default setting which interpolates over the samples in "
-"the window using the value computed by the pre and post values. This "
-"gives the most intuitive behavior."
+"\"interp\" is the default setting which interpolates over the samples in the"
+" window using the value computed by the pre and post values. This gives the "
+"most intuitive behavior."
 msgstr ""
-"Η \"interp\" είναι η προεπιλεγμένη ρύθμιση, η οποία παρεμβάλλει τα "
-"δείγματα στο παράθυρο χρησιμοποιώντας την τιμή που υπολογίζεται από τις "
-"τιμές pre και post. Αυτό δίνει την πιο διαισθητική συμπεριφορά."
+"Η \"interp\" είναι η προεπιλεγμένη ρύθμιση, η οποία παρεμβάλλει τα δείγματα "
+"στο παράθυρο χρησιμοποιώντας την τιμή που υπολογίζεται από τις τιμές pre και"
+" post. Αυτό δίνει την πιο διαισθητική συμπεριφορά."
 
 #: devices/jsdrv/js110.py:219
 msgid ""
-"\"mean\" sets all samples in the window to the mean value. This results "
-"in a straight horizontal line that allows you to clearly see current "
-"range changes while still providing the best long-term current range "
-"measurement."
+"\"mean\" sets all samples in the window to the mean value. This results in a"
+" straight horizontal line that allows you to clearly see current range "
+"changes while still providing the best long-term current range measurement."
 msgstr ""
 "\"mean\" θέτει όλα τα δείγματα στο παράθυρο στη μέση τιμή. Αυτό έχει ως "
-"αποτέλεσμα μια ευθεία οριζόντια γραμμή που σας επιτρέπει να βλέπετε "
-"καθαρά τις αλλαγές του τρέχοντος εύρους, ενώ παράλληλα παρέχει την "
-"καλύτερη μακροπρόθεσμη μέτρηση του τρέχοντος εύρους."
+"αποτέλεσμα μια ευθεία οριζόντια γραμμή που σας επιτρέπει να βλέπετε καθαρά "
+"τις αλλαγές του τρέχοντος εύρους, ενώ παράλληλα παρέχει την καλύτερη "
+"μακροπρόθεσμη μέτρηση του τρέχοντος εύρους."
 
 #: devices/jsdrv/js110.py:223
 msgid "\"NaN\" sets all samples in the window to NaN."
@@ -1180,11 +1173,11 @@ msgstr "Η επιλογή \"NaN\" θέτει όλα τα δείγματα στο
 
 #: devices/jsdrv/js110.py:224
 msgid ""
-"\"off\" disables the current range filtering, and you will see additional"
-" current range switching artifacts."
+"\"off\" disables the current range filtering, and you will see additional "
+"current range switching artifacts."
 msgstr ""
-"Η επιλογή \"off\" απενεργοποιεί το φιλτράρισμα του τρέχοντος εύρους και "
-"θα δείτε πρόσθετα τεχνουργήματα εναλλαγής του τρέχοντος εύρους."
+"Η επιλογή \"off\" απενεργοποιεί το φιλτράρισμα του τρέχοντος εύρους και θα "
+"δείτε πρόσθετα τεχνουργήματα εναλλαγής του τρέχοντος εύρους."
 
 #: devices/jsdrv/js110.py:236
 msgid "IRF pre"
@@ -1192,12 +1185,12 @@ msgstr "IRF για"
 
 #: devices/jsdrv/js110.py:237
 msgid ""
-"The number of samples before the current range window used to determine "
-"the mean. This value is ignored for all other IRF types."
+"The number of samples before the current range window used to determine the "
+"mean. This value is ignored for all other IRF types."
 msgstr ""
 "Ο αριθμός των δειγμάτων πριν από το τρέχον παράθυρο εύρους που "
-"χρησιμοποιείται για τον προσδιορισμό του μέσου όρου. Αυτή η τιμή "
-"αγνοείται για όλους τους άλλους τύπους IRF."
+"χρησιμοποιείται για τον προσδιορισμό του μέσου όρου. Αυτή η τιμή αγνοείται "
+"για όλους τους άλλους τύπους IRF."
 
 #: devices/jsdrv/js110.py:245
 msgid "IRF window"
@@ -1205,16 +1198,14 @@ msgstr "Παράθυρο IRF"
 
 #: devices/jsdrv/js110.py:246
 msgid ""
-"Use \"n\" for automatic duration based upon known response time. Use "
-"\"m\" for shorter automatic duration that may result in min/max "
-"distortion. Use any other value to specify a fixed, manual window "
-"duration in samples."
+"Use \"n\" for automatic duration based upon known response time. Use \"m\" "
+"for shorter automatic duration that may result in min/max distortion. Use "
+"any other value to specify a fixed, manual window duration in samples."
 msgstr ""
 "Χρησιμοποιήστε το \"n\" για αυτόματη διάρκεια βάσει του γνωστού χρόνου "
-"απόκρισης. Χρησιμοποιήστε \"m\" για μικρότερη αυτόματη διάρκεια που "
-"μπορεί να οδηγήσει σε παραμόρφωση min/max. Χρησιμοποιήστε οποιαδήποτε "
-"άλλη τιμή για να καθορίσετε μια σταθερή, χειροκίνητη διάρκεια παραθύρου "
-"σε δείγματα."
+"απόκρισης. Χρησιμοποιήστε \"m\" για μικρότερη αυτόματη διάρκεια που μπορεί "
+"να οδηγήσει σε παραμόρφωση min/max. Χρησιμοποιήστε οποιαδήποτε άλλη τιμή για"
+" να καθορίσετε μια σταθερή, χειροκίνητη διάρκεια παραθύρου σε δείγματα."
 
 #: devices/jsdrv/js110.py:254
 msgid "IRF post"
@@ -1222,15 +1213,15 @@ msgstr "Θέση IRF"
 
 #: devices/jsdrv/js110.py:255
 msgid ""
-"The number of samples after the current range window used to determine "
-"the mean. This value is ignored for all other IRF types."
+"The number of samples after the current range window used to determine the "
+"mean. This value is ignored for all other IRF types."
 msgstr ""
-"Ο αριθμός των δειγμάτων μετά το τρέχον παράθυρο εύρους που "
-"χρησιμοποιείται για τον προσδιορισμό του μέσου όρου. Αυτή η τιμή "
-"αγνοείται για όλους τους άλλους τύπους IRF."
+"Ο αριθμός των δειγμάτων μετά το τρέχον παράθυρο εύρους που χρησιμοποιείται "
+"για τον προσδιορισμό του μέσου όρου. Αυτή η τιμή αγνοείται για όλους τους "
+"άλλους τύπους IRF."
 
 #: devices/jsdrv/js110.py:269 devices/jsdrv/js220.py:332
-#: widgets/device_control/fuse.py:103 widgets/waveform/waveform_widget.py:104
+#: widgets/device_control/fuse.py:103 widgets/waveform/waveform_widget.py:105
 msgid "Current"
 msgstr "Τρέχον"
 
@@ -1239,7 +1230,7 @@ msgid "Enable the current signal streaming."
 msgstr "Ενεργοποίηση της τρέχουσας ροής σήματος."
 
 #: devices/jsdrv/js110.py:278 devices/jsdrv/js220.py:341
-#: widgets/waveform/waveform_widget.py:105
+#: widgets/waveform/waveform_widget.py:106
 msgid "Voltage"
 msgstr "Τάση"
 
@@ -1248,7 +1239,7 @@ msgid "Enable the voltage signal streaming."
 msgstr "Ενεργοποίηση της ροής σήματος τάσης."
 
 #: devices/jsdrv/js110.py:287 devices/jsdrv/js220.py:350
-#: widgets/waveform/waveform_widget.py:106
+#: widgets/waveform/waveform_widget.py:107
 msgid "Power"
 msgstr "Ισχύς"
 
@@ -1284,40 +1275,40 @@ msgstr "Όνομα σήματος"
 #: devices/jsdrv/js220.py:51
 msgid ""
 "This setting allows you to change the default, if you wish, to better "
-"reflect how you are using your JS220. This setting is most useful when "
-"you are instrumenting a system using multiple Joulescopes."
+"reflect how you are using your JS220. This setting is most useful when you "
+"are instrumenting a system using multiple Joulescopes."
 msgstr ""
-"Αυτή η ρύθμιση σας επιτρέπει να αλλάξετε την προεπιλεγμένη ρύθμιση, εάν "
-"το επιθυμείτε, ώστε να αντικατοπτρίζει καλύτερα τον τρόπο με τον οποίο "
-"χρησιμοποιείτε το JS220. Αυτή η ρύθμιση είναι πιο χρήσιμη όταν "
-"ενοργανώνετε ένα σύστημα που χρησιμοποιεί πολλά Joulescopes."
+"Αυτή η ρύθμιση σας επιτρέπει να αλλάξετε την προεπιλεγμένη ρύθμιση, εάν το "
+"επιθυμείτε, ώστε να αντικατοπτρίζει καλύτερα τον τρόπο με τον οποίο "
+"χρησιμοποιείτε το JS220. Αυτή η ρύθμιση είναι πιο χρήσιμη όταν ενοργανώνετε "
+"ένα σύστημα που χρησιμοποιεί πολλά Joulescopes."
 
 #: devices/jsdrv/js220.py:105
 msgid ""
-"The JS220 instrument always samples at 2 MHz and then downsamples to 1 "
-"MHz. This setting controls additional optional downsampling."
+"The JS220 instrument always samples at 2 MHz and then downsamples to 1 MHz. "
+"This setting controls additional optional downsampling."
 msgstr ""
-"Το όργανο JS220 δειγματοληπτεί πάντα στα 2 MHz και στη συνέχεια "
-"υποβαθμίζει τα δείγματα σε 1 MHz. Αυτή η ρύθμιση ελέγχει την πρόσθετη "
-"προαιρετική υποδειγματοληψία."
+"Το όργανο JS220 δειγματοληπτεί πάντα στα 2 MHz και στη συνέχεια υποβαθμίζει "
+"τα δείγματα σε 1 MHz. Αυτή η ρύθμιση ελέγχει την πρόσθετη προαιρετική "
+"υποδειγματοληψία."
 
 #: devices/jsdrv/js220.py:134
 msgid ""
-"This setting controls the output frequency for the statistics data that "
-"is displayed in the multimeter and value widgets. Statistics data is "
-"computed over the full rate 1 MHz samples."
+"This setting controls the output frequency for the statistics data that is "
+"displayed in the multimeter and value widgets. Statistics data is computed "
+"over the full rate 1 MHz samples."
 msgstr ""
-"Αυτή η ρύθμιση ελέγχει τη συχνότητα εξόδου για τα στατιστικά δεδομένα που"
-" εμφανίζονται στο πολύμετρο και στα widgets τιμών. Τα στατιστικά δεδομένα"
-" υπολογίζονται σε δείγματα πλήρους ρυθμού 1 MHz."
+"Αυτή η ρύθμιση ελέγχει τη συχνότητα εξόδου για τα στατιστικά δεδομένα που "
+"εμφανίζονται στο πολύμετρο και στα widgets τιμών. Τα στατιστικά δεδομένα "
+"υπολογίζονται σε δείγματα πλήρους ρυθμού 1 MHz."
 
 #: devices/jsdrv/js220.py:165
 msgid ""
 "Configure the JS220's current range. Most applications should use the "
 "default, \"auto\"."
 msgstr ""
-"Διαμορφώστε την τρέχουσα εμβέλεια του JS220. Οι περισσότερες εφαρμογές θα"
-" πρέπει να χρησιμοποιούν την προεπιλεγμένη τιμή \"auto\"."
+"Διαμορφώστε την τρέχουσα εμβέλεια του JS220. Οι περισσότερες εφαρμογές θα "
+"πρέπει να χρησιμοποιούν την προεπιλεγμένη τιμή \"auto\"."
 
 #: devices/jsdrv/js220.py:183
 msgid "Limits"
@@ -1330,14 +1321,14 @@ msgstr "Διαμορφώστε τα όρια ρεύματος αυτόματης
 #: devices/jsdrv/js220.py:186
 msgid "This setting is only effective when the Current Range is set to \"auto\"."
 msgstr ""
-"Αυτή η ρύθμιση ισχύει μόνο όταν το Current Range (Τρέχον εύρος) έχει "
-"οριστεί σε \"auto\"."
+"Αυτή η ρύθμιση ισχύει μόνο όταν το Current Range (Τρέχον εύρος) έχει οριστεί"
+" σε \"auto\"."
 
 #: devices/jsdrv/js220.py:188
 msgid ""
-"You can use this setting to limit the current range and improve "
-"autoranging accuracy when you know your application current is more "
-"limited than the full measurement range."
+"You can use this setting to limit the current range and improve autoranging "
+"accuracy when you know your application current is more limited than the "
+"full measurement range."
 msgstr ""
 "Μπορείτε να χρησιμοποιήσετε αυτή τη ρύθμιση για να περιορίσετε το εύρος "
 "ρεύματος και να βελτιώσετε την ακρίβεια της αυτόματης ρύθμισης, όταν "
@@ -1349,8 +1340,8 @@ msgid ""
 "Configure the JS220's voltage range. Most applications should use the "
 "default, \"auto\"."
 msgstr ""
-"Διαμορφώστε το εύρος τάσης του JS220. Οι περισσότερες εφαρμογές θα πρέπει"
-" να χρησιμοποιούν την προεπιλεγμένη τιμή \"auto\"."
+"Διαμορφώστε το εύρος τάσης του JS220. Οι περισσότερες εφαρμογές θα πρέπει να"
+" χρησιμοποιούν την προεπιλεγμένη τιμή \"auto\"."
 
 #: devices/jsdrv/js220.py:207
 msgid "Trigger direction"
@@ -1362,50 +1353,49 @@ msgstr "Διαμορφώστε την κατεύθυνση της σύνδεση
 
 #: devices/jsdrv/js220.py:210
 msgid ""
-"0 (default) configures the BNC trigger for input only. The BNC connection"
-" is high-impedance."
+"0 (default) configures the BNC trigger for input only. The BNC connection is"
+" high-impedance."
 msgstr ""
-"0 (προεπιλογή) ρυθμίζει τη σκανδάλη BNC μόνο για είσοδο. Η σύνδεση BNC "
-"είναι υψηλής αντίστασης."
+"0 (προεπιλογή) ρυθμίζει τη σκανδάλη BNC μόνο για είσοδο. Η σύνδεση BNC είναι"
+" υψηλής αντίστασης."
 
 #: devices/jsdrv/js220.py:212
 msgid ""
 "1 configures the BNC trigger for output. The BNC connection has 50 Ohm "
 "output impedance."
 msgstr ""
-"1 ρυθμίζει τη σκανδάλη BNC για έξοδο. Η σύνδεση BNC έχει αντίσταση εξόδου"
-" 50 Ω."
+"1 ρυθμίζει τη σκανδάλη BNC για έξοδο. Η σύνδεση BNC έχει αντίσταση εξόδου 50"
+" Ω."
 
 #: devices/jsdrv/js220.py:214
 msgid ""
 "In both cases, the trigger input signal is valid, which enables internal "
 "inspection and recording of the trigger output."
 msgstr ""
-"Και στις δύο περιπτώσεις, το σήμα εισόδου σκανδαλισμού είναι έγκυρο, "
-"γεγονός που επιτρέπει την εσωτερική επιθεώρηση και καταγραφή της εξόδου "
+"Και στις δύο περιπτώσεις, το σήμα εισόδου σκανδαλισμού είναι έγκυρο, γεγονός"
+" που επιτρέπει την εσωτερική επιθεώρηση και καταγραφή της εξόδου "
 "σκανδαλισμού."
 
 #: devices/jsdrv/js220.py:226
 msgid ""
-"Configure the JS220's reference voltage for the general-purpose inputs "
-"and outputs."
+"Configure the JS220's reference voltage for the general-purpose inputs and "
+"outputs."
 msgstr ""
 "Διαμορφώστε την τάση αναφοράς του JS220 για τις εισόδους και τις εξόδους "
 "γενικής χρήσης."
 
 #: devices/jsdrv/js220.py:228
 msgid ""
-"We recommend using \"Vref\" when attaching general-purpose outputs (GPO) "
-"to other equipment. Using Vref prevents the GPO from backpowering target "
-"devices when they powered down. The Vref signal and general-purpose "
-"inputs are all extremely high impedance to minimize leakage currents."
+"We recommend using \"Vref\" when attaching general-purpose outputs (GPO) to "
+"other equipment. Using Vref prevents the GPO from backpowering target "
+"devices when they powered down. The Vref signal and general-purpose inputs "
+"are all extremely high impedance to minimize leakage currents."
 msgstr ""
 "Συνιστούμε να χρησιμοποιείτε το \"Vref\" όταν συνδέετε εξόδους γενικής "
-"χρήσης (GPO) σε άλλο εξοπλισμό. Η χρήση του Vref αποτρέπει το GPO από το "
-"να τροφοδοτεί τις συσκευές-στόχους με backpowering όταν αυτές "
+"χρήσης (GPO) σε άλλο εξοπλισμό. Η χρήση του Vref αποτρέπει το GPO από το να "
+"τροφοδοτεί τις συσκευές-στόχους με backpowering όταν αυτές "
 "απενεργοποιούνται. Το σήμα Vref και οι είσοδοι γενικής χρήσης είναι όλες "
-"εξαιρετικά υψηλής αντίστασης για την ελαχιστοποίηση των ρευμάτων "
-"διαρροής."
+"εξαιρετικά υψηλής αντίστασης για την ελαχιστοποίηση των ρευμάτων διαρροής."
 
 #: devices/jsdrv/js220.py:233
 msgid "\"3.3 V\" uses an internally-generated 3.3V reference voltage."
@@ -1421,11 +1411,11 @@ msgstr "Ενεργοποίηση ή απενεργοποίηση της εξόδ
 
 #: devices/jsdrv/js220.py:257
 msgid ""
-"The trigger must also be configured for output for this setting to have "
-"any effect."
+"The trigger must also be configured for output for this setting to have any "
+"effect."
 msgstr ""
-"Η σκανδάλη πρέπει επίσης να έχει ρυθμιστεί για έξοδο για να έχει "
-"αποτέλεσμα αυτή η ρύθμιση."
+"Η σκανδάλη πρέπει επίσης να έχει ρυθμιστεί για έξοδο για να έχει αποτέλεσμα "
+"αυτή η ρύθμιση."
 
 #: devices/jsdrv/js220.py:265
 msgid "The maturity level channel for firmware updates."
@@ -1436,8 +1426,8 @@ msgid ""
 "We recommend keeping the default \"stable\" unless you are a Joulescope "
 "developer."
 msgstr ""
-"Συνιστούμε να διατηρήσετε την προεπιλεγμένη τιμή \"stable\", εκτός αν "
-"είστε προγραμματιστής του Joulescope."
+"Συνιστούμε να διατηρήσετε την προεπιλεγμένη τιμή \"stable\", εκτός αν είστε "
+"προγραμματιστής του Joulescope."
 
 #: devices/jsdrv/js220.py:275
 msgid "Firmware update availability."
@@ -1453,13 +1443,13 @@ msgstr ""
 
 #: devices/jsdrv/js220.py:362
 msgid ""
-"⚠ When enabled, no more than 3 GPIO signals (0, 1, 2, 3, T) may be "
-"enabled. If you attempt to enable too many signals, then the UI will "
-"display no data for any signal."
+"⚠ When enabled, no more than 3 GPIO signals (0, 1, 2, 3, T) may be enabled. "
+"If you attempt to enable too many signals, then the UI will display no data "
+"for any signal."
 msgstr ""
-"⚠ Όταν είναι ενεργοποιημένο, δεν μπορούν να ενεργοποιηθούν περισσότερα "
-"από 3 σήματα GPIO (0, 1, 2, 3, T). Εάν επιχειρήσετε να ενεργοποιήσετε "
-"πάρα πολλά σήματα, τότε το UI δεν θα εμφανίζει δεδομένα για κανένα σήμα."
+"⚠ Όταν είναι ενεργοποιημένο, δεν μπορούν να ενεργοποιηθούν περισσότερα από 3"
+" σήματα GPIO (0, 1, 2, 3, T). Εάν επιχειρήσετε να ενεργοποιήσετε πάρα πολλά "
+"σήματα, τότε το UI δεν θα εμφανίζει δεδομένα για κανένα σήμα."
 
 #: devices/jsdrv/js220.py:392
 msgid "GPI 2"
@@ -1477,7 +1467,7 @@ msgstr "GPI 3"
 msgid "Enable the general purpose input 3 signal streaming."
 msgstr "Ενεργοποιήστε τη ροή σήματος εισόδου 3 γενικού σκοπού."
 
-#: devices/jsdrv/js220.py:410 widgets/waveform/waveform_widget.py:123
+#: devices/jsdrv/js220.py:410 widgets/waveform/waveform_widget.py:124
 msgid "Trigger input"
 msgstr "Είσοδος σκανδαλισμού"
 
@@ -1496,7 +1486,7 @@ msgstr "Κατάσταση ενημέρωσης υλικολογισμικού"
 #: widgets/settings/settings_widget.py:266
 #: widgets/settings/settings_widget.py:364
 #: widgets/settings/settings_widget.py:431
-#: widgets/waveform/waveform_widget.py:3045
+#: widgets/waveform/waveform_widget.py:3061
 msgid "Name"
 msgstr "Όνομα"
 
@@ -1554,24 +1544,23 @@ msgstr "Υπολογίστε τη συνάρτηση αθροιστικής κα
 
 #: range_tools/cdf.py:31
 msgid ""
-"The Cumulative Distribution Function (CDF) value is the probability that "
-"a signal's value is less than or equal to the x-axis value."
+"The Cumulative Distribution Function (CDF) value is the probability that a "
+"signal's value is less than or equal to the x-axis value."
 msgstr ""
-"Η τιμή της αθροιστικής συνάρτησης κατανομής (CDF) είναι η πιθανότητα η "
-"τιμή ενός σήματος να είναι μικρότερη ή ίση με την τιμή του άξονα x."
+"Η τιμή της αθροιστικής συνάρτησης κατανομής (CDF) είναι η πιθανότητα η τιμή "
+"ενός σήματος να είναι μικρότερη ή ίση με την τιμή του άξονα x."
 
 #: range_tools/cdf.py:33
 msgid ""
-"When use to analyze current or power, this graphically indicates the time"
-" spent below in each current mode. Compared to a histogram, the CDF makes"
-" it easier to compare the amount of time in each mode by simply measuring"
-" the change in the y-axis value."
+"When use to analyze current or power, this graphically indicates the time "
+"spent below in each current mode. Compared to a histogram, the CDF makes it "
+"easier to compare the amount of time in each mode by simply measuring the "
+"change in the y-axis value."
 msgstr ""
-"Όταν χρησιμοποιείται για την ανάλυση ρεύματος ή ισχύος, αυτό δείχνει "
-"γραφικά το χρόνο που δαπανάται παρακάτω σε κάθε λειτουργία ρεύματος. Σε "
-"σύγκριση με ένα ιστόγραμμα, το CDF διευκολύνει τη σύγκριση του χρόνου που"
-" δαπανήθηκε σε κάθε λειτουργία με απλή μέτρηση της μεταβολής της τιμής "
-"του άξονα y."
+"Όταν χρησιμοποιείται για την ανάλυση ρεύματος ή ισχύος, αυτό δείχνει γραφικά"
+" το χρόνο που δαπανάται παρακάτω σε κάθε λειτουργία ρεύματος. Σε σύγκριση με"
+" ένα ιστόγραμμα, το CDF διευκολύνει τη σύγκριση του χρόνου που δαπανήθηκε σε"
+" κάθε λειτουργία με απλή μέτρηση της μεταβολής της τιμής του άξονα y."
 
 #: range_tools/cdf.py:146
 msgid "Probability"
@@ -1602,8 +1591,8 @@ msgid ""
 "Compute the frequency spectrum to analyze the frequency content of the "
 "signal's data values over the selected range."
 msgstr ""
-"Υπολογίστε το φάσμα συχνοτήτων για να αναλύσετε το συχνοτικό περιεχόμενο "
-"των τιμών δεδομένων του σήματος στο επιλεγμένο εύρος."
+"Υπολογίστε το φάσμα συχνοτήτων για να αναλύσετε το συχνοτικό περιεχόμενο των"
+" τιμών δεδομένων του σήματος στο επιλεγμένο εύρος."
 
 #: range_tools/frequency.py:213
 msgid "Frequency configuration"
@@ -1626,6 +1615,7 @@ msgid "Probability Density Distribution"
 msgstr "Κατανομή πυκνότητας πιθανότητας"
 
 #: range_tools/histogram.py:45 range_tools/max_window.py:119
+#: widgets/trigger/trigger_widget.py:129
 msgid "Signal"
 msgstr "Σήμα"
 
@@ -1642,7 +1632,8 @@ msgid "Compute histogram over the range"
 msgstr "Υπολογισμός ιστογράμματος στο εύρος"
 
 #: range_tools/histogram.py:192
-msgid "Compute a histogram of the signal's data values over the selected range."
+msgid ""
+"Compute a histogram of the signal's data values over the selected range."
 msgstr ""
 "Υπολογισμός ιστογράμματος των τιμών δεδομένων του σήματος στο επιλεγμένο "
 "εύρος."
@@ -1661,9 +1652,9 @@ msgid ""
 "exhaustive search made by sliding the window duration across the entire "
 "range."
 msgstr ""
-"Αναζητήστε στο εύρος το παράθυρο που έχει τη μέγιστη τιμή. Πρόκειται για "
-"μια εξαντλητική αναζήτηση που γίνεται με ολίσθηση της διάρκειας του "
-"παραθύρου σε ολόκληρο το εύρος."
+"Αναζητήστε στο εύρος το παράθυρο που έχει τη μέγιστη τιμή. Πρόκειται για μια"
+" εξαντλητική αναζήτηση που γίνεται με ολίσθηση της διάρκειας του παραθύρου "
+"σε ολόκληρο το εύρος."
 
 #: range_tools/max_window.py:30
 msgid "When complete, this tool will add dual markers to the waveform."
@@ -1689,14 +1680,14 @@ msgstr "Εκτέλεση δοκιμής USB Inrush"
 
 #: range_tools/usb_inrush.py:54
 msgid ""
-"Use dual markers to select at least 100 milliseconds after enabling power"
-" to the target device. This tool will send the selected data to the USBET"
-" tool for analysis."
+"Use dual markers to select at least 100 milliseconds after enabling power to"
+" the target device. This tool will send the selected data to the USBET tool "
+"for analysis."
 msgstr ""
-"Χρησιμοποιήστε διπλούς δείκτες για να επιλέξετε τουλάχιστον 100 χιλιοστά "
-"του δευτερολέπτου μετά την ενεργοποίηση της τροφοδοσίας της "
-"συσκευής-στόχου. Αυτό το εργαλείο θα στείλει τα επιλεγμένα δεδομένα στο "
-"εργαλείο USBET για ανάλυση."
+"Χρησιμοποιήστε διπλούς δείκτες για να επιλέξετε τουλάχιστον 100 χιλιοστά του"
+" δευτερολέπτου μετά την ενεργοποίηση της τροφοδοσίας της συσκευής-στόχου. "
+"Αυτό το εργαλείο θα στείλει τα επιλεγμένα δεδομένα στο εργαλείο USBET για "
+"ανάλυση."
 
 #: styles/color_scheme.py:21
 msgid "dark"
@@ -1868,8 +1859,8 @@ msgstr "Πρόοδος"
 
 #: widgets/device_control/device_update_dialog.py:29
 msgid ""
-"Before starting updates, ensure that Joulescopes are plugged directly "
-"into a USB port on the host computer."
+"Before starting updates, ensure that Joulescopes are plugged directly into a"
+" USB port on the host computer."
 msgstr ""
 "Πριν ξεκινήσετε τις ενημερώσεις, βεβαιωθείτε ότι τα Joulescopes είναι "
 "συνδεδεμένα απευθείας σε μια θύρα USB του κεντρικού υπολογιστή."
@@ -1962,14 +1953,14 @@ msgid ""
 "The exponential decay time constant. The fuse dissipates 63.2 percent of "
 "accumulated energy in this duration."
 msgstr ""
-"Η σταθερά χρόνου εκθετικής αποσύνθεσης. Το φυτίλι διαλύει το 63,2 τοις "
-"εκατό της συσσωρευμένης ενέργειας σε αυτή τη διάρκεια."
+"Η σταθερά χρόνου εκθετικής αποσύνθεσης. Το φυτίλι διαλύει το 63,2 τοις εκατό"
+" της συσσωρευμένης ενέργειας σε αυτή τη διάρκεια."
 
 #: widgets/device_control/fuse.py:53
 msgid "Fuse state indicator. When enabled and engaged, click to clear."
 msgstr ""
-"Ένδειξη κατάστασης ασφάλειας. Όταν είναι ενεργοποιημένη και "
-"ενεργοποιημένη, κάντε κλικ για να σβήσετε."
+"Ένδειξη κατάστασης ασφάλειας. Όταν είναι ενεργοποιημένη και ενεργοποιημένη, "
+"κάντε κλικ για να σβήσετε."
 
 #: widgets/device_control/fuse.py:87
 msgid "Threshold 1"
@@ -1980,6 +1971,7 @@ msgid "Threshold 2"
 msgstr "Κατώφλι 2"
 
 #: widgets/device_control/fuse.py:89 widgets/memory/memory_widget.py:225
+#: widgets/trigger/trigger_widget.py:35 widgets/trigger/trigger_widget.py:131
 msgid "Duration"
 msgstr "Διάρκεια"
 
@@ -2006,8 +1998,7 @@ msgstr "Κάντε κλικ για να εμφανίσετε το PDF της τ�
 #: widgets/device_control/js220_ctrl_widget.py:36
 msgid "Click to display detailed information about the device."
 msgstr ""
-"Κάντε κλικ για να εμφανίσετε λεπτομερείς πληροφορίες σχετικά με τη "
-"συσκευή."
+"Κάντε κλικ για να εμφανίσετε λεπτομερείς πληροφορίες σχετικά με τη συσκευή."
 
 #: widgets/device_control/js220_ctrl_widget.py:40
 msgid "Select this device as the default"
@@ -2028,8 +2019,8 @@ msgid ""
 "configured to use data from this device."
 msgstr ""
 "Όταν δεν είναι επιλεγμένη, μια άλλη συσκευή είναι η προεπιλεγμένη. Τα "
-"widgets μπορούν ακόμα να ρυθμιστούν ώστε να χρησιμοποιούν δεδομένα από "
-"αυτή τη συσκευή."
+"widgets μπορούν ακόμα να ρυθμιστούν ώστε να χρησιμοποιούν δεδομένα από αυτή "
+"τη συσκευή."
 
 #: widgets/device_control/js220_ctrl_widget.py:52
 msgid ""
@@ -2046,22 +2037,21 @@ msgstr "Άνοιγμα και κλείσιμο της συσκευής"
 
 #: widgets/device_control/js220_ctrl_widget.py:62
 msgid ""
-"When closed, click to attempt to open the device. The icon will only "
-"change on a successful device open. Only one application can use a "
-"Joulescope device at a time."
+"When closed, click to attempt to open the device. The icon will only change "
+"on a successful device open. Only one application can use a Joulescope "
+"device at a time."
 msgstr ""
-"Όταν είναι κλειστή, κάντε κλικ για να προσπαθήσετε να ανοίξετε τη "
-"συσκευή. Το εικονίδιο θα αλλάξει μόνο σε περίπτωση επιτυχούς ανοίγματος "
-"της συσκευής. Μόνο μία εφαρμογή μπορεί να χρησιμοποιεί μια συσκευή "
-"Joulescope κάθε φορά."
+"Όταν είναι κλειστή, κάντε κλικ για να προσπαθήσετε να ανοίξετε τη συσκευή. "
+"Το εικονίδιο θα αλλάξει μόνο σε περίπτωση επιτυχούς ανοίγματος της συσκευής."
+" Μόνο μία εφαρμογή μπορεί να χρησιμοποιεί μια συσκευή Joulescope κάθε φορά."
 
 #: widgets/device_control/js220_ctrl_widget.py:65
 msgid ""
-"When open, click to close the device. This allows the device to be used "
-"in other programs."
+"When open, click to close the device. This allows the device to be used in "
+"other programs."
 msgstr ""
-"Όταν είναι ανοιχτή, κάντε κλικ για να κλείσετε τη συσκευή. Αυτό επιτρέπει"
-" τη χρήση της συσκευής σε άλλα προγράμματα."
+"Όταν είναι ανοιχτή, κάντε κλικ για να κλείσετε τη συσκευή. Αυτό επιτρέπει τη"
+" χρήση της συσκευής σε άλλα προγράμματα."
 
 #: widgets/device_control/js220_ctrl_widget.py:71
 msgid "Reset to default settings"
@@ -2080,11 +2070,11 @@ msgstr "Εκκαθάριση συσσωρευτών"
 #: widgets/device_control/js220_ctrl_widget.py:77
 msgid ""
 "Click this button to clear the charge and energy accumulators. The "
-"\"Accrue\" feature of the value display widgets, including the "
-"multimeter, will be unaffected."
+"\"Accrue\" feature of the value display widgets, including the multimeter, "
+"will be unaffected."
 msgstr ""
-"Κάντε κλικ σε αυτό το κουμπί για να καθαρίσετε τους συσσωρευτές φορτίου "
-"και ενέργειας. Η λειτουργία \"Accrue\" των widgets απεικόνισης τιμών, "
+"Κάντε κλικ σε αυτό το κουμπί για να καθαρίσετε τους συσσωρευτές φορτίου και "
+"ενέργειας. Η λειτουργία \"Accrue\" των widgets απεικόνισης τιμών, "
 "συμπεριλαμβανομένου του πολυμέτρου, δεν θα επηρεαστεί."
 
 #: widgets/device_control/js220_ctrl_widget.py:83
@@ -2094,14 +2084,14 @@ msgstr "Βαθμονόμηση"
 
 #: widgets/device_control/js220_ctrl_widget.py:84
 msgid ""
-"Click this button to recalibrate your Joulescope JS220. Recalibration is "
-"not required for normal operation. Performing calibration can improve "
-"accuracy by accounting for the existing temperature and aging effects."
+"Click this button to recalibrate your Joulescope JS220. Recalibration is not"
+" required for normal operation. Performing calibration can improve accuracy "
+"by accounting for the existing temperature and aging effects."
 msgstr ""
-"Κάντε κλικ σε αυτό το κουμπί για να επαναβαθμονομήσετε το Joulescope "
-"JS220. Η επαναβαθμονόμηση δεν απαιτείται για την κανονική λειτουργία. Η "
-"εκτέλεση βαθμονόμησης μπορεί να βελτιώσει την ακρίβεια, λαμβάνοντας υπόψη"
-" τις υπάρχουσες επιδράσεις της θερμοκρασίας και της γήρανσης."
+"Κάντε κλικ σε αυτό το κουμπί για να επαναβαθμονομήσετε το Joulescope JS220. "
+"Η επαναβαθμονόμηση δεν απαιτείται για την κανονική λειτουργία. Η εκτέλεση "
+"βαθμονόμησης μπορεί να βελτιώσει την ακρίβεια, λαμβάνοντας υπόψη τις "
+"υπάρχουσες επιδράσεις της θερμοκρασίας και της γήρανσης."
 
 #: widgets/device_control/js220_ctrl_widget.py:391
 msgid "GPO"
@@ -2168,21 +2158,21 @@ msgid ""
 "⚠ Before performing calibration, ensure that you save any data in the UI "
 "that you wish to keep."
 msgstr ""
-"⚠ Πριν από τη βαθμονόμηση, βεβαιωθείτε ότι έχετε αποθηκεύσει στο UI όλα "
-"τα δεδομένα που θέλετε να διατηρήσετε."
+"⚠ Πριν από τη βαθμονόμηση, βεβαιωθείτε ότι έχετε αποθηκεύσει στο UI όλα τα "
+"δεδομένα που θέλετε να διατηρήσετε."
 
 #: widgets/js220_cal/js220_cal_widget.py:29
 msgid ""
 "The Joulescope JS220 is designed to meet its specifications without "
-"recalibration. You can use offset calibration to further reduce the "
-"offset error. If you wish to perform scale calibration, ensure that your "
-"test setup gives a sufficient test uncertainty ratio (TUR)."
+"recalibration. You can use offset calibration to further reduce the offset "
+"error. If you wish to perform scale calibration, ensure that your test setup"
+" gives a sufficient test uncertainty ratio (TUR)."
 msgstr ""
-"Το Joulescope JS220 έχει σχεδιαστεί για να πληροί τις προδιαγραφές του "
-"χωρίς επαναβαθμονόμηση. Μπορείτε να χρησιμοποιήσετε τη βαθμονόμηση offset"
-" για να μειώσετε περαιτέρω το σφάλμα offset. Εάν επιθυμείτε να εκτελέσετε"
-" βαθμονόμηση κλίμακας, βεβαιωθείτε ότι η διάταξη δοκιμής σας παρέχει "
-"επαρκή λόγο αβεβαιότητας δοκιμής (TUR)."
+"Το Joulescope JS220 έχει σχεδιαστεί για να πληροί τις προδιαγραφές του χωρίς"
+" επαναβαθμονόμηση. Μπορείτε να χρησιμοποιήσετε τη βαθμονόμηση offset για να "
+"μειώσετε περαιτέρω το σφάλμα offset. Εάν επιθυμείτε να εκτελέσετε "
+"βαθμονόμηση κλίμακας, βεβαιωθείτε ότι η διάταξη δοκιμής σας παρέχει επαρκή "
+"λόγο αβεβαιότητας δοκιμής (TUR)."
 
 #: widgets/js220_cal/js220_cal_widget.py:35
 msgid "Restore factory calibration"
@@ -2206,11 +2196,14 @@ msgstr "Αποσυνδέστε όλους τους ακροδέκτες του �
 
 #: widgets/js220_cal/js220_cal_widget.py:44
 msgid "Short together Voltage+, Voltage-, and Current+ using wires."
-msgstr "Βραχυκυκλώστε τις ενώσεις Τάση+, Τάση- και Ρεύμα+ χρησιμοποιώντας καλώδια."
+msgstr ""
+"Βραχυκυκλώστε τις ενώσεις Τάση+, Τάση- και Ρεύμα+ χρησιμοποιώντας καλώδια."
 
 #: widgets/js220_cal/js220_cal_widget.py:45
-msgid "If you are using the BNC front panel, simply connect Voltage to Current."
-msgstr "Εάν χρησιμοποιείτε την πρόσοψη BNC, απλώς συνδέστε την τάση με το ρεύμα."
+msgid ""
+"If you are using the BNC front panel, simply connect Voltage to Current."
+msgstr ""
+"Εάν χρησιμοποιείτε την πρόσοψη BNC, απλώς συνδέστε την τάση με το ρεύμα."
 
 #: widgets/js220_cal/js220_cal_widget.py:51
 msgid "Current offset"
@@ -2334,14 +2327,14 @@ msgstr "Έλεγχος συσκευής"
 
 #: widgets/sidebar/sidebar_widget.py:28
 msgid ""
-"Click to show the device control widget which displays the connected "
-"devices and their settings. Use this widget to open and close devices and"
-" configure their operation."
+"Click to show the device control widget which displays the connected devices"
+" and their settings. Use this widget to open and close devices and configure"
+" their operation."
 msgstr ""
-"Κάντε κλικ για να εμφανιστεί το widget ελέγχου συσκευών, το οποίο "
-"εμφανίζει τις συνδεδεμένες συσκευές και τις ρυθμίσεις τους. "
-"Χρησιμοποιήστε αυτό το widget για να ανοίγετε και να κλείνετε συσκευές "
-"και να ρυθμίζετε τη λειτουργία τους."
+"Κάντε κλικ για να εμφανιστεί το widget ελέγχου συσκευών, το οποίο εμφανίζει "
+"τις συνδεδεμένες συσκευές και τις ρυθμίσεις τους. Χρησιμοποιήστε αυτό το "
+"widget για να ανοίγετε και να κλείνετε συσκευές και να ρυθμίζετε τη "
+"λειτουργία τους."
 
 #: widgets/sidebar/sidebar_widget.py:34
 msgid "Memory buffer settings"
@@ -2349,23 +2342,23 @@ msgstr "Ρυθμίσεις ρυθμιστικού διαστήματος μνή�
 
 #: widgets/sidebar/sidebar_widget.py:35
 msgid ""
-"Streaming signal sample data is stored in your host computer's RAM. Click"
-" this button to show the memory management widget which allows you to "
+"Streaming signal sample data is stored in your host computer's RAM. Click "
+"this button to show the memory management widget which allows you to "
 "configure the memory used by this Joulescope UI instance."
 msgstr ""
-"Τα δεδομένα δείγματος σήματος ροής αποθηκεύονται στη μνήμη RAM του "
-"κεντρικού υπολογιστή σας. Κάντε κλικ σε αυτό το κουμπί για να εμφανιστεί "
-"το widget διαχείρισης μνήμης, το οποίο σας επιτρέπει να ρυθμίσετε τη "
-"μνήμη που χρησιμοποιείται από αυτή την περίπτωση του Joulescope UI."
+"Τα δεδομένα δείγματος σήματος ροής αποθηκεύονται στη μνήμη RAM του κεντρικού"
+" υπολογιστή σας. Κάντε κλικ σε αυτό το κουμπί για να εμφανιστεί το widget "
+"διαχείρισης μνήμης, το οποίο σας επιτρέπει να ρυθμίσετε τη μνήμη που "
+"χρησιμοποιείται από αυτή την περίπτωση του Joulescope UI."
 
 #: widgets/sidebar/sidebar_widget.py:43
 msgid ""
-"Click to show the settings which allows you to change the global, "
-"default, and individual instance settings for devices and widgets."
+"Click to show the settings which allows you to change the global, default, "
+"and individual instance settings for devices and widgets."
 msgstr ""
-"Κάντε κλικ για να εμφανιστούν οι ρυθμίσεις που σας επιτρέπουν να αλλάξετε"
-" τις συνολικές, προεπιλεγμένες και μεμονωμένες ρυθμίσεις για συσκευές και"
-" widgets."
+"Κάντε κλικ για να εμφανιστούν οι ρυθμίσεις που σας επιτρέπουν να αλλάξετε "
+"τις συνολικές, προεπιλεγμένες και μεμονωμένες ρυθμίσεις για συσκευές και "
+"widgets."
 
 #: widgets/sidebar/sidebar_widget.py:46
 msgid ""
@@ -2428,6 +2421,125 @@ msgstr "StatisticsRecordConfig"
 msgid "Time Format"
 msgstr "Μορφή χρόνου"
 
+#: widgets/trigger/trigger_widget.py:34
+msgid "Edge"
+msgstr "Άκρη"
+
+#: widgets/trigger/trigger_widget.py:47
+msgid "Always"
+msgstr "Πάντα"
+
+#: widgets/trigger/trigger_widget.py:48
+#, fuzzy
+#| msgid "New View"
+msgid "Never"
+msgstr "Νέα άποψη"
+
+#: widgets/trigger/trigger_widget.py:54
+msgid "between"
+msgstr "μεταξύ"
+
+#: widgets/trigger/trigger_widget.py:55
+msgid "outside"
+msgstr "έξω από το"
+
+#: widgets/trigger/trigger_widget.py:84
+#, fuzzy
+#| msgid "The source filter string."
+msgid "The source instrument."
+msgstr "Η συμβολοσειρά φίλτρου πηγής."
+
+#: widgets/trigger/trigger_widget.py:92
+#, fuzzy
+#| msgid "Signal"
+msgid "Single"
+msgstr "Σήμα"
+
+#: widgets/trigger/trigger_widget.py:93
+#, fuzzy
+#| msgid "Contents"
+msgid "Continuous"
+msgstr "Περιεχόμενα"
+
+#: widgets/trigger/trigger_widget.py:128
+#, fuzzy
+#| msgid "IRF type"
+msgid "Type"
+msgstr "Τύπος IRF"
+
+#: widgets/trigger/trigger_widget.py:130
+#, fuzzy
+#| msgid "Action"
+msgid "Condition"
+msgstr "Δράση"
+
+#: widgets/trigger/trigger_widget.py:383
+#, fuzzy
+#| msgid "Signal sample recording"
+msgid "Start signal sample recording"
+msgstr "Καταγραφή δείγματος σήματος"
+
+#: widgets/trigger/trigger_widget.py:384 widgets/trigger/trigger_widget.py:397
+msgid "Config"
+msgstr "Διαμόρφωση"
+
+#: widgets/trigger/trigger_widget.py:388
+#, fuzzy
+#| msgid "Trigger direction"
+msgid "Pretrigger duration"
+msgstr "Κατεύθυνση σκανδαλισμού"
+
+#: widgets/trigger/trigger_widget.py:396
+#, fuzzy
+#| msgid "Statistics recording"
+msgid "Start statistics recording"
+msgstr "Καταγραφή στατιστικών στοιχείων"
+
+#: widgets/trigger/trigger_widget.py:404
+#, fuzzy
+#| msgid "Set units"
+msgid "Set output"
+msgstr "Ορισμός μονάδων"
+
+#: widgets/trigger/trigger_widget.py:416
+#: widgets/waveform/waveform_control.py:29
+msgid "Add single marker"
+msgstr "Προσθέστε έναν μόνο δείκτη"
+
+#: widgets/trigger/trigger_widget.py:484
+#, fuzzy
+#| msgid "Trigger input"
+msgid "Trigger"
+msgstr "Είσοδος σκανδαλισμού"
+
+#: widgets/trigger/trigger_widget.py:502
+msgid "No sources found"
+msgstr "Δεν βρέθηκαν πηγές"
+
+#: widgets/trigger/trigger_widget.py:522
+#, fuzzy
+#| msgid "Histogram configuration"
+msgid "Start Condition"
+msgstr "Διαμόρφωση ιστογράμματος"
+
+#: widgets/trigger/trigger_widget.py:525
+#, fuzzy
+#| msgid "Action"
+msgid "Start Actions"
+msgstr "Δράση"
+
+#: widgets/trigger/trigger_widget.py:528
+#, fuzzy
+#| msgid "Histogram configuration"
+msgid "Stop Condition"
+msgstr "Διαμόρφωση ιστογράμματος"
+
+#: widgets/trigger/trigger_widget.py:531
+#, fuzzy
+#| msgid "Options"
+msgid "Stop Actions"
+msgstr "Επιλογές"
+
 #: widgets/value/value_widget.py:36
 msgid "Show the device selection header."
 msgstr "Εμφάνιση της επικεφαλίδας επιλογής συσκευής."
@@ -2450,8 +2562,8 @@ msgstr "Επιλέξτε τη συσκευή προέλευσης"
 
 #: widgets/value/value_widget.py:88
 msgid ""
-"The values displayed by this widget come from a single source device. "
-"Select the source device here."
+"The values displayed by this widget come from a single source device. Select"
+" the source device here."
 msgstr ""
 "Οι τιμές που εμφανίζονται από αυτό το widget προέρχονται από μία μόνο "
 "συσκευή προέλευσης. Επιλέξτε τη συσκευή προέλευσης εδώ."
@@ -2466,26 +2578,26 @@ msgstr "Όταν είναι επιλεγμένο, εμποδίζει την εν
 
 #: widgets/value/value_widget.py:97
 msgid ""
-"The UI also includes a global statistics hold button on the sidebar. When"
-" the global statistics hold button is selected, this button is disabled "
-"and has no effect."
+"The UI also includes a global statistics hold button on the sidebar. When "
+"the global statistics hold button is selected, this button is disabled and "
+"has no effect."
 msgstr ""
 "Το UI περιλαμβάνει επίσης ένα κουμπί κράτησης των παγκόσμιων στατιστικών "
-"στην πλευρική γραμμή. Όταν είναι επιλεγμένο το κουμπί κράτησης παγκόσμιων"
-" στατιστικών, αυτό το κουμπί είναι απενεργοποιημένο και δεν έχει καμία "
+"στην πλευρική γραμμή. Όταν είναι επιλεγμένο το κουμπί κράτησης παγκόσμιων "
+"στατιστικών, αυτό το κουμπί είναι απενεργοποιημένο και δεν έχει καμία "
 "επίδραση."
 
 #: widgets/value/value_widget.py:100
 msgid ""
-"The displayed values normally update with each new statistics data "
-"computed by the device. When this button is selected, the display will "
-"not be updated. However, the statistics will continue accumulate and "
-"accrue (if selected)."
+"The displayed values normally update with each new statistics data computed "
+"by the device. When this button is selected, the display will not be "
+"updated. However, the statistics will continue accumulate and accrue (if "
+"selected)."
 msgstr ""
-"Οι εμφανιζόμενες τιμές συνήθως ενημερώνονται με κάθε νέο στατιστικό "
-"δεδομένο που υπολογίζεται από τη συσκευή. Όταν είναι επιλεγμένο αυτό το "
-"κουμπί, η οθόνη δεν ενημερώνεται. Ωστόσο, τα στατιστικά στοιχεία θα "
-"συνεχίσουν να συσσωρεύονται και να συσσωρεύονται (εάν είναι επιλεγμένα)."
+"Οι εμφανιζόμενες τιμές συνήθως ενημερώνονται με κάθε νέο στατιστικό δεδομένο"
+" που υπολογίζεται από τη συσκευή. Όταν είναι επιλεγμένο αυτό το κουμπί, η "
+"οθόνη δεν ενημερώνεται. Ωστόσο, τα στατιστικά στοιχεία θα συνεχίσουν να "
+"συσσωρεύονται και να συσσωρεύονται (εάν είναι επιλεγμένα)."
 
 #: widgets/value/value_widget.py:107
 msgid "Accrue values over time"
@@ -2493,19 +2605,18 @@ msgstr "Συγκεντρώνουν αξίες με την πάροδο του χ
 
 #: widgets/value/value_widget.py:109
 msgid ""
-"Current, voltage, and power are normally computed over a single "
-"statistics frequency interval. Press this button to accrue the values "
-"indefinitely. Press again to return to normal operation."
+"Current, voltage, and power are normally computed over a single statistics "
+"frequency interval. Press this button to accrue the values indefinitely. "
+"Press again to return to normal operation."
 msgstr ""
-"Το ρεύμα, η τάση και η ισχύς υπολογίζονται συνήθως σε ένα ενιαίο διάστημα"
-" στατιστικής συχνότητας. Πατήστε αυτό το κουμπί για να συσσωρεύσετε τις "
-"τιμές επ' αόριστον. Πατήστε το ξανά για να επιστρέψετε στην κανονική "
-"λειτουργία."
+"Το ρεύμα, η τάση και η ισχύς υπολογίζονται συνήθως σε ένα ενιαίο διάστημα "
+"στατιστικής συχνότητας. Πατήστε αυτό το κουμπί για να συσσωρεύσετε τις τιμές"
+" επ' αόριστον. Πατήστε το ξανά για να επιστρέψετε στην κανονική λειτουργία."
 
 #: widgets/value/value_widget.py:113
 msgid ""
-"Note that this button does not affect the charge and energy accumulation."
-" Both accumulate indefinitely regardless of this button state."
+"Note that this button does not affect the charge and energy accumulation. "
+"Both accumulate indefinitely regardless of this button state."
 msgstr ""
 "Σημειώστε ότι αυτό το κουμπί δεν επηρεάζει τη συσσώρευση φόρτισης και "
 "ενέργειας. Και τα δύο συσσωρεύονται επ' αόριστον ανεξάρτητα από την "
@@ -2601,7 +2712,7 @@ msgid "triangle left"
 msgstr "τρίγωνο αριστερά"
 
 #: widgets/waveform/text_annotation.py:66
-#: widgets/waveform/waveform_widget.py:2991
+#: widgets/waveform/waveform_widget.py:3007
 msgid "Manual"
 msgstr "Χειροκίνητο"
 
@@ -2610,17 +2721,17 @@ msgid "Centered"
 msgstr "Με επίκεντρο το"
 
 #: widgets/waveform/text_annotation.py:99
-#: widgets/waveform/waveform_widget.py:3106
+#: widgets/waveform/waveform_widget.py:3122
 msgid "Text"
 msgstr "Κείμενο"
 
 #: widgets/waveform/text_annotation.py:107
-#: widgets/waveform/waveform_widget.py:3331
+#: widgets/waveform/waveform_widget.py:3347
 msgid "Show text"
 msgstr "Εμφάνιση κειμένου"
 
 #: widgets/waveform/text_annotation.py:116
-#: widgets/waveform/waveform_widget.py:3343
+#: widgets/waveform/waveform_widget.py:3359
 msgid "Shape"
 msgstr "Σχήμα"
 
@@ -2630,15 +2741,11 @@ msgstr "Y Μόδα"
 
 #: widgets/waveform/waveform_control.py:24
 msgid ""
-"To reposition the marker, left click on the marker, move the mouse to the"
-" new location, and the left click again."
+"To reposition the marker, left click on the marker, move the mouse to the "
+"new location, and the left click again."
 msgstr ""
 "Για να επανατοποθετήσετε το δείκτη, κάντε αριστερό κλικ στο δείκτη, "
 "μετακινήστε το ποντίκι στη νέα θέση και κάντε ξανά αριστερό κλικ."
-
-#: widgets/waveform/waveform_control.py:29
-msgid "Add single marker"
-msgstr "Προσθέστε έναν μόνο δείκτη"
 
 #: widgets/waveform/waveform_control.py:31
 msgid "Click to add a single marker to the waveform."
@@ -2649,8 +2756,8 @@ msgid ""
 "You can also add a marker by right-clicking on the x-axis or in the plot "
 "area."
 msgstr ""
-"Μπορείτε επίσης να προσθέσετε έναν δείκτη κάνοντας δεξί κλικ στον άξονα x"
-" ή στην περιοχή του διαγράμματος."
+"Μπορείτε επίσης να προσθέσετε έναν δείκτη κάνοντας δεξί κλικ στον άξονα x ή "
+"στην περιοχή του διαγράμματος."
 
 #: widgets/waveform/waveform_control.py:38
 msgid "Add dual markers"
@@ -2662,8 +2769,8 @@ msgstr "Κάντε κλικ για να προσθέσετε έναν διπλό
 
 #: widgets/waveform/waveform_control.py:42
 msgid ""
-"You can also add a dual markers by right-clicking on the x-axis or in the"
-" plot area."
+"You can also add a dual markers by right-clicking on the x-axis or in the "
+"plot area."
 msgstr ""
 "Μπορείτε επίσης να προσθέσετε έναν διπλό δείκτη κάνοντας δεξί κλικ στον "
 "άξονα x ή στην περιοχή του διαγράμματος."
@@ -2674,11 +2781,11 @@ msgstr "Καθαρίστε όλους τους δείκτες"
 
 #: widgets/waveform/waveform_control.py:48
 msgid ""
-"Click to clear all markers from the waveform. This operation removes both"
-" single markers and dual markers."
+"Click to clear all markers from the waveform. This operation removes both "
+"single markers and dual markers."
 msgstr ""
-"Κάντε κλικ για να διαγράψετε όλους τους δείκτες από την κυματομορφή. Αυτή"
-" η λειτουργία αφαιρεί τόσο τους απλούς όσο και τους διπλούς δείκτες."
+"Κάντε κλικ για να διαγράψετε όλους τους δείκτες από την κυματομορφή. Αυτή η "
+"λειτουργία αφαιρεί τόσο τους απλούς όσο και τους διπλούς δείκτες."
 
 #: widgets/waveform/waveform_control.py:53
 msgid "Zoom in"
@@ -2691,11 +2798,11 @@ msgstr "Κάντε κλικ για μεγέθυνση κατά μήκος του
 #: widgets/waveform/waveform_control.py:56
 #: widgets/waveform/waveform_control.py:64
 msgid ""
-"You can also zoom by positioning the mouse over the waveform and then "
-"using the scroll wheel."
+"You can also zoom by positioning the mouse over the waveform and then using "
+"the scroll wheel."
 msgstr ""
-"Μπορείτε επίσης να κάνετε ζουμ τοποθετώντας το ποντίκι πάνω στην "
-"κυματομορφή και στη συνέχεια χρησιμοποιώντας τον τροχό κύλισης."
+"Μπορείτε επίσης να κάνετε ζουμ τοποθετώντας το ποντίκι πάνω στην κυματομορφή"
+" και στη συνέχεια χρησιμοποιώντας τον τροχό κύλισης."
 
 #: widgets/waveform/waveform_control.py:61
 msgid "Zoom out"
@@ -2723,8 +2830,8 @@ msgid ""
 "(oldest) data always remains in view."
 msgstr ""
 "Καρφιτσώστε την οθόνη κυματομορφής στην αριστερή πλευρά. Όταν είναι "
-"ενεργοποιημένη, τα δεδομένα της αριστερής πλευράς (παλαιότερα) παραμένουν"
-" πάντα σε προβολή."
+"ενεργοποιημένη, τα δεδομένα της αριστερής πλευράς (παλαιότερα) παραμένουν "
+"πάντα σε προβολή."
 
 #: widgets/waveform/waveform_control.py:79
 msgid "Pin right"
@@ -2736,8 +2843,8 @@ msgid ""
 "(newest) data always remains in view."
 msgstr ""
 "Καρφιτσώστε την οθόνη κυματομορφής στη δεξιά πλευρά. Όταν είναι "
-"ενεργοποιημένη, τα δεδομένα της δεξιάς πλευράς (τα νεότερα) παραμένουν "
-"πάντα σε προβολή."
+"ενεργοποιημένη, τα δεδομένα της δεξιάς πλευράς (τα νεότερα) παραμένουν πάντα"
+" σε προβολή."
 
 #: widgets/waveform/waveform_control.py:85
 msgid "Y zoom all"
@@ -2746,16 +2853,16 @@ msgstr "Y zoom all"
 #: widgets/waveform/waveform_control.py:87
 msgid "Click to reset the y-axis of all plots to auto ranging mode."
 msgstr ""
-"Κάντε κλικ για να επαναφέρετε τον άξονα y όλων των γραφικών παραστάσεων "
-"σε λειτουργία αυτόματης διακύμανσης."
+"Κάντε κλικ για να επαναφέρετε τον άξονα y όλων των γραφικών παραστάσεων σε "
+"λειτουργία αυτόματης διακύμανσης."
 
 #: widgets/waveform/waveform_control.py:88
 msgid ""
 "This operation does not affect the fixed range plots such as the general "
 "purpose inputs."
 msgstr ""
-"Η λειτουργία αυτή δεν επηρεάζει τα οικόπεδα σταθερού εύρους, όπως οι "
-"είσοδοι γενικής χρήσης."
+"Η λειτουργία αυτή δεν επηρεάζει τα οικόπεδα σταθερού εύρους, όπως οι είσοδοι"
+" γενικής χρήσης."
 
 #: widgets/waveform/waveform_control.py:93
 msgid "Show min/max extents"
@@ -2764,14 +2871,14 @@ msgstr "Εμφάνιση ελάχιστων/μέγιστων εκτάσεων"
 #: widgets/waveform/waveform_control.py:95
 msgid ""
 "Change how the waveform shows the min/max extents. When zoomed out, each "
-"pixel may represent many samples. Displaying the min/max can allow you to"
-" see events that may be missed with just the average."
+"pixel may represent many samples. Displaying the min/max can allow you to "
+"see events that may be missed with just the average."
 msgstr ""
 "Αλλαγή του τρόπου με τον οποίο η κυματομορφή εμφανίζει τις "
-"ελάχιστες/μέγιστες εκτάσεις. Όταν μεγεθύνεται, κάθε εικονοστοιχείο μπορεί"
-" να αντιπροσωπεύει πολλά δείγματα. Η προβολή των ελάχιστων/μέγιστων "
-"μπορεί να σας επιτρέψει να δείτε γεγονότα που μπορεί να σας διαφύγουν με "
-"τη χρήση μόνο του μέσου όρου."
+"ελάχιστες/μέγιστες εκτάσεις. Όταν μεγεθύνεται, κάθε εικονοστοιχείο μπορεί να"
+" αντιπροσωπεύει πολλά δείγματα. Η προβολή των ελάχιστων/μέγιστων μπορεί να "
+"σας επιτρέψει να δείτε γεγονότα που μπορεί να σας διαφύγουν με τη χρήση μόνο"
+" του μέσου όρου."
 
 #: widgets/waveform/waveform_control.py:99
 msgid "\"off\" only displays the average."
@@ -2784,8 +2891,7 @@ msgstr "\"lines\" εμφανίζει το ελάχιστο και το μέγι�
 #: widgets/waveform/waveform_control.py:101
 msgid "\"fill 1\" displays a filled color between the minimum and maximum."
 msgstr ""
-"\"fill 1\" εμφανίζει ένα γεμάτο χρώμα μεταξύ του ελάχιστου και του "
-"μέγιστου."
+"\"fill 1\" εμφανίζει ένα γεμάτο χρώμα μεταξύ του ελάχιστου και του μέγιστου."
 
 #: widgets/waveform/waveform_control.py:102
 msgid "\"fill 2\" also displays an additional fill for standard deviation."
@@ -2815,7 +2921,8 @@ msgstr "Όταν είναι ενεργοποιημένη, η κυματομορ�
 
 #: widgets/waveform/waveform_source_widget.py:33
 msgid "When disabled, the waveform will hide this trace."
-msgstr "Όταν είναι απενεργοποιημένη, η κυματομορφή θα αποκρύψει αυτό το ίχνος."
+msgstr ""
+"Όταν είναι απενεργοποιημένη, η κυματομορφή θα αποκρύψει αυτό το ίχνος."
 
 #: widgets/waveform/waveform_source_widget.py:37
 msgid "Select the source"
@@ -2827,15 +2934,15 @@ msgstr "Επιλέξτε την πηγή για αυτό το ίχνος."
 
 #: widgets/waveform/waveform_source_widget.py:40
 msgid ""
-"\"default\" will use the default source which is normally configured "
-"using the Device Control widget."
+"\"default\" will use the default source which is normally configured using "
+"the Device Control widget."
 msgstr ""
 "Η επιλογή \"default\" θα χρησιμοποιήσει την προεπιλεγμένη πηγή, η οποία "
 "συνήθως ρυθμίζεται χρησιμοποιώντας το widget Device Control."
 
 #: widgets/waveform/waveform_source_widget.py:104
-#: widgets/waveform/waveform_widget.py:401
-#: widgets/waveform/waveform_widget.py:478
+#: widgets/waveform/waveform_widget.py:402
+#: widgets/waveform/waveform_widget.py:479
 msgid "off"
 msgstr "off"
 
@@ -2843,308 +2950,308 @@ msgstr "off"
 msgid "Waveform"
 msgstr "Κυματομορφή"
 
-#: widgets/waveform/waveform_widget.py:119
+#: widgets/waveform/waveform_widget.py:120
 msgid "General purpose input 0"
 msgstr "Είσοδος γενικού σκοπού 0"
 
-#: widgets/waveform/waveform_widget.py:120
+#: widgets/waveform/waveform_widget.py:121
 msgid "General purpose input 1"
 msgstr "Είσοδος γενικού σκοπού 1"
 
-#: widgets/waveform/waveform_widget.py:121
+#: widgets/waveform/waveform_widget.py:122
 msgid "General purpose input 2"
 msgstr "Είσοδος γενικού σκοπού 2"
 
-#: widgets/waveform/waveform_widget.py:122
+#: widgets/waveform/waveform_widget.py:123
 msgid "General purpose input 3"
 msgstr "Είσοδος γενικού σκοπού 3"
 
-#: widgets/waveform/waveform_widget.py:357
+#: widgets/waveform/waveform_widget.py:358
 msgid "The source filter string."
 msgstr "Η συμβολοσειρά φίλτρου πηγής."
 
-#: widgets/waveform/waveform_widget.py:368
+#: widgets/waveform/waveform_widget.py:369
 msgid "The trace width."
 msgstr "Το πλάτος του ίχνους."
 
-#: widgets/waveform/waveform_widget.py:383
+#: widgets/waveform/waveform_widget.py:384
 msgid "The target frames per second."
 msgstr "Τα καρέ ανά δευτερόλεπτο."
 
-#: widgets/waveform/waveform_widget.py:385
+#: widgets/waveform/waveform_widget.py:386
 msgid "vsync"
 msgstr "vsync"
 
-#: widgets/waveform/waveform_widget.py:386
+#: widgets/waveform/waveform_widget.py:387
 msgid "20 Hz"
 msgstr "20 Hz"
 
-#: widgets/waveform/waveform_widget.py:387
+#: widgets/waveform/waveform_widget.py:388
 msgid "10 Hz"
 msgstr "10 Hz"
 
-#: widgets/waveform/waveform_widget.py:388
+#: widgets/waveform/waveform_widget.py:389
 msgid "5 Hz"
 msgstr "5 Hz"
 
-#: widgets/waveform/waveform_widget.py:394
+#: widgets/waveform/waveform_widget.py:395
 msgid "The minimum interval between repaint in milliseconds."
 msgstr ""
 "Το ελάχιστο χρονικό διάστημα μεταξύ των επανεκτυπώσεων σε χιλιοστά του "
 "δευτερολέπτου."
 
-#: widgets/waveform/waveform_widget.py:399
+#: widgets/waveform/waveform_widget.py:400
 msgid "Show the minimum and maximum extents fill."
 msgstr "Εμφάνιση της ελάχιστης και της μέγιστης συμπλήρωσης των εκτάσεων."
 
-#: widgets/waveform/waveform_widget.py:402
+#: widgets/waveform/waveform_widget.py:403
 msgid "lines"
 msgstr "γραμμές"
 
-#: widgets/waveform/waveform_widget.py:403
+#: widgets/waveform/waveform_widget.py:404
 msgid "fill 1"
 msgstr "γέμισμα 1"
 
-#: widgets/waveform/waveform_widget.py:404
+#: widgets/waveform/waveform_widget.py:405
 msgid "fill 2"
 msgstr "γέμισμα 2"
 
-#: widgets/waveform/waveform_widget.py:410
+#: widgets/waveform/waveform_widget.py:411
 msgid "Show the frames per second."
 msgstr "Εμφάνιση των καρέ ανά δευτερόλεπτο."
 
-#: widgets/waveform/waveform_widget.py:415
+#: widgets/waveform/waveform_widget.py:416
 msgid "Show the statistics on mouse hover."
 msgstr "Εμφάνιση των στατιστικών στοιχείων κατά το πέρασμα του ποντικιού."
 
-#: widgets/waveform/waveform_widget.py:420
+#: widgets/waveform/waveform_widget.py:421
 msgid "Show the plot statistics on the right."
 msgstr "Δείξτε τα στατιστικά στοιχεία του διαγράμματος στα δεξιά."
 
-#: widgets/waveform/waveform_widget.py:425
+#: widgets/waveform/waveform_widget.py:426
 msgid "Show frequency for dual markers and statistics."
 msgstr "Εμφάνιση συχνότητας για διπλούς δείκτες και στατιστικά στοιχεία."
 
-#: widgets/waveform/waveform_widget.py:430
+#: widgets/waveform/waveform_widget.py:431
 msgid "The quantities to display by default."
 msgstr "Οι ποσότητες που θα εμφανίζονται από προεπιλογή."
 
-#: widgets/waveform/waveform_widget.py:436
+#: widgets/waveform/waveform_widget.py:437
 msgid "The precision to display in digits."
 msgstr "Η ακρίβεια που θα εμφανιστεί σε ψηφία."
 
-#: widgets/waveform/waveform_widget.py:442
+#: widgets/waveform/waveform_widget.py:443
 msgid "Use OpenGL rendering."
 msgstr "Χρησιμοποιήστε απόδοση OpenGL."
 
-#: widgets/waveform/waveform_widget.py:453
+#: widgets/waveform/waveform_widget.py:454
 msgid "Pin the left side (oldest) data so that it stays in view."
 msgstr ""
 "Καρφιτσώστε τα δεδομένα της αριστερής πλευράς (παλαιότερα), ώστε να "
 "παραμένουν σε προβολή."
 
-#: widgets/waveform/waveform_widget.py:458
+#: widgets/waveform/waveform_widget.py:459
 msgid "Pin the right side (newest) data so that it stays in view."
 msgstr ""
-"Καρφιτσώστε τα δεδομένα της δεξιάς πλευράς (τα νεότερα) ώστε να "
-"παραμένουν σε προβολή."
+"Καρφιτσώστε τα δεδομένα της δεξιάς πλευράς (τα νεότερα) ώστε να παραμένουν "
+"σε προβολή."
 
-#: widgets/waveform/waveform_widget.py:463
+#: widgets/waveform/waveform_widget.py:464
 msgid "The waveform state."
 msgstr "Η κατάσταση της κυματομορφής."
 
-#: widgets/waveform/waveform_widget.py:469
+#: widgets/waveform/waveform_widget.py:470
 msgid "The annotations."
 msgstr "Τα σχόλια."
 
-#: widgets/waveform/waveform_widget.py:475
+#: widgets/waveform/waveform_widget.py:476
 msgid "Control location"
 msgstr "Θέση ελέγχου"
 
-#: widgets/waveform/waveform_widget.py:479
+#: widgets/waveform/waveform_widget.py:480
 msgid "top"
 msgstr "top"
 
-#: widgets/waveform/waveform_widget.py:480
+#: widgets/waveform/waveform_widget.py:481
 msgid "bottom"
 msgstr "κάτω"
 
-#: widgets/waveform/waveform_widget.py:485
+#: widgets/waveform/waveform_widget.py:486
 msgid "The signal quantity to show in the summary."
 msgstr "Η ποσότητα σήματος που θα εμφανίζεται στη σύνοψη."
 
-#: widgets/waveform/waveform_widget.py:491
+#: widgets/waveform/waveform_widget.py:492
 msgid "X-axis annotation mode"
 msgstr "Λειτουργία σχολιασμού του άξονα Χ"
 
-#: widgets/waveform/waveform_widget.py:494
-#: widgets/waveform/waveform_widget.py:2871
+#: widgets/waveform/waveform_widget.py:495
+#: widgets/waveform/waveform_widget.py:2887
 msgid "Absolute"
 msgstr "Απόλυτη"
 
-#: widgets/waveform/waveform_widget.py:495
-#: widgets/waveform/waveform_widget.py:2876
+#: widgets/waveform/waveform_widget.py:496
+#: widgets/waveform/waveform_widget.py:2892
 msgid "Relative"
 msgstr "Σχετικό"
 
-#: widgets/waveform/waveform_widget.py:501
+#: widgets/waveform/waveform_widget.py:502
 msgid "The available subsources."
 msgstr "Οι διαθέσιμες υποπηγές."
 
-#: widgets/waveform/waveform_widget.py:507
+#: widgets/waveform/waveform_widget.py:508
 msgid "The selected subsources for each trace."
 msgstr "Οι επιλεγμένες υποπηγές για κάθε ίχνος."
 
-#: widgets/waveform/waveform_widget.py:513
+#: widgets/waveform/waveform_widget.py:514
 msgid "The trace priority: highest int value on top, None is off."
 msgstr ""
 "Η προτεραιότητα της ανίχνευσης: η υψηλότερη τιμή int στην κορυφή, η τιμή "
 "None είναι απενεργοποιημένη."
 
-#: widgets/waveform/waveform_widget.py:2817
-#: widgets/waveform/waveform_widget.py:3118
+#: widgets/waveform/waveform_widget.py:2833
+#: widgets/waveform/waveform_widget.py:3134
 msgid "Save image to file"
 msgstr "Αποθήκευση εικόνας σε αρχείο"
 
-#: widgets/waveform/waveform_widget.py:2865
-#: widgets/waveform/waveform_widget.py:2934
+#: widgets/waveform/waveform_widget.py:2881
+#: widgets/waveform/waveform_widget.py:2950
 msgid "Single marker"
 msgstr "Ενιαίος δείκτης"
 
-#: widgets/waveform/waveform_widget.py:2866
-#: widgets/waveform/waveform_widget.py:2935
+#: widgets/waveform/waveform_widget.py:2882
+#: widgets/waveform/waveform_widget.py:2951
 msgid "Dual markers"
 msgstr "Διπλοί δείκτες"
 
-#: widgets/waveform/waveform_widget.py:2868
+#: widgets/waveform/waveform_widget.py:2884
 msgid "Mode"
 msgstr "Λειτουργία"
 
-#: widgets/waveform/waveform_widget.py:2881
-#: widgets/waveform/waveform_widget.py:2936
-#: widgets/waveform/waveform_widget.py:3094
-#: widgets/waveform/waveform_widget.py:3112
+#: widgets/waveform/waveform_widget.py:2897
+#: widgets/waveform/waveform_widget.py:2952
+#: widgets/waveform/waveform_widget.py:3110
+#: widgets/waveform/waveform_widget.py:3128
 msgid "Clear all"
 msgstr "Εκκαθάριση όλων"
 
-#: widgets/waveform/waveform_widget.py:2892
-#: widgets/waveform/waveform_widget.py:2981
-#: widgets/waveform/waveform_widget.py:3100
+#: widgets/waveform/waveform_widget.py:2908
+#: widgets/waveform/waveform_widget.py:2997
+#: widgets/waveform/waveform_widget.py:3116
 msgid "Annotations"
 msgstr "Σχόλια"
 
-#: widgets/waveform/waveform_widget.py:2984
+#: widgets/waveform/waveform_widget.py:3000
 msgid "Range"
 msgstr "Εύρος"
 
-#: widgets/waveform/waveform_widget.py:2988
-#: widgets/waveform/waveform_widget.py:3311
+#: widgets/waveform/waveform_widget.py:3004
+#: widgets/waveform/waveform_widget.py:3327
 msgid "Auto"
 msgstr "Αυτοκίνητο"
 
-#: widgets/waveform/waveform_widget.py:2994
+#: widgets/waveform/waveform_widget.py:3010
 msgid "Exact"
 msgstr "Ακριβώς"
 
-#: widgets/waveform/waveform_widget.py:3003
+#: widgets/waveform/waveform_widget.py:3019
 msgid "Scale"
 msgstr "Σκάλες"
 
-#: widgets/waveform/waveform_widget.py:3006
+#: widgets/waveform/waveform_widget.py:3022
 msgid "Linear"
 msgstr "Γραμμική"
 
-#: widgets/waveform/waveform_widget.py:3011
+#: widgets/waveform/waveform_widget.py:3027
 msgid "Logarithmic"
 msgstr "Λογαριθμική"
 
-#: widgets/waveform/waveform_widget.py:3019
+#: widgets/waveform/waveform_widget.py:3035
 msgid "Logarithmic zero"
 msgstr "Λογαριθμικό μηδέν"
 
-#: widgets/waveform/waveform_widget.py:3033
+#: widgets/waveform/waveform_widget.py:3049
 msgid "Preferred prefix"
 msgstr "Προτιμώμενο πρόθεμα"
 
-#: widgets/waveform/waveform_widget.py:3091
+#: widgets/waveform/waveform_widget.py:3107
 msgid "Add"
 msgstr "Προσθέστε"
 
-#: widgets/waveform/waveform_widget.py:3092
+#: widgets/waveform/waveform_widget.py:3108
 msgid "Hide all text"
 msgstr "Απόκρυψη όλου του κειμένου"
 
-#: widgets/waveform/waveform_widget.py:3093
+#: widgets/waveform/waveform_widget.py:3109
 msgid "Show all text"
 msgstr "Εμφάνιση όλου του κειμένου"
 
-#: widgets/waveform/waveform_widget.py:3101
+#: widgets/waveform/waveform_widget.py:3117
 msgid "Vertical"
 msgstr "Κατακόρυφο"
 
-#: widgets/waveform/waveform_widget.py:3104
+#: widgets/waveform/waveform_widget.py:3120
 msgid "Horizontal"
 msgstr "Οριζόντια"
 
-#: widgets/waveform/waveform_widget.py:3110
+#: widgets/waveform/waveform_widget.py:3126
 msgid "Save"
 msgstr "Αποθήκευση"
 
-#: widgets/waveform/waveform_widget.py:3115
+#: widgets/waveform/waveform_widget.py:3131
 msgid "Y-axis auto range"
 msgstr "Αυτόματο εύρος του άξονα Y"
 
-#: widgets/waveform/waveform_widget.py:3119
+#: widgets/waveform/waveform_widget.py:3135
 msgid "Copy image to clipboard"
 msgstr "Αντιγραφή εικόνας στο πρόχειρο"
 
-#: widgets/waveform/waveform_widget.py:3120
+#: widgets/waveform/waveform_widget.py:3136
 msgid "Export visible data"
 msgstr "Εξαγωγή ορατών δεδομένων"
 
-#: widgets/waveform/waveform_widget.py:3121
+#: widgets/waveform/waveform_widget.py:3137
 msgid "Export all data"
 msgstr "Εξαγωγή όλων των δεδομένων"
 
-#: widgets/waveform/waveform_widget.py:3287
+#: widgets/waveform/waveform_widget.py:3303
 msgid "Export"
 msgstr "Εξαγωγή"
 
-#: widgets/waveform/waveform_widget.py:3288
+#: widgets/waveform/waveform_widget.py:3304
 msgid "Analysis"
 msgstr "Ανάλυση"
 
-#: widgets/waveform/waveform_widget.py:3296
+#: widgets/waveform/waveform_widget.py:3312
 msgid "Interval"
 msgstr "Διάστημα"
 
-#: widgets/waveform/waveform_widget.py:3305
+#: widgets/waveform/waveform_widget.py:3321
 msgid "Zoom"
 msgstr "Ζουμ"
 
-#: widgets/waveform/waveform_widget.py:3309
+#: widgets/waveform/waveform_widget.py:3325
 msgid "Show statistics"
 msgstr "Εμφάνιση στατιστικών στοιχείων"
 
-#: widgets/waveform/waveform_widget.py:3314
+#: widgets/waveform/waveform_widget.py:3330
 msgid "Left"
 msgstr "Αριστερά"
 
-#: widgets/waveform/waveform_widget.py:3317
+#: widgets/waveform/waveform_widget.py:3333
 msgid "Right"
 msgstr "Δεξιά"
 
-#: widgets/waveform/waveform_widget.py:3320
+#: widgets/waveform/waveform_widget.py:3336
 msgid "Off"
 msgstr "Off"
 
-#: widgets/waveform/waveform_widget.py:3323
-#: widgets/waveform/waveform_widget.py:3351
-#: widgets/waveform/waveform_widget.py:3380
+#: widgets/waveform/waveform_widget.py:3339
+#: widgets/waveform/waveform_widget.py:3367
+#: widgets/waveform/waveform_widget.py:3396
 msgid "Remove"
 msgstr "Αφαιρέστε το"
 
-#: widgets/waveform/waveform_widget.py:3334
+#: widgets/waveform/waveform_widget.py:3350
 msgid "Y mode"
 msgstr "Λειτουργία Y"
 
@@ -3154,4 +3261,3 @@ msgstr "Μονάδες"
 
 #~ msgid "Typical response time: %(days)s business days"
 #~ msgstr "Τυπικός χρόνος απόκρισης: %(ημέρες)s εργάσιμες ημέρες"
-

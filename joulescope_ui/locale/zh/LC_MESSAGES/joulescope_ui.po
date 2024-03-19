@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-03-09 12:56-0500\n"
+"POT-Creation-Date: 2024-03-19 13:13-0400\n"
 "PO-Revision-Date: 2024-03-07 17:28-0500\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language: zh\n"
 "Language-Team: zh <LL@li.org>\n"
-"Plural-Forms: nplurals=1; plural=0;\n"
+"Language: zh\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.14.0\n"
 
 #: about.py:24
@@ -36,9 +36,9 @@ msgstr "切换所有连接目标的电源。"
 
 #: app.py:50
 msgid ""
-"This feature forces all connected instruments to disable current flow. "
-"You can use this feature to perform a power cycle reset for the connected"
-" target devices."
+"This feature forces all connected instruments to disable current flow. You "
+"can use this feature to perform a power cycle reset for the connected target"
+" devices."
 msgstr "此功能强制所有连接的仪器禁用电流。您可以使用此功能对所连接的目标设备执行电源循环复位。"
 
 #: app.py:53
@@ -57,9 +57,9 @@ msgstr "保险丝接合指示灯"
 
 #: app.py:62
 msgid ""
-"This indicator becomes active when at least one connected instrument has "
-"an engaged fuse. Instruments with engaged fuses prevent current flow "
-"until cleared."
+"This indicator becomes active when at least one connected instrument has an "
+"engaged fuse. Instruments with engaged fuses prevent current flow until "
+"cleared."
 msgstr "当至少有一台连接的仪器保险丝熔断时，该指示灯才会激活。保险丝啮合的仪器会阻止电流流动，直到保险丝被清除。"
 
 #: app.py:65 widgets/device_control/js220_ctrl_widget.py:55
@@ -82,8 +82,8 @@ msgstr "启用后，小部件将显示从所连接仪器获得的统计数据。
 
 #: app.py:75
 msgid ""
-"When disabled, hold the existing values. New statistics data is "
-"processed, but widgets displaying statistics information do not update."
+"When disabled, hold the existing values. New statistics data is processed, "
+"but widgets displaying statistics information do not update."
 msgstr "禁用时，保持现有值。新的统计数据会被处理，但显示统计信息的部件不会更新。"
 
 #: app.py:83
@@ -102,8 +102,8 @@ msgstr "单击一次开始记录到 CSV 文件。再次点击可停止记录。"
 
 #: app.py:87
 msgid ""
-"By default, Joulescopes provide statistics data at 2 Hz. Each device "
-"allows you to change this setting to the desired rate."
+"By default, Joulescopes provide statistics data at 2 Hz. Each device allows "
+"you to change this setting to the desired rate."
 msgstr "Joulescopes 默认以 2 Hz 的频率提供统计数据。每个设备都允许您将此设置更改为所需的速率。"
 
 #: app.py:94
@@ -116,14 +116,14 @@ msgstr "单击可切换样本数据流。"
 
 #: app.py:97
 msgid ""
-"When enabled, stream sample data from all open sample sources and "
-"configure all sample widgets for acquisition mode."
+"When enabled, stream sample data from all open sample sources and configure "
+"all sample widgets for acquisition mode."
 msgstr "启用后，将从所有打开的采样源流式传输采样数据，并将所有采样部件配置为采集模式。"
 
 #: app.py:99
 msgid ""
-"When disabled, stop sample streaming and configure all sample widgets for"
-" buffer mode."
+"When disabled, stop sample streaming and configure all sample widgets for "
+"buffer mode."
 msgstr "禁用时，将停止采样流并将所有采样部件配置为缓冲模式。"
 
 #: app.py:106
@@ -142,9 +142,9 @@ msgstr "单击一次开始录音到 JLS 文件。再次单击可停止录音。"
 
 #: app.py:111
 msgid ""
-"The recording will capture data from all enabled sample sources and "
-"signals at their configured sample rates. To reduce the file size, you "
-"can disable sources, disable signals, and/or reduce the sample rates."
+"The recording will capture data from all enabled sample sources and signals "
+"at their configured sample rates. To reduce the file size, you can disable "
+"sources, disable signals, and/or reduce the sample rates."
 msgstr "录音将以配置的采样率采集所有已启用采样源和信号的数据。要减小文件大小，可以禁用信号源、信号和/或降低采样率。"
 
 #: app.py:120
@@ -201,11 +201,10 @@ msgstr "选择 OpenGL 渲染方法。"
 
 #: app.py:166
 msgid ""
-"This application uses OpenGL to accelerate graphics rendering. OpenGL has"
-" multiple options for rendering, which varies between platforms. By "
-"default, this application uses \"desktop\" rendering. If OpenGL is not "
-"well-supported by your graphics drivers, you can select \"software\" "
-"rendering."
+"This application uses OpenGL to accelerate graphics rendering. OpenGL has "
+"multiple options for rendering, which varies between platforms. By default, "
+"this application uses \"desktop\" rendering. If OpenGL is not well-supported"
+" by your graphics drivers, you can select \"software\" rendering."
 msgstr ""
 "此应用程序使用 OpenGL 加速图形渲染。OpenGL 有多种渲染选项，不同平台的渲染选项各不相同。默认情况下，此应用程序使用 \"桌面 "
 "\"渲染。如果图形驱动程序不支持 OpenGL，则可以选择 \"软件 \"渲染。"
@@ -264,8 +263,8 @@ msgstr "选择错误恢复选项。"
 
 #: error_window.py:34
 msgid ""
-"Our offices are currently closed until {return_date}. We will respond "
-"within {response_time} business days after we return."
+"Our offices are currently closed until {return_date}. We will respond within"
+" {response_time} business days after we return."
 msgstr "我们的办公室目前关闭，直至{return_date}。我们将在返回后的 {response_time} 工作日内回复。"
 
 #: error_window.py:51
@@ -292,7 +291,7 @@ msgstr "电子邮件"
 msgid "Description"
 msgstr "说明"
 
-#: error_window.py:112 widgets/waveform/waveform_widget.py:3330
+#: error_window.py:112 widgets/waveform/waveform_widget.py:3346
 msgid "Edit"
 msgstr "编辑"
 
@@ -364,8 +363,8 @@ msgstr "将数据导出到 JLS 文件"
 
 #: exporter.py:170
 msgid ""
-"Exporting data to a JLS file. You can open this file later to display the"
-" exported data."
+"Exporting data to a JLS file. You can open this file later to display the "
+"exported data."
 msgstr "将数据导出到 JLS 文件。稍后可以打开该文件显示导出的数据。"
 
 #: getting_started.py:20
@@ -390,10 +389,11 @@ msgstr "JS110 传感器端口为 IN+、IN- OUT+ 和 OUT-。"
 
 #: getting_started.py:26
 msgid ""
-"The sensor ports are electrically isolated from USB. The voltage between "
-"any sensor port and USB ground must never exceed ±48V. The GPI/O and "
-"trigger ports are referenced to USB ground."
-msgstr "传感器端口与 USB 是电气隔离的。任何传感器端口与 USB 接地之间的电压不得超过 ±48V。GPI/O 和触发器端口以 USB 地线为基准。"
+"The sensor ports are electrically isolated from USB. The voltage between any"
+" sensor port and USB ground must never exceed ±48V. The GPI/O and trigger "
+"ports are referenced to USB ground."
+msgstr ""
+"传感器端口与 USB 是电气隔离的。任何传感器端口与 USB 接地之间的电压不得超过 ±48V。GPI/O 和触发器端口以 USB 地线为基准。"
 
 #: getting_started.py:30
 msgid "Connect"
@@ -401,9 +401,8 @@ msgstr "连接"
 
 #: getting_started.py:31
 msgid ""
-"Connect Joulescope's USB port to your computer using the provided cable. "
-"Use an adapter or suitable cable if your computer only has USB Type C "
-"ports."
+"Connect Joulescope's USB port to your computer using the provided cable. Use"
+" an adapter or suitable cable if your computer only has USB Type C ports."
 msgstr "使用提供的电缆将 Joulescope 的 USB 端口连接到计算机。如果您的计算机只有 USB C 型端口，请使用适配器或合适的电缆。"
 
 #: getting_started.py:33
@@ -411,12 +410,13 @@ msgid ""
 "For the JS220, connect the current port between the power supply and the "
 "device under test. Connect the voltage port to the power supply. See the "
 "Joulescope JS220 User's Guide for more connection examples."
-msgstr "对于 JS220，将电流端口连接到电源和被测设备之间。将电压端口连接到电源。有关更多连接示例，请参阅《Joulescope JS220 用户指南》。"
+msgstr ""
+"对于 JS220，将电流端口连接到电源和被测设备之间。将电压端口连接到电源。有关更多连接示例，请参阅《Joulescope JS220 用户指南》。"
 
 #: getting_started.py:36
 msgid ""
-"For the JS110, connect the Joulescope IN port to your power supply. "
-"Connect the Joulescope OUT port to your target device."
+"For the JS110, connect the Joulescope IN port to your power supply. Connect "
+"the Joulescope OUT port to your target device."
 msgstr "对于 JS110，将 Joulescope IN 端口连接到电源。将 Joulescope OUT 端口连接到目标设备。"
 
 #: getting_started.py:39
@@ -425,14 +425,14 @@ msgstr "测量"
 
 #: getting_started.py:40
 msgid ""
-"The Joulescope software starts in the Multimeter View displaying the "
-"value current, voltage, power, and energy."
+"The Joulescope software starts in the Multimeter View displaying the value "
+"current, voltage, power, and energy."
 msgstr "Joulescope 软件在万用表视图中启动，显示电流、电压、功率和能量值。"
 
 #: getting_started.py:42
 msgid ""
-"Select View → Oscilloscope to switch to the Oscilloscope View and explore"
-" changes over time."
+"Select View → Oscilloscope to switch to the Oscilloscope View and explore "
+"changes over time."
 msgstr "选择 \"视图\"→\"示波器 \"切换到 \"示波器视图\"，查看随时间发生的变化。"
 
 #: getting_started.py:44
@@ -463,22 +463,22 @@ msgstr "支持"
 
 #: getting_started.py:54
 msgid ""
-"Click on the help icon at the bottom left for more information and "
-"support options."
+"Click on the help icon at the bottom left for more information and support "
+"options."
 msgstr "点击左下角的帮助图标，了解更多信息和支持选项。"
 
 #: intel_graphics_dialog.py:22
 msgid ""
-"This computer has Intel graphics. If the computer has a discrete graphics"
-" card, please adjust your graphics settings to run this application using"
-" the graphics card."
+"This computer has Intel graphics. If the computer has a discrete graphics "
+"card, please adjust your graphics settings to run this application using the"
+" graphics card."
 msgstr "本电脑配有英特尔显卡。如果计算机配有独立显卡，请调整显卡设置，以便使用显卡运行此应用程序。"
 
 #: intel_graphics_dialog.py:26
 msgid ""
-"If the computer only has Intel graphics, we recommend that you update "
-"your graphics drivers. You can download the latest graphics drivers from "
-"your computer manufacturer or Intel."
+"If the computer only has Intel graphics, we recommend that you update your "
+"graphics drivers. You can download the latest graphics drivers from your "
+"computer manufacturer or Intel."
 msgstr "如果计算机只有英特尔显卡，建议更新显卡驱动程序。您可以从电脑制造商或英特尔公司下载最新的显卡驱动程序。"
 
 #: intel_graphics_dialog.py:29
@@ -487,12 +487,12 @@ msgstr "使用最新的英特尔驱动程序时，您可能会发现奇怪的图
 
 #: intel_graphics_dialog.py:30
 msgid ""
-"If this happens on your computer, then you can switch to the software "
-"OpenGL renderer. The software OpenGL renderer may work around Intel "
-"driver instabilities, but it runs slower possibly causing performance "
-"issues. On a small number of computers, it does not run correctly causing"
-" a white application screen. You will need to close and reopen this "
-"application for the change to take effect."
+"If this happens on your computer, then you can switch to the software OpenGL"
+" renderer. The software OpenGL renderer may work around Intel driver "
+"instabilities, but it runs slower possibly causing performance issues. On a "
+"small number of computers, it does not run correctly causing a white "
+"application screen. You will need to close and reopen this application for "
+"the change to take effect."
 msgstr ""
 "如果你的电脑出现这种情况，你可以切换到软件 OpenGL 渲染器。软件 OpenGL "
 "渲染器可以解决英特尔驱动程序不稳定的问题，但运行速度较慢，可能会导致性能问题。在少数电脑上，它无法正常运行，导致应用程序屏幕变白。您需要关闭并重新打开此应用程序才能使更改生效。"
@@ -503,10 +503,10 @@ msgstr "您想切换到软件 OpenGL 渲染器吗？"
 
 #: intel_graphics_dialog.py:39
 msgid ""
-"If you are unsure, select \"No\" and leave \"Do not show again\" "
-"unchecked. If you observe the graphics hangs, you can select \"Yes\" in "
-"the future. You can select the OpenGL renderer at any time using Widgets "
-"→ Settings → Common → opengl. The default is \"desktop\"."
+"If you are unsure, select \"No\" and leave \"Do not show again\" unchecked. "
+"If you observe the graphics hangs, you can select \"Yes\" in the future. You"
+" can select the OpenGL renderer at any time using Widgets → Settings → "
+"Common → opengl. The default is \"desktop\"."
 msgstr ""
 "如果不确定，请选择 \"否\"，不要选中 \"不再显示\"。如果观察到图形挂起，以后可以选择 \"是\"。你可以随时使用 Widgets → "
 "Settings → Common → opengl 选择 OpenGL 渲染器。默认为 \"桌面\"。"
@@ -525,9 +525,9 @@ msgstr "用户界面状态栏显示模式"
 
 #: main.py:79
 msgid ""
-"This setting controls the amount of detail shown on the status bar at the"
-" bottom of the UI window. You should usually leave this set to \"normal\""
-" unless you want more detail concerning the UI internal operation."
+"This setting controls the amount of detail shown on the status bar at the "
+"bottom of the UI window. You should usually leave this set to \"normal\" "
+"unless you want more detail concerning the UI internal operation."
 msgstr "此设置可控制用户界面窗口底部状态栏显示的详细程度。通常应将其设置为 \"正常\"，除非需要更多有关用户界面内部操作的细节。"
 
 #: main.py:84 safe_mode.py:43
@@ -548,8 +548,8 @@ msgstr "PubSub 利用率"
 
 #: main.py:99
 msgid ""
-"Display the number of actions processed by the publish-subscribe broker "
-"in each second."
+"Display the number of actions processed by the publish-subscribe broker in "
+"each second."
 msgstr "显示发布-订阅代理每秒处理的操作数。"
 
 #: main.py:104
@@ -653,7 +653,8 @@ msgid "Info"
 msgstr "信息"
 
 #: main.py:370 widget_tools.py:92 widgets/settings/settings_widget.py:31
-#: widgets/settings/settings_widget.py:574 widgets/sidebar/sidebar_widget.py:41
+#: widgets/settings/settings_widget.py:574
+#: widgets/sidebar/sidebar_widget.py:41
 msgid "Settings"
 msgstr "设置"
 
@@ -852,10 +853,9 @@ msgstr "启用所选当前范围的流媒体。"
 
 #: devices/jsdrv/device.py:21
 msgid ""
-"The current range is useful for understanding how your Joulescope "
-"autoranges to measure your current signal. It can also be helpful in "
-"separating target system behavior from the small current range switching "
-"artifacts."
+"The current range is useful for understanding how your Joulescope autoranges"
+" to measure your current signal. It can also be helpful in separating target"
+" system behavior from the small current range switching artifacts."
 msgstr "电流量程有助于了解焦耳显微镜如何自动量程以测量电流信号。它还有助于将目标系统行为与小电流范围切换伪像区分开来。"
 
 #: devices/jsdrv/js110.py:29 devices/jsdrv/js110.py:65
@@ -865,15 +865,15 @@ msgstr "设备名称"
 
 #: devices/jsdrv/js110.py:31 devices/jsdrv/js220.py:49
 msgid ""
-"The Joulescope UI automatically populates the device name with the device"
-" type and serial number."
+"The Joulescope UI automatically populates the device name with the device "
+"type and serial number."
 msgstr "Joulescope UI 会用设备类型和序列号自动填充设备名称。"
 
 #: devices/jsdrv/js110.py:33
 msgid ""
 "This setting allows you to change the default, if you wish, to better "
-"reflect how you are using your JS110. This setting is most useful when "
-"you are instrumenting a system using multiple Joulescopes."
+"reflect how you are using your JS110. This setting is most useful when you "
+"are instrumenting a system using multiple Joulescopes."
 msgstr "此设置允许您更改默认值，以更好地反映您使用 JS110 的方式。当您使用多个焦耳仪对一个系统进行检测时，该设置最为有用。"
 
 #: devices/jsdrv/js110.py:41 devices/jsdrv/js110.py:71
@@ -904,9 +904,9 @@ msgstr "此设置可控制电流、电压和功率测量信号的输出采样频
 
 #: devices/jsdrv/js110.py:87
 msgid ""
-"The JS110 instrument always samples at 2 MHz and sends the raw samples to"
-" the host. This setting controls additional optional downsampling that is"
-" performed on the host."
+"The JS110 instrument always samples at 2 MHz and sends the raw samples to "
+"the host. This setting controls additional optional downsampling that is "
+"performed on the host."
 msgstr "JS110 始终以 2 MHz 频率采样，并将原始采样发送至主机。此设置可控制在主机上执行的额外可选降采样。"
 
 #: devices/jsdrv/js110.py:117 devices/jsdrv/js220.py:133
@@ -915,9 +915,9 @@ msgstr "统计频率"
 
 #: devices/jsdrv/js110.py:118
 msgid ""
-"This setting controls the output frequency for the statistics data that "
-"is displayed in the multimeter and value widgets. Statistics data is "
-"computed over the full rate 2 MHz samples."
+"This setting controls the output frequency for the statistics data that is "
+"displayed in the multimeter and value widgets. Statistics data is computed "
+"over the full rate 2 MHz samples."
 msgstr "此设置可控制万用表和数值部件中显示的统计数据的输出频率。统计数据通过全速率 2 MHz 采样进行计算。"
 
 #: devices/jsdrv/js110.py:137 devices/jsdrv/js220.py:153
@@ -926,14 +926,14 @@ msgstr "切换电流端子之间的连接。"
 
 #: devices/jsdrv/js110.py:138 devices/jsdrv/js220.py:154
 msgid ""
-"When enabled, current flows between the current terminals. When disabled,"
-" current cannot flow between the current terminals. In common system "
-"setups, this inhibits target power, which can be used to power cycle "
-"reset the target device."
+"When enabled, current flows between the current terminals. When disabled, "
+"current cannot flow between the current terminals. In common system setups, "
+"this inhibits target power, which can be used to power cycle reset the "
+"target device."
 msgstr "启用时，电流在电流端子之间流动。禁用时，电流不会在电流端之间流动。在常见的系统设置中，这将抑制目标电源，可用于对目标设备进行电源循环复位。"
 
 #: devices/jsdrv/js110.py:147 devices/jsdrv/js220.py:163
-#: widgets/waveform/waveform_widget.py:109
+#: widgets/waveform/waveform_widget.py:110
 msgid "Current range"
 msgstr "当前范围"
 
@@ -964,8 +964,8 @@ msgstr "GPIO 电压"
 
 #: devices/jsdrv/js110.py:180
 msgid ""
-"Configure the JS110's reference voltage for the general-purpose inputs "
-"and outputs."
+"Configure the JS110's reference voltage for the general-purpose inputs and "
+"outputs."
 msgstr "为通用输入和输出配置 JS110 的基准电压。"
 
 #: devices/jsdrv/js110.py:182
@@ -996,25 +996,25 @@ msgstr "IRF 类型"
 
 #: devices/jsdrv/js110.py:213
 msgid ""
-"Configure the current range filter (IRF) type which determines the "
-"filtering mechanism applied on current range changes. We do not recommend"
-" changing these settings for normal operation."
+"Configure the current range filter (IRF) type which determines the filtering"
+" mechanism applied on current range changes. We do not recommend changing "
+"these settings for normal operation."
 msgstr "配置当前范围筛选器 (IRF) 类型，该类型决定应用于当前范围变化的筛选机制。我们不建议在正常操作时更改这些设置。"
 
 #: devices/jsdrv/js110.py:216
 msgid ""
-"\"interp\" is the default setting which interpolates over the samples in "
-"the window using the value computed by the pre and post values. This "
-"gives the most intuitive behavior."
+"\"interp\" is the default setting which interpolates over the samples in the"
+" window using the value computed by the pre and post values. This gives the "
+"most intuitive behavior."
 msgstr "\"interp \"是默认设置，使用前值和后值计算出的值对窗口中的样本进行内插。这是最直观的操作方式。"
 
 #: devices/jsdrv/js110.py:219
 msgid ""
-"\"mean\" sets all samples in the window to the mean value. This results "
-"in a straight horizontal line that allows you to clearly see current "
-"range changes while still providing the best long-term current range "
-"measurement."
-msgstr "\"平均值 \"将窗口中的所有样本设置为平均值。这样就形成了一条笔直的水平线，可以让您清楚地看到当前量程的变化，同时还能提供最佳的长期当前量程测量。"
+"\"mean\" sets all samples in the window to the mean value. This results in a"
+" straight horizontal line that allows you to clearly see current range "
+"changes while still providing the best long-term current range measurement."
+msgstr ""
+"\"平均值 \"将窗口中的所有样本设置为平均值。这样就形成了一条笔直的水平线，可以让您清楚地看到当前量程的变化，同时还能提供最佳的长期当前量程测量。"
 
 #: devices/jsdrv/js110.py:223
 msgid "\"NaN\" sets all samples in the window to NaN."
@@ -1022,8 +1022,8 @@ msgstr "\"NaN \"将窗口中的所有样本设置为 NaN。"
 
 #: devices/jsdrv/js110.py:224
 msgid ""
-"\"off\" disables the current range filtering, and you will see additional"
-" current range switching artifacts."
+"\"off\" disables the current range filtering, and you will see additional "
+"current range switching artifacts."
 msgstr "\"关闭 \"禁用当前范围过滤，您将看到额外的当前范围切换假象。"
 
 #: devices/jsdrv/js110.py:236
@@ -1032,8 +1032,8 @@ msgstr "IRF for"
 
 #: devices/jsdrv/js110.py:237
 msgid ""
-"The number of samples before the current range window used to determine "
-"the mean. This value is ignored for all other IRF types."
+"The number of samples before the current range window used to determine the "
+"mean. This value is ignored for all other IRF types."
 msgstr "用于确定平均值的当前范围窗口之前的样本数。所有其他 IRF 类型都忽略此值。"
 
 #: devices/jsdrv/js110.py:245
@@ -1042,10 +1042,9 @@ msgstr "IRF 窗口"
 
 #: devices/jsdrv/js110.py:246
 msgid ""
-"Use \"n\" for automatic duration based upon known response time. Use "
-"\"m\" for shorter automatic duration that may result in min/max "
-"distortion. Use any other value to specify a fixed, manual window "
-"duration in samples."
+"Use \"n\" for automatic duration based upon known response time. Use \"m\" "
+"for shorter automatic duration that may result in min/max distortion. Use "
+"any other value to specify a fixed, manual window duration in samples."
 msgstr ""
 "使用 \"n \"表示基于已知响应时间的自动持续时间。使用 \"m "
 "\"表示较短的自动持续时间，可能会导致最小/最大失真。使用任何其他值以样本为单位指定固定的手动窗口持续时间。"
@@ -1056,12 +1055,12 @@ msgstr "IRF 职位"
 
 #: devices/jsdrv/js110.py:255
 msgid ""
-"The number of samples after the current range window used to determine "
-"the mean. This value is ignored for all other IRF types."
+"The number of samples after the current range window used to determine the "
+"mean. This value is ignored for all other IRF types."
 msgstr "用于确定平均值的当前范围窗口后的样本数。所有其他 IRF 类型都忽略此值。"
 
 #: devices/jsdrv/js110.py:269 devices/jsdrv/js220.py:332
-#: widgets/device_control/fuse.py:103 widgets/waveform/waveform_widget.py:104
+#: widgets/device_control/fuse.py:103 widgets/waveform/waveform_widget.py:105
 msgid "Current"
 msgstr "当前"
 
@@ -1070,7 +1069,7 @@ msgid "Enable the current signal streaming."
 msgstr "启用当前信号流。"
 
 #: devices/jsdrv/js110.py:278 devices/jsdrv/js220.py:341
-#: widgets/waveform/waveform_widget.py:105
+#: widgets/waveform/waveform_widget.py:106
 msgid "Voltage"
 msgstr "电压"
 
@@ -1079,7 +1078,7 @@ msgid "Enable the voltage signal streaming."
 msgstr "启用电压信号流。"
 
 #: devices/jsdrv/js110.py:287 devices/jsdrv/js220.py:350
-#: widgets/waveform/waveform_widget.py:106
+#: widgets/waveform/waveform_widget.py:107
 msgid "Power"
 msgstr "电源"
 
@@ -1115,21 +1114,21 @@ msgstr "信号名称"
 #: devices/jsdrv/js220.py:51
 msgid ""
 "This setting allows you to change the default, if you wish, to better "
-"reflect how you are using your JS220. This setting is most useful when "
-"you are instrumenting a system using multiple Joulescopes."
+"reflect how you are using your JS220. This setting is most useful when you "
+"are instrumenting a system using multiple Joulescopes."
 msgstr "此设置允许您更改默认值，以更好地反映您使用 JS220 的方式。当您使用多个焦耳仪对一个系统进行检测时，该设置最为有用。"
 
 #: devices/jsdrv/js220.py:105
 msgid ""
-"The JS220 instrument always samples at 2 MHz and then downsamples to 1 "
-"MHz. This setting controls additional optional downsampling."
+"The JS220 instrument always samples at 2 MHz and then downsamples to 1 MHz. "
+"This setting controls additional optional downsampling."
 msgstr "JS220 始终以 2 MHz 频率采样，然后降采样至 1 MHz。此设置可控制额外的可选降频采样。"
 
 #: devices/jsdrv/js220.py:134
 msgid ""
-"This setting controls the output frequency for the statistics data that "
-"is displayed in the multimeter and value widgets. Statistics data is "
-"computed over the full rate 1 MHz samples."
+"This setting controls the output frequency for the statistics data that is "
+"displayed in the multimeter and value widgets. Statistics data is computed "
+"over the full rate 1 MHz samples."
 msgstr "此设置可控制万用表和数值部件中显示的统计数据的输出频率。统计数据通过全速率 1 MHz 采样进行计算。"
 
 #: devices/jsdrv/js220.py:165
@@ -1152,9 +1151,9 @@ msgstr "此设置仅在当前范围设置为 \"自动 \"时有效。"
 
 #: devices/jsdrv/js220.py:188
 msgid ""
-"You can use this setting to limit the current range and improve "
-"autoranging accuracy when you know your application current is more "
-"limited than the full measurement range."
+"You can use this setting to limit the current range and improve autoranging "
+"accuracy when you know your application current is more limited than the "
+"full measurement range."
 msgstr "当您知道应用电流比整个测量范围更有限时，可以使用此设置来限制电流范围并提高自动量程精度。"
 
 #: devices/jsdrv/js220.py:196
@@ -1173,8 +1172,8 @@ msgstr "配置 JS220 触发器 BNC 连接的方向。"
 
 #: devices/jsdrv/js220.py:210
 msgid ""
-"0 (default) configures the BNC trigger for input only. The BNC connection"
-" is high-impedance."
+"0 (default) configures the BNC trigger for input only. The BNC connection is"
+" high-impedance."
 msgstr "0（默认值）将 BNC 触发器配置为仅用于输入。BNC 连接为高阻抗。"
 
 #: devices/jsdrv/js220.py:212
@@ -1191,16 +1190,16 @@ msgstr "在这两种情况下，触发输入信号都是有效的，因此可以
 
 #: devices/jsdrv/js220.py:226
 msgid ""
-"Configure the JS220's reference voltage for the general-purpose inputs "
-"and outputs."
+"Configure the JS220's reference voltage for the general-purpose inputs and "
+"outputs."
 msgstr "为通用输入和输出配置 JS220 的基准电压。"
 
 #: devices/jsdrv/js220.py:228
 msgid ""
-"We recommend using \"Vref\" when attaching general-purpose outputs (GPO) "
-"to other equipment. Using Vref prevents the GPO from backpowering target "
-"devices when they powered down. The Vref signal and general-purpose "
-"inputs are all extremely high impedance to minimize leakage currents."
+"We recommend using \"Vref\" when attaching general-purpose outputs (GPO) to "
+"other equipment. Using Vref prevents the GPO from backpowering target "
+"devices when they powered down. The Vref signal and general-purpose inputs "
+"are all extremely high impedance to minimize leakage currents."
 msgstr ""
 "我们建议在将通用输出（GPO）连接到其他设备时使用 \"Vref\"。使用 Vref 可以防止 GPO 在目标设备断电时反向供电。Vref "
 "信号和通用输入都具有极高的阻抗，可将漏电流降至最低。"
@@ -1219,8 +1218,8 @@ msgstr "打开或关闭触发输出。"
 
 #: devices/jsdrv/js220.py:257
 msgid ""
-"The trigger must also be configured for output for this setting to have "
-"any effect."
+"The trigger must also be configured for output for this setting to have any "
+"effect."
 msgstr "还必须将触发器配置为输出，此设置才会有效。"
 
 #: devices/jsdrv/js220.py:265
@@ -1245,9 +1244,9 @@ msgstr "无固件更新时为 \"无\"。子名称映射：[当前，可用] 当�
 
 #: devices/jsdrv/js220.py:362
 msgid ""
-"⚠ When enabled, no more than 3 GPIO signals (0, 1, 2, 3, T) may be "
-"enabled. If you attempt to enable too many signals, then the UI will "
-"display no data for any signal."
+"⚠ When enabled, no more than 3 GPIO signals (0, 1, 2, 3, T) may be enabled. "
+"If you attempt to enable too many signals, then the UI will display no data "
+"for any signal."
 msgstr "启用后，最多只能启用 3 个 GPIO 信号（0、1、2、3、T）。如果尝试启用过多信号，用户界面将不会显示任何信号的数据。"
 
 #: devices/jsdrv/js220.py:392
@@ -1266,7 +1265,7 @@ msgstr "GPI 3"
 msgid "Enable the general purpose input 3 signal streaming."
 msgstr "启用通用输入 3 信号流。"
 
-#: devices/jsdrv/js220.py:410 widgets/waveform/waveform_widget.py:123
+#: devices/jsdrv/js220.py:410 widgets/waveform/waveform_widget.py:124
 msgid "Trigger input"
 msgstr "触发输入"
 
@@ -1285,7 +1284,7 @@ msgstr "固件更新状态"
 #: widgets/settings/settings_widget.py:266
 #: widgets/settings/settings_widget.py:364
 #: widgets/settings/settings_widget.py:431
-#: widgets/waveform/waveform_widget.py:3045
+#: widgets/waveform/waveform_widget.py:3061
 msgid "Name"
 msgstr "名称"
 
@@ -1343,16 +1342,16 @@ msgstr "计算累积分布函数"
 
 #: range_tools/cdf.py:31
 msgid ""
-"The Cumulative Distribution Function (CDF) value is the probability that "
-"a signal's value is less than or equal to the x-axis value."
+"The Cumulative Distribution Function (CDF) value is the probability that a "
+"signal's value is less than or equal to the x-axis value."
 msgstr "累积分布函数 (CDF) 值是指信号值小于或等于 x 轴值的概率。"
 
 #: range_tools/cdf.py:33
 msgid ""
-"When use to analyze current or power, this graphically indicates the time"
-" spent below in each current mode. Compared to a histogram, the CDF makes"
-" it easier to compare the amount of time in each mode by simply measuring"
-" the change in the y-axis value."
+"When use to analyze current or power, this graphically indicates the time "
+"spent below in each current mode. Compared to a histogram, the CDF makes it "
+"easier to compare the amount of time in each mode by simply measuring the "
+"change in the y-axis value."
 msgstr ""
 "当用于分析电流或功率时，它以图形方式显示在每种电流模式下所花费的时间。与直方图相比，CDF 只需测量 Y "
 "轴值的变化，就能更容易地比较每种模式下的时间量。"
@@ -1408,6 +1407,7 @@ msgid "Probability Density Distribution"
 msgstr "概率密度分布"
 
 #: range_tools/histogram.py:45 range_tools/max_window.py:119
+#: widgets/trigger/trigger_widget.py:129
 msgid "Signal"
 msgstr "信号"
 
@@ -1424,7 +1424,8 @@ msgid "Compute histogram over the range"
 msgstr "在一定范围内计算直方图"
 
 #: range_tools/histogram.py:192
-msgid "Compute a histogram of the signal's data values over the selected range."
+msgid ""
+"Compute a histogram of the signal's data values over the selected range."
 msgstr "计算选定范围内信号数据值的直方图。"
 
 #: range_tools/max_window.py:24
@@ -1464,9 +1465,9 @@ msgstr "执行 USB 浪涌测试"
 
 #: range_tools/usb_inrush.py:54
 msgid ""
-"Use dual markers to select at least 100 milliseconds after enabling power"
-" to the target device. This tool will send the selected data to the USBET"
-" tool for analysis."
+"Use dual markers to select at least 100 milliseconds after enabling power to"
+" the target device. This tool will send the selected data to the USBET tool "
+"for analysis."
 msgstr "使用双标记选择目标设备通电后至少 100 毫秒。该工具将把所选数据发送到 USBET 工具进行分析。"
 
 #: styles/color_scheme.py:21
@@ -1639,8 +1640,8 @@ msgstr "进展情况"
 
 #: widgets/device_control/device_update_dialog.py:29
 msgid ""
-"Before starting updates, ensure that Joulescopes are plugged directly "
-"into a USB port on the host computer."
+"Before starting updates, ensure that Joulescopes are plugged directly into a"
+" USB port on the host computer."
 msgstr "开始更新前，确保 Joulescopes 直接插入主机的 USB 端口。"
 
 #: widgets/device_control/device_update_dialog.py:31
@@ -1743,6 +1744,7 @@ msgid "Threshold 2"
 msgstr "阈值 2"
 
 #: widgets/device_control/fuse.py:89 widgets/memory/memory_widget.py:225
+#: widgets/trigger/trigger_widget.py:35 widgets/trigger/trigger_widget.py:131
 msgid "Duration"
 msgstr "持续时间"
 
@@ -1798,15 +1800,15 @@ msgstr "打开和关闭设备"
 
 #: widgets/device_control/js220_ctrl_widget.py:62
 msgid ""
-"When closed, click to attempt to open the device. The icon will only "
-"change on a successful device open. Only one application can use a "
-"Joulescope device at a time."
+"When closed, click to attempt to open the device. The icon will only change "
+"on a successful device open. Only one application can use a Joulescope "
+"device at a time."
 msgstr "关闭时，单击可尝试打开设备。只有在成功打开设备时，图标才会改变。一个 Joulescope 设备一次只能使用一个应用程序。"
 
 #: widgets/device_control/js220_ctrl_widget.py:65
 msgid ""
-"When open, click to close the device. This allows the device to be used "
-"in other programs."
+"When open, click to close the device. This allows the device to be used in "
+"other programs."
 msgstr "打开时，单击可关闭设备。这样就可以在其他程序中使用该设备。"
 
 #: widgets/device_control/js220_ctrl_widget.py:71
@@ -1824,8 +1826,8 @@ msgstr "清除蓄电池"
 #: widgets/device_control/js220_ctrl_widget.py:77
 msgid ""
 "Click this button to clear the charge and energy accumulators. The "
-"\"Accrue\" feature of the value display widgets, including the "
-"multimeter, will be unaffected."
+"\"Accrue\" feature of the value display widgets, including the multimeter, "
+"will be unaffected."
 msgstr "单击此按钮可清除电荷和能量累积器。数值显示部件（包括万用表）的 \"累积 \"功能将不受影响。"
 
 #: widgets/device_control/js220_ctrl_widget.py:83
@@ -1835,9 +1837,9 @@ msgstr "校准"
 
 #: widgets/device_control/js220_ctrl_widget.py:84
 msgid ""
-"Click this button to recalibrate your Joulescope JS220. Recalibration is "
-"not required for normal operation. Performing calibration can improve "
-"accuracy by accounting for the existing temperature and aging effects."
+"Click this button to recalibrate your Joulescope JS220. Recalibration is not"
+" required for normal operation. Performing calibration can improve accuracy "
+"by accounting for the existing temperature and aging effects."
 msgstr "点击此按钮重新校准 Joulescope JS220。正常操作不需要重新校准。进行校准可以考虑现有的温度和老化影响，从而提高精度。"
 
 #: widgets/device_control/js220_ctrl_widget.py:391
@@ -1909,9 +1911,9 @@ msgstr "⚠ 在执行校准之前，请确保将您希望保留的任何数据�
 #: widgets/js220_cal/js220_cal_widget.py:29
 msgid ""
 "The Joulescope JS220 is designed to meet its specifications without "
-"recalibration. You can use offset calibration to further reduce the "
-"offset error. If you wish to perform scale calibration, ensure that your "
-"test setup gives a sufficient test uncertainty ratio (TUR)."
+"recalibration. You can use offset calibration to further reduce the offset "
+"error. If you wish to perform scale calibration, ensure that your test setup"
+" gives a sufficient test uncertainty ratio (TUR)."
 msgstr ""
 "Joulescope JS220 "
 "无需重新校准即可满足其规格要求。您可以使用偏移校准来进一步减小偏移误差。如果您希望执行标度校准，请确保您的测试装置提供足够的测试不确定度比（TUR）。"
@@ -1941,7 +1943,8 @@ msgid "Short together Voltage+, Voltage-, and Current+ using wires."
 msgstr "用导线将电压+、电压-和电流+短接起来。"
 
 #: widgets/js220_cal/js220_cal_widget.py:45
-msgid "If you are using the BNC front panel, simply connect Voltage to Current."
+msgid ""
+"If you are using the BNC front panel, simply connect Voltage to Current."
 msgstr "如果使用 BNC 前面板，只需将电压连接到电流即可。"
 
 #: widgets/js220_cal/js220_cal_widget.py:51
@@ -2066,9 +2069,9 @@ msgstr "设备控制"
 
 #: widgets/sidebar/sidebar_widget.py:28
 msgid ""
-"Click to show the device control widget which displays the connected "
-"devices and their settings. Use this widget to open and close devices and"
-" configure their operation."
+"Click to show the device control widget which displays the connected devices"
+" and their settings. Use this widget to open and close devices and configure"
+" their operation."
 msgstr "单击可显示设备控制 widget，其中显示连接的设备及其设置。使用该窗口小部件可以打开和关闭设备并配置其操作。"
 
 #: widgets/sidebar/sidebar_widget.py:34
@@ -2077,15 +2080,16 @@ msgstr "内存缓冲区设置"
 
 #: widgets/sidebar/sidebar_widget.py:35
 msgid ""
-"Streaming signal sample data is stored in your host computer's RAM. Click"
-" this button to show the memory management widget which allows you to "
+"Streaming signal sample data is stored in your host computer's RAM. Click "
+"this button to show the memory management widget which allows you to "
 "configure the memory used by this Joulescope UI instance."
-msgstr "流信号采样数据存储在主机的 RAM 中。单击此按钮可显示内存管理窗口小部件，该窗口小部件允许您配置此 Joulescope UI 实例使用的内存。"
+msgstr ""
+"流信号采样数据存储在主机的 RAM 中。单击此按钮可显示内存管理窗口小部件，该窗口小部件允许您配置此 Joulescope UI 实例使用的内存。"
 
 #: widgets/sidebar/sidebar_widget.py:43
 msgid ""
-"Click to show the settings which allows you to change the global, "
-"default, and individual instance settings for devices and widgets."
+"Click to show the settings which allows you to change the global, default, "
+"and individual instance settings for devices and widgets."
 msgstr "单击可显示设置，允许您更改设备和 widget 的全局、默认和单个实例设置。"
 
 #: widgets/sidebar/sidebar_widget.py:46
@@ -2147,6 +2151,125 @@ msgstr "统计记录配置"
 msgid "Time Format"
 msgstr "时间格式"
 
+#: widgets/trigger/trigger_widget.py:34
+msgid "Edge"
+msgstr "边缘"
+
+#: widgets/trigger/trigger_widget.py:47
+msgid "Always"
+msgstr "始终如一"
+
+#: widgets/trigger/trigger_widget.py:48
+#, fuzzy
+#| msgid "New View"
+msgid "Never"
+msgstr "新视图"
+
+#: widgets/trigger/trigger_widget.py:54
+msgid "between"
+msgstr "之间"
+
+#: widgets/trigger/trigger_widget.py:55
+msgid "outside"
+msgstr "外"
+
+#: widgets/trigger/trigger_widget.py:84
+#, fuzzy
+#| msgid "The source filter string."
+msgid "The source instrument."
+msgstr "源过滤器字符串。"
+
+#: widgets/trigger/trigger_widget.py:92
+#, fuzzy
+#| msgid "Signal"
+msgid "Single"
+msgstr "信号"
+
+#: widgets/trigger/trigger_widget.py:93
+#, fuzzy
+#| msgid "Contents"
+msgid "Continuous"
+msgstr "目录"
+
+#: widgets/trigger/trigger_widget.py:128
+#, fuzzy
+#| msgid "IRF type"
+msgid "Type"
+msgstr "IRF 类型"
+
+#: widgets/trigger/trigger_widget.py:130
+#, fuzzy
+#| msgid "Action"
+msgid "Condition"
+msgstr "行动"
+
+#: widgets/trigger/trigger_widget.py:383
+#, fuzzy
+#| msgid "Signal sample recording"
+msgid "Start signal sample recording"
+msgstr "信号采样记录"
+
+#: widgets/trigger/trigger_widget.py:384 widgets/trigger/trigger_widget.py:397
+msgid "Config"
+msgstr "配置"
+
+#: widgets/trigger/trigger_widget.py:388
+#, fuzzy
+#| msgid "Trigger direction"
+msgid "Pretrigger duration"
+msgstr "触发方向"
+
+#: widgets/trigger/trigger_widget.py:396
+#, fuzzy
+#| msgid "Statistics recording"
+msgid "Start statistics recording"
+msgstr "统计记录"
+
+#: widgets/trigger/trigger_widget.py:404
+#, fuzzy
+#| msgid "Set units"
+msgid "Set output"
+msgstr "设置单位"
+
+#: widgets/trigger/trigger_widget.py:416
+#: widgets/waveform/waveform_control.py:29
+msgid "Add single marker"
+msgstr "添加单个标记"
+
+#: widgets/trigger/trigger_widget.py:484
+#, fuzzy
+#| msgid "Trigger input"
+msgid "Trigger"
+msgstr "触发输入"
+
+#: widgets/trigger/trigger_widget.py:502
+msgid "No sources found"
+msgstr "未找到来源"
+
+#: widgets/trigger/trigger_widget.py:522
+#, fuzzy
+#| msgid "Histogram configuration"
+msgid "Start Condition"
+msgstr "直方图配置"
+
+#: widgets/trigger/trigger_widget.py:525
+#, fuzzy
+#| msgid "Action"
+msgid "Start Actions"
+msgstr "行动"
+
+#: widgets/trigger/trigger_widget.py:528
+#, fuzzy
+#| msgid "Histogram configuration"
+msgid "Stop Condition"
+msgstr "直方图配置"
+
+#: widgets/trigger/trigger_widget.py:531
+#, fuzzy
+#| msgid "Options"
+msgid "Stop Actions"
+msgstr "选项"
+
 #: widgets/value/value_widget.py:36
 msgid "Show the device selection header."
 msgstr "显示设备选择标题。"
@@ -2169,8 +2292,8 @@ msgstr "选择源设备"
 
 #: widgets/value/value_widget.py:88
 msgid ""
-"The values displayed by this widget come from a single source device. "
-"Select the source device here."
+"The values displayed by this widget come from a single source device. Select"
+" the source device here."
 msgstr "此 Widget 显示的数值来自单一源设备。在此选择源设备。"
 
 #: widgets/value/value_widget.py:94
@@ -2183,17 +2306,17 @@ msgstr "选择此选项后，显示屏将无法更新。"
 
 #: widgets/value/value_widget.py:97
 msgid ""
-"The UI also includes a global statistics hold button on the sidebar. When"
-" the global statistics hold button is selected, this button is disabled "
-"and has no effect."
+"The UI also includes a global statistics hold button on the sidebar. When "
+"the global statistics hold button is selected, this button is disabled and "
+"has no effect."
 msgstr "用户界面侧边栏上还有一个全局统计数据保持按钮。选择全局统计保持按钮后，该按钮将被禁用，没有任何作用。"
 
 #: widgets/value/value_widget.py:100
 msgid ""
-"The displayed values normally update with each new statistics data "
-"computed by the device. When this button is selected, the display will "
-"not be updated. However, the statistics will continue accumulate and "
-"accrue (if selected)."
+"The displayed values normally update with each new statistics data computed "
+"by the device. When this button is selected, the display will not be "
+"updated. However, the statistics will continue accumulate and accrue (if "
+"selected)."
 msgstr "显示值通常会随设备计算的每个新统计数据更新。选择此按钮后，显示值将不会更新。但是，统计数据将继续累积（如果选择）。"
 
 #: widgets/value/value_widget.py:107
@@ -2202,15 +2325,15 @@ msgstr "长期积累价值"
 
 #: widgets/value/value_widget.py:109
 msgid ""
-"Current, voltage, and power are normally computed over a single "
-"statistics frequency interval. Press this button to accrue the values "
-"indefinitely. Press again to return to normal operation."
+"Current, voltage, and power are normally computed over a single statistics "
+"frequency interval. Press this button to accrue the values indefinitely. "
+"Press again to return to normal operation."
 msgstr "电流、电压和功率通常在单个统计频率间隔内计算。按下此按钮可无限累积数值。再次按下则返回正常操作。"
 
 #: widgets/value/value_widget.py:113
 msgid ""
-"Note that this button does not affect the charge and energy accumulation."
-" Both accumulate indefinitely regardless of this button state."
+"Note that this button does not affect the charge and energy accumulation. "
+"Both accumulate indefinitely regardless of this button state."
 msgstr "请注意，该按钮不会影响电荷和能量的累积。无论该按钮处于何种状态，两者都会无限累积。"
 
 #: widgets/value/value_widget.py:195
@@ -2303,7 +2426,7 @@ msgid "triangle left"
 msgstr "左三角"
 
 #: widgets/waveform/text_annotation.py:66
-#: widgets/waveform/waveform_widget.py:2991
+#: widgets/waveform/waveform_widget.py:3007
 msgid "Manual"
 msgstr "手册"
 
@@ -2312,17 +2435,17 @@ msgid "Centered"
 msgstr "居中"
 
 #: widgets/waveform/text_annotation.py:99
-#: widgets/waveform/waveform_widget.py:3106
+#: widgets/waveform/waveform_widget.py:3122
 msgid "Text"
 msgstr "文本"
 
 #: widgets/waveform/text_annotation.py:107
-#: widgets/waveform/waveform_widget.py:3331
+#: widgets/waveform/waveform_widget.py:3347
 msgid "Show text"
 msgstr "显示文本"
 
 #: widgets/waveform/text_annotation.py:116
-#: widgets/waveform/waveform_widget.py:3343
+#: widgets/waveform/waveform_widget.py:3359
 msgid "Shape"
 msgstr "形状"
 
@@ -2332,13 +2455,9 @@ msgstr "Y 时尚"
 
 #: widgets/waveform/waveform_control.py:24
 msgid ""
-"To reposition the marker, left click on the marker, move the mouse to the"
-" new location, and the left click again."
+"To reposition the marker, left click on the marker, move the mouse to the "
+"new location, and the left click again."
 msgstr "要重新定位标记，请左键单击标记，将鼠标移动到新位置，然后再次左键单击。"
-
-#: widgets/waveform/waveform_control.py:29
-msgid "Add single marker"
-msgstr "添加单个标记"
 
 #: widgets/waveform/waveform_control.py:31
 msgid "Click to add a single marker to the waveform."
@@ -2360,8 +2479,8 @@ msgstr "单击可为波形添加双标记。"
 
 #: widgets/waveform/waveform_control.py:42
 msgid ""
-"You can also add a dual markers by right-clicking on the x-axis or in the"
-" plot area."
+"You can also add a dual markers by right-clicking on the x-axis or in the "
+"plot area."
 msgstr "您还可以右键单击 x 轴或绘图区域，添加双标记。"
 
 #: widgets/waveform/waveform_control.py:47
@@ -2370,8 +2489,8 @@ msgstr "清除所有标记"
 
 #: widgets/waveform/waveform_control.py:48
 msgid ""
-"Click to clear all markers from the waveform. This operation removes both"
-" single markers and dual markers."
+"Click to clear all markers from the waveform. This operation removes both "
+"single markers and dual markers."
 msgstr "单击可清除波形中的所有标记。此操作可清除单标记和双标记。"
 
 #: widgets/waveform/waveform_control.py:53
@@ -2385,8 +2504,8 @@ msgstr "点击可沿时间 x 轴放大。"
 #: widgets/waveform/waveform_control.py:56
 #: widgets/waveform/waveform_control.py:64
 msgid ""
-"You can also zoom by positioning the mouse over the waveform and then "
-"using the scroll wheel."
+"You can also zoom by positioning the mouse over the waveform and then using "
+"the scroll wheel."
 msgstr "您也可以将鼠标放在波形上，然后使用滚轮进行缩放。"
 
 #: widgets/waveform/waveform_control.py:61
@@ -2446,8 +2565,8 @@ msgstr "显示最小/最大扩展名"
 #: widgets/waveform/waveform_control.py:95
 msgid ""
 "Change how the waveform shows the min/max extents. When zoomed out, each "
-"pixel may represent many samples. Displaying the min/max can allow you to"
-" see events that may be missed with just the average."
+"pixel may represent many samples. Displaying the min/max can allow you to "
+"see events that may be missed with just the average."
 msgstr "改变波形显示最小/最大范围的方式。放大时，每个像素可能代表许多样本。显示最小/最大值可以让您看到仅用平均值可能会忽略的事件。"
 
 #: widgets/waveform/waveform_control.py:99
@@ -2500,13 +2619,13 @@ msgstr "选择该轨迹的来源。"
 
 #: widgets/waveform/waveform_source_widget.py:40
 msgid ""
-"\"default\" will use the default source which is normally configured "
-"using the Device Control widget."
+"\"default\" will use the default source which is normally configured using "
+"the Device Control widget."
 msgstr "\"默认 \"将使用默认信号源，该信号源通常使用设备控制 widget 进行配置。"
 
 #: widgets/waveform/waveform_source_widget.py:104
-#: widgets/waveform/waveform_widget.py:401
-#: widgets/waveform/waveform_widget.py:478
+#: widgets/waveform/waveform_widget.py:402
+#: widgets/waveform/waveform_widget.py:479
 msgid "off"
 msgstr "关闭"
 
@@ -2514,300 +2633,300 @@ msgstr "关闭"
 msgid "Waveform"
 msgstr "波形"
 
-#: widgets/waveform/waveform_widget.py:119
+#: widgets/waveform/waveform_widget.py:120
 msgid "General purpose input 0"
 msgstr "通用输入 0"
 
-#: widgets/waveform/waveform_widget.py:120
+#: widgets/waveform/waveform_widget.py:121
 msgid "General purpose input 1"
 msgstr "通用输入 1"
 
-#: widgets/waveform/waveform_widget.py:121
+#: widgets/waveform/waveform_widget.py:122
 msgid "General purpose input 2"
 msgstr "通用输入 2"
 
-#: widgets/waveform/waveform_widget.py:122
+#: widgets/waveform/waveform_widget.py:123
 msgid "General purpose input 3"
 msgstr "通用输入 3"
 
-#: widgets/waveform/waveform_widget.py:357
+#: widgets/waveform/waveform_widget.py:358
 msgid "The source filter string."
 msgstr "源过滤器字符串。"
 
-#: widgets/waveform/waveform_widget.py:368
+#: widgets/waveform/waveform_widget.py:369
 msgid "The trace width."
 msgstr "轨迹宽度。"
 
-#: widgets/waveform/waveform_widget.py:383
+#: widgets/waveform/waveform_widget.py:384
 msgid "The target frames per second."
 msgstr "目标帧/秒。"
 
-#: widgets/waveform/waveform_widget.py:385
+#: widgets/waveform/waveform_widget.py:386
 msgid "vsync"
 msgstr "vsync"
 
-#: widgets/waveform/waveform_widget.py:386
+#: widgets/waveform/waveform_widget.py:387
 msgid "20 Hz"
 msgstr "20 赫兹"
 
-#: widgets/waveform/waveform_widget.py:387
+#: widgets/waveform/waveform_widget.py:388
 msgid "10 Hz"
 msgstr "10 赫兹"
 
-#: widgets/waveform/waveform_widget.py:388
+#: widgets/waveform/waveform_widget.py:389
 msgid "5 Hz"
 msgstr "5 赫兹"
 
-#: widgets/waveform/waveform_widget.py:394
+#: widgets/waveform/waveform_widget.py:395
 msgid "The minimum interval between repaint in milliseconds."
 msgstr "重新绘制的最小间隔时间（毫秒）。"
 
-#: widgets/waveform/waveform_widget.py:399
+#: widgets/waveform/waveform_widget.py:400
 msgid "Show the minimum and maximum extents fill."
 msgstr "显示填充的最小和最大范围。"
 
-#: widgets/waveform/waveform_widget.py:402
+#: widgets/waveform/waveform_widget.py:403
 msgid "lines"
 msgstr "线条"
 
-#: widgets/waveform/waveform_widget.py:403
+#: widgets/waveform/waveform_widget.py:404
 msgid "fill 1"
 msgstr "填充 1"
 
-#: widgets/waveform/waveform_widget.py:404
+#: widgets/waveform/waveform_widget.py:405
 msgid "fill 2"
 msgstr "填充 2"
 
-#: widgets/waveform/waveform_widget.py:410
+#: widgets/waveform/waveform_widget.py:411
 msgid "Show the frames per second."
 msgstr "显示每秒帧数"
 
-#: widgets/waveform/waveform_widget.py:415
+#: widgets/waveform/waveform_widget.py:416
 msgid "Show the statistics on mouse hover."
 msgstr "鼠标悬停时显示统计数据。"
 
-#: widgets/waveform/waveform_widget.py:420
+#: widgets/waveform/waveform_widget.py:421
 msgid "Show the plot statistics on the right."
 msgstr "在右侧显示绘图统计数据。"
 
-#: widgets/waveform/waveform_widget.py:425
+#: widgets/waveform/waveform_widget.py:426
 msgid "Show frequency for dual markers and statistics."
 msgstr "显示双重标记的频率和统计数据。"
 
-#: widgets/waveform/waveform_widget.py:430
+#: widgets/waveform/waveform_widget.py:431
 msgid "The quantities to display by default."
 msgstr "默认显示的数量。"
 
-#: widgets/waveform/waveform_widget.py:436
+#: widgets/waveform/waveform_widget.py:437
 msgid "The precision to display in digits."
 msgstr "以位数显示的精度。"
 
-#: widgets/waveform/waveform_widget.py:442
+#: widgets/waveform/waveform_widget.py:443
 msgid "Use OpenGL rendering."
 msgstr "使用 OpenGL 渲染。"
 
-#: widgets/waveform/waveform_widget.py:453
+#: widgets/waveform/waveform_widget.py:454
 msgid "Pin the left side (oldest) data so that it stays in view."
 msgstr "钉住左侧（最旧）数据，使其保持在视图中。"
 
-#: widgets/waveform/waveform_widget.py:458
+#: widgets/waveform/waveform_widget.py:459
 msgid "Pin the right side (newest) data so that it stays in view."
 msgstr "钉住右侧（最新）数据，使其保持在视图中。"
 
-#: widgets/waveform/waveform_widget.py:463
+#: widgets/waveform/waveform_widget.py:464
 msgid "The waveform state."
 msgstr "波形状态。"
 
-#: widgets/waveform/waveform_widget.py:469
+#: widgets/waveform/waveform_widget.py:470
 msgid "The annotations."
 msgstr "注释"
 
-#: widgets/waveform/waveform_widget.py:475
+#: widgets/waveform/waveform_widget.py:476
 msgid "Control location"
 msgstr "控制位置"
 
-#: widgets/waveform/waveform_widget.py:479
+#: widgets/waveform/waveform_widget.py:480
 msgid "top"
 msgstr "顶级"
 
-#: widgets/waveform/waveform_widget.py:480
+#: widgets/waveform/waveform_widget.py:481
 msgid "bottom"
 msgstr "底层"
 
-#: widgets/waveform/waveform_widget.py:485
+#: widgets/waveform/waveform_widget.py:486
 msgid "The signal quantity to show in the summary."
 msgstr "摘要中要显示的信号量。"
 
-#: widgets/waveform/waveform_widget.py:491
+#: widgets/waveform/waveform_widget.py:492
 msgid "X-axis annotation mode"
 msgstr "X 轴注释模式"
 
-#: widgets/waveform/waveform_widget.py:494
-#: widgets/waveform/waveform_widget.py:2871
+#: widgets/waveform/waveform_widget.py:495
+#: widgets/waveform/waveform_widget.py:2887
 msgid "Absolute"
 msgstr "绝对"
 
-#: widgets/waveform/waveform_widget.py:495
-#: widgets/waveform/waveform_widget.py:2876
+#: widgets/waveform/waveform_widget.py:496
+#: widgets/waveform/waveform_widget.py:2892
 msgid "Relative"
 msgstr "相关"
 
-#: widgets/waveform/waveform_widget.py:501
+#: widgets/waveform/waveform_widget.py:502
 msgid "The available subsources."
 msgstr "可用的子资源。"
 
-#: widgets/waveform/waveform_widget.py:507
+#: widgets/waveform/waveform_widget.py:508
 msgid "The selected subsources for each trace."
 msgstr "每个轨迹的选定子源。"
 
-#: widgets/waveform/waveform_widget.py:513
+#: widgets/waveform/waveform_widget.py:514
 msgid "The trace priority: highest int value on top, None is off."
 msgstr "轨迹优先级：最高 int 值在顶部，无为关闭。"
 
-#: widgets/waveform/waveform_widget.py:2817
-#: widgets/waveform/waveform_widget.py:3118
+#: widgets/waveform/waveform_widget.py:2833
+#: widgets/waveform/waveform_widget.py:3134
 msgid "Save image to file"
 msgstr "将图像保存到文件"
 
-#: widgets/waveform/waveform_widget.py:2865
-#: widgets/waveform/waveform_widget.py:2934
+#: widgets/waveform/waveform_widget.py:2881
+#: widgets/waveform/waveform_widget.py:2950
 msgid "Single marker"
 msgstr "单一标记"
 
-#: widgets/waveform/waveform_widget.py:2866
-#: widgets/waveform/waveform_widget.py:2935
+#: widgets/waveform/waveform_widget.py:2882
+#: widgets/waveform/waveform_widget.py:2951
 msgid "Dual markers"
 msgstr "双标记"
 
-#: widgets/waveform/waveform_widget.py:2868
+#: widgets/waveform/waveform_widget.py:2884
 msgid "Mode"
 msgstr "模式"
 
-#: widgets/waveform/waveform_widget.py:2881
-#: widgets/waveform/waveform_widget.py:2936
-#: widgets/waveform/waveform_widget.py:3094
-#: widgets/waveform/waveform_widget.py:3112
+#: widgets/waveform/waveform_widget.py:2897
+#: widgets/waveform/waveform_widget.py:2952
+#: widgets/waveform/waveform_widget.py:3110
+#: widgets/waveform/waveform_widget.py:3128
 msgid "Clear all"
 msgstr "全部清除"
 
-#: widgets/waveform/waveform_widget.py:2892
-#: widgets/waveform/waveform_widget.py:2981
-#: widgets/waveform/waveform_widget.py:3100
+#: widgets/waveform/waveform_widget.py:2908
+#: widgets/waveform/waveform_widget.py:2997
+#: widgets/waveform/waveform_widget.py:3116
 msgid "Annotations"
 msgstr "注释"
 
-#: widgets/waveform/waveform_widget.py:2984
+#: widgets/waveform/waveform_widget.py:3000
 msgid "Range"
 msgstr "范围"
 
-#: widgets/waveform/waveform_widget.py:2988
-#: widgets/waveform/waveform_widget.py:3311
+#: widgets/waveform/waveform_widget.py:3004
+#: widgets/waveform/waveform_widget.py:3327
 msgid "Auto"
 msgstr "汽车"
 
-#: widgets/waveform/waveform_widget.py:2994
+#: widgets/waveform/waveform_widget.py:3010
 msgid "Exact"
 msgstr "精确"
 
-#: widgets/waveform/waveform_widget.py:3003
+#: widgets/waveform/waveform_widget.py:3019
 msgid "Scale"
 msgstr "楼梯"
 
-#: widgets/waveform/waveform_widget.py:3006
+#: widgets/waveform/waveform_widget.py:3022
 msgid "Linear"
 msgstr "线性"
 
-#: widgets/waveform/waveform_widget.py:3011
+#: widgets/waveform/waveform_widget.py:3027
 msgid "Logarithmic"
 msgstr "对数"
 
-#: widgets/waveform/waveform_widget.py:3019
+#: widgets/waveform/waveform_widget.py:3035
 msgid "Logarithmic zero"
 msgstr "对数零"
 
-#: widgets/waveform/waveform_widget.py:3033
+#: widgets/waveform/waveform_widget.py:3049
 msgid "Preferred prefix"
 msgstr "首选前缀"
 
-#: widgets/waveform/waveform_widget.py:3091
+#: widgets/waveform/waveform_widget.py:3107
 msgid "Add"
 msgstr "添加"
 
-#: widgets/waveform/waveform_widget.py:3092
+#: widgets/waveform/waveform_widget.py:3108
 msgid "Hide all text"
 msgstr "隐藏所有文本"
 
-#: widgets/waveform/waveform_widget.py:3093
+#: widgets/waveform/waveform_widget.py:3109
 msgid "Show all text"
 msgstr "显示所有文本"
 
-#: widgets/waveform/waveform_widget.py:3101
+#: widgets/waveform/waveform_widget.py:3117
 msgid "Vertical"
 msgstr "垂直"
 
-#: widgets/waveform/waveform_widget.py:3104
+#: widgets/waveform/waveform_widget.py:3120
 msgid "Horizontal"
 msgstr "横向"
 
-#: widgets/waveform/waveform_widget.py:3110
+#: widgets/waveform/waveform_widget.py:3126
 msgid "Save"
 msgstr "节省"
 
-#: widgets/waveform/waveform_widget.py:3115
+#: widgets/waveform/waveform_widget.py:3131
 msgid "Y-axis auto range"
 msgstr "Y 轴自动量程"
 
-#: widgets/waveform/waveform_widget.py:3119
+#: widgets/waveform/waveform_widget.py:3135
 msgid "Copy image to clipboard"
 msgstr "将图像复制到剪贴板"
 
-#: widgets/waveform/waveform_widget.py:3120
+#: widgets/waveform/waveform_widget.py:3136
 msgid "Export visible data"
 msgstr "导出可见数据"
 
-#: widgets/waveform/waveform_widget.py:3121
+#: widgets/waveform/waveform_widget.py:3137
 msgid "Export all data"
 msgstr "导出所有数据"
 
-#: widgets/waveform/waveform_widget.py:3287
+#: widgets/waveform/waveform_widget.py:3303
 msgid "Export"
 msgstr "出口"
 
-#: widgets/waveform/waveform_widget.py:3288
+#: widgets/waveform/waveform_widget.py:3304
 msgid "Analysis"
 msgstr "分析"
 
-#: widgets/waveform/waveform_widget.py:3296
+#: widgets/waveform/waveform_widget.py:3312
 msgid "Interval"
 msgstr "间隔"
 
-#: widgets/waveform/waveform_widget.py:3305
+#: widgets/waveform/waveform_widget.py:3321
 msgid "Zoom"
 msgstr "放大"
 
-#: widgets/waveform/waveform_widget.py:3309
+#: widgets/waveform/waveform_widget.py:3325
 msgid "Show statistics"
 msgstr "显示统计数据"
 
-#: widgets/waveform/waveform_widget.py:3314
+#: widgets/waveform/waveform_widget.py:3330
 msgid "Left"
 msgstr "左侧"
 
-#: widgets/waveform/waveform_widget.py:3317
+#: widgets/waveform/waveform_widget.py:3333
 msgid "Right"
 msgstr "对"
 
-#: widgets/waveform/waveform_widget.py:3320
+#: widgets/waveform/waveform_widget.py:3336
 msgid "Off"
 msgstr "关闭"
 
-#: widgets/waveform/waveform_widget.py:3323
-#: widgets/waveform/waveform_widget.py:3351
-#: widgets/waveform/waveform_widget.py:3380
+#: widgets/waveform/waveform_widget.py:3339
+#: widgets/waveform/waveform_widget.py:3367
+#: widgets/waveform/waveform_widget.py:3396
 msgid "Remove"
 msgstr "移除"
 
-#: widgets/waveform/waveform_widget.py:3334
+#: widgets/waveform/waveform_widget.py:3350
 msgid "Y mode"
 msgstr "Y 模式"
 
@@ -2817,4 +2936,3 @@ msgstr "单位"
 
 #~ msgid "Typical response time: %(days)s business days"
 #~ msgstr "典型响应时间：%(天)s 工作日"
-
