@@ -15,7 +15,7 @@
 """
 The JLS v1 reader.
 """
-
+import copy
 import os
 import logging
 from joulescope_ui import Metadata, time64
@@ -106,7 +106,7 @@ class JlsV1:
         }
 
         if jls.calibration is None:
-            meta = {
+            info = {
                 'vendor': 'Jetperch LLC',
                 'model': '__unknown__',
                 'version': '0.0.0',
@@ -115,7 +115,7 @@ class JlsV1:
             }
         else:
             c = jls.calibration.json()
-            meta = {
+            info = {
                 'vendor': c['vendor_name'],
                 'model': c['product_name'],
                 'version': '0.0.0',
@@ -124,10 +124,12 @@ class JlsV1:
             }
         pubsub.topic_add(f'{topic}/settings/sources/1/name',
                          Metadata('str', 'Source name', default=source_name))
-        pubsub.topic_add(f'{topic}/settings/sources/1/meta',
-                         Metadata('obj', 'Source metadata', default=meta,
+        pubsub.topic_add(f'{topic}/settings/sources/1/info',
+                         Metadata('obj', 'Source metadata', default=info,
                                   flags=['hide', 'ro', 'skip_undo']))
 
+        meta = copy.deepcopy(info)
+        meta['source'] = '1'
         for signal in SIGNALS_V1.keys():
             signal_id = f'1.{signal}'
             pubsub.topic_add(f'{topic}/settings/signals/{signal_id}/name',

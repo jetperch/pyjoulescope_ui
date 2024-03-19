@@ -64,6 +64,7 @@ _ANNOTATION_Y_MOD = ((1 << 16) + 2)   # must be multiple of plot colors
 _MARKER_SELECT_DISTANCE_PIXELS = 5
 _EXPORT_WHILE_STREAMING_START_OFFSET = time64.SECOND  # not sure of any better way...
 _X_MARKER_ZOOM_LEVELS = [100, 90, 75, 50, 33, 25, 10]
+_DOT_RADIUS = 3
 
 
 def _analog_plot(quantity, show, units, name, integral=None, range_bounds=None):
@@ -836,6 +837,8 @@ class WaveformWidget(QtWidgets.QWidget):
         self._shortcuts.clear()
         self._paint_timer.stop()
         self._paint_state = PaintState.IDLE
+
+    def on_pubsub_delete(self):
         for topic, value in self.pubsub.query(f'{self.topic}/settings/close_actions', default=[]):
             self._log.info('waveform close: %s %s', topic, value)
             self.pubsub.publish(topic, value)
@@ -1233,11 +1236,17 @@ class WaveformWidget(QtWidgets.QWidget):
             'summary_min_max_fill': QBrush(color_as_qcolor(summary_trace, alpha=min_max_fill_alpha)),
             'summary_view': QBrush(color_as_qcolor(v['waveform.summary_view'])),
 
-            'plot_trace': [
+            'plot_trace_pen': [
                 QPen(color_as_qcolor(trace1, alpha=trace_alpha)),
                 QPen(color_as_qcolor(trace2, alpha=trace_alpha)),
                 QPen(color_as_qcolor(trace3, alpha=trace_alpha)),
                 QPen(color_as_qcolor(trace4, alpha=trace_alpha)),
+            ],
+            'plot_trace_brush': [
+                QBrush(color_as_qcolor(trace1, alpha=trace_alpha)),
+                QBrush(color_as_qcolor(trace2, alpha=trace_alpha)),
+                QBrush(color_as_qcolor(trace3, alpha=trace_alpha)),
+                QBrush(color_as_qcolor(trace4, alpha=trace_alpha)),
             ],
             'plot_min_max_trace': [
                 QPen(color_as_qcolor(trace1, alpha=min_max_trace_alpha)),
@@ -1303,7 +1312,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def on_setting_trace_width(self, value):
         if self._style_cache is not None:
-            for trace in self._style_cache['plot_trace']:
+            for trace in self._style_cache['plot_trace_pen']:
                 trace.setWidth(value)
             self._repaint_request = True
 
@@ -1601,7 +1610,7 @@ class WaveformWidget(QtWidgets.QWidget):
         traces = self._traces(quantity)
         if len(traces):
             trace_idx, subsource = traces[0]
-            pen = s['plot_trace'][trace_idx]
+            pen = s['plot_trace_pen'][trace_idx]
             brush = s[f'plot_min_max_fill_brush'][trace_idx]
         else:
             pen = s['summary_trace']
@@ -1789,6 +1798,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 if np.any(np.abs(d_x - d_x2) > 0.5):
                     self._log.warning('x does not conform to pixels')
                     d_x = d_x2
+            x_space = (d_x[-1] - d_x[0]) / (1 + len(d_x))
 
             finite_idx = self._finite_idx(d)
             segment_idx = _idx_to_segments(finite_idx)
@@ -1833,8 +1843,14 @@ class WaveformWidget(QtWidgets.QWidget):
 
                 d_y = self._y_value_to_pixel(plot, d_avg)
                 segs = self._points.set_line(d_x_segment, d_y)
-                p.setPen(s['plot_trace'][trace_idx])
+                p.setPen(s['plot_trace_pen'][trace_idx])
                 p.drawPolyline(segs)
+                p.setPen(self._NO_PEN)
+                p.setBrush(s['plot_trace_brush'][trace_idx])
+                if x_space > (3 * _DOT_RADIUS):
+                    for x, y in zip(d_x_segment, d_y):
+                        p.drawEllipse(QtCore.QPointF(x, y), _DOT_RADIUS, _DOT_RADIUS)
+                p.setBrush(self._NO_BRUSH)
 
         p.setBrush(s['text_brush'])
         f_a = s['axis_font_metrics'].ascent()
@@ -2212,17 +2228,17 @@ class WaveformWidget(QtWidgets.QWidget):
         x = self._x_map.counter_to_time64(x_pixels)
         x_rel = self._x_map.time64_to_trel(x)
         index = np.abs(data['x'] - x).argmin()
+        x_rel = data['x'][index]
+        x_pixels = self._x_map.time64_to_counter(x_rel)
         y = data['avg'][index]
         if not np.isfinite(y):
             return
         y_pixels = int(np.rint(self._y_value_to_pixel(plot, y)))
 
-        dot_radius = 2
-        dot_diameter = dot_radius * 2
         s = self._style
         p.setPen(self._NO_PEN)
         p.setBrush(s['waveform.hover'])
-        p.drawEllipse(x_pixels - dot_radius, y_pixels - dot_radius, dot_diameter, dot_diameter)
+        p.drawEllipse(QtCore.QPointF(x_pixels, y_pixels), _DOT_RADIUS, _DOT_RADIUS)
 
         p.setFont(s['axis_font'])
         x_txt = _si_format(x_rel, 's', precision=self.precision)
@@ -2238,10 +2254,10 @@ class WaveformWidget(QtWidgets.QWidget):
         _, x0, x1 = self._x_geometry_info[x_name]
         _, y0, y1 = self._y_geometry_info[y_name]
         p.setClipRect(x0, y0, x1 - x0, y1 - y0)
-        x_pixels += dot_radius
+        x_pixels += _DOT_RADIUS
         if x_pixels + w > x1:
             # show on left side
-            x_pixels -= dot_diameter + w
+            x_pixels -= 2 * _DOT_RADIUS + w
         if y_pixels < y0:
             y_pixels = y0
         elif y_pixels + h > y1:
