@@ -4,5 +4,26 @@
   "description": "Trigger theme",
   "templates": ["style.qss"],
   "images": {
+    "run_mode": {
+      "sources": [
+        "single.svg",
+        "continuous.svg",
+        "inactive.svg"
+      ],
+      "targets": [
+        ["{basename}_enabled{ext}",   {"#ffffff": "trigger.title_foreground", "#888888": "trigger.title_background"}],
+        ["{basename}_hover{ext}",   {"#ffffff": "trigger.title_foreground_hover", "#888888": "trigger.title_background_hover"}]
+      ]
+    },
+    "status": {
+      "sources": [
+        "searching.svg",
+        "active.svg"
+      ],
+      "targets": [
+        ["{basename}_enabled{ext}",   {"#ffffff": "trigger.title_foreground", "#888888": "trigger.status_background"}],
+        ["{basename}_hover{ext}",   {"#ffffff": "trigger.title_foreground_hover", "#888888": "trigger.status_background_hover"}]
+      ]
+    }
   }
 }

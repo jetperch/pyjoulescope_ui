@@ -13,11 +13,39 @@
 # limitations under the License.
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from joulescope_ui import N_, tooltip_format, register, CAPABILITIES, get_topic_name
+from joulescope_ui import N_, P_, tooltip_format, register, CAPABILITIES, get_topic_name
 from joulescope_ui.ui_util import comboBoxConfig, comboBoxSelectItemByText
 from joulescope_ui.styles import styled_widget
 from joulescope_ui.widgets.waveform.interval_widget import IntervalWidget
 from joulescope_ui.source_selector import SourceSelector
+import logging
+
+
+_RUN_MODE_TOOLTIP = tooltip_format(
+    N_('Configure run mode'),
+    P_([
+        N_('''Select the run mode, which is either "single" or "continuous"'''),
+        N_('"single" mode performs one capture and then returns to inactive mode'),
+        N_('"continuous" mode repeats indefinitely until manually stopped'),
+    ])
+)
+
+_STATUS_TOOLTIP = tooltip_format(
+    N_('Status button and indicator'),
+    P_([
+        N_('When inactive, press to run the trigger sequence. '
+           + 'When "searching", press to return to inactive. '
+           + 'When "active", press to stop and return to "inactive".'),
+        N_('"inactive" allows you to configure the trigger options.'),
+        N_('"search" looks for the configured start conditions. '
+           + 'When the start conditions are met, it performs the start actions '
+           + 'and advances to "active". '),
+        N_('"stop" looks for the configured stop conditions. '
+           + 'When the stop conditions are met, it performs the stop actions. '
+           + 'It then advances to "inactive" for "single" run mode '
+           + 'or "search" for "continuous" run mode..')
+    ])
+)
 
 
 def generate_map(value):
@@ -489,6 +517,7 @@ class TriggerWidget(QtWidgets.QWidget):
 
     def __init__(self, parent=None):
         self._connected = False
+        self._log = logging.getLogger(__name__)
         super().__init__(parent=parent)
         self.setObjectName('jls_info_widget')
         self._layout = QtWidgets.QVBoxLayout(self)
@@ -510,11 +539,23 @@ class TriggerWidget(QtWidgets.QWidget):
         self._header_layout.addWidget(self._source)
         header_spacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self._header_layout.addItem(header_spacer)
-        self._run_mode_button = QtWidgets.QPushButton('A')
+
+        self._run_mode_button = QtWidgets.QPushButton()
+        self._run_mode_button.setObjectName('run_mode')
+        self._run_mode_button.setFlat(True)
+        self._run_mode_button.setFixedSize(32, 32)
         self._run_mode_button.setCheckable(True)
+        self._run_mode_button.setToolTip(_RUN_MODE_TOOLTIP)
         self._header_layout.addWidget(self._run_mode_button)
-        self._status_button = QtWidgets.QPushButton('A')
+
+        self._status_button = QtWidgets.QPushButton()
+        self._status_button.setObjectName('status')
+        self._status_button.setProperty('status', 'inactive')
+        self._status_button.setFlat(True)
+        self._status_button.setFixedSize(32, 32)
         self._status_button.setCheckable(True)
+        self._status_button.setToolTip(_STATUS_TOOLTIP)
+        self._status_button.pressed.connect(self._on_status_button_pressed)
         self._header_layout.addWidget(self._status_button)
         self._layout.addWidget(self._header)
 
@@ -532,6 +573,25 @@ class TriggerWidget(QtWidgets.QWidget):
 
         spacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self._layout.addItem(spacer)
+
+    @QtCore.Slot()
+    def _on_status_button_pressed(self):
+        status = self._status_button.property('status')
+        if status == 'inactive':
+            status = 'searching'
+            # todo start searching
+        elif status == 'searching':
+            status = 'inactive'
+        elif status == 'active':
+            # todo stop!
+            status = 'inactive'
+        else:
+            self._log.error('invalid status: %s', status)
+            status = 'inactive'
+        self._status_button.setProperty('status', status)
+        style = self._status_button.style()
+        style.unpolish(self._status_button)
+        style.polish(self._status_button)
 
     def _connect(self):
         resolved = self._source_selector.resolved()

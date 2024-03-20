@@ -30,3 +30,21 @@ QFrame[section_body=true] {
 	border-bottom-left-radius: 15px;
 	border-bottom-right-radius: 15px;
 }
+
+QPushButton {
+    background: transparent;
+    border-width: 0px;
+    image: none;
+}
+
+QPushButton#run_mode { image: url("{% path %}/single_enabled.svg"); }
+QPushButton#run_mode:hover { image: url("{% path %}/single_hover.svg"); }
+QPushButton#run_mode:checked { image: url("{% path %}/continuous_enabled.svg"); }
+QPushButton#run_mode:checked:hover { image: url("{% path %}/continuous_hover.svg"); }
+
+QPushButton#status[status=inactive] { image: url("{% path %}/inactive_enabled.svg"); }
+QPushButton#status[status=searching] { image: url("{% path %}/searching_enabled.svg"); }
+QPushButton#status[status=active] { image: url("{% path %}/active_enabled.svg"); }
+QPushButton#status[status=inactive]:hover { image: url("{% path %}/inactive_hover.svg"); }
+QPushButton#status[status=searching]:hover { image: url("{% path %}/searching_hover.svg"); }
+QPushButton#status[status=active]:hover { image: url("{% path %}/active_hover.svg"); }
