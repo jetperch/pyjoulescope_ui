@@ -7,7 +7,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.1.0
 
-2024 Mar 18 [in progress]
+2024 Mar 21 [in progress]
 
 * Added plugin framework with live code reload  #14
 * Restructured code to support human language translation.
@@ -16,12 +16,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added Trigger widget.  [work in progress]
 
 
-## 1.0.60
+## 1.0.62
 
-2024 Mar 18
+2024 Mar 21
 
 * Fixed JS110 performance degradation (blocking status in device thread) 
-  using pyjoulescope_driver 1.4.8 → 1.4.9.
+  using pyjoulescope_driver 1.4.8 → 1.4.10. 
+* Disabled JS110 on-instrument stats polling, which is not used by UI.
 
 
 ## 1.0.59
