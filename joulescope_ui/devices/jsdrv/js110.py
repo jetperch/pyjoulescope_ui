@@ -592,6 +592,7 @@ class Js110(Device):
             self._info['version'] = {'hw': 1}  # could get more info
             self._info = copy.deepcopy(self._info)
             self._ui_publish('settings/info', self._info)
+            self._driver_publish('s/sstats/ctrl', 0, timeout=0)  # disable on-instrument stats polling
             self._driver_publish('s/i/lsb_src', 2, timeout=0)
             self._driver_publish('s/v/lsb_src', 3, timeout=0)
             self._driver_publish('s/stats/ctrl', 1, timeout=0)
