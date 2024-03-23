@@ -196,20 +196,16 @@ QComboBox
 {
     background: {% js1.input_background %};
     selection-background-color: {% js1.clickable_hover %};
-    padding: 0.5ex;
+    padding-left: 0.5ex;
+    padding-right: 0.5ex;
 }
 
 QComboBox QAbstractItemView  /* The popup */
 {
     background: {% js1.input_background %};
     selection-background-color: {% js1.clickable_hover %};
-    padding: 0.5ex;
-}
-
-QComboBox:on  /* shift the text when the popup opens */
-{
-    padding-top: 0.3ex;
-    selection-background-color: {% js1.clickable_hover %};
+    padding-left: 0.1ex;
+    padding-right: 0.1ex;
 }
 
 QComboBox::drop-down
@@ -222,8 +218,6 @@ QComboBox::drop-down
     border-left-width: 1px;
     border-left-color: {% base.selection_border %};
     border-left-style: solid;
-    border-top-right-radius: 2px;
-    border-bottom-right-radius: 2px;
 }
 
 QComboBox::drop-down:disabled
@@ -234,7 +228,6 @@ QComboBox::drop-down:disabled
 
 QComboBox::down-arrow
 {
-    border-image: url("{% path %}/arrow_down_enabled.svg");
     width: 8px;
     height: 6px;
 }
@@ -242,6 +235,11 @@ QComboBox::down-arrow
 QComboBox::down-arrow:disabled
 {
     border-image: url("{% path %}/arrow_down_disabled.svg");
+}
+
+QComboBox::down-arrow:enabled
+{
+    border-image: url("{% path %}/arrow_down_enabled.svg");
 }
 
 QComboBox::down-arrow:enabled:hover
