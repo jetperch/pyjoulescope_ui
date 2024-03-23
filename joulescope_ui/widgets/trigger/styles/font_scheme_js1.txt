@@ -1,1 +1,1 @@
-trigger.title_font = bold 12pt "Lato"
+trigger.title_font = bold 11pt "Lato"

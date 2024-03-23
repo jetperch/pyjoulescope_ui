@@ -155,6 +155,7 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._layout.addWidget(self._show_min_max_label)
 
         self._min_max_sel = QtWidgets.QComboBox(self)
+        self._min_max_sel.setSizeAdjustPolicy(QtWidgets.QComboBox.SizeAdjustPolicy.AdjustToContents)
         self._min_max_sel.setToolTip(_TOOLTIP_MIN_MAX)
         self._layout.addWidget(self._min_max_sel)
         self._min_max_sel.currentIndexChanged.connect(self._on_min_max_sel)

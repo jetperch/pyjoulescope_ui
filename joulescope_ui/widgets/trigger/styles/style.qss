@@ -21,7 +21,7 @@ QLabel[section_heading=true] {
     background-color: {% trigger.title_background %};
 	border-top-left-radius: 15px;
 	border-top-right-radius: 15px;
-	padding: 5px 0px;
+	padding: 1px 0px;
 	font: {% trigger.title_font %};
 }
 
@@ -31,17 +31,20 @@ QFrame[section_body=true] {
 	border-bottom-right-radius: 15px;
 }
 
-QPushButton {
+QPushButton#run_mode {
+    image: url("{% path %}/single_enabled.svg");
     background: transparent;
     border-width: 0px;
-    image: none;
 }
-
-QPushButton#run_mode { image: url("{% path %}/single_enabled.svg"); }
 QPushButton#run_mode:hover { image: url("{% path %}/single_hover.svg"); }
 QPushButton#run_mode:checked { image: url("{% path %}/continuous_enabled.svg"); }
 QPushButton#run_mode:checked:hover { image: url("{% path %}/continuous_hover.svg"); }
 
+QPushButton#status {
+    image: url("{% path %}/inactive_enabled.svg");
+    background: transparent;
+    border-width: 0px;
+}
 QPushButton#status[status=inactive] { image: url("{% path %}/inactive_enabled.svg"); }
 QPushButton#status[status=searching] { image: url("{% path %}/searching_enabled.svg"); }
 QPushButton#status[status=active] { image: url("{% path %}/active_enabled.svg"); }
