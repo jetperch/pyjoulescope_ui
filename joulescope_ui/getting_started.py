@@ -20,9 +20,9 @@ import sys
 _TITLE = N_('Getting Started with Your Joulescope')
 
 _SAFETY_TITLE = N_('Safety')
-_SAFETY_CAUTION = N_('The voltage between any sensor port must never exceed ±15V')
-_SAFETY_JS220 = N_('The JS220 sensor ports are Current+, Current-, Voltage+, Voltage-')
-_SAFETY_JS110 = N_('The JS110 sensor ports are IN+, IN- OUT+, and OUT-')
+_SAFETY_CAUTION = N_('The voltage between any sensor port must never exceed ±15V.')
+_SAFETY_JS220 = N_('The JS220 sensor ports are Current+, Current-, Voltage+, Voltage-.')
+_SAFETY_JS110 = N_('The JS110 sensor ports are IN+, IN- OUT+, and OUT-.')
 _SAFETY_ALL = N_("""The sensor ports are electrically isolated from USB.  The voltage between 
 any sensor port and USB ground must never exceed ±48V. 
 The GPI/O and trigger ports are referenced to USB ground.""")

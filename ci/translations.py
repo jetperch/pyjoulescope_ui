@@ -155,7 +155,7 @@ def run_deepl(data):
             result = translator.translate_text(text, target_lang=locale, tag_handling='html')
             for r, entry in zip(result, entries):
                 entry.msgstr = _text_unpatch(r.text)
-            pofile.save(path)
+        pofile.save(path)
 
 
 def is_git_changed():
