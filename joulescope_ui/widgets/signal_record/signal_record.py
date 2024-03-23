@@ -1,4 +1,4 @@
-# Copyright 2023 Jetperch LLC
+# Copyright 2023-2024 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -181,7 +181,7 @@ class SignalRecord:
     def on_cls_action_toggled(pubsub, topic, value):
         if bool(value):
             SignalRecord._log.info('start_request')
-            SignalRecordConfigDialog()
+            SignalRecordConfigDialog(is_action_show=True)
         else:
             SignalRecord._log.info('stop')
             while len(SignalRecord._instances):

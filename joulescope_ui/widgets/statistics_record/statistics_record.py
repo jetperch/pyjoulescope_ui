@@ -117,7 +117,7 @@ class StatisticsRecord:
     def on_cls_action_toggled(pubsub, topic, value):
         if bool(value):
             StatisticsRecord._log.info('start_request')
-            StatisticsRecordConfigDialog()
+            StatisticsRecordConfigDialog(is_action_show=True)
         else:
             StatisticsRecord._log.info('stop')
             while len(StatisticsRecord._instances):

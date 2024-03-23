@@ -1,4 +1,4 @@
-# Copyright 2023 Jetperch LLC
+# Copyright 2023-2024 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,7 +13,8 @@
 # limitations under the License.
 
 from PySide6 import QtWidgets, QtGui, QtCore
-from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topic_name, tooltip_format
+from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topic_name
+from joulescope_ui.filename_formatter import filename_tooltip, filename_formatter
 from joulescope_ui.styles import styled_widget
 from joulescope_ui.ui_util import comboBoxConfig
 import datetime
@@ -22,6 +23,7 @@ import os
 
 
 _TIME_FORMAT_OPTIONS = ['relative', 'UTC', 'off']
+_FILENAME_DEFAULT = '{timestamp}-{device_id}.csv'
 
 
 def _construct_record_filename(device):
@@ -79,7 +81,8 @@ class StatisticsRecordConfigWidget(QtWidgets.QWidget):
             self._layout.addWidget(label, self._row, 1, 1, 1)
 
             filename = QtWidgets.QLineEdit(self)
-            filename.setText(_construct_record_filename(name))
+            filename.setText(_FILENAME_DEFAULT)
+            filename.setToolTip(filename_tooltip(device_id=True))
             checkbox.clicked.connect(filename.setEnabled)
 
             self._layout.addWidget(filename, self._row, 2, 1, 2)
@@ -126,11 +129,13 @@ class StatisticsRecordConfigWidget(QtWidgets.QWidget):
 
 
 class StatisticsRecordConfigDialog(QtWidgets.QDialog):
+    count = 0
 
-    def __init__(self):
+    def __init__(self, parent=None, is_action_show=None):
         self._log = logging.getLogger(f'{__name__}.dialog')
         self._log.info('start')
-        parent = pubsub_singleton.query('registry/ui/instance')
+        if parent is None:
+            parent = pubsub_singleton.query('registry/ui/instance', default=None)
         super().__init__(parent=parent)
         self.setObjectName("signal_record_config_dialog")
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
@@ -148,7 +153,8 @@ class StatisticsRecordConfigDialog(QtWidgets.QDialog):
         self._buttons.accepted.connect(self.accept)
         self._buttons.rejected.connect(self.reject)
         self._layout.addWidget(self._buttons)
-        self.finished.connect(self._on_finished)
+        if bool(is_action_show):
+            self.finished.connect(self._on_finished)
 
         self.resize(600, 400)
         self.setWindowTitle(N_('Configure signal recording'))
@@ -162,6 +168,10 @@ class StatisticsRecordConfigDialog(QtWidgets.QDialog):
         if value == QtWidgets.QDialog.DialogCode.Accepted:
             self._log.info('finished: accept - start recording')
             config = self._w.config()
+            for source in config['sources']:
+                device_id = source[0].split('/')[1]
+                source[1] = filename_formatter(source[1], count=StatisticsRecordConfigDialog.count, device_id=device_id)
+            StatisticsRecordConfigDialog.count += 1
             pubsub_singleton.publish('registry/StatisticsRecord/actions/!start', config)
         else:
             self._log.info('finished: reject - abort recording')
@@ -170,4 +180,4 @@ class StatisticsRecordConfigDialog(QtWidgets.QDialog):
 
     @staticmethod
     def on_cls_action_show():
-        StatisticsRecordConfigDialog()
+        StatisticsRecordConfigDialog(is_action_show=True)
