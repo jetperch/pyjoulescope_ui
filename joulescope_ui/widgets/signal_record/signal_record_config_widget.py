@@ -16,12 +16,85 @@ from PySide6 import QtWidgets, QtGui, QtCore
 from joulescope_ui import CAPABILITIES, register, pubsub_singleton, N_, get_topic_name
 from joulescope_ui.filename_formatter import filename_tooltip, filename_formatter
 from joulescope_ui.styles import styled_widget
+import copy
 import logging
 import os
 
 
 _FILENAME_DEFAULT = '{timestamp}.jls'
 _FILENAME_TOPIC = 'registry/SignalRecordConfigWidget/settings/filename'
+
+
+def config_default() -> dict:
+    """Get the default configuration.
+
+    :return: The config dict.
+    """
+    config = {
+        'filename': pubsub_singleton.query(_FILENAME_TOPIC, default=_FILENAME_DEFAULT),
+        'location': pubsub_singleton.query('registry/paths/settings/path'),
+        'sources': {},
+        'notes': '',
+    }
+
+    sources_ids = pubsub_singleton.query(f'registry_manager/capabilities/{CAPABILITIES.SIGNAL_STREAM_SOURCE}/list')
+    for source_id in sorted(sources_ids):
+        signals = {}
+        config['sources'][source_id] = signals
+        topic = get_topic_name(source_id)
+        signal_ids = pubsub_singleton.enumerate(f'{topic}/settings/signals')
+        for signal_id in signal_ids:
+            enable_topic = f'{topic}/settings/signals/{signal_id}/enable'
+            enabled = pubsub_singleton.query(enable_topic)
+            signals[signal_id] = {
+                'source_id': source_id,
+                'signal_id': signal_id,
+                'enabled': enabled,
+                'selected': enabled,
+                'enable_topic': enable_topic,
+                'data_topic': f'{topic}/events/signals/{signal_id}/!data',
+            }
+    return config
+
+
+def config_constrain(config: dict) -> dict:
+    """Constrain the config to the available sources.
+
+    :param config: The configuration.
+    :return: The possibly modified configuration copy.
+    """
+    config = copy.deepcopy(config)
+    default = config_default()
+    sources_orig = config['sources']
+
+    for source_id, signals in default['sources'].items():
+        if source_id not in sources_orig:
+            for d in signals.values():
+                d['enabled'] = False
+        else:
+            for signal_id, d in signals.items():
+                signal_orig = sources_orig[source_id].get(signal_id, {})
+                d['enabled'] &= signal_orig.get('enabled', False)
+                d['selected'] &= signal_orig.get('selected', False) & d['enabled']
+    config['sources'] = default['sources']
+    return config
+
+
+def config_update(config: dict, count: int, **kwargs) -> dict:
+    """Update the config with replacement values.
+
+    :param config: The configuration dict.
+    :param count: The count substitution value.
+    :param kwargs: Additional filename_formatter arguments.
+    :return: The possibly modified configuration copy.
+    """
+    config = copy.deepcopy(config)
+    filename = config['filename']
+    location = config['location']
+    filename = filename_formatter(filename, count=count, **kwargs)
+    config['filename'] = filename
+    config['path'] = os.path.join(location, filename)
+    return config
 
 
 @register
@@ -36,20 +109,25 @@ class SignalRecordConfigWidget(QtWidgets.QWidget):
         },
     }
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, config=None):
         self.SETTINGS = {}
         self._menu = None
         self._dialog = None
         self._row = 0
+        if config is None:
+            self._config = config_default()
+        else:
+            self._config = config_constrain(config)
+
         super().__init__(parent=parent)
         self.setObjectName('signal_record_config')
         self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         self._layout = QtWidgets.QGridLayout(self)
 
-        filename = pubsub_singleton.query(_FILENAME_TOPIC)
         self._filename_label = QtWidgets.QLabel(N_('Filename'), self)
         self._filename = QtWidgets.QLineEdit(self)
-        self._filename.setText(filename)
+        self._filename.setText(self._config['filename'])
+        self._filename.textChanged.connect(self._on_filename)
         self._filename.setToolTip(filename_tooltip())
         self._file_reset = QtWidgets.QPushButton()
         self._file_reset.pressed.connect(self._on_file_reset)
@@ -67,7 +145,8 @@ class SignalRecordConfigWidget(QtWidgets.QWidget):
 
         self._location_label = QtWidgets.QLabel(N_('Directory'), self)
         self._location = QtWidgets.QLineEdit(self)
-        self._location.setText(pubsub_singleton.query('registry/paths/settings/path'))
+        self._location.setText(self._config['location'])
+        self._location.textChanged.connect(self._on_location)
         self._location_reset = QtWidgets.QPushButton()
         self._location_reset.pressed.connect(self._on_location_reset)
         icon = self._location_reset.style().standardIcon(QtWidgets.QStyle.StandardPixmap.SP_DialogDiscardButton)
@@ -82,7 +161,6 @@ class SignalRecordConfigWidget(QtWidgets.QWidget):
         self._layout.addWidget(self._location_sel, self._row, 3, 1, 1)
         self._row += 1
 
-        self._source_widgets = {}
         self._signals_to_record_label = QtWidgets.QLabel(N_('Signals to record'), self)
         self._layout.addWidget(self._signals_to_record_label, self._row, 0, 1, 4)
         self._row += 1
@@ -91,58 +169,64 @@ class SignalRecordConfigWidget(QtWidgets.QWidget):
         self._notes_label = QtWidgets.QLabel(N_('Notes'), self)
         self._layout.addWidget(self._notes_label, self._row, 0, 1, 4)
         self._notes = QtWidgets.QTextEdit(self)
+        self._notes.textChanged.connect(self._on_notes)
         self._layout.addWidget(self._notes, self._row + 4, 0, 4, 4)
         self._row += 5
 
     def _sources_add(self):
-        sources = pubsub_singleton.query(f'registry_manager/capabilities/{CAPABILITIES.SIGNAL_STREAM_SOURCE}/list')
-        for source in sorted(sources):
-            topic = get_topic_name(source)
+        sources = self._config['sources']
+        for source_id in sorted(sources.keys()):
+            topic = get_topic_name(source_id)
             name = pubsub_singleton.query(f'{topic}/settings/name')
-            label = QtWidgets.QLabel(f'   {name}', self)
+            label = QtWidgets.QLabel(f'   {name}')
             self._layout.addWidget(label, self._row, 0, 1, 1)
-            signals = pubsub_singleton.enumerate(f'{topic}/settings/signals')
 
-            signal_widget = QtWidgets.QWidget(self)
+            signal_widget = QtWidgets.QWidget()
             signal_layout = QtWidgets.QHBoxLayout(signal_widget)
             signal_layout.setContentsMargins(3, 3, 3, 3)
             signal_layout.setSpacing(3)
             self._layout.addWidget(signal_widget, self._row, 1, 1, 1)
             self._row += 1
 
-            signal_widgets = {}
-            for signal_id in signals:
-                enabled = pubsub_singleton.query(f'{topic}/settings/signals/{signal_id}/enable')
-                b = QtWidgets.QPushButton(signal_widget)
-                b.setCheckable(True)
-                b.setEnabled(enabled)
-                b.setChecked(enabled)
-                b.setText(signal_id)
-                b.setFixedSize(20, 20)
+            for signal_id, signals in sources[source_id].items():
+                b = self._signal_pushbutton_factory(source_id, signal_id)
                 signal_layout.addWidget(b)
-                signal_widgets[signal_id] = b
 
             spacer = QtWidgets.QSpacerItem(0, 0,
                                            QtWidgets.QSizePolicy.Expanding,
                                            QtWidgets.QSizePolicy.Minimum)
             signal_layout.addItem(spacer)
-            self._source_widgets[source] = (signal_widgets, signal_widget, signal_layout, label, spacer)
+
+    @QtCore.Slot(str)
+    def _on_filename(self, txt):
+        pubsub_singleton.publish(_FILENAME_TOPIC, txt)
+        self._config['filename'] = txt
+
+    @QtCore.Slot(str)
+    def _on_location(self, txt):
+        self._config['location'] = txt
+
+    @QtCore.Slot(str)
+    def _on_notes(self):
+        self._config['notes'] = self._notes.toPlainText()
+
+    def _signal_pushbutton_factory(self, source_id, signal_id):
+        signal = self._config['sources'][source_id][signal_id]
+
+        def on_toggled(checked):
+            signal['selected'] = checked
+
+        b = QtWidgets.QPushButton()
+        b.setCheckable(True)
+        b.setEnabled(signal['enabled'])
+        b.setChecked(signal['selected'])
+        b.setText(signal_id)
+        b.setFixedSize(20, 20)
+        b.toggled.connect(on_toggled)
+        return b
 
     def config(self):
-        filename = self._filename.text()
-        pubsub_singleton.publish(_FILENAME_TOPIC, filename)
-        path = os.path.join(self._location.text(), filename)
-        signals = []
-        for source, values in self._source_widgets.items():
-            topic = get_topic_name(source)
-            for signal_id, b in values[0].items():
-                if b.isChecked():
-                    signals.append(f'{topic}/events/signals/{signal_id}/!data')
-        return {
-            'path': path,
-            'signals': signals,
-            'notes': self._notes.toPlainText(),
-        }
+        return copy.deepcopy(self._config)
 
     @QtCore.Slot()
     def _on_file_reset(self):
@@ -239,7 +323,7 @@ class SignalRecordConfigDialog(QtWidgets.QDialog):
         if value == QtWidgets.QDialog.DialogCode.Accepted:
             self._log.info('finished: accept - start recording')
             config = self._w.config()
-            config['path'] = filename_formatter(config['path'], SignalRecordConfigDialog.count)
+            config = config_update(config, count=SignalRecordConfigDialog.count)
             SignalRecordConfigDialog.count += 1
             pubsub_singleton.publish('registry/SignalRecord/actions/!start', config)
         else:

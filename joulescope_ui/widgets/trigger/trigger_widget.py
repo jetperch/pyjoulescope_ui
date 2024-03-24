@@ -16,7 +16,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from joulescope_ui import N_, P_, tooltip_format, register, CAPABILITIES, get_topic_name
 from joulescope_ui.ui_util import comboBoxConfig, comboBoxSelectItemByText
 from joulescope_ui.styles import styled_widget
-from joulescope_ui.widgets.signal_record.signal_record_config_widget import SignalRecordConfigDialog
+from joulescope_ui.widgets.signal_record import signal_record_config_widget
 from joulescope_ui.widgets.statistics_record.statistics_record_config_widget import StatisticsRecordConfigDialog
 from joulescope_ui.widgets.waveform.interval_widget import IntervalWidget, str_to_float
 from joulescope_ui.source_selector import SourceSelector
@@ -504,8 +504,9 @@ class StartActionsWidget(QtWidgets.QFrame):
             signal.connect(self._on_config_update)
         self._visibility_update()
 
+    @QtCore.Slot()
     def _on_sample_record_config(self):
-        SignalRecordConfigDialog()
+        signal_record_config_widget.SignalRecordConfigDialog()
 
     def _on_statistics_record_config(self):
         StatisticsRecordConfigDialog()
@@ -750,24 +751,24 @@ class TriggerWidget(QtWidgets.QWidget):
         spacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self._layout.addItem(spacer)
 
-    @QtCore.Slot()
-    def _on_status_button_pressed(self):
-        status = self._status_button.property('status')
-        if status == 'inactive':
-            status = 'searching'
-            # todo start searching
-        elif status == 'searching':
-            status = 'inactive'
-        elif status == 'active':
-            # todo stop!
-            status = 'inactive'
-        else:
-            self._log.error('invalid status: %s', status)
-            status = 'inactive'
+    def _status_update(self, status):
         self._status_button.setProperty('status', status)
         style = self._status_button.style()
         style.unpolish(self._status_button)
         style.polish(self._status_button)
+
+    def _activate(self):
+        self._status_update('searching')
+
+    @QtCore.Slot()
+    def _on_status_button_pressed(self):
+        status = self._status_button.property('status')
+        if status == 'inactive':
+            self._activate()
+        elif status in ['searching', 'active']:
+            self._deactivate()
+        else:
+            self._log.error('invalid status: %s', status)
 
     def _connect(self):
         resolved = self._source_selector.resolved()

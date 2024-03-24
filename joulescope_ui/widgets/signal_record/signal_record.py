@@ -46,7 +46,6 @@ class SignalRecord:
         self.CAPABILITIES = [CAPABILITIES.SIGNAL_STREAM_SINK]
         path = config['path']
         self._log.info('JLS record to %s', path)
-        self._log.info('JLS record signals: %s', config['signals'])
         self._path = path
         try:
             self._jls = Writer(path)
@@ -71,8 +70,10 @@ class SignalRecord:
             self._jls.user_data(ChunkMeta.NOTES, notes)
         pubsub_singleton.register(self, parent=parent)
 
-        for signal in config['signals']:
-            self.pubsub.subscribe(signal, self._on_data, ['pub'])
+        for source in config['sources'].values():
+            for signal in source.values():
+                if signal['enabled'] and signal['selected']:
+                    self.pubsub.subscribe(signal['data_topic'], self._on_data, ['pub'])
 
         self.pubsub.publish(_DISK_MONITOR_ADD, self._path)
         self.pubsub.subscribe(_DISK_MONITOR_FULL, self._on_disk_full, ['pub'])
