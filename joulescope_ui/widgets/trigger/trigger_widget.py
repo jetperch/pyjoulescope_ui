@@ -13,14 +13,17 @@
 # limitations under the License.
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from joulescope_ui import N_, P_, tooltip_format, register, CAPABILITIES, get_topic_name
+from .condition_detector import condition_detector_factory, is_digital_signal
+from joulescope_ui import N_, P_, tooltip_format, register, CAPABILITIES, get_topic_name, time64
 from joulescope_ui.ui_util import comboBoxConfig, comboBoxSelectItemByText
-from joulescope_ui.styles import styled_widget
+from joulescope_ui.styles import styled_widget, color_as_qcolor
 from joulescope_ui.widgets.signal_record import signal_record_config_widget
 from joulescope_ui.widgets.statistics_record.statistics_record_config_widget import StatisticsRecordConfigDialog
 from joulescope_ui.widgets.waveform.interval_widget import IntervalWidget, str_to_float
 from joulescope_ui.source_selector import SourceSelector
+import copy
 import logging
+import numpy as np
 
 
 _STYLE = """\
@@ -110,10 +113,11 @@ _EDGE_CONDITION_LIST = [
 ]
 _EDGE_CONDITIONS = generate_map(_EDGE_CONDITION_LIST)
 
-_DURATION_META_SIGNALS = [
+_DURATION_META_SIGNAL_LIST = [
     ['always', N_('Always')],
     ['never', N_('Never')],
 ]
+_DURATION_META_SIGNALS = generate_map(_DURATION_META_SIGNAL_LIST)
 
 _DURATION_CONDITION_LIST = [
     ['>', '>'],
@@ -177,10 +181,6 @@ SETTINGS = {
         'default': None,
     },
 }
-
-
-def _is_digital_signal(s):
-    return s in ['0', '1', '2', '3', 'T']
 
 
 def _grid_row_set_visible(layout, row, visible):
@@ -276,7 +276,7 @@ class ConditionWidget(QtWidgets.QFrame):
         signal = self._signal_list_with_meta()[self._signal.currentIndex()][0]
         if type_idx == 0:
             return _EDGE_CONDITION_LIST
-        elif _is_digital_signal(signal):
+        elif is_digital_signal(signal):
             return _DIGITAL_DURATION_CONDITION_LIST
         elif signal in _DURATION_META_SIGNALS:
             return None
@@ -323,12 +323,16 @@ class ConditionWidget(QtWidgets.QFrame):
         self._visibility_update()
 
         signal_list = self._signal_list_with_meta()
-        signals = [x[0] for x in signal_list]
-        signal_idx = signals.index(value.get('signal'))
-        signal = signal_list[signal_idx][0]
-        block = self._signal.blockSignals(True)
-        self._signal.setCurrentIndex(signal_idx)
-        self._signal.blockSignals(block)
+        if len(signal_list):
+            signals = [x[0] for x in signal_list]
+            try:
+                signal_idx = signals.index(value.get('signal'))
+            except ValueError:
+                signal_idx = 0
+            signal = signal_list[signal_idx][0]
+            block = self._signal.blockSignals(True)
+            self._signal.setCurrentIndex(signal_idx)
+            self._signal.blockSignals(block)
         self._visibility_update()
 
         condition = value['condition']
@@ -336,7 +340,7 @@ class ConditionWidget(QtWidgets.QFrame):
         try:
             condition_idx = [x[0] for x in condition_list].index(condition)
             self._condition.setCurrentIndex(condition_idx)
-        except IndexError:
+        except (TypeError, IndexError):
             pass
         self._visibility_update()
 
@@ -380,7 +384,7 @@ class ConditionWidget(QtWidgets.QFrame):
             _grid_row_set_visible(self._layout, 2, False)
             return
         _grid_row_set_visible(self._layout, 2, True)
-        is_digital = _is_digital_signal(signal)
+        is_digital = is_digital_signal(signal)
         condition_list = self._condition_list_get()
         if condition_list is None:
             self._condition.clear()
@@ -418,7 +422,7 @@ class ConditionWidget(QtWidgets.QFrame):
 
     def _signal_list_with_meta(self):
         if self._type.currentIndex() == 1:  # duration
-            return self._signal_list + _DURATION_META_SIGNALS
+            return self._signal_list + _DURATION_META_SIGNAL_LIST
         else:
             return list(self._signal_list)
 
@@ -680,6 +684,61 @@ class SectionWidget(QtWidgets.QFrame):
         self._layout.addWidget(body)
 
 
+class StatusButton(QtWidgets.QPushButton):
+
+    def __init__(self, parent=None):
+        self._interval_ms = 30
+        self._angle = 0.0
+        self._brush = None
+        super().__init__(parent)
+        self._timer = QtCore.QTimer(self)
+        self._timer.setTimerType(QtGui.Qt.PreciseTimer)
+        self._timer.setSingleShot(False)
+        self._timer.timeout.connect(self._on_timer)
+        self.setProperty('status', 'inactive')
+
+    @property
+    def status(self):
+        return self.property('status')
+
+    @status.setter
+    def status(self, value):
+        if value not in ['inactive', 'searching', 'active']:
+            raise ValueError(f'invalid status: {value}')
+        self.setProperty('status', value)
+        if value == 'active':
+            self._timer.start(30)
+        else:
+            self._timer.stop()
+
+    def _on_timer(self):
+        self._angle -= (360 * self._interval_ms) / 1000
+        self.repaint()
+
+    def on_style_change(self, fg):
+        self._brush = QtGui.QBrush(color_as_qcolor(fg))
+
+    def paintEvent(self, ev):
+        super().paintEvent(ev)
+        if self.status != 'active':
+            return
+        w, h = self.width(), self.height()
+        r = min(w, h) // 2
+        painter = QtGui.QPainter(self)
+        painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
+        painter.translate(w / 2, h / 2)
+        painter.rotate(self._angle)
+        painter.setBrush(self._brush)
+        r_sz = (1.5 * r) / 10
+        p = QtCore.QPointF(r / 2, 0)
+        for i in range(7):
+            scale = (8 - i) / 8
+            k = r_sz * scale
+            painter.drawEllipse(p, k, k)
+            painter.rotate(45)
+        painter.end()
+
+
 @register
 @styled_widget(N_('Trigger'))
 class TriggerWidget(QtWidgets.QWidget):
@@ -688,12 +747,21 @@ class TriggerWidget(QtWidgets.QWidget):
     SETTINGS = SETTINGS
 
     def __init__(self, parent=None):
+        self._utc = None
+        self._config = None  # config for activated trigger sequence
+        self._config_update_ignore = False
         self._connected = False
         self._log = logging.getLogger(__name__)
+        self._resolved_source = None
         super().__init__(parent=parent)
         self.setObjectName('jls_info_widget')
         self._layout = QtWidgets.QVBoxLayout(self)
         self._layout.setSpacing(6)
+
+        self._timer = QtCore.QTimer(self)
+        self._timer.setTimerType(QtGui.Qt.PreciseTimer)
+        self._timer.setSingleShot(True)
+        self._timer.timeout.connect(self._on_timer)
 
         self._source_selector = SourceSelector(self, 'signal_stream')
         self._source_selector.source_changed.connect(self._on_source_changed)
@@ -722,7 +790,7 @@ class TriggerWidget(QtWidgets.QWidget):
         self._header_layout.addWidget(self._run_mode_button)
         self._run_mode_button.toggled.connect(self._on_config_update)
 
-        self._status_button = QtWidgets.QPushButton()
+        self._status_button = StatusButton()
         self._status_button.setObjectName('status')
         self._status_button.setProperty('status', 'inactive')
         self._status_button.setFlat(True)
@@ -745,24 +813,134 @@ class TriggerWidget(QtWidgets.QWidget):
         self._stop_actions = StopActionsWidget(self)
         self._layout.addWidget(SectionWidget(self, N_('Stop Actions'), self._stop_actions))
 
-        for w in [self._start_condition, self._start_actions, self._stop_condition, self._stop_actions]:
+        self._config_widgets = [self._start_condition, self._start_actions, self._stop_condition, self._stop_actions]
+        for w in self._config_widgets:
             w.config_changed.connect(self._on_config_changed)
 
         spacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self._layout.addItem(spacer)
 
     def _status_update(self, status):
-        self._status_button.setProperty('status', status)
+        self._status_button.status = status
         style = self._status_button.style()
         style.unpolish(self._status_button)
         style.polish(self._status_button)
 
+    def _condition_enter(self, condition):
+        signal = condition['signal']
+        if signal == 'always':
+            duration_ms = int(np.ceil(condition['duration'] * 1000))
+            self._timer.start(duration_ms)
+        elif signal == 'never':
+            pass  # never expire, need manual intervention
+        else:
+            fn = condition.get('fn')
+            if hasattr(fn, 'clear'):
+                fn.clear()
+            data = copy.copy(condition.get('data'))
+            if data is not None and data['utc'] <= self._utc:
+                fs = data['sample_freq']
+                idx = int((self._utc - data['utc']) / time64.SECOND * fs)
+                if idx < len(data['data']):
+                    data['utc'] += int(idx / fs * time64.SECOND)
+                    data['data'] = data['data'][idx:]
+                    self._on_signal_data(data['topic'], data)
+
+    def _on_detect(self):
+        status = self._status_button.status
+        if status == 'searching':
+            # todo start actions
+            self._status_update('active')
+            self._condition_enter(self._config['stop_condition'])
+        elif status == 'active':
+            # todo stop actions
+            if self._config['run_mode'] == 'single':
+                self._deactivate()
+            else:
+                self._status_update('searching')
+                self._condition_enter(self._config['start_condition'])
+
+    @QtCore.Slot()
+    def _on_timer(self):
+        self._utc = time64.now()
+        self._on_detect()
+
+    def _on_signal_data(self, topic, value):
+        parts = topic.split('/')
+        topic_source = parts[1]
+        topic_signal = parts[4]
+        data_type = value['dtype']
+        y = value['data']
+        if data_type in ['f32', 'f64', 'u8', 'u16', 'u32', 'u64', 'i8', 'i16', 'i32', 'i64']:
+            pass
+        elif data_type == 'u1':
+            y = np.unpackbits(y, bitorder='little')[:len(x)]
+        elif data_type in ['u4', 'i4']:
+            d = np.empty(len(y) * 2, dtype=np.uint8)
+            d[0::2] = np.bitwise_and(y, 0x0f)
+            d[1::2] = np.bitwise_and(np.right_shift(y, 4), 0x0f)
+            y = d
+        value = copy.copy(value)
+        value['topic'] = topic
+        value['data'] = y
+
+        cfg = self._config
+        start_condition = cfg['start_condition']
+        stop_condition = cfg['stop_condition']
+        status = self._status_button.status
+        if status == 'inactive':
+            return
+        condition = start_condition if status == 'searching' else stop_condition
+        if topic_source == cfg['source']:
+            for c in [start_condition, stop_condition]:
+                if topic_signal == c['signal']:
+                    c['data'] = value
+            if topic_signal == condition['signal']:
+                fs = value['sample_freq']
+                data = value['data']
+                rv = condition['fn'](fs, data)
+                if rv is not None:
+                    self._utc = int(rv / fs * time64.SECOND) + value['utc']
+                    self._on_detect()
+
     def _activate(self):
+        if 'inactive' != self._status_button.status:
+            self._deactivate()
+        for w in self._config_widgets:
+            w.setEnabled(False)
         self._status_update('searching')
+        self._config = copy.deepcopy(self.config)
+        source = self._config['source']
+        for condition_name in ['start_condition', 'stop_condition']:
+            condition = self._config[condition_name]
+            condition['fn'] = condition_detector_factory(condition)
+
+        start_signal = self._config['start_condition']['signal']
+        if start_signal not in _DURATION_META_SIGNALS:
+            topic = f'{get_topic_name(source)}/events/signals/{start_signal}/!data'
+            self._log.info('start_condition subscribe: %s', topic)
+            self.pubsub.subscribe(topic, self._on_signal_data, ['pub'])
+
+        stop_signal = self._config['stop_condition']['signal']
+        if stop_signal not in _DURATION_META_SIGNALS and start_signal != stop_signal:
+            topic = f'{get_topic_name(source)}/events/signals/{stop_signal}/!data'
+            self._log.info('stop_condition subscribe: %s', topic)
+            self.pubsub.subscribe(topic, self._on_signal_data, ['pub'])
+
+        self._condition_enter(self._config['start_condition'])
+
+    def _deactivate(self):
+        self.pubsub.unsubscribe_all(self._on_signal_data)
+        if 'inactive' == self._status_button.status:
+            return
+        for w in self._config_widgets:
+            w.setEnabled(True)
+        self._config = None
+        self._status_update('inactive')
 
     @QtCore.Slot()
     def _on_status_button_pressed(self):
-        status = self._status_button.property('status')
+        status = self._status_button.status
         if status == 'inactive':
             self._activate()
         elif status in ['searching', 'active']:
@@ -770,26 +948,36 @@ class TriggerWidget(QtWidgets.QWidget):
         else:
             self._log.error('invalid status: %s', status)
 
+    def _signal_list(self):
+        topic = f'{get_topic_name(self._resolved_source)}/settings/signals'
+        signals = self.pubsub.enumerate(topic)
+        signal_list = [[s, self.pubsub.query(f'{topic}/{s}/name')]
+                       for s in signals if self.pubsub.query(f'{topic}/{s}/enable')]
+        return signal_list
+
+    def _on_signals_changed(self):
+        signal_list = self._signal_list()
+        self._start_condition.on_signal_list(signal_list)
+        self._stop_condition.on_signal_list(signal_list)
+
     def _connect(self):
-        resolved = self._source_selector.resolved()
-        if resolved is None:
+        self.pubsub.unsubscribe_all(self._on_signals_changed)
+        self._resolved_source = self._source_selector.resolved()
+        if self._resolved_source is None:
             self._connected = False
         else:
-            topic = f'{get_topic_name(resolved)}/settings/signals'
-            signals = self.pubsub.enumerate(topic)
-            signal_names = [[s, self.pubsub.query(f'{topic}/{s}/name')] for s in signals]
-            self._start_condition.on_signal_list(signal_names)
-            self._stop_condition.on_signal_list(signal_names)
-            output = self.pubsub.enumerate(f'{get_topic_name(resolved)}/settings/out')
+            topic = f'{get_topic_name(self._resolved_source)}/settings/signals'
+            self.pubsub.subscribe(topic, self._on_signals_changed, ['pub'])
+            self._on_signals_changed()
+            output = self.pubsub.enumerate(f'{get_topic_name(self._resolved_source)}/settings/out')
             self._start_actions.on_output_list(output)
             self._stop_actions.on_output_list(output)
-            self._connected, was_connected = True, self._connected
-            if not was_connected:
-                self._config_set(self.config)
+            self._connected = True
+            self._config_set(self.config)
         for item in range(self._layout.count()):
             w = self._layout.itemAt(item).widget()
             if w is not None:
-                w.setVisible((w is self._error) ^ (resolved is not None))
+                w.setVisible((w is self._error) ^ (self._resolved_source is not None))
 
     @QtCore.Slot(object)
     def _on_source_changed(self, value):
@@ -809,7 +997,8 @@ class TriggerWidget(QtWidgets.QWidget):
 
     def _config_get(self):
         return {
-            'run_mode': self._run_mode_button.isChecked(),
+            'source': self._resolved_source,
+            'run_mode': 'continuous' if self._run_mode_button.isChecked() else 'single',
             'start_condition': self._start_condition.config,
             'start_actions': self._start_actions.config,
             'stop_condition': self._stop_condition.config,
@@ -821,14 +1010,18 @@ class TriggerWidget(QtWidgets.QWidget):
             return
         if value is None:
             return
-        self._run_mode_button.setChecked(value.get('run_mode', False))
+        self._config_update_ignore = True
+        self._run_mode_button.setChecked(value.get('run_mode', 'single') == 'continuous')
         self._start_condition.config = value['start_condition']
         self._start_actions.config = value['start_actions']
         self._stop_condition.config = value['stop_condition']
         self._stop_actions.config = value['stop_actions']
+        self._config_update_ignore = False
 
     @QtCore.Slot()
     def _on_config_update(self):
+        if self._config_update_ignore:
+            return
         cfg = self._config_get()
         if cfg != self.config:
             self._config_set(cfg)
@@ -837,6 +1030,10 @@ class TriggerWidget(QtWidgets.QWidget):
     def on_setting_config(self, value):
         if value != self.config:
             self._config_set(value)
+
+    def on_style_change(self):
+        v = self.style_obj['vars']
+        self._status_button.on_style_change(v['trigger.title_foreground'])
 
     def on_pubsub_register(self, pubsub):
         topic = f'{self.topic}/settings/source'
