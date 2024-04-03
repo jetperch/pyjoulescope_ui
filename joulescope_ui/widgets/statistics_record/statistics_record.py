@@ -29,6 +29,7 @@ class StatisticsRecord:
     }
 
     def __init__(self, topic, filename, config=None):
+        self._utc_stop = None
         parent = pubsub_singleton.query('registry/app/instance')
         time_format = config.get('time_format', None)
         if time_format is None:
@@ -47,6 +48,9 @@ class StatisticsRecord:
         pubsub_singleton.publish('registry/paths/actions/!mru_save', filename)
         pubsub_singleton.register(self, parent=parent)
         pubsub_singleton.subscribe(self._topic, self._on_data, ['pub'])
+
+    def stop_pend(self, utc_stop):
+        self._utc_stop = utc_stop
 
     def _on_data(self, topic, value):
         if self._file is None:
@@ -96,7 +100,10 @@ class StatisticsRecord:
         line = '%g,%g,%g,%g,%g\n' % (i, v, p, c, e)
         self._file.write(self._time_format_fn(t) + line)
 
-    def on_action_stop(self, value):
+        if self._utc_stop is not None and t >= self._utc_stop:
+            self.on_action_stop()
+
+    def on_action_stop(self):
         self._log.info('stop')
         pubsub_singleton.unsubscribe(self._topic, self._on_data, ['pub'])
         f, self._file = self._file, None
@@ -107,20 +114,22 @@ class StatisticsRecord:
 
     @staticmethod
     def on_cls_action_start(pubsub, topic, value):
-        config = value.get('config', {})
         StatisticsRecord._log.info('on_cls_action_start')
-        for topic, filename in value['sources']:
-            obj = StatisticsRecord(topic, filename, config)
+        for source_id, source in value['sources'].items():
+            if not source['enabled']:
+                continue
+            topic = f'{get_topic_name(source_id)}/events/statistics/!data'
+            obj = StatisticsRecord(topic, source['path'], value)
             StatisticsRecord._instances.append(obj)
 
     @staticmethod
     def on_cls_action_toggled(pubsub, topic, value):
         if bool(value):
             StatisticsRecord._log.info('start_request')
-            StatisticsRecordConfigDialog(is_action_show=True)
+            StatisticsRecordConfigDialog()
         else:
             StatisticsRecord._log.info('stop')
             while len(StatisticsRecord._instances):
                 obj = StatisticsRecord._instances.pop()
-                obj.on_action_stop(value)
+                obj.on_action_stop()
             pubsub.publish(f'{get_topic_name(StatisticsRecord)}/events/!stop', True)

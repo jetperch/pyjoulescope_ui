@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from pyjls import Writer, SignalType
+from pyjls import Writer, Reader, SignalType, AnnotationType
 from joulescope_ui import N_, pubsub_singleton, register, CAPABILITIES, time64, Metadata, get_topic_name
 from joulescope_ui.jls_v2 import ChunkMeta, DTYPE_MAP
 from .signal_record_config_widget import SignalRecordConfigDialog
@@ -41,6 +41,8 @@ class SignalRecord:
     }
 
     def __init__(self, config):
+        self._utc_stop = None
+        self._utc_range = None
         parent = pubsub_singleton.query('registry/app/instance')
         self._log = logging.getLogger(f'{__name__}.obj')
         self.CAPABILITIES = [CAPABILITIES.SIGNAL_STREAM_SINK]
@@ -108,6 +110,10 @@ class SignalRecord:
                     dropped, self._status['dropped'] = self._status['dropped'], 0
                     self.pubsub.publish('registry/ui/actions/!status_msg', f'JLS write dropped {dropped} samples')
                     self._status['time_last'] = t_now
+        if self._utc_stop is not None:
+            u = min([signal['utc_data_prev'][1] for signal in self._signals.values()])
+            if u >= self._utc_stop:
+                self.on_action_stop()
 
     def _source_add(self, unique_id, info):
         info = copy.deepcopy(info)
@@ -157,7 +163,11 @@ class SignalRecord:
             self.pubsub.publish('registry/app/settings/signal_stream_record', False)
             DiskFullDialog(pubsub, value)
 
-    def on_action_stop(self, value):
+    def stop_pend(self, utc_stop, utc_range):
+        self._utc_stop = utc_stop
+        self._utc_range = utc_range
+
+    def on_action_stop(self):
         self._log.info('stop')
         jls, self._jls = self._jls, None
         if jls is None:
@@ -171,6 +181,39 @@ class SignalRecord:
             SignalRecord._instances.remove(self)
         self.pubsub.unregister(self, delete=True)
         self.pubsub.publish(_DISK_MONITOR_REMOVE, self._path)
+        self._annotation_create()
+
+    def _annotation_create(self):
+        if self._utc_range is None:
+            return
+        path = self._path.replace('.jls', '.anno.jls')
+        self._log.info('_annotation_create start')
+        z0, z1 = self._utc_range
+        sample_rate = 1_000_000
+
+        t_start = []
+        t_stop = []
+        with Reader(self._path) as r:
+            for signal in r.signals.values():
+                if signal.signal_type != 0:
+                    continue
+                t_start.append(r.sample_id_to_timestamp(signal.signal_id, 0))
+                t_stop.append(r.sample_id_to_timestamp(signal.signal_id, signal.length - 1))
+        x0 = max(t_start)
+        x1 = min(t_stop)
+
+        def x_map(x_i64):
+            return int(round((x_i64 - x0) * (sample_rate / time64.SECOND)))
+
+        with Writer(path) as w:
+            w.source_def(source_id=1, name='annotations', vendor='-', model='-', version='-', serial_number='-')
+            signal_id = 1
+            w.signal_def(signal_id=signal_id, source_id=1, sample_rate=sample_rate, name='current', units='A')
+            w.utc(signal_id, x_map(x0), x0)
+            w.utc(signal_id, x_map(x1), x1)
+            w.annotation(signal_id, x_map(z0), None, AnnotationType.VMARKER, 0, '1a')
+            w.annotation(signal_id, x_map(z1), None, AnnotationType.VMARKER, 0, '1b')
+        self._log.info('_annotation_create done')
 
     @staticmethod
     def on_cls_action_start(pubsub, topic, value):
@@ -182,7 +225,7 @@ class SignalRecord:
     def on_cls_action_toggled(pubsub, topic, value):
         if bool(value):
             SignalRecord._log.info('start_request')
-            SignalRecordConfigDialog(is_action_show=True)
+            SignalRecordConfigDialog()
         else:
             SignalRecord._log.info('stop')
             while len(SignalRecord._instances):

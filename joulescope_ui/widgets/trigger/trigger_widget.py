@@ -17,8 +17,8 @@ from .condition_detector import condition_detector_factory, is_digital_signal
 from joulescope_ui import N_, P_, tooltip_format, register, CAPABILITIES, get_topic_name, time64
 from joulescope_ui.ui_util import comboBoxConfig, comboBoxSelectItemByText
 from joulescope_ui.styles import styled_widget, color_as_qcolor
-from joulescope_ui.widgets.signal_record import signal_record_config_widget
-from joulescope_ui.widgets.statistics_record.statistics_record_config_widget import StatisticsRecordConfigDialog
+from joulescope_ui.widgets.signal_record import SignalRecord, signal_record_config_widget
+from joulescope_ui.widgets.statistics_record import StatisticsRecord, statistics_record_config_widget
 from joulescope_ui.widgets.waveform.interval_widget import IntervalWidget, str_to_float
 from joulescope_ui.source_selector import SourceSelector
 import copy
@@ -181,6 +181,11 @@ SETTINGS = {
         'default': None,
     },
 }
+
+
+def _sample_utc_end(value):
+    fs = value['sample_freq']
+    return int(len(value['data']) / fs * time64.SECOND) + value['utc']
 
 
 def _grid_row_set_visible(layout, row, visible):
@@ -441,6 +446,8 @@ class StartActionsWidget(QtWidgets.QFrame):
 
     def __init__(self, parent):
         self._output_list = []
+        self._sample_record_config = None
+        self._stats_record_config = None
         super().__init__(parent=parent)
         self._layout = QtWidgets.QGridLayout(self)
 
@@ -448,11 +455,11 @@ class StartActionsWidget(QtWidgets.QFrame):
         self._layout.addWidget(self._sample_record, 0, 0, 1, 1)
         self._sample_record1 = QtWidgets.QHBoxLayout()
         self._sample_record1.addWidget(QtWidgets.QLabel(N_('Record samples')))
-        self._sample_record_config = QtWidgets.QPushButton(N_('Config'))
-        self._sample_record_config.pressed.connect(self._on_sample_record_config)
-        self._sample_record1.addWidget(self._sample_record_config)
+        self._sample_record_config_button = QtWidgets.QPushButton(N_('Config'))
+        self._sample_record_config_button.pressed.connect(self._on_sample_record_config)
+        self._sample_record1.addWidget(self._sample_record_config_button)
         self._layout.addLayout(self._sample_record1, 0, 1, 1, 1)
-        self._sample_record_pre = IntervalWidget(None, 0.1, name=N_('Start buffer'))
+        self._sample_record_pre = IntervalWidget(None, 1.0, name=N_('Start buffer'))
         self._layout.addWidget(self._sample_record_pre, 1, 1, 1, 1)
         self._sample_record_post = IntervalWidget(None, 1.0, name=N_('Stop delay'))
         self._layout.addWidget(self._sample_record_post, 2, 1, 1, 1)
@@ -461,9 +468,9 @@ class StartActionsWidget(QtWidgets.QFrame):
         self._layout.addWidget(self._stats_record, 3, 0, 1, 1)
         self._stats_record1 = QtWidgets.QHBoxLayout()
         self._stats_record1.addWidget(QtWidgets.QLabel(N_('Record statistics')))
-        self._stats_record_config = QtWidgets.QPushButton(N_('Config'))
-        self._stats_record_config.pressed.connect(self._on_statistics_record_config)
-        self._stats_record1.addWidget(self._stats_record_config)
+        self._stats_record_config_button = QtWidgets.QPushButton(N_('Config'))
+        self._stats_record_config_button.pressed.connect(self._on_statistics_record_config)
+        self._stats_record1.addWidget(self._stats_record_config_button)
         self._layout.addLayout(self._stats_record1, 3, 1, 1, 1)
         self._stats_record_pre = IntervalWidget(None, 1.0, name=N_('Start buffer'))
         self._layout.addWidget(self._stats_record_pre, 4, 1, 1, 1)
@@ -508,21 +515,35 @@ class StartActionsWidget(QtWidgets.QFrame):
             signal.connect(self._on_config_update)
         self._visibility_update()
 
+    @QtCore.Slot(object)
+    def _on_sample_record_config_update(self, value):
+        self._sample_record_config = value
+        self._on_config_update()
+
     @QtCore.Slot()
     def _on_sample_record_config(self):
-        signal_record_config_widget.SignalRecordConfigDialog()
+        dialog = signal_record_config_widget.SignalRecordConfigDialog(skip_default_actions=True,
+                                                                      config=self._sample_record_config)
+        dialog.config_changed.connect(self._on_sample_record_config_update)
+
+    @QtCore.Slot(object)
+    def _on_statistics_record_config_update(self, value):
+        self._stats_record_config = value
+        self._on_config_update()
 
     def _on_statistics_record_config(self):
-        StatisticsRecordConfigDialog()
+        cls = statistics_record_config_widget.StatisticsRecordConfigDialog
+        dialog = cls(skip_default_actions=True, config=self._stats_record_config)
+        dialog.config_changed.connect(self._on_statistics_record_config_update)
 
     def _visibility_update(self):
         sample_record = self._sample_record.isChecked()
-        self._sample_record_config.setVisible(sample_record)
+        self._sample_record_config_button.setVisible(sample_record)
         _grid_row_set_visible(self._layout, 1, sample_record)
         _grid_row_set_visible(self._layout, 2, sample_record)
 
         stats_record = self._stats_record.isChecked()
-        self._stats_record_config.setVisible(stats_record)
+        self._stats_record_config_button.setVisible(stats_record)
         _grid_row_set_visible(self._layout, 4, stats_record)
         _grid_row_set_visible(self._layout, 5, stats_record)
 
@@ -541,8 +562,10 @@ class StartActionsWidget(QtWidgets.QFrame):
         rv = {
             'sample_record_pre': self._sample_record_pre.value,
             'sample_record_post': self._sample_record_post.value,
+            'sample_record_config': self._sample_record_config,
             'stats_record_pre': self._stats_record_pre.value,
             'stats_record_post': self._stats_record_post.value,
+            'stats_record_config': self._stats_record_config,
             'output_signal': self._output_signal.currentText(),
             'output_value': self._output_value.currentIndex(),
         }
@@ -560,8 +583,10 @@ class StartActionsWidget(QtWidgets.QFrame):
             checkbox.setChecked(value[checkbox_name])
         self._sample_record_pre.value = value['sample_record_pre']
         self._sample_record_post.value = value['sample_record_post']
+        self._sample_record_config = value.get('sample_record_config', None)
         self._stats_record_pre.value = value['stats_record_pre']
         self._stats_record_post.value = value['stats_record_post']
+        self._stats_record_config = value.get('stats_record_config', None)
         comboBoxSelectItemByText(self._output_signal, value['output_signal'])
         block = self._output_value.blockSignals(True)
         self._output_value.setCurrentIndex(value['output_value'])
@@ -747,21 +772,33 @@ class TriggerWidget(QtWidgets.QWidget):
     SETTINGS = SETTINGS
 
     def __init__(self, parent=None):
-        self._utc = None
+        self._count = 0
+        self._utc = None  # time64 for the most recently detected event
+        self._utc_start = None  # time64 for the most recent start
+        self._utc_stop = None  # time64 for the most recent stop
         self._config = None  # config for activated trigger sequence
         self._config_update_ignore = False
         self._connected = False
         self._log = logging.getLogger(__name__)
         self._resolved_source = None
+        self._signal_record = None
+        self._signal_record_buffer = {}  # (source, signal) -> list of messages
+        self._stats_record = None
+        self._stats_record_buffer = {}  # source -> list of messages
         super().__init__(parent=parent)
         self.setObjectName('jls_info_widget')
         self._layout = QtWidgets.QVBoxLayout(self)
         self._layout.setSpacing(6)
 
-        self._timer = QtCore.QTimer(self)
-        self._timer.setTimerType(QtGui.Qt.PreciseTimer)
-        self._timer.setSingleShot(True)
-        self._timer.timeout.connect(self._on_timer)
+        self._always_condition_timer = QtCore.QTimer(self)
+        self._always_condition_timer.setTimerType(QtGui.Qt.PreciseTimer)
+        self._always_condition_timer.setSingleShot(True)
+        self._always_condition_timer.timeout.connect(self._on_always_condition_timer)
+
+        self._buffer_stop_timer = QtCore.QTimer(self)
+        self._buffer_stop_timer.setTimerType(QtGui.Qt.PreciseTimer)
+        self._buffer_stop_timer.setSingleShot(True)
+        self._buffer_stop_timer.timeout.connect(self._on_buffer_stop_timer)
 
         self._source_selector = SourceSelector(self, 'signal_stream')
         self._source_selector.source_changed.connect(self._on_source_changed)
@@ -830,7 +867,7 @@ class TriggerWidget(QtWidgets.QWidget):
         signal = condition['signal']
         if signal == 'always':
             duration_ms = int(np.ceil(condition['duration'] * 1000))
-            self._timer.start(duration_ms)
+            self._always_condition_timer.start(duration_ms)
         elif signal == 'never':
             pass  # never expire, need manual intervention
         else:
@@ -846,22 +883,114 @@ class TriggerWidget(QtWidgets.QWidget):
                     data['data'] = data['data'][idx:]
                     self._on_signal_data(data['topic'], data)
 
+    def _output_perform(self, actions):
+        if not actions['output']:
+            return
+        source = self._config['source']
+        signal = actions['output_signal']
+        value = actions['output_value']
+        topic = f'{get_topic_name(source)}/settings/out/{signal}'
+        self.pubsub.publish(topic, value)
+
+    def _waveform_widget(self):
+        view = self.pubsub.query('registry/view/settings/active', default=None)
+        if view is None:
+            return
+        children = self.pubsub.query(f'{get_topic_name(view)}/children')
+        children = [c for c in children if c.startswith('WaveformWidget:')]
+        if len(children) == 0:
+            return None
+        return children[0]
+
+    def single_marker_add(self, utc):
+        waveform_widget = self._waveform_widget()
+        if waveform_widget is None:
+            self._log.warning('single_marker_add but no waveform widget found')
+            return
+        self.pubsub.publish(f'{get_topic_name(waveform_widget)}/actions/!x_markers',
+                            ['add_single', utc])
+
+    def dual_marker_add(self, utc_start, utc_end):
+        waveform_widget = self._waveform_widget()
+        if waveform_widget is None:
+            self._log.warning('single_marker_add but no waveform widget found')
+            return
+        self.pubsub.publish(f'{get_topic_name(waveform_widget)}/actions/!x_markers',
+                            ['add_dual', utc_start, utc_end])
+
+    def _start_actions_perform(self):
+        actions = self._config['start_actions']
+        if actions['sample_record']:
+            config = actions['sample_record_config']
+            config = signal_record_config_widget.config_update(config, count=self._count)
+            self._signal_record = SignalRecord(config)
+            for topic, buffer in self._signal_record_buffer.items():
+                for b in buffer:
+                    self._signal_record._on_data(topic, b)
+        if actions['stats_record']:
+            config = actions['stats_record_config']
+            config = statistics_record_config_widget.config_update(config, count=self._count)
+            self._stats_record = {}
+            for source_id, source in config['sources'].items():
+                if not source['enabled']:
+                    continue
+                topic = f'{get_topic_name(source_id)}/events/statistics/!data'
+                obj = StatisticsRecord(topic, source['path'], config)
+                self._stats_record[source_id] = obj
+                for b in self._stats_record_buffer.get(source_id, []):
+                    obj._on_data(topic, b)
+
+        self._output_perform(actions)
+        if actions['single_marker']:
+            self.single_marker_add(self._utc_start)
+
+    def _stop_actions_perform(self):
+        signal_record, self._signal_record = self._signal_record, None
+        if signal_record is not None:
+            post = self._config['start_actions']['sample_record_post']
+            utc = self._utc_stop + int(post * time64.SECOND)
+            signal_record.stop_pend(utc, [self._utc_start, self._utc_stop])
+        stats_record, self._stats_record = self._stats_record, None
+        if stats_record is not None:
+            post = self._config['start_actions']['stats_record_post']
+            utc = self._utc_stop + int(post * time64.SECOND)
+            for obj in stats_record.values():
+                obj.stop_pend(utc)
+        actions = self._config['stop_actions']
+        self._output_perform(actions)
+        if actions['single_marker']:
+            self.single_marker_add(self._utc_stop)
+        if actions['dual_marker']:
+            self.dual_marker_add(self._utc_start, self._utc_stop)
+        if actions['buffer_stop']:
+            delay = actions['buffer_stop_delay']
+            if delay <= 0:
+                self._on_buffer_stop_timer()
+            else:
+                self._buffer_stop_timer.start(int(np.ceil(delay * 1000)))
+
+    def _on_buffer_stop_timer(self):
+        self.pubsub.publish('registry/app/settings/signal_stream_enable', False)
+
     def _on_detect(self):
         status = self._status_button.status
         if status == 'searching':
-            # todo start actions
+            self._utc_start = self._utc
+            self._start_actions_perform()
             self._status_update('active')
             self._condition_enter(self._config['stop_condition'])
         elif status == 'active':
-            # todo stop actions
+            self._utc_stop = self._utc
+            self._stop_actions_perform()
             if self._config['run_mode'] == 'single':
                 self._deactivate()
             else:
+                self._count += 1
                 self._status_update('searching')
                 self._condition_enter(self._config['start_condition'])
 
     @QtCore.Slot()
-    def _on_timer(self):
+    def _on_always_condition_timer(self):
         self._utc = time64.now()
         self._on_detect()
 
@@ -903,6 +1032,35 @@ class TriggerWidget(QtWidgets.QWidget):
                     self._utc = int(rv / fs * time64.SECOND) + value['utc']
                     self._on_detect()
 
+    def _on_signal_record_data(self, topic, value):
+        if self._config is None:
+            return
+        pre = self._config['start_actions']['sample_record_pre']
+        if pre <= 0:
+            return
+        if topic not in self._signal_record_buffer:
+            self._signal_record_buffer[topic] = []
+        b = self._signal_record_buffer[topic]
+        b.append(value)
+        utc_start = value['utc'] - int(pre * time64.SECOND)  # keep at least one buffer by using start
+        while len(b) and _sample_utc_end(b[0]) < utc_start:
+            b.pop(0)
+
+    def _on_statistics_record_data(self, topic, value):
+        if self._config is None:
+            return
+        pre = self._config['start_actions']['stats_record_pre']
+        if pre <= 0:
+            return
+        source_id = topic.split('/')[1]
+        if source_id not in self._stats_record_buffer:
+            self._stats_record_buffer[source_id] = []
+        b = self._stats_record_buffer[source_id]
+        b.append(value)
+        utc_start = value['time']['utc']['value'][0] - int(pre * time64.SECOND)
+        while len(b) and (b[0]['time']['utc']['value'][1] <= utc_start):
+            b.pop(0)
+
     def _activate(self):
         if 'inactive' != self._status_button.status:
             self._deactivate()
@@ -927,15 +1085,34 @@ class TriggerWidget(QtWidgets.QWidget):
             self._log.info('stop_condition subscribe: %s', topic)
             self.pubsub.subscribe(topic, self._on_signal_data, ['pub'])
 
+        if self._config['start_actions']['sample_record']:
+            config = self._config['start_actions']['sample_record_config']
+            for source in config['sources'].values():
+                for signal in source.values():
+                    if signal['enabled'] and signal['selected']:
+                        self.pubsub.subscribe(signal['data_topic'], self._on_signal_record_data, ['pub'])
+
+        if self._config['start_actions']['stats_record']:
+            config = self._config['start_actions']['stats_record_config']
+            for source_id, source in config['sources'].items():
+                if source['enabled']:
+                    topic = f'{get_topic_name(source_id)}/events/statistics/!data'
+                    self.pubsub.subscribe(topic, self._on_statistics_record_data, ['pub'])
+
         self._condition_enter(self._config['start_condition'])
 
     def _deactivate(self):
         self.pubsub.unsubscribe_all(self._on_signal_data)
+        self.pubsub.unsubscribe_all(self._on_signal_record_data)
+        self.pubsub.unsubscribe_all(self._on_statistics_record_data)
         if 'inactive' == self._status_button.status:
             return
         for w in self._config_widgets:
             w.setEnabled(True)
         self._config = None
+        self._signal_record_buffer.clear()
+        self._stats_record_buffer.clear()
+        self._count = 0
         self._status_update('inactive')
 
     @QtCore.Slot()
@@ -993,6 +1170,8 @@ class TriggerWidget(QtWidgets.QWidget):
 
     @QtCore.Slot(object)
     def _on_config_changed(self, config):
+        if self._config_update_ignore:
+            return
         self.config = self._config_get()
 
     def _config_get(self):

@@ -124,11 +124,13 @@ class SignalRecordConfigWidget(QtWidgets.QWidget):
         self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
         self._layout = QtWidgets.QGridLayout(self)
 
+        tooltip = filename_tooltip()
         self._filename_label = QtWidgets.QLabel(N_('Filename'), self)
+        self._filename_label.setToolTip(tooltip)
         self._filename = QtWidgets.QLineEdit(self)
         self._filename.setText(self._config['filename'])
         self._filename.textChanged.connect(self._on_filename)
-        self._filename.setToolTip(filename_tooltip())
+        self._filename.setToolTip(tooltip)
         self._file_reset = QtWidgets.QPushButton()
         self._file_reset.pressed.connect(self._on_file_reset)
         icon = self._file_reset.style().standardIcon(QtWidgets.QStyle.StandardPixmap.SP_DialogDiscardButton)
@@ -285,11 +287,13 @@ class SignalRecordConfigWidget(QtWidgets.QWidget):
 
 
 class SignalRecordConfigDialog(QtWidgets.QDialog):
+    config_changed = QtCore.Signal(object)
     count = 0
 
-    def __init__(self, parent=None, is_action_show=None):
+    def __init__(self, parent=None, skip_default_actions=None, config=None):
         self._log = logging.getLogger(f'{__name__}.dialog')
         self._log.info('start')
+        self._skip_default_actions = bool(skip_default_actions)
         if parent is None:
             parent = pubsub_singleton.query('registry/ui/instance', default=None)
         super().__init__(parent=parent)
@@ -297,7 +301,7 @@ class SignalRecordConfigDialog(QtWidgets.QDialog):
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self._layout = QtWidgets.QVBoxLayout(self)
 
-        self._w = SignalRecordConfigWidget(self)
+        self._w = SignalRecordConfigWidget(self, config=config)
         self._layout.addWidget(self._w)
 
         self._spacer = QtWidgets.QSpacerItem(10, 0,
@@ -309,28 +313,29 @@ class SignalRecordConfigDialog(QtWidgets.QDialog):
         self._buttons.accepted.connect(self.accept)
         self._buttons.rejected.connect(self.reject)
         self._layout.addWidget(self._buttons)
-        if bool(is_action_show):
-            self.finished.connect(self._on_is_action_show_finished)
+        self.finished.connect(self._on_is_action_show_finished)
 
         self.resize(600, 400)
         self.setWindowTitle(N_('Configure signal recording'))
-        self._log.info('open')
         self.open()
 
     @QtCore.Slot(int)
     def _on_is_action_show_finished(self, value):
         self._log.info('finished: %d', value)
         if value == QtWidgets.QDialog.DialogCode.Accepted:
-            self._log.info('finished: accept - start recording')
             config = self._w.config()
-            config = config_update(config, count=SignalRecordConfigDialog.count)
-            SignalRecordConfigDialog.count += 1
-            pubsub_singleton.publish('registry/SignalRecord/actions/!start', config)
+            self.config_changed.emit(config)
+            if not self._skip_default_actions:
+                self._log.info('finished: accept - start recording')
+                config = config_update(config, count=SignalRecordConfigDialog.count)
+                SignalRecordConfigDialog.count += 1
+                pubsub_singleton.publish('registry/SignalRecord/actions/!start', config)
         else:
-            self._log.info('finished: reject - abort recording')
-            pubsub_singleton.publish('registry/app/settings/signal_stream_record', False)
+            if not self._skip_default_actions:
+                self._log.info('finished: reject - abort recording')
+                pubsub_singleton.publish('registry/app/settings/signal_stream_record', False)
         self.close()
 
     @staticmethod
     def on_cls_action_show():
-        SignalRecordConfigDialog(is_action_show=True)
+        SignalRecordConfigDialog()

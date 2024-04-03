@@ -1920,6 +1920,7 @@ class WaveformWidget(QtWidgets.QWidget):
         inside = []
         outside = []
         x_min, x_max = x_range
+        x_max += time64.SECOND  # allow future scheduling
         for m_id, m in self.annotations['x'].items():
             pos1 = m['pos1']
             if not x_min <= pos1 <= x_max:
