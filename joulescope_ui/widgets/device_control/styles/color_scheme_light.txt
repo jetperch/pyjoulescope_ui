@@ -1,7 +1,4 @@
-trigger.title_background = #256090
-trigger.title_background_hover = #3570C0
-trigger.title_foreground = #202020
-trigger.title_foreground_hover = #101010
-
-trigger.status_background = #259040
-trigger.status_background_hover = #35C070
+devctrl.border = #80CC80
+devctrl.checked = #12a0a0
+devctrl.hover = #38eded
+devctrl.foreground = #ffffff
