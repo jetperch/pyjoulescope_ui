@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-03-19 13:13-0400\n"
-"PO-Revision-Date: 2024-03-07 17:35-0500\n"
+"POT-Creation-Date: 2024-04-03 16:33-0400\n"
+"PO-Revision-Date: 2024-04-03 14:53-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: el <LL@li.org>\n"
 "Language: el\n"
@@ -96,9 +96,9 @@ msgid ""
 "When disabled, hold the existing values. New statistics data is processed, "
 "but widgets displaying statistics information do not update."
 msgstr ""
-"Όταν είναι απενεργοποιημένη, διατηρεί τις υπάρχουσες τιμές. Επεξεργάζονται "
-"νέα στατιστικά δεδομένα, αλλά τα widgets που εμφανίζουν πληροφορίες "
-"στατιστικών στοιχείων δεν ενημερώνονται."
+"Όταν είναι απενεργοποιημένη, διατηρεί τις υπάρχουσες τιμές. Τα νέα δεδομένα "
+"στατιστικών επεξεργάζονται, αλλά τα widgets που εμφανίζουν πληροφορίες "
+"στατιστικών δεν ενημερώνονται."
 
 #: app.py:83
 msgid "Statistics recording"
@@ -340,7 +340,7 @@ msgstr "Ηλεκτρονικό ταχυδρομείο"
 msgid "Description"
 msgstr "Περιγραφή"
 
-#: error_window.py:112 widgets/waveform/waveform_widget.py:3346
+#: error_window.py:112 widgets/waveform/waveform_widget.py:3347
 msgid "Edit"
 msgstr "Επεξεργασία"
 
@@ -352,7 +352,7 @@ msgstr "Προβολή ως Markdown"
 msgid "Abort"
 msgstr "Διακοπή"
 
-#: error_window.py:120 main.py:331 widgets/settings/settings_widget.py:539
+#: error_window.py:120 main.py:365 widgets/settings/settings_widget.py:539
 msgid "View"
 msgstr "Προβολή"
 
@@ -372,29 +372,29 @@ msgstr "Επαναφορά στην προηγούμενη διαμόρφωση"
 msgid "Revert to defaults"
 msgstr "Επαναφορά στις προεπιλογές"
 
-#: error_window.py:283 main.py:329 main.py:375
+#: error_window.py:283 main.py:363 main.py:409
 #: widgets/js220_cal/js220_cal_widget.py:38
 msgid "Exit"
 msgstr "Έξοδος"
 
-#: exporter.py:49 widgets/signal_record/signal_record_config_widget.py:48
-#: widgets/statistics_record/statistics_record_config_widget.py:47
+#: exporter.py:49 widgets/signal_record/signal_record_config_widget.py:148
+#: widgets/statistics_record/statistics_record_config_widget.py:111
 msgid "Directory"
 msgstr "Κατάλογος"
 
-#: exporter.py:61 widgets/signal_record/signal_record_config_widget.py:36
+#: exporter.py:61 widgets/signal_record/signal_record_config_widget.py:128
 #: zip_inspector.py:92
 msgid "Filename"
 msgstr "Όνομα αρχείου"
 
 #: exporter.py:68 widgets/notes/notes_widget.py:21
-#: widgets/signal_record/signal_record_config_widget.py:66
+#: widgets/signal_record/signal_record_config_widget.py:171
 msgid "Notes"
 msgstr "Σημειώσεις"
 
-#: exporter.py:86 widgets/signal_record/signal_record_config_widget.py:123
-#: widgets/signal_record/signal_record_config_widget.py:144
-#: widgets/statistics_record/statistics_record_config_widget.py:108
+#: exporter.py:86 widgets/signal_record/signal_record_config_widget.py:241
+#: widgets/signal_record/signal_record_config_widget.py:268
+#: widgets/statistics_record/statistics_record_config_widget.py:173
 msgid "Select save location"
 msgstr "Επιλέξτε θέση αποθήκευσης"
 
@@ -427,19 +427,18 @@ msgid "Safety"
 msgstr "Ασφάλεια"
 
 #: getting_started.py:23
-msgid "The voltage between any sensor port must never exceed ±15V"
+msgid "The voltage between any sensor port must never exceed ±15V."
 msgstr ""
 "Η τάση μεταξύ οποιασδήποτε θύρας αισθητήρα δεν πρέπει ποτέ να υπερβαίνει τα "
 "±15V."
 
 #: getting_started.py:24
-msgid "The JS220 sensor ports are Current+, Current-, Voltage+, Voltage-"
+msgid "The JS220 sensor ports are Current+, Current-, Voltage+, Voltage-."
 msgstr ""
-"Οι θύρες αισθητήρων JS220 είναι οι εξής: Current+, Current-, Voltage+, "
-"Voltage-"
+"Οι θύρες του αισθητήρα JS220 είναι Current+, Current-, Voltage+, Voltage-."
 
 #: getting_started.py:25
-msgid "The JS110 sensor ports are IN+, IN- OUT+, and OUT-"
+msgid "The JS110 sensor ports are IN+, IN- OUT+, and OUT-."
 msgstr "Οι θύρες του αισθητήρα JS110 είναι IN+, IN- OUT+ και OUT-."
 
 #: getting_started.py:26
@@ -493,8 +492,8 @@ msgid ""
 "The Joulescope software starts in the Multimeter View displaying the value "
 "current, voltage, power, and energy."
 msgstr ""
-"Το λογισμικό Joulescope ξεκινάει στην προβολή πολυμέτρου εμφανίζοντας τις "
-"τιμές ρεύματος, τάσης, ισχύος και ενέργειας."
+"Το λογισμικό Joulescope ξεκινά στην προβολή πολυμέτρου, όπου εμφανίζονται οι"
+" τιμές ρεύματος, τάσης, ισχύος και ενέργειας."
 
 #: getting_started.py:42
 msgid ""
@@ -613,11 +612,23 @@ msgstr "Μην εμφανίσετε ξανά"
 msgid "Intel graphics detected"
 msgstr "Εντοπίστηκαν γραφικά Intel"
 
-#: main.py:78
+#: main.py:70 widgets/value/value_widget.py:653
+msgid "Multimeter"
+msgstr "Πολύμετρο"
+
+#: main.py:71
+msgid "Oscilloscope"
+msgstr "Παλμογράφος"
+
+#: main.py:72 main.py:298
+msgid "File"
+msgstr "Αρχείο"
+
+#: main.py:82
 msgid "The UI status bar display mode"
 msgstr "Ο τρόπος εμφάνισης της γραμμής κατάστασης του UI"
 
-#: main.py:79
+#: main.py:83
 msgid ""
 "This setting controls the amount of detail shown on the status bar at the "
 "bottom of the UI window. You should usually leave this set to \"normal\" "
@@ -628,23 +639,23 @@ msgstr ""
 "αφήσετε να ρυθμιστεί στην τιμή \"normal\", εκτός αν θέλετε περισσότερες "
 "λεπτομέρειες σχετικά με την εσωτερική λειτουργία του UI."
 
-#: main.py:84 safe_mode.py:43
+#: main.py:88 safe_mode.py:43
 msgid "Normal"
 msgstr "Κανονικό"
 
-#: main.py:85
+#: main.py:89
 msgid "Troubleshoot"
 msgstr "Αντιμετώπιση προβλημάτων"
 
-#: main.py:91
+#: main.py:95
 msgid "Enable developer mode."
 msgstr "Ενεργοποιήστε τη λειτουργία προγραμματιστή."
 
-#: main.py:98
+#: main.py:108
 msgid "PubSub utilization"
 msgstr "Χρήση PubSub"
 
-#: main.py:99
+#: main.py:109
 msgid ""
 "Display the number of actions processed by the publish-subscribe broker in "
 "each second."
@@ -652,11 +663,11 @@ msgstr ""
 "Εμφάνιση του αριθμού των ενεργειών που επεξεργάζεται ο μεσίτης δημοσιεύσεων-"
 "συνδρομών σε κάθε δευτερόλεπτο."
 
-#: main.py:104
+#: main.py:114
 msgid "CPU utilization"
 msgstr "Χρήση CPU"
 
-#: main.py:105
+#: main.py:115
 msgid ""
 "Display the CPU utilization by this application and the total CPU "
 "utilization by all applications. The value is displayed in percent."
@@ -665,11 +676,11 @@ msgstr ""
 "της CPU από όλες τις εφαρμογές. Η τιμή εμφανίζεται σε ποσοστό επί τοις "
 "εκατό."
 
-#: main.py:111
+#: main.py:121
 msgid "Memory utilization"
 msgstr "Χρήση μνήμης"
 
-#: main.py:112
+#: main.py:122
 msgid ""
 "Display the memory (RAM) utilization by this application and by all "
 "applications. The value is displayed in percent."
@@ -677,97 +688,85 @@ msgstr ""
 "Εμφάνιση της χρήσης της μνήμης (RAM) από αυτή την εφαρμογή και από όλες τις "
 "εφαρμογές. Η τιμή εμφανίζεται σε ποσοστό επί τοις εκατό."
 
-#: main.py:189
+#: main.py:216
 msgid "UI"
 msgstr "UI"
 
-#: main.py:264 main.py:285
-msgid "File"
-msgstr "Αρχείο"
-
-#: main.py:281 widgets/value/value_widget.py:653
-msgid "Multimeter"
-msgstr "Πολύμετρο"
-
-#: main.py:283
-msgid "Oscilloscope"
-msgstr "Παλμογράφος"
-
-#: main.py:296
+#: main.py:330
 msgid "&Help"
-msgstr "&Help"
+msgstr "&amp;Help"
 
-#: main.py:297 widgets/hamburger/hamburger_widget.py:21
+#: main.py:331 widgets/hamburger/hamburger_widget.py:21
 msgid "Getting Started"
 msgstr "Ξεκινώντας"
 
-#: main.py:298
+#: main.py:332
 msgid "User's Guide"
 msgstr "Οδηγός χρήσης"
 
-#: main.py:299 widgets/hamburger/hamburger_widget.py:22
+#: main.py:333 widgets/hamburger/hamburger_widget.py:22
 msgid "Changelog"
 msgstr "Changelog"
 
-#: main.py:300 widgets/help/help_widget.py:59
+#: main.py:334 widgets/help/help_widget.py:59
 msgid "Report Issue"
 msgstr "Έκδοση έκθεσης"
 
-#: main.py:301
+#: main.py:335
 msgid "View logs..."
 msgstr "Προβολή αρχείων καταγραφής..."
 
-#: main.py:302 widgets/hamburger/hamburger_widget.py:23
+#: main.py:336 widgets/hamburger/hamburger_widget.py:23
 msgid "Credits"
 msgstr "Πιστώσεις"
 
-#: main.py:303 widgets/hamburger/hamburger_widget.py:24
+#: main.py:337 widgets/hamburger/hamburger_widget.py:24
 msgid "About"
 msgstr "Σχετικά με το"
 
-#: main.py:325 main.py:368
+#: main.py:359 main.py:402
 msgid "&File"
-msgstr "&File"
+msgstr "&amp;File"
 
-#: main.py:326
+#: main.py:360
 msgid "Open"
 msgstr "Ανοίξτε το"
 
-#: main.py:327
+#: main.py:361
 msgid "Open recent"
 msgstr "Ανοίξτε πρόσφατα"
 
-#: main.py:328 main.py:374
+#: main.py:362 main.py:408
 msgid "Clear config and exit"
 msgstr "Διαγραφή ρυθμίσεων και έξοδος"
 
-#: main.py:332 widgets/settings/settings_widget.py:541
+#: main.py:366 widgets/settings/settings_widget.py:541
 msgid "Widgets"
 msgstr "Widgets"
 
-#: main.py:333
+#: main.py:367
 msgid "Tools"
 msgstr "Εργαλεία"
 
-#: main.py:334
+#: main.py:368
 msgid "Clear Accumulators"
 msgstr "Καθαροί συσσωρευτές"
 
-#: main.py:369
+#: main.py:403
 msgid "Info"
 msgstr "Πληροφορίες"
 
-#: main.py:370 widget_tools.py:92 widgets/settings/settings_widget.py:31
+#: main.py:404 widget_tools.py:92 widgets/settings/settings_widget.py:31
 #: widgets/settings/settings_widget.py:574
 #: widgets/sidebar/sidebar_widget.py:41
 msgid "Settings"
 msgstr "Ρυθμίσεις"
 
-#: main.py:659
+#: main.py:693
 msgid "Manage"
 msgstr "Διαχείριση"
 
-#: main.py:696
+#: main.py:730
 msgid "Select file to open"
 msgstr "Επιλέξτε αρχείο για άνοιγμα"
 
@@ -1486,7 +1485,7 @@ msgstr "Κατάσταση ενημέρωσης υλικολογισμικού"
 #: widgets/settings/settings_widget.py:266
 #: widgets/settings/settings_widget.py:364
 #: widgets/settings/settings_widget.py:431
-#: widgets/waveform/waveform_widget.py:3061
+#: widgets/waveform/waveform_widget.py:3062
 msgid "Name"
 msgstr "Όνομα"
 
@@ -1530,7 +1529,7 @@ msgstr "Plugins"
 msgid "Version"
 msgstr "Έκδοση"
 
-#: plugins/selector.py:60
+#: plugins/selector.py:60 widgets/trigger/trigger_widget.py:73
 msgid "Active"
 msgstr "Ενεργό"
 
@@ -1615,7 +1614,7 @@ msgid "Probability Density Distribution"
 msgstr "Κατανομή πυκνότητας πιθανότητας"
 
 #: range_tools/histogram.py:45 range_tools/max_window.py:119
-#: widgets/trigger/trigger_widget.py:129
+#: widgets/trigger/trigger_widget.py:220
 msgid "Signal"
 msgstr "Σήμα"
 
@@ -1774,7 +1773,7 @@ msgstr "Η συμβολοσειρά μορφοποίησης"
 
 #: widgets/clock/clock_widget.py:43
 msgid "For the complete syntax, see Python package {package}"
-msgstr "Για την πλήρη σύνταξη, δείτε το πακέτο Python {package}"
+msgstr "Για την πλήρη σύνταξη, δείτε Python package {package}"
 
 #: widgets/developer/log_view_widget.py:30
 msgid "Timestamp"
@@ -1971,7 +1970,7 @@ msgid "Threshold 2"
 msgstr "Κατώφλι 2"
 
 #: widgets/device_control/fuse.py:89 widgets/memory/memory_widget.py:225
-#: widgets/trigger/trigger_widget.py:35 widgets/trigger/trigger_widget.py:131
+#: widgets/trigger/trigger_widget.py:114 widgets/trigger/trigger_widget.py:222
 msgid "Duration"
 msgstr "Διάρκεια"
 
@@ -2168,11 +2167,11 @@ msgid ""
 "error. If you wish to perform scale calibration, ensure that your test setup"
 " gives a sufficient test uncertainty ratio (TUR)."
 msgstr ""
-"Το Joulescope JS220 έχει σχεδιαστεί για να πληροί τις προδιαγραφές του χωρίς"
-" επαναβαθμονόμηση. Μπορείτε να χρησιμοποιήσετε τη βαθμονόμηση offset για να "
-"μειώσετε περαιτέρω το σφάλμα offset. Εάν επιθυμείτε να εκτελέσετε "
-"βαθμονόμηση κλίμακας, βεβαιωθείτε ότι η διάταξη δοκιμής σας παρέχει επαρκή "
-"λόγο αβεβαιότητας δοκιμής (TUR)."
+"Το Joulescope JS220 έχει σχεδιαστεί για να ανταποκρίνεται στις προδιαγραφές "
+"του χωρίς επαναβαθμονόμηση. Μπορείτε να χρησιμοποιήσετε τη βαθμονόμηση "
+"offset για να μειώσετε περαιτέρω το σφάλμα offset. Εάν επιθυμείτε να "
+"εκτελέσετε βαθμονόμηση κλίμακας, βεβαιωθείτε ότι η διάταξη δοκιμής σας "
+"παρέχει επαρκή λόγο αβεβαιότητας δοκιμής (TUR)."
 
 #: widgets/js220_cal/js220_cal_widget.py:35
 msgid "Restore factory calibration"
@@ -2396,149 +2395,205 @@ msgstr "Το πλάτος του flyout σε pixels."
 msgid "The disk is full"
 msgstr "Ο δίσκος είναι γεμάτος"
 
-#: widgets/signal_record/signal_record.py:56
+#: widgets/signal_record/signal_record.py:57
 msgid "Could not open file for write"
 msgstr "Δεν μπόρεσε να ανοίξει αρχείο για εγγραφή"
 
-#: widgets/signal_record/signal_record_config_widget.py:23
+#: widgets/signal_record/signal_record_config_widget.py:101
 msgid "SignalRecordConfig"
 msgstr "SignalRecordConfig"
 
-#: widgets/signal_record/signal_record_config_widget.py:61
+#: widgets/signal_record/signal_record_config_widget.py:107
+#: widgets/statistics_record/statistics_record_config_widget.py:92
+msgid "The filename with optional replacements."
+msgstr "Το όνομα αρχείου με προαιρετικές αντικαταστάσεις."
+
+#: widgets/signal_record/signal_record_config_widget.py:166
 msgid "Signals to record"
 msgstr "Σήματα προς καταγραφή"
 
-#: widgets/signal_record/signal_record_config_widget.py:190
-#: widgets/statistics_record/statistics_record_config_widget.py:154
+#: widgets/signal_record/signal_record_config_widget.py:319
+#: widgets/statistics_record/statistics_record_config_widget.py:223
 msgid "Configure signal recording"
 msgstr "Διαμόρφωση εγγραφής σήματος"
 
-#: widgets/statistics_record/statistics_record_config_widget.py:34
+#: widgets/statistics_record/statistics_record_config_widget.py:86
 msgid "StatisticsRecordConfig"
 msgstr "StatisticsRecordConfig"
 
-#: widgets/statistics_record/statistics_record_config_widget.py:59
+#: widgets/statistics_record/statistics_record_config_widget.py:123
 msgid "Time Format"
 msgstr "Μορφή χρόνου"
 
-#: widgets/trigger/trigger_widget.py:34
+#: widgets/trigger/trigger_widget.py:41 widgets/value/value_widget.py:87
+msgid "Select the source device"
+msgstr "Επιλέξτε τη συσκευή προέλευσης"
+
+#: widgets/trigger/trigger_widget.py:42
+msgid "The device to use for the start condition and stop condition."
+msgstr ""
+"Η συσκευή που θα χρησιμοποιηθεί για τη συνθήκη εκκίνησης και τη συνθήκη "
+"διακοπής."
+
+#: widgets/trigger/trigger_widget.py:44
+msgid "Configure run mode"
+msgstr "Ρύθμιση της λειτουργίας εκτέλεσης"
+
+#: widgets/trigger/trigger_widget.py:45
+msgid "Single"
+msgstr "Ενιαία"
+
+#: widgets/trigger/trigger_widget.py:46
+msgid "Perform one trigger sequence and then return to inactive mode."
+msgstr ""
+"Εκτελέστε μία ακολουθία ενεργοποίησης και στη συνέχεια επιστρέψτε στην "
+"ανενεργή λειτουργία."
+
+#: widgets/trigger/trigger_widget.py:47
+msgid "Continuous"
+msgstr "Συνεχής"
+
+#: widgets/trigger/trigger_widget.py:48
+msgid "Repeat the trigger sequence indefinitely until manually stopped."
+msgstr ""
+"Επαναλάβετε την ακολουθία ενεργοποίησης επ' αόριστον μέχρι να σταματήσετε "
+"χειροκίνητα."
+
+#: widgets/trigger/trigger_widget.py:65
+msgid "Start, stop and indicate status"
+msgstr "Έναρξη, διακοπή και ένδειξη κατάστασης"
+
+#: widgets/trigger/trigger_widget.py:66
+msgid "Inactive"
+msgstr "Ανενεργό"
+
+#: widgets/trigger/trigger_widget.py:67
+msgid "Configure trigger options and then press to start."
+msgstr ""
+"Ρυθμίστε τις επιλογές ενεργοποίησης και, στη συνέχεια, πατήστε για να "
+"ξεκινήσετε."
+
+#: widgets/trigger/trigger_widget.py:68
+msgid "Searching"
+msgstr "Αναζήτηση"
+
+#: widgets/trigger/trigger_widget.py:69
+msgid ""
+"Look for the configured start condition. On match, perform the start actions"
+" and advance to active. Press to halt and return to inactive."
+msgstr ""
+"Αναζητήστε τη διαμορφωμένη συνθήκη εκκίνησης. Σε περίπτωση ταύτισης, "
+"εκτελέστε τις ενέργειες εκκίνησης και μεταβείτε σε ενεργή κατάσταση. Πιέστε "
+"για να σταματήσετε και να επιστρέψετε στην ανενεργή κατάσταση."
+
+#: widgets/trigger/trigger_widget.py:74
+msgid ""
+"Look for the configured stop condition. On match, perform the stop actions. "
+"For run mode single, transition to inactive. For run mode continuous, "
+"transition to searching. Press to halt and return to inactive."
+msgstr ""
+"Αναζητήστε τη διαμορφωμένη κατάσταση διακοπής. Σε περίπτωση ταύτισης, "
+"εκτελέστε τις ενέργειες διακοπής. Για απλή λειτουργία εκτέλεσης, μεταβείτε "
+"σε ανενεργή. Για συνεχή λειτουργία εκτέλεσης, μετάβαση σε αναζήτηση. Πιέστε "
+"για να σταματήσετε και να επιστρέψετε στην ανενεργή κατάσταση."
+
+#: widgets/trigger/trigger_widget.py:113
 msgid "Edge"
 msgstr "Άκρη"
 
-#: widgets/trigger/trigger_widget.py:47
+#: widgets/trigger/trigger_widget.py:126
 msgid "Always"
 msgstr "Πάντα"
 
-#: widgets/trigger/trigger_widget.py:48
-#, fuzzy
-#| msgid "New View"
+#: widgets/trigger/trigger_widget.py:127
 msgid "Never"
-msgstr "Νέα άποψη"
+msgstr "Ποτέ"
 
-#: widgets/trigger/trigger_widget.py:54
+#: widgets/trigger/trigger_widget.py:134
 msgid "between"
 msgstr "μεταξύ"
 
-#: widgets/trigger/trigger_widget.py:55
+#: widgets/trigger/trigger_widget.py:135
 msgid "outside"
 msgstr "έξω από το"
 
-#: widgets/trigger/trigger_widget.py:84
-#, fuzzy
-#| msgid "The source filter string."
+#: widgets/trigger/trigger_widget.py:164
 msgid "The source instrument."
-msgstr "Η συμβολοσειρά φίλτρου πηγής."
+msgstr "Το αρχικό όργανο."
 
-#: widgets/trigger/trigger_widget.py:92
-#, fuzzy
-#| msgid "Signal"
-msgid "Single"
-msgstr "Σήμα"
-
-#: widgets/trigger/trigger_widget.py:93
-#, fuzzy
-#| msgid "Contents"
-msgid "Continuous"
-msgstr "Περιεχόμενα"
-
-#: widgets/trigger/trigger_widget.py:128
-#, fuzzy
-#| msgid "IRF type"
+#: widgets/trigger/trigger_widget.py:219
 msgid "Type"
-msgstr "Τύπος IRF"
+msgstr "Τύπος"
 
-#: widgets/trigger/trigger_widget.py:130
-#, fuzzy
-#| msgid "Action"
+#: widgets/trigger/trigger_widget.py:221
 msgid "Condition"
-msgstr "Δράση"
+msgstr "Κατάσταση"
 
-#: widgets/trigger/trigger_widget.py:383
-#, fuzzy
-#| msgid "Signal sample recording"
-msgid "Start signal sample recording"
-msgstr "Καταγραφή δείγματος σήματος"
+#: widgets/trigger/trigger_widget.py:466
+msgid "Record samples"
+msgstr "Δείγματα εγγραφής"
 
-#: widgets/trigger/trigger_widget.py:384 widgets/trigger/trigger_widget.py:397
+#: widgets/trigger/trigger_widget.py:467 widgets/trigger/trigger_widget.py:480
 msgid "Config"
 msgstr "Διαμόρφωση"
 
-#: widgets/trigger/trigger_widget.py:388
-#, fuzzy
-#| msgid "Trigger direction"
-msgid "Pretrigger duration"
-msgstr "Κατεύθυνση σκανδαλισμού"
+#: widgets/trigger/trigger_widget.py:471 widgets/trigger/trigger_widget.py:484
+msgid "Start buffer"
+msgstr "Έναρξη ρυθμιστικού διαστήματος"
 
-#: widgets/trigger/trigger_widget.py:396
-#, fuzzy
-#| msgid "Statistics recording"
-msgid "Start statistics recording"
-msgstr "Καταγραφή στατιστικών στοιχείων"
+#: widgets/trigger/trigger_widget.py:473 widgets/trigger/trigger_widget.py:486
+msgid "Stop delay"
+msgstr "Καθυστέρηση διακοπής"
 
-#: widgets/trigger/trigger_widget.py:404
-#, fuzzy
-#| msgid "Set units"
+#: widgets/trigger/trigger_widget.py:479
+msgid "Record statistics"
+msgstr "Στατιστικά στοιχεία εγγραφής"
+
+#: widgets/trigger/trigger_widget.py:492 widgets/trigger/trigger_widget.py:622
 msgid "Set output"
-msgstr "Ορισμός μονάδων"
+msgstr "Ορισμός εξόδου"
 
-#: widgets/trigger/trigger_widget.py:416
+#: widgets/trigger/trigger_widget.py:506 widgets/trigger/trigger_widget.py:636
 #: widgets/waveform/waveform_control.py:29
 msgid "Add single marker"
 msgstr "Προσθέστε έναν μόνο δείκτη"
 
-#: widgets/trigger/trigger_widget.py:484
-#, fuzzy
-#| msgid "Trigger input"
-msgid "Trigger"
-msgstr "Είσοδος σκανδαλισμού"
+#: widgets/trigger/trigger_widget.py:640
+#: widgets/waveform/waveform_control.py:38
+msgid "Add dual markers"
+msgstr "Προσθέστε διπλούς δείκτες"
 
-#: widgets/trigger/trigger_widget.py:502
+#: widgets/trigger/trigger_widget.py:644
+msgid "Stop sample buffer"
+msgstr "Διακοπή ρυθμιστικού διαλύματος δείγματος"
+
+#: widgets/trigger/trigger_widget.py:645
+msgid "Delay"
+msgstr "Καθυστέρηση"
+
+#: widgets/trigger/trigger_widget.py:777
+msgid "Trigger"
+msgstr "Σκανδάλη"
+
+#: widgets/trigger/trigger_widget.py:817
 msgid "No sources found"
 msgstr "Δεν βρέθηκαν πηγές"
 
-#: widgets/trigger/trigger_widget.py:522
-#, fuzzy
-#| msgid "Histogram configuration"
+#: widgets/trigger/trigger_widget.py:851
 msgid "Start Condition"
-msgstr "Διαμόρφωση ιστογράμματος"
+msgstr "Κατάσταση έναρξης"
 
-#: widgets/trigger/trigger_widget.py:525
-#, fuzzy
-#| msgid "Action"
+#: widgets/trigger/trigger_widget.py:854
 msgid "Start Actions"
-msgstr "Δράση"
+msgstr "Έναρξη ενεργειών"
 
-#: widgets/trigger/trigger_widget.py:528
-#, fuzzy
-#| msgid "Histogram configuration"
+#: widgets/trigger/trigger_widget.py:857
 msgid "Stop Condition"
-msgstr "Διαμόρφωση ιστογράμματος"
+msgstr "Κατάσταση διακοπής"
 
-#: widgets/trigger/trigger_widget.py:531
-#, fuzzy
-#| msgid "Options"
+#: widgets/trigger/trigger_widget.py:860
 msgid "Stop Actions"
-msgstr "Επιλογές"
+msgstr "Διακοπή ενεργειών"
 
 #: widgets/value/value_widget.py:36
 msgid "Show the device selection header."
@@ -2555,10 +2610,6 @@ msgstr "Εμφανίστε τα πεδία στατιστικών στα δεξ�
 #: widgets/value/value_widget.py:51
 msgid "Show a leading + or - sign."
 msgstr "Εμφανίστε ένα πρόσημο + ή -."
-
-#: widgets/value/value_widget.py:87
-msgid "Select the source device"
-msgstr "Επιλέξτε τη συσκευή προέλευσης"
 
 #: widgets/value/value_widget.py:88
 msgid ""
@@ -2712,7 +2763,7 @@ msgid "triangle left"
 msgstr "τρίγωνο αριστερά"
 
 #: widgets/waveform/text_annotation.py:66
-#: widgets/waveform/waveform_widget.py:3007
+#: widgets/waveform/waveform_widget.py:3008
 msgid "Manual"
 msgstr "Χειροκίνητο"
 
@@ -2721,17 +2772,17 @@ msgid "Centered"
 msgstr "Με επίκεντρο το"
 
 #: widgets/waveform/text_annotation.py:99
-#: widgets/waveform/waveform_widget.py:3122
+#: widgets/waveform/waveform_widget.py:3123
 msgid "Text"
 msgstr "Κείμενο"
 
 #: widgets/waveform/text_annotation.py:107
-#: widgets/waveform/waveform_widget.py:3347
+#: widgets/waveform/waveform_widget.py:3348
 msgid "Show text"
 msgstr "Εμφάνιση κειμένου"
 
 #: widgets/waveform/text_annotation.py:116
-#: widgets/waveform/waveform_widget.py:3359
+#: widgets/waveform/waveform_widget.py:3360
 msgid "Shape"
 msgstr "Σχήμα"
 
@@ -2758,10 +2809,6 @@ msgid ""
 msgstr ""
 "Μπορείτε επίσης να προσθέσετε έναν δείκτη κάνοντας δεξί κλικ στον άξονα x ή "
 "στην περιοχή του διαγράμματος."
-
-#: widgets/waveform/waveform_control.py:38
-msgid "Add dual markers"
-msgstr "Προσθέστε διπλούς δείκτες"
 
 #: widgets/waveform/waveform_control.py:40
 msgid "Click to add a dual markers to the waveform."
@@ -3085,12 +3132,12 @@ msgid "X-axis annotation mode"
 msgstr "Λειτουργία σχολιασμού του άξονα Χ"
 
 #: widgets/waveform/waveform_widget.py:495
-#: widgets/waveform/waveform_widget.py:2887
+#: widgets/waveform/waveform_widget.py:2888
 msgid "Absolute"
 msgstr "Απόλυτη"
 
 #: widgets/waveform/waveform_widget.py:496
-#: widgets/waveform/waveform_widget.py:2892
+#: widgets/waveform/waveform_widget.py:2893
 msgid "Relative"
 msgstr "Σχετικό"
 
@@ -3108,156 +3155,153 @@ msgstr ""
 "Η προτεραιότητα της ανίχνευσης: η υψηλότερη τιμή int στην κορυφή, η τιμή "
 "None είναι απενεργοποιημένη."
 
-#: widgets/waveform/waveform_widget.py:2833
-#: widgets/waveform/waveform_widget.py:3134
+#: widgets/waveform/waveform_widget.py:2834
+#: widgets/waveform/waveform_widget.py:3135
 msgid "Save image to file"
 msgstr "Αποθήκευση εικόνας σε αρχείο"
 
-#: widgets/waveform/waveform_widget.py:2881
-#: widgets/waveform/waveform_widget.py:2950
+#: widgets/waveform/waveform_widget.py:2882
+#: widgets/waveform/waveform_widget.py:2951
 msgid "Single marker"
 msgstr "Ενιαίος δείκτης"
 
-#: widgets/waveform/waveform_widget.py:2882
-#: widgets/waveform/waveform_widget.py:2951
+#: widgets/waveform/waveform_widget.py:2883
+#: widgets/waveform/waveform_widget.py:2952
 msgid "Dual markers"
 msgstr "Διπλοί δείκτες"
 
-#: widgets/waveform/waveform_widget.py:2884
+#: widgets/waveform/waveform_widget.py:2885
 msgid "Mode"
 msgstr "Λειτουργία"
 
-#: widgets/waveform/waveform_widget.py:2897
-#: widgets/waveform/waveform_widget.py:2952
-#: widgets/waveform/waveform_widget.py:3110
-#: widgets/waveform/waveform_widget.py:3128
+#: widgets/waveform/waveform_widget.py:2898
+#: widgets/waveform/waveform_widget.py:2953
+#: widgets/waveform/waveform_widget.py:3111
+#: widgets/waveform/waveform_widget.py:3129
 msgid "Clear all"
 msgstr "Εκκαθάριση όλων"
 
-#: widgets/waveform/waveform_widget.py:2908
-#: widgets/waveform/waveform_widget.py:2997
-#: widgets/waveform/waveform_widget.py:3116
+#: widgets/waveform/waveform_widget.py:2909
+#: widgets/waveform/waveform_widget.py:2998
+#: widgets/waveform/waveform_widget.py:3117
 msgid "Annotations"
 msgstr "Σχόλια"
 
-#: widgets/waveform/waveform_widget.py:3000
+#: widgets/waveform/waveform_widget.py:3001
 msgid "Range"
 msgstr "Εύρος"
 
-#: widgets/waveform/waveform_widget.py:3004
-#: widgets/waveform/waveform_widget.py:3327
+#: widgets/waveform/waveform_widget.py:3005
+#: widgets/waveform/waveform_widget.py:3328
 msgid "Auto"
 msgstr "Αυτοκίνητο"
 
-#: widgets/waveform/waveform_widget.py:3010
+#: widgets/waveform/waveform_widget.py:3011
 msgid "Exact"
 msgstr "Ακριβώς"
 
-#: widgets/waveform/waveform_widget.py:3019
+#: widgets/waveform/waveform_widget.py:3020
 msgid "Scale"
 msgstr "Σκάλες"
 
-#: widgets/waveform/waveform_widget.py:3022
+#: widgets/waveform/waveform_widget.py:3023
 msgid "Linear"
 msgstr "Γραμμική"
 
-#: widgets/waveform/waveform_widget.py:3027
+#: widgets/waveform/waveform_widget.py:3028
 msgid "Logarithmic"
 msgstr "Λογαριθμική"
 
-#: widgets/waveform/waveform_widget.py:3035
+#: widgets/waveform/waveform_widget.py:3036
 msgid "Logarithmic zero"
 msgstr "Λογαριθμικό μηδέν"
 
-#: widgets/waveform/waveform_widget.py:3049
+#: widgets/waveform/waveform_widget.py:3050
 msgid "Preferred prefix"
 msgstr "Προτιμώμενο πρόθεμα"
 
-#: widgets/waveform/waveform_widget.py:3107
+#: widgets/waveform/waveform_widget.py:3108
 msgid "Add"
 msgstr "Προσθέστε"
 
-#: widgets/waveform/waveform_widget.py:3108
+#: widgets/waveform/waveform_widget.py:3109
 msgid "Hide all text"
 msgstr "Απόκρυψη όλου του κειμένου"
 
-#: widgets/waveform/waveform_widget.py:3109
+#: widgets/waveform/waveform_widget.py:3110
 msgid "Show all text"
 msgstr "Εμφάνιση όλου του κειμένου"
 
-#: widgets/waveform/waveform_widget.py:3117
+#: widgets/waveform/waveform_widget.py:3118
 msgid "Vertical"
 msgstr "Κατακόρυφο"
 
-#: widgets/waveform/waveform_widget.py:3120
+#: widgets/waveform/waveform_widget.py:3121
 msgid "Horizontal"
 msgstr "Οριζόντια"
 
-#: widgets/waveform/waveform_widget.py:3126
+#: widgets/waveform/waveform_widget.py:3127
 msgid "Save"
 msgstr "Αποθήκευση"
 
-#: widgets/waveform/waveform_widget.py:3131
+#: widgets/waveform/waveform_widget.py:3132
 msgid "Y-axis auto range"
 msgstr "Αυτόματο εύρος του άξονα Y"
 
-#: widgets/waveform/waveform_widget.py:3135
+#: widgets/waveform/waveform_widget.py:3136
 msgid "Copy image to clipboard"
 msgstr "Αντιγραφή εικόνας στο πρόχειρο"
 
-#: widgets/waveform/waveform_widget.py:3136
+#: widgets/waveform/waveform_widget.py:3137
 msgid "Export visible data"
 msgstr "Εξαγωγή ορατών δεδομένων"
 
-#: widgets/waveform/waveform_widget.py:3137
+#: widgets/waveform/waveform_widget.py:3138
 msgid "Export all data"
 msgstr "Εξαγωγή όλων των δεδομένων"
 
-#: widgets/waveform/waveform_widget.py:3303
+#: widgets/waveform/waveform_widget.py:3304
 msgid "Export"
 msgstr "Εξαγωγή"
 
-#: widgets/waveform/waveform_widget.py:3304
+#: widgets/waveform/waveform_widget.py:3305
 msgid "Analysis"
 msgstr "Ανάλυση"
 
-#: widgets/waveform/waveform_widget.py:3312
+#: widgets/waveform/waveform_widget.py:3313
 msgid "Interval"
 msgstr "Διάστημα"
 
-#: widgets/waveform/waveform_widget.py:3321
+#: widgets/waveform/waveform_widget.py:3322
 msgid "Zoom"
 msgstr "Ζουμ"
 
-#: widgets/waveform/waveform_widget.py:3325
+#: widgets/waveform/waveform_widget.py:3326
 msgid "Show statistics"
 msgstr "Εμφάνιση στατιστικών στοιχείων"
 
-#: widgets/waveform/waveform_widget.py:3330
+#: widgets/waveform/waveform_widget.py:3331
 msgid "Left"
 msgstr "Αριστερά"
 
-#: widgets/waveform/waveform_widget.py:3333
+#: widgets/waveform/waveform_widget.py:3334
 msgid "Right"
 msgstr "Δεξιά"
 
-#: widgets/waveform/waveform_widget.py:3336
+#: widgets/waveform/waveform_widget.py:3337
 msgid "Off"
 msgstr "Off"
 
-#: widgets/waveform/waveform_widget.py:3339
-#: widgets/waveform/waveform_widget.py:3367
-#: widgets/waveform/waveform_widget.py:3396
+#: widgets/waveform/waveform_widget.py:3340
+#: widgets/waveform/waveform_widget.py:3368
+#: widgets/waveform/waveform_widget.py:3397
 msgid "Remove"
 msgstr "Αφαιρέστε το"
 
-#: widgets/waveform/waveform_widget.py:3350
+#: widgets/waveform/waveform_widget.py:3351
 msgid "Y mode"
 msgstr "Λειτουργία Y"
 
 #: widgets/waveform/y_range_widget.py:72
 msgid "Units"
 msgstr "Μονάδες"
-
-#~ msgid "Typical response time: %(days)s business days"
-#~ msgstr "Τυπικός χρόνος απόκρισης: %(ημέρες)s εργάσιμες ημέρες"

@@ -17,6 +17,7 @@
 
 from joulescope_ui import pubsub_singleton, N_, get_topic_name, get_instance, \
     tooltip_format, CAPABILITIES, Metadata, __version__
+from joulescope_ui.locale import gettext_locale_get
 from joulescope_ui.pubsub import UNDO_TOPIC, REDO_TOPIC, is_pubsub_registered
 from joulescope_ui.pubsub_aggregator import PubsubAggregator
 from joulescope_ui.shortcuts import Shortcuts
@@ -66,6 +67,9 @@ _config_clear = None
 _log = logging.getLogger(__name__)
 _UI_WINDOW_TITLE = 'Joulescope'
 _JLS_WINDOW_TITLE = 'Joulescope file viewer'
+_VIEW_MULTIMETER = N_('Multimeter')
+_VIEW_OSCILLOSCOPE = N_('Oscilloscope')
+_VIEW_FILE = N_('File')
 _SETTINGS = {
     'changelog_version_show': {
         'dtype': 'str',
@@ -90,6 +94,12 @@ _SETTINGS = {
         'dtype': 'bool',
         'brief': N_('Enable developer mode.'),
         'default': False,
+    },
+    'locale_str': {
+        'dtype': 'str',
+        'brief': 'The current locale.',
+        'default': 'en',
+        'flags': ['ro', 'hide'],
     },
 }
 
@@ -166,6 +176,23 @@ def _device_factory_finalize():
         pubsub_singleton.publish(topic, None)
     pubsub_singleton.process()
     _log.info('_device_factory_finalize done')
+
+
+def _name_set_to_default(pubsub):
+    for topic in pubsub:
+        if topic.endswith('/name'):
+            meta = pubsub.metadata(topic)
+            if meta is not None and meta.default is not None:
+                pubsub_singleton.publish(topic, meta.default)
+
+    changes = [
+        ['registry/view:multimeter/settings/name', _VIEW_MULTIMETER],
+        ['registry/view:oscilloscope/settings/name', _VIEW_OSCILLOSCOPE],
+        ['registry/view:file/settings/name', _VIEW_FILE],
+    ]
+    for topic, value in changes:
+        if topic in pubsub_singleton:
+            pubsub_singleton.publish(topic, value)
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -245,6 +272,13 @@ class MainWindow(QtWidgets.QMainWindow):
         pubsub_singleton.register(self, 'ui', parent=None)
         self._pubsub_process_count_last = pubsub_singleton.process_count
 
+        locale_prev = self.locale_str
+        locale_now = gettext_locale_get()
+        if locale_now != locale_prev:
+            self._log.info('locale changed %s -> %s, update names', locale_prev, locale_now)
+            _name_set_to_default(pubsub_singleton)
+            self.locale_str = locale_now
+
         self._style_manager = StyleManager()
         self.pubsub.register(self._style_manager, 'style')
         self.pubsub.subscribe('registry/app/settings/signal_stream_record',
@@ -278,11 +312,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
             if not is_config_load:
                 self.pubsub.publish('registry/view/actions/!add', 'view:multimeter')
-                self.pubsub.publish('registry/view:multimeter/settings/name', N_('Multimeter'))
+                self.pubsub.publish('registry/view:multimeter/settings/name', _VIEW_MULTIMETER)
                 self.pubsub.publish('registry/view/actions/!add', 'view:oscilloscope')
-                self.pubsub.publish('registry/view:oscilloscope/settings/name', N_('Oscilloscope'))
+                self.pubsub.publish('registry/view:oscilloscope/settings/name', _VIEW_OSCILLOSCOPE)
                 self.pubsub.publish('registry/view/actions/!add', 'view:file')
-                self.pubsub.publish('registry/view:file/settings/name', N_('File'))
+                self.pubsub.publish('registry/view:file/settings/name', _VIEW_FILE)
             else:
                 # open views
                 view_active = self.pubsub.query('registry/view/settings/active')

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-03-19 13:13-0400\n"
-"PO-Revision-Date: 2024-03-07 17:35-0500\n"
+"POT-Creation-Date: 2024-04-03 16:33-0400\n"
+"PO-Revision-Date: 2024-04-03 14:53-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: ko <LL@li.org>\n"
 "Language: ko\n"
@@ -299,7 +299,7 @@ msgstr "이메일"
 msgid "Description"
 msgstr "설명"
 
-#: error_window.py:112 widgets/waveform/waveform_widget.py:3346
+#: error_window.py:112 widgets/waveform/waveform_widget.py:3347
 msgid "Edit"
 msgstr "편집"
 
@@ -311,7 +311,7 @@ msgstr "마크다운으로 보기"
 msgid "Abort"
 msgstr "중단"
 
-#: error_window.py:120 main.py:331 widgets/settings/settings_widget.py:539
+#: error_window.py:120 main.py:365 widgets/settings/settings_widget.py:539
 msgid "View"
 msgstr "보기"
 
@@ -331,29 +331,29 @@ msgstr "이전 구성으로 되돌리기"
 msgid "Revert to defaults"
 msgstr "기본값으로 되돌리기"
 
-#: error_window.py:283 main.py:329 main.py:375
+#: error_window.py:283 main.py:363 main.py:409
 #: widgets/js220_cal/js220_cal_widget.py:38
 msgid "Exit"
 msgstr "종료"
 
-#: exporter.py:49 widgets/signal_record/signal_record_config_widget.py:48
-#: widgets/statistics_record/statistics_record_config_widget.py:47
+#: exporter.py:49 widgets/signal_record/signal_record_config_widget.py:148
+#: widgets/statistics_record/statistics_record_config_widget.py:111
 msgid "Directory"
 msgstr "디렉토리"
 
-#: exporter.py:61 widgets/signal_record/signal_record_config_widget.py:36
+#: exporter.py:61 widgets/signal_record/signal_record_config_widget.py:128
 #: zip_inspector.py:92
 msgid "Filename"
 msgstr "파일 이름"
 
 #: exporter.py:68 widgets/notes/notes_widget.py:21
-#: widgets/signal_record/signal_record_config_widget.py:66
+#: widgets/signal_record/signal_record_config_widget.py:171
 msgid "Notes"
 msgstr "참고"
 
-#: exporter.py:86 widgets/signal_record/signal_record_config_widget.py:123
-#: widgets/signal_record/signal_record_config_widget.py:144
-#: widgets/statistics_record/statistics_record_config_widget.py:108
+#: exporter.py:86 widgets/signal_record/signal_record_config_widget.py:241
+#: widgets/signal_record/signal_record_config_widget.py:268
+#: widgets/statistics_record/statistics_record_config_widget.py:173
 msgid "Select save location"
 msgstr "저장 위치 선택"
 
@@ -384,15 +384,15 @@ msgid "Safety"
 msgstr "안전"
 
 #: getting_started.py:23
-msgid "The voltage between any sensor port must never exceed ±15V"
+msgid "The voltage between any sensor port must never exceed ±15V."
 msgstr "센서 포트 사이의 전압은 ±15V를 초과하지 않아야 합니다."
 
 #: getting_started.py:24
-msgid "The JS220 sensor ports are Current+, Current-, Voltage+, Voltage-"
+msgid "The JS220 sensor ports are Current+, Current-, Voltage+, Voltage-."
 msgstr "JS220 센서 포트는 전류+, 전류-, 전압+, 전압-입니다."
 
 #: getting_started.py:25
-msgid "The JS110 sensor ports are IN+, IN- OUT+, and OUT-"
+msgid "The JS110 sensor ports are IN+, IN- OUT+, and OUT-."
 msgstr "JS110 센서 포트는 IN+, IN- OUT+, OUT-입니다."
 
 #: getting_started.py:26
@@ -537,11 +537,23 @@ msgstr "다시 표시하지 않음"
 msgid "Intel graphics detected"
 msgstr "인텔 그래픽 감지"
 
-#: main.py:78
+#: main.py:70 widgets/value/value_widget.py:653
+msgid "Multimeter"
+msgstr "멀티미터"
+
+#: main.py:71
+msgid "Oscilloscope"
+msgstr "오실로스코프"
+
+#: main.py:72 main.py:298
+msgid "File"
+msgstr "파일"
+
+#: main.py:82
 msgid "The UI status bar display mode"
 msgstr "UI 상태 표시줄 표시 모드"
 
-#: main.py:79
+#: main.py:83
 msgid ""
 "This setting controls the amount of detail shown on the status bar at the "
 "bottom of the UI window. You should usually leave this set to \"normal\" "
@@ -550,139 +562,127 @@ msgstr ""
 "이 설정은 UI 창 하단의 상태 표시줄에 표시되는 세부 정보의 양을 제어합니다. UI 내부 작업에 대한 자세한 정보를 원하지 않는 한 "
 "일반적으로 이 설정을 \"보통\"으로 두는 것이 좋습니다."
 
-#: main.py:84 safe_mode.py:43
+#: main.py:88 safe_mode.py:43
 msgid "Normal"
 msgstr "보통"
 
-#: main.py:85
+#: main.py:89
 msgid "Troubleshoot"
 msgstr "문제 해결"
 
-#: main.py:91
+#: main.py:95
 msgid "Enable developer mode."
 msgstr "개발자 모드를 활성화합니다."
 
-#: main.py:98
+#: main.py:108
 msgid "PubSub utilization"
 msgstr "PubSub 활용"
 
-#: main.py:99
+#: main.py:109
 msgid ""
 "Display the number of actions processed by the publish-subscribe broker in "
 "each second."
 msgstr "게시-구독 브로커가 초당 처리한 작업 수를 표시합니다."
 
-#: main.py:104
+#: main.py:114
 msgid "CPU utilization"
 msgstr "CPU 사용률"
 
-#: main.py:105
+#: main.py:115
 msgid ""
 "Display the CPU utilization by this application and the total CPU "
 "utilization by all applications. The value is displayed in percent."
 msgstr "이 애플리케이션의 CPU 사용률과 모든 애플리케이션의 총 CPU 사용률을 표시합니다. 값은 퍼센트 단위로 표시됩니다."
 
-#: main.py:111
+#: main.py:121
 msgid "Memory utilization"
 msgstr "메모리 사용률"
 
-#: main.py:112
+#: main.py:122
 msgid ""
 "Display the memory (RAM) utilization by this application and by all "
 "applications. The value is displayed in percent."
 msgstr "이 애플리케이션 및 모든 애플리케이션의 메모리(RAM) 사용률을 표시합니다. 값은 퍼센트 단위로 표시됩니다."
 
-#: main.py:189
+#: main.py:216
 msgid "UI"
 msgstr "UI"
 
-#: main.py:264 main.py:285
-msgid "File"
-msgstr "파일"
-
-#: main.py:281 widgets/value/value_widget.py:653
-msgid "Multimeter"
-msgstr "멀티미터"
-
-#: main.py:283
-msgid "Oscilloscope"
-msgstr "오실로스코프"
-
-#: main.py:296
+#: main.py:330
 msgid "&Help"
-msgstr "&Help"
+msgstr "&amp;Help"
 
-#: main.py:297 widgets/hamburger/hamburger_widget.py:21
+#: main.py:331 widgets/hamburger/hamburger_widget.py:21
 msgid "Getting Started"
 msgstr "시작하기"
 
-#: main.py:298
+#: main.py:332
 msgid "User's Guide"
 msgstr "사용자 가이드"
 
-#: main.py:299 widgets/hamburger/hamburger_widget.py:22
+#: main.py:333 widgets/hamburger/hamburger_widget.py:22
 msgid "Changelog"
 msgstr "변경 로그"
 
-#: main.py:300 widgets/help/help_widget.py:59
+#: main.py:334 widgets/help/help_widget.py:59
 msgid "Report Issue"
 msgstr "이슈 보고"
 
-#: main.py:301
+#: main.py:335
 msgid "View logs..."
 msgstr "로그 보기..."
 
-#: main.py:302 widgets/hamburger/hamburger_widget.py:23
+#: main.py:336 widgets/hamburger/hamburger_widget.py:23
 msgid "Credits"
 msgstr "크레딧"
 
-#: main.py:303 widgets/hamburger/hamburger_widget.py:24
+#: main.py:337 widgets/hamburger/hamburger_widget.py:24
 msgid "About"
 msgstr "정보"
 
-#: main.py:325 main.py:368
+#: main.py:359 main.py:402
 msgid "&File"
-msgstr "&File"
+msgstr "&amp;File"
 
-#: main.py:326
+#: main.py:360
 msgid "Open"
 msgstr "열기"
 
-#: main.py:327
+#: main.py:361
 msgid "Open recent"
 msgstr "최근 열기"
 
-#: main.py:328 main.py:374
+#: main.py:362 main.py:408
 msgid "Clear config and exit"
 msgstr "구성 지우기 및 종료"
 
-#: main.py:332 widgets/settings/settings_widget.py:541
+#: main.py:366 widgets/settings/settings_widget.py:541
 msgid "Widgets"
 msgstr "위젯"
 
-#: main.py:333
+#: main.py:367
 msgid "Tools"
 msgstr "도구"
 
-#: main.py:334
+#: main.py:368
 msgid "Clear Accumulators"
 msgstr "누산기 지우기"
 
-#: main.py:369
+#: main.py:403
 msgid "Info"
 msgstr "정보"
 
-#: main.py:370 widget_tools.py:92 widgets/settings/settings_widget.py:31
+#: main.py:404 widget_tools.py:92 widgets/settings/settings_widget.py:31
 #: widgets/settings/settings_widget.py:574
 #: widgets/sidebar/sidebar_widget.py:41
 msgid "Settings"
 msgstr "설정"
 
-#: main.py:659
+#: main.py:693
 msgid "Manage"
 msgstr "관리"
 
-#: main.py:696
+#: main.py:730
 msgid "Select file to open"
 msgstr "열 파일 선택"
 
@@ -1334,7 +1334,7 @@ msgstr "펌웨어 업데이트 상태"
 #: widgets/settings/settings_widget.py:266
 #: widgets/settings/settings_widget.py:364
 #: widgets/settings/settings_widget.py:431
-#: widgets/waveform/waveform_widget.py:3061
+#: widgets/waveform/waveform_widget.py:3062
 msgid "Name"
 msgstr "이름"
 
@@ -1378,7 +1378,7 @@ msgstr "플러그인"
 msgid "Version"
 msgstr "버전"
 
-#: plugins/selector.py:60
+#: plugins/selector.py:60 widgets/trigger/trigger_widget.py:73
 msgid "Active"
 msgstr "활성"
 
@@ -1457,7 +1457,7 @@ msgid "Probability Density Distribution"
 msgstr "확률 밀도 분포"
 
 #: range_tools/histogram.py:45 range_tools/max_window.py:119
-#: widgets/trigger/trigger_widget.py:129
+#: widgets/trigger/trigger_widget.py:220
 msgid "Signal"
 msgstr "신호"
 
@@ -1607,7 +1607,7 @@ msgstr "형식 문자열"
 
 #: widgets/clock/clock_widget.py:43
 msgid "For the complete syntax, see Python package {package}"
-msgstr "전체 구문은 파이썬 패키지를 참조하십시오. {package}"
+msgstr "전체 구문은 Python 패키지 {package}를 참조하세요."
 
 #: widgets/developer/log_view_widget.py:30
 msgid "Timestamp"
@@ -1796,7 +1796,7 @@ msgid "Threshold 2"
 msgstr "임계값 2"
 
 #: widgets/device_control/fuse.py:89 widgets/memory/memory_widget.py:225
-#: widgets/trigger/trigger_widget.py:35 widgets/trigger/trigger_widget.py:131
+#: widgets/trigger/trigger_widget.py:114 widgets/trigger/trigger_widget.py:222
 msgid "Duration"
 msgstr "기간"
 
@@ -2186,149 +2186,193 @@ msgstr "플라이아웃 너비(픽셀 단위)입니다."
 msgid "The disk is full"
 msgstr "디스크가 꽉 찼습니다."
 
-#: widgets/signal_record/signal_record.py:56
+#: widgets/signal_record/signal_record.py:57
 msgid "Could not open file for write"
 msgstr "쓰기 위해 파일을 열 수 없음"
 
-#: widgets/signal_record/signal_record_config_widget.py:23
+#: widgets/signal_record/signal_record_config_widget.py:101
 msgid "SignalRecordConfig"
 msgstr "SignalRecordConfig"
 
-#: widgets/signal_record/signal_record_config_widget.py:61
+#: widgets/signal_record/signal_record_config_widget.py:107
+#: widgets/statistics_record/statistics_record_config_widget.py:92
+msgid "The filename with optional replacements."
+msgstr "선택적으로 대체할 수 있는 파일 이름입니다."
+
+#: widgets/signal_record/signal_record_config_widget.py:166
 msgid "Signals to record"
 msgstr "기록할 신호"
 
-#: widgets/signal_record/signal_record_config_widget.py:190
-#: widgets/statistics_record/statistics_record_config_widget.py:154
+#: widgets/signal_record/signal_record_config_widget.py:319
+#: widgets/statistics_record/statistics_record_config_widget.py:223
 msgid "Configure signal recording"
 msgstr "신호 녹화 구성"
 
-#: widgets/statistics_record/statistics_record_config_widget.py:34
+#: widgets/statistics_record/statistics_record_config_widget.py:86
 msgid "StatisticsRecordConfig"
 msgstr "StatisticsRecordConfig"
 
-#: widgets/statistics_record/statistics_record_config_widget.py:59
+#: widgets/statistics_record/statistics_record_config_widget.py:123
 msgid "Time Format"
 msgstr "시간 형식"
 
-#: widgets/trigger/trigger_widget.py:34
+#: widgets/trigger/trigger_widget.py:41 widgets/value/value_widget.py:87
+msgid "Select the source device"
+msgstr "소스 장치 선택"
+
+#: widgets/trigger/trigger_widget.py:42
+msgid "The device to use for the start condition and stop condition."
+msgstr "시작 조건 및 중지 조건에 사용할 디바이스입니다."
+
+#: widgets/trigger/trigger_widget.py:44
+msgid "Configure run mode"
+msgstr "실행 모드 구성"
+
+#: widgets/trigger/trigger_widget.py:45
+msgid "Single"
+msgstr "싱글"
+
+#: widgets/trigger/trigger_widget.py:46
+msgid "Perform one trigger sequence and then return to inactive mode."
+msgstr "트리거 시퀀스를 한 번 수행한 후 비활성 모드로 돌아갑니다."
+
+#: widgets/trigger/trigger_widget.py:47
+msgid "Continuous"
+msgstr "연속"
+
+#: widgets/trigger/trigger_widget.py:48
+msgid "Repeat the trigger sequence indefinitely until manually stopped."
+msgstr "수동으로 중지할 때까지 트리거 시퀀스를 무한정 반복합니다."
+
+#: widgets/trigger/trigger_widget.py:65
+msgid "Start, stop and indicate status"
+msgstr "시작, 중지 및 상태 표시"
+
+#: widgets/trigger/trigger_widget.py:66
+msgid "Inactive"
+msgstr "비활성"
+
+#: widgets/trigger/trigger_widget.py:67
+msgid "Configure trigger options and then press to start."
+msgstr "트리거 옵션을 구성한 다음 시작하려면 버튼을 누릅니다."
+
+#: widgets/trigger/trigger_widget.py:68
+msgid "Searching"
+msgstr "검색"
+
+#: widgets/trigger/trigger_widget.py:69
+msgid ""
+"Look for the configured start condition. On match, perform the start actions"
+" and advance to active. Press to halt and return to inactive."
+msgstr ""
+"구성된 시작 조건을 찾습니다. 일치하는 경우 시작 동작을 수행하고 활성 상태로 진행합니다. 를 눌러 중지하고 비활성 상태로 돌아갑니다."
+
+#: widgets/trigger/trigger_widget.py:74
+msgid ""
+"Look for the configured stop condition. On match, perform the stop actions. "
+"For run mode single, transition to inactive. For run mode continuous, "
+"transition to searching. Press to halt and return to inactive."
+msgstr ""
+"구성된 중지 조건을 찾습니다. 일치하는 경우 중지 작업을 수행합니다. 단일 실행 모드의 경우 비활성으로 전환합니다. 연속 실행 모드의 "
+"경우 검색으로 전환합니다. 를 눌러 중지하고 비활성으로 돌아갑니다."
+
+#: widgets/trigger/trigger_widget.py:113
 msgid "Edge"
 msgstr "Edge"
 
-#: widgets/trigger/trigger_widget.py:47
+#: widgets/trigger/trigger_widget.py:126
 msgid "Always"
 msgstr "항상"
 
-#: widgets/trigger/trigger_widget.py:48
-#, fuzzy
-#| msgid "New View"
+#: widgets/trigger/trigger_widget.py:127
 msgid "Never"
-msgstr "새 보기"
+msgstr "절대로"
 
-#: widgets/trigger/trigger_widget.py:54
+#: widgets/trigger/trigger_widget.py:134
 msgid "between"
 msgstr "사이"
 
-#: widgets/trigger/trigger_widget.py:55
+#: widgets/trigger/trigger_widget.py:135
 msgid "outside"
 msgstr "외부"
 
-#: widgets/trigger/trigger_widget.py:84
-#, fuzzy
-#| msgid "The source filter string."
+#: widgets/trigger/trigger_widget.py:164
 msgid "The source instrument."
-msgstr "소스 필터 문자열입니다."
+msgstr "소스 기기입니다."
 
-#: widgets/trigger/trigger_widget.py:92
-#, fuzzy
-#| msgid "Signal"
-msgid "Single"
-msgstr "신호"
-
-#: widgets/trigger/trigger_widget.py:93
-#, fuzzy
-#| msgid "Contents"
-msgid "Continuous"
-msgstr "콘텐츠"
-
-#: widgets/trigger/trigger_widget.py:128
-#, fuzzy
-#| msgid "IRF type"
+#: widgets/trigger/trigger_widget.py:219
 msgid "Type"
-msgstr "IRF 유형"
+msgstr "유형"
 
-#: widgets/trigger/trigger_widget.py:130
-#, fuzzy
-#| msgid "Action"
+#: widgets/trigger/trigger_widget.py:221
 msgid "Condition"
-msgstr "액션"
+msgstr "조건"
 
-#: widgets/trigger/trigger_widget.py:383
-#, fuzzy
-#| msgid "Signal sample recording"
-msgid "Start signal sample recording"
-msgstr "신호 샘플 기록"
+#: widgets/trigger/trigger_widget.py:466
+msgid "Record samples"
+msgstr "샘플 기록"
 
-#: widgets/trigger/trigger_widget.py:384 widgets/trigger/trigger_widget.py:397
+#: widgets/trigger/trigger_widget.py:467 widgets/trigger/trigger_widget.py:480
 msgid "Config"
 msgstr "구성"
 
-#: widgets/trigger/trigger_widget.py:388
-#, fuzzy
-#| msgid "Trigger direction"
-msgid "Pretrigger duration"
-msgstr "트리거 방향"
+#: widgets/trigger/trigger_widget.py:471 widgets/trigger/trigger_widget.py:484
+msgid "Start buffer"
+msgstr "버퍼 시작"
 
-#: widgets/trigger/trigger_widget.py:396
-#, fuzzy
-#| msgid "Statistics recording"
-msgid "Start statistics recording"
-msgstr "통계 기록"
+#: widgets/trigger/trigger_widget.py:473 widgets/trigger/trigger_widget.py:486
+msgid "Stop delay"
+msgstr "지연 중지"
 
-#: widgets/trigger/trigger_widget.py:404
-#, fuzzy
-#| msgid "Set units"
+#: widgets/trigger/trigger_widget.py:479
+msgid "Record statistics"
+msgstr "기록 통계"
+
+#: widgets/trigger/trigger_widget.py:492 widgets/trigger/trigger_widget.py:622
 msgid "Set output"
-msgstr "단위 설정"
+msgstr "출력 설정"
 
-#: widgets/trigger/trigger_widget.py:416
+#: widgets/trigger/trigger_widget.py:506 widgets/trigger/trigger_widget.py:636
 #: widgets/waveform/waveform_control.py:29
 msgid "Add single marker"
 msgstr "단일 마커 추가"
 
-#: widgets/trigger/trigger_widget.py:484
-#, fuzzy
-#| msgid "Trigger input"
-msgid "Trigger"
-msgstr "트리거 입력"
+#: widgets/trigger/trigger_widget.py:640
+#: widgets/waveform/waveform_control.py:38
+msgid "Add dual markers"
+msgstr "이중 마커 추가"
 
-#: widgets/trigger/trigger_widget.py:502
+#: widgets/trigger/trigger_widget.py:644
+msgid "Stop sample buffer"
+msgstr "샘플 버퍼 중지"
+
+#: widgets/trigger/trigger_widget.py:645
+msgid "Delay"
+msgstr "지연"
+
+#: widgets/trigger/trigger_widget.py:777
+msgid "Trigger"
+msgstr "트리거"
+
+#: widgets/trigger/trigger_widget.py:817
 msgid "No sources found"
 msgstr "출처를 찾을 수 없습니다."
 
-#: widgets/trigger/trigger_widget.py:522
-#, fuzzy
-#| msgid "Histogram configuration"
+#: widgets/trigger/trigger_widget.py:851
 msgid "Start Condition"
-msgstr "히스토그램 구성"
+msgstr "시작 조건"
 
-#: widgets/trigger/trigger_widget.py:525
-#, fuzzy
-#| msgid "Action"
+#: widgets/trigger/trigger_widget.py:854
 msgid "Start Actions"
-msgstr "액션"
+msgstr "작업 시작"
 
-#: widgets/trigger/trigger_widget.py:528
-#, fuzzy
-#| msgid "Histogram configuration"
+#: widgets/trigger/trigger_widget.py:857
 msgid "Stop Condition"
-msgstr "히스토그램 구성"
+msgstr "중지 조건"
 
-#: widgets/trigger/trigger_widget.py:531
-#, fuzzy
-#| msgid "Options"
+#: widgets/trigger/trigger_widget.py:860
 msgid "Stop Actions"
-msgstr "옵션"
+msgstr "작업 중지"
 
 #: widgets/value/value_widget.py:36
 msgid "Show the device selection header."
@@ -2345,10 +2389,6 @@ msgstr "오른쪽에 통계 필드를 표시합니다."
 #: widgets/value/value_widget.py:51
 msgid "Show a leading + or - sign."
 msgstr "선행 + 또는 - 기호를 표시합니다."
-
-#: widgets/value/value_widget.py:87
-msgid "Select the source device"
-msgstr "소스 장치 선택"
 
 #: widgets/value/value_widget.py:88
 msgid ""
@@ -2491,7 +2531,7 @@ msgid "triangle left"
 msgstr "왼쪽 삼각형"
 
 #: widgets/waveform/text_annotation.py:66
-#: widgets/waveform/waveform_widget.py:3007
+#: widgets/waveform/waveform_widget.py:3008
 msgid "Manual"
 msgstr "매뉴얼"
 
@@ -2500,17 +2540,17 @@ msgid "Centered"
 msgstr "중앙"
 
 #: widgets/waveform/text_annotation.py:99
-#: widgets/waveform/waveform_widget.py:3122
+#: widgets/waveform/waveform_widget.py:3123
 msgid "Text"
 msgstr "텍스트"
 
 #: widgets/waveform/text_annotation.py:107
-#: widgets/waveform/waveform_widget.py:3347
+#: widgets/waveform/waveform_widget.py:3348
 msgid "Show text"
 msgstr "텍스트 표시"
 
 #: widgets/waveform/text_annotation.py:116
-#: widgets/waveform/waveform_widget.py:3359
+#: widgets/waveform/waveform_widget.py:3360
 msgid "Shape"
 msgstr "모양"
 
@@ -2533,10 +2573,6 @@ msgid ""
 "You can also add a marker by right-clicking on the x-axis or in the plot "
 "area."
 msgstr "X축 또는 플롯 영역에서 마우스 오른쪽 버튼을 클릭하여 마커를 추가할 수도 있습니다."
-
-#: widgets/waveform/waveform_control.py:38
-msgid "Add dual markers"
-msgstr "이중 마커 추가"
 
 #: widgets/waveform/waveform_control.py:40
 msgid "Click to add a dual markers to the waveform."
@@ -2829,12 +2865,12 @@ msgid "X-axis annotation mode"
 msgstr "X축 주석 모드"
 
 #: widgets/waveform/waveform_widget.py:495
-#: widgets/waveform/waveform_widget.py:2887
+#: widgets/waveform/waveform_widget.py:2888
 msgid "Absolute"
 msgstr "절대"
 
 #: widgets/waveform/waveform_widget.py:496
-#: widgets/waveform/waveform_widget.py:2892
+#: widgets/waveform/waveform_widget.py:2893
 msgid "Relative"
 msgstr "상대"
 
@@ -2850,156 +2886,153 @@ msgstr "각 추적에 대해 선택한 하위 소스입니다."
 msgid "The trace priority: highest int value on top, None is off."
 msgstr "추적 우선순위: 가장 높은 int 값이 맨 위에, 없음은 꺼져 있습니다."
 
-#: widgets/waveform/waveform_widget.py:2833
-#: widgets/waveform/waveform_widget.py:3134
+#: widgets/waveform/waveform_widget.py:2834
+#: widgets/waveform/waveform_widget.py:3135
 msgid "Save image to file"
 msgstr "파일에 이미지 저장"
 
-#: widgets/waveform/waveform_widget.py:2881
-#: widgets/waveform/waveform_widget.py:2950
+#: widgets/waveform/waveform_widget.py:2882
+#: widgets/waveform/waveform_widget.py:2951
 msgid "Single marker"
 msgstr "단일 마커"
 
-#: widgets/waveform/waveform_widget.py:2882
-#: widgets/waveform/waveform_widget.py:2951
+#: widgets/waveform/waveform_widget.py:2883
+#: widgets/waveform/waveform_widget.py:2952
 msgid "Dual markers"
 msgstr "듀얼 마커"
 
-#: widgets/waveform/waveform_widget.py:2884
+#: widgets/waveform/waveform_widget.py:2885
 msgid "Mode"
 msgstr "모드"
 
-#: widgets/waveform/waveform_widget.py:2897
-#: widgets/waveform/waveform_widget.py:2952
-#: widgets/waveform/waveform_widget.py:3110
-#: widgets/waveform/waveform_widget.py:3128
+#: widgets/waveform/waveform_widget.py:2898
+#: widgets/waveform/waveform_widget.py:2953
+#: widgets/waveform/waveform_widget.py:3111
+#: widgets/waveform/waveform_widget.py:3129
 msgid "Clear all"
 msgstr "모두 지우기"
 
-#: widgets/waveform/waveform_widget.py:2908
-#: widgets/waveform/waveform_widget.py:2997
-#: widgets/waveform/waveform_widget.py:3116
+#: widgets/waveform/waveform_widget.py:2909
+#: widgets/waveform/waveform_widget.py:2998
+#: widgets/waveform/waveform_widget.py:3117
 msgid "Annotations"
 msgstr "주석"
 
-#: widgets/waveform/waveform_widget.py:3000
+#: widgets/waveform/waveform_widget.py:3001
 msgid "Range"
 msgstr "범위"
 
-#: widgets/waveform/waveform_widget.py:3004
-#: widgets/waveform/waveform_widget.py:3327
+#: widgets/waveform/waveform_widget.py:3005
+#: widgets/waveform/waveform_widget.py:3328
 msgid "Auto"
 msgstr "자동차"
 
-#: widgets/waveform/waveform_widget.py:3010
+#: widgets/waveform/waveform_widget.py:3011
 msgid "Exact"
 msgstr "정확한"
 
-#: widgets/waveform/waveform_widget.py:3019
+#: widgets/waveform/waveform_widget.py:3020
 msgid "Scale"
 msgstr "계단"
 
-#: widgets/waveform/waveform_widget.py:3022
+#: widgets/waveform/waveform_widget.py:3023
 msgid "Linear"
 msgstr "리니어"
 
-#: widgets/waveform/waveform_widget.py:3027
+#: widgets/waveform/waveform_widget.py:3028
 msgid "Logarithmic"
 msgstr "로그"
 
-#: widgets/waveform/waveform_widget.py:3035
+#: widgets/waveform/waveform_widget.py:3036
 msgid "Logarithmic zero"
 msgstr "로그 0"
 
-#: widgets/waveform/waveform_widget.py:3049
+#: widgets/waveform/waveform_widget.py:3050
 msgid "Preferred prefix"
 msgstr "기본 접두사"
 
-#: widgets/waveform/waveform_widget.py:3107
+#: widgets/waveform/waveform_widget.py:3108
 msgid "Add"
 msgstr "추가"
 
-#: widgets/waveform/waveform_widget.py:3108
+#: widgets/waveform/waveform_widget.py:3109
 msgid "Hide all text"
 msgstr "모든 텍스트 숨기기"
 
-#: widgets/waveform/waveform_widget.py:3109
+#: widgets/waveform/waveform_widget.py:3110
 msgid "Show all text"
 msgstr "모든 텍스트 표시"
 
-#: widgets/waveform/waveform_widget.py:3117
+#: widgets/waveform/waveform_widget.py:3118
 msgid "Vertical"
 msgstr "세로"
 
-#: widgets/waveform/waveform_widget.py:3120
+#: widgets/waveform/waveform_widget.py:3121
 msgid "Horizontal"
 msgstr "수평"
 
-#: widgets/waveform/waveform_widget.py:3126
+#: widgets/waveform/waveform_widget.py:3127
 msgid "Save"
 msgstr "저장"
 
-#: widgets/waveform/waveform_widget.py:3131
+#: widgets/waveform/waveform_widget.py:3132
 msgid "Y-axis auto range"
 msgstr "Y축 자동 범위"
 
-#: widgets/waveform/waveform_widget.py:3135
+#: widgets/waveform/waveform_widget.py:3136
 msgid "Copy image to clipboard"
 msgstr "이미지를 클립보드에 복사"
 
-#: widgets/waveform/waveform_widget.py:3136
+#: widgets/waveform/waveform_widget.py:3137
 msgid "Export visible data"
 msgstr "가시 데이터 내보내기"
 
-#: widgets/waveform/waveform_widget.py:3137
+#: widgets/waveform/waveform_widget.py:3138
 msgid "Export all data"
 msgstr "모든 데이터 내보내기"
 
-#: widgets/waveform/waveform_widget.py:3303
+#: widgets/waveform/waveform_widget.py:3304
 msgid "Export"
 msgstr "내보내기"
 
-#: widgets/waveform/waveform_widget.py:3304
+#: widgets/waveform/waveform_widget.py:3305
 msgid "Analysis"
 msgstr "분석"
 
-#: widgets/waveform/waveform_widget.py:3312
+#: widgets/waveform/waveform_widget.py:3313
 msgid "Interval"
 msgstr "간격"
 
-#: widgets/waveform/waveform_widget.py:3321
+#: widgets/waveform/waveform_widget.py:3322
 msgid "Zoom"
 msgstr "Zoom"
 
-#: widgets/waveform/waveform_widget.py:3325
+#: widgets/waveform/waveform_widget.py:3326
 msgid "Show statistics"
 msgstr "통계 보기"
 
-#: widgets/waveform/waveform_widget.py:3330
+#: widgets/waveform/waveform_widget.py:3331
 msgid "Left"
 msgstr "왼쪽"
 
-#: widgets/waveform/waveform_widget.py:3333
+#: widgets/waveform/waveform_widget.py:3334
 msgid "Right"
 msgstr "오른쪽"
 
-#: widgets/waveform/waveform_widget.py:3336
+#: widgets/waveform/waveform_widget.py:3337
 msgid "Off"
 msgstr "꺼짐"
 
-#: widgets/waveform/waveform_widget.py:3339
-#: widgets/waveform/waveform_widget.py:3367
-#: widgets/waveform/waveform_widget.py:3396
+#: widgets/waveform/waveform_widget.py:3340
+#: widgets/waveform/waveform_widget.py:3368
+#: widgets/waveform/waveform_widget.py:3397
 msgid "Remove"
 msgstr "제거"
 
-#: widgets/waveform/waveform_widget.py:3350
+#: widgets/waveform/waveform_widget.py:3351
 msgid "Y mode"
 msgstr "Y 모드"
 
 #: widgets/waveform/y_range_widget.py:72
 msgid "Units"
 msgstr "단위"
-
-#~ msgid "Typical response time: %(days)s business days"
-#~ msgstr "일반적인 응답 시간: 영업일 기준 %(일)"

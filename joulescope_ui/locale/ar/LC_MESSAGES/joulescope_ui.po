@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-03-19 13:13-0400\n"
-"PO-Revision-Date: 2024-03-07 17:35-0500\n"
+"POT-Creation-Date: 2024-04-03 16:33-0400\n"
+"PO-Revision-Date: 2024-04-03 14:53-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: ar <LL@li.org>\n"
 "Language: ar\n"
@@ -292,8 +292,8 @@ msgid ""
 "Our offices are currently closed until {return_date}. We will respond within"
 " {response_time} business days after we return."
 msgstr ""
-"مكاتبنا مغلقة حاليًا حتى {return_date}. سنرد خلال  {response_time} يوم عمل "
-"بعد عودتنا."
+"مكاتبنا مغلقة حاليًا حتى {return_date}. سنقوم بالرد خلال {response_time} "
+"أيام عمل بعد عودتنا."
 
 #: error_window.py:51
 msgid "Submit failed. Ensure that your computer can access the internet."
@@ -320,7 +320,7 @@ msgstr "البريد الإلكتروني"
 msgid "Description"
 msgstr "الوصف"
 
-#: error_window.py:112 widgets/waveform/waveform_widget.py:3346
+#: error_window.py:112 widgets/waveform/waveform_widget.py:3347
 msgid "Edit"
 msgstr "تحرير"
 
@@ -332,7 +332,7 @@ msgstr "العرض بتخفيض السعر"
 msgid "Abort"
 msgstr "إلغاء"
 
-#: error_window.py:120 main.py:331 widgets/settings/settings_widget.py:539
+#: error_window.py:120 main.py:365 widgets/settings/settings_widget.py:539
 msgid "View"
 msgstr "عرض"
 
@@ -352,29 +352,29 @@ msgstr "العودة إلى التكوين السابق"
 msgid "Revert to defaults"
 msgstr "العودة إلى الإعدادات الافتراضية"
 
-#: error_window.py:283 main.py:329 main.py:375
+#: error_window.py:283 main.py:363 main.py:409
 #: widgets/js220_cal/js220_cal_widget.py:38
 msgid "Exit"
 msgstr "الخروج"
 
-#: exporter.py:49 widgets/signal_record/signal_record_config_widget.py:48
-#: widgets/statistics_record/statistics_record_config_widget.py:47
+#: exporter.py:49 widgets/signal_record/signal_record_config_widget.py:148
+#: widgets/statistics_record/statistics_record_config_widget.py:111
 msgid "Directory"
 msgstr "الدليل"
 
-#: exporter.py:61 widgets/signal_record/signal_record_config_widget.py:36
+#: exporter.py:61 widgets/signal_record/signal_record_config_widget.py:128
 #: zip_inspector.py:92
 msgid "Filename"
 msgstr "اسم الملف"
 
 #: exporter.py:68 widgets/notes/notes_widget.py:21
-#: widgets/signal_record/signal_record_config_widget.py:66
+#: widgets/signal_record/signal_record_config_widget.py:171
 msgid "Notes"
 msgstr "الملاحظات"
 
-#: exporter.py:86 widgets/signal_record/signal_record_config_widget.py:123
-#: widgets/signal_record/signal_record_config_widget.py:144
-#: widgets/statistics_record/statistics_record_config_widget.py:108
+#: exporter.py:86 widgets/signal_record/signal_record_config_widget.py:241
+#: widgets/signal_record/signal_record_config_widget.py:268
+#: widgets/statistics_record/statistics_record_config_widget.py:173
 msgid "Select save location"
 msgstr "تحديد موقع الحفظ"
 
@@ -407,16 +407,16 @@ msgid "Safety"
 msgstr "السلامة"
 
 #: getting_started.py:23
-msgid "The voltage between any sensor port must never exceed ±15V"
-msgstr "يجب ألا يتجاوز الجهد بين أي منفذ استشعار ±15 فولت"
+msgid "The voltage between any sensor port must never exceed ±15V."
+msgstr "يجب ألا يتجاوز الجهد بين أي منفذ استشعار ± 15 فولت."
 
 #: getting_started.py:24
-msgid "The JS220 sensor ports are Current+, Current-, Voltage+, Voltage-"
-msgstr "منافذ مستشعر JS220 هي التيار+، التيار- والجهد+، والجهد- والجهد-"
+msgid "The JS220 sensor ports are Current+, Current-, Voltage+, Voltage-."
+msgstr "منافذ مستشعر JS220 هي التيار+، التيار- والجهد+، والجهد+، والجهد-."
 
 #: getting_started.py:25
-msgid "The JS110 sensor ports are IN+, IN- OUT+, and OUT-"
-msgstr "منافذ المستشعر JS110 هي IN+، وIN- OUT+، و OUT-"
+msgid "The JS110 sensor ports are IN+, IN- OUT+, and OUT-."
+msgstr "منافذ المستشعر JS110 هي IN+، وIN- OUT+، و OUT-."
 
 #: getting_started.py:26
 msgid ""
@@ -577,11 +577,23 @@ msgstr "لا تظهر مرة أخرى"
 msgid "Intel graphics detected"
 msgstr "تم اكتشاف رسومات Intel"
 
-#: main.py:78
+#: main.py:70 widgets/value/value_widget.py:653
+msgid "Multimeter"
+msgstr "مقياس متعدد"
+
+#: main.py:71
+msgid "Oscilloscope"
+msgstr "راسم الذبذبات"
+
+#: main.py:72 main.py:298
+msgid "File"
+msgstr "ملف"
+
+#: main.py:82
 msgid "The UI status bar display mode"
 msgstr "وضع عرض شريط حالة واجهة المستخدم"
 
-#: main.py:79
+#: main.py:83
 msgid ""
 "This setting controls the amount of detail shown on the status bar at the "
 "bottom of the UI window. You should usually leave this set to \"normal\" "
@@ -591,34 +603,34 @@ msgstr ""
 "واجهة المستخدم. يجب عليك عادةً ترك هذا الإعداد على \"عادي\" إلا إذا كنت تريد"
 " المزيد من التفاصيل المتعلقة بالتشغيل الداخلي لواجهة المستخدم."
 
-#: main.py:84 safe_mode.py:43
+#: main.py:88 safe_mode.py:43
 msgid "Normal"
 msgstr "عادي"
 
-#: main.py:85
+#: main.py:89
 msgid "Troubleshoot"
 msgstr "استكشاف الأخطاء وإصلاحها"
 
-#: main.py:91
+#: main.py:95
 msgid "Enable developer mode."
 msgstr "تمكين وضع المطور."
 
-#: main.py:98
+#: main.py:108
 msgid "PubSub utilization"
 msgstr "استخدام PubSub"
 
-#: main.py:99
+#: main.py:109
 msgid ""
 "Display the number of actions processed by the publish-subscribe broker in "
 "each second."
 msgstr ""
 "عرض عدد الإجراءات التي تمت معالجتها بواسطة وسيط النشر والاشتراك في كل ثانية."
 
-#: main.py:104
+#: main.py:114
 msgid "CPU utilization"
 msgstr "استخدام وحدة المعالجة المركزية"
 
-#: main.py:105
+#: main.py:115
 msgid ""
 "Display the CPU utilization by this application and the total CPU "
 "utilization by all applications. The value is displayed in percent."
@@ -626,11 +638,11 @@ msgstr ""
 "عرض استخدام وحدة المعالجة المركزية بواسطة هذا التطبيق وإجمالي استخدام وحدة "
 "المعالجة المركزية بواسطة كافة التطبيقات. يتم عرض القيمة بالنسبة المئوية."
 
-#: main.py:111
+#: main.py:121
 msgid "Memory utilization"
 msgstr "استخدام الذاكرة"
 
-#: main.py:112
+#: main.py:122
 msgid ""
 "Display the memory (RAM) utilization by this application and by all "
 "applications. The value is displayed in percent."
@@ -638,97 +650,85 @@ msgstr ""
 "عرض استخدام الذاكرة (RAM) بواسطة هذا التطبيق وجميع التطبيقات. يتم عرض القيمة"
 " بالنسبة المئوية."
 
-#: main.py:189
+#: main.py:216
 msgid "UI"
 msgstr "واجهة المستخدم"
 
-#: main.py:264 main.py:285
-msgid "File"
-msgstr "ملف"
-
-#: main.py:281 widgets/value/value_widget.py:653
-msgid "Multimeter"
-msgstr "مقياس متعدد"
-
-#: main.py:283
-msgid "Oscilloscope"
-msgstr "راسم الذبذبات"
-
-#: main.py:296
+#: main.py:330
 msgid "&Help"
-msgstr "&مساعدة"
+msgstr "&amp;مساعدة"
 
-#: main.py:297 widgets/hamburger/hamburger_widget.py:21
+#: main.py:331 widgets/hamburger/hamburger_widget.py:21
 msgid "Getting Started"
 msgstr "الشروع في العمل"
 
-#: main.py:298
+#: main.py:332
 msgid "User's Guide"
 msgstr "دليل المستخدم"
 
-#: main.py:299 widgets/hamburger/hamburger_widget.py:22
+#: main.py:333 widgets/hamburger/hamburger_widget.py:22
 msgid "Changelog"
 msgstr "سجل التغييرات"
 
-#: main.py:300 widgets/help/help_widget.py:59
+#: main.py:334 widgets/help/help_widget.py:59
 msgid "Report Issue"
 msgstr "مشكلة التقرير"
 
-#: main.py:301
+#: main.py:335
 msgid "View logs..."
 msgstr "عرض السجلات..."
 
-#: main.py:302 widgets/hamburger/hamburger_widget.py:23
+#: main.py:336 widgets/hamburger/hamburger_widget.py:23
 msgid "Credits"
 msgstr "الاعتمادات"
 
-#: main.py:303 widgets/hamburger/hamburger_widget.py:24
+#: main.py:337 widgets/hamburger/hamburger_widget.py:24
 msgid "About"
 msgstr "نبذة عن"
 
-#: main.py:325 main.py:368
+#: main.py:359 main.py:402
 msgid "&File"
-msgstr "&ملف"
+msgstr "&amp;ملف"
 
-#: main.py:326
+#: main.py:360
 msgid "Open"
 msgstr "مفتوح"
 
-#: main.py:327
+#: main.py:361
 msgid "Open recent"
 msgstr "مفتوح حديثاً"
 
-#: main.py:328 main.py:374
+#: main.py:362 main.py:408
 msgid "Clear config and exit"
 msgstr "مسح التكوين والخروج"
 
-#: main.py:332 widgets/settings/settings_widget.py:541
+#: main.py:366 widgets/settings/settings_widget.py:541
 msgid "Widgets"
 msgstr "الأدوات"
 
-#: main.py:333
+#: main.py:367
 msgid "Tools"
 msgstr "الأدوات"
 
-#: main.py:334
+#: main.py:368
 msgid "Clear Accumulators"
 msgstr "مسح المتراكمات الواضحة"
 
-#: main.py:369
+#: main.py:403
 msgid "Info"
 msgstr "المعلومات"
 
-#: main.py:370 widget_tools.py:92 widgets/settings/settings_widget.py:31
+#: main.py:404 widget_tools.py:92 widgets/settings/settings_widget.py:31
 #: widgets/settings/settings_widget.py:574
 #: widgets/sidebar/sidebar_widget.py:41
 msgid "Settings"
 msgstr "الإعدادات"
 
-#: main.py:659
+#: main.py:693
 msgid "Manage"
 msgstr "الإدارة"
 
-#: main.py:696
+#: main.py:730
 msgid "Select file to open"
 msgstr "حدد ملف لفتحه"
 
@@ -1418,7 +1418,7 @@ msgstr "حالة تحديث البرنامج الثابت"
 #: widgets/settings/settings_widget.py:266
 #: widgets/settings/settings_widget.py:364
 #: widgets/settings/settings_widget.py:431
-#: widgets/waveform/waveform_widget.py:3061
+#: widgets/waveform/waveform_widget.py:3062
 msgid "Name"
 msgstr "الاسم"
 
@@ -1462,7 +1462,7 @@ msgstr "المكونات الإضافية"
 msgid "Version"
 msgstr "الإصدار"
 
-#: plugins/selector.py:60
+#: plugins/selector.py:60 widgets/trigger/trigger_widget.py:73
 msgid "Active"
 msgstr "نشط"
 
@@ -1546,7 +1546,7 @@ msgid "Probability Density Distribution"
 msgstr "توزيع الكثافة الاحتمالية"
 
 #: range_tools/histogram.py:45 range_tools/max_window.py:119
-#: widgets/trigger/trigger_widget.py:129
+#: widgets/trigger/trigger_widget.py:220
 msgid "Signal"
 msgstr "الإشارة"
 
@@ -1560,7 +1560,7 @@ msgstr "تكوين المدرج التكراري"
 
 #: range_tools/histogram.py:191
 msgid "Compute histogram over the range"
-msgstr "حساب المدرج التكراري على المدى"
+msgstr "حساب المدرج التكراري على النطاق"
 
 #: range_tools/histogram.py:192
 msgid ""
@@ -1891,7 +1891,7 @@ msgid "Threshold 2"
 msgstr "العتبة 2"
 
 #: widgets/device_control/fuse.py:89 widgets/memory/memory_widget.py:225
-#: widgets/trigger/trigger_widget.py:35 widgets/trigger/trigger_widget.py:131
+#: widgets/trigger/trigger_widget.py:114 widgets/trigger/trigger_widget.py:222
 msgid "Duration"
 msgstr "المدة"
 
@@ -2297,149 +2297,195 @@ msgstr "عرض السحب الطائر بالبكسل."
 msgid "The disk is full"
 msgstr "القرص ممتلئ"
 
-#: widgets/signal_record/signal_record.py:56
+#: widgets/signal_record/signal_record.py:57
 msgid "Could not open file for write"
 msgstr "تعذر فتح الملف للكتابة"
 
-#: widgets/signal_record/signal_record_config_widget.py:23
+#: widgets/signal_record/signal_record_config_widget.py:101
 msgid "SignalRecordConfig"
 msgstr "سيجنال ريكوردكونفيج"
 
-#: widgets/signal_record/signal_record_config_widget.py:61
+#: widgets/signal_record/signal_record_config_widget.py:107
+#: widgets/statistics_record/statistics_record_config_widget.py:92
+msgid "The filename with optional replacements."
+msgstr "اسم الملف مع بدائل اختيارية."
+
+#: widgets/signal_record/signal_record_config_widget.py:166
 msgid "Signals to record"
 msgstr "إشارات للتسجيل"
 
-#: widgets/signal_record/signal_record_config_widget.py:190
-#: widgets/statistics_record/statistics_record_config_widget.py:154
+#: widgets/signal_record/signal_record_config_widget.py:319
+#: widgets/statistics_record/statistics_record_config_widget.py:223
 msgid "Configure signal recording"
 msgstr "تكوين تسجيل الإشارة"
 
-#: widgets/statistics_record/statistics_record_config_widget.py:34
+#: widgets/statistics_record/statistics_record_config_widget.py:86
 msgid "StatisticsRecordConfig"
 msgstr "إحصائيات السجل الإحصائي"
 
-#: widgets/statistics_record/statistics_record_config_widget.py:59
+#: widgets/statistics_record/statistics_record_config_widget.py:123
 msgid "Time Format"
 msgstr "تنسيق الوقت"
 
-#: widgets/trigger/trigger_widget.py:34
+#: widgets/trigger/trigger_widget.py:41 widgets/value/value_widget.py:87
+msgid "Select the source device"
+msgstr "حدد الجهاز المصدر"
+
+#: widgets/trigger/trigger_widget.py:42
+msgid "The device to use for the start condition and stop condition."
+msgstr "الجهاز المراد استخدامه لحالة البدء وحالة الإيقاف."
+
+#: widgets/trigger/trigger_widget.py:44
+msgid "Configure run mode"
+msgstr "تكوين وضع التشغيل"
+
+#: widgets/trigger/trigger_widget.py:45
+msgid "Single"
+msgstr "مفردة"
+
+#: widgets/trigger/trigger_widget.py:46
+msgid "Perform one trigger sequence and then return to inactive mode."
+msgstr "تنفيذ تسلسل تشغيل واحد ثم العودة إلى الوضع غير النشط."
+
+#: widgets/trigger/trigger_widget.py:47
+msgid "Continuous"
+msgstr "مستمر"
+
+#: widgets/trigger/trigger_widget.py:48
+msgid "Repeat the trigger sequence indefinitely until manually stopped."
+msgstr "كرر تسلسل الزناد إلى أجل غير مسمى حتى يتم إيقافه يدوياً."
+
+#: widgets/trigger/trigger_widget.py:65
+msgid "Start, stop and indicate status"
+msgstr "بدء التشغيل والتوقف والإشارة إلى الحالة"
+
+#: widgets/trigger/trigger_widget.py:66
+msgid "Inactive"
+msgstr "غير نشط"
+
+#: widgets/trigger/trigger_widget.py:67
+msgid "Configure trigger options and then press to start."
+msgstr "قم بتكوين خيارات المشغل ثم اضغط للبدء."
+
+#: widgets/trigger/trigger_widget.py:68
+msgid "Searching"
+msgstr "البحث"
+
+#: widgets/trigger/trigger_widget.py:69
+msgid ""
+"Look for the configured start condition. On match, perform the start actions"
+" and advance to active. Press to halt and return to inactive."
+msgstr ""
+"ابحث عن حالة البدء المكوّنة. عند التطابق، قم بتنفيذ إجراءات البدء والتقدم "
+"إلى نشط. اضغط للتوقف والعودة إلى غير نشط."
+
+#: widgets/trigger/trigger_widget.py:74
+msgid ""
+"Look for the configured stop condition. On match, perform the stop actions. "
+"For run mode single, transition to inactive. For run mode continuous, "
+"transition to searching. Press to halt and return to inactive."
+msgstr ""
+"ابحث عن حالة الإيقاف المكوّنة. عند التطابق، قم بتنفيذ إجراءات الإيقاف. "
+"بالنسبة لوضع التشغيل الفردي، انتقل إلى غير نشط. لوضع التشغيل المستمر، انتقل "
+"إلى البحث. اضغط للإيقاف والعودة إلى غير نشط."
+
+#: widgets/trigger/trigger_widget.py:113
 msgid "Edge"
 msgstr "إيدج"
 
-#: widgets/trigger/trigger_widget.py:47
+#: widgets/trigger/trigger_widget.py:126
 msgid "Always"
 msgstr "دائماً"
 
-#: widgets/trigger/trigger_widget.py:48
-#, fuzzy
-#| msgid "New View"
+#: widgets/trigger/trigger_widget.py:127
 msgid "Never"
-msgstr "عرض جديد"
+msgstr "أبداً"
 
-#: widgets/trigger/trigger_widget.py:54
+#: widgets/trigger/trigger_widget.py:134
 msgid "between"
 msgstr "بين"
 
-#: widgets/trigger/trigger_widget.py:55
+#: widgets/trigger/trigger_widget.py:135
 msgid "outside"
 msgstr "في الخارج"
 
-#: widgets/trigger/trigger_widget.py:84
-#, fuzzy
-#| msgid "The source filter string."
+#: widgets/trigger/trigger_widget.py:164
 msgid "The source instrument."
-msgstr "سلسلة مرشح المصدر."
+msgstr "الأداة المصدر."
 
-#: widgets/trigger/trigger_widget.py:92
-#, fuzzy
-#| msgid "Signal"
-msgid "Single"
-msgstr "الإشارة"
-
-#: widgets/trigger/trigger_widget.py:93
-#, fuzzy
-#| msgid "Contents"
-msgid "Continuous"
-msgstr "المحتويات"
-
-#: widgets/trigger/trigger_widget.py:128
-#, fuzzy
-#| msgid "IRF type"
+#: widgets/trigger/trigger_widget.py:219
 msgid "Type"
-msgstr "نوع IRF"
+msgstr "النوع"
 
-#: widgets/trigger/trigger_widget.py:130
-#, fuzzy
-#| msgid "Action"
+#: widgets/trigger/trigger_widget.py:221
 msgid "Condition"
-msgstr "الإجراء"
+msgstr "الحالة"
 
-#: widgets/trigger/trigger_widget.py:383
-#, fuzzy
-#| msgid "Signal sample recording"
-msgid "Start signal sample recording"
-msgstr "تسجيل عينة الإشارة"
+#: widgets/trigger/trigger_widget.py:466
+msgid "Record samples"
+msgstr "تسجيل العينات"
 
-#: widgets/trigger/trigger_widget.py:384 widgets/trigger/trigger_widget.py:397
+#: widgets/trigger/trigger_widget.py:467 widgets/trigger/trigger_widget.py:480
 msgid "Config"
 msgstr "التكوين"
 
-#: widgets/trigger/trigger_widget.py:388
-#, fuzzy
-#| msgid "Trigger direction"
-msgid "Pretrigger duration"
-msgstr "اتجاه الزناد"
+#: widgets/trigger/trigger_widget.py:471 widgets/trigger/trigger_widget.py:484
+msgid "Start buffer"
+msgstr "بدء المخزن المؤقت"
 
-#: widgets/trigger/trigger_widget.py:396
-#, fuzzy
-#| msgid "Statistics recording"
-msgid "Start statistics recording"
-msgstr "تسجيل الإحصاءات"
+#: widgets/trigger/trigger_widget.py:473 widgets/trigger/trigger_widget.py:486
+msgid "Stop delay"
+msgstr "إيقاف التأخير"
 
-#: widgets/trigger/trigger_widget.py:404
-#, fuzzy
-#| msgid "Set units"
+#: widgets/trigger/trigger_widget.py:479
+msgid "Record statistics"
+msgstr "إحصاءات قياسية"
+
+#: widgets/trigger/trigger_widget.py:492 widgets/trigger/trigger_widget.py:622
 msgid "Set output"
-msgstr "مجموعة الوحدات"
+msgstr "تعيين الإخراج"
 
-#: widgets/trigger/trigger_widget.py:416
+#: widgets/trigger/trigger_widget.py:506 widgets/trigger/trigger_widget.py:636
 #: widgets/waveform/waveform_control.py:29
 msgid "Add single marker"
 msgstr "إضافة علامة واحدة"
 
-#: widgets/trigger/trigger_widget.py:484
-#, fuzzy
-#| msgid "Trigger input"
-msgid "Trigger"
-msgstr "مدخلات المشغل"
+#: widgets/trigger/trigger_widget.py:640
+#: widgets/waveform/waveform_control.py:38
+msgid "Add dual markers"
+msgstr "إضافة علامات مزدوجة"
 
-#: widgets/trigger/trigger_widget.py:502
+#: widgets/trigger/trigger_widget.py:644
+msgid "Stop sample buffer"
+msgstr "إيقاف المخزن المؤقت للعينة"
+
+#: widgets/trigger/trigger_widget.py:645
+msgid "Delay"
+msgstr "التأخير"
+
+#: widgets/trigger/trigger_widget.py:777
+msgid "Trigger"
+msgstr "الزناد"
+
+#: widgets/trigger/trigger_widget.py:817
 msgid "No sources found"
 msgstr "لم يتم العثور على مصادر"
 
-#: widgets/trigger/trigger_widget.py:522
-#, fuzzy
-#| msgid "Histogram configuration"
+#: widgets/trigger/trigger_widget.py:851
 msgid "Start Condition"
-msgstr "تكوين المدرج التكراري"
+msgstr "حالة البدء"
 
-#: widgets/trigger/trigger_widget.py:525
-#, fuzzy
-#| msgid "Action"
+#: widgets/trigger/trigger_widget.py:854
 msgid "Start Actions"
-msgstr "الإجراء"
+msgstr "بدء الإجراءات"
 
-#: widgets/trigger/trigger_widget.py:528
-#, fuzzy
-#| msgid "Histogram configuration"
+#: widgets/trigger/trigger_widget.py:857
 msgid "Stop Condition"
-msgstr "تكوين المدرج التكراري"
+msgstr "حالة التوقف"
 
-#: widgets/trigger/trigger_widget.py:531
-#, fuzzy
-#| msgid "Options"
+#: widgets/trigger/trigger_widget.py:860
 msgid "Stop Actions"
-msgstr "الخيارات"
+msgstr "إيقاف الإجراءات"
 
 #: widgets/value/value_widget.py:36
 msgid "Show the device selection header."
@@ -2456,10 +2502,6 @@ msgstr "اعرض حقول الإحصائيات على اليمين."
 #: widgets/value/value_widget.py:51
 msgid "Show a leading + or - sign."
 msgstr "أظهر علامة + أو - بادئة."
-
-#: widgets/value/value_widget.py:87
-msgid "Select the source device"
-msgstr "حدد الجهاز المصدر"
 
 #: widgets/value/value_widget.py:88
 msgid ""
@@ -2609,7 +2651,7 @@ msgid "triangle left"
 msgstr "المثلث الأيسر"
 
 #: widgets/waveform/text_annotation.py:66
-#: widgets/waveform/waveform_widget.py:3007
+#: widgets/waveform/waveform_widget.py:3008
 msgid "Manual"
 msgstr "يدوي"
 
@@ -2618,17 +2660,17 @@ msgid "Centered"
 msgstr "التمركز"
 
 #: widgets/waveform/text_annotation.py:99
-#: widgets/waveform/waveform_widget.py:3122
+#: widgets/waveform/waveform_widget.py:3123
 msgid "Text"
 msgstr "النص"
 
 #: widgets/waveform/text_annotation.py:107
-#: widgets/waveform/waveform_widget.py:3347
+#: widgets/waveform/waveform_widget.py:3348
 msgid "Show text"
 msgstr "إظهار النص"
 
 #: widgets/waveform/text_annotation.py:116
-#: widgets/waveform/waveform_widget.py:3359
+#: widgets/waveform/waveform_widget.py:3360
 msgid "Shape"
 msgstr "الشكل"
 
@@ -2655,10 +2697,6 @@ msgid ""
 msgstr ""
 "يمكنك أيضًا إضافة علامة عن طريق النقر بزر الماوس الأيمن على المحور السيني أو"
 " في منطقة الرسم البياني."
-
-#: widgets/waveform/waveform_control.py:38
-msgid "Add dual markers"
-msgstr "إضافة علامات مزدوجة"
 
 #: widgets/waveform/waveform_control.py:40
 msgid "Click to add a dual markers to the waveform."
@@ -2698,7 +2736,7 @@ msgid ""
 "You can also zoom by positioning the mouse over the waveform and then using "
 "the scroll wheel."
 msgstr ""
-"يمكنك أيضًا التكبير عن طريق وضع الفأرة فوق الشكل الموجي ثم استخدام عجلة "
+"يمكنك أيضًا التكبير عن طريق وضع الماوس فوق الشكل الموجي ثم استخدام عجلة "
 "التمرير."
 
 #: widgets/waveform/waveform_control.py:61
@@ -2965,12 +3003,12 @@ msgid "X-axis annotation mode"
 msgstr "وضع التعليق التوضيحي للمحور X"
 
 #: widgets/waveform/waveform_widget.py:495
-#: widgets/waveform/waveform_widget.py:2887
+#: widgets/waveform/waveform_widget.py:2888
 msgid "Absolute"
 msgstr "مطلق"
 
 #: widgets/waveform/waveform_widget.py:496
-#: widgets/waveform/waveform_widget.py:2892
+#: widgets/waveform/waveform_widget.py:2893
 msgid "Relative"
 msgstr "النسبية"
 
@@ -2987,150 +3025,150 @@ msgid "The trace priority: highest int value on top, None is off."
 msgstr ""
 "أولوية التتبع: أعلى قيمة int في الأعلى، لا شيء في الأعلى، لا شيء في الأعلى."
 
-#: widgets/waveform/waveform_widget.py:2833
-#: widgets/waveform/waveform_widget.py:3134
+#: widgets/waveform/waveform_widget.py:2834
+#: widgets/waveform/waveform_widget.py:3135
 msgid "Save image to file"
 msgstr "حفظ الصورة في ملف"
 
-#: widgets/waveform/waveform_widget.py:2881
-#: widgets/waveform/waveform_widget.py:2950
+#: widgets/waveform/waveform_widget.py:2882
+#: widgets/waveform/waveform_widget.py:2951
 msgid "Single marker"
 msgstr "علامة واحدة"
 
-#: widgets/waveform/waveform_widget.py:2882
-#: widgets/waveform/waveform_widget.py:2951
+#: widgets/waveform/waveform_widget.py:2883
+#: widgets/waveform/waveform_widget.py:2952
 msgid "Dual markers"
 msgstr "العلامات المزدوجة"
 
-#: widgets/waveform/waveform_widget.py:2884
+#: widgets/waveform/waveform_widget.py:2885
 msgid "Mode"
 msgstr "الوضع"
 
-#: widgets/waveform/waveform_widget.py:2897
-#: widgets/waveform/waveform_widget.py:2952
-#: widgets/waveform/waveform_widget.py:3110
-#: widgets/waveform/waveform_widget.py:3128
+#: widgets/waveform/waveform_widget.py:2898
+#: widgets/waveform/waveform_widget.py:2953
+#: widgets/waveform/waveform_widget.py:3111
+#: widgets/waveform/waveform_widget.py:3129
 msgid "Clear all"
 msgstr "مسح الكل"
 
-#: widgets/waveform/waveform_widget.py:2908
-#: widgets/waveform/waveform_widget.py:2997
-#: widgets/waveform/waveform_widget.py:3116
+#: widgets/waveform/waveform_widget.py:2909
+#: widgets/waveform/waveform_widget.py:2998
+#: widgets/waveform/waveform_widget.py:3117
 msgid "Annotations"
 msgstr "التعليقات التوضيحية"
 
-#: widgets/waveform/waveform_widget.py:3000
+#: widgets/waveform/waveform_widget.py:3001
 msgid "Range"
 msgstr "النطاق"
 
-#: widgets/waveform/waveform_widget.py:3004
-#: widgets/waveform/waveform_widget.py:3327
+#: widgets/waveform/waveform_widget.py:3005
+#: widgets/waveform/waveform_widget.py:3328
 msgid "Auto"
 msgstr "سيارة"
 
-#: widgets/waveform/waveform_widget.py:3010
+#: widgets/waveform/waveform_widget.py:3011
 msgid "Exact"
 msgstr "بالضبط"
 
-#: widgets/waveform/waveform_widget.py:3019
+#: widgets/waveform/waveform_widget.py:3020
 msgid "Scale"
 msgstr "السلالم"
 
-#: widgets/waveform/waveform_widget.py:3022
+#: widgets/waveform/waveform_widget.py:3023
 msgid "Linear"
 msgstr "خطي"
 
-#: widgets/waveform/waveform_widget.py:3027
+#: widgets/waveform/waveform_widget.py:3028
 msgid "Logarithmic"
 msgstr "لوغاريتمي"
 
-#: widgets/waveform/waveform_widget.py:3035
+#: widgets/waveform/waveform_widget.py:3036
 msgid "Logarithmic zero"
 msgstr "الصفر اللوغاريتمي"
 
-#: widgets/waveform/waveform_widget.py:3049
+#: widgets/waveform/waveform_widget.py:3050
 msgid "Preferred prefix"
 msgstr "البادئة المفضلة"
 
-#: widgets/waveform/waveform_widget.py:3107
+#: widgets/waveform/waveform_widget.py:3108
 msgid "Add"
 msgstr "إضافة"
 
-#: widgets/waveform/waveform_widget.py:3108
+#: widgets/waveform/waveform_widget.py:3109
 msgid "Hide all text"
 msgstr "إخفاء كل النص"
 
-#: widgets/waveform/waveform_widget.py:3109
+#: widgets/waveform/waveform_widget.py:3110
 msgid "Show all text"
 msgstr "إظهار كل النص"
 
-#: widgets/waveform/waveform_widget.py:3117
+#: widgets/waveform/waveform_widget.py:3118
 msgid "Vertical"
 msgstr "عمودي"
 
-#: widgets/waveform/waveform_widget.py:3120
+#: widgets/waveform/waveform_widget.py:3121
 msgid "Horizontal"
 msgstr "أفقي"
 
-#: widgets/waveform/waveform_widget.py:3126
+#: widgets/waveform/waveform_widget.py:3127
 msgid "Save"
 msgstr "الحفظ"
 
-#: widgets/waveform/waveform_widget.py:3131
+#: widgets/waveform/waveform_widget.py:3132
 msgid "Y-axis auto range"
 msgstr "النطاق التلقائي للمحور Y"
 
-#: widgets/waveform/waveform_widget.py:3135
+#: widgets/waveform/waveform_widget.py:3136
 msgid "Copy image to clipboard"
 msgstr "نسخ الصورة إلى الحافظة"
 
-#: widgets/waveform/waveform_widget.py:3136
+#: widgets/waveform/waveform_widget.py:3137
 msgid "Export visible data"
 msgstr "تصدير البيانات المرئية"
 
-#: widgets/waveform/waveform_widget.py:3137
+#: widgets/waveform/waveform_widget.py:3138
 msgid "Export all data"
 msgstr "تصدير جميع البيانات"
 
-#: widgets/waveform/waveform_widget.py:3303
+#: widgets/waveform/waveform_widget.py:3304
 msgid "Export"
 msgstr "التصدير"
 
-#: widgets/waveform/waveform_widget.py:3304
+#: widgets/waveform/waveform_widget.py:3305
 msgid "Analysis"
 msgstr "التحليل"
 
-#: widgets/waveform/waveform_widget.py:3312
+#: widgets/waveform/waveform_widget.py:3313
 msgid "Interval"
 msgstr "الفاصل الزمني"
 
-#: widgets/waveform/waveform_widget.py:3321
+#: widgets/waveform/waveform_widget.py:3322
 msgid "Zoom"
 msgstr "تكبير/تصغير"
 
-#: widgets/waveform/waveform_widget.py:3325
+#: widgets/waveform/waveform_widget.py:3326
 msgid "Show statistics"
 msgstr "عرض الإحصائيات"
 
-#: widgets/waveform/waveform_widget.py:3330
+#: widgets/waveform/waveform_widget.py:3331
 msgid "Left"
 msgstr "يسار"
 
-#: widgets/waveform/waveform_widget.py:3333
+#: widgets/waveform/waveform_widget.py:3334
 msgid "Right"
 msgstr "صحيح"
 
-#: widgets/waveform/waveform_widget.py:3336
+#: widgets/waveform/waveform_widget.py:3337
 msgid "Off"
 msgstr "إيقاف التشغيل"
 
-#: widgets/waveform/waveform_widget.py:3339
-#: widgets/waveform/waveform_widget.py:3367
-#: widgets/waveform/waveform_widget.py:3396
+#: widgets/waveform/waveform_widget.py:3340
+#: widgets/waveform/waveform_widget.py:3368
+#: widgets/waveform/waveform_widget.py:3397
 msgid "Remove"
 msgstr "إزالة"
 
-#: widgets/waveform/waveform_widget.py:3350
+#: widgets/waveform/waveform_widget.py:3351
 msgid "Y mode"
 msgstr "الوضع Y"
 

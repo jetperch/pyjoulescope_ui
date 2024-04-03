@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-03-19 13:13-0400\n"
+"POT-Creation-Date: 2024-04-03 16:33-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -288,7 +288,7 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
-#: error_window.py:112 widgets/waveform/waveform_widget.py:3346
+#: error_window.py:112 widgets/waveform/waveform_widget.py:3347
 msgid "Edit"
 msgstr ""
 
@@ -300,7 +300,7 @@ msgstr ""
 msgid "Abort"
 msgstr ""
 
-#: error_window.py:120 main.py:331 widgets/settings/settings_widget.py:539
+#: error_window.py:120 main.py:365 widgets/settings/settings_widget.py:539
 msgid "View"
 msgstr ""
 
@@ -320,29 +320,29 @@ msgstr ""
 msgid "Revert to defaults"
 msgstr ""
 
-#: error_window.py:283 main.py:329 main.py:375
+#: error_window.py:283 main.py:363 main.py:409
 #: widgets/js220_cal/js220_cal_widget.py:38
 msgid "Exit"
 msgstr ""
 
-#: exporter.py:49 widgets/signal_record/signal_record_config_widget.py:48
-#: widgets/statistics_record/statistics_record_config_widget.py:47
+#: exporter.py:49 widgets/signal_record/signal_record_config_widget.py:148
+#: widgets/statistics_record/statistics_record_config_widget.py:111
 msgid "Directory"
 msgstr ""
 
-#: exporter.py:61 widgets/signal_record/signal_record_config_widget.py:36
+#: exporter.py:61 widgets/signal_record/signal_record_config_widget.py:128
 #: zip_inspector.py:92
 msgid "Filename"
 msgstr ""
 
 #: exporter.py:68 widgets/notes/notes_widget.py:21
-#: widgets/signal_record/signal_record_config_widget.py:66
+#: widgets/signal_record/signal_record_config_widget.py:171
 msgid "Notes"
 msgstr ""
 
-#: exporter.py:86 widgets/signal_record/signal_record_config_widget.py:123
-#: widgets/signal_record/signal_record_config_widget.py:144
-#: widgets/statistics_record/statistics_record_config_widget.py:108
+#: exporter.py:86 widgets/signal_record/signal_record_config_widget.py:241
+#: widgets/signal_record/signal_record_config_widget.py:268
+#: widgets/statistics_record/statistics_record_config_widget.py:173
 msgid "Select save location"
 msgstr ""
 
@@ -373,15 +373,15 @@ msgid "Safety"
 msgstr ""
 
 #: getting_started.py:23
-msgid "The voltage between any sensor port must never exceed ±15V"
+msgid "The voltage between any sensor port must never exceed ±15V."
 msgstr ""
 
 #: getting_started.py:24
-msgid "The JS220 sensor ports are Current+, Current-, Voltage+, Voltage-"
+msgid "The JS220 sensor ports are Current+, Current-, Voltage+, Voltage-."
 msgstr ""
 
 #: getting_started.py:25
-msgid "The JS110 sensor ports are IN+, IN- OUT+, and OUT-"
+msgid "The JS110 sensor ports are IN+, IN- OUT+, and OUT-."
 msgstr ""
 
 #: getting_started.py:26
@@ -510,150 +510,150 @@ msgstr ""
 msgid "Intel graphics detected"
 msgstr ""
 
-#: main.py:78
+#: main.py:70 widgets/value/value_widget.py:653
+msgid "Multimeter"
+msgstr ""
+
+#: main.py:71
+msgid "Oscilloscope"
+msgstr ""
+
+#: main.py:72 main.py:298
+msgid "File"
+msgstr ""
+
+#: main.py:82
 msgid "The UI status bar display mode"
 msgstr ""
 
-#: main.py:79
+#: main.py:83
 msgid ""
 "This setting controls the amount of detail shown on the status bar at the "
 "bottom of the UI window. You should usually leave this set to \"normal\" "
 "unless you want more detail concerning the UI internal operation."
 msgstr ""
 
-#: main.py:84 safe_mode.py:43
+#: main.py:88 safe_mode.py:43
 msgid "Normal"
 msgstr ""
 
-#: main.py:85
+#: main.py:89
 msgid "Troubleshoot"
 msgstr ""
 
-#: main.py:91
+#: main.py:95
 msgid "Enable developer mode."
 msgstr ""
 
-#: main.py:98
+#: main.py:108
 msgid "PubSub utilization"
 msgstr ""
 
-#: main.py:99
+#: main.py:109
 msgid ""
 "Display the number of actions processed by the publish-subscribe broker in "
 "each second."
 msgstr ""
 
-#: main.py:104
+#: main.py:114
 msgid "CPU utilization"
 msgstr ""
 
-#: main.py:105
+#: main.py:115
 msgid ""
 "Display the CPU utilization by this application and the total CPU "
 "utilization by all applications. The value is displayed in percent."
 msgstr ""
 
-#: main.py:111
+#: main.py:121
 msgid "Memory utilization"
 msgstr ""
 
-#: main.py:112
+#: main.py:122
 msgid ""
 "Display the memory (RAM) utilization by this application and by all "
 "applications. The value is displayed in percent."
 msgstr ""
 
-#: main.py:189
+#: main.py:216
 msgid "UI"
 msgstr ""
 
-#: main.py:264 main.py:285
-msgid "File"
-msgstr ""
-
-#: main.py:281 widgets/value/value_widget.py:653
-msgid "Multimeter"
-msgstr ""
-
-#: main.py:283
-msgid "Oscilloscope"
-msgstr ""
-
-#: main.py:296
+#: main.py:330
 msgid "&Help"
 msgstr ""
 
-#: main.py:297 widgets/hamburger/hamburger_widget.py:21
+#: main.py:331 widgets/hamburger/hamburger_widget.py:21
 msgid "Getting Started"
 msgstr ""
 
-#: main.py:298
+#: main.py:332
 msgid "User's Guide"
 msgstr ""
 
-#: main.py:299 widgets/hamburger/hamburger_widget.py:22
+#: main.py:333 widgets/hamburger/hamburger_widget.py:22
 msgid "Changelog"
 msgstr ""
 
-#: main.py:300 widgets/help/help_widget.py:59
+#: main.py:334 widgets/help/help_widget.py:59
 msgid "Report Issue"
 msgstr ""
 
-#: main.py:301
+#: main.py:335
 msgid "View logs..."
 msgstr ""
 
-#: main.py:302 widgets/hamburger/hamburger_widget.py:23
+#: main.py:336 widgets/hamburger/hamburger_widget.py:23
 msgid "Credits"
 msgstr ""
 
-#: main.py:303 widgets/hamburger/hamburger_widget.py:24
+#: main.py:337 widgets/hamburger/hamburger_widget.py:24
 msgid "About"
 msgstr ""
 
-#: main.py:325 main.py:368
+#: main.py:359 main.py:402
 msgid "&File"
 msgstr ""
 
-#: main.py:326
+#: main.py:360
 msgid "Open"
 msgstr ""
 
-#: main.py:327
+#: main.py:361
 msgid "Open recent"
 msgstr ""
 
-#: main.py:328 main.py:374
+#: main.py:362 main.py:408
 msgid "Clear config and exit"
 msgstr ""
 
-#: main.py:332 widgets/settings/settings_widget.py:541
+#: main.py:366 widgets/settings/settings_widget.py:541
 msgid "Widgets"
 msgstr ""
 
-#: main.py:333
+#: main.py:367
 msgid "Tools"
 msgstr ""
 
-#: main.py:334
+#: main.py:368
 msgid "Clear Accumulators"
 msgstr ""
 
-#: main.py:369
+#: main.py:403
 msgid "Info"
 msgstr ""
 
-#: main.py:370 widget_tools.py:92 widgets/settings/settings_widget.py:31
+#: main.py:404 widget_tools.py:92 widgets/settings/settings_widget.py:31
 #: widgets/settings/settings_widget.py:574
 #: widgets/sidebar/sidebar_widget.py:41
 msgid "Settings"
 msgstr ""
 
-#: main.py:659
+#: main.py:693
 msgid "Manage"
 msgstr ""
 
-#: main.py:696
+#: main.py:730
 msgid "Select file to open"
 msgstr ""
 
@@ -1270,7 +1270,7 @@ msgstr ""
 #: widgets/settings/settings_widget.py:266
 #: widgets/settings/settings_widget.py:364
 #: widgets/settings/settings_widget.py:431
-#: widgets/waveform/waveform_widget.py:3061
+#: widgets/waveform/waveform_widget.py:3062
 msgid "Name"
 msgstr ""
 
@@ -1314,7 +1314,7 @@ msgstr ""
 msgid "Version"
 msgstr ""
 
-#: plugins/selector.py:60
+#: plugins/selector.py:60 widgets/trigger/trigger_widget.py:73
 msgid "Active"
 msgstr ""
 
@@ -1391,7 +1391,7 @@ msgid "Probability Density Distribution"
 msgstr ""
 
 #: range_tools/histogram.py:45 range_tools/max_window.py:119
-#: widgets/trigger/trigger_widget.py:129
+#: widgets/trigger/trigger_widget.py:220
 msgid "Signal"
 msgstr ""
 
@@ -1728,7 +1728,7 @@ msgid "Threshold 2"
 msgstr ""
 
 #: widgets/device_control/fuse.py:89 widgets/memory/memory_widget.py:225
-#: widgets/trigger/trigger_widget.py:35 widgets/trigger/trigger_widget.py:131
+#: widgets/trigger/trigger_widget.py:114 widgets/trigger/trigger_widget.py:222
 msgid "Duration"
 msgstr ""
 
@@ -2107,117 +2107,188 @@ msgstr ""
 msgid "The disk is full"
 msgstr ""
 
-#: widgets/signal_record/signal_record.py:56
+#: widgets/signal_record/signal_record.py:57
 msgid "Could not open file for write"
 msgstr ""
 
-#: widgets/signal_record/signal_record_config_widget.py:23
+#: widgets/signal_record/signal_record_config_widget.py:101
 msgid "SignalRecordConfig"
 msgstr ""
 
-#: widgets/signal_record/signal_record_config_widget.py:61
+#: widgets/signal_record/signal_record_config_widget.py:107
+#: widgets/statistics_record/statistics_record_config_widget.py:92
+msgid "The filename with optional replacements."
+msgstr ""
+
+#: widgets/signal_record/signal_record_config_widget.py:166
 msgid "Signals to record"
 msgstr ""
 
-#: widgets/signal_record/signal_record_config_widget.py:190
-#: widgets/statistics_record/statistics_record_config_widget.py:154
+#: widgets/signal_record/signal_record_config_widget.py:319
+#: widgets/statistics_record/statistics_record_config_widget.py:223
 msgid "Configure signal recording"
 msgstr ""
 
-#: widgets/statistics_record/statistics_record_config_widget.py:34
+#: widgets/statistics_record/statistics_record_config_widget.py:86
 msgid "StatisticsRecordConfig"
 msgstr ""
 
-#: widgets/statistics_record/statistics_record_config_widget.py:59
+#: widgets/statistics_record/statistics_record_config_widget.py:123
 msgid "Time Format"
 msgstr ""
 
-#: widgets/trigger/trigger_widget.py:34
-msgid "Edge"
+#: widgets/trigger/trigger_widget.py:41 widgets/value/value_widget.py:87
+msgid "Select the source device"
 msgstr ""
 
-#: widgets/trigger/trigger_widget.py:47
-msgid "Always"
+#: widgets/trigger/trigger_widget.py:42
+msgid "The device to use for the start condition and stop condition."
 msgstr ""
 
-#: widgets/trigger/trigger_widget.py:48
-msgid "Never"
+#: widgets/trigger/trigger_widget.py:44
+msgid "Configure run mode"
 msgstr ""
 
-#: widgets/trigger/trigger_widget.py:54
-msgid "between"
-msgstr ""
-
-#: widgets/trigger/trigger_widget.py:55
-msgid "outside"
-msgstr ""
-
-#: widgets/trigger/trigger_widget.py:84
-msgid "The source instrument."
-msgstr ""
-
-#: widgets/trigger/trigger_widget.py:92
+#: widgets/trigger/trigger_widget.py:45
 msgid "Single"
 msgstr ""
 
-#: widgets/trigger/trigger_widget.py:93
+#: widgets/trigger/trigger_widget.py:46
+msgid "Perform one trigger sequence and then return to inactive mode."
+msgstr ""
+
+#: widgets/trigger/trigger_widget.py:47
 msgid "Continuous"
 msgstr ""
 
-#: widgets/trigger/trigger_widget.py:128
+#: widgets/trigger/trigger_widget.py:48
+msgid "Repeat the trigger sequence indefinitely until manually stopped."
+msgstr ""
+
+#: widgets/trigger/trigger_widget.py:65
+msgid "Start, stop and indicate status"
+msgstr ""
+
+#: widgets/trigger/trigger_widget.py:66
+msgid "Inactive"
+msgstr ""
+
+#: widgets/trigger/trigger_widget.py:67
+msgid "Configure trigger options and then press to start."
+msgstr ""
+
+#: widgets/trigger/trigger_widget.py:68
+msgid "Searching"
+msgstr ""
+
+#: widgets/trigger/trigger_widget.py:69
+msgid ""
+"Look for the configured start condition. On match, perform the start actions"
+" and advance to active. Press to halt and return to inactive."
+msgstr ""
+
+#: widgets/trigger/trigger_widget.py:74
+msgid ""
+"Look for the configured stop condition. On match, perform the stop actions. "
+"For run mode single, transition to inactive. For run mode continuous, "
+"transition to searching. Press to halt and return to inactive."
+msgstr ""
+
+#: widgets/trigger/trigger_widget.py:113
+msgid "Edge"
+msgstr ""
+
+#: widgets/trigger/trigger_widget.py:126
+msgid "Always"
+msgstr ""
+
+#: widgets/trigger/trigger_widget.py:127
+msgid "Never"
+msgstr ""
+
+#: widgets/trigger/trigger_widget.py:134
+msgid "between"
+msgstr ""
+
+#: widgets/trigger/trigger_widget.py:135
+msgid "outside"
+msgstr ""
+
+#: widgets/trigger/trigger_widget.py:164
+msgid "The source instrument."
+msgstr ""
+
+#: widgets/trigger/trigger_widget.py:219
 msgid "Type"
 msgstr ""
 
-#: widgets/trigger/trigger_widget.py:130
+#: widgets/trigger/trigger_widget.py:221
 msgid "Condition"
 msgstr ""
 
-#: widgets/trigger/trigger_widget.py:383
-msgid "Start signal sample recording"
+#: widgets/trigger/trigger_widget.py:466
+msgid "Record samples"
 msgstr ""
 
-#: widgets/trigger/trigger_widget.py:384 widgets/trigger/trigger_widget.py:397
+#: widgets/trigger/trigger_widget.py:467 widgets/trigger/trigger_widget.py:480
 msgid "Config"
 msgstr ""
 
-#: widgets/trigger/trigger_widget.py:388
-msgid "Pretrigger duration"
+#: widgets/trigger/trigger_widget.py:471 widgets/trigger/trigger_widget.py:484
+msgid "Start buffer"
 msgstr ""
 
-#: widgets/trigger/trigger_widget.py:396
-msgid "Start statistics recording"
+#: widgets/trigger/trigger_widget.py:473 widgets/trigger/trigger_widget.py:486
+msgid "Stop delay"
 msgstr ""
 
-#: widgets/trigger/trigger_widget.py:404
+#: widgets/trigger/trigger_widget.py:479
+msgid "Record statistics"
+msgstr ""
+
+#: widgets/trigger/trigger_widget.py:492 widgets/trigger/trigger_widget.py:622
 msgid "Set output"
 msgstr ""
 
-#: widgets/trigger/trigger_widget.py:416
+#: widgets/trigger/trigger_widget.py:506 widgets/trigger/trigger_widget.py:636
 #: widgets/waveform/waveform_control.py:29
 msgid "Add single marker"
 msgstr ""
 
-#: widgets/trigger/trigger_widget.py:484
+#: widgets/trigger/trigger_widget.py:640
+#: widgets/waveform/waveform_control.py:38
+msgid "Add dual markers"
+msgstr ""
+
+#: widgets/trigger/trigger_widget.py:644
+msgid "Stop sample buffer"
+msgstr ""
+
+#: widgets/trigger/trigger_widget.py:645
+msgid "Delay"
+msgstr ""
+
+#: widgets/trigger/trigger_widget.py:777
 msgid "Trigger"
 msgstr ""
 
-#: widgets/trigger/trigger_widget.py:502
+#: widgets/trigger/trigger_widget.py:817
 msgid "No sources found"
 msgstr ""
 
-#: widgets/trigger/trigger_widget.py:522
+#: widgets/trigger/trigger_widget.py:851
 msgid "Start Condition"
 msgstr ""
 
-#: widgets/trigger/trigger_widget.py:525
+#: widgets/trigger/trigger_widget.py:854
 msgid "Start Actions"
 msgstr ""
 
-#: widgets/trigger/trigger_widget.py:528
+#: widgets/trigger/trigger_widget.py:857
 msgid "Stop Condition"
 msgstr ""
 
-#: widgets/trigger/trigger_widget.py:531
+#: widgets/trigger/trigger_widget.py:860
 msgid "Stop Actions"
 msgstr ""
 
@@ -2235,10 +2306,6 @@ msgstr ""
 
 #: widgets/value/value_widget.py:51
 msgid "Show a leading + or - sign."
-msgstr ""
-
-#: widgets/value/value_widget.py:87
-msgid "Select the source device"
 msgstr ""
 
 #: widgets/value/value_widget.py:88
@@ -2377,7 +2444,7 @@ msgid "triangle left"
 msgstr ""
 
 #: widgets/waveform/text_annotation.py:66
-#: widgets/waveform/waveform_widget.py:3007
+#: widgets/waveform/waveform_widget.py:3008
 msgid "Manual"
 msgstr ""
 
@@ -2386,17 +2453,17 @@ msgid "Centered"
 msgstr ""
 
 #: widgets/waveform/text_annotation.py:99
-#: widgets/waveform/waveform_widget.py:3122
+#: widgets/waveform/waveform_widget.py:3123
 msgid "Text"
 msgstr ""
 
 #: widgets/waveform/text_annotation.py:107
-#: widgets/waveform/waveform_widget.py:3347
+#: widgets/waveform/waveform_widget.py:3348
 msgid "Show text"
 msgstr ""
 
 #: widgets/waveform/text_annotation.py:116
-#: widgets/waveform/waveform_widget.py:3359
+#: widgets/waveform/waveform_widget.py:3360
 msgid "Shape"
 msgstr ""
 
@@ -2418,10 +2485,6 @@ msgstr ""
 msgid ""
 "You can also add a marker by right-clicking on the x-axis or in the plot "
 "area."
-msgstr ""
-
-#: widgets/waveform/waveform_control.py:38
-msgid "Add dual markers"
 msgstr ""
 
 #: widgets/waveform/waveform_control.py:40
@@ -2713,12 +2776,12 @@ msgid "X-axis annotation mode"
 msgstr ""
 
 #: widgets/waveform/waveform_widget.py:495
-#: widgets/waveform/waveform_widget.py:2887
+#: widgets/waveform/waveform_widget.py:2888
 msgid "Absolute"
 msgstr ""
 
 #: widgets/waveform/waveform_widget.py:496
-#: widgets/waveform/waveform_widget.py:2892
+#: widgets/waveform/waveform_widget.py:2893
 msgid "Relative"
 msgstr ""
 
@@ -2734,150 +2797,150 @@ msgstr ""
 msgid "The trace priority: highest int value on top, None is off."
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:2833
-#: widgets/waveform/waveform_widget.py:3134
+#: widgets/waveform/waveform_widget.py:2834
+#: widgets/waveform/waveform_widget.py:3135
 msgid "Save image to file"
-msgstr ""
-
-#: widgets/waveform/waveform_widget.py:2881
-#: widgets/waveform/waveform_widget.py:2950
-msgid "Single marker"
 msgstr ""
 
 #: widgets/waveform/waveform_widget.py:2882
 #: widgets/waveform/waveform_widget.py:2951
+msgid "Single marker"
+msgstr ""
+
+#: widgets/waveform/waveform_widget.py:2883
+#: widgets/waveform/waveform_widget.py:2952
 msgid "Dual markers"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:2884
+#: widgets/waveform/waveform_widget.py:2885
 msgid "Mode"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:2897
-#: widgets/waveform/waveform_widget.py:2952
-#: widgets/waveform/waveform_widget.py:3110
-#: widgets/waveform/waveform_widget.py:3128
+#: widgets/waveform/waveform_widget.py:2898
+#: widgets/waveform/waveform_widget.py:2953
+#: widgets/waveform/waveform_widget.py:3111
+#: widgets/waveform/waveform_widget.py:3129
 msgid "Clear all"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:2908
-#: widgets/waveform/waveform_widget.py:2997
-#: widgets/waveform/waveform_widget.py:3116
+#: widgets/waveform/waveform_widget.py:2909
+#: widgets/waveform/waveform_widget.py:2998
+#: widgets/waveform/waveform_widget.py:3117
 msgid "Annotations"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3000
+#: widgets/waveform/waveform_widget.py:3001
 msgid "Range"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3004
-#: widgets/waveform/waveform_widget.py:3327
+#: widgets/waveform/waveform_widget.py:3005
+#: widgets/waveform/waveform_widget.py:3328
 msgid "Auto"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3010
+#: widgets/waveform/waveform_widget.py:3011
 msgid "Exact"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3019
+#: widgets/waveform/waveform_widget.py:3020
 msgid "Scale"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3022
+#: widgets/waveform/waveform_widget.py:3023
 msgid "Linear"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3027
+#: widgets/waveform/waveform_widget.py:3028
 msgid "Logarithmic"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3035
+#: widgets/waveform/waveform_widget.py:3036
 msgid "Logarithmic zero"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3049
+#: widgets/waveform/waveform_widget.py:3050
 msgid "Preferred prefix"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3107
+#: widgets/waveform/waveform_widget.py:3108
 msgid "Add"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3108
+#: widgets/waveform/waveform_widget.py:3109
 msgid "Hide all text"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3109
+#: widgets/waveform/waveform_widget.py:3110
 msgid "Show all text"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3117
+#: widgets/waveform/waveform_widget.py:3118
 msgid "Vertical"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3120
+#: widgets/waveform/waveform_widget.py:3121
 msgid "Horizontal"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3126
+#: widgets/waveform/waveform_widget.py:3127
 msgid "Save"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3131
+#: widgets/waveform/waveform_widget.py:3132
 msgid "Y-axis auto range"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3135
+#: widgets/waveform/waveform_widget.py:3136
 msgid "Copy image to clipboard"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3136
+#: widgets/waveform/waveform_widget.py:3137
 msgid "Export visible data"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3137
+#: widgets/waveform/waveform_widget.py:3138
 msgid "Export all data"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3303
+#: widgets/waveform/waveform_widget.py:3304
 msgid "Export"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3304
+#: widgets/waveform/waveform_widget.py:3305
 msgid "Analysis"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3312
+#: widgets/waveform/waveform_widget.py:3313
 msgid "Interval"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3321
+#: widgets/waveform/waveform_widget.py:3322
 msgid "Zoom"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3325
+#: widgets/waveform/waveform_widget.py:3326
 msgid "Show statistics"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3330
+#: widgets/waveform/waveform_widget.py:3331
 msgid "Left"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3333
+#: widgets/waveform/waveform_widget.py:3334
 msgid "Right"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3336
+#: widgets/waveform/waveform_widget.py:3337
 msgid "Off"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3339
-#: widgets/waveform/waveform_widget.py:3367
-#: widgets/waveform/waveform_widget.py:3396
+#: widgets/waveform/waveform_widget.py:3340
+#: widgets/waveform/waveform_widget.py:3368
+#: widgets/waveform/waveform_widget.py:3397
 msgid "Remove"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3350
+#: widgets/waveform/waveform_widget.py:3351
 msgid "Y mode"
 msgstr ""
 

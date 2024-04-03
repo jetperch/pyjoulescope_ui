@@ -16,7 +16,7 @@ import gettext
 import os
 import re
 
-__all__ = ['N_']
+__all__ = ['N_', 'gettext_locale_get']
 _whitespace = r'\s+'
 PATH = os.path.dirname(os.path.abspath(__file__))
 translate = gettext.translation('joulescope_ui', PATH, fallback=True)
@@ -26,3 +26,10 @@ def N_(txt):
     txt = txt.strip()
     txt = re.sub(_whitespace, ' ', txt)
     return translate.gettext(txt)
+
+
+def gettext_locale_get():
+    path = gettext.find('joulescope_ui', PATH)
+    if path is None:
+        return 'en'
+    return path.split('\\')[-3]

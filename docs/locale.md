@@ -27,6 +27,25 @@ To create a new translation, simply add the locale to
 LOCALES in ci/translations.py.
 
 
+## Testing languages
+
+To test a language, set the LANGUAGE environment variable before
+starting the Joulescope UI.
+
+To test simplified Chinese for Windows with PowerShell:
+
+```
+$env:LANGUAGE = "zh"
+python -m joulescope_ui ui
+```
+
+You can then return to English:
+```
+$env:LANGUAGE = "en"
+python -m joulescope_ui ui
+```
+
+
 ## References
 
 * https://docs.python.org/3/library/gettext.html

@@ -41,50 +41,59 @@ _DEVICE_TOOLTIP = tooltip_format(
     N_('Select the source device'),
     N_("The device to use for the start condition and stop condition."))
 
+_RUN_MODE_TITLE = N_('Configure run mode')
 _RUN_MODE_SINGLE = N_('Single')
+_RUN_MODE_SINGLE_DETAIL = N_('Perform one trigger sequence and then return to inactive mode.')
 _RUN_MODE_CONTINUOUS = N_('Continuous')
+_RUN_MODE_CONTINUOUS_DETAIL = N_('Repeat the trigger sequence indefinitely until manually stopped.')
 _RUN_MODE_TOOLTIP = f"""\
 <html><header>{_STYLE}</header>
 <body>
-<h3>{N_('Configure run mode')}</h3>
+<h3>{_RUN_MODE_TITLE}</h3>
 <p><table>
   <tr>
     <td>{_RUN_MODE_SINGLE}</td>
-    <td>{N_('Perform one trigger sequence and then return to inactive mode.')}</td>
+    <td>{_RUN_MODE_SINGLE_DETAIL}</td>
   </tr>
   <tr>
     <td>{_RUN_MODE_CONTINUOUS}</td>
-    <td>{N_('Repeat the trigger sequence indefinitely until manually stopped.')}</td>
+    <td>{_RUN_MODE_CONTINUOUS_DETAIL}</td>
   </tr>
 </table></p></body></html>
 """
 
+_STATUS_TITLE = N_('Start, stop and indicate status')
 _STATUS_INACTIVE = N_('Inactive')
+_STATUS_INACTIVE_DETAIL = N_('Configure trigger options and then press to start.')
 _STATUS_SEARCHING = N_('Searching')
+_STATUS_SEARCHING_DETAIL = N_(
+    'Look for the configured start condition. '
+    'On match, perform the start actions and advance to active. '
+    'Press to halt and return to inactive.')
 _STATUS_ACTIVE = N_('Active')
+_STATUS_ACTIVE_DETAIL = N_(
+    'Look for the configured stop condition. '
+    'On match, perform the stop actions. '
+    'For run mode single, transition to inactive. '
+    'For run mode continuous, transition to searching. '
+    'Press to halt and return to inactive.')
 _STATUS_ACTIVE_DESCRIPTION = N_
 _STATUS_TOOLTIP = f"""\
 <html><header>{_STYLE}</header>
 <body>
-<h3>{N_('Start, stop and indicate status')}</h3>
+<h3>{_STATUS_TITLE}</h3>
 <p><table>
   <tr>
     <td>{_STATUS_INACTIVE}</td>
-    <td>{N_('Configure trigger options and then press to start.')}</td>
+    <td>{_STATUS_INACTIVE_DETAIL}</td>
   </tr>
   <tr>
     <td>{_STATUS_SEARCHING}</td>
-    <td>{N_('Look for the configured start condition. '
-       'On match, perform the start actions and advance to active. '
-       'Press to halt and return to inactive.')}</td>
+    <td>{_STATUS_SEARCHING_DETAIL}</td>
   </tr>
   <tr>
     <td>{_STATUS_ACTIVE}</td>
-    <td>{N_('Look for the configured stop condition. '
-            'On match, perform the stop actions. '
-            'For run mode single, transition to inactive. '
-            'For run mode continuous, transition to searching. '
-            'Press to halt and return to inactive.')}</td>
+    <td>{_STATUS_ACTIVE_DETAIL}</td>
   </tr>
 </table></p></body></html>
 """
@@ -632,7 +641,7 @@ class StopActionsWidget(QtWidgets.QFrame):
 
         self._buffer_stop = QtWidgets.QCheckBox()
         self._layout.addWidget(self._buffer_stop, 3, 0, 1, 1)
-        self._layout.addWidget(QtWidgets.QLabel('Stop sample buffer'), 3, 1, 1, 1)
+        self._layout.addWidget(QtWidgets.QLabel(N_('Stop sample buffer')), 3, 1, 1, 1)
         self._buffer_stop_delay = IntervalWidget(None, 1.0, name=N_('Delay'))
         self._layout.addWidget(self._buffer_stop_delay, 4, 1, 1, 1)
 

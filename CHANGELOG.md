@@ -7,7 +7,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.1.0
 
-2024 Mar 23 [in progress]
+2024 Apr 3
 
 * Added plugin framework with live code reload  #14
 * Restructured code to support human language translation.
@@ -15,7 +15,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added Intel graphics dialog to display sequence  #245
 * Modified QComboBox style.
 * Added filename replacement variables.
-* Added Trigger widget.  [work in progress]
+* Added Trigger widget.
 
 
 ## 1.0.62

@@ -127,6 +127,7 @@ def run_po_update():
                 '-i', POT_FILE,
                 '-o', outputfile,
                 '-l', locale,
+                '--no-fuzzy-matching',
                 '--previous',
             ]
         rv = CommandLineInterface().run(babel_args)
