@@ -122,10 +122,11 @@ class PluginManager(QtCore.QObject):
                 with open(readme_file, 'wt') as f:
                     f.write('Default Joulescope UI plugin directory.  Add plugin packages here\n')
             self._paths = [path]
-        for path in reversed(self._paths):
-            sys.path.insert(0, os.path.dirname(os.path.abspath(path)))
+        paths = [os.path.dirname(os.path.abspath(path)) for path in reversed(self._paths)]
+        for path in paths:
+            sys.path.insert(0, path)
         if is_release:
-            os.environ['PYTHONPATH'] = sys.path
+            os.environ['PYTHONPATH'] = os.path.pathsep.join(paths)
         self.pubsub.subscribe(REGISTRY_MANAGER_TOPICS.REGISTRY_ADD, self._on_registry_add)
         self.pubsub.subscribe(REGISTRY_MANAGER_TOPICS.REGISTRY_REMOVE, self._on_registry_remove)
         for item in pkgutil.iter_modules(self._paths):
