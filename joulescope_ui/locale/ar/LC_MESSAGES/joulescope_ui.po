@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: PROJECT 1.1.0\n"
+"Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-04-03 18:09-0400\n"
-"PO-Revision-Date: 2024-04-03 14:53-0400\n"
+"POT-Creation-Date: 2024-04-04 14:54-0400\n"
+"PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: ar <LL@li.org>\n"
 "Language: ar\n"
@@ -20,7 +20,7 @@ msgstr ""
 
 #: about.py:24
 msgid "About the Joulescope UI"
-msgstr "نبذة عن واجهة المستخدم Joulescope"
+msgstr "حول واجهة المستخدم Joulescope UI"
 
 #: about.py:25
 msgid "Version Information"
@@ -32,7 +32,7 @@ msgstr "الطاقة المستهدفة"
 
 #: app.py:49
 msgid "Toggle the power to all connected targets."
-msgstr "قم بتبديل الطاقة إلى جميع الأهداف المتصلة."
+msgstr "تبديل الطاقة لجميع الأهداف المتصلة."
 
 #: app.py:50
 msgid ""
@@ -40,12 +40,12 @@ msgid ""
 "can use this feature to perform a power cycle reset for the connected target"
 " devices."
 msgstr ""
-"تجبر هذه الميزة جميع الأجهزة المتصلة على تعطيل تدفق التيار. يمكنك استخدام "
+"تجبر هذه الميزة جميع الأدوات المتصلة على تعطيل تدفق التيار. يمكنك استخدام "
 "هذه الميزة لإجراء إعادة ضبط دورة الطاقة للأجهزة المستهدفة المتصلة."
 
 #: app.py:53
 msgid "The JS220 disconnects the current terminals."
-msgstr "تقوم JS220 بفصل أطراف التوصيل الحالية."
+msgstr "تقوم JS220 بفصل أطراف التيار."
 
 #: app.py:54
 msgid ""
@@ -65,7 +65,7 @@ msgid ""
 "engaged fuse. Instruments with engaged fuses prevent current flow until "
 "cleared."
 msgstr ""
-"يصبح هذا المؤشر نشطاً عندما تكون أداة واحدة متصلة على الأقل بها مصهر مشغول. "
+"يصبح هذا المؤشر نشطًا عندما تكون أداة واحدة متصلة على الأقل بها مصهر مشغّل. "
 "تمنع الأدوات ذات الصمامات المشغولة تدفق التيار حتى يتم مسحها."
 
 #: app.py:65 widgets/device_control/js220_ctrl_widget.py:55
@@ -85,20 +85,20 @@ msgid ""
 "When enabled, the widgets will display the statistics data as it arrives "
 "from the connected instruments."
 msgstr ""
-"عند التمكين، ستعرض الأدوات الذكية بيانات الإحصائيات عند وصولها من الأدوات "
-"المتصلة."
+"عند التمكين، ستعرض الأدوات المصغّرة البيانات الإحصائية عند وصولها من الأدوات"
+" المتصلة."
 
 #: app.py:75
 msgid ""
 "When disabled, hold the existing values. New statistics data is processed, "
 "but widgets displaying statistics information do not update."
 msgstr ""
-"عند تعطيلها، يتم الاحتفاظ بالقيم الموجودة. تتم معالجة بيانات الإحصائيات "
+"عند تعطيله، يتم الاحتفاظ بالقيم الحالية. تتم معالجة بيانات الإحصائيات "
 "الجديدة، ولكن لا يتم تحديث الأدوات التي تعرض معلومات الإحصائيات."
 
 #: app.py:83
 msgid "Statistics recording"
-msgstr "تسجيل الإحصاءات"
+msgstr "تسجيل الإحصائيات"
 
 #: app.py:85
 msgid "Click to control streaming statistics data recording."
@@ -116,7 +116,7 @@ msgid ""
 "By default, Joulescopes provide statistics data at 2 Hz. Each device allows "
 "you to change this setting to the desired rate."
 msgstr ""
-"بشكل افتراضي، توفر Joulescopes بيانات إحصائية بمعدل 2 هرتز. يتيح لك كل جهاز "
+"بشكل افتراضي، يوفر Joulescopes بيانات إحصائية عند 2 هرتز. يتيح لك كل جهاز "
 "تغيير هذا الإعداد إلى المعدل المطلوب."
 
 #: app.py:94
@@ -140,7 +140,7 @@ msgid ""
 "When disabled, stop sample streaming and configure all sample widgets for "
 "buffer mode."
 msgstr ""
-"عند التعطيل، أوقف تدفق العينة وقم بتكوين جميع أدوات العينة لوضع المخزن "
+"عند تعطيله، أوقف تدفق العينة وقم بتكوين جميع أدوات العينة لوضع المخزن "
 "المؤقت."
 
 #: app.py:106
@@ -173,19 +173,19 @@ msgstr "المعرف_الفريد الافتراضي لمصدر تدفق الإ�
 
 #: app.py:125
 msgid "The unique_id for the default signal streaming source."
-msgstr "المعرف_الفريد لمصدر تدفق الإشارة الافتراضي."
+msgstr "المعرف الفريد لمصدر تدفق الإشارة الافتراضي."
 
 #: app.py:130
 msgid "The unique_id for the default signal buffer source."
-msgstr "المعرف_الفريد لمصدر المخزن المؤقت الافتراضي للإشارة."
+msgstr "المعرف الفريد لمصدر المخزن المؤقت الافتراضي للإشارة."
 
 #: app.py:135
 msgid "Check for software updates."
-msgstr "تحقق من وجود تحديثات البرامج."
+msgstr "تحقق من تحديثات البرامج."
 
 #: app.py:140
 msgid "The software update channel."
-msgstr "قناة تحديث البرامج."
+msgstr "قناة تحديث البرنامج."
 
 #: app.py:143
 msgid "alpha"
@@ -197,7 +197,7 @@ msgstr "بيتا"
 
 #: app.py:145
 msgid "stable"
-msgstr "مستقرة"
+msgstr "مستقر"
 
 #: app.py:150
 msgid "Check for device firmware updates."
@@ -205,7 +205,7 @@ msgstr "تحقق من تحديثات البرامج الثابتة للجهاز.
 
 #: app.py:155 units.py:33
 msgid "The units to display."
-msgstr "الوحدات المراد عرضها."
+msgstr "وحدات العرض."
 
 #: app.py:157 units.py:36
 msgid "International System of Units (SI)"
@@ -213,7 +213,7 @@ msgstr "النظام الدولي للوحدات (SI)"
 
 #: app.py:158 units.py:37
 msgid "Customary units (Ah and Wh)"
-msgstr "الوحدات المعتادة (آه ووات ساعة)"
+msgstr "الوحدات العرفية (آه ووات ساعة)"
 
 #: app.py:164
 msgid "Select the OpenGL rendering method."
@@ -227,9 +227,9 @@ msgid ""
 " by your graphics drivers, you can select \"software\" rendering."
 msgstr ""
 "يستخدم هذا التطبيق OpenGL لتسريع عرض الرسومات. يحتوي OpenGL على خيارات "
-"متعددة للعرض، والتي تختلف بين الأنظمة الأساسية. بشكل افتراضي، يستخدم هذا "
-"التطبيق عرض \"سطح المكتب\". إذا لم يكن OpenGL مدعومًا بشكل جيد من قبل برامج "
-"تشغيل الرسومات لديك، يمكنك تحديد عرض \"البرنامج\"."
+"متعددة للعرض، والتي تختلف بين المنصات. بشكل افتراضي، يستخدم هذا التطبيق عرض "
+"\"سطح المكتب\". إذا لم يكن OpenGL مدعومًا بشكل جيد من قبل برامج تشغيل "
+"الرسومات لديك، يمكنك تحديد عرض \"البرنامج\"."
 
 #: app.py:171
 msgid "Selecting \"ANGLE\" may break copy as image and save as image."
@@ -261,7 +261,7 @@ msgstr "موجه للتبديل من رسومات Intel إلى عارض البر
 
 #: error_dialog.py:42 error_window.py:311
 msgid "Error"
-msgstr "خطأ"
+msgstr "الخطأ"
 
 #: error_window.py:25
 msgid "The Joulescope UI encountered an error, and it cannot start correctly."
@@ -302,7 +302,7 @@ msgstr ""
 
 #: error_window.py:52
 msgid "Submit completed successfully."
-msgstr "تم الإرسال بنجاح."
+msgstr "اكتمل الإرسال بنجاح."
 
 #: error_window.py:86
 msgid "Contact information"
@@ -326,11 +326,11 @@ msgstr "تحرير"
 
 #: error_window.py:113
 msgid "View as Markdown"
-msgstr "العرض بتخفيض السعر"
+msgstr "عرض كتخفيض"
 
 #: error_window.py:119
 msgid "Abort"
-msgstr "إلغاء"
+msgstr "الإجهاض"
 
 #: error_window.py:120 main.py:365 widgets/settings/settings_widget.py:539
 msgid "View"
@@ -342,7 +342,7 @@ msgstr "إرسال"
 
 #: error_window.py:185
 msgid "Submit in progress."
-msgstr "الإرسال قيد التنفيذ."
+msgstr "قيد الإرسال."
 
 #: error_window.py:281
 msgid "Revert to previous configuration"
@@ -355,7 +355,7 @@ msgstr "العودة إلى الإعدادات الافتراضية"
 #: error_window.py:283 main.py:363 main.py:409
 #: widgets/js220_cal/js220_cal_widget.py:38
 msgid "Exit"
-msgstr "الخروج"
+msgstr "خروج"
 
 #: exporter.py:49 widgets/signal_record/signal_record_config_widget.py:148
 #: widgets/statistics_record/statistics_record_config_widget.py:111
@@ -376,7 +376,7 @@ msgstr "الملاحظات"
 #: widgets/signal_record/signal_record_config_widget.py:268
 #: widgets/statistics_record/statistics_record_config_widget.py:173
 msgid "Select save location"
-msgstr "تحديد موقع الحفظ"
+msgstr "حدد موقع الحفظ"
 
 #: exporter.py:136
 msgid "Export configuration"
@@ -384,7 +384,7 @@ msgstr "تكوين التصدير"
 
 #: exporter.py:168
 msgid "Exporter"
-msgstr "المصدّر"
+msgstr "المصدر"
 
 #: exporter.py:169
 msgid "Export data to a JLS file"
@@ -395,12 +395,12 @@ msgid ""
 "Exporting data to a JLS file. You can open this file later to display the "
 "exported data."
 msgstr ""
-"تصدير البيانات إلى ملف JLS. يمكنك فتح هذا الملف لاحقاً لعرض البيانات "
+"تصدير البيانات إلى ملف JLS. يمكنك فتح هذا الملف لاحقًا لعرض البيانات "
 "المصدرة."
 
 #: getting_started.py:20
 msgid "Getting Started with Your Joulescope"
-msgstr "البدء باستخدام جولسكوب جولسكوب الخاص بك"
+msgstr "البدء باستخدام جولسكوب Joulescope الخاص بك"
 
 #: getting_started.py:22
 msgid "Safety"
@@ -412,7 +412,7 @@ msgstr "يجب ألا يتجاوز الجهد بين أي منفذ استشعا�
 
 #: getting_started.py:24
 msgid "The JS220 sensor ports are Current+, Current-, Voltage+, Voltage-."
-msgstr "منافذ مستشعر JS220 هي التيار+، التيار- والجهد+، والجهد+، والجهد-."
+msgstr "منافذ مستشعر JS220 هي التيار+، التيار- والجهد- والجهد- والجهد-."
 
 #: getting_started.py:25
 msgid "The JS110 sensor ports are IN+, IN- OUT+, and OUT-."
@@ -425,18 +425,19 @@ msgid ""
 "ports are referenced to USB ground."
 msgstr ""
 "منافذ المستشعر معزولة كهربائياً عن USB. يجب ألا يتجاوز الجهد بين أي منفذ "
-"حساس وأرضي USB ± 48 فولت. تتم إحالة منافذ GPI/O ومنافذ الزناد إلى أرضية USB."
+"مستشعر وأرضي USB ± 48 فولت. تتم الإشارة إلى منافذ GPI/O ومنافذ الزناد إلى "
+"أرضية USB."
 
 #: getting_started.py:30
 msgid "Connect"
-msgstr "الاتصال"
+msgstr "توصيل"
 
 #: getting_started.py:31
 msgid ""
 "Connect Joulescope's USB port to your computer using the provided cable. Use"
 " an adapter or suitable cable if your computer only has USB Type C ports."
 msgstr ""
-"قم بتوصيل منفذ USB الخاص بجوليسكوب بجهاز الكمبيوتر الخاص بك باستخدام الكابل "
+"قم بتوصيل منفذ USB الخاص بجولسكوب بجهاز الكمبيوتر الخاص بك باستخدام الكابل "
 "المرفق. استخدم محول أو كابل مناسب إذا كان جهاز الكمبيوتر الخاص بك يحتوي على "
 "منافذ USB من النوع C فقط."
 
@@ -460,27 +461,27 @@ msgstr ""
 
 #: getting_started.py:39
 msgid "Measure"
-msgstr "التدبير"
+msgstr "القياس"
 
 #: getting_started.py:40
 msgid ""
 "The Joulescope software starts in the Multimeter View displaying the value "
 "current, voltage, power, and energy."
 msgstr ""
-"يبدأ برنامج جولسكوب Joulescope في عرض Multimeter View الذي يعرض قيمة التيار "
-"والجهد والطاقة والطاقة."
+"يبدأ برنامج Joulescope في عرض Multimeter View الذي يعرض قيمة التيار والجهد "
+"والطاقة والطاقة والجهد."
 
 #: getting_started.py:42
 msgid ""
 "Select View → Oscilloscope to switch to the Oscilloscope View and explore "
 "changes over time."
 msgstr ""
-"حدد عرض → راسم الذبذبات للتبديل إلى طريقة عرض الذبذبات واستكشاف التغييرات "
-"بمرور الوقت."
+"حدد طريقة العرض → راسم الذبذبات للتبديل إلى طريقة عرض الذبذبات واستكشاف "
+"التغييرات بمرور الوقت."
 
 #: getting_started.py:44
 msgid "Press the Play/Pause button to start and stop sample streaming."
-msgstr "اضغط على زر تشغيل/إيقاف مؤقت لبدء بث العينة وإيقافها."
+msgstr "اضغط على زر تشغيل/إيقاف مؤقت لبدء وإيقاف تدفق العينة."
 
 #: getting_started.py:45
 msgid "Use the scroll wheel to zoom the time x-axis."
@@ -536,7 +537,7 @@ msgstr ""
 
 #: intel_graphics_dialog.py:29
 msgid "You may observe strange graphics hangs with the latest Intel driver."
-msgstr "قد تلاحظ تعطل رسومات غريبة مع أحدث برنامج تشغيل Intel."
+msgstr "قد تلاحظ توقف رسومات غريبة مع أحدث برنامج تشغيل Intel."
 
 #: intel_graphics_dialog.py:30
 msgid ""
@@ -548,10 +549,10 @@ msgid ""
 "the change to take effect."
 msgstr ""
 "إذا حدث ذلك على جهاز الكمبيوتر الخاص بك، فيمكنك التبديل إلى عارض OpenGL "
-"البرمجي. قد يعمل عارض OpenGL البرمجي على التغلب على عدم استقرار برنامج تشغيل"
-" Intel، ولكنه يعمل بشكل أبطأ مما قد يتسبب في حدوث مشكلات في الأداء. في عدد "
-"قليل من أجهزة الكمبيوتر، لا يعمل بشكل صحيح مما يتسبب في ظهور شاشة تطبيق "
-"بيضاء. ستحتاج إلى إغلاق هذا التطبيق وإعادة فتحه حتى يسري التغيير."
+"البرمجي. قد يعمل عارض OpenGL البرمجي OpenGL البرمجي على التغلب على عدم "
+"استقرار برنامج تشغيل Intel، لكنه يعمل بشكل أبطأ ربما يسبب مشاكل في الأداء. "
+"في عدد قليل من أجهزة الكمبيوتر، لا يعمل بشكل صحيح مما يتسبب في ظهور شاشة "
+"تطبيق بيضاء. ستحتاج إلى إغلاق هذا التطبيق وإعادة فتحه حتى يسري التغيير."
 
 #: intel_graphics_dialog.py:38
 msgid "Would you like to switch to the software OpenGL renderer?"
@@ -566,8 +567,8 @@ msgid ""
 msgstr ""
 "إذا كنت غير متأكد، اختر \"لا\" واترك \"عدم العرض مرة أخرى\" بدون تحديد. إذا "
 "لاحظت توقف الرسومات عن العمل، يمكنك تحديد \"نعم\" في المستقبل. يمكنك تحديد "
-"عارض OpenGL في أي وقت باستخدام \"الأدوات\" ← الإعدادات ← إعدادات ← مشترك ← "
-"opengl. الإعداد الافتراضي هو \"سطح المكتب\"."
+"عارض OpenGL في أي وقت باستخدام Widgets → الإعدادات → Common → opengl. "
+"الإعداد الافتراضي هو \"سطح المكتب\"."
 
 #: intel_graphics_dialog.py:82
 msgid "Do not show again"
@@ -575,11 +576,11 @@ msgstr "لا تظهر مرة أخرى"
 
 #: intel_graphics_dialog.py:91
 msgid "Intel graphics detected"
-msgstr "تم اكتشاف رسومات Intel"
+msgstr "تم الكشف عن رسومات إنتل"
 
 #: main.py:70 widgets/value/value_widget.py:653
 msgid "Multimeter"
-msgstr "مقياس متعدد"
+msgstr "متعدد المقاييس"
 
 #: main.py:71
 msgid "Oscilloscope"
@@ -600,8 +601,8 @@ msgid ""
 "unless you want more detail concerning the UI internal operation."
 msgstr ""
 "يتحكم هذا الإعداد في مقدار التفاصيل التي تظهر على شريط الحالة في أسفل نافذة "
-"واجهة المستخدم. يجب عليك عادةً ترك هذا الإعداد على \"عادي\" إلا إذا كنت تريد"
-" المزيد من التفاصيل المتعلقة بالتشغيل الداخلي لواجهة المستخدم."
+"واجهة المستخدم. يجب عادةً ترك هذا الإعداد على \"عادي\" إلا إذا كنت تريد "
+"المزيد من التفاصيل المتعلقة بالتشغيل الداخلي لواجهة المستخدم."
 
 #: main.py:88 safe_mode.py:43
 msgid "Normal"
@@ -624,7 +625,7 @@ msgid ""
 "Display the number of actions processed by the publish-subscribe broker in "
 "each second."
 msgstr ""
-"عرض عدد الإجراءات التي تمت معالجتها بواسطة وسيط النشر والاشتراك في كل ثانية."
+"عرض عدد الإجراءات التي تتم معالجتها بواسطة وسيط النشر والاشتراك في كل ثانية."
 
 #: main.py:114
 msgid "CPU utilization"
@@ -636,7 +637,7 @@ msgid ""
 "utilization by all applications. The value is displayed in percent."
 msgstr ""
 "عرض استخدام وحدة المعالجة المركزية بواسطة هذا التطبيق وإجمالي استخدام وحدة "
-"المعالجة المركزية بواسطة كافة التطبيقات. يتم عرض القيمة بالنسبة المئوية."
+"المعالجة المركزية بواسطة جميع التطبيقات. يتم عرض القيمة بالنسبة المئوية."
 
 #: main.py:121
 msgid "Memory utilization"
@@ -656,7 +657,7 @@ msgstr "واجهة المستخدم"
 
 #: main.py:330
 msgid "&Help"
-msgstr "&amp;مساعدة"
+msgstr "المساعدة"
 
 #: main.py:331 widgets/hamburger/hamburger_widget.py:21
 msgid "Getting Started"
@@ -672,7 +673,7 @@ msgstr "سجل التغييرات"
 
 #: main.py:334 widgets/help/help_widget.py:59
 msgid "Report Issue"
-msgstr "مشكلة التقرير"
+msgstr "إصدار التقرير"
 
 #: main.py:335
 msgid "View logs..."
@@ -712,11 +713,11 @@ msgstr "الأدوات"
 
 #: main.py:368
 msgid "Clear Accumulators"
-msgstr "مسح المتراكمات الواضحة"
+msgstr "المجمعات الواضحة"
 
 #: main.py:403
 msgid "Info"
-msgstr "المعلومات"
+msgstr "معلومات"
 
 #: main.py:404 widget_tools.py:92 widgets/settings/settings_widget.py:31
 #: widgets/settings/settings_widget.py:574
@@ -726,15 +727,15 @@ msgstr "الإعدادات"
 
 #: main.py:693
 msgid "Manage"
-msgstr "الإدارة"
+msgstr "إدارة"
 
 #: main.py:730
 msgid "Select file to open"
-msgstr "حدد ملف لفتحه"
+msgstr "حدد الملف لفتحه"
 
 #: paths.py:30 styles/manager.py:46
 msgid "The name for this widget."
-msgstr "اسم هذه الأداة."
+msgstr "اسم هذه الأداة"
 
 #: paths.py:31
 msgid "Paths"
@@ -750,7 +751,7 @@ msgstr "المسار الافتراضي لتحميل الملفات وحفظها
 
 #: paths.py:42
 msgid "Fixed default path"
-msgstr "مسار افتراضي ثابت"
+msgstr "المسار الافتراضي الثابت"
 
 #: paths.py:43
 msgid "The fixed default path for loading and saving files."
@@ -758,15 +759,15 @@ msgstr "المسار الافتراضي الثابت لتحميل الملفات
 
 #: paths.py:48 paths.py:69
 msgid "Most recent save path"
-msgstr "مسار الحفظ الأحدث"
+msgstr "أحدث مسار حفظ"
 
 #: paths.py:54 paths.py:70
 msgid "Most recent load path"
-msgstr "مسار التحميل الأحدث"
+msgstr "أحدث مسار تحميل"
 
 #: paths.py:60
 msgid "Most recent path"
-msgstr "المسار الأحدث"
+msgstr "أحدث مسار"
 
 #: paths.py:66
 msgid "The default path method"
@@ -778,7 +779,7 @@ msgstr "المسار الثابت"
 
 #: paths.py:71
 msgid "Most recently used path"
-msgstr "المسار الأكثر استخداماً مؤخراً"
+msgstr "المسار الأكثر استخدامًا مؤخرًا"
 
 #: paths.py:77
 msgid "Most recent file list"
@@ -786,7 +787,7 @@ msgstr "قائمة الملفات الأحدث"
 
 #: paths.py:83
 msgid "Most recently used length"
-msgstr "الطول الأكثر استخداماً مؤخراً"
+msgstr "الطول الأكثر استخدامًا مؤخرًا"
 
 #: safe_mode.py:31
 msgid "Options"
@@ -794,7 +795,7 @@ msgstr "الخيارات"
 
 #: safe_mode.py:34
 msgid "Load configuration on start"
-msgstr "تحميل التكوين عند بدء التشغيل"
+msgstr "تكوين الحمل عند بدء التشغيل"
 
 #: safe_mode.py:36
 msgid "Save configuration on exit"
@@ -802,15 +803,15 @@ msgstr "حفظ التكوين عند الخروج"
 
 #: safe_mode.py:38
 msgid "Clear configuration on exit"
-msgstr "مسح التكوين عند الخروج"
+msgstr "تكوين واضح عند الخروج"
 
 #: safe_mode.py:41
 msgid "Action"
-msgstr "الإجراء"
+msgstr "العمل"
 
 #: safe_mode.py:45
 msgid "Report issue"
-msgstr "مشكلة التقرير"
+msgstr "إصدار التقرير"
 
 #: safe_mode.py:47
 msgid "Close"
@@ -818,43 +819,53 @@ msgstr "إغلاق"
 
 #: safe_mode.py:66
 msgid "Safe Mode Configuration"
-msgstr "تهيئة الوضع الآمن"
+msgstr "تكوين الوضع الآمن"
 
-#: software_update.py:71
+#: software_update.py:61
+msgid ""
+"We have detected that you are running the Joulescope UI from a python "
+"package or source."
+msgstr "لقد اكتشفنا أنك تقوم بتشغيل Joulescope UI من حزمة أو مصدر بايثون."
+
+#: software_update.py:62
+msgid "To update your python packages, issue the following command:"
+msgstr "لتحديث حزم بايثون، أصدر الأمر التالي:"
+
+#: software_update.py:72
 msgid "Software update"
 msgstr "تحديث البرنامج"
 
-#: software_update.py:75
-msgid "A software update is available:"
-msgstr "يتوفر تحديث للبرنامج:"
-
 #: software_update.py:76
-msgid "Current version"
-msgstr "الإصدار الحالي"
+msgid "A software update is available:"
+msgstr "يتوفر تحديث للبرامج:"
 
 #: software_update.py:77
+msgid "Existing version"
+msgstr "الإصدار الحالي"
+
+#: software_update.py:78
 msgid "Available version"
 msgstr "الإصدار المتوفر"
 
-#: software_update.py:78
+#: software_update.py:79
 msgid "Channel"
 msgstr "القناة"
 
-#: software_update.py:313
+#: software_update.py:314
 msgid "Update Now"
-msgstr "تحديث الآن"
+msgstr "التحديث الآن"
 
-#: software_update.py:315
+#: software_update.py:316
 msgid "Later"
-msgstr "في وقت لاحق"
+msgstr "لاحقًا"
 
-#: software_update.py:323
+#: software_update.py:324
 msgid "Copy to clipboard"
 msgstr "نسخ إلى الحافظة"
 
-#: software_update.py:329 widgets/device_control/device_update_dialog.py:44
+#: software_update.py:330 widgets/device_control/device_update_dialog.py:44
 msgid "OK"
-msgstr "حسناً"
+msgstr "موافق"
 
 #: source_selector.py:220 widgets/developer/log_view_widget.py:30
 #: widgets/jls_info/jls_info_widget.py:47
@@ -863,11 +874,11 @@ msgstr "المصدر"
 
 #: units.py:35
 msgid "Use the application defaults"
-msgstr "استخدام الإعدادات الافتراضية للتطبيق"
+msgstr "استخدم الإعدادات الافتراضية للتطبيق"
 
 #: view.py:68
 msgid "The active theme."
-msgstr "الموضوع النشط."
+msgstr "السمة النشطة"
 
 #: view.py:70
 msgid "Joulescope standard theme"
@@ -875,7 +886,7 @@ msgstr "سمة جولسكوب القياسية"
 
 #: view.py:70
 msgid "System OS-specific theme"
-msgstr "سمة خاصة بنظام التشغيل الخاص بالنظام"
+msgstr "سمة خاصة بنظام التشغيل"
 
 #: view.py:75
 msgid "The color scheme name."
@@ -887,7 +898,7 @@ msgstr "خلفية داكنة"
 
 #: view.py:77
 msgid "Light background"
-msgstr "خلفية فاتحة"
+msgstr "خلفية ضوئية"
 
 #: view.py:81
 msgid "The font scheme name."
@@ -903,7 +914,7 @@ msgstr "عرض جديد"
 
 #: zip_inspector.py:23
 msgid "ZIP Inspector"
-msgstr "مفتش الرمز البريدي"
+msgstr "مفتش ZIP"
 
 #: zip_inspector.py:91
 msgid "ZIP File"
@@ -923,9 +934,9 @@ msgid ""
 " to measure your current signal. It can also be helpful in separating target"
 " system behavior from the small current range switching artifacts."
 msgstr ""
-"يعد النطاق الحالي مفيدًا لفهم كيفية تغيير نطاق جوليسكوب تلقائيًا لقياس "
-"الإشارة الحالية. يمكن أن يكون مفيدًا أيضًا في فصل سلوك النظام المستهدف عن "
-"القطع الأثرية لتبديل النطاق الحالي الصغير."
+"يعد النطاق الحالي مفيدًا لفهم كيفية قيام جولسكوب Joulescope بالتدرج التلقائي"
+" لقياس الإشارة الحالية. يمكن أن يكون مفيدًا أيضًا في فصل سلوك النظام "
+"المستهدف عن القطع الأثرية لتبديل النطاق الحالي الصغير."
 
 #: devices/jsdrv/js110.py:29 devices/jsdrv/js110.py:65
 #: devices/jsdrv/js220.py:47 devices/jsdrv/js220.py:83
@@ -937,8 +948,8 @@ msgid ""
 "The Joulescope UI automatically populates the device name with the device "
 "type and serial number."
 msgstr ""
-"تقوم واجهة مستخدم Joulescope UI تلقائيًا بتعبئة اسم الجهاز تلقائيًا بنوع "
-"الجهاز والرقم التسلسلي."
+"تملأ واجهة مستخدم Joulescope UI تلقائيًا اسم الجهاز بنوع الجهاز والرقم "
+"التسلسلي."
 
 #: devices/jsdrv/js110.py:33
 msgid ""
@@ -947,8 +958,8 @@ msgid ""
 "are instrumenting a system using multiple Joulescopes."
 msgstr ""
 "يتيح لك هذا الإعداد تغيير الإعداد الافتراضي، إذا كنت ترغب في ذلك، ليعكس بشكل"
-" أفضل طريقة استخدامك لجهاز JS110. يكون هذا الإعداد مفيدًا للغاية عندما تقوم "
-"بتشغيل نظام باستخدام عدة أجهزة Joulescopes."
+" أفضل كيفية استخدامك لجهاز JS110. يكون هذا الإعداد مفيدًا للغاية عندما تقوم "
+"بتشغيل نظام باستخدام عدة أجهزة جوليسكوب."
 
 #: devices/jsdrv/js110.py:41 devices/jsdrv/js110.py:71
 #: devices/jsdrv/js220.py:59 devices/jsdrv/js220.py:89
@@ -975,9 +986,9 @@ msgid ""
 "storage requirements for long captures where lower temporal accuracy is "
 "sufficient."
 msgstr ""
-"يتحكم هذا الإعداد في تردد أخذ العينات لإشارات القياس التيار والجهد والطاقة. "
-"استخدم هذا الإعداد لتقليل متطلبات تخزين البيانات لعمليات الالتقاط الطويلة "
-"حيث تكون الدقة الزمنية المنخفضة كافية."
+"يتحكم هذا الإعداد في تردد أخذ عينات الخرج لإشارات القياس التيار والجهد "
+"والطاقة. استخدم هذا الإعداد لتقليل متطلبات تخزين البيانات لعمليات الالتقاط "
+"الطويلة حيث تكون الدقة الزمنية المنخفضة كافية."
 
 #: devices/jsdrv/js110.py:87
 msgid ""
@@ -985,13 +996,13 @@ msgid ""
 "the host. This setting controls additional optional downsampling that is "
 "performed on the host."
 msgstr ""
-"تقوم أداة JS110 دائمًا بأخذ عينات بتردد 2 ميجاهرتز وترسل العينات الخام إلى "
+"تقوم أداة JS110 دائمًا بأخذ عينات بسرعة 2 ميجاهرتز وترسل العينات الخام إلى "
 "المضيف. يتحكم هذا الإعداد في تقليل العينات الاختيارية الإضافية التي يتم "
 "إجراؤها على المضيف."
 
 #: devices/jsdrv/js110.py:117 devices/jsdrv/js220.py:133
 msgid "Statistics frequency"
-msgstr "تواتر الإحصائيات"
+msgstr "تردد الإحصائيات"
 
 #: devices/jsdrv/js110.py:118
 msgid ""
@@ -1000,12 +1011,12 @@ msgid ""
 "over the full rate 2 MHz samples."
 msgstr ""
 "يتحكم هذا الإعداد في تردد الإخراج لبيانات الإحصائيات التي يتم عرضها في أدوات"
-" القياس المتعدد والقيمة. يتم حساب البيانات الإحصائية على المعدل الكامل "
-"لعينات 2 ميجاهرتز."
+" القياس المتعدد والقيمة. يتم حساب البيانات الإحصائية على المعدل الكامل 2 "
+"ميجاهرتز للعينات."
 
 #: devices/jsdrv/js110.py:137 devices/jsdrv/js220.py:153
 msgid "Toggle the connection between the current terminals."
-msgstr "قم بتبديل الاتصال بين طرفي التيار."
+msgstr "تبديل الاتصال بين طرفي التيار."
 
 #: devices/jsdrv/js110.py:138 devices/jsdrv/js220.py:154
 msgid ""
@@ -1028,7 +1039,7 @@ msgid ""
 "Configure the J110's current range. Most applications should use the "
 "default, \"auto\"."
 msgstr ""
-"قم بتكوين النطاق الحالي ل J110. يجب أن تستخدم معظم التطبيقات الإعداد "
+"قم بتكوين النطاق الحالي لـ J110. يجب أن تستخدم معظم التطبيقات الإعداد "
 "الافتراضي، \"تلقائي\"."
 
 #: devices/jsdrv/js110.py:151 devices/jsdrv/js220.py:167
@@ -1038,7 +1049,7 @@ msgid ""
 "than the current range setting."
 msgstr ""
 "استخدم الإعدادات اليدوية الأخرى بحذر. من السهل جدًا تكوين إعداد يشبع، والذي "
-"سيتجاهل مناطق سحب التيار الأكبر من إعداد النطاق الحالي."
+"سيتجاهل مناطق السحب الحالي الأكبر من إعداد النطاق الحالي."
 
 #: devices/jsdrv/js110.py:168 devices/jsdrv/js220.py:195
 msgid "Voltage range"
@@ -1046,18 +1057,18 @@ msgstr "نطاق الجهد"
 
 #: devices/jsdrv/js110.py:169
 msgid "Configure the JS110's voltage range."
-msgstr "قم بتهيئة نطاق جهد JS110."
+msgstr "تهيئة نطاق جهد JS110."
 
 #: devices/jsdrv/js110.py:178 devices/jsdrv/js220.py:224
 msgid "GPIO voltage"
-msgstr "جهد GPIO GPIO"
+msgstr "جهد GPIO"
 
 #: devices/jsdrv/js110.py:180
 msgid ""
 "Configure the JS110's reference voltage for the general-purpose inputs and "
 "outputs."
 msgstr ""
-"قم بتهيئة الجهد المرجعي ل JS110 للمدخلات والمخرجات ذات الأغراض العامة."
+"تكوين الجهد المرجعي لـ JS110 للجهد المرجعي لمدخلات ومخرجات الأغراض العامة."
 
 #: devices/jsdrv/js110.py:182
 msgid ""
@@ -1065,23 +1076,23 @@ msgid ""
 "\"1\", this can backpower unpowered targets."
 msgstr ""
 "تظل مخرجات JS110 ذات الأغراض العامة في JS110 تعمل دائمًا بالطاقة. عند ضبطها "
-"على \"1\"، يمكن أن يؤدي ذلك إلى إعادة تشغيل الأهداف غير المزودة بالطاقة."
+"على \"1\"، يمكن أن يؤدي ذلك إلى تشغيل أهداف غير مزودة بالطاقة."
 
 #: devices/jsdrv/js110.py:199 devices/jsdrv/js220.py:242
 msgid "GPO 0 output value"
-msgstr "قيمة إخراج GPO 0"
+msgstr "قيمة خرج GPO 0"
 
 #: devices/jsdrv/js110.py:200 devices/jsdrv/js220.py:243
 msgid "Turn the general-purpose output 0 on or off."
-msgstr "قم بتشغيل أو إيقاف تشغيل الإخراج للأغراض العامة 0."
+msgstr "تشغيل أو إيقاف تشغيل الإخراج للأغراض العامة 0."
 
 #: devices/jsdrv/js110.py:205 devices/jsdrv/js220.py:248
 msgid "GPO 1 output value"
-msgstr "قيمة إخراج GPO 1"
+msgstr "قيمة خرج GPO 1"
 
 #: devices/jsdrv/js110.py:206 devices/jsdrv/js220.py:249
 msgid "Turn the general-purpose output 1 on or off."
-msgstr "قم بتشغيل مخرج الأغراض العامة 1 أو إيقاف تشغيله."
+msgstr "قم بتشغيل أو إيقاف تشغيل خرج الأغراض العامة 1."
 
 #: devices/jsdrv/js110.py:211
 msgid "IRF type"
@@ -1093,8 +1104,8 @@ msgid ""
 " mechanism applied on current range changes. We do not recommend changing "
 "these settings for normal operation."
 msgstr ""
-"قم بتكوين نوع عامل تصفية النطاق الحالي (IRF) الذي يحدد آلية التصفية المطبقة "
-"على تغييرات النطاق الحالي. لا نوصي بتغيير هذه الإعدادات للتشغيل العادي."
+"قم بتكوين نوع مرشح النطاق الحالي (IRF) الذي يحدد آلية التصفية المطبقة على "
+"تغييرات النطاق الحالي. لا نوصي بتغيير هذه الإعدادات للتشغيل العادي."
 
 #: devices/jsdrv/js110.py:216
 msgid ""
@@ -1125,12 +1136,12 @@ msgid ""
 "\"off\" disables the current range filtering, and you will see additional "
 "current range switching artifacts."
 msgstr ""
-"\"إيقاف التشغيل\" يعطل تصفية النطاق الحالي، وسترى آثارًا إضافية لتبديل "
+"\"إيقاف التشغيل\" يعطل تصفية النطاق الحالي، وسترى قطعًا أثرية إضافية لتبديل "
 "النطاق الحالي."
 
 #: devices/jsdrv/js110.py:236
 msgid "IRF pre"
-msgstr "IRF لـ"
+msgstr "IRF قبل"
 
 #: devices/jsdrv/js110.py:237
 msgid ""
@@ -1151,7 +1162,7 @@ msgid ""
 "any other value to specify a fixed, manual window duration in samples."
 msgstr ""
 "استخدم \"n\" للمدة التلقائية بناءً على وقت الاستجابة المعروف. استخدم \"m\" "
-"للمدة التلقائية الأقصر التي قد تؤدي إلى تشويه الحد الأدنى/الحد الأقصى. "
+"للمدة الأوتوماتيكية الأقصر التي قد تؤدي إلى تشويه الحد الأدنى/الحد الأقصى. "
 "استخدم أي قيمة أخرى لتحديد مدة نافذة ثابتة يدوية بالعينات."
 
 #: devices/jsdrv/js110.py:254
@@ -1163,13 +1174,13 @@ msgid ""
 "The number of samples after the current range window used to determine the "
 "mean. This value is ignored for all other IRF types."
 msgstr ""
-"عدد العينات بعد نافذة النطاق الحالية المستخدمة لتحديد المتوسط. يتم تجاهل هذه"
-" القيمة لجميع أنواع IRF الأخرى."
+"عدد العينات بعد نافذة النطاق الحالي المستخدمة لتحديد المتوسط. يتم تجاهل هذه "
+"القيمة لجميع أنواع IRF الأخرى."
 
 #: devices/jsdrv/js110.py:269 devices/jsdrv/js220.py:332
 #: widgets/device_control/fuse.py:103 widgets/waveform/waveform_widget.py:105
 msgid "Current"
-msgstr "الحالي"
+msgstr "التيار"
 
 #: devices/jsdrv/js110.py:270 devices/jsdrv/js220.py:333
 msgid "Enable the current signal streaming."
@@ -1178,7 +1189,7 @@ msgstr "تمكين تدفق الإشارة الحالية."
 #: devices/jsdrv/js110.py:278 devices/jsdrv/js220.py:341
 #: widgets/waveform/waveform_widget.py:106
 msgid "Voltage"
-msgstr "الفولتية"
+msgstr "الجهد"
 
 #: devices/jsdrv/js110.py:279 devices/jsdrv/js220.py:342
 msgid "Enable the voltage signal streaming."
@@ -1203,7 +1214,7 @@ msgstr "GPI 0"
 
 #: devices/jsdrv/js110.py:309 devices/jsdrv/js220.py:375
 msgid "Enable the general purpose input 0 signal streaming."
-msgstr "قم بتمكين تدفق إشارة الدخل للأغراض العامة 0."
+msgstr "تمكين تدفق إشارة الإدخال 0 للأغراض العامة."
 
 #: devices/jsdrv/js110.py:317 devices/jsdrv/js220.py:383
 msgid "GPI 1"
@@ -1211,7 +1222,7 @@ msgstr "GPI 1"
 
 #: devices/jsdrv/js110.py:318 devices/jsdrv/js220.py:384
 msgid "Enable the general purpose input 1 signal streaming."
-msgstr "قم بتمكين تدفق إشارة الدخل 1 للأغراض العامة."
+msgstr "تمكين تدفق إشارة الإدخال 1 للأغراض العامة."
 
 #: devices/jsdrv/js110.py:330 devices/jsdrv/js220.py:430
 #: devices/jsdrv/jsdrv_stream_buffer.py:108
@@ -1225,16 +1236,16 @@ msgid ""
 "are instrumenting a system using multiple Joulescopes."
 msgstr ""
 "يتيح لك هذا الإعداد تغيير الإعداد الافتراضي، إذا كنت ترغب في ذلك، ليعكس بشكل"
-" أفضل طريقة استخدامك لجهاز JS220. يكون هذا الإعداد مفيدًا للغاية عندما تقوم "
-"بتشغيل نظام باستخدام عدة أجهزة Joulescopes."
+" أفضل كيفية استخدامك لجهاز JS220. يكون هذا الإعداد مفيدًا للغاية عندما تقوم "
+"بتشغيل نظام باستخدام عدة أجهزة جوليسكوب."
 
 #: devices/jsdrv/js220.py:105
 msgid ""
 "The JS220 instrument always samples at 2 MHz and then downsamples to 1 MHz. "
 "This setting controls additional optional downsampling."
 msgstr ""
-"تقوم الأداة JS220 بأخذ العينات دائمًا عند 2 ميجاهرتز ثم تقلل العينات إلى 1 "
-"ميجاهرتز. يتحكم هذا الإعداد في تقليل العينات الاختيارية الإضافية."
+"تقوم الأداة JS220 دائمًا بأخذ عينات بتردد 2 ميجاهرتز ثم تقوم بتقليل العينات "
+"إلى 1 ميجاهرتز. يتحكم هذا الإعداد في تقليل العينات الاختيارية الإضافية."
 
 #: devices/jsdrv/js220.py:134
 msgid ""
@@ -1251,7 +1262,7 @@ msgid ""
 "Configure the JS220's current range. Most applications should use the "
 "default, \"auto\"."
 msgstr ""
-"قم بتكوين النطاق الحالي ل JS220. يجب أن تستخدم معظم التطبيقات الإعداد "
+"قم بتكوين النطاق الحالي لـ JS220. يجب أن تستخدم معظم التطبيقات الإعداد "
 "الافتراضي، \"تلقائي\"."
 
 #: devices/jsdrv/js220.py:183
@@ -1260,12 +1271,11 @@ msgstr "الحدود"
 
 #: devices/jsdrv/js220.py:185
 msgid "Configure the autoranging current limits."
-msgstr "تكوين حدود التيار المتغير تلقائياً."
+msgstr "تكوين حدود التيار المتغير تلقائيًا."
 
 #: devices/jsdrv/js220.py:186
 msgid "This setting is only effective when the Current Range is set to \"auto\"."
-msgstr ""
-"يكون هذا الإعداد فعالاً فقط عندما يكون النطاق الحالي مضبوطاً على \"تلقائي\"."
+msgstr "لا يكون هذا الإعداد فعالاً إلا عند ضبط النطاق الحالي على \"تلقائي\"."
 
 #: devices/jsdrv/js220.py:188
 msgid ""
@@ -1273,8 +1283,8 @@ msgid ""
 "accuracy when you know your application current is more limited than the "
 "full measurement range."
 msgstr ""
-"يمكنك استخدام هذا الإعداد للحد من نطاق التيار وتحسين دقة القياس التلقائي "
-"عندما تعلم أن تيار التطبيق الخاص بك محدود أكثر من نطاق القياس الكامل."
+"يمكنك استخدام هذا الإعداد للحد من النطاق الحالي وتحسين دقة القياس التلقائي "
+"عندما تعرف أن تيار التطبيق الخاص بك محدود أكثر من نطاق القياس الكامل."
 
 #: devices/jsdrv/js220.py:196
 msgid ""
@@ -1290,21 +1300,19 @@ msgstr "اتجاه الزناد"
 
 #: devices/jsdrv/js220.py:209
 msgid "Configure the direction of the JS220's trigger BNC connection."
-msgstr "قم بتكوين اتجاه وصلة BNC الخاصة بمشغل JS220."
+msgstr "قم بتكوين اتجاه وصلة BNC لمشغل JS220 الخاص بـ JS220."
 
 #: devices/jsdrv/js220.py:210
 msgid ""
 "0 (default) configures the BNC trigger for input only. The BNC connection is"
 " high-impedance."
-msgstr ""
-"0 (افتراضي) يقوم بتكوين مشغل BNC للإدخال فقط. تكون وصلة BNC ذات مقاومة "
-"عالية."
+msgstr "0 (افتراضي) يهيئ مشغل BNC للإدخال فقط. وصلة BNC ذات مقاومة عالية."
 
 #: devices/jsdrv/js220.py:212
 msgid ""
 "1 configures the BNC trigger for output. The BNC connection has 50 Ohm "
 "output impedance."
-msgstr "1 يقوم بتكوين مشغل BNC للإخراج. تحتوي وصلة BNC على مقاومة خرج 50 أوم."
+msgstr "1 يهيئ مشغل BNC للإخراج. تحتوي وصلة BNC على مقاومة خرج 50 أوم."
 
 #: devices/jsdrv/js220.py:214
 msgid ""
@@ -1319,7 +1327,7 @@ msgid ""
 "Configure the JS220's reference voltage for the general-purpose inputs and "
 "outputs."
 msgstr ""
-"قم بتهيئة الجهد المرجعي ل JS220 للمدخلات والمخرجات ذات الأغراض العامة."
+"تكوين الجهد المرجعي لـ JS220 للجهد المرجعي لمدخلات ومخرجات الأغراض العامة."
 
 #: devices/jsdrv/js220.py:228
 msgid ""
@@ -1329,21 +1337,21 @@ msgid ""
 "are all extremely high impedance to minimize leakage currents."
 msgstr ""
 "نوصي باستخدام \"Vref\" عند توصيل مخرجات الأغراض العامة (GPO) بمعدات أخرى. "
-"يمنع استخدام \"Vref\" استخدام \"Vref\" من تمكين GPO من تشغيل الأجهزة "
-"المستهدفة عند إيقاف تشغيلها. إشارة Vref ومدخلات الأغراض العامة جميعها ذات "
-"مقاومة عالية للغاية لتقليل تيارات التسرب."
+"يمنع استخدام \"Vref\" استخدام إشارة \"Vref\" من تشغيل أجهزة GPO في الأجهزة "
+"المستهدفة عند إيقاف تشغيلها. إن إشارة Vref ومدخلات الأغراض العامة جميعها ذات"
+" مقاومة عالية للغاية لتقليل تيارات التسرب."
 
 #: devices/jsdrv/js220.py:233
 msgid "\"3.3 V\" uses an internally-generated 3.3V reference voltage."
-msgstr "يستخدم \"3.3 فولت\" جهدًا مرجعيًا 3.3 فولت مولدًا داخليًا."
+msgstr "\"3.3 فولت\" يستخدم جهدًا مرجعيًا 3.3 فولت مولدًا داخليًا."
 
 #: devices/jsdrv/js220.py:254
 msgid "Trigger output value"
-msgstr "قيمة إخراج الزناد"
+msgstr "قيمة خرج الزناد"
 
 #: devices/jsdrv/js220.py:256
 msgid "Turn the trigger output on or off."
-msgstr "قم بتشغيل إخراج المشغل أو إيقاف تشغيله."
+msgstr "تشغيل خرج الزناد أو إيقاف تشغيله."
 
 #: devices/jsdrv/js220.py:257
 msgid ""
@@ -1359,18 +1367,18 @@ msgstr "قناة مستوى النضج لتحديثات البرامج الثا�
 msgid ""
 "We recommend keeping the default \"stable\" unless you are a Joulescope "
 "developer."
-msgstr "نوصي بالحفاظ على \"مستقر\" الافتراضي إلا إذا كنت مطور Joulescope."
+msgstr "نوصي بالحفاظ على الوضع الافتراضي \"مستقر\" إلا إذا كنت مطور Joulescope."
 
 #: devices/jsdrv/js220.py:275
 msgid "Firmware update availability."
-msgstr "توفر تحديث البرنامج الثابت."
+msgstr "توفر تحديث البرامج الثابتة."
 
 #: devices/jsdrv/js220.py:276
 msgid ""
 "None when no firmware update is available. Map of subname: [current, "
 "available] when available."
 msgstr ""
-"لا يوجد عند عدم توفر تحديث للبرنامج الثابت. خريطة الاسم الفرعي: [حالي، "
+"لا يوجد عند عدم توفر تحديث للبرنامج الثابت. خريطة الاسم الفرعي: [الحالي، "
 "متوفر] عند توفره."
 
 #: devices/jsdrv/js220.py:362
@@ -1389,7 +1397,7 @@ msgstr "GPI 2"
 
 #: devices/jsdrv/js220.py:393
 msgid "Enable the general purpose input 2 signal streaming."
-msgstr "قم بتمكين تدفق إشارة الدخل 2 للأغراض العامة."
+msgstr "تمكين تدفق إشارة الإدخال 2 للأغراض العامة."
 
 #: devices/jsdrv/js220.py:401
 msgid "GPI 3"
@@ -1397,15 +1405,15 @@ msgstr "GPI 3"
 
 #: devices/jsdrv/js220.py:402
 msgid "Enable the general purpose input 3 signal streaming."
-msgstr "قم بتمكين تدفق إشارة الإدخال 3 للأغراض العامة."
+msgstr "تمكين تدفق إشارة الإدخال 3 للأغراض العامة."
 
 #: devices/jsdrv/js220.py:410 widgets/waveform/waveform_widget.py:124
 msgid "Trigger input"
-msgstr "مدخلات المشغل"
+msgstr "مدخلات الزناد"
 
 #: devices/jsdrv/js220.py:411
 msgid "Enable the trigger input signal streaming."
-msgstr "قم بتمكين تدفق إشارة إدخال الزناد."
+msgstr "تمكين تدفق إشارة إدخال الزناد."
 
 #: devices/jsdrv/js220_updater.py:64
 msgid "Firmware update state"
@@ -1424,7 +1432,7 @@ msgstr "الاسم"
 
 #: devices/jsdrv/jsdrv_stream_buffer.py:45
 msgid "Joulescope stream buffer"
-msgstr "مخزن تدفق Joulescope المؤقت"
+msgstr "مخزن جولسكوب للتيار"
 
 #: devices/jsdrv/jsdrv_stream_buffer.py:49
 msgid "Buffer memory size in bytes"
@@ -1432,7 +1440,7 @@ msgstr "حجم ذاكرة المخزن المؤقت بالبايت"
 
 #: devices/jsdrv/jsdrv_stream_buffer.py:54
 msgid "Buffer memory duration in seconds"
-msgstr "مدة ذاكرة التخزين المؤقت بالثواني"
+msgstr "مدة ذاكرة المخزن المؤقت بالثواني"
 
 #: devices/jsdrv/jsdrv_stream_buffer.py:94
 msgid "Source name"
@@ -1468,7 +1476,7 @@ msgstr "نشط"
 
 #: plugins/selector.py:128
 msgid "Monitor"
-msgstr "المراقبة"
+msgstr "الشاشة"
 
 #: range_tools/cdf.py:29
 msgid "Compute the Cumulative Distribution Function"
@@ -1489,7 +1497,7 @@ msgid ""
 "easier to compare the amount of time in each mode by simply measuring the "
 "change in the y-axis value."
 msgstr ""
-"عند استخدامه لتحليل التيار أو الطاقة، يشير هذا بيانيًا إلى الوقت المستغرق "
+"عند استخدامه لتحليل التيار أو الطاقة، يشير ذلك بيانيًا إلى الوقت المستغرق "
 "أدناه في كل وضع تيار. بالمقارنة مع المدرج التكراري، يسهّل CDF مقارنة مقدار "
 "الوقت المستغرق في كل وضع بمجرد قياس التغير في قيمة المحور y."
 
@@ -1499,15 +1507,15 @@ msgstr "الاحتمالية"
 
 #: range_tools/cdf.py:167
 msgid "CDF configuration"
-msgstr "تكوين إطار عمل CDF"
+msgstr "تكوين CDF"
 
 #: range_tools/cdf.py:183 range_tools/histogram.py:53
 msgid "Number of bins (0 for auto)"
-msgstr "عدد الحاويات (0 للتلقائي)"
+msgstr "عدد الحاويات (0 للتيار التلقائي)"
 
 #: range_tools/cdf.py:189
 msgid "Complimentary"
-msgstr "مجاناً"
+msgstr "مجاني"
 
 #: range_tools/frequency.py:24
 msgid "Frequency"
@@ -1522,8 +1530,7 @@ msgid ""
 "Compute the frequency spectrum to analyze the frequency content of the "
 "signal's data values over the selected range."
 msgstr ""
-"حساب طيف التردد لتحليل المحتوى الترددي لقيم بيانات الإشارة على النطاق "
-"المحدد."
+"حساب طيف التردد لتحليل محتوى التردد لقيم بيانات الإشارة على النطاق المحدد."
 
 #: range_tools/frequency.py:213
 msgid "Frequency configuration"
@@ -1539,7 +1546,7 @@ msgstr "التوزيع الاحتمالي المنفصل"
 
 #: range_tools/histogram.py:28
 msgid "Frequency Distribution"
-msgstr "التوزيع التكراري"
+msgstr "توزيع التردد"
 
 #: range_tools/histogram.py:29
 msgid "Probability Density Distribution"
@@ -1552,7 +1559,7 @@ msgstr "الإشارة"
 
 #: range_tools/histogram.py:59
 msgid "Histogram type"
-msgstr "نوع المدرج التكراري"
+msgstr "نوع الرسم البياني"
 
 #: range_tools/histogram.py:77
 msgid "Histogram configuration"
@@ -1560,12 +1567,12 @@ msgstr "تكوين المدرج التكراري"
 
 #: range_tools/histogram.py:191
 msgid "Compute histogram over the range"
-msgstr "حساب المدرج التكراري على النطاق"
+msgstr "حساب الرسم البياني على النطاق"
 
 #: range_tools/histogram.py:192
 msgid ""
 "Compute a histogram of the signal's data values over the selected range."
-msgstr "حساب مدرج تكراري لقيم بيانات الإشارة على النطاق المحدد."
+msgstr "حساب رسم بياني لقيم بيانات الإشارة على النطاق المحدد."
 
 #: range_tools/max_window.py:24
 msgid "Max window"
@@ -1573,7 +1580,7 @@ msgstr "نافذة ماكس"
 
 #: range_tools/max_window.py:25
 msgid "Find the maximum value window"
-msgstr "إيجاد نافذة القيمة القصوى"
+msgstr "العثور على نافذة القيمة القصوى"
 
 #: range_tools/max_window.py:27
 msgid ""
@@ -1598,11 +1605,11 @@ msgstr "عرض النافذة (بالثواني)"
 
 #: range_tools/usb_inrush.py:52
 msgid "USB Inrush"
-msgstr "تدفق USB داخلي"
+msgstr "يو إس بي إنrush"
 
 #: range_tools/usb_inrush.py:53
 msgid "Perform USB Inrush testing"
-msgstr "إجراء اختبار التدفق الداخلي لـ USB"
+msgstr "إجراء اختبار تدفق التيار الكهربائي"
 
 #: range_tools/usb_inrush.py:54
 msgid ""
@@ -1610,8 +1617,8 @@ msgid ""
 " the target device. This tool will send the selected data to the USBET tool "
 "for analysis."
 msgstr ""
-"استخدم العلامات المزدوجة لتحديد 100 مللي ثانية على الأقل بعد تمكين الطاقة "
-"للجهاز الهدف. سترسل هذه الأداة البيانات المحددة إلى أداة USBET لتحليلها."
+"استخدم علامات مزدوجة لتحديد 100 ميلي ثانية على الأقل بعد تمكين الطاقة للجهاز"
+" المستهدف. سترسل هذه الأداة البيانات المحددة إلى أداة USBET لتحليلها."
 
 #: styles/color_scheme.py:21
 msgid "dark"
@@ -1619,7 +1626,7 @@ msgstr "الظلام"
 
 #: styles/color_scheme.py:22
 msgid "Light foreground elements on a dark background"
-msgstr "عناصر أمامية فاتحة على خلفية داكنة"
+msgstr "عناصر أمامية خفيفة على خلفية داكنة"
 
 #: styles/color_scheme.py:26
 msgid "light"
@@ -1635,7 +1642,7 @@ msgstr "افتراضي"
 
 #: styles/font_scheme.py:22
 msgid "Joulescope default font scheme"
-msgstr "نظام الخط الافتراضي ل Joulescope"
+msgstr "نظام الخط الافتراضي لجولسكوب"
 
 #: widgets/accumulator/accumulator_widget.py:27
 #: widgets/value/value_widget.py:31
@@ -1645,7 +1652,7 @@ msgstr "مصدر تدفق البيانات الإحصائية."
 #: widgets/accumulator/accumulator_widget.py:32
 #: widgets/value/value_widget.py:74
 msgid "The signal to display."
-msgstr "الإشارة للعرض."
+msgstr "الإشارة المراد عرضها."
 
 #: widgets/accumulator/accumulator_widget.py:34
 msgid "charge"
@@ -1658,15 +1665,15 @@ msgstr "الطاقة"
 #: widgets/accumulator/accumulator_widget.py:41
 #: widgets/value/value_widget.py:56
 msgid "Show the statistics section title for each signal."
-msgstr "اعرض عنوان قسم الإحصائيات لكل إشارة."
+msgstr "عرض عنوان قسم الإحصائيات لكل إشارة."
 
 #: widgets/accumulator/accumulator_widget.py:48
 msgid "Accumulator"
-msgstr "المجمّع"
+msgstr "المجمع"
 
 #: widgets/accumulator/accumulator_widget.py:140
 msgid "Show charge"
-msgstr "عرض الشحنة"
+msgstr "إظهار الشحن"
 
 #: widgets/accumulator/accumulator_widget.py:143
 msgid "Show energy"
@@ -1674,7 +1681,7 @@ msgstr "عرض الطاقة"
 
 #: widgets/accumulator/accumulator_widget.py:152
 msgid "Set units"
-msgstr "مجموعة الوحدات"
+msgstr "ضبط الوحدات"
 
 #: widgets/clock/clock_widget.py:26
 msgid "Clock"
@@ -1686,7 +1693,7 @@ msgstr "المنطقة الزمنية"
 
 #: widgets/clock/clock_widget.py:35
 msgid "Local"
-msgstr "الموقع"
+msgstr "محلي"
 
 #: widgets/clock/clock_widget.py:36
 msgid "UTC"
@@ -1698,7 +1705,7 @@ msgstr "سلسلة التنسيق"
 
 #: widgets/clock/clock_widget.py:43
 msgid "For the complete syntax, see Python package {package}"
-msgstr "للاطلاع على الصيغة الكاملة، انظر حزمة {package}"
+msgstr "للاطلاع على بناء الجملة الكامل، انظر حزمة بايثون {package}"
 
 #: widgets/developer/log_view_widget.py:30
 msgid "Timestamp"
@@ -1756,7 +1763,7 @@ msgstr "القيم"
 
 #: widgets/developer/pubsub_explorer_widget.py:28
 msgid "Filter:"
-msgstr "التصفية:"
+msgstr "الفلتر"
 
 #: widgets/developer/pubsub_explorer_widget.py:94
 msgid "PubSub Explorer"
@@ -1779,7 +1786,7 @@ msgstr "الجهاز"
 #: widgets/device_control/device_update_dialog.py:27
 #: widgets/progress_bar/progress_bar_widget.py:59
 msgid "Progress"
-msgstr "التقدم المحرز"
+msgstr "التقدم"
 
 #: widgets/device_control/device_update_dialog.py:29
 msgid ""
@@ -1791,7 +1798,7 @@ msgstr ""
 
 #: widgets/device_control/device_update_dialog.py:31
 msgid "Do not use any USB hubs, docks or adapters"
-msgstr "لا تستخدم أي محاور USB، أو قواعد توصيل أو محولات USB"
+msgstr "لا تستخدم أي محاور USB أو أرصفة أو محولات أو محولات"
 
 #: widgets/device_control/device_update_dialog.py:35
 msgid "Device scan in progress."
@@ -1799,11 +1806,11 @@ msgstr "فحص الجهاز قيد التقدم."
 
 #: widgets/device_control/device_update_dialog.py:36
 msgid "No updates available."
-msgstr "لا توجد تحديثات متاحة."
+msgstr "لا توجد تحديثات متوفرة."
 
 #: widgets/device_control/device_update_dialog.py:38
 msgid "Device update is in progress. Please wait."
-msgstr "تحديث الجهاز قيد التنفيذ. الرجاء الانتظار."
+msgstr "تحديث الجهاز قيد التقدم. يرجى الانتظار."
 
 #: widgets/device_control/device_update_dialog.py:39
 msgid "Device update completed."
@@ -1811,11 +1818,11 @@ msgstr "اكتمل تحديث الجهاز."
 
 #: widgets/device_control/device_update_dialog.py:41
 msgid "Select all"
-msgstr "اختر الكل"
+msgstr "حدد الكل"
 
 #: widgets/device_control/device_update_dialog.py:42
 msgid "Select none"
-msgstr "اختر لا شيء"
+msgstr "حدد لا شيء"
 
 #: widgets/device_control/device_update_dialog.py:43
 #: widgets/js220_cal/js220_cal_widget.py:37
@@ -1844,11 +1851,11 @@ msgstr "ماكس فيوز"
 
 #: widgets/device_control/fuse.py:33
 msgid "Fuse trip threshold"
-msgstr "عتبة تعثر الصمامات"
+msgstr "عتبة رحلة الصمامات"
 
 #: widgets/device_control/fuse.py:34
 msgid "Any current above this threshold will eventually trip the fuse."
-msgstr "أي تيار أعلى من هذه العتبة سيؤدي في النهاية إلى تعطل الصمام."
+msgstr "أي تيار أعلى من هذه العتبة سيؤدي في النهاية إلى تعطل المصهر."
 
 #: widgets/device_control/fuse.py:38
 msgid "Fuse speed threshold"
@@ -1856,7 +1863,7 @@ msgstr "عتبة سرعة الصمامات"
 
 #: widgets/device_control/fuse.py:39
 msgid "The fuse trips in Duration at this constant current."
-msgstr "ينقطع المصهر في المدة عند هذا التيار الثابت."
+msgstr "ينطلق المصهر في المدة عند هذا التيار الثابت."
 
 #: widgets/device_control/fuse.py:43
 msgid "Fuse duration"
@@ -1864,7 +1871,7 @@ msgstr "مدة الصمامات"
 
 #: widgets/device_control/fuse.py:44
 msgid "The fuse trips in this Duration at Threshold 2 current."
-msgstr "يتعطل المصهر في هذه المدة عند تيار العتبة 2."
+msgstr "ينطلق المصهر في هذه المدة عند تيار العتبة 2."
 
 #: widgets/device_control/fuse.py:48
 msgid "Fuse dissipation time constant"
@@ -1875,8 +1882,8 @@ msgid ""
 "The exponential decay time constant. The fuse dissipates 63.2 percent of "
 "accumulated energy in this duration."
 msgstr ""
-"ثابت زمن التضاؤل الأسي. يبدد الصمام 63.2 في المائة من الطاقة المتراكمة في "
-"هذه المدة."
+"ثابت زمن التضاؤل الأسي. يبدد المصهر 63.2 بالمائة من الطاقة المتراكمة في هذه "
+"المدة."
 
 #: widgets/device_control/fuse.py:53
 msgid "Fuse state indicator. When enabled and engaged, click to clear."
@@ -1905,7 +1912,7 @@ msgstr "الوقت"
 
 #: widgets/device_control/fuse.py:219
 msgid "Fuse"
-msgstr "فيوز"
+msgstr "المصهر"
 
 #: widgets/device_control/js220_ctrl_widget.py:30
 msgid "Device documentation"
@@ -1917,7 +1924,7 @@ msgstr "انقر لعرض ملف PDF لوثائق الجهاز."
 
 #: widgets/device_control/js220_ctrl_widget.py:36
 msgid "Click to display detailed information about the device."
-msgstr "انقر لعرض معلومات مفصلة حول الجهاز."
+msgstr "انقر لعرض معلومات مفصلة عن الجهاز."
 
 #: widgets/device_control/js220_ctrl_widget.py:40
 msgid "Select this device as the default"
@@ -1936,20 +1943,20 @@ msgid ""
 "When unselected, another device is the default. Widgets can still be "
 "configured to use data from this device."
 msgstr ""
-"عند إلغاء التحديد، يكون جهاز آخر هو الجهاز الافتراضي. لا يزال من الممكن "
-"تهيئة الأدوات لاستخدام البيانات من هذا الجهاز."
+"عند عدم تحديده، يكون جهاز آخر هو الجهاز الافتراضي. لا يزال من الممكن تكوين "
+"الأدوات لاستخدام البيانات من هذا الجهاز."
 
 #: widgets/device_control/js220_ctrl_widget.py:52
 msgid ""
 "This indicator becomes active when this device has at least one engaged "
 "fuse. Engaged fuses prevent current flow until cleared."
 msgstr ""
-"يصبح هذا المؤشر نشطًا عندما يكون هذا الجهاز يحتوي على مصهر واحد على الأقل "
-"مشغول. الصمامات المشغولة تمنع تدفق التيار حتى يتم إزالتها."
+"يصبح هذا المؤشر نشطاً عندما يكون هذا الجهاز يحتوي على مصهر واحد مشغّل على "
+"الأقل. الصمامات المشغولة تمنع تدفق التيار حتى يتم مسحها."
 
 #: widgets/device_control/js220_ctrl_widget.py:60
 msgid "Open and close the device"
-msgstr "افتح الجهاز وأغلقه"
+msgstr "فتح الجهاز وإغلاقه"
 
 #: widgets/device_control/js220_ctrl_widget.py:62
 msgid ""
@@ -1958,7 +1965,7 @@ msgid ""
 "device at a time."
 msgstr ""
 "عند الإغلاق، انقر لمحاولة فتح الجهاز. لن يتغير الرمز إلا عند فتح الجهاز "
-"بنجاح. يمكن لتطبيق واحد فقط استخدام جهاز Joulescope في كل مرة."
+"بنجاح. يمكن لتطبيق واحد فقط استخدام جهاز جولسكوب في كل مرة."
 
 #: widgets/device_control/js220_ctrl_widget.py:65
 msgid ""
@@ -1968,7 +1975,7 @@ msgstr "عند فتحه، انقر لإغلاق الجهاز. يسمح ذلك ب
 
 #: widgets/device_control/js220_ctrl_widget.py:71
 msgid "Reset to default settings"
-msgstr "إعادة التعيين إلى الإعدادات الافتراضية"
+msgstr "إعادة الضبط إلى الإعدادات الافتراضية"
 
 #: widgets/device_control/js220_ctrl_widget.py:72
 msgid "Click this button to reset this device to the default settings"
@@ -1985,12 +1992,12 @@ msgid ""
 "will be unaffected."
 msgstr ""
 "انقر فوق هذا الزر لمسح تراكمات الشحن والطاقة. لن تتأثر ميزة \"Accrue\" "
-"الخاصة بأدوات عرض القيم، بما في ذلك المقياس المتعدد."
+"الخاصة بأدوات عرض القيم، بما في ذلك جهاز القياس المتعدد."
 
 #: widgets/device_control/js220_ctrl_widget.py:83
 #: widgets/device_control/js220_ctrl_widget.py:574
 msgid "Calibrate"
-msgstr "معايرة"
+msgstr "المعايرة"
 
 #: widgets/device_control/js220_ctrl_widget.py:84
 msgid ""
@@ -1998,13 +2005,13 @@ msgid ""
 " required for normal operation. Performing calibration can improve accuracy "
 "by accounting for the existing temperature and aging effects."
 msgstr ""
-"انقر فوق هذا الزر لإعادة معايرة Joulescope JS220. إعادة المعايرة غير مطلوبة "
-"للتشغيل العادي. يمكن أن يؤدي إجراء المعايرة إلى تحسين الدقة من خلال حساب "
-"درجة الحرارة الحالية وتأثيرات التقادم."
+"انقر فوق هذا الزر لإعادة معايرة جولسكوب Joulescope JS220. إعادة المعايرة غير"
+" مطلوبة للتشغيل العادي. يمكن أن يؤدي إجراء المعايرة إلى تحسين الدقة من خلال "
+"حساب درجة الحرارة الحالية وتأثيرات التقادم."
 
 #: widgets/device_control/js220_ctrl_widget.py:391
 msgid "GPO"
-msgstr "GPO"
+msgstr "جي بي أو"
 
 #: widgets/device_control/js220_ctrl_widget.py:561
 msgid "Reset to defaults"
@@ -2012,15 +2019,15 @@ msgstr "إعادة التعيين إلى الإعدادات الافتراضية
 
 #: widgets/device_control/js220_ctrl_widget.py:567
 msgid "Clear accum"
-msgstr "مسح التراكم"
+msgstr "واضح التراكم"
 
 #: widgets/example/example_widget.py:22
 msgid "Example"
-msgstr "مثال على ذلك"
+msgstr "مثال"
 
 #: widgets/flyout/flyout_widget.py:26
 msgid "flyout"
-msgstr "التحليق"
+msgstr "الطيران"
 
 #: widgets/help/help_widget.py:20
 msgid "User's Guides"
@@ -2032,7 +2039,7 @@ msgstr "واجهة المستخدم"
 
 #: widgets/help/help_widget.py:22
 msgid "Joulescope UI User's Guide"
-msgstr "دليل مستخدم واجهة المستخدم Joulescope UI"
+msgstr "دليل مستخدم واجهة مستخدم Joulescope UI"
 
 #: widgets/help/help_widget.py:23
 msgid "Visit the Joulescope forum"
@@ -2052,7 +2059,7 @@ msgstr "أمثلة"
 
 #: widgets/help/help_widget.py:27
 msgid "Contact support"
-msgstr "اتصل بالدعم"
+msgstr "دعم الاتصال"
 
 #: widgets/jls_info/jls_info_widget.py:24
 msgid "The JLS data stream source."
@@ -2077,9 +2084,10 @@ msgid ""
 "error. If you wish to perform scale calibration, ensure that your test setup"
 " gives a sufficient test uncertainty ratio (TUR)."
 msgstr ""
-"صُمم Joulescope JS220 ليفي بمواصفاته دون إعادة معايرة. يمكنك استخدام معايرة "
-"الإزاحة لتقليل خطأ الإزاحة بشكل أكبر. إذا كنت ترغب في إجراء معايرة المقياس، "
-"تأكد من أن إعداد الاختبار الخاص بك يعطي نسبة عدم يقين اختبار كافية (TUR)."
+"تم تصميم جولسكوب Joulescope JS220 لتلبية مواصفاته دون إعادة معايرة. يمكنك "
+"استخدام معايرة الإزاحة لتقليل خطأ الإزاحة بشكل أكبر. إذا كنت ترغب في إجراء "
+"معايرة المقياس، تأكد من أن إعداد الاختبار الخاص بك يعطي نسبة عدم يقين اختبار"
+" كافية (TUR)."
 
 #: widgets/js220_cal/js220_cal_widget.py:35
 msgid "Restore factory calibration"
@@ -2087,11 +2095,11 @@ msgstr "استعادة معايرة المصنع"
 
 #: widgets/js220_cal/js220_cal_widget.py:36
 msgid "Start"
-msgstr "ابدأ"
+msgstr "بدء التشغيل"
 
 #: widgets/js220_cal/js220_cal_widget.py:39
 msgid "Calibration in progress"
-msgstr "المعايرة قيد التنفيذ"
+msgstr "المعايرة جارية"
 
 #: widgets/js220_cal/js220_cal_widget.py:40
 msgid "Please wait..."
@@ -2099,11 +2107,11 @@ msgstr "الرجاء الانتظار..."
 
 #: widgets/js220_cal/js220_cal_widget.py:42
 msgid "Disconnect all sensor terminals"
-msgstr "افصل جميع أطراف المستشعرات"
+msgstr "افصل جميع أطراف المستشعر"
 
 #: widgets/js220_cal/js220_cal_widget.py:44
 msgid "Short together Voltage+, Voltage-, and Current+ using wires."
-msgstr "قم بتوصيل الفولتية+، والجهد-والجهد-والتيار+ باستخدام الأسلاك."
+msgstr "اختصار الجهد+، والجهد- والجهد- والتيار+ باستخدام الأسلاك."
 
 #: widgets/js220_cal/js220_cal_widget.py:45
 msgid ""
@@ -2120,7 +2128,7 @@ msgstr "إزاحة الجهد"
 
 #: widgets/js220_cal/js220_cal_widget.py:455
 msgid "JS220 Calibration"
-msgstr "معايرة JS220 JS220"
+msgstr "معايرة JS220"
 
 #: widgets/js220_cal/js220_cal_widget.py:461
 msgid "The target device."
@@ -2140,15 +2148,15 @@ msgstr "حجم المخزن المؤقت للذاكرة"
 
 #: widgets/memory/memory_widget.py:213
 msgid "Total RAM size"
-msgstr "إجمالي حجم ذاكرة الوصول العشوائي (RAM)"
+msgstr "إجمالي حجم ذاكرة الوصول العشوائي"
 
 #: widgets/memory/memory_widget.py:217
 msgid "Available RAM size"
-msgstr "حجم ذاكرة الوصول العشوائي (RAM) المتوفرة"
+msgstr "حجم ذاكرة الوصول العشوائي المتاحة"
 
 #: widgets/memory/memory_widget.py:221
 msgid "Used RAM size"
-msgstr "حجم ذاكرة الوصول العشوائي (RAM) المستخدمة"
+msgstr "حجم ذاكرة الوصول العشوائي المستخدمة"
 
 #: widgets/memory/memory_widget.py:238
 msgid "Clear"
@@ -2156,7 +2164,7 @@ msgstr "واضح"
 
 #: widgets/memory/memory_widget.py:242
 msgid "Clear on play"
-msgstr "مسح على اللعب"
+msgstr "واضح في التشغيل"
 
 #: widgets/notes/notes_widget.py:28
 msgid "The notes value."
@@ -2164,15 +2172,15 @@ msgstr "قيمة الملاحظات."
 
 #: widgets/record_status/record_status_widget.py:23
 msgid "Path:"
-msgstr "المسار:"
+msgstr "المسار"
 
 #: widgets/record_status/record_status_widget.py:24
 msgid "Filename:"
-msgstr "اسم الملف:"
+msgstr "اسم الملف"
 
 #: widgets/record_status/record_status_widget.py:28
 msgid "Signal recording in progress"
-msgstr "تسجيل الإشارة قيد التنفيذ"
+msgstr "تسجيل الإشارة قيد التشغيل"
 
 #: widgets/record_status/record_status_widget.py:29
 msgid "Statistics recording in progress"
@@ -2216,11 +2224,11 @@ msgstr "الخطوط"
 
 #: widgets/settings/settings_widget.py:577
 msgid "Defines"
-msgstr "تعريف"
+msgstr "يحدد"
 
 #: widgets/settings/unique_strings_widget.py:50
 msgid "Available"
-msgstr "متوفرة"
+msgstr "متوفر"
 
 #: widgets/settings/unique_strings_widget.py:58
 msgid "Selected"
@@ -2291,7 +2299,7 @@ msgstr "الشريط الجانبي"
 
 #: widgets/sidebar/sidebar_widget.py:68
 msgid "The flyout width in pixels."
-msgstr "عرض السحب الطائر بالبكسل."
+msgstr "عرض التحليق بالبكسل."
 
 #: widgets/signal_record/disk_full_dialog.py:19
 msgid "The disk is full"
@@ -2303,7 +2311,7 @@ msgstr "تعذر فتح الملف للكتابة"
 
 #: widgets/signal_record/signal_record_config_widget.py:101
 msgid "SignalRecordConfig"
-msgstr "سيجنال ريكوردكونفيج"
+msgstr "SignalRecordConfig"
 
 #: widgets/signal_record/signal_record_config_widget.py:107
 #: widgets/statistics_record/statistics_record_config_widget.py:92
@@ -2321,7 +2329,7 @@ msgstr "تكوين تسجيل الإشارة"
 
 #: widgets/statistics_record/statistics_record_config_widget.py:86
 msgid "StatisticsRecordConfig"
-msgstr "إحصائيات السجل الإحصائي"
+msgstr "إحصائياتالتسجيلالتكوين"
 
 #: widgets/statistics_record/statistics_record_config_widget.py:123
 msgid "Time Format"
@@ -2333,7 +2341,7 @@ msgstr "حدد الجهاز المصدر"
 
 #: widgets/trigger/trigger_widget.py:42
 msgid "The device to use for the start condition and stop condition."
-msgstr "الجهاز المراد استخدامه لحالة البدء وحالة الإيقاف."
+msgstr "الجهاز المستخدم لحالة البدء وحالة التوقف."
 
 #: widgets/trigger/trigger_widget.py:44
 msgid "Configure run mode"
@@ -2341,11 +2349,11 @@ msgstr "تكوين وضع التشغيل"
 
 #: widgets/trigger/trigger_widget.py:45
 msgid "Single"
-msgstr "مفردة"
+msgstr "مفرد"
 
 #: widgets/trigger/trigger_widget.py:46
 msgid "Perform one trigger sequence and then return to inactive mode."
-msgstr "تنفيذ تسلسل تشغيل واحد ثم العودة إلى الوضع غير النشط."
+msgstr "إجراء تسلسل تشغيل واحد ثم العودة إلى الوضع غير النشط."
 
 #: widgets/trigger/trigger_widget.py:47
 msgid "Continuous"
@@ -2353,11 +2361,11 @@ msgstr "مستمر"
 
 #: widgets/trigger/trigger_widget.py:48
 msgid "Repeat the trigger sequence indefinitely until manually stopped."
-msgstr "كرر تسلسل الزناد إلى أجل غير مسمى حتى يتم إيقافه يدوياً."
+msgstr "كرر تسلسل الزناد إلى أجل غير مسمى حتى يتم إيقافه يدويًا."
 
 #: widgets/trigger/trigger_widget.py:65
 msgid "Start, stop and indicate status"
-msgstr "بدء التشغيل والتوقف والإشارة إلى الحالة"
+msgstr "بدء التشغيل والإيقاف والإشارة إلى الحالة"
 
 #: widgets/trigger/trigger_widget.py:66
 msgid "Inactive"
@@ -2377,7 +2385,7 @@ msgid ""
 " and advance to active. Press to halt and return to inactive."
 msgstr ""
 "ابحث عن حالة البدء المكوّنة. عند التطابق، قم بتنفيذ إجراءات البدء والتقدم "
-"إلى نشط. اضغط للتوقف والعودة إلى غير نشط."
+"إلى النشط. اضغط للتوقف والعودة إلى غير نشط."
 
 #: widgets/trigger/trigger_widget.py:74
 msgid ""
@@ -2386,20 +2394,20 @@ msgid ""
 "transition to searching. Press to halt and return to inactive."
 msgstr ""
 "ابحث عن حالة الإيقاف المكوّنة. عند التطابق، قم بتنفيذ إجراءات الإيقاف. "
-"بالنسبة لوضع التشغيل الفردي، انتقل إلى غير نشط. لوضع التشغيل المستمر، انتقل "
-"إلى البحث. اضغط للإيقاف والعودة إلى غير نشط."
+"بالنسبة لوضع التشغيل الفردي، انتقل إلى غير نشط. بالنسبة لوضع التشغيل "
+"المستمر، انتقل إلى البحث. اضغط للإيقاف والعودة إلى غير نشط."
 
 #: widgets/trigger/trigger_widget.py:113
 msgid "Edge"
-msgstr "إيدج"
+msgstr "الحافة"
 
 #: widgets/trigger/trigger_widget.py:126
 msgid "Always"
-msgstr "دائماً"
+msgstr "دائمًا"
 
 #: widgets/trigger/trigger_widget.py:127
 msgid "Never"
-msgstr "أبداً"
+msgstr "أبدًا"
 
 #: widgets/trigger/trigger_widget.py:134
 msgid "between"
@@ -2407,7 +2415,7 @@ msgstr "بين"
 
 #: widgets/trigger/trigger_widget.py:135
 msgid "outside"
-msgstr "في الخارج"
+msgstr "خارج"
 
 #: widgets/trigger/trigger_widget.py:164
 msgid "The source instrument."
@@ -2439,11 +2447,11 @@ msgstr "إيقاف التأخير"
 
 #: widgets/trigger/trigger_widget.py:479
 msgid "Record statistics"
-msgstr "إحصاءات قياسية"
+msgstr "سجل الإحصائيات"
 
 #: widgets/trigger/trigger_widget.py:492 widgets/trigger/trigger_widget.py:622
 msgid "Set output"
-msgstr "تعيين الإخراج"
+msgstr "ضبط الإخراج"
 
 #: widgets/trigger/trigger_widget.py:506 widgets/trigger/trigger_widget.py:636
 #: widgets/waveform/waveform_control.py:29
@@ -2485,7 +2493,7 @@ msgstr "حالة التوقف"
 
 #: widgets/trigger/trigger_widget.py:860
 msgid "Stop Actions"
-msgstr "إيقاف الإجراءات"
+msgstr "إجراءات الإيقاف"
 
 #: widgets/value/value_widget.py:36
 msgid "Show the device selection header."
@@ -2493,15 +2501,15 @@ msgstr "إظهار رأس اختيار الجهاز."
 
 #: widgets/value/value_widget.py:41
 msgid "Show the accrue header."
-msgstr "إظهار رأس الاستحقاق."
+msgstr "عرض رأس الاستحقاق."
 
 #: widgets/value/value_widget.py:46
 msgid "Show the statistics fields at the right."
-msgstr "اعرض حقول الإحصائيات على اليمين."
+msgstr "عرض حقول الإحصائيات على اليمين."
 
 #: widgets/value/value_widget.py:51
 msgid "Show a leading + or - sign."
-msgstr "أظهر علامة + أو - بادئة."
+msgstr "إظهار علامة + أو -."
 
 #: widgets/value/value_widget.py:88
 msgid ""
@@ -2516,7 +2524,7 @@ msgstr "امسك الشاشة"
 
 #: widgets/value/value_widget.py:96
 msgid "When selected, prevent the display from updating."
-msgstr "عند تحديده، يمنع تحديث الشاشة من التحديث."
+msgstr "عند تحديده، يمنع الشاشة من التحديث."
 
 #: widgets/value/value_widget.py:97
 msgid ""
@@ -2525,8 +2533,7 @@ msgid ""
 "has no effect."
 msgstr ""
 "تتضمن واجهة المستخدم أيضًا زر تعليق الإحصائيات العامة على الشريط الجانبي. "
-"عند تحديد زر تعليق الإحصائيات العامة، يتم تعطيل هذا الزر ولا يكون له أي "
-"تأثير."
+"عند تحديد زر تعليق الإحصائيات العامة، يتم تعطيل هذا الزر وليس له أي تأثير."
 
 #: widgets/value/value_widget.py:100
 msgid ""
@@ -2535,13 +2542,13 @@ msgid ""
 "updated. However, the statistics will continue accumulate and accrue (if "
 "selected)."
 msgstr ""
-"يتم تحديث القيم المعروضة عادةً مع كل بيانات إحصائية جديدة يتم حسابها بواسطة "
-"الجهاز. عند تحديد هذا الزر، لن يتم تحديث العرض. ومع ذلك، ستستمر الإحصائيات "
-"في التراكم والتراكم (إذا تم تحديده)."
+"يتم تحديث القيم المعروضة عادةً مع كل بيانات إحصائية جديدة يحسبها الجهاز. عند"
+" تحديد هذا الزر، لن يتم تحديث العرض. ومع ذلك، ستستمر الإحصائيات في التراكم "
+"والتراكم (إذا تم تحديده)."
 
 #: widgets/value/value_widget.py:107
 msgid "Accrue values over time"
-msgstr "القيم المتراكمة بمرور الوقت"
+msgstr "تراكم القيم بمرور الوقت"
 
 #: widgets/value/value_widget.py:109
 msgid ""
@@ -2549,7 +2556,7 @@ msgid ""
 "frequency interval. Press this button to accrue the values indefinitely. "
 "Press again to return to normal operation."
 msgstr ""
-"يتم حساب التيار والجهد والطاقة عادةً على فترة تردد إحصائية واحدة. اضغط على "
+"عادةً ما يتم حساب التيار والجهد والطاقة على فاصل تردد إحصائي واحد. اضغط على "
 "هذا الزر لتجميع القيم إلى أجل غير مسمى. اضغط مرة أخرى للعودة إلى التشغيل "
 "العادي."
 
@@ -2558,8 +2565,8 @@ msgid ""
 "Note that this button does not affect the charge and energy accumulation. "
 "Both accumulate indefinitely regardless of this button state."
 msgstr ""
-"لاحظ أن هذا الزر لا يؤثر على تراكم الشحنة والطاقة. كلاهما يتراكمان إلى أجل "
-"غير مسمى بغض النظر عن حالة هذا الزر."
+"لاحظ أن هذا الزر لا يؤثر على تراكم الشحن والطاقة. يتراكم كلاهما إلى أجل غير "
+"مسمى بغض النظر عن حالة هذا الزر."
 
 #: widgets/value/value_widget.py:195
 msgid "Not present"
@@ -2567,7 +2574,7 @@ msgstr "غير موجود"
 
 #: widgets/value/value_widget.py:215
 msgid "Hold"
-msgstr "انتظر"
+msgstr "عقد"
 
 #: widgets/value/value_widget.py:223
 msgid "Accrue"
@@ -2584,11 +2591,11 @@ msgstr "avg"
 
 #: widgets/waveform/quantities.py:22
 msgid "std"
-msgstr "ستد"
+msgstr "std"
 
 #: widgets/waveform/quantities.py:23
 msgid "rms"
-msgstr "جذر متوسط التربيع"
+msgstr "جذر التربيع"
 
 #: widgets/waveform/quantities.py:24 widgets/waveform/y_range_widget.py:68
 msgid "min"
@@ -2616,11 +2623,11 @@ msgstr "الدائرة"
 
 #: widgets/waveform/text_annotation.py:54
 msgid "hexagon"
-msgstr "سداسي الشكل"
+msgstr "مسدس"
 
 #: widgets/waveform/text_annotation.py:55
 msgid "square"
-msgstr "المربع"
+msgstr "مربع"
 
 #: widgets/waveform/text_annotation.py:56
 msgid "star"
@@ -2632,7 +2639,7 @@ msgstr "المزيد"
 
 #: widgets/waveform/text_annotation.py:58
 msgid "cross"
-msgstr "صليب"
+msgstr "تقاطع"
 
 #: widgets/waveform/text_annotation.py:59
 msgid "triangle up"
@@ -2653,11 +2660,11 @@ msgstr "المثلث الأيسر"
 #: widgets/waveform/text_annotation.py:66
 #: widgets/waveform/waveform_widget.py:3008
 msgid "Manual"
-msgstr "يدوي"
+msgstr "دليل"
 
 #: widgets/waveform/text_annotation.py:67
 msgid "Centered"
-msgstr "التمركز"
+msgstr "المركز"
 
 #: widgets/waveform/text_annotation.py:99
 #: widgets/waveform/waveform_widget.py:3123
@@ -2676,14 +2683,14 @@ msgstr "الشكل"
 
 #: widgets/waveform/text_annotation.py:126
 msgid "Y Mode"
-msgstr "أزياء Y"
+msgstr "الوضع Y"
 
 #: widgets/waveform/waveform_control.py:24
 msgid ""
 "To reposition the marker, left click on the marker, move the mouse to the "
 "new location, and the left click again."
 msgstr ""
-"لتغيير موضع العلامة، انقر بزر الماوس الأيسر على العلامة، ثم حرّك الماوس إلى "
+"لتغيير موضع العلامة، انقر بزر الماوس الأيسر على العلامة، ثم حرك الماوس إلى "
 "الموقع الجديد، وانقر بزر الماوس الأيسر مرة أخرى."
 
 #: widgets/waveform/waveform_control.py:31
@@ -2708,7 +2715,7 @@ msgid ""
 "plot area."
 msgstr ""
 "يمكنك أيضًا إضافة علامات مزدوجة عن طريق النقر بزر الماوس الأيمن على المحور "
-"السيني أو في منطقة الرسم."
+"السيني أو في منطقة الرسم البياني."
 
 #: widgets/waveform/waveform_control.py:47
 msgid "Clear all markers"
@@ -2724,7 +2731,7 @@ msgstr ""
 
 #: widgets/waveform/waveform_control.py:53
 msgid "Zoom in"
-msgstr "تكبير الصورة"
+msgstr "تكبير"
 
 #: widgets/waveform/waveform_control.py:55
 msgid "Click to zoom in along the time x-axis."
@@ -2757,7 +2764,7 @@ msgstr "انقر لعرض الامتدادات الكاملة للمحور ال�
 
 #: widgets/waveform/waveform_control.py:73
 msgid "Pin left"
-msgstr "الدبوس الأيسر"
+msgstr "دبوس اليسار"
 
 #: widgets/waveform/waveform_control.py:74
 msgid ""
@@ -2765,11 +2772,11 @@ msgid ""
 "(oldest) data always remains in view."
 msgstr ""
 "تثبيت عرض شكل الموجة على الجانب الأيسر. عند التمكين، تظل بيانات الجانب "
-"الأيسر (الأقدم) في العرض دائمًا."
+"الأيسر (الأقدم) دائمًا في العرض."
 
 #: widgets/waveform/waveform_control.py:79
 msgid "Pin right"
-msgstr "الدبوس الأيمن"
+msgstr "دبوس اليمين"
 
 #: widgets/waveform/waveform_control.py:80
 msgid ""
@@ -2777,7 +2784,7 @@ msgid ""
 "(newest) data always remains in view."
 msgstr ""
 "تثبيت عرض شكل الموجة على الجانب الأيمن. عند التمكين، تظل بيانات الجانب "
-"الأيمن (الأحدث) في العرض دائمًا."
+"الأيمن (الأحدث) دائمًا في العرض."
 
 #: widgets/waveform/waveform_control.py:85
 msgid "Y zoom all"
@@ -2796,7 +2803,7 @@ msgstr ""
 
 #: widgets/waveform/waveform_control.py:93
 msgid "Show min/max extents"
-msgstr "إظهار الحد الأدنى/الحد الأقصى للامتدادات"
+msgstr "إظهار الحدود الدنيا/القصوى"
 
 #: widgets/waveform/waveform_control.py:95
 msgid ""
@@ -2804,7 +2811,7 @@ msgid ""
 "pixel may represent many samples. Displaying the min/max can allow you to "
 "see events that may be missed with just the average."
 msgstr ""
-"تغيير كيفية إظهار الشكل الموجي للحدود الصغرى/القصوى. عند التصغير، قد يمثل كل"
+"تغيير كيفية إظهار الشكل الموجي للحدود الدنيا/القصوى. عند التصغير، قد يمثل كل"
 " بكسل العديد من العينات. يمكن أن يسمح لك عرض الحد الأدنى/الحد الأقصى برؤية "
 "الأحداث التي قد تفوتك مع المتوسط فقط."
 
@@ -2814,15 +2821,15 @@ msgstr "\"إيقاف التشغيل\" يعرض المتوسط فقط."
 
 #: widgets/waveform/waveform_control.py:100
 msgid "\"lines\" displays the minimum and maximum as separate line traces."
-msgstr "تعرض \"الخطوط\" الحد الأدنى والحد الأقصى كخطوط منفصلة."
+msgstr "\"الخطوط\" يعرض الحد الأدنى والحد الأقصى كخطوط منفصلة."
 
 #: widgets/waveform/waveform_control.py:101
 msgid "\"fill 1\" displays a filled color between the minimum and maximum."
-msgstr "تعرض \"تعبئة 1\" لونًا مملوءًا بين الحد الأدنى والحد الأقصى."
+msgstr "\"ملء 1\" يعرض لونًا مملوءًا بين الحد الأدنى والحد الأقصى."
 
 #: widgets/waveform/waveform_control.py:102
 msgid "\"fill 2\" also displays an additional fill for standard deviation."
-msgstr "تعرض \"تعبئة 2\" أيضًا تعبئة إضافية للانحراف المعياري."
+msgstr "يعرض \\\"التعبئة 2\\\" أيضًا تعبئة إضافية للانحراف المعياري."
 
 #: widgets/waveform/waveform_control.py:106
 msgid "Show/hide signals"
@@ -2854,14 +2861,14 @@ msgstr "حدد المصدر"
 
 #: widgets/waveform/waveform_source_widget.py:39
 msgid "Select the source for this trace."
-msgstr "حدد مصدر هذا التتبع."
+msgstr "حدد المصدر لهذا التتبع."
 
 #: widgets/waveform/waveform_source_widget.py:40
 msgid ""
 "\"default\" will use the default source which is normally configured using "
 "the Device Control widget."
 msgstr ""
-"سيستخدم \"افتراضي\" المصدر الافتراضي الذي يتم تكوينه عادةً باستخدام أداة "
+"\"افتراضي\" سيستخدم المصدر الافتراضي الذي يتم تكوينه عادةً باستخدام أداة "
 "التحكم في الجهاز."
 
 #: widgets/waveform/waveform_source_widget.py:104
@@ -2872,7 +2879,7 @@ msgstr "إيقاف"
 
 #: widgets/waveform/waveform_widget.py:44
 msgid "Waveform"
-msgstr "شكل الموجة"
+msgstr "الشكل الموجي"
 
 #: widgets/waveform/waveform_widget.py:120
 msgid "General purpose input 0"
@@ -2924,7 +2931,7 @@ msgstr "الحد الأدنى للفاصل الزمني بين إعادة الط
 
 #: widgets/waveform/waveform_widget.py:400
 msgid "Show the minimum and maximum extents fill."
-msgstr "إظهار الحد الأدنى والحد الأقصى لملء الامتدادات."
+msgstr "إظهار الحد الأدنى والحد الأقصى لملء الحدود الدنيا والقصوى."
 
 #: widgets/waveform/waveform_widget.py:403
 msgid "lines"
@@ -2944,15 +2951,15 @@ msgstr "عرض الإطارات في الثانية."
 
 #: widgets/waveform/waveform_widget.py:416
 msgid "Show the statistics on mouse hover."
-msgstr "إظهار الإحصائيات عند تمرير الماوس."
+msgstr "عرض الإحصائيات عند تحريك الماوس."
 
 #: widgets/waveform/waveform_widget.py:421
 msgid "Show the plot statistics on the right."
-msgstr "اعرض إحصائيات الرسم البياني على اليمين."
+msgstr "عرض إحصائيات الرسم على اليمين."
 
 #: widgets/waveform/waveform_widget.py:426
 msgid "Show frequency for dual markers and statistics."
-msgstr "إظهار التردد للعلامات المزدوجة والإحصائيات."
+msgstr "عرض التردد للعلامات والإحصائيات المزدوجة."
 
 #: widgets/waveform/waveform_widget.py:431
 msgid "The quantities to display by default."
@@ -2960,7 +2967,7 @@ msgstr "الكميات المراد عرضها افتراضيًا."
 
 #: widgets/waveform/waveform_widget.py:437
 msgid "The precision to display in digits."
-msgstr "الدقة المراد عرضها بالأرقام."
+msgstr "دقة العرض بالأرقام."
 
 #: widgets/waveform/waveform_widget.py:443
 msgid "Use OpenGL rendering."
@@ -2968,19 +2975,19 @@ msgstr "استخدم عرض OpenGL."
 
 #: widgets/waveform/waveform_widget.py:454
 msgid "Pin the left side (oldest) data so that it stays in view."
-msgstr "قم بتثبيت بيانات الجانب الأيسر (الأقدم) بحيث تبقى في العرض."
+msgstr "تثبيت بيانات الجانب الأيسر (الأقدم) بحيث تبقى في العرض."
 
 #: widgets/waveform/waveform_widget.py:459
 msgid "Pin the right side (newest) data so that it stays in view."
-msgstr "قم بتثبيت بيانات الجانب الأيمن (الأحدث) بحيث تبقى في العرض."
+msgstr "تثبيت بيانات الجانب الأيمن (الأحدث) بحيث تبقى في العرض."
 
 #: widgets/waveform/waveform_widget.py:464
 msgid "The waveform state."
-msgstr "حالة شكل الموجة."
+msgstr "حالة الشكل الموجي."
 
 #: widgets/waveform/waveform_widget.py:470
 msgid "The annotations."
-msgstr "التعليقات التوضيحية."
+msgstr "الشروح"
 
 #: widgets/waveform/waveform_widget.py:476
 msgid "Control location"
@@ -3005,12 +3012,12 @@ msgstr "وضع التعليق التوضيحي للمحور X"
 #: widgets/waveform/waveform_widget.py:495
 #: widgets/waveform/waveform_widget.py:2888
 msgid "Absolute"
-msgstr "مطلق"
+msgstr "المطلق"
 
 #: widgets/waveform/waveform_widget.py:496
 #: widgets/waveform/waveform_widget.py:2893
 msgid "Relative"
-msgstr "النسبية"
+msgstr "نسبي"
 
 #: widgets/waveform/waveform_widget.py:502
 msgid "The available subsources."
@@ -3018,12 +3025,11 @@ msgstr "المصادر الفرعية المتاحة."
 
 #: widgets/waveform/waveform_widget.py:508
 msgid "The selected subsources for each trace."
-msgstr "المصادر الفرعية المحددة لكل تتبع."
+msgstr "المصادر الفرعية المختارة لكل تتبع."
 
 #: widgets/waveform/waveform_widget.py:514
 msgid "The trace priority: highest int value on top, None is off."
-msgstr ""
-"أولوية التتبع: أعلى قيمة int في الأعلى، لا شيء في الأعلى، لا شيء في الأعلى."
+msgstr "أولوية التتبع: أعلى قيمة للتيار في الأعلى، لا شيء متوقف."
 
 #: widgets/waveform/waveform_widget.py:2834
 #: widgets/waveform/waveform_widget.py:3135
@@ -3038,7 +3044,7 @@ msgstr "علامة واحدة"
 #: widgets/waveform/waveform_widget.py:2883
 #: widgets/waveform/waveform_widget.py:2952
 msgid "Dual markers"
-msgstr "العلامات المزدوجة"
+msgstr "علامات مزدوجة"
 
 #: widgets/waveform/waveform_widget.py:2885
 msgid "Mode"
@@ -3064,19 +3070,19 @@ msgstr "النطاق"
 #: widgets/waveform/waveform_widget.py:3005
 #: widgets/waveform/waveform_widget.py:3328
 msgid "Auto"
-msgstr "سيارة"
+msgstr "تلقائي"
 
 #: widgets/waveform/waveform_widget.py:3011
 msgid "Exact"
-msgstr "بالضبط"
+msgstr "دقيق"
 
 #: widgets/waveform/waveform_widget.py:3020
 msgid "Scale"
-msgstr "السلالم"
+msgstr "المقياس"
 
 #: widgets/waveform/waveform_widget.py:3023
 msgid "Linear"
-msgstr "خطي"
+msgstr "الخطي"
 
 #: widgets/waveform/waveform_widget.py:3028
 msgid "Logarithmic"
@@ -3112,7 +3118,7 @@ msgstr "أفقي"
 
 #: widgets/waveform/waveform_widget.py:3127
 msgid "Save"
-msgstr "الحفظ"
+msgstr "حفظ"
 
 #: widgets/waveform/waveform_widget.py:3132
 msgid "Y-axis auto range"
@@ -3144,7 +3150,7 @@ msgstr "الفاصل الزمني"
 
 #: widgets/waveform/waveform_widget.py:3322
 msgid "Zoom"
-msgstr "تكبير/تصغير"
+msgstr "تكبير"
 
 #: widgets/waveform/waveform_widget.py:3326
 msgid "Show statistics"

@@ -5,10 +5,10 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: PROJECT 1.1.0\n"
+"Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-04-03 18:09-0400\n"
-"PO-Revision-Date: 2024-04-03 14:53-0400\n"
+"POT-Creation-Date: 2024-04-04 14:54-0400\n"
+"PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: ja <LL@li.org>\n"
 "Language: ja\n"
@@ -28,11 +28,11 @@ msgstr "バージョン情報"
 
 #: app.py:47 devices/jsdrv/js110.py:135 devices/jsdrv/js220.py:151
 msgid "Target power"
-msgstr "目標パワー"
+msgstr "目標電力"
 
 #: app.py:49
 msgid "Toggle the power to all connected targets."
-msgstr "接続されているすべてのターゲットの電源を切り替える。"
+msgstr "接続されているすべてのターゲットの電源を切り替えます。"
 
 #: app.py:50
 msgid ""
@@ -40,21 +40,21 @@ msgid ""
 "can use this feature to perform a power cycle reset for the connected target"
 " devices."
 msgstr ""
-"この機能により、接続されているすべての機器は強制的に電流が流れなくなります。この機能を使用して、接続されているターゲット機器のパワーサイクルリセットを実行できます。"
+"この機能は、接続されているすべての測定器を強制的に電流が流れないようにします。この機能を使用して、接続されているターゲット機器の電源サイクルリセットを実行できます。"
 
 #: app.py:53
 msgid "The JS220 disconnects the current terminals."
-msgstr "JS220は電流端子を切断する。"
+msgstr "JS220は電流端子を切り離します。"
 
 #: app.py:54
 msgid ""
 "The JS110 disconnects the current from IN+ to OUT+, but the system setup "
 "must prevent excessive backwards current."
-msgstr "JS110はIN+からOUT+への電流を遮断するが、システム設定は過大な逆方向電流を防ぐ必要がある。"
+msgstr "JS110はIN+からOUT+への電流を切断しますが、システムのセットアップでは過大な逆方向電流を防止する必要があります。"
 
 #: app.py:60 widgets/device_control/js220_ctrl_widget.py:50
 msgid "Fuse engaged indicator"
-msgstr "ヒューズ接続インジケーター"
+msgstr "ヒューズ作動インジケーター"
 
 #: app.py:62
 msgid ""
@@ -62,11 +62,11 @@ msgid ""
 "engaged fuse. Instruments with engaged fuses prevent current flow until "
 "cleared."
 msgstr ""
-"このインジケータは、接続されている計器の少なくとも1つにヒューズが接続されている場合に点灯します。ヒューズが切れた計器は、ヒューズが切れるまで電流が流れなくなります。"
+"このインジケータは、接続された計器のうち少なくとも1台にヒューズが接続されている場合にアクティブになります。ヒューズが作動している機器は、解除されるまで電流が流れません。"
 
 #: app.py:65 widgets/device_control/js220_ctrl_widget.py:55
 msgid "Press to clear."
-msgstr "を押してクリアする。"
+msgstr "を押してクリアします。"
 
 #: app.py:70
 msgid "Statistics display"
@@ -74,13 +74,13 @@ msgstr "統計表示"
 
 #: app.py:72
 msgid "Click to toggle live streaming statistics."
-msgstr "クリックするとライブストリーミングの統計が切り替わります。"
+msgstr "クリックするとライブストリーミング統計が切り替わります。"
 
 #: app.py:73
 msgid ""
 "When enabled, the widgets will display the statistics data as it arrives "
 "from the connected instruments."
-msgstr "有効にすると、ウィジェットは接続された計器から送られてくる統計データを表示します。"
+msgstr "ウィジェットを有効にすると、接続された測定器から送られてくる統計データがウィジェットに表示されます。"
 
 #: app.py:75
 msgid ""
@@ -94,13 +94,13 @@ msgstr "統計記録"
 
 #: app.py:85
 msgid "Click to control streaming statistics data recording."
-msgstr "ストリーミング統計データの記録をコントロールするためにクリックします。"
+msgstr "クリックすると、ストリーミング統計データ記録を制御できます。"
 
 #: app.py:86
 msgid ""
 "Click once to start a recording to a CSV file. Click again to stop the "
 "recording."
-msgstr "CSVファイルへの記録を開始するには、1回クリックします。もう一度クリックすると録画が停止します。"
+msgstr "CSVファイルへの記録を開始するには、1回クリックします。もう一度クリックすると録画を停止します。"
 
 #: app.py:87
 msgid ""
@@ -114,34 +114,33 @@ msgstr "信号サンプルストリーミング"
 
 #: app.py:96
 msgid "Click to toggle sample data streaming."
-msgstr "クリックするとサンプルデータのストリーミングが切り替わります。"
+msgstr "クリックするとサンプル・データのストリーミングが切り替わります。"
 
 #: app.py:97
 msgid ""
 "When enabled, stream sample data from all open sample sources and configure "
 "all sample widgets for acquisition mode."
-msgstr ""
-"有効にすると、開いているすべてのサンプルソースからサンプルデータをストリーミングし、すべてのサンプルウィジェットをアクイジションモードに設定します。"
+msgstr "有効化すると、すべてのオープンサンプルソースからサンプルデータをストリーミングし、すべてのサンプルウィジェットを収集モードに設定します。"
 
 #: app.py:99
 msgid ""
 "When disabled, stop sample streaming and configure all sample widgets for "
 "buffer mode."
-msgstr "無効にすると、サンプルストリーミングを停止し、すべてのサンプルウィジェットをバッファモードに設定します。"
+msgstr "無効にすると、サンプルストリーミングを停止し、すべてのサンプルウィジェットをバッファーモードに設定します。"
 
 #: app.py:106
 msgid "Signal sample recording"
-msgstr "信号サンプルの記録"
+msgstr "信号サンプル記録"
 
 #: app.py:108
 msgid "Click to control signal sample recording."
-msgstr "信号サンプルの録音をコントロールします。"
+msgstr "クリックすると信号サンプルの記録を制御します。"
 
 #: app.py:109
 msgid ""
 "Click once to start a recording to a JLS file. Click again to stop the "
 "recording."
-msgstr "JLSファイルへの録音を開始するには、1回クリックします。もう一度クリックすると録画が停止します。"
+msgstr "クリックすると、JLS ファイルへの記録が開始されます。もう一度クリックすると録画が停止します。"
 
 #: app.py:111
 msgid ""
@@ -149,23 +148,23 @@ msgid ""
 "at their configured sample rates. To reduce the file size, you can disable "
 "sources, disable signals, and/or reduce the sample rates."
 msgstr ""
-"レコーディングは、すべての有効なサンプルソースとシグナルから、設定されたサンプルレートでデータをキャプチャします。ファイルサイズを小さくするには、ソースを無効にしたり、シグナルを無効にしたり、サンプルレートを下げることができます。"
+"録音は、有効化されたすべてのサンプルソースと信号から、設定されたサンプルレートでデータをキャプチャします。ファイルサイズを小さくするには、ソースを無効にしたり、信号を無効にしたり、サンプルレートを下げることができます。"
 
 #: app.py:120
 msgid "The default unique_id for the default statistics streaming source."
-msgstr "デフォルトの統計ストリーミング・ソースの一意な ID。"
+msgstr "デフォルトの統計ストリーミング・ソースのデフォルトのユニークID。"
 
 #: app.py:125
 msgid "The unique_id for the default signal streaming source."
-msgstr "デフォルトのシグナル・ストリーミング・ソースのユニークID。"
+msgstr "デフォルトの信号ストリーミング・ソースのユニークID。"
 
 #: app.py:130
 msgid "The unique_id for the default signal buffer source."
-msgstr "デフォルトのシグナル・バッファ・ソースのユニークID。"
+msgstr "デフォルトの信号バッファ・ソースのユニークID。"
 
 #: app.py:135
 msgid "Check for software updates."
-msgstr "ソフトウェアのアップデートを確認する。"
+msgstr "ソフトウェアのアップデートをチェック"
 
 #: app.py:140
 msgid "The software update channel."
@@ -173,7 +172,7 @@ msgstr "ソフトウェア・アップデート・チャンネル。"
 
 #: app.py:143
 msgid "alpha"
-msgstr "アルファ"
+msgstr "α"
 
 #: app.py:144
 msgid "beta"
@@ -181,11 +180,11 @@ msgstr "ベータ"
 
 #: app.py:145
 msgid "stable"
-msgstr "厩舎"
+msgstr "安定"
 
 #: app.py:150
 msgid "Check for device firmware updates."
-msgstr "デバイスのファームウェアのアップデートを確認する。"
+msgstr "デバイスのファームウェアアップデートをチェックします。"
 
 #: app.py:155 units.py:33
 msgid "The units to display."
@@ -210,15 +209,18 @@ msgid ""
 "this application uses \"desktop\" rendering. If OpenGL is not well-supported"
 " by your graphics drivers, you can select \"software\" rendering."
 msgstr ""
-"このアプリケーションはOpenGLを使用してグラフィックスレンダリングを高速化します。OpenGLにはレンダリングのための複数のオプションがあり、プラットフォームによって異なります。デフォルトでは、このアプリケーションは「デスクトップ」レンダリングを使用します。OpenGLがグラフィックドライバで十分にサポートされていない場合は、「ソフトウェア」レンダリングを選択できます。"
+"このアプリケーションは、OpenGL "
+"を使用してグラフィックス・レンダリングを高速化します。OpenGLにはレンダリングに複数のオプションがあり、プラットフォームによって異なります。デフォルトでは、このアプリケーションは"
+" \"デスクトッ プ \"レンダリングを使用します。OpenGLがグラフィック・ドライバで十分にサポートされていない場合は、 \"ソフトウェア "
+"\"レンダリングを選択できます。"
 
 #: app.py:171
 msgid "Selecting \"ANGLE\" may break copy as image and save as image."
-msgstr "ANGLE \"を選択すると、画像としてのコピーと画像としての保存が壊れることがあります。"
+msgstr "ANGLE」を選択すると、画像としてコピーしたり、画像として保存したりすることができません。"
 
 #: app.py:172
 msgid "UI restart required for change to take effect."
-msgstr "変更を有効にするにはUIの再起動が必要。"
+msgstr "変更を有効にするにはUIの再起動が必要です。"
 
 #: app.py:174
 msgid "desktop"
@@ -234,15 +236,15 @@ msgstr "自動検出"
 
 #: app.py:178
 msgid "Not specified"
-msgstr "特になし"
+msgstr "指定なし"
 
 #: app.py:184
 msgid "Prompt to switch from Intel graphics to software renderer."
-msgstr "Intelグラフィックスからソフトウェアレンダラーへの切り替えを促すプロンプト。"
+msgstr "Intel グラフィックスからソフトウェアレンダラーへの切り替えを促します。"
 
 #: error_dialog.py:42 error_window.py:311
 msgid "Error"
-msgstr "エラー"
+msgstr "誤差"
 
 #: error_window.py:25
 msgid "The Joulescope UI encountered an error, and it cannot start correctly."
@@ -252,13 +254,13 @@ msgstr "Joulescope UI でエラーが発生し、正しく起動できません�
 msgid ""
 "We are here to help troubleshoot! Fill in the details below, and click "
 "Submit."
-msgstr "トラブルシューティングのお手伝いをいたします！以下の詳細をご記入の上、送信をクリックしてください。"
+msgstr "トラブルシューティングをお手伝いします！以下の詳細を記入し、送信をクリックしてください。"
 
 #: error_window.py:27
 msgid ""
 "Please provide your contact information so that we can contact you and "
 "assist with troubleshooting this issue."
-msgstr "この問題のトラブルシューティングをお手伝いするために、お客様の連絡先をお知らせください。"
+msgstr "この問題のトラブルシューティングを支援するために、お客様の連絡先情報をお知らせください。"
 
 #: error_window.py:30
 msgid "Select an error recovery option."
@@ -268,7 +270,7 @@ msgstr "エラー回復オプションを選択します。"
 msgid ""
 "Our offices are currently closed until {return_date}. We will respond within"
 " {response_time} business days after we return."
-msgstr "現在、{return_date}まで休業中です。折り返し、{response_time}営業日以内にご返信いたします。"
+msgstr "現在、弊社は{return_date}まで休業中です。復帰後、{response_time}営業日以内に対応いたします。"
 
 #: error_window.py:51
 msgid "Submit failed. Ensure that your computer can access the internet."
@@ -280,11 +282,11 @@ msgstr "送信は正常に完了しました。"
 
 #: error_window.py:86
 msgid "Contact information"
-msgstr "連絡先"
+msgstr "お問い合わせ先"
 
 #: error_window.py:90
 msgid "First name"
-msgstr "名前"
+msgstr "名"
 
 #: error_window.py:93
 msgid "Email"
@@ -292,7 +294,7 @@ msgstr "電子メール"
 
 #: error_window.py:103
 msgid "Description"
-msgstr "説明"
+msgstr "商品概要"
 
 #: error_window.py:112 widgets/waveform/waveform_widget.py:3347
 msgid "Edit"
@@ -300,7 +302,7 @@ msgstr "編集"
 
 #: error_window.py:113
 msgid "View as Markdown"
-msgstr "マークダウンとして表示"
+msgstr "マークダウンで表示"
 
 #: error_window.py:119
 msgid "Abort"
@@ -312,15 +314,15 @@ msgstr "表示"
 
 #: error_window.py:121
 msgid "Submit"
-msgstr "投稿する"
+msgstr "提出"
 
 #: error_window.py:185
 msgid "Submit in progress."
-msgstr "提出中。"
+msgstr "提出中"
 
 #: error_window.py:281
 msgid "Revert to previous configuration"
-msgstr "以前の設定に戻す"
+msgstr "前の設定に戻す"
 
 #: error_window.py:282
 msgid "Revert to defaults"
@@ -329,7 +331,7 @@ msgstr "デフォルトに戻す"
 #: error_window.py:283 main.py:363 main.py:409
 #: widgets/js220_cal/js220_cal_widget.py:38
 msgid "Exit"
-msgstr "出口"
+msgstr "終了"
 
 #: exporter.py:49 widgets/signal_record/signal_record_config_widget.py:148
 #: widgets/statistics_record/statistics_record_config_widget.py:111
@@ -344,13 +346,13 @@ msgstr "ファイル名"
 #: exporter.py:68 widgets/notes/notes_widget.py:21
 #: widgets/signal_record/signal_record_config_widget.py:171
 msgid "Notes"
-msgstr "備考"
+msgstr "注記"
 
 #: exporter.py:86 widgets/signal_record/signal_record_config_widget.py:241
 #: widgets/signal_record/signal_record_config_widget.py:268
 #: widgets/statistics_record/statistics_record_config_widget.py:173
 msgid "Select save location"
-msgstr "保存場所の選択"
+msgstr "保存場所を選択"
 
 #: exporter.py:136
 msgid "Export configuration"
@@ -362,17 +364,17 @@ msgstr "輸出業者"
 
 #: exporter.py:169
 msgid "Export data to a JLS file"
-msgstr "データをJLSファイルにエクスポート"
+msgstr "データを JLS ファイルにエクスポート"
 
 #: exporter.py:170
 msgid ""
 "Exporting data to a JLS file. You can open this file later to display the "
 "exported data."
-msgstr "データを JLS ファイルにエクスポートします。後でこのファイルを開いて、エクスポートしたデータを表示することができます。"
+msgstr "データを JLS ファイルにエクスポートします。このファイルを後で開いて、エクスポートしたデータを表示することができます。"
 
 #: getting_started.py:20
 msgid "Getting Started with Your Joulescope"
-msgstr "ジュールスコープ入門"
+msgstr "Joulescopeを使い始めるには"
 
 #: getting_started.py:22
 msgid "Safety"
@@ -380,7 +382,7 @@ msgstr "安全性"
 
 #: getting_started.py:23
 msgid "The voltage between any sensor port must never exceed ±15V."
-msgstr "どのセンサーポート間の電圧も±15Vを超えてはならない。"
+msgstr "センサポート間の電圧は±15Vを超えてはなりません。"
 
 #: getting_started.py:24
 msgid "The JS220 sensor ports are Current+, Current-, Voltage+, Voltage-."
@@ -388,7 +390,7 @@ msgstr "JS220のセンサーポートは、電流+、電流-、電圧+、電圧-
 
 #: getting_started.py:25
 msgid "The JS110 sensor ports are IN+, IN- OUT+, and OUT-."
-msgstr "JS110 のセンサーポートは IN+、IN- OUT+、OUT- です。"
+msgstr "JS110のセンサーポートはIN+、IN- OUT+、OUT-です。"
 
 #: getting_started.py:26
 msgid ""
@@ -396,8 +398,7 @@ msgid ""
 " sensor port and USB ground must never exceed ±48V. The GPI/O and trigger "
 "ports are referenced to USB ground."
 msgstr ""
-"センサーポートはUSBから電気的に絶縁されている。センサ・ポートと USB グラウンド間の電圧は、±48V "
-"を超えてはなりません。GPI/OとトリガポートはUSBグランドを基準としています。"
+"センサーポートはUSBから電気的に絶縁されています。センサ・ポートとUSBグランド間の電圧は±48Vを超えてはなりません。GPI/Oとトリガ・ポートはUSBグランドを基準としています。"
 
 #: getting_started.py:30
 msgid "Connect"
@@ -408,7 +409,7 @@ msgid ""
 "Connect Joulescope's USB port to your computer using the provided cable. Use"
 " an adapter or suitable cable if your computer only has USB Type C ports."
 msgstr ""
-"付属のケーブルを使用して、ジュールスコープのUSBポートをコンピュータに接続します。コンピュータにUSB Type "
+"付属のケーブルを使用して、JoulescopeのUSBポートをコンピュータに接続します。お使いのコンピュータにUSB Type "
 "Cポートしかない場合は、アダプタまたは適切なケーブルを使用してください。"
 
 #: getting_started.py:33
@@ -417,14 +418,15 @@ msgid ""
 "device under test. Connect the voltage port to the power supply. See the "
 "Joulescope JS220 User's Guide for more connection examples."
 msgstr ""
-"JS220の場合、電流ポートを電源と被測定デバイスの間に接続する。電圧ポートを電源に接続します。その他の接続例については、ジュールスコープJS220ユーザーズガイドを参照してください。"
+"JS220では、電流ポートを電源と被試験デバイスの間に接続します。電圧ポートは電源に接続します。接続例についてはJoulescope "
+"JS220ユーザーズガイドを参照してください。"
 
 #: getting_started.py:36
 msgid ""
 "For the JS110, connect the Joulescope IN port to your power supply. Connect "
 "the Joulescope OUT port to your target device."
 msgstr ""
-"JS110の場合、Joulescope INポートを電源に接続します。Joulescope OUTポートをターゲット・デバイスに接続してください。"
+"JS110の場合、Joulescope INポートを電源に接続します。Joulescope OUTポートをターゲット・デバイスに接続します。"
 
 #: getting_started.py:39
 msgid "Measure"
@@ -434,7 +436,7 @@ msgstr "測定"
 msgid ""
 "The Joulescope software starts in the Multimeter View displaying the value "
 "current, voltage, power, and energy."
-msgstr "Joulescope ソフトウェアは、電流、電圧、電力、エネルギーの値を表示するマルチメーター・ビューで起動します。"
+msgstr "Joulescopeソフトウェアは、電流、電圧、電力、エネルギーの値を表示するマルチメーター・ビューで起動します。"
 
 #: getting_started.py:42
 msgid ""
@@ -444,15 +446,15 @@ msgstr "View → Oscilloscope を選択すると、オシロスコープ・ビ�
 
 #: getting_started.py:44
 msgid "Press the Play/Pause button to start and stop sample streaming."
-msgstr "再生/一時停止ボタンを押して、サンプルストリーミングを開始/停止します。"
+msgstr "再生/一時停止ボタンを押して、サンプルのストリーミングを開始/停止します。"
 
 #: getting_started.py:45
 msgid "Use the scroll wheel to zoom the time x-axis."
-msgstr "スクロールホイールを使って時間X軸をズームする。"
+msgstr "スクロールホイールを使用して、時間X軸をズームします。"
 
 #: getting_started.py:46
 msgid "Left-click and drag to pan in time."
-msgstr "左クリックしたままドラッグすると、時間をパンすることができる。"
+msgstr "左クリック＆ドラッグで時間軸をパンします。"
 
 #: getting_started.py:47
 msgid "Right-click for context sensitive menus and more options."
@@ -462,7 +464,7 @@ msgstr "右クリックで状況依存メニューやその他のオプション
 msgid ""
 "Control-click or two finger click for context sensitive menus and more "
 "options."
-msgstr "Controlキーを押しながらクリックするか、2本指でクリックすると、状況に応じたメニューやその他のオプションが表示されます。"
+msgstr "Controlキーを押しながらクリックするか、2本指でクリックすると、コンテキストに応じたメニューやその他のオプションが表示されます。"
 
 #: getting_started.py:53
 msgid "Support"
@@ -480,7 +482,7 @@ msgid ""
 "card, please adjust your graphics settings to run this application using the"
 " graphics card."
 msgstr ""
-"このコンピューターにはインテルグラフィックスが搭載されています。コンピュータにディスクリート・グラフィックス・カードが搭載されている場合は、グラフィックス・カードを使ってこのアプリケーションを実行するように、グラフィックス設定を調整してください。"
+"このコンピュータにはインテルグラフィックスが搭載されています。コンピュータにディスクリート・グラフィックス・カードが搭載されている場合は、グラフィックス・カードを使ってこのアプリケーションを実行するように、グラフィックス設定を調整してください。"
 
 #: intel_graphics_dialog.py:26
 msgid ""
@@ -488,11 +490,11 @@ msgid ""
 "graphics drivers. You can download the latest graphics drivers from your "
 "computer manufacturer or Intel."
 msgstr ""
-"コンピュータにIntelグラフィックスしか搭載されていない場合は、グラフィックスドライバを更新することをお勧めします。最新のグラフィックドライバは、コンピュータメーカーまたはIntelからダウンロードできます。"
+"コンピュータにIntelグラフィックスしか搭載されていない場合は、グラフィックス・ドライバを更新することをお勧めします。最新のグラフィックドライバは、コンピュータメーカーまたはインテルからダウンロードできます。"
 
 #: intel_graphics_dialog.py:29
 msgid "You may observe strange graphics hangs with the latest Intel driver."
-msgstr "最新のインテル・ドライバを使用すると、グラフィックがおかしくなることがあります。"
+msgstr "最新のIntelドライバを使用すると、グラフィックスで奇妙なハングが発生することがあります。"
 
 #: intel_graphics_dialog.py:30
 msgid ""
@@ -503,11 +505,11 @@ msgid ""
 "application screen. You will need to close and reopen this application for "
 "the change to take effect."
 msgstr ""
-"あなたのコンピュータでこの現象が発生した場合、ソフトウェアOpenGLレンダラーに切り替えることができます。ソフトウェアOpenGLレンダラーは、インテルドライバーの不安定性を回避できるかもしれませんが、動作が遅くなり、パフォーマンスの問題を引き起こす可能性があります。少数のコンピュータでは、正しく実行されず、アプリケーション画面が真っ白になることがあります。変更を有効にするには、このアプリケーションを一旦終了し、再度開く必要があります。"
+"お使いのコンピュータでこの現象が発生した場合、ソフトウェアOpenGLレンダラーに切り替えることができます。ソフトウェアOpenGLレンダラーは、Intelドライバーの不安定性を回避できるかもしれませんが、動作が遅くなり、パフォーマンスの問題を引き起こす可能性があります。少数のコンピュータでは、正しく実行されず、アプリケーション画面が真っ白になることがあります。変更を有効にするには、このアプリケーションを一旦終了し、再度開く必要があります。"
 
 #: intel_graphics_dialog.py:38
 msgid "Would you like to switch to the software OpenGL renderer?"
-msgstr "ソフトウェアOpenGLレンダラーに切り替えたいですか？"
+msgstr "ソフトウェアOpenGLレンダラーに切り替えますか？"
 
 #: intel_graphics_dialog.py:39
 msgid ""
@@ -516,17 +518,17 @@ msgid ""
 " can select the OpenGL renderer at any time using Widgets → Settings → "
 "Common → opengl. The default is \"desktop\"."
 msgstr ""
-"不安な場合は、「No」を選択し、「Do not show "
-"again」のチェックは外したままにしてください。グラフィックスがハングアップするのを確認したら、今後「はい」を選択することができます。OpenGLレンダラーは、ウィジェット"
-" → 設定 → 共通 → openglでいつでも選択できます。デフォルトは \"デスクトップ \"です。"
+"不明な場合は、\"No \"を選択し、\"Do not show again "
+"\"のチェックは外したままにしてください。グラフィックスがハングアップする場合は、今後「はい」を選択してください。OpenGL "
+"レンダラーは、ウィジェット → 設定 → 共通 → opengl でいつでも選択できます。デフォルトは \"デスクトップ \"です。"
 
 #: intel_graphics_dialog.py:82
 msgid "Do not show again"
-msgstr "二度と表示しない"
+msgstr "再表示しない"
 
 #: intel_graphics_dialog.py:91
 msgid "Intel graphics detected"
-msgstr "インテルグラフィックスが検出された"
+msgstr "インテル・グラフィックス検出"
 
 #: main.py:70 widgets/value/value_widget.py:653
 msgid "Multimeter"
@@ -542,7 +544,7 @@ msgstr "ファイル"
 
 #: main.py:82
 msgid "The UI status bar display mode"
-msgstr "UIステータスバーの表示モード"
+msgstr "UIステータスバー表示モード"
 
 #: main.py:83
 msgid ""
@@ -550,12 +552,12 @@ msgid ""
 "bottom of the UI window. You should usually leave this set to \"normal\" "
 "unless you want more detail concerning the UI internal operation."
 msgstr ""
-"この設定は、UIウィンドウの下部にあるステータスバーに表示される詳細の量をコントロールする。UIの内部動作に関する詳細が必要でない限り、通常は "
-"\"normal \"のままにしておくべきである。"
+"この設定は、UIウィンドウの下部にあるステータスバーに表示される詳細の量を制御します。UI の内部動作に関する詳細が必要な場合を除き、通常は "
+"\"normal\" のままに設定してください。"
 
 #: main.py:88 safe_mode.py:43
 msgid "Normal"
-msgstr "ノーマル"
+msgstr "通常"
 
 #: main.py:89
 msgid "Troubleshoot"
@@ -563,17 +565,17 @@ msgstr "トラブルシューティング"
 
 #: main.py:95
 msgid "Enable developer mode."
-msgstr "開発者モードを有効にする。"
+msgstr "開発者モードを有効にします。"
 
 #: main.py:108
 msgid "PubSub utilization"
-msgstr "パブサブ利用率"
+msgstr "パブサブ利用"
 
 #: main.py:109
 msgid ""
 "Display the number of actions processed by the publish-subscribe broker in "
 "each second."
-msgstr "パブリッシュ・サブスクライブ・ブローカーが1秒間に処理したアクションの数を表示する。"
+msgstr "パブリッシュ・サブスクライブ・ブローカーが各秒に処理したアクション数を表示します。"
 
 #: main.py:114
 msgid "CPU utilization"
@@ -583,7 +585,7 @@ msgstr "CPU使用率"
 msgid ""
 "Display the CPU utilization by this application and the total CPU "
 "utilization by all applications. The value is displayed in percent."
-msgstr "このアプリケーションのCPU使用率と、すべてのアプリケーションのCPU使用率の合計を表示します。値はパーセントで表示されます。"
+msgstr "このアプリケーションによるCPU使用率と、すべてのアプリケーションによるCPU使用率の合計を表示します。値はパーセントで表示されます。"
 
 #: main.py:121
 msgid "Memory utilization"
@@ -593,7 +595,7 @@ msgstr "メモリ使用率"
 msgid ""
 "Display the memory (RAM) utilization by this application and by all "
 "applications. The value is displayed in percent."
-msgstr "このアプリケーションとすべてのアプリケーションのメモリ（RAM）使用率を表示します。値はパーセントで表示されます。"
+msgstr "このアプリケーションおよびすべてのアプリケーションによるメモリ（RAM）使用率を表示します。値はパーセントで表示されます。"
 
 #: main.py:216
 msgid "UI"
@@ -617,11 +619,11 @@ msgstr "変更履歴"
 
 #: main.py:334 widgets/help/help_widget.py:59
 msgid "Report Issue"
-msgstr "報告課題"
+msgstr "報告書発行"
 
 #: main.py:335
 msgid "View logs..."
-msgstr "過去ログを見る"
+msgstr "ログを見る"
 
 #: main.py:336 widgets/hamburger/hamburger_widget.py:23
 msgid "Credits"
@@ -629,7 +631,7 @@ msgstr "クレジット"
 
 #: main.py:337 widgets/hamburger/hamburger_widget.py:24
 msgid "About"
-msgstr "について"
+msgstr "Joulescopeについて"
 
 #: main.py:359 main.py:402
 msgid "&File"
@@ -645,7 +647,7 @@ msgstr "最近のオープン"
 
 #: main.py:362 main.py:408
 msgid "Clear config and exit"
-msgstr "設定をクリアして終了する"
+msgstr "設定をクリアして終了"
 
 #: main.py:366 widgets/settings/settings_widget.py:541
 msgid "Widgets"
@@ -657,11 +659,11 @@ msgstr "ツール"
 
 #: main.py:368
 msgid "Clear Accumulators"
-msgstr "クリア・アキュムレーター"
+msgstr "クリアアキュムレータ"
 
 #: main.py:403
 msgid "Info"
-msgstr "インフォメーション"
+msgstr "情報"
 
 #: main.py:404 widget_tools.py:92 widgets/settings/settings_widget.py:31
 #: widgets/settings/settings_widget.py:574
@@ -675,15 +677,15 @@ msgstr "管理"
 
 #: main.py:730
 msgid "Select file to open"
-msgstr "開くファイルを選択する"
+msgstr "ファイルを選択して開く"
 
 #: paths.py:30 styles/manager.py:46
 msgid "The name for this widget."
-msgstr "このウィジェットの名前。"
+msgstr "このウィジェットの名称。"
 
 #: paths.py:31
 msgid "Paths"
-msgstr "パス"
+msgstr "経路"
 
 #: paths.py:35
 msgid "Default path"
@@ -695,23 +697,23 @@ msgstr "ファイルの読み込みと保存のデフォルトパス。"
 
 #: paths.py:42
 msgid "Fixed default path"
-msgstr "デフォルトのパスを修正"
+msgstr "固定デフォルトパス"
 
 #: paths.py:43
 msgid "The fixed default path for loading and saving files."
-msgstr "ファイルの読み込みと保存のための固定デフォルトパス。"
+msgstr "ファイルをロードおよび保存するための固定デフォルトパス。"
 
 #: paths.py:48 paths.py:69
 msgid "Most recent save path"
-msgstr "直近のセーブパス"
+msgstr "最新の保存パス"
 
 #: paths.py:54 paths.py:70
 msgid "Most recent load path"
-msgstr "直近のロードパス"
+msgstr "最新の負荷経路"
 
 #: paths.py:60
 msgid "Most recent path"
-msgstr "直近のパス"
+msgstr "最新パス"
 
 #: paths.py:66
 msgid "The default path method"
@@ -723,7 +725,7 @@ msgstr "固定パス"
 
 #: paths.py:71
 msgid "Most recently used path"
-msgstr "最近使用したパス"
+msgstr "最近使用されたパス"
 
 #: paths.py:77
 msgid "Most recent file list"
@@ -731,7 +733,7 @@ msgstr "最新ファイルリスト"
 
 #: paths.py:83
 msgid "Most recently used length"
-msgstr "最近使用した長さ"
+msgstr "最近使用された長さ"
 
 #: safe_mode.py:31
 msgid "Options"
@@ -739,7 +741,7 @@ msgstr "オプション"
 
 #: safe_mode.py:34
 msgid "Load configuration on start"
-msgstr "起動時に設定をロードする"
+msgstr "起動時の負荷設定"
 
 #: safe_mode.py:36
 msgid "Save configuration on exit"
@@ -751,11 +753,11 @@ msgstr "終了時に設定をクリア"
 
 #: safe_mode.py:41
 msgid "Action"
-msgstr "アクション"
+msgstr "動作"
 
 #: safe_mode.py:45
 msgid "Report issue"
-msgstr "報告課題"
+msgstr "レポート発行"
 
 #: safe_mode.py:47
 msgid "Close"
@@ -765,58 +767,68 @@ msgstr "閉じる"
 msgid "Safe Mode Configuration"
 msgstr "セーフモード設定"
 
-#: software_update.py:71
+#: software_update.py:61
+msgid ""
+"We have detected that you are running the Joulescope UI from a python "
+"package or source."
+msgstr "お客様がJoulescope UIをpythonパッケージまたはソースから実行していることを検出しました。"
+
+#: software_update.py:62
+msgid "To update your python packages, issue the following command:"
+msgstr "pythonパッケージを更新するには、以下のコマンドを実行します："
+
+#: software_update.py:72
 msgid "Software update"
 msgstr "ソフトウェア・アップデート"
 
-#: software_update.py:75
-msgid "A software update is available:"
-msgstr "ソフトウェアのアップデートが可能です："
-
 #: software_update.py:76
-msgid "Current version"
-msgstr "現在のバージョン"
+msgid "A software update is available:"
+msgstr "ソフトウェア・アップデートが利用可能です："
 
 #: software_update.py:77
-msgid "Available version"
-msgstr "利用可能なバージョン"
+msgid "Existing version"
+msgstr "既存バージョン"
 
 #: software_update.py:78
+msgid "Available version"
+msgstr "バージョン"
+
+#: software_update.py:79
 msgid "Channel"
 msgstr "チャンネル"
 
-#: software_update.py:313
+#: software_update.py:314
 msgid "Update Now"
 msgstr "今すぐ更新"
 
-#: software_update.py:315
+#: software_update.py:316
 msgid "Later"
-msgstr "後日"
+msgstr "後"
 
-#: software_update.py:323
+#: software_update.py:324
 msgid "Copy to clipboard"
 msgstr "クリップボードにコピー"
 
-#: software_update.py:329 widgets/device_control/device_update_dialog.py:44
+#: software_update.py:330 widgets/device_control/device_update_dialog.py:44
 msgid "OK"
 msgstr "OK"
 
 #: source_selector.py:220 widgets/developer/log_view_widget.py:30
 #: widgets/jls_info/jls_info_widget.py:47
 msgid "Source"
-msgstr "ソース"
+msgstr "出典"
 
 #: units.py:35
 msgid "Use the application defaults"
-msgstr "アプリケーションのデフォルトを使用する"
+msgstr "アプリケーションのデフォルトを使用"
 
 #: view.py:68
 msgid "The active theme."
-msgstr "アクティブなテーマ。"
+msgstr "アクティブなテーマ"
 
 #: view.py:70
 msgid "Joulescope standard theme"
-msgstr "ジュールスコープ標準テーマ"
+msgstr "Joulescope標準テーマ"
 
 #: view.py:70
 msgid "System OS-specific theme"
@@ -840,7 +852,7 @@ msgstr "フォントスキーム名。"
 
 #: view.py:83
 msgid "Joulescope standard font theme"
-msgstr "ジュールスコープ標準フォントテーマ"
+msgstr "Joulescope標準フォントテーマ"
 
 #: view.py:102 widgets/view_manager/view_manager_widget.py:146
 msgid "New View"
@@ -848,7 +860,7 @@ msgstr "新しいビュー"
 
 #: zip_inspector.py:23
 msgid "ZIP Inspector"
-msgstr "ZIPインスペクター"
+msgstr "ZIPインスペクタ"
 
 #: zip_inspector.py:91
 msgid "ZIP File"
@@ -860,7 +872,7 @@ msgstr "内容"
 
 #: devices/jsdrv/device.py:20
 msgid "Enable the streaming for the selected current range."
-msgstr "選択した現在範囲のストリーミングを有効にする。"
+msgstr "選択した電流範囲のストリーミングを有効にします。"
 
 #: devices/jsdrv/device.py:21
 msgid ""
@@ -868,7 +880,7 @@ msgid ""
 " to measure your current signal. It can also be helpful in separating target"
 " system behavior from the small current range switching artifacts."
 msgstr ""
-"電流レンジは、ジュールスコープがどのようにオートレンジして電流信号を測定するかを理解するのに役立ちます。また、小電流レンジのスイッチングアーチファクトからターゲットシステムの動作を分離する際にも役立ちます。"
+"電流レンジは、ジュールスコープが電流信号を測定するためにどのようにオートレンジするかを理解するのに役立ちます。また、ターゲット・システムの動作を小電流レンジのスイッチング・アーティファクトから分離する際にも役立ちます。"
 
 #: devices/jsdrv/js110.py:29 devices/jsdrv/js110.py:65
 #: devices/jsdrv/js220.py:47 devices/jsdrv/js220.py:83
@@ -888,7 +900,7 @@ msgid ""
 "are instrumenting a system using multiple Joulescopes."
 msgstr ""
 "この設定により、JS110 "
-"の使用方法を反映させるためにデフォルトを変更することができます。この設定は、複数のジュールスコープを使用してシステムを測定する場合に最も便利です。"
+"の使用方法をより反映させるために、デフォルトを変更することができます。この設定は、複数のジュールスコープを使用してシステムを計測する場合に最も便利です。"
 
 #: devices/jsdrv/js110.py:41 devices/jsdrv/js110.py:71
 #: devices/jsdrv/js220.py:59 devices/jsdrv/js220.py:89
@@ -898,11 +910,11 @@ msgstr "デバイス情報"
 
 #: devices/jsdrv/js110.py:47 devices/jsdrv/js220.py:65
 msgid "Device state indicator"
-msgstr "デバイスの状態表示"
+msgstr "デバイス状態インジケーター"
 
 #: devices/jsdrv/js110.py:59 devices/jsdrv/js220.py:77
 msgid "Attempt to automatically open"
-msgstr "自動的に開こうとする"
+msgstr "自動オープンの試み"
 
 #: devices/jsdrv/js110.py:81 devices/jsdrv/js220.py:99
 msgid "Signal frequency"
@@ -915,7 +927,7 @@ msgid ""
 "storage requirements for long captures where lower temporal accuracy is "
 "sufficient."
 msgstr ""
-"この設定は、測定信号電流、電圧、および電力の出力サンプリング周波数を制御する。低い時間精度で十分な長時間のキャプチャの場合、データ保存要件を減らすためにこの設定を使用します。"
+"この設定は、測定信号電流、電圧、電力の出力サンプリング周波数を制御します。この設定は、時間的精度が低くても十分な長時間のキャプチャで、データ保存の要件を減らすために使用します。"
 
 #: devices/jsdrv/js110.py:87
 msgid ""
@@ -923,12 +935,11 @@ msgid ""
 "the host. This setting controls additional optional downsampling that is "
 "performed on the host."
 msgstr ""
-"JS110 は常に 2MHz "
-"でサンプリングし、生サンプルをホストに送信します。この設定は、ホスト上で実行される追加のオプションのダウンサンプリングを制御します。"
+"JS110は常に2MHzでサンプリングし、生サンプルをホストに送信します。この設定は、ホスト上で実行される追加オプションのダウンサンプリングを制御します。"
 
 #: devices/jsdrv/js110.py:117 devices/jsdrv/js220.py:133
 msgid "Statistics frequency"
-msgstr "統計頻度"
+msgstr "統計周波数"
 
 #: devices/jsdrv/js110.py:118
 msgid ""
@@ -936,11 +947,11 @@ msgid ""
 "displayed in the multimeter and value widgets. Statistics data is computed "
 "over the full rate 2 MHz samples."
 msgstr ""
-"この設定は、マルチメーターと値ウィジェットに表示される統計データの出力周波数を制御します。統計データは、フルレート2MHzサンプルで計算されます。"
+"この設定は、マルチメーターと値ウィジェットに表示される統計データの出力周波数を制御します。統計データはフルレート2MHzサンプルで計算されます。"
 
 #: devices/jsdrv/js110.py:137 devices/jsdrv/js220.py:153
 msgid "Toggle the connection between the current terminals."
-msgstr "電流端子間の接続を切り替える。"
+msgstr "電流端子間の接続を切り替えます。"
 
 #: devices/jsdrv/js110.py:138 devices/jsdrv/js220.py:154
 msgid ""
@@ -949,25 +960,26 @@ msgid ""
 "this inhibits target power, which can be used to power cycle reset the "
 "target device."
 msgstr ""
-"有効にすると、電流端子間に電流が流れる。ディスエーブルにすると、電流端子間に電流が流れなくなる。一般的なシステム・セットアップでは、これはターゲット・パワーを抑制し、ターゲット・デバイスのパワー・サイクル・リセットに使用できる。"
+"有効にすると、電流端子間に電流が流れます。無効にすると、電流端子間に電流が流れなくなります。一般的なシステム・セットアップでは、これによってターゲット電源が抑制され、ターゲット・デバイスのパワー・サイクル・リセットに使用できます。"
 
 #: devices/jsdrv/js110.py:147 devices/jsdrv/js220.py:163
 #: widgets/waveform/waveform_widget.py:110
 msgid "Current range"
-msgstr "現在の範囲"
+msgstr "電流レンジ"
 
 #: devices/jsdrv/js110.py:149
 msgid ""
 "Configure the J110's current range. Most applications should use the "
 "default, \"auto\"."
-msgstr "J110の電流レンジを設定する。ほとんどのアプリケーションではデフォルトの \"auto \"を使用する。"
+msgstr "J110の電流レンジを設定します。ほとんどのアプリケーションではデフォルトの \"auto \"を使用します。"
 
 #: devices/jsdrv/js110.py:151 devices/jsdrv/js220.py:167
 msgid ""
 "Use the other manual settings with care. It is very easy to configure a "
 "setting that saturates, which will ignore regions of current draw larger "
 "than the current range setting."
-msgstr "他の手動設定は注意して使用してください。飽和するような設定は非常に簡単で、電流範囲設定よりも大きな電流引き込み領域を無視することになる。"
+msgstr ""
+"その他の手動設定は注意して使用してください。飽和するような設定は非常に簡単で、電流範囲の設定よりも大きな電流の引き込み領域を無視することになります。"
 
 #: devices/jsdrv/js110.py:168 devices/jsdrv/js220.py:195
 msgid "Voltage range"
@@ -975,23 +987,23 @@ msgstr "電圧範囲"
 
 #: devices/jsdrv/js110.py:169
 msgid "Configure the JS110's voltage range."
-msgstr "JS110の電圧範囲を設定する。"
+msgstr "JS110の電圧範囲を設定します。"
 
 #: devices/jsdrv/js110.py:178 devices/jsdrv/js220.py:224
 msgid "GPIO voltage"
-msgstr "GPIO電圧"
+msgstr "GPIO 電圧"
 
 #: devices/jsdrv/js110.py:180
 msgid ""
 "Configure the JS110's reference voltage for the general-purpose inputs and "
 "outputs."
-msgstr "JS110の汎用入出力の基準電圧を設定する。"
+msgstr "JS110 の汎用入出力の基準電圧を設定します。"
 
 #: devices/jsdrv/js110.py:182
 msgid ""
 "The JS110's general-purpose outputs always remain powered. When set to "
 "\"1\", this can backpower unpowered targets."
-msgstr "JS110 の汎用出力は常に電源が供給されたままである。1 \"に設定すると、電源が供給されていないターゲットに電力を供給することができます。"
+msgstr "JS110 の汎用出力は常に電源が供給されたままです。1 \"に設定すると、電源が供給されていないターゲットに電力を供給することができます。"
 
 #: devices/jsdrv/js110.py:199 devices/jsdrv/js220.py:242
 msgid "GPO 0 output value"
@@ -999,7 +1011,7 @@ msgstr "GPO 0 出力値"
 
 #: devices/jsdrv/js110.py:200 devices/jsdrv/js220.py:243
 msgid "Turn the general-purpose output 0 on or off."
-msgstr "汎用出力0をオン／オフする。"
+msgstr "汎用出力0をオンまたはオフにします。"
 
 #: devices/jsdrv/js110.py:205 devices/jsdrv/js220.py:248
 msgid "GPO 1 output value"
@@ -1007,7 +1019,7 @@ msgstr "GPO 1出力値"
 
 #: devices/jsdrv/js110.py:206 devices/jsdrv/js220.py:249
 msgid "Turn the general-purpose output 1 on or off."
-msgstr "汎用出力1のオン／オフ。"
+msgstr "汎用出力1をオンまたはオフにします。"
 
 #: devices/jsdrv/js110.py:211
 msgid "IRF type"
@@ -1019,7 +1031,7 @@ msgid ""
 " mechanism applied on current range changes. We do not recommend changing "
 "these settings for normal operation."
 msgstr ""
-"現在のレンジ変更に適用されるフィルタリングメカニズムを決定する、現在のレンジフィルター（IRF）タイプを設定する。通常の操作では、これらの設定を変更することはお勧めしません。"
+"電流レンジフィルター（IRF）タイプを設定し、電流レンジの変化に適用されるフィルタリング機構を決定します。通常の動作では、これらの設定を変更することはお勧めしません。"
 
 #: devices/jsdrv/js110.py:216
 msgid ""
@@ -1028,7 +1040,7 @@ msgid ""
 "most intuitive behavior."
 msgstr ""
 "\"interp "
-"\"はデフォルトの設定で、pre値とpost値で計算された値を用いてウィンドウ内のサンプルを補間します。これにより、最も直感的な動作が得られます。"
+"\"はデフォルトの設定で、pre値とpost値で計算された値を使用してウィンドウ内のサンプルを補間します。これは最も直感的な動作になります。"
 
 #: devices/jsdrv/js110.py:219
 msgid ""
@@ -1037,27 +1049,27 @@ msgid ""
 "changes while still providing the best long-term current range measurement."
 msgstr ""
 "\"mean "
-"\"はウィンドウ内のすべてのサンプルを平均値に設定します。この結果、直線的な水平線が得られ、現在のレンジの変化を明確に見ることができ、なおかつ長期的に最良の現在のレンジ測定が可能になります。"
+"\"はウィンドウ内の全サンプルを平均値に設定します。この結果、直線的な水平線が得られ、電流レンジの変化をはっきりと確認することができ、しかも長期的に最良の電流レンジ測定が可能になります。"
 
 #: devices/jsdrv/js110.py:223
 msgid "\"NaN\" sets all samples in the window to NaN."
-msgstr "\"NaN \"はウィンドウ内のすべてのサンプルをNaNに設定する。"
+msgstr "\"NaN \"はウィンドウ内のすべてのサンプルをNaNに設定します。"
 
 #: devices/jsdrv/js110.py:224
 msgid ""
 "\"off\" disables the current range filtering, and you will see additional "
 "current range switching artifacts."
-msgstr "\"off \"はカレントレンジのフィルタリングを無効にし、カレントレンジ切り替えのアーティファクトが追加されます。"
+msgstr "\"off \"は電流レンジのフィルタリングを無効にし、電流レンジのスイッチングアーチファクトが追加されます。"
 
 #: devices/jsdrv/js110.py:236
 msgid "IRF pre"
-msgstr "IRFについて"
+msgstr "IRFプリ"
 
 #: devices/jsdrv/js110.py:237
 msgid ""
 "The number of samples before the current range window used to determine the "
 "mean. This value is ignored for all other IRF types."
-msgstr "平均を決定するために使用される、現在の範囲ウィンドウの前のサンプル数。他のすべてのIRFタイプでは、この値は無視される。"
+msgstr "平均を決定するために使用される電流範囲ウィンドウの前のサンプル数。他のIRFタイプではこの値は無視されます。"
 
 #: devices/jsdrv/js110.py:245
 msgid "IRF window"
@@ -1069,8 +1081,8 @@ msgid ""
 "for shorter automatic duration that may result in min/max distortion. Use "
 "any other value to specify a fixed, manual window duration in samples."
 msgstr ""
-"既知の応答時間に基づく自動継続時間には \"n \"を使用する。最小/最大歪みが生じる可能性のある、より短い自動持続時間には \"m "
-"\"を使用する。それ以外の値を使用すると、サンプル単位で固定の手動ウインドウ持続時間を指定できます。"
+"既知の応答時間に基づく自動持続時間には「n」を使用します。最小/最大歪みを生じる可能性のある短い自動持続時間には \"m "
+"\"を使用する。サンプル単位で固定の手動ウインドウ持続時間を指定するには、その他の値を使用する。"
 
 #: devices/jsdrv/js110.py:254
 msgid "IRF post"
@@ -1080,16 +1092,16 @@ msgstr "IRFポスト"
 msgid ""
 "The number of samples after the current range window used to determine the "
 "mean. This value is ignored for all other IRF types."
-msgstr "平均を決定するために使用される、現在の範囲ウィンドウの後のサンプル数。他のすべてのIRFタイプでは、この値は無視される。"
+msgstr "平均を決定するために使用される電流範囲ウィンドウの後のサンプル数。他のIRFタイプではこの値は無視されます。"
 
 #: devices/jsdrv/js110.py:269 devices/jsdrv/js220.py:332
 #: widgets/device_control/fuse.py:103 widgets/waveform/waveform_widget.py:105
 msgid "Current"
-msgstr "現在"
+msgstr "電流"
 
 #: devices/jsdrv/js110.py:270 devices/jsdrv/js220.py:333
 msgid "Enable the current signal streaming."
-msgstr "現在の信号ストリーミングを有効にする。"
+msgstr "電流信号ストリーミングを有効にします。"
 
 #: devices/jsdrv/js110.py:278 devices/jsdrv/js220.py:341
 #: widgets/waveform/waveform_widget.py:106
@@ -1098,7 +1110,7 @@ msgstr "電圧"
 
 #: devices/jsdrv/js110.py:279 devices/jsdrv/js220.py:342
 msgid "Enable the voltage signal streaming."
-msgstr "電圧信号のストリーミングを有効にする。"
+msgstr "電圧信号ストリーミングを有効にします。"
 
 #: devices/jsdrv/js110.py:287 devices/jsdrv/js220.py:350
 #: widgets/waveform/waveform_widget.py:107
@@ -1107,11 +1119,11 @@ msgstr "パワー"
 
 #: devices/jsdrv/js110.py:288 devices/jsdrv/js220.py:351
 msgid "Enable the power signal streaming."
-msgstr "電源信号のストリーミングを有効にする。"
+msgstr "電源信号ストリーミングを有効にします。"
 
 #: devices/jsdrv/js110.py:296 devices/jsdrv/js220.py:359
 msgid "Current Range"
-msgstr "現在の範囲"
+msgstr "電流レンジ"
 
 #: devices/jsdrv/js110.py:308 devices/jsdrv/js220.py:374
 msgid "GPI 0"
@@ -1119,7 +1131,7 @@ msgstr "GPI 0"
 
 #: devices/jsdrv/js110.py:309 devices/jsdrv/js220.py:375
 msgid "Enable the general purpose input 0 signal streaming."
-msgstr "汎用入力 0 信号のストリーミングを有効にする。"
+msgstr "汎用入力 0 信号ストリーミングを有効にします。"
 
 #: devices/jsdrv/js110.py:317 devices/jsdrv/js220.py:383
 msgid "GPI 1"
@@ -1127,7 +1139,7 @@ msgstr "GPI 1"
 
 #: devices/jsdrv/js110.py:318 devices/jsdrv/js220.py:384
 msgid "Enable the general purpose input 1 signal streaming."
-msgstr "汎用入力 1 信号のストリーミングを有効にする。"
+msgstr "汎用入力 1 信号ストリーミングを有効にします。"
 
 #: devices/jsdrv/js110.py:330 devices/jsdrv/js220.py:430
 #: devices/jsdrv/jsdrv_stream_buffer.py:108
@@ -1140,14 +1152,14 @@ msgid ""
 "reflect how you are using your JS220. This setting is most useful when you "
 "are instrumenting a system using multiple Joulescopes."
 msgstr ""
-"この設定により、JS220の使用方法をより反映させるために、デフォルトを変更することができます。この設定は、複数のジュールスコープを使用してシステムを測定する場合に最も便利です。"
+"この設定では、JS220の使用方法をより反映させるために、デフォルトを変更することができます。この設定は、複数のジュールスコープを使用してシステムを測定する場合に最も便利です。"
 
 #: devices/jsdrv/js220.py:105
 msgid ""
 "The JS220 instrument always samples at 2 MHz and then downsamples to 1 MHz. "
 "This setting controls additional optional downsampling."
 msgstr ""
-"JS220は常に2MHzでサンプリングし、その後1MHzにダウンサンプリングします。この設定は、追加オプションのダウンサンプリングを制御します。"
+"JS220は、常に2 MHzでサンプリングし、その後1 MHzにダウンサンプリングします。この設定は、オプションの追加ダウンサンプリングを制御します。"
 
 #: devices/jsdrv/js220.py:134
 msgid ""
@@ -1155,25 +1167,25 @@ msgid ""
 "displayed in the multimeter and value widgets. Statistics data is computed "
 "over the full rate 1 MHz samples."
 msgstr ""
-"この設定は、マルチメーターと値ウィジェットに表示される統計データの出力周波数を制御します。統計データは、フルレート1MHzサンプルで計算されます。"
+"この設定は、マルチメーターと値ウィジェットに表示される統計データの出力周波数を制御します。統計データはフルレート1MHzサンプルで計算されます。"
 
 #: devices/jsdrv/js220.py:165
 msgid ""
 "Configure the JS220's current range. Most applications should use the "
 "default, \"auto\"."
-msgstr "JS220の電流レンジを設定する。ほとんどのアプリケーションでは、デフォルトの \"auto \"を使用する。"
+msgstr "JS220の電流レンジを設定します。ほとんどのアプリケーションでは、デフォルトの \"auto \"を使用します。"
 
 #: devices/jsdrv/js220.py:183
 msgid "Limits"
-msgstr "限界"
+msgstr "限界値"
 
 #: devices/jsdrv/js220.py:185
 msgid "Configure the autoranging current limits."
-msgstr "オートレンジ電流リミットを設定する。"
+msgstr "オートレンジ電流リミットを設定します。"
 
 #: devices/jsdrv/js220.py:186
 msgid "This setting is only effective when the Current Range is set to \"auto\"."
-msgstr "この設定は、カレントレンジが \"auto \"に設定されている場合にのみ有効である。"
+msgstr "この設定は、電流レンジが「自動」に設定されている場合にのみ有効です。"
 
 #: devices/jsdrv/js220.py:188
 msgid ""
@@ -1181,13 +1193,13 @@ msgid ""
 "accuracy when you know your application current is more limited than the "
 "full measurement range."
 msgstr ""
-"アプリケーションの電流が全測定範囲よりも制限されていることが分かっている場合、この設定を使用して電流範囲を制限し、オートレンジの精度を向上させることができます。"
+"アプリケーションの電流が全測定範囲よりも制限されていることが分かっている場合、この設定を使用して電流範囲を制限し、自動レンジングの精度を向上させることができます。"
 
 #: devices/jsdrv/js220.py:196
 msgid ""
 "Configure the JS220's voltage range. Most applications should use the "
 "default, \"auto\"."
-msgstr "JS220の電圧範囲を設定する。ほとんどのアプリケーションでは、デフォルトの \"auto \"を使用する。"
+msgstr "JS220の電圧範囲を設定します。ほとんどのアプリケーションでは、デフォルトの \"auto \"を使用してください。"
 
 #: devices/jsdrv/js220.py:207
 msgid "Trigger direction"
@@ -1195,31 +1207,31 @@ msgstr "トリガー方向"
 
 #: devices/jsdrv/js220.py:209
 msgid "Configure the direction of the JS220's trigger BNC connection."
-msgstr "JS220のトリガーBNC接続の方向を設定する。"
+msgstr "JS220のトリガーBNC接続の方向を設定します。"
 
 #: devices/jsdrv/js220.py:210
 msgid ""
 "0 (default) configures the BNC trigger for input only. The BNC connection is"
 " high-impedance."
-msgstr "0 (デフォルト) は、BNC トリガを入力専用に設定します。BNC 接続はハイインピーダンスである。"
+msgstr "0（デフォルト）は、BNCトリガーを入力専用に設定します。BNC接続はハイインピーダンスです。"
 
 #: devices/jsdrv/js220.py:212
 msgid ""
 "1 configures the BNC trigger for output. The BNC connection has 50 Ohm "
 "output impedance."
-msgstr "1 は、BNC トリガーを出力用に設定します。BNC 接続の出力インピーダンスは 50Ω です。"
+msgstr "1 は、BNC トリガーを出力用に設定します。BNC接続の出力インピーダンスは50オームです。"
 
 #: devices/jsdrv/js220.py:214
 msgid ""
 "In both cases, the trigger input signal is valid, which enables internal "
 "inspection and recording of the trigger output."
-msgstr "どちらの場合も、トリガ入力信号は有効であり、内部検査とトリガ出力の記録が可能である。"
+msgstr "いずれの場合も、トリガー入力信号は有効であり、トリガー出力の内部検査と記録が可能です。"
 
 #: devices/jsdrv/js220.py:226
 msgid ""
 "Configure the JS220's reference voltage for the general-purpose inputs and "
 "outputs."
-msgstr "JS220の汎用入出力の基準電圧を設定します。"
+msgstr "JS220 の汎用入出力の基準電圧を設定します。"
 
 #: devices/jsdrv/js220.py:228
 msgid ""
@@ -1228,11 +1240,11 @@ msgid ""
 "devices when they powered down. The Vref signal and general-purpose inputs "
 "are all extremely high impedance to minimize leakage currents."
 msgstr ""
-"汎用出力（GPO）を他の機器に接続する場合は、「Vref」の使用を推奨する。Vrefを使用することで、GPOがパワーダウンした際にターゲット機器に逆電力を与えることを防ぎます。Vref信号および汎用入力は、リーク電流を最小限に抑えるため、すべて極めて高いインピーダンスになっています。"
+"汎用出力（GPO）を他の機器に接続する際は、「Vref」の使用を推奨します。Vrefを使用することで、GPOがパワーダウンした際にターゲット機器に逆電力を与えることを防ぎます。Vref信号と汎用入力は、リーク電流を最小にするため、すべて極めて高いインピーダンスになっています。"
 
 #: devices/jsdrv/js220.py:233
 msgid "\"3.3 V\" uses an internally-generated 3.3V reference voltage."
-msgstr "\"3.3 V \"は、内部で生成された3.3Vの基準電圧を使用する。"
+msgstr "「3.3 V」は、内部で生成された3.3V基準電圧を使用します。"
 
 #: devices/jsdrv/js220.py:254
 msgid "Trigger output value"
@@ -1240,17 +1252,17 @@ msgstr "トリガー出力値"
 
 #: devices/jsdrv/js220.py:256
 msgid "Turn the trigger output on or off."
-msgstr "トリガー出力をオンまたはオフにする。"
+msgstr "トリガ出力のオン/オフを切り替えます。"
 
 #: devices/jsdrv/js220.py:257
 msgid ""
 "The trigger must also be configured for output for this setting to have any "
 "effect."
-msgstr "この設定を有効にするには、トリガーも出力に設定されていなければなりません。"
+msgstr "この設定を有効にするには、トリガも出力用に設定する必要があります。"
 
 #: devices/jsdrv/js220.py:265
 msgid "The maturity level channel for firmware updates."
-msgstr "ファームウェア・アップデートの成熟度チャンネル。"
+msgstr "ファームウェア・アップデートのための成熟度チャンネル。"
 
 #: devices/jsdrv/js220.py:266
 msgid ""
@@ -1260,13 +1272,13 @@ msgstr "Joulescopeの開発者でない限り、デフォルトの \"stable \"�
 
 #: devices/jsdrv/js220.py:275
 msgid "Firmware update availability."
-msgstr "ファームウェアアップデートの可否。"
+msgstr "ファームウェアの更新が可能です。"
 
 #: devices/jsdrv/js220.py:276
 msgid ""
 "None when no firmware update is available. Map of subname: [current, "
 "available] when available."
-msgstr "ファームウェアアップデートがない場合はなし。サブネームのマップ：[current, available]。"
+msgstr "ファームウェアの更新がない場合はなし。サブネームのマップ：[current, available] 利用可能な場合。"
 
 #: devices/jsdrv/js220.py:362
 msgid ""
@@ -1274,7 +1286,8 @@ msgid ""
 "If you attempt to enable too many signals, then the UI will display no data "
 "for any signal."
 msgstr ""
-"有効な場合、3つ以上のGPIO信号（0、1、2、3、T）を有効にすることはできません。あまり多くの信号を有効にしようとすると、UIはどの信号のデータも表示しません。"
+"有効化した場合、3つ以上のGPIO信号(0, 1, 2, 3, "
+"T)を有効化することはできません。有効な信号が多すぎると、UIにはどの信号のデータも表示されません。"
 
 #: devices/jsdrv/js220.py:392
 msgid "GPI 2"
@@ -1282,7 +1295,7 @@ msgstr "GPI 2"
 
 #: devices/jsdrv/js220.py:393
 msgid "Enable the general purpose input 2 signal streaming."
-msgstr "汎用入力2の信号ストリーミングを有効にする。"
+msgstr "汎用入力 2 信号ストリーミングを有効にします。"
 
 #: devices/jsdrv/js220.py:401
 msgid "GPI 3"
@@ -1290,7 +1303,7 @@ msgstr "GPI 3"
 
 #: devices/jsdrv/js220.py:402
 msgid "Enable the general purpose input 3 signal streaming."
-msgstr "汎用入力3の信号ストリーミングを有効にする。"
+msgstr "汎用入力 3 信号ストリーミングを有効にします。"
 
 #: devices/jsdrv/js220.py:410 widgets/waveform/waveform_widget.py:124
 msgid "Trigger input"
@@ -1298,7 +1311,7 @@ msgstr "トリガー入力"
 
 #: devices/jsdrv/js220.py:411
 msgid "Enable the trigger input signal streaming."
-msgstr "トリガ入力信号のストリーミングを有効にする。"
+msgstr "トリガー入力信号ストリーミングを有効にします。"
 
 #: devices/jsdrv/js220_updater.py:64
 msgid "Firmware update state"
@@ -1317,15 +1330,15 @@ msgstr "名称"
 
 #: devices/jsdrv/jsdrv_stream_buffer.py:45
 msgid "Joulescope stream buffer"
-msgstr "ジュールスコープ・ストリーム・バッファ"
+msgstr "Joulescope ストリームバッファ"
 
 #: devices/jsdrv/jsdrv_stream_buffer.py:49
 msgid "Buffer memory size in bytes"
-msgstr "バッファメモリのサイズ（バイト"
+msgstr "バッファメモリサイズ（バイト"
 
 #: devices/jsdrv/jsdrv_stream_buffer.py:54
 msgid "Buffer memory duration in seconds"
-msgstr "バッファメモリの持続時間（秒"
+msgstr "バッファメモリ持続時間（秒"
 
 #: devices/jsdrv/jsdrv_stream_buffer.py:94
 msgid "Source name"
@@ -1337,7 +1350,7 @@ msgstr "ソース情報"
 
 #: devices/jsdrv/jsdrv_stream_buffer.py:112
 msgid "Signal metadata"
-msgstr "シグナルのメタデータ"
+msgstr "信号メタデータ"
 
 #: devices/jsdrv/jsdrv_stream_buffer.py:118
 msgid "Signal time range"
@@ -1365,13 +1378,13 @@ msgstr "モニター"
 
 #: range_tools/cdf.py:29
 msgid "Compute the Cumulative Distribution Function"
-msgstr "累積分布関数を計算する"
+msgstr "累積分布関数の計算"
 
 #: range_tools/cdf.py:31
 msgid ""
 "The Cumulative Distribution Function (CDF) value is the probability that a "
 "signal's value is less than or equal to the x-axis value."
-msgstr "累積分布関数（CDF）の値は、信号の値がx軸の値以下である確率です。"
+msgstr "累積分布関数（CDF）値は、信号の値がx軸値以下である確率です。"
 
 #: range_tools/cdf.py:33
 msgid ""
@@ -1380,7 +1393,7 @@ msgid ""
 "easier to compare the amount of time in each mode by simply measuring the "
 "change in the y-axis value."
 msgstr ""
-"電流または電力の分析に使用する場合、各電流モードで以下に費やされた時間をグラフで示します。ヒストグラムと比較して、CDFではY軸の値の変化を測定するだけで、各モードでの時間量を簡単に比較できます。"
+"電流または電力の解析に使用する場合、各電流モードで以下に費やされた時間をグラフで示します。ヒストグラムと比較して、CDFではY軸の値の変化を測定するだけで、各モードに費やされた時間を簡単に比較できます。"
 
 #: range_tools/cdf.py:146
 msgid "Probability"
@@ -1388,29 +1401,29 @@ msgstr "確率"
 
 #: range_tools/cdf.py:167
 msgid "CDF configuration"
-msgstr "CDFの構成"
+msgstr "CDF構成"
 
 #: range_tools/cdf.py:183 range_tools/histogram.py:53
 msgid "Number of bins (0 for auto)"
-msgstr "ビンの数（自動の場合は0）"
+msgstr "ビン数（自動の場合は0）"
 
 #: range_tools/cdf.py:189
 msgid "Complimentary"
-msgstr "無料"
+msgstr "コンプリメンタリ"
 
 #: range_tools/frequency.py:24
 msgid "Frequency"
-msgstr "頻度"
+msgstr "周波数"
 
 #: range_tools/frequency.py:39
 msgid "Compute frequency spectrum over the range"
-msgstr "周波数スペクトルを計算する"
+msgstr "周波数スペクトルの計算"
 
 #: range_tools/frequency.py:40
 msgid ""
 "Compute the frequency spectrum to analyze the frequency content of the "
 "signal's data values over the selected range."
-msgstr "周波数スペクトルを計算し、選択した範囲の信号のデータ値の周波数コンテンツを分析する。"
+msgstr "周波数スペクトルを計算し、選択した範囲の信号のデータ値の周波数コンテンツを分析します。"
 
 #: range_tools/frequency.py:213
 msgid "Frequency configuration"
@@ -1426,7 +1439,7 @@ msgstr "離散確率分布"
 
 #: range_tools/histogram.py:28
 msgid "Frequency Distribution"
-msgstr "度数分布"
+msgstr "周波数分布"
 
 #: range_tools/histogram.py:29
 msgid "Probability Density Distribution"
@@ -1447,12 +1460,12 @@ msgstr "ヒストグラム構成"
 
 #: range_tools/histogram.py:191
 msgid "Compute histogram over the range"
-msgstr "範囲のヒストグラムを計算する"
+msgstr "範囲にわたってヒストグラムを計算"
 
 #: range_tools/histogram.py:192
 msgid ""
 "Compute a histogram of the signal's data values over the selected range."
-msgstr "選択した範囲の信号のデータ値のヒストグラムを計算する。"
+msgstr "選択した範囲の信号のデータ値のヒストグラムを計算します。"
 
 #: range_tools/max_window.py:24
 msgid "Max window"
@@ -1460,18 +1473,18 @@ msgstr "最大ウィンドウ"
 
 #: range_tools/max_window.py:25
 msgid "Find the maximum value window"
-msgstr "最大値ウィンドウを見つける"
+msgstr "最大値ウィンドウの検索"
 
 #: range_tools/max_window.py:27
 msgid ""
 "Search the range for the window that has the maximum value. This is an "
 "exhaustive search made by sliding the window duration across the entire "
 "range."
-msgstr "最大値を持つウィンドウの範囲を検索する。これは、範囲全体にわたってウィンドウの長さをスライドさせることによって行われる網羅的な検索である。"
+msgstr "最大値を持つウィンドウの範囲を検索します。これは、全範囲にわたってウィンドウの期間をスライドさせることによって行われる網羅的検索です。"
 
 #: range_tools/max_window.py:30
 msgid "When complete, this tool will add dual markers to the waveform."
-msgstr "完了すると、このツールは波形にデュアル・マーカーを追加します。"
+msgstr "完了すると、このツールは波形にデュアルマーカーを追加します。"
 
 #: range_tools/max_window.py:96
 msgid "Max Window configuration"
@@ -1483,11 +1496,11 @@ msgstr "ウィンドウの幅（秒）"
 
 #: range_tools/usb_inrush.py:52
 msgid "USB Inrush"
-msgstr "USBインラッシュ"
+msgstr "USB突入電流"
 
 #: range_tools/usb_inrush.py:53
 msgid "Perform USB Inrush testing"
-msgstr "USB突入テストの実行"
+msgstr "USB突入試験の実行"
 
 #: range_tools/usb_inrush.py:54
 msgid ""
@@ -1495,7 +1508,7 @@ msgid ""
 " the target device. This tool will send the selected data to the USBET tool "
 "for analysis."
 msgstr ""
-"デュアル・マーカーを使用して、ターゲット・デバイスへの電源を有効にしてから少なくとも100ミリ秒後を選択する。このツールは、選択したデータをUSBETツールに送信して解析します。"
+"デュアル・マーカーを使用して、ターゲット・デバイスの電源を有効にしてから少なくとも100ミリ秒後に選択します。このツールは、選択したデータをUSBETツールに送信して解析します。"
 
 #: styles/color_scheme.py:21
 msgid "dark"
@@ -1519,12 +1532,12 @@ msgstr "デフォルト"
 
 #: styles/font_scheme.py:22
 msgid "Joulescope default font scheme"
-msgstr "Joulescope デフォルトのフォントスキーム"
+msgstr "Joulescopeデフォルトのフォントスキーム"
 
 #: widgets/accumulator/accumulator_widget.py:27
 #: widgets/value/value_widget.py:31
 msgid "The statistics data stream source."
-msgstr "統計データストリームのソース。"
+msgstr "統計データ・ストリーム・ソース。"
 
 #: widgets/accumulator/accumulator_widget.py:32
 #: widgets/value/value_widget.py:74
@@ -1533,7 +1546,7 @@ msgstr "表示する信号。"
 
 #: widgets/accumulator/accumulator_widget.py:34
 msgid "charge"
-msgstr "料金"
+msgstr "チャージ"
 
 #: widgets/accumulator/accumulator_widget.py:35
 msgid "energy"
@@ -1542,19 +1555,19 @@ msgstr "エネルギー"
 #: widgets/accumulator/accumulator_widget.py:41
 #: widgets/value/value_widget.py:56
 msgid "Show the statistics section title for each signal."
-msgstr "各信号の統計セクションのタイトルを表示する。"
+msgstr "各信号の統計セクションタイトルを表示します。"
 
 #: widgets/accumulator/accumulator_widget.py:48
 msgid "Accumulator"
-msgstr "アキュムレーター"
+msgstr "アキュムレータ"
 
 #: widgets/accumulator/accumulator_widget.py:140
 msgid "Show charge"
-msgstr "ショーの料金"
+msgstr "電荷を表示"
 
 #: widgets/accumulator/accumulator_widget.py:143
 msgid "Show energy"
-msgstr "エネルギーを示す"
+msgstr "エネルギーを表示"
 
 #: widgets/accumulator/accumulator_widget.py:152
 msgid "Set units"
@@ -1562,19 +1575,19 @@ msgstr "設定単位"
 
 #: widgets/clock/clock_widget.py:26
 msgid "Clock"
-msgstr "時計"
+msgstr "クロック"
 
 #: widgets/clock/clock_widget.py:33
 msgid "The time zone."
-msgstr "タイムゾーン。"
+msgstr "タイムゾーン"
 
 #: widgets/clock/clock_widget.py:35
 msgid "Local"
-msgstr "所在地"
+msgstr "ローカル"
 
 #: widgets/clock/clock_widget.py:36
 msgid "UTC"
-msgstr "協定世界時"
+msgstr "UTC"
 
 #: widgets/clock/clock_widget.py:42
 msgid "The format string"
@@ -1582,7 +1595,7 @@ msgstr "フォーマット文字列"
 
 #: widgets/clock/clock_widget.py:43
 msgid "For the complete syntax, see Python package {package}"
-msgstr "完全な構文については、Pythonのパッケージ{package}を参照してください。"
+msgstr "完全な構文については、Pythonパッケージ{package}を参照してください。"
 
 #: widgets/developer/log_view_widget.py:30
 msgid "Timestamp"
@@ -1598,7 +1611,7 @@ msgstr "メッセージ"
 
 #: widgets/developer/log_view_widget.py:60
 msgid "Log View"
-msgstr "ログビュー"
+msgstr "ログ表示"
 
 #: widgets/developer/log_view_widget.py:85
 msgid "Demo"
@@ -1620,11 +1633,11 @@ msgstr "トピック"
 #: widgets/developer/publish_spy_widget.py:21
 #: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:662
 msgid "Value"
-msgstr "価値"
+msgstr "値"
 
 #: widgets/developer/publish_spy_widget.py:24
 msgid "Publish Spy"
-msgstr "パブリッシュ・スパイ"
+msgstr "スパイを公表する"
 
 #: widgets/developer/publish_spy_widget.py:42
 msgid "Capture"
@@ -1636,7 +1649,7 @@ msgstr "トピックス"
 
 #: widgets/developer/publish_spy_widget.py:48
 msgid "Values"
-msgstr "価値観"
+msgstr "値"
 
 #: widgets/developer/pubsub_explorer_widget.py:28
 msgid "Filter:"
@@ -1644,7 +1657,7 @@ msgstr "フィルター"
 
 #: widgets/developer/pubsub_explorer_widget.py:94
 msgid "PubSub Explorer"
-msgstr "パブサブエクスプローラー"
+msgstr "PubSub Explorer"
 
 #: widgets/device_control/device_control_widget.py:23
 msgid "Device Control"
@@ -1658,7 +1671,7 @@ msgstr "更新"
 #: widgets/device_control/device_update_dialog.py:25
 #: widgets/value/value_widget.py:147
 msgid "Device"
-msgstr "装置"
+msgstr "デバイス"
 
 #: widgets/device_control/device_update_dialog.py:27
 #: widgets/progress_bar/progress_bar_widget.py:59
@@ -1669,7 +1682,7 @@ msgstr "進捗状況"
 msgid ""
 "Before starting updates, ensure that Joulescopes are plugged directly into a"
 " USB port on the host computer."
-msgstr "アップデートを開始する前に、ジュールスコープがホストコンピュータのUSBポートに直接接続されていることを確認してください。"
+msgstr "アップデートを開始する前に、JoulescopesがホストコンピュータのUSBポートに直接接続されていることを確認してください。"
 
 #: widgets/device_control/device_update_dialog.py:31
 msgid "Do not use any USB hubs, docks or adapters"
@@ -1677,15 +1690,15 @@ msgstr "USBハブ、ドック、アダプターは使用しないでください
 
 #: widgets/device_control/device_update_dialog.py:35
 msgid "Device scan in progress."
-msgstr "デバイススキャン中。"
+msgstr "デバイススキャン中"
 
 #: widgets/device_control/device_update_dialog.py:36
 msgid "No updates available."
-msgstr "アップデートはない。"
+msgstr "アップデートはありません。"
 
 #: widgets/device_control/device_update_dialog.py:38
 msgid "Device update is in progress. Please wait."
-msgstr "デバイスのアップデートが進行中です。しばらくお待ちください。"
+msgstr "デバイス更新中です。しばらくお待ちください。"
 
 #: widgets/device_control/device_update_dialog.py:39
 msgid "Device update completed."
@@ -1706,15 +1719,15 @@ msgstr "キャンセル"
 
 #: widgets/device_control/device_update_dialog.py:53
 msgid "Device Update"
-msgstr "デバイスのアップデート"
+msgstr "デバイス・アップデート"
 
 #: widgets/device_control/fuse.py:24
 msgid "Fuse 1"
-msgstr "ヒューズ1"
+msgstr "ヒューズ 1"
 
 #: widgets/device_control/fuse.py:25
 msgid "Fuse 2"
-msgstr "ヒューズ2"
+msgstr "ヒューズ 2"
 
 #: widgets/device_control/fuse.py:26
 msgid "Range fuse"
@@ -1726,11 +1739,11 @@ msgstr "最大ヒューズ"
 
 #: widgets/device_control/fuse.py:33
 msgid "Fuse trip threshold"
-msgstr "ヒューズのしきい値"
+msgstr "ヒューズトリップしきい値"
 
 #: widgets/device_control/fuse.py:34
 msgid "Any current above this threshold will eventually trip the fuse."
-msgstr "このしきい値を超える電流は、最終的にヒューズをトリップさせる。"
+msgstr "このしきい値を超える電流は、最終的にヒューズをトリップさせます。"
 
 #: widgets/device_control/fuse.py:38
 msgid "Fuse speed threshold"
@@ -1738,7 +1751,7 @@ msgstr "ヒューズ速度しきい値"
 
 #: widgets/device_control/fuse.py:39
 msgid "The fuse trips in Duration at this constant current."
-msgstr "ヒューズはこの一定電流で持続時間内にトリップする。"
+msgstr "ヒューズはこの定電流で持続時間内にトリップします。"
 
 #: widgets/device_control/fuse.py:43
 msgid "Fuse duration"
@@ -1746,7 +1759,7 @@ msgstr "ヒューズ持続時間"
 
 #: widgets/device_control/fuse.py:44
 msgid "The fuse trips in this Duration at Threshold 2 current."
-msgstr "この持続時間では、スレッショルド 2 の電流でヒューズがトリップする。"
+msgstr "この持続時間では、スレッショルド2の電流でヒューズがトリップします。"
 
 #: widgets/device_control/fuse.py:48
 msgid "Fuse dissipation time constant"
@@ -1756,28 +1769,28 @@ msgstr "ヒューズ損失時定数"
 msgid ""
 "The exponential decay time constant. The fuse dissipates 63.2 percent of "
 "accumulated energy in this duration."
-msgstr "指数関数的減衰の時定数。ヒューズはこの時間内に蓄積エネルギーの63.2%を消散する。"
+msgstr "指数関数的減衰時定数。ヒューズはこの時間内に蓄積エネルギーの63.2%を消散する。"
 
 #: widgets/device_control/fuse.py:53
 msgid "Fuse state indicator. When enabled and engaged, click to clear."
-msgstr "ヒューズ状態インジケーター。有効になっている場合は、クリックしてクリアします。"
+msgstr "ヒューズ状態インジケータ。ヒューズの状態を表示します。"
 
 #: widgets/device_control/fuse.py:87
 msgid "Threshold 1"
-msgstr "しきい値1"
+msgstr "スレッショルド 1"
 
 #: widgets/device_control/fuse.py:88
 msgid "Threshold 2"
-msgstr "しきい値2"
+msgstr "スレッショルド 2"
 
 #: widgets/device_control/fuse.py:89 widgets/memory/memory_widget.py:225
 #: widgets/trigger/trigger_widget.py:114 widgets/trigger/trigger_widget.py:222
 msgid "Duration"
-msgstr "期間"
+msgstr "持続時間"
 
 #: widgets/device_control/fuse.py:101
 msgid "Fuse response"
-msgstr "ヒューズの反応"
+msgstr "ヒューズ応答"
 
 #: widgets/device_control/fuse.py:102
 msgid "Time"
@@ -1793,7 +1806,7 @@ msgstr "デバイス・ドキュメント"
 
 #: widgets/device_control/js220_ctrl_widget.py:31
 msgid "Click to display the device documentation PDF."
-msgstr "クリックするとデバイスのドキュメントPDFが表示されます。"
+msgstr "クリックするとデバイス・ドキュメントのPDFが表示されます。"
 
 #: widgets/device_control/js220_ctrl_widget.py:36
 msgid "Click to display detailed information about the device."
@@ -1801,20 +1814,20 @@ msgstr "クリックすると、デバイスの詳細情報が表示されます
 
 #: widgets/device_control/js220_ctrl_widget.py:40
 msgid "Select this device as the default"
-msgstr "このデバイスをデフォルトとして選択する"
+msgstr "このデバイスをデフォルトとして選択"
 
 #: widgets/device_control/js220_ctrl_widget.py:42
 msgid ""
 "When selected, this device because the default. All widgets using the "
 "default device will use the data provided by this device."
 msgstr ""
-"選択すると、このデバイスがデフォルトになります。デフォルトデバイスを使用するすべてのウィジェットは、このデバイスが提供するデータを使用します。"
+"選択すると、このデバイスがデフォルトになります。デフォルト・デバイスを使用するすべてのウィジェットは、このデバイスが提供するデータを使用します。"
 
 #: widgets/device_control/js220_ctrl_widget.py:44
 msgid ""
 "When unselected, another device is the default. Widgets can still be "
 "configured to use data from this device."
-msgstr "非選択時は、別のデバイスがデフォルトとなる。ウィジェットは、このデバイスのデータを使用するように設定できます。"
+msgstr "選択されていない場合は、別のデバイスがデフォルトとなります。ウィジェットはこのデバイスからのデータを使用するように設定できます。"
 
 #: widgets/device_control/js220_ctrl_widget.py:52
 msgid ""
@@ -1822,11 +1835,11 @@ msgid ""
 "fuse. Engaged fuses prevent current flow until cleared."
 msgstr ""
 "このインジケータは、このデバイスに少なくとも 1 "
-"つの接続されたヒューズがあるとアクティブになります。作動したヒューズは、クリアされるまで電流が流れなくなります。"
+"つのヒューズが接続されている場合にアクティブになります。作動したヒューズは、クリアされるまで電流が流れなくなります。"
 
 #: widgets/device_control/js220_ctrl_widget.py:60
 msgid "Open and close the device"
-msgstr "装置の開閉"
+msgstr "デバイスの開閉"
 
 #: widgets/device_control/js220_ctrl_widget.py:62
 msgid ""
@@ -1834,13 +1847,13 @@ msgid ""
 "on a successful device open. Only one application can use a Joulescope "
 "device at a time."
 msgstr ""
-"閉じている場合は、クリックしてデバイスを開こうとします。アイコンは、デバイスのオープンに成功した場合のみ変更されます。ジュールスコープのデバイスを同時に使用できるアプリケーションは1つだけです。"
+"閉じている場合は、クリックしてデバイスを開こうとします。アイコンは、デバイスのオープンに成功した場合のみ変化します。Joulescopeデバイスを一度に使用できるのは1つのアプリケーションのみです。"
 
 #: widgets/device_control/js220_ctrl_widget.py:65
 msgid ""
 "When open, click to close the device. This allows the device to be used in "
 "other programs."
-msgstr "開いている場合は、クリックしてデバイスを閉じます。これにより、デバイスを他のプログラムで使用することができます。"
+msgstr "開いているときは、クリックしてデバイスを閉じます。これにより、デバイスを他のプログラムで使用することができます。"
 
 #: widgets/device_control/js220_ctrl_widget.py:71
 msgid "Reset to default settings"
@@ -1852,7 +1865,7 @@ msgstr "このボタンをクリックすると、このデバイスがデフォ
 
 #: widgets/device_control/js220_ctrl_widget.py:76
 msgid "Clear accumulators"
-msgstr "クリア・アキュムレーター"
+msgstr "クリアなアキュムレータ"
 
 #: widgets/device_control/js220_ctrl_widget.py:77
 msgid ""
@@ -1860,13 +1873,13 @@ msgid ""
 "\"Accrue\" feature of the value display widgets, including the multimeter, "
 "will be unaffected."
 msgstr ""
-"このボタンをクリックすると、チャージおよびエネルギー・アキュムレータが クリアされます。マルチメータを含む数値表示ウィジェットの \"Accrue\" "
-"機能は影響を受けません。"
+"このボタンをクリックすると、チャージおよびエネ ルギー・アキュムレータがクリアされます。マルチメータを含む値表示ウィジェットの \"Accrue "
+"\"機能は影響を受けません。"
 
 #: widgets/device_control/js220_ctrl_widget.py:83
 #: widgets/device_control/js220_ctrl_widget.py:574
 msgid "Calibrate"
-msgstr "キャリブレーション"
+msgstr "校正"
 
 #: widgets/device_control/js220_ctrl_widget.py:84
 msgid ""
@@ -1874,7 +1887,8 @@ msgid ""
 " required for normal operation. Performing calibration can improve accuracy "
 "by accounting for the existing temperature and aging effects."
 msgstr ""
-"ジュールスコープJS220を再校正するには、このボタンをクリックしてください。通常の操作では、再校正は必要ありません。校正を行うことで、既存の温度と経年劣化の影響を考慮し、精度を向上させることができます。"
+"Joulescope "
+"JS220を再校正するには、このボタンをクリックしてください。通常の操作では再校正は必要ありません。校正を行うことで、既存の温度や経年劣化の影響を考慮し、精度を向上させることができます。"
 
 #: widgets/device_control/js220_ctrl_widget.py:391
 msgid "GPO"
@@ -1886,11 +1900,11 @@ msgstr "デフォルトにリセット"
 
 #: widgets/device_control/js220_ctrl_widget.py:567
 msgid "Clear accum"
-msgstr "クリア"
+msgstr "クリアアキュム"
 
 #: widgets/example/example_widget.py:22
 msgid "Example"
-msgstr "例"
+msgstr "測定例"
 
 #: widgets/flyout/flyout_widget.py:26
 msgid "flyout"
@@ -1910,11 +1924,11 @@ msgstr "Joulescope UIユーザーズガイド"
 
 #: widgets/help/help_widget.py:23
 msgid "Visit the Joulescope forum"
-msgstr "ジュールスコープ・フォーラムへ"
+msgstr "Joulescopeフォーラムへ"
 
 #: widgets/help/help_widget.py:24
 msgid "Joulescope source code"
-msgstr "ジュールスコープのソースコード"
+msgstr "Joulescope ソースコード"
 
 #: widgets/help/help_widget.py:25
 msgid "file format"
@@ -1930,17 +1944,17 @@ msgstr "サポートへのお問い合わせ"
 
 #: widgets/jls_info/jls_info_widget.py:24
 msgid "The JLS data stream source."
-msgstr "JLSデータストリームのソース。"
+msgstr "JLS データストリームソース。"
 
 #: widgets/jls_info/jls_info_widget.py:30
 msgid "JLS Info"
-msgstr "JLS情報"
+msgstr "JLS 情報"
 
 #: widgets/js220_cal/js220_cal_widget.py:26
 msgid ""
 "⚠ Before performing calibration, ensure that you save any data in the UI "
 "that you wish to keep."
-msgstr "キャリブレーションを実行する前に、UIに保存しておきたいデータがあることを確認してください。"
+msgstr "校正を実行する前に、UIに保存したいデータがあることを確認してください。"
 
 #: widgets/js220_cal/js220_cal_widget.py:29
 msgid ""
@@ -1949,11 +1963,12 @@ msgid ""
 "error. If you wish to perform scale calibration, ensure that your test setup"
 " gives a sufficient test uncertainty ratio (TUR)."
 msgstr ""
-"ジュールスコープJS220は、再校正なしで仕様を満たすように設計されています。オフセット校正を使用すると、オフセット誤差をさらに減らすことができます。スケール校正を行う場合は、試験セットアップで十分な試験不確かさ比（TUR）が得られるようにしてください。"
+"Joulescope "
+"JS220は、再校正なしで仕様を満たすように設計されています。オフセット校正を使用すると、オフセット誤差をさらに減らすことができます。スケール校正を行う場合は、試験セットアップで十分な試験不確かさ比（TUR）が得られるようにしてください。"
 
 #: widgets/js220_cal/js220_cal_widget.py:35
 msgid "Restore factory calibration"
-msgstr "工場出荷時のキャリブレーションに戻す"
+msgstr "工場校正の復元"
 
 #: widgets/js220_cal/js220_cal_widget.py:36
 msgid "Start"
@@ -1961,7 +1976,7 @@ msgstr "スタート"
 
 #: widgets/js220_cal/js220_cal_widget.py:39
 msgid "Calibration in progress"
-msgstr "キャリブレーション中"
+msgstr "校正中"
 
 #: widgets/js220_cal/js220_cal_widget.py:40
 msgid "Please wait..."
@@ -1969,11 +1984,11 @@ msgstr "お待ちください..."
 
 #: widgets/js220_cal/js220_cal_widget.py:42
 msgid "Disconnect all sensor terminals"
-msgstr "すべてのセンサー端子を外す"
+msgstr "センサー端子をすべて外す"
 
 #: widgets/js220_cal/js220_cal_widget.py:44
 msgid "Short together Voltage+, Voltage-, and Current+ using wires."
-msgstr "電圧+、電圧-、電流+をワイヤで短絡する。"
+msgstr "Voltage+、Voltage-、Current+をワイヤで短絡します。"
 
 #: widgets/js220_cal/js220_cal_widget.py:45
 msgid ""
@@ -1982,7 +1997,7 @@ msgstr "BNCフロントパネルを使用する場合は、VoltageをCurrentに�
 
 #: widgets/js220_cal/js220_cal_widget.py:51
 msgid "Current offset"
-msgstr "現在のオフセット"
+msgstr "電流オフセット"
 
 #: widgets/js220_cal/js220_cal_widget.py:60
 msgid "Voltage offset"
@@ -1990,31 +2005,31 @@ msgstr "電圧オフセット"
 
 #: widgets/js220_cal/js220_cal_widget.py:455
 msgid "JS220 Calibration"
-msgstr "JS220キャリブレーション"
+msgstr "JS220 校正"
 
 #: widgets/js220_cal/js220_cal_widget.py:461
 msgid "The target device."
-msgstr "ターゲット・デバイス。"
+msgstr "対象デバイス"
 
 #: widgets/js220_cal/js220_cal_widget.py:483
 msgid "Calibration"
-msgstr "キャリブレーション"
+msgstr "校正"
 
 #: widgets/memory/memory_widget.py:180
 msgid "Memory"
-msgstr "メモリー"
+msgstr "メモリ"
 
 #: widgets/memory/memory_widget.py:209
 msgid "Memory buffer size"
-msgstr "メモリ・バッファ・サイズ"
+msgstr "メモリバッファサイズ"
 
 #: widgets/memory/memory_widget.py:213
 msgid "Total RAM size"
-msgstr "合計RAMサイズ"
+msgstr "RAMサイズ"
 
 #: widgets/memory/memory_widget.py:217
 msgid "Available RAM size"
-msgstr "使用可能なRAMサイズ"
+msgstr "利用可能なRAMサイズ"
 
 #: widgets/memory/memory_widget.py:221
 msgid "Used RAM size"
@@ -2026,7 +2041,7 @@ msgstr "クリア"
 
 #: widgets/memory/memory_widget.py:242
 msgid "Clear on play"
-msgstr "プレーをクリアに"
+msgstr "プレー中もクリア"
 
 #: widgets/notes/notes_widget.py:28
 msgid "The notes value."
@@ -2042,7 +2057,7 @@ msgstr "ファイル名"
 
 #: widgets/record_status/record_status_widget.py:28
 msgid "Signal recording in progress"
-msgstr "録音中の信号"
+msgstr "信号記録中"
 
 #: widgets/record_status/record_status_widget.py:29
 msgid "Statistics recording in progress"
@@ -2050,7 +2065,7 @@ msgstr "統計記録中"
 
 #: widgets/record_status/record_status_widget.py:34
 msgid "Record Status"
-msgstr "レコードステータス"
+msgstr "記録ステータス"
 
 #: widgets/settings/settings_widget.py:268
 msgid "Color"
@@ -2070,7 +2085,7 @@ msgstr "共通"
 
 #: widgets/settings/settings_widget.py:538
 msgid "View defaults"
-msgstr "デフォルトの表示"
+msgstr "デフォルトを表示"
 
 #: widgets/settings/settings_widget.py:540
 msgid "Devices"
@@ -2090,11 +2105,11 @@ msgstr "定義"
 
 #: widgets/settings/unique_strings_widget.py:50
 msgid "Available"
-msgstr "利用可能"
+msgstr "使用可能"
 
 #: widgets/settings/unique_strings_widget.py:58
 msgid "Selected"
-msgstr "厳選された"
+msgstr "選択された"
 
 #: widgets/sidebar/sidebar_widget.py:27
 msgid "Device control"
@@ -2106,11 +2121,11 @@ msgid ""
 " and their settings. Use this widget to open and close devices and configure"
 " their operation."
 msgstr ""
-"クリックすると、接続されているデバイスとその設定を表示するデバイス制御ウィジェットが表示されます。このウィジェットを使用して、デバイスを開閉し、動作を設定します。"
+"クリックすると、接続されたデバイスとその設定を表示するデバイス制御ウィジェットが表示されます。このウィジェットを使用して、デバイスを開閉し、動作を設定します。"
 
 #: widgets/sidebar/sidebar_widget.py:34
 msgid "Memory buffer settings"
-msgstr "メモリバッファの設定"
+msgstr "メモリバッファ設定"
 
 #: widgets/sidebar/sidebar_widget.py:35
 msgid ""
@@ -2118,14 +2133,14 @@ msgid ""
 "this button to show the memory management widget which allows you to "
 "configure the memory used by this Joulescope UI instance."
 msgstr ""
-"ストリーミング信号のサンプル・データは、ホスト・コンピュータの RAM "
-"に保存されます。このボタンをクリックすると、メモリ管理ウィジェットが表示され、このJoulescope UIインスタンスが使用するメモリを設定できます。"
+"ストリーミング信号のサンプル・データは、ホスト・コンピュータのRAMに保存されます。このボタンをクリックすると、メモリ管理ウィジェットが表示され、このJoulescope"
+" UIインスタンスが使用するメモリを設定できます。"
 
 #: widgets/sidebar/sidebar_widget.py:43
 msgid ""
 "Click to show the settings which allows you to change the global, default, "
 "and individual instance settings for devices and widgets."
-msgstr "クリックすると設定が表示され、デバイスとウィジェットのグローバル設定、デフォルト設定、個別インスタンス設定を変更できます。"
+msgstr "クリックすると設定が表示され、デバイスやウィジェットのグローバル設定、デフォルト設定、個別インスタンス設定を変更できます。"
 
 #: widgets/sidebar/sidebar_widget.py:46
 msgid ""
@@ -2135,11 +2150,11 @@ msgstr "デフォルトの変更は既存のインスタンスには影響せず
 
 #: widgets/sidebar/sidebar_widget.py:51
 msgid "Get help"
-msgstr "助けを求める"
+msgstr "ヘルプ"
 
 #: widgets/sidebar/sidebar_widget.py:52
 msgid "Click to display help options."
-msgstr "クリックするとヘルプが表示されます。"
+msgstr "クリックするとヘルプオプションが表示されます。"
 
 #: widgets/sidebar/sidebar_widget.py:55
 msgid "Additional settings and actions"
@@ -2155,7 +2170,7 @@ msgstr "サイドバー"
 
 #: widgets/sidebar/sidebar_widget.py:68
 msgid "The flyout width in pixels."
-msgstr "フライアウトの幅をピクセル単位で指定します。"
+msgstr "ピクセル単位のフライアウト幅。"
 
 #: widgets/signal_record/disk_full_dialog.py:19
 msgid "The disk is full"
@@ -2163,16 +2178,16 @@ msgstr "ディスクがいっぱいです"
 
 #: widgets/signal_record/signal_record.py:57
 msgid "Could not open file for write"
-msgstr "書き込みのためにファイルを開けませんでした"
+msgstr "書き込み用にファイルを開けませんでした"
 
 #: widgets/signal_record/signal_record_config_widget.py:101
 msgid "SignalRecordConfig"
-msgstr "シグナルレコード設定"
+msgstr "SignalRecordConfig"
 
 #: widgets/signal_record/signal_record_config_widget.py:107
 #: widgets/statistics_record/statistics_record_config_widget.py:92
 msgid "The filename with optional replacements."
-msgstr "ファイル名とオプションの置換。"
+msgstr "ファイル名。"
 
 #: widgets/signal_record/signal_record_config_widget.py:166
 msgid "Signals to record"
@@ -2185,19 +2200,19 @@ msgstr "信号記録の設定"
 
 #: widgets/statistics_record/statistics_record_config_widget.py:86
 msgid "StatisticsRecordConfig"
-msgstr "統計レコード設定"
+msgstr "統計レコードコンフィグ"
 
 #: widgets/statistics_record/statistics_record_config_widget.py:123
 msgid "Time Format"
-msgstr "時間形式"
+msgstr "時間フォーマット"
 
 #: widgets/trigger/trigger_widget.py:41 widgets/value/value_widget.py:87
 msgid "Select the source device"
-msgstr "ソースデバイスの選択"
+msgstr "ソースデバイスを選択"
 
 #: widgets/trigger/trigger_widget.py:42
 msgid "The device to use for the start condition and stop condition."
-msgstr "開始条件と停止条件に使用するデバイス。"
+msgstr "開始条件および停止条件に使用するデバイス。"
 
 #: widgets/trigger/trigger_widget.py:44
 msgid "Configure run mode"
@@ -2209,7 +2224,7 @@ msgstr "シングル"
 
 #: widgets/trigger/trigger_widget.py:46
 msgid "Perform one trigger sequence and then return to inactive mode."
-msgstr "トリガーシーケンスを1回実行し、インアクティブモードに戻る。"
+msgstr "トリガーシーケンスを1回実行した後、非アクティブモードに戻ります。"
 
 #: widgets/trigger/trigger_widget.py:47
 msgid "Continuous"
@@ -2217,7 +2232,7 @@ msgstr "連続"
 
 #: widgets/trigger/trigger_widget.py:48
 msgid "Repeat the trigger sequence indefinitely until manually stopped."
-msgstr "手動で停止するまで、トリガーシーケンスを無限に繰り返す。"
+msgstr "手動で停止するまで、トリガーシーケンスを無限に繰り返します。"
 
 #: widgets/trigger/trigger_widget.py:65
 msgid "Start, stop and indicate status"
@@ -2225,11 +2240,11 @@ msgstr "スタート、ストップ、ステータス表示"
 
 #: widgets/trigger/trigger_widget.py:66
 msgid "Inactive"
-msgstr "活動休止中"
+msgstr "非アクティブ"
 
 #: widgets/trigger/trigger_widget.py:67
 msgid "Configure trigger options and then press to start."
-msgstr "トリガーオプションを設定し、 を押して開始する。"
+msgstr "トリガーオプションを設定し、 を押して開始します。"
 
 #: widgets/trigger/trigger_widget.py:68
 msgid "Searching"
@@ -2239,7 +2254,7 @@ msgstr "検索"
 msgid ""
 "Look for the configured start condition. On match, perform the start actions"
 " and advance to active. Press to halt and return to inactive."
-msgstr "設定された開始条件を探す。一致したら、開始アクションを実行し、アクティブに進む。を押して停止し、非アクティブに戻る。"
+msgstr "設定された開始条件を探します。一致したら、スタートアクションを実行し、アクティブに進みます。を押して停止し、非アクティブに戻ります。"
 
 #: widgets/trigger/trigger_widget.py:74
 msgid ""
@@ -2247,7 +2262,7 @@ msgid ""
 "For run mode single, transition to inactive. For run mode continuous, "
 "transition to searching. Press to halt and return to inactive."
 msgstr ""
-"設定された停止条件を探す。一致したら、停止アクションを実行する。ランモードシングルの場合、非アクティブに移行する。ランモードが連続の場合、検索に移行する。を押して停止し、非アクティブに戻る。"
+"設定された停止条件を探します。一致したら、停止アクションを実行します。ランモード・シングルの場合は、非アクティブに移行します。ランモードが連続の場合、検索に移行します。を押して停止し、非アクティブに戻る。"
 
 #: widgets/trigger/trigger_widget.py:113
 msgid "Edge"
@@ -2271,7 +2286,7 @@ msgstr "外側"
 
 #: widgets/trigger/trigger_widget.py:164
 msgid "The source instrument."
-msgstr "ソースの楽器。"
+msgstr "ソース機器。"
 
 #: widgets/trigger/trigger_widget.py:219
 msgid "Type"
@@ -2279,31 +2294,31 @@ msgstr "タイプ"
 
 #: widgets/trigger/trigger_widget.py:221
 msgid "Condition"
-msgstr "コンディション"
+msgstr "条件"
 
 #: widgets/trigger/trigger_widget.py:466
 msgid "Record samples"
-msgstr "記録サンプル"
+msgstr "サンプルの記録"
 
 #: widgets/trigger/trigger_widget.py:467 widgets/trigger/trigger_widget.py:480
 msgid "Config"
-msgstr "コンフィグ"
+msgstr "構成"
 
 #: widgets/trigger/trigger_widget.py:471 widgets/trigger/trigger_widget.py:484
 msgid "Start buffer"
-msgstr "バッファ開始"
+msgstr "スタートバッファ"
 
 #: widgets/trigger/trigger_widget.py:473 widgets/trigger/trigger_widget.py:486
 msgid "Stop delay"
-msgstr "ストップディレイ"
+msgstr "停止遅延"
 
 #: widgets/trigger/trigger_widget.py:479
 msgid "Record statistics"
-msgstr "レコード統計"
+msgstr "統計情報の記録"
 
 #: widgets/trigger/trigger_widget.py:492 widgets/trigger/trigger_widget.py:622
 msgid "Set output"
-msgstr "セット出力"
+msgstr "出力設定"
 
 #: widgets/trigger/trigger_widget.py:506 widgets/trigger/trigger_widget.py:636
 #: widgets/waveform/waveform_control.py:29
@@ -2317,7 +2332,7 @@ msgstr "デュアルマーカーの追加"
 
 #: widgets/trigger/trigger_widget.py:644
 msgid "Stop sample buffer"
-msgstr "ストップサンプルバッファー"
+msgstr "停止サンプルバッファ"
 
 #: widgets/trigger/trigger_widget.py:645
 msgid "Delay"
@@ -2329,7 +2344,7 @@ msgstr "トリガー"
 
 #: widgets/trigger/trigger_widget.py:817
 msgid "No sources found"
-msgstr "ソースなし"
+msgstr "ソースが見つかりません"
 
 #: widgets/trigger/trigger_widget.py:851
 msgid "Start Condition"
@@ -2337,7 +2352,7 @@ msgstr "開始条件"
 
 #: widgets/trigger/trigger_widget.py:854
 msgid "Start Actions"
-msgstr "アクションの開始"
+msgstr "動作開始"
 
 #: widgets/trigger/trigger_widget.py:857
 msgid "Stop Condition"
@@ -2345,29 +2360,29 @@ msgstr "停止条件"
 
 #: widgets/trigger/trigger_widget.py:860
 msgid "Stop Actions"
-msgstr "ストップ・アクション"
+msgstr "動作停止"
 
 #: widgets/value/value_widget.py:36
 msgid "Show the device selection header."
-msgstr "デバイス選択ヘッダーを表示する。"
+msgstr "デバイス選択ヘッダーを表示します。"
 
 #: widgets/value/value_widget.py:41
 msgid "Show the accrue header."
-msgstr "ヘッダーを表示する。"
+msgstr "accrueヘッダを表示します。"
 
 #: widgets/value/value_widget.py:46
 msgid "Show the statistics fields at the right."
-msgstr "右側に統計フィールドを表示する。"
+msgstr "右側の統計フィールドを表示します。"
 
 #: widgets/value/value_widget.py:51
 msgid "Show a leading + or - sign."
-msgstr "先頭の＋または-記号を表示する。"
+msgstr "先頭の+または-記号を表示します。"
 
 #: widgets/value/value_widget.py:88
 msgid ""
 "The values displayed by this widget come from a single source device. Select"
 " the source device here."
-msgstr "このウィジェットで表示される値は、1つのソース・デバイスからのものです。ここでソースデバイスを選択します。"
+msgstr "このウィジェットで表示される値は、単一のソース・デバイスからのものです。ここでソース・デバイスを選択してください。"
 
 #: widgets/value/value_widget.py:94
 msgid "Hold the display"
@@ -2375,7 +2390,7 @@ msgstr "ディスプレイを保持する"
 
 #: widgets/value/value_widget.py:96
 msgid "When selected, prevent the display from updating."
-msgstr "選択した場合、ディスプレイの更新を防ぐ。"
+msgstr "選択すると、ディスプレイが更新されないようにします。"
 
 #: widgets/value/value_widget.py:97
 msgid ""
@@ -2383,7 +2398,7 @@ msgid ""
 "the global statistics hold button is selected, this button is disabled and "
 "has no effect."
 msgstr ""
-"UIには、サイドバーにグローバル統計ホールドボタンもある。グローバル統計ホールドボタンが選択されると、このボタンは無効になり、何の効果もない。"
+"UIには、サイドバーにグローバル統計ホールドボタンがあります。グローバル統計ホールドボタンが選択されている場合、このボタンは無効になり、何の効果もありません。"
 
 #: widgets/value/value_widget.py:100
 msgid ""
@@ -2392,11 +2407,11 @@ msgid ""
 "updated. However, the statistics will continue accumulate and accrue (if "
 "selected)."
 msgstr ""
-"表示される値は通常、デバイスによって計算された新しい統計データごとに更新されます。このボタンが選択されている場合、表示は更新されません。ただし、統計値は蓄積され続けます（選択されている場合）。"
+"表示値は通常、デバイスによって計算された新しい統計データごとに更新されます。このボタンを選択すると、表示は更新されません。ただし、統計値は蓄積され続けます（選択されている場合）。"
 
 #: widgets/value/value_widget.py:107
 msgid "Accrue values over time"
-msgstr "時間をかけて価値を生み出す"
+msgstr "時間の経過とともに値を蓄積"
 
 #: widgets/value/value_widget.py:109
 msgid ""
@@ -2404,17 +2419,17 @@ msgid ""
 "frequency interval. Press this button to accrue the values indefinitely. "
 "Press again to return to normal operation."
 msgstr ""
-"電流、電圧、電力は通常、1つの統計周波数間隔で計算されます。このボタンを押すと、値が無期限に累積されます。もう一度押すと、通常の動作に戻ります。"
+"電流、電圧、電力は通常、1つの統計周波数間隔にわたって計算されます。このボタンを押すと、値が無期限に累積されます。もう一度押すと通常動作に戻ります。"
 
 #: widgets/value/value_widget.py:113
 msgid ""
 "Note that this button does not affect the charge and energy accumulation. "
 "Both accumulate indefinitely regardless of this button state."
-msgstr "なお、このボタンはチャージとエネルギーの蓄積には影響しない。どちらもこのボタンの状態に関係なく無期限に蓄積される。"
+msgstr "このボタンは電荷とエネルギーの蓄積には影響しません。このボタンの状態に関係なく、どちらも無期限に蓄積されます。"
 
 #: widgets/value/value_widget.py:195
 msgid "Not present"
-msgstr "不在"
+msgstr "存在しない"
 
 #: widgets/value/value_widget.py:215
 msgid "Hold"
@@ -2431,7 +2446,7 @@ msgstr "ビュー・マネージャー"
 
 #: widgets/waveform/quantities.py:21
 msgid "avg"
-msgstr "エーブイ"
+msgstr "平均値"
 
 #: widgets/waveform/quantities.py:22
 msgid "std"
@@ -2447,7 +2462,7 @@ msgstr "分"
 
 #: widgets/waveform/quantities.py:25 widgets/waveform/y_range_widget.py:67
 msgid "max"
-msgstr "マックス"
+msgstr "最大"
 
 #: widgets/waveform/quantities.py:26
 msgid "p2p"
@@ -2479,7 +2494,7 @@ msgstr "スター"
 
 #: widgets/waveform/text_annotation.py:57
 msgid "plus"
-msgstr "もっと見る"
+msgstr "詳細"
 
 #: widgets/waveform/text_annotation.py:58
 msgid "cross"
@@ -2508,7 +2523,7 @@ msgstr "マニュアル"
 
 #: widgets/waveform/text_annotation.py:67
 msgid "Centered"
-msgstr "中央"
+msgstr "中心"
 
 #: widgets/waveform/text_annotation.py:99
 #: widgets/waveform/waveform_widget.py:3123
@@ -2527,17 +2542,17 @@ msgstr "形状"
 
 #: widgets/waveform/text_annotation.py:126
 msgid "Y Mode"
-msgstr "Yファッション"
+msgstr "Yモード"
 
 #: widgets/waveform/waveform_control.py:24
 msgid ""
 "To reposition the marker, left click on the marker, move the mouse to the "
 "new location, and the left click again."
-msgstr "マーカーの位置を変更するには、マーカーを左クリックし、新しい位置にマウスを移動して、もう一度左クリックします。"
+msgstr "マーカの位置を変更するには、マーカ上で左クリックし、マウスを新しい位置に移動し、再度左クリックします。"
 
 #: widgets/waveform/waveform_control.py:31
 msgid "Click to add a single marker to the waveform."
-msgstr "クリックすると、波形にマーカーが 1 つ追加されます。"
+msgstr "クリックすると、波形にマーカーが1つ追加されます。"
 
 #: widgets/waveform/waveform_control.py:33
 msgid ""
@@ -2547,23 +2562,23 @@ msgstr "X軸上またはプロットエリア内で右クリックしてマー�
 
 #: widgets/waveform/waveform_control.py:40
 msgid "Click to add a dual markers to the waveform."
-msgstr "クリックすると、波形にデュアル・マーカーが追加されます。"
+msgstr "クリックすると、波形にデュアルマーカーが追加されます。"
 
 #: widgets/waveform/waveform_control.py:42
 msgid ""
 "You can also add a dual markers by right-clicking on the x-axis or in the "
 "plot area."
-msgstr "X軸上またはプロット・エリア内で右クリックして、デュアル・マーカーを追加することもできます。"
+msgstr "X軸上またはプロットエリア内で右クリックして、デュアルマーカーを追加することもできます。"
 
 #: widgets/waveform/waveform_control.py:47
 msgid "Clear all markers"
-msgstr "すべてのマーカーを消す"
+msgstr "すべてのマーカーを消去"
 
 #: widgets/waveform/waveform_control.py:48
 msgid ""
 "Click to clear all markers from the waveform. This operation removes both "
 "single markers and dual markers."
-msgstr "クリックすると、波形からすべてのマーカが消去されます。この操作は、シングル・マーカとデュアル・マーカの両方を削除します。"
+msgstr "クリックすると、波形からすべてのマーカが消去されます。この操作により、シングル・マーカとデュアル・マーカの両方が削除されます。"
 
 #: widgets/waveform/waveform_control.py:53
 msgid "Zoom in"
@@ -2571,14 +2586,14 @@ msgstr "ズームイン"
 
 #: widgets/waveform/waveform_control.py:55
 msgid "Click to zoom in along the time x-axis."
-msgstr "時間X軸に沿って拡大するにはクリックしてください。"
+msgstr "クリックすると時間X軸に沿ってズームインします。"
 
 #: widgets/waveform/waveform_control.py:56
 #: widgets/waveform/waveform_control.py:64
 msgid ""
 "You can also zoom by positioning the mouse over the waveform and then using "
 "the scroll wheel."
-msgstr "波形の上にマウスを置き、スクロール・ホイールを使ってズームすることもできます。"
+msgstr "波形の上にマウスを置き、スクロールホイールを使ってズームすることもできます。"
 
 #: widgets/waveform/waveform_control.py:61
 msgid "Zoom out"
@@ -2586,7 +2601,7 @@ msgstr "ズームアウト"
 
 #: widgets/waveform/waveform_control.py:63
 msgid "Click to zoom out along the time x-axis."
-msgstr "時間X軸に沿ってズームアウトするにはクリックしてください。"
+msgstr "クリックすると時間X軸に沿ってズームアウトします。"
 
 #: widgets/waveform/waveform_control.py:69
 msgid "Zoom all"
@@ -2598,7 +2613,7 @@ msgstr "クリックするとX軸の全範囲が表示されます。"
 
 #: widgets/waveform/waveform_control.py:73
 msgid "Pin left"
-msgstr "左ピン"
+msgstr "ピン左"
 
 #: widgets/waveform/waveform_control.py:74
 msgid ""
@@ -2608,31 +2623,31 @@ msgstr "波形表示を左側に固定します。有効にすると、左側（
 
 #: widgets/waveform/waveform_control.py:79
 msgid "Pin right"
-msgstr "右ピン"
+msgstr "ピン右"
 
 #: widgets/waveform/waveform_control.py:80
 msgid ""
 "Pin the waveform display to the right side. When enabled, the right side "
 "(newest) data always remains in view."
-msgstr "波形表示を右側に固定する。有効にすると、右側（最新）のデータが常に表示されたままになります。"
+msgstr "波形表示を右側に固定します。有効にすると、右側（最新）のデータが常に表示されたままになります。"
 
 #: widgets/waveform/waveform_control.py:85
 msgid "Y zoom all"
-msgstr "Yズーム・オール"
+msgstr "Yズーム"
 
 #: widgets/waveform/waveform_control.py:87
 msgid "Click to reset the y-axis of all plots to auto ranging mode."
-msgstr "クリックすると、すべてのプロットのY軸が自動測距モードにリセットされる。"
+msgstr "クリックすると、すべてのプロットのY軸が自動測距モードにリセットされます。"
 
 #: widgets/waveform/waveform_control.py:88
 msgid ""
 "This operation does not affect the fixed range plots such as the general "
 "purpose inputs."
-msgstr "この操作は、汎用入力のような固定レンジのプロットには影響しない。"
+msgstr "この動作は、汎用入力などの固定レンジ・プロットには影響しません。"
 
 #: widgets/waveform/waveform_control.py:93
 msgid "Show min/max extents"
-msgstr "最小／最大エクステントを表示"
+msgstr "最小/最大エクステントを表示"
 
 #: widgets/waveform/waveform_control.py:95
 msgid ""
@@ -2640,27 +2655,27 @@ msgid ""
 "pixel may represent many samples. Displaying the min/max can allow you to "
 "see events that may be missed with just the average."
 msgstr ""
-"波形の最小/最大範囲の表示方法を変更します。ズームアウトすると、各ピクセルが多くのサンプルを表すことがあります。最小／最大を表示することで、平均値だけでは見逃しがちなイベントを確認することができます。"
+"波形の最小/最大エクステントの表示方法を変更します。波形を拡大すると、各ピクセルが多くのサンプルを表すことがあります。最小/最大を表示することで、平均値だけでは見逃す可能性のあるイベントを見ることができます。"
 
 #: widgets/waveform/waveform_control.py:99
 msgid "\"off\" only displays the average."
-msgstr "\"off \"は平均値のみを表示する。"
+msgstr "\"off \"は平均値のみを表示します。"
 
 #: widgets/waveform/waveform_control.py:100
 msgid "\"lines\" displays the minimum and maximum as separate line traces."
-msgstr "\"lines \"は、最小値と最大値を別々のライントレースとして表示する。"
+msgstr "「lines\" は、最小値と最大値を別々のライントレースとして表示します。"
 
 #: widgets/waveform/waveform_control.py:101
 msgid "\"fill 1\" displays a filled color between the minimum and maximum."
-msgstr "「fill 1 \"は、最小値と最大値の間に塗りつぶされた色を表示する。"
+msgstr "\"fill 1 \"は、最小値と最大値の間を塗りつぶした色で表示します。"
 
 #: widgets/waveform/waveform_control.py:102
 msgid "\"fill 2\" also displays an additional fill for standard deviation."
-msgstr "また、\"fill 2 \"は標準偏差の追加フィルを表示する。"
+msgstr "\"fill 2 \"は、標準偏差の追加フィルも表示します。"
 
 #: widgets/waveform/waveform_control.py:106
 msgid "Show/hide signals"
-msgstr "シグナルの表示/非表示"
+msgstr "信号の表示/非表示"
 
 #: widgets/waveform/waveform_control.py:107
 msgid "Click to toggle the signal axis display in the Waveform widget."
@@ -2672,15 +2687,15 @@ msgstr "トレースを有効にする"
 
 #: widgets/waveform/waveform_source_widget.py:31
 msgid "Click to toggle this trace."
-msgstr "クリックするとトレースが切り替わります。"
+msgstr "クリックするとこのトレースが切り替わります。"
 
 #: widgets/waveform/waveform_source_widget.py:32
 msgid "When enabled, the waveform will display this trace."
-msgstr "有効にすると、波形はこのトレースを表示します。"
+msgstr "を有効にすると、波形にこのトレースが表示されます。"
 
 #: widgets/waveform/waveform_source_widget.py:33
 msgid "When disabled, the waveform will hide this trace."
-msgstr "無効にすると、波形はこのトレースを隠す。"
+msgstr "無効にすると、波形はこのトレースを隠します。"
 
 #: widgets/waveform/waveform_source_widget.py:37
 msgid "Select the source"
@@ -2688,13 +2703,13 @@ msgstr "ソースを選択"
 
 #: widgets/waveform/waveform_source_widget.py:39
 msgid "Select the source for this trace."
-msgstr "このトレースのソースを選択する。"
+msgstr "このトレースのソースを選択します。"
 
 #: widgets/waveform/waveform_source_widget.py:40
 msgid ""
 "\"default\" will use the default source which is normally configured using "
 "the Device Control widget."
-msgstr "「default \"は、通常デバイス・コントロール・ウィジェットを使用して設定されるデフォルト・ソースを使用します。"
+msgstr "「default \"は、通常デバイス制御ウィジェットを使用して設定されるデフォルトのソースを使用します。"
 
 #: widgets/waveform/waveform_source_widget.py:104
 #: widgets/waveform/waveform_widget.py:402
@@ -2724,7 +2739,7 @@ msgstr "汎用入力 3"
 
 #: widgets/waveform/waveform_widget.py:358
 msgid "The source filter string."
-msgstr "ソースフィルター文字列。"
+msgstr "ソース・フィルター・ストリング。"
 
 #: widgets/waveform/waveform_widget.py:369
 msgid "The trace width."
@@ -2736,7 +2751,7 @@ msgstr "目標フレーム/秒。"
 
 #: widgets/waveform/waveform_widget.py:386
 msgid "vsync"
-msgstr "ブイシンク"
+msgstr "vsync"
 
 #: widgets/waveform/waveform_widget.py:387
 msgid "20 Hz"
@@ -2752,59 +2767,59 @@ msgstr "5 Hz"
 
 #: widgets/waveform/waveform_widget.py:395
 msgid "The minimum interval between repaint in milliseconds."
-msgstr "再描画の最小間隔をミリ秒単位で指定する。"
+msgstr "再描画の最小間隔（ミリ秒）。"
 
 #: widgets/waveform/waveform_widget.py:400
 msgid "Show the minimum and maximum extents fill."
-msgstr "最小および最大エクステントフィルを表示します。"
+msgstr "最小および最大エクステントを表示します。"
 
 #: widgets/waveform/waveform_widget.py:403
 msgid "lines"
-msgstr "行"
+msgstr "ライン"
 
 #: widgets/waveform/waveform_widget.py:404
 msgid "fill 1"
-msgstr "フィル 1"
+msgstr "充填 1"
 
 #: widgets/waveform/waveform_widget.py:405
 msgid "fill 2"
-msgstr "フィル2"
+msgstr "フィル 2"
 
 #: widgets/waveform/waveform_widget.py:411
 msgid "Show the frames per second."
-msgstr "フレーム/秒を表示する。"
+msgstr "フレーム/秒を表示します。"
 
 #: widgets/waveform/waveform_widget.py:416
 msgid "Show the statistics on mouse hover."
-msgstr "マウスホバー時に統計情報を表示します。"
+msgstr "マウスホバーで統計を表示します。"
 
 #: widgets/waveform/waveform_widget.py:421
 msgid "Show the plot statistics on the right."
-msgstr "右側にプロット統計を表示する。"
+msgstr "右側にプロット統計を表示します。"
 
 #: widgets/waveform/waveform_widget.py:426
 msgid "Show frequency for dual markers and statistics."
-msgstr "デュアルマーカーと統計の頻度を表示する。"
+msgstr "デュアルマーカーと統計のために周波数を表示します。"
 
 #: widgets/waveform/waveform_widget.py:431
 msgid "The quantities to display by default."
-msgstr "デフォルトで表示される数量。"
+msgstr "デフォルトで表示する量。"
 
 #: widgets/waveform/waveform_widget.py:437
 msgid "The precision to display in digits."
-msgstr "桁数で表示する精度。"
+msgstr "桁で表示する精度。"
 
 #: widgets/waveform/waveform_widget.py:443
 msgid "Use OpenGL rendering."
-msgstr "OpenGLレンダリングを使用する。"
+msgstr "OpenGLレンダリングを使用します。"
 
 #: widgets/waveform/waveform_widget.py:454
 msgid "Pin the left side (oldest) data so that it stays in view."
-msgstr "左側（最も古い）のデータを表示されたままになるように固定する。"
+msgstr "左側（最も古い）のデータをピン留めして、表示されたままにします。"
 
 #: widgets/waveform/waveform_widget.py:459
 msgid "Pin the right side (newest) data so that it stays in view."
-msgstr "右側（最新）のデータを表示されたままになるようにピン留めする。"
+msgstr "右側（最新）のデータをピン留めして、表示されたままにします。"
 
 #: widgets/waveform/waveform_widget.py:464
 msgid "The waveform state."
@@ -2812,11 +2827,11 @@ msgstr "波形の状態。"
 
 #: widgets/waveform/waveform_widget.py:470
 msgid "The annotations."
-msgstr "注釈がある。"
+msgstr "注釈"
 
 #: widgets/waveform/waveform_widget.py:476
 msgid "Control location"
-msgstr "コントロール位置"
+msgstr "制御位置"
 
 #: widgets/waveform/waveform_widget.py:480
 msgid "top"
@@ -2824,11 +2839,11 @@ msgstr "トップ"
 
 #: widgets/waveform/waveform_widget.py:481
 msgid "bottom"
-msgstr "下"
+msgstr "ボトム"
 
 #: widgets/waveform/waveform_widget.py:486
 msgid "The signal quantity to show in the summary."
-msgstr "要約に表示する信号量。"
+msgstr "サマリーに表示する信号量。"
 
 #: widgets/waveform/waveform_widget.py:492
 msgid "X-axis annotation mode"
@@ -2837,29 +2852,29 @@ msgstr "X軸注釈モード"
 #: widgets/waveform/waveform_widget.py:495
 #: widgets/waveform/waveform_widget.py:2888
 msgid "Absolute"
-msgstr "アブソリュート"
+msgstr "絶対値"
 
 #: widgets/waveform/waveform_widget.py:496
 #: widgets/waveform/waveform_widget.py:2893
 msgid "Relative"
-msgstr "相対的"
+msgstr "相対"
 
 #: widgets/waveform/waveform_widget.py:502
 msgid "The available subsources."
-msgstr "利用可能なサブソース。"
+msgstr "利用可能なサブソース"
 
 #: widgets/waveform/waveform_widget.py:508
 msgid "The selected subsources for each trace."
-msgstr "各トレースの選択されたサブソース。"
+msgstr "各トレースで選択されたサブソース。"
 
 #: widgets/waveform/waveform_widget.py:514
 msgid "The trace priority: highest int value on top, None is off."
-msgstr "トレースの優先順位：最も高い int 値が上、None はオフ。"
+msgstr "トレースの優先順位：最高 int 値が一番上、None はオフ。"
 
 #: widgets/waveform/waveform_widget.py:2834
 #: widgets/waveform/waveform_widget.py:3135
 msgid "Save image to file"
-msgstr "画像をファイルに保存する"
+msgstr "画像をファイルに保存"
 
 #: widgets/waveform/waveform_widget.py:2882
 #: widgets/waveform/waveform_widget.py:2951
@@ -2890,12 +2905,12 @@ msgstr "注釈"
 
 #: widgets/waveform/waveform_widget.py:3001
 msgid "Range"
-msgstr "レンジ"
+msgstr "測定範囲"
 
 #: widgets/waveform/waveform_widget.py:3005
 #: widgets/waveform/waveform_widget.py:3328
 msgid "Auto"
-msgstr "車"
+msgstr "オート"
 
 #: widgets/waveform/waveform_widget.py:3011
 msgid "Exact"
@@ -2903,7 +2918,7 @@ msgstr "正確"
 
 #: widgets/waveform/waveform_widget.py:3020
 msgid "Scale"
-msgstr "階段"
+msgstr "スケール"
 
 #: widgets/waveform/waveform_widget.py:3023
 msgid "Linear"
@@ -2935,15 +2950,15 @@ msgstr "すべてのテキストを表示"
 
 #: widgets/waveform/waveform_widget.py:3118
 msgid "Vertical"
-msgstr "縦型"
+msgstr "垂直"
 
 #: widgets/waveform/waveform_widget.py:3121
 msgid "Horizontal"
-msgstr "ホリゾンタル"
+msgstr "水平"
 
 #: widgets/waveform/waveform_widget.py:3127
 msgid "Save"
-msgstr "セーブ"
+msgstr "節約"
 
 #: widgets/waveform/waveform_widget.py:3132
 msgid "Y-axis auto range"
@@ -2951,11 +2966,11 @@ msgstr "Y軸オートレンジ"
 
 #: widgets/waveform/waveform_widget.py:3136
 msgid "Copy image to clipboard"
-msgstr "画像をクリップボードにコピーする"
+msgstr "画像をクリップボードにコピー"
 
 #: widgets/waveform/waveform_widget.py:3137
 msgid "Export visible data"
-msgstr "可視データのエクスポート"
+msgstr "可視データをエクスポート"
 
 #: widgets/waveform/waveform_widget.py:3138
 msgid "Export all data"
@@ -2967,7 +2982,7 @@ msgstr "輸出"
 
 #: widgets/waveform/waveform_widget.py:3305
 msgid "Analysis"
-msgstr "分析"
+msgstr "解析"
 
 #: widgets/waveform/waveform_widget.py:3313
 msgid "Interval"
@@ -2979,7 +2994,7 @@ msgstr "ズーム"
 
 #: widgets/waveform/waveform_widget.py:3326
 msgid "Show statistics"
-msgstr "統計を表示する"
+msgstr "統計を表示"
 
 #: widgets/waveform/waveform_widget.py:3331
 msgid "Left"

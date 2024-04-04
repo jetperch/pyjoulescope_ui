@@ -1,4 +1,4 @@
-# Copyright 2022 Jetperch LLC
+# Copyright 2024 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,6 +17,14 @@ import os
 import re
 
 __all__ = ['N_', 'gettext_locale_get']
+
+
+if 'LANGUAGE_joulescope_ui' in os.environ:
+    os.environ['LANGUAGE'] = os.environ['LANGUAGE_joulescope_ui']
+elif 'LANGUAGE_joulescope' in os.environ:
+    os.environ['LANGUAGE'] = os.environ['LANGUAGE_joulescope']
+
+
 _whitespace = r'\s+'
 PATH = os.path.dirname(os.path.abspath(__file__))
 translate = gettext.translation('joulescope_ui', PATH, fallback=True)

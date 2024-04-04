@@ -58,11 +58,12 @@ _BODY = """\
 """
 
 
-_PROMPT = """\
+_PROMPT1 = N_('We have detected that you are running the Joulescope UI from a python package or source.')
+_PROMPT2 = N_('To update your python packages, issue the following command:')
+_PROMPT = f"""\
 <body>
-<p>We have detected that you are running the Joulescope UI
-from a python package or source.</p>
-<p>To update your python packages, issue the following command:</p>
+<p>{_PROMPT1}</p>
+<p>{_PROMPT2}</p>
 </body>
 </html>
 """
@@ -73,7 +74,7 @@ _TITLE = N_('Software update')
 
 _SOFTWARE_UPDATE_TXT = {
     'description': N_('A software update is available:'),
-    'current_version_label': N_('Current version'),
+    'current_version_label': N_('Existing version'),
     'available_version_label': N_('Available version'),
     'channel_label': N_('Channel'),
 }

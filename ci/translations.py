@@ -41,7 +41,13 @@ _PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOCALE_PATH = os.path.join(_PATH, 'joulescope_ui', 'locale')
 POT_FILE = os.path.join(LOCALE_PATH, 'joulescope_ui.pot')
 _whitespace = r'\s+'
-
+_CONTEXT = """\
+Joulescope is the affordable, precision energy analyzer.\
+The Joulescope JS220 streamlines low-power design, providing clear and immediate insights. \
+With seamless measurements from 1 nA to ±10 A across sleep and active modes, \
+Joulescope is the right tool for designing modern low-power and battery-powered products. \
+Current means electrical current in this context. \ 
+"""
 
 with open(os.path.join(_PATH, 'joulescope_ui', 'version.py'), 'rt') as f:
     __version__ = f.readline().split('=')[1].strip()[1:-1]
@@ -153,7 +159,8 @@ def run_deepl(data):
         text = [_text_patch(e.msgid) for e in entries]
         if len(text):
             print(f'{locale}: Translating {len(text)} entries')
-            result = translator.translate_text(text, target_lang=locale, tag_handling='html')
+            result = translator.translate_text(text, target_lang=locale, tag_handling='html',
+                                               context=_CONTEXT)
             for r, entry in zip(result, entries):
                 entry.msgstr = _text_unpatch(r.text)
         pofile.save(path)
