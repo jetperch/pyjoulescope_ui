@@ -18,13 +18,13 @@ import numpy as np
 
 
 X_QUANTITY_OPTIONS = [
-    ['avg', N_('avg')],
-    ['std', N_('std')],
-    ['rms', N_('rms')],
-    ['min', N_('min')],
-    ['max', N_('max')],
-    ['p2p', N_('p2p')],
-    ['integral', N_('∫')],
+    ['avg', 'avg'],
+    ['std', 'std'],
+    ['rms', 'rms'],
+    ['min', 'min'],
+    ['max', 'max'],
+    ['p2p', 'p2p'],
+    ['integral', '∫'],
 ]
 X_QUANTITY_TO_STR = dict([(k, x[0] if len(x) == 1 else x[1]) for x in X_QUANTITY_OPTIONS for k in x])
 X_STR_TO_QUANTITY = dict([(k, x[0]) for x in X_QUANTITY_OPTIONS for k in x])

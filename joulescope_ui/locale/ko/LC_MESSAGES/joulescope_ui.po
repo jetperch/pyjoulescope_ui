@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-04-04 14:54-0400\n"
+"POT-Creation-Date: 2024-04-04 15:42-0400\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: ko <LL@li.org>\n"
@@ -546,7 +546,7 @@ msgstr "멀티미터"
 msgid "Oscilloscope"
 msgstr "오실로스코프"
 
-#: main.py:72 main.py:298
+#: main.py:72 main.py:298 main.py:359 main.py:402
 msgid "File"
 msgstr "파일"
 
@@ -610,8 +610,8 @@ msgid "UI"
 msgstr "UI"
 
 #: main.py:330
-msgid "&Help"
-msgstr "&amp;Help"
+msgid "Help"
+msgstr "도움말"
 
 #: main.py:331 widgets/hamburger/hamburger_widget.py:21
 msgid "Getting Started"
@@ -640,10 +640,6 @@ msgstr "크레딧"
 #: main.py:337 widgets/hamburger/hamburger_widget.py:24
 msgid "About"
 msgstr "About"
-
-#: main.py:359 main.py:402
-msgid "&File"
-msgstr "&amp;File"
 
 #: main.py:360
 msgid "Open"
@@ -2469,34 +2465,6 @@ msgstr "증가"
 msgid "View Manager"
 msgstr "뷰 관리자"
 
-#: widgets/waveform/quantities.py:21
-msgid "avg"
-msgstr "평균"
-
-#: widgets/waveform/quantities.py:22
-msgid "std"
-msgstr "std"
-
-#: widgets/waveform/quantities.py:23
-msgid "rms"
-msgstr "rms"
-
-#: widgets/waveform/quantities.py:24 widgets/waveform/y_range_widget.py:68
-msgid "min"
-msgstr "min"
-
-#: widgets/waveform/quantities.py:25 widgets/waveform/y_range_widget.py:67
-msgid "max"
-msgstr "최대"
-
-#: widgets/waveform/quantities.py:26
-msgid "p2p"
-msgstr "p2p"
-
-#: widgets/waveform/quantities.py:27
-msgid "∫"
-msgstr "∫"
-
 #: widgets/waveform/text_annotation.py:52
 msgid "diamond"
 msgstr "다이아몬드"
@@ -3043,6 +3011,14 @@ msgstr "제거"
 #: widgets/waveform/waveform_widget.py:3351
 msgid "Y mode"
 msgstr "Y 모드"
+
+#: widgets/waveform/y_range_widget.py:67
+msgid "max"
+msgstr "최대"
+
+#: widgets/waveform/y_range_widget.py:68
+msgid "min"
+msgstr "min"
 
 #: widgets/waveform/y_range_widget.py:72
 msgid "Units"

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-04-04 14:54-0400\n"
+"POT-Creation-Date: 2024-04-04 15:42-0400\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: es <LL@li.org>\n"
@@ -620,7 +620,7 @@ msgstr "Multímetro"
 msgid "Oscilloscope"
 msgstr "Osciloscopio"
 
-#: main.py:72 main.py:298
+#: main.py:72 main.py:298 main.py:359 main.py:402
 msgid "File"
 msgstr "Archivo"
 
@@ -693,7 +693,7 @@ msgid "UI"
 msgstr "INTERFAZ DE USUARIO"
 
 #: main.py:330
-msgid "&Help"
+msgid "Help"
 msgstr "Ayuda"
 
 #: main.py:331 widgets/hamburger/hamburger_widget.py:21
@@ -723,10 +723,6 @@ msgstr "Créditos"
 #: main.py:337 widgets/hamburger/hamburger_widget.py:24
 msgid "About"
 msgstr "Acerca de"
-
-#: main.py:359 main.py:402
-msgid "&File"
-msgstr "&amp;Archivo"
 
 #: main.py:360
 msgid "Open"
@@ -2686,34 +2682,6 @@ msgstr "Aumento de"
 msgid "View Manager"
 msgstr "Administrador de vistas"
 
-#: widgets/waveform/quantities.py:21
-msgid "avg"
-msgstr "avg"
-
-#: widgets/waveform/quantities.py:22
-msgid "std"
-msgstr "std"
-
-#: widgets/waveform/quantities.py:23
-msgid "rms"
-msgstr "rms"
-
-#: widgets/waveform/quantities.py:24 widgets/waveform/y_range_widget.py:68
-msgid "min"
-msgstr "min"
-
-#: widgets/waveform/quantities.py:25 widgets/waveform/y_range_widget.py:67
-msgid "max"
-msgstr "máx"
-
-#: widgets/waveform/quantities.py:26
-msgid "p2p"
-msgstr "p2p"
-
-#: widgets/waveform/quantities.py:27
-msgid "∫"
-msgstr "∫"
-
 #: widgets/waveform/text_annotation.py:52
 msgid "diamond"
 msgstr "diamante"
@@ -3295,6 +3263,14 @@ msgstr "Eliminar"
 #: widgets/waveform/waveform_widget.py:3351
 msgid "Y mode"
 msgstr "Modo Y"
+
+#: widgets/waveform/y_range_widget.py:67
+msgid "max"
+msgstr "máx"
+
+#: widgets/waveform/y_range_widget.py:68
+msgid "min"
+msgstr "min"
 
 #: widgets/waveform/y_range_widget.py:72
 msgid "Units"

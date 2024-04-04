@@ -327,7 +327,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 for view_unique_id in self.pubsub.query('registry/view/instances'):
                     self.pubsub.register(View(), view_unique_id)
 
-        help_menu = ['help_menu', N_('&Help'), [
+        help_menu = ['help_menu', N_('Help'), [
                 ['getting_started', N_('Getting Started'), ['registry/help_html/actions/!show', 'getting_started']],
                 ['users_guide', N_("User's Guide"), ['registry/ui/actions/!url_open', urls.UI_USERS_GUIDE]],
                 ['changelog', N_('Changelog'), ['registry/help_html/actions/!show', 'changelog']],
@@ -356,7 +356,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
             self._menu_bar = QtWidgets.QMenuBar(self)
             self._menu_items = _menu_setup(self._menu_bar, [
-                ['file_menu', N_('&File'), [
+                ['file_menu', N_('File'), [
                     ['open', N_('Open'), ['registry/ui/actions/!file_open_request', '']],
                     ['open_recent_menu', N_('Open recent'), []],  # dynamically populated from MRU
                     ['exit_cfg', N_('Clear config and exit'), ['registry/ui/actions/!close', {'config_clear': True}]],
@@ -399,7 +399,7 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self._menu_bar = QtWidgets.QMenuBar(self)
             self._menu_items = _menu_setup(self._menu_bar, [
-                ['file_menu', N_('&File'), [
+                ['file_menu', N_('File'), [
                     ['info', N_('Info'), ['registry/view/actions/!widget_open', 'JlsInfoWidget']],
                     ['settings', N_('Settings'), ['registry/view/actions/!widget_open', {
                         'value': 'registry/settings',
