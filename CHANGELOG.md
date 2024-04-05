@@ -5,9 +5,9 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
-## 1.1.2
+## 1.1.3
 
-2024 Apr 4
+2024 Apr 5
 
 * Added plugin framework with live code reload  #14
 * Restructured code to support human language translation.
