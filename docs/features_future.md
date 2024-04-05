@@ -54,7 +54,6 @@ The UI is under active development, and many features remain outstanding.
 
 ### Other
 
-*   Automate build.
 *   Measure and automate Joulescope code coverage.
 *   Add automatic battery life estimation - may need to input battery 
     chemistry type & capacity.
