@@ -26,8 +26,8 @@ And here is the Oscilloscope view on Windows 11:
 For more information, see:
 
 * [Tips](docs/tips.md): for using the UI.
-* [Translations and locale][docs/locale.md]
-* [Plugins](docs/plugins.md): Using and developing UI plugins.
+* [Translations and locale](docs/locale.md)
+* [Plugins](docs/plugin.md): Using and developing UI plugins.
 * [Changelog](CHANGELOG.md): list of changes by release
 * [Future features](docs/features_future.md)
 * [Contributing](CONTRIBUTING.md)
