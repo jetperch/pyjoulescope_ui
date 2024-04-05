@@ -230,5 +230,5 @@ class SignalRecord:
             SignalRecord._log.info('stop')
             while len(SignalRecord._instances):
                 obj = SignalRecord._instances.pop()
-                obj.on_action_stop(value)
+                obj.on_action_stop()
             pubsub.publish(f'{get_topic_name(SignalRecord)}/events/!stop', True)
