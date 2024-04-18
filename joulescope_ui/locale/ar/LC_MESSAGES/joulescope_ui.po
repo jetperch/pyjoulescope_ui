@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-04-18 10:56-0400\n"
+"POT-Creation-Date: 2024-04-18 14:15-0400\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: ar <LL@li.org>\n"
@@ -398,39 +398,39 @@ msgstr ""
 "تصدير البيانات إلى ملف JLS. يمكنك فتح هذا الملف لاحقًا لعرض البيانات "
 "المصدرة."
 
-#: filename_formatter.py:36
+#: filename_formatter.py:19
 msgid "The device identifier."
 msgstr "معرّف الجهاز."
 
-#: filename_formatter.py:40
+#: filename_formatter.py:20
 msgid "The user-configurable device name."
 msgstr "اسم الجهاز القابل للتكوين من قِبل المستخدم."
 
-#: filename_formatter.py:44
+#: filename_formatter.py:21
 msgid "The device model."
 msgstr "طراز الجهاز."
 
-#: filename_formatter.py:48
+#: filename_formatter.py:22
 msgid "The device serial number."
 msgstr "الرقم التسلسلي للجهاز."
 
-#: filename_formatter.py:57
+#: filename_formatter.py:23
 msgid "Configure the filename"
 msgstr "تكوين اسم الملف"
 
-#: filename_formatter.py:58
+#: filename_formatter.py:24
 msgid "The filename supports the following replacements."
 msgstr "يدعم اسم الملف البدائل التالية."
 
-#: filename_formatter.py:62
+#: filename_formatter.py:25
 msgid "The current timestamp."
 msgstr "الطابع الزمني الحالي."
 
-#: filename_formatter.py:66
+#: filename_formatter.py:26
 msgid "The number of times the filename has been used."
 msgstr "عدد مرات استخدام اسم الملف."
 
-#: filename_formatter.py:71
+#: filename_formatter.py:27
 msgid "The process ID for this Joulescope UI invocation."
 msgstr "معرّف العملية لاستدعاء واجهة مستخدم Joulescope UI هذا."
 

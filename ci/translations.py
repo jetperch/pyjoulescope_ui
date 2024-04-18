@@ -90,25 +90,21 @@ def run_babel(preserve_create_date=False):
     rv = CommandLineInterface().run(babel_args)
     if rv not in [None, 0]:
         raise RuntimeError(f'BABEL failed with {rv}')
+
+    pofile = polib.pofile(POT_FILE)
     if metadata is not None:
-        pofile = polib.pofile(POT_FILE)
+        # preserve creation date
         pofile.metadata['POT-Creation-Date'] = metadata['POT-Creation-Date']
-        pofile.save(POT_FILE)
+    # normalize file
+    for entry in pofile:
+        entry.msgid = _msgid_process(entry.msgid)
+    pofile.save(POT_FILE)
 
 
 def _msgid_process(txt):
     txt = txt.strip()
     txt = re.sub(_whitespace, ' ', txt)
     return txt
-
-
-def run_pot_patch():
-    print('Update POT msgid entries')
-    pofile = polib.pofile(POT_FILE)
-    for entry in pofile:
-        entry.msgid = _msgid_process(entry.msgid)
-    pofile.save(POT_FILE)
-    return 0
 
 
 def run_po_update():
@@ -197,7 +193,6 @@ def run():
     args = parser_config().parse_args()
     if not args.compile_only:
         run_babel(preserve_create_date=args.preserve_create_date)
-        run_pot_patch()
         data = run_po_update()
         run_deepl(data)
     if args.error_if_changed and is_git_changed():

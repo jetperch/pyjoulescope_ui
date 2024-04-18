@@ -16,6 +16,17 @@ from joulescope_ui import N_, time64, pubsub_singleton, get_topic_name
 import os
 
 
+_DEVICE_IDENTIFIER = N_('The device identifier.')
+_DEVICE_NAME = N_('The user-configurable device name.')
+_DEVICE_MODEL = N_('The device model.')
+_DEVICE_SERIAL_NUMBER = N_('The device serial number.')
+_FILENAME_CONFIG = N_('Configure the filename')
+_REPLACEMENTS = N_('The filename supports the following replacements.')
+_TIMESTAMP = N_('The current timestamp.')
+_COUNT = N_('The number of times the filename has been used.')
+_PROCESS_ID = N_('The process ID for this Joulescope UI invocation.')
+
+
 HTML_STYLE = """\
 <style>
 table {
@@ -33,19 +44,19 @@ def filename_tooltip(device_id=None):
     device_id_str = f"""\
       <tr>
         <td>{{device_id}}</td>
-        <td>{N_('The device identifier.')}</td>
+        <td>{_DEVICE_IDENTIFIER}</td>
       </tr>
       <tr>
         <td>{{device_name}}</td>
-        <td>{N_('The user-configurable device name.')}</td>
+        <td>{_DEVICE_NAME}</td>
       </tr>
       <tr>
         <td>{{device_model}}</td>
-        <td>{N_('The device model.')}</td>
+        <td>{_DEVICE_MODEL}</td>
       </tr>
       <tr>
         <td>{{device_serial_number}}</td>
-        <td>{N_('The device serial number.')}</td>
+        <td>{_DEVICE_SERIAL_NUMBER}</td>
       </tr>\
     """
     if not device_id:
@@ -54,21 +65,21 @@ def filename_tooltip(device_id=None):
     return f"""\
     <html><header>{HTML_STYLE}</header>
     <body>
-    <h3>{N_('Configure the filename')}</h3>
-    <p>{N_('The filename supports the following replacements.')}
+    <h3>{_FILENAME_CONFIG}</h3>
+    <p>{_REPLACEMENTS}
     <p><table>
       <tr>
         <td>{{timestamp}}</td>
-        <td>{N_('The current timestamp.')}</td>
+        <td>{_TIMESTAMP}</td>
       </tr>
       <tr>
         <td>{{count}}</td>
-        <td>{N_('The number of times the filename has been used.')}</td>
+        <td>{_COUNT}</td>
       </tr>
       {device_id_str}
       <tr>
         <td>{{process_id}}</td>
-        <td>{N_('The process ID for this Joulescope UI invocation.')}</td>
+        <td>{_PROCESS_ID}</td>
       </tr>  
     </table></p></body></html>
     """
