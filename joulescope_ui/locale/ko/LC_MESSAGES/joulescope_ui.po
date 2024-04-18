@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-04-05 09:09-0400\n"
+"POT-Creation-Date: 2024-04-18 10:43-0400\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: ko <LL@li.org>\n"
@@ -374,6 +374,42 @@ msgid ""
 "Exporting data to a JLS file. You can open this file later to display the "
 "exported data."
 msgstr "데이터를 JLS 파일로 내보내기. 나중에 이 파일을 열어 내보낸 데이터를 표시할 수 있습니다."
+
+#: filename_formatter.py:36
+msgid "The device identifier."
+msgstr "디바이스 식별자."
+
+#: filename_formatter.py:40
+msgid "The user-configurable device name."
+msgstr "사용자가 구성할 수 있는 장치 이름입니다."
+
+#: filename_formatter.py:44
+msgid "The device model."
+msgstr "디바이스 모델."
+
+#: filename_formatter.py:48
+msgid "The device serial number."
+msgstr "디바이스 일련 번호."
+
+#: filename_formatter.py:57
+msgid "Configure the filename"
+msgstr "파일 이름 구성"
+
+#: filename_formatter.py:58
+msgid "The filename supports the following replacements."
+msgstr "파일 이름은 다음과 같은 대체를 지원합니다."
+
+#: filename_formatter.py:62
+msgid "The current timestamp."
+msgstr "현재 타임스탬프."
+
+#: filename_formatter.py:66
+msgid "The number of times the filename has been used."
+msgstr "파일 이름이 사용된 횟수입니다."
+
+#: filename_formatter.py:71
+msgid "The process ID for this Joulescope UI invocation."
+msgstr "이 줄스코프 UI 호출의 프로세스 ID입니다."
 
 #: getting_started.py:20
 msgid "Getting Started with Your Joulescope"

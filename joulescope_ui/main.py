@@ -17,7 +17,7 @@
 
 from joulescope_ui import pubsub_singleton, N_, get_topic_name, get_instance, \
     tooltip_format, CAPABILITIES, Metadata, __version__
-from joulescope_ui.locale import gettext_locale_get
+from joulescope_ui.locale import locale_get
 from joulescope_ui.pubsub import UNDO_TOPIC, REDO_TOPIC, is_pubsub_registered
 from joulescope_ui.pubsub_aggregator import PubsubAggregator
 from joulescope_ui.shortcuts import Shortcuts
@@ -273,7 +273,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self._pubsub_process_count_last = pubsub_singleton.process_count
 
         locale_prev = self.locale_str
-        locale_now = gettext_locale_get()
+        locale_now = locale_get()
         if locale_now != locale_prev:
             self._log.info('locale changed %s -> %s, update names', locale_prev, locale_now)
             _name_set_to_default(pubsub_singleton)

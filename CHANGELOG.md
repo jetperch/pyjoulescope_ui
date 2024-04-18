@@ -5,13 +5,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
-## 1.1.3
+## 1.1.4
 
-2024 Apr 5
+2024 Apr 18
 
 * Added plugin framework with live code reload  #14
 * Restructured code to support human language translation.
-* Added AI translations: ar, de, el, es, fr, ja, ko, zh.
+* Added AI translations: ar, de, el, es, fr, it, ja, ko, zh.
 * Added Intel graphics dialog to display sequence  #245
 * Modified QComboBox style.
 * Added filename replacement variables.

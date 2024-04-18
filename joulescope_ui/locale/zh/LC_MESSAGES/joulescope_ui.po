@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-04-05 09:09-0400\n"
+"POT-Creation-Date: 2024-04-18 10:43-0400\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: zh <LL@li.org>\n"
@@ -366,6 +366,42 @@ msgid ""
 "Exporting data to a JLS file. You can open this file later to display the "
 "exported data."
 msgstr "将数据导出到 JLS 文件。稍后可以打开该文件以显示导出的数据。"
+
+#: filename_formatter.py:36
+msgid "The device identifier."
+msgstr "设备标识符。"
+
+#: filename_formatter.py:40
+msgid "The user-configurable device name."
+msgstr "用户可配置的设备名称。"
+
+#: filename_formatter.py:44
+msgid "The device model."
+msgstr "设备型号。"
+
+#: filename_formatter.py:48
+msgid "The device serial number."
+msgstr "设备序列号。"
+
+#: filename_formatter.py:57
+msgid "Configure the filename"
+msgstr "配置文件名"
+
+#: filename_formatter.py:58
+msgid "The filename supports the following replacements."
+msgstr "文件名支持以下替换。"
+
+#: filename_formatter.py:62
+msgid "The current timestamp."
+msgstr "当前时间戳。"
+
+#: filename_formatter.py:66
+msgid "The number of times the filename has been used."
+msgstr "文件名被使用的次数。"
+
+#: filename_formatter.py:71
+msgid "The process ID for this Joulescope UI invocation."
+msgstr "此 Joulescope UI 调用的进程 ID。"
 
 #: getting_started.py:20
 msgid "Getting Started with Your Joulescope"

@@ -10,6 +10,7 @@ The Joulescope UI supports translations for the following languages:
 * **el**: Greek
 * **es**: Spanish
 * **fr**: French
+* **it**: Italian
 * **ja**: Japanese
 * **ko**: Korean
 * **zh**: Chinese (simplified)
@@ -25,7 +26,7 @@ pull request with the fixes to the appropriate
 joulescope_ui/locale/*locale*/LC_MESSAGES/joulescope_ui.po file.
 
 By default, the UI will use the OS language configuration.
-However, you can set the LANGUAGE_joulescope_ui environment variable,
+However, you can set the LANG_JOULESCOPE_UI environment variable,
 which will override the OS language.  Use the 2-letter language codes
 above.  At this time, the UI only offers basic language translations
 without country codes.
@@ -67,19 +68,19 @@ LOCALES in ci/translations.py.
 
 ### Testing languages
 
-To test a language, set the LANGUAGE or LANGUAGE_joulescope_ui 
+To test a language, set the LANG or LANG_JOULESCOPE_UI 
 environment variable before starting the Joulescope UI.
 
 To test simplified Chinese for Windows with PowerShell:
 
 ```
-$env:LANGUAGE_joulescope_ui = "zh"
+$env:LANG_JOULESCOPE_UI = "zh"
 python -m joulescope_ui ui
 ```
 
 You can then return to English:
 ```
-$env:LANGUAGE_joulescope_ui = "en"
+$env:LANG_JOULESCOPE_UI = "en"
 python -m joulescope_ui ui
 ```
 

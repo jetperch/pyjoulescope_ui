@@ -32,6 +32,7 @@ LOCALES = [
     # 'en',     # English
     'es',       # Spanish
     'fr',       # French
+    'it',       # Italian
     'ja',       # Japanese
     'ko',       # Korean
     # 'pt-BR',    # Portuguese (Brazil)
@@ -42,11 +43,11 @@ LOCALE_PATH = os.path.join(_PATH, 'joulescope_ui', 'locale')
 POT_FILE = os.path.join(LOCALE_PATH, 'joulescope_ui.pot')
 _whitespace = r'\s+'
 _CONTEXT = """\
-Joulescope is the affordable, precision energy analyzer.\
+Joulescope is the affordable, precision energy analyzer. \
 The Joulescope JS220 streamlines low-power design, providing clear and immediate insights. \
 With seamless measurements from 1 nA to ±10 A across sleep and active modes, \
 Joulescope is the right tool for designing modern low-power and battery-powered products. \
-Current means electrical current in this context. \ 
+Current means electrical current in this context. \
 """
 
 with open(os.path.join(_PATH, 'joulescope_ui', 'version.py'), 'rt') as f:
