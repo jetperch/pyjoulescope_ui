@@ -24,7 +24,7 @@ from re import L
 import subprocess
 import sys
 
-
+platform0 = 'macosx_12_0_x86_universal2'
 platform1 = 'macosx_12_0_x86_64'
 platform2 = 'macosx_12_0_arm64'
 platform_out = 'macos_12_0_universal2'
@@ -97,10 +97,16 @@ def run():
         if name in delocate_packages:
             print(f'SKIP {name} in delocate_packages')
         elif not is_universal2(name):
-            print(f'PATCH {name}')
-            f1 = _run_pip_download(f'pip download --only-binary :all: --platform {platform1} {name}=={version}')
-            f2 = _run_pip_download(f'pip download --only-binary :all: --platform {platform2} {name}=={version}')
-            _run_cmd(f'delocate-fuse {f1} {f2} -w .')
+            try:
+                print(f'DOWNLOAD {name} universal2 if available')
+                f1 = _run_pip_download(f'pip download --only-binary :all: --platform {platform0} {name}=={version}')
+            except Exception:
+                f1 = None
+            if f1 is None or '-none-any' in f1:
+                print(f'PATCH {name}')
+                f1 = _run_pip_download(f'pip download --only-binary :all: --platform {platform1} {name}=={version}')
+                f2 = _run_pip_download(f'pip download --only-binary :all: --platform {platform2} {name}=={version}')
+                _run_cmd(f'delocate-fuse {f1} {f2} -w .')
             _run_cmd(f'pip install --force-reinstall -f . {f1}')
         else:
             print(f'SKIP {name} already universal2')
