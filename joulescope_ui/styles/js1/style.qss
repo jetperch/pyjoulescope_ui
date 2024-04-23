@@ -30,13 +30,30 @@ QWidget
 
 QAbstractScrollArea,
 QPushButton,
-QAbstractSpinBox,
 QLineEdit:!read-only,
 QTextEdit:!read-only,
 QPlainTextEdit:!read-only
 {
     background-color: {% js1.input_background %};
     border-color: {% js1.input_border %};
+}
+
+QAbstractSpinBox {
+    padding-right: 20px; /* make room for the arrows */
+    background-color: {% js1.input_background %};
+    border-color: {% js1.input_border %};
+}
+
+QAbstractSpinBox::up-button {
+    subcontrol-origin: border;
+    subcontrol-position: top right;
+    width: 18px;
+}
+
+QAbstractSpinBox::down-button {
+    subcontrol-origin: border;
+    subcontrol-position: bottom right;
+    width: 18px;
 }
 
 QHeaderView::section,
