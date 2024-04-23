@@ -98,10 +98,10 @@ def run():
         elif not is_universal2(name):
             try:
                 print(f'DOWNLOAD {name} universal2 if available')
-                f1 = _run_pip_download(f'pip download --only-binary :all: --platform {platform0} {name}=={version}')
+                f3 = _run_pip_download(f'pip download --only-binary :all: --platform {platform0} {name}=={version}')
             except Exception:
-                f1 = None
-            if f1 is None or '-none-any' in f1:
+                f3 = None
+            if f3 is None or '-none-any' in f3:
                 print(f'PATCH {name}')
                 f1 = _run_pip_download(f'pip download --only-binary :all: --platform {platform1} {name}=={version}')
                 f2 = _run_pip_download(f'pip download --only-binary :all: --platform {platform2} {name}=={version}')
