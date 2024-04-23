@@ -27,7 +27,6 @@ import sys
 platform0 = 'macosx_12_0_x86_universal2'
 platform1 = 'macosx_12_0_x86_64'
 platform2 = 'macosx_12_0_arm64'
-platform_out = 'macos_12_0_universal2'
 
 
 def _run_cmd(cmd):
@@ -106,8 +105,12 @@ def run():
                 print(f'PATCH {name}')
                 f1 = _run_pip_download(f'pip download --only-binary :all: --platform {platform1} {name}=={version}')
                 f2 = _run_pip_download(f'pip download --only-binary :all: --platform {platform2} {name}=={version}')
+                if 'x86_64' not in f1 or 'arm64' not in f2:
+                    raise RuntimeError('Could not find matching files')
                 _run_cmd(f'delocate-fuse {f1} {f2} -w .')
-            _run_cmd(f'pip install --force-reinstall -f . {f1}')
+                f3 = f2.replace('arm64', 'universal2')
+                os.rename(f1, f3)
+            _run_cmd(f'pip install --force-reinstall -f . {f3}')
         else:
             print(f'SKIP {name} already universal2')
 
