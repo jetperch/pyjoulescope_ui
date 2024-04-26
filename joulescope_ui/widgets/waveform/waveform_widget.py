@@ -2227,10 +2227,10 @@ class WaveformWidget(QtWidgets.QWidget):
             return
         x_pixels = self._mouse_pos[0]
         x = self._x_map.counter_to_time64(x_pixels)
-        x_rel = self._x_map.time64_to_trel(x)
         index = np.abs(data['x'] - x).argmin()
-        x_rel = data['x'][index]
-        x_pixels = self._x_map.time64_to_counter(x_rel)
+        x = data['x'][index]
+        x_pixels = self._x_map.time64_to_counter(x)
+        x_rel = self._x_map.time64_to_trel(x)
         y = data['avg'][index]
         if not np.isfinite(y):
             return

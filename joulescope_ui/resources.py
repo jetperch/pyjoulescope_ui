@@ -30,10 +30,16 @@ def load_resources():
         ('joulescope_ui', 'fonts.rcc')]
     for r in resource_list:
         _log.debug('load_resources %s', r)
-        b = pkgutil.get_data(*r)
-        assert(QtCore.QResource.registerResourceData(b))
-        resources.append(b)
-        resource_names.append('/'.join(r))
+        try:
+            b = pkgutil.get_data(*r)
+        except Exception:
+            _log.error('load_resources pkgutil.get_data failed for %s', r)
+            continue
+        if QtCore.QResource.registerResourceData(b):
+            resources.append(b)
+            resource_names.append('/'.join(r))
+        else:
+            _log.error('registerResourceData failed for %s', r)
     resource_names = [f'    {r}' for r in resource_names]
     _log.info('load_resources done\n%s', '\n'.join(resource_names))
     return resources

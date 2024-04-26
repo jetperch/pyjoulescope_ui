@@ -5,9 +5,9 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
-## 1.1.5
+## 1.1.6
 
-2024 Apr 23
+2024 Apr 26
 
 * Added plugin framework with live code reload  #14
 * Restructured code to support human language translation.
@@ -16,6 +16,10 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Modified QComboBox style.
 * Added filename replacement variables.
 * Added Trigger widget.
+* Fixed Waveform widget hover time  #263
+* Updated pyjoulescope_driver from 1.4.10 → 1.5.1. 
+  Fixes GPI and current range oscillations when downsampled.
+* Improved error handling on resource load.
 
 
 ## 1.0.62

@@ -20,7 +20,7 @@
 # Minimum requirements for the build system to execute.
 requires = [
     "polib>=1.2.0",
-    "PySide6>=6.5.1.1",
+    "PySide6>=6.7.0",
     "setuptools>=42",
     "wheel",
 ]
