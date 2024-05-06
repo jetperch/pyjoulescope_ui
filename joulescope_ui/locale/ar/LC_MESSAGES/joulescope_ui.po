@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-04-18 14:15-0400\n"
+"POT-Creation-Date: 2024-05-06 17:27-0400\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: ar <LL@li.org>\n"
@@ -614,7 +614,7 @@ msgstr "لا تظهر مرة أخرى"
 msgid "Intel graphics detected"
 msgstr "تم الكشف عن رسومات إنتل"
 
-#: main.py:70 widgets/value/value_widget.py:653
+#: main.py:70 widgets/value/value_widget.py:660
 msgid "Multimeter"
 msgstr "متعدد المقاييس"
 
@@ -1682,7 +1682,7 @@ msgid "The statistics data stream source."
 msgstr "مصدر تدفق البيانات الإحصائية."
 
 #: widgets/accumulator/accumulator_widget.py:32
-#: widgets/value/value_widget.py:74
+#: widgets/value/value_widget.py:81
 msgid "The signal to display."
 msgstr "الإشارة المراد عرضها."
 
@@ -1773,7 +1773,7 @@ msgid "Topic"
 msgstr "الموضوع"
 
 #: widgets/developer/publish_spy_widget.py:21
-#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:662
+#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:669
 msgid "Value"
 msgstr "القيمة"
 
@@ -1811,7 +1811,7 @@ msgid "Update"
 msgstr "تحديث"
 
 #: widgets/device_control/device_update_dialog.py:25
-#: widgets/value/value_widget.py:147
+#: widgets/value/value_widget.py:155
 msgid "Device"
 msgstr "الجهاز"
 
@@ -2367,7 +2367,7 @@ msgstr "إحصائياتالتسجيلالتكوين"
 msgid "Time Format"
 msgstr "تنسيق الوقت"
 
-#: widgets/trigger/trigger_widget.py:41 widgets/value/value_widget.py:87
+#: widgets/trigger/trigger_widget.py:41 widgets/value/value_widget.py:94
 msgid "Select the source device"
 msgstr "حدد الجهاز المصدر"
 
@@ -2543,22 +2543,32 @@ msgstr "عرض حقول الإحصائيات على اليمين."
 msgid "Show a leading + or - sign."
 msgstr "إظهار علامة + أو -."
 
-#: widgets/value/value_widget.py:88
+#: widgets/value/value_widget.py:62
+msgid "Divide the quantity by this value."
+msgstr "اقسم الكمية على هذه القيمة."
+
+#: widgets/value/value_widget.py:63
+msgid ""
+"The divisor is a floating point number. The number may optionally be "
+"followed by units."
+msgstr "المقسوم عليه هو رقم عائم. قد يتبع الرقم اختياريًا وحدات."
+
+#: widgets/value/value_widget.py:95
 msgid ""
 "The values displayed by this widget come from a single source device. Select"
 " the source device here."
 msgstr ""
 "تأتي القيم التي تعرضها هذه الأداة من جهاز مصدر واحد. حدد الجهاز المصدر هنا."
 
-#: widgets/value/value_widget.py:94
+#: widgets/value/value_widget.py:101
 msgid "Hold the display"
 msgstr "امسك الشاشة"
 
-#: widgets/value/value_widget.py:96
+#: widgets/value/value_widget.py:103
 msgid "When selected, prevent the display from updating."
 msgstr "عند تحديده، يمنع الشاشة من التحديث."
 
-#: widgets/value/value_widget.py:97
+#: widgets/value/value_widget.py:104
 msgid ""
 "The UI also includes a global statistics hold button on the sidebar. When "
 "the global statistics hold button is selected, this button is disabled and "
@@ -2567,7 +2577,7 @@ msgstr ""
 "تتضمن واجهة المستخدم أيضًا زر تعليق الإحصائيات العامة على الشريط الجانبي. "
 "عند تحديد زر تعليق الإحصائيات العامة، يتم تعطيل هذا الزر وليس له أي تأثير."
 
-#: widgets/value/value_widget.py:100
+#: widgets/value/value_widget.py:107
 msgid ""
 "The displayed values normally update with each new statistics data computed "
 "by the device. When this button is selected, the display will not be "
@@ -2578,11 +2588,11 @@ msgstr ""
 " تحديد هذا الزر، لن يتم تحديث العرض. ومع ذلك، ستستمر الإحصائيات في التراكم "
 "والتراكم (إذا تم تحديده)."
 
-#: widgets/value/value_widget.py:107
+#: widgets/value/value_widget.py:114
 msgid "Accrue values over time"
 msgstr "تراكم القيم بمرور الوقت"
 
-#: widgets/value/value_widget.py:109
+#: widgets/value/value_widget.py:116
 msgid ""
 "Current, voltage, and power are normally computed over a single statistics "
 "frequency interval. Press this button to accrue the values indefinitely. "
@@ -2592,7 +2602,7 @@ msgstr ""
 "هذا الزر لتجميع القيم إلى أجل غير مسمى. اضغط مرة أخرى للعودة إلى التشغيل "
 "العادي."
 
-#: widgets/value/value_widget.py:113
+#: widgets/value/value_widget.py:120
 msgid ""
 "Note that this button does not affect the charge and energy accumulation. "
 "Both accumulate indefinitely regardless of this button state."
@@ -2600,15 +2610,15 @@ msgstr ""
 "لاحظ أن هذا الزر لا يؤثر على تراكم الشحن والطاقة. يتراكم كلاهما إلى أجل غير "
 "مسمى بغض النظر عن حالة هذا الزر."
 
-#: widgets/value/value_widget.py:195
+#: widgets/value/value_widget.py:203
 msgid "Not present"
 msgstr "غير موجود"
 
-#: widgets/value/value_widget.py:215
+#: widgets/value/value_widget.py:223
 msgid "Hold"
 msgstr "عقد"
 
-#: widgets/value/value_widget.py:223
+#: widgets/value/value_widget.py:231
 msgid "Accrue"
 msgstr "زيادة"
 
