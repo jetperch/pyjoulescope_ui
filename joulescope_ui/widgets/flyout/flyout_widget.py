@@ -26,6 +26,8 @@ _ANIMATION_DURATION_MS = 500
 @styled_widget(N_('flyout'))
 class FlyoutWidget(QtWidgets.QScrollArea):
 
+    width_changed = QtCore.Signal(int)
+
     def __init__(self, parent, sidebar):
         self._sidebar = sidebar
         super().__init__(parent)
@@ -34,8 +36,12 @@ class FlyoutWidget(QtWidgets.QScrollArea):
         self.setGeometry(50, 0, 0, 100)  # unused, see on_sidebar_geometry() and sidebar setting "flyout_width"
         self.setWidgetResizable(True)
         self.setHorizontalScrollBarPolicy(QtGui.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self._resize_active = None
         self.show()
         self.animations = []
+        self._CURSOR_ARROW = QtGui.QCursor(QtGui.Qt.ArrowCursor)
+        self._CURSOR_SIZE_HOR = QtGui.QCursor(QtGui.Qt.SizeHorCursor)
+        self.setMouseTracking(True)
 
     def flyout_widget_set(self, widget, width=0):
         for a in self.animations:
@@ -45,8 +51,10 @@ class FlyoutWidget(QtWidgets.QScrollArea):
             w = self.takeWidget()
             if w is not None:
                 w.hide()
+                w.setMouseTracking(False)
             self.setWidget(widget)
             widget.show()
+            widget.setMouseTracking(True)
 
         x_start = self.width()
         x_end = width
@@ -67,12 +75,14 @@ class FlyoutWidget(QtWidgets.QScrollArea):
             w = self.takeWidget()
             if w is not None:
                 w.hide()
+        for a in self.animations:
+            a.stop()
         self.animations.clear()
 
     def on_sidebar_geometry(self, r):
         width = self.width()
         self.setGeometry(r.right() + 3, r.y(), width, r.height())
-        self.repaint()
+        self.update()
 
     def leaveEvent(self, event: QtCore.QEvent):
         if self.width() == 0:
@@ -82,3 +92,31 @@ class FlyoutWidget(QtWidgets.QScrollArea):
             if len(self.animations) == 0 or self.animations[-1].endValue() != 0:
                 self._sidebar.on_cmd_show(None)
         return super().leaveEvent(event)
+
+    def mouseMoveEvent(self, event: QtGui.QMouseEvent):
+        if self.width() == 0:
+            return
+        x = event.position().x()
+        if self._resize_active is not None:
+            w = max(100, x - self._resize_active)
+            self.setMinimumWidth(w)
+            self.setMaximumWidth(w)
+            self.update()
+        elif x >= (self.width() - 5):
+            self.setCursor(self._CURSOR_SIZE_HOR)
+        else:
+            self.setCursor(self._CURSOR_ARROW)
+        event.accept()
+
+    def mousePressEvent(self, event):
+        if self.width() == 0:
+            return
+        x = event.position().x()
+        if x >= (self.width() - 5):
+            self._resize_active = x - self.width()
+        return super().mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        if self._resize_active is not None:
+            self.width_changed.emit(self.width())
+            self._resize_active = None

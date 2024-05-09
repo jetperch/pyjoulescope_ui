@@ -10,6 +10,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 2024 May 6
 
 * Bumped revision.
+* Added Flyout widget click & drag right to resize   #267 
 
 
 ## 1.1.6

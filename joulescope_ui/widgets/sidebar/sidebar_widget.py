@@ -63,10 +63,13 @@ class SideBar(QtWidgets.QWidget):
     # Note: does NOT implement widget CAPABILITY, since not instantiable by user or available as a dock widget.
 
     SETTINGS = {
-        'flyout_width': {
-            'dtype': 'int',
-            'brief': N_('The flyout width in pixels.'),
-            'default': 300,
+        'flyout_widths': {
+            'dtype': 'obj',
+            'brief': N_('The flyout width for each widget in pixels.'),
+            'default': {
+                'settings': 500,
+                '__default__': 300,
+            },
         },
     }
 
@@ -82,6 +85,7 @@ class SideBar(QtWidgets.QWidget):
         self._buttons = {}
         self._buttons_blink = {}
         self._flyout: FlyoutWidget = None
+        self._flyout_active_name = None
 
         self._layout = QtWidgets.QVBoxLayout(self)
         self._layout.setSpacing(6)
@@ -102,7 +106,7 @@ class SideBar(QtWidgets.QWidget):
         self._add_blink_button('statistics_record', 'statistics_stream_record')
         self._add_button('device', _DEVICE_TOOLTIP, 'DeviceControlWidget', 'device_control_widget:flyout')
         self._add_button('memory', _MEMORY_TOOLTIP, 'MemoryWidget', 'memory_widget:flyout')
-        self._add_button('settings', _SETTINGS_TOOLTIP, 'settings', 'settings:flyout', width=500)
+        self._add_button('settings', _SETTINGS_TOOLTIP, 'settings', 'settings:flyout')
         self._spacer = QtWidgets.QSpacerItem(10, 0,
                                              QtWidgets.QSizePolicy.Minimum,
                                              QtWidgets.QSizePolicy.Expanding)
@@ -113,6 +117,7 @@ class SideBar(QtWidgets.QWidget):
         self.pubsub.subscribe('registry/ui/events/blink_slow', self._on_blink, ['pub', 'retain'])
         self.pubsub.subscribe(_STATISTIC_STREAM_SOURCE_TOPIC, self._on_statistics_stream_source_list, ['pub', 'retain'])
         self.pubsub.subscribe(_SIGNAL_STREAM_SOURCE_TOPIC, self._on_signal_stream_source_list, ['pub', 'retain'])
+        self._flyout.width_changed.connect(self.on_flyout_width_changed)
 
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
@@ -162,7 +167,7 @@ class SideBar(QtWidgets.QWidget):
             button.toggled.connect(adapter.slot)
         return button
 
-    def _add_button(self, name, tooltip, clz=None, unique_id=None, width=None):
+    def _add_button(self, name, tooltip, clz=None, unique_id=None):
         button = QtWidgets.QPushButton(self)
         button.setObjectName(name)
         button.setFlat(True)
@@ -173,7 +178,6 @@ class SideBar(QtWidgets.QWidget):
             'button': button,
             'class': clz,
             'unique_id': unique_id,
-            'width': 300 if width is None else int(width),
         }
         if clz is not None:
             button.setProperty('selected', False)
@@ -192,12 +196,23 @@ class SideBar(QtWidgets.QWidget):
                 b.style().unpolish(b)
                 b.style().polish(b)
 
+    @QtCore.Slot(int)
+    def on_flyout_width_changed(self, width: int):
+        if self._flyout_active_name is None:
+            return
+        name = self._flyout_active_name
+        if name not in self.flyout_widths:
+            name = '__default__'
+        self.flyout_widths[name] = width
+
     def on_cmd_show(self, name):
         w = self._buttons.get(name, {}).get('widget')
         if name is None or (w is not None and w == self._flyout.widget()):
+            self._flyout_active_name = None
             self._flyout.flyout_widget_set(None)
             self._selected_area = None
         else:
+            self._flyout_active_name = name
             v = self._buttons[name]
             if v.get('widget') is None:
                 clz = get_instance(v['class'])
@@ -206,7 +221,9 @@ class SideBar(QtWidgets.QWidget):
                 self.pubsub.register(w, v['unique_id'], parent='flyout:0')
                 v['widget'] = w
                 self.pubsub.publish(f'registry/style/actions/!render', w)
-            self._flyout.flyout_widget_set(v['widget'], v['width'])
+            width = self.flyout_widths.get('__default__', 300)
+            width = self.flyout_widths.get(self._flyout_active_name, width)
+            self._flyout.flyout_widget_set(v['widget'], width)
             self._selected_area = v['button'].geometry()
         self.update()
 
