@@ -443,7 +443,6 @@ class PubSub:
         else:
             raise RuntimeError('unsupported platform')
 
-        os.makedirs(user_path, exist_ok=True)
         self.topic_add('common/actions/profile', 'node', 'Profile actions')
         self.topic_add('common/settings/profile', 'node', 'Profile settings')
 

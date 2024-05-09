@@ -920,6 +920,13 @@ def run(log_level=None, file_log_level=None, filename=None, safe_mode=False):
 
         try:
             if not action_close:
+                try:
+                    p1 = pubsub_singleton.query('common/settings/paths/data')
+                    p2 = pubsub_singleton.query('registry/paths/settings/path')
+                    if p1 == p2:
+                        os.makedirs(p1, exist_ok=True)
+                except Exception:
+                    _log.warning('Could not create data path')
                 resources = load_resources()
                 fonts = load_fonts()
                 appnope.nope()
