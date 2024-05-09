@@ -2437,10 +2437,6 @@ msgstr "Κάντε κλικ για να εμφανίσετε πρόσθετες 
 msgid "sidebar"
 msgstr "sidebar"
 
-#: widgets/sidebar/sidebar_widget.py:68
-msgid "The flyout width in pixels."
-msgstr "Το πλάτος του flyout σε pixels."
-
 #: widgets/signal_record/disk_full_dialog.py:19
 msgid "The disk is full"
 msgstr "Ο δίσκος είναι γεμάτος"

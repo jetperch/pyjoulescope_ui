@@ -2158,10 +2158,6 @@ msgstr "单击可显示其他设置和操作。"
 msgid "sidebar"
 msgstr "侧边栏"
 
-#: widgets/sidebar/sidebar_widget.py:68
-msgid "The flyout width in pixels."
-msgstr "飞出宽度（像素）。"
-
 #: widgets/signal_record/disk_full_dialog.py:19
 msgid "The disk is full"
 msgstr "磁盘已满"

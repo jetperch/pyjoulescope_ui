@@ -2221,10 +2221,6 @@ msgstr "추가 설정 및 작업을 표시하려면 클릭하세요."
 msgid "sidebar"
 msgstr "사이드바"
 
-#: widgets/sidebar/sidebar_widget.py:68
-msgid "The flyout width in pixels."
-msgstr "픽셀 단위의 플라이아웃 너비입니다."
-
 #: widgets/signal_record/disk_full_dialog.py:19
 msgid "The disk is full"
 msgstr "디스크가 꽉 찼습니다."

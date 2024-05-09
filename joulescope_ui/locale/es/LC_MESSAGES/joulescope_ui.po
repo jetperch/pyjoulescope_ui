@@ -2421,10 +2421,6 @@ msgstr "Haga clic para ver ajustes y acciones adicionales."
 msgid "sidebar"
 msgstr "barra lateral"
 
-#: widgets/sidebar/sidebar_widget.py:68
-msgid "The flyout width in pixels."
-msgstr "La anchura del flyout en píxeles."
-
 #: widgets/signal_record/disk_full_dialog.py:19
 msgid "The disk is full"
 msgstr "El disco está lleno"

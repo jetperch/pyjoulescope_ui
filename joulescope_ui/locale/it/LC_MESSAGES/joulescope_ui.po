@@ -2438,10 +2438,6 @@ msgstr "Fare clic per visualizzare altre impostazioni e azioni."
 msgid "sidebar"
 msgstr "barra laterale"
 
-#: widgets/sidebar/sidebar_widget.py:68
-msgid "The flyout width in pixels."
-msgstr "Larghezza del flyout in pixel."
-
 #: widgets/signal_record/disk_full_dialog.py:19
 msgid "The disk is full"
 msgstr "Il disco è pieno"

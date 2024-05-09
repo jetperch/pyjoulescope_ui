@@ -2329,10 +2329,6 @@ msgstr "انقر لعرض إعدادات وإجراءات إضافية."
 msgid "sidebar"
 msgstr "الشريط الجانبي"
 
-#: widgets/sidebar/sidebar_widget.py:68
-msgid "The flyout width in pixels."
-msgstr "عرض التحليق بالبكسل."
-
 #: widgets/signal_record/disk_full_dialog.py:19
 msgid "The disk is full"
 msgstr "القرص ممتلئ"

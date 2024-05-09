@@ -65,7 +65,7 @@ class SideBar(QtWidgets.QWidget):
     SETTINGS = {
         'flyout_widths': {
             'dtype': 'obj',
-            'brief': N_('The flyout width for each widget in pixels.'),
+            'brief': 'The flyout width for each widget in pixels.',
             'default': {
                 'settings': 500,
                 '__default__': 300,
