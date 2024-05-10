@@ -365,7 +365,7 @@ class JsdrvStreamBuffer:
         subtopic = device.signal_subtopics(signal, 'data')
         device_source = f'{device_path}/{subtopic}'
         buf_prefix = f'm/{self._id}/s/{buf_id:03d}'
-        self._driver_publish(f'{buf_prefix}/topic', device_source)
+        self._driver_publish(f'{buf_prefix}/topic', device_source, 0)
         self._device_subscribe(f'{buf_prefix}/info', ['pub', 'pub_retain'], self._on_device_signal_info)
         self.pubsub.publish(f'{ui_prefix}/events/signals/!add', signal_id)
 
@@ -374,7 +374,7 @@ class JsdrvStreamBuffer:
         buf_id = self._signals.pop(signal_id)[0]
         self._signals_reverse.pop(buf_id)
         self._signals_free.append(buf_id)
-        self._driver_publish(f'm/{self._id}/a/!remove', buf_id)
+        self._driver_publish(f'm/{self._id}/a/!remove', buf_id, 0)
         ui_prefix = get_topic_name(self)
         self.pubsub.publish(f'{ui_prefix}/events/signals/!remove', signal_id)
         self.pubsub.topic_remove(f'{ui_prefix}/settings/signals/{signal_id}', defer=True)

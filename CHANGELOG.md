@@ -14,6 +14,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Deferred data directory creation  #266
 * Updated pyjls from 0.9.2 to 0.9.4 to fix unicode path handling.
 * Fixed crash on JLS file not found  #264
+* Changed to async publish for stream buffer to prevent timeouts  #269 
 
 
 ## 1.1.6
