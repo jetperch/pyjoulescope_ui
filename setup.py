@@ -201,7 +201,7 @@ setuptools.setup(
         'joulescope>=1.1.12,<2.0.0',
         'markdown',
         'psutil',
-        'pyjls>=0.9.2',
+        'pyjls>=0.9.4',
         'pyopengl',
         "pywin32>=223; platform_system == 'Windows'",
         'pyqtgraph>=0.13.3',

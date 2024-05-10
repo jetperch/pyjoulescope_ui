@@ -7,11 +7,12 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.1.7
 
-2024 May 6
+2024 May 10 [in progress]
 
 * Bumped revision.
 * Added Flyout widget click & drag right to resize   #267
 * Deferred data directory creation  #266
+* Updated pyjls from 0.9.2 to 0.9.4 to fix unicode path handling.
 
 
 ## 1.1.6
