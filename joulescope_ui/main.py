@@ -922,11 +922,11 @@ def run(log_level=None, file_log_level=None, filename=None, safe_mode=False):
             if not action_close:
                 try:
                     p1 = pubsub_singleton.query('common/settings/paths/data')
-                    p2 = pubsub_singleton.query('registry/paths/settings/path')
+                    p2 = pubsub_singleton.query('registry/paths/settings/path', default=p1)
                     if p1 == p2:
                         os.makedirs(p1, exist_ok=True)
                 except Exception:
-                    _log.warning('Could not create data path')
+                    _log.warning(f'Could not create data path {p1} {p2}')
                 resources = load_resources()
                 fonts = load_fonts()
                 appnope.nope()
