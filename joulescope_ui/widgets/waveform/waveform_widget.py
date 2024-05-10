@@ -768,6 +768,8 @@ class WaveformWidget(QtWidgets.QWidget):
         self._trace_widget.on_pubsub_register(self.pubsub)
         source_filter = self._source_filter_set()
         is_device = source_filter in [None, '', 'JsdrvStreamBuffer:001']
+        if not is_device and get_topic_name(source_filter) not in self.pubsub:
+            raise RuntimeError(f'Source not found {source_filter}')
         if self.state is None:
             self.state = copy.deepcopy(_STATE_DEFAULT)
             if not is_device:

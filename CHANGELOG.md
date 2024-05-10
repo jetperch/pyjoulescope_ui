@@ -13,6 +13,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added Flyout widget click & drag right to resize   #267
 * Deferred data directory creation  #266
 * Updated pyjls from 0.9.2 to 0.9.4 to fix unicode path handling.
+* Fixed crash on JLS file not found  #264
 
 
 ## 1.1.6

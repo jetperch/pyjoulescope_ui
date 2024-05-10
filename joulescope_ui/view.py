@@ -218,7 +218,8 @@ class View:
         if obj is None:
             _log.warning('Could not open %s', spec)
             return
-        pubsub_singleton.register(obj, unique_id=unique_id, parent=self)
+        if not pubsub_singleton.register(obj, unique_id=unique_id, parent=self):
+            return None
         unique_id = obj.unique_id
         obj.setObjectName(unique_id)
         obj.destroyed.connect(self._on_destroyed)

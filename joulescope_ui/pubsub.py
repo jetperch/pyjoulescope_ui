@@ -1056,13 +1056,14 @@ class PubSub:
             For instances, a randomly generated value.
         :type unique_id: str, optional
         :param parent: The optional parent unique_id, topic, or object.
+        :return: False on failure, True on success.
         """
         pubsub_attr = _pubsub_attr_name(obj)
         if pubsub_attr in obj.__dict__ and len(obj.__dict__[pubsub_attr]):
             self._log.info('Duplicate registration for %s', obj)
             if parent is not None:
                 self._parent_add(obj, parent)
-            return
+            return False
         if unique_id is None:
             if isinstance(obj, type):
                 # Use the unqualified class name
@@ -1142,10 +1143,12 @@ class PubSub:
         self._log.info('register(unique_id=%s) done %s', unique_id, 'ABORT' if register_abort else '')
         if register_abort:
             self.unregister(obj, delete=True)
-            raise RuntimeError(f'register(unique_id={unique_id}) aborted')
+            self._log.error(f'register(unique_id={unique_id}) aborted')
+            return False
         else:
             getattr(obj, pubsub_attr)['is_registered'] = True
             self._registry_add(unique_id)
+            return True
 
     def _parent_add(self, obj, parent=None):
         if parent is None:
