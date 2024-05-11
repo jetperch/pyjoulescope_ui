@@ -628,8 +628,6 @@ class SettingsWidget(QtWidgets.QSplitter):
     def on_cls_action_edit(pubsub, topic, value):
         w = SettingsWidget()
         w.view_skip_undo = True
-        active_view = pubsub.query('registry/view/settings/active')
-        pubsub.register(w, parent=active_view)
         pubsub.publish('registry/view/actions/!widget_open',
                        {'value': w, 'floating': True})
         pubsub.publish(f'{get_topic_name(w)}/settings/target',
