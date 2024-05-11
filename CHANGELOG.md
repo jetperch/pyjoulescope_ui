@@ -7,14 +7,19 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.1.7
 
-2024 May 10 [in progress]
+2024 May 11 [in progress]
 
 * Bumped revision.
 * Added Flyout widget click & drag right to resize   #267
 * Deferred data directory creation  #266
 * Updated pyjls from 0.9.2 to 0.9.4 to fix unicode path handling.
 * Fixed crash on JLS file not found  #264
-* Changed to async publish for stream buffer to prevent timeouts  #269 
+* Changed to async publish for stream buffer to prevent timeouts  #269
+* Added Waveform widget keyboard shortcuts  #268
+* Improved global keyboard shortcuts to work from all windows.
+* Changed Waveform widget keyboard shortcuts to be local.
+  Fixes broken shortcuts with two Waveform widgets. Click on widget to select.
+* Improved Waveform widget undo/redo.
 
 
 ## 1.1.6

@@ -15,7 +15,6 @@
 from PySide6 import QtWidgets, QtGui, QtCore, QtOpenGLWidgets
 from OpenGL import GL as gl
 from joulescope_ui import CAPABILITIES, register, N_, get_topic_name, get_instance, time64
-from joulescope_ui.shortcuts import Shortcuts
 from joulescope_ui.styles import styled_widget, color_as_qcolor, color_as_string, font_as_qfont
 from joulescope_ui.widget_tools import CallableAction, CallableSlotAdapter, settings_action_create, context_menu_show
 from joulescope_ui.exporter import TO_JLS_SIGNAL_NAME
@@ -532,6 +531,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._default_source = None
 
         super().__init__(parent)
+        self.setFocusPolicy(QtGui.Qt.FocusPolicy.StrongFocus)
 
         # manage repainting
         self.__repaint_request = False
@@ -550,7 +550,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._CURSOR_CROSS = QtGui.QCursor(QtGui.Qt.CrossCursor)
 
         self._dialog = None
-        self._shortcuts = Shortcuts(self)
+        self._keymap = {}
         self._x_map = TimeMap()
         self._x_summary_map = TimeMap()
         self._mouse_pos = None
@@ -807,14 +807,60 @@ class WaveformWidget(QtWidgets.QWidget):
                               self._on_source_list, ['pub', 'retain'])
         topic = get_topic_name(self)
         self._control.on_pubsub_register(self.pubsub, topic, source_filter)
-        self._shortcuts_add()
         self.pubsub.subscribe('registry/app/settings/units', self._update_on_publish, ['pub'])
         self.pubsub.subscribe('registry/app/settings/defaults/signal_buffer_source',
                               self._on_default_signal_buffer_source, ['pub', 'retain'])
 
+        NoMod = QtCore.Qt.KeyboardModifier.NoModifier
+        self._keymap = {
+            (QtCore.Qt.Key_Asterisk, NoMod): (f'{self.topic}/actions/!x_zoom_all', None),
+            (QtCore.Qt.Key_Left, NoMod): (f'{self.topic}/actions/!x_pan', -1),
+            (QtCore.Qt.Key_Right, NoMod): (f'{self.topic}/actions/!x_pan', 1),
+            (QtCore.Qt.Key_Up, NoMod): (f'{self.topic}/actions/!x_zoom', [1, None]),
+            (QtCore.Qt.Key_Down, NoMod): (f'{self.topic}/actions/!x_zoom', [-1, None]),
+            (QtCore.Qt.Key_Plus, NoMod): (f'{self.topic}/actions/!x_zoom', [1, None]),
+            (QtCore.Qt.Key_Minus, NoMod): (f'{self.topic}/actions/!x_zoom', [-1, None]),
+            (QtCore.Qt.Key_Delete, NoMod): (f'{self.topic}/actions/!annotations', ['clear_all']),
+            (QtCore.Qt.Key_Backspace, NoMod): (f'{self.topic}/actions/!annotations', ['clear_all']),
+            (QtCore.Qt.Key_A, QtCore.Qt.KeyboardModifier.ControlModifier):
+                (f'{self.topic}/actions/!viewport', ['pinned']),
+            (QtCore.Qt.Key_D, NoMod): (f'{self.topic}/actions/!x_markers', 'add_dual'),
+            (QtCore.Qt.Key_S, NoMod): (f'{self.topic}/actions/!x_markers', 'add_single'),
+            (QtCore.Qt.Key_1, NoMod): (f'{self.topic}/actions/!x_markers', ['select', 0]),
+            (QtCore.Qt.Key_2, NoMod): (f'{self.topic}/actions/!x_markers', ['select', 1]),
+            (QtCore.Qt.Key_3, NoMod): (f'{self.topic}/actions/!x_markers', ['select', 2]),
+            (QtCore.Qt.Key_4, NoMod): (f'{self.topic}/actions/!x_markers', ['select', 3]),
+            (QtCore.Qt.Key_5, NoMod): (f'{self.topic}/actions/!x_markers', ['select', 4]),
+            (QtCore.Qt.Key_6, NoMod): (f'{self.topic}/actions/!x_markers', ['select', 5]),
+            (QtCore.Qt.Key_7, NoMod): (f'{self.topic}/actions/!x_markers', ['select', 6]),
+            (QtCore.Qt.Key_8, NoMod): (f'{self.topic}/actions/!x_markers', ['select', 7]),
+            (QtCore.Qt.Key_9, NoMod): (f'{self.topic}/actions/!x_markers', ['select', 8]),
+            (QtCore.Qt.Key_Space, QtCore.Qt.KeyboardModifier.ShiftModifier):
+                (f'{self.topic}/actions/!viewport', ['toggle']),
+        }
+
         self._repaint_request = True
         self._paint_state = PaintState.READY
         self._paint_timer.start(1)
+
+    def on_action_viewport(self, topic, value):
+        cmd = value[0]
+        t1 = f'{self.topic}/settings/pin_right'
+        t2 = f'{self.topic}/settings/pin_left'
+        v1 = self.pubsub.query(t1)
+        v2 = self.pubsub.query(t2)
+        if cmd == 'toggle':
+            cmd = 'unpinned' if v1 else 'pinned'
+        if cmd == 'pinned':
+            self.pubsub.publish(t1, True)
+            self.pubsub.publish(t2, True)
+        elif cmd == 'unpinned':
+            self.pubsub.publish(t1, False)
+            self.pubsub.publish(t2, False)
+        elif cmd == 'undo':
+            self.pubsub.publish(t1, value[1])
+            self.pubsub.publish(t2, value[2])
+        return topic, ['undo', v1, v2]
 
     def _update_on_publish(self):
         self._repaint_request = True
@@ -823,20 +869,15 @@ class WaveformWidget(QtWidgets.QWidget):
         self._default_source = value
         self._repaint_request = True
 
-    def _shortcuts_add(self):
-        topic = get_topic_name(self)
-        self._shortcuts.add(QtCore.Qt.Key_Asterisk, f'{topic}/actions/!x_zoom_all')
-        # self._shortcuts.add(QtCore.Qt.Key_Delete,  # clear annotations
-        # self._shortcuts.add(QtCore.Qt.Key_Backspace, # clear annotations
-        self._shortcuts.add(QtCore.Qt.Key_Left, f'{topic}/actions/!x_pan', -1)
-        self._shortcuts.add(QtCore.Qt.Key_Right, f'{topic}/actions/!x_pan', 1)
-        self._shortcuts.add(QtCore.Qt.Key_Up, f'{topic}/actions/!x_zoom', [1, None])
-        self._shortcuts.add(QtCore.Qt.Key_Down, f'{topic}/actions/!x_zoom', [-1, None])
-        self._shortcuts.add(QtCore.Qt.Key_Plus, f'{topic}/actions/!x_zoom', [1, None])
-        self._shortcuts.add(QtCore.Qt.Key_Minus, f'{topic}/actions/!x_zoom', [-1, None])
+    def keyPressEvent(self, event: QtGui.QKeyEvent):
+        v = self._keymap.get((event.key(), event.modifiers()))
+        if v is None:
+            super().keyPressEvent(event)
+        else:
+            self._log.info(f'key {event.key()} -> publish {v}')
+            self.pubsub.publish(*v)
 
     def on_pubsub_unregister(self):
-        self._shortcuts.clear()
         self._paint_timer.stop()
         self._paint_state = PaintState.IDLE
 
@@ -2865,8 +2906,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _on_menu_x_marker(self, action):
         pos = self._x_map.counter_to_time64(self._mouse_pos[0])
-        topic = get_topic_name(self)
-        self.pubsub.publish(f'{topic}/actions/!x_markers', [action, pos, None])
+        self.pubsub.publish(f'{self.topic}/actions/!x_markers', [action, pos, None])
 
     @QtCore.Slot()
     def _on_menu_x_marker_add_single(self):
@@ -2935,7 +2975,7 @@ class WaveformWidget(QtWidgets.QWidget):
         if plot is not None:
             pos = self._y_pixel_to_value(plot, self._mouse_pos[1])
             topic = get_topic_name(self)
-            self.pubsub.publish(f'{topic}/actions/!y_markers', [action, plot, pos, None])
+            self.pubsub.publish(f'{topic}/actions/!y_markers', [action, plot['index'], pos, None])
 
     @QtCore.Slot()
     def _on_menu_y_marker_add_single(self):
@@ -3102,9 +3142,11 @@ class WaveformWidget(QtWidgets.QWidget):
                 self.on_callback_annotation_save({'path': anno_path})
 
     def _on_menu_annotations_clear_all(self, checked=False):
-        self._on_menu_x_marker('clear_all')
-        self._on_menu_y_marker('clear_all')
-        self._on_menu_text_annotation('clear_all')
+        value = ['clear_all']
+        plot = self._lookup_plot()
+        if plot is not None:
+            value.append(plot['index'])
+        self.pubsub.publish(f'{self.topic}/actions/!annotations', value)
 
     def _menu_add_text_annotations(self, menu: QtWidgets.QMenu):
         CallableAction(menu, N_('Add'), lambda: self._on_menu_text_annotation('add'))
@@ -3273,10 +3315,16 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _on_x_marker_zoom(self, marker_idx, zoom_level):
         m = self._annotation_lookup(marker_idx)
-        z0, z1 = m['pos1'], m['pos2']
-        zc = (z1 + z0) / 2
-        zd = abs(z1 - z0) / (2 * float(zoom_level))
-        z0, z1 = int(zc - zd), int(zc + zd)
+        if m['dtype'] == 'dual':
+            z0, z1 = m['pos1'], m['pos2']
+            zc = (z1 + z0) / 2
+            zd = abs(z1 - z0) / (2 * float(zoom_level))
+            z0, z1 = int(zc - zd), int(zc + zd)
+        else:
+            x0, x1 = self.x_range
+            xd = (x1 - x0) // 2
+            p = m['pos1']
+            z0, z1 = p - xd, p + xd
         self.pubsub.publish(f'{self.topic}/actions/!x_zoom_to', [z0, z1])
 
     def _construct_x_marker_zoom_menu_action(self, menu, idx, zoom_level):
@@ -3367,7 +3415,8 @@ class WaveformWidget(QtWidgets.QWidget):
                            lambda: self._on_text_annotation_shape(a['id'], index),
                            checkable=True, checked=(a['shape'] == index))
         [shape_item(index, value[1]) for index, value in enumerate(SHAPES_DEF)]
-        CallableAction(menu, N_('Remove'), lambda: self._on_text_annotation_remove(a['id']))
+        CallableAction(menu, N_('Remove'), lambda: self.pubsub.publish(f'{self.topic}/actions/!text_annotation',
+                                                                       ['remove', a['id']]))
         return context_menu_show(menu, event)
 
     def _on_text_annotation_edit(self, a_id):
@@ -3398,7 +3447,7 @@ class WaveformWidget(QtWidgets.QWidget):
         menu = QtWidgets.QMenu('Waveform y_marker context menu', self)
         CallableAction(menu, N_('Remove'),
                        lambda: self.pubsub.publish(f'{get_topic_name(self)}/actions/!y_markers',
-                                                   ['remove', m['plot_index'], m['id']]))
+                                                   ['remove', m['id']]))
         return context_menu_show(menu, event)
 
     def _menu_summary_quantity(self, menu, quantity, name):
@@ -3524,6 +3573,7 @@ class WaveformWidget(QtWidgets.QWidget):
             * ['clear_all']
             * ['remove', marker_id, ...]
             * ['add', marker_obj, ...]  # for undo remove
+            * ['select', marker_id]
         """
         self._log.info('x_markers %s', value)
         value = _marker_action_string_to_command(value)
@@ -3544,7 +3594,12 @@ class WaveformWidget(QtWidgets.QWidget):
             return [topic, ['remove'] + value[1:]]
         elif cmd == 'clear_all':
             self.annotations['x'], rv = OrderedDict(), self.annotations['x']
-            return None
+            return [topic, ['add'] + list(rv.values())]
+        elif cmd == 'select':
+            try:
+                self._on_x_marker_zoom(value[1], 0.75)
+            except KeyError:
+                pass
         else:
             raise NotImplementedError(f'Unsupported marker action {value}')
 
@@ -3659,34 +3714,42 @@ class WaveformWidget(QtWidgets.QWidget):
             * ['add_dual', plot, center, None]
             * ['add_dual', plot, pos1, pos2]
             * ['clear_all', plot]
-            * ['remove', plot, marker_id, ...]
-            * ['add', plot, marker_obj, ...]  # for undo remove
+            * ['remove', marker_id, ...]
+            * ['add', marker_obj, ...]  # for undo remove
 
             In all cases, plot can be the plot index or plot object.
         """
         self._log.info('y_markers %s', value)
         value = _marker_action_string_to_command(value)
         cmd = value[0]
-        plot = self._plot_get(value[1])
-        plot_index = plot['index']
         self._repaint_request = True
         if cmd == 'remove':
-            for m in value[2:]:
-                self._y_marker_remove(m)
-            return [topic, ['add', plot_index] + value[2:]]
+            undo = ['add']
+            for m in value[1:]:
+                undo.append(self._y_marker_remove(m))
+            return [topic, undo]
         elif cmd == 'add_single':
+            plot = self._plot_get(value[1])
             m = self._y_marker_add_single(plot, value[2])
-            return [topic, ['remove', plot_index, m['id']]]
+            return [topic, ['remove', m['id']]]
         elif cmd == 'add_dual':
+            plot = self._plot_get(value[1])
             m = self._y_marker_add_dual(plot, value[2], value[3])
-            return [topic, ['remove', plot_index, m['id']]]
+            return [topic, ['remove', m['id']]]
         elif cmd == 'add':
-            for m in value[2:]:
+            for m in value[1:]:
                 self._y_marker_add(m)
-            return [topic, ['remove', plot_index] + value[2:]]
+            return [topic, ['remove'] + value[1:]]
         elif cmd == 'clear_all':
-            self.annotations['y'][plot_index], items = OrderedDict(), self.annotations['y'][plot_index]
-            return [topic, ['add', list(items.values())]]
+            if len(value) == 1:
+                plot_ids = [p['index'] for p in self.state['plots']]
+            else:
+                plot_ids = [value[1]]
+            all_items = []
+            for plot_index in plot_ids:
+                self.annotations['y'][plot_index], items = OrderedDict(), self.annotations['y'][plot_index]
+                all_items.extend(items.values())
+            return [topic, ['add'] + all_items]
         else:
             raise NotImplementedError(f'Unsupported marker action {value}')
 
@@ -3721,6 +3784,7 @@ class WaveformWidget(QtWidgets.QWidget):
             entry['x_lookup_length'] -= 1
         del self.annotations['text'][a['plot_index']]['items'][a_id]
         self._repaint_request = True
+        return a
 
     def on_callback_annotation_save(self, value):
         """Export callback to save annotations.
@@ -3811,13 +3875,14 @@ class WaveformWidget(QtWidgets.QWidget):
         if action == 'add':
             for a in value[1:]:
                 self._text_annotation_add(a)
-            return [topic, ['remove', a]]
+            return [topic, ['remove'] + value[1:]]
         elif action == 'update':
             pass  # text_annotation entry modified in place
         elif action == 'remove':
+            undo = ['add']
             for a in value[1:]:
-                self._text_annotation_remove(a)
-            return [topic, ['add', a]]
+                undo.append(self._text_annotation_remove(a))
+            return [topic, undo]
         elif action in ['text_hide_all', 'text_show_all']:
             show = (action == 'text_show_all')
             if len(value) == 1:
@@ -3841,9 +3906,28 @@ class WaveformWidget(QtWidgets.QWidget):
                 entry['x_lookup_length'] = 0
                 entry['x_lookup'][:, 0] = np.iinfo(np.int64).max
                 all_items.extend(items.values())
-            return [topic, ['add', all_items]]
+            return [topic, ['add'] + all_items]
         else:
             raise ValueError(f'unsupported text_annotation action {action}')
+
+    def on_action_annotations(self, topic, value):
+        cmd = value[0]
+        if cmd == 'clear_all':
+            undo = [
+                'undo',
+                self.on_action_x_markers(f'{self.topic}/actions/!x_markers', ['clear_all']),
+                self.on_action_y_markers(f'{self.topic}/actions/!y_markers', ['clear_all'] + value[1:]),
+                self.on_action_text_annotation(f'{self.topic}/actions/!text_annotation', ['clear_all'] + value[1:]),
+            ]
+            return [topic, undo]
+        elif cmd == 'undo':
+            undo = [
+                'undo',
+                self.on_action_x_markers(*value[1]),
+                self.on_action_y_markers(*value[2]),
+                self.on_action_text_annotation(*value[3]),
+            ]
+            return [topic, undo]
 
     def on_action_x_range(self, topic, value):
         """Set the x-axis range.

@@ -20,7 +20,6 @@ from joulescope_ui import pubsub_singleton, N_, get_topic_name, get_instance, \
 from joulescope_ui.locale import locale_get
 from joulescope_ui.pubsub import UNDO_TOPIC, REDO_TOPIC, is_pubsub_registered
 from joulescope_ui.pubsub_aggregator import PubsubAggregator
-from joulescope_ui.shortcuts import Shortcuts
 from joulescope_ui.widgets import *   # registers all built-in widgets
 from joulescope_ui import logging_util
 from joulescope_ui.plugins import PluginManager
@@ -212,7 +211,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self._dialog = None
         self._pend_queue = []
         self._software_update_status = None
-        self._shortcuts = Shortcuts(self)
         self.SETTINGS = style_settings(N_('UI'))
         for key, value in _SETTINGS.items():
             self.SETTINGS[key] = value
@@ -419,9 +417,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self._process_monitor = ProcessMonitor(self)
         self._process_monitor.update.connect(self._on_process_monitor)
 
-        self._shortcuts.add(QtGui.QKeySequence.Undo, UNDO_TOPIC, None)
-        self._shortcuts.add(QtGui.QKeySequence.Redo, REDO_TOPIC, None)
-        self._shortcuts.add(QtCore.Qt.Key_Space, 'registry/app/settings/signal_stream_enable', '__toggle__')
+        self._keys = {
+            (QtCore.Qt.Key_Space, QtCore.Qt.KeyboardModifier.NoModifier):
+                ('registry/app/settings/signal_stream_enable', '__toggle__'),
+            (QtCore.Qt.Key_O, QtCore.Qt.KeyboardModifier.ControlModifier):
+                ('registry/ui/actions/!file_open_request', None),
+            (QtCore.Qt.Key_Q, QtCore.Qt.KeyboardModifier.ControlModifier): ('registry/ui/actions/!close', ''),
+            (QtCore.Qt.Key_Z, QtCore.Qt.KeyboardModifier.ControlModifier): (UNDO_TOPIC, None),
+            (QtCore.Qt.Key_Z, QtCore.Qt.KeyboardModifier.ControlModifier | QtCore.Qt.KeyboardModifier.ShiftModifier):
+                (REDO_TOPIC, None),
+        }
+        if sys.platform.startswith('win'):
+            self._keys[(QtCore.Qt.Key_Y, QtCore.Qt.KeyboardModifier.ControlModifier)] = (REDO_TOPIC, None)
 
         if filename is None:
             self.setAcceptDrops(True)
@@ -444,6 +451,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self._blink_timer = QtCore.QTimer(self)
         self._blink_timer.timeout.connect(self._on_blink_timer)
         self._blink_timer.start(250)
+
+    def on_action_key_press(self, event: QtGui.QKeyEvent):
+        ev = event.key(), event.modifiers()
+        self._log.info(f'on_action_key_press: {ev}')
+        action = self._keys.get(ev)
+        if action is not None:
+            self.pubsub.publish(action[0], action[1])
+
+    def keyPressEvent(self, event: QtGui.QKeyEvent) -> None:
+        self.on_action_key_press(event)
 
     def _startup_display_maybe(self):
         # display changelog on version change

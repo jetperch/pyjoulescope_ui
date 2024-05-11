@@ -17,7 +17,7 @@ from . import pubsub_singleton, register, N_, sanitize, \
     get_topic_name, get_unique_id, get_instance
 from joulescope_ui.pubsub import pubsub_attr
 from .styles.manager import style_settings
-from PySide6 import QtCore, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 import PySide6QtAds as QtAds
 import logging
 import weakref
@@ -48,6 +48,10 @@ class DockWidget(QtAds.CDockWidget):
 
     def _on_setting_name(self, value):
         self.setWindowTitle(value)
+
+    def keyPressEvent(self, event: QtGui.QKeyEvent):
+        # unhandled by widget.  Send to global key press processor.
+        pubsub_singleton.publish('registry/ui/actions/!key_press', event)
 
     @QtCore.Slot()
     def _on_close_request(self):
