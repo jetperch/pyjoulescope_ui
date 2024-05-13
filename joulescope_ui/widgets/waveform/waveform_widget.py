@@ -810,38 +810,40 @@ class WaveformWidget(QtWidgets.QWidget):
         self.pubsub.subscribe('registry/app/settings/units', self._update_on_publish, ['pub'])
         self.pubsub.subscribe('registry/app/settings/defaults/signal_buffer_source',
                               self._on_default_signal_buffer_source, ['pub', 'retain'])
-
-        NoMod = QtCore.Qt.KeyboardModifier.NoModifier
-        self._keymap = {
-            (QtCore.Qt.Key_Asterisk, NoMod): (f'{self.topic}/actions/!x_zoom_all', None),
-            (QtCore.Qt.Key_Left, NoMod): (f'{self.topic}/actions/!x_pan', -1),
-            (QtCore.Qt.Key_Right, NoMod): (f'{self.topic}/actions/!x_pan', 1),
-            (QtCore.Qt.Key_Up, NoMod): (f'{self.topic}/actions/!x_zoom', [1, None]),
-            (QtCore.Qt.Key_Down, NoMod): (f'{self.topic}/actions/!x_zoom', [-1, None]),
-            (QtCore.Qt.Key_Plus, NoMod): (f'{self.topic}/actions/!x_zoom', [1, None]),
-            (QtCore.Qt.Key_Minus, NoMod): (f'{self.topic}/actions/!x_zoom', [-1, None]),
-            (QtCore.Qt.Key_Delete, NoMod): (f'{self.topic}/actions/!annotations', ['clear_all']),
-            (QtCore.Qt.Key_Backspace, NoMod): (f'{self.topic}/actions/!annotations', ['clear_all']),
-            (QtCore.Qt.Key_A, QtCore.Qt.KeyboardModifier.ControlModifier):
-                (f'{self.topic}/actions/!viewport', ['pinned']),
-            (QtCore.Qt.Key_D, NoMod): (f'{self.topic}/actions/!x_markers', 'add_dual'),
-            (QtCore.Qt.Key_S, NoMod): (f'{self.topic}/actions/!x_markers', 'add_single'),
-            (QtCore.Qt.Key_1, NoMod): (f'{self.topic}/actions/!x_markers', ['select', 0]),
-            (QtCore.Qt.Key_2, NoMod): (f'{self.topic}/actions/!x_markers', ['select', 1]),
-            (QtCore.Qt.Key_3, NoMod): (f'{self.topic}/actions/!x_markers', ['select', 2]),
-            (QtCore.Qt.Key_4, NoMod): (f'{self.topic}/actions/!x_markers', ['select', 3]),
-            (QtCore.Qt.Key_5, NoMod): (f'{self.topic}/actions/!x_markers', ['select', 4]),
-            (QtCore.Qt.Key_6, NoMod): (f'{self.topic}/actions/!x_markers', ['select', 5]),
-            (QtCore.Qt.Key_7, NoMod): (f'{self.topic}/actions/!x_markers', ['select', 6]),
-            (QtCore.Qt.Key_8, NoMod): (f'{self.topic}/actions/!x_markers', ['select', 7]),
-            (QtCore.Qt.Key_9, NoMod): (f'{self.topic}/actions/!x_markers', ['select', 8]),
-            (QtCore.Qt.Key_Space, QtCore.Qt.KeyboardModifier.ShiftModifier):
-                (f'{self.topic}/actions/!viewport', ['toggle']),
-        }
-
+        self._keymap_load()
         self._repaint_request = True
         self._paint_state = PaintState.READY
         self._paint_timer.start(1)
+
+    def _keymap_load(self):
+        _any = None
+        _no = QtCore.Qt.KeyboardModifier.NoModifier
+        shift = QtCore.Qt.KeyboardModifier.ShiftModifier
+        ctrl = QtCore.Qt.KeyboardModifier.ControlModifier
+        self._keymap = {
+            (QtCore.Qt.Key_Asterisk, _any): (f'{self.topic}/actions/!x_zoom_all', None),
+            (QtCore.Qt.Key_Left, _any): (f'{self.topic}/actions/!x_pan', -1),
+            (QtCore.Qt.Key_Right, _any): (f'{self.topic}/actions/!x_pan', 1),
+            (QtCore.Qt.Key_Up, _any): (f'{self.topic}/actions/!x_zoom', [1, -1]),
+            (QtCore.Qt.Key_Down, _any): (f'{self.topic}/actions/!x_zoom', [-1, -1]),
+            (QtCore.Qt.Key_Plus, _any): (f'{self.topic}/actions/!x_zoom', [1, -1]),
+            (QtCore.Qt.Key_Minus, _any): (f'{self.topic}/actions/!x_zoom', [-1, -1]),
+            (QtCore.Qt.Key_Delete, _no): (f'{self.topic}/actions/!annotations', ['clear_all']),
+            (QtCore.Qt.Key_Backspace, _no): (f'{self.topic}/actions/!annotations', ['clear_all']),
+            (QtCore.Qt.Key_A, ctrl): (f'{self.topic}/actions/!viewport', ['pinned']),
+            (QtCore.Qt.Key_D, _no): (f'{self.topic}/actions/!x_markers', ['add_dual', -1, None]),
+            (QtCore.Qt.Key_S, _no): (f'{self.topic}/actions/!x_markers', ['add_single', -1]),
+            (QtCore.Qt.Key_1, _no): (f'{self.topic}/actions/!x_markers', ['select', 0]),
+            (QtCore.Qt.Key_2, _no): (f'{self.topic}/actions/!x_markers', ['select', 1]),
+            (QtCore.Qt.Key_3, _no): (f'{self.topic}/actions/!x_markers', ['select', 2]),
+            (QtCore.Qt.Key_4, _no): (f'{self.topic}/actions/!x_markers', ['select', 3]),
+            (QtCore.Qt.Key_5, _no): (f'{self.topic}/actions/!x_markers', ['select', 4]),
+            (QtCore.Qt.Key_6, _no): (f'{self.topic}/actions/!x_markers', ['select', 5]),
+            (QtCore.Qt.Key_7, _no): (f'{self.topic}/actions/!x_markers', ['select', 6]),
+            (QtCore.Qt.Key_8, _no): (f'{self.topic}/actions/!x_markers', ['select', 7]),
+            (QtCore.Qt.Key_9, _no): (f'{self.topic}/actions/!x_markers', ['select', 8]),
+            (QtCore.Qt.Key_Space, shift): (f'{self.topic}/actions/!viewport', ['toggle']),
+        }
 
     def on_action_viewport(self, topic, value):
         cmd = value[0]
@@ -870,12 +872,16 @@ class WaveformWidget(QtWidgets.QWidget):
         self._repaint_request = True
 
     def keyPressEvent(self, event: QtGui.QKeyEvent):
-        v = self._keymap.get((event.key(), event.modifiers()))
+        key, modifiers = event.key(), event.modifiers()
+        v = self._keymap.get((key, modifiers))
         if v is None:
-            super().keyPressEvent(event)
-        else:
-            self._log.info(f'key {event.key()} -> publish {v}')
-            self.pubsub.publish(*v)
+            v = self._keymap.get((key, None))
+            if v is None:
+                self._log.info(f'key {(key, modifiers)} unhandled')
+                super().keyPressEvent(event)
+                return
+        self._log.info(f'key {(key, modifiers)} -> publish {v}')
+        self.pubsub.publish(*v)
 
     def on_pubsub_unregister(self):
         self._paint_timer.stop()
@@ -3514,9 +3520,15 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _x_marker_add_single(self, pos1=None):
         x0, x1 = self.x_range
+        if pos1 < 0:
+            if self._mouse_pos is not None:
+                pos1 = self._x_map.counter_to_time64(self._mouse_pos[0])
+            else:
+                pos1 = None
         if pos1 is None:
             xc = (x1 + x0) // 2
             pos1 = self._x_marker_position(xc)
+        pos1 = max(x0, min(x1, pos1))
         marker = {
             'id': self._annotation_next_id('x'),
             'dtype': 'single',
@@ -3532,17 +3544,29 @@ class WaveformWidget(QtWidgets.QWidget):
         return self._x_marker_add(marker)
 
     def _x_marker_add_dual(self, pos1=None, pos2=None):
+        xc = None
         x0, x1 = self.x_range
         if pos1 is not None and pos2 is None:
-            xc = pos1
+            if pos1 < 0:
+                if self._mouse_pos is not None:
+                    xc = self._x_map.counter_to_time64(self._mouse_pos[0])
+            else:
+                xc = pos1
             pos1 = None
-        else:
+        if xc is None:
             xc = (x1 + x0) // 2
         xd = (x1 - x0) // 10
         if pos1 is None:
             pos1 = self._x_marker_position(xc - xd)
         if pos2 is None:
             pos2 = self._x_marker_position(xc + xd)
+        d0, d1 = pos1 - x0, pos2 - x1
+        if d0 < 0:
+            pos1 -= d0
+            pos2 -= d0
+        elif d1 > 0:
+            pos1 -= d1
+            pos2 -= d1
         marker = {
             'id': self._annotation_next_id('x'),
             'dtype': 'dual',
@@ -3973,6 +3997,11 @@ class WaveformWidget(QtWidgets.QWidget):
             return
         elif d_x <= 0:
             d_x = d_e
+        if center is not None and center < 0:
+            if self._mouse_pos is not None:
+                center = self._x_map.counter_to_time64(self._mouse_pos[0])
+            else:
+                center = None
         if center is None:
             center = (x1 + x0) // 2
         elif isinstance(center, float):

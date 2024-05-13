@@ -291,7 +291,7 @@ msgstr "电子邮件"
 msgid "Description"
 msgstr "描述"
 
-#: error_window.py:112 widgets/waveform/waveform_widget.py:3397
+#: error_window.py:112 widgets/waveform/waveform_widget.py:3403
 msgid "Edit"
 msgstr "编辑"
 
@@ -1326,7 +1326,7 @@ msgstr "固件更新状态"
 #: widgets/settings/settings_widget.py:266
 #: widgets/settings/settings_widget.py:364
 #: widgets/settings/settings_widget.py:431
-#: widgets/waveform/waveform_widget.py:3104
+#: widgets/waveform/waveform_widget.py:3110
 msgid "Name"
 msgstr "名称"
 
@@ -2481,7 +2481,7 @@ msgid "triangle left"
 msgstr "左三角形"
 
 #: widgets/waveform/text_annotation.py:66
-#: widgets/waveform/waveform_widget.py:3050
+#: widgets/waveform/waveform_widget.py:3056
 msgid "Manual"
 msgstr "手册"
 
@@ -2490,17 +2490,17 @@ msgid "Centered"
 msgstr "居中"
 
 #: widgets/waveform/text_annotation.py:99
-#: widgets/waveform/waveform_widget.py:3167
+#: widgets/waveform/waveform_widget.py:3173
 msgid "Text"
 msgstr "文本"
 
 #: widgets/waveform/text_annotation.py:107
-#: widgets/waveform/waveform_widget.py:3398
+#: widgets/waveform/waveform_widget.py:3404
 msgid "Show text"
 msgstr "显示文本"
 
 #: widgets/waveform/text_annotation.py:116
-#: widgets/waveform/waveform_widget.py:3410
+#: widgets/waveform/waveform_widget.py:3416
 msgid "Shape"
 msgstr "形状"
 
@@ -2813,12 +2813,12 @@ msgid "X-axis annotation mode"
 msgstr "X 轴注释模式"
 
 #: widgets/waveform/waveform_widget.py:494
-#: widgets/waveform/waveform_widget.py:2930
+#: widgets/waveform/waveform_widget.py:2936
 msgid "Absolute"
 msgstr "绝对值"
 
 #: widgets/waveform/waveform_widget.py:495
-#: widgets/waveform/waveform_widget.py:2935
+#: widgets/waveform/waveform_widget.py:2941
 msgid "Relative"
 msgstr "相对值"
 
@@ -2834,150 +2834,150 @@ msgstr "每个跟踪所选的子源。"
 msgid "The trace priority: highest int value on top, None is off."
 msgstr "跟踪优先级：最高 int 值在顶部，无则关闭。"
 
-#: widgets/waveform/waveform_widget.py:2877
-#: widgets/waveform/waveform_widget.py:3179
+#: widgets/waveform/waveform_widget.py:2883
+#: widgets/waveform/waveform_widget.py:3185
 msgid "Save image to file"
 msgstr "将图像保存到文件"
 
-#: widgets/waveform/waveform_widget.py:2924
-#: widgets/waveform/waveform_widget.py:2993
+#: widgets/waveform/waveform_widget.py:2930
+#: widgets/waveform/waveform_widget.py:2999
 msgid "Single marker"
 msgstr "单标记"
 
-#: widgets/waveform/waveform_widget.py:2925
-#: widgets/waveform/waveform_widget.py:2994
+#: widgets/waveform/waveform_widget.py:2931
+#: widgets/waveform/waveform_widget.py:3000
 msgid "Dual markers"
 msgstr "双标记"
 
-#: widgets/waveform/waveform_widget.py:2927
+#: widgets/waveform/waveform_widget.py:2933
 msgid "Mode"
 msgstr "模式"
 
-#: widgets/waveform/waveform_widget.py:2940
-#: widgets/waveform/waveform_widget.py:2995
-#: widgets/waveform/waveform_widget.py:3155
-#: widgets/waveform/waveform_widget.py:3173
+#: widgets/waveform/waveform_widget.py:2946
+#: widgets/waveform/waveform_widget.py:3001
+#: widgets/waveform/waveform_widget.py:3161
+#: widgets/waveform/waveform_widget.py:3179
 msgid "Clear all"
 msgstr "全部清除"
 
-#: widgets/waveform/waveform_widget.py:2951
-#: widgets/waveform/waveform_widget.py:3040
-#: widgets/waveform/waveform_widget.py:3161
+#: widgets/waveform/waveform_widget.py:2957
+#: widgets/waveform/waveform_widget.py:3046
+#: widgets/waveform/waveform_widget.py:3167
 msgid "Annotations"
 msgstr "注释"
 
-#: widgets/waveform/waveform_widget.py:3043
+#: widgets/waveform/waveform_widget.py:3049
 msgid "Range"
 msgstr "范围"
 
-#: widgets/waveform/waveform_widget.py:3047
-#: widgets/waveform/waveform_widget.py:3378
+#: widgets/waveform/waveform_widget.py:3053
+#: widgets/waveform/waveform_widget.py:3384
 msgid "Auto"
 msgstr "自动"
 
-#: widgets/waveform/waveform_widget.py:3053
+#: widgets/waveform/waveform_widget.py:3059
 msgid "Exact"
 msgstr "精确"
 
-#: widgets/waveform/waveform_widget.py:3062
+#: widgets/waveform/waveform_widget.py:3068
 msgid "Scale"
 msgstr "规模"
 
-#: widgets/waveform/waveform_widget.py:3065
+#: widgets/waveform/waveform_widget.py:3071
 msgid "Linear"
 msgstr "线性"
 
-#: widgets/waveform/waveform_widget.py:3070
+#: widgets/waveform/waveform_widget.py:3076
 msgid "Logarithmic"
 msgstr "对数"
 
-#: widgets/waveform/waveform_widget.py:3078
+#: widgets/waveform/waveform_widget.py:3084
 msgid "Logarithmic zero"
 msgstr "对数零"
 
-#: widgets/waveform/waveform_widget.py:3092
+#: widgets/waveform/waveform_widget.py:3098
 msgid "Preferred prefix"
 msgstr "首选前缀"
 
-#: widgets/waveform/waveform_widget.py:3152
+#: widgets/waveform/waveform_widget.py:3158
 msgid "Add"
 msgstr "添加"
 
-#: widgets/waveform/waveform_widget.py:3153
+#: widgets/waveform/waveform_widget.py:3159
 msgid "Hide all text"
 msgstr "隐藏所有文本"
 
-#: widgets/waveform/waveform_widget.py:3154
+#: widgets/waveform/waveform_widget.py:3160
 msgid "Show all text"
 msgstr "显示所有文本"
 
-#: widgets/waveform/waveform_widget.py:3162
+#: widgets/waveform/waveform_widget.py:3168
 msgid "Vertical"
 msgstr "垂直"
 
-#: widgets/waveform/waveform_widget.py:3165
+#: widgets/waveform/waveform_widget.py:3171
 msgid "Horizontal"
 msgstr "水平"
 
-#: widgets/waveform/waveform_widget.py:3171
+#: widgets/waveform/waveform_widget.py:3177
 msgid "Save"
 msgstr "保存"
 
-#: widgets/waveform/waveform_widget.py:3176
+#: widgets/waveform/waveform_widget.py:3182
 msgid "Y-axis auto range"
 msgstr "Y 轴自动量程"
 
-#: widgets/waveform/waveform_widget.py:3180
+#: widgets/waveform/waveform_widget.py:3186
 msgid "Copy image to clipboard"
 msgstr "将图像复制到剪贴板"
 
-#: widgets/waveform/waveform_widget.py:3181
+#: widgets/waveform/waveform_widget.py:3187
 msgid "Export visible data"
 msgstr "导出可见数据"
 
-#: widgets/waveform/waveform_widget.py:3182
+#: widgets/waveform/waveform_widget.py:3188
 msgid "Export all data"
 msgstr "导出所有数据"
 
-#: widgets/waveform/waveform_widget.py:3354
+#: widgets/waveform/waveform_widget.py:3360
 msgid "Export"
 msgstr "出口"
 
-#: widgets/waveform/waveform_widget.py:3355
+#: widgets/waveform/waveform_widget.py:3361
 msgid "Analysis"
 msgstr "分析"
 
-#: widgets/waveform/waveform_widget.py:3363
+#: widgets/waveform/waveform_widget.py:3369
 msgid "Interval"
 msgstr "间隔"
 
-#: widgets/waveform/waveform_widget.py:3372
+#: widgets/waveform/waveform_widget.py:3378
 msgid "Zoom"
 msgstr "放大"
 
-#: widgets/waveform/waveform_widget.py:3376
+#: widgets/waveform/waveform_widget.py:3382
 msgid "Show statistics"
 msgstr "显示统计数据"
 
-#: widgets/waveform/waveform_widget.py:3381
+#: widgets/waveform/waveform_widget.py:3387
 msgid "Left"
 msgstr "左侧"
 
-#: widgets/waveform/waveform_widget.py:3384
+#: widgets/waveform/waveform_widget.py:3390
 msgid "Right"
 msgstr "正确"
 
-#: widgets/waveform/waveform_widget.py:3387
+#: widgets/waveform/waveform_widget.py:3393
 msgid "Off"
 msgstr "关闭"
 
-#: widgets/waveform/waveform_widget.py:3390
-#: widgets/waveform/waveform_widget.py:3418
-#: widgets/waveform/waveform_widget.py:3448
+#: widgets/waveform/waveform_widget.py:3396
+#: widgets/waveform/waveform_widget.py:3424
+#: widgets/waveform/waveform_widget.py:3454
 msgid "Remove"
 msgstr "删除"
 
-#: widgets/waveform/waveform_widget.py:3401
+#: widgets/waveform/waveform_widget.py:3407
 msgid "Y mode"
 msgstr "Y 模式"
 

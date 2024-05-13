@@ -5,9 +5,9 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
-## 1.1.7
+## 1.1.8
 
-2024 May 11
+2024 May 13
 
 * Added arbitrary divisor with optional units to Value widget  #265
 * Added Flyout widget click & drag right to resize   #267
