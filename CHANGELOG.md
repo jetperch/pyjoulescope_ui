@@ -15,6 +15,7 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Added support for numpad 1 through 9 keys.
   * Fixed control widget "Add single marker".
 * Fixed customary units display in Value widget.
+* Fixed QAbstractSpinBox styling.
 
 
 ## 1.1.8
