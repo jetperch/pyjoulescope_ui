@@ -719,7 +719,7 @@ msgstr "관리"
 msgid "Select file to open"
 msgstr "열 파일 선택"
 
-#: paths.py:30 styles/manager.py:46
+#: paths.py:30 styles/manager.py:52
 msgid "The name for this widget."
 msgstr "이 위젯의 이름입니다."
 

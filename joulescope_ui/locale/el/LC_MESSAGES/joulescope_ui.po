@@ -804,7 +804,7 @@ msgstr "Διαχείριση"
 msgid "Select file to open"
 msgstr "Επιλέξτε αρχείο για άνοιγμα"
 
-#: paths.py:30 styles/manager.py:46
+#: paths.py:30 styles/manager.py:52
 msgid "The name for this widget."
 msgstr "Το όνομα για αυτό το widget."
 

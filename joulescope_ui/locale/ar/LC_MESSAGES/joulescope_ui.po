@@ -765,7 +765,7 @@ msgstr "إدارة"
 msgid "Select file to open"
 msgstr "حدد الملف لفتحه"
 
-#: paths.py:30 styles/manager.py:46
+#: paths.py:30 styles/manager.py:52
 msgid "The name for this widget."
 msgstr "اسم هذه الأداة"
 

@@ -807,7 +807,7 @@ msgstr "Gérer"
 msgid "Select file to open"
 msgstr "Sélectionner le fichier à ouvrir"
 
-#: paths.py:30 styles/manager.py:46
+#: paths.py:30 styles/manager.py:52
 msgid "The name for this widget."
 msgstr "Le nom de ce widget."
 
