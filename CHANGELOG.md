@@ -7,7 +7,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.1.9
 
-2024 May 20  [in progress]
+2024 May 21
 
 * Fixed Waveform widget issues. 
   * Fixed OpenGL frame rendering corruption.
@@ -16,6 +16,7 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Fixed control widget "Add single marker".
 * Fixed customary units display in Value widget.
 * Fixed QAbstractSpinBox styling.
+* Fixed QComboBox styling on macOS.
 
 
 ## 1.1.8

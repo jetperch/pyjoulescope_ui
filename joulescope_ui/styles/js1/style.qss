@@ -209,12 +209,14 @@ QPushButton:enabled:pressed
 /* QComboBox                                                                */
 /****************************************************************************/
 
+
 QComboBox
 {
     background: {% js1.input_background %};
     selection-background-color: {% js1.clickable_hover %};
     padding-left: 0.5ex;
     padding-right: 0.5ex;
+    ~macos combobox-popup: 0;  /* unofficial Qt feature to hide checkmark on macOS */
 }
 
 QComboBox QAbstractItemView  /* The popup */
@@ -223,6 +225,7 @@ QComboBox QAbstractItemView  /* The popup */
     selection-background-color: {% js1.clickable_hover %};
     padding-left: 0.1ex;
     padding-right: 0.1ex;
+    ~macos min-width: 4em;  /* macOS does not size correctly */
 }
 
 QComboBox::drop-down

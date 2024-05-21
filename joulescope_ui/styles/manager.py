@@ -26,6 +26,7 @@ from .color_scheme import COLOR_SCHEMES
 from .font_scheme import FONT_SCHEMES
 import copy
 import pkgutil
+import sys
 import time
 
 
@@ -33,6 +34,11 @@ _template_replace = re.compile(r'{%\s*([a-zA-Z0-9_\.]+)\s*%}')
 RENDER_TOPIC = f'registry/style/actions/!render'
 _ENABLE_TEMPLATE_DEBUG = False
 _log = logging.getLogger(__name__)
+_PLATFORM_MAP = {
+    'darwin': '~macos',
+    'win32': '~windows',
+    'linux': '~linux',
+}
 
 
 def name_setting(name):
@@ -235,8 +241,23 @@ def _render_templates(obj, path):
             v = f'rgba({r},{g},{b},{a})'
         return v
 
+    include_prefix = _PLATFORM_MAP.get(sys.platform, '~none')
     for name, template in style_cls['load']['templates'].items():
         s = _template_replace.sub(replace, template)
+
+        # Conditional line include using prefix.
+        lines = []
+        for line in s.split('\n'):
+            sline = line.strip()
+            if sline.startswith('~'):
+                if sline.startswith(include_prefix):
+                    line = line.replace(include_prefix, '')
+                else:
+                    print(f'skip {line}')
+                    continue
+            lines.append(line)
+        s = '\n'.join(lines)
+
         obj.style_obj['templates'][name] = s
         if _ENABLE_TEMPLATE_DEBUG:
             template_path = os.path.join(path, name)
