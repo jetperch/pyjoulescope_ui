@@ -16,7 +16,8 @@ from PySide6 import QtWidgets, QtGui, QtCore
 from joulescope_ui import CAPABILITIES, register, N_, P_, get_topic_name, tooltip_format
 from joulescope_ui.widget_tools import settings_action_create, context_menu_show
 from joulescope_ui.styles import styled_widget, color_as_qcolor, font_as_qfont
-from joulescope_ui.units import RE_IS_NUMBER, UNITS_SETTING, convert_units, unit_prefix, three_sig_figs
+from joulescope_ui.units import RE_IS_NUMBER, UNITS_SETTING, \
+    convert_units, effective_units, unit_prefix, three_sig_figs
 from joulescope_ui.ui_util import comboBoxConfig, comboBoxSelectItemByText
 from joulescope_ui.source_selector import SourceSelector
 import datetime
@@ -302,6 +303,7 @@ class _InnerWidget(QtWidgets.QWidget):
     def paintEvent(self, event):
         fields = [field for field in self._fields if field != self._main]
         parent: ValueWidget = self.parent()
+        unit_setting = effective_units(parent.units)
         resolved = parent.source_selector.resolved()
         if resolved is None or parent.style_obj is None:
             return
@@ -340,6 +342,8 @@ class _InnerWidget(QtWidgets.QWidget):
         main_num_char_width = _width(main_font_metrics)
         main_txt_char_width = main_font_metrics.boundingRect('W').width()
         main_units_width = main_font_metrics.boundingRect('W').width()
+        if unit_setting == 'Xh':
+            main_units_width *= 2
         main_divisor_width = main_font_metrics.boundingRect(divisor_units).width()
 
         stats_color = color_as_qcolor(v['value.stats_color'])
@@ -435,7 +439,7 @@ class _InnerWidget(QtWidgets.QWidget):
 
             if signal_name in self._statistics['accumulators']:
                 signal = self._statistics['accumulators'][signal_name]
-                fields = ['accumulate_duration']
+                fields = ['accumulate_duration'] if parent.show_fields else []
                 signal_value, signal_units = convert_units(signal['value'] / divisor, signal['units'], parent.units)
                 _, prefix, scale = unit_prefix(signal_value)
                 scale *= divisor

@@ -14,6 +14,7 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Fixed "Save image to file" & "Copy image to clipboard".
   * Added support for numpad 1 through 9 keys.
   * Fixed control widget "Add single marker".
+* Fixed customary units display in Value widget.
 
 
 ## 1.1.8

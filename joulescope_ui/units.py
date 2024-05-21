@@ -163,11 +163,16 @@ def str_to_number(s):
     return number
 
 
+def effective_units(unit_setting=None):
+    if unit_setting in [None, 'default']:
+        unit_setting = pubsub_singleton.query('registry/app/settings/units', default='SI')
+    return unit_setting
+
+
 def convert_units(x, x_units, unit_setting):
     if x_units not in ['C', 'J']:
         return x, x_units
-    if unit_setting == 'default':
-        unit_setting = pubsub_singleton.query('registry/app/settings/units', default='SI')
+    unit_setting = effective_units(unit_setting)
     if unit_setting == 'Xh':
         x /= 3600
         y_units = 'Wh' if x_units == 'J' else 'Ah'
