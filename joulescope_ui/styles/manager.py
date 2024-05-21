@@ -253,7 +253,6 @@ def _render_templates(obj, path):
                 if sline.startswith(include_prefix):
                     line = line.replace(include_prefix, '')
                 else:
-                    print(f'skip {line}')
                     continue
             lines.append(line)
         s = '\n'.join(lines)
