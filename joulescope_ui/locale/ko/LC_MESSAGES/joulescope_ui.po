@@ -299,7 +299,7 @@ msgstr "이메일"
 msgid "Description"
 msgstr "설명"
 
-#: error_window.py:112 widgets/waveform/waveform_widget.py:3403
+#: error_window.py:112 widgets/waveform/waveform_widget.py:3367
 msgid "Edit"
 msgstr "Edit"
 
@@ -574,7 +574,7 @@ msgstr "다시 표시하지 않음"
 msgid "Intel graphics detected"
 msgstr "인텔 그래픽 감지"
 
-#: main.py:69 widgets/value/value_widget.py:660
+#: main.py:69 widgets/value/value_widget.py:664
 msgid "Multimeter"
 msgstr "멀티미터"
 
@@ -1008,7 +1008,7 @@ msgstr ""
 "목표 전력을 억제하여 목표 장치의 전원 사이클을 리셋하는 데 사용할 수 있습니다."
 
 #: devices/jsdrv/js110.py:147 devices/jsdrv/js220.py:163
-#: widgets/waveform/waveform_widget.py:109
+#: widgets/waveform/waveform_widget.py:110
 msgid "Current range"
 msgstr "전류 범위"
 
@@ -1143,7 +1143,7 @@ msgid ""
 msgstr "평균을 결정하는 데 사용되는 전류 범위 창 이후의 샘플 수입니다. 다른 모든 IRF 유형에서는 이 값이 무시됩니다."
 
 #: devices/jsdrv/js110.py:269 devices/jsdrv/js220.py:332
-#: widgets/device_control/fuse.py:103 widgets/waveform/waveform_widget.py:104
+#: widgets/device_control/fuse.py:103 widgets/waveform/waveform_widget.py:105
 msgid "Current"
 msgstr "전류"
 
@@ -1152,7 +1152,7 @@ msgid "Enable the current signal streaming."
 msgstr "전류 신호 스트리밍을 활성화합니다."
 
 #: devices/jsdrv/js110.py:278 devices/jsdrv/js220.py:341
-#: widgets/waveform/waveform_widget.py:105
+#: widgets/waveform/waveform_widget.py:106
 msgid "Voltage"
 msgstr "전압"
 
@@ -1161,7 +1161,7 @@ msgid "Enable the voltage signal streaming."
 msgstr "전압 신호 스트리밍을 활성화합니다."
 
 #: devices/jsdrv/js110.py:287 devices/jsdrv/js220.py:350
-#: widgets/waveform/waveform_widget.py:106
+#: widgets/waveform/waveform_widget.py:107
 msgid "Power"
 msgstr "Power"
 
@@ -1358,7 +1358,7 @@ msgstr "GPI 3"
 msgid "Enable the general purpose input 3 signal streaming."
 msgstr "범용 입력 3 신호 스트리밍을 활성화합니다."
 
-#: devices/jsdrv/js220.py:410 widgets/waveform/waveform_widget.py:123
+#: devices/jsdrv/js220.py:410 widgets/waveform/waveform_widget.py:124
 msgid "Trigger input"
 msgstr "트리거 입력"
 
@@ -1377,7 +1377,7 @@ msgstr "펌웨어 업데이트 상태"
 #: widgets/settings/settings_widget.py:266
 #: widgets/settings/settings_widget.py:364
 #: widgets/settings/settings_widget.py:431
-#: widgets/waveform/waveform_widget.py:3110
+#: widgets/waveform/waveform_widget.py:3074
 msgid "Name"
 msgstr "이름"
 
@@ -1590,12 +1590,12 @@ msgid "Joulescope default font scheme"
 msgstr "줄스코프 기본 글꼴 체계"
 
 #: widgets/accumulator/accumulator_widget.py:27
-#: widgets/value/value_widget.py:31
+#: widgets/value/value_widget.py:32
 msgid "The statistics data stream source."
 msgstr "통계 데이터 스트림 소스."
 
 #: widgets/accumulator/accumulator_widget.py:32
-#: widgets/value/value_widget.py:81
+#: widgets/value/value_widget.py:82
 msgid "The signal to display."
 msgstr "표시할 신호."
 
@@ -1608,7 +1608,7 @@ msgid "energy"
 msgstr "에너지"
 
 #: widgets/accumulator/accumulator_widget.py:41
-#: widgets/value/value_widget.py:56
+#: widgets/value/value_widget.py:57
 msgid "Show the statistics section title for each signal."
 msgstr "각 신호에 대한 통계 섹션 제목을 표시합니다."
 
@@ -1686,7 +1686,7 @@ msgid "Topic"
 msgstr "주제"
 
 #: widgets/developer/publish_spy_widget.py:21
-#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:669
+#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:673
 msgid "Value"
 msgstr "Value"
 
@@ -1724,7 +1724,7 @@ msgid "Update"
 msgstr "업데이트"
 
 #: widgets/device_control/device_update_dialog.py:25
-#: widgets/value/value_widget.py:155
+#: widgets/value/value_widget.py:156
 msgid "Device"
 msgstr "디바이스"
 
@@ -2255,7 +2255,7 @@ msgstr "StatisticsRecordConfig"
 msgid "Time Format"
 msgstr "시간 형식"
 
-#: widgets/trigger/trigger_widget.py:41 widgets/value/value_widget.py:94
+#: widgets/trigger/trigger_widget.py:41 widgets/value/value_widget.py:95
 msgid "Select the source device"
 msgstr "소스 디바이스 선택"
 
@@ -2413,47 +2413,47 @@ msgstr "정지 조건"
 msgid "Stop Actions"
 msgstr "동작 중지"
 
-#: widgets/value/value_widget.py:36
+#: widgets/value/value_widget.py:37
 msgid "Show the device selection header."
 msgstr "장치 선택 헤더를 표시합니다."
 
-#: widgets/value/value_widget.py:41
+#: widgets/value/value_widget.py:42
 msgid "Show the accrue header."
 msgstr "발생 헤더를 표시합니다."
 
-#: widgets/value/value_widget.py:46
+#: widgets/value/value_widget.py:47
 msgid "Show the statistics fields at the right."
 msgstr "오른쪽에 통계 필드가 표시됩니다."
 
-#: widgets/value/value_widget.py:51
+#: widgets/value/value_widget.py:52
 msgid "Show a leading + or - sign."
 msgstr "선행 + 또는 - 기호를 표시합니다."
 
-#: widgets/value/value_widget.py:62
+#: widgets/value/value_widget.py:63
 msgid "Divide the quantity by this value."
 msgstr "수량을 이 값으로 나눕니다."
 
-#: widgets/value/value_widget.py:63
+#: widgets/value/value_widget.py:64
 msgid ""
 "The divisor is a floating point number. The number may optionally be "
 "followed by units."
 msgstr "제수는 부동 소수점 숫자입니다. 숫자 뒤에 선택적으로 단위를 붙일 수 있습니다."
 
-#: widgets/value/value_widget.py:95
+#: widgets/value/value_widget.py:96
 msgid ""
 "The values displayed by this widget come from a single source device. Select"
 " the source device here."
 msgstr "이 위젯에 표시되는 값은 단일 소스 장치에서 가져온 것입니다. 여기에서 소스 장치를 선택하세요."
 
-#: widgets/value/value_widget.py:101
+#: widgets/value/value_widget.py:102
 msgid "Hold the display"
 msgstr "디스플레이 잡기"
 
-#: widgets/value/value_widget.py:103
+#: widgets/value/value_widget.py:104
 msgid "When selected, prevent the display from updating."
 msgstr "이 옵션을 선택하면 디스플레이가 업데이트되지 않습니다."
 
-#: widgets/value/value_widget.py:104
+#: widgets/value/value_widget.py:105
 msgid ""
 "The UI also includes a global statistics hold button on the sidebar. When "
 "the global statistics hold button is selected, this button is disabled and "
@@ -2461,7 +2461,7 @@ msgid ""
 msgstr ""
 "UI에는 사이드바에 글로벌 통계 보류 버튼도 있습니다. 글로벌 통계 보류 버튼을 선택하면 이 버튼은 비활성화되며 아무런 효과가 없습니다."
 
-#: widgets/value/value_widget.py:107
+#: widgets/value/value_widget.py:108
 msgid ""
 "The displayed values normally update with each new statistics data computed "
 "by the device. When this button is selected, the display will not be "
@@ -2471,11 +2471,11 @@ msgstr ""
 "표시된 값은 일반적으로 장치에서 계산된 새로운 통계 데이터에 따라 업데이트됩니다. 이 버튼을 선택하면 디스플레이가 업데이트되지 않습니다."
 " 그러나 통계는 계속 누적되어 누적됩니다(선택한 경우)."
 
-#: widgets/value/value_widget.py:114
+#: widgets/value/value_widget.py:115
 msgid "Accrue values over time"
 msgstr "시간에 따른 값 누적"
 
-#: widgets/value/value_widget.py:116
+#: widgets/value/value_widget.py:117
 msgid ""
 "Current, voltage, and power are normally computed over a single statistics "
 "frequency interval. Press this button to accrue the values indefinitely. "
@@ -2484,21 +2484,21 @@ msgstr ""
 "전류, 전압 및 전력은 일반적으로 단일 통계 주파수 간격에 걸쳐 계산됩니다. 이 버튼을 누르면 값이 무한정 누적됩니다. 다시 누르면 정상"
 " 작동으로 돌아갑니다."
 
-#: widgets/value/value_widget.py:120
+#: widgets/value/value_widget.py:121
 msgid ""
 "Note that this button does not affect the charge and energy accumulation. "
 "Both accumulate indefinitely regardless of this button state."
 msgstr "이 버튼은 충전 및 에너지 축적에 영향을 주지 않습니다. 둘 다 이 버튼 상태에 관계없이 무기한으로 누적됩니다."
 
-#: widgets/value/value_widget.py:203
+#: widgets/value/value_widget.py:204
 msgid "Not present"
 msgstr "현재 없음"
 
-#: widgets/value/value_widget.py:223
+#: widgets/value/value_widget.py:224
 msgid "Hold"
 msgstr "Hold"
 
-#: widgets/value/value_widget.py:231
+#: widgets/value/value_widget.py:232
 msgid "Accrue"
 msgstr "증가"
 
@@ -2552,7 +2552,7 @@ msgid "triangle left"
 msgstr "왼쪽 삼각형"
 
 #: widgets/waveform/text_annotation.py:66
-#: widgets/waveform/waveform_widget.py:3056
+#: widgets/waveform/waveform_widget.py:3020
 msgid "Manual"
 msgstr "매뉴얼"
 
@@ -2561,17 +2561,17 @@ msgid "Centered"
 msgstr "중심"
 
 #: widgets/waveform/text_annotation.py:99
-#: widgets/waveform/waveform_widget.py:3173
+#: widgets/waveform/waveform_widget.py:3137
 msgid "Text"
 msgstr "텍스트"
 
 #: widgets/waveform/text_annotation.py:107
-#: widgets/waveform/waveform_widget.py:3404
+#: widgets/waveform/waveform_widget.py:3368
 msgid "Show text"
 msgstr "텍스트 표시"
 
 #: widgets/waveform/text_annotation.py:116
-#: widgets/waveform/waveform_widget.py:3416
+#: widgets/waveform/waveform_widget.py:3380
 msgid "Shape"
 msgstr "모양"
 
@@ -2748,8 +2748,8 @@ msgid ""
 msgstr "\"기본\"은 일반적으로 장치 제어 위젯을 사용하여 구성되는 기본 소스를 사용합니다."
 
 #: widgets/waveform/waveform_source_widget.py:104
-#: widgets/waveform/waveform_widget.py:401
-#: widgets/waveform/waveform_widget.py:478
+#: widgets/waveform/waveform_widget.py:375
+#: widgets/waveform/waveform_widget.py:452
 msgid "off"
 msgstr "off"
 
@@ -2757,300 +2757,300 @@ msgstr "off"
 msgid "Waveform"
 msgstr "파형"
 
-#: widgets/waveform/waveform_widget.py:119
+#: widgets/waveform/waveform_widget.py:120
 msgid "General purpose input 0"
 msgstr "범용 입력 0"
 
-#: widgets/waveform/waveform_widget.py:120
+#: widgets/waveform/waveform_widget.py:121
 msgid "General purpose input 1"
 msgstr "범용 입력 1"
 
-#: widgets/waveform/waveform_widget.py:121
+#: widgets/waveform/waveform_widget.py:122
 msgid "General purpose input 2"
 msgstr "범용 입력 2"
 
-#: widgets/waveform/waveform_widget.py:122
+#: widgets/waveform/waveform_widget.py:123
 msgid "General purpose input 3"
 msgstr "범용 입력 3"
 
-#: widgets/waveform/waveform_widget.py:357
+#: widgets/waveform/waveform_widget.py:331
 msgid "The source filter string."
 msgstr "소스 필터 문자열입니다."
 
-#: widgets/waveform/waveform_widget.py:368
+#: widgets/waveform/waveform_widget.py:342
 msgid "The trace width."
 msgstr "트레이스 폭."
 
-#: widgets/waveform/waveform_widget.py:383
+#: widgets/waveform/waveform_widget.py:357
 msgid "The target frames per second."
 msgstr "초당 목표 프레임."
 
-#: widgets/waveform/waveform_widget.py:385
+#: widgets/waveform/waveform_widget.py:359
 msgid "vsync"
 msgstr "vsync"
 
-#: widgets/waveform/waveform_widget.py:386
+#: widgets/waveform/waveform_widget.py:360
 msgid "20 Hz"
 msgstr "20 Hz"
 
-#: widgets/waveform/waveform_widget.py:387
+#: widgets/waveform/waveform_widget.py:361
 msgid "10 Hz"
 msgstr "10 Hz"
 
-#: widgets/waveform/waveform_widget.py:388
+#: widgets/waveform/waveform_widget.py:362
 msgid "5 Hz"
 msgstr "5 Hz"
 
-#: widgets/waveform/waveform_widget.py:394
+#: widgets/waveform/waveform_widget.py:368
 msgid "The minimum interval between repaint in milliseconds."
 msgstr "밀리초 단위의 최소 재도장 간격입니다."
 
-#: widgets/waveform/waveform_widget.py:399
+#: widgets/waveform/waveform_widget.py:373
 msgid "Show the minimum and maximum extents fill."
 msgstr "최소 및 최대 범위 채우기를 표시합니다."
 
-#: widgets/waveform/waveform_widget.py:402
+#: widgets/waveform/waveform_widget.py:376
 msgid "lines"
 msgstr "lines"
 
-#: widgets/waveform/waveform_widget.py:403
+#: widgets/waveform/waveform_widget.py:377
 msgid "fill 1"
 msgstr "채우기 1"
 
-#: widgets/waveform/waveform_widget.py:404
+#: widgets/waveform/waveform_widget.py:378
 msgid "fill 2"
 msgstr "채우기 2"
 
-#: widgets/waveform/waveform_widget.py:410
+#: widgets/waveform/waveform_widget.py:384
 msgid "Show the frames per second."
 msgstr "초당 프레임을 표시합니다."
 
-#: widgets/waveform/waveform_widget.py:415
+#: widgets/waveform/waveform_widget.py:389
 msgid "Show the statistics on mouse hover."
 msgstr "마우스 호버에 대한 통계를 표시합니다."
 
-#: widgets/waveform/waveform_widget.py:420
+#: widgets/waveform/waveform_widget.py:394
 msgid "Show the plot statistics on the right."
 msgstr "오른쪽에 플롯 통계가 표시됩니다."
 
-#: widgets/waveform/waveform_widget.py:425
+#: widgets/waveform/waveform_widget.py:399
 msgid "Show frequency for dual markers and statistics."
 msgstr "듀얼 마커 및 통계에 대한 주파수를 표시합니다."
 
-#: widgets/waveform/waveform_widget.py:430
+#: widgets/waveform/waveform_widget.py:404
 msgid "The quantities to display by default."
 msgstr "기본적으로 표시되는 수량입니다."
 
-#: widgets/waveform/waveform_widget.py:436
+#: widgets/waveform/waveform_widget.py:410
 msgid "The precision to display in digits."
 msgstr "숫자로 표시되는 정밀도."
 
-#: widgets/waveform/waveform_widget.py:442
+#: widgets/waveform/waveform_widget.py:416
 msgid "Use OpenGL rendering."
 msgstr "OpenGL 렌더링을 사용합니다."
 
-#: widgets/waveform/waveform_widget.py:453
+#: widgets/waveform/waveform_widget.py:427
 msgid "Pin the left side (oldest) data so that it stays in view."
 msgstr "왼쪽(가장 오래된) 데이터를 고정하여 계속 볼 수 있도록 합니다."
 
-#: widgets/waveform/waveform_widget.py:458
+#: widgets/waveform/waveform_widget.py:432
 msgid "Pin the right side (newest) data so that it stays in view."
 msgstr "오른쪽(최신) 데이터를 고정하여 계속 볼 수 있도록 합니다."
 
-#: widgets/waveform/waveform_widget.py:463
+#: widgets/waveform/waveform_widget.py:437
 msgid "The waveform state."
 msgstr "파형 상태."
 
-#: widgets/waveform/waveform_widget.py:469
+#: widgets/waveform/waveform_widget.py:443
 msgid "The annotations."
 msgstr "주석."
 
-#: widgets/waveform/waveform_widget.py:475
+#: widgets/waveform/waveform_widget.py:449
 msgid "Control location"
 msgstr "제어 위치"
 
-#: widgets/waveform/waveform_widget.py:479
+#: widgets/waveform/waveform_widget.py:453
 msgid "top"
 msgstr "top"
 
-#: widgets/waveform/waveform_widget.py:480
+#: widgets/waveform/waveform_widget.py:454
 msgid "bottom"
 msgstr "bottom"
 
-#: widgets/waveform/waveform_widget.py:485
+#: widgets/waveform/waveform_widget.py:459
 msgid "The signal quantity to show in the summary."
 msgstr "요약에 표시할 신호 양입니다."
 
-#: widgets/waveform/waveform_widget.py:491
+#: widgets/waveform/waveform_widget.py:465
 msgid "X-axis annotation mode"
 msgstr "X축 주석 모드"
 
-#: widgets/waveform/waveform_widget.py:494
-#: widgets/waveform/waveform_widget.py:2936
+#: widgets/waveform/waveform_widget.py:468
+#: widgets/waveform/waveform_widget.py:2900
 msgid "Absolute"
 msgstr "절대"
 
-#: widgets/waveform/waveform_widget.py:495
-#: widgets/waveform/waveform_widget.py:2941
+#: widgets/waveform/waveform_widget.py:469
+#: widgets/waveform/waveform_widget.py:2905
 msgid "Relative"
 msgstr "상대"
 
-#: widgets/waveform/waveform_widget.py:501
+#: widgets/waveform/waveform_widget.py:475
 msgid "The available subsources."
 msgstr "사용 가능한 하위 소스."
 
-#: widgets/waveform/waveform_widget.py:507
+#: widgets/waveform/waveform_widget.py:481
 msgid "The selected subsources for each trace."
 msgstr "각 트레이스에 대해 선택된 하위 소스."
 
-#: widgets/waveform/waveform_widget.py:513
+#: widgets/waveform/waveform_widget.py:487
 msgid "The trace priority: highest int value on top, None is off."
 msgstr "트레이스 우선순위: 가장 높은 int 값이 위에 있고 없음은 꺼져 있습니다."
 
-#: widgets/waveform/waveform_widget.py:2883
-#: widgets/waveform/waveform_widget.py:3185
+#: widgets/waveform/waveform_widget.py:2847
+#: widgets/waveform/waveform_widget.py:3149
 msgid "Save image to file"
 msgstr "파일에 이미지 저장"
 
-#: widgets/waveform/waveform_widget.py:2930
-#: widgets/waveform/waveform_widget.py:2999
+#: widgets/waveform/waveform_widget.py:2894
+#: widgets/waveform/waveform_widget.py:2963
 msgid "Single marker"
 msgstr "단일 마커"
 
-#: widgets/waveform/waveform_widget.py:2931
-#: widgets/waveform/waveform_widget.py:3000
+#: widgets/waveform/waveform_widget.py:2895
+#: widgets/waveform/waveform_widget.py:2964
 msgid "Dual markers"
 msgstr "듀얼 마커"
 
-#: widgets/waveform/waveform_widget.py:2933
+#: widgets/waveform/waveform_widget.py:2897
 msgid "Mode"
 msgstr "모드"
 
-#: widgets/waveform/waveform_widget.py:2946
-#: widgets/waveform/waveform_widget.py:3001
-#: widgets/waveform/waveform_widget.py:3161
-#: widgets/waveform/waveform_widget.py:3179
+#: widgets/waveform/waveform_widget.py:2910
+#: widgets/waveform/waveform_widget.py:2965
+#: widgets/waveform/waveform_widget.py:3125
+#: widgets/waveform/waveform_widget.py:3143
 msgid "Clear all"
 msgstr "모두 지우기"
 
-#: widgets/waveform/waveform_widget.py:2957
-#: widgets/waveform/waveform_widget.py:3046
-#: widgets/waveform/waveform_widget.py:3167
+#: widgets/waveform/waveform_widget.py:2921
+#: widgets/waveform/waveform_widget.py:3010
+#: widgets/waveform/waveform_widget.py:3131
 msgid "Annotations"
 msgstr "주석"
 
-#: widgets/waveform/waveform_widget.py:3049
+#: widgets/waveform/waveform_widget.py:3013
 msgid "Range"
 msgstr "범위"
 
-#: widgets/waveform/waveform_widget.py:3053
-#: widgets/waveform/waveform_widget.py:3384
+#: widgets/waveform/waveform_widget.py:3017
+#: widgets/waveform/waveform_widget.py:3348
 msgid "Auto"
 msgstr "Auto"
 
-#: widgets/waveform/waveform_widget.py:3059
+#: widgets/waveform/waveform_widget.py:3023
 msgid "Exact"
 msgstr "정확한"
 
-#: widgets/waveform/waveform_widget.py:3068
+#: widgets/waveform/waveform_widget.py:3032
 msgid "Scale"
 msgstr "스케일"
 
-#: widgets/waveform/waveform_widget.py:3071
+#: widgets/waveform/waveform_widget.py:3035
 msgid "Linear"
 msgstr "선형"
 
-#: widgets/waveform/waveform_widget.py:3076
+#: widgets/waveform/waveform_widget.py:3040
 msgid "Logarithmic"
 msgstr "로그"
 
-#: widgets/waveform/waveform_widget.py:3084
+#: widgets/waveform/waveform_widget.py:3048
 msgid "Logarithmic zero"
 msgstr "로그 제로"
 
-#: widgets/waveform/waveform_widget.py:3098
+#: widgets/waveform/waveform_widget.py:3062
 msgid "Preferred prefix"
 msgstr "기본 접두사"
 
-#: widgets/waveform/waveform_widget.py:3158
+#: widgets/waveform/waveform_widget.py:3122
 msgid "Add"
 msgstr "추가"
 
-#: widgets/waveform/waveform_widget.py:3159
+#: widgets/waveform/waveform_widget.py:3123
 msgid "Hide all text"
 msgstr "모든 텍스트 숨기기"
 
-#: widgets/waveform/waveform_widget.py:3160
+#: widgets/waveform/waveform_widget.py:3124
 msgid "Show all text"
 msgstr "모든 텍스트 표시"
 
-#: widgets/waveform/waveform_widget.py:3168
+#: widgets/waveform/waveform_widget.py:3132
 msgid "Vertical"
 msgstr "수직"
 
-#: widgets/waveform/waveform_widget.py:3171
+#: widgets/waveform/waveform_widget.py:3135
 msgid "Horizontal"
 msgstr "수평"
 
-#: widgets/waveform/waveform_widget.py:3177
+#: widgets/waveform/waveform_widget.py:3141
 msgid "Save"
 msgstr "저장"
 
-#: widgets/waveform/waveform_widget.py:3182
+#: widgets/waveform/waveform_widget.py:3146
 msgid "Y-axis auto range"
 msgstr "Y축 자동 범위"
 
-#: widgets/waveform/waveform_widget.py:3186
+#: widgets/waveform/waveform_widget.py:3150
 msgid "Copy image to clipboard"
 msgstr "이미지를 클립보드에 복사"
 
-#: widgets/waveform/waveform_widget.py:3187
+#: widgets/waveform/waveform_widget.py:3151
 msgid "Export visible data"
 msgstr "가시 데이터 내보내기"
 
-#: widgets/waveform/waveform_widget.py:3188
+#: widgets/waveform/waveform_widget.py:3152
 msgid "Export all data"
 msgstr "모든 데이터 내보내기"
 
-#: widgets/waveform/waveform_widget.py:3360
+#: widgets/waveform/waveform_widget.py:3324
 msgid "Export"
 msgstr "Export"
 
-#: widgets/waveform/waveform_widget.py:3361
+#: widgets/waveform/waveform_widget.py:3325
 msgid "Analysis"
 msgstr "분석"
 
-#: widgets/waveform/waveform_widget.py:3369
+#: widgets/waveform/waveform_widget.py:3333
 msgid "Interval"
 msgstr "Interval"
 
-#: widgets/waveform/waveform_widget.py:3378
+#: widgets/waveform/waveform_widget.py:3342
 msgid "Zoom"
 msgstr "줌"
 
-#: widgets/waveform/waveform_widget.py:3382
+#: widgets/waveform/waveform_widget.py:3346
 msgid "Show statistics"
 msgstr "통계 보기"
 
-#: widgets/waveform/waveform_widget.py:3387
+#: widgets/waveform/waveform_widget.py:3351
 msgid "Left"
 msgstr "왼쪽"
 
-#: widgets/waveform/waveform_widget.py:3390
+#: widgets/waveform/waveform_widget.py:3354
 msgid "Right"
 msgstr "Right"
 
-#: widgets/waveform/waveform_widget.py:3393
+#: widgets/waveform/waveform_widget.py:3357
 msgid "Off"
 msgstr "Off"
 
-#: widgets/waveform/waveform_widget.py:3396
-#: widgets/waveform/waveform_widget.py:3424
-#: widgets/waveform/waveform_widget.py:3454
+#: widgets/waveform/waveform_widget.py:3360
+#: widgets/waveform/waveform_widget.py:3388
+#: widgets/waveform/waveform_widget.py:3418
 msgid "Remove"
 msgstr "제거"
 
-#: widgets/waveform/waveform_widget.py:3407
+#: widgets/waveform/waveform_widget.py:3371
 msgid "Y mode"
 msgstr "Y 모드"
 

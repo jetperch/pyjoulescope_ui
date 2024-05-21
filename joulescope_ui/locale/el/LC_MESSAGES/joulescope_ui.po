@@ -340,7 +340,7 @@ msgstr "Email"
 msgid "Description"
 msgstr "Περιγραφή"
 
-#: error_window.py:112 widgets/waveform/waveform_widget.py:3403
+#: error_window.py:112 widgets/waveform/waveform_widget.py:3367
 msgid "Edit"
 msgstr "Επεξεργασία"
 
@@ -650,7 +650,7 @@ msgstr "Μην εμφανίζετε ξανά"
 msgid "Intel graphics detected"
 msgstr "Ανιχνεύονται γραφικά Intel"
 
-#: main.py:69 widgets/value/value_widget.py:660
+#: main.py:69 widgets/value/value_widget.py:664
 msgid "Multimeter"
 msgstr "Πολύμετρο"
 
@@ -1111,7 +1111,7 @@ msgstr ""
 "της συσκευής στόχου σε κύκλο λειτουργίας."
 
 #: devices/jsdrv/js110.py:147 devices/jsdrv/js220.py:163
-#: widgets/waveform/waveform_widget.py:109
+#: widgets/waveform/waveform_widget.py:110
 msgid "Current range"
 msgstr "Εύρος ρεύματος"
 
@@ -1268,7 +1268,7 @@ msgstr ""
 "άλλους τύπους IRF."
 
 #: devices/jsdrv/js110.py:269 devices/jsdrv/js220.py:332
-#: widgets/device_control/fuse.py:103 widgets/waveform/waveform_widget.py:104
+#: widgets/device_control/fuse.py:103 widgets/waveform/waveform_widget.py:105
 msgid "Current"
 msgstr "Ρεύμα"
 
@@ -1277,7 +1277,7 @@ msgid "Enable the current signal streaming."
 msgstr "Ενεργοποίηση της ροής σημάτων ρεύματος."
 
 #: devices/jsdrv/js110.py:278 devices/jsdrv/js220.py:341
-#: widgets/waveform/waveform_widget.py:105
+#: widgets/waveform/waveform_widget.py:106
 msgid "Voltage"
 msgstr "Τάση"
 
@@ -1286,7 +1286,7 @@ msgid "Enable the voltage signal streaming."
 msgstr "Ενεργοποίηση της ροής σήματος τάσης."
 
 #: devices/jsdrv/js110.py:287 devices/jsdrv/js220.py:350
-#: widgets/waveform/waveform_widget.py:106
+#: widgets/waveform/waveform_widget.py:107
 msgid "Power"
 msgstr "Ισχύς"
 
@@ -1514,7 +1514,7 @@ msgstr "GPI 3"
 msgid "Enable the general purpose input 3 signal streaming."
 msgstr "Ενεργοποιήστε τη ροή σήματος εισόδου γενικού σκοπού 3."
 
-#: devices/jsdrv/js220.py:410 widgets/waveform/waveform_widget.py:123
+#: devices/jsdrv/js220.py:410 widgets/waveform/waveform_widget.py:124
 msgid "Trigger input"
 msgstr "Είσοδος σκανδαλισμού"
 
@@ -1533,7 +1533,7 @@ msgstr "Κατάσταση ενημέρωσης υλικολογισμικού"
 #: widgets/settings/settings_widget.py:266
 #: widgets/settings/settings_widget.py:364
 #: widgets/settings/settings_widget.py:431
-#: widgets/waveform/waveform_widget.py:3110
+#: widgets/waveform/waveform_widget.py:3074
 msgid "Name"
 msgstr "Όνομα"
 
@@ -1761,12 +1761,12 @@ msgid "Joulescope default font scheme"
 msgstr "Προεπιλεγμένο σχήμα γραμματοσειράς του Joulescope"
 
 #: widgets/accumulator/accumulator_widget.py:27
-#: widgets/value/value_widget.py:31
+#: widgets/value/value_widget.py:32
 msgid "The statistics data stream source."
 msgstr "Η πηγή ροής στατιστικών δεδομένων."
 
 #: widgets/accumulator/accumulator_widget.py:32
-#: widgets/value/value_widget.py:81
+#: widgets/value/value_widget.py:82
 msgid "The signal to display."
 msgstr "Το σήμα προς απεικόνιση."
 
@@ -1779,7 +1779,7 @@ msgid "energy"
 msgstr "ενέργεια"
 
 #: widgets/accumulator/accumulator_widget.py:41
-#: widgets/value/value_widget.py:56
+#: widgets/value/value_widget.py:57
 msgid "Show the statistics section title for each signal."
 msgstr "Εμφάνιση του τίτλου της ενότητας στατιστικών για κάθε σήμα."
 
@@ -1858,7 +1858,7 @@ msgid "Topic"
 msgstr "Θέμα"
 
 #: widgets/developer/publish_spy_widget.py:21
-#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:669
+#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:673
 msgid "Value"
 msgstr "Τιμή"
 
@@ -1896,7 +1896,7 @@ msgid "Update"
 msgstr "Ενημέρωση"
 
 #: widgets/device_control/device_update_dialog.py:25
-#: widgets/value/value_widget.py:155
+#: widgets/value/value_widget.py:156
 msgid "Device"
 msgstr "Συσκευή"
 
@@ -2471,7 +2471,7 @@ msgstr "StatisticsRecordConfig"
 msgid "Time Format"
 msgstr "Μορφή χρόνου"
 
-#: widgets/trigger/trigger_widget.py:41 widgets/value/value_widget.py:94
+#: widgets/trigger/trigger_widget.py:41 widgets/value/value_widget.py:95
 msgid "Select the source device"
 msgstr "Επιλέξτε τη συσκευή προέλευσης"
 
@@ -2642,27 +2642,27 @@ msgstr "Κατάσταση διακοπής"
 msgid "Stop Actions"
 msgstr "Ενέργειες διακοπής"
 
-#: widgets/value/value_widget.py:36
+#: widgets/value/value_widget.py:37
 msgid "Show the device selection header."
 msgstr "Εμφάνιση της επικεφαλίδας επιλογής συσκευής."
 
-#: widgets/value/value_widget.py:41
+#: widgets/value/value_widget.py:42
 msgid "Show the accrue header."
 msgstr "Εμφάνιση της επικεφαλίδας accrue."
 
-#: widgets/value/value_widget.py:46
+#: widgets/value/value_widget.py:47
 msgid "Show the statistics fields at the right."
 msgstr "Εμφανίστε τα πεδία στατιστικών στοιχείων στα δεξιά."
 
-#: widgets/value/value_widget.py:51
+#: widgets/value/value_widget.py:52
 msgid "Show a leading + or - sign."
 msgstr "Εμφανίζει ένα πρόσημο + ή -."
 
-#: widgets/value/value_widget.py:62
+#: widgets/value/value_widget.py:63
 msgid "Divide the quantity by this value."
 msgstr "Διαιρέστε την ποσότητα με αυτή την τιμή."
 
-#: widgets/value/value_widget.py:63
+#: widgets/value/value_widget.py:64
 msgid ""
 "The divisor is a floating point number. The number may optionally be "
 "followed by units."
@@ -2670,7 +2670,7 @@ msgstr ""
 "Ο διαιρέτης είναι ένας αριθμός κινητής υποδιαστολής. Ο αριθμός μπορεί "
 "προαιρετικά να ακολουθείται από μονάδες."
 
-#: widgets/value/value_widget.py:95
+#: widgets/value/value_widget.py:96
 msgid ""
 "The values displayed by this widget come from a single source device. Select"
 " the source device here."
@@ -2678,15 +2678,15 @@ msgstr ""
 "Οι τιμές που εμφανίζονται από αυτό το widget προέρχονται από μία μόνο "
 "συσκευή προέλευσης. Επιλέξτε τη συσκευή προέλευσης εδώ."
 
-#: widgets/value/value_widget.py:101
+#: widgets/value/value_widget.py:102
 msgid "Hold the display"
 msgstr "Κρατήστε την οθόνη"
 
-#: widgets/value/value_widget.py:103
+#: widgets/value/value_widget.py:104
 msgid "When selected, prevent the display from updating."
 msgstr "Όταν είναι επιλεγμένο, εμποδίζει την ενημέρωση της οθόνης."
 
-#: widgets/value/value_widget.py:104
+#: widgets/value/value_widget.py:105
 msgid ""
 "The UI also includes a global statistics hold button on the sidebar. When "
 "the global statistics hold button is selected, this button is disabled and "
@@ -2697,7 +2697,7 @@ msgstr ""
 "statistics hold, αυτό το κουμπί είναι απενεργοποιημένο και δεν έχει καμία "
 "επίδραση."
 
-#: widgets/value/value_widget.py:107
+#: widgets/value/value_widget.py:108
 msgid ""
 "The displayed values normally update with each new statistics data computed "
 "by the device. When this button is selected, the display will not be "
@@ -2709,11 +2709,11 @@ msgstr ""
 "κουμπί, η οθόνη δεν θα ενημερώνεται. Ωστόσο, τα στατιστικά στοιχεία θα "
 "συνεχίσουν να συσσωρεύονται και να συσσωρεύονται (εάν επιλεγεί)."
 
-#: widgets/value/value_widget.py:114
+#: widgets/value/value_widget.py:115
 msgid "Accrue values over time"
 msgstr "Συγκέντρωση τιμών με την πάροδο του χρόνου"
 
-#: widgets/value/value_widget.py:116
+#: widgets/value/value_widget.py:117
 msgid ""
 "Current, voltage, and power are normally computed over a single statistics "
 "frequency interval. Press this button to accrue the values indefinitely. "
@@ -2724,7 +2724,7 @@ msgstr ""
 "τιμές επ' αόριστον. Πατήστε το ξανά για να επιστρέψετε στην κανονική "
 "λειτουργία."
 
-#: widgets/value/value_widget.py:120
+#: widgets/value/value_widget.py:121
 msgid ""
 "Note that this button does not affect the charge and energy accumulation. "
 "Both accumulate indefinitely regardless of this button state."
@@ -2733,15 +2733,15 @@ msgstr ""
 "ενέργειας. Και τα δύο συσσωρεύονται επ' αόριστον ανεξάρτητα από την "
 "κατάσταση αυτού του κουμπιού."
 
-#: widgets/value/value_widget.py:203
+#: widgets/value/value_widget.py:204
 msgid "Not present"
 msgstr "Δεν υπάρχει"
 
-#: widgets/value/value_widget.py:223
+#: widgets/value/value_widget.py:224
 msgid "Hold"
 msgstr "Hold"
 
-#: widgets/value/value_widget.py:231
+#: widgets/value/value_widget.py:232
 msgid "Accrue"
 msgstr "Αυξημένο"
 
@@ -2795,7 +2795,7 @@ msgid "triangle left"
 msgstr "τρίγωνο αριστερά"
 
 #: widgets/waveform/text_annotation.py:66
-#: widgets/waveform/waveform_widget.py:3056
+#: widgets/waveform/waveform_widget.py:3020
 msgid "Manual"
 msgstr "Εγχειρίδιο"
 
@@ -2804,17 +2804,17 @@ msgid "Centered"
 msgstr "Centered"
 
 #: widgets/waveform/text_annotation.py:99
-#: widgets/waveform/waveform_widget.py:3173
+#: widgets/waveform/waveform_widget.py:3137
 msgid "Text"
 msgstr "Κείμενο"
 
 #: widgets/waveform/text_annotation.py:107
-#: widgets/waveform/waveform_widget.py:3404
+#: widgets/waveform/waveform_widget.py:3368
 msgid "Show text"
 msgstr "Εμφάνιση κειμένου"
 
 #: widgets/waveform/text_annotation.py:116
-#: widgets/waveform/waveform_widget.py:3416
+#: widgets/waveform/waveform_widget.py:3380
 msgid "Shape"
 msgstr "Σχήμα"
 
@@ -3020,8 +3020,8 @@ msgstr ""
 "διαμορφώνεται χρησιμοποιώντας το widget Device Control."
 
 #: widgets/waveform/waveform_source_widget.py:104
-#: widgets/waveform/waveform_widget.py:401
-#: widgets/waveform/waveform_widget.py:478
+#: widgets/waveform/waveform_widget.py:375
+#: widgets/waveform/waveform_widget.py:452
 msgid "off"
 msgstr "off"
 
@@ -3029,308 +3029,308 @@ msgstr "off"
 msgid "Waveform"
 msgstr "Κυματομορφή"
 
-#: widgets/waveform/waveform_widget.py:119
+#: widgets/waveform/waveform_widget.py:120
 msgid "General purpose input 0"
 msgstr "Είσοδος γενικού σκοπού 0"
 
-#: widgets/waveform/waveform_widget.py:120
+#: widgets/waveform/waveform_widget.py:121
 msgid "General purpose input 1"
 msgstr "Είσοδος γενικού σκοπού 1"
 
-#: widgets/waveform/waveform_widget.py:121
+#: widgets/waveform/waveform_widget.py:122
 msgid "General purpose input 2"
 msgstr "Είσοδος γενικού σκοπού 2"
 
-#: widgets/waveform/waveform_widget.py:122
+#: widgets/waveform/waveform_widget.py:123
 msgid "General purpose input 3"
 msgstr "Είσοδος γενικού σκοπού 3"
 
-#: widgets/waveform/waveform_widget.py:357
+#: widgets/waveform/waveform_widget.py:331
 msgid "The source filter string."
 msgstr "Η συμβολοσειρά φίλτρων πηγής."
 
-#: widgets/waveform/waveform_widget.py:368
+#: widgets/waveform/waveform_widget.py:342
 msgid "The trace width."
 msgstr "Το πλάτος του ίχνους."
 
-#: widgets/waveform/waveform_widget.py:383
+#: widgets/waveform/waveform_widget.py:357
 msgid "The target frames per second."
 msgstr "Τα καρέ ανά δευτερόλεπτο που είναι ο στόχος."
 
-#: widgets/waveform/waveform_widget.py:385
+#: widgets/waveform/waveform_widget.py:359
 msgid "vsync"
 msgstr "vsync"
 
-#: widgets/waveform/waveform_widget.py:386
+#: widgets/waveform/waveform_widget.py:360
 msgid "20 Hz"
 msgstr "20 Hz"
 
-#: widgets/waveform/waveform_widget.py:387
+#: widgets/waveform/waveform_widget.py:361
 msgid "10 Hz"
 msgstr "10 Hz"
 
-#: widgets/waveform/waveform_widget.py:388
+#: widgets/waveform/waveform_widget.py:362
 msgid "5 Hz"
 msgstr "5 Hz"
 
-#: widgets/waveform/waveform_widget.py:394
+#: widgets/waveform/waveform_widget.py:368
 msgid "The minimum interval between repaint in milliseconds."
 msgstr ""
 "Το ελάχιστο χρονικό διάστημα μεταξύ επανεκτύπωσης σε χιλιοστά του "
 "δευτερολέπτου."
 
-#: widgets/waveform/waveform_widget.py:399
+#: widgets/waveform/waveform_widget.py:373
 msgid "Show the minimum and maximum extents fill."
 msgstr "Εμφανίζει την ελάχιστη και τη μέγιστη έκταση πλήρωσης."
 
-#: widgets/waveform/waveform_widget.py:402
+#: widgets/waveform/waveform_widget.py:376
 msgid "lines"
 msgstr "γραμμές"
 
-#: widgets/waveform/waveform_widget.py:403
+#: widgets/waveform/waveform_widget.py:377
 msgid "fill 1"
 msgstr "γέμισμα 1"
 
-#: widgets/waveform/waveform_widget.py:404
+#: widgets/waveform/waveform_widget.py:378
 msgid "fill 2"
 msgstr "γέμισμα 2"
 
-#: widgets/waveform/waveform_widget.py:410
+#: widgets/waveform/waveform_widget.py:384
 msgid "Show the frames per second."
 msgstr "Εμφάνιση των καρέ ανά δευτερόλεπτο."
 
-#: widgets/waveform/waveform_widget.py:415
+#: widgets/waveform/waveform_widget.py:389
 msgid "Show the statistics on mouse hover."
 msgstr "Εμφάνιση των στατιστικών στοιχείων κατά το πέρασμα του ποντικιού."
 
-#: widgets/waveform/waveform_widget.py:420
+#: widgets/waveform/waveform_widget.py:394
 msgid "Show the plot statistics on the right."
 msgstr "Εμφάνιση των στατιστικών στοιχείων της γραφικής παράστασης στα δεξιά."
 
-#: widgets/waveform/waveform_widget.py:425
+#: widgets/waveform/waveform_widget.py:399
 msgid "Show frequency for dual markers and statistics."
 msgstr "Εμφάνιση συχνότητας για διπλούς δείκτες και στατιστικά στοιχεία."
 
-#: widgets/waveform/waveform_widget.py:430
+#: widgets/waveform/waveform_widget.py:404
 msgid "The quantities to display by default."
 msgstr "Οι ποσότητες που θα εμφανίζονται από προεπιλογή."
 
-#: widgets/waveform/waveform_widget.py:436
+#: widgets/waveform/waveform_widget.py:410
 msgid "The precision to display in digits."
 msgstr "Η ακρίβεια για την εμφάνιση σε ψηφία."
 
-#: widgets/waveform/waveform_widget.py:442
+#: widgets/waveform/waveform_widget.py:416
 msgid "Use OpenGL rendering."
 msgstr "Χρησιμοποιήστε απόδοση OpenGL."
 
-#: widgets/waveform/waveform_widget.py:453
+#: widgets/waveform/waveform_widget.py:427
 msgid "Pin the left side (oldest) data so that it stays in view."
 msgstr ""
 "Καρφιτσώστε τα δεδομένα της αριστερής πλευράς (παλαιότερα) ώστε να "
 "παραμένουν σε προβολή."
 
-#: widgets/waveform/waveform_widget.py:458
+#: widgets/waveform/waveform_widget.py:432
 msgid "Pin the right side (newest) data so that it stays in view."
 msgstr ""
 "Καρφιτσώστε τα δεδομένα της δεξιάς πλευράς (τα νεότερα), ώστε να παραμένουν "
 "σε προβολή."
 
-#: widgets/waveform/waveform_widget.py:463
+#: widgets/waveform/waveform_widget.py:437
 msgid "The waveform state."
 msgstr "Η κατάσταση της κυματομορφής."
 
-#: widgets/waveform/waveform_widget.py:469
+#: widgets/waveform/waveform_widget.py:443
 msgid "The annotations."
 msgstr "Οι επισημάνσεις."
 
-#: widgets/waveform/waveform_widget.py:475
+#: widgets/waveform/waveform_widget.py:449
 msgid "Control location"
 msgstr "Θέση ελέγχου"
 
-#: widgets/waveform/waveform_widget.py:479
+#: widgets/waveform/waveform_widget.py:453
 msgid "top"
 msgstr "top"
 
-#: widgets/waveform/waveform_widget.py:480
+#: widgets/waveform/waveform_widget.py:454
 msgid "bottom"
 msgstr "κάτω"
 
-#: widgets/waveform/waveform_widget.py:485
+#: widgets/waveform/waveform_widget.py:459
 msgid "The signal quantity to show in the summary."
 msgstr "Η ποσότητα σήματος που θα εμφανίζεται στη σύνοψη."
 
-#: widgets/waveform/waveform_widget.py:491
+#: widgets/waveform/waveform_widget.py:465
 msgid "X-axis annotation mode"
 msgstr "Λειτουργία σχολιασμού του άξονα Χ"
 
-#: widgets/waveform/waveform_widget.py:494
-#: widgets/waveform/waveform_widget.py:2936
+#: widgets/waveform/waveform_widget.py:468
+#: widgets/waveform/waveform_widget.py:2900
 msgid "Absolute"
 msgstr "Απόλυτο"
 
-#: widgets/waveform/waveform_widget.py:495
-#: widgets/waveform/waveform_widget.py:2941
+#: widgets/waveform/waveform_widget.py:469
+#: widgets/waveform/waveform_widget.py:2905
 msgid "Relative"
 msgstr "Σχετική"
 
-#: widgets/waveform/waveform_widget.py:501
+#: widgets/waveform/waveform_widget.py:475
 msgid "The available subsources."
 msgstr "Οι διαθέσιμες υποπηγές."
 
-#: widgets/waveform/waveform_widget.py:507
+#: widgets/waveform/waveform_widget.py:481
 msgid "The selected subsources for each trace."
 msgstr "Οι επιλεγμένες υποπηγές για κάθε ίχνος."
 
-#: widgets/waveform/waveform_widget.py:513
+#: widgets/waveform/waveform_widget.py:487
 msgid "The trace priority: highest int value on top, None is off."
 msgstr ""
 "Η προτεραιότητα του ίχνους: η υψηλότερη τιμή int στην κορυφή, το None είναι "
 "απενεργοποιημένο."
 
-#: widgets/waveform/waveform_widget.py:2883
-#: widgets/waveform/waveform_widget.py:3185
+#: widgets/waveform/waveform_widget.py:2847
+#: widgets/waveform/waveform_widget.py:3149
 msgid "Save image to file"
 msgstr "Αποθήκευση εικόνας σε αρχείο"
 
-#: widgets/waveform/waveform_widget.py:2930
-#: widgets/waveform/waveform_widget.py:2999
+#: widgets/waveform/waveform_widget.py:2894
+#: widgets/waveform/waveform_widget.py:2963
 msgid "Single marker"
 msgstr "Ενιαίος δείκτης"
 
-#: widgets/waveform/waveform_widget.py:2931
-#: widgets/waveform/waveform_widget.py:3000
+#: widgets/waveform/waveform_widget.py:2895
+#: widgets/waveform/waveform_widget.py:2964
 msgid "Dual markers"
 msgstr "Διπλοί δείκτες"
 
-#: widgets/waveform/waveform_widget.py:2933
+#: widgets/waveform/waveform_widget.py:2897
 msgid "Mode"
 msgstr "Λειτουργία"
 
-#: widgets/waveform/waveform_widget.py:2946
-#: widgets/waveform/waveform_widget.py:3001
-#: widgets/waveform/waveform_widget.py:3161
-#: widgets/waveform/waveform_widget.py:3179
+#: widgets/waveform/waveform_widget.py:2910
+#: widgets/waveform/waveform_widget.py:2965
+#: widgets/waveform/waveform_widget.py:3125
+#: widgets/waveform/waveform_widget.py:3143
 msgid "Clear all"
 msgstr "Εκκαθάριση όλων"
 
-#: widgets/waveform/waveform_widget.py:2957
-#: widgets/waveform/waveform_widget.py:3046
-#: widgets/waveform/waveform_widget.py:3167
+#: widgets/waveform/waveform_widget.py:2921
+#: widgets/waveform/waveform_widget.py:3010
+#: widgets/waveform/waveform_widget.py:3131
 msgid "Annotations"
 msgstr "Σημειώσεις"
 
-#: widgets/waveform/waveform_widget.py:3049
+#: widgets/waveform/waveform_widget.py:3013
 msgid "Range"
 msgstr "Εύρος"
 
-#: widgets/waveform/waveform_widget.py:3053
-#: widgets/waveform/waveform_widget.py:3384
+#: widgets/waveform/waveform_widget.py:3017
+#: widgets/waveform/waveform_widget.py:3348
 msgid "Auto"
 msgstr "Auto"
 
-#: widgets/waveform/waveform_widget.py:3059
+#: widgets/waveform/waveform_widget.py:3023
 msgid "Exact"
 msgstr "Ακριβές"
 
-#: widgets/waveform/waveform_widget.py:3068
+#: widgets/waveform/waveform_widget.py:3032
 msgid "Scale"
 msgstr "Κλίμακα"
 
-#: widgets/waveform/waveform_widget.py:3071
+#: widgets/waveform/waveform_widget.py:3035
 msgid "Linear"
 msgstr "Γραμμική"
 
-#: widgets/waveform/waveform_widget.py:3076
+#: widgets/waveform/waveform_widget.py:3040
 msgid "Logarithmic"
 msgstr "Λογαριθμική"
 
-#: widgets/waveform/waveform_widget.py:3084
+#: widgets/waveform/waveform_widget.py:3048
 msgid "Logarithmic zero"
 msgstr "Λογαριθμικό μηδέν"
 
-#: widgets/waveform/waveform_widget.py:3098
+#: widgets/waveform/waveform_widget.py:3062
 msgid "Preferred prefix"
 msgstr "Προτιμώμενο πρόθεμα"
 
-#: widgets/waveform/waveform_widget.py:3158
+#: widgets/waveform/waveform_widget.py:3122
 msgid "Add"
 msgstr "Προσθήκη"
 
-#: widgets/waveform/waveform_widget.py:3159
+#: widgets/waveform/waveform_widget.py:3123
 msgid "Hide all text"
 msgstr "Απόκρυψη όλου του κειμένου"
 
-#: widgets/waveform/waveform_widget.py:3160
+#: widgets/waveform/waveform_widget.py:3124
 msgid "Show all text"
 msgstr "Εμφάνιση όλου του κειμένου"
 
-#: widgets/waveform/waveform_widget.py:3168
+#: widgets/waveform/waveform_widget.py:3132
 msgid "Vertical"
 msgstr "Κατακόρυφο"
 
-#: widgets/waveform/waveform_widget.py:3171
+#: widgets/waveform/waveform_widget.py:3135
 msgid "Horizontal"
 msgstr "Οριζόντια"
 
-#: widgets/waveform/waveform_widget.py:3177
+#: widgets/waveform/waveform_widget.py:3141
 msgid "Save"
 msgstr "Αποθήκευση"
 
-#: widgets/waveform/waveform_widget.py:3182
+#: widgets/waveform/waveform_widget.py:3146
 msgid "Y-axis auto range"
 msgstr "Αυτόματο εύρος του άξονα Y"
 
-#: widgets/waveform/waveform_widget.py:3186
+#: widgets/waveform/waveform_widget.py:3150
 msgid "Copy image to clipboard"
 msgstr "Αντιγραφή εικόνας στο πρόχειρο"
 
-#: widgets/waveform/waveform_widget.py:3187
+#: widgets/waveform/waveform_widget.py:3151
 msgid "Export visible data"
 msgstr "Εξαγωγή ορατών δεδομένων"
 
-#: widgets/waveform/waveform_widget.py:3188
+#: widgets/waveform/waveform_widget.py:3152
 msgid "Export all data"
 msgstr "Εξαγωγή όλων των δεδομένων"
 
-#: widgets/waveform/waveform_widget.py:3360
+#: widgets/waveform/waveform_widget.py:3324
 msgid "Export"
 msgstr "Εξαγωγή"
 
-#: widgets/waveform/waveform_widget.py:3361
+#: widgets/waveform/waveform_widget.py:3325
 msgid "Analysis"
 msgstr "Ανάλυση"
 
-#: widgets/waveform/waveform_widget.py:3369
+#: widgets/waveform/waveform_widget.py:3333
 msgid "Interval"
 msgstr "Διάστημα"
 
-#: widgets/waveform/waveform_widget.py:3378
+#: widgets/waveform/waveform_widget.py:3342
 msgid "Zoom"
 msgstr "Ζουμ"
 
-#: widgets/waveform/waveform_widget.py:3382
+#: widgets/waveform/waveform_widget.py:3346
 msgid "Show statistics"
 msgstr "Εμφάνιση στατιστικών στοιχείων"
 
-#: widgets/waveform/waveform_widget.py:3387
+#: widgets/waveform/waveform_widget.py:3351
 msgid "Left"
 msgstr "Αριστερά"
 
-#: widgets/waveform/waveform_widget.py:3390
+#: widgets/waveform/waveform_widget.py:3354
 msgid "Right"
 msgstr "Σωστό"
 
-#: widgets/waveform/waveform_widget.py:3393
+#: widgets/waveform/waveform_widget.py:3357
 msgid "Off"
 msgstr "Off"
 
-#: widgets/waveform/waveform_widget.py:3396
-#: widgets/waveform/waveform_widget.py:3424
-#: widgets/waveform/waveform_widget.py:3454
+#: widgets/waveform/waveform_widget.py:3360
+#: widgets/waveform/waveform_widget.py:3388
+#: widgets/waveform/waveform_widget.py:3418
 msgid "Remove"
 msgstr "Αφαίρεση"
 
-#: widgets/waveform/waveform_widget.py:3407
+#: widgets/waveform/waveform_widget.py:3371
 msgid "Y mode"
 msgstr "Λειτουργία Y"
 
