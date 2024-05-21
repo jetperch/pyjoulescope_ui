@@ -5,6 +5,17 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.1.9
+
+2024 May 20  [in progress]
+
+* Fixed Waveform widget issues. 
+  * Fixed OpenGL frame rendering corruption.
+  * Fixed "Save image to file" & "Copy image to clipboard".
+  * Added support for numpad 1 through 9 keys.
+  * Fixed control widget "Add single marker".
+
+
 ## 1.1.8
 
 2024 May 13

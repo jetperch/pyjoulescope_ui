@@ -64,6 +64,7 @@ _MARKER_SELECT_DISTANCE_PIXELS = 5
 _EXPORT_WHILE_STREAMING_START_OFFSET = time64.SECOND  # not sure of any better way...
 _X_MARKER_ZOOM_LEVELS = [100, 90, 75, 50, 33, 25, 10]
 _DOT_RADIUS = 3
+_ANTIALIASING = QtGui.QPainter.RenderHint.Antialiasing
 
 
 def _analog_plot(quantity, show, units, name, integral=None, range_bounds=None):
@@ -236,8 +237,6 @@ class _PlotOpenGLWidget(QtOpenGLWidgets.QOpenGLWidget):
 
     def __init__(self, parent):
         self._log = logging.getLogger(__name__ + '.plot')
-        self._antialiasing = QtGui.QPainter.RenderHint.Antialiasing
-        self._render_cbk = None
         super().__init__(parent)
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.setMouseTracking(True)
@@ -251,22 +250,19 @@ class _PlotOpenGLWidget(QtOpenGLWidgets.QOpenGLWidget):
             Renderer: {_gl_get_string(gl.GL_RENDERER)}
             OpenGL Version: {_gl_get_string(gl.GL_VERSION)}
             Shader Version: {_gl_get_string(gl.GL_SHADING_LANGUAGE_VERSION)}""")
+
         if 'Intel' in vendor:
             self.parent().on_intel_graphics()
 
     def paintGL(self):
         size = self.width(), self.height()
         painter = QtGui.QPainter(self)
-        painter.setRenderHint(self._antialiasing)
         painter.beginNativePainting()
         try:
             self.parent().plot_paint(painter, size)
         finally:
             painter.endNativePainting()
         painter.end()
-        render_cbk, self._render_cbk = self._render_cbk, None
-        if callable(render_cbk):
-            render_cbk(self.render_to_image())
 
     def resizeEvent(self, event):
         self.parent().plot_resizeEvent(event)
@@ -283,12 +279,6 @@ class _PlotOpenGLWidget(QtOpenGLWidgets.QOpenGLWidget):
 
     def wheelEvent(self, event):
         self.parent().plot_wheelEvent(event)
-
-    def render_callback(self, fn):
-        self._render_cbk = fn
-
-    def render_to_image(self) -> QtGui.QImage:
-        return self.grabFramebuffer()
 
 
 class _PlotWidget(QtWidgets.QWidget):
@@ -296,7 +286,6 @@ class _PlotWidget(QtWidgets.QWidget):
 
     def __init__(self, parent):
         self._log = logging.getLogger(__name__ + '.plot')
-        self._render_cbk = None
         super().__init__(parent)
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.setMouseTracking(True)
@@ -304,12 +293,8 @@ class _PlotWidget(QtWidgets.QWidget):
     def paintEvent(self, ev):
         size = self.width(), self.height()
         painter = QtGui.QPainter(self)
-        painter.setRenderHint(QtGui.QPainter.RenderHint.Antialiasing)
         self.parent().plot_paint(painter, size)
         painter.end()
-        render_cbk, self._render_cbk = self._render_cbk, None
-        if callable(render_cbk):
-            render_cbk(self.render_to_image())
 
     def resizeEvent(self, event):
         self.parent().plot_resizeEvent(event)
@@ -326,17 +311,6 @@ class _PlotWidget(QtWidgets.QWidget):
 
     def wheelEvent(self, event):
         self.parent().plot_wheelEvent(event)
-
-    def render_callback(self, fn):
-        self._render_cbk = fn
-
-    def render_to_image(self) -> QtGui.QImage:
-        sz = self.size()
-        sz = QtCore.QSize(sz.width() * 2, sz.height() * 2)
-        pixmap = QtGui.QPixmap(sz)
-        pixmap.setDevicePixelRatio(2)
-        self.render(pixmap)
-        return pixmap.toImage()
 
 
 class PaintState:
@@ -535,11 +509,10 @@ class WaveformWidget(QtWidgets.QWidget):
 
         # manage repainting
         self.__repaint_request = False
-        self._paint_state = PaintState.IDLE
         self._paint_timer = QtCore.QTimer(self)
         self._paint_timer.setTimerType(QtGui.Qt.PreciseTimer)
-        self._paint_timer.setSingleShot(True)
         self._paint_timer.timeout.connect(self._on_paint_timer)
+        self._paint_duration_ns = 0
 
         # Cache Qt default instances to prevent memory leak in Pyside6 6.4.2
         self._NO_PEN = QtGui.QPen(QtGui.Qt.NoPen)  # prevent memory leak
@@ -812,14 +785,13 @@ class WaveformWidget(QtWidgets.QWidget):
                               self._on_default_signal_buffer_source, ['pub', 'retain'])
         self._keymap_load()
         self._repaint_request = True
-        self._paint_state = PaintState.READY
-        self._paint_timer.start(1)
 
     def _keymap_load(self):
         _any = None
         _no = QtCore.Qt.KeyboardModifier.NoModifier
         shift = QtCore.Qt.KeyboardModifier.ShiftModifier
         ctrl = QtCore.Qt.KeyboardModifier.ControlModifier
+        num = QtCore.Qt.KeyboardModifier.KeypadModifier
         self._keymap = {
             (QtCore.Qt.Key_Asterisk, _any): (f'{self.topic}/actions/!x_zoom_all', None),
             (QtCore.Qt.Key_Left, _any): (f'{self.topic}/actions/!x_pan', -1),
@@ -844,6 +816,9 @@ class WaveformWidget(QtWidgets.QWidget):
             (QtCore.Qt.Key_9, _no): (f'{self.topic}/actions/!x_markers', ['select', 8]),
             (QtCore.Qt.Key_Space, shift): (f'{self.topic}/actions/!viewport', ['toggle']),
         }
+        for key in [QtCore.Qt.Key_1, QtCore.Qt.Key_2, QtCore.Qt.Key_3, QtCore.Qt.Key_4, QtCore.Qt.Key_5,
+                    QtCore.Qt.Key_6, QtCore.Qt.Key_7, QtCore.Qt.Key_8, QtCore.Qt.Key_9]:
+            self._keymap[(key, num)] = self._keymap[(key, _no)]
 
     def on_action_viewport(self, topic, value):
         cmd = value[0]
@@ -885,7 +860,6 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def on_pubsub_unregister(self):
         self._paint_timer.stop()
-        self._paint_state = PaintState.IDLE
 
     def on_pubsub_delete(self):
         for topic, value in self.pubsub.query(f'{self.topic}/settings/close_actions', default=[]):
@@ -956,16 +930,12 @@ class WaveformWidget(QtWidgets.QWidget):
     @_repaint_request.setter
     def _repaint_request(self, value):
         self.__repaint_request |= value
-        if self.__repaint_request and self._paint_state == PaintState.READY:
-            self._graphics.update()
 
     @QtCore.Slot()
     def _on_paint_timer(self):
-        if self._paint_state != PaintState.WAIT:
-            self._log.warning('Unexpected paint state: %s', self._paint_state)
-        self._paint_state = PaintState.READY
-        if self.__repaint_request:
+        if self.__repaint_request and self._paint_duration_ns < (1e6 * self.fps / 2):
             self._graphics.update()
+        self._paint_duration_ns = 0
 
     def _extents(self):
         x_min = []
@@ -1466,22 +1436,14 @@ class WaveformWidget(QtWidgets.QWidget):
         self._plots_height_adjust()
 
     def plot_paint(self, p, size):
-        if self._paint_state != PaintState.READY:
-            return
-        self._paint_state = PaintState.PROCESSING
-        t_time_start = time.time_ns()
+        t_start = time.time_ns()
         try:
             self._plot_paint(p, size)
         except Exception:
             self._log.exception('Exception during drawing')
-
         self._request_data()
-
-        t_time_end = time.time_ns()
-        t_duration_ms = np.ceil(1e-6 * (t_time_end - t_time_start) + 0.5)
-        self._paint_state = PaintState.WAIT
-        wait = max(self.paint_delay, int(self.fps - t_duration_ms))
-        self._paint_timer.start(wait)
+        t_end = time.time_ns()
+        self._paint_duration_ns = t_end - t_start
 
     def _compute_geometry(self, size=None):
         s = self._style
@@ -1557,15 +1519,17 @@ class WaveformWidget(QtWidgets.QWidget):
         t_thread_start = time.thread_time_ns()
         t_time_start = time.time_ns()
 
+        p.setRenderHint(_ANTIALIASING)
         resize = not len(self._y_geometry_info)
         self._compute_geometry(size)
         if resize:
             self._plots_height_adjust()
         self._draw_background(p, size)
         self._draw_summary(p)
+        self.__repaint_request = False
+
         if not self._draw_x_axis(p):
             return  # plot is not valid
-        self.__repaint_request = False
         self._annotations_remove_expired()
         self._draw_update_markers()
         self._draw_markers_background(p)
@@ -2841,15 +2805,16 @@ class WaveformWidget(QtWidgets.QWidget):
             elif y_name == 'summary':
                 self._menu_summary(event)
 
-    def _render_to_image(self, cbk) -> QtGui.QImage:
-        return self._graphics.render_callback(cbk)
-        self._repaint_request = True
+    def _render_to_image(self):
+        width, height = self._graphics.width(), self._graphics.height()
+        image = QtGui.QImage(width, height, QtGui.QImage.Format.Format_ARGB32)
+        p = QtGui.QPainter(image)
+        self._plot_paint(p, (width, height))
+        return image
 
     def _action_copy_image_to_clipboard(self, checked=False):
-        def on_image(img: QtGui.QImage):
-            self._clipboard_image = img
-            QtWidgets.QApplication.clipboard().setImage(self._clipboard_image)
-        self._render_to_image(on_image)
+        self._clipboard_image = self._render_to_image()
+        QtWidgets.QApplication.clipboard().setImage(self._clipboard_image)
 
     @QtCore.Slot(int)
     def _action_save_image_dialog_finish(self, value):
@@ -2864,10 +2829,9 @@ class WaveformWidget(QtWidgets.QWidget):
                 elif ext[1:].lower() not in ['bmp', 'jpg', 'jpeg', 'png', 'ppm', 'xbm', 'xpm']:
                     filename += '.png'
                 self._log.info('finished: accept - save: %s', filename)
-                def on_image(img: QtGui.QImage):
-                    if not img.save(filename):
-                        self._log.warning('Could not save image: %s', filename)
-                self._render_to_image(on_image)
+                img = self._render_to_image()
+                if not img.save(filename):
+                    self._log.warning('Could not save image: %s', filename)
             else:
                 self._log.info('finished: accept - but no file selected, ignore')
         else:
@@ -2876,7 +2840,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._dialog = None
 
     def _action_save_image(self, checked=False):
-        filter_str = 'png (*.png)'
+        filter_str = 'PNG (*.png)'
         filename = time64.filename('.png')
         path = self.pubsub.query('registry/paths/settings/path')
         path = os.path.join(path, filename)
@@ -3520,7 +3484,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _x_marker_add_single(self, pos1=None):
         x0, x1 = self.x_range
-        if pos1 < 0:
+        if pos1 is not None and pos1 < 0:
             if self._mouse_pos is not None:
                 pos1 = self._x_map.counter_to_time64(self._mouse_pos[0])
             else:
@@ -4254,6 +4218,8 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def on_setting_fps(self, value):
         self._log.info('fps: period = %s ms', value)
+        self._paint_timer.stop()
+        self._paint_timer.start(int(value))
 
     def on_setting_summary_quantity(self):
         self._plot_data_invalidate()
