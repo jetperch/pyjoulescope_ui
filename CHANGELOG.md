@@ -5,6 +5,17 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.1.10
+
+2024 May 29 [in progress]
+
+* Fixed Trigger widget not working correctly with GPI & Trigger In  #271
+* Bumped pyjoulescope_driver from 1.5.1 to 1.5.3 for macOS & Linux improvements.
+  * Improves firmware update reliability.
+  * Improves performance.
+* Improved package dependency version specifications.
+
+
 ## 1.1.9
 
 2024 May 21

@@ -50,9 +50,26 @@ class TestConditionDetectorEdge(unittest.TestCase):
         d[:] = 1.0
         self.assertEqual(0, fn(1_000_000, d))
 
-    def test_digital(self):
+    def test_digital_rising(self):
+        fn = factory({'type': 'edge', 'signal': '0', 'condition': 'rising'})
+        d = np.zeros(1000, dtype=np.uint8)
+        d[250:400] = 1
+        d[500:700] = 1
+        self.assertEqual(250, fn(1_000_000, d))
+        self.assertEqual(500 - 300, fn(1_000_000, d[300:]))
+
+    def test_digital_falling(self):
+        fn = factory({'type': 'edge', 'signal': '0', 'condition': 'falling'})
+        d = np.zeros(1000, dtype=np.uint8)
+        d[250:400] = 1
+        d[500:700] = 1
+        self.assertEqual(400, fn(1_000_000, d))
+        self.assertEqual(400 - 300, fn(1_000_000, d[300:]))
+
+    def test_digital_both(self):
         fn = factory({'type': 'edge', 'signal': '0', 'condition': 'both'})
         d = np.zeros(1000, dtype=np.uint8)
-        self.assertIsNone(fn(1_000_000, d))
-        d[500:] = 1
-        self.assertEqual(500, fn(1_000_000, d))
+        d[250:400] = 1
+        d[500:700] = 1
+        self.assertEqual(250, fn(1_000_000, d))
+        self.assertEqual(400 - 300, fn(1_000_000, d[300:]))

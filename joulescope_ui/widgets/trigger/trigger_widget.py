@@ -888,9 +888,11 @@ class TriggerWidget(QtWidgets.QWidget):
                 fs = data['sample_freq']
                 idx = int((self._utc - data['utc']) / time64.SECOND * fs)
                 if idx < len(data['data']):
-                    data['utc'] += int(idx / fs * time64.SECOND)
+                    data['sample_id'] += idx
+                    data['origin_sample_id'] += int(idx * data['orig_sample_freq'] / fs)
+                    data['utc'] += int((idx / fs) * time64.SECOND)
                     data['data'] = data['data'][idx:]
-                    self._on_signal_data(data['topic'], data)
+                    self._process_signal_data(data)
 
     def _output_perform(self, actions):
         if not actions['output']:
@@ -1012,7 +1014,7 @@ class TriggerWidget(QtWidgets.QWidget):
         if data_type in ['f32', 'f64', 'u8', 'u16', 'u32', 'u64', 'i8', 'i16', 'i32', 'i64']:
             pass
         elif data_type == 'u1':
-            y = np.unpackbits(y, bitorder='little')[:len(x)]
+            y = np.unpackbits(y, bitorder='little')
         elif data_type in ['u4', 'i4']:
             d = np.empty(len(y) * 2, dtype=np.uint8)
             d[0::2] = np.bitwise_and(y, 0x0f)
@@ -1021,7 +1023,12 @@ class TriggerWidget(QtWidgets.QWidget):
         value = copy.copy(value)
         value['topic'] = topic
         value['data'] = y
+        value['topic_source'] = topic_source
+        value['topic_signal'] = topic_signal
+        self._process_signal_data(value)
 
+    def _process_signal_data(self, value):
+        topic_source, topic_signal = value['topic_source'], value['topic_signal']
         cfg = self._config
         start_condition = cfg['start_condition']
         stop_condition = cfg['stop_condition']
@@ -1038,7 +1045,7 @@ class TriggerWidget(QtWidgets.QWidget):
                 data = value['data']
                 rv = condition['fn'](fs, data)
                 if rv is not None:
-                    self._utc = int(rv / fs * time64.SECOND) + value['utc']
+                    self._utc = int((rv / fs) * time64.SECOND) + value['utc']
                     self._on_detect()
 
     def _on_signal_record_data(self, topic, value):
