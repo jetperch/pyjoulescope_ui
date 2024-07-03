@@ -832,8 +832,7 @@ msgstr "复制到剪贴板"
 msgid "OK"
 msgstr "确定"
 
-#: source_selector.py:220 widgets/developer/log_view_widget.py:30
-#: widgets/jls_info/jls_info_widget.py:47
+#: source_selector.py:220 widgets/jls_info/jls_info_widget.py:47
 msgid "Source"
 msgstr "来源"
 
@@ -1598,67 +1597,9 @@ msgstr "格式字符串"
 msgid "For the complete syntax, see Python package {package}"
 msgstr "有关完整语法，请参见 Python 包 {package}"
 
-#: widgets/developer/log_view_widget.py:30
-msgid "Timestamp"
-msgstr "时间戳"
-
-#: widgets/developer/log_view_widget.py:30
-msgid "Level"
-msgstr "电平"
-
-#: widgets/developer/log_view_widget.py:30
-msgid "Message"
-msgstr "信息"
-
-#: widgets/developer/log_view_widget.py:60
-msgid "Log View"
-msgstr "日志视图"
-
 #: widgets/developer/log_view_widget.py:85
 msgid "Demo"
 msgstr "演示"
-
-#: widgets/developer/profile_widget.py:37
-msgid "Profile"
-msgstr "简介"
-
-#: widgets/developer/publish_spy_widget.py:20
-msgid "Count"
-msgstr "计数"
-
-#: widgets/developer/publish_spy_widget.py:20
-#: widgets/developer/publish_spy_widget.py:21
-msgid "Topic"
-msgstr "主题"
-
-#: widgets/developer/publish_spy_widget.py:21
-#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:673
-msgid "Value"
-msgstr "值"
-
-#: widgets/developer/publish_spy_widget.py:24
-msgid "Publish Spy"
-msgstr "发布间谍"
-
-#: widgets/developer/publish_spy_widget.py:42
-msgid "Capture"
-msgstr "捕获"
-
-#: widgets/developer/publish_spy_widget.py:47
-msgid "Topics"
-msgstr "主题"
-
-#: widgets/developer/publish_spy_widget.py:48
-msgid "Values"
-msgstr "值"
-
-#: widgets/developer/pubsub_explorer_widget.py:28
-msgid "Filter:"
-msgstr "滤波器"
-
-#: widgets/developer/pubsub_explorer_widget.py:94
-msgid "PubSub Explorer"
-msgstr "PubSub Explorer"
 
 #: widgets/device_control/device_control_widget.py:23
 msgid "Device Control"
@@ -2059,6 +2000,10 @@ msgstr "正在进行统计记录"
 #: widgets/record_status/record_status_widget.py:34
 msgid "Record Status"
 msgstr "记录状态"
+
+#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:673
+msgid "Value"
+msgstr "值"
 
 #: widgets/settings/settings_widget.py:268
 msgid "Color"

@@ -947,8 +947,7 @@ msgstr "Copier dans le presse-papiers"
 msgid "OK"
 msgstr "OK"
 
-#: source_selector.py:220 widgets/developer/log_view_widget.py:30
-#: widgets/jls_info/jls_info_widget.py:47
+#: source_selector.py:220 widgets/jls_info/jls_info_widget.py:47
 msgid "Source"
 msgstr "Source d'information"
 
@@ -1827,67 +1826,9 @@ msgstr "La chaîne de format"
 msgid "For the complete syntax, see Python package {package}"
 msgstr "Pour la syntaxe complète, voir Python package {package}"
 
-#: widgets/developer/log_view_widget.py:30
-msgid "Timestamp"
-msgstr "Horodatage"
-
-#: widgets/developer/log_view_widget.py:30
-msgid "Level"
-msgstr "Niveau"
-
-#: widgets/developer/log_view_widget.py:30
-msgid "Message"
-msgstr "Message"
-
-#: widgets/developer/log_view_widget.py:60
-msgid "Log View"
-msgstr "Vue du journal"
-
 #: widgets/developer/log_view_widget.py:85
 msgid "Demo"
 msgstr "Démonstration"
-
-#: widgets/developer/profile_widget.py:37
-msgid "Profile"
-msgstr "Profil"
-
-#: widgets/developer/publish_spy_widget.py:20
-msgid "Count"
-msgstr "Compter"
-
-#: widgets/developer/publish_spy_widget.py:20
-#: widgets/developer/publish_spy_widget.py:21
-msgid "Topic"
-msgstr "Sujet"
-
-#: widgets/developer/publish_spy_widget.py:21
-#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:673
-msgid "Value"
-msgstr "Valeur"
-
-#: widgets/developer/publish_spy_widget.py:24
-msgid "Publish Spy"
-msgstr "Publier l'espion"
-
-#: widgets/developer/publish_spy_widget.py:42
-msgid "Capture"
-msgstr "Capture"
-
-#: widgets/developer/publish_spy_widget.py:47
-msgid "Topics"
-msgstr "Thèmes"
-
-#: widgets/developer/publish_spy_widget.py:48
-msgid "Values"
-msgstr "Valeurs"
-
-#: widgets/developer/pubsub_explorer_widget.py:28
-msgid "Filter:"
-msgstr "Filtre :"
-
-#: widgets/developer/pubsub_explorer_widget.py:94
-msgid "PubSub Explorer"
-msgstr "PubSub Explorer"
 
 #: widgets/device_control/device_control_widget.py:23
 msgid "Device Control"
@@ -2326,6 +2267,10 @@ msgstr "Enregistrement des statistiques en cours"
 #: widgets/record_status/record_status_widget.py:34
 msgid "Record Status"
 msgstr "Statut de l'enregistrement"
+
+#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:673
+msgid "Value"
+msgstr "Valeur"
 
 #: widgets/settings/settings_widget.py:268
 msgid "Color"

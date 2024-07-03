@@ -942,8 +942,7 @@ msgstr "Αντιγραφή στο πρόχειρο"
 msgid "OK"
 msgstr "OK"
 
-#: source_selector.py:220 widgets/developer/log_view_widget.py:30
-#: widgets/jls_info/jls_info_widget.py:47
+#: source_selector.py:220 widgets/jls_info/jls_info_widget.py:47
 msgid "Source"
 msgstr "Πηγή"
 
@@ -1824,67 +1823,9 @@ msgid "For the complete syntax, see Python package {package}"
 msgstr ""
 "Για την πλήρη σύνταξη, ανατρέξτε στην ενότητα Python package {package}"
 
-#: widgets/developer/log_view_widget.py:30
-msgid "Timestamp"
-msgstr "Χρονοσήμανση"
-
-#: widgets/developer/log_view_widget.py:30
-msgid "Level"
-msgstr "Επίπεδο"
-
-#: widgets/developer/log_view_widget.py:30
-msgid "Message"
-msgstr "Μήνυμα"
-
-#: widgets/developer/log_view_widget.py:60
-msgid "Log View"
-msgstr "Προβολή αρχείου καταγραφής"
-
 #: widgets/developer/log_view_widget.py:85
 msgid "Demo"
 msgstr "Επίδειξη"
-
-#: widgets/developer/profile_widget.py:37
-msgid "Profile"
-msgstr "Προφίλ"
-
-#: widgets/developer/publish_spy_widget.py:20
-msgid "Count"
-msgstr "Καταμέτρηση"
-
-#: widgets/developer/publish_spy_widget.py:20
-#: widgets/developer/publish_spy_widget.py:21
-msgid "Topic"
-msgstr "Θέμα"
-
-#: widgets/developer/publish_spy_widget.py:21
-#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:673
-msgid "Value"
-msgstr "Τιμή"
-
-#: widgets/developer/publish_spy_widget.py:24
-msgid "Publish Spy"
-msgstr "Δημοσίευση Spy"
-
-#: widgets/developer/publish_spy_widget.py:42
-msgid "Capture"
-msgstr "Σύλληψη"
-
-#: widgets/developer/publish_spy_widget.py:47
-msgid "Topics"
-msgstr "Θέματα"
-
-#: widgets/developer/publish_spy_widget.py:48
-msgid "Values"
-msgstr "Τιμές"
-
-#: widgets/developer/pubsub_explorer_widget.py:28
-msgid "Filter:"
-msgstr "Φίλτρο:"
-
-#: widgets/developer/pubsub_explorer_widget.py:94
-msgid "PubSub Explorer"
-msgstr "PubSub Explorer"
 
 #: widgets/device_control/device_control_widget.py:23
 msgid "Device Control"
@@ -2325,6 +2266,10 @@ msgstr "Καταγραφή στατιστικών στοιχείων σε εξέ
 #: widgets/record_status/record_status_widget.py:34
 msgid "Record Status"
 msgstr "Κατάσταση εγγραφής"
+
+#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:673
+msgid "Value"
+msgstr "Τιμή"
 
 #: widgets/settings/settings_widget.py:268
 msgid "Color"

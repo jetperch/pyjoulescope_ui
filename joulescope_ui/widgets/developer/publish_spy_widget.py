@@ -13,15 +13,14 @@
 # limitations under the License.
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from joulescope_ui import N_
 from joulescope_ui.styles import styled_widget
 
 
-_TOPIC_TABLE_COLUMNS = [N_('Count'), N_('Topic')]
-_VALUE_TABLE_COLUMNS = [N_('Topic'), N_('Value')]
+_TOPIC_TABLE_COLUMNS = ['Count', 'Topic']
+_VALUE_TABLE_COLUMNS = ['Topic', 'Value']
 
 
-@styled_widget(N_('Publish Spy'))
+@styled_widget('Publish Spy')
 class PublishSpyWidget(QtWidgets.QWidget):
     """A developer widget to spy on PubSub publish events."""
 
@@ -39,13 +38,13 @@ class PublishSpyWidget(QtWidgets.QWidget):
 
         self._top = QtWidgets.QWidget(self)
         self._top_layout = QtWidgets.QHBoxLayout(self._top)
-        self._capture = QtWidgets.QPushButton(N_('Capture'))
+        self._capture = QtWidgets.QPushButton('Capture')
         self._capture.setCheckable(True)
         self._capture.toggled.connect(self._on_capture_toggled)
         self._top_layout.addWidget(self._capture)
         self._mode_combobox = QtWidgets.QComboBox()
-        self._mode_combobox.addItem(N_('Topics'))
-        self._mode_combobox.addItem(N_('Values'))
+        self._mode_combobox.addItem('Topics')
+        self._mode_combobox.addItem('Values')
         self._top_layout.addWidget(self._mode_combobox)
         self._top_spacer = QtWidgets.QSpacerItem(0, 0, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self._top_layout.addItem(self._top_spacer)

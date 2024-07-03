@@ -5,6 +5,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.1.11
+
+2024 Jul 3 [in progress]
+
+* Removed translations for developer tools.
+
+
 ## 1.1.10
 
 2024 May 29

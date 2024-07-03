@@ -899,8 +899,7 @@ msgstr "نسخ إلى الحافظة"
 msgid "OK"
 msgstr "موافق"
 
-#: source_selector.py:220 widgets/developer/log_view_widget.py:30
-#: widgets/jls_info/jls_info_widget.py:47
+#: source_selector.py:220 widgets/jls_info/jls_info_widget.py:47
 msgid "Source"
 msgstr "المصدر"
 
@@ -1739,67 +1738,9 @@ msgstr "سلسلة التنسيق"
 msgid "For the complete syntax, see Python package {package}"
 msgstr "للاطلاع على بناء الجملة الكامل، انظر حزمة بايثون {package}"
 
-#: widgets/developer/log_view_widget.py:30
-msgid "Timestamp"
-msgstr "الطابع الزمني"
-
-#: widgets/developer/log_view_widget.py:30
-msgid "Level"
-msgstr "المستوى"
-
-#: widgets/developer/log_view_widget.py:30
-msgid "Message"
-msgstr "الرسالة"
-
-#: widgets/developer/log_view_widget.py:60
-msgid "Log View"
-msgstr "عرض السجل"
-
 #: widgets/developer/log_view_widget.py:85
 msgid "Demo"
 msgstr "عرض توضيحي"
-
-#: widgets/developer/profile_widget.py:37
-msgid "Profile"
-msgstr "الملف الشخصي"
-
-#: widgets/developer/publish_spy_widget.py:20
-msgid "Count"
-msgstr "العد"
-
-#: widgets/developer/publish_spy_widget.py:20
-#: widgets/developer/publish_spy_widget.py:21
-msgid "Topic"
-msgstr "الموضوع"
-
-#: widgets/developer/publish_spy_widget.py:21
-#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:673
-msgid "Value"
-msgstr "القيمة"
-
-#: widgets/developer/publish_spy_widget.py:24
-msgid "Publish Spy"
-msgstr "نشر الجاسوس"
-
-#: widgets/developer/publish_spy_widget.py:42
-msgid "Capture"
-msgstr "الالتقاط"
-
-#: widgets/developer/publish_spy_widget.py:47
-msgid "Topics"
-msgstr "المواضيع"
-
-#: widgets/developer/publish_spy_widget.py:48
-msgid "Values"
-msgstr "القيم"
-
-#: widgets/developer/pubsub_explorer_widget.py:28
-msgid "Filter:"
-msgstr "الفلتر"
-
-#: widgets/developer/pubsub_explorer_widget.py:94
-msgid "PubSub Explorer"
-msgstr "مستكشف PubSub"
 
 #: widgets/device_control/device_control_widget.py:23
 msgid "Device Control"
@@ -2221,6 +2162,10 @@ msgstr "تسجيل الإحصائيات قيد التنفيذ"
 #: widgets/record_status/record_status_widget.py:34
 msgid "Record Status"
 msgstr "حالة السجل"
+
+#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:673
+msgid "Value"
+msgstr "القيمة"
 
 #: widgets/settings/settings_widget.py:268
 msgid "Color"

@@ -845,8 +845,7 @@ msgstr "クリップボードにコピー"
 msgid "OK"
 msgstr "OK"
 
-#: source_selector.py:220 widgets/developer/log_view_widget.py:30
-#: widgets/jls_info/jls_info_widget.py:47
+#: source_selector.py:220 widgets/jls_info/jls_info_widget.py:47
 msgid "Source"
 msgstr "出典"
 
@@ -1629,67 +1628,9 @@ msgstr "フォーマット文字列"
 msgid "For the complete syntax, see Python package {package}"
 msgstr "完全な構文については、Pythonパッケージ{package}を参照してください。"
 
-#: widgets/developer/log_view_widget.py:30
-msgid "Timestamp"
-msgstr "タイムスタンプ"
-
-#: widgets/developer/log_view_widget.py:30
-msgid "Level"
-msgstr "レベル"
-
-#: widgets/developer/log_view_widget.py:30
-msgid "Message"
-msgstr "メッセージ"
-
-#: widgets/developer/log_view_widget.py:60
-msgid "Log View"
-msgstr "ログ表示"
-
 #: widgets/developer/log_view_widget.py:85
 msgid "Demo"
 msgstr "デモ"
-
-#: widgets/developer/profile_widget.py:37
-msgid "Profile"
-msgstr "プロフィール"
-
-#: widgets/developer/publish_spy_widget.py:20
-msgid "Count"
-msgstr "カウント"
-
-#: widgets/developer/publish_spy_widget.py:20
-#: widgets/developer/publish_spy_widget.py:21
-msgid "Topic"
-msgstr "トピック"
-
-#: widgets/developer/publish_spy_widget.py:21
-#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:673
-msgid "Value"
-msgstr "値"
-
-#: widgets/developer/publish_spy_widget.py:24
-msgid "Publish Spy"
-msgstr "スパイを公表する"
-
-#: widgets/developer/publish_spy_widget.py:42
-msgid "Capture"
-msgstr "キャプチャ"
-
-#: widgets/developer/publish_spy_widget.py:47
-msgid "Topics"
-msgstr "トピックス"
-
-#: widgets/developer/publish_spy_widget.py:48
-msgid "Values"
-msgstr "値"
-
-#: widgets/developer/pubsub_explorer_widget.py:28
-msgid "Filter:"
-msgstr "フィルター"
-
-#: widgets/developer/pubsub_explorer_widget.py:94
-msgid "PubSub Explorer"
-msgstr "PubSub Explorer"
 
 #: widgets/device_control/device_control_widget.py:23
 msgid "Device Control"
@@ -2098,6 +2039,10 @@ msgstr "統計記録中"
 #: widgets/record_status/record_status_widget.py:34
 msgid "Record Status"
 msgstr "記録ステータス"
+
+#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:673
+msgid "Value"
+msgstr "値"
 
 #: widgets/settings/settings_widget.py:268
 msgid "Color"

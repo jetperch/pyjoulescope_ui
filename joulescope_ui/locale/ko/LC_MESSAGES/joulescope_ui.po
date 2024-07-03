@@ -853,8 +853,7 @@ msgstr "클립보드에 복사"
 msgid "OK"
 msgstr "OK"
 
-#: source_selector.py:220 widgets/developer/log_view_widget.py:30
-#: widgets/jls_info/jls_info_widget.py:47
+#: source_selector.py:220 widgets/jls_info/jls_info_widget.py:47
 msgid "Source"
 msgstr "Source"
 
@@ -1652,67 +1651,9 @@ msgstr "형식 문자열"
 msgid "For the complete syntax, see Python package {package}"
 msgstr "전체 구문은 Python 패키지 {package}를 참조하세요."
 
-#: widgets/developer/log_view_widget.py:30
-msgid "Timestamp"
-msgstr "타임스탬프"
-
-#: widgets/developer/log_view_widget.py:30
-msgid "Level"
-msgstr "Level"
-
-#: widgets/developer/log_view_widget.py:30
-msgid "Message"
-msgstr "메시지"
-
-#: widgets/developer/log_view_widget.py:60
-msgid "Log View"
-msgstr "로그 보기"
-
 #: widgets/developer/log_view_widget.py:85
 msgid "Demo"
 msgstr "데모"
-
-#: widgets/developer/profile_widget.py:37
-msgid "Profile"
-msgstr "프로필"
-
-#: widgets/developer/publish_spy_widget.py:20
-msgid "Count"
-msgstr "Count"
-
-#: widgets/developer/publish_spy_widget.py:20
-#: widgets/developer/publish_spy_widget.py:21
-msgid "Topic"
-msgstr "주제"
-
-#: widgets/developer/publish_spy_widget.py:21
-#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:673
-msgid "Value"
-msgstr "Value"
-
-#: widgets/developer/publish_spy_widget.py:24
-msgid "Publish Spy"
-msgstr "스파이 게시"
-
-#: widgets/developer/publish_spy_widget.py:42
-msgid "Capture"
-msgstr "Capture"
-
-#: widgets/developer/publish_spy_widget.py:47
-msgid "Topics"
-msgstr "주제"
-
-#: widgets/developer/publish_spy_widget.py:48
-msgid "Values"
-msgstr "값"
-
-#: widgets/developer/pubsub_explorer_widget.py:28
-msgid "Filter:"
-msgstr "필터:"
-
-#: widgets/developer/pubsub_explorer_widget.py:94
-msgid "PubSub Explorer"
-msgstr "PubSub 탐색기"
 
 #: widgets/device_control/device_control_widget.py:23
 msgid "Device Control"
@@ -2118,6 +2059,10 @@ msgstr "통계 기록 진행 중"
 #: widgets/record_status/record_status_widget.py:34
 msgid "Record Status"
 msgstr "기록 상태"
+
+#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:673
+msgid "Value"
+msgstr "Value"
 
 #: widgets/settings/settings_widget.py:268
 msgid "Color"

@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PROJECT 1.1.10\n"
+"Project-Id-Version: PROJECT 1.1.11\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2024-05-06 17:27-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -823,8 +823,7 @@ msgstr ""
 msgid "OK"
 msgstr ""
 
-#: source_selector.py:220 widgets/developer/log_view_widget.py:30
-#: widgets/jls_info/jls_info_widget.py:47
+#: source_selector.py:220 widgets/jls_info/jls_info_widget.py:47
 msgid "Source"
 msgstr ""
 
@@ -1583,66 +1582,8 @@ msgstr ""
 msgid "For the complete syntax, see Python package {package}"
 msgstr ""
 
-#: widgets/developer/log_view_widget.py:30
-msgid "Timestamp"
-msgstr ""
-
-#: widgets/developer/log_view_widget.py:30
-msgid "Level"
-msgstr ""
-
-#: widgets/developer/log_view_widget.py:30
-msgid "Message"
-msgstr ""
-
-#: widgets/developer/log_view_widget.py:60
-msgid "Log View"
-msgstr ""
-
 #: widgets/developer/log_view_widget.py:85
 msgid "Demo"
-msgstr ""
-
-#: widgets/developer/profile_widget.py:37
-msgid "Profile"
-msgstr ""
-
-#: widgets/developer/publish_spy_widget.py:20
-msgid "Count"
-msgstr ""
-
-#: widgets/developer/publish_spy_widget.py:20
-#: widgets/developer/publish_spy_widget.py:21
-msgid "Topic"
-msgstr ""
-
-#: widgets/developer/publish_spy_widget.py:21
-#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:673
-msgid "Value"
-msgstr ""
-
-#: widgets/developer/publish_spy_widget.py:24
-msgid "Publish Spy"
-msgstr ""
-
-#: widgets/developer/publish_spy_widget.py:42
-msgid "Capture"
-msgstr ""
-
-#: widgets/developer/publish_spy_widget.py:47
-msgid "Topics"
-msgstr ""
-
-#: widgets/developer/publish_spy_widget.py:48
-msgid "Values"
-msgstr ""
-
-#: widgets/developer/pubsub_explorer_widget.py:28
-msgid "Filter:"
-msgstr ""
-
-#: widgets/developer/pubsub_explorer_widget.py:94
-msgid "PubSub Explorer"
 msgstr ""
 
 #: widgets/device_control/device_control_widget.py:23
@@ -2041,6 +1982,10 @@ msgstr ""
 
 #: widgets/record_status/record_status_widget.py:34
 msgid "Record Status"
+msgstr ""
+
+#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:673
+msgid "Value"
 msgstr ""
 
 #: widgets/settings/settings_widget.py:268

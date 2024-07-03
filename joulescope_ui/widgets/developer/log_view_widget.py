@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from joulescope_ui import N_, Metadata
+from joulescope_ui import Metadata
 from joulescope_ui.styles import styled_widget
 import logging
 
@@ -27,7 +27,7 @@ _LOG_COLOR = {
 _LOG_BRUSH = dict([(level, (QtGui.QBrush(QtGui.QColor(*fg)), QtGui.QBrush(QtGui.QColor(*bg))))
                    for level, (fg, bg) in _LOG_COLOR.items()])
 _LOG_BRUSH_DEFAULT = _LOG_BRUSH[logging.INFO]
-_TABLE_COLUMNS = [N_('Timestamp'), N_('Level'), N_('Source'), N_('Message')]
+_TABLE_COLUMNS = ['Timestamp', 'Level', 'Source', 'Message']
 
 
 class QLogViewResyncEvent(QtCore.QEvent):
@@ -57,7 +57,7 @@ class _Handler(logging.Handler):
         self._parent.on_log_record(record)
 
 
-@styled_widget(N_('Log View'))
+@styled_widget('Log View')
 class LogViewWidget(QtWidgets.QWidget):
     """A developer widget to view the log messages."""
 

@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from PySide6 import QtCore, QtWidgets
-from joulescope_ui import N_
 from joulescope_ui.pubsub import UNDO_TOPIC, REDO_TOPIC
 from joulescope_ui.styles import styled_widget
 import cProfile
@@ -34,7 +33,7 @@ _SNAKEVIZ = """\
 """
 
 
-@styled_widget(N_('Profile'))
+@styled_widget('Profile')
 class ProfileWidget(QtWidgets.QWidget):
     """A debug widget for developers."""
 

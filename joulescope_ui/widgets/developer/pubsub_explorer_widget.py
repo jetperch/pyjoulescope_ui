@@ -13,7 +13,7 @@
 # limitations under the License.
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from joulescope_ui import N_, Metadata
+from joulescope_ui import Metadata
 from joulescope_ui.styles import styled_widget
 from joulescope_ui.pubsub import TOPIC_ADD_TOPIC, TOPIC_REMOVE_TOPIC
 import json
@@ -25,7 +25,7 @@ class TopicFilterWidget(QtWidgets.QWidget):
         super().__init__(parent)
         self._layout = QtWidgets.QHBoxLayout(self)
         self._layout.setContentsMargins(0, 0, 0, 0)
-        self._label = QtWidgets.QLabel(N_('Filter: '), self)
+        self._label = QtWidgets.QLabel('Filter: ', self)
         self._layout.addWidget(self._label)
         self._filter = QtWidgets.QLineEdit(self)
         self._layout.addWidget(self._filter)
@@ -91,7 +91,7 @@ class TopicDetailWidget(QtWidgets.QWidget):
         self._widgets['value'][0].setText(str(value))
 
 
-@styled_widget(N_('PubSub Explorer'))
+@styled_widget('PubSub Explorer')
 class PubSubExplorerWidget(QtWidgets.QWidget):
     """A developer widget to explore the publish-subscribe system and topics."""
 
