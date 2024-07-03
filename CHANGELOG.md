@@ -10,6 +10,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 2024 Jul 3 [in progress]
 
 * Removed translations for developer tools.
+* Fixed USB Inrush analysis for paths with spaces  #278
 
 
 ## 1.1.10

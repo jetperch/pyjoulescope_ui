@@ -105,8 +105,10 @@ class UsbInrush(RangeToolBase):
         with open(filename, 'wt') as f:
             np.savetxt(f, values, ['%.8f', '%.3f'], delimiter=',')
         args = ','.join(['usbinrushcheck', filename, '%.3f' % voltage])
-        _log.info('Running USBET20')
-        rv = subprocess.run([usbet20_path, args], capture_output=True)
+        # USBET has a very strange argument handler that expects the argument to split at spaces
+        args = args.split(' ')
+        _log.info(f'Running USBET20:\n   {usbet20_path}\n    {args}')
+        rv = subprocess.run([usbet20_path] + args, capture_output=True)
         _log.info('USBET returned %s\nSTDERR: %s\nSTDOUT: %s', rv.returncode, rv.stderr, rv.stdout)
 
     @staticmethod
