@@ -28,11 +28,11 @@ msgstr "Version Information"
 
 #: app.py:47 devices/jsdrv/js110.py:135 devices/jsdrv/js220.py:151
 msgid "Target power"
-msgstr "Zielleistung"
+msgstr "Zielgerät-Versorgung"
 
 #: app.py:49
 msgid "Toggle the power to all connected targets."
-msgstr "Schaltet den Strom für alle angeschlossenen Messobjekte um."
+msgstr "Aus-/Einschalten für alle angeschlossenen Messobjekte."
 
 #: app.py:50
 msgid ""
@@ -46,19 +46,19 @@ msgstr ""
 
 #: app.py:53
 msgid "The JS220 disconnects the current terminals."
-msgstr "Das JS220 trennt die Stromanschlüsse."
+msgstr "Das JS220 trennt die Stromanschlüsse Current+ und Current-."
 
 #: app.py:54
 msgid ""
 "The JS110 disconnects the current from IN+ to OUT+, but the system setup "
 "must prevent excessive backwards current."
 msgstr ""
-"Das JS110 unterbricht den Strom von IN+ nach OUT+, aber das System-Setup "
-"muss einen übermäßigen Rückwärtsstrom verhindern."
+"Das JS110 unterbricht den Stromfluss von IN+ nach OUT+, aber der "
+"Versuchsaufbau muss einen übermäßigen Rückwärtsstrom verhindern."
 
 #: app.py:60 widgets/device_control/js220_ctrl_widget.py:50
 msgid "Fuse engaged indicator"
-msgstr "Indikator für eingeschaltete Sicherungen"
+msgstr "Anzeige für den Zustand der Sicherung"
 
 #: app.py:62
 msgid ""
@@ -66,9 +66,9 @@ msgid ""
 "engaged fuse. Instruments with engaged fuses prevent current flow until "
 "cleared."
 msgstr ""
-"Dieser Indikator wird aktiv, wenn mindestens ein angeschlossenes Gerät über "
-"eine aktivierte Sicherung verfügt. Instrumente mit ausgelösten Sicherungen "
-"verhindern den Stromfluss, bis sie gelöscht werden."
+"Grün, wenn die Sicherung OK ist.Rot, wenn die Sicherung ausgelöst hat.Der "
+"Strom ist unterbrochen, bis die Sicherung zurückgesetzt wird. Zum "
+"Zurücksetzen bitte drücken."
 
 #: app.py:65 widgets/device_control/js220_ctrl_widget.py:55
 msgid "Press to clear."
@@ -80,7 +80,7 @@ msgstr "Statistik-Anzeige"
 
 #: app.py:72
 msgid "Click to toggle live streaming statistics."
-msgstr "Klicken Sie hier, um die Live-Streaming-Statistiken einzuschalten."
+msgstr "Klicken Sie hier, um das Streaming von Messdaten einzuschalten."
 
 #: app.py:73
 msgid ""
@@ -131,7 +131,7 @@ msgstr "Signal-Sample-Streaming"
 
 #: app.py:96
 msgid "Click to toggle sample data streaming."
-msgstr "Klicken Sie hier, um das Streaming von Beispieldaten einzuschalten."
+msgstr "Klicken Sie hier, um das Streaming von Messdaten einzuschalten."
 
 #: app.py:97
 msgid ""
@@ -147,8 +147,8 @@ msgid ""
 "When disabled, stop sample streaming and configure all sample widgets for "
 "buffer mode."
 msgstr ""
-"Wenn diese Funktion deaktiviert ist, wird das Sample-Streaming gestoppt und "
-"alle Sample-Widgets werden für den Puffermodus konfiguriert."
+"Wenn diese Funktion deaktiviert ist, wird das Messdaten-Streaming gestoppt "
+"und alle Messdaten -Widgets werden für den Puffermodus konfiguriert."
 
 #: app.py:106
 msgid "Signal sample recording"
@@ -156,7 +156,7 @@ msgstr "Aufzeichnung von Signalproben"
 
 #: app.py:108
 msgid "Click to control signal sample recording."
-msgstr "Klicken Sie hier, um die Aufzeichnung von Signalproben zu steuern."
+msgstr "Klicken Sie hier, um die Aufzeichnung von Messdaten zu steuern."
 
 #: app.py:109
 msgid ""
@@ -172,8 +172,8 @@ msgid ""
 "at their configured sample rates. To reduce the file size, you can disable "
 "sources, disable signals, and/or reduce the sample rates."
 msgstr ""
-"Die Aufzeichnung erfasst Daten von allen aktivierten Sample-Quellen und "
-"Signalen mit ihren konfigurierten Sample-Raten. Um die Dateigröße zu "
+"Die Aufzeichnung erfasst Daten von allen aktivierten Messdaten-Quellen und "
+"Signalen mit ihren konfigurierten Abtastraten. Um die Dateigröße zu "
 "reduzieren, können Sie die Quellen und Signale deaktivieren und/oder die "
 "Abtastraten reduzieren."
 
@@ -328,7 +328,7 @@ msgstr "Kontaktinformationen"
 
 #: error_window.py:90
 msgid "First name"
-msgstr "Erster Name"
+msgstr "Vorname"
 
 #: error_window.py:93
 msgid "Email"
@@ -356,7 +356,7 @@ msgstr "Siehe"
 
 #: error_window.py:121
 msgid "Submit"
-msgstr "einreichen"
+msgstr "Einreichen"
 
 #: error_window.py:185
 msgid "Submit in progress."
@@ -373,7 +373,7 @@ msgstr "Zu Standardeinstellungen zurückkehren"
 #: error_window.py:283 main.py:361 main.py:407
 #: widgets/js220_cal/js220_cal_widget.py:38
 msgid "Exit"
-msgstr "Ausfahrt"
+msgstr "Beenden"
 
 #: exporter.py:49 widgets/signal_record/signal_record_config_widget.py:148
 #: widgets/statistics_record/statistics_record_config_widget.py:111
@@ -487,16 +487,16 @@ msgstr ""
 
 #: getting_started.py:30
 msgid "Connect"
-msgstr "Verbinden Sie"
+msgstr "Anschliessen"
 
 #: getting_started.py:31
 msgid ""
 "Connect Joulescope's USB port to your computer using the provided cable. Use"
 " an adapter or suitable cable if your computer only has USB Type C ports."
 msgstr ""
-"Verbinden Sie den USB-Anschluss von Joulescope über das mitgelieferte Kabel "
-"mit Ihrem Computer. Verwenden Sie einen Adapter oder ein geeignetes Kabel, "
-"wenn Ihr Computer nur über USB-Typ-C-Anschlüsse verfügt."
+"Schliessen Sie den USB-Anschluss von Joulescope über das mitgelieferte Kabel"
+" an Ihren Computer an. Verwenden Sie einen Adapter oder ein geeignetes "
+"Kabel, wenn Ihr Computer nur über USB-Typ-C-Anschlüsse verfügt."
 
 #: getting_started.py:33
 msgid ""
@@ -504,9 +504,9 @@ msgid ""
 "device under test. Connect the voltage port to the power supply. See the "
 "Joulescope JS220 User's Guide for more connection examples."
 msgstr ""
-"Beim JS220 verbinden Sie den Stromanschluss mit der Stromversorgung und dem "
-"zu prüfenden Gerät. Verbinden Sie den Spannungsanschluss mit der "
-"Spannungsversorgung. Weitere Anschlussbeispiele finden Sie im Joulescope "
+"Beim JS220 schliessen Sie den Stromanschluss an die Stromversorgung dem zu "
+"prüfenden Gerät an. Schliessen Sie den Spannungsanschluss an die "
+"Spannungsversorgung an. Weitere Anschlussbeispiele finden Sie im Joulescope "
 "JS220 Benutzerhandbuch."
 
 #: getting_started.py:36
@@ -761,7 +761,7 @@ msgstr "Über"
 
 #: main.py:358
 msgid "Open"
-msgstr "Öffnen Sie"
+msgstr "Öffnen"
 
 #: main.py:359
 msgid "Open recent"
@@ -781,7 +781,7 @@ msgstr "Werkzeuge"
 
 #: main.py:366
 msgid "Clear Accumulators"
-msgstr "Klare Akkumulatoren"
+msgstr "Akkumulatoren zurücksetzen"
 
 #: main.py:401
 msgid "Info"
@@ -795,7 +795,7 @@ msgstr "Einstellungen"
 
 #: main.py:710
 msgid "Manage"
-msgstr "Verwalten Sie"
+msgstr "Ansichts-Einstellungen"
 
 #: main.py:747
 msgid "Select file to open"
@@ -2045,7 +2045,7 @@ msgstr ""
 
 #: widgets/device_control/js220_ctrl_widget.py:76
 msgid "Clear accumulators"
-msgstr "Klare Akkumulatoren"
+msgstr "Akkumulatoren zurücksetzen"
 
 #: widgets/device_control/js220_ctrl_widget.py:77
 msgid ""
@@ -2555,7 +2555,7 @@ msgstr "Verzögerung"
 
 #: widgets/trigger/trigger_widget.py:777
 msgid "Trigger"
-msgstr "Auslöser"
+msgstr "Trigger"
 
 #: widgets/trigger/trigger_widget.py:817
 msgid "No sources found"
