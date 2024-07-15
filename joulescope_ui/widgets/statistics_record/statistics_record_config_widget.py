@@ -220,7 +220,7 @@ class StatisticsRecordConfigDialog(QtWidgets.QDialog):
         self.finished.connect(self._on_finished)
 
         self.resize(600, 400)
-        self.setWindowTitle(N_('Configure signal recording'))
+        self.setWindowTitle(N_('Configure statistics recording'))
         self._log.info('open')
         self.open()
 

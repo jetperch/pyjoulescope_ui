@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.4\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-05-06 17:27-0400\n"
+"POT-Creation-Date: 2024-07-15 16:48-0400\n"
 "PO-Revision-Date: 2024-04-18 10:43-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: it <LL@li.org>\n"
@@ -2405,7 +2405,6 @@ msgid "Signals to record"
 msgstr "Segnali da registrare"
 
 #: widgets/signal_record/signal_record_config_widget.py:319
-#: widgets/statistics_record/statistics_record_config_widget.py:223
 msgid "Configure signal recording"
 msgstr "Configurazione della registrazione del segnale"
 
@@ -2416,6 +2415,10 @@ msgstr "StatisticheRegistrazioneConfig"
 #: widgets/statistics_record/statistics_record_config_widget.py:123
 msgid "Time Format"
 msgstr "Formato temporale"
+
+#: widgets/statistics_record/statistics_record_config_widget.py:223
+msgid "Configure statistics recording"
+msgstr "Configurare la registrazione delle statistiche"
 
 #: widgets/trigger/trigger_widget.py:41 widgets/value/value_widget.py:95
 msgid "Select the source device"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.11\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-05-06 17:27-0400\n"
+"POT-Creation-Date: 2024-07-15 16:48-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -2108,7 +2108,6 @@ msgid "Signals to record"
 msgstr ""
 
 #: widgets/signal_record/signal_record_config_widget.py:319
-#: widgets/statistics_record/statistics_record_config_widget.py:223
 msgid "Configure signal recording"
 msgstr ""
 
@@ -2118,6 +2117,10 @@ msgstr ""
 
 #: widgets/statistics_record/statistics_record_config_widget.py:123
 msgid "Time Format"
+msgstr ""
+
+#: widgets/statistics_record/statistics_record_config_widget.py:223
+msgid "Configure statistics recording"
 msgstr ""
 
 #: widgets/trigger/trigger_widget.py:41 widgets/value/value_widget.py:95
