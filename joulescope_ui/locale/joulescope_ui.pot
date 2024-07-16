@@ -677,7 +677,7 @@ msgstr ""
 
 #: main.py:402 widget_tools.py:92 widgets/settings/settings_widget.py:31
 #: widgets/settings/settings_widget.py:574
-#: widgets/sidebar/sidebar_widget.py:41
+#: widgets/sidebar/sidebar_widget.py:42
 msgid "Settings"
 msgstr ""
 
@@ -2032,57 +2032,57 @@ msgstr ""
 msgid "Selected"
 msgstr ""
 
-#: widgets/sidebar/sidebar_widget.py:27
+#: widgets/sidebar/sidebar_widget.py:28
 msgid "Device control"
 msgstr ""
 
-#: widgets/sidebar/sidebar_widget.py:28
+#: widgets/sidebar/sidebar_widget.py:29
 msgid ""
 "Click to show the device control widget which displays the connected devices"
 " and their settings. Use this widget to open and close devices and configure"
 " their operation."
 msgstr ""
 
-#: widgets/sidebar/sidebar_widget.py:34
+#: widgets/sidebar/sidebar_widget.py:35
 msgid "Memory buffer settings"
 msgstr ""
 
-#: widgets/sidebar/sidebar_widget.py:35
+#: widgets/sidebar/sidebar_widget.py:36
 msgid ""
 "Streaming signal sample data is stored in your host computer's RAM. Click "
 "this button to show the memory management widget which allows you to "
 "configure the memory used by this Joulescope UI instance."
 msgstr ""
 
-#: widgets/sidebar/sidebar_widget.py:43
+#: widgets/sidebar/sidebar_widget.py:44
 msgid ""
 "Click to show the settings which allows you to change the global, default, "
 "and individual instance settings for devices and widgets."
 msgstr ""
 
-#: widgets/sidebar/sidebar_widget.py:46
+#: widgets/sidebar/sidebar_widget.py:47
 msgid ""
 "Default changes may not affect existing instances, and may only apply to "
 "future instances."
 msgstr ""
 
-#: widgets/sidebar/sidebar_widget.py:51
+#: widgets/sidebar/sidebar_widget.py:52
 msgid "Get help"
 msgstr ""
 
-#: widgets/sidebar/sidebar_widget.py:52
+#: widgets/sidebar/sidebar_widget.py:53
 msgid "Click to display help options."
 msgstr ""
 
-#: widgets/sidebar/sidebar_widget.py:55
+#: widgets/sidebar/sidebar_widget.py:56
 msgid "Additional settings and actions"
 msgstr ""
 
-#: widgets/sidebar/sidebar_widget.py:56
+#: widgets/sidebar/sidebar_widget.py:57
 msgid "Click to display additional settings and actions."
 msgstr ""
 
-#: widgets/sidebar/sidebar_widget.py:60
+#: widgets/sidebar/sidebar_widget.py:72
 msgid "sidebar"
 msgstr ""
 

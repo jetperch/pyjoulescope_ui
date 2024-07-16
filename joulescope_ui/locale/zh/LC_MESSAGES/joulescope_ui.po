@@ -686,7 +686,7 @@ msgstr "信息"
 
 #: main.py:402 widget_tools.py:92 widgets/settings/settings_widget.py:31
 #: widgets/settings/settings_widget.py:574
-#: widgets/sidebar/sidebar_widget.py:41
+#: widgets/sidebar/sidebar_widget.py:42
 msgid "Settings"
 msgstr "设置"
 
@@ -2049,57 +2049,57 @@ msgstr "可用"
 msgid "Selected"
 msgstr "已选择"
 
-#: widgets/sidebar/sidebar_widget.py:27
+#: widgets/sidebar/sidebar_widget.py:28
 msgid "Device control"
 msgstr "设备控制"
 
-#: widgets/sidebar/sidebar_widget.py:28
+#: widgets/sidebar/sidebar_widget.py:29
 msgid ""
 "Click to show the device control widget which displays the connected devices"
 " and their settings. Use this widget to open and close devices and configure"
 " their operation."
 msgstr "单击可显示设备控制窗口小部件，其中显示连接的设备及其设置。使用该窗口小部件可打开和关闭设备并配置其操作。"
 
-#: widgets/sidebar/sidebar_widget.py:34
+#: widgets/sidebar/sidebar_widget.py:35
 msgid "Memory buffer settings"
 msgstr "内存缓冲区设置"
 
-#: widgets/sidebar/sidebar_widget.py:35
+#: widgets/sidebar/sidebar_widget.py:36
 msgid ""
 "Streaming signal sample data is stored in your host computer's RAM. Click "
 "this button to show the memory management widget which allows you to "
 "configure the memory used by this Joulescope UI instance."
 msgstr "流信号采样数据存储在主机的 RAM 中。单击此按钮可显示内存管理窗口小部件，允许您配置此 Joulescope UI 实例使用的内存。"
 
-#: widgets/sidebar/sidebar_widget.py:43
+#: widgets/sidebar/sidebar_widget.py:44
 msgid ""
 "Click to show the settings which allows you to change the global, default, "
 "and individual instance settings for devices and widgets."
 msgstr "单击可显示设置，允许您更改设备和部件的全局、默认和单个实例设置。"
 
-#: widgets/sidebar/sidebar_widget.py:46
+#: widgets/sidebar/sidebar_widget.py:47
 msgid ""
 "Default changes may not affect existing instances, and may only apply to "
 "future instances."
 msgstr "默认更改可能不会影响现有实例，可能仅适用于未来实例。"
 
-#: widgets/sidebar/sidebar_widget.py:51
+#: widgets/sidebar/sidebar_widget.py:52
 msgid "Get help"
 msgstr "获取帮助"
 
-#: widgets/sidebar/sidebar_widget.py:52
+#: widgets/sidebar/sidebar_widget.py:53
 msgid "Click to display help options."
 msgstr "单击显示帮助选项。"
 
-#: widgets/sidebar/sidebar_widget.py:55
+#: widgets/sidebar/sidebar_widget.py:56
 msgid "Additional settings and actions"
 msgstr "其他设置和操作"
 
-#: widgets/sidebar/sidebar_widget.py:56
+#: widgets/sidebar/sidebar_widget.py:57
 msgid "Click to display additional settings and actions."
 msgstr "单击可显示其他设置和操作。"
 
-#: widgets/sidebar/sidebar_widget.py:60
+#: widgets/sidebar/sidebar_widget.py:72
 msgid "sidebar"
 msgstr "侧边栏"
 

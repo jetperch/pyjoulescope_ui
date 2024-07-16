@@ -794,7 +794,7 @@ msgstr "Info"
 
 #: main.py:402 widget_tools.py:92 widgets/settings/settings_widget.py:31
 #: widgets/settings/settings_widget.py:574
-#: widgets/sidebar/sidebar_widget.py:41
+#: widgets/sidebar/sidebar_widget.py:42
 msgid "Settings"
 msgstr "Impostazioni"
 
@@ -2317,11 +2317,11 @@ msgstr "Disponibile"
 msgid "Selected"
 msgstr "Selezionato"
 
-#: widgets/sidebar/sidebar_widget.py:27
+#: widgets/sidebar/sidebar_widget.py:28
 msgid "Device control"
 msgstr "Controllo del dispositivo"
 
-#: widgets/sidebar/sidebar_widget.py:28
+#: widgets/sidebar/sidebar_widget.py:29
 msgid ""
 "Click to show the device control widget which displays the connected devices"
 " and their settings. Use this widget to open and close devices and configure"
@@ -2331,11 +2331,11 @@ msgstr ""
 " i dispositivi collegati e le loro impostazioni. Utilizzare questo widget "
 "per aprire e chiudere i dispositivi e configurarne il funzionamento."
 
-#: widgets/sidebar/sidebar_widget.py:34
+#: widgets/sidebar/sidebar_widget.py:35
 msgid "Memory buffer settings"
 msgstr "Impostazioni del buffer di memoria"
 
-#: widgets/sidebar/sidebar_widget.py:35
+#: widgets/sidebar/sidebar_widget.py:36
 msgid ""
 "Streaming signal sample data is stored in your host computer's RAM. Click "
 "this button to show the memory management widget which allows you to "
@@ -2346,7 +2346,7 @@ msgstr ""
 "di gestione della memoria che consente di configurare la memoria utilizzata "
 "da questa istanza dell'interfaccia utente di Joulescope."
 
-#: widgets/sidebar/sidebar_widget.py:43
+#: widgets/sidebar/sidebar_widget.py:44
 msgid ""
 "Click to show the settings which allows you to change the global, default, "
 "and individual instance settings for devices and widgets."
@@ -2355,7 +2355,7 @@ msgstr ""
 "impostazioni globali, predefinite e delle singole istanze per i dispositivi "
 "e i widget."
 
-#: widgets/sidebar/sidebar_widget.py:46
+#: widgets/sidebar/sidebar_widget.py:47
 msgid ""
 "Default changes may not affect existing instances, and may only apply to "
 "future instances."
@@ -2363,23 +2363,23 @@ msgstr ""
 "Le modifiche predefinite non possono influire sulle istanze esistenti e "
 "possono essere applicate solo alle istanze future."
 
-#: widgets/sidebar/sidebar_widget.py:51
+#: widgets/sidebar/sidebar_widget.py:52
 msgid "Get help"
 msgstr "Aiuto"
 
-#: widgets/sidebar/sidebar_widget.py:52
+#: widgets/sidebar/sidebar_widget.py:53
 msgid "Click to display help options."
 msgstr "Fare clic per visualizzare le opzioni di aiuto."
 
-#: widgets/sidebar/sidebar_widget.py:55
+#: widgets/sidebar/sidebar_widget.py:56
 msgid "Additional settings and actions"
 msgstr "Impostazioni e azioni aggiuntive"
 
-#: widgets/sidebar/sidebar_widget.py:56
+#: widgets/sidebar/sidebar_widget.py:57
 msgid "Click to display additional settings and actions."
 msgstr "Fare clic per visualizzare altre impostazioni e azioni."
 
-#: widgets/sidebar/sidebar_widget.py:60
+#: widgets/sidebar/sidebar_widget.py:72
 msgid "sidebar"
 msgstr "barra laterale"
 

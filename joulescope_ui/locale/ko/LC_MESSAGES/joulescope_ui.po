@@ -707,7 +707,7 @@ msgstr "정보"
 
 #: main.py:402 widget_tools.py:92 widgets/settings/settings_widget.py:31
 #: widgets/settings/settings_widget.py:574
-#: widgets/sidebar/sidebar_widget.py:41
+#: widgets/sidebar/sidebar_widget.py:42
 msgid "Settings"
 msgstr "설정"
 
@@ -2108,11 +2108,11 @@ msgstr "사용 가능"
 msgid "Selected"
 msgstr "선택"
 
-#: widgets/sidebar/sidebar_widget.py:27
+#: widgets/sidebar/sidebar_widget.py:28
 msgid "Device control"
 msgstr "디바이스 제어"
 
-#: widgets/sidebar/sidebar_widget.py:28
+#: widgets/sidebar/sidebar_widget.py:29
 msgid ""
 "Click to show the device control widget which displays the connected devices"
 " and their settings. Use this widget to open and close devices and configure"
@@ -2121,11 +2121,11 @@ msgstr ""
 "클릭하면 연결된 장치와 해당 설정을 표시하는 장치 제어 위젯이 표시됩니다. 이 위젯을 사용하여 장치를 열고 닫고 작동을 구성할 수 "
 "있습니다."
 
-#: widgets/sidebar/sidebar_widget.py:34
+#: widgets/sidebar/sidebar_widget.py:35
 msgid "Memory buffer settings"
 msgstr "메모리 버퍼 설정"
 
-#: widgets/sidebar/sidebar_widget.py:35
+#: widgets/sidebar/sidebar_widget.py:36
 msgid ""
 "Streaming signal sample data is stored in your host computer's RAM. Click "
 "this button to show the memory management widget which allows you to "
@@ -2134,35 +2134,35 @@ msgstr ""
 "스트리밍 신호 샘플 데이터는 호스트 컴퓨터의 RAM에 저장됩니다. 이 버튼을 클릭하면 이 줄스코프 UI 인스턴스에서 사용하는 메모리를 "
 "구성할 수 있는 메모리 관리 위젯이 표시됩니다."
 
-#: widgets/sidebar/sidebar_widget.py:43
+#: widgets/sidebar/sidebar_widget.py:44
 msgid ""
 "Click to show the settings which allows you to change the global, default, "
 "and individual instance settings for devices and widgets."
 msgstr "클릭하면 장치 및 위젯에 대한 전역, 기본 및 개별 인스턴스 설정을 변경할 수 있는 설정이 표시됩니다."
 
-#: widgets/sidebar/sidebar_widget.py:46
+#: widgets/sidebar/sidebar_widget.py:47
 msgid ""
 "Default changes may not affect existing instances, and may only apply to "
 "future instances."
 msgstr "기본값 변경은 기존 인스턴스에는 영향을 미치지 않으며 향후 인스턴스에만 적용될 수 있습니다."
 
-#: widgets/sidebar/sidebar_widget.py:51
+#: widgets/sidebar/sidebar_widget.py:52
 msgid "Get help"
 msgstr "도움 받기"
 
-#: widgets/sidebar/sidebar_widget.py:52
+#: widgets/sidebar/sidebar_widget.py:53
 msgid "Click to display help options."
 msgstr "도움말 옵션을 표시하려면 클릭하세요."
 
-#: widgets/sidebar/sidebar_widget.py:55
+#: widgets/sidebar/sidebar_widget.py:56
 msgid "Additional settings and actions"
 msgstr "추가 설정 및 작업"
 
-#: widgets/sidebar/sidebar_widget.py:56
+#: widgets/sidebar/sidebar_widget.py:57
 msgid "Click to display additional settings and actions."
 msgstr "추가 설정 및 작업을 표시하려면 클릭하세요."
 
-#: widgets/sidebar/sidebar_widget.py:60
+#: widgets/sidebar/sidebar_widget.py:72
 msgid "sidebar"
 msgstr "사이드바"
 

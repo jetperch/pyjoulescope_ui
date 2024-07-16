@@ -792,7 +792,7 @@ msgstr "Πληροφορίες"
 
 #: main.py:402 widget_tools.py:92 widgets/settings/settings_widget.py:31
 #: widgets/settings/settings_widget.py:574
-#: widgets/sidebar/sidebar_widget.py:41
+#: widgets/sidebar/sidebar_widget.py:42
 msgid "Settings"
 msgstr "Ρυθμίσεις"
 
@@ -2315,11 +2315,11 @@ msgstr "Διαθέσιμο"
 msgid "Selected"
 msgstr "Επιλεγμένο"
 
-#: widgets/sidebar/sidebar_widget.py:27
+#: widgets/sidebar/sidebar_widget.py:28
 msgid "Device control"
 msgstr "Έλεγχος συσκευής"
 
-#: widgets/sidebar/sidebar_widget.py:28
+#: widgets/sidebar/sidebar_widget.py:29
 msgid ""
 "Click to show the device control widget which displays the connected devices"
 " and their settings. Use this widget to open and close devices and configure"
@@ -2330,11 +2330,11 @@ msgstr ""
 "widget για να ανοίγετε και να κλείνετε συσκευές και να ρυθμίζετε τη "
 "λειτουργία τους."
 
-#: widgets/sidebar/sidebar_widget.py:34
+#: widgets/sidebar/sidebar_widget.py:35
 msgid "Memory buffer settings"
 msgstr "Ρυθμίσεις απομονωτή μνήμης"
 
-#: widgets/sidebar/sidebar_widget.py:35
+#: widgets/sidebar/sidebar_widget.py:36
 msgid ""
 "Streaming signal sample data is stored in your host computer's RAM. Click "
 "this button to show the memory management widget which allows you to "
@@ -2345,7 +2345,7 @@ msgstr ""
 "widget διαχείρισης μνήμης, το οποίο σας επιτρέπει να διαμορφώσετε τη μνήμη "
 "που χρησιμοποιείται από αυτή την περίπτωση του Joulescope UI."
 
-#: widgets/sidebar/sidebar_widget.py:43
+#: widgets/sidebar/sidebar_widget.py:44
 msgid ""
 "Click to show the settings which allows you to change the global, default, "
 "and individual instance settings for devices and widgets."
@@ -2354,7 +2354,7 @@ msgstr ""
 "τις συνολικές, προεπιλεγμένες και μεμονωμένες ρυθμίσεις περιπτώσεων για "
 "συσκευές και widgets."
 
-#: widgets/sidebar/sidebar_widget.py:46
+#: widgets/sidebar/sidebar_widget.py:47
 msgid ""
 "Default changes may not affect existing instances, and may only apply to "
 "future instances."
@@ -2362,23 +2362,23 @@ msgstr ""
 "Οι προεπιλεγμένες αλλαγές ενδέχεται να μην επηρεάζουν τις υπάρχουσες "
 "περιπτώσεις και να ισχύουν μόνο για μελλοντικές περιπτώσεις."
 
-#: widgets/sidebar/sidebar_widget.py:51
+#: widgets/sidebar/sidebar_widget.py:52
 msgid "Get help"
 msgstr "Βοήθεια"
 
-#: widgets/sidebar/sidebar_widget.py:52
+#: widgets/sidebar/sidebar_widget.py:53
 msgid "Click to display help options."
 msgstr "Κάντε κλικ για να εμφανίσετε τις επιλογές βοήθειας."
 
-#: widgets/sidebar/sidebar_widget.py:55
+#: widgets/sidebar/sidebar_widget.py:56
 msgid "Additional settings and actions"
 msgstr "Πρόσθετες ρυθμίσεις και ενέργειες"
 
-#: widgets/sidebar/sidebar_widget.py:56
+#: widgets/sidebar/sidebar_widget.py:57
 msgid "Click to display additional settings and actions."
 msgstr "Κάντε κλικ για να εμφανίσετε πρόσθετες ρυθμίσεις και ενέργειες."
 
-#: widgets/sidebar/sidebar_widget.py:60
+#: widgets/sidebar/sidebar_widget.py:72
 msgid "sidebar"
 msgstr "sidebar"
 
