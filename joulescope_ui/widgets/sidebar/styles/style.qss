@@ -94,3 +94,9 @@ QPushButton#fuse[blink=false]           { image: url("{% path %}/fuse_normal.svg
 QPushButton#fuse[blink=true]            { image: url("{% path %}/fuse_normal.svg"); }
 QPushButton#fuse[blink=false]:checked   { image: url("{% path %}/fuse_engaged_0.svg"); }
 QPushButton#fuse[blink=true]:checked    { image: url("{% path %}/fuse_engaged_1.svg"); }
+
+
+QFrame {
+    border: 0px;
+    background-color: {% sidebar.separator %};
+}

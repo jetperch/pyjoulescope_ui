@@ -16,3 +16,5 @@ sidebar.util_enabled = #404040
 sidebar.util_hover = #000040
 sidebar.util_background = #ffffff
 sidebar.util_foreground = #010101
+
+sidebar.separator = #B8B8B8

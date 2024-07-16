@@ -18,6 +18,7 @@ from joulescope_ui import N_, P_, register, tooltip_format, get_instance, CAPABI
 from joulescope_ui.styles import styled_widget, color_as_qcolor
 from joulescope_ui.widgets.flyout import FlyoutWidget
 from joulescope_ui.widget_tools import CallableSlotAdapter
+from joulescope_ui.widget_tools import settings_action_create, context_menu_show
 
 
 _STATISTIC_STREAM_SOURCE_TOPIC = f'registry_manager/capabilities/{CAPABILITIES.STATISTIC_STREAM_SOURCE}/list'
@@ -56,6 +57,17 @@ _MISC_TOOLTIP = tooltip_format(
     N_("Click to display additional settings and actions."))
 
 
+class Separator(QtWidgets.QFrame):
+    # https://stackoverflow.com/questions/5671354/how-to-programmatically-make-a-horizontal-line-in-qt
+
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
+        self.setFixedHeight(2)
+        self.setFrameShape(QtWidgets.QFrame.HLine)
+        self.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Minimum)
+
+
 @register
 @styled_widget(N_('sidebar'))
 class SideBar(QtWidgets.QWidget):
@@ -70,6 +82,26 @@ class SideBar(QtWidgets.QWidget):
                 'settings': 500,
                 '__default__': 300,
             },
+            'flags': ['hide'],
+        },
+        'separator_show': {
+            'dtype': 'bool',
+            'brief': 'Show the separator between widgets.',
+            'default': True,
+        },
+        'separator_size': {
+            'dtype': 'int',
+            'brief': 'The size of the separator.',
+            'default': 2,
+            'options': [
+                [0, '0'],
+                [1, '1'],
+                [2, '2'],
+                [3, '3'],
+                [5, '5'],
+                [7, '7'],
+                [10, '10'],
+            ]
         },
     }
 
@@ -82,6 +114,7 @@ class SideBar(QtWidgets.QWidget):
         self._style_cache = None
         self._selected_area = None
         self._selected_area_brush = QtGui.QBrush
+        self._separators = {}
         self._buttons = {}
         self._buttons_blink = {}
         self._flyout: FlyoutWidget = None
@@ -100,10 +133,13 @@ class SideBar(QtWidgets.QWidget):
         self._add_blink_button('target_power', 'target_power')
         b = self._add_blink_button('fuse', 'fuse_engaged', clear_only=True, skip_connect=True)
         b.pressed.connect(self._on_fuse_button_pressed)
+        self._add_separator('Signal')
         self._add_blink_button('signal_play', 'signal_stream_enable')
         self._add_blink_button('signal_record', 'signal_stream_record')
+        self._add_separator('Statistics')
         self._add_blink_button('statistics_play', 'statistics_stream_enable')
         self._add_blink_button('statistics_record', 'statistics_stream_record')
+        self._add_separator('Controls')
         self._add_button('device', _DEVICE_TOOLTIP, 'DeviceControlWidget', 'device_control_widget:flyout')
         self._add_button('memory', _MEMORY_TOOLTIP, 'MemoryWidget', 'memory_widget:flyout')
         self._add_button('settings', _SETTINGS_TOOLTIP, 'settings', 'settings:flyout')
@@ -111,6 +147,7 @@ class SideBar(QtWidgets.QWidget):
                                              QtWidgets.QSizePolicy.Minimum,
                                              QtWidgets.QSizePolicy.Expanding)
         self._layout.addItem(self._spacer)
+        self._add_separator('Help')
         self._add_button('help', _HELP_TOOLTIP, 'HelpWidget', 'help_widget:flyout')
         self._add_button('misc', _MISC_TOOLTIP, 'HamburgerWidget', 'hamburger_widget:flyout')
 
@@ -143,6 +180,22 @@ class SideBar(QtWidgets.QWidget):
 
     def _on_signal_stream_source_list(self, value):
         self._buttons_enable(value, ['statistics_play', 'statistics_record', 'target_power'])
+
+    def _add_separator(self, name):
+        obj = Separator()
+        obj.setObjectName(name)
+        obj.setFixedHeight(int(self.separator_size))
+        obj.setVisible(bool(self.separator_show))
+        self._separators[name] = obj
+        self._layout.addWidget(obj)
+
+    def on_setting_separator_show(self, value):
+        for obj in self._separators.values():
+            obj.setVisible(bool(value))
+
+    def on_setting_separator_size(self, value):
+        for obj in self._separators.values():
+            obj.setFixedHeight(int(value))
 
     def _add_blink_button(self, name, app_setting, clear_only=False, skip_connect=False):
         topic = f'registry/app/settings/{app_setting}'
@@ -257,3 +310,10 @@ class SideBar(QtWidgets.QWidget):
             'selected_background_brush': QtGui.QBrush(color_as_qcolor(v['sidebar.util_background'])),
             'selected_side_brush': QtGui.QBrush(color_as_qcolor(v['sidebar.util_foreground'])),
         }
+
+    def mousePressEvent(self, event):
+        event.accept()
+        if event.button() == QtCore.Qt.RightButton:
+            menu = QtWidgets.QMenu(self)
+            settings_action_create(self, menu)
+            context_menu_show(menu, event)
