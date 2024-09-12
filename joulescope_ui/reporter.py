@@ -178,7 +178,7 @@ def create(subtype, description=None, exception=None):
     :param exception: The Exception instance, if available.
     :return: The path to the error report ZIP file.
     """
-    d = datetime.datetime.now(datetime.UTC)
+    d = datetime.datetime.now(datetime.timezone.utc)
     time_str = d.strftime('%Y%m%d_%H%M%S')
     filename = f'{time_str}.zip'
     path = os.path.join(REPORTER_PATH, filename)

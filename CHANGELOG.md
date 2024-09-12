@@ -18,6 +18,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Improved error handling when opening JLS file that does not exist.
 * Improved error reporter to show UI RAM utilization.
 * Added developer TimeSync widget to plot instrument synchronization.
+* Changed datetime.UTC (added in Python 3.11) to datetime.timezone.utc.
 
 
 ## 1.1.10
