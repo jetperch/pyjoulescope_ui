@@ -65,6 +65,7 @@ _EXPORT_WHILE_STREAMING_START_OFFSET = time64.SECOND  # not sure of any better w
 _X_MARKER_ZOOM_LEVELS = [100, 90, 75, 50, 33, 25, 10]
 _DOT_RADIUS = 3
 _ANTIALIASING = QtGui.QPainter.RenderHint.Antialiasing
+_CLIP_LIMIT_PIXELS = 8192
 
 
 def _analog_plot(quantity, show, units, name, integral=None, range_bounds=None):
@@ -1907,6 +1908,7 @@ class WaveformWidget(QtWidgets.QWidget):
         _, y0, _ = self._y_geometry_info['x_axis']
         _, y1, _ = self._y_geometry_info['margin.bottom']
         xw, x0, x1 = self._x_geometry_info['plot']
+        xl0, xl1 = x0 - _CLIP_LIMIT_PIXELS, x1 + _CLIP_LIMIT_PIXELS
         font_metrics = s['axis_font_metrics']
         yh = font_metrics.height()
         ya = y0 + 2 * self._margin + yh
@@ -1915,11 +1917,12 @@ class WaveformWidget(QtWidgets.QWidget):
         for m in self.annotations['x'].values():
             if m['dtype'] != 'dual':
                 continue
-            x1, x2 = m['pos1'], m['pos2']
-            if x2 < x1:
-                x1, x2 = x2, x1
-            p1 = np.rint(self._x_map.time64_to_counter(x1))
-            p2 = np.rint(self._x_map.time64_to_counter(x2))
+            p1, p2 = m['pos1'], m['pos2']
+            if p2 < p1:
+                p1, p2 = p2, p1
+            p1 = np.rint(self._x_map.time64_to_counter(p1))
+            p2 = np.rint(self._x_map.time64_to_counter(p2))
+            p1, p2 = max(p1, xl0), min(p2, xl1)
             color_index = self._marker_color_index(m)
             bg = s[f'marker{color_index}_bg']
             p.setPen(self._NO_PEN)
@@ -1975,6 +1978,7 @@ class WaveformWidget(QtWidgets.QWidget):
         _, y0, _ = self._y_geometry_info['x_axis']
         _, y1, _ = self._y_geometry_info['margin.bottom']
         xw, x0, x1 = self._x_geometry_info['plot']
+        xl0, xl1 = x0 - _CLIP_LIMIT_PIXELS, x1 + _CLIP_LIMIT_PIXELS
         font_metrics = s['axis_font_metrics']
         f_h = font_metrics.height()
         f_a = font_metrics.ascent()
@@ -1996,14 +2000,15 @@ class WaveformWidget(QtWidgets.QWidget):
             if m.get('flag') is None:
                 m['flag'] = PointsF()
             if m['dtype'] == 'single':
-                pl = p1 - w
-                pr = p1 + w
-                segs = self._points.set_line([pl, pl, p1, pr, pr], [y0, y0 + f_h, yl, y0 + f_h, y0])
-                p.setClipRect(x0, y0, xw, y1 - y0)
-                p.drawPolygon(segs)
-                p.setPen(pen)
-                p.drawLine(p1, y0 + f_h + he, p1, y1)
-                self._draw_single_marker_text(p, m, pos1)
+                if xl0 < p1 < xl1:
+                    pl = p1 - w
+                    pr = p1 + w
+                    segs = self._points.set_line([pl, pl, p1, pr, pr], [y0, y0 + f_h, yl, y0 + f_h, y0])
+                    p.setClipRect(x0, y0, xw, y1 - y0)
+                    p.drawPolygon(segs)
+                    p.setPen(pen)
+                    p.drawLine(p1, y0 + f_h + he, p1, y1)
+                    self._draw_single_marker_text(p, m, pos1)
             else:
                 p2 = np.rint(self._x_map.time64_to_counter(m['pos2']))
                 if p2 < p1:
@@ -2022,17 +2027,22 @@ class WaveformWidget(QtWidgets.QWidget):
                 w = max(dt_w, f_w)
                 p.setClipRect(x0, y0, xw, y1 - y0)
                 p.setPen(pen)
-                p.drawLine(p1, ya, p1, y1)
-                p.drawLine(p2, ya, p2, y1)
+                if xl0 < p1 < xl1:
+                    p.drawLine(p1, ya, p1, y1)
+                if xl0 < p2 < xl1:
+                    p.drawLine(p2, ya, p2, y1)
                 dt_x = (p1 + p2 - w) // 2
                 q1, q2 = dt_x - margin, dt_x + w + margin
                 q1, q2 = min(p1, q1), max(p2, q2)
-                p.setPen(s['text_pen'])
+                q1, q2 = max(q1, xl0), min(q2, xl1)
                 p.fillRect(q1, y0, q2 - q1, fill_h, p.brush())
-                p.drawText(dt_x, y0 + margin + f_a, dt_str)
+                if xl0 < dt_x < xl1:
+                    p.setPen(s['text_pen'])
+                    p.drawText(dt_x, y0 + margin + f_a, dt_str)
                 if self.show_frequency and dt > 0:
                     f_x = (p1 + p2 - f_w) // 2
-                    p.drawText(f_x, y0 + margin + f_a + f_h, f_str)
+                    if xl0 < f_x < xl1:
+                        p.drawText(f_x, y0 + margin + f_a + f_h, f_str)
                 txp = ['left', 'right'] if m['pos1'] < m['pos2'] else ['right', 'left']
                 self._draw_dual_marker_text(p, m, 'text_pos1', txp[0])
                 self._draw_dual_marker_text(p, m, 'text_pos2', txp[1])
@@ -2154,7 +2164,8 @@ class WaveformWidget(QtWidgets.QWidget):
         if text_pos == 'off':
             return
         marker_id = m['id']
-        xw, x0, _ = self._x_geometry_info['plot']
+        xw, x0, x1 = self._x_geometry_info['plot']
+        xl0, xl1 = x0 - _CLIP_LIMIT_PIXELS, x1 + _CLIP_LIMIT_PIXELS
         for plot in self.state['plots']:
             if not plot['enabled']:
                 continue
@@ -2195,7 +2206,8 @@ class WaveformWidget(QtWidgets.QWidget):
             text = quantities_format(quantities, values, prefix_preferred=prefix_preferred, precision=precision)
             pos_field = text_pos_key.split('_')[-1]
             p0 = np.rint(self._x_map.time64_to_counter(m[pos_field]))
-            self._draw_statistics_text(p, (p0, y0), text, text_pos, text_pos_auto_default=text_pos_auto_default)
+            if xl0 < p0 < xl1:
+                self._draw_statistics_text(p, (p0, y0), text, text_pos, text_pos_auto_default=text_pos_auto_default)
         p.setClipping(False)
 
     def _draw_fps(self, p):

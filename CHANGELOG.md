@@ -20,6 +20,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added developer TimeSync widget to plot instrument synchronization.
 * Changed datetime.UTC (added in Python 3.11) to datetime.timezone.utc.
 * Fixed Waveform widget annotation filename (duplicate .anno).
+* Fixed Waveform widget marker rendering for high zoom levels #285
 
 
 ## 1.1.10
