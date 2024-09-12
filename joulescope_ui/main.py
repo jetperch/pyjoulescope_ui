@@ -769,6 +769,10 @@ class MainWindow(QtWidgets.QMainWindow):
         sources_start = self.pubsub.query(topic)
         self.pubsub.publish(f'registry/JlsSource/actions/!open', path)
         sources_end = self.pubsub.query(topic)
+        if not len(sources_end):
+            self._log.warning('No sources found')
+            self.on_action_status_msg('No sources found')
+            return
         source = sources_end[-1]
         if source in sources_start:
             self._log.warning('Could not determine added source')
