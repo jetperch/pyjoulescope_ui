@@ -69,6 +69,8 @@ def platform_info() -> dict:
     :return: A dict containing information about the host system.
     """
     vm = psutil.virtual_memory()
+    process = psutil.Process()
+    mem_info = process.memory_info()
     rv = {
         'python': sys.version,
         'python_impl': platform.python_implementation(),
@@ -80,9 +82,15 @@ def platform_info() -> dict:
             'logical': psutil.cpu_count(logical=True),
         },
         'ram': {
-            'used': vm.used,
-            'available': vm.total - vm.used,
-            'total': vm.total,
+            'app': {
+                'rss': mem_info.rss,
+                'vms': mem_info.vms,
+            },
+            'sys': {
+                'used': vm.used,
+                'available': vm.total - vm.used,
+                'total': vm.total,
+            },
         },
         'is_release': is_release,
     }

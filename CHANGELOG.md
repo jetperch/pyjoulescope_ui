@@ -16,6 +16,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added optional separator between sidebar items.
 * Bumped pyjls from 0.9.5 to 0.10.0.
 * Improved error handling when opening JLS file that does not exist.
+* Improved error reporter to show UI RAM utilization.
 
 
 ## 1.1.10
