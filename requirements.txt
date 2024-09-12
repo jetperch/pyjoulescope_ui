@@ -6,7 +6,7 @@ pyjoulescope_driver>=1.5.3,<2       # also update JOULESCOPE_DRIVER_VERSION_MIN 
 joulescope>=1.1.14,<2               # also update JOULESCOPE_VERSION_MIN in setup.py
 markdown>=3,<4
 psutil>=5,<6
-pyjls>=0.9.5,<1
+pyjls>=0.10.0,<1
 pyopengl>=3,<4
 pywin32; sys_platform == 'win32'   # python {path_to_python}\scripts\pywin32_postinstall.py -install
 pyqtgraph>=0.13.6,<1

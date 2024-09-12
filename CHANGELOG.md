@@ -7,13 +7,14 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.1.11
 
-2024 Jul 16 [in progress]
+2024 Sep 12 [in progress]
 
 * Removed translations for developer tools.
 * Fixed USB Inrush analysis for paths with spaces  #278
 * Improved German translation.
 * Fixed StatisticsRecordConfigDialog title.
 * Added optional separator between sidebar items.
+* Bumped pyjls from 0.9.5 to 0.10.0.
 
 
 ## 1.1.10
