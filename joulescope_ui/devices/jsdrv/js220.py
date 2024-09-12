@@ -539,8 +539,9 @@ class Js220(Device):
                 'dtype': dtype,
                 'units': units,
                 'origin_sample_id': value['sample_id'],
-                'orig_sample_freq': value['sample_rate'],
-                'orig_decimate_factor': value['decimate_factor'],
+                'origin_sample_freq': value['sample_rate'],
+                'origin_decimate_factor': value['decimate_factor'],
+                'time_map': value['time_map'],
             }
             self.pubsub.publish(utopic, fwd)
         return fn
