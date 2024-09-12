@@ -3107,9 +3107,7 @@ class WaveformWidget(QtWidgets.QWidget):
         for source in self._sources:
             if source.startswith('JlsSource'):
                 path = self.pubsub.query(f'{get_topic_name(source)}/settings/path')
-                path_base, path_ext = os.path.splitext(path)
-                anno_path = f'{path_base}.anno{path_ext}'
-                self.on_callback_annotation_save({'path': anno_path})
+                self.on_callback_annotation_save({'path': path})
 
     def _on_menu_annotations_clear_all(self, checked=False):
         value = ['clear_all']
