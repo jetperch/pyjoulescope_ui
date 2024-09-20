@@ -7,7 +7,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.1.11
 
-2024 Sep 12 [in progress]
+2024 Sep 20 [in progress]
 
 * Removed translations for developer tools.
 * Fixed USB Inrush analysis for paths with spaces  #278
@@ -19,8 +19,11 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Improved error reporter to show UI RAM utilization.
 * Added developer TimeSync widget to plot instrument synchronization.
 * Changed datetime.UTC (added in Python 3.11) to datetime.timezone.utc.
-* Fixed Waveform widget annotation filename (duplicate .anno).
-* Fixed Waveform widget marker rendering for high zoom levels #285
+* Improved Waveform widget:
+  * Fixed annotation filename (duplicate .anno).
+  * Fixed marker rendering for high zoom levels #285
+  * Reduced scroll wheel quantization to support high-precision wheels #289
+  * Fixed x_pan undo / redo. 
 
 
 ## 1.1.10

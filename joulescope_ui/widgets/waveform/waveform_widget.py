@@ -43,7 +43,8 @@ from collections.abc import Iterable
 _NAME = N_('Waveform')
 _ZOOM_FACTOR = np.sqrt(2)
 _WHEEL_TO_DEGREES = 1.0 / 8.0  # https://doc.qt.io/qt-6/qwheelevent.html#angleDelta
-_WHEEL_TICK_DEGREES = 15.0   # Standard convention
+_WHEEL_TICK_DEGREES = 15  # by standard convention
+_WHEEL_TICK_DEGREES_QUANT = 1.0  # Minimum allowable scroll wheel increment.  Accumulate smaller.
 _AUTO_RANGE_FRACT = 0.50  # autorange when current range smaller than existing range by this fractional amount.
 _BINARY_RANGE = [-0.1, 1.1]
 _MARGIN = 2             # from the outside edges
@@ -3983,10 +3984,7 @@ class WaveformWidget(QtWidgets.QWidget):
         center = int(center)
         center = max(x0, min(center, x1))
         f = (center - x0) / d_x
-        if steps < 0:  # zoom out
-            d_x = d_x * _ZOOM_FACTOR
-        else:
-            d_x = d_x / _ZOOM_FACTOR
+        d_x *= _ZOOM_FACTOR ** -steps
         r = max(min(d_x, d_e), time64.MICROSECOND)
         z0, z1 = center - int(r * f), center + int(r * (1 - f))
         if self.pin_left or z0 < e0:
@@ -4140,10 +4138,12 @@ class WaveformWidget(QtWidgets.QWidget):
     def plot_wheelEvent(self, event: QtGui.QWheelEvent):
         x_name, y_name = self._target_lookup_by_pos(self._mouse_pos)
         delta = np.array([event.angleDelta().x(), event.angleDelta().y()], dtype=np.float64)
-        delta *= _WHEEL_TO_DEGREES
-        self._wheel_accum_degrees += delta
-        incr = np.fix(self._wheel_accum_degrees / _WHEEL_TICK_DEGREES)
-        self._wheel_accum_degrees -= incr * _WHEEL_TICK_DEGREES
+
+        # Convert to degrees, quantize and scale to ticks
+        self._wheel_accum_degrees += delta * _WHEEL_TO_DEGREES
+        incr = np.fix(self._wheel_accum_degrees / _WHEEL_TICK_DEGREES_QUANT)
+        self._wheel_accum_degrees -= incr * _WHEEL_TICK_DEGREES_QUANT
+        incr *= _WHEEL_TICK_DEGREES_QUANT / _WHEEL_TICK_DEGREES
         x_delta, y_delta = incr
         delta = y_delta
 
@@ -4153,24 +4153,22 @@ class WaveformWidget(QtWidgets.QWidget):
             is_pan = True
         is_y = QtCore.Qt.KeyboardModifier.ControlModifier & event.modifiers()
 
+        topic = get_topic_name(self)
         if y_name == 'summary':
             if is_pan:
-                self.on_action_x_pan(delta)
+                self.pubsub.publish(f'{topic}/actions/!x_pan', delta)
             else:
                 t = (self.x_range[0] + self.x_range[1]) // 2
-                topic = get_topic_name(self)
                 self.pubsub.publish(f'{topic}/actions/!x_zoom', [delta, t])
         if x_name == 'plot' and (y_name == 'x_axis' or not is_y):
             if is_pan:
-                self.on_action_x_pan(delta)
+                self.pubsub.publish(f'{topic}/actions/!x_pan', delta)
             else:
                 t = self._x_map.counter_to_time64(self._mouse_pos[0])
-                topic = get_topic_name(self)
                 self.pubsub.publish(f'{topic}/actions/!x_zoom', [delta, t, self._mouse_pos[0]])
         elif y_name.startswith('plot.') and (is_y or x_name == 'y_axis'):
             plot_idx = int(y_name.split('.')[1])
             plot = self.state['plots'][plot_idx]
-            topic = get_topic_name(self)
             if is_pan:
                 self.pubsub.publish(f'{topic}/actions/!y_pan', [plot_idx, 'relative', delta])
             else:
