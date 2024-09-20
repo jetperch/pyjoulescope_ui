@@ -23,7 +23,8 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Fixed annotation filename (duplicate .anno).
   * Fixed marker rendering for high zoom levels #285
   * Reduced scroll wheel quantization to support high-precision wheels #289
-  * Fixed x_pan undo / redo. 
+  * Fixed x_pan undo / redo.
+  * Fixed markers disappearing when dragged off edge #286
 
 
 ## 1.1.10

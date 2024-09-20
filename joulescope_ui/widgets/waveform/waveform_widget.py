@@ -2622,22 +2622,31 @@ class WaveformWidget(QtWidgets.QWidget):
                 plots[idx]['height'] = d1
             elif action == 'move.x_marker':
                 xt = self._x_map.counter_to_time64(x)
-                e1 = self._extents()[1]
+                e0, e1 = self._extents()
                 xr = self.x_range
-                xt = max(xr[0], min(xt, xr[1]))  # bound to range
+                xt = max(xr[0], min(xr[1], xt))  # bound mouse to visible range
                 item, x_offset, move_both = self._mouse_action[1:4]
                 m, m_field = self._item_parse_x_marker(item)
                 m['changed'] = True
                 xd = xt - x_offset - m[m_field]
                 m[m_field] += xd
+
+                # bound to extents range
+                if m[m_field] < e0:
+                    xd += e0 - m[m_field]
+                    m[m_field] = e0
+                elif m[m_field] > e1:
+                    xd -= m[m_field] - e1
+                    m[m_field] = e1
+
                 is_relative = m.get('mode', 'absolute') == 'relative'
                 if m['dtype'] == 'dual' and move_both:
                     m_field2 = 'pos1' if m_field == 'pos2' else 'pos2'
                     m[m_field2] += xd
-                    if m[m_field2] < xr[0]:
-                        dx = xr[0] - m[m_field2]
-                    elif m[m_field2] > xr[1]:
-                        dx = xr[1] - m[m_field2]
+                    if m[m_field2] < e0:
+                        dx = e0 - m[m_field2]
+                    elif m[m_field2] > e1:
+                        dx = e1 - m[m_field2]
                     else:
                         dx = 0
                     m[m_field] += dx
