@@ -25,6 +25,7 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Reduced scroll wheel quantization to support high-precision wheels #289
   * Fixed x_pan undo / redo.
   * Fixed markers disappearing when dragged off edge #286
+  * Adapted minimum x width based upon signal frequencies #284
 
 
 ## 1.1.10

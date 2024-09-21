@@ -1060,6 +1060,31 @@ class WaveformWidget(QtWidgets.QWidget):
             }
             self.pubsub.publish(topic_req, req, defer=True)
 
+    def _signal_freq(self):
+        """Get the minimum signal frequency
+
+        :return: The lowest frequency present (used to limit zoom).
+        """
+        try:
+            plots = self.state['plots']
+        except (AttributeError, KeyError, TypeError):
+            return
+        freqs = [1_000_000]  # hard coded limit
+        for plot in plots:
+            if not plot['enabled']:
+                continue
+            quantity = plot['quantity']
+            traces = self._traces(quantity)
+            if not len(traces):
+                continue
+            for trace_idx, subsource in traces:
+                signal_id = f'{subsource}.{quantity}'
+                sig_d = self._signals_data.get(signal_id)
+                if sig_d is None:
+                    continue
+                freqs.append(sig_d['data']['time_map']['counter_rate'])
+        return min(freqs)
+
     def on_callback_response(self, topic, value):
         utc = value['info']['time_range_utc']
         if utc['length'] == 0:
@@ -1109,6 +1134,7 @@ class WaveformWidget(QtWidgets.QWidget):
             return
         data['time_range_utc'] = utc
         data['time_range_samples'] = value['info']['time_range_samples']
+        data['time_map'] = value['info']['time_map']
 
         if rsp_id >= _MARKER_RSP_OFFSET:
             marker_id, plot_id = _marker_from_rsp_id(rsp_id)
@@ -3994,7 +4020,8 @@ class WaveformWidget(QtWidgets.QWidget):
         center = max(x0, min(center, x1))
         f = (center - x0) / d_x
         d_x *= _ZOOM_FACTOR ** -steps
-        r = max(min(d_x, d_e), time64.MICROSECOND)
+        period_min = int(2.1 / self._signal_freq() * time64.SECOND)
+        r = max(min(d_x, d_e), period_min)
         z0, z1 = center - int(r * f), center + int(r * (1 - f))
         if self.pin_left or z0 < e0:
             z0, z1 = e0, int(e0 + r)
