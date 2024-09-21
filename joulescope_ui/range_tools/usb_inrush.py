@@ -71,7 +71,7 @@ class UsbInrush(RangeToolBase):
         return None, None
 
     def _run(self):
-        dpath = self.pubsub.query('common/settings/paths/data')
+        dpath = self.pubsub.query('registry/paths/settings/path')
         dpath = construct_path(dpath)
         duration = (self.x_range[1] - self.x_range[0]) / time64.SECOND
 
@@ -81,6 +81,9 @@ class UsbInrush(RangeToolBase):
             return
         elif not 0.1 < duration < 0.5:
             self.error(f'Invalid duration {duration:.2f}, must be between 0.1 and 0.5 seconds.')
+            return
+        elif ' ' in dpath:
+            self.error(N_('USBET does not support space characters in the file path.  Change the file path.'))
             return
 
         i_signal, v_signal = self._find_signals()

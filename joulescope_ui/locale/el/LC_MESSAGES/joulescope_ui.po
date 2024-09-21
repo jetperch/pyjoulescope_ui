@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-07-15 16:48-0400\n"
+"POT-Creation-Date: 2024-09-21 11:04-0400\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: el <LL@li.org>\n"
@@ -1734,6 +1734,14 @@ msgstr ""
 " δευτερολέπτου μετά την ενεργοποίηση της τροφοδοσίας της συσκευής-στόχου. "
 "Αυτό το εργαλείο θα στείλει τα επιλεγμένα δεδομένα στο εργαλείο USBET για "
 "ανάλυση."
+
+#: range_tools/usb_inrush.py:86
+msgid ""
+"USBET does not support space characters in the file path. Change the file "
+"path."
+msgstr ""
+"Το USBET δεν υποστηρίζει χαρακτήρες διαστήματος στη διαδρομή του αρχείου. "
+"Αλλάξτε τη διαδρομή του αρχείου."
 
 #: styles/color_scheme.py:21
 msgid "dark"
