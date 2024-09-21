@@ -28,6 +28,8 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Fixed x_pan undo / redo.
   * Fixed markers disappearing when dragged off edge #286
   * Adapted minimum x width based upon signal frequencies #284
+  * Fixed annotation load sometimes not working due to race condition #283
+  * Fixed duplicate annotation load for JLS files when toggling views
 
 
 ## 1.1.10

@@ -554,6 +554,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._signals_data = {}
         self._points = PointsF()
         self._marker_data = {}  # rsp_id -> data,
+        self._annotations_request_defer = []
 
         self._fps = {
             'start': time.time(),
@@ -665,8 +666,9 @@ class WaveformWidget(QtWidgets.QWidget):
             signals = self.pubsub.enumerate(f'{topic}/settings/signals')
             for signal in sorted(signals):
                 self._on_signal_add(f'{topic}/events/signals/!add', signal)
-            self.pubsub.publish(f'{topic}/actions/!annotations_request',
-                                {'rsp_topic': f'{self.topic}/callbacks/!annotations'})
+            if not self._has_annotations():
+                # defer annotations until have some data
+                self._annotations_request_defer.append(f'{topic}/actions/!annotations_request')
 
     def on_callback_annotations(self, value):
         if value is None:
@@ -751,7 +753,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 self.name = self._kwargs.get('name', _NAME)
         if self.annotations is None:
             self.annotations = {
-                'next_id': 0,
+                'next_id': 0,  # for text annotations
                 'x': OrderedDict(),
                 'y': [],
                 'text': [],
@@ -1085,6 +1087,11 @@ class WaveformWidget(QtWidgets.QWidget):
                 freqs.append(sig_d['data']['time_map']['counter_rate'])
         return min(freqs)
 
+    def _process_deferred(self):
+        while len(self._annotations_request_defer):
+            self.pubsub.publish(self._annotations_request_defer.pop(0),
+                                {'rsp_topic': f'{self.topic}/callbacks/!annotations'})
+
     def on_callback_response(self, topic, value):
         utc = value['info']['time_range_utc']
         if utc['length'] == 0:
@@ -1154,6 +1161,7 @@ class WaveformWidget(QtWidgets.QWidget):
             if signal['id'] not in self._signals_data:
                 self._signals_data[signal['id']] = {}
             self._signals_data[signal['id']]['data'] = data
+        self._process_deferred()
 
     def _y_transform_fwd(self, plot, value):
         scale = plot.get('scale', 'linear')
@@ -2379,6 +2387,19 @@ class WaveformWidget(QtWidgets.QWidget):
         p.setClipRect(x0, y0, xd, yd)
         self._draw_statistics_text(p, (x0, y0), text)
         p.setClipping(False)
+
+    def _has_annotations(self):
+        if self.annotations is None:
+            return False
+        if len(self.annotations['x']):
+            return True
+        for item in self.annotations['y']:
+            if len(item):
+                return True
+        for item in self.annotations['text']:
+            if len(item['items']):
+                return True
+        return False
 
     def _annotation_next_id(self, annotation_type: str, plot_index=None):
         next_idx = 0
