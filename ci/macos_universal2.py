@@ -80,7 +80,8 @@ def run():
     if not is_universal2_file(sys.executable):
         print(f'WARNING: python executable is not universal2: {sys.executable}')
 
-    _run_cmd('pip install -U delocate --report pip_install_delocate.json')
+    # delocate 0.12.0 removed delocate-fuse, now delocate-merge
+    _run_cmd('pip install -U "delocate>=0.12.0,<1" --report pip_install_delocate.json')
     with open('pip_install_delocate.json', 'rt') as f:
         delocate_report = json.load(f)
     os.remove('pip_install_delocate.json')
@@ -107,9 +108,8 @@ def run():
                 f2 = _run_pip_download(f'pip download --only-binary :all: --platform {platform2} {name}=={version}')
                 if 'x86_64' not in f1 or 'arm64' not in f2:
                     raise RuntimeError('Could not find matching files')
-                _run_cmd(f'delocate-fuse {f1} {f2} -w .')
+                _run_cmd(f'delocate-merge {f1} {f2} -w .')
                 f3 = f2.replace('arm64', 'universal2')
-                os.rename(f1, f3)
             _run_cmd(f'pip install --force-reinstall -f . {f3}')
         else:
             print(f'SKIP {name} already universal2')

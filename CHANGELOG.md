@@ -19,7 +19,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Improved error reporter to show UI RAM utilization.
 * Added developer TimeSync widget to plot instrument synchronization.
 * Changed datetime.UTC (added in Python 3.11) to datetime.timezone.utc.
-* Added error messages for USB Inrush when spaces in path  #278 
+* Added error messages for USB Inrush when spaces in path  #278
+* Migrated from delocate 0.11.0 to 0.12.0
 * Improved Waveform widget:
   * Fixed annotation filename (duplicate .anno).
   * Fixed marker rendering for high zoom levels #285
