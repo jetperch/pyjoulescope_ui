@@ -109,8 +109,10 @@ def run():
                 if 'x86_64' not in f1 or 'arm64' not in f2:
                     raise RuntimeError('Could not find matching files')
                 _run_cmd(f'delocate-merge {f1} {f2} -w .')
-                f3 = f2.replace('arm64', 'universal2')
-            _run_cmd(f'pip install --force-reinstall -f . {f3}')
+                os.remove(f1)
+                os.remove(f2)
+            _run_cmd(f'pip install --force-reinstall -f . *.whl')
+            os.system('rm *.whl')
         else:
             print(f'SKIP {name} already universal2')
 
