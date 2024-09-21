@@ -3216,6 +3216,7 @@ class WaveformWidget(QtWidgets.QWidget):
         menu.addAction(N_('Save image to file'), self._action_save_image)
         menu.addAction(N_('Copy image to clipboard'), self._action_copy_image_to_clipboard)
         CallableAction(menu, N_('Export visible data'), lambda: self._on_x_export('range'))
+        CallableAction(menu, N_('Export visible data as CSV'), self._on_export_csv_init)
         CallableAction(menu, N_('Export all data'), lambda: self._on_x_export('extents'))
         settings_action_create(self, menu)
         return context_menu_show(menu, event)
@@ -3324,6 +3325,65 @@ class WaveformWidget(QtWidgets.QWidget):
                 'done_callbacks': [],
             }
         })
+
+    def _on_export_csv(self, filename):
+        self._log.info('_on_export_csv: %s', filename)
+        header = ['time']
+        x = None
+        src_data = []
+        for plot in self.state['plots']:
+            if not plot['enabled']:
+                continue
+            quantity = plot['quantity']
+            traces = self._traces(quantity)
+            if not len(traces):
+                continue
+            for trace_idx, subsource in traces:
+                signal_id = f'{subsource}.{quantity}'
+                header.append(f'{subsource.split(".")[-1]}.{quantity}')
+                sig_d = self._signals_data.get(signal_id)
+                if sig_d is None:
+                    continue
+                d = sig_d['data']
+                if x is None:
+                    x = d['x']
+                src_data.append([d['x'] - x[0], d['avg']])
+        if not len(src_data):
+            self._log.info('_on_export_csv: no data found')
+            return
+
+        x = src_data[0][0]
+        data = np.empty((len(x), 1 + len(src_data)), dtype=float)
+        data[:, 0] = x / time64.SECOND
+        for idx, (ex, ey) in enumerate(src_data):
+            data[:, 1 + idx] = np.interp(x, ex, ey)
+        np.savetxt(filename, data, delimiter=',', header=','.join(header))
+
+    @QtCore.Slot(int)
+    def _on_export_csv_dialog_finish(self, value):
+        self._log.info('finished: %d', value)
+        if value == QtWidgets.QDialog.DialogCode.Accepted:
+            filenames = self._dialog.selectedFiles()
+            if len(filenames) == 1:
+                self._on_export_csv(filenames[0])
+            else:
+                self._log.info('finished: accept - but no file selected, ignore')
+        else:
+            self._log.info('finished: reject - abort recording')
+        self._dialog.close()
+        self._dialog = None
+
+    def _on_export_csv_init(self):
+        filter_str = 'CSV (*.csv)'
+        filename = time64.filename('.csv')
+        path = self.pubsub.query('registry/paths/settings/path')
+        path = os.path.join(path, filename)
+        dialog = QtWidgets.QFileDialog(self, N_('Export visible data to CSV file'), path, filter_str)
+        dialog.setFileMode(QtWidgets.QFileDialog.AnyFile)
+        dialog.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
+        dialog.finished.connect(self._on_export_csv_dialog_finish)
+        self._dialog = dialog
+        dialog.show()
 
     def _on_range_tool(self, unique_id, marker_idx):
         m = self._annotation_lookup(marker_idx)
