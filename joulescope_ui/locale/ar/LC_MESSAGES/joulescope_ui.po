@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-09-21 11:04-0400\n"
+"POT-Creation-Date: 2024-09-21 11:12-0400\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: ar <LL@li.org>\n"
@@ -1651,12 +1651,6 @@ msgstr ""
 "استخدم علامات مزدوجة لتحديد 100 ميلي ثانية على الأقل بعد تمكين الطاقة للجهاز"
 " المستهدف. سترسل هذه الأداة البيانات المحددة إلى أداة USBET لتحليلها."
 
-#: range_tools/usb_inrush.py:86
-msgid ""
-"USBET does not support space characters in the file path. Change the file "
-"path."
-msgstr "لا يدعم USBET أحرف المسافة في مسار الملف. قم بتغيير مسار الملف."
-
 #: styles/color_scheme.py:21
 msgid "dark"
 msgstr "الظلام"
@@ -3153,3 +3147,8 @@ msgstr "دقيقة"
 #: widgets/waveform/y_range_widget.py:72
 msgid "Units"
 msgstr "الوحدات"
+
+#~ msgid ""
+#~ "USBET does not support space characters in the file path. Change the file "
+#~ "path."
+#~ msgstr "لا يدعم USBET أحرف المسافة في مسار الملف. قم بتغيير مسار الملف."

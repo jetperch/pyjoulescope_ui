@@ -82,9 +82,6 @@ class UsbInrush(RangeToolBase):
         elif not 0.1 < duration < 0.5:
             self.error(f'Invalid duration {duration:.2f}, must be between 0.1 and 0.5 seconds.')
             return
-        elif ' ' in dpath:
-            self.error(N_('USBET does not support space characters in the file path.  Change the file path.'))
-            return
 
         i_signal, v_signal = self._find_signals()
         if i_signal is None or v_signal is None:
