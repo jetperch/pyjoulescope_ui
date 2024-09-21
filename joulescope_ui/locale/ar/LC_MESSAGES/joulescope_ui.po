@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-09-21 14:32-0400\n"
+"POT-Creation-Date: 2024-09-21 15:23-0400\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: ar <LL@li.org>\n"
@@ -332,7 +332,7 @@ msgstr "عرض كتخفيض"
 msgid "Abort"
 msgstr "الإجهاض"
 
-#: error_window.py:120 main.py:363 widgets/settings/settings_widget.py:539
+#: error_window.py:120 main.py:365 widgets/settings/settings_widget.py:539
 msgid "View"
 msgstr "عرض"
 
@@ -352,7 +352,7 @@ msgstr "العودة إلى التكوين السابق"
 msgid "Revert to defaults"
 msgstr "العودة إلى الإعدادات الافتراضية"
 
-#: error_window.py:283 main.py:361 main.py:407
+#: error_window.py:283 main.py:363 main.py:409
 #: widgets/js220_cal/js220_cal_widget.py:38
 msgid "Exit"
 msgstr "خروج"
@@ -614,23 +614,31 @@ msgstr "لا تظهر مرة أخرى"
 msgid "Intel graphics detected"
 msgstr "تم الكشف عن رسومات إنتل"
 
-#: main.py:69 widgets/value/value_widget.py:664
+#: locale_dialog.py:21
+msgid "Select a language"
+msgstr "اختر لغة"
+
+#: locale_dialog.py:22
+msgid "The application will automatically close when you change the locale."
+msgstr "سيُغلق التطبيق تلقائيًا عند تغيير الإعدادات."
+
+#: main.py:70 widgets/value/value_widget.py:664
 msgid "Multimeter"
 msgstr "متعدد المقاييس"
 
-#: main.py:70
+#: main.py:71
 msgid "Oscilloscope"
 msgstr "راسم الذبذبات"
 
-#: main.py:71 main.py:296 main.py:357 main.py:400
+#: main.py:72 main.py:297 main.py:359 main.py:402
 msgid "File"
 msgstr "ملف"
 
-#: main.py:81
+#: main.py:82
 msgid "The UI status bar display mode"
 msgstr "وضع عرض شريط حالة واجهة المستخدم"
 
-#: main.py:82
+#: main.py:83
 msgid ""
 "This setting controls the amount of detail shown on the status bar at the "
 "bottom of the UI window. You should usually leave this set to \"normal\" "
@@ -640,34 +648,34 @@ msgstr ""
 "واجهة المستخدم. يجب عادةً ترك هذا الإعداد على \"عادي\" إلا إذا كنت تريد "
 "المزيد من التفاصيل المتعلقة بالتشغيل الداخلي لواجهة المستخدم."
 
-#: main.py:87 safe_mode.py:43
+#: main.py:88 safe_mode.py:43
 msgid "Normal"
 msgstr "عادي"
 
-#: main.py:88
+#: main.py:89
 msgid "Troubleshoot"
 msgstr "استكشاف الأخطاء وإصلاحها"
 
-#: main.py:94
+#: main.py:95
 msgid "Enable developer mode."
 msgstr "تمكين وضع المطور."
 
-#: main.py:107
+#: main.py:108
 msgid "PubSub utilization"
 msgstr "استخدام PubSub"
 
-#: main.py:108
+#: main.py:109
 msgid ""
 "Display the number of actions processed by the publish-subscribe broker in "
 "each second."
 msgstr ""
 "عرض عدد الإجراءات التي تتم معالجتها بواسطة وسيط النشر والاشتراك في كل ثانية."
 
-#: main.py:113
+#: main.py:114
 msgid "CPU utilization"
 msgstr "استخدام وحدة المعالجة المركزية"
 
-#: main.py:114
+#: main.py:115
 msgid ""
 "Display the CPU utilization by this application and the total CPU "
 "utilization by all applications. The value is displayed in percent."
@@ -675,11 +683,11 @@ msgstr ""
 "عرض استخدام وحدة المعالجة المركزية بواسطة هذا التطبيق وإجمالي استخدام وحدة "
 "المعالجة المركزية بواسطة جميع التطبيقات. يتم عرض القيمة بالنسبة المئوية."
 
-#: main.py:120
+#: main.py:121
 msgid "Memory utilization"
 msgstr "استخدام الذاكرة"
 
-#: main.py:121
+#: main.py:122
 msgid ""
 "Display the memory (RAM) utilization by this application and by all "
 "applications. The value is displayed in percent."
@@ -687,81 +695,85 @@ msgstr ""
 "عرض استخدام الذاكرة (RAM) بواسطة هذا التطبيق وجميع التطبيقات. يتم عرض القيمة"
 " بالنسبة المئوية."
 
-#: main.py:214
+#: main.py:215
 msgid "UI"
 msgstr "واجهة المستخدم"
 
-#: main.py:328
+#: main.py:329
 msgid "Help"
 msgstr "المساعدة"
 
-#: main.py:329 widgets/hamburger/hamburger_widget.py:21
+#: main.py:330 widgets/hamburger/hamburger_widget.py:21
 msgid "Getting Started"
 msgstr "الشروع في العمل"
 
-#: main.py:330
+#: main.py:331
+msgid "Language"
+msgstr "اللغة"
+
+#: main.py:332
 msgid "User's Guide"
 msgstr "دليل المستخدم"
 
-#: main.py:331 widgets/hamburger/hamburger_widget.py:22
+#: main.py:333 widgets/hamburger/hamburger_widget.py:22
 msgid "Changelog"
 msgstr "سجل التغييرات"
 
-#: main.py:332 widgets/help/help_widget.py:59
+#: main.py:334 widgets/help/help_widget.py:59
 msgid "Report Issue"
 msgstr "إصدار التقرير"
 
-#: main.py:333
+#: main.py:335
 msgid "View logs..."
 msgstr "عرض السجلات..."
 
-#: main.py:334 widgets/hamburger/hamburger_widget.py:23
+#: main.py:336 widgets/hamburger/hamburger_widget.py:23
 msgid "Credits"
 msgstr "الاعتمادات"
 
-#: main.py:335 widgets/hamburger/hamburger_widget.py:24
+#: main.py:337 widgets/hamburger/hamburger_widget.py:24
 msgid "About"
 msgstr "نبذة عن"
 
-#: main.py:358
+#: main.py:360
 msgid "Open"
 msgstr "مفتوح"
 
-#: main.py:359
+#: main.py:361
 msgid "Open recent"
 msgstr "مفتوح حديثاً"
 
-#: main.py:360 main.py:406
+#: main.py:362 main.py:408
 msgid "Clear config and exit"
 msgstr "مسح التكوين والخروج"
 
-#: main.py:364 widgets/settings/settings_widget.py:541
+#: main.py:366 widgets/settings/settings_widget.py:541
 msgid "Widgets"
 msgstr "الأدوات"
 
-#: main.py:365
+#: main.py:367
 msgid "Tools"
 msgstr "الأدوات"
 
-#: main.py:366
+#: main.py:368
 msgid "Clear Accumulators"
 msgstr "المجمعات الواضحة"
 
-#: main.py:401
+#: main.py:403
 msgid "Info"
 msgstr "معلومات"
 
-#: main.py:402 widget_tools.py:92 widgets/settings/settings_widget.py:31
+#: main.py:404 widget_tools.py:92 widgets/settings/settings_widget.py:31
 #: widgets/settings/settings_widget.py:574
 #: widgets/sidebar/sidebar_widget.py:42
 msgid "Settings"
 msgstr "الإعدادات"
 
-#: main.py:710
+#: main.py:712
 msgid "Manage"
 msgstr "إدارة"
 
-#: main.py:747
+#: main.py:749
 msgid "Select file to open"
 msgstr "حدد الملف لفتحه"
 
@@ -3160,3 +3172,9 @@ msgstr "الوحدات"
 #~ "USBET does not support space characters in the file path. Change the file "
 #~ "path."
 #~ msgstr "لا يدعم USBET أحرف المسافة في مسار الملف. قم بتغيير مسار الملف."
+
+#~ msgid "Change locale"
+#~ msgstr "تغيير الموقع"
+
+#~ msgid "Change Language"
+#~ msgstr "تغيير اللغة"

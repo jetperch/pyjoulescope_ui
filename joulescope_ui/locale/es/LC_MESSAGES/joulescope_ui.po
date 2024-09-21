@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-09-21 14:32-0400\n"
+"POT-Creation-Date: 2024-09-21 15:23-0400\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: es <LL@li.org>\n"
@@ -351,7 +351,7 @@ msgstr "Ver como Markdown"
 msgid "Abort"
 msgstr "Abortar"
 
-#: error_window.py:120 main.py:363 widgets/settings/settings_widget.py:539
+#: error_window.py:120 main.py:365 widgets/settings/settings_widget.py:539
 msgid "View"
 msgstr "Ver"
 
@@ -371,7 +371,7 @@ msgstr "Volver a la configuración anterior"
 msgid "Revert to defaults"
 msgstr "Volver a valores predeterminados"
 
-#: error_window.py:283 main.py:361 main.py:407
+#: error_window.py:283 main.py:363 main.py:409
 #: widgets/js220_cal/js220_cal_widget.py:38
 msgid "Exit"
 msgstr "Salir de"
@@ -650,24 +650,34 @@ msgstr "No volver a mostrar"
 msgid "Intel graphics detected"
 msgstr "Gráficos Intel detectados"
 
-#: main.py:69 widgets/value/value_widget.py:664
+#: locale_dialog.py:21
+msgid "Select a language"
+msgstr "Seleccione un idioma"
+
+#: locale_dialog.py:22
+msgid "The application will automatically close when you change the locale."
+msgstr ""
+"La aplicación se cerrará automáticamente al cambiar la configuración "
+"regional."
+
+#: main.py:70 widgets/value/value_widget.py:664
 msgid "Multimeter"
 msgstr "Multímetro"
 
-#: main.py:70
+#: main.py:71
 msgid "Oscilloscope"
 msgstr "Osciloscopio"
 
-#: main.py:71 main.py:296 main.py:357 main.py:400
+#: main.py:72 main.py:297 main.py:359 main.py:402
 msgid "File"
 msgstr "Archivo"
 
-#: main.py:81
+#: main.py:82
 msgid "The UI status bar display mode"
 msgstr ""
 "El modo de visualización de la barra de estado de la interfaz de usuario"
 
-#: main.py:82
+#: main.py:83
 msgid ""
 "This setting controls the amount of detail shown on the status bar at the "
 "bottom of the UI window. You should usually leave this set to \"normal\" "
@@ -678,23 +688,23 @@ msgstr ""
 "Normalmente debería dejarlo en \"normal\" a menos que desee más detalles "
 "sobre el funcionamiento interno de la interfaz de usuario."
 
-#: main.py:87 safe_mode.py:43
+#: main.py:88 safe_mode.py:43
 msgid "Normal"
 msgstr "Normal"
 
-#: main.py:88
+#: main.py:89
 msgid "Troubleshoot"
 msgstr "Solución de problemas"
 
-#: main.py:94
+#: main.py:95
 msgid "Enable developer mode."
 msgstr "Activa el modo desarrollador."
 
-#: main.py:107
+#: main.py:108
 msgid "PubSub utilization"
 msgstr "Utilización de PubSub"
 
-#: main.py:108
+#: main.py:109
 msgid ""
 "Display the number of actions processed by the publish-subscribe broker in "
 "each second."
@@ -702,11 +712,11 @@ msgstr ""
 "Muestra el número de acciones procesadas por el broker publish-subscribe en "
 "cada segundo."
 
-#: main.py:113
+#: main.py:114
 msgid "CPU utilization"
 msgstr "Utilización de la CPU"
 
-#: main.py:114
+#: main.py:115
 msgid ""
 "Display the CPU utilization by this application and the total CPU "
 "utilization by all applications. The value is displayed in percent."
@@ -714,11 +724,11 @@ msgstr ""
 "Muestra la utilización de la CPU por esta aplicación y la utilización total "
 "de la CPU por todas las aplicaciones. El valor se muestra en porcentaje."
 
-#: main.py:120
+#: main.py:121
 msgid "Memory utilization"
 msgstr "Utilización de la memoria"
 
-#: main.py:121
+#: main.py:122
 msgid ""
 "Display the memory (RAM) utilization by this application and by all "
 "applications. The value is displayed in percent."
@@ -726,81 +736,85 @@ msgstr ""
 "Muestra la utilización de la memoria (RAM) por esta aplicación y por todas "
 "las aplicaciones. El valor se muestra en porcentaje."
 
-#: main.py:214
+#: main.py:215
 msgid "UI"
 msgstr "INTERFAZ DE USUARIO"
 
-#: main.py:328
+#: main.py:329
 msgid "Help"
 msgstr "Ayuda"
 
-#: main.py:329 widgets/hamburger/hamburger_widget.py:21
+#: main.py:330 widgets/hamburger/hamburger_widget.py:21
 msgid "Getting Started"
 msgstr "Primeros pasos"
 
-#: main.py:330
+#: main.py:331
+msgid "Language"
+msgstr "Idioma"
+
+#: main.py:332
 msgid "User's Guide"
 msgstr "Guía del usuario"
 
-#: main.py:331 widgets/hamburger/hamburger_widget.py:22
+#: main.py:333 widgets/hamburger/hamburger_widget.py:22
 msgid "Changelog"
 msgstr "Registro de cambios"
 
-#: main.py:332 widgets/help/help_widget.py:59
+#: main.py:334 widgets/help/help_widget.py:59
 msgid "Report Issue"
 msgstr "Número de informe"
 
-#: main.py:333
+#: main.py:335
 msgid "View logs..."
 msgstr "Ver registros..."
 
-#: main.py:334 widgets/hamburger/hamburger_widget.py:23
+#: main.py:336 widgets/hamburger/hamburger_widget.py:23
 msgid "Credits"
 msgstr "Créditos"
 
-#: main.py:335 widgets/hamburger/hamburger_widget.py:24
+#: main.py:337 widgets/hamburger/hamburger_widget.py:24
 msgid "About"
 msgstr "Acerca de"
 
-#: main.py:358
+#: main.py:360
 msgid "Open"
 msgstr "Abrir"
 
-#: main.py:359
+#: main.py:361
 msgid "Open recent"
 msgstr "Abrir reciente"
 
-#: main.py:360 main.py:406
+#: main.py:362 main.py:408
 msgid "Clear config and exit"
 msgstr "Borrar configuración y salir"
 
-#: main.py:364 widgets/settings/settings_widget.py:541
+#: main.py:366 widgets/settings/settings_widget.py:541
 msgid "Widgets"
 msgstr "Widgets"
 
-#: main.py:365
+#: main.py:367
 msgid "Tools"
 msgstr "Herramientas"
 
-#: main.py:366
+#: main.py:368
 msgid "Clear Accumulators"
 msgstr "Acumuladores transparentes"
 
-#: main.py:401
+#: main.py:403
 msgid "Info"
 msgstr "Información"
 
-#: main.py:402 widget_tools.py:92 widgets/settings/settings_widget.py:31
+#: main.py:404 widget_tools.py:92 widgets/settings/settings_widget.py:31
 #: widgets/settings/settings_widget.py:574
 #: widgets/sidebar/sidebar_widget.py:42
 msgid "Settings"
 msgstr "Ajustes"
 
-#: main.py:710
+#: main.py:712
 msgid "Manage"
 msgstr "Gestione"
 
-#: main.py:747
+#: main.py:749
 msgid "Select file to open"
 msgstr "Seleccionar archivo para abrir"
 
@@ -3284,3 +3298,9 @@ msgstr "Unidades"
 #~ msgstr ""
 #~ "USBET no admite caracteres de espacio en la ruta del archivo. Cambie la ruta"
 #~ " del archivo."
+
+#~ msgid "Change locale"
+#~ msgstr "Cambiar configuración regional"
+
+#~ msgid "Change Language"
+#~ msgstr "Cambiar idioma"

@@ -31,6 +31,7 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Fixed annotation load sometimes not working due to race condition #283
   * Fixed duplicate annotation load for JLS files when toggling views
   * Added export visible data to CSV  #274
+* Added locale selection using Help -> Language  #273
 
 
 ## 1.1.10

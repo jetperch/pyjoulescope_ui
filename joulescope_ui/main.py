@@ -42,6 +42,7 @@ from .help_ui import HelpHtmlMessageBox
 from joulescope_ui.widgets.report_issue import ReportIssueDialog
 from joulescope_ui.disk_monitor import DiskMonitor
 from joulescope_ui.error_dialog import ErrorMessageBox
+from joulescope_ui.locale_dialog import LocaleDialog
 from .exporter import ExporterDialog   # register the exporter
 from .jls_source import JlsSource      # register the source
 from .resources import load_resources, load_fonts
@@ -327,6 +328,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         help_menu = ['help_menu', N_('Help'), [
                 ['getting_started', N_('Getting Started'), ['registry/help_html/actions/!show', 'getting_started']],
+                ['locale', N_('Language'), ['registry/ui/actions/!locale_dialog', None]],
                 ['users_guide', N_("User's Guide"), ['registry/ui/actions/!url_open', urls.UI_USERS_GUIDE]],
                 ['changelog', N_('Changelog'), ['registry/help_html/actions/!show', 'changelog']],
                 ['report_issue', N_('Report Issue'), ['registry/report_issue/actions/!show', self]],
@@ -799,6 +801,9 @@ class MainWindow(QtWidgets.QMainWindow):
         path = self.pubsub.query('common/settings/paths/log')
         self._log.info('view logs: %s', path)
         show_in_folder(path)
+
+    def on_action_locale_dialog(self, value):
+        LocaleDialog(self)
 
     def on_action_url_open(self, value):
         webbrowser.open_new_tab(value)

@@ -19,7 +19,8 @@ import re
 import sys
 
 
-__all__ = ['N_', 'locale_get']
+__all__ = ['N_', 'locale_get', 'locale_set', 'LOCALES']
+_APP = 'joulescope'
 _LOCALE_MAX_LENGTH = 256
 _LOCALE_VARS = [
     'LANGUAGE_joulescope_ui', 'LANGUAGE_joulescope',
@@ -28,6 +29,42 @@ _LOCALE_VARS = [
     'LANG',
 ]
 _WHITESPACE_REGEX = re.compile(r'\s+')
+LOCALES = [
+    # [code, English name, native name]
+    ['ar', 'Arabic', 'العربية'],
+    ['de', 'German', 'Deutsch'],
+    ['el', 'Greek', 'ελληνικά'],
+    ['en', 'English (US)', 'English'],
+    ['es', 'Spanish', 'español'],
+    ['fr', 'French', 'français'],
+    ['it', 'Italian', 'italiano'],
+    ['ja', 'Japanese', '日本語'],
+    ['ko', 'Korean', '한국어'],
+    ['zh', 'Chinese (simplified)', '中文'],
+]
+
+
+def override_filename():
+    if 'win32' in sys.platform:
+        from win32com.shell import shell, shellcon
+        appdata_path = shell.SHGetFolderPath(0, shellcon.CSIDL_LOCAL_APPDATA, None, 0)
+        app_path = os.path.join(appdata_path, _APP)
+    elif 'darwin' in sys.platform:
+        app_path = os.path.join(os.path.expanduser('~'), 'Library', 'Application Support', _APP)
+    elif 'linux' in sys.platform:
+        app_path = os.path.join(os.path.expanduser('~'), '.' + _APP)
+    else:
+        raise RuntimeError('unsupported platform')
+    return os.path.join(app_path, 'language.txt')
+
+
+def locale_set(lang):
+    """Set the language using the language code.
+
+    The application requires a restart after setting this code.
+    """
+    with open(override_filename(), 'wt') as f:
+        f.write(lang)
 
 
 def windows_locale():
@@ -42,6 +79,10 @@ def windows_locale():
 
 
 def env_locale():
+    path = override_filename()
+    if os.path.isfile(path):
+        with open(path, 'rt') as f:
+            return f.read()
     for v in _LOCALE_VARS:
         if v in os.environ:
             return os.environ[v].split('.')[0]
