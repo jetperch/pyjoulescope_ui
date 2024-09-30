@@ -7,7 +7,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.1.11
 
-2024 Sep 21 [in progress]
+2024 Sep 30
 
 * Removed translations for developer tools.
 * Fixed USB Inrush analysis for paths with spaces  #278
@@ -32,6 +32,7 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Fixed duplicate annotation load for JLS files when toggling views
   * Added export visible data to CSV  #274
 * Added locale selection using Help -> Language  #273
+* Forced build to PySide6 6.7.3 which fixes combobox dropdown locations #280
 
 
 ## 1.1.10
