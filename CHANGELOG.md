@@ -5,6 +5,15 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.1.12
+
+2024 Oct 5
+
+* Upgraded PySide6-QtADS from 4.3.0.2 to [4.3.1](https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/releases/tag/4.3.1)
+  * Better fix for #280
+  * Fixes floating windows (such as range tools) on Ubuntu.
+
+
 ## 1.1.11
 
 2024 Sep 30
