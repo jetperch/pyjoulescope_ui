@@ -36,7 +36,7 @@ from joulescope_ui.shift_key import is_shift_pressed
 from joulescope_ui.dev_signal_buffer_source import DevSignalBufferSource
 from joulescope_ui.devices.device_update import DeviceUpdate
 from PySide6 import QtCore, QtGui, QtWidgets
-import PySide6QtAds as QtAds
+from PySide6QtAds import CDockManager
 from .error_window import ErrorWindow
 from .help_ui import HelpHtmlMessageBox
 from joulescope_ui.widgets.report_issue import ReportIssueDialog
@@ -240,20 +240,20 @@ class MainWindow(QtWidgets.QMainWindow):
         self._status_bar.setObjectName('status_bar')
         self.setStatusBar(self._status_bar)
 
-        QtAds.CDockManager.setConfigFlags(
+        CDockManager.setConfigFlags(
             0
-            | QtAds.CDockManager.DockAreaHasCloseButton
-            | QtAds.CDockManager.DockAreaHasUndockButton
-            | QtAds.CDockManager.DockAreaHasTabsMenuButton
-            | QtAds.CDockManager.ActiveTabHasCloseButton
-            | QtAds.CDockManager.FloatingContainerHasWidgetTitle
-            | QtAds.CDockManager.XmlAutoFormattingEnabled
-            | QtAds.CDockManager.OpaqueSplitterResize
-            # | QtAds.CDockManager.OpaqueUndocking
-            | QtAds.CDockManager.FocusHighlighting
-            | QtAds.CDockManager.MiddleMouseButtonClosesTab
+            | CDockManager.DockAreaHasCloseButton
+            | CDockManager.DockAreaHasUndockButton
+            | CDockManager.DockAreaHasTabsMenuButton
+            | CDockManager.ActiveTabHasCloseButton
+            | CDockManager.FloatingContainerHasWidgetTitle
+            | CDockManager.XmlAutoFormattingEnabled
+            | CDockManager.OpaqueSplitterResize
+            # | CDockManager.OpaqueUndocking
+            | CDockManager.FocusHighlighting
+            | CDockManager.MiddleMouseButtonClosesTab
         )
-        self._dock_manager = QtAds.CDockManager(self._central_widget)
+        self._dock_manager = CDockManager(self._central_widget)
         self._dock_manager.setStyleSheet('')
         self._dock_manager.setSizePolicy(size_policy_xx)
         self._central_layout.addWidget(self._dock_manager)

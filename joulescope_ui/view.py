@@ -18,7 +18,7 @@ from . import pubsub_singleton, register, N_, sanitize, \
 from joulescope_ui.pubsub import pubsub_attr
 from .styles.manager import style_settings
 from PySide6 import QtCore, QtGui, QtWidgets
-import PySide6QtAds as QtAds
+from PySide6QtAds import CDockWidget, TopDockWidgetArea
 import logging
 import weakref
 
@@ -26,7 +26,7 @@ import weakref
 _log = logging.getLogger(__name__)
 
 
-class DockWidget(QtAds.CDockWidget):
+class DockWidget(CDockWidget):
 
     def __init__(self, widget: QtWidgets.QWidget, parent=None):
         unique_id = get_unique_id(widget)
@@ -37,12 +37,12 @@ class DockWidget(QtAds.CDockWidget):
         self.setWidget(widget)
         widget.pubsub.subscribe(f'{topic}/settings/name', self._on_setting_name, ['pub', 'retain'])
         self.setFeatures(
-            QtAds.CDockWidget.DockWidgetClosable |
-            QtAds.CDockWidget.DockWidgetMovable |
-            QtAds.CDockWidget.DockWidgetFloatable |
-            QtAds.CDockWidget.DockWidgetFocusable |
-            QtAds.CDockWidget.CustomCloseHandling |
-            QtAds.CDockWidget.DockWidgetForceCloseWithArea |
+            CDockWidget.DockWidgetClosable |
+            CDockWidget.DockWidgetMovable |
+            CDockWidget.DockWidgetFloatable |
+            CDockWidget.DockWidgetFocusable |
+            CDockWidget.CustomCloseHandling |
+            CDockWidget.DockWidgetForceCloseWithArea |
             0)
         self.closeRequested.connect(self._on_close_request)
 
@@ -232,7 +232,7 @@ class View:
         pubsub_attr(obj)['dock_widget'] = weakref.ref(dock_widget)
         tab_widget = dock_widget.tabWidget()
         tab_widget.setElideMode(QtCore.Qt.TextElideMode.ElideNone)
-        self._dock_manager.addDockWidget(QtAds.TopDockWidgetArea, dock_widget)
+        self._dock_manager.addDockWidget(TopDockWidgetArea, dock_widget)
         pubsub_singleton.publish('registry/style/actions/!render', unique_id)
         if floating:
             dock_widget.setFloating()

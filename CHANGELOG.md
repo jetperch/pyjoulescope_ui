@@ -20,7 +20,6 @@ This file contains the list of changes made to pyjoulescope_ui.
   * pyjls from 0.9.2 to 0.11.0
   * pyjoulescope_driver from 1.5.3 to 1.7.0 
   * PySide 6.7.3 to 6.8.0
-* Migrated release from Python 3.11 to 3.12
 
 
 ## 1.1.12
