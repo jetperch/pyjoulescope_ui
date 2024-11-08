@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-09-21 15:23-0400\n"
+"POT-Creation-Date: 2024-11-08 14:54-0500\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: ar <LL@li.org>\n"
@@ -26,7 +26,7 @@ msgstr "حول واجهة المستخدم Joulescope UI"
 msgid "Version Information"
 msgstr "معلومات الإصدار"
 
-#: app.py:47 devices/jsdrv/js110.py:135 devices/jsdrv/js220.py:151
+#: app.py:47 devices/jsdrv/js110.py:135 devices/jsdrv/js220.py:196
 msgid "Target power"
 msgstr "الطاقة المستهدفة"
 
@@ -55,7 +55,7 @@ msgstr ""
 "تقوم JS110 بفصل التيار من IN+ إلى OUT+، ولكن يجب أن يمنع إعداد النظام التيار"
 " العكسي المفرط."
 
-#: app.py:60 widgets/device_control/js220_ctrl_widget.py:50
+#: app.py:60 widgets/device_control/js220_ctrl_widget.py:51
 msgid "Fuse engaged indicator"
 msgstr "مؤشر تعشيق الصمامات"
 
@@ -68,7 +68,7 @@ msgstr ""
 "يصبح هذا المؤشر نشطًا عندما تكون أداة واحدة متصلة على الأقل بها مصهر مشغّل. "
 "تمنع الأدوات ذات الصمامات المشغولة تدفق التيار حتى يتم مسحها."
 
-#: app.py:65 widgets/device_control/js220_ctrl_widget.py:55
+#: app.py:65 widgets/device_control/js220_ctrl_widget.py:56
 msgid "Press to clear."
 msgstr "اضغط للمسح."
 
@@ -769,11 +769,11 @@ msgstr "معلومات"
 msgid "Settings"
 msgstr "الإعدادات"
 
-#: main.py:712
+#: main.py:711
 msgid "Manage"
 msgstr "إدارة"
 
-#: main.py:749
+#: main.py:748
 msgid "Select file to open"
 msgstr "حدد الملف لفتحه"
 
@@ -982,11 +982,11 @@ msgstr ""
 "المستهدف عن القطع الأثرية لتبديل النطاق الحالي الصغير."
 
 #: devices/jsdrv/js110.py:29 devices/jsdrv/js110.py:65
-#: devices/jsdrv/js220.py:47 devices/jsdrv/js220.py:83
+#: devices/jsdrv/js220.py:92 devices/jsdrv/js220.py:128
 msgid "Device name"
 msgstr "اسم الجهاز"
 
-#: devices/jsdrv/js110.py:31 devices/jsdrv/js220.py:49
+#: devices/jsdrv/js110.py:31 devices/jsdrv/js220.py:94
 msgid ""
 "The Joulescope UI automatically populates the device name with the device "
 "type and serial number."
@@ -1005,24 +1005,24 @@ msgstr ""
 "بتشغيل نظام باستخدام عدة أجهزة جوليسكوب."
 
 #: devices/jsdrv/js110.py:41 devices/jsdrv/js110.py:71
-#: devices/jsdrv/js220.py:59 devices/jsdrv/js220.py:89
-#: widgets/device_control/js220_ctrl_widget.py:35
+#: devices/jsdrv/js220.py:104 devices/jsdrv/js220.py:134
+#: widgets/device_control/js220_ctrl_widget.py:36
 msgid "Device information"
 msgstr "معلومات الجهاز"
 
-#: devices/jsdrv/js110.py:47 devices/jsdrv/js220.py:65
+#: devices/jsdrv/js110.py:47 devices/jsdrv/js220.py:110
 msgid "Device state indicator"
 msgstr "مؤشر حالة الجهاز"
 
-#: devices/jsdrv/js110.py:59 devices/jsdrv/js220.py:77
+#: devices/jsdrv/js110.py:59 devices/jsdrv/js220.py:122
 msgid "Attempt to automatically open"
 msgstr "محاولة الفتح التلقائي"
 
-#: devices/jsdrv/js110.py:81 devices/jsdrv/js220.py:99
+#: devices/jsdrv/js110.py:81 devices/jsdrv/js220.py:144
 msgid "Signal frequency"
 msgstr "تردد الإشارة"
 
-#: devices/jsdrv/js110.py:83 devices/jsdrv/js220.py:101
+#: devices/jsdrv/js110.py:83 devices/jsdrv/js220.py:146
 msgid ""
 "This setting controls the output sampling frequency for the measurement "
 "signals current, voltage, and power. Use this setting to reduce the data "
@@ -1043,7 +1043,7 @@ msgstr ""
 "المضيف. يتحكم هذا الإعداد في تقليل العينات الاختيارية الإضافية التي يتم "
 "إجراؤها على المضيف."
 
-#: devices/jsdrv/js110.py:117 devices/jsdrv/js220.py:133
+#: devices/jsdrv/js110.py:117 devices/jsdrv/js220.py:178
 msgid "Statistics frequency"
 msgstr "تردد الإحصائيات"
 
@@ -1057,11 +1057,11 @@ msgstr ""
 " القياس المتعدد والقيمة. يتم حساب البيانات الإحصائية على المعدل الكامل 2 "
 "ميجاهرتز للعينات."
 
-#: devices/jsdrv/js110.py:137 devices/jsdrv/js220.py:153
+#: devices/jsdrv/js110.py:137 devices/jsdrv/js220.py:198
 msgid "Toggle the connection between the current terminals."
 msgstr "تبديل الاتصال بين طرفي التيار."
 
-#: devices/jsdrv/js110.py:138 devices/jsdrv/js220.py:154
+#: devices/jsdrv/js110.py:138 devices/jsdrv/js220.py:199
 msgid ""
 "When enabled, current flows between the current terminals. When disabled, "
 "current cannot flow between the current terminals. In common system setups, "
@@ -1072,7 +1072,7 @@ msgstr ""
 "يتدفق بين أطراف التيار. في إعدادات النظام الشائعة، يؤدي ذلك إلى تثبيط الطاقة"
 " المستهدفة، والتي يمكن استخدامها لإعادة ضبط دورة الطاقة للجهاز المستهدف."
 
-#: devices/jsdrv/js110.py:147 devices/jsdrv/js220.py:163
+#: devices/jsdrv/js110.py:147 devices/jsdrv/js220.py:208
 #: widgets/waveform/waveform_widget.py:112
 msgid "Current range"
 msgstr "النطاق الحالي"
@@ -1085,7 +1085,7 @@ msgstr ""
 "قم بتكوين النطاق الحالي لـ J110. يجب أن تستخدم معظم التطبيقات الإعداد "
 "الافتراضي، \"تلقائي\"."
 
-#: devices/jsdrv/js110.py:151 devices/jsdrv/js220.py:167
+#: devices/jsdrv/js110.py:151 devices/jsdrv/js220.py:212
 msgid ""
 "Use the other manual settings with care. It is very easy to configure a "
 "setting that saturates, which will ignore regions of current draw larger "
@@ -1094,7 +1094,7 @@ msgstr ""
 "استخدم الإعدادات اليدوية الأخرى بحذر. من السهل جدًا تكوين إعداد يشبع، والذي "
 "سيتجاهل مناطق السحب الحالي الأكبر من إعداد النطاق الحالي."
 
-#: devices/jsdrv/js110.py:168 devices/jsdrv/js220.py:195
+#: devices/jsdrv/js110.py:168 devices/jsdrv/js220.py:240
 msgid "Voltage range"
 msgstr "نطاق الجهد"
 
@@ -1102,7 +1102,7 @@ msgstr "نطاق الجهد"
 msgid "Configure the JS110's voltage range."
 msgstr "تهيئة نطاق جهد JS110."
 
-#: devices/jsdrv/js110.py:178 devices/jsdrv/js220.py:224
+#: devices/jsdrv/js110.py:178 devices/jsdrv/js220.py:269
 msgid "GPIO voltage"
 msgstr "جهد GPIO"
 
@@ -1121,19 +1121,19 @@ msgstr ""
 "تظل مخرجات JS110 ذات الأغراض العامة في JS110 تعمل دائمًا بالطاقة. عند ضبطها "
 "على \"1\"، يمكن أن يؤدي ذلك إلى تشغيل أهداف غير مزودة بالطاقة."
 
-#: devices/jsdrv/js110.py:199 devices/jsdrv/js220.py:242
+#: devices/jsdrv/js110.py:199 devices/jsdrv/js220.py:287
 msgid "GPO 0 output value"
 msgstr "قيمة خرج GPO 0"
 
-#: devices/jsdrv/js110.py:200 devices/jsdrv/js220.py:243
+#: devices/jsdrv/js110.py:200 devices/jsdrv/js220.py:288
 msgid "Turn the general-purpose output 0 on or off."
 msgstr "تشغيل أو إيقاف تشغيل الإخراج للأغراض العامة 0."
 
-#: devices/jsdrv/js110.py:205 devices/jsdrv/js220.py:248
+#: devices/jsdrv/js110.py:205 devices/jsdrv/js220.py:293
 msgid "GPO 1 output value"
 msgstr "قيمة خرج GPO 1"
 
-#: devices/jsdrv/js110.py:206 devices/jsdrv/js220.py:249
+#: devices/jsdrv/js110.py:206 devices/jsdrv/js220.py:294
 msgid "Turn the general-purpose output 1 on or off."
 msgstr "قم بتشغيل أو إيقاف تشغيل خرج الأغراض العامة 1."
 
@@ -1220,59 +1220,83 @@ msgstr ""
 "عدد العينات بعد نافذة النطاق الحالي المستخدمة لتحديد المتوسط. يتم تجاهل هذه "
 "القيمة لجميع أنواع IRF الأخرى."
 
-#: devices/jsdrv/js110.py:269 devices/jsdrv/js220.py:332
+#: devices/jsdrv/js110.py:269 devices/jsdrv/js220.py:433
 #: widgets/device_control/fuse.py:103 widgets/waveform/waveform_widget.py:107
 msgid "Current"
 msgstr "التيار"
 
-#: devices/jsdrv/js110.py:270 devices/jsdrv/js220.py:333
+#: devices/jsdrv/js110.py:270 devices/jsdrv/js220.py:434
 msgid "Enable the current signal streaming."
 msgstr "تمكين تدفق الإشارة الحالية."
 
-#: devices/jsdrv/js110.py:278 devices/jsdrv/js220.py:341
+#: devices/jsdrv/js110.py:278 devices/jsdrv/js220.py:442
 #: widgets/waveform/waveform_widget.py:108
 msgid "Voltage"
 msgstr "الجهد"
 
-#: devices/jsdrv/js110.py:279 devices/jsdrv/js220.py:342
+#: devices/jsdrv/js110.py:279 devices/jsdrv/js220.py:443
 msgid "Enable the voltage signal streaming."
 msgstr "تمكين تدفق إشارة الجهد."
 
-#: devices/jsdrv/js110.py:287 devices/jsdrv/js220.py:350
+#: devices/jsdrv/js110.py:287 devices/jsdrv/js220.py:451
 #: widgets/waveform/waveform_widget.py:109
 msgid "Power"
 msgstr "الطاقة"
 
-#: devices/jsdrv/js110.py:288 devices/jsdrv/js220.py:351
+#: devices/jsdrv/js110.py:288 devices/jsdrv/js220.py:452
 msgid "Enable the power signal streaming."
 msgstr "تمكين تدفق إشارة الطاقة."
 
-#: devices/jsdrv/js110.py:296 devices/jsdrv/js220.py:359
+#: devices/jsdrv/js110.py:296 devices/jsdrv/js220.py:460
 msgid "Current Range"
 msgstr "النطاق الحالي"
 
-#: devices/jsdrv/js110.py:308 devices/jsdrv/js220.py:374
+#: devices/jsdrv/js110.py:308 devices/jsdrv/js220.py:475
 msgid "GPI 0"
 msgstr "GPI 0"
 
-#: devices/jsdrv/js110.py:309 devices/jsdrv/js220.py:375
+#: devices/jsdrv/js110.py:309 devices/jsdrv/js220.py:476
 msgid "Enable the general purpose input 0 signal streaming."
 msgstr "تمكين تدفق إشارة الإدخال 0 للأغراض العامة."
 
-#: devices/jsdrv/js110.py:317 devices/jsdrv/js220.py:383
+#: devices/jsdrv/js110.py:317 devices/jsdrv/js220.py:484
 msgid "GPI 1"
 msgstr "GPI 1"
 
-#: devices/jsdrv/js110.py:318 devices/jsdrv/js220.py:384
+#: devices/jsdrv/js110.py:318 devices/jsdrv/js220.py:485
 msgid "Enable the general purpose input 1 signal streaming."
 msgstr "تمكين تدفق إشارة الإدخال 1 للأغراض العامة."
 
-#: devices/jsdrv/js110.py:330 devices/jsdrv/js220.py:430
+#: devices/jsdrv/js110.py:330 devices/jsdrv/js220.py:531
 #: devices/jsdrv/jsdrv_stream_buffer.py:108
 msgid "Signal name"
 msgstr "اسم الإشارة"
 
-#: devices/jsdrv/js220.py:51
+#: devices/jsdrv/js220.py:59
+msgid ""
+"Configure how the general-purpose input downsampling filter determines a "
+"single value from a sample block."
+msgstr ""
+"قم بتهيئة كيفية قيام مرشح تقليل عينات المدخلات للأغراض العامة بتحديد قيمة "
+"واحدة من كتلة العينة."
+
+#: devices/jsdrv/js220.py:61
+msgid "Keep at full rate and do not downsample."
+msgstr "حافظ على المعدل الكامل ولا تقلل من العينة."
+
+#: devices/jsdrv/js220.py:62
+msgid "Toggle from the previous value on any change."
+msgstr "التبديل من القيمة السابقة عند أي تغيير."
+
+#: devices/jsdrv/js220.py:63
+msgid "Use the first sample from the block and ignore all others."
+msgstr "استخدم العينة الأولى من الكتلة وتجاهل جميع العينات الأخرى."
+
+#: devices/jsdrv/js220.py:64
+msgid "Use the majority value in the block."
+msgstr "استخدم قيمة الأغلبية في الكتلة."
+
+#: devices/jsdrv/js220.py:96
 msgid ""
 "This setting allows you to change the default, if you wish, to better "
 "reflect how you are using your JS220. This setting is most useful when you "
@@ -1282,7 +1306,7 @@ msgstr ""
 " أفضل كيفية استخدامك لجهاز JS220. يكون هذا الإعداد مفيدًا للغاية عندما تقوم "
 "بتشغيل نظام باستخدام عدة أجهزة جوليسكوب."
 
-#: devices/jsdrv/js220.py:105
+#: devices/jsdrv/js220.py:150
 msgid ""
 "The JS220 instrument always samples at 2 MHz and then downsamples to 1 MHz. "
 "This setting controls additional optional downsampling."
@@ -1290,7 +1314,7 @@ msgstr ""
 "تقوم الأداة JS220 دائمًا بأخذ عينات بتردد 2 ميجاهرتز ثم تقوم بتقليل العينات "
 "إلى 1 ميجاهرتز. يتحكم هذا الإعداد في تقليل العينات الاختيارية الإضافية."
 
-#: devices/jsdrv/js220.py:134
+#: devices/jsdrv/js220.py:179
 msgid ""
 "This setting controls the output frequency for the statistics data that is "
 "displayed in the multimeter and value widgets. Statistics data is computed "
@@ -1300,7 +1324,7 @@ msgstr ""
 " القياس المتعدد والقيمة. يتم حساب البيانات الإحصائية على المعدل الكامل "
 "لعينات 1 ميجاهرتز."
 
-#: devices/jsdrv/js220.py:165
+#: devices/jsdrv/js220.py:210
 msgid ""
 "Configure the JS220's current range. Most applications should use the "
 "default, \"auto\"."
@@ -1308,19 +1332,19 @@ msgstr ""
 "قم بتكوين النطاق الحالي لـ JS220. يجب أن تستخدم معظم التطبيقات الإعداد "
 "الافتراضي، \"تلقائي\"."
 
-#: devices/jsdrv/js220.py:183
+#: devices/jsdrv/js220.py:228
 msgid "Limits"
 msgstr "الحدود"
 
-#: devices/jsdrv/js220.py:185
+#: devices/jsdrv/js220.py:230
 msgid "Configure the autoranging current limits."
 msgstr "تكوين حدود التيار المتغير تلقائيًا."
 
-#: devices/jsdrv/js220.py:186
+#: devices/jsdrv/js220.py:231
 msgid "This setting is only effective when the Current Range is set to \"auto\"."
 msgstr "لا يكون هذا الإعداد فعالاً إلا عند ضبط النطاق الحالي على \"تلقائي\"."
 
-#: devices/jsdrv/js220.py:188
+#: devices/jsdrv/js220.py:233
 msgid ""
 "You can use this setting to limit the current range and improve autoranging "
 "accuracy when you know your application current is more limited than the "
@@ -1329,7 +1353,7 @@ msgstr ""
 "يمكنك استخدام هذا الإعداد للحد من النطاق الحالي وتحسين دقة القياس التلقائي "
 "عندما تعرف أن تيار التطبيق الخاص بك محدود أكثر من نطاق القياس الكامل."
 
-#: devices/jsdrv/js220.py:196
+#: devices/jsdrv/js220.py:241
 msgid ""
 "Configure the JS220's voltage range. Most applications should use the "
 "default, \"auto\"."
@@ -1337,27 +1361,27 @@ msgstr ""
 "قم بتكوين نطاق جهد JS220. يجب أن تستخدم معظم التطبيقات الإعداد الافتراضي، "
 "\"تلقائي\"."
 
-#: devices/jsdrv/js220.py:207
+#: devices/jsdrv/js220.py:252
 msgid "Trigger direction"
 msgstr "اتجاه الزناد"
 
-#: devices/jsdrv/js220.py:209
+#: devices/jsdrv/js220.py:254
 msgid "Configure the direction of the JS220's trigger BNC connection."
 msgstr "قم بتكوين اتجاه وصلة BNC لمشغل JS220 الخاص بـ JS220."
 
-#: devices/jsdrv/js220.py:210
+#: devices/jsdrv/js220.py:255
 msgid ""
 "0 (default) configures the BNC trigger for input only. The BNC connection is"
 " high-impedance."
 msgstr "0 (افتراضي) يهيئ مشغل BNC للإدخال فقط. وصلة BNC ذات مقاومة عالية."
 
-#: devices/jsdrv/js220.py:212
+#: devices/jsdrv/js220.py:257
 msgid ""
 "1 configures the BNC trigger for output. The BNC connection has 50 Ohm "
 "output impedance."
 msgstr "1 يهيئ مشغل BNC للإخراج. تحتوي وصلة BNC على مقاومة خرج 50 أوم."
 
-#: devices/jsdrv/js220.py:214
+#: devices/jsdrv/js220.py:259
 msgid ""
 "In both cases, the trigger input signal is valid, which enables internal "
 "inspection and recording of the trigger output."
@@ -1365,14 +1389,14 @@ msgstr ""
 "في كلتا الحالتين، تكون إشارة دخل الزناد صالحة، مما يتيح الفحص الداخلي وتسجيل"
 " خرج الزناد."
 
-#: devices/jsdrv/js220.py:226
+#: devices/jsdrv/js220.py:271
 msgid ""
 "Configure the JS220's reference voltage for the general-purpose inputs and "
 "outputs."
 msgstr ""
 "تكوين الجهد المرجعي لـ JS220 للجهد المرجعي لمدخلات ومخرجات الأغراض العامة."
 
-#: devices/jsdrv/js220.py:228
+#: devices/jsdrv/js220.py:273
 msgid ""
 "We recommend using \"Vref\" when attaching general-purpose outputs (GPO) to "
 "other equipment. Using Vref prevents the GPO from backpowering target "
@@ -1384,39 +1408,39 @@ msgstr ""
 "المستهدفة عند إيقاف تشغيلها. إن إشارة Vref ومدخلات الأغراض العامة جميعها ذات"
 " مقاومة عالية للغاية لتقليل تيارات التسرب."
 
-#: devices/jsdrv/js220.py:233
+#: devices/jsdrv/js220.py:278
 msgid "\"3.3 V\" uses an internally-generated 3.3V reference voltage."
 msgstr "\"3.3 فولت\" يستخدم جهدًا مرجعيًا 3.3 فولت مولدًا داخليًا."
 
-#: devices/jsdrv/js220.py:254
+#: devices/jsdrv/js220.py:299
 msgid "Trigger output value"
 msgstr "قيمة خرج الزناد"
 
-#: devices/jsdrv/js220.py:256
+#: devices/jsdrv/js220.py:301
 msgid "Turn the trigger output on or off."
 msgstr "تشغيل خرج الزناد أو إيقاف تشغيله."
 
-#: devices/jsdrv/js220.py:257
+#: devices/jsdrv/js220.py:302
 msgid ""
 "The trigger must also be configured for output for this setting to have any "
 "effect."
 msgstr "يجب أيضًا تكوين المشغل للإخراج حتى يكون لهذا الإعداد أي تأثير."
 
-#: devices/jsdrv/js220.py:265
+#: devices/jsdrv/js220.py:310
 msgid "The maturity level channel for firmware updates."
 msgstr "قناة مستوى النضج لتحديثات البرامج الثابتة."
 
-#: devices/jsdrv/js220.py:266
+#: devices/jsdrv/js220.py:311
 msgid ""
 "We recommend keeping the default \"stable\" unless you are a Joulescope "
 "developer."
 msgstr "نوصي بالحفاظ على الوضع الافتراضي \"مستقر\" إلا إذا كنت مطور Joulescope."
 
-#: devices/jsdrv/js220.py:275
+#: devices/jsdrv/js220.py:320
 msgid "Firmware update availability."
 msgstr "توفر تحديث البرامج الثابتة."
 
-#: devices/jsdrv/js220.py:276
+#: devices/jsdrv/js220.py:321
 msgid ""
 "None when no firmware update is available. Map of subname: [current, "
 "available] when available."
@@ -1424,7 +1448,55 @@ msgstr ""
 "لا يوجد عند عدم توفر تحديث للبرنامج الثابت. خريطة الاسم الفرعي: [الحالي، "
 "متوفر] عند توفره."
 
-#: devices/jsdrv/js220.py:362
+#: devices/jsdrv/js220.py:366
+msgid "Prefilter"
+msgstr "المرشح المسبق"
+
+#: devices/jsdrv/js220.py:368
+msgid "Configure the prefilter type."
+msgstr "تكوين نوع المرشح المسبق."
+
+#: devices/jsdrv/js220.py:369
+msgid ""
+"Most applications should use the wideband filter. To reduce peaking around "
+"high frequency events, select the sinc1 filter."
+msgstr ""
+"يجب أن تستخدم معظم التطبيقات مرشح النطاق العريض. لتقليل الذروة حول الأحداث "
+"عالية التردد، حدد مرشح sinc1."
+
+#: devices/jsdrv/js220.py:381
+msgid "Signal filter"
+msgstr "مرشح الإشارة"
+
+#: devices/jsdrv/js220.py:383
+msgid "Configure the signal downsampling filter type."
+msgstr "قم بتكوين نوع مرشح تقليل أخذ عينات الإشارة."
+
+#: devices/jsdrv/js220.py:384
+msgid ""
+"The wideband filter provides a flat frequency response, but it does cause "
+"peaking around high frequency events. The sinc1 filter provides a smoother "
+"time-domain response, but it results in lower bandwidth and more aliasing. "
+"The sinc1 filter also runs on the instrument for reduced USB throughput."
+msgstr ""
+"يوفر مرشح النطاق العريض استجابة تردد مسطحة، ولكنه يسبب ذروة حول الأحداث "
+"عالية التردد. يوفر مرشح sinc1 استجابة أكثر سلاسة في المجال الزمني، لكنه يؤدي"
+" إلى عرض نطاق ترددي أقل والمزيد من التعرجات. يعمل مرشح sinc1 أيضًا على "
+"الجهاز لتقليل إنتاجية USB."
+
+#: devices/jsdrv/js220.py:399
+msgid "GPI filter"
+msgstr "مرشح GPI"
+
+#: devices/jsdrv/js220.py:412
+msgid "Current scale"
+msgstr "المقياس الحالي"
+
+#: devices/jsdrv/js220.py:417
+msgid "Voltage scale"
+msgstr "مقياس الجهد"
+
+#: devices/jsdrv/js220.py:463
 msgid ""
 "⚠ When enabled, no more than 3 GPIO signals (0, 1, 2, 3, T) may be enabled. "
 "If you attempt to enable too many signals, then the UI will display no data "
@@ -1434,27 +1506,27 @@ msgstr ""
 "حاولت تمكين عدد كبير جدًا من الإشارات، فلن تعرض واجهة المستخدم أي بيانات لأي"
 " إشارة."
 
-#: devices/jsdrv/js220.py:392
+#: devices/jsdrv/js220.py:493
 msgid "GPI 2"
 msgstr "GPI 2"
 
-#: devices/jsdrv/js220.py:393
+#: devices/jsdrv/js220.py:494
 msgid "Enable the general purpose input 2 signal streaming."
 msgstr "تمكين تدفق إشارة الإدخال 2 للأغراض العامة."
 
-#: devices/jsdrv/js220.py:401
+#: devices/jsdrv/js220.py:502
 msgid "GPI 3"
 msgstr "GPI 3"
 
-#: devices/jsdrv/js220.py:402
+#: devices/jsdrv/js220.py:503
 msgid "Enable the general purpose input 3 signal streaming."
 msgstr "تمكين تدفق إشارة الإدخال 3 للأغراض العامة."
 
-#: devices/jsdrv/js220.py:410 widgets/waveform/waveform_widget.py:126
+#: devices/jsdrv/js220.py:511 widgets/waveform/waveform_widget.py:126
 msgid "Trigger input"
 msgstr "مدخلات الزناد"
 
-#: devices/jsdrv/js220.py:411
+#: devices/jsdrv/js220.py:512
 msgid "Enable the trigger input signal streaming."
 msgstr "تمكين تدفق إشارة إدخال الزناد."
 
@@ -1899,23 +1971,23 @@ msgstr "الوقت"
 msgid "Fuse"
 msgstr "المصهر"
 
-#: widgets/device_control/js220_ctrl_widget.py:30
+#: widgets/device_control/js220_ctrl_widget.py:31
 msgid "Device documentation"
 msgstr "وثائق الجهاز"
 
-#: widgets/device_control/js220_ctrl_widget.py:31
+#: widgets/device_control/js220_ctrl_widget.py:32
 msgid "Click to display the device documentation PDF."
 msgstr "انقر لعرض ملف PDF لوثائق الجهاز."
 
-#: widgets/device_control/js220_ctrl_widget.py:36
+#: widgets/device_control/js220_ctrl_widget.py:37
 msgid "Click to display detailed information about the device."
 msgstr "انقر لعرض معلومات مفصلة عن الجهاز."
 
-#: widgets/device_control/js220_ctrl_widget.py:40
+#: widgets/device_control/js220_ctrl_widget.py:41
 msgid "Select this device as the default"
 msgstr "حدد هذا الجهاز كجهاز افتراضي"
 
-#: widgets/device_control/js220_ctrl_widget.py:42
+#: widgets/device_control/js220_ctrl_widget.py:43
 msgid ""
 "When selected, this device because the default. All widgets using the "
 "default device will use the data provided by this device."
@@ -1923,7 +1995,7 @@ msgstr ""
 "عند تحديده، هذا الجهاز لأنه الافتراضي. ستستخدم جميع الأدوات التي تستخدم "
 "الجهاز الافتراضي البيانات التي يوفرها هذا الجهاز."
 
-#: widgets/device_control/js220_ctrl_widget.py:44
+#: widgets/device_control/js220_ctrl_widget.py:45
 msgid ""
 "When unselected, another device is the default. Widgets can still be "
 "configured to use data from this device."
@@ -1931,7 +2003,7 @@ msgstr ""
 "عند عدم تحديده، يكون جهاز آخر هو الجهاز الافتراضي. لا يزال من الممكن تكوين "
 "الأدوات لاستخدام البيانات من هذا الجهاز."
 
-#: widgets/device_control/js220_ctrl_widget.py:52
+#: widgets/device_control/js220_ctrl_widget.py:53
 msgid ""
 "This indicator becomes active when this device has at least one engaged "
 "fuse. Engaged fuses prevent current flow until cleared."
@@ -1939,11 +2011,11 @@ msgstr ""
 "يصبح هذا المؤشر نشطاً عندما يكون هذا الجهاز يحتوي على مصهر واحد مشغّل على "
 "الأقل. الصمامات المشغولة تمنع تدفق التيار حتى يتم مسحها."
 
-#: widgets/device_control/js220_ctrl_widget.py:60
+#: widgets/device_control/js220_ctrl_widget.py:61
 msgid "Open and close the device"
 msgstr "فتح الجهاز وإغلاقه"
 
-#: widgets/device_control/js220_ctrl_widget.py:62
+#: widgets/device_control/js220_ctrl_widget.py:63
 msgid ""
 "When closed, click to attempt to open the device. The icon will only change "
 "on a successful device open. Only one application can use a Joulescope "
@@ -1952,25 +2024,25 @@ msgstr ""
 "عند الإغلاق، انقر لمحاولة فتح الجهاز. لن يتغير الرمز إلا عند فتح الجهاز "
 "بنجاح. يمكن لتطبيق واحد فقط استخدام جهاز جولسكوب في كل مرة."
 
-#: widgets/device_control/js220_ctrl_widget.py:65
+#: widgets/device_control/js220_ctrl_widget.py:66
 msgid ""
 "When open, click to close the device. This allows the device to be used in "
 "other programs."
 msgstr "عند فتحه، انقر لإغلاق الجهاز. يسمح ذلك باستخدام الجهاز في برامج أخرى."
 
-#: widgets/device_control/js220_ctrl_widget.py:71
+#: widgets/device_control/js220_ctrl_widget.py:72
 msgid "Reset to default settings"
 msgstr "إعادة الضبط إلى الإعدادات الافتراضية"
 
-#: widgets/device_control/js220_ctrl_widget.py:72
+#: widgets/device_control/js220_ctrl_widget.py:73
 msgid "Click this button to reset this device to the default settings"
 msgstr "انقر فوق هذا الزر لإعادة ضبط هذا الجهاز إلى الإعدادات الافتراضية"
 
-#: widgets/device_control/js220_ctrl_widget.py:76
+#: widgets/device_control/js220_ctrl_widget.py:77
 msgid "Clear accumulators"
 msgstr "مراكمات واضحة"
 
-#: widgets/device_control/js220_ctrl_widget.py:77
+#: widgets/device_control/js220_ctrl_widget.py:78
 msgid ""
 "Click this button to clear the charge and energy accumulators. The "
 "\"Accrue\" feature of the value display widgets, including the multimeter, "
@@ -1979,12 +2051,12 @@ msgstr ""
 "انقر فوق هذا الزر لمسح تراكمات الشحن والطاقة. لن تتأثر ميزة \"Accrue\" "
 "الخاصة بأدوات عرض القيم، بما في ذلك جهاز القياس المتعدد."
 
-#: widgets/device_control/js220_ctrl_widget.py:83
-#: widgets/device_control/js220_ctrl_widget.py:574
+#: widgets/device_control/js220_ctrl_widget.py:84
+#: widgets/device_control/js220_ctrl_widget.py:648
 msgid "Calibrate"
 msgstr "المعايرة"
 
-#: widgets/device_control/js220_ctrl_widget.py:84
+#: widgets/device_control/js220_ctrl_widget.py:85
 msgid ""
 "Click this button to recalibrate your Joulescope JS220. Recalibration is not"
 " required for normal operation. Performing calibration can improve accuracy "
@@ -1994,15 +2066,15 @@ msgstr ""
 " مطلوبة للتشغيل العادي. يمكن أن يؤدي إجراء المعايرة إلى تحسين الدقة من خلال "
 "حساب درجة الحرارة الحالية وتأثيرات التقادم."
 
-#: widgets/device_control/js220_ctrl_widget.py:391
+#: widgets/device_control/js220_ctrl_widget.py:437
 msgid "GPO"
 msgstr "جي بي أو"
 
-#: widgets/device_control/js220_ctrl_widget.py:561
+#: widgets/device_control/js220_ctrl_widget.py:635
 msgid "Reset to defaults"
 msgstr "إعادة التعيين إلى الإعدادات الافتراضية"
 
-#: widgets/device_control/js220_ctrl_widget.py:567
+#: widgets/device_control/js220_ctrl_widget.py:641
 msgid "Clear accum"
 msgstr "واضح التراكم"
 

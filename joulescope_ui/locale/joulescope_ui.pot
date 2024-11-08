@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.2.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-09-21 15:23-0400\n"
+"POT-Creation-Date: 2024-11-08 14:54-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,7 +25,7 @@ msgstr ""
 msgid "Version Information"
 msgstr ""
 
-#: app.py:47 devices/jsdrv/js110.py:135 devices/jsdrv/js220.py:151
+#: app.py:47 devices/jsdrv/js110.py:135 devices/jsdrv/js220.py:196
 msgid "Target power"
 msgstr ""
 
@@ -50,7 +50,7 @@ msgid ""
 "must prevent excessive backwards current."
 msgstr ""
 
-#: app.py:60 widgets/device_control/js220_ctrl_widget.py:50
+#: app.py:60 widgets/device_control/js220_ctrl_widget.py:51
 msgid "Fuse engaged indicator"
 msgstr ""
 
@@ -61,7 +61,7 @@ msgid ""
 "cleared."
 msgstr ""
 
-#: app.py:65 widgets/device_control/js220_ctrl_widget.py:55
+#: app.py:65 widgets/device_control/js220_ctrl_widget.py:56
 msgid "Press to clear."
 msgstr ""
 
@@ -693,11 +693,11 @@ msgstr ""
 msgid "Settings"
 msgstr ""
 
-#: main.py:712
+#: main.py:711
 msgid "Manage"
 msgstr ""
 
-#: main.py:749
+#: main.py:748
 msgid "Select file to open"
 msgstr ""
 
@@ -903,11 +903,11 @@ msgid ""
 msgstr ""
 
 #: devices/jsdrv/js110.py:29 devices/jsdrv/js110.py:65
-#: devices/jsdrv/js220.py:47 devices/jsdrv/js220.py:83
+#: devices/jsdrv/js220.py:92 devices/jsdrv/js220.py:128
 msgid "Device name"
 msgstr ""
 
-#: devices/jsdrv/js110.py:31 devices/jsdrv/js220.py:49
+#: devices/jsdrv/js110.py:31 devices/jsdrv/js220.py:94
 msgid ""
 "The Joulescope UI automatically populates the device name with the device "
 "type and serial number."
@@ -921,24 +921,24 @@ msgid ""
 msgstr ""
 
 #: devices/jsdrv/js110.py:41 devices/jsdrv/js110.py:71
-#: devices/jsdrv/js220.py:59 devices/jsdrv/js220.py:89
-#: widgets/device_control/js220_ctrl_widget.py:35
+#: devices/jsdrv/js220.py:104 devices/jsdrv/js220.py:134
+#: widgets/device_control/js220_ctrl_widget.py:36
 msgid "Device information"
 msgstr ""
 
-#: devices/jsdrv/js110.py:47 devices/jsdrv/js220.py:65
+#: devices/jsdrv/js110.py:47 devices/jsdrv/js220.py:110
 msgid "Device state indicator"
 msgstr ""
 
-#: devices/jsdrv/js110.py:59 devices/jsdrv/js220.py:77
+#: devices/jsdrv/js110.py:59 devices/jsdrv/js220.py:122
 msgid "Attempt to automatically open"
 msgstr ""
 
-#: devices/jsdrv/js110.py:81 devices/jsdrv/js220.py:99
+#: devices/jsdrv/js110.py:81 devices/jsdrv/js220.py:144
 msgid "Signal frequency"
 msgstr ""
 
-#: devices/jsdrv/js110.py:83 devices/jsdrv/js220.py:101
+#: devices/jsdrv/js110.py:83 devices/jsdrv/js220.py:146
 msgid ""
 "This setting controls the output sampling frequency for the measurement "
 "signals current, voltage, and power. Use this setting to reduce the data "
@@ -953,7 +953,7 @@ msgid ""
 "performed on the host."
 msgstr ""
 
-#: devices/jsdrv/js110.py:117 devices/jsdrv/js220.py:133
+#: devices/jsdrv/js110.py:117 devices/jsdrv/js220.py:178
 msgid "Statistics frequency"
 msgstr ""
 
@@ -964,11 +964,11 @@ msgid ""
 "over the full rate 2 MHz samples."
 msgstr ""
 
-#: devices/jsdrv/js110.py:137 devices/jsdrv/js220.py:153
+#: devices/jsdrv/js110.py:137 devices/jsdrv/js220.py:198
 msgid "Toggle the connection between the current terminals."
 msgstr ""
 
-#: devices/jsdrv/js110.py:138 devices/jsdrv/js220.py:154
+#: devices/jsdrv/js110.py:138 devices/jsdrv/js220.py:199
 msgid ""
 "When enabled, current flows between the current terminals. When disabled, "
 "current cannot flow between the current terminals. In common system setups, "
@@ -976,7 +976,7 @@ msgid ""
 "target device."
 msgstr ""
 
-#: devices/jsdrv/js110.py:147 devices/jsdrv/js220.py:163
+#: devices/jsdrv/js110.py:147 devices/jsdrv/js220.py:208
 #: widgets/waveform/waveform_widget.py:112
 msgid "Current range"
 msgstr ""
@@ -987,14 +987,14 @@ msgid ""
 "default, \"auto\"."
 msgstr ""
 
-#: devices/jsdrv/js110.py:151 devices/jsdrv/js220.py:167
+#: devices/jsdrv/js110.py:151 devices/jsdrv/js220.py:212
 msgid ""
 "Use the other manual settings with care. It is very easy to configure a "
 "setting that saturates, which will ignore regions of current draw larger "
 "than the current range setting."
 msgstr ""
 
-#: devices/jsdrv/js110.py:168 devices/jsdrv/js220.py:195
+#: devices/jsdrv/js110.py:168 devices/jsdrv/js220.py:240
 msgid "Voltage range"
 msgstr ""
 
@@ -1002,7 +1002,7 @@ msgstr ""
 msgid "Configure the JS110's voltage range."
 msgstr ""
 
-#: devices/jsdrv/js110.py:178 devices/jsdrv/js220.py:224
+#: devices/jsdrv/js110.py:178 devices/jsdrv/js220.py:269
 msgid "GPIO voltage"
 msgstr ""
 
@@ -1018,19 +1018,19 @@ msgid ""
 "\"1\", this can backpower unpowered targets."
 msgstr ""
 
-#: devices/jsdrv/js110.py:199 devices/jsdrv/js220.py:242
+#: devices/jsdrv/js110.py:199 devices/jsdrv/js220.py:287
 msgid "GPO 0 output value"
 msgstr ""
 
-#: devices/jsdrv/js110.py:200 devices/jsdrv/js220.py:243
+#: devices/jsdrv/js110.py:200 devices/jsdrv/js220.py:288
 msgid "Turn the general-purpose output 0 on or off."
 msgstr ""
 
-#: devices/jsdrv/js110.py:205 devices/jsdrv/js220.py:248
+#: devices/jsdrv/js110.py:205 devices/jsdrv/js220.py:293
 msgid "GPO 1 output value"
 msgstr ""
 
-#: devices/jsdrv/js110.py:206 devices/jsdrv/js220.py:249
+#: devices/jsdrv/js110.py:206 devices/jsdrv/js220.py:294
 msgid "Turn the general-purpose output 1 on or off."
 msgstr ""
 
@@ -1100,142 +1100,164 @@ msgid ""
 "mean. This value is ignored for all other IRF types."
 msgstr ""
 
-#: devices/jsdrv/js110.py:269 devices/jsdrv/js220.py:332
+#: devices/jsdrv/js110.py:269 devices/jsdrv/js220.py:433
 #: widgets/device_control/fuse.py:103 widgets/waveform/waveform_widget.py:107
 msgid "Current"
 msgstr ""
 
-#: devices/jsdrv/js110.py:270 devices/jsdrv/js220.py:333
+#: devices/jsdrv/js110.py:270 devices/jsdrv/js220.py:434
 msgid "Enable the current signal streaming."
 msgstr ""
 
-#: devices/jsdrv/js110.py:278 devices/jsdrv/js220.py:341
+#: devices/jsdrv/js110.py:278 devices/jsdrv/js220.py:442
 #: widgets/waveform/waveform_widget.py:108
 msgid "Voltage"
 msgstr ""
 
-#: devices/jsdrv/js110.py:279 devices/jsdrv/js220.py:342
+#: devices/jsdrv/js110.py:279 devices/jsdrv/js220.py:443
 msgid "Enable the voltage signal streaming."
 msgstr ""
 
-#: devices/jsdrv/js110.py:287 devices/jsdrv/js220.py:350
+#: devices/jsdrv/js110.py:287 devices/jsdrv/js220.py:451
 #: widgets/waveform/waveform_widget.py:109
 msgid "Power"
 msgstr ""
 
-#: devices/jsdrv/js110.py:288 devices/jsdrv/js220.py:351
+#: devices/jsdrv/js110.py:288 devices/jsdrv/js220.py:452
 msgid "Enable the power signal streaming."
 msgstr ""
 
-#: devices/jsdrv/js110.py:296 devices/jsdrv/js220.py:359
+#: devices/jsdrv/js110.py:296 devices/jsdrv/js220.py:460
 msgid "Current Range"
 msgstr ""
 
-#: devices/jsdrv/js110.py:308 devices/jsdrv/js220.py:374
+#: devices/jsdrv/js110.py:308 devices/jsdrv/js220.py:475
 msgid "GPI 0"
 msgstr ""
 
-#: devices/jsdrv/js110.py:309 devices/jsdrv/js220.py:375
+#: devices/jsdrv/js110.py:309 devices/jsdrv/js220.py:476
 msgid "Enable the general purpose input 0 signal streaming."
 msgstr ""
 
-#: devices/jsdrv/js110.py:317 devices/jsdrv/js220.py:383
+#: devices/jsdrv/js110.py:317 devices/jsdrv/js220.py:484
 msgid "GPI 1"
 msgstr ""
 
-#: devices/jsdrv/js110.py:318 devices/jsdrv/js220.py:384
+#: devices/jsdrv/js110.py:318 devices/jsdrv/js220.py:485
 msgid "Enable the general purpose input 1 signal streaming."
 msgstr ""
 
-#: devices/jsdrv/js110.py:330 devices/jsdrv/js220.py:430
+#: devices/jsdrv/js110.py:330 devices/jsdrv/js220.py:531
 #: devices/jsdrv/jsdrv_stream_buffer.py:108
 msgid "Signal name"
 msgstr ""
 
-#: devices/jsdrv/js220.py:51
+#: devices/jsdrv/js220.py:59
+msgid ""
+"Configure how the general-purpose input downsampling filter determines a "
+"single value from a sample block."
+msgstr ""
+
+#: devices/jsdrv/js220.py:61
+msgid "Keep at full rate and do not downsample."
+msgstr ""
+
+#: devices/jsdrv/js220.py:62
+msgid "Toggle from the previous value on any change."
+msgstr ""
+
+#: devices/jsdrv/js220.py:63
+msgid "Use the first sample from the block and ignore all others."
+msgstr ""
+
+#: devices/jsdrv/js220.py:64
+msgid "Use the majority value in the block."
+msgstr ""
+
+#: devices/jsdrv/js220.py:96
 msgid ""
 "This setting allows you to change the default, if you wish, to better "
 "reflect how you are using your JS220. This setting is most useful when you "
 "are instrumenting a system using multiple Joulescopes."
 msgstr ""
 
-#: devices/jsdrv/js220.py:105
+#: devices/jsdrv/js220.py:150
 msgid ""
 "The JS220 instrument always samples at 2 MHz and then downsamples to 1 MHz. "
 "This setting controls additional optional downsampling."
 msgstr ""
 
-#: devices/jsdrv/js220.py:134
+#: devices/jsdrv/js220.py:179
 msgid ""
 "This setting controls the output frequency for the statistics data that is "
 "displayed in the multimeter and value widgets. Statistics data is computed "
 "over the full rate 1 MHz samples."
 msgstr ""
 
-#: devices/jsdrv/js220.py:165
+#: devices/jsdrv/js220.py:210
 msgid ""
 "Configure the JS220's current range. Most applications should use the "
 "default, \"auto\"."
 msgstr ""
 
-#: devices/jsdrv/js220.py:183
+#: devices/jsdrv/js220.py:228
 msgid "Limits"
 msgstr ""
 
-#: devices/jsdrv/js220.py:185
+#: devices/jsdrv/js220.py:230
 msgid "Configure the autoranging current limits."
 msgstr ""
 
-#: devices/jsdrv/js220.py:186
+#: devices/jsdrv/js220.py:231
 msgid "This setting is only effective when the Current Range is set to \"auto\"."
 msgstr ""
 
-#: devices/jsdrv/js220.py:188
+#: devices/jsdrv/js220.py:233
 msgid ""
 "You can use this setting to limit the current range and improve autoranging "
 "accuracy when you know your application current is more limited than the "
 "full measurement range."
 msgstr ""
 
-#: devices/jsdrv/js220.py:196
+#: devices/jsdrv/js220.py:241
 msgid ""
 "Configure the JS220's voltage range. Most applications should use the "
 "default, \"auto\"."
 msgstr ""
 
-#: devices/jsdrv/js220.py:207
+#: devices/jsdrv/js220.py:252
 msgid "Trigger direction"
 msgstr ""
 
-#: devices/jsdrv/js220.py:209
+#: devices/jsdrv/js220.py:254
 msgid "Configure the direction of the JS220's trigger BNC connection."
 msgstr ""
 
-#: devices/jsdrv/js220.py:210
+#: devices/jsdrv/js220.py:255
 msgid ""
 "0 (default) configures the BNC trigger for input only. The BNC connection is"
 " high-impedance."
 msgstr ""
 
-#: devices/jsdrv/js220.py:212
+#: devices/jsdrv/js220.py:257
 msgid ""
 "1 configures the BNC trigger for output. The BNC connection has 50 Ohm "
 "output impedance."
 msgstr ""
 
-#: devices/jsdrv/js220.py:214
+#: devices/jsdrv/js220.py:259
 msgid ""
 "In both cases, the trigger input signal is valid, which enables internal "
 "inspection and recording of the trigger output."
 msgstr ""
 
-#: devices/jsdrv/js220.py:226
+#: devices/jsdrv/js220.py:271
 msgid ""
 "Configure the JS220's reference voltage for the general-purpose inputs and "
 "outputs."
 msgstr ""
 
-#: devices/jsdrv/js220.py:228
+#: devices/jsdrv/js220.py:273
 msgid ""
 "We recommend using \"Vref\" when attaching general-purpose outputs (GPO) to "
 "other equipment. Using Vref prevents the GPO from backpowering target "
@@ -1243,72 +1265,114 @@ msgid ""
 "are all extremely high impedance to minimize leakage currents."
 msgstr ""
 
-#: devices/jsdrv/js220.py:233
+#: devices/jsdrv/js220.py:278
 msgid "\"3.3 V\" uses an internally-generated 3.3V reference voltage."
 msgstr ""
 
-#: devices/jsdrv/js220.py:254
+#: devices/jsdrv/js220.py:299
 msgid "Trigger output value"
 msgstr ""
 
-#: devices/jsdrv/js220.py:256
+#: devices/jsdrv/js220.py:301
 msgid "Turn the trigger output on or off."
 msgstr ""
 
-#: devices/jsdrv/js220.py:257
+#: devices/jsdrv/js220.py:302
 msgid ""
 "The trigger must also be configured for output for this setting to have any "
 "effect."
 msgstr ""
 
-#: devices/jsdrv/js220.py:265
+#: devices/jsdrv/js220.py:310
 msgid "The maturity level channel for firmware updates."
 msgstr ""
 
-#: devices/jsdrv/js220.py:266
+#: devices/jsdrv/js220.py:311
 msgid ""
 "We recommend keeping the default \"stable\" unless you are a Joulescope "
 "developer."
 msgstr ""
 
-#: devices/jsdrv/js220.py:275
+#: devices/jsdrv/js220.py:320
 msgid "Firmware update availability."
 msgstr ""
 
-#: devices/jsdrv/js220.py:276
+#: devices/jsdrv/js220.py:321
 msgid ""
 "None when no firmware update is available. Map of subname: [current, "
 "available] when available."
 msgstr ""
 
-#: devices/jsdrv/js220.py:362
+#: devices/jsdrv/js220.py:366
+msgid "Prefilter"
+msgstr ""
+
+#: devices/jsdrv/js220.py:368
+msgid "Configure the prefilter type."
+msgstr ""
+
+#: devices/jsdrv/js220.py:369
+msgid ""
+"Most applications should use the wideband filter. To reduce peaking around "
+"high frequency events, select the sinc1 filter."
+msgstr ""
+
+#: devices/jsdrv/js220.py:381
+msgid "Signal filter"
+msgstr ""
+
+#: devices/jsdrv/js220.py:383
+msgid "Configure the signal downsampling filter type."
+msgstr ""
+
+#: devices/jsdrv/js220.py:384
+msgid ""
+"The wideband filter provides a flat frequency response, but it does cause "
+"peaking around high frequency events. The sinc1 filter provides a smoother "
+"time-domain response, but it results in lower bandwidth and more aliasing. "
+"The sinc1 filter also runs on the instrument for reduced USB throughput."
+msgstr ""
+
+#: devices/jsdrv/js220.py:399
+msgid "GPI filter"
+msgstr ""
+
+#: devices/jsdrv/js220.py:412
+msgid "Current scale"
+msgstr ""
+
+#: devices/jsdrv/js220.py:417
+msgid "Voltage scale"
+msgstr ""
+
+#: devices/jsdrv/js220.py:463
 msgid ""
 "⚠ When enabled, no more than 3 GPIO signals (0, 1, 2, 3, T) may be enabled. "
 "If you attempt to enable too many signals, then the UI will display no data "
 "for any signal."
 msgstr ""
 
-#: devices/jsdrv/js220.py:392
+#: devices/jsdrv/js220.py:493
 msgid "GPI 2"
 msgstr ""
 
-#: devices/jsdrv/js220.py:393
+#: devices/jsdrv/js220.py:494
 msgid "Enable the general purpose input 2 signal streaming."
 msgstr ""
 
-#: devices/jsdrv/js220.py:401
+#: devices/jsdrv/js220.py:502
 msgid "GPI 3"
 msgstr ""
 
-#: devices/jsdrv/js220.py:402
+#: devices/jsdrv/js220.py:503
 msgid "Enable the general purpose input 3 signal streaming."
 msgstr ""
 
-#: devices/jsdrv/js220.py:410 widgets/waveform/waveform_widget.py:126
+#: devices/jsdrv/js220.py:511 widgets/waveform/waveform_widget.py:126
 msgid "Trigger input"
 msgstr ""
 
-#: devices/jsdrv/js220.py:411
+#: devices/jsdrv/js220.py:512
 msgid "Enable the trigger input signal streaming."
 msgstr ""
 
@@ -1739,97 +1803,97 @@ msgstr ""
 msgid "Fuse"
 msgstr ""
 
-#: widgets/device_control/js220_ctrl_widget.py:30
+#: widgets/device_control/js220_ctrl_widget.py:31
 msgid "Device documentation"
 msgstr ""
 
-#: widgets/device_control/js220_ctrl_widget.py:31
+#: widgets/device_control/js220_ctrl_widget.py:32
 msgid "Click to display the device documentation PDF."
 msgstr ""
 
-#: widgets/device_control/js220_ctrl_widget.py:36
+#: widgets/device_control/js220_ctrl_widget.py:37
 msgid "Click to display detailed information about the device."
 msgstr ""
 
-#: widgets/device_control/js220_ctrl_widget.py:40
+#: widgets/device_control/js220_ctrl_widget.py:41
 msgid "Select this device as the default"
 msgstr ""
 
-#: widgets/device_control/js220_ctrl_widget.py:42
+#: widgets/device_control/js220_ctrl_widget.py:43
 msgid ""
 "When selected, this device because the default. All widgets using the "
 "default device will use the data provided by this device."
 msgstr ""
 
-#: widgets/device_control/js220_ctrl_widget.py:44
+#: widgets/device_control/js220_ctrl_widget.py:45
 msgid ""
 "When unselected, another device is the default. Widgets can still be "
 "configured to use data from this device."
 msgstr ""
 
-#: widgets/device_control/js220_ctrl_widget.py:52
+#: widgets/device_control/js220_ctrl_widget.py:53
 msgid ""
 "This indicator becomes active when this device has at least one engaged "
 "fuse. Engaged fuses prevent current flow until cleared."
 msgstr ""
 
-#: widgets/device_control/js220_ctrl_widget.py:60
+#: widgets/device_control/js220_ctrl_widget.py:61
 msgid "Open and close the device"
 msgstr ""
 
-#: widgets/device_control/js220_ctrl_widget.py:62
+#: widgets/device_control/js220_ctrl_widget.py:63
 msgid ""
 "When closed, click to attempt to open the device. The icon will only change "
 "on a successful device open. Only one application can use a Joulescope "
 "device at a time."
 msgstr ""
 
-#: widgets/device_control/js220_ctrl_widget.py:65
+#: widgets/device_control/js220_ctrl_widget.py:66
 msgid ""
 "When open, click to close the device. This allows the device to be used in "
 "other programs."
 msgstr ""
 
-#: widgets/device_control/js220_ctrl_widget.py:71
+#: widgets/device_control/js220_ctrl_widget.py:72
 msgid "Reset to default settings"
 msgstr ""
 
-#: widgets/device_control/js220_ctrl_widget.py:72
+#: widgets/device_control/js220_ctrl_widget.py:73
 msgid "Click this button to reset this device to the default settings"
 msgstr ""
 
-#: widgets/device_control/js220_ctrl_widget.py:76
+#: widgets/device_control/js220_ctrl_widget.py:77
 msgid "Clear accumulators"
 msgstr ""
 
-#: widgets/device_control/js220_ctrl_widget.py:77
+#: widgets/device_control/js220_ctrl_widget.py:78
 msgid ""
 "Click this button to clear the charge and energy accumulators. The "
 "\"Accrue\" feature of the value display widgets, including the multimeter, "
 "will be unaffected."
 msgstr ""
 
-#: widgets/device_control/js220_ctrl_widget.py:83
-#: widgets/device_control/js220_ctrl_widget.py:574
+#: widgets/device_control/js220_ctrl_widget.py:84
+#: widgets/device_control/js220_ctrl_widget.py:648
 msgid "Calibrate"
 msgstr ""
 
-#: widgets/device_control/js220_ctrl_widget.py:84
+#: widgets/device_control/js220_ctrl_widget.py:85
 msgid ""
 "Click this button to recalibrate your Joulescope JS220. Recalibration is not"
 " required for normal operation. Performing calibration can improve accuracy "
 "by accounting for the existing temperature and aging effects."
 msgstr ""
 
-#: widgets/device_control/js220_ctrl_widget.py:391
+#: widgets/device_control/js220_ctrl_widget.py:437
 msgid "GPO"
 msgstr ""
 
-#: widgets/device_control/js220_ctrl_widget.py:561
+#: widgets/device_control/js220_ctrl_widget.py:635
 msgid "Reset to defaults"
 msgstr ""
 
-#: widgets/device_control/js220_ctrl_widget.py:567
+#: widgets/device_control/js220_ctrl_widget.py:641
 msgid "Clear accum"
 msgstr ""
 
