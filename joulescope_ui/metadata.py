@@ -173,6 +173,7 @@ class Metadata:
             * skip_undo: This topic should not be added to the undo list.
             * tmp: Temporary value that is not persisted.
             * noinit: Do not attempt to get default value from class or persist.
+        :param requirements: (optional) The dict of version requirements.
         """
         if len(args) == 1 and len(kwargs) == 0:
             v = args[0]
@@ -204,6 +205,7 @@ class Metadata:
         self.flags = kwargs.get('flags')
         if self.flags is None:
             self.flags = []
+        self.requirements = kwargs.get('requirements')
 
         if callable(self.dtype):
             self._validate_fn = self.dtype

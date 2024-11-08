@@ -9,7 +9,11 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 2024 Nov 8
 
-TODO
+* Added support for JS220 FW 1.3.0 and FPGA 1.3.0
+  * Added on-instrument downsampling
+  * Improved time synchronization over USB
+  * Fixed fuse engaged state not restored on UI open #244
+* Added arbitrary scale factor to current & voltage
 
 
 ## 1.1.12

@@ -1,4 +1,4 @@
-# Copyright 2023 Jetperch LLC
+# Copyright 2024 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,12 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PySide6 import QtCore, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 from joulescope_ui.expanding_widget import ExpandingWidget
 import logging
 from joulescope_ui import N_, P_, tooltip_format, get_instance, get_topic_name, Metadata, urls
 from joulescope_ui.pubsub_proxy import PubSubProxy
 from joulescope_ui.styles import color_as_qcolor
+from joulescope_ui.software_update import str_to_version
 from joulescope_ui.ui_util import comboBoxConfig
 from joulescope_ui.widget_tools import CallableSlotAdapter
 from .device_info_dialog import DeviceInfoDialog
@@ -99,6 +100,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         self._widgets = []
         self._control_widgets = {}  # name, widget
         self._row = 0
+        self._requirements = []  # list of [row, requirements]
         self._signals = {}
         self._gpo = {}
         self._footer = {}
@@ -144,6 +146,33 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         for signal in self._GPI_SIGNALS:
             self._gpi_subscribe(f'{topic}/events/signals/{signal}/!data', signal)
         pubsub.subscribe(f'{topic}/settings/state', self._on_setting_state, ['pub', 'retain'])
+        pubsub.subscribe(f'{topic}/settings/info', self._on_setting_info, ['pub', 'retain'])
+
+    def _row_hide(self, row):
+        self._body_layout.setRowMinimumHeight(row, 0)
+        self._body_layout.setRowStretch(row, 0)
+        for col in range(self._body_layout.columnCount()):
+            item = self._body_layout.itemAtPosition(row, col)
+            if item is not None:
+                widget = item.widget()
+                if widget is not None:
+                    widget.setVisible(False)
+
+    def _row_show(self, row):
+        self._body_layout.setRowMinimumHeight(row, 1)  # Set a default height
+        self._body_layout.setRowStretch(row, 1)  # Set a default stretch factor
+        for col in range(self._body_layout.columnCount()):
+            item = self._body_layout.itemAtPosition(row, col)
+            if item is not None:
+                widget = item.widget()
+                if widget is not None:
+                    widget.setVisible(True)
+
+    def _row_visibility(self, row, is_visible):
+        if is_visible:
+            self._row_show(row)
+        else:
+            self._row_hide(row)
 
     @property
     def is_js220(self):
@@ -172,6 +201,23 @@ class Js220CtrlWidget(QtWidgets.QWidget):
     def _on_setting_state(self, value):
         if self._info_button is not None:
             self._info_button.setEnabled(value == 2)
+
+    def _on_setting_info(self, value):
+        try:
+            actual = {
+                'fw': str_to_version(value['version']['fw']),
+                'fpga': str_to_version(value['version']['fpga']),
+            }
+        except Exception:
+            self._log.exception(f'Could not parse info: {value}')
+            return
+        for row, requirement in self._requirements:
+            visible = True
+            for key, req in requirement.items():
+                if key not in actual or actual[key] < str_to_version(req):
+                    visible = False
+                    break
+            self._row_visibility(row, visible)
 
     def _on_target_power_app(self, value):
         b = self._target_power_button
@@ -459,6 +505,29 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         self.pubsub.subscribe(topic, on_change, ['pub', 'retain'])
         return w
 
+    def _add_float(self, name):
+        w = QtWidgets.QLineEdit(self)
+        validator = QtGui.QDoubleValidator(0, 10.0, 5, w)
+        w.setValidator(validator)
+        w.setText('1.0')
+        topic = f'{get_topic_name(self.unique_id)}/settings/{name}'
+        adapter = CallableSlotAdapter(w, lambda s: self.pubsub.publish(topic, float(s)))
+        w.textChanged.connect(adapter.slot)
+
+        def on_change(v):
+            if v == float(w.text()):
+                return
+            v = f'{float(v):.5f}'
+            while v[-1] in "0.":
+                v = v[:-1]
+            block_state = w.blockSignals(True)
+            w.setText(v)
+            w.blockSignals(block_state)
+
+        self._control_widgets[name] = w
+        self.pubsub.subscribe(topic, on_change, ['pub', 'retain'])
+        return w
+
     def _add_combobox(self, name, meta: Metadata):
         w = QtWidgets.QComboBox(self)
         w.setSizeAdjustPolicy(QtWidgets.QComboBox.SizeAdjustPolicy.AdjustToContents)
@@ -515,6 +584,8 @@ class Js220CtrlWidget(QtWidgets.QWidget):
 
     def _add(self, name, meta: Metadata):
         tooltip = tooltip_format(meta.brief, meta.detail)
+        if meta.requirements is not None:
+            self._requirements.append([self._row, meta.requirements])
 
         if name == 'current_range_limits':
             w = self._add_current_range_limits(name, meta)
@@ -534,6 +605,8 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             w = self._add_combobox(name, meta)
         elif meta.dtype == 'str':
             w = self._add_str(name)
+        elif meta.dtype == 'float':
+            w = self._add_float(name)
 
         if w is not None:
             w.setParent(self)
@@ -546,6 +619,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         if self.is_js220:
             w = FuseWidget(self, self.unique_id, self.pubsub)
             self._body_layout.addWidget(w, self._row, 0, 1, 2)
+            self._requirements.append([self._row, {'fw': '1.1.0', 'fpga': '1.1.0'}])
             self._row += 1
             self._widgets.append(w)
 

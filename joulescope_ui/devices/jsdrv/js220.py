@@ -40,6 +40,51 @@ _PROGRESS_TOPIC = 'registry/progress/actions/!update'
 EVENTS = {
     'statistics/!data': Metadata('obj', 'Periodic statistics data for each signal.'),
 }
+_DOWNSAMPLE_REQUIREMENTS = {
+    'fpga': '1.3.0',
+    'fw': '1.3.0',
+}
+
+_GPI_FILTER_STYLE = """\
+<style>
+table {
+  border-collapse: collapse
+}
+th, td {
+  padding: 5px;
+  border: 1px solid;
+}
+</style>
+"""
+_GPI_FILTER_DETAIL = N_("""Configure how the general-purpose input downsampling filter
+                        determines a single value from a sample block.""")
+_GPI_FILTER_OFF = N_('Keep at full rate and do not downsample.')
+_GPI_FILTER_TOGGLE = N_('Toggle from the previous value on any change.')
+_GPI_FILTER_FIRST = N_('Use the first sample from the block and ignore all others.')
+_GPI_FILTER_MAJORITY = N_('Use the majority value in the block.')
+_GPI_FILTER_TOOLTIP = f"""\
+<html><header>{_GPI_FILTER_STYLE}</header>
+<body>
+<p>{_GPI_FILTER_DETAIL}</p>
+<table>
+  <tr>
+    <td>off</td>
+    <td>{_GPI_FILTER_OFF}</td>
+  </tr>
+  <tr>
+    <td>toggle</td>
+    <td>{_GPI_FILTER_TOGGLE}</td>
+  </tr>
+  <tr>
+    <td>first</td>
+    <td>{_GPI_FILTER_FIRST}</td>
+  </tr>
+  <tr>
+    <td>majority</td>
+    <td>{_GPI_FILTER_MAJORITY}</td>
+  </tr>
+</table></p></body></html>
+"""
 
 _SETTINGS_OBJ_ONLY = {
     'name': {
@@ -316,6 +361,62 @@ _SETTINGS_CLASS = {
         'default': 0,
         'flags': ['hide', 'tmp', 'ro'],
     },
+    'prefilter': {
+        'dtype': 'int',
+        'brief': N_('Prefilter'),
+        'detail': P_([
+            N_("""Configure the prefilter type."""),
+            N_("""Most applications should use the wideband filter.
+               To reduce peaking around high frequency events, 
+               select the sinc1 filter.""")]),
+        'options': [
+            [0, "wideband"],
+            [1, "sinc1"],
+        ],
+        'default': 0,
+        'requirements': _DOWNSAMPLE_REQUIREMENTS,
+    },
+    'signal_filter': {
+        'dtype': 'int',
+        'brief': N_('Signal filter'),
+        'detail': P_([
+            N_("""Configure the signal downsampling filter type."""),
+            N_("""The wideband filter provides a flat frequency response,
+               but it does cause peaking around high frequency events.
+               The sinc1 filter provides a smoother time-domain response,
+               but it results in lower bandwidth and more aliasing.
+               The sinc1 filter also runs on the instrument for 
+               reduced USB throughput.""")]),
+        'options': [
+            [0, "wideband"],
+            [1, "sinc1"],
+        ],
+        'default': 0,
+        'requirements': _DOWNSAMPLE_REQUIREMENTS,
+    },
+    'gpi_filter': {
+        'dtype': 'int',
+        'brief': N_('GPI filter'),
+        'detail': _GPI_FILTER_TOOLTIP,
+        'options': [
+            [0, "off"],
+            [1, "toggle"],
+            [2, "first"],
+            [3, "majority"],
+        ],
+        'default': 0,
+        'requirements': _DOWNSAMPLE_REQUIREMENTS,
+    },
+    'i_scale': {
+        'dtype': 'float',
+        'brief': N_('Current scale'),
+        'default': 1.0,
+    },
+    'v_scale': {
+        'dtype': 'float',
+        'brief': N_('Voltage scale'),
+        'default': 1.0,
+    },
 }
 
 
@@ -453,7 +554,9 @@ class Js220(Device):
         _, model, serial_number = device_path.split('/')
         name = f'{model.upper()}-{serial_number}'
         self.EVENTS = copy.deepcopy(EVENTS)
-        self.SETTINGS = copy.deepcopy(_SETTINGS_CLASS)
+        self.SETTINGS = {}
+        for key, value in _SETTINGS_CLASS.items():
+            self.SETTINGS[key] = copy.deepcopy(value)
         for key, value in _SETTINGS_OBJ_ONLY.items():
             self.SETTINGS[key] = copy.deepcopy(value)
         self.SETTINGS['name']['default'] = name
@@ -663,6 +766,19 @@ class Js220(Device):
                     self._driver_publish(f's/fuse/+/!clear', 0)
                 elif value in _FUSE_IDS:
                     self._driver_publish(f's/fuse/{value}/engaged', 0)
+        elif topic == 'prefilter':
+            if self.has_downsample_support:
+                self._driver_publish(f's/dwn2/mode', value, timeout=0)
+        elif topic == 'signal_filter':
+            if self.has_downsample_support:
+                self._driver_publish(f'h/filter', value, timeout=0)
+        elif topic == 'gpi_filter':
+            if self.has_downsample_support:
+                self._driver_publish(f's/gpi/+/dwnN/mode', value, timeout=0)
+        elif topic == 'i_scale':
+            self._driver_publish(f'h/i_scale', float(value), timeout=0)
+        elif topic == 'v_scale':
+            self._driver_publish(f'h/v_scale', float(value), timeout=0)
         elif topic in ['state_req']:
             pass  # ignore: obsolete and removed
         else:
@@ -784,6 +900,10 @@ class Js220(Device):
     @property
     def has_fuse_support(self):
         return (self._firmware_version >= (1, 1, 0)) and (self._fpga_version >= (1, 1, 0))
+
+    @property
+    def has_downsample_support(self):
+        return (self._firmware_version >= (1, 3, 0)) and (self._fpga_version >= (1, 3, 0))
 
     def _close(self):
         if not self._driver_device_open:
