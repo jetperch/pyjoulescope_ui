@@ -185,7 +185,8 @@ class SideBar(QtWidgets.QWidget):
         obj = Separator()
         obj.setObjectName(name)
         obj.setFixedHeight(int(self.separator_size))
-        obj.setVisible(bool(self.separator_show))
+        if not bool(self.separator_show):
+            obj.hide()
         self._separators[name] = obj
         self._layout.addWidget(obj)
 

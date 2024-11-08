@@ -434,7 +434,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         if filename is None:
             self.setAcceptDrops(True)
-        self.show()
 
         self.pubsub.publish(UNDO_TOPIC, 'clear', defer=True)
         self.pubsub.publish(REDO_TOPIC, 'clear', defer=True)
@@ -846,7 +845,7 @@ def _finalize():
             _log.info('finalize: config save')
             pubsub_singleton.save()
         except Exception:
-            _log.error('Configuration save failed')
+            _log.exception('Configuration save failed')
 
     if _config_clear:
         try:
@@ -959,6 +958,7 @@ def run(log_level=None, file_log_level=None, filename=None, safe_mode=False):
 
                 ui = MainWindow(filename=filename, is_config_load=is_config_load)
                 pubsub_singleton.notify_fn = ui.resync_request
+                ui.show()
                 try:
                     _log.info('app.exec start')
                     rc = app.exec()

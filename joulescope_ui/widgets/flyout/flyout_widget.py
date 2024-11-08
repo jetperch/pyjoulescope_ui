@@ -37,7 +37,6 @@ class FlyoutWidget(QtWidgets.QScrollArea):
         self.setWidgetResizable(True)
         self.setHorizontalScrollBarPolicy(QtGui.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
         self._resize_active = None
-        self.show()
         self.animations = []
         self._CURSOR_ARROW = QtGui.QCursor(QtGui.Qt.ArrowCursor)
         self._CURSOR_SIZE_HOR = QtGui.QCursor(QtGui.Qt.SizeHorCursor)

@@ -14,6 +14,7 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Improved time synchronization over USB
   * Fixed fuse engaged state not restored on UI open #244
 * Added arbitrary scale factor to current & voltage
+* Addressed initial small window glitch on start
 
 
 ## 1.1.12
