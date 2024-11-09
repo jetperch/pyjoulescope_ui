@@ -78,7 +78,7 @@ def nuitka():
             '--include-data-files=README.md=README.md',
             f'--include-data-file={_OPENGL32SW}={_OPENGL32DLL}',  # include OpenGL software renderer (for Intel UHD)
             '--windows-icon-from-ico=joulescope_ui/resources/icon.ico',
-            #'--windows-console-mode=disable',  # added in Nuitka 2.4, was --disable-console
+            '--windows-console-mode=disable',  # added in Nuitka 2.4, was --disable-console
             #'--force-stdout-spec=%HOME%/joulescope_%TIME%_%PID%.out.txt',
             #'--force-stderr-spec=%HOME%/joulescope_%TIME%_%PID%.err.txt',
             #'--debug',

@@ -5,6 +5,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.2.1
+
+2024 Nov 9
+
+* Disabled Windows console (accidentally enabled).
+
+
 ## 1.2.0
 
 2024 Nov 8
