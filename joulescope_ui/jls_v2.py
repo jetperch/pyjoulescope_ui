@@ -48,6 +48,7 @@ TO_JLS_SIGNAL_NAME = {
     '1': 'gpi[1]',
     '2': 'gpi[2]',
     '3': 'gpi[3]',
+    '7': 'trigger_in',
     'T': 'trigger_in',
 }
 
