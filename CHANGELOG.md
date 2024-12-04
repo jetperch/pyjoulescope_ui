@@ -7,7 +7,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.2.3
 
-2024 Dec 4 [in progress]
+2024 Dec 4
 
 * Fixed Waveform widget horizontal markers  #294
 * Fixed Waveform widget export to JLS not working with Trigger signal  #295
