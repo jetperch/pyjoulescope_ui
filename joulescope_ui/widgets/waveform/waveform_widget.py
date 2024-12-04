@@ -1908,7 +1908,7 @@ class WaveformWidget(QtWidgets.QWidget):
             pen = s[f'marker{color_index}_pen']
             fg = s[f'marker{color_index}_fg']
             bg = s[f'marker{color_index}_bg']
-            p1 = np.rint(self._y_value_to_pixel(plot, m['pos1']))
+            p1 = int(np.rint(self._y_value_to_pixel(plot, m['pos1'])))
             p.setPen(pen)
             p.drawLine(x0, p1, x1, p1)
             p.setPen(s['text_pen'])
@@ -1918,7 +1918,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 dy = _si_format(m['pos2'] - m['pos1'], plot['units'], precision=self.precision)
                 self._draw_text(p, x0 + _MARGIN, p1 + _MARGIN, t + '  Δ=' + dy)
                 p.setPen(pen)
-                p2 = np.rint(self._y_value_to_pixel(plot, m['pos2']))
+                p2 = int(np.rint(self._y_value_to_pixel(plot, m['pos2'])))
                 p.drawLine(x0, p2, x1, p2)
                 p.setPen(s['text_pen'])
                 t = _si_format(m['pos2'], plot['units'], precision=self.precision)

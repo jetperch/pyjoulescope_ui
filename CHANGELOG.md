@@ -5,6 +5,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.2.3
+
+2024 Dec 4 [in progress]
+
+* Fixed Waveform widget horizontal markers  #294
+
+
 ## 1.2.2
 
 2024 Nov 25
