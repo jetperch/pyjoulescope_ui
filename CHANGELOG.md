@@ -5,6 +5,14 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.2.4
+
+2024 Dec 10
+
+* Fixed JS220 time sync issue, intermittent inaccuracy
+  * Fixed by FPGA 1.3.2, pyjoulescope_driver from 1.7.1 to 1.7.2 
+
+
 ## 1.2.3
 
 2024 Dec 4

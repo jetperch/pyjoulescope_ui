@@ -1,4 +1,4 @@
-# Copyright 2018-2023 Jetperch LLC
+# Copyright 2018-2024 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -198,7 +198,7 @@ setuptools.setup(
     install_requires=[
         'appnope>=0.1.2,<1',
         'fs>=2.4.16,<3',
-        'pyjoulescope_driver>=1.7.1,<2',
+        'pyjoulescope_driver>=1.7.2,<2',
         'joulescope>=1.2.0,<2',
         'markdown>=3,<4',
         'psutil>=5,<6',
