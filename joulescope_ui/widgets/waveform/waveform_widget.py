@@ -1207,12 +1207,26 @@ class WaveformWidget(QtWidgets.QWidget):
             raise ValueError(f'unsupported y-axis scale: {scale}')
 
     def _y_value_to_pixel(self, plot, value, skip_transform=None):
+        """Convert a y-axis value into the corresponding y-axis pixel.
+
+        :param plot: The plot instance.
+        :param value: The single value or np.ndarray.
+        :param skip_transform: If True, skip transforming the axis.
+            Defaults to None (False) to perform the transform.
+        :return: The single value or np.ndarray, depending on value.
+            The return type is int.
+        """
         if not bool(skip_transform):
             value = self._y_transform_fwd(plot, value)
         if 'y_map' not in plot:
             return 0
         pixel_offset, value_offset, value_to_pixel_scale = plot['y_map']
-        return pixel_offset + (value_offset - value) * value_to_pixel_scale
+        result = pixel_offset + (value_offset - value) * value_to_pixel_scale
+        if isinstance(result, np.ndarray):
+            result = np.rint(result).astype(int)
+        else:
+            result = int(result)
+        return result
 
     def _y_pixel_to_value(self, plot, pixel, skip_transform=None):
         pixel_offset, value_offset, value_to_pixel_scale = plot['y_map']
@@ -1229,6 +1243,7 @@ class WaveformWidget(QtWidgets.QWidget):
         :param y: The y-axis location.
         :param txt: The text to draw
         """
+        x, y = int(x), int(y)
         margin = _MARGIN
         margin2 = _MARGIN * 2
         metrics = p.fontMetrics()
@@ -1908,7 +1923,7 @@ class WaveformWidget(QtWidgets.QWidget):
             pen = s[f'marker{color_index}_pen']
             fg = s[f'marker{color_index}_fg']
             bg = s[f'marker{color_index}_bg']
-            p1 = int(np.rint(self._y_value_to_pixel(plot, m['pos1'])))
+            p1 = self._y_value_to_pixel(plot, m['pos1'])
             p.setPen(pen)
             p.drawLine(x0, p1, x1, p1)
             p.setPen(s['text_pen'])
@@ -1918,7 +1933,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 dy = _si_format(m['pos2'] - m['pos1'], plot['units'], precision=self.precision)
                 self._draw_text(p, x0 + _MARGIN, p1 + _MARGIN, t + '  Δ=' + dy)
                 p.setPen(pen)
-                p2 = int(np.rint(self._y_value_to_pixel(plot, m['pos2'])))
+                p2 = self._y_value_to_pixel(plot, m['pos2'])
                 p.drawLine(x0, p2, x1, p2)
                 p.setPen(s['text_pen'])
                 t = _si_format(m['pos2'], plot['units'], precision=self.precision)
@@ -2294,7 +2309,7 @@ class WaveformWidget(QtWidgets.QWidget):
         y = data['avg'][index]
         if not np.isfinite(y):
             return
-        y_pixels = int(np.rint(self._y_value_to_pixel(plot, y)))
+        y_pixels = self._y_value_to_pixel(plot, y)
 
         s = self._style
         p.setPen(self._NO_PEN)

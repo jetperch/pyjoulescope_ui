@@ -5,6 +5,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.2.5
+
+2024 Dec 19
+
+* Fixed Waveform widget text annotations.
+
+
 ## 1.2.4
 
 2024 Dec 10
