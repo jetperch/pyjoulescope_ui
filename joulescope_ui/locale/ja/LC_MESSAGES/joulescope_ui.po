@@ -296,7 +296,7 @@ msgstr "電子メール"
 msgid "Description"
 msgstr "商品概要"
 
-#: error_window.py:112 widgets/waveform/waveform_widget.py:3494
+#: error_window.py:112 widgets/waveform/waveform_widget.py:3509
 msgid "Edit"
 msgstr "編集"
 
@@ -1433,7 +1433,7 @@ msgstr "ファームウェア更新状態"
 #: widgets/settings/settings_widget.py:266
 #: widgets/settings/settings_widget.py:364
 #: widgets/settings/settings_widget.py:431
-#: widgets/waveform/waveform_widget.py:3143
+#: widgets/waveform/waveform_widget.py:3158
 msgid "Name"
 msgstr "名称"
 
@@ -2553,7 +2553,7 @@ msgid "triangle left"
 msgstr "左三角形"
 
 #: widgets/waveform/text_annotation.py:66
-#: widgets/waveform/waveform_widget.py:3089
+#: widgets/waveform/waveform_widget.py:3104
 msgid "Manual"
 msgstr "マニュアル"
 
@@ -2562,17 +2562,17 @@ msgid "Centered"
 msgstr "中心"
 
 #: widgets/waveform/text_annotation.py:99
-#: widgets/waveform/waveform_widget.py:3204
+#: widgets/waveform/waveform_widget.py:3219
 msgid "Text"
 msgstr "テキスト"
 
 #: widgets/waveform/text_annotation.py:107
-#: widgets/waveform/waveform_widget.py:3495
+#: widgets/waveform/waveform_widget.py:3510
 msgid "Show text"
 msgstr "テキストを表示"
 
 #: widgets/waveform/text_annotation.py:116
-#: widgets/waveform/waveform_widget.py:3507
+#: widgets/waveform/waveform_widget.py:3522
 msgid "Shape"
 msgstr "形状"
 
@@ -2886,12 +2886,12 @@ msgid "X-axis annotation mode"
 msgstr "X軸注釈モード"
 
 #: widgets/waveform/waveform_widget.py:470
-#: widgets/waveform/waveform_widget.py:2969
+#: widgets/waveform/waveform_widget.py:2984
 msgid "Absolute"
 msgstr "絶対値"
 
 #: widgets/waveform/waveform_widget.py:471
-#: widgets/waveform/waveform_widget.py:2974
+#: widgets/waveform/waveform_widget.py:2989
 msgid "Relative"
 msgstr "相対"
 
@@ -2907,158 +2907,158 @@ msgstr "各トレースで選択されたサブソース。"
 msgid "The trace priority: highest int value on top, None is off."
 msgstr "トレースの優先順位：最高 int 値が一番上、None はオフ。"
 
-#: widgets/waveform/waveform_widget.py:2916
-#: widgets/waveform/waveform_widget.py:3216
+#: widgets/waveform/waveform_widget.py:2931
+#: widgets/waveform/waveform_widget.py:3231
 msgid "Save image to file"
 msgstr "画像をファイルに保存"
 
-#: widgets/waveform/waveform_widget.py:2963
-#: widgets/waveform/waveform_widget.py:3032
+#: widgets/waveform/waveform_widget.py:2978
+#: widgets/waveform/waveform_widget.py:3047
 msgid "Single marker"
 msgstr "シングルマーカー"
 
-#: widgets/waveform/waveform_widget.py:2964
-#: widgets/waveform/waveform_widget.py:3033
+#: widgets/waveform/waveform_widget.py:2979
+#: widgets/waveform/waveform_widget.py:3048
 msgid "Dual markers"
 msgstr "デュアルマーカー"
 
-#: widgets/waveform/waveform_widget.py:2966
+#: widgets/waveform/waveform_widget.py:2981
 msgid "Mode"
 msgstr "モード"
 
-#: widgets/waveform/waveform_widget.py:2979
-#: widgets/waveform/waveform_widget.py:3034
-#: widgets/waveform/waveform_widget.py:3192
-#: widgets/waveform/waveform_widget.py:3210
+#: widgets/waveform/waveform_widget.py:2994
+#: widgets/waveform/waveform_widget.py:3049
+#: widgets/waveform/waveform_widget.py:3207
+#: widgets/waveform/waveform_widget.py:3225
 msgid "Clear all"
 msgstr "すべてクリア"
 
-#: widgets/waveform/waveform_widget.py:2990
-#: widgets/waveform/waveform_widget.py:3079
-#: widgets/waveform/waveform_widget.py:3198
+#: widgets/waveform/waveform_widget.py:3005
+#: widgets/waveform/waveform_widget.py:3094
+#: widgets/waveform/waveform_widget.py:3213
 msgid "Annotations"
 msgstr "注釈"
 
-#: widgets/waveform/waveform_widget.py:3082
+#: widgets/waveform/waveform_widget.py:3097
 msgid "Range"
 msgstr "測定範囲"
 
-#: widgets/waveform/waveform_widget.py:3086
-#: widgets/waveform/waveform_widget.py:3475
+#: widgets/waveform/waveform_widget.py:3101
+#: widgets/waveform/waveform_widget.py:3490
 msgid "Auto"
 msgstr "オート"
 
-#: widgets/waveform/waveform_widget.py:3092
+#: widgets/waveform/waveform_widget.py:3107
 msgid "Exact"
 msgstr "正確"
 
-#: widgets/waveform/waveform_widget.py:3101
+#: widgets/waveform/waveform_widget.py:3116
 msgid "Scale"
 msgstr "スケール"
 
-#: widgets/waveform/waveform_widget.py:3104
+#: widgets/waveform/waveform_widget.py:3119
 msgid "Linear"
 msgstr "リニア"
 
-#: widgets/waveform/waveform_widget.py:3109
+#: widgets/waveform/waveform_widget.py:3124
 msgid "Logarithmic"
 msgstr "対数"
 
-#: widgets/waveform/waveform_widget.py:3117
+#: widgets/waveform/waveform_widget.py:3132
 msgid "Logarithmic zero"
 msgstr "対数ゼロ"
 
-#: widgets/waveform/waveform_widget.py:3131
+#: widgets/waveform/waveform_widget.py:3146
 msgid "Preferred prefix"
 msgstr "優先接頭辞"
 
-#: widgets/waveform/waveform_widget.py:3189
+#: widgets/waveform/waveform_widget.py:3204
 msgid "Add"
 msgstr "追加"
 
-#: widgets/waveform/waveform_widget.py:3190
+#: widgets/waveform/waveform_widget.py:3205
 msgid "Hide all text"
 msgstr "すべてのテキストを隠す"
 
-#: widgets/waveform/waveform_widget.py:3191
+#: widgets/waveform/waveform_widget.py:3206
 msgid "Show all text"
 msgstr "すべてのテキストを表示"
 
-#: widgets/waveform/waveform_widget.py:3199
+#: widgets/waveform/waveform_widget.py:3214
 msgid "Vertical"
 msgstr "垂直"
 
-#: widgets/waveform/waveform_widget.py:3202
+#: widgets/waveform/waveform_widget.py:3217
 msgid "Horizontal"
 msgstr "水平"
 
-#: widgets/waveform/waveform_widget.py:3208
+#: widgets/waveform/waveform_widget.py:3223
 msgid "Save"
 msgstr "節約"
 
-#: widgets/waveform/waveform_widget.py:3213
+#: widgets/waveform/waveform_widget.py:3228
 msgid "Y-axis auto range"
 msgstr "Y軸オートレンジ"
 
-#: widgets/waveform/waveform_widget.py:3217
+#: widgets/waveform/waveform_widget.py:3232
 msgid "Copy image to clipboard"
 msgstr "画像をクリップボードにコピー"
 
-#: widgets/waveform/waveform_widget.py:3218
+#: widgets/waveform/waveform_widget.py:3233
 msgid "Export visible data"
 msgstr "可視データをエクスポート"
 
-#: widgets/waveform/waveform_widget.py:3219
+#: widgets/waveform/waveform_widget.py:3234
 msgid "Export visible data as CSV"
 msgstr "可視データをCSVでエクスポート"
 
-#: widgets/waveform/waveform_widget.py:3220
+#: widgets/waveform/waveform_widget.py:3235
 msgid "Export all data"
 msgstr "すべてのデータをエクスポート"
 
-#: widgets/waveform/waveform_widget.py:3381
+#: widgets/waveform/waveform_widget.py:3396
 msgid "Export visible data to CSV file"
 msgstr "可視データをCSVファイルにエクスポート"
 
-#: widgets/waveform/waveform_widget.py:3451
+#: widgets/waveform/waveform_widget.py:3466
 msgid "Export"
 msgstr "輸出"
 
-#: widgets/waveform/waveform_widget.py:3452
+#: widgets/waveform/waveform_widget.py:3467
 msgid "Analysis"
 msgstr "解析"
 
-#: widgets/waveform/waveform_widget.py:3460
+#: widgets/waveform/waveform_widget.py:3475
 msgid "Interval"
 msgstr "インターバル"
 
-#: widgets/waveform/waveform_widget.py:3469
+#: widgets/waveform/waveform_widget.py:3484
 msgid "Zoom"
 msgstr "ズーム"
 
-#: widgets/waveform/waveform_widget.py:3473
+#: widgets/waveform/waveform_widget.py:3488
 msgid "Show statistics"
 msgstr "統計を表示"
 
-#: widgets/waveform/waveform_widget.py:3478
+#: widgets/waveform/waveform_widget.py:3493
 msgid "Left"
 msgstr "左"
 
-#: widgets/waveform/waveform_widget.py:3481
+#: widgets/waveform/waveform_widget.py:3496
 msgid "Right"
 msgstr "右"
 
-#: widgets/waveform/waveform_widget.py:3484
+#: widgets/waveform/waveform_widget.py:3499
 msgid "Off"
 msgstr "オフ"
 
-#: widgets/waveform/waveform_widget.py:3487
-#: widgets/waveform/waveform_widget.py:3515
-#: widgets/waveform/waveform_widget.py:3545
+#: widgets/waveform/waveform_widget.py:3502
+#: widgets/waveform/waveform_widget.py:3530
+#: widgets/waveform/waveform_widget.py:3560
 msgid "Remove"
 msgstr "削除"
 
-#: widgets/waveform/waveform_widget.py:3498
+#: widgets/waveform/waveform_widget.py:3513
 msgid "Y mode"
 msgstr "Yモード"
 
