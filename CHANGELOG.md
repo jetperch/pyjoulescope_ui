@@ -5,6 +5,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.2.6
+
+2024 Dec 31 [in progress]
+
+* Fixed JLS annotations not displaying from primary JLS file  #299
+
+
 ## 1.2.5
 
 2024 Dec 19

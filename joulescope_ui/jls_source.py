@@ -188,11 +188,8 @@ class JlsSource:
         base, ext = os.path.splitext(self.path)
         path = f'{base}.anno*{ext}'
         rsp_topic = value['rsp_topic']
-        paths = glob.glob(path)
-        if not len(paths):
-            self.pubsub.publish(rsp_topic, None)
-        else:
-            annotations_load(paths, self.pubsub, rsp_topic)
+        paths = [self.path] + glob.glob(path)
+        annotations_load(paths, self.pubsub, rsp_topic)
 
     @staticmethod
     def on_cls_action_open(pubsub, topic, value):
