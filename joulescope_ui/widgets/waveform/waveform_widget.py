@@ -3634,7 +3634,6 @@ class WaveformWidget(QtWidgets.QWidget):
         if pos1 is None:
             xc = (x1 + x0) // 2
             pos1 = self._x_marker_position(xc)
-        pos1 = max(x0, min(x1, pos1))
         marker = {
             'id': self._annotation_next_id('x'),
             'dtype': 'single',
@@ -3662,17 +3661,19 @@ class WaveformWidget(QtWidgets.QWidget):
         if xc is None:
             xc = (x1 + x0) // 2
         xd = (x1 - x0) // 10
+        is_exact = (pos1 is not None) and (pos2 is not None)
         if pos1 is None:
             pos1 = self._x_marker_position(xc - xd)
         if pos2 is None:
             pos2 = self._x_marker_position(xc + xd)
-        d0, d1 = pos1 - x0, pos2 - x1
-        if d0 < 0:
-            pos1 -= d0
-            pos2 -= d0
-        elif d1 > 0:
-            pos1 -= d1
-            pos2 -= d1
+        if not is_exact:
+            d0, d1 = pos1 - x0, pos2 - x1
+            if d0 < 0:
+                pos1 -= d0
+                pos2 -= d0
+            elif d1 > 0:
+                pos1 -= d1
+                pos2 -= d1
         marker = {
             'id': self._annotation_next_id('x'),
             'dtype': 'dual',

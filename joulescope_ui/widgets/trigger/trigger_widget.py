@@ -889,7 +889,7 @@ class TriggerWidget(QtWidgets.QWidget):
                 idx = int((self._utc - data['utc']) / time64.SECOND * fs)
                 if idx < len(data['data']):
                     data['sample_id'] += idx
-                    data['origin_sample_id'] += int(idx * data['orig_sample_freq'] / fs)
+                    data['origin_sample_id'] += idx * data['origin_decimate_factor']
                     data['utc'] += int((idx / fs) * time64.SECOND)
                     data['data'] = data['data'][idx:]
                     self._process_signal_data(data)
