@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=6; plural=(n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=0 && n%100<=2 ? 4 : 5);\n"
-"Generated-By: Babel 2.16.0\n"
+"Generated-By: Babel 2.17.0\n"
 
 #: about.py:24
 msgid "About the Joulescope UI"
@@ -288,6 +288,7 @@ msgid "Select an error recovery option."
 msgstr "حدد خيار استرداد الخطأ."
 
 #: error_window.py:34
+#, python-brace-format
 msgid ""
 "Our offices are currently closed until {return_date}. We will respond within"
 " {response_time} business days after we return."
@@ -1819,6 +1820,7 @@ msgid "The format string"
 msgstr "سلسلة التنسيق"
 
 #: widgets/clock/clock_widget.py:43
+#, python-brace-format
 msgid "For the complete syntax, see Python package {package}"
 msgstr "للاطلاع على بناء الجملة الكامل، انظر حزمة بايثون {package}"
 
@@ -2439,7 +2441,7 @@ msgstr "قم بتكوين خيارات المشغل ثم اضغط للبدء."
 msgid "Searching"
 msgstr "البحث"
 
-#: widgets/trigger/trigger_widget.py:69
+#: widgets/trigger/trigger_widget.py:70
 msgid ""
 "Look for the configured start condition. On match, perform the start actions"
 " and advance to active. Press to halt and return to inactive."
@@ -2447,7 +2449,7 @@ msgstr ""
 "ابحث عن حالة البدء المكوّنة. عند التطابق، قم بتنفيذ إجراءات البدء والتقدم "
 "إلى النشط. اضغط للتوقف والعودة إلى غير نشط."
 
-#: widgets/trigger/trigger_widget.py:74
+#: widgets/trigger/trigger_widget.py:75
 msgid ""
 "Look for the configured stop condition. On match, perform the stop actions. "
 "For run mode single, transition to inactive. For run mode continuous, "

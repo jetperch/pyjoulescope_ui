@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"Generated-By: Babel 2.16.0\n"
+"Generated-By: Babel 2.17.0\n"
 
 #: about.py:24
 msgid "About the Joulescope UI"
@@ -269,6 +269,7 @@ msgid "Select an error recovery option."
 msgstr "오류 복구 옵션을 선택합니다."
 
 #: error_window.py:34
+#, python-brace-format
 msgid ""
 "Our offices are currently closed until {return_date}. We will respond within"
 " {response_time} business days after we return."
@@ -1726,6 +1727,7 @@ msgid "The format string"
 msgstr "형식 문자열"
 
 #: widgets/clock/clock_widget.py:43
+#, python-brace-format
 msgid "For the complete syntax, see Python package {package}"
 msgstr "전체 구문은 Python 패키지 {package}를 참조하세요."
 
@@ -2325,14 +2327,14 @@ msgstr "트리거 옵션을 구성한 다음 을 눌러 시작하세요."
 msgid "Searching"
 msgstr "검색"
 
-#: widgets/trigger/trigger_widget.py:69
+#: widgets/trigger/trigger_widget.py:70
 msgid ""
 "Look for the configured start condition. On match, perform the start actions"
 " and advance to active. Press to halt and return to inactive."
 msgstr ""
 "구성된 시작 조건을 찾습니다. 일치하는 경우 시작 동작을 수행하고 활성으로 진행합니다. 를 눌러 중지하고 비활성 상태로 돌아갑니다."
 
-#: widgets/trigger/trigger_widget.py:74
+#: widgets/trigger/trigger_widget.py:75
 msgid ""
 "Look for the configured stop condition. On match, perform the stop actions. "
 "For run mode single, transition to inactive. For run mode continuous, "

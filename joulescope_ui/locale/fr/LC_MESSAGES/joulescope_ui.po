@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"Generated-By: Babel 2.16.0\n"
+"Generated-By: Babel 2.17.0\n"
 
 #: about.py:24
 msgid "About the Joulescope UI"
@@ -309,6 +309,7 @@ msgid "Select an error recovery option."
 msgstr "Sélectionner une option de récupération d'erreur."
 
 #: error_window.py:34
+#, python-brace-format
 msgid ""
 "Our offices are currently closed until {return_date}. We will respond within"
 " {response_time} business days after we return."
@@ -1909,6 +1910,7 @@ msgid "The format string"
 msgstr "La chaîne de format"
 
 #: widgets/clock/clock_widget.py:43
+#, python-brace-format
 msgid "For the complete syntax, see Python package {package}"
 msgstr "Pour la syntaxe complète, voir Python package {package}"
 
@@ -2553,7 +2555,7 @@ msgstr "Configurer les options de déclenchement et appuyer sur pour démarrer."
 msgid "Searching"
 msgstr "Recherche"
 
-#: widgets/trigger/trigger_widget.py:69
+#: widgets/trigger/trigger_widget.py:70
 msgid ""
 "Look for the configured start condition. On match, perform the start actions"
 " and advance to active. Press to halt and return to inactive."
@@ -2562,7 +2564,7 @@ msgstr ""
 "effectuer les actions de démarrage et passer en mode actif. Appuyer sur pour"
 " arrêter et revenir à l'état inactif."
 
-#: widgets/trigger/trigger_widget.py:74
+#: widgets/trigger/trigger_widget.py:75
 msgid ""
 "Look for the configured stop condition. On match, perform the stop actions. "
 "For run mode single, transition to inactive. For run mode continuous, "

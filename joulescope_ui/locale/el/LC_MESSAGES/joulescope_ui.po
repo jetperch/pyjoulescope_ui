@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"Generated-By: Babel 2.16.0\n"
+"Generated-By: Babel 2.17.0\n"
 
 #: about.py:24
 msgid "About the Joulescope UI"
@@ -307,6 +307,7 @@ msgid "Select an error recovery option."
 msgstr "Επιλέξτε μια επιλογή αποκατάστασης σφαλμάτων."
 
 #: error_window.py:34
+#, python-brace-format
 msgid ""
 "Our offices are currently closed until {return_date}. We will respond within"
 " {response_time} business days after we return."
@@ -1906,6 +1907,7 @@ msgid "The format string"
 msgstr "Η συμβολοσειρά μορφής"
 
 #: widgets/clock/clock_widget.py:43
+#, python-brace-format
 msgid "For the complete syntax, see Python package {package}"
 msgstr ""
 "Για την πλήρη σύνταξη, ανατρέξτε στην ενότητα Python package {package}"
@@ -2558,7 +2560,7 @@ msgstr ""
 msgid "Searching"
 msgstr "Αναζήτηση"
 
-#: widgets/trigger/trigger_widget.py:69
+#: widgets/trigger/trigger_widget.py:70
 msgid ""
 "Look for the configured start condition. On match, perform the start actions"
 " and advance to active. Press to halt and return to inactive."
@@ -2567,7 +2569,7 @@ msgstr ""
 "εκτελέστε τις ενέργειες εκκίνησης και προχωρήστε στην ενεργή κατάσταση. "
 "Πιέστε για να σταματήσετε και να επιστρέψετε στην ανενεργή κατάσταση."
 
-#: widgets/trigger/trigger_widget.py:74
+#: widgets/trigger/trigger_widget.py:75
 msgid ""
 "Look for the configured stop condition. On match, perform the stop actions. "
 "For run mode single, transition to inactive. For run mode continuous, "
