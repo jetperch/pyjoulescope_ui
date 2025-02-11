@@ -34,14 +34,14 @@ restart the UI to fully deactivate the plugin.
 A plugin consists of a directory with at least three files:
 containing at least:
 
-* **__init__.py**: Python code that implements the plugin functionality.
+* **\_\_init\_\_.py**: Python code that implements the plugin functionality.
   This file may perform relative imports to access other Python files.
 * **index.json**: Describes the plugin to the Joulescope UI.
 * **README.md**: A user-meaningful markdown file that describes the 
   plugin features and functionality.
 
 
-### File "__init__.py"
+### File \_\_init\_\_.py
 
 The contents of the plugin may vary.  The plugin has full access to the
 UI internals including the PubSub instance.
@@ -56,7 +56,7 @@ Most plugins should start with:
 from joulescope_ui.plugins import *
 ```
 
-Here is the __init__.py code for a very simple plugin that adds 
+Here is the `__init__.py` code for a very simple plugin that adds 
 a new Widget to the UI:
 
 ```python
