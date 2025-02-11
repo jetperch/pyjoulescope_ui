@@ -7,10 +7,11 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.2.6
 
-2025 Jan 27 [in progress]
+2025 Feb 11 [in progress]
 
 * Fixed JLS annotations not displaying from primary JLS file  #299
 * Fixed Trigger widget markers placed slightly early  #300
+* Upgraded Windows folder discovery from CSIDL to Known Folder.
 
 
 ## 1.2.5

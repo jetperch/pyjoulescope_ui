@@ -429,10 +429,11 @@ class PubSub:
 
     def _paths_init(self):
         if 'win32' in sys.platform:
+            # https://learn.microsoft.com/en-us/windows/win32/shell/known-folders
             from win32com.shell import shell, shellcon
-            user_path = shell.SHGetFolderPath(0, shellcon.CSIDL_PERSONAL, None, 0)
+            user_path = shell.SHGetKnownFolderPath(shellcon.FOLDERID_Documents, 0, None)
             user_path = os.path.join(user_path, self._app)
-            appdata_path = shell.SHGetFolderPath(0, shellcon.CSIDL_LOCAL_APPDATA, None, 0)
+            appdata_path = shell.SHGetKnownFolderPath(shellcon.FOLDERID_LocalAppData, 0, None)
             app_path = os.path.join(appdata_path, self._app)
         elif 'darwin' in sys.platform:
             user_path = os.path.join(os.path.expanduser('~'), 'Documents', self._app)
