@@ -58,6 +58,17 @@ SETTINGS = {
         'default': True,
     },
     'units': UNITS_SETTING,
+    'precision': {
+        'dtype': 'int',
+        'brief': N_('The precision to display in digits.'),
+        'default': 6,
+        'options': [
+            [6, '6'],
+            [5, '5'],
+            [4, '4'],
+            [3, '3'],
+        ],
+    },
     'divisor': {
         'dtype': 'str',
         'brief': N_('Divide the quantity by this value.'),
@@ -294,11 +305,20 @@ class _InnerWidget(QtWidgets.QWidget):
         self._fields = ['avg', 'std', 'min', 'max', 'p2p']
         self._geometry = None
         self._clipboard = None
+        self._precision = 6
         self.setMouseTracking(True)
 
     def _on_statistics(self, value):
         self._statistics = copy.deepcopy(value)
         self.repaint()
+
+    def _value_format(self, value):
+        precision = self._precision
+        v_str_format = '%+' + str(precision) + 'f'
+        v_str = (v_str_format % value)[:(precision + 2)]
+        if (v_str[-1]) == '.':
+            v_str = v_str[:-1]
+        return v_str
 
     def paintEvent(self, event):
         fields = [field for field in self._fields if field != self._main]
@@ -313,7 +333,8 @@ class _InnerWidget(QtWidgets.QWidget):
         v = parent.style_obj['vars']
         x_border, y_border = 10, 10
         y_sep = 6
-        number_example = '8.88888'
+        self._precision = parent.precision
+        number_example = '8.' + ''.join(['8'] * (self._precision - 1))
 
         divisor_str = parent.divisor
         divisor = 1.0
@@ -454,7 +475,7 @@ class _InnerWidget(QtWidgets.QWidget):
                 scale *= divisor
             if len(prefix) != 1:
                 prefix = ' '
-            v_str = ('%+6f' % (signal_value / scale))[:8]
+            v_str = self._value_format(signal_value / scale)
             v_str_idx = 1
             if v_str[0] == '-' or parent.show_sign:
                 painter.drawText(x, y, v_str[0])
@@ -487,7 +508,7 @@ class _InnerWidget(QtWidgets.QWidget):
                     painter.drawText(x0, y, a_duration_txt)
                     self._geometry[(signal_name, 'duration')] = ((x0, y0), (x3, y), a_duration_txt)
                 else:
-                    v_str = ('%+6f' % (signal[stat]['value'] / scale))[:8]
+                    v_str = self._value_format(signal[stat]['value'] / scale)
                     v_str_idx = 1
                     if v_str[0] == '-' or parent.show_sign:
                         painter.drawText(x0, y, v_str[0])
