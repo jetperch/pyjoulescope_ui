@@ -353,7 +353,7 @@ msgstr "Visualizza come Markdown"
 msgid "Abort"
 msgstr "Interruzione"
 
-#: error_window.py:120 main.py:365 widgets/settings/settings_widget.py:539
+#: error_window.py:120 main.py:366 widgets/settings/settings_widget.py:539
 msgid "View"
 msgstr "Visualizza"
 
@@ -373,7 +373,7 @@ msgstr "Torna alla configurazione precedente"
 msgid "Revert to defaults"
 msgstr "Torna alle impostazioni predefinite"
 
-#: error_window.py:283 main.py:363 main.py:409
+#: error_window.py:283 main.py:364 main.py:410
 #: widgets/js220_cal/js220_cal_widget.py:38
 msgid "Exit"
 msgstr "Uscita"
@@ -660,24 +660,24 @@ msgstr "Selezionare una lingua"
 msgid "The application will automatically close when you change the locale."
 msgstr "L'applicazione si chiude automaticamente quando si cambia locale."
 
-#: main.py:70 widgets/value/value_widget.py:685
+#: main.py:71 widgets/value/value_widget.py:685
 msgid "Multimeter"
 msgstr "Multimetro"
 
-#: main.py:71
+#: main.py:72
 msgid "Oscilloscope"
 msgstr "Oscilloscope"
 
-#: main.py:72 main.py:297 main.py:359 main.py:402
+#: main.py:73 main.py:298 main.py:360 main.py:403
 msgid "File"
 msgstr "File"
 
-#: main.py:82
+#: main.py:83
 msgid "The UI status bar display mode"
 msgstr ""
 "Modalità di visualizzazione della barra di stato dell'interfaccia utente"
 
-#: main.py:83
+#: main.py:84
 msgid ""
 "This setting controls the amount of detail shown on the status bar at the "
 "bottom of the UI window. You should usually leave this set to \"normal\" "
@@ -688,23 +688,23 @@ msgstr ""
 "consiglia di lasciarla impostata su \"normale\", a meno che non si vogliano "
 "maggiori dettagli sul funzionamento interno dell'interfaccia utente."
 
-#: main.py:88 safe_mode.py:43
+#: main.py:89 safe_mode.py:43
 msgid "Normal"
 msgstr "Normale"
 
-#: main.py:89
+#: main.py:90
 msgid "Troubleshoot"
 msgstr "Risoluzione dei problemi"
 
-#: main.py:95
+#: main.py:96
 msgid "Enable developer mode."
 msgstr "Attivare la modalità sviluppatore."
 
-#: main.py:108
+#: main.py:109
 msgid "PubSub utilization"
 msgstr "Utilizzo di PubSub"
 
-#: main.py:109
+#: main.py:110
 msgid ""
 "Display the number of actions processed by the publish-subscribe broker in "
 "each second."
@@ -712,11 +712,11 @@ msgstr ""
 "Visualizzare il numero di azioni elaborate dal broker publish-subscribe in "
 "ogni secondo."
 
-#: main.py:114
+#: main.py:115
 msgid "CPU utilization"
 msgstr "Utilizzo della CPU"
 
-#: main.py:115
+#: main.py:116
 msgid ""
 "Display the CPU utilization by this application and the total CPU "
 "utilization by all applications. The value is displayed in percent."
@@ -725,11 +725,11 @@ msgstr ""
 " totale della CPU da parte di tutte le applicazioni. Il valore viene "
 "visualizzato in percentuale."
 
-#: main.py:121
+#: main.py:122
 msgid "Memory utilization"
 msgstr "Utilizzo della memoria"
 
-#: main.py:122
+#: main.py:123
 msgid ""
 "Display the memory (RAM) utilization by this application and by all "
 "applications. The value is displayed in percent."
@@ -737,85 +737,85 @@ msgstr ""
 "Visualizza l'utilizzo della memoria (RAM) da parte di questa applicazione e "
 "di tutte le applicazioni. Il valore viene visualizzato in percentuale."
 
-#: main.py:215
+#: main.py:216
 msgid "UI"
 msgstr "UI"
 
-#: main.py:329
+#: main.py:330
 msgid "Help"
 msgstr "Aiuto"
 
-#: main.py:330 widgets/hamburger/hamburger_widget.py:21
+#: main.py:331 widgets/hamburger/hamburger_widget.py:21
 msgid "Getting Started"
 msgstr "Per iniziare"
 
-#: main.py:331
+#: main.py:332
 msgid "Language"
 msgstr "Lingua"
 
-#: main.py:332
+#: main.py:333
 msgid "User's Guide"
 msgstr "Guida all'uso"
 
-#: main.py:333 widgets/hamburger/hamburger_widget.py:22
+#: main.py:334 widgets/hamburger/hamburger_widget.py:22
 msgid "Changelog"
 msgstr "Changelog"
 
-#: main.py:334 widgets/help/help_widget.py:59
+#: main.py:335 widgets/help/help_widget.py:59
 msgid "Report Issue"
 msgstr "Segnala il problema"
 
-#: main.py:335
+#: main.py:336
 msgid "View logs..."
 msgstr "Visualizza i registri..."
 
-#: main.py:336 widgets/hamburger/hamburger_widget.py:23
+#: main.py:337 widgets/hamburger/hamburger_widget.py:23
 msgid "Credits"
 msgstr "Crediti"
 
-#: main.py:337 widgets/hamburger/hamburger_widget.py:24
+#: main.py:338 widgets/hamburger/hamburger_widget.py:24
 msgid "About"
 msgstr "Informazioni su"
 
-#: main.py:360
+#: main.py:361
 msgid "Open"
 msgstr "Aperto"
 
-#: main.py:361
+#: main.py:362
 msgid "Open recent"
 msgstr "Apertura recente"
 
-#: main.py:362 main.py:408
+#: main.py:363 main.py:409
 msgid "Clear config and exit"
 msgstr "Cancella la configurazione e esci"
 
-#: main.py:366 widgets/settings/settings_widget.py:541
+#: main.py:367 widgets/settings/settings_widget.py:541
 msgid "Widgets"
 msgstr "Widget"
 
-#: main.py:367
+#: main.py:368
 msgid "Tools"
 msgstr "Strumenti"
 
-#: main.py:368
+#: main.py:369
 msgid "Clear Accumulators"
 msgstr "Accumulatori chiari"
 
-#: main.py:403
+#: main.py:404
 msgid "Info"
 msgstr "Info"
 
-#: main.py:404 widget_tools.py:92 widgets/settings/settings_widget.py:31
+#: main.py:405 widget_tools.py:92 widgets/settings/settings_widget.py:31
 #: widgets/settings/settings_widget.py:574
 #: widgets/sidebar/sidebar_widget.py:42
 msgid "Settings"
 msgstr "Impostazioni"
 
-#: main.py:711
+#: main.py:712
 msgid "Manage"
 msgstr "Gestire"
 
-#: main.py:748
+#: main.py:749
 msgid "Select file to open"
 msgstr "Selezionare il file da aprire"
 
@@ -964,39 +964,39 @@ msgstr "Fonte"
 msgid "Use the application defaults"
 msgstr "Utilizzare le impostazioni predefinite dell'applicazione"
 
-#: view.py:72
+#: view.py:74
 msgid "The active theme."
 msgstr "Il tema attivo."
 
-#: view.py:74
+#: view.py:76
 msgid "Joulescope standard theme"
 msgstr "Tema standard di Joulescope"
 
-#: view.py:74
+#: view.py:76
 msgid "System OS-specific theme"
 msgstr "Tema specifico del sistema OS"
 
-#: view.py:79
+#: view.py:81
 msgid "The color scheme name."
 msgstr "Il nome della combinazione di colori."
 
-#: view.py:81
+#: view.py:83
 msgid "Dark background"
 msgstr "Sfondo scuro"
 
-#: view.py:81
+#: view.py:83
 msgid "Light background"
 msgstr "Sfondo luminoso"
 
-#: view.py:85
+#: view.py:87
 msgid "The font scheme name."
 msgstr "Il nome dello schema di caratteri."
 
-#: view.py:87
+#: view.py:89
 msgid "Joulescope standard font theme"
 msgstr "Tema del carattere standard di Joulescope"
 
-#: view.py:106 widgets/view_manager/view_manager_widget.py:146
+#: view.py:108 widgets/view_manager/view_manager_widget.py:146
 msgid "New View"
 msgstr "Nuova vista"
 
