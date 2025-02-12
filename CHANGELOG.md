@@ -17,6 +17,7 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Python 3.11 to 3.13
   * Nuitka 2.4.11 to 2.6.4
   * Updated dll includes: opengl32sw.dll removed from PySide6
+  * Adjusted PySide6-QtAds imports to work with Python 3.13 & Nuitka.
 
 
 ## 1.2.5

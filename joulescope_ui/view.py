@@ -18,11 +18,13 @@ from . import pubsub_singleton, register, N_, sanitize, \
 from joulescope_ui.pubsub import pubsub_attr
 from .styles.manager import style_settings
 from PySide6 import QtCore, QtGui, QtWidgets
-from PySide6QtAds import CDockWidget, TopDockWidgetArea
+from PySide6QtAds.PySide6QtAds import ads
 import logging
 import weakref
 
 
+CDockWidget = ads.CDockWidget
+TopDockWidgetArea = ads.TopDockWidgetArea
 _log = logging.getLogger(__name__)
 
 

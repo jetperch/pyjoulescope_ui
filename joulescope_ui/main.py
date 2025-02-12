@@ -36,7 +36,7 @@ from joulescope_ui.shift_key import is_shift_pressed
 from joulescope_ui.dev_signal_buffer_source import DevSignalBufferSource
 from joulescope_ui.devices.device_update import DeviceUpdate
 from PySide6 import QtCore, QtGui, QtWidgets
-from PySide6QtAds import CDockManager
+from PySide6QtAds.PySide6QtAds import ads
 from .error_window import ErrorWindow
 from .help_ui import HelpHtmlMessageBox
 from joulescope_ui.widgets.report_issue import ReportIssueDialog
@@ -61,6 +61,7 @@ import sys
 import webbrowser
 
 
+CDockManager = ads.CDockManager
 _software_update = None
 _config_save = True
 _config_clear = None
