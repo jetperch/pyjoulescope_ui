@@ -12,7 +12,11 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Fixed JLS annotations not displaying from primary JLS file  #299
 * Fixed Trigger widget markers placed slightly early  #300
 * Upgraded Windows folder discovery from CSIDL to Known Folder.
-* Added precision to Multimeter widget and Value widget  #301 
+* Added precision to Multimeter widget and Value widget  #301
+* Updated build
+  * Python 3.11 to 3.13
+  * Nuitka 2.4.11 to 2.6.4
+  * Updated dll includes: opengl32sw.dll removed from PySide6
 
 
 ## 1.2.5

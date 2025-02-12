@@ -1,4 +1,4 @@
-# Copyright 2023 Jetperch LLC
+# Copyright 2023-2025 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -16,15 +16,9 @@ import os
 import shutil
 import subprocess
 import sys
-import PySide6
 
 
 _PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# Nuitka only includes OpenGL software lib for QML or "all", so include manually
-_PYSIDE6_PATH = os.path.dirname(PySide6.__file__)
-_OPENGL32SW = os.path.join(_PYSIDE6_PATH, 'opengl32sw.dll').replace(r'\\', '/')
-_OPENGL32DLL = os.path.basename(_OPENGL32SW)
 
 
 def _changelog_version():
@@ -57,7 +51,7 @@ def nuitka():
             '--file-version=' + version,
             '--product-version=' + version,
             '--file-description=Joulescope UI',
-            '--copyright=2024 Jetperch LLC',
+            '--copyright=2025 Jetperch LLC',
             '--assume-yes-for-downloads',
             '--plugin-enable=pyside6',
             '--python-flag=-m',
@@ -76,12 +70,13 @@ def nuitka():
             '--include-data-files=CREDITS.html=CREDITS.html',
             '--include-data-files=LICENSE.txt=LICENSE.txt',
             '--include-data-files=README.md=README.md',
-            f'--include-data-file={_OPENGL32SW}={_OPENGL32DLL}',  # include OpenGL software renderer (for Intel UHD)
             '--windows-icon-from-ico=joulescope_ui/resources/icon.ico',
-            '--windows-console-mode=disable',  # added in Nuitka 2.4, was --disable-console
+            '--windows-console-mode=force',  # todo remove
+            #'--windows-console-mode=disable',  # added in Nuitka 2.4, was --disable-console
             #'--force-stdout-spec=%HOME%/joulescope_%TIME%_%PID%.out.txt',
             #'--force-stderr-spec=%HOME%/joulescope_%TIME%_%PID%.err.txt',
             #'--debug',
+            '--embed-debug-qt-resources',
             '--report=nuitka_report.xml',
             '--output-filename=joulescope',
             'joulescope_ui',
