@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-11-08 14:54-0500\n"
+"POT-Creation-Date: 2025-02-12 10:52-0500\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: zh <LL@li.org>\n"
@@ -564,7 +564,7 @@ msgstr "选择语言"
 msgid "The application will automatically close when you change the locale."
 msgstr "当您更改位置时，应用程序将自动关闭。"
 
-#: main.py:70 widgets/value/value_widget.py:664
+#: main.py:70 widgets/value/value_widget.py:685
 msgid "Multimeter"
 msgstr "万用表"
 
@@ -1619,7 +1619,7 @@ msgid "The statistics data stream source."
 msgstr "统计数据流源。"
 
 #: widgets/accumulator/accumulator_widget.py:32
-#: widgets/value/value_widget.py:82
+#: widgets/value/value_widget.py:93
 msgid "The signal to display."
 msgstr "要显示的信号。"
 
@@ -1691,7 +1691,7 @@ msgid "Update"
 msgstr "更新"
 
 #: widgets/device_control/device_update_dialog.py:25
-#: widgets/value/value_widget.py:156
+#: widgets/value/value_widget.py:167
 msgid "Device"
 msgstr "器件"
 
@@ -2081,7 +2081,7 @@ msgstr "正在进行统计记录"
 msgid "Record Status"
 msgstr "记录状态"
 
-#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:673
+#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:694
 msgid "Value"
 msgstr "值"
 
@@ -2220,7 +2220,7 @@ msgstr "时间格式"
 msgid "Configure statistics recording"
 msgstr "配置统计记录"
 
-#: widgets/trigger/trigger_widget.py:41 widgets/value/value_widget.py:95
+#: widgets/trigger/trigger_widget.py:41 widgets/value/value_widget.py:106
 msgid "Select the source device"
 msgstr "选择源器件"
 
@@ -2391,38 +2391,42 @@ msgstr "显示右侧的统计字段。"
 msgid "Show a leading + or - sign."
 msgstr "显示前导 + 或 - 符号。"
 
-#: widgets/value/value_widget.py:63
+#: widgets/value/value_widget.py:63 widgets/waveform/waveform_widget.py:412
+msgid "The precision to display in digits."
+msgstr "以位数显示的精度。"
+
+#: widgets/value/value_widget.py:74
 msgid "Divide the quantity by this value."
 msgstr "用这个值除以数量。"
 
-#: widgets/value/value_widget.py:64
+#: widgets/value/value_widget.py:75
 msgid ""
 "The divisor is a floating point number. The number may optionally be "
 "followed by units."
 msgstr "除数是浮点数。数字后面可以选择单位。"
 
-#: widgets/value/value_widget.py:96
+#: widgets/value/value_widget.py:107
 msgid ""
 "The values displayed by this widget come from a single source device. Select"
 " the source device here."
 msgstr "此 widget 显示的值来自单个源器件。在此选择源设备。"
 
-#: widgets/value/value_widget.py:102
+#: widgets/value/value_widget.py:113
 msgid "Hold the display"
 msgstr "保持显示"
 
-#: widgets/value/value_widget.py:104
+#: widgets/value/value_widget.py:115
 msgid "When selected, prevent the display from updating."
 msgstr "选中时，防止显示更新。"
 
-#: widgets/value/value_widget.py:105
+#: widgets/value/value_widget.py:116
 msgid ""
 "The UI also includes a global statistics hold button on the sidebar. When "
 "the global statistics hold button is selected, this button is disabled and "
 "has no effect."
 msgstr "用户界面侧边栏上还有一个全局统计保持按钮。选择全局统计保持按钮后，该按钮将被禁用，没有任何作用。"
 
-#: widgets/value/value_widget.py:108
+#: widgets/value/value_widget.py:119
 msgid ""
 "The displayed values normally update with each new statistics data computed "
 "by the device. When this button is selected, the display will not be "
@@ -2430,32 +2434,32 @@ msgid ""
 "selected)."
 msgstr "显示值通常随设备计算的每个新统计数据更新。选择此按钮后，显示值将不会更新。但是，统计数据将继续累积（如果选择）。"
 
-#: widgets/value/value_widget.py:115
+#: widgets/value/value_widget.py:126
 msgid "Accrue values over time"
 msgstr "随时间累积值"
 
-#: widgets/value/value_widget.py:117
+#: widgets/value/value_widget.py:128
 msgid ""
 "Current, voltage, and power are normally computed over a single statistics "
 "frequency interval. Press this button to accrue the values indefinitely. "
 "Press again to return to normal operation."
 msgstr "电流、电压和功率通常在单个统计频率间隔内计算。按下此按钮可无限累积数值。再次按下则返回正常操作。"
 
-#: widgets/value/value_widget.py:121
+#: widgets/value/value_widget.py:132
 msgid ""
 "Note that this button does not affect the charge and energy accumulation. "
 "Both accumulate indefinitely regardless of this button state."
 msgstr "请注意，该按钮不会影响电荷和能量的累积。无论按钮状态如何，两者都会无限累积。"
 
-#: widgets/value/value_widget.py:204
+#: widgets/value/value_widget.py:215
 msgid "Not present"
 msgstr "不存在"
 
-#: widgets/value/value_widget.py:224
+#: widgets/value/value_widget.py:235
 msgid "Hold"
 msgstr "保持"
 
-#: widgets/value/value_widget.py:232
+#: widgets/value/value_widget.py:243
 msgid "Accrue"
 msgstr "增加"
 
@@ -2795,10 +2799,6 @@ msgstr "显示频率，用于双重标记和统计。"
 #: widgets/waveform/waveform_widget.py:406
 msgid "The quantities to display by default."
 msgstr "默认显示的量。"
-
-#: widgets/waveform/waveform_widget.py:412
-msgid "The precision to display in digits."
-msgstr "以位数显示的精度。"
 
 #: widgets/waveform/waveform_widget.py:418
 msgid "Use OpenGL rendering."

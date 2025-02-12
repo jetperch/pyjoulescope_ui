@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-11-08 14:54-0500\n"
+"POT-Creation-Date: 2025-02-12 10:52-0500\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: ko <LL@li.org>\n"
@@ -583,7 +583,7 @@ msgstr "언어 선택"
 msgid "The application will automatically close when you change the locale."
 msgstr "로캘을 변경하면 애플리케이션이 자동으로 닫힙니다."
 
-#: main.py:70 widgets/value/value_widget.py:664
+#: main.py:70 widgets/value/value_widget.py:685
 msgid "Multimeter"
 msgstr "멀티미터"
 
@@ -1673,7 +1673,7 @@ msgid "The statistics data stream source."
 msgstr "통계 데이터 스트림 소스."
 
 #: widgets/accumulator/accumulator_widget.py:32
-#: widgets/value/value_widget.py:82
+#: widgets/value/value_widget.py:93
 msgid "The signal to display."
 msgstr "표시할 신호."
 
@@ -1745,7 +1745,7 @@ msgid "Update"
 msgstr "업데이트"
 
 #: widgets/device_control/device_update_dialog.py:25
-#: widgets/value/value_widget.py:156
+#: widgets/value/value_widget.py:167
 msgid "Device"
 msgstr "디바이스"
 
@@ -2140,7 +2140,7 @@ msgstr "통계 기록 진행 중"
 msgid "Record Status"
 msgstr "기록 상태"
 
-#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:673
+#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:694
 msgid "Value"
 msgstr "Value"
 
@@ -2283,7 +2283,7 @@ msgstr "시간 형식"
 msgid "Configure statistics recording"
 msgstr "통계 기록 구성"
 
-#: widgets/trigger/trigger_widget.py:41 widgets/value/value_widget.py:95
+#: widgets/trigger/trigger_widget.py:41 widgets/value/value_widget.py:106
 msgid "Select the source device"
 msgstr "소스 디바이스 선택"
 
@@ -2457,31 +2457,35 @@ msgstr "오른쪽에 통계 필드가 표시됩니다."
 msgid "Show a leading + or - sign."
 msgstr "선행 + 또는 - 기호를 표시합니다."
 
-#: widgets/value/value_widget.py:63
+#: widgets/value/value_widget.py:63 widgets/waveform/waveform_widget.py:412
+msgid "The precision to display in digits."
+msgstr "숫자로 표시되는 정밀도."
+
+#: widgets/value/value_widget.py:74
 msgid "Divide the quantity by this value."
 msgstr "수량을 이 값으로 나눕니다."
 
-#: widgets/value/value_widget.py:64
+#: widgets/value/value_widget.py:75
 msgid ""
 "The divisor is a floating point number. The number may optionally be "
 "followed by units."
 msgstr "제수는 부동 소수점 숫자입니다. 숫자 뒤에 선택적으로 단위를 붙일 수 있습니다."
 
-#: widgets/value/value_widget.py:96
+#: widgets/value/value_widget.py:107
 msgid ""
 "The values displayed by this widget come from a single source device. Select"
 " the source device here."
 msgstr "이 위젯에 표시되는 값은 단일 소스 장치에서 가져온 것입니다. 여기에서 소스 장치를 선택하세요."
 
-#: widgets/value/value_widget.py:102
+#: widgets/value/value_widget.py:113
 msgid "Hold the display"
 msgstr "디스플레이 잡기"
 
-#: widgets/value/value_widget.py:104
+#: widgets/value/value_widget.py:115
 msgid "When selected, prevent the display from updating."
 msgstr "이 옵션을 선택하면 디스플레이가 업데이트되지 않습니다."
 
-#: widgets/value/value_widget.py:105
+#: widgets/value/value_widget.py:116
 msgid ""
 "The UI also includes a global statistics hold button on the sidebar. When "
 "the global statistics hold button is selected, this button is disabled and "
@@ -2489,7 +2493,7 @@ msgid ""
 msgstr ""
 "UI에는 사이드바에 글로벌 통계 보류 버튼도 있습니다. 글로벌 통계 보류 버튼을 선택하면 이 버튼은 비활성화되며 아무런 효과가 없습니다."
 
-#: widgets/value/value_widget.py:108
+#: widgets/value/value_widget.py:119
 msgid ""
 "The displayed values normally update with each new statistics data computed "
 "by the device. When this button is selected, the display will not be "
@@ -2499,11 +2503,11 @@ msgstr ""
 "표시된 값은 일반적으로 장치에서 계산된 새로운 통계 데이터에 따라 업데이트됩니다. 이 버튼을 선택하면 디스플레이가 업데이트되지 않습니다."
 " 그러나 통계는 계속 누적되어 누적됩니다(선택한 경우)."
 
-#: widgets/value/value_widget.py:115
+#: widgets/value/value_widget.py:126
 msgid "Accrue values over time"
 msgstr "시간에 따른 값 누적"
 
-#: widgets/value/value_widget.py:117
+#: widgets/value/value_widget.py:128
 msgid ""
 "Current, voltage, and power are normally computed over a single statistics "
 "frequency interval. Press this button to accrue the values indefinitely. "
@@ -2512,21 +2516,21 @@ msgstr ""
 "전류, 전압 및 전력은 일반적으로 단일 통계 주파수 간격에 걸쳐 계산됩니다. 이 버튼을 누르면 값이 무한정 누적됩니다. 다시 누르면 정상"
 " 작동으로 돌아갑니다."
 
-#: widgets/value/value_widget.py:121
+#: widgets/value/value_widget.py:132
 msgid ""
 "Note that this button does not affect the charge and energy accumulation. "
 "Both accumulate indefinitely regardless of this button state."
 msgstr "이 버튼은 충전 및 에너지 축적에 영향을 주지 않습니다. 둘 다 이 버튼 상태에 관계없이 무기한으로 누적됩니다."
 
-#: widgets/value/value_widget.py:204
+#: widgets/value/value_widget.py:215
 msgid "Not present"
 msgstr "현재 없음"
 
-#: widgets/value/value_widget.py:224
+#: widgets/value/value_widget.py:235
 msgid "Hold"
 msgstr "Hold"
 
-#: widgets/value/value_widget.py:232
+#: widgets/value/value_widget.py:243
 msgid "Accrue"
 msgstr "증가"
 
@@ -2868,10 +2872,6 @@ msgstr "듀얼 마커 및 통계에 대한 주파수를 표시합니다."
 #: widgets/waveform/waveform_widget.py:406
 msgid "The quantities to display by default."
 msgstr "기본적으로 표시되는 수량입니다."
-
-#: widgets/waveform/waveform_widget.py:412
-msgid "The precision to display in digits."
-msgstr "숫자로 표시되는 정밀도."
 
 #: widgets/waveform/waveform_widget.py:418
 msgid "Use OpenGL rendering."

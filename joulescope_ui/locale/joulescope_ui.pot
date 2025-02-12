@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.2.6\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-11-08 14:54-0500\n"
+"POT-Creation-Date: 2025-02-12 10:52-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -555,7 +555,7 @@ msgstr ""
 msgid "The application will automatically close when you change the locale."
 msgstr ""
 
-#: main.py:70 widgets/value/value_widget.py:664
+#: main.py:70 widgets/value/value_widget.py:685
 msgid "Multimeter"
 msgstr ""
 
@@ -1602,7 +1602,7 @@ msgid "The statistics data stream source."
 msgstr ""
 
 #: widgets/accumulator/accumulator_widget.py:32
-#: widgets/value/value_widget.py:82
+#: widgets/value/value_widget.py:93
 msgid "The signal to display."
 msgstr ""
 
@@ -1674,7 +1674,7 @@ msgid "Update"
 msgstr ""
 
 #: widgets/device_control/device_update_dialog.py:25
-#: widgets/value/value_widget.py:156
+#: widgets/value/value_widget.py:167
 msgid "Device"
 msgstr ""
 
@@ -2062,7 +2062,7 @@ msgstr ""
 msgid "Record Status"
 msgstr ""
 
-#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:673
+#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:694
 msgid "Value"
 msgstr ""
 
@@ -2201,7 +2201,7 @@ msgstr ""
 msgid "Configure statistics recording"
 msgstr ""
 
-#: widgets/trigger/trigger_widget.py:41 widgets/value/value_widget.py:95
+#: widgets/trigger/trigger_widget.py:41 widgets/value/value_widget.py:106
 msgid "Select the source device"
 msgstr ""
 
@@ -2372,38 +2372,42 @@ msgstr ""
 msgid "Show a leading + or - sign."
 msgstr ""
 
-#: widgets/value/value_widget.py:63
+#: widgets/value/value_widget.py:63 widgets/waveform/waveform_widget.py:412
+msgid "The precision to display in digits."
+msgstr ""
+
+#: widgets/value/value_widget.py:74
 msgid "Divide the quantity by this value."
 msgstr ""
 
-#: widgets/value/value_widget.py:64
+#: widgets/value/value_widget.py:75
 msgid ""
 "The divisor is a floating point number. The number may optionally be "
 "followed by units."
 msgstr ""
 
-#: widgets/value/value_widget.py:96
+#: widgets/value/value_widget.py:107
 msgid ""
 "The values displayed by this widget come from a single source device. Select"
 " the source device here."
 msgstr ""
 
-#: widgets/value/value_widget.py:102
+#: widgets/value/value_widget.py:113
 msgid "Hold the display"
 msgstr ""
 
-#: widgets/value/value_widget.py:104
+#: widgets/value/value_widget.py:115
 msgid "When selected, prevent the display from updating."
 msgstr ""
 
-#: widgets/value/value_widget.py:105
+#: widgets/value/value_widget.py:116
 msgid ""
 "The UI also includes a global statistics hold button on the sidebar. When "
 "the global statistics hold button is selected, this button is disabled and "
 "has no effect."
 msgstr ""
 
-#: widgets/value/value_widget.py:108
+#: widgets/value/value_widget.py:119
 msgid ""
 "The displayed values normally update with each new statistics data computed "
 "by the device. When this button is selected, the display will not be "
@@ -2411,32 +2415,32 @@ msgid ""
 "selected)."
 msgstr ""
 
-#: widgets/value/value_widget.py:115
+#: widgets/value/value_widget.py:126
 msgid "Accrue values over time"
 msgstr ""
 
-#: widgets/value/value_widget.py:117
+#: widgets/value/value_widget.py:128
 msgid ""
 "Current, voltage, and power are normally computed over a single statistics "
 "frequency interval. Press this button to accrue the values indefinitely. "
 "Press again to return to normal operation."
 msgstr ""
 
-#: widgets/value/value_widget.py:121
+#: widgets/value/value_widget.py:132
 msgid ""
 "Note that this button does not affect the charge and energy accumulation. "
 "Both accumulate indefinitely regardless of this button state."
 msgstr ""
 
-#: widgets/value/value_widget.py:204
+#: widgets/value/value_widget.py:215
 msgid "Not present"
 msgstr ""
 
-#: widgets/value/value_widget.py:224
+#: widgets/value/value_widget.py:235
 msgid "Hold"
 msgstr ""
 
-#: widgets/value/value_widget.py:232
+#: widgets/value/value_widget.py:243
 msgid "Accrue"
 msgstr ""
 
@@ -2775,10 +2779,6 @@ msgstr ""
 
 #: widgets/waveform/waveform_widget.py:406
 msgid "The quantities to display by default."
-msgstr ""
-
-#: widgets/waveform/waveform_widget.py:412
-msgid "The precision to display in digits."
 msgstr ""
 
 #: widgets/waveform/waveform_widget.py:418

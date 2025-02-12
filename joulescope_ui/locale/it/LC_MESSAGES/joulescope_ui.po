@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.4\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-11-08 14:54-0500\n"
+"POT-Creation-Date: 2025-02-12 10:52-0500\n"
 "PO-Revision-Date: 2024-04-18 10:43-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: it <LL@li.org>\n"
@@ -660,7 +660,7 @@ msgstr "Selezionare una lingua"
 msgid "The application will automatically close when you change the locale."
 msgstr "L'applicazione si chiude automaticamente quando si cambia locale."
 
-#: main.py:70 widgets/value/value_widget.py:664
+#: main.py:70 widgets/value/value_widget.py:685
 msgid "Multimeter"
 msgstr "Multimetro"
 
@@ -1853,7 +1853,7 @@ msgid "The statistics data stream source."
 msgstr "La fonte del flusso di dati statistici."
 
 #: widgets/accumulator/accumulator_widget.py:32
-#: widgets/value/value_widget.py:82
+#: widgets/value/value_widget.py:93
 msgid "The signal to display."
 msgstr "Il segnale da visualizzare."
 
@@ -1925,7 +1925,7 @@ msgid "Update"
 msgstr "Aggiornamento"
 
 #: widgets/device_control/device_update_dialog.py:25
-#: widgets/value/value_widget.py:156
+#: widgets/value/value_widget.py:167
 msgid "Device"
 msgstr "Dispositivo"
 
@@ -2357,7 +2357,7 @@ msgstr "Registrazione statistica in corso"
 msgid "Record Status"
 msgstr "Stato della registrazione"
 
-#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:673
+#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:694
 msgid "Value"
 msgstr "Valore"
 
@@ -2508,7 +2508,7 @@ msgstr "Formato temporale"
 msgid "Configure statistics recording"
 msgstr "Configurare la registrazione delle statistiche"
 
-#: widgets/trigger/trigger_widget.py:41 widgets/value/value_widget.py:95
+#: widgets/trigger/trigger_widget.py:41 widgets/value/value_widget.py:106
 msgid "Select the source device"
 msgstr "Selezionare il dispositivo sorgente"
 
@@ -2688,11 +2688,15 @@ msgstr "Mostrare i campi delle statistiche a destra."
 msgid "Show a leading + or - sign."
 msgstr "Mostrare un segno + o - iniziale."
 
-#: widgets/value/value_widget.py:63
+#: widgets/value/value_widget.py:63 widgets/waveform/waveform_widget.py:412
+msgid "The precision to display in digits."
+msgstr "La precisione di visualizzazione in cifre."
+
+#: widgets/value/value_widget.py:74
 msgid "Divide the quantity by this value."
 msgstr "Dividere la quantità per questo valore."
 
-#: widgets/value/value_widget.py:64
+#: widgets/value/value_widget.py:75
 msgid ""
 "The divisor is a floating point number. The number may optionally be "
 "followed by units."
@@ -2700,7 +2704,7 @@ msgstr ""
 "Il divisore è un numero in virgola mobile. Il numero può essere "
 "facoltativamente seguito da unità."
 
-#: widgets/value/value_widget.py:96
+#: widgets/value/value_widget.py:107
 msgid ""
 "The values displayed by this widget come from a single source device. Select"
 " the source device here."
@@ -2708,15 +2712,15 @@ msgstr ""
 "I valori visualizzati da questo widget provengono da un unico dispositivo "
 "sorgente. Selezionare qui il dispositivo sorgente."
 
-#: widgets/value/value_widget.py:102
+#: widgets/value/value_widget.py:113
 msgid "Hold the display"
 msgstr "Tenere il display"
 
-#: widgets/value/value_widget.py:104
+#: widgets/value/value_widget.py:115
 msgid "When selected, prevent the display from updating."
 msgstr "Se selezionato, impedisce l'aggiornamento del display."
 
-#: widgets/value/value_widget.py:105
+#: widgets/value/value_widget.py:116
 msgid ""
 "The UI also includes a global statistics hold button on the sidebar. When "
 "the global statistics hold button is selected, this button is disabled and "
@@ -2727,7 +2731,7 @@ msgstr ""
 " delle statistiche globali è selezionato, questo pulsante è disabilitato e "
 "non ha alcun effetto."
 
-#: widgets/value/value_widget.py:108
+#: widgets/value/value_widget.py:119
 msgid ""
 "The displayed values normally update with each new statistics data computed "
 "by the device. When this button is selected, the display will not be "
@@ -2739,11 +2743,11 @@ msgstr ""
 "il display non viene aggiornato. Tuttavia, le statistiche continueranno ad "
 "accumularsi (se selezionato)."
 
-#: widgets/value/value_widget.py:115
+#: widgets/value/value_widget.py:126
 msgid "Accrue values over time"
 msgstr "Accumulare valori nel tempo"
 
-#: widgets/value/value_widget.py:117
+#: widgets/value/value_widget.py:128
 msgid ""
 "Current, voltage, and power are normally computed over a single statistics "
 "frequency interval. Press this button to accrue the values indefinitely. "
@@ -2754,7 +2758,7 @@ msgstr ""
 "accumulare i valori a tempo indeterminato. Premere nuovamente per tornare al"
 " funzionamento normale."
 
-#: widgets/value/value_widget.py:121
+#: widgets/value/value_widget.py:132
 msgid ""
 "Note that this button does not affect the charge and energy accumulation. "
 "Both accumulate indefinitely regardless of this button state."
@@ -2763,15 +2767,15 @@ msgstr ""
 "energia. Entrambi si accumulano indefinitamente indipendentemente dallo "
 "stato di questo pulsante."
 
-#: widgets/value/value_widget.py:204
+#: widgets/value/value_widget.py:215
 msgid "Not present"
 msgstr "Non presente"
 
-#: widgets/value/value_widget.py:224
+#: widgets/value/value_widget.py:235
 msgid "Hold"
 msgstr "Tenere"
 
-#: widgets/value/value_widget.py:232
+#: widgets/value/value_widget.py:243
 msgid "Accrue"
 msgstr "Accumulare"
 
@@ -3140,10 +3144,6 @@ msgstr "Mostra la frequenza per i doppi marcatori e le statistiche."
 #: widgets/waveform/waveform_widget.py:406
 msgid "The quantities to display by default."
 msgstr "Le quantità da visualizzare per impostazione predefinita."
-
-#: widgets/waveform/waveform_widget.py:412
-msgid "The precision to display in digits."
-msgstr "La precisione di visualizzazione in cifre."
 
 #: widgets/waveform/waveform_widget.py:418
 msgid "Use OpenGL rendering."
