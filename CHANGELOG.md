@@ -16,6 +16,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Safe mode (hold shift key at start) uses software OpenGL renderer.
 * Reduced OpenGL requirements from 3.3 to 2.1 for desktop.
 * Added copy marker text to clipboard  #298
+* Added optional show time for vertical x-axis markers in Waveform widget #297
 * Updated build
   * Python 3.11 to 3.12
   * Nuitka 2.4.11 to 2.6.7

@@ -1236,7 +1236,7 @@ class WaveformWidget(QtWidgets.QWidget):
             value = self._y_transform_rev(plot, value)
         return value
 
-    def _draw_text(self, p, x, y, txt):
+    def _draw_text(self, p, x, y, txt, x_align=None, y_align=None):
         """Draws text over existing items.
 
         :param p: The QPainter instance.
@@ -1249,6 +1249,14 @@ class WaveformWidget(QtWidgets.QWidget):
         margin2 = _MARGIN * 2
         metrics = p.fontMetrics()
         r = metrics.boundingRect(txt)
+        if x_align in ['center']:
+            x -= (r.width() + margin2) // 2
+        elif x_align in ['right']:
+            x -= r.width() + margin2
+        if y_align in ['center']:
+            y += (metrics.ascent() + margin2) // 2
+        elif y_align in ['bottom']:
+            y += metrics.ascent() + margin2
         p.fillRect(x, y, r.width() + margin2, r.height() + margin2, p.brush())
         p.drawText(x + margin, y + margin + metrics.ascent(), txt)
 
@@ -2062,6 +2070,12 @@ class WaveformWidget(QtWidgets.QWidget):
                     p.drawPolygon(segs)
                     p.setPen(pen)
                     p.drawLine(p1, y0 + f_h + he, p1, y1)
+                    if m.get('show_time', 'off') == 'on':
+                        p.setFont(s['axis_font'])
+                        p.setPen(s['text_pen'])
+                        x_rel = self._x_map.time64_to_trel(pos1)
+                        x_txt = _si_format(x_rel, 's', precision=self.precision)
+                        self._draw_text(p, pr + _MARGIN, y0, x_txt)
                     self._draw_single_marker_text(p, m)
             else:
                 p2 = np.rint(self._x_map.time64_to_counter(m['pos2']))
@@ -2097,6 +2111,17 @@ class WaveformWidget(QtWidgets.QWidget):
                     f_x = (p1 + p2 - f_w) // 2
                     if xl0 < f_x < xl1:
                         p.drawText(f_x, y0 + margin + f_a + f_h, f_str)
+                if m.get('show_time', 'off') == 'on':
+                    p.setFont(s['axis_font'])
+                    p.setPen(s['text_pen'])
+                    x1 = min(m['pos1'], m['pos2'])
+                    x2 = max(m['pos1'], m['pos2'])
+                    x_rel = self._x_map.time64_to_trel(x1)
+                    x_txt = _si_format(x_rel, 's', precision=self.precision)
+                    self._draw_text(p, q1 - _MARGIN, y0, x_txt, x_align='right')
+                    x_rel = self._x_map.time64_to_trel(x2)
+                    x_txt = _si_format(x_rel, 's', precision=self.precision)
+                    self._draw_text(p, q2 + _MARGIN, y0, x_txt, x_align='left')
                 txp = ['left', 'right'] if m['pos1'] < m['pos2'] else ['right', 'left']
                 self._draw_dual_marker_text(p, m, 'text_pos1', txp[0])
                 self._draw_dual_marker_text(p, m, 'text_pos2', txp[1])
@@ -3297,6 +3322,10 @@ class WaveformWidget(QtWidgets.QWidget):
         marker[text_pos_key] = pos
         self._repaint_request = True
 
+    def _on_x_marker_time_show(self, marker, value):
+        marker['show_time'] = value
+        self._repaint_request = True
+
     def _signals_get(self):
         signals = []
         for _, subsource in self._traces():
@@ -3518,6 +3547,17 @@ class WaveformWidget(QtWidgets.QWidget):
         CallableAction(show_stats_group, N_('Off'),
                        lambda: self._on_x_marker_statistics_show(m, f'text_{pos_text}', 'off'),
                        checkable=True, checked=(pos == 'off'))
+
+        show_time_menu = menu.addMenu(N_('Show time'))
+        show_time_group = QtGui.QActionGroup(show_time_menu)
+        show_time = m.get('show_time', 'off')
+        CallableAction(show_time_group, N_('Off'),
+                       lambda: self._on_x_marker_time_show(m, 'off'),
+                       checkable=True, checked=(show_time == 'off'))
+        CallableAction(show_time_group, N_('On'),
+                       lambda: self._on_x_marker_time_show(m, 'on'),
+                       checkable=True, checked=(show_time == 'on'))
+
         CallableAction(menu, _COPY_TEXT_TO_CLIPBOARD,
                        lambda: self.pubsub.publish(f'{get_topic_name(self)}/actions/!x_markers', ['text_to_clipboard', m['id']]))
         CallableAction(menu, N_('Remove'),
@@ -3669,6 +3709,7 @@ class WaveformWidget(QtWidgets.QWidget):
             'changed': True,
             'text_pos1': 'auto',
             'text_pos2': 'off',
+            'show_time': 'off',
         }
         if self.x_axis_annotation_mode == 'relative':
             marker['mode'] = 'relative'
@@ -3710,6 +3751,7 @@ class WaveformWidget(QtWidgets.QWidget):
             'changed': True,
             'text_pos1': 'off',
             'text_pos2': 'auto',
+            'show_time': 'off',
         }
         if self.x_axis_annotation_mode == 'relative':
             e1 = self._extents()[1]
