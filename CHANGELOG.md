@@ -15,6 +15,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added precision to Multimeter widget and Value widget  #301
 * Safe mode (hold shift key at start) uses software OpenGL renderer.
 * Reduced OpenGL requirements from 3.3 to 2.1 for desktop.
+* Added copy marker text to clipboard  #298
 * Updated build
   * Python 3.11 to 3.12
   * Nuitka 2.4.11 to 2.6.7

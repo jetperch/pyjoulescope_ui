@@ -41,6 +41,7 @@ from collections.abc import Iterable
 
 
 _NAME = N_('Waveform')
+_COPY_TEXT_TO_CLIPBOARD = N_('Copy text to clipboard')
 _ZOOM_FACTOR = np.sqrt(2)
 _WHEEL_TO_DEGREES = 1.0 / 8.0  # https://doc.qt.io/qt-6/qwheelevent.html#angleDelta
 _WHEEL_TICK_DEGREES = 15  # by standard convention
@@ -1931,15 +1932,18 @@ class WaveformWidget(QtWidgets.QWidget):
 
             if m['dtype'] == 'dual':
                 dy = _si_format(m['pos2'] - m['pos1'], plot['units'], precision=self.precision)
-                self._draw_text(p, x0 + _MARGIN, p1 + _MARGIN, t + '  Δ=' + dy)
+                m['text1'] = t + '  Δ=' + dy
+                self._draw_text(p, x0 + _MARGIN, p1 + _MARGIN, m['text1'])
                 p.setPen(pen)
                 p2 = self._y_value_to_pixel(plot, m['pos2'])
                 p.drawLine(x0, p2, x1, p2)
                 p.setPen(s['text_pen'])
                 t = _si_format(m['pos2'], plot['units'], precision=self.precision)
-                self._draw_text(p, x0 + _MARGIN, p2 + _MARGIN, t + '  Δ=' + dy)
+                m['text2'] = t + '  Δ=' + dy
+                self._draw_text(p, x0 + _MARGIN, p2 + _MARGIN, m['text2'])
             else:
-                self._draw_text(p, x0 + _MARGIN, p1 + _MARGIN, t)
+                m['text1'] = t
+                self._draw_text(p, x0 + _MARGIN, p1 + _MARGIN, m['text1'])
 
         p.setClipping(False)
 
@@ -2058,7 +2062,7 @@ class WaveformWidget(QtWidgets.QWidget):
                     p.drawPolygon(segs)
                     p.setPen(pen)
                     p.drawLine(p1, y0 + f_h + he, p1, y1)
-                    self._draw_single_marker_text(p, m, pos1)
+                    self._draw_single_marker_text(p, m)
             else:
                 p2 = np.rint(self._x_map.time64_to_counter(m['pos2']))
                 if p2 < p1:
@@ -2158,102 +2162,117 @@ class WaveformWidget(QtWidgets.QWidget):
             p.drawText(x1 + field_width + value_width, y1, units)
             y1 += f_h
 
-    def _draw_single_marker_text(self, p, m, x):
+    def _x_single_marker_text(self, plot, m):
+        if not plot['enabled']:
+            return []
+        quantity = plot['quantity']
+        traces = self._traces()
+        signal_id = f'{traces[0][1]}.{quantity}'
+
+        d_sig = self._signals_data.get(signal_id)
+        if d_sig is None:
+            return []
+        d = d_sig['data']
+        s_x = d['x']
+        p0 = np.rint(self._x_map.time64_to_counter(m['pos1']))
+        xp = self._x_map.counter_to_time64(p0)
+        idx = np.argmin(np.abs(s_x - xp))
+        v_avg = d['avg'][idx]
+        if not np.isfinite(v_avg):
+            return []
+
+        units, prefix_preferred = plot['units'], plot['prefix_preferred']
+        if d['std'] is not None:
+            v_std, v_min, v_max = d['std'][idx], d['min'][idx], d['max'][idx]
+            v_rms = np.sqrt(v_avg * v_avg + v_std * v_std)
+            values = {
+                'avg': (v_avg, units),
+                'std': (v_std, units),
+                'rms': (v_rms, units),
+                'min': (v_min, units),
+                'max': (v_max, units),
+                'p2p': (v_max - v_min, units),
+            }
+        else:
+            values = {
+                'avg': (v_avg, units),
+            }
+
+        quantities = m.get('quantities', self.quantities)
+        precision = self.precision
+        text = quantities_format(quantities, values, prefix_preferred=prefix_preferred, precision=precision)
+        return text
+
+    def _draw_single_marker_text(self, p, m):
         traces = self._traces()
         if not len(traces):
             return
         text_pos = m.get('text_pos1', 'auto')
         if text_pos == 'off':
             return
-        p0 = np.rint(self._x_map.time64_to_counter(x))
-        xp = self._x_map.counter_to_time64(p0)
         xw, x0, _ = self._x_geometry_info['plot']
         for plot in self.state['plots']:
             if not plot['enabled']:
                 continue
-            quantity = plot['quantity']
-            signal_id = f'{traces[0][1]}.{quantity}'
-            d_sig = self._signals_data.get(signal_id)
-            if d_sig is None:
-                continue
-            d = d_sig['data']
-            s_x = d['x']
-            idx = np.argmin(np.abs(s_x - xp))
-            v_avg = d['avg'][idx]
-            if not np.isfinite(v_avg):
-                continue
             yh, y0, y1 = self._y_geometry_info[plot['y_region']]
             p.setClipRect(x0, y0, xw, yh)
-
-            units, prefix_preferred = plot['units'], plot['prefix_preferred']
-            if d['std'] is not None:
-                v_std, v_min, v_max = d['std'][idx], d['min'][idx], d['max'][idx]
-                v_rms = np.sqrt(v_avg * v_avg + v_std * v_std)
-                values = {
-                    'avg': (v_avg, units),
-                    'std': (v_std, units),
-                    'rms': (v_rms, units),
-                    'min': (v_min, units),
-                    'max': (v_max, units),
-                    'p2p': (v_max - v_min, units),
-                }
-            else:
-                values = {
-                    'avg': (v_avg, units),
-                }
-
-            quantities = m.get('quantities', self.quantities)
-            precision = self.precision
-            text = quantities_format(quantities, values, prefix_preferred=prefix_preferred, precision=precision)
+            text = self._x_single_marker_text(plot, m)
+            p0 = np.rint(self._x_map.time64_to_counter(m['pos1']))
             self._draw_statistics_text(p, (p0, y0), text, text_pos)
         p.setClipping(False)
+
+    def _x_dual_marker_text(self, plot, m):
+        if not plot['enabled']:
+            return []
+        marker_id = m['id']
+        plot_id = plot['index']
+        key = (marker_id, plot_id)
+        if key not in self._marker_data:
+            return []
+        data = self._marker_data[key]
+        utc = data['time_range_utc']
+        dt = (utc['end'] - utc['start']) / time64.SECOND
+        v_avg = float(data['avg'][0])
+        if not np.isfinite(v_avg):
+            return []
+        units, prefix_preferred = plot['units'], plot['prefix_preferred']
+        if data['std'] is None:
+            values = {'avg': (v_avg, units)}
+        else:
+            v_std = float(data['std'][0])
+            v_min = float(data['min'][0])
+            v_max = float(data['max'][0])
+            values = {
+                'avg': (v_avg, units),
+                'std': (v_std, units),
+                'rms': (np.sqrt(v_avg * v_avg + v_std * v_std), units),
+                'min': (v_min, units),
+                'max': (v_max, units),
+                'p2p': (v_max - v_min, units),
+            }
+            integral_units = plot.get('integral')
+            if integral_units is not None:
+                integral_v, integral_units = convert_units(v_avg * dt, integral_units, self.units)
+                values['integral'] = (integral_v, integral_units)
+
+        quantities = m.get('quantities', self.quantities)
+        precision = self.precision
+        text = quantities_format(quantities, values, prefix_preferred=prefix_preferred, precision=precision)
+        return text
 
     def _draw_dual_marker_text(self, p, m, text_pos_key, text_pos_auto_default):
         text_pos_default = 'off' if text_pos_key == 'text_pos1' else 'auto'
         text_pos = m.get(text_pos_key, text_pos_default)
         if text_pos == 'off':
             return
-        marker_id = m['id']
         xw, x0, x1 = self._x_geometry_info['plot']
         xl0, xl1 = x0 - _CLIP_LIMIT_PIXELS, x1 + _CLIP_LIMIT_PIXELS
         for plot in self.state['plots']:
             if not plot['enabled']:
                 continue
-            plot_id = plot['index']
-            key = (marker_id, plot_id)
-            if key not in self._marker_data:
-                return
             yh, y0, y1 = self._y_geometry_info[plot['y_region']]
             p.setClipRect(x0, y0, xw, yh)
-            data = self._marker_data[key]
-            utc = data['time_range_utc']
-            dt = (utc['end'] - utc['start']) / time64.SECOND
-            v_avg = float(data['avg'][0])
-            if not np.isfinite(v_avg):
-                continue
-            units, prefix_preferred = plot['units'], plot['prefix_preferred']
-            if data['std'] is None:
-                values = {'avg': (v_avg, units)}
-            else:
-                v_std = float(data['std'][0])
-                v_min = float(data['min'][0])
-                v_max = float(data['max'][0])
-                values = {
-                    'avg': (v_avg, units),
-                    'std': (v_std, units),
-                    'rms': (np.sqrt(v_avg * v_avg + v_std * v_std), units),
-                    'min': (v_min, units),
-                    'max': (v_max, units),
-                    'p2p': (v_max - v_min, units),
-                }
-                integral_units = plot.get('integral')
-                if integral_units is not None:
-                    integral_v, integral_units = convert_units(v_avg * dt, integral_units, self.units)
-                    values['integral'] = (integral_v, integral_units)
-
-            quantities = m.get('quantities', self.quantities)
-            precision = self.precision
-            text = quantities_format(quantities, values, prefix_preferred=prefix_preferred, precision=precision)
+            text = self._x_dual_marker_text(plot, m)
             pos_field = text_pos_key.split('_')[-1]
             p0 = np.rint(self._x_map.time64_to_counter(m[pos_field]))
             if xl0 < p0 < xl1:
@@ -3499,6 +3518,8 @@ class WaveformWidget(QtWidgets.QWidget):
         CallableAction(show_stats_group, N_('Off'),
                        lambda: self._on_x_marker_statistics_show(m, f'text_{pos_text}', 'off'),
                        checkable=True, checked=(pos == 'off'))
+        CallableAction(menu, _COPY_TEXT_TO_CLIPBOARD,
+                       lambda: self.pubsub.publish(f'{get_topic_name(self)}/actions/!x_markers', ['text_to_clipboard', m['id']]))
         CallableAction(menu, N_('Remove'),
                        lambda: self.pubsub.publish(f'{get_topic_name(self)}/actions/!x_markers', ['remove', m['id']]))
         return context_menu_show(menu, event)
@@ -3554,9 +3575,15 @@ class WaveformWidget(QtWidgets.QWidget):
         a = self._annotation_lookup(a_id)
         self._text_annotation_remove(a)
 
+    def _copy_text_to_clipboard(self, text):
+        self._clipboard_image = text
+        QtWidgets.QApplication.clipboard().setText(self._clipboard_image)
+
     def _menu_y_marker_single(self, item, event: QtGui.QMouseEvent):
         m, m_pos = self._item_parse_y_marker(item)
+        text = m['text1'] if (m_pos == 'pos1') else m['text2']
         menu = QtWidgets.QMenu('Waveform y_marker context menu', self)
+        CallableAction(menu, _COPY_TEXT_TO_CLIPBOARD, lambda: self._copy_text_to_clipboard(text))
         CallableAction(menu, N_('Remove'),
                        lambda: self.pubsub.publish(f'{get_topic_name(self)}/actions/!y_markers',
                                                    ['remove', m['id']]))
@@ -3692,6 +3719,22 @@ class WaveformWidget(QtWidgets.QWidget):
 
         return self._x_marker_add(marker)
 
+    def _x_marker_text_to_clipboard(self, m):
+        m = self._annotation_lookup(m)
+        text = []
+        for plot in self.state['plots']:
+            if not plot['enabled']:
+                continue
+            text.append(plot['name'])
+            if m['dtype'] == 'single':
+                t = self._x_single_marker_text(plot, m)
+            else:
+                t = self._x_dual_marker_text(plot, m)
+            for item in t:
+                text.append(' '.join(item).strip())
+            text.append('')
+        self._copy_text_to_clipboard('\n'.join(text))
+
     def on_action_x_markers(self, topic, value):
         """Perform a marker action.
 
@@ -3702,6 +3745,7 @@ class WaveformWidget(QtWidgets.QWidget):
             * ['add_dual', center, None]
             * ['add_dual', pos1, pos2]
             * ['clear_all']
+            * ['text_to_clipboard', marker_id]
             * ['remove', marker_id, ...]
             * ['add', marker_obj, ...]  # for undo remove
             * ['select', marker_id]
@@ -3731,6 +3775,8 @@ class WaveformWidget(QtWidgets.QWidget):
                 self._on_x_marker_zoom(value[1], 0.75)
             except KeyError:
                 pass
+        elif cmd == 'text_to_clipboard':
+            self._x_marker_text_to_clipboard(value[1])
         else:
             raise NotImplementedError(f'Unsupported marker action {value}')
 
@@ -3778,6 +3824,7 @@ class WaveformWidget(QtWidgets.QWidget):
             'dtype': 'single',
             'pos1': pos1,
             'plot_index': plot_index,
+            'text1': '',
         }
         return self._y_marker_add(marker)
 
@@ -3803,6 +3850,8 @@ class WaveformWidget(QtWidgets.QWidget):
             'pos1': pos1,
             'pos2': pos2,
             'plot_index': plot_index,
+            'text1': '',
+            'text2': '',
         }
         return self._y_marker_add(marker)
 

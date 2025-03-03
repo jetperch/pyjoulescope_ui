@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.4\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-03-03 14:29-0500\n"
+"POT-Creation-Date: 2025-03-03 16:28-0500\n"
 "PO-Revision-Date: 2024-04-18 10:43-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: it <LL@li.org>\n"
@@ -341,7 +341,7 @@ msgstr "E-mail"
 msgid "Description"
 msgstr "Descrizione"
 
-#: error_window.py:112 widgets/waveform/waveform_widget.py:3509
+#: error_window.py:112 widgets/waveform/waveform_widget.py:3530
 msgid "Edit"
 msgstr "Modifica"
 
@@ -1123,7 +1123,7 @@ msgstr ""
 "destinazione."
 
 #: devices/jsdrv/js110.py:147 devices/jsdrv/js220.py:208
-#: widgets/waveform/waveform_widget.py:112
+#: widgets/waveform/waveform_widget.py:113
 msgid "Current range"
 msgstr "Intervallo di corrente"
 
@@ -1279,7 +1279,7 @@ msgstr ""
 "gli altri tipi di IRF."
 
 #: devices/jsdrv/js110.py:269 devices/jsdrv/js220.py:433
-#: widgets/device_control/fuse.py:103 widgets/waveform/waveform_widget.py:107
+#: widgets/device_control/fuse.py:103 widgets/waveform/waveform_widget.py:108
 msgid "Current"
 msgstr "Corrente"
 
@@ -1288,7 +1288,7 @@ msgid "Enable the current signal streaming."
 msgstr "Abilitare lo streaming del segnale di corrente."
 
 #: devices/jsdrv/js110.py:278 devices/jsdrv/js220.py:442
-#: widgets/waveform/waveform_widget.py:108
+#: widgets/waveform/waveform_widget.py:109
 msgid "Voltage"
 msgstr "Tensione"
 
@@ -1297,7 +1297,7 @@ msgid "Enable the voltage signal streaming."
 msgstr "Abilitare lo streaming del segnale di tensione."
 
 #: devices/jsdrv/js110.py:287 devices/jsdrv/js220.py:451
-#: widgets/waveform/waveform_widget.py:109
+#: widgets/waveform/waveform_widget.py:110
 msgid "Power"
 msgstr "Potenza"
 
@@ -1600,7 +1600,7 @@ msgstr "GPI 3"
 msgid "Enable the general purpose input 3 signal streaming."
 msgstr "Abilitare lo streaming del segnale dell'ingresso 3 per uso generale."
 
-#: devices/jsdrv/js220.py:511 widgets/waveform/waveform_widget.py:126
+#: devices/jsdrv/js220.py:511 widgets/waveform/waveform_widget.py:127
 msgid "Trigger input"
 msgstr "Ingresso di trigger"
 
@@ -1619,7 +1619,7 @@ msgstr "Stato di aggiornamento del firmware"
 #: widgets/settings/settings_widget.py:266
 #: widgets/settings/settings_widget.py:364
 #: widgets/settings/settings_widget.py:431
-#: widgets/waveform/waveform_widget.py:3158
+#: widgets/waveform/waveform_widget.py:3177
 msgid "Name"
 msgstr "Nome"
 
@@ -2688,7 +2688,7 @@ msgstr "Mostrare i campi delle statistiche a destra."
 msgid "Show a leading + or - sign."
 msgstr "Mostrare un segno + o - iniziale."
 
-#: widgets/value/value_widget.py:63 widgets/waveform/waveform_widget.py:412
+#: widgets/value/value_widget.py:63 widgets/waveform/waveform_widget.py:413
 msgid "The precision to display in digits."
 msgstr "La precisione di visualizzazione in cifre."
 
@@ -2829,7 +2829,7 @@ msgid "triangle left"
 msgstr "triangolo a sinistra"
 
 #: widgets/waveform/text_annotation.py:66
-#: widgets/waveform/waveform_widget.py:3104
+#: widgets/waveform/waveform_widget.py:3123
 msgid "Manual"
 msgstr "Manuale"
 
@@ -2838,17 +2838,17 @@ msgid "Centered"
 msgstr "Centrato"
 
 #: widgets/waveform/text_annotation.py:99
-#: widgets/waveform/waveform_widget.py:3219
+#: widgets/waveform/waveform_widget.py:3238
 msgid "Text"
 msgstr "Testo"
 
 #: widgets/waveform/text_annotation.py:107
-#: widgets/waveform/waveform_widget.py:3510
+#: widgets/waveform/waveform_widget.py:3531
 msgid "Show text"
 msgstr "Mostra testo"
 
 #: widgets/waveform/text_annotation.py:116
-#: widgets/waveform/waveform_widget.py:3522
+#: widgets/waveform/waveform_widget.py:3543
 msgid "Shape"
 msgstr "Forma"
 
@@ -3052,8 +3052,8 @@ msgstr ""
 "tramite il widget Device Control."
 
 #: widgets/waveform/waveform_source_widget.py:104
-#: widgets/waveform/waveform_widget.py:377
-#: widgets/waveform/waveform_widget.py:454
+#: widgets/waveform/waveform_widget.py:378
+#: widgets/waveform/waveform_widget.py:455
 msgid "off"
 msgstr "off"
 
@@ -3061,309 +3061,313 @@ msgstr "off"
 msgid "Waveform"
 msgstr "Forma d'onda"
 
-#: widgets/waveform/waveform_widget.py:122
+#: widgets/waveform/waveform_widget.py:44
+msgid "Copy text to clipboard"
+msgstr "Copia del testo negli appunti"
+
+#: widgets/waveform/waveform_widget.py:123
 msgid "General purpose input 0"
 msgstr "Ingresso generico 0"
 
-#: widgets/waveform/waveform_widget.py:123
+#: widgets/waveform/waveform_widget.py:124
 msgid "General purpose input 1"
 msgstr "Ingresso generico 1"
 
-#: widgets/waveform/waveform_widget.py:124
+#: widgets/waveform/waveform_widget.py:125
 msgid "General purpose input 2"
 msgstr "Ingresso generico 2"
 
-#: widgets/waveform/waveform_widget.py:125
+#: widgets/waveform/waveform_widget.py:126
 msgid "General purpose input 3"
 msgstr "Ingresso generico 3"
 
-#: widgets/waveform/waveform_widget.py:333
+#: widgets/waveform/waveform_widget.py:334
 msgid "The source filter string."
 msgstr "La stringa del filtro sorgente."
 
-#: widgets/waveform/waveform_widget.py:344
+#: widgets/waveform/waveform_widget.py:345
 msgid "The trace width."
 msgstr "La larghezza della traccia."
 
-#: widgets/waveform/waveform_widget.py:359
+#: widgets/waveform/waveform_widget.py:360
 msgid "The target frames per second."
 msgstr "I fotogrammi al secondo di riferimento."
 
-#: widgets/waveform/waveform_widget.py:361
+#: widgets/waveform/waveform_widget.py:362
 msgid "vsync"
 msgstr "vsync"
 
-#: widgets/waveform/waveform_widget.py:362
+#: widgets/waveform/waveform_widget.py:363
 msgid "20 Hz"
 msgstr "20 Hz"
 
-#: widgets/waveform/waveform_widget.py:363
+#: widgets/waveform/waveform_widget.py:364
 msgid "10 Hz"
 msgstr "10 Hz"
 
-#: widgets/waveform/waveform_widget.py:364
+#: widgets/waveform/waveform_widget.py:365
 msgid "5 Hz"
 msgstr "5 Hz"
 
-#: widgets/waveform/waveform_widget.py:370
+#: widgets/waveform/waveform_widget.py:371
 msgid "The minimum interval between repaint in milliseconds."
 msgstr "L'intervallo minimo tra un repaint e l'altro, in millisecondi."
 
-#: widgets/waveform/waveform_widget.py:375
+#: widgets/waveform/waveform_widget.py:376
 msgid "Show the minimum and maximum extents fill."
 msgstr "Mostra il riempimento delle estensioni minime e massime."
 
-#: widgets/waveform/waveform_widget.py:378
+#: widgets/waveform/waveform_widget.py:379
 msgid "lines"
 msgstr "linee"
 
-#: widgets/waveform/waveform_widget.py:379
+#: widgets/waveform/waveform_widget.py:380
 msgid "fill 1"
 msgstr "riempimento 1"
 
-#: widgets/waveform/waveform_widget.py:380
+#: widgets/waveform/waveform_widget.py:381
 msgid "fill 2"
 msgstr "riempimento 2"
 
-#: widgets/waveform/waveform_widget.py:386
+#: widgets/waveform/waveform_widget.py:387
 msgid "Show the frames per second."
 msgstr "Mostra i fotogrammi al secondo."
 
-#: widgets/waveform/waveform_widget.py:391
+#: widgets/waveform/waveform_widget.py:392
 msgid "Show the statistics on mouse hover."
 msgstr "Mostra le statistiche al passaggio del mouse."
 
-#: widgets/waveform/waveform_widget.py:396
+#: widgets/waveform/waveform_widget.py:397
 msgid "Show the plot statistics on the right."
 msgstr "Mostrare le statistiche del grafico a destra."
 
-#: widgets/waveform/waveform_widget.py:401
+#: widgets/waveform/waveform_widget.py:402
 msgid "Show frequency for dual markers and statistics."
 msgstr "Mostra la frequenza per i doppi marcatori e le statistiche."
 
-#: widgets/waveform/waveform_widget.py:406
+#: widgets/waveform/waveform_widget.py:407
 msgid "The quantities to display by default."
 msgstr "Le quantità da visualizzare per impostazione predefinita."
 
-#: widgets/waveform/waveform_widget.py:418
+#: widgets/waveform/waveform_widget.py:419
 msgid "Use OpenGL rendering."
 msgstr "Utilizzare il rendering OpenGL."
 
-#: widgets/waveform/waveform_widget.py:429
+#: widgets/waveform/waveform_widget.py:430
 msgid "Pin the left side (oldest) data so that it stays in view."
 msgstr ""
 "Appuntate i dati di sinistra (i più vecchi) in modo che rimangano in vista."
 
-#: widgets/waveform/waveform_widget.py:434
+#: widgets/waveform/waveform_widget.py:435
 msgid "Pin the right side (newest) data so that it stays in view."
 msgstr ""
 "Appuntate i dati sul lato destro (i più recenti) in modo che rimangano in "
 "vista."
 
-#: widgets/waveform/waveform_widget.py:439
+#: widgets/waveform/waveform_widget.py:440
 msgid "The waveform state."
 msgstr "Lo stato della forma d'onda."
 
-#: widgets/waveform/waveform_widget.py:445
+#: widgets/waveform/waveform_widget.py:446
 msgid "The annotations."
 msgstr "Le annotazioni."
 
-#: widgets/waveform/waveform_widget.py:451
+#: widgets/waveform/waveform_widget.py:452
 msgid "Control location"
 msgstr "Posizione di controllo"
 
-#: widgets/waveform/waveform_widget.py:455
+#: widgets/waveform/waveform_widget.py:456
 msgid "top"
 msgstr "top"
 
-#: widgets/waveform/waveform_widget.py:456
+#: widgets/waveform/waveform_widget.py:457
 msgid "bottom"
 msgstr "bottom"
 
-#: widgets/waveform/waveform_widget.py:461
+#: widgets/waveform/waveform_widget.py:462
 msgid "The signal quantity to show in the summary."
 msgstr "La quantità di segnale da mostrare nel riepilogo."
 
-#: widgets/waveform/waveform_widget.py:467
+#: widgets/waveform/waveform_widget.py:468
 msgid "X-axis annotation mode"
 msgstr "Modalità di annotazione sull'asse X"
 
-#: widgets/waveform/waveform_widget.py:470
-#: widgets/waveform/waveform_widget.py:2984
+#: widgets/waveform/waveform_widget.py:471
+#: widgets/waveform/waveform_widget.py:3003
 msgid "Absolute"
 msgstr "Assoluta"
 
-#: widgets/waveform/waveform_widget.py:471
-#: widgets/waveform/waveform_widget.py:2989
+#: widgets/waveform/waveform_widget.py:472
+#: widgets/waveform/waveform_widget.py:3008
 msgid "Relative"
 msgstr "Relativo"
 
-#: widgets/waveform/waveform_widget.py:477
+#: widgets/waveform/waveform_widget.py:478
 msgid "The available subsources."
 msgstr "Le sotto-sorgenti disponibili."
 
-#: widgets/waveform/waveform_widget.py:483
+#: widgets/waveform/waveform_widget.py:484
 msgid "The selected subsources for each trace."
 msgstr "Le sottosorgenti selezionate per ogni traccia."
 
-#: widgets/waveform/waveform_widget.py:489
+#: widgets/waveform/waveform_widget.py:490
 msgid "The trace priority: highest int value on top, None is off."
 msgstr ""
 "La priorità della traccia: il valore int più alto è in cima, nessuno è "
 "spento."
 
-#: widgets/waveform/waveform_widget.py:2931
-#: widgets/waveform/waveform_widget.py:3231
+#: widgets/waveform/waveform_widget.py:2950
+#: widgets/waveform/waveform_widget.py:3250
 msgid "Save image to file"
 msgstr "Salva l'immagine su file"
 
-#: widgets/waveform/waveform_widget.py:2978
-#: widgets/waveform/waveform_widget.py:3047
+#: widgets/waveform/waveform_widget.py:2997
+#: widgets/waveform/waveform_widget.py:3066
 msgid "Single marker"
 msgstr "Marcatore singolo"
 
-#: widgets/waveform/waveform_widget.py:2979
-#: widgets/waveform/waveform_widget.py:3048
+#: widgets/waveform/waveform_widget.py:2998
+#: widgets/waveform/waveform_widget.py:3067
 msgid "Dual markers"
 msgstr "Doppio marcatore"
 
-#: widgets/waveform/waveform_widget.py:2981
+#: widgets/waveform/waveform_widget.py:3000
 msgid "Mode"
 msgstr "Modalità"
 
-#: widgets/waveform/waveform_widget.py:2994
-#: widgets/waveform/waveform_widget.py:3049
-#: widgets/waveform/waveform_widget.py:3207
-#: widgets/waveform/waveform_widget.py:3225
+#: widgets/waveform/waveform_widget.py:3013
+#: widgets/waveform/waveform_widget.py:3068
+#: widgets/waveform/waveform_widget.py:3226
+#: widgets/waveform/waveform_widget.py:3244
 msgid "Clear all"
 msgstr "Cancella tutto"
 
-#: widgets/waveform/waveform_widget.py:3005
-#: widgets/waveform/waveform_widget.py:3094
-#: widgets/waveform/waveform_widget.py:3213
+#: widgets/waveform/waveform_widget.py:3024
+#: widgets/waveform/waveform_widget.py:3113
+#: widgets/waveform/waveform_widget.py:3232
 msgid "Annotations"
 msgstr "Annotazioni"
 
-#: widgets/waveform/waveform_widget.py:3097
+#: widgets/waveform/waveform_widget.py:3116
 msgid "Range"
 msgstr "Gamma"
 
-#: widgets/waveform/waveform_widget.py:3101
-#: widgets/waveform/waveform_widget.py:3490
+#: widgets/waveform/waveform_widget.py:3120
+#: widgets/waveform/waveform_widget.py:3509
 msgid "Auto"
 msgstr "Auto"
 
-#: widgets/waveform/waveform_widget.py:3107
+#: widgets/waveform/waveform_widget.py:3126
 msgid "Exact"
 msgstr "Esatta"
 
-#: widgets/waveform/waveform_widget.py:3116
+#: widgets/waveform/waveform_widget.py:3135
 msgid "Scale"
 msgstr "Scale"
 
-#: widgets/waveform/waveform_widget.py:3119
+#: widgets/waveform/waveform_widget.py:3138
 msgid "Linear"
 msgstr "Lineare"
 
-#: widgets/waveform/waveform_widget.py:3124
+#: widgets/waveform/waveform_widget.py:3143
 msgid "Logarithmic"
 msgstr "Logaritmico"
 
-#: widgets/waveform/waveform_widget.py:3132
+#: widgets/waveform/waveform_widget.py:3151
 msgid "Logarithmic zero"
 msgstr "Zero logaritmico"
 
-#: widgets/waveform/waveform_widget.py:3146
+#: widgets/waveform/waveform_widget.py:3165
 msgid "Preferred prefix"
 msgstr "Prefisso preferito"
 
-#: widgets/waveform/waveform_widget.py:3204
+#: widgets/waveform/waveform_widget.py:3223
 msgid "Add"
 msgstr "Aggiungere"
 
-#: widgets/waveform/waveform_widget.py:3205
+#: widgets/waveform/waveform_widget.py:3224
 msgid "Hide all text"
 msgstr "Nascondi tutto il testo"
 
-#: widgets/waveform/waveform_widget.py:3206
+#: widgets/waveform/waveform_widget.py:3225
 msgid "Show all text"
 msgstr "Mostra tutto il testo"
 
-#: widgets/waveform/waveform_widget.py:3214
+#: widgets/waveform/waveform_widget.py:3233
 msgid "Vertical"
 msgstr "Verticale"
 
-#: widgets/waveform/waveform_widget.py:3217
+#: widgets/waveform/waveform_widget.py:3236
 msgid "Horizontal"
 msgstr "Orizzontale"
 
-#: widgets/waveform/waveform_widget.py:3223
+#: widgets/waveform/waveform_widget.py:3242
 msgid "Save"
 msgstr "Risparmiare"
 
-#: widgets/waveform/waveform_widget.py:3228
+#: widgets/waveform/waveform_widget.py:3247
 msgid "Y-axis auto range"
 msgstr "Gamma automatica dell'asse Y"
 
-#: widgets/waveform/waveform_widget.py:3232
+#: widgets/waveform/waveform_widget.py:3251
 msgid "Copy image to clipboard"
 msgstr "Copia l'immagine negli appunti"
 
-#: widgets/waveform/waveform_widget.py:3233
+#: widgets/waveform/waveform_widget.py:3252
 msgid "Export visible data"
 msgstr "Esportazione di dati visibili"
 
-#: widgets/waveform/waveform_widget.py:3234
+#: widgets/waveform/waveform_widget.py:3253
 msgid "Export visible data as CSV"
 msgstr "Esportazione dei dati visibili in formato CSV"
 
-#: widgets/waveform/waveform_widget.py:3235
+#: widgets/waveform/waveform_widget.py:3254
 msgid "Export all data"
 msgstr "Esportazione di tutti i dati"
 
-#: widgets/waveform/waveform_widget.py:3396
+#: widgets/waveform/waveform_widget.py:3415
 msgid "Export visible data to CSV file"
 msgstr "Esportazione dei dati visibili in un file CSV"
 
-#: widgets/waveform/waveform_widget.py:3466
+#: widgets/waveform/waveform_widget.py:3485
 msgid "Export"
 msgstr "Esportazione"
 
-#: widgets/waveform/waveform_widget.py:3467
+#: widgets/waveform/waveform_widget.py:3486
 msgid "Analysis"
 msgstr "Analisi"
 
-#: widgets/waveform/waveform_widget.py:3475
+#: widgets/waveform/waveform_widget.py:3494
 msgid "Interval"
 msgstr "Intervallo"
 
-#: widgets/waveform/waveform_widget.py:3484
+#: widgets/waveform/waveform_widget.py:3503
 msgid "Zoom"
 msgstr "Zoom"
 
-#: widgets/waveform/waveform_widget.py:3488
+#: widgets/waveform/waveform_widget.py:3507
 msgid "Show statistics"
 msgstr "Mostra le statistiche"
 
-#: widgets/waveform/waveform_widget.py:3493
+#: widgets/waveform/waveform_widget.py:3512
 msgid "Left"
 msgstr "A sinistra"
 
-#: widgets/waveform/waveform_widget.py:3496
+#: widgets/waveform/waveform_widget.py:3515
 msgid "Right"
 msgstr "A destra"
 
-#: widgets/waveform/waveform_widget.py:3499
+#: widgets/waveform/waveform_widget.py:3518
 msgid "Off"
 msgstr "Spento"
 
-#: widgets/waveform/waveform_widget.py:3502
-#: widgets/waveform/waveform_widget.py:3530
-#: widgets/waveform/waveform_widget.py:3560
+#: widgets/waveform/waveform_widget.py:3523
+#: widgets/waveform/waveform_widget.py:3551
+#: widgets/waveform/waveform_widget.py:3587
 msgid "Remove"
 msgstr "Rimuovere"
 
-#: widgets/waveform/waveform_widget.py:3513
+#: widgets/waveform/waveform_widget.py:3534
 msgid "Y mode"
 msgstr "Modalità Y"
 
