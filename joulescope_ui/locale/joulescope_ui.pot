@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.2.6\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-03-03 17:28-0500\n"
+"POT-Creation-Date: 2025-03-03 17:38-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -289,7 +289,7 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
-#: error_window.py:112 widgets/waveform/waveform_widget.py:3569
+#: error_window.py:112 widgets/waveform/waveform_widget.py:3570
 msgid "Edit"
 msgstr ""
 
@@ -2508,12 +2508,12 @@ msgid "Text"
 msgstr ""
 
 #: widgets/waveform/text_annotation.py:107
-#: widgets/waveform/waveform_widget.py:3570
+#: widgets/waveform/waveform_widget.py:3571
 msgid "Show text"
 msgstr ""
 
 #: widgets/waveform/text_annotation.py:116
-#: widgets/waveform/waveform_widget.py:3582
+#: widgets/waveform/waveform_widget.py:3583
 msgid "Shape"
 msgstr ""
 
@@ -2989,7 +2989,7 @@ msgid "Right"
 msgstr ""
 
 #: widgets/waveform/waveform_widget.py:3547
-#: widgets/waveform/waveform_widget.py:3553
+#: widgets/waveform/waveform_widget.py:3554
 msgid "Off"
 msgstr ""
 
@@ -2997,17 +2997,17 @@ msgstr ""
 msgid "Show time"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3556
+#: widgets/waveform/waveform_widget.py:3557
 msgid "On"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3562
-#: widgets/waveform/waveform_widget.py:3590
-#: widgets/waveform/waveform_widget.py:3626
+#: widgets/waveform/waveform_widget.py:3563
+#: widgets/waveform/waveform_widget.py:3591
+#: widgets/waveform/waveform_widget.py:3627
 msgid "Remove"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3573
+#: widgets/waveform/waveform_widget.py:3574
 msgid "Y mode"
 msgstr ""
 

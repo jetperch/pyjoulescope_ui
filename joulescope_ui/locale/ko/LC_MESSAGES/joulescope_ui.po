@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-03-03 17:28-0500\n"
+"POT-Creation-Date: 2025-03-03 17:38-0500\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: ko <LL@li.org>\n"
@@ -300,7 +300,7 @@ msgstr "이메일"
 msgid "Description"
 msgstr "설명"
 
-#: error_window.py:112 widgets/waveform/waveform_widget.py:3569
+#: error_window.py:112 widgets/waveform/waveform_widget.py:3570
 msgid "Edit"
 msgstr "Edit"
 
@@ -2598,12 +2598,12 @@ msgid "Text"
 msgstr "텍스트"
 
 #: widgets/waveform/text_annotation.py:107
-#: widgets/waveform/waveform_widget.py:3570
+#: widgets/waveform/waveform_widget.py:3571
 msgid "Show text"
 msgstr "텍스트 표시"
 
 #: widgets/waveform/text_annotation.py:116
-#: widgets/waveform/waveform_widget.py:3582
+#: widgets/waveform/waveform_widget.py:3583
 msgid "Shape"
 msgstr "모양"
 
@@ -3081,7 +3081,7 @@ msgid "Right"
 msgstr "Right"
 
 #: widgets/waveform/waveform_widget.py:3547
-#: widgets/waveform/waveform_widget.py:3553
+#: widgets/waveform/waveform_widget.py:3554
 msgid "Off"
 msgstr "Off"
 
@@ -3089,17 +3089,17 @@ msgstr "Off"
 msgid "Show time"
 msgstr "시간 표시"
 
-#: widgets/waveform/waveform_widget.py:3556
+#: widgets/waveform/waveform_widget.py:3557
 msgid "On"
 msgstr "On"
 
-#: widgets/waveform/waveform_widget.py:3562
-#: widgets/waveform/waveform_widget.py:3590
-#: widgets/waveform/waveform_widget.py:3626
+#: widgets/waveform/waveform_widget.py:3563
+#: widgets/waveform/waveform_widget.py:3591
+#: widgets/waveform/waveform_widget.py:3627
 msgid "Remove"
 msgstr "제거"
 
-#: widgets/waveform/waveform_widget.py:3573
+#: widgets/waveform/waveform_widget.py:3574
 msgid "Y mode"
 msgstr "Y 모드"
 

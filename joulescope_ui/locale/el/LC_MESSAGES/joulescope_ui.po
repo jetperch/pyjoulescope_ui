@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-03-03 17:28-0500\n"
+"POT-Creation-Date: 2025-03-03 17:38-0500\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: el <LL@li.org>\n"
@@ -341,7 +341,7 @@ msgstr "Email"
 msgid "Description"
 msgstr "Περιγραφή"
 
-#: error_window.py:112 widgets/waveform/waveform_widget.py:3569
+#: error_window.py:112 widgets/waveform/waveform_widget.py:3570
 msgid "Edit"
 msgstr "Επεξεργασία"
 
@@ -2850,12 +2850,12 @@ msgid "Text"
 msgstr "Κείμενο"
 
 #: widgets/waveform/text_annotation.py:107
-#: widgets/waveform/waveform_widget.py:3570
+#: widgets/waveform/waveform_widget.py:3571
 msgid "Show text"
 msgstr "Εμφάνιση κειμένου"
 
 #: widgets/waveform/text_annotation.py:116
-#: widgets/waveform/waveform_widget.py:3582
+#: widgets/waveform/waveform_widget.py:3583
 msgid "Shape"
 msgstr "Σχήμα"
 
@@ -3370,7 +3370,7 @@ msgid "Right"
 msgstr "Σωστό"
 
 #: widgets/waveform/waveform_widget.py:3547
-#: widgets/waveform/waveform_widget.py:3553
+#: widgets/waveform/waveform_widget.py:3554
 msgid "Off"
 msgstr "Off"
 
@@ -3378,17 +3378,17 @@ msgstr "Off"
 msgid "Show time"
 msgstr "Εμφάνιση χρόνου"
 
-#: widgets/waveform/waveform_widget.py:3556
+#: widgets/waveform/waveform_widget.py:3557
 msgid "On"
 msgstr "Στο"
 
-#: widgets/waveform/waveform_widget.py:3562
-#: widgets/waveform/waveform_widget.py:3590
-#: widgets/waveform/waveform_widget.py:3626
+#: widgets/waveform/waveform_widget.py:3563
+#: widgets/waveform/waveform_widget.py:3591
+#: widgets/waveform/waveform_widget.py:3627
 msgid "Remove"
 msgstr "Αφαίρεση"
 
-#: widgets/waveform/waveform_widget.py:3573
+#: widgets/waveform/waveform_widget.py:3574
 msgid "Y mode"
 msgstr "Λειτουργία Y"
 
