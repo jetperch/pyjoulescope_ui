@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-02-12 10:52-0500\n"
+"POT-Creation-Date: 2025-03-03 14:29-0500\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: el <LL@li.org>\n"
@@ -259,7 +259,7 @@ msgstr "Απαιτείται επανεκκίνηση του UI για να τε
 msgid "desktop"
 msgstr "Επιτραπέζιο"
 
-#: app.py:176
+#: app.py:175
 msgid "software"
 msgstr "λογισμικό"
 

@@ -172,8 +172,8 @@ SETTINGS = {
             N_('UI restart required for change to take effect.')]),
         'options': [
             ['desktop', N_('desktop')],
-            ['angle', 'ANGLE'],
             ['software', N_('software')],
+            ['angle', 'ANGLE'],
             ['dynamic', N_('Autodetect')],
             ['unspec', N_('Not specified')],
         ],

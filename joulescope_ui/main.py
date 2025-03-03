@@ -866,11 +866,13 @@ def _finalize():
 
 
 def _opengl_config(renderer):
+    # https://doc.qt.io/qt-6/topics-graphics.html
     renderer_map = {
         'desktop': QtCore.Qt.AA_UseDesktopOpenGL,
         'angle': QtCore.Qt.AA_UseOpenGLES,
         'software': QtCore.Qt.AA_UseSoftwareOpenGL,
     }
+    renderer = os.environ.get('QT_OPENGL', renderer)
     renderer_qt = renderer_map.get(renderer, None)
     if renderer_qt is not None:
         _log.info('OpenGL render map: %s', renderer)
@@ -879,10 +881,7 @@ def _opengl_config(renderer):
         fmt = QtGui.QSurfaceFormat()
         fmt.setDepthBufferSize(24)
         fmt.setStencilBufferSize(8)
-        if renderer == 'software':
-            fmt.setVersion(2, 1)
-        else:
-            fmt.setVersion(3, 3)
+        fmt.setVersion(2, 1)
         fmt.setProfile(QtGui.QSurfaceFormat.OpenGLContextProfile.CoreProfile)
         QtGui.QSurfaceFormat.setDefaultFormat(fmt)
 
@@ -920,6 +919,7 @@ def run(log_level=None, file_log_level=None, filename=None, safe_mode=False):
         safe_mode = is_shift_pressed() or bool(safe_mode)
         if safe_mode:
             _log.info('Safe mode selected')
+            _opengl_config('software')
         else:
             try:
                 is_config_load = pubsub_singleton.load()

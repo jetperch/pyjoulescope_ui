@@ -7,17 +7,17 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.2.6
 
-2025 Feb 12 [in progress]
+2025 Mar 3 [in progress]
 
 * Fixed JLS annotations not displaying from primary JLS file  #299
 * Fixed Trigger widget markers placed slightly early  #300
 * Upgraded Windows folder discovery from CSIDL to Known Folder.
 * Added precision to Multimeter widget and Value widget  #301
+* Safe mode (hold shift key at start) uses software OpenGL renderer.
+* Reduced OpenGL requirements from 3.3 to 2.1 for desktop.
 * Updated build
-  * Python 3.11 to 3.13
-  * Nuitka 2.4.11 to 2.6.4
-  * Updated dll includes: opengl32sw.dll removed from PySide6
-  * Adjusted PySide6-QtAds imports to work with Python 3.13 & Nuitka.
+  * Python 3.11 to 3.12
+  * Nuitka 2.4.11 to 2.6.7
 
 
 ## 1.2.5

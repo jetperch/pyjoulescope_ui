@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-02-12 10:52-0500\n"
+"POT-Creation-Date: 2025-03-03 14:29-0500\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: ko <LL@li.org>\n"
@@ -228,7 +228,7 @@ msgstr "변경 사항을 적용하려면 UI를 다시 시작해야 합니다."
 msgid "desktop"
 msgstr "데스크톱"
 
-#: app.py:176
+#: app.py:175
 msgid "software"
 msgstr "소프트웨어"
 
