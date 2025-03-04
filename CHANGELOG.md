@@ -18,6 +18,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added copy marker text to clipboard  #298
 * Added optional show time for vertical x-axis markers in Waveform widget #297
 * Updated build
+  * pyjoulescope_driver from 1.7.2 to 1.7.4, fixes #293
   * Python 3.11 to 3.12
   * Nuitka 2.4.11 to 2.6.7
 
