@@ -1312,6 +1312,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
             'summary_missing': QBrush(color_as_qcolor(summary_trace, alpha=missing_alpha)),
             'summary_trace': QPen(color_as_qcolor(summary_trace, alpha=trace_alpha)),
+            'summary_min_max_pen': QPen(color_as_qcolor(summary_trace, alpha=min_max_trace_alpha)),
             'summary_min_max_fill': QBrush(color_as_qcolor(summary_trace, alpha=min_max_fill_alpha)),
             'summary_view': QBrush(color_as_qcolor(v['waveform.summary_view'])),
 
@@ -1684,9 +1685,11 @@ class WaveformWidget(QtWidgets.QWidget):
         if len(traces):
             trace_idx, subsource = traces[0]
             pen = s['plot_trace_pen'][trace_idx]
+            min_max_pen = s['plot_min_max_trace'][trace_idx]
             brush = s[f'plot_min_max_fill_brush'][trace_idx]
         else:
             pen = s['summary_trace']
+            min_max_pen = s['summary_min_max_pen']
             brush = s['summary_min_max_fill']
 
         def y_value_to_pixel(y):
@@ -1698,10 +1701,17 @@ class WaveformWidget(QtWidgets.QWidget):
             if self.show_min_max and d['min'] is not None and d['max'] is not None:
                 d_y_min = y_value_to_pixel(d['min'][idx_start:idx_stop])
                 d_y_max = y_value_to_pixel(d['max'][idx_start:idx_stop])
-                segs = self._points.set_fill(d_x_segment, d_y_min, d_y_max)
-                p.setPen(self._NO_PEN)
-                p.setBrush(brush)
-                p.drawPolygon(segs)
+                p.setPen(min_max_pen)
+                if 1 == self.show_min_max:
+                    p.setBrush(self._NO_BRUSH)
+                    segs = self._points.set_line(d_x_segment, d_y_min)
+                    p.drawPolyline(segs)
+                    segs = self._points.set_line(d_x_segment, d_y_max)
+                    p.drawPolyline(segs)
+                else:
+                    segs = self._points.set_fill(d_x_segment, d_y_min, d_y_max)
+                    p.setBrush(brush)
+                    p.drawPolygon(segs)
             d_y = y_value_to_pixel(d_avg)
             segs = self._points.set_line(d_x_segment, d_y)
             p.setPen(pen)
