@@ -30,6 +30,7 @@ from joulescope_ui.time_map import TimeMap
 import pyjls
 from collections import OrderedDict
 import copy
+import json
 import logging
 import numpy as np
 import os
@@ -689,9 +690,9 @@ class WaveformWidget(QtWidgets.QWidget):
                     self._log.warning('unsupported y dtype %s', a['dtype'])
             elif a['annotation_type'] == 'x':
                 if a['dtype'] == 'single':
-                    self._x_marker_add_single(a['pos1'])
+                    m = self._x_marker_add_single(a['pos1'], metadata=a.get('metadata'))
                 elif a['dtype'] == 'dual':
-                    self._x_marker_add_dual(a['pos1'], a['pos2'])
+                    m = self._x_marker_add_dual(a['pos1'], a['pos2'], metadata=a.get('metadata'))
                 else:
                     self._log.warning('unsupported x dtype %s', a['dtype'])
             else:
@@ -1249,15 +1250,17 @@ class WaveformWidget(QtWidgets.QWidget):
         margin2 = _MARGIN * 2
         metrics = p.fontMetrics()
         r = metrics.boundingRect(txt)
+        w = r.width() + margin2
+        h = r.height() + margin2
         if x_align in ['center']:
-            x -= (r.width() + margin2) // 2
+            x -= w // 2
         elif x_align in ['right']:
-            x -= r.width() + margin2
+            x -= w
         if y_align in ['center']:
-            y += (metrics.ascent() + margin2) // 2
+            y += h // 2
         elif y_align in ['bottom']:
-            y += metrics.ascent() + margin2
-        p.fillRect(x, y, r.width() + margin2, r.height() + margin2, p.brush())
+            y += h
+        p.fillRect(x, y, w, h, p.brush())
         p.drawText(x + margin, y + margin + metrics.ascent(), txt)
 
     def _finite_idx(self, data):
@@ -2051,11 +2054,14 @@ class WaveformWidget(QtWidgets.QWidget):
         _, y1, _ = self._y_geometry_info['margin.bottom']
         xw, x0, x1 = self._x_geometry_info['plot']
         xl0, xl1 = x0 - _CLIP_LIMIT_PIXELS, x1 + _CLIP_LIMIT_PIXELS
+        p.setFont(s['axis_font'])
         font_metrics = s['axis_font_metrics']
         f_h = font_metrics.height()
         f_a = font_metrics.ascent()
         margin, margin2 = _MARGIN, _MARGIN * 2
         ya = y0 + margin2 + f_h
+        y_line1 = y0                    # for _drawText (not drawText)
+        y_line2 = y0 + margin2 + f_h
 
         for idx, m in enumerate(self.annotations['x'].values()):
             color_index = self._marker_color_index(m)
@@ -2080,12 +2086,14 @@ class WaveformWidget(QtWidgets.QWidget):
                     p.drawPolygon(segs)
                     p.setPen(pen)
                     p.drawLine(p1, y0 + f_h + he, p1, y1)
+                    p.setPen(s['text_pen'])
+                    x_rel = self._x_map.time64_to_trel(pos1)
                     if m.get('show_time', 'off') == 'on':
-                        p.setFont(s['axis_font'])
-                        p.setPen(s['text_pen'])
-                        x_rel = self._x_map.time64_to_trel(pos1)
                         x_txt = _si_format(x_rel, 's', precision=self.precision)
-                        self._draw_text(p, pr + _MARGIN, y0, x_txt)
+                        self._draw_text(p, p1 + margin, y_line2, x_txt)
+                    label = m.get('label', '')
+                    if label:
+                        self._draw_text(p, pr + margin, y_line1, label)
                     self._draw_single_marker_text(p, m)
             else:
                 p2 = np.rint(self._x_map.time64_to_counter(m['pos2']))
@@ -2114,24 +2122,30 @@ class WaveformWidget(QtWidgets.QWidget):
                 q1, q2 = min(p1, q1), max(p2, q2)
                 q1, q2 = max(q1, xl0), min(q2, xl1)
                 p.fillRect(q1, y0, q2 - q1, fill_h, p.brush())
+                p.setPen(s['text_pen'])
                 if xl0 < dt_x < xl1:
-                    p.setPen(s['text_pen'])
                     p.drawText(dt_x, y0 + margin + f_a, dt_str)
+                label = m.get('label', '')
+                if label:
+                    self._draw_text(p, q2 + margin, y_line1, label, x_align='left')
                 if self.show_frequency and dt > 0:
                     f_x = (p1 + p2 - f_w) // 2
                     if xl0 < f_x < xl1:
                         p.drawText(f_x, y0 + margin + f_a + f_h, f_str)
+                p.setPen(s['text_pen'])
                 if m.get('show_time', 'off') == 'on':
-                    p.setFont(s['axis_font'])
-                    p.setPen(s['text_pen'])
                     x1 = min(m['pos1'], m['pos2'])
                     x2 = max(m['pos1'], m['pos2'])
                     x_rel = self._x_map.time64_to_trel(x1)
                     x_txt = _si_format(x_rel, 's', precision=self.precision)
-                    self._draw_text(p, q1 - _MARGIN, y0, x_txt, x_align='right')
+                    if self.show_frequency:
+                        xa, xb = q1 - margin, q2 + margin
+                    else:
+                        xa, xb = p1 - margin, p2 + margin
+                    self._draw_text(p, xa, y_line2, x_txt, x_align='right')
                     x_rel = self._x_map.time64_to_trel(x2)
                     x_txt = _si_format(x_rel, 's', precision=self.precision)
-                    self._draw_text(p, q2 + _MARGIN, y0, x_txt, x_align='left')
+                    self._draw_text(p, xb, y_line2, x_txt, x_align='left')
                 txp = ['left', 'right'] if m['pos1'] < m['pos2'] else ['right', 'left']
                 self._draw_dual_marker_text(p, m, 'text_pos1', txp[0])
                 self._draw_dual_marker_text(p, m, 'text_pos2', txp[1])
@@ -3568,6 +3582,16 @@ class WaveformWidget(QtWidgets.QWidget):
                        lambda: self._on_x_marker_time_show(m, 'on'),
                        checkable=True, checked=(show_time == 'on'))
 
+        label_menu = menu.addMenu(N_('Label'))
+        label_edit = QtWidgets.QLineEdit(m.get('label', ''))
+        label_slot = CallableSlotAdapter(label_edit,
+                                         lambda: self.pubsub.publish(f'{get_topic_name(self)}/actions/!x_markers',
+                                                                     ['label', m['id'], label_edit.text()]))
+        label_edit.textChanged.connect(label_slot.slot)
+        label_action = QtWidgets.QWidgetAction(label_menu)
+        label_action.setDefaultWidget(label_edit)
+        label_menu.addAction(label_action)
+
         CallableAction(menu, _COPY_TEXT_TO_CLIPBOARD,
                        lambda: self.pubsub.publish(f'{get_topic_name(self)}/actions/!x_markers', ['text_to_clipboard', m['id']]))
         CallableAction(menu, N_('Remove'),
@@ -3701,7 +3725,7 @@ class WaveformWidget(QtWidgets.QWidget):
         else:
             raise ValueError('unsupported remove')
 
-    def _x_marker_add_single(self, pos1=None):
+    def _x_marker_add_single(self, pos1=None, metadata=None):
         x0, x1 = self.x_range
         if pos1 is not None and pos1 < 0:
             if self._mouse_pos is not None:
@@ -3720,13 +3744,16 @@ class WaveformWidget(QtWidgets.QWidget):
             'text_pos1': 'auto',
             'text_pos2': 'off',
             'show_time': 'off',
+            'label': '',
         }
+        if metadata is not None:
+            marker.update(metadata)
         if self.x_axis_annotation_mode == 'relative':
             marker['mode'] = 'relative'
             marker['rel1'] = pos1 - self._extents()[1]
         return self._x_marker_add(marker)
 
-    def _x_marker_add_dual(self, pos1=None, pos2=None):
+    def _x_marker_add_dual(self, pos1=None, pos2=None, metadata=None):
         xc = None
         x0, x1 = self.x_range
         if pos1 is not None and pos2 is None:
@@ -3762,7 +3789,10 @@ class WaveformWidget(QtWidgets.QWidget):
             'text_pos1': 'off',
             'text_pos2': 'auto',
             'show_time': 'off',
+            'label': '',
         }
+        if metadata is not None:
+            marker.update(metadata)
         if self.x_axis_annotation_mode == 'relative':
             e1 = self._extents()[1]
             marker['mode'] = 'relative'
@@ -3770,6 +3800,11 @@ class WaveformWidget(QtWidgets.QWidget):
             marker['rel2'] = pos2 - e1
 
         return self._x_marker_add(marker)
+
+    def _x_marker_label(self, m, label):
+        m = self._annotation_lookup(m)
+        m['label'] = label
+        self._repaint_request = True
 
     def _x_marker_text_to_clipboard(self, m):
         m = self._annotation_lookup(m)
@@ -3797,6 +3832,7 @@ class WaveformWidget(QtWidgets.QWidget):
             * ['add_dual', center, None]
             * ['add_dual', pos1, pos2]
             * ['clear_all']
+            * ['label', marker_id, label]
             * ['text_to_clipboard', marker_id]
             * ['remove', marker_id, ...]
             * ['add', marker_obj, ...]  # for undo remove
@@ -3827,6 +3863,8 @@ class WaveformWidget(QtWidgets.QWidget):
                 self._on_x_marker_zoom(value[1], 0.75)
             except KeyError:
                 pass
+        elif cmd == 'label':
+            self._x_marker_label(value[1], value[2])
         elif cmd == 'text_to_clipboard':
             self._x_marker_text_to_clipboard(value[1])
         else:
@@ -4064,12 +4102,20 @@ class WaveformWidget(QtWidgets.QWidget):
                     for m_id in inside:
                         m = self._annotation_lookup(m_id)
                         m_id += 1  # convert to 1-indexed
+
+                        # construct metadata JSON string
+                        metadata = {}
+                        for field in ['show_time', 'label', 'text_pos1', 'text_pos2']:
+                            if field in m:
+                                metadata[field] = m[field]
+                        metadata = json.dumps(metadata)
+
                         if m['dtype'] == 'single':
-                            z.append([signal_id, m['pos1'], None, pyjls.AnnotationType.VMARKER, 0, f'{m_id}'])
+                            z.append([signal_id, m['pos1'], None, pyjls.AnnotationType.VMARKER, 0, f'{m_id}\x1c{metadata}'])
                         elif m['dtype'] == 'dual':
                             if m['pos1'] <= x0 and m['pos2'] >= x1:
                                 continue
-                            z.append([signal_id, m['pos1'], None, pyjls.AnnotationType.VMARKER, 0, f'{m_id}a'])
+                            z.append([signal_id, m['pos1'], None, pyjls.AnnotationType.VMARKER, 0, f'{m_id}a\x1c{metadata}'])
                             z.append([signal_id, m['pos2'], None, pyjls.AnnotationType.VMARKER, 0, f'{m_id}b'])
 
                 # Add text annotations

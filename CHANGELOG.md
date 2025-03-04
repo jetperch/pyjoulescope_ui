@@ -7,7 +7,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.2.6
 
-2025 Mar 3 [in progress]
+2025 Mar 4
 
 * Fixed JLS annotations not displaying from primary JLS file  #299
 * Fixed Trigger widget markers placed slightly early  #300

@@ -15,6 +15,7 @@
 import threading
 from pyjls import Reader, AnnotationType, SignalType
 from joulescope_ui.jls_v2 import TO_UI_SIGNAL_NAME
+import json
 import logging
 import numpy as np
 
@@ -66,6 +67,16 @@ def _run(paths, pubsub, rsp_topic):
                         }
                         annotations.append(a)
                     elif annotation_type == AnnotationType.VMARKER:
+                        parts = data.split('\x1c')
+                        if len(parts) == 1:
+                            data = parts[0]
+                            meta = {}
+                        elif len(parts) == 2:
+                            data = parts[0]
+                            meta = json.loads(parts[1])
+                        else:
+                            _log.warning('Unsupported VMARKER data %s', data)
+                            return
                         if data[-1] in 'ab':
                             name = data[:-1]
                             if name in dual_vmarkers:
@@ -82,6 +93,7 @@ def _run(paths, pubsub, rsp_topic):
                                     'changed': True,
                                     'text_pos1': 'right',
                                     'text_pos2': 'off',
+                                    'metadata': meta,
                                 }
                         else:
                             a = {
@@ -90,6 +102,7 @@ def _run(paths, pubsub, rsp_topic):
                                 'pos1': timestamp,
                                 'changed': True,
                                 'text_pos1': 'right',
+                                'metadata': meta,
                             }
                             annotations.append(a)
                     elif annotation_type == AnnotationType.HMARKER:
