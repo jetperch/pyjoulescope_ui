@@ -37,10 +37,10 @@ class TestAnnotationLoad(unittest.TestCase):
         pubsub.publish.assert_has_calls([
             unittest.mock.call('registry/me/callbacks/!my_cbk', [
                 {'annotation_type': 'y', 'plot_name': 'i', 'dtype': 'single', 'pos1': 0.009442977607250214, 'changed': True},
-                {'annotation_type': 'y', 'plot_name': 'i', 'dtype': 'dual', 'pos1': 0.10405273735523224, 'pos2': 0.0934593677520752, 'changed': True},
+                {'annotation_type': 'y', 'plot_name': 'i', 'dtype': 'dual', 'pos1': 0.0934593677520752, 'pos2': 0.10405273735523224, 'changed': True},
                 {'annotation_type': 'text', 'plot_name': 'i', 'text': 'Hello', 'text_show': True, 'shape': 0, 'x': 181706020277114630, 'y': 0.08213541656732559, 'y_mode': 'manual'},
                 {'annotation_type': 'text', 'plot_name': 'i', 'text': 'End', 'text_show': True, 'shape': 3, 'x': 181706021440440961, 'y': None, 'y_mode': 'centered'},
-                {'annotation_type': 'x', 'dtype': 'dual', 'pos1': 181706021444031554, 'pos2': 181706020837235312, 'changed': True, 'text_pos1': 'right', 'text_pos2': 'off'}
+                {'annotation_type': 'x', 'dtype': 'dual', 'pos1': 181706020837235312, 'pos2': 181706021444031554, 'changed': True, 'text_pos1': 'right', 'text_pos2': 'off', 'metadata': {}}
             ]),
             unittest.mock.call('registry/me/callbacks/!my_cbk', None),
         ])
