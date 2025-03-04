@@ -69,6 +69,7 @@ _X_MARKER_ZOOM_LEVELS = [100, 90, 75, 50, 33, 25, 10]
 _DOT_RADIUS = 3
 _ANTIALIASING = QtGui.QPainter.RenderHint.Antialiasing
 _CLIP_LIMIT_PIXELS = 8192
+_METADATA_CHUNK_META = 0x400
 
 
 def _analog_plot(quantity, show, units, name, integral=None, range_bounds=None):
@@ -672,8 +673,17 @@ class WaveformWidget(QtWidgets.QWidget):
                 # defer annotations until have some data
                 self._annotations_request_defer.append(f'{topic}/actions/!annotations_request')
 
+    def _plot_find_by_quantity(self, quantity):
+        for plot in self.state['plots']:
+            if plot['quantity'] == quantity:
+                return plot
+        else:
+            raise KeyError(f'plot for quantity {quantity} not found')
+
     def on_callback_annotations(self, value):
         if value is None:
+            self._repaint_request = True
+            self._y_geometry_info = {}  # force recomputation
             return
         for a in value:
             if a['annotation_type'] == 'text':
@@ -690,11 +700,18 @@ class WaveformWidget(QtWidgets.QWidget):
                     self._log.warning('unsupported y dtype %s', a['dtype'])
             elif a['annotation_type'] == 'x':
                 if a['dtype'] == 'single':
-                    m = self._x_marker_add_single(a['pos1'], metadata=a.get('metadata'))
+                    self._x_marker_add_single(a['pos1'], metadata=a.get('metadata'))
                 elif a['dtype'] == 'dual':
-                    m = self._x_marker_add_dual(a['pos1'], a['pos2'], metadata=a.get('metadata'))
+                    self._x_marker_add_dual(a['pos1'], a['pos2'], metadata=a.get('metadata'))
                 else:
                     self._log.warning('unsupported x dtype %s', a['dtype'])
+            elif a['annotation_type'] == 'user_data':
+                if _METADATA_CHUNK_META == a['chunk_meta']:
+                    v = a.get('value', {})
+                    plots = v.get('plots', {})
+                    for plot_quantity, metadata in plots.items():
+                        plot = self._plot_find_by_quantity(plot_quantity)
+                        plot.update(metadata)
             else:
                 self._log.warning('unsupported annotation_type %s', a['annotation_type'])
 
@@ -1434,6 +1451,7 @@ class WaveformWidget(QtWidgets.QWidget):
             y_max = max(y_max)
         r = plot['range']
         y_min, y_max = self._y_transform_fwd(plot, [y_min, y_max])
+        y_min, y_max = float(y_min), float(y_max)
         dy1 = y_max - y_min
         dy2 = abs(r[1] - r[0])
         if dy1 <= 1e-9:
@@ -3748,7 +3766,8 @@ class WaveformWidget(QtWidgets.QWidget):
         }
         if metadata is not None:
             marker.update(metadata)
-        if self.x_axis_annotation_mode == 'relative':
+            marker['changed'] = True
+        elif self.x_axis_annotation_mode == 'relative':
             marker['mode'] = 'relative'
             marker['rel1'] = pos1 - self._extents()[1]
         return self._x_marker_add(marker)
@@ -3793,7 +3812,8 @@ class WaveformWidget(QtWidgets.QWidget):
         }
         if metadata is not None:
             marker.update(metadata)
-        if self.x_axis_annotation_mode == 'relative':
+            marker['changed'] = True
+        elif self.x_axis_annotation_mode == 'relative':
             e1 = self._extents()[1]
             marker['mode'] = 'relative'
             marker['rel1'] = pos1 - e1
@@ -4077,6 +4097,17 @@ class WaveformWidget(QtWidgets.QWidget):
             w.source_def(source_id=1, name='annotations', vendor='-', model='-',
                          version='-', serial_number='-')
             signal_id = 1
+
+            # Save additional Waveform widget metadata for restoration
+            metadata = {
+                'plots': {},
+            }
+            for plot in self.state['plots']:
+                if not plot['enabled']:
+                    continue
+                metadata['plots'][plot['quantity']] = plot
+            w.user_data(_METADATA_CHUNK_META, metadata)
+
             for plot in self.state['plots']:
                 z = []
                 if not plot['enabled']:
@@ -4100,12 +4131,18 @@ class WaveformWidget(QtWidgets.QWidget):
                 if signal_id == 1:
                     inside, _ = self._x_markers_filter((x0, x1))
                     for m_id in inside:
-                        m = self._annotation_lookup(m_id)
+                        m = self._annotation_lookup(m_id).copy()
                         m_id += 1  # convert to 1-indexed
+
+                        # normalize so that pos1 < pos2
+                        if 'pos2' in m and m['pos1'] > m['pos2']:
+                            for k1, k2 in [('pos1', 'pos2'), ('text_pos1', 'text_pos2'), ('rel1', 'rel2')]:
+                                if k1 in m and k2 in m:
+                                    m[k1], m[k2] = m[k2], m[k1]
 
                         # construct metadata JSON string
                         metadata = {}
-                        for field in ['show_time', 'label', 'text_pos1', 'text_pos2']:
+                        for field in ['show_time', 'label', 'text_pos1', 'text_pos2', 'mode', 'rel1', 'rel2']:
                             if field in m:
                                 metadata[field] = m[field]
                         metadata = json.dumps(metadata)

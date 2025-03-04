@@ -81,7 +81,7 @@ def _run(paths, pubsub, rsp_topic):
                             name = data[:-1]
                             if name in dual_vmarkers:
                                 a = dual_vmarkers.pop(name)
-                                key = 'pos1' if (data[-1] == 'a') else 'pos1'
+                                key = 'pos1' if (data[-1] == 'a') else 'pos2'
                                 a[key] = timestamp
                                 annotations.append(a)
                             else:
@@ -110,7 +110,7 @@ def _run(paths, pubsub, rsp_topic):
                             name = data[:-1]
                             if name in dual_hmarkers:
                                 a = dual_hmarkers.pop(name)
-                                key = 'pos1' if (data[-1] == 'a') else 'pos1'
+                                key = 'pos1' if (data[-1] == 'a') else 'pos2'
                                 a[key] = y
                                 annotations.append(a)
                             else:
@@ -140,7 +140,16 @@ def _run(paths, pubsub, rsp_topic):
 
                     return False
 
+                def _on_user_data(chunk_meta, value):
+                    a = {
+                        'annotation_type': 'user_data',
+                        'chunk_meta': chunk_meta,
+                        'value': value,
+                    }
+                    annotations.append(a)
+
                 jls.annotations(signal_id, 0, _on_annotation)
+                jls.user_data(_on_user_data)
                 if len(annotations):
                     pubsub.publish(rsp_topic, annotations)
                     annotations = []
