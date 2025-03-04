@@ -706,8 +706,8 @@ class WaveformWidget(QtWidgets.QWidget):
                 else:
                     self._log.warning('unsupported x dtype %s', a['dtype'])
             elif a['annotation_type'] == 'user_data':
-                if _METADATA_CHUNK_META == a['chunk_meta']:
-                    v = a.get('value', {})
+                v = a.get('value', {})
+                if (_METADATA_CHUNK_META == a['chunk_meta']) and ('joulescope.ui.waveform_widget' == v.get('id')):
                     plots = v.get('plots', {})
                     for plot_quantity, metadata in plots.items():
                         plot = self._plot_find_by_quantity(plot_quantity)
@@ -4100,6 +4100,8 @@ class WaveformWidget(QtWidgets.QWidget):
 
             # Save additional Waveform widget metadata for restoration
             metadata = {
+                'id': 'joulescope.ui.waveform_widget',
+                'version': '1.0',
                 'plots': {},
             }
             for plot in self.state['plots']:
