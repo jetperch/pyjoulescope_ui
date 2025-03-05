@@ -5,6 +5,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.3.0
+
+2025 Mar 5 [in progress]
+
+* Added serial console widget [in progress]
+
+
 ## 1.2.6
 
 2025 Mar 4

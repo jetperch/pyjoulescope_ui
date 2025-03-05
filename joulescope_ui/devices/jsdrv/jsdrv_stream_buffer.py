@@ -210,6 +210,8 @@ class JsdrvStreamBuffer:
         self._log.info('device_open %s', device_id)
         device_topic = get_topic_name(device_id)
         for signal in self.pubsub.enumerate(f'{device_topic}/settings/signals'):
+            if signal in ['S']:
+                continue
             self._ui_device_subscribe(device_id, f'settings/signals/{signal}/enable',
                                       self._on_signal_enable, ['pub', 'retain'])
         topic = get_topic_name(self.unique_id)

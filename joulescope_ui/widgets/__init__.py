@@ -28,6 +28,7 @@ from .js220_cal import JS220CalibrationWidget
 from .notes import NotesWidget
 from .progress_bar import ProgressBarWidget
 from .record_status import RecordStatusWidget
+from .serial_console import SerialConsoleWidget
 from .sidebar import SideBar
 from .settings import SettingsWidget
 from .signal_record import SignalRecordConfigWidget, SignalRecord

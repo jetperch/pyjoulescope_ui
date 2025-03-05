@@ -16,7 +16,9 @@ from .device import Device, CAPABILITIES_OBJECT_OPEN, CURRENT_RANGE_SHORT, CURRE
 from .js220_fuse import fuse_to_config
 from joulescope_ui import N_, get_topic_name, register, P_
 from joulescope_ui.metadata import Metadata
-from pyjoulescope_driver import release, program
+from .serial_decoder import SerialDecoder
+from pyjoulescope_driver import release, program, time64
+from joulescope_ui.time_map import TimeMap
 import copy
 import queue
 import threading
@@ -466,7 +468,6 @@ _SIGNALS = {
             CURRENT_RANGE_LONG]),
         'default': False,
         'topics': ('s/i/range/ctrl', 's/i/range/!data'),
-
     },
     '0': {
         'name': 'gpi[0]',
@@ -515,6 +516,14 @@ _SIGNALS = {
     },
 }
 
+_SERIAL0 = {
+    'name': 'serial',
+    'dtype': 'msg',
+    'units': '',
+    'brief': N_('Serial'),
+    'detail': N_('Serial data stream'),
+    'default': False,
+}
 
 _GPO_BIT = {
     '0': 1 << 0,
@@ -523,23 +532,28 @@ _GPO_BIT = {
 }
 
 
+def _populate_one(signal_id, value):
+    _SETTINGS_CLASS[f'signals/{signal_id}/name'] = {
+        'dtype': 'str',
+        'brief': N_('Signal name'),
+        'flags': ['hide'],
+        'default': value['brief'],
+    }
+    _SETTINGS_CLASS[f'signals/{signal_id}/enable'] = {
+        'dtype': 'bool',
+        'brief': value['brief'],
+        'detail': value['detail'],
+        'flags': ['hide'],
+        'default': value['default'],
+    }
+    EVENTS[f'signals/{signal_id}/!data'] = Metadata('obj', 'Signal data')
+
+
 def _populate():
     global _SETTINGS_CLASS, EVENTS
     for signal_id, value in _SIGNALS.items():
-        _SETTINGS_CLASS[f'signals/{signal_id}/name'] = {
-            'dtype': 'str',
-            'brief': N_('Signal name'),
-            'flags': ['hide'],
-            'default': value['brief'],
-        }
-        _SETTINGS_CLASS[f'signals/{signal_id}/enable'] = {
-            'dtype': 'bool',
-            'brief': value['brief'],
-            'detail': value['detail'],
-            'flags': ['hide'],
-            'default': value['default'],
-        }
-        EVENTS[f'signals/{signal_id}/!data'] = Metadata('obj', 'Signal data')
+        _populate_one(signal_id, value)
+    _populate_one('S', _SERIAL0)
 
 
 _populate()
@@ -579,6 +593,9 @@ class Js220(Device):
         self._fpga_version = 0
 
         self._statistics_offsets = None
+        self._serial_subscription = None
+        self._time_map = TimeMap()
+        self._serial_decoder = SerialDecoder()
 
     def on_pubsub_register(self):
         topic = get_topic_name(self)
@@ -710,11 +727,18 @@ class Js220(Device):
                 self._log.info(f"fuse {fuse_id}: F={value['js220_fq']}, K={value['js220_fq']}, en={en}")
         elif topic.endswith('/enable'):
             signal_id = topic.split('/')[1]
-            t = _SIGNALS[signal_id]['topics'][0]
-            if t is not None:
-                self._driver_publish(t, bool(value), timeout=0)
+            if signal_id in ['S']:
+                self.pubsub.unsubscribe(self._serial_subscription)
+                if value:
+                    self.pubsub.publish(f'{get_topic_name(self)}/settings/signals/0/enable', True)
+                    topic = f'{get_topic_name(self)}/events/signals/0/!data'
+                    self._serial_subscription = self.pubsub.subscribe(topic, self._on_serial_data, ['pub'])
             else:
-                self._log.warning('invalid enable: %s', topic)
+                t = _SIGNALS[signal_id]['topics'][0]
+                if t is not None:
+                    self._driver_publish(t, bool(value), timeout=0)
+                else:
+                    self._log.warning('invalid enable: %s', topic)
         elif topic.startswith('out/'):
             v = _GPO_BIT[topic[4:]]
             t = 's/gpo/+/!set' if bool(value) else 's/gpo/+/!clr'
@@ -783,6 +807,27 @@ class Js220(Device):
             pass  # ignore: obsolete and removed
         else:
             self._log.warning('Unsupported topic %s', f'{get_topic_name(self)}/settings/{topic}')
+
+    def _on_serial_data(self, topic, value):
+        tm = value['time_map']
+        self._time_map.update(tm['offset_counter'], tm['offset_time'], tm['counter_rate'] / time64.SECOND)
+        messages = self._serial_decoder.process_block(value)
+        for timestamp, message in messages:
+            t_time64 = self._time_map.counter_to_time64(timestamp)
+            t_datetime = time64.as_datetime(t_time64)
+            t_str = t_datetime.isoformat()
+            try:
+                message = message.decode('utf-8')
+            except Exception:
+                pass  # go with bytes
+            m = {
+                'sample_id': value['sample_id'],
+                'time64': t_time64,
+                'time_str': t_str,
+                'message': message,
+            }
+            topic = f'{get_topic_name(self)}/events/signals/S/!data'
+            self.pubsub.publish(topic, m)
 
     def _current_range_update(self):
         if self._target_power_app and self.target_power:
