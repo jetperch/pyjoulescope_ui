@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-03-05 18:11-0500\n"
+"POT-Creation-Date: 2025-03-05 18:16-0500\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: ja <LL@li.org>\n"
@@ -26,7 +26,7 @@ msgstr "Joulescope UIについて"
 msgid "Version Information"
 msgstr "バージョン情報"
 
-#: app.py:47 devices/jsdrv/js110.py:135 devices/jsdrv/js220.py:199
+#: app.py:47 devices/jsdrv/js110.py:135 devices/jsdrv/js220.py:198
 msgid "Target power"
 msgstr "目標電力"
 
@@ -927,11 +927,11 @@ msgstr ""
 "電流レンジは、ジュールスコープが電流信号を測定するためにどのようにオートレンジするかを理解するのに役立ちます。また、ターゲット・システムの動作を小電流レンジのスイッチング・アーティファクトから分離する際にも役立ちます。"
 
 #: devices/jsdrv/js110.py:29 devices/jsdrv/js110.py:65
-#: devices/jsdrv/js220.py:95 devices/jsdrv/js220.py:131
+#: devices/jsdrv/js220.py:94 devices/jsdrv/js220.py:130
 msgid "Device name"
 msgstr "デバイス名"
 
-#: devices/jsdrv/js110.py:31 devices/jsdrv/js220.py:97
+#: devices/jsdrv/js110.py:31 devices/jsdrv/js220.py:96
 msgid ""
 "The Joulescope UI automatically populates the device name with the device "
 "type and serial number."
@@ -947,24 +947,24 @@ msgstr ""
 "の使用方法をより反映させるために、デフォルトを変更することができます。この設定は、複数のジュールスコープを使用してシステムを計測する場合に最も便利です。"
 
 #: devices/jsdrv/js110.py:41 devices/jsdrv/js110.py:71
-#: devices/jsdrv/js220.py:107 devices/jsdrv/js220.py:137
+#: devices/jsdrv/js220.py:106 devices/jsdrv/js220.py:136
 #: widgets/device_control/js220_ctrl_widget.py:36
 msgid "Device information"
 msgstr "デバイス情報"
 
-#: devices/jsdrv/js110.py:47 devices/jsdrv/js220.py:113
+#: devices/jsdrv/js110.py:47 devices/jsdrv/js220.py:112
 msgid "Device state indicator"
 msgstr "デバイス状態インジケーター"
 
-#: devices/jsdrv/js110.py:59 devices/jsdrv/js220.py:125
+#: devices/jsdrv/js110.py:59 devices/jsdrv/js220.py:124
 msgid "Attempt to automatically open"
 msgstr "自動オープンの試み"
 
-#: devices/jsdrv/js110.py:81 devices/jsdrv/js220.py:147
+#: devices/jsdrv/js110.py:81 devices/jsdrv/js220.py:146
 msgid "Signal frequency"
 msgstr "信号周波数"
 
-#: devices/jsdrv/js110.py:83 devices/jsdrv/js220.py:149
+#: devices/jsdrv/js110.py:83 devices/jsdrv/js220.py:148
 msgid ""
 "This setting controls the output sampling frequency for the measurement "
 "signals current, voltage, and power. Use this setting to reduce the data "
@@ -981,7 +981,7 @@ msgid ""
 msgstr ""
 "JS110は常に2MHzでサンプリングし、生サンプルをホストに送信します。この設定は、ホスト上で実行される追加オプションのダウンサンプリングを制御します。"
 
-#: devices/jsdrv/js110.py:117 devices/jsdrv/js220.py:181
+#: devices/jsdrv/js110.py:117 devices/jsdrv/js220.py:180
 msgid "Statistics frequency"
 msgstr "統計周波数"
 
@@ -993,11 +993,11 @@ msgid ""
 msgstr ""
 "この設定は、マルチメーターと値ウィジェットに表示される統計データの出力周波数を制御します。統計データはフルレート2MHzサンプルで計算されます。"
 
-#: devices/jsdrv/js110.py:137 devices/jsdrv/js220.py:201
+#: devices/jsdrv/js110.py:137 devices/jsdrv/js220.py:200
 msgid "Toggle the connection between the current terminals."
 msgstr "電流端子間の接続を切り替えます。"
 
-#: devices/jsdrv/js110.py:138 devices/jsdrv/js220.py:202
+#: devices/jsdrv/js110.py:138 devices/jsdrv/js220.py:201
 msgid ""
 "When enabled, current flows between the current terminals. When disabled, "
 "current cannot flow between the current terminals. In common system setups, "
@@ -1006,7 +1006,7 @@ msgid ""
 msgstr ""
 "有効にすると、電流端子間に電流が流れます。無効にすると、電流端子間に電流が流れなくなります。一般的なシステム・セットアップでは、これによってターゲット電源が抑制され、ターゲット・デバイスのパワー・サイクル・リセットに使用できます。"
 
-#: devices/jsdrv/js110.py:147 devices/jsdrv/js220.py:211
+#: devices/jsdrv/js110.py:147 devices/jsdrv/js220.py:210
 #: widgets/waveform/waveform_widget.py:115
 msgid "Current range"
 msgstr "電流レンジ"
@@ -1017,7 +1017,7 @@ msgid ""
 "default, \"auto\"."
 msgstr "J110の電流レンジを設定します。ほとんどのアプリケーションではデフォルトの \"auto \"を使用します。"
 
-#: devices/jsdrv/js110.py:151 devices/jsdrv/js220.py:215
+#: devices/jsdrv/js110.py:151 devices/jsdrv/js220.py:214
 msgid ""
 "Use the other manual settings with care. It is very easy to configure a "
 "setting that saturates, which will ignore regions of current draw larger "
@@ -1025,7 +1025,7 @@ msgid ""
 msgstr ""
 "その他の手動設定は注意して使用してください。飽和するような設定は非常に簡単で、電流範囲の設定よりも大きな電流の引き込み領域を無視することになります。"
 
-#: devices/jsdrv/js110.py:168 devices/jsdrv/js220.py:243
+#: devices/jsdrv/js110.py:168 devices/jsdrv/js220.py:242
 msgid "Voltage range"
 msgstr "電圧範囲"
 
@@ -1033,7 +1033,7 @@ msgstr "電圧範囲"
 msgid "Configure the JS110's voltage range."
 msgstr "JS110の電圧範囲を設定します。"
 
-#: devices/jsdrv/js110.py:178 devices/jsdrv/js220.py:272
+#: devices/jsdrv/js110.py:178 devices/jsdrv/js220.py:271
 msgid "GPIO voltage"
 msgstr "GPIO 電圧"
 
@@ -1049,19 +1049,19 @@ msgid ""
 "\"1\", this can backpower unpowered targets."
 msgstr "JS110 の汎用出力は常に電源が供給されたままです。1 \"に設定すると、電源が供給されていないターゲットに電力を供給することができます。"
 
-#: devices/jsdrv/js110.py:199 devices/jsdrv/js220.py:290
+#: devices/jsdrv/js110.py:199 devices/jsdrv/js220.py:289
 msgid "GPO 0 output value"
 msgstr "GPO 0 出力値"
 
-#: devices/jsdrv/js110.py:200 devices/jsdrv/js220.py:291
+#: devices/jsdrv/js110.py:200 devices/jsdrv/js220.py:290
 msgid "Turn the general-purpose output 0 on or off."
 msgstr "汎用出力0をオンまたはオフにします。"
 
-#: devices/jsdrv/js110.py:205 devices/jsdrv/js220.py:296
+#: devices/jsdrv/js110.py:205 devices/jsdrv/js220.py:295
 msgid "GPO 1 output value"
 msgstr "GPO 1出力値"
 
-#: devices/jsdrv/js110.py:206 devices/jsdrv/js220.py:297
+#: devices/jsdrv/js110.py:206 devices/jsdrv/js220.py:296
 msgid "Turn the general-purpose output 1 on or off."
 msgstr "汎用出力1をオンまたはオフにします。"
 
@@ -1138,81 +1138,81 @@ msgid ""
 "mean. This value is ignored for all other IRF types."
 msgstr "平均を決定するために使用される電流範囲ウィンドウの後のサンプル数。他のIRFタイプではこの値は無視されます。"
 
-#: devices/jsdrv/js110.py:269 devices/jsdrv/js220.py:436
+#: devices/jsdrv/js110.py:269 devices/jsdrv/js220.py:435
 #: widgets/device_control/fuse.py:103 widgets/waveform/waveform_widget.py:110
 msgid "Current"
 msgstr "電流"
 
-#: devices/jsdrv/js110.py:270 devices/jsdrv/js220.py:437
+#: devices/jsdrv/js110.py:270 devices/jsdrv/js220.py:436
 msgid "Enable the current signal streaming."
 msgstr "電流信号ストリーミングを有効にします。"
 
-#: devices/jsdrv/js110.py:278 devices/jsdrv/js220.py:445
+#: devices/jsdrv/js110.py:278 devices/jsdrv/js220.py:444
 #: widgets/waveform/waveform_widget.py:111
 msgid "Voltage"
 msgstr "電圧"
 
-#: devices/jsdrv/js110.py:279 devices/jsdrv/js220.py:446
+#: devices/jsdrv/js110.py:279 devices/jsdrv/js220.py:445
 msgid "Enable the voltage signal streaming."
 msgstr "電圧信号ストリーミングを有効にします。"
 
-#: devices/jsdrv/js110.py:287 devices/jsdrv/js220.py:454
+#: devices/jsdrv/js110.py:287 devices/jsdrv/js220.py:453
 #: widgets/waveform/waveform_widget.py:112
 msgid "Power"
 msgstr "パワー"
 
-#: devices/jsdrv/js110.py:288 devices/jsdrv/js220.py:455
+#: devices/jsdrv/js110.py:288 devices/jsdrv/js220.py:454
 msgid "Enable the power signal streaming."
 msgstr "電源信号ストリーミングを有効にします。"
 
-#: devices/jsdrv/js110.py:296 devices/jsdrv/js220.py:463
+#: devices/jsdrv/js110.py:296 devices/jsdrv/js220.py:462
 msgid "Current Range"
 msgstr "電流レンジ"
 
-#: devices/jsdrv/js110.py:308 devices/jsdrv/js220.py:477
+#: devices/jsdrv/js110.py:308 devices/jsdrv/js220.py:476
 msgid "GPI 0"
 msgstr "GPI 0"
 
-#: devices/jsdrv/js110.py:309 devices/jsdrv/js220.py:478
+#: devices/jsdrv/js110.py:309 devices/jsdrv/js220.py:477
 msgid "Enable the general purpose input 0 signal streaming."
 msgstr "汎用入力 0 信号ストリーミングを有効にします。"
 
-#: devices/jsdrv/js110.py:317 devices/jsdrv/js220.py:486
+#: devices/jsdrv/js110.py:317 devices/jsdrv/js220.py:485
 msgid "GPI 1"
 msgstr "GPI 1"
 
-#: devices/jsdrv/js110.py:318 devices/jsdrv/js220.py:487
+#: devices/jsdrv/js110.py:318 devices/jsdrv/js220.py:486
 msgid "Enable the general purpose input 1 signal streaming."
 msgstr "汎用入力 1 信号ストリーミングを有効にします。"
 
-#: devices/jsdrv/js110.py:330 devices/jsdrv/js220.py:539
+#: devices/jsdrv/js110.py:330 devices/jsdrv/js220.py:538
 #: devices/jsdrv/jsdrv_stream_buffer.py:108
 msgid "Signal name"
 msgstr "信号名"
 
-#: devices/jsdrv/js220.py:62
+#: devices/jsdrv/js220.py:61
 msgid ""
 "Configure how the general-purpose input downsampling filter determines a "
 "single value from a sample block."
 msgstr "汎用入力ダウンサンプリングフィルタがどのようにサンプルブロックから単一の値を決定するかを設定します。"
 
-#: devices/jsdrv/js220.py:64
+#: devices/jsdrv/js220.py:63
 msgid "Keep at full rate and do not downsample."
 msgstr "フルレートのまま、ダウンサンプリングしないでください。"
 
-#: devices/jsdrv/js220.py:65
+#: devices/jsdrv/js220.py:64
 msgid "Toggle from the previous value on any change."
 msgstr "変化に応じて前の値から切り替わります。"
 
-#: devices/jsdrv/js220.py:66
+#: devices/jsdrv/js220.py:65
 msgid "Use the first sample from the block and ignore all others."
 msgstr "ブロックの最初のサンプルを使用し、それ以外は無視してください。"
 
-#: devices/jsdrv/js220.py:67
+#: devices/jsdrv/js220.py:66
 msgid "Use the majority value in the block."
 msgstr "ブロック内の最大値を使用してください。"
 
-#: devices/jsdrv/js220.py:99
+#: devices/jsdrv/js220.py:98
 msgid ""
 "This setting allows you to change the default, if you wish, to better "
 "reflect how you are using your JS220. This setting is most useful when you "
@@ -1220,14 +1220,14 @@ msgid ""
 msgstr ""
 "この設定では、JS220の使用方法をより反映させるために、デフォルトを変更することができます。この設定は、複数のジュールスコープを使用してシステムを測定する場合に最も便利です。"
 
-#: devices/jsdrv/js220.py:153
+#: devices/jsdrv/js220.py:152
 msgid ""
 "The JS220 instrument always samples at 2 MHz and then downsamples to 1 MHz. "
 "This setting controls additional optional downsampling."
 msgstr ""
 "JS220は、常に2 MHzでサンプリングし、その後1 MHzにダウンサンプリングします。この設定は、オプションの追加ダウンサンプリングを制御します。"
 
-#: devices/jsdrv/js220.py:182
+#: devices/jsdrv/js220.py:181
 msgid ""
 "This setting controls the output frequency for the statistics data that is "
 "displayed in the multimeter and value widgets. Statistics data is computed "
@@ -1235,25 +1235,25 @@ msgid ""
 msgstr ""
 "この設定は、マルチメーターと値ウィジェットに表示される統計データの出力周波数を制御します。統計データはフルレート1MHzサンプルで計算されます。"
 
-#: devices/jsdrv/js220.py:213
+#: devices/jsdrv/js220.py:212
 msgid ""
 "Configure the JS220's current range. Most applications should use the "
 "default, \"auto\"."
 msgstr "JS220の電流レンジを設定します。ほとんどのアプリケーションでは、デフォルトの \"auto \"を使用します。"
 
-#: devices/jsdrv/js220.py:231
+#: devices/jsdrv/js220.py:230
 msgid "Limits"
 msgstr "限界値"
 
-#: devices/jsdrv/js220.py:233
+#: devices/jsdrv/js220.py:232
 msgid "Configure the autoranging current limits."
 msgstr "オートレンジ電流リミットを設定します。"
 
-#: devices/jsdrv/js220.py:234
+#: devices/jsdrv/js220.py:233
 msgid "This setting is only effective when the Current Range is set to \"auto\"."
 msgstr "この設定は、電流レンジが「自動」に設定されている場合にのみ有効です。"
 
-#: devices/jsdrv/js220.py:236
+#: devices/jsdrv/js220.py:235
 msgid ""
 "You can use this setting to limit the current range and improve autoranging "
 "accuracy when you know your application current is more limited than the "
@@ -1261,45 +1261,45 @@ msgid ""
 msgstr ""
 "アプリケーションの電流が全測定範囲よりも制限されていることが分かっている場合、この設定を使用して電流範囲を制限し、自動レンジングの精度を向上させることができます。"
 
-#: devices/jsdrv/js220.py:244
+#: devices/jsdrv/js220.py:243
 msgid ""
 "Configure the JS220's voltage range. Most applications should use the "
 "default, \"auto\"."
 msgstr "JS220の電圧範囲を設定します。ほとんどのアプリケーションでは、デフォルトの \"auto \"を使用してください。"
 
-#: devices/jsdrv/js220.py:255
+#: devices/jsdrv/js220.py:254
 msgid "Trigger direction"
 msgstr "トリガー方向"
 
-#: devices/jsdrv/js220.py:257
+#: devices/jsdrv/js220.py:256
 msgid "Configure the direction of the JS220's trigger BNC connection."
 msgstr "JS220のトリガーBNC接続の方向を設定します。"
 
-#: devices/jsdrv/js220.py:258
+#: devices/jsdrv/js220.py:257
 msgid ""
 "0 (default) configures the BNC trigger for input only. The BNC connection is"
 " high-impedance."
 msgstr "0（デフォルト）は、BNCトリガーを入力専用に設定します。BNC接続はハイインピーダンスです。"
 
-#: devices/jsdrv/js220.py:260
+#: devices/jsdrv/js220.py:259
 msgid ""
 "1 configures the BNC trigger for output. The BNC connection has 50 Ohm "
 "output impedance."
 msgstr "1 は、BNC トリガーを出力用に設定します。BNC接続の出力インピーダンスは50オームです。"
 
-#: devices/jsdrv/js220.py:262
+#: devices/jsdrv/js220.py:261
 msgid ""
 "In both cases, the trigger input signal is valid, which enables internal "
 "inspection and recording of the trigger output."
 msgstr "いずれの場合も、トリガー入力信号は有効であり、トリガー出力の内部検査と記録が可能です。"
 
-#: devices/jsdrv/js220.py:274
+#: devices/jsdrv/js220.py:273
 msgid ""
 "Configure the JS220's reference voltage for the general-purpose inputs and "
 "outputs."
 msgstr "JS220 の汎用入出力の基準電圧を設定します。"
 
-#: devices/jsdrv/js220.py:276
+#: devices/jsdrv/js220.py:275
 msgid ""
 "We recommend using \"Vref\" when attaching general-purpose outputs (GPO) to "
 "other equipment. Using Vref prevents the GPO from backpowering target "
@@ -1308,68 +1308,68 @@ msgid ""
 msgstr ""
 "汎用出力（GPO）を他の機器に接続する際は、「Vref」の使用を推奨します。Vrefを使用することで、GPOがパワーダウンした際にターゲット機器に逆電力を与えることを防ぎます。Vref信号と汎用入力は、リーク電流を最小にするため、すべて極めて高いインピーダンスになっています。"
 
-#: devices/jsdrv/js220.py:281
+#: devices/jsdrv/js220.py:280
 msgid "\"3.3 V\" uses an internally-generated 3.3V reference voltage."
 msgstr "「3.3 V」は、内部で生成された3.3V基準電圧を使用します。"
 
-#: devices/jsdrv/js220.py:302
+#: devices/jsdrv/js220.py:301
 msgid "Trigger output value"
 msgstr "トリガー出力値"
 
-#: devices/jsdrv/js220.py:304
+#: devices/jsdrv/js220.py:303
 msgid "Turn the trigger output on or off."
 msgstr "トリガ出力のオン/オフを切り替えます。"
 
-#: devices/jsdrv/js220.py:305
+#: devices/jsdrv/js220.py:304
 msgid ""
 "The trigger must also be configured for output for this setting to have any "
 "effect."
 msgstr "この設定を有効にするには、トリガも出力用に設定する必要があります。"
 
-#: devices/jsdrv/js220.py:313
+#: devices/jsdrv/js220.py:312
 msgid "The maturity level channel for firmware updates."
 msgstr "ファームウェア・アップデートのための成熟度チャンネル。"
 
-#: devices/jsdrv/js220.py:314
+#: devices/jsdrv/js220.py:313
 msgid ""
 "We recommend keeping the default \"stable\" unless you are a Joulescope "
 "developer."
 msgstr "Joulescopeの開発者でない限り、デフォルトの \"stable \"のままにしておくことをお勧めします。"
 
-#: devices/jsdrv/js220.py:323
+#: devices/jsdrv/js220.py:322
 msgid "Firmware update availability."
 msgstr "ファームウェアの更新が可能です。"
 
-#: devices/jsdrv/js220.py:324
+#: devices/jsdrv/js220.py:323
 msgid ""
 "None when no firmware update is available. Map of subname: [current, "
 "available] when available."
 msgstr "ファームウェアの更新がない場合はなし。サブネームのマップ：[current, available] 利用可能な場合。"
 
-#: devices/jsdrv/js220.py:369
+#: devices/jsdrv/js220.py:368
 msgid "Prefilter"
 msgstr "プレフィルター"
 
-#: devices/jsdrv/js220.py:371
+#: devices/jsdrv/js220.py:370
 msgid "Configure the prefilter type."
 msgstr "プレフィルタ・タイプの設定"
 
-#: devices/jsdrv/js220.py:372
+#: devices/jsdrv/js220.py:371
 msgid ""
 "Most applications should use the wideband filter. To reduce peaking around "
 "high frequency events, select the sinc1 filter."
 msgstr ""
 "ほとんどのアプリケーションでは、広帯域フィルターを使用する必要があります。高周波イベント付近のピーキングを低減するには、sinc1フィルターを選択してください。"
 
-#: devices/jsdrv/js220.py:384
+#: devices/jsdrv/js220.py:383
 msgid "Signal filter"
 msgstr "信号フィルター"
 
-#: devices/jsdrv/js220.py:386
+#: devices/jsdrv/js220.py:385
 msgid "Configure the signal downsampling filter type."
 msgstr "信号ダウンサンプリングフィルタのタイプを設定します。"
 
-#: devices/jsdrv/js220.py:387
+#: devices/jsdrv/js220.py:386
 msgid ""
 "The wideband filter provides a flat frequency response, but it does cause "
 "peaking around high frequency events. The sinc1 filter provides a smoother "
@@ -1378,19 +1378,19 @@ msgid ""
 msgstr ""
 "ワイドバンドフィルタはフラットな周波数特性を提供しますが、高周波イベント付近でピーキングが発生します。sinc1フィルターは、よりスムーズな時間領域応答を提供するが、帯域幅が狭くなり、エイリアシングが多くなる。また、sinc1フィルターは、USBスループットが低下するため、測定器上で動作します。"
 
-#: devices/jsdrv/js220.py:402
+#: devices/jsdrv/js220.py:401
 msgid "GPI filter"
 msgstr "GPIフィルター"
 
-#: devices/jsdrv/js220.py:415
+#: devices/jsdrv/js220.py:414
 msgid "Current scale"
 msgstr "電流スケール"
 
-#: devices/jsdrv/js220.py:420
+#: devices/jsdrv/js220.py:419
 msgid "Voltage scale"
 msgstr "電圧スケール"
 
-#: devices/jsdrv/js220.py:466
+#: devices/jsdrv/js220.py:465
 msgid ""
 "⚠ When enabled, no more than 3 GPIO signals (0, 1, 2, 3, T) may be enabled. "
 "If you attempt to enable too many signals, then the UI will display no data "
@@ -1399,35 +1399,35 @@ msgstr ""
 "有効化した場合、3つ以上のGPIO信号(0, 1, 2, 3, "
 "T)を有効化することはできません。有効な信号が多すぎると、UIにはどの信号のデータも表示されません。"
 
-#: devices/jsdrv/js220.py:495
+#: devices/jsdrv/js220.py:494
 msgid "GPI 2"
 msgstr "GPI 2"
 
-#: devices/jsdrv/js220.py:496
+#: devices/jsdrv/js220.py:495
 msgid "Enable the general purpose input 2 signal streaming."
 msgstr "汎用入力 2 信号ストリーミングを有効にします。"
 
-#: devices/jsdrv/js220.py:504
+#: devices/jsdrv/js220.py:503
 msgid "GPI 3"
 msgstr "GPI 3"
 
-#: devices/jsdrv/js220.py:505
+#: devices/jsdrv/js220.py:504
 msgid "Enable the general purpose input 3 signal streaming."
 msgstr "汎用入力 3 信号ストリーミングを有効にします。"
 
-#: devices/jsdrv/js220.py:513 widgets/waveform/waveform_widget.py:129
+#: devices/jsdrv/js220.py:512 widgets/waveform/waveform_widget.py:129
 msgid "Trigger input"
 msgstr "トリガー入力"
 
-#: devices/jsdrv/js220.py:514
+#: devices/jsdrv/js220.py:513
 msgid "Enable the trigger input signal streaming."
 msgstr "トリガー入力信号ストリーミングを有効にします。"
 
-#: devices/jsdrv/js220.py:524
+#: devices/jsdrv/js220.py:523
 msgid "Serial"
 msgstr "シリアル"
 
-#: devices/jsdrv/js220.py:525
+#: devices/jsdrv/js220.py:524
 msgid "Serial data stream"
 msgstr "シリアル・データ・ストリーム"
 
