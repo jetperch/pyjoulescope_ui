@@ -13,9 +13,8 @@
 # limitations under the License.
 
 import unittest
-import numpy as np
-from joulescope_ui.widgets.serial_console.serial_decoder import SerialDecoder
-from joulescope_ui.widgets.serial_console.serial_encoder import SerialEncoder
+from joulescope_ui.devices.jsdrv.serial_decoder import SerialDecoder
+from joulescope_ui.devices.jsdrv.serial_encoder import SerialEncoder
 
 
 class TestUartDecoder(unittest.TestCase):
