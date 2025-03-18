@@ -12,6 +12,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added serial console widget.
   * Modified Waveform widget to publish extent.
   * Allowed "future" x-axis annotations in Waveform widget.
+* Added tool to configure Windows for high precision time. 
 
 
 ## 1.2.6

@@ -1,4 +1,4 @@
-# Copyright 2018-2024 Jetperch LLC
+# Copyright 2018-2025 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -47,6 +47,7 @@ from .exporter import ExporterDialog   # register the exporter
 from .jls_source import JlsSource      # register the source
 from .resources import load_resources, load_fonts
 from joulescope_ui.devices.jsdrv.jsdrv_wrapper import JsdrvWrapper
+from joulescope_ui.windows import run_w32time_high_accuracy
 from .styles import StyleManager
 from .app import App
 # from .mem_leak_debugger import MemLeakDebugger
@@ -338,6 +339,13 @@ class MainWindow(QtWidgets.QMainWindow):
                 ['about', N_('About'), ['registry/help_html/actions/!show', 'about']],
             ]]
 
+        tools = [
+            ['accum_clear', N_('Clear Accumulators'), ['registry/ui/actions/!accum_clear', None]],
+        ]
+        if sys.platform.startswith('win'):
+            w32time_tool = ['w32time', N_('Configure high accuracy time'), ['registry/ui/actions/!w32time', None]]
+            tools.append(w32time_tool)
+
         self._plugins = PluginManager(self)
         self.pubsub.register(self._plugins, 'plugins', parent='ui')
 
@@ -365,9 +373,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 ]],
                 ['view_menu', N_('View'), []],        # dynamically populated from available views
                 ['widgets_menu', N_('Widgets'), []],  # dynamically populated from available widgets
-                ['tools_menu', N_('Tools'), [
-                    ['accum_clear', N_('Clear Accumulators'), ['registry/ui/actions/!accum_clear', None]]
-                ]],
+                ['tools_menu', N_('Tools'), tools],
                 help_menu,
             ])
             view_menu = self._menu_items['view_menu'][0]
@@ -796,6 +802,9 @@ class MainWindow(QtWidgets.QMainWindow):
         sources = self.pubsub.query('registry_manager/capabilities/statistics_stream.source/list')
         for source in sources:
             self.pubsub.publish(f'{get_topic_name(source)}/actions/!accum_clear', value)
+
+    def on_action_w32time(self, value):
+        run_w32time_high_accuracy()
 
     def on_action_view_logs(self):
         path = self.pubsub.query('common/settings/paths/log')
