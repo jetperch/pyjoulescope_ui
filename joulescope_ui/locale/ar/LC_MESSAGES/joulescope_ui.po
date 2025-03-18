@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-03-05 18:16-0500\n"
+"POT-Creation-Date: 2025-03-18 10:54-0400\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: ar <LL@li.org>\n"
@@ -321,7 +321,7 @@ msgstr "البريد الإلكتروني"
 msgid "Description"
 msgstr "الوصف"
 
-#: error_window.py:112 widgets/waveform/waveform_widget.py:3622
+#: error_window.py:112 widgets/waveform/waveform_widget.py:3632
 msgid "Edit"
 msgstr "تحرير"
 
@@ -1550,7 +1550,7 @@ msgstr "حالة تحديث البرنامج الثابت"
 #: widgets/settings/settings_widget.py:266
 #: widgets/settings/settings_widget.py:364
 #: widgets/settings/settings_widget.py:431
-#: widgets/waveform/waveform_widget.py:3244
+#: widgets/waveform/waveform_widget.py:3254
 msgid "Name"
 msgstr "الاسم"
 
@@ -1974,7 +1974,7 @@ msgid "Fuse response"
 msgstr "استجابة الصمامات"
 
 #: widgets/device_control/fuse.py:102
-#: widgets/serial_console/serial_console_widget.py:58
+#: widgets/serial_console/serial_console_widget.py:72
 msgid "Time"
 msgstr "الوقت"
 
@@ -2258,21 +2258,44 @@ msgstr "تسجيل الإحصائيات قيد التنفيذ"
 msgid "Record Status"
 msgstr "حالة السجل"
 
-#: widgets/serial_console/serial_console_widget.py:25
+#: widgets/serial_console/serial_console_widget.py:31
 msgid "Serial Console"
 msgstr "وحدة التحكم التسلسلية"
 
-#: widgets/serial_console/serial_console_widget.py:32
+#: widgets/serial_console/serial_console_widget.py:38
 msgid "The signal sample stream source."
 msgstr "مصدر تيار عينة الإشارة."
 
-#: widgets/serial_console/serial_console_widget.py:37
+#: widgets/serial_console/serial_console_widget.py:43
 msgid "The target waveform widget."
 msgstr "أداة الشكل الموجي المستهدف."
 
-#: widgets/serial_console/serial_console_widget.py:58
+#: widgets/serial_console/serial_console_widget.py:72
 msgid "Message"
 msgstr "الرسالة"
+
+#: widgets/serial_console/serial_console_widget.py:206
+msgid "Copy"
+msgstr "نسخ"
+
+#: widgets/serial_console/serial_console_widget.py:208
+msgid "Entry"
+msgstr "الدخول"
+
+#: widgets/serial_console/serial_console_widget.py:209
+msgid "Text only"
+msgstr "النص فقط"
+
+#: widgets/serial_console/serial_console_widget.py:211
+msgid "Annotate Waveform"
+msgstr "شرح الشكل الموجي"
+
+#: widgets/serial_console/serial_console_widget.py:218
+#: widgets/waveform/waveform_source_widget.py:104
+#: widgets/waveform/waveform_widget.py:380
+#: widgets/waveform/waveform_widget.py:463
+msgid "off"
+msgstr "إيقاف"
 
 #: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:694
 msgid "Value"
@@ -2731,7 +2754,7 @@ msgid "triangle left"
 msgstr "المثلث الأيسر"
 
 #: widgets/waveform/text_annotation.py:66
-#: widgets/waveform/waveform_widget.py:3190
+#: widgets/waveform/waveform_widget.py:3200
 msgid "Manual"
 msgstr "دليل"
 
@@ -2740,17 +2763,17 @@ msgid "Centered"
 msgstr "المركز"
 
 #: widgets/waveform/text_annotation.py:99
-#: widgets/waveform/waveform_widget.py:3305
+#: widgets/waveform/waveform_widget.py:3315
 msgid "Text"
 msgstr "النص"
 
 #: widgets/waveform/text_annotation.py:107
-#: widgets/waveform/waveform_widget.py:3623
+#: widgets/waveform/waveform_widget.py:3633
 msgid "Show text"
 msgstr "إظهار النص"
 
 #: widgets/waveform/text_annotation.py:116
-#: widgets/waveform/waveform_widget.py:3635
+#: widgets/waveform/waveform_widget.py:3645
 msgid "Shape"
 msgstr "الشكل"
 
@@ -2944,12 +2967,6 @@ msgstr ""
 "\"افتراضي\" سيستخدم المصدر الافتراضي الذي يتم تكوينه عادةً باستخدام أداة "
 "التحكم في الجهاز."
 
-#: widgets/waveform/waveform_source_widget.py:104
-#: widgets/waveform/waveform_widget.py:380
-#: widgets/waveform/waveform_widget.py:457
-msgid "off"
-msgstr "إيقاف"
-
 #: widgets/waveform/waveform_widget.py:44
 msgid "Waveform"
 msgstr "الشكل الموجي"
@@ -3046,229 +3063,229 @@ msgstr "الكميات المراد عرضها افتراضيًا."
 msgid "Use OpenGL rendering."
 msgstr "استخدم عرض OpenGL."
 
-#: widgets/waveform/waveform_widget.py:432
+#: widgets/waveform/waveform_widget.py:438
 msgid "Pin the left side (oldest) data so that it stays in view."
 msgstr "تثبيت بيانات الجانب الأيسر (الأقدم) بحيث تبقى في العرض."
 
-#: widgets/waveform/waveform_widget.py:437
+#: widgets/waveform/waveform_widget.py:443
 msgid "Pin the right side (newest) data so that it stays in view."
 msgstr "تثبيت بيانات الجانب الأيمن (الأحدث) بحيث تبقى في العرض."
 
-#: widgets/waveform/waveform_widget.py:442
+#: widgets/waveform/waveform_widget.py:448
 msgid "The waveform state."
 msgstr "حالة الشكل الموجي."
 
-#: widgets/waveform/waveform_widget.py:448
+#: widgets/waveform/waveform_widget.py:454
 msgid "The annotations."
 msgstr "الشروح"
 
-#: widgets/waveform/waveform_widget.py:454
+#: widgets/waveform/waveform_widget.py:460
 msgid "Control location"
 msgstr "موقع التحكم"
 
-#: widgets/waveform/waveform_widget.py:458
+#: widgets/waveform/waveform_widget.py:464
 msgid "top"
 msgstr "أعلى"
 
-#: widgets/waveform/waveform_widget.py:459
+#: widgets/waveform/waveform_widget.py:465
 msgid "bottom"
 msgstr "القاع"
 
-#: widgets/waveform/waveform_widget.py:464
+#: widgets/waveform/waveform_widget.py:470
 msgid "The signal quantity to show in the summary."
 msgstr "كمية الإشارة المراد إظهارها في الملخص."
 
-#: widgets/waveform/waveform_widget.py:470
+#: widgets/waveform/waveform_widget.py:476
 msgid "X-axis annotation mode"
 msgstr "وضع التعليق التوضيحي للمحور X"
 
-#: widgets/waveform/waveform_widget.py:473
-#: widgets/waveform/waveform_widget.py:3070
+#: widgets/waveform/waveform_widget.py:479
+#: widgets/waveform/waveform_widget.py:3080
 msgid "Absolute"
 msgstr "المطلق"
 
-#: widgets/waveform/waveform_widget.py:474
-#: widgets/waveform/waveform_widget.py:3075
+#: widgets/waveform/waveform_widget.py:480
+#: widgets/waveform/waveform_widget.py:3085
 msgid "Relative"
 msgstr "نسبي"
 
-#: widgets/waveform/waveform_widget.py:480
+#: widgets/waveform/waveform_widget.py:486
 msgid "The available subsources."
 msgstr "المصادر الفرعية المتاحة."
 
-#: widgets/waveform/waveform_widget.py:486
+#: widgets/waveform/waveform_widget.py:492
 msgid "The selected subsources for each trace."
 msgstr "المصادر الفرعية المختارة لكل تتبع."
 
-#: widgets/waveform/waveform_widget.py:492
+#: widgets/waveform/waveform_widget.py:498
 msgid "The trace priority: highest int value on top, None is off."
 msgstr "أولوية التتبع: أعلى قيمة للتيار في الأعلى، لا شيء متوقف."
 
-#: widgets/waveform/waveform_widget.py:3017
-#: widgets/waveform/waveform_widget.py:3317
+#: widgets/waveform/waveform_widget.py:3027
+#: widgets/waveform/waveform_widget.py:3327
 msgid "Save image to file"
 msgstr "حفظ الصورة في ملف"
 
-#: widgets/waveform/waveform_widget.py:3064
-#: widgets/waveform/waveform_widget.py:3133
+#: widgets/waveform/waveform_widget.py:3074
+#: widgets/waveform/waveform_widget.py:3143
 msgid "Single marker"
 msgstr "علامة واحدة"
 
-#: widgets/waveform/waveform_widget.py:3065
-#: widgets/waveform/waveform_widget.py:3134
+#: widgets/waveform/waveform_widget.py:3075
+#: widgets/waveform/waveform_widget.py:3144
 msgid "Dual markers"
 msgstr "علامات مزدوجة"
 
-#: widgets/waveform/waveform_widget.py:3067
+#: widgets/waveform/waveform_widget.py:3077
 msgid "Mode"
 msgstr "الوضع"
 
-#: widgets/waveform/waveform_widget.py:3080
-#: widgets/waveform/waveform_widget.py:3135
-#: widgets/waveform/waveform_widget.py:3293
-#: widgets/waveform/waveform_widget.py:3311
+#: widgets/waveform/waveform_widget.py:3090
+#: widgets/waveform/waveform_widget.py:3145
+#: widgets/waveform/waveform_widget.py:3303
+#: widgets/waveform/waveform_widget.py:3321
 msgid "Clear all"
 msgstr "مسح الكل"
 
-#: widgets/waveform/waveform_widget.py:3091
-#: widgets/waveform/waveform_widget.py:3180
-#: widgets/waveform/waveform_widget.py:3299
+#: widgets/waveform/waveform_widget.py:3101
+#: widgets/waveform/waveform_widget.py:3190
+#: widgets/waveform/waveform_widget.py:3309
 msgid "Annotations"
 msgstr "التعليقات التوضيحية"
 
-#: widgets/waveform/waveform_widget.py:3183
+#: widgets/waveform/waveform_widget.py:3193
 msgid "Range"
 msgstr "النطاق"
 
-#: widgets/waveform/waveform_widget.py:3187
-#: widgets/waveform/waveform_widget.py:3580
+#: widgets/waveform/waveform_widget.py:3197
+#: widgets/waveform/waveform_widget.py:3590
 msgid "Auto"
 msgstr "تلقائي"
 
-#: widgets/waveform/waveform_widget.py:3193
+#: widgets/waveform/waveform_widget.py:3203
 msgid "Exact"
 msgstr "دقيق"
 
-#: widgets/waveform/waveform_widget.py:3202
+#: widgets/waveform/waveform_widget.py:3212
 msgid "Scale"
 msgstr "المقياس"
 
-#: widgets/waveform/waveform_widget.py:3205
+#: widgets/waveform/waveform_widget.py:3215
 msgid "Linear"
 msgstr "الخطي"
 
-#: widgets/waveform/waveform_widget.py:3210
+#: widgets/waveform/waveform_widget.py:3220
 msgid "Logarithmic"
 msgstr "لوغاريتمي"
 
-#: widgets/waveform/waveform_widget.py:3218
+#: widgets/waveform/waveform_widget.py:3228
 msgid "Logarithmic zero"
 msgstr "الصفر اللوغاريتمي"
 
-#: widgets/waveform/waveform_widget.py:3232
+#: widgets/waveform/waveform_widget.py:3242
 msgid "Preferred prefix"
 msgstr "البادئة المفضلة"
 
-#: widgets/waveform/waveform_widget.py:3290
+#: widgets/waveform/waveform_widget.py:3300
 msgid "Add"
 msgstr "إضافة"
 
-#: widgets/waveform/waveform_widget.py:3291
+#: widgets/waveform/waveform_widget.py:3301
 msgid "Hide all text"
 msgstr "إخفاء كل النص"
 
-#: widgets/waveform/waveform_widget.py:3292
+#: widgets/waveform/waveform_widget.py:3302
 msgid "Show all text"
 msgstr "إظهار كل النص"
 
-#: widgets/waveform/waveform_widget.py:3300
+#: widgets/waveform/waveform_widget.py:3310
 msgid "Vertical"
 msgstr "عمودي"
 
-#: widgets/waveform/waveform_widget.py:3303
+#: widgets/waveform/waveform_widget.py:3313
 msgid "Horizontal"
 msgstr "أفقي"
 
-#: widgets/waveform/waveform_widget.py:3309
+#: widgets/waveform/waveform_widget.py:3319
 msgid "Save"
 msgstr "حفظ"
 
-#: widgets/waveform/waveform_widget.py:3314
+#: widgets/waveform/waveform_widget.py:3324
 msgid "Y-axis auto range"
 msgstr "النطاق التلقائي للمحور Y"
 
-#: widgets/waveform/waveform_widget.py:3318
+#: widgets/waveform/waveform_widget.py:3328
 msgid "Copy image to clipboard"
 msgstr "نسخ الصورة إلى الحافظة"
 
-#: widgets/waveform/waveform_widget.py:3319
+#: widgets/waveform/waveform_widget.py:3329
 msgid "Export visible data"
 msgstr "تصدير البيانات المرئية"
 
-#: widgets/waveform/waveform_widget.py:3320
+#: widgets/waveform/waveform_widget.py:3330
 msgid "Export visible data as CSV"
 msgstr "تصدير البيانات المرئية بتنسيق CSV"
 
-#: widgets/waveform/waveform_widget.py:3321
+#: widgets/waveform/waveform_widget.py:3331
 msgid "Export all data"
 msgstr "تصدير جميع البيانات"
 
-#: widgets/waveform/waveform_widget.py:3486
+#: widgets/waveform/waveform_widget.py:3496
 msgid "Export visible data to CSV file"
 msgstr "تصدير البيانات المرئية إلى ملف CSV"
 
-#: widgets/waveform/waveform_widget.py:3556
+#: widgets/waveform/waveform_widget.py:3566
 msgid "Export"
 msgstr "التصدير"
 
-#: widgets/waveform/waveform_widget.py:3557
+#: widgets/waveform/waveform_widget.py:3567
 msgid "Analysis"
 msgstr "التحليل"
 
-#: widgets/waveform/waveform_widget.py:3565
+#: widgets/waveform/waveform_widget.py:3575
 msgid "Interval"
 msgstr "الفاصل الزمني"
 
-#: widgets/waveform/waveform_widget.py:3574
+#: widgets/waveform/waveform_widget.py:3584
 msgid "Zoom"
 msgstr "تكبير"
 
-#: widgets/waveform/waveform_widget.py:3578
+#: widgets/waveform/waveform_widget.py:3588
 msgid "Show statistics"
 msgstr "عرض الإحصائيات"
 
-#: widgets/waveform/waveform_widget.py:3583
+#: widgets/waveform/waveform_widget.py:3593
 msgid "Left"
 msgstr "يسار"
 
-#: widgets/waveform/waveform_widget.py:3586
+#: widgets/waveform/waveform_widget.py:3596
 msgid "Right"
 msgstr "صحيح"
 
-#: widgets/waveform/waveform_widget.py:3589
-#: widgets/waveform/waveform_widget.py:3596
+#: widgets/waveform/waveform_widget.py:3599
+#: widgets/waveform/waveform_widget.py:3606
 msgid "Off"
 msgstr "إيقاف التشغيل"
 
-#: widgets/waveform/waveform_widget.py:3593
+#: widgets/waveform/waveform_widget.py:3603
 msgid "Show time"
 msgstr "عرض الوقت"
 
-#: widgets/waveform/waveform_widget.py:3599
+#: widgets/waveform/waveform_widget.py:3609
 msgid "On"
 msgstr "في"
 
-#: widgets/waveform/waveform_widget.py:3603
+#: widgets/waveform/waveform_widget.py:3613
 msgid "Label"
 msgstr "التسمية"
 
-#: widgets/waveform/waveform_widget.py:3615
-#: widgets/waveform/waveform_widget.py:3643
-#: widgets/waveform/waveform_widget.py:3679
+#: widgets/waveform/waveform_widget.py:3625
+#: widgets/waveform/waveform_widget.py:3653
+#: widgets/waveform/waveform_widget.py:3689
 msgid "Remove"
 msgstr "إزالة"
 
-#: widgets/waveform/waveform_widget.py:3626
+#: widgets/waveform/waveform_widget.py:3636
 msgid "Y mode"
 msgstr "الوضع Y"
 
@@ -3280,7 +3297,7 @@ msgstr "الحد الأقصى"
 msgid "min"
 msgstr "دقيقة"
 
-#: widgets/waveform/y_range_widget.py:72
+#: widgets/waveform/y_range_widget.py:74
 msgid "Units"
 msgstr "الوحدات"
 
