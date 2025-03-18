@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-03-18 10:54-0400\n"
+"POT-Creation-Date: 2025-03-18 15:58-0400\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: zh <LL@li.org>\n"
@@ -304,7 +304,7 @@ msgstr "以 Markdown 格式查看"
 msgid "Abort"
 msgstr "终止"
 
-#: error_window.py:120 main.py:366 widgets/settings/settings_widget.py:539
+#: error_window.py:120 main.py:374 widgets/settings/settings_widget.py:539
 msgid "View"
 msgstr "查看"
 
@@ -324,7 +324,7 @@ msgstr "恢复到以前的配置"
 msgid "Revert to defaults"
 msgstr "恢复到默认值"
 
-#: error_window.py:283 main.py:364 main.py:410
+#: error_window.py:283 main.py:372 main.py:416
 #: widgets/js220_cal/js220_cal_widget.py:38
 msgid "Exit"
 msgstr "退出"
@@ -564,150 +564,154 @@ msgstr "选择语言"
 msgid "The application will automatically close when you change the locale."
 msgstr "当您更改位置时，应用程序将自动关闭。"
 
-#: main.py:71 widgets/value/value_widget.py:685
+#: main.py:72 widgets/value/value_widget.py:685
 msgid "Multimeter"
 msgstr "万用表"
 
-#: main.py:72
+#: main.py:73
 msgid "Oscilloscope"
 msgstr "示波器"
 
-#: main.py:73 main.py:298 main.py:360 main.py:403
+#: main.py:74 main.py:299 main.py:368 main.py:409
 msgid "File"
 msgstr "文件"
 
-#: main.py:83
+#: main.py:84
 msgid "The UI status bar display mode"
 msgstr "用户界面状态栏显示模式"
 
-#: main.py:84
+#: main.py:85
 msgid ""
 "This setting controls the amount of detail shown on the status bar at the "
 "bottom of the UI window. You should usually leave this set to \"normal\" "
 "unless you want more detail concerning the UI internal operation."
 msgstr "此设置可控制用户界面窗口底部状态栏上显示的细节数量。通常应将其设置为 \"正常\"，除非您需要更多有关用户界面内部操作的细节。"
 
-#: main.py:89 safe_mode.py:43
+#: main.py:90 safe_mode.py:43
 msgid "Normal"
 msgstr "正常"
 
-#: main.py:90
+#: main.py:91
 msgid "Troubleshoot"
 msgstr "故障排除"
 
-#: main.py:96
+#: main.py:97
 msgid "Enable developer mode."
 msgstr "启用开发人员模式。"
 
-#: main.py:109
+#: main.py:110
 msgid "PubSub utilization"
 msgstr "PubSub 利用率"
 
-#: main.py:110
+#: main.py:111
 msgid ""
 "Display the number of actions processed by the publish-subscribe broker in "
 "each second."
 msgstr "显示发布-订阅代理每秒处理的操作数。"
 
-#: main.py:115
+#: main.py:116
 msgid "CPU utilization"
 msgstr "CPU 利用率"
 
-#: main.py:116
+#: main.py:117
 msgid ""
 "Display the CPU utilization by this application and the total CPU "
 "utilization by all applications. The value is displayed in percent."
 msgstr "显示此应用程序的 CPU 利用率和所有应用程序的总 CPU 利用率。该值以百分比显示。"
 
-#: main.py:122
+#: main.py:123
 msgid "Memory utilization"
 msgstr "内存利用率"
 
-#: main.py:123
+#: main.py:124
 msgid ""
 "Display the memory (RAM) utilization by this application and by all "
 "applications. The value is displayed in percent."
 msgstr "显示此应用程序和所有应用程序的内存（RAM）利用率。该值以百分比显示。"
 
-#: main.py:216
+#: main.py:217
 msgid "UI"
 msgstr "UI"
 
-#: main.py:330
+#: main.py:331
 msgid "Help"
 msgstr "帮助"
 
-#: main.py:331 widgets/hamburger/hamburger_widget.py:21
+#: main.py:332 widgets/hamburger/hamburger_widget.py:21
 msgid "Getting Started"
 msgstr "开始使用"
 
-#: main.py:332
+#: main.py:333
 msgid "Language"
 msgstr "语言"
 
-#: main.py:333
+#: main.py:334
 msgid "User's Guide"
 msgstr "用户指南"
 
-#: main.py:334 widgets/hamburger/hamburger_widget.py:22
+#: main.py:335 widgets/hamburger/hamburger_widget.py:22
 msgid "Changelog"
 msgstr "更新日志"
 
-#: main.py:335 widgets/help/help_widget.py:59
+#: main.py:336 widgets/help/help_widget.py:59
 msgid "Report Issue"
 msgstr "报告问题"
 
-#: main.py:336
+#: main.py:337
 msgid "View logs..."
 msgstr "查看日志..."
 
-#: main.py:337 widgets/hamburger/hamburger_widget.py:23
+#: main.py:338 widgets/hamburger/hamburger_widget.py:23
 msgid "Credits"
 msgstr "荣誉"
 
-#: main.py:338 widgets/hamburger/hamburger_widget.py:24
+#: main.py:339 widgets/hamburger/hamburger_widget.py:24
 msgid "About"
 msgstr "关于"
 
-#: main.py:361
-msgid "Open"
-msgstr "打开"
-
-#: main.py:362
-msgid "Open recent"
-msgstr "近期开放"
-
-#: main.py:363 main.py:409
-msgid "Clear config and exit"
-msgstr "清除配置并退出"
-
-#: main.py:367 widgets/settings/settings_widget.py:541
-msgid "Widgets"
-msgstr "小工具"
-
-#: main.py:368
-msgid "Tools"
-msgstr "工具"
-
-#: main.py:369
+#: main.py:343
 msgid "Clear Accumulators"
 msgstr "透明蓄电池"
 
-#: main.py:404
+#: main.py:346
+msgid "Configure high accuracy time"
+msgstr "配置高精度时间"
+
+#: main.py:369
+msgid "Open"
+msgstr "打开"
+
+#: main.py:370
+msgid "Open recent"
+msgstr "近期开放"
+
+#: main.py:371 main.py:415
+msgid "Clear config and exit"
+msgstr "清除配置并退出"
+
+#: main.py:375 widgets/settings/settings_widget.py:541
+msgid "Widgets"
+msgstr "小工具"
+
+#: main.py:376
+msgid "Tools"
+msgstr "工具"
+
+#: main.py:410
 msgid "Info"
 msgstr "信息"
 
-#: main.py:405 widget_tools.py:92 widgets/settings/settings_widget.py:31
+#: main.py:411 widget_tools.py:92 widgets/settings/settings_widget.py:31
 #: widgets/settings/settings_widget.py:574
 #: widgets/sidebar/sidebar_widget.py:42
 msgid "Settings"
 msgstr "设置"
 
-#: main.py:712
+#: main.py:718
 msgid "Manage"
 msgstr "管理"
 
-#: main.py:749
+#: main.py:755
 msgid "Select file to open"
 msgstr "选择要打开的文件"
 

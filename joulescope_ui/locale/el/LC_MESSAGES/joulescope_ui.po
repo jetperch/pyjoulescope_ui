@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-03-18 10:54-0400\n"
+"POT-Creation-Date: 2025-03-18 15:58-0400\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: el <LL@li.org>\n"
@@ -353,7 +353,7 @@ msgstr "Προβολή ως Markdown"
 msgid "Abort"
 msgstr "Διακοπή"
 
-#: error_window.py:120 main.py:366 widgets/settings/settings_widget.py:539
+#: error_window.py:120 main.py:374 widgets/settings/settings_widget.py:539
 msgid "View"
 msgstr "Προβολή"
 
@@ -373,7 +373,7 @@ msgstr "Επιστροφή στην προηγούμενη διαμόρφωση"
 msgid "Revert to defaults"
 msgstr "Επαναφορά στις προεπιλογές"
 
-#: error_window.py:283 main.py:364 main.py:410
+#: error_window.py:283 main.py:372 main.py:416
 #: widgets/js220_cal/js220_cal_widget.py:38
 msgid "Exit"
 msgstr "Έξοδος"
@@ -659,23 +659,23 @@ msgstr "Επιλέξτε μια γλώσσα"
 msgid "The application will automatically close when you change the locale."
 msgstr "Η εφαρμογή θα κλείσει αυτόματα όταν αλλάξετε την τοποθεσία."
 
-#: main.py:71 widgets/value/value_widget.py:685
+#: main.py:72 widgets/value/value_widget.py:685
 msgid "Multimeter"
 msgstr "Πολύμετρο"
 
-#: main.py:72
+#: main.py:73
 msgid "Oscilloscope"
 msgstr "Παλμογράφος"
 
-#: main.py:73 main.py:298 main.py:360 main.py:403
+#: main.py:74 main.py:299 main.py:368 main.py:409
 msgid "File"
 msgstr "Αρχείο"
 
-#: main.py:83
+#: main.py:84
 msgid "The UI status bar display mode"
 msgstr "Ο τρόπος εμφάνισης της γραμμής κατάστασης του UI"
 
-#: main.py:84
+#: main.py:85
 msgid ""
 "This setting controls the amount of detail shown on the status bar at the "
 "bottom of the UI window. You should usually leave this set to \"normal\" "
@@ -686,23 +686,23 @@ msgstr ""
 "αφήνετε ρυθμισμένη στην τιμή \"normal\", εκτός αν θέλετε περισσότερες "
 "λεπτομέρειες σχετικά με την εσωτερική λειτουργία του UI."
 
-#: main.py:89 safe_mode.py:43
+#: main.py:90 safe_mode.py:43
 msgid "Normal"
 msgstr "Κανονικό"
 
-#: main.py:90
+#: main.py:91
 msgid "Troubleshoot"
 msgstr "Αντιμετώπιση προβλημάτων"
 
-#: main.py:96
+#: main.py:97
 msgid "Enable developer mode."
 msgstr "Ενεργοποίηση της λειτουργίας προγραμματιστή."
 
-#: main.py:109
+#: main.py:110
 msgid "PubSub utilization"
 msgstr "Χρήση PubSub"
 
-#: main.py:110
+#: main.py:111
 msgid ""
 "Display the number of actions processed by the publish-subscribe broker in "
 "each second."
@@ -710,11 +710,11 @@ msgstr ""
 "Εμφάνιση του αριθμού των ενεργειών που επεξεργάζεται ο μεσίτης δημοσιεύσεων-"
 "συνδρομών σε κάθε δευτερόλεπτο."
 
-#: main.py:115
+#: main.py:116
 msgid "CPU utilization"
 msgstr "Χρήση CPU"
 
-#: main.py:116
+#: main.py:117
 msgid ""
 "Display the CPU utilization by this application and the total CPU "
 "utilization by all applications. The value is displayed in percent."
@@ -723,11 +723,11 @@ msgstr ""
 "της CPU από όλες τις εφαρμογές. Η τιμή εμφανίζεται σε ποσοστό επί τοις "
 "εκατό."
 
-#: main.py:122
+#: main.py:123
 msgid "Memory utilization"
 msgstr "Χρήση μνήμης"
 
-#: main.py:123
+#: main.py:124
 msgid ""
 "Display the memory (RAM) utilization by this application and by all "
 "applications. The value is displayed in percent."
@@ -735,85 +735,89 @@ msgstr ""
 "Εμφάνιση της χρήσης της μνήμης (RAM) από αυτή την εφαρμογή και από όλες τις "
 "εφαρμογές. Η τιμή εμφανίζεται σε ποσοστό επί τοις εκατό."
 
-#: main.py:216
+#: main.py:217
 msgid "UI"
 msgstr "UI"
 
-#: main.py:330
+#: main.py:331
 msgid "Help"
 msgstr "Βοήθεια"
 
-#: main.py:331 widgets/hamburger/hamburger_widget.py:21
+#: main.py:332 widgets/hamburger/hamburger_widget.py:21
 msgid "Getting Started"
 msgstr "Ξεκινώντας"
 
-#: main.py:332
+#: main.py:333
 msgid "Language"
 msgstr "Γλώσσα"
 
-#: main.py:333
+#: main.py:334
 msgid "User's Guide"
 msgstr "Οδηγός χρήσης"
 
-#: main.py:334 widgets/hamburger/hamburger_widget.py:22
+#: main.py:335 widgets/hamburger/hamburger_widget.py:22
 msgid "Changelog"
 msgstr "Changelog"
 
-#: main.py:335 widgets/help/help_widget.py:59
+#: main.py:336 widgets/help/help_widget.py:59
 msgid "Report Issue"
 msgstr "Έκδοση έκθεσης"
 
-#: main.py:336
+#: main.py:337
 msgid "View logs..."
 msgstr "Προβολή αρχείων καταγραφής..."
 
-#: main.py:337 widgets/hamburger/hamburger_widget.py:23
+#: main.py:338 widgets/hamburger/hamburger_widget.py:23
 msgid "Credits"
 msgstr "Συντελεστές"
 
-#: main.py:338 widgets/hamburger/hamburger_widget.py:24
+#: main.py:339 widgets/hamburger/hamburger_widget.py:24
 msgid "About"
 msgstr "Σχετικά με το"
 
-#: main.py:361
-msgid "Open"
-msgstr "Open"
-
-#: main.py:362
-msgid "Open recent"
-msgstr "Ανοικτό πρόσφατα"
-
-#: main.py:363 main.py:409
-msgid "Clear config and exit"
-msgstr "Εκκαθάριση ρυθμίσεων και έξοδος"
-
-#: main.py:367 widgets/settings/settings_widget.py:541
-msgid "Widgets"
-msgstr "Widgets"
-
-#: main.py:368
-msgid "Tools"
-msgstr "Εργαλεία"
-
-#: main.py:369
+#: main.py:343
 msgid "Clear Accumulators"
 msgstr "Σαφείς συσσωρευτές"
 
-#: main.py:404
+#: main.py:346
+msgid "Configure high accuracy time"
+msgstr "Διαμόρφωση χρόνου υψηλής ακρίβειας"
+
+#: main.py:369
+msgid "Open"
+msgstr "Open"
+
+#: main.py:370
+msgid "Open recent"
+msgstr "Ανοικτό πρόσφατα"
+
+#: main.py:371 main.py:415
+msgid "Clear config and exit"
+msgstr "Εκκαθάριση ρυθμίσεων και έξοδος"
+
+#: main.py:375 widgets/settings/settings_widget.py:541
+msgid "Widgets"
+msgstr "Widgets"
+
+#: main.py:376
+msgid "Tools"
+msgstr "Εργαλεία"
+
+#: main.py:410
 msgid "Info"
 msgstr "Πληροφορίες"
 
-#: main.py:405 widget_tools.py:92 widgets/settings/settings_widget.py:31
+#: main.py:411 widget_tools.py:92 widgets/settings/settings_widget.py:31
 #: widgets/settings/settings_widget.py:574
 #: widgets/sidebar/sidebar_widget.py:42
 msgid "Settings"
 msgstr "Ρυθμίσεις"
 
-#: main.py:712
+#: main.py:718
 msgid "Manage"
 msgstr "Διαχείριση"
 
-#: main.py:749
+#: main.py:755
 msgid "Select file to open"
 msgstr "Επιλέξτε αρχείο για άνοιγμα"
 

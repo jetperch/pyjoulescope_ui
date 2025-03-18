@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-03-18 10:54-0400\n"
+"POT-Creation-Date: 2025-03-18 15:58-0400\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: fr <LL@li.org>\n"
@@ -355,7 +355,7 @@ msgstr "Voir comme Markdown"
 msgid "Abort"
 msgstr "Abort"
 
-#: error_window.py:120 main.py:366 widgets/settings/settings_widget.py:539
+#: error_window.py:120 main.py:374 widgets/settings/settings_widget.py:539
 msgid "View"
 msgstr "Voir"
 
@@ -375,7 +375,7 @@ msgstr "Revenir à la configuration précédente"
 msgid "Revert to defaults"
 msgstr "Revenir aux valeurs par défaut"
 
-#: error_window.py:283 main.py:364 main.py:410
+#: error_window.py:283 main.py:372 main.py:416
 #: widgets/js220_cal/js220_cal_widget.py:38
 msgid "Exit"
 msgstr "Sortie"
@@ -662,23 +662,23 @@ msgstr "Sélectionnez une langue"
 msgid "The application will automatically close when you change the locale."
 msgstr "L'application se ferme automatiquement lorsque vous changez de lieu."
 
-#: main.py:71 widgets/value/value_widget.py:685
+#: main.py:72 widgets/value/value_widget.py:685
 msgid "Multimeter"
 msgstr "Multimètre"
 
-#: main.py:72
+#: main.py:73
 msgid "Oscilloscope"
 msgstr "Oscilloscope"
 
-#: main.py:73 main.py:298 main.py:360 main.py:403
+#: main.py:74 main.py:299 main.py:368 main.py:409
 msgid "File"
 msgstr "Fichier"
 
-#: main.py:83
+#: main.py:84
 msgid "The UI status bar display mode"
 msgstr "Le mode d'affichage de la barre d'état de l'interface utilisateur"
 
-#: main.py:84
+#: main.py:85
 msgid ""
 "This setting controls the amount of detail shown on the status bar at the "
 "bottom of the UI window. You should usually leave this set to \"normal\" "
@@ -689,23 +689,23 @@ msgstr ""
 "laisser ce paramètre sur \"normal\" à moins que vous ne souhaitiez obtenir "
 "plus de détails sur le fonctionnement interne de l'interface utilisateur."
 
-#: main.py:89 safe_mode.py:43
+#: main.py:90 safe_mode.py:43
 msgid "Normal"
 msgstr "Normal"
 
-#: main.py:90
+#: main.py:91
 msgid "Troubleshoot"
 msgstr "Dépannage"
 
-#: main.py:96
+#: main.py:97
 msgid "Enable developer mode."
 msgstr "Active le mode développeur."
 
-#: main.py:109
+#: main.py:110
 msgid "PubSub utilization"
 msgstr "Utilisation de PubSub"
 
-#: main.py:110
+#: main.py:111
 msgid ""
 "Display the number of actions processed by the publish-subscribe broker in "
 "each second."
@@ -713,11 +713,11 @@ msgstr ""
 "Affiche le nombre d'actions traitées par le courtier de publication et "
 "d'abonnement chaque seconde."
 
-#: main.py:115
+#: main.py:116
 msgid "CPU utilization"
 msgstr "Utilisation de l'unité centrale"
 
-#: main.py:116
+#: main.py:117
 msgid ""
 "Display the CPU utilization by this application and the total CPU "
 "utilization by all applications. The value is displayed in percent."
@@ -726,11 +726,11 @@ msgstr ""
 "totale du processeur par toutes les applications. La valeur est affichée en "
 "pourcentage."
 
-#: main.py:122
+#: main.py:123
 msgid "Memory utilization"
 msgstr "Utilisation de la mémoire"
 
-#: main.py:123
+#: main.py:124
 msgid ""
 "Display the memory (RAM) utilization by this application and by all "
 "applications. The value is displayed in percent."
@@ -738,85 +738,89 @@ msgstr ""
 "Affiche l'utilisation de la mémoire (RAM) par cette application et par "
 "toutes les applications. La valeur est affichée en pourcentage."
 
-#: main.py:216
+#: main.py:217
 msgid "UI"
 msgstr "UI"
 
-#: main.py:330
+#: main.py:331
 msgid "Help"
 msgstr "Aide"
 
-#: main.py:331 widgets/hamburger/hamburger_widget.py:21
+#: main.py:332 widgets/hamburger/hamburger_widget.py:21
 msgid "Getting Started"
 msgstr "Pour commencer"
 
-#: main.py:332
+#: main.py:333
 msgid "Language"
 msgstr "Langue"
 
-#: main.py:333
+#: main.py:334
 msgid "User's Guide"
 msgstr "Guide de l'utilisateur"
 
-#: main.py:334 widgets/hamburger/hamburger_widget.py:22
+#: main.py:335 widgets/hamburger/hamburger_widget.py:22
 msgid "Changelog"
 msgstr "Changelog"
 
-#: main.py:335 widgets/help/help_widget.py:59
+#: main.py:336 widgets/help/help_widget.py:59
 msgid "Report Issue"
 msgstr "Rapport"
 
-#: main.py:336
+#: main.py:337
 msgid "View logs..."
 msgstr "Voir les journaux..."
 
-#: main.py:337 widgets/hamburger/hamburger_widget.py:23
+#: main.py:338 widgets/hamburger/hamburger_widget.py:23
 msgid "Credits"
 msgstr "Crédits"
 
-#: main.py:338 widgets/hamburger/hamburger_widget.py:24
+#: main.py:339 widgets/hamburger/hamburger_widget.py:24
 msgid "About"
 msgstr "À propos de"
 
-#: main.py:361
-msgid "Open"
-msgstr "Ouvrir"
-
-#: main.py:362
-msgid "Open recent"
-msgstr "Ouvert récent"
-
-#: main.py:363 main.py:409
-msgid "Clear config and exit"
-msgstr "Effacer la configuration et quitter"
-
-#: main.py:367 widgets/settings/settings_widget.py:541
-msgid "Widgets"
-msgstr "Widgets"
-
-#: main.py:368
-msgid "Tools"
-msgstr "Outils"
-
-#: main.py:369
+#: main.py:343
 msgid "Clear Accumulators"
 msgstr "Accumulateurs transparents"
 
-#: main.py:404
+#: main.py:346
+msgid "Configure high accuracy time"
+msgstr "Configurer le temps de haute précision"
+
+#: main.py:369
+msgid "Open"
+msgstr "Ouvrir"
+
+#: main.py:370
+msgid "Open recent"
+msgstr "Ouvert récent"
+
+#: main.py:371 main.py:415
+msgid "Clear config and exit"
+msgstr "Effacer la configuration et quitter"
+
+#: main.py:375 widgets/settings/settings_widget.py:541
+msgid "Widgets"
+msgstr "Widgets"
+
+#: main.py:376
+msgid "Tools"
+msgstr "Outils"
+
+#: main.py:410
 msgid "Info"
 msgstr "Info"
 
-#: main.py:405 widget_tools.py:92 widgets/settings/settings_widget.py:31
+#: main.py:411 widget_tools.py:92 widgets/settings/settings_widget.py:31
 #: widgets/settings/settings_widget.py:574
 #: widgets/sidebar/sidebar_widget.py:42
 msgid "Settings"
 msgstr "Paramètres"
 
-#: main.py:712
+#: main.py:718
 msgid "Manage"
 msgstr "Gérer"
 
-#: main.py:749
+#: main.py:755
 msgid "Select file to open"
 msgstr "Sélectionner le fichier à ouvrir"
 
