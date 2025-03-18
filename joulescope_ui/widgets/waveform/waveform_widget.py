@@ -421,9 +421,15 @@ class WaveformWidget(QtWidgets.QWidget):
             'brief': N_('Use OpenGL rendering.'),
             'default': True,
         },
+        'x_extent': {
+            'dtype': 'obj',
+            'brief': 'The x-axis extent.',
+            'default': [0, 0],
+            'flags': ['hide', 'ro', 'skip_undo'],  # publish only
+        },
         'x_range': {
             'dtype': 'obj',
-            'brief': 'The x-axis range.',
+            'brief': 'The x-axis visible range.',
             'default': [0, 0],
             'flags': ['hide', 'ro', 'skip_undo'],  # publish only
         },
@@ -960,7 +966,7 @@ class WaveformWidget(QtWidgets.QWidget):
             self._graphics.update()
         self._paint_duration_ns = 0
 
-    def _extents(self):
+    def _compute_x_extent(self):
         x_min = []
         x_max = []
         for signal_id, signal in self._signals.items():
@@ -972,11 +978,14 @@ class WaveformWidget(QtWidgets.QWidget):
                 x_max.append(x_range[1])
         if 0 == len(x_min):
             return [0, 0]
-        # return min(x_min), max(x_max)   # todo restore when JLS v2 supports out of range requests
-        return [max(x_min), min(x_max)]
+        # return [min(x_min), max(x_max)]   # todo restore when JLS v2 supports out of range requests
+        x0, x1 = max(x_min), min(x_max)
+        if x0 > x1:
+            return [x0, x0]
+        return [x0, x1]
 
     def _compute_x_range(self):
-        e0, e1 = self._extents()
+        e0, e1 = self.x_extent
         if self.x_range is None or self.x_range == [0, 0]:
             return e0, e1
         x0, x1 = self.x_range
@@ -999,7 +1008,7 @@ class WaveformWidget(QtWidgets.QWidget):
         force = bool(force)
         if not len(self._x_geometry_info):
             return
-        _, e1 = self._extents()
+        self.x_extent = self._compute_x_extent()
         self.x_range = self._compute_x_range()
         # x0, x1 = self.x_range
         # xc = (x0 >> 1) + (x1 >> 1)
@@ -1013,7 +1022,7 @@ class WaveformWidget(QtWidgets.QWidget):
             summary_signal = self._signals.get(signal_id, None)
             if summary_signal is not None and summary_signal.get('changed', False):
                 summary_length = self._summary_geometry()[2]  # width in pixels
-                self._request_signal(summary_signal, self._extents(), rsp_id=1, length=summary_length)
+                self._request_signal(summary_signal, self.x_extent, rsp_id=1, length=summary_length)
 
         for signal_id, signal in self._signals.items():
             if not self.is_signal_active(signal_id):
@@ -2047,6 +2056,7 @@ class WaveformWidget(QtWidgets.QWidget):
         inside = []
         outside = []
         x_min, x_max = x_range
+        x_max += time64.SECOND  # allow future scheduling
         for a_id, a in self.annotations['text'][plot_index]['items'].items():
             if x_min <= a['x'] <= x_max:
                 inside.append(a_id)
@@ -2055,7 +2065,7 @@ class WaveformWidget(QtWidgets.QWidget):
         return inside, outside
 
     def _annotations_remove_expired(self):
-        x_range = self._extents()
+        x_range = self.x_extent
         _, outside = self._x_markers_filter(x_range)
         for m_id in outside:
             if self.annotations['x'][m_id].get('mode', 'absolute') == 'absolute':
@@ -2770,7 +2780,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 plots[idx]['height'] = d1
             elif action == 'move.x_marker':
                 xt = self._x_map.counter_to_time64(x)
-                e0, e1 = self._extents()
+                e0, e1 = self.x_extent
                 xr = self.x_range
                 xt = max(xr[0], min(xr[1], xt))  # bound mouse to visible range
                 item, x_offset, move_both = self._mouse_action[1:4]
@@ -2846,7 +2856,7 @@ class WaveformWidget(QtWidgets.QWidget):
                     a['y'] = self._y_pixel_to_value(plot, y)
 
     def _x_pan(self, t0, t1):
-        e0, e1 = self._extents()
+        e0, e1 = self.x_extent
         dt = int(t0 - t1)
         x0, x1 = self.x_range
         d_x = x1 - x0
@@ -3335,7 +3345,7 @@ class WaveformWidget(QtWidgets.QWidget):
         return context_menu_show(menu, event)
 
     def _on_dt_interval(self, dt):
-        e0, e1 = self._extents()
+        e0, e1 = self.x_extent
         er = e1 - e0
         dt = int(dt * time64.SECOND)
         dt = min(dt, er)
@@ -3383,7 +3393,7 @@ class WaveformWidget(QtWidgets.QWidget):
         r = {}
         inside, _ = self._x_markers_filter(x_range)
         r['x'] = [self.annotations['x'][m_id] for m_id in inside]
-        x_range = self._extents()
+        x_range = self.x_extent
         _, outside = self._x_markers_filter(x_range)
         for m_id in outside:
             del self.annotations['x'][m_id]
@@ -3400,7 +3410,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 x0, x1 = x1, x0
             return x0, x1
         elif isinstance(src, str):
-            e0, e1 = self._extents()
+            e0, e1 = self.x_extent
             if src == 'range':
                 x0, x1 = self.x_range
             elif src == 'extents':
@@ -3769,7 +3779,7 @@ class WaveformWidget(QtWidgets.QWidget):
             marker['changed'] = True
         elif self.x_axis_annotation_mode == 'relative':
             marker['mode'] = 'relative'
-            marker['rel1'] = pos1 - self._extents()[1]
+            marker['rel1'] = pos1 - self.x_extent[1]
         return self._x_marker_add(marker)
 
     def _x_marker_add_dual(self, pos1=None, pos2=None, metadata=None):
@@ -3814,7 +3824,7 @@ class WaveformWidget(QtWidgets.QWidget):
             marker.update(metadata)
             marker['changed'] = True
         elif self.x_axis_annotation_mode == 'relative':
-            e1 = self._extents()[1]
+            e1 = self.x_extent[1]
             marker['mode'] = 'relative'
             marker['rel1'] = pos1 - e1
             marker['rel2'] = pos2 - e1
@@ -3842,6 +3852,47 @@ class WaveformWidget(QtWidgets.QWidget):
             text.append('')
         self._copy_text_to_clipboard('\n'.join(text))
 
+    def _x_marker_by_role(self, role, dtype=None):
+        role_match = []
+        for key, value in self.annotations['x'].items():
+            if value.get('role') == role:
+                if dtype is not None and value.get('dtype') != dtype:
+                    role_match.append(value)
+                else:
+                    return value
+        for marker in role_match:
+            self.annotations['x'].pop(marker['id'])
+        self._repaint_request = True
+        return None
+
+    def _x_marker_show_single(self, role, pos):
+        marker = self._x_marker_by_role(role, dtype='single')
+        if pos is None:
+            # unset this role
+            if marker is not None:
+                self.annotations['x'].pop(marker['id'])
+        else:
+            if marker is None:
+                marker = self._x_marker_add_single(pos)
+            else:
+                marker['pos1'] = pos
+            marker['role'] = role
+            #self._on_x_marker_zoom(marker['id'], 0.75)
+            marker['changed'] = True
+        self._repaint_request = True
+
+    def _x_marker_show_dual(self, role, pos1, pos2):
+        marker = self._x_marker_by_role(role, dtype='dual')
+        if marker is None:
+            marker = self._x_marker_add_dual(pos1, pos2)
+        else:
+            marker['pos1'] = pos1
+            marker['pos2'] = pos2
+        marker['role'] = role
+        #self._on_x_marker_zoom(marker['id'], 0.75)
+        marker['changed'] = True
+        self._repaint_request = True
+
     def on_action_x_markers(self, topic, value):
         """Perform a marker action.
 
@@ -3857,6 +3908,8 @@ class WaveformWidget(QtWidgets.QWidget):
             * ['remove', marker_id, ...]
             * ['add', marker_obj, ...]  # for undo remove
             * ['select', marker_id]
+            * ['show_single', role, pos]
+            * ['show_dual', role, pos1, pos2]
         """
         self._log.info('x_markers %s', value)
         value = _marker_action_string_to_command(value)
@@ -3887,6 +3940,10 @@ class WaveformWidget(QtWidgets.QWidget):
             self._x_marker_label(value[1], value[2])
         elif cmd == 'text_to_clipboard':
             self._x_marker_text_to_clipboard(value[1])
+        elif cmd == 'show_single':
+            self._x_marker_show_single(*value[1:])
+        elif cmd == 'show_dual':
+            self._x_marker_show_dual(*value[1:])
         else:
             raise NotImplementedError(f'Unsupported marker action {value}')
 
@@ -4085,7 +4142,7 @@ class WaveformWidget(QtWidgets.QWidget):
             * path: The user-selected export path for the main data file.
         """
         self._log.info('on_callback_annotation_save start')
-        x0, x1 = value.get('x_range', self._extents())
+        x0, x1 = value.get('x_range', self.x_extent)
         path_base, path_ext = os.path.splitext(value['path'])
         path = f'{path_base}.anno{path_ext}'
         sample_rate = 1_000_000
@@ -4252,7 +4309,7 @@ class WaveformWidget(QtWidgets.QWidget):
         :param topic: The topic name.
         :param value: The [x_min, x_max] range.
         """
-        e0, e1 = self._extents()
+        e0, e1 = self.x_extent
         x0, x1 = self.x_range
         z0, z1 = value
         if z1 < z0:
@@ -4282,7 +4339,7 @@ class WaveformWidget(QtWidgets.QWidget):
             if steps > 0:
                 # zoom in when locked to full extents
                 self.pin_left = False  # unpin from left
-        e0, e1 = self._extents()
+        e0, e1 = self.x_extent
         x0, x1 = self.x_range
         d_e = e1 - e0
         d_x = x1 - x0
@@ -4327,7 +4384,7 @@ class WaveformWidget(QtWidgets.QWidget):
         """
         undo_x_range = list(self.x_range)
         z0, z1 = value
-        e0, e1 = self._extents()
+        e0, e1 = self.x_extent
         if z0 < e0:
             z1 += e0 - z0
             z0 = e0
@@ -4349,14 +4406,14 @@ class WaveformWidget(QtWidgets.QWidget):
         self._log.info('x_zoom_all')
         x0, x1 = self.x_range
         self._plot_data_invalidate()
-        self.x_range = self._extents()
+        self.x_range = self.x_extent
         return [f'{get_topic_name(self)}/actions/!x_range', [x0, x1]]
 
     def on_action_x_pan(self, pan):
         self._log.info(f'on_action_x_pan {pan}')
         if self.pin_left or self.pin_right:
             return  # locked to extents
-        e0, e1 = self._extents()
+        e0, e1 = self.x_extent
         x0, x1 = self.x_range
         d_x = x1 - x0
         p = int(d_x * 0.25 * pan)

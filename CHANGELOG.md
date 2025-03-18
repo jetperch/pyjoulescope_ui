@@ -7,9 +7,11 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.3.0
 
-2025 Mar 5 [in progress]
+2025 Mar 18 [in progress]
 
-* Added serial console widget [in progress]
+* Added serial console widget.
+  * Modified Waveform widget to publish extent.
+  * Allowed "future" x-axis annotations in Waveform widget.
 
 
 ## 1.2.6

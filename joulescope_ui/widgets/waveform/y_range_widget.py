@@ -69,6 +69,8 @@ class YRangeWidget(QtWidgets.QWidget):
         self.construct_prefix(unit, prefix)
 
     def construct_prefix(self, unit, prefix):
+        if unit is None:
+            unit = ''
         label = QtWidgets.QLabel(N_('Units'), self)
         self._layout.addWidget(label, self._row, 0, 1, 1)
         sel = QtWidgets.QComboBox(self)

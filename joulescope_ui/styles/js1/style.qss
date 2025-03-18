@@ -69,6 +69,12 @@ QTableView
     gridline-color: {% js1.input_border %};
 }
 
+QTableView::item:selected
+{
+    color: {% base.selection_color %};
+    background-color: {% base.selection_background_color %};
+}
+
 QMenuBar:focus,
 QMenu:focus,
 QPushButton:focus,
