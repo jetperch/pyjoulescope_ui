@@ -7,8 +7,11 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.3.0
 
-2025 Mar 18 [in progress]
+2025 Mar 27 [in progress]
 
+* Improved UTC time mapping.
+  * Samples maintain UTC time map once assigned. 
+  * pyjoulescope_driver from 1.7.4 to 1.8.0 implements TMap.
 * Added serial console widget.
   * Modified Waveform widget to publish extent.
   * Allowed "future" x-axis annotations in Waveform widget.

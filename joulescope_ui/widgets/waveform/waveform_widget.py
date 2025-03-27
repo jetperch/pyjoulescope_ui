@@ -1121,10 +1121,13 @@ class WaveformWidget(QtWidgets.QWidget):
                                 {'rsp_topic': f'{self.topic}/callbacks/!annotations'})
 
     def on_callback_response(self, topic, value):
-        utc = value['info']['time_range_utc']
-        if utc['length'] == 0:
+        sample_ids = value['info']['time_range_samples']
+        if sample_ids['length'] == 0:
             return
-        x = np.linspace(utc['start'], utc['end'], utc['length'], dtype=np.int64)
+        x = np.linspace(sample_ids['start'], sample_ids['end'], sample_ids['length'], dtype=np.uint64)
+        tmap = value['info']['tmap']
+        with tmap:
+            x = tmap.sample_id_to_timestamp(x)
         response_type = value['response_type']
         rsp_id = value['rsp_id']
 
@@ -1167,7 +1170,7 @@ class WaveformWidget(QtWidgets.QWidget):
         else:
             self._log.warning('unsupported response type: %s', response_type)
             return
-        data['time_range_utc'] = utc
+        data['time_range_utc'] = value['info']['time_range_utc']
         data['time_range_samples'] = value['info']['time_range_samples']
         data['time_map'] = value['info']['time_map']
 
@@ -2694,10 +2697,13 @@ class WaveformWidget(QtWidgets.QWidget):
         my = np.array([e[0] for e in marker_info], dtype=float)
         my = self._y_value_to_pixel(plot, my)
         dy = np.abs(y - my)
-        z = np.where(dy < _MARKER_SELECT_DISTANCE_PIXELS)[0]
-        if len(z):
-            _, marker, pos = marker_info[z[0]]
-            return f'y_marker.{marker["id"]}.{pos}'
+        try:
+            z = np.where(dy < _MARKER_SELECT_DISTANCE_PIXELS)[0]
+            if len(z):
+                _, marker, pos = marker_info[z[0]]
+                return f'y_marker.{marker["id"]}.{pos}'
+        except Exception:
+            pass
         return ''
 
     def _item_parse_y_marker(self, item: str, activate=None) -> (dict, str):
