@@ -2013,7 +2013,6 @@ class WaveformWidget(QtWidgets.QWidget):
         _, y0, _ = self._y_geometry_info['x_axis']
         _, y1, _ = self._y_geometry_info['margin.bottom']
         xw, x0, x1 = self._x_geometry_info['plot']
-        xl0, xl1 = x0 - _CLIP_LIMIT_PIXELS, x1 + _CLIP_LIMIT_PIXELS
         font_metrics = s['axis_font_metrics']
         yh = font_metrics.height()
         ya = y0 + 2 * self._margin + yh
@@ -2027,7 +2026,9 @@ class WaveformWidget(QtWidgets.QWidget):
                 p1, p2 = p2, p1
             p1 = np.rint(self._x_map.time64_to_counter(p1))
             p2 = np.rint(self._x_map.time64_to_counter(p2))
-            p1, p2 = max(p1, xl0), min(p2, xl1)
+            if p2 < x0 or p1 > x1:
+                continue
+            p1, p2 = max(p1, x0), min(p2, x1)
             color_index = self._marker_color_index(m)
             bg = s[f'marker{color_index}_bg']
             p.setPen(self._NO_PEN)
@@ -2095,6 +2096,7 @@ class WaveformWidget(QtWidgets.QWidget):
         y_line2 = y0 + margin2 + f_h
 
         for idx, m in enumerate(self.annotations['x'].values()):
+            p.setClipRect(x0, y0, xw, y1 - y0)
             color_index = self._marker_color_index(m)
             pos1 = m['pos1']
             w = f_h // 2
@@ -2113,7 +2115,6 @@ class WaveformWidget(QtWidgets.QWidget):
                     pl = p1 - w
                     pr = p1 + w
                     segs = self._points.set_line([pl, pl, p1, pr, pr], [y0, y0 + f_h, yl, y0 + f_h, y0])
-                    p.setClipRect(x0, y0, xw, y1 - y0)
                     p.drawPolygon(segs)
                     p.setPen(pen)
                     p.drawLine(p1, y0 + f_h + he, p1, y1)
@@ -2142,7 +2143,6 @@ class WaveformWidget(QtWidgets.QWidget):
                     fill_h += f_h
                     ya += f_h
                 w = max(dt_w, f_w)
-                p.setClipRect(x0, y0, xw, y1 - y0)
                 p.setPen(pen)
                 if xl0 < p1 < xl1:
                     p.drawLine(p1, ya, p1, y1)
@@ -2152,12 +2152,14 @@ class WaveformWidget(QtWidgets.QWidget):
                 q1, q2 = dt_x - margin, dt_x + w + margin
                 q1, q2 = min(p1, q1), max(p2, q2)
                 q1, q2 = max(q1, xl0), min(q2, xl1)
-                p.fillRect(q1, y0, q2 - q1, fill_h, p.brush())
+                if q2 > x0 and q1 < x1:
+                    z0, z1 = max(q1, x0), min(q2, x1)  # onscreen region only
+                    p.fillRect(z0, y0, z1 - z0, fill_h, p.brush())
                 p.setPen(s['text_pen'])
                 if xl0 < dt_x < xl1:
                     p.drawText(dt_x, y0 + margin + f_a, dt_str)
                 label = m.get('label', '')
-                if label:
+                if label and xl0 < q2 < xl1:
                     self._draw_text(p, q2 + margin, y_line1, label, x_align='left')
                 if self.show_frequency and dt > 0:
                     f_x = (p1 + p2 - f_w) // 2
@@ -2173,10 +2175,12 @@ class WaveformWidget(QtWidgets.QWidget):
                         xa, xb = q1 - margin, q2 + margin
                     else:
                         xa, xb = p1 - margin, p2 + margin
-                    self._draw_text(p, xa, y_line2, x_txt, x_align='right')
+                    if xl0 < xa < xl1:
+                        self._draw_text(p, xa, y_line2, x_txt, x_align='right')
                     x_rel = self._x_map.time64_to_trel(x2)
                     x_txt = _si_format(x_rel, 's', precision=self.precision)
-                    self._draw_text(p, xb, y_line2, x_txt, x_align='left')
+                    if xl0 < xb < xl1:
+                        self._draw_text(p, xb, y_line2, x_txt, x_align='left')
                 txp = ['left', 'right'] if m['pos1'] < m['pos2'] else ['right', 'left']
                 self._draw_dual_marker_text(p, m, 'text_pos1', txp[0])
                 self._draw_dual_marker_text(p, m, 'text_pos2', txp[1])

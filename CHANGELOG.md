@@ -7,7 +7,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.3.0
 
-2025 Mar 27 [in progress]
+2025 Mar 27
 
 * Improved UTC time mapping.
   * Samples maintain UTC time map once assigned. 
@@ -15,7 +15,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added serial console widget.
   * Modified Waveform widget to publish extent.
   * Allowed "future" x-axis annotations in Waveform widget.
-* Added tool to configure Windows for high precision time. 
+* Added tool to configure Windows for high precision time.
+* Fixed Waveform widget overflow error when zoom in away from annotations. 
 
 
 ## 1.2.6
