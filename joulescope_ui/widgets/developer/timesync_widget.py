@@ -124,7 +124,7 @@ class TimesyncWidget(QtWidgets.QWidget):
         for device in list(self._devices.keys()):
             if device not in value:
                 d = self._devices.pop(device)
-                d['plot'].close()
+                self._plot.removeItem(d['plot'])
         for device in value:
             if device not in self._devices:
                 topic = get_topic_name(device)

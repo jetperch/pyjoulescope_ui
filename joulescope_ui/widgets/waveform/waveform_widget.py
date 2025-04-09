@@ -1109,10 +1109,14 @@ class WaveformWidget(QtWidgets.QWidget):
                 continue
             for trace_idx, subsource in traces:
                 signal_id = f'{subsource}.{quantity}'
-                sig_d = self._signals_data.get(signal_id)
-                if sig_d is None:
+                sig = self._signals_data.get(signal_id)
+                if sig is None:
                     continue
-                freqs.append(sig_d['data']['time_map']['counter_rate'])
+                sig_d = sig['data']
+                t_start, t_end = sig_d['time_range_utc']['start'], sig_d['time_range_utc']['end']
+                k_start, k_end = sig_d['time_range_samples']['start'], sig_d['time_range_samples']['end']
+                f = ((k_end - k_start) / (t_end - t_start + 1)) * time64.SECOND
+                freqs.append(f)
         return min(freqs)
 
     def _process_deferred(self):
@@ -1126,8 +1130,12 @@ class WaveformWidget(QtWidgets.QWidget):
             return
         x = np.linspace(sample_ids['start'], sample_ids['end'], sample_ids['length'], dtype=np.uint64)
         tmap = value['info']['tmap']
-        with tmap:
-            x = tmap.sample_id_to_timestamp(x)
+        try:
+            with tmap:
+                x = tmap.sample_id_to_timestamp(x)
+        except ValueError:
+            self._log.warning(f'invalid tmap, ignore response')
+            return
         response_type = value['response_type']
         rsp_id = value['rsp_id']
 
@@ -1170,9 +1178,9 @@ class WaveformWidget(QtWidgets.QWidget):
         else:
             self._log.warning('unsupported response type: %s', response_type)
             return
+
         data['time_range_utc'] = value['info']['time_range_utc']
         data['time_range_samples'] = value['info']['time_range_samples']
-        data['time_map'] = value['info']['time_map']
 
         if rsp_id >= _MARKER_RSP_OFFSET:
             marker_id, plot_id = _marker_from_rsp_id(rsp_id)

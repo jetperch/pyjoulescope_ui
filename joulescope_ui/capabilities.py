@@ -86,7 +86,7 @@ class CAPABILITIES(Enum):
         * events/signals/{signal_id}/!data, obj with
           * source: source info
           * sample_id: starting sample id
-          * sample_freq: in Hz
+          * sample_freq: in Hz (nominal)
           * time: starting sample time, in int64 Q30 time
           * field: (current, voltage, power, current_range, voltage_range, gpi[N])
           * data
@@ -146,10 +146,14 @@ class CAPABILITIES(Enum):
             * start
             * end
             * length
-          * time_map
+          * time_map for most recent data
             * offset_time
             * offset_counter (samples)
-            * counter_rate (sample rate)
+            * counter_rate (sample rate, estimated)
+          * tmap: An object with methods:
+            * sample_id_to_timestamp, timestamp_to_sample_id
+            * time_map_get
+            * __len__, __enter__, __exit__
         * response_type: Either 'samples' or 'summary'
         * data_type: one of f32, u4, u1
         * data: The data which whose shape is (N, 4) for summary or (N, ) for samples.

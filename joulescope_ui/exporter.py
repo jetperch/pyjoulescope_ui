@@ -14,7 +14,7 @@
 
 
 from PySide6 import QtCore, QtWidgets
-from pyjls import Writer, SignalType
+from pyjls import Writer, SignalType, time64
 from joulescope_ui import N_, time64, pubsub_singleton, register_decorator, get_topic_name
 from joulescope_ui.range_tool import RangeToolBase
 from joulescope_ui.jls_v2 import TO_JLS_SIGNAL_NAME
@@ -198,26 +198,28 @@ class Exporter(RangeToolBase):
             r = pubsub_singleton.query(f'registry/{source}/settings/signals/{device}.{quantity}/range')
             d = self.request(signal_id, 'utc', self.x_range[0], 0, 1, timeout=5.0)
             info = d['info']
+            sample_rate = info['time_map']['counter_rate']
             jls.signal_def(
                 signal_id=jls_signal_id,
                 source_id=sources.index(device) + 1,
                 signal_type=SignalType.FSR,
                 data_type=d['data_type'],
-                sample_rate=info['time_map']['counter_rate'],
+                sample_rate=sample_rate,
                 name=TO_JLS_SIGNAL_NAME[info['field']],
                 units=info['units'],
             )
+            d = self.request(signal_id, 'utc', *self.x_range, 1, timeout=5.0)
+            info = d['info']
             utc_start = info['time_range_utc']['start']
             d_utc = (utc_start - self.x_range[0]) / time64.SECOND
-            if abs(d_utc) > 0.001:
+            if abs(d_utc) > (2 / sample_rate):
                 self._log.error('UTC error: %.3f: %d %d, %s', d_utc, utc_start, self.x_range[0], d['data'][0])
             self._signals[signal_id] = {
                 'signal': signal_id,
                 'jls_signal_id': jls_signal_id,
                 'info': info,
                 'range': r,
-                'sample_start': info['time_range_samples']['start'],
-                'utc_start': utc_start,
+                'sample_range': [info['time_range_samples']['start'], info['time_range_samples']['end']],
             }
             jls_signal_id += 1
 
@@ -234,25 +236,24 @@ class Exporter(RangeToolBase):
             for signal_idx, signal in enumerate(self._signals.values()):
                 if self.abort:
                     break
-                utc = signal['utc_start']
                 utc_start, utc_end = self.x_range
                 self._log.info('%s: %d %d | %.3f', signal['signal'], utc_start, utc_end,
                                (utc_end - utc_start) / time64.SECOND)
-                sample_id = signal['sample_start']
-                sample_id_offset = sample_id
+                sample_id_offset, sample_id_end = signal['sample_range']
                 jls_signal_id = signal['jls_signal_id']
-                self._log.info('utc@start: %d %d', 0, signal['utc_start'])
-                jls.utc(jls_signal_id, 0, signal['utc_start'])
-                fs = signal['info']['time_map']['counter_rate']
+                with signal['info']['tmap'] as tmap:
+                    tmap_entries = tmap.time_map_get()
+                    jls.utc(jls_signal_id, 0, tmap.sample_id_to_timestamp(sample_id_offset))
+                    for e in tmap_entries:
+                        if utc_start < e['offset_time'] < utc_end:
+                            jls.utc(jls_signal_id, e['offset_counter'] - sample_id_offset, e['offset_time'])
+                    jls.utc(jls_signal_id, sample_id_end - sample_id_offset, tmap.sample_id_to_timestamp(sample_id_end))
                 count = 0
-                length_total = int(((utc_end - utc) / time64.SECOND) * fs)
+                length_total = sample_id_end - sample_id_offset
+                sample_id = sample_id_offset
                 while not self.abort:
-                    length_remaining = int(((utc_end - utc) / time64.SECOND) * fs)
+                    length_remaining = sample_id_end - sample_id
                     if length_remaining <= 0:
-                        if count:
-                            sample_id_end = info['time_range_samples']['end'] - sample_id_offset
-                            self._log.info('utc@end: %d %d', sample_id_end, utc_end)
-                            jls.utc(jls_signal_id, sample_id_end, utc_end)
                         self._log.info(f'{signal["signal"]}: exported {count} samples')
                         break
                     length = min(100_000, length_remaining)
@@ -265,7 +266,6 @@ class Exporter(RangeToolBase):
                     data = np.ascontiguousarray(d['data'])
                     jls.fsr(jls_signal_id, sample_id - sample_id_offset, data)
                     sample_id += info['time_range_samples']['length']
-                    utc = info['time_range_utc']['end'] + int(time64.SECOND / (fs * 2))
                     count += length
                     self.progress((signal_idx + (1 - length_remaining / length_total)) * progress_iter)
 

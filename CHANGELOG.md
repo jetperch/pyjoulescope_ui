@@ -5,9 +5,25 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.3.1
+
+2025 Apr 9
+
+* Fixed JLS file display, broken in 1.3.0.  #306
+* Fixed JLS export to use new time map.
+* Fixed JLS display to use full time map.
+* Bumped dependency revisions:
+  * pyjoulescope_driver 1.8.0 to 1.9.1
+    * Fixes timestamp with include FPGA 1.3.3  #304 
+    * Fixes on-instrument sinc1 filter does not work at 500 kHz  #304
+  * pyjls 0.11.0 to 1.13.0
+
+
 ## 1.3.0
 
 2025 Mar 27
+
+NOTICE: JLS file display is broken in this release.
 
 * Improved UTC time mapping.
   * Samples maintain UTC time map once assigned. 

@@ -74,8 +74,8 @@ class SerialDecoder:
             'data'      : packed np.array (uint8) of digital samples.
                           Unpack with np.unpackbits(..., bitorder='little').
 
-        :return: A list of (timestamp, message) tuples for any complete messages decoded.
-            The timestamp is the sample id of the first character in the message.
+        :return: A list of (sample_id, message) tuples for any complete messages decoded.
+            The sample_id is the start bit in the first character in the message.
         """
         block_sample_id = block['sample_id']
         unpacked = np.unpackbits(block['data'], bitorder='little')

@@ -14,7 +14,6 @@
 
 import numpy as np
 from joulescope_ui import get_topic_name, time64
-from joulescope_ui.time_map import TimeMap
 import logging
 import queue
 import threading
@@ -66,6 +65,8 @@ class RangeTool:
     def __init__(self, value):
         self.pubsub = None
         self.x_range = value['x_range']
+        """The x-axis range as [start, end] in UTC i64 time64."""
+
         if callable(self.x_range):
             self.x_range = self.x_range()
         assert(len(self.x_range) == 2)
@@ -173,13 +174,9 @@ class RangeTool:
                     raise RuntimeError('Only support concat for sample responses')
                 if req['time_type'] == 'utc':
                     # convert to samples
-                    tm = TimeMap()
-                    tm_entry = rsp['info']['time_map']
-                    scale = tm_entry['counter_rate'] / time64.SECOND
-                    tm.update(tm_entry['offset_counter'], tm_entry['offset_time'], scale)
                     req['time_type'] = 'samples'
                     req['length'] = 0
-                    req['end'] = int(np.rint(tm.time64_to_counter(end)))
+                    req['end'] = rsp['info']['tmap'].timestamp_to_sample_id(end)
             else:
                 rsp_total['data'].append(rsp['data'])
                 rsp_total['info']['time_range_utc']['end'] = rsp['info']['time_range_utc']['end']

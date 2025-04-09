@@ -16,6 +16,12 @@ from joulescope_ui import time64
 import numpy as np
 
 
+_TIME_MAP_GET_DTYPE = np.dtype({
+    'names': ['sample_id', 'timestamp'],
+    'formats': ['u8', 'i8']
+})
+
+
 class TimeMap:
     """Define a time map."""
 
@@ -25,6 +31,31 @@ class TimeMap:
         self.time_offset = 0
         self.time_to_counter_scale = 1.0
         self.counter_to_time_scale = 1.0
+        self._entries = []
+
+    def __len__(self):
+        return len(self._entries)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args, **kwargs):
+        pass
+
+    def sample_id_to_timestamp(self, sample_id):
+        return self.counter_to_time64(sample_id)
+
+    def timestamp_to_sample_id(self, timestamp):
+        return self.time64_to_counter(timestamp)
+
+    def time_map_get(self):
+        return self._entries
+
+    def time_map_set(self, entries):
+        self._entries = np.empty(len(entries), dtype=_TIME_MAP_GET_DTYPE)
+        for i, entry in enumerate(entries):
+            self._entries[i]['sample_id'] = entry[0]
+            self._entries[i]['timestamp'] = entry[1]
 
     def update(self, counter_offset, time_offset, scale):
         """Update the time mapping.

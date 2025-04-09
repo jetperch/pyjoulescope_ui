@@ -99,8 +99,10 @@ class JlsV1:
         fs = jls.sampling_frequency
         utc = 0  # can we do better than this?
         time_map.update(0, utc, fs / time64.SECOND)
+        utc_start, utc_end = time_map.counter_to_time64(np.array([sample_start, sample_end], dtype=np.uint64))
+        time_map.time_map_set([[sample_start, utc_start], [sample_end, utc_end]])
         time_range = {
-            'utc': [time_map.counter_to_time64(sample_start), time_map.counter_to_time64(sample_end)],
+            'utc': [utc_start, utc_end],
             'samples': {'start': sample_start, 'end': sample_end - 1, 'length': sample_end},
             'sample_rate': fs,
         }
@@ -236,6 +238,7 @@ class JlsV1:
                 'offset_counter': time_map.counter_offset,
                 'counter_rate': time_map.time_to_counter_scale * time64.SECOND,
             },
+            'tmap': self._time_map,
         }
         # self._log.info(info)
         return {

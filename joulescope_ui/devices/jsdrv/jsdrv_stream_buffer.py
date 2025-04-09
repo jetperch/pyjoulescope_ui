@@ -382,7 +382,7 @@ class JsdrvStreamBuffer:
         self.pubsub.topic_remove(f'{ui_prefix}/settings/signals/{signal_id}', defer=True)
 
     def on_action_clear(self):
-        self._driver_publish(f'm/{self._id}/g/!clear', 0)
+        self._driver_publish(f'm/{self._id}/g/!clear', 0, timeout=0)
 
     def _on_buf_response(self, topic, value):
         # will be called from device's pubsub thread

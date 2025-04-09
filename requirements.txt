@@ -2,11 +2,11 @@ appnope>=0.1.2,<1
 check-manifest>=0.37,<1
 coverage>=4.5.2
 fs>=2.4.16,<3
-pyjoulescope_driver>=1.8.0,<2      # also update JOULESCOPE_DRIVER_VERSION_MIN in setup.py
+pyjoulescope_driver>=1.9.1,<2      # also update JOULESCOPE_DRIVER_VERSION_MIN in setup.py
 joulescope>=1.2.0,<2               # also update JOULESCOPE_VERSION_MIN in setup.py
 markdown>=3,<4
 psutil>=5,<7
-pyjls>=0.11.0,<1
+pyjls>=0.13.0,<1
 pyopengl>=3,<4
 pywin32; sys_platform == 'win32'   # python {path_to_python}\scripts\pywin32_postinstall.py -install
 pyqtgraph>=0.13.6,<1
