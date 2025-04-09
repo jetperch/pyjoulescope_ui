@@ -102,7 +102,9 @@ class Js220Updater(Device):
             1.00,  # App program
         ])
         _, model, serial_number = device_path.split('/')
-        name = f'{model[1:].upper()}-{serial_number}'
+        if model[0] == '&':
+            model = model[1:]
+        name = f'{model.upper()}-{serial_number}'
         self._device_id = name
         self.SETTINGS = copy.deepcopy(Js220Updater.SETTINGS)
         self.SETTINGS['name'] = {
@@ -254,7 +256,9 @@ class Js220Updater(Device):
             self._reset_to(SUBTYPE_CTRL_UPDATER2)
         else:  # should never get here, but just in case
             self._log.warning('updater2_version_check, but in %s', self._target)
-            self._reset_to(SUBTYPE_CTRL_UPDATER2)
+            # reprogram updater2 using updater1
+            self.state = _ST_UPDATER2_PROGRAM
+            self._reset_to(SUBTYPE_CTRL_UPDATER1)
 
     def _state_updater1_program(self):
         self._log.info('updater1_program')
@@ -310,7 +314,7 @@ class Js220Updater(Device):
             fn()
         finally:
             self._driver.close(self.device_path)
-        self._log.info('thread done')
+        self._log.info('thread done, path=%s, state=%s', self.device_path, self.state)
 
 
 register(Js220Updater, 'JS220_Updater')

@@ -17,6 +17,7 @@ This file contains the list of changes made to pyjoulescope_ui.
     * Fixes timestamp with include FPGA 1.3.3  #304 
     * Fixes on-instrument sinc1 filter does not work at 500 kHz  #304
   * pyjls 0.11.0 to 1.13.0
+* Fixed JS220 firmware update when updater2 is corrupted  #307
 
 
 ## 1.3.0

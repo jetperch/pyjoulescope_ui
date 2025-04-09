@@ -159,15 +159,23 @@ class JsdrvWrapper:
 
     def _on_device_add(self, value):
         _, model, serial_number = value.split('/')
+        if model[0] == '&':
+            model = model[1:]
         unique_id = f'{model.upper()}-{serial_number}'
+        updater_unique_id = unique_id + '-UPDATER'
         if value in self.devices:
             return
         if '/js220/' in value:
-            cls = Js220
+            state = self.pubsub.query(f'{get_topic_name(updater_unique_id)}/settings/state', default=-1)
+            if state <= 0:
+                cls = Js220
+            else:
+                unique_id = updater_unique_id
+                cls = Js220Updater
         elif '/js110/' in value:
             cls = Js110
         elif '/&js220/' in value:
-            unique_id = unique_id[1:] + '-UPDATER'
+            unique_id = updater_unique_id
             cls = Js220Updater
         else:
             self._log.info('Unsupported device: %s', value)
