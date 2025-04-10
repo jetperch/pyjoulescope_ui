@@ -5,9 +5,21 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.3.2
+
+2025 Apr 10
+
+* Bumped dependency revisions:
+  * pyjls 0.13.0 to 1.13.2
+    * Fixed export from JLS file.
+    * Fixed GPI signal display "glitches" to 0 when zoomed in  #308
+
+
 ## 1.3.1
 
 2025 Apr 9
+
+NOTICE: export from JLS file is broken in this release.
 
 * Fixed JLS file display, broken in 1.3.0.  #306
 * Fixed JLS export to use new time map.

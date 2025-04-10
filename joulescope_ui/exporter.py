@@ -244,9 +244,15 @@ class Exporter(RangeToolBase):
                 with signal['info']['tmap'] as tmap:
                     tmap_entries = tmap.time_map_get()
                     jls.utc(jls_signal_id, 0, tmap.sample_id_to_timestamp(sample_id_offset))
+                    if len(tmap_entries):
+                        try:
+                            tmap_entries[0]['offset_counter']
+                            f1, f2 = 'offset_counter', 'offset_time'
+                        except ValueError:
+                            f1, f2 = 'sample_id', 'timestamp'
                     for e in tmap_entries:
-                        if utc_start < e['offset_time'] < utc_end:
-                            jls.utc(jls_signal_id, e['offset_counter'] - sample_id_offset, e['offset_time'])
+                        if utc_start < e[f2] < utc_end:
+                            jls.utc(jls_signal_id, e[f1] - sample_id_offset, e[f2])
                     jls.utc(jls_signal_id, sample_id_end - sample_id_offset, tmap.sample_id_to_timestamp(sample_id_end))
                 count = 0
                 length_total = sample_id_end - sample_id_offset
