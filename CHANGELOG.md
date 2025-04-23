@@ -5,6 +5,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.3.3
+
+2025 Apr 23
+
+* Fixed relative mode for vertical markers on Waveform widget #310
+
+
 ## 1.3.2
 
 2025 Apr 10

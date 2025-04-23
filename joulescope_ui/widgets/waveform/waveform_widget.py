@@ -1035,7 +1035,7 @@ class WaveformWidget(QtWidgets.QWidget):
             for m in self.annotations['x'].values():
                 if m.get('mode', 'absolute') == 'relative':
                     for k in range(1, 2 if m['dtype'] == 'single' else 3):
-                        m_pos = e1 + m[f'rel{k}']
+                        m_pos = self.x_extent[1] + m[f'rel{k}']
                         if m[f'pos{k}'] != m_pos:
                             m['changed'] = True
                         m[f'pos_next{k}'] = m_pos
