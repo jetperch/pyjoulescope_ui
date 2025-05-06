@@ -5,6 +5,15 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.3.4
+
+2025 May 6
+
+* Bumped dependency revisions:
+  * pyjls 0.13.2 to 1.14.0 to support JLS files without UTC entries.
+  * pyjoulescope_driver 1.9.1 to 1.9.2 to fix tmap NULL pointer.
+
+
 ## 1.3.3
 
 2025 Apr 23
