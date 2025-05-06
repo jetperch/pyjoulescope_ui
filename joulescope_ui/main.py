@@ -886,13 +886,6 @@ def _opengl_config(renderer):
     if renderer_qt is not None:
         _log.info('OpenGL render map: %s', renderer)
         QtCore.QCoreApplication.setAttribute(renderer_qt)
-    if renderer != 'unspec':
-        fmt = QtGui.QSurfaceFormat()
-        fmt.setDepthBufferSize(24)
-        fmt.setStencilBufferSize(8)
-        fmt.setVersion(2, 1)
-        fmt.setProfile(QtGui.QSurfaceFormat.OpenGLContextProfile.CoreProfile)
-        QtGui.QSurfaceFormat.setDefaultFormat(fmt)
 
 
 def run(log_level=None, file_log_level=None, filename=None, safe_mode=False):

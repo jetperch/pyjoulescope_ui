@@ -175,9 +175,9 @@ SETTINGS = {
             ['software', N_('software')],
             ['angle', 'ANGLE'],
             ['dynamic', N_('Autodetect')],
-            ['unspec', N_('Not specified')],
+            ['unspec', N_('Not specified')],  # no longer used
         ],
-        'default': 'desktop',
+        'default': 'dynamic',
     },
     'intel_graphics_prompt': {
         'dtype': 'bool',
