@@ -247,10 +247,14 @@ class _PlotOpenGLWidget(QtOpenGLWidgets.QOpenGLWidget):
         self.setMouseTracking(True)
 
     def initializeGL(self) -> None:
-        functions = QtGui.QOpenGLFunctions(self.context())
+        context = self.context()
+        fmt = context.format()
+        functions = QtGui.QOpenGLFunctions(context)
         functions.initializeOpenGLFunctions()
         vendor = _gl_get_string(gl.GL_VENDOR)
         self._log.info(f"""OpenGL information:
+            Qt OpenGL Version: {fmt.version()}
+            Qt OpenGL Profile: {fmt.profile()}
             Vendor: {vendor}
             Renderer: {_gl_get_string(gl.GL_RENDERER)}
             OpenGL Version: {_gl_get_string(gl.GL_VERSION)}
