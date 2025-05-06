@@ -35,6 +35,7 @@ class DockWidget(CDockWidget):
         topic = get_topic_name(widget)
         name = widget.pubsub.query(f'{topic}/settings/name')
         super().__init__(name, parent)
+        self._widget = widget  # unsure if CDockWidget maintains Python reference
         self.setObjectName(f'{unique_id}__dock')
         self.setWidget(widget)
         widget.pubsub.subscribe(f'{topic}/settings/name', self._on_setting_name, ['pub', 'retain'])
@@ -111,7 +112,7 @@ class View:
     _active_instance = None
 
     def __init__(self):
-        pass
+        self._dock_widgets = []
 
     @property
     def is_active(self):
@@ -236,6 +237,7 @@ class View:
         tab_widget.setElideMode(QtCore.Qt.TextElideMode.ElideNone)
         self._dock_manager.addDockWidget(TopDockWidgetArea, dock_widget)
         pubsub_singleton.publish('registry/style/actions/!render', unique_id)
+        self._dock_widgets.append(dock_widget)
         if floating:
             dock_widget.setFloating()
             c = dock_widget.floatingDockContainer()
@@ -279,6 +281,10 @@ class View:
             if dock_widget is not None:
                 dock_widget = dock_widget()  # weakref
         pubsub_singleton.unregister(topic, delete=delete)
+        try:
+            self._dock_widgets.remove(dock_widget)
+        except ValueError:
+            pass
         if instance is not None:
             instance.close()
             try:

@@ -15,6 +15,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added JLS notes entry support for non-string values.
 * Removed OpenGL QSurfaceFormat spec which causes more harm that it prevents.
 * Added wayland workaround #311
+* Stored Python references to DockWidget and its widget.
 
 
 ## 1.3.3
