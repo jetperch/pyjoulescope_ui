@@ -82,6 +82,8 @@ class JlsV2:
 
         def on_user_data_notes(chunk_meta_u16, data):
             if chunk_meta_u16 == ChunkMeta.NOTES and data is not None:
+                if not isinstance(data, str):
+                    data = str(data)
                 pubsub.publish(f'{topic}/settings/notes', data)
                 return True
             return False
