@@ -874,6 +874,20 @@ def _finalize():
             _log.error('Configuration clear failed')
 
 
+def _wayland_workaround():
+    # https://github.com/jetperch/pyjoulescope_ui/issues/311
+    if sys.platform != 'linux':
+        return
+    session_type = os.environ.get("XDG_SESSION_TYPE", "").lower()
+    if session_type != "wayland":
+        return
+    wayland_display = os.environ.get("WAYLAND_DISPLAY", "")
+    if not wayland_display:
+        return
+    _log.info('Detected Wayland : switch to xcb')
+    os.environ["QT_QPA_PLATFORM"] = "xcb"
+
+
 def _opengl_config(renderer):
     # https://doc.qt.io/qt-6/topics-graphics.html
     renderer_map = {
@@ -927,6 +941,7 @@ def run(log_level=None, file_log_level=None, filename=None, safe_mode=False):
                 is_config_load = pubsub_singleton.load()
             except Exception:
                 _log.exception('pubsub load failed')
+            _wayland_workaround()
             opengl_renderer = pubsub_singleton.query('registry/app/settings/opengl', default='desktop')
             _opengl_config(opengl_renderer)
 
