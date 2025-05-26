@@ -5,6 +5,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+* Utilize range tool signal_default parameter for the default channel. #317
+
 ## 1.3.4
 
 2025 May 6

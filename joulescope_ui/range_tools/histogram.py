@@ -46,10 +46,14 @@ class HistogramRangeToolDialog(QtWidgets.QDialog):
         self._form.setWidget(0, QtWidgets.QFormLayout.LabelRole, self._signal_label)
         self._signal = QtWidgets.QComboBox(self)
         self._form.setWidget(0, QtWidgets.QFormLayout.FieldRole, self._signal)
+        default_idx = 0
         for idx, signal_id in enumerate(value['signals']):
+            if signal_id == value['signal_default']:
+                default_idx = idx
             signal_name = '.'.join(signal_id.split('.')[-2:])
             self._signal.addItem(signal_name)
-
+        self._signal.setCurrentIndex(default_idx)
+        
         self._num_bins_label = QtWidgets.QLabel(N_('Number of bins (0 for auto)'), self)
         self._form.setWidget(1, QtWidgets.QFormLayout.LabelRole, self._num_bins_label)
         self._num_bins = QtWidgets.QSpinBox(self)
