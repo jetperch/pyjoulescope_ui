@@ -1525,29 +1525,29 @@ msgstr "確率"
 msgid "CDF configuration"
 msgstr "CDF構成"
 
-#: range_tools/cdf.py:183 range_tools/histogram.py:53
+#: range_tools/cdf.py:181 range_tools/histogram.py:51
 msgid "Number of bins (0 for auto)"
 msgstr "ビン数（自動の場合は0）"
 
-#: range_tools/cdf.py:189
+#: range_tools/cdf.py:187
 msgid "Complimentary"
 msgstr "コンプリメンタリ"
 
-#: range_tools/frequency.py:24
+#: range_tools/frequency.py:25
 msgid "Frequency"
 msgstr "周波数"
 
-#: range_tools/frequency.py:39
+#: range_tools/frequency.py:40
 msgid "Compute frequency spectrum over the range"
 msgstr "周波数スペクトルの計算"
 
-#: range_tools/frequency.py:40
+#: range_tools/frequency.py:41
 msgid ""
 "Compute the frequency spectrum to analyze the frequency content of the "
 "signal's data values over the selected range."
 msgstr "周波数スペクトルを計算し、選択した範囲の信号のデータ値の周波数コンテンツを分析します。"
 
-#: range_tools/frequency.py:213
+#: range_tools/frequency.py:214
 msgid "Frequency configuration"
 msgstr "周波数構成"
 
@@ -1567,52 +1567,52 @@ msgstr "周波数分布"
 msgid "Probability Density Distribution"
 msgstr "確率密度分布"
 
-#: range_tools/histogram.py:45 range_tools/max_window.py:119
+#: range_tools/histogram.py:45 range_tools/max_window.py:120
 #: widgets/trigger/trigger_widget.py:220
 msgid "Signal"
 msgstr "信号"
 
-#: range_tools/histogram.py:59
+#: range_tools/histogram.py:57
 msgid "Histogram type"
 msgstr "ヒストグラム・タイプ"
 
-#: range_tools/histogram.py:77
+#: range_tools/histogram.py:75
 msgid "Histogram configuration"
 msgstr "ヒストグラム構成"
 
-#: range_tools/histogram.py:191
+#: range_tools/histogram.py:189
 msgid "Compute histogram over the range"
 msgstr "範囲にわたってヒストグラムを計算"
 
-#: range_tools/histogram.py:192
+#: range_tools/histogram.py:190
 msgid ""
 "Compute a histogram of the signal's data values over the selected range."
 msgstr "選択した範囲の信号のデータ値のヒストグラムを計算します。"
 
-#: range_tools/max_window.py:24
+#: range_tools/max_window.py:25
 msgid "Max window"
 msgstr "最大ウィンドウ"
 
-#: range_tools/max_window.py:25
+#: range_tools/max_window.py:26
 msgid "Find the maximum value window"
 msgstr "最大値ウィンドウの検索"
 
-#: range_tools/max_window.py:27
+#: range_tools/max_window.py:28
 msgid ""
 "Search the range for the window that has the maximum value. This is an "
 "exhaustive search made by sliding the window duration across the entire "
 "range."
 msgstr "最大値を持つウィンドウの範囲を検索します。これは、全範囲にわたってウィンドウの期間をスライドさせることによって行われる網羅的検索です。"
 
-#: range_tools/max_window.py:30
+#: range_tools/max_window.py:31
 msgid "When complete, this tool will add dual markers to the waveform."
 msgstr "完了すると、このツールは波形にデュアルマーカーを追加します。"
 
-#: range_tools/max_window.py:96
+#: range_tools/max_window.py:97
 msgid "Max Window configuration"
 msgstr "最大ウィンドウ構成"
 
-#: range_tools/max_window.py:105
+#: range_tools/max_window.py:106
 msgid "Width of window (in seconds)"
 msgstr "ウィンドウの幅（秒）"
 

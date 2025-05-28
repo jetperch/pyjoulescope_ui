@@ -1547,29 +1547,29 @@ msgstr "확률"
 msgid "CDF configuration"
 msgstr "CDF 구성"
 
-#: range_tools/cdf.py:183 range_tools/histogram.py:53
+#: range_tools/cdf.py:181 range_tools/histogram.py:51
 msgid "Number of bins (0 for auto)"
 msgstr "빈 수(자동의 경우 0)"
 
-#: range_tools/cdf.py:189
+#: range_tools/cdf.py:187
 msgid "Complimentary"
 msgstr "무료"
 
-#: range_tools/frequency.py:24
+#: range_tools/frequency.py:25
 msgid "Frequency"
 msgstr "주파수"
 
-#: range_tools/frequency.py:39
+#: range_tools/frequency.py:40
 msgid "Compute frequency spectrum over the range"
 msgstr "다양한 범위의 주파수 스펙트럼 계산"
 
-#: range_tools/frequency.py:40
+#: range_tools/frequency.py:41
 msgid ""
 "Compute the frequency spectrum to analyze the frequency content of the "
 "signal's data values over the selected range."
 msgstr "주파수 스펙트럼을 계산하여 선택한 범위에서 신호 데이터 값의 주파수 내용을 분석합니다."
 
-#: range_tools/frequency.py:213
+#: range_tools/frequency.py:214
 msgid "Frequency configuration"
 msgstr "주파수 구성"
 
@@ -1589,52 +1589,52 @@ msgstr "주파수 분포"
 msgid "Probability Density Distribution"
 msgstr "확률 밀도 분포"
 
-#: range_tools/histogram.py:45 range_tools/max_window.py:119
+#: range_tools/histogram.py:45 range_tools/max_window.py:120
 #: widgets/trigger/trigger_widget.py:220
 msgid "Signal"
 msgstr "신호"
 
-#: range_tools/histogram.py:59
+#: range_tools/histogram.py:57
 msgid "Histogram type"
 msgstr "히스토그램 유형"
 
-#: range_tools/histogram.py:77
+#: range_tools/histogram.py:75
 msgid "Histogram configuration"
 msgstr "히스토그램 구성"
 
-#: range_tools/histogram.py:191
+#: range_tools/histogram.py:189
 msgid "Compute histogram over the range"
 msgstr "범위에 대한 히스토그램 계산"
 
-#: range_tools/histogram.py:192
+#: range_tools/histogram.py:190
 msgid ""
 "Compute a histogram of the signal's data values over the selected range."
 msgstr "선택한 범위에서 신호 데이터 값의 히스토그램을 계산합니다."
 
-#: range_tools/max_window.py:24
+#: range_tools/max_window.py:25
 msgid "Max window"
 msgstr "최대 창"
 
-#: range_tools/max_window.py:25
+#: range_tools/max_window.py:26
 msgid "Find the maximum value window"
 msgstr "최대값 창 찾기"
 
-#: range_tools/max_window.py:27
+#: range_tools/max_window.py:28
 msgid ""
 "Search the range for the window that has the maximum value. This is an "
 "exhaustive search made by sliding the window duration across the entire "
 "range."
 msgstr "최대값이 있는 범위의 창을 검색합니다. 전체 범위에서 윈도우 지속 시간을 슬라이드하여 검색합니다."
 
-#: range_tools/max_window.py:30
+#: range_tools/max_window.py:31
 msgid "When complete, this tool will add dual markers to the waveform."
 msgstr "완료되면 이 도구는 파형에 이중 마커를 추가합니다."
 
-#: range_tools/max_window.py:96
+#: range_tools/max_window.py:97
 msgid "Max Window configuration"
 msgstr "최대 창 구성"
 
-#: range_tools/max_window.py:105
+#: range_tools/max_window.py:106
 msgid "Width of window (in seconds)"
 msgstr "창 너비(초)"
 

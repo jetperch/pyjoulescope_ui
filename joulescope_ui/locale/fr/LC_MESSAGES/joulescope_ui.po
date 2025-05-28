@@ -1720,23 +1720,23 @@ msgstr "Probabilité"
 msgid "CDF configuration"
 msgstr "Configuration CDF"
 
-#: range_tools/cdf.py:183 range_tools/histogram.py:53
+#: range_tools/cdf.py:181 range_tools/histogram.py:51
 msgid "Number of bins (0 for auto)"
 msgstr "Nombre d'intervalles (0 pour auto)"
 
-#: range_tools/cdf.py:189
+#: range_tools/cdf.py:187
 msgid "Complimentary"
 msgstr "Complémentaire"
 
-#: range_tools/frequency.py:24
+#: range_tools/frequency.py:25
 msgid "Frequency"
 msgstr "Fréquence"
 
-#: range_tools/frequency.py:39
+#: range_tools/frequency.py:40
 msgid "Compute frequency spectrum over the range"
 msgstr "Calcul du spectre de fréquence sur la plage"
 
-#: range_tools/frequency.py:40
+#: range_tools/frequency.py:41
 msgid ""
 "Compute the frequency spectrum to analyze the frequency content of the "
 "signal's data values over the selected range."
@@ -1744,7 +1744,7 @@ msgstr ""
 "Calculer le spectre de fréquence pour analyser le contenu en fréquence des "
 "valeurs de données du signal sur la plage sélectionnée."
 
-#: range_tools/frequency.py:213
+#: range_tools/frequency.py:214
 msgid "Frequency configuration"
 msgstr "Configuration de la fréquence"
 
@@ -1764,39 +1764,39 @@ msgstr "Distribution de fréquence"
 msgid "Probability Density Distribution"
 msgstr "Distribution de densité de probabilité"
 
-#: range_tools/histogram.py:45 range_tools/max_window.py:119
+#: range_tools/histogram.py:45 range_tools/max_window.py:120
 #: widgets/trigger/trigger_widget.py:220
 msgid "Signal"
 msgstr "Signal"
 
-#: range_tools/histogram.py:59
+#: range_tools/histogram.py:57
 msgid "Histogram type"
 msgstr "Type d'histogramme"
 
-#: range_tools/histogram.py:77
+#: range_tools/histogram.py:75
 msgid "Histogram configuration"
 msgstr "Configuration de l'histogramme"
 
-#: range_tools/histogram.py:191
+#: range_tools/histogram.py:189
 msgid "Compute histogram over the range"
 msgstr "Calculer l'histogramme sur la plage"
 
-#: range_tools/histogram.py:192
+#: range_tools/histogram.py:190
 msgid ""
 "Compute a histogram of the signal's data values over the selected range."
 msgstr ""
 "Calculer un histogramme des valeurs de données du signal sur la plage "
 "sélectionnée."
 
-#: range_tools/max_window.py:24
+#: range_tools/max_window.py:25
 msgid "Max window"
 msgstr "Fenêtre maximale"
 
-#: range_tools/max_window.py:25
+#: range_tools/max_window.py:26
 msgid "Find the maximum value window"
 msgstr "Trouver la fenêtre de valeur maximale"
 
-#: range_tools/max_window.py:27
+#: range_tools/max_window.py:28
 msgid ""
 "Search the range for the window that has the maximum value. This is an "
 "exhaustive search made by sliding the window duration across the entire "
@@ -1806,17 +1806,17 @@ msgstr ""
 " recherche exhaustive effectuée en faisant glisser la durée de la fenêtre "
 "sur l'ensemble de la plage."
 
-#: range_tools/max_window.py:30
+#: range_tools/max_window.py:31
 msgid "When complete, this tool will add dual markers to the waveform."
 msgstr ""
 "Une fois terminé, cet outil ajoutera des marqueurs doubles à la forme "
 "d'onde."
 
-#: range_tools/max_window.py:96
+#: range_tools/max_window.py:97
 msgid "Max Window configuration"
 msgstr "Configuration de la fenêtre maximale"
 
-#: range_tools/max_window.py:105
+#: range_tools/max_window.py:106
 msgid "Width of window (in seconds)"
 msgstr "Largeur de la fenêtre (en secondes)"
 
