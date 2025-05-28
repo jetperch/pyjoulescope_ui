@@ -14,6 +14,7 @@
 
 from joulescope_ui import register, N_, pubsub_singleton
 from joulescope_ui.range_tool import RangeToolBase, rsp_as_f32
+from .plugin_helpers import signal_combobox_config
 import logging
 import numpy as np
 import pyqtgraph as pg
@@ -222,9 +223,7 @@ class FrequencyRangeToolDialog(QtWidgets.QDialog):
 
         self._signal = QtWidgets.QComboBox(self)
         self._signal.setObjectName("signalComboBox")
-        for signal_id in value['signals']:
-            signal_name = '.'.join(signal_id.split('.')[-2:])
-            self._signal.addItem(signal_name)
+        signal_combobox_config(self._signal, value)
         self._layout.addWidget(self._signal, 0, 1, 1, 1)
 
         self._windowLabel = QtWidgets.QLabel(self)

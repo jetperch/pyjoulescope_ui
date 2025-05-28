@@ -18,7 +18,7 @@ from joulescope_ui.range_tool import RangeToolBase
 import logging
 import numpy as np
 import pyqtgraph as pg
-from .plugin_helpers import calculate_histogram, normalize_hist
+from .plugin_helpers import calculate_histogram, normalize_hist, signal_combobox_config
 from joulescope_ui.styles import styled_widget
 
 
@@ -46,9 +46,7 @@ class HistogramRangeToolDialog(QtWidgets.QDialog):
         self._form.setWidget(0, QtWidgets.QFormLayout.LabelRole, self._signal_label)
         self._signal = QtWidgets.QComboBox(self)
         self._form.setWidget(0, QtWidgets.QFormLayout.FieldRole, self._signal)
-        for idx, signal_id in enumerate(value['signals']):
-            signal_name = '.'.join(signal_id.split('.')[-2:])
-            self._signal.addItem(signal_name)
+        signal_combobox_config(self._signal, value)
 
         self._num_bins_label = QtWidgets.QLabel(N_('Number of bins (0 for auto)'), self)
         self._form.setWidget(1, QtWidgets.QFormLayout.LabelRole, self._num_bins_label)
