@@ -15,7 +15,7 @@
 import logging
 import numpy as np
 from math import ceil
-
+from PySide6 import QtWidgets
 
 _log = logging.getLogger(__name__)
 
@@ -60,3 +60,13 @@ def normalize_hist(hist, bin_edges, norm: str = None):
         _log.error('_normalize_hist invalid normalization: %s', norm)
     gain = 1 / hist.sum()
     return hist * gain, bin_edges
+
+
+def signal_combobox_config(combobox: QtWidgets.QComboBox, value):
+    default_idx = 0
+    for idx, signal_id in enumerate(value['signals']):
+        if signal_id == value['signal_default']:
+            default_idx = idx
+        signal_name = '.'.join(signal_id.split('.')[-2:])
+        combobox.addItem(signal_name)
+    combobox.setCurrentIndex(default_idx)

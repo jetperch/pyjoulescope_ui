@@ -14,6 +14,7 @@
 
 from joulescope_ui import N_, time64, register, pubsub_singleton, get_topic_name, P_
 from joulescope_ui.range_tool import RangeToolBase, rsp_as_f32
+from .plugin_helpers import signal_combobox_config
 import logging
 import numpy as np
 from PySide6 import QtCore, QtWidgets
@@ -121,13 +122,7 @@ class MaxWindowDialog(QtWidgets.QDialog):
 
         self._signal = QtWidgets.QComboBox(self)
         self._form.setWidget(1, QtWidgets.QFormLayout.FieldRole, self._signal)
-        default_idx = 0
-        for idx, signal_id in enumerate(value['signals']):
-            if signal_id == value['signal_default']:
-                default_idx = idx
-            signal_name = '.'.join(signal_id.split('.')[-2:])
-            self._signal.addItem(signal_name)
-        self._signal.setCurrentIndex(default_idx)
+        signal_combobox_config(self._signal, value)
 
         self._layout.addLayout(self._form)
 
