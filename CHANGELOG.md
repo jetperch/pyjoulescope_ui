@@ -7,9 +7,10 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.3.5
 
-2025 May 28 [in progress]
+2025 Jun 11 [in progress]
 
 * Utilized range tool signal_default parameter for the default channel. #317
+* Fixed Control Widget to skip JS110 fw version check.
 
 
 ## 1.3.4

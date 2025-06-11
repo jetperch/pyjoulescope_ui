@@ -203,6 +203,9 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             self._info_button.setEnabled(value == 2)
 
     def _on_setting_info(self, value):
+        if value.get('model') in [None, 'JS110']:
+            self._log.info(f'Ignore info: {value}')
+            return
         try:
             actual = {
                 'fw': str_to_version(value['version']['fw']),
