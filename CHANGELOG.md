@@ -7,10 +7,14 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.3.5
 
-2025 Jun 11 [in progress]
+2025 Jul 7 [in progress]
 
 * Utilized range tool signal_default parameter for the default channel. #317
 * Fixed Control Widget to skip JS110 fw version check.
+* Bumped pyjoulescope_driver 1.9.2 to 1.9.4
+  * Fixes tmap NULL pointer access  #321 #323
+  * Fixes JS110 excessive logging  #320
+* Bumped joulescope 1.2.0 to 1.3.1 to fix dependencies.
 
 
 ## 1.3.4
