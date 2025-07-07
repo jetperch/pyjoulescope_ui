@@ -1963,7 +1963,7 @@ msgstr ""
 "충전 및 에너지 축적을 지우려면 이 버튼을 클릭합니다. 멀티미터를 포함한 값 표시 위젯의 '누적' 기능은 영향을 받지 않습니다."
 
 #: widgets/device_control/js220_ctrl_widget.py:84
-#: widgets/device_control/js220_ctrl_widget.py:648
+#: widgets/device_control/js220_ctrl_widget.py:651
 msgid "Calibrate"
 msgstr "Calibrate"
 
@@ -1976,15 +1976,15 @@ msgstr ""
 "이 버튼을 클릭하여 줄스코프 JS220을 재보정하세요. 정상 작동을 위해서는 재교정이 필요하지 않습니다. 캘리브레이션을 수행하면 기존의 "
 "온도 및 노화 효과를 고려하여 정확도를 향상시킬 수 있습니다."
 
-#: widgets/device_control/js220_ctrl_widget.py:437
+#: widgets/device_control/js220_ctrl_widget.py:440
 msgid "GPO"
 msgstr "GPO"
 
-#: widgets/device_control/js220_ctrl_widget.py:635
+#: widgets/device_control/js220_ctrl_widget.py:638
 msgid "Reset to defaults"
 msgstr "기본값으로 재설정"
 
-#: widgets/device_control/js220_ctrl_widget.py:641
+#: widgets/device_control/js220_ctrl_widget.py:644
 msgid "Clear accum"
 msgstr "명확한 누적"
 

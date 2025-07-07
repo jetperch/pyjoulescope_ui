@@ -1906,7 +1906,7 @@ msgid ""
 msgstr "单击此按钮可清除电荷和能量累积器。数值显示部件（包括万用表）的 \"累积 \"功能将不受影响。"
 
 #: widgets/device_control/js220_ctrl_widget.py:84
-#: widgets/device_control/js220_ctrl_widget.py:648
+#: widgets/device_control/js220_ctrl_widget.py:651
 msgid "Calibrate"
 msgstr "校准"
 
@@ -1917,15 +1917,15 @@ msgid ""
 "by accounting for the existing temperature and aging effects."
 msgstr "点击此按钮重新校准 Joulescope JS220。正常操作不需要重新校准。进行校准可以通过考虑现有的温度和老化影响来提高精度。"
 
-#: widgets/device_control/js220_ctrl_widget.py:437
+#: widgets/device_control/js220_ctrl_widget.py:440
 msgid "GPO"
 msgstr "GPO"
 
-#: widgets/device_control/js220_ctrl_widget.py:635
+#: widgets/device_control/js220_ctrl_widget.py:638
 msgid "Reset to defaults"
 msgstr "重置为默认值"
 
-#: widgets/device_control/js220_ctrl_widget.py:641
+#: widgets/device_control/js220_ctrl_widget.py:644
 msgid "Clear accum"
 msgstr "清除累积"
 

@@ -3380,7 +3380,7 @@ class WaveformWidget(QtWidgets.QWidget):
         x0, x1 = xc - dt_half, xc + dt_half
         if self.pin_left or x0 < e0:
             x0, x1 = e0, e0 + dt
-        elif self.pin_right or x1 > e0:
+        elif self.pin_right or x1 > e1:
             x0, x1 = e1 - dt, e1
         self.x_range = [x0, x1]
         self._plot_data_invalidate()

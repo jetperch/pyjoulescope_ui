@@ -1943,7 +1943,7 @@ msgstr ""
 "\"機能は影響を受けません。"
 
 #: widgets/device_control/js220_ctrl_widget.py:84
-#: widgets/device_control/js220_ctrl_widget.py:648
+#: widgets/device_control/js220_ctrl_widget.py:651
 msgid "Calibrate"
 msgstr "校正"
 
@@ -1956,15 +1956,15 @@ msgstr ""
 "Joulescope "
 "JS220を再校正するには、このボタンをクリックしてください。通常の操作では再校正は必要ありません。校正を行うことで、既存の温度や経年劣化の影響を考慮し、精度を向上させることができます。"
 
-#: widgets/device_control/js220_ctrl_widget.py:437
+#: widgets/device_control/js220_ctrl_widget.py:440
 msgid "GPO"
 msgstr "GPO"
 
-#: widgets/device_control/js220_ctrl_widget.py:635
+#: widgets/device_control/js220_ctrl_widget.py:638
 msgid "Reset to defaults"
 msgstr "デフォルトにリセット"
 
-#: widgets/device_control/js220_ctrl_widget.py:641
+#: widgets/device_control/js220_ctrl_widget.py:644
 msgid "Clear accum"
 msgstr "クリアアキュム"
 

@@ -2171,7 +2171,7 @@ msgstr ""
 "συμπεριλαμβανομένου του πολυμέτρου, δεν θα επηρεαστεί."
 
 #: widgets/device_control/js220_ctrl_widget.py:84
-#: widgets/device_control/js220_ctrl_widget.py:648
+#: widgets/device_control/js220_ctrl_widget.py:651
 msgid "Calibrate"
 msgstr "Βαθμονόμηση"
 
@@ -2186,15 +2186,15 @@ msgstr ""
 "βαθμονόμησης μπορεί να βελτιώσει την ακρίβεια, λαμβάνοντας υπόψη τις "
 "υπάρχουσες επιδράσεις της θερμοκρασίας και της γήρανσης."
 
-#: widgets/device_control/js220_ctrl_widget.py:437
+#: widgets/device_control/js220_ctrl_widget.py:440
 msgid "GPO"
 msgstr "GPO"
 
-#: widgets/device_control/js220_ctrl_widget.py:635
+#: widgets/device_control/js220_ctrl_widget.py:638
 msgid "Reset to defaults"
 msgstr "Επαναφορά στις προεπιλογές"
 
-#: widgets/device_control/js220_ctrl_widget.py:641
+#: widgets/device_control/js220_ctrl_widget.py:644
 msgid "Clear accum"
 msgstr "Σαφής συσσώρευση"
 
