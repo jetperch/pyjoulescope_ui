@@ -5,6 +5,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.3.6
+
+2025 Jul 14
+
+* Fixed Waveform analysis tools by reverting to PySide 6.9.0  #325
+
+
 ## 1.3.5
 
 2025 Jul 7
