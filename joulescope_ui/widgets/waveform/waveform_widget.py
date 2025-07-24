@@ -398,6 +398,17 @@ class WaveformWidget(QtWidgets.QWidget):
             'brief': N_('Show the statistics on mouse hover.'),
             'default': True,
         },
+        'hover_time': {
+            'dtype': 'str',
+            'brief': N_('The time format for mouse hover.'),
+            'options': [
+                ['off', N_('off')],
+                ['view_rel', N_('Relative to view')],
+                ['buf_rel', N_('Relative to buffer')],
+                ['abs', N_('Absolute UTC time')],
+            ],
+            'default': 'view_rel',
+        },
         'show_statistics': {
             'dtype': 'bool',
             'brief': N_('Show the plot statistics on the right.'),
@@ -2416,11 +2427,10 @@ class WaveformWidget(QtWidgets.QWidget):
         if not len(data['avg']):
             return
         x_pixels = self._mouse_pos[0]
-        x = self._x_map.counter_to_time64(x_pixels)
+        x= self._x_map.counter_to_time64(x_pixels)
         index = np.abs(data['x'] - x).argmin()
         x = data['x'][index]
         x_pixels = self._x_map.time64_to_counter(x)
-        x_rel = self._x_map.time64_to_trel(x)
         y = data['avg'][index]
         if not np.isfinite(y):
             return
@@ -2432,7 +2442,17 @@ class WaveformWidget(QtWidgets.QWidget):
         p.drawEllipse(QtCore.QPointF(x_pixels, y_pixels), _DOT_RADIUS, _DOT_RADIUS)
 
         p.setFont(s['axis_font'])
-        x_txt = _si_format(x_rel, 's', precision=self.precision)
+        hover_time = self.hover_time
+        if hover_time == 'view_rel':
+            x_rel = self._x_map.time64_to_trel(x)
+            x_txt = _si_format(x_rel, 's', precision=self.precision)
+        elif hover_time == 'buf_rel':
+            x_rel = (x - self.x_extent[0]) / time64.SECOND
+            x_txt = '~ ' + _si_format(x_rel, 's', precision=self.precision)
+        elif hover_time == 'abs':
+            x_txt = '| ' + time64.as_datetime(x).isoformat()
+        else:
+            x_txt = ''
         y_txt = _si_format(y, plot['units'], precision=self.precision)
         font_metrics = s['axis_font_metrics']
         margin = 2
