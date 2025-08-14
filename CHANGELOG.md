@@ -7,9 +7,10 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.3.7
 
-2025 Jul 24 [in progress]
+2025 Aug 13 [in progress]
 
 * Added hover time format options to Waveform widget.  Related to #220
+* Updated developer documentation.
 
 
 ## 1.3.6

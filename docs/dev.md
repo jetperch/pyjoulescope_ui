@@ -18,6 +18,52 @@
 * When multiple instruments are connected, automatically show multiple 
   instrument controls.
 
+## State
+The Joulescope UI stores state for each widget in each view on exit.
+The file is 
+`{userappdir}/joulescope/config/joulescope_ui_config.json`.
+It also keeps historical settings in 
+`{userappdir}/joulescope/config/joulescope_ui_config.ZZZ.json`.
+
+Note that `{userappdir}` depends on the OS.
+The easiest way to find it is to select **Help** → **View logs...** 
+in the Joulescope UI.  Go up one directory and select the `config` directory.,
+
+The Joulescope UI maintains state for JLS viewer mode separately.
+These are `joulescope_ui_file_config.json` and `joulescope_ui_file_config.ZZZ.json`.
+
+You could edit these configuration files outside of the Joulescope UI
+to control your Joulescope UI experience. 
+We definitely do not support this though.
+
+The JLS file also has some settings that get applied when you
+load it in the UI, as we discussed on the
+[forum](https://forum.joulescope.com/t/default-view-when-loading-a-pre-generated-jls-file/1034)
+
+You can explore and edit nearly all state with the **Settings** widget.
+Note the tabs for `Settings`, `Colors`, `Fonts`, and `Defines`.
+Under the `Widgets` hierarchy, you can find the defaults for 
+the Widget type and the specific settings for each of those 
+Widgets in the current view.
+Widgets can provide other ways to manipulate this state, 
+such as dedicated UI buttons.
+
+Note that when you close a widget, 
+you lose any settings changes for that widget.
+Adding a new widget of the same type starts with the defaults fo
+that widget type.
+If you want to maintain different widget settings, you can add more views.
+
+The UI uses Publish-Subscribe internally, and the application state
+lives as retained values in the PubSub instance.
+The PubSub instance is responsible for saving and restoring this state.
+
+You can also explore the full PubSub mechanism.
+In the **Settings** widget, select **UI** and activate **developer**.
+You can add the **Publish Spy** and **PubSub Explorer** widgets to your view.
+
+Since the Joulescope UI 1.0 and newer is all-in on PubSub and the command pattern,
+you can do everything programmatically that you can do with human UI interaction.
 
 ## Qt / PySide6 memory model and object lifetime
 
