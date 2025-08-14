@@ -734,8 +734,8 @@ class WaveformWidget(QtWidgets.QWidget):
                         plot = self._plot_find_by_quantity(plot_quantity)
                         plot.update(metadata)
                     for ftype in ['settings', 'events', 'actions']:
-                        fdata = v.get(ftype, {})
-                        for fname, fvalue in fdata.items():
+                        fdata = v.get(ftype, [])
+                        for fname, fvalue in fdata:
                             self.pubsub.publish(f'{get_topic_name(self)}/{ftype}/{fname}', fvalue)
                     self._repaint_request = True
             else:
