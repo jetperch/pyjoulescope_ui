@@ -1,4 +1,4 @@
-# Copyright 2019-2024 Jetperch LLC
+# Copyright 2019-2025 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -733,6 +733,11 @@ class WaveformWidget(QtWidgets.QWidget):
                     for plot_quantity, metadata in plots.items():
                         plot = self._plot_find_by_quantity(plot_quantity)
                         plot.update(metadata)
+                    for ftype in ['settings', 'events', 'actions']:
+                        fdata = v.get(ftype, {})
+                        for fname, fvalue in fdata.items():
+                            self.pubsub.publish(f'{get_topic_name(self)}/{ftype}/{fname}', fvalue)
+                    self._repaint_request = True
             else:
                 self._log.warning('unsupported annotation_type %s', a['annotation_type'])
 
