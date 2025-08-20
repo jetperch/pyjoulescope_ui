@@ -480,6 +480,11 @@ class WaveformWidget(QtWidgets.QWidget):
                 ['bottom', N_('bottom')],
             ],
         },
+        'show_summary': {
+            'dtype': 'bool',
+            'brief': N_('Show the summary waveform at top.'),
+            'default': True,
+        },
         'summary_quantity': {
             'dtype': 'str',
             'brief': N_('The signal quantity to show in the summary.'),
@@ -1592,7 +1597,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
         y_geometry = [
             [margin, 'margin.top'],
-            [50, 'summary'],
+            [50 if self.show_summary else 0, 'summary'],
             [y_inner_spacing, 'spacer.ignore.summary'],
             [3 * axis_font_metrics.height() + 3 * margin, 'x_axis'],
             [y_inner_spacing, 'spacer.ignore.x_axis'],
@@ -1647,7 +1652,8 @@ class WaveformWidget(QtWidgets.QWidget):
         if resize:
             self._plots_height_adjust()
         self._draw_background(p, size)
-        self._draw_summary(p)
+        if self.show_summary:
+            self._draw_summary(p)
         self.__repaint_request = False
 
         if not self._draw_x_axis(p):
@@ -2216,6 +2222,12 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def on_setting_precision(self):
         self._invalidate_geometry()
+
+    def on_setting_show_summary(self):
+        if hasattr(self, 'style_obj'):
+            self._invalidate_geometry()
+            self._compute_geometry()
+            self._plots_height_adjust()
 
     def _draw_statistics_text(self, p: QtGui.QPainter, pos, values, text_pos=None, text_pos_auto_default=None):
         """Draw statistics text.
@@ -3043,22 +3055,27 @@ class WaveformWidget(QtWidgets.QWidget):
         self._clipboard_image = self._render_to_image()
         QtWidgets.QApplication.clipboard().setImage(self._clipboard_image)
 
+    def on_action_save_image(self, topic, value):
+        if not isinstance(value, str):
+            raise ValueError(f'Invalid filename type {type(value)}')
+        filename = value
+        _, ext = os.path.splitext(filename)
+        if ext in [None, '']:
+            filename += '.png'
+        elif ext[1:].lower() not in ['bmp', 'jpg', 'jpeg', 'png', 'ppm', 'xbm', 'xpm']:
+            filename += '.png'
+        self._log.info('finished: accept - save: %s', filename)
+        img = self._render_to_image()
+        if not img.save(filename):
+            self._log.warning('Could not save image: %s', filename)
+
     @QtCore.Slot(int)
     def _action_save_image_dialog_finish(self, value):
         self._log.info('finished: %d', value)
         if value == QtWidgets.QDialog.DialogCode.Accepted:
             filenames = self._dialog.selectedFiles()
             if len(filenames) == 1:
-                filename = filenames[0]
-                _, ext = os.path.splitext(filename)
-                if ext in [None, '']:
-                    filename += '.png'
-                elif ext[1:].lower() not in ['bmp', 'jpg', 'jpeg', 'png', 'ppm', 'xbm', 'xpm']:
-                    filename += '.png'
-                self._log.info('finished: accept - save: %s', filename)
-                img = self._render_to_image()
-                if not img.save(filename):
-                    self._log.warning('Could not save image: %s', filename)
+                self.on_action_save_image(None, filenames[0])
             else:
                 self._log.info('finished: accept - but no file selected, ignore')
         else:
