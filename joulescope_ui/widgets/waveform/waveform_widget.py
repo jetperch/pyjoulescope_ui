@@ -1511,6 +1511,8 @@ class WaveformWidget(QtWidgets.QWidget):
         plot['range'] = y_min - f, y_max + f
 
     def _plots_height_adjust(self, h=None):
+        if self._style_cache is None:
+            return
         if h is None:
             h = self._graphics.height()
         if not len(self._y_geometry_info):
@@ -1573,6 +1575,8 @@ class WaveformWidget(QtWidgets.QWidget):
         self._paint_duration_ns = t_end - t_start
 
     def _compute_geometry(self, size=None):
+        if self._style_cache is None:
+            return
         s = self._style
         if s is None:
             self._x_geometry_info = {}
@@ -2224,10 +2228,9 @@ class WaveformWidget(QtWidgets.QWidget):
         self._invalidate_geometry()
 
     def on_setting_show_summary(self):
-        if hasattr(self, 'style_obj'):
-            self._invalidate_geometry()
-            self._compute_geometry()
-            self._plots_height_adjust()
+        self._invalidate_geometry()
+        self._compute_geometry()
+        self._plots_height_adjust()
 
     def _draw_statistics_text(self, p: QtGui.QPainter, pos, values, text_pos=None, text_pos_auto_default=None):
         """Draw statistics text.

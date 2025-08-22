@@ -5,6 +5,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.3.8
+
+2025 Aug 22
+
+* Fixed Waveform widget not opening  #328
+
+
 ## 1.3.7
 
 2025 Aug 20
