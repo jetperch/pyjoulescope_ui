@@ -22,6 +22,9 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Added "!save_image" action to Waveform widget.
   * Added "show_summary" setting to Waveform widget.
 
+KNOWN ISSUES:
+* Waveform widget may not start  #328
+
 
 ## 1.3.6
 
