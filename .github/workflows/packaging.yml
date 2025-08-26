@@ -137,7 +137,6 @@ jobs:
           security default-keychain -s $KEYCHAIN_PATH
           security import $CERTIFICATE_APP_PATH -P "$CERTIFICATE_PWD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security import $CERTIFICATE_INSTALLER_PATH -P "$CERTIFICATE_PWD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
-          security add-certificates -k $KEYCHAIN_PATH
 
       - name: Windows AzureSignTool install
         # https://melatonin.dev/blog/how-to-code-sign-windows-installers-with-an-ev-cert-on-github-actions/
