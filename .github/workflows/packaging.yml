@@ -186,7 +186,7 @@ jobs:
 
       - name: Build with PyInstaller
         if: matrix.dist == 'pyinstaller'
-        run: pyinstaller joulescope.spec
+        run: python -m PyInstaller joulescope.spec
 
       - name: Build Windows installer
         if: matrix.os == 'windows-latest'
