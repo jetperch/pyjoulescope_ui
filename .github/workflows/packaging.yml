@@ -131,18 +131,13 @@ jobs:
         run: | 
           echo $CERTIFICATE_APP | base64 --decode -o $CERTIFICATE_APP_PATH
           echo $CERTIFICATE_INSTALLER | base64 --decode -o $CERTIFICATE_INSTALLER_PATH
-          curl -O https://www.apple.com/certificateauthority/DeveloperIDCA.cer
-          curl -O https://www.apple.com/certificateauthority/DeveloperIDG2CA.cer
-          curl -O https://www.apple.com/certificateauthority/AppleWWDRCAG2.cer
-          curl -O https://www.apple.com/certificateauthority/AppleWWDRCAG3.cer
-          curl -O https://www.apple.com/certificateauthority/AppleRootCA-G2.cer
           security create-keychain -p "$KEYCHAIN_PWD" $KEYCHAIN_PATH
           security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
           security unlock-keychain -p "$KEYCHAIN_PWD" $KEYCHAIN_PATH
           security default-keychain -s $KEYCHAIN_PATH
           security import $CERTIFICATE_APP_PATH -P "$CERTIFICATE_PWD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security import $CERTIFICATE_INSTALLER_PATH -P "$CERTIFICATE_PWD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
-          security add-certificates -k $KEYCHAIN_PATH DeveloperIDCA.cer DeveloperIDG2CA.cer AppleWWDRCAG2.cer AppleWWDRCAG3.cer AppleRootCA-G2.cer
+          security add-certificates -k $KEYCHAIN_PATH
 
       - name: Windows AzureSignTool install
         # https://melatonin.dev/blog/how-to-code-sign-windows-installers-with-an-ev-cert-on-github-actions/

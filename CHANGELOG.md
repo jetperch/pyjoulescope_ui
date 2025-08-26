@@ -12,6 +12,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Improved Waveform widget JLS action support  #330
   * Added "!await" action to defer actions
   * Automatically defer JLS user_data action "!save_image"
+* Removed Apple base certificate install from CI. 
 
 
 ## 1.3.8
