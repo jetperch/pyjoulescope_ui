@@ -584,6 +584,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._points = PointsF()
         self._marker_data = {}  # rsp_id -> data,
         self._annotations_request_defer = []
+        self._await = []  # defer topic publish on JLS user_data
 
         self._fps = {
             'start': time.time(),
@@ -741,6 +742,10 @@ class WaveformWidget(QtWidgets.QWidget):
                     for ftype in ['settings', 'events', 'actions']:
                         fdata = v.get(ftype, [])
                         for fname, fvalue in fdata:
+                            ftopic = f'{ftype}/{fname}'
+                            if ftopic in ['actions/!save_image']:
+                                fvalue = [ftopic, fvalue]
+                                fname = '!await'
                             self.pubsub.publish(f'{get_topic_name(self)}/{ftype}/{fname}', fvalue)
                     self._repaint_request = True
             else:
@@ -1032,7 +1037,7 @@ class WaveformWidget(QtWidgets.QWidget):
     def _request_data(self, force=False):
         force = bool(force)
         if not len(self._x_geometry_info):
-            return
+            return True
         self.x_extent = self._compute_x_extent()
         self.x_range = self._compute_x_range()
         # x0, x1 = self.x_range
@@ -1066,8 +1071,10 @@ class WaveformWidget(QtWidgets.QWidget):
                         m[f'pos_next{k}'] = m_pos
 
                 if m.get('changed', True) or changed:
+                    changed = True
                     m['changed'] = False
                     self._request_marker_data(m)
+        return changed
 
     def _request_marker_data(self, marker):
         if marker['dtype'] != 'dual':
@@ -1083,7 +1090,9 @@ class WaveformWidget(QtWidgets.QWidget):
             signal_id = f'{traces[0][1]}.{quantity}'
             if signal_id not in self._signals:
                 continue
-            rsp_id = _marker_to_rsp_id(marker_id, plot['index'])
+            plot_id = plot['index']
+            rsp_id = _marker_to_rsp_id(marker_id, plot_id)
+            self._marker_data[(marker_id, plot_id)] = None  # invalidate any existing data
             if marker.get('mode', 'absolute') == 'relative':
                 x0, x1 = marker['pos_next1'], marker['pos_next2']
             else:
@@ -1570,7 +1579,14 @@ class WaveformWidget(QtWidgets.QWidget):
             self._plot_paint(p, size)
         except Exception:
             self._log.exception('Exception during drawing')
-        self._request_data()
+        req = self._request_data()
+        if not req and len(self._await):
+            pending = [key for key, value in self._marker_data.items() if value is None]
+            if not len(pending):
+                # requests completed, publish deferred topics
+                while len(self._await):
+                    topic, value = self._await.pop()
+                    self.pubsub.publish(f'{get_topic_name(self)}/{topic}', value)
         t_end = time.time_ns()
         self._paint_duration_ns = t_end - t_start
 
@@ -2354,9 +2370,9 @@ class WaveformWidget(QtWidgets.QWidget):
         marker_id = m['id']
         plot_id = plot['index']
         key = (marker_id, plot_id)
-        if key not in self._marker_data:
+        data = self._marker_data.get(key)
+        if data is None:
             return []
-        data = self._marker_data[key]
         utc = data['time_range_utc']
         dt = (utc['end'] - utc['start']) / time64.SECOND
         v_avg = float(data['avg'][0])
@@ -4657,6 +4673,10 @@ class WaveformWidget(QtWidgets.QWidget):
                     self._repaint_request = True
                 return [topic, [quantity, not show]]
         self._log.warning('plot_show could not match %s', quantity)
+
+    def on_action_await(self, topic, value):
+        self._await.append(value)
+        self._repaint_request = True
 
     def on_setting_pin_left(self):
         self._plot_data_invalidate()
