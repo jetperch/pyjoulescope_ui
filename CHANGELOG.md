@@ -12,10 +12,11 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Improved Waveform widget JLS action support  #330
   * Added "!await" action to defer actions
   * Automatically defer JLS user_data action "!save_image"
-* Removed Apple base certificate install from CI.
+* Removed Apple base certificate install from CI
 * Bumped versions:
   * PySide6-QtAds from 4.4.0 to 4.4.1
   * PySide6 from 6.9.0 to 6.9.2
+  * Update npm lock versions for macOS dmg build
 
 
 ## 1.3.8
