@@ -7,7 +7,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.3.9
 
-2025 Sep 24 [in progress]
+2025 Sep 24
 
 * Improved Waveform widget JLS action support  #330
   * Added "!await" action to defer actions
