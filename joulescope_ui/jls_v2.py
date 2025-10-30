@@ -26,6 +26,7 @@ import copy
 
 class ChunkMeta:
     NOTES = 0
+    UI_WAVEFORM = 0x400
     UI_META = 0x8001
 
 
@@ -153,6 +154,22 @@ class JlsV2:
                     'estimated': fs_estimated,
                 }
             }
+
+    def metadata(self):
+        if self._jls is None:
+            return None
+        m = {
+            'id': 'joulescope.ui.waveform_widget',
+            'version': '1.0',
+            'plots': {},
+        }
+        for plot in TO_JLS_SIGNAL_NAME.keys():
+            m['plots'][plot] = {'enabled': False}
+        for signal_id, signal in self._jls.signals.items():
+            signal_name = TO_UI_SIGNAL_NAME.get(signal.name, None)
+            if signal_name is not None:
+                m['plots'][signal_name] = {'enabled': True}
+        return m
 
     def process(self, req):
         """Handle a buffer request.

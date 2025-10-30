@@ -178,6 +178,9 @@ class JlsV1:
             data = np.concatenate(d_cat, axis=1)
         return data, increment
 
+    def metadata(self):
+        return None
+
     def process(self, req):
         """Handle a buffer request.
 

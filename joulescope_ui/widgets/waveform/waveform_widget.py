@@ -28,6 +28,7 @@ from .interval_widget import IntervalWidget
 from .y_range_widget import YRangeWidget
 from joulescope_ui.time_map import TimeMap
 import pyjls
+from joulescope_ui.jls_v2 import ChunkMeta
 from collections import OrderedDict
 import copy
 import json
@@ -69,7 +70,6 @@ _X_MARKER_ZOOM_LEVELS = [100, 90, 75, 50, 33, 25, 10]
 _DOT_RADIUS = 3
 _ANTIALIASING = QtGui.QPainter.RenderHint.Antialiasing
 _CLIP_LIMIT_PIXELS = 8192
-_METADATA_CHUNK_META = 0x400
 
 
 def _analog_plot(quantity, show, units, name, integral=None, range_bounds=None):
@@ -734,10 +734,13 @@ class WaveformWidget(QtWidgets.QWidget):
                     self._log.warning('unsupported x dtype %s', a['dtype'])
             elif a['annotation_type'] == 'user_data':
                 v = a.get('value', {})
-                if (_METADATA_CHUNK_META == a['chunk_meta']) and ('joulescope.ui.waveform_widget' == v.get('id')):
+                if (ChunkMeta.UI_WAVEFORM == a['chunk_meta']) and ('joulescope.ui.waveform_widget' == v.get('id')):
                     plots = v.get('plots', {})
                     for plot_quantity, metadata in plots.items():
-                        plot = self._plot_find_by_quantity(plot_quantity)
+                        try:
+                            plot = self._plot_find_by_quantity(plot_quantity)
+                        except KeyError:
+                            continue
                         plot.update(metadata)
                     for ftype in ['settings', 'events', 'actions']:
                         fdata = v.get(ftype, [])
@@ -747,7 +750,9 @@ class WaveformWidget(QtWidgets.QWidget):
                                 fvalue = [ftopic, fvalue]
                                 fname = '!await'
                             self.pubsub.publish(f'{get_topic_name(self)}/{ftype}/{fname}', fvalue)
+                    self._y_geometry_info = {}  # force recomputation
                     self._repaint_request = True
+                    self.state = copy.deepcopy(self.state)  # force publish
             else:
                 self._log.warning('unsupported annotation_type %s', a['annotation_type'])
 
@@ -4248,7 +4253,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 if not plot['enabled']:
                     continue
                 metadata['plots'][plot['quantity']] = plot
-            w.user_data(_METADATA_CHUNK_META, metadata)
+            w.user_data(ChunkMeta.UI_WAVEFORM, metadata)
 
             for plot in self.state['plots']:
                 z = []
