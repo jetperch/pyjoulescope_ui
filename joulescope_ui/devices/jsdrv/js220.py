@@ -176,7 +176,7 @@ _SETTINGS_CLASS = {
         'default': 1_000_000,
     },
     'statistics_frequency': {
-        'dtype': 'int',
+        'dtype': 'float',
         'brief': N_('Statistics frequency'),
         'detail': N_("""This setting controls the output frequency for
             the statistics data that is displayed in the
@@ -746,7 +746,7 @@ class Js220(Device):
         elif topic == 'signal_frequency':
             self._driver_publish('h/fs', int(value), timeout=0)
         elif topic == 'statistics_frequency':
-            scnt = 1_000_000 // value
+            scnt = int(1_000_000 / float(value))
             self._driver_publish('s/stats/scnt', scnt, timeout=0)
         elif topic == 'target_power':
             self._current_range_update()

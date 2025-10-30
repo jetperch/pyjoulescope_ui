@@ -5,6 +5,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.3.10
+
+2025 Oct 30 [in progress]
+
+* Changed JS220 statistics_frequency to float to simplify hacking.
+
+
 ## 1.3.9
 
 2025 Sep 24
