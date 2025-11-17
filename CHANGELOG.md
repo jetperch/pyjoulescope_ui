@@ -7,10 +7,17 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.3.10
 
-2025 Oct 30 [in progress]
+2025 Nov 17 [in progress]
 
 * Changed JS220 statistics_frequency to float to simplify hacking
 * Fixed Waveform to display all signals in JLS source  #336
+* Bumped versions:
+  * pyjoulescope_driver from 1.9.4 to 1.10.0 
+  * pyjls from 0.14.0 to 1.15.0
+  * PySide6-QtAds from 4.4.1 to 4.4.1.1
+  * PySide6 from 6.9.2 to 6.10.0
+  * pyqtgraph from 0.13.7 to 0.14.0
+  * watchdog from 4 to 6
 
 
 ## 1.3.9
