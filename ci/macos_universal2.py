@@ -24,9 +24,9 @@ from re import L
 import subprocess
 import sys
 
-platform0 = 'macosx_12_0_x86_universal2'
-platform1 = 'macosx_12_0_x86_64'
-platform2 = 'macosx_12_0_arm64'
+platform0 = 'macosx_13_0_x86_universal2'
+platform1 = 'macosx_13_0_x86_64'
+platform2 = 'macosx_13_0_arm64'
 
 
 def _run_cmd(cmd):

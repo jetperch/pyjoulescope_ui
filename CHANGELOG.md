@@ -5,10 +5,11 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
-## 1.3.10
+## 1.4.0
 
 2025 Nov 17 [in progress]
 
+* Incremented minimum macOS requirement from macOS 12 to macOS 13.
 * Changed JS220 statistics_frequency to float to simplify hacking
 * Fixed Waveform to display all signals in JLS source  #336
 * Bumped versions:
