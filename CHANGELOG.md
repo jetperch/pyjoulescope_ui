@@ -7,7 +7,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.4.0
 
-2025 Nov 17 [in progress]
+2025 Nov 28 [in progress]
 
 * Incremented minimum macOS requirement from macOS 12 to macOS 13.
 * Changed JS220 statistics_frequency to float to simplify hacking
@@ -19,6 +19,8 @@ This file contains the list of changes made to pyjoulescope_ui.
   * PySide6 from 6.9.2 to 6.10.0
   * pyqtgraph from 0.13.7 to 0.14.0
   * watchdog from 4 to 6
+* Fixed error handling crash in jsdrv_stream_buffer.on_pubsub_unregister
+  due to misuse of _device_subscriptions. 
 
 
 ## 1.3.9

@@ -150,12 +150,11 @@ class JsdrvStreamBuffer:
         self._id = f'{int(stream_buffer_id):03d}'
         self._rsp_topic = f'm/mem/{self._id}/!rsp'
         self._log = logging.getLogger(f'{__name__}.{self._id}')
-        self._driver_subscriptions = []
         self._sources: dict[str, str] = {}  # device unique_id -> device_path
         self._signals: dict[str, [int, object, float]] = {}     # signal id ui_str -> [buffer_id, meta, duration]
         self._signals_reverse: dict[int, str] = {}  # signal id buffer_id -> ui_str
         self._device_signal_id_next = 1
-        self._device_subscriptions = {}
+        self._device_subscriptions = {}         # topic: fn
         self._pubsub_device_subscriptions = {}  # device_id: [(topic, fn), ...]
 
         self._signals_free = list(range(1, 256))
@@ -291,7 +290,7 @@ class JsdrvStreamBuffer:
 
     def on_pubsub_unregister(self):
         self._log.info('unregister')
-        for topic, fn in self._device_subscriptions:
+        for topic, fn in self._device_subscriptions.items():
             self._wrapper.driver.unsubscribe(topic, fn)
         self._device_subscriptions.clear()
         self._driver_publish('m/@/!remove', int(self._id))
