@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.jetperch.JoulescopeUI</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>Apache-2.0</project_license>
+  <name>Joulescope UI</name>
+  <summary>Precision energy analyzer software</summary>
+  <description>
+    <p>
+      Joulescope is an affordable, precision energy analyzer that enables you to build better products.
+      Joulescope accurately and simultaneously measures the voltage and current supplied to your target device,
+      and it then computes power and energy.
+    </p>
+    <p>
+      The Joulescope UI provides a graphical interface for configuring the Joulescope device and viewing
+      real-time and recorded measurements. Features include:
+    </p>
+    <ul>
+      <li>Real-time current and voltage measurements</li>
+      <li>Power and energy calculations</li>
+      <li>Waveform visualization</li>
+      <li>Data recording and playback</li>
+      <li>Statistical analysis tools</li>
+      <li>Configurable triggers and annotations</li>
+    </ul>
+  </description>
+  <categories>
+    <category>Science</category>
+    <category>Electronics</category>
+  </categories>
+  <keywords>
+    <keyword>energy</keyword>
+    <keyword>analyzer</keyword>
+    <keyword>measurement</keyword>
+    <keyword>electronics</keyword>
+    <keyword>power</keyword>
+    <keyword>current</keyword>
+    <keyword>voltage</keyword>
+  </keywords>
+  <url type="homepage">https://www.joulescope.com</url>
+  <url type="bugtracker">https://github.com/jetperch/pyjoulescope_ui/issues</url>
+  <url type="help">https://www.joulescope.com/pages/support</url>
+  <launchable type="desktop-id">com.jetperch.JoulescopeUI.desktop</launchable>
+  <provides>
+    <binary>joulescope_ui</binary>
+  </provides>
+  <screenshots>
+    <screenshot type="default">
+      <image>https://github.com/jetperch/pyjoulescope_ui/raw/main/docs/multimeter.png</image>
+      <caption>Multimeter view</caption>
+    </screenshot>
+    <screenshot>
+      <image>https://github.com/jetperch/pyjoulescope_ui/raw/main/docs/oscilloscope.png</image>
+      <caption>Oscilloscope view</caption>
+    </screenshot>
+  </screenshots>
+  <releases>
+    <release version="1.4.0" date="2025-12-01"/>
+  </releases>
+  <content_rating type="oars-1.1"/>
+</component>

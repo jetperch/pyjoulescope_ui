@@ -91,6 +91,33 @@ jobs:
           path: dist/*.tar.gz
           if-no-files-found: error
 
+  build_flatpak:
+    name: Build Flatpak
+    needs:
+      - build_sdist
+    if: github.event_name == 'push'
+    runs-on: [ubuntu-latest, ubuntu-latest-arm]
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-25.08
+      options: --privileged
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Build Flatpak
+        uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: joulescope-ui.flatpak
+          manifest-path: com.jetperch.JoulescopeUI.yml
+          cache-key: flatpak-builder-${{ github.sha }}
+
+      - name: Upload Flatpak artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: flatpak
+          path: joulescope-ui.flatpak
+          if-no-files-found: error
+
   build_installers:
     name: Build ${{ matrix.os }}, ${{ matrix.dist }}
     needs:
@@ -240,6 +267,7 @@ jobs:
     if: github.event_name == 'push' && startswith(github.ref, 'refs/tags/v')
     needs:
       - build_sdist
+      - build_flatpak
       - build_installers
     runs-on: ubuntu-latest
     permissions:
@@ -257,6 +285,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           pattern: installers-*
+          merge-multiple: true
+          path: dist_installer/
+
+      - name: Download Flatpak artifact
+        uses: actions/download-artifact@v4
+        with:
           merge-multiple: true
           path: dist_installer/
 

@@ -38,3 +38,9 @@ joulescope_ui/.gitignore
 src/pyqtgraph-0\.11\.0\.dev0/
 
 src/pip-delete-this-directory\.txt
+
+# Flatpak build artifacts
+flatpak-build/
+repo/
+*.flatpak
+.flatpak-builder/

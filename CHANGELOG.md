@@ -22,6 +22,7 @@ This file contains the list of changes made to pyjoulescope_ui.
   * watchdog from 4 to 6
 * Fixed error handling crash in jsdrv_stream_buffer.on_pubsub_unregister
   due to misuse of _device_subscriptions. 
+* Added flatpak release  #327
 
 
 ## 1.3.9
