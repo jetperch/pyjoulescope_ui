@@ -154,11 +154,13 @@ jobs:
           sudo apt install -y libudev-dev qt6-base-dev qt6-3d-dev
 
       - name: Install python dependencies
+        # TODO remove PySide6 6.10.1 force when PySide6-QtAds with 6.10.1+ support is available
         run: |
           which python
           python -VV
           python -m pip install --upgrade pip
           python -m pip install -U --upgrade-strategy eager -r requirements.txt
+          python -m pip install -U PySide6==6.10.1 PySide6-Addons==6.10.1 PySide6-Essentials==6.10.1 shiboken6==6.10.1 --no-warn-conflicts
           python -m pip install babel polib deepl
 
       - name: Patch macOS to universal2

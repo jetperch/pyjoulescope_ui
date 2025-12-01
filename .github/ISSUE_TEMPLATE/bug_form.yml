@@ -24,6 +24,8 @@ body:
       label: UI version
       description: What version of our software are you running?
       options:
+        - 1.4.0
+        - 1.3.9
         - 1.3.6
         - other
     validations:
@@ -37,15 +39,14 @@ body:
       options:
         - Windows 11
         - Windows 10
-        - Windows 7
+        - macOS 26 arm64 (M1 and newer)
+        - macOS 26 amd64
+        - macOS 15 arm64 (M1 and newer)
+        - macOS 15 amd64
         - macOS 14 arm64 (M1 and newer)
         - macOS 14 amd64
         - macOS 13 arm64 (M1 and newer)
         - macOS 13 amd64
-        - macOS 12 arm64 (M1 and newer)
-        - macOS 12 amd64
-        - macOS 11 amd64
-        - macOS 10
         - Linux Ubuntu amd64 (PC)
         - Linux Ubuntu arm64 (Raspberry Pi 4)
         - Other (describe below)
