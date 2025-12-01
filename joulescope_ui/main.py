@@ -946,6 +946,9 @@ def run(log_level=None, file_log_level=None, filename=None, safe_mode=False):
             _opengl_config(opengl_renderer)
 
         app = QtWidgets.QApplication([])
+        app.setApplicationName(_UI_WINDOW_TITLE if filename is None else _JLS_WINDOW_TITLE)
+        app.setApplicationVersion(__version__)
+
         action_close = False
         if safe_mode:
             safe_mode_config = safe_mode_dialog()
