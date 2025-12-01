@@ -1,4 +1,4 @@
-# Copyright 2018-2024 Jetperch LLC
+# Copyright 2018-2025 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ ABOUT = f"""\
 </table>
 
 <pre>
-Copyright 2018-2024 Jetperch LLC
+Copyright 2018-2025 Jetperch LLC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
