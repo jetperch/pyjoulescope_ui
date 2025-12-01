@@ -13,6 +13,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Changed JS220 statistics_frequency to float to simplify hacking
 * Fixed Waveform to display all signals in JLS source  #336
 * Bumped versions:
+  * python from 3.12 to 3.13 for distribution 
   * pyjoulescope_driver from 1.9.4 to 1.10.0 
   * pyjls from 0.14.0 to 1.15.0
   * PySide6-QtAds from 4.4.1 to 4.4.1.1
