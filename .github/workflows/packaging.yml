@@ -96,9 +96,16 @@ jobs:
     needs:
       - build_sdist
     if: github.event_name == 'push'
-    runs-on: [ubuntu-latest, ubuntu-latest-arm]
+    strategy:
+      matrix:
+        variant:
+          - arch: x86_64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    runs-on:  ${{ matrix.variant.runner }}
     container:
-      image: ghcr.io/flathub-infra/flatpak-github-actions:freedesktop-25.08
+      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-48
       options: --privileged
     steps:
       - name: Checkout repo
@@ -110,6 +117,8 @@ jobs:
           bundle: joulescope-ui.flatpak
           manifest-path: com.jetperch.JoulescopeUI.yml
           cache-key: flatpak-builder-${{ github.sha }}
+          arch: ${{ matrix.variant.arch }}
+          verbose: true
 
       - name: Upload Flatpak artifact
         uses: actions/upload-artifact@v4
@@ -127,7 +136,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest", "windows-latest", "macos-latest"]
+        os: ["ubuntu-latest", "windows-latest", "windows-11-arm", "macos-latest"]
         dist: ["pyinstaller", "nuitka"]
         exclude:
           - os: ubuntu-latest
@@ -166,12 +175,12 @@ jobs:
           security import $CERTIFICATE_INSTALLER_PATH -P "$CERTIFICATE_PWD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
 
       - name: Windows Inno Setup install
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-latest' || matrix.os == 'windows-11-arm'
         run: choco install innosetup -y
 
       - name: Windows AzureSignTool install
         # https://melatonin.dev/blog/how-to-code-sign-windows-installers-with-an-ev-cert-on-github-actions/
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-latest' || matrix.os == 'windows-11-arm'
         run: dotnet tool install --global AzureSignTool
 
       - name: Install Ubuntu dependencies
