@@ -241,7 +241,6 @@ jobs:
     if: github.event_name == 'push' && startswith(github.ref, 'refs/tags/v')
     needs:
       - build_sdist
-      - build_flatpak
       - build_installers
     runs-on: ubuntu-latest
     permissions:
