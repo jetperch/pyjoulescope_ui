@@ -42,10 +42,10 @@ jobs:
           echo "runner.arch=$RUNNER_ARCH"
 
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
@@ -85,7 +85,7 @@ jobs:
         run: pytest --pyargs joulescope_ui
 
       - name: Upload python source package
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: sdist
           path: dist/*.tar.gz
@@ -109,7 +109,7 @@ jobs:
             dist: nuitka
     steps:
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -181,12 +181,12 @@ jobs:
       - name: Build with Nuitka
         if: matrix.dist == 'nuitka'
         run: |
-          pip install "git+https://${{ secrets.NUITKA_TOKEN }}@github.com/Nuitka/Nuitka-commercial.git@2.7.10#egg=nuitka"
+          pip install "git+https://${{ secrets.NUITKA_TOKEN }}@github.com/Nuitka/Nuitka-commercial.git@2.8.8#egg=nuitka"
           python ci/nuitka_build.py
 
       - name: Save Nuitka report
         if: matrix.dist == 'nuitka'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: nuitka_report-${{ matrix.os }}-${{ matrix.dist }}
           path: nuitka_report.xml
@@ -223,14 +223,14 @@ jobs:
 
       - name: Save changelog
         if: matrix.os == 'ubuntu-latest'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: installers-changelog
           path: CHANGELOG.md
           if-no-files-found: error
 
       - name: Save installer artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: installers-${{ matrix.os }}-${{ matrix.dist }}
           path: dist_installer/*
@@ -249,20 +249,20 @@ jobs:
 
     steps:
       - name: Download python sdist artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: sdist
           path: dist/
 
       - name: Download installer artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           pattern: installers-*
           merge-multiple: true
           path: dist_installer/
 
       - name: Download Flatpak artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           merge-multiple: true
           path: dist_installer/
@@ -277,7 +277,7 @@ jobs:
           print-hash: true
 
       - name: Publish Release assets
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             dist_installer/*
