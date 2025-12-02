@@ -24,6 +24,8 @@ This file contains the list of changes made to pyjoulescope_ui.
   * watchdog from 4 to 6
 * Fixed error handling crash in jsdrv_stream_buffer.on_pubsub_unregister
   due to misuse of _device_subscriptions. 
+* Modified Waveform widget Δt to use 'customary' by default.  #338
+  Added "elapse_time_fmt" setting to select 'seconds' or 'standard'.
 
 
 ## 1.3.9

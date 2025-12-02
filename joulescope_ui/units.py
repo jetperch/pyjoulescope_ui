@@ -60,6 +60,17 @@ _UNIT_PREFIX = [
     (1e-24, 'y'),
 ]
 
+_TIME_UNIT_PREFIX = [
+    (60 * 60 * 24,  'd'),
+    (60 * 60,       'h'),
+    (60,            'm'),
+    (1,             's'),
+    (1e-3,          'ms'),
+    (1e-6,          'µs'),
+    (1e-9,          'ns'),
+    (1e-12,         'ps'),
+]
+
 _PREFIX_MAP = dict([(p, v) for v, p in _UNIT_PREFIX])
 _PREFIX_MAP['u'] = _PREFIX_MAP['µ']  # common "misuse" of u
 _PREFIX_MAP['μ'] = _PREFIX_MAP['µ']  # \u03BC greek small letter mu
@@ -186,7 +197,9 @@ def elapsed_time_formatter(seconds, fmt=None, precision=None, trim_trailing_zero
 
     :param seconds: The elapsed time in seconds.
     :param fmt: The optional format string containing:
-        * 'seconds': Display time in seconds.
+        * 'seconds': Display time in seconds with SI scale prefix.
+        * 'customary': Fit to days, hours, minutes, or seconds and display
+           with units and SI prefix.
         * 'standard': Display time as D:hh:mm:ss.
     :param precision: The integer precision to display given in
         powers of 10.  This parameter determines the number of
@@ -196,7 +209,16 @@ def elapsed_time_formatter(seconds, fmt=None, precision=None, trim_trailing_zero
     :return: The tuple of elapsed time string and units string.
     """
     precision = 6 if precision is None else int(precision)
-    x = float(seconds)
+    x = abs(float(seconds))
+    units_str = 's'
+    if fmt == 'customary':
+        if x > 0:
+            for threshold, prefix in _TIME_UNIT_PREFIX:
+                if x >= threshold:
+                    break
+            units_str = prefix
+            x /= threshold
+
     x_pow = int(np.ceil(np.log10(abs(x) + 1e-15)))
     fract_digits = min(max(precision - x_pow, 0), precision)
     fract_fmt = '{x:.' + str(fract_digits) + 'f}'
@@ -232,7 +254,6 @@ def elapsed_time_formatter(seconds, fmt=None, precision=None, trim_trailing_zero
                 units_str = units_str[1:]
         return time_str, units_str
     else:
-        units_str = 's'
         if fract_digits:
             time_str = fract_fmt.format(x=x)
         else:

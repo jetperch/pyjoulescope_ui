@@ -14,7 +14,7 @@
 
 from PySide6 import QtWidgets, QtGui, QtCore, QtOpenGLWidgets
 from OpenGL import GL as gl
-from joulescope_ui import CAPABILITIES, register, N_, get_topic_name, get_instance, time64
+from joulescope_ui import CAPABILITIES, register, N_, P_, get_topic_name, get_instance, time64
 from joulescope_ui.styles import styled_widget, color_as_qcolor, color_as_string, font_as_qfont
 from joulescope_ui.widget_tools import CallableAction, CallableSlotAdapter, settings_action_create, context_menu_show
 from joulescope_ui.exporter import TO_JLS_SIGNAL_NAME
@@ -37,7 +37,7 @@ import numpy as np
 import os
 import time
 from PySide6.QtGui import QPen, QBrush
-from joulescope_ui.units import convert_units, UNITS_SETTING, unit_prefix, prefix_to_scale
+from joulescope_ui.units import convert_units, UNITS_SETTING, elapsed_time_formatter
 from . import axis_ticks
 from collections.abc import Iterable
 
@@ -519,6 +519,22 @@ class WaveformWidget(QtWidgets.QWidget):
             'default': [0, None, None, None],
             'flags': ['hide'],
         },
+        'elapse_time_fmt': {
+            'dtype': 'str',
+            'brief': N_('The formatting method for elapsed time.'),
+            'detail': P_([
+                N_('Seconds displays the time as seconds with prefix. '),
+                N_('Customary selects seconds, minutes, hours, or days. '),
+                N_('Standard displays days:hours:minutes:seconds.'),
+            ]),
+            'default': 'customary',
+            'options': [
+                ['seconds', N_('Seconds')],
+                ['customary', N_('Customary')],
+                ['standard', N_('Standard')],
+            ],
+
+        }
     }
 
     def __init__(self, parent=None, **kwargs):
@@ -1844,8 +1860,12 @@ class WaveformWidget(QtWidgets.QWidget):
 
         if self.show_statistics:
             x_stats = self._x_geometry_info['statistics'][1]
-            dt_str = _si_format(x_duration_s, 's', precision=self.precision)
-            p.drawText(x_stats + _MARGIN, y2_text, f'Δt={dt_str[1:]}')
+            dt_val, dt_units = elapsed_time_formatter(x_duration_s, fmt=self.elapse_time_fmt)
+            if ':' not in dt_units:
+                dt_str = f'{dt_val} {dt_units}'
+            else:
+                dt_str = dt_val
+            p.drawText(x_stats + _MARGIN, y2_text, f'Δt={dt_str}')
             if x_duration_s > 0 and self.show_frequency:
                 f_str = _si_format(1.0 / x_duration_s, 'Hz', precision=self.precision)
                 p.drawText(x_stats + _MARGIN, y1_text, f'F={f_str[1:]}')
@@ -2007,14 +2027,15 @@ class WaveformWidget(QtWidgets.QWidget):
                         p.drawPolygon(segs)
                         if 3 == self.show_min_max:
                             d_std = d['std'][idx_start:idx_stop]
-                            d_y_std_min = self._y_value_to_pixel(plot, d_avg - d_std)
-                            d_y_std_max = self._y_value_to_pixel(plot, d_avg + d_std)
-                            d_y_std_min = np.amin(np.vstack([d_y_std_min, d_y_min]), axis=0)
-                            d_y_std_max = np.amax(np.vstack([d_y_std_max, d_y_max]), axis=0)
-                            segs = self._points.set_fill(d_x_segment, d_y_std_min, d_y_std_max)
-                            p.setPen(self._NO_PEN)
-                            p.setBrush(s['plot_std_fill'][trace_idx])
-                            p.drawPolygon(segs)
+                            if np.all(np.isfinite(d_std)):
+                                d_y_std_min = self._y_value_to_pixel(plot, d_avg - d_std)
+                                d_y_std_max = self._y_value_to_pixel(plot, d_avg + d_std)
+                                d_y_std_min = np.amin(np.vstack([d_y_std_min, d_y_min]), axis=0)
+                                d_y_std_max = np.amax(np.vstack([d_y_std_max, d_y_max]), axis=0)
+                                segs = self._points.set_fill(d_x_segment, d_y_std_min, d_y_std_max)
+                                p.setPen(self._NO_PEN)
+                                p.setBrush(s['plot_std_fill'][trace_idx])
+                                p.drawPolygon(segs)
 
                 d_y = self._y_value_to_pixel(plot, d_avg)
                 segs = self._points.set_line(d_x_segment, d_y)
