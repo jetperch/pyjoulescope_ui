@@ -70,6 +70,7 @@ def nuitka():
             '--include-module=joulescope.v0.decimators',
             '--include-module=joulescope.v0.filter_fir',
             '--include-module=joulescope.units',
+            '--include-module=PySide6.QtOpenGL',   # added 2025-12-02 for Qt 6.10.1
             '--nofollow-import-to=*.test',
             '--include-package-data=joulescope_ui',
             '--include-package-data=pyjoulescope_driver',
