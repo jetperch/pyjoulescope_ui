@@ -7,22 +7,23 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.4.0
 
-2025 Dec 1 [in progress]
+2025 Dec 2
 
 * Incremented minimum macOS requirement from macOS 12 to macOS 13.
 * Changed JS220 statistics_frequency to float to simplify hacking
 * Fixed Waveform to display all signals in JLS source  #336
 * Bumped versions:
+  * Added Python 3.14, removed Python 3.10 
   * python from 3.12 to 3.13 for distribution 
-  * pyjoulescope_driver from 1.9.4 to 1.10.0 
-  * pyjls from 0.14.0 to 1.15.0
+  * pyjoulescope_driver from 1.9.4 to 1.11.0 
+  * pyjls from 0.14.0 to 1.16.0
+  * pyjoulescope from 1.3.1 to 1.4.0
   * PySide6-QtAds from 4.4.1 to 4.4.1.1
   * PySide6 from 6.9.2 to 6.10.0 (force build with 6.10.1)
   * pyqtgraph from 0.13.7 to 0.14.0
   * watchdog from 4 to 6
 * Fixed error handling crash in jsdrv_stream_buffer.on_pubsub_unregister
   due to misuse of _device_subscriptions. 
-* Added flatpak release  #327
 
 
 ## 1.3.9

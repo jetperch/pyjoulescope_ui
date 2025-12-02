@@ -141,7 +141,7 @@ setuptools.setup(
     url='https://www.joulescope.com',
     author='Jetperch LLC',
     author_email='joulescope-dev@jetperch.com',
-    license='Apache 2.0',
+    license='Apache-2.0',
 
     cmdclass={
         'develop': CustomDevelopCommand,
@@ -173,10 +173,10 @@ setuptools.setup(
         'Operating System :: POSIX :: Linux',
 
         # Supported Python versions
-        'Programming Language :: Python :: 3.10',
         'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
         'Programming Language :: Python :: 3.13',
+        'Programming Language :: Python :: 3.14',
 
         # Topics
         'Topic :: Scientific/Engineering',
@@ -192,17 +192,17 @@ setuptools.setup(
     include_package_data=True,
 
     # See https://packaging.python.org/guides/distributing-packages-using-setuptools/#python-requires
-    python_requires='~=3.10',
+    python_requires='~=3.11',
     
     # See https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         'appnope>=0.1.2,<1',
         'fs>=2.4.16,<3',
-        'pyjoulescope_driver>=1.10.0,<2',
-        'joulescope>=1.3.1,<2',
+        'pyjoulescope_driver>=1.11.0,<2',
+        'joulescope>=1.4.0,<2',
         'markdown>=3,<4',
         'psutil>=5,<8',
-        'pyjls>=0.15.0,<1',
+        'pyjls>=0.16.0,<1',
         'pyopengl>=3,<4',
         "pywin32>=223; platform_system == 'Windows'",
         'pyqtgraph>=0.14.0,<1',
