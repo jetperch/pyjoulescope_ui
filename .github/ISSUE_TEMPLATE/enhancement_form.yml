@@ -24,9 +24,7 @@ body:
       label: UI version
       description: What version of our software are you running?
       options:
-        - 1.4.0
-        - 1.3.9
-        - 1.3.6
+        - 1.4.1
         - other
     validations:
       required: true
@@ -55,5 +53,5 @@ body:
         - macOS 13 arm64 (M1 and newer)
         - macOS 13 amd64
         - Linux Ubuntu amd64 (PC)
-        - Linux Ubuntu arm64 (Raspberry Pi 4)
+        - Linux Ubuntu arm64 (Raspberry Pi 4 & 5)
         - Other (describe below)
