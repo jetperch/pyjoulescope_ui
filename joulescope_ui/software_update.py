@@ -122,7 +122,7 @@ def _platform_name():
             return 'win10_x86_64'  # for both win10 and win11
     elif psys == 'Linux':
         # assume all Linux is the supported Ubuntu version for now
-        return 'ubuntu_22_04_x86_64'
+        return 'ubuntu_24_04_x86_64'
     elif psys == 'Darwin':
         release, _, machine = platform.mac_ver()
         # use "machine" to add arm64 support here

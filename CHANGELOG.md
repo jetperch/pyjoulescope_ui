@@ -5,6 +5,15 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.4.2
+
+2026 Jan 20
+
+* Bumped versions:
+  * PySide6-QtAds from 4.4.1.1 to 4.5.0
+  * PySide6 from 6.10.0 to 6.10.1
+
+
 ## 1.4.1
 
 2025 Dec 2
