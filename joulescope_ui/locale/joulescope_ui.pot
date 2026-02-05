@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PROJECT 1.4.2\n"
+"Project-Id-Version: PROJECT 1.4.3\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2025-12-02 14:23-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -326,40 +326,40 @@ msgstr ""
 msgid "Exit"
 msgstr ""
 
-#: exporter.py:49 widgets/signal_record/signal_record_config_widget.py:148
+#: exporter.py:52 widgets/signal_record/signal_record_config_widget.py:148
 #: widgets/statistics_record/statistics_record_config_widget.py:111
 msgid "Directory"
 msgstr ""
 
-#: exporter.py:61 widgets/signal_record/signal_record_config_widget.py:128
+#: exporter.py:64 widgets/signal_record/signal_record_config_widget.py:128
 #: zip_inspector.py:92
 msgid "Filename"
 msgstr ""
 
-#: exporter.py:68 widgets/notes/notes_widget.py:21
+#: exporter.py:71 widgets/notes/notes_widget.py:21
 #: widgets/signal_record/signal_record_config_widget.py:171
 msgid "Notes"
 msgstr ""
 
-#: exporter.py:86 widgets/signal_record/signal_record_config_widget.py:241
+#: exporter.py:89 widgets/signal_record/signal_record_config_widget.py:241
 #: widgets/signal_record/signal_record_config_widget.py:268
 #: widgets/statistics_record/statistics_record_config_widget.py:173
 msgid "Select save location"
 msgstr ""
 
-#: exporter.py:136
+#: exporter.py:139
 msgid "Export configuration"
 msgstr ""
 
-#: exporter.py:168
+#: exporter.py:171
 msgid "Exporter"
 msgstr ""
 
-#: exporter.py:169
+#: exporter.py:172
 msgid "Export data to a JLS file"
 msgstr ""
 
-#: exporter.py:170
+#: exporter.py:173
 msgid ""
 "Exporting data to a JLS file. You can open this file later to display the "
 "exported data."
