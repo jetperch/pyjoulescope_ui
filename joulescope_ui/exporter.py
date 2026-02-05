@@ -25,6 +25,9 @@ import numpy as np
 import os
 
 
+_FLUSH_BYTES = 20 * 1024 * 1024  # 20 MB
+
+
 def _construct_record_filename(extension=None):
     if extension is None:
         extension = '.jls'
@@ -210,6 +213,12 @@ class Exporter(RangeToolBase):
             )
             d = self.request(signal_id, 'utc', *self.x_range, 1, timeout=5.0)
             info = d['info']
+            sample_start = max(r['samples']['start'], info['time_range_samples']['start'])
+            sample_end = min(r['samples']['end'], info['time_range_samples']['end'])
+            sample_end = max(sample_start, sample_end)
+            sample_range = [sample_start, sample_end]
+            d = self.request(signal_id, 'samples', *sample_range, 1, timeout=5.0)
+            info = d['info']
             utc_start = info['time_range_utc']['start']
             d_utc = (utc_start - self.x_range[0]) / time64.SECOND
             if abs(d_utc) > (2 / sample_rate):
@@ -219,9 +228,10 @@ class Exporter(RangeToolBase):
                 'jls_signal_id': jls_signal_id,
                 'info': info,
                 'range': r,
-                'sample_range': [info['time_range_samples']['start'], info['time_range_samples']['end']],
+                'sample_range': sample_range,
             }
             jls_signal_id += 1
+        jls.flush()
 
     def _run(self):
         self._log.info('thread start')
@@ -257,6 +267,7 @@ class Exporter(RangeToolBase):
                 count = 0
                 length_total = sample_id_end - sample_id_offset
                 sample_id = sample_id_offset
+                bytes_since_flush = 0
                 while not self.abort:
                     length_remaining = sample_id_end - sample_id
                     if length_remaining <= 0:
@@ -273,7 +284,12 @@ class Exporter(RangeToolBase):
                     jls.fsr(jls_signal_id, sample_id - sample_id_offset, data)
                     sample_id += info['time_range_samples']['length']
                     count += length
+                    bytes_since_flush += data.nbytes
+                    if bytes_since_flush > _FLUSH_BYTES:
+                        jls.flush()
+                        bytes_since_flush = 0
                     self.progress((signal_idx + (1 - length_remaining / length_total)) * progress_iter)
+                jls.flush()
 
         if self.abort:
             self._log.info('thread done with quit/abort')
