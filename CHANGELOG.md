@@ -7,9 +7,10 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.4.3
 
-2026 Feb 4 [in progress]
+2026 Feb 23 [in progress]
 
 * Fixed JLS export crashes #343
+* Added TCP server #314
 
 
 ## 1.4.2

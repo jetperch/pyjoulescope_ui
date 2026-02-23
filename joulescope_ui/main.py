@@ -902,7 +902,7 @@ def _opengl_config(renderer):
         QtCore.QCoreApplication.setAttribute(renderer_qt)
 
 
-def run(log_level=None, file_log_level=None, filename=None, safe_mode=False):
+def run(log_level=None, file_log_level=None, filename=None, safe_mode=False, tcp_server=False):
     """Run the Joulescope UI application.
 
     :param log_level: The logging level for the stdout console stream log.
@@ -913,6 +913,7 @@ def run(log_level=None, file_log_level=None, filename=None, safe_mode=False):
         None (default) uses the configuration value.
     :param filename: The optional filename to display immediately.
     :param safe_mode: When True, start in safe mode.
+    :param tcp_server: When True, enable the TCP server for remote access.
 
     :return: 0 on success or error code on failure.
     """
@@ -980,11 +981,39 @@ def run(log_level=None, file_log_level=None, filename=None, safe_mode=False):
                 ui = MainWindow(filename=filename, is_config_load=is_config_load)
                 pubsub_singleton.notify_fn = ui.resync_request
                 ui.show()
+
+                _tcp_server_instance = None
+                _tcp_server_token_path = None
+                if tcp_server:
+                    try:
+                        from joulescope_ui.tcp_server import TcpServer
+                        _tcp_server_instance = TcpServer(pubsub_singleton)
+                        _tcp_server_instance.start()
+                        _log.info('TCP server started on port %d', _tcp_server_instance.port)
+                        # Write token to discoverable file in app path (LOCALAPPDATA on Windows)
+                        app_path = pubsub_singleton.query('common/settings/paths/app')
+                        _tcp_server_token_path = os.path.join(app_path, 'server.json')
+                        import json as _json
+                        with open(_tcp_server_token_path, 'w') as _f:
+                            _json.dump({'token': _tcp_server_instance.token, 'port': _tcp_server_instance.port}, _f)
+                        _log.info('TCP server credentials written to %s', _tcp_server_token_path)
+                    except Exception:
+                        _log.exception('TCP server failed to start')
+                        _tcp_server_instance = None
+
                 try:
                     _log.info('app.exec start')
                     rc = app.exec()
                     _log.info('app.exec done')
                 finally:
+                    if _tcp_server_instance is not None:
+                        _tcp_server_instance.stop()
+                        _tcp_server_instance = None
+                    if _tcp_server_token_path is not None:
+                        try:
+                            os.remove(_tcp_server_token_path)
+                        except OSError:
+                            pass
                     ui = None
                     if filename is None:
                         _device_factory_finalize()

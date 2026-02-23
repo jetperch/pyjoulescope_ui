@@ -39,6 +39,9 @@ def parser_config(p):
     p.add_argument('--safe_mode', '-s',
                    action='store_true',
                    help='Start in safe mode for recovery')
+    p.add_argument('--tcp-server', '--tcp_server',
+                   action='store_true',
+                   help='Enable TCP server for remote PubSub access and Qt inspection')
     return on_cmd
 
 
@@ -47,7 +50,8 @@ def on_cmd(args):
         run(log_level=args.console_log_level,
             file_log_level=args.file_log_level,
             filename=args.filename,
-            safe_mode=args.safe_mode)
+            safe_mode=args.safe_mode,
+            tcp_server=args.tcp_server)
     if args.profile is None:
         return local_run()
     elif args.profile == 'cProfile':
