@@ -28,6 +28,7 @@ For more information, see:
 * [Tips](docs/tips.md): for using the UI.
 * [Translations and locale](docs/locale.md)
 * [Plugins](docs/plugin.md): Using and developing UI plugins.
+* [TCP Server](docs/tcp_server.md)
 * [Changelog](CHANGELOG.md): list of changes by release
 * [Future features](docs/features_future.md)
 * [Contributing](CONTRIBUTING.md)
