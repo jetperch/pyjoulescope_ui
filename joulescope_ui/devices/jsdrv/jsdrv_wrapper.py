@@ -19,6 +19,7 @@ from .jsdrv_stream_buffer import JsdrvStreamBuffer
 from .js110 import Js110
 from .js220 import Js220
 from .js220_updater import Js220Updater
+from .js320 import Js320
 import logging
 
 
@@ -165,7 +166,9 @@ class JsdrvWrapper:
         updater_unique_id = unique_id + '-UPDATER'
         if value in self.devices:
             return
-        if '/js220/' in value:
+        if '/js320/' in value:
+            cls = Js320
+        elif '/js220/' in value:
             state = self.pubsub.query(f'{get_topic_name(updater_unique_id)}/settings/state', default=-1)
             if state <= 0:
                 cls = Js220

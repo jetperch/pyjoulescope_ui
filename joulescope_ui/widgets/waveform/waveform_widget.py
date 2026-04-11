@@ -1940,7 +1940,7 @@ class WaveformWidget(QtWidgets.QWidget):
         if y_grid is not None:
             if quantity == 'r':
                 subsource = traces[0][1]
-                if 'JS220' in subsource:
+                if 'JS220' in subsource or 'JS320' in subsource:
                     y_grid['labels'] = [_JS220_AXIS_R.get(int(s_label), '') for s_label in y_grid['labels']]
                 elif 'JS110' in subsource:
                     y_grid['labels'] = [_JS110_AXIS_R.get(int(s_label), '') for s_label in y_grid['labels']]
