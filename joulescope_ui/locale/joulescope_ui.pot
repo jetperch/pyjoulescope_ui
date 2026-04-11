@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PROJECT 1.4.3\n"
+"Project-Id-Version: PROJECT 1.5.0\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2025-12-02 14:23-0500\n"
+"POT-Creation-Date: 2026-04-11 13:22-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,180 +25,185 @@ msgstr ""
 msgid "Version Information"
 msgstr ""
 
-#: app.py:47 devices/jsdrv/js110.py:135 devices/jsdrv/js220.py:198
+#: app.py:48 devices/jsdrv/js110.py:135 devices/jsdrv/js220.py:198
+#: devices/jsdrv/js320.py:194
 msgid "Target power"
 msgstr ""
 
-#: app.py:49
+#: app.py:50
 msgid "Toggle the power to all connected targets."
 msgstr ""
 
-#: app.py:50
+#: app.py:51
 msgid ""
 "This feature forces all connected instruments to disable current flow. You "
 "can use this feature to perform a power cycle reset for the connected target"
 " devices."
 msgstr ""
 
-#: app.py:53
+#: app.py:54
 msgid "The JS220 disconnects the current terminals."
 msgstr ""
 
-#: app.py:54
+#: app.py:55
 msgid ""
 "The JS110 disconnects the current from IN+ to OUT+, but the system setup "
 "must prevent excessive backwards current."
 msgstr ""
 
-#: app.py:60 widgets/device_control/js220_ctrl_widget.py:51
+#: app.py:61 widgets/device_control/js220_ctrl_widget.py:51
 msgid "Fuse engaged indicator"
 msgstr ""
 
-#: app.py:62
+#: app.py:63
 msgid ""
 "This indicator becomes active when at least one connected instrument has an "
 "engaged fuse. Instruments with engaged fuses prevent current flow until "
 "cleared."
 msgstr ""
 
-#: app.py:65 widgets/device_control/js220_ctrl_widget.py:56
+#: app.py:66 widgets/device_control/js220_ctrl_widget.py:56
 msgid "Press to clear."
 msgstr ""
 
-#: app.py:70
+#: app.py:71
 msgid "Statistics display"
 msgstr ""
 
-#: app.py:72
+#: app.py:73
 msgid "Click to toggle live streaming statistics."
 msgstr ""
 
-#: app.py:73
+#: app.py:74
 msgid ""
 "When enabled, the widgets will display the statistics data as it arrives "
 "from the connected instruments."
 msgstr ""
 
-#: app.py:75
+#: app.py:76
 msgid ""
 "When disabled, hold the existing values. New statistics data is processed, "
 "but widgets displaying statistics information do not update."
 msgstr ""
 
-#: app.py:83
+#: app.py:84
 msgid "Statistics recording"
 msgstr ""
 
-#: app.py:85
+#: app.py:86
 msgid "Click to control streaming statistics data recording."
 msgstr ""
 
-#: app.py:86
+#: app.py:87
 msgid ""
 "Click once to start a recording to a CSV file. Click again to stop the "
 "recording."
 msgstr ""
 
-#: app.py:87
+#: app.py:88
 msgid ""
 "By default, Joulescopes provide statistics data at 2 Hz. Each device allows "
 "you to change this setting to the desired rate."
 msgstr ""
 
-#: app.py:94
+#: app.py:95
 msgid "Signal sample streaming"
 msgstr ""
 
-#: app.py:96
+#: app.py:97
 msgid "Click to toggle sample data streaming."
 msgstr ""
 
-#: app.py:97
+#: app.py:98
 msgid ""
 "When enabled, stream sample data from all open sample sources and configure "
 "all sample widgets for acquisition mode."
 msgstr ""
 
-#: app.py:99
+#: app.py:100
 msgid ""
 "When disabled, stop sample streaming and configure all sample widgets for "
 "buffer mode."
 msgstr ""
 
-#: app.py:106
+#: app.py:107
 msgid "Signal sample recording"
 msgstr ""
 
-#: app.py:108
+#: app.py:109
 msgid "Click to control signal sample recording."
 msgstr ""
 
-#: app.py:109
+#: app.py:110
 msgid ""
 "Click once to start a recording to a JLS file. Click again to stop the "
 "recording."
 msgstr ""
 
-#: app.py:111
+#: app.py:112
 msgid ""
 "The recording will capture data from all enabled sample sources and signals "
 "at their configured sample rates. To reduce the file size, you can disable "
 "sources, disable signals, and/or reduce the sample rates."
 msgstr ""
 
-#: app.py:120
+#: app.py:121
 msgid "The default unique_id for the default statistics streaming source."
 msgstr ""
 
-#: app.py:125
+#: app.py:126
 msgid "The unique_id for the default signal streaming source."
 msgstr ""
 
-#: app.py:130
+#: app.py:131
 msgid "The unique_id for the default signal buffer source."
 msgstr ""
 
-#: app.py:135
+#: app.py:136
+msgid "The unique_id for the default serial source."
+msgstr ""
+
+#: app.py:141
 msgid "Check for software updates."
 msgstr ""
 
-#: app.py:140
+#: app.py:146
 msgid "The software update channel."
 msgstr ""
 
-#: app.py:143
+#: app.py:149
 msgid "alpha"
 msgstr ""
 
-#: app.py:144
+#: app.py:150
 msgid "beta"
 msgstr ""
 
-#: app.py:145
+#: app.py:151
 msgid "stable"
 msgstr ""
 
-#: app.py:150
+#: app.py:156
 msgid "Check for device firmware updates."
 msgstr ""
 
-#: app.py:155 units.py:33
+#: app.py:161 units.py:33
 msgid "The units to display."
 msgstr ""
 
-#: app.py:157 units.py:36
+#: app.py:163 units.py:36
 msgid "International System of Units (SI)"
 msgstr ""
 
-#: app.py:158 units.py:37
+#: app.py:164 units.py:37
 msgid "Customary units (Ah and Wh)"
 msgstr ""
 
-#: app.py:164
+#: app.py:170
 msgid "Select the OpenGL rendering method."
 msgstr ""
 
-#: app.py:166
+#: app.py:172
 msgid ""
 "This application uses OpenGL to accelerate graphics rendering. OpenGL has "
 "multiple options for rendering, which varies between platforms. By default, "
@@ -206,35 +211,37 @@ msgid ""
 " by your graphics drivers, you can select \"software\" rendering."
 msgstr ""
 
-#: app.py:171
+#: app.py:177
 msgid "Selecting \"ANGLE\" may break copy as image and save as image."
 msgstr ""
 
-#: app.py:172
+#: app.py:178
 msgid "UI restart required for change to take effect."
 msgstr ""
 
-#: app.py:174
+#: app.py:180
 msgid "desktop"
 msgstr ""
 
-#: app.py:175
+#: app.py:181
 msgid "software"
 msgstr ""
 
-#: app.py:177
+#: app.py:183
 msgid "Autodetect"
 msgstr ""
 
-#: app.py:178
+#: app.py:184
 msgid "Not specified"
 msgstr ""
 
-#: app.py:184
+#: app.py:190
 msgid "Prompt to switch from Intel graphics to software renderer."
 msgstr ""
 
-#: error_dialog.py:42 error_window.py:311
+#: devices/serial/serial_port_dialog.py:181
+#: devices/serial/serial_port_dialog.py:203 error_dialog.py:42
+#: error_window.py:311
 msgid "Error"
 msgstr ""
 
@@ -301,7 +308,7 @@ msgstr ""
 msgid "Abort"
 msgstr ""
 
-#: error_window.py:120 main.py:374 widgets/settings/settings_widget.py:539
+#: error_window.py:120 main.py:378 widgets/settings/settings_widget.py:539
 msgid "View"
 msgstr ""
 
@@ -321,7 +328,7 @@ msgstr ""
 msgid "Revert to defaults"
 msgstr ""
 
-#: error_window.py:283 main.py:372 main.py:416
+#: error_window.py:283 main.py:376 main.py:420
 #: widgets/js220_cal/js220_cal_widget.py:38
 msgid "Exit"
 msgstr ""
@@ -555,210 +562,211 @@ msgstr ""
 msgid "The application will automatically close when you change the locale."
 msgstr ""
 
-#: main.py:72 widgets/value/value_widget.py:685
+#: main.py:73 widgets/value/value_widget.py:685
 msgid "Multimeter"
 msgstr ""
 
-#: main.py:73
+#: main.py:74
 msgid "Oscilloscope"
 msgstr ""
 
-#: main.py:74 main.py:299 main.py:368 main.py:409
+#: main.py:75 main.py:303 main.py:372 main.py:413
 msgid "File"
 msgstr ""
 
-#: main.py:84
+#: main.py:85
 msgid "The UI status bar display mode"
 msgstr ""
 
-#: main.py:85
+#: main.py:86
 msgid ""
 "This setting controls the amount of detail shown on the status bar at the "
 "bottom of the UI window. You should usually leave this set to \"normal\" "
 "unless you want more detail concerning the UI internal operation."
 msgstr ""
 
-#: main.py:90 safe_mode.py:43
+#: main.py:91 safe_mode.py:43
 msgid "Normal"
 msgstr ""
 
-#: main.py:91
+#: main.py:92
 msgid "Troubleshoot"
 msgstr ""
 
-#: main.py:97
+#: main.py:98
 msgid "Enable developer mode."
 msgstr ""
 
-#: main.py:110
+#: main.py:111
 msgid "PubSub utilization"
 msgstr ""
 
-#: main.py:111
+#: main.py:112
 msgid ""
 "Display the number of actions processed by the publish-subscribe broker in "
 "each second."
 msgstr ""
 
-#: main.py:116
+#: main.py:117
 msgid "CPU utilization"
 msgstr ""
 
-#: main.py:117
+#: main.py:118
 msgid ""
 "Display the CPU utilization by this application and the total CPU "
 "utilization by all applications. The value is displayed in percent."
 msgstr ""
 
-#: main.py:123
+#: main.py:124
 msgid "Memory utilization"
 msgstr ""
 
-#: main.py:124
+#: main.py:125
 msgid ""
 "Display the memory (RAM) utilization by this application and by all "
 "applications. The value is displayed in percent."
 msgstr ""
 
-#: main.py:217
+#: main.py:221
 msgid "UI"
 msgstr ""
 
-#: main.py:331
+#: main.py:335
 msgid "Help"
 msgstr ""
 
-#: main.py:332 widgets/hamburger/hamburger_widget.py:21
+#: main.py:336 widgets/hamburger/hamburger_widget.py:21
 msgid "Getting Started"
 msgstr ""
 
-#: main.py:333
+#: main.py:337
 msgid "Language"
 msgstr ""
 
-#: main.py:334
+#: main.py:338
 msgid "User's Guide"
 msgstr ""
 
-#: main.py:335 widgets/hamburger/hamburger_widget.py:22
+#: main.py:339 widgets/hamburger/hamburger_widget.py:22
 msgid "Changelog"
 msgstr ""
 
-#: main.py:336 widgets/help/help_widget.py:59
+#: main.py:340 widgets/help/help_widget.py:59
 msgid "Report Issue"
 msgstr ""
 
-#: main.py:337
+#: main.py:341
 msgid "View logs..."
 msgstr ""
 
-#: main.py:338 widgets/hamburger/hamburger_widget.py:23
+#: main.py:342 widgets/hamburger/hamburger_widget.py:23
 msgid "Credits"
 msgstr ""
 
-#: main.py:339 widgets/hamburger/hamburger_widget.py:24
+#: main.py:343 widgets/hamburger/hamburger_widget.py:24
 msgid "About"
 msgstr ""
 
-#: main.py:343
+#: main.py:347
 msgid "Clear Accumulators"
 msgstr ""
 
-#: main.py:346
+#: main.py:350
 msgid "Configure high accuracy time"
 msgstr ""
 
-#: main.py:369
+#: devices/serial/serial_port_dialog.py:145
+#: devices/serial/serial_port_dialog.py:159 main.py:373
 msgid "Open"
 msgstr ""
 
-#: main.py:370
+#: main.py:374
 msgid "Open recent"
 msgstr ""
 
-#: main.py:371 main.py:415
+#: main.py:375 main.py:419
 msgid "Clear config and exit"
 msgstr ""
 
-#: main.py:375 widgets/settings/settings_widget.py:541
+#: main.py:379 widgets/settings/settings_widget.py:541
 msgid "Widgets"
 msgstr ""
 
-#: main.py:376
+#: main.py:380
 msgid "Tools"
 msgstr ""
 
-#: main.py:410
+#: main.py:414
 msgid "Info"
 msgstr ""
 
-#: main.py:411 widget_tools.py:92 widgets/settings/settings_widget.py:31
+#: main.py:415 widget_tools.py:92 widgets/settings/settings_widget.py:31
 #: widgets/settings/settings_widget.py:574
 #: widgets/sidebar/sidebar_widget.py:42
 msgid "Settings"
 msgstr ""
 
-#: main.py:718
+#: main.py:722
 msgid "Manage"
 msgstr ""
 
-#: main.py:755
+#: main.py:759
 msgid "Select file to open"
 msgstr ""
 
-#: paths.py:30 styles/manager.py:52
+#: paths.py:31 styles/manager.py:52
 msgid "The name for this widget."
 msgstr ""
 
-#: paths.py:31
+#: paths.py:32
 msgid "Paths"
 msgstr ""
 
-#: paths.py:35
+#: paths.py:36
 msgid "Default path"
 msgstr ""
 
-#: paths.py:36
+#: paths.py:37
 msgid "The default path for loading and saving files."
 msgstr ""
 
-#: paths.py:42
+#: paths.py:43
 msgid "Fixed default path"
 msgstr ""
 
-#: paths.py:43
+#: paths.py:44
 msgid "The fixed default path for loading and saving files."
 msgstr ""
 
-#: paths.py:48 paths.py:69
+#: paths.py:49 paths.py:70
 msgid "Most recent save path"
 msgstr ""
 
-#: paths.py:54 paths.py:70
+#: paths.py:55 paths.py:71
 msgid "Most recent load path"
 msgstr ""
 
-#: paths.py:60
+#: paths.py:61
 msgid "Most recent path"
 msgstr ""
 
-#: paths.py:66
+#: paths.py:67
 msgid "The default path method"
 msgstr ""
 
-#: paths.py:68
+#: paths.py:69
 msgid "Fixed path"
 msgstr ""
 
-#: paths.py:71
+#: paths.py:72
 msgid "Most recently used path"
 msgstr ""
 
-#: paths.py:77
+#: paths.py:78
 msgid "Most recent file list"
 msgstr ""
 
-#: paths.py:83
+#: paths.py:84
 msgid "Most recently used length"
 msgstr ""
 
@@ -786,7 +794,8 @@ msgstr ""
 msgid "Report issue"
 msgstr ""
 
-#: safe_mode.py:47
+#: devices/serial/serial_port_dialog.py:95
+#: devices/serial/serial_port_dialog.py:155 safe_mode.py:47
 msgid "Close"
 msgstr ""
 
@@ -840,7 +849,7 @@ msgstr ""
 msgid "OK"
 msgstr ""
 
-#: source_selector.py:220 widgets/jls_info/jls_info_widget.py:47
+#: source_selector.py:224 widgets/jls_info/jls_info_widget.py:47
 msgid "Source"
 msgstr ""
 
@@ -909,10 +918,13 @@ msgstr ""
 
 #: devices/jsdrv/js110.py:29 devices/jsdrv/js110.py:65
 #: devices/jsdrv/js220.py:94 devices/jsdrv/js220.py:130
+#: devices/jsdrv/js320.py:90 devices/jsdrv/js320.py:126
+#: devices/serial/serial_device.py:40 devices/serial/serial_device.py:63
 msgid "Device name"
 msgstr ""
 
 #: devices/jsdrv/js110.py:31 devices/jsdrv/js220.py:96
+#: devices/jsdrv/js320.py:92
 msgid ""
 "The Joulescope UI automatically populates the device name with the device "
 "type and serial number."
@@ -927,23 +939,29 @@ msgstr ""
 
 #: devices/jsdrv/js110.py:41 devices/jsdrv/js110.py:71
 #: devices/jsdrv/js220.py:106 devices/jsdrv/js220.py:136
+#: devices/jsdrv/js320.py:102 devices/jsdrv/js320.py:132
+#: devices/serial/serial_device.py:45 devices/serial/serial_device.py:69
 #: widgets/device_control/js220_ctrl_widget.py:36
 msgid "Device information"
 msgstr ""
 
 #: devices/jsdrv/js110.py:47 devices/jsdrv/js220.py:112
+#: devices/jsdrv/js320.py:108
 msgid "Device state indicator"
 msgstr ""
 
 #: devices/jsdrv/js110.py:59 devices/jsdrv/js220.py:124
+#: devices/jsdrv/js320.py:120
 msgid "Attempt to automatically open"
 msgstr ""
 
 #: devices/jsdrv/js110.py:81 devices/jsdrv/js220.py:146
+#: devices/jsdrv/js320.py:142
 msgid "Signal frequency"
 msgstr ""
 
 #: devices/jsdrv/js110.py:83 devices/jsdrv/js220.py:148
+#: devices/jsdrv/js320.py:144
 msgid ""
 "This setting controls the output sampling frequency for the measurement "
 "signals current, voltage, and power. Use this setting to reduce the data "
@@ -959,6 +977,7 @@ msgid ""
 msgstr ""
 
 #: devices/jsdrv/js110.py:117 devices/jsdrv/js220.py:180
+#: devices/jsdrv/js320.py:176
 msgid "Statistics frequency"
 msgstr ""
 
@@ -970,10 +989,12 @@ msgid ""
 msgstr ""
 
 #: devices/jsdrv/js110.py:137 devices/jsdrv/js220.py:200
+#: devices/jsdrv/js320.py:196
 msgid "Toggle the connection between the current terminals."
 msgstr ""
 
 #: devices/jsdrv/js110.py:138 devices/jsdrv/js220.py:201
+#: devices/jsdrv/js320.py:197
 msgid ""
 "When enabled, current flows between the current terminals. When disabled, "
 "current cannot flow between the current terminals. In common system setups, "
@@ -982,7 +1003,7 @@ msgid ""
 msgstr ""
 
 #: devices/jsdrv/js110.py:147 devices/jsdrv/js220.py:210
-#: widgets/waveform/waveform_widget.py:115
+#: devices/jsdrv/js320.py:206 widgets/waveform/waveform_widget.py:115
 msgid "Current range"
 msgstr ""
 
@@ -993,6 +1014,7 @@ msgid ""
 msgstr ""
 
 #: devices/jsdrv/js110.py:151 devices/jsdrv/js220.py:214
+#: devices/jsdrv/js320.py:210
 msgid ""
 "Use the other manual settings with care. It is very easy to configure a "
 "setting that saturates, which will ignore regions of current draw larger "
@@ -1000,6 +1022,7 @@ msgid ""
 msgstr ""
 
 #: devices/jsdrv/js110.py:168 devices/jsdrv/js220.py:242
+#: devices/jsdrv/js320.py:238
 msgid "Voltage range"
 msgstr ""
 
@@ -1008,6 +1031,7 @@ msgid "Configure the JS110's voltage range."
 msgstr ""
 
 #: devices/jsdrv/js110.py:178 devices/jsdrv/js220.py:271
+#: devices/jsdrv/js320.py:267
 msgid "GPIO voltage"
 msgstr ""
 
@@ -1024,18 +1048,22 @@ msgid ""
 msgstr ""
 
 #: devices/jsdrv/js110.py:199 devices/jsdrv/js220.py:289
+#: devices/jsdrv/js320.py:285
 msgid "GPO 0 output value"
 msgstr ""
 
 #: devices/jsdrv/js110.py:200 devices/jsdrv/js220.py:290
+#: devices/jsdrv/js320.py:286
 msgid "Turn the general-purpose output 0 on or off."
 msgstr ""
 
 #: devices/jsdrv/js110.py:205 devices/jsdrv/js220.py:295
+#: devices/jsdrv/js320.py:291
 msgid "GPO 1 output value"
 msgstr ""
 
 #: devices/jsdrv/js110.py:206 devices/jsdrv/js220.py:296
+#: devices/jsdrv/js320.py:292
 msgid "Turn the general-purpose output 1 on or off."
 msgstr ""
 
@@ -1106,163 +1134,173 @@ msgid ""
 msgstr ""
 
 #: devices/jsdrv/js110.py:269 devices/jsdrv/js220.py:435
-#: widgets/device_control/fuse.py:103 widgets/waveform/waveform_widget.py:110
+#: devices/jsdrv/js320.py:397 widgets/device_control/fuse.py:103
+#: widgets/waveform/waveform_widget.py:110
 msgid "Current"
 msgstr ""
 
 #: devices/jsdrv/js110.py:270 devices/jsdrv/js220.py:436
+#: devices/jsdrv/js320.py:398
 msgid "Enable the current signal streaming."
 msgstr ""
 
 #: devices/jsdrv/js110.py:278 devices/jsdrv/js220.py:444
-#: widgets/waveform/waveform_widget.py:111
+#: devices/jsdrv/js320.py:406 widgets/waveform/waveform_widget.py:111
 msgid "Voltage"
 msgstr ""
 
 #: devices/jsdrv/js110.py:279 devices/jsdrv/js220.py:445
+#: devices/jsdrv/js320.py:407
 msgid "Enable the voltage signal streaming."
 msgstr ""
 
 #: devices/jsdrv/js110.py:287 devices/jsdrv/js220.py:453
-#: widgets/waveform/waveform_widget.py:112
+#: devices/jsdrv/js320.py:415 widgets/waveform/waveform_widget.py:112
 msgid "Power"
 msgstr ""
 
 #: devices/jsdrv/js110.py:288 devices/jsdrv/js220.py:454
+#: devices/jsdrv/js320.py:416
 msgid "Enable the power signal streaming."
 msgstr ""
 
 #: devices/jsdrv/js110.py:296 devices/jsdrv/js220.py:462
+#: devices/jsdrv/js320.py:424
 msgid "Current Range"
 msgstr ""
 
 #: devices/jsdrv/js110.py:308 devices/jsdrv/js220.py:476
+#: devices/jsdrv/js320.py:438
 msgid "GPI 0"
 msgstr ""
 
 #: devices/jsdrv/js110.py:309 devices/jsdrv/js220.py:477
+#: devices/jsdrv/js320.py:439
 msgid "Enable the general purpose input 0 signal streaming."
 msgstr ""
 
 #: devices/jsdrv/js110.py:317 devices/jsdrv/js220.py:485
+#: devices/jsdrv/js320.py:447
 msgid "GPI 1"
 msgstr ""
 
 #: devices/jsdrv/js110.py:318 devices/jsdrv/js220.py:486
+#: devices/jsdrv/js320.py:448
 msgid "Enable the general purpose input 1 signal streaming."
 msgstr ""
 
 #: devices/jsdrv/js110.py:330 devices/jsdrv/js220.py:538
-#: devices/jsdrv/jsdrv_stream_buffer.py:108
+#: devices/jsdrv/js320.py:500 devices/jsdrv/jsdrv_stream_buffer.py:108
+#: devices/serial/serial_device.py:75
 msgid "Signal name"
 msgstr ""
 
-#: devices/jsdrv/js220.py:61
+#: devices/jsdrv/js220.py:61 devices/jsdrv/js320.py:57
 msgid ""
 "Configure how the general-purpose input downsampling filter determines a "
 "single value from a sample block."
 msgstr ""
 
-#: devices/jsdrv/js220.py:63
+#: devices/jsdrv/js220.py:63 devices/jsdrv/js320.py:59
 msgid "Keep at full rate and do not downsample."
 msgstr ""
 
-#: devices/jsdrv/js220.py:64
+#: devices/jsdrv/js220.py:64 devices/jsdrv/js320.py:60
 msgid "Toggle from the previous value on any change."
 msgstr ""
 
-#: devices/jsdrv/js220.py:65
+#: devices/jsdrv/js220.py:65 devices/jsdrv/js320.py:61
 msgid "Use the first sample from the block and ignore all others."
 msgstr ""
 
-#: devices/jsdrv/js220.py:66
+#: devices/jsdrv/js220.py:66 devices/jsdrv/js320.py:62
 msgid "Use the majority value in the block."
 msgstr ""
 
-#: devices/jsdrv/js220.py:98
+#: devices/jsdrv/js220.py:98 devices/jsdrv/js320.py:94
 msgid ""
 "This setting allows you to change the default, if you wish, to better "
 "reflect how you are using your JS220. This setting is most useful when you "
 "are instrumenting a system using multiple Joulescopes."
 msgstr ""
 
-#: devices/jsdrv/js220.py:152
+#: devices/jsdrv/js220.py:152 devices/jsdrv/js320.py:148
 msgid ""
 "The JS220 instrument always samples at 2 MHz and then downsamples to 1 MHz. "
 "This setting controls additional optional downsampling."
 msgstr ""
 
-#: devices/jsdrv/js220.py:181
+#: devices/jsdrv/js220.py:181 devices/jsdrv/js320.py:177
 msgid ""
 "This setting controls the output frequency for the statistics data that is "
 "displayed in the multimeter and value widgets. Statistics data is computed "
 "over the full rate 1 MHz samples."
 msgstr ""
 
-#: devices/jsdrv/js220.py:212
+#: devices/jsdrv/js220.py:212 devices/jsdrv/js320.py:208
 msgid ""
 "Configure the JS220's current range. Most applications should use the "
 "default, \"auto\"."
 msgstr ""
 
-#: devices/jsdrv/js220.py:230
+#: devices/jsdrv/js220.py:230 devices/jsdrv/js320.py:226
 msgid "Limits"
 msgstr ""
 
-#: devices/jsdrv/js220.py:232
+#: devices/jsdrv/js220.py:232 devices/jsdrv/js320.py:228
 msgid "Configure the autoranging current limits."
 msgstr ""
 
-#: devices/jsdrv/js220.py:233
+#: devices/jsdrv/js220.py:233 devices/jsdrv/js320.py:229
 msgid "This setting is only effective when the Current Range is set to \"auto\"."
 msgstr ""
 
-#: devices/jsdrv/js220.py:235
+#: devices/jsdrv/js220.py:235 devices/jsdrv/js320.py:231
 msgid ""
 "You can use this setting to limit the current range and improve autoranging "
 "accuracy when you know your application current is more limited than the "
 "full measurement range."
 msgstr ""
 
-#: devices/jsdrv/js220.py:243
+#: devices/jsdrv/js220.py:243 devices/jsdrv/js320.py:239
 msgid ""
 "Configure the JS220's voltage range. Most applications should use the "
 "default, \"auto\"."
 msgstr ""
 
-#: devices/jsdrv/js220.py:254
+#: devices/jsdrv/js220.py:254 devices/jsdrv/js320.py:250
 msgid "Trigger direction"
 msgstr ""
 
-#: devices/jsdrv/js220.py:256
+#: devices/jsdrv/js220.py:256 devices/jsdrv/js320.py:252
 msgid "Configure the direction of the JS220's trigger BNC connection."
 msgstr ""
 
-#: devices/jsdrv/js220.py:257
+#: devices/jsdrv/js220.py:257 devices/jsdrv/js320.py:253
 msgid ""
 "0 (default) configures the BNC trigger for input only. The BNC connection is"
 " high-impedance."
 msgstr ""
 
-#: devices/jsdrv/js220.py:259
+#: devices/jsdrv/js220.py:259 devices/jsdrv/js320.py:255
 msgid ""
 "1 configures the BNC trigger for output. The BNC connection has 50 Ohm "
 "output impedance."
 msgstr ""
 
-#: devices/jsdrv/js220.py:261
+#: devices/jsdrv/js220.py:261 devices/jsdrv/js320.py:257
 msgid ""
 "In both cases, the trigger input signal is valid, which enables internal "
 "inspection and recording of the trigger output."
 msgstr ""
 
-#: devices/jsdrv/js220.py:273
+#: devices/jsdrv/js220.py:273 devices/jsdrv/js320.py:269
 msgid ""
 "Configure the JS220's reference voltage for the general-purpose inputs and "
 "outputs."
 msgstr ""
 
-#: devices/jsdrv/js220.py:275
+#: devices/jsdrv/js220.py:275 devices/jsdrv/js320.py:271
 msgid ""
 "We recommend using \"Vref\" when attaching general-purpose outputs (GPO) to "
 "other equipment. Using Vref prevents the GPO from backpowering target "
@@ -1270,39 +1308,39 @@ msgid ""
 "are all extremely high impedance to minimize leakage currents."
 msgstr ""
 
-#: devices/jsdrv/js220.py:280
+#: devices/jsdrv/js220.py:280 devices/jsdrv/js320.py:276
 msgid "\"3.3 V\" uses an internally-generated 3.3V reference voltage."
 msgstr ""
 
-#: devices/jsdrv/js220.py:301
+#: devices/jsdrv/js220.py:301 devices/jsdrv/js320.py:297
 msgid "Trigger output value"
 msgstr ""
 
-#: devices/jsdrv/js220.py:303
+#: devices/jsdrv/js220.py:303 devices/jsdrv/js320.py:299
 msgid "Turn the trigger output on or off."
 msgstr ""
 
-#: devices/jsdrv/js220.py:304
+#: devices/jsdrv/js220.py:304 devices/jsdrv/js320.py:300
 msgid ""
 "The trigger must also be configured for output for this setting to have any "
 "effect."
 msgstr ""
 
-#: devices/jsdrv/js220.py:312
+#: devices/jsdrv/js220.py:312 devices/jsdrv/js320.py:308
 msgid "The maturity level channel for firmware updates."
 msgstr ""
 
-#: devices/jsdrv/js220.py:313
+#: devices/jsdrv/js220.py:313 devices/jsdrv/js320.py:309
 msgid ""
 "We recommend keeping the default \"stable\" unless you are a Joulescope "
 "developer."
 msgstr ""
 
-#: devices/jsdrv/js220.py:322
+#: devices/jsdrv/js220.py:322 devices/jsdrv/js320.py:318
 msgid "Firmware update availability."
 msgstr ""
 
-#: devices/jsdrv/js220.py:323
+#: devices/jsdrv/js220.py:323 devices/jsdrv/js320.py:319
 msgid ""
 "None when no firmware update is available. Map of subname: [current, "
 "available] when available."
@@ -1338,54 +1376,56 @@ msgid ""
 "The sinc1 filter also runs on the instrument for reduced USB throughput."
 msgstr ""
 
-#: devices/jsdrv/js220.py:401
+#: devices/jsdrv/js220.py:401 devices/jsdrv/js320.py:364
 msgid "GPI filter"
 msgstr ""
 
-#: devices/jsdrv/js220.py:414
+#: devices/jsdrv/js220.py:414 devices/jsdrv/js320.py:376
 msgid "Current scale"
 msgstr ""
 
-#: devices/jsdrv/js220.py:419
+#: devices/jsdrv/js220.py:419 devices/jsdrv/js320.py:381
 msgid "Voltage scale"
 msgstr ""
 
-#: devices/jsdrv/js220.py:465
+#: devices/jsdrv/js220.py:465 devices/jsdrv/js320.py:427
 msgid ""
 "⚠ When enabled, no more than 3 GPIO signals (0, 1, 2, 3, T) may be enabled. "
 "If you attempt to enable too many signals, then the UI will display no data "
 "for any signal."
 msgstr ""
 
-#: devices/jsdrv/js220.py:494
+#: devices/jsdrv/js220.py:494 devices/jsdrv/js320.py:456
 msgid "GPI 2"
 msgstr ""
 
-#: devices/jsdrv/js220.py:495
+#: devices/jsdrv/js220.py:495 devices/jsdrv/js320.py:457
 msgid "Enable the general purpose input 2 signal streaming."
 msgstr ""
 
-#: devices/jsdrv/js220.py:503
+#: devices/jsdrv/js220.py:503 devices/jsdrv/js320.py:465
 msgid "GPI 3"
 msgstr ""
 
-#: devices/jsdrv/js220.py:504
+#: devices/jsdrv/js220.py:504 devices/jsdrv/js320.py:466
 msgid "Enable the general purpose input 3 signal streaming."
 msgstr ""
 
-#: devices/jsdrv/js220.py:512 widgets/waveform/waveform_widget.py:129
+#: devices/jsdrv/js220.py:512 devices/jsdrv/js320.py:474
+#: widgets/waveform/waveform_widget.py:129
 msgid "Trigger input"
 msgstr ""
 
-#: devices/jsdrv/js220.py:513
+#: devices/jsdrv/js220.py:513 devices/jsdrv/js320.py:475
 msgid "Enable the trigger input signal streaming."
 msgstr ""
 
-#: devices/jsdrv/js220.py:523
+#: devices/jsdrv/js220.py:523 devices/jsdrv/js320.py:485
+#: devices/serial/serial_device.py:77 devices/serial/serial_device.py:81
 msgid "Serial"
 msgstr ""
 
-#: devices/jsdrv/js220.py:524
+#: devices/jsdrv/js220.py:524 devices/jsdrv/js320.py:486
 msgid "Serial data stream"
 msgstr ""
 
@@ -1395,7 +1435,8 @@ msgstr ""
 
 #: devices/jsdrv/jsdrv_stream_buffer.py:44
 #: devices/jsdrv/jsdrv_stream_buffer.py:93
-#: devices/jsdrv/jsdrv_stream_buffer.py:107 plugins/selector.py:58
+#: devices/jsdrv/jsdrv_stream_buffer.py:107
+#: devices/serial/serial_port_dialog.py:46 plugins/selector.py:58
 #: widgets/settings/settings_widget.py:85
 #: widgets/settings/settings_widget.py:266
 #: widgets/settings/settings_widget.py:364
@@ -1432,8 +1473,84 @@ msgstr ""
 msgid "Signal time range"
 msgstr ""
 
-#: devices/jsdrv/jsdrv_wrapper.py:41
+#: devices/jsdrv/jsdrv_wrapper.py:42
 msgid "The pyjoulescope_driver log level."
+msgstr ""
+
+#: devices/serial/serial_device.py:51
+msgid "Device state"
+msgstr ""
+
+#: devices/serial/serial_device.py:82
+msgid "External serial data stream"
+msgstr ""
+
+#: devices/serial/serial_manager.py:41
+msgid "Configured external serial ports"
+msgstr ""
+
+#: devices/serial/serial_port_dialog.py:39
+msgid "External Serial Ports"
+msgstr ""
+
+#: devices/serial/serial_port_dialog.py:46
+msgid "Port"
+msgstr ""
+
+#: devices/serial/serial_port_dialog.py:46
+msgid "Baud Rate"
+msgstr ""
+
+#: devices/serial/serial_port_dialog.py:46
+msgid "Status"
+msgstr ""
+
+#: devices/serial/serial_port_dialog.py:59
+msgid "Add Port"
+msgstr ""
+
+#: devices/serial/serial_port_dialog.py:65
+msgid "Port:"
+msgstr ""
+
+#: devices/serial/serial_port_dialog.py:68
+msgid "Refresh"
+msgstr ""
+
+#: devices/serial/serial_port_dialog.py:73
+msgid "Friendly name"
+msgstr ""
+
+#: devices/serial/serial_port_dialog.py:74
+msgid "Name:"
+msgstr ""
+
+#: devices/serial/serial_port_dialog.py:82
+msgid "Baud:"
+msgstr ""
+
+#: devices/serial/serial_port_dialog.py:85
+msgid "Auto-open"
+msgstr ""
+
+#: devices/serial/serial_port_dialog.py:88
+#: widgets/waveform/waveform_widget.py:3409
+msgid "Add"
+msgstr ""
+
+#: devices/serial/serial_port_dialog.py:145
+msgid "Closed"
+msgstr ""
+
+#: devices/serial/serial_port_dialog.py:163
+#: widgets/waveform/waveform_widget.py:3734
+#: widgets/waveform/waveform_widget.py:3762
+#: widgets/waveform/waveform_widget.py:3798
+msgid "Remove"
+msgstr ""
+
+#: devices/serial/serial_port_dialog.py:181
+msgid "Invalid baud rate"
 msgstr ""
 
 #: plugins/selector.py:32
@@ -1889,7 +2006,7 @@ msgid ""
 msgstr ""
 
 #: widgets/device_control/js220_ctrl_widget.py:84
-#: widgets/device_control/js220_ctrl_widget.py:651
+#: widgets/device_control/js220_ctrl_widget.py:654
 msgid "Calibrate"
 msgstr ""
 
@@ -1900,15 +2017,15 @@ msgid ""
 "by accounting for the existing temperature and aging effects."
 msgstr ""
 
-#: widgets/device_control/js220_ctrl_widget.py:440
+#: widgets/device_control/js220_ctrl_widget.py:441
 msgid "GPO"
 msgstr ""
 
-#: widgets/device_control/js220_ctrl_widget.py:638
+#: widgets/device_control/js220_ctrl_widget.py:639
 msgid "Reset to defaults"
 msgstr ""
 
-#: widgets/device_control/js220_ctrl_widget.py:644
+#: widgets/device_control/js220_ctrl_widget.py:645
 msgid "Clear accum"
 msgstr ""
 
@@ -2113,6 +2230,10 @@ msgstr ""
 #: widgets/waveform/waveform_widget.py:405
 #: widgets/waveform/waveform_widget.py:478
 msgid "off"
+msgstr ""
+
+#: widgets/serial_console/serial_console_widget.py:225
+msgid "External Serial..."
 msgstr ""
 
 #: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:694
@@ -3007,10 +3128,6 @@ msgstr ""
 msgid "Preferred prefix"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3409
-msgid "Add"
-msgstr ""
-
 #: widgets/waveform/waveform_widget.py:3410
 msgid "Hide all text"
 msgstr ""
@@ -3098,12 +3215,6 @@ msgstr ""
 
 #: widgets/waveform/waveform_widget.py:3722
 msgid "Label"
-msgstr ""
-
-#: widgets/waveform/waveform_widget.py:3734
-#: widgets/waveform/waveform_widget.py:3762
-#: widgets/waveform/waveform_widget.py:3798
-msgid "Remove"
 msgstr ""
 
 #: widgets/waveform/waveform_widget.py:3745
