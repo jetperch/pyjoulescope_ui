@@ -206,6 +206,7 @@ setuptools.setup(
         'pyopengl>=3,<4',
         "pywin32>=223; platform_system == 'Windows'",
         'pyqtgraph>=0.14.0,<1',
+        'pyserial>=3,<4',
         'PySide6==6.10.1',
         'PySide6-QtAds==4.5.0',
         'python-dateutil>=2.7.3,<3',

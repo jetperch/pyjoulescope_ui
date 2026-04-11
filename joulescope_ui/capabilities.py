@@ -160,6 +160,9 @@ class CAPABILITIES(Enum):
           u4 and u1 data is packed into bytes.
     """
 
+    SERIAL_SOURCE = 'serial.source'
+    """A source that provides serial/UART message data via signals/S/!data."""
+
     SIGNAL_STREAM_SOURCE = 'signal_stream.source'
     """A signal source that can provide live streaming signal sample data."""
 

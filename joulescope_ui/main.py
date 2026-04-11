@@ -47,6 +47,7 @@ from .exporter import ExporterDialog   # register the exporter
 from .jls_source import JlsSource      # register the source
 from .resources import load_resources, load_fonts
 from joulescope_ui.devices.jsdrv.jsdrv_wrapper import JsdrvWrapper
+from joulescope_ui.devices.serial import ExternalSerialManager
 from joulescope_ui.windows import run_w32time_high_accuracy
 from .styles import StyleManager
 from .app import App
@@ -166,6 +167,9 @@ def _device_factory_add():
     topic = get_topic_name(jsdrv)
     pubsub_singleton.process()
     pubsub_singleton.publish(f'{topic}/actions/mem/!add', 1)  # use singleton memory buffer
+    pubsub_singleton.process()
+    ext_serial = ExternalSerialManager()
+    pubsub_singleton.register(ext_serial, 'ext_serial')
     pubsub_singleton.process()
 
 

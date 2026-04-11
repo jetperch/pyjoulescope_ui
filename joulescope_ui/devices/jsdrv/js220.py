@@ -14,7 +14,7 @@
 
 from .device import Device, CAPABILITIES_OBJECT_OPEN, CURRENT_RANGE_SHORT, CURRENT_RANGE_LONG
 from .js220_fuse import fuse_to_config
-from joulescope_ui import N_, get_topic_name, register, P_
+from joulescope_ui import N_, get_topic_name, register, P_, CAPABILITIES
 from joulescope_ui.metadata import Metadata
 from .serial_decoder import SerialDecoder
 from pyjoulescope_driver import release, program, time64
@@ -896,6 +896,7 @@ class Js220(Device):
         self._log.info('thread open complete')
         self._device_update_check()
         self.pubsub.capabilities_append(self, CAPABILITIES_OBJECT_OPEN)
+        self.pubsub.capabilities_append(self, [CAPABILITIES.SERIAL_SOURCE])
 
         while not self._quit:
             try:
@@ -906,6 +907,7 @@ class Js220(Device):
                 break
             self._run_cmd(cmd, args)
         self._close()
+        self.pubsub.capabilities_remove(self, [CAPABILITIES.SERIAL_SOURCE])
         self.pubsub.capabilities_remove(self, CAPABILITIES_OBJECT_OPEN)
         self._log.info('thread stop')
         return 0

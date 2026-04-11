@@ -31,6 +31,10 @@ _SOURCE_DEF = {
         'registry/app/settings/defaults/signal_buffer_source',
         f'registry_manager/capabilities/{CAPABILITIES.SIGNAL_BUFFER_SOURCE}/list'
     ],
+    'serial': [
+        'registry/app/settings/defaults/serial_source',
+        f'registry_manager/capabilities/{CAPABILITIES.SERIAL_SOURCE}/list'
+    ],
 }
 
 

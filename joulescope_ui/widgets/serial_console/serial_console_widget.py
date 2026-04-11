@@ -16,7 +16,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from joulescope_ui.source_selector import SourceSelector
 from joulescope_ui import N_, register, get_topic_name
 from joulescope_ui.styles import styled_widget
-from joulescope_ui.widget_tools import CallableAction, settings_action_create, context_menu_show
+from joulescope_ui.widget_tools import CallableAction, settings_action_create
 from pyjoulescope_driver import time64
 import datetime
 
@@ -57,7 +57,7 @@ class SerialConsoleWidget(QtWidgets.QWidget):
 
         self._subscription = None
         self._waveform_extent_subscription = None
-        self.source_selector = SourceSelector(self, 'signal_stream')
+        self.source_selector = SourceSelector(self, 'serial')
         self.source_selector.source_changed.connect(self._on_source_changed)
         self.source_selector.resolved_changed.connect(self._on_resolved_changed)
 
@@ -222,6 +222,11 @@ class SerialConsoleWidget(QtWidgets.QWidget):
                 construct_annotate_signal(plot['index'], plot['quantity'])
 
         self.source_selector.submenu_factory(menu)
+        CallableAction(menu, N_('External Serial...'), self._on_external_serial_dialog)
         settings_action_create(self, menu)
         menu.aboutToHide.connect(menu.deleteLater)
         menu.popup(self._table.mapToGlobal(pos))
+
+    def _on_external_serial_dialog(self):
+        from joulescope_ui.devices.serial.serial_port_dialog import ExternalSerialPortDialog
+        ExternalSerialPortDialog(self)

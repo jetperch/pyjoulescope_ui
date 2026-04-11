@@ -22,6 +22,7 @@ _DEFAULT_CAPABILITIES = {
     CAPABILITIES.STATISTIC_STREAM_SOURCE: 'defaults/statistics_stream_source',
     CAPABILITIES.SIGNAL_STREAM_SOURCE: 'defaults/signal_stream_source',
     CAPABILITIES.SIGNAL_BUFFER_SOURCE: 'defaults/signal_buffer_source',
+    CAPABILITIES.SERIAL_SOURCE: 'defaults/serial_source',
 }
 
 SETTINGS = {
