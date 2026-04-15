@@ -567,8 +567,12 @@ class Js320(Device):
                            ['pub', 'retain'], absolute_topic=True)
         self.pubsub.publish(f'{topic}/settings/info', self._info)
         self.pubsub.publish(f'{topic}/settings/sources/1/info', self._info)
-        for key, value in _SIGNALS.items():
-            self._signal_forward(key, value['topics'][1], self.unique_id)
+        for key in _SIGNALS:
+            # Driver subscribe is deferred to _open() so device I/O does not
+            # block the UI pubsub thread.
+            utopic = f'events/signals/{key}/!data'
+            t = f'{get_topic_name(self.unique_id)}/{utopic}'
+            self.pubsub.topic_add(t, Metadata('obj', 'signal'), exists_ok=True)
         if self.auto_open:
             self._log.info('auto open')
             self._open_req()
@@ -598,12 +602,6 @@ class Js320(Device):
         elif topic_type == 'data':
             return topics[1]
         raise ValueError(f'unsupported topic_type {topic_type}')
-
-    def _signal_forward(self, signal_id, dtopic, unique_id):
-        utopic = f'events/signals/{signal_id}/!data'
-        t = f'{get_topic_name(unique_id)}/{utopic}'
-        self.pubsub.topic_add(t, Metadata('obj', 'signal'), exists_ok=True)
-        self._driver_subscribe(dtopic, ['pub'], self._signal_forward_factory(signal_id, t))
 
     def _signal_forward_factory(self, signal_id, utopic):
         signal_info = _SIGNALS[signal_id]
@@ -669,7 +667,7 @@ class Js320(Device):
         self._close_req()
 
     def _driver_publish(self, topic, value, timeout=None):
-        return self._driver.publish(self._driver_topic_make(topic), value, 0)
+        return self._driver.publish(self._driver_topic_make(topic), value, timeout)
 
     def _run_cmd_settings(self, topic, value):
         self._log.info(f'setting(%s): %s <= %s', self, topic, value)
@@ -885,7 +883,14 @@ class Js320(Device):
             }
             self._info = copy.deepcopy(self._info)
             self._ui_publish('settings/info', self._info)
-            self._driver_publish('s/stats/ctrl', 1, timeout=0)
+            # Confirmed (blocking) subscribes pace the host->sensor burst to
+            # avoid fpga_mcu task event-queue overflow on hot-plug.
+            for key, value in _SIGNALS.items():
+                utopic = f'events/signals/{key}/!data'
+                t = f'{get_topic_name(self.unique_id)}/{utopic}'
+                self._driver_subscribe(value['topics'][1], ['pub'],
+                                       self._signal_forward_factory(key, t))
+            self._driver_publish('s/stats/ctrl', 1)
             self._driver_subscribe('s/stats/value', 'pub', self._on_stats)
             for fuse_id in _FUSE_IDS:
                 self._driver_subscribe(f's/fuse/{fuse_id}/engaged', ['pub', 'pub_retain'], self._on_fuse_engaged)
