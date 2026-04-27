@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-11 13:22-0400\n"
+"POT-Creation-Date: 2026-04-27 18:19-0400\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: zh <LL@li.org>\n"
@@ -169,42 +169,48 @@ msgid "Check for software updates."
 msgstr "检查软件更新。"
 
 #: app.py:146
+msgid ""
+"ISO 8601 UTC timestamp of the most recent \"Later\" dismissal of the "
+"software update prompt, or None."
+msgstr "最近一次点击“稍后”关闭软件更新提示时的 ISO 8601 UTC 时间戳，或无。"
+
+#: app.py:152
 msgid "The software update channel."
 msgstr "软件更新通道。"
 
-#: app.py:149
+#: app.py:155
 msgid "alpha"
 msgstr "阿尔法"
 
-#: app.py:150
+#: app.py:156
 msgid "beta"
 msgstr "测试版"
 
-#: app.py:151
+#: app.py:157
 msgid "stable"
 msgstr "稳定"
 
-#: app.py:156
+#: app.py:162
 msgid "Check for device firmware updates."
 msgstr "检查设备固件更新。"
 
-#: app.py:161 units.py:33
+#: app.py:167 units.py:33
 msgid "The units to display."
 msgstr "要显示的单位。"
 
-#: app.py:163 units.py:36
+#: app.py:169 units.py:36
 msgid "International System of Units (SI)"
 msgstr "国际单位制（SI）"
 
-#: app.py:164 units.py:37
+#: app.py:170 units.py:37
 msgid "Customary units (Ah and Wh)"
 msgstr "习惯单位（Ah 和 Wh）"
 
-#: app.py:170
+#: app.py:176
 msgid "Select the OpenGL rendering method."
 msgstr "选择 OpenGL 渲染方法。"
 
-#: app.py:172
+#: app.py:178
 msgid ""
 "This application uses OpenGL to accelerate graphics rendering. OpenGL has "
 "multiple options for rendering, which varies between platforms. By default, "
@@ -214,31 +220,31 @@ msgstr ""
 "此应用程序使用 OpenGL 加速图形渲染。OpenGL 有多种渲染选项，不同平台有不同的选项。默认情况下，此应用程序使用 \"桌面 "
 "\"渲染。如果你的图形驱动程序不支持 OpenGL，你可以选择 \"软件 \"渲染。"
 
-#: app.py:177
+#: app.py:183
 msgid "Selecting \"ANGLE\" may break copy as image and save as image."
 msgstr "选择 \"ANGLE \"可能会中断复制为图像和保存为图像。"
 
-#: app.py:178
+#: app.py:184
 msgid "UI restart required for change to take effect."
 msgstr "更改生效需要重新启动用户界面。"
 
-#: app.py:180
+#: app.py:186
 msgid "desktop"
 msgstr "桌面"
 
-#: app.py:181
+#: app.py:187
 msgid "software"
 msgstr "软件"
 
-#: app.py:183
+#: app.py:189
 msgid "Autodetect"
 msgstr "自动检测"
 
-#: app.py:184
+#: app.py:190
 msgid "Not specified"
 msgstr "未指定"
 
-#: app.py:190
+#: app.py:196
 msgid "Prompt to switch from Intel graphics to software renderer."
 msgstr "提示从英特尔显卡切换到软件渲染器。"
 
@@ -299,7 +305,7 @@ msgstr "电子邮件"
 msgid "Description"
 msgstr "描述"
 
-#: error_window.py:112 widgets/waveform/waveform_widget.py:3741
+#: error_window.py:112 widgets/waveform/waveform_widget.py:3729
 msgid "Edit"
 msgstr "编辑"
 
@@ -511,58 +517,6 @@ msgid ""
 "options."
 msgstr "点击左下角的帮助图标，了解更多信息和支持选项。"
 
-#: intel_graphics_dialog.py:22
-msgid ""
-"This computer has Intel graphics. If the computer has a discrete graphics "
-"card, please adjust your graphics settings to run this application using the"
-" graphics card."
-msgstr "该计算机具有英特尔显卡。如果计算机配有独立显卡，请调整显卡设置，以便使用显卡运行此应用程序。"
-
-#: intel_graphics_dialog.py:26
-msgid ""
-"If the computer only has Intel graphics, we recommend that you update your "
-"graphics drivers. You can download the latest graphics drivers from your "
-"computer manufacturer or Intel."
-msgstr "如果计算机只有英特尔显卡，我们建议您更新显卡驱动程序。您可以从计算机制造商或英特尔公司下载最新的显卡驱动程序。"
-
-#: intel_graphics_dialog.py:29
-msgid "You may observe strange graphics hangs with the latest Intel driver."
-msgstr "使用最新的英特尔驱动程序时，您可能会发现奇怪的图形挂起。"
-
-#: intel_graphics_dialog.py:30
-msgid ""
-"If this happens on your computer, then you can switch to the software OpenGL"
-" renderer. The software OpenGL renderer may work around Intel driver "
-"instabilities, but it runs slower possibly causing performance issues. On a "
-"small number of computers, it does not run correctly causing a white "
-"application screen. You will need to close and reopen this application for "
-"the change to take effect."
-msgstr ""
-"如果您的电脑出现这种情况，您可以切换到软件 OpenGL 渲染器。软件 OpenGL "
-"渲染器可以解决英特尔驱动程序不稳定的问题，但运行速度较慢，可能会导致性能问题。在少数电脑上，它无法正常运行，导致应用程序屏幕变白。您需要关闭并重新打开此应用程序才能使更改生效。"
-
-#: intel_graphics_dialog.py:38
-msgid "Would you like to switch to the software OpenGL renderer?"
-msgstr "您想切换到软件 OpenGL 渲染器吗？"
-
-#: intel_graphics_dialog.py:39
-msgid ""
-"If you are unsure, select \"No\" and leave \"Do not show again\" unchecked. "
-"If you observe the graphics hangs, you can select \"Yes\" in the future. You"
-" can select the OpenGL renderer at any time using Widgets → Settings → "
-"Common → opengl. The default is \"desktop\"."
-msgstr ""
-"如果您不确定，请选择 \"否\"，并取消选中 \"不再显示\"。如果观察到图形挂起，将来可以选择 \"是\"。你可以随时使用 Widgets → "
-"Settings → Common → opengl 选择 OpenGL 渲染器。默认为 \"桌面\"。"
-
-#: intel_graphics_dialog.py:82
-msgid "Do not show again"
-msgstr "不再显示"
-
-#: intel_graphics_dialog.py:91
-msgid "Intel graphics detected"
-msgstr "检测到英特尔显卡"
-
 #: locale_dialog.py:21
 msgid "Select a language"
 msgstr "选择语言"
@@ -715,11 +669,11 @@ msgstr "信息"
 msgid "Settings"
 msgstr "设置"
 
-#: main.py:722
+#: main.py:729
 msgid "Manage"
 msgstr "管理"
 
-#: main.py:759
+#: main.py:766
 msgid "Select file to open"
 msgstr "选择要打开的文件"
 
@@ -812,49 +766,49 @@ msgstr "关闭"
 msgid "Safe Mode Configuration"
 msgstr "安全模式配置"
 
-#: software_update.py:61
+#: software_update.py:62
 msgid ""
 "We have detected that you are running the Joulescope UI from a python "
 "package or source."
 msgstr "我们检测到您正在从 python 软件包或源代码运行 Joulescope UI。"
 
-#: software_update.py:62
+#: software_update.py:63
 msgid "To update your python packages, issue the following command:"
 msgstr "要更新 python 软件包，请执行以下命令："
 
-#: software_update.py:72
+#: software_update.py:73
 msgid "Software update"
 msgstr "软件更新"
 
-#: software_update.py:76
+#: software_update.py:77
 msgid "A software update is available:"
 msgstr "提供软件更新："
 
-#: software_update.py:77
+#: software_update.py:78
 msgid "Existing version"
 msgstr "现有版本"
 
-#: software_update.py:78
+#: software_update.py:79
 msgid "Available version"
 msgstr "可用版本"
 
-#: software_update.py:79
+#: software_update.py:80
 msgid "Channel"
 msgstr "通道"
 
-#: software_update.py:314
+#: software_update.py:315
 msgid "Update Now"
 msgstr "立即更新"
 
-#: software_update.py:316
+#: software_update.py:317
 msgid "Later"
 msgstr "稍后"
 
-#: software_update.py:324
+#: software_update.py:325
 msgid "Copy to clipboard"
 msgstr "复制到剪贴板"
 
-#: software_update.py:330 widgets/device_control/device_update_dialog.py:44
+#: software_update.py:331 widgets/device_control/device_update_dialog.py:44
 msgid "OK"
 msgstr "确定"
 
@@ -1457,7 +1411,7 @@ msgstr "固件更新状态"
 #: widgets/settings/settings_widget.py:266
 #: widgets/settings/settings_widget.py:364
 #: widgets/settings/settings_widget.py:431
-#: widgets/waveform/waveform_widget.py:3363
+#: widgets/waveform/waveform_widget.py:3351
 msgid "Name"
 msgstr "名称"
 
@@ -1501,7 +1455,7 @@ msgstr "设备状态"
 msgid "External serial data stream"
 msgstr "外部串行数据流"
 
-#: devices/serial/serial_manager.py:41
+#: devices/serial/serial_manager.py:43
 msgid "Configured external serial ports"
 msgstr "已配置的外部串行端口"
 
@@ -1550,7 +1504,7 @@ msgid "Auto-open"
 msgstr "自动打开"
 
 #: devices/serial/serial_port_dialog.py:88
-#: widgets/waveform/waveform_widget.py:3409
+#: widgets/waveform/waveform_widget.py:3397
 msgid "Add"
 msgstr "添加"
 
@@ -1559,9 +1513,9 @@ msgid "Closed"
 msgstr "关闭"
 
 #: devices/serial/serial_port_dialog.py:163
-#: widgets/waveform/waveform_widget.py:3734
-#: widgets/waveform/waveform_widget.py:3762
-#: widgets/waveform/waveform_widget.py:3798
+#: widgets/waveform/waveform_widget.py:3722
+#: widgets/waveform/waveform_widget.py:3750
+#: widgets/waveform/waveform_widget.py:3786
 msgid "Remove"
 msgstr "删除"
 
@@ -2023,7 +1977,7 @@ msgid ""
 msgstr "单击此按钮可清除电荷和能量累积器。数值显示部件（包括万用表）的 \"累积 \"功能将不受影响。"
 
 #: widgets/device_control/js220_ctrl_widget.py:84
-#: widgets/device_control/js220_ctrl_widget.py:654
+#: widgets/device_control/js220_ctrl_widget.py:656
 msgid "Calibrate"
 msgstr "校准"
 
@@ -2034,15 +1988,15 @@ msgid ""
 "by accounting for the existing temperature and aging effects."
 msgstr "点击此按钮重新校准 Joulescope JS220。正常操作不需要重新校准。进行校准可以通过考虑现有的温度和老化影响来提高精度。"
 
-#: widgets/device_control/js220_ctrl_widget.py:441
+#: widgets/device_control/js220_ctrl_widget.py:443
 msgid "GPO"
 msgstr "GPO"
 
-#: widgets/device_control/js220_ctrl_widget.py:639
+#: widgets/device_control/js220_ctrl_widget.py:641
 msgid "Reset to defaults"
 msgstr "重置为默认值"
 
-#: widgets/device_control/js220_ctrl_widget.py:645
+#: widgets/device_control/js220_ctrl_widget.py:647
 msgid "Clear accum"
 msgstr "清除累积"
 
@@ -2050,7 +2004,7 @@ msgstr "清除累积"
 msgid "Example"
 msgstr "示例"
 
-#: widgets/flyout/flyout_widget.py:26
+#: widgets/flyout/flyout_widget.py:32
 msgid "flyout"
 msgstr "飞出"
 
@@ -2245,9 +2199,9 @@ msgstr "注释波形"
 
 #: widgets/serial_console/serial_console_widget.py:218
 #: widgets/waveform/waveform_source_widget.py:104
-#: widgets/waveform/waveform_widget.py:384
-#: widgets/waveform/waveform_widget.py:405
-#: widgets/waveform/waveform_widget.py:478
+#: widgets/waveform/waveform_widget.py:381
+#: widgets/waveform/waveform_widget.py:402
+#: widgets/waveform/waveform_widget.py:475
 msgid "off"
 msgstr "关闭"
 
@@ -2565,7 +2519,7 @@ msgstr "显示右侧的统计字段。"
 msgid "Show a leading + or - sign."
 msgstr "显示前导 + 或 - 符号。"
 
-#: widgets/value/value_widget.py:63 widgets/waveform/waveform_widget.py:430
+#: widgets/value/value_widget.py:63 widgets/waveform/waveform_widget.py:427
 msgid "The precision to display in digits."
 msgstr "以位数显示的精度。"
 
@@ -2687,7 +2641,7 @@ msgid "triangle left"
 msgstr "左三角形"
 
 #: widgets/waveform/text_annotation.py:66
-#: widgets/waveform/waveform_widget.py:3309
+#: widgets/waveform/waveform_widget.py:3297
 msgid "Manual"
 msgstr "手册"
 
@@ -2696,17 +2650,17 @@ msgid "Centered"
 msgstr "居中"
 
 #: widgets/waveform/text_annotation.py:99
-#: widgets/waveform/waveform_widget.py:3424
+#: widgets/waveform/waveform_widget.py:3412
 msgid "Text"
 msgstr "文本"
 
 #: widgets/waveform/text_annotation.py:107
-#: widgets/waveform/waveform_widget.py:3742
+#: widgets/waveform/waveform_widget.py:3730
 msgid "Show text"
 msgstr "显示文本"
 
 #: widgets/waveform/text_annotation.py:116
-#: widgets/waveform/waveform_widget.py:3754
+#: widgets/waveform/waveform_widget.py:3742
 msgid "Shape"
 msgstr "形状"
 
@@ -2904,339 +2858,339 @@ msgstr "通用输入 2"
 msgid "General purpose input 3"
 msgstr "通用输入 3"
 
-#: widgets/waveform/waveform_widget.py:340
+#: widgets/waveform/waveform_widget.py:337
 msgid "The source filter string."
 msgstr "源滤波器串。"
 
-#: widgets/waveform/waveform_widget.py:351
+#: widgets/waveform/waveform_widget.py:348
 msgid "The trace width."
 msgstr "轨迹宽度。"
 
-#: widgets/waveform/waveform_widget.py:366
+#: widgets/waveform/waveform_widget.py:363
 msgid "The target frames per second."
 msgstr "目标帧/秒。"
 
-#: widgets/waveform/waveform_widget.py:368
+#: widgets/waveform/waveform_widget.py:365
 msgid "vsync"
 msgstr "vsync"
 
-#: widgets/waveform/waveform_widget.py:369
+#: widgets/waveform/waveform_widget.py:366
 msgid "20 Hz"
 msgstr "20 赫兹"
 
-#: widgets/waveform/waveform_widget.py:370
+#: widgets/waveform/waveform_widget.py:367
 msgid "10 Hz"
 msgstr "10 赫兹"
 
-#: widgets/waveform/waveform_widget.py:371
+#: widgets/waveform/waveform_widget.py:368
 msgid "5 Hz"
 msgstr "5 赫兹"
 
-#: widgets/waveform/waveform_widget.py:377
+#: widgets/waveform/waveform_widget.py:374
 msgid "The minimum interval between repaint in milliseconds."
 msgstr "以毫秒为单位的最小重绘间隔。"
 
-#: widgets/waveform/waveform_widget.py:382
+#: widgets/waveform/waveform_widget.py:379
 msgid "Show the minimum and maximum extents fill."
 msgstr "显示填充的最小和最大范围。"
 
-#: widgets/waveform/waveform_widget.py:385
+#: widgets/waveform/waveform_widget.py:382
 msgid "lines"
 msgstr "线路"
 
-#: widgets/waveform/waveform_widget.py:386
+#: widgets/waveform/waveform_widget.py:383
 msgid "fill 1"
 msgstr "填充 1"
 
-#: widgets/waveform/waveform_widget.py:387
+#: widgets/waveform/waveform_widget.py:384
 msgid "fill 2"
 msgstr "填充 2"
 
-#: widgets/waveform/waveform_widget.py:393
+#: widgets/waveform/waveform_widget.py:390
 msgid "Show the frames per second."
 msgstr "显示每秒帧数。"
 
-#: widgets/waveform/waveform_widget.py:398
+#: widgets/waveform/waveform_widget.py:395
 msgid "Show the statistics on mouse hover."
 msgstr "鼠标悬停时显示统计数据。"
 
-#: widgets/waveform/waveform_widget.py:403
+#: widgets/waveform/waveform_widget.py:400
 msgid "The time format for mouse hover."
 msgstr "鼠标悬停的时间格式。"
 
-#: widgets/waveform/waveform_widget.py:406
+#: widgets/waveform/waveform_widget.py:403
 msgid "Relative to view"
 msgstr "相对于视图"
 
-#: widgets/waveform/waveform_widget.py:407
+#: widgets/waveform/waveform_widget.py:404
 msgid "Relative to buffer"
 msgstr "相对于缓冲器"
 
-#: widgets/waveform/waveform_widget.py:408
+#: widgets/waveform/waveform_widget.py:405
 msgid "Absolute UTC time"
 msgstr "绝对 UTC 时间"
 
-#: widgets/waveform/waveform_widget.py:414
+#: widgets/waveform/waveform_widget.py:411
 msgid "Show the plot statistics on the right."
 msgstr "在右侧显示绘图统计数据。"
 
-#: widgets/waveform/waveform_widget.py:419
+#: widgets/waveform/waveform_widget.py:416
 msgid "Show frequency for dual markers and statistics."
 msgstr "显示频率，用于双重标记和统计。"
 
-#: widgets/waveform/waveform_widget.py:424
+#: widgets/waveform/waveform_widget.py:421
 msgid "The quantities to display by default."
 msgstr "默认显示的量。"
 
-#: widgets/waveform/waveform_widget.py:436
+#: widgets/waveform/waveform_widget.py:433
 msgid "Use OpenGL rendering."
 msgstr "使用 OpenGL 渲染。"
 
-#: widgets/waveform/waveform_widget.py:453
+#: widgets/waveform/waveform_widget.py:450
 msgid "Pin the left side (oldest) data so that it stays in view."
 msgstr "钉住左侧（最旧）数据，使其保持在视图中。"
 
-#: widgets/waveform/waveform_widget.py:458
+#: widgets/waveform/waveform_widget.py:455
 msgid "Pin the right side (newest) data so that it stays in view."
 msgstr "钉住右侧（最新）数据，使其保持在视图中。"
 
-#: widgets/waveform/waveform_widget.py:463
+#: widgets/waveform/waveform_widget.py:460
 msgid "The waveform state."
 msgstr "波形状态。"
 
-#: widgets/waveform/waveform_widget.py:469
+#: widgets/waveform/waveform_widget.py:466
 msgid "The annotations."
 msgstr "注释。"
 
-#: widgets/waveform/waveform_widget.py:475
+#: widgets/waveform/waveform_widget.py:472
 msgid "Control location"
 msgstr "控制位置"
 
-#: widgets/waveform/waveform_widget.py:479
+#: widgets/waveform/waveform_widget.py:476
 msgid "top"
 msgstr "顶部"
 
-#: widgets/waveform/waveform_widget.py:480
+#: widgets/waveform/waveform_widget.py:477
 msgid "bottom"
 msgstr "底部"
 
-#: widgets/waveform/waveform_widget.py:485
+#: widgets/waveform/waveform_widget.py:482
 msgid "Show the summary waveform at top."
 msgstr "在顶部显示汇总波形。"
 
-#: widgets/waveform/waveform_widget.py:490
+#: widgets/waveform/waveform_widget.py:487
 msgid "The signal quantity to show in the summary."
 msgstr "要在摘要中显示的信号量。"
 
-#: widgets/waveform/waveform_widget.py:496
+#: widgets/waveform/waveform_widget.py:493
 msgid "X-axis annotation mode"
 msgstr "X 轴注释模式"
 
-#: widgets/waveform/waveform_widget.py:499
-#: widgets/waveform/waveform_widget.py:3189
+#: widgets/waveform/waveform_widget.py:496
+#: widgets/waveform/waveform_widget.py:3177
 msgid "Absolute"
 msgstr "绝对值"
 
-#: widgets/waveform/waveform_widget.py:500
-#: widgets/waveform/waveform_widget.py:3194
+#: widgets/waveform/waveform_widget.py:497
+#: widgets/waveform/waveform_widget.py:3182
 msgid "Relative"
 msgstr "相对值"
 
-#: widgets/waveform/waveform_widget.py:506
+#: widgets/waveform/waveform_widget.py:503
 msgid "The available subsources."
 msgstr "可用的子源。"
 
-#: widgets/waveform/waveform_widget.py:512
+#: widgets/waveform/waveform_widget.py:509
 msgid "The selected subsources for each trace."
 msgstr "每个跟踪所选的子源。"
 
-#: widgets/waveform/waveform_widget.py:518
+#: widgets/waveform/waveform_widget.py:515
 msgid "The trace priority: highest int value on top, None is off."
 msgstr "跟踪优先级：最高 int 值在顶部，无则关闭。"
 
-#: widgets/waveform/waveform_widget.py:524
+#: widgets/waveform/waveform_widget.py:521
 msgid "The formatting method for elapsed time."
 msgstr "流逝时间的格式化方法。"
 
-#: widgets/waveform/waveform_widget.py:526
+#: widgets/waveform/waveform_widget.py:523
 msgid "Seconds displays the time as seconds with prefix."
 msgstr "秒显示时间为带前缀的秒。"
 
-#: widgets/waveform/waveform_widget.py:527
+#: widgets/waveform/waveform_widget.py:524
 msgid "Customary selects seconds, minutes, hours, or days."
 msgstr "习惯选择秒、分、小时或天。"
 
-#: widgets/waveform/waveform_widget.py:528
+#: widgets/waveform/waveform_widget.py:525
 msgid "Standard displays days:hours:minutes:seconds."
 msgstr "标准显示日:时:分:秒。"
 
-#: widgets/waveform/waveform_widget.py:532
+#: widgets/waveform/waveform_widget.py:529
 msgid "Seconds"
 msgstr "秒"
 
-#: widgets/waveform/waveform_widget.py:533
+#: widgets/waveform/waveform_widget.py:530
 msgid "Customary"
 msgstr "习惯"
 
-#: widgets/waveform/waveform_widget.py:534
+#: widgets/waveform/waveform_widget.py:531
 msgid "Standard"
 msgstr "标准"
 
-#: widgets/waveform/waveform_widget.py:3136
-#: widgets/waveform/waveform_widget.py:3436
+#: widgets/waveform/waveform_widget.py:3124
+#: widgets/waveform/waveform_widget.py:3424
 msgid "Save image to file"
 msgstr "将图像保存到文件"
 
-#: widgets/waveform/waveform_widget.py:3183
-#: widgets/waveform/waveform_widget.py:3252
+#: widgets/waveform/waveform_widget.py:3171
+#: widgets/waveform/waveform_widget.py:3240
 msgid "Single marker"
 msgstr "单标记"
 
-#: widgets/waveform/waveform_widget.py:3184
-#: widgets/waveform/waveform_widget.py:3253
+#: widgets/waveform/waveform_widget.py:3172
+#: widgets/waveform/waveform_widget.py:3241
 msgid "Dual markers"
 msgstr "双标记"
 
-#: widgets/waveform/waveform_widget.py:3186
+#: widgets/waveform/waveform_widget.py:3174
 msgid "Mode"
 msgstr "模式"
 
-#: widgets/waveform/waveform_widget.py:3199
-#: widgets/waveform/waveform_widget.py:3254
-#: widgets/waveform/waveform_widget.py:3412
-#: widgets/waveform/waveform_widget.py:3430
+#: widgets/waveform/waveform_widget.py:3187
+#: widgets/waveform/waveform_widget.py:3242
+#: widgets/waveform/waveform_widget.py:3400
+#: widgets/waveform/waveform_widget.py:3418
 msgid "Clear all"
 msgstr "全部清除"
 
-#: widgets/waveform/waveform_widget.py:3210
-#: widgets/waveform/waveform_widget.py:3299
-#: widgets/waveform/waveform_widget.py:3418
+#: widgets/waveform/waveform_widget.py:3198
+#: widgets/waveform/waveform_widget.py:3287
+#: widgets/waveform/waveform_widget.py:3406
 msgid "Annotations"
 msgstr "注释"
 
-#: widgets/waveform/waveform_widget.py:3302
+#: widgets/waveform/waveform_widget.py:3290
 msgid "Range"
 msgstr "范围"
 
-#: widgets/waveform/waveform_widget.py:3306
-#: widgets/waveform/waveform_widget.py:3699
+#: widgets/waveform/waveform_widget.py:3294
+#: widgets/waveform/waveform_widget.py:3687
 msgid "Auto"
 msgstr "自动"
 
-#: widgets/waveform/waveform_widget.py:3312
+#: widgets/waveform/waveform_widget.py:3300
 msgid "Exact"
 msgstr "精确"
 
-#: widgets/waveform/waveform_widget.py:3321
+#: widgets/waveform/waveform_widget.py:3309
 msgid "Scale"
 msgstr "规模"
 
-#: widgets/waveform/waveform_widget.py:3324
+#: widgets/waveform/waveform_widget.py:3312
 msgid "Linear"
 msgstr "线性"
 
-#: widgets/waveform/waveform_widget.py:3329
+#: widgets/waveform/waveform_widget.py:3317
 msgid "Logarithmic"
 msgstr "对数"
 
-#: widgets/waveform/waveform_widget.py:3337
+#: widgets/waveform/waveform_widget.py:3325
 msgid "Logarithmic zero"
 msgstr "对数零"
 
-#: widgets/waveform/waveform_widget.py:3351
+#: widgets/waveform/waveform_widget.py:3339
 msgid "Preferred prefix"
 msgstr "首选前缀"
 
-#: widgets/waveform/waveform_widget.py:3410
+#: widgets/waveform/waveform_widget.py:3398
 msgid "Hide all text"
 msgstr "隐藏所有文本"
 
-#: widgets/waveform/waveform_widget.py:3411
+#: widgets/waveform/waveform_widget.py:3399
 msgid "Show all text"
 msgstr "显示所有文本"
 
-#: widgets/waveform/waveform_widget.py:3419
+#: widgets/waveform/waveform_widget.py:3407
 msgid "Vertical"
 msgstr "垂直"
 
-#: widgets/waveform/waveform_widget.py:3422
+#: widgets/waveform/waveform_widget.py:3410
 msgid "Horizontal"
 msgstr "水平"
 
-#: widgets/waveform/waveform_widget.py:3428
+#: widgets/waveform/waveform_widget.py:3416
 msgid "Save"
 msgstr "保存"
 
-#: widgets/waveform/waveform_widget.py:3433
+#: widgets/waveform/waveform_widget.py:3421
 msgid "Y-axis auto range"
 msgstr "Y 轴自动量程"
 
-#: widgets/waveform/waveform_widget.py:3437
+#: widgets/waveform/waveform_widget.py:3425
 msgid "Copy image to clipboard"
 msgstr "将图像复制到剪贴板"
 
-#: widgets/waveform/waveform_widget.py:3438
+#: widgets/waveform/waveform_widget.py:3426
 msgid "Export visible data"
 msgstr "导出可见数据"
 
-#: widgets/waveform/waveform_widget.py:3439
+#: widgets/waveform/waveform_widget.py:3427
 msgid "Export visible data as CSV"
 msgstr "将可见数据导出为 CSV"
 
-#: widgets/waveform/waveform_widget.py:3440
+#: widgets/waveform/waveform_widget.py:3428
 msgid "Export all data"
 msgstr "导出所有数据"
 
-#: widgets/waveform/waveform_widget.py:3605
+#: widgets/waveform/waveform_widget.py:3593
 msgid "Export visible data to CSV file"
 msgstr "将可见数据导出到 CSV 文件"
 
-#: widgets/waveform/waveform_widget.py:3675
+#: widgets/waveform/waveform_widget.py:3663
 msgid "Export"
 msgstr "出口"
 
-#: widgets/waveform/waveform_widget.py:3676
+#: widgets/waveform/waveform_widget.py:3664
 msgid "Analysis"
 msgstr "分析"
 
-#: widgets/waveform/waveform_widget.py:3684
+#: widgets/waveform/waveform_widget.py:3672
 msgid "Interval"
 msgstr "间隔"
 
-#: widgets/waveform/waveform_widget.py:3693
+#: widgets/waveform/waveform_widget.py:3681
 msgid "Zoom"
 msgstr "放大"
 
-#: widgets/waveform/waveform_widget.py:3697
+#: widgets/waveform/waveform_widget.py:3685
 msgid "Show statistics"
 msgstr "显示统计数据"
 
-#: widgets/waveform/waveform_widget.py:3702
+#: widgets/waveform/waveform_widget.py:3690
 msgid "Left"
 msgstr "左侧"
 
-#: widgets/waveform/waveform_widget.py:3705
+#: widgets/waveform/waveform_widget.py:3693
 msgid "Right"
 msgstr "正确"
 
-#: widgets/waveform/waveform_widget.py:3708
-#: widgets/waveform/waveform_widget.py:3715
+#: widgets/waveform/waveform_widget.py:3696
+#: widgets/waveform/waveform_widget.py:3703
 msgid "Off"
 msgstr "关闭"
 
-#: widgets/waveform/waveform_widget.py:3712
+#: widgets/waveform/waveform_widget.py:3700
 msgid "Show time"
 msgstr "显示时间"
 
-#: widgets/waveform/waveform_widget.py:3718
+#: widgets/waveform/waveform_widget.py:3706
 msgid "On"
 msgstr "在"
 
-#: widgets/waveform/waveform_widget.py:3722
+#: widgets/waveform/waveform_widget.py:3710
 msgid "Label"
 msgstr "标签"
 
-#: widgets/waveform/waveform_widget.py:3745
+#: widgets/waveform/waveform_widget.py:3733
 msgid "Y mode"
 msgstr "Y 模式"
 
@@ -3262,3 +3216,47 @@ msgstr "单位"
 
 #~ msgid "Change Language"
 #~ msgstr "更改语言"
+
+#~ msgid ""
+#~ "This computer has Intel graphics. If the computer has a discrete graphics "
+#~ "card, please adjust your graphics settings to run this application using the"
+#~ " graphics card."
+#~ msgstr "该计算机具有英特尔显卡。如果计算机配有独立显卡，请调整显卡设置，以便使用显卡运行此应用程序。"
+
+#~ msgid ""
+#~ "If the computer only has Intel graphics, we recommend that you update your "
+#~ "graphics drivers. You can download the latest graphics drivers from your "
+#~ "computer manufacturer or Intel."
+#~ msgstr "如果计算机只有英特尔显卡，我们建议您更新显卡驱动程序。您可以从计算机制造商或英特尔公司下载最新的显卡驱动程序。"
+
+#~ msgid "You may observe strange graphics hangs with the latest Intel driver."
+#~ msgstr "使用最新的英特尔驱动程序时，您可能会发现奇怪的图形挂起。"
+
+#~ msgid ""
+#~ "If this happens on your computer, then you can switch to the software OpenGL"
+#~ " renderer. The software OpenGL renderer may work around Intel driver "
+#~ "instabilities, but it runs slower possibly causing performance issues. On a "
+#~ "small number of computers, it does not run correctly causing a white "
+#~ "application screen. You will need to close and reopen this application for "
+#~ "the change to take effect."
+#~ msgstr ""
+#~ "如果您的电脑出现这种情况，您可以切换到软件 OpenGL 渲染器。软件 OpenGL "
+#~ "渲染器可以解决英特尔驱动程序不稳定的问题，但运行速度较慢，可能会导致性能问题。在少数电脑上，它无法正常运行，导致应用程序屏幕变白。您需要关闭并重新打开此应用程序才能使更改生效。"
+
+#~ msgid "Would you like to switch to the software OpenGL renderer?"
+#~ msgstr "您想切换到软件 OpenGL 渲染器吗？"
+
+#~ msgid ""
+#~ "If you are unsure, select \"No\" and leave \"Do not show again\" unchecked. "
+#~ "If you observe the graphics hangs, you can select \"Yes\" in the future. You"
+#~ " can select the OpenGL renderer at any time using Widgets → Settings → "
+#~ "Common → opengl. The default is \"desktop\"."
+#~ msgstr ""
+#~ "如果您不确定，请选择 \"否\"，并取消选中 \"不再显示\"。如果观察到图形挂起，将来可以选择 \"是\"。你可以随时使用 Widgets → "
+#~ "Settings → Common → opengl 选择 OpenGL 渲染器。默认为 \"桌面\"。"
+
+#~ msgid "Do not show again"
+#~ msgstr "不再显示"
+
+#~ msgid "Intel graphics detected"
+#~ msgstr "检测到英特尔显卡"

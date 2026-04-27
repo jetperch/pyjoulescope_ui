@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-11 13:22-0400\n"
+"POT-Creation-Date: 2026-04-27 18:19-0400\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: ko <LL@li.org>\n"
@@ -175,42 +175,48 @@ msgid "Check for software updates."
 msgstr "소프트웨어 업데이트를 확인하세요."
 
 #: app.py:146
+msgid ""
+"ISO 8601 UTC timestamp of the most recent \"Later\" dismissal of the "
+"software update prompt, or None."
+msgstr "소프트웨어 업데이트 알림을 가장 최근에 \"나중에\"로 미룬 시점의 ISO 8601 UTC 타임스탬프, 또는 없음."
+
+#: app.py:152
 msgid "The software update channel."
 msgstr "소프트웨어 업데이트 채널."
 
-#: app.py:149
+#: app.py:155
 msgid "alpha"
 msgstr "알파"
 
-#: app.py:150
+#: app.py:156
 msgid "beta"
 msgstr "베타"
 
-#: app.py:151
+#: app.py:157
 msgid "stable"
 msgstr "안정적"
 
-#: app.py:156
+#: app.py:162
 msgid "Check for device firmware updates."
 msgstr "디바이스 펌웨어 업데이트를 확인하세요."
 
-#: app.py:161 units.py:33
+#: app.py:167 units.py:33
 msgid "The units to display."
 msgstr "표시할 단위."
 
-#: app.py:163 units.py:36
+#: app.py:169 units.py:36
 msgid "International System of Units (SI)"
 msgstr "국제 단위계(SI)"
 
-#: app.py:164 units.py:37
+#: app.py:170 units.py:37
 msgid "Customary units (Ah and Wh)"
 msgstr "일반 단위(Ah 및 Wh)"
 
-#: app.py:170
+#: app.py:176
 msgid "Select the OpenGL rendering method."
 msgstr "OpenGL 렌더링 방법을 선택합니다."
 
-#: app.py:172
+#: app.py:178
 msgid ""
 "This application uses OpenGL to accelerate graphics rendering. OpenGL has "
 "multiple options for rendering, which varies between platforms. By default, "
@@ -221,31 +227,31 @@ msgstr ""
 "기본적으로 이 애플리케이션은 \"데스크톱\" 렌더링을 사용합니다. 그래픽 드라이버에서 OpenGL을 제대로 지원하지 않는 경우 "
 "\"소프트웨어\" 렌더링을 선택할 수 있습니다."
 
-#: app.py:177
+#: app.py:183
 msgid "Selecting \"ANGLE\" may break copy as image and save as image."
 msgstr "\"각도\"를 선택하면 이미지로 복사가 중단되고 이미지로 저장될 수 있습니다."
 
-#: app.py:178
+#: app.py:184
 msgid "UI restart required for change to take effect."
 msgstr "변경 사항을 적용하려면 UI를 다시 시작해야 합니다."
 
-#: app.py:180
+#: app.py:186
 msgid "desktop"
 msgstr "데스크톱"
 
-#: app.py:181
+#: app.py:187
 msgid "software"
 msgstr "소프트웨어"
 
-#: app.py:183
+#: app.py:189
 msgid "Autodetect"
 msgstr "자동 감지"
 
-#: app.py:184
+#: app.py:190
 msgid "Not specified"
 msgstr "지정되지 않음"
 
-#: app.py:190
+#: app.py:196
 msgid "Prompt to switch from Intel graphics to software renderer."
 msgstr "인텔 그래픽에서 소프트웨어 렌더러로 전환하라는 메시지가 표시됩니다."
 
@@ -307,7 +313,7 @@ msgstr "이메일"
 msgid "Description"
 msgstr "설명"
 
-#: error_window.py:112 widgets/waveform/waveform_widget.py:3741
+#: error_window.py:112 widgets/waveform/waveform_widget.py:3729
 msgid "Edit"
 msgstr "Edit"
 
@@ -524,64 +530,6 @@ msgid ""
 "options."
 msgstr "자세한 정보 및 지원 옵션을 보려면 왼쪽 하단의 도움말 아이콘을 클릭하세요."
 
-#: intel_graphics_dialog.py:22
-msgid ""
-"This computer has Intel graphics. If the computer has a discrete graphics "
-"card, please adjust your graphics settings to run this application using the"
-" graphics card."
-msgstr ""
-"이 컴퓨터에는 인텔 그래픽이 있습니다. 컴퓨터에 외장 그래픽 카드가 있는 경우 그래픽 카드를 사용하여 이 애플리케이션을 실행하려면 그래픽"
-" 설정을 조정하세요."
-
-#: intel_graphics_dialog.py:26
-msgid ""
-"If the computer only has Intel graphics, we recommend that you update your "
-"graphics drivers. You can download the latest graphics drivers from your "
-"computer manufacturer or Intel."
-msgstr ""
-"컴퓨터에 인텔 그래픽만 있는 경우 그래픽 드라이버를 업데이트하는 것이 좋습니다. 컴퓨터 제조업체 또는 인텔에서 최신 그래픽 드라이버를 "
-"다운로드할 수 있습니다."
-
-#: intel_graphics_dialog.py:29
-msgid "You may observe strange graphics hangs with the latest Intel driver."
-msgstr "최신 인텔 드라이버를 사용하면 이상한 그래픽이 중단될 수 있습니다."
-
-#: intel_graphics_dialog.py:30
-msgid ""
-"If this happens on your computer, then you can switch to the software OpenGL"
-" renderer. The software OpenGL renderer may work around Intel driver "
-"instabilities, but it runs slower possibly causing performance issues. On a "
-"small number of computers, it does not run correctly causing a white "
-"application screen. You will need to close and reopen this application for "
-"the change to take effect."
-msgstr ""
-"컴퓨터에서 이 문제가 발생하면 소프트웨어 OpenGL 렌더러로 전환할 수 있습니다. 소프트웨어 OpenGL 렌더러는 인텔 드라이버 "
-"불안정성을 해결할 수 있지만 실행 속도가 느려져 성능 문제를 일으킬 수 있습니다. 소수의 컴퓨터에서는 제대로 실행되지 않아 흰색 "
-"애플리케이션 화면이 표시될 수 있습니다. 변경 사항을 적용하려면 이 애플리케이션을 닫았다가 다시 열어야 합니다."
-
-#: intel_graphics_dialog.py:38
-msgid "Would you like to switch to the software OpenGL renderer?"
-msgstr "소프트웨어 OpenGL 렌더러로 전환하시겠습니까?"
-
-#: intel_graphics_dialog.py:39
-msgid ""
-"If you are unsure, select \"No\" and leave \"Do not show again\" unchecked. "
-"If you observe the graphics hangs, you can select \"Yes\" in the future. You"
-" can select the OpenGL renderer at any time using Widgets → Settings → "
-"Common → opengl. The default is \"desktop\"."
-msgstr ""
-"확실하지 않은 경우 \"아니요\"를 선택하고 \"다시 표시 안 함\"을 선택하지 않은 상태로 두세요. 그래픽이 중단되는 것을 확인하면 "
-"나중에 \"예\"를 선택할 수 있습니다. 위젯 → 설정 → 일반 → opengl을 사용하여 언제든지 OpenGL 렌더러를 선택할 수 "
-"있습니다. 기본값은 \"데스크톱\"입니다."
-
-#: intel_graphics_dialog.py:82
-msgid "Do not show again"
-msgstr "다시 표시하지 않음"
-
-#: intel_graphics_dialog.py:91
-msgid "Intel graphics detected"
-msgstr "인텔 그래픽 감지"
-
 #: locale_dialog.py:21
 msgid "Select a language"
 msgstr "언어 선택"
@@ -736,11 +684,11 @@ msgstr "정보"
 msgid "Settings"
 msgstr "설정"
 
-#: main.py:722
+#: main.py:729
 msgid "Manage"
 msgstr "관리"
 
-#: main.py:759
+#: main.py:766
 msgid "Select file to open"
 msgstr "열 파일 선택"
 
@@ -833,49 +781,49 @@ msgstr "닫기"
 msgid "Safe Mode Configuration"
 msgstr "안전 모드 구성"
 
-#: software_update.py:61
+#: software_update.py:62
 msgid ""
 "We have detected that you are running the Joulescope UI from a python "
 "package or source."
 msgstr "Python 패키지 또는 소스에서 Joulescope UI를 실행하고 있는 것으로 감지되었습니다."
 
-#: software_update.py:62
+#: software_update.py:63
 msgid "To update your python packages, issue the following command:"
 msgstr "파이썬 패키지를 업데이트하려면 다음 명령을 실행하세요:"
 
-#: software_update.py:72
+#: software_update.py:73
 msgid "Software update"
 msgstr "소프트웨어 업데이트"
 
-#: software_update.py:76
+#: software_update.py:77
 msgid "A software update is available:"
 msgstr "소프트웨어 업데이트를 사용할 수 있습니다:"
 
-#: software_update.py:77
+#: software_update.py:78
 msgid "Existing version"
 msgstr "기존 버전"
 
-#: software_update.py:78
+#: software_update.py:79
 msgid "Available version"
 msgstr "사용 가능한 버전"
 
-#: software_update.py:79
+#: software_update.py:80
 msgid "Channel"
 msgstr "채널"
 
-#: software_update.py:314
+#: software_update.py:315
 msgid "Update Now"
 msgstr "지금 업데이트"
 
-#: software_update.py:316
+#: software_update.py:317
 msgid "Later"
 msgstr "나중에"
 
-#: software_update.py:324
+#: software_update.py:325
 msgid "Copy to clipboard"
 msgstr "클립보드에 복사"
 
-#: software_update.py:330 widgets/device_control/device_update_dialog.py:44
+#: software_update.py:331 widgets/device_control/device_update_dialog.py:44
 msgid "OK"
 msgstr "OK"
 
@@ -1508,7 +1456,7 @@ msgstr "펌웨어 업데이트 상태"
 #: widgets/settings/settings_widget.py:266
 #: widgets/settings/settings_widget.py:364
 #: widgets/settings/settings_widget.py:431
-#: widgets/waveform/waveform_widget.py:3363
+#: widgets/waveform/waveform_widget.py:3351
 msgid "Name"
 msgstr "이름"
 
@@ -1552,7 +1500,7 @@ msgstr "디바이스 상태"
 msgid "External serial data stream"
 msgstr "외부 직렬 데이터 스트림"
 
-#: devices/serial/serial_manager.py:41
+#: devices/serial/serial_manager.py:43
 msgid "Configured external serial ports"
 msgstr "구성된 외부 직렬 포트"
 
@@ -1601,7 +1549,7 @@ msgid "Auto-open"
 msgstr "자동 열기"
 
 #: devices/serial/serial_port_dialog.py:88
-#: widgets/waveform/waveform_widget.py:3409
+#: widgets/waveform/waveform_widget.py:3397
 msgid "Add"
 msgstr "추가"
 
@@ -1610,9 +1558,9 @@ msgid "Closed"
 msgstr "닫기"
 
 #: devices/serial/serial_port_dialog.py:163
-#: widgets/waveform/waveform_widget.py:3734
-#: widgets/waveform/waveform_widget.py:3762
-#: widgets/waveform/waveform_widget.py:3798
+#: widgets/waveform/waveform_widget.py:3722
+#: widgets/waveform/waveform_widget.py:3750
+#: widgets/waveform/waveform_widget.py:3786
 msgid "Remove"
 msgstr "제거"
 
@@ -2080,7 +2028,7 @@ msgstr ""
 "충전 및 에너지 축적을 지우려면 이 버튼을 클릭합니다. 멀티미터를 포함한 값 표시 위젯의 '누적' 기능은 영향을 받지 않습니다."
 
 #: widgets/device_control/js220_ctrl_widget.py:84
-#: widgets/device_control/js220_ctrl_widget.py:654
+#: widgets/device_control/js220_ctrl_widget.py:656
 msgid "Calibrate"
 msgstr "Calibrate"
 
@@ -2093,15 +2041,15 @@ msgstr ""
 "이 버튼을 클릭하여 줄스코프 JS220을 재보정하세요. 정상 작동을 위해서는 재교정이 필요하지 않습니다. 캘리브레이션을 수행하면 기존의 "
 "온도 및 노화 효과를 고려하여 정확도를 향상시킬 수 있습니다."
 
-#: widgets/device_control/js220_ctrl_widget.py:441
+#: widgets/device_control/js220_ctrl_widget.py:443
 msgid "GPO"
 msgstr "GPO"
 
-#: widgets/device_control/js220_ctrl_widget.py:639
+#: widgets/device_control/js220_ctrl_widget.py:641
 msgid "Reset to defaults"
 msgstr "기본값으로 재설정"
 
-#: widgets/device_control/js220_ctrl_widget.py:645
+#: widgets/device_control/js220_ctrl_widget.py:647
 msgid "Clear accum"
 msgstr "명확한 누적"
 
@@ -2109,7 +2057,7 @@ msgstr "명확한 누적"
 msgid "Example"
 msgstr "예제"
 
-#: widgets/flyout/flyout_widget.py:26
+#: widgets/flyout/flyout_widget.py:32
 msgid "flyout"
 msgstr "플라이아웃"
 
@@ -2304,9 +2252,9 @@ msgstr "파형에 주석 달기"
 
 #: widgets/serial_console/serial_console_widget.py:218
 #: widgets/waveform/waveform_source_widget.py:104
-#: widgets/waveform/waveform_widget.py:384
-#: widgets/waveform/waveform_widget.py:405
-#: widgets/waveform/waveform_widget.py:478
+#: widgets/waveform/waveform_widget.py:381
+#: widgets/waveform/waveform_widget.py:402
+#: widgets/waveform/waveform_widget.py:475
 msgid "off"
 msgstr "off"
 
@@ -2631,7 +2579,7 @@ msgstr "오른쪽에 통계 필드가 표시됩니다."
 msgid "Show a leading + or - sign."
 msgstr "선행 + 또는 - 기호를 표시합니다."
 
-#: widgets/value/value_widget.py:63 widgets/waveform/waveform_widget.py:430
+#: widgets/value/value_widget.py:63 widgets/waveform/waveform_widget.py:427
 msgid "The precision to display in digits."
 msgstr "숫자로 표시되는 정밀도."
 
@@ -2758,7 +2706,7 @@ msgid "triangle left"
 msgstr "왼쪽 삼각형"
 
 #: widgets/waveform/text_annotation.py:66
-#: widgets/waveform/waveform_widget.py:3309
+#: widgets/waveform/waveform_widget.py:3297
 msgid "Manual"
 msgstr "매뉴얼"
 
@@ -2767,17 +2715,17 @@ msgid "Centered"
 msgstr "중심"
 
 #: widgets/waveform/text_annotation.py:99
-#: widgets/waveform/waveform_widget.py:3424
+#: widgets/waveform/waveform_widget.py:3412
 msgid "Text"
 msgstr "텍스트"
 
 #: widgets/waveform/text_annotation.py:107
-#: widgets/waveform/waveform_widget.py:3742
+#: widgets/waveform/waveform_widget.py:3730
 msgid "Show text"
 msgstr "텍스트 표시"
 
 #: widgets/waveform/text_annotation.py:116
-#: widgets/waveform/waveform_widget.py:3754
+#: widgets/waveform/waveform_widget.py:3742
 msgid "Shape"
 msgstr "모양"
 
@@ -2977,339 +2925,339 @@ msgstr "범용 입력 2"
 msgid "General purpose input 3"
 msgstr "범용 입력 3"
 
-#: widgets/waveform/waveform_widget.py:340
+#: widgets/waveform/waveform_widget.py:337
 msgid "The source filter string."
 msgstr "소스 필터 문자열입니다."
 
-#: widgets/waveform/waveform_widget.py:351
+#: widgets/waveform/waveform_widget.py:348
 msgid "The trace width."
 msgstr "트레이스 폭."
 
-#: widgets/waveform/waveform_widget.py:366
+#: widgets/waveform/waveform_widget.py:363
 msgid "The target frames per second."
 msgstr "초당 목표 프레임."
 
-#: widgets/waveform/waveform_widget.py:368
+#: widgets/waveform/waveform_widget.py:365
 msgid "vsync"
 msgstr "vsync"
 
-#: widgets/waveform/waveform_widget.py:369
+#: widgets/waveform/waveform_widget.py:366
 msgid "20 Hz"
 msgstr "20 Hz"
 
-#: widgets/waveform/waveform_widget.py:370
+#: widgets/waveform/waveform_widget.py:367
 msgid "10 Hz"
 msgstr "10 Hz"
 
-#: widgets/waveform/waveform_widget.py:371
+#: widgets/waveform/waveform_widget.py:368
 msgid "5 Hz"
 msgstr "5 Hz"
 
-#: widgets/waveform/waveform_widget.py:377
+#: widgets/waveform/waveform_widget.py:374
 msgid "The minimum interval between repaint in milliseconds."
 msgstr "밀리초 단위의 최소 재도장 간격입니다."
 
-#: widgets/waveform/waveform_widget.py:382
+#: widgets/waveform/waveform_widget.py:379
 msgid "Show the minimum and maximum extents fill."
 msgstr "최소 및 최대 범위 채우기를 표시합니다."
 
-#: widgets/waveform/waveform_widget.py:385
+#: widgets/waveform/waveform_widget.py:382
 msgid "lines"
 msgstr "lines"
 
-#: widgets/waveform/waveform_widget.py:386
+#: widgets/waveform/waveform_widget.py:383
 msgid "fill 1"
 msgstr "채우기 1"
 
-#: widgets/waveform/waveform_widget.py:387
+#: widgets/waveform/waveform_widget.py:384
 msgid "fill 2"
 msgstr "채우기 2"
 
-#: widgets/waveform/waveform_widget.py:393
+#: widgets/waveform/waveform_widget.py:390
 msgid "Show the frames per second."
 msgstr "초당 프레임을 표시합니다."
 
-#: widgets/waveform/waveform_widget.py:398
+#: widgets/waveform/waveform_widget.py:395
 msgid "Show the statistics on mouse hover."
 msgstr "마우스 호버에 대한 통계를 표시합니다."
 
-#: widgets/waveform/waveform_widget.py:403
+#: widgets/waveform/waveform_widget.py:400
 msgid "The time format for mouse hover."
 msgstr "마우스 호버의 시간 형식입니다."
 
-#: widgets/waveform/waveform_widget.py:406
+#: widgets/waveform/waveform_widget.py:403
 msgid "Relative to view"
 msgstr "보기 상대"
 
-#: widgets/waveform/waveform_widget.py:407
+#: widgets/waveform/waveform_widget.py:404
 msgid "Relative to buffer"
 msgstr "버퍼 기준"
 
-#: widgets/waveform/waveform_widget.py:408
+#: widgets/waveform/waveform_widget.py:405
 msgid "Absolute UTC time"
 msgstr "절대 UTC 시간"
 
-#: widgets/waveform/waveform_widget.py:414
+#: widgets/waveform/waveform_widget.py:411
 msgid "Show the plot statistics on the right."
 msgstr "오른쪽에 플롯 통계가 표시됩니다."
 
-#: widgets/waveform/waveform_widget.py:419
+#: widgets/waveform/waveform_widget.py:416
 msgid "Show frequency for dual markers and statistics."
 msgstr "듀얼 마커 및 통계에 대한 주파수를 표시합니다."
 
-#: widgets/waveform/waveform_widget.py:424
+#: widgets/waveform/waveform_widget.py:421
 msgid "The quantities to display by default."
 msgstr "기본적으로 표시되는 수량입니다."
 
-#: widgets/waveform/waveform_widget.py:436
+#: widgets/waveform/waveform_widget.py:433
 msgid "Use OpenGL rendering."
 msgstr "OpenGL 렌더링을 사용합니다."
 
-#: widgets/waveform/waveform_widget.py:453
+#: widgets/waveform/waveform_widget.py:450
 msgid "Pin the left side (oldest) data so that it stays in view."
 msgstr "왼쪽(가장 오래된) 데이터를 고정하여 계속 볼 수 있도록 합니다."
 
-#: widgets/waveform/waveform_widget.py:458
+#: widgets/waveform/waveform_widget.py:455
 msgid "Pin the right side (newest) data so that it stays in view."
 msgstr "오른쪽(최신) 데이터를 고정하여 계속 볼 수 있도록 합니다."
 
-#: widgets/waveform/waveform_widget.py:463
+#: widgets/waveform/waveform_widget.py:460
 msgid "The waveform state."
 msgstr "파형 상태."
 
-#: widgets/waveform/waveform_widget.py:469
+#: widgets/waveform/waveform_widget.py:466
 msgid "The annotations."
 msgstr "주석."
 
-#: widgets/waveform/waveform_widget.py:475
+#: widgets/waveform/waveform_widget.py:472
 msgid "Control location"
 msgstr "제어 위치"
 
-#: widgets/waveform/waveform_widget.py:479
+#: widgets/waveform/waveform_widget.py:476
 msgid "top"
 msgstr "top"
 
-#: widgets/waveform/waveform_widget.py:480
+#: widgets/waveform/waveform_widget.py:477
 msgid "bottom"
 msgstr "bottom"
 
-#: widgets/waveform/waveform_widget.py:485
+#: widgets/waveform/waveform_widget.py:482
 msgid "Show the summary waveform at top."
 msgstr "상단에 요약 파형을 표시합니다."
 
-#: widgets/waveform/waveform_widget.py:490
+#: widgets/waveform/waveform_widget.py:487
 msgid "The signal quantity to show in the summary."
 msgstr "요약에 표시할 신호 양입니다."
 
-#: widgets/waveform/waveform_widget.py:496
+#: widgets/waveform/waveform_widget.py:493
 msgid "X-axis annotation mode"
 msgstr "X축 주석 모드"
 
-#: widgets/waveform/waveform_widget.py:499
-#: widgets/waveform/waveform_widget.py:3189
+#: widgets/waveform/waveform_widget.py:496
+#: widgets/waveform/waveform_widget.py:3177
 msgid "Absolute"
 msgstr "절대"
 
-#: widgets/waveform/waveform_widget.py:500
-#: widgets/waveform/waveform_widget.py:3194
+#: widgets/waveform/waveform_widget.py:497
+#: widgets/waveform/waveform_widget.py:3182
 msgid "Relative"
 msgstr "상대"
 
-#: widgets/waveform/waveform_widget.py:506
+#: widgets/waveform/waveform_widget.py:503
 msgid "The available subsources."
 msgstr "사용 가능한 하위 소스."
 
-#: widgets/waveform/waveform_widget.py:512
+#: widgets/waveform/waveform_widget.py:509
 msgid "The selected subsources for each trace."
 msgstr "각 트레이스에 대해 선택된 하위 소스."
 
-#: widgets/waveform/waveform_widget.py:518
+#: widgets/waveform/waveform_widget.py:515
 msgid "The trace priority: highest int value on top, None is off."
 msgstr "트레이스 우선순위: 가장 높은 int 값이 위에 있고 없음은 꺼져 있습니다."
 
-#: widgets/waveform/waveform_widget.py:524
+#: widgets/waveform/waveform_widget.py:521
 msgid "The formatting method for elapsed time."
 msgstr "경과 시간에 대한 형식 지정 방법."
 
-#: widgets/waveform/waveform_widget.py:526
+#: widgets/waveform/waveform_widget.py:523
 msgid "Seconds displays the time as seconds with prefix."
 msgstr "초는 접두사가 붙은 초 단위로 시간을 표시합니다."
 
-#: widgets/waveform/waveform_widget.py:527
+#: widgets/waveform/waveform_widget.py:524
 msgid "Customary selects seconds, minutes, hours, or days."
 msgstr "일반적으로 초, 분, 시간 또는 일을 선택합니다."
 
-#: widgets/waveform/waveform_widget.py:528
+#: widgets/waveform/waveform_widget.py:525
 msgid "Standard displays days:hours:minutes:seconds."
 msgstr "표준은 일:시:분:초를 표시합니다."
 
-#: widgets/waveform/waveform_widget.py:532
+#: widgets/waveform/waveform_widget.py:529
 msgid "Seconds"
 msgstr "초"
 
-#: widgets/waveform/waveform_widget.py:533
+#: widgets/waveform/waveform_widget.py:530
 msgid "Customary"
 msgstr "통상"
 
-#: widgets/waveform/waveform_widget.py:534
+#: widgets/waveform/waveform_widget.py:531
 msgid "Standard"
 msgstr "표준"
 
-#: widgets/waveform/waveform_widget.py:3136
-#: widgets/waveform/waveform_widget.py:3436
+#: widgets/waveform/waveform_widget.py:3124
+#: widgets/waveform/waveform_widget.py:3424
 msgid "Save image to file"
 msgstr "파일에 이미지 저장"
 
-#: widgets/waveform/waveform_widget.py:3183
-#: widgets/waveform/waveform_widget.py:3252
+#: widgets/waveform/waveform_widget.py:3171
+#: widgets/waveform/waveform_widget.py:3240
 msgid "Single marker"
 msgstr "단일 마커"
 
-#: widgets/waveform/waveform_widget.py:3184
-#: widgets/waveform/waveform_widget.py:3253
+#: widgets/waveform/waveform_widget.py:3172
+#: widgets/waveform/waveform_widget.py:3241
 msgid "Dual markers"
 msgstr "듀얼 마커"
 
-#: widgets/waveform/waveform_widget.py:3186
+#: widgets/waveform/waveform_widget.py:3174
 msgid "Mode"
 msgstr "모드"
 
-#: widgets/waveform/waveform_widget.py:3199
-#: widgets/waveform/waveform_widget.py:3254
-#: widgets/waveform/waveform_widget.py:3412
-#: widgets/waveform/waveform_widget.py:3430
+#: widgets/waveform/waveform_widget.py:3187
+#: widgets/waveform/waveform_widget.py:3242
+#: widgets/waveform/waveform_widget.py:3400
+#: widgets/waveform/waveform_widget.py:3418
 msgid "Clear all"
 msgstr "모두 지우기"
 
-#: widgets/waveform/waveform_widget.py:3210
-#: widgets/waveform/waveform_widget.py:3299
-#: widgets/waveform/waveform_widget.py:3418
+#: widgets/waveform/waveform_widget.py:3198
+#: widgets/waveform/waveform_widget.py:3287
+#: widgets/waveform/waveform_widget.py:3406
 msgid "Annotations"
 msgstr "주석"
 
-#: widgets/waveform/waveform_widget.py:3302
+#: widgets/waveform/waveform_widget.py:3290
 msgid "Range"
 msgstr "범위"
 
-#: widgets/waveform/waveform_widget.py:3306
-#: widgets/waveform/waveform_widget.py:3699
+#: widgets/waveform/waveform_widget.py:3294
+#: widgets/waveform/waveform_widget.py:3687
 msgid "Auto"
 msgstr "Auto"
 
-#: widgets/waveform/waveform_widget.py:3312
+#: widgets/waveform/waveform_widget.py:3300
 msgid "Exact"
 msgstr "정확한"
 
-#: widgets/waveform/waveform_widget.py:3321
+#: widgets/waveform/waveform_widget.py:3309
 msgid "Scale"
 msgstr "스케일"
 
-#: widgets/waveform/waveform_widget.py:3324
+#: widgets/waveform/waveform_widget.py:3312
 msgid "Linear"
 msgstr "선형"
 
-#: widgets/waveform/waveform_widget.py:3329
+#: widgets/waveform/waveform_widget.py:3317
 msgid "Logarithmic"
 msgstr "로그"
 
-#: widgets/waveform/waveform_widget.py:3337
+#: widgets/waveform/waveform_widget.py:3325
 msgid "Logarithmic zero"
 msgstr "로그 제로"
 
-#: widgets/waveform/waveform_widget.py:3351
+#: widgets/waveform/waveform_widget.py:3339
 msgid "Preferred prefix"
 msgstr "기본 접두사"
 
-#: widgets/waveform/waveform_widget.py:3410
+#: widgets/waveform/waveform_widget.py:3398
 msgid "Hide all text"
 msgstr "모든 텍스트 숨기기"
 
-#: widgets/waveform/waveform_widget.py:3411
+#: widgets/waveform/waveform_widget.py:3399
 msgid "Show all text"
 msgstr "모든 텍스트 표시"
 
-#: widgets/waveform/waveform_widget.py:3419
+#: widgets/waveform/waveform_widget.py:3407
 msgid "Vertical"
 msgstr "수직"
 
-#: widgets/waveform/waveform_widget.py:3422
+#: widgets/waveform/waveform_widget.py:3410
 msgid "Horizontal"
 msgstr "수평"
 
-#: widgets/waveform/waveform_widget.py:3428
+#: widgets/waveform/waveform_widget.py:3416
 msgid "Save"
 msgstr "저장"
 
-#: widgets/waveform/waveform_widget.py:3433
+#: widgets/waveform/waveform_widget.py:3421
 msgid "Y-axis auto range"
 msgstr "Y축 자동 범위"
 
-#: widgets/waveform/waveform_widget.py:3437
+#: widgets/waveform/waveform_widget.py:3425
 msgid "Copy image to clipboard"
 msgstr "이미지를 클립보드에 복사"
 
-#: widgets/waveform/waveform_widget.py:3438
+#: widgets/waveform/waveform_widget.py:3426
 msgid "Export visible data"
 msgstr "가시 데이터 내보내기"
 
-#: widgets/waveform/waveform_widget.py:3439
+#: widgets/waveform/waveform_widget.py:3427
 msgid "Export visible data as CSV"
 msgstr "가시적 데이터를 CSV로 내보내기"
 
-#: widgets/waveform/waveform_widget.py:3440
+#: widgets/waveform/waveform_widget.py:3428
 msgid "Export all data"
 msgstr "모든 데이터 내보내기"
 
-#: widgets/waveform/waveform_widget.py:3605
+#: widgets/waveform/waveform_widget.py:3593
 msgid "Export visible data to CSV file"
 msgstr "가시 데이터를 CSV 파일로 내보내기"
 
-#: widgets/waveform/waveform_widget.py:3675
+#: widgets/waveform/waveform_widget.py:3663
 msgid "Export"
 msgstr "Export"
 
-#: widgets/waveform/waveform_widget.py:3676
+#: widgets/waveform/waveform_widget.py:3664
 msgid "Analysis"
 msgstr "분석"
 
-#: widgets/waveform/waveform_widget.py:3684
+#: widgets/waveform/waveform_widget.py:3672
 msgid "Interval"
 msgstr "Interval"
 
-#: widgets/waveform/waveform_widget.py:3693
+#: widgets/waveform/waveform_widget.py:3681
 msgid "Zoom"
 msgstr "줌"
 
-#: widgets/waveform/waveform_widget.py:3697
+#: widgets/waveform/waveform_widget.py:3685
 msgid "Show statistics"
 msgstr "통계 보기"
 
-#: widgets/waveform/waveform_widget.py:3702
+#: widgets/waveform/waveform_widget.py:3690
 msgid "Left"
 msgstr "왼쪽"
 
-#: widgets/waveform/waveform_widget.py:3705
+#: widgets/waveform/waveform_widget.py:3693
 msgid "Right"
 msgstr "Right"
 
-#: widgets/waveform/waveform_widget.py:3708
-#: widgets/waveform/waveform_widget.py:3715
+#: widgets/waveform/waveform_widget.py:3696
+#: widgets/waveform/waveform_widget.py:3703
 msgid "Off"
 msgstr "Off"
 
-#: widgets/waveform/waveform_widget.py:3712
+#: widgets/waveform/waveform_widget.py:3700
 msgid "Show time"
 msgstr "시간 표시"
 
-#: widgets/waveform/waveform_widget.py:3718
+#: widgets/waveform/waveform_widget.py:3706
 msgid "On"
 msgstr "On"
 
-#: widgets/waveform/waveform_widget.py:3722
+#: widgets/waveform/waveform_widget.py:3710
 msgid "Label"
 msgstr "라벨"
 
-#: widgets/waveform/waveform_widget.py:3745
+#: widgets/waveform/waveform_widget.py:3733
 msgid "Y mode"
 msgstr "Y 모드"
 
@@ -3335,3 +3283,53 @@ msgstr "단위"
 
 #~ msgid "Change Language"
 #~ msgstr "언어 변경"
+
+#~ msgid ""
+#~ "This computer has Intel graphics. If the computer has a discrete graphics "
+#~ "card, please adjust your graphics settings to run this application using the"
+#~ " graphics card."
+#~ msgstr ""
+#~ "이 컴퓨터에는 인텔 그래픽이 있습니다. 컴퓨터에 외장 그래픽 카드가 있는 경우 그래픽 카드를 사용하여 이 애플리케이션을 실행하려면 그래픽"
+#~ " 설정을 조정하세요."
+
+#~ msgid ""
+#~ "If the computer only has Intel graphics, we recommend that you update your "
+#~ "graphics drivers. You can download the latest graphics drivers from your "
+#~ "computer manufacturer or Intel."
+#~ msgstr ""
+#~ "컴퓨터에 인텔 그래픽만 있는 경우 그래픽 드라이버를 업데이트하는 것이 좋습니다. 컴퓨터 제조업체 또는 인텔에서 최신 그래픽 드라이버를 "
+#~ "다운로드할 수 있습니다."
+
+#~ msgid "You may observe strange graphics hangs with the latest Intel driver."
+#~ msgstr "최신 인텔 드라이버를 사용하면 이상한 그래픽이 중단될 수 있습니다."
+
+#~ msgid ""
+#~ "If this happens on your computer, then you can switch to the software OpenGL"
+#~ " renderer. The software OpenGL renderer may work around Intel driver "
+#~ "instabilities, but it runs slower possibly causing performance issues. On a "
+#~ "small number of computers, it does not run correctly causing a white "
+#~ "application screen. You will need to close and reopen this application for "
+#~ "the change to take effect."
+#~ msgstr ""
+#~ "컴퓨터에서 이 문제가 발생하면 소프트웨어 OpenGL 렌더러로 전환할 수 있습니다. 소프트웨어 OpenGL 렌더러는 인텔 드라이버 "
+#~ "불안정성을 해결할 수 있지만 실행 속도가 느려져 성능 문제를 일으킬 수 있습니다. 소수의 컴퓨터에서는 제대로 실행되지 않아 흰색 "
+#~ "애플리케이션 화면이 표시될 수 있습니다. 변경 사항을 적용하려면 이 애플리케이션을 닫았다가 다시 열어야 합니다."
+
+#~ msgid "Would you like to switch to the software OpenGL renderer?"
+#~ msgstr "소프트웨어 OpenGL 렌더러로 전환하시겠습니까?"
+
+#~ msgid ""
+#~ "If you are unsure, select \"No\" and leave \"Do not show again\" unchecked. "
+#~ "If you observe the graphics hangs, you can select \"Yes\" in the future. You"
+#~ " can select the OpenGL renderer at any time using Widgets → Settings → "
+#~ "Common → opengl. The default is \"desktop\"."
+#~ msgstr ""
+#~ "확실하지 않은 경우 \"아니요\"를 선택하고 \"다시 표시 안 함\"을 선택하지 않은 상태로 두세요. 그래픽이 중단되는 것을 확인하면 "
+#~ "나중에 \"예\"를 선택할 수 있습니다. 위젯 → 설정 → 일반 → opengl을 사용하여 언제든지 OpenGL 렌더러를 선택할 수 "
+#~ "있습니다. 기본값은 \"데스크톱\"입니다."
+
+#~ msgid "Do not show again"
+#~ msgstr "다시 표시하지 않음"
+
+#~ msgid "Intel graphics detected"
+#~ msgstr "인텔 그래픽 감지"

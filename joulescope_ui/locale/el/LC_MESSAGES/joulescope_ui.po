@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-11 13:22-0400\n"
+"POT-Creation-Date: 2026-04-27 18:19-0400\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: el <LL@li.org>\n"
@@ -201,42 +201,50 @@ msgid "Check for software updates."
 msgstr "Ελέγξτε για ενημερώσεις λογισμικού."
 
 #: app.py:146
+msgid ""
+"ISO 8601 UTC timestamp of the most recent \"Later\" dismissal of the "
+"software update prompt, or None."
+msgstr ""
+"Χρονοσήμανση UTC σύμφωνα με το πρότυπο ISO 8601 της πιο πρόσφατης απόρριψης "
+"της ειδοποίησης ενημέρωσης λογισμικού με την επιλογή «Αργότερα», ή Κανένα."
+
+#: app.py:152
 msgid "The software update channel."
 msgstr "Το κανάλι ενημέρωσης λογισμικού."
 
-#: app.py:149
+#: app.py:155
 msgid "alpha"
 msgstr "alpha"
 
-#: app.py:150
+#: app.py:156
 msgid "beta"
 msgstr "beta"
 
-#: app.py:151
+#: app.py:157
 msgid "stable"
 msgstr "σταθερό"
 
-#: app.py:156
+#: app.py:162
 msgid "Check for device firmware updates."
 msgstr "Ελέγξτε για ενημερώσεις υλικολογισμικού της συσκευής."
 
-#: app.py:161 units.py:33
+#: app.py:167 units.py:33
 msgid "The units to display."
 msgstr "Οι μονάδες που θα εμφανίζονται."
 
-#: app.py:163 units.py:36
+#: app.py:169 units.py:36
 msgid "International System of Units (SI)"
 msgstr "Διεθνές σύστημα μονάδων (SI)"
 
-#: app.py:164 units.py:37
+#: app.py:170 units.py:37
 msgid "Customary units (Ah and Wh)"
 msgstr "Συνηθισμένες μονάδες (Ah και Wh)"
 
-#: app.py:170
+#: app.py:176
 msgid "Select the OpenGL rendering method."
 msgstr "Επιλέξτε τη μέθοδο απόδοσης OpenGL."
 
-#: app.py:172
+#: app.py:178
 msgid ""
 "This application uses OpenGL to accelerate graphics rendering. OpenGL has "
 "multiple options for rendering, which varies between platforms. By default, "
@@ -250,33 +258,33 @@ msgstr ""
 "από τους οδηγούς γραφικών σας, μπορείτε να επιλέξετε την απόδοση "
 "\"λογισμικού\"."
 
-#: app.py:177
+#: app.py:183
 msgid "Selecting \"ANGLE\" may break copy as image and save as image."
 msgstr ""
 "Η επιλογή \"ANGLE\" μπορεί να διακόψει την αντιγραφή ως εικόνα και την "
 "αποθήκευση ως εικόνα."
 
-#: app.py:178
+#: app.py:184
 msgid "UI restart required for change to take effect."
 msgstr "Απαιτείται επανεκκίνηση του UI για να τεθεί σε ισχύ η αλλαγή."
 
-#: app.py:180
+#: app.py:186
 msgid "desktop"
 msgstr "Επιτραπέζιο"
 
-#: app.py:181
+#: app.py:187
 msgid "software"
 msgstr "λογισμικό"
 
-#: app.py:183
+#: app.py:189
 msgid "Autodetect"
 msgstr "Αυτόματος εντοπισμός"
 
-#: app.py:184
+#: app.py:190
 msgid "Not specified"
 msgstr "Δεν προσδιορίζεται"
 
-#: app.py:190
+#: app.py:196
 msgid "Prompt to switch from Intel graphics to software renderer."
 msgstr "Προτροπή για εναλλαγή από τα γραφικά Intel σε renderer λογισμικού."
 
@@ -348,7 +356,7 @@ msgstr "Email"
 msgid "Description"
 msgstr "Περιγραφή"
 
-#: error_window.py:112 widgets/waveform/waveform_widget.py:3741
+#: error_window.py:112 widgets/waveform/waveform_widget.py:3729
 msgid "Edit"
 msgstr "Επεξεργασία"
 
@@ -589,75 +597,6 @@ msgstr ""
 "Κάντε κλικ στο εικονίδιο βοήθειας κάτω αριστερά για περισσότερες πληροφορίες"
 " και επιλογές υποστήριξης."
 
-#: intel_graphics_dialog.py:22
-msgid ""
-"This computer has Intel graphics. If the computer has a discrete graphics "
-"card, please adjust your graphics settings to run this application using the"
-" graphics card."
-msgstr ""
-"Αυτός ο υπολογιστής διαθέτει γραφικά Intel. Εάν ο υπολογιστής διαθέτει "
-"διακριτή κάρτα γραφικών, παρακαλούμε προσαρμόστε τις ρυθμίσεις γραφικών για "
-"να εκτελέσετε αυτή την εφαρμογή χρησιμοποιώντας την κάρτα γραφικών."
-
-#: intel_graphics_dialog.py:26
-msgid ""
-"If the computer only has Intel graphics, we recommend that you update your "
-"graphics drivers. You can download the latest graphics drivers from your "
-"computer manufacturer or Intel."
-msgstr ""
-"Εάν ο υπολογιστής διαθέτει μόνο γραφικά Intel, σας συνιστούμε να ενημερώσετε"
-" τα προγράμματα οδήγησης γραφικών σας. Μπορείτε να κατεβάσετε τα πιο "
-"πρόσφατα προγράμματα οδήγησης γραφικών από τον κατασκευαστή του υπολογιστή "
-"σας ή την Intel."
-
-#: intel_graphics_dialog.py:29
-msgid "You may observe strange graphics hangs with the latest Intel driver."
-msgstr ""
-"Ενδέχεται να παρατηρήσετε περίεργα κολλήματα γραφικών με το τελευταίο "
-"πρόγραμμα οδήγησης της Intel."
-
-#: intel_graphics_dialog.py:30
-msgid ""
-"If this happens on your computer, then you can switch to the software OpenGL"
-" renderer. The software OpenGL renderer may work around Intel driver "
-"instabilities, but it runs slower possibly causing performance issues. On a "
-"small number of computers, it does not run correctly causing a white "
-"application screen. You will need to close and reopen this application for "
-"the change to take effect."
-msgstr ""
-"Εάν αυτό συμβαίνει στον υπολογιστή σας, τότε μπορείτε να μεταβείτε στον "
-"αναπαραγωγέα λογισμικού OpenGL. Ο renderer λογισμικού OpenGL μπορεί να "
-"λειτουργεί γύρω από τις αστάθειες του προγράμματος οδήγησης Intel, αλλά "
-"εκτελείται πιο αργά προκαλώντας ενδεχομένως προβλήματα απόδοσης. Σε έναν "
-"μικρό αριθμό υπολογιστών, δεν εκτελείται σωστά προκαλώντας λευκή οθόνη "
-"εφαρμογής. Θα χρειαστεί να κλείσετε και να ανοίξετε ξανά αυτή την εφαρμογή "
-"για να τεθεί σε ισχύ η αλλαγή."
-
-#: intel_graphics_dialog.py:38
-msgid "Would you like to switch to the software OpenGL renderer?"
-msgstr "Θα θέλατε να μεταβείτε στον αναπαραγωγέα λογισμικού OpenGL;"
-
-#: intel_graphics_dialog.py:39
-msgid ""
-"If you are unsure, select \"No\" and leave \"Do not show again\" unchecked. "
-"If you observe the graphics hangs, you can select \"Yes\" in the future. You"
-" can select the OpenGL renderer at any time using Widgets → Settings → "
-"Common → opengl. The default is \"desktop\"."
-msgstr ""
-"Αν δεν είστε σίγουροι, επιλέξτε \"Όχι\" και αφήστε το \"Μην το εμφανίσετε "
-"ξανά\" χωρίς τσεκάρισμα. Εάν παρατηρήσετε ότι τα γραφικά κολλάνε, μπορείτε "
-"να επιλέξετε \"Ναι\" στο μέλλον. Μπορείτε ανά πάσα στιγμή να επιλέξετε τον "
-"renderer OpenGL χρησιμοποιώντας τη λειτουργία Widgets → Settings → Common → "
-"opengl. Η προεπιλογή είναι \"desktop\"."
-
-#: intel_graphics_dialog.py:82
-msgid "Do not show again"
-msgstr "Μην εμφανίζετε ξανά"
-
-#: intel_graphics_dialog.py:91
-msgid "Intel graphics detected"
-msgstr "Ανιχνεύονται γραφικά Intel"
-
 #: locale_dialog.py:21
 msgid "Select a language"
 msgstr "Επιλέξτε μια γλώσσα"
@@ -821,11 +760,11 @@ msgstr "Πληροφορίες"
 msgid "Settings"
 msgstr "Ρυθμίσεις"
 
-#: main.py:722
+#: main.py:729
 msgid "Manage"
 msgstr "Διαχείριση"
 
-#: main.py:759
+#: main.py:766
 msgid "Select file to open"
 msgstr "Επιλέξτε αρχείο για άνοιγμα"
 
@@ -919,52 +858,52 @@ msgstr "Close"
 msgid "Safe Mode Configuration"
 msgstr "Διαμόρφωση ασφαλούς λειτουργίας"
 
-#: software_update.py:61
+#: software_update.py:62
 msgid ""
 "We have detected that you are running the Joulescope UI from a python "
 "package or source."
 msgstr ""
 "Εντοπίσαμε ότι εκτελείτε το Joulescope UI από ένα πακέτο ή πηγή python."
 
-#: software_update.py:62
+#: software_update.py:63
 msgid "To update your python packages, issue the following command:"
 msgstr ""
 "Για να ενημερώσετε τα πακέτα python που διαθέτετε, εκτελέστε την ακόλουθη "
 "εντολή:"
 
-#: software_update.py:72
+#: software_update.py:73
 msgid "Software update"
 msgstr "Ενημέρωση λογισμικού"
 
-#: software_update.py:76
+#: software_update.py:77
 msgid "A software update is available:"
 msgstr "Είναι διαθέσιμη μια ενημερωμένη έκδοση λογισμικού:"
 
-#: software_update.py:77
+#: software_update.py:78
 msgid "Existing version"
 msgstr "Υπάρχουσα έκδοση"
 
-#: software_update.py:78
+#: software_update.py:79
 msgid "Available version"
 msgstr "Διαθέσιμη έκδοση"
 
-#: software_update.py:79
+#: software_update.py:80
 msgid "Channel"
 msgstr "Κανάλι"
 
-#: software_update.py:314
+#: software_update.py:315
 msgid "Update Now"
 msgstr "Ενημέρωση τώρα"
 
-#: software_update.py:316
+#: software_update.py:317
 msgid "Later"
 msgstr "Αργότερα"
 
-#: software_update.py:324
+#: software_update.py:325
 msgid "Copy to clipboard"
 msgstr "Αντιγραφή στο πρόχειρο"
 
-#: software_update.py:330 widgets/device_control/device_update_dialog.py:44
+#: software_update.py:331 widgets/device_control/device_update_dialog.py:44
 msgid "OK"
 msgstr "OK"
 
@@ -1673,7 +1612,7 @@ msgstr "Κατάσταση ενημέρωσης υλικολογισμικού"
 #: widgets/settings/settings_widget.py:266
 #: widgets/settings/settings_widget.py:364
 #: widgets/settings/settings_widget.py:431
-#: widgets/waveform/waveform_widget.py:3363
+#: widgets/waveform/waveform_widget.py:3351
 msgid "Name"
 msgstr "Όνομα"
 
@@ -1717,7 +1656,7 @@ msgstr "Κατάσταση συσκευής"
 msgid "External serial data stream"
 msgstr "Εξωτερική σειριακή ροή δεδομένων"
 
-#: devices/serial/serial_manager.py:41
+#: devices/serial/serial_manager.py:43
 msgid "Configured external serial ports"
 msgstr "Διαμορφωμένες εξωτερικές σειριακές θύρες"
 
@@ -1766,7 +1705,7 @@ msgid "Auto-open"
 msgstr "Αυτόματο άνοιγμα"
 
 #: devices/serial/serial_port_dialog.py:88
-#: widgets/waveform/waveform_widget.py:3409
+#: widgets/waveform/waveform_widget.py:3397
 msgid "Add"
 msgstr "Προσθήκη"
 
@@ -1775,9 +1714,9 @@ msgid "Closed"
 msgstr "Κλειστό"
 
 #: devices/serial/serial_port_dialog.py:163
-#: widgets/waveform/waveform_widget.py:3734
-#: widgets/waveform/waveform_widget.py:3762
-#: widgets/waveform/waveform_widget.py:3798
+#: widgets/waveform/waveform_widget.py:3722
+#: widgets/waveform/waveform_widget.py:3750
+#: widgets/waveform/waveform_widget.py:3786
 msgid "Remove"
 msgstr "Αφαίρεση"
 
@@ -2288,7 +2227,7 @@ msgstr ""
 "συμπεριλαμβανομένου του πολυμέτρου, δεν θα επηρεαστεί."
 
 #: widgets/device_control/js220_ctrl_widget.py:84
-#: widgets/device_control/js220_ctrl_widget.py:654
+#: widgets/device_control/js220_ctrl_widget.py:656
 msgid "Calibrate"
 msgstr "Βαθμονόμηση"
 
@@ -2303,15 +2242,15 @@ msgstr ""
 "βαθμονόμησης μπορεί να βελτιώσει την ακρίβεια, λαμβάνοντας υπόψη τις "
 "υπάρχουσες επιδράσεις της θερμοκρασίας και της γήρανσης."
 
-#: widgets/device_control/js220_ctrl_widget.py:441
+#: widgets/device_control/js220_ctrl_widget.py:443
 msgid "GPO"
 msgstr "GPO"
 
-#: widgets/device_control/js220_ctrl_widget.py:639
+#: widgets/device_control/js220_ctrl_widget.py:641
 msgid "Reset to defaults"
 msgstr "Επαναφορά στις προεπιλογές"
 
-#: widgets/device_control/js220_ctrl_widget.py:645
+#: widgets/device_control/js220_ctrl_widget.py:647
 msgid "Clear accum"
 msgstr "Σαφής συσσώρευση"
 
@@ -2319,7 +2258,7 @@ msgstr "Σαφής συσσώρευση"
 msgid "Example"
 msgstr "Παράδειγμα"
 
-#: widgets/flyout/flyout_widget.py:26
+#: widgets/flyout/flyout_widget.py:32
 msgid "flyout"
 msgstr "flyout"
 
@@ -2520,9 +2459,9 @@ msgstr "Σχολιασμός κυματομορφής"
 
 #: widgets/serial_console/serial_console_widget.py:218
 #: widgets/waveform/waveform_source_widget.py:104
-#: widgets/waveform/waveform_widget.py:384
-#: widgets/waveform/waveform_widget.py:405
-#: widgets/waveform/waveform_widget.py:478
+#: widgets/waveform/waveform_widget.py:381
+#: widgets/waveform/waveform_widget.py:402
+#: widgets/waveform/waveform_widget.py:475
 msgid "off"
 msgstr "off"
 
@@ -2869,7 +2808,7 @@ msgstr "Εμφανίστε τα πεδία στατιστικών στοιχεί
 msgid "Show a leading + or - sign."
 msgstr "Εμφανίζει ένα πρόσημο + ή -."
 
-#: widgets/value/value_widget.py:63 widgets/waveform/waveform_widget.py:430
+#: widgets/value/value_widget.py:63 widgets/waveform/waveform_widget.py:427
 msgid "The precision to display in digits."
 msgstr "Η ακρίβεια για την εμφάνιση σε ψηφία."
 
@@ -3010,7 +2949,7 @@ msgid "triangle left"
 msgstr "τρίγωνο αριστερά"
 
 #: widgets/waveform/text_annotation.py:66
-#: widgets/waveform/waveform_widget.py:3309
+#: widgets/waveform/waveform_widget.py:3297
 msgid "Manual"
 msgstr "Εγχειρίδιο"
 
@@ -3019,17 +2958,17 @@ msgid "Centered"
 msgstr "Centered"
 
 #: widgets/waveform/text_annotation.py:99
-#: widgets/waveform/waveform_widget.py:3424
+#: widgets/waveform/waveform_widget.py:3412
 msgid "Text"
 msgstr "Κείμενο"
 
 #: widgets/waveform/text_annotation.py:107
-#: widgets/waveform/waveform_widget.py:3742
+#: widgets/waveform/waveform_widget.py:3730
 msgid "Show text"
 msgstr "Εμφάνιση κειμένου"
 
 #: widgets/waveform/text_annotation.py:116
-#: widgets/waveform/waveform_widget.py:3754
+#: widgets/waveform/waveform_widget.py:3742
 msgid "Shape"
 msgstr "Σχήμα"
 
@@ -3258,347 +3197,347 @@ msgstr "Είσοδος γενικού σκοπού 2"
 msgid "General purpose input 3"
 msgstr "Είσοδος γενικού σκοπού 3"
 
-#: widgets/waveform/waveform_widget.py:340
+#: widgets/waveform/waveform_widget.py:337
 msgid "The source filter string."
 msgstr "Η συμβολοσειρά φίλτρων πηγής."
 
-#: widgets/waveform/waveform_widget.py:351
+#: widgets/waveform/waveform_widget.py:348
 msgid "The trace width."
 msgstr "Το πλάτος του ίχνους."
 
-#: widgets/waveform/waveform_widget.py:366
+#: widgets/waveform/waveform_widget.py:363
 msgid "The target frames per second."
 msgstr "Τα καρέ ανά δευτερόλεπτο που είναι ο στόχος."
 
-#: widgets/waveform/waveform_widget.py:368
+#: widgets/waveform/waveform_widget.py:365
 msgid "vsync"
 msgstr "vsync"
 
-#: widgets/waveform/waveform_widget.py:369
+#: widgets/waveform/waveform_widget.py:366
 msgid "20 Hz"
 msgstr "20 Hz"
 
-#: widgets/waveform/waveform_widget.py:370
+#: widgets/waveform/waveform_widget.py:367
 msgid "10 Hz"
 msgstr "10 Hz"
 
-#: widgets/waveform/waveform_widget.py:371
+#: widgets/waveform/waveform_widget.py:368
 msgid "5 Hz"
 msgstr "5 Hz"
 
-#: widgets/waveform/waveform_widget.py:377
+#: widgets/waveform/waveform_widget.py:374
 msgid "The minimum interval between repaint in milliseconds."
 msgstr ""
 "Το ελάχιστο χρονικό διάστημα μεταξύ επανεκτύπωσης σε χιλιοστά του "
 "δευτερολέπτου."
 
-#: widgets/waveform/waveform_widget.py:382
+#: widgets/waveform/waveform_widget.py:379
 msgid "Show the minimum and maximum extents fill."
 msgstr "Εμφανίζει την ελάχιστη και τη μέγιστη έκταση πλήρωσης."
 
-#: widgets/waveform/waveform_widget.py:385
+#: widgets/waveform/waveform_widget.py:382
 msgid "lines"
 msgstr "γραμμές"
 
-#: widgets/waveform/waveform_widget.py:386
+#: widgets/waveform/waveform_widget.py:383
 msgid "fill 1"
 msgstr "γέμισμα 1"
 
-#: widgets/waveform/waveform_widget.py:387
+#: widgets/waveform/waveform_widget.py:384
 msgid "fill 2"
 msgstr "γέμισμα 2"
 
-#: widgets/waveform/waveform_widget.py:393
+#: widgets/waveform/waveform_widget.py:390
 msgid "Show the frames per second."
 msgstr "Εμφάνιση των καρέ ανά δευτερόλεπτο."
 
-#: widgets/waveform/waveform_widget.py:398
+#: widgets/waveform/waveform_widget.py:395
 msgid "Show the statistics on mouse hover."
 msgstr "Εμφάνιση των στατιστικών στοιχείων κατά το πέρασμα του ποντικιού."
 
-#: widgets/waveform/waveform_widget.py:403
+#: widgets/waveform/waveform_widget.py:400
 msgid "The time format for mouse hover."
 msgstr "Η χρονική μορφή για την αιώρηση του ποντικιού."
 
-#: widgets/waveform/waveform_widget.py:406
+#: widgets/waveform/waveform_widget.py:403
 msgid "Relative to view"
 msgstr "Σε σχέση με την προβολή"
 
-#: widgets/waveform/waveform_widget.py:407
+#: widgets/waveform/waveform_widget.py:404
 msgid "Relative to buffer"
 msgstr "Σε σχέση με το ρυθμιστικό"
 
-#: widgets/waveform/waveform_widget.py:408
+#: widgets/waveform/waveform_widget.py:405
 msgid "Absolute UTC time"
 msgstr "Απόλυτη ώρα UTC"
 
-#: widgets/waveform/waveform_widget.py:414
+#: widgets/waveform/waveform_widget.py:411
 msgid "Show the plot statistics on the right."
 msgstr "Εμφάνιση των στατιστικών στοιχείων της γραφικής παράστασης στα δεξιά."
 
-#: widgets/waveform/waveform_widget.py:419
+#: widgets/waveform/waveform_widget.py:416
 msgid "Show frequency for dual markers and statistics."
 msgstr "Εμφάνιση συχνότητας για διπλούς δείκτες και στατιστικά στοιχεία."
 
-#: widgets/waveform/waveform_widget.py:424
+#: widgets/waveform/waveform_widget.py:421
 msgid "The quantities to display by default."
 msgstr "Οι ποσότητες που θα εμφανίζονται από προεπιλογή."
 
-#: widgets/waveform/waveform_widget.py:436
+#: widgets/waveform/waveform_widget.py:433
 msgid "Use OpenGL rendering."
 msgstr "Χρησιμοποιήστε απόδοση OpenGL."
 
-#: widgets/waveform/waveform_widget.py:453
+#: widgets/waveform/waveform_widget.py:450
 msgid "Pin the left side (oldest) data so that it stays in view."
 msgstr ""
 "Καρφιτσώστε τα δεδομένα της αριστερής πλευράς (παλαιότερα) ώστε να "
 "παραμένουν σε προβολή."
 
-#: widgets/waveform/waveform_widget.py:458
+#: widgets/waveform/waveform_widget.py:455
 msgid "Pin the right side (newest) data so that it stays in view."
 msgstr ""
 "Καρφιτσώστε τα δεδομένα της δεξιάς πλευράς (τα νεότερα), ώστε να παραμένουν "
 "σε προβολή."
 
-#: widgets/waveform/waveform_widget.py:463
+#: widgets/waveform/waveform_widget.py:460
 msgid "The waveform state."
 msgstr "Η κατάσταση της κυματομορφής."
 
-#: widgets/waveform/waveform_widget.py:469
+#: widgets/waveform/waveform_widget.py:466
 msgid "The annotations."
 msgstr "Οι επισημάνσεις."
 
-#: widgets/waveform/waveform_widget.py:475
+#: widgets/waveform/waveform_widget.py:472
 msgid "Control location"
 msgstr "Θέση ελέγχου"
 
-#: widgets/waveform/waveform_widget.py:479
+#: widgets/waveform/waveform_widget.py:476
 msgid "top"
 msgstr "top"
 
-#: widgets/waveform/waveform_widget.py:480
+#: widgets/waveform/waveform_widget.py:477
 msgid "bottom"
 msgstr "κάτω"
 
-#: widgets/waveform/waveform_widget.py:485
+#: widgets/waveform/waveform_widget.py:482
 msgid "Show the summary waveform at top."
 msgstr "Εμφάνιση της συνοπτικής κυματομορφής στην κορυφή."
 
-#: widgets/waveform/waveform_widget.py:490
+#: widgets/waveform/waveform_widget.py:487
 msgid "The signal quantity to show in the summary."
 msgstr "Η ποσότητα σήματος που θα εμφανίζεται στη σύνοψη."
 
-#: widgets/waveform/waveform_widget.py:496
+#: widgets/waveform/waveform_widget.py:493
 msgid "X-axis annotation mode"
 msgstr "Λειτουργία σχολιασμού του άξονα Χ"
 
-#: widgets/waveform/waveform_widget.py:499
-#: widgets/waveform/waveform_widget.py:3189
+#: widgets/waveform/waveform_widget.py:496
+#: widgets/waveform/waveform_widget.py:3177
 msgid "Absolute"
 msgstr "Απόλυτο"
 
-#: widgets/waveform/waveform_widget.py:500
-#: widgets/waveform/waveform_widget.py:3194
+#: widgets/waveform/waveform_widget.py:497
+#: widgets/waveform/waveform_widget.py:3182
 msgid "Relative"
 msgstr "Σχετική"
 
-#: widgets/waveform/waveform_widget.py:506
+#: widgets/waveform/waveform_widget.py:503
 msgid "The available subsources."
 msgstr "Οι διαθέσιμες υποπηγές."
 
-#: widgets/waveform/waveform_widget.py:512
+#: widgets/waveform/waveform_widget.py:509
 msgid "The selected subsources for each trace."
 msgstr "Οι επιλεγμένες υποπηγές για κάθε ίχνος."
 
-#: widgets/waveform/waveform_widget.py:518
+#: widgets/waveform/waveform_widget.py:515
 msgid "The trace priority: highest int value on top, None is off."
 msgstr ""
 "Η προτεραιότητα του ίχνους: η υψηλότερη τιμή int στην κορυφή, το None είναι "
 "απενεργοποιημένο."
 
-#: widgets/waveform/waveform_widget.py:524
+#: widgets/waveform/waveform_widget.py:521
 msgid "The formatting method for elapsed time."
 msgstr "Η μέθοδος μορφοποίησης για τον χρόνο που έχει παρέλθει."
 
-#: widgets/waveform/waveform_widget.py:526
+#: widgets/waveform/waveform_widget.py:523
 msgid "Seconds displays the time as seconds with prefix."
 msgstr "Τα δευτερόλεπτα εμφανίζουν τον χρόνο ως δευτερόλεπτα με πρόθεμα."
 
-#: widgets/waveform/waveform_widget.py:527
+#: widgets/waveform/waveform_widget.py:524
 msgid "Customary selects seconds, minutes, hours, or days."
 msgstr "Το συνήθης επιλέγει δευτερόλεπτα, λεπτά, ώρες ή ημέρες."
 
-#: widgets/waveform/waveform_widget.py:528
+#: widgets/waveform/waveform_widget.py:525
 msgid "Standard displays days:hours:minutes:seconds."
 msgstr "Το πρότυπο εμφανίζει ημέρες:ώρες:λεπτά:δευτερόλεπτα."
 
-#: widgets/waveform/waveform_widget.py:532
+#: widgets/waveform/waveform_widget.py:529
 msgid "Seconds"
 msgstr "Δευτερόλεπτα"
 
-#: widgets/waveform/waveform_widget.py:533
+#: widgets/waveform/waveform_widget.py:530
 msgid "Customary"
 msgstr "Συνηθισμένο"
 
-#: widgets/waveform/waveform_widget.py:534
+#: widgets/waveform/waveform_widget.py:531
 msgid "Standard"
 msgstr "Τυπικό"
 
-#: widgets/waveform/waveform_widget.py:3136
-#: widgets/waveform/waveform_widget.py:3436
+#: widgets/waveform/waveform_widget.py:3124
+#: widgets/waveform/waveform_widget.py:3424
 msgid "Save image to file"
 msgstr "Αποθήκευση εικόνας σε αρχείο"
 
-#: widgets/waveform/waveform_widget.py:3183
-#: widgets/waveform/waveform_widget.py:3252
+#: widgets/waveform/waveform_widget.py:3171
+#: widgets/waveform/waveform_widget.py:3240
 msgid "Single marker"
 msgstr "Ενιαίος δείκτης"
 
-#: widgets/waveform/waveform_widget.py:3184
-#: widgets/waveform/waveform_widget.py:3253
+#: widgets/waveform/waveform_widget.py:3172
+#: widgets/waveform/waveform_widget.py:3241
 msgid "Dual markers"
 msgstr "Διπλοί δείκτες"
 
-#: widgets/waveform/waveform_widget.py:3186
+#: widgets/waveform/waveform_widget.py:3174
 msgid "Mode"
 msgstr "Λειτουργία"
 
-#: widgets/waveform/waveform_widget.py:3199
-#: widgets/waveform/waveform_widget.py:3254
-#: widgets/waveform/waveform_widget.py:3412
-#: widgets/waveform/waveform_widget.py:3430
+#: widgets/waveform/waveform_widget.py:3187
+#: widgets/waveform/waveform_widget.py:3242
+#: widgets/waveform/waveform_widget.py:3400
+#: widgets/waveform/waveform_widget.py:3418
 msgid "Clear all"
 msgstr "Εκκαθάριση όλων"
 
-#: widgets/waveform/waveform_widget.py:3210
-#: widgets/waveform/waveform_widget.py:3299
-#: widgets/waveform/waveform_widget.py:3418
+#: widgets/waveform/waveform_widget.py:3198
+#: widgets/waveform/waveform_widget.py:3287
+#: widgets/waveform/waveform_widget.py:3406
 msgid "Annotations"
 msgstr "Σημειώσεις"
 
-#: widgets/waveform/waveform_widget.py:3302
+#: widgets/waveform/waveform_widget.py:3290
 msgid "Range"
 msgstr "Εύρος"
 
-#: widgets/waveform/waveform_widget.py:3306
-#: widgets/waveform/waveform_widget.py:3699
+#: widgets/waveform/waveform_widget.py:3294
+#: widgets/waveform/waveform_widget.py:3687
 msgid "Auto"
 msgstr "Auto"
 
-#: widgets/waveform/waveform_widget.py:3312
+#: widgets/waveform/waveform_widget.py:3300
 msgid "Exact"
 msgstr "Ακριβές"
 
-#: widgets/waveform/waveform_widget.py:3321
+#: widgets/waveform/waveform_widget.py:3309
 msgid "Scale"
 msgstr "Κλίμακα"
 
-#: widgets/waveform/waveform_widget.py:3324
+#: widgets/waveform/waveform_widget.py:3312
 msgid "Linear"
 msgstr "Γραμμική"
 
-#: widgets/waveform/waveform_widget.py:3329
+#: widgets/waveform/waveform_widget.py:3317
 msgid "Logarithmic"
 msgstr "Λογαριθμική"
 
-#: widgets/waveform/waveform_widget.py:3337
+#: widgets/waveform/waveform_widget.py:3325
 msgid "Logarithmic zero"
 msgstr "Λογαριθμικό μηδέν"
 
-#: widgets/waveform/waveform_widget.py:3351
+#: widgets/waveform/waveform_widget.py:3339
 msgid "Preferred prefix"
 msgstr "Προτιμώμενο πρόθεμα"
 
-#: widgets/waveform/waveform_widget.py:3410
+#: widgets/waveform/waveform_widget.py:3398
 msgid "Hide all text"
 msgstr "Απόκρυψη όλου του κειμένου"
 
-#: widgets/waveform/waveform_widget.py:3411
+#: widgets/waveform/waveform_widget.py:3399
 msgid "Show all text"
 msgstr "Εμφάνιση όλου του κειμένου"
 
-#: widgets/waveform/waveform_widget.py:3419
+#: widgets/waveform/waveform_widget.py:3407
 msgid "Vertical"
 msgstr "Κατακόρυφο"
 
-#: widgets/waveform/waveform_widget.py:3422
+#: widgets/waveform/waveform_widget.py:3410
 msgid "Horizontal"
 msgstr "Οριζόντια"
 
-#: widgets/waveform/waveform_widget.py:3428
+#: widgets/waveform/waveform_widget.py:3416
 msgid "Save"
 msgstr "Αποθήκευση"
 
-#: widgets/waveform/waveform_widget.py:3433
+#: widgets/waveform/waveform_widget.py:3421
 msgid "Y-axis auto range"
 msgstr "Αυτόματο εύρος του άξονα Y"
 
-#: widgets/waveform/waveform_widget.py:3437
+#: widgets/waveform/waveform_widget.py:3425
 msgid "Copy image to clipboard"
 msgstr "Αντιγραφή εικόνας στο πρόχειρο"
 
-#: widgets/waveform/waveform_widget.py:3438
+#: widgets/waveform/waveform_widget.py:3426
 msgid "Export visible data"
 msgstr "Εξαγωγή ορατών δεδομένων"
 
-#: widgets/waveform/waveform_widget.py:3439
+#: widgets/waveform/waveform_widget.py:3427
 msgid "Export visible data as CSV"
 msgstr "Εξαγωγή ορατών δεδομένων ως CSV"
 
-#: widgets/waveform/waveform_widget.py:3440
+#: widgets/waveform/waveform_widget.py:3428
 msgid "Export all data"
 msgstr "Εξαγωγή όλων των δεδομένων"
 
-#: widgets/waveform/waveform_widget.py:3605
+#: widgets/waveform/waveform_widget.py:3593
 msgid "Export visible data to CSV file"
 msgstr "Εξαγωγή ορατών δεδομένων σε αρχείο CSV"
 
-#: widgets/waveform/waveform_widget.py:3675
+#: widgets/waveform/waveform_widget.py:3663
 msgid "Export"
 msgstr "Εξαγωγή"
 
-#: widgets/waveform/waveform_widget.py:3676
+#: widgets/waveform/waveform_widget.py:3664
 msgid "Analysis"
 msgstr "Ανάλυση"
 
-#: widgets/waveform/waveform_widget.py:3684
+#: widgets/waveform/waveform_widget.py:3672
 msgid "Interval"
 msgstr "Διάστημα"
 
-#: widgets/waveform/waveform_widget.py:3693
+#: widgets/waveform/waveform_widget.py:3681
 msgid "Zoom"
 msgstr "Ζουμ"
 
-#: widgets/waveform/waveform_widget.py:3697
+#: widgets/waveform/waveform_widget.py:3685
 msgid "Show statistics"
 msgstr "Εμφάνιση στατιστικών στοιχείων"
 
-#: widgets/waveform/waveform_widget.py:3702
+#: widgets/waveform/waveform_widget.py:3690
 msgid "Left"
 msgstr "Αριστερά"
 
-#: widgets/waveform/waveform_widget.py:3705
+#: widgets/waveform/waveform_widget.py:3693
 msgid "Right"
 msgstr "Σωστό"
 
-#: widgets/waveform/waveform_widget.py:3708
-#: widgets/waveform/waveform_widget.py:3715
+#: widgets/waveform/waveform_widget.py:3696
+#: widgets/waveform/waveform_widget.py:3703
 msgid "Off"
 msgstr "Off"
 
-#: widgets/waveform/waveform_widget.py:3712
+#: widgets/waveform/waveform_widget.py:3700
 msgid "Show time"
 msgstr "Εμφάνιση χρόνου"
 
-#: widgets/waveform/waveform_widget.py:3718
+#: widgets/waveform/waveform_widget.py:3706
 msgid "On"
 msgstr "Στο"
 
-#: widgets/waveform/waveform_widget.py:3722
+#: widgets/waveform/waveform_widget.py:3710
 msgid "Label"
 msgstr "Ετικέτα"
 
-#: widgets/waveform/waveform_widget.py:3745
+#: widgets/waveform/waveform_widget.py:3733
 msgid "Y mode"
 msgstr "Λειτουργία Y"
 
@@ -3626,3 +3565,64 @@ msgstr "Μονάδες"
 
 #~ msgid "Change Language"
 #~ msgstr "Αλλαγή γλώσσας"
+
+#~ msgid ""
+#~ "This computer has Intel graphics. If the computer has a discrete graphics "
+#~ "card, please adjust your graphics settings to run this application using the"
+#~ " graphics card."
+#~ msgstr ""
+#~ "Αυτός ο υπολογιστής διαθέτει γραφικά Intel. Εάν ο υπολογιστής διαθέτει "
+#~ "διακριτή κάρτα γραφικών, παρακαλούμε προσαρμόστε τις ρυθμίσεις γραφικών για "
+#~ "να εκτελέσετε αυτή την εφαρμογή χρησιμοποιώντας την κάρτα γραφικών."
+
+#~ msgid ""
+#~ "If the computer only has Intel graphics, we recommend that you update your "
+#~ "graphics drivers. You can download the latest graphics drivers from your "
+#~ "computer manufacturer or Intel."
+#~ msgstr ""
+#~ "Εάν ο υπολογιστής διαθέτει μόνο γραφικά Intel, σας συνιστούμε να ενημερώσετε"
+#~ " τα προγράμματα οδήγησης γραφικών σας. Μπορείτε να κατεβάσετε τα πιο "
+#~ "πρόσφατα προγράμματα οδήγησης γραφικών από τον κατασκευαστή του υπολογιστή "
+#~ "σας ή την Intel."
+
+#~ msgid "You may observe strange graphics hangs with the latest Intel driver."
+#~ msgstr ""
+#~ "Ενδέχεται να παρατηρήσετε περίεργα κολλήματα γραφικών με το τελευταίο "
+#~ "πρόγραμμα οδήγησης της Intel."
+
+#~ msgid ""
+#~ "If this happens on your computer, then you can switch to the software OpenGL"
+#~ " renderer. The software OpenGL renderer may work around Intel driver "
+#~ "instabilities, but it runs slower possibly causing performance issues. On a "
+#~ "small number of computers, it does not run correctly causing a white "
+#~ "application screen. You will need to close and reopen this application for "
+#~ "the change to take effect."
+#~ msgstr ""
+#~ "Εάν αυτό συμβαίνει στον υπολογιστή σας, τότε μπορείτε να μεταβείτε στον "
+#~ "αναπαραγωγέα λογισμικού OpenGL. Ο renderer λογισμικού OpenGL μπορεί να "
+#~ "λειτουργεί γύρω από τις αστάθειες του προγράμματος οδήγησης Intel, αλλά "
+#~ "εκτελείται πιο αργά προκαλώντας ενδεχομένως προβλήματα απόδοσης. Σε έναν "
+#~ "μικρό αριθμό υπολογιστών, δεν εκτελείται σωστά προκαλώντας λευκή οθόνη "
+#~ "εφαρμογής. Θα χρειαστεί να κλείσετε και να ανοίξετε ξανά αυτή την εφαρμογή "
+#~ "για να τεθεί σε ισχύ η αλλαγή."
+
+#~ msgid "Would you like to switch to the software OpenGL renderer?"
+#~ msgstr "Θα θέλατε να μεταβείτε στον αναπαραγωγέα λογισμικού OpenGL;"
+
+#~ msgid ""
+#~ "If you are unsure, select \"No\" and leave \"Do not show again\" unchecked. "
+#~ "If you observe the graphics hangs, you can select \"Yes\" in the future. You"
+#~ " can select the OpenGL renderer at any time using Widgets → Settings → "
+#~ "Common → opengl. The default is \"desktop\"."
+#~ msgstr ""
+#~ "Αν δεν είστε σίγουροι, επιλέξτε \"Όχι\" και αφήστε το \"Μην το εμφανίσετε "
+#~ "ξανά\" χωρίς τσεκάρισμα. Εάν παρατηρήσετε ότι τα γραφικά κολλάνε, μπορείτε "
+#~ "να επιλέξετε \"Ναι\" στο μέλλον. Μπορείτε ανά πάσα στιγμή να επιλέξετε τον "
+#~ "renderer OpenGL χρησιμοποιώντας τη λειτουργία Widgets → Settings → Common → "
+#~ "opengl. Η προεπιλογή είναι \"desktop\"."
+
+#~ msgid "Do not show again"
+#~ msgstr "Μην εμφανίζετε ξανά"
+
+#~ msgid "Intel graphics detected"
+#~ msgstr "Ανιχνεύονται γραφικά Intel"

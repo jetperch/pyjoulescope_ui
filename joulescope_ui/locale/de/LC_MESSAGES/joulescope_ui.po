@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-04-11 13:22-0400\n"
+"POT-Creation-Date: 2026-04-27 18:19-0400\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: de <LL@li.org>\n"
@@ -201,42 +201,50 @@ msgid "Check for software updates."
 msgstr "Suchen Sie nach Software-Updates."
 
 #: app.py:146
+msgid ""
+"ISO 8601 UTC timestamp of the most recent \"Later\" dismissal of the "
+"software update prompt, or None."
+msgstr ""
+"ISO 8601 UTC-Zeitstempel der letzten Ablehnung der Aufforderung zum "
+"Software-Update mit „Später“ oder „Keine“."
+
+#: app.py:152
 msgid "The software update channel."
 msgstr "Der Software-Update-Kanal."
 
-#: app.py:149
+#: app.py:155
 msgid "alpha"
 msgstr "alpha"
 
-#: app.py:150
+#: app.py:156
 msgid "beta"
 msgstr "beta"
 
-#: app.py:151
+#: app.py:157
 msgid "stable"
 msgstr "stabil"
 
-#: app.py:156
+#: app.py:162
 msgid "Check for device firmware updates."
 msgstr "Suchen Sie nach Firmware-Updates für Ihr Gerät."
 
-#: app.py:161 units.py:33
+#: app.py:167 units.py:33
 msgid "The units to display."
 msgstr "Die anzuzeigenden Einheiten."
 
-#: app.py:163 units.py:36
+#: app.py:169 units.py:36
 msgid "International System of Units (SI)"
 msgstr "Internationales Einheitensystem (SI)"
 
-#: app.py:164 units.py:37
+#: app.py:170 units.py:37
 msgid "Customary units (Ah and Wh)"
 msgstr "Gebräuchliche Einheiten (Ah und Wh)"
 
-#: app.py:170
+#: app.py:176
 msgid "Select the OpenGL rendering method."
 msgstr "Wählen Sie die OpenGL-Rendering-Methode."
 
-#: app.py:172
+#: app.py:178
 msgid ""
 "This application uses OpenGL to accelerate graphics rendering. OpenGL has "
 "multiple options for rendering, which varies between platforms. By default, "
@@ -249,33 +257,33 @@ msgstr ""
 "\"Desktop\"-Rendering. Wenn OpenGL von Ihren Grafiktreibern nicht gut "
 "unterstützt wird, können Sie \"Software\"-Rendering wählen."
 
-#: app.py:177
+#: app.py:183
 msgid "Selecting \"ANGLE\" may break copy as image and save as image."
 msgstr ""
 "Die Auswahl von \"ANGLE\" kann das Kopieren als Bild und das Speichern als "
 "Bild unterbrechen."
 
-#: app.py:178
+#: app.py:184
 msgid "UI restart required for change to take effect."
 msgstr "UI-Neustart erforderlich, damit die Änderung wirksam wird."
 
-#: app.py:180
+#: app.py:186
 msgid "desktop"
 msgstr "desktop"
 
-#: app.py:181
+#: app.py:187
 msgid "software"
 msgstr "Software"
 
-#: app.py:183
+#: app.py:189
 msgid "Autodetect"
 msgstr "Autodetect"
 
-#: app.py:184
+#: app.py:190
 msgid "Not specified"
 msgstr "Nicht spezifiziert"
 
-#: app.py:190
+#: app.py:196
 msgid "Prompt to switch from Intel graphics to software renderer."
 msgstr "Aufforderung zum Wechsel von Intel-Grafik auf Software-Renderer."
 
@@ -346,7 +354,7 @@ msgstr "E-Mail"
 msgid "Description"
 msgstr "Beschreibung"
 
-#: error_window.py:112 widgets/waveform/waveform_widget.py:3741
+#: error_window.py:112 widgets/waveform/waveform_widget.py:3729
 msgid "Edit"
 msgstr "Bearbeiten"
 
@@ -588,74 +596,6 @@ msgstr ""
 "Klicken Sie auf das Hilfesymbol unten links, um weitere Informationen und "
 "Supportoptionen zu erhalten."
 
-#: intel_graphics_dialog.py:22
-msgid ""
-"This computer has Intel graphics. If the computer has a discrete graphics "
-"card, please adjust your graphics settings to run this application using the"
-" graphics card."
-msgstr ""
-"Dieser Computer hat eine Intel-Grafikkarte. Wenn der Computer über eine "
-"diskrete Grafikkarte verfügt, passen Sie bitte Ihre Grafikeinstellungen an, "
-"um diese Anwendung mit der Grafikkarte auszuführen."
-
-#: intel_graphics_dialog.py:26
-msgid ""
-"If the computer only has Intel graphics, we recommend that you update your "
-"graphics drivers. You can download the latest graphics drivers from your "
-"computer manufacturer or Intel."
-msgstr ""
-"Wenn der Computer nur über eine Intel-Grafikkarte verfügt, empfehlen wir "
-"Ihnen, Ihre Grafiktreiber zu aktualisieren. Sie können die neuesten "
-"Grafiktreiber von Ihrem Computerhersteller oder von Intel herunterladen."
-
-#: intel_graphics_dialog.py:29
-msgid "You may observe strange graphics hangs with the latest Intel driver."
-msgstr ""
-"Mit dem neuesten Intel-Treiber kann es zu merkwürdigen Grafikproblemen "
-"kommen."
-
-#: intel_graphics_dialog.py:30
-msgid ""
-"If this happens on your computer, then you can switch to the software OpenGL"
-" renderer. The software OpenGL renderer may work around Intel driver "
-"instabilities, but it runs slower possibly causing performance issues. On a "
-"small number of computers, it does not run correctly causing a white "
-"application screen. You will need to close and reopen this application for "
-"the change to take effect."
-msgstr ""
-"Wenn dies auf Ihrem Computer passiert, können Sie auf den Software-OpenGL-"
-"Renderer umschalten. Der Software-OpenGL-Renderer umgeht zwar die "
-"Instabilitäten des Intel-Treibers, läuft aber langsamer und kann zu "
-"Leistungsproblemen führen. Auf einer kleinen Anzahl von Computern wird er "
-"nicht korrekt ausgeführt, was zu einem weißen Anwendungsbildschirm führt. "
-"Sie müssen diese Anwendung schließen und erneut öffnen, damit die Änderung "
-"wirksam wird."
-
-#: intel_graphics_dialog.py:38
-msgid "Would you like to switch to the software OpenGL renderer?"
-msgstr "Möchten Sie auf den Software-OpenGL-Renderer umsteigen?"
-
-#: intel_graphics_dialog.py:39
-msgid ""
-"If you are unsure, select \"No\" and leave \"Do not show again\" unchecked. "
-"If you observe the graphics hangs, you can select \"Yes\" in the future. You"
-" can select the OpenGL renderer at any time using Widgets → Settings → "
-"Common → opengl. The default is \"desktop\"."
-msgstr ""
-"Wenn Sie unsicher sind, wählen Sie \"Nein\" und lassen Sie \"Nicht mehr "
-"anzeigen\" deaktiviert. Wenn Sie beobachten, dass die Grafik hängen bleibt, "
-"können Sie in Zukunft \"Ja\" wählen. Sie können den OpenGL-Renderer "
-"jederzeit über Widgets → Einstellungen → Allgemein → opengl auswählen. Die "
-"Voreinstellung ist \"Desktop\"."
-
-#: intel_graphics_dialog.py:82
-msgid "Do not show again"
-msgstr "Nicht mehr anzeigen"
-
-#: intel_graphics_dialog.py:91
-msgid "Intel graphics detected"
-msgstr "Intel-Grafik erkannt"
-
 #: locale_dialog.py:21
 msgid "Select a language"
 msgstr "Wählen Sie eine Sprache"
@@ -820,11 +760,11 @@ msgstr "Info"
 msgid "Settings"
 msgstr "Einstellungen"
 
-#: main.py:722
+#: main.py:729
 msgid "Manage"
 msgstr "Ansichts-Einstellungen"
 
-#: main.py:759
+#: main.py:766
 msgid "Select file to open"
 msgstr "Datei zum Öffnen auswählen"
 
@@ -917,7 +857,7 @@ msgstr "Schließen Sie"
 msgid "Safe Mode Configuration"
 msgstr "Safe Mode Konfiguration"
 
-#: software_update.py:61
+#: software_update.py:62
 msgid ""
 "We have detected that you are running the Joulescope UI from a python "
 "package or source."
@@ -925,44 +865,44 @@ msgstr ""
 "Wir haben festgestellt, dass Sie das Joulescope UI aus einem Python-Paket "
 "oder -Quellcode ausführen."
 
-#: software_update.py:62
+#: software_update.py:63
 msgid "To update your python packages, issue the following command:"
 msgstr ""
 "Um Ihre Python-Pakete zu aktualisieren, geben Sie den folgenden Befehl ein:"
 
-#: software_update.py:72
+#: software_update.py:73
 msgid "Software update"
 msgstr "Software-Aktualisierung"
 
-#: software_update.py:76
+#: software_update.py:77
 msgid "A software update is available:"
 msgstr "Ein Software-Update ist verfügbar:"
 
-#: software_update.py:77
+#: software_update.py:78
 msgid "Existing version"
 msgstr "Vorhandene Version"
 
-#: software_update.py:78
+#: software_update.py:79
 msgid "Available version"
 msgstr "Verfügbare Version"
 
-#: software_update.py:79
+#: software_update.py:80
 msgid "Channel"
 msgstr "Kanal"
 
-#: software_update.py:314
+#: software_update.py:315
 msgid "Update Now"
 msgstr "Jetzt aktualisieren"
 
-#: software_update.py:316
+#: software_update.py:317
 msgid "Later"
 msgstr "Später"
 
-#: software_update.py:324
+#: software_update.py:325
 msgid "Copy to clipboard"
 msgstr "In die Zwischenablage kopieren"
 
-#: software_update.py:330 widgets/device_control/device_update_dialog.py:44
+#: software_update.py:331 widgets/device_control/device_update_dialog.py:44
 msgid "OK"
 msgstr "OK"
 
@@ -1669,7 +1609,7 @@ msgstr "Firmware-Update-Status"
 #: widgets/settings/settings_widget.py:266
 #: widgets/settings/settings_widget.py:364
 #: widgets/settings/settings_widget.py:431
-#: widgets/waveform/waveform_widget.py:3363
+#: widgets/waveform/waveform_widget.py:3351
 msgid "Name"
 msgstr "Name"
 
@@ -1713,7 +1653,7 @@ msgstr "Gerätestatus"
 msgid "External serial data stream"
 msgstr "Externer serieller Datenstrom"
 
-#: devices/serial/serial_manager.py:41
+#: devices/serial/serial_manager.py:43
 msgid "Configured external serial ports"
 msgstr "Konfigurierte externe serielle Schnittstellen"
 
@@ -1762,7 +1702,7 @@ msgid "Auto-open"
 msgstr "Auto-open"
 
 #: devices/serial/serial_port_dialog.py:88
-#: widgets/waveform/waveform_widget.py:3409
+#: widgets/waveform/waveform_widget.py:3397
 msgid "Add"
 msgstr "hinzufügen"
 
@@ -1771,9 +1711,9 @@ msgid "Closed"
 msgstr "Geschlossen"
 
 #: devices/serial/serial_port_dialog.py:163
-#: widgets/waveform/waveform_widget.py:3734
-#: widgets/waveform/waveform_widget.py:3762
-#: widgets/waveform/waveform_widget.py:3798
+#: widgets/waveform/waveform_widget.py:3722
+#: widgets/waveform/waveform_widget.py:3750
+#: widgets/waveform/waveform_widget.py:3786
 msgid "Remove"
 msgstr "entfernen"
 
@@ -2280,7 +2220,7 @@ msgstr ""
 " Multimeters, bleibt davon unberührt."
 
 #: widgets/device_control/js220_ctrl_widget.py:84
-#: widgets/device_control/js220_ctrl_widget.py:654
+#: widgets/device_control/js220_ctrl_widget.py:656
 msgid "Calibrate"
 msgstr "Kalibrieren"
 
@@ -2296,15 +2236,15 @@ msgstr ""
 "verbessern, indem die vorhandenen Temperatur- und Alterungseffekte "
 "berücksichtigt werden."
 
-#: widgets/device_control/js220_ctrl_widget.py:441
+#: widgets/device_control/js220_ctrl_widget.py:443
 msgid "GPO"
 msgstr "GPO"
 
-#: widgets/device_control/js220_ctrl_widget.py:639
+#: widgets/device_control/js220_ctrl_widget.py:641
 msgid "Reset to defaults"
 msgstr "Zurücksetzen auf Standardwerte"
 
-#: widgets/device_control/js220_ctrl_widget.py:645
+#: widgets/device_control/js220_ctrl_widget.py:647
 msgid "Clear accum"
 msgstr "Klare Akkumulation"
 
@@ -2312,7 +2252,7 @@ msgstr "Klare Akkumulation"
 msgid "Example"
 msgstr "Beispiel"
 
-#: widgets/flyout/flyout_widget.py:26
+#: widgets/flyout/flyout_widget.py:32
 msgid "flyout"
 msgstr "Flyout"
 
@@ -2515,9 +2455,9 @@ msgstr "Wellenform annotieren"
 
 #: widgets/serial_console/serial_console_widget.py:218
 #: widgets/waveform/waveform_source_widget.py:104
-#: widgets/waveform/waveform_widget.py:384
-#: widgets/waveform/waveform_widget.py:405
-#: widgets/waveform/waveform_widget.py:478
+#: widgets/waveform/waveform_widget.py:381
+#: widgets/waveform/waveform_widget.py:402
+#: widgets/waveform/waveform_widget.py:475
 msgid "off"
 msgstr "aus"
 
@@ -2862,7 +2802,7 @@ msgstr "Zeigen Sie die Statistikfelder auf der rechten Seite an."
 msgid "Show a leading + or - sign."
 msgstr "Zeigt ein führendes + oder - Zeichen."
 
-#: widgets/value/value_widget.py:63 widgets/waveform/waveform_widget.py:430
+#: widgets/value/value_widget.py:63 widgets/waveform/waveform_widget.py:427
 msgid "The precision to display in digits."
 msgstr "Die Genauigkeit der Anzeige in Ziffern."
 
@@ -3003,7 +2943,7 @@ msgid "triangle left"
 msgstr "Dreieck links"
 
 #: widgets/waveform/text_annotation.py:66
-#: widgets/waveform/waveform_widget.py:3309
+#: widgets/waveform/waveform_widget.py:3297
 msgid "Manual"
 msgstr "Handbuch"
 
@@ -3012,17 +2952,17 @@ msgid "Centered"
 msgstr "Zentriert"
 
 #: widgets/waveform/text_annotation.py:99
-#: widgets/waveform/waveform_widget.py:3424
+#: widgets/waveform/waveform_widget.py:3412
 msgid "Text"
 msgstr "Text"
 
 #: widgets/waveform/text_annotation.py:107
-#: widgets/waveform/waveform_widget.py:3742
+#: widgets/waveform/waveform_widget.py:3730
 msgid "Show text"
 msgstr "Text anzeigen"
 
 #: widgets/waveform/text_annotation.py:116
-#: widgets/waveform/waveform_widget.py:3754
+#: widgets/waveform/waveform_widget.py:3742
 msgid "Shape"
 msgstr "Form"
 
@@ -3254,345 +3194,345 @@ msgstr "Allzweck-Eingang 2"
 msgid "General purpose input 3"
 msgstr "Allzweck-Eingang 3"
 
-#: widgets/waveform/waveform_widget.py:340
+#: widgets/waveform/waveform_widget.py:337
 msgid "The source filter string."
 msgstr "Die Quellfilterkette."
 
-#: widgets/waveform/waveform_widget.py:351
+#: widgets/waveform/waveform_widget.py:348
 msgid "The trace width."
 msgstr "Die Leiterbahnbreite."
 
-#: widgets/waveform/waveform_widget.py:366
+#: widgets/waveform/waveform_widget.py:363
 msgid "The target frames per second."
 msgstr "Die angestrebten Bilder pro Sekunde."
 
-#: widgets/waveform/waveform_widget.py:368
+#: widgets/waveform/waveform_widget.py:365
 msgid "vsync"
 msgstr "vsync"
 
-#: widgets/waveform/waveform_widget.py:369
+#: widgets/waveform/waveform_widget.py:366
 msgid "20 Hz"
 msgstr "20 Hz"
 
-#: widgets/waveform/waveform_widget.py:370
+#: widgets/waveform/waveform_widget.py:367
 msgid "10 Hz"
 msgstr "10 Hz"
 
-#: widgets/waveform/waveform_widget.py:371
+#: widgets/waveform/waveform_widget.py:368
 msgid "5 Hz"
 msgstr "5 Hz"
 
-#: widgets/waveform/waveform_widget.py:377
+#: widgets/waveform/waveform_widget.py:374
 msgid "The minimum interval between repaint in milliseconds."
 msgstr ""
 "Das minimale Intervall zwischen den Wiederholungsmessungen in Millisekunden."
 
-#: widgets/waveform/waveform_widget.py:382
+#: widgets/waveform/waveform_widget.py:379
 msgid "Show the minimum and maximum extents fill."
 msgstr "Zeigt die minimale und maximale Ausdehnung an."
 
-#: widgets/waveform/waveform_widget.py:385
+#: widgets/waveform/waveform_widget.py:382
 msgid "lines"
 msgstr "Zeilen"
 
-#: widgets/waveform/waveform_widget.py:386
+#: widgets/waveform/waveform_widget.py:383
 msgid "fill 1"
 msgstr "Füllung 1"
 
-#: widgets/waveform/waveform_widget.py:387
+#: widgets/waveform/waveform_widget.py:384
 msgid "fill 2"
 msgstr "Füllung 2"
 
-#: widgets/waveform/waveform_widget.py:393
+#: widgets/waveform/waveform_widget.py:390
 msgid "Show the frames per second."
 msgstr "Zeigt die Bilder pro Sekunde an."
 
-#: widgets/waveform/waveform_widget.py:398
+#: widgets/waveform/waveform_widget.py:395
 msgid "Show the statistics on mouse hover."
 msgstr "Zeigen Sie die Statistik bei Mausbewegung an."
 
-#: widgets/waveform/waveform_widget.py:403
+#: widgets/waveform/waveform_widget.py:400
 msgid "The time format for mouse hover."
 msgstr "Das Zeitformat für den Mauszeiger."
 
-#: widgets/waveform/waveform_widget.py:406
+#: widgets/waveform/waveform_widget.py:403
 msgid "Relative to view"
 msgstr "Relativ zur Ansicht"
 
-#: widgets/waveform/waveform_widget.py:407
+#: widgets/waveform/waveform_widget.py:404
 msgid "Relative to buffer"
 msgstr "Relativ zum Puffer"
 
-#: widgets/waveform/waveform_widget.py:408
+#: widgets/waveform/waveform_widget.py:405
 msgid "Absolute UTC time"
 msgstr "Absolute UTC-Zeit"
 
-#: widgets/waveform/waveform_widget.py:414
+#: widgets/waveform/waveform_widget.py:411
 msgid "Show the plot statistics on the right."
 msgstr "Zeigen Sie die Plot-Statistiken auf der rechten Seite an."
 
-#: widgets/waveform/waveform_widget.py:419
+#: widgets/waveform/waveform_widget.py:416
 msgid "Show frequency for dual markers and statistics."
 msgstr "Zeigt die Frequenz für duale Marker und Statistiken an."
 
-#: widgets/waveform/waveform_widget.py:424
+#: widgets/waveform/waveform_widget.py:421
 msgid "The quantities to display by default."
 msgstr "Die Größen, die standardmäßig angezeigt werden."
 
-#: widgets/waveform/waveform_widget.py:436
+#: widgets/waveform/waveform_widget.py:433
 msgid "Use OpenGL rendering."
 msgstr "Verwenden Sie OpenGL-Rendering."
 
-#: widgets/waveform/waveform_widget.py:453
+#: widgets/waveform/waveform_widget.py:450
 msgid "Pin the left side (oldest) data so that it stays in view."
 msgstr ""
 "Pinnen Sie die (ältesten) Daten auf der linken Seite an, damit sie im "
 "Blickfeld bleiben."
 
-#: widgets/waveform/waveform_widget.py:458
+#: widgets/waveform/waveform_widget.py:455
 msgid "Pin the right side (newest) data so that it stays in view."
 msgstr ""
 "Pinnen Sie die (neuesten) Daten auf der rechten Seite an, damit sie im "
 "Blickfeld bleiben."
 
-#: widgets/waveform/waveform_widget.py:463
+#: widgets/waveform/waveform_widget.py:460
 msgid "The waveform state."
 msgstr "Der Zustand der Wellenform."
 
-#: widgets/waveform/waveform_widget.py:469
+#: widgets/waveform/waveform_widget.py:466
 msgid "The annotations."
 msgstr "Die Anmerkungen."
 
-#: widgets/waveform/waveform_widget.py:475
+#: widgets/waveform/waveform_widget.py:472
 msgid "Control location"
 msgstr "Standort der Steuerung"
 
-#: widgets/waveform/waveform_widget.py:479
+#: widgets/waveform/waveform_widget.py:476
 msgid "top"
 msgstr "oben"
 
-#: widgets/waveform/waveform_widget.py:480
+#: widgets/waveform/waveform_widget.py:477
 msgid "bottom"
 msgstr "unten"
 
-#: widgets/waveform/waveform_widget.py:485
+#: widgets/waveform/waveform_widget.py:482
 msgid "Show the summary waveform at top."
 msgstr "Zeigen Sie die zusammengefasste Wellenform oben an."
 
-#: widgets/waveform/waveform_widget.py:490
+#: widgets/waveform/waveform_widget.py:487
 msgid "The signal quantity to show in the summary."
 msgstr "Die Signalgröße, die in der Zusammenfassung angezeigt werden soll."
 
-#: widgets/waveform/waveform_widget.py:496
+#: widgets/waveform/waveform_widget.py:493
 msgid "X-axis annotation mode"
 msgstr "X-Achsen-Anmerkungsmodus"
 
-#: widgets/waveform/waveform_widget.py:499
-#: widgets/waveform/waveform_widget.py:3189
+#: widgets/waveform/waveform_widget.py:496
+#: widgets/waveform/waveform_widget.py:3177
 msgid "Absolute"
 msgstr "Absolut"
 
-#: widgets/waveform/waveform_widget.py:500
-#: widgets/waveform/waveform_widget.py:3194
+#: widgets/waveform/waveform_widget.py:497
+#: widgets/waveform/waveform_widget.py:3182
 msgid "Relative"
 msgstr "Relativ"
 
-#: widgets/waveform/waveform_widget.py:506
+#: widgets/waveform/waveform_widget.py:503
 msgid "The available subsources."
 msgstr "Die verfügbaren Teilquellen."
 
-#: widgets/waveform/waveform_widget.py:512
+#: widgets/waveform/waveform_widget.py:509
 msgid "The selected subsources for each trace."
 msgstr "Die ausgewählten Teilquellen für jede Messkurve."
 
-#: widgets/waveform/waveform_widget.py:518
+#: widgets/waveform/waveform_widget.py:515
 msgid "The trace priority: highest int value on top, None is off."
 msgstr ""
 "Die Priorität der Messkurve: Der höchste int-Wert steht oben, None ist aus."
 
-#: widgets/waveform/waveform_widget.py:524
+#: widgets/waveform/waveform_widget.py:521
 msgid "The formatting method for elapsed time."
 msgstr "Die Formatierungsmethode für die verstrichene Zeit."
 
-#: widgets/waveform/waveform_widget.py:526
+#: widgets/waveform/waveform_widget.py:523
 msgid "Seconds displays the time as seconds with prefix."
 msgstr "Seconds zeigt die Zeit als Sekunden mit Vorzeichen an."
 
-#: widgets/waveform/waveform_widget.py:527
+#: widgets/waveform/waveform_widget.py:524
 msgid "Customary selects seconds, minutes, hours, or days."
 msgstr "Customary wählt Sekunden, Minuten, Stunden oder Tage aus."
 
-#: widgets/waveform/waveform_widget.py:528
+#: widgets/waveform/waveform_widget.py:525
 msgid "Standard displays days:hours:minutes:seconds."
 msgstr "Standardmäßig werden Tage:Stunden:Minuten:Sekunden angezeigt."
 
-#: widgets/waveform/waveform_widget.py:532
+#: widgets/waveform/waveform_widget.py:529
 msgid "Seconds"
 msgstr "Sekunden"
 
-#: widgets/waveform/waveform_widget.py:533
+#: widgets/waveform/waveform_widget.py:530
 msgid "Customary"
 msgstr "Übliche"
 
-#: widgets/waveform/waveform_widget.py:534
+#: widgets/waveform/waveform_widget.py:531
 msgid "Standard"
 msgstr "Standard"
 
-#: widgets/waveform/waveform_widget.py:3136
-#: widgets/waveform/waveform_widget.py:3436
+#: widgets/waveform/waveform_widget.py:3124
+#: widgets/waveform/waveform_widget.py:3424
 msgid "Save image to file"
 msgstr "Bild in Datei speichern"
 
-#: widgets/waveform/waveform_widget.py:3183
-#: widgets/waveform/waveform_widget.py:3252
+#: widgets/waveform/waveform_widget.py:3171
+#: widgets/waveform/waveform_widget.py:3240
 msgid "Single marker"
 msgstr "Einzelner Marker"
 
-#: widgets/waveform/waveform_widget.py:3184
-#: widgets/waveform/waveform_widget.py:3253
+#: widgets/waveform/waveform_widget.py:3172
+#: widgets/waveform/waveform_widget.py:3241
 msgid "Dual markers"
 msgstr "Zwei Marker"
 
-#: widgets/waveform/waveform_widget.py:3186
+#: widgets/waveform/waveform_widget.py:3174
 msgid "Mode"
 msgstr "Modus"
 
-#: widgets/waveform/waveform_widget.py:3199
-#: widgets/waveform/waveform_widget.py:3254
-#: widgets/waveform/waveform_widget.py:3412
-#: widgets/waveform/waveform_widget.py:3430
+#: widgets/waveform/waveform_widget.py:3187
+#: widgets/waveform/waveform_widget.py:3242
+#: widgets/waveform/waveform_widget.py:3400
+#: widgets/waveform/waveform_widget.py:3418
 msgid "Clear all"
 msgstr "Alles löschen"
 
-#: widgets/waveform/waveform_widget.py:3210
-#: widgets/waveform/waveform_widget.py:3299
-#: widgets/waveform/waveform_widget.py:3418
+#: widgets/waveform/waveform_widget.py:3198
+#: widgets/waveform/waveform_widget.py:3287
+#: widgets/waveform/waveform_widget.py:3406
 msgid "Annotations"
 msgstr "Anmerkungen"
 
-#: widgets/waveform/waveform_widget.py:3302
+#: widgets/waveform/waveform_widget.py:3290
 msgid "Range"
 msgstr "Range"
 
-#: widgets/waveform/waveform_widget.py:3306
-#: widgets/waveform/waveform_widget.py:3699
+#: widgets/waveform/waveform_widget.py:3294
+#: widgets/waveform/waveform_widget.py:3687
 msgid "Auto"
 msgstr "Auto"
 
-#: widgets/waveform/waveform_widget.py:3312
+#: widgets/waveform/waveform_widget.py:3300
 msgid "Exact"
 msgstr "Genau"
 
-#: widgets/waveform/waveform_widget.py:3321
+#: widgets/waveform/waveform_widget.py:3309
 msgid "Scale"
 msgstr "Skala"
 
-#: widgets/waveform/waveform_widget.py:3324
+#: widgets/waveform/waveform_widget.py:3312
 msgid "Linear"
 msgstr "Linear"
 
-#: widgets/waveform/waveform_widget.py:3329
+#: widgets/waveform/waveform_widget.py:3317
 msgid "Logarithmic"
 msgstr "Logarithmisch"
 
-#: widgets/waveform/waveform_widget.py:3337
+#: widgets/waveform/waveform_widget.py:3325
 msgid "Logarithmic zero"
 msgstr "Logarithmischer Nullpunkt"
 
-#: widgets/waveform/waveform_widget.py:3351
+#: widgets/waveform/waveform_widget.py:3339
 msgid "Preferred prefix"
 msgstr "Bevorzugte Vorsilbe"
 
-#: widgets/waveform/waveform_widget.py:3410
+#: widgets/waveform/waveform_widget.py:3398
 msgid "Hide all text"
 msgstr "Alle Texte ausblenden"
 
-#: widgets/waveform/waveform_widget.py:3411
+#: widgets/waveform/waveform_widget.py:3399
 msgid "Show all text"
 msgstr "Alle Texte anzeigen"
 
-#: widgets/waveform/waveform_widget.py:3419
+#: widgets/waveform/waveform_widget.py:3407
 msgid "Vertical"
 msgstr "Vertikal"
 
-#: widgets/waveform/waveform_widget.py:3422
+#: widgets/waveform/waveform_widget.py:3410
 msgid "Horizontal"
 msgstr "Horizontal"
 
-#: widgets/waveform/waveform_widget.py:3428
+#: widgets/waveform/waveform_widget.py:3416
 msgid "Save"
 msgstr "Speichern Sie"
 
-#: widgets/waveform/waveform_widget.py:3433
+#: widgets/waveform/waveform_widget.py:3421
 msgid "Y-axis auto range"
 msgstr "Automatischer Bereich der Y-Achse"
 
-#: widgets/waveform/waveform_widget.py:3437
+#: widgets/waveform/waveform_widget.py:3425
 msgid "Copy image to clipboard"
 msgstr "Bild in die Zwischenablage kopieren"
 
-#: widgets/waveform/waveform_widget.py:3438
+#: widgets/waveform/waveform_widget.py:3426
 msgid "Export visible data"
 msgstr "Sichtbare Daten exportieren"
 
-#: widgets/waveform/waveform_widget.py:3439
+#: widgets/waveform/waveform_widget.py:3427
 msgid "Export visible data as CSV"
 msgstr "Exportieren Sie sichtbare Daten als CSV"
 
-#: widgets/waveform/waveform_widget.py:3440
+#: widgets/waveform/waveform_widget.py:3428
 msgid "Export all data"
 msgstr "Alle Daten exportieren"
 
-#: widgets/waveform/waveform_widget.py:3605
+#: widgets/waveform/waveform_widget.py:3593
 msgid "Export visible data to CSV file"
 msgstr "Exportieren Sie sichtbare Daten in eine CSV-Datei"
 
-#: widgets/waveform/waveform_widget.py:3675
+#: widgets/waveform/waveform_widget.py:3663
 msgid "Export"
 msgstr "Exportieren"
 
-#: widgets/waveform/waveform_widget.py:3676
+#: widgets/waveform/waveform_widget.py:3664
 msgid "Analysis"
 msgstr "Analyse"
 
-#: widgets/waveform/waveform_widget.py:3684
+#: widgets/waveform/waveform_widget.py:3672
 msgid "Interval"
 msgstr "Interval"
 
-#: widgets/waveform/waveform_widget.py:3693
+#: widgets/waveform/waveform_widget.py:3681
 msgid "Zoom"
 msgstr "Zoom"
 
-#: widgets/waveform/waveform_widget.py:3697
+#: widgets/waveform/waveform_widget.py:3685
 msgid "Show statistics"
 msgstr "Statistik anzeigen"
 
-#: widgets/waveform/waveform_widget.py:3702
+#: widgets/waveform/waveform_widget.py:3690
 msgid "Left"
 msgstr "Links"
 
-#: widgets/waveform/waveform_widget.py:3705
+#: widgets/waveform/waveform_widget.py:3693
 msgid "Right"
 msgstr "Rechts"
 
-#: widgets/waveform/waveform_widget.py:3708
-#: widgets/waveform/waveform_widget.py:3715
+#: widgets/waveform/waveform_widget.py:3696
+#: widgets/waveform/waveform_widget.py:3703
 msgid "Off"
 msgstr "Aus"
 
-#: widgets/waveform/waveform_widget.py:3712
+#: widgets/waveform/waveform_widget.py:3700
 msgid "Show time"
 msgstr "Zeit anzeigen"
 
-#: widgets/waveform/waveform_widget.py:3718
+#: widgets/waveform/waveform_widget.py:3706
 msgid "On"
 msgstr "Auf"
 
-#: widgets/waveform/waveform_widget.py:3722
+#: widgets/waveform/waveform_widget.py:3710
 msgid "Label"
 msgstr "Etikett"
 
-#: widgets/waveform/waveform_widget.py:3745
+#: widgets/waveform/waveform_widget.py:3733
 msgid "Y mode"
 msgstr "Y-Modus"
 
@@ -3619,3 +3559,63 @@ msgstr "Einheiten"
 
 #~ msgid "Change Language"
 #~ msgstr "Sprache ändern"
+
+#~ msgid ""
+#~ "This computer has Intel graphics. If the computer has a discrete graphics "
+#~ "card, please adjust your graphics settings to run this application using the"
+#~ " graphics card."
+#~ msgstr ""
+#~ "Dieser Computer hat eine Intel-Grafikkarte. Wenn der Computer über eine "
+#~ "diskrete Grafikkarte verfügt, passen Sie bitte Ihre Grafikeinstellungen an, "
+#~ "um diese Anwendung mit der Grafikkarte auszuführen."
+
+#~ msgid ""
+#~ "If the computer only has Intel graphics, we recommend that you update your "
+#~ "graphics drivers. You can download the latest graphics drivers from your "
+#~ "computer manufacturer or Intel."
+#~ msgstr ""
+#~ "Wenn der Computer nur über eine Intel-Grafikkarte verfügt, empfehlen wir "
+#~ "Ihnen, Ihre Grafiktreiber zu aktualisieren. Sie können die neuesten "
+#~ "Grafiktreiber von Ihrem Computerhersteller oder von Intel herunterladen."
+
+#~ msgid "You may observe strange graphics hangs with the latest Intel driver."
+#~ msgstr ""
+#~ "Mit dem neuesten Intel-Treiber kann es zu merkwürdigen Grafikproblemen "
+#~ "kommen."
+
+#~ msgid ""
+#~ "If this happens on your computer, then you can switch to the software OpenGL"
+#~ " renderer. The software OpenGL renderer may work around Intel driver "
+#~ "instabilities, but it runs slower possibly causing performance issues. On a "
+#~ "small number of computers, it does not run correctly causing a white "
+#~ "application screen. You will need to close and reopen this application for "
+#~ "the change to take effect."
+#~ msgstr ""
+#~ "Wenn dies auf Ihrem Computer passiert, können Sie auf den Software-OpenGL-"
+#~ "Renderer umschalten. Der Software-OpenGL-Renderer umgeht zwar die "
+#~ "Instabilitäten des Intel-Treibers, läuft aber langsamer und kann zu "
+#~ "Leistungsproblemen führen. Auf einer kleinen Anzahl von Computern wird er "
+#~ "nicht korrekt ausgeführt, was zu einem weißen Anwendungsbildschirm führt. "
+#~ "Sie müssen diese Anwendung schließen und erneut öffnen, damit die Änderung "
+#~ "wirksam wird."
+
+#~ msgid "Would you like to switch to the software OpenGL renderer?"
+#~ msgstr "Möchten Sie auf den Software-OpenGL-Renderer umsteigen?"
+
+#~ msgid ""
+#~ "If you are unsure, select \"No\" and leave \"Do not show again\" unchecked. "
+#~ "If you observe the graphics hangs, you can select \"Yes\" in the future. You"
+#~ " can select the OpenGL renderer at any time using Widgets → Settings → "
+#~ "Common → opengl. The default is \"desktop\"."
+#~ msgstr ""
+#~ "Wenn Sie unsicher sind, wählen Sie \"Nein\" und lassen Sie \"Nicht mehr "
+#~ "anzeigen\" deaktiviert. Wenn Sie beobachten, dass die Grafik hängen bleibt, "
+#~ "können Sie in Zukunft \"Ja\" wählen. Sie können den OpenGL-Renderer "
+#~ "jederzeit über Widgets → Einstellungen → Allgemein → opengl auswählen. Die "
+#~ "Voreinstellung ist \"Desktop\"."
+
+#~ msgid "Do not show again"
+#~ msgstr "Nicht mehr anzeigen"
+
+#~ msgid "Intel graphics detected"
+#~ msgstr "Intel-Grafik erkannt"
