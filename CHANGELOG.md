@@ -12,7 +12,12 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Fixed JLS export crashes #343
 * Added TCP server #314
 * Added external serial port support  #344
-* Fixed excessive software update prompting  #340 
+* Fixed excessive software update prompting  #340
+* Added support for JS320.
+* Bumped versions:
+  * pyjoulescope_driver from 1.11.0 to 2.0.7
+    * Adds JS320 support
+    * Fixes several segfaults, especially for close and device removal.
 
 
 ## 1.4.2
