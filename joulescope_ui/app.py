@@ -195,7 +195,7 @@ SETTINGS = {
         'dtype': 'bool',
         'brief': N_('Prompt to switch from Intel graphics to software renderer.'),
         'default': True,
-        'flags': ['skip_undo'],
+        'flags': ['hide', 'skip_undo'],  # no longer used
     },
 }
 

@@ -28,7 +28,6 @@ from joulescope_ui.safe_mode import safe_mode_dialog
 from joulescope_ui.styles.manager import style_settings
 from joulescope_ui.process_monitor import ProcessMonitor
 from joulescope_ui import software_update
-from joulescope_ui.intel_graphics_dialog import intel_graphics_dialog
 from joulescope_ui.ui_util import show_in_folder
 from joulescope_ui.widget_tools import CallableAction
 from joulescope_ui import urls
@@ -494,9 +493,6 @@ class MainWindow(QtWidgets.QMainWindow):
                 [show, [f'{self.topic}/callbacks/!pend_done', show]]
             ]],
         })
-
-    def on_action_intel_graphics_dialog_show(self, value):
-        intel_graphics_dialog(self.pubsub, value)
 
     def _startup_software_check(self):
         if not self.pubsub.query('registry/app/settings/software_update_check'):

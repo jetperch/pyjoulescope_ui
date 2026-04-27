@@ -260,9 +260,6 @@ class _PlotOpenGLWidget(QtOpenGLWidgets.QOpenGLWidget):
             OpenGL Version: {_gl_get_string(gl.GL_VERSION)}
             Shader Version: {_gl_get_string(gl.GL_SHADING_LANGUAGE_VERSION)}""")
 
-        if 'Intel' in vendor:
-            self.parent().on_intel_graphics()
-
     def paintGL(self):
         size = self.width(), self.height()
         painter = QtGui.QPainter(self)
@@ -609,15 +606,6 @@ class WaveformWidget(QtWidgets.QWidget):
             'times': [],
             'str': [],
         }
-
-    def on_intel_graphics(self):
-        self.pubsub.publish(f'registry/ui/actions/!pend', {
-            'id': 'intel_graphics_dialog',
-            'actions': [[
-                'registry/ui/actions/!intel_graphics_dialog_show',
-                [f'registry/ui/callbacks/!pend_done', 'intel_graphics_dialog']
-            ]],
-        }, defer=True)
 
     def on_setting_opengl(self, value):
         value = bool(value)
