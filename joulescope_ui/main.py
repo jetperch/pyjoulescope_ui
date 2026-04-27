@@ -56,6 +56,7 @@ from .paths import Paths
 from .view import View  # registers the view manager
 import joulescope_ui.range_tools   # register range_tools
 import appnope
+import datetime
 import logging
 import os
 import shutil
@@ -500,6 +501,16 @@ class MainWindow(QtWidgets.QMainWindow):
     def _startup_software_check(self):
         if not self.pubsub.query('registry/app/settings/software_update_check'):
             return
+        previous = self.pubsub.query('registry/app/settings/software_update_check_previous')
+        if previous:
+            try:
+                prev_dt = datetime.datetime.fromisoformat(previous)
+                elapsed = datetime.datetime.utcnow() - prev_dt
+                if datetime.timedelta(0) <= elapsed < datetime.timedelta(hours=24):
+                    self._log.info('software update check skipped: %s elapsed since last "Later"', elapsed)
+                    return
+            except (TypeError, ValueError):
+                self._log.warning('software_update_check_previous is malformed: %r', previous)
         self._software_update_status = {
             'id': 'software_update',
             'actions': [[f'{self.topic}/actions/!software_update', None]],

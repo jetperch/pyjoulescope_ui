@@ -141,6 +141,12 @@ SETTINGS = {
         'brief': N_('Check for software updates.'),
         'default': True,
     },
+    'software_update_check_previous': {
+        'dtype': 'str',
+        'brief': N_('ISO 8601 UTC timestamp of the most recent "Later" dismissal of the software update prompt, or None.'),
+        'default': None,
+        'flags': ['hide', 'skip_undo'],
+    },
     'software_update_channel': {
         'dtype': 'str',
         'brief': N_('The software update channel.'),

@@ -15,6 +15,7 @@
 """Check for software updates"""
 
 from PySide6 import QtWidgets, QtCore
+import datetime
 import requests
 import json
 import threading
@@ -344,13 +345,20 @@ class SoftwareUpdateDialog(QtWidgets.QDialog):
 
     @QtCore.Slot(int)
     def _on_finish(self, value):
+        record_dismissal = False
         if not is_release:
             _log.info('software update: not a release')
+            record_dismissal = True
         elif value == QtWidgets.QDialog.DialogCode.Accepted:
             _log.info('software update: update now')
             self._pubsub.publish('registry/ui/actions/!close', {'software_update': self._info})
         else:
             _log.info('software update: later')
+            record_dismissal = True
+        if record_dismissal:
+            self._pubsub.publish(
+                'registry/app/settings/software_update_check_previous',
+                datetime.datetime.utcnow().isoformat())
         if self._done_action is not None:
             self._pubsub.publish(*self._done_action, defer=True)
         self.close()
