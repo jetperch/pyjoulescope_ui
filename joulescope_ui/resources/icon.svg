@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 22.0.2, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   id="Layer_1"
+   x="0px"
+   y="0px"
+   viewBox="0 0 1024 1024"
+   xml:space="preserve"
+   sodipodi:docname="joulescope_icon_tmp.svg"
+   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   width="1024"
+   height="1024"
+   inkscape:export-filename="D:\repos\Jetperch\JouleScope\doc\joulescope_logo_v1\icon.iconset\icon_16x16.png"
+   inkscape:export-xdpi="1.5"
+   inkscape:export-ydpi="1.5"><metadata
+   id="metadata41"><rdf:RDF><cc:Work
+       rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" /><dc:title></dc:title></cc:Work></rdf:RDF></metadata><defs
+   id="defs39" /><sodipodi:namedview
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="1"
+   inkscape:pageshadow="2"
+   inkscape:window-width="1512"
+   inkscape:window-height="803"
+   id="namedview37"
+   showgrid="false"
+   inkscape:zoom="0.3197744"
+   inkscape:cx="113.924"
+   inkscape:cy="411.86917"
+   inkscape:window-x="2601"
+   inkscape:window-y="134"
+   inkscape:window-maximized="0"
+   inkscape:current-layer="g32" />
+<style
+   type="text/css"
+   id="style2">
+	.st0{fill:#001535;}
+	.st1{fill:#046080;}
+	.st2{fill:#02819E;}
+</style>
+<rect
+   id="squircle_background"
+   x="0"
+   y="0"
+   width="1024"
+   height="1024"
+   rx="225"
+   ry="225"
+   fill="#ffffff" />
+<g
+   id="g34"
+   transform="translate(0,920)">
+	<g
+   id="g24">
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	</g>
+	<g
+   id="g32"
+   transform="matrix(8.418794,0,0,8.418794,44.908655,-843.91277)"
+   style="stroke-width:0.11878186">
+		<polygon
+   class="st1"
+   points="8.8,46.8 8.8,33 66.1,33 75,41.9 75,99 61.2,99 61.2,46.8 "
+   id="polygon26"
+   style="fill:#046080;stroke-width:0.11878186" />
+		<polygon
+   class="st0"
+   points="8.7,74.8 8.7,61 38.1,61 47,69.9 47,99 33.2,99 33.2,74.8 "
+   id="polygon28"
+   style="fill:#001535;stroke-width:0.11878186" />
+		<polygon
+   class="st2"
+   points="103,99 103,11.9 103,5 8.9,5 8.9,18.8 89.2,18.8 89.2,99 "
+   id="polygon30"
+   style="fill:#02819e;stroke-width:0.11878186" />
+	</g>
+</g>
+</svg>
