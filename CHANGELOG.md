@@ -18,10 +18,12 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Fixed Device Control widget when shown in French
   * Fixed width adjustment when scroll bar present.
 * Rounded icon to meet modern style guidelines #170
+* Added Windows 11 arm build  #303
 * Bumped versions:
   * pyjoulescope_driver from 1.11.0 to 2.0.7
     * Adds JS320 support
     * Fixes several segfaults, especially for close and device removal.
+  * nuitka from 2.8.8 to 4.0.8 
 
 
 ## 1.4.2

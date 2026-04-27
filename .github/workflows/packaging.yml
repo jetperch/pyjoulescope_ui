@@ -100,7 +100,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest", "windows-latest", "macos-latest"]  # , "windows-11-arm"
+        os: ["ubuntu-latest", "windows-latest", "macos-latest", "windows-11-arm"]
         dist: ["pyinstaller", "nuitka"]
         exclude:
           - os: ubuntu-latest
@@ -139,12 +139,12 @@ jobs:
           security import $CERTIFICATE_INSTALLER_PATH -P "$CERTIFICATE_PWD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
 
       - name: Windows Inno Setup install
-        if: matrix.os == 'windows-latest' # || matrix.os == 'windows-11-arm'
+        if: matrix.os == 'windows-latest' || matrix.os == 'windows-11-arm'
         run: choco install innosetup -y
 
       - name: Windows AzureSignTool install
         # https://melatonin.dev/blog/how-to-code-sign-windows-installers-with-an-ev-cert-on-github-actions/
-        if: matrix.os == 'windows-latest' # || matrix.os == 'windows-11-arm'
+        if: matrix.os == 'windows-latest' || matrix.os == 'windows-11-arm'
         run: dotnet tool install --global AzureSignTool
 
       - name: Install Ubuntu dependencies
@@ -179,7 +179,7 @@ jobs:
       - name: Build with Nuitka
         if: matrix.dist == 'nuitka'
         run: |
-          pip install "git+https://${{ secrets.NUITKA_TOKEN }}@github.com/Nuitka/Nuitka-commercial.git@2.8.8#egg=nuitka"
+          pip install "git+https://${{ secrets.NUITKA_TOKEN }}@github.com/Nuitka/Nuitka-commercial.git@4.0.8#egg=nuitka"
           python ci/nuitka_build.py
 
       - name: Save Nuitka report
@@ -194,7 +194,7 @@ jobs:
         run: python -m PyInstaller joulescope.spec
 
       - name: Build Windows installer
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-latest' || matrix.os == 'windows-11-arm'
         env:
           AZURE_KEY_VAULT_URI: ${{ secrets.AZURE_KEY_VAULT_URI }}
           AZURE_CLIENT_ID:     ${{ secrets.AZURE_CLIENT_ID }}
