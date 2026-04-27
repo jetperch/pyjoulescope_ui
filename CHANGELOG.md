@@ -14,6 +14,9 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added external serial port support  #344
 * Fixed excessive software update prompting  #340
 * Added support for JS320.
+* Fixed flyout widget width  #341
+  * Fixed Device Control widget when shown in French
+  * Fixed width adjustment when scroll bar present.
 * Bumped versions:
   * pyjoulescope_driver from 1.11.0 to 2.0.7
     * Adds JS320 support
