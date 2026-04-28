@@ -71,7 +71,7 @@ def nuitka():
         '--file-version=' + version,
         '--product-version=' + version,
         '--file-description=Joulescope UI',
-        '--copyright=2025 Jetperch LLC',
+        '--copyright=2026 Jetperch LLC',
         '--assume-yes-for-downloads',
         '--plugin-enable=pyside6',
         '--python-flag=-m',
@@ -84,6 +84,7 @@ def nuitka():
         '--include-module=joulescope.v0.filter_fir',
         '--include-module=joulescope.units',
         '--include-module=PySide6.QtOpenGL',   # added 2025-12-02 for Qt 6.10.1
+        #'--include-windows-runtime-dlls=yes',
         '--nofollow-import-to=*.test',
         '--include-package-data=joulescope_ui',
         '--include-package-data=pyjoulescope_driver',

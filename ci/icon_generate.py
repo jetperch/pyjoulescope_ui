@@ -32,6 +32,7 @@ Dependencies (already project deps): PySide6, Pillow.
 
 import io
 import os
+import struct
 import sys
 
 os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
@@ -75,6 +76,59 @@ def render_png(svg_data: bytes, size: int) -> bytes:
     return bytes(buf.data())
 
 
+def _ico_bmp_payload(img: Image.Image) -> bytes:
+    # ICO BMP-style entry: BITMAPINFOHEADER + bottom-up BGRA pixels + AND mask.
+    # Pillow's plain ICO writer emits PNG-encoded entries for every size and
+    # sorts smallest-first, which Windows tools (PyInstaller, Inno Setup,
+    # Explorer thumbnails) handle inconsistently for sub-256 sizes. The legacy
+    # Vista+ layout expected by those tools uses BMP for small entries.
+    img = img.convert('RGBA')
+    w, h = img.size
+    pixels = img.tobytes('raw', 'BGRA')
+    bih = struct.pack(
+        '<IiiHHIIiiII',
+        40, w, h * 2, 1, 32, 0, 0, 0, 0, 0, 0,
+    )
+    rows = [pixels[y * w * 4:(y + 1) * w * 4] for y in range(h - 1, -1, -1)]
+    xor_mask = b''.join(rows)
+    and_row = ((w + 31) // 32) * 4
+    and_mask = b'\x00' * (and_row * h)
+    return bih + xor_mask + and_mask
+
+
+def _ico_png_payload(img: Image.Image) -> bytes:
+    buf = io.BytesIO()
+    img.convert('RGBA').save(buf, 'PNG', optimize=True)
+    return buf.getvalue()
+
+
+def write_ico(path: str, images_by_size: dict) -> None:
+    # Match the legacy Joulescope icon.ico layout: largest entries first, PNG
+    # encoding only for 256x256, BMP encoding for everything smaller.
+    sizes = sorted(images_by_size.keys(), reverse=True)
+    payloads = []
+    for s in sizes:
+        if s >= 256:
+            payloads.append(_ico_png_payload(images_by_size[s]))
+        else:
+            payloads.append(_ico_bmp_payload(images_by_size[s]))
+    n = len(sizes)
+    header = struct.pack('<HHH', 0, 1, n)
+    offset = 6 + 16 * n
+    directory = []
+    for s, blob in zip(sizes, payloads):
+        b = 0 if s == 256 else s  # 256 is encoded as 0 in the byte field
+        directory.append(struct.pack(
+            '<BBBBHHII', b, b, 0, 0, 1, 32, len(blob), offset))
+        offset += len(blob)
+    with open(path, 'wb') as f:
+        f.write(header)
+        for d in directory:
+            f.write(d)
+        for blob in payloads:
+            f.write(blob)
+
+
 def main():
     _ensure_app()
     with open(SVG_PATH, 'rb') as f:
@@ -98,12 +152,11 @@ def main():
             print(f'wrote {target}')
 
     ico_target = os.path.join(RES, 'icon.ico')
-    get_image(max(ICO_SIZES)).save(
-        ico_target, format='ICO', sizes=[(s, s) for s in ICO_SIZES])
+    write_ico(ico_target, {s: get_image(s) for s in ICO_SIZES})
     print(f'wrote {ico_target}')
 
     ico64_target = os.path.join(RES, 'icon_64x64.ico')
-    get_image(64).save(ico64_target, format='ICO', sizes=[(64, 64)])
+    write_ico(ico64_target, {64: get_image(64)})
     print(f'wrote {ico64_target}')
 
     icns_target = os.path.join(RES, 'icon.icns')
