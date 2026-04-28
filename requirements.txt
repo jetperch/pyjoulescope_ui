@@ -1,16 +1,35 @@
+# SPDX-FileCopyrightText: Copyright 2018-2026 Jetperch LLC
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# For the file format specification, see
+# https://pip.pypa.io/en/latest/reference/requirements-file-format/#requirements-file-format
+
+
 appnope>=0.1.2,<1
 check-manifest>=0.37,<1
 coverage>=4.5.2
-pyjoulescope_driver>=2.0.7,<3      # also update JOULESCOPE_DRIVER_VERSION_MIN in setup.py
-joulescope>=1.4.0,<2               # also update JOULESCOPE_VERSION_MIN in setup.py
+pyjoulescope_driver>=2.1.0,<3      # also update JOULESCOPE_DRIVER_VERSION_MIN in setup.py
+joulescope>=1.5.0,<2               # also update JOULESCOPE_VERSION_MIN in setup.py
 markdown>=3,<4
 psutil>=5,<8
-pyjls>=0.16.0,<1
+pyjls>=0.17.0,<1
 pyopengl>=3,<4
 pywin32; sys_platform == 'win32'   # python {path_to_python}\scripts\pywin32_postinstall.py -install
 pyqtgraph>=0.14.0,<1
-PySide6>=6.10.1,<7
-PySide6-QtAds>=4.5.0,<5
+PySide6>=6.11.0,<7
+PySide6-QtAds>=4.5.0.3,<5
 python-dateutil>=2.7.3,<3
 PyInstaller>=6.1.0,<7
 QtPy>=2,<3

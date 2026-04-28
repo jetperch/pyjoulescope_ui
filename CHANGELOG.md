@@ -1,3 +1,19 @@
+<!--
+# SPDX-FileCopyrightText: Copyright 2018-2026 Jetperch LLC
+# SPDX-License-Identifier: Apache-2.0
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+-->
 
 # CHANGELOG
 
@@ -7,7 +23,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.5.0
 
-2026 Apr 27  [in progress]
+2026 Apr 28
 
 * Fixed JLS export crashes #343
 * Added TCP server #314
@@ -20,10 +36,15 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Rounded icon to meet modern style guidelines #170
 * Added Windows 11 arm build  #303
 * Bumped versions:
-  * pyjoulescope_driver from 1.11.0 to 2.0.7
+  * joulescope_driver from 1.4.0 to 1.5.0
+  * pyjoulescope_driver from 1.11.0 to 2.1.0
     * Adds JS320 support
     * Fixes several segfaults, especially for close and device removal.
+  * pyjls from 0.16.0 to 0.17.0
+  * pymonocypher from 3.1.3.5 to 3.1.3.6
   * nuitka from 2.8.8 to 4.0.8 
+  * PySide6-QtAds from 4.5.0 to >=4.5.3
+  * PySide6 from 6.10.1 to >=6.11.0
 
 
 ## 1.4.2
