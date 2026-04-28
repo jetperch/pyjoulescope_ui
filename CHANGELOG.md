@@ -45,6 +45,7 @@ This file contains the list of changes made to pyjoulescope_ui.
   * nuitka from 2.8.8 to 4.0.8 
   * PySide6-QtAds from 4.5.0 to >=4.5.3
   * PySide6 from 6.10.1 to >=6.11.0
+  * Python from 3.13 to 3.14 for distribution
 
 
 ## 1.4.2

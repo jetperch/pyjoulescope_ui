@@ -1,4 +1,4 @@
-# Copyright 2021-2025 Jetperch LLC
+# Copyright 2021-2026 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ on: ['push', 'pull_request']
 
 
 env:
-  PYTHON_VERSION: '3.13'
+  PYTHON_VERSION: '3.14'
 
 
 jobs:
@@ -256,12 +256,6 @@ jobs:
         uses: actions/download-artifact@v6
         with:
           pattern: installers-*
-          merge-multiple: true
-          path: dist_installer/
-
-      - name: Download Flatpak artifact
-        uses: actions/download-artifact@v6
-        with:
           merge-multiple: true
           path: dist_installer/
 
