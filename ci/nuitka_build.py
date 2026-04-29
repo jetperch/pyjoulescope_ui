@@ -78,6 +78,7 @@ def nuitka():
         '--python-flag=no_docstrings',
         '--python-flag=isolated',
         '--msvc=latest',  # for Windows
+        '--windows-icon-from-ico=joulescope_ui/resources/icon.ico',
         '--include-module=ctypes.util',
         '--include-module=joulescope.v0.driver',
         '--include-module=joulescope.v0.decimators',
