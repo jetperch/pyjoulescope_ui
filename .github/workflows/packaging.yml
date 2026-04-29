@@ -24,7 +24,7 @@ on: ['push', 'pull_request']
 
 
 env:
-  PYTHON_VERSION: '3.13'
+  PYTHON_VERSION: '3.14'
 
 
 jobs:
@@ -179,7 +179,7 @@ jobs:
       - name: Build with Nuitka
         if: matrix.dist == 'nuitka'
         run: |
-          pip install "git+https://${{ secrets.NUITKA_TOKEN }}@github.com/Nuitka/Nuitka-commercial.git@2.8.10#egg=nuitka"
+          pip install "git+https://${{ secrets.NUITKA_TOKEN }}@github.com/Nuitka/Nuitka-commercial.git@4.0.8#egg=nuitka"
           python ci/nuitka_build.py --debug
 
       - name: Save Nuitka report
