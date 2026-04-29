@@ -179,7 +179,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
 
     @property
     def is_js110(self):
-        return 'JS110' in self.unique_id
+        return 'JS110' in self.unique_id.upper()
 
     def _gpi_subscribe(self, topic, signal):
         self.pubsub.subscribe(topic, lambda v: self._on_gpi_n(signal, v))
@@ -625,7 +625,8 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         if not self.is_js110:
             w = FuseWidget(self, self.unique_id, self.pubsub)
             self._body_layout.addWidget(w, self._row, 0, 1, 2)
-            self._requirements.append([self._row, {'fw': '1.1.0', 'fpga': '1.1.0'}])
+            if 'JS220' in self.unique_id.upper():
+                self._requirements.append([self._row, {'fw': '1.1.0', 'fpga': '1.1.0'}])
             self._row += 1
             self._widgets.append(w)
 
