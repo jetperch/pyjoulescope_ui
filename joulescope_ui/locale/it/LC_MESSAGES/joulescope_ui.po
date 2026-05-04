@@ -2227,7 +2227,7 @@ msgstr ""
 "compreso il multimetro, non sarà influenzata."
 
 #: widgets/device_control/js220_ctrl_widget.py:84
-#: widgets/device_control/js220_ctrl_widget.py:656
+#: widgets/device_control/js220_ctrl_widget.py:657
 msgid "Calibrate"
 msgstr "Calibrare"
 
@@ -2246,11 +2246,11 @@ msgstr ""
 msgid "GPO"
 msgstr "GPO"
 
-#: widgets/device_control/js220_ctrl_widget.py:641
+#: widgets/device_control/js220_ctrl_widget.py:642
 msgid "Reset to defaults"
 msgstr "Ripristino delle impostazioni predefinite"
 
-#: widgets/device_control/js220_ctrl_widget.py:647
+#: widgets/device_control/js220_ctrl_widget.py:648
 msgid "Clear accum"
 msgstr "Accumulo chiaro"
 
