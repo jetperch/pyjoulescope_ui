@@ -198,7 +198,7 @@ setuptools.setup(
     # See https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         'appnope>=0.1.2,<1',
-        'pyjoulescope_driver>=2.1.0,<3',
+        'pyjoulescope_driver>=2.1.1,<3',
         'joulescope>=1.5.0,<2',
         'markdown>=3,<4',
         'psutil>=5,<8',
@@ -207,8 +207,8 @@ setuptools.setup(
         "pywin32>=223; platform_system == 'Windows'",
         'pyqtgraph>=0.14.0,<1',
         'pyserial>=3,<4',
-        'PySide6>=6.11.0,<7',
-        'PySide6-QtAds>=4.5.0.3,<5',
+        'PySide6>=6.11.1,<7',
+        'PySide6-QtAds>=4.5.0.5,<5',
         'python-dateutil>=2.7.3,<3',
         'QtPy>=2,<3',
         'requests>=2,<3',
