@@ -1,4 +1,4 @@
-# Copyright 2019-2023 Jetperch LLC
+# Copyright 2019-2026 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -121,6 +121,8 @@ def _platform_name():
     if psys == 'Windows':
         if platform.machine() == 'AMD64':
             return 'win10_x86_64'  # for both win10 and win11
+        elif platform.machine() == 'ARM64':
+            return 'win11_arm64'  # Windows on ARM
     elif psys == 'Linux':
         # assume all Linux is the supported Ubuntu version for now
         return 'ubuntu_24_04_x86_64'

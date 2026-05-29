@@ -14,6 +14,7 @@
 
 
 import os
+import platform
 import subprocess
 import sys
 
@@ -69,7 +70,8 @@ def windows_release(path, suffix=None):
     installer_path = os.path.join(_PATH, 'dist_installer')
     installer_exe = os.path.join(installer_path, os.listdir(installer_path)[0])
     installer_exe_base, installer_exe_ext = os.path.splitext(installer_exe)
-    installer_final = f'{installer_exe_base}{suffix}{installer_exe_ext}'
+    arch = '_arm64' if platform.machine().upper() in ('ARM64', 'AARCH64') else ''
+    installer_final = f'{installer_exe_base}{arch}{suffix}{installer_exe_ext}'
     os.rename(installer_exe, installer_final)
     azure_sign(installer_final)
     return 0
