@@ -17,7 +17,7 @@ from .js220_fuse import fuse_to_config
 from joulescope_ui import N_, get_topic_name, register, P_, CAPABILITIES
 from joulescope_ui.metadata import Metadata
 from .serial_decoder import SerialDecoder
-from pyjoulescope_driver import release, program, time64
+from pyjoulescope_driver import time64
 from joulescope_ui.time_map import TimeMap
 import copy
 import queue
@@ -816,29 +816,39 @@ class Js320(Device):
         elif cmd == 'direct':
             self._run_direct(args)
         elif cmd == 'device_update':
-            self._log.info('device_update: initiate by resetting to update1')
-            self._driver_publish('h/!reset', 'update1')
+            self._log.info('device_update: hand off to Js320Updater')
+            # Close the normal-mode session so the in-driver fwup worker can
+            # re-open the device in raw mode.  The pyjoulescope_driver.Driver
+            # instance itself stays alive (owned by JsdrvWrapper).
+            self._close()
+            self._launch_updater()
             self._quit = True
         else:
             self._log.warning('Unhandled cmd: %s', cmd)
 
     def _device_update_check(self):
         try:
-            image = release.release_get(self.firmware_channel)
-            segments = release.release_to_segments(image)
-            ctrl_app = segments[release.SUBTYPE_CTRL_APP]
-            fpga = segments[release.SUBTYPE_SENSOR_FPGA]
+            embedded_u32 = self._driver.query('fwup/js320/version')
         except Exception:
-            self._log.warning('device_update_available: Could not parse firmware image')
+            self._log.warning('device_update_available: could not query embedded firmware version')
             self.update_available = None
             return
-        #ctrl_app_now = self._driver_query('c/fw/version')
-        #fpga_now = self._driver_query('s/fpga/version')
-        #v = program.version_to_str
-        #self.update_available = {
-        #    'fw': [v(ctrl_app_now), v(ctrl_app['version'])],
-        #    'fpga': [v(fpga_now), v(fpga['version'])]
-        #}
+        embedded = _version_u32_to_tuple(embedded_u32)
+        if embedded == (0, 0, 0):
+            # Stub build with no embedded firmware (see firmware.h).
+            self._log.info('device_update_available: no embedded firmware (stub build)')
+            self.update_available = None
+            return
+        embedded_str = _version_tuple_to_str(embedded)
+        self.update_available = {
+            'fw':   [_version_tuple_to_str(self._firmware_version), embedded_str],
+            'fpga': [_version_tuple_to_str(self._fpga_version),     embedded_str],
+        }
+
+    def _launch_updater(self):
+        from .js320_updater import Js320Updater
+        updater = Js320Updater(self._wrapper, self._path)
+        self.pubsub.register(updater, f'{self.unique_id}-UPDATER')
 
     def _run(self):
         self._log.info('thread start')
