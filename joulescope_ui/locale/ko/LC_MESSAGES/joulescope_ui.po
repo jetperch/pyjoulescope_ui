@@ -811,19 +811,19 @@ msgstr "사용 가능한 버전"
 msgid "Channel"
 msgstr "채널"
 
-#: software_update.py:315
+#: software_update.py:317
 msgid "Update Now"
 msgstr "지금 업데이트"
 
-#: software_update.py:317
+#: software_update.py:319
 msgid "Later"
 msgstr "나중에"
 
-#: software_update.py:325
+#: software_update.py:327
 msgid "Copy to clipboard"
 msgstr "클립보드에 복사"
 
-#: software_update.py:331 widgets/device_control/device_update_dialog.py:44
+#: software_update.py:333 widgets/device_control/device_update_dialog.py:44
 msgid "OK"
 msgstr "OK"
 
@@ -1444,7 +1444,7 @@ msgstr "직렬"
 msgid "Serial data stream"
 msgstr "직렬 데이터 스트림"
 
-#: devices/jsdrv/js220_updater.py:64
+#: devices/jsdrv/js220_updater.py:64 devices/jsdrv/js320_updater.py:41
 msgid "Firmware update state"
 msgstr "펌웨어 업데이트 상태"
 
@@ -1488,7 +1488,7 @@ msgstr "신호 메타데이터"
 msgid "Signal time range"
 msgstr "신호 시간 범위"
 
-#: devices/jsdrv/jsdrv_wrapper.py:42
+#: devices/jsdrv/jsdrv_wrapper.py:43
 msgid "The pyjoulescope_driver log level."
 msgstr "pyjoulescope_driver 로그 레벨."
 
@@ -1870,7 +1870,7 @@ msgstr "선택 안 함"
 msgid "Cancel"
 msgstr "취소"
 
-#: widgets/device_control/device_update_dialog.py:53
+#: widgets/device_control/device_update_dialog.py:54
 msgid "Device Update"
 msgstr "디바이스 업데이트"
 

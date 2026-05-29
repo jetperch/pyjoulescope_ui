@@ -891,19 +891,19 @@ msgstr "Διαθέσιμη έκδοση"
 msgid "Channel"
 msgstr "Κανάλι"
 
-#: software_update.py:315
+#: software_update.py:317
 msgid "Update Now"
 msgstr "Ενημέρωση τώρα"
 
-#: software_update.py:317
+#: software_update.py:319
 msgid "Later"
 msgstr "Αργότερα"
 
-#: software_update.py:325
+#: software_update.py:327
 msgid "Copy to clipboard"
 msgstr "Αντιγραφή στο πρόχειρο"
 
-#: software_update.py:331 widgets/device_control/device_update_dialog.py:44
+#: software_update.py:333 widgets/device_control/device_update_dialog.py:44
 msgid "OK"
 msgstr "OK"
 
@@ -1600,7 +1600,7 @@ msgstr "Σειριακή"
 msgid "Serial data stream"
 msgstr "Σειριακή ροή δεδομένων"
 
-#: devices/jsdrv/js220_updater.py:64
+#: devices/jsdrv/js220_updater.py:64 devices/jsdrv/js320_updater.py:41
 msgid "Firmware update state"
 msgstr "Κατάσταση ενημέρωσης υλικολογισμικού"
 
@@ -1644,7 +1644,7 @@ msgstr "Μεταδεδομένα σήματος"
 msgid "Signal time range"
 msgstr "Εύρος χρόνου σήματος"
 
-#: devices/jsdrv/jsdrv_wrapper.py:42
+#: devices/jsdrv/jsdrv_wrapper.py:43
 msgid "The pyjoulescope_driver log level."
 msgstr "Το επίπεδο καταγραφής του pyjoulescope_driver."
 
@@ -2045,7 +2045,7 @@ msgstr "Επιλέξτε κανένα"
 msgid "Cancel"
 msgstr "Ακύρωση"
 
-#: widgets/device_control/device_update_dialog.py:53
+#: widgets/device_control/device_update_dialog.py:54
 msgid "Device Update"
 msgstr "Ενημέρωση συσκευής"
 

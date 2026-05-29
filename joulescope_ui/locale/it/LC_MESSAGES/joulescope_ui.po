@@ -894,19 +894,19 @@ msgstr "Versione disponibile"
 msgid "Channel"
 msgstr "Canale"
 
-#: software_update.py:315
+#: software_update.py:317
 msgid "Update Now"
 msgstr "Aggiornare ora"
 
-#: software_update.py:317
+#: software_update.py:319
 msgid "Later"
 msgstr "Più tardi"
 
-#: software_update.py:325
+#: software_update.py:327
 msgid "Copy to clipboard"
 msgstr "Copia negli appunti"
 
-#: software_update.py:331 widgets/device_control/device_update_dialog.py:44
+#: software_update.py:333 widgets/device_control/device_update_dialog.py:44
 msgid "OK"
 msgstr "OK"
 
@@ -1601,7 +1601,7 @@ msgstr "Seriale"
 msgid "Serial data stream"
 msgstr "Flusso di dati seriali"
 
-#: devices/jsdrv/js220_updater.py:64
+#: devices/jsdrv/js220_updater.py:64 devices/jsdrv/js320_updater.py:41
 msgid "Firmware update state"
 msgstr "Stato di aggiornamento del firmware"
 
@@ -1645,7 +1645,7 @@ msgstr "Metadati del segnale"
 msgid "Signal time range"
 msgstr "Intervallo temporale del segnale"
 
-#: devices/jsdrv/jsdrv_wrapper.py:42
+#: devices/jsdrv/jsdrv_wrapper.py:43
 msgid "The pyjoulescope_driver log level."
 msgstr "Il livello di log di pyjoulescope_driver."
 
@@ -2045,7 +2045,7 @@ msgstr "Selezionare nessuno"
 msgid "Cancel"
 msgstr "Annullamento"
 
-#: widgets/device_control/device_update_dialog.py:53
+#: widgets/device_control/device_update_dialog.py:54
 msgid "Device Update"
 msgstr "Aggiornamento del dispositivo"
 

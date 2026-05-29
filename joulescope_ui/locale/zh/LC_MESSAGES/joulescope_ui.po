@@ -796,19 +796,19 @@ msgstr "可用版本"
 msgid "Channel"
 msgstr "通道"
 
-#: software_update.py:315
+#: software_update.py:317
 msgid "Update Now"
 msgstr "立即更新"
 
-#: software_update.py:317
+#: software_update.py:319
 msgid "Later"
 msgstr "稍后"
 
-#: software_update.py:325
+#: software_update.py:327
 msgid "Copy to clipboard"
 msgstr "复制到剪贴板"
 
-#: software_update.py:331 widgets/device_control/device_update_dialog.py:44
+#: software_update.py:333 widgets/device_control/device_update_dialog.py:44
 msgid "OK"
 msgstr "确定"
 
@@ -1399,7 +1399,7 @@ msgstr "串行"
 msgid "Serial data stream"
 msgstr "串行数据流"
 
-#: devices/jsdrv/js220_updater.py:64
+#: devices/jsdrv/js220_updater.py:64 devices/jsdrv/js320_updater.py:41
 msgid "Firmware update state"
 msgstr "固件更新状态"
 
@@ -1443,7 +1443,7 @@ msgstr "信号元数据"
 msgid "Signal time range"
 msgstr "信号时间范围"
 
-#: devices/jsdrv/jsdrv_wrapper.py:42
+#: devices/jsdrv/jsdrv_wrapper.py:43
 msgid "The pyjoulescope_driver log level."
 msgstr "pyjoulescope_driver 的日志级别。"
 
@@ -1822,7 +1822,7 @@ msgstr "选择无"
 msgid "Cancel"
 msgstr "取消"
 
-#: widgets/device_control/device_update_dialog.py:53
+#: widgets/device_control/device_update_dialog.py:54
 msgid "Device Update"
 msgstr "器件更新"
 
