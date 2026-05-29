@@ -34,7 +34,9 @@ class ExternalSerialManager:
     Port configurations persist across sessions via pubsub settings.
     """
 
-    CAPABILITIES = [CAPABILITIES.DEVICE_FACTORY]
+    CAPABILITIES = []  # set on the instance in __init__ so the auto-registered
+                       # class does not also claim DEVICE_FACTORY and receive
+                       # stray !finalize publishes with no handler.
     SETTINGS = {
         'ports': {
             'dtype': 'obj',
@@ -49,6 +51,7 @@ class ExternalSerialManager:
     }
 
     def __init__(self):
+        self.CAPABILITIES = [CAPABILITIES.DEVICE_FACTORY]
         self._log = logging.getLogger(__name__)
         self._devices = {}  # port_path -> ExternalSerialDevice
 

@@ -19,6 +19,8 @@ from .jsdrv_stream_buffer import JsdrvStreamBuffer
 from .js110 import Js110
 from .js220 import Js220
 from .js220_updater import Js220Updater
+from .js320 import Js320
+from .js320_updater import Js320Updater
 import logging
 
 
@@ -165,7 +167,25 @@ class JsdrvWrapper:
         updater_unique_id = unique_id + '-UPDATER'
         if value in self.devices:
             return
-        if '/js220/' in value:
+        if '/js320/' in value:
+            # If a JS320 firmware update is in progress, the device may briefly
+            # disconnect and reconnect (WAIT_REMOVE → WAIT_ADD inside the
+            # driver fwup worker).  Skip creating a fresh Js320 in that
+            # window so it does not race against the running updater.
+            #
+            # We probe the updater's `instance` topic rather than its
+            # `settings/state`.  unregister() removes the instance topic
+            # synchronously, but the retained `settings/state` value
+            # persists by design (so re-registered instances resume), so
+            # the state probe would falsely report "in progress" after
+            # the updater has finished.
+            updater_instance = self.pubsub.query(
+                f'{get_topic_name(updater_unique_id)}/instance', default=None)
+            if updater_instance is not None:
+                self._log.info('JS320 update in progress, skip device add for %s', value)
+                return
+            cls = Js320
+        elif '/js220/' in value:
             state = self.pubsub.query(f'{get_topic_name(updater_unique_id)}/settings/state', default=-1)
             if state <= 0:
                 cls = Js220

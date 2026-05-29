@@ -16,7 +16,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from joulescope_ui import N_, CAPABILITIES, get_topic_name
 from joulescope_ui.pubsub_proxy import PubSubProxy
 from joulescope_ui.styles import styled_widget
-from joulescope_ui.devices.device_update import is_device_update_available, is_js220_update_available
+from joulescope_ui.devices.device_update import is_device_update_available, is_update_available
 import logging
 
 
@@ -46,6 +46,7 @@ _UPDATE = N_('Update')
 _DEVICE_TOPIC = f'registry_manager/capabilities/{CAPABILITIES.STATISTIC_STREAM_SOURCE}/list'
 _PROGRESS_TOPICS = [
     'registry/JS220_Updater/events/!progress',
+    'registry/JS320_Updater/events/!progress',
 ]
 _SCAN_DELAY_MS = 2000
 
@@ -171,7 +172,15 @@ class DeviceUpdateDialog(QtWidgets.QDialog):
         progress = value['progress']
         device_name = value['device_id']
         progress_value = int(1000 * progress)
-        self._devices_update_map[device_name]['progress'].setValue(progress_value)
+        # program_js320 emits two progress(1.0) callbacks at the end of a
+        # successful update (DONE status + explicit Complete); the second
+        # one arrives after _update_next has zeroed _devices_update_map.
+        if self._devices_update_map is None:
+            return
+        device = self._devices_update_map.get(device_name)
+        if device is None:
+            return
+        device['progress'].setValue(progress_value)
         if progress >= 1.0:
             self._update_next(device_name)
 
@@ -206,9 +215,9 @@ class DeviceUpdateDialog(QtWidgets.QDialog):
             details = {}
             checkbox = QtWidgets.QCheckBox(self._grid_widget)
             name = QtWidgets.QLabel(device, self._grid_widget)
-            if device.startswith('JS220-'):
+            if device.startswith('JS220-') or device.startswith('JS320-'):
                 details = self.pubsub.query(f'{get_topic_name(device)}/settings/update_available', default={})
-                checkbox.setChecked(is_js220_update_available(details))
+                checkbox.setChecked(is_update_available(details))
             version = QtWidgets.QLabel(self._grid_widget)
             version.setWordWrap(True)
             progress = QtWidgets.QProgressBar(self._grid_widget)
@@ -220,11 +229,11 @@ class DeviceUpdateDialog(QtWidgets.QDialog):
             available = False
             checkbox, name, version, progress, details = widgets
             info = self.pubsub.query(f'{get_topic_name(device)}/settings/info', default={})
-            if info['model'] == 'JS220':
+            if info['model'] in ('JS220', 'JS320'):
                 details = self.pubsub.query(f'{get_topic_name(device)}/settings/update_available', default={})
                 version_str = '<br/>'.join([f'{key}:{v[0]}→{v[1]}' for key, v in details.items()])
                 version_str = f'<html><body>{version_str}</body></html>'
-                available = is_js220_update_available(details)
+                available = is_update_available(details)
             elif info['model'] == 'JS110':
                 version_str = ', '.join([f'{key}={v}' for key, v in info['version'].items()])
             else:

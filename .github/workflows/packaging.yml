@@ -1,4 +1,4 @@
-# Copyright 2021-2025 Jetperch LLC
+# Copyright 2021-2026 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ on: ['push', 'pull_request']
 
 
 env:
-  PYTHON_VERSION: '3.13'
+  PYTHON_VERSION: '3.14'
 
 
 jobs:
@@ -84,6 +84,9 @@ jobs:
       - name: Run python unit tests
         run: pytest --pyargs joulescope_ui
 
+      - name: Test the S3 publish pipeline (offline)
+        run: pytest ci/test_publish.py
+
       - name: Upload python source package
         uses: actions/upload-artifact@v5
         with:
@@ -100,7 +103,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-latest", "windows-latest", "macos-latest"]  # , "windows-11-arm"
+        os: ["ubuntu-latest", "windows-latest", "macos-latest", "windows-11-arm"]
         dist: ["pyinstaller", "nuitka"]
         exclude:
           - os: ubuntu-latest
@@ -139,12 +142,12 @@ jobs:
           security import $CERTIFICATE_INSTALLER_PATH -P "$CERTIFICATE_PWD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
 
       - name: Windows Inno Setup install
-        if: matrix.os == 'windows-latest' # || matrix.os == 'windows-11-arm'
+        if: matrix.os == 'windows-latest' || matrix.os == 'windows-11-arm'
         run: choco install innosetup -y
 
       - name: Windows AzureSignTool install
         # https://melatonin.dev/blog/how-to-code-sign-windows-installers-with-an-ev-cert-on-github-actions/
-        if: matrix.os == 'windows-latest' # || matrix.os == 'windows-11-arm'
+        if: matrix.os == 'windows-latest' || matrix.os == 'windows-11-arm'
         run: dotnet tool install --global AzureSignTool
 
       - name: Install Ubuntu dependencies
@@ -179,7 +182,7 @@ jobs:
       - name: Build with Nuitka
         if: matrix.dist == 'nuitka'
         run: |
-          pip install "git+https://${{ secrets.NUITKA_TOKEN }}@github.com/Nuitka/Nuitka-commercial.git@2.8.8#egg=nuitka"
+          pip install "git+https://${{ secrets.NUITKA_TOKEN }}@github.com/Nuitka/Nuitka-commercial.git@4.1.1#egg=nuitka"
           python ci/nuitka_build.py
 
       - name: Save Nuitka report
@@ -194,7 +197,7 @@ jobs:
         run: python -m PyInstaller joulescope.spec
 
       - name: Build Windows installer
-        if: matrix.os == 'windows-latest'
+        if: matrix.os == 'windows-latest' || matrix.os == 'windows-11-arm'
         env:
           AZURE_KEY_VAULT_URI: ${{ secrets.AZURE_KEY_VAULT_URI }}
           AZURE_CLIENT_ID:     ${{ secrets.AZURE_CLIENT_ID }}
@@ -246,6 +249,17 @@ jobs:
       contents: write
 
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install publish dependencies
+        run: python -m pip install --upgrade pip boto3
+
       - name: Download python sdist artifacts
         uses: actions/download-artifact@v6
         with:
@@ -259,15 +273,17 @@ jobs:
           merge-multiple: true
           path: dist_installer/
 
-      - name: Download Flatpak artifact
-        uses: actions/download-artifact@v6
-        with:
-          merge-multiple: true
-          path: dist_installer/
-
       - name: Display artifacts
         shell: bash
         run: ls dist_installer/*
+
+      - name: Publish to download.joulescope.com
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+          JOULESCOPE_DOWNLOAD_BUCKET: ${{ secrets.JOULESCOPE_DOWNLOAD_BUCKET }}
+        run: python ci/publish.py
 
       - name: Publish packages to PyPi
         uses: pypa/gh-action-pypi-publish@v1.13.0

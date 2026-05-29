@@ -111,6 +111,9 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         elif 'JS220' in unique_id:
             self._USERS_GUIDE_URL = urls.JS220_USERS_GUIDE
             self._GPI_SIGNALS = ['0', '1', '2', '3', 'T']
+        elif 'JS320' in unique_id:
+            self._USERS_GUIDE_URL = urls.JS320_USERS_GUIDE
+            self._GPI_SIGNALS = ['0', '1', '2', '3', 'T']
         else:
             raise ValueError(f'unsupported device {unique_id}')
         self._DEVICE_SETTINGS = get_instance(unique_id).SETTINGS
@@ -175,8 +178,8 @@ class Js220CtrlWidget(QtWidgets.QWidget):
             self._row_hide(row)
 
     @property
-    def is_js220(self):
-        return 'JS220' in self.unique_id
+    def is_js110(self):
+        return 'JS110' in self.unique_id.upper()
 
     def _gpi_subscribe(self, topic, signal):
         self.pubsub.subscribe(topic, lambda v: self._on_gpi_n(signal, v))
@@ -205,6 +208,8 @@ class Js220CtrlWidget(QtWidgets.QWidget):
     def _on_setting_info(self, value):
         if value.get('model') in [None, 'JS110']:
             self._log.info(f'Ignore info: {value}')
+            return
+        if value.get('version') is None:
             return
         try:
             actual = {
@@ -257,20 +262,18 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         doc.clicked.connect(self._on_doc_clicked)
         layout.addWidget(doc)
 
-        if self.is_js220:
+        if self.is_js110:
+            info = None
+            fuse = None
+        else:
             info = self._construct_pushbutton('info', tooltip=_INFO_TOOLTIP)
             info.clicked.connect(self._on_info)
             self._info_button = info
             layout.addWidget(info)
-        else:
-            info = None
 
-        if self.is_js220:
             fuse = self._construct_fuse_button(w)
             layout.addWidget(fuse)
             self._header_disable_widgets.append(fuse)
-        else:
-            fuse = None
 
         target_power = self._construct_target_power_button(w)
         layout.addWidget(target_power)
@@ -619,10 +622,11 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         self._row += 1
 
     def _add_fuses(self):
-        if self.is_js220:
+        if not self.is_js110:
             w = FuseWidget(self, self.unique_id, self.pubsub)
             self._body_layout.addWidget(w, self._row, 0, 1, 2)
-            self._requirements.append([self._row, {'fw': '1.1.0', 'fpga': '1.1.0'}])
+            if 'JS220' in self.unique_id.upper():
+                self._requirements.append([self._row, {'fw': '1.1.0', 'fpga': '1.1.0'}])
             self._row += 1
             self._widgets.append(w)
 
@@ -646,14 +650,14 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         b2.pressed.connect(self._clear_accumulators)
         layout.addWidget(b2)
 
-        if self.is_js220:
+        if self.is_js110:
+            b3 = None
+        else:
             b3 = QtWidgets.QPushButton(self._body)
             b3.setText(N_('Calibrate'))
             b3.setToolTip(_CALIBRATE_TOOLTIP)
             b3.clicked.connect(self._calibrate)
             layout.addWidget(b3)
-        else:
-            b3 = None
 
         self._row += 1
         self._footer = {

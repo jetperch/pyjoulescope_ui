@@ -16,3 +16,4 @@
 UI_USERS_GUIDE = 'https://download.joulescope.com/products/joulescope_ui/users_guide/index.html'
 JS110_USERS_GUIDE = 'https://download.joulescope.com/docs/JoulescopeUsersGuide/index.html'
 JS220_USERS_GUIDE = 'https://download.joulescope.com/products/JS220/JS220-K000/users_guide/index.html'
+JS320_USERS_GUIDE = 'https://download.joulescope.com/products/JS320/JS320-K000/users_guide/index.html'

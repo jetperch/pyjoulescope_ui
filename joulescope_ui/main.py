@@ -28,7 +28,6 @@ from joulescope_ui.safe_mode import safe_mode_dialog
 from joulescope_ui.styles.manager import style_settings
 from joulescope_ui.process_monitor import ProcessMonitor
 from joulescope_ui import software_update
-from joulescope_ui.intel_graphics_dialog import intel_graphics_dialog
 from joulescope_ui.ui_util import show_in_folder
 from joulescope_ui.widget_tools import CallableAction
 from joulescope_ui import urls
@@ -56,6 +55,7 @@ from .paths import Paths
 from .view import View  # registers the view manager
 import joulescope_ui.range_tools   # register range_tools
 import appnope
+import datetime
 import logging
 import os
 import shutil
@@ -494,12 +494,19 @@ class MainWindow(QtWidgets.QMainWindow):
             ]],
         })
 
-    def on_action_intel_graphics_dialog_show(self, value):
-        intel_graphics_dialog(self.pubsub, value)
-
     def _startup_software_check(self):
         if not self.pubsub.query('registry/app/settings/software_update_check'):
             return
+        previous = self.pubsub.query('registry/app/settings/software_update_check_previous')
+        if previous:
+            try:
+                prev_dt = datetime.datetime.fromisoformat(previous)
+                elapsed = datetime.datetime.utcnow() - prev_dt
+                if datetime.timedelta(0) <= elapsed < datetime.timedelta(hours=24):
+                    self._log.info('software update check skipped: %s elapsed since last "Later"', elapsed)
+                    return
+            except (TypeError, ValueError):
+                self._log.warning('software_update_check_previous is malformed: %r', previous)
         self._software_update_status = {
             'id': 'software_update',
             'actions': [[f'{self.topic}/actions/!software_update', None]],

@@ -1,4 +1,4 @@
-# Copyright 2024 Jetperch LLC
+# Copyright 2024-2026 Jetperch LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@ DEVICE_LIST_TOPIC = f'registry_manager/capabilities/{CAPABILITIES.STATISTIC_STRE
 _TIMER_DELAY_MS = 2000
 
 
-def is_js220_update_available(update_available):
+def is_update_available(update_available):
     if update_available is None or not len(update_available):
         return False
     for key, (v_now, v_available) in update_available.items():
@@ -31,15 +31,20 @@ def is_js220_update_available(update_available):
     return False
 
 
+# Back-compat alias: older code paths import the JS220-specific name.
+is_js220_update_available = is_update_available
+is_js320_update_available = is_update_available
+
+
 def is_device_update_available():
     if not pubsub_singleton.query('registry/app/settings/device_update_check'):
         return False
     device_list = pubsub_singleton.query(DEVICE_LIST_TOPIC)
     for device in device_list:
         info = pubsub_singleton.query(f'{get_topic_name(device)}/settings/info', default={})
-        if info['model'] == 'JS220':
+        if info['model'] in ('JS220', 'JS320'):
             update_info = pubsub_singleton.query(f'{get_topic_name(device)}/settings/update_available', default=None)
-            if is_js220_update_available(update_info):
+            if is_update_available(update_info):
                 return True
         else:
             pass  # device does not support firmware updates
