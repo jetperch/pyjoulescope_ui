@@ -692,8 +692,12 @@ class Js220CtrlWidget(QtWidgets.QWidget):
 
     def _calibrate(self):
         self._log.info('calibrate')
+        if 'JS320' in self.unique_id.upper():
+            widget_value = 'JS320CalibrationWidget'
+        else:
+            widget_value = 'JS220CalibrationWidget'
         widget_def = {
-            'value': 'JS220CalibrationWidget',
+            'value': widget_value,
             'kwargs': {
                 'device': self.unique_id,
             },
