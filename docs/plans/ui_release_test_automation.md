@@ -323,19 +323,34 @@ x-marker (`!x_markers ['add_single'|'add_dual', ...]`) and verifies them through
 the exported `.anno` sidecar (1 + 2 = 3 `VMARKER`s).  The fixture writer now
 emits UTC so file-based export works without hardware.
 
-### Not automated: live waveform view-state (scroll/pan, y-axis range/scale)
+### Signal frequency — DONE
 
-These mutate the waveform's continuously re-derived render state.  The queryable
-`state` setting is a load/save snapshot (not live), and the auto-range/repaint
-loop reverts external x-range / range_mode / scale changes non-deterministically,
-so socket-driven assertions are flaky (confirmed across repeated runs).  An
-attempted `on_action_y_axis` affordance + readback was reverted for this reason.
-Reliable coverage needs a "render-settled" signal or a renderer-exposed value
-(e.g. the applied y-map), or pixel-level screenshot comparison.
+`set_signal_frequency()` drives `registry/<dev>/settings/signal_frequency`
+(`h/fs`).  `test_record_at_signal_frequency` records at 10 kHz and 1 MHz and
+asserts the recorded `sample_rate`, covering the plan's per-rate sections.
+
+### Add & remove signals — DONE (real mouse clicks)
+
+The waveform's trace controls are real `QPushButton`s (`trace_1..N`), so
+`test_add_remove_signals` clicks one (`qt_action('click', path='trace_2')`) and
+verifies the `checked` property toggles.  This required fixing a Qt-inspect
+header-overflow bug (a populated tree exceeds the uint16 `header_length`; large
+responses now go in the binary payload) and adding recursive `findChild` so a
+deeply-nested widget can be targeted by objectName.
+
+### Still not automated: scroll/pan, y-axis range/scale, marker move/remove
+
+These drive the **custom-painted inner `_PlotWidget`** (the waveform delegates
+mouse handling to `plot_mousePressEvent`/`plot_mouseMoveEvent` with region
+detection), and they target *painted* elements (axes, markers) that are not Qt
+child widgets, so a synthetic click/drag must hit the right pixel.  The plumbing
+now exists (a `drag` mouse action; deep `qt_inspect` works), but matching the
+waveform's internal mouse semantics + computing painted-element pixel positions
+is the remaining work.  Earlier attempts to set this via the `state` setting
+were flaky (it is a load/save snapshot the auto-range loop reverts).
 
 ### Remaining (lower priority)
 
-- **add/remove-signals** on plots: not yet covered (same live `state` coupling).
 - **Analysis computed values**: `test_analysis` asserts each tool launches and
   creates its result widget; asserting on the computed histogram/CDF/etc. values
   would need reading the tool widget's data.
