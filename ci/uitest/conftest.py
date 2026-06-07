@@ -156,6 +156,45 @@ def device(ui_session, device_model):
         ui_session.wait(0.5)
 
 
+def _has_display():
+    return bool(os.environ.get('DISPLAY') or os.environ.get('WAYLAND_DISPLAY'))
+
+
+@pytest.fixture
+def rendered_waveform(request, tmp_path):
+    """A started UiSession showing a *rendered* file waveform, for mouse tests.
+
+    Yields ``(session, waveform_id, source_id)``.  Launches non-offscreen with a
+    large window (the plot needs room to lay out its rows), opens a generated
+    recording, and skips when there is no display or the GL plot does not render
+    (headless/no-GPU) -- mouse hit-testing needs the painted geometry.
+    """
+    _require_ui_stack()
+    if not _has_display():
+        pytest.skip('no display; rendered-waveform tests need a real display')
+    import numpy as np
+    from uitest.jls_fixtures import write_fsr_v2
+
+    session = _new_session(offscreen=False)
+    session.start()
+    request.node._ui_session = session
+    try:
+        session.resize_window(1600, 900)
+        session.wait(1.0)
+        path = str(tmp_path / 'rendered.jls')
+        write_fsr_v2(path, sample_rate=1000,
+                     data=(0.4 + 0.1 * np.sin(np.arange(40000) / 40.0)).astype(np.float32))
+        source_id = session.open_file(path)
+        session.wait(2.0)
+        wf = session.waveform()
+        if not session.wait_for_render(wf, timeout=15.0):
+            pytest.skip('waveform plot not rendering (no GL/compositor)')
+        yield session, wf, source_id
+    finally:
+        request.node._ui_session = None
+        session.stop()
+
+
 @pytest.fixture
 def tmp_capture(tmp_path):
     """A temp directory for A/B/C capture & export files."""

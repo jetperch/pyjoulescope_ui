@@ -288,6 +288,78 @@ class UiSession:
         self.publish(f'registry/{record_id}/actions/!stop', None)
         self.wait(0.5)   # let the Writer close the file
 
+    # -- rendered-waveform mouse interaction --------------------------------
+    # These need a real display (offscreen Qt does not render the GL plot, so
+    # the waveform's hit-test geometry never populates).  See
+    # is_waveform_rendered() to gate tests.
+
+    def resize_window(self, width, height):
+        """Resize the main window (the plot needs room to lay out its rows)."""
+        return self.qt_action('resize', path='', width=int(width), height=int(height))
+
+    def plot_geometry(self, waveform_id):
+        """Return the ``_PlotOpenGLWidget`` geometry ``[x, y, w, h]`` (or None)."""
+        tree = self.qt_inspect(max_depth=60)
+        out = [None]
+
+        def walk(n):
+            if n.get('objectName') == waveform_id:
+                for c in n.get('children', []) or []:
+                    if c.get('class') in ('_PlotOpenGLWidget', '_PlotWidget'):
+                        out[0] = c.get('geometry')
+            for c in n.get('children', []) or []:
+                walk(c)
+        walk(tree)
+        return out[0]
+
+    def plot_path(self, waveform_id):
+        """Path to the plot widget for mouse actions."""
+        return f'{waveform_id}/_PlotOpenGLWidget:0'
+
+    def right_click(self, waveform_id, x, y):
+        """Right-click the plot at local pixel (x, y) to open a context menu."""
+        self.qt_action('click', path=self.plot_path(waveform_id), pos=[int(x), int(y)],
+                       button='RightButton')
+        self.wait(0.4)
+
+    def menu_items(self):
+        """List the open context menu's action texts ('Submenu/Item' form)."""
+        return self.qt_action('menu_items').get('items', [])
+
+    def menu_invoke(self, text):
+        """Trigger the named action in the open context menu (recurses submenus)."""
+        return self.qt_action('menu_invoke', text=text)
+
+    def is_waveform_rendered(self, waveform_id, midy=None):
+        """True if the plot renders (a right-click opens its context menu).
+
+        Offscreen/headless does not render the GL plot, so its geometry never
+        populates; use this to skip mouse-interaction tests.  Defensive: any
+        transient qt error counts as "not yet rendered".
+        """
+        try:
+            geo = self.plot_geometry(waveform_id)
+            if not geo or geo[3] < 100:
+                return False
+            if midy is None:
+                midy = geo[3] // 2
+            self.right_click(waveform_id, 25, midy)
+            ok = self.qt_action('menu_items').get('ok', False)
+            self.qt_action('key', key='Escape')
+            self.wait(0.2)
+            return bool(ok)
+        except Exception:
+            return False
+
+    def wait_for_render(self, waveform_id, timeout=15.0):
+        """Poll until the plot renders (geometry populated).  Returns bool."""
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            if self.is_waveform_rendered(waveform_id):
+                return True
+            self.wait(1.0)
+        return False
+
     def buffer_sources(self):
         """List unique ids advertising the signal-buffer-source capability.
 
