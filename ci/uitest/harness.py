@@ -317,7 +317,12 @@ class UiSession:
         return f'{waveform_id}/_PlotOpenGLWidget:0'
 
     def right_click(self, waveform_id, x, y):
-        """Right-click the plot at local pixel (x, y) to open a context menu."""
+        """Right-click the plot at local pixel (x, y) to open a context menu.
+
+        Closes any stale menu first so the new menu is detected unambiguously.
+        """
+        self.qt_action('menu_close')
+        self.wait(0.2)
         self.qt_action('click', path=self.plot_path(waveform_id), pos=[int(x), int(y)],
                        button='RightButton')
         self.wait(0.4)
@@ -329,6 +334,23 @@ class UiSession:
     def menu_invoke(self, text):
         """Trigger the named action in the open context menu (recurses submenus)."""
         return self.qt_action('menu_invoke', text=text)
+
+    def x_markers_info(self, waveform_id):
+        """Return x-markers with pixel positions (see WaveformWidget.x_markers_info)."""
+        return self.qt_action('call', path=waveform_id,
+                              method='x_markers_info').get('result', [])
+
+    def right_click_marker(self, waveform_id, pixel, y):
+        """Right-click a marker at ``pixel`` (trying small offsets for the 5 px
+        hit tolerance) and return its open context menu items, or [] if missed."""
+        for dx in (0, -2, 2, -4, 4):
+            self.right_click(waveform_id, pixel + dx, y)
+            items = self.menu_items()
+            if 'Remove' in items:
+                return items
+            self.qt_action('menu_close')
+            self.wait(0.15)
+        return []
 
     def is_waveform_rendered(self, waveform_id, midy=None):
         """True if the plot renders (a right-click opens its context menu).

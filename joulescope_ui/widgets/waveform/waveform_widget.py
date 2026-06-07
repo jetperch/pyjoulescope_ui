@@ -2723,6 +2723,31 @@ class WaveformWidget(QtWidgets.QWidget):
         y_name = _target_lookup_by_pos(self._y_geometry_info, y)
         return x_name, y_name
 
+    def x_markers_info(self):
+        """Return x-markers with painted pixel positions (test-support).
+
+        :return: list of ``{id, dtype, pos1[, pos2], pixel1[, pixel2]}`` where
+            each ``pixel*`` is the x coordinate within the plot widget (the same
+            coordinate space as injected mouse events), via the current x-map.
+            Used by the UI automation tests to right-click / drag a marker.
+        """
+        out = []
+        for m in self.annotations['x'].values():
+            e = {'id': int(m['id']), 'dtype': m.get('dtype', 'single'),
+                 'pos1': int(m['pos1'])}
+            try:
+                e['pixel1'] = int(self._x_map.time64_to_counter(np.int64(m['pos1'])))
+            except Exception:
+                e['pixel1'] = None
+            if m.get('dtype') == 'dual':
+                e['pos2'] = int(m['pos2'])
+                try:
+                    e['pixel2'] = int(self._x_map.time64_to_counter(np.int64(m['pos2'])))
+                except Exception:
+                    e['pixel2'] = None
+            out.append(e)
+        return out
+
     def _find_x_marker(self, x):
         marker_info = []  # x, marker, pos
         for m in reversed(self.annotations['x'].values()):

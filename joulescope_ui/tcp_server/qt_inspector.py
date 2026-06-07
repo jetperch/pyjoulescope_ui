@@ -151,6 +151,26 @@ def _match_child(parent, segment):
     raise ValueError(f'Widget not found at path segment: {segment}')
 
 
+def _json_safe(value, _depth=0):
+    """Best-effort convert a method result into a JSON-serializable value."""
+    if isinstance(value, _SERIALIZABLE_TYPES):
+        return value
+    if _depth > 6:
+        return str(value)
+    if isinstance(value, dict):
+        return {str(k): _json_safe(v, _depth + 1) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_safe(v, _depth + 1) for v in value]
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        pass
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return str(value)
+
+
 def _menu_action_texts(menu, prefix=''):
     """Recursively list (sub)menu action texts as 'Parent/Child' paths."""
     out = []
@@ -348,6 +368,17 @@ class QtInspector:
             target.trigger()
             return {'ok': True, 'action': 'menu_invoke', 'text': text}
 
+        elif action == 'menu_close':
+            # Close any visible top-level context menus (clears stale popups so
+            # the next right-click's menu is detected unambiguously).
+            app = QtWidgets.QApplication.instance()
+            closed = 0
+            for w in app.topLevelWidgets():
+                if isinstance(w, QtWidgets.QMenu) and w.isVisible():
+                    w.close()
+                    closed += 1
+            return {'ok': True, 'action': 'menu_close', 'closed': closed}
+
         elif action == 'menu_items':
             # List the action texts of the currently-open context menu.
             app = QtWidgets.QApplication.instance()
@@ -386,6 +417,17 @@ class QtInspector:
             prop_value = header.get('value')
             widget.setProperty(prop_name, prop_value)
             return {'ok': True, 'action': 'set_property'}
+
+        elif action == 'call':
+            # Invoke a (test-support) method on the target widget and return its
+            # JSON-safe result, e.g. WaveformWidget.x_markers_info() for the
+            # painted marker pixel positions.
+            method = header.get('method', '')
+            args = header.get('args', []) or []
+            fn = getattr(widget, method, None)
+            if not callable(fn):
+                return {'ok': False, 'action': 'call', 'error': f'no callable {method!r}'}
+            return {'ok': True, 'action': 'call', 'result': _json_safe(fn(*args))}
 
         elif action == 'get_property':
             prop_name = header.get('property', '')
