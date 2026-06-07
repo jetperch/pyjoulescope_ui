@@ -122,8 +122,9 @@ class UiSession:
         the deferred ``!pend`` action, so poll briefly).
         """
         try:
+            # Owned by the MainWindow (registry/ui), not registry/app.
             from joulescope_ui import __version__ as ui_version
-            self._client.publish('registry/app/settings/changelog_version_show', ui_version)
+            self._client.publish('registry/ui/settings/changelog_version_show', ui_version)
         except Exception:
             _log.debug('could not set changelog_version_show', exc_info=True)
 
@@ -228,6 +229,58 @@ class UiSession:
                 return samples[-1]
             self.wait(0.1)
         raise TimeoutError(f'no statistics from {unique_id} within {timeout}s')
+
+    def _record_config(self, path, source_ids):
+        """Build a SignalRecord config (replicates signal_record_config.config_default)."""
+        if source_ids is None:
+            source_ids = self.query(
+                'registry_manager/capabilities/signal_stream.source/list') or []
+        sources = {}
+        for sid in source_ids:
+            signals = {}
+            for signal_id in self.enumerate(f'registry/{sid}/settings/signals'):
+                enable_topic = f'registry/{sid}/settings/signals/{signal_id}/enable'
+                try:
+                    enabled = bool(self.query(enable_topic))
+                except Exception:
+                    enabled = False
+                signals[signal_id] = {
+                    'source_id': sid, 'signal_id': signal_id,
+                    'enabled': enabled, 'selected': enabled,
+                    'enable_topic': enable_topic,
+                    'data_topic': f'registry/{sid}/events/signals/{signal_id}/!data',
+                }
+            sources[sid] = signals
+        return {'path': path, 'filename': os.path.splitext(os.path.basename(path))[0],
+                'location': os.path.dirname(path), 'sources': sources, 'notes': ''}
+
+    def record_start(self, path, source_ids=None, settle=1.0):
+        """Start recording stream data to ``path`` and return the record id.
+
+        :param path: Output ``.jls`` path.
+        :param source_ids: Restrict to these stream-source unique ids
+            (default all). Scope to one device to keep files small.
+        :param settle: Seconds to wait for the SignalRecord instance to register.
+        :raises TimeoutError: If the recorder does not start.
+        :return: The ``SignalRecord:*`` unique id (pass to :meth:`record_stop`).
+        """
+        self.publish('registry/app/settings/signal_stream_enable', True)
+        before = {i for i in self.enumerate('registry') if i.startswith('SignalRecord:')}
+        self.publish('registry/SignalRecord/actions/!start',
+                     self._record_config(path, source_ids))
+        deadline = time.monotonic() + max(settle, 5.0)
+        while time.monotonic() < deadline:
+            new = {i for i in self.enumerate('registry')
+                   if i.startswith('SignalRecord:')} - before
+            if new:
+                return sorted(new)[0]
+            self.wait(0.2)
+        raise TimeoutError(f'recording did not start for {path}')
+
+    def record_stop(self, record_id):
+        """Stop a recording and finalize (close) its JLS file."""
+        self.publish(f'registry/{record_id}/actions/!stop', None)
+        self.wait(0.5)   # let the Writer close the file
 
     def buffer_sources(self):
         """List unique ids advertising the signal-buffer-source capability.
