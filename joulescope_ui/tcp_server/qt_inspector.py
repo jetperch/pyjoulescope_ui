@@ -318,6 +318,13 @@ class QtInspector:
                 QtCore.QEvent.Type.MouseButtonRelease, end, no_button, button, QtCore.Qt.NoModifier))
             return {'ok': True, 'action': 'drag'}
 
+        elif action == 'resize':
+            # Resize a widget (e.g. the main window) so the waveform has room to
+            # lay out its plot rows; a tiny window collapses the y-geometry.
+            widget.resize(int(header.get('width')), int(header.get('height')))
+            return {'ok': True, 'action': 'resize',
+                    'size': [widget.width(), widget.height()]}
+
         elif action == 'menu_invoke':
             # Trigger a named action in the currently-open context menu (a
             # top-level QMenu popup, opened by a prior right-click).  Recurses
