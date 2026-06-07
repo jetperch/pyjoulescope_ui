@@ -292,6 +292,50 @@ class UiSession:
         except Exception:
             return []
 
+    @staticmethod
+    def annotation_path(path):
+        """The sidecar annotation path the exporter writes (``<base>.anno<ext>``)."""
+        base, ext = os.path.splitext(path)
+        return f'{base}.anno{ext}'
+
+    def add_dual_markers(self, waveform_id, pos1, pos2):
+        """Add a dual (pair) x-marker at the given time64 positions."""
+        self.publish(f'registry/{waveform_id}/actions/!x_markers',
+                     ['add_dual', int(pos1), int(pos2)])
+        self.wait(0.3)
+
+    def export_range(self, waveform_id, path, *, x_range, signals=None,
+                     annotations=True, timeout=30.0):
+        """Export an x-range to a JLS file non-interactively and wait for it.
+
+        Writes ``path`` (data) and, when ``annotations`` and markers are present,
+        ``annotation_path(path)`` (markers).  Polls until the data file size is
+        stable (the export runs in a background thread with no socket-visible
+        completion signal).
+
+        :raises TimeoutError: If the export does not produce a stable file.
+        :return: ``path``.
+        """
+        value = {'path': path, 'x_range': list(x_range), 'annotations': annotations}
+        if signals is not None:
+            value['signals'] = signals
+        for f in (path, self.annotation_path(path)):
+            try:
+                os.remove(f)
+            except FileNotFoundError:
+                pass
+        self.publish(f'registry/{waveform_id}/actions/!export', value)
+        deadline = time.monotonic() + timeout
+        last_size = -1
+        while time.monotonic() < deadline:
+            if os.path.exists(path):
+                size = os.path.getsize(path)
+                if size > 0 and size == last_size:
+                    return path        # size stable => export finished
+                last_size = size
+            self.wait(0.5)
+        raise TimeoutError(f'export to {path} did not complete within {timeout}s')
+
     def buffer_signals(self, source_id):
         """Return analysis signal-ids (``source.device.quantity``) for a buffer source."""
         return [f'{source_id}.{s}'

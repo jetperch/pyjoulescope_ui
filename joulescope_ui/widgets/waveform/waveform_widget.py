@@ -3640,6 +3640,48 @@ class WaveformWidget(QtWidgets.QWidget):
         }
         self.pubsub.publish(f'registry/{tool}/actions/!run', run_value)
 
+    def on_action_export(self, topic, value):
+        """Export a range to a JLS file non-interactively (for automation).
+
+        Mirrors :meth:`_on_x_export` but takes the destination path and range as
+        values and routes through the exporter's non-interactive path (the
+        exporter runs directly when ``kwargs['path']`` is set), so no save dialog
+        is shown.  Annotations (markers) are included by default via the same
+        ``!annotation_save`` callback the menu export uses.
+
+        :param value: dict with:
+            * ``path``: output ``.jls`` file path.
+            * ``x_range``: ``[x0, x1]`` time64 (default the full data extent).
+            * ``marker``: optional x-marker id; uses its dual range instead.
+            * ``signals``: optional explicit signal-id list (default the
+              displayed signals).
+            * ``annotations``: include markers/annotations (default True).
+        """
+        path = value['path']
+        marker = value.get('marker')
+        if marker is not None:
+            m = self._annotation_lookup(marker)
+            x0, x1 = m['pos1'], m['pos2']
+        else:
+            x_range = value.get('x_range') or self.x_extent
+            x0, x1 = x_range
+        if x0 > x1:
+            x0, x1 = x1, x0
+        signals = value.get('signals') or self._signals_get()
+        if not signals:
+            raise ValueError('export: no signals available')
+        run_value = {
+            'x_range': (int(x0), int(x1)),
+            'signals': signals,
+            'kwargs': {'path': path},
+        }
+        if value.get('annotations', True):
+            run_value['range_tool'] = {
+                'start_callbacks': [f'{get_topic_name(self)}/callbacks/!annotation_save'],
+                'done_callbacks': [],
+            }
+        self.pubsub.publish('registry/exporter/actions/!run', run_value)
+
     def _on_range_tool(self, unique_id, marker_idx):
         m = self._annotation_lookup(marker_idx)
         x0, x1 = m['pos1'], m['pos2']

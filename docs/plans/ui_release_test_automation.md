@@ -301,26 +301,28 @@ it, accepts the tool's config dialog (Return), and waits for the result widget.
 Covered by `test_analysis` (Histogram / CDF / Frequency create result widgets;
 MaxWindow runs). USB Inrush needs the external USBET lib and is out of scope.
 
-### Still blocked: export-with-markers, marker/y-axis assertions
+### Export-with-markers — DONE (added a non-interactive UI affordance)
 
-- **Export** is blocked deeper than the save dialog. A non-interactive entry
-  point is straightforward (the exporter already runs directly when
-  `value['kwargs']['path']` is set, mirroring `ExporterDialog._on_finished`), but
-  the export then **pull-requests** sample data from the file buffer source via
-  `RangeToolBase.request(...)`, and that request **times out** against a
-  `JlsSource` in automation — reproduced both offscreen and on a real display
-  (`TimeoutError: request timed out for JlsSource:...`). The file opens and
-  displays (summary path works), but sample-level pull requests do not complete.
-  Fixing this needs the file-buffer-source request pipeline to serve data in the
-  socket-driven flow; until then export-with-markers cannot be verified, so the
-  speculative affordance was reverted. Recording coverage is provided instead by
-  `test_record_export` (push-based streaming + file-level pyjls verification).
-  NOTE: the same pull-request path underlies the analysis tools; `test_analysis`
-  asserts the result widget is created (the tool launches end-to-end) but does
-  not assert on computed values, for the same reason.
-- **Markers** are added with `!x_markers ['add_dual', ...]`, but the resulting
-  marker set is internal state with no queryable readback; verify them via the
-  exported JLS annotations once export is automatable.
+`Exporter.on_cls_action_run` now runs directly (no save dialog) when
+`value['kwargs']['path']` is set, and `WaveformWidget.on_action_export`
+(`registry/<wf>/actions/!export`) builds that value — including the
+`!annotation_save` callback so dual markers are written.  `test_record_markers_export`
+records from a device, adds dual markers, exports a sub-range, and verifies the
+data in `B.jls` plus the **two `VMARKER`s in the `B.anno.jls` sidecar** (the
+exporter writes annotations to `<base>.anno<ext>`).
+
+The data-request pipeline works in automation after all; an earlier "timeout"
+was an artifact of a **synthetic fixture with no UTC** — real recordings carry
+UTC and export cleanly.  Markers are now verified through the exported sidecar,
+so the marker-readback item is covered too.
+
+### Remaining (lower priority)
+
+- **y-axis range/scale and add/remove-signals** assertions: the waveform keeps
+  this in its `state` blob; settable/observable, but not yet covered.
+- **Analysis computed values**: `test_analysis` asserts each tool launches and
+  creates its result widget; asserting on the computed histogram/CDF/etc. values
+  would need reading the tool widget's data.
 
 ## Risks / open items
 

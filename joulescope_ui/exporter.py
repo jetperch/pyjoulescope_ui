@@ -302,6 +302,15 @@ class Exporter(RangeToolBase):
     def on_cls_action_run(value):
         """Run the range tool.
 
-        :param value: See CAPABILITIES.RANGE_TOOL_CLASS
+        :param value: See CAPABILITIES.RANGE_TOOL_CLASS.  When
+            ``value['kwargs']['path']`` is set, the export runs non-interactively
+            to that path, skipping the configuration dialog (used by automated
+            testing).  Otherwise the configuration dialog is shown.
         """
-        ExporterDialog(value)
+        kwargs = value.get('kwargs')
+        if kwargs and kwargs.get('path'):
+            value['path'] = kwargs['path']
+            w = Exporter(value)
+            pubsub_singleton.register(w)
+        else:
+            ExporterDialog(value)
