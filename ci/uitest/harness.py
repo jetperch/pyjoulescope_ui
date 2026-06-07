@@ -325,13 +325,17 @@ class UiSession:
             except FileNotFoundError:
                 pass
         self.publish(f'registry/{waveform_id}/actions/!export', value)
+        anno = self.annotation_path(path) if annotations else None
         deadline = time.monotonic() + timeout
         last_size = -1
         while time.monotonic() < deadline:
             if os.path.exists(path):
                 size = os.path.getsize(path)
-                if size > 0 and size == last_size:
-                    return path        # size stable => export finished
+                # The annotation sidecar is written on a separate path; wait for
+                # it too (it can lag the data file for small/fast exports).
+                anno_ready = anno is None or os.path.exists(anno)
+                if size > 0 and size == last_size and anno_ready:
+                    return path        # data size stable + sidecar present
                 last_size = size
             self.wait(0.5)
         raise TimeoutError(f'export to {path} did not complete within {timeout}s')

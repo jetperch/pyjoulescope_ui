@@ -316,10 +316,26 @@ was an artifact of a **synthetic fixture with no UTC** — real recordings carry
 UTC and export cleanly.  Markers are now verified through the exported sidecar,
 so the marker-readback item is covered too.
 
+### Markers — DONE (hardware-free, via export)
+
+`test_waveform.test_markers_single_and_dual_export` adds a single and a dual
+x-marker (`!x_markers ['add_single'|'add_dual', ...]`) and verifies them through
+the exported `.anno` sidecar (1 + 2 = 3 `VMARKER`s).  The fixture writer now
+emits UTC so file-based export works without hardware.
+
+### Not automated: live waveform view-state (scroll/pan, y-axis range/scale)
+
+These mutate the waveform's continuously re-derived render state.  The queryable
+`state` setting is a load/save snapshot (not live), and the auto-range/repaint
+loop reverts external x-range / range_mode / scale changes non-deterministically,
+so socket-driven assertions are flaky (confirmed across repeated runs).  An
+attempted `on_action_y_axis` affordance + readback was reverted for this reason.
+Reliable coverage needs a "render-settled" signal or a renderer-exposed value
+(e.g. the applied y-map), or pixel-level screenshot comparison.
+
 ### Remaining (lower priority)
 
-- **y-axis range/scale and add/remove-signals** assertions: the waveform keeps
-  this in its `state` blob; settable/observable, but not yet covered.
+- **add/remove-signals** on plots: not yet covered (same live `state` coupling).
 - **Analysis computed values**: `test_analysis` asserts each tool launches and
   creates its result widget; asserting on the computed histogram/CDF/etc. values
   would need reading the tool widget's data.

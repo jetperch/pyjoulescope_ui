@@ -22,12 +22,21 @@ import numpy as np
 import pyjls
 
 
+# A fixed JLS-time base (time64 units) for fixtures: arbitrary but valid, so the
+# file carries UTC like a real recording (the exporter needs UTC to map ranges).
+_UTC_BASE = 300 * pyjls.time64.SECOND
+
+
 def write_fsr_v2(path, *, signal_name='current', units='A', sample_rate=1000,
-                 data=None, markers=0, model='JS220', serial_number='001234'):
+                 data=None, markers=0, model='JS220', serial_number='001234',
+                 utc=True):
     """Write a minimal JLS v2 file with one FSR signal and ``markers`` VMARKERs.
 
     :param data: 1-D samples (default a 5000-point ramp 0..1).
     :param markers: Number of evenly-spaced vertical markers to add.
+    :param utc: Write UTC sample<->time entries (default True).  Real recordings
+        carry UTC, and the exporter requires it to resolve a range; fixtures
+        without UTC cannot be exported.
     :return: The ``data`` array actually written (handy for round-trip asserts).
     """
     if data is None:
@@ -39,6 +48,10 @@ def write_fsr_v2(path, *, signal_name='current', units='A', sample_rate=1000,
         w.signal_def(signal_id=1, source_id=1, signal_type=pyjls.SignalType.FSR,
                      data_type=pyjls.DataType.F32, sample_rate=sample_rate,
                      name=signal_name, units=units)
+        if utc:
+            last = len(data) - 1
+            w.utc(1, 0, _UTC_BASE)
+            w.utc(1, last, _UTC_BASE + int(round(last / sample_rate * pyjls.time64.SECOND)))
         w.fsr_f32(1, 0, data)
         for i in range(markers):
             sample = int((i + 1) * len(data) / (markers + 1))
