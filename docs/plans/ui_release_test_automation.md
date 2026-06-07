@@ -356,15 +356,14 @@ no GL**.  Needed several `qt_inspector` primitives (all committed): `drag`,
 triggering the QAction by text), `resize`, recursive nested-path resolution, and
 a fix for an empty-geometry `UnboundLocalError` in `_target_lookup_by_pos`.
 
-### Still manual: marker move / remove
+### Marker move / remove — DONE (real mouse, rendered display)
 
-- **Marker move** needs a precise-pixel drag on the thin painted marker line
-  (compute its pixel from the x-map); not yet done.
-- **Marker remove** via the right-click "Clear all" menu item timed out in
-  testing (the y-axis menu's Clear all targets horizontal markers; needs the
-  vertical-marker menu or a submenu-population fix).  Marker **add** is covered
-  (`test_markers_single_and_dual_export`), and `!x_markers ['clear_all']` clears
-  via pubsub if a non-mouse path is acceptable.
+`WaveformWidget.x_markers_info()` exposes each marker's painted pixel (via the
+x-map), so a test can target the marker line within the 5 px hit tolerance.
+`test_marker_move` drags the marker to a new position; `test_marker_remove`
+right-clicks the marker and triggers its menu's **Remove** action.  Needed two
+more `qt_inspector` primitives: `call` (invoke a widget method) and `menu_close`
+(clear stale context-menu popups so detection is unambiguous).
 
 ### Remaining (lower priority)
 
