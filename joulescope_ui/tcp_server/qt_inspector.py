@@ -114,39 +114,41 @@ def _find_widget(root, path):
     """
     if not path:
         return root
-    # A single objectName: search recursively (widgets are often deeply nested,
-    # e.g. a docked WaveformWidget) before falling back to per-segment matching.
-    if '/' not in path:
-        match = root.findChild(QtWidgets.QWidget, path)
-        if match is not None:
-            return match
     parts = path.split('/')
-    current = root
-    for part in parts:
-        found = None
-        # Try objectName match first
-        for child in current.children():
-            if isinstance(child, QtWidgets.QWidget) and child.objectName() == part:
-                found = child
-                break
-        # Try ClassName:index
-        if found is None and ':' in part:
-            class_name, idx_str = part.rsplit(':', 1)
-            try:
-                idx = int(idx_str)
-            except ValueError:
-                raise ValueError(f'Invalid path segment: {part}')
-            count = 0
-            for child in current.children():
-                if isinstance(child, QtWidgets.QWidget) and type(child).__name__ == class_name:
-                    if count == idx:
-                        found = child
-                        break
-                    count += 1
-        if found is None:
-            raise ValueError(f'Widget not found at path segment: {part}')
-        current = found
+    # The first segment may match a deeply-nested widget by objectName
+    # (e.g. a docked 'WaveformWidget:00000004'); search recursively for it, then
+    # resolve the remaining segments relative to it.  This lets a test target an
+    # un-named child (e.g. '_PlotOpenGLWidget:0') under a named ancestor.
+    current = root.findChild(QtWidgets.QWidget, parts[0]) if parts[0] else None
+    if current is None:
+        current = _match_child(root, parts[0])
+    for part in parts[1:]:
+        current = _match_child(current, part)
     return current
+
+
+def _match_child(parent, segment):
+    """Resolve one path segment among ``parent``'s direct children.
+
+    Matches by objectName first, then ``ClassName:index`` (0-based among
+    same-class siblings).
+    """
+    for child in parent.children():
+        if isinstance(child, QtWidgets.QWidget) and child.objectName() == segment:
+            return child
+    if ':' in segment:
+        class_name, idx_str = segment.rsplit(':', 1)
+        try:
+            idx = int(idx_str)
+        except ValueError:
+            raise ValueError(f'Invalid path segment: {segment}')
+        count = 0
+        for child in parent.children():
+            if isinstance(child, QtWidgets.QWidget) and type(child).__name__ == class_name:
+                if count == idx:
+                    return child
+                count += 1
+    raise ValueError(f'Widget not found at path segment: {segment}')
 
 
 class QtInspector:

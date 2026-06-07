@@ -224,6 +224,7 @@ def _target_from_list(targets):
 
 
 def _target_lookup_by_pos(targets, pos):
+    name = ''  # empty targets (e.g. before the first paint) -> no match
     for name, (_, _, v) in targets.items():
         if pos < v:
             break
