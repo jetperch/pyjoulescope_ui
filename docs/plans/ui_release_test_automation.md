@@ -338,16 +338,33 @@ header-overflow bug (a populated tree exceeds the uint16 `header_length`; large
 responses now go in the binary payload) and adding recursive `findChild` so a
 deeply-nested widget can be targeted by objectName.
 
-### Still not automated: scroll/pan, y-axis range/scale, marker move/remove
+### Scroll/pan and y-axis range/scale — DONE (real mouse, rendered display)
 
-These drive the **custom-painted inner `_PlotWidget`** (the waveform delegates
-mouse handling to `plot_mousePressEvent`/`plot_mouseMoveEvent` with region
-detection), and they target *painted* elements (axes, markers) that are not Qt
-child widgets, so a synthetic click/drag must hit the right pixel.  The plumbing
-now exists (a `drag` mouse action; deep `qt_inspect` works), but matching the
-waveform's internal mouse semantics + computing painted-element pixel positions
-is the remaining work.  Earlier attempts to set this via the `state` setting
-were flaky (it is a load/save snapshot the auto-range loop reverts).
+`test_waveform_interactive` drives the waveform like a user: a horizontal **drag**
+pans the (zoomed-in) view, and a **right-click** on the y-axis opens its context
+menu whose Range (Auto/Manual) and Scale (Linear/Logarithmic) actions are
+triggered via `menu_invoke`.  Scale is verified through the menu itself (the
+*Logarithmic zero* submenu only appears while logarithmic).
+
+The earlier "not automatable" conclusion was wrong: it was the **headless sandbox
+not rendering** the OpenGL plot, so the hit-test geometry never populated.  On a
+real display the plot paints and mouse injection works.  Requirements baked into
+the `rendered_waveform` fixture: launch non-offscreen, **resize the window large**
+(a small window collapses the plot rows), and **skip when there is no display /
+no GL**.  Needed several `qt_inspector` primitives (all committed): `drag`,
+`menu_items`/`menu_invoke` (context menus are top-level popups, navigated by
+triggering the QAction by text), `resize`, recursive nested-path resolution, and
+a fix for an empty-geometry `UnboundLocalError` in `_target_lookup_by_pos`.
+
+### Still manual: marker move / remove
+
+- **Marker move** needs a precise-pixel drag on the thin painted marker line
+  (compute its pixel from the x-map); not yet done.
+- **Marker remove** via the right-click "Clear all" menu item timed out in
+  testing (the y-axis menu's Clear all targets horizontal markers; needs the
+  vertical-marker menu or a submenu-population fix).  Marker **add** is covered
+  (`test_markers_single_and_dual_export`), and `!x_markers ['clear_all']` clears
+  via pubsub if a non-mouse path is acceptable.
 
 ### Remaining (lower priority)
 
