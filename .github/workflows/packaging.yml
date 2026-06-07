@@ -87,6 +87,9 @@ jobs:
       - name: Test the S3 publish pipeline (offline)
         run: pytest ci/test_publish.py
 
+      - name: Test the UI release-test harness (hardware-free)
+        run: pytest ci/uitest -m "not device"
+
       - name: Upload python source package
         uses: actions/upload-artifact@v5
         with:

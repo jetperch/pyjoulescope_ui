@@ -174,6 +174,7 @@ class PubSubBridge:
 
     async def _handle_qt(self, client, msg_type, header, payload):
         """Handle Qt inspection requests by dispatching to the Qt thread."""
+        request_id = header.get('id')
         if self._qt_inspector is None:
             from joulescope_ui.tcp_server.qt_inspector import QtInspector
             self._qt_inspector = QtInspector(self._pubsub)
@@ -182,9 +183,13 @@ class PubSubBridge:
         try:
             result_msg_type, result_header, result_payload = await asyncio.get_event_loop().run_in_executor(
                 None, future.result, 5.0)
+            # Echo the request id so the client can correlate the response
+            # (the Qt inspector builds the header and does not carry it).
+            if request_id is not None and isinstance(result_header, dict):
+                result_header = {**result_header, 'id': request_id}
             frame = encode(result_msg_type, result_header, result_payload)
         except Exception as ex:
-            frame = encode(MSG_ERROR, {'message': str(ex)})
+            frame = encode(MSG_ERROR, {'message': str(ex), 'id': request_id})
         self._server.send_to_client(client, frame)
 
     def _forward_to_clients(self, topic, value, subscribed_topic):

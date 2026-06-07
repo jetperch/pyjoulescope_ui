@@ -1,0 +1,3 @@
+# Large test-data fixtures are fetched on demand by assets.py, not committed.
+*.jls
+!.gitignore

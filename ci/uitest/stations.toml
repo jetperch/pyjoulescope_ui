@@ -1,0 +1,55 @@
+# HIL bench registry for the automated UI release tests.
+#
+# The active station is selected by the JS_UITEST_STATION environment variable
+# (by name), otherwise by matching the machine `host` (hostname), otherwise the
+# `default` entry below.
+#
+# Each station advertises:
+#   platform : windows | windows_arm64 | macos | ubuntu  (index_v2.json key)
+#   host     : hostname used for auto-selection ('' = select by name/env only)
+#   devices  : attached Joulescope models the suite may exercise on this bench
+#   notes    : free-form description
+#
+# Device tests SKIP when a model is not advertised here, and FAIL when an
+# advertised model is missing at runtime.  Keep this in sync with the physical
+# benches and the self-hosted GitHub Actions runner labels (Milestone 3).
+
+# Fallback used on a developer machine with no devices attached: only the
+# hardware-free suite (`-m "not device"`) runs.
+[stations.default]
+platform = ""
+host = ""
+devices = []
+notes = "Developer machine / CI runner with no Joulescope attached."
+
+# ---- Example HIL benches (edit hostnames + attached devices to match) -------
+
+[stations.win11_x64]
+platform = "windows"
+host = "JS-HIL-WIN11"
+devices = ["JS220", "JS320", "JS110"]
+notes = "Windows 11 x64 bench."
+
+[stations.win11_arm64]
+platform = "windows_arm64"
+host = "JS-HIL-WINARM"
+devices = ["JS220", "JS320"]
+notes = "Windows 11 on ARM bench."
+
+[stations.macos_arm64]
+platform = "macos"
+host = "JS-HIL-MACARM"
+devices = ["JS220", "JS320"]
+notes = "Apple Silicon (ARM64) bench."
+
+[stations.macos_x64]
+platform = "macos"
+host = "JS-HIL-MACX64"
+devices = ["JS220", "JS320"]
+notes = "Intel macOS bench."
+
+[stations.ubuntu_x64]
+platform = "ubuntu"
+host = "JS-HIL-UBU"
+devices = ["JS220", "JS320", "JS110"]
+notes = "Ubuntu LTS x64 bench."

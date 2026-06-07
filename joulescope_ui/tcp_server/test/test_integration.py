@@ -14,6 +14,8 @@
 
 """Integration tests for TCP server and client."""
 
+import asyncio
+import concurrent.futures
 import unittest
 import threading
 import time
@@ -21,6 +23,11 @@ import numpy as np
 from joulescope_ui.pubsub import PubSub
 from joulescope_ui.tcp_server import TcpServer
 from joulescope_ui.tcp_client import Client
+from joulescope_ui.tcp_server.bridge import PubSubBridge
+from joulescope_ui.tcp_server.protocol import (
+    FrameDecoder, MSG_QT_INSPECT, MSG_QT_INSPECT_RESPONSE,
+    MSG_QT_SCREENSHOT, MSG_QT_SCREENSHOT_RESPONSE, MSG_ERROR,
+)
 
 
 class TestServerClient(unittest.TestCase):
@@ -167,6 +174,75 @@ class TestServerClient(unittest.TestCase):
             self.assertEqual(v2, 'multi')
         finally:
             client2.close()
+
+
+class _CaptureServer:
+    """Minimal TcpServer stand-in that records frames sent to a client."""
+
+    def __init__(self):
+        self.frames = []
+
+    def send_to_client(self, client, frame_bytes):
+        self.frames.append(frame_bytes)
+
+
+class _StubInspector:
+    """QtInspector stand-in: completes the future with a header lacking 'id'.
+
+    Mirrors the real inspector, which builds its response header from the Qt
+    widget tree and therefore does not carry the request correlation id.
+    """
+
+    def __init__(self, result):
+        self._result = result
+
+    def dispatch(self, msg_type, header, payload, future):
+        future.set_result(self._result)
+
+
+class TestQtResponseCorrelation(unittest.TestCase):
+    """Regression: Qt responses must echo the request id so the client can
+    correlate them (otherwise ``client.qt_inspect()`` hangs until timeout)."""
+
+    def setUp(self):
+        self.pubsub = PubSub(app='test', skip_core_undo=True)
+        self.server = _CaptureServer()
+        self.bridge = PubSubBridge(self.pubsub, self.server)
+        self.client = object()  # opaque token; _CaptureServer ignores it
+
+    def _run_qt(self, msg_type, header, payload=b''):
+        asyncio.run(self.bridge._handle_qt(self.client, msg_type, header, payload))
+        self.assertEqual(len(self.server.frames), 1)
+        decoder = FrameDecoder()
+        frames = decoder.feed(self.server.frames[0])
+        self.assertEqual(len(frames), 1)
+        return frames[0]  # (msg_type, header, payload)
+
+    def test_inspect_response_carries_id(self):
+        self.bridge._qt_inspector = _StubInspector(
+            (MSG_QT_INSPECT_RESPONSE, {'class': 'MainWindow'}, None))
+        msg_type, header, _ = self._run_qt(MSG_QT_INSPECT, {'id': 42, 'path': ''})
+        self.assertEqual(msg_type, MSG_QT_INSPECT_RESPONSE)
+        self.assertEqual(header['id'], 42)
+        self.assertEqual(header['class'], 'MainWindow')
+
+    def test_screenshot_response_carries_id_and_payload(self):
+        png = b'\x89PNG\r\n\x1a\n' + b'fakepngdata'
+        self.bridge._qt_inspector = _StubInspector(
+            (MSG_QT_SCREENSHOT_RESPONSE, {'format': 'png'}, png))
+        msg_type, header, payload = self._run_qt(MSG_QT_SCREENSHOT, {'id': 7})
+        self.assertEqual(msg_type, MSG_QT_SCREENSHOT_RESPONSE)
+        self.assertEqual(header['id'], 7)
+        self.assertEqual(payload, png)
+
+    def test_error_response_carries_id(self):
+        def _boom(msg_type, header, payload, future):
+            future.set_exception(RuntimeError('inspect failed'))
+        self.bridge._qt_inspector = type('E', (), {'dispatch': staticmethod(_boom)})()
+        msg_type, header, _ = self._run_qt(MSG_QT_INSPECT, {'id': 99})
+        self.assertEqual(msg_type, MSG_ERROR)
+        self.assertEqual(header['id'], 99)
+        self.assertIn('inspect failed', header['message'])
 
 
 if __name__ == '__main__':
