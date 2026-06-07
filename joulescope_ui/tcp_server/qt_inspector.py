@@ -151,6 +151,37 @@ def _match_child(parent, segment):
     raise ValueError(f'Widget not found at path segment: {segment}')
 
 
+def _menu_action_texts(menu, prefix=''):
+    """Recursively list (sub)menu action texts as 'Parent/Child' paths."""
+    out = []
+    for act in menu.actions():
+        if act.isSeparator():
+            continue
+        text = act.text().replace('&', '')
+        label = f'{prefix}{text}' if text else prefix.rstrip('/')
+        sub = act.menu()
+        if sub is not None:
+            out.extend(_menu_action_texts(sub, prefix=f'{label}/'))
+        elif text:
+            out.append(label)
+    return out
+
+
+def _find_menu_action(menu, text):
+    """Find a QAction by its text within ``menu``, recursing into submenus."""
+    for act in menu.actions():
+        if act.isSeparator():
+            continue
+        if act.text().replace('&', '') == text:
+            return act
+        sub = act.menu()
+        if sub is not None:
+            found = _find_menu_action(sub, text)
+            if found is not None:
+                return found
+    return None
+
+
 class QtInspector:
     """Handles Qt inspection requests.
 
@@ -286,6 +317,38 @@ class QtInspector:
             QtWidgets.QApplication.sendEvent(widget, QtGui.QMouseEvent(
                 QtCore.QEvent.Type.MouseButtonRelease, end, no_button, button, QtCore.Qt.NoModifier))
             return {'ok': True, 'action': 'drag'}
+
+        elif action == 'menu_invoke':
+            # Trigger a named action in the currently-open context menu (a
+            # top-level QMenu popup, opened by a prior right-click).  Recurses
+            # into submenus, so 'Logarithmic' under the 'Scale' submenu works.
+            text = header.get('text', '')
+            app = QtWidgets.QApplication.instance()
+            menu = None
+            for w in app.topLevelWidgets():
+                if isinstance(w, QtWidgets.QMenu) and w.isVisible():
+                    menu = w
+                    break
+            if menu is None:
+                return {'ok': False, 'action': 'menu_invoke', 'error': 'no open menu'}
+            target = _find_menu_action(menu, text)
+            if target is None:
+                menu.close()
+                return {'ok': False, 'action': 'menu_invoke',
+                        'error': f'menu action {text!r} not found',
+                        'available': _menu_action_texts(menu)}
+            menu.close()
+            target.trigger()
+            return {'ok': True, 'action': 'menu_invoke', 'text': text}
+
+        elif action == 'menu_items':
+            # List the action texts of the currently-open context menu.
+            app = QtWidgets.QApplication.instance()
+            for w in app.topLevelWidgets():
+                if isinstance(w, QtWidgets.QMenu) and w.isVisible():
+                    return {'ok': True, 'action': 'menu_items',
+                            'items': _menu_action_texts(w)}
+            return {'ok': False, 'action': 'menu_items', 'error': 'no open menu'}
 
         elif action == 'key':
             key = header.get('key', '')
