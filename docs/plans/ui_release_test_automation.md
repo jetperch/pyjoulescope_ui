@@ -277,6 +277,36 @@ and uploads artifacts.
 - `sample_v2.jls` (JLS **v2**): record once on a bench during M2 and commit a short clip as the
   open/verify fixture.
 
+## Status (implemented so far)
+
+Done and validated live on a JS220 + JS320 bench:
+- M0 harness (`ci/uitest/`): `UiSession`, `discover`, `verify`, `installer`,
+  `stations`, `qt`, `assets`, `jls_fixtures`, `conftest`.
+- Suites: `test_basics`, `test_preferences`, `test_multimeter` (device),
+  `test_open_jls`, `test_record_export` (device record→reopen), `test_waveform`
+  (display), plus the Qt-free unit tests.
+- Socket fixes found while building the tests (all in `tcp_server/bridge.py`,
+  with regression tests): Qt response id correlation; nested-numpy
+  serialization. Harness suppresses the first-run "Getting Started" dialog.
+
+### Blocked: analysis tools, marker/y-axis assertions, export-with-markers
+
+These three legs of the plan are not yet automatable through the socket and need
+a small UI affordance first:
+- **Range tools** (USB Inrush / Histogram / CDF / Frequency / MaxWindow) run via
+  `registry/<tool>/actions/!run` with a `signals` list in the
+  `source.device.quantity` form produced by `WaveformWidget._signals_get()`.
+  That effective list is computed internally and is **not** a queryable topic, so
+  a test cannot reliably build the `!run` value. Proposed fix: expose the
+  waveform's current analysis signal list as a read-only topic (e.g.
+  `registry/<wf>/settings/signals_effective`).
+- **Markers** are added with `!x_markers ['add_dual', ...]`, but the resulting
+  marker set is internal state with no queryable readback; verify them via the
+  exported JLS annotations once export is automatable.
+- **Export** goes through the interactive `ExporterDialog` (file save dialog).
+  Needs a non-interactive entry point that accepts the destination path in the
+  `registry/exporter/actions/!run` value.
+
 ## Risks / open items
 
 - **app_path for `server.json`**: confirm the exact per-OS directory `main.py` uses and centralize it
