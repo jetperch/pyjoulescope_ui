@@ -44,3 +44,6 @@ flatpak-build/
 repo/
 *.flatpak
 .flatpak-builder/
+
+# UI test screenshot artifacts
+uitest_artifacts/

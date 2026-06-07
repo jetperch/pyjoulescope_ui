@@ -301,14 +301,26 @@ it, accepts the tool's config dialog (Return), and waits for the result widget.
 Covered by `test_analysis` (Histogram / CDF / Frequency create result widgets;
 MaxWindow runs). USB Inrush needs the external USBET lib and is out of scope.
 
-### Still blocked: marker/y-axis assertions, export-with-markers
+### Still blocked: export-with-markers, marker/y-axis assertions
 
+- **Export** is blocked deeper than the save dialog. A non-interactive entry
+  point is straightforward (the exporter already runs directly when
+  `value['kwargs']['path']` is set, mirroring `ExporterDialog._on_finished`), but
+  the export then **pull-requests** sample data from the file buffer source via
+  `RangeToolBase.request(...)`, and that request **times out** against a
+  `JlsSource` in automation — reproduced both offscreen and on a real display
+  (`TimeoutError: request timed out for JlsSource:...`). The file opens and
+  displays (summary path works), but sample-level pull requests do not complete.
+  Fixing this needs the file-buffer-source request pipeline to serve data in the
+  socket-driven flow; until then export-with-markers cannot be verified, so the
+  speculative affordance was reverted. Recording coverage is provided instead by
+  `test_record_export` (push-based streaming + file-level pyjls verification).
+  NOTE: the same pull-request path underlies the analysis tools; `test_analysis`
+  asserts the result widget is created (the tool launches end-to-end) but does
+  not assert on computed values, for the same reason.
 - **Markers** are added with `!x_markers ['add_dual', ...]`, but the resulting
   marker set is internal state with no queryable readback; verify them via the
   exported JLS annotations once export is automatable.
-- **Export** goes through the interactive `ExporterDialog` (file save dialog).
-  Needs a non-interactive entry point that accepts the destination path in the
-  `registry/exporter/actions/!run` value (next affordance).
 
 ## Risks / open items
 
