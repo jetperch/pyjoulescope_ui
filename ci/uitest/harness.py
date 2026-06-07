@@ -292,6 +292,64 @@ class UiSession:
         except Exception:
             return []
 
+    def buffer_signals(self, source_id):
+        """Return analysis signal-ids (``source.device.quantity``) for a buffer source."""
+        return [f'{source_id}.{s}'
+                for s in self.enumerate(f'registry/{source_id}/settings/signals')]
+
+    def waveform(self):
+        """Return the most-recently-created WaveformWidget unique id (or None)."""
+        wfs = [i for i in self.enumerate('registry') if i.startswith('WaveformWidget:')]
+        return wfs[-1] if wfs else None
+
+    def subrange(self, waveform_id, lo=0.3, hi=0.7):
+        """A sub-window of the waveform's data extent (time64), as ``[x0, x1]``.
+
+        Range tools need sample-level data; a fraction of the full extent keeps
+        the request below the summary threshold.
+        """
+        x0, x1 = self.query(f'registry/{waveform_id}/settings/x_range')
+        span = x1 - x0
+        return [int(x0 + lo * span), int(x0 + hi * span)]
+
+    def run_analysis(self, waveform_id, tool, *, signals=None, x_range=None,
+                     accept=True, timeout=10.0):
+        """Run a range-tool analysis and return the new result-widget unique ids.
+
+        Drives the non-interactive ``!range_tool`` waveform action, accepts the
+        tool's configuration dialog, and waits for its result widget.
+
+        :param tool: range-tool class name (e.g. ``'HistogramRangeTool'``).
+        :param signals: explicit signal-id list (see :meth:`buffer_signals`);
+            default uses the waveform's displayed signals.
+        :param x_range: ``[x0, x1]`` time64 sub-range to analyze.
+        :param accept: accept the tool's config dialog (Return) when it appears.
+        :return: list of new ``registry`` instance ids whose name contains ``tool``.
+        """
+        value = {'tool': tool}
+        if signals is not None:
+            value['signals'] = signals
+            value['signal_default'] = signals[0]
+        if x_range is not None:
+            value['x_range'] = list(x_range)
+        before = set(self.enumerate('registry'))
+        self.publish(f'registry/{waveform_id}/actions/!range_tool', value)
+        if accept:
+            # The tool opens a config dialog; poll for it, then accept (Return).
+            dlg_deadline = time.monotonic() + 5.0
+            while time.monotonic() < dlg_deadline:
+                if self.qt_inspect(path='', max_depth=0).get('class', '').endswith('Dialog'):
+                    self.qt_action('key', key='Return')
+                    break
+                self.wait(0.2)
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            new = [i for i in (set(self.enumerate('registry')) - before) if tool in i]
+            if new:
+                return new
+            self.wait(0.3)
+        return []
+
     def open_file(self, path, timeout=20.0):
         """Open a JLS file in the UI and return the new ``JlsSource`` unique id.
 

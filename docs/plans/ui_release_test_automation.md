@@ -289,23 +289,26 @@ Done and validated live on a JS220 + JS320 bench:
   with regression tests): Qt response id correlation; nested-numpy
   serialization. Harness suppresses the first-run "Getting Started" dialog.
 
-### Blocked: analysis tools, marker/y-axis assertions, export-with-markers
+### Analysis tools — DONE (added a non-interactive UI affordance)
 
-These three legs of the plan are not yet automatable through the socket and need
-a small UI affordance first:
-- **Range tools** (USB Inrush / Histogram / CDF / Frequency / MaxWindow) run via
-  `registry/<tool>/actions/!run` with a `signals` list in the
-  `source.device.quantity` form produced by `WaveformWidget._signals_get()`.
-  That effective list is computed internally and is **not** a queryable topic, so
-  a test cannot reliably build the `!run` value. Proposed fix: expose the
-  waveform's current analysis signal list as a read-only topic (e.g.
-  `registry/<wf>/settings/signals_effective`).
+`WaveformWidget.on_action_range_tool` (`registry/<wf>/actions/!range_tool`) runs
+a named range tool over an explicit `x_range` + `signals` list, building the
+`!run` value the way the Analysis menu does. `_signals_get()` is empty headless
+(it depends on the live render/data cycle), so the action accepts an explicit
+`signals` list (`source.device.quantity`); range tools request data from the
+buffer source directly, so that works. The harness `run_analysis` helper drives
+it, accepts the tool's config dialog (Return), and waits for the result widget.
+Covered by `test_analysis` (Histogram / CDF / Frequency create result widgets;
+MaxWindow runs). USB Inrush needs the external USBET lib and is out of scope.
+
+### Still blocked: marker/y-axis assertions, export-with-markers
+
 - **Markers** are added with `!x_markers ['add_dual', ...]`, but the resulting
   marker set is internal state with no queryable readback; verify them via the
   exported JLS annotations once export is automatable.
 - **Export** goes through the interactive `ExporterDialog` (file save dialog).
   Needs a non-interactive entry point that accepts the destination path in the
-  `registry/exporter/actions/!run` value.
+  `registry/exporter/actions/!run` value (next affordance).
 
 ## Risks / open items
 

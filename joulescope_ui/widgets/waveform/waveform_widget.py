@@ -3597,6 +3597,49 @@ class WaveformWidget(QtWidgets.QWidget):
         self._dialog = dialog
         dialog.show()
 
+    def on_action_range_tool(self, topic, value):
+        """Run a range tool over an x-range (non-interactive entry point).
+
+        Mirrors what the Analysis context menu does in :meth:`_on_range_tool`,
+        but takes the tool and range as values so external automation (the UI
+        release tests) can drive analysis without mouse/menu interaction.
+
+        :param value: dict with:
+            * ``tool``: the range-tool unique id / class name from
+              ``registry_manager/capabilities/range_tool.class/list``
+              (e.g. ``'HistogramRangeTool'``).
+            * ``x_range``: optional ``[x0, x1]`` in time64; defaults to the full
+              data extent.
+            * ``marker``: optional x-marker id; when given, its dual-marker
+              range is used instead of ``x_range``.
+            * ``signals``: optional explicit signal-id list
+              (``source.device.quantity``); defaults to the displayed signals.
+              The range tool requests data from the buffer source directly, so
+              an explicit list works even when the live trace state is empty.
+        """
+        tool = value['tool']
+        marker = value.get('marker')
+        if marker is not None:
+            m = self._annotation_lookup(marker)
+            x0, x1 = m['pos1'], m['pos2']
+        else:
+            x_range = value.get('x_range') or self.x_extent
+            x0, x1 = x_range
+        if x0 > x1:
+            x0, x1 = x1, x0
+        signals = value.get('signals') or self._signals_get()
+        if not signals:
+            raise ValueError('range_tool: no signals available to analyze')
+        signal_default = value.get('signal_default', signals[0])
+        run_value = {
+            'x_range': (int(x0), int(x1)),
+            'origin': self.unique_id,
+            'signals': signals,
+            'signal_default': signal_default,
+            'quantity': signal_default.split('.')[-1],
+        }
+        self.pubsub.publish(f'registry/{tool}/actions/!run', run_value)
+
     def _on_range_tool(self, unique_id, marker_idx):
         m = self._annotation_lookup(marker_idx)
         x0, x1 = m['pos1'], m['pos2']
