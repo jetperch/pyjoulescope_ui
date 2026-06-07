@@ -160,6 +160,19 @@ class TestServerClient(unittest.TestCase):
         self.assertEqual(len(received), 1)
         np.testing.assert_array_equal(received[0]['data'], data)
 
+    def test_query_nested_numpy_scalars(self):
+        # Regression: an x_range-like [int64, int64] must serialize over the wire
+        # (top-level numpy scalars worked, but nested ones raised "not JSON
+        # serializable").
+        self.pubsub.topic_add('test/range', dtype='obj', brief='range', default=None)
+        self.pubsub.publish('test/range', [np.int64(10), np.int64(2000)])
+        self.pubsub.process()
+        self.assertEqual(self.client.query('test/range'), [10, 2000])
+
+        self.pubsub.publish('test/range', {'x': [np.float64(1.5)], 'n': np.int32(3)})
+        self.pubsub.process()
+        self.assertEqual(self.client.query('test/range'), {'x': [1.5], 'n': 3})
+
     def test_multiple_clients(self):
         client2 = Client(host='127.0.0.1', port=self.server.port, token='test_token')
         client2.open()

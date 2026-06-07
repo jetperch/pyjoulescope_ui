@@ -59,16 +59,20 @@ class UiSession:
     :param client_timeout: Per-request socket timeout for the control client.
         The client default of 5 s is marginal for a fully-loaded UI, so the
         harness uses a longer default.
+    :param suppress_startup_dialogs: Dismiss the first-run "Getting Started" /
+        changelog dialog at startup so it does not steal the active window from
+        automation (default True).
     :param env: Extra environment variables for the UI process.
     """
 
     def __init__(self, executable=None, app=discover.APP_NAME, *, offscreen=False,
                  config_clear_on_exit=True, startup_timeout=30.0, ready_timeout=30.0,
-                 client_timeout=10.0, env=None):
+                 client_timeout=10.0, suppress_startup_dialogs=True, env=None):
         self.executable = executable
         self.app = app
         self.offscreen = offscreen
         self.config_clear_on_exit = config_clear_on_exit
+        self.suppress_startup_dialogs = suppress_startup_dialogs
         self.startup_timeout = startup_timeout
         self.ready_timeout = ready_timeout
         self.client_timeout = client_timeout
@@ -100,8 +104,46 @@ class UiSession:
                               timeout=self.client_timeout)
         self._client.open()
         self._wait_until_ready()
+        if self.suppress_startup_dialogs:
+            self._suppress_startup_dialogs()
         _log.info('UI session ready (pid=%s, port=%s)', self._proc.pid, creds['port'])
         return self
+
+    def _suppress_startup_dialogs(self):
+        """Dismiss the first-run "Getting Started" / changelog dialog.
+
+        On fresh or cleared config the UI pops a ``HelpHtmlMessageBox`` at
+        startup (see ``main._startup_display_maybe``).  It is window-stay-on-top
+        and becomes the active window, so ``qt_inspect``/``qt_screenshot`` and
+        windowTitle queries would target the dialog instead of the main window.
+
+        Persist ``changelog_version_show`` so a clean restart skips it, then
+        dismiss any dialog already shown (it may arrive slightly after ready via
+        the deferred ``!pend`` action, so poll briefly).
+        """
+        try:
+            from joulescope_ui import __version__ as ui_version
+            self._client.publish('registry/app/settings/changelog_version_show', ui_version)
+        except Exception:
+            _log.debug('could not set changelog_version_show', exc_info=True)
+
+        deadline = time.monotonic() + 3.0
+        while time.monotonic() < deadline:
+            try:
+                root = self._client.qt_inspect(path='', max_depth=0)
+            except Exception:
+                return
+            cls = root.get('class', '')
+            name = root.get('objectName', '')
+            is_dialog = (name == 'help_html_message_box'
+                         or 'MessageBox' in cls or cls.endswith('Dialog'))
+            if not is_dialog:
+                return  # main window is active; nothing to dismiss
+            try:
+                self._client.qt_action('key', key='Escape')   # QDialog -> reject -> close
+            except Exception:
+                pass
+            self.wait(0.25)
 
     def stop(self):
         """Close the UI cleanly, then ensure the process is gone."""
@@ -186,6 +228,35 @@ class UiSession:
                 return samples[-1]
             self.wait(0.1)
         raise TimeoutError(f'no statistics from {unique_id} within {timeout}s')
+
+    def buffer_sources(self):
+        """List unique ids advertising the signal-buffer-source capability.
+
+        These are open files (``JlsSource:*``) and live device stream buffers.
+        """
+        try:
+            return self.query('registry_manager/capabilities/signal_buffer.source/list') or []
+        except Exception:
+            return []
+
+    def open_file(self, path, timeout=20.0):
+        """Open a JLS file in the UI and return the new ``JlsSource`` unique id.
+
+        :param path: Absolute path to a ``.jls`` file (v1 or v2).
+        :param timeout: Seconds to wait for the source to register.
+        :raises TimeoutError: If no new JlsSource appears.
+        :return: The new ``JlsSource:*`` unique id.
+        """
+        before = {s for s in self.buffer_sources() if s.startswith('JlsSource')}
+        self.publish('registry/ui/actions/!file_open', path)
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            now = {s for s in self.buffer_sources() if s.startswith('JlsSource')}
+            new = now - before
+            if new:
+                return sorted(new)[0]
+            self.wait(0.25)
+        raise TimeoutError(f'no JlsSource registered for {path} within {timeout}s')
 
     def screenshot(self, dest_path, widget=''):
         """Capture a screenshot of ``widget`` and write it to ``dest_path``."""

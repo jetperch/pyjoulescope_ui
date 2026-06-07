@@ -214,7 +214,12 @@ class PubSubBridge:
 
 
 def _serialize_value(value):
-    """Serialize a PubSub value for JSON transport."""
+    """Serialize a PubSub value for JSON transport.
+
+    Recurses into lists/tuples/dicts so nested numpy scalars (e.g. an
+    ``x_range`` of ``[int64, int64]``) serialize too; without this a query for
+    such a topic fails with "Object of type int64 is not JSON serializable".
+    """
     if isinstance(value, np.ndarray):
         return {
             '__type__': 'ndarray',
@@ -232,6 +237,10 @@ def _serialize_value(value):
         return int(value)
     elif isinstance(value, np.floating):
         return float(value)
+    elif isinstance(value, (list, tuple)):
+        return [_serialize_value(v) for v in value]
+    elif isinstance(value, dict):
+        return {k: _serialize_value(v) for k, v in value.items()}
     else:
         return value
 

@@ -34,24 +34,16 @@ import pyjls
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from uitest import verify, discover, installer, stations, assets, qt  # noqa: E402
+from uitest.jls_fixtures import write_fsr_v2  # noqa: E402
 
 
 def _write_v2(path, *, signal_name='current', units='A', sample_rate=1000,
               data=None, markers=0, start_value=0.0):
-    """Write a minimal JLS v2 file with one FSR signal and N vertical markers."""
+    """Write a minimal JLS v2 fixture (thin wrapper over the shared writer)."""
     if data is None:
         data = np.linspace(start_value, start_value + 1.0, 5000, dtype=np.float32)
-    with pyjls.Writer(path) as w:
-        w.source_def(source_id=1, name='dev', vendor='Jetperch', model='JS220',
-                     version='1', serial_number='001234')
-        w.signal_def(signal_id=1, source_id=1, signal_type=pyjls.SignalType.FSR,
-                     data_type=pyjls.DataType.F32, sample_rate=sample_rate,
-                     name=signal_name, units=units)
-        w.fsr_f32(1, 0, np.asarray(data, dtype=np.float32))
-        for i in range(markers):
-            sample = int((i + 1) * len(data) / (markers + 1))
-            w.annotation(1, sample, 0.0, pyjls.AnnotationType.VMARKER, 0, f'm{i}')
-    return data
+    return write_fsr_v2(path, signal_name=signal_name, units=units,
+                        sample_rate=sample_rate, data=data, markers=markers)
 
 
 class TestVerify(unittest.TestCase):
