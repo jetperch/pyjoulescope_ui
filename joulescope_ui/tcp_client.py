@@ -216,19 +216,30 @@ class Client:
         :return: dict describing the widget tree.
         """
         header = {'path': path, 'max_depth': max_depth}
-        return self._request(MSG_QT_INSPECT, header, MSG_QT_INSPECT_RESPONSE)
+        return self._qt_result(MSG_QT_INSPECT, header)
 
     def qt_action(self, action, path='', **kwargs):
         """Perform a Qt action.
 
-        :param action: Action name ('click', 'key', 'set_property', 'get_property').
+        :param action: Action name ('click', 'drag', 'key', 'set_property', 'get_property').
         :param path: Widget path.
         :param kwargs: Action-specific parameters.
         :return: Action result dict.
         """
         header = {'action': action, 'path': path}
         header.update(kwargs)
-        return self._request(MSG_QT_ACTION, header, MSG_QT_INSPECT_RESPONSE)
+        return self._qt_result(MSG_QT_ACTION, header)
+
+    def _qt_result(self, msg_type, header):
+        """Send a Qt request and return the result dict.
+
+        Large results (e.g. a deep widget tree) are delivered in the binary
+        payload to avoid the uint16 header-length limit; parse them when flagged.
+        """
+        _, resp_header, payload = self._request_raw(msg_type, header, MSG_QT_INSPECT_RESPONSE)
+        if resp_header.get('json_in_payload'):
+            return json.loads(payload)
+        return resp_header
 
     def qt_screenshot(self, path=''):
         """Capture a screenshot of a widget.

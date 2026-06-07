@@ -248,6 +248,30 @@ class TestQtResponseCorrelation(unittest.TestCase):
         self.assertEqual(header['id'], 7)
         self.assertEqual(payload, png)
 
+    def test_large_qt_response_moves_to_payload(self):
+        # Regression: a widget tree larger than the uint16 header limit must be
+        # delivered in the binary payload (the header_length field is a uint16,
+        # so a >64 KB header overflows with "'H' format requires 0 <= number").
+        import json
+        from joulescope_ui.tcp_server.bridge import _encode_qt_response
+        big = {'id': 5, 'children': ['x' * 100 for _ in range(2000)]}  # > 60 KB
+        frames = FrameDecoder().feed(
+            _encode_qt_response(MSG_QT_INSPECT_RESPONSE, big, None))
+        msg_type, header, payload = frames[0]
+        self.assertEqual(msg_type, MSG_QT_INSPECT_RESPONSE)
+        self.assertTrue(header.get('json_in_payload'))
+        self.assertEqual(header.get('id'), 5)
+        self.assertEqual(json.loads(payload), big)
+
+    def test_small_qt_response_stays_inline(self):
+        from joulescope_ui.tcp_server.bridge import _encode_qt_response
+        small = {'id': 6, 'class': 'MainWindow'}
+        frames = FrameDecoder().feed(
+            _encode_qt_response(MSG_QT_INSPECT_RESPONSE, small, None))
+        _, header, payload = frames[0]
+        self.assertEqual(header, small)
+        self.assertEqual(payload, b'')
+
     def test_error_response_carries_id(self):
         def _boom(msg_type, header, payload, future):
             future.set_exception(RuntimeError('inspect failed'))

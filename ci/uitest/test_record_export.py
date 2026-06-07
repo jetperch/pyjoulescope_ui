@@ -61,6 +61,27 @@ def test_record_and_reopen(ui_session, device, tmp_capture):
 
 
 @pytest.mark.device
+@pytest.mark.parametrize('freq', [10_000, 1_000_000])
+def test_record_at_signal_frequency(ui_session, device, tmp_capture, freq):
+    """Record at a selected sample rate; the recording is written at that rate.
+
+    Covers the plan's "Signal frequency -> 10 kHz / full rate" record sections.
+    """
+    ui_session.publish(f'registry/{device.unique_id}/settings/auto_open', True)
+    ui_session.set_signal_frequency(device.unique_id, freq)
+    ui_session.wait_for_statistics(device.unique_id)
+
+    path = str(tmp_capture / f'rec_{freq}.jls')
+    record_id = ui_session.record_start(path, source_ids=[device.unique_id])
+    ui_session.wait(_RECORD_SECONDS)
+    ui_session.record_stop(record_id)
+
+    summary = verify.assert_recording(path, signal_names=['current'])
+    rates = {s['sample_rate'] for s in summary['signals'].values()}
+    assert rates == {float(freq)}, f'expected {freq} Hz, recording has {rates}'
+
+
+@pytest.mark.device
 def test_record_markers_export(ui_session, device, tmp_capture):
     """Record A, add dual markers, export to B, verify B's data and markers.
 
@@ -70,7 +91,18 @@ def test_record_markers_export(ui_session, device, tmp_capture):
     """
     path_a = str(tmp_capture / 'recA.jls')
     path_b = str(tmp_capture / 'exportB.jls')
+    # Record at 10 kHz so the recording stays small: the exporter pull-requests
+    # samples with a 5 s timeout, which a multi-MB 1 MHz capture can exceed.
+    ui_session.publish(f'registry/{device.unique_id}/settings/auto_open', True)
+    ui_session.set_signal_frequency(device.unique_id, 10_000)
     _record(ui_session, device, path_a)
+
+    # Stop live streaming so the file read during export is not competing with
+    # the device for the processing pipeline (the export request has a 5 s
+    # timeout that contention can exceed).
+    ui_session.publish('registry/app/settings/signal_stream_enable', False)
+    ui_session.publish('registry/app/settings/statistics_stream_enable', False)
+    ui_session.wait(0.5)
 
     source_id = ui_session.open_file(path_a)
     ui_session.wait(1.0)

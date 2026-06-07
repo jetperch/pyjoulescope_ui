@@ -19,8 +19,13 @@ subscriptions, message forwarding, and serialization.
 """
 
 import concurrent.futures
+import json
 import logging
 import numpy as np
+
+# Max JSON header bytes before moving the payload-less response body into the
+# binary payload: the frame header_length field is a uint16 (<= 65535).
+_HEADER_MAX = 60000
 
 from joulescope_ui.tcp_server.protocol import (
     MSG_SUBSCRIBE, MSG_UNSUBSCRIBE, MSG_PUBLISH, MSG_PUBLISH_DATA,
@@ -187,7 +192,7 @@ class PubSubBridge:
             # (the Qt inspector builds the header and does not carry it).
             if request_id is not None and isinstance(result_header, dict):
                 result_header = {**result_header, 'id': request_id}
-            frame = encode(result_msg_type, result_header, result_payload)
+            frame = _encode_qt_response(result_msg_type, result_header, result_payload)
         except Exception as ex:
             frame = encode(MSG_ERROR, {'message': str(ex), 'id': request_id})
         self._server.send_to_client(client, frame)
@@ -211,6 +216,23 @@ class PubSubBridge:
             client = self._server._clients.get(client_id)
             if client is not None:
                 self._server.send_to_client(client, frame)
+
+
+def _encode_qt_response(msg_type, header, payload):
+    """Encode a Qt response, moving an oversized JSON header into the payload.
+
+    A populated widget tree exceeds the uint16 header_length limit, so when the
+    response has no binary payload and a large header, serialize the header to
+    the payload (covered by the uint32 frame length) and flag it for the client.
+    """
+    if payload is None and isinstance(header, dict):
+        body = json.dumps(header, separators=(',', ':')).encode('utf-8')
+        if len(body) > _HEADER_MAX:
+            small = {'json_in_payload': True}
+            if 'id' in header:
+                small['id'] = header['id']
+            return encode(msg_type, small, body)
+    return encode(msg_type, header, payload)
 
 
 def _serialize_value(value):

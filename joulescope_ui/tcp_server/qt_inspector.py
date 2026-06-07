@@ -114,6 +114,12 @@ def _find_widget(root, path):
     """
     if not path:
         return root
+    # A single objectName: search recursively (widgets are often deeply nested,
+    # e.g. a docked WaveformWidget) before falling back to per-segment matching.
+    if '/' not in path:
+        match = root.findChild(QtWidgets.QWidget, path)
+        if match is not None:
+            return match
     parts = path.split('/')
     current = root
     for part in parts:
@@ -259,6 +265,25 @@ class QtInspector:
             )
             QtWidgets.QApplication.sendEvent(widget, release)
             return {'ok': True, 'action': 'click'}
+
+        elif action == 'drag':
+            button = getattr(QtCore.Qt, header.get('button', 'LeftButton'), QtCore.Qt.LeftButton)
+            no_button = QtCore.Qt.MouseButton.NoButton
+            s, e = header['start'], header['end']
+            start = QtCore.QPointF(s[0], s[1])
+            end = QtCore.QPointF(e[0], e[1])
+            steps = max(1, int(header.get('steps', 12)))
+            QtWidgets.QApplication.sendEvent(widget, QtGui.QMouseEvent(
+                QtCore.QEvent.Type.MouseButtonPress, start, button, button, QtCore.Qt.NoModifier))
+            for i in range(1, steps + 1):
+                t = i / steps
+                pt = QtCore.QPointF(start.x() + (end.x() - start.x()) * t,
+                                    start.y() + (end.y() - start.y()) * t)
+                QtWidgets.QApplication.sendEvent(widget, QtGui.QMouseEvent(
+                    QtCore.QEvent.Type.MouseMove, pt, no_button, button, QtCore.Qt.NoModifier))
+            QtWidgets.QApplication.sendEvent(widget, QtGui.QMouseEvent(
+                QtCore.QEvent.Type.MouseButtonRelease, end, no_button, button, QtCore.Qt.NoModifier))
+            return {'ok': True, 'action': 'drag'}
 
         elif action == 'key':
             key = header.get('key', '')

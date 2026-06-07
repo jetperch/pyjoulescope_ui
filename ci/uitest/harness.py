@@ -254,6 +254,12 @@ class UiSession:
         return {'path': path, 'filename': os.path.splitext(os.path.basename(path))[0],
                 'location': os.path.dirname(path), 'sources': sources, 'notes': ''}
 
+    def set_signal_frequency(self, unique_id, freq):
+        """Set a device's streaming sample rate (Hz) and wait for it to apply."""
+        self.publish(f'registry/{unique_id}/settings/signal_frequency', int(freq))
+        self.wait_for(f'registry/{unique_id}/settings/signal_frequency',
+                      lambda v: int(v) == int(freq), timeout=5.0)
+
     def record_start(self, path, source_ids=None, settle=1.0):
         """Start recording stream data to ``path`` and return the record id.
 
