@@ -209,3 +209,36 @@ def show_in_folder(path):
 
 def str_to_size_policy(s):
     return SIZE_POLICY_MAP.get(s, QtWidgets.QSizePolicy.Expanding)
+
+
+_OPENGL_DUMMY_OBJECT_NAME = 'opengl_dummy_widget'
+
+
+def prepare_for_opengl(widget: QtWidgets.QWidget):
+    """Force OpenGL initialization for a widget's native window.
+
+    :param widget: The widget that hosts (or will host) descendants
+        that render using OpenGL, such as the waveform widget.
+
+    Workaround for QTBUG-108190 (PySide6 6.4 regression): when a
+    QOpenGLWidget descendant is reparented to a new native window,
+    such as undocking a QtAds CDockWidget, the application window
+    recreates and flickers.  Adding an invisible QOpenGLWidget child
+    up front forces the window to initialize OpenGL so later
+    reparenting does not recreate the window.
+    See https://github.com/scrutinydebugger/scrutiny-main
+    scrutiny/gui/tools/opengl.py for the original workaround.
+
+    This function is idempotent.  The dummy widget is parented to
+    the given widget and lives until that widget is deleted, so
+    apply it to widgets that persist, like the main window and each
+    dock widget, not to the transient widgets they contain.
+    """
+    from PySide6.QtOpenGLWidgets import QOpenGLWidget
+    for child in widget.children():
+        if child.objectName() == _OPENGL_DUMMY_OBJECT_NAME:
+            return child
+    dummy_widget = QOpenGLWidget(widget)
+    dummy_widget.setObjectName(_OPENGL_DUMMY_OBJECT_NAME)
+    dummy_widget.setVisible(False)
+    return dummy_widget

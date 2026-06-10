@@ -17,6 +17,7 @@ from . import pubsub_singleton, register, N_, sanitize, \
     get_topic_name, get_unique_id, get_instance
 from joulescope_ui.pubsub import pubsub_attr
 from .styles.manager import style_settings
+from .ui_util import prepare_for_opengl
 from PySide6 import QtCore, QtGui, QtWidgets
 from PySide6QtAds.PySide6QtAds import ads
 import logging
@@ -35,6 +36,7 @@ class DockWidget(CDockWidget):
         topic = get_topic_name(widget)
         name = widget.pubsub.query(f'{topic}/settings/name')
         super().__init__(name, parent)
+        prepare_for_opengl(self)
         self._widget = widget  # unsure if CDockWidget maintains Python reference
         self.setObjectName(f'{unique_id}__dock')
         self.setWidget(widget)

@@ -28,7 +28,7 @@ from joulescope_ui.safe_mode import safe_mode_dialog
 from joulescope_ui.styles.manager import style_settings
 from joulescope_ui.process_monitor import ProcessMonitor
 from joulescope_ui import software_update
-from joulescope_ui.ui_util import show_in_folder
+from joulescope_ui.ui_util import prepare_for_opengl, show_in_folder
 from joulescope_ui.widget_tools import CallableAction
 from joulescope_ui import urls
 from joulescope_ui.shift_key import is_shift_pressed
@@ -230,6 +230,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self._blink_count = 0
         self._blink_timer = None
+
+        # Parented to the main window, not a view-managed widget,
+        # so that it survives view switching (see View.on_cls_setting_active).
+        self._opengl_dummy = prepare_for_opengl(self)
 
         # Create the central widget with horizontal layout
         self._central_widget = QtWidgets.QWidget(self)

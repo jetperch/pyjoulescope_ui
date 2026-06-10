@@ -26,6 +26,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 2026 Jun 10 [in progress]
 
 * Added test automation support.
+* Fixed window disappearing when switching views.
 
 
 ## 1.5.1
