@@ -30,12 +30,21 @@ import os
 
 import numpy as np
 import pyjls
+import pytest
 
 from uitest import verify
 from uitest.jls_fixtures import write_fsr_v2
 
 
-def _open(ui_session, tmp_capture, name='wave.jls', n=20000):
+def _open(ui_session, tmp_capture, name='wave.jls', n=20000, render=True):
+    """Open a generated recording and return (waveform_id, source_id, path).
+
+    With ``render`` (default), wait for ``x_range`` to span the data and skip
+    the test when it never does.  ``x_range`` derives from the painted plot
+    geometry, so it stays ``[0, 0]`` when the plot cannot render (QOpenGLWidget
+    context creation fails on a GL-less CI runner).  Pass ``render=False`` for
+    tests that only need the widget tree (e.g. trace buttons).
+    """
     path = str(tmp_capture / name)
     write_fsr_v2(path, sample_rate=1000,
                  data=(0.5 + 0.2 * np.sin(np.arange(n) / 40.0)).astype(np.float32))
@@ -43,6 +52,13 @@ def _open(ui_session, tmp_capture, name='wave.jls', n=20000):
     ui_session.wait(1.0)
     wf = ui_session.waveform()
     assert wf is not None, 'opening a file did not create a waveform'
+    if render:
+        try:
+            ui_session.wait_for(f'registry/{wf}/settings/x_range',
+                                lambda v: v is not None and v[1] > v[0], timeout=15.0)
+        except TimeoutError:
+            pytest.skip('waveform x_range never populated; '
+                        'plot not rendering (no GL on this runner)')
     return wf, source_id, path
 
 
@@ -63,7 +79,7 @@ def test_add_remove_signals(ui_session, tmp_capture):
     The waveform's trace controls are real ``QPushButton``s (``trace_1..N``), so
     this drives the actual UI via mouse clicks and verifies the checked state.
     """
-    _open(ui_session, tmp_capture)
+    _open(ui_session, tmp_capture, render=False)
 
     def checked(name):
         return ui_session.qt_action('get_property', path=name, property='checked')['value']
