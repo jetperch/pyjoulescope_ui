@@ -117,7 +117,7 @@ only on HIL benches that advertise the matching device.
 
 ---
 
-## Milestone 0 — Foundations (`ci/uitest/` harness)
+## Milestone 0 — Foundations (`ci/uitest/` harness) — ✅ COMPLETE
 
 **Create** `ci/uitest/harness.py`:
 
@@ -164,7 +164,7 @@ on a bare `PubSub` for client-level tests).
 
 ---
 
-## Milestone 1 — Hardware-free smoke suite (runs on every platform, incl. CI runners)
+## Milestone 1 — Hardware-free smoke suite (runs on every platform, incl. CI runners) — ✅ COMPLETE
 
 These need no device, so they also run in `packaging.yml` under `QT_QPA_PLATFORM=offscreen`.
 
@@ -188,7 +188,7 @@ to `build_sdist` in `packaging.yml`.
 
 ---
 
-## Milestone 2 — Live device suite (HIL, parametrized per device)
+## Milestone 2 — Live device suite (HIL, parametrized per device) — ✅ COMPLETE
 
 Marked `@pytest.mark.device`; the `device` fixture parametrizes over JS220 / JS320 / JS110 present on
 the bench. Each device row uses a per-device parameter table:
@@ -223,29 +223,30 @@ simple deterministic load — to be wired by the bench owner.)
 
 ---
 
-## Milestone 3 — HIL farm orchestration
+## Milestone 3 — HIL farm orchestration — ⟳ DELIVERED SEPARATELY (shared infrastructure)
 
-- Stand up one **self-hosted GitHub Actions runner per platform** (Windows 11 x64, macOS ARM64,
-  macOS x64 if retained, Ubuntu LTS), labeled by platform **and** advertised device capability
-  (e.g. `[self-hosted, windows, js220, js320]`), matching `stations.toml`.
-- **Create** `ci/uitest/installer.py`: resolve the alpha installer for `(platform, arch)` from
-  `index_v2.json` (reuse `software_update.py` URL/hash logic), download + sha256-verify, then
-  silent-install:
-  - Windows (Inno Setup): `/VERYSILENT /SUPPRESSMSGBOXES /NORESTART`.
-  - macOS: mount `.dmg`, copy `.app`, `xattr -dr com.apple.quarantine`.
-  - Ubuntu: extract `.tar.gz`, locate the binary.
-  Plus `uninstall()` / `locate_executable()` and a CLI entry for the workflow.
-- **Create** `.github/workflows/release_test.yml`: triggered after publish (or `workflow_dispatch`
-  with a version); matrix over the self-hosted runners; steps = install alpha build →
-  `pytest ci/uitest` (device + non-device, per advertised caps) → upload JUnit XML + failure
-  screenshots as artifacts.
+The HIL farm is a **separate, shared effort**: the self-hosted runner fleet,
+device-capability advertising, and orchestration apply to more than just the
+Joulescope UI (e.g. PCTS/FTS, firmware HIL).  Its capability requirements are
+specified for that effort in
+[`ui_hil_farm_requirements.md`](ui_hil_farm_requirements.md).
 
-**Verify:** dispatch `release_test.yml` against the current alpha; confirm each bench installs, runs,
-and uploads artifacts.
+The UI suite is already farm-ready and only needs thin integration once the farm
+exists:
+- `ci/uitest/installer.py` (already implemented): resolve the alpha installer for
+  `(platform, arch)` from `index_v2.json`, download + sha256-verify, and
+  silent-install per OS (Windows Inno Setup `/VERYSILENT`; macOS `.dmg` +
+  quarantine clear; Ubuntu `.tar.gz`).
+- `ci/uitest/stations.py` + `stations.toml` (already implemented): each station
+  advertises its platform + attached device models; tests skip/fail accordingly.
+- **Remaining UI-side glue (small):** a `release_test` workflow/entry that, on a
+  farm runner, installs the alpha build and runs `JS_UITEST_DISPLAY=1 pytest
+  ci/uitest` (device + non-device per advertised caps) and uploads JUnit XML +
+  failure screenshots.  This plugs into the shared farm's runner/labels.
 
 ---
 
-## Milestone 4 — Release gating + VirusTotal
+## Milestone 4 — Release gating + VirusTotal — ◻ REMAINING
 
 - **Create** `ci/virustotal_scan.py`: submit each installer (esp. `joulescope.exe`) to the VirusTotal
   API (`VT_API_KEY` secret), poll, fail on detections — automating the spreadsheet's manual scan step.
@@ -260,7 +261,7 @@ and uploads artifacts.
 
 ---
 
-## Milestone 5 — Long-term tests (nightly, not per-release)
+## Milestone 5 — Long-term tests (nightly, not per-release) — ◻ REMAINING
 
 - `test_longterm.py` (`@pytest.mark.device @pytest.mark.slow`): ~1 hr capture at full rate & open;
   ~1 hr at 10 kHz & open; 10 hr run. Scheduled nightly/weekly on the farm, not in the release gate.
@@ -278,6 +279,22 @@ and uploads artifacts.
   open/verify fixture.
 
 ## Status (implemented so far)
+
+**Milestone summary**
+
+| Milestone | Status |
+| --- | --- |
+| M0 — Foundations (`ci/uitest/` harness) | ✅ complete |
+| M1 — Hardware-free smoke suite | ✅ complete |
+| M2 — Live device suite (JS220/JS320) | ✅ complete |
+| M3 — HIL farm orchestration | ⟳ delivered separately (shared farm — see `ui_hil_farm_requirements.md`) |
+| M4 — Release gating + VirusTotal | ◻ remaining |
+| M5 — Long-term tests | ◻ remaining |
+
+M1 and M2 cover the JS220/JS110/JS320 functional test plan end-to-end through the
+socket, including the mouse-driven waveform interactions (pan, y-axis range/scale,
+marker move/remove) on a rendered display.  See [`../../ci/uitest/README.md`](../../ci/uitest/README.md)
+for how to run them.
 
 Done and validated live on a JS220 + JS320 bench:
 - M0 harness (`ci/uitest/`): `UiSession`, `discover`, `verify`, `installer`,
@@ -385,7 +402,9 @@ more `qt_inspector` primitives: `call` (invoke a widget method) and `menu_close`
 
 ## Incremental delivery (per CLAUDE.md: small, testable steps)
 
-Land in this order, each as its own reviewed change with tests: **M0** (harness + unit tests) →
-**M1** (hardware-free suite, wired into `build_sdist`) → **M2** (device suite on one JS220 bench) →
-**M3** (installer + one self-hosted runner) → **M4** (gate + VirusTotal) → **M5** (long-term).
-Do not bundle milestones; each milestone touches a bounded set of files and ships green tests.
+Delivered in order, each its own reviewed change with green tests: **M0** (harness
++ unit tests) → **M1** (hardware-free suite, wired into `build_sdist`) → **M2**
+(device suite on a JS220 + JS320 bench).  **M3** (HIL farm) is a separate, shared
+effort (see `ui_hil_farm_requirements.md`); the UI plugs into it.  **M4** (gate +
+VirusTotal) and **M5** (long-term) remain.  Do not bundle milestones; each touches
+a bounded set of files and ships green tests.
