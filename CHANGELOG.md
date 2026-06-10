@@ -21,6 +21,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.5.2
+
+2026 Jun 10 [in progress]
+
+* Added test automation support.
+
+
 ## 1.5.1
 
 2026 May 29
