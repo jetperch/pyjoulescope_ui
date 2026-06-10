@@ -317,7 +317,7 @@ msgstr "以 Markdown 格式查看"
 msgid "Abort"
 msgstr "终止"
 
-#: error_window.py:120 main.py:378 widgets/settings/settings_widget.py:539
+#: error_window.py:120 main.py:382 widgets/settings/settings_widget.py:539
 msgid "View"
 msgstr "查看"
 
@@ -337,7 +337,7 @@ msgstr "恢复到以前的配置"
 msgid "Revert to defaults"
 msgstr "恢复到默认值"
 
-#: error_window.py:283 main.py:376 main.py:420
+#: error_window.py:283 main.py:380 main.py:424
 #: widgets/js220_cal/js220_cal_widget.py:38
 #: widgets/js320_cal/js320_cal_widget.py:60
 msgid "Exit"
@@ -534,7 +534,7 @@ msgstr "万用表"
 msgid "Oscilloscope"
 msgstr "示波器"
 
-#: main.py:75 main.py:303 main.py:372 main.py:413
+#: main.py:75 main.py:307 main.py:376 main.py:417
 msgid "File"
 msgstr "文件"
 
@@ -595,86 +595,86 @@ msgstr "显示此应用程序和所有应用程序的内存（RAM）利用率。
 msgid "UI"
 msgstr "UI"
 
-#: main.py:335
+#: main.py:339
 msgid "Help"
 msgstr "帮助"
 
-#: main.py:336 widgets/hamburger/hamburger_widget.py:21
+#: main.py:340 widgets/hamburger/hamburger_widget.py:21
 msgid "Getting Started"
 msgstr "开始使用"
 
-#: main.py:337
+#: main.py:341
 msgid "Language"
 msgstr "语言"
 
-#: main.py:338
+#: main.py:342
 msgid "User's Guide"
 msgstr "用户指南"
 
-#: main.py:339 widgets/hamburger/hamburger_widget.py:22
+#: main.py:343 widgets/hamburger/hamburger_widget.py:22
 msgid "Changelog"
 msgstr "更新日志"
 
-#: main.py:340 widgets/help/help_widget.py:59
+#: main.py:344 widgets/help/help_widget.py:59
 msgid "Report Issue"
 msgstr "报告问题"
 
-#: main.py:341
+#: main.py:345
 msgid "View logs..."
 msgstr "查看日志..."
 
-#: main.py:342 widgets/hamburger/hamburger_widget.py:23
+#: main.py:346 widgets/hamburger/hamburger_widget.py:23
 msgid "Credits"
 msgstr "荣誉"
 
-#: main.py:343 widgets/hamburger/hamburger_widget.py:24
+#: main.py:347 widgets/hamburger/hamburger_widget.py:24
 msgid "About"
 msgstr "关于"
 
-#: main.py:347
+#: main.py:351
 msgid "Clear Accumulators"
 msgstr "透明蓄电池"
 
-#: main.py:350
+#: main.py:354
 msgid "Configure high accuracy time"
 msgstr "配置高精度时间"
 
 #: devices/serial/serial_port_dialog.py:145
-#: devices/serial/serial_port_dialog.py:159 main.py:373
+#: devices/serial/serial_port_dialog.py:159 main.py:377
 msgid "Open"
 msgstr "打开"
 
-#: main.py:374
+#: main.py:378
 msgid "Open recent"
 msgstr "近期开放"
 
-#: main.py:375 main.py:419
+#: main.py:379 main.py:423
 msgid "Clear config and exit"
 msgstr "清除配置并退出"
 
-#: main.py:379 widgets/settings/settings_widget.py:541
+#: main.py:383 widgets/settings/settings_widget.py:541
 msgid "Widgets"
 msgstr "小工具"
 
-#: main.py:380
+#: main.py:384
 msgid "Tools"
 msgstr "工具"
 
-#: main.py:414
+#: main.py:418
 msgid "Info"
 msgstr "信息"
 
-#: main.py:415 widget_tools.py:92 widgets/settings/settings_widget.py:31
+#: main.py:419 widget_tools.py:92 widgets/settings/settings_widget.py:31
 #: widgets/settings/settings_widget.py:574
 #: widgets/sidebar/sidebar_widget.py:42
 msgid "Settings"
 msgstr "设置"
 
-#: main.py:729
+#: main.py:733
 msgid "Manage"
 msgstr "管理"
 
-#: main.py:766
+#: main.py:770
 msgid "Select file to open"
 msgstr "选择要打开的文件"
 
@@ -821,39 +821,39 @@ msgstr "来源"
 msgid "Use the application defaults"
 msgstr "使用应用默认值"
 
-#: view.py:75
+#: view.py:77
 msgid "The active theme."
 msgstr "活动主题。"
 
-#: view.py:77
+#: view.py:79
 msgid "Joulescope standard theme"
 msgstr "Joulescope 标准主题"
 
-#: view.py:77
+#: view.py:79
 msgid "System OS-specific theme"
 msgstr "系统操作系统特定主题"
 
-#: view.py:82
+#: view.py:84
 msgid "The color scheme name."
 msgstr "配色方案名称。"
 
-#: view.py:84
+#: view.py:86
 msgid "Dark background"
 msgstr "深色背景"
 
-#: view.py:84
+#: view.py:86
 msgid "Light background"
 msgstr "光背景"
 
-#: view.py:88
+#: view.py:90
 msgid "The font scheme name."
 msgstr "字体方案名称。"
 
-#: view.py:90
+#: view.py:92
 msgid "Joulescope standard font theme"
 msgstr "Joulescope 标准字体主题"
 
-#: view.py:109 widgets/view_manager/view_manager_widget.py:146
+#: view.py:111 widgets/view_manager/view_manager_widget.py:146
 msgid "New View"
 msgstr "新视图"
 

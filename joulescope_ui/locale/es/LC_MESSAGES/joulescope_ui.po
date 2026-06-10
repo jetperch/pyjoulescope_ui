@@ -367,7 +367,7 @@ msgstr "Ver como Markdown"
 msgid "Abort"
 msgstr "Abortar"
 
-#: error_window.py:120 main.py:378 widgets/settings/settings_widget.py:539
+#: error_window.py:120 main.py:382 widgets/settings/settings_widget.py:539
 msgid "View"
 msgstr "Ver"
 
@@ -387,7 +387,7 @@ msgstr "Volver a la configuración anterior"
 msgid "Revert to defaults"
 msgstr "Volver a valores predeterminados"
 
-#: error_window.py:283 main.py:376 main.py:420
+#: error_window.py:283 main.py:380 main.py:424
 #: widgets/js220_cal/js220_cal_widget.py:38
 #: widgets/js320_cal/js320_cal_widget.py:60
 msgid "Exit"
@@ -617,7 +617,7 @@ msgstr "Multímetro"
 msgid "Oscilloscope"
 msgstr "Osciloscopio"
 
-#: main.py:75 main.py:303 main.py:372 main.py:413
+#: main.py:75 main.py:307 main.py:376 main.py:417
 msgid "File"
 msgstr "Archivo"
 
@@ -689,86 +689,86 @@ msgstr ""
 msgid "UI"
 msgstr "INTERFAZ DE USUARIO"
 
-#: main.py:335
+#: main.py:339
 msgid "Help"
 msgstr "Ayuda"
 
-#: main.py:336 widgets/hamburger/hamburger_widget.py:21
+#: main.py:340 widgets/hamburger/hamburger_widget.py:21
 msgid "Getting Started"
 msgstr "Primeros pasos"
 
-#: main.py:337
+#: main.py:341
 msgid "Language"
 msgstr "Idioma"
 
-#: main.py:338
+#: main.py:342
 msgid "User's Guide"
 msgstr "Guía del usuario"
 
-#: main.py:339 widgets/hamburger/hamburger_widget.py:22
+#: main.py:343 widgets/hamburger/hamburger_widget.py:22
 msgid "Changelog"
 msgstr "Registro de cambios"
 
-#: main.py:340 widgets/help/help_widget.py:59
+#: main.py:344 widgets/help/help_widget.py:59
 msgid "Report Issue"
 msgstr "Número de informe"
 
-#: main.py:341
+#: main.py:345
 msgid "View logs..."
 msgstr "Ver registros..."
 
-#: main.py:342 widgets/hamburger/hamburger_widget.py:23
+#: main.py:346 widgets/hamburger/hamburger_widget.py:23
 msgid "Credits"
 msgstr "Créditos"
 
-#: main.py:343 widgets/hamburger/hamburger_widget.py:24
+#: main.py:347 widgets/hamburger/hamburger_widget.py:24
 msgid "About"
 msgstr "Acerca de"
 
-#: main.py:347
+#: main.py:351
 msgid "Clear Accumulators"
 msgstr "Acumuladores transparentes"
 
-#: main.py:350
+#: main.py:354
 msgid "Configure high accuracy time"
 msgstr "Configure el tiempo de alta precisión"
 
 #: devices/serial/serial_port_dialog.py:145
-#: devices/serial/serial_port_dialog.py:159 main.py:373
+#: devices/serial/serial_port_dialog.py:159 main.py:377
 msgid "Open"
 msgstr "Abrir"
 
-#: main.py:374
+#: main.py:378
 msgid "Open recent"
 msgstr "Abrir reciente"
 
-#: main.py:375 main.py:419
+#: main.py:379 main.py:423
 msgid "Clear config and exit"
 msgstr "Borrar configuración y salir"
 
-#: main.py:379 widgets/settings/settings_widget.py:541
+#: main.py:383 widgets/settings/settings_widget.py:541
 msgid "Widgets"
 msgstr "Widgets"
 
-#: main.py:380
+#: main.py:384
 msgid "Tools"
 msgstr "Herramientas"
 
-#: main.py:414
+#: main.py:418
 msgid "Info"
 msgstr "Información"
 
-#: main.py:415 widget_tools.py:92 widgets/settings/settings_widget.py:31
+#: main.py:419 widget_tools.py:92 widgets/settings/settings_widget.py:31
 #: widgets/settings/settings_widget.py:574
 #: widgets/sidebar/sidebar_widget.py:42
 msgid "Settings"
 msgstr "Ajustes"
 
-#: main.py:729
+#: main.py:733
 msgid "Manage"
 msgstr "Gestione"
 
-#: main.py:766
+#: main.py:770
 msgid "Select file to open"
 msgstr "Seleccionar archivo para abrir"
 
@@ -917,39 +917,39 @@ msgstr "Fuente"
 msgid "Use the application defaults"
 msgstr "Utilizar los valores predeterminados de la aplicación"
 
-#: view.py:75
+#: view.py:77
 msgid "The active theme."
 msgstr "El tema activo."
 
-#: view.py:77
+#: view.py:79
 msgid "Joulescope standard theme"
 msgstr "Tema estándar de Joulescope"
 
-#: view.py:77
+#: view.py:79
 msgid "System OS-specific theme"
 msgstr "Tema específico del sistema operativo"
 
-#: view.py:82
+#: view.py:84
 msgid "The color scheme name."
 msgstr "El nombre de la combinación de colores."
 
-#: view.py:84
+#: view.py:86
 msgid "Dark background"
 msgstr "Fondo oscuro"
 
-#: view.py:84
+#: view.py:86
 msgid "Light background"
 msgstr "Fondo luminoso"
 
-#: view.py:88
+#: view.py:90
 msgid "The font scheme name."
 msgstr "El nombre del esquema de fuentes."
 
-#: view.py:90
+#: view.py:92
 msgid "Joulescope standard font theme"
 msgstr "Tema de fuente estándar de Joulescope"
 
-#: view.py:109 widgets/view_manager/view_manager_widget.py:146
+#: view.py:111 widgets/view_manager/view_manager_widget.py:146
 msgid "New View"
 msgstr "Nueva vista"
 
