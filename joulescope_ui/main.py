@@ -56,6 +56,7 @@ from .view import View  # registers the view manager
 import joulescope_ui.range_tools   # register range_tools
 import appnope
 import datetime
+import json
 import logging
 import os
 import shutil
@@ -67,6 +68,7 @@ CDockManager = ads.CDockManager
 _software_update = None
 _config_save = True
 _config_clear = None
+_config_import = None
 _log = logging.getLogger(__name__)
 _UI_WINDOW_TITLE = 'Joulescope'
 _JLS_WINDOW_TITLE = 'Joulescope file viewer'
@@ -139,6 +141,24 @@ class QResyncEvent(QtCore.QEvent):
 
     def __len__(self):
         return 0
+
+
+def _config_confirm(parent, title, text):
+    box = QtWidgets.QMessageBox(parent)
+    box.setWindowTitle(title)
+    box.setText(text)
+    box.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+    box.setDefaultButton(QtWidgets.QMessageBox.StandardButton.No)
+    return box.exec() == QtWidgets.QMessageBox.StandardButton.Yes
+
+
+def _config_file_validate(path):
+    try:
+        with open(path, 'rt') as f:
+            obj = json.load(f)
+        return obj.get('type') == 'joulescope_ui_config' and obj.get('version') == 1
+    except Exception:
+        return False
 
 
 def _menu_setup(parent, d):
@@ -376,7 +396,11 @@ class MainWindow(QtWidgets.QMainWindow):
                 ['file_menu', N_('File'), [
                     ['open', N_('Open'), ['registry/ui/actions/!file_open_request', '']],
                     ['open_recent_menu', N_('Open recent'), []],  # dynamically populated from MRU
-                    ['exit_cfg', N_('Clear config and exit'), ['registry/ui/actions/!close', {'config_clear': True}]],
+                    ['config_menu', N_('Config'), [
+                        ['export', N_('Export'), ['registry/ui/actions/!config_export_request', '']],
+                        ['import_exit', N_('Import and exit'), ['registry/ui/actions/!config_import_request', '']],
+                        ['clear_exit', N_('Clear and exit'), ['registry/ui/actions/!config_clear_request', '']],
+                    ]],
                     ['exit', N_('Exit'), ['registry/ui/actions/!close', '']],
                 ]],
                 ['view_menu', N_('View'), []],        # dynamically populated from available views
@@ -420,7 +444,11 @@ class MainWindow(QtWidgets.QMainWindow):
                         'value': 'registry/settings',
                         'floating': True,
                     }]],
-                    ['exit_cfg', N_('Clear config and exit'), ['registry/ui/actions/!close', {'config_clear': True}]],
+                    ['config_menu', N_('Config'), [
+                        ['export', N_('Export'), ['registry/ui/actions/!config_export_request', '']],
+                        ['import_exit', N_('Import and exit'), ['registry/ui/actions/!config_import_request', '']],
+                        ['clear_exit', N_('Clear and exit'), ['registry/ui/actions/!config_clear_request', '']],
+                    ]],
                     ['exit', N_('Exit'), ['registry/ui/actions/!close', '']],
                 ]],
                 help_menu,
@@ -785,6 +813,75 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self._log.info('file_open cancelled')
 
+    def on_action_config_export_request(self, value):
+        """Request configuration export; prompt user to select the destination file."""
+        self._log.info('config_export_request')
+        path = self.pubsub.query('registry/paths/settings/path')
+        default = os.path.join(path, 'joulescope_ui_config.json')
+        self._dialog = QtWidgets.QFileDialog(self, N_('Export configuration'), default,
+                                             'Joulescope UI Config (*.json)')
+        self._dialog.setFileMode(QtWidgets.QFileDialog.AnyFile)
+        self._dialog.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
+        self._dialog.setDefaultSuffix('json')
+        self._dialog.updateGeometry()
+        self._dialog.open()
+        self._dialog.finished.connect(self._on_config_export_dialog_finished)
+
+    def _on_config_export_dialog_finished(self, result):
+        dialog, self._dialog = self._dialog, None
+        if result == QtWidgets.QDialog.DialogCode.Accepted:
+            files = dialog.selectedFiles()
+            if files and len(files) == 1:
+                try:
+                    with open(files[0], 'wt') as f:
+                        pubsub_singleton.save(f)
+                    self._log.info('config export -> %s', files[0])
+                except Exception:
+                    self._log.exception('config export failed')
+                    self.on_action_error_msg(N_('Configuration export failed.'))
+            else:
+                self._log.info('config_export invalid files: %s', files)
+        else:
+            self._log.info('config_export cancelled')
+
+    def on_action_config_import_request(self, value):
+        """Request configuration import; prompt user to select the file to import."""
+        self._log.info('config_import_request')
+        path = self.pubsub.query('registry/paths/settings/path')
+        self._dialog = QtWidgets.QFileDialog(self, N_('Import configuration'), path)
+        self._dialog.setNameFilter('Joulescope UI Config (*.json)')
+        self._dialog.setFileMode(QtWidgets.QFileDialog.ExistingFile)
+        self._dialog.updateGeometry()
+        self._dialog.open()
+        self._dialog.finished.connect(self._on_config_import_dialog_finished)
+
+    def _on_config_import_dialog_finished(self, result):
+        dialog, self._dialog = self._dialog, None
+        if result != QtWidgets.QDialog.DialogCode.Accepted:
+            self._log.info('config_import cancelled')
+            return
+        files = dialog.selectedFiles()
+        if not (files and len(files) == 1):
+            self._log.info('config_import invalid files: %s', files)
+            return
+        path = files[0]
+        if not _config_file_validate(path):
+            self._log.warning('config_import invalid config: %s', path)
+            self.on_action_error_msg(N_('The selected file is not a valid Joulescope UI configuration.'))
+            return
+        if not _config_confirm(self, N_('Import and exit'),
+                               N_('Replace the current configuration with the imported file and exit?')):
+            self._log.info('config_import declined')
+            return
+        self.pubsub.publish('registry/ui/actions/!close', {'config_import': path})
+
+    def on_action_config_clear_request(self, value):
+        """Confirm and then clear the configuration and exit."""
+        if not _config_confirm(self, N_('Clear and exit'), N_('Clear the configuration and exit?')):
+            self._log.info('config_clear declined')
+            return
+        self.pubsub.publish('registry/ui/actions/!close', {'config_clear': True})
+
     def on_action_file_open(self, path):
         """Open the specified file."""
         self._log.info('file_open %s', path)
@@ -854,11 +951,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self._log.info('closeEvent() done')
 
     def on_action_close(self, value):
-        global _software_update, _config_save, _config_clear
+        global _software_update, _config_save, _config_clear, _config_import
         if isinstance(value, dict):
             _software_update = value.get('software_update')
             _config_clear = value.get('config_clear')
-            if _config_clear:
+            _config_import = value.get('config_import')
+            if _config_clear or _config_import:
                 _config_save = False
         # call self.close() on the Qt Event loop later
         QtCore.QMetaObject.invokeMethod(self, 'close', QtCore.Qt.ConnectionType.QueuedConnection)
@@ -887,6 +985,13 @@ def _finalize():
                 pubsub_singleton.config_clear()
         except Exception:
             _log.error('Configuration clear failed')
+
+    if _config_import:
+        try:
+            _log.info('finalize: config import %s', _config_import)
+            shutil.copyfile(_config_import, pubsub_singleton.config_file_path)
+        except Exception:
+            _log.exception('Configuration import failed')
 
 
 def _wayland_workaround():
@@ -932,7 +1037,7 @@ def run(log_level=None, file_log_level=None, filename=None, safe_mode=False, tcp
 
     :return: 0 on success or error code on failure.
     """
-    global _software_update, _config_save, _config_clear
+    global _software_update, _config_save, _config_clear, _config_import
     app = None
     ui = None
     rc = 1
