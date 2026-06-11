@@ -26,8 +26,10 @@ This file contains the list of changes made to pyjoulescope_ui.
 2026 Jun 10 [in progress]
 
 * Added test automation support.
+* Made the configuration portable across users and machines by substituting
+  home-directory path prefixes with neutral tokens on save #312.
 * Fixed window disappearing when switching views.
-* Fixed dual marker right-click region #334
+* Fixed dual marker right-click region #334.
 
 
 ## 1.5.1

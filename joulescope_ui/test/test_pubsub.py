@@ -17,11 +17,12 @@ Test the PubSub implementation
 """
 
 import unittest
-from joulescope_ui.pubsub import PubSub
+from joulescope_ui.pubsub import PubSub, _paths_encode, _paths_decode
 from joulescope_ui.metadata import Metadata
 import io
 import json
 import logging
+import os
 import threading
 
 
@@ -240,6 +241,66 @@ class TestPubSub(unittest.TestCase):
         f = io.StringIO(s)
         p2.load(f)
         self.assertEqual('hello', p2.query(topic))
+
+    def test_paths_encode_decode_roundtrip(self):
+        home = os.path.join(os.sep + 'users', 'alice')
+        documents = os.path.join(home, 'Documents')
+        subs = [
+            (os.path.join(home, 'AppData', 'Local', 'joulescope'), '{jsui:path:app}'),
+            (os.path.join(documents, 'joulescope'), '{jsui:path:data}'),
+            (documents, '{jsui:path:documents}'),
+            (home, '{jsui:path:home}'),
+        ]
+        obj = {
+            'app': os.path.join(home, 'AppData', 'Local', 'joulescope'),
+            'data': os.path.join(documents, 'joulescope'),
+            'nested': {'value': os.path.join(documents, 'joulescope', 'sub', 'file.jls')},
+            'mru_files': [
+                os.path.join(documents, 'joulescope', 'a.jls'),
+                os.path.join(home, 'Desktop', 'b.jls'),
+            ],
+            'other': 42,
+        }
+        enc = _paths_encode(obj, subs)
+        # most-specific prefix wins
+        self.assertEqual('{jsui:path:app}', enc['app'])
+        self.assertEqual('{jsui:path:data}', enc['data'])
+        self.assertEqual('{jsui:path:data}' + os.sep + os.path.join('sub', 'file.jls'),
+                         enc['nested']['value'])
+        self.assertEqual('{jsui:path:data}' + os.sep + 'a.jls', enc['mru_files'][0])
+        self.assertEqual('{jsui:path:home}' + os.sep + os.path.join('Desktop', 'b.jls'),
+                         enc['mru_files'][1])
+        self.assertEqual(42, enc['other'])
+        # round-trip restores the original
+        self.assertEqual(obj, _paths_decode(enc, subs))
+
+    def test_paths_decode_to_different_machine(self):
+        enc = {'app': '{jsui:path:app}', 'file': '{jsui:path:data}\\sub\\x.jls'}
+        bob_home = os.path.join(os.sep + 'users', 'bob')
+        subs = [
+            (os.path.join(bob_home, 'AppData', 'Local', 'joulescope'), '{jsui:path:app}'),
+            (os.path.join(bob_home, 'Documents', 'joulescope'), '{jsui:path:data}'),
+        ]
+        dec = _paths_decode(enc, subs)
+        self.assertEqual(os.path.join(bob_home, 'AppData', 'Local', 'joulescope'), dec['app'])
+        # windows-style separators in the remainder are normalized to os.sep
+        self.assertEqual(os.path.join(bob_home, 'Documents', 'joulescope', 'sub', 'x.jls'),
+                         dec['file'])
+
+    def test_paths_decode_passthrough(self):
+        subs = [(os.path.join(os.sep + 'users', 'alice'), '{jsui:path:home}')]
+        self.assertEqual('hello world', _paths_decode('hello world', subs))
+        self.assertEqual('{timestamp}.jls', _paths_decode('{timestamp}.jls', subs))
+
+    def test_save_tokenizes_home(self):
+        p1 = PubSub()
+        p1.registry_initialize()
+        home = p1._base_paths()['home']
+        f = io.StringIO()
+        p1.save(f)
+        s = f.getvalue()
+        self.assertIn('{jsui:path:', s)
+        self.assertNotIn(home, s)
 
     def _on_notify(self):
         self.pub.append('notify')

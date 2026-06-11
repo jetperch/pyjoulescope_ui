@@ -55,6 +55,63 @@ _PUBSUB_CLS_ATTR = '__pubsub_cls__'
 _PUBSUB_OBJ_ATTR = '__pubsub_obj__'
 
 
+def _paths_encode_str(value, subs):
+    """Replace a machine-specific path prefix with a portable token.
+
+    :param value: The string value to process.
+    :param subs: The ordered (most-specific first) list of
+        (absolute_prefix, token) tuples from :meth:`PubSub._paths_substitutions`.
+    :return: The value with at most one leading prefix replaced by its token.
+    """
+    v_norm = os.path.normcase(value)
+    for prefix, token in subs:
+        p_norm = os.path.normcase(prefix)
+        if v_norm == p_norm:
+            return token
+        if v_norm.startswith(p_norm + os.sep) or v_norm.startswith(p_norm + '/'):
+            return token + value[len(prefix):]
+    return value
+
+
+def _paths_decode_str(value, subs):
+    """Expand a portable token back into the current machine's path.
+
+    :param value: The string value to process.
+    :param subs: The same substitution list used by :func:`_paths_encode_str`.
+    :return: The value with a leading token expanded to its absolute prefix and
+        the remainder's separators normalized to ``os.sep``.
+    """
+    for prefix, token in subs:
+        if value == token:
+            return prefix
+        if value.startswith(token):
+            remainder = value[len(token):].replace('\\', '/').replace('/', os.sep)
+            return prefix + remainder
+    return value
+
+
+def _paths_encode(obj, subs):
+    """Recursively replace machine-specific path prefixes with portable tokens."""
+    if isinstance(obj, str):
+        return _paths_encode_str(obj, subs)
+    elif isinstance(obj, dict):
+        return {key: _paths_encode(value, subs) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [_paths_encode(value, subs) for value in obj]
+    return obj
+
+
+def _paths_decode(obj, subs):
+    """Recursively expand portable tokens into the current machine's paths."""
+    if isinstance(obj, str):
+        return _paths_decode_str(obj, subs)
+    elif isinstance(obj, dict):
+        return {key: _paths_decode(value, subs) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [_paths_decode(value, subs) for value in obj]
+    return obj
+
+
 class PUBSUB_TOPICS:  # todo support profiles
     PUBSUB_APP_NAME = 'common/settings/name'
     PUBSUB_PROFILE_ACTION_ADD = 'common/actions/profile/!add'
@@ -427,22 +484,56 @@ class PubSub:
         else:
             raise ValueError('Invalid notify_fn')
 
-    def _paths_init(self):
+    def _base_paths(self):
+        """Compute the platform-specific base directories.
+
+        :return: A dict with the base directories used both to initialize the
+            path topics and to substitute machine-specific path prefixes when
+            saving/loading the configuration.  Keys: 'home', 'documents',
+            'data' (documents/<app>) and 'app' (the base application directory).
+        """
+        home = os.path.expanduser('~')
         if 'win32' in sys.platform:
             # https://learn.microsoft.com/en-us/windows/win32/shell/known-folders
             from win32com.shell import shell, shellcon
-            user_path = shell.SHGetKnownFolderPath(shellcon.FOLDERID_Documents, 0, None)
-            user_path = os.path.join(user_path, self._app)
+            documents = shell.SHGetKnownFolderPath(shellcon.FOLDERID_Documents, 0, None)
             appdata_path = shell.SHGetKnownFolderPath(shellcon.FOLDERID_LocalAppData, 0, None)
             app_path = os.path.join(appdata_path, self._app)
         elif 'darwin' in sys.platform:
-            user_path = os.path.join(os.path.expanduser('~'), 'Documents', self._app)
-            app_path = os.path.join(os.path.expanduser('~'), 'Library', 'Application Support', self._app)
+            documents = os.path.join(home, 'Documents')
+            app_path = os.path.join(home, 'Library', 'Application Support', self._app)
         elif 'linux' in sys.platform:
-            user_path = os.path.join(os.path.expanduser('~'), 'Documents', self._app)
-            app_path = os.path.join(os.path.expanduser('~'), '.' + self._app)
+            documents = os.path.join(home, 'Documents')
+            app_path = os.path.join(home, '.' + self._app)
         else:
             raise RuntimeError('unsupported platform')
+        return {
+            'home': home,
+            'documents': documents,
+            'data': os.path.join(documents, self._app),
+            'app': app_path,
+        }
+
+    def _paths_substitutions(self):
+        """Compute the ordered path prefix substitutions.
+
+        :return: A list of (absolute_prefix, token) tuples ordered most-specific
+            first so that nested prefixes (e.g. data under documents under home)
+            tokenize correctly.  Used to make the saved configuration portable
+            across users and machines.
+        """
+        p = self._base_paths()
+        return [
+            (p['app'], '{jsui:path:app}'),                # e.g. AppData\Local\joulescope (not under documents)
+            (p['data'], '{jsui:path:data}'),              # documents\joulescope (more specific than documents)
+            (p['documents'], '{jsui:path:documents}'),
+            (p['home'], '{jsui:path:home}'),              # catch-all for mru_files / recent paths
+        ]
+
+    def _paths_init(self):
+        base = self._base_paths()
+        user_path = base['data']
+        app_path = base['app']
 
         self.topic_add('common/actions/profile', 'node', 'Profile actions')
         self.topic_add('common/settings/profile', 'node', 'Profile settings')
@@ -1519,6 +1610,7 @@ class PubSub:
             'registry': self._to_obj('registry')[1],
             REGISTRY_MANAGER_TOPICS.NEXT_UNIQUE_ID: self._topic_get(REGISTRY_MANAGER_TOPICS.NEXT_UNIQUE_ID).value,
         }
+        obj = _paths_encode(obj, self._paths_substitutions())
         if isinstance(fh, str):
             os.makedirs(os.path.dirname(fh), exist_ok=True)
             fh = versioned_file.open(fh, 'wt')
@@ -1573,6 +1665,7 @@ class PubSub:
         finally:
             if do_close:
                 fh.close()
+        obj = _paths_decode(obj, self._paths_substitutions())
         file_type = obj.get('type')
         file_version = obj.get('version')
         if file_type != 'joulescope_ui_config':
