@@ -2774,6 +2774,35 @@ class WaveformWidget(QtWidgets.QWidget):
                 return f'x_marker.{m["id"]}.pos1'
         return ''
 
+    def _find_x_marker_region(self, x, y):
+        """Find the topmost x-marker whose top icon, top bar, or shaded area contains (x, y).
+
+        Used to broaden the right-click context-menu target beyond the vertical lines
+        (see :meth:`_find_x_marker`).  Iterates topmost-Z first so overlapping dual-marker
+        regions select the marker drawn on top.
+
+        :param x: The widget x pixel coordinate.
+        :param y: The widget y pixel coordinate.
+        :return: The ``'x_marker.{id}.pos1'`` spec or '' when no marker matches.
+        """
+        _, y0, _ = self._y_geometry_info['x_axis']
+        f_h = self._style['axis_font_metrics'].height()
+        w = f_h // 2
+        icon_y_bottom = y0 + f_h + f_h // 3
+        for m in reversed(self.annotations['x'].values()):
+            if m['dtype'] == 'dual':
+                x0 = self._x_map.time64_to_counter(m['pos1'])
+                x1 = self._x_map.time64_to_counter(m['pos2'])
+                if x0 > x1:
+                    x0, x1 = x1, x0
+                if x0 <= x <= x1:  # top bar and full shaded area
+                    return f'x_marker.{m["id"]}.pos1'
+            else:
+                p1 = self._x_map.time64_to_counter(m['pos1'])
+                if y0 <= y <= icon_y_bottom and (p1 - w) <= x <= (p1 + w):  # top icon
+                    return f'x_marker.{m["id"]}.pos1'
+        return ''
+
     def _item_parse_x_marker(self, item: str, activate=None) -> (dict, str):
         parts = item.split('.')
         if len(parts) != 3 or parts[0] != 'x_marker':
@@ -3081,6 +3110,9 @@ class WaveformWidget(QtWidgets.QWidget):
             else:
                 self._mouse_action = None
         if event.button() == QtCore.Qt.RightButton:
+            if not item and (y_name == 'x_axis'
+                             or (y_name.startswith('plot.') and x_name.startswith('plot'))):
+                item = self._find_x_marker_region(x, y)
             if item.startswith('x_marker.'):
                 self._menu_x_marker_single(item, event)
             elif item.startswith('text_annotation.'):

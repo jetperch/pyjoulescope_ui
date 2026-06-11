@@ -27,6 +27,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 * Added test automation support.
 * Fixed window disappearing when switching views.
+* Fixed dual marker right-click region #334
 
 
 ## 1.5.1
