@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-06-10 09:01-0400\n"
+"POT-Creation-Date: 2026-06-11 15:03-0400\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: ko <LL@li.org>\n"
@@ -325,7 +325,7 @@ msgstr "마크다운으로 보기"
 msgid "Abort"
 msgstr "Abort"
 
-#: error_window.py:120 main.py:382 widgets/settings/settings_widget.py:539
+#: error_window.py:120 main.py:406 widgets/settings/settings_widget.py:539
 msgid "View"
 msgstr "View"
 
@@ -345,7 +345,7 @@ msgstr "이전 구성으로 되돌리기"
 msgid "Revert to defaults"
 msgstr "기본값으로 되돌리기"
 
-#: error_window.py:283 main.py:380 main.py:424
+#: error_window.py:283 main.py:404 main.py:452
 #: widgets/js220_cal/js220_cal_widget.py:38
 #: widgets/js320_cal/js320_cal_widget.py:60
 msgid "Exit"
@@ -372,7 +372,7 @@ msgstr "참고"
 msgid "Select save location"
 msgstr "저장 위치 선택"
 
-#: exporter.py:139
+#: exporter.py:139 main.py:821
 msgid "Export configuration"
 msgstr "구성 내보내기"
 
@@ -539,23 +539,23 @@ msgstr "언어 선택"
 msgid "The application will automatically close when you change the locale."
 msgstr "로캘을 변경하면 애플리케이션이 자동으로 닫힙니다."
 
-#: main.py:73 widgets/value/value_widget.py:685
+#: main.py:75 widgets/value/value_widget.py:685
 msgid "Multimeter"
 msgstr "멀티미터"
 
-#: main.py:74
+#: main.py:76
 msgid "Oscilloscope"
 msgstr "오실로스코프"
 
-#: main.py:75 main.py:307 main.py:376 main.py:417
+#: main.py:77 main.py:327 main.py:396 main.py:441
 msgid "File"
 msgstr "파일"
 
-#: main.py:85
+#: main.py:87
 msgid "The UI status bar display mode"
 msgstr "UI 상태 표시줄 표시 모드"
 
-#: main.py:86
+#: main.py:88
 msgid ""
 "This setting controls the amount of detail shown on the status bar at the "
 "bottom of the UI window. You should usually leave this set to \"normal\" "
@@ -564,134 +564,167 @@ msgstr ""
 "이 설정은 UI 창 하단의 상태 표시줄에 표시되는 세부 정보의 양을 제어합니다. UI 내부 작동에 대한 자세한 정보를 원하지 않는 한 "
 "일반적으로 이 설정을 \"보통\"으로 두는 것이 좋습니다."
 
-#: main.py:91 safe_mode.py:43
+#: main.py:93 safe_mode.py:43
 msgid "Normal"
 msgstr "정상"
 
-#: main.py:92
+#: main.py:94
 msgid "Troubleshoot"
 msgstr "문제 해결"
 
-#: main.py:98
+#: main.py:100
 msgid "Enable developer mode."
 msgstr "개발자 모드를 활성화합니다."
 
-#: main.py:111
+#: main.py:113
 msgid "PubSub utilization"
 msgstr "PubSub 활용"
 
-#: main.py:112
+#: main.py:114
 msgid ""
 "Display the number of actions processed by the publish-subscribe broker in "
 "each second."
 msgstr "게시-구독 브로커가 매초 처리하는 작업 수를 표시합니다."
 
-#: main.py:117
+#: main.py:119
 msgid "CPU utilization"
 msgstr "CPU 사용률"
 
-#: main.py:118
+#: main.py:120
 msgid ""
 "Display the CPU utilization by this application and the total CPU "
 "utilization by all applications. The value is displayed in percent."
 msgstr "이 애플리케이션의 CPU 사용률과 모든 애플리케이션의 총 CPU 사용률을 표시합니다. 값은 퍼센트 단위로 표시됩니다."
 
-#: main.py:124
+#: main.py:126
 msgid "Memory utilization"
 msgstr "메모리 사용률"
 
-#: main.py:125
+#: main.py:127
 msgid ""
 "Display the memory (RAM) utilization by this application and by all "
 "applications. The value is displayed in percent."
 msgstr "이 애플리케이션 및 모든 애플리케이션의 메모리(RAM) 사용률을 표시합니다. 값은 퍼센트 단위로 표시됩니다."
 
-#: main.py:221
+#: main.py:241
 msgid "UI"
 msgstr "UI"
 
-#: main.py:339
+#: main.py:359
 msgid "Help"
 msgstr "도움말"
 
-#: main.py:340 widgets/hamburger/hamburger_widget.py:21
+#: main.py:360 widgets/hamburger/hamburger_widget.py:21
 msgid "Getting Started"
 msgstr "시작하기"
 
-#: main.py:341
+#: main.py:361
 msgid "Language"
 msgstr "언어"
 
-#: main.py:342
+#: main.py:362
 msgid "User's Guide"
 msgstr "사용자 가이드"
 
-#: main.py:343 widgets/hamburger/hamburger_widget.py:22
+#: main.py:363 widgets/hamburger/hamburger_widget.py:22
 msgid "Changelog"
 msgstr "변경 로그"
 
-#: main.py:344 widgets/help/help_widget.py:59
+#: main.py:364 widgets/help/help_widget.py:59
 msgid "Report Issue"
 msgstr "이슈 보고"
 
-#: main.py:345
+#: main.py:365
 msgid "View logs..."
 msgstr "로그 보기..."
 
-#: main.py:346 widgets/hamburger/hamburger_widget.py:23
+#: main.py:366 widgets/hamburger/hamburger_widget.py:23
 msgid "Credits"
 msgstr "크레딧"
 
-#: main.py:347 widgets/hamburger/hamburger_widget.py:24
+#: main.py:367 widgets/hamburger/hamburger_widget.py:24
 msgid "About"
 msgstr "About"
 
-#: main.py:351
+#: main.py:371
 msgid "Clear Accumulators"
 msgstr "클리어 어큐뮬레이터"
 
-#: main.py:354
+#: main.py:374
 msgid "Configure high accuracy time"
 msgstr "고정밀 시간 구성"
 
 #: devices/serial/serial_port_dialog.py:145
-#: devices/serial/serial_port_dialog.py:159 main.py:377
+#: devices/serial/serial_port_dialog.py:159 main.py:397
 msgid "Open"
 msgstr "Open"
 
-#: main.py:378
+#: main.py:398
 msgid "Open recent"
 msgstr "최근 열기"
 
-#: main.py:379 main.py:423
-msgid "Clear config and exit"
-msgstr "구성 지우기 및 종료"
+#: main.py:399 main.py:447 widgets/trigger/trigger_widget.py:467
+#: widgets/trigger/trigger_widget.py:480
+msgid "Config"
+msgstr "Config"
 
-#: main.py:383 widgets/settings/settings_widget.py:541
+#: main.py:400 main.py:448 widgets/waveform/waveform_widget.py:3806
+msgid "Export"
+msgstr "Export"
+
+#: main.py:401 main.py:449 main.py:872
+msgid "Import and exit"
+msgstr "수입 및 출국"
+
+#: main.py:402 main.py:450 main.py:880
+msgid "Clear and exit"
+msgstr "명확하고"
+
+#: main.py:407 widgets/settings/settings_widget.py:541
 msgid "Widgets"
 msgstr "위젯"
 
-#: main.py:384
+#: main.py:408
 msgid "Tools"
 msgstr "도구"
 
-#: main.py:418
+#: main.py:442
 msgid "Info"
 msgstr "정보"
 
-#: main.py:419 widget_tools.py:92 widgets/settings/settings_widget.py:31
+#: main.py:443 widget_tools.py:92 widgets/settings/settings_widget.py:31
 #: widgets/settings/settings_widget.py:574
 #: widgets/sidebar/sidebar_widget.py:42
 msgid "Settings"
 msgstr "설정"
 
-#: main.py:733
+#: main.py:761
 msgid "Manage"
 msgstr "관리"
 
-#: main.py:770
+#: main.py:798
 msgid "Select file to open"
 msgstr "열 파일 선택"
+
+#: main.py:841
+msgid "Configuration export failed."
+msgstr "구성 내보내기에 실패했습니다."
+
+#: main.py:851
+msgid "Import configuration"
+msgstr "구성 가져오기"
+
+#: main.py:870
+msgid "The selected file is not a valid Joulescope UI configuration."
+msgstr "선택한 파일은 유효한 Joulescope UI 구성이 아닙니다."
+
+#: main.py:873
+msgid "Replace the current configuration with the imported file and exit?"
+msgstr "현재 구성을 가져온 파일로 교체하고 종료하시겠습니까?"
+
+#: main.py:880
+msgid "Clear the configuration and exit?"
+msgstr "설정을 초기화하고 종료하시겠습니까?"
 
 #: paths.py:31 styles/manager.py:52
 msgid "The name for this widget."
@@ -2618,10 +2651,6 @@ msgstr "조건"
 msgid "Record samples"
 msgstr "샘플 기록"
 
-#: widgets/trigger/trigger_widget.py:467 widgets/trigger/trigger_widget.py:480
-msgid "Config"
-msgstr "Config"
-
 #: widgets/trigger/trigger_widget.py:471 widgets/trigger/trigger_widget.py:484
 msgid "Start buffer"
 msgstr "버퍼 시작"
@@ -3325,10 +3354,6 @@ msgstr "모든 데이터 내보내기"
 msgid "Export visible data to CSV file"
 msgstr "가시 데이터를 CSV 파일로 내보내기"
 
-#: widgets/waveform/waveform_widget.py:3806
-msgid "Export"
-msgstr "Export"
-
 #: widgets/waveform/waveform_widget.py:3807
 msgid "Analysis"
 msgstr "분석"
@@ -3446,3 +3471,6 @@ msgstr "단위"
 
 #~ msgid "Intel graphics detected"
 #~ msgstr "인텔 그래픽 감지"
+
+#~ msgid "Clear config and exit"
+#~ msgstr "구성 지우기 및 종료"
