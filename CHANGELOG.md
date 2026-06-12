@@ -31,6 +31,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added File -> Config menu to export and import the configuration #312.
 * Fixed window disappearing when switching views.
 * Fixed dual marker right-click region #334.
+* Fixed Waveform hover OverflowError on stale off-plot data  #333
 
 
 ## 1.5.1

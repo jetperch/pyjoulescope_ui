@@ -33,6 +33,7 @@ class TestAnnotationLoad(unittest.TestCase):
         path = os.path.join(_ANNO1)
         thread = load(path, pubsub, 'registry/me/callbacks/!my_cbk')
         self.assertIsNotNone(thread)
+        thread.join()
 
         pubsub.publish.assert_has_calls([
             unittest.mock.call('registry/me/callbacks/!my_cbk', [
@@ -44,4 +45,3 @@ class TestAnnotationLoad(unittest.TestCase):
             ]),
             unittest.mock.call('registry/me/callbacks/!my_cbk', None),
         ])
-        thread.join()

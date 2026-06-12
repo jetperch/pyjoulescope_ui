@@ -2478,7 +2478,7 @@ class WaveformWidget(QtWidgets.QWidget):
         if not len(data['avg']):
             return
         x_pixels = self._mouse_pos[0]
-        x= self._x_map.counter_to_time64(x_pixels)
+        x = self._x_map.counter_to_time64(x_pixels)
         index = np.abs(data['x'] - x).argmin()
         x = data['x'][index]
         x_pixels = self._x_map.time64_to_counter(x)
@@ -2486,6 +2486,13 @@ class WaveformWidget(QtWidgets.QWidget):
         if not np.isfinite(y):
             return
         y_pixels = self._y_value_to_pixel(plot, y)
+
+        _, x0, x1 = self._x_geometry_info[x_name]
+        _, y0, y1 = self._y_geometry_info[y_name]
+        if not x0 <= x_pixels <= x1:
+            return  # stale data, nearest sample not in view  #333
+        if not (y0 - _CLIP_LIMIT_PIXELS) <= y_pixels <= (y1 + _CLIP_LIMIT_PIXELS):
+            return  # Qt painter coordinates limited to int32, paths to ±32767  #333
 
         s = self._style
         p.setPen(self._NO_PEN)
@@ -2513,8 +2520,6 @@ class WaveformWidget(QtWidgets.QWidget):
         w = 2 * margin + max(font_metrics.boundingRect(x_txt).width(), font_metrics.boundingRect(y_txt).width())
         y_pixels -= h // 2
 
-        _, x0, x1 = self._x_geometry_info[x_name]
-        _, y0, y1 = self._y_geometry_info[y_name]
         p.setClipRect(x0, y0, x1 - x0, y1 - y0)
         x_pixels += _DOT_RADIUS
         if x_pixels + w > x1:
