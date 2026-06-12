@@ -1233,3 +1233,9 @@ class TriggerWidget(QtWidgets.QWidget):
     def on_pubsub_register(self, pubsub):
         topic = f'{self.topic}/settings/source'
         self._source_selector.on_pubsub_register(pubsub, topic)
+
+    def on_pubsub_unregister(self, pubsub):
+        # Stop all timers so a torn-down widget cannot keep firing / repainting.
+        self._always_condition_timer.stop()
+        self._buffer_stop_timer.stop()
+        self._status_button.status = 'inactive'  # stops its repeating repaint timer

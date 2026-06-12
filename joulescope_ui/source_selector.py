@@ -207,7 +207,7 @@ class SourceSelector(QtCore.QObject):
         elif resolved_new in self._list and resolved_new not in list_prev:
             self.resolved_changed.emit(resolved_new)
         elif resolved_new not in self._list and resolved_new in list_prev:
-            self.resolved_new.emit(None)
+            self.resolved_changed.emit(None)
 
     def _on_list(self, value):
         if self._source_type == 'signal_buffer':

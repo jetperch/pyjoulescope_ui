@@ -439,4 +439,4 @@ class JsdrvStreamBuffer:
                 pubsub_req = self._req_bwd.pop(device_req_id)
                 self._req_time.pop(device_req_id)
                 self._req_fwd.pop(pubsub_req)
-        self._mem_collect_time = t_now
+        self._collect_time = t_now

@@ -165,6 +165,53 @@ class TestPubSub(unittest.TestCase):
         p.redo()
         self.assertEqual('world', p.query(TOPIC1))
 
+    def test_proxy_unsubscribe_removes_empty_topic(self):
+        from joulescope_ui.pubsub import PubSubProxy
+        p = PubSub()
+        p.topic_add(TOPIC1, dtype='str', brief='t', default='hello')
+        proxy = PubSubProxy(p)
+        proxy.subscribe(TOPIC1, self._on_publish2, ['pub'])
+        self.assertIn(TOPIC1, proxy._subscribers)
+        proxy.unsubscribe(TOPIC1, self._on_publish2)
+        self.assertNotIn(TOPIC1, proxy._subscribers)  # no empty-list accumulation
+
+    def test_proxy_unsubscribe_with_flags(self):
+        # The proxy must accept the same flags argument as subscribe / PubSub.
+        from joulescope_ui.pubsub import PubSubProxy
+        p = PubSub()
+        p.topic_add(TOPIC1, dtype='str', brief='t', default='hello')
+        proxy = PubSubProxy(p)
+        proxy.subscribe(TOPIC1, self._on_publish2, ['pub', 'retain'])
+        proxy.unsubscribe(TOPIC1, self._on_publish2, ['pub', 'retain'])  # must not raise
+        self.assertNotIn(TOPIC1, proxy._subscribers)
+        self.pub.clear()
+        p.publish(TOPIC1, 'world')
+        self.assertEqual(0, len(self.pub))
+
+    def test_undo_history_is_bounded(self):
+        from joulescope_ui.pubsub import UNDO_REDO_COUNT_MAX
+        p = PubSub()
+        p.topic_add(TOPIC1, dtype='int', brief='my topic', default=0)
+        # distinct topics so coalescing does not merge the entries
+        for i in range(1, UNDO_REDO_COUNT_MAX + 50):
+            t = f'base/n{i}'
+            p.topic_add(t, dtype='int', brief='n', default=0)
+            p.publish(t, i)
+        self.assertEqual(UNDO_REDO_COUNT_MAX, len(p.undos))
+
+    def test_new_publish_clears_redo(self):
+        p = PubSub()
+        p.topic_add(TOPIC1, dtype='int', brief='my topic', default=0)
+        p.topic_add('base/two', dtype='int', brief='two', default=0)
+        p.publish(TOPIC1, 1)
+        p.undo()
+        self.assertEqual(1, len(p.redos))
+        p.publish('base/two', 2)  # a new action invalidates the redo stack
+        self.assertEqual(0, len(p.redos))
+        p.redo()  # nothing to redo
+        self.assertEqual(0, p.query(TOPIC1))
+        self.assertEqual(2, p.query('base/two'))
+
     def test_topic_remove(self):
         p = PubSub()
         with self.assertRaises(KeyError):
@@ -241,6 +288,38 @@ class TestPubSub(unittest.TestCase):
         f = io.StringIO(s)
         p2.load(f)
         self.assertEqual('hello', p2.query(topic))
+
+    def _config_obj(self, version):
+        topic = 'registry/value/settings/my_topic'
+        p1 = PubSub()
+        p1.topic_add('registry_manager/next_unique_id', dtype='int', brief='', default=1)
+        p1.topic_add(topic, dtype='str', brief='my topic', default='hello')
+        f = io.StringIO()
+        p1.save(f)
+        obj = json.loads(f.getvalue())
+        obj['version'] = version
+        return topic, obj
+
+    def test_load_old_version_migrates(self):
+        topic, obj = self._config_obj(1)  # simulate a pre-path-substitution config
+        p2 = PubSub()
+        p2.registry_initialize()
+        self.assertTrue(p2.load(io.StringIO(json.dumps(obj))))
+        self.assertEqual('hello', p2.query(topic))
+
+    def test_load_newer_version_best_effort(self):
+        topic, obj = self._config_obj(9999)  # from a hypothetical future build
+        p2 = PubSub()
+        p2.registry_initialize()
+        # best-effort load rather than discarding every setting
+        self.assertTrue(p2.load(io.StringIO(json.dumps(obj))))
+        self.assertEqual('hello', p2.query(topic))
+
+    def test_load_invalid_version_rejected(self):
+        p2 = PubSub()
+        p2.registry_initialize()
+        obj = {'type': 'joulescope_ui_config', 'version': 'bad'}
+        self.assertFalse(p2.load(io.StringIO(json.dumps(obj))))
 
     def test_paths_encode_decode_roundtrip(self):
         home = os.path.join(os.sep + 'users', 'alice')

@@ -113,11 +113,12 @@ class JsdrvWrapper:
 
     def clear(self):
         while len(self._ui_subscriptions):
-            topic, fn, flags = self._ui_subscribe.pop()
+            topic, fn, flags = self._ui_subscriptions.pop()
             self.pubsub.unsubscribe(topic, fn, flags)
         while len(self._driver_subscriptions):
-            topic, fn, flags = self._driver_subscriptions.pop()
-            self.driver.unsubscribe(topic, fn)
+            topic, fn = self._driver_subscriptions.pop()
+            if self.driver is not None:
+                self.driver.unsubscribe(topic, fn)
 
     def _ui_subscribe(self, topic: str, update_fn: callable, flags=None):
         self._ui_subscriptions.append((topic, update_fn, flags))
@@ -132,6 +133,7 @@ class JsdrvWrapper:
 
     def on_action_finalize(self):
         self._log.info('finalize')
+        self.clear()  # drop our own ui/driver subscriptions while driver is alive
         while len(self.devices):
             _, device = self.devices.popitem()
             device.finalize()

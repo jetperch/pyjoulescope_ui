@@ -17,7 +17,7 @@ Test the range tool implementation
 """
 
 import unittest
-from joulescope_ui.range_tool import RangeTool
+from joulescope_ui.range_tool import RangeTool, RangeToolBase
 from joulescope_ui import time64
 from joulescope_ui.time_map import TimeMap
 import numpy as np
@@ -135,3 +135,29 @@ class TestRangeTool(unittest.TestCase):
         rt.push({'rsp_id': '_mismatch_'})
         rsp = rt.request(signals[0], 'utc', *pubsub.x_range, 1)
         # todo check rsp
+
+
+class _MyRangeTool(RangeToolBase):
+    NAME = 'test_range_tool'
+    BRIEF = 'brief'
+    DESCRIPTION = 'description'
+
+    def _run(self):
+        pass
+
+
+class TestRangeToolBase(unittest.TestCase):
+
+    def test_instances_removed_on_unregister(self):
+        # A range-tool instance must not linger in the class _instances list
+        # after it completes, otherwise it (and its captured data) leaks.
+        value = PubSub().range_tool_init_value()
+        n0 = len(RangeToolBase._instances)
+        rt = _MyRangeTool(value)
+        self.assertIn(rt, RangeToolBase._instances)
+        rt.unique_id = 'rt-test'
+        rt._thread = None
+        rt._rt = Mock()  # avoid driving the real progress/pubsub machinery
+        rt.on_pubsub_unregister()
+        self.assertNotIn(rt, RangeToolBase._instances)
+        self.assertEqual(n0, len(RangeToolBase._instances))

@@ -76,10 +76,11 @@ class PubsubAggregator:
             except KeyError:
                 continue
             self._pubsub.subscribe(f'registry/{c}/{self._subtopic}', self._on_subtopic, ['pub', 'retain'])
-        for c in self._values.keys():
+        for c in list(self._values.keys()):
             if c not in value:
                 self._log.info('Removing %s from %s aggregator', c, self._aggregated_topic)
                 self._pubsub.unsubscribe(f'registry/{c}/{self._subtopic}', self._on_subtopic)
+                del self._values[c]  # otherwise stale value lingers and re-add is skipped
         self._publish()
 
     def _publish(self):

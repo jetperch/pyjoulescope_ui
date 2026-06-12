@@ -48,6 +48,9 @@ class StatisticsRecord:
         pubsub_singleton.publish('registry/paths/actions/!mru_save', filename)
         pubsub_singleton.register(self, parent=parent)
         pubsub_singleton.subscribe(self._topic, self._on_data, ['pub'])
+        # Track every instance (including those created directly by the trigger
+        # widget) so they can always be drained / cleaned up.
+        StatisticsRecord._instances.append(self)
 
     def stop_pend(self, utc_stop):
         self._utc_stop = utc_stop
@@ -104,13 +107,25 @@ class StatisticsRecord:
             self.on_action_stop()
 
     def on_action_stop(self):
+        if self._file is None:
+            return  # already stopped (idempotent)
         self._log.info('stop')
-        pubsub_singleton.unsubscribe(self._topic, self._on_data, ['pub'])
-        f, self._file = self._file, None
-        f.close()
+        self._close()
+        pubsub_singleton.unregister(self, delete=True)
+
+    def _close(self):
+        """Release the subscription and file handle.  Safe to call repeatedly."""
+        if self._file is not None:
+            pubsub_singleton.unsubscribe(self._topic, self._on_data, ['pub'])
+            f, self._file = self._file, None
+            f.close()
         if self in StatisticsRecord._instances:
             StatisticsRecord._instances.remove(self)
-        pubsub_singleton.unregister(self, delete=True)
+
+    def on_pubsub_unregister(self):
+        # Guarantee cleanup even when torn down via app/parent shutdown rather
+        # than the normal stop path, so we never leak the subscription or file.
+        self._close()
 
     @staticmethod
     def on_cls_action_start(pubsub, topic, value):
@@ -119,8 +134,7 @@ class StatisticsRecord:
             if not source['enabled']:
                 continue
             topic = f'{get_topic_name(source_id)}/events/statistics/!data'
-            obj = StatisticsRecord(topic, source['path'], value)
-            StatisticsRecord._instances.append(obj)
+            StatisticsRecord(topic, source['path'], value)  # tracks itself in _instances
 
     @staticmethod
     def on_cls_action_toggled(pubsub, topic, value):

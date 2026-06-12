@@ -595,6 +595,8 @@ class WaveformWidget(QtWidgets.QWidget):
         self._signals_by_rsp_id = {}
         self._signals_rsp_id_next = 2  # reserve 1 for summary
         self._signals_data = {}
+        self._source_subscriptions = {}   # source -> [(topic, fn, flags), ...]
+        self._signal_subscriptions = {}   # signal_id -> (topic, fn, flags)
         self._points = PointsF()
         self._marker_data = {}  # rsp_id -> data,
         self._annotations_request_defer = []
@@ -680,24 +682,34 @@ class WaveformWidget(QtWidgets.QWidget):
         return [[idx, subsource] for _, idx, subsource in sorted(data, reverse=True)]
 
     def _on_source_list(self, sources):
+        source_filter = self.pubsub.query(f'{self.topic}/settings/source_filter')
+        sources = [s for s in sources if not (source_filter and not s.startswith(source_filter))]
+        sources_set = set(sources)
         if not len(sources):
             self._log.warning('No default source available')
-            return
-        source_filter = self.pubsub.query(f'{self.topic}/settings/source_filter')
-        src_prev = self._sources
+
+        # Unsubscribe from sources that are no longer present (e.g. device removed)
+        for source in list(self._source_subscriptions.keys()):
+            if source not in sources_set:
+                for sub in self._source_subscriptions.pop(source):
+                    self.pubsub.unsubscribe(*sub)
 
         for source in sorted(sources):
-            if source_filter and not source.startswith(source_filter):
-                continue
-            if source in src_prev:
+            if source in self._source_subscriptions:
                 continue
             topic = get_topic_name(source)
+            subs = []
             try:
                 self.pubsub.query(f'{topic}/events/signals/!add')
-                self.pubsub.subscribe(f'{topic}/events/signals/!add', self._on_signal_add, ['pub'])
-                self.pubsub.subscribe(f'{topic}/events/signals/!remove', self._on_signal_remove, ['pub'])
+                add_sub = (f'{topic}/events/signals/!add', self._on_signal_add, ['pub'])
+                remove_sub = (f'{topic}/events/signals/!remove', self._on_signal_remove, ['pub'])
+                self.pubsub.subscribe(*add_sub)
+                self.pubsub.subscribe(*remove_sub)
+                subs.append(add_sub)
+                subs.append(remove_sub)
             except KeyError:
                 pass
+            self._source_subscriptions[source] = subs
             signals = self.pubsub.enumerate(f'{topic}/settings/signals')
             for signal in sorted(signals):
                 self._on_signal_add(f'{topic}/events/signals/!add', signal)
@@ -767,17 +779,29 @@ class WaveformWidget(QtWidgets.QWidget):
         device, quantity = value.split('.')
         topic = get_topic_name(source)
         signal_id = f'{source}.{device}.{quantity}'
-        self.pubsub.subscribe(f'{topic}/settings/signals/{value}/range',
-                              self._on_signal_range, ['pub', 'retain'])
+        if signal_id not in self._signal_subscriptions:
+            sub = (f'{topic}/settings/signals/{value}/range', self._on_signal_range, ['pub', 'retain'])
+            self.pubsub.subscribe(*sub)
+            self._signal_subscriptions[signal_id] = sub
         self._repaint_request = True
+
+    def _signal_forget(self, signal_id):
+        """Drop all cached state for a signal so the dicts do not accumulate."""
+        d = self._signals.pop(signal_id, None)
+        if d is not None:
+            self._signals_by_rsp_id.pop(d.get('rsp_id'), None)
+        self._signals_data.pop(signal_id, None)
+        return d
 
     def _on_signal_remove(self, topic, value):
         self._log.info(f'_on_signal_remove({topic}, {value})')
         source = topic.split('/')[1]
         device, quantity = value.split('.')
         signal_id = f'{source}.{device}.{quantity}'
-        if signal_id in self._signals:
-            del self._signals[signal_id]
+        sub = self._signal_subscriptions.pop(signal_id, None)
+        if sub is not None:
+            self.pubsub.unsubscribe(*sub)
+        self._signal_forget(signal_id)
         self._repaint_request = True
         self._subsources_update()
 
@@ -970,7 +994,7 @@ class WaveformWidget(QtWidgets.QWidget):
         signal_id = f'{source}.{device}.{quantity}'
         if value == [0, 0]:  # no data
             self._log.info('_on_signal_range(%s, %s) remove', topic, value)
-            self._signals.pop(signal_id, None)
+            self._signal_forget(signal_id)
             self._repaint_request = True
             self._subsources_update()
             return
@@ -4354,8 +4378,9 @@ class WaveformWidget(QtWidgets.QWidget):
         x_lookup_length = entry['x_lookup_length']
         x_lookup = entry['x_lookup']
         if (x_lookup_length + 1) > len(x_lookup):
-            np.resize(x_lookup, (len(x_lookup) * 2, 2))
+            x_lookup = np.resize(x_lookup, (len(x_lookup) * 2, 2))
             x_lookup[x_lookup_length:, 0] = np.iinfo(np.int64).max
+            entry['x_lookup'] = x_lookup
         x_lookup[x_lookup_length, :] = a['x'], a['id']
         entry['x_lookup_length'] += 1
         self._repaint_request = True

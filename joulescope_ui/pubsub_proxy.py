@@ -57,16 +57,20 @@ class PubSubProxy:
             self._subscribers[topic].append(c)
         return c
 
-    def unsubscribe(self, topic, update_fn: callable = None):
+    def unsubscribe(self, topic, update_fn: callable = None, flags=None):
         if topic is None:
             return
-        self.parent.unsubscribe(topic, update_fn)
+        self.parent.unsubscribe(topic, update_fn, flags)
         if isinstance(topic, PubSubCallable):
             topic, c = topic.topic, topic
         else:
             c = PubSubCallable(update_fn, topic)
         if topic in self._subscribers:
-            self._subscribers[topic] = [fn for fn in self._subscribers[topic] if fn != c]
+            remaining = [fn for fn in self._subscribers[topic] if fn != c]
+            if len(remaining):
+                self._subscribers[topic] = remaining
+            else:
+                del self._subscribers[topic]  # do not accumulate empty topic lists
 
     def unsubscribe_all(self, update_fn: callable = None):
         if update_fn is None:
@@ -79,8 +83,12 @@ class PubSubProxy:
         c = update_fn
         if not isinstance(c, PubSubCallable):
             c = PubSubCallable(update_fn)
-        for topic, values in self._subscribers.items():
-            self._subscribers[topic] = [fn for fn in self._subscribers[topic] if fn != c]
+        for topic in list(self._subscribers.keys()):
+            remaining = [fn for fn in self._subscribers[topic] if fn != c]
+            if len(remaining):
+                self._subscribers[topic] = remaining
+            else:
+                del self._subscribers[topic]  # do not accumulate empty topic lists
 
     def register(self, obj, unique_id: str = None, parent=None):
         return self.parent.register(obj, unique_id, parent)

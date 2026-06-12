@@ -350,7 +350,8 @@ class View:
     def on_cls_action_remove(value):
         _log.info('remove %s', value)
         unique_id = get_unique_id(value)
-        if unique_id == View._active_instance:
+        active = View._active_instance
+        if active is not None and unique_id == get_unique_id(active):
             raise ValueError('Cannot remove active view')
         pubsub_singleton.unregister(value, delete=True)
 

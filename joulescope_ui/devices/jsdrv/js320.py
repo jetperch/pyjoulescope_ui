@@ -935,6 +935,9 @@ class Js320(Device):
         self._log.info('close %s done', self.unique_id)
 
     def _on_stats(self, topic, value):
+        # Runs on the driver thread; deepcopy before mutating so we do not
+        # corrupt the driver-owned object or race with UI readers.
+        value = copy.deepcopy(value)
         if self._statistics_offsets is None:
             accum_sample_start = value['time']['accum_samples']['value'][-1]
             charge = value['accumulators']['charge']['value']

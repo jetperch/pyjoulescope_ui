@@ -36,6 +36,11 @@ _SUFFIX_CHAR = {
     '#': 'completion'
 }
 COMMON_ACTIONS_TOPIC = 'common/actions'
+UNDO_REDO_COUNT_MAX = 250  # bound undo/redo history to limit memory growth over a session
+# On-disk config schema version.  History:
+#   1: original format with absolute paths
+#   2: paths stored as portable {token} substitutions (see _paths_encode)
+CONFIG_VERSION = 2
 UNDO_TOPIC = COMMON_ACTIONS_TOPIC + '/!undo'
 REDO_TOPIC = COMMON_ACTIONS_TOPIC + '/!redo'
 SUBSCRIBE_TOPIC = COMMON_ACTIONS_TOPIC + '/!subscribe'
@@ -1042,7 +1047,10 @@ class PubSub:
         try:
             self._process_inner(cmd)
             if self._process_level == 1 and cmd.undo:
+                self.redos.clear()  # a new action invalidates the redo stack
                 self.undos.append(cmd)
+                if len(self.undos) > UNDO_REDO_COUNT_MAX:
+                    del self.undos[:-UNDO_REDO_COUNT_MAX]
         finally:
             self._process_count += 1
             self._process_level -= 1
@@ -1605,7 +1613,7 @@ class PubSub:
         do_close = False
         obj = {
             'type': 'joulescope_ui_config',
-            'version': 1,
+            'version': CONFIG_VERSION,
             'common/settings': self._to_obj('common/settings')[1],
             'registry': self._to_obj('registry')[1],
             REGISTRY_MANAGER_TOPICS.NEXT_UNIQUE_ID: self._topic_get(REGISTRY_MANAGER_TOPICS.NEXT_UNIQUE_ID).value,
@@ -1647,6 +1655,21 @@ class PubSub:
         dst = t_obj.children['settings']
         self._update_meta_inner(src, dst)
 
+    def _config_migrate(self, obj, from_version):
+        """Migrate a loaded config dict up to the current CONFIG_VERSION.
+
+        :param obj: The loaded config dict (already path-decoded).
+        :param from_version: The integer version found on disk.
+        :return: The migrated config dict.
+
+        Version 1 -> 2 changed path storage to portable {token} substitutions.
+        Decoding (:func:`_paths_decode`) already turns version-1 absolute paths
+        into valid current-machine paths, so no field rewriting is required;
+        we simply stamp the current version.  Future migrations chain here.
+        """
+        obj['version'] = CONFIG_VERSION
+        return obj
+
     def load(self, fh=None):
         if fh is None:
             if not os.path.isfile(self.config_file_path):
@@ -1671,9 +1694,17 @@ class PubSub:
         if file_type != 'joulescope_ui_config':
             self._log.warning('load type mismatch: %s != joulescope_ui_config', file_type)
             return False
-        elif file_version != 1:
-            self._log.warning('load version mismatch: %s != %s', file_version, 1)
+        if not isinstance(file_version, int):
+            self._log.warning('load invalid version: %s', file_version)
             return False
+        if file_version > CONFIG_VERSION:
+            # Newer than we understand: attempt a best-effort load rather than
+            # discarding every user setting.
+            self._log.warning('load config version %s newer than %s; best-effort load',
+                              file_version, CONFIG_VERSION)
+        elif file_version < CONFIG_VERSION:
+            self._log.info('migrate config from version %s to %s', file_version, CONFIG_VERSION)
+            obj = self._config_migrate(obj, file_version)
         if REGISTRY_MANAGER_TOPICS.NEXT_UNIQUE_ID in obj:
             self._topic_get(REGISTRY_MANAGER_TOPICS.NEXT_UNIQUE_ID).value = obj[REGISTRY_MANAGER_TOPICS.NEXT_UNIQUE_ID]
         self._from_obj('common/settings', obj['common/settings'])

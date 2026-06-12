@@ -141,6 +141,29 @@ class TestPubsubAggregator(unittest.TestCase):
             d[idx].state = 0
             self.assertEqual([] if idx < 4 else [False], self.calls)
 
+    def test_remove_then_readd(self):
+        a = PubsubAggregator(self.p, 'device.object', 'settings/state', any, TOPIC)
+        self.p.register(a, unique_id='a')
+        d1 = MyDevice()
+        self.p.register(d1, unique_id='d1')
+        self.p.publish('registry/d1/settings/state', 1)
+        self.assertEqual(True, self.calls[-1])
+        self.assertIn('d1', a._values)
+
+        # Removing the device must drop it from the aggregator and recompute.
+        self.calls.clear()
+        self.p.unregister(d1, delete=True)
+        self.assertNotIn('d1', a._values)
+        self.assertEqual([False], self.calls)  # any([]) -> False
+
+        # Re-adding the same id must update again (previously it was skipped
+        # because the stale entry lingered in _values).
+        d2 = MyDevice()
+        self.p.register(d2, unique_id='d1')
+        self.calls.clear()
+        self.p.publish('registry/d1/settings/state', 1)
+        self.assertEqual([True], self.calls)
+
     def test_aggregate_all(self):
         a = PubsubAggregator(self.p, 'device.object', 'settings/state', all_except_empty, TOPIC)
         self.p.register(a, unique_id='a')

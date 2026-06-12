@@ -284,6 +284,8 @@ class RangeToolBase:
 
     def on_pubsub_unregister(self):
         self._log.info('complete %s', self.unique_id)
+        if self in RangeToolBase._instances:
+            RangeToolBase._instances.remove(self)
         thread, self._thread = self._thread, None
         rt, self._rt = self._rt, None
         if rt is not None:
