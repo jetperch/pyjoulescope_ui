@@ -32,6 +32,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Fixed window disappearing when switching views.
 * Fixed dual marker right-click region #334.
 * Fixed Waveform hover OverflowError on stale off-plot data  #333
+* Added Wayland detection for possible future Qt-ADS fix  #316
+  https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/pull/844
 
 
 ## 1.5.1

@@ -996,6 +996,24 @@ def _finalize():
 
 def _wayland_workaround():
     # https://github.com/jetperch/pyjoulescope_ui/issues/311
+    # https://github.com/jetperch/pyjoulescope_ui/issues/316
+    # Qt Advanced Docking System did not support docking on Wayland, so we
+    # forced the xcb (XWayland) platform plugin.  Newer QtAds versions
+    # implement Wayland docking, so run native Wayland when the fix is
+    # present.  The fix adds CFloatingDockContainer.startPlatformDrag(),
+    # which the bindings expose, so its presence is used as a feature probe.
+    force = os.environ.get("JOULESCOPE_UI_FORCE_XCB", "").lower()
+    if force in ("1", "true", "on"):
+        _log.info('JOULESCOPE_UI_FORCE_XCB set : switch to xcb')
+        os.environ["QT_QPA_PLATFORM"] = "xcb"
+        return
+    if force in ("0", "false", "off"):
+        _log.info('JOULESCOPE_UI_FORCE_XCB cleared : do not force xcb')
+        return
+    if os.environ.get("QT_QPA_PLATFORM"):
+        # An explicit platform choice (e.g. "offscreen" for headless tests)
+        # always wins over this workaround.
+        return
     if sys.platform != 'linux':
         return
     session_type = os.environ.get("XDG_SESSION_TYPE", "").lower()
@@ -1004,7 +1022,15 @@ def _wayland_workaround():
     wayland_display = os.environ.get("WAYLAND_DISPLAY", "")
     if not wayland_display:
         return
-    _log.info('Detected Wayland : switch to xcb')
+    try:
+        ads_wayland_ok = hasattr(ads.CFloatingDockContainer, 'startPlatformDrag')
+    except Exception:
+        _log.warning('QtAds Wayland probe failed', exc_info=True)
+        ads_wayland_ok = False
+    if ads_wayland_ok:
+        _log.info('Detected Wayland with QtAds Wayland support : run native Wayland')
+        return
+    _log.info('Detected Wayland without QtAds Wayland support : switch to xcb')
     os.environ["QT_QPA_PLATFORM"] = "xcb"
 
 

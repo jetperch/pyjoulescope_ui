@@ -21,6 +21,7 @@ to the main thread via PubSub.
 
 import concurrent.futures
 import logging
+import time
 
 from PySide6 import QtCore, QtGui, QtWidgets
 
@@ -202,6 +203,35 @@ def _find_menu_action(menu, text):
     return None
 
 
+class _CursorTracker(QtCore.QObject):
+    """Record the window that receives real pointer events.
+
+    On Wayland, window positions are fictional and QCursor.pos() is stale
+    while the pointer is outside the application, so the only reliable
+    source for "which window is under the pointer" is the event stream.
+    """
+
+    def __init__(self):
+        super().__init__()
+        self.last = None
+
+    def eventFilter(self, obj, ev):
+        if ev.type() in (QtCore.QEvent.Type.MouseMove, QtCore.QEvent.Type.Enter,
+                         QtCore.QEvent.Type.HoverMove):
+            if isinstance(obj, QtWidgets.QWidget):
+                window = obj.window()
+                local = window.mapFromGlobal(QtGui.QCursor.pos())
+                self.last = {
+                    'class': type(obj).__name__,
+                    'objectName': obj.objectName(),
+                    'window_class': type(window).__name__,
+                    'window_title': window.windowTitle(),
+                    'window_local': [local.x(), local.y()],
+                    't': time.monotonic(),
+                }
+        return False
+
+
 class QtInspector:
     """Handles Qt inspection requests.
 
@@ -213,6 +243,7 @@ class QtInspector:
     def __init__(self, pubsub):
         self._pubsub = pubsub
         self._registered = False
+        self._cursor_tracker = None
 
     def _ensure_registered(self):
         if not self._registered:
@@ -292,6 +323,8 @@ class QtInspector:
 
     def _action(self, header):
         action = header.get('action', '')
+        if action == 'cursor':
+            return self._action_cursor()
         path = header.get('path', '')
         root = self._get_root()
         widget = _find_widget(root, path) if path else root
@@ -437,6 +470,33 @@ class QtInspector:
 
         else:
             raise ValueError(f'Unknown action: {action}')
+
+    def _action_cursor(self):
+        """Report the cursor position and the widget under the cursor.
+
+        Lets a real-input injector calibrate window screen offsets on
+        Wayland, where window positions are not observable: the injector
+        knows the screen position, this reports the matching window-local
+        position.
+        """
+        # The window under the pointer cannot be derived reliably from
+        # QCursor.pos() + widgetAt(): window positions are fictional on
+        # Wayland and overlapping windows collide.  Instead, an application
+        # event filter records the receiving window of real pointer events.
+        self._cursor_tracker_install()
+        pos = QtGui.QCursor.pos()
+        result = {'ok': True, 'action': 'cursor', 'pos': [pos.x(), pos.y()],
+                  'widget': None}
+        record = self._cursor_tracker.last if self._cursor_tracker else None
+        if record is not None:
+            result['widget'] = dict(record)
+            result['widget']['age'] = time.monotonic() - record['t']
+        return result
+
+    def _cursor_tracker_install(self):
+        if self._cursor_tracker is None:
+            self._cursor_tracker = _CursorTracker()
+            QtWidgets.QApplication.instance().installEventFilter(self._cursor_tracker)
 
     def _screenshot(self, header):
         path = header.get('path', '')
