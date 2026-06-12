@@ -355,7 +355,7 @@ msgstr "Correo electrónico"
 msgid "Description"
 msgstr "Descripción"
 
-#: error_window.py:112 widgets/waveform/waveform_widget.py:3872
+#: error_window.py:112 widgets/waveform/waveform_widget.py:3877
 msgid "Edit"
 msgstr "Editar"
 
@@ -747,7 +747,7 @@ msgstr "Abrir reciente"
 msgid "Config"
 msgstr "Config"
 
-#: main.py:400 main.py:448 widgets/waveform/waveform_widget.py:3806
+#: main.py:400 main.py:448 widgets/waveform/waveform_widget.py:3811
 msgid "Export"
 msgstr "Exportar"
 
@@ -1643,7 +1643,7 @@ msgstr "Estado de actualización del firmware"
 #: widgets/settings/settings_widget.py:266
 #: widgets/settings/settings_widget.py:364
 #: widgets/settings/settings_widget.py:431
-#: widgets/waveform/waveform_widget.py:3409
+#: widgets/waveform/waveform_widget.py:3414
 msgid "Name"
 msgstr "Nombre"
 
@@ -1737,7 +1737,7 @@ msgid "Auto-open"
 msgstr "Apertura automática"
 
 #: devices/serial/serial_port_dialog.py:88
-#: widgets/waveform/waveform_widget.py:3455
+#: widgets/waveform/waveform_widget.py:3460
 msgid "Add"
 msgstr "Añadir"
 
@@ -1746,9 +1746,9 @@ msgid "Closed"
 msgstr "Cerrado"
 
 #: devices/serial/serial_port_dialog.py:163
-#: widgets/waveform/waveform_widget.py:3865
-#: widgets/waveform/waveform_widget.py:3893
-#: widgets/waveform/waveform_widget.py:3929
+#: widgets/waveform/waveform_widget.py:3870
+#: widgets/waveform/waveform_widget.py:3898
+#: widgets/waveform/waveform_widget.py:3934
 msgid "Remove"
 msgstr "Eliminar"
 
@@ -2460,7 +2460,7 @@ msgid "Save ACTIVE to:"
 msgstr "Guardar ACTIVE en:"
 
 #: widgets/js320_cal/js320_cal_widget.py:64
-#: widgets/waveform/waveform_widget.py:3474
+#: widgets/waveform/waveform_widget.py:3479
 msgid "Save"
 msgstr "Guardar"
 
@@ -3090,7 +3090,7 @@ msgid "triangle left"
 msgstr "triángulo izquierdo"
 
 #: widgets/waveform/text_annotation.py:66
-#: widgets/waveform/waveform_widget.py:3355
+#: widgets/waveform/waveform_widget.py:3360
 msgid "Manual"
 msgstr "Manual"
 
@@ -3099,17 +3099,17 @@ msgid "Centered"
 msgstr "Centrado"
 
 #: widgets/waveform/text_annotation.py:99
-#: widgets/waveform/waveform_widget.py:3470
+#: widgets/waveform/waveform_widget.py:3475
 msgid "Text"
 msgstr "Texto"
 
 #: widgets/waveform/text_annotation.py:107
-#: widgets/waveform/waveform_widget.py:3873
+#: widgets/waveform/waveform_widget.py:3878
 msgid "Show text"
 msgstr "Mostrar texto"
 
 #: widgets/waveform/text_annotation.py:116
-#: widgets/waveform/waveform_widget.py:3885
+#: widgets/waveform/waveform_widget.py:3890
 msgid "Shape"
 msgstr "Forma"
 
@@ -3471,12 +3471,12 @@ msgid "X-axis annotation mode"
 msgstr "Modo de anotación en el eje X"
 
 #: widgets/waveform/waveform_widget.py:497
-#: widgets/waveform/waveform_widget.py:3235
+#: widgets/waveform/waveform_widget.py:3240
 msgid "Absolute"
 msgstr "Absoluto"
 
 #: widgets/waveform/waveform_widget.py:498
-#: widgets/waveform/waveform_widget.py:3240
+#: widgets/waveform/waveform_widget.py:3245
 msgid "Relative"
 msgstr "Relativa"
 
@@ -3522,153 +3522,153 @@ msgstr "Costumbre"
 msgid "Standard"
 msgstr "Estándar"
 
-#: widgets/waveform/waveform_widget.py:3182
-#: widgets/waveform/waveform_widget.py:3482
+#: widgets/waveform/waveform_widget.py:3187
+#: widgets/waveform/waveform_widget.py:3487
 msgid "Save image to file"
 msgstr "Guardar imagen en archivo"
 
-#: widgets/waveform/waveform_widget.py:3229
-#: widgets/waveform/waveform_widget.py:3298
+#: widgets/waveform/waveform_widget.py:3234
+#: widgets/waveform/waveform_widget.py:3303
 msgid "Single marker"
 msgstr "Marcador único"
 
-#: widgets/waveform/waveform_widget.py:3230
-#: widgets/waveform/waveform_widget.py:3299
+#: widgets/waveform/waveform_widget.py:3235
+#: widgets/waveform/waveform_widget.py:3304
 msgid "Dual markers"
 msgstr "Marcadores duales"
 
-#: widgets/waveform/waveform_widget.py:3232
+#: widgets/waveform/waveform_widget.py:3237
 msgid "Mode"
 msgstr "Modo"
 
-#: widgets/waveform/waveform_widget.py:3245
-#: widgets/waveform/waveform_widget.py:3300
-#: widgets/waveform/waveform_widget.py:3458
-#: widgets/waveform/waveform_widget.py:3476
+#: widgets/waveform/waveform_widget.py:3250
+#: widgets/waveform/waveform_widget.py:3305
+#: widgets/waveform/waveform_widget.py:3463
+#: widgets/waveform/waveform_widget.py:3481
 msgid "Clear all"
 msgstr "Borrar todo"
 
-#: widgets/waveform/waveform_widget.py:3256
-#: widgets/waveform/waveform_widget.py:3345
-#: widgets/waveform/waveform_widget.py:3464
+#: widgets/waveform/waveform_widget.py:3261
+#: widgets/waveform/waveform_widget.py:3350
+#: widgets/waveform/waveform_widget.py:3469
 msgid "Annotations"
 msgstr "Anotaciones"
 
-#: widgets/waveform/waveform_widget.py:3348
+#: widgets/waveform/waveform_widget.py:3353
 msgid "Range"
 msgstr "Gama"
 
-#: widgets/waveform/waveform_widget.py:3352
-#: widgets/waveform/waveform_widget.py:3830
+#: widgets/waveform/waveform_widget.py:3357
+#: widgets/waveform/waveform_widget.py:3835
 msgid "Auto"
 msgstr "Auto"
 
-#: widgets/waveform/waveform_widget.py:3358
+#: widgets/waveform/waveform_widget.py:3363
 msgid "Exact"
 msgstr "Exacto"
 
-#: widgets/waveform/waveform_widget.py:3367
+#: widgets/waveform/waveform_widget.py:3372
 msgid "Scale"
 msgstr "Escala"
 
-#: widgets/waveform/waveform_widget.py:3370
+#: widgets/waveform/waveform_widget.py:3375
 msgid "Linear"
 msgstr "Lineal"
 
-#: widgets/waveform/waveform_widget.py:3375
+#: widgets/waveform/waveform_widget.py:3380
 msgid "Logarithmic"
 msgstr "Logarítmica"
 
-#: widgets/waveform/waveform_widget.py:3383
+#: widgets/waveform/waveform_widget.py:3388
 msgid "Logarithmic zero"
 msgstr "Cero logarítmico"
 
-#: widgets/waveform/waveform_widget.py:3397
+#: widgets/waveform/waveform_widget.py:3402
 msgid "Preferred prefix"
 msgstr "Prefijo preferido"
 
-#: widgets/waveform/waveform_widget.py:3456
+#: widgets/waveform/waveform_widget.py:3461
 msgid "Hide all text"
 msgstr "Ocultar todo el texto"
 
-#: widgets/waveform/waveform_widget.py:3457
+#: widgets/waveform/waveform_widget.py:3462
 msgid "Show all text"
 msgstr "Mostrar todo el texto"
 
-#: widgets/waveform/waveform_widget.py:3465
+#: widgets/waveform/waveform_widget.py:3470
 msgid "Vertical"
 msgstr "Vertical"
 
-#: widgets/waveform/waveform_widget.py:3468
+#: widgets/waveform/waveform_widget.py:3473
 msgid "Horizontal"
 msgstr "Horizontal"
 
-#: widgets/waveform/waveform_widget.py:3479
+#: widgets/waveform/waveform_widget.py:3484
 msgid "Y-axis auto range"
 msgstr "Rango automático del eje Y"
 
-#: widgets/waveform/waveform_widget.py:3483
+#: widgets/waveform/waveform_widget.py:3488
 msgid "Copy image to clipboard"
 msgstr "Copiar imagen al portapapeles"
 
-#: widgets/waveform/waveform_widget.py:3484
+#: widgets/waveform/waveform_widget.py:3489
 msgid "Export visible data"
 msgstr "Exportación de datos visibles"
 
-#: widgets/waveform/waveform_widget.py:3485
+#: widgets/waveform/waveform_widget.py:3490
 msgid "Export visible data as CSV"
 msgstr "Exportar datos visibles como CSV"
 
-#: widgets/waveform/waveform_widget.py:3486
+#: widgets/waveform/waveform_widget.py:3491
 msgid "Export all data"
 msgstr "Exportar todos los datos"
 
-#: widgets/waveform/waveform_widget.py:3651
+#: widgets/waveform/waveform_widget.py:3656
 msgid "Export visible data to CSV file"
 msgstr "Exportación de datos visibles a un archivo CSV"
 
-#: widgets/waveform/waveform_widget.py:3807
+#: widgets/waveform/waveform_widget.py:3812
 msgid "Analysis"
 msgstr "Análisis"
 
-#: widgets/waveform/waveform_widget.py:3815
+#: widgets/waveform/waveform_widget.py:3820
 msgid "Interval"
 msgstr "Intervalo"
 
-#: widgets/waveform/waveform_widget.py:3824
+#: widgets/waveform/waveform_widget.py:3829
 msgid "Zoom"
 msgstr "Zoom"
 
-#: widgets/waveform/waveform_widget.py:3828
+#: widgets/waveform/waveform_widget.py:3833
 msgid "Show statistics"
 msgstr "Mostrar estadísticas"
 
-#: widgets/waveform/waveform_widget.py:3833
+#: widgets/waveform/waveform_widget.py:3838
 msgid "Left"
 msgstr "Izquierda"
 
-#: widgets/waveform/waveform_widget.py:3836
+#: widgets/waveform/waveform_widget.py:3841
 msgid "Right"
 msgstr "Derecha"
 
-#: widgets/waveform/waveform_widget.py:3839
-#: widgets/waveform/waveform_widget.py:3846
+#: widgets/waveform/waveform_widget.py:3844
+#: widgets/waveform/waveform_widget.py:3851
 msgid "Off"
 msgstr "Apagado"
 
-#: widgets/waveform/waveform_widget.py:3843
+#: widgets/waveform/waveform_widget.py:3848
 msgid "Show time"
 msgstr "Mostrar tiempo"
 
-#: widgets/waveform/waveform_widget.py:3849
+#: widgets/waveform/waveform_widget.py:3854
 msgid "On"
 msgstr "En"
 
-#: widgets/waveform/waveform_widget.py:3853
+#: widgets/waveform/waveform_widget.py:3858
 msgid "Label"
 msgstr "Etiqueta"
 
-#: widgets/waveform/waveform_widget.py:3876
+#: widgets/waveform/waveform_widget.py:3881
 msgid "Y mode"
 msgstr "Modo Y"
 
