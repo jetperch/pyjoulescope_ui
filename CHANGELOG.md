@@ -23,7 +23,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.5.2
 
-2026 Jun 10 [in progress]
+2026 Jun 12 [in progress]
 
 * Added test automation support.
 * Made the configuration portable across users and machines by substituting
@@ -34,6 +34,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Fixed Waveform hover OverflowError on stale off-plot data  #333
 * Added Wayland detection for possible future Qt-ADS fix  #316
   https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/pull/844
+* Fixed issues discovered by design review.
 
 
 ## 1.5.1
