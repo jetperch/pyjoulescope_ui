@@ -359,15 +359,26 @@ _SETTINGS_CLASS = {
         'default': 0,
         'flags': ['hide', 'tmp', 'ro'],
     },
+    'signal_filter': {
+        'dtype': 'int',
+        'brief': N_('Signal filter'),
+        'options': [
+            [0, 'off'],
+            [1, 'sinc1'],
+            [2, 'sinc2'],
+            [3, 'sinc3'],
+        ],
+        'default': 1,
+    },
     'gpi_filter': {
         'dtype': 'int',
         'brief': N_('GPI filter'),
         'detail': _GPI_FILTER_TOOLTIP,
         'options': [
-            [0, "off"],
-            [1, "toggle"],
-            [2, "first"],
-            [3, "majority"],
+            [0, 'off'],
+            [1, 'toggle'],
+            [2, 'first'],
+            [3, 'majority'],
         ],
         'default': 2,
     },
@@ -750,6 +761,8 @@ class Js320(Device):
                 self._driver_publish(f's/fuse/+/!clear', 0)
             elif value in _FUSE_IDS:
                 self._driver_publish(f's/fuse/{value}/engaged', 0)
+        elif topic == 'signal_filter':
+            self._driver_publish('s/dwnN/mode', value, timeout=0)
         elif topic == 'gpi_filter':
             self._driver_publish(f's/gpi/+/dwnN/mode', value, timeout=0)
         elif topic == 'i_scale':

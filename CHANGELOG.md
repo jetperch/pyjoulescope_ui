@@ -23,7 +23,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.5.2
 
-2026 Jun 12 [in progress]
+2026 Jun 14
 
 * Added test automation support.
 * Made the configuration portable across users and machines by substituting
@@ -35,6 +35,9 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added Wayland detection for possible future Qt-ADS fix  #316
   https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/pull/844
 * Fixed issues discovered by design review.
+* Added signal filter selection to JS320 device control widget.
+* Bumped versions:
+  * pyjoulescope_driver from 2.2.2 to 2.2.9
 
 
 ## 1.5.1
