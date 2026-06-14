@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.5.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-06-11 15:03-0400\n"
+"POT-Creation-Date: 2026-06-14 16:51-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -521,7 +521,7 @@ msgstr ""
 msgid "The application will automatically close when you change the locale."
 msgstr ""
 
-#: main.py:75 widgets/value/value_widget.py:685
+#: main.py:75 widgets/value/value_widget.py:774
 msgid "Multimeter"
 msgstr ""
 
@@ -1126,63 +1126,63 @@ msgid ""
 msgstr ""
 
 #: devices/jsdrv/js110.py:269 devices/jsdrv/js220.py:435
-#: devices/jsdrv/js320.py:397 widgets/device_control/fuse.py:103
+#: devices/jsdrv/js320.py:408 widgets/device_control/fuse.py:103
 #: widgets/waveform/waveform_widget.py:110
 msgid "Current"
 msgstr ""
 
 #: devices/jsdrv/js110.py:270 devices/jsdrv/js220.py:436
-#: devices/jsdrv/js320.py:398
+#: devices/jsdrv/js320.py:409
 msgid "Enable the current signal streaming."
 msgstr ""
 
 #: devices/jsdrv/js110.py:278 devices/jsdrv/js220.py:444
-#: devices/jsdrv/js320.py:406 widgets/waveform/waveform_widget.py:111
+#: devices/jsdrv/js320.py:417 widgets/waveform/waveform_widget.py:111
 msgid "Voltage"
 msgstr ""
 
 #: devices/jsdrv/js110.py:279 devices/jsdrv/js220.py:445
-#: devices/jsdrv/js320.py:407
+#: devices/jsdrv/js320.py:418
 msgid "Enable the voltage signal streaming."
 msgstr ""
 
 #: devices/jsdrv/js110.py:287 devices/jsdrv/js220.py:453
-#: devices/jsdrv/js320.py:415 widgets/waveform/waveform_widget.py:112
+#: devices/jsdrv/js320.py:426 widgets/waveform/waveform_widget.py:112
 msgid "Power"
 msgstr ""
 
 #: devices/jsdrv/js110.py:288 devices/jsdrv/js220.py:454
-#: devices/jsdrv/js320.py:416
+#: devices/jsdrv/js320.py:427
 msgid "Enable the power signal streaming."
 msgstr ""
 
 #: devices/jsdrv/js110.py:296 devices/jsdrv/js220.py:462
-#: devices/jsdrv/js320.py:424
+#: devices/jsdrv/js320.py:435
 msgid "Current Range"
 msgstr ""
 
 #: devices/jsdrv/js110.py:308 devices/jsdrv/js220.py:476
-#: devices/jsdrv/js320.py:438
+#: devices/jsdrv/js320.py:449
 msgid "GPI 0"
 msgstr ""
 
 #: devices/jsdrv/js110.py:309 devices/jsdrv/js220.py:477
-#: devices/jsdrv/js320.py:439
+#: devices/jsdrv/js320.py:450
 msgid "Enable the general purpose input 0 signal streaming."
 msgstr ""
 
 #: devices/jsdrv/js110.py:317 devices/jsdrv/js220.py:485
-#: devices/jsdrv/js320.py:447
+#: devices/jsdrv/js320.py:458
 msgid "GPI 1"
 msgstr ""
 
 #: devices/jsdrv/js110.py:318 devices/jsdrv/js220.py:486
-#: devices/jsdrv/js320.py:448
+#: devices/jsdrv/js320.py:459
 msgid "Enable the general purpose input 1 signal streaming."
 msgstr ""
 
 #: devices/jsdrv/js110.py:330 devices/jsdrv/js220.py:538
-#: devices/jsdrv/js320.py:500 devices/jsdrv/jsdrv_stream_buffer.py:108
+#: devices/jsdrv/js320.py:511 devices/jsdrv/jsdrv_stream_buffer.py:108
 #: devices/serial/serial_device.py:75
 msgid "Signal name"
 msgstr ""
@@ -1352,7 +1352,7 @@ msgid ""
 "high frequency events, select the sinc1 filter."
 msgstr ""
 
-#: devices/jsdrv/js220.py:383
+#: devices/jsdrv/js220.py:383 devices/jsdrv/js320.py:364
 msgid "Signal filter"
 msgstr ""
 
@@ -1368,56 +1368,56 @@ msgid ""
 "The sinc1 filter also runs on the instrument for reduced USB throughput."
 msgstr ""
 
-#: devices/jsdrv/js220.py:401 devices/jsdrv/js320.py:364
+#: devices/jsdrv/js220.py:401 devices/jsdrv/js320.py:375
 msgid "GPI filter"
 msgstr ""
 
-#: devices/jsdrv/js220.py:414 devices/jsdrv/js320.py:376
+#: devices/jsdrv/js220.py:414 devices/jsdrv/js320.py:387
 msgid "Current scale"
 msgstr ""
 
-#: devices/jsdrv/js220.py:419 devices/jsdrv/js320.py:381
+#: devices/jsdrv/js220.py:419 devices/jsdrv/js320.py:392
 msgid "Voltage scale"
 msgstr ""
 
-#: devices/jsdrv/js220.py:465 devices/jsdrv/js320.py:427
+#: devices/jsdrv/js220.py:465 devices/jsdrv/js320.py:438
 msgid ""
 "⚠ When enabled, no more than 3 GPIO signals (0, 1, 2, 3, T) may be enabled. "
 "If you attempt to enable too many signals, then the UI will display no data "
 "for any signal."
 msgstr ""
 
-#: devices/jsdrv/js220.py:494 devices/jsdrv/js320.py:456
+#: devices/jsdrv/js220.py:494 devices/jsdrv/js320.py:467
 msgid "GPI 2"
 msgstr ""
 
-#: devices/jsdrv/js220.py:495 devices/jsdrv/js320.py:457
+#: devices/jsdrv/js220.py:495 devices/jsdrv/js320.py:468
 msgid "Enable the general purpose input 2 signal streaming."
 msgstr ""
 
-#: devices/jsdrv/js220.py:503 devices/jsdrv/js320.py:465
+#: devices/jsdrv/js220.py:503 devices/jsdrv/js320.py:476
 msgid "GPI 3"
 msgstr ""
 
-#: devices/jsdrv/js220.py:504 devices/jsdrv/js320.py:466
+#: devices/jsdrv/js220.py:504 devices/jsdrv/js320.py:477
 msgid "Enable the general purpose input 3 signal streaming."
 msgstr ""
 
-#: devices/jsdrv/js220.py:512 devices/jsdrv/js320.py:474
+#: devices/jsdrv/js220.py:512 devices/jsdrv/js320.py:485
 #: widgets/waveform/waveform_widget.py:129
 msgid "Trigger input"
 msgstr ""
 
-#: devices/jsdrv/js220.py:513 devices/jsdrv/js320.py:475
+#: devices/jsdrv/js220.py:513 devices/jsdrv/js320.py:486
 msgid "Enable the trigger input signal streaming."
 msgstr ""
 
-#: devices/jsdrv/js220.py:523 devices/jsdrv/js320.py:485
+#: devices/jsdrv/js220.py:523 devices/jsdrv/js320.py:496
 #: devices/serial/serial_device.py:77 devices/serial/serial_device.py:81
 msgid "Serial"
 msgstr ""
 
-#: devices/jsdrv/js220.py:524 devices/jsdrv/js320.py:486
+#: devices/jsdrv/js220.py:524 devices/jsdrv/js320.py:497
 msgid "Serial data stream"
 msgstr ""
 
@@ -1724,7 +1724,7 @@ msgid "The statistics data stream source."
 msgstr ""
 
 #: widgets/accumulator/accumulator_widget.py:32
-#: widgets/value/value_widget.py:93
+#: widgets/value/value_widget.py:105
 msgid "The signal to display."
 msgstr ""
 
@@ -1796,7 +1796,7 @@ msgid "Update"
 msgstr ""
 
 #: widgets/device_control/device_update_dialog.py:25
-#: widgets/value/value_widget.py:167
+#: widgets/value/value_widget.py:189
 msgid "Device"
 msgstr ""
 
@@ -2344,7 +2344,7 @@ msgstr ""
 msgid "External Serial..."
 msgstr ""
 
-#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:694
+#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:783
 msgid "Value"
 msgstr ""
 
@@ -2483,7 +2483,7 @@ msgstr ""
 msgid "Configure statistics recording"
 msgstr ""
 
-#: widgets/trigger/trigger_widget.py:41 widgets/value/value_widget.py:106
+#: widgets/trigger/trigger_widget.py:41 widgets/value/value_widget.py:118
 msgid "Select the source device"
 msgstr ""
 
@@ -2664,28 +2664,38 @@ msgid ""
 "followed by units."
 msgstr ""
 
-#: widgets/value/value_widget.py:107
+#: widgets/value/value_widget.py:81
+msgid "The preferred SI prefix for each signal."
+msgstr ""
+
+#: widgets/value/value_widget.py:82
+msgid ""
+"A mapping from signal name to the preferred SI prefix. A missing entry or "
+"\"auto\" selects the prefix automatically."
+msgstr ""
+
+#: widgets/value/value_widget.py:119
 msgid ""
 "The values displayed by this widget come from a single source device. Select"
 " the source device here."
 msgstr ""
 
-#: widgets/value/value_widget.py:113
+#: widgets/value/value_widget.py:125
 msgid "Hold the display"
 msgstr ""
 
-#: widgets/value/value_widget.py:115
+#: widgets/value/value_widget.py:127
 msgid "When selected, prevent the display from updating."
 msgstr ""
 
-#: widgets/value/value_widget.py:116
+#: widgets/value/value_widget.py:128
 msgid ""
 "The UI also includes a global statistics hold button on the sidebar. When "
 "the global statistics hold button is selected, this button is disabled and "
 "has no effect."
 msgstr ""
 
-#: widgets/value/value_widget.py:119
+#: widgets/value/value_widget.py:131
 msgid ""
 "The displayed values normally update with each new statistics data computed "
 "by the device. When this button is selected, the display will not be "
@@ -2693,33 +2703,62 @@ msgid ""
 "selected)."
 msgstr ""
 
-#: widgets/value/value_widget.py:126
+#: widgets/value/value_widget.py:138
+msgid "Manual prefix active"
+msgstr ""
+
+#: widgets/value/value_widget.py:140
+msgid ""
+"This value uses a manually selected SI prefix rather than automatically "
+"choosing the best prefix for the present value. The prefix character is "
+"underlined to indicate the manual selection."
+msgstr ""
+
+#: widgets/value/value_widget.py:143
+msgid ""
+"Right-click and select \"Preferred prefix\" → \"auto\" to restore automatic "
+"prefix selection."
+msgstr ""
+
+#: widgets/value/value_widget.py:148
 msgid "Accrue values over time"
 msgstr ""
 
-#: widgets/value/value_widget.py:128
+#: widgets/value/value_widget.py:150
 msgid ""
 "Current, voltage, and power are normally computed over a single statistics "
 "frequency interval. Press this button to accrue the values indefinitely. "
 "Press again to return to normal operation."
 msgstr ""
 
-#: widgets/value/value_widget.py:132
+#: widgets/value/value_widget.py:154
 msgid ""
 "Note that this button does not affect the charge and energy accumulation. "
 "Both accumulate indefinitely regardless of this button state."
 msgstr ""
 
-#: widgets/value/value_widget.py:215
+#: widgets/value/value_widget.py:237
 msgid "Not present"
 msgstr ""
 
-#: widgets/value/value_widget.py:235
+#: widgets/value/value_widget.py:257
 msgid "Hold"
 msgstr ""
 
-#: widgets/value/value_widget.py:243
+#: widgets/value/value_widget.py:265
 msgid "Accrue"
+msgstr ""
+
+#: widgets/value/value_widget.py:599 widgets/waveform/waveform_widget.py:3426
+msgid "Preferred prefix"
+msgstr ""
+
+#: widgets/value/value_widget.py:604
+msgid "auto"
+msgstr ""
+
+#: widgets/value/value_widget.py:606
+msgid "none"
 msgstr ""
 
 #: widgets/view_manager/view_manager_widget.py:108
@@ -3226,10 +3265,6 @@ msgstr ""
 
 #: widgets/waveform/waveform_widget.py:3412
 msgid "Logarithmic zero"
-msgstr ""
-
-#: widgets/waveform/waveform_widget.py:3426
-msgid "Preferred prefix"
 msgstr ""
 
 #: widgets/waveform/waveform_widget.py:3485
