@@ -23,9 +23,12 @@ import numpy as np
 class StatisticsRecord:
     CAPABILITIES = []
     _instances = []
+    _stop_utc = None  # the class-wide scheduled stop time (time64) or None
     _log = logging.getLogger(f'{__name__}.cls')
     EVENTS = {
         '!stop': Metadata('bool', 'Recording stopped', flags=['ro', 'skip_undo']),
+        '!stop_changed': Metadata('i64', 'Scheduled stop time (time64) or 0 when cleared',
+                                  flags=['ro', 'skip_undo']),
     }
 
     def __init__(self, topic, filename, config=None):
@@ -137,12 +140,27 @@ class StatisticsRecord:
             StatisticsRecord(topic, source['path'], value)  # tracks itself in _instances
 
     @staticmethod
+    def on_cls_action_stop_set(pubsub, topic, value):
+        """Schedule (or clear) the stop time for the active statistics recording.
+
+        The actual stop is driven by the record status widget on the wall-clock
+        countdown; this simply records and broadcasts the scheduled stop time.
+
+        :param value: The absolute time64 stop time, or None/0 to clear.
+        """
+        utc_stop = value if value else None
+        StatisticsRecord._stop_utc = utc_stop
+        StatisticsRecord._log.info('stop_set %s', utc_stop)
+        pubsub.publish(f'{get_topic_name(StatisticsRecord)}/events/!stop_changed', utc_stop or 0)
+
+    @staticmethod
     def on_cls_action_toggled(pubsub, topic, value):
         if bool(value):
             StatisticsRecord._log.info('start_request')
             StatisticsRecordConfigDialog()
         else:
             StatisticsRecord._log.info('stop')
+            StatisticsRecord._stop_utc = None
             while len(StatisticsRecord._instances):
                 obj = StatisticsRecord._instances.pop()
                 obj.on_action_stop()

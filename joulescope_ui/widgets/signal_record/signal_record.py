@@ -35,9 +35,12 @@ _DISK_MONITOR_FULL = f'{_DISK_MONITOR_BASE}/events/full'
 class SignalRecord:
     CAPABILITIES = []
     _instances = []
+    _stop_utc = None  # the class-wide scheduled stop time (time64) or None
     _log = logging.getLogger(f'{__name__}.cls')
     EVENTS = {
         '!stop': Metadata('bool', 'Recording stopped', flags=['ro', 'skip_undo']),
+        '!stop_changed': Metadata('i64', 'Scheduled stop time (time64) or 0 when cleared',
+                                  flags=['ro', 'skip_undo']),
     }
 
     def __init__(self, config):
@@ -222,12 +225,27 @@ class SignalRecord:
         SignalRecord._instances.append(obj)
 
     @staticmethod
+    def on_cls_action_stop_set(pubsub, topic, value):
+        """Schedule (or clear) the stop time for the active signal recording.
+
+        The actual stop is driven by the record status widget on the wall-clock
+        countdown; this simply records and broadcasts the scheduled stop time.
+
+        :param value: The absolute time64 stop time, or None/0 to clear.
+        """
+        utc_stop = value if value else None
+        SignalRecord._stop_utc = utc_stop
+        SignalRecord._log.info('stop_set %s', utc_stop)
+        pubsub.publish(f'{get_topic_name(SignalRecord)}/events/!stop_changed', utc_stop or 0)
+
+    @staticmethod
     def on_cls_action_toggled(pubsub, topic, value):
         if bool(value):
             SignalRecord._log.info('start_request')
             SignalRecordConfigDialog()
         else:
             SignalRecord._log.info('stop')
+            SignalRecord._stop_utc = None
             while len(SignalRecord._instances):
                 obj = SignalRecord._instances.pop()
                 obj.on_action_stop()
