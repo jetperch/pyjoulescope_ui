@@ -14,10 +14,10 @@
 
 from PySide6 import QtWidgets, QtGui, QtCore
 from joulescope_ui import CAPABILITIES, register, N_, P_, get_topic_name, tooltip_format
-from joulescope_ui.widget_tools import settings_action_create, context_menu_show
+from joulescope_ui.widget_tools import CallableAction, settings_action_create, context_menu_show
 from joulescope_ui.styles import styled_widget, color_as_qcolor, font_as_qfont
 from joulescope_ui.units import RE_IS_NUMBER, UNITS_SETTING, \
-    convert_units, effective_units, unit_prefix, three_sig_figs
+    convert_units, effective_units, unit_prefix, prefix_to_scale, three_sig_figs
 from joulescope_ui.ui_util import comboBoxConfig, comboBoxSelectItemByText
 from joulescope_ui.source_selector import SourceSelector
 import datetime
@@ -76,7 +76,19 @@ SETTINGS = {
                      + 'The number may optionally be followed by units.'),
         'default': '',
     },
+    'prefix_preferred': {
+        'dtype': 'obj',
+        'brief': N_('The preferred SI prefix for each signal.'),
+        'detail': N_('A mapping from signal name to the preferred SI prefix. '
+                     + 'A missing entry or "auto" selects the prefix automatically.'),
+        'default': {},
+    },
 }
+
+
+# The preferred prefix menu options: 'auto' and the manual SI prefixes.
+# '' is the "none" (base unit) selection.
+_PREFIX_OPTIONS = ['auto', 'k', '', 'm', 'µ', 'n']
 
 
 def _settings_alter(**kwargs):
@@ -120,6 +132,16 @@ _HOLD_TOOLTIP = tooltip_format(
         data computed by the device.  When this button is selected,
         the display will not be updated.  However, the statistics
         will continue accumulate and accrue (if selected).""")
+    ]))
+
+_PREFIX_TOOLTIP = tooltip_format(
+    N_("Manual prefix active"),
+    P_([
+        N_("""This value uses a manually selected SI prefix rather than
+        automatically choosing the best prefix for the present value.
+        The prefix character is underlined to indicate the manual selection."""),
+        N_("""Right-click and select "Preferred prefix" → "auto" to restore
+        automatic prefix selection.""")
     ]))
 
 _ACCRUE_TOOLTIP = tooltip_format(
@@ -304,6 +326,7 @@ class _InnerWidget(QtWidgets.QWidget):
         self._main = 'avg'
         self._fields = ['avg', 'std', 'min', 'max', 'p2p']
         self._geometry = None
+        self._signal_geometry = {}
         self._clipboard = None
         self._precision = 6
         self.setMouseTracking(True)
@@ -329,6 +352,7 @@ class _InnerWidget(QtWidgets.QWidget):
             return
 
         self._geometry = {}
+        self._signal_geometry = {}
         painter = QtGui.QPainter(self)
         v = parent.style_obj['vars']
         x_border, y_border = 10, 10
@@ -438,6 +462,7 @@ class _InnerWidget(QtWidgets.QWidget):
                 painter.setPen(line_color)
                 painter.drawLine(x_border, y_line, x_max - x_border, y_line)
             y_start = y
+            self._signal_geometry[signal_name] = (y_start, y_start + y_signal)
             x = x_pos_dict['margin.left'][1]
 
             if parent.show_titles:
@@ -473,6 +498,10 @@ class _InnerWidget(QtWidgets.QWidget):
                 signal_value = signal[self._main]['value']
                 signal_units = signal[self._main]['units']
                 scale *= divisor
+            prefix_preferred = (parent.prefix_preferred or {}).get(signal_name, 'auto')
+            if prefix_preferred != 'auto':
+                prefix = prefix_preferred
+                scale = prefix_to_scale(prefix_preferred) * divisor
             if len(prefix) != 1:
                 prefix = ' '
             v_str = self._value_format(signal_value / scale)
@@ -483,8 +512,12 @@ class _InnerWidget(QtWidgets.QWidget):
             painter.drawText(x_pos_dict['main.number'][0], y, v_str[1:])
             x0, x1 = x_pos_dict['main.units']
             xk = x0 + ((x1 - x0) - main_font_metrics.boundingRect(signal_units).width()) // 2
-            painter.drawText(xk - main_font_metrics.horizontalAdvance(prefix), y, prefix)
+            x_prefix = xk - main_font_metrics.horizontalAdvance(prefix)
+            painter.drawText(x_prefix, y, prefix)
             painter.drawText(xk, y, f'{signal_units}')
+            if prefix_preferred != 'auto':
+                prefix_width = main_font_metrics.horizontalAdvance(prefix if prefix.strip() else 'm')
+                painter.drawLine(x_prefix, y + 2, x_prefix + prefix_width, y + 2)
             if divisor_units:
                 painter.drawText(x_pos_dict['main.divisor'][0], y, divisor_units)
             units = f'{prefix}{signal_units}{divisor_units}'
@@ -533,10 +566,63 @@ class _InnerWidget(QtWidgets.QWidget):
                 return s
         return None
 
+    def _pos_to_signal(self, y):
+        for signal_name, (y0, y1) in self._signal_geometry.items():
+            if y0 <= y < y1:
+                return signal_name
+        return None
+
     def mouseMoveEvent(self, event: QtGui.QMouseEvent):
         event.accept()
+        parent: ValueWidget = self.parent()
+        signal_name = self._pos_to_signal(event.position().y())
+        prefix_preferred = 'auto'
+        if signal_name is not None:
+            prefix_preferred = (parent.prefix_preferred or {}).get(signal_name, 'auto')
+        if prefix_preferred != 'auto':
+            QtWidgets.QToolTip.showText(event.globalPosition().toPoint(), _PREFIX_TOOLTIP, self)
+        else:
+            QtWidgets.QToolTip.hideText()
+
+    def _on_prefix_preferred(self, parent, signal_name, value):
+        prefix_preferred = dict(parent.prefix_preferred or {})
+        if value == 'auto':
+            prefix_preferred.pop(signal_name, None)
+        else:
+            prefix_preferred[signal_name] = value
+        topic = f'{get_topic_name(parent)}/settings/prefix_preferred'
+        parent.pubsub.publish(topic, prefix_preferred)
+        self.repaint()
+
+    def _prefix_submenu(self, menu, parent, signal_name):
+        current = (parent.prefix_preferred or {}).get(signal_name, 'auto')
+        sub = menu.addMenu(N_('Preferred prefix'))
+        group = QtGui.QActionGroup(sub)
+        group.setExclusive(True)
+        for value in _PREFIX_OPTIONS:
+            if value == 'auto':
+                label = N_('auto')
+            elif value == '':
+                label = N_('none')
+            else:
+                label = value
+            CallableAction(group, label,
+                           lambda *a, v=value: self._on_prefix_preferred(parent, signal_name, v),
+                           checkable=True, checked=(value == current))
+        return sub
 
     def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.RightButton:
+            event.accept()
+            parent: ValueWidget = self.parent()
+            menu = QtWidgets.QMenu(self)
+            signal_name = self._pos_to_signal(event.position().y())
+            if signal_name is not None:
+                self._prefix_submenu(menu, parent, signal_name)
+            parent.source_selector.submenu_factory(menu)
+            settings_action_create(parent, menu)
+            context_menu_show(menu, event)
+            return
         if event.button() != QtCore.Qt.LeftButton:
             return super().mousePressEvent(event)
         if self._geometry is None:
@@ -666,6 +752,9 @@ class _BaseWidget(QtWidgets.QWidget):
 
     def on_setting_show_accrue(self, value):
         self._accrue_widget.setVisible(bool(value))
+
+    def on_setting_prefix_preferred(self, value):
+        self._inner.repaint()
 
     def _on_mousePressEvent(self, event):
         event.accept()

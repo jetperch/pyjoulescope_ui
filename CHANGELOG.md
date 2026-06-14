@@ -28,6 +28,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added test automation support.
 * Made the configuration portable across users and machines by substituting
   home-directory path prefixes with neutral tokens on save #312.
+* Added "Preferred prefix" to the Value & Multimeter widgets #335
 * Added File -> Config menu to export and import the configuration #312.
 * Fixed window disappearing when switching views.
 * Fixed dual marker right-click region #334.
