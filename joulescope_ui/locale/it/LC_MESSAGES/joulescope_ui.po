@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.4\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-06-14 16:51-0400\n"
+"POT-Creation-Date: 2026-06-14 17:40-0400\n"
 "PO-Revision-Date: 2024-04-18 10:43-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: it <LL@li.org>\n"
@@ -2156,6 +2156,7 @@ msgid "Threshold 2"
 msgstr "Soglia 2"
 
 #: widgets/device_control/fuse.py:89 widgets/memory/memory_widget.py:225
+#: widgets/record_status/record_stop_config_widget.py:30
 #: widgets/trigger/trigger_widget.py:114 widgets/trigger/trigger_widget.py:222
 msgid "Duration"
 msgstr "Durata"
@@ -2165,6 +2166,7 @@ msgid "Fuse response"
 msgstr "Risposta del fusibile"
 
 #: widgets/device_control/fuse.py:102
+#: widgets/record_status/record_stop_config_widget.py:31
 #: widgets/serial_console/serial_console_widget.py:72
 msgid "Time"
 msgstr "Tempo"
@@ -2570,25 +2572,65 @@ msgstr "Chiaro sul gioco"
 msgid "The notes value."
 msgstr "Il valore delle note."
 
-#: widgets/record_status/record_status_widget.py:23
+#: widgets/record_status/record_status_widget.py:25
 msgid "Path:"
 msgstr "Percorso:"
 
-#: widgets/record_status/record_status_widget.py:24
+#: widgets/record_status/record_status_widget.py:26
 msgid "Filename:"
 msgstr "Nome del file:"
 
+#: widgets/record_status/record_status_widget.py:27
+msgid "Set stop duration/time"
+msgstr "Imposta durata/tempo di stop"
+
 #: widgets/record_status/record_status_widget.py:28
+msgid "Clear scheduled stop"
+msgstr "Chiara interruzione programmata"
+
+#: widgets/record_status/record_status_widget.py:29
+msgid "left"
+msgstr "sinistra"
+
+#: widgets/record_status/record_status_widget.py:33
 msgid "Signal recording in progress"
 msgstr "Registrazione del segnale in corso"
 
-#: widgets/record_status/record_status_widget.py:29
+#: widgets/record_status/record_status_widget.py:34
 msgid "Statistics recording in progress"
 msgstr "Registrazione statistica in corso"
 
-#: widgets/record_status/record_status_widget.py:34
+#: widgets/record_status/record_status_widget.py:45
 msgid "Record Status"
 msgstr "Stato della registrazione"
+
+#: widgets/record_status/record_stop_config_widget.py:25
+msgid "Duration so far"
+msgstr "Durata finora"
+
+#: widgets/record_status/record_stop_config_widget.py:26
+msgid "Stop recording"
+msgstr "Interrompi la registrazione"
+
+#: widgets/record_status/record_stop_config_widget.py:27
+msgid "When manually stopped"
+msgstr "Quando viene arrestato manualmente"
+
+#: widgets/record_status/record_stop_config_widget.py:28
+msgid "After a duration"
+msgstr "Dopo un periodo di tempo"
+
+#: widgets/record_status/record_stop_config_widget.py:29
+msgid "At a specific time"
+msgstr "In un momento specifico"
+
+#: widgets/record_status/record_stop_config_widget.py:32
+msgid "Configure recording stop"
+msgstr "Configurazione dell'arresto della registrazione"
+
+#: widgets/record_status/record_stop_config_widget.py:33
+msgid "The selected stop time is in the past."
+msgstr "Il tempo di arresto selezionato è nel passato."
 
 #: widgets/serial_console/serial_console_widget.py:31
 msgid "Serial Console"
@@ -2752,7 +2794,7 @@ msgstr "barra laterale"
 msgid "The disk is full"
 msgstr "Il disco è pieno"
 
-#: widgets/signal_record/signal_record.py:57
+#: widgets/signal_record/signal_record.py:60
 msgid "Could not open file for write"
 msgstr "Impossibile aprire il file per la scrittura"
 

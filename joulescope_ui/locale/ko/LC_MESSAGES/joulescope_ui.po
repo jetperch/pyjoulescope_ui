@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-06-14 16:51-0400\n"
+"POT-Creation-Date: 2026-06-14 17:40-0400\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: ko <LL@li.org>\n"
@@ -1973,6 +1973,7 @@ msgid "Threshold 2"
 msgstr "임계값 2"
 
 #: widgets/device_control/fuse.py:89 widgets/memory/memory_widget.py:225
+#: widgets/record_status/record_stop_config_widget.py:30
 #: widgets/trigger/trigger_widget.py:114 widgets/trigger/trigger_widget.py:222
 msgid "Duration"
 msgstr "지속 시간"
@@ -1982,6 +1983,7 @@ msgid "Fuse response"
 msgstr "퓨즈 응답"
 
 #: widgets/device_control/fuse.py:102
+#: widgets/record_status/record_stop_config_widget.py:31
 #: widgets/serial_console/serial_console_widget.py:72
 msgid "Time"
 msgstr "시간"
@@ -2348,25 +2350,65 @@ msgstr "플레이 시 클리어"
 msgid "The notes value."
 msgstr "메모 값입니다."
 
-#: widgets/record_status/record_status_widget.py:23
+#: widgets/record_status/record_status_widget.py:25
 msgid "Path:"
 msgstr "경로:"
 
-#: widgets/record_status/record_status_widget.py:24
+#: widgets/record_status/record_status_widget.py:26
 msgid "Filename:"
 msgstr "파일 이름:"
 
+#: widgets/record_status/record_status_widget.py:27
+msgid "Set stop duration/time"
+msgstr "정지 지속 시간/시간 설정"
+
 #: widgets/record_status/record_status_widget.py:28
+msgid "Clear scheduled stop"
+msgstr "명확한 예약 종료"
+
+#: widgets/record_status/record_status_widget.py:29
+msgid "left"
+msgstr "왼쪽"
+
+#: widgets/record_status/record_status_widget.py:33
 msgid "Signal recording in progress"
 msgstr "신호 기록 진행 중"
 
-#: widgets/record_status/record_status_widget.py:29
+#: widgets/record_status/record_status_widget.py:34
 msgid "Statistics recording in progress"
 msgstr "통계 기록 진행 중"
 
-#: widgets/record_status/record_status_widget.py:34
+#: widgets/record_status/record_status_widget.py:45
 msgid "Record Status"
 msgstr "기록 상태"
+
+#: widgets/record_status/record_stop_config_widget.py:25
+msgid "Duration so far"
+msgstr "현재까지의 소요 시간"
+
+#: widgets/record_status/record_stop_config_widget.py:26
+msgid "Stop recording"
+msgstr "기록 중지"
+
+#: widgets/record_status/record_stop_config_widget.py:27
+msgid "When manually stopped"
+msgstr "수동으로 중지할 때"
+
+#: widgets/record_status/record_stop_config_widget.py:28
+msgid "After a duration"
+msgstr "지정된 시간이 지난 후"
+
+#: widgets/record_status/record_stop_config_widget.py:29
+msgid "At a specific time"
+msgstr "특정 시점에"
+
+#: widgets/record_status/record_stop_config_widget.py:32
+msgid "Configure recording stop"
+msgstr "기록 중지 설정"
+
+#: widgets/record_status/record_stop_config_widget.py:33
+msgid "The selected stop time is in the past."
+msgstr "선택한 종료 시간은 이미 지난 시점입니다."
 
 #: widgets/serial_console/serial_console_widget.py:31
 msgid "Serial Console"
@@ -2522,7 +2564,7 @@ msgstr "사이드바"
 msgid "The disk is full"
 msgstr "디스크가 꽉 찼습니다."
 
-#: widgets/signal_record/signal_record.py:57
+#: widgets/signal_record/signal_record.py:60
 msgid "Could not open file for write"
 msgstr "쓰기 위해 파일을 열 수 없습니다."
 

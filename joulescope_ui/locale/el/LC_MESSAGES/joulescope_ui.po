@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-06-14 16:51-0400\n"
+"POT-Creation-Date: 2026-06-14 17:40-0400\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: el <LL@li.org>\n"
@@ -2158,6 +2158,7 @@ msgid "Threshold 2"
 msgstr "Κατώφλι 2"
 
 #: widgets/device_control/fuse.py:89 widgets/memory/memory_widget.py:225
+#: widgets/record_status/record_stop_config_widget.py:30
 #: widgets/trigger/trigger_widget.py:114 widgets/trigger/trigger_widget.py:222
 msgid "Duration"
 msgstr "Διάρκεια"
@@ -2167,6 +2168,7 @@ msgid "Fuse response"
 msgstr "Απόκριση ασφάλειας"
 
 #: widgets/device_control/fuse.py:102
+#: widgets/record_status/record_stop_config_widget.py:31
 #: widgets/serial_console/serial_console_widget.py:72
 msgid "Time"
 msgstr "Χρόνος"
@@ -2570,25 +2572,65 @@ msgstr "Καθαρό στο παιχνίδι"
 msgid "The notes value."
 msgstr "Η τιμή των σημειώσεων."
 
-#: widgets/record_status/record_status_widget.py:23
+#: widgets/record_status/record_status_widget.py:25
 msgid "Path:"
 msgstr "Μονοπάτι:"
 
-#: widgets/record_status/record_status_widget.py:24
+#: widgets/record_status/record_status_widget.py:26
 msgid "Filename:"
 msgstr "Όνομα αρχείου: Jouloulouce:"
 
+#: widgets/record_status/record_status_widget.py:27
+msgid "Set stop duration/time"
+msgstr "Ρύθμιση διάρκειας/χρόνου διακοπής"
+
 #: widgets/record_status/record_status_widget.py:28
+msgid "Clear scheduled stop"
+msgstr "Σαφής προγραμματισμένη διακοπή"
+
+#: widgets/record_status/record_status_widget.py:29
+msgid "left"
+msgstr "αριστερά"
+
+#: widgets/record_status/record_status_widget.py:33
 msgid "Signal recording in progress"
 msgstr "Καταγραφή σήματος σε εξέλιξη"
 
-#: widgets/record_status/record_status_widget.py:29
+#: widgets/record_status/record_status_widget.py:34
 msgid "Statistics recording in progress"
 msgstr "Καταγραφή στατιστικών στοιχείων σε εξέλιξη"
 
-#: widgets/record_status/record_status_widget.py:34
+#: widgets/record_status/record_status_widget.py:45
 msgid "Record Status"
 msgstr "Κατάσταση εγγραφής"
+
+#: widgets/record_status/record_stop_config_widget.py:25
+msgid "Duration so far"
+msgstr "Διάρκεια μέχρι τώρα"
+
+#: widgets/record_status/record_stop_config_widget.py:26
+msgid "Stop recording"
+msgstr "Διακοπή εγγραφής"
+
+#: widgets/record_status/record_stop_config_widget.py:27
+msgid "When manually stopped"
+msgstr "Όταν σταματάει χειροκίνητα"
+
+#: widgets/record_status/record_stop_config_widget.py:28
+msgid "After a duration"
+msgstr "Μετά από μια διάρκεια"
+
+#: widgets/record_status/record_stop_config_widget.py:29
+msgid "At a specific time"
+msgstr "Σε μια συγκεκριμένη χρονική στιγμή"
+
+#: widgets/record_status/record_stop_config_widget.py:32
+msgid "Configure recording stop"
+msgstr "Ρύθμιση διακοπής εγγραφής"
+
+#: widgets/record_status/record_stop_config_widget.py:33
+msgid "The selected stop time is in the past."
+msgstr "Ο επιλεγμένος χρόνος διακοπής βρίσκεται στο παρελθόν."
 
 #: widgets/serial_console/serial_console_widget.py:31
 msgid "Serial Console"
@@ -2753,7 +2795,7 @@ msgstr "sidebar"
 msgid "The disk is full"
 msgstr "Ο δίσκος είναι γεμάτος"
 
-#: widgets/signal_record/signal_record.py:57
+#: widgets/signal_record/signal_record.py:60
 msgid "Could not open file for write"
 msgstr "Δεν κατέστη δυνατό το άνοιγμα αρχείου για εγγραφή"
 

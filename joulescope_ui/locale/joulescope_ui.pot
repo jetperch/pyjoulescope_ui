@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.5.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-06-14 16:51-0400\n"
+"POT-Creation-Date: 2026-06-14 17:40-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1912,6 +1912,7 @@ msgid "Threshold 2"
 msgstr ""
 
 #: widgets/device_control/fuse.py:89 widgets/memory/memory_widget.py:225
+#: widgets/record_status/record_stop_config_widget.py:30
 #: widgets/trigger/trigger_widget.py:114 widgets/trigger/trigger_widget.py:222
 msgid "Duration"
 msgstr ""
@@ -1921,6 +1922,7 @@ msgid "Fuse response"
 msgstr ""
 
 #: widgets/device_control/fuse.py:102
+#: widgets/record_status/record_stop_config_widget.py:31
 #: widgets/serial_console/serial_console_widget.py:72
 msgid "Time"
 msgstr ""
@@ -2280,24 +2282,64 @@ msgstr ""
 msgid "The notes value."
 msgstr ""
 
-#: widgets/record_status/record_status_widget.py:23
+#: widgets/record_status/record_status_widget.py:25
 msgid "Path:"
 msgstr ""
 
-#: widgets/record_status/record_status_widget.py:24
+#: widgets/record_status/record_status_widget.py:26
 msgid "Filename:"
 msgstr ""
 
+#: widgets/record_status/record_status_widget.py:27
+msgid "Set stop duration/time"
+msgstr ""
+
 #: widgets/record_status/record_status_widget.py:28
-msgid "Signal recording in progress"
+msgid "Clear scheduled stop"
 msgstr ""
 
 #: widgets/record_status/record_status_widget.py:29
-msgid "Statistics recording in progress"
+msgid "left"
+msgstr ""
+
+#: widgets/record_status/record_status_widget.py:33
+msgid "Signal recording in progress"
 msgstr ""
 
 #: widgets/record_status/record_status_widget.py:34
+msgid "Statistics recording in progress"
+msgstr ""
+
+#: widgets/record_status/record_status_widget.py:45
 msgid "Record Status"
+msgstr ""
+
+#: widgets/record_status/record_stop_config_widget.py:25
+msgid "Duration so far"
+msgstr ""
+
+#: widgets/record_status/record_stop_config_widget.py:26
+msgid "Stop recording"
+msgstr ""
+
+#: widgets/record_status/record_stop_config_widget.py:27
+msgid "When manually stopped"
+msgstr ""
+
+#: widgets/record_status/record_stop_config_widget.py:28
+msgid "After a duration"
+msgstr ""
+
+#: widgets/record_status/record_stop_config_widget.py:29
+msgid "At a specific time"
+msgstr ""
+
+#: widgets/record_status/record_stop_config_widget.py:32
+msgid "Configure recording stop"
+msgstr ""
+
+#: widgets/record_status/record_stop_config_widget.py:33
+msgid "The selected stop time is in the past."
 msgstr ""
 
 #: widgets/serial_console/serial_console_widget.py:31
@@ -2450,7 +2492,7 @@ msgstr ""
 msgid "The disk is full"
 msgstr ""
 
-#: widgets/signal_record/signal_record.py:57
+#: widgets/signal_record/signal_record.py:60
 msgid "Could not open file for write"
 msgstr ""
 
