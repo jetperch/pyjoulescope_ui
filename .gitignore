@@ -44,6 +44,8 @@ flatpak-build/
 repo/
 *.flatpak
 .flatpak-builder/
+# Auto-downloaded by flatpak/gen_python_modules.sh
+flatpak/flatpak-pip-generator
 
 # UI test screenshot artifacts
 uitest_artifacts/

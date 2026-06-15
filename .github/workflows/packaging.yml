@@ -97,6 +97,55 @@ jobs:
           path: dist/*.tar.gz
           if-no-files-found: error
 
+  build_flatpak:
+    name: Build Flatpak ${{ matrix.variant.arch }}
+    needs:
+      - build_sdist
+    if: github.event_name == 'push'
+    strategy:
+      fail-fast: false
+      matrix:
+        variant:
+          - arch: x86_64
+            runner: ubuntu-24.04
+          - arch: aarch64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.variant.runner }}
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-48
+      options: --privileged
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+
+      # The app module installs the prepared sdist (translations compiled,
+      # tokens applied) rather than rebuilding from source in the sandbox.
+      - name: Download python sdist artifact
+        uses: actions/download-artifact@v6
+        with:
+          name: sdist
+          path: dist/
+
+      # flatpak/python3-modules.json is committed and already pins wheels for
+      # both x86_64 and aarch64 (each tagged with only-arches), so the build
+      # consumes it directly -- no per-arch regeneration needed.  Regenerate it
+      # with flatpak/gen_python_modules.sh only when dependencies change.
+      - name: Build Flatpak
+        uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          bundle: joulescope-ui-${{ matrix.variant.arch }}.flatpak
+          manifest-path: com.jetperch.JoulescopeUI.yml
+          cache-key: flatpak-builder-${{ matrix.variant.arch }}-${{ github.sha }}
+          arch: ${{ matrix.variant.arch }}
+          verbose: true
+
+      - name: Upload Flatpak artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: flatpak-${{ matrix.variant.arch }}
+          path: joulescope-ui-${{ matrix.variant.arch }}.flatpak
+          if-no-files-found: error
+
   build_installers:
     name: Build ${{ matrix.os }}, ${{ matrix.dist }}
     needs:
@@ -245,6 +294,7 @@ jobs:
     if: github.event_name == 'push' && startswith(github.ref, 'refs/tags/v')
     needs:
       - build_sdist
+      - build_flatpak
       - build_installers
     runs-on: ubuntu-latest
     permissions:
@@ -276,9 +326,19 @@ jobs:
           merge-multiple: true
           path: dist_installer/
 
+      # Flatpak bundles are kept out of dist_installer/ so ci/publish.py (the
+      # in-app auto-updater index) ignores them; Flatpak self-updates via
+      # Flatpak/Flathub.  They are attached to the GitHub Release below.
+      - name: Download Flatpak artifacts
+        uses: actions/download-artifact@v6
+        with:
+          pattern: flatpak-*
+          merge-multiple: true
+          path: dist_flatpak/
+
       - name: Display artifacts
         shell: bash
-        run: ls dist_installer/*
+        run: ls dist_installer/* dist_flatpak/*
 
       - name: Publish to download.joulescope.com
         env:
@@ -298,3 +358,4 @@ jobs:
         with:
           files: |
             dist_installer/*
+            dist_flatpak/*

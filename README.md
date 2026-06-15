@@ -63,6 +63,10 @@ page for the latest stable build.
 You can download the latest and previous alpha, beta, and stable builds
 [here](https://download.joulescope.com/joulescope_install/index_v2.html).
 
+Linux users can alternatively install the [Flatpak](https://flatpak.org/)
+bundle.  See [docs/flatpak.md](docs/flatpak.md), which also covers the
+host udev rules required for USB device access.
+
 
 ## Run as python package
 

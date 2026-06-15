@@ -23,7 +23,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.5.2
 
-2026 Jun 14
+2026 Jun 15
 
 * Added test automation support.
 * Added record for duration feature #326
@@ -38,6 +38,7 @@ This file contains the list of changes made to pyjoulescope_ui.
   https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System/pull/844
 * Fixed issues discovered by design review.
 * Added signal filter selection to JS320 device control widget.
+* Added Linux Flatpak package #327.
 * Bumped versions:
   * pyjoulescope_driver from 2.2.2 to 2.2.9
 

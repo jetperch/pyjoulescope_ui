@@ -1,0 +1,122 @@
+app-id: com.jetperch.JoulescopeUI
+runtime: org.freedesktop.Platform
+runtime-version: '25.08'
+sdk: org.freedesktop.Sdk
+command: joulescope_ui
+
+finish-args:
+  - --share=ipc
+  # Grant BOTH X11 and Wayland sockets.  Do NOT use --socket=fallback-x11:
+  # alongside --socket=wayland it makes flatpak drop X11 on Wayland sessions
+  # (even with --socket=x11 present), so the sandbox gets no DISPLAY and xcb
+  # cannot start.  Plain --socket=x11 keeps DISPLAY available for XWayland.
+  - --socket=x11
+  - --socket=wayland
+  # Prefer XWayland (xcb), falling back to native Wayland only if X11 is
+  # unavailable.  Qt-ADS has a Wayland docking bug until upstream PR #844 lands
+  # (Qt-Advanced-Docking-System#844 / issue #316), so xcb is the better default.
+  # Override per-run to test native Wayland: --env=QT_QPA_PLATFORM=wayland
+  # When #844 ships, drop this line to let Qt auto-select.
+  - --env=QT_QPA_PLATFORM=xcb;wayland
+  # Raw USB access for the Joulescope.  This only grants the sandbox access
+  # that the logged-in user already has, so the HOST must have the Joulescope
+  # udev rules (TAG+="uaccess") installed.  See docs/flatpak.md.
+  - --device=all
+  # Software update checks and the optional crash reporter.
+  - --share=network
+  # Open and save JLS captures and exports.
+  - --filesystem=home
+  - --filesystem=xdg-documents
+
+cleanup:
+  - /include
+  - /lib/pkgconfig
+  - /man
+  - /share/aclocal
+  - /share/devhelp
+  - /share/doc
+  - /share/gtk-doc
+  - /share/man
+  - /share/pkgconfig
+  - '*.la'
+  - '*.a'
+
+modules:
+  # 1. Native USB library.  The pyjoulescope_driver / pyjls / joulescope
+  #    manylinux wheels dynamically link libusb-1.0, which the freedesktop
+  #    runtime does not expose to the app sandbox, so we bundle it.
+  - name: libusb
+    buildsystem: autotools
+    config-opts:
+      - --disable-static
+    sources:
+      - type: archive
+        url: https://github.com/libusb/libusb/releases/download/v1.0.27/libusb-1.0.27.tar.bz2
+        sha256: ffaa41d741a8a3bee244ac8e54a72ea05bf2879663c098c82fc5757853441575
+
+  # 1b. Kerberos/GSSAPI.  The bundled Qt6Network (from the PySide6 wheel) links
+  #     libgssapi_krb5.so.2, which the freedesktop runtime does not ship; PySide6
+  #     and PySide6QtAds fail to import without it.  The UI never uses Negotiate
+  #     auth -- this only satisfies the dynamic linker.
+  - name: krb5
+    buildsystem: autotools
+    subdir: src
+    # krb5 1.21.x has K&R-style declarations that the SDK's C23 gcc rejects
+    # ("()" now means "(void)"); build as gnu17 to restore the old semantics.
+    build-options:
+      cflags: -std=gnu17
+    config-opts:
+      - --disable-static
+      - --without-ldap
+      - --without-tcl
+      - --without-keyutils
+    sources:
+      - type: archive
+        url: https://kerberos.org/dist/krb5/1.21/krb5-1.21.3.tar.gz
+        sha256: b7a4cd5ead67fb08b980b21abd150ff7217e85ea320c9ed0c6dadd304840ad35
+    cleanup:
+      - /bin
+      - /sbin
+      - /share/man
+      - /share/examples
+      - /share/doc
+      - /share/locale
+
+  # 2. The full Python dependency closure (PySide6 + Qt, pyqtgraph, numpy,
+  #    pyjoulescope_driver, pyjls, joulescope, ...) as pinned, hashed wheels.
+  #    Generated from flatpak/requirements-flatpak.txt by
+  #    flatpak/gen_python_modules.sh; regenerate per architecture.
+  - flatpak/python3-modules.json
+
+  # 3. The Joulescope UI itself, installed from the prepared sdist tarball
+  #    (built with translations compiled and tokens applied).  --no-index and
+  #    --no-deps guarantee the app can only consume the already-installed
+  #    modules above -- the guard the original broken manifest lacked.
+  - name: joulescope-ui
+    buildsystem: simple
+    build-commands:
+      - pip3 install --prefix=${FLATPAK_DEST} --no-deps --no-build-isolation
+        --no-index dist/joulescope_ui-*.tar.gz
+      - install -Dm644 com.jetperch.JoulescopeUI.desktop
+        ${FLATPAK_DEST}/share/applications/com.jetperch.JoulescopeUI.desktop
+      - install -Dm644 com.jetperch.JoulescopeUI.metainfo.xml
+        ${FLATPAK_DEST}/share/metainfo/com.jetperch.JoulescopeUI.metainfo.xml
+      - install -Dm644 icons/icon_64x64.png
+        ${FLATPAK_DEST}/share/icons/hicolor/64x64/apps/com.jetperch.JoulescopeUI.png
+      - install -Dm644 icons/icon_128x128.png
+        ${FLATPAK_DEST}/share/icons/hicolor/128x128/apps/com.jetperch.JoulescopeUI.png
+      - install -Dm644 icons/icon_256x256.png
+        ${FLATPAK_DEST}/share/icons/hicolor/256x256/apps/com.jetperch.JoulescopeUI.png
+      - install -Dm644 icons/icon_512x512.png
+        ${FLATPAK_DEST}/share/icons/hicolor/512x512/apps/com.jetperch.JoulescopeUI.png
+    sources:
+      - type: dir
+        path: dist
+        dest: dist
+      - type: file
+        path: com.jetperch.JoulescopeUI.desktop
+      - type: file
+        path: com.jetperch.JoulescopeUI.metainfo.xml
+      - type: dir
+        path: joulescope_ui/resources/icon.iconset
+        dest: icons

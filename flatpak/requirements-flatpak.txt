@@ -1,0 +1,33 @@
+# SPDX-FileCopyrightText: Copyright 2018-2026 Jetperch LLC
+# SPDX-License-Identifier: Apache-2.0
+#
+# Linux Flatpak runtime dependency closure for the Joulescope UI.
+#
+# This list mirrors the runtime ``install_requires`` from ``setup.py`` but is
+# Linux-only: it omits ``pywin32`` (Windows-only, conditionally imported) and
+# the build-only tools (PyInstaller, wheel, Cython, check-manifest, coverage).
+# ``appnope`` is kept because ``joulescope_ui/main.py`` imports it
+# unconditionally; it is pure-Python and no-ops off macOS.  Keep the version
+# constraints in sync with ``setup.py``.
+#
+# This file is the INPUT to ``flatpak/gen_python_modules.sh``, which resolves
+# it against the Flatpak SDK and produces the pinned, hashed
+# ``flatpak/python3-modules.json`` module consumed by the manifest.  Always
+# regenerate ``python3-modules.json`` after editing this file (and once per
+# target architecture).
+
+appnope>=0.1.2,<1
+pyjoulescope_driver>=2.2.9,<3
+joulescope>=1.5.0,<2
+markdown>=3,<4
+psutil>=5,<8
+pyjls>=0.17.0,<1
+pyopengl>=3,<4
+pyqtgraph>=0.14.0,<1
+pyserial>=3,<4
+PySide6>=6.11.1,<7
+PySide6-QtAds>=4.5.0.5,<5
+python-dateutil>=2.7.3,<3
+QtPy>=2,<3
+requests>=2,<3
+watchdog>=6,<7
