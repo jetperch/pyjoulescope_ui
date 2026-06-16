@@ -82,6 +82,10 @@ class CurrentLimits(QtWidgets.QWidget):
         return self.slider.values_changed
 
     @property
+    def predict_changed(self):
+        return self.slider.predict_changed
+
+    @property
     def values(self):
         return self.slider.values
 
@@ -93,4 +97,15 @@ class CurrentLimits(QtWidgets.QWidget):
 
     def values_set(self, value):
         self.values = value
+
+    @property
+    def predict(self):
+        return self.slider.predict
+
+    @predict.setter
+    def predict(self, value):
+        self.slider.predict = value
+
+    def predict_set(self, value):
+        self.slider.predict = value
 

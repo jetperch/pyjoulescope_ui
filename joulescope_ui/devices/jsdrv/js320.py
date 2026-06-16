@@ -92,7 +92,7 @@ _SETTINGS_OBJ_ONLY = {
             N_("""The Joulescope UI automatically populates the device name
             with the device type and serial number."""),
             N_("""This setting allows you to change the default, if you wish,
-            to better reflect how you are using your JS220.  This setting is
+            to better reflect how you are using your JS320.  This setting is
             most useful when you are instrumenting a system using
             multiple Joulescopes.""")]),
         'default': None,
@@ -145,7 +145,7 @@ _SETTINGS_CLASS = {
             measurement signals current, voltage, and power.  Use this
             setting to reduce the data storage requirements for long
             captures where lower temporal accuracy is sufficient."""),
-            N_("""The JS220 instrument always samples at 2 MHz and
+            N_("""The instrument always samples at 2 MHz and
             then downsamples to 1 MHz.  This setting controls
             additional optional downsampling.""")]),
         'options': [
@@ -205,7 +205,7 @@ _SETTINGS_CLASS = {
         'dtype': 'int',
         'brief': N_('Current range'),
         'detail': P_([
-            N_("""Configure the JS220's current range.  Most applications should
+            N_("""Configure the instrument's current range.  Most applications should
             use the default, "auto"."""),
             N_("""Use the other manual settings with care.  It is very easy to
             configure a setting that saturates, which will ignore regions
@@ -233,10 +233,28 @@ _SETTINGS_CLASS = {
             current is more limited than the full measurement range.""")]),
         'default': [0, 5],
     },
+    'current_range_predict': {
+        'dtype': 'int',
+        'brief': N_('Current range prediction'),
+        'detail': P_([
+            N_("""Configure the instrument's current range prediction."""),
+            N_("""On current range overflow, attempt to jump to this current range
+            instead of jumping directly to the limit.  Compared to setting a limit,
+            this can keep the fully dynamic range while still preserving accuracy.""")]),
+        'options': [
+            [0, '10 A'],
+            [1, '180 mA'],
+            [2, '18 mA'],
+            [3, '1.8 mA'],
+            [4, '180 µA'],
+            [5, '18 µA'],
+        ],
+        'default': 0,  # auto
+    },
     'voltage_range': {
         'dtype': 'int',
         'brief': N_('Voltage range'),
-        'detail': N_("""Configure the JS220's voltage range. \
+        'detail': N_("""Configure the instrument's voltage range. \
             Most applications should use the default, "auto"."""),
         'options': [
             [-1, 'auto'],
@@ -249,7 +267,7 @@ _SETTINGS_CLASS = {
         'dtype': 'int',
         'brief': N_('Trigger direction'),
         'detail': P_([
-            N_("Configure the direction of the JS220's trigger BNC connection."),
+            N_("Configure the direction of the trigger BNC connection."),
             N_("""0 (default) configures the BNC trigger for input only.
             The BNC connection is high-impedance."""),
             N_("""1 configures the BNC trigger for output.  The BNC connection
@@ -266,7 +284,7 @@ _SETTINGS_CLASS = {
         'dtype': 'int',
         'brief': N_('GPIO voltage'),
         'detail': P_([
-            N_("""Configure the JS220's reference voltage for the general-purpose
+            N_("""Configure the reference voltage for the general-purpose
             inputs and outputs."""),
             N_("""We recommend using "Vref" when attaching
             general-purpose outputs (GPO) to other equipment.  Using Vref

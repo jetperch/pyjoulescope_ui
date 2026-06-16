@@ -23,7 +23,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.5.2
 
-2026 Jun 15
+2026 Jun 16
 
 * Added test automation support.
 * Added record for duration feature #326
@@ -39,8 +39,9 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Fixed issues discovered by design review.
 * Added signal filter selection to JS320 device control widget.
 * Added Linux Flatpak package #327.
+* Added support for JS320 current range prediction config.
 * Bumped versions:
-  * pyjoulescope_driver from 2.2.2 to 2.2.9
+  * pyjoulescope_driver from 2.2.2 to 2.2.10
 
 
 ## 1.5.1

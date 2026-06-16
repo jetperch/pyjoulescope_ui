@@ -16,6 +16,10 @@ from PySide6 import QtWidgets, QtGui, QtCore
 import logging
 
 
+# Qt's "no maximum" sentinel (QWIDGETSIZE_MAX); not exposed by all PySide6 builds.
+_QWIDGETSIZE_MAX = (1 << 24) - 1
+
+
 class ExpandingWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
         self._log = logging.getLogger(__name__)
@@ -78,14 +82,23 @@ class ExpandingWidget(QtWidgets.QWidget):
     @body_widget.setter
     def body_widget(self, w: QtWidgets.QWidget):
         if self._contents is not None:
-            self._layout.removeWidget(self._contentsy)
+            self._layout.removeWidget(self._contents)
         if w is not None:
-            if self._show is not None:
-                w.setMaximumHeight(0)
-                w.hide()
             self._contents = w
             self._layout.addWidget(w)
-        self.animate()
+        if self._show:
+            self.animate()
+        elif w is not None:
+            # Initialize the collapsed state instantly rather than animating it.
+            # The initial collapse is never seen as motion, and animating it runs a
+            # 400 ms height transient whose intermediate sizeHint can feed stale
+            # values up the parent chain via _on_value_changed.
+            w.setMinimumHeight(0)
+            w.setMaximumHeight(0)
+            w.hide()
+            self._header_icon.setProperty('expanded', self._show)
+            self._header_icon.style().unpolish(self._header_icon)
+            self._header_icon.style().polish(self._header_icon)
 
     @property
     def header_ex_widget(self):
@@ -153,6 +166,35 @@ class ExpandingWidget(QtWidgets.QWidget):
     def expanded(self, value):
         self._show = bool(value)
         self.animate()
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        # When this widget is built while its parent is hidden, the expanded body
+        # height captured by the animation is derived from unpolished, not-yet
+        # laid-out child sizeHints and can be too large.  Once the widget is
+        # actually shown the surplus is absorbed by the only vertically
+        # stretchable descendant -- the current limits slider -- which then
+        # renders far too tall.  Re-fit the expanded body to its true sizeHint,
+        # deferred so the child widgets are polished and laid out first.
+        if self._show and self._contents is not None:
+            QtCore.QTimer.singleShot(0, self._fit_body_height)
+
+    def _fit_body_height(self):
+        w = self._contents
+        if not self._show or w is None:
+            return
+        try:
+            g = self._animation_group
+            if g is not None and g.state() == QtCore.QAbstractAnimation.State.Running:
+                return  # an in-flight animation owns the body height
+            # Release the fixed height snapshot taken during the animation and let
+            # the layout size the body to its (now polished) sizeHint.  This tracks
+            # the final sizeHint as it settles instead of locking in a stale value.
+            w.ensurePolished()
+            w.setMinimumHeight(0)
+            w.setMaximumHeight(_QWIDGETSIZE_MAX)
+        except RuntimeError:
+            pass  # widget was deleted before the deferred call ran
 
     def _on_header_mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:

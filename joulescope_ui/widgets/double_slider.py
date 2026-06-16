@@ -31,6 +31,9 @@ class DoubleSlider(QtWidgets.QWidget):
     values_changed = QtCore.Signal(int, int)
     """Signal(v_min, v_max) emitted on value selection changes."""
 
+    predict_changed = QtCore.Signal(int)
+    """Signal(predict) emitted when the optional predict marker changes."""
+
     def __init__(self, parent, value_range):
         if not isinstance(value_range, Iterable) or len(value_range) != 2:
             raise ValueError(f'invalid value_range {value_range}')
@@ -40,6 +43,7 @@ class DoubleSlider(QtWidgets.QWidget):
         self._values_offset = min(value_range)
         self._values_length = abs(value_range[1] - value_range[0]) + 1
         self._values = [0, 0]
+        self._predict = None  # optional external value, None to disable the predict marker
         self.values = self._value_range
         self.setMinimumSize(self._x_margin * (self._values_length + 2), 10)
 
@@ -48,6 +52,7 @@ class DoubleSlider(QtWidgets.QWidget):
         self._foreground = QtGui.QBrush(QtGui.QColor(100, 100, 255))
         self._handles = QtGui.QBrush(QtGui.QColor(50, 50, 255))
         self._handles_hover = QtGui.QBrush(QtGui.QColor(128, 192, 255))
+        self._predict_brush = QtGui.QBrush(QtGui.QColor(255, 255, 255))
 
         self._CURSOR_ARROW = QtGui.QCursor(QtGui.Qt.ArrowCursor)
         self._CURSOR_SIZE_HOR = QtGui.QCursor(QtGui.Qt.SizeHorCursor)
@@ -105,6 +110,37 @@ class DoubleSlider(QtWidgets.QWidget):
         self._handles_hover = QtGui.QBrush(QtGui.QColor(value))
 
     @property
+    def predict(self):
+        """The optional predict marker value in external coordinates (None to disable)."""
+        return self._predict
+
+    @predict.setter
+    def predict(self, value):
+        if value is None:
+            self._predict = None
+            self.update()
+            return
+        v = self._predict_clamp(int(value))
+        self._predict = v
+        self.update()
+        if v != int(value):
+            # The requested value was outside [min, max]; report the clamped value.
+            self.predict_changed.emit(v)
+
+    def _predict_clamp(self, value):
+        ext = self.values
+        lo, hi = min(ext), max(ext)
+        return max(lo, min(hi, int(value)))
+
+    def _predict_reclamp(self):
+        if self._predict is None:
+            return
+        v = self._predict_clamp(self._predict)
+        if v != self._predict:
+            self._predict = v
+            self.predict_changed.emit(v)
+
+    @property
     def values(self):
         return self._value_map_to_external(self._values)
 
@@ -115,6 +151,7 @@ class DoubleSlider(QtWidgets.QWidget):
             v0, v1 = v1, v0
         self._values = [v0, v1]
         self.values_changed.emit(*self._value_map_to_external(self._values))
+        self._predict_reclamp()
         self.update()
 
     def paintEvent(self, event):
@@ -147,20 +184,44 @@ class DoubleSlider(QtWidgets.QWidget):
         painter.drawEllipse(*handles['min'])
         painter.drawEllipse(*handles['max'])
 
-        if self._pressed is not None:
+        if self._pressed is not None and self._pressed != 'predict':
             handle = self._pressed
             painter.setBrush(self._handles_hover)
             painter.drawEllipse(*handles[handle])
-        else:
+        elif self._pressed is None:
             handle = self._position_to_handle(self._mouse_pos)
             if handle is not None:
                 painter.setBrush(self._handles_hover)
                 painter.drawEllipse(*handles[handle])
 
+        # Draw the optional predict marker as a smaller circle, vertically centered.
+        if self._predict is not None:
+            rect = self.get_predict_rect()
+            painter.setPen(QtGui.QPen(self._handles.color()))
+            painter.setBrush(self._predict_brush)
+            painter.drawEllipse(rect)
+            painter.setPen(self._NO_PEN)
+
     def get_handle_rect(self, pos):
         width = self.width() - 2 * self._x_margin
         k = self._values_length - 1
         return QtCore.QRectF(pos * width / k, 0, 2 * self._x_margin, self.height())
+
+    def get_predict_rect(self):
+        if self._predict is None:
+            return None
+        width = self.width() - 2 * self._x_margin
+        k = self._values_length - 1
+        vp = self._value_map_to_internal(self._predict)
+        xp = vp * width / k + self._x_margin
+        d = self.height() * 0.6
+        return QtCore.QRectF(xp - d / 2, (self.height() - d) / 2, d, d)
+
+    def _position_on_predict(self, pos):
+        if pos is None or self._predict is None:
+            return False
+        rect = self.get_predict_rect()
+        return rect is not None and rect.contains(pos)
 
     def _position_to_handle(self, pos):
         if pos is None:
@@ -185,11 +246,26 @@ class DoubleSlider(QtWidgets.QWidget):
     def mousePressEvent(self, event: QtGui.QMouseEvent):
         if event.button() == QtCore.Qt.LeftButton:
             pos = event.position()
-            self._pressed = self._position_to_handle(pos)
+            # The predict marker is small and centered, so it takes priority
+            # over the full-height min/max handles when the click lands on it.
+            if self._position_on_predict(pos):
+                self._pressed = 'predict'
+            else:
+                self._pressed = self._position_to_handle(pos)
 
     def mouseMoveEvent(self, event: QtGui.QMouseEvent):
         self._mouse_pos = event.position()
-        if self._pressed is not None:
+        if self._pressed == 'predict':
+            width = self.width() - 2 * self._x_margin
+            k = self._values_length - 1
+            pos = round((self._mouse_pos.x() - self._x_margin) / width * k)
+            pos = max(0, min(pos, self._values_length - 1))
+            value = self._predict_clamp(self._value_map_to_external(pos))
+            if value != self._predict:
+                self._predict = value
+                self.predict_changed.emit(value)
+                self.update()
+        elif self._pressed is not None:
             width = self.width() - 2 * self._x_margin
             k = self._values_length - 1
             pos = round((self._mouse_pos.x() - self._x_margin) / width * k)
@@ -212,9 +288,11 @@ class DoubleSlider(QtWidgets.QWidget):
                 self._values[1] = p
             if changed:
                 self.values_changed.emit(*self._value_map_to_external(self._values))
+                self._predict_reclamp()
                 self.update()
         else:
-            if self._position_to_handle(self._mouse_pos) is not None:
+            if self._position_on_predict(self._mouse_pos) or \
+                    self._position_to_handle(self._mouse_pos) is not None:
                 cursor = self._CURSOR_SIZE_HOR
             else:
                 cursor = self._CURSOR_ARROW

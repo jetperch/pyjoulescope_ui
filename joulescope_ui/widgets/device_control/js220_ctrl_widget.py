@@ -577,6 +577,15 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         self._control_widgets[name] = w
         adapter = CallableSlotAdapter(w, lambda v0, v1: self.pubsub.publish(topic, [v0, v1]))
         w.values_changed.connect(adapter.slot)
+
+        # The predict marker shares the CurrentLimits slider but is a separate setting.
+        # It is also rendered as a combobox by _add_settings; both stay in sync via pubsub.
+        if 'current_range_predict' in self._DEVICE_SETTINGS:
+            predict_topic = f'{get_topic_name(self.unique_id)}/settings/current_range_predict'
+            predict_adapter = CallableSlotAdapter(w, lambda v: self.pubsub.publish(predict_topic, int(v)))
+            w.predict_changed.connect(predict_adapter.slot)
+            self.pubsub.subscribe(predict_topic, w.predict_set, ['pub', 'retain'])
+
         combobox = self._control_widgets.get('current_range', None)
         if combobox is not None:
             self._on_current_range(combobox.currentIndex())
