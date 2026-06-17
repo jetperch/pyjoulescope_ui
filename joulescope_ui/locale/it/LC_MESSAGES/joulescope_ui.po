@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.4\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-06-14 17:40-0400\n"
+"POT-Creation-Date: 2026-06-17 11:38-0400\n"
 "PO-Revision-Date: 2024-04-18 10:43-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: it <LL@li.org>\n"
@@ -1149,7 +1149,7 @@ msgstr ""
 " superiori all'impostazione dell'intervallo di corrente."
 
 #: devices/jsdrv/js110.py:168 devices/jsdrv/js220.py:242
-#: devices/jsdrv/js320.py:238
+#: devices/jsdrv/js320.py:256
 msgid "Voltage range"
 msgstr "Intervallo di tensione"
 
@@ -1158,7 +1158,7 @@ msgid "Configure the JS110's voltage range."
 msgstr "Configurare l'intervallo di tensione del JS110."
 
 #: devices/jsdrv/js110.py:178 devices/jsdrv/js220.py:271
-#: devices/jsdrv/js320.py:267
+#: devices/jsdrv/js320.py:285
 msgid "GPIO voltage"
 msgstr "Tensione GPIO"
 
@@ -1179,22 +1179,22 @@ msgstr ""
 "\"1\", possono essere alimentate a posteriori da target non alimentati."
 
 #: devices/jsdrv/js110.py:199 devices/jsdrv/js220.py:289
-#: devices/jsdrv/js320.py:285
+#: devices/jsdrv/js320.py:303
 msgid "GPO 0 output value"
 msgstr "Valore di uscita GPO 0"
 
 #: devices/jsdrv/js110.py:200 devices/jsdrv/js220.py:290
-#: devices/jsdrv/js320.py:286
+#: devices/jsdrv/js320.py:304
 msgid "Turn the general-purpose output 0 on or off."
 msgstr "Attivare o disattivare l'uscita generale 0."
 
 #: devices/jsdrv/js110.py:205 devices/jsdrv/js220.py:295
-#: devices/jsdrv/js320.py:291
+#: devices/jsdrv/js320.py:309
 msgid "GPO 1 output value"
 msgstr "Valore di uscita GPO 1"
 
 #: devices/jsdrv/js110.py:206 devices/jsdrv/js220.py:296
-#: devices/jsdrv/js320.py:292
+#: devices/jsdrv/js320.py:310
 msgid "Turn the general-purpose output 1 on or off."
 msgstr "Attivare o disattivare l'uscita 1 per uso generale."
 
@@ -1288,63 +1288,63 @@ msgstr ""
 "gli altri tipi di IRF."
 
 #: devices/jsdrv/js110.py:269 devices/jsdrv/js220.py:435
-#: devices/jsdrv/js320.py:408 widgets/device_control/fuse.py:103
+#: devices/jsdrv/js320.py:416 widgets/device_control/fuse.py:103
 #: widgets/waveform/waveform_widget.py:110
 msgid "Current"
 msgstr "Corrente"
 
 #: devices/jsdrv/js110.py:270 devices/jsdrv/js220.py:436
-#: devices/jsdrv/js320.py:409
+#: devices/jsdrv/js320.py:417
 msgid "Enable the current signal streaming."
 msgstr "Abilitare lo streaming del segnale di corrente."
 
 #: devices/jsdrv/js110.py:278 devices/jsdrv/js220.py:444
-#: devices/jsdrv/js320.py:417 widgets/waveform/waveform_widget.py:111
+#: devices/jsdrv/js320.py:425 widgets/waveform/waveform_widget.py:111
 msgid "Voltage"
 msgstr "Tensione"
 
 #: devices/jsdrv/js110.py:279 devices/jsdrv/js220.py:445
-#: devices/jsdrv/js320.py:418
+#: devices/jsdrv/js320.py:426
 msgid "Enable the voltage signal streaming."
 msgstr "Abilitare lo streaming del segnale di tensione."
 
 #: devices/jsdrv/js110.py:287 devices/jsdrv/js220.py:453
-#: devices/jsdrv/js320.py:426 widgets/waveform/waveform_widget.py:112
+#: devices/jsdrv/js320.py:434 widgets/waveform/waveform_widget.py:112
 msgid "Power"
 msgstr "Potenza"
 
 #: devices/jsdrv/js110.py:288 devices/jsdrv/js220.py:454
-#: devices/jsdrv/js320.py:427
+#: devices/jsdrv/js320.py:435
 msgid "Enable the power signal streaming."
 msgstr "Abilitare lo streaming del segnale di potenza."
 
 #: devices/jsdrv/js110.py:296 devices/jsdrv/js220.py:462
-#: devices/jsdrv/js320.py:435
+#: devices/jsdrv/js320.py:443
 msgid "Current Range"
 msgstr "Intervallo di corrente"
 
 #: devices/jsdrv/js110.py:308 devices/jsdrv/js220.py:476
-#: devices/jsdrv/js320.py:449
+#: devices/jsdrv/js320.py:457
 msgid "GPI 0"
 msgstr "GPI 0"
 
 #: devices/jsdrv/js110.py:309 devices/jsdrv/js220.py:477
-#: devices/jsdrv/js320.py:450
+#: devices/jsdrv/js320.py:458
 msgid "Enable the general purpose input 0 signal streaming."
 msgstr "Abilitare lo streaming del segnale di ingresso 0 per uso generale."
 
 #: devices/jsdrv/js110.py:317 devices/jsdrv/js220.py:485
-#: devices/jsdrv/js320.py:458
+#: devices/jsdrv/js320.py:466
 msgid "GPI 1"
 msgstr "GPI 1"
 
 #: devices/jsdrv/js110.py:318 devices/jsdrv/js220.py:486
-#: devices/jsdrv/js320.py:459
+#: devices/jsdrv/js320.py:467
 msgid "Enable the general purpose input 1 signal streaming."
 msgstr "Abilitare lo streaming del segnale dell'ingresso 1 per uso generale."
 
 #: devices/jsdrv/js110.py:330 devices/jsdrv/js220.py:538
-#: devices/jsdrv/js320.py:511 devices/jsdrv/jsdrv_stream_buffer.py:108
+#: devices/jsdrv/js320.py:519 devices/jsdrv/jsdrv_stream_buffer.py:108
 #: devices/serial/serial_device.py:75
 msgid "Signal name"
 msgstr "Nome del segnale"
@@ -1373,7 +1373,7 @@ msgstr "Utilizzare il primo campione del blocco e ignorare tutti gli altri."
 msgid "Use the majority value in the block."
 msgstr "Utilizzare il valore maggiore nel blocco."
 
-#: devices/jsdrv/js220.py:98 devices/jsdrv/js320.py:94
+#: devices/jsdrv/js220.py:98
 msgid ""
 "This setting allows you to change the default, if you wish, to better "
 "reflect how you are using your JS220. This setting is most useful when you "
@@ -1384,7 +1384,7 @@ msgstr ""
 "impostazione è particolarmente utile quando si strumenta un sistema "
 "utilizzando più Joulescopi."
 
-#: devices/jsdrv/js220.py:152 devices/jsdrv/js320.py:148
+#: devices/jsdrv/js220.py:152
 msgid ""
 "The JS220 instrument always samples at 2 MHz and then downsamples to 1 MHz. "
 "This setting controls additional optional downsampling."
@@ -1403,7 +1403,7 @@ msgstr ""
 "visualizzati nel multimetro e nei widget dei valori. I dati statistici "
 "vengono calcolati su campioni a frequenza piena di 1 MHz."
 
-#: devices/jsdrv/js220.py:212 devices/jsdrv/js320.py:208
+#: devices/jsdrv/js220.py:212
 msgid ""
 "Configure the JS220's current range. Most applications should use the "
 "default, \"auto\"."
@@ -1436,7 +1436,7 @@ msgstr ""
 "corrente dell'applicazione è più limitata rispetto all'intero intervallo di "
 "misura."
 
-#: devices/jsdrv/js220.py:243 devices/jsdrv/js320.py:239
+#: devices/jsdrv/js220.py:243
 msgid ""
 "Configure the JS220's voltage range. Most applications should use the "
 "default, \"auto\"."
@@ -1444,15 +1444,15 @@ msgstr ""
 "Configurare l'intervallo di tensione del JS220. La maggior parte delle "
 "applicazioni dovrebbe utilizzare il valore predefinito, \"auto\"."
 
-#: devices/jsdrv/js220.py:254 devices/jsdrv/js320.py:250
+#: devices/jsdrv/js220.py:254 devices/jsdrv/js320.py:268
 msgid "Trigger direction"
 msgstr "Direzione di innesco"
 
-#: devices/jsdrv/js220.py:256 devices/jsdrv/js320.py:252
+#: devices/jsdrv/js220.py:256
 msgid "Configure the direction of the JS220's trigger BNC connection."
 msgstr "Configurare la direzione della connessione BNC di trigger del JS220."
 
-#: devices/jsdrv/js220.py:257 devices/jsdrv/js320.py:253
+#: devices/jsdrv/js220.py:257 devices/jsdrv/js320.py:271
 msgid ""
 "0 (default) configures the BNC trigger for input only. The BNC connection is"
 " high-impedance."
@@ -1460,7 +1460,7 @@ msgstr ""
 "0 (impostazione predefinita) configura il trigger BNC solo per l'ingresso. "
 "Il collegamento BNC è ad alta impedenza."
 
-#: devices/jsdrv/js220.py:259 devices/jsdrv/js320.py:255
+#: devices/jsdrv/js220.py:259 devices/jsdrv/js320.py:273
 msgid ""
 "1 configures the BNC trigger for output. The BNC connection has 50 Ohm "
 "output impedance."
@@ -1468,7 +1468,7 @@ msgstr ""
 "1 configura il trigger BNC per l'uscita. La connessione BNC ha un'impedenza "
 "di uscita di 50 Ohm."
 
-#: devices/jsdrv/js220.py:261 devices/jsdrv/js320.py:257
+#: devices/jsdrv/js220.py:261 devices/jsdrv/js320.py:275
 msgid ""
 "In both cases, the trigger input signal is valid, which enables internal "
 "inspection and recording of the trigger output."
@@ -1476,7 +1476,7 @@ msgstr ""
 "In entrambi i casi, il segnale di ingresso di trigger è valido, il che "
 "consente l'ispezione interna e la registrazione dell'uscita di trigger."
 
-#: devices/jsdrv/js220.py:273 devices/jsdrv/js320.py:269
+#: devices/jsdrv/js220.py:273
 msgid ""
 "Configure the JS220's reference voltage for the general-purpose inputs and "
 "outputs."
@@ -1484,7 +1484,7 @@ msgstr ""
 "Configurare la tensione di riferimento del JS220 per gli ingressi e le "
 "uscite generici."
 
-#: devices/jsdrv/js220.py:275 devices/jsdrv/js320.py:271
+#: devices/jsdrv/js220.py:275 devices/jsdrv/js320.py:289
 msgid ""
 "We recommend using \"Vref\" when attaching general-purpose outputs (GPO) to "
 "other equipment. Using Vref prevents the GPO from backpowering target "
@@ -1497,21 +1497,21 @@ msgstr ""
 "Vref e gli ingressi generici sono tutti ad altissima impedenza per ridurre "
 "al minimo le correnti di dispersione."
 
-#: devices/jsdrv/js220.py:280 devices/jsdrv/js320.py:276
+#: devices/jsdrv/js220.py:280 devices/jsdrv/js320.py:294
 msgid "\"3.3 V\" uses an internally-generated 3.3V reference voltage."
 msgstr ""
 "\"3,3 V\" utilizza una tensione di riferimento di 3,3 V generata "
 "internamente."
 
-#: devices/jsdrv/js220.py:301 devices/jsdrv/js320.py:297
+#: devices/jsdrv/js220.py:301 devices/jsdrv/js320.py:315
 msgid "Trigger output value"
 msgstr "Valore di uscita del trigger"
 
-#: devices/jsdrv/js220.py:303 devices/jsdrv/js320.py:299
+#: devices/jsdrv/js220.py:303 devices/jsdrv/js320.py:317
 msgid "Turn the trigger output on or off."
 msgstr "Attivare o disattivare l'uscita di trigger."
 
-#: devices/jsdrv/js220.py:304 devices/jsdrv/js320.py:300
+#: devices/jsdrv/js220.py:304 devices/jsdrv/js320.py:318
 msgid ""
 "The trigger must also be configured for output for this setting to have any "
 "effect."
@@ -1519,11 +1519,11 @@ msgstr ""
 "Affinché questa impostazione abbia effetto, anche il trigger deve essere "
 "configurato per l'uscita."
 
-#: devices/jsdrv/js220.py:312 devices/jsdrv/js320.py:308
+#: devices/jsdrv/js220.py:312
 msgid "The maturity level channel for firmware updates."
 msgstr "Il canale del livello di maturità per gli aggiornamenti del firmware."
 
-#: devices/jsdrv/js220.py:313 devices/jsdrv/js320.py:309
+#: devices/jsdrv/js220.py:313
 msgid ""
 "We recommend keeping the default \"stable\" unless you are a Joulescope "
 "developer."
@@ -1531,11 +1531,11 @@ msgstr ""
 "Si consiglia di mantenere il valore predefinito \"stabile\", a meno che non "
 "siate uno sviluppatore di Joulescope."
 
-#: devices/jsdrv/js220.py:322 devices/jsdrv/js320.py:318
+#: devices/jsdrv/js220.py:322 devices/jsdrv/js320.py:326
 msgid "Firmware update availability."
 msgstr "Disponibilità di aggiornamento del firmware."
 
-#: devices/jsdrv/js220.py:323 devices/jsdrv/js320.py:319
+#: devices/jsdrv/js220.py:323 devices/jsdrv/js320.py:327
 msgid ""
 "None when no firmware update is available. Map of subname: [current, "
 "available] when available."
@@ -1560,7 +1560,7 @@ msgstr ""
 "larga. Per ridurre il picco intorno agli eventi ad alta frequenza, "
 "selezionare il filtro sinc1."
 
-#: devices/jsdrv/js220.py:383 devices/jsdrv/js320.py:364
+#: devices/jsdrv/js220.py:383 devices/jsdrv/js320.py:372
 msgid "Signal filter"
 msgstr "Filtro del segnale"
 
@@ -1581,19 +1581,19 @@ msgstr ""
 "larghezza di banda inferiore e un maggiore aliasing. Il filtro sinc1 "
 "funziona anche sullo strumento, riducendo il throughput USB."
 
-#: devices/jsdrv/js220.py:401 devices/jsdrv/js320.py:375
+#: devices/jsdrv/js220.py:401 devices/jsdrv/js320.py:383
 msgid "GPI filter"
 msgstr "Filtro GPI"
 
-#: devices/jsdrv/js220.py:414 devices/jsdrv/js320.py:387
+#: devices/jsdrv/js220.py:414 devices/jsdrv/js320.py:395
 msgid "Current scale"
 msgstr "Scala di corrente"
 
-#: devices/jsdrv/js220.py:419 devices/jsdrv/js320.py:392
+#: devices/jsdrv/js220.py:419 devices/jsdrv/js320.py:400
 msgid "Voltage scale"
 msgstr "Scala di tensione"
 
-#: devices/jsdrv/js220.py:465 devices/jsdrv/js320.py:438
+#: devices/jsdrv/js220.py:465 devices/jsdrv/js320.py:446
 msgid ""
 "⚠ When enabled, no more than 3 GPIO signals (0, 1, 2, 3, T) may be enabled. "
 "If you attempt to enable too many signals, then the UI will display no data "
@@ -1603,43 +1603,111 @@ msgstr ""
 " 1, 2, 3, T). Se si tenta di abilitare un numero eccessivo di segnali, "
 "l'interfaccia utente non visualizzerà alcun dato per nessun segnale."
 
-#: devices/jsdrv/js220.py:494 devices/jsdrv/js320.py:467
+#: devices/jsdrv/js220.py:494 devices/jsdrv/js320.py:475
 msgid "GPI 2"
 msgstr "GPI 2"
 
-#: devices/jsdrv/js220.py:495 devices/jsdrv/js320.py:468
+#: devices/jsdrv/js220.py:495 devices/jsdrv/js320.py:476
 msgid "Enable the general purpose input 2 signal streaming."
 msgstr "Abilitare lo streaming del segnale dell'ingresso 2 per uso generale."
 
-#: devices/jsdrv/js220.py:503 devices/jsdrv/js320.py:476
+#: devices/jsdrv/js220.py:503 devices/jsdrv/js320.py:484
 msgid "GPI 3"
 msgstr "GPI 3"
 
-#: devices/jsdrv/js220.py:504 devices/jsdrv/js320.py:477
+#: devices/jsdrv/js220.py:504 devices/jsdrv/js320.py:485
 msgid "Enable the general purpose input 3 signal streaming."
 msgstr "Abilitare lo streaming del segnale dell'ingresso 3 per uso generale."
 
-#: devices/jsdrv/js220.py:512 devices/jsdrv/js320.py:485
+#: devices/jsdrv/js220.py:512 devices/jsdrv/js320.py:493
 #: widgets/waveform/waveform_widget.py:129
 msgid "Trigger input"
 msgstr "Ingresso di trigger"
 
-#: devices/jsdrv/js220.py:513 devices/jsdrv/js320.py:486
+#: devices/jsdrv/js220.py:513 devices/jsdrv/js320.py:494
 msgid "Enable the trigger input signal streaming."
 msgstr "Abilitare lo streaming del segnale di ingresso di trigger."
 
-#: devices/jsdrv/js220.py:523 devices/jsdrv/js320.py:496
+#: devices/jsdrv/js220.py:523 devices/jsdrv/js320.py:504
 #: devices/serial/serial_device.py:77 devices/serial/serial_device.py:81
 msgid "Serial"
 msgstr "Seriale"
 
-#: devices/jsdrv/js220.py:524 devices/jsdrv/js320.py:497
+#: devices/jsdrv/js220.py:524 devices/jsdrv/js320.py:505
 msgid "Serial data stream"
 msgstr "Flusso di dati seriali"
 
 #: devices/jsdrv/js220_updater.py:64 devices/jsdrv/js320_updater.py:41
 msgid "Firmware update state"
 msgstr "Stato di aggiornamento del firmware"
+
+#: devices/jsdrv/js320.py:94
+msgid ""
+"This setting allows you to change the default, if you wish, to better "
+"reflect how you are using your JS320. This setting is most useful when you "
+"are instrumenting a system using multiple Joulescopes."
+msgstr ""
+"Questa impostazione consente di modificare l’impostazione predefinita, se lo"
+" si desidera, per riflettere meglio il modo in cui si utilizza il proprio "
+"JS320. Questa impostazione è particolarmente utile quando si effettua la "
+"strumentazione di un sistema utilizzando più Joulescope."
+
+#: devices/jsdrv/js320.py:148
+msgid ""
+"The instrument always samples at 2 MHz and then downsamples to 1 MHz. This "
+"setting controls additional optional downsampling."
+msgstr ""
+"Lo strumento esegue sempre il campionamento a 2 MHz per poi effettuare un "
+"sottocampionamento a 1 MHz. Questa impostazione controlla l’ulteriore "
+"sottocampionamento opzionale."
+
+#: devices/jsdrv/js320.py:208
+msgid ""
+"Configure the instrument's current range. Most applications should use the "
+"default, \"auto\"."
+msgstr ""
+"Configurare il range di corrente dello strumento. Per la maggior parte delle"
+" applicazioni è consigliabile utilizzare l’impostazione predefinita, ovvero "
+"“auto”."
+
+#: devices/jsdrv/js320.py:238
+msgid "Current range prediction"
+msgstr "Previsione dell’intervallo di corrente"
+
+#: devices/jsdrv/js320.py:240
+msgid "Configure the instrument's current range prediction."
+msgstr "Configurare la previsione del range di corrente dello strumento."
+
+#: devices/jsdrv/js320.py:241
+msgid ""
+"On current range overflow, attempt to jump to this current range instead of "
+"jumping directly to the limit. Compared to setting a limit, this can keep "
+"the fully dynamic range while still preserving accuracy."
+msgstr ""
+"In caso di overflow dell’intervallo di corrente, provare a passare a questo "
+"intervallo di corrente invece di passare direttamente al limite. Rispetto "
+"all’impostazione di un limite, ciò consente di mantenere l’intervallo "
+"dinamico completo preservando al contempo la precisione."
+
+#: devices/jsdrv/js320.py:257
+msgid ""
+"Configure the instrument's voltage range. Most applications should use the "
+"default, \"auto\"."
+msgstr ""
+"Configurare l’intervallo di tensione dello strumento. Per la maggior parte "
+"delle applicazioni è consigliabile utilizzare l’impostazione predefinita, "
+"ovvero «auto»."
+
+#: devices/jsdrv/js320.py:270
+msgid "Configure the direction of the trigger BNC connection."
+msgstr "Configurare la direzione del collegamento BNC di trigger."
+
+#: devices/jsdrv/js320.py:287
+msgid ""
+"Configure the reference voltage for the general-purpose inputs and outputs."
+msgstr ""
+"Configurare la tensione di riferimento per gli ingressi e le uscite "
+"generici."
 
 #: devices/jsdrv/jsdrv_stream_buffer.py:44
 #: devices/jsdrv/jsdrv_stream_buffer.py:93
@@ -2267,7 +2335,7 @@ msgstr ""
 "compreso il multimetro, non sarà influenzata."
 
 #: widgets/device_control/js220_ctrl_widget.py:84
-#: widgets/device_control/js220_ctrl_widget.py:657
+#: widgets/device_control/js220_ctrl_widget.py:666
 msgid "Calibrate"
 msgstr "Calibrare"
 
@@ -2286,11 +2354,11 @@ msgstr ""
 msgid "GPO"
 msgstr "GPO"
 
-#: widgets/device_control/js220_ctrl_widget.py:642
+#: widgets/device_control/js220_ctrl_widget.py:651
 msgid "Reset to defaults"
 msgstr "Ripristino delle impostazioni predefinite"
 
-#: widgets/device_control/js220_ctrl_widget.py:648
+#: widgets/device_control/js220_ctrl_widget.py:657
 msgid "Clear accum"
 msgstr "Accumulo chiaro"
 
