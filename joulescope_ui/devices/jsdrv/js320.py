@@ -249,7 +249,7 @@ _SETTINGS_CLASS = {
             [4, '180 µA'],
             [5, '18 µA'],
         ],
-        'default': 0,  # auto
+        'default': 0,  # 10 A, which is also disabled
     },
     'voltage_range': {
         'dtype': 'int',
@@ -753,6 +753,8 @@ class Js320(Device):
                 i_min, i_max = i_max, i_min
             self._driver_publish('s/i/range/min', i_min, timeout=0)
             self._driver_publish('s/i/range/max', i_max, timeout=0)
+        elif topic == 'current_range_predict':
+            self._driver_publish('s/i/range/predict', value, timeout=0)
         elif topic == 'voltage_range':
             if value == -1:
                 self._driver_publish('s/v/range/mode', 'auto', timeout=0)
