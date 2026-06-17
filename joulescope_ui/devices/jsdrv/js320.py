@@ -319,16 +319,6 @@ _SETTINGS_CLASS = {
             setting to have any effect.""")]),
         'default': False,
     },
-    'firmware_channel': {
-        'dtype': 'str',
-        'brief': 'FW channel',
-        'detail': P_([
-            N_('The maturity level channel for firmware updates.'),
-            N_("""We recommend keeping the default "stable"
-            unless you are a Joulescope developer.""")]),
-        'options': [['alpha', 'alpha'], ['beta', 'beta'], ['stable', 'stable']],
-        'default': 'stable',
-    },
     'update_available': {
         'dtype': 'obj',
         'brief': 'FW available',
@@ -770,7 +760,7 @@ class Js320(Device):
         elif topic in ['info', 'state', 'auto_open', 'out', 'enable',
                        'sources', 'sources/1', 'sources/1/info', 'sources/1/name',
                        'signals',
-                       'update_available', 'firmware_channel',
+                       'update_available',
                        'fuse_engaged', 'fuse']:
             pass
         elif topic.startswith('signals/'):
