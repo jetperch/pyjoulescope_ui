@@ -133,20 +133,26 @@ class TestVerify(unittest.TestCase):
             verify.compare_subrange(ref, exp, 'current', atol=1e-6)
 
 
+def _norm(path):
+    """Normalize OS path separators to ``/`` so platform-branch assertions hold
+    on any host (``app_dir`` builds paths with the host's ``os.path.sep``)."""
+    return path.replace(os.sep, '/')
+
+
 class TestDiscover(unittest.TestCase):
     def test_app_dir_per_platform(self):
-        self.assertTrue(discover.app_dir(platform='linux').endswith('/.joulescope'))
-        mac = discover.app_dir(platform='darwin')
+        self.assertTrue(_norm(discover.app_dir(platform='linux')).endswith('/.joulescope'))
+        mac = _norm(discover.app_dir(platform='darwin'))
         self.assertIn('Library/Application Support/joulescope', mac)
-        win = discover.app_dir(platform='win32')
+        win = _norm(discover.app_dir(platform='win32'))
         self.assertTrue(win.endswith('joulescope'))
 
     def test_server_json_path(self):
-        p = discover.server_json_path(platform='linux')
+        p = _norm(discover.server_json_path(platform='linux'))
         self.assertTrue(p.endswith('/.joulescope/server.json'))
 
     def test_config_file_path(self):
-        p = discover.config_file_path(platform='linux')
+        p = _norm(discover.config_file_path(platform='linux'))
         self.assertTrue(p.endswith('/.joulescope/config/joulescope_ui_config.json'))
 
     def test_unsupported_platform(self):

@@ -39,7 +39,9 @@ def test_preferences_persist_across_restart(make_ui_session):
     s1 = make_ui_session(config_clear_on_exit=False)
     original = bool(s1.query(_PREF_TOPIC))
     new_value = not original
-    s1.publish(_PREF_TOPIC, new_value)
+    # Publishes are queued to the UI's pubsub thread, so confirm the change
+    # landed (read-after-write) before relying on it / exiting.
+    s1.publish_and_wait(_PREF_TOPIC, new_value)
     assert bool(s1.query(_PREF_TOPIC)) == new_value
     s1.stop()
     assert s1.exited_cleanly, 'UI was killed; config would not have been saved'
@@ -51,8 +53,9 @@ def test_preferences_persist_across_restart(make_ui_session):
     # Session 2: the preference survived the restart.
     s2 = make_ui_session(config_clear_on_exit=False)
     assert bool(s2.query(_PREF_TOPIC)) == new_value
-    # Restore the original value so the test leaves no persistent side effect.
-    s2.publish(_PREF_TOPIC, original)
+    # Restore the original value so the test leaves no persistent side effect
+    # (confirm it landed before the clean exit that writes the config).
+    s2.publish_and_wait(_PREF_TOPIC, original)
     s2.stop()
 
 
@@ -61,7 +64,7 @@ def test_clear_config_resets_to_defaults(make_ui_session):
 
     # Session 1: write a config, then exit WITH clear -> file removed.
     s1 = make_ui_session(config_clear_on_exit=False)
-    s1.publish(_PREF_TOPIC, not bool(s1.query(_PREF_TOPIC)))
+    s1.publish_and_wait(_PREF_TOPIC, not bool(s1.query(_PREF_TOPIC)))
     s1.stop()
     assert os.path.isfile(config_path)
 

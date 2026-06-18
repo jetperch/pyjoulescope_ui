@@ -549,6 +549,20 @@ class UiSession:
             self.wait(interval)
         raise TimeoutError(f'wait_for({topic!r}) timed out; last={last!r}')
 
+    def publish_and_wait(self, topic, value, timeout=10.0, interval=0.05):
+        """Publish ``value`` to ``topic`` and wait until the retained value reflects it.
+
+        Publishes arriving over TCP are queued to the UI's pubsub thread and
+        applied asynchronously (see ``PubSub.publish``), so an immediate
+        :meth:`query` can still observe the prior value.  Poll until the change
+        lands so callers get read-after-write semantics.
+
+        :return: The confirmed value.
+        :raises TimeoutError: If the value is not observed within ``timeout``.
+        """
+        self.publish(topic, value)
+        return self.wait_for(topic, lambda v: v == value, timeout=timeout, interval=interval)
+
     @staticmethod
     def wait(seconds):
         """Sleep helper (kept as a method so tests can monkeypatch timing)."""
