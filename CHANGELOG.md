@@ -21,6 +21,15 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+
+## 1.5.3
+
+2026 Jun 18
+
+* Fixed JS320 sometimes not connecting (pyjoulescope_driver 2.2.11)
+* Improved unit test coverage.
+
+
 ## 1.5.2
 
 2026 Jun 17
