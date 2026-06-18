@@ -21,6 +21,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.5.4
+
+2026 Jun 18
+
+* Fixed occasional 1 sample glitch on JS320 current autoranging.
+  * Bumped pyjoulescope from 2.2.11 to 2.2.12 with JS320 fw 1.1.2
+
 
 ## 1.5.3
 
