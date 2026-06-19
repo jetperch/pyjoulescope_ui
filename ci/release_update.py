@@ -27,7 +27,7 @@ locally (or wired to a workflow_dispatch).
 
 Environment (S3 mode):
     AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_DEFAULT_REGION
-    JOULESCOPE_DOWNLOAD_BUCKET   S3 bucket (e.g. "download.joulescope.com")
+    JOULESCOPE_DOWNLOAD_BUCKET   S3 bucket (e.g. "download-joulescope-com")
 
 Usage:
     python ci/release_update.py 1.5.1 stable

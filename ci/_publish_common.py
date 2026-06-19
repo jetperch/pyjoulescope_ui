@@ -373,7 +373,7 @@ def make_backend(local=None, dry_run=False):
     """
     if local is not None:
         return LocalBackend(local)
-    bucket = os.environ.get(BUCKET_ENV)
+    bucket = os.environ.get(BUCKET_ENV, 'download-joulescope-com')
     if dry_run:
         return DryRunBackend(S3Backend(bucket or '<bucket>'))
     if not bucket:

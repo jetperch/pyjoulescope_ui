@@ -21,6 +21,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.5.5
+
+2026 Jun 19
+
+* Updated windows install to sign ALL binaries.
+
+
 ## 1.5.4
 
 2026 Jun 18

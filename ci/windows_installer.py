@@ -17,32 +17,85 @@ import os
 import platform
 import subprocess
 import sys
+import tempfile
 
 
 _PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _INNO_SETUP_PATH = "ISCC.exe"
 
+# Extensions for portable-executable (PE) files that carry signable code.
+# Modern Windows (SmartScreen reputation, Smart App Control, WDAC/AppLocker)
+# inspects the signatures of the DLLs/PYDs an application loads, not just the
+# top-level launcher.  Every one of these must be signed or it is flagged as
+# being of "unknown origin".
+_SIGNABLE_EXTENSIONS = ('.exe', '.dll', '.pyd')
 
-def azure_sign(path):
+
+def _find_signable_files(path):
+    """Recursively collect all signable PE files under a directory.
+
+    :param path: The root directory to search.
+    :return: The sorted list of absolute file paths to sign.
+    """
+    files = []
+    for root, _, names in os.walk(path):
+        for name in names:
+            if name.lower().endswith(_SIGNABLE_EXTENSIONS):
+                files.append(os.path.join(root, name))
+    return sorted(files)
+
+
+def azure_sign(paths):
+    """Code sign one or more files using AzureSignTool.
+
+    :param paths: A single path string or a list of path strings to sign.
+
+    All files are signed in a single AzureSignTool invocation via an input
+    file list, which avoids both command-line length limits and a separate
+    Azure Key Vault + timestamp round-trip per file.
+    """
     # https://melatonin.dev/blog/how-to-code-sign-windows-installers-with-an-ev-cert-on-github-actions/
+    if isinstance(paths, str):
+        paths = [paths]
+    paths = [p for p in paths if p]
+    if not paths:
+        return
     AZURE_KEY_VAULT_URI = os.getenv('AZURE_KEY_VAULT_URI')
     if AZURE_KEY_VAULT_URI is None:
         print('sign SKIP : set AZURE_* environment variables to sign.')
         return
-    print(f'signing {path}')
-    rc = subprocess.run(
-        [
-            'AzureSignTool', 'sign',
-            '-kvu', os.getenv('AZURE_KEY_VAULT_URI'),
-            '-kvi', os.getenv('AZURE_CLIENT_ID'),
-            '-kvt', os.getenv('AZURE_TENANT_ID'),
-            '-kvs', os.getenv('AZURE_CLIENT_SECRET'),
-            '-kvc', os.getenv('AZURE_CERT_NAME'),
-            '-tr', 'http://timestamp.digicert.com',
-            '-v', path,
-        ]
-    )
-    rc.check_returncode()
+
+    cmd = [
+        'AzureSignTool', 'sign',
+        '-kvu', os.getenv('AZURE_KEY_VAULT_URI'),
+        '-kvi', os.getenv('AZURE_CLIENT_ID'),
+        '-kvt', os.getenv('AZURE_TENANT_ID'),
+        '-kvs', os.getenv('AZURE_CLIENT_SECRET'),
+        '-kvc', os.getenv('AZURE_CERT_NAME'),
+        '-tr', 'http://timestamp.digicert.com',
+        '-td', 'sha256',
+        '-fd', 'sha256',
+        '-s',  # skip files that are already signed
+        '-v',
+    ]
+
+    list_path = None
+    try:
+        if len(paths) == 1:
+            print(f'signing {paths[0]}')
+            cmd.append(paths[0])
+        else:
+            print(f'signing {len(paths)} files')
+            fd, list_path = tempfile.mkstemp(suffix='.txt', text=True)
+            with os.fdopen(fd, 'wt', encoding='utf-8') as f:
+                f.write('\n'.join(paths))
+            # -mdop limits concurrent Key Vault calls to avoid throttling.
+            cmd += ['-mdop', '4', '-ifl', list_path]
+        rc = subprocess.run(cmd)
+        rc.check_returncode()
+    finally:
+        if list_path is not None:
+            os.remove(list_path)
 
 
 def windows_release(path, suffix=None):
@@ -53,8 +106,9 @@ def windows_release(path, suffix=None):
     """
     suffix = '' if suffix is None else str(suffix)
 
-    # sign the executable
-    azure_sign(os.path.join(path, 'joulescope.exe'))
+    # Sign every bundled executable, DLL, and PYD before packaging so that
+    # Windows does not flag the loaded binaries as being of unknown origin.
+    azure_sign(_find_signable_files(path))
 
     print('Create Inno Setup installer')
     rc = subprocess.run(
