@@ -403,9 +403,18 @@ class WaveformWidget(QtWidgets.QWidget):
                 ['off', N_('off')],
                 ['view_rel', N_('Relative to view')],
                 ['buf_rel', N_('Relative to buffer')],
-                ['abs', N_('Absolute UTC time')],
+                ['abs', N_('Absolute time')],
             ],
             'default': 'view_rel',
+        },
+        'time_zone': {
+            'dtype': 'str',
+            'brief': N_('The time zone for absolute time display.'),
+            'options': [
+                ['utc', N_('UTC')],
+                ['local', N_('Local')],
+            ],
+            'default': 'utc',
         },
         'show_statistics': {
             'dtype': 'bool',
@@ -1867,7 +1876,7 @@ class WaveformWidget(QtWidgets.QWidget):
             x_gain = (plot_width - 1) / (x_duration_s * time64.SECOND)
         else:
             return False
-        x_grid = axis_ticks.x_ticks(x_range64[0], x_range64[1], major_count_max)
+        x_grid = axis_ticks.x_ticks(x_range64[0], x_range64[1], major_count_max, self.time_zone)
         self._x_map.update(left_x1, x_range64[0], x_gain)
         self._x_map.trel_offset = x_grid['offset']
 
@@ -2487,6 +2496,17 @@ class WaveformWidget(QtWidgets.QWidget):
         except (KeyError, IndexError):
             return None, None
 
+    def _time_to_str(self, t):
+        """Format a time64 timestamp as an absolute ISO 8601 string.
+
+        :param t: The time64 timestamp.
+        :return: The ISO 8601 string in UTC or local time per the time_zone setting.
+        """
+        d = time64.as_datetime(t)
+        if self.time_zone == 'local':
+            d = d.astimezone()
+        return d.isoformat()
+
     def _draw_hover(self, p):
         if not self.show_hover:
             return
@@ -2532,7 +2552,7 @@ class WaveformWidget(QtWidgets.QWidget):
             x_rel = (x - self.x_extent[0]) / time64.SECOND
             x_txt = '~ ' + _si_format(x_rel, 's', precision=self.precision)
         elif hover_time == 'abs':
-            x_txt = '| ' + time64.as_datetime(x).isoformat()
+            x_txt = '| ' + self._time_to_str(x)
         else:
             x_txt = ''
         y_txt = _si_format(y, plot['units'], precision=self.precision)

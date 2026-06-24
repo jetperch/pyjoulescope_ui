@@ -75,6 +75,21 @@ class TestAxisXTicks(unittest.TestCase):
         self.assertLessEqual(z1, x1)
         #print(v)
 
+    def test_offset_str_utc(self):
+        x0, x1 = 180025915120611983, 180025915208504625
+        v = t.x_ticks(x0, x1, 13.857142857142858)
+        self.assertTrue(v['offset_str'].endswith('+00:00'))
+
+    def test_offset_str_local(self):
+        from datetime import datetime, timezone
+        x0, x1 = 180025915120611983, 180025915208504625
+        v_utc = t.x_ticks(x0, x1, 13.857142857142858, time_zone='utc')
+        v_local = t.x_ticks(x0, x1, 13.857142857142858, time_zone='local')
+        self.assertEqual(v_utc['offset'], v_local['offset'])
+        # The offset string only differs from UTC when the local zone is offset.
+        if datetime.now(timezone.utc).astimezone().utcoffset().total_seconds() != 0:
+            self.assertNotEqual(v_utc['offset_str'], v_local['offset_str'])
+
 
 class TestTimeFormat(unittest.TestCase):
 

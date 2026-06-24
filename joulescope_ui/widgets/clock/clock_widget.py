@@ -16,7 +16,7 @@ from PySide6 import QtCore, QtWidgets
 from joulescope_ui import N_, register
 from joulescope_ui.styles import styled_widget
 from joulescope_ui.widget_tools import settings_action_create, context_menu_show
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 _TOPIC = f'registry/ui/events/blink_medium'
@@ -58,9 +58,9 @@ class ClockWidget(QtWidgets.QWidget):
 
     def _on_update(self):
         if self.time_zone == 'utc':
-            d = datetime.utcnow()
+            d = datetime.now(timezone.utc)
         else:
-            d = datetime.now()
+            d = datetime.now().astimezone()
         s = d.strftime(self.string_format)
         self._time_str.setText(s)
 

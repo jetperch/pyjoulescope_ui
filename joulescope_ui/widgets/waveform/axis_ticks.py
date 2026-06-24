@@ -136,7 +136,7 @@ def time_fmt(t, t_max, t_incr):
     return ':'.join(p), (':'.join(units))[1:]
 
 
-def x_ticks(x0, x1, major_count_max):
+def x_ticks(x0, x1, major_count_max, time_zone='utc'):
     if x1 < x0:
         x0, x1 = x1, x0
     dt = float(x1 - x0) / (time64.SECOND * int(major_count_max))
@@ -179,9 +179,12 @@ def x_ticks(x0, x1, major_count_max):
     else:
         units = ''
 
+    offset_dt = time64.as_datetime(k)
+    if time_zone == 'local':
+        offset_dt = offset_dt.astimezone()
     return {
         'offset': k,
-        'offset_str': time64.as_datetime(k).isoformat(),
+        'offset_str': offset_dt.isoformat(),
         'major': major,
         'major_interval': major_interval,
         'minor': minor,

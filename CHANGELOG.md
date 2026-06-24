@@ -21,6 +21,15 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.5.6
+
+2026 Jun 24 [in progress]
+
+* Improved timezone localization support  #345
+  * Added local timezone support to the Waveform widget.
+  * Added timezone format option to the Clock widget.
+
+
 ## 1.5.5
 
 2026 Jun 19
