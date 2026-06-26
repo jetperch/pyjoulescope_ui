@@ -174,7 +174,6 @@ setuptools.setup(
         'Operating System :: POSIX :: Linux',
 
         # Supported Python versions
-        'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: 3.12',
         'Programming Language :: Python :: 3.13',
         'Programming Language :: Python :: 3.14',
@@ -193,12 +192,12 @@ setuptools.setup(
     include_package_data=True,
 
     # See https://packaging.python.org/guides/distributing-packages-using-setuptools/#python-requires
-    python_requires='~=3.11',
+    python_requires='~=3.12',
     
     # See https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         'appnope>=0.1.2,<1',
-        'pyjoulescope_driver>=2.2.12,<3',
+        'pyjoulescope_driver>=2.3.0,<3',
         'joulescope>=1.5.0,<2',
         'markdown>=3,<4',
         'psutil>=5,<8',

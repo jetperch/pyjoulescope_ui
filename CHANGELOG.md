@@ -21,13 +21,19 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
-## 1.5.6
+## 1.6.0
 
-2026 Jun 24 [in progress]
+2026 Jun 26
 
 * Improved timezone localization support  #345
   * Added local timezone support to the Waveform widget.
   * Added timezone format option to the Clock widget.
+* Fixed current reading stuck at ±2.2A max on some JS320 units.
+  * Bumped pyjoulescope_driver from 2.2.12 to 2.3.0
+    Contains JS320 FW 1.1.3 which
+    reduced current overflow from almost 100% to 95% of ADC max.
+* Dropped support for Python 3.11 and earlier.  See
+  [NEP 29](https://numpy.org/neps/nep-0029-deprecation_policy.html).
 
 
 ## 1.5.5
