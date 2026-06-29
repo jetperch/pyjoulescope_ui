@@ -207,7 +207,7 @@ setuptools.setup(
         'pyqtgraph>=0.14.0,<1',
         'pyserial>=3,<4',
         'PySide6>=6.11.1,<7',
-        'PySide6-QtAds>=4.5.0.5,<5',
+        'PySide6-QtAds>=5.0.0.0,<6',
         'python-dateutil>=2.7.3,<3',
         'QtPy>=2,<3',
         'requests>=2,<3',
