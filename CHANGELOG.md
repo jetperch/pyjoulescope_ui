@@ -23,9 +23,10 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.6.1
 
-2026 Jun 29 [in progress]
+2026 Jul 2 [in progress]
 
 * Fixed degraded graph performance on Linux Wayland  #316
+* Fixed config import not working  #346
 
 
 ## 1.6.0

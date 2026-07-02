@@ -16,7 +16,7 @@
 # https://wiki.qt.io/Gallery_of_Qt_CSS_Based_Styles
 
 from joulescope_ui import pubsub_singleton, N_, get_topic_name, get_instance, \
-    tooltip_format, CAPABILITIES, Metadata, __version__
+    tooltip_format, CAPABILITIES, Metadata, __version__, _pubsub_factory
 from joulescope_ui.locale import locale_get
 from joulescope_ui.pubsub import UNDO_TOPIC, REDO_TOPIC, is_pubsub_registered
 from joulescope_ui.pubsub_aggregator import PubsubAggregator
@@ -154,11 +154,16 @@ def _config_confirm(parent, title, text):
 
 def _config_file_validate(path):
     try:
-        with open(path, 'rt') as f:
+        with open(path, 'rt', encoding='utf-8') as f:
             obj = json.load(f)
-        return obj.get('type') == 'joulescope_ui_config' and obj.get('version') == 1
+        if obj.get('type') != 'joulescope_ui_config' or obj.get('version') < 2:
+            return False
+        p = _pubsub_factory()
+        p.load(path)
+        return True
     except Exception:
-        return False
+        _log.exception('Failed to load config file')
+    return False
 
 
 def _menu_setup(parent, d):
@@ -833,7 +838,7 @@ class MainWindow(QtWidgets.QMainWindow):
             files = dialog.selectedFiles()
             if files and len(files) == 1:
                 try:
-                    with open(files[0], 'wt') as f:
+                    with open(files[0], 'wt', encoding='utf-8') as f:
                         pubsub_singleton.save(f)
                     self._log.info('config export -> %s', files[0])
                 except Exception:

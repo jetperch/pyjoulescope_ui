@@ -1621,7 +1621,7 @@ class PubSub:
         obj = _paths_encode(obj, self._paths_substitutions())
         if isinstance(fh, str):
             os.makedirs(os.path.dirname(fh), exist_ok=True)
-            fh = versioned_file.open(fh, 'wt')
+            fh = versioned_file.open(fh, 'wt', encoding='utf-8')
             do_close = True
         try:
             json.dump(obj, fh)
@@ -1679,7 +1679,7 @@ class PubSub:
         do_close = False
         if isinstance(fh, str):
             self._log.info('load %s', fh)
-            fh = versioned_file.open(fh, 'rt')
+            fh = versioned_file.open(fh, 'rt', encoding='utf-8')
             do_close = True
         else:
             self._log.info('load filehandle')
