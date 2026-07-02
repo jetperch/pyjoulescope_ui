@@ -368,7 +368,7 @@ msgstr "Προβολή ως Markdown"
 msgid "Abort"
 msgstr "Διακοπή"
 
-#: error_window.py:120 main.py:406 widgets/settings/settings_widget.py:539
+#: error_window.py:120 main.py:411 widgets/settings/settings_widget.py:539
 msgid "View"
 msgstr "Προβολή"
 
@@ -388,7 +388,7 @@ msgstr "Επιστροφή στην προηγούμενη διαμόρφωση"
 msgid "Revert to defaults"
 msgstr "Επαναφορά στις προεπιλογές"
 
-#: error_window.py:283 main.py:404 main.py:452
+#: error_window.py:283 main.py:409 main.py:457
 #: widgets/js220_cal/js220_cal_widget.py:38
 #: widgets/js320_cal/js320_cal_widget.py:60
 msgid "Exit"
@@ -415,7 +415,7 @@ msgstr "Σημειώσεις"
 msgid "Select save location"
 msgstr "Επιλέξτε θέση αποθήκευσης"
 
-#: exporter.py:139 main.py:821
+#: exporter.py:139 main.py:826
 msgid "Export configuration"
 msgstr "Εξαγωγή ρυθμίσεων"
 
@@ -614,7 +614,7 @@ msgstr "Πολύμετρο"
 msgid "Oscilloscope"
 msgstr "Παλμογράφος"
 
-#: main.py:77 main.py:327 main.py:396 main.py:441
+#: main.py:77 main.py:332 main.py:401 main.py:446
 msgid "File"
 msgstr "Αρχείο"
 
@@ -682,127 +682,127 @@ msgstr ""
 "Εμφάνιση της χρήσης της μνήμης (RAM) από αυτή την εφαρμογή και από όλες τις "
 "εφαρμογές. Η τιμή εμφανίζεται σε ποσοστό επί τοις εκατό."
 
-#: main.py:241
+#: main.py:246
 msgid "UI"
 msgstr "UI"
 
-#: main.py:359
+#: main.py:364
 msgid "Help"
 msgstr "Βοήθεια"
 
-#: main.py:360 widgets/hamburger/hamburger_widget.py:21
+#: main.py:365 widgets/hamburger/hamburger_widget.py:21
 msgid "Getting Started"
 msgstr "Ξεκινώντας"
 
-#: main.py:361
+#: main.py:366
 msgid "Language"
 msgstr "Γλώσσα"
 
-#: main.py:362
+#: main.py:367
 msgid "User's Guide"
 msgstr "Οδηγός χρήσης"
 
-#: main.py:363 widgets/hamburger/hamburger_widget.py:22
+#: main.py:368 widgets/hamburger/hamburger_widget.py:22
 msgid "Changelog"
 msgstr "Changelog"
 
-#: main.py:364 widgets/help/help_widget.py:60
+#: main.py:369 widgets/help/help_widget.py:60
 msgid "Report Issue"
 msgstr "Έκδοση έκθεσης"
 
-#: main.py:365
+#: main.py:370
 msgid "View logs..."
 msgstr "Προβολή αρχείων καταγραφής..."
 
-#: main.py:366 widgets/hamburger/hamburger_widget.py:23
+#: main.py:371 widgets/hamburger/hamburger_widget.py:23
 msgid "Credits"
 msgstr "Συντελεστές"
 
-#: main.py:367 widgets/hamburger/hamburger_widget.py:24
+#: main.py:372 widgets/hamburger/hamburger_widget.py:24
 msgid "About"
 msgstr "Σχετικά με το"
 
-#: main.py:371
+#: main.py:376
 msgid "Clear Accumulators"
 msgstr "Σαφείς συσσωρευτές"
 
-#: main.py:374
+#: main.py:379
 msgid "Configure high accuracy time"
 msgstr "Διαμόρφωση χρόνου υψηλής ακρίβειας"
 
 #: devices/serial/serial_port_dialog.py:145
-#: devices/serial/serial_port_dialog.py:159 main.py:397
+#: devices/serial/serial_port_dialog.py:159 main.py:402
 msgid "Open"
 msgstr "Open"
 
-#: main.py:398
+#: main.py:403
 msgid "Open recent"
 msgstr "Ανοικτό πρόσφατα"
 
-#: main.py:399 main.py:447 widgets/trigger/trigger_widget.py:467
+#: main.py:404 main.py:452 widgets/trigger/trigger_widget.py:467
 #: widgets/trigger/trigger_widget.py:480
 msgid "Config"
 msgstr "Διαμόρφωση"
 
-#: main.py:400 main.py:448 widgets/waveform/waveform_widget.py:3855
+#: main.py:405 main.py:453 widgets/waveform/waveform_widget.py:3855
 msgid "Export"
 msgstr "Εξαγωγή"
 
-#: main.py:401 main.py:449 main.py:872
+#: main.py:406 main.py:454 main.py:877
 msgid "Import and exit"
 msgstr "Εισαγωγή και έξοδος"
 
-#: main.py:402 main.py:450 main.py:880
+#: main.py:407 main.py:455 main.py:885
 msgid "Clear and exit"
 msgstr "Σαφής και έξοδος"
 
-#: main.py:407 widgets/settings/settings_widget.py:541
+#: main.py:412 widgets/settings/settings_widget.py:541
 msgid "Widgets"
 msgstr "Widgets"
 
-#: main.py:408
+#: main.py:413
 msgid "Tools"
 msgstr "Εργαλεία"
 
-#: main.py:442
+#: main.py:447
 msgid "Info"
 msgstr "Πληροφορίες"
 
-#: main.py:443 widget_tools.py:92 widgets/settings/settings_widget.py:31
+#: main.py:448 widget_tools.py:92 widgets/settings/settings_widget.py:31
 #: widgets/settings/settings_widget.py:574
 #: widgets/sidebar/sidebar_widget.py:42
 msgid "Settings"
 msgstr "Ρυθμίσεις"
 
-#: main.py:761
+#: main.py:766
 msgid "Manage"
 msgstr "Διαχείριση"
 
-#: main.py:798
+#: main.py:803
 msgid "Select file to open"
 msgstr "Επιλέξτε αρχείο για άνοιγμα"
 
-#: main.py:841
+#: main.py:846
 msgid "Configuration export failed."
 msgstr "Η εξαγωγή της διαμόρφωσης απέτυχε."
 
-#: main.py:851
+#: main.py:856
 msgid "Import configuration"
 msgstr "Εισαγωγή διαμόρφωσης"
 
-#: main.py:870
+#: main.py:875
 msgid "The selected file is not a valid Joulescope UI configuration."
 msgstr ""
 "Το επιλεγμένο αρχείο δεν είναι έγκυρη διαμόρφωση διεπαφής χρήστη του "
 "Joulescope."
 
-#: main.py:873
+#: main.py:878
 msgid "Replace the current configuration with the imported file and exit?"
 msgstr ""
 "Θέλετε να αντικαταστήσετε την τρέχουσα διαμόρφωση με το εισαγόμενο αρχείο "
 "και να κλείσετε;"
 
-#: main.py:880
+#: main.py:885
 msgid "Clear the configuration and exit?"
 msgstr "Να διαγραφεί η διαμόρφωση και να τερματιστεί η λειτουργία;"
 
