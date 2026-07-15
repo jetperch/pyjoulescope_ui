@@ -21,6 +21,14 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.6.2
+
+2026 Jul 15
+
+* Fixed host computer sleep / wake (USB suspend/resume)
+  * Bumped pyjoulescope_driver from 2.3.0 to 2.3.1 with JS320 FW 1.1.4.
+
+
 ## 1.6.1
 
 2026 Jul 2
