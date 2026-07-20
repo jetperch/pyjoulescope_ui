@@ -21,6 +21,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.6.5
+
+2026 Jul 20
+
+* Fixed Waveform widget export all sometimes failing  #347
+
+
 ## 1.6.4
 
 2026 Jul 17

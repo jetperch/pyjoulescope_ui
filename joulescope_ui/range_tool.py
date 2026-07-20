@@ -158,7 +158,11 @@ class RangeTool:
                     self._log.warning('discarding message')
             fs = rsp['info']['time_map']['counter_rate']
             period_t64 = (1.0 / fs) * time64.SECOND
-            if req['time_type'] == 'samples':
+            if rsp['response_type'] != 'samples':
+                # summary responses aggregate the available data over the
+                # requested range and cannot be continued: always complete
+                is_done = True
+            elif req['time_type'] == 'samples':
                 end = req['end']
                 if end == 0:
                     end = req['start'] + req['length'] - 1
@@ -170,13 +174,18 @@ class RangeTool:
             if rsp_total is None:
                 rsp_total = rsp
                 rsp_total['data'] = [rsp_total['data']]
-                if rsp['response_type'] != 'samples':
-                    raise RuntimeError('Only support concat for sample responses')
                 if req['time_type'] == 'utc':
                     # convert to samples
                     req['time_type'] = 'samples'
                     req['length'] = 0
                     req['end'] = rsp['info']['tmap'].timestamp_to_sample_id(end)
+            elif (rsp['info']['time_range_samples']['length'] == 0
+                    or rsp['info']['time_range_samples']['end'] < req['start']):
+                # no forward progress: the source has no more data for this
+                # range, so return what we have rather than loop forever
+                self._log.warning('request %s: data ends at %d before requested end',
+                                  signal_id, req['start'] - 1)
+                is_done = True
             else:
                 rsp_total['data'].append(rsp['data'])
                 rsp_total['info']['time_range_utc']['end'] = rsp['info']['time_range_utc']['end']
