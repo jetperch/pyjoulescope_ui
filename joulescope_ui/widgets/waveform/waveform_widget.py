@@ -70,6 +70,8 @@ _X_MARKER_ZOOM_LEVELS = [100, 90, 75, 50, 33, 25, 10]
 _DOT_RADIUS = 3
 _ANTIALIASING = QtGui.QPainter.RenderHint.Antialiasing
 _CLIP_LIMIT_PIXELS = 8192
+_PIN_ATTENTION_DURATION_S = 3.0  # in-plot pinned x-axis message display duration
+_PIN_ATTENTION_MESSAGE = N_('X-axis pinned: click the pin buttons or press Shift+Space to unpin')
 
 
 def _analog_plot(quantity, show, units, name, integral=None, range_bounds=None):
@@ -610,6 +612,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._marker_data = {}  # rsp_id -> data,
         self._annotations_request_defer = []
         self._await = []  # defer topic publish on JLS user_data
+        self._pin_attention_expire = 0.0  # end time for the pinned x-axis indication
 
         self._fps = {
             'start': time.time(),
@@ -839,6 +842,11 @@ class WaveformWidget(QtWidgets.QWidget):
             return False
         return True
 
+    @property
+    def _is_file_mode(self):
+        source_filter = getattr(self, 'source_filter', None)
+        return source_filter is not None and 'JlsSource' in source_filter
+
     def on_pubsub_register(self):
         self._trace_widget.on_pubsub_register(self.pubsub)
         source_filter = self._source_filter_set()
@@ -923,6 +931,13 @@ class WaveformWidget(QtWidgets.QWidget):
             self._keymap[(key, num)] = self._keymap[(key, _no)]
 
     def on_action_viewport(self, topic, value):
+        if self._is_file_mode:
+            # File extents are fixed, so pinning provides no value.
+            # Zoom to the full extents without changing pin_left or pin_right.
+            x0, x1 = self.x_range
+            self.x_range = self.x_extent
+            self._plot_data_invalidate()
+            return [f'{get_topic_name(self)}/actions/!x_range', [x0, x1]]
         cmd = value[0]
         t1 = f'{self.topic}/settings/pin_right'
         t2 = f'{self.topic}/settings/pin_left'
@@ -1426,6 +1441,7 @@ class WaveformWidget(QtWidgets.QWidget):
             'plot_separator_brush': QtGui.QBrush(color_as_qcolor(v['waveform.plot_separator'])),
 
             'waveform.hover': QBrush(color_as_qcolor(v['waveform.hover'])),
+            'pin_attention_pen': QPen(color_as_qcolor(v.get('waveform.pin_attention', '#ff8c00ff')), 2),
 
             'summary_missing': QBrush(color_as_qcolor(summary_trace, alpha=missing_alpha)),
             'summary_trace': QPen(color_as_qcolor(summary_trace, alpha=trace_alpha)),
@@ -1735,6 +1751,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._draw_markers(p, size)
 
         self._draw_hover(p)
+        self._draw_pin_attention(p)
         self._set_cursor()
 
         thread_duration = (time.thread_time_ns() - t_thread_start) / 1e9
@@ -2507,6 +2524,28 @@ class WaveformWidget(QtWidgets.QWidget):
             d = d.astimezone()
         return d.isoformat()
 
+    def _draw_pin_attention(self, p):
+        """Draw the transient pinned x-axis message.  #324"""
+        if time.time() >= self._pin_attention_expire:
+            return
+        s = self._style
+        txt = _PIN_ATTENTION_MESSAGE
+        font_metrics = s['axis_font_metrics']
+        _, x0, x1 = self._x_geometry_info['plot']
+        _, _, y1 = self._y_geometry_info['x_axis']
+        margin = 2 * _MARGIN
+        w = font_metrics.boundingRect(txt).width() + 2 * margin
+        h = font_metrics.height() + 2 * margin
+        x = x0 + max(0, ((x1 - x0) - w) // 2)
+        y = y1 + _MARGIN
+        p.setFont(s['axis_font'])
+        p.setPen(s['pin_attention_pen'])
+        p.setBrush(s['text_brush'])
+        p.drawRect(x, y, w, h)
+        p.setPen(s['text_pen'])
+        p.drawText(x + margin, y + margin + font_metrics.ascent(), txt)
+        self._repaint_request = True  # keep drawing until expired
+
     def _draw_hover(self, p):
         if not self.show_hover:
             return
@@ -3098,6 +3137,12 @@ class WaveformWidget(QtWidgets.QWidget):
         x_offset = xt - x0
         self._mouse_action = ['move.x_marker', item, x_offset, move_both]
 
+    def _pin_attention(self):
+        """Indicate that pin_left / pin_right blocked an x-axis pan attempt.  #324"""
+        self._pin_attention_expire = time.time() + _PIN_ATTENTION_DURATION_S
+        self._repaint_request = True
+        self._control.pin_attention_flash(int(_PIN_ATTENTION_DURATION_S * 1000))
+
     def plot_mousePressEvent(self, event: QtGui.QMouseEvent):
         event.accept()
         x, y = event.position().x(), event.position().y()
@@ -3129,7 +3174,7 @@ class WaveformWidget(QtWidgets.QWidget):
                     self._mouse_action = ['move.y_marker', item, is_ctrl]
             elif y_name == 'summary':
                 if self.pin_left or self.pin_right:
-                    pass  # pinned to extents, cannot pan
+                    self._pin_attention()  # pinned to extents, cannot pan
                 else:
                     self._log.info('x_pan_summary start')
                     self._mouse_action = ['x_pan_summary', x]
@@ -3142,13 +3187,13 @@ class WaveformWidget(QtWidgets.QWidget):
                         self._x_marker_move_start(item, x, True)
                         return
                 if self.pin_left or self.pin_right:
-                    pass  # pinned to extents, cannot pan
+                    self._pin_attention()  # pinned to extents, cannot pan
                 else:
                     self._log.info('x_pan start')
                     self._mouse_action = ['x_pan', x]
             elif not is_ctrl and y_name.startswith('plot.') and x_name == 'plot':
                 if self.pin_left or self.pin_right:
-                    pass  # pinned to extents, cannot pan
+                    self._pin_attention()  # pinned to extents, cannot pan
                 else:
                     self._log.info('x_pan start')
                     self._mouse_action = ['x_pan', x]
@@ -4702,6 +4747,7 @@ class WaveformWidget(QtWidgets.QWidget):
     def on_action_x_pan(self, pan):
         self._log.info(f'on_action_x_pan {pan}')
         if self.pin_left or self.pin_right:
+            self._pin_attention()
             return  # locked to extents
         e0, e1 = self.x_extent
         x0, x1 = self.x_range
@@ -4885,10 +4931,16 @@ class WaveformWidget(QtWidgets.QWidget):
         self._await.append(value)
         self._repaint_request = True
 
-    def on_setting_pin_left(self):
+    def on_setting_pin_left(self, value):
+        if bool(value) and self._is_file_mode:
+            self.pin_left = False  # file extents are fixed: pins remain unset
+            return
         self._plot_data_invalidate()
 
-    def on_setting_pin_right(self):
+    def on_setting_pin_right(self, value):
+        if bool(value) and self._is_file_mode:
+            self.pin_right = False  # file extents are fixed: pins remain unset
+            return
         self._plot_data_invalidate()
 
     def on_setting_show_min_max(self):

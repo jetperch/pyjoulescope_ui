@@ -81,6 +81,12 @@ _TOOLTIP_PIN_RIGHT = tooltip_format(
     When enabled, the right side (newest) data
     always remains in view."""))
 
+_TOOLTIP_PIN_FILE_MODE = tooltip_format(
+    N_("Pin"),
+    N_("""Pin the waveform display to one side.
+    Pins are not available when viewing a file,
+    which has fixed extents."""))
+
 _TOOLTIP_Y_AXIS_ZOOM_ALL = tooltip_format(
     N_("Y zoom all"),
     P_([
@@ -147,6 +153,9 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._pin_left.setCheckable(True)
         self._pin_right = self._add_button('pin_right', self._on_pin_right_click, _TOOLTIP_PIN_RIGHT)
         self._pin_right.setCheckable(True)
+        self._pin_attention_timer = QtCore.QTimer(self)
+        self._pin_attention_timer.setSingleShot(True)
+        self._pin_attention_timer.timeout.connect(self._on_pin_attention_expire)
         self._add_button('y_zoom_all', self._on_y_axis_zoom_all, _TOOLTIP_Y_AXIS_ZOOM_ALL)
 
         self._show_min_max_label = QtWidgets.QLabel(self)
@@ -190,14 +199,17 @@ class WaveformControlWidget(QtWidgets.QWidget):
         meta = self.pubsub.metadata(self._min_max_topic)
         comboBoxConfig(self._min_max_sel, [x[1] for x in meta.options])
         pubsub.subscribe(self._min_max_topic, self._on_min_max, ['pub', 'retain'])
-        pin_mode = ['pub'] if self.is_file_mode else ['pub', 'retain']
-        pubsub.subscribe(f'{self.topic}/settings/pin_left', self._on_pin_left, pin_mode)
-        pubsub.subscribe(f'{self.topic}/settings/pin_right', self._on_pin_right, pin_mode)
         pubsub.subscribe(f'{self.topic}/settings/state', self._on_waveform_state, ['pub', 'retain'])
         if self.is_file_mode:
+            # File extents are fixed: force pins off and keep the buttons disabled.
+            for b in [self._pin_left, self._pin_right]:
+                b.setEnabled(False)
+                b.setToolTip(_TOOLTIP_PIN_FILE_MODE)
             self._on_pin_left_click(False)
             self._on_pin_right_click(False)
         else:
+            pubsub.subscribe(f'{self.topic}/settings/pin_left', self._on_pin_left, ['pub', 'retain'])
+            pubsub.subscribe(f'{self.topic}/settings/pin_right', self._on_pin_right, ['pub', 'retain'])
             pubsub.subscribe('registry/app/settings/signal_stream_enable',
                              self._on_signal_stream_enable, ['pub', 'retain'])
 
@@ -241,6 +253,24 @@ class WaveformControlWidget(QtWidgets.QWidget):
     @QtCore.Slot(bool)
     def _on_pin_right_click(self, value):
         self.pubsub.publish(f'{self.topic}/settings/pin_right', bool(value))
+
+    def pin_attention_flash(self, duration_ms):
+        """Highlight the engaged pin buttons to show why x-axis pan is blocked.  #324
+
+        :param duration_ms: The highlight duration in milliseconds.
+        """
+        self._pin_attention(True)
+        self._pin_attention_timer.start(duration_ms)
+
+    def _pin_attention(self, enable):
+        for b in [self._pin_left, self._pin_right]:
+            b.setProperty('attention', bool(enable) and b.isChecked())
+            b.style().unpolish(b)
+            b.style().polish(b)
+
+    @QtCore.Slot()
+    def _on_pin_attention_expire(self):
+        self._pin_attention(False)
 
     @QtCore.Slot(int)
     def _on_min_max_sel(self, index):

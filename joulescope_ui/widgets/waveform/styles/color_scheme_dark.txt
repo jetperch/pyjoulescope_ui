@@ -10,6 +10,8 @@ waveform.plot_border = #ffffff80
 
 waveform.hover = #ffffffa0
 
+waveform.pin_attention = #ff8c00ff
+
 waveform.summary_trace = #ffff00ff
 waveform.summary_view = #1260a080
 

@@ -67,6 +67,13 @@ QPushButton#pin_right:enabled       { image: url("{% path %}/pin_right_enabled.s
 QPushButton#pin_right:enabled:hover { image: url("{% path %}/pin_right_hover.svg"); }
 QPushButton#pin_right:checked       { image: url("{% path %}/pin_right_pressed.svg"); }
 
+QPushButton#pin_left[attention="true"],
+QPushButton#pin_right[attention="true"]
+{
+    border: 2px solid {% waveform.pin_attention %};
+    border-radius: 3px;
+}
+
 QPushButton#y_zoom_all:disabled      { image: url("{% path %}/y_zoom_all_disabled.svg"); }
 QPushButton#y_zoom_all:enabled       { image: url("{% path %}/y_zoom_all_enabled.svg"); }
 QPushButton#y_zoom_all:enabled:hover { image: url("{% path %}/y_zoom_all_hover.svg"); }
