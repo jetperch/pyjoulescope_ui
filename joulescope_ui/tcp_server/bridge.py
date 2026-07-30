@@ -33,7 +33,7 @@ from joulescope_ui.tcp_server.protocol import (
     MSG_ENUMERATE, MSG_ENUMERATE_RESPONSE,
     MSG_QT_INSPECT, MSG_QT_ACTION, MSG_QT_SCREENSHOT,
     MSG_ERROR,
-    encode, encode_publish_data,
+    encode, encode_publish_data, topic_match,
 )
 
 _log = logging.getLogger(__name__)
@@ -111,11 +111,28 @@ class PubSubBridge:
             self._client_topics[client.id] = set()
         self._client_topics[client.id].add(topic)
 
-        # Reference-counted PubSub subscription
+        # Reference-counted PubSub subscription.  A '+' wildcard pattern is
+        # not a real PubSub topic: subscribe to its concrete ancestor (PubSub
+        # propagates subtree publishes to ancestor subscribers) and filter
+        # the concrete topics against the pattern before forwarding.
         if topic not in self._subscriptions:
-            def forwarder(t, value):
-                self._forward_to_clients(t, value, topic)
-            unsub = self._pubsub.subscribe(topic, forwarder, flags)
+            segments = topic.split('/')
+            if '+' in segments:
+                base = '/'.join(segments[:segments.index('+')])
+                if not base:
+                    raise ValueError(f'wildcard subscription requires a concrete first segment: {topic}')
+
+                # exactly (t, value): PubSub infers the callback form
+                # from the parameter count
+                def forwarder(t, value):
+                    if topic_match(topic, t):
+                        self._forward_to_clients(t, value, topic)
+            else:
+                base = topic
+
+                def forwarder(t, value):
+                    self._forward_to_clients(t, value, topic)
+            unsub = self._pubsub.subscribe(base, forwarder, flags)
             sub = _TopicSubscription(topic, unsub)
             self._subscriptions[topic] = sub
         self._subscriptions[topic].client_ids.add(client.id)

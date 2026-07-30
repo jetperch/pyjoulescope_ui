@@ -155,6 +155,16 @@ with open('screenshot.png', 'wb') as f:
 Use `client.enumerate('registry')` to discover the full topic tree at
 runtime.
 
+### Subscription matching
+
+A subscription covers its topic node and the entire subtree below it,
+matching PubSub's publish propagation to ancestor subscribers.  A `+`
+segment in the subscribed topic matches exactly one topic segment, so
+`registry/+/events/statistics/!data` receives statistics from every
+device.  Callbacks always receive the concrete published topic.  The
+server subscribes wildcard patterns at their concrete ancestor and
+filters, so a wildcard must start with at least one concrete segment.
+
 
 ## Wire protocol
 

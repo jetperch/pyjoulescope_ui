@@ -47,7 +47,7 @@ from joulescope_ui.tcp_server.protocol import (
     MSG_QT_INSPECT, MSG_QT_INSPECT_RESPONSE,
     MSG_QT_ACTION, MSG_QT_SCREENSHOT, MSG_QT_SCREENSHOT_RESPONSE,
     MSG_ERROR, MSG_CLOSE,
-    encode, decode_publish_data,
+    encode, decode_publish_data, topic_match,
 )
 
 _log = logging.getLogger(__name__)
@@ -149,8 +149,11 @@ class Client:
     def subscribe(self, topic, callback, flags=None):
         """Subscribe to a PubSub topic.
 
-        :param topic: The topic string.
-        :param callback: Called as callback(topic, value) for each publish.
+        :param topic: The topic string.  The subscription covers the topic's
+            subtree, and a '+' segment matches any single topic segment
+            (e.g. 'registry/+/events/statistics/!data').
+        :param callback: Called as callback(topic, value) for each publish,
+            with the concrete published topic.
         :param flags: Subscription flags list (default ['pub']).
         """
         if flags is None:
@@ -317,9 +320,14 @@ class Client:
             _log.warning('Server error: %s', header.get('message', ''))
 
     def _notify_subscribers(self, topic, value):
-        callbacks = self._subscribers.get(topic, [])
-        for cb in callbacks:
-            try:
-                cb(topic, value)
-            except Exception:
-                _log.exception('Subscriber callback error for topic %s', topic)
+        # A subscription covers its topic's subtree and may contain '+'
+        # wildcards, while the server forwards each publish with its concrete
+        # topic, so match patterns rather than looking up the exact topic.
+        for pattern, callbacks in list(self._subscribers.items()):
+            if not topic_match(pattern, topic):
+                continue
+            for cb in callbacks:
+                try:
+                    cb(topic, value)
+                except Exception:
+                    _log.exception('Subscriber callback error for topic %s', topic)

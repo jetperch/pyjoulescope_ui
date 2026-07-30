@@ -212,19 +212,13 @@ def _cmd_devices(client, args):
 
 
 def _cmd_stats(client, args):
-    # Subscribe per-device concrete topics: tcp_client dispatches incoming
-    # publishes by exact topic, so a '+' wildcard subscription never matches.
-    topics = [f'{d.topic}/events/statistics/!data'
-              for d in discover.enumerate_devices(client)]
+    topic = 'registry/+/events/statistics/!data'
     samples = []
-    cbk = lambda topic, value: samples.append((topic, value))  # noqa: E731
-    for topic in topics:
-        client.subscribe(topic, cbk)
+    client.subscribe(topic, lambda t, value: samples.append((t, value)))
     time.sleep(args.duration)
-    for topic in topics:
-        client.unsubscribe(topic)
+    client.unsubscribe(topic)
     if not samples:
-        return {'count': 0, 'topics': topics, 'sample': None}
+        return {'count': 0, 'sample': None}
     topic, value = samples[-1]
     return {'count': len(samples), 'topic': topic, 'sample': value}
 

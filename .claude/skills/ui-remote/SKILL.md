@@ -125,10 +125,9 @@ an open dialog steals targeting; dismiss dialogs first** (Escape key action or
   kill — always `ping` before trusting it.
 - Streaming signal topics deliver numpy arrays over binary frames — don't try
   to JSON-print them; use `stats` for quick numbers.
-- Wildcard (`+`) subscriptions silently receive nothing through `tcp_client`:
-  it dispatches incoming publishes by exact topic match. Subscribe to concrete
-  topics (e.g. `registry/JS320-8W2A/events/statistics/!data`); `cli.py stats`
-  already does this per device.
+- Subscriptions cover the topic's subtree, and a `+` segment matches any one
+  segment (e.g. `registry/+/events/statistics/!data`); callbacks receive the
+  concrete topic.
 - Offscreen or unpainted OpenGL waveform: hit-test geometry stays empty and
   waveform mouse interactions **silently no-op**. Waveform interaction needs a
   real, visible display (`is_waveform_rendered` in the harness checks this).

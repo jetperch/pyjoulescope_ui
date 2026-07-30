@@ -106,6 +106,40 @@ class TestServerClient(unittest.TestCase):
         self.assertEqual(received[0][0], 'test/value')
         self.assertEqual(received[0][1], 'broadcast_test')
 
+    def test_subscribe_wildcard(self):
+        received = []
+        event = threading.Event()
+
+        def on_value(topic, value):
+            received.append((topic, value))
+            event.set()
+
+        self.client.subscribe('test/+', on_value, ['pub'])
+        self._process_pubsub()
+
+        self.pubsub.publish('test/value', 'wildcard_test')
+        self.pubsub.process()
+
+        event.wait(timeout=2.0)
+        self.assertEqual(received, [('test/value', 'wildcard_test')])
+
+    def test_subscribe_parent_receives_subtree(self):
+        received = []
+        event = threading.Event()
+
+        def on_value(topic, value):
+            received.append((topic, value))
+            event.set()
+
+        self.client.subscribe('test', on_value, ['pub'])
+        self._process_pubsub()
+
+        self.pubsub.publish('test/value', 'subtree_test')
+        self.pubsub.process()
+
+        event.wait(timeout=2.0)
+        self.assertEqual(received, [('test/value', 'subtree_test')])
+
     def test_enumerate(self):
         topics = self.client.enumerate('test')
         self.assertIn('value', topics)

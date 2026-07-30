@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python ci/uitest/cli.py *)",
+      "PowerShell(python ci/uitest/cli.py *)"
+    ]
+  }
+}

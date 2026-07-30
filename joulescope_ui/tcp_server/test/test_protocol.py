@@ -16,11 +16,38 @@ import unittest
 import numpy as np
 from joulescope_ui.tcp_server.protocol import (
     encode, FrameDecoder,
-    encode_publish_data, decode_publish_data,
+    encode_publish_data, decode_publish_data, topic_match,
     MSG_SUBSCRIBE, MSG_PUBLISH, MSG_PUBLISH_DATA,
     MSG_QUERY, MSG_QUERY_RESPONSE, MSG_CLOSE,
     PROTOCOL_VERSION,
 )
+
+
+class TestTopicMatch(unittest.TestCase):
+
+    def test_exact(self):
+        self.assertTrue(topic_match('a/b/c', 'a/b/c'))
+        self.assertFalse(topic_match('a/b/c', 'a/b/x'))
+
+    def test_subtree(self):
+        self.assertTrue(topic_match('a/b', 'a/b/c/d'))
+        self.assertFalse(topic_match('a/b/c/d', 'a/b'))
+
+    def test_no_partial_segment(self):
+        self.assertFalse(topic_match('a/b', 'a/bc'))
+
+    def test_wildcard_one_segment(self):
+        pattern = 'registry/+/events/statistics/!data'
+        self.assertTrue(topic_match(pattern, 'registry/JS220-002557/events/statistics/!data'))
+        self.assertFalse(topic_match(pattern, 'registry/JS220-002557/events/signals/!data'))
+        self.assertFalse(topic_match(pattern, 'registry/events/statistics/!data'))
+
+    def test_wildcard_subtree(self):
+        self.assertTrue(topic_match('registry/+/events', 'registry/dev/events/statistics/!data'))
+
+    def test_multiple_wildcards(self):
+        self.assertTrue(topic_match('a/+/c/+', 'a/x/c/y/z'))
+        self.assertFalse(topic_match('a/+/c/+', 'a/x/q/y'))
 
 
 class TestEncodeDecode(unittest.TestCase):

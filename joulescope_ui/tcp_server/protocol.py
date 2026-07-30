@@ -99,6 +99,26 @@ DTYPE_REVERSE = {v: k for k, v in DTYPE_MAP.items() if k != 'u1'}
 DTYPE_REVERSE[np.float32] = 'f32'  # ensure canonical names
 
 
+def topic_match(pattern, topic):
+    """Return True if ``topic`` matches the subscription ``pattern``.
+
+    A pattern matches its topic node and the entire subtree below it,
+    mirroring PubSub's publish propagation to ancestor subscribers.
+    A ``+`` pattern segment matches exactly one topic segment, e.g.
+    ``registry/+/events/statistics/!data`` matches that event topic for
+    every registered device.
+
+    :param pattern: The subscription pattern string.
+    :param topic: The concrete published topic string.
+    :return: True if the topic matches the pattern.
+    """
+    p = pattern.split('/')
+    t = topic.split('/')
+    if len(p) > len(t):
+        return False
+    return all(ps in ('+', ts) for ps, ts in zip(p, t))
+
+
 def encode(msg_type, header=None, payload=None):
     """Encode a message into a wire frame.
 
