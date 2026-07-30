@@ -313,7 +313,7 @@ msgstr "이메일"
 msgid "Description"
 msgstr "설명"
 
-#: error_window.py:112 widgets/waveform/waveform_widget.py:4105
+#: error_window.py:112 widgets/waveform/waveform_widget.py:4154
 msgid "Edit"
 msgstr "Edit"
 
@@ -668,7 +668,7 @@ msgstr "최근 열기"
 msgid "Config"
 msgstr "Config"
 
-#: main.py:405 main.py:453 widgets/waveform/waveform_widget.py:4026
+#: main.py:405 main.py:453 widgets/waveform/waveform_widget.py:4075
 msgid "Export"
 msgstr "Export"
 
@@ -1543,7 +1543,7 @@ msgstr "범용 입력 및 출력에 대한 기준 전압을 설정하십시오."
 #: widgets/settings/settings_widget.py:266
 #: widgets/settings/settings_widget.py:364
 #: widgets/settings/settings_widget.py:431
-#: widgets/waveform/waveform_widget.py:3607
+#: widgets/waveform/waveform_widget.py:3656
 msgid "Name"
 msgstr "이름"
 
@@ -1637,7 +1637,7 @@ msgid "Auto-open"
 msgstr "자동 열기"
 
 #: devices/serial/serial_port_dialog.py:88
-#: widgets/waveform/waveform_widget.py:3662
+#: widgets/waveform/waveform_widget.py:3711
 msgid "Add"
 msgstr "추가"
 
@@ -1646,9 +1646,9 @@ msgid "Closed"
 msgstr "닫기"
 
 #: devices/serial/serial_port_dialog.py:163
-#: widgets/waveform/waveform_widget.py:4098
-#: widgets/waveform/waveform_widget.py:4126
-#: widgets/waveform/waveform_widget.py:4170
+#: widgets/waveform/waveform_widget.py:4147
+#: widgets/waveform/waveform_widget.py:4175
+#: widgets/waveform/waveform_widget.py:4219
 msgid "Remove"
 msgstr "제거"
 
@@ -2309,7 +2309,7 @@ msgid "Save ACTIVE to:"
 msgstr "ACTIVE를 다음 위치에 저장:"
 
 #: widgets/js320_cal/js320_cal_widget.py:64
-#: widgets/waveform/waveform_widget.py:3681
+#: widgets/waveform/waveform_widget.py:3730
 msgid "Save"
 msgstr "저장"
 
@@ -2926,7 +2926,7 @@ msgstr "Hold"
 msgid "Accrue"
 msgstr "증가"
 
-#: widgets/value/value_widget.py:599 widgets/waveform/waveform_widget.py:3595
+#: widgets/value/value_widget.py:599 widgets/waveform/waveform_widget.py:3644
 msgid "Preferred prefix"
 msgstr "기본 접두사"
 
@@ -2988,7 +2988,7 @@ msgid "triangle left"
 msgstr "왼쪽 삼각형"
 
 #: widgets/waveform/text_annotation.py:67
-#: widgets/waveform/waveform_widget.py:3553
+#: widgets/waveform/waveform_widget.py:3602
 msgid "Manual"
 msgstr "매뉴얼"
 
@@ -2997,17 +2997,17 @@ msgid "Centered"
 msgstr "중심"
 
 #: widgets/waveform/text_annotation.py:101
-#: widgets/waveform/waveform_widget.py:3677
+#: widgets/waveform/waveform_widget.py:3726
 msgid "Text"
 msgstr "텍스트"
 
 #: widgets/waveform/text_annotation.py:109
-#: widgets/waveform/waveform_widget.py:4106
+#: widgets/waveform/waveform_widget.py:4155
 msgid "Show text"
 msgstr "텍스트 표시"
 
 #: widgets/waveform/text_annotation.py:118
-#: widgets/waveform/waveform_widget.py:4118
+#: widgets/waveform/waveform_widget.py:4167
 msgid "Shape"
 msgstr "모양"
 
@@ -3354,12 +3354,12 @@ msgid "X-axis annotation mode"
 msgstr "X축 주석 모드"
 
 #: widgets/waveform/waveform_widget.py:525
-#: widgets/waveform/waveform_widget.py:3429
+#: widgets/waveform/waveform_widget.py:3478
 msgid "Absolute"
 msgstr "절대"
 
 #: widgets/waveform/waveform_widget.py:526
-#: widgets/waveform/waveform_widget.py:3434
+#: widgets/waveform/waveform_widget.py:3483
 msgid "Relative"
 msgstr "상대"
 
@@ -3403,149 +3403,149 @@ msgstr "통상"
 msgid "Standard"
 msgstr "표준"
 
-#: widgets/waveform/waveform_widget.py:3376
-#: widgets/waveform/waveform_widget.py:3689
+#: widgets/waveform/waveform_widget.py:3425
+#: widgets/waveform/waveform_widget.py:3738
 msgid "Save image to file"
 msgstr "파일에 이미지 저장"
 
-#: widgets/waveform/waveform_widget.py:3423
-#: widgets/waveform/waveform_widget.py:3492
+#: widgets/waveform/waveform_widget.py:3472
+#: widgets/waveform/waveform_widget.py:3541
 msgid "Single marker"
 msgstr "단일 마커"
 
-#: widgets/waveform/waveform_widget.py:3424
-#: widgets/waveform/waveform_widget.py:3493
+#: widgets/waveform/waveform_widget.py:3473
+#: widgets/waveform/waveform_widget.py:3542
 msgid "Dual markers"
 msgstr "듀얼 마커"
 
-#: widgets/waveform/waveform_widget.py:3426
+#: widgets/waveform/waveform_widget.py:3475
 msgid "Mode"
 msgstr "모드"
 
-#: widgets/waveform/waveform_widget.py:3439
-#: widgets/waveform/waveform_widget.py:3494
-#: widgets/waveform/waveform_widget.py:3665
-#: widgets/waveform/waveform_widget.py:3683
+#: widgets/waveform/waveform_widget.py:3488
+#: widgets/waveform/waveform_widget.py:3543
+#: widgets/waveform/waveform_widget.py:3714
+#: widgets/waveform/waveform_widget.py:3732
 msgid "Clear all"
 msgstr "모두 지우기"
 
-#: widgets/waveform/waveform_widget.py:3450
-#: widgets/waveform/waveform_widget.py:3543
-#: widgets/waveform/waveform_widget.py:3671
+#: widgets/waveform/waveform_widget.py:3499
+#: widgets/waveform/waveform_widget.py:3592
+#: widgets/waveform/waveform_widget.py:3720
 msgid "Annotations"
 msgstr "주석"
 
-#: widgets/waveform/waveform_widget.py:3546
+#: widgets/waveform/waveform_widget.py:3595
 msgid "Range"
 msgstr "범위"
 
-#: widgets/waveform/waveform_widget.py:3550
-#: widgets/waveform/waveform_widget.py:4050
+#: widgets/waveform/waveform_widget.py:3599
+#: widgets/waveform/waveform_widget.py:4099
 msgid "Auto"
 msgstr "Auto"
 
-#: widgets/waveform/waveform_widget.py:3556
+#: widgets/waveform/waveform_widget.py:3605
 msgid "Exact"
 msgstr "정확한"
 
-#: widgets/waveform/waveform_widget.py:3565
+#: widgets/waveform/waveform_widget.py:3614
 msgid "Scale"
 msgstr "스케일"
 
-#: widgets/waveform/waveform_widget.py:3568
+#: widgets/waveform/waveform_widget.py:3617
 msgid "Linear"
 msgstr "선형"
 
-#: widgets/waveform/waveform_widget.py:3573
+#: widgets/waveform/waveform_widget.py:3622
 msgid "Logarithmic"
 msgstr "로그"
 
-#: widgets/waveform/waveform_widget.py:3581
+#: widgets/waveform/waveform_widget.py:3630
 msgid "Logarithmic zero"
 msgstr "로그 제로"
 
-#: widgets/waveform/waveform_widget.py:3663
+#: widgets/waveform/waveform_widget.py:3712
 msgid "Hide all text"
 msgstr "모든 텍스트 숨기기"
 
-#: widgets/waveform/waveform_widget.py:3664
+#: widgets/waveform/waveform_widget.py:3713
 msgid "Show all text"
 msgstr "모든 텍스트 표시"
 
-#: widgets/waveform/waveform_widget.py:3672
+#: widgets/waveform/waveform_widget.py:3721
 msgid "Vertical"
 msgstr "수직"
 
-#: widgets/waveform/waveform_widget.py:3675
+#: widgets/waveform/waveform_widget.py:3724
 msgid "Horizontal"
 msgstr "수평"
 
-#: widgets/waveform/waveform_widget.py:3686
+#: widgets/waveform/waveform_widget.py:3735
 msgid "Y-axis auto range"
 msgstr "Y축 자동 범위"
 
-#: widgets/waveform/waveform_widget.py:3690
+#: widgets/waveform/waveform_widget.py:3739
 msgid "Copy image to clipboard"
 msgstr "이미지를 클립보드에 복사"
 
-#: widgets/waveform/waveform_widget.py:3691
+#: widgets/waveform/waveform_widget.py:3740
 msgid "Export visible data"
 msgstr "가시 데이터 내보내기"
 
-#: widgets/waveform/waveform_widget.py:3692
+#: widgets/waveform/waveform_widget.py:3741
 msgid "Export visible data as CSV"
 msgstr "가시적 데이터를 CSV로 내보내기"
 
-#: widgets/waveform/waveform_widget.py:3693
+#: widgets/waveform/waveform_widget.py:3742
 msgid "Export all data"
 msgstr "모든 데이터 내보내기"
 
-#: widgets/waveform/waveform_widget.py:3872
+#: widgets/waveform/waveform_widget.py:3921
 msgid "Export visible data to CSV file"
 msgstr "가시 데이터를 CSV 파일로 내보내기"
 
-#: widgets/waveform/waveform_widget.py:4027
+#: widgets/waveform/waveform_widget.py:4076
 msgid "Analysis"
 msgstr "분석"
 
-#: widgets/waveform/waveform_widget.py:4035
+#: widgets/waveform/waveform_widget.py:4084
 msgid "Interval"
 msgstr "Interval"
 
-#: widgets/waveform/waveform_widget.py:4044
+#: widgets/waveform/waveform_widget.py:4093
 msgid "Zoom"
 msgstr "줌"
 
-#: widgets/waveform/waveform_widget.py:4048
+#: widgets/waveform/waveform_widget.py:4097
 msgid "Show statistics"
 msgstr "통계 보기"
 
-#: widgets/waveform/waveform_widget.py:4053
+#: widgets/waveform/waveform_widget.py:4102
 msgid "Left"
 msgstr "왼쪽"
 
-#: widgets/waveform/waveform_widget.py:4056
+#: widgets/waveform/waveform_widget.py:4105
 msgid "Right"
 msgstr "Right"
 
-#: widgets/waveform/waveform_widget.py:4059
-#: widgets/waveform/waveform_widget.py:4066
+#: widgets/waveform/waveform_widget.py:4108
+#: widgets/waveform/waveform_widget.py:4115
 msgid "Off"
 msgstr "Off"
 
-#: widgets/waveform/waveform_widget.py:4063
+#: widgets/waveform/waveform_widget.py:4112
 msgid "Show time"
 msgstr "시간 표시"
 
-#: widgets/waveform/waveform_widget.py:4069
+#: widgets/waveform/waveform_widget.py:4118
 msgid "On"
 msgstr "On"
 
-#: widgets/waveform/waveform_widget.py:4073
+#: widgets/waveform/waveform_widget.py:4122
 msgid "Label"
 msgstr "라벨"
 
-#: widgets/waveform/waveform_widget.py:4109
+#: widgets/waveform/waveform_widget.py:4158
 msgid "Y mode"
 msgstr "Y 모드"
 

@@ -21,10 +21,11 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
-## 1.6.6
+## 1.7.0
 
 2026 Jul 30 [in progress]
 
+* Added Waveform trace color per plot when only 1 Joulescope connected  #276
 * Fixed Waveform pin_left / pin_right getting stuck when viewing JLS files:
   pins are now forced off and the pin buttons disabled for file sources.
   Ctrl+A and Shift+Space zoom to the full extents in file mode.

@@ -724,6 +724,33 @@ class WaveformWidget(QtWidgets.QWidget):
             data.append([priority, idx, subsource])
         return [[idx, subsource] for _, idx, subsource in sorted(data, reverse=True)]
 
+    def _trace_style(self, s, trace_idx, quantity):
+        """Get the drawing style for one trace of one plot.
+
+        :param s: The style dict from self._style.
+        :param trace_idx: The trace index 0..3.
+        :param quantity: The plot quantity.
+        :return: dict with keys trace_pen, trace_brush, min_max_trace,
+            min_max_fill_pen, min_max_fill_brush, std_fill, missing.
+
+        When only one subsource is displayed, color by plot quantity.
+        Otherwise, color by trace so that each device is
+        distinguishable across all plots.
+        """
+        if len(self.subsources) <= 1 and self.trace_priority[1:] == [None, None, None]:
+            qs = s['quantity_style'].get(quantity)
+            if qs is not None:
+                return qs
+        return {
+            'trace_pen': s['plot_trace_pen'][trace_idx],
+            'trace_brush': s['plot_trace_brush'][trace_idx],
+            'min_max_trace': s['plot_min_max_trace'][trace_idx],
+            'min_max_fill_pen': s['plot_min_max_fill_pen'][trace_idx],
+            'min_max_fill_brush': s['plot_min_max_fill_brush'][trace_idx],
+            'std_fill': s['plot_std_fill'][trace_idx],
+            'missing': s['plot_missing'][trace_idx],
+        }
+
     def _on_source_list(self, sources):
         source_filter = self.pubsub.query(f'{self.topic}/settings/source_filter')
         sources = [s for s in sources if not (source_filter and not s.startswith(source_filter))]
@@ -1556,6 +1583,21 @@ class WaveformWidget(QtWidgets.QWidget):
         annotation_font = font_as_qfont(v['waveform.annotation_font'])
         self._style_cache['waveform.annotation_font'] = annotation_font
         self._style_cache['waveform.annotation_font_metrics'] = QtGui.QFontMetrics(annotation_font)
+
+        quantity_style = {}
+        for quantity, _ in _QUANTITIES:
+            c = color_as_string(v.get(f'waveform.plot_{quantity}', trace1), alpha=0xff)
+            quantity_style[quantity] = {
+                'trace_pen': QPen(color_as_qcolor(c, alpha=trace_alpha)),
+                'trace_brush': QBrush(color_as_qcolor(c, alpha=trace_alpha)),
+                'min_max_trace': QPen(color_as_qcolor(c, alpha=min_max_trace_alpha)),
+                'min_max_fill_pen': QPen(color_as_qcolor(c, alpha=min_max_fill_alpha)),
+                'min_max_fill_brush': QBrush(color_as_qcolor(c, alpha=min_max_fill_alpha)),
+                'std_fill': QBrush(color_as_qcolor(c, alpha=std_fill_alpha)),
+                'missing': QBrush(color_as_qcolor(c, alpha=missing_alpha)),
+            }
+        self._style_cache['quantity_style'] = quantity_style
+
         self.on_setting_trace_width(self.trace_width)
         self._invalidate_geometry()
         return self._style_cache
@@ -1564,7 +1606,12 @@ class WaveformWidget(QtWidgets.QWidget):
         if self._style_cache is not None:
             for trace in self._style_cache['plot_trace_pen']:
                 trace.setWidth(value)
+            for qs in self._style_cache['quantity_style'].values():
+                qs['trace_pen'].setWidth(value)
             self._repaint_request = True
+
+    def on_setting_subsources(self):
+        self._repaint_request = True
 
     def _plot_range_auto_update(self, plot):
         if plot['range_mode'] != 'auto':
@@ -1868,9 +1915,10 @@ class WaveformWidget(QtWidgets.QWidget):
         traces = self._traces(quantity)
         if len(traces):
             trace_idx, subsource = traces[0]
-            pen = s['plot_trace_pen'][trace_idx]
-            min_max_pen = s['plot_min_max_trace'][trace_idx]
-            brush = s[f'plot_min_max_fill_brush'][trace_idx]
+            ts = self._trace_style(s, trace_idx, quantity)
+            pen = ts['trace_pen']
+            min_max_pen = ts['min_max_trace']
+            brush = ts['min_max_fill_brush']
         else:
             pen = s['summary_trace']
             min_max_pen = s['summary_min_max_pen']
@@ -2062,6 +2110,7 @@ class WaveformWidget(QtWidgets.QWidget):
             sig_d = self._signals_data.get(signal_id)
             if sig_d is None:
                 continue
+            ts = self._trace_style(s, trace_idx, quantity)
             d = sig_d['data']
             d_x = self._x_map.time64_to_counter(d['x'])
             if len(d_x) == w:
@@ -2075,7 +2124,7 @@ class WaveformWidget(QtWidgets.QWidget):
             segment_idx = _idx_to_segments(finite_idx)
 
             p.setPen(self._NO_PEN)
-            p.setBrush(s['plot_missing'][trace_idx])
+            p.setBrush(ts['missing'])
             if len(segment_idx) > 1:
                 segment_idx_last = segment_idx[0][1]
                 for idx_start, idx_stop in segment_idx[1:]:
@@ -2091,15 +2140,15 @@ class WaveformWidget(QtWidgets.QWidget):
                     d_y_min = self._y_value_to_pixel(plot, d['min'][idx_start:idx_stop])
                     d_y_max = self._y_value_to_pixel(plot, d['max'][idx_start:idx_stop])
                     if 1 == self.show_min_max:
-                        p.setPen(s['plot_min_max_trace'][trace_idx])
+                        p.setPen(ts['min_max_trace'])
                         segs = self._points.set_line(d_x_segment, d_y_min)
                         p.drawPolyline(segs)
                         segs = self._points.set_line(d_x_segment, d_y_max)
                         p.drawPolyline(segs)
                     else:
                         segs = self._points.set_fill(d_x_segment, d_y_min, d_y_max)
-                        p.setPen(s['plot_min_max_fill_pen'][trace_idx])
-                        p.setBrush(s['plot_min_max_fill_brush'][trace_idx])
+                        p.setPen(ts['min_max_fill_pen'])
+                        p.setBrush(ts['min_max_fill_brush'])
                         p.drawPolygon(segs)
                         if 3 == self.show_min_max:
                             d_std = d['std'][idx_start:idx_stop]
@@ -2110,15 +2159,15 @@ class WaveformWidget(QtWidgets.QWidget):
                                 d_y_std_max = np.amax(np.vstack([d_y_std_max, d_y_max]), axis=0)
                                 segs = self._points.set_fill(d_x_segment, d_y_std_min, d_y_std_max)
                                 p.setPen(self._NO_PEN)
-                                p.setBrush(s['plot_std_fill'][trace_idx])
+                                p.setBrush(ts['std_fill'])
                                 p.drawPolygon(segs)
 
                 d_y = self._y_value_to_pixel(plot, d_avg)
                 segs = self._points.set_line(d_x_segment, d_y)
-                p.setPen(s['plot_trace_pen'][trace_idx])
+                p.setPen(ts['trace_pen'])
                 p.drawPolyline(segs)
                 p.setPen(self._NO_PEN)
-                p.setBrush(s['plot_trace_brush'][trace_idx])
+                p.setBrush(ts['trace_brush'])
                 if x_space > (3 * _DOT_RADIUS):
                     for x, y in zip(d_x_segment, d_y):
                         p.drawEllipse(QtCore.QPointF(x, y), _DOT_RADIUS, _DOT_RADIUS)

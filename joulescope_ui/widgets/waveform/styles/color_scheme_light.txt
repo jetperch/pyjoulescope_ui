@@ -21,6 +21,17 @@ waveform.trace2 = #800080ff
 waveform.trace3 = #008000ff
 waveform.trace4 = #808000ff
 
+# Per-plot colors, used when only one device is displayed
+waveform.plot_i = #000080ff
+waveform.plot_v = #800080ff
+waveform.plot_p = #008080ff
+waveform.plot_r = #804000ff
+waveform.plot_0 = #c05000ff
+waveform.plot_1 = #907000ff
+waveform.plot_2 = #007000ff
+waveform.plot_3 = #0050c0ff
+waveform.plot_T = #c00000ff
+
 waveform.marker_label = #101010A0
 waveform.marker1 = #40c040A0
 waveform.marker2 = #4080c8A0
