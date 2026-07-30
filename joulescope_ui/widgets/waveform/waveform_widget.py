@@ -435,6 +435,19 @@ class WaveformWidget(QtWidgets.QWidget):
             ],
             'default': 'utc',
         },
+        'x_time_mode': {
+            'dtype': 'str',
+            'brief': N_('The x-axis time mode.'),
+            'detail': P_([
+                N_('Absolute displays the date and time of day for the configured time zone.'),
+                N_('Relative displays the elapsed time from the first available sample.'),
+            ]),
+            'options': [
+                ['absolute', N_('Absolute')],
+                ['relative', N_('Relative')],
+            ],
+            'default': 'absolute',
+        },
         'show_statistics': {
             'dtype': 'bool',
             'brief': N_('Show the plot statistics on the right.'),
@@ -599,6 +612,8 @@ class WaveformWidget(QtWidgets.QWidget):
         self._keymap = {}
         self._x_map = TimeMap()
         self._x_summary_map = TimeMap()
+        self._x_epoch_state = {}
+        self._x_epoch = None
         self._mouse_pos = None
         self._mouse_pos_start = None
         self._wheel_accum_degrees = np.zeros(2, dtype=np.float64)
@@ -1138,6 +1153,9 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _compute_x_range(self):
         e0, e1 = self.x_extent
+        if self._x_epoch is not None:
+            # relative time mode: stabilized extent start for jitter-free display
+            e0 = self._x_epoch
         if self.x_range is None or self.x_range == [0, 0]:
             return e0, e1
         x0, x1 = self.x_range
@@ -1161,6 +1179,11 @@ class WaveformWidget(QtWidgets.QWidget):
         if not len(self._x_geometry_info):
             return True
         self.x_extent = self._compute_x_extent()
+        e0, e1 = self.x_extent
+        if self.x_time_mode == 'relative' and e0 < e1:
+            self._x_epoch = axis_ticks.x_relative_epoch(self._x_epoch_state, e0, e1, self._is_streaming())
+        else:
+            self._x_epoch = None
         self.x_range = self._compute_x_range()
         # x0, x1 = self.x_range
         # xc = (x0 >> 1) + (x1 >> 1)
@@ -1978,7 +2001,12 @@ class WaveformWidget(QtWidgets.QWidget):
             x_gain = (plot_width - 1) / (x_duration_s * time64.SECOND)
         else:
             return False
-        x_grid = axis_ticks.x_ticks(x_range64[0], x_range64[1], major_count_max, self.time_zone)
+        if self.x_time_mode == 'relative':
+            epoch = self.x_extent[0] if self._x_epoch is None else self._x_epoch
+        else:
+            epoch = None
+        x_grid = axis_ticks.x_ticks(x_range64[0], x_range64[1], major_count_max, self.time_zone,
+                                    time_mode=self.x_time_mode, epoch=epoch)
         self._x_map.update(left_x1, x_range64[0], x_gain)
         self._x_map.trel_offset = x_grid['offset']
 
@@ -3498,8 +3526,35 @@ class WaveformWidget(QtWidgets.QWidget):
         menu = QtWidgets.QMenu('Waveform x-axis context menu', self)
         annotations = menu.addMenu(N_('Annotations'))
         self._menu_add_x_annotations(annotations)
+
+        mode_menu = menu.addMenu(N_('Mode'))
+        mode_group = QtGui.QActionGroup(mode_menu)
+        mode_group.setExclusive(True)
+        CallableAction(mode_group, N_('Absolute'),
+                       lambda: self._on_menu_x_time_mode('absolute'),
+                       checkable=True, checked=(self.x_time_mode == 'absolute'))
+        CallableAction(mode_group, N_('Relative'),
+                       lambda: self._on_menu_x_time_mode('relative'),
+                       checkable=True, checked=(self.x_time_mode == 'relative'))
+
+        time_zone_menu = menu.addMenu(N_('Time Zone'))
+        time_zone_group = QtGui.QActionGroup(time_zone_menu)
+        time_zone_group.setExclusive(True)
+        CallableAction(time_zone_group, N_('UTC'),
+                       lambda: self._on_menu_x_time_zone('utc'),
+                       checkable=True, checked=(self.time_zone == 'utc'))
+        CallableAction(time_zone_group, N_('Local'),
+                       lambda: self._on_menu_x_time_zone('local'),
+                       checkable=True, checked=(self.time_zone == 'local'))
+
         settings_action_create(self, menu)
         context_menu_show(menu, event)
+
+    def _on_menu_x_time_mode(self, value):
+        self.x_time_mode = value
+
+    def _on_menu_x_time_zone(self, value):
+        self.time_zone = value
 
     def _lookup_plot(self, pos=None):
         """Lookup the y-axis plot for the y pixel position.
@@ -5325,6 +5380,14 @@ class WaveformWidget(QtWidgets.QWidget):
         self._plot_data_invalidate()
 
     def on_setting_show_min_max(self):
+        self._repaint_request = True
+
+    def on_setting_x_time_mode(self):
+        self._x_epoch_state.clear()
+        self._x_epoch = None
+        self._repaint_request = True
+
+    def on_setting_time_zone(self):
         self._repaint_request = True
 
     def on_setting_fps(self, value):

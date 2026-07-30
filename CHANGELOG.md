@@ -26,6 +26,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 2026 Jul 30 [in progress]
 
 * Added Waveform trace color per plot when only 1 Joulescope connected  #276
+* Added relative time option to Waveform widget  #220
 * Fixed Waveform pin_left / pin_right getting stuck when viewing JLS files:
   pins are now forced off and the pin buttons disabled for file sources.
   Ctrl+A and Shift+Space zoom to the full extents in file mode.
@@ -40,6 +41,8 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Added undo/redo for widget move and resize
   * Fixed undo/redo for file open
 * Improved startup and view switching time  #206
+* Added Waveform x-axis time Mode (absolute / relative) and Time Zone
+  x-axis context menu options  #220
 
 
 ## 1.6.5

@@ -102,6 +102,74 @@ def x_offset(x0, x1):
         return int(interval * (x0 // interval))
 
 
+def x_offset_str_relative(offset_t64):
+    """Format a relative x-axis offset as an elapsed time string.
+
+    :param offset_t64: The offset from the relative zero as a time64 delta.
+    :return: The elapsed time string, like 'd:hh:mm:ss.ffffff',
+        with no date and no time zone.
+    """
+    sign = ''
+    if offset_t64 < 0:
+        sign, offset_t64 = '-', -offset_t64
+    seconds = int(offset_t64 // time64.SECOND)
+    fract = (offset_t64 - seconds * time64.SECOND) / time64.SECOND
+    d, r = divmod(seconds, _DAY)
+    h, r = divmod(r, _HOUR)
+    m, s = divmod(r, _MINUTE)
+    if d:
+        p = f'{d}:{h:02d}:{m:02d}:{s:02d}'
+    else:
+        p = f'{h}:{m:02d}:{s:02d}'
+    if fract > 0:
+        p += f'{fract:.6f}'.rstrip('0')[1:]
+    return sign + p
+
+
+def x_relative_epoch(state, e0, e1, is_streaming):
+    """Compute a stable epoch (time zero) for the x-axis relative time mode.
+
+    :param state: The state dict, initially empty.  This function mutates
+        state to track the extent between calls.
+    :param e0: The earliest available sample as time64.
+    :param e1: The latest available sample as time64.
+    :param is_streaming: True when actively sample streaming.
+    :return: The epoch as time64.
+
+    While live streaming with a full sample buffer, e0 advances in chunks
+    with small variations that jitter the x-axis ticks.  When e0 advances
+    while streaming, advance the epoch in lockstep with e1 instead, which
+    keeps the displayed ticks stable.  The epoch rides the bottom of the
+    e0 chunk sawtooth so that it never exceeds the first available sample
+    by more than a small tolerance.  The epoch resynchronizes to e0 when
+    streaming stops or restarts or the source changes, and jumps back
+    near e0 if the accumulated drift leaves the expected range.
+    """
+    epoch = e0
+    reset = (state.get('epoch') is None                       # first call
+             or e0 < state['e0']                              # source changed
+             or (is_streaming and not state['is_streaming'])  # streaming (re)started
+             or (e0 - state['e0']) > (e1 - e0))               # shift exceeds held data: restart, not a wrap
+    if reset:
+        state['chunk'] = 0
+    else:
+        jump = e0 - state['e0']
+        if jump > 0:  # buffer full: oldest data was discarded
+            state['chunk'] = max(jump, (state['chunk'] * 7) // 8)
+        if not is_streaming:
+            state['chunk'] = 0
+        elif state['chunk'] > 0:
+            chunk = state['chunk']
+            epoch = state['epoch'] + (e1 - state['e1'])
+            if not (e0 - 2 * chunk - time64.SECOND) <= epoch <= (e0 + time64.SECOND):
+                epoch = e0 - chunk  # resynchronize near the sawtooth bottom
+    state['epoch'] = epoch
+    state['e0'] = e0
+    state['e1'] = e1
+    state['is_streaming'] = is_streaming
+    return epoch
+
+
 def tick_spacing(v_min, v_max, v_spacing_min):
     if v_spacing_min <= 0:
         return 0.0
@@ -136,12 +204,25 @@ def time_fmt(t, t_max, t_incr):
     return ':'.join(p), (':'.join(units))[1:]
 
 
-def x_ticks(x0, x1, major_count_max, time_zone='utc'):
+def x_ticks(x0, x1, major_count_max, time_zone='utc', time_mode='absolute', epoch=None):
     if x1 < x0:
         x0, x1 = x1, x0
     dt = float(x1 - x0) / (time64.SECOND * int(major_count_max))
     major_interval, major_idx = _x_spacing(dt, _X_TICK_SPACING)
-    k = x_offset(x0, x1)
+    if time_mode == 'relative':
+        if epoch is None:
+            epoch = x0
+        if major_interval >= 1:
+            # label ticks with the full elapsed time: no offset needed
+            k_rel = 0
+            k = epoch
+        else:
+            # sub-second: quantized offset preserves tick label precision
+            k_rel = x_offset(x0 - epoch, x1 - epoch)
+            k = epoch + k_rel
+    else:
+        k_rel = None
+        k = x_offset(x0, x1)
     t0 = (x0 - k) / time64.SECOND
     t1 = (x1 - k) / time64.SECOND
 
@@ -179,12 +260,16 @@ def x_ticks(x0, x1, major_count_max, time_zone='utc'):
     else:
         units = ''
 
-    offset_dt = time64.as_datetime(k)
-    if time_zone == 'local':
-        offset_dt = offset_dt.astimezone()
+    if time_mode == 'relative':
+        offset_str = '' if k_rel == 0 else x_offset_str_relative(k_rel)
+    else:
+        offset_dt = time64.as_datetime(k)
+        if time_zone == 'local':
+            offset_dt = offset_dt.astimezone()
+        offset_str = offset_dt.isoformat()
     return {
         'offset': k,
-        'offset_str': offset_dt.isoformat(),
+        'offset_str': offset_str,
         'major': major,
         'major_interval': major_interval,
         'minor': minor,
