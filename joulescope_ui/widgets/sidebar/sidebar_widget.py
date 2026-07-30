@@ -311,6 +311,11 @@ class SideBar(QtWidgets.QWidget):
             'selected_background_brush': QtGui.QBrush(color_as_qcolor(v['sidebar.util_background'])),
             'selected_side_brush': QtGui.QBrush(color_as_qcolor(v['sidebar.util_foreground'])),
         }
+        return self._style_cache
+
+    def on_style_change(self):
+        self._style_cache = None
+        self.update()
 
     def mousePressEvent(self, event):
         event.accept()

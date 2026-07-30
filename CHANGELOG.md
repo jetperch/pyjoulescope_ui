@@ -32,6 +32,7 @@ This file contains the list of changes made to pyjoulescope_ui.
   when pins block an x-axis pan attempt during streaming  #324
 * Fixed Waveform control signal buttons not tracking the displayed signals
   when opening a JLS file.
+* Fixed sidebar not fully updating on color scheme change  #189
 
 
 ## 1.6.5
