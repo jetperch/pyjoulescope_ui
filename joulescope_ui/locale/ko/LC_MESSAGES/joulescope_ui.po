@@ -901,7 +901,7 @@ msgstr "글꼴 체계 이름입니다."
 msgid "Joulescope standard font theme"
 msgstr "줄스코프 표준 글꼴 테마"
 
-#: view.py:111 widgets/view_manager/view_manager_widget.py:146
+#: view.py:162 widgets/view_manager/view_manager_widget.py:146
 msgid "New View"
 msgstr "새로운 보기"
 

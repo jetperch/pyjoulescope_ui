@@ -986,7 +986,7 @@ msgstr "Il nome dello schema di caratteri."
 msgid "Joulescope standard font theme"
 msgstr "Tema del carattere standard di Joulescope"
 
-#: view.py:111 widgets/view_manager/view_manager_widget.py:146
+#: view.py:162 widgets/view_manager/view_manager_widget.py:146
 msgid "New View"
 msgstr "Nuova vista"
 

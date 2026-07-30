@@ -897,7 +897,7 @@ msgstr "フォントスキーム名。"
 msgid "Joulescope standard font theme"
 msgstr "Joulescope標準フォントテーマ"
 
-#: view.py:111 widgets/view_manager/view_manager_widget.py:146
+#: view.py:162 widgets/view_manager/view_manager_widget.py:146
 msgid "New View"
 msgstr "新しいビュー"
 
