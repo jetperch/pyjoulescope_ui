@@ -764,13 +764,20 @@ class WaveformWidget(QtWidgets.QWidget):
             elif a['annotation_type'] == 'user_data':
                 v = a.get('value', {})
                 if (ChunkMeta.UI_WAVEFORM == a['chunk_meta']) and ('joulescope.ui.waveform_widget' == v.get('id')):
-                    plots = v.get('plots', {})
-                    for plot_quantity, metadata in plots.items():
-                        try:
-                            plot = self._plot_find_by_quantity(plot_quantity)
-                        except KeyError:
-                            continue
-                        plot.update(metadata)
+                    # Update a copy, then assign to publish the corrected state.
+                    # In-place mutation also alters the pubsub retained value, so a
+                    # republish would compare equal and dedup without notifying
+                    # subscribers like the Waveform control widget.
+                    state = copy.deepcopy(self.state)
+                    state_update = False
+                    for plot_quantity, metadata in v.get('plots', {}).items():
+                        for plot in state['plots']:
+                            if plot['quantity'] == plot_quantity:
+                                plot.update(metadata)
+                                state_update = True
+                                break
+                    if state_update:
+                        self.state = state
                     for ftype in ['settings', 'events', 'actions']:
                         fdata = v.get(ftype, [])
                         for fname, fvalue in fdata:
@@ -781,7 +788,6 @@ class WaveformWidget(QtWidgets.QWidget):
                             self.pubsub.publish(f'{get_topic_name(self)}/{ftype}/{fname}', fvalue)
                     self._y_geometry_info = {}  # force recomputation
                     self._repaint_request = True
-                    self.state = copy.deepcopy(self.state)  # force publish
             else:
                 self._log.warning('unsupported annotation_type %s', a['annotation_type'])
 
@@ -4915,10 +4921,15 @@ class WaveformWidget(QtWidgets.QWidget):
         self._log.info('plot_show %s', value)
         quantity, show = value
         show = bool(show)
-        for plot in self.state['plots']:
+        # Update a copy, then assign to publish the corrected state (see
+        # on_callback_annotations), which keeps subscribers like the
+        # Waveform control widget in sync, including on undo.
+        state = copy.deepcopy(self.state)
+        for plot in state['plots']:
             if plot['quantity'] == quantity:
                 if show != plot['enabled']:
                     plot['enabled'] = show
+                    self.state = state
                     self._compute_geometry()
                     self._plots_height_adjust()
                     self._plot_data_invalidate(plot)
