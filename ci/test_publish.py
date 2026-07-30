@@ -185,7 +185,9 @@ def test_consumer_round_trip(tmp_path, monkeypatch):
             raise FileNotFoundError(url)
         return FakeResponse(body)
 
-    monkeypatch.setattr(su, 'requests', type('R', (), {'get': staticmethod(fake_get)}))
+    # software_update imports requests inside each function (#206), so patch the module itself.
+    import requests
+    monkeypatch.setattr(requests, 'get', fake_get)
     # Pretend we are running an older version so an update is "available".
     monkeypatch.setattr(su, 'current_version', lambda: [0, 0, 0])
 
