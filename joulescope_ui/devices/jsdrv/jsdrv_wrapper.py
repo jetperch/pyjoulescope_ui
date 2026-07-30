@@ -18,7 +18,6 @@ from joulescope_ui.capabilities import CAPABILITIES
 from .jsdrv_stream_buffer import JsdrvStreamBuffer
 from .js110 import Js110
 from .js220 import Js220
-from .js220_updater import Js220Updater
 from .js320 import Js320
 from .js320_updater import Js320Updater
 import logging
@@ -162,6 +161,7 @@ class JsdrvWrapper:
                 self._on_device_remove(value)
 
     def _on_device_add(self, value):
+        from .js220_updater import Js220Updater  # deferred: expensive import off the startup path (#206)
         _, model, serial_number = value.split('/')
         if model[0] == '&':
             model = model[1:]

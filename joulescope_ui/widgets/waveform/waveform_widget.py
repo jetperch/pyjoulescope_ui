@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from PySide6 import QtWidgets, QtGui, QtCore, QtOpenGLWidgets
-from OpenGL import GL as gl
 from joulescope_ui import CAPABILITIES, register, N_, P_, get_topic_name, get_instance, time64
 from joulescope_ui.styles import styled_widget, color_as_qcolor, color_as_string, font_as_qfont
 from joulescope_ui.widget_tools import CallableAction, CallableSlotAdapter, settings_action_create, context_menu_show
@@ -250,9 +249,10 @@ def _target_lookup_by_pos(targets, pos):
     return name
 
 
-def _gl_get_string(string_id):
+def _gl_get_string(name):
     try:
-        return gl.glGetString(string_id).decode("utf-8")
+        from OpenGL import GL as gl  # deferred: expensive import off the startup path (#206)
+        return gl.glGetString(getattr(gl, name)).decode("utf-8")
     except Exception:
         return '__unknown__'
 
@@ -271,14 +271,14 @@ class _PlotOpenGLWidget(QtOpenGLWidgets.QOpenGLWidget):
         fmt = context.format()
         functions = QtGui.QOpenGLFunctions(context)
         functions.initializeOpenGLFunctions()
-        vendor = _gl_get_string(gl.GL_VENDOR)
+        vendor = _gl_get_string('GL_VENDOR')
         self._log.info(f"""OpenGL information:
             Qt OpenGL Version: {fmt.version()}
             Qt OpenGL Profile: {fmt.profile()}
             Vendor: {vendor}
-            Renderer: {_gl_get_string(gl.GL_RENDERER)}
-            OpenGL Version: {_gl_get_string(gl.GL_VERSION)}
-            Shader Version: {_gl_get_string(gl.GL_SHADING_LANGUAGE_VERSION)}""")
+            Renderer: {_gl_get_string('GL_RENDERER')}
+            OpenGL Version: {_gl_get_string('GL_VERSION')}
+            Shader Version: {_gl_get_string('GL_SHADING_LANGUAGE_VERSION')}""")
 
     def paintGL(self):
         size = self.width(), self.height()
@@ -645,12 +645,25 @@ class WaveformWidget(QtWidgets.QWidget):
         cls = _PlotOpenGLWidget if value else _PlotWidget
         if isinstance(self._graphics, cls):
             return
-        index = self._layout.indexOf(self._graphics)
-        self._layout.removeWidget(self._graphics)
-        self._graphics.close()
-        self._graphics.deleteLater()
-        self._graphics = cls(self)
-        self._layout.insertWidget(index, self._graphics)
+        # Defer the swap to the event loop.  This setting applies during
+        # widget creation, before the ADS dock placement (addDockWidget and
+        # restoreState) reparents this widget.  Each reparent recreates the
+        # QOpenGLWidget context (~50 ms), so create the OpenGL widget once,
+        # in its final dock position (issue #206).
+        QtCore.QTimer.singleShot(0, lambda: self._graphics_swap(cls))
+
+    def _graphics_swap(self, cls):
+        try:
+            if isinstance(self._graphics, cls):
+                return
+            index = self._layout.indexOf(self._graphics)
+            self._layout.removeWidget(self._graphics)
+            self._graphics.close()
+            self._graphics.deleteLater()
+            self._graphics = cls(self)
+            self._layout.insertWidget(index, self._graphics)
+        except RuntimeError:
+            pass  # this widget was closed before the swap
 
     def on_setting_control_location(self, value):
         if value == 'off':

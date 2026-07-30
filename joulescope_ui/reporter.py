@@ -22,7 +22,6 @@ import os
 import pkgutil
 import platform
 import psutil
-import requests
 import shutil
 import sys
 import traceback
@@ -266,6 +265,7 @@ def publish():
     :return: The list of [path, status_code, status_msg].  If status_msg is None,
         the
     """
+    import requests  # deferred: expensive import off the startup path (#206)
     results = []
     for fname in sorted(os.listdir(REPORTER_PATH), reverse=True):
         try:

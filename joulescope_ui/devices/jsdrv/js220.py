@@ -17,7 +17,7 @@ from .js220_fuse import fuse_to_config
 from joulescope_ui import N_, get_topic_name, register, P_, CAPABILITIES
 from joulescope_ui.metadata import Metadata
 from .serial_decoder import SerialDecoder
-from pyjoulescope_driver import release, program, time64
+from pyjoulescope_driver import time64
 from joulescope_ui.time_map import TimeMap
 import copy
 import queue
@@ -870,6 +870,7 @@ class Js220(Device):
             self._log.warning('Unhandled cmd: %s', cmd)
 
     def _device_update_check(self):
+        from pyjoulescope_driver import program, release  # deferred: expensive import off the startup path (#206)
         try:
             image = release.release_get(self.firmware_channel)
             segments = release.release_to_segments(image)

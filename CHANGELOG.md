@@ -23,7 +23,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.6.6
 
-2026 Jul 29 [in progress]
+2026 Jul 30 [in progress]
 
 * Fixed Waveform pin_left / pin_right getting stuck when viewing JLS files:
   pins are now forced off and the pin buttons disabled for file sources.
@@ -38,6 +38,7 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Fixed Waveform widget undo/redo not implemented for many operations  #188
   * Added undo/redo for widget move and resize
   * Fixed undo/redo for file open
+* Improved startup and view switching time  #206
 
 
 ## 1.6.5

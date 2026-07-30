@@ -16,7 +16,6 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from joulescope_ui.expanding_widget import ExpandingWidget
 from joulescope_ui import N_, tooltip_format, get_topic_name
 from joulescope_ui.devices.jsdrv.js220_fuse import fuse_to_config, fuse_curve
-import pyqtgraph as pg
 import numpy as np
 
 
@@ -97,6 +96,7 @@ class FuseSubWidget(QtWidgets.QWidget):
         self._add_row([tau_label, self._tau, tau_units], _TIME_CONSTANT_TOOLTIP)
 
         # add plot
+        import pyqtgraph as pg  # deferred: expensive import off the startup path (#206)
         self._i = np.arange(0, 10.001, 0.001)
         self._p = pg.PlotWidget(parent=self._body, title=N_('Fuse response'))
         self._p.setLabel('left', N_('Time') + ' (s)')

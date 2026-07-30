@@ -16,7 +16,6 @@
 
 from PySide6 import QtWidgets, QtCore
 import datetime
-import requests
 import json
 import threading
 import platform
@@ -156,6 +155,7 @@ def fetch_info(channel=None):
         * sha256_url: The URL to download the SHA256 over the download contents.
         * changelog_url: The URL to download the changelog for the available version.
     """
+    import requests  # deferred: expensive import off the startup path (#206)
     channel = _validate_channel(channel)
     platform_name = _platform_name()
     if platform_name is None:
@@ -195,6 +195,7 @@ def fetch_info(channel=None):
 
 
 def _download(url, path):
+    import requests  # deferred: expensive import off the startup path (#206)
     os.makedirs(path, exist_ok=True)
     fname = url.split('/')[-1]
     path = os.path.join(path, fname)

@@ -18,7 +18,6 @@ from joulescope_ui.range_tool import RangeToolBase
 from .plugin_helpers import calculate_histogram, normalize_hist, signal_combobox_config
 import logging
 import numpy as np
-import pyqtgraph as pg
 from PySide6 import QtCore, QtWidgets
 from joulescope_ui.styles import styled_widget
 
@@ -81,6 +80,7 @@ class CdfRangeToolWidget(QtWidgets.QWidget):
     }
 
     def __init__(self, data=None):
+        import pyqtgraph as pg  # deferred: expensive import off the startup path (#206)
         self._data = data
         self._plot_item = None
         super().__init__()
@@ -137,6 +137,7 @@ class CdfRangeToolWidget(QtWidgets.QWidget):
             self._hLine.setPos(yval)
 
     def on_setting_data(self, value):
+        import pyqtgraph as pg  # deferred: expensive import off the startup path (#206)
         p = self._p
         if self._plot_item is not None:
             p.removeItem(self._plot_item)

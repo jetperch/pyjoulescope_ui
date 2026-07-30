@@ -17,7 +17,6 @@ from joulescope_ui import register, N_, pubsub_singleton
 from joulescope_ui.range_tool import RangeToolBase
 import logging
 import numpy as np
-import pyqtgraph as pg
 from .plugin_helpers import calculate_histogram, normalize_hist, signal_combobox_config
 from joulescope_ui.styles import styled_widget
 
@@ -108,6 +107,7 @@ class HistogramRangeToolWidget(QtWidgets.QWidget):
     }
 
     def __init__(self, data=None):
+        import pyqtgraph as pg  # deferred: expensive import off the startup path (#206)
         self._data = data
         self._hist = None
         self._bin_edges = None
@@ -157,6 +157,7 @@ class HistogramRangeToolWidget(QtWidgets.QWidget):
                 self.prev_hover_index = index
 
     def on_setting_data(self, value):
+        import pyqtgraph as pg  # deferred: expensive import off the startup path (#206)
         if value is None:
             self._hist = None
             self._bin_edges = None

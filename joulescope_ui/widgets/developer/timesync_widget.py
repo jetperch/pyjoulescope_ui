@@ -18,7 +18,6 @@ from joulescope_ui.ui_util import comboBoxConfig
 from joulescope_ui.styles import styled_widget
 from pyjoulescope_driver import time64
 import numpy as np
-import pyqtgraph as pg
 
 
 _SECONDS_MAX = 60 * 60 * 24 * 7  # 1 week
@@ -57,6 +56,7 @@ class TimesyncWidget(QtWidgets.QWidget):
     }
 
     def __init__(self, parent=None):
+        import pyqtgraph as pg  # deferred: expensive import off the startup path (#206)
         self._signal_prev = None
         self._devices = {}
         self._device_idx = 0

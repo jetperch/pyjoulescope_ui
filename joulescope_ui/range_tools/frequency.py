@@ -17,7 +17,6 @@ from joulescope_ui.range_tool import RangeToolBase, rsp_as_f32
 from .plugin_helpers import signal_combobox_config
 import logging
 import numpy as np
-import pyqtgraph as pg
 from PySide6 import QtCore, QtWidgets
 from joulescope_ui.styles import styled_widget
 
@@ -127,6 +126,7 @@ class FrequencyRangeToolWidget(QtWidgets.QWidget):
     }
 
     def __init__(self, data=None):
+        import pyqtgraph as pg  # deferred: expensive import off the startup path (#206)
         self._data = data
         self._bg = None
         self._f = None
@@ -180,6 +180,7 @@ class FrequencyRangeToolWidget(QtWidgets.QWidget):
             self._hLine.setPos(yval)
 
     def on_setting_data(self, value):
+        import pyqtgraph as pg  # deferred: expensive import off the startup path (#206)
         if value is None:
             self._f = None
             self._y = None

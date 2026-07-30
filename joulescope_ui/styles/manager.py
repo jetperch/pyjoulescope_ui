@@ -15,6 +15,8 @@
 """Manage styles for the user interface application."""
 
 
+import hashlib
+import json as _json_std  # stdlib: deterministic dumps for override hashing
 import logging
 import os
 import re
@@ -219,6 +221,33 @@ def _render_images(obj, path):
                     f.write(svg_out)
 
 
+_RENDER_MANIFEST = '.render.json'
+
+
+def _render_manifest_entry(style_vars):
+    from joulescope_ui.version import __version__
+    entry = {'version': __version__, 'vars': style_vars}
+    return json.loads(json.dumps(entry))  # normalize for comparison
+
+
+def _render_manifest_is_current(path, style_vars):
+    """Check if the images rendered by a previous run are still current."""
+    try:
+        with open(os.path.join(path, _RENDER_MANIFEST), 'r', encoding='utf-8') as f:
+            manifest = json.load(f)
+        return manifest == _render_manifest_entry(style_vars)
+    except Exception:
+        return False
+
+
+def _render_manifest_save(path, style_vars):
+    try:
+        with open(os.path.join(path, _RENDER_MANIFEST), 'w', encoding='utf-8') as f:
+            json.dump(_render_manifest_entry(style_vars), f)
+    except Exception:
+        _log.warning('could not save render manifest for %s', path)
+
+
 def _render_templates(obj, path):
     if isinstance(obj, type):
         _log.warning('Render images for objects, not classes')
@@ -290,7 +319,7 @@ def _render_cls(cls, theme, color_scheme, font_scheme):
     style_cls['vars'] = v
 
 
-def _render_obj(obj, path, theme, color_scheme, font_scheme):
+def _render_obj(obj, path, theme, color_scheme, font_scheme, cache=None):
     obj = get_instance(obj)
     if not hasattr(obj, 'style_obj'):
         return False
@@ -300,7 +329,14 @@ def _render_obj(obj, path, theme, color_scheme, font_scheme):
     else:
         cls_mirror = False
         cls = obj.__class__
-    path = os.path.join(path, str_to_filename(obj.unique_id))
+    if cls_mirror or obj.unique_id.startswith('view:'):
+        # 'ui' mirrors the view class, and both stylesheets apply to the main
+        # window.  All views and 'ui' share one render directory so that the
+        # stylesheets (including the embedded image paths) stay identical,
+        # which lets rendering skip the main window setStyleSheet re-polish.
+        path = os.path.join(path, 'view')
+    else:
+        path = os.path.join(path, str_to_filename(obj.unique_id))
     if hasattr(cls, 'unique_id'):
         _render_cls(cls, theme, color_scheme, font_scheme)
         style_cls = cls._style_cls
@@ -326,8 +362,18 @@ def _render_obj(obj, path, theme, color_scheme, font_scheme):
         'templates': {},
         'path': path,
     }
-    os.makedirs(path, exist_ok=True)
-    _render_images(obj, path)
+    if cache is not None and cache.get(path) == v:
+        pass  # identical vars: the on-disk images are already current
+    elif _render_manifest_is_current(path, v):
+        # images from a previous run are still current: skip regeneration
+        if cache is not None:
+            cache[path] = copy.deepcopy(v)
+    else:
+        os.makedirs(path, exist_ok=True)
+        _render_images(obj, path)
+        _render_manifest_save(path, v)
+        if cache is not None:
+            cache[path] = copy.deepcopy(v)
     _render_templates(obj, path)
     return True
 
@@ -358,15 +404,53 @@ class StyleManager:
     }
 
     def __init__(self):
-        pass
+        self._render_cache = {}  # path -> rendered vars, to skip image rewrites
+
+    def _view_overrides_key(self, view):
+        """The render directory key part for the view instance style overrides.
+
+        :param view: The view unique_id.
+        :return: 'default' when the view has no instance-level overrides,
+            else a stable content hash of the overrides.
+
+        Views with the same theme, schemes, and instance overrides share a
+        render directory.  A view with its own color, font, or style define
+        overrides gets its own stable directory, so its rendered output
+        never collides with the other views.  Note that correctness never
+        depends on this key: _render_obj compares the fully-resolved vars
+        and re-renders on any difference.  The key only determines sharing.
+        """
+        topic = get_topic_name(view)
+        overrides = [self.pubsub.query(f'{topic}/settings/colors', default=None),
+                     self.pubsub.query(f'{topic}/settings/fonts', default=None),
+                     self.pubsub.query(f'{topic}/settings/style_defines', default=None)]
+        if not any(overrides):
+            return 'default'
+        s = _json_std.dumps(overrides, sort_keys=True)
+        return hashlib.sha256(s.encode('utf-8')).hexdigest()[:8]
+
+    def _style_path(self, view, theme, color_scheme, font_scheme):
+        """The render path, shared by all views with the same style.
+
+        Keying by style rather than by view keeps the rendered images and
+        the stylesheet paths identical across view switches, so switching
+        views with the same style skips image generation and the main
+        window setStyleSheet re-polish (issue #206).
+        """
+        path = self.pubsub.query('common/settings/paths/styles')
+        profile = self.pubsub.query('common/settings/profile/active', default='default')
+        overrides = self._view_overrides_key(view)
+        filename = f'{profile}__{theme}__{color_scheme}__{font_scheme}__{overrides}'
+        return os.path.normpath(os.path.join(path, str_to_filename(filename)))
 
     @property
     def path(self):
-        path = self.pubsub.query('common/settings/paths/styles')
-        profile = self.pubsub.query('common/settings/profile/active', default='default')
         view = self.pubsub.query('registry/view/settings/active')
-        filename = f'{profile}__{view}'
-        return os.path.normpath(os.path.join(path, str_to_filename(filename)))
+        view_topic = get_topic_name(view)
+        theme = self.pubsub.query(f'{view_topic}/settings/theme', default='js1')
+        color_scheme = self.pubsub.query(f'{view_topic}/settings/color_scheme', default='dark')
+        font_scheme = self.pubsub.query(f'{view_topic}/settings/font_scheme', default='js1')
+        return self._style_path(view, theme, color_scheme, font_scheme)
 
     def _render(self, value):
         t_start = time.time()
@@ -388,7 +472,8 @@ class StyleManager:
         theme = self.pubsub.query(f'{active_view_topic}/settings/theme', default='js1')
         color_scheme = self.pubsub.query(f'{active_view_topic}/settings/color_scheme', default='dark')
         font_scheme = self.pubsub.query(f'{active_view_topic}/settings/font_scheme', default='js1')
-        is_styled = _render_obj(obj, self.path, theme, color_scheme, font_scheme)
+        path = self._style_path(active_view, theme, color_scheme, font_scheme)
+        is_styled = _render_obj(obj, path, theme, color_scheme, font_scheme, self._render_cache)
         children = self.pubsub.query(f'{get_topic_name(obj)}/children', default=[])
         _log.info('rendered %s [theme=%s, color_scheme=%s, font_scheme=%s], in %.3f',
                   value, theme, color_scheme, font_scheme, time.time() - t_start)
