@@ -33,6 +33,8 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Fixed Waveform control signal buttons not tracking the displayed signals
   when opening a JLS file.
 * Fixed sidebar not fully updating on color scheme change  #189
+* Fixed widget close then undo not restoring state  #189
+* Added undo for widget move and resize.
 
 
 ## 1.6.5

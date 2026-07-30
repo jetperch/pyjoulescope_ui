@@ -343,11 +343,12 @@ class QtInspector:
                 button, button, QtCore.Qt.NoModifier,
             )
             QtWidgets.QApplication.sendEvent(widget, press)
-            # Release
+            # Release: like real input, button() is the released button and
+            # buttons() excludes it.
             release = QtGui.QMouseEvent(
                 QtCore.QEvent.Type.MouseButtonRelease,
                 QtCore.QPointF(pos),
-                button, button, QtCore.Qt.NoModifier,
+                button, QtCore.Qt.MouseButton.NoButton, QtCore.Qt.NoModifier,
             )
             QtWidgets.QApplication.sendEvent(widget, release)
             return {'ok': True, 'action': 'click'}
@@ -368,7 +369,7 @@ class QtInspector:
                 QtWidgets.QApplication.sendEvent(widget, QtGui.QMouseEvent(
                     QtCore.QEvent.Type.MouseMove, pt, no_button, button, QtCore.Qt.NoModifier))
             QtWidgets.QApplication.sendEvent(widget, QtGui.QMouseEvent(
-                QtCore.QEvent.Type.MouseButtonRelease, end, no_button, button, QtCore.Qt.NoModifier))
+                QtCore.QEvent.Type.MouseButtonRelease, end, button, no_button, QtCore.Qt.NoModifier))
             return {'ok': True, 'action': 'drag'}
 
         elif action == 'resize':

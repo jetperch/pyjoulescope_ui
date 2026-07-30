@@ -106,12 +106,64 @@ VIEW_SETTINGS = {
 }
 
 
+class _AdsLayoutWatch(QtCore.QObject):
+    """Detect user dock layout changes (move, resize, float) for undo/redo.
+
+    ADS provides no drag-completion signal, so watch application-wide mouse
+    events: snapshot the layout on press and record an undo/redo entry on
+    release when the layout changed.  NonClientArea events cover native
+    title bar and frame gestures on floating dock windows.
+    """
+
+    _PRESS = (QtCore.QEvent.Type.MouseButtonPress,
+              QtCore.QEvent.Type.MouseButtonDblClick,
+              QtCore.QEvent.Type.NonClientAreaMouseButtonPress)
+    _RELEASE = (QtCore.QEvent.Type.MouseButtonRelease,
+                QtCore.QEvent.Type.NonClientAreaMouseButtonRelease)
+
+    def __init__(self):
+        super().__init__()
+        self._pre = None  # (ads_state, ui_size) at mouse press
+
+    def invalidate(self):
+        """Discard the gesture in progress, if any.
+
+        Call on programmatic layout changes (widget open/close, view switch,
+        undo/redo state apply) which provide their own undo entries.
+        """
+        self._pre = None
+
+    def eventFilter(self, obj, event):
+        etype = event.type()
+        if etype in self._PRESS:
+            if self._pre is None and View._dock_manager is not None and View._active_instance is not None:
+                self._pre = (View._ads_state(), View._ui_size())
+        elif etype in self._RELEASE:
+            if self._pre is not None and event.buttons() == QtCore.Qt.MouseButton.NoButton:
+                # compare after ADS finishes processing this release
+                QtCore.QTimer.singleShot(0, self._commit)
+        return False
+
+    def _commit(self):
+        pre, self._pre = self._pre, None
+        if pre is None or View._dock_manager is None or View._active_instance is None:
+            return
+        previous, ui_size = pre
+        if ui_size != View._ui_size():
+            return  # main window resize is not undoable
+        current = View._ads_state()
+        if current != previous:
+            pubsub_singleton.publish('registry/view/actions/!ads_change',
+                                     {'previous': previous, 'current': current})
+
+
 class View:
     CAPABILITIES = ['view@']
     SETTINGS = {**VIEW_SETTINGS, **style_settings(N_('New View'))}
     _ui = None
     _dock_manager = None
     _active_instance = None
+    _ads_watch = None
 
     def __init__(self):
         self._dock_widgets = []
@@ -173,7 +225,43 @@ class View:
             ui.restoreGeometry(geometry)
         pubsub_singleton.publish(style_enable_topic, True)
         view._render()
+        View._ads_undo_invalidate()
         _log.info('active view %s: setup done', view.unique_id)
+
+    @staticmethod
+    def _ads_state():
+        return bytes(View._dock_manager.saveState()).decode('utf-8')
+
+    @staticmethod
+    def _ui_size():
+        ui = View._ui
+        return None if ui is None else (ui.width(), ui.height())
+
+    @staticmethod
+    def _ads_undo_invalidate():
+        """Discard any dock layout gesture in progress, skipping undo capture.
+
+        Call on any programmatic layout change (widget open/close,
+        view switch, undo/redo state apply) so that _AdsLayoutWatch only
+        records direct user layout changes.
+        """
+        if View._ads_watch is not None:
+            View._ads_watch.invalidate()
+
+    @staticmethod
+    def on_cls_action_ads_change(value):
+        """Record a user dock layout change for undo/redo."""
+        return [['registry/view/actions/!ads_apply', value['previous']],
+                ['registry/view/actions/!ads_apply', value['current']]]
+
+    @staticmethod
+    def on_cls_action_ads_apply(value):
+        """Apply a dock layout state, for !ads_change undo/redo."""
+        if View._dock_manager is None:
+            return None
+        View._dock_manager.restoreState(QtCore.QByteArray(value.encode('utf-8')))
+        View._ads_undo_invalidate()
+        return None
 
     def on_setting_theme(self):
         if self.is_active:
@@ -200,6 +288,10 @@ class View:
               * floating: optional window float control.
                 True to make floating on top.
                 When missing, do not float.
+              * settings: optional map of settings subtopic to value,
+                applied after registration (used by widget_close undo).
+              * ads_state: optional dock manager state to restore
+                (used by widget_close undo to restore the dock position).
         """
         _log.debug('widget_open %s', value)
         obj: QtWidgets.QWidget = None
@@ -207,11 +299,15 @@ class View:
         unique_id = None
         args = []
         kwargs = {}
+        settings = None
+        ads_state = None
         if isinstance(value, dict):
             floating = bool(value.get('floating', False))
             spec = value['value']
             args = value.get('args', args)
             kwargs = value.get('kwargs', kwargs)
+            settings = value.get('settings')
+            ads_state = value.get('ads_state')
         else:
             spec = value
         if isinstance(spec, str):
@@ -230,6 +326,10 @@ class View:
         if not pubsub_singleton.register(obj, unique_id=unique_id, parent=self):
             return None
         unique_id = obj.unique_id
+        if settings is not None:
+            topic = get_topic_name(unique_id)
+            for subtopic, v in settings.items():
+                pubsub_singleton.publish(f'{topic}/settings/{subtopic}', v)
         obj.setObjectName(unique_id)
         obj.destroyed.connect(self._on_destroyed)
         dock_widget = DockWidget(obj)
@@ -240,10 +340,13 @@ class View:
         self._dock_manager.addDockWidget(TopDockWidgetArea, dock_widget)
         pubsub_singleton.publish('registry/style/actions/!render', unique_id)
         self._dock_widgets.append(dock_widget)
+        if ads_state:
+            self._dock_manager.restoreState(QtCore.QByteArray(ads_state.encode('utf-8')))
         if floating:
             dock_widget.setFloating()
             c = dock_widget.floatingDockContainer()
             c.resize(800, 600)
+        View._ads_undo_invalidate()
         if getattr(obj, 'view_skip_undo', False):
             return None
         else:
@@ -313,13 +416,40 @@ class View:
         """
         _log.debug('widget_close %s', value)
         skip_undo = getattr(get_instance(value), 'view_skip_undo', False)
-        # todo save settings and dock geometry for undo
+        settings = None
+        ads_state = None
+        if not skip_undo:
+            settings = self._settings_capture(get_unique_id(value))
+            ads_state = bytes(self._dock_manager.saveState()).decode('utf-8')
         unique_id = self._widget_suspend(value, delete=True)
+        View._ads_undo_invalidate()
         if skip_undo:
             return None
         else:
-            return [['registry/view/actions/!widget_open', unique_id],
+            return [['registry/view/actions/!widget_open',
+                     {'value': unique_id, 'settings': settings, 'ads_state': ads_state}],
                     ['registry/view/actions/!widget_close', unique_id]]
+
+    @staticmethod
+    def _settings_capture(unique_id):
+        """Capture a widget's settings values for widget_close undo.
+
+        :param unique_id: The widget unique_id.
+        :return: Map of settings subtopic to value, suitable for
+            the widget_open "settings" option.
+        """
+        settings = {}
+        settings_topic = f'{get_topic_name(unique_id)}/settings'
+        for subtopic in pubsub_singleton.enumerate(settings_topic, traverse=True):
+            topic = f'{settings_topic}/{subtopic}'
+            meta = pubsub_singleton.metadata(topic)
+            if meta is None or meta.dtype == 'node':
+                continue
+            flags = meta.flags if meta.flags is not None else []
+            if 'tmp' in flags or 'ro' in flags:
+                continue
+            settings[subtopic] = pubsub_singleton.query(topic)
+        return settings
 
     @staticmethod
     def on_cls_action_widget_open(value):
@@ -363,10 +493,16 @@ class View:
         """Connect the UI to the widget"""
         View._ui = value['ui']
         View._dock_manager = value['dock_manager']
+        if View._ads_watch is None:
+            View._ads_watch = _AdsLayoutWatch()
+            QtWidgets.QApplication.instance().installEventFilter(View._ads_watch)
 
     @staticmethod
     def on_cls_action_ui_disconnect(value):
         """Disconnect the UI."""
+        if View._ads_watch is not None:
+            QtWidgets.QApplication.instance().removeEventFilter(View._ads_watch)
+            View._ads_watch = None
         # hack to clean up active view
         view_topic = 'registry/view/settings/active'
         active_view = pubsub_singleton.query(view_topic)
