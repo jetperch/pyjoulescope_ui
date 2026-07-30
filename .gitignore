@@ -49,3 +49,6 @@ flatpak/flatpak-pip-generator
 
 # UI test screenshot artifacts
 uitest_artifacts/
+
+# Claude Code: track .claude/skills, keep per-machine settings local
+.claude/settings.local.json

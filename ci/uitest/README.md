@@ -85,6 +85,26 @@ pytest "ci/uitest/test_waveform_interactive.py::test_pan"  # one test
 JS_UITEST_DISPLAY=1 pytest ci/uitest -k marker             # select by name
 ```
 
+## One-shot CLI (`cli.py`)
+
+[`cli.py`](cli.py) is a standalone command-line client for interactive
+automation (shell scripts, agents) against a UI already running with
+`--tcp-server` — it auto-discovers `server.json`, performs one operation, and
+prints one JSON object:
+
+```bash
+python ci/uitest/cli.py ping                       # connected? active view?
+python ci/uitest/cli.py view multimeter           # switch view and wait
+python ci/uitest/cli.py screenshot shot.png       # main window -> PNG
+python ci/uitest/cli.py find --class WaveformWidget
+python ci/uitest/cli.py devices
+```
+
+Exit codes: 0 success; 2 UI not running with `--tcp-server` (or stale
+`server.json`); 3 request timeout; 4 server-reported error.  Run
+`python ci/uitest/cli.py --help` for all subcommands.  Unlike `UiSession`,
+the CLI never launches or closes the UI and never touches the config.
+
 ## Environment variables
 
 | Var | Purpose |
