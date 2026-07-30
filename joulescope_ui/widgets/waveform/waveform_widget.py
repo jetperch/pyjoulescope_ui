@@ -440,13 +440,29 @@ class WaveformWidget(QtWidgets.QWidget):
             'brief': N_('The x-axis time mode.'),
             'detail': P_([
                 N_('Absolute displays the date and time of day for the configured time zone.'),
-                N_('Relative displays the elapsed time from the first available sample.'),
+                N_('Relative positive displays the elapsed time from the first available sample.'),
+                N_('Relative negative displays 0 at the newest sample with negative elapsed time to the left.'),
             ]),
             'options': [
                 ['absolute', N_('Absolute')],
-                ['relative', N_('Relative')],
+                ['relative_positive', N_('Relative positive')],
+                ['relative_negative', N_('Relative negative')],
             ],
             'default': 'absolute',
+        },
+        'dt_holdover': {
+            'dtype': 'bool',
+            'brief': N_('Maintain the Δt view duration when streaming starts.'),
+            'detail': P_([
+                N_('When enabled, starting sample streaming pins the right side only and keeps '
+                   'the current Δt view duration.  The plot starts mostly empty, and the traces '
+                   'grow as the data streams in.'),
+                N_('The view duration never shrinks to the available data, so stopping a short '
+                   'capture shows empty space beyond the traces.'),
+                N_('When disabled, starting sample streaming pins both sides, and the view '
+                   'expands with the captured data.'),
+            ]),
+            'default': False,
         },
         'show_statistics': {
             'dtype': 'bool',
@@ -1161,13 +1177,20 @@ class WaveformWidget(QtWidgets.QWidget):
         x0, x1 = self.x_range
         d_e = e1 - e0
         d_x = x1 - x0
-        d_z = min(d_e, d_x)
+        if self.dt_holdover:
+            d_z = d_x  # maintain Δt: never shrink the view to the available data
+        else:
+            d_z = min(d_e, d_x)
         if (x0 == 0 and x1 == 0) or d_x == 0:
             return [e0, e1]
         elif self.pin_left and self.pin_right:
             return [e0, e1]
         elif self.pin_right:
-            return [e1 - d_z, e1]
+            x1r = e1
+            if self.dt_holdover and self.x_time_mode == 'relative_positive':
+                # fill phase: keep 0 fixed at the left edge, traces grow rightward
+                x1r = max(e1, e0 + d_z)
+            return [x1r - d_z, x1r]
         elif self.pin_left:
             return [e0, e0 + d_z]
         else:
@@ -1180,7 +1203,7 @@ class WaveformWidget(QtWidgets.QWidget):
             return True
         self.x_extent = self._compute_x_extent()
         e0, e1 = self.x_extent
-        if self.x_time_mode == 'relative' and e0 < e1:
+        if self.x_time_mode.startswith('relative') and e0 < e1:
             self._x_epoch = axis_ticks.x_relative_epoch(self._x_epoch_state, e0, e1, self._is_streaming())
         else:
             self._x_epoch = None
@@ -1887,11 +1910,20 @@ class WaveformWidget(QtWidgets.QWidget):
         x0, y0, w, h = self._summary_geometry()
         x = d['x']
         xe0, xe1 = x[0], x[-1]
-        dxe = xe1 - xe0
+        if self._x_epoch is not None:
+            xe0 = min(self._x_epoch, xe0)  # relative modes: stabilized data start
+        # span the union of the data and the view so that the view indicator
+        # remains correct when the view extends beyond the data (Δt holdover)
+        xr0, xr1 = self.x_range
+        if xr1 >= xe0 and xr0 <= xe1:  # view intersects the data
+            xs0, xs1 = min(xe0, xr0), max(xe1, xr1)
+        else:  # stale/transient view range (streaming restart): span the data only
+            xs0, xs1 = xe0, xe1
+        dxe = xs1 - xs0
         if length <= 1 or w <= 1 or dxe <= 1e-15:
             return
         x_gain = w / dxe
-        self._x_summary_map.update(x0, xe0, x_gain)
+        self._x_summary_map.update(x0, xs0, x_gain)
 
         xp = self._x_summary_map.time64_to_counter(x)
         p.setClipRect(x0, y0, w, h)
@@ -2001,12 +2033,14 @@ class WaveformWidget(QtWidgets.QWidget):
             x_gain = (plot_width - 1) / (x_duration_s * time64.SECOND)
         else:
             return False
-        if self.x_time_mode == 'relative':
+        if self.x_time_mode == 'relative_negative':
+            epoch = self.x_extent[1]
+        elif self.x_time_mode.startswith('relative'):
             epoch = self.x_extent[0] if self._x_epoch is None else self._x_epoch
         else:
             epoch = None
         x_grid = axis_ticks.x_ticks(x_range64[0], x_range64[1], major_count_max, self.time_zone,
-                                    time_mode=self.x_time_mode, epoch=epoch)
+                                    time_mode='absolute' if epoch is None else 'relative', epoch=epoch)
         self._x_map.update(left_x1, x_range64[0], x_gain)
         self._x_map.trel_offset = x_grid['offset']
 
@@ -3533,9 +3567,12 @@ class WaveformWidget(QtWidgets.QWidget):
         CallableAction(mode_group, N_('Absolute'),
                        lambda: self._on_menu_x_time_mode('absolute'),
                        checkable=True, checked=(self.x_time_mode == 'absolute'))
-        CallableAction(mode_group, N_('Relative'),
-                       lambda: self._on_menu_x_time_mode('relative'),
-                       checkable=True, checked=(self.x_time_mode == 'relative'))
+        CallableAction(mode_group, N_('Relative positive'),
+                       lambda: self._on_menu_x_time_mode('relative_positive'),
+                       checkable=True, checked=(self.x_time_mode == 'relative_positive'))
+        CallableAction(mode_group, N_('Relative negative'),
+                       lambda: self._on_menu_x_time_mode('relative_negative'),
+                       checkable=True, checked=(self.x_time_mode == 'relative_negative'))
 
         time_zone_menu = menu.addMenu(N_('Time Zone'))
         time_zone_group = QtGui.QActionGroup(time_zone_menu)
@@ -3547,6 +3584,10 @@ class WaveformWidget(QtWidgets.QWidget):
                        lambda: self._on_menu_x_time_zone('local'),
                        checkable=True, checked=(self.time_zone == 'local'))
 
+        CallableAction(menu, N_('Δt holdover'),
+                       lambda checked: self._on_menu_dt_holdover(checked),
+                       checkable=True, checked=self.dt_holdover)
+
         settings_action_create(self, menu)
         context_menu_show(menu, event)
 
@@ -3555,6 +3596,9 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _on_menu_x_time_zone(self, value):
         self.time_zone = value
+
+    def _on_menu_dt_holdover(self, value):
+        self.dt_holdover = bool(value)
 
     def _lookup_plot(self, pos=None):
         """Lookup the y-axis plot for the y pixel position.
@@ -3808,15 +3852,19 @@ class WaveformWidget(QtWidgets.QWidget):
         interval_action = QtWidgets.QWidgetAction(menu)
         interval_action.setDefaultWidget(interval_widget)
         menu.addAction(interval_action)
+        CallableAction(menu, N_('Δt holdover'),
+                       lambda checked: self._on_menu_dt_holdover(checked),
+                       checkable=True, checked=self.dt_holdover)
         return context_menu_show(menu, event)
 
     def _on_dt_interval(self, dt):
         e0, e1 = self.x_extent
         er = e1 - e0
         dt = int(dt * time64.SECOND)
-        dt = min(dt, er)
+        if not self.dt_holdover:
+            dt = min(dt, er)
         pin_left, pin_right = self.pin_left, self.pin_right
-        if dt < er and pin_left and pin_right:
+        if dt != er and pin_left and pin_right:
             pin_left = False  # unpin from left
 
         x0, x1 = self.x_range
@@ -4965,8 +5013,9 @@ class WaveformWidget(QtWidgets.QWidget):
         z0, z1 = value[:2]
         if z1 < z0:
             z0, z1 = z1, z0
-        z0 = min(max(z0, e0), e1)
-        z1 = min(max(z1, e0), e1)
+        if not self.dt_holdover:  # holdover: allow the range to extend beyond the data
+            z0 = min(max(z0, e0), e1)
+            z1 = min(max(z1, e0), e1)
         if len(value) < 4 and [z0, z1] == [x0, x1]:
             return None  # no change, no undo entry
         self.x_range = [z0, z1]
@@ -5085,13 +5134,14 @@ class WaveformWidget(QtWidgets.QWidget):
         pin_left, pin_right = self.pin_left, self.pin_right
         z0, z1 = value
         e0, e1 = self.x_extent
-        if z0 < e0:
-            z1 += e0 - z0
-            z0 = e0
-        if z1 > e1:
-            z0 -= z1 - e1
-            z1 = e1
-            z0 = max(z0, e0)
+        if not self.dt_holdover:  # holdover: allow the range to extend beyond the data
+            if z0 < e0:
+                z1 += e0 - z0
+                z0 = e0
+            if z1 > e1:
+                z0 -= z1 - e1
+                z1 = e1
+                z0 = max(z0, e0)
         pin_left_new = False if z0 > e0 else pin_left
         pin_right_new = False if z1 < e1 else pin_right
         if [z0, z1] == undo_x_range and (pin_left_new, pin_right_new) == (pin_left, pin_right):
@@ -5382,10 +5432,16 @@ class WaveformWidget(QtWidgets.QWidget):
     def on_setting_show_min_max(self):
         self._repaint_request = True
 
-    def on_setting_x_time_mode(self):
+    def on_setting_x_time_mode(self, value):
+        if value == 'relative':  # legacy unreleased value
+            self.x_time_mode = 'relative_positive'
+            return
         self._x_epoch_state.clear()
         self._x_epoch = None
         self._repaint_request = True
+
+    def on_setting_dt_holdover(self):
+        self._plot_data_invalidate()
 
     def on_setting_time_zone(self):
         self._repaint_request = True

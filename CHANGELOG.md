@@ -41,8 +41,10 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Added undo/redo for widget move and resize
   * Fixed undo/redo for file open
 * Improved startup and view switching time  #206
-* Added Waveform x-axis time Mode (absolute / relative) and Time Zone
-  x-axis context menu options  #220
+* Added Waveform x-axis time Mode (absolute / relative positive / relative
+  negative) and Time Zone x-axis context menu options  #220
+* Added Waveform Δt holdover option to maintain the view duration when
+  sample streaming starts  #222
 
 
 ## 1.6.5

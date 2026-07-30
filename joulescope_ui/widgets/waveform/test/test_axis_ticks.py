@@ -130,13 +130,24 @@ class TestAxisXTicksRelative(unittest.TestCase):
         self.assertEqual(x0, v['offset'])
         self.assertEqual('', v['offset_str'])
 
-    def test_epoch_earlier_subsecond(self):
-        # sub-second major interval far from epoch: quantized elapsed offset
+    def test_epoch_earlier_subsecond_interval(self):
+        # sub-second major interval, magnitudes within label precision: direct labels
         epoch = time64.YEAR
         x0, x1 = epoch + 32 * time64.SECOND, epoch + 33 * time64.SECOND
         v = t.x_ticks(x0, x1, 10, time_mode='relative', epoch=epoch)
-        self.assertEqual(epoch + t.x_offset(x0 - epoch, x1 - epoch), v['offset'])
-        self.assertEqual('0:00:30', v['offset_str'])  # 32 s quantized to 10 s offset spacing
+        self.assertEqual(epoch, v['offset'])
+        self.assertEqual('', v['offset_str'])
+        self.assertIn('32.2', v['labels'])
+        self.assertEqual('s', v['units'])
+
+    def test_deep_zoom_positive(self):
+        # magnitudes beyond label precision: quantized elapsed offset banner
+        epoch = time64.YEAR
+        x0 = epoch + 3600 * time64.SECOND
+        x1 = x0 + 200 * time64.MICROSECOND
+        v = t.x_ticks(x0, x1, 10, time_mode='relative', epoch=epoch)
+        self.assertEqual('1:00:00', v['offset_str'])
+        self.assertGreaterEqual(v['offset'], epoch)
 
     def test_second_intervals_label_full_elapsed(self):
         # major interval >= 1 s: labels carry the full elapsed time, no offset
@@ -152,6 +163,71 @@ class TestAxisXTicksRelative(unittest.TestCase):
         x0, x1 = epoch + 180 * time64.SECOND, epoch + 190 * time64.SECOND
         v = t.x_ticks(x0, x1, 10, time_mode='relative', epoch=epoch)
         self.assertEqual(epoch, v['offset'])
+        z0 = v['offset'] + int(v['major'][0] * time64.SECOND)
+        z1 = v['offset'] + int(v['major'][-1] * time64.SECOND)
+        self.assertGreaterEqual(z0, x0)
+        self.assertLessEqual(z1, x1)
+
+
+class TestAxisXTicksNegative(unittest.TestCase):
+    """Relative mode with the epoch at the newest sample (relative negative)."""
+
+    def test_seconds(self):
+        epoch = time64.YEAR
+        x0, x1 = epoch - 18 * time64.SECOND, epoch
+        v = t.x_ticks(x0, x1, 10, time_mode='relative', epoch=epoch)
+        self.assertEqual(epoch, v['offset'])
+        self.assertEqual('', v['offset_str'])
+        self.assertEqual('0', v['labels'][-1])   # endpoint tick at the newest sample
+        self.assertIn('-16', v['labels'])
+        self.assertEqual('s', v['units'])
+
+    def test_minutes(self):
+        epoch = time64.YEAR
+        x0, x1 = epoch - 90 * time64.SECOND, epoch
+        v = t.x_ticks(x0, x1, 10, time_mode='relative', epoch=epoch)
+        self.assertEqual('-1:30', v['labels'][0])
+        self.assertEqual('0:00', v['labels'][-1])
+        self.assertEqual('m:ss', v['units'])
+
+    def test_subsecond_near_epoch(self):
+        # small magnitudes: direct labels, no offset banner
+        epoch = time64.YEAR
+        x0, x1 = epoch - 500 * time64.MICROSECOND, epoch
+        v = t.x_ticks(x0, x1, 10, time_mode='relative', epoch=epoch)
+        self.assertEqual(epoch, v['offset'])
+        self.assertEqual('', v['offset_str'])
+        self.assertEqual('0', v['labels'][-1])
+
+    def test_deep_zoom_negative(self):
+        # far from the newest-sample epoch: offset quantized towards zero
+        epoch = time64.YEAR
+        x1 = epoch - 3600 * time64.SECOND
+        x0 = x1 - 200 * time64.MICROSECOND
+        v = t.x_ticks(x0, x1, 10, time_mode='relative', epoch=epoch)
+        self.assertEqual('-1:00:00', v['offset_str'])
+        self.assertEqual(epoch - 3600 * time64.SECOND, v['offset'])
+        # residual tick values are small negatives, not huge positives
+        self.assertLessEqual(v['major'][-1], 0.0)
+        self.assertGreaterEqual(v['major'][0], -0.001)
+
+    def test_dt_window_fill(self):
+        # the Δt holdover fill case: 10 s window pinned right at the epoch,
+        # 0.5 s major interval: direct negative labels, no confusing offset
+        epoch = time64.YEAR
+        x0, x1 = epoch - 10 * time64.SECOND, epoch
+        v = t.x_ticks(x0, x1, 25, time_mode='relative', epoch=epoch)
+        self.assertEqual('', v['offset_str'])
+        self.assertEqual(epoch, v['offset'])
+        self.assertIn('-10', v['labels'])
+        self.assertIn('-0.5', v['labels'])
+        self.assertEqual('0', v['labels'][-1])
+        self.assertEqual('s', v['units'])
+
+    def test_ticks_within_range(self):
+        epoch = time64.YEAR
+        x0, x1 = epoch - 18 * time64.SECOND, epoch
+        v = t.x_ticks(x0, x1, 10, time_mode='relative', epoch=epoch)
         z0 = v['offset'] + int(v['major'][0] * time64.SECOND)
         z1 = v['offset'] + int(v['major'][-1] * time64.SECOND)
         self.assertGreaterEqual(z0, x0)

@@ -212,12 +212,17 @@ def x_ticks(x0, x1, major_count_max, time_zone='utc', time_mode='absolute', epoc
     if time_mode == 'relative':
         if epoch is None:
             epoch = x0
-        if major_interval >= 1:
+        abs_max = max(abs(x0 - epoch), abs(x1 - epoch)) / time64.SECOND
+        if abs_max < major_interval * 1e5:
             # label ticks with the full elapsed time: no offset needed
             k_rel = 0
             k = epoch
+        elif x1 <= epoch:
+            # deep zoom, entirely negative: quantize the offset towards zero
+            k_rel = -x_offset(epoch - x1, epoch - x0)
+            k = epoch + k_rel
         else:
-            # sub-second: quantized offset preserves tick label precision
+            # deep zoom: quantized offset preserves tick label precision
             k_rel = x_offset(x0 - epoch, x1 - epoch)
             k = epoch + k_rel
     else:
@@ -226,14 +231,17 @@ def x_ticks(x0, x1, major_count_max, time_zone='utc', time_mode='absolute', epoc
     t0 = (x0 - k) / time64.SECOND
     t1 = (x1 - k) / time64.SECOND
 
+    # include an exact-endpoint tick: with a negative epoch (0 = newest sample),
+    # the 0 tick lands exactly on t1 whenever the view is pinned right
     major_start = np.ceil(t0 / major_interval) * major_interval
-    major = np.arange(major_start, t1, major_interval, dtype=np.float64)
+    major_end = t1 + major_interval * 1e-6
+    major = np.arange(major_start, major_end, major_interval, dtype=np.float64)
 
     if major_idx > 0:
         minor_idx = max(major_idx - 2, 0)
         minor_interval = _X_TICK_SPACING[minor_idx]
         minor_start = np.ceil(t0 / minor_interval) * minor_interval
-        minor = np.arange(minor_start, t1, minor_interval, dtype=np.float64)
+        minor = np.arange(minor_start, t1 + minor_interval * 1e-6, minor_interval, dtype=np.float64)
         minor = _minor_filt(minor, major)
     else:
         minor = np.array([], dtype=float)
@@ -241,17 +249,23 @@ def x_ticks(x0, x1, major_count_max, time_zone='utc', time_mode='absolute', epoc
 
     labels = []
     if len(major):
-        label_max = major[-1]
+        label_max = max(abs(major[0]), abs(major[-1]))
         if major_interval >= 1:
             for x in major:
-                p = time_fmt(x, label_max, major_interval)
-                labels.append(p[0])
+                p = time_fmt(abs(x), label_max, major_interval)
+                s = p[0]
+                if x < 0 and s.strip('0:') != '':
+                    s = '-' + s
+                labels.append(s)
                 units = p[1]
         else:
             adjusted_value, prefix, scale = unit_prefix(label_max)
             scale = 1.0 / scale
+            zero_max = (label_max * scale) / 100000.0
             for v in major:
                 v *= scale
+                if abs(v) < zero_max:
+                    v = 0
                 s = f'{v:g}'
                 if s == '-0':
                     s = '0'

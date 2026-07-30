@@ -228,8 +228,14 @@ class WaveformControlWidget(QtWidgets.QWidget):
             b.blockSignals(block_signals_state)
 
     def _on_signal_stream_enable(self, value):
-        self._on_pin_left_click(value)
-        self._on_pin_right_click(value)
+        dt_holdover = self.pubsub.query(f'{self.topic}/settings/dt_holdover', default=False)
+        if value and dt_holdover:
+            # maintain Δt: keep the current view duration, follow the newest data
+            self._on_pin_left_click(False)
+            self._on_pin_right_click(True)
+        else:
+            self._on_pin_left_click(value)
+            self._on_pin_right_click(value)
 
     def _on_min_max(self, value):
         block_signals_state = self._min_max_sel.blockSignals(True)
