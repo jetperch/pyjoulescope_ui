@@ -302,7 +302,7 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
-#: error_window.py:112 widgets/waveform/waveform_widget.py:4092
+#: error_window.py:112 widgets/waveform/waveform_widget.py:4105
 msgid "Edit"
 msgstr ""
 
@@ -648,7 +648,7 @@ msgstr ""
 msgid "Config"
 msgstr ""
 
-#: main.py:405 main.py:453 widgets/waveform/waveform_widget.py:4013
+#: main.py:405 main.py:453 widgets/waveform/waveform_widget.py:4026
 msgid "Export"
 msgstr ""
 
@@ -706,7 +706,7 @@ msgstr ""
 msgid "Clear the configuration and exit?"
 msgstr ""
 
-#: paths.py:31 styles/manager.py:52
+#: paths.py:31 styles/manager.py:54
 msgid "The name for this widget."
 msgstr ""
 
@@ -795,49 +795,49 @@ msgstr ""
 msgid "Safe Mode Configuration"
 msgstr ""
 
-#: software_update.py:62
+#: software_update.py:61
 msgid ""
 "We have detected that you are running the Joulescope UI from a python "
 "package or source."
 msgstr ""
 
-#: software_update.py:63
+#: software_update.py:62
 msgid "To update your python packages, issue the following command:"
 msgstr ""
 
-#: software_update.py:73
+#: software_update.py:72
 msgid "Software update"
 msgstr ""
 
-#: software_update.py:77
+#: software_update.py:76
 msgid "A software update is available:"
 msgstr ""
 
-#: software_update.py:78
+#: software_update.py:77
 msgid "Existing version"
 msgstr ""
 
-#: software_update.py:79
+#: software_update.py:78
 msgid "Available version"
 msgstr ""
 
-#: software_update.py:80
+#: software_update.py:79
 msgid "Channel"
 msgstr ""
 
-#: software_update.py:317
+#: software_update.py:318
 msgid "Update Now"
 msgstr ""
 
-#: software_update.py:319
+#: software_update.py:320
 msgid "Later"
 msgstr ""
 
-#: software_update.py:327
+#: software_update.py:328
 msgid "Copy to clipboard"
 msgstr ""
 
-#: software_update.py:333 widgets/device_control/device_update_dialog.py:44
+#: software_update.py:334 widgets/device_control/device_update_dialog.py:44
 msgid "OK"
 msgstr ""
 
@@ -995,7 +995,7 @@ msgid ""
 msgstr ""
 
 #: devices/jsdrv/js110.py:147 devices/jsdrv/js220.py:210
-#: devices/jsdrv/js320.py:206 widgets/waveform/waveform_widget.py:117
+#: devices/jsdrv/js320.py:206 widgets/waveform/waveform_widget.py:116
 msgid "Current range"
 msgstr ""
 
@@ -1127,7 +1127,7 @@ msgstr ""
 
 #: devices/jsdrv/js110.py:269 devices/jsdrv/js220.py:435
 #: devices/jsdrv/js320.py:416 widgets/device_control/fuse.py:103
-#: widgets/waveform/waveform_widget.py:112
+#: widgets/waveform/waveform_widget.py:111
 msgid "Current"
 msgstr ""
 
@@ -1137,7 +1137,7 @@ msgid "Enable the current signal streaming."
 msgstr ""
 
 #: devices/jsdrv/js110.py:278 devices/jsdrv/js220.py:444
-#: devices/jsdrv/js320.py:425 widgets/waveform/waveform_widget.py:113
+#: devices/jsdrv/js320.py:425 widgets/waveform/waveform_widget.py:112
 msgid "Voltage"
 msgstr ""
 
@@ -1147,7 +1147,7 @@ msgid "Enable the voltage signal streaming."
 msgstr ""
 
 #: devices/jsdrv/js110.py:287 devices/jsdrv/js220.py:453
-#: devices/jsdrv/js320.py:434 widgets/waveform/waveform_widget.py:114
+#: devices/jsdrv/js320.py:434 widgets/waveform/waveform_widget.py:113
 msgid "Power"
 msgstr ""
 
@@ -1404,7 +1404,7 @@ msgid "Enable the general purpose input 3 signal streaming."
 msgstr ""
 
 #: devices/jsdrv/js220.py:512 devices/jsdrv/js320.py:493
-#: widgets/waveform/waveform_widget.py:131
+#: widgets/waveform/waveform_widget.py:130
 msgid "Trigger input"
 msgstr ""
 
@@ -1482,7 +1482,7 @@ msgstr ""
 #: widgets/settings/settings_widget.py:266
 #: widgets/settings/settings_widget.py:364
 #: widgets/settings/settings_widget.py:431
-#: widgets/waveform/waveform_widget.py:3594
+#: widgets/waveform/waveform_widget.py:3607
 msgid "Name"
 msgstr ""
 
@@ -1514,7 +1514,7 @@ msgstr ""
 msgid "Signal time range"
 msgstr ""
 
-#: devices/jsdrv/jsdrv_wrapper.py:43
+#: devices/jsdrv/jsdrv_wrapper.py:42
 msgid "The pyjoulescope_driver log level."
 msgstr ""
 
@@ -1576,7 +1576,7 @@ msgid "Auto-open"
 msgstr ""
 
 #: devices/serial/serial_port_dialog.py:88
-#: widgets/waveform/waveform_widget.py:3649
+#: widgets/waveform/waveform_widget.py:3662
 msgid "Add"
 msgstr ""
 
@@ -1585,9 +1585,9 @@ msgid "Closed"
 msgstr ""
 
 #: devices/serial/serial_port_dialog.py:163
-#: widgets/waveform/waveform_widget.py:4085
-#: widgets/waveform/waveform_widget.py:4113
-#: widgets/waveform/waveform_widget.py:4157
+#: widgets/waveform/waveform_widget.py:4098
+#: widgets/waveform/waveform_widget.py:4126
+#: widgets/waveform/waveform_widget.py:4170
 msgid "Remove"
 msgstr ""
 
@@ -1611,17 +1611,17 @@ msgstr ""
 msgid "Monitor"
 msgstr ""
 
-#: range_tools/cdf.py:29
+#: range_tools/cdf.py:28
 msgid "Compute the Cumulative Distribution Function"
 msgstr ""
 
-#: range_tools/cdf.py:31
+#: range_tools/cdf.py:30
 msgid ""
 "The Cumulative Distribution Function (CDF) value is the probability that a "
 "signal's value is less than or equal to the x-axis value."
 msgstr ""
 
-#: range_tools/cdf.py:33
+#: range_tools/cdf.py:32
 msgid ""
 "When use to analyze current or power, this graphically indicates the time "
 "spent below in each current mode. Compared to a histogram, the CDF makes it "
@@ -1629,74 +1629,74 @@ msgid ""
 "change in the y-axis value."
 msgstr ""
 
-#: range_tools/cdf.py:146
+#: range_tools/cdf.py:147
 msgid "Probability"
 msgstr ""
 
-#: range_tools/cdf.py:167
+#: range_tools/cdf.py:168
 msgid "CDF configuration"
 msgstr ""
 
-#: range_tools/cdf.py:181 range_tools/histogram.py:51
+#: range_tools/cdf.py:182 range_tools/histogram.py:50
 msgid "Number of bins (0 for auto)"
 msgstr ""
 
-#: range_tools/cdf.py:187
+#: range_tools/cdf.py:188
 msgid "Complimentary"
 msgstr ""
 
-#: range_tools/frequency.py:25
+#: range_tools/frequency.py:24
 msgid "Frequency"
 msgstr ""
 
-#: range_tools/frequency.py:40
+#: range_tools/frequency.py:39
 msgid "Compute frequency spectrum over the range"
 msgstr ""
 
-#: range_tools/frequency.py:41
+#: range_tools/frequency.py:40
 msgid ""
 "Compute the frequency spectrum to analyze the frequency content of the "
 "signal's data values over the selected range."
 msgstr ""
 
-#: range_tools/frequency.py:214
+#: range_tools/frequency.py:215
 msgid "Frequency configuration"
 msgstr ""
 
-#: range_tools/histogram.py:25
+#: range_tools/histogram.py:24
 msgid "Histogram"
 msgstr ""
 
-#: range_tools/histogram.py:27
+#: range_tools/histogram.py:26
 msgid "Discrete Probability Distribution"
 msgstr ""
 
-#: range_tools/histogram.py:28
+#: range_tools/histogram.py:27
 msgid "Frequency Distribution"
 msgstr ""
 
-#: range_tools/histogram.py:29
+#: range_tools/histogram.py:28
 msgid "Probability Density Distribution"
 msgstr ""
 
-#: range_tools/histogram.py:45 range_tools/max_window.py:120
+#: range_tools/histogram.py:44 range_tools/max_window.py:120
 #: widgets/trigger/trigger_widget.py:220
 msgid "Signal"
 msgstr ""
 
-#: range_tools/histogram.py:57
+#: range_tools/histogram.py:56
 msgid "Histogram type"
 msgstr ""
 
-#: range_tools/histogram.py:75
+#: range_tools/histogram.py:74
 msgid "Histogram configuration"
 msgstr ""
 
-#: range_tools/histogram.py:189
+#: range_tools/histogram.py:190
 msgid "Compute histogram over the range"
 msgstr ""
 
-#: range_tools/histogram.py:190
+#: range_tools/histogram.py:191
 msgid ""
 "Compute a histogram of the signal's data values over the selected range."
 msgstr ""
@@ -1898,69 +1898,69 @@ msgstr ""
 msgid "Device Update"
 msgstr ""
 
-#: widgets/device_control/fuse.py:24
+#: widgets/device_control/fuse.py:23
 msgid "Fuse 1"
 msgstr ""
 
-#: widgets/device_control/fuse.py:25
+#: widgets/device_control/fuse.py:24
 msgid "Fuse 2"
 msgstr ""
 
-#: widgets/device_control/fuse.py:26
+#: widgets/device_control/fuse.py:25
 msgid "Range fuse"
 msgstr ""
 
-#: widgets/device_control/fuse.py:27
+#: widgets/device_control/fuse.py:26
 msgid "Max fuse"
 msgstr ""
 
-#: widgets/device_control/fuse.py:33
+#: widgets/device_control/fuse.py:32
 msgid "Fuse trip threshold"
 msgstr ""
 
-#: widgets/device_control/fuse.py:34
+#: widgets/device_control/fuse.py:33
 msgid "Any current above this threshold will eventually trip the fuse."
 msgstr ""
 
-#: widgets/device_control/fuse.py:38
+#: widgets/device_control/fuse.py:37
 msgid "Fuse speed threshold"
 msgstr ""
 
-#: widgets/device_control/fuse.py:39
+#: widgets/device_control/fuse.py:38
 msgid "The fuse trips in Duration at this constant current."
 msgstr ""
 
-#: widgets/device_control/fuse.py:43
+#: widgets/device_control/fuse.py:42
 msgid "Fuse duration"
 msgstr ""
 
-#: widgets/device_control/fuse.py:44
+#: widgets/device_control/fuse.py:43
 msgid "The fuse trips in this Duration at Threshold 2 current."
 msgstr ""
 
-#: widgets/device_control/fuse.py:48
+#: widgets/device_control/fuse.py:47
 msgid "Fuse dissipation time constant"
 msgstr ""
 
-#: widgets/device_control/fuse.py:49
+#: widgets/device_control/fuse.py:48
 msgid ""
 "The exponential decay time constant. The fuse dissipates 63.2 percent of "
 "accumulated energy in this duration."
 msgstr ""
 
-#: widgets/device_control/fuse.py:53
+#: widgets/device_control/fuse.py:52
 msgid "Fuse state indicator. When enabled and engaged, click to clear."
 msgstr ""
 
-#: widgets/device_control/fuse.py:87
+#: widgets/device_control/fuse.py:86
 msgid "Threshold 1"
 msgstr ""
 
-#: widgets/device_control/fuse.py:88
+#: widgets/device_control/fuse.py:87
 msgid "Threshold 2"
 msgstr ""
 
-#: widgets/device_control/fuse.py:89 widgets/memory/memory_widget.py:225
+#: widgets/device_control/fuse.py:88 widgets/memory/memory_widget.py:225
 #: widgets/record_status/record_stop_config_widget.py:30
 #: widgets/trigger/trigger_widget.py:114 widgets/trigger/trigger_widget.py:222
 msgid "Duration"
@@ -2237,7 +2237,7 @@ msgid "Save ACTIVE to:"
 msgstr ""
 
 #: widgets/js320_cal/js320_cal_widget.py:64
-#: widgets/waveform/waveform_widget.py:3668
+#: widgets/waveform/waveform_widget.py:3681
 msgid "Save"
 msgstr ""
 
@@ -2840,7 +2840,7 @@ msgstr ""
 msgid "Accrue"
 msgstr ""
 
-#: widgets/value/value_widget.py:599 widgets/waveform/waveform_widget.py:3582
+#: widgets/value/value_widget.py:599 widgets/waveform/waveform_widget.py:3595
 msgid "Preferred prefix"
 msgstr ""
 
@@ -2902,7 +2902,7 @@ msgid "triangle left"
 msgstr ""
 
 #: widgets/waveform/text_annotation.py:67
-#: widgets/waveform/waveform_widget.py:3540
+#: widgets/waveform/waveform_widget.py:3553
 msgid "Manual"
 msgstr ""
 
@@ -2911,17 +2911,17 @@ msgid "Centered"
 msgstr ""
 
 #: widgets/waveform/text_annotation.py:101
-#: widgets/waveform/waveform_widget.py:3664
+#: widgets/waveform/waveform_widget.py:3677
 msgid "Text"
 msgstr ""
 
 #: widgets/waveform/text_annotation.py:109
-#: widgets/waveform/waveform_widget.py:4093
+#: widgets/waveform/waveform_widget.py:4106
 msgid "Show text"
 msgstr ""
 
 #: widgets/waveform/text_annotation.py:118
-#: widgets/waveform/waveform_widget.py:4105
+#: widgets/waveform/waveform_widget.py:4118
 msgid "Shape"
 msgstr ""
 
@@ -3105,31 +3105,31 @@ msgid ""
 "the Device Control widget."
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:45
+#: widgets/waveform/waveform_widget.py:44
 msgid "Waveform"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:46
+#: widgets/waveform/waveform_widget.py:45
 msgid "Copy text to clipboard"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:74
+#: widgets/waveform/waveform_widget.py:73
 msgid "X-axis pinned: click the pin buttons or press Shift+Space to unpin"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:127
+#: widgets/waveform/waveform_widget.py:126
 msgid "General purpose input 0"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:128
+#: widgets/waveform/waveform_widget.py:127
 msgid "General purpose input 1"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:129
+#: widgets/waveform/waveform_widget.py:128
 msgid "General purpose input 2"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:130
+#: widgets/waveform/waveform_widget.py:129
 msgid "General purpose input 3"
 msgstr ""
 
@@ -3266,12 +3266,12 @@ msgid "X-axis annotation mode"
 msgstr ""
 
 #: widgets/waveform/waveform_widget.py:525
-#: widgets/waveform/waveform_widget.py:3416
+#: widgets/waveform/waveform_widget.py:3429
 msgid "Absolute"
 msgstr ""
 
 #: widgets/waveform/waveform_widget.py:526
-#: widgets/waveform/waveform_widget.py:3421
+#: widgets/waveform/waveform_widget.py:3434
 msgid "Relative"
 msgstr ""
 
@@ -3315,149 +3315,149 @@ msgstr ""
 msgid "Standard"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3363
-#: widgets/waveform/waveform_widget.py:3676
+#: widgets/waveform/waveform_widget.py:3376
+#: widgets/waveform/waveform_widget.py:3689
 msgid "Save image to file"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3410
-#: widgets/waveform/waveform_widget.py:3479
+#: widgets/waveform/waveform_widget.py:3423
+#: widgets/waveform/waveform_widget.py:3492
 msgid "Single marker"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3411
-#: widgets/waveform/waveform_widget.py:3480
+#: widgets/waveform/waveform_widget.py:3424
+#: widgets/waveform/waveform_widget.py:3493
 msgid "Dual markers"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3413
+#: widgets/waveform/waveform_widget.py:3426
 msgid "Mode"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3426
-#: widgets/waveform/waveform_widget.py:3481
-#: widgets/waveform/waveform_widget.py:3652
-#: widgets/waveform/waveform_widget.py:3670
+#: widgets/waveform/waveform_widget.py:3439
+#: widgets/waveform/waveform_widget.py:3494
+#: widgets/waveform/waveform_widget.py:3665
+#: widgets/waveform/waveform_widget.py:3683
 msgid "Clear all"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3437
-#: widgets/waveform/waveform_widget.py:3530
-#: widgets/waveform/waveform_widget.py:3658
+#: widgets/waveform/waveform_widget.py:3450
+#: widgets/waveform/waveform_widget.py:3543
+#: widgets/waveform/waveform_widget.py:3671
 msgid "Annotations"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3533
+#: widgets/waveform/waveform_widget.py:3546
 msgid "Range"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3537
-#: widgets/waveform/waveform_widget.py:4037
+#: widgets/waveform/waveform_widget.py:3550
+#: widgets/waveform/waveform_widget.py:4050
 msgid "Auto"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3543
+#: widgets/waveform/waveform_widget.py:3556
 msgid "Exact"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3552
+#: widgets/waveform/waveform_widget.py:3565
 msgid "Scale"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3555
+#: widgets/waveform/waveform_widget.py:3568
 msgid "Linear"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3560
+#: widgets/waveform/waveform_widget.py:3573
 msgid "Logarithmic"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3568
+#: widgets/waveform/waveform_widget.py:3581
 msgid "Logarithmic zero"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3650
+#: widgets/waveform/waveform_widget.py:3663
 msgid "Hide all text"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3651
+#: widgets/waveform/waveform_widget.py:3664
 msgid "Show all text"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3659
+#: widgets/waveform/waveform_widget.py:3672
 msgid "Vertical"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3662
+#: widgets/waveform/waveform_widget.py:3675
 msgid "Horizontal"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3673
+#: widgets/waveform/waveform_widget.py:3686
 msgid "Y-axis auto range"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3677
+#: widgets/waveform/waveform_widget.py:3690
 msgid "Copy image to clipboard"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3678
+#: widgets/waveform/waveform_widget.py:3691
 msgid "Export visible data"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3679
+#: widgets/waveform/waveform_widget.py:3692
 msgid "Export visible data as CSV"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3680
+#: widgets/waveform/waveform_widget.py:3693
 msgid "Export all data"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:3859
+#: widgets/waveform/waveform_widget.py:3872
 msgid "Export visible data to CSV file"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:4014
+#: widgets/waveform/waveform_widget.py:4027
 msgid "Analysis"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:4022
+#: widgets/waveform/waveform_widget.py:4035
 msgid "Interval"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:4031
+#: widgets/waveform/waveform_widget.py:4044
 msgid "Zoom"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:4035
+#: widgets/waveform/waveform_widget.py:4048
 msgid "Show statistics"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:4040
+#: widgets/waveform/waveform_widget.py:4053
 msgid "Left"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:4043
+#: widgets/waveform/waveform_widget.py:4056
 msgid "Right"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:4046
-#: widgets/waveform/waveform_widget.py:4053
+#: widgets/waveform/waveform_widget.py:4059
+#: widgets/waveform/waveform_widget.py:4066
 msgid "Off"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:4050
+#: widgets/waveform/waveform_widget.py:4063
 msgid "Show time"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:4056
+#: widgets/waveform/waveform_widget.py:4069
 msgid "On"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:4060
+#: widgets/waveform/waveform_widget.py:4073
 msgid "Label"
 msgstr ""
 
-#: widgets/waveform/waveform_widget.py:4096
+#: widgets/waveform/waveform_widget.py:4109
 msgid "Y mode"
 msgstr ""
 
