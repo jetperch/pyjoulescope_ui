@@ -32,9 +32,12 @@ This file contains the list of changes made to pyjoulescope_ui.
   when pins block an x-axis pan attempt during streaming  #324
 * Fixed Waveform control signal buttons not tracking the displayed signals
   when opening a JLS file.
-* Fixed sidebar not fully updating on color scheme change  #189
+* Fixed sidebar not fully updating on color scheme change  #183
 * Fixed widget close then undo not restoring state  #189
-* Added undo for widget move and resize.
+* Fixed undo/redo
+  * Fixed Waveform widget undo/redo not implemented for many operations  #188
+  * Added undo/redo for widget move and resize
+  * Fixed undo/redo for file open
 
 
 ## 1.6.5

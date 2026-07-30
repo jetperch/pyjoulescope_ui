@@ -415,7 +415,13 @@ class View:
         * Removes the widget from its view.
         """
         _log.debug('widget_close %s', value)
-        skip_undo = getattr(get_instance(value), 'view_skip_undo', False)
+        try:
+            instance = get_instance(value)
+        except KeyError:
+            # the widget may already be gone (e.g. a stale undo/redo entry)
+            _log.info('widget_close %s: not found', value)
+            return None
+        skip_undo = getattr(instance, 'view_skip_undo', False)
         settings = None
         ads_state = None
         if not skip_undo:

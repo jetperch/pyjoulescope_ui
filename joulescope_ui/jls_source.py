@@ -76,6 +76,18 @@ class _Dedup:
         return self._dict.pop(key)
 
 
+def jls_path_normalize(path):
+    """Normalize a JLS path to match the JlsSource settings/path value.
+
+    :param path: The JLS path, which may be an .anno file.
+    :return: The absolute path of the base JLS file.
+    """
+    m = re.match(r'(.+)\.anno[^\.]*\.jls', path)
+    if bool(m):
+        path = m.group(1) + '.jls'
+    return os.path.abspath(path)
+
+
 @register
 class JlsSource:
     CAPABILITIES = []

@@ -263,8 +263,16 @@ def _serialize_value(value):
         return [_serialize_value(v) for v in value]
     elif isinstance(value, dict):
         return {k: _serialize_value(v) for k, v in value.items()}
-    else:
+    elif value is None or isinstance(value, (bool, int, float, str)):
         return value
+    else:
+        # arbitrary python object (e.g. a widget's cached paint state):
+        # degrade to repr rather than failing the entire query
+        return {
+            '__type__': 'repr',
+            'class': type(value).__name__,
+            'repr': repr(value),
+        }
 
 
 # Required import at module level for await

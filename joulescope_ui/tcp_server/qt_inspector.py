@@ -273,7 +273,18 @@ class QtInspector:
         self._pubsub.publish(self.TOPIC, request)
 
     def _on_command(self, topic, value):
-        """Handle Qt inspection on the Qt/PubSub thread."""
+        """Defer Qt inspection to the Qt event loop.
+
+        This callback runs inside PubSub command processing.  Synthetic
+        input events must NOT dispatch here: publishes from the widget
+        event handlers would nest inside the current PubSub command and
+        skip undo/redo capture, unlike real user input.  Defer to the Qt
+        event loop so synthetic input takes the same path as real input.
+        """
+        QtCore.QTimer.singleShot(0, lambda: self._command_execute(value))
+
+    def _command_execute(self, value):
+        """Handle Qt inspection on the Qt thread, outside PubSub processing."""
         future = value.get('future')
         if future is None:
             return

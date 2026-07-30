@@ -199,6 +199,83 @@ class TestPubSub(unittest.TestCase):
             p.publish(t, i)
         self.assertEqual(UNDO_REDO_COUNT_MAX, len(p.undos))
 
+    def _coalesce_setup(self):
+        """Create a pubsub with a coalescing '!zoom' action on 'base/v'."""
+        p = PubSub()
+        p.topic_add('base/v', dtype='int', brief='value', default=0)
+        p.topic_add('base/o', dtype='int', brief='other', default=0)
+        p.topic_add('base/!zoom', dtype='obj', brief='zoom')
+
+        def on_zoom(pubsub, topic, value):
+            previous = p.query('base/v')
+            current = previous + value
+            p.publish('base/v', current)  # nested: not captured
+            return {'undo': [['base/v', previous]],
+                    'redo': [['base/v', current]],
+                    'coalesce': 'zoom'}
+
+        p.subscribe('base/!zoom', on_zoom, ['command'])
+        # topic_add/subscribe create undo entries: count relative to this baseline
+        return p, len(p.undos)
+
+    def test_action_undo_coalesce(self):
+        p, n0 = self._coalesce_setup()
+        p.publish('base/!zoom', 1)
+        p.publish('base/!zoom', 1)
+        p.publish('base/!zoom', 2)
+        self.assertEqual(4, p.query('base/v'))
+        self.assertEqual(n0 + 1, len(p.undos))  # consecutive events: one entry
+        p.undo()
+        self.assertEqual(0, p.query('base/v'))
+        p.redo()
+        self.assertEqual(4, p.query('base/v'))  # redo restores the final state
+        p.undo()
+        self.assertEqual(0, p.query('base/v'))
+
+    def test_action_undo_coalesce_break_on_other_command(self):
+        p, n0 = self._coalesce_setup()
+        p.publish('base/!zoom', 1)
+        p.publish('base/o', 42)  # another captured command breaks the run
+        p.publish('base/!zoom', 1)
+        self.assertEqual(n0 + 3, len(p.undos))
+        p.undo()
+        self.assertEqual(1, p.query('base/v'))
+        p.undo()
+        self.assertEqual(0, p.query('base/o'))
+        p.undo()
+        self.assertEqual(0, p.query('base/v'))
+
+    def test_action_undo_coalesce_break_on_undo(self):
+        p, n0 = self._coalesce_setup()
+        p.publish('base/!zoom', 1)
+        p.publish('base/o', 42)
+        p.publish('base/!zoom', 1)
+        p.undo()
+        p.undo()
+        self.assertEqual(1, p.query('base/v'))
+        # 'base/!zoom' is again the top undo entry, but it was not the most
+        # recent command, so this new event must NOT coalesce into it
+        p.publish('base/!zoom', 1)
+        self.assertEqual(n0 + 2, len(p.undos))
+        p.undo()
+        self.assertEqual(1, p.query('base/v'))
+        p.undo()
+        self.assertEqual(0, p.query('base/v'))
+
+    def test_action_invalid_undo_return_is_skipped(self):
+        # a handler that returns a non-undo value (e.g. a status string) must
+        # not create an undo entry that later breaks !undo
+        p = PubSub()
+        p.topic_add('base/v', dtype='int', brief='value', default=0)
+        p.topic_add('base/!open', dtype='obj', brief='open')
+        p.subscribe('base/!open', lambda pubsub, topic, value: 'Source:001', ['command'])
+        n0 = len(p.undos)
+        p.publish('base/v', 1)      # valid undo entry
+        p.publish('base/!open', 'file.jls')  # invalid return: no undo entry
+        self.assertEqual(n0 + 1, len(p.undos))
+        p.undo()  # must not raise; undoes the base/v publish
+        self.assertEqual(0, p.query('base/v'))
+
     def test_new_publish_clears_redo(self):
         p = PubSub()
         p.topic_add(TOPIC1, dtype='int', brief='my topic', default=0)

@@ -15,6 +15,7 @@
 from PySide6 import QtWidgets, QtGui, QtCore
 from joulescope_ui import N_, pubsub_singleton, get_topic_name
 from joulescope_ui.ui_util import comboBoxConfig
+import copy
 
 
 def _make_path(*args):
@@ -83,6 +84,7 @@ class TextAnnotationDialog(QtWidgets.QDialog):
     def __init__(self, parent, unique_id, annotation):
         self._unique_id = unique_id
         self._annotation = annotation
+        self._original = copy.deepcopy(annotation)
         super().__init__(parent)
         self.setObjectName('TextAnnotationDialog')
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
@@ -189,9 +191,17 @@ class TextAnnotationDialog(QtWidgets.QDialog):
 
     @QtCore.Slot(int)
     def _on_finished(self, value):
-        if 'id' not in self._annotation:
-            topic = get_topic_name(self._unique_id)
-            pubsub_singleton.publish(f'{topic}/actions/!text_annotation', ['add', self._annotation])
+        topic = get_topic_name(self._unique_id)
+        if value == QtWidgets.QDialog.DialogCode.Accepted:
+            if 'id' not in self._annotation:
+                pubsub_singleton.publish(f'{topic}/actions/!text_annotation', ['add', self._annotation])
+            elif self._annotation != self._original:
+                # commit the live edits as a single undo/redo entry
+                pubsub_singleton.publish(f'{topic}/actions/!text_annotation',
+                                         ['update', copy.deepcopy(self._annotation), self._original])
+        elif 'id' in self._annotation:
+            # cancel: revert the live edits
+            pubsub_singleton.publish(f'{topic}/actions/!text_annotation', ['update', self._original])
         self.close()
 
 

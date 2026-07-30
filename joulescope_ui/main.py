@@ -43,7 +43,7 @@ from joulescope_ui.disk_monitor import DiskMonitor
 from joulescope_ui.error_dialog import ErrorMessageBox
 from joulescope_ui.locale_dialog import LocaleDialog
 from .exporter import ExporterDialog   # register the exporter
-from .jls_source import JlsSource      # register the source
+from .jls_source import JlsSource, jls_path_normalize      # register the source
 from .resources import load_resources, load_fonts
 from joulescope_ui.devices.jsdrv.jsdrv_wrapper import JsdrvWrapper
 from joulescope_ui.devices.serial import ExternalSerialManager
@@ -334,7 +334,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.pubsub.publish('registry/view/settings/active', None)
                 self.pubsub.register(View(), 'view:file')
                 self.pubsub.publish('registry/view/settings/active', 'view:file')
-            source = self.on_action_file_open(filename)
+            source = self._file_open(filename)
             self.pubsub.publish('registry/app/settings/defaults/signal_buffer_source', source)
             self._center(resize=True)
 
@@ -889,6 +889,46 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def on_action_file_open(self, path):
         """Open the specified file."""
+        source = self._file_open(path)
+        if source is None:
+            return None
+        # the undo target is the path, not the widget/source unique_ids:
+        # redo re-publishes !file_open, which creates new instances
+        return [f'{get_topic_name(self)}/actions/!file_close', path]
+
+    def on_action_file_close(self, path):
+        """Close the waveform widget and source for path, for !file_open undo.
+
+        When the same file is open more than once, close the most
+        recently opened instance, which is the one that undo targets.
+        """
+        self._log.info('file_close %s', path)
+        # the dialog may provide forward slashes or an .anno path, while
+        # JlsSource stores the absolute path of the base file: normalize both
+        path = jls_path_normalize(path)
+        for source in reversed(self.pubsub.query('registry/JlsSource/instances', default=[])):
+            src_path = self.pubsub.query(f'registry/{source}/settings/path', default=None)
+            if src_path is None or jls_path_normalize(src_path) != path:
+                continue
+            for widget in reversed(self.pubsub.query('registry/WaveformWidget/instances',
+                                                     default=[])):
+                if self.pubsub.query(f'registry/{widget}/settings/source_filter',
+                                     default=None) == source:
+                    # close_actions also close the source
+                    self.pubsub.publish('registry/view/actions/!widget_close', widget)
+                    break
+            else:
+                self.pubsub.publish(f'{get_topic_name(source)}/actions/!close', None)
+            return None
+        self._log.info('file_close %s: not found', path)
+        return None
+
+    def _file_open(self, path):
+        """Open the specified file.
+
+        :param path: The JLS file path.
+        :return: The source unique_id, or None on failure.
+        """
         self._log.info('file_open %s', path)
         topic = f'registry_manager/capabilities/{CAPABILITIES.SIGNAL_BUFFER_SOURCE}/list'
         sources_start = self.pubsub.query(topic)
@@ -897,7 +937,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if not len(sources_end):
             self._log.warning('No sources found')
             self.on_action_status_msg('No sources found')
-            return
+            return None
         source = sources_end[-1]
         if source in sources_start:
             self._log.warning('Could not determine added source')

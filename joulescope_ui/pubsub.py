@@ -318,12 +318,22 @@ class _Command:
         self.is_core = bool(is_core)
         self.undo = None  # list of [topic, value] entries
         self.redo = None  # list of [topic, value] entries
+        self.coalesce = None  # optional key to merge consecutive undo entries
 
     def __str__(self):
         return f'_Command({repr(self.topic)}, {self.value})'
 
     def __repr__(self):
         return f'_Command({repr(self.topic)}, {repr(self.value)})'
+
+
+def _undo_entries_validate(entries):
+    """Check that entries is a list of [topic, value] pairs."""
+    try:
+        return all(not isinstance(e, str) and len(e) == 2 and isinstance(e[0], str)
+                   for e in entries)
+    except TypeError:
+        return False
 
 
 class _Setting:
@@ -440,6 +450,7 @@ class PubSub:
         self._queue: list[_Command] = []
         self.undos: list[_Command] = []
         self.redos: list[_Command] = []
+        self._undo_last = None  # most recent captured command, for coalescing
 
         self._add_cmd(SUBSCRIBE_TOPIC, self._cmd_subscribe)                 # subscribe must be first
         self._add_cmd(UNSUBSCRIBE_TOPIC, self._cmd_unsubscribe)
@@ -567,6 +578,7 @@ class PubSub:
         self._cmd_subscribe(subscribe_value)
 
     def _cmd_undo(self, value):
+        self._undo_last = None  # undo breaks command coalescing
         if value == 'clear':
             self._log.info('undo clear')
             self.undos.clear()
@@ -583,6 +595,7 @@ class PubSub:
         return None
 
     def _cmd_redo(self, value):
+        self._undo_last = None  # redo breaks command coalescing
         if value == 'clear':
             self._log.info('redo clear')
             self.redos.clear()
@@ -1018,17 +1031,34 @@ class PubSub:
                 if len(cmds_update_fn):
                     return_value = cmds_update_fn[0](self, topic, value)
                     if capture_undo and return_value is not None:
-                        if isinstance(return_value[0], str):
-                            return_value = [[return_value], None]
-                        undo, redo = return_value
+                        if isinstance(return_value, dict):
+                            # {'undo': ..., 'redo': ..., 'coalesce': key}
+                            # coalesce: consecutive commands with the same key
+                            # merge into a single undo/redo entry.  redo must
+                            # then be given explicitly and idempotent (restore
+                            # the resulting state, not replay the event).
+                            undo = return_value['undo']
+                            redo = return_value.get('redo')
+                            cmd.coalesce = return_value.get('coalesce')
+                        else:
+                            if isinstance(return_value[0], str):
+                                return_value = [[return_value], None]
+                            undo, redo = return_value
                         if redo is None:
                             redo = [(cmd.topic, value)]
                         if isinstance(undo[0], str):
                             undo = [undo]
                         if isinstance(redo[0], str):
                             redo = [redo]
-                        cmd.undo = undo
-                        cmd.redo = redo
+                        if _undo_entries_validate(undo) and _undo_entries_validate(redo):
+                            cmd.undo = undo
+                            cmd.redo = redo
+                        else:
+                            # a command handler returned a value that is not a
+                            # valid undo/redo specification: skip undo capture
+                            # rather than storing an entry that breaks !undo
+                            self._log.warning('%s: invalid undo/redo return %r',
+                                              topic_name, return_value)
             elif t.value == value and t.meta is not None and t.meta.dtype != 'none':
                 # self._log.debug('dedup %s: %s == %s', topic_name, t.value, value)
                 return None
@@ -1048,9 +1078,18 @@ class PubSub:
             self._process_inner(cmd)
             if self._process_level == 1 and cmd.undo:
                 self.redos.clear()  # a new action invalidates the redo stack
-                self.undos.append(cmd)
-                if len(self.undos) > UNDO_REDO_COUNT_MAX:
-                    del self.undos[:-UNDO_REDO_COUNT_MAX]
+                undo_last, self._undo_last = self._undo_last, cmd
+                if (cmd.coalesce is not None and len(self.undos)
+                        and self.undos[-1] is undo_last
+                        and undo_last.coalesce == cmd.coalesce):
+                    # merge with the immediately preceding entry: keep its
+                    # undo (pre-run state), adopt the latest redo (final state)
+                    undo_last.redo = cmd.redo
+                    self._undo_last = undo_last
+                else:
+                    self.undos.append(cmd)
+                    if len(self.undos) > UNDO_REDO_COUNT_MAX:
+                        del self.undos[:-UNDO_REDO_COUNT_MAX]
         finally:
             self._process_count += 1
             self._process_level -= 1

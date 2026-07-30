@@ -156,6 +156,23 @@ def _marker_action_string_to_command(value):
     return value
 
 
+# transient annotation dict entries: paint state, not user data
+_ANNOTATION_TRANSIENT_KEYS = ('changed', 'flag')
+
+
+def _annotation_copy(a):
+    """Deep copy an annotation dict, excluding transient paint state."""
+    return copy.deepcopy({key: value for key, value in a.items()
+                          if key not in _ANNOTATION_TRANSIENT_KEYS})
+
+
+def _marker_is_changed(m1, m2):
+    """Compare two annotation dicts, ignoring transient paint state."""
+    m1 = {key: value for key, value in m1.items() if key not in _ANNOTATION_TRANSIENT_KEYS}
+    m2 = {key: value for key, value in m2.items() if key not in _ANNOTATION_TRANSIENT_KEYS}
+    return m1 != m2
+
+
 def _marker_id_next(markers):
     id_all = sorted([z['id'] for z in markers])
     idx = 1
@@ -601,6 +618,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._x_geometry_info = {}
         self._y_geometry_info = {}
         self._mouse_action = None
+        self._mouse_action_previous = None  # pre-gesture state snapshot for undo
         self._clipboard_image = None
         self._signals = {}      # keys of '{source}.{device}.{quantity}' like JsdrvStreamBuffer:001.JS220-001122.i
         self._signals_by_rsp_id = {}
@@ -3137,11 +3155,59 @@ class WaveformWidget(QtWidgets.QWidget):
         self._repaint_request = True
 
     def _x_marker_move_start(self, item, x, move_both):
+        self._mouse_action_end()
         xt = self._x_map.counter_to_time64(x)
         m, pos = self._item_parse_x_marker(item, activate=True)
         x0 = m[pos]
         x_offset = xt - x0
         self._mouse_action = ['move.x_marker', item, x_offset, move_both]
+        self._mouse_action_previous = ['x_marker', _annotation_copy(m)]
+
+    def _mouse_action_end(self):
+        """End the current mouse gesture, recording an undo/redo entry on change."""
+        action, self._mouse_action = self._mouse_action, None
+        snapshot, self._mouse_action_previous = self._mouse_action_previous, None
+        if action is None or snapshot is None:
+            return
+        kind, previous = snapshot
+        topic = get_topic_name(self)
+        if kind == 'x_range':
+            current = list(self.x_range)
+            if current != previous:
+                self.pubsub.publish(f'{topic}/actions/!x_range', current + previous)
+        elif kind == 'y_range':
+            plot_idx, prev_range, prev_mode = previous
+            plot = self.state['plots'][plot_idx]
+            changes = {'range': list(plot['range']), 'range_mode': plot['range_mode']}
+            prev = {'range': prev_range, 'range_mode': prev_mode}
+            if changes != prev:
+                self.pubsub.publish(f'{topic}/actions/!plot_config',
+                                    [{'index': plot_idx, 'changes': changes, 'previous': prev}])
+        elif kind == 'plot_heights':
+            entries = []
+            for plot in self.state['plots']:
+                height = previous.get(plot['index'])
+                if height is not None and height != plot['height']:
+                    entries.append({'index': plot['index'],
+                                    'changes': {'height': plot['height']},
+                                    'previous': {'height': height}})
+            if len(entries):
+                self.pubsub.publish(f'{topic}/actions/!plot_config', entries)
+        elif kind == 'x_marker':
+            m = self.annotations['x'].get(previous['id'])
+            if m is not None and _marker_is_changed(m, previous):
+                self.pubsub.publish(f'{topic}/actions/!x_markers',
+                                    ['update', _annotation_copy(m), previous])
+        elif kind == 'y_marker':
+            m = self.annotations['y'][previous['plot_index']].get(previous['id'])
+            if m is not None and _marker_is_changed(m, previous):
+                self.pubsub.publish(f'{topic}/actions/!y_markers',
+                                    ['update', _annotation_copy(m), previous])
+        elif kind == 'text_annotation':
+            a = self.annotations['text'][previous['plot_index']]['items'].get(previous['id'])
+            if a is not None and _marker_is_changed(a, previous):
+                self.pubsub.publish(f'{topic}/actions/!text_annotation',
+                                    ['update', _annotation_copy(a), previous])
 
     def _pin_attention(self):
         """Indicate that pin_left / pin_right blocked an x-axis pan attempt.  #324"""
@@ -3159,31 +3225,39 @@ class WaveformWidget(QtWidgets.QWidget):
             self._mouse_pos_start = (x, y)
         if event.button() == QtCore.Qt.LeftButton:
             if item.startswith('spacer.'):
+                self._mouse_action_end()
                 idx = int(item.split('.')[1])
                 _, y_start, _ = self._y_geometry_info[item]
                 self._mouse_action = ['move.spacer', idx, y, y_start, y]
+                heights = {p['index']: p['height'] for p in self.state['plots'] if p['enabled']}
+                self._mouse_action_previous = ['plot_heights', heights]
             elif item.startswith('x_marker.'):
                 if self._mouse_action is not None:
-                    self._mouse_action = None
+                    self._mouse_action_end()
                 else:
                     self._x_marker_move_start(item, x, is_ctrl)
             elif item.startswith('text_annotation.'):
                 if self._mouse_action is not None:
-                    self._mouse_action = None
+                    self._mouse_action_end()
                 else:
+                    a = self._item_parse_text_annotation(item)
                     self._mouse_action = ['move.text_annotation', item, is_ctrl]
+                    self._mouse_action_previous = ['text_annotation', _annotation_copy(a)]
             elif 'y_marker' in item:
                 if self._mouse_action is not None:
-                    self._mouse_action = None
+                    self._mouse_action_end()
                 else:
-                    self._item_parse_y_marker(item, activate=True)
+                    m, _ = self._item_parse_y_marker(item, activate=True)
                     self._mouse_action = ['move.y_marker', item, is_ctrl]
+                    self._mouse_action_previous = ['y_marker', _annotation_copy(m)]
             elif y_name == 'summary':
                 if self.pin_left or self.pin_right:
                     self._pin_attention()  # pinned to extents, cannot pan
                 else:
                     self._log.info('x_pan_summary start')
+                    self._mouse_action_end()
                     self._mouse_action = ['x_pan_summary', x]
+                    self._mouse_action_previous = ['x_range', list(self.x_range)]
             elif y_name == 'x_axis' and x_name == 'plot':
                 y0 = self._y_geometry_info['x_axis'][1]
                 y1 = y0 + self._style['axis_font_metrics'].ascent() + _MARGIN * 2
@@ -3196,19 +3270,26 @@ class WaveformWidget(QtWidgets.QWidget):
                     self._pin_attention()  # pinned to extents, cannot pan
                 else:
                     self._log.info('x_pan start')
+                    self._mouse_action_end()
                     self._mouse_action = ['x_pan', x]
+                    self._mouse_action_previous = ['x_range', list(self.x_range)]
             elif not is_ctrl and y_name.startswith('plot.') and x_name == 'plot':
                 if self.pin_left or self.pin_right:
                     self._pin_attention()  # pinned to extents, cannot pan
                 else:
                     self._log.info('x_pan start')
+                    self._mouse_action_end()
                     self._mouse_action = ['x_pan', x]
+                    self._mouse_action_previous = ['x_range', list(self.x_range)]
             elif y_name.startswith('plot.') and (x_name.startswith('y_axis') or (is_ctrl and x_name == 'plot')):
                 idx = int(y_name.split('.')[1])
                 self._log.info('y_pan start')
+                self._mouse_action_end()
+                plot = self.state['plots'][idx]
                 self._mouse_action = ['y_pan', idx, y]
+                self._mouse_action_previous = ['y_range', [idx, list(plot['range']), plot['range_mode']]]
             else:
-                self._mouse_action = None
+                self._mouse_action_end()
         if event.button() == QtCore.Qt.RightButton:
             if not item and (y_name == 'x_axis'
                              or (y_name.startswith('plot.') and x_name.startswith('plot'))):
@@ -3303,11 +3384,11 @@ class WaveformWidget(QtWidgets.QWidget):
                 else:
                     dialog = TextAnnotationDialog(self, self.unique_id, a)
                     dialog.show()
-                self._mouse_action = None
+                self._mouse_action_end()
             else:
-                self._mouse_action = None
+                self._mouse_action_end()
         else:
-            self._mouse_action = None
+            self._mouse_action_end()
 
     def _on_menu_x_marker(self, action):
         pos = self._x_map.counter_to_time64(self._mouse_pos[0])
@@ -3399,41 +3480,45 @@ class WaveformWidget(QtWidgets.QWidget):
         menu.addAction(N_('Dual markers'), self._on_menu_y_marker_add_dual)
         menu.addAction(N_('Clear all'), self._on_menu_y_marker_clear_all)
 
+    def _plot_config_publish(self, idx, changes, previous=None):
+        plot = self.state['plots'][idx]
+        if previous is None and all(plot.get(field) == v for field, v in changes.items()):
+            return  # no change
+        entry = {'index': idx, 'changes': changes}
+        if previous is not None:
+            entry['previous'] = previous
+        self.pubsub.publish(f'{get_topic_name(self)}/actions/!plot_config', [entry])
+
     def _on_menu_y_scale_mode(self, idx, value):
         plot = self.state['plots'][idx]
         if value != plot['scale']:
-            plot['scale'] = value
-            plot['range_mode'] = 'auto'
-            self._repaint_request = True
+            self._plot_config_publish(idx, {'scale': value, 'range_mode': 'auto'})
 
     def _on_menu_y_logarithmic_zero(self, idx, value):
         plot = self.state['plots'][idx]
         if value != plot['logarithmic_zero']:
-            plot['logarithmic_zero'] = value
-            plot['scale'] = 'logarithmic'
-            plot['range_mode'] = 'auto'
-            self._repaint_request = True
+            self._plot_config_publish(idx, {'logarithmic_zero': value,
+                                            'scale': 'logarithmic',
+                                            'range_mode': 'auto'})
 
     def _on_menu_y_prefix_preferred(self, idx, value):
         plot = self.state['plots'][idx]
         if value != plot['prefix_preferred']:
-            plot['prefix_preferred'] = value
-            self._repaint_request = True
+            self._plot_config_publish(idx, {'prefix_preferred': value})
 
     def _on_menu_y_range_mode(self, idx, value):
         plot = self.state['plots'][idx]
-        plot['range_mode'] = value
-        self._repaint_request = True
+        if value != plot['range_mode']:
+            self._plot_config_publish(idx, {'range_mode': value})
 
     def _on_menu_y_range_exact(self, idx, y_range, range_mode_manual=None):
         if range_mode_manual is not None:
             range_mode_manual.setChecked(True)
-        plot = self.state['plots'][idx]
-        plot['range_mode'] = 'manual'
-        plot['range'] = y_range
-        self._repaint_request = True
+        self._plot_config_publish(idx, {'range_mode': 'manual', 'range': list(y_range)})
 
     def _on_plot_label_set(self, idx, txt):
+        # live update while typing; the undo/redo entry is recorded
+        # when the menu closes (see _menu_y_axis)
         plot = self.state['plots'][idx]
         plot['label'] = txt
         self._repaint_request = True
@@ -3513,6 +3598,15 @@ class WaveformWidget(QtWidgets.QWidget):
         name_action = QtWidgets.QWidgetAction(name_menu)
         name_action.setDefaultWidget(name_edit)
         name_menu.addAction(name_action)
+        label_orig = plot.get('label', '')
+
+        def label_commit():
+            label_new = self.state['plots'][idx].get('label', '')
+            if label_new != label_orig:
+                self._plot_config_publish(idx, {'label': label_new}, {'label': label_orig})
+
+        label_commit_adapter = CallableSlotAdapter(menu, label_commit)
+        menu.aboutToHide.connect(label_commit_adapter.slot)
 
         settings_action_create(self, menu)
         return context_menu_show(menu, event)
@@ -3604,20 +3698,20 @@ class WaveformWidget(QtWidgets.QWidget):
         er = e1 - e0
         dt = int(dt * time64.SECOND)
         dt = min(dt, er)
-        if dt < er and self.pin_left and self.pin_right:
-            self.pin_left = False  # unpin from left
+        pin_left, pin_right = self.pin_left, self.pin_right
+        if dt < er and pin_left and pin_right:
+            pin_left = False  # unpin from left
 
         x0, x1 = self.x_range
         xc = (x1 + x0) // 2
         dt_half = dt // 2
         x0, x1 = xc - dt_half, xc + dt_half
-        if self.pin_left or x0 < e0:
+        if pin_left or x0 < e0:
             x0, x1 = e0, e0 + dt
-        elif self.pin_right or x1 > e1:
+        elif pin_right or x1 > e1:
             x0, x1 = e1 - dt, e1
-        self.x_range = [x0, x1]
-        self._plot_data_invalidate()
-        self._repaint_request = True
+        # x_zoom_to applies the range, updates the pins, and provides undo/redo
+        self.pubsub.publish(f'{get_topic_name(self)}/actions/!x_zoom_to', [x0, x1])
 
     def _menu_statistics(self, idx, event: QtGui.QMouseEvent):
         self._log.info('_menu_statistics(%s, %s)', idx, event.position())
@@ -3625,13 +3719,27 @@ class WaveformWidget(QtWidgets.QWidget):
         settings_action_create(self, menu)
         return context_menu_show(menu, event)
 
+    def _x_marker_update_publish(self, marker, changes):
+        """Publish an undoable x-axis marker field update.
+
+        :param marker: The marker id or marker dict.
+        :param changes: The dict of marker field -> new value.
+        """
+        if isinstance(marker, dict):
+            marker = marker['id']
+        marker = self._annotation_lookup(marker)
+        previous = _annotation_copy(marker)
+        current = _annotation_copy(marker)
+        current.update(changes)
+        if _marker_is_changed(current, previous):
+            self.pubsub.publish(f'{get_topic_name(self)}/actions/!x_markers',
+                                ['update', current, previous])
+
     def _on_x_marker_statistics_show(self, marker, text_pos_key, pos):
-        marker[text_pos_key] = pos
-        self._repaint_request = True
+        self._x_marker_update_publish(marker, {text_pos_key: pos})
 
     def _on_x_marker_time_show(self, marker, value):
-        marker['show_time'] = value
-        self._repaint_request = True
+        self._x_marker_update_publish(marker, {'show_time': value})
 
     def _signals_get(self):
         signals = []
@@ -3883,13 +3991,12 @@ class WaveformWidget(QtWidgets.QWidget):
         CallableAction(menu, f'{zoom_level}%', lambda: self._on_x_marker_zoom(idx, zoom_level / 100.0))
 
     def _on_x_interval(self, m, pos_text, interval):
+        m = self._annotation_lookup(m['id'])
         other_pos = 'pos2' if pos_text == 'pos1' else 'pos1'
         if m.get('mode', 'absolute') == 'relative':
             pos_text = 'rel' + pos_text[-1]
             other_pos = 'rel' + other_pos[-1]
-        m[other_pos] = m[pos_text] + int(interval * time64.SECOND)
-        m['changed'] = True
-        self._repaint_request = True
+        self._x_marker_update_publish(m, {other_pos: m[pos_text] + int(interval * time64.SECOND)})
 
     def _on_x_marker_quantities_changed(self, m, x):
         m['quantities'] = x
@@ -3952,13 +4059,26 @@ class WaveformWidget(QtWidgets.QWidget):
 
         label_menu = menu.addMenu(N_('Label'))
         label_edit = QtWidgets.QLineEdit(m.get('label', ''))
+        label_orig = m.get('label', '')
+        # live update while typing; record a single undo/redo entry on menu close
         label_slot = CallableSlotAdapter(label_edit,
-                                         lambda: self.pubsub.publish(f'{get_topic_name(self)}/actions/!x_markers',
-                                                                     ['label', m['id'], label_edit.text()]))
+                                         lambda: self._x_marker_label(m['id'], label_edit.text()))
         label_edit.textChanged.connect(label_slot.slot)
         label_action = QtWidgets.QWidgetAction(label_menu)
         label_action.setDefaultWidget(label_edit)
         label_menu.addAction(label_action)
+
+        def label_commit():
+            marker = self.annotations['x'].get(m['id'])
+            if marker is None:
+                return
+            label_new = marker.get('label', '')
+            if label_new != label_orig:
+                self.pubsub.publish(f'{get_topic_name(self)}/actions/!x_markers',
+                                    ['label', m['id'], label_new, label_orig])
+
+        label_commit_adapter = CallableSlotAdapter(menu, label_commit)
+        menu.aboutToHide.connect(label_commit_adapter.slot)
 
         CallableAction(menu, _COPY_TEXT_TO_CLIPBOARD,
                        lambda: self.pubsub.publish(f'{get_topic_name(self)}/actions/!x_markers', ['text_to_clipboard', m['id']]))
@@ -3998,20 +4118,28 @@ class WaveformWidget(QtWidgets.QWidget):
         a = self._annotation_lookup(a_id)
         TextAnnotationDialog(self, self.unique_id, a).show()
 
-    def _on_text_annotation_show(self, a_id, value):
+    def _text_annotation_update_publish(self, a_id, changes):
+        """Publish an undoable text annotation field update.
+
+        :param a_id: The text annotation id.
+        :param changes: The dict of annotation field -> new value.
+        """
         a = self._annotation_lookup(a_id)
-        a['text_show'] = bool(value)
-        self._repaint_request = True
+        previous = _annotation_copy(a)
+        current = _annotation_copy(a)
+        current.update(changes)
+        if current != previous:
+            self.pubsub.publish(f'{get_topic_name(self)}/actions/!text_annotation',
+                                ['update', current, previous])
+
+    def _on_text_annotation_show(self, a_id, value):
+        self._text_annotation_update_publish(a_id, {'text_show': bool(value)})
 
     def _on_text_annotation_y_mode(self, a_id, value):
-        a = self._annotation_lookup(a_id)
-        a['y_mode'] = value
-        self._repaint_request = True
+        self._text_annotation_update_publish(a_id, {'y_mode': value})
 
     def _on_text_annotation_shape(self, a_id, index):
-        a = self._annotation_lookup(a_id)
-        a['shape'] = index
-        self._repaint_request = True
+        self._text_annotation_update_publish(a_id, {'shape': index})
 
     def _on_text_annotation_remove(self, a_id):
         a = self._annotation_lookup(a_id)
@@ -4244,9 +4372,12 @@ class WaveformWidget(QtWidgets.QWidget):
             * ['add_dual', pos1, pos2]
             * ['clear_all']
             * ['label', marker_id, label]
+            * ['label', marker_id, label, previous]  # explicit undo label
             * ['text_to_clipboard', marker_id]
             * ['remove', marker_id, ...]
             * ['add', marker_obj, ...]  # for undo remove
+            * ['update', marker_obj]  # replace an existing marker
+            * ['update', marker_obj, previous_obj]  # with undo/redo
             * ['select', marker_id]
             * ['show_single', role, pos]
             * ['show_dual', role, pos1, pos2]
@@ -4256,7 +4387,14 @@ class WaveformWidget(QtWidgets.QWidget):
         cmd = value[0]
         self._repaint_request = True
         if cmd == 'remove':
-            m = self._x_marker_remove(value[1])
+            try:
+                m = self._x_marker_remove(value[1])
+            except KeyError:
+                # markers outside the extents are garbage collected while
+                # streaming, so an undo/redo entry may refer to a marker
+                # that no longer exists
+                self._log.info('x_markers remove %s: not found', value[1])
+                return None
             return [topic, ['add', m]]
         elif cmd == 'add_single':
             m = self._x_marker_add_single(value[1])
@@ -4268,18 +4406,39 @@ class WaveformWidget(QtWidgets.QWidget):
             for m in value[1:]:
                 self._x_marker_add(m)
             return [topic, ['remove'] + value[1:]]
+        elif cmd == 'update':
+            m = _annotation_copy(value[1])
+            m['changed'] = True
+            self.annotations['x'][m['id']] = m
+            if len(value) > 2 and value[2] is not None:
+                return [topic, ['update', value[2], value[1]]]
         elif cmd == 'clear_all':
             self.annotations['x'], rv = OrderedDict(), self.annotations['x']
             return [topic, ['add'] + list(rv.values())]
         elif cmd == 'select':
+            x0, x1 = self.x_range
+            pin_left, pin_right = self.pin_left, self.pin_right
             try:
                 self._on_x_marker_zoom(value[1], 0.75)
             except KeyError:
-                pass
+                return None
+            return [self._x_range_undo(x0, x1, pin_left, pin_right), None]
         elif cmd == 'label':
-            self._x_marker_label(value[1], value[2])
+            previous = value[3] if len(value) > 3 else None
+            try:
+                if previous is None:
+                    previous = self._annotation_lookup(value[1]).get('label', '')
+                self._x_marker_label(value[1], value[2])
+            except KeyError:
+                self._log.info('x_markers label %s: not found', value[1])
+                return None
+            if value[2] != previous:
+                return [topic, ['label', value[1], previous, value[2]]]
         elif cmd == 'text_to_clipboard':
-            self._x_marker_text_to_clipboard(value[1])
+            try:
+                self._x_marker_text_to_clipboard(value[1])
+            except KeyError:
+                self._log.info('x_markers text_to_clipboard %s: not found', value[1])
         elif cmd == 'show_single':
             self._x_marker_show_single(*value[1:])
         elif cmd == 'show_dual':
@@ -4403,6 +4562,8 @@ class WaveformWidget(QtWidgets.QWidget):
             * ['clear_all', plot]
             * ['remove', marker_id, ...]
             * ['add', marker_obj, ...]  # for undo remove
+            * ['update', marker_obj]  # replace an existing marker
+            * ['update', marker_obj, previous_obj]  # with undo/redo
 
             In all cases, plot can be the plot index or plot object.
         """
@@ -4410,10 +4571,20 @@ class WaveformWidget(QtWidgets.QWidget):
         value = _marker_action_string_to_command(value)
         cmd = value[0]
         self._repaint_request = True
-        if cmd == 'remove':
+        if cmd == 'update':
+            m = _annotation_copy(value[1])
+            self.annotations['y'][m['plot_index']][m['id']] = m
+            if len(value) > 2 and value[2] is not None:
+                return [topic, ['update', value[2], value[1]]]
+        elif cmd == 'remove':
             undo = ['add']
             for m in value[1:]:
-                undo.append(self._y_marker_remove(m))
+                try:
+                    undo.append(self._y_marker_remove(m))
+                except KeyError:
+                    self._log.info('y_markers remove %s: not found', m)
+            if len(undo) == 1:
+                return None
             return [topic, undo]
         elif cmd == 'add_single':
             plot = self._plot_get(value[1])
@@ -4460,6 +4631,7 @@ class WaveformWidget(QtWidgets.QWidget):
         a = self._annotation_lookup(a)
         entry = self.annotations['text'][a['plot_index']]
         a_id = a['id']
+        del entry['items'][a_id]  # KeyError if already removed
         x_lookup = entry['x_lookup']
         idx = np.where(x_lookup[:, 1] == a_id)[0]
         idx_len = len(idx)
@@ -4470,8 +4642,17 @@ class WaveformWidget(QtWidgets.QWidget):
         else:
             x_lookup[idx[0]:-1, :] = x_lookup[(idx[0] + 1):, :]
             entry['x_lookup_length'] -= 1
-        del self.annotations['text'][a['plot_index']]['items'][a_id]
         self._repaint_request = True
+        return a
+
+    def _text_annotation_update(self, a):
+        a = _annotation_copy(a)
+        try:
+            old = self.annotations['text'][a['plot_index']]['items'][a['id']]
+            self._text_annotation_remove(old)
+        except KeyError:
+            pass
+        self._text_annotation_add(a)
         return a
 
     def on_callback_annotation_save(self, value):
@@ -4575,7 +4756,8 @@ class WaveformWidget(QtWidgets.QWidget):
         :param value: The list of the command action string and arguments.
             The supported commands are:
             * ['add', kwargs, ...]
-            * ['update', kwargs, ...]
+            * ['update', kwargs]  # replace an existing entry, no undo
+            * ['update', kwargs, previous_kwargs]  # with undo/redo
             * ['text_hide_all', plot]
             * ['text_show_all', plot]
             * ['clear_all', plot]
@@ -4592,11 +4774,18 @@ class WaveformWidget(QtWidgets.QWidget):
                 self._text_annotation_add(a)
             return [topic, ['remove'] + value[1:]]
         elif action == 'update':
-            pass  # text_annotation entry modified in place
+            self._text_annotation_update(value[1])
+            if len(value) > 2 and value[2] is not None:
+                return [topic, ['update', value[2], value[1]]]
         elif action == 'remove':
             undo = ['add']
             for a in value[1:]:
-                undo.append(self._text_annotation_remove(a))
+                try:
+                    undo.append(self._text_annotation_remove(a))
+                except KeyError:
+                    self._log.info('text_annotation remove %s: not found', a)
+            if len(undo) == 1:
+                return None
             return [topic, undo]
         elif action in ['text_hide_all', 'text_show_all']:
             show = (action == 'text_show_all')
@@ -4648,17 +4837,25 @@ class WaveformWidget(QtWidgets.QWidget):
         """Set the x-axis range.
 
         :param topic: The topic name.
-        :param value: The [x_min, x_max] range.
+        :param value: The [x_min, x_max] range, optionally followed by the
+            [x_min, x_max] range to restore on undo.  When omitted, undo
+            restores the range active at the time of this action.  Provide
+            the explicit undo range when publishing at the end of a mouse
+            gesture that already applied the range incrementally.
         """
         e0, e1 = self.x_extent
         x0, x1 = self.x_range
-        z0, z1 = value
+        z0, z1 = value[:2]
         if z1 < z0:
             z0, z1 = z1, z0
         z0 = min(max(z0, e0), e1)
         z1 = min(max(z1, e0), e1)
+        if len(value) < 4 and [z0, z1] == [x0, x1]:
+            return None  # no change, no undo entry
         self.x_range = [z0, z1]
         self._plot_data_invalidate()
+        if len(value) >= 4:
+            return [topic, list(value[2:4])]
         return [topic, [x0, x1]]
 
     def on_action_x_zoom(self, value):
@@ -4676,10 +4873,6 @@ class WaveformWidget(QtWidgets.QWidget):
         if steps == 0:
             return
         self._log.info('x_zoom %s', value)
-        if self.pin_left and self.pin_right:
-            if steps > 0:
-                # zoom in when locked to full extents
-                self.pin_left = False  # unpin from left
         e0, e1 = self.x_extent
         x0, x1 = self.x_range
         d_e = e1 - e0
@@ -4688,6 +4881,16 @@ class WaveformWidget(QtWidgets.QWidget):
             return
         elif d_x <= 0:
             d_x = d_e
+        if steps < 0 and d_x >= d_e:
+            return None  # fully zoomed out: no change, no undo entry
+        period_min = int(2.1 / self._signal_freq() * time64.SECOND)
+        if steps > 0 and d_x <= period_min:
+            return None  # fully zoomed in: no change, no undo entry
+        pin_left, pin_right = self.pin_left, self.pin_right
+        if self.pin_left and self.pin_right:
+            if steps > 0:
+                # zoom in when locked to full extents
+                self.pin_left = False  # unpin from left
         if center is not None and center < 0:
             if self._mouse_pos is not None:
                 center = self._x_map.counter_to_time64(self._mouse_pos[0])
@@ -4701,7 +4904,6 @@ class WaveformWidget(QtWidgets.QWidget):
         center = max(x0, min(center, x1))
         f = (center - x0) / d_x
         d_x *= _ZOOM_FACTOR ** -steps
-        period_min = int(2.1 / self._signal_freq() * time64.SECOND)
         r = max(min(d_x, d_e), period_min)
         z0, z1 = center - int(r * f), center + int(r * (1 - f))
         if self.pin_left or z0 < e0:
@@ -4712,9 +4914,48 @@ class WaveformWidget(QtWidgets.QWidget):
             pixel = self._x_map.time64_to_counter(center)
             if abs(pixel - value[2]) >= 1.0:
                 self._log.warning('center change: %s -> %s', value[2], pixel)
+        if [z0, z1] == [x0, x1] and (pin_left, pin_right) == (self.pin_left, self.pin_right):
+            return None  # at the zoom limit: no change, no undo entry
         self.x_range = [z0, z1]
         self._plot_data_invalidate()
-        return [f'{get_topic_name(self)}/actions/!x_range', [x0, x1]]
+        # consecutive zoom events (e.g. mouse wheel) coalesce into one undo
+        return {'undo': self._x_range_undo(x0, x1, pin_left, pin_right),
+                'redo': self._x_range_redo(z0, z1, pin_left, pin_right),
+                'coalesce': f'{get_topic_name(self)}/actions/!x_zoom'}
+
+    def _x_range_undo(self, x0, x1, pin_left, pin_right):
+        """Construct the undo list to restore the x-range and pins.
+
+        :param x0: The x-axis range starting time to restore.
+        :param x1: The x-axis range ending time to restore.
+        :param pin_left: The pin_left value to restore.
+        :param pin_right: The pin_right value to restore.
+        :return: The undo list of [topic, value] entries.
+        """
+        topic = get_topic_name(self)
+        undo = [[f'{topic}/actions/!x_range', [x0, x1]]]
+        if self.pin_left != pin_left:
+            undo.append([f'{topic}/settings/pin_left', pin_left])
+        if self.pin_right != pin_right:
+            undo.append([f'{topic}/settings/pin_right', pin_right])
+        return undo
+
+    def _x_range_redo(self, z0, z1, pin_left, pin_right):
+        """Construct the redo list that restores the current x-range and pins.
+
+        :param z0: The applied x-axis range starting time.
+        :param z1: The applied x-axis range ending time.
+        :param pin_left: The pin_left value before this action.
+        :param pin_right: The pin_right value before this action.
+        :return: The redo list of [topic, value] entries.
+        """
+        topic = get_topic_name(self)
+        redo = [[f'{topic}/actions/!x_range', [z0, z1]]]
+        if self.pin_left != pin_left:
+            redo.append([f'{topic}/settings/pin_left', self.pin_left])
+        if self.pin_right != pin_right:
+            redo.append([f'{topic}/settings/pin_right', self.pin_right])
+        return redo
 
     def on_action_x_zoom_to(self, value):
         """Perform a zoom action to an exact region
@@ -4724,6 +4965,7 @@ class WaveformWidget(QtWidgets.QWidget):
             * x1: The ending time.
         """
         undo_x_range = list(self.x_range)
+        pin_left, pin_right = self.pin_left, self.pin_right
         z0, z1 = value
         e0, e1 = self.x_extent
         if z0 < e0:
@@ -4733,19 +4975,23 @@ class WaveformWidget(QtWidgets.QWidget):
             z0 -= z1 - e1
             z1 = e1
             z0 = max(z0, e0)
-        if z0 > e0:
-            self.pin_left = False
-        if z1 < e1:
-            self.pin_right = False
+        pin_left_new = False if z0 > e0 else pin_left
+        pin_right_new = False if z1 < e1 else pin_right
+        if [z0, z1] == undo_x_range and (pin_left_new, pin_right_new) == (pin_left, pin_right):
+            return None  # no change, no undo entry
+        self.pin_left = pin_left_new
+        self.pin_right = pin_right_new
         self.x_range = [z0, z1]
         self._plot_data_invalidate()
-        return [f'{get_topic_name(self)}/actions/!x_range', undo_x_range]
+        return [self._x_range_undo(*undo_x_range, pin_left, pin_right), None]
 
     def on_action_x_zoom_all(self):
         """Perform a zoom action to the full extents.
         """
         self._log.info('x_zoom_all')
         x0, x1 = self.x_range
+        if [x0, x1] == list(self.x_extent):
+            return None  # already at full extents: no change, no undo entry
         self._plot_data_invalidate()
         self.x_range = self.x_extent
         return [f'{get_topic_name(self)}/actions/!x_range', [x0, x1]]
@@ -4764,19 +5010,66 @@ class WaveformWidget(QtWidgets.QWidget):
             z0, z1 = e0, e0 + d_x
         elif self.pin_right or z1 > e1:
             z0, z1 = e1 - d_x, e1
+        if [z0, z1] == [x0, x1]:
+            return None  # at the extent limit: no change, no undo entry
         self._plot_data_invalidate()
         self.x_range = [z0, z1]
-        return [f'{get_topic_name(self)}/actions/!x_range', [x0, x1]]
+        topic = get_topic_name(self)
+        # consecutive pan events (e.g. mouse wheel) coalesce into one undo
+        return {'undo': [f'{topic}/actions/!x_range', [x0, x1]],
+                'redo': [f'{topic}/actions/!x_range', [z0, z1]],
+                'coalesce': f'{topic}/actions/!x_pan'}
+
+    def on_action_plot_config(self, topic, value):
+        """Change plot configuration fields with undo/redo support.
+
+        :param topic: The topic name.
+        :param value: The change entry or list of change entries.  Each
+            entry is a dict with keys:
+            * index: The plot index.
+            * changes: The dict of plot field -> new value.
+            * previous: The optional dict of plot field -> value to restore
+              on undo.  When omitted, capture the current values for the
+              fields in changes.  Provide explicit values when publishing
+              at the end of a mouse gesture that already applied the
+              changes incrementally.
+        """
+        if isinstance(value, dict):
+            value = [value]
+        # Update a copy, then assign to publish the corrected state (see
+        # on_callback_annotations), which keeps subscribers like the
+        # Waveform control widget in sync, including on undo.
+        state = copy.deepcopy(self.state)
+        undo = []
+        for entry in value:
+            plot = state['plots'][entry['index']]
+            changes = entry['changes']
+            previous = entry.get('previous')
+            if previous is None:
+                fields = set(changes.keys())
+                if 'range_mode' in fields:
+                    fields.add('range')  # auto mode overwrites range: restore both
+                previous = {field: copy.deepcopy(plot[field]) for field in fields if field in plot}
+            plot.update(copy.deepcopy(changes))
+            undo.append({'index': entry['index'], 'changes': previous, 'previous': changes})
+        self.state = state
+        self._repaint_request = True
+        return [topic, undo]
 
     def on_action_y_zoom_all(self):
         """Restore all plots to y-axis auto ranging mode."""
         self._log.info('y_zoom_all')
-        has_change = False
+        undo = []
         for plot in self.state['plots']:
             if plot['range_mode'] == 'manual':
+                undo.append({'index': plot['index'],
+                             'changes': {'range_mode': 'manual', 'range': list(plot['range'])},
+                             'previous': {'range_mode': 'auto'}})
                 plot['range_mode'] = 'auto'
-                has_change = True
-        self._repaint_request |= has_change
+        if not len(undo):
+            return None
+        self._repaint_request = True
+        return [f'{get_topic_name(self)}/actions/!plot_config', undo]
 
     def on_action_y_range(self, topic, value):
         """Set the y-axis range.
@@ -4814,6 +5107,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._log.info('y_zoom(%s, %r, %r)',  plot['quantity'], steps, center)
         if plot['range_mode'] == 'fixed':
             return
+        range_mode_previous = plot['range_mode']
         if plot['range_mode'] == 'auto':
             plot['range_mode'] = 'manual'
         center = self._y_transform_fwd(plot, center)
@@ -4830,8 +5124,16 @@ class WaveformWidget(QtWidgets.QWidget):
             elif plot['range'][1] > b[1]:
                 plot['range'][0] = max(plot['range'][0] - (plot['range'][1] - b[1]), b[0])
                 plot['range'][1] = b[1]
+        changes_old = {'range': [y_min, y_max], 'range_mode': range_mode_previous}
+        changes_new = {'range': list(plot['range']), 'range_mode': plot['range_mode']}
+        if changes_new == changes_old:
+            return None  # at the y-range bounds: no change, no undo entry
         self._repaint_request = True
-        return [f'{get_topic_name(self)}/actions/!y_range', [plot_idx, y_min, y_max]]
+        topic = f'{get_topic_name(self)}/actions/!plot_config'
+        # consecutive zoom events (e.g. mouse wheel) coalesce into one undo
+        return {'undo': [topic, [{'index': plot_idx, 'changes': changes_old, 'previous': changes_new}]],
+                'redo': [topic, [{'index': plot_idx, 'changes': changes_new, 'previous': changes_old}]],
+                'coalesce': f'{get_topic_name(self)}/actions/!y_zoom/{plot_idx}'}
 
     def on_action_y_pan(self, value):
         """Pan the plot's y-axis.
@@ -4849,9 +5151,15 @@ class WaveformWidget(QtWidgets.QWidget):
             a = (y1 - y0) * 0.25 * pan
         else:
             a = pan
+        if a == 0:
+            return None  # no change, no undo entry
         plot['range'] = y0 + a, y1 + a
         self._repaint_request = True
-        return [f'{get_topic_name(self)}/actions/!y_range', [plot_idx, y0, y1]]
+        topic = f'{get_topic_name(self)}/actions/!plot_config'
+        # consecutive pan events (e.g. mouse wheel) coalesce into one undo
+        return {'undo': [topic, [{'index': plot_idx, 'changes': {'range': [y0, y1]}}]],
+                'redo': [topic, [{'index': plot_idx, 'changes': {'range': [y0 + a, y1 + a]}}]],
+                'coalesce': f'{get_topic_name(self)}/actions/!y_pan/{plot_idx}'}
 
     def plot_wheelEvent(self, event: QtGui.QWheelEvent):
         x_name, y_name = self._target_lookup_by_pos(self._mouse_pos)
