@@ -48,6 +48,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Added Waveform Δt display unit selection (conventional / auto / hours /
   minutes / seconds), replacing the elapse_time_fmt setting.  Right-click
   the Δt display to select the Unit.
+* Bumped pyjoulescope_driver from 2.3.4 to 2.3.5
 
 
 ## 1.6.5
