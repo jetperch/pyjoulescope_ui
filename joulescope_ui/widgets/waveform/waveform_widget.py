@@ -574,21 +574,22 @@ class WaveformWidget(QtWidgets.QWidget):
             'default': [0, None, None, None],
             'flags': ['hide'],
         },
-        'elapse_time_fmt': {
+        'dt_unit': {
             'dtype': 'str',
-            'brief': N_('The formatting method for elapsed time.'),
+            'brief': N_('The Δt display unit.'),
             'detail': P_([
-                N_('Seconds displays the time as seconds with prefix. '),
-                N_('Customary selects seconds, minutes, hours, or days. '),
-                N_('Standard displays days:hours:minutes:seconds.'),
+                N_('Conventional displays days:hours:minutes:seconds. '),
+                N_('Auto displays a decimal value with the best fit unit. '),
+                N_('Hours, Minutes, and Seconds display a decimal value in that unit.'),
             ]),
-            'default': 'customary',
+            'default': 'conventional',
             'options': [
+                ['conventional', N_('Conventional')],
+                ['auto', N_('Auto')],
+                ['hours', N_('Hours')],
+                ['minutes', N_('Minutes')],
                 ['seconds', N_('Seconds')],
-                ['customary', N_('Customary')],
-                ['standard', N_('Standard')],
             ],
-
         }
     }
 
@@ -2046,7 +2047,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
         if self.show_statistics:
             x_stats = self._x_geometry_info['statistics'][1]
-            dt_val, dt_units = elapsed_time_formatter(x_duration_s, fmt=self.elapse_time_fmt)
+            dt_val, dt_units = elapsed_time_formatter(x_duration_s, fmt=self.dt_unit)
             if ':' not in dt_units:
                 dt_str = f'{dt_val} {dt_units}'
             else:
@@ -3600,6 +3601,9 @@ class WaveformWidget(QtWidgets.QWidget):
     def _on_menu_dt_holdover(self, value):
         self.dt_holdover = bool(value)
 
+    def _on_menu_dt_unit(self, value):
+        self.dt_unit = value
+
     def _lookup_plot(self, pos=None):
         """Lookup the y-axis plot for the y pixel position.
 
@@ -3852,6 +3856,19 @@ class WaveformWidget(QtWidgets.QWidget):
         interval_action = QtWidgets.QWidgetAction(menu)
         interval_action.setDefaultWidget(interval_widget)
         menu.addAction(interval_action)
+
+        unit_menu = menu.addMenu(N_('Unit'))
+        unit_group = QtGui.QActionGroup(unit_menu)
+        unit_group.setExclusive(True)
+        for value, name in [['conventional', N_('Conventional')],
+                            ['auto', N_('Auto')],
+                            ['hours', N_('Hours')],
+                            ['minutes', N_('Minutes')],
+                            ['seconds', N_('Seconds')]]:
+            CallableAction(unit_group, name,
+                           lambda *args, v=value: self._on_menu_dt_unit(v),
+                           checkable=True, checked=(self.dt_unit == value))
+
         CallableAction(menu, N_('Δt holdover'),
                        lambda checked: self._on_menu_dt_holdover(checked),
                        checkable=True, checked=self.dt_holdover)
@@ -5442,6 +5459,9 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def on_setting_dt_holdover(self):
         self._plot_data_invalidate()
+
+    def on_setting_dt_unit(self):
+        self._repaint_request = True
 
     def on_setting_time_zone(self):
         self._repaint_request = True

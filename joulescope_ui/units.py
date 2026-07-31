@@ -198,9 +198,11 @@ def elapsed_time_formatter(seconds, fmt=None, precision=None, trim_trailing_zero
     :param seconds: The elapsed time in seconds.
     :param fmt: The optional format string containing:
         * 'seconds': Display time in seconds with SI scale prefix.
-        * 'customary': Fit to days, hours, minutes, or seconds and display
-           with units and SI prefix.
-        * 'standard': Display time as D:hh:mm:ss.
+        * 'customary' or 'auto': Fit to days, hours, minutes, or seconds
+           and display with units and SI prefix.
+        * 'standard' or 'conventional': Display time as D:hh:mm:ss.
+        * 'hours': Display time as decimal hours.
+        * 'minutes': Display time as decimal minutes.
     :param precision: The integer precision to display given in
         powers of 10.  This parameter determines the number of
         fractional seconds digits.
@@ -211,13 +213,19 @@ def elapsed_time_formatter(seconds, fmt=None, precision=None, trim_trailing_zero
     precision = 6 if precision is None else int(precision)
     x = abs(float(seconds))
     units_str = 's'
-    if fmt == 'customary':
+    if fmt in ['customary', 'auto']:
         if x > 0:
             for threshold, prefix in _TIME_UNIT_PREFIX:
                 if x >= threshold:
                     break
             units_str = prefix
             x /= threshold
+    elif fmt == 'hours':
+        units_str = 'h'
+        x /= 60 * 60
+    elif fmt == 'minutes':
+        units_str = 'm'
+        x /= 60
 
     x_pow = int(np.ceil(np.log10(abs(x) + 1e-15)))
     fract_digits = min(max(precision - x_pow, 0), precision)

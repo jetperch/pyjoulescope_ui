@@ -59,6 +59,14 @@ class TestUnits(unittest.TestCase):
         self.assertEqual(('1.00000', 'm'), units.elapsed_time_formatter(60.0, fmt='customary'))
         self.assertEqual(('1.00000', 'h'), units.elapsed_time_formatter(3600.0, fmt='customary'))
         self.assertEqual(('1.00000', 'd'), units.elapsed_time_formatter(86400.0, fmt='customary'))
+        self.assertEqual(('1.00000', 'h'), units.elapsed_time_formatter(3600.0, fmt='auto'))
+        self.assertEqual(('2:01.000', 'm:ss'), units.elapsed_time_formatter(121, fmt='conventional'))
+        self.assertEqual(('1.00000', 'h'), units.elapsed_time_formatter(3600.0, fmt='hours'))
+        self.assertEqual(('1.50000', 'h'), units.elapsed_time_formatter(5400.0, fmt='hours'))
+        self.assertEqual(('0.002778', 'h'), units.elapsed_time_formatter(10.0, fmt='hours'))
+        self.assertEqual(('1.00000', 'm'), units.elapsed_time_formatter(60.0, fmt='minutes'))
+        self.assertEqual(('2.50000', 'm'), units.elapsed_time_formatter(150.0, fmt='minutes'))
+        self.assertEqual(('10.00000', 's'), units.elapsed_time_formatter(10.0, fmt='seconds'))
 
     def assertClose(self, expected, actual):
         np.testing.assert_almost_equal(expected[0], actual[0])

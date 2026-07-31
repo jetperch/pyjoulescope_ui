@@ -23,7 +23,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.7.0
 
-2026 Jul 30 [in progress]
+2026 Jul 31 [in progress]
 
 * Added Waveform trace color per plot when only 1 Joulescope connected  #276
 * Added relative time option to Waveform widget  #220
@@ -45,6 +45,9 @@ This file contains the list of changes made to pyjoulescope_ui.
   negative) and Time Zone x-axis context menu options  #220
 * Added Waveform Δt holdover option to maintain the view duration when
   sample streaming starts  #222
+* Added Waveform Δt display unit selection (conventional / auto / hours /
+  minutes / seconds), replacing the elapse_time_fmt setting.  Right-click
+  the Δt display to select the Unit.
 
 
 ## 1.6.5
