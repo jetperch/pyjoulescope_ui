@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-30 18:38-0400\n"
+"POT-Creation-Date: 2026-07-31 14:15-0400\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: el <LL@li.org>\n"
@@ -356,7 +356,7 @@ msgstr "Email"
 msgid "Description"
 msgstr "Περιγραφή"
 
-#: error_window.py:112 widgets/waveform/waveform_widget.py:4257
+#: error_window.py:112 widgets/waveform/waveform_widget.py:4274
 msgid "Edit"
 msgstr "Επεξεργασία"
 
@@ -744,7 +744,7 @@ msgstr "Ανοικτό πρόσφατα"
 msgid "Config"
 msgstr "Διαμόρφωση"
 
-#: main.py:405 main.py:453 widgets/waveform/waveform_widget.py:4178
+#: main.py:405 main.py:453 widgets/waveform/waveform_widget.py:4195
 msgid "Export"
 msgstr "Εξαγωγή"
 
@@ -1715,7 +1715,7 @@ msgstr ""
 #: widgets/settings/settings_widget.py:266
 #: widgets/settings/settings_widget.py:364
 #: widgets/settings/settings_widget.py:431
-#: widgets/waveform/waveform_widget.py:3755
+#: widgets/waveform/waveform_widget.py:3759
 msgid "Name"
 msgstr "Όνομα"
 
@@ -1809,7 +1809,7 @@ msgid "Auto-open"
 msgstr "Αυτόματο άνοιγμα"
 
 #: devices/serial/serial_port_dialog.py:88
-#: widgets/waveform/waveform_widget.py:3810
+#: widgets/waveform/waveform_widget.py:3814
 msgid "Add"
 msgstr "Προσθήκη"
 
@@ -1818,9 +1818,9 @@ msgid "Closed"
 msgstr "Κλειστό"
 
 #: devices/serial/serial_port_dialog.py:163
-#: widgets/waveform/waveform_widget.py:4250
-#: widgets/waveform/waveform_widget.py:4278
-#: widgets/waveform/waveform_widget.py:4322
+#: widgets/waveform/waveform_widget.py:4267
+#: widgets/waveform/waveform_widget.py:4295
+#: widgets/waveform/waveform_widget.py:4339
 msgid "Remove"
 msgstr "Αφαίρεση"
 
@@ -2067,12 +2067,12 @@ msgid "The time zone."
 msgstr "Η ζώνη ώρας."
 
 #: widgets/clock/clock_widget.py:35 widgets/waveform/waveform_widget.py:434
-#: widgets/waveform/waveform_widget.py:3583
+#: widgets/waveform/waveform_widget.py:3584
 msgid "Local"
 msgstr "Τοπικό"
 
 #: widgets/clock/clock_widget.py:36 widgets/waveform/waveform_widget.py:433
-#: widgets/waveform/waveform_widget.py:3580
+#: widgets/waveform/waveform_widget.py:3581
 msgid "UTC"
 msgstr "UTC"
 
@@ -2542,7 +2542,7 @@ msgid "Save ACTIVE to:"
 msgstr "Αποθήκευση ACTIVE σε:"
 
 #: widgets/js320_cal/js320_cal_widget.py:64
-#: widgets/waveform/waveform_widget.py:3829
+#: widgets/waveform/waveform_widget.py:3833
 msgid "Save"
 msgstr "Αποθήκευση"
 
@@ -3204,7 +3204,7 @@ msgstr "Hold"
 msgid "Accrue"
 msgstr "Αυξημένο"
 
-#: widgets/value/value_widget.py:599 widgets/waveform/waveform_widget.py:3743
+#: widgets/value/value_widget.py:599 widgets/waveform/waveform_widget.py:3747
 msgid "Preferred prefix"
 msgstr "Προτιμώμενο πρόθεμα"
 
@@ -3266,7 +3266,7 @@ msgid "triangle left"
 msgstr "τρίγωνο αριστερά"
 
 #: widgets/waveform/text_annotation.py:67
-#: widgets/waveform/waveform_widget.py:3701
+#: widgets/waveform/waveform_widget.py:3705
 msgid "Manual"
 msgstr "Εγχειρίδιο"
 
@@ -3275,17 +3275,17 @@ msgid "Centered"
 msgstr "Centered"
 
 #: widgets/waveform/text_annotation.py:101
-#: widgets/waveform/waveform_widget.py:3825
+#: widgets/waveform/waveform_widget.py:3829
 msgid "Text"
 msgstr "Κείμενο"
 
 #: widgets/waveform/text_annotation.py:109
-#: widgets/waveform/waveform_widget.py:4258
+#: widgets/waveform/waveform_widget.py:4275
 msgid "Show text"
 msgstr "Εμφάνιση κειμένου"
 
 #: widgets/waveform/text_annotation.py:118
-#: widgets/waveform/waveform_widget.py:4270
+#: widgets/waveform/waveform_widget.py:4287
 msgid "Shape"
 msgstr "Σχήμα"
 
@@ -3638,18 +3638,18 @@ msgstr ""
 
 #: widgets/waveform/waveform_widget.py:447
 #: widgets/waveform/waveform_widget.py:554
-#: widgets/waveform/waveform_widget.py:3540
-#: widgets/waveform/waveform_widget.py:3567
+#: widgets/waveform/waveform_widget.py:3541
+#: widgets/waveform/waveform_widget.py:3568
 msgid "Absolute"
 msgstr "Απόλυτο"
 
 #: widgets/waveform/waveform_widget.py:448
-#: widgets/waveform/waveform_widget.py:3570
+#: widgets/waveform/waveform_widget.py:3571
 msgid "Relative positive"
 msgstr "Σχετικά θετικό"
 
 #: widgets/waveform/waveform_widget.py:449
-#: widgets/waveform/waveform_widget.py:3573
+#: widgets/waveform/waveform_widget.py:3574
 msgid "Relative negative"
 msgstr "Σχετικά αρνητικό"
 
@@ -3746,7 +3746,7 @@ msgid "X-axis annotation mode"
 msgstr "Λειτουργία σχολιασμού του άξονα Χ"
 
 #: widgets/waveform/waveform_widget.py:555
-#: widgets/waveform/waveform_widget.py:3545
+#: widgets/waveform/waveform_widget.py:3546
 msgid "Relative"
 msgstr "Σχετική"
 
@@ -3765,186 +3765,204 @@ msgstr ""
 "απενεργοποιημένο."
 
 #: widgets/waveform/waveform_widget.py:579
-msgid "The formatting method for elapsed time."
-msgstr "Η μέθοδος μορφοποίησης για τον χρόνο που έχει παρέλθει."
+msgid "The Δt display unit."
+msgstr "Η μονάδα μέτρησης Δt."
 
 #: widgets/waveform/waveform_widget.py:581
-msgid "Seconds displays the time as seconds with prefix."
-msgstr "Τα δευτερόλεπτα εμφανίζουν τον χρόνο ως δευτερόλεπτα με πρόθεμα."
+msgid "Conventional displays days:hours:minutes:seconds."
+msgstr "Οι συμβατικές οθόνες εμφανίζουν ημέρες:ώρες:λεπτά:δευτερόλεπτα."
 
 #: widgets/waveform/waveform_widget.py:582
-msgid "Customary selects seconds, minutes, hours, or days."
-msgstr "Το συνήθης επιλέγει δευτερόλεπτα, λεπτά, ώρες ή ημέρες."
+msgid "Auto displays a decimal value with the best fit unit."
+msgstr ""
+"Η ένδειξη «Auto» εμφανίζει μια δεκαδική τιμή με τη μονάδα που ταιριάζει "
+"καλύτερα."
 
 #: widgets/waveform/waveform_widget.py:583
-msgid "Standard displays days:hours:minutes:seconds."
-msgstr "Το πρότυπο εμφανίζει ημέρες:ώρες:λεπτά:δευτερόλεπτα."
+msgid "Hours, Minutes, and Seconds display a decimal value in that unit."
+msgstr ""
+"Οι μονάδες Ώρες, Λεπτά και Δευτερόλεπτα εμφανίζουν μια δεκαδική τιμή στη "
+"συγκεκριμένη μονάδα."
 
 #: widgets/waveform/waveform_widget.py:587
-msgid "Seconds"
-msgstr "Δευτερόλεπτα"
+#: widgets/waveform/waveform_widget.py:3863
+msgid "Conventional"
+msgstr "Συμβατικός"
 
 #: widgets/waveform/waveform_widget.py:588
-msgid "Customary"
-msgstr "Συνηθισμένο"
-
-#: widgets/waveform/waveform_widget.py:589
-msgid "Standard"
-msgstr "Τυπικό"
-
-#: widgets/waveform/waveform_widget.py:3487
-#: widgets/waveform/waveform_widget.py:3837
-msgid "Save image to file"
-msgstr "Αποθήκευση εικόνας σε αρχείο"
-
-#: widgets/waveform/waveform_widget.py:3534
-#: widgets/waveform/waveform_widget.py:3640
-msgid "Single marker"
-msgstr "Ενιαίος δείκτης"
-
-#: widgets/waveform/waveform_widget.py:3535
-#: widgets/waveform/waveform_widget.py:3641
-msgid "Dual markers"
-msgstr "Διπλοί δείκτες"
-
-#: widgets/waveform/waveform_widget.py:3537
-#: widgets/waveform/waveform_widget.py:3564
-msgid "Mode"
-msgstr "Λειτουργία"
-
-#: widgets/waveform/waveform_widget.py:3550
-#: widgets/waveform/waveform_widget.py:3642
-#: widgets/waveform/waveform_widget.py:3813
-#: widgets/waveform/waveform_widget.py:3831
-msgid "Clear all"
-msgstr "Εκκαθάριση όλων"
-
-#: widgets/waveform/waveform_widget.py:3561
-#: widgets/waveform/waveform_widget.py:3691
-#: widgets/waveform/waveform_widget.py:3819
-msgid "Annotations"
-msgstr "Σημειώσεις"
-
-#: widgets/waveform/waveform_widget.py:3577
-msgid "Time Zone"
-msgstr "Ζώνη ώρας"
-
-#: widgets/waveform/waveform_widget.py:3587
-#: widgets/waveform/waveform_widget.py:3855
-msgid "Δt holdover"
-msgstr "Δt holdover"
-
-#: widgets/waveform/waveform_widget.py:3694
-msgid "Range"
-msgstr "Εύρος"
-
-#: widgets/waveform/waveform_widget.py:3698
-#: widgets/waveform/waveform_widget.py:4202
+#: widgets/waveform/waveform_widget.py:3702
+#: widgets/waveform/waveform_widget.py:3864
+#: widgets/waveform/waveform_widget.py:4219
 msgid "Auto"
 msgstr "Auto"
 
-#: widgets/waveform/waveform_widget.py:3704
+#: widgets/waveform/waveform_widget.py:589
+#: widgets/waveform/waveform_widget.py:3865
+msgid "Hours"
+msgstr "Ώρες"
+
+#: widgets/waveform/waveform_widget.py:590
+#: widgets/waveform/waveform_widget.py:3866
+msgid "Minutes"
+msgstr "Λεπτά"
+
+#: widgets/waveform/waveform_widget.py:591
+#: widgets/waveform/waveform_widget.py:3867
+msgid "Seconds"
+msgstr "Δευτερόλεπτα"
+
+#: widgets/waveform/waveform_widget.py:3488
+#: widgets/waveform/waveform_widget.py:3841
+msgid "Save image to file"
+msgstr "Αποθήκευση εικόνας σε αρχείο"
+
+#: widgets/waveform/waveform_widget.py:3535
+#: widgets/waveform/waveform_widget.py:3644
+msgid "Single marker"
+msgstr "Ενιαίος δείκτης"
+
+#: widgets/waveform/waveform_widget.py:3536
+#: widgets/waveform/waveform_widget.py:3645
+msgid "Dual markers"
+msgstr "Διπλοί δείκτες"
+
+#: widgets/waveform/waveform_widget.py:3538
+#: widgets/waveform/waveform_widget.py:3565
+msgid "Mode"
+msgstr "Λειτουργία"
+
+#: widgets/waveform/waveform_widget.py:3551
+#: widgets/waveform/waveform_widget.py:3646
+#: widgets/waveform/waveform_widget.py:3817
+#: widgets/waveform/waveform_widget.py:3835
+msgid "Clear all"
+msgstr "Εκκαθάριση όλων"
+
+#: widgets/waveform/waveform_widget.py:3562
+#: widgets/waveform/waveform_widget.py:3695
+#: widgets/waveform/waveform_widget.py:3823
+msgid "Annotations"
+msgstr "Σημειώσεις"
+
+#: widgets/waveform/waveform_widget.py:3578
+msgid "Time Zone"
+msgstr "Ζώνη ώρας"
+
+#: widgets/waveform/waveform_widget.py:3588
+#: widgets/waveform/waveform_widget.py:3872
+msgid "Δt holdover"
+msgstr "Δt holdover"
+
+#: widgets/waveform/waveform_widget.py:3698
+msgid "Range"
+msgstr "Εύρος"
+
+#: widgets/waveform/waveform_widget.py:3708
 msgid "Exact"
 msgstr "Ακριβές"
 
-#: widgets/waveform/waveform_widget.py:3713
+#: widgets/waveform/waveform_widget.py:3717
 msgid "Scale"
 msgstr "Κλίμακα"
 
-#: widgets/waveform/waveform_widget.py:3716
+#: widgets/waveform/waveform_widget.py:3720
 msgid "Linear"
 msgstr "Γραμμική"
 
-#: widgets/waveform/waveform_widget.py:3721
+#: widgets/waveform/waveform_widget.py:3725
 msgid "Logarithmic"
 msgstr "Λογαριθμική"
 
-#: widgets/waveform/waveform_widget.py:3729
+#: widgets/waveform/waveform_widget.py:3733
 msgid "Logarithmic zero"
 msgstr "Λογαριθμικό μηδέν"
 
-#: widgets/waveform/waveform_widget.py:3811
+#: widgets/waveform/waveform_widget.py:3815
 msgid "Hide all text"
 msgstr "Απόκρυψη όλου του κειμένου"
 
-#: widgets/waveform/waveform_widget.py:3812
+#: widgets/waveform/waveform_widget.py:3816
 msgid "Show all text"
 msgstr "Εμφάνιση όλου του κειμένου"
 
-#: widgets/waveform/waveform_widget.py:3820
+#: widgets/waveform/waveform_widget.py:3824
 msgid "Vertical"
 msgstr "Κατακόρυφο"
 
-#: widgets/waveform/waveform_widget.py:3823
+#: widgets/waveform/waveform_widget.py:3827
 msgid "Horizontal"
 msgstr "Οριζόντια"
 
-#: widgets/waveform/waveform_widget.py:3834
+#: widgets/waveform/waveform_widget.py:3838
 msgid "Y-axis auto range"
 msgstr "Αυτόματο εύρος του άξονα Y"
 
-#: widgets/waveform/waveform_widget.py:3838
+#: widgets/waveform/waveform_widget.py:3842
 msgid "Copy image to clipboard"
 msgstr "Αντιγραφή εικόνας στο πρόχειρο"
 
-#: widgets/waveform/waveform_widget.py:3839
+#: widgets/waveform/waveform_widget.py:3843
 msgid "Export visible data"
 msgstr "Εξαγωγή ορατών δεδομένων"
 
-#: widgets/waveform/waveform_widget.py:3840
+#: widgets/waveform/waveform_widget.py:3844
 msgid "Export visible data as CSV"
 msgstr "Εξαγωγή ορατών δεδομένων ως CSV"
 
-#: widgets/waveform/waveform_widget.py:3841
+#: widgets/waveform/waveform_widget.py:3845
 msgid "Export all data"
 msgstr "Εξαγωγή όλων των δεδομένων"
 
-#: widgets/waveform/waveform_widget.py:4024
+#: widgets/waveform/waveform_widget.py:3860
+msgid "Unit"
+msgstr "Μονάδα"
+
+#: widgets/waveform/waveform_widget.py:4041
 msgid "Export visible data to CSV file"
 msgstr "Εξαγωγή ορατών δεδομένων σε αρχείο CSV"
 
-#: widgets/waveform/waveform_widget.py:4179
+#: widgets/waveform/waveform_widget.py:4196
 msgid "Analysis"
 msgstr "Ανάλυση"
 
-#: widgets/waveform/waveform_widget.py:4187
+#: widgets/waveform/waveform_widget.py:4204
 msgid "Interval"
 msgstr "Διάστημα"
 
-#: widgets/waveform/waveform_widget.py:4196
+#: widgets/waveform/waveform_widget.py:4213
 msgid "Zoom"
 msgstr "Ζουμ"
 
-#: widgets/waveform/waveform_widget.py:4200
+#: widgets/waveform/waveform_widget.py:4217
 msgid "Show statistics"
 msgstr "Εμφάνιση στατιστικών στοιχείων"
 
-#: widgets/waveform/waveform_widget.py:4205
+#: widgets/waveform/waveform_widget.py:4222
 msgid "Left"
 msgstr "Αριστερά"
 
-#: widgets/waveform/waveform_widget.py:4208
+#: widgets/waveform/waveform_widget.py:4225
 msgid "Right"
 msgstr "Σωστό"
 
-#: widgets/waveform/waveform_widget.py:4211
-#: widgets/waveform/waveform_widget.py:4218
+#: widgets/waveform/waveform_widget.py:4228
+#: widgets/waveform/waveform_widget.py:4235
 msgid "Off"
 msgstr "Off"
 
-#: widgets/waveform/waveform_widget.py:4215
+#: widgets/waveform/waveform_widget.py:4232
 msgid "Show time"
 msgstr "Εμφάνιση χρόνου"
 
-#: widgets/waveform/waveform_widget.py:4221
+#: widgets/waveform/waveform_widget.py:4238
 msgid "On"
 msgstr "Στο"
 
-#: widgets/waveform/waveform_widget.py:4225
+#: widgets/waveform/waveform_widget.py:4242
 msgid "Label"
 msgstr "Ετικέτα"
 
-#: widgets/waveform/waveform_widget.py:4261
+#: widgets/waveform/waveform_widget.py:4278
 msgid "Y mode"
 msgstr "Λειτουργία Y"
 
@@ -4039,3 +4057,21 @@ msgstr "Μονάδες"
 
 #~ msgid "Absolute UTC time"
 #~ msgstr "Απόλυτη ώρα UTC"
+
+#~ msgid "The formatting method for elapsed time."
+#~ msgstr "Η μέθοδος μορφοποίησης για τον χρόνο που έχει παρέλθει."
+
+#~ msgid "Seconds displays the time as seconds with prefix."
+#~ msgstr "Τα δευτερόλεπτα εμφανίζουν τον χρόνο ως δευτερόλεπτα με πρόθεμα."
+
+#~ msgid "Customary selects seconds, minutes, hours, or days."
+#~ msgstr "Το συνήθης επιλέγει δευτερόλεπτα, λεπτά, ώρες ή ημέρες."
+
+#~ msgid "Standard displays days:hours:minutes:seconds."
+#~ msgstr "Το πρότυπο εμφανίζει ημέρες:ώρες:λεπτά:δευτερόλεπτα."
+
+#~ msgid "Customary"
+#~ msgstr "Συνηθισμένο"
+
+#~ msgid "Standard"
+#~ msgstr "Τυπικό"
