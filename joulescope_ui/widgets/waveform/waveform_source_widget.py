@@ -155,7 +155,7 @@ class WaveformSourceWidget(QtWidgets.QWidget):
         self._traces = []
         self._subsources = []
         self._trace_subsources = ['default', None, None, None]
-        self._trace_priorities = [0, None, None, None],
+        self._trace_priorities = [0, None, None, None]
         QtWidgets.QWidget.__init__(self, parent)
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.setObjectName("WaveformSourceWidget")
@@ -192,7 +192,7 @@ class WaveformSourceWidget(QtWidgets.QWidget):
             return False
         if self._trace_priorities[1:] != [None, None, None]:
             return True
-        for self._trace_subsources[0] in ['default', self._subsources[0]]:
+        if self._trace_subsources[0] in ['default', self._subsources[0]]:
             return False
         return True
 
@@ -200,19 +200,22 @@ class WaveformSourceWidget(QtWidgets.QWidget):
         self.setVisible(self._is_needed())
 
     def _on_subsources(self, topic, value):
-        self._subsources = value
+        # Copy: the pubsub retained value is shared by reference, and any
+        # in-place mutation here would silently corrupt it for every
+        # subscriber without a publish notification.
+        self._subsources = list(value)
         for idx, trace in enumerate(self._traces):
             trace.on_subsources(value)
         self._visible_update()
 
     def _on_trace_subsources(self, topic, value):
-        self._trace_subsources = value
+        self._trace_subsources = list(value)
         for idx, trace in enumerate(self._traces):
             trace.on_trace_subsource(value[idx])
         self._visible_update()
 
     def _on_trace_priority(self, topic, value):
-        self._trace_priorities = value
+        self._trace_priorities = list(value)
         for idx, trace in enumerate(self._traces):
             trace.on_trace_priority(value[idx])
         self._visible_update()
