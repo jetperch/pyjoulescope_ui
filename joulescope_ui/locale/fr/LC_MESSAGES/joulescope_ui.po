@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-31 14:15-0400\n"
+"POT-Creation-Date: 2026-08-04 12:18-0400\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: fr <LL@li.org>\n"
@@ -370,7 +370,7 @@ msgstr "Voir comme Markdown"
 msgid "Abort"
 msgstr "Abort"
 
-#: error_window.py:120 main.py:411 widgets/settings/settings_widget.py:539
+#: error_window.py:120 main.py:455 widgets/settings/settings_widget.py:539
 msgid "View"
 msgstr "Voir"
 
@@ -390,7 +390,7 @@ msgstr "Revenir à la configuration précédente"
 msgid "Revert to defaults"
 msgstr "Revenir aux valeurs par défaut"
 
-#: error_window.py:283 main.py:409 main.py:457
+#: error_window.py:283 main.py:453 main.py:503
 #: widgets/js220_cal/js220_cal_widget.py:38
 #: widgets/js320_cal/js320_cal_widget.py:60
 msgid "Exit"
@@ -417,7 +417,7 @@ msgstr "Notes"
 msgid "Select save location"
 msgstr "Sélectionner l'emplacement de sauvegarde"
 
-#: exporter.py:139 main.py:826
+#: exporter.py:139 main.py:872
 msgid "Export configuration"
 msgstr "Exporter la configuration"
 
@@ -609,23 +609,23 @@ msgstr "Sélectionnez une langue"
 msgid "The application will automatically close when you change the locale."
 msgstr "L'application se ferme automatiquement lorsque vous changez de lieu."
 
-#: main.py:75 widgets/value/value_widget.py:774
+#: main.py:78 widgets/value/value_widget.py:774
 msgid "Multimeter"
 msgstr "Multimètre"
 
-#: main.py:76
+#: main.py:79
 msgid "Oscilloscope"
 msgstr "Oscilloscope"
 
-#: main.py:77 main.py:332 main.py:401 main.py:446
+#: main.py:80 main.py:374 main.py:443 main.py:490
 msgid "File"
 msgstr "Fichier"
 
-#: main.py:87
+#: main.py:90
 msgid "The UI status bar display mode"
 msgstr "Le mode d'affichage de la barre d'état de l'interface utilisateur"
 
-#: main.py:88
+#: main.py:91
 msgid ""
 "This setting controls the amount of detail shown on the status bar at the "
 "bottom of the UI window. You should usually leave this set to \"normal\" "
@@ -636,23 +636,23 @@ msgstr ""
 "laisser ce paramètre sur \"normal\" à moins que vous ne souhaitiez obtenir "
 "plus de détails sur le fonctionnement interne de l'interface utilisateur."
 
-#: main.py:93 safe_mode.py:43
+#: main.py:96 safe_mode.py:43
 msgid "Normal"
 msgstr "Normal"
 
-#: main.py:94
+#: main.py:97
 msgid "Troubleshoot"
 msgstr "Dépannage"
 
-#: main.py:100
+#: main.py:103
 msgid "Enable developer mode."
 msgstr "Active le mode développeur."
 
-#: main.py:113
+#: main.py:116
 msgid "PubSub utilization"
 msgstr "Utilisation de PubSub"
 
-#: main.py:114
+#: main.py:117
 msgid ""
 "Display the number of actions processed by the publish-subscribe broker in "
 "each second."
@@ -660,11 +660,11 @@ msgstr ""
 "Affiche le nombre d'actions traitées par le courtier de publication et "
 "d'abonnement chaque seconde."
 
-#: main.py:119
+#: main.py:122
 msgid "CPU utilization"
 msgstr "Utilisation de l'unité centrale"
 
-#: main.py:120
+#: main.py:123
 msgid ""
 "Display the CPU utilization by this application and the total CPU "
 "utilization by all applications. The value is displayed in percent."
@@ -673,11 +673,11 @@ msgstr ""
 "totale du processeur par toutes les applications. La valeur est affichée en "
 "pourcentage."
 
-#: main.py:126
+#: main.py:129
 msgid "Memory utilization"
 msgstr "Utilisation de la mémoire"
 
-#: main.py:127
+#: main.py:130
 msgid ""
 "Display the memory (RAM) utilization by this application and by all "
 "applications. The value is displayed in percent."
@@ -685,126 +685,143 @@ msgstr ""
 "Affiche l'utilisation de la mémoire (RAM) par cette application et par "
 "toutes les applications. La valeur est affichée en pourcentage."
 
-#: main.py:246
+#: main.py:288
 msgid "UI"
 msgstr "UI"
 
-#: main.py:364
+#: main.py:406
 msgid "Help"
 msgstr "Aide"
 
-#: main.py:365 widgets/hamburger/hamburger_widget.py:21
+#: main.py:407 widgets/hamburger/hamburger_widget.py:21
 msgid "Getting Started"
 msgstr "Pour commencer"
 
-#: main.py:366
+#: main.py:408
 msgid "Language"
 msgstr "Langue"
 
-#: main.py:367
+#: main.py:409
 msgid "User's Guide"
 msgstr "Guide de l'utilisateur"
 
-#: main.py:368 widgets/hamburger/hamburger_widget.py:22
+#: main.py:410 widgets/hamburger/hamburger_widget.py:22
 msgid "Changelog"
 msgstr "Changelog"
 
-#: main.py:369 widgets/help/help_widget.py:60
+#: main.py:411 widgets/help/help_widget.py:60
 msgid "Report Issue"
 msgstr "Rapport"
 
-#: main.py:370
+#: main.py:412
 msgid "View logs..."
 msgstr "Voir les journaux..."
 
-#: main.py:371 widgets/hamburger/hamburger_widget.py:23
+#: main.py:413 widgets/hamburger/hamburger_widget.py:23
 msgid "Credits"
 msgstr "Crédits"
 
-#: main.py:372 widgets/hamburger/hamburger_widget.py:24
+#: main.py:414 widgets/hamburger/hamburger_widget.py:24
 msgid "About"
 msgstr "À propos de"
 
-#: main.py:376
+#: main.py:418
 msgid "Clear Accumulators"
 msgstr "Accumulateurs transparents"
 
-#: main.py:379
+#: main.py:421
 msgid "Configure high accuracy time"
 msgstr "Configurer le temps de haute précision"
 
 #: devices/serial/serial_port_dialog.py:145
-#: devices/serial/serial_port_dialog.py:159 main.py:402
+#: devices/serial/serial_port_dialog.py:159 main.py:444
 msgid "Open"
 msgstr "Ouvrir"
 
-#: main.py:403
+#: main.py:445
 msgid "Open recent"
 msgstr "Ouvert récent"
 
-#: main.py:404 main.py:452 widgets/trigger/trigger_widget.py:467
+#: main.py:446 main.py:496 widgets/trigger/trigger_widget.py:467
 #: widgets/trigger/trigger_widget.py:480
 msgid "Config"
 msgstr "Config"
 
-#: main.py:405 main.py:453 widgets/waveform/waveform_widget.py:4195
+#: main.py:447 main.py:497 widgets/waveform/waveform_widget.py:4195
 msgid "Export"
 msgstr "Exportation"
 
-#: main.py:406 main.py:454 main.py:877
+#: main.py:448 main.py:498 main.py:929
+msgid "Import and restart"
+msgstr "Importer et redémarrer"
+
+#: main.py:449 main.py:499 main.py:932
 msgid "Import and exit"
 msgstr "Importation et sortie"
 
-#: main.py:407 main.py:455 main.py:885
+#: main.py:450 main.py:500 main.py:946
+msgid "Clear and restart"
+msgstr "Effacer et redémarrer"
+
+#: main.py:451 main.py:501 main.py:949
 msgid "Clear and exit"
 msgstr "Clair et précis"
 
-#: main.py:412 widgets/settings/settings_widget.py:541
+#: main.py:456 widgets/settings/settings_widget.py:541
 msgid "Widgets"
 msgstr "Widgets"
 
-#: main.py:413
+#: main.py:457
 msgid "Tools"
 msgstr "Outils"
 
-#: main.py:447
+#: main.py:491
 msgid "Info"
 msgstr "Info"
 
-#: main.py:448 widget_tools.py:92 widgets/settings/settings_widget.py:31
+#: main.py:492 widget_tools.py:92 widgets/settings/settings_widget.py:31
 #: widgets/settings/settings_widget.py:574
 #: widgets/sidebar/sidebar_widget.py:42
 msgid "Settings"
 msgstr "Paramètres"
 
-#: main.py:766
+#: main.py:812
 msgid "Manage"
 msgstr "Gérer"
 
-#: main.py:803
+#: main.py:849
 msgid "Select file to open"
 msgstr "Sélectionner le fichier à ouvrir"
 
-#: main.py:846
+#: main.py:892
 msgid "Configuration export failed."
 msgstr "Échec de l'exportation de la configuration."
 
-#: main.py:856
+#: main.py:906
 msgid "Import configuration"
 msgstr "Import configuration"
 
-#: main.py:875
+#: main.py:925
 msgid "The selected file is not a valid Joulescope UI configuration."
 msgstr ""
 "Le fichier sélectionné n'est pas une configuration valide de l'interface "
 "utilisateur de Joulescope."
 
-#: main.py:878
+#: main.py:930
+msgid "Replace the current configuration with the imported file and restart?"
+msgstr ""
+"Remplacer la configuration actuelle par le fichier importé et redémarrer ?"
+
+#: main.py:933
 msgid "Replace the current configuration with the imported file and exit?"
 msgstr ""
 "Remplacer la configuration actuelle par le fichier importé et quitter ?"
 
-#: main.py:885
+#: main.py:947
+msgid "Clear the configuration and restart?"
+msgstr "Effacer la configuration et redémarrer ?"
+
+#: main.py:950
 msgid "Clear the configuration and exit?"
 msgstr "Effacer la configuration et quitter ?"
 

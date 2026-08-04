@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-07-31 14:15-0400\n"
+"POT-Creation-Date: 2026-08-04 12:18-0400\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: ar <LL@li.org>\n"
@@ -348,7 +348,7 @@ msgstr "عرض كتخفيض"
 msgid "Abort"
 msgstr "الإجهاض"
 
-#: error_window.py:120 main.py:411 widgets/settings/settings_widget.py:539
+#: error_window.py:120 main.py:455 widgets/settings/settings_widget.py:539
 msgid "View"
 msgstr "عرض"
 
@@ -368,7 +368,7 @@ msgstr "العودة إلى التكوين السابق"
 msgid "Revert to defaults"
 msgstr "العودة إلى الإعدادات الافتراضية"
 
-#: error_window.py:283 main.py:409 main.py:457
+#: error_window.py:283 main.py:453 main.py:503
 #: widgets/js220_cal/js220_cal_widget.py:38
 #: widgets/js320_cal/js320_cal_widget.py:60
 msgid "Exit"
@@ -395,7 +395,7 @@ msgstr "الملاحظات"
 msgid "Select save location"
 msgstr "حدد موقع الحفظ"
 
-#: exporter.py:139 main.py:826
+#: exporter.py:139 main.py:872
 msgid "Export configuration"
 msgstr "تكوين التصدير"
 
@@ -576,23 +576,23 @@ msgstr "اختر لغة"
 msgid "The application will automatically close when you change the locale."
 msgstr "سيُغلق التطبيق تلقائيًا عند تغيير الإعدادات."
 
-#: main.py:75 widgets/value/value_widget.py:774
+#: main.py:78 widgets/value/value_widget.py:774
 msgid "Multimeter"
 msgstr "متعدد المقاييس"
 
-#: main.py:76
+#: main.py:79
 msgid "Oscilloscope"
 msgstr "راسم الذبذبات"
 
-#: main.py:77 main.py:332 main.py:401 main.py:446
+#: main.py:80 main.py:374 main.py:443 main.py:490
 msgid "File"
 msgstr "ملف"
 
-#: main.py:87
+#: main.py:90
 msgid "The UI status bar display mode"
 msgstr "وضع عرض شريط حالة واجهة المستخدم"
 
-#: main.py:88
+#: main.py:91
 msgid ""
 "This setting controls the amount of detail shown on the status bar at the "
 "bottom of the UI window. You should usually leave this set to \"normal\" "
@@ -602,34 +602,34 @@ msgstr ""
 "واجهة المستخدم. يجب عادةً ترك هذا الإعداد على \"عادي\" إلا إذا كنت تريد "
 "المزيد من التفاصيل المتعلقة بالتشغيل الداخلي لواجهة المستخدم."
 
-#: main.py:93 safe_mode.py:43
+#: main.py:96 safe_mode.py:43
 msgid "Normal"
 msgstr "عادي"
 
-#: main.py:94
+#: main.py:97
 msgid "Troubleshoot"
 msgstr "استكشاف الأخطاء وإصلاحها"
 
-#: main.py:100
+#: main.py:103
 msgid "Enable developer mode."
 msgstr "تمكين وضع المطور."
 
-#: main.py:113
+#: main.py:116
 msgid "PubSub utilization"
 msgstr "استخدام PubSub"
 
-#: main.py:114
+#: main.py:117
 msgid ""
 "Display the number of actions processed by the publish-subscribe broker in "
 "each second."
 msgstr ""
 "عرض عدد الإجراءات التي تتم معالجتها بواسطة وسيط النشر والاشتراك في كل ثانية."
 
-#: main.py:119
+#: main.py:122
 msgid "CPU utilization"
 msgstr "استخدام وحدة المعالجة المركزية"
 
-#: main.py:120
+#: main.py:123
 msgid ""
 "Display the CPU utilization by this application and the total CPU "
 "utilization by all applications. The value is displayed in percent."
@@ -637,11 +637,11 @@ msgstr ""
 "عرض استخدام وحدة المعالجة المركزية بواسطة هذا التطبيق وإجمالي استخدام وحدة "
 "المعالجة المركزية بواسطة جميع التطبيقات. يتم عرض القيمة بالنسبة المئوية."
 
-#: main.py:126
+#: main.py:129
 msgid "Memory utilization"
 msgstr "استخدام الذاكرة"
 
-#: main.py:127
+#: main.py:130
 msgid ""
 "Display the memory (RAM) utilization by this application and by all "
 "applications. The value is displayed in percent."
@@ -649,123 +649,139 @@ msgstr ""
 "عرض استخدام الذاكرة (RAM) بواسطة هذا التطبيق وجميع التطبيقات. يتم عرض القيمة"
 " بالنسبة المئوية."
 
-#: main.py:246
+#: main.py:288
 msgid "UI"
 msgstr "واجهة المستخدم"
 
-#: main.py:364
+#: main.py:406
 msgid "Help"
 msgstr "المساعدة"
 
-#: main.py:365 widgets/hamburger/hamburger_widget.py:21
+#: main.py:407 widgets/hamburger/hamburger_widget.py:21
 msgid "Getting Started"
 msgstr "الشروع في العمل"
 
-#: main.py:366
+#: main.py:408
 msgid "Language"
 msgstr "اللغة"
 
-#: main.py:367
+#: main.py:409
 msgid "User's Guide"
 msgstr "دليل المستخدم"
 
-#: main.py:368 widgets/hamburger/hamburger_widget.py:22
+#: main.py:410 widgets/hamburger/hamburger_widget.py:22
 msgid "Changelog"
 msgstr "سجل التغييرات"
 
-#: main.py:369 widgets/help/help_widget.py:60
+#: main.py:411 widgets/help/help_widget.py:60
 msgid "Report Issue"
 msgstr "إصدار التقرير"
 
-#: main.py:370
+#: main.py:412
 msgid "View logs..."
 msgstr "عرض السجلات..."
 
-#: main.py:371 widgets/hamburger/hamburger_widget.py:23
+#: main.py:413 widgets/hamburger/hamburger_widget.py:23
 msgid "Credits"
 msgstr "الاعتمادات"
 
-#: main.py:372 widgets/hamburger/hamburger_widget.py:24
+#: main.py:414 widgets/hamburger/hamburger_widget.py:24
 msgid "About"
 msgstr "نبذة عن"
 
-#: main.py:376
+#: main.py:418
 msgid "Clear Accumulators"
 msgstr "المجمعات الواضحة"
 
-#: main.py:379
+#: main.py:421
 msgid "Configure high accuracy time"
 msgstr "تكوين وقت عالي الدقة"
 
 #: devices/serial/serial_port_dialog.py:145
-#: devices/serial/serial_port_dialog.py:159 main.py:402
+#: devices/serial/serial_port_dialog.py:159 main.py:444
 msgid "Open"
 msgstr "مفتوح"
 
-#: main.py:403
+#: main.py:445
 msgid "Open recent"
 msgstr "مفتوح حديثاً"
 
-#: main.py:404 main.py:452 widgets/trigger/trigger_widget.py:467
+#: main.py:446 main.py:496 widgets/trigger/trigger_widget.py:467
 #: widgets/trigger/trigger_widget.py:480
 msgid "Config"
 msgstr "التكوين"
 
-#: main.py:405 main.py:453 widgets/waveform/waveform_widget.py:4195
+#: main.py:447 main.py:497 widgets/waveform/waveform_widget.py:4195
 msgid "Export"
 msgstr "التصدير"
 
-#: main.py:406 main.py:454 main.py:877
+#: main.py:448 main.py:498 main.py:929
+msgid "Import and restart"
+msgstr "استيراد وإعادة التشغيل"
+
+#: main.py:449 main.py:499 main.py:932
 msgid "Import and exit"
 msgstr "الاستيراد والتصدير"
 
-#: main.py:407 main.py:455 main.py:885
+#: main.py:450 main.py:500 main.py:946
+msgid "Clear and restart"
+msgstr "مسح وإعادة التشغيل"
+
+#: main.py:451 main.py:501 main.py:949
 msgid "Clear and exit"
 msgstr "واضح وخارجي"
 
-#: main.py:412 widgets/settings/settings_widget.py:541
+#: main.py:456 widgets/settings/settings_widget.py:541
 msgid "Widgets"
 msgstr "الأدوات"
 
-#: main.py:413
+#: main.py:457
 msgid "Tools"
 msgstr "الأدوات"
 
-#: main.py:447
+#: main.py:491
 msgid "Info"
 msgstr "معلومات"
 
-#: main.py:448 widget_tools.py:92 widgets/settings/settings_widget.py:31
+#: main.py:492 widget_tools.py:92 widgets/settings/settings_widget.py:31
 #: widgets/settings/settings_widget.py:574
 #: widgets/sidebar/sidebar_widget.py:42
 msgid "Settings"
 msgstr "الإعدادات"
 
-#: main.py:766
+#: main.py:812
 msgid "Manage"
 msgstr "إدارة"
 
-#: main.py:803
+#: main.py:849
 msgid "Select file to open"
 msgstr "حدد الملف لفتحه"
 
-#: main.py:846
+#: main.py:892
 msgid "Configuration export failed."
 msgstr "فشل تصدير التكوين."
 
-#: main.py:856
+#: main.py:906
 msgid "Import configuration"
 msgstr "استيراد التكوين"
 
-#: main.py:875
+#: main.py:925
 msgid "The selected file is not a valid Joulescope UI configuration."
 msgstr "الملف المحدد ليس تكوينًا صالحًا لواجهة مستخدم Joulescope."
 
-#: main.py:878
+#: main.py:930
+msgid "Replace the current configuration with the imported file and restart?"
+msgstr "هل تريد استبدال التكوين الحالي بالملف المستورد وإعادة التشغيل؟"
+
+#: main.py:933
 msgid "Replace the current configuration with the imported file and exit?"
 msgstr "هل تريد استبدال التكوين الحالي بالملف المستورد والخروج؟"
 
-#: main.py:885
+#: main.py:947
+msgid "Clear the configuration and restart?"
+msgstr "هل تريد مسح الإعدادات وإعادة التشغيل؟"
+
+#: main.py:950
 msgid "Clear the configuration and exit?"
 msgstr "هل تريد مسح التكوين والخروج؟"
 
