@@ -16,8 +16,10 @@
 
 Markers
 -------
-* ``device`` -- requires a connected Joulescope; parametrized per advertised
-  model on the active station (see :mod:`ci.uitest.stations`).
+* ``device`` -- requires a connected Joulescope; parametrized per model.  With
+  ``JS_UITEST_DEVICES`` set, the listed models are expected (absent = FAIL);
+  unset, every known model is a candidate and absent models skip
+  (see :func:`uitest.discover.advertised_models`).
 * ``slow``   -- long-running (e.g. the 1 h / 10 h captures); excluded from the
   release gate, scheduled separately.
 
@@ -27,11 +29,12 @@ Run the hardware-free subset anywhere with::
 """
 
 import os
+import sys
 import time
 
 import pytest
 
-from uitest import stations
+from uitest import discover
 from uitest.harness import UiSession
 
 
@@ -45,24 +48,27 @@ def pytest_configure(config):
 
 
 def pytest_generate_tests(metafunc):
-    """Parametrize ``device`` tests over the active station's advertised models."""
+    """Parametrize ``device`` tests over the expected or candidate models.
+
+    ``JS_UITEST_DEVICES`` set: parametrize over exactly those models -- the
+    :func:`device` fixture FAILS when one is absent.  Unset (auto-detect):
+    parametrize over every known model as a candidate -- absent models skip
+    at runtime, since detection needs a running UI session.
+    """
     if 'device_model' not in metafunc.fixturenames:
         return
-    station = stations.current_station()
-    models = list(station.devices) if station else []
+    models = discover.advertised_models()
+    if models is None:
+        models = list(discover._MODELS)
     if not models:
         metafunc.parametrize(
             'device_model',
-            [pytest.param(None, marks=pytest.mark.skip(reason='no devices advertised by station'))],
+            [pytest.param(None, marks=pytest.mark.skip(
+                reason=f'{discover.ENV_DEVICES} is empty; no device tests'))],
         )
     else:
-        metafunc.parametrize('device_model', models, ids=[m.lower() for m in models])
-
-
-@pytest.fixture(scope='session')
-def station():
-    """The active HIL station (or the no-device ``default``)."""
-    return stations.current_station()
+        metafunc.parametrize('device_model', list(models),
+                             ids=[m.lower() for m in models])
 
 
 def _offscreen_default():
@@ -132,17 +138,26 @@ def make_ui_session(request):
                 pass
 
 
+# Auto-detect mode: models that already failed a full detection poll this
+# session.  A relaunched UI enumerates the same USB bus, so an absent model
+# stays absent -- skip immediately instead of re-paying the timeout.
+_absent_models = set()
+
+
 @pytest.fixture
 def device(ui_session, device_model):
     """Resolve the parametrized model to a connected :class:`discover.Device`.
 
     Polls briefly because USB enumeration completes asynchronously after the UI
-    launches.  Fails (not skips) when the station advertises the model but it is
-    still absent after the timeout -- a missing advertised device is a real
-    fault on the bench.
+    launches.  When ``JS_UITEST_DEVICES`` lists the model, absence after the
+    timeout FAILS -- a missing expected device is a real fault on the bench.
+    In auto-detect mode (variable unset) an absent model skips instead.
     """
     if device_model is None:
-        pytest.skip('no devices advertised by station')
+        pytest.skip(f'{discover.ENV_DEVICES} is empty; no device tests')
+    expected = discover.advertised_models()
+    if expected is None and device_model in _absent_models:
+        pytest.skip(f'{device_model} not detected')
     timeout = float(os.environ.get('JS_UITEST_DEVICE_TIMEOUT', '10'))
     deadline = time.monotonic() + timeout
     while True:
@@ -150,13 +165,19 @@ def device(ui_session, device_model):
         if found:
             return found[0]
         if time.monotonic() >= deadline:
+            if expected is None:
+                _absent_models.add(device_model)
+                pytest.skip(
+                    f'{device_model} not detected (waited {timeout:g}s)')
             pytest.fail(
-                f'station advertises {device_model} but no such device is '
-                f'connected (waited {timeout:g}s)')
+                f'{discover.ENV_DEVICES} lists {device_model} but no such '
+                f'device is connected (waited {timeout:g}s)')
         ui_session.wait(0.5)
 
 
 def _has_display():
+    if sys.platform in ('win32', 'darwin'):
+        return True  # an interactive session always has a display
     return bool(os.environ.get('DISPLAY') or os.environ.get('WAYLAND_DISPLAY'))
 
 

@@ -445,6 +445,27 @@ class UiSession:
         return [f'{source_id}.{s}'
                 for s in self.enumerate(f'registry/{source_id}/settings/signals')]
 
+    def source_utc_range(self, source_id):
+        """The UTC extent (time64) common to all of a buffer source's signals.
+
+        Reads the source's own ``settings/signals/*/range`` metadata, which is
+        valid as soon as the source opens.  The waveform widget's ``x_range``
+        setting is NOT a substitute: it only updates when the plot paints,
+        which never happens on offscreen/headless stations (it stays [0, 0]).
+
+        :return: ``(t0, t1)`` intersected across signals (signals from one
+            recording can differ in length by a few samples).
+        :raises ValueError: If the source has no signals.
+        """
+        t0, t1 = [], []
+        for s in self.enumerate(f'registry/{source_id}/settings/signals'):
+            r = self.query(f'registry/{source_id}/settings/signals/{s}/range')
+            t0.append(r['utc'][0])
+            t1.append(r['utc'][1])
+        if not t0:
+            raise ValueError(f'{source_id} has no signals')
+        return max(t0), min(t1)
+
     def waveform(self):
         """Return the most-recently-created WaveformWidget unique id (or None)."""
         wfs = [i for i in self.enumerate('registry') if i.startswith('WaveformWidget:')]

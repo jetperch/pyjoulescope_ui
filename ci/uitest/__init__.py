@@ -21,15 +21,15 @@ farm.
 
 Module layout::
 
-    discover    -- locate server.json per-OS; enumerate connected devices
+    discover    -- locate server.json per-OS; enumerate connected devices;
+                   parse the JS_UITEST_DEVICES device expectation
     verify      -- verify JLS recordings/exports with pyjls.Reader
     assets      -- fetch & cache large test-data fixtures on demand
     installer   -- resolve/download/silent-install a published installer
-    stations    -- load the HIL bench registry (advertised capabilities)
     harness     -- UiSession: launch the UI and drive it via tcp_client.Client
     conftest    -- pytest fixtures (ui_session, device, screenshot-on-failure)
 
-The Qt-free modules (discover, verify, assets, installer, stations) import
+The Qt-free modules (discover, verify, assets, installer) import
 neither PySide6 nor ``joulescope_ui`` at module scope so their unit tests run
 without a display or the UI installed.  ``harness`` imports the UI client
 lazily, inside :class:`harness.UiSession`.

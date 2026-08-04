@@ -110,7 +110,10 @@ def test_record_markers_export(ui_session, device, tmp_capture):
     signals = ui_session.buffer_signals(source_id)
     assert signals, 'opened recording exposed no signals'
 
-    x0, x1 = ui_session.query(f'registry/{wf}/settings/x_range')
+    # Use the source's own range metadata, not the waveform's x_range setting:
+    # x_range only updates when the plot paints, so it stays [0, 0] offscreen
+    # and would send the exporter to the time64 epoch.
+    x0, x1 = ui_session.source_utc_range(source_id)
     span = x1 - x0
     # Dual markers strictly inside the export sub-range.
     ui_session.add_dual_markers(wf, x0 + 0.45 * span, x0 + 0.55 * span)

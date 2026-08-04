@@ -34,6 +34,14 @@ APP_NAME = 'joulescope'
 # Matching is case-insensitive so both forms (and ``Prefix:js320`` ids) resolve.
 _MODELS = ('JS220', 'JS320', 'JS110')
 
+# Optional device expectation for the suite.  Unset => auto-detect (device
+# tests run against whatever is attached; absent models skip).  Set => the
+# comma-separated models are expected on this bench, and an expected model
+# that is absent at runtime FAILS its tests (a dead bench must not go green).
+# On the HIL farm, joulescope_ci supplies this from the coordinator's
+# stations.yaml (via the JCI_DUTS runner env var).
+ENV_DEVICES = 'JS_UITEST_DEVICES'
+
 
 def app_dir(app=APP_NAME, platform=None):
     """Return the UI base application directory for ``app``.
@@ -89,6 +97,33 @@ def find_credentials(path=None, app=APP_NAME):
             return json.load(f)
     except (OSError, ValueError):
         return None
+
+
+def advertised_models(value=None):
+    """Parse the ``JS_UITEST_DEVICES`` device expectation.
+
+    :param value: The value to parse; default reads the environment variable.
+    :return: None when the variable is unset (auto-detect mode), else a tuple
+        of upper-case models, deduplicated and in order.  An empty or blank
+        value yields ``()`` (no device tests).
+    :raise ValueError: On a model not in :data:`_MODELS`.
+    """
+    if value is None:
+        value = os.environ.get(ENV_DEVICES)
+        if value is None:
+            return None
+    models = []
+    for token in value.split(','):
+        model = token.strip().upper()
+        if not model:
+            continue
+        if model not in _MODELS:
+            raise ValueError(
+                f'{ENV_DEVICES}: unknown model {token.strip()!r}; '
+                f'expected one of {", ".join(_MODELS)}')
+        if model not in models:
+            models.append(model)
+    return tuple(models)
 
 
 def model_for_unique_id(unique_id):

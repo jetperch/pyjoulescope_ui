@@ -197,8 +197,8 @@ setuptools.setup(
     # See https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         'appnope>=0.1.2,<1',
-        'pyjoulescope_driver>=2.3.5,<3',
-        'joulescope>=1.5.0,<2',
+        'pyjoulescope_driver>=2.4.0,<3',
+        'joulescope>=1.6.0,<2',
         'markdown>=3,<4',
         'psutil>=5,<8',
         'pyjls>=0.17.0,<1',
@@ -207,7 +207,7 @@ setuptools.setup(
         'pyqtgraph>=0.14.0,<1',
         'pyserial>=3,<4',
         'PySide6>=6.11.1,<7',
-        'PySide6-QtAds>=5.0.0.0,<6',
+        'PySide6-QtAds>=5.0.0.2,<6',
         'python-dateutil>=2.7.3,<3',
         'QtPy>=2,<3',
         'requests>=2,<3',

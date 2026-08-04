@@ -12,9 +12,10 @@ built as a **separate, shared HIL farm** because it serves more than the UI
 This document specifies what that shared farm must provide so the UI suite (and
 peers) can run on it.  It is written for the team/agent implementing the farm.
 The UI side is already farm-ready: it ships `ci/uitest/installer.py` (download +
-silent-install a published build), `ci/uitest/stations.py` + `stations.toml`
-(capability advertising), and a pytest suite gated by markers and `JS_UITEST_*`
-env vars (see `pyjoulescope_ui/ci/uitest/README.md`).
+silent-install a published build) and a pytest suite gated by markers and
+`JS_UITEST_*` env vars (see `pyjoulescope_ui/ci/uitest/README.md`).  Station
+configuration lives in `joulescope_ci` (coordinator `stations.yaml`); the UI
+suite takes only a `JS_UITEST_DEVICES` device expectation.
 
 ## Consumers (design for all, not just the UI)
 
@@ -37,9 +38,10 @@ attached rather than the job assuming it.  Advertised capabilities include
 attached **device models** (JS220 / JS320 / JS110) and **instruments** (e.g.
 Saleae, ADP3450, J-Link/programmer).  A job selects runners by required
 capability and is skipped/withheld where the capability is absent.
-*The UI mirrors this in `stations.toml`; the farm should own the canonical,
-machine-readable station inventory that the UI registry can be generated from or
-aligned to.*
+*Resolved 2026-08-04: the farm owns the canonical inventory (`joulescope_ci`
+coordinator `stations.yaml`); the runner exports the bench's DUT kinds as
+`JCI_DUTS`, and the UI suite consumes them as `JS_UITEST_DEVICES`.  The UI-side
+`stations.toml` mirror was removed.*
 
 ### R3 — Rendering display + working OpenGL  *(UI-critical, non-obvious)*
 Runners that execute **UI tests must render the GUI, including the OpenGL
@@ -101,19 +103,18 @@ Given a farm runner with the above, the UI job is simply:
 ```bash
 python ci/uitest/installer.py <channel>        # download + verify + install alpha
 JS_UITEST_DISPLAY=1 \
-JS_UITEST_STATION=<this-runner> \
+JS_UITEST_DEVICES=$JCI_DUTS \
 JS_UITEST_EXECUTABLE=<installed joulescope path> \
   pytest ci/uitest --junitxml=results.xml       # device + non-device per caps
 # upload results.xml + uitest_artifacts/
 ```
 
-So the farm must expose, per runner: a **stable station name** (→
-`JS_UITEST_STATION`), the **installed executable path** (→
-`JS_UITEST_EXECUTABLE`), a **rendering display** (→ `JS_UITEST_DISPLAY=1`), and
-the advertised **device set** (so the station registry matches reality).
+So the farm must expose, per runner: the bench's **device set** (→
+`JCI_DUTS` → `JS_UITEST_DEVICES`), the **installed executable path** (→
+`JS_UITEST_EXECUTABLE`), and a **rendering display** (→ `JS_UITEST_DISPLAY=1`).
 
 ## Out of scope here (owned by the UI, already done or planned)
-- The UI test harness, suites, and `installer.py` / `stations.py` (done, M1–M2).
+- The UI test harness, suites, and `installer.py` (done, M1–M2).
 - The release **gate** that consumes the farm's aggregated results + VirusTotal
   (UI **M4**, `ci/release_gate.py` + `ci/virustotal_scan.py`).
 - Long-term capture tests scheduled on the farm (UI **M5**, `test_longterm.py`).

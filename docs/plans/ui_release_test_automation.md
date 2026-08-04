@@ -81,9 +81,7 @@ pyjoulescope_ui/ci/
     discover.py       # server.json location per-OS; device enumeration -> Device objects
     installer.py      # per-OS download (reuse software_update) + silent install/uninstall + locate exe
     verify.py         # pyjls.Reader helpers: open & assert recording/export contents, round-trip compare
-    stations.py       # load stations config; advertise capabilities (platform, attached devices)
     conftest.py       # pytest fixtures: ui_session, device (parametrized), tmp_capture, screenshot-on-fail
-    stations.toml     # one entry per HIL bench: platform, host, devices[], display
     assets/
       evk1_10s_0_7_0.jls   # JLS v1 fixture (sourced)  -- see "Test assets"
       sample_v2.jls        # JLS v2 fixture (recorded once on a bench, checked in)
@@ -146,12 +144,15 @@ only on HIL benches that advertise the matching device.
 - `assert_has_annotations(path, n_markers)` — confirm exported markers landed in the JLS.
 - `compare(src, exp)` — round-trip: exported range matches the source samples it was cut from.
 
-**Create** `ci/uitest/stations.py` + `stations.toml` — load the bench registry; each station advertises
-`platform` and attached `devices` so tests skip/xfail when a device is absent
-(reuses the HIL capability model: *advertise capabilities, don't assume*).
+**Device expectation** — 2026-08-04: the original `stations.py` + `stations.toml`
+bench registry was **removed**; station configuration is owned by the
+`joulescope_ci` farm (coordinator `stations.yaml` -> runner `JCI_DUTS`).  The
+UI-side contract is only `JS_UITEST_DEVICES` (unset = auto-detect/skip; set =
+expected models, listed-but-missing fails), parsed by
+`discover.advertised_models()`.
 
 **Create** `ci/uitest/conftest.py` — pytest fixtures: `ui_session`, `device` (parametrized over the
-station's advertised devices), `tmp_capture` (temp dir for A/B/C captures), and a
+expected or candidate models), `tmp_capture` (temp dir for A/B/C captures), and a
 `pytest_runtest_makereport` hook that calls `UiSession.screenshot()` on failure and attaches it.
 
 **Unit tests** (`test_harness_unit.py`, no UI/HW): exercise `verify.py` against the checked-in JLS
@@ -237,8 +238,9 @@ exists:
   `(platform, arch)` from `index_v2.json`, download + sha256-verify, and
   silent-install per OS (Windows Inno Setup `/VERYSILENT`; macOS `.dmg` +
   quarantine clear; Ubuntu `.tar.gz`).
-- `ci/uitest/stations.py` + `stations.toml` (already implemented): each station
-  advertises its platform + attached device models; tests skip/fail accordingly.
+- Device expectation via `JS_UITEST_DEVICES` (station registry removed
+  2026-08-04; `joulescope_ci` owns bench inventory): tests skip/fail
+  accordingly.
 - **Remaining UI-side glue (small):** a `release_test` workflow/entry that, on a
   farm runner, installs the alpha build and runs `JS_UITEST_DISPLAY=1 pytest
   ci/uitest` (device + non-device per advertised caps) and uploads JUnit XML +
@@ -298,7 +300,7 @@ for how to run them.
 
 Done and validated live on a JS220 + JS320 bench:
 - M0 harness (`ci/uitest/`): `UiSession`, `discover`, `verify`, `installer`,
-  `stations`, `qt`, `assets`, `jls_fixtures`, `conftest`.
+  `qt`, `assets`, `jls_fixtures`, `conftest`.
 - Suites: `test_basics`, `test_preferences`, `test_multimeter` (device),
   `test_open_jls`, `test_record_export` (device record→reopen), `test_waveform`
   (display), plus the Qt-free unit tests.

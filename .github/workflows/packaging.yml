@@ -97,6 +97,52 @@ jobs:
           path: dist/*.tar.gz
           if-no-files-found: error
 
+  push_ui_suite:
+    name: Push UI suite bundle to joulescope_ci
+    # Only push suite bundles that will run on the joulescope_ci benches
+    # from refs we deliberately control: main and release tags.  Branch
+    # pushes (including Dependabot's dependabot/* branches) and all
+    # pull_request events must never reach the coordinator.
+    if: >-
+      github.event_name == 'push' &&
+      github.repository == 'jetperch/pyjoulescope_ui' &&
+      (github.ref == 'refs/heads/main' ||
+      startsWith(github.ref, 'refs/tags/v'))
+    needs:
+      - build_sdist
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+
+      - name: Download sdist
+        uses: actions/download-artifact@v6
+        with:
+          name: sdist
+          path: dist
+
+      # The uitest harness lives in ci/ (not packaged in the sdist), so the
+      # bundle carries both: the runner pip-installs the sdist into the
+      # bench's ~/venv/ui and runs pytest on the bundled ci/uitest tree.
+      - name: Assemble UI suite bundle
+        run: zip -r ui_suite.zip dist ci
+
+      - name: Push to joulescope_ci coordinator
+        env:
+          JCI_BUILD_TOKEN: ${{ secrets.JCI_BUILD_TOKEN }}
+        run: |
+          case "$GITHUB_REF" in
+            refs/tags/v*) BUILD_KIND=release ;;
+            *)            BUILD_KIND=dev ;;
+          esac
+          python3 ci/ci_artifact_push.py \
+            --url https://api.jetperch.com/github/build \
+            --source github --repo pyjoulescope_ui \
+            --ref "$GITHUB_REF" --commit "$GITHUB_SHA" \
+            --run-id "$GITHUB_RUN_ID" --build-kind "$BUILD_KIND" \
+            --artifact-type ui \
+            --artifact ui_suite.zip
+
   build_flatpak:
     name: Build Flatpak ${{ matrix.variant.arch }}
     needs:

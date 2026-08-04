@@ -33,7 +33,7 @@ import pyjls
 # matching how pytest puts the `ci/` directory on sys.path.
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from uitest import verify, discover, installer, stations, assets, qt  # noqa: E402
+from uitest import verify, discover, installer, assets, qt  # noqa: E402
 from uitest.jls_fixtures import write_fsr_v2  # noqa: E402
 
 
@@ -274,67 +274,36 @@ class TestInstaller(unittest.TestCase):
         self.assertEqual(dev[1:], ['-m', 'joulescope_ui', 'ui', '--tcp-server'])
 
 
-class TestStations(unittest.TestCase):
-    def test_load_default_registry(self):
-        regs = stations.load_stations()
-        self.assertIn('default', regs)
-        self.assertEqual(regs['default'].devices, ())
-        self.assertTrue(regs['win11_x64'].advertises('js220'))
-        self.assertTrue(regs['win11_x64'].advertises('JS320'))
+class TestAdvertisedModels(unittest.TestCase):
+    """Hermetic: the environment must not leak into resolution logic."""
 
-    def test_load_rejects_unknown_model(self):
-        d = tempfile.mkdtemp()
-        p = os.path.join(d, 'stations.toml')
-        with open(p, 'w') as f:
-            f.write('[stations.bad]\ndevices = ["JS999"]\n')
+    def setUp(self):
+        self._old = os.environ.pop(discover.ENV_DEVICES, None)
+
+    def tearDown(self):
+        if self._old is not None:
+            os.environ[discover.ENV_DEVICES] = self._old
+
+    def test_unset_is_auto_detect(self):
+        self.assertIsNone(discover.advertised_models())
+
+    def test_empty_and_blank_yield_no_devices(self):
+        self.assertEqual((), discover.advertised_models(''))
+        self.assertEqual((), discover.advertised_models(' , ,'))
+        os.environ[discover.ENV_DEVICES] = ''
+        self.assertEqual((), discover.advertised_models())
+
+    def test_env_value_parsed(self):
+        os.environ[discover.ENV_DEVICES] = 'js320'
+        self.assertEqual(('JS320',), discover.advertised_models())
+
+    def test_case_whitespace_and_duplicates(self):
+        self.assertEqual(('JS320', 'JS220'),
+                         discover.advertised_models(' js320, JS220 ,js320 '))
+
+    def test_unknown_model_rejected(self):
         with self.assertRaises(ValueError):
-            stations.load_stations(p)
-
-    def test_current_station_env_override(self):
-        regs = stations.load_stations()
-        old = os.environ.get(stations.ENV_STATION)
-        try:
-            os.environ[stations.ENV_STATION] = 'ubuntu_x64'
-            self.assertEqual(stations.current_station(regs).name, 'ubuntu_x64')
-            os.environ[stations.ENV_STATION] = 'does_not_exist'
-            with self.assertRaises(KeyError):
-                stations.current_station(regs)
-        finally:
-            if old is None:
-                os.environ.pop(stations.ENV_STATION, None)
-            else:
-                os.environ[stations.ENV_STATION] = old
-
-    def test_current_station_hostname_and_default(self):
-        regs = stations.load_stations()
-        old = os.environ.pop(stations.ENV_STATION, None)
-        try:
-            self.assertEqual(stations.current_station(regs, hostname='JS-HIL-UBU').name,
-                             'ubuntu_x64')
-            self.assertEqual(stations.current_station(regs, hostname='unknown-host').name,
-                             'default')
-        finally:
-            if old is not None:
-                os.environ[stations.ENV_STATION] = old
-
-
-class TestStationsFileOverride(unittest.TestCase):
-    def test_env_file_override(self):
-        d = tempfile.mkdtemp()
-        p = os.path.join(d, 'custom.toml')
-        with open(p, 'w') as f:
-            f.write('[stations.localdev]\nplatform = "ubuntu"\ndevices = ["JS220", "JS320"]\n')
-        old = os.environ.get(stations.ENV_STATIONS_FILE)
-        try:
-            os.environ[stations.ENV_STATIONS_FILE] = p
-            regs = stations.load_stations()
-            self.assertEqual(set(regs), {'localdev'})
-            self.assertEqual(regs['localdev'].devices, ('JS220', 'JS320'))
-        finally:
-            if old is None:
-                os.environ.pop(stations.ENV_STATIONS_FILE, None)
-            else:
-                os.environ[stations.ENV_STATIONS_FILE] = old
+            discover.advertised_models('JS999')
 
 
 _TREE = {
