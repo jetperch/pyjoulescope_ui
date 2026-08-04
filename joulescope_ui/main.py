@@ -60,6 +60,7 @@ import json
 import logging
 import os
 import shutil
+import subprocess
 import sys
 import webbrowser
 
@@ -69,6 +70,8 @@ _software_update = None
 _config_save = True
 _config_clear = None
 _config_import = None
+_restart = False
+_qt_platform_forced = False
 _log = logging.getLogger(__name__)
 _UI_WINDOW_TITLE = 'Joulescope'
 _JLS_WINDOW_TITLE = 'Joulescope file viewer'
@@ -164,6 +167,45 @@ def _config_file_validate(path):
     except Exception:
         _log.exception('Failed to load config file')
     return False
+
+
+def _restart_args():
+    """Compute the command that relaunches this application.
+
+    :return: The subprocess.Popen args list.
+
+    Handles the frozen (PyInstaller) executable, "python -m joulescope_ui",
+    the "joulescope_ui" gui_script, and the pyjoulescope "joulescope"
+    console script.  The interpreter reconstruction works for all
+    entry points since "joulescope ui" delegates to
+    joulescope_ui.entry_points.ui and joulescope_ui.__main__ inserts
+    the "ui" subcommand when omitted.
+    """
+    if getattr(sys, 'frozen', False):
+        return [sys.executable] + sys.argv[1:]
+    if os.path.basename(sys.executable).lower().startswith('python'):
+        return [sys.executable, '-m', 'joulescope_ui'] + sys.argv[1:]
+    return list(sys.argv)
+
+
+def _restart_spawn():
+    """Launch a new, detached instance of this application."""
+    args = _restart_args()
+    _log.info('restart: %s', args)
+    kwargs = {}
+    if _qt_platform_forced:
+        # let the new instance run its own platform detection
+        env = dict(os.environ)
+        env.pop('QT_QPA_PLATFORM', None)
+        kwargs['env'] = env
+    try:
+        if sys.platform == 'win32':
+            kwargs['creationflags'] = subprocess.DETACHED_PROCESS | subprocess.CREATE_NEW_PROCESS_GROUP
+        else:
+            kwargs['start_new_session'] = True
+        subprocess.Popen(args, **kwargs)
+    except Exception:
+        _log.exception('restart failed')
 
 
 def _menu_setup(parent, d):
@@ -403,7 +445,9 @@ class MainWindow(QtWidgets.QMainWindow):
                     ['open_recent_menu', N_('Open recent'), []],  # dynamically populated from MRU
                     ['config_menu', N_('Config'), [
                         ['export', N_('Export'), ['registry/ui/actions/!config_export_request', '']],
+                        ['import_restart', N_('Import and restart'), ['registry/ui/actions/!config_import_request', 'restart']],
                         ['import_exit', N_('Import and exit'), ['registry/ui/actions/!config_import_request', '']],
+                        ['clear_restart', N_('Clear and restart'), ['registry/ui/actions/!config_clear_request', 'restart']],
                         ['clear_exit', N_('Clear and exit'), ['registry/ui/actions/!config_clear_request', '']],
                     ]],
                     ['exit', N_('Exit'), ['registry/ui/actions/!close', '']],
@@ -451,7 +495,9 @@ class MainWindow(QtWidgets.QMainWindow):
                     }]],
                     ['config_menu', N_('Config'), [
                         ['export', N_('Export'), ['registry/ui/actions/!config_export_request', '']],
+                        ['import_restart', N_('Import and restart'), ['registry/ui/actions/!config_import_request', 'restart']],
                         ['import_exit', N_('Import and exit'), ['registry/ui/actions/!config_import_request', '']],
+                        ['clear_restart', N_('Clear and restart'), ['registry/ui/actions/!config_clear_request', 'restart']],
                         ['clear_exit', N_('Clear and exit'), ['registry/ui/actions/!config_clear_request', '']],
                     ]],
                     ['exit', N_('Exit'), ['registry/ui/actions/!close', '']],
@@ -850,8 +896,12 @@ class MainWindow(QtWidgets.QMainWindow):
             self._log.info('config_export cancelled')
 
     def on_action_config_import_request(self, value):
-        """Request configuration import; prompt user to select the file to import."""
-        self._log.info('config_import_request')
+        """Request configuration import; prompt user to select the file to import.
+
+        :param value: 'restart' to relaunch after import, otherwise exit.
+        """
+        self._log.info('config_import_request %s', value)
+        self._config_import_restart = (value == 'restart')
         path = self.pubsub.query('registry/paths/settings/path')
         self._dialog = QtWidgets.QFileDialog(self, N_('Import configuration'), path)
         self._dialog.setNameFilter('Joulescope UI Config (*.json)')
@@ -874,18 +924,34 @@ class MainWindow(QtWidgets.QMainWindow):
             self._log.warning('config_import invalid config: %s', path)
             self.on_action_error_msg(N_('The selected file is not a valid Joulescope UI configuration.'))
             return
-        if not _config_confirm(self, N_('Import and exit'),
-                               N_('Replace the current configuration with the imported file and exit?')):
+        restart = getattr(self, '_config_import_restart', False)
+        if restart:
+            title = N_('Import and restart')
+            text = N_('Replace the current configuration with the imported file and restart?')
+        else:
+            title = N_('Import and exit')
+            text = N_('Replace the current configuration with the imported file and exit?')
+        if not _config_confirm(self, title, text):
             self._log.info('config_import declined')
             return
-        self.pubsub.publish('registry/ui/actions/!close', {'config_import': path})
+        self.pubsub.publish('registry/ui/actions/!close', {'config_import': path, 'restart': restart})
 
     def on_action_config_clear_request(self, value):
-        """Confirm and then clear the configuration and exit."""
-        if not _config_confirm(self, N_('Clear and exit'), N_('Clear the configuration and exit?')):
+        """Confirm and then clear the configuration and exit or restart.
+
+        :param value: 'restart' to relaunch after clear, otherwise exit.
+        """
+        restart = (value == 'restart')
+        if restart:
+            title = N_('Clear and restart')
+            text = N_('Clear the configuration and restart?')
+        else:
+            title = N_('Clear and exit')
+            text = N_('Clear the configuration and exit?')
+        if not _config_confirm(self, title, text):
             self._log.info('config_clear declined')
             return
-        self.pubsub.publish('registry/ui/actions/!close', {'config_clear': True})
+        self.pubsub.publish('registry/ui/actions/!close', {'config_clear': True, 'restart': restart})
 
     def on_action_file_open(self, path):
         """Open the specified file."""
@@ -996,11 +1062,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self._log.info('closeEvent() done')
 
     def on_action_close(self, value):
-        global _software_update, _config_save, _config_clear, _config_import
+        global _software_update, _config_save, _config_clear, _config_import, _restart
         if isinstance(value, dict):
             _software_update = value.get('software_update')
             _config_clear = value.get('config_clear')
             _config_import = value.get('config_import')
+            _restart = bool(value.get('restart', False))
             if _config_clear or _config_import:
                 _config_save = False
         # call self.close() on the Qt Event loop later
@@ -1040,6 +1107,7 @@ def _finalize():
 
 
 def _wayland_workaround():
+    global _qt_platform_forced
     # https://github.com/jetperch/pyjoulescope_ui/issues/311
     # https://github.com/jetperch/pyjoulescope_ui/issues/316
     # Qt Advanced Docking System did not support docking on Wayland, so we
@@ -1051,6 +1119,7 @@ def _wayland_workaround():
     if force in ("1", "true", "on"):
         _log.info('JOULESCOPE_UI_FORCE_XCB set : switch to xcb')
         os.environ["QT_QPA_PLATFORM"] = "xcb"
+        _qt_platform_forced = True
         return
     if force in ("0", "false", "off"):
         _log.info('JOULESCOPE_UI_FORCE_XCB cleared : do not force xcb')
@@ -1077,6 +1146,7 @@ def _wayland_workaround():
         return
     _log.info('Detected Wayland without QtAds Wayland support : switch to xcb')
     os.environ["QT_QPA_PLATFORM"] = "xcb"
+    _qt_platform_forced = True
 
 
 def _opengl_config(renderer):
@@ -1216,6 +1286,9 @@ def run(log_level=None, file_log_level=None, filename=None, safe_mode=False, tcp
                 software_update.apply(_software_update)
         except Exception:
             _log.error('could not apply software update')
+
+        if _restart and _software_update is None and rc == 0:
+            _restart_spawn()
 
     except Exception as ex:
         _log.exception('UI crash')

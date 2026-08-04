@@ -32,6 +32,8 @@ This file contains the list of changes made to pyjoulescope_ui.
   Ctrl+A and Shift+Space zoom to the full extents in file mode.
 * Added Waveform pinned x-axis indication (pin button highlight and message)
   when pins block an x-axis pan attempt during streaming  #324
+* Added File → Config → Import and restart and Clear and restart, which
+  relaunch the UI automatically after the configuration operation.
 * Fixed Waveform control signal buttons not tracking the displayed signals
   when opening a JLS file.
 * Fixed sidebar not fully updating on color scheme change  #183
