@@ -16,7 +16,7 @@
 # https://wiki.qt.io/Gallery_of_Qt_CSS_Based_Styles
 
 from joulescope_ui import pubsub_singleton, N_, get_topic_name, get_instance, \
-    tooltip_format, CAPABILITIES, Metadata, __version__, _pubsub_factory
+    tooltip_format, CAPABILITIES, Metadata, __version__, _pubsub_factory, is_nuitka
 from joulescope_ui.locale import locale_get
 from joulescope_ui.pubsub import UNDO_TOPIC, REDO_TOPIC, is_pubsub_registered
 from joulescope_ui.pubsub_aggregator import PubsubAggregator
@@ -174,13 +174,19 @@ def _restart_args():
 
     :return: The subprocess.Popen args list.
 
-    Handles the frozen (PyInstaller) executable, "python -m joulescope_ui",
-    the "joulescope_ui" gui_script, and the pyjoulescope "joulescope"
-    console script.  The interpreter reconstruction works for all
-    entry points since "joulescope ui" delegates to
-    joulescope_ui.entry_points.ui and joulescope_ui.__main__ inserts
-    the "ui" subcommand when omitted.
+    Handles the compiled (Nuitka) executable, the frozen (PyInstaller)
+    executable, "python -m joulescope_ui", the "joulescope_ui" gui_script,
+    and the pyjoulescope "joulescope" console script.  The interpreter
+    reconstruction works for all entry points since "joulescope ui"
+    delegates to joulescope_ui.entry_points.ui and joulescope_ui.__main__
+    inserts the "ui" subcommand when omitted.
     """
+    if is_nuitka:
+        # Nuitka does not set sys.frozen, and sys.executable points to a
+        # nonexistent python.exe in the dist directory unless Nuitka's
+        # multiprocessing plugin has patched it (only on multiprocessing
+        # import).  sys.argv[0] is always the resolved binary path.
+        return list(sys.argv)
     if getattr(sys, 'frozen', False):
         return [sys.executable] + sys.argv[1:]
     if os.path.basename(sys.executable).lower().startswith('python'):
@@ -191,6 +197,9 @@ def _restart_args():
 def _restart_spawn():
     """Launch a new, detached instance of this application."""
     args = _restart_args()
+    if shutil.which(args[0]) is None:
+        _log.error('restart: executable not found %s : use sys.argv fallback', args[0])
+        args = list(sys.argv)
     _log.info('restart: %s', args)
     kwargs = {}
     if _qt_platform_forced:

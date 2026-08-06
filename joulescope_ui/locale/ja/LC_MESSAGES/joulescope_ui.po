@@ -322,7 +322,7 @@ msgstr "マークダウンで表示"
 msgid "Abort"
 msgstr "中止"
 
-#: error_window.py:120 main.py:455 widgets/settings/settings_widget.py:539
+#: error_window.py:120 main.py:464 widgets/settings/settings_widget.py:539
 msgid "View"
 msgstr "表示"
 
@@ -342,7 +342,7 @@ msgstr "前の設定に戻す"
 msgid "Revert to defaults"
 msgstr "デフォルトに戻す"
 
-#: error_window.py:283 main.py:453 main.py:503
+#: error_window.py:283 main.py:462 main.py:512
 #: widgets/js220_cal/js220_cal_widget.py:38
 #: widgets/js320_cal/js320_cal_widget.py:60
 msgid "Exit"
@@ -369,7 +369,7 @@ msgstr "注記"
 msgid "Select save location"
 msgstr "保存場所を選択"
 
-#: exporter.py:139 main.py:872
+#: exporter.py:139 main.py:881
 msgid "Export configuration"
 msgstr "設定のエクスポート"
 
@@ -543,7 +543,7 @@ msgstr "マルチメーター"
 msgid "Oscilloscope"
 msgstr "オシロスコープ"
 
-#: main.py:80 main.py:374 main.py:443 main.py:490
+#: main.py:80 main.py:383 main.py:452 main.py:499
 msgid "File"
 msgstr "ファイル"
 
@@ -602,139 +602,139 @@ msgid ""
 "applications. The value is displayed in percent."
 msgstr "このアプリケーションおよびすべてのアプリケーションによるメモリ（RAM）使用率を表示します。値はパーセントで表示されます。"
 
-#: main.py:288
+#: main.py:297
 msgid "UI"
 msgstr "UI"
 
-#: main.py:406
+#: main.py:415
 msgid "Help"
 msgstr "ヘルプ"
 
-#: main.py:407 widgets/hamburger/hamburger_widget.py:21
+#: main.py:416 widgets/hamburger/hamburger_widget.py:21
 msgid "Getting Started"
 msgstr "はじめに"
 
-#: main.py:408
+#: main.py:417
 msgid "Language"
 msgstr "使用言語"
 
-#: main.py:409
+#: main.py:418
 msgid "User's Guide"
 msgstr "ユーザーガイド"
 
-#: main.py:410 widgets/hamburger/hamburger_widget.py:22
+#: main.py:419 widgets/hamburger/hamburger_widget.py:22
 msgid "Changelog"
 msgstr "変更履歴"
 
-#: main.py:411 widgets/help/help_widget.py:60
+#: main.py:420 widgets/help/help_widget.py:60
 msgid "Report Issue"
 msgstr "報告書発行"
 
-#: main.py:412
+#: main.py:421
 msgid "View logs..."
 msgstr "ログを見る"
 
-#: main.py:413 widgets/hamburger/hamburger_widget.py:23
+#: main.py:422 widgets/hamburger/hamburger_widget.py:23
 msgid "Credits"
 msgstr "クレジット"
 
-#: main.py:414 widgets/hamburger/hamburger_widget.py:24
+#: main.py:423 widgets/hamburger/hamburger_widget.py:24
 msgid "About"
 msgstr "Joulescopeについて"
 
-#: main.py:418
+#: main.py:427
 msgid "Clear Accumulators"
 msgstr "クリアアキュムレータ"
 
-#: main.py:421
+#: main.py:430
 msgid "Configure high accuracy time"
 msgstr "高精度時間の設定"
 
 #: devices/serial/serial_port_dialog.py:145
-#: devices/serial/serial_port_dialog.py:159 main.py:444
+#: devices/serial/serial_port_dialog.py:159 main.py:453
 msgid "Open"
 msgstr "オープン"
 
-#: main.py:445
+#: main.py:454
 msgid "Open recent"
 msgstr "最近のオープン"
 
-#: main.py:446 main.py:496 widgets/trigger/trigger_widget.py:467
+#: main.py:455 main.py:505 widgets/trigger/trigger_widget.py:467
 #: widgets/trigger/trigger_widget.py:480
 msgid "Config"
 msgstr "構成"
 
-#: main.py:447 main.py:497 widgets/waveform/waveform_widget.py:4195
+#: main.py:456 main.py:506 widgets/waveform/waveform_widget.py:4195
 msgid "Export"
 msgstr "輸出"
 
-#: main.py:448 main.py:498 main.py:929
+#: main.py:457 main.py:507 main.py:938
 msgid "Import and restart"
 msgstr "インポートして再起動"
 
-#: main.py:449 main.py:499 main.py:932
+#: main.py:458 main.py:508 main.py:941
 msgid "Import and exit"
 msgstr "インポートと終了"
 
-#: main.py:450 main.py:500 main.py:946
+#: main.py:459 main.py:509 main.py:955
 msgid "Clear and restart"
 msgstr "クリアおよび再起動"
 
-#: main.py:451 main.py:501 main.py:949
+#: main.py:460 main.py:510 main.py:958
 msgid "Clear and exit"
 msgstr "明確で分かりやすい"
 
-#: main.py:456 widgets/settings/settings_widget.py:541
+#: main.py:465 widgets/settings/settings_widget.py:541
 msgid "Widgets"
 msgstr "ウィジェット"
 
-#: main.py:457
+#: main.py:466
 msgid "Tools"
 msgstr "ツール"
 
-#: main.py:491
+#: main.py:500
 msgid "Info"
 msgstr "情報"
 
-#: main.py:492 widget_tools.py:92 widgets/settings/settings_widget.py:31
+#: main.py:501 widget_tools.py:92 widgets/settings/settings_widget.py:31
 #: widgets/settings/settings_widget.py:574
 #: widgets/sidebar/sidebar_widget.py:42
 msgid "Settings"
 msgstr "設定"
 
-#: main.py:812
+#: main.py:821
 msgid "Manage"
 msgstr "管理"
 
-#: main.py:849
+#: main.py:858
 msgid "Select file to open"
 msgstr "ファイルを選択して開く"
 
-#: main.py:892
+#: main.py:901
 msgid "Configuration export failed."
 msgstr "設定のエクスポートに失敗しました。"
 
-#: main.py:906
+#: main.py:915
 msgid "Import configuration"
 msgstr "設定のインポート"
 
-#: main.py:925
+#: main.py:934
 msgid "The selected file is not a valid Joulescope UI configuration."
 msgstr "選択されたファイルは、有効なJoulescope UI設定ではありません。"
 
-#: main.py:930
+#: main.py:939
 msgid "Replace the current configuration with the imported file and restart?"
 msgstr "現在の設定をインポートしたファイルに置き換えて、再起動しますか？"
 
-#: main.py:933
+#: main.py:942
 msgid "Replace the current configuration with the imported file and exit?"
 msgstr "現在の設定をインポートしたファイルに置き換えて終了しますか？"
 
-#: main.py:947
+#: main.py:956
 msgid "Clear the configuration and restart?"
 msgstr "設定をクリアして再起動しますか？"
 
-#: main.py:950
+#: main.py:959
 msgid "Clear the configuration and exit?"
 msgstr "設定をクリアして終了しますか？"
 

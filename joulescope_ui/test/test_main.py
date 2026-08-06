@@ -49,6 +49,26 @@ class TestRestartArgs(unittest.TestCase):
             self.assertEqual(['pythonw.exe', '-m', 'joulescope_ui'],
                              main._restart_args())
 
+    def test_nuitka_windows(self):
+        # Nuitka: sys.frozen unset, sys.executable is a nonexistent python.exe
+        # in the dist directory (until multiprocessing import patches it).
+        argv = ['C:\\Program Files\\Joulescope\\joulescope.exe', 'ui']
+        with patch.object(main, 'is_nuitka', True), \
+                patch.object(sys, 'executable', 'C:\\PROGRA~1\\JOULES~1\\python.exe'), \
+                patch.object(sys, 'argv', argv):
+            args = main._restart_args()
+            self.assertEqual(argv, args)
+            self.assertIsNot(argv, args)
+
+    def test_nuitka_after_multiprocessing_patch(self):
+        # After multiprocessing import, Nuitka patches sys.executable to the
+        # binary; the result must not depend on which state we are in.
+        argv = ['C:\\Program Files\\Joulescope\\joulescope.exe', 'ui']
+        with patch.object(main, 'is_nuitka', True), \
+                patch.object(sys, 'executable', 'C:\\PROGRA~1\\JOULES~1\\joulescope.exe'), \
+                patch.object(sys, 'argv', argv):
+            self.assertEqual(argv, main._restart_args())
+
     def test_unknown_executable_uses_argv(self):
         argv = ['/opt/custom/launcher', '--flag']
         with patch.object(sys, 'executable', '/opt/custom/launcher'), \
@@ -92,6 +112,16 @@ class TestRestartSpawn(unittest.TestCase):
                 patch.dict(main.os.environ, {'QT_QPA_PLATFORM': 'offscreen'}):
             main._restart_spawn()
             self.assertNotIn('env', popen.call_args.kwargs)
+
+    def test_spawn_missing_executable_falls_back_to_argv(self):
+        argv = ['C:\\Program Files\\Joulescope\\joulescope.exe', 'ui']
+        with patch.object(main.subprocess, 'Popen') as popen, \
+                patch.object(main, '_restart_args',
+                             return_value=['C:\\PROGRA~1\\JOULES~1\\python.exe', '-m', 'joulescope_ui', 'ui']), \
+                patch.object(main.shutil, 'which', return_value=None), \
+                patch.object(sys, 'argv', argv):
+            main._restart_spawn()
+            self.assertEqual(argv, popen.call_args.args[0])
 
     def test_spawn_failure_does_not_raise(self):
         with patch.object(main.subprocess, 'Popen', side_effect=OSError('no such file')):
