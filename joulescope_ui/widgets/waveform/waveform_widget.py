@@ -5351,7 +5351,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
         # Convert to degrees, quantize and scale to ticks
         self._wheel_accum_degrees += delta * _WHEEL_TO_DEGREES
-        incr = np.fix(self._wheel_accum_degrees / _WHEEL_TICK_DEGREES_QUANT)
+        incr = np.trunc(self._wheel_accum_degrees / _WHEEL_TICK_DEGREES_QUANT)
         self._wheel_accum_degrees -= incr * _WHEEL_TICK_DEGREES_QUANT
         incr *= _WHEEL_TICK_DEGREES_QUANT / _WHEEL_TICK_DEGREES
         x_delta, y_delta = incr
