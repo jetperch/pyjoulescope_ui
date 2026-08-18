@@ -23,9 +23,10 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.7.1
 
-2026 Aug 6 [in progress]
+2026 Aug 18 [in progress]
 
 * Fixed File → Config → "* and restart" on Windows Nuitka release  #348
+* Fixed numpy deprecation warnings fix → trunc  #350
 
 
 ## 1.7.0
