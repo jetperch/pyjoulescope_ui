@@ -29,9 +29,9 @@ platform1 = 'macosx_13_0_x86_64'
 platform2 = 'macosx_13_0_arm64'
 
 
-def _run_cmd(cmd):
+def _run_cmd(cmd, env=None):
     print(f'RUN {cmd}')
-    rv = subprocess.run(cmd, shell=True, capture_output=True, encoding='utf-8')
+    rv = subprocess.run(cmd, shell=True, capture_output=True, encoding='utf-8', env=env)
     print(rv.stdout)
     if bool(rv.stderr):
         print(f'STDERR:\n{rv.stderr}')
@@ -49,6 +49,24 @@ def _run_pip_download(cmd):
             return filename
     print(f'PIP_DOWNLOAD could not parse return filename')
     raise RuntimeError(f'PIP_DOWNLOAD could not parse return filename')
+
+
+def _build_universal2(name, version):
+    """Build a universal2 wheel from the sdist.
+
+    Some packages (e.g. PyOpenGL-accelerate) only publish arm64 macOS wheels,
+    so there is no x86_64 wheel to fuse.  Pure Cython/C extensions without
+    external native dependencies can be built directly as universal2 by
+    asking the compiler for both architectures.
+    """
+    env = dict(os.environ)
+    env['ARCHFLAGS'] = '-arch arm64 -arch x86_64'
+    _run_cmd(f'pip wheel --no-binary :all: --no-deps -w . {name}=={version}', env=env)
+    wheels = [f for f in os.listdir('.') if f.endswith('universal2.whl')
+              and f.lower().startswith(name.lower().replace('-', '_'))]
+    if len(wheels) != 1:
+        raise RuntimeError(f'Could not build universal2 wheel for {name}: {wheels}')
+    return wheels[0]
 
 
 def is_universal2_file(path):
@@ -102,15 +120,24 @@ def run():
             except Exception:
                 f3 = None
             if f3 is None or '-none-any' in f3:
-                print(f'PATCH {name}')
-                f1 = _run_pip_download(f'pip download --only-binary :all: --platform {platform1} {name}=={version}')
-                f2 = _run_pip_download(f'pip download --only-binary :all: --platform {platform2} {name}=={version}')
-                if 'x86_64' not in f1 or 'arm64' not in f2:
-                    raise RuntimeError('Could not find matching files')
-                _run_cmd(f'delocate-fuse {f1} {f2} -w .')
-                f3 = f2.replace('arm64', 'universal2')
-                os.rename(f1, f3)
+                try:
+                    print(f'PATCH {name}')
+                    f1 = _run_pip_download(f'pip download --only-binary :all: --platform {platform1} {name}=={version}')
+                    f2 = _run_pip_download(f'pip download --only-binary :all: --platform {platform2} {name}=={version}')
+                    if 'x86_64' not in f1 or 'arm64' not in f2:
+                        raise RuntimeError('Could not find matching files')
+                    _run_cmd(f'delocate-fuse {f1} {f2} -w .')
+                    f3 = f2.replace('arm64', 'universal2')
+                    os.rename(f1, f3)
+                except Exception:
+                    print(f'PATCH {name} failed: no x86_64 + arm64 wheel pair available')
+                    f3 = None
+            if f3 is None:
+                print(f'BUILD {name} universal2 from source')
+                f3 = _build_universal2(name, version)
             _run_cmd(f'pip install --force-reinstall -f . {f3}')
+            if not is_universal2(name):
+                raise RuntimeError(f'{name} is still not universal2 after patching')
         else:
             print(f'SKIP {name} already universal2')
 
