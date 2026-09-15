@@ -61,7 +61,10 @@ def _build_universal2(name, version):
     """
     env = dict(os.environ)
     env['ARCHFLAGS'] = '-arch arm64 -arch x86_64'
-    _run_cmd(f'pip wheel --no-binary :all: --no-deps -w . {name}=={version}', env=env)
+    # --no-binary only for this package: pip propagates format control into
+    # the isolated build env, and ':all:' would force numpy to build from
+    # source, which meson-python refuses with multi-arch ARCHFLAGS.
+    _run_cmd(f'pip wheel --no-binary {name} --no-deps -w . {name}=={version}', env=env)
     wheels = [f for f in os.listdir('.') if f.endswith('universal2.whl')
               and f.lower().startswith(name.lower().replace('-', '_'))]
     if len(wheels) != 1:
