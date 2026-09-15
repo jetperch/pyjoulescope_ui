@@ -203,6 +203,7 @@ setuptools.setup(
         'psutil>=5,<8',
         'pyjls>=0.17.0,<1',
         'pyopengl>=3,<4',
+        'PyOpenGL-accelerate>=3.1,<4',
         "pywin32>=223; platform_system == 'Windows'",
         'pyqtgraph>=0.14.0,<1',
         'pyserial>=3,<4',
