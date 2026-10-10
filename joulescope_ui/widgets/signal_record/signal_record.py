@@ -52,6 +52,7 @@ class SignalRecord:
         path = config['path']
         self._log.info('JLS record to %s', path)
         self._path = path
+        self._write_error = None
         try:
             self._jls = Writer(path)
             self._jls.flags = Writer.FLAG_DROP_ON_OVERFLOW
@@ -84,29 +85,50 @@ class SignalRecord:
         self.pubsub.subscribe(_DISK_MONITOR_FULL, self._on_disk_full, ['pub'])
         self.pubsub.publish('registry/paths/actions/!mru_save', path)
 
-    def _on_data(self, topic, value):
-        if self._jls is None:
+    def _on_write_error(self, ex):
+        """Stop recording on a JLS write error, such as a full disk.
+
+        pyjls latches the first write error, so every later write fails.
+        """
+        if self._write_error is not None:
             return
-        if topic not in self._signals:
-            source = topic.split('/')[1]
-            if source not in self._sources:
-                self._source_add(source, value['source'])
-            self._signal_add(source, topic, value)
-        signal = self._signals[topic]
-        sample_id = value['sample_id']
-        utc_now = value['utc']
-        utc = [sample_id, utc_now]
-        if signal['utc_entry_prev'] is None or (utc_now - signal['utc_entry_prev'][1]) >= _UTC_INTERVAL:
-            self._log.info('utc %s: %s, %s', signal['name'], sample_id, utc_now)
-            self._jls.utc(signal['id'], sample_id, utc_now)
-            signal['utc_entry_prev'] = utc
+        self._write_error = ex
+        self._log.error('JLS write failed, stop recording %s: %s', self._path, ex)
+        self.pubsub.publish('registry/ui/actions/!error_msg',
+                            N_('Recording stopped: could not write the file')
+                            + f'\n{ex}\n{self._path}')
+        self.pubsub.publish('registry/app/settings/signal_stream_record', False)
+
+    def _on_data(self, topic, value):
+        if self._jls is None or self._write_error is not None:
+            return
+        try:
+            if topic not in self._signals:
+                source = topic.split('/')[1]
+                if source not in self._sources:
+                    self._source_add(source, value['source'])
+                self._signal_add(source, topic, value)
+            signal = self._signals[topic]
+            sample_id = value['sample_id']
+            utc_now = value['utc']
+            utc = [sample_id, utc_now]
+            if signal['utc_entry_prev'] is None or (utc_now - signal['utc_entry_prev'][1]) >= _UTC_INTERVAL:
+                self._log.info('utc %s: %s, %s', signal['name'], sample_id, utc_now)
+                self._jls.utc(signal['id'], sample_id, utc_now)
+                signal['utc_entry_prev'] = utc
+        except Exception as ex:
+            self._on_write_error(ex)
+            return
         signal['utc_data_prev'] = utc
         x = value['data']
         if len(x):
             x = np.ascontiguousarray(x)
             try:
                 self._jls.fsr(signal['id'], sample_id, x)
-            except Exception:
+            except Exception as ex:
+                if 'BUSY' not in str(ex):  # BUSY is FLAG_DROP_ON_OVERFLOW, others are write errors
+                    self._on_write_error(ex)
+                    return
                 self._status['dropped'] += len(x)
                 t_now = time.time()
                 if t_now >= (1.0 + self._status['time_last']):
@@ -175,16 +197,28 @@ class SignalRecord:
         jls, self._jls = self._jls, None
         if jls is None:
             return
-        for signal in self._signals.values():
-            if signal['utc_data_prev'] is not None and signal['utc_data_prev'] != signal['utc_entry_prev']:
-                self._log.info('utc %s: %s', signal['name'], signal['utc_data_prev'])
-                jls.utc(signal['id'], *signal['utc_data_prev'])
-        jls.close()
+        try:
+            try:
+                if self._write_error is None:
+                    for signal in self._signals.values():
+                        if signal['utc_data_prev'] is not None and signal['utc_data_prev'] != signal['utc_entry_prev']:
+                            self._log.info('utc %s: %s', signal['name'], signal['utc_data_prev'])
+                            jls.utc(signal['id'], *signal['utc_data_prev'])
+            finally:
+                jls.close()  # always closes, then raises a latched write error
+        except Exception as ex:
+            if self._write_error is None:  # otherwise, already reported
+                self._write_error = ex
+                self._log.error('JLS close failed %s: %s', self._path, ex)
+                self.pubsub.publish('registry/ui/actions/!error_msg',
+                                    N_('Recording may be incomplete')
+                                    + f'\n{ex}\n{self._path}')
         if self in SignalRecord._instances:
             SignalRecord._instances.remove(self)
         self.pubsub.unregister(self, delete=True)
         self.pubsub.publish(_DISK_MONITOR_REMOVE, self._path)
-        self._annotation_create()
+        if self._write_error is None:
+            self._annotation_create()
 
     def _annotation_create(self):
         if self._utc_range is None:
