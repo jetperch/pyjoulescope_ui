@@ -242,3 +242,25 @@ class TestRangeToolBase(unittest.TestCase):
         rt.on_pubsub_unregister()
         self.assertNotIn(rt, RangeToolBase._instances)
         self.assertEqual(n0, len(RangeToolBase._instances))
+
+    def test_run_exception_reports_and_finalizes(self):
+        # A _run exception must not skip the done callbacks or !finalize,
+        # or the progress bar never completes.
+        class _FailRangeTool(_MyRangeTool):
+            def _run(self):
+                raise RuntimeError('boom')
+
+        value = PubSub().range_tool_init_value()
+        value['range_tool'] = {'done_callbacks': ['registry/x/callbacks/!done']}
+        rt = _FailRangeTool(value)
+        rt.unique_id = 'rt-fail'
+        rt.pubsub = Mock()
+        rt._rt.pubsub = rt.pubsub
+        rt._RangeToolBase__run_outer()
+        topics = [c.args[0] for c in rt.pubsub.publish.call_args_list]
+        self.assertEqual(['registry/ui/actions/!error_msg', 'registry/x/callbacks/!done',
+                          'registry/rt-fail/actions/!finalize'], topics)
+        self.assertIn('boom', rt.pubsub.publish.call_args_list[0].args[1])
+        rt._thread = None
+        rt.on_pubsub_unregister()
+        self.assertTrue(rt.abort)  # closed instances report abort

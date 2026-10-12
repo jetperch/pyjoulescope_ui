@@ -233,67 +233,86 @@ class Exporter(RangeToolBase):
             jls_signal_id += 1
         jls.flush()
 
+    def _export(self, jls: Writer):
+        progress_iter = 1.0 / len(self.signals)
+        notes = self.kwargs.get('notes')
+        if notes is not None and isinstance(notes, str) and len(notes):
+            jls.user_data(0, notes)
+        self._jls_init(jls)
+        for signal_idx, signal in enumerate(self._signals.values()):
+            if self.abort:
+                break
+            utc_start, utc_end = self.x_range
+            self._log.info('%s: %d %d | %.3f', signal['signal'], utc_start, utc_end,
+                           (utc_end - utc_start) / time64.SECOND)
+            sample_id_offset, sample_id_end = signal['sample_range']
+            jls_signal_id = signal['jls_signal_id']
+            with signal['info']['tmap'] as tmap:
+                tmap_entries = tmap.time_map_get()
+                jls.utc(jls_signal_id, 0, tmap.sample_id_to_timestamp(sample_id_offset))
+                if len(tmap_entries):
+                    try:
+                        tmap_entries[0]['offset_counter']
+                        f1, f2 = 'offset_counter', 'offset_time'
+                    except ValueError:
+                        f1, f2 = 'sample_id', 'timestamp'
+                for e in tmap_entries:
+                    if utc_start < e[f2] < utc_end:
+                        jls.utc(jls_signal_id, e[f1] - sample_id_offset, e[f2])
+                jls.utc(jls_signal_id, sample_id_end - sample_id_offset, tmap.sample_id_to_timestamp(sample_id_end))
+            count = 0
+            length_total = sample_id_end - sample_id_offset
+            sample_id = sample_id_offset
+            bytes_since_flush = 0
+            while not self.abort:
+                length_remaining = sample_id_end - sample_id
+                if length_remaining <= 0:
+                    self._log.info(f'{signal["signal"]}: exported {count} samples')
+                    break
+                length = min(100_000, length_remaining)
+                d = self.request(signal['signal'], 'samples', sample_id, 0, length, timeout=1.0)
+                info = d['info']
+                sample_id_start = info['time_range_samples']['start']
+                if sample_id_start != sample_id:
+                    self._log.warning(f'sample_id mismatch: {sample_id_start} != {sample_id}')
+                    sample_id = sample_id_start
+                data = np.ascontiguousarray(d['data'])
+                jls.fsr(jls_signal_id, sample_id - sample_id_offset, data)
+                sample_id += info['time_range_samples']['length']
+                count += length
+                bytes_since_flush += data.nbytes
+                if bytes_since_flush > _FLUSH_BYTES:
+                    jls.flush()
+                    bytes_since_flush = 0
+                self.progress((signal_idx + (1 - length_remaining / length_total)) * progress_iter)
+            jls.flush()
+
+    def _remove(self, path):
+        try:
+            os.remove(path)
+        except FileNotFoundError:
+            pass
+        except Exception:
+            self._log.warning('could not remove %s', path, exc_info=True)
+
     def _run(self):
         self._log.info('thread start')
         path = self.kwargs['path']
-        progress_iter = 1.0 / len(self.signals)
-
-        with Writer(path) as jls:
-            notes = self.kwargs.get('notes')
-            if notes is not None and isinstance(notes, str) and len(notes):
-                jls.user_data(0, notes)
-            self._jls_init(jls)
-            for signal_idx, signal in enumerate(self._signals.values()):
-                if self.abort:
-                    break
-                utc_start, utc_end = self.x_range
-                self._log.info('%s: %d %d | %.3f', signal['signal'], utc_start, utc_end,
-                               (utc_end - utc_start) / time64.SECOND)
-                sample_id_offset, sample_id_end = signal['sample_range']
-                jls_signal_id = signal['jls_signal_id']
-                with signal['info']['tmap'] as tmap:
-                    tmap_entries = tmap.time_map_get()
-                    jls.utc(jls_signal_id, 0, tmap.sample_id_to_timestamp(sample_id_offset))
-                    if len(tmap_entries):
-                        try:
-                            tmap_entries[0]['offset_counter']
-                            f1, f2 = 'offset_counter', 'offset_time'
-                        except ValueError:
-                            f1, f2 = 'sample_id', 'timestamp'
-                    for e in tmap_entries:
-                        if utc_start < e[f2] < utc_end:
-                            jls.utc(jls_signal_id, e[f1] - sample_id_offset, e[f2])
-                    jls.utc(jls_signal_id, sample_id_end - sample_id_offset, tmap.sample_id_to_timestamp(sample_id_end))
-                count = 0
-                length_total = sample_id_end - sample_id_offset
-                sample_id = sample_id_offset
-                bytes_since_flush = 0
-                while not self.abort:
-                    length_remaining = sample_id_end - sample_id
-                    if length_remaining <= 0:
-                        self._log.info(f'{signal["signal"]}: exported {count} samples')
-                        break
-                    length = min(100_000, length_remaining)
-                    d = self.request(signal['signal'], 'samples', sample_id, 0, length, timeout=1.0)
-                    info = d['info']
-                    sample_id_start = info['time_range_samples']['start']
-                    if sample_id_start != sample_id:
-                        self._log.warning(f'sample_id mismatch: {sample_id_start} != {sample_id}')
-                        sample_id = sample_id_start
-                    data = np.ascontiguousarray(d['data'])
-                    jls.fsr(jls_signal_id, sample_id - sample_id_offset, data)
-                    sample_id += info['time_range_samples']['length']
-                    count += length
-                    bytes_since_flush += data.nbytes
-                    if bytes_since_flush > _FLUSH_BYTES:
-                        jls.flush()
-                        bytes_since_flush = 0
-                    self.progress((signal_idx + (1 - length_remaining / length_total)) * progress_iter)
-                jls.flush()
+        jls = None
+        try:
+            jls = Writer(path)
+            with jls:  # close() raises on a latched write error
+                self._export(jls)
+        except Exception as ex:
+            self._log.exception('export failed: %s', path)
+            if jls is not None:  # only remove a file that Writer opened
+                self._remove(path)
+            self.error(N_('Export failed') + f'\n{ex}\n{path}')
+            return
 
         if self.abort:
             self._log.info('thread done with quit/abort')
-            os.remove(path)
+            self._remove(path)
         else:
             self._log.info('thread done with success')
             pubsub_singleton.publish('registry/paths/actions/!mru_save', path)

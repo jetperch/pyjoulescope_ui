@@ -29,6 +29,12 @@ unreleased
   such as on a full disk.  pyjls 0.19.0 reports these errors instead of
   only logging them.  Previously, every later write reported dropped
   samples, and the stop action did not finish its cleanup.
+* Export now shows an error, removes the partial file, and completes its
+  progress bar when a JLS write or close fails.  Canceling an export now
+  removes the partial file.  Any range tool that raises now reports the
+  error and completes its progress bar.
+* Changed the unused ChunkMeta.UI_META from 0x8001 to 0x401, since JLS
+  reserves chunk_meta bits 15:12.
 
 ## 1.7.1
 

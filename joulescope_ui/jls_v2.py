@@ -25,9 +25,10 @@ import copy
 
 
 class ChunkMeta:
+    # user_data chunk_meta values.  JLS reserves bits 15:12.
     NOTES = 0
     UI_WAVEFORM = 0x400
-    UI_META = 0x8001
+    UI_META = 0x401
 
 
 DTYPE_MAP = {

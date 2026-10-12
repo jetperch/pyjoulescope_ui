@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import numpy as np
-from joulescope_ui import get_topic_name, time64
+from joulescope_ui import N_, get_topic_name, time64
 import logging
 import queue
 import threading
@@ -289,7 +289,7 @@ class RangeToolBase:
     def abort(self):
         if self._rt is not None:
             return self._rt.abort
-        return False
+        return True  # closed by cancel or unregister
 
     def on_pubsub_unregister(self):
         self._log.info('complete %s', self.unique_id)
@@ -333,7 +333,12 @@ class RangeToolBase:
     def __run_outer(self):
         for cbk in self.range_tool_kwargs.get('start_callbacks', []):
             self.pubsub.publish(cbk, self.value)
-        self._run()
+        try:
+            self._run()
+        except Exception as ex:
+            # Report and finalize anyway, or the progress bar never completes.
+            self._log.exception('%s failed', self.unique_id)
+            self.error(N_('Range tool failed') + f'\n{self.NAME}\n{ex}')
         for cbk in self.range_tool_kwargs.get('done_callbacks', []):
             self.pubsub.publish(cbk, self.value)
         if not self.abort:
