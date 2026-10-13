@@ -196,6 +196,14 @@ class JlsV2:
         else:
             start = req_start
             end = req_end
+        # JLS rejects reads past the signal, and the view can extend past this
+        # signal when sources have different extents: clamp to the signal.
+        length_max = signal['length']
+        start = max(0, min(start, length_max - 1))
+        if req_end:
+            end = max(start, min(end, length_max - 1))
+        elif length:
+            length = min(length, length_max - start)
         interval = end - start + 1
         response_type = 'samples'
         increment = 1
@@ -209,7 +217,8 @@ class JlsV2:
             return None
         elif not length:
             # self._log.info('fsr(%d, %d, %d)', signal_id, start, interval)
-            data = self._jls.fsr(signal_id, start, interval)
+            length = interval
+            data = self._jls.fsr(signal_id, start, length)
         elif length and req_end and length <= (interval // 2):
             # round increment down
             increment = interval // length

@@ -35,6 +35,10 @@ unreleased
   error and completes its progress bar.
 * Changed the unused ChunkMeta.UI_META from 0x8001 to 0x401, since JLS
   reserves chunk_meta bits 15:12.
+* Fixed JLS file sources with several Joulescopes recorded together.  After
+  switching the active source, the view could extend past the new source's
+  recording, so JLS rejected the request and the waveform stayed blank
+  until zooming in.  Requests now clamp to the signal.
 
 ## 1.7.1
 
