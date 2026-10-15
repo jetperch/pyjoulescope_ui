@@ -26,19 +26,33 @@ This file contains the list of changes made to pyjoulescope_ui.
 2026 Oct 16
 
 * Signal recording now stops and shows an error when a JLS write fails,
-  such as on a full disk.  pyjls 0.19.0 reports these errors instead of
-  only logging them.  Previously, every later write reported dropped
+  such as on a full disk.  Previously, every later write reported dropped
   samples, and the stop action did not finish its cleanup.
-* Export now shows an error, removes the partial file, and completes its
-  progress bar when a JLS write or close fails.  Canceling an export now
-  removes the partial file.  Any range tool that raises now reports the
-  error and completes its progress bar.
+* Export now shows an error and removes the partial file when a JLS write
+  or close fails, or when canceled.  Any range tool that raises now
+  reports the error and completes its progress bar.
+* Fixed a blank waveform for JLS files with several Joulescopes recorded
+  together after switching the active source, until zooming in.
 * Changed the unused ChunkMeta.UI_META from 0x8001 to 0x401, since JLS
   reserves chunk_meta bits 15:12.
-* Fixed JLS file sources with several Joulescopes recorded together.  After
-  switching the active source, the view could extend past the new source's
-  recording, so JLS rejected the request and the waveform stayed blank
-  until zooming in.  Requests now clamp to the signal.
+* Windows release now signs every bundled .exe, .dll and .pyd file, not
+  only the executable and installer, for Windows Smart App Control.
+* Bumped dependencies.  See their CHANGELOGs for details.
+  * JS320 firmware 1.1.8 → 1.1.13 (bundled in pyjoulescope_driver)
+    * Fixed the "invalid service type" warning.
+    * Fixed stream sample gaps on a quick stop and restart.
+    * Fixed reopening a device after an incomplete open.
+    * Fixed the sensor clock drifting from UTC between sessions.
+  * pyjoulescope_driver 2.4.1 → 2.5.2
+    * Fixed an intermittent Windows crash on device close.
+    * Fixed JS320 streaming gaps.
+    * Fixed a memory leak on each device unplug on Linux and macOS.
+    * Opening a device held by another program now reports `IN_USE`.
+  * pyjls 0.18.0 → 0.19.0
+    * Reports write errors, such as a full disk, instead of only logging.
+    * Statistics now report the sample std, so std values change slightly.
+  * joulescope 1.6.0 → 1.7.2
+
 
 ## 1.7.1
 
