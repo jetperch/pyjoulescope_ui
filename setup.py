@@ -197,11 +197,11 @@ setuptools.setup(
     # See https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         'appnope>=0.1.2,<1',
-        'pyjoulescope_driver>=2.4.0,<3',
-        'joulescope>=1.6.0,<2',
+        'pyjoulescope_driver>=2.5.2,<3',
+        'joulescope>=1.7.2,<2',
         'markdown>=3,<4',
         'psutil>=5,<8',
-        'pyjls>=0.17.0,<1',
+        'pyjls>=0.19.0,<1',
         'pyopengl>=3,<4',
         'PyOpenGL-accelerate>=3.1,<4',
         "pywin32>=223; platform_system == 'Windows'",

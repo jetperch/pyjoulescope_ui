@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-08-04 12:18-0400\n"
+"POT-Creation-Date: 2026-10-15 15:38-0400\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: el <LL@li.org>\n"
@@ -434,6 +434,10 @@ msgid ""
 msgstr ""
 "Εξαγωγή δεδομένων σε αρχείο JLS. Μπορείτε να ανοίξετε αυτό το αρχείο "
 "αργότερα για να εμφανίσετε τα εξαγόμενα δεδομένα."
+
+#: exporter.py:310
+msgid "Export failed"
+msgstr "Η εξαγωγή απέτυχε"
 
 #: filename_formatter.py:19
 msgid "The device identifier."
@@ -880,6 +884,10 @@ msgstr "Λίστα πιο πρόσφατων αρχείων"
 #: paths.py:84
 msgid "Most recently used length"
 msgstr "Πιο πρόσφατα χρησιμοποιούμενο μήκος"
+
+#: range_tool.py:341
+msgid "Range tool failed"
+msgstr "Αποτυχία εργαλείου εύρους"
 
 #: safe_mode.py:31
 msgid "Options"
@@ -2880,9 +2888,17 @@ msgstr "sidebar"
 msgid "The disk is full"
 msgstr "Ο δίσκος είναι γεμάτος"
 
-#: widgets/signal_record/signal_record.py:60
+#: widgets/signal_record/signal_record.py:61
 msgid "Could not open file for write"
 msgstr "Δεν κατέστη δυνατό το άνοιγμα αρχείου για εγγραφή"
+
+#: widgets/signal_record/signal_record.py:98
+msgid "Recording stopped: could not write the file"
+msgstr "Η καταγραφή σταμάτησε: δεν ήταν δυνατή η εγγραφή του αρχείου"
+
+#: widgets/signal_record/signal_record.py:214
+msgid "Recording may be incomplete"
+msgstr "Η καταγραφή ενδέχεται να είναι ελλιπής"
 
 #: widgets/signal_record/signal_record_config_widget.py:101
 msgid "SignalRecordConfig"

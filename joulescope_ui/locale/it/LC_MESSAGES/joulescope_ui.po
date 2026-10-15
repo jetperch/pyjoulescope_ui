@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.4\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-08-04 12:18-0400\n"
+"POT-Creation-Date: 2026-10-15 15:38-0400\n"
 "PO-Revision-Date: 2024-04-18 10:43-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: it <LL@li.org>\n"
@@ -434,6 +434,10 @@ msgid ""
 msgstr ""
 "Esportazione dei dati in un file JLS. È possibile aprire questo file in un "
 "secondo momento per visualizzare i dati esportati."
+
+#: exporter.py:310
+msgid "Export failed"
+msgstr "Esportazione non riuscita"
 
 #: filename_formatter.py:19
 msgid "The device identifier."
@@ -881,6 +885,10 @@ msgstr "Elenco dei file più recenti"
 #: paths.py:84
 msgid "Most recently used length"
 msgstr "La lunghezza più recentemente utilizzata"
+
+#: range_tool.py:341
+msgid "Range tool failed"
+msgstr "Errore nello strumento di intervallo"
 
 #: safe_mode.py:31
 msgid "Options"
@@ -2881,9 +2889,17 @@ msgstr "barra laterale"
 msgid "The disk is full"
 msgstr "Il disco è pieno"
 
-#: widgets/signal_record/signal_record.py:60
+#: widgets/signal_record/signal_record.py:61
 msgid "Could not open file for write"
 msgstr "Impossibile aprire il file per la scrittura"
+
+#: widgets/signal_record/signal_record.py:98
+msgid "Recording stopped: could not write the file"
+msgstr "Registrazione interrotta: impossibile scrivere il file"
+
+#: widgets/signal_record/signal_record.py:214
+msgid "Recording may be incomplete"
+msgstr "La registrazione potrebbe essere incompleta"
 
 #: widgets/signal_record/signal_record_config_widget.py:101
 msgid "SignalRecordConfig"

@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PROJECT 1.7.1\n"
+"Project-Id-Version: PROJECT 1.7.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-08-04 12:18-0400\n"
+"POT-Creation-Date: 2026-10-15 15:38-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -377,6 +377,10 @@ msgstr ""
 msgid ""
 "Exporting data to a JLS file. You can open this file later to display the "
 "exported data."
+msgstr ""
+
+#: exporter.py:310
+msgid "Export failed"
 msgstr ""
 
 #: filename_formatter.py:19
@@ -776,6 +780,10 @@ msgstr ""
 
 #: paths.py:84
 msgid "Most recently used length"
+msgstr ""
+
+#: range_tool.py:341
+msgid "Range tool failed"
 msgstr ""
 
 #: safe_mode.py:31
@@ -2559,8 +2567,16 @@ msgstr ""
 msgid "The disk is full"
 msgstr ""
 
-#: widgets/signal_record/signal_record.py:60
+#: widgets/signal_record/signal_record.py:61
 msgid "Could not open file for write"
+msgstr ""
+
+#: widgets/signal_record/signal_record.py:98
+msgid "Recording stopped: could not write the file"
+msgstr ""
+
+#: widgets/signal_record/signal_record.py:214
+msgid "Recording may be incomplete"
 msgstr ""
 
 #: widgets/signal_record/signal_record_config_widget.py:101

@@ -23,7 +23,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.7.2
 
-unreleased
+2026 Oct 16
 
 * Signal recording now stops and shows an error when a JLS write fails,
   such as on a full disk.  pyjls 0.19.0 reports these errors instead of
