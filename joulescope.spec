@@ -190,9 +190,17 @@ if sys.platform.startswith('darwin'):
                    cwd=specpath)
 
     print('create dmg')
-    subprocess.run(['npm', 'install'])
+    subprocess.run(['npm', 'install'], check=True)
     dmg_file = 'dist_installer/joulescope_%s.dmg' % VERSION_STR
-    subprocess.run(['./node_modules/appdmg/bin/appdmg.js', 'appdmg.json', dmg_file])
+    # appdmg intermittently fails "hdiutil detach ... No such file or directory":
+    # an earlier "Resource busy" detach attempt likely unmounted it anyway.
+    # appdmg removes its partial output on failure, so retry the whole build.
+    for attempt in range(3):
+        if subprocess.run(['./node_modules/appdmg/bin/appdmg.js', 'appdmg.json', dmg_file]).returncode == 0:
+            break
+        print(f'appdmg failed, attempt {attempt + 1}')
+    else:
+        raise RuntimeError('appdmg failed')
 
 elif sys.platform == 'win32':
     pass  # call ci/windows_installer.py to sign & create installer.
