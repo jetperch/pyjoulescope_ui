@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-15 15:38-0400\n"
+"POT-Creation-Date: 2026-10-16 17:16-0400\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: ko <LL@li.org>\n"
@@ -443,8 +443,10 @@ msgid "The voltage between any sensor port must never exceed ±15V."
 msgstr "센서 포트 사이의 전압은 ±15V를 초과하지 않아야 합니다."
 
 #: getting_started.py:24
-msgid "The JS220 sensor ports are Current+, Current-, Voltage+, Voltage-."
-msgstr "JS220 센서 포트는 전류+, 전류-, 전압+, 전압-입니다."
+msgid ""
+"The JS320 and JS220 sensor ports are Current+, Current-, Voltage+, Voltage-."
+msgstr ""
+"JS320 및 JS220의 센서 포트는 Current+, Current-, Voltage+, Voltage-로 구성되어 있습니다."
 
 #: getting_started.py:25
 msgid "The JS110 sensor ports are IN+, IN- OUT+, and OUT-."
@@ -473,12 +475,12 @@ msgstr ""
 
 #: getting_started.py:33
 msgid ""
-"For the JS220, connect the current port between the power supply and the "
-"device under test. Connect the voltage port to the power supply. See the "
-"Joulescope JS220 User's Guide for more connection examples."
+"For the JS320 and JS220, connect the current port between the power supply "
+"and the device under test. Connect the voltage port to the power supply. See"
+" the Joulescope JS320 User's Guide for more connection examples."
 msgstr ""
-"JS220의 경우 전원 공급 장치와 테스트 중인 디바이스 사이에 전류 포트를 연결합니다. 전압 포트를 전원 공급 장치에 연결합니다. 더 "
-"많은 연결 예는 줄스코프 JS220 사용자 가이드를 참조하세요."
+"JS320 및 JS220의 경우, 전류 포트를 전원 공급 장치와 피측정 장치(DUT) 사이에 연결하십시오. 전압 포트는 전원 공급 장치에"
+" 연결하십시오. 더 많은 연결 예시는 Joulescope JS320 사용자 가이드를 참조하십시오."
 
 #: getting_started.py:36
 msgid ""
@@ -3760,3 +3762,14 @@ msgstr "단위"
 
 #~ msgid "Standard"
 #~ msgstr "표준"
+
+#~ msgid "The JS220 sensor ports are Current+, Current-, Voltage+, Voltage-."
+#~ msgstr "JS220 센서 포트는 전류+, 전류-, 전압+, 전압-입니다."
+
+#~ msgid ""
+#~ "For the JS220, connect the current port between the power supply and the "
+#~ "device under test. Connect the voltage port to the power supply. See the "
+#~ "Joulescope JS220 User's Guide for more connection examples."
+#~ msgstr ""
+#~ "JS220의 경우 전원 공급 장치와 테스트 중인 디바이스 사이에 전류 포트를 연결합니다. 전압 포트를 전원 공급 장치에 연결합니다. 더 "
+#~ "많은 연결 예는 줄스코프 JS220 사용자 가이드를 참조하세요."

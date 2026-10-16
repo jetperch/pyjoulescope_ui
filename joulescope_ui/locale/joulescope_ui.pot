@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.7.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-15 15:38-0400\n"
+"POT-Creation-Date: 2026-10-16 17:16-0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -432,7 +432,8 @@ msgid "The voltage between any sensor port must never exceed ±15V."
 msgstr ""
 
 #: getting_started.py:24
-msgid "The JS220 sensor ports are Current+, Current-, Voltage+, Voltage-."
+msgid ""
+"The JS320 and JS220 sensor ports are Current+, Current-, Voltage+, Voltage-."
 msgstr ""
 
 #: getting_started.py:25
@@ -458,9 +459,9 @@ msgstr ""
 
 #: getting_started.py:33
 msgid ""
-"For the JS220, connect the current port between the power supply and the "
-"device under test. Connect the voltage port to the power supply. See the "
-"Joulescope JS220 User's Guide for more connection examples."
+"For the JS320 and JS220, connect the current port between the power supply "
+"and the device under test. Connect the voltage port to the power supply. See"
+" the Joulescope JS320 User's Guide for more connection examples."
 msgstr ""
 
 #: getting_started.py:36

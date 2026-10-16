@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-15 15:38-0400\n"
+"POT-Creation-Date: 2026-10-16 17:16-0400\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: zh <LL@li.org>\n"
@@ -435,8 +435,9 @@ msgid "The voltage between any sensor port must never exceed ±15V."
 msgstr "任何传感器端口之间的电压不得超过 ±15V。"
 
 #: getting_started.py:24
-msgid "The JS220 sensor ports are Current+, Current-, Voltage+, Voltage-."
-msgstr "JS220 传感器端口为电流+、电流-、电压+、电压-。"
+msgid ""
+"The JS320 and JS220 sensor ports are Current+, Current-, Voltage+, Voltage-."
+msgstr "JS320 和 JS220 的传感器端口分别为：电流正极、电流负极、电压正极、电压负极。"
 
 #: getting_started.py:25
 msgid "The JS110 sensor ports are IN+, IN- OUT+, and OUT-."
@@ -462,11 +463,12 @@ msgstr "使用提供的电缆将 Joulescope 的 USB 端口连接到计算机。�
 
 #: getting_started.py:33
 msgid ""
-"For the JS220, connect the current port between the power supply and the "
-"device under test. Connect the voltage port to the power supply. See the "
-"Joulescope JS220 User's Guide for more connection examples."
+"For the JS320 and JS220, connect the current port between the power supply "
+"and the device under test. Connect the voltage port to the power supply. See"
+" the Joulescope JS320 User's Guide for more connection examples."
 msgstr ""
-"对于 JS220，将电流端口连接到电源和被测设备之间。将电压端口连接到电源。有关更多连接示例，请参阅《Joulescope JS220 用户指南》。"
+"对于 JS320 和 JS220，请将电流端口连接在电源与被测设备之间。将电压端口连接至电源。更多连接示例请参阅《Joulescope JS320 "
+"用户指南》。"
 
 #: getting_started.py:36
 msgid ""
@@ -3680,3 +3682,13 @@ msgstr "单位"
 
 #~ msgid "Standard"
 #~ msgstr "标准"
+
+#~ msgid "The JS220 sensor ports are Current+, Current-, Voltage+, Voltage-."
+#~ msgstr "JS220 传感器端口为电流+、电流-、电压+、电压-。"
+
+#~ msgid ""
+#~ "For the JS220, connect the current port between the power supply and the "
+#~ "device under test. Connect the voltage port to the power supply. See the "
+#~ "Joulescope JS220 User's Guide for more connection examples."
+#~ msgstr ""
+#~ "对于 JS220，将电流端口连接到电源和被测设备之间。将电压端口连接到电源。有关更多连接示例，请参阅《Joulescope JS220 用户指南》。"

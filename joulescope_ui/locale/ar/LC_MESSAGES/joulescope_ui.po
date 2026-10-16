@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-10-15 15:38-0400\n"
+"POT-Creation-Date: 2026-10-16 17:16-0400\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: ar <LL@li.org>\n"
@@ -468,8 +468,11 @@ msgid "The voltage between any sensor port must never exceed ±15V."
 msgstr "يجب ألا يتجاوز الجهد بين أي منفذ استشعار ± 15 فولت."
 
 #: getting_started.py:24
-msgid "The JS220 sensor ports are Current+, Current-, Voltage+, Voltage-."
-msgstr "منافذ مستشعر JS220 هي التيار+، التيار- والجهد- والجهد- والجهد-."
+msgid ""
+"The JS320 and JS220 sensor ports are Current+, Current-, Voltage+, Voltage-."
+msgstr ""
+"منافذ المستشعرات في طرازي JS320 وJS220 هي: التيار الموجب (Current+)، التيار "
+"السالب (Current-)، الجهد الموجب (Voltage+)، والجهد السالب (Voltage-)."
 
 #: getting_started.py:25
 msgid "The JS110 sensor ports are IN+, IN- OUT+, and OUT-."
@@ -500,13 +503,13 @@ msgstr ""
 
 #: getting_started.py:33
 msgid ""
-"For the JS220, connect the current port between the power supply and the "
-"device under test. Connect the voltage port to the power supply. See the "
-"Joulescope JS220 User's Guide for more connection examples."
+"For the JS320 and JS220, connect the current port between the power supply "
+"and the device under test. Connect the voltage port to the power supply. See"
+" the Joulescope JS320 User's Guide for more connection examples."
 msgstr ""
-"بالنسبة لجهاز JS220، قم بتوصيل منفذ التيار بين مصدر الطاقة والجهاز قيد "
-"الاختبار. قم بتوصيل منفذ الجهد بمصدر الطاقة. انظر دليل مستخدم Joulescope "
-"JS220 لمزيد من أمثلة التوصيل."
+"بالنسبة لطرازي JS320 وJS220، قم بتوصيل منفذ التيار بين مصدر الطاقة والجهاز "
+"قيد الاختبار. قم بتوصيل منفذ الجهد بمصدر الطاقة. راجع دليل المستخدم الخاص بـ"
+" Joulescope JS320 لمزيد من أمثلة التوصيل."
 
 #: getting_started.py:36
 msgid ""
@@ -3931,3 +3934,15 @@ msgstr "الوحدات"
 
 #~ msgid "Standard"
 #~ msgstr "قياسي"
+
+#~ msgid "The JS220 sensor ports are Current+, Current-, Voltage+, Voltage-."
+#~ msgstr "منافذ مستشعر JS220 هي التيار+، التيار- والجهد- والجهد- والجهد-."
+
+#~ msgid ""
+#~ "For the JS220, connect the current port between the power supply and the "
+#~ "device under test. Connect the voltage port to the power supply. See the "
+#~ "Joulescope JS220 User's Guide for more connection examples."
+#~ msgstr ""
+#~ "بالنسبة لجهاز JS220، قم بتوصيل منفذ التيار بين مصدر الطاقة والجهاز قيد "
+#~ "الاختبار. قم بتوصيل منفذ الجهد بمصدر الطاقة. انظر دليل مستخدم Joulescope "
+#~ "JS220 لمزيد من أمثلة التوصيل."

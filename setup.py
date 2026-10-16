@@ -142,7 +142,7 @@ setuptools.setup(
     url='https://www.joulescope.com',
     author='Jetperch LLC',
     author_email='joulescope-dev@jetperch.com',
-    license='Apache-2.0',
+    license_expression='Apache-2.0',
 
     cmdclass={
         'develop': CustomDevelopCommand,
@@ -159,9 +159,6 @@ setuptools.setup(
         'Intended Audience :: Developers',
         'Intended Audience :: End Users/Desktop',
         'Intended Audience :: Science/Research',
-
-        # Pick your license as you wish
-        'License :: OSI Approved :: Apache Software License',
 
         # Natural Language
         'Natural Language :: English',
@@ -197,11 +194,11 @@ setuptools.setup(
     # See https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         'appnope>=0.1.2,<1',
-        'pyjoulescope_driver>=2.5.2,<3',
-        'joulescope>=1.7.2,<2',
+        'pyjoulescope_driver>=2.5.4,<3',
+        'joulescope>=1.7.3,<2',
         'markdown>=3,<4',
         'psutil>=5,<8',
-        'pyjls>=0.19.0,<1',
+        'pyjls>=0.19.1,<1',
         'pyopengl>=3,<4',
         'PyOpenGL-accelerate>=3.1,<4',
         "pywin32>=223; platform_system == 'Windows'",

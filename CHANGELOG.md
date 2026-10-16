@@ -43,15 +43,16 @@ This file contains the list of changes made to pyjoulescope_ui.
     * Fixed stream sample gaps on a quick stop and restart.
     * Fixed reopening a device after an incomplete open.
     * Fixed the sensor clock drifting from UTC between sessions.
-  * pyjoulescope_driver 2.4.1 → 2.5.2
+  * pyjoulescope_driver 2.4.1 → 2.5.4
     * Fixed an intermittent Windows crash on device close.
     * Fixed JS320 streaming gaps.
     * Fixed a memory leak on each device unplug on Linux and macOS.
     * Opening a device held by another program now reports `IN_USE`.
-  * pyjls 0.18.0 → 0.19.0
+  * pyjls 0.18.0 → 0.19.1
     * Reports write errors, such as a full disk, instead of only logging.
     * Statistics now report the sample std, so std values change slightly.
-  * joulescope 1.6.0 → 1.7.2
+  * joulescope 1.6.0 → 1.7.3
+* Changed the Python package license metadata to an SPDX license expression.
 
 
 ## 1.7.1
