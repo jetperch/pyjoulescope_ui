@@ -21,6 +21,16 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.7.3
+
+unreleased
+
+* Limited the PyOpenGL-accelerate dependency to platforms with PyPI wheels:
+  Windows x86/x64, Linux x86_64 and macOS arm64.  Installing the UI with pip
+  on Windows ARM64, Linux aarch64 or Intel macOS no longer requires a C
+  compiler.  The release installers still include it on every platform.
+
+
 ## 1.7.2
 
 2026 Oct 17

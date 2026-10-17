@@ -200,7 +200,9 @@ setuptools.setup(
         'psutil>=5,<8',
         'pyjls>=0.19.1,<1',
         'pyopengl>=3,<4',
-        'PyOpenGL-accelerate>=3.1,<4',
+        # Optional speedup: only where PyPI has wheels, so that pip users
+        # need no compiler.  Releases bundle it everywhere (packaging.yml).
+        "PyOpenGL-accelerate>=3.1,<4; (platform_system == 'Windows' and platform_machine != 'ARM64') or (platform_system == 'Linux' and platform_machine == 'x86_64') or (platform_system == 'Darwin' and platform_machine == 'arm64')",
         "pywin32>=223; platform_system == 'Windows'",
         'pyqtgraph>=0.14.0,<1',
         'pyserial>=3,<4',

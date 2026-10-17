@@ -256,6 +256,10 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install build wheel setuptools
           python -m pip install -U --upgrade-strategy eager -r requirements.txt
+          # requirements.txt limits PyOpenGL-accelerate to platforms with PyPI
+          # wheels.  Releases bundle it everywhere, building from source as
+          # needed (windows-11-arm).  Keep the version in sync.
+          python -m pip install "PyOpenGL-accelerate>=3.1,<4"
           python -m pip install babel polib deepl
 
       - name: Patch macOS to universal2
