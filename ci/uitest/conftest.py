@@ -156,6 +156,10 @@ def device(ui_session, device_model):
     if device_model is None:
         pytest.skip(f'{discover.ENV_DEVICES} is empty; no device tests')
     expected = discover.advertised_models()
+    if expected is not None and device_model not in expected:
+        # The expectation changed between collection and this test, so this
+        # model was never promised for the bench: skip rather than fail.
+        expected = None
     if expected is None and device_model in _absent_models:
         pytest.skip(f'{device_model} not detected')
     timeout = float(os.environ.get('JS_UITEST_DEVICE_TIMEOUT', '10'))

@@ -281,7 +281,12 @@ class TestAdvertisedModels(unittest.TestCase):
         self._old = os.environ.pop(discover.ENV_DEVICES, None)
 
     def tearDown(self):
-        if self._old is not None:
+        # Restore the variable to exactly its prior state.  Leaving a test's
+        # value behind (even '') turns the later device fixtures from
+        # auto-detect into expectation mode and fails absent models.
+        if self._old is None:
+            os.environ.pop(discover.ENV_DEVICES, None)
+        else:
             os.environ[discover.ENV_DEVICES] = self._old
 
     def test_unset_is_auto_detect(self):
