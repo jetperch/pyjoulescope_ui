@@ -23,7 +23,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.7.2
 
-2026 Oct 16
+2026 Oct 17
 
 * Signal recording now stops and shows an error when a JLS write fails,
   such as on a full disk.  Previously, every later write reported dropped
@@ -57,6 +57,7 @@ This file contains the list of changes made to pyjoulescope_ui.
     * Reports write errors, such as a full disk, instead of only logging.
     * Statistics now report the sample std, so std values change slightly.
   * joulescope 1.6.0 → 1.7.3
+* Fixed unit test fixture tearDown.
 * Changed the Python package license metadata to an SPDX license expression.
 
 
