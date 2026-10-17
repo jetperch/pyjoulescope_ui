@@ -35,3 +35,8 @@ class TestDeviceUpdate(unittest.TestCase):
         self.assertTrue(is_js220_update_available({'fw': ['1.1.1', '1.2.1'], 'fpga': ['1.2.1', '1.2.1']}))
         self.assertTrue(is_js220_update_available({'fw': ['1.2.1', '2.2.1'], 'fpga': ['1.2.1', '1.2.1']}))
         self.assertTrue(is_js220_update_available({'fw': ['1.2.0', '1.2.1'], 'fpga': ['1.2.1', '2.2.1']}))
+
+    def test_js320_fpga_missing_requires_update(self):
+        # Erased or corrupt FPGA image: Js320 reports FPGA version 0.0.0
+        # so that the normal device update dialog offers the recovery.
+        self.assertTrue(is_js220_update_available({'fw': ['1.1.13', '1.1.13'], 'fpga': ['0.0.0', '1.1.13']}))

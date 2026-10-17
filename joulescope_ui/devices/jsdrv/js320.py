@@ -572,6 +572,11 @@ class Js320(Device):
         self._queue = queue.Queue()
         self._firmware_version = 0
         self._fpga_version = 0
+        # True when the sensor (FPGA) did not come up on open, such as when
+        # the FPGA image is erased or corrupt.  The device stays open in a
+        # degraded, controller-only state so that the normal firmware update
+        # path can offer and perform the recovery.
+        self._sensor_missing = False
 
         self._statistics_offsets = None
         self._serial_subscription = None
@@ -830,6 +835,11 @@ class Js320(Device):
             self._log.warning('Unhandled direct action: %s', action)
 
     def _run_cmd(self, cmd, args):
+        if self._sensor_missing and cmd not in ['close', 'device_update']:
+            # Every other command targets the sensor, which is not present.
+            # Drop it rather than let the driver error end the device thread.
+            self._log.info('sensor missing: ignore cmd %s', cmd)
+            return
         if cmd == 'settings':
             self._run_cmd_settings(*args)
         elif cmd == 'current_range_update':
@@ -881,8 +891,13 @@ class Js320(Device):
         self._ui_publish('settings/state', 'open')
         self._log.info('thread open complete')
         self._device_update_check()
+        # CAPABILITIES_OBJECT_OPEN includes the statistics stream source
+        # capability that the device update dialog uses to list devices,
+        # so append it even when the sensor is missing.  The serial source
+        # needs a working sensor.
         self.pubsub.capabilities_append(self, CAPABILITIES_OBJECT_OPEN)
-        self.pubsub.capabilities_append(self, [CAPABILITIES.SERIAL_SOURCE])
+        if not self._sensor_missing:
+            self.pubsub.capabilities_append(self, [CAPABILITIES.SERIAL_SOURCE])
 
         while not self._quit:
             try:
@@ -900,6 +915,7 @@ class Js320(Device):
 
     def _open(self):
         self._log.info('open start')
+        self._sensor_missing = False
         try:
             self._driver.open(self._path, 'restore', timeout=1.0)
         except Exception:
@@ -908,32 +924,56 @@ class Js320(Device):
             return 1
         try:
             self._firmware_version = _version_u32_to_tuple(self._driver_query('c/fw/version'))
-            self._fpga_version = _version_u32_to_tuple(self._driver_query('s/fpga/version'))
+            hw_version = str(self._driver_query('c/hw/version') >> 24)
+            try:
+                self._fpga_version = _version_u32_to_tuple(self._driver_query('s/fpga/version'))
+            except Exception:
+                # The driver completes the open without sensor sync when the
+                # sensor link never comes up, which happens when the FPGA
+                # image is erased or corrupt.  All s/ topics are then
+                # NOT_FOUND.  Report FPGA version 0.0.0 so that
+                # _device_update_check offers the embedded firmware and the
+                # normal device update dialog performs the recovery.
+                self._log.warning('FPGA version query failed: sensor missing, firmware update required')
+                self._sensor_missing = True
+                self._fpga_version = (0, 0, 0)
             self._info['version'] = {
-                'hw': str(self._driver_query('c/hw/version') >> 24),
+                'hw': hw_version,
                 'fw': _version_tuple_to_str(self._firmware_version),
                 'fpga': _version_tuple_to_str(self._fpga_version),
             }
             self._info = copy.deepcopy(self._info)
             self._ui_publish('settings/info', self._info)
-            # Confirmed (blocking) subscribes pace the host->sensor burst to
-            # avoid fpga_mcu task event-queue overflow on hot-plug.
-            for key, value in _SIGNALS.items():
-                utopic = f'events/signals/{key}/!data'
-                t = f'{get_topic_name(self.unique_id)}/{utopic}'
-                self._driver_subscribe(value['topics'][1], ['pub'],
-                                       self._signal_forward_factory(key, t))
-            self._driver_publish('s/stats/ctrl', 1)
-            self._driver_subscribe('s/stats/value', 'pub', self._on_stats)
-            for fuse_id in _FUSE_IDS:
-                self._driver_subscribe(f's/fuse/{fuse_id}/engaged', ['pub', 'pub_retain'], self._on_fuse_engaged)
-            self._ui_subscribe('settings', self._on_settings, ['pub', 'retain'])
+            if not self._sensor_missing:
+                # Confirmed (blocking) subscribes pace the host->sensor burst to
+                # avoid fpga_mcu task event-queue overflow on hot-plug.
+                for key, value in _SIGNALS.items():
+                    utopic = f'events/signals/{key}/!data'
+                    t = f'{get_topic_name(self.unique_id)}/{utopic}'
+                    self._driver_subscribe(value['topics'][1], ['pub'],
+                                           self._signal_forward_factory(key, t))
+                self._driver_publish('s/stats/ctrl', 1)
+                self._driver_subscribe('s/stats/value', 'pub', self._on_stats)
+                for fuse_id in _FUSE_IDS:
+                    self._driver_subscribe(f's/fuse/{fuse_id}/engaged', ['pub', 'pub_retain'], self._on_fuse_engaged)
+                # Settings all target the sensor, so skip when it is missing.
+                self._ui_subscribe('settings', self._on_settings, ['pub', 'retain'])
         except Exception:
             self._log.exception('driver config failed')
             self._ui_publish('settings/state', 'closing')
+            self._driver_unsubscribe_all()
+            try:
+                # Release the driver-level device so that this process does
+                # not hold it open, which would block other tools.
+                self._driver.close(self._path)
+            except Exception as ex:
+                self._log.info('Exception during driver close after config failure: %s', ex)
             return 1
         self._driver_device_open = True
-        self._log.info('open %s done', self.unique_id)
+        if self._sensor_missing:
+            self._log.warning('open %s done without sensor', self.unique_id)
+        else:
+            self._log.info('open %s done', self.unique_id)
         return 0
 
     def _close(self):
@@ -941,15 +981,17 @@ class Js320(Device):
             self._log.info('close %s when already closed', self.unique_id)
             return
         self._log.info('close %s start', self.unique_id)
-        self._ui_unsubscribe('settings', self._on_settings)
+        if not self._sensor_missing:
+            self._ui_unsubscribe('settings', self._on_settings)
         self._ui_publish('settings/state', 'closing')
         self._driver_unsubscribe_all()
-        try:
-            for t in _SIGNALS.values():
-                self._driver_publish(t['topics'][0], 0, timeout=0)
-            self._driver_publish('s/stats/ctrl', 0)
-        except Exception as ex:
-            self._log.info('Exception during close cleanup: %s', ex)
+        if not self._sensor_missing:
+            try:
+                for t in _SIGNALS.values():
+                    self._driver_publish(t['topics'][0], 0, timeout=0)
+                self._driver_publish('s/stats/ctrl', 0)
+            except Exception as ex:
+                self._log.info('Exception during close cleanup: %s', ex)
         try:
             self._driver.close(self._path)
         except Exception as ex:

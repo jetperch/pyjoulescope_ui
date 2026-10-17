@@ -33,6 +33,11 @@ This file contains the list of changes made to pyjoulescope_ui.
   reports the error and completes its progress bar.
 * Fixed a blank waveform for JLS files with several Joulescopes recorded
   together after switching the active source, until zooming in.
+* Recover a JS320 with an erased or corrupt FPGA image.  The device now
+  opens without its sensor, reports FPGA version 0.0.0, and the device
+  update dialog offers the firmware update that restores it.  Previously
+  the device was stuck closing and the UI offered no recovery.  The UI
+  also no longer holds the driver device open when its configuration fails.
 * Changed the unused ChunkMeta.UI_META from 0x8001 to 0x401, since JLS
   reserves chunk_meta bits 15:12.
 * Windows release now signs every bundled .exe, .dll and .pyd file, not
