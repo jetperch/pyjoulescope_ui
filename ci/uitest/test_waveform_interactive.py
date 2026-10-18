@@ -174,6 +174,8 @@ def test_fill_with_offscreen_spike(rendered_waveform, tmp_path):
     The OpenGL plot must match the raster image export, which never had the bug.
     Grabs return the last GL frame, and an occluded Wayland window may not
     repaint, so resize to force a fresh frame, then grab the main window.
+    Change the width: Windows gives extra height to another dock and does not
+    repaint a GL widget whose size is unchanged.
     """
     session, wf, _ = rendered_waveform
     session.publish(f'registry/{wf}/settings/show_min_max', 2)  # fill 1
@@ -181,9 +183,10 @@ def test_fill_with_offscreen_spike(rendered_waveform, tmp_path):
                     [{'index': 0, 'changes': {'range_mode': 'manual', 'range': [0.0, 0.8]}}])
     session.wait_for(f'registry/{wf}/settings/state',
                      lambda s: s['plots'][0]['range'] == [0.0, 0.8])
-    window_size = session.qt_inspect(path='', max_depth=0)['geometry'][2:]
+    width, height = session.qt_inspect(path='', max_depth=0)['geometry'][2:]
+    window_size = (width - 1, height)
     paint_count = session.plot_render_info(wf)['paint_count']
-    session.resize_window(window_size[0], window_size[1] + 1)
+    session.resize_window(*window_size)
     assert session.wait_for_paint(wf, paint_count), 'plot did not repaint'
     session.wait(0.5)
     gl_path = tmp_path / 'gl.png'
