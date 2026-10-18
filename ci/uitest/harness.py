@@ -128,7 +128,10 @@ class UiSession:
         except Exception:
             _log.debug('could not set changelog_version_show', exc_info=True)
 
+        # The dialog may become the active window after the main window (X11
+        # activation is asynchronous), so keep polling until one is dismissed.
         deadline = time.monotonic() + 3.0
+        dismissed = False
         while time.monotonic() < deadline:
             try:
                 root = self._client.qt_inspect(path='', max_depth=0)
@@ -139,11 +142,15 @@ class UiSession:
             is_dialog = (name == 'help_html_message_box'
                          or 'MessageBox' in cls or cls.endswith('Dialog'))
             if not is_dialog:
-                return  # main window is active; nothing to dismiss
+                if dismissed:
+                    return  # main window is active again
+                self.wait(0.1)
+                continue
             try:
                 self._client.qt_action('key', key='Escape')   # QDialog -> reject -> close
             except Exception:
                 pass
+            dismissed = True
             self.wait(0.25)
 
     def stop(self):
@@ -297,6 +304,21 @@ class UiSession:
         """Resize the main window (the plot needs room to lay out its rows)."""
         return self.qt_action('resize', path='', width=int(width), height=int(height))
 
+    def resize_window_settled(self, width, height, timeout=10.0):
+        """Resize the main window until the size holds.  Returns bool.
+
+        A Wayland compositor may restore an earlier size shortly after startup,
+        such as when a startup dialog closes, so resize until it sticks.
+        """
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            self.resize_window(width, height)
+            self.wait(1.0)
+            geo = self.qt_inspect(path='', max_depth=0).get('geometry') or [0, 0, 0, 0]
+            if geo[2:] == [int(width), int(height)]:
+                return True
+        return False
+
     def plot_geometry(self, waveform_id):
         """Return the ``_PlotOpenGLWidget`` geometry ``[x, y, w, h]`` (or None)."""
         tree = self.qt_inspect(max_depth=60)
@@ -352,26 +374,40 @@ class UiSession:
             self.wait(0.15)
         return []
 
-    def is_waveform_rendered(self, waveform_id, midy=None):
-        """True if the plot renders (a right-click opens its context menu).
+    def plot_render_info(self, waveform_id):
+        """Return the plot's on-screen paint state (see WaveformWidget.plot_render_info).
 
-        Offscreen/headless does not render the GL plot, so its geometry never
-        populates; use this to skip mouse-interaction tests.  Defensive: any
-        transient qt error counts as "not yet rendered".
+        :return: ``{paint_count, plots}``; ``plots`` keys are plot index strings.
+        """
+        return self.qt_action('call', path=waveform_id,
+                              method='plot_render_info').get('result') or {}
+
+    def is_waveform_rendered(self, waveform_id, midy=None):
+        """True if the plot painted on-screen with room for its plot rows.
+
+        Offscreen/headless does not render the GL plot, so it never paints.
+        Uses no input events: synthetic clicks cannot open popup menus on
+        Wayland.  Defensive: any transient qt error counts as "not yet rendered".
+
+        :param midy: Unused, kept for compatibility.
         """
         try:
             geo = self.plot_geometry(waveform_id)
             if not geo or geo[3] < 100:
                 return False
-            if midy is None:
-                midy = geo[3] // 2
-            self.right_click(waveform_id, 25, midy)
-            ok = self.qt_action('menu_items').get('ok', False)
-            self.qt_action('key', key='Escape')
-            self.wait(0.2)
-            return bool(ok)
+            info = self.plot_render_info(waveform_id)
+            return info.get('paint_count', 0) > 0 and bool(info.get('plots'))
         except Exception:
             return False
+
+    def wait_for_paint(self, waveform_id, paint_count, timeout=5.0):
+        """Wait for an on-screen paint after ``paint_count``.  Returns bool."""
+        deadline = time.monotonic() + timeout
+        while time.monotonic() < deadline:
+            if self.plot_render_info(waveform_id).get('paint_count', 0) > paint_count:
+                return True
+            self.wait(0.1)
+        return False
 
     def wait_for_render(self, waveform_id, timeout=15.0):
         """Poll until the plot renders (geometry populated).  Returns bool."""

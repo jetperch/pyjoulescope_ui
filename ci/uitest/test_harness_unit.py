@@ -34,6 +34,7 @@ import pyjls
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from uitest import verify, discover, installer, assets, qt  # noqa: E402
+from uitest.harness import UiSession  # noqa: E402
 from uitest.jls_fixtures import write_fsr_v2  # noqa: E402
 
 
@@ -366,6 +367,114 @@ class TestAssets(unittest.TestCase):
             f.write(verify.JLS_V2_MAGIC + b'\x00' * 16)   # v2 content
         with self.assertRaises(ValueError):
             assets._validate(p, expected_version=1)        # expected v1
+
+
+class _StubSession(UiSession):
+    """UiSession with the TCP transport stubbed out (no UI process)."""
+
+    def __init__(self, render_info=None, plot_geo=(0, 0, 800, 400), window_sizes=()):
+        super().__init__()
+        self.render_info = render_info if render_info is not None else {}
+        self.plot_geo = None if plot_geo is None else list(plot_geo)
+        self.window_sizes = list(window_sizes)
+        self.actions = []
+
+    def qt_action(self, action, path='', **kwargs):
+        self.actions.append(action)
+        if action == 'call':
+            info = self.render_info
+            if isinstance(info, Exception):
+                raise info
+            if callable(info):
+                info = info()
+            return {'ok': True, 'result': info}
+        return {'ok': True}
+
+    def qt_inspect(self, path='', max_depth=50):
+        size = self.window_sizes.pop(0) if self.window_sizes else [0, 0]
+        return {'geometry': [0, 0, *size]}
+
+    def plot_geometry(self, waveform_id):
+        return self.plot_geo
+
+    def wait(self, duration):
+        pass
+
+
+class TestRenderProbe(unittest.TestCase):
+
+    def test_rendered(self):
+        s = _StubSession({'paint_count': 3, 'plots': {'0': [300, 40, 340]}})
+        self.assertTrue(s.is_waveform_rendered('WaveformWidget:1'))
+        self.assertEqual(['call'], s.actions)  # no input events  #352
+
+    def test_not_painted(self):
+        s = _StubSession({'paint_count': 0, 'plots': {}})
+        self.assertFalse(s.is_waveform_rendered('WaveformWidget:1'))
+
+    def test_too_small(self):
+        s = _StubSession({'paint_count': 3, 'plots': {'0': [50, 40, 90]}}, plot_geo=(0, 0, 800, 90))
+        self.assertFalse(s.is_waveform_rendered('WaveformWidget:1'))
+
+    def test_error_is_not_rendered(self):
+        s = _StubSession(RuntimeError('Widget not found'))
+        self.assertFalse(s.is_waveform_rendered('WaveformWidget:1'))
+
+    def test_wait_for_paint(self):
+        counts = iter([5, 5, 6])
+        s = _StubSession(lambda: {'paint_count': next(counts)})
+        self.assertTrue(s.wait_for_paint('WaveformWidget:1', 5))
+
+    def test_wait_for_paint_timeout(self):
+        s = _StubSession({'paint_count': 5})
+        self.assertFalse(s.wait_for_paint('WaveformWidget:1', 5, timeout=0.05))
+
+
+class TestResizeWindowSettled(unittest.TestCase):
+
+    def test_retries_until_size_holds(self):
+        s = _StubSession(window_sizes=[[580, 560], [1600, 900]])
+        self.assertTrue(s.resize_window_settled(1600, 900))
+        self.assertEqual(['resize', 'resize'], s.actions)
+
+    def test_timeout(self):
+        s = _StubSession(window_sizes=[[580, 560]] * 1000)
+        self.assertFalse(s.resize_window_settled(1600, 900, timeout=0.05))
+
+
+class _DialogClient:
+    """Fake TCP client whose active window follows ``roots``."""
+
+    def __init__(self, roots):
+        self.roots = list(roots)
+        self.keys = []
+
+    def publish(self, topic, value):
+        pass
+
+    def qt_inspect(self, path='', max_depth=50):
+        root = self.roots.pop(0) if len(self.roots) > 1 else self.roots[0]
+        return {'class': root, 'objectName': ''}
+
+    def qt_action(self, action, **kwargs):
+        self.keys.append(kwargs.get('key'))
+        return {'ok': True}
+
+
+class TestSuppressStartupDialogs(unittest.TestCase):
+
+    def _suppress(self, roots):
+        s = _StubSession()
+        s._client = _DialogClient(roots)
+        s._suppress_startup_dialogs()
+        return s._client.keys
+
+    def test_dialog_activates_after_main_window(self):
+        keys = self._suppress(['MainWindow', 'MainWindow', 'HelpHtmlMessageBox', 'MainWindow'])
+        self.assertEqual(['Escape'], keys)
+
+    def test_no_dialog(self):
+        self.assertEqual([], self._suppress(['MainWindow']))
 
 
 if __name__ == '__main__':

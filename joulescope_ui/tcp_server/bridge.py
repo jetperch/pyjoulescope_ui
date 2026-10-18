@@ -26,6 +26,7 @@ import numpy as np
 # Max JSON header bytes before moving the payload-less response body into the
 # binary payload: the frame header_length field is a uint16 (<= 65535).
 _HEADER_MAX = 60000
+_QT_TIMEOUT = 5.0  # seconds for the Qt main thread to service a request
 
 from joulescope_ui.tcp_server.protocol import (
     MSG_SUBSCRIBE, MSG_UNSUBSCRIBE, MSG_PUBLISH, MSG_PUBLISH_DATA,
@@ -204,12 +205,17 @@ class PubSubBridge:
         self._qt_inspector.dispatch(msg_type, header, payload, future)
         try:
             result_msg_type, result_header, result_payload = await asyncio.get_event_loop().run_in_executor(
-                None, future.result, 5.0)
+                None, future.result, _QT_TIMEOUT)
             # Echo the request id so the client can correlate the response
             # (the Qt inspector builds the header and does not carry it).
             if request_id is not None and isinstance(result_header, dict):
                 result_header = {**result_header, 'id': request_id}
             frame = _encode_qt_response(result_msg_type, result_header, result_payload)
+        except concurrent.futures.TimeoutError:
+            # str() of the TimeoutError is empty, which hid stalls from clients
+            msg = f'Qt main thread did not respond within {_QT_TIMEOUT} s'
+            _log.warning('%s: %s', msg, header)
+            frame = encode(MSG_ERROR, {'message': msg, 'id': request_id})
         except Exception as ex:
             frame = encode(MSG_ERROR, {'message': str(ex), 'id': request_id})
         self._server.send_to_client(client, frame)

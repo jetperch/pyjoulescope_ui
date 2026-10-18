@@ -24,6 +24,12 @@ fixture skips otherwise), since the waveform's mouse hit-testing needs the
 painted geometry.
 """
 
+import os
+import time
+
+import numpy as np
+import pytest
+
 
 def _midy(session, wf):
     geo = session.plot_geometry(wf)
@@ -135,3 +141,61 @@ def test_marker_remove(rendered_waveform):
     assert session.menu_invoke('Remove')['ok']
     session.wait(0.5)
     assert session.x_markers_info(wf) == [], 'marker was not removed'
+
+
+def _spike_data():
+    """Min/max band 0.3..0.5 with one sample far above it."""
+    data = np.full(40000, 0.3, dtype=np.float32)
+    data[1::2] = 0.5
+    data[20000] = 1000.0
+    return data
+
+
+def _trace_pixels(path, size=None):
+    """Count the image pixels in the (yellow) trace color family.
+
+    :param size: The optional (width, height) logical size to scale to first.
+    """
+    from PySide6 import QtGui
+    img = QtGui.QImage(str(path))
+    if size is not None:
+        img = img.scaled(*size)
+    img = img.convertToFormat(QtGui.QImage.Format.Format_RGB32)
+    a = np.frombuffer(img.constBits(), dtype=np.uint8)
+    a = a.reshape(img.height(), img.bytesPerLine() // 4, 4)[:, :img.width(), :3].astype(int)
+    b, g, r = a[..., 0], a[..., 1], a[..., 2]
+    return int(np.count_nonzero(((r - b) > 40) & ((g - b) > 40)))
+
+
+@pytest.mark.waveform_data(factory=_spike_data)
+def test_fill_with_offscreen_spike(rendered_waveform, tmp_path):
+    """The min/max fill renders when a spike extends far past the Y range  #352.
+
+    The OpenGL plot must match the raster image export, which never had the bug.
+    Grabs return the last GL frame, and an occluded Wayland window may not
+    repaint, so resize to force a fresh frame, then grab the main window.
+    """
+    session, wf, _ = rendered_waveform
+    session.publish(f'registry/{wf}/settings/show_min_max', 2)  # fill 1
+    session.publish(f'registry/{wf}/actions/!plot_config',
+                    [{'index': 0, 'changes': {'range_mode': 'manual', 'range': [0.0, 0.8]}}])
+    session.wait_for(f'registry/{wf}/settings/state',
+                     lambda s: s['plots'][0]['range'] == [0.0, 0.8])
+    window_size = session.qt_inspect(path='', max_depth=0)['geometry'][2:]
+    paint_count = session.plot_render_info(wf)['paint_count']
+    session.resize_window(window_size[0], window_size[1] + 1)
+    assert session.wait_for_paint(wf, paint_count), 'plot did not repaint'
+    session.wait(0.5)
+    gl_path = tmp_path / 'gl.png'
+    session.screenshot(str(gl_path))
+    raster_path = tmp_path / 'raster.png'
+    session.publish(f'registry/{wf}/actions/!save_image', str(raster_path))
+    deadline = time.monotonic() + 10.0
+    while not os.path.isfile(raster_path) and time.monotonic() < deadline:
+        session.wait(0.2)
+    assert os.path.isfile(raster_path), 'image export did not complete'
+
+    gl, raster = _trace_pixels(gl_path, window_size), _trace_pixels(raster_path)
+    plot_w, plot_h = session.plot_geometry(wf)[2:]
+    assert raster > 0.05 * plot_w * plot_h, f'raster export has no min/max fill ({raster})'
+    assert gl > 0.8 * raster, f'OpenGL fill missing: gl={gl}, raster={raster}'

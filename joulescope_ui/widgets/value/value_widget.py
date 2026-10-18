@@ -333,7 +333,9 @@ class _InnerWidget(QtWidgets.QWidget):
 
     def _on_statistics(self, value):
         self._statistics = copy.deepcopy(value)
-        self.repaint()
+        # update(), not repaint(): a synchronous paint per statistics update
+        # can block the Qt main thread for seconds on X11 with OpenGL widgets
+        self.update()
 
     def _value_format(self, value):
         precision = self._precision

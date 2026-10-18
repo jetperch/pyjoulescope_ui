@@ -23,12 +23,25 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.7.3
 
-unreleased
+2026 Oct 18
 
 * Limited the PyOpenGL-accelerate dependency to platforms with PyPI wheels:
   Windows x86/x64, Linux x86_64 and macOS arm64.  Installing the UI with pip
   on Windows ARM64, Linux aarch64 or Intel macOS no longer requires a C
   compiler.  The release installers still include it on every platform.
+* Fixed the waveform min/max fill disappearing when the y-axis is zoomed
+  so that a spike extends far outside the plot
+  [#352](https://github.com/jetperch/pyjoulescope_ui/issues/352).
+* Fixed waveform plot rows that stayed at their minimum height after
+  opening a file in a small window, until the next repaint or resize.
+  The first paint after the layout changed drew the old row heights.
+* The Multimeter now schedules its repaint on each statistics update
+  instead of painting synchronously.  On Linux X11/XWayland with an OpenGL
+  waveform in the same window and a blanked screen, the synchronous paint
+  blocked the UI for more than 5 seconds at a time.
+* The TCP server now reports "Qt main thread did not respond within 5.0 s"
+  when a Qt inspection request times out.  It previously sent an empty
+  error message.
 
 
 ## 1.7.2

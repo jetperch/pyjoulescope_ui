@@ -50,13 +50,12 @@ def test_preferences_persist_across_restart(make_ui_session):
     config_path = discover.config_file_path()
     assert os.path.isfile(config_path), f'config not written to {config_path}'
 
-    # Session 2: the preference survived the restart.
-    s2 = make_ui_session(config_clear_on_exit=False)
+    # Session 2: the preference survived the restart.  Clear on exit so the
+    # saved config does not leak into later tests' UI sessions.
+    s2 = make_ui_session(config_clear_on_exit=True)
     assert bool(s2.query(_PREF_TOPIC)) == new_value
-    # Restore the original value so the test leaves no persistent side effect
-    # (confirm it landed before the clean exit that writes the config).
-    s2.publish_and_wait(_PREF_TOPIC, original)
     s2.stop()
+    assert not os.path.isfile(config_path), 'config left on disk'
 
 
 def test_clear_config_resets_to_defaults(make_ui_session):

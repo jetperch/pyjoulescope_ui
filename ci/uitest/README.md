@@ -24,12 +24,20 @@ Run everything with `pytest` from the **`pyjoulescope_ui/`** directory.
 | --- | --- | --- |
 | Qt-free unit tests | `test_harness_unit.py` | nothing (no UI) |
 | Hardware-free UI | `test_basics`, `test_preferences`, `test_open_jls`, `test_waveform`, `test_analysis` | the UI (runs offscreen) |
-| Interactive (rendered) | `test_waveform_interactive` | a real display (`JS_UITEST_DISPLAY=1`) |
+| Interactive (rendered) | `test_waveform_interactive` | a real display (`JS_UITEST_DISPLAY=1` makes it required) |
 | Device | `test_multimeter`, `test_record_export` (marked `device`) | a connected Joulescope |
 
 Tests marked `device` are selected/excluded with `-m`.  Interactive tests
-**skip themselves** when the plot is not rendering (offscreen / no GL), so the
-hardware-free command stays green in headless CI.
+**skip themselves** when there is no display or the plot is not rendering
+(no GL), so the hardware-free command stays green in headless CI.  With
+`JS_UITEST_DISPLAY=1`, which promises a display, they **fail** instead.
+
+On Wayland (`WAYLAND_DISPLAY` and `DISPLAY` set), interactive tests run the
+UI on XWayland (`QT_QPA_PLATFORM=xcb`).  Native Wayland cannot open popup
+menus from synthetic clicks, which the y-axis and marker menu tests need.
+Set `QT_QPA_PLATFORM` yourself to override.  On-screen Linux sessions
+disable vsync (`vblank_mode=0`, `__GL_SYNC_TO_VBLANK=0`).  An unattended
+bench blanks its screen, and each OpenGL swap would then stall the UI.
 
 ## Common commands
 
@@ -42,8 +50,8 @@ pytest ci/uitest/test_harness_unit.py
 # All hardware-free tests (what CI runs) — launches the UI offscreen
 pytest ci/uitest -m "not device"
 
-# Interactive waveform tests (pan, y-axis range/scale, marker move/remove)
-# — require a real display; otherwise they skip
+# Interactive waveform tests (pan, y-axis range/scale, marker move/remove,
+# #352 fill) — require a real display; otherwise they fail
 JS_UITEST_DISPLAY=1 pytest ci/uitest/test_waveform_interactive.py
 ```
 
@@ -110,7 +118,7 @@ the CLI never launches or closes the UI and never touches the config.
 
 | Var | Purpose |
 | --- | --- |
-| `JS_UITEST_DISPLAY=1` | Render on the real display (needed for `test_waveform_interactive`; otherwise the UI runs offscreen and those tests skip) |
+| `JS_UITEST_DISPLAY=1` | Run the non-interactive tests on the real display too, and fail (not skip) interactive tests that cannot render.  Unset: non-interactive tests run offscreen, and interactive tests skip without a display |
 | `JS_UITEST_DEVICES` | Comma-separated expected models (`JS220,JS320`); listed-but-missing fails.  Unset: auto-detect (missing skips).  Empty: no device tests |
 | `JS_UITEST_EXECUTABLE` | Path to an installed `joulescope` binary to test (default: `python -m joulescope_ui`) |
 | `JS_UITEST_DEVICE_TIMEOUT` | Seconds to wait for a device to enumerate (default 10) |
@@ -119,6 +127,9 @@ the CLI never launches or closes the UI and never touches the config.
 ## Notes
 
 * Interactive tests each launch a fresh UI and need it to render, so they are
-  slow (~30 s each); the Qt-free unit tests are near-instant.
+  slow (~7 s each); the Qt-free unit tests are near-instant.  The render
+  check calls `WaveformWidget.plot_render_info()` and uses no input events.
+  The fixture closes the attached-device waveforms so the file plot gets
+  the window.
 * Large JLS fixtures are fetched on demand and cached under `assets/`
   (git-ignored), not committed.

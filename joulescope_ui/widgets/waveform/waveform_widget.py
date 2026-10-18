@@ -69,6 +69,7 @@ _X_MARKER_ZOOM_LEVELS = [100, 90, 75, 50, 33, 25, 10]
 _DOT_RADIUS = 3
 _ANTIALIASING = QtGui.QPainter.RenderHint.Antialiasing
 _CLIP_LIMIT_PIXELS = 8192
+_Y_PIXEL_LIMIT = 1 << 40  # bound pixels for int conversion, exact for interpolation
 _PIN_ATTENTION_DURATION_S = 3.0  # in-plot pinned x-axis message display duration
 _PIN_ATTENTION_MESSAGE = N_('X-axis pinned: click the pin buttons or press Shift+Space to unpin')
 
@@ -265,6 +266,11 @@ class _PlotOpenGLWidget(QtOpenGLWidgets.QOpenGLWidget):
         super().__init__(parent)
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.setMouseTracking(True)
+        # Without a stencil buffer, Qt triangulates concave fills and silently
+        # drops any path exceeding +/-32767 pixels  #352
+        fmt = self.format()
+        fmt.setStencilBufferSize(8)
+        self.setFormat(fmt)
 
     def initializeGL(self) -> None:
         context = self.context()
@@ -616,6 +622,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._paint_timer.setTimerType(QtGui.Qt.PreciseTimer)
         self._paint_timer.timeout.connect(self._on_paint_timer)
         self._paint_duration_ns = 0
+        self._paint_count = 0  # on-screen paints, for plot_render_info()
 
         # Cache Qt default instances to prevent memory leak in Pyside6 6.4.2
         self._NO_PEN = QtGui.QPen(QtGui.Qt.NoPen)  # prevent memory leak
@@ -1464,6 +1471,7 @@ class WaveformWidget(QtWidgets.QWidget):
             return 0
         pixel_offset, value_offset, value_to_pixel_scale = plot['y_map']
         result = pixel_offset + (value_offset - value) * value_to_pixel_scale
+        result = np.clip(result, -_Y_PIXEL_LIMIT, _Y_PIXEL_LIMIT)
         if isinstance(result, np.ndarray):
             result = np.rint(result).astype(int)
         else:
@@ -1779,6 +1787,7 @@ class WaveformWidget(QtWidgets.QWidget):
                     self.pubsub.publish(f'{get_topic_name(self)}/{topic}', value)
         t_end = time.time_ns()
         self._paint_duration_ns = t_end - t_start
+        self._paint_count += 1
 
     def _compute_geometry(self, size=None):
         if self._style_cache is None:
@@ -1861,6 +1870,7 @@ class WaveformWidget(QtWidgets.QWidget):
         self._compute_geometry(size)
         if resize:
             self._plots_height_adjust()
+            self._compute_geometry(size)  # paint with the adjusted heights
         self._draw_background(p, size)
         if self.show_summary:
             self._draw_summary(p)
@@ -2165,6 +2175,7 @@ class WaveformWidget(QtWidgets.QWidget):
             p.drawText(left, y_center + axis_font_metrics.height(), plot_units)
 
         p.setClipRect(x0, y0, w, h)
+        y_clip = (y0 - _CLIP_LIMIT_PIXELS, y1 + _CLIP_LIMIT_PIXELS)  # Qt paths limited to ±32767  #352
         for trace_idx, subsource in traces[-1::-1]:
             signal_id = f'{subsource}.{quantity}'
             d = self._signals.get(signal_id)
@@ -2204,12 +2215,12 @@ class WaveformWidget(QtWidgets.QWidget):
                     d_y_max = self._y_value_to_pixel(plot, d['max'][idx_start:idx_stop])
                     if 1 == self.show_min_max:
                         p.setPen(ts['min_max_trace'])
-                        segs = self._points.set_line(d_x_segment, d_y_min)
+                        segs = self._points.set_line(d_x_segment, d_y_min, y_clip)
                         p.drawPolyline(segs)
-                        segs = self._points.set_line(d_x_segment, d_y_max)
+                        segs = self._points.set_line(d_x_segment, d_y_max, y_clip)
                         p.drawPolyline(segs)
                     else:
-                        segs = self._points.set_fill(d_x_segment, d_y_min, d_y_max)
+                        segs = self._points.set_fill(d_x_segment, d_y_min, d_y_max, y_clip)
                         p.setPen(ts['min_max_fill_pen'])
                         p.setBrush(ts['min_max_fill_brush'])
                         p.drawPolygon(segs)
@@ -2220,20 +2231,21 @@ class WaveformWidget(QtWidgets.QWidget):
                                 d_y_std_max = self._y_value_to_pixel(plot, d_avg + d_std)
                                 d_y_std_min = np.amin(np.vstack([d_y_std_min, d_y_min]), axis=0)
                                 d_y_std_max = np.amax(np.vstack([d_y_std_max, d_y_max]), axis=0)
-                                segs = self._points.set_fill(d_x_segment, d_y_std_min, d_y_std_max)
+                                segs = self._points.set_fill(d_x_segment, d_y_std_min, d_y_std_max, y_clip)
                                 p.setPen(self._NO_PEN)
                                 p.setBrush(ts['std_fill'])
                                 p.drawPolygon(segs)
 
                 d_y = self._y_value_to_pixel(plot, d_avg)
-                segs = self._points.set_line(d_x_segment, d_y)
+                segs = self._points.set_line(d_x_segment, d_y, y_clip)
                 p.setPen(ts['trace_pen'])
                 p.drawPolyline(segs)
                 p.setPen(self._NO_PEN)
                 p.setBrush(ts['trace_brush'])
                 if x_space > (3 * _DOT_RADIUS):
                     for x, y in zip(d_x_segment, d_y):
-                        p.drawEllipse(QtCore.QPointF(x, y), _DOT_RADIUS, _DOT_RADIUS)
+                        if y_clip[0] <= y <= y_clip[1]:
+                            p.drawEllipse(QtCore.QPointF(x, y), _DOT_RADIUS, _DOT_RADIUS)
                 p.setBrush(self._NO_BRUSH)
 
         p.setBrush(s['text_brush'])
@@ -2984,6 +2996,19 @@ class WaveformWidget(QtWidgets.QWidget):
                     e['pixel2'] = None
             out.append(e)
         return out
+
+    def plot_render_info(self):
+        """Return the on-screen paint state (test-support).
+
+        :return: ``{paint_count, plots}`` where ``plots`` maps each painted
+            plot index to its ``[height, y0, y1]`` pixel row within the plot
+            widget.  Lets UI automation detect rendering without input events.
+        """
+        plots = {}
+        for name, (h, y0, y1) in self._y_geometry_info.items():
+            if name.startswith('plot.'):
+                plots[int(name[5:])] = [int(h), int(y0), int(y1)]
+        return {'paint_count': self._paint_count, 'plots': plots}
 
     def _find_x_marker(self, x):
         marker_info = []  # x, marker, pos

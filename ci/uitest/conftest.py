@@ -45,6 +45,7 @@ _ARTIFACTS_DIR = os.environ.get('JS_UITEST_ARTIFACTS',
 def pytest_configure(config):
     config.addinivalue_line('markers', 'device: requires a connected Joulescope device')
     config.addinivalue_line('markers', 'slow: long-running test (hours); not in the release gate')
+    config.addinivalue_line('markers', 'waveform_data(factory): rendered_waveform data factory')
 
 
 def pytest_generate_tests(metafunc):
@@ -85,8 +86,15 @@ def _require_ui_stack():
         pytest.skip(f'UI stack unavailable: {e}')
 
 
+# Do not wait for vblank (Mesa, NVIDIA).  A blanked screen on an unattended
+# bench stops frame presentation, so each OpenGL swap stalls the UI.
+_NO_VSYNC_ENV = {'vblank_mode': '0', '__GL_SYNC_TO_VBLANK': '0'}
+
+
 def _new_session(**kwargs):
     kwargs.setdefault('offscreen', _offscreen_default())
+    if not kwargs['offscreen'] and sys.platform.startswith('linux'):
+        kwargs['env'] = {**_NO_VSYNC_ENV, **(kwargs.get('env') or {})}
     executable = os.environ.get('JS_UITEST_EXECUTABLE') or None
     return UiSession(executable=executable, **kwargs)
 
@@ -185,35 +193,58 @@ def _has_display():
     return bool(os.environ.get('DISPLAY') or os.environ.get('WAYLAND_DISPLAY'))
 
 
+def _rendered_env():
+    """UI environment for rendered sessions.
+
+    On Wayland, run the UI on XWayland: synthetic clicks cannot open popup
+    menus on native Wayland, which needs a real input-event serial.
+    """
+    if (sys.platform.startswith('linux') and os.environ.get('WAYLAND_DISPLAY')
+            and os.environ.get('DISPLAY') and not os.environ.get('QT_QPA_PLATFORM')):
+        return {'QT_QPA_PLATFORM': 'xcb'}
+    return {}
+
+
 @pytest.fixture
 def rendered_waveform(request, tmp_path):
     """A started UiSession showing a *rendered* file waveform, for mouse tests.
 
     Yields ``(session, waveform_id, source_id)``.  Launches non-offscreen with a
     large window (the plot needs room to lay out its rows), opens a generated
-    recording, and skips when there is no display or the GL plot does not render
-    (headless/no-GPU) -- mouse hit-testing needs the painted geometry.
+    recording, and closes the attached-device waveforms so the file plot gets
+    the space.  When there is no display or the GL plot does not render
+    (headless/no-GPU), skips, or fails when ``JS_UITEST_DISPLAY`` promises a
+    display.  ``@pytest.mark.waveform_data(factory=fn)`` replaces the recording
+    with ``fn()``.
     """
     _require_ui_stack()
+    unavailable = pytest.fail if os.environ.get('JS_UITEST_DISPLAY') else pytest.skip
     if not _has_display():
-        pytest.skip('no display; rendered-waveform tests need a real display')
+        unavailable('no display; rendered-waveform tests need a real display')
     import numpy as np
     from uitest.jls_fixtures import write_fsr_v2
 
-    session = _new_session(offscreen=False)
+    session = _new_session(offscreen=False, env=_rendered_env())
     session.start()
     request.node._ui_session = session
     try:
-        session.resize_window(1600, 900)
-        session.wait(1.0)
         path = str(tmp_path / 'rendered.jls')
-        write_fsr_v2(path, sample_rate=1000,
-                     data=(0.4 + 0.1 * np.sin(np.arange(40000) / 40.0)).astype(np.float32))
+        marker = request.node.get_closest_marker('waveform_data')
+        if marker is None:
+            data = (0.4 + 0.1 * np.sin(np.arange(40000) / 40.0)).astype(np.float32)
+        else:
+            data = marker.kwargs['factory']()
+        write_fsr_v2(path, sample_rate=1000, data=data)
+        live = {i for i in session.enumerate('registry') if i.startswith('WaveformWidget:')}
         source_id = session.open_file(path)
         session.wait(2.0)
-        wf = session.waveform()
+        wf = [i for i in session.enumerate('registry')
+              if i.startswith('WaveformWidget:') and i not in live][-1]
+        for widget_id in sorted(live):
+            session.publish('registry/view/actions/!widget_close', widget_id)
+        session.resize_window_settled(1600, 900)
         if not session.wait_for_render(wf, timeout=15.0):
-            pytest.skip('waveform plot not rendering (no GL/compositor)')
+            unavailable('waveform plot not rendering (no GL/compositor)')
         yield session, wf, source_id
     finally:
         request.node._ui_session = None
