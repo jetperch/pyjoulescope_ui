@@ -109,6 +109,10 @@ GitHub Actions
                                             on all-pass -> release_update.py <ver> beta (then stable)
 ```
 
+As built (M3), there is no `release_test.yml`: `packaging.yml`'s `push_ui_suite` job pushes the
+sdist and the `ci/` tree to the `joulescope_ci` farm, which runs the suite on every station.  See
+Milestone 3.
+
 The same pytest suite runs in two contexts: hardware-free tests (`-m "not device"`) also run inside
 `packaging.yml`'s `build_sdist` job under `QT_QPA_PLATFORM=offscreen`; device tests (`-m device`) run
 only on HIL benches that advertise the matching device.
@@ -224,7 +228,7 @@ simple deterministic load — to be wired by the bench owner.)
 
 ---
 
-## Milestone 3 — HIL farm orchestration — ⟳ DELIVERED SEPARATELY (shared infrastructure)
+## Milestone 3 — HIL farm orchestration — ✅ DELIVERED (except installer fidelity)
 
 The HIL farm is a **separate, shared effort**: the self-hosted runner fleet,
 device-capability advertising, and orchestration apply to more than just the
@@ -241,10 +245,18 @@ exists:
 - Device expectation via `JS_UITEST_DEVICES` (station registry removed
   2026-08-04; `joulescope_ci` owns bench inventory): tests skip/fail
   accordingly.
-- **Remaining UI-side glue (small):** a `release_test` workflow/entry that, on a
-  farm runner, installs the alpha build and runs `JS_UITEST_DISPLAY=1 pytest
-  ci/uitest` (device + non-device per advertised caps) and uploads JUnit XML +
-  failure screenshots.  This plugs into the shared farm's runner/labels.
+- **As built (2026-08-05, updated 2026-10-19):** instead of a `release_test`
+  workflow, the `push_ui_suite` job in `packaging.yml` pushes the sdist and
+  the `ci/` tree to the `joulescope_ci` coordinator on every main or tag
+  build.  The farm's `ui_release` suite pip-installs the sdist on each
+  station and runs `pytest ci/uitest -m "not slow"` with
+  `JS_UITEST_DEVICES` from the bench inventory and, on a desktop session,
+  `JS_UITEST_DISPLAY=1`; Linux without a display uses Xvfb.  JUnit XML, the
+  pytest log and failure screenshots land on the farm dashboard.
+- **Remaining: installer fidelity.**  The farm tests the pip-installed sdist,
+  not the signed installers that users get: `installer.py` and
+  `JS_UITEST_EXECUTABLE` are not used yet.  This is requirement R4 in
+  `ui_hil_farm_requirements.md`, which tracks the farm side.
 
 ---
 
@@ -289,7 +301,7 @@ exists:
 | M0 — Foundations (`ci/uitest/` harness) | ✅ complete |
 | M1 — Hardware-free smoke suite | ✅ complete |
 | M2 — Live device suite (JS220/JS320) | ✅ complete |
-| M3 — HIL farm orchestration | ⟳ delivered separately (shared farm — see `ui_hil_farm_requirements.md`) |
+| M3 — HIL farm orchestration | ✅ delivered by `joulescope_ci`, except installer fidelity (R4) |
 | M4 — Release gating + VirusTotal | ◻ remaining |
 | M5 — Long-term tests | ◻ remaining |
 
@@ -392,21 +404,23 @@ more `qt_inspector` primitives: `call` (invoke a widget method) and `menu_close`
 
 ## Risks / open items
 
-- **app_path for `server.json`**: confirm the exact per-OS directory `main.py` uses and centralize it
-  in `discover.py` (don't hard-code three guesses).
-- **JS320 sample rates** and any JS320-only signals (dual current ranges, built-in UART) — confirm and
-  extend the per-device table; reuse `devices/jsdrv/js320.py`.
-- **JS110 deprecation** (per project notes) — keep JS110 tests but allow benches to omit the device.
-- **Marker/export action payloads** — pin exact shapes from `waveform_widget.py` and `exporter.py`
-  when implementing M1/M2.
-- **macOS notarization/Gatekeeper** on silent install — handle quarantine; may need a one-time
-  bench trust step.
+Reviewed 2026-10-19:
+
+- **app_path for `server.json`**: resolved; `discover.app_dir()` centralizes it.
+- **JS320 sample rates** and any JS320-only signals (dual current ranges, built-in UART): open.
+  The record tests use 10 kHz and 1 MHz for every model; the JS320 maximum rate and its
+  JS320-only signals are not covered.
+- **JS110 deprecation**: resolved; absent models skip unless `JS_UITEST_DEVICES` promises them.
+- **Marker/export action payloads**: resolved by the export-with-markers work above.
+- **macOS notarization/Gatekeeper** on silent install: open.  `installer.py` clears quarantine,
+  but no bench has installed a signed build yet (installer fidelity, M3).
 
 ## Incremental delivery (per CLAUDE.md: small, testable steps)
 
 Delivered in order, each its own reviewed change with green tests: **M0** (harness
 + unit tests) → **M1** (hardware-free suite, wired into `build_sdist`) → **M2**
 (device suite on a JS220 + JS320 bench).  **M3** (HIL farm) is a separate, shared
-effort (see `ui_hil_farm_requirements.md`); the UI plugs into it.  **M4** (gate +
-VirusTotal) and **M5** (long-term) remain.  Do not bundle milestones; each touches
+effort (see `ui_hil_farm_requirements.md`); the UI plugs into it, and only its
+installer fidelity remains.  **M4** (gate + VirusTotal) and **M5** (long-term)
+remain.  Do not bundle milestones; each touches
 a bounded set of files and ships green tests.

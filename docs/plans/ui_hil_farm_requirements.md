@@ -17,6 +17,54 @@ silent-install a published build) and a pytest suite gated by markers and
 configuration lives in `joulescope_ci` (coordinator `stations.yaml`); the UI
 suite takes only a `JS_UITEST_DEVICES` device expectation.
 
+## Status (2026-10-19): partly met, open
+
+The farm is `joulescope_ci`.  It runs the UI suite as its `ui_release` suite
+on every UI build pushed by `packaging.yml` (`push_ui_suite`), on four
+stations.  Requirement by requirement:
+
+- **R1, met.**  Windows x64 and ARM64, macOS ARM64, Ubuntu x64; Linux ARM64
+  also exists.  No macOS x64 bench ("if retained").
+- **R2, met.**  The coordinator `stations.yaml` owns the inventory; `JCI_DUTS`
+  becomes `JS_UITEST_DEVICES`.
+- **R3, met on Linux and Windows; macOS pending.**  Linux runs on Xvfb when
+  it has no display (joulescope_ci 0.3.8).  Windows and macOS render on the
+  desktop session with `JS_UITEST_DISPLAY=1` (0.3.10): ci_win and ci_win_arm
+  then pass all 97 tests with none skipped.  On ci_mac the rendered run
+  failed the three `test_analysis` range tools, because macOS never
+  activates a UI that the runner launches, and the TCP server's Qt
+  inspection missed the open settings dialog.  UI 1.7.4 fixes the
+  inspection; verify on ci_mac once that build reaches the farm.
+- **R4, not met.**  The farm pip-installs the sdist from the bundle.  It never
+  runs `installer.py` or sets `JS_UITEST_EXECUTABLE`, so the signed
+  installers go untested.
+- **R5, partly met.**  (a) A UI build push dispatches; (c) the dashboard
+  reruns any job.  (b) Scheduled runs do not exist.
+- **R6, partly met.**  Each job uploads JUnit XML, the pytest log and failure
+  screenshots.  Nothing aggregates pass/fail per (platform, device) cell for
+  a gate.
+- **R7, partly met.**  Each job force-closes stale UI processes and
+  power-cycles the DUT through the bench JS220.  The known, stable DUT load
+  per bench is not verified.
+- **R8, met.**  A station runs one job at a time; others queue (joulescope_ci
+  0.3.7).
+- **R9, met for current jobs.**  Outbound access works.  The `VT_API_KEY` and
+  gate secrets wait on UI M4.
+
+Acceptance (smoke) is not met: the farm tests the sdist, not the published
+alpha installer (R4).  The rest of it holds on ci_linux: device and
+non-device tests, including the interactive waveform tests, run with none
+skipped for "no display", and failed or aborted jobs recover by power-cycle.
+
+The interface contract below is the target.  Today the farm runs the
+equivalent without the installer: it pip-installs the sdist into
+`~/venv/ui` and runs `pytest ci/uitest -m "not slow"` with
+`JS_UITEST_DEVICES`, `JS_UITEST_ARTIFACTS` and, on a desktop session,
+`JS_UITEST_DISPLAY=1`.
+
+Remaining: R4 (installer under test), R5 (b) scheduling, R6 cell
+aggregation, and verifying the R7 bench loads.
+
 ## Consumers (design for all, not just the UI)
 
 - **UI release tests** — GUI app installed from `download.joulescope.com`, driven
