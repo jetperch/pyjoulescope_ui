@@ -44,6 +44,7 @@ from collections.abc import Iterable
 _NAME = N_('Waveform')
 _COPY_TEXT_TO_CLIPBOARD = N_('Copy text to clipboard')
 _ZOOM_FACTOR = np.sqrt(2)
+_Y_ZOOM_SPAN_MIN_FRACT = 1e-12  # minimum y-range span relative to its magnitude, ~4500 ulp
 _WHEEL_TO_DEGREES = 1.0 / 8.0  # https://doc.qt.io/qt-6/qwheelevent.html#angleDelta
 _WHEEL_TICK_DEGREES = 15  # by standard convention
 _WHEEL_TICK_DEGREES_QUANT = 1.0  # Minimum allowable scroll wheel increment.  Accumulate smaller.
@@ -5322,8 +5323,13 @@ class WaveformWidget(QtWidgets.QWidget):
         center = self._y_transform_fwd(plot, center)
         y_min, y_max = plot['range']
         d_y = y_max - y_min
+        if not (np.isfinite(center) and np.isfinite(d_y) and d_y > 0):
+            plot['range_mode'] = range_mode_previous
+            return None  # invalid range: Range -> Auto recovers
         f = (center - y_min) / d_y
         d_y *= _ZOOM_FACTOR ** -steps
+        # stop above float resolution, or the range collapses to a point, then NaN
+        d_y = max(d_y, _Y_ZOOM_SPAN_MIN_FRACT * max(abs(y_min), abs(y_max)))
         plot['range'] = [center - d_y * f, center + d_y * (1 - f)]
         b = plot.get('range_bounds', None)
         if b is not None:

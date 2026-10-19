@@ -67,3 +67,35 @@ class TestWaveformWidgetRender(unittest.TestCase):
             self.assertGreaterEqual(widget.format().stencilBufferSize(), 8)
         finally:
             parent.deleteLater()
+
+
+class TestWaveformWidgetYZoom(unittest.TestCase):
+    """Repeated y-axis zoom must not collapse the range to a point, then NaN."""
+
+    def _widget(self, y_range, range_mode='manual'):
+        plot = {'index': 0, 'quantity': 'i', 'scale': 'linear',
+                'range_mode': range_mode, 'range': list(y_range), 'range_bounds': [-50, 50]}
+        widget = types.SimpleNamespace(
+            unique_id='WaveformWidget:test', state={'plots': [plot]},
+            _log=types.SimpleNamespace(info=lambda *args: None), _repaint_request=False)
+        widget._y_transform_fwd = lambda plot, value: WaveformWidget._y_transform_fwd(widget, plot, value)
+        return widget, plot
+
+    def test_zoom_in_bounded_at_float_resolution(self):
+        widget, plot = self._widget([0.0, 0.01])
+        for steps in [1, 2, 3, 2.0 / 15]:
+            for _ in range(200):
+                y0, y1 = plot['range']
+                center = y0 + (y1 - y0) * 0.37
+                WaveformWidget.on_action_y_zoom(widget, [0, steps, center])
+                y0, y1 = plot['range']
+                self.assertTrue(np.isfinite(y0) and np.isfinite(y1))
+                self.assertLess(y0, y1)
+        self.assertGreaterEqual(y1 - y0, 0.99e-12 * y1)
+
+    def test_zoom_ignores_invalid_range(self):
+        for y_range in [[np.nan, np.nan], [0.005, 0.005], [0.006, 0.005]]:
+            widget, plot = self._widget(y_range, range_mode='auto')
+            self.assertIsNone(WaveformWidget.on_action_y_zoom(widget, [0, 2, 0.005]))
+            self.assertEqual('auto', plot['range_mode'])
+            np.testing.assert_array_equal(y_range, plot['range'])

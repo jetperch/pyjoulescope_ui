@@ -26,6 +26,11 @@ This file contains the list of changes made to pyjoulescope_ui.
 2026 Oct 19 [in progress, unreleased]
 
 * Added macOS 27 support to UI update.
+* Fixed the waveform trace disappearing after zooming far into the y-axis,
+  which left the Range in Manual with a min/max of nan.  Zooming in now
+  stops before the y-range reaches the floating-point resolution.  A wheel
+  event spanning several zoom steps, common with Linux mouse wheels, could
+  previously collapse the range to a single value.
 
 
 ## 1.7.3
