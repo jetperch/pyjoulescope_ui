@@ -31,6 +31,10 @@ This file contains the list of changes made to pyjoulescope_ui.
   stops before the y-range reaches the floating-point resolution.  A wheel
   event spanning several zoom steps, common with Linux mouse wheels, could
   previously collapse the range to a single value.
+* Fixed the TCP server's Qt inspection missing an open modal dialog on
+  macOS when the UI is not the active application, such as when the HIL
+  farm runner launches it.  Paths and key events now resolve against the
+  modal dialog, so automation can accept a range tool's settings dialog.
 
 
 ## 1.7.3

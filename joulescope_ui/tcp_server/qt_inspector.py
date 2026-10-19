@@ -312,7 +312,10 @@ class QtInspector:
         app = QtWidgets.QApplication.instance()
         if app is None:
             raise RuntimeError('No QApplication instance')
-        window = app.activeWindow()
+        # A modal dialog is what a user acts on.  Prefer it over the active
+        # window: macOS never activates a UI launched by a background process
+        # (the HIL farm runner), so activeWindow() is None while it is open.
+        window = app.activeModalWidget() or app.activeWindow()
         if window is None:
             # Fall back to first top-level widget
             for w in app.topLevelWidgets():

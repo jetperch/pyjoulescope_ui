@@ -16,6 +16,7 @@
 
 import os
 import unittest
+from unittest import mock
 
 os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
 
@@ -53,3 +54,47 @@ class TestCursorAction(unittest.TestCase):
                 self.assertEqual(2, len(result['widget']['window_local']))
         finally:
             w.close()
+
+
+class TestRoot(unittest.TestCase):
+    """The inspector root, which paths and key events resolve against."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+
+    def setUp(self):
+        self.inspector = QtInspector(pubsub=None)
+        self.main = QtWidgets.QMainWindow()
+        self.main.show()
+        self.dialog = QtWidgets.QDialog(self.main)
+        QtWidgets.QDialogButtonBox(
+            QtWidgets.QDialogButtonBox.Ok, self.dialog).accepted.connect(
+                self.dialog.accept)
+        self.dialog.open()  # window modal, as the range tools open theirs
+        self.app.processEvents()
+
+    def tearDown(self):
+        self.dialog.close()
+        self.main.close()
+        self.app.processEvents()
+
+    def test_modal_dialog_without_active_window(self):
+        # macOS never activates a UI that a background process launched
+        # (the HIL farm runner), so activeWindow() stays None while the
+        # dialog is open.  The dialog must still be the root.
+        with mock.patch.object(QtWidgets.QApplication, 'activeWindow',
+                               return_value=None):
+            info = self.inspector._inspect({'path': '', 'max_depth': 0})
+            self.assertEqual('QDialog', info['class'])
+            self.inspector._action({'action': 'key', 'key': 'Return'})
+        self.assertEqual(QtWidgets.QDialog.DialogCode.Accepted,
+                         self.dialog.result())
+
+    def test_main_window_without_dialog(self):
+        self.dialog.close()
+        self.app.processEvents()
+        with mock.patch.object(QtWidgets.QApplication, 'activeWindow',
+                               return_value=None):
+            info = self.inspector._inspect({'path': '', 'max_depth': 0})
+        self.assertEqual('QMainWindow', info['class'])
