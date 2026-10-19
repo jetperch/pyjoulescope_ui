@@ -58,9 +58,10 @@ _DIST_INSTALLER = os.path.join(_REPO, 'dist_installer')
 _CHANGELOG = 'CHANGELOG.md'
 
 # macOS/Ubuntu release-key sets mirror the most recent published release so the
-# consumer's _platform_name() keys all resolve.
-_MACOS_OS_VER = ['macos_13', 'macos_14', 'macos_15', 'macos_26']
+# consumer's _platform_name() keys all resolve.  macOS 27+ is arm64 only.
+_MACOS_OS_VER = ['macos_13', 'macos_14', 'macos_15', 'macos_26', 'macos_27']
 _MACOS_RELEASE_KEYS = [
+    'macos_27_0_arm64',
     'macos_26_0_arm64', 'macos_26_0_x86_64',
     'macos_15_0_arm64', 'macos_15_0_x86_64',
     'macos_14_0_arm64', 'macos_14_0_x86_64',

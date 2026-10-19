@@ -36,6 +36,7 @@ sys.path.insert(0, _CI)
 
 import _publish_common as common  # noqa: E402
 import publish  # noqa: E402
+import release_alias  # noqa: E402
 import release_update  # noqa: E402
 
 
@@ -96,7 +97,7 @@ def test_publish_layout_and_schema(tmp_path):
     assert index['versions'][0]['version'] == V
     rel = alpha['releases']
     for key in ['win10_x86_64', 'win11_x86_64', 'win10_arm64', 'win11_arm64',
-                'macos_26_0_arm64', 'macos_15_0_x86_64', 'ubuntu_24_04_x86_64']:
+                'macos_27_0_arm64', 'macos_26_0_arm64', 'macos_15_0_x86_64', 'ubuntu_24_04_x86_64']:
         assert rel[key].startswith(VDIR + '/'), key
     assert rel['win10_x86_64'] == f'{VDIR}/joulescope_setup_{VFS}.exe'
     assert rel['win11_arm64'] == f'{VDIR}/joulescope_setup_arm64_{VFS}.exe'
@@ -155,6 +156,35 @@ def test_release_update_missing_version_raises(tmp_path):
     publish.publish(backend, dist_dir=dist)
     with pytest.raises(RuntimeError):
         release_update.release_update(backend, '99.99.99', 'stable')
+
+
+def test_release_alias_backfills_existing_entries(tmp_path):
+    backend = common.LocalBackend(str(tmp_path / 'store'))
+    old = {'version': [1, 7, 0],
+           'platform': {'macos': {'os_ver': ['macos_26'], 'arch': ['arm64'],
+                                  'installer': '1/7/0/j.dmg'}},
+           'releases': {'macos_26_0_arm64': '1/7/0/j.dmg'},
+           'changelog': '1/7/0/CHANGELOG.md'}
+    win = {'version': [0, 9, 0], 'platform': {},
+           'releases': {'win10_x86_64': '0/9/0/j.exe'},
+           'changelog': '0/9/0/CHANGELOG.md'}
+    index = {'active': {'stable': json.loads(json.dumps(old))},
+             'versions': [old, win]}
+    backend.put(common.INDEX_KEY, common.dumps_index(index).encode(),
+                common.CONTENT_TYPE_JSON)
+
+    changed = release_alias.release_alias(
+        backend, 'macos_27_0_arm64', 'macos_26_0_arm64', os_ver='macos_27')
+    assert changed == ['active.stable', '1.7.0']
+    index = _read_index(backend.root)
+    for entry in [index['active']['stable'], index['versions'][0]]:
+        assert entry['releases']['macos_27_0_arm64'] == '1/7/0/j.dmg'
+        assert entry['platform']['macos']['os_ver'] == ['macos_26', 'macos_27']
+    assert 'macos_27_0_arm64' not in index['versions'][1]['releases']
+
+    # idempotent
+    assert release_alias.release_alias(
+        backend, 'macos_27_0_arm64', 'macos_26_0_arm64', os_ver='macos_27') == []
 
 
 def test_consumer_round_trip(tmp_path, monkeypatch):

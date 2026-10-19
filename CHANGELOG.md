@@ -21,6 +21,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.7.4
+
+2026 Oct 19 [in progress, unreleased]
+
+* Added macOS 27 support to UI update.
+
+
 ## 1.7.3
 
 2026 Oct 18
