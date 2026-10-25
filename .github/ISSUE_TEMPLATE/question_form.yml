@@ -48,8 +48,6 @@ body:
         - macOS 15 amd64
         - macOS 14 arm64 (M1 and newer)
         - macOS 14 amd64
-        - macOS 13 arm64 (M1 and newer)
-        - macOS 13 amd64
         - Linux Ubuntu amd64 (PC)
         - Linux Ubuntu arm64 (Raspberry Pi 4 & 5)
         - Other (describe below)

@@ -24,9 +24,9 @@ from re import L
 import subprocess
 import sys
 
-platform0 = 'macosx_13_0_x86_universal2'
-platform1 = 'macosx_13_0_x86_64'
-platform2 = 'macosx_13_0_arm64'
+platform0 = 'macosx_14_0_x86_universal2'
+platform1 = 'macosx_14_0_x86_64'
+platform2 = 'macosx_14_0_arm64'
 
 
 def _run_cmd(cmd, env=None):
@@ -119,14 +119,14 @@ def run():
         elif not is_universal2(name):
             try:
                 print(f'DOWNLOAD {name} universal2 if available')
-                f3 = _run_pip_download(f'pip download --only-binary :all: --platform {platform0} {name}=={version}')
+                f3 = _run_pip_download(f'pip download --no-deps --only-binary :all: --platform {platform0} {name}=={version}')
             except Exception:
                 f3 = None
             if f3 is None or '-none-any' in f3:
                 try:
                     print(f'PATCH {name}')
-                    f1 = _run_pip_download(f'pip download --only-binary :all: --platform {platform1} {name}=={version}')
-                    f2 = _run_pip_download(f'pip download --only-binary :all: --platform {platform2} {name}=={version}')
+                    f1 = _run_pip_download(f'pip download --no-deps --only-binary :all: --platform {platform1} {name}=={version}')
+                    f2 = _run_pip_download(f'pip download --no-deps --only-binary :all: --platform {platform2} {name}=={version}')
                     if 'x86_64' not in f1 or 'arm64' not in f2:
                         raise RuntimeError('Could not find matching files')
                     _run_cmd(f'delocate-fuse {f1} {f2} -w .')

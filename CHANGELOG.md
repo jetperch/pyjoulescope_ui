@@ -37,6 +37,11 @@ This file contains the list of changes made to pyjoulescope_ui.
   modal dialog, so automation can accept a range tool's settings dialog.
 * Updated documentation for docs.joulescope.com deployment.
 * Removed the unused python-dateutil requirement.
+* Incremented minimum macOS requirement from macOS 13 to macOS 14.
+  PySide6 6.12 and PySide6-QtAds 5.1.1.1 only provide macOS 14+ wheels.
+* Fixed the macOS universal2 CI build failing when a package's dependencies
+  have no wheel for the download platform.  The patch step now downloads
+  the package wheels without dependencies.
 
 
 ## 1.7.3
