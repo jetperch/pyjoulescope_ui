@@ -208,7 +208,6 @@ setuptools.setup(
         'pyserial>=3,<4',
         'PySide6>=6.11.1,<7',
         'PySide6-QtAds>=5.0.0.2,<6',
-        'python-dateutil>=2.7.3,<3',
         'QtPy>=2,<3',
         'requests>=2,<3',
         'watchdog>=6,<7',

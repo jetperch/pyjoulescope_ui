@@ -36,6 +36,7 @@ This file contains the list of changes made to pyjoulescope_ui.
   farm runner launches it.  Paths and key events now resolve against the
   modal dialog, so automation can accept a range tool's settings dialog.
 * Updated documentation for docs.joulescope.com deployment.
+* Removed the unused python-dateutil requirement.
 
 
 ## 1.7.3
