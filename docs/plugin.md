@@ -18,7 +18,7 @@ into the plugin directory.  The plugin directory depends on the
 host operating system:
 
 * **Windows**: %LOCALAPPDATA%\\joulescope\\plugins
-* **MacOS**: ~/Library/Application Support/joulescope/plugins
+* **macOS**: ~/Library/Application Support/joulescope/plugins
 * **Linux**: ~/.joulescope/plugins
 
 In the Joulescope UI, select **Widgets** → **Plugins**.  Your new
@@ -32,7 +32,6 @@ restart the UI to fully deactivate the plugin.
 ## Developing a Plugin
 
 A plugin consists of a directory with at least three files:
-containing at least:
 
 * **\_\_init\_\_.py**: Python code that implements the plugin functionality.
   This file may perform relative imports to access other Python files.
@@ -125,9 +124,10 @@ This Joulescope UI plugin provides a trivial Widget example.
 
 ## Known issues
 
-* Translations for plugins are not yet support
+* Translations for plugins are not yet supported.
+* The UI does not yet have a mechanism to discover available plugins.
 * While you can add a new implementation for any already defined 
-  [capability](../joulescope_ui/capabilities.py), you cannot easily
+  [capability](https://github.com/jetperch/pyjoulescope_ui/blob/main/joulescope_ui/capabilities.py), you cannot easily
   add new capabilities.
 * Hard-coded functionalities, such as the Waveform widget, cannot
   be easily modified.  You can monkeypatch, but at that point you

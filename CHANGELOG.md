@@ -23,7 +23,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.7.4
 
-2026 Oct 19 [in progress, unreleased]
+2026 Oct 25 [in progress, unreleased]
 
 * Added macOS 27 support to UI update.
 * Fixed the waveform trace disappearing after zooming far into the y-axis,
@@ -35,6 +35,7 @@ This file contains the list of changes made to pyjoulescope_ui.
   macOS when the UI is not the active application, such as when the HIL
   farm runner launches it.  Paths and key events now resolve against the
   modal dialog, so automation can accept a range tool's settings dialog.
+* Updated documentation for docs.joulescope.com deployment.
 
 
 ## 1.7.3
