@@ -29,6 +29,7 @@ body:
       description: What version of our software are you running?
       options:
         - 1.7.4
+        - 1.7.0
         - other
     validations:
       required: true
