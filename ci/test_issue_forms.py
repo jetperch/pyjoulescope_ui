@@ -37,7 +37,12 @@ def test_render_expands_shared_fields():
         assert not re.search(r'[&*][A-Za-z_]', contents)  # no YAML anchors
         form = yaml.safe_load(contents)
         fields = {x.get('id'): x for x in form['body']}
-        assert fields['version']['attributes']['options'] == ['9.8.7', 'other']
+        # The current version first and 'other' last; the supported
+        # versions between them are listed freely in issue_forms.yaml.
+        options = fields['version']['attributes']['options']
+        assert options[0] == '9.8.7'
+        assert options[-1] == 'other'
+        assert all(isinstance(x, str) for x in options)  # quote "1.10", not 1.10
         assert 'JS320' in fields['Joulescope-model']['attributes']['options']
         assert 'Windows 11' in fields['Environment']['attributes']['options']
 
