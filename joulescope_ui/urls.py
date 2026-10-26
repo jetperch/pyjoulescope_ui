@@ -13,7 +13,14 @@
 # limitations under the License.
 
 
-UI_USERS_GUIDE = 'https://download.joulescope.com/products/joulescope_ui/users_guide/index.html'
-JS110_USERS_GUIDE = 'https://download.joulescope.com/docs/JoulescopeUsersGuide/index.html'
-JS220_USERS_GUIDE = 'https://download.joulescope.com/products/JS220/JS220-K000/users_guide/index.html'
-JS320_USERS_GUIDE = 'https://download.joulescope.com/products/JS320/JS320-K000/users_guide/index.html'
+# docs.joulescope.com URLs are permanent, see joulescope_docs/urls.txt.
+DOCS = 'https://docs.joulescope.com/en/'
+UI_USERS_GUIDE = DOCS + 'software/joulescope_ui/'
+JS110_PRODUCT = DOCS + 'products/js110/'
+JS220_PRODUCT = DOCS + 'products/js220/'
+JS220PLUS_PRODUCT = DOCS + 'products/js220plus/'
+JS320_PRODUCT = DOCS + 'products/js320/'
+JS110_USERS_GUIDE = JS110_PRODUCT + 'guide/'
+JS220_USERS_GUIDE = JS220_PRODUCT + 'guide/'
+JS220PLUS_USERS_GUIDE = JS220PLUS_PRODUCT + 'guide/'
+JS320_USERS_GUIDE = JS320_PRODUCT + 'guide/'

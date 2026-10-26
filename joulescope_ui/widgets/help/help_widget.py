@@ -33,11 +33,14 @@ _HELP = f"""\
 </head>
 <body>
 
+<p><a href="{urls.DOCS}">docs.joulescope.com</a></p>
+
 <p>{_USERS_GUIDES}<p>
 <ul>
 <li><a href="{urls.UI_USERS_GUIDE}">{_USER_INTERFACE} (UI)</a></li>
 <li><a href="{urls.JS320_USERS_GUIDE}">JS320</a></li>
 <li><a href="{urls.JS220_USERS_GUIDE}">JS220</a></li>
+<li><a href="{urls.JS220PLUS_USERS_GUIDE}">JS220+</a></li>
 <li><a href="{urls.JS110_USERS_GUIDE}">JS110</a></li>
 </ul>
 

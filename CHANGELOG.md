@@ -36,6 +36,8 @@ This file contains the list of changes made to pyjoulescope_ui.
   farm runner launches it.  Paths and key events now resolve against the
   modal dialog, so automation can accept a range tool's settings dialog.
 * Updated documentation for docs.joulescope.com deployment.
+* Moved the UI and instrument User's Guide links in the Help menu, Help
+  widget, and device control widget to docs.joulescope.com.
 * Removed the unused python-dateutil requirement.
 * Incremented minimum macOS requirement from macOS 13 to macOS 14.
   PySide6 6.12 and PySide6-QtAds 5.1.1.1 only provide macOS 14+ wheels.

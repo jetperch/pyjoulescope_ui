@@ -14,11 +14,13 @@ please be kind, respectful, and tolerant.
 ## Do you have a technical question regarding the operation of your Joulescope?
 
 1. If your question applies to using the Joulescope UI, take a look at the
-   [Joulescope User Interface User's Guide](https://download.joulescope.com/products/joulescope_ui/users_guide/index.html).
+   [Joulescope User Interface User's Guide](https://docs.joulescope.com/en/software/joulescope_ui/).
 2. If your question is specific to the instrument, take a look at the 
-   instrument documentation:
-   * [JS220](https://download.joulescope.com/products/JS220/JS220-K000/users_guide/index.html)
-   * [JS110](https://download.joulescope.com/products/JS220/JS220-K000/users_guide/index.html)
+   instrument documentation on [docs.joulescope.com](https://docs.joulescope.com/en/products/):
+   * [JS320](https://docs.joulescope.com/en/products/js320/)
+   * [JS220](https://docs.joulescope.com/en/products/js220/)
+   * [JS220+](https://docs.joulescope.com/en/products/js220plus/)
+   * [JS110](https://docs.joulescope.com/en/products/js110/)
 3. If you cannot find an answer, please create a new post on the
    [Joulescope forum](https://forum.joulescope.com/).  We value public
    communication, which ends up helping the entire Joulescope community.
