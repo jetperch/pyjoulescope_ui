@@ -23,7 +23,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.7.4
 
-2026 Oct 25 [in progress, unreleased]
+2026 Oct 26 [in progress, unreleased]
 
 * Added macOS 27 support to UI update.
 * Fixed the waveform trace disappearing after zooming far into the y-axis,
@@ -42,6 +42,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Fixed the macOS universal2 CI build failing when a package's dependencies
   have no wheel for the download platform.  The patch step now downloads
   the package wheels without dependencies.
+* Improved GitHub issue reports.
 
 
 ## 1.7.3

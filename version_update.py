@@ -21,12 +21,15 @@ Use the most recently CHANGELOG as the definitive version for:
 - joulescope_ui/version.py
 - joulescope_ui/locale/joulescope_ui.pot
 - joulescope.iss
+- .github/ISSUE_TEMPLATE/*.yml (from ci/issue_forms.yaml)
 """
 
 import os
 import re
+import sys
 
 MYPATH = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.join(MYPATH, 'ci'))
 
 
 def _str(version, sep=None):
@@ -90,6 +93,8 @@ def run():
     _py_version(version)
     _locale_version(version)
     _iss_version(version)
+    import issue_forms  # requires PyYAML
+    issue_forms.generate(_str(version))
     return 0
 
 

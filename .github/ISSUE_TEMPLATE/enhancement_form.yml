@@ -1,7 +1,10 @@
+# Generated from ci/issue_forms.yaml by ci/issue_forms.py. DO NOT EDIT.
 name: Enhancement request
 description: Propose enhancement to the tool
-title: "<title>"
-labels: ["enhancement", "triage"]
+title: <title>
+labels:
+  - enhancement
+  - triage
 assignees:
   - mliberty1
 body:
@@ -25,7 +28,7 @@ body:
       label: UI version
       description: What version of our software are you running?
       options:
-        - 1.7.0
+        - 1.7.4
         - other
     validations:
       required: true

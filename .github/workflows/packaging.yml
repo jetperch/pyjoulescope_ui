@@ -58,7 +58,7 @@ jobs:
         run: |
           python -VV
           python -m pip install --upgrade pip
-          python -m pip install build wheel pytest babel polib deepl
+          python -m pip install build wheel pytest babel polib deepl pyyaml
 
       - name: Copy files to patch build
         run: |
@@ -83,6 +83,9 @@ jobs:
 
       - name: Run python unit tests
         run: pytest --pyargs joulescope_ui
+
+      - name: Check that the issue forms are up-to-date
+        run: pytest ci/test_issue_forms.py
 
       - name: Test the S3 publish pipeline (offline)
         run: pytest ci/test_publish.py
