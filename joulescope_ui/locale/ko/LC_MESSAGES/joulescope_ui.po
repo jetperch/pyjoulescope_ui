@@ -636,7 +636,7 @@ msgstr "사용자 가이드"
 msgid "Changelog"
 msgstr "변경 로그"
 
-#: main.py:420 widgets/help/help_widget.py:60
+#: main.py:420 widgets/help/help_widget.py:63
 msgid "Report Issue"
 msgstr "이슈 보고"
 

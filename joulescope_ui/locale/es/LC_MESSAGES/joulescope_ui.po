@@ -714,7 +714,7 @@ msgstr "Guía del usuario"
 msgid "Changelog"
 msgstr "Registro de cambios"
 
-#: main.py:420 widgets/help/help_widget.py:60
+#: main.py:420 widgets/help/help_widget.py:63
 msgid "Report Issue"
 msgstr "Número de informe"
 

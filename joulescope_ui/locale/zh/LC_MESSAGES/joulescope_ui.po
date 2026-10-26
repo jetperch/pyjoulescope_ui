@@ -621,7 +621,7 @@ msgstr "用户指南"
 msgid "Changelog"
 msgstr "更新日志"
 
-#: main.py:420 widgets/help/help_widget.py:60
+#: main.py:420 widgets/help/help_widget.py:63
 msgid "Report Issue"
 msgstr "报告问题"
 

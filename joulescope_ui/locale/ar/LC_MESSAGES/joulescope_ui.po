@@ -680,7 +680,7 @@ msgstr "دليل المستخدم"
 msgid "Changelog"
 msgstr "سجل التغييرات"
 
-#: main.py:420 widgets/help/help_widget.py:60
+#: main.py:420 widgets/help/help_widget.py:63
 msgid "Report Issue"
 msgstr "إصدار التقرير"
 
