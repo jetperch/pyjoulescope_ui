@@ -23,7 +23,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.7.4
 
-2026 Oct 26 [in progress, unreleased]
+2026 Oct 26
 
 * Added macOS 27 support to UI update.
 * Fixed the waveform trace disappearing after zooming far into the y-axis,
