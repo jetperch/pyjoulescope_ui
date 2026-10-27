@@ -158,6 +158,17 @@ class TestVerify(unittest.TestCase):
         with self.assertRaisesRegex(AssertionError, '50 of 4000 differ from export sample 2000'):
             verify.compare_subrange(ref, exp, 'current')
 
+    def test_compare_subrange_reports_match_offset(self):
+        # Beyond max_shift, the failure says where the export actually starts.
+        ref = os.path.join(self.dir, 'A.jls')
+        exp = os.path.join(self.dir, 'B.jls')
+        full = (np.sin(np.arange(20000) / 50.0) + np.arange(20000) * 1e-4).astype(np.float32)
+        _write_v2(ref, data=full)
+        _write_v2(exp, data=full[5300:9300], utc_offset_s=5.0)
+        with self.assertRaisesRegex(AssertionError, r'matches reference samples \[5300\] '
+                                                    r'\(offsets from 5000: \[300\]\)'):
+            verify.compare_subrange(ref, exp, 'current')
+
     def test_compare_subrange_past_end(self):
         ref = os.path.join(self.dir, 'A.jls')
         exp = os.path.join(self.dir, 'B.jls')

@@ -332,8 +332,16 @@ def compare_subrange(reference_path, export_path, signal_name, *,
             return offset
     i = min(max(0, guess - start), ref_data.size - n)
     diff = np.flatnonzero(~np.isclose(ref_data[i:i + n], exp_data, **tol))
+    # Report where the export's start matches, if anywhere, to tell a larger
+    # UTC offset from different data.
+    _, full, _, _ = _reference_window(reference_path, signal_name, utc, 0, length)
+    matches = [int(k) for k in np.flatnonzero(np.isclose(full[:full.size - probe.size + 1],
+                                                         probe[0], **tol))[:100_000]
+               if np.allclose(full[k:k + probe.size], probe, **tol)][:5]
     raise AssertionError(
         f'{export_path}: signal {signal_name!r} samples differ from '
         f'{reference_path} near sample {guess}: at that offset, {diff.size} of {n} '
         f'differ from export sample {diff[0]}; NaN samples: export '
-        f'{np.count_nonzero(np.isnan(exp_data))}, reference {np.count_nonzero(np.isnan(ref_data))}')
+        f'{np.count_nonzero(np.isnan(exp_data))}, reference {np.count_nonzero(np.isnan(ref_data))}; '
+        f'export start matches reference samples {matches} '
+        f'(offsets from {guess}: {[k - guess for k in matches]})')

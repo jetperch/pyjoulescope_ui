@@ -332,6 +332,9 @@ class QtInspector:
                 future.set_result((MSG_QT_SCREENSHOT_RESPONSE, result_header, result_payload))
             else:
                 future.set_result((MSG_ERROR, {'message': f'Unknown Qt message type: {msg_type}'}, None))
+        except ValueError as ex:   # widget not found: the client's answer, not a fault
+            _log.info('Qt inspection: %s', ex)
+            future.set_result((MSG_ERROR, {'message': str(ex)}, None))
         except Exception as ex:
             _log.exception('Qt inspection error')
             future.set_result((MSG_ERROR, {'message': str(ex)}, None))
