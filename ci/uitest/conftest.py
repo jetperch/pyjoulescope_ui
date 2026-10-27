@@ -148,6 +148,18 @@ def _release_executable():
     return value
 
 
+def pytest_terminal_summary(terminalreporter):
+    """Report which UI the sessions tested: an installed build or the sdist."""
+    executable = os.environ.get('JS_UITEST_EXECUTABLE') or _release.get('value')
+    if isinstance(executable, Exception):
+        text = f'published build failed to install: {executable}'
+    elif executable:
+        text = f'installed build {executable}'
+    else:
+        text = 'python -m joulescope_ui (sdist)'
+    terminalreporter.write_line(f'UI under test: {text}')
+
+
 def _new_session(**kwargs):
     kwargs.setdefault('offscreen', _offscreen_default())
     if not kwargs['offscreen'] and sys.platform.startswith('linux'):

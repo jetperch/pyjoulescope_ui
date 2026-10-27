@@ -169,9 +169,11 @@ def install(installer_path, *, system=None):
     """
     system = (system or _platform.system()).lower()
     if system == 'windows':
-        # Inno Setup unattended switches.
+        # Unattended, for the current user: CI stations do not install for all
+        # users, which needs administrator rights.  /CURRENTUSER needs a 1.7.6+
+        # installer (PrivilegesRequiredOverridesAllowed in joulescope.iss).
         subprocess.run([installer_path, '/VERYSILENT', '/SUPPRESSMSGBOXES',
-                        '/NORESTART'], check=True)
+                        '/NORESTART', '/CURRENTUSER'], check=True)
         return None
     if system == 'darwin':
         return _install_macos_dmg(installer_path)
@@ -181,7 +183,13 @@ def install(installer_path, *, system=None):
 
 
 def _install_macos_dmg(dmg_path, apps_dir='/Applications'):
-    """Mount a .dmg, copy the .app to ``apps_dir``, clear quarantine."""
+    """Mount a .dmg and copy the .app to ``apps_dir``, as a Finder drag does.
+
+    ``ditto`` preserves the bundle's symlinks, so its code signature still
+    verifies; a symlink-flattening copy makes Gatekeeper report the app as
+    damaged.  The signature and Gatekeeper checks fail here, with their
+    output, instead of in a dialog at launch.
+    """
     import plistlib
     import shutil
     out = subprocess.run(['hdiutil', 'attach', '-nobrowse', '-plist', dmg_path],
@@ -199,8 +207,12 @@ def _install_macos_dmg(dmg_path, apps_dir='/Applications'):
         dst = os.path.join(apps_dir, app)
         if os.path.exists(dst):
             shutil.rmtree(dst)
-        shutil.copytree(os.path.join(mount_point, app), dst)
-        subprocess.run(['xattr', '-dr', 'com.apple.quarantine', dst], check=False)
+        subprocess.run(['ditto', os.path.join(mount_point, app), dst], check=True)
+        for cmd in (['codesign', '--verify', '--deep', '--strict', dst],
+                    ['spctl', '--assess', '--type', 'execute', dst]):
+            rsp = subprocess.run(cmd, capture_output=True, text=True)
+            if rsp.returncode:
+                raise RuntimeError(f'{" ".join(cmd)} failed: {rsp.stdout}{rsp.stderr}')
         return dst
     finally:
         subprocess.run(['hdiutil', 'detach', mount_point], check=False)
@@ -226,13 +238,10 @@ def locate_executable(install_dir=None, *, system=None):
     """
     system = (system or _platform.system()).lower()
     if system == 'windows':
-        for base in (os.environ.get('LOCALAPPDATA', ''), os.environ.get('ProgramFiles', '')):
-            if not base:
-                continue
-            cand = os.path.join(base, 'Joulescope', 'joulescope.exe')
-            if os.path.isfile(cand):
-                return cand
-        return None
+        # The current-user install location ({userpf}, see install()).
+        cand = os.path.join(os.environ.get('LOCALAPPDATA', ''), 'Programs',
+                            'Joulescope', 'joulescope.exe')
+        return cand if os.path.isfile(cand) else None
     if system == 'darwin':
         if install_dir:
             name = os.path.splitext(os.path.basename(install_dir))[0]

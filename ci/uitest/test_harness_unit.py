@@ -312,6 +312,46 @@ class TestInstaller(unittest.TestCase):
         self.assertEqual(mac, installer.locate_executable(app, system='Darwin'))
         self.assertIsNone(installer.locate_executable(os.path.join(d, 'empty'), system='Linux'))
 
+    def test_windows_install_current_user(self):
+        with mock.patch.object(installer.subprocess, 'run') as run:
+            self.assertIsNone(installer.install('setup.exe', system='Windows'))
+        self.assertIn('/CURRENTUSER', run.call_args[0][0])
+        d = tempfile.mkdtemp()
+        exe = os.path.join(d, 'Programs', 'Joulescope', 'joulescope.exe')
+        with mock.patch.dict(os.environ, {'LOCALAPPDATA': d}):
+            self.assertIsNone(installer.locate_executable(system='Windows'))
+            os.makedirs(os.path.dirname(exe))
+            open(exe, 'w').close()
+            self.assertEqual(exe, installer.locate_executable(system='Windows'))
+
+    def _macos_install(self, verify_rc):
+        import plistlib
+        mount, apps = tempfile.mkdtemp(), tempfile.mkdtemp()
+        os.makedirs(os.path.join(mount, 'Joulescope.app'))
+        calls = []
+
+        def run(cmd, **kwargs):
+            calls.append(cmd[0])
+            stdout = plistlib.dumps({'system-entities': [{'mount-point': mount}]}) \
+                if cmd[0] == 'hdiutil' and cmd[1] == 'attach' else ''
+            rc = verify_rc if cmd[0] in ('codesign', 'spctl') else 0
+            return mock.Mock(returncode=rc, stdout=stdout, stderr='rejected')
+
+        with mock.patch.object(installer.subprocess, 'run', side_effect=run):
+            try:
+                return installer._install_macos_dmg('a.dmg', apps_dir=apps), calls
+            except RuntimeError as ex:
+                return ex, calls
+
+    def test_macos_install_copies_like_finder_and_verifies(self):
+        dst, calls = self._macos_install(0)
+        self.assertTrue(dst.endswith('Joulescope.app'))
+        self.assertEqual(['hdiutil', 'ditto', 'codesign', 'spctl', 'hdiutil'], calls)
+        ex, calls = self._macos_install(3)
+        self.assertIsInstance(ex, RuntimeError)
+        self.assertIn('rejected', str(ex))
+        self.assertEqual('hdiutil', calls[-1])  # detached on failure too
+
     def test_release_channel(self):
         index = {'active': {
             'alpha': {'version': [1, 7, 4], 'platform': {'ubuntu': {}, 'macos': {}}},

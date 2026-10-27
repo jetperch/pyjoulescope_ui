@@ -15,7 +15,8 @@
 # Push the UI suite bundle (sdist + ci/) to the joulescope_ci coordinator,
 # which runs ci/uitest on every bench.  Called by packaging.yml, which
 # decides when: a release runs after publish, so the benches can install the
-# published installer (docs/plans/expand_test_coverage_202610.md, Stage 6).
+# published installer
+# (docs/plans/completed/expand_test_coverage_202610.md, Stage 6).
 
 name: Push UI suite
 

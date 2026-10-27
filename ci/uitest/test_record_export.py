@@ -38,7 +38,7 @@ _SIGNALS = ['current', 'voltage', 'power']
 _EXPORT_TIMEOUT = 120.0     # seconds; a 1 MHz export writes tens of MB
 # Allowed UTC disagreement between a recording and a live-buffer export of the
 # same samples.  JS110 recordings and its stream buffer differ by about 2 ms
-# (see docs/plans/expand_test_coverage_202610.md, Stage 1 findings).
+# (see docs/plans/completed/expand_test_coverage_202610.md, Stage 1 findings).
 _UTC_TOLERANCE_S = {'JS110': 0.005, 'JS220': 0.0, 'JS320': 0.0}
 
 

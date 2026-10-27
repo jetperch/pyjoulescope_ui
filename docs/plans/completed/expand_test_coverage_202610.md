@@ -96,18 +96,21 @@ signal, so the row is not covered.
 
 ## Status
 
+**Completed 2026-10-27** (released in 1.7.5, `b6eb039`), except Stage 9's
+release gate, which needs its own plan.
+
 | Stage | Status |
 | --- | --- |
-| 0 - Device firmware first | Done, local HW (no-op path); update path needs a stale bench |
-| 1 - Record and export | Done, local HW; found and fixed 3 bugs (see Stage 1) |
-| 2 - Waveform rows | Done, local HW; found and fixed a v1 export bug |
-| 3 - Multimeter widget | Done, local HW; found and fixed a repaint bug |
-| 4 - Analysis on live data | Done, local HW; found and fixed 4 bugs, 2 open |
-| 5 - Preferences | Done, local |
-| 6 - Installed app | Done, local (1.7.4 installer); workflow not yet run |
-| 7 - Long-term tests | Done (shortened run on HW); run on demand from the jci Jobs page |
-| 8 - Farm validation | jci 0.3.16 deployed 2026-10-27; runs when this branch reaches main |
-| 9 - Release gate | Not started: needs decisions (see Stage 9) |
+| 0 - Device firmware first | Done; the update path runs when a bench is behind |
+| 1 - Record and export | Done; found and fixed 3 bugs (see Stage 1) |
+| 2 - Waveform rows | Done; found and fixed a v1 export bug |
+| 3 - Multimeter widget | Done; found and fixed a repaint bug |
+| 4 - Analysis on live data | Done; found and fixed 6 bugs |
+| 5 - Preferences | Done; configs are release assets |
+| 6 - Installed app | Done; Linux passes on 1.7.5, Windows and macOS fixed for 1.7.6 |
+| 7 - Long-term tests | Done; `ui_longterm` on demand from the jci Jobs page |
+| 8 - Farm validation | Done: all five stations pass on `b6eb039` |
+| 9 - Release gate | VirusTotal stays manual; the gate is not started |
 
 ## Approach
 
@@ -418,6 +421,31 @@ Run the full `ui_release` suite on all five stations from a release-candidate
 build, after Stages 0-7.  Every JS320 cell must pass with no skips caused by a
 missing display.  Repeat enough times to measure the flake rate, and fix
 flaky tests before the gate depends on them.
+
+**Done (2026-10-27):** the dev run on `b6eb039` passed on all five stations
+with no skips: 135 tests (126 on the two ARM stations, which have no JS110),
+5-7.5 min each.  The flake rate is not measured yet.
+
+**First release run (1.7.5):** ci_linux (installed tarball) and ci_linux_arm
+(sdist) passed.  Fixed for 1.7.6:
+
+- Windows (ci_win, ci_win_arm): the installer exited with 2.  It installs
+  for all users, which needs administrator rights, and the stations' `ci`
+  user is not an administrator (joulescope_ci `doc/runner_win.md`).
+  `joulescope.iss` now defaults new installs to the current user
+  (`PrivilegesRequired=lowest`), offers all users in a dialog or with
+  `/ALLUSERS`, and keeps an existing install's mode
+  (`UsePreviousPrivileges=yes`), so field installs and the UI's automatic
+  `/SILENT` update behave as before.  Shortcuts use `{auto*}` and the `.jls`
+  association uses `HKA`, which follow the install mode.  The test installs
+  with `/CURRENTUSER` into `%LOCALAPPDATA%\Programs\Joulescope`; the
+  stations no longer have an all-users install.
+- macOS (ci_mac): the app was "damaged and can't be opened".  The test copied
+  the `.app` with `shutil.copytree`, which flattens the bundle's symlinks and
+  breaks its code signature.  It now copies with `ditto`, as a Finder drag
+  does, and checks `codesign --verify --deep --strict` and `spctl --assess`
+  before launching.
+- The test summary now names the UI under test (installed build or sdist).
 
 ## Stage 9 - Release gate and VirusTotal (M4)
 

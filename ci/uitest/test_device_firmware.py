@@ -20,7 +20,7 @@ would block every later test, so this test runs first (``firmware`` marker,
 see ``conftest.py``) and performs the update through the dialog.  When all
 firmware is current, it does nothing.  JS110 has no UI firmware update.
 
-See docs/plans/expand_test_coverage_202610.md, Stage 0.
+See docs/plans/completed/expand_test_coverage_202610.md, Stage 0.
 """
 
 import time

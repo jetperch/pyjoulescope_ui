@@ -21,6 +21,20 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.7.6
+
+2026 Oct 27
+
+* Changed the Windows installer to install for the current user by default,
+  without administrator rights, which suits locked-down corporate computers.
+  It offers to install for all users, and /CURRENTUSER and /ALLUSERS select
+  the mode on the command line.  An existing installation, including the
+  automatic update, keeps its previous install mode.
+* Fixed the release tests reporting a macOS app as damaged: they now copy
+  the app as a Finder drag does and check its signature, and they install
+  the Windows app for the current user.
+
+
 ## 1.7.5
 
 2026 Oct 27
