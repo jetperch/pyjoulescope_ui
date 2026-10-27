@@ -20,6 +20,8 @@ import os
 import tempfile
 import unittest
 from unittest.mock import Mock, patch
+import numpy as np
+import pyjls
 from joulescope_ui import exporter
 from joulescope_ui.exporter import Exporter
 from joulescope_ui import time64
@@ -70,6 +72,22 @@ def _exporter(path):
     e._rt.pubsub = e.pubsub
     e._jls_init = Mock()  # no signals: _export writes nothing
     return e
+
+
+class _TimeMap:
+    """A time map stand-in: 1 kHz from time64.YEAR."""
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        pass
+
+    def time_map_get(self):
+        return []
+
+    def sample_id_to_timestamp(self, sample_id):
+        return time64.YEAR + sample_id * time64.MILLISECOND
 
 
 def _published(e, topic):
@@ -157,3 +175,31 @@ class TestExporter(unittest.TestCase):
         singleton.publish.assert_not_called()
         self.assertEqual([], _published(e, f'registry/{_UNIQUE_ID}/actions/!finalize'))
         self.e = None  # already unregistered
+
+    def test_keeps_source_sample_ids(self):
+        # The export's sample ids match the source's, as in a recording.
+        self.e = _exporter(self.path)
+        e = self.e
+        data = np.arange(2000, dtype=np.float32)
+
+        def jls_init(jls):
+            jls.source_def(source_id=1, name='JS220-000001')
+            jls.signal_def(signal_id=1, source_id=1, sample_rate=1000, name='current', units='A')
+            e._signals = {'i': {'signal': 'i', 'jls_signal_id': 1, 'info': {'tmap': _TimeMap()},
+                                'sample_range': [1000, 3000]}}
+
+        def request(signal, rsp_type, start, end, length, timeout):
+            k = start - 1000
+            return {'info': {'time_range_samples': {'start': start, 'length': length}},
+                    'data': data[k:k + length]}
+
+        e._jls_init = jls_init
+        e.request = request
+        with patch.object(exporter, 'pubsub_singleton'):
+            e._RangeToolBase__run_outer()
+        self.assertEqual([], _published(e, _ERROR_TOPIC))
+        with pyjls.Reader(self.path) as r:
+            signal = r.signals[1]
+            self.assertEqual(1000, signal.sample_id_offset)
+            np.testing.assert_array_equal(data, r.fsr(1, 0, signal.length))
+            self.assertEqual(time64.YEAR + 1000 * time64.MILLISECOND, r.sample_id_to_timestamp(1, 0))

@@ -290,13 +290,11 @@ def _reference_window(path, signal_name, utc, n, max_shift):
 
 
 def compare_subrange(reference_path, export_path, signal_name, *,
-                     atol=0.0, rtol=0.0, max_shift=4):
+                     atol=0.0, rtol=0.0, max_shift=4, sample_ids=None):
     """Verify ``export`` is a contiguous sub-range of ``reference`` (round-trip).
 
     Used for the plan's "export to B, open B, verify correct": the exported
-    signal must equal the corresponding slice of the source recording.  The
-    export is aligned by UTC: its first sample's timestamp locates the
-    reference sample, give or take ``max_shift`` samples of time-map rounding.
+    signal must equal the corresponding slice of the source recording.
     Aligning by matching sample values is unreliable, since a quiet signal
     (no load) repeats the same values throughout a recording.
 
@@ -305,8 +303,19 @@ def compare_subrange(reference_path, export_path, signal_name, *,
     :param atol: Absolute tolerance for the sample comparison.  An export from
         the same stream is bit-identical, so the default is exact.
     :param rtol: Relative tolerance for the sample comparison.
-    :param max_shift: Max samples between the UTC-derived and actual offset.
-    :raises AssertionError: If no aligned match is found.
+    :param max_shift: Max samples between the UTC-derived and actual offset,
+        when aligning by UTC.
+    :param sample_ids: How the export's sample ids locate the reference
+        samples, exactly:
+
+        * ``'stream'``: both came from one device stream, such as a recording
+          and an export of the live view, so they share sample ids.
+        * ``'file'``: the export came from the reference file opened in the
+          UI, which numbers the file's samples from 0.
+        * None: align by UTC instead, give or take ``max_shift`` samples.  A
+          JLS v1 reference has no sample ids, and a JS110's UTC is only
+          approximate.
+    :raises AssertionError: If the samples differ, with a diagnosis.
     :return: The matched start offset (in samples) within the reference.
     """
     with open_reader(export_path) as exp:
@@ -315,33 +324,113 @@ def compare_subrange(reference_path, export_path, signal_name, *,
         assert esig.length > 0, f'{export_path}: signal {signal_name!r} is empty'
         exp_data = read_fsr(exp, esig.signal_id)
         utc = exp.sample_id_to_timestamp(esig.signal_id, 0)
+        exp_offset = esig.sample_id_offset
     n = exp_data.size
-    start, ref_data, guess, length = _reference_window(
-        reference_path, signal_name, utc, n, max_shift)
-    assert ref_data.size >= n, \
-        f'{export_path}: export ({n} samples at reference {guess}) extends ' \
-        f'past {reference_path} ({length} samples)'
     # Missing samples are NaN in both, so NaN matches NaN.
     tol = dict(atol=atol, rtol=rtol, equal_nan=True)
-    probe = exp_data[:_PROBE_SAMPLES]
-    for offset in sorted(range(start, start + ref_data.size - n + 1), key=lambda x: abs(x - guess)):
-        i = offset - start
-        # A short probe rejects most offsets before the full compare.
-        if (np.allclose(ref_data[i:i + probe.size], probe, **tol)
-                and np.allclose(ref_data[i:i + n], exp_data, **tol)):
-            return offset
-    i = min(max(0, guess - start), ref_data.size - n)
-    diff = np.flatnonzero(~np.isclose(ref_data[i:i + n], exp_data, **tol))
-    # Report where the export's start matches, if anywhere, to tell a larger
-    # UTC offset from different data.
-    _, full, _, _ = _reference_window(reference_path, signal_name, utc, 0, length)
-    matches = [int(k) for k in np.flatnonzero(np.isclose(full[:full.size - probe.size + 1],
-                                                         probe[0], **tol))[:100_000]
-               if np.allclose(full[k:k + probe.size], probe, **tol)][:5]
-    raise AssertionError(
-        f'{export_path}: signal {signal_name!r} samples differ from '
-        f'{reference_path} near sample {guess}: at that offset, {diff.size} of {n} '
-        f'differ from export sample {diff[0]}; NaN samples: export '
-        f'{np.count_nonzero(np.isnan(exp_data))}, reference {np.count_nonzero(np.isnan(ref_data))}; '
-        f'export start matches reference samples {matches} '
-        f'(offsets from {guess}: {[k - guess for k in matches]})')
+    if sample_ids is None:
+        start, ref_data, guess, length = _reference_window(
+            reference_path, signal_name, utc, n, max_shift)
+        assert ref_data.size >= n, \
+            f'{export_path}: export ({n} samples at reference {guess}) extends ' \
+            f'past {reference_path} ({length} samples)'
+        probe = exp_data[:_PROBE_SAMPLES]
+        for offset in sorted(range(start, start + ref_data.size - n + 1), key=lambda x: abs(x - guess)):
+            i = offset - start
+            # A short probe rejects most offsets before the full compare.
+            if (np.allclose(ref_data[i:i + probe.size], probe, **tol)
+                    and np.allclose(ref_data[i:i + n], exp_data, **tol)):
+                return offset
+        index, ref_offset = guess, None
+    else:
+        if sample_ids not in ('stream', 'file'):
+            raise ValueError(f'unsupported sample_ids {sample_ids!r}')
+        with open_reader(reference_path) as ref:
+            rsig = signal_by_name(ref, signal_name)
+            assert rsig is not None, f'{reference_path}: signal {signal_name!r} not found'
+            ref_offset = rsig.sample_id_offset
+            index = exp_offset - (ref_offset if sample_ids == 'stream' else 0)
+            if 0 <= index and index + n <= rsig.length:
+                ref_data = read_fsr(ref, rsig.signal_id, index, n)
+                if np.allclose(ref_data, exp_data, **tol):
+                    return index
+    raise AssertionError(_mismatch_report(
+        reference_path, export_path, signal_name, exp_data, utc, index, tol,
+        f'{sample_ids or "utc"}; export sample_id_offset {exp_offset}, '
+        f'reference sample_id_offset {ref_offset}, sample rate {esig.sample_rate}',
+        esig.sample_rate))
+
+
+def _mismatch_report(reference_path, export_path, signal_name, export, utc, index, tol,
+                     alignment, sample_rate):
+    """Diagnose an export that differs from its reference at ``index``.
+
+    Reports enough to find the cause from a CI log alone: the alignment, the
+    UTC-derived position, where and how the samples differ, missing samples,
+    the nearest exact matches, and the best correlation.
+    """
+    n = export.size
+    _, full, guess, length = _reference_window(reference_path, signal_name, utc, 0, 1 << 62)
+    ms = 1000.0 / sample_rate
+    lines = [
+        f'{export_path}: signal {signal_name!r} samples differ from {reference_path}',
+        f'  alignment: {alignment}',
+        f'  export: {n} samples at reference index {index}; reference: {length} samples',
+        f'  UTC places the export at reference index {guess} '
+        f'(index - UTC = {index - guess} samples = {(index - guess) * ms:.3f} ms)',
+        f'  NaN samples: export {np.count_nonzero(np.isnan(export))}, '
+        f'reference {np.count_nonzero(np.isnan(full))}',
+    ]
+    if 0 <= index and index + n <= length:
+        ref = full[index:index + n]
+        diff = np.flatnonzero(~np.isclose(ref, export, **tol))
+        k = int(diff[0])
+        lo, hi = max(0, k - 3), min(n, k + 5)
+        lines += [
+            f'  at index {index}: {diff.size} of {n} samples differ, first at export '
+            f'sample {k}, last at {int(diff[-1])}',
+            f'  export[{lo}:{hi}]    {export[lo:hi].tolist()}',
+            f'  reference[{index + lo}:{index + hi}] {ref[lo:hi].tolist()}',
+        ]
+    else:
+        lines.append(f'  index {index} places the export outside the reference')
+    probe = export[:_PROBE_SAMPLES]
+    if probe.size:
+        candidates = np.flatnonzero(np.isclose(full[:max(0, full.size - probe.size + 1)],
+                                               probe[0], **tol))
+        candidates = candidates[np.argsort(np.abs(candidates - index), kind='stable')][:200_000]
+        matches = [int(c) for c in candidates
+                   if np.allclose(full[c:c + probe.size], probe, **tol)][:3]
+        lines.append(f'  nearest exact matches of the first {probe.size} export samples: '
+                     f'{matches} (offsets from index: {[m - index for m in matches]}; '
+                     f'searched {candidates.size} candidates)')
+    lines.append(f'  {_correlation_report(full, export, index)}')
+    return '\n'.join(lines)
+
+
+def _correlation_report(reference, export, guess, span=2_000_000, count=1 << 16):
+    """Describe where ``export`` best correlates with ``reference``.
+
+    Tells nearly equal values (different processing) from unrelated data
+    when no exact match exists.
+
+    :param span: Reference samples searched on each side of ``guess``.
+    :param count: Export samples correlated.
+    """
+    seg = np.nan_to_num(export[:count].astype(np.float64))
+    start = max(0, guess - span)
+    ref = np.nan_to_num(reference[start:max(start, guess + span + seg.size)].astype(np.float64))
+    if ref.size < seg.size or not np.any(seg - seg.mean()):
+        return 'correlation: not computed'
+    seg -= seg.mean()
+    nfft = 1 << int(ref.size + seg.size - 1).bit_length()
+    corr = np.fft.irfft(np.fft.rfft(ref - ref.mean(), nfft)
+                        * np.conj(np.fft.rfft(seg, nfft)), nfft)[:ref.size - seg.size + 1]
+    lag = int(np.argmax(corr))
+    best = ref[lag:lag + seg.size]
+    coef = np.corrcoef(seg, best)[0, 1]
+    delta = np.abs(export[:seg.size].astype(np.float64) - best)
+    return (f'correlation: best at reference sample {start + lag} '
+            f'(offset {start + lag - guess}), coefficient {coef:.6f}, '
+            f'max |difference| {np.nanmax(delta):.6g}, export rms {np.std(seg):.6g}; '
+            f'export[:4] {export[:4].tolist()}, reference[:4] at best {best[:4].tolist()}')

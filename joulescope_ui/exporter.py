@@ -245,11 +245,12 @@ class Exporter(RangeToolBase):
             utc_start, utc_end = self.x_range
             self._log.info('%s: %d %d | %.3f', signal['signal'], utc_start, utc_end,
                            (utc_end - utc_start) / time64.SECOND)
-            sample_id_offset, sample_id_end = signal['sample_range']
+            # Keep the source's sample ids: JLS stores the first as its offset.
+            sample_id_start, sample_id_end = signal['sample_range']
             jls_signal_id = signal['jls_signal_id']
             with signal['info']['tmap'] as tmap:
                 tmap_entries = tmap.time_map_get()
-                jls.utc(jls_signal_id, 0, tmap.sample_id_to_timestamp(sample_id_offset))
+                jls.utc(jls_signal_id, sample_id_start, tmap.sample_id_to_timestamp(sample_id_start))
                 if len(tmap_entries):
                     try:
                         tmap_entries[0]['offset_counter']
@@ -258,11 +259,11 @@ class Exporter(RangeToolBase):
                         f1, f2 = 'sample_id', 'timestamp'
                 for e in tmap_entries:
                     if utc_start < e[f2] < utc_end:
-                        jls.utc(jls_signal_id, e[f1] - sample_id_offset, e[f2])
-                jls.utc(jls_signal_id, sample_id_end - sample_id_offset, tmap.sample_id_to_timestamp(sample_id_end))
+                        jls.utc(jls_signal_id, e[f1], e[f2])
+                jls.utc(jls_signal_id, sample_id_end, tmap.sample_id_to_timestamp(sample_id_end))
             count = 0
-            length_total = sample_id_end - sample_id_offset
-            sample_id = sample_id_offset
+            length_total = sample_id_end - sample_id_start
+            sample_id = sample_id_start
             bytes_since_flush = 0
             while not self.abort:
                 length_remaining = sample_id_end - sample_id
@@ -277,7 +278,7 @@ class Exporter(RangeToolBase):
                     self._log.warning(f'sample_id mismatch: {sample_id_start} != {sample_id}')
                     sample_id = sample_id_start
                 data = np.ascontiguousarray(d['data'])
-                jls.fsr(jls_signal_id, sample_id - sample_id_offset, data)
+                jls.fsr(jls_signal_id, sample_id, data)
                 sample_id += info['time_range_samples']['length']
                 count += length
                 bytes_since_flush += data.nbytes

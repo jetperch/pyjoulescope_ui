@@ -36,10 +36,6 @@ _RECORD_SECONDS = 10.0
 _LIVE_BUFFER = 'JsdrvStreamBuffer:001'
 _SIGNALS = ['current', 'voltage', 'power']
 _EXPORT_TIMEOUT = 120.0     # seconds; a 1 MHz export writes tens of MB
-# Allowed UTC disagreement between a recording and a live-buffer export of the
-# same samples.  JS110 recordings and its stream buffer differ by about 2 ms
-# (see docs/plans/completed/expand_test_coverage_202610.md, Stage 1 findings).
-_UTC_TOLERANCE_S = {'JS110': 0.005, 'JS220': 0.0, 'JS320': 0.0}
 
 
 def _rate(device, rate):
@@ -52,14 +48,18 @@ def _inner(t0, t1, lo, hi):
     return [int(t0 + lo * span), int(t0 + hi * span)]
 
 
-def _export_and_verify(ui_session, wf, path, x_range, signals, reference, max_shift=4):
-    """Add dual markers inside ``x_range``, export, and compare with ``reference``."""
+def _export_and_verify(ui_session, wf, path, x_range, signals, reference, sample_ids):
+    """Add dual markers inside ``x_range``, export, and compare with ``reference``.
+
+    Aligns by sample id (see :func:`verify.compare_subrange`), since a JS110's
+    UTC differs between a recording and its stream buffer by milliseconds.
+    """
     ui_session.add_dual_markers(wf, *_inner(*x_range, 0.25, 0.75))
     ui_session.export_range(wf, path, x_range=x_range, signals=signals,
                             timeout=_EXPORT_TIMEOUT)
     verify.assert_recording(path, signal_names=_SIGNALS)
     for name in _SIGNALS:
-        verify.compare_subrange(reference, path, name, max_shift=max_shift)
+        verify.compare_subrange(reference, path, name, sample_ids=sample_ids)
     markers = verify.count_annotations(ui_session.annotation_path(path),
                                        annotation_type=pyjls.AnnotationType.VMARKER)
     assert markers == 2, f'{path}: expected 2 vertical markers, found {markers}'
@@ -97,9 +97,8 @@ def test_record_export(ui_session, device, tmp_capture, rate):
                     if s.startswith(f'{_LIVE_BUFFER}.{device.unique_id}.')
                     and s.split('.')[-1] in ('i', 'v', 'p')]
     assert len(live_signals) == 3, f'live buffer signals: {live_signals}'
-    max_shift = max(4, int(_UTC_TOLERANCE_S[device.model] * freq))
     _export_and_verify(ui_session, live_wf, path_b, _inner(*a_range, 0.3, 0.7),
-                       live_signals, path_a, max_shift=max_shift)
+                       live_signals, path_a, 'stream')
 
     # 4. View -> File, open A.
     ui_session.set_view('file')
@@ -112,4 +111,4 @@ def test_record_export(ui_session, device, tmp_capture, rate):
     # 6. Markers on the opened file's waveform, export C.
     x0, x1 = ui_session.source_utc_range(source_a)
     _export_and_verify(ui_session, file_wf, path_c, _inner(x0, x1, 0.2, 0.6),
-                       ui_session.buffer_signals(source_a), path_a)
+                       ui_session.buffer_signals(source_a), path_a, 'file')

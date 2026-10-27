@@ -41,13 +41,13 @@ from uitest.jls_fixtures import write_fsr_v2  # noqa: E402
 
 
 def _write_v2(path, *, signal_name='current', units='A', sample_rate=1000,
-              data=None, markers=0, start_value=0.0, utc_offset_s=0.0):
+              data=None, markers=0, start_value=0.0, utc_offset_s=0.0, sample_id_offset=0):
     """Write a minimal JLS v2 fixture (thin wrapper over the shared writer)."""
     if data is None:
         data = np.linspace(start_value, start_value + 1.0, 5000, dtype=np.float32)
     return write_fsr_v2(path, signal_name=signal_name, units=units,
                         sample_rate=sample_rate, data=data, markers=markers,
-                        utc_offset_s=utc_offset_s)
+                        utc_offset_s=utc_offset_s, sample_id_offset=sample_id_offset)
 
 
 class TestVerify(unittest.TestCase):
@@ -155,7 +155,8 @@ class TestVerify(unittest.TestCase):
         part = full[offset:offset + 4000].copy()
         part[2000:2050] = 0.0
         _write_v2(exp, data=part, utc_offset_s=offset / 1000)
-        with self.assertRaisesRegex(AssertionError, '50 of 4000 differ from export sample 2000'):
+        with self.assertRaisesRegex(AssertionError, '50 of 4000 samples differ, first at export '
+                                                    'sample 2000, last at 2049'):
             verify.compare_subrange(ref, exp, 'current')
 
     def test_compare_subrange_reports_match_offset(self):
@@ -165,9 +166,51 @@ class TestVerify(unittest.TestCase):
         full = (np.sin(np.arange(20000) / 50.0) + np.arange(20000) * 1e-4).astype(np.float32)
         _write_v2(ref, data=full)
         _write_v2(exp, data=full[5300:9300], utc_offset_s=5.0)
-        with self.assertRaisesRegex(AssertionError, r'matches reference samples \[5300\] '
-                                                    r'\(offsets from 5000: \[300\]\)'):
+        with self.assertRaisesRegex(AssertionError, r'exact matches .*: \[5300\] '
+                                                    r'\(offsets from index: \[300\]'):
             verify.compare_subrange(ref, exp, 'current')
+
+    def test_compare_subrange_reports_correlation(self):
+        # Nearly equal values match nowhere exactly but correlate at the offset.
+        ref = os.path.join(self.dir, 'A.jls')
+        exp = os.path.join(self.dir, 'B.jls')
+        rng = np.random.default_rng(1)
+        full = rng.normal(size=20000).astype(np.float32)
+        _write_v2(ref, data=full)
+        _write_v2(exp, data=full[5300:9300] * np.float32(1.001), utc_offset_s=5.0)
+        with self.assertRaisesRegex(AssertionError, r'(?s)exact matches .*: \[\].*'
+                                    r'best at reference sample 5300 \(offset 300\), '
+                                    r'coefficient 1\.0000'):
+            verify.compare_subrange(ref, exp, 'current')
+
+    def test_compare_subrange_stream_sample_ids(self):
+        # A recording and a live export share the stream's sample ids, so they
+        # align exactly however far apart their UTC is.
+        ref = os.path.join(self.dir, 'A.jls')
+        exp = os.path.join(self.dir, 'B.jls')
+        full = np.random.default_rng(2).integers(-3, 4, 20000).astype(np.float32) * 1e-8
+        _write_v2(ref, data=full, sample_id_offset=100_000)
+        _write_v2(exp, data=full[5000:9000], sample_id_offset=105_000, utc_offset_s=5.2)
+        self.assertEqual(5000, verify.compare_subrange(ref, exp, 'current', sample_ids='stream'))
+        with self.assertRaises(AssertionError):   # UTC is 200 samples off
+            verify.compare_subrange(ref, exp, 'current')
+        _write_v2(exp, data=full[5001:9001], sample_id_offset=105_000, utc_offset_s=5.0)
+        with self.assertRaisesRegex(AssertionError, r'(?s)alignment: stream; export sample_id_offset '
+                                    r'105000, reference sample_id_offset 100000.*'
+                                    r'index - UTC = 0 samples.*exact matches .*\[5001'):
+            verify.compare_subrange(ref, exp, 'current', sample_ids='stream')
+
+    def test_compare_subrange_file_sample_ids(self):
+        # An export from the opened file numbers the file's samples from 0.
+        ref = os.path.join(self.dir, 'A.jls')
+        exp = os.path.join(self.dir, 'C.jls')
+        full = (np.sin(np.arange(20000) / 50.0)).astype(np.float32)
+        _write_v2(ref, data=full, sample_id_offset=100_000)
+        _write_v2(exp, data=full[3000:7000], sample_id_offset=3000, utc_offset_s=3.0)
+        self.assertEqual(3000, verify.compare_subrange(ref, exp, 'current', sample_ids='file'))
+        _write_v2(exp, data=full[3000:7000], sample_id_offset=19000)
+        with self.assertRaisesRegex(AssertionError, 'outside the reference'):
+            verify.compare_subrange(ref, exp, 'current', sample_ids='file')
 
     def test_compare_subrange_past_end(self):
         ref = os.path.join(self.dir, 'A.jls')

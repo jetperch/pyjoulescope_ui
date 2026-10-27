@@ -29,6 +29,9 @@ This file contains the list of changes made to pyjoulescope_ui.
   * Windows installer has command line option to suppress UI launch.
   * Testing correctly handles "Getting Started with Your Joulescope" dialog.
   * Recording comparisons treat missing (NaN) samples as matching.
+  * Live exports align with recordings by sample id, not UTC.
+* Changed exports to keep the source's sample ids instead of starting at 0,
+  so an export of the live view aligns exactly with a recording.
 
 
 ## 1.7.6

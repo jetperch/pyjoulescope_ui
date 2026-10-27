@@ -29,7 +29,7 @@ _UTC_BASE = 300 * pyjls.time64.SECOND
 
 def write_fsr_v2(path, *, signal_name='current', units='A', sample_rate=1000,
                  data=None, markers=0, model='JS220', serial_number='001234',
-                 utc=True, utc_offset_s=0.0):
+                 utc=True, utc_offset_s=0.0, sample_id_offset=0):
     """Write a minimal JLS v2 file with one FSR signal and ``markers`` VMARKERs.
 
     :param data: 1-D samples (default a 5000-point ramp 0..1).
@@ -39,6 +39,7 @@ def write_fsr_v2(path, *, signal_name='current', units='A', sample_rate=1000,
         without UTC cannot be exported.
     :param utc_offset_s: Seconds to shift the UTC start from the fixed base,
         to make a file that is a later sub-range of another.
+    :param sample_id_offset: The first sample id, as in a recording.
     :return: The ``data`` array actually written (handy for round-trip asserts).
     """
     if data is None:
@@ -53,10 +54,11 @@ def write_fsr_v2(path, *, signal_name='current', units='A', sample_rate=1000,
         if utc:
             last = len(data) - 1
             t0 = _UTC_BASE + int(round(utc_offset_s * pyjls.time64.SECOND))
-            w.utc(1, 0, t0)
-            w.utc(1, last, t0 + int(round(last / sample_rate * pyjls.time64.SECOND)))
-        w.fsr_f32(1, 0, data)
+            w.utc(1, sample_id_offset, t0)
+            w.utc(1, sample_id_offset + last,
+                  t0 + int(round(last / sample_rate * pyjls.time64.SECOND)))
+        w.fsr_f32(1, sample_id_offset, data)
         for i in range(markers):
             sample = int((i + 1) * len(data) / (markers + 1))
-            w.annotation(1, sample, 0.0, pyjls.AnnotationType.VMARKER, 0, f'm{i}')
+            w.annotation(1, sample_id_offset + sample, 0.0, pyjls.AnnotationType.VMARKER, 0, f'm{i}')
     return data
