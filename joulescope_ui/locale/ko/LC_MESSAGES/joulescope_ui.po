@@ -390,7 +390,7 @@ msgid ""
 "exported data."
 msgstr "데이터를 JLS 파일로 내보내기. 나중에 이 파일을 열어 내보낸 데이터를 표시할 수 있습니다."
 
-#: exporter.py:310
+#: exporter.py:311
 msgid "Export failed"
 msgstr "내보내기에 실패했습니다"
 

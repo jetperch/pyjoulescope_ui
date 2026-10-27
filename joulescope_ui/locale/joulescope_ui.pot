@@ -379,7 +379,7 @@ msgid ""
 "exported data."
 msgstr ""
 
-#: exporter.py:310
+#: exporter.py:311
 msgid "Export failed"
 msgstr ""
 

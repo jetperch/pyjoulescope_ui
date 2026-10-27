@@ -435,7 +435,7 @@ msgstr ""
 "Esportazione dei dati in un file JLS. È possibile aprire questo file in un "
 "secondo momento per visualizzare i dati esportati."
 
-#: exporter.py:310
+#: exporter.py:311
 msgid "Export failed"
 msgstr "Esportazione non riuscita"
 

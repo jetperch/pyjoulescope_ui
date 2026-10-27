@@ -387,7 +387,7 @@ msgid ""
 "exported data."
 msgstr "データを JLS ファイルにエクスポートします。このファイルを後で開いて、エクスポートしたデータを表示することができます。"
 
-#: exporter.py:310
+#: exporter.py:311
 msgid "Export failed"
 msgstr "エクスポートに失敗しました"
 
