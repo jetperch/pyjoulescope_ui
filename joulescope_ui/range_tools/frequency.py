@@ -52,7 +52,7 @@ class FrequencyRangeTool(RangeToolBase):
 
         d = self.request(signal, 'utc', *self.x_range, 1)
         fs = d['info']['time_map']['counter_rate']
-        s_now = d['info']['time_range_samples']['start']
+        s_start = s_now = d['info']['time_range_samples']['start']
         s_end = d['info']['time_range_samples']['end'] + 1
         sample_count = s_end - s_now
 
@@ -91,10 +91,15 @@ class FrequencyRangeTool(RangeToolBase):
             x[x_offset:(x_offset + d_len)] = d[data_offset:]
             x_offset += d_len
             s_now += length
-            self.progress(s_now / (length + 1))
+            self.progress((s_now - s_start) / sample_count)
 
         y *= (1.0 / k)  # average
-        y = 20 * np.log10(y)  # convert to dB
+        # One-sided: fft_factor doubled every bin, but DC and Nyquist have no
+        # negative-frequency image.
+        y[0] *= 0.5
+        if nfft % 2 == 0:
+            y[-1] *= 0.5
+        y = 10 * np.log10(y)  # power spectral density in dB
 
         self.pubsub.publish('registry/view/actions/!widget_open', {
             'value': 'FrequencyRangeToolWidget',
@@ -146,7 +151,7 @@ class FrequencyRangeToolWidget(QtWidgets.QWidget):
         p = self._p
         p.getAxis('left').setGrid(128)
         p.getAxis('bottom').setGrid(128)
-        p.setLabels(left='Magnitude (dB)', bottom='Frequency (Hz)')
+        p.setLabels(left='Power spectral density (dB)', bottom='Frequency (Hz)')
 
         self._label = pg.LabelItem(justify='right')
         self._win.addItem(self._label, row=0, col=0)

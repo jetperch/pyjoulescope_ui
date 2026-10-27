@@ -207,6 +207,18 @@ class TestServerClient(unittest.TestCase):
         self.pubsub.process()
         self.assertEqual(self.client.query('test/range'), {'x': [1.5], 'n': 3})
 
+    def test_query_large_nested_ndarray(self):
+        # Regression: a range tool's result data (arrays in a dict, > 64 KB of
+        # JSON) must decode to arrays and not overflow the uint16 header.
+        self.pubsub.topic_add('test/data', dtype='obj', brief='data', default=None)
+        x = np.arange(5000, dtype=np.float64) / 3
+        self.pubsub.publish('test/data', {'x': x, 'y': [x[:10]], 'name': 'psd'})
+        self.pubsub.process()
+        value = self.client.query('test/data')
+        np.testing.assert_array_equal(x, value['x'])
+        np.testing.assert_array_equal(x[:10], value['y'][0])
+        self.assertEqual('psd', value['name'])
+
     def test_multiple_clients(self):
         client2 = Client(host='127.0.0.1', port=self.server.port, token='test_token')
         client2.open()
@@ -287,10 +299,10 @@ class TestQtResponseCorrelation(unittest.TestCase):
         # delivered in the binary payload (the header_length field is a uint16,
         # so a >64 KB header overflows with "'H' format requires 0 <= number").
         import json
-        from joulescope_ui.tcp_server.bridge import _encode_qt_response
+        from joulescope_ui.tcp_server.bridge import _encode_response
         big = {'id': 5, 'children': ['x' * 100 for _ in range(2000)]}  # > 60 KB
         frames = FrameDecoder().feed(
-            _encode_qt_response(MSG_QT_INSPECT_RESPONSE, big, None))
+            _encode_response(MSG_QT_INSPECT_RESPONSE, big, None))
         msg_type, header, payload = frames[0]
         self.assertEqual(msg_type, MSG_QT_INSPECT_RESPONSE)
         self.assertTrue(header.get('json_in_payload'))
@@ -298,10 +310,10 @@ class TestQtResponseCorrelation(unittest.TestCase):
         self.assertEqual(json.loads(payload), big)
 
     def test_small_qt_response_stays_inline(self):
-        from joulescope_ui.tcp_server.bridge import _encode_qt_response
+        from joulescope_ui.tcp_server.bridge import _encode_response
         small = {'id': 6, 'class': 'MainWindow'}
         frames = FrameDecoder().feed(
-            _encode_qt_response(MSG_QT_INSPECT_RESPONSE, small, None))
+            _encode_response(MSG_QT_INSPECT_RESPONSE, small, None))
         _, header, payload = frames[0]
         self.assertEqual(header, small)
         self.assertEqual(payload, b'')

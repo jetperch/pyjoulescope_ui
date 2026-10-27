@@ -545,7 +545,7 @@ msgstr "언어 선택"
 msgid "The application will automatically close when you change the locale."
 msgstr "로캘을 변경하면 애플리케이션이 자동으로 닫힙니다."
 
-#: main.py:78 widgets/value/value_widget.py:776
+#: main.py:78 widgets/value/value_widget.py:788
 msgid "Multimeter"
 msgstr "멀티미터"
 
@@ -804,7 +804,7 @@ msgstr "최신 파일 목록"
 msgid "Most recently used length"
 msgstr "가장 최근에 사용된 길이"
 
-#: range_tool.py:341
+#: range_tool.py:346
 msgid "Range tool failed"
 msgstr "범위 도구가 작동하지 않았습니다"
 
@@ -1748,7 +1748,7 @@ msgid ""
 "signal's data values over the selected range."
 msgstr "주파수 스펙트럼을 계산하여 선택한 범위에서 신호 데이터 값의 주파수 내용을 분석합니다."
 
-#: range_tools/frequency.py:215
+#: range_tools/frequency.py:220
 msgid "Frequency configuration"
 msgstr "주파수 구성"
 
@@ -1768,7 +1768,7 @@ msgstr "주파수 분포"
 msgid "Probability Density Distribution"
 msgstr "확률 밀도 분포"
 
-#: range_tools/histogram.py:44 range_tools/max_window.py:120
+#: range_tools/histogram.py:44 range_tools/max_window.py:109
 #: widgets/trigger/trigger_widget.py:220
 msgid "Signal"
 msgstr "신호"
@@ -1790,30 +1790,30 @@ msgid ""
 "Compute a histogram of the signal's data values over the selected range."
 msgstr "선택한 범위에서 신호 데이터 값의 히스토그램을 계산합니다."
 
-#: range_tools/max_window.py:25
+#: range_tools/max_window.py:31
 msgid "Max window"
 msgstr "최대 창"
 
-#: range_tools/max_window.py:26
+#: range_tools/max_window.py:32
 msgid "Find the maximum value window"
 msgstr "최대값 창 찾기"
 
-#: range_tools/max_window.py:28
+#: range_tools/max_window.py:34
 msgid ""
 "Search the range for the window that has the maximum value. This is an "
 "exhaustive search made by sliding the window duration across the entire "
 "range."
 msgstr "최대값이 있는 범위의 창을 검색합니다. 전체 범위에서 윈도우 지속 시간을 슬라이드하여 검색합니다."
 
-#: range_tools/max_window.py:31
+#: range_tools/max_window.py:37
 msgid "When complete, this tool will add dual markers to the waveform."
 msgstr "완료되면 이 도구는 파형에 이중 마커를 추가합니다."
 
-#: range_tools/max_window.py:97
+#: range_tools/max_window.py:86
 msgid "Max Window configuration"
 msgstr "최대 창 구성"
 
-#: range_tools/max_window.py:106
+#: range_tools/max_window.py:95
 msgid "Width of window (in seconds)"
 msgstr "창 너비(초)"
 
@@ -2535,7 +2535,7 @@ msgstr "off"
 msgid "External Serial..."
 msgstr "외부 시리얼..."
 
-#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:785
+#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:797
 msgid "Value"
 msgstr "Value"
 

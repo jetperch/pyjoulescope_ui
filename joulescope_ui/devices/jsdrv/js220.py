@@ -743,8 +743,6 @@ class Js220(Device):
             v = _GPO_BIT[topic[4:]]
             t = 's/gpo/+/!set' if bool(value) else 's/gpo/+/!clr'
             self._driver_publish(t, v, timeout=0)
-        elif topic == 'signal_frequency':
-            self._driver_publish('h/fs', int(value), timeout=0)
         elif topic == 'statistics_frequency':
             scnt = int(1_000_000 / float(value))
             self._driver_publish('s/stats/scnt', scnt, timeout=0)
@@ -856,6 +854,8 @@ class Js220(Device):
     def _run_cmd(self, cmd, args):
         if cmd == 'settings':
             self._run_cmd_settings(*args)
+        elif cmd == 'signal_frequency':
+            self._signal_frequency_apply(*args)
         elif cmd == 'current_range_update':
             self._current_range_update()
         elif cmd == 'close':
@@ -959,6 +959,7 @@ class Js220(Device):
             return
         self._log.info('close %s start', self.unique_id)
         self._ui_unsubscribe('settings', self._on_settings)
+        self._signal_frequency = None
         self._ui_publish('settings/state', 'closing')
         self._driver_unsubscribe_all()
         try:
@@ -1011,7 +1012,10 @@ class Js220(Device):
                 self._log.warning('Invalid settings topic %s', topic)
             return
         topic = topic[len(t):]
-        self._send_to_thread('settings', (topic, value))
+        if topic == 'signal_frequency':
+            self._signal_frequency_request(value)
+        else:
+            self._send_to_thread('settings', (topic, value))
 
     def _on_target_power_app(self, value):
         self._target_power_app = bool(value)

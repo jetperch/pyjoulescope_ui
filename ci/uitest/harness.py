@@ -39,6 +39,12 @@ _log = logging.getLogger(__name__)
 # A query topic that exists as soon as the pubsub bridge is live.
 _READY_TOPIC = 'common/settings/paths/app'
 
+# Recent files; the exporter adds its path on success.
+_MRU_TOPIC = 'registry/paths/settings/mru_files'
+
+#: objectName of the startup firmware DeviceUpdateDialog.
+DEVICE_UPDATE_DIALOG = 'device_update_dialog'
+
 
 class UiSessionError(RuntimeError):
     """Raised when the UI fails to start or become ready."""
@@ -63,11 +69,13 @@ class UiSession:
         changelog dialog at startup so it does not steal the active window from
         automation (default True).
     :param env: Extra environment variables for the UI process.
+    :param cwd: The UI process working directory.  ``python -m joulescope_ui``
+        imports the package from here first, so it selects the UI source.
     """
 
     def __init__(self, executable=None, app=discover.APP_NAME, *, offscreen=False,
                  config_clear_on_exit=True, startup_timeout=30.0, ready_timeout=30.0,
-                 client_timeout=10.0, suppress_startup_dialogs=True, env=None):
+                 client_timeout=10.0, suppress_startup_dialogs=True, env=None, cwd=None):
         self.executable = executable
         self.app = app
         self.offscreen = offscreen
@@ -77,6 +85,7 @@ class UiSession:
         self.ready_timeout = ready_timeout
         self.client_timeout = client_timeout
         self._extra_env = dict(env or {})
+        self._cwd = cwd
         self._proc = None
         self._client = None
         self._server_json = discover.server_json_path(app)
@@ -97,7 +106,7 @@ class UiSession:
         if self.offscreen:
             env['QT_QPA_PLATFORM'] = 'offscreen'
         _log.info('launching UI: %s', ' '.join(argv))
-        self._proc = subprocess.Popen(argv, env=env)
+        self._proc = subprocess.Popen(argv, env=env, cwd=self._cwd)
 
         creds = self._wait_for_credentials()
         self._client = Client(port=creds['port'], token=creds['token'],
@@ -139,8 +148,10 @@ class UiSession:
                 return
             cls = root.get('class', '')
             name = root.get('objectName', '')
-            is_dialog = (name == 'help_html_message_box'
-                         or 'MessageBox' in cls or cls.endswith('Dialog'))
+            # Leave the Device Update dialog up: test_device_firmware drives it.
+            is_dialog = name != DEVICE_UPDATE_DIALOG and (
+                name == 'help_html_message_box'
+                or 'MessageBox' in cls or cls.endswith('Dialog'))
             if not is_dialog:
                 if dismissed:
                     return  # main window is active again
@@ -175,6 +186,11 @@ class UiSession:
     def __exit__(self, exc_type, exc, tb):
         self.stop()
         return False
+
+    @property
+    def pid(self):
+        """The UI process id (or None before :meth:`start`)."""
+        return None if self._proc is None else self._proc.pid
 
     @property
     def client(self):
@@ -445,11 +461,13 @@ class UiSession:
         """Export an x-range to a JLS file non-interactively and wait for it.
 
         Writes ``path`` (data) and, when ``annotations`` and markers are present,
-        ``annotation_path(path)`` (markers).  Polls until the data file size is
-        stable (the export runs in a background thread with no socket-visible
-        completion signal).
+        ``annotation_path(path)`` (markers).  The exporter runs in a background
+        thread and, after it closes the file successfully, adds ``path`` to the
+        front of the recent-files list, which is the completion signal.
 
-        :raises TimeoutError: If the export does not produce a stable file.
+        :raises ValueError: If ``path`` is already the most recent file, so its
+            completion cannot be detected.
+        :raises TimeoutError: If the export does not complete.
         :return: ``path``.
         """
         value = {'path': path, 'x_range': list(x_range), 'annotations': annotations}
@@ -460,21 +478,22 @@ class UiSession:
                 os.remove(f)
             except FileNotFoundError:
                 pass
+        mru = self.query(_MRU_TOPIC) or []
+        if mru and mru[0] == path:
+            raise ValueError(f'export to the most recent file: {path}')
         self.publish(f'registry/{waveform_id}/actions/!export', value)
-        anno = self.annotation_path(path) if annotations else None
-        deadline = time.monotonic() + timeout
-        last_size = -1
-        while time.monotonic() < deadline:
-            if os.path.exists(path):
-                size = os.path.getsize(path)
-                # The annotation sidecar is written on a separate path; wait for
-                # it too (it can lag the data file for small/fast exports).
-                anno_ready = anno is None or os.path.exists(anno)
-                if size > 0 and size == last_size and anno_ready:
-                    return path        # data size stable + sidecar present
-                last_size = size
-            self.wait(0.5)
-        raise TimeoutError(f'export to {path} did not complete within {timeout}s')
+        try:
+            self.wait_for(_MRU_TOPIC, lambda v: bool(v) and v[0] == path, timeout=timeout)
+        except TimeoutError:
+            raise TimeoutError(f'export to {path} did not complete within {timeout}s')
+        if annotations:
+            # The sidecar is written from the export's start callback.
+            deadline = time.monotonic() + 5.0
+            while not os.path.exists(self.annotation_path(path)):
+                if time.monotonic() >= deadline:
+                    break   # no markers in range: no sidecar
+                self.wait(0.1)
+        return path
 
     def buffer_signals(self, source_id):
         """Return analysis signal-ids (``source.device.quantity``) for a buffer source."""
@@ -501,6 +520,44 @@ class UiSession:
         if not t0:
             raise ValueError(f'{source_id} has no signals')
         return max(t0), min(t1)
+
+    def menubar_invoke(self, text):
+        """Trigger a main window menu bar action by text path, e.g. ``'File/Exit'``."""
+        rsp = self.qt_action('menubar_invoke', text=text)
+        if not rsp.get('ok'):
+            raise ValueError(f'menubar_invoke {text!r}: {rsp.get("error")}')
+        return rsp
+
+    def wait_for_root(self, name, timeout=10.0):
+        """Wait until the root (modal or active) window's class or objectName is ``name``.
+
+        :raises TimeoutError: If it does not appear within ``timeout``.
+        """
+        deadline = time.monotonic() + timeout
+        while True:
+            root = self.qt_inspect(max_depth=0)
+            if name in (root.get('class'), root.get('objectName')):
+                return root
+            if time.monotonic() >= deadline:
+                raise TimeoutError(f'{name} did not appear within {timeout}s')
+            self.wait(0.2)
+
+    def wait_exit(self, timeout=15.0):
+        """Wait for the UI to exit on its own (e.g. File -> Exit).
+
+        :return: The process exit code.
+        :raises TimeoutError: If the UI is still running after ``timeout``.
+        """
+        try:
+            return self._proc.wait(timeout=timeout)
+        except subprocess.TimeoutExpired:
+            raise TimeoutError(f'UI did not exit within {timeout}s')
+
+    def set_view(self, name):
+        """Activate a view (``'multimeter'``, ``'oscilloscope'`` or ``'file'``)."""
+        view = f'view:{name}'
+        self.publish('registry/view/settings/active', view)
+        self.wait_for('registry/view/settings/active', lambda v: v == view, timeout=5.0)
 
     def waveform(self):
         """Return the most-recently-created WaveformWidget unique id (or None)."""

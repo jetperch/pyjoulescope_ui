@@ -74,12 +74,24 @@ def test_waveform_displays(ui_session, tmp_capture):
 
 
 def test_add_remove_signals(ui_session, tmp_capture):
-    """Add & remove signals: the per-trace toggle buttons enable/disable signals.
+    """Add & remove signals: the control bar's signal buttons show/hide plots."""
+    wf, _, _ = _open(ui_session, tmp_capture, render=False)
+    button = f'{wf}/WaveformControlWidget/signal_holder/signal_button_v'
 
-    The waveform's trace controls are real ``QPushButton``s (``trace_1..N``), so
-    this drives the actual UI via mouse clicks and verifies the checked state.
-    """
-    _open(ui_session, tmp_capture, render=False)
+    def enabled():
+        plots = ui_session.query(f'registry/{wf}/settings/state')['plots']
+        return {p['quantity']: p['enabled'] for p in plots}['v']
+
+    start = enabled()
+    ui_session.qt_action('click', path=button)
+    ui_session.wait_for(f'registry/{wf}/settings/state', lambda _: enabled() != start, timeout=5.0)
+    ui_session.qt_action('click', path=button)
+    ui_session.wait_for(f'registry/{wf}/settings/state', lambda _: enabled() == start, timeout=5.0)
+
+
+def test_source_trace_toggle(ui_session, tmp_capture):
+    """The per-trace source buttons (``trace_1..N``) toggle their checked state."""
+    wf, _, _ = _open(ui_session, tmp_capture, render=False)
 
     def checked(name):
         return ui_session.qt_action('get_property', path=name, property='checked')['value']
@@ -87,10 +99,10 @@ def test_add_remove_signals(ui_session, tmp_capture):
     start = checked('trace_2')
     ui_session.qt_action('click', path='trace_2')
     ui_session.wait(0.4)
-    assert checked('trace_2') != start, 'clicking the trace button did not toggle the signal'
+    assert checked('trace_2') != start, 'clicking the trace button did not toggle the trace'
     ui_session.qt_action('click', path='trace_2')
     ui_session.wait(0.4)
-    assert checked('trace_2') == start, 'clicking again did not restore the signal'
+    assert checked('trace_2') == start, 'clicking again did not restore the trace'
 
 
 def test_markers_single_and_dual_export(ui_session, tmp_capture):

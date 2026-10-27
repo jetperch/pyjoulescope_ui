@@ -93,6 +93,17 @@ jobs:
       - name: Test the UI release-test harness (hardware-free)
         run: pytest ci/uitest -m "not device"
 
+      # The next release's upgrade test starts the UI with this config
+      # (ci/uitest/config_fixtures.py); publish attaches it to the release.
+      - name: Save the UI config for the upgrade test
+        run: python ci/uitest/config_fixtures.py --out dist_config
+
+      - name: Upload the UI config
+        uses: actions/upload-artifact@v7
+        with:
+          name: ui_config
+          path: dist_config/joulescope_ui_config.json
+
       - name: Upload python source package
         uses: actions/upload-artifact@v7
         with:
@@ -100,51 +111,36 @@ jobs:
           path: dist/*.tar.gz
           if-no-files-found: error
 
+  # Push UI suite bundles that will run on the joulescope_ci benches only
+  # from refs we deliberately control: main and release tags.  Branch pushes
+  # (including Dependabot's dependabot/* branches) and all pull_request
+  # events must never reach the coordinator.
   push_ui_suite:
-    name: Push UI suite bundle to joulescope_ci
-    # Only push suite bundles that will run on the joulescope_ci benches
-    # from refs we deliberately control: main and release tags.  Branch
-    # pushes (including Dependabot's dependabot/* branches) and all
-    # pull_request events must never reach the coordinator.
+    name: Push UI suite bundle (dev)
     if: >-
       github.event_name == 'push' &&
       github.repository == 'jetperch/pyjoulescope_ui' &&
-      (github.ref == 'refs/heads/main' ||
-      startsWith(github.ref, 'refs/tags/v'))
+      github.ref == 'refs/heads/main'
     needs:
       - build_sdist
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repo
-        uses: actions/checkout@v7
+    uses: ./.github/workflows/push_ui_suite.yml
+    with:
+      build_kind: dev
+    secrets: inherit
 
-      - name: Download sdist
-        uses: actions/download-artifact@v8
-        with:
-          name: sdist
-          path: dist
-
-      # The uitest harness lives in ci/ (not packaged in the sdist), so the
-      # bundle carries both: the runner pip-installs the sdist into the
-      # bench's ~/venv/ui and runs pytest on the bundled ci/uitest tree.
-      - name: Assemble UI suite bundle
-        run: zip -r ui_suite.zip dist ci
-
-      - name: Push to joulescope_ci coordinator
-        env:
-          JCI_BUILD_TOKEN: ${{ secrets.JCI_BUILD_TOKEN }}
-        run: |
-          case "$GITHUB_REF" in
-            refs/tags/v*) BUILD_KIND=release ;;
-            *)            BUILD_KIND=dev ;;
-          esac
-          python3 ci/ci_artifact_push.py \
-            --url https://api.jetperch.com/github/build \
-            --source github --repo pyjoulescope_ui \
-            --ref "$GITHUB_REF" --commit "$GITHUB_SHA" \
-            --run-id "$GITHUB_RUN_ID" --build-kind "$BUILD_KIND" \
-            --artifact-type ui \
-            --artifact ui_suite.zip
+  # A release tests its published installer, so push after publish.
+  push_ui_suite_release:
+    name: Push UI suite bundle (release)
+    if: >-
+      github.event_name == 'push' &&
+      github.repository == 'jetperch/pyjoulescope_ui' &&
+      startsWith(github.ref, 'refs/tags/v')
+    needs:
+      - publish
+    uses: ./.github/workflows/push_ui_suite.yml
+    with:
+      build_kind: release
+    secrets: inherit
 
   build_flatpak:
     name: Build Flatpak ${{ matrix.variant.arch }}
@@ -401,6 +397,12 @@ jobs:
           merge-multiple: true
           path: dist_installer/
 
+      - name: Download UI config artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: ui_config
+          path: dist_config/
+
       # Flatpak bundles are kept out of dist_installer/ so ci/publish.py (the
       # in-app auto-updater index) ignores them; Flatpak self-updates via
       # Flatpak/Flathub.  They are attached to the GitHub Release below.
@@ -434,3 +436,4 @@ jobs:
           files: |
             dist_installer/*
             dist_flatpak/*
+            dist_config/*

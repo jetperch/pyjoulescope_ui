@@ -34,6 +34,9 @@ APP_NAME = 'joulescope'
 # Matching is case-insensitive so both forms (and ``Prefix:js320`` ids) resolve.
 _MODELS = ('JS220', 'JS320', 'JS110')
 
+#: Each model's full sample rate (Hz), the test plan's "full rate".
+FULL_RATE = {'JS110': 2_000_000, 'JS220': 1_000_000, 'JS320': 1_000_000}
+
 # Optional device expectation for the suite.  Unset => auto-detect (device
 # tests run against whatever is attached; absent models skip).  Set => the
 # comma-separated models are expected on this bench, and an expected model

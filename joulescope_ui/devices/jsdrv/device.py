@@ -36,6 +36,9 @@ CAPABILITIES_OBJECT_OPEN = [
 ]
 
 
+_STREAM_ENABLE_TOPIC = 'registry/app/settings/signal_stream_enable'
+
+
 class Device:
     """Joulescope driver."""
     CAPABILITIES = CAPABILITIES_CLASS
@@ -49,6 +52,7 @@ class Device:
         self._log = logging.getLogger(__name__ + '.' + device_path.replace('/', '.'))
         self._path = device_path
         self._driver_subscriptions = []
+        self._signal_frequency = None  # applied sample rate, None until the first after open
 
     def __str__(self):
         return f'Device({self._path})'
@@ -70,6 +74,27 @@ class Device:
         if topic[0] != '/':
             topic = '/' + topic
         return self._path + topic
+
+    def _signal_frequency_request(self, value):
+        """Set the signal sample rate (pubsub thread).
+
+        The jsdrv stream buffer sizes each signal for its sample rate when
+        streaming starts, so a rate change stops streaming, sets the rate, then
+        restores streaming, which restarts the buffer at the new rate.  The
+        first value after open (the saved setting) only sets the rate.
+        """
+        value = int(value)
+        previous, self._signal_frequency = self._signal_frequency, value
+        restart = previous not in (None, value) and bool(self.pubsub.query(_STREAM_ENABLE_TOPIC))
+        if restart:
+            self.pubsub.publish(_STREAM_ENABLE_TOPIC, False)
+        self._send_to_thread('signal_frequency', (value, restart))
+
+    def _signal_frequency_apply(self, value, restart):
+        """Apply the signal sample rate, then restore streaming (device thread)."""
+        self._driver_publish('h/fs', value)  # blocks until applied
+        if restart:
+            self.pubsub.publish(_STREAM_ENABLE_TOPIC, True)
 
     def _driver_publish(self, topic, value, timeout=None):
         return self._driver.publish(self._driver_topic_make(topic), value, timeout)

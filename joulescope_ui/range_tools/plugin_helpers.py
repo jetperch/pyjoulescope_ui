@@ -22,7 +22,7 @@ _log = logging.getLogger(__name__)
 
 def calculate_histogram(range_tool, range_tool_value, signal, num_bins: int = 0):
     d = range_tool.request(signal, 'utc', *range_tool_value['x_range'], 1)
-    s_now = d['info']['time_range_samples']['start']
+    s_start = s_now = d['info']['time_range_samples']['start']
     s_end = d['info']['time_range_samples']['end'] + 1  # +1 for inclusive to exclusive
 
     length = s_end - s_now
@@ -44,7 +44,7 @@ def calculate_histogram(range_tool, range_tool_value, signal, num_bins: int = 0)
         else:
             hist += np.histogram(y, bins=bin_edges)[0]
         s_now += length
-        range_tool.progress(s_now / s_end)
+        range_tool.progress((s_now - s_start) / (s_end - s_start))
 
     return hist, bin_edges
 

@@ -612,7 +612,7 @@ msgstr "Επιλέξτε μια γλώσσα"
 msgid "The application will automatically close when you change the locale."
 msgstr "Η εφαρμογή θα κλείσει αυτόματα όταν αλλάξετε την τοποθεσία."
 
-#: main.py:78 widgets/value/value_widget.py:776
+#: main.py:78 widgets/value/value_widget.py:788
 msgid "Multimeter"
 msgstr "Πολύμετρο"
 
@@ -887,7 +887,7 @@ msgstr "Λίστα πιο πρόσφατων αρχείων"
 msgid "Most recently used length"
 msgstr "Πιο πρόσφατα χρησιμοποιούμενο μήκος"
 
-#: range_tool.py:341
+#: range_tool.py:346
 msgid "Range tool failed"
 msgstr "Αποτυχία εργαλείου εύρους"
 
@@ -1928,7 +1928,7 @@ msgstr ""
 "Υπολογίστε το φάσμα συχνοτήτων για να αναλύσετε το συχνοτικό περιεχόμενο των"
 " τιμών δεδομένων του σήματος στο επιλεγμένο εύρος."
 
-#: range_tools/frequency.py:215
+#: range_tools/frequency.py:220
 msgid "Frequency configuration"
 msgstr "Διαμόρφωση συχνότητας"
 
@@ -1948,7 +1948,7 @@ msgstr "Κατανομή συχνότητας"
 msgid "Probability Density Distribution"
 msgstr "Κατανομή πυκνότητας πιθανότητας"
 
-#: range_tools/histogram.py:44 range_tools/max_window.py:120
+#: range_tools/histogram.py:44 range_tools/max_window.py:109
 #: widgets/trigger/trigger_widget.py:220
 msgid "Signal"
 msgstr "Σήμα"
@@ -1972,15 +1972,15 @@ msgstr ""
 "Υπολογίστε ένα ιστόγραμμα των τιμών δεδομένων του σήματος στο επιλεγμένο "
 "εύρος."
 
-#: range_tools/max_window.py:25
+#: range_tools/max_window.py:31
 msgid "Max window"
 msgstr "Μέγιστο παράθυρο"
 
-#: range_tools/max_window.py:26
+#: range_tools/max_window.py:32
 msgid "Find the maximum value window"
 msgstr "Εύρεση του παραθύρου μέγιστης τιμής"
 
-#: range_tools/max_window.py:28
+#: range_tools/max_window.py:34
 msgid ""
 "Search the range for the window that has the maximum value. This is an "
 "exhaustive search made by sliding the window duration across the entire "
@@ -1990,17 +1990,17 @@ msgstr ""
 "μια εξαντλητική αναζήτηση που γίνεται με ολίσθηση της διάρκειας του "
 "παραθύρου σε όλο το εύρος."
 
-#: range_tools/max_window.py:31
+#: range_tools/max_window.py:37
 msgid "When complete, this tool will add dual markers to the waveform."
 msgstr ""
 "Όταν ολοκληρωθεί, αυτό το εργαλείο θα προσθέσει διπλούς δείκτες στην "
 "κυματομορφή."
 
-#: range_tools/max_window.py:97
+#: range_tools/max_window.py:86
 msgid "Max Window configuration"
 msgstr "Διαμόρφωση μέγιστου παραθύρου"
 
-#: range_tools/max_window.py:106
+#: range_tools/max_window.py:95
 msgid "Width of window (in seconds)"
 msgstr "Πλάτος παραθύρου (σε δευτερόλεπτα)"
 
@@ -2771,7 +2771,7 @@ msgstr "off"
 msgid "External Serial..."
 msgstr "Εξωτερική σειριακή..."
 
-#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:785
+#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:797
 msgid "Value"
 msgstr "Τιμή"
 

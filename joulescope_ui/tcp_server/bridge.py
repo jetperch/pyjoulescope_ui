@@ -176,7 +176,7 @@ class PubSubBridge:
             response_header = {'topic': topic, 'value': _serialize_value(value)}
             if request_id is not None:
                 response_header['id'] = request_id
-            frame = encode(MSG_QUERY_RESPONSE, response_header)
+            frame = _encode_response(MSG_QUERY_RESPONSE, response_header, None)
         except Exception as ex:
             frame = encode(MSG_ERROR, {'message': str(ex), 'id': request_id})
         self._server.send_to_client(client, frame)
@@ -210,7 +210,7 @@ class PubSubBridge:
             # (the Qt inspector builds the header and does not carry it).
             if request_id is not None and isinstance(result_header, dict):
                 result_header = {**result_header, 'id': request_id}
-            frame = _encode_qt_response(result_msg_type, result_header, result_payload)
+            frame = _encode_response(result_msg_type, result_header, result_payload)
         except concurrent.futures.TimeoutError:
             # str() of the TimeoutError is empty, which hid stalls from clients
             msg = f'Qt main thread did not respond within {_QT_TIMEOUT} s'
@@ -241,12 +241,13 @@ class PubSubBridge:
                 self._server.send_to_client(client, frame)
 
 
-def _encode_qt_response(msg_type, header, payload):
-    """Encode a Qt response, moving an oversized JSON header into the payload.
+def _encode_response(msg_type, header, payload):
+    """Encode a response, moving an oversized JSON header into the payload.
 
-    A populated widget tree exceeds the uint16 header_length limit, so when the
-    response has no binary payload and a large header, serialize the header to
-    the payload (covered by the uint32 frame length) and flag it for the client.
+    A populated widget tree or a large queried value (e.g. a range tool's
+    result data) exceeds the uint16 header_length limit, so when the response
+    has no binary payload and a large header, serialize the header to the
+    payload (covered by the uint32 frame length) and flag it for the client.
     """
     if payload is None and isinstance(header, dict):
         body = json.dumps(header, separators=(',', ':')).encode('utf-8')

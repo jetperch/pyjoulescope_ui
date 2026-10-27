@@ -54,7 +54,7 @@ class CdfRangeTool(RangeToolBase):
                 'data': {
                     'x': bin_edges,
                     'y': y,
-                    'signal_name': signal[1],
+                    'signal_name': signal,
                     'type': 'CCDF' if complimentary else 'CDF'
                 },
             },

@@ -196,5 +196,21 @@ class TestPublishData(unittest.TestCase):
         self.assertIsNone(reconstructed['data'])
 
 
+class TestValueSerialization(unittest.TestCase):
+
+    def test_nested_ndarray_roundtrip(self):
+        # A range tool's result data nests arrays in a dict.
+        import json
+        from joulescope_ui.tcp_client import _deserialize_value
+        from joulescope_ui.tcp_server.bridge import _serialize_value
+        value = {'x': np.arange(3, dtype=np.float64), 'y': [np.ones(2, dtype=np.float32)],
+                 'name': 'CDF'}
+        result = _deserialize_value(json.loads(json.dumps(_serialize_value(value))))
+        np.testing.assert_array_equal(value['x'], result['x'])
+        self.assertEqual(np.float64, result['x'].dtype)
+        np.testing.assert_array_equal(value['y'][0], result['y'][0])
+        self.assertEqual('CDF', result['name'])
+
+
 if __name__ == '__main__':
     unittest.main()

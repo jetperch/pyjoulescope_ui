@@ -379,7 +379,6 @@ class Js110(Device):
             'current_ranging/type': 's/i/range/mode',
             'current_ranging/samples_pre': 's/i/range/pre',
             'current_ranging/samples_post': 's/i/range/post',
-            'signal_frequency': 'h/fs',
         }
 
         self._thread = None
@@ -534,6 +533,8 @@ class Js110(Device):
     def _run_cmd(self, cmd, args):
         if cmd == 'settings':
             self._run_cmd_settings(*args)
+        elif cmd == 'signal_frequency':
+            self._signal_frequency_apply(*args)
         elif cmd == 'current_range_update':
             self._current_range_update()
         elif cmd == 'close':
@@ -592,6 +593,7 @@ class Js110(Device):
             return
         self._log.info('close %s start', self.unique_id)
         self._ui_unsubscribe('settings', self._on_settings)
+        self._signal_frequency = None
         self._ui_publish('settings/state', 'closing')
         self._driver_unsubscribe('s/stats/value', self._on_stats)
         try:
@@ -637,7 +639,10 @@ class Js110(Device):
                 self._log.warning('Invalid settings topic %s', topic)
             return
         topic = topic[len(t):]
-        self._send_to_thread('settings', (topic, value))
+        if topic == 'signal_frequency':
+            self._signal_frequency_request(value)
+        else:
+            self._send_to_thread('settings', (topic, value))
 
     def _on_target_power_app(self, value):
         self._target_power_app = bool(value)

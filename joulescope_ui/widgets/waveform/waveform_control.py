@@ -174,6 +174,7 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._layout.addWidget(self._signals_label)
 
         self._signal_holder = QtWidgets.QWidget(self)
+        self._signal_holder.setObjectName('signal_holder')
         self._layout.addWidget(self._signal_holder)
         self._signal_layout = QtWidgets.QHBoxLayout(self._signal_holder)
         self._signal_layout.setContentsMargins(3, 0, 3, 0)
@@ -295,7 +296,7 @@ class WaveformControlWidget(QtWidgets.QWidget):
     def _add_signal(self, signal):
         b = QtWidgets.QPushButton(self)
         b.setText(signal)
-        b.setObjectName(f'signal_button')
+        b.setObjectName(f'signal_button_{signal}')
         b.setCheckable(True)
         b.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Minimum)
         b.setToolTip(_TOOLTIP_SIGNAL)

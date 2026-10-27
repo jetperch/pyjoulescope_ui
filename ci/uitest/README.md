@@ -26,6 +26,7 @@ Run everything with `pytest` from the **`pyjoulescope_ui/`** directory.
 | Hardware-free UI | `test_basics`, `test_preferences`, `test_open_jls`, `test_waveform`, `test_analysis` | the UI (runs offscreen) |
 | Interactive (rendered) | `test_waveform_interactive` | a real display (`JS_UITEST_DISPLAY=1` makes it required) |
 | Device | `test_multimeter`, `test_record_export` (marked `device`) | a connected Joulescope |
+| Firmware | `test_device_firmware` (marked `device` + `firmware`, always runs first) | a connected JS220/JS320; updates firmware older than the UI's bundled firmware |
 
 Tests marked `device` are selected/excluded with `-m`.  Interactive tests
 **skip themselves** when there is no display or the plot is not rendering
@@ -94,6 +95,21 @@ pytest "ci/uitest/test_waveform_interactive.py::test_pan"  # one test
 JS_UITEST_DISPLAY=1 pytest ci/uitest -k marker             # select by name
 ```
 
+## Previous-release configs
+
+`test_preferences.test_previous_release_config` starts the UI with the
+config saved by the previous release.  Each GitHub Release carries a
+`joulescope_ui_config.json`: the packaging workflow generates it with
+`config_fixtures.py` and the publish job attaches it.  The test downloads and
+caches it under `assets/`.  For a release without one:
+
+```bash
+git worktree add ../ui_release v1.7.4
+python ci/uitest/config_fixtures.py --source ../ui_release --out dist_config
+gh release upload v1.7.4 dist_config/joulescope_ui_config.json
+git worktree remove ../ui_release
+```
+
 ## One-shot CLI (`cli.py`)
 
 [`cli.py`](cli.py) is a standalone command-line client for interactive
@@ -121,6 +137,8 @@ the CLI never launches or closes the UI and never touches the config.
 | `JS_UITEST_DISPLAY=1` | Run the non-interactive tests on the real display too, and fail (not skip) interactive tests that cannot render.  Unset: non-interactive tests run offscreen, and interactive tests skip without a display |
 | `JS_UITEST_DEVICES` | Comma-separated expected models (`JS220,JS320`); listed-but-missing fails.  Unset: auto-detect (missing skips).  Empty: no device tests |
 | `JS_UITEST_EXECUTABLE` | Path to an installed `joulescope` binary to test (default: `python -m joulescope_ui`) |
+| `JS_UITEST_BUILD_KIND=release` | Install the published installer for this UI version (from `index_v2.json`, waiting up to 10 min) and test it instead of the sdist.  The HIL farm sets it for release tags.  arm64 Linux has no installer and keeps the sdist |
+| `JS_UITEST_CAPTURE_S`, `JS_UITEST_RUN_S` | Durations of the `slow` long-term capture (default 3600) and run (default 36000) tests |
 | `JS_UITEST_DEVICE_TIMEOUT` | Seconds to wait for a device to enumerate (default 10) |
 | `JS_UITEST_ARTIFACTS` | Directory for screenshot-on-failure PNGs (default `./uitest_artifacts`) |
 

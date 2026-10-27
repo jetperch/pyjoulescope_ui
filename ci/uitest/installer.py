@@ -48,6 +48,10 @@ INDEX_URL = URL_BASE + 'index_v2.json'
 
 CHANNELS = ('alpha', 'beta', 'stable')
 
+# PyInstaller names the macOS and Linux executable joulescope_launcher
+# (joulescope.spec); Nuitka names it joulescope.
+_EXE_NAMES = ('joulescope_launcher', 'joulescope')
+
 
 def platform_key(system=None, machine=None):
     """Return the ``index_v2.json`` platform key for this machine.
@@ -55,7 +59,8 @@ def platform_key(system=None, machine=None):
     :param system: Override ``platform.system()`` (for testing).
     :param machine: Override ``platform.machine()`` (for testing).
     :return: 'windows' | 'windows_arm64' | 'macos' | 'ubuntu'.
-    :raises RuntimeError: For an unsupported platform.
+    :raises RuntimeError: For an unsupported platform, including arm64 Linux,
+        whose builds are published only as a Flatpak.
     """
     system = (system or _platform.system()).lower()
     machine = (machine or _platform.machine()).lower()
@@ -64,7 +69,7 @@ def platform_key(system=None, machine=None):
         return 'windows_arm64' if is_arm else 'windows'
     if system == 'darwin':
         return 'macos'           # universal2 build serves both arches
-    if system == 'linux':
+    if system == 'linux' and not is_arm:
         return 'ubuntu'
     raise RuntimeError(f'unsupported platform: system={system!r} machine={machine!r}')
 
@@ -231,19 +236,69 @@ def locate_executable(install_dir=None, *, system=None):
     if system == 'darwin':
         if install_dir:
             name = os.path.splitext(os.path.basename(install_dir))[0]
-            cand = os.path.join(install_dir, 'Contents', 'MacOS', name)
-            if os.path.isfile(cand):
-                return cand
+            for exe in _EXE_NAMES + (name,):
+                cand = os.path.join(install_dir, 'Contents', 'MacOS', exe)
+                if os.path.isfile(cand):
+                    return cand
         return None
     if system == 'linux':
         if install_dir:
             for root, _dirs, files in os.walk(install_dir):
-                if 'joulescope' in files:
-                    cand = os.path.join(root, 'joulescope')
-                    if os.access(cand, os.X_OK):
+                for exe in _EXE_NAMES:
+                    cand = os.path.join(root, exe)
+                    if exe in files and os.access(cand, os.X_OK):
                         return cand
         return None
     raise RuntimeError(f'unsupported platform: {system!r}')
+
+
+def release_channel(index, version, key):
+    """Return the first channel whose active release is ``version`` for ``key``.
+
+    :param version: The UI version string, such as ``'1.7.4'``.
+    :return: The channel name, or None when ``version`` is not published.
+    """
+    want = [int(x) for x in version.split('.')[:3]]
+    for channel in CHANNELS:
+        release = index.get('active', {}).get(channel) or {}
+        if list(release.get('version', [])) == want and key in release.get('platform', {}):
+            return channel
+    return None
+
+
+def install_release(version, dest_dir, *, index=None, key=None, wait=0.0, interval=30.0):
+    """Download, verify and silently install the published ``version``.
+
+    :param version: The UI version string, such as ``'1.7.4'``.
+    :param dest_dir: Directory for the download (and the macOS/Ubuntu install).
+    :param index: Pre-fetched index dict; default fetches :data:`INDEX_URL`.
+    :param wait: Seconds to keep re-fetching the index until ``version``
+        appears, since a just-published index can be cached for a while.
+    :param interval: Seconds between index fetches while waiting.
+    :raises LookupError: If ``version`` is not published for this platform.
+    :raises RuntimeError: If the installed executable cannot be found.
+    :return: The installed executable path.
+    """
+    import time
+    if key is None:
+        key = platform_key()
+    deadline = time.monotonic() + wait
+    while True:
+        if index is None:
+            index = fetch_index()
+        channel = release_channel(index, version, key)
+        if channel is not None:
+            break
+        if time.monotonic() >= deadline:
+            raise LookupError(f'UI {version} is not published for {key}')
+        _log.info('UI %s not yet published for %s; waiting', version, key)
+        time.sleep(interval)
+        index = None
+    path = download_installer(channel, dest_dir, index=index, key=key)
+    executable = locate_executable(install(path))
+    if executable is None:
+        raise RuntimeError(f'installed UI {version} executable not found')
+    return executable
 
 
 def launch_command(executable=None):

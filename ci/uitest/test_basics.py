@@ -33,10 +33,16 @@ def test_executable_starts(ui_session):
 
 
 def test_about_shows_versions(ui_session):
-    """Help -> About displays the UI, driver and JLS versions."""
+    """Help -> About displays the UI, driver and JLS versions.
+
+    An installed app bundles its own driver and JLS versions, which can differ
+    from this test environment's, so only its UI version must match.
+    """
     ui_session.publish('registry/help_html/actions/!show', 'about')
     ui_session.wait(0.6)
     tree = ui_session.qt_inspect(max_depth=40)
-    missing = qt.all_texts_present(
-        tree, [joulescope_ui.__version__, jsdrv_version, jls_version])
+    expected = [joulescope_ui.__version__]
+    if ui_session.executable is None:
+        expected += [jsdrv_version, jls_version]
+    missing = qt.all_texts_present(tree, expected)
     assert not missing, f'About dialog missing version strings: {missing}'

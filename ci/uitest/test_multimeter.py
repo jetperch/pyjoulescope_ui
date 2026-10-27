@@ -85,3 +85,94 @@ def test_charge_and_energy_accumulate(ui_session, device):
     assert signals['current']['integral']['units'] in ('C', 'Ah')
     assert math.isfinite(_value(signals['current']['integral']))
     assert math.isfinite(_value(signals['power']['integral']))
+
+
+_BASE_UNITS = {'current': 'A', 'voltage': 'V', 'power': 'W'}
+_PREFIX = {'': 1.0, 'k': 1e3, 'm': 1e-3, 'µ': 1e-6, 'n': 1e-9, 'p': 1e-12}
+
+
+def _parse(text, base_units):
+    """Parse a displayed ``'+1.23456 mA [field]'`` into ``(value, lsb)`` in base units."""
+    number, units = text.split()[:2]
+    assert units.endswith(base_units), f'{text!r}: units are not {base_units}'
+    scale = _PREFIX[units[:-len(base_units)]]
+    decimals = len(number.split('.')[1]) if '.' in number else 0
+    return float(number) * scale, 10.0 ** -decimals * scale
+
+
+def _multimeter(ui_session, device):
+    """Show the Multimeter view for ``device``; return the widget id."""
+    ui_session.set_view('multimeter')
+    mm = [i for i in ui_session.enumerate('registry') if i.startswith('MultimeterWidget:')]
+    assert mm, 'no Multimeter widget'
+    ui_session.publish(f'registry/{mm[0]}/settings/statistics_stream_source', device.unique_id)
+    return mm[0]
+
+
+def _hold(ui_session, device):
+    """Stream statistics briefly, then hold; return the recent statistics samples.
+
+    The device keeps publishing after the hold, so the widget shows one of the
+    samples received around the hold, not necessarily the last.
+    """
+    samples = []
+    ui_session.subscribe(f'registry/{device.unique_id}/events/statistics/!data',
+                         lambda t, v: samples.append(v), ['pub'])
+    ui_session.wait_for_statistics(device.unique_id)
+    ui_session.wait(1.5)
+    ui_session.publish('registry/app/settings/statistics_stream_enable', False)
+    ui_session.wait(1.0)   # the widget repaints with the last sample
+    return samples[-8:]
+
+
+def _displayed(ui_session, mm):
+    rsp = ui_session.qt_action('call', path=mm, method='displayed_text')
+    assert rsp.get('ok'), f'displayed_text failed: {rsp}'
+    return rsp['result']
+
+
+@pytest.mark.device
+def test_multimeter_widget_displays_statistics(ui_session, device):
+    """The Multimeter widget shows each signal's fields, matching the statistics."""
+    mm = _multimeter(ui_session, device)
+    recent = _hold(ui_session, device)
+    shown = _displayed(ui_session, mm)
+
+    def matches(stats, name, field):
+        value, lsb = _parse(shown[f'{name}.{field}'], _BASE_UNITS[name])
+        return abs(value - _value(stats['signals'][name][field])) <= 1.01 * lsb
+
+    for name in _BASE_UNITS:
+        for field in _STAT_FIELDS:
+            assert f'{name}.{field}' in shown, \
+                f'{device.model}: Multimeter does not show {name}.{field}: {sorted(shown)}'
+    shown_sample = [s for s in recent if matches(s, 'current', 'avg')]
+    assert shown_sample, f'{device.model}: current.avg {shown["current.avg"]!r} matches ' \
+                         f'no recent statistics sample'
+    stats = shown_sample[-1]
+    for name in _BASE_UNITS:
+        for field in _STAT_FIELDS:
+            assert matches(stats, name, field), \
+                f'{device.model}: {name}.{field} shows {shown[f"{name}.{field}"]!r}, ' \
+                f'statistics {_value(stats["signals"][name][field]):g}'
+    for name in ['charge', 'energy']:
+        assert f'{name}.avg' in shown and f'{name}.duration' in shown, \
+            f'{device.model}: Multimeter does not show {name}: {sorted(shown)}'
+
+
+@pytest.mark.device
+def test_multimeter_units_and_duration(ui_session, device):
+    """Charge/energy switch between C/J and Ah/Wh; the accumulation time advances."""
+    mm = _multimeter(ui_session, device)
+    _hold(ui_session, device)
+    for units, charge, energy in [('Xh', 'Ah', 'Wh'), ('SI', 'C', 'J')]:
+        ui_session.publish(f'registry/{mm}/settings/units', units)
+        ui_session.wait(0.5)
+        shown = _displayed(ui_session, mm)
+        assert shown['charge.avg'].endswith(charge), f'{units}: charge {shown["charge.avg"]!r}'
+        assert shown['energy.avg'].endswith(energy), f'{units}: energy {shown["energy.avg"]!r}'
+
+    duration = _displayed(ui_session, mm)['charge.duration']
+    _hold(ui_session, device)
+    assert _displayed(ui_session, mm)['charge.duration'] != duration, \
+        f'{device.model}: accumulation time did not advance from {duration!r}'

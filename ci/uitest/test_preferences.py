@@ -24,8 +24,9 @@ across restarts (the default ``ui_session`` always clears on exit).
 """
 
 import os
+import shutil
 
-from uitest import discover
+from uitest import config_fixtures, discover
 
 # A persisted, inert app setting to round-trip.  (Streaming-related settings
 # like statistics_stream_enable are forced at startup when a device auto-opens,
@@ -59,20 +60,38 @@ def test_preferences_persist_across_restart(make_ui_session):
 
 
 def test_clear_config_resets_to_defaults(make_ui_session):
+    """File -> Config -> Clear and exit removes the config; the UI starts from defaults."""
     config_path = discover.config_file_path()
 
-    # Session 1: write a config, then exit WITH clear -> file removed.
+    # Session 1: write a config, then clear it through the File menu.
     s1 = make_ui_session(config_clear_on_exit=False)
-    s1.publish_and_wait(_PREF_TOPIC, not bool(s1.query(_PREF_TOPIC)))
-    s1.stop()
-    assert os.path.isfile(config_path)
+    default = bool(s1.query(_PREF_TOPIC))
+    s1.publish_and_wait(_PREF_TOPIC, not default)
+    s1.menubar_invoke('File/Config/Clear and exit')
+    s1.wait_for_root('QMessageBox')
+    s1.qt_action('click', text='Yes')
+    assert s1.wait_exit() == 0
+    assert not os.path.isfile(config_path), f'Clear and exit did not remove {config_path}'
 
+    # Session 2: the app starts cleanly from defaults.
     s2 = make_ui_session(config_clear_on_exit=True)
+    assert bool(s2.query(_PREF_TOPIC)) == default
     s2.stop()
-    assert not os.path.isfile(config_path), \
-        f'Clear config did not remove {config_path}'
 
-    # Session 3: the app starts cleanly from defaults after a clear.
-    s3 = make_ui_session(config_clear_on_exit=True)
-    assert s3.query('common/settings/paths/app')   # responsive => started OK
-    s3.stop()
+
+def test_previous_release_config(make_ui_session):
+    """The UI starts with a config saved by the previous release and keeps its preferences.
+
+    The configs are release assets; see :mod:`uitest.config_fixtures`.
+    """
+    from joulescope_ui import __version__
+    versions = config_fixtures.previous_versions(__version__, 1)
+    assert versions, f'no release before {__version__}'
+    version = versions[0]
+    shutil.copyfile(config_fixtures.release_config(version), discover.config_file_path())
+    session = make_ui_session(config_clear_on_exit=True)
+    for topic, value in config_fixtures.PREFS.items():
+        assert session.query(topic) == value, f'{version} config: {topic} was not kept'
+    mm = config_fixtures.multimeter_id(session)
+    assert session.query(f'registry/{mm}/settings/precision') == \
+        config_fixtures.MULTIMETER_PRECISION, f'{version} config: Multimeter precision was not kept'

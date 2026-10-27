@@ -36,19 +36,25 @@ def _midy(session, wf):
     return geo[2], geo[3], geo[3] // 2  # width, height, mid-y
 
 
-def _add_centered_single_marker(session, wf):
-    """Zoom in and add a single x-marker at the view centre; return its info."""
+def _add_centered_marker(session, wf, dual=False):
+    """Zoom in and add an x-marker at the view centre; return its info.
+
+    A dual marker spans 40% to 60% of the zoomed view.
+    """
     ext = session.query(f'registry/{wf}/settings/x_range')
     span = ext[1] - ext[0]
     session.publish(f'registry/{wf}/actions/!x_range',
                     [int(ext[0] + 0.3 * span), int(ext[0] + 0.7 * span)])
     session.wait(1.0)
-    xr = session.query(f'registry/{wf}/settings/x_range')
-    session.publish(f'registry/{wf}/actions/!x_markers',
-                    ['add_single', int((xr[0] + xr[1]) // 2)])
+    x0, x1 = session.query(f'registry/{wf}/settings/x_range')
+    if dual:
+        session.add_dual_markers(wf, x0 + 0.4 * (x1 - x0), x0 + 0.6 * (x1 - x0))
+    else:
+        session.publish(f'registry/{wf}/actions/!x_markers',
+                        ['add_single', int((x0 + x1) // 2)])
     session.wait(0.6)
     info = session.x_markers_info(wf)
-    assert info, 'single marker was not added'
+    assert info, 'marker was not added'
     return info[0]
 
 
@@ -72,11 +78,8 @@ def test_pan(rendered_waveform):
     assert x1 != x0, 'horizontal drag did not pan the view'
 
 
-def test_y_axis_range_menu(rendered_waveform):
-    """y-axis right-click Range -> Manual / Auto works."""
-    session, wf, _ = rendered_waveform
+def _check_y_axis_range_menu(session, wf):
     _w, _h, midy = _midy(session, wf)
-
     session.right_click(wf, 25, midy)
     items = session.menu_items()
     assert any('Range/Manual' in i for i in items), f'no Range menu: {items}'
@@ -86,15 +89,10 @@ def test_y_axis_range_menu(rendered_waveform):
     assert session.menu_invoke('Auto')['ok']
 
 
-def test_y_axis_scale_menu(rendered_waveform):
-    """y-axis right-click Scale -> Logarithmic / Linear works.
-
-    Verified through the menu itself: the 'Logarithmic zero' submenu only appears
-    while the scale is logarithmic.
-    """
-    session, wf, _ = rendered_waveform
+def _check_y_axis_scale_menu(session, wf):
+    """Verified through the menu itself: the 'Logarithmic zero' submenu only
+    appears while the scale is logarithmic."""
     _w, _h, midy = _midy(session, wf)
-
     session.right_click(wf, 25, midy)
     items = session.menu_items()
     assert any('Scale/Logarithmic' in i for i in items), f'no Scale menu: {items}'
@@ -115,11 +113,62 @@ def test_y_axis_scale_menu(rendered_waveform):
     session.qt_action('key', key='Escape')
 
 
+def test_y_axis_range_menu(rendered_waveform):
+    """y-axis right-click Range -> Manual / Auto works."""
+    session, wf, _ = rendered_waveform
+    _check_y_axis_range_menu(session, wf)
+
+
+def test_y_axis_scale_menu(rendered_waveform):
+    """y-axis right-click Scale -> Logarithmic / Linear works."""
+    session, wf, _ = rendered_waveform
+    _check_y_axis_scale_menu(session, wf)
+
+
+def _pause_live(session, wf):
+    """Pause streaming and unpin the view so it stops following live data."""
+    session.publish('registry/app/settings/signal_stream_enable', False)
+    session.publish(f'registry/{wf}/settings/pin_left', False)
+    session.publish(f'registry/{wf}/settings/pin_right', False)
+    session.wait(0.5)
+
+
+@pytest.mark.device
+def test_live_display_and_scroll(rendered_live_waveform):
+    """The live waveform advances while streaming, then pans when paused."""
+    session, wf, _device = rendered_live_waveform
+    topic = f'registry/{wf}/settings/x_range'
+    x0 = session.wait_for(topic, lambda v: v is not None and v[1] > v[0], timeout=10.0)
+    session.wait_for(topic, lambda v: v[1] > x0[1], timeout=5.0)
+
+    _pause_live(session, wf)
+    ext = session.query(topic)
+    span = ext[1] - ext[0]
+    session.publish(f'registry/{wf}/actions/!x_range',
+                    [int(ext[0] + 0.35 * span), int(ext[0] + 0.65 * span)])
+    session.wait(1.0)
+    w, _h, midy = _midy(session, wf)
+    before = session.query(topic)
+    session.qt_action('drag', path=session.plot_path(wf),
+                      start=[int(w * 0.6), midy], end=[int(w * 0.35), midy])
+    session.wait(0.8)
+    assert session.query(topic) != before, 'horizontal drag did not pan the live view'
+
+
+@pytest.mark.device
+def test_live_y_axis_menus(rendered_live_waveform):
+    """y-axis Range and Scale menus on the live waveform."""
+    session, wf, _device = rendered_live_waveform
+    _pause_live(session, wf)
+    _check_y_axis_range_menu(session, wf)
+    _check_y_axis_scale_menu(session, wf)
+
+
 def test_marker_move(rendered_waveform):
     """Move a marker by dragging its painted line to a new position."""
     session, wf, _ = rendered_waveform
     _w, _h, midy = _midy(session, wf)
-    marker = _add_centered_single_marker(session, wf)
+    marker = _add_centered_marker(session, wf)
     pixel, pos0 = marker['pixel1'], marker['pos1']
 
     session.qt_action('drag', path=session.plot_path(wf),
@@ -134,13 +183,48 @@ def test_marker_remove(rendered_waveform):
     """Remove a marker via its right-click context menu -> Remove."""
     session, wf, _ = rendered_waveform
     _w, _h, midy = _midy(session, wf)
-    marker = _add_centered_single_marker(session, wf)
+    marker = _add_centered_marker(session, wf)
 
     items = session.right_click_marker(wf, marker['pixel1'], midy)
     assert 'Remove' in items, f'right-click did not open the marker menu: {items[:5]}'
     assert session.menu_invoke('Remove')['ok']
     session.wait(0.5)
     assert session.x_markers_info(wf) == [], 'marker was not removed'
+
+
+def test_dual_marker_move(rendered_waveform):
+    """Move each line of a dual marker by dragging it."""
+    session, wf, _ = rendered_waveform
+    _w, _h, midy = _midy(session, wf)
+    marker = _add_centered_marker(session, wf, dual=True)
+    assert marker['dtype'] == 'dual'
+
+    session.qt_action('drag', path=session.plot_path(wf),
+                      start=[marker['pixel2'], midy], end=[marker['pixel2'] + 100, midy])
+    session.wait(0.6)
+    moved = session.x_markers_info(wf)[0]
+    assert moved['pos2'] != marker['pos2'], 'dragging line 2 did not move it'
+    assert moved['pos1'] == marker['pos1'], 'dragging line 2 moved line 1'
+
+    session.qt_action('drag', path=session.plot_path(wf),
+                      start=[moved['pixel1'], midy], end=[moved['pixel1'] - 100, midy])
+    session.wait(0.6)
+    final = session.x_markers_info(wf)[0]
+    assert final['pos1'] != moved['pos1'], 'dragging line 1 did not move it'
+    assert final['pos2'] == moved['pos2'], 'dragging line 1 moved line 2'
+
+
+def test_dual_marker_remove(rendered_waveform):
+    """Remove a dual marker (both lines) via its right-click menu -> Remove."""
+    session, wf, _ = rendered_waveform
+    _w, _h, midy = _midy(session, wf)
+    marker = _add_centered_marker(session, wf, dual=True)
+
+    items = session.right_click_marker(wf, marker['pixel2'], midy)
+    assert 'Remove' in items, f'right-click did not open the marker menu: {items[:5]}'
+    assert session.menu_invoke('Remove')['ok']
+    session.wait(0.5)
+    assert session.x_markers_info(wf) == [], 'dual marker was not removed'
 
 
 def _spike_data():

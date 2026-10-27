@@ -167,6 +167,49 @@ def assert_recording(path, *, signal_names=None, min_duration_s=None,
     return summary
 
 
+def utc_range(path, signal_name):
+    """Return the ``(first, last)`` sample UTC (time64) of a recorded signal."""
+    with open_reader(path) as reader:
+        sig = signal_by_name(reader, signal_name)
+        assert sig is not None, f'{path}: signal {signal_name!r} not found'
+        return (reader.sample_id_to_timestamp(sig.signal_id, 0),
+                reader.sample_id_to_timestamp(sig.signal_id, sig.length - 1))
+
+
+def assert_no_gaps(path, signal_names, *, tolerance=1e-3):
+    """Assert recorded signals have no missing samples.
+
+    Checks every signal named in ``signal_names``, from every source (device).
+    Missing samples are recorded as NaN, so no sample may be NaN; the JLS
+    summary statistics skip NaN, so this scans the samples.  The sample count
+    must also match the recorded UTC span.
+
+    :param tolerance: Allowed relative difference between the sample count and
+        the UTC span times the sample rate.
+    :return: ``{name: count}``, the number of signals checked per name.
+    """
+    chunk = 1 << 20
+    counts = dict.fromkeys(signal_names, 0)
+    with open_reader(path) as reader:
+        for sig in data_signals(reader).values():
+            if sig.name not in counts:
+                continue
+            counts[sig.name] += 1
+            label = f'{sig.name} (source {sig.source_id})'
+            for start in range(0, sig.length, chunk):
+                data = read_fsr(reader, sig.signal_id, start, min(chunk, sig.length - start))
+                nan = np.flatnonzero(np.isnan(data))
+                assert not nan.size, f'{path}: {label} is missing samples from {start + nan[0]}'
+            t0 = reader.sample_id_to_timestamp(sig.signal_id, 0)
+            t1 = reader.sample_id_to_timestamp(sig.signal_id, sig.length - 1)
+            expect = (t1 - t0) / pyjls.time64.SECOND * sig.sample_rate + 1
+            assert abs(sig.length - expect) <= tolerance * expect, \
+                f'{path}: {label} has {sig.length} samples, UTC span expects {expect:.0f}'
+    missing = [name for name, count in counts.items() if not count]
+    assert not missing, f'{path}: signals {missing} not found'
+    return counts
+
+
 def summarize_iter(reader):
     """Yield ``(signal_id, SignalDef)`` for data signals (helper for asserts)."""
     return list(data_signals(reader).items())
@@ -213,52 +256,81 @@ def assert_has_markers(path, n, *, dual=True):
     return found
 
 
+_PROBE_SAMPLES = 4096
+
+
+def _reference_window(path, signal_name, utc, n, max_shift):
+    """Read the reference samples around the one at ``utc``.
+
+    A JLS v1 file has no UTC; the UI maps its samples to ``sample / fs``
+    seconds from the time64 epoch (``jls_v1.py``), so exports carry that time.
+
+    :return: ``(start, data, guess, length)``: the sample index of ``data[0]``,
+        the samples, the UTC-derived sample index, and the signal length.
+    """
+    if jls_version(path) == 1:
+        from joulescope.data_recorder import DataReader
+        reader = DataReader().open(path)
+        try:
+            length = reader.sample_id_range[1]
+            guess = int(round(utc * reader.sampling_frequency / pyjls.time64.SECOND))
+            start = max(0, guess - max_shift)
+            end = min(length, guess + max_shift + n)
+            data = reader.samples_get(start, end, units='samples')['signals'][signal_name]['value']
+            return start, np.asarray(data, dtype=np.float32), guess, length
+        finally:
+            reader.close()
+    with open_reader(path) as ref:
+        rsig = signal_by_name(ref, signal_name)
+        assert rsig is not None, f'{path}: signal {signal_name!r} not found'
+        guess = int(ref.timestamp_to_sample_id(rsig.signal_id, utc))
+        start = max(0, guess - max_shift)
+        end = min(rsig.length, guess + max_shift + n)
+        return start, read_fsr(ref, rsig.signal_id, start, max(0, end - start)), guess, rsig.length
+
+
 def compare_subrange(reference_path, export_path, signal_name, *,
-                     atol=1e-6, rtol=0.0, max_search=1_000_000):
+                     atol=0.0, rtol=0.0, max_shift=4):
     """Verify ``export`` is a contiguous sub-range of ``reference`` (round-trip).
 
     Used for the plan's "export to B, open B, verify correct": the exported
     signal must equal the corresponding slice of the source recording.  The
-    export offset is discovered by matching the export's first samples within
-    the reference.
+    export is aligned by UTC: its first sample's timestamp locates the
+    reference sample, give or take ``max_shift`` samples of time-map rounding.
+    Aligning by matching sample values is unreliable, since a quiet signal
+    (no load) repeats the same values throughout a recording.
 
-    :param atol: Absolute tolerance for the sample comparison.
+    :param reference_path: The JLS v1 or v2 source recording.
+    :param export_path: The JLS v2 export.
+    :param atol: Absolute tolerance for the sample comparison.  An export from
+        the same stream is bit-identical, so the default is exact.
     :param rtol: Relative tolerance for the sample comparison.
-    :param max_search: Max reference samples to scan when locating the offset.
+    :param max_shift: Max samples between the UTC-derived and actual offset.
     :raises AssertionError: If no aligned match is found.
     :return: The matched start offset (in samples) within the reference.
     """
-    with open_reader(reference_path) as ref, open_reader(export_path) as exp:
-        rsig = signal_by_name(ref, signal_name)
+    with open_reader(export_path) as exp:
         esig = signal_by_name(exp, signal_name)
-        assert rsig is not None, f'{reference_path}: signal {signal_name!r} not found'
         assert esig is not None, f'{export_path}: signal {signal_name!r} not found'
         assert esig.length > 0, f'{export_path}: signal {signal_name!r} is empty'
-
         exp_data = read_fsr(exp, esig.signal_id)
-        probe_n = int(min(64, exp_data.size))
-        probe = exp_data[:probe_n]
-
-        scan = int(min(rsig.length, max_search))
-        ref_head = read_fsr(ref, rsig.signal_id, 0, scan)
-        offset = _find_offset(ref_head, probe, atol, rtol)
-        assert offset is not None, \
-            f'{export_path}: signal {signal_name!r} not found within first ' \
-            f'{scan} samples of {reference_path}'
-
-        ref_slice = read_fsr(ref, rsig.signal_id, offset, exp_data.size)
-        assert ref_slice.size == exp_data.size, \
-            f'{export_path}: export ({exp_data.size}) extends past reference at offset {offset}'
-        assert np.allclose(ref_slice, exp_data, atol=atol, rtol=rtol), \
-            f'{export_path}: signal {signal_name!r} samples differ from {reference_path}'
-        return offset
-
-
-def _find_offset(haystack, needle, atol, rtol):
-    """Return the first index where ``needle`` aligns within ``haystack``."""
-    n = needle.size
-    if n == 0 or haystack.size < n:
-        return None
+        utc = exp.sample_id_to_timestamp(esig.signal_id, 0)
+    n = exp_data.size
+    start, ref_data, guess, length = _reference_window(
+        reference_path, signal_name, utc, n, max_shift)
+    assert ref_data.size >= n, \
+        f'{export_path}: export ({n} samples at reference {guess}) extends ' \
+        f'past {reference_path} ({length} samples)'
+    probe = exp_data[:_PROBE_SAMPLES]
+    for offset in sorted(range(start, start + ref_data.size - n + 1), key=lambda x: abs(x - guess)):
+        i = offset - start
+        # A short probe rejects most offsets before the full compare.
+        if (np.allclose(ref_data[i:i + probe.size], probe, atol=atol, rtol=rtol)
+                and np.allclose(ref_data[i:i + n], exp_data, atol=atol, rtol=rtol)):
+            return offset
+    raise AssertionError(
+        f'{export_path}: signal {signal_name!r} samples differ from '
+        f'{reference_path} near sample {guess}')
     # Candidate offsets where the first sample matches, then verify the probe.
     first = needle[0]
     candidates = np.nonzero(np.isclose(haystack[:haystack.size - n + 1], first,

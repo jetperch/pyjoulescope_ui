@@ -91,6 +91,61 @@ class TestRoot(unittest.TestCase):
         self.assertEqual(QtWidgets.QDialog.DialogCode.Accepted,
                          self.dialog.result())
 
+    def test_path_in_main_window_while_floating_window_active(self):
+        # A floating range tool result window can be the active window; a
+        # named widget in the main window must still resolve.
+        self.dialog.close()
+        label = QtWidgets.QLabel('x', self.main)
+        label.setObjectName('main_label')
+        floating = QtWidgets.QWidget()
+        floating.show()
+        self.app.processEvents()
+        try:
+            with mock.patch.object(QtWidgets.QApplication, 'activeWindow',
+                                   return_value=floating):
+                info = self.inspector._inspect({'path': 'main_label', 'max_depth': 0})
+                self.assertEqual('QLabel', info['class'])
+                with self.assertRaises(ValueError):
+                    self.inspector._inspect({'path': 'missing_widget', 'max_depth': 0})
+        finally:
+            floating.close()
+
+    def test_screenshot(self):
+        self.dialog.close()
+        label = QtWidgets.QLabel('x', self.main)
+        label.setObjectName('shot_label')
+        self.app.processEvents()
+        header, png = self.inspector._screenshot({'path': 'shot_label'})
+        self.assertEqual('shot_label', header['path'])
+        self.assertEqual('png', header['format'])
+        self.assertEqual(b'\x89PNG', png[:4])
+
+    def test_click_button_by_text(self):
+        # The dialog's Ok button, as a QMessageBox 'Yes' would be clicked.
+        with mock.patch.object(QtWidgets.QApplication, 'activeWindow', return_value=None):
+            rsp = self.inspector._action({'action': 'click', 'path': '', 'text': 'OK'})
+        self.assertTrue(rsp['ok'])
+        self.app.processEvents()
+        self.assertEqual(QtWidgets.QDialog.DialogCode.Accepted, self.dialog.result())
+        with self.assertRaises(ValueError):
+            self.inspector._action({'action': 'click', 'path': '', 'text': 'Missing'})
+
+    def test_menubar_invoke(self):
+        self.dialog.close()
+        triggered = []
+        menu = self.main.menuBar().addMenu('&File')
+        sub = menu.addMenu('Config')
+        sub.addAction('Clear and exit').triggered.connect(lambda: triggered.append(1))
+        rsp = self.inspector._action({'action': 'menubar_invoke', 'path': '',
+                                      'text': 'File/Config/Clear and exit'})
+        self.assertTrue(rsp['ok'])
+        self.assertEqual([], triggered)  # deferred
+        self.app.processEvents()
+        self.assertEqual([1], triggered)
+        rsp = self.inspector._action({'action': 'menubar_invoke', 'path': '',
+                                      'text': 'File/Clear and exit'})
+        self.assertFalse(rsp['ok'])
+
     def test_main_window_without_dialog(self):
         self.dialog.close()
         self.app.processEvents()

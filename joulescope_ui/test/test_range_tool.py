@@ -217,6 +217,20 @@ class TestRangeTool(unittest.TestCase):
         self.assertEqual(100_000_499, rsp['info']['time_range_samples']['end'])
         self.assertEqual(2, len(pubsub.requests))
 
+    def test_summary_request_partial_samples_continues_as_samples(self):
+        # A request with end and length=1 may be answered with partial
+        # samples.  The continuation must request the remaining samples,
+        # not a summary that cannot be concatenated (live 10 kHz export).
+        responses = [
+            _rsp('samples', 100_000_000, 100_000_499, 500, np.arange(500, dtype=np.float32)),
+            _rsp('samples', 100_000_500, 100_000_999, 500, np.arange(500, dtype=np.float32)),
+        ]
+        rt, pubsub, signals = self._construct_scripted(responses)
+        rsp = rt.request(signals[0], 'samples', 100_000_000, 100_000_999, 1)
+        self.assertEqual((1000,), rsp['data'].shape)
+        self.assertEqual(0, pubsub.requests[1]['length'])
+        self.assertEqual(100_000_500, pubsub.requests[1]['start'])
+
 
 class _MyRangeTool(RangeToolBase):
     NAME = 'test_range_tool'

@@ -667,12 +667,24 @@ class _BaseWidget(QtWidgets.QWidget):
         self._statistics = None  # most recent statistics information
         self.mousePressEvent = self._on_mousePressEvent
 
+    def displayed_text(self):
+        """Return the displayed value strings (test-support).
+
+        :return: ``{'signal.field': text}`` for each painted value, such as
+            ``{'current.avg': '+0.12345 mA', 'current.std': '+0.00012 mA std',
+            'charge.duration': '...'}``.  Used by the UI automation tests.
+        """
+        geometry = self._inner._geometry or {}
+        return {f'{signal}.{field}': g[2] for (signal, field), g in geometry.items()}
+
     def on_pubsub_register(self):
         topic = f'{get_topic_name(self)}/settings/statistics_stream_source'
         self.source_selector.on_pubsub_register(self.pubsub, topic)
         self.pubsub.subscribe('registry/app/settings/statistics_stream_enable',
                               self._on_global_statistics_stream_enable)
         self.pubsub.subscribe('registry/app/settings/units', lambda: self.update())
+        # Repaint on any display setting change, even while statistics are held.
+        self.pubsub.subscribe(f'{get_topic_name(self)}/settings', lambda: self._inner.update(), ['pub'])
         self._connect()
 
     @QtCore.Slot(object)

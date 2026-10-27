@@ -583,7 +583,7 @@ msgstr "اختر لغة"
 msgid "The application will automatically close when you change the locale."
 msgstr "سيُغلق التطبيق تلقائيًا عند تغيير الإعدادات."
 
-#: main.py:78 widgets/value/value_widget.py:776
+#: main.py:78 widgets/value/value_widget.py:788
 msgid "Multimeter"
 msgstr "متعدد المقاييس"
 
@@ -848,7 +848,7 @@ msgstr "قائمة الملفات الأحدث"
 msgid "Most recently used length"
 msgstr "الطول الأكثر استخدامًا مؤخرًا"
 
-#: range_tool.py:341
+#: range_tool.py:346
 msgid "Range tool failed"
 msgstr "فشل أداة النطاق"
 
@@ -1846,7 +1846,7 @@ msgid ""
 msgstr ""
 "حساب طيف التردد لتحليل محتوى التردد لقيم بيانات الإشارة على النطاق المحدد."
 
-#: range_tools/frequency.py:215
+#: range_tools/frequency.py:220
 msgid "Frequency configuration"
 msgstr "تكوين التردد"
 
@@ -1866,7 +1866,7 @@ msgstr "توزيع التردد"
 msgid "Probability Density Distribution"
 msgstr "توزيع الكثافة الاحتمالية"
 
-#: range_tools/histogram.py:44 range_tools/max_window.py:120
+#: range_tools/histogram.py:44 range_tools/max_window.py:109
 #: widgets/trigger/trigger_widget.py:220
 msgid "Signal"
 msgstr "الإشارة"
@@ -1888,15 +1888,15 @@ msgid ""
 "Compute a histogram of the signal's data values over the selected range."
 msgstr "حساب رسم بياني لقيم بيانات الإشارة على النطاق المحدد."
 
-#: range_tools/max_window.py:25
+#: range_tools/max_window.py:31
 msgid "Max window"
 msgstr "نافذة ماكس"
 
-#: range_tools/max_window.py:26
+#: range_tools/max_window.py:32
 msgid "Find the maximum value window"
 msgstr "العثور على نافذة القيمة القصوى"
 
-#: range_tools/max_window.py:28
+#: range_tools/max_window.py:34
 msgid ""
 "Search the range for the window that has the maximum value. This is an "
 "exhaustive search made by sliding the window duration across the entire "
@@ -1905,15 +1905,15 @@ msgstr ""
 "ابحث في النطاق عن النافذة ذات القيمة القصوى. هذا بحث شامل يتم عن طريق تحريك "
 "مدة النافذة عبر النطاق بأكمله."
 
-#: range_tools/max_window.py:31
+#: range_tools/max_window.py:37
 msgid "When complete, this tool will add dual markers to the waveform."
 msgstr "عند اكتمالها، ستضيف هذه الأداة علامات مزدوجة إلى الشكل الموجي."
 
-#: range_tools/max_window.py:97
+#: range_tools/max_window.py:86
 msgid "Max Window configuration"
 msgstr "تكوين النافذة القصوى"
 
-#: range_tools/max_window.py:106
+#: range_tools/max_window.py:95
 msgid "Width of window (in seconds)"
 msgstr "عرض النافذة (بالثواني)"
 
@@ -2657,7 +2657,7 @@ msgstr "إيقاف"
 msgid "External Serial..."
 msgstr "التسلسل الخارجي..."
 
-#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:785
+#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:797
 msgid "Value"
 msgstr "القيمة"
 

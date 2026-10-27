@@ -203,6 +203,34 @@ def _find_menu_action(menu, text):
     return None
 
 
+def _find_menu_path(window, parts):
+    """Find a menu bar QAction by its text path (e.g. ``['File', 'Config', 'Exit']``).
+
+    Matches each QMenu's title chain through its parent menus.  Avoids
+    QAction.menu(), whose temporary wrapper can delete the menu (PySide6).
+    """
+    for menu in window.findChildren(QtWidgets.QMenu):
+        titles = []
+        m = menu
+        while isinstance(m, QtWidgets.QMenu):
+            titles.insert(0, m.title().replace('&', ''))
+            m = m.parent()
+        if titles != parts[:-1]:
+            continue
+        for act in menu.actions():
+            if not act.isSeparator() and act.text().replace('&', '') == parts[-1]:
+                return act
+    return None
+
+
+def _find_button(root, text):
+    """Find a visible button under ``root`` by its text (``&`` mnemonics ignored)."""
+    for b in root.findChildren(QtWidgets.QAbstractButton):
+        if b.isVisible() and b.text().replace('&', '') == text:
+            return b
+    raise ValueError(f'No visible button with text {text!r}')
+
+
 class _CursorTracker(QtCore.QObject):
     """Record the window that receives real pointer events.
 
@@ -327,21 +355,40 @@ class QtInspector:
             raise RuntimeError('No top-level window found')
         return window
 
-    def _inspect(self, header):
-        path = header.get('path', '')
-        max_depth = header.get('max_depth', 50)
+    def _resolve(self, path):
+        """Resolve ``path`` against the root, then the other top-level windows.
+
+        A floating window (e.g. a range tool result) can be the active window,
+        so a named widget in the main window must still resolve.
+        """
         root = self._get_root()
-        if path:
-            root = _find_widget(root, path)
-        return _widget_info(root, max_depth=max_depth)
+        if not path:
+            return root
+        try:
+            return _find_widget(root, path)
+        except ValueError as ex:
+            for window in QtWidgets.QApplication.instance().topLevelWidgets():
+                if window is root:
+                    continue
+                try:
+                    return _find_widget(window, path)
+                except ValueError:
+                    pass
+            raise ex
+
+    def _inspect(self, header):
+        max_depth = header.get('max_depth', 50)
+        return _widget_info(self._resolve(header.get('path', '')), max_depth=max_depth)
 
     def _action(self, header):
         action = header.get('action', '')
         if action == 'cursor':
             return self._action_cursor()
         path = header.get('path', '')
-        root = self._get_root()
-        widget = _find_widget(root, path) if path else root
+        widget = self._resolve(path)
+        if action == 'click' and header.get('text') and not path:
+            # Click a dialog button by its text, such as a QMessageBox 'Yes'.
+            widget = _find_button(widget, header['text'])
 
         if action == 'click':
             pos = header.get('pos')
@@ -415,6 +462,25 @@ class QtInspector:
             menu.close()
             target.trigger()
             return {'ok': True, 'action': 'menu_invoke', 'text': text}
+
+        elif action == 'menubar_invoke':
+            # Trigger a main window menu bar action by its text path, such as
+            # 'File/Config/Clear and exit'.  Works with the native macOS menu
+            # bar, which cannot be clicked.  Deferred, since an action can open
+            # a blocking dialog (QMessageBox.exec) that would hold this reply.
+            text = header.get('text', '')
+            app = QtWidgets.QApplication.instance()
+            target = None
+            for window in app.topLevelWidgets():
+                if isinstance(window, QtWidgets.QMainWindow):
+                    target = _find_menu_path(window, text.split('/'))
+                    if target is not None:
+                        break
+            if target is None:
+                return {'ok': False, 'action': 'menubar_invoke',
+                        'error': f'menu bar action {text!r} not found'}
+            QtCore.QTimer.singleShot(0, target.trigger)
+            return {'ok': True, 'action': 'menubar_invoke', 'text': text}
 
         elif action == 'menu_close':
             # Close any visible top-level context menus (clears stale popups so
@@ -515,8 +581,7 @@ class QtInspector:
 
     def _screenshot(self, header):
         path = header.get('path', '')
-        root = self._get_root()
-        widget = _find_widget(root, path) if path else root
+        widget = self._resolve(path)
         pixmap = widget.grab()
         buffer = QtCore.QBuffer()
         buffer.open(QtCore.QIODevice.OpenModeFlag.WriteOnly)

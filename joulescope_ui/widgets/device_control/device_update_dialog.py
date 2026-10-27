@@ -63,6 +63,7 @@ class DeviceUpdateDialog(QtWidgets.QDialog):
         self._devices_update_list = []
         self._devices_update_map = None
         super().__init__(parent)
+        self.setObjectName('device_update_dialog')
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.resize(600, 400)
         self._layout = QtWidgets.QVBoxLayout(self)
@@ -77,6 +78,7 @@ class DeviceUpdateDialog(QtWidgets.QDialog):
         self._layout.addItem(self._spacer)
 
         self._status = QtWidgets.QLabel()
+        self._status.setObjectName('device_update_status')
         self._status.setWordWrap(True)
         self._status_set('scan')
         self._layout.addWidget(self._status)
@@ -90,8 +92,10 @@ class DeviceUpdateDialog(QtWidgets.QDialog):
         self._select_all.setVisible(False)
         self._select_none.setVisible(False)
         self._cancel = QtWidgets.QPushButton(_CANCEL, self)
+        self._cancel.setObjectName('device_update_cancel')
         self._cancel.pressed.connect(self.reject)
         self._ok = QtWidgets.QPushButton(_OK, self)
+        self._ok.setObjectName('device_update_ok')
         self._ok.pressed.connect(self._on_ok)
         self._buttons_layout.addWidget(self._select_all)
         self._buttons_layout.addWidget(self._select_none)
@@ -216,7 +220,7 @@ class DeviceUpdateDialog(QtWidgets.QDialog):
             checkbox = QtWidgets.QCheckBox(self._grid_widget)
             name = QtWidgets.QLabel(device, self._grid_widget)
             if device.startswith('JS220-') or device.startswith('JS320-'):
-                details = self.pubsub.query(f'{get_topic_name(device)}/settings/update_available', default={})
+                details = self.pubsub.query(f'{get_topic_name(device)}/settings/update_available', default=None) or {}
                 checkbox.setChecked(is_update_available(details))
             version = QtWidgets.QLabel(self._grid_widget)
             version.setWordWrap(True)
@@ -230,7 +234,7 @@ class DeviceUpdateDialog(QtWidgets.QDialog):
             checkbox, name, version, progress, details = widgets
             info = self.pubsub.query(f'{get_topic_name(device)}/settings/info', default={})
             if info['model'] in ('JS220', 'JS320'):
-                details = self.pubsub.query(f'{get_topic_name(device)}/settings/update_available', default={})
+                details = self.pubsub.query(f'{get_topic_name(device)}/settings/update_available', default=None) or {}
                 version_str = '<br/>'.join([f'{key}:{v[0]}→{v[1]}' for key, v in details.items()])
                 version_str = f'<html><body>{version_str}</body></html>'
                 available = is_update_available(details)

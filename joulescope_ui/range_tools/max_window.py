@@ -20,6 +20,12 @@ import numpy as np
 from PySide6 import QtCore, QtWidgets
 
 
+def max_window_index(data, width):
+    """Return the start index of the ``width``-sample window with the maximum sum."""
+    sums = np.cumsum(np.concatenate(([0.0], np.asarray(data, dtype=np.float64))))
+    return int(np.argmax(sums[width:] - sums[:-width]))
+
+
 @register
 class MaxWindowRangeTool(RangeToolBase):
     NAME = N_('Max window')
@@ -50,29 +56,12 @@ class MaxWindowRangeTool(RangeToolBase):
         if length > 250_000_000:
             self.error('window size too big')
             return
-        width = int(np.rint(utc_width * fs))
+        width = max(1, int(np.rint(utc_width * fs)))
         if width > length:
             self.error('width > region')
             return
         rsp = self.request(signal, 'samples', s_now, 0, s_end - s_now)
-        data = rsp_as_f32(rsp)
-        i0 = 0
-        i1 = width
-        m = np.sum(data[i0:i1])
-        max_v = m
-        max_i = 0
-        progress_counter = 0
-        while i1 < length:
-            m += data[i1] - data[i0]
-            if m > max_v:
-                m = max_v
-                max_i = i0
-            i0 += 1
-            i1 += 1
-            progress_counter += 1
-            if progress_counter >= 10_000:
-                self.progress(i0 / length)
-                progress_counter = 0
+        max_i = max_window_index(rsp_as_f32(rsp), width)
 
         pos0 = max_i / (length - 1) * t_width + t_start
         pos1 = (max_i + width) / (length - 1) * t_width + t_start

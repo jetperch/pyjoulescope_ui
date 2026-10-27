@@ -614,7 +614,7 @@ msgstr ""
 "La aplicación se cerrará automáticamente al cambiar la configuración "
 "regional."
 
-#: main.py:78 widgets/value/value_widget.py:776
+#: main.py:78 widgets/value/value_widget.py:788
 msgid "Multimeter"
 msgstr "Multímetro"
 
@@ -887,7 +887,7 @@ msgstr "Lista de archivos más recientes"
 msgid "Most recently used length"
 msgstr "Longitud usada más recientemente"
 
-#: range_tool.py:341
+#: range_tool.py:346
 msgid "Range tool failed"
 msgstr "Error en la herramienta de rango"
 
@@ -1921,7 +1921,7 @@ msgstr ""
 "Calcule el espectro de frecuencia para analizar el contenido de frecuencia "
 "de los valores de datos de la señal en el rango seleccionado."
 
-#: range_tools/frequency.py:215
+#: range_tools/frequency.py:220
 msgid "Frequency configuration"
 msgstr "Configuración de frecuencia"
 
@@ -1941,7 +1941,7 @@ msgstr "Distribución de frecuencias"
 msgid "Probability Density Distribution"
 msgstr "Distribución de densidad de probabilidad"
 
-#: range_tools/histogram.py:44 range_tools/max_window.py:120
+#: range_tools/histogram.py:44 range_tools/max_window.py:109
 #: widgets/trigger/trigger_widget.py:220
 msgid "Signal"
 msgstr "Señal"
@@ -1965,15 +1965,15 @@ msgstr ""
 "Calcula un histograma de los valores de datos de la señal en el rango "
 "seleccionado."
 
-#: range_tools/max_window.py:25
+#: range_tools/max_window.py:31
 msgid "Max window"
 msgstr "Ventana Max"
 
-#: range_tools/max_window.py:26
+#: range_tools/max_window.py:32
 msgid "Find the maximum value window"
 msgstr "Encuentre la ventana de valor máximo"
 
-#: range_tools/max_window.py:28
+#: range_tools/max_window.py:34
 msgid ""
 "Search the range for the window that has the maximum value. This is an "
 "exhaustive search made by sliding the window duration across the entire "
@@ -1983,17 +1983,17 @@ msgstr ""
 "búsqueda exhaustiva que se realiza deslizando la duración de la ventana por "
 "todo el rango."
 
-#: range_tools/max_window.py:31
+#: range_tools/max_window.py:37
 msgid "When complete, this tool will add dual markers to the waveform."
 msgstr ""
 "Una vez completada, esta herramienta añadirá marcadores duales a la forma de"
 " onda."
 
-#: range_tools/max_window.py:97
+#: range_tools/max_window.py:86
 msgid "Max Window configuration"
 msgstr "Configuración de ventana máxima"
 
-#: range_tools/max_window.py:106
+#: range_tools/max_window.py:95
 msgid "Width of window (in seconds)"
 msgstr "Anchura de la ventana (en segundos)"
 
@@ -2758,7 +2758,7 @@ msgstr "off"
 msgid "External Serial..."
 msgstr "Serie externa..."
 
-#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:785
+#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:797
 msgid "Value"
 msgstr "Valor"
 

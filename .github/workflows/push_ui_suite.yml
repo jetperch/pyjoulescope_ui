@@ -1,0 +1,61 @@
+# Copyright 2026 Jetperch LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+# Push the UI suite bundle (sdist + ci/) to the joulescope_ci coordinator,
+# which runs ci/uitest on every bench.  Called by packaging.yml, which
+# decides when: a release runs after publish, so the benches can install the
+# published installer (docs/plans/expand_test_coverage_202610.md, Stage 6).
+
+name: Push UI suite
+
+on:
+  workflow_call:
+    inputs:
+      build_kind:
+        description: "'dev' tests the sdist; 'release' tests the published installer."
+        required: true
+        type: string
+
+jobs:
+  push_ui_suite:
+    name: Push UI suite bundle to joulescope_ci
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v7
+
+      - name: Download sdist
+        uses: actions/download-artifact@v8
+        with:
+          name: sdist
+          path: dist
+
+      # The uitest harness lives in ci/ (not packaged in the sdist), so the
+      # bundle carries both: the runner pip-installs the sdist into the
+      # bench's ~/venv/ui and runs pytest on the bundled ci/uitest tree.
+      - name: Assemble UI suite bundle
+        run: zip -r ui_suite.zip dist ci
+
+      - name: Push to joulescope_ci coordinator
+        env:
+          JCI_BUILD_TOKEN: ${{ secrets.JCI_BUILD_TOKEN }}
+          BUILD_KIND: ${{ inputs.build_kind }}
+        run: |
+          python3 ci/ci_artifact_push.py \
+            --url https://api.jetperch.com/github/build \
+            --source github --repo pyjoulescope_ui \
+            --ref "$GITHUB_REF" --commit "$GITHUB_SHA" \
+            --run-id "$GITHUB_RUN_ID" --build-kind "$BUILD_KIND" \
+            --artifact-type ui \
+            --artifact ui_suite.zip

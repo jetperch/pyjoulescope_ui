@@ -540,7 +540,7 @@ msgstr "言語を選択"
 msgid "The application will automatically close when you change the locale."
 msgstr "ロケールを変更すると、アプリケーションは自動的に終了します。"
 
-#: main.py:78 widgets/value/value_widget.py:776
+#: main.py:78 widgets/value/value_widget.py:788
 msgid "Multimeter"
 msgstr "マルチメーター"
 
@@ -799,7 +799,7 @@ msgstr "最新ファイルリスト"
 msgid "Most recently used length"
 msgstr "最近使用された長さ"
 
-#: range_tool.py:341
+#: range_tool.py:346
 msgid "Range tool failed"
 msgstr "範囲ツールの処理に失敗しました"
 
@@ -1729,7 +1729,7 @@ msgid ""
 "signal's data values over the selected range."
 msgstr "周波数スペクトルを計算し、選択した範囲の信号のデータ値の周波数コンテンツを分析します。"
 
-#: range_tools/frequency.py:215
+#: range_tools/frequency.py:220
 msgid "Frequency configuration"
 msgstr "周波数構成"
 
@@ -1749,7 +1749,7 @@ msgstr "周波数分布"
 msgid "Probability Density Distribution"
 msgstr "確率密度分布"
 
-#: range_tools/histogram.py:44 range_tools/max_window.py:120
+#: range_tools/histogram.py:44 range_tools/max_window.py:109
 #: widgets/trigger/trigger_widget.py:220
 msgid "Signal"
 msgstr "信号"
@@ -1771,30 +1771,30 @@ msgid ""
 "Compute a histogram of the signal's data values over the selected range."
 msgstr "選択した範囲の信号のデータ値のヒストグラムを計算します。"
 
-#: range_tools/max_window.py:25
+#: range_tools/max_window.py:31
 msgid "Max window"
 msgstr "最大ウィンドウ"
 
-#: range_tools/max_window.py:26
+#: range_tools/max_window.py:32
 msgid "Find the maximum value window"
 msgstr "最大値ウィンドウの検索"
 
-#: range_tools/max_window.py:28
+#: range_tools/max_window.py:34
 msgid ""
 "Search the range for the window that has the maximum value. This is an "
 "exhaustive search made by sliding the window duration across the entire "
 "range."
 msgstr "最大値を持つウィンドウの範囲を検索します。これは、全範囲にわたってウィンドウの期間をスライドさせることによって行われる網羅的検索です。"
 
-#: range_tools/max_window.py:31
+#: range_tools/max_window.py:37
 msgid "When complete, this tool will add dual markers to the waveform."
 msgstr "完了すると、このツールは波形にデュアルマーカーを追加します。"
 
-#: range_tools/max_window.py:97
+#: range_tools/max_window.py:86
 msgid "Max Window configuration"
 msgstr "最大ウィンドウ構成"
 
-#: range_tools/max_window.py:106
+#: range_tools/max_window.py:95
 msgid "Width of window (in seconds)"
 msgstr "ウィンドウの幅（秒）"
 
@@ -2518,7 +2518,7 @@ msgstr "オフ"
 msgid "External Serial..."
 msgstr "外部シリアル..."
 
-#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:785
+#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:797
 msgid "Value"
 msgstr "値"
 

@@ -21,6 +21,62 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.7.5
+
+2026 Oct 27
+
+* Fixed the Device Update dialog failing to list devices when a JS220 or
+  JS320 reports no firmware update information, such as with a driver
+  built without embedded firmware.
+* Fixed a range tool request failing with "all the input arrays must have
+  same number of dimensions" when the buffer answered part of a summary
+  request with samples, such as exporting from the live view at 10 kHz.
+* Fixed exporting a JLS v1 recording with its current range or general
+  purpose input signals failing with "Data type mismatch uint8".
+* Fixed the Multimeter and Value widgets not updating after a display
+  setting change, such as units, while statistics are on hold.
+* Fixed the Max window analysis always marking the start of the range
+  instead of the window with the maximum value.  It is also much faster.
+* Fixed the CDF analysis plot labeling its axis with one character of the
+  signal name.
+* Fixed TCP client queries not decoding numpy arrays, and query responses
+  over 64 KiB failing with "'H' format requires 0 <= number <= 65535".
+* Fixed TCP server widget paths not resolving in the main window while a
+  floating window, such as an analysis result, is active.
+* Fixed the stream buffer keeping its old size after a signal sample rate
+  change while streaming, such as only 0.13 s of data after 10 kHz to
+  1 MHz.  A rate change now stops streaming, sets the rate, and restores
+  streaming, which sizes the buffer for the new rate.
+* Fixed the Frequency analysis plotting doubled dB values (20 log10 of a
+  power) and doubling the DC and Nyquist bins.  It now plots the power
+  spectral density in dB.
+* Fixed the Histogram, CDF and Frequency progress bars jumping to complete.
+* Updated the minimum pyjoulescope_driver to 2.5.5.
+* Gave the waveform control's signal buttons unique object names.
+* Added a first release test that updates out-of-date JS220 and JS320
+  firmware through the Device Update dialog, so the dialog no longer blocks
+  the remaining automated tests.
+* Changed the record and export release tests to follow the manual test
+  plan: record for 10 s, export from the live view and from the opened file,
+  and compare each export sample by sample with the recording.
+* Added release tests for adding and removing waveform signals, moving and
+  removing dual markers, the live waveform, and zooming, panning and
+  exporting a JLS v1 recording.
+* Added release tests that check the Multimeter's displayed values, units,
+  and accumulation time.
+* Added a release test that compares the Histogram, CDF, Frequency and Max
+  window analysis results on a device recording with numpy.
+* Added a joulescope_ui_config.json to each GitHub Release, and release
+  tests that start the UI with the configs saved by earlier releases and
+  that clear the config through File -> Config -> Clear and exit.  The TCP server gained a menubar_invoke action and click by button
+  text.
+* Changed the HIL farm release tests to install and test the published
+  installer, pushed after publish.  Main builds still test the sdist.
+* Added long-term release tests (1 h captures and a 10 h waveform run) with
+  every connected Joulescope streaming, marked slow and run on demand from
+  the HIL farm Jobs page.
+
+
 ## 1.7.4
 
 2026 Oct 26

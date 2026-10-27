@@ -250,7 +250,8 @@ class JlsV1:
             'info': info,
             'response_type': response_type,
             'data': data,
-            'data_type': 'f32',
+            # current_range and gpi samples are unpacked uint8
+            'data_type': 'u8' if data.dtype == np.uint8 else 'f32',
         }
 
     def close(self):

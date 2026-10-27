@@ -613,7 +613,7 @@ msgstr ""
 "Die Anwendung wird automatisch geschlossen, wenn Sie das Gebietsschema "
 "ändern."
 
-#: main.py:78 widgets/value/value_widget.py:776
+#: main.py:78 widgets/value/value_widget.py:788
 msgid "Multimeter"
 msgstr "Multimeter"
 
@@ -883,7 +883,7 @@ msgstr "Neueste Dateiliste"
 msgid "Most recently used length"
 msgstr "Zuletzt verwendete Länge"
 
-#: range_tool.py:341
+#: range_tool.py:346
 msgid "Range tool failed"
 msgstr "Fehler beim Bereichswerkzeug"
 
@@ -1923,7 +1923,7 @@ msgstr ""
 "Berechnen Sie das Frequenzspektrum, um den Frequenzgehalt der Datenwerte des"
 " Signals über den ausgewählten Bereich zu analysieren."
 
-#: range_tools/frequency.py:215
+#: range_tools/frequency.py:220
 msgid "Frequency configuration"
 msgstr "Frequenz-Konfiguration"
 
@@ -1943,7 +1943,7 @@ msgstr "Frequenzverteilung"
 msgid "Probability Density Distribution"
 msgstr "Wahrscheinlichkeits-Dichte-Verteilung"
 
-#: range_tools/histogram.py:44 range_tools/max_window.py:120
+#: range_tools/histogram.py:44 range_tools/max_window.py:109
 #: widgets/trigger/trigger_widget.py:220
 msgid "Signal"
 msgstr "Signal"
@@ -1967,15 +1967,15 @@ msgstr ""
 "Berechnen Sie ein Histogramm der Datenwerte des Signals über den "
 "ausgewählten Bereich."
 
-#: range_tools/max_window.py:25
+#: range_tools/max_window.py:31
 msgid "Max window"
 msgstr "Max Fenster"
 
-#: range_tools/max_window.py:26
+#: range_tools/max_window.py:32
 msgid "Find the maximum value window"
 msgstr "Finden Sie das Maximalwertfenster"
 
-#: range_tools/max_window.py:28
+#: range_tools/max_window.py:34
 msgid ""
 "Search the range for the window that has the maximum value. This is an "
 "exhaustive search made by sliding the window duration across the entire "
@@ -1985,16 +1985,16 @@ msgstr ""
 "Dies ist eine erschöpfende Suche, die durch Verschieben der Fensterdauer "
 "über den gesamten Bereich erfolgt."
 
-#: range_tools/max_window.py:31
+#: range_tools/max_window.py:37
 msgid "When complete, this tool will add dual markers to the waveform."
 msgstr ""
 "Nach Fertigstellung fügt dieses Tool der Wellenform zwei Marker hinzu."
 
-#: range_tools/max_window.py:97
+#: range_tools/max_window.py:86
 msgid "Max Window configuration"
 msgstr "Max Window Konfiguration"
 
-#: range_tools/max_window.py:106
+#: range_tools/max_window.py:95
 msgid "Width of window (in seconds)"
 msgstr "Breite des Fensters (in Sekunden)"
 
@@ -2765,7 +2765,7 @@ msgstr "aus"
 msgid "External Serial..."
 msgstr "Externe serielle..."
 
-#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:785
+#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:797
 msgid "Value"
 msgstr "Wert"
 

@@ -17,13 +17,14 @@ Test joulescope_ui.widgets.value.value_widget
 """
 
 import os
+import types
 import unittest
 from unittest import mock
 
 os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
 
 from PySide6 import QtWidgets
-from joulescope_ui.widgets.value.value_widget import _InnerWidget
+from joulescope_ui.widgets.value.value_widget import _BaseWidget, _InnerWidget
 
 
 class TestInnerWidget(unittest.TestCase):
@@ -45,3 +46,14 @@ class TestInnerWidget(unittest.TestCase):
             update.assert_called_once_with()
         finally:
             widget.deleteLater()
+
+    def test_displayed_text(self):
+        inner = types.SimpleNamespace(_geometry={
+            ('current', 'avg'): ((0, 0), (1, 1), '+1.23456 mA'),
+            ('charge', 'duration'): ((0, 0), (1, 1), '5 s'),
+        })
+        widget = types.SimpleNamespace(_inner=inner)
+        self.assertEqual({'current.avg': '+1.23456 mA', 'charge.duration': '5 s'},
+                         _BaseWidget.displayed_text(widget))
+        self.assertEqual({}, _BaseWidget.displayed_text(
+            types.SimpleNamespace(_inner=types.SimpleNamespace(_geometry=None))))

@@ -22,9 +22,11 @@ device suite on the HIL farm.
 """
 
 import os
+import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 import numpy as np
 import pyjls
@@ -34,17 +36,18 @@ import pyjls
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from uitest import verify, discover, installer, assets, qt  # noqa: E402
-from uitest.harness import UiSession  # noqa: E402
+from uitest.harness import DEVICE_UPDATE_DIALOG, UiSession  # noqa: E402
 from uitest.jls_fixtures import write_fsr_v2  # noqa: E402
 
 
 def _write_v2(path, *, signal_name='current', units='A', sample_rate=1000,
-              data=None, markers=0, start_value=0.0):
+              data=None, markers=0, start_value=0.0, utc_offset_s=0.0):
     """Write a minimal JLS v2 fixture (thin wrapper over the shared writer)."""
     if data is None:
         data = np.linspace(start_value, start_value + 1.0, 5000, dtype=np.float32)
     return write_fsr_v2(path, signal_name=signal_name, units=units,
-                        sample_rate=sample_rate, data=data, markers=markers)
+                        sample_rate=sample_rate, data=data, markers=markers,
+                        utc_offset_s=utc_offset_s)
 
 
 class TestVerify(unittest.TestCase):
@@ -121,9 +124,32 @@ class TestVerify(unittest.TestCase):
         full = (np.sin(np.arange(20000) / 50.0)).astype(np.float32)
         _write_v2(ref, data=full)
         offset = 5000
-        _write_v2(exp, data=full[offset:offset + 4000])
-        found = verify.compare_subrange(ref, exp, 'current', atol=1e-5)
+        _write_v2(exp, data=full[offset:offset + 4000], utc_offset_s=offset / 1000)
+        found = verify.compare_subrange(ref, exp, 'current')
         self.assertEqual(found, offset)
+
+    def test_compare_subrange_quiet_signal(self):
+        # A near-constant signal (no load) must align by UTC, not by value.
+        ref = os.path.join(self.dir, 'A.jls')
+        exp = os.path.join(self.dir, 'B.jls')
+        full = np.full(20000, 1e-7, dtype=np.float32)
+        full[12000:12010] = 2e-7
+        _write_v2(ref, data=full)
+        offset = 10000
+        _write_v2(exp, data=full[offset:offset + 4000], utc_offset_s=offset / 1000)
+        self.assertEqual(verify.compare_subrange(ref, exp, 'current'), offset)
+        _write_v2(exp, data=full[offset:offset + 4000], utc_offset_s=1.0)
+        with self.assertRaises(AssertionError):
+            verify.compare_subrange(ref, exp, 'current')
+
+    def test_compare_subrange_past_end(self):
+        ref = os.path.join(self.dir, 'A.jls')
+        exp = os.path.join(self.dir, 'B.jls')
+        full = (np.sin(np.arange(8000) / 50.0)).astype(np.float32)
+        _write_v2(ref, data=full)
+        _write_v2(exp, data=full[6000:], utc_offset_s=7.0)
+        with self.assertRaises(AssertionError):
+            verify.compare_subrange(ref, exp, 'current')
 
     def test_compare_subrange_mismatch(self):
         ref = os.path.join(self.dir, 'A.jls')
@@ -131,7 +157,21 @@ class TestVerify(unittest.TestCase):
         _write_v2(ref, data=np.sin(np.arange(8000) / 50.0).astype(np.float32))
         _write_v2(exp, data=(np.cos(np.arange(2000) / 7.0) * 3.14).astype(np.float32))
         with self.assertRaises(AssertionError):
-            verify.compare_subrange(ref, exp, 'current', atol=1e-6)
+            verify.compare_subrange(ref, exp, 'current')
+
+    def test_assert_no_gaps(self):
+        data = np.sin(np.arange(20000) / 50.0).astype(np.float32)
+        _write_v2(self.path, data=data)
+        verify.assert_no_gaps(self.path, ['current'])
+        data[12345:12400] = np.nan   # a recorder fills missing samples with NaN
+        _write_v2(self.path, data=data)
+        with self.assertRaises(AssertionError):
+            verify.assert_no_gaps(self.path, ['current'])
+
+    def test_utc_range(self):
+        _write_v2(self.path, utc_offset_s=2.0)
+        t0, t1 = verify.utc_range(self.path, 'current')
+        self.assertEqual(4999 * pyjls.time64.SECOND // 1000, t1 - t0)
 
 
 def _norm(path):
@@ -220,6 +260,16 @@ class TestEnumerateDevices(unittest.TestCase):
         self.assertEqual([d.model for d in devices], ['JS110'])
 
 
+class TestConfigFixtures(unittest.TestCase):
+
+    def test_previous_versions(self):
+        from uitest import config_fixtures
+        index = {'versions': [{'version': v} for v in ([1, 7, 4], [1, 7, 3], [1, 6, 9], [1, 7, 5])]}
+        self.assertEqual(['1.7.4', '1.7.3'], config_fixtures.previous_versions('1.7.5', 2, index))
+        self.assertEqual(['1.7.3'], config_fixtures.previous_versions('1.7.4', 1, index))
+        self.assertEqual([], config_fixtures.previous_versions('1.6.9', 2, index))
+
+
 class TestInstaller(unittest.TestCase):
     INDEX = {
         'active': {
@@ -242,6 +292,53 @@ class TestInstaller(unittest.TestCase):
     def test_platform_key_unsupported(self):
         with self.assertRaises(RuntimeError):
             installer.platform_key('Plan9', 'x86_64')
+        # arm64 Linux builds are published only as a Flatpak.
+        with self.assertRaises(RuntimeError):
+            installer.platform_key('Linux', 'aarch64')
+
+    def test_locate_executable(self):
+        d = tempfile.mkdtemp()
+        linux = os.path.join(d, 'joulescope_app', 'joulescope_1_7_4')
+        os.makedirs(linux)
+        exe = os.path.join(linux, 'joulescope_launcher')
+        open(exe, 'w').close()
+        os.chmod(exe, 0o755)
+        self.assertEqual(exe, installer.locate_executable(os.path.join(d, 'joulescope_app'),
+                                                          system='Linux'))
+        app = os.path.join(d, 'Joulescope.app')
+        os.makedirs(os.path.join(app, 'Contents', 'MacOS'))
+        mac = os.path.join(app, 'Contents', 'MacOS', 'joulescope_launcher')
+        open(mac, 'w').close()
+        self.assertEqual(mac, installer.locate_executable(app, system='Darwin'))
+        self.assertIsNone(installer.locate_executable(os.path.join(d, 'empty'), system='Linux'))
+
+    def test_release_channel(self):
+        index = {'active': {
+            'alpha': {'version': [1, 7, 4], 'platform': {'ubuntu': {}, 'macos': {}}},
+            'beta': {'version': [1, 7, 3], 'platform': {'ubuntu': {}, 'windows': {}}},
+        }}
+        self.assertEqual('alpha', installer.release_channel(index, '1.7.4', 'ubuntu'))
+        self.assertEqual('beta', installer.release_channel(index, '1.7.3', 'windows'))
+        self.assertIsNone(installer.release_channel(index, '1.7.4', 'windows'))
+        self.assertIsNone(installer.release_channel(index, '1.7.5', 'ubuntu'))
+
+    def test_install_release_waits_for_index(self):
+        # A just-published index can be cached: re-fetch until it appears.
+        stale = {'active': {'alpha': {'version': [1, 7, 3], 'platform': {'ubuntu': {}}}}}
+        fresh = {'active': {'alpha': {'version': [1, 7, 4], 'platform': {'ubuntu': {}}}}}
+        indexes = [stale, fresh]
+        with mock.patch.object(installer, 'fetch_index', side_effect=lambda: indexes.pop(0)), \
+                mock.patch.object(installer, 'download_installer', return_value='a.tar.gz'), \
+                mock.patch.object(installer, 'install', return_value='/opt/app'), \
+                mock.patch.object(installer, 'locate_executable', return_value='/opt/app/js'):
+            exe = installer.install_release('1.7.4', tempfile.mkdtemp(), key='ubuntu',
+                                            wait=10.0, interval=0.0)
+        self.assertEqual('/opt/app/js', exe)
+        self.assertEqual([], indexes)
+
+    def test_install_release_not_published(self):
+        with self.assertRaises(LookupError):
+            installer.install_release('9.9.9', tempfile.mkdtemp(), index=self.INDEX, key='ubuntu')
 
     def test_installer_relpath(self):
         self.assertEqual(installer.installer_relpath(self.INDEX, 'alpha', 'ubuntu'),
@@ -454,7 +551,8 @@ class _DialogClient:
 
     def qt_inspect(self, path='', max_depth=50):
         root = self.roots.pop(0) if len(self.roots) > 1 else self.roots[0]
-        return {'class': root, 'objectName': ''}
+        cls, name = root if isinstance(root, tuple) else (root, '')
+        return {'class': cls, 'objectName': name}
 
     def qt_action(self, action, **kwargs):
         self.keys.append(kwargs.get('key'))
@@ -475,6 +573,27 @@ class TestSuppressStartupDialogs(unittest.TestCase):
 
     def test_no_dialog(self):
         self.assertEqual([], self._suppress(['MainWindow']))
+
+    def test_device_update_dialog_left_open(self):
+        # test_device_firmware drives this dialog, so it must not be dismissed.
+        dialog = ('DeviceUpdateDialog', DEVICE_UPDATE_DIALOG)
+        self.assertEqual([], self._suppress(['MainWindow', dialog]))
+
+
+class TestFirmwareFirst(unittest.TestCase):
+
+    def test_collection_order(self):
+        # The conftest hook moves the firmware test ahead of every other test.
+        ci_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        env = {**os.environ, 'JS_UITEST_DEVICES': 'JS220'}
+        rsp = subprocess.run(
+            [sys.executable, '-m', 'pytest', '--collect-only', '-q', '-p', 'no:cacheprovider',
+             os.path.join(ci_dir, 'uitest')],
+            cwd=os.path.dirname(ci_dir), env=env, capture_output=True, text=True, timeout=120)
+        if rsp.returncode != 0:
+            self.skipTest(f'collection needs the UI stack: {rsp.stdout[-500:]}')
+        first = rsp.stdout.splitlines()[0]
+        self.assertIn('test_device_firmware.py::test_device_firmware', first)
 
 
 if __name__ == '__main__':

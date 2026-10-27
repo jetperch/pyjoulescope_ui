@@ -38,7 +38,7 @@ def rsp_as_f32(rsp):
         return rsp['data']
     y = rsp['data']
     data_type = rsp['data_type']
-    if data_type == 'f32':
+    if data_type in ('f32', 'u8'):
         pass
     elif data_type == 'u1':
         y = np.unpackbits(y, bitorder='little')[:length]
@@ -179,6 +179,11 @@ class RangeTool:
                     req['time_type'] = 'samples'
                     req['length'] = 0
                     req['end'] = rsp['info']['tmap'].timestamp_to_sample_id(end)
+                elif req['end']:
+                    # The source answered with samples, so continue with
+                    # samples through end.  A remaining length would request
+                    # a summary, which cannot be concatenated with samples.
+                    req['length'] = 0
             elif (rsp['info']['time_range_samples']['length'] == 0
                     or rsp['info']['time_range_samples']['end'] < req['start']):
                 # no forward progress: the source has no more data for this

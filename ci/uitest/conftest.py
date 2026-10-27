@@ -22,6 +22,8 @@ Markers
   (see :func:`uitest.discover.advertised_models`).
 * ``slow``   -- long-running (e.g. the 1 h / 10 h captures); excluded from the
   release gate, scheduled separately.
+* ``firmware`` -- brings device firmware up to date; always runs first
+  (see ``test_device_firmware.py``).
 
 Run the hardware-free subset anywhere with::
 
@@ -41,11 +43,29 @@ from uitest.harness import UiSession
 _ARTIFACTS_DIR = os.environ.get('JS_UITEST_ARTIFACTS',
                                 os.path.join(os.getcwd(), 'uitest_artifacts'))
 
+#: Devices whose firmware the ``firmware`` test left out of date.  Their
+#: startup Device Update dialog would block every later UI session.
+FIRMWARE_STALE = pytest.StashKey[dict]()
+
 
 def pytest_configure(config):
     config.addinivalue_line('markers', 'device: requires a connected Joulescope device')
     config.addinivalue_line('markers', 'slow: long-running test (hours); not in the release gate')
     config.addinivalue_line('markers', 'waveform_data(factory): rendered_waveform data factory')
+    config.addinivalue_line('markers', 'waveform_path(factory): rendered_waveform file to open')
+    config.addinivalue_line('markers', 'firmware: updates device firmware; runs first')
+    config.stash[FIRMWARE_STALE] = {}
+
+
+def pytest_collection_modifyitems(config, items):
+    # Update firmware before anything else (stable sort keeps the rest in order).
+    items.sort(key=lambda item: item.get_closest_marker('firmware') is None)
+
+
+def _require_firmware_current(request):
+    stale = request.config.stash[FIRMWARE_STALE]
+    if stale:
+        pytest.fail(f'device firmware out of date (see test_device_firmware): {stale}')
 
 
 def pytest_generate_tests(metafunc):
@@ -91,11 +111,48 @@ def _require_ui_stack():
 _NO_VSYNC_ENV = {'vblank_mode': '0', '__GL_SYNC_TO_VBLANK': '0'}
 
 
+# The installed release under test: None until installed, or the exception.
+_release = {}
+
+
+def _release_executable():
+    """Install the published build of this UI version once, for a release build.
+
+    ``JS_UITEST_BUILD_KIND=release`` (the HIL farm sets it for a release tag)
+    tests the published installer instead of the pip-installed sdist.  arm64
+    Linux has no installer (Flatpak only), so it keeps testing the sdist.
+
+    :return: The installed executable, or None to run the sdist.
+    """
+    if os.environ.get('JS_UITEST_BUILD_KIND') != 'release':
+        return None
+    from uitest import installer
+    try:
+        key = installer.platform_key()
+    except RuntimeError:
+        return None
+    if 'value' not in _release:
+        import tempfile
+        from joulescope_ui import __version__
+        try:
+            # The farm pushes a release right after publish; allow for a
+            # cached download index.
+            _release['value'] = installer.install_release(
+                __version__, os.path.join(tempfile.gettempdir(), 'uitest_release', key),
+                wait=600.0)
+        except Exception as ex:
+            _release['value'] = ex
+    value = _release['value']
+    if isinstance(value, Exception):
+        pytest.fail(f'could not install the published UI: {value}')
+    return value
+
+
 def _new_session(**kwargs):
     kwargs.setdefault('offscreen', _offscreen_default())
     if not kwargs['offscreen'] and sys.platform.startswith('linux'):
         kwargs['env'] = {**_NO_VSYNC_ENV, **(kwargs.get('env') or {})}
-    executable = os.environ.get('JS_UITEST_EXECUTABLE') or None
+    executable = os.environ.get('JS_UITEST_EXECUTABLE') or _release_executable()
     return UiSession(executable=executable, **kwargs)
 
 
@@ -107,6 +164,7 @@ def ui_session(request):
     suite still collects on a bare developer machine.
     """
     _require_ui_stack()
+    _require_firmware_current(request)
     session = _new_session()
     session.start()
     request.node._ui_session = session     # for screenshot-on-failure
@@ -126,6 +184,7 @@ def make_ui_session(request):
     screenshot-on-failure.
     """
     _require_ui_stack()
+    _require_firmware_current(request)
     sessions = []
 
     def factory(**kwargs):
@@ -152,9 +211,8 @@ def make_ui_session(request):
 _absent_models = set()
 
 
-@pytest.fixture
-def device(ui_session, device_model):
-    """Resolve the parametrized model to a connected :class:`discover.Device`.
+def _resolve_device(session, device_model):
+    """Return the connected :class:`discover.Device` for ``device_model``.
 
     Polls briefly because USB enumeration completes asynchronously after the UI
     launches.  When ``JS_UITEST_DEVICES`` lists the model, absence after the
@@ -173,7 +231,7 @@ def device(ui_session, device_model):
     timeout = float(os.environ.get('JS_UITEST_DEVICE_TIMEOUT', '10'))
     deadline = time.monotonic() + timeout
     while True:
-        found = [d for d in ui_session.devices() if d.model == device_model]
+        found = [d for d in session.devices() if d.model == device_model]
         if found:
             return found[0]
         if time.monotonic() >= deadline:
@@ -184,7 +242,31 @@ def device(ui_session, device_model):
             pytest.fail(
                 f'{discover.ENV_DEVICES} lists {device_model} but no such '
                 f'device is connected (waited {timeout:g}s)')
+        session.wait(0.5)
+
+
+@pytest.fixture
+def all_devices(ui_session):
+    """Every expected device, or with ``JS_UITEST_DEVICES`` unset, every
+    device detected within the device timeout."""
+    expected = discover.advertised_models()
+    if expected == ():
+        pytest.skip(f'{discover.ENV_DEVICES} is empty; no device tests')
+    if expected is not None:
+        return [_resolve_device(ui_session, model) for model in expected]
+    deadline = time.monotonic() + float(os.environ.get('JS_UITEST_DEVICE_TIMEOUT', '10'))
+    while time.monotonic() < deadline:
         ui_session.wait(0.5)
+    devices = ui_session.devices()
+    if not devices:
+        pytest.skip('no device detected')
+    return devices
+
+
+@pytest.fixture
+def device(ui_session, device_model):
+    """The connected :class:`discover.Device` for the parametrized model."""
+    return _resolve_device(ui_session, device_model)
 
 
 def _has_display():
@@ -205,6 +287,27 @@ def _rendered_env():
     return {}
 
 
+def _rendered_session(request):
+    """Start a non-offscreen UiSession, or skip/fail when it cannot render.
+
+    :return: ``(session, unavailable)``.  ``unavailable`` skips, or fails when
+        ``JS_UITEST_DISPLAY`` promises a display.
+    """
+    _require_ui_stack()
+    _require_firmware_current(request)
+    unavailable = pytest.fail if os.environ.get('JS_UITEST_DISPLAY') else pytest.skip
+    if not _has_display():
+        unavailable('no display; rendered-waveform tests need a real display')
+    session = _new_session(offscreen=False, env=_rendered_env())
+    session.start()
+    request.node._ui_session = session
+    return session, unavailable
+
+
+def _waveforms(session):
+    return {i for i in session.enumerate('registry') if i.startswith('WaveformWidget:')}
+
+
 @pytest.fixture
 def rendered_waveform(request, tmp_path):
     """A started UiSession showing a *rendered* file waveform, for mouse tests.
@@ -215,37 +318,57 @@ def rendered_waveform(request, tmp_path):
     the space.  When there is no display or the GL plot does not render
     (headless/no-GPU), skips, or fails when ``JS_UITEST_DISPLAY`` promises a
     display.  ``@pytest.mark.waveform_data(factory=fn)`` replaces the recording
-    with ``fn()``.
+    data with ``fn()``, and ``@pytest.mark.waveform_path(factory=fn)`` opens the
+    file at path ``fn()`` instead.
     """
-    _require_ui_stack()
-    unavailable = pytest.fail if os.environ.get('JS_UITEST_DISPLAY') else pytest.skip
-    if not _has_display():
-        unavailable('no display; rendered-waveform tests need a real display')
     import numpy as np
     from uitest.jls_fixtures import write_fsr_v2
 
-    session = _new_session(offscreen=False, env=_rendered_env())
-    session.start()
-    request.node._ui_session = session
+    session, unavailable = _rendered_session(request)
     try:
-        path = str(tmp_path / 'rendered.jls')
-        marker = request.node.get_closest_marker('waveform_data')
-        if marker is None:
-            data = (0.4 + 0.1 * np.sin(np.arange(40000) / 40.0)).astype(np.float32)
+        path_marker = request.node.get_closest_marker('waveform_path')
+        if path_marker is not None:
+            path = path_marker.kwargs['factory']()
         else:
-            data = marker.kwargs['factory']()
-        write_fsr_v2(path, sample_rate=1000, data=data)
-        live = {i for i in session.enumerate('registry') if i.startswith('WaveformWidget:')}
+            path = str(tmp_path / 'rendered.jls')
+            marker = request.node.get_closest_marker('waveform_data')
+            if marker is None:
+                data = (0.4 + 0.1 * np.sin(np.arange(40000) / 40.0)).astype(np.float32)
+            else:
+                data = marker.kwargs['factory']()
+            write_fsr_v2(path, sample_rate=1000, data=data)
+        live = _waveforms(session)
         source_id = session.open_file(path)
         session.wait(2.0)
-        wf = [i for i in session.enumerate('registry')
-              if i.startswith('WaveformWidget:') and i not in live][-1]
+        wf = sorted(_waveforms(session) - live)[-1]
         for widget_id in sorted(live):
             session.publish('registry/view/actions/!widget_close', widget_id)
         session.resize_window_settled(1600, 900)
         if not session.wait_for_render(wf, timeout=15.0):
             unavailable('waveform plot not rendering (no GL/compositor)')
         yield session, wf, source_id
+    finally:
+        request.node._ui_session = None
+        session.stop()
+
+
+@pytest.fixture
+def rendered_live_waveform(request, device_model):
+    """A started UiSession showing the *rendered* live waveform of a device.
+
+    Yields ``(session, waveform_id, device)`` with the Oscilloscope view active
+    and the device streaming.  Skips or fails like :func:`rendered_waveform`.
+    """
+    session, unavailable = _rendered_session(request)
+    try:
+        device = _resolve_device(session, device_model)
+        session.set_view('oscilloscope')
+        wf = sorted(_waveforms(session))[0]
+        session.publish('registry/app/settings/signal_stream_enable', True)
+        session.resize_window_settled(1600, 900)
+        if not session.wait_for_render(wf, timeout=15.0):
+            unavailable('waveform plot not rendering (no GL/compositor)')
+        yield session, wf, device
     finally:
         request.node._ui_session = None
         session.stop()

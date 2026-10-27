@@ -615,7 +615,7 @@ msgstr "Sélectionnez une langue"
 msgid "The application will automatically close when you change the locale."
 msgstr "L'application se ferme automatiquement lorsque vous changez de lieu."
 
-#: main.py:78 widgets/value/value_widget.py:776
+#: main.py:78 widgets/value/value_widget.py:788
 msgid "Multimeter"
 msgstr "Multimètre"
 
@@ -891,7 +891,7 @@ msgstr "Liste des fichiers les plus récents"
 msgid "Most recently used length"
 msgstr "Longueur la plus récemment utilisée"
 
-#: range_tool.py:341
+#: range_tool.py:346
 msgid "Range tool failed"
 msgstr "Erreur de l'outil de plage"
 
@@ -1931,7 +1931,7 @@ msgstr ""
 "Calculer le spectre de fréquence pour analyser le contenu en fréquence des "
 "valeurs de données du signal sur la plage sélectionnée."
 
-#: range_tools/frequency.py:215
+#: range_tools/frequency.py:220
 msgid "Frequency configuration"
 msgstr "Configuration de la fréquence"
 
@@ -1951,7 +1951,7 @@ msgstr "Distribution de fréquence"
 msgid "Probability Density Distribution"
 msgstr "Distribution de densité de probabilité"
 
-#: range_tools/histogram.py:44 range_tools/max_window.py:120
+#: range_tools/histogram.py:44 range_tools/max_window.py:109
 #: widgets/trigger/trigger_widget.py:220
 msgid "Signal"
 msgstr "Signal"
@@ -1975,15 +1975,15 @@ msgstr ""
 "Calculer un histogramme des valeurs de données du signal sur la plage "
 "sélectionnée."
 
-#: range_tools/max_window.py:25
+#: range_tools/max_window.py:31
 msgid "Max window"
 msgstr "Fenêtre maximale"
 
-#: range_tools/max_window.py:26
+#: range_tools/max_window.py:32
 msgid "Find the maximum value window"
 msgstr "Trouver la fenêtre de valeur maximale"
 
-#: range_tools/max_window.py:28
+#: range_tools/max_window.py:34
 msgid ""
 "Search the range for the window that has the maximum value. This is an "
 "exhaustive search made by sliding the window duration across the entire "
@@ -1993,17 +1993,17 @@ msgstr ""
 " recherche exhaustive effectuée en faisant glisser la durée de la fenêtre "
 "sur l'ensemble de la plage."
 
-#: range_tools/max_window.py:31
+#: range_tools/max_window.py:37
 msgid "When complete, this tool will add dual markers to the waveform."
 msgstr ""
 "Une fois terminé, cet outil ajoutera des marqueurs doubles à la forme "
 "d'onde."
 
-#: range_tools/max_window.py:97
+#: range_tools/max_window.py:86
 msgid "Max Window configuration"
 msgstr "Configuration de la fenêtre maximale"
 
-#: range_tools/max_window.py:106
+#: range_tools/max_window.py:95
 msgid "Width of window (in seconds)"
 msgstr "Largeur de la fenêtre (en secondes)"
 
@@ -2771,7 +2771,7 @@ msgstr "off"
 msgid "External Serial..."
 msgstr "Série externe..."
 
-#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:785
+#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:797
 msgid "Value"
 msgstr "Valeur"
 

@@ -54,13 +54,20 @@ _log = logging.getLogger(__name__)
 
 
 def _deserialize_value(value):
-    """Deserialize a value received from the server."""
+    """Deserialize a value received from the server.
+
+    Recurses like the server's ``bridge._serialize_value``, so numpy arrays
+    nested in dicts and lists (e.g. a range tool's result data) decode too.
+    """
     if isinstance(value, dict):
         t = value.get('__type__')
         if t == 'ndarray':
             return np.array(value['data'], dtype=value.get('dtype', 'float32'))
         elif t == 'bytes':
             return base64.b64decode(value['data'].encode('utf-8'))
+        return {k: _deserialize_value(v) for k, v in value.items()}
+    elif isinstance(value, list):
+        return [_deserialize_value(v) for v in value]
     return value
 
 
@@ -197,7 +204,8 @@ class Client:
         :return: The retained value.
         :raises TimeoutError: If no response within timeout.
         """
-        return self._request(MSG_QUERY, {'topic': topic}, MSG_QUERY_RESPONSE)['value']
+        value = self._request(MSG_QUERY, {'topic': topic}, MSG_QUERY_RESPONSE)['value']
+        return _deserialize_value(value)
 
     def enumerate(self, topic, absolute=None):
         """Enumerate child topics.
@@ -224,7 +232,9 @@ class Client:
     def qt_action(self, action, path='', **kwargs):
         """Perform a Qt action.
 
-        :param action: Action name ('click', 'drag', 'key', 'set_property', 'get_property').
+        :param action: Action name ('click', 'drag', 'key', 'set_property',
+            'get_property', 'menubar_invoke', ...).  'click' with ``text`` and
+            no path clicks the root window's button with that text.
         :param path: Widget path.
         :param kwargs: Action-specific parameters.
         :return: Action result dict.
@@ -234,15 +244,8 @@ class Client:
         return self._qt_result(MSG_QT_ACTION, header)
 
     def _qt_result(self, msg_type, header):
-        """Send a Qt request and return the result dict.
-
-        Large results (e.g. a deep widget tree) are delivered in the binary
-        payload to avoid the uint16 header-length limit; parse them when flagged.
-        """
-        _, resp_header, payload = self._request_raw(msg_type, header, MSG_QT_INSPECT_RESPONSE)
-        if resp_header.get('json_in_payload'):
-            return json.loads(payload)
-        return resp_header
+        """Send a Qt request and return the result dict."""
+        return self._request(msg_type, header, MSG_QT_INSPECT_RESPONSE)
 
     def qt_screenshot(self, path=''):
         """Capture a screenshot of a widget.
@@ -260,8 +263,14 @@ class Client:
             self._sock.sendall(frame)
 
     def _request(self, msg_type, header, expected_response_type):
-        """Send a request and wait for the response header."""
-        _, resp_header, _ = self._request_raw(msg_type, header, expected_response_type)
+        """Send a request and wait for the response header.
+
+        A large response header is delivered in the binary payload to avoid
+        the uint16 header-length limit; parse it when flagged.
+        """
+        _, resp_header, payload = self._request_raw(msg_type, header, expected_response_type)
+        if resp_header.get('json_in_payload'):
+            return json.loads(payload)
         return resp_header
 
     def _request_raw(self, msg_type, header, expected_response_type):

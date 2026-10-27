@@ -12,122 +12,104 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""Live record from a device, then reopen and verify.
+"""Live record and export, following the test plan's steps.
 
-Maps to the test plan's "Live view record ... Press record, wait, stop ... Open
-recording A, verify correct" legs.  Records a short window from the device under
-test, stops (which finalizes/closes the JLS), verifies the file with pyjls, and
-reopens it in the UI.
+Maps to the "Live view record and export from waveform" sections, at full rate
+and 10 kHz:
+
+1. View -> Oscilloscope, set the signal frequency.
+2. Record A for 10 s, stop.
+3. In the live view, add dual markers, export B.
+4. View -> File, open A, verify.
+5. Open B, verify it matches A.
+6. Add dual markers to the opened file's waveform, export C, verify C matches A.
 
 Requires a connected device.
 """
 
-import os
-
 import pyjls
 import pytest
 
-from uitest import verify
+from uitest import discover, verify
 
-_RECORD_SECONDS = 2.0
-
-
-def _record(ui_session, device, path):
-    """Record a short window from ``device`` to ``path`` and finalize it."""
-    ui_session.publish(f'registry/{device.unique_id}/settings/auto_open', True)
-    ui_session.wait_for_statistics(device.unique_id)   # confirms data is flowing
-    record_id = ui_session.record_start(path, source_ids=[device.unique_id])
-    ui_session.wait(_RECORD_SECONDS)
-    ui_session.record_stop(record_id)
-    assert os.path.isfile(path) and os.path.getsize(path) > 0, 'no recording written'
+_RECORD_SECONDS = 10.0
+_LIVE_BUFFER = 'JsdrvStreamBuffer:001'
+_SIGNALS = ['current', 'voltage', 'power']
+_EXPORT_TIMEOUT = 120.0     # seconds; a 1 MHz export writes tens of MB
+# Allowed UTC disagreement between a recording and a live-buffer export of the
+# same samples.  JS110 recordings and its stream buffer differ by about 2 ms
+# (see docs/plans/expand_test_coverage_202610.md, Stage 1 findings).
+_UTC_TOLERANCE_S = {'JS110': 0.005, 'JS220': 0.0, 'JS320': 0.0}
 
 
-@pytest.mark.device
-def test_record_and_reopen(ui_session, device, tmp_capture):
-    path = str(tmp_capture / 'recA.jls')
-    _record(ui_session, device, path)
+def _rate(device, rate):
+    return discover.FULL_RATE[device.model] if rate == 'full' else rate
 
-    # File is closed now -> safe to read with pyjls.
-    assert verify.jls_version(path) == 2
-    summary = verify.assert_recording(
-        path, signal_names=['current', 'voltage', 'power'],
-        min_duration_s=_RECORD_SECONDS * 0.5)   # allow startup latency
-    assert summary['sources'], 'recording has no source metadata'
 
-    # Reopen recording A in the UI.
+def _inner(t0, t1, lo, hi):
+    """Return ``[t0 + lo * span, t0 + hi * span]`` as int time64."""
+    span = t1 - t0
+    return [int(t0 + lo * span), int(t0 + hi * span)]
+
+
+def _export_and_verify(ui_session, wf, path, x_range, signals, reference, max_shift=4):
+    """Add dual markers inside ``x_range``, export, and compare with ``reference``."""
+    ui_session.add_dual_markers(wf, *_inner(*x_range, 0.25, 0.75))
+    ui_session.export_range(wf, path, x_range=x_range, signals=signals,
+                            timeout=_EXPORT_TIMEOUT)
+    verify.assert_recording(path, signal_names=_SIGNALS)
+    for name in _SIGNALS:
+        verify.compare_subrange(reference, path, name, max_shift=max_shift)
+    markers = verify.count_annotations(ui_session.annotation_path(path),
+                                       annotation_type=pyjls.AnnotationType.VMARKER)
+    assert markers == 2, f'{path}: expected 2 vertical markers, found {markers}'
     source_id = ui_session.open_file(path)
     assert source_id in ui_session.buffer_sources()
-    assert ui_session.query(f'registry/{source_id}/settings/path') == path
 
 
 @pytest.mark.device
-@pytest.mark.parametrize('freq', [10_000, 1_000_000])
-def test_record_at_signal_frequency(ui_session, device, tmp_capture, freq):
-    """Record at a selected sample rate; the recording is written at that rate.
+@pytest.mark.parametrize('rate', ['full', 10_000], ids=['full_rate', '10khz'])
+def test_record_export(ui_session, device, tmp_capture, rate):
+    freq = _rate(device, rate)
+    path_a, path_b, path_c = [str(tmp_capture / f'{n}.jls') for n in 'ABC']
 
-    Covers the plan's "Signal frequency -> 10 kHz / full rate" record sections.
-    """
-    ui_session.publish(f'registry/{device.unique_id}/settings/auto_open', True)
+    # 1. View -> Oscilloscope at the requested signal frequency.
+    ui_session.set_view('oscilloscope')
+    live_wf = ui_session.waveform()
     ui_session.set_signal_frequency(device.unique_id, freq)
-    ui_session.wait_for_statistics(device.unique_id)
+    ui_session.wait_for_statistics(device.unique_id)   # data is flowing
 
-    path = str(tmp_capture / f'rec_{freq}.jls')
-    record_id = ui_session.record_start(path, source_ids=[device.unique_id])
+    # 2. Record A, stop.
+    record_id = ui_session.record_start(path_a, source_ids=[device.unique_id])
     ui_session.wait(_RECORD_SECONDS)
     ui_session.record_stop(record_id)
-
-    summary = verify.assert_recording(path, signal_names=['current'])
+    summary = verify.assert_recording(path_a, signal_names=_SIGNALS,
+                                      min_duration_s=_RECORD_SECONDS * 0.8)
     rates = {s['sample_rate'] for s in summary['signals'].values()}
     assert rates == {float(freq)}, f'expected {freq} Hz, recording has {rates}'
 
-
-@pytest.mark.device
-def test_record_markers_export(ui_session, device, tmp_capture):
-    """Record A, add dual markers, export to B, verify B's data and markers.
-
-    Mirrors the plan's "record A ... add dual markers, export to B ... open
-    export B, verify correct" leg.  The exporter writes data to B.jls and the
-    markers to the B.anno.jls sidecar.
-    """
-    path_a = str(tmp_capture / 'recA.jls')
-    path_b = str(tmp_capture / 'exportB.jls')
-    # Record at 10 kHz so the recording stays small: the exporter pull-requests
-    # samples with a 5 s timeout, which a multi-MB 1 MHz capture can exceed.
-    ui_session.publish(f'registry/{device.unique_id}/settings/auto_open', True)
-    ui_session.set_signal_frequency(device.unique_id, 10_000)
-    _record(ui_session, device, path_a)
-
-    # Stop live streaming so the file read during export is not competing with
-    # the device for the processing pipeline (the export request has a 5 s
-    # timeout that contention can exceed).
+    # 3. Pause the live view (the buffer keeps its data), export B from it.
     ui_session.publish('registry/app/settings/signal_stream_enable', False)
     ui_session.publish('registry/app/settings/statistics_stream_enable', False)
     ui_session.wait(0.5)
+    a_range = verify.utc_range(path_a, 'current')
+    live_signals = [s for s in ui_session.buffer_signals(_LIVE_BUFFER)
+                    if s.startswith(f'{_LIVE_BUFFER}.{device.unique_id}.')
+                    and s.split('.')[-1] in ('i', 'v', 'p')]
+    assert len(live_signals) == 3, f'live buffer signals: {live_signals}'
+    max_shift = max(4, int(_UTC_TOLERANCE_S[device.model] * freq))
+    _export_and_verify(ui_session, live_wf, path_b, _inner(*a_range, 0.3, 0.7),
+                       live_signals, path_a, max_shift=max_shift)
 
-    source_id = ui_session.open_file(path_a)
+    # 4. View -> File, open A.
+    ui_session.set_view('file')
+    source_a = ui_session.open_file(path_a)
+    assert ui_session.query(f'registry/{source_a}/settings/path') == path_a
     ui_session.wait(1.0)
-    wf = ui_session.waveform()
-    signals = ui_session.buffer_signals(source_id)
-    assert signals, 'opened recording exposed no signals'
+    file_wf = ui_session.waveform()
+    assert file_wf != live_wf, 'opening A did not create a file waveform'
 
-    # Use the source's own range metadata, not the waveform's x_range setting:
-    # x_range only updates when the plot paints, so it stays [0, 0] offscreen
-    # and would send the exporter to the time64 epoch.
-    x0, x1 = ui_session.source_utc_range(source_id)
-    span = x1 - x0
-    # Dual markers strictly inside the export sub-range.
-    ui_session.add_dual_markers(wf, x0 + 0.45 * span, x0 + 0.55 * span)
-    ui_session.export_range(
-        wf, path_b, x_range=[int(x0 + 0.3 * span), int(x0 + 0.7 * span)],
-        signals=signals)
-
-    # B.jls carries the data; B.anno.jls carries the markers.
-    verify.assert_recording(path_b, signal_names=['current', 'voltage', 'power'])
-    anno = ui_session.annotation_path(path_b)
-    assert os.path.isfile(anno), 'export did not write the .anno sidecar'
-    markers = verify.count_annotations(anno, annotation_type=pyjls.AnnotationType.VMARKER)
-    assert markers == 2, f'expected 2 vertical markers in export, found {markers}'
-
-    # Open export B and confirm it loads.
-    b_source = ui_session.open_file(path_b)
-    assert b_source in ui_session.buffer_sources()
+    # 6. Markers on the opened file's waveform, export C.
+    x0, x1 = ui_session.source_utc_range(source_a)
+    _export_and_verify(ui_session, file_wf, path_c, _inner(x0, x1, 0.2, 0.6),
+                       ui_session.buffer_signals(source_a), path_a)
