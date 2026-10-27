@@ -36,7 +36,7 @@ import pyjls
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from uitest import verify, discover, installer, assets, qt  # noqa: E402
-from uitest.harness import DEVICE_UPDATE_DIALOG, UiSession  # noqa: E402
+from uitest.harness import HELP_DIALOG, UiSession, UiSessionError  # noqa: E402
 from uitest.jls_fixtures import write_fsr_v2  # noqa: E402
 
 
@@ -142,6 +142,22 @@ class TestVerify(unittest.TestCase):
         with self.assertRaises(AssertionError):
             verify.compare_subrange(ref, exp, 'current')
 
+    def test_compare_subrange_missing_samples(self):
+        # Missing samples are NaN in both the recording and the export.
+        ref = os.path.join(self.dir, 'A.jls')
+        exp = os.path.join(self.dir, 'B.jls')
+        full = (np.sin(np.arange(20000) / 50.0)).astype(np.float32)
+        full[7000:7050] = np.nan
+        _write_v2(ref, data=full)
+        offset = 5000
+        _write_v2(exp, data=full[offset:offset + 4000], utc_offset_s=offset / 1000)
+        self.assertEqual(verify.compare_subrange(ref, exp, 'current'), offset)
+        part = full[offset:offset + 4000].copy()
+        part[2000:2050] = 0.0
+        _write_v2(exp, data=part, utc_offset_s=offset / 1000)
+        with self.assertRaisesRegex(AssertionError, '50 of 4000 differ from export sample 2000'):
+            verify.compare_subrange(ref, exp, 'current')
+
     def test_compare_subrange_past_end(self):
         ref = os.path.join(self.dir, 'A.jls')
         exp = os.path.join(self.dir, 'B.jls')
@@ -181,6 +197,21 @@ def _norm(path):
 
 
 class TestDiscover(unittest.TestCase):
+    def test_saved_changelog_version(self):
+        import json
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, 'joulescope_ui_config.json')
+            self.assertIsNone(discover.saved_changelog_version(path=path))
+            setting = {'value': '1.7.4'}
+            config = {'registry': {'children': {'ui': {'children': {'settings': {
+                'children': {'changelog_version_show': setting}}}}}}}
+            with open(path, 'w') as f:
+                json.dump(config, f)
+            self.assertEqual('1.7.4', discover.saved_changelog_version(path=path))
+            with open(path, 'w') as f:
+                json.dump({'registry': {}}, f)
+            self.assertIsNone(discover.saved_changelog_version(path=path))
+
     def test_app_dir_per_platform(self):
         self.assertTrue(_norm(discover.app_dir(platform='linux')).endswith('/.joulescope'))
         mac = _norm(discover.app_dir(platform='darwin'))
@@ -316,6 +347,7 @@ class TestInstaller(unittest.TestCase):
         with mock.patch.object(installer.subprocess, 'run') as run:
             self.assertIsNone(installer.install('setup.exe', system='Windows'))
         self.assertIn('/CURRENTUSER', run.call_args[0][0])
+        self.assertIn('/NOLAUNCH', run.call_args[0][0])
         d = tempfile.mkdtemp()
         exe = os.path.join(d, 'Programs', 'Joulescope', 'joulescope.exe')
         with mock.patch.dict(os.environ, {'LOCALAPPDATA': d}):
@@ -579,45 +611,59 @@ class TestResizeWindowSettled(unittest.TestCase):
         self.assertFalse(s.resize_window_settled(1600, 900, timeout=0.05))
 
 
-class _DialogClient:
-    """Fake TCP client whose active window follows ``roots``."""
+class _DialogSession(_StubSession):
+    """Stub session whose startup dialog is visible on the ``polls`` listed."""
 
-    def __init__(self, roots):
-        self.roots = list(roots)
+    def __init__(self, version, polls):
+        super().__init__()
+        self.version = version
+        self.polls = list(polls)   # per inspect: True visible, None absent
         self.keys = []
 
-    def publish(self, topic, value):
-        pass
+    def query(self, topic):
+        return self.version
 
     def qt_inspect(self, path='', max_depth=50):
-        root = self.roots.pop(0) if len(self.roots) > 1 else self.roots[0]
-        cls, name = root if isinstance(root, tuple) else (root, '')
-        return {'class': cls, 'objectName': name}
+        assert path == HELP_DIALOG
+        visible = self.polls.pop(0) if len(self.polls) > 1 else self.polls[0]
+        if visible is None:
+            raise RuntimeError('Widget not found')
+        return {'visible': visible}
 
-    def qt_action(self, action, **kwargs):
-        self.keys.append(kwargs.get('key'))
+    def qt_action(self, action, path='', **kwargs):
+        self.keys.append((path, kwargs.get('key')))
         return {'ok': True}
+
+    def wait(self, seconds):
+        pass
 
 
 class TestSuppressStartupDialogs(unittest.TestCase):
 
-    def _suppress(self, roots):
-        s = _StubSession()
-        s._client = _DialogClient(roots)
-        s._suppress_startup_dialogs()
-        return s._client.keys
+    def test_dialog_appears_after_ready(self):
+        s = _DialogSession('1.7.6', [None, None, True, None])
+        s._suppress_startup_dialogs(None)
+        self.assertEqual([(HELP_DIALOG, 'Escape')], s.keys)
 
-    def test_dialog_activates_after_main_window(self):
-        keys = self._suppress(['MainWindow', 'MainWindow', 'HelpHtmlMessageBox', 'MainWindow'])
-        self.assertEqual(['Escape'], keys)
+    def test_changelog_after_upgrade(self):
+        s = _DialogSession('1.7.6', [True, None])
+        s._suppress_startup_dialogs('1.7.4')
+        self.assertEqual([(HELP_DIALOG, 'Escape')], s.keys)
 
-    def test_no_dialog(self):
-        self.assertEqual([], self._suppress(['MainWindow']))
+    def test_same_version_no_dialog(self):
+        s = _DialogSession('1.7.6', [True])
+        s._suppress_startup_dialogs('1.7.6')
+        self.assertEqual([], s.keys)
 
-    def test_device_update_dialog_left_open(self):
-        # test_device_firmware drives this dialog, so it must not be dismissed.
-        dialog = ('DeviceUpdateDialog', DEVICE_UPDATE_DIALOG)
-        self.assertEqual([], self._suppress(['MainWindow', dialog]))
+    def test_dialog_never_appears(self):
+        s = _DialogSession('1.7.6', [None])
+        with self.assertRaisesRegex(UiSessionError, 'did not appear'):
+            s._suppress_startup_dialogs(None, timeout=0.05)
+
+    def test_dialog_never_closes(self):
+        s = _DialogSession('1.7.6', [True])
+        with self.assertRaisesRegex(UiSessionError, 'did not close'):
+            s._suppress_startup_dialogs(None, timeout=0.05)
 
 
 class TestFirmwareFirst(unittest.TestCase):

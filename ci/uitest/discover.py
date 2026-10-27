@@ -86,6 +86,25 @@ def config_file_path(app=APP_NAME, platform=None):
     return os.path.join(config_dir(app, platform), 'joulescope_ui_config.json')
 
 
+def saved_changelog_version(app=APP_NAME, path=None):
+    """Return the UI's saved ``changelog_version_show``, or None.
+
+    At startup the UI shows "Getting Started" or the changelog when this
+    differs from its version (``main._startup_display_maybe``).
+
+    :param path: Explicit config path; default uses :func:`config_file_path`.
+    """
+    if path is None:
+        path = config_file_path(app)
+    try:
+        with open(path, 'r', encoding='utf-8') as f:
+            config = json.load(f)
+        return config['registry']['children']['ui']['children']['settings']['children'][
+            'changelog_version_show']['value']
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
+
+
 def find_credentials(path=None, app=APP_NAME):
     """Load ``{'token', 'port'}`` from the UI's ``server.json``.
 

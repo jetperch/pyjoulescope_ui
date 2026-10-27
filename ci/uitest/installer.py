@@ -172,8 +172,10 @@ def install(installer_path, *, system=None):
         # Unattended, for the current user: CI stations do not install for all
         # users, which needs administrator rights.  /CURRENTUSER needs a 1.7.6+
         # installer (PrivilegesRequiredOverridesAllowed in joulescope.iss).
+        # /NOLAUNCH (1.7.7+) skips launching the UI after install; that
+        # instance has no control socket and would hold the devices.
         subprocess.run([installer_path, '/VERYSILENT', '/SUPPRESSMSGBOXES',
-                        '/NORESTART', '/CURRENTUSER'], check=True)
+                        '/NORESTART', '/CURRENTUSER', '/NOLAUNCH'], check=True)
         return None
     if system == 'darwin':
         return _install_macos_dmg(installer_path)

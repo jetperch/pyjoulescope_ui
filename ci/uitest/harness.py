@@ -44,6 +44,7 @@ _MRU_TOPIC = 'registry/paths/settings/mru_files'
 
 #: objectName of the startup firmware DeviceUpdateDialog.
 DEVICE_UPDATE_DIALOG = 'device_update_dialog'
+HELP_DIALOG = 'help_html_message_box'   # Getting Started, changelog, and help
 
 
 class UiSessionError(RuntimeError):
@@ -100,6 +101,7 @@ class UiSession:
         from joulescope_ui.tcp_client import Client  # deferred: needs PySide6 stack
 
         self._remove_server_json()
+        saved_version = discover.saved_changelog_version(self.app)
         argv = installer.launch_command(self.executable)
         env = dict(os.environ)
         env.update(self._extra_env)
@@ -114,55 +116,46 @@ class UiSession:
         self._client.open()
         self._wait_until_ready()
         if self.suppress_startup_dialogs:
-            self._suppress_startup_dialogs()
+            self._suppress_startup_dialogs(saved_version)
         _log.info('UI session ready (pid=%s, port=%s)', self._proc.pid, creds['port'])
         return self
 
-    def _suppress_startup_dialogs(self):
-        """Dismiss the first-run "Getting Started" / changelog dialog.
+    def _suppress_startup_dialogs(self, saved_version, timeout=30.0):
+        """Dismiss the "Getting Started" or changelog dialog shown at startup.
 
-        On fresh or cleared config the UI pops a ``HelpHtmlMessageBox`` at
-        startup (see ``main._startup_display_maybe``).  It is window-stay-on-top
-        and becomes the active window, so ``qt_inspect``/``qt_screenshot`` and
-        windowTitle queries would target the dialog instead of the main window.
+        The UI shows it when its version differs from the saved
+        ``changelog_version_show`` (``main._startup_display_maybe``): after a
+        cleared config, as every session leaves it, and after an upgrade.  The
+        dialog is window-modal, and the UI queues the Device Update dialog
+        behind it, so it must close before any test runs.
 
-        Persist ``changelog_version_show`` so a clean restart skips it, then
-        dismiss any dialog already shown (it may arrive slightly after ready via
-        the deferred ``!pend`` action, so poll briefly).
+        :param saved_version: ``changelog_version_show`` saved before launch.
+        :raises UiSessionError: If the expected dialog does not appear and close.
         """
-        try:
-            # Owned by the MainWindow (registry/ui), not registry/app.
-            from joulescope_ui import __version__ as ui_version
-            self._client.publish('registry/ui/settings/changelog_version_show', ui_version)
-        except Exception:
-            _log.debug('could not set changelog_version_show', exc_info=True)
-
-        # The dialog may become the active window after the main window (X11
-        # activation is asynchronous), so keep polling until one is dismissed.
-        deadline = time.monotonic() + 3.0
-        dismissed = False
+        deadline = time.monotonic() + timeout
+        version = None
+        while version is None:   # the MainWindow stores its version at startup
+            version = self.query('registry/ui/settings/changelog_version_show')
+            if version is None:
+                if time.monotonic() >= deadline:
+                    raise UiSessionError('UI never stored changelog_version_show')
+                self.wait(0.1)
+        if version == saved_version:
+            return
+        shown = False
         while time.monotonic() < deadline:
             try:
-                root = self._client.qt_inspect(path='', max_depth=0)
-            except Exception:
-                return
-            cls = root.get('class', '')
-            name = root.get('objectName', '')
-            # Leave the Device Update dialog up: test_device_firmware drives it.
-            is_dialog = name != DEVICE_UPDATE_DIALOG and (
-                name == 'help_html_message_box'
-                or 'MessageBox' in cls or cls.endswith('Dialog'))
-            if not is_dialog:
-                if dismissed:
-                    return  # main window is active again
-                self.wait(0.1)
-                continue
-            try:
-                self._client.qt_action('key', key='Escape')   # QDialog -> reject -> close
-            except Exception:
-                pass
-            dismissed = True
-            self.wait(0.25)
+                visible = self.qt_inspect(path=HELP_DIALOG, max_depth=0).get('visible')
+            except RuntimeError:   # not found: not shown yet, or closed
+                if shown:
+                    return
+                visible = False
+            if visible:
+                self.qt_action('key', path=HELP_DIALOG, key='Escape')   # reject -> close
+                shown = True
+            self.wait(0.1)
+        raise UiSessionError(f'startup dialog {HELP_DIALOG} did not '
+                             f'{"close" if shown else "appear"} within {timeout}s')
 
     def stop(self):
         """Close the UI cleanly, then ensure the process is gone."""

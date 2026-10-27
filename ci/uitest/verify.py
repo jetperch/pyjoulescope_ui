@@ -321,21 +321,19 @@ def compare_subrange(reference_path, export_path, signal_name, *,
     assert ref_data.size >= n, \
         f'{export_path}: export ({n} samples at reference {guess}) extends ' \
         f'past {reference_path} ({length} samples)'
+    # Missing samples are NaN in both, so NaN matches NaN.
+    tol = dict(atol=atol, rtol=rtol, equal_nan=True)
     probe = exp_data[:_PROBE_SAMPLES]
     for offset in sorted(range(start, start + ref_data.size - n + 1), key=lambda x: abs(x - guess)):
         i = offset - start
         # A short probe rejects most offsets before the full compare.
-        if (np.allclose(ref_data[i:i + probe.size], probe, atol=atol, rtol=rtol)
-                and np.allclose(ref_data[i:i + n], exp_data, atol=atol, rtol=rtol)):
+        if (np.allclose(ref_data[i:i + probe.size], probe, **tol)
+                and np.allclose(ref_data[i:i + n], exp_data, **tol)):
             return offset
+    i = min(max(0, guess - start), ref_data.size - n)
+    diff = np.flatnonzero(~np.isclose(ref_data[i:i + n], exp_data, **tol))
     raise AssertionError(
         f'{export_path}: signal {signal_name!r} samples differ from '
-        f'{reference_path} near sample {guess}')
-    # Candidate offsets where the first sample matches, then verify the probe.
-    first = needle[0]
-    candidates = np.nonzero(np.isclose(haystack[:haystack.size - n + 1], first,
-                                       atol=atol, rtol=rtol))[0]
-    for off in candidates:
-        if np.allclose(haystack[off:off + n], needle, atol=atol, rtol=rtol):
-            return int(off)
-    return None
+        f'{reference_path} near sample {guess}: at that offset, {diff.size} of {n} '
+        f'differ from export sample {diff[0]}; NaN samples: export '
+        f'{np.count_nonzero(np.isnan(exp_data))}, reference {np.count_nonzero(np.isnan(ref_data))}')

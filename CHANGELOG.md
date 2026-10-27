@@ -21,6 +21,16 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+## 1.7.7
+
+2026 Oct 27
+
+* Fixed CI testing for releases.
+  * Windows installer has command line option to suppress UI launch.
+  * Testing correctly handles "Getting Started with Your Joulescope" dialog.
+  * Recording comparisons treat missing (NaN) samples as matching.
+
+
 ## 1.7.6
 
 2026 Oct 27

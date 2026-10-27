@@ -2,8 +2,8 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Joulescope"
-#define MyAppVersion "1.7.6"
-#define MyAppVersionUnderscores "1_7_6"
+#define MyAppVersion "1.7.7"
+#define MyAppVersionUnderscores "1_7_7"
 #define MyAppPublisher "Jetperch LLC"
 #define MyAppURL "https://www.joulescope.com"
 #define MyAppExeName "joulescope.exe"
@@ -58,7 +58,7 @@ Name: "{autoprograms}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{autodesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall
+Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall; Check: not NoLaunch
 
 [Registry]
 ; https://stackoverflow.com/questions/26536030/file-association-in-inno-setup
@@ -69,6 +69,18 @@ Root: HKA; Subkey: "Software\Classes\{#MyAppName}\DefaultIcon";         ValueDat
 Root: HKA; Subkey: "Software\Classes\{#MyAppName}\shell\open\command";  ValueData: """{app}\{#MyAppExeName}"" ""%1""";               ValueType: string;  ValueName: ""
 
 [Code]
+// /NOLAUNCH skips the postinstall launch, which runs even when silent.
+// CI installs with it; the in-app update relies on the launch.
+function NoLaunch(): Boolean;
+var
+  I: Integer;
+begin
+  Result := False;
+  for I := 1 to ParamCount do
+    if CompareText(ParamStr(I), '/NOLAUNCH') = 0 then
+      Result := True;
+end;
+
 function GetUninstallerPath(): String;
 var
   sUnInstPath1: String;
