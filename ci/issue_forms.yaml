@@ -39,6 +39,7 @@ shared:
       description: What version of our software are you running?
       options:
         - "{version}"
+        - 1.7.7
         - 1.7.0
         - other
     validations:

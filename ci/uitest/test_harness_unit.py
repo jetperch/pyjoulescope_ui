@@ -35,7 +35,7 @@ import pyjls
 # matching how pytest puts the `ci/` directory on sys.path.
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from uitest import verify, discover, installer, assets, qt  # noqa: E402
+from uitest import verify, discover, fsutil, installer, assets, qt  # noqa: E402
 from uitest.harness import HELP_DIALOG, UiSession, UiSessionError  # noqa: E402
 from uitest.jls_fixtures import write_fsr_v2  # noqa: E402
 
@@ -236,6 +236,55 @@ class TestVerify(unittest.TestCase):
         data[12345:12400] = np.nan   # a recorder fills missing samples with NaN
         _write_v2(self.path, data=data)
         with self.assertRaises(AssertionError):
+            verify.assert_no_gaps(self.path, ['current'])
+
+    def test_nan_runs_across_chunks(self):
+        data = np.arange(100, dtype=np.float32)
+        for begin, end in ((0, 3), (10, 30), (64, 65), (97, 100)):
+            data[begin:end] = np.nan
+        _write_v2(self.path, data=data)
+        with verify.open_reader(self.path) as r:
+            self.assertEqual([(0, 3), (10, 30), (64, 65), (97, 100)],
+                             verify.nan_runs(r, 1, chunk=16))
+
+    def _write_devices(self, devices):
+        """Write one 1 kHz current signal per ``(model, serial, data)``."""
+        t0 = pyjls.time64.YEAR
+        with pyjls.Writer(self.path) as w:
+            for idx, (model, serial, data) in enumerate(devices, start=1):
+                w.source_def(source_id=idx, name=f'{model}-{serial}', vendor='Jetperch',
+                             model=model, version='1', serial_number=serial)
+                w.signal_def(signal_id=idx, source_id=idx, sample_rate=1000,
+                             name='current', units='A')
+                w.utc(idx, 0, t0)
+                w.utc(idx, len(data) - 1, t0 + (len(data) - 1) * pyjls.time64.SECOND // 1000)
+                w.fsr_f32(idx, 0, data)
+
+    def test_assert_no_gaps_lists_all_devices(self):
+        js110 = np.ones(5000, dtype=np.float32)
+        js110[:200] = np.nan           # leading: allowed for the JS110
+        js110[1000:1010] = np.nan
+        js220 = np.ones(5000, dtype=np.float32)
+        js220[2000:2500] = np.nan
+        js220[4990:] = np.nan
+        self._write_devices([('JS110', '000578', js110), ('JS220', '001724', js220)])
+        with self.assertRaises(AssertionError) as cm:
+            verify.assert_no_gaps(self.path, ['current'], leading_gap_models=('JS110',))
+        msg = str(cm.exception)
+        self.assertIn('JS110-000578 current (1000 Hz): 1 gaps, 10 samples', msg)
+        self.assertIn('samples 1000-1009 (10 samples, 10.000 ms at 1.000 s)', msg)
+        self.assertNotIn('samples 0-199', msg)
+        self.assertIn('JS220-001724 current (1000 Hz): 2 gaps, 510 samples', msg)
+        self.assertIn('samples 2000-2499', msg)
+        self.assertIn('samples 4990-4999', msg)
+
+    def test_assert_no_gaps_leading_gap_model(self):
+        js110 = np.ones(5000, dtype=np.float32)
+        js110[:200] = np.nan
+        self._write_devices([('JS110', '000578', js110)])
+        self.assertEqual({'current': 1}, verify.assert_no_gaps(
+            self.path, ['current'], leading_gap_models=('JS110',)))
+        with self.assertRaisesRegex(AssertionError, 'samples 0-199'):
             verify.assert_no_gaps(self.path, ['current'])
 
     def test_utc_range(self):
@@ -651,6 +700,81 @@ class TestRenderProbe(unittest.TestCase):
     def test_wait_for_paint_timeout(self):
         s = _StubSession({'paint_count': 5})
         self.assertFalse(s.wait_for_paint('WaveformWidget:1', 5, timeout=0.05))
+
+
+class _RegistrySession(_StubSession):
+    """Stub session whose registry drops ``unique_id`` after ``polls``."""
+
+    def __init__(self, unique_id, polls):
+        super().__init__()
+        self.unique_id = unique_id
+        self.polls = polls
+        self.published = []
+
+    def publish(self, topic, value=None):
+        self.published.append(topic)
+
+    def enumerate(self, topic, absolute=None):
+        self.polls -= 1
+        return [self.unique_id, 'Other:001'] if self.polls >= 0 else ['Other:001']
+
+    def wait(self, seconds):
+        pass
+
+
+class TestWaitUnregistered(unittest.TestCase):
+
+    def test_record_stop_waits_for_close(self):
+        s = _RegistrySession('SignalRecord:001', polls=3)
+        s.record_stop('SignalRecord:001')
+        self.assertEqual(['registry/SignalRecord:001/actions/!stop'], s.published)
+        self.assertLess(s.polls, 0)
+
+    def test_close_file(self):
+        s = _RegistrySession('JlsSource:002', polls=1)
+        s.close_file('JlsSource:002')
+        self.assertEqual(['registry/JlsSource:002/actions/!close'], s.published)
+
+    def test_timeout(self):
+        s = _RegistrySession('JlsSource:002', polls=10 ** 9)
+        with self.assertRaises(TimeoutError):
+            s.close_file('JlsSource:002', timeout=0.05)
+
+
+class TestFsutilRemove(unittest.TestCase):
+
+    def test_file_dir_and_missing(self):
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, 'a.jls')
+            with open(path, 'wb') as f:
+                f.write(b'x')
+            fsutil.remove(path)
+            self.assertFalse(os.path.exists(path))
+            tree = os.path.join(d, 'captures', 'sub')
+            os.makedirs(tree)
+            fsutil.remove(os.path.join(d, 'captures'))
+            self.assertFalse(os.path.exists(os.path.join(d, 'captures')))
+            fsutil.remove(path)   # missing: no error
+
+    def test_retries_while_in_use(self):
+        errors = [PermissionError('in use'), PermissionError('in use'), None]
+
+        def os_remove(path):
+            ex = errors.pop(0)
+            if ex is not None:
+                raise ex
+
+        with mock.patch.object(fsutil.os, 'remove', os_remove), \
+                mock.patch.object(fsutil.time, 'sleep') as sleep:
+            fsutil.remove('/no/such/dir/a.jls')
+        self.assertEqual([], errors)
+        self.assertEqual(2, sleep.call_count)
+
+    def test_raises_after_timeout(self):
+        with mock.patch.object(fsutil.os, 'remove', side_effect=PermissionError('in use')), \
+                mock.patch.object(fsutil.time, 'sleep'):
+            with self.assertRaises(PermissionError):
+                fsutil.remove('/no/such/dir/a.jls', timeout=0)
 
 
 class TestResizeWindowSettled(unittest.TestCase):

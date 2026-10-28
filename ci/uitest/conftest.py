@@ -31,12 +31,14 @@ Run the hardware-free subset anywhere with::
 """
 
 import os
+from pathlib import Path
+import re
 import sys
 import time
 
 import pytest
 
-from uitest import discover
+from uitest import discover, fsutil
 from uitest.harness import UiSession
 
 
@@ -386,12 +388,40 @@ def rendered_live_waveform(request, device_model):
         session.stop()
 
 
+_CAPTURE_SUBDIR = 'joulescope_uitest'
+
+
+@pytest.fixture(scope='session')
+def _capture_root():
+    """The ``JS_UITEST_CAPTURE_DIR`` subdirectory for this session's
+    captures, or None when unset.  Clears what a killed run left behind."""
+    base = os.environ.get(discover.ENV_CAPTURE_DIR)
+    if not base:
+        yield None
+        return
+    root = Path(os.path.expanduser(base)) / _CAPTURE_SUBDIR
+    fsutil.remove(root)
+    root.mkdir(parents=True)
+    yield root
+    fsutil.remove(root)
+
+
 @pytest.fixture
-def tmp_capture(tmp_path):
-    """A temp directory for A/B/C capture & export files."""
-    d = tmp_path / 'captures'
+def tmp_capture(tmp_path, request, _capture_root):
+    """A temp directory for A/B/C capture & export files.
+
+    Under ``JS_UITEST_CAPTURE_DIR`` when set, removed after the test, since
+    captures can be tens of GB; else in pytest's temp directory.
+    """
+    if _capture_root is None:
+        d = tmp_path / 'captures'
+        d.mkdir()
+        yield d
+        return
+    d = _capture_root / re.sub(r'[^\w.-]', '_', request.node.name)
     d.mkdir()
-    return d
+    yield d
+    fsutil.remove(d)
 
 
 @pytest.hookimpl(hookwrapper=True)

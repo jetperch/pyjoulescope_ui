@@ -44,6 +44,10 @@ FULL_RATE = {'JS110': 2_000_000, 'JS220': 1_000_000, 'JS320': 1_000_000}
 # On the HIL farm, joulescope_ci supplies this from the coordinator's
 # stations.yaml (via the JCI_DUTS runner env var).
 ENV_DEVICES = 'JS_UITEST_DEVICES'
+# Optional directory for the captures the tests record (tmp_capture).  Unset
+# uses pytest's temp directory, which may be RAM-backed (a /tmp tmpfs) and
+# too small for the long-term captures.
+ENV_CAPTURE_DIR = 'JS_UITEST_CAPTURE_DIR'
 
 
 def app_dir(app=APP_NAME, platform=None):

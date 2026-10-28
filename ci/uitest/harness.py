@@ -299,10 +299,32 @@ class UiSession:
             self.wait(0.2)
         raise TimeoutError(f'recording did not start for {path}')
 
-    def record_stop(self, record_id):
-        """Stop a recording and finalize (close) its JLS file."""
+    def record_stop(self, record_id, timeout=60.0):
+        """Stop a recording and wait until its JLS file is closed.
+
+        The recorder closes the file, then unregisters, so this waits for
+        ``record_id`` to leave the registry; a long recording takes a while
+        to finalize.
+
+        :raises TimeoutError: If the recorder is still registered.
+        """
         self.publish(f'registry/{record_id}/actions/!stop', None)
-        self.wait(0.5)   # let the Writer close the file
+        self._wait_unregistered(record_id, timeout)
+
+    def close_file(self, source_id, timeout=30.0):
+        """Close a JLS file that :meth:`open_file` opened, releasing it.
+
+        :raises TimeoutError: If the ``JlsSource`` is still registered.
+        """
+        self.publish(f'registry/{source_id}/actions/!close', None)
+        self._wait_unregistered(source_id, timeout)
+
+    def _wait_unregistered(self, unique_id, timeout):
+        deadline = time.monotonic() + timeout
+        while unique_id in self.enumerate('registry'):
+            if time.monotonic() >= deadline:
+                raise TimeoutError(f'{unique_id} still registered after {timeout}s')
+            self.wait(0.2)
 
     # -- rendered-waveform mouse interaction --------------------------------
     # These need a real display (offscreen Qt does not render the GL plot, so

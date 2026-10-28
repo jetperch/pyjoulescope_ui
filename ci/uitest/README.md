@@ -1,10 +1,11 @@
 # UI release-test automation (`ci/uitest`)
 
 Automated execution of the Joulescope UI release test plan
-(`doc/ui_test_1_3_4.xlsx`) by driving the running UI through its TCP control
+(`ui_test_1_7_3.xlsx`) by driving the running UI through its TCP control
 socket (`joulescope --tcp-server`).  See
-[`docs/plans/ui_release_test_automation.md`](../../docs/plans/ui_release_test_automation.md)
-for the design and status.
+[`docs/plans/completed/ui_release_test_automation.md`](../../docs/plans/completed/ui_release_test_automation.md)
+for the design, and [`docs/release.md`](../../docs/release.md) for how a
+release uses it.
 
 Run everything with `pytest` from the **`pyjoulescope_ui/`** directory.
 
@@ -139,6 +140,7 @@ the CLI never launches or closes the UI and never touches the config.
 | `JS_UITEST_EXECUTABLE` | Path to an installed `joulescope` binary to test (default: `python -m joulescope_ui`) |
 | `JS_UITEST_BUILD_KIND=release` | Install the published installer for this UI version (from `index_v2.json`, waiting up to 10 min) and test it instead of the sdist.  The HIL farm sets it for release tags.  arm64 Linux has no installer and keeps the sdist |
 | `JS_UITEST_CAPTURE_S`, `JS_UITEST_RUN_S` | Durations of the `slow` long-term capture (default 3600) and run (default 36000) tests |
+| `JS_UITEST_CAPTURE_DIR` | Directory for the recordings tests make, such as `~/tmp`.  Each test writes to `joulescope_uitest/<test>` under it, removed after the test.  Unset: pytest's temp directory, which may be RAM-backed (a `/tmp` tmpfs) and too small for the long-term captures (about 45 GB per JS220 or JS320 per hour at full rate).  The HIL farm sets it |
 | `JS_UITEST_DEVICE_TIMEOUT` | Seconds to wait for a device to enumerate (default 10) |
 | `JS_UITEST_ARTIFACTS` | Directory for screenshot-on-failure PNGs (default `./uitest_artifacts`) |
 

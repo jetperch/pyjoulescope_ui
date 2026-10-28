@@ -21,6 +21,15 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ---
 
+
+## 1.7.8
+
+2026 Oct 28 [in progress, unreleased]
+
+* Updated CI tests
+* Updated release documentation
+
+
 ## 1.7.7
 
 2026 Oct 27

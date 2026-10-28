@@ -23,7 +23,7 @@ re-derived render state; the queryable ``state`` setting is a load/save snapshot
 and the auto-range/repaint loop reverts external changes non-deterministically,
 so socket-driven assertions on them are flaky.  Verifying them reliably needs a
 "render-settled" signal or a value the renderer exposes -- see
-docs/plans/ui_release_test_automation.md.
+docs/plans/completed/ui_release_test_automation.md.
 """
 
 import os

@@ -1,4 +1,4 @@
-# HIL Farm — capability requirements (M3)
+# HIL Farm — capability requirements (M3) — ✅ COMPLETE
 
 ## Purpose
 
@@ -17,53 +17,44 @@ silent-install a published build) and a pytest suite gated by markers and
 configuration lives in `joulescope_ci` (coordinator `stations.yaml`); the UI
 suite takes only a `JS_UITEST_DEVICES` device expectation.
 
-## Status (2026-10-19): partly met, open
+## Status (2026-10-27): complete
 
 The farm is `joulescope_ci`.  It runs the UI suite as its `ui_release` suite
-on every UI build pushed by `packaging.yml` (`push_ui_suite`), on four
-stations.  Requirement by requirement:
+on five stations: on every main build (the sdist), and on every release tag
+(the published installer).  UI 1.7.7 passed on all five with none skipped.
+The release steps, including what stays manual, are in
+[`docs/release.md`](../../release.md).
 
-- **R1, met.**  Windows x64 and ARM64, macOS ARM64, Ubuntu x64; Linux ARM64
-  also exists.  No macOS x64 bench ("if retained").
+- **R1, met.**  Windows x64 and ARM64, macOS ARM64, Ubuntu x64, and Linux
+  ARM64.  There is no macOS x64 station; macOS x64 is not retained.
 - **R2, met.**  The coordinator `stations.yaml` owns the inventory; `JCI_DUTS`
   becomes `JS_UITEST_DEVICES`.
-- **R3, met on Linux and Windows; macOS pending.**  Linux runs on Xvfb when
-  it has no display (joulescope_ci 0.3.8).  Windows and macOS render on the
-  desktop session with `JS_UITEST_DISPLAY=1` (0.3.10): ci_win and ci_win_arm
-  then pass all 97 tests with none skipped.  On ci_mac the rendered run
-  failed the three `test_analysis` range tools, because macOS never
-  activates a UI that the runner launches, and the TCP server's Qt
-  inspection missed the open settings dialog.  UI 1.7.4 fixes the
-  inspection; verify on ci_mac once that build reaches the farm.
-- **R4, not met.**  The farm pip-installs the sdist from the bundle.  It never
-  runs `installer.py` or sets `JS_UITEST_EXECUTABLE`, so the signed
-  installers go untested.
-- **R5, partly met.**  (a) A UI build push dispatches; (c) the dashboard
-  reruns any job.  (b) Scheduled runs do not exist.
-- **R6, partly met.**  Each job uploads JUnit XML, the pytest log and failure
-  screenshots.  Nothing aggregates pass/fail per (platform, device) cell for
-  a gate.
-- **R7, partly met.**  Each job force-closes stale UI processes and
-  power-cycles the DUT through the bench JS220.  The known, stable DUT load
-  per bench is not verified.
-- **R8, met.**  A station runs one job at a time; others queue (joulescope_ci
-  0.3.7).
-- **R9, met for current jobs.**  Outbound access works.  The `VT_API_KEY` and
-  gate secrets wait on UI M4.
+- **R3, met.**  Linux runs on Xvfb when it has no display.  Windows and macOS
+  render on the desktop session with `JS_UITEST_DISPLAY=1`.
+- **R4, met.**  A release run (`JS_UITEST_BUILD_KIND=release`) installs the
+  published build: Windows per user with `/CURRENTUSER /NOLAUNCH`, macOS
+  copied with `ditto` and checked with `codesign` and `spctl`, and Linux x64
+  from the `.tar.gz`.  ci_linux_arm tests the sdist, since there is no Linux
+  ARM64 installer.
+- **R5, met with on-demand long-term runs.**  (a) Main and tag builds
+  dispatch; (b) the long-term `ui_longterm` suite runs from the Jobs page Run
+  button rather than on a schedule; (c) the dashboard reruns any job.
+- **R6, met for manual review.**  Each job uploads JUnit XML, the pytest log
+  and failure screenshots, and the release run is reviewed on the dashboard.
+  An automated gate that aggregates the (station, model) cells is not built;
+  see `docs/release.md`.
+- **R7, met except the known load.**  Each job closes any process holding a
+  Joulescope and power-cycles every DUT through the station's USB Insight
+  Hub.  No station has a known load or loopback; that work belongs to
+  joulescope_ci `doc/plans/flexible_stations.md`.
+- **R8, met.**  A station runs one job at a time; others queue.
+- **R9, met.**  Outbound access works.  VirusTotal stays a manual upload, so
+  no `VT_API_KEY` is needed.
 
-Acceptance (smoke) is not met: the farm tests the sdist, not the published
-alpha installer (R4).  The rest of it holds on ci_linux: device and
-non-device tests, including the interactive waveform tests, run with none
-skipped for "no display", and failed or aborted jobs recover by power-cycle.
-
-The interface contract below is the target.  Today the farm runs the
-equivalent without the installer: it pip-installs the sdist into
-`~/venv/ui` and runs `pytest ci/uitest -m "not slow"` with
-`JS_UITEST_DEVICES`, `JS_UITEST_ARTIFACTS` and, on a desktop session,
-`JS_UITEST_DISPLAY=1`.
-
-Remaining: R4 (installer under test), R5 (b) scheduling, R6 cell
-aggregation, and verifying the R7 bench loads.
+Acceptance (smoke) is met: each station installs the published release,
+runs device and non-device tests (including the interactive waveform tests)
+with none skipped for "no display", uploads its results, and recovers its
+devices by power-cycle.
 
 ## Consumers (design for all, not just the UI)
 
@@ -145,6 +136,11 @@ the VirusTotal API.  Provide secrets (signing, `VT_API_KEY`, AWS for publish) to
 the appropriate jobs only.
 
 ## Interface contract the UI relies on
+
+As built, the farm sets `JS_UITEST_BUILD_KIND=release` instead of
+running `installer.py` itself: the suite's `conftest.py` installs the
+published release for the version under test and launches it.  The design
+contract was:
 
 Given a farm runner with the above, the UI job is simply:
 

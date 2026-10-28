@@ -21,7 +21,9 @@ demand as the ``ui_longterm`` suite.  The durations come from
 ``JS_UITEST_CAPTURE_S`` (default 3600) and ``JS_UITEST_RUN_S`` (default
 36000), so a check run can shorten them.
 
-A 1 h full-rate capture needs about 45 GB free per JS220/JS320.
+A 1 h full-rate capture needs about 45 GB free per JS220/JS320, and 90 GB per
+JS110.  The test checks the space in the capture directory
+(``JS_UITEST_CAPTURE_DIR``) before it records, and fails when it is short.
 """
 
 import os
@@ -31,7 +33,7 @@ import time
 import psutil
 import pytest
 
-from uitest import discover, verify
+from uitest import discover, fsutil, verify
 
 pytestmark = [pytest.mark.device, pytest.mark.slow]
 
@@ -88,7 +90,7 @@ def test_long_capture(ui_session, all_devices, tmp_capture, rate):
     free = shutil.disk_usage(tmp_capture).free
     assert free > 1.2 * need, \
         f'a {_CAPTURE_S:g} s capture at {rates} Hz needs {need / 1e9:.1f} GB, ' \
-        f'{free / 1e9:.1f} GB free'
+        f'{free / 1e9:.1f} GB free in {tmp_capture} (see {discover.ENV_CAPTURE_DIR})'
 
     path = str(tmp_capture / 'long.jls')
     record_id = ui_session.record_start(path, source_ids=list(rates))
@@ -103,19 +105,23 @@ def test_long_capture(ui_session, all_devices, tmp_capture, rate):
         _watch(ui_session, all_devices, _CAPTURE_S, growing)
     finally:
         ui_session.record_stop(record_id)
+    source_id = None
     try:
         verify.assert_recording(path, signal_names=_SIGNALS, min_duration_s=0.99 * _CAPTURE_S)
-        counts = verify.assert_no_gaps(path, _SIGNALS)
+        # A JS110 recording starts with missing samples.
+        counts = verify.assert_no_gaps(path, _SIGNALS, leading_gap_models=('JS110',))
         assert counts['current'] == len(all_devices), \
             f'recorded {counts["current"]} of {len(all_devices)} devices'
         ui_session.publish('registry/app/settings/signal_stream_enable', False)
         source_id = ui_session.open_file(path, timeout=120.0)
         assert source_id in ui_session.buffer_sources()
     finally:
-        os.remove(path)
+        if source_id is not None:
+            ui_session.close_file(source_id)
+        fsutil.remove(path)   # free the space before the next capture
 
 
-def test_long_run(ui_session, all_devices, record_property):
+def test_long_run(ui_session, all_devices, record_testsuite_property):
     """Run the waveform widget for ~10 hours with every device streaming.
 
     Statistics keep arriving from every device, the waveform keeps repainting
@@ -137,6 +143,7 @@ def test_long_run(ui_session, all_devices, record_property):
 
     _watch(ui_session, all_devices, _RUN_S, repainting)
     growth = process.memory_info().rss - rss0
-    record_property('rss_growth_mb', round(growth / (1 << 20)))
-    record_property('devices', ','.join(d.unique_id for d in all_devices))
+    # Suite properties: pytest's default xunit2 JUnit has no test properties.
+    record_testsuite_property('rss_growth_mb', round(growth / (1 << 20)))
+    record_testsuite_property('devices', ','.join(d.unique_id for d in all_devices))
     assert growth < _RSS_GROWTH_MAX, f'UI memory grew {growth / (1 << 20):.0f} MB over the run'

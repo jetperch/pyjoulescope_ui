@@ -1,5 +1,12 @@
 # Automated Joulescope UI Release Testing (HIL farm + release gating)
 
+**Status (2026-10-27): complete.**  M0-M3 and M5 are done.  M4 closed as a
+manual release checklist: VirusTotal stays a manual upload, and a person
+reviews the farm results before promoting.  The release steps are in
+[`docs/release.md`](../../release.md).  The JS320 tab work that finished
+M3 and M5 is in
+[`expand_test_coverage_202610.md`](expand_test_coverage_202610.md).
+
 ## Context
 
 Today the Joulescope UI release test plan (`~/doc/ui_test_1_3_4.xlsx`, v1.3.4) is run **by
@@ -228,7 +235,7 @@ simple deterministic load — to be wired by the bench owner.)
 
 ---
 
-## Milestone 3 — HIL farm orchestration — ✅ DELIVERED (except installer fidelity)
+## Milestone 3 — HIL farm orchestration — ✅ COMPLETE
 
 The HIL farm is a **separate, shared effort**: the self-hosted runner fleet,
 device-capability advertising, and orchestration apply to more than just the
@@ -253,14 +260,20 @@ exists:
   `JS_UITEST_DEVICES` from the bench inventory and, on a desktop session,
   `JS_UITEST_DISPLAY=1`; Linux without a display uses Xvfb.  JUnit XML, the
   pytest log and failure screenshots land on the farm dashboard.
-- **Remaining: installer fidelity.**  The farm tests the pip-installed sdist,
-  not the signed installers that users get: `installer.py` and
-  `JS_UITEST_EXECUTABLE` are not used yet.  This is requirement R4 in
-  `ui_hil_farm_requirements.md`, which tracks the farm side.
+- **Installer fidelity (done 2026-10-27, UI 1.7.7).**  A release tag pushes
+  the suite after `publish` with `build_kind: release`, and the suite
+  installs and tests the published installer on every station except
+  ci_linux_arm, which has no installer and tests the sdist.
 
 ---
 
-## Milestone 4 — Release gating + VirusTotal — ◻ REMAINING
+## Milestone 4 — Release gating + VirusTotal — ✅ CLOSED (manual)
+
+**Decision (2026-10-27):** no automated gate.  VirusTotal's personal API key
+is not for business workflows and it publishes no pricing, so the scan stays
+a manual upload.  A person reviews the release run on the joulescope_ci
+dashboard, then promotes with `ci/release_update.py`, as `docs/release.md`
+describes.  The original plan follows for reference.
 
 - **Create** `ci/virustotal_scan.py`: submit each installer (esp. `joulescope.exe`) to the VirusTotal
   API (`VT_API_KEY` secret), poll, fail on detections — automating the spreadsheet's manual scan step.
@@ -275,7 +288,11 @@ exists:
 
 ---
 
-## Milestone 5 — Long-term tests (nightly, not per-release) — ◻ REMAINING
+## Milestone 5 — Long-term tests — ✅ COMPLETE
+
+Done as `test_longterm.py`, run on demand with all connected Joulescopes
+streaming at once: the joulescope_ci Jobs page Run button with the
+`ui_longterm` suite.  It runs before a release rather than on a schedule.
 
 - `test_longterm.py` (`@pytest.mark.device @pytest.mark.slow`): ~1 hr capture at full rate & open;
   ~1 hr at 10 kHz & open; 10 hr run. Scheduled nightly/weekly on the farm, not in the release gate.
@@ -301,9 +318,9 @@ exists:
 | M0 — Foundations (`ci/uitest/` harness) | ✅ complete |
 | M1 — Hardware-free smoke suite | ✅ complete |
 | M2 — Live device suite (JS220/JS320) | ✅ complete |
-| M3 — HIL farm orchestration | ✅ delivered by `joulescope_ci`, except installer fidelity (R4) |
-| M4 — Release gating + VirusTotal | ◻ remaining |
-| M5 — Long-term tests | ◻ remaining |
+| M3 — HIL farm orchestration | ✅ complete, delivered by `joulescope_ci` |
+| M4 — Release gating + VirusTotal | ✅ closed as a manual checklist (`docs/release.md`) |
+| M5 — Long-term tests | ✅ complete, run on demand (`ui_longterm`) |
 
 M1 and M2 cover the JS220/JS110/JS320 functional test plan end-to-end through the
 socket, including the mouse-driven waveform interactions (pan, y-axis range/scale,
@@ -398,29 +415,25 @@ more `qt_inspector` primitives: `call` (invoke a widget method) and `menu_close`
 
 ### Remaining (lower priority)
 
-- **Analysis computed values**: `test_analysis` asserts each tool launches and
-  creates its result widget; asserting on the computed histogram/CDF/etc. values
-  would need reading the tool widget's data.
+- **Analysis computed values**: done in
+  `expand_test_coverage_202610.md` Stage 4.
 
 ## Risks / open items
 
-Reviewed 2026-10-19:
+Reviewed 2026-10-27:
 
 - **app_path for `server.json`**: resolved; `discover.app_dir()` centralizes it.
-- **JS320 sample rates** and any JS320-only signals (dual current ranges, built-in UART): open.
-  The record tests use 10 kHz and 1 MHz for every model; the JS320 maximum rate and its
-  JS320-only signals are not covered.
+- **JS320 sample rates** and any JS320-only signals (dual current ranges, built-in UART): not
+  covered.  The record tests use 10 kHz and each model's full rate (1 MHz for the JS320).
 - **JS110 deprecation**: resolved; absent models skip unless `JS_UITEST_DEVICES` promises them.
 - **Marker/export action payloads**: resolved by the export-with-markers work above.
-- **macOS notarization/Gatekeeper** on silent install: open.  `installer.py` clears quarantine,
-  but no bench has installed a signed build yet (installer fidelity, M3).
+- **macOS notarization/Gatekeeper** on silent install: resolved.  `installer.py` copies the app
+  with `ditto`, as a Finder drag does, and checks `codesign` and `spctl` before launching.
 
 ## Incremental delivery (per CLAUDE.md: small, testable steps)
 
 Delivered in order, each its own reviewed change with green tests: **M0** (harness
 + unit tests) → **M1** (hardware-free suite, wired into `build_sdist`) → **M2**
 (device suite on a JS220 + JS320 bench).  **M3** (HIL farm) is a separate, shared
-effort (see `ui_hil_farm_requirements.md`); the UI plugs into it, and only its
-installer fidelity remains.  **M4** (gate + VirusTotal) and **M5** (long-term)
-remain.  Do not bundle milestones; each touches
-a bounded set of files and ships green tests.
+effort (see `ui_hil_farm_requirements.md`); the UI plugs into it.  **M5**
+(long-term) followed, and **M4** closed as a manual checklist.

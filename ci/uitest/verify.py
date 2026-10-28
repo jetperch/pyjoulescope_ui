@@ -176,37 +176,84 @@ def utc_range(path, signal_name):
                 reader.sample_id_to_timestamp(sig.signal_id, sig.length - 1))
 
 
-def assert_no_gaps(path, signal_names, *, tolerance=1e-3):
+_GAPS_SHOWN = 10   # gaps listed per signal in an assert_no_gaps failure
+
+
+def nan_runs(reader, signal_id, *, chunk=1 << 20):
+    """Find the runs of missing (NaN) samples in a signal.
+
+    :return: ``[(start, end), ...]``, sample indices with ``end`` exclusive.
+    """
+    length = reader.signals[signal_id].length
+    runs = []
+    run_start = None
+    prev = False   # whether the sample before the chunk is NaN
+    for start in range(0, length, chunk):
+        isnan = np.isnan(read_fsr(reader, signal_id, start, min(chunk, length - start)))
+        if not isnan.size:
+            continue
+        # Indices where the NaN state changes from the previous sample.
+        edges = np.flatnonzero(np.diff(np.concatenate(([prev], isnan)).astype(np.int8)))
+        for e in edges:
+            if isnan[e]:
+                run_start = start + int(e)
+            else:
+                runs.append((run_start, start + int(e)))
+        prev = bool(isnan[-1])
+    if prev:
+        runs.append((run_start, length))
+    return runs
+
+
+def assert_no_gaps(path, signal_names, *, tolerance=1e-3, leading_gap_models=()):
     """Assert recorded signals have no missing samples.
 
     Checks every signal named in ``signal_names``, from every source (device).
-    Missing samples are recorded as NaN, so no sample may be NaN; the JLS
-    summary statistics skip NaN, so this scans the samples.  The sample count
-    must also match the recorded UTC span.
+    Missing samples are recorded as NaN; the JLS summary statistics skip NaN,
+    so this scans the samples.  The sample count must also match the recorded
+    UTC span.  Every signal is checked before failing, so the error lists all
+    gaps and mismatches, by device.
 
     :param tolerance: Allowed relative difference between the sample count and
         the UTC span times the sample rate.
+    :param leading_gap_models: Device models, such as ``('JS110',)``, allowed
+        missing samples at the start of a recording.
     :return: ``{name: count}``, the number of signals checked per name.
     """
-    chunk = 1 << 20
     counts = dict.fromkeys(signal_names, 0)
+    problems = []
     with open_reader(path) as reader:
         for sig in data_signals(reader).values():
             if sig.name not in counts:
                 continue
             counts[sig.name] += 1
-            label = f'{sig.name} (source {sig.source_id})'
-            for start in range(0, sig.length, chunk):
-                data = read_fsr(reader, sig.signal_id, start, min(chunk, sig.length - start))
-                nan = np.flatnonzero(np.isnan(data))
-                assert not nan.size, f'{path}: {label} is missing samples from {start + nan[0]}'
+            source = reader.sources.get(sig.source_id)
+            device = getattr(source, 'name', None) or f'source {sig.source_id}'
+            label = f'{device} {sig.name} ({sig.sample_rate:g} Hz)'
+            runs = nan_runs(reader, sig.signal_id)
+            if runs and runs[0][0] == 0 and getattr(source, 'model', None) in leading_gap_models:
+                runs = runs[1:]
+            if runs:
+                missing = sum(end - begin for begin, end in runs)
+                lines = [f'  {label}: {len(runs)} gaps, {missing} samples '
+                         f'({missing / sig.sample_rate:.3f} s)']
+                for begin, end in runs[:_GAPS_SHOWN]:
+                    lines.append(f'    samples {begin}-{end - 1} ({end - begin} samples, '
+                                 f'{(end - begin) / sig.sample_rate * 1000:.3f} ms '
+                                 f'at {begin / sig.sample_rate:.3f} s)')
+                if len(runs) > _GAPS_SHOWN:
+                    lines.append(f'    ... {len(runs) - _GAPS_SHOWN} more')
+                problems.extend(lines)
             t0 = reader.sample_id_to_timestamp(sig.signal_id, 0)
             t1 = reader.sample_id_to_timestamp(sig.signal_id, sig.length - 1)
             expect = (t1 - t0) / pyjls.time64.SECOND * sig.sample_rate + 1
-            assert abs(sig.length - expect) <= tolerance * expect, \
-                f'{path}: {label} has {sig.length} samples, UTC span expects {expect:.0f}'
+            if abs(sig.length - expect) > tolerance * expect:
+                problems.append(f'  {label}: {sig.length} samples, '
+                                f'UTC span expects {expect:.0f}')
     missing = [name for name, count in counts.items() if not count]
-    assert not missing, f'{path}: signals {missing} not found'
+    if missing:
+        problems.append(f'  signals {missing} not found')
+    assert not problems, f'{path}: missing samples:\n' + '\n'.join(problems)
     return counts
 
 
