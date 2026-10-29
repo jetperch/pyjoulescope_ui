@@ -166,6 +166,8 @@ def _new_session(**kwargs):
     kwargs.setdefault('offscreen', _offscreen_default())
     if not kwargs['offscreen'] and sys.platform.startswith('linux'):
         kwargs['env'] = {**_NO_VSYNC_ENV, **(kwargs.get('env') or {})}
+    # The UI and driver logs, for diagnosing a failure from the job's results.
+    kwargs.setdefault('log_copy_dir', os.path.join(_ARTIFACTS_DIR, 'ui_logs'))
     executable = os.environ.get('JS_UITEST_EXECUTABLE') or _release_executable()
     return UiSession(executable=executable, **kwargs)
 

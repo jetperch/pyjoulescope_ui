@@ -28,6 +28,7 @@ without PySide6.
 
 import logging
 import os
+import shutil
 import signal
 import subprocess
 import time
@@ -70,13 +71,16 @@ class UiSession:
         changelog dialog at startup so it does not steal the active window from
         automation (default True).
     :param env: Extra environment variables for the UI process.
+    :param log_copy_dir: When set, :meth:`stop` copies the UI's log file
+        here, such as the artifacts directory a CI job keeps.
     :param cwd: The UI process working directory.  ``python -m joulescope_ui``
         imports the package from here first, so it selects the UI source.
     """
 
     def __init__(self, executable=None, app=discover.APP_NAME, *, offscreen=False,
                  config_clear_on_exit=True, startup_timeout=30.0, ready_timeout=30.0,
-                 client_timeout=10.0, suppress_startup_dialogs=True, env=None, cwd=None):
+                 client_timeout=10.0, suppress_startup_dialogs=True, env=None, cwd=None,
+                 log_copy_dir=None):
         self.executable = executable
         self.app = app
         self.offscreen = offscreen
@@ -87,6 +91,7 @@ class UiSession:
         self.client_timeout = client_timeout
         self._extra_env = dict(env or {})
         self._cwd = cwd
+        self.log_copy_dir = log_copy_dir
         self._proc = None
         self._client = None
         self._server_json = discover.server_json_path(app)
@@ -170,8 +175,23 @@ class UiSession:
             except Exception:
                 pass
             self._client = None
+        pid = self.pid
         self._terminate_process()
         self._remove_server_json()
+        self._copy_log(pid)
+
+    def _copy_log(self, pid):
+        """Copy the log file of the stopped UI process ``pid`` to
+        ``log_copy_dir``; never raises."""
+        if self.log_copy_dir is None or pid is None:
+            return
+        try:
+            path = discover.ui_log_file(pid, self.app)
+            if path is not None:
+                os.makedirs(self.log_copy_dir, exist_ok=True)
+                shutil.copy2(path, self.log_copy_dir)
+        except OSError:
+            _log.warning('could not copy the UI log', exc_info=True)
 
     def __enter__(self):
         return self.start()

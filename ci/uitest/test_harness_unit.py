@@ -777,6 +777,41 @@ class TestFsutilRemove(unittest.TestCase):
                 fsutil.remove('/no/such/dir/a.jls', timeout=0)
 
 
+class TestUiLogCopy(unittest.TestCase):
+
+    def _log_dir(self, d):
+        log_dir = os.path.join(d, 'log')
+        os.makedirs(log_dir)
+        for name in ('joulescope_20261028_170729_4242.log',
+                     'joulescope_20261028_180000_4242.log',
+                     'joulescope_20261028_170729_99.log', 'other.txt'):
+            with open(os.path.join(log_dir, name), 'w') as f:
+                f.write(name)
+        return log_dir
+
+    def test_ui_log_file(self):
+        with tempfile.TemporaryDirectory() as d:
+            log_dir = self._log_dir(d)
+            self.assertEqual(os.path.join(log_dir, 'joulescope_20261028_180000_4242.log'),
+                             discover.ui_log_file(4242, log_dir=log_dir))
+            self.assertIsNone(discover.ui_log_file(7, log_dir=log_dir))
+            self.assertIsNone(discover.ui_log_file(7, log_dir=os.path.join(d, 'none')))
+
+    def test_stop_copies_log(self):
+        with tempfile.TemporaryDirectory() as d:
+            log_dir = self._log_dir(d)
+            dest = os.path.join(d, 'artifacts', 'ui_logs')
+            s = _StubSession()
+            s.log_copy_dir = dest
+            real = discover.ui_log_file
+            with mock.patch.object(discover, 'ui_log_file',
+                                   side_effect=lambda pid, app: real(pid, log_dir=log_dir)):
+                s._copy_log(4242)
+            self.assertEqual(['joulescope_20261028_180000_4242.log'], os.listdir(dest))
+            s.log_copy_dir = None
+            s._copy_log(4242)   # disabled: nothing to do
+
+
 class TestResizeWindowSettled(unittest.TestCase):
 
     def test_retries_until_size_holds(self):

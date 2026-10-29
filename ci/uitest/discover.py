@@ -109,6 +109,23 @@ def saved_changelog_version(app=APP_NAME, path=None):
         return None
 
 
+def ui_log_file(pid, app=APP_NAME, log_dir=None):
+    """Return the log file the UI process ``pid`` wrote, or None.
+
+    The UI names each log ``joulescope_<utc time>_<pid>.log``
+    (``logging_util.config``) in the ``log/`` directory of :func:`app_dir`.
+
+    :param log_dir: Explicit log directory; default ``<app_dir>/log``.
+    """
+    log_dir = os.path.join(app_dir(app), 'log') if log_dir is None else log_dir
+    try:
+        names = [n for n in os.listdir(log_dir)
+                 if n.startswith('joulescope_') and n.endswith(f'_{pid}.log')]
+    except OSError:
+        return None
+    return os.path.join(log_dir, max(names)) if names else None
+
+
 def find_credentials(path=None, app=APP_NAME):
     """Load ``{'token', 'port'}`` from the UI's ``server.json``.
 
