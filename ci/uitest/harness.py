@@ -92,6 +92,8 @@ class UiSession:
         self._extra_env = dict(env or {})
         self._cwd = cwd
         self.log_copy_dir = log_copy_dir
+        self._log_names = None   # the UI log files before start()
+        self._ui_pid = None      # the UI's pid from server.json
         self._proc = None
         self._client = None
         self._server_json = discover.server_json_path(app)
@@ -106,6 +108,7 @@ class UiSession:
         from joulescope_ui.tcp_client import Client  # deferred: needs PySide6 stack
 
         self._remove_server_json()
+        self._log_names = discover.ui_log_names(discover.ui_log_dir(self.app))
         saved_version = discover.saved_changelog_version(self.app)
         argv = installer.launch_command(self.executable)
         env = dict(os.environ)
@@ -116,6 +119,7 @@ class UiSession:
         self._proc = subprocess.Popen(argv, env=env, cwd=self._cwd)
 
         creds = self._wait_for_credentials()
+        self._ui_pid = creds.get('pid')
         self._client = Client(port=creds['port'], token=creds['token'],
                               timeout=self.client_timeout)
         self._client.open()
@@ -175,21 +179,19 @@ class UiSession:
             except Exception:
                 pass
             self._client = None
-        pid = self.pid
         self._terminate_process()
         self._remove_server_json()
-        self._copy_log(pid)
+        self._copy_log(discover.ui_log_dir(self.app))
 
-    def _copy_log(self, pid):
-        """Copy the log file of the stopped UI process ``pid`` to
-        ``log_copy_dir``; never raises."""
-        if self.log_copy_dir is None or pid is None:
+    def _copy_log(self, log_dir):
+        """Copy the log files this session's UI started in ``log_dir`` (those
+        absent at :meth:`start`) to ``log_copy_dir``; never raises."""
+        if self.log_copy_dir is None or self._log_names is None:
             return
         try:
-            path = discover.ui_log_file(pid, self.app)
-            if path is not None:
+            for name in sorted(discover.ui_log_names(log_dir) - self._log_names):
                 os.makedirs(self.log_copy_dir, exist_ok=True)
-                shutil.copy2(path, self.log_copy_dir)
+                shutil.copy2(os.path.join(log_dir, name), self.log_copy_dir)
         except OSError:
             _log.warning('could not copy the UI log', exc_info=True)
 
@@ -202,8 +204,18 @@ class UiSession:
 
     @property
     def pid(self):
-        """The UI process id (or None before :meth:`start`)."""
+        """The launched process id (or None before :meth:`start`)."""
         return None if self._proc is None else self._proc.pid
+
+    @property
+    def ui_pid(self):
+        """The UI's own process id, from its ``server.json``.
+
+        On Windows a venv ``python.exe`` is a launcher whose child runs the
+        UI, so :attr:`pid` is not the UI.  UIs before 1.7.8 do not write it:
+        then this is :attr:`pid`.
+        """
+        return self._ui_pid or self.pid
 
     @property
     def client(self):

@@ -1265,7 +1265,10 @@ def run(log_level=None, file_log_level=None, filename=None, safe_mode=False, tcp
                         _tcp_server_token_path = os.path.join(app_path, 'server.json')
                         import json as _json
                         with open(_tcp_server_token_path, 'w') as _f:
-                            _json.dump({'token': _tcp_server_instance.token, 'port': _tcp_server_instance.port}, _f)
+                            # pid: on Windows a venv python.exe is a launcher, so
+                            # the client's child pid is not this process.
+                            _json.dump({'token': _tcp_server_instance.token, 'port': _tcp_server_instance.port,
+                                        'pid': os.getpid()}, _f)
                         _log.info('TCP server credentials written to %s', _tcp_server_token_path)
                     except Exception:
                         _log.exception('TCP server failed to start')

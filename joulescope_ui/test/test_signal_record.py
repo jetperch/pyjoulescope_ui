@@ -19,12 +19,13 @@ Test SignalRecord JLS write error handling.
 import logging
 import time
 import unittest
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 import numpy as np
 from joulescope_ui.widgets.signal_record.signal_record import SignalRecord
 
 
 _TOPIC = 'registry/JsdrvStreamBuffer:001/events/signals/JS220-000001.i/!data'
+_STOP_EVENT = 'registry/SignalRecord/events/!stop'
 
 
 class _Writer:
@@ -108,6 +109,16 @@ class TestSignalRecord(unittest.TestCase):
         self.assertEqual(1, len(_published(r, 'registry/ui/actions/!error_msg')))
         r.pubsub.unregister.assert_called_once()
         self.assertIn('out.jls', _published(r, 'registry/DiskMonitor:0/actions/!remove'))
+
+    def test_last_stop_publishes_stop_event(self):
+        # The record status indicator hides on events/!stop, even when the
+        # recording stops through its own action instead of the toggle.
+        a, b = _recorder(_Writer()), _recorder(_Writer())
+        with patch.object(SignalRecord, '_instances', [a, b]):
+            a.on_action_stop()
+            self.assertEqual([], _published(a, _STOP_EVENT))   # b still records
+            b.on_action_stop()
+            self.assertEqual([True], _published(b, _STOP_EVENT))
 
 
 if __name__ == '__main__':

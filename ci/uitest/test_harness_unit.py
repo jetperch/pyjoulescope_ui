@@ -789,27 +789,59 @@ class TestUiLogCopy(unittest.TestCase):
                 f.write(name)
         return log_dir
 
-    def test_ui_log_file(self):
+    def test_ui_log_names(self):
         with tempfile.TemporaryDirectory() as d:
             log_dir = self._log_dir(d)
-            self.assertEqual(os.path.join(log_dir, 'joulescope_20261028_180000_4242.log'),
-                             discover.ui_log_file(4242, log_dir=log_dir))
-            self.assertIsNone(discover.ui_log_file(7, log_dir=log_dir))
-            self.assertIsNone(discover.ui_log_file(7, log_dir=os.path.join(d, 'none')))
+            self.assertEqual({'joulescope_20261028_170729_4242.log',
+                              'joulescope_20261028_180000_4242.log',
+                              'joulescope_20261028_170729_99.log'},
+                             discover.ui_log_names(log_dir))
+            self.assertEqual(set(), discover.ui_log_names(os.path.join(d, 'none')))
 
-    def test_stop_copies_log(self):
+    def test_stop_copies_new_logs(self):
+        # The session's log is the one that appeared since start, whatever
+        # its pid (on Windows the harness knows only a launcher's pid).
         with tempfile.TemporaryDirectory() as d:
             log_dir = self._log_dir(d)
             dest = os.path.join(d, 'artifacts', 'ui_logs')
             s = _StubSession()
             s.log_copy_dir = dest
-            real = discover.ui_log_file
-            with mock.patch.object(discover, 'ui_log_file',
-                                   side_effect=lambda pid, app: real(pid, log_dir=log_dir)):
-                s._copy_log(4242)
-            self.assertEqual(['joulescope_20261028_180000_4242.log'], os.listdir(dest))
+            s._log_names = discover.ui_log_names(log_dir)
+            with open(os.path.join(log_dir, 'joulescope_20261029_094208_5150.log'), 'w') as f:
+                f.write('this session')
+            s._copy_log(log_dir)
+            self.assertEqual(['joulescope_20261029_094208_5150.log'], os.listdir(dest))
             s.log_copy_dir = None
-            s._copy_log(4242)   # disabled: nothing to do
+            s._copy_log(log_dir)   # disabled: nothing to do
+
+
+class TestUiPid(unittest.TestCase):
+
+    def test_server_json_pid_else_launched_pid(self):
+        s = _StubSession()
+        s._proc = mock.Mock(pid=100)      # a Windows venv launcher
+        self.assertEqual(100, s.ui_pid)   # UIs before 1.7.8 write no pid
+        s._ui_pid = 101                   # the launcher's child, the UI
+        self.assertEqual(101, s.ui_pid)
+
+
+class TestReleaseCapture(unittest.TestCase):
+
+    def test_in_use_is_left_for_session_end(self):
+        # Windows: the test's UI still has a capture open at fixture teardown.
+        from uitest import conftest
+        with mock.patch.object(conftest.fsutil, 'remove',
+                               side_effect=PermissionError('in use')) as remove:
+            conftest.release_capture('/captures/test_a')   # no raise, no wait
+        remove.assert_called_once_with('/captures/test_a', timeout=0)
+
+    def test_removed_when_free(self):
+        from uitest import conftest
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, 'test_a')
+            os.makedirs(path)
+            conftest.release_capture(path)
+            self.assertFalse(os.path.exists(path))
 
 
 class TestResizeWindowSettled(unittest.TestCase):

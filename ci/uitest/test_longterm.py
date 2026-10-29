@@ -130,7 +130,7 @@ def test_long_run(ui_session, all_devices, record_testsuite_property):
     _stream(ui_session, all_devices, 'full')
     wf = ui_session.waveform()
     ui_session.wait(min(_CHECK_INTERVAL_S, _RUN_S))  # the stream buffer fills first
-    process = psutil.Process(ui_session.pid)
+    process = psutil.Process(ui_session.ui_pid)
     rss0 = process.memory_info().rss
     paints = [ui_session.plot_render_info(wf).get('paint_count', 0)]
 

@@ -28,6 +28,9 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 * Updated CI tests
 * Updated release documentation
+* Fixed the recording indicator staying on after a recording stopped through
+  its own stop action, such as over the TCP server.
+* Added the UI's process id to the TCP server's `server.json`.
 
 
 ## 1.7.7

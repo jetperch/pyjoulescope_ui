@@ -30,6 +30,7 @@ Run the hardware-free subset anywhere with::
     pytest ci/uitest -m "not device"
 """
 
+import logging
 import os
 from pathlib import Path
 import re
@@ -42,6 +43,7 @@ from uitest import discover, fsutil
 from uitest.harness import UiSession
 
 
+_log = logging.getLogger(__name__)
 _ARTIFACTS_DIR = os.environ.get('JS_UITEST_ARTIFACTS',
                                 os.path.join(os.getcwd(), 'uitest_artifacts'))
 
@@ -423,7 +425,21 @@ def tmp_capture(tmp_path, request, _capture_root):
     d = _capture_root / re.sub(r'[^\w.-]', '_', request.node.name)
     d.mkdir()
     yield d
-    fsutil.remove(d)
+    release_capture(d)
+
+
+def release_capture(path):
+    """Remove a test's capture directory if nothing holds it open.
+
+    pytest tears this fixture down before the test's ``ui_session``, so on
+    Windows the UI may still have a capture open, which Windows refuses to
+    delete.  Try once and leave it for the session teardown of
+    ``_capture_root``; retrying here held each such test 60 s.
+    """
+    try:
+        fsutil.remove(path, timeout=0)
+    except OSError as ex:
+        _log.info('capture %s still in use; removing it at session end: %s', path, ex)
 
 
 @pytest.hookimpl(hookwrapper=True)

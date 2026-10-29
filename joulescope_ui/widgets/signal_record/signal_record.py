@@ -219,6 +219,10 @@ class SignalRecord:
         self.pubsub.publish(_DISK_MONITOR_REMOVE, self._path)
         if self._write_error is None:
             self._annotation_create()
+        if not SignalRecord._instances:
+            # The last recording stopped, however it was stopped, such as by
+            # its own !stop action over the TCP server: clear the indicator.
+            self.pubsub.publish(f'{get_topic_name(SignalRecord)}/events/!stop', True)
 
     def _annotation_create(self):
         if self._utc_range is None:

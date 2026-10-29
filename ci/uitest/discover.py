@@ -109,21 +109,24 @@ def saved_changelog_version(app=APP_NAME, path=None):
         return None
 
 
-def ui_log_file(pid, app=APP_NAME, log_dir=None):
-    """Return the log file the UI process ``pid`` wrote, or None.
+def ui_log_dir(app=APP_NAME):
+    """Return the UI's log directory, ``log/`` in :func:`app_dir`."""
+    return os.path.join(app_dir(app), 'log')
+
+
+def ui_log_names(log_dir):
+    """Return the names of the UI log files in ``log_dir``.
 
     The UI names each log ``joulescope_<utc time>_<pid>.log``
-    (``logging_util.config``) in the ``log/`` directory of :func:`app_dir`.
-
-    :param log_dir: Explicit log directory; default ``<app_dir>/log``.
+    (``logging_util.config``).  The pid does not identify a session's log:
+    on Windows, a venv's ``python.exe`` is a launcher whose child runs the
+    UI, so the harness only knows the launcher's pid.
     """
-    log_dir = os.path.join(app_dir(app), 'log') if log_dir is None else log_dir
     try:
-        names = [n for n in os.listdir(log_dir)
-                 if n.startswith('joulescope_') and n.endswith(f'_{pid}.log')]
+        return {n for n in os.listdir(log_dir)
+                if n.startswith('joulescope_') and n.endswith('.log')}
     except OSError:
-        return None
-    return os.path.join(log_dir, max(names)) if names else None
+        return set()
 
 
 def find_credentials(path=None, app=APP_NAME):
