@@ -1,0 +1,2 @@
+spectrum.axis_font = 10pt "Lato"
+spectrum.annotation_font = 10pt "Lato"

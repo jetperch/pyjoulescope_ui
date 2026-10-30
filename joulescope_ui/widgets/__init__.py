@@ -33,6 +33,7 @@ from .serial_console import SerialConsoleWidget
 from .sidebar import SideBar
 from .settings import SettingsWidget
 from .signal_record import SignalRecordConfigWidget, SignalRecord
+from .spectrum import SpectrumWidget
 from .statistics_record import StatisticsRecordConfigWidget, StatisticsRecord
 from .trigger import TriggerWidget
 from .value import ValueWidget

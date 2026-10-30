@@ -260,12 +260,21 @@ class TestPeaks(unittest.TestCase):
         p = se.find_peaks(y, 10, threshold=2, separation=5)
         self.assertEqual([50, 12], [k[2] for k in p])
 
+    def test_excursion(self):
+        y = np.zeros(100)
+        y[20:27] = [20, 18, 16, 17, 12, 8, 4]  # tall peak, skirt bump at 23
+        y[60] = 5                               # small isolated peak
+        p = se.find_peaks(y, 10, separation=3, excursion=3)
+        self.assertEqual([20, 60], [k[2] for k in p])
+
     def test_parabolic(self):
         x = np.arange(20, dtype=float)
         y = -(x - 7.3) ** 2
         p = se.find_peaks(y, 1, x=x * 2)
         self.assertAlmostEqual(14.6, p[0][0], places=6)
         self.assertAlmostEqual(0.0, p[0][1], places=6)
+        p = se.find_peaks(y, 1, x=x * 2, y_interpolate=False)
+        self.assertAlmostEqual(-0.09, p[0][1], places=6)
 
     def test_empty(self):
         self.assertEqual([], se.find_peaks(np.zeros(2), 3))

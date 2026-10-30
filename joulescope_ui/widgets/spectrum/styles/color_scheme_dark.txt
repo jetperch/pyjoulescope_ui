@@ -1,0 +1,20 @@
+spectrum.background = #101010ff
+
+spectrum.text_foreground = #C0C0C0ff
+spectrum.text_background = #101010C0
+
+spectrum.grid_major = #ffffff40
+spectrum.grid_minor = #80808018
+spectrum.plot_border = #ffffff80
+spectrum.hover = #ffffffa0
+
+spectrum.trace_live = #ffff00ff
+spectrum.trace_average = #00ffffff
+spectrum.trace_max = #ff4040c0
+spectrum.trace_min = #40ff40c0
+
+spectrum.marker = #ff8c00ff
+spectrum.peak = #ff00ffff
+
+spectrum.status_foreground = #C0C0C0ff
+spectrum.status_warning = #ff8c00ff

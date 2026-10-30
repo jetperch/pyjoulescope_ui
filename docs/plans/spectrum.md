@@ -124,12 +124,14 @@ length `N` at (decimated) sample rate `fs_d`:
 - RBW (equivalent noise bandwidth) = `ENBW_window × fs_d / N`
 - displayed bins = `N / 2 + 1`
 
-The user sets **span** and **RBW**; the widget derives `N` (rounded to a
-power of 2, clamped to [64, 2^20]) and displays the resulting bins and
-actual RBW.  Alternatively, the user sets `N` directly to any power of two
-in [64, 2^20], matching the existing range tool's "FFT length".  2^20 gives
-about 1 Hz RBW at 1 MSPS; narrower RBW comes from the analysis span
-(decimation), not a longer FFT.
+The control bar sets **span** (a power-of-2 decimation, labeled with the
+resulting span) and **FFT length** `N` (any power of two in [64, 2^20],
+matching the existing range tool's "FFT length").  The status line under
+the frequency axis shows the resulting RBW and bin count.  As built, this
+replaces the originally proposed RBW control: the two controls set span
+and bins directly, and the RBW follows.  2^20 gives about 1 Hz RBW at
+1 MSPS; narrower RBW comes from the analysis span (decimation), not a
+longer FFT.
 
 Span has two meanings and the plan keeps them separate:
 
@@ -143,8 +145,9 @@ Span has two meanings and the plan keeps them separate:
 Decimation uses a cascade of half-band FIR stages (power-of-2 factors)
 implemented in numpy with block-to-block filter state.  `scipy` is not a
 dependency and should not become one for this feature.  The filter must
-achieve > 80 dB alias rejection over the retained band; the top ~10% of
-the decimated band is marked as roll-off and drawn de-emphasized.
+achieve > 80 dB alias rejection over the retained band (tested).  The top
+10% of the decimated band is roll-off that may hold aliases, so the
+viewport excludes it whenever the span is decimated.
 
 ### Window, scaling, and units
 
@@ -261,7 +264,7 @@ Design points:
   separate, per-widget freeze that keeps the last traces while the device
   keeps streaming.
 
-### Compute budget (to confirm in Stage 0)
+### Compute budget
 
 Worst case is JS110 at 2 MSPS, or 1 MSPS for JS220/JS320, with 75%
 overlap.  At N = 4096, 2 MSPS, 75% overlap is about 1950 rfft/s, about
@@ -276,14 +279,46 @@ per second of data on a desktop CPU.  The budget to verify:
   segments per frame (skip segments, flag in status), then consider a C
   helper.  Do not start with C.
 
+Measured on the dev machine (Intel Core Ultra 9 285H, Linux, Python 3.14,
+numpy 2.5), `ci/spectrum_bench.py`, engine only, fraction of one core at
+real time with 1000-sample messages:
+
+| fs     | N      | overlap | decimate | load |
+|--------|--------|---------|----------|------|
+| 1 MSPS | 4096   | 50%     | 1        | 4.0% |
+| 1 MSPS | 4096   | 75%     | 1        | 7.6% |
+| 1 MSPS | 65536  | 50%     | 1        | 2.5% |
+| 1 MSPS | 2^20   | 50%     | 1        | 2.5% |
+| 1 MSPS | 4096   | 50%     | 16       | 2.0% |
+| 2 MSPS | 4096   | 75%     | 1        | 15%  |
+| 2 MSPS | 65536  | 50%     | 1        | 4.8% |
+
+Qt event-loop latency with the worker running stayed at p99 0.21-0.23 ms
+for every case, the same as without the worker.  In the widget, the Qt
+thread costs about 18-20% of one core at 30 frames/s (1200 x 800,
+offscreen raster, under the profiler), mostly painting.  Fixes made while
+profiling:
+
+- The segmenter re-copied its buffer on every message (24% at 2^20);
+  it now appends into an amortized buffer.
+- The exponential average used a matrix product, which woke OpenBLAS
+  threads that spin-wait (about 20% system CPU); it is now elementwise.
+- Grid lines are drawn with one `drawLines` call, and minor grid lines
+  are skipped when closer than 6 px.
+- Peak search evaluates at most max(64, 16 x count) candidates, which
+  bounds its cost on noise.
+
+The ARM farm station and Windows were not measured (out of scope for this
+pass).
+
 
 ## Rendering
 
 Use a custom `QPainter` plot, consistent with the Waveform widget, not
 pyqtgraph:
 
-- Reuses the Waveform styles (colors, fonts, theme switching via
-  `styled_widget`), `axis_ticks.ticks`, `quantities.si_format`, and
+- Uses `styled_widget` with its own `spectrum.*` color and font scheme
+  (mirroring the Waveform colors) and reuses `axis_ticks.ticks` and
   `line_segments.PointsF` for fast polylines.
 - Avoids the pyqtgraph import cost on the startup path (#206) and keeps
   the look consistent with the rest of the UI.
@@ -323,12 +358,17 @@ New package `joulescope_ui/widgets/spectrum/`:
 | File                    | Contents                                           |
 |-------------------------|----------------------------------------------------|
 | `__init__.py`           | exports `SpectrumWidget`                           |
-| `spectrum_engine.py`    | Qt-free DSP (windows, decimator, traces, peaks)    |
 | `spectrum_worker.py`    | thread + queue around the engine                   |
 | `spectrum_widget.py`    | `@register @styled_widget` widget, settings, menus |
 | `spectrum_plot.py`      | FFT and waterfall painters, axes, markers          |
 | `spectrum_control.py`   | control bar                                        |
-| `test/`                 | engine, worker, widget tests                       |
+| `styles/`               | dark/light color schemes, fonts, qss               |
+| `test/`                 | worker and widget tests                            |
+
+The Qt-free DSP lives in `joulescope_ui/spectrum_engine.py` (tests in
+`joulescope_ui/test/test_spectrum_engine.py`), not in the widget package:
+`range_tool.py` and the Frequency range tool use it too, and importing the
+widgets package from `range_tool.py` would create an import cycle.
 
 Registered in `joulescope_ui/widgets/__init__.py` with
 `CAPABILITIES = ['widget@']`, so it appears in the Widgets menu.  It is not
@@ -349,33 +389,41 @@ data, then resumes automatically when the signal returns.
 **Settings** (`SETTINGS` dict, persisted, editable in the settings
 dialog; control-bar items marked ★):
 
-- `source` ★, `signal` ★
-- `run` ★ (Run/Hold), `!clear` action ★
-- `span` ★ (decimation), `rbw` ★, `fft_length` (any power of two,
-  2^6 to 2^20)
-- `window` ★, `overlap`, `dc_remove`
+- `signal_stream_source` ★, `signal` ★
+- `hold` ★ (tmp), `actions/!clear` ★
+- `decimate` ★ (span), `fft_length` ★ (any power of two, 2^6 to 2^20)
+- `fft_window` ★, `overlap`, `dc_remove`
 - `scaling` ★ (amplitude/psd), `y_units` (dB/linear)
 - `average_mode` ★ (off/exponential/cumulative), `average_count`
-- `trace_live`, `trace_average`, `trace_max`, `trace_min`
-- `x_log`, `f_min`, `f_max` (viewport), `y_autoscale`, `y_ref`, `y_range`
-- `show_fft`, `show_waterfall`, `splitter_ratio` (hidden)
-- `waterfall_duration`, `waterfall_detector`, `waterfall_memory`,
-  `colormap`, `intensity_follows_y`, `intensity_min`, `intensity_max`
-- `peak_count`, `peak_threshold`, `peak_table`
-- `markers` (obj, hidden), like Waveform annotations
-- `control_location` (off/top/bottom), identical semantics to Waveform;
-  extract the shared show/move logic rather than copy it
-- `frame_rate` (default 30 Hz)
+- `show_live`, `show_average`, `show_max`, `show_min`
+- `x_log`, `f_range` (viewport, hidden), `y_autoscale`, `y_range` (hidden)
+- `show_fft`, `show_waterfall`, `splitter` (hidden)
+- `waterfall_duration`, `waterfall_rows`, `waterfall_detector`,
+  `waterfall_memory`, `colormap`, `intensity_follows_y`, `intensity_min`,
+  `intensity_max`
+- `peak_count`, `peak_threshold`, `peak_excursion`
+- `markers` (obj, hidden)
+- `trace_width`, `frame_rate` (default 30 Hz)
+- `control_location` (off/top/bottom), shared with the Waveform through
+  `widget_tools.CONTROL_LOCATION_SETTING` and `control_location_apply`
+
+pubsub installs a data descriptor on the class for each setting, so a
+setting name must not collide with a QWidget method: the window setting is
+`fft_window`, not `window`.
 
 All user strings use `N_()`.  Settings are scriptable through pubsub and
 therefore through the TCP server, which the UI release farm uses.
 
 **Interaction.**  Mouse wheel zooms frequency about the cursor (both
-panes), drag pans, double-click resets the viewport.  Hovering shows
+panes), shift+wheel zooms the y-axis (and turns off autoscale), drag pans,
+and double-click resets the viewport and y autoscale.  Hovering shows
 frequency and each visible trace's value; over the waterfall it also shows
-time.  Markers: right-click → add marker; drag to move; "marker → peak",
-"next peak", and a delta marker that reads Δf and ΔdB.  Right-click also
-opens settings and the source/signal submenu, per `docs/plugin.md`.
+time and the row value.  Markers: right-click → add marker, add marker at
+the nearest peak, remove, or clear; drag to move.  With two markers, a
+delta line reads Δf and ΔdB.  Right-click also offers trace, view, y-units,
+source, and signal submenus, Clear, and Settings, per `docs/plugin.md`.
+Peaks use a spectrum analyzer's peak excursion (default 10 dB) so noise on
+a tone's skirt is not listed, and they are limited to the viewport.
 
 ### Relationship to the Frequency range tool
 
@@ -407,6 +455,10 @@ proven first.
 
 Work on a feature branch (`feature/spectrum`).  Each stage builds, passes
 `python -m unittest`, and is reviewable alone.
+
+Status (2026-10-30): stages 0-5 are implemented on `feature/spectrum`.
+Stages 2-5 landed as one commit because they share the widget files.
+Stage 6 ran partially on this machine (see Stage 6).
 
 **Stage 0: engine and benchmark.**
 `spectrum_engine.py` with windows (+ENBW, coherent gain), amplitude/PSD

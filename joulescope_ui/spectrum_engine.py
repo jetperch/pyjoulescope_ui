@@ -61,6 +61,9 @@ DETECTORS = ['average', 'max']
 DECIMATE_ROLLOFF = 0.9
 """Fraction of each decimated Nyquist band that is alias-free."""
 
+_PEAK_CANDIDATES_MIN = 64
+_PEAK_CANDIDATES_PER_PEAK = 16
+
 DB_FLOOR = -400.0
 """dB value for zero power, which keeps log10 finite."""
 
@@ -274,13 +277,14 @@ def average_update(a, k, x, n):
     beta = 1.0 - alpha
     suffix = np.cumprod(beta[::-1])[::-1]       # prod over i >= j
     after = np.append(suffix[1:], 1.0)          # prod over i > j
-    y = (alpha * after) @ x
+    # elementwise, not matmul: BLAS threads spin and waste CPU on small products
+    y = np.sum((alpha * after)[:, np.newaxis] * x, axis=0)
     if a is not None and suffix[0] != 0.0:
         y += suffix[0] * a
     return y
 
 
-def find_peaks(y, count, threshold=None, separation=1, x=None):
+def find_peaks(y, count, threshold=None, separation=1, x=None, excursion=0.0, y_interpolate=True):
     """Find the largest local maxima.
 
     :param y: The values, usually in dB.
@@ -288,6 +292,11 @@ def find_peaks(y, count, threshold=None, separation=1, x=None):
     :param threshold: Ignore peaks below this value.
     :param separation: The minimum separation in samples between peaks.
     :param x: The optional x-axis values for each y, uniformly spaced.
+    :param excursion: The minimum rise of a peak above the lowest value
+        within separation samples on both sides, like a spectrum
+        analyzer's peak excursion.
+    :param y_interpolate: Interpolate the peak value.  Use False for
+        flat-top windows, whose flat peak already gives the amplitude.
     :return: List of (x, y, index) sorted by decreasing y, where x and y
         use parabolic interpolation.
     """
@@ -299,8 +308,14 @@ def find_peaks(y, count, threshold=None, separation=1, x=None):
     if threshold is not None:
         idx = idx[y[idx] >= threshold]
     idx = idx[np.argsort(-y[idx], kind='stable')]
+    idx = idx[:max(_PEAK_CANDIDATES_MIN, _PEAK_CANDIDATES_PER_PEAK * count)]  # bound noise cost
     selected = []
     for i in idx:
+        if excursion > 0:
+            left = np.min(y[max(0, i - separation):i])
+            right = np.min(y[i + 1:i + 1 + separation])
+            if y[i] - max(left, right) < excursion:
+                continue
         if all(abs(i - j) >= separation for j in selected):
             selected.append(int(i))
             if len(selected) >= count:
@@ -311,7 +326,7 @@ def find_peaks(y, count, threshold=None, separation=1, x=None):
         d = a - 2 * b + c
         p = 0.0 if d == 0 else 0.5 * (a - c) / d
         p = min(0.5, max(-0.5, p))
-        yp = b - 0.25 * (a - c) * p
+        yp = b - 0.25 * (a - c) * p if y_interpolate else b
         if x is None:
             xp = i + p
         else:
