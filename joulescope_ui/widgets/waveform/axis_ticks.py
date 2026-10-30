@@ -384,3 +384,38 @@ def ticks(v_min, v_max, v_spacing_min=None, major_max=None, logarithmic_zero=Non
         'unit_prefix': prefix,
     }
     return np.arange(start, v_max, interval, dtype=np.float64), interval
+
+
+def _si_label(v):
+    adjusted, prefix, _ = unit_prefix(v)
+    return f'{adjusted:.3g}{prefix}'
+
+
+def log_ticks(v_min, v_max):
+    """Compute logarithmic axis tick locations.
+
+    :param v_min: The minimum value, which must be > 0.
+    :param v_max: The maximum value.
+    :return: The dict with keys major, minor, and labels.
+        Labels include their SI prefix, such as '10k', so unit_prefix is ''.
+        When the range spans less than two decades, the 2 and 5 multiples
+        are also major ticks.
+    """
+    if not (0 < v_min < v_max) or not np.isfinite(v_max):
+        return None
+    d0 = int(np.floor(np.log10(v_min)))
+    d1 = int(np.ceil(np.log10(v_max)))
+    values = (np.arange(1, 10)[np.newaxis, :] * (10.0 ** np.arange(d0, d1 + 1))[:, np.newaxis])
+    values = values.ravel()
+    values = values[(values >= v_min * (1 - 1e-9)) & (values <= v_max * (1 + 1e-9))]
+    mantissa = np.round(values / (10.0 ** np.floor(np.log10(values) + 1e-9)))
+    is_major = mantissa == 1
+    if np.count_nonzero(is_major) < 2:
+        is_major = np.isin(mantissa, [1, 2, 5])
+    major = values[is_major]
+    return {
+        'major': major,
+        'minor': values[~is_major],
+        'labels': [_si_label(v) for v in major],
+        'unit_prefix': '',
+    }

@@ -15,7 +15,8 @@
 from PySide6 import QtWidgets, QtGui, QtCore, QtOpenGLWidgets
 from joulescope_ui import CAPABILITIES, register, N_, P_, get_topic_name, get_instance, time64
 from joulescope_ui.styles import styled_widget, color_as_qcolor, color_as_string, font_as_qfont
-from joulescope_ui.widget_tools import CallableAction, CallableSlotAdapter, settings_action_create, context_menu_show
+from joulescope_ui.widget_tools import CallableAction, CallableSlotAdapter, settings_action_create, context_menu_show, \
+    CONTROL_LOCATION_SETTING, control_location_apply
 from joulescope_ui.exporter import TO_JLS_SIGNAL_NAME
 from .quantities import X_QUANTITY_OPTIONS, PRECISION_OPTIONS, quantities_format
 from .quantities import si_format as quantities_si_format
@@ -532,16 +533,7 @@ class WaveformWidget(QtWidgets.QWidget):
             'default': None,
             'flags': ['hide', 'ro', 'skip_undo', 'tmp'],
         },
-        'control_location': {
-            'dtype': 'str',
-            'brief': N_('Control location'),
-            'default': 'bottom',
-            'options': [
-                ['off', N_('off')],
-                ['top', N_('top')],
-                ['bottom', N_('bottom')],
-            ],
-        },
+        'control_location': CONTROL_LOCATION_SETTING,
         'show_summary': {
             'dtype': 'bool',
             'brief': N_('Show the summary waveform at top.'),
@@ -706,16 +698,7 @@ class WaveformWidget(QtWidgets.QWidget):
             pass  # this widget was closed before the swap
 
     def on_setting_control_location(self, value):
-        if value == 'off':
-            self._control.setVisible(False)
-            return
-        self._layout.removeWidget(self._control)
-        if value == 'top':
-            pos = 0
-        else:
-            pos = -1
-        self._layout.insertWidget(pos, self._control)
-        self._control.setVisible(True)
+        control_location_apply(self._layout, self._control, value)
 
     @property
     def _sources(self):

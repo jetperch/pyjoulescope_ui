@@ -347,3 +347,24 @@ class TestAxisTicks(unittest.TestCase):
         self.assertEqual(['0', '200', '400', '600', '800', '1000'], ticks['labels'])
         self.assertEqual(0.2, ticks['major_interval'])
         self.assertEqual('m', ticks['unit_prefix'])
+
+
+class TestAxisTicksLog(unittest.TestCase):
+
+    def test_decades(self):
+        ticks = t.log_ticks(1.0, 500_000.0)
+        np.testing.assert_allclose([1, 10, 100, 1e3, 1e4, 1e5], ticks['major'])
+        self.assertEqual(['1', '10', '100', '1k', '10k', '100k'], ticks['labels'])
+        self.assertEqual(5 * 8 + 4, len(ticks['minor']))  # 2..9 per decade, then 2..5 x 1e5
+        self.assertEqual('', ticks['unit_prefix'])
+
+    def test_narrow(self):
+        ticks = t.log_ticks(150.0, 900.0)
+        np.testing.assert_allclose([200, 500], ticks['major'])
+        self.assertEqual(['200', '500'], ticks['labels'])
+        np.testing.assert_allclose([300, 400, 600, 700, 800, 900], ticks['minor'])
+
+    def test_invalid(self):
+        self.assertIsNone(t.log_ticks(0, 10))
+        self.assertIsNone(t.log_ticks(10, 10))
+        self.assertIsNone(t.log_ticks(1, np.inf))

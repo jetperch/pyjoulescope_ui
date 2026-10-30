@@ -86,6 +86,33 @@ class CallableSlotAdapter(QtCore.QObject):
         self._fn(*args[:co_argcount])
 
 
+CONTROL_LOCATION_SETTING = {
+    'dtype': 'str',
+    'brief': N_('Control location'),
+    'default': 'bottom',
+    'options': [
+        ['off', N_('off')],
+        ['top', N_('top')],
+        ['bottom', N_('bottom')],
+    ],
+}
+
+
+def control_location_apply(layout, control, value):
+    """Show, hide, or move a widget's control bar.
+
+    :param layout: The widget's vertical layout containing control.
+    :param control: The control bar widget.
+    :param value: The CONTROL_LOCATION_SETTING value.
+    """
+    if value == 'off':
+        control.setVisible(False)
+        return
+    layout.removeWidget(control)
+    layout.insertWidget(0 if value == 'top' else -1, control)
+    control.setVisible(True)
+
+
 def settings_action_create(obj, menu):
     def on_action(checked=False):
         pubsub_singleton.publish('registry/settings/actions/!edit', obj)
