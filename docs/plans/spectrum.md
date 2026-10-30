@@ -287,7 +287,6 @@ numpy 2.5), `ci/spectrum_bench.py`, engine only, fraction of one core at
 real time with 1000-sample messages:
 
 | fs     | N      | overlap | decimate | load |
-|--------|--------|---------|----------|------|
 | 1 MSPS | 4096   | 50%     | 1        | 4.0% |
 | 1 MSPS | 4096   | 75%     | 1        | 7.6% |
 | 1 MSPS | 65536  | 50%     | 1        | 2.5% |
@@ -359,7 +358,6 @@ Waterfall pane:
 New package `joulescope_ui/widgets/spectrum/`:
 
 | File                    | Contents                                           |
-|-------------------------|----------------------------------------------------|
 | `__init__.py`           | exports `SpectrumWidget`                           |
 | `spectrum_worker.py`    | thread + queue around the engine                   |
 | `spectrum_widget.py`    | `@register @styled_widget` widget, settings, menus |
@@ -461,7 +459,8 @@ Work on a feature branch (`feature/spectrum`).  Each stage builds, passes
 
 Status (2026-10-30): stages 0-5 and 7 are implemented on
 `feature/spectrum`, and stage 6 ran on the dev machine with the limits
-listed under Stage 6.  Stages 2-5 landed as one commit because they share
+listed under Stage 6.  Next phase: Stage 6b, stimulus validation with the
+ADP3450, exhaustive on the JS320.  Stages 2-5 landed as one commit because they share
 the widget files.
 
 **Stage 0: engine and benchmark.**
@@ -539,6 +538,159 @@ through the TCP server, nothing connected to the inputs):
   so accuracy rests on the engine unit tests), JS110, USB unplug/replug
   (the hub controller was in its ROM bootloader), the 1-hour soak, and
   the ARM and Windows farm stations.
+
+**Stage 6b: stimulus validation (next phase).**  The Stage 6 run
+proved the plumbing but not the numbers: nothing was connected to the
+inputs.  This phase drives known signals into the instruments and checks
+what the widget reports.  It is exhaustive on the JS320, covers the JS220
+in the same format, and is a quick check on the JS110.
+
+*Equipment and wiring*
+
+- Digilent ADP3450 (AWG W1/W2, scope ch1-4, digital I/O), using the
+  existing HIL wiring for the JS320:
+  - W1 → JS320 voltage input.
+  - W2 → /100 attenuator → JS320 current input (±20 mV full scale, so
+    W2 = 2 V is full scale and above 2 V forces the autoranger up).
+  - Scope ch4 on W1 as an independent amplitude reference.
+- JS220: the same W1/W2 arrangement on a second harness, or move the
+  leads between devices.  The JS220 has no HIL wiring today.
+- JS110: W1 → voltage input only.
+- A JS320 GPO wired to a GPI (or ADP digital out → GPI) for the digital
+  signal checks.
+- USB Insight Hub on the device ports for unplug/replug.
+
+*Prerequisites (blocking)*
+
+- [ ] ADP3450 reachable from the test host.  On 2026-10-30 `FDwfEnum`
+  found no devices from the dev machine.
+- [ ] JS220 stimulus wiring decided and built.
+- [ ] Current-path scaling confirmed: what current the W2/100 stimulus
+  represents in each JS320/JS220 current range.  Until then, the
+  current-path checks are relative (frequency, linearity, spurs), not
+  absolute.
+- [ ] USB Insight Hub controller back in its application firmware.  On
+  2026-10-30 it enumerated as the ESP32 ROM bootloader.
+- [ ] Set every ADP3450 scope channel explicitly: attenuation 1, DC
+  coupling, range, and offset (dwf keeps stale settings).  Slice captures
+  to `FDwfAnalogInStatusSamplesValid`.
+
+*Amplitude references*
+
+Compare against two independent references:
+
+- The **device's own statistics**: the multimeter `std` of a pure sine is
+  its RMS.  This is the primary amplitude reference because it cancels
+  device calibration error.
+- The **ADP3450 scope** reading of the generator output.  This one is
+  subject to both instruments' accuracy, so allow ±1%.
+
+Frequency accuracy is bounded by the two crystal oscillators (assume
+±100 ppm combined) plus a tenth of a bin after interpolation.
+
+*JS320 test matrix (exhaustive)*
+
+Unless noted: voltage signal, 1 MSPS, Hann, N = 4096, amplitude scaling.
+
+- **F1 Frequency accuracy.**  Stimulus: W1 sine 1 V rms at 10, 100, 1k, 10k,
+  100k, 400 kHz.  Pass: peak f within 100 ppm + 0.1 bin.
+- **F2 Low-frequency resolution.**  Stimulus: 1 Hz and 5 Hz sines, N = 2^20.
+  Pass: resolved; peak within 0.1 bin.
+- **A1 Amplitude, flat top.**  Stimulus: 1 V, 100 mV, 10 mV rms at 1 kHz and
+  100 kHz.  Pass: peak within 0.1 dB of statistics RMS, 1% of scope.
+- **A2 Amplitude linearity.**  Stimulus: 1 kHz sine stepped 0 to -60 dB in
+  10 dB steps.  Pass: steps 10 ± 0.1 dB.
+- **A3 Scalloping per window.**  Stimulus: tone at bin center and half-bin,
+  all windows.  Pass: half-bin loss matches window theory ±0.1 dB; flat top <
+  0.1 dB.
+- **H1 Harmonics.**  Stimulus: 1 kHz square, 50% duty.  Pass: odd harmonics at
+  20·log10(1/n) ±0.3 dB to n = 15; even < -60 dBc.
+- **H2 Two-tone dynamic range.**  Stimulus: 10 kHz at 0 dBFS plus 13 kHz at
+  -80 dBc.  Pass: small tone found; spur-free range recorded.
+- **N1 PSD level.**  Stimulus: ADP noise, statistics std as reference.  Pass:
+  integrated PSD = variance ±5%; level within ±0.5 dB across N = 1k..64k and
+  every window.
+- **N2 Noise floor.**  Stimulus: inputs shorted / no stimulus.  Pass: floor
+  recorded per N and range as a baseline; no unexplained spurs.
+- **R1 Sample rates.**  Stimulus: tone at fs/8 for each `signal_frequency`
+  1 MHz..1 kHz.  Pass: fs, RBW, bin count, and peak correct after each change;
+  no overruns.
+- **R2 Device anti-alias.**  Stimulus: tone at 0.75·fs/2 and 1.5·fs/2 at
+  100 kHz and 10 kHz rates.  Pass: records the device downsampler response
+  (informational).
+- **D1 Span (decimation).**  Stimulus: tone at 0.5·span for ÷2..÷1024.  Pass:
+  amplitude ±0.1 dB; RBW halves per step.
+- **D2 Decimator aliasing.**  Stimulus: tone just above the retained band and
+  near the old Nyquist.  Pass: alias ≤ -80 dBc; roll-off band hidden.
+- **C1 Current path, fixed range.**  Stimulus: W2 sine for each fixed current
+  range.  Pass: peak f correct; 10 dB steps ±0.2 dB; absolute level once
+  scaling is confirmed.
+- **C2 Current autoranging.**  Stimulus: W2 sine swept across range
+  boundaries.  Pass: waterfall shows the switching; no crash, overrun, or gap;
+  artifacts documented.
+- **C3 Current range signal.**  Stimulus: as C2, signal `r`.  Pass: u4/u8 path
+  shows the range-switching rate.
+- **P1 Power signal.**  Stimulus: W1 at f1, W2 at f2.  Pass: `p` shows f1 ± f2
+  products.
+- **G1 Digital signal.**  Stimulus: GPO → GPI square at 1 kHz.  Pass: `0`..`3`
+  (u1) show 1 kHz and odd harmonics.
+- **W1 Waterfall timing.**  Stimulus: ADP sweep 1 kHz → 100 kHz over 10 s.
+  Pass: slope matches the sweep rate ±5%; time axis labels correct.
+- **W2 Burst capture.**  Stimulus: 10 ms tone burst every 1 s, 50 ms
+  waterfall rows.  Pass: max detector shows the full burst level; average
+  detector shows it diluted by 10/50 (-7 dB ±0.5 dB).
+- **T1 Trace modes.**  Stimulus: amplitude stepped up then down.  Pass:
+  max/min hold track the extremes; exponential average settles in ~N spectra;
+  Clear resets.
+- **X1 Range tool parity.**  Stimulus: record a JLS while the widget runs;
+  Analyze → Frequency on it.  Pass: range tool PSD matches the cumulative
+  average ±0.2 dB.
+- **S1 Robustness.**  Stimulus: hub unplug/replug; rate change while
+  streaming; JS320 + JS220 with two widgets each.  Pass: resumes on the kept
+  selection; no leaks, overruns, or exceptions in the log.
+- **S2 Worst case load.**  Stimulus: N = 2^20, 90% overlap, plus waterfall
+  1000 rows.  Pass: no overruns; UI stays responsive.
+- **S3 Soak.**  Stimulus: 1 hour with two widgets (8 hours optional).  Pass:
+  RSS flat after warm-up; zero overruns; gaps only when stimulus or device
+  changes.
+
+*JS220 matrix*
+
+Run F1, A1, A2, H1, N1, N2, R1, D1, D2, C1, C2, P1, X1, S1, and S3 with
+the same criteria.
+
+*JS110 quick check*
+
+- Streaming at 2 MSPS with no overruns at N = 4096 and 75% overlap.
+- F1 and A1 at 1 kHz and 100 kHz on voltage only.
+- `ci/uitest/test_spectrum.py` passes.
+
+*UI and platforms*
+
+- On a real display (not offscreen), check:
+  - wheel zoom, pan, and shift+wheel;
+  - marker add, drag, and remove, plus the delta readout;
+  - the context menus;
+  - the light theme, and HiDPI scaling.
+- Run `test_spectrum.py` on the Windows, macOS, and `ci_linux_arm` farm
+  stations.  Record the per-widget CPU against the Stage 0 budget.
+
+*Automation*
+
+- Add `ci/uitest/test_spectrum_stimulus.py`, marked `device` plus a new
+  `stimulus` marker, so it runs only on stations that advertise an
+  ADP3450 (the HIL capability model).  Each test sets the generator,
+  configures the widget over TCP, and checks `spectrum_info()` against
+  the criteria above.
+- Do not copy the existing ADP3450 wrapper from
+  `js320/gateware/hil/test_gpo_analog_out.py`.  Promote it to a shared
+  station capability in `joulescope_ci` and use it from both places.
+- Save a screenshot and the `spectrum_info()` JSON per test as artifacts.
+- Keep visual checks (W1, C2) manual, with screenshots attached to the
+  results.
+
+Record the results in this plan with dates, device serials, and firmware
+versions.  Then finish Stage 7 and move the plan to `completed/`.
 
 **Stage 7: release integration.**  Add a UI release farm test (open
 widget via TCP, publish settings, read peak results), user docs/help,
