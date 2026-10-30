@@ -14,6 +14,7 @@
 
 import numpy as np
 from joulescope_ui import N_, get_topic_name, time64
+from joulescope_ui.spectrum_engine import unpack
 import logging
 import queue
 import threading
@@ -33,23 +34,10 @@ def rsp_as_f32(rsp):
     :return: The np.ndarray with dtype=np.float32 regardless
         of the rsp['data_type'].  Coerce as needed.
     """
-    length = rsp['info']['time_range_samples']['length']
     if rsp['response_type'] != 'samples':
         return rsp['data']
-    y = rsp['data']
-    data_type = rsp['data_type']
-    if data_type in ('f32', 'u8'):
-        pass
-    elif data_type == 'u1':
-        y = np.unpackbits(y, bitorder='little')[:length]
-    elif data_type == 'u4':
-        d = np.empty(len(y) * 2, dtype=np.uint8)
-        d[0::2] = np.logical_and(y, 0x0f)
-        d[1::2] = np.logical_and(np.right_shift(y, 4), 0x0f)
-        y = d[:length]
-    else:
-        raise ValueError(f'unsupported data_type {data_type}')
-    return y
+    length = rsp['info']['time_range_samples']['length']
+    return unpack(rsp['data'], rsp['data_type'], length)
 
 
 class RangeTool:

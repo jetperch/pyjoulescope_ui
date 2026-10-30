@@ -504,7 +504,8 @@ class SpectrumEngine:
         z = np.fft.rfft(segments * self.window, axis=-1)
         p = (z.real * z.real + z.imag * z.imag) * self._scale_k
         self._traces_update(p)
-        self._rows_update(p, ids + self.n)
+        if self.config['row_period']:
+            self._rows_update(p, ids + self.n)
         return m
 
     def _traces_update(self, p):

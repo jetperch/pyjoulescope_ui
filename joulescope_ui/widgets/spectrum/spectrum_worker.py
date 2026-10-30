@@ -18,7 +18,7 @@ Data and commands share one queue, so the engine needs no locks.
 See docs/plans/spectrum.md "Threading and data flow".
 """
 
-from .spectrum_engine import SpectrumEngine, unpack
+from joulescope_ui.spectrum_engine import SpectrumEngine, unpack
 import logging
 import queue
 import threading

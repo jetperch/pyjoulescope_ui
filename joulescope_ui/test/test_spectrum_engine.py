@@ -13,12 +13,12 @@
 # limitations under the License.
 
 """
-Test joulescope_ui.widgets.spectrum.spectrum_engine
+Test joulescope_ui.spectrum_engine
 """
 
 import unittest
 import numpy as np
-from joulescope_ui.widgets.spectrum import spectrum_engine as se
+from joulescope_ui import spectrum_engine as se
 
 
 FS = 1000.0

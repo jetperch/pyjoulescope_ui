@@ -14,6 +14,7 @@
 
 from joulescope_ui import register, N_, pubsub_singleton
 from joulescope_ui.range_tool import RangeToolBase, rsp_as_f32
+from joulescope_ui.spectrum_engine import SpectrumEngine, WINDOWS, WINDOW_NAMES, to_db
 from .plugin_helpers import signal_combobox_config
 import logging
 import numpy as np
@@ -22,15 +23,6 @@ from joulescope_ui.styles import styled_widget
 
 
 _NAME = N_('Frequency')
-
-
-_WINDOWS = {
-    'bartlett': np.bartlett,
-    'blackman': np.blackman,
-    'hamming': np.hamming,
-    'hanning': np.hanning,
-    'rectangular': np.ones,
-}
 
 
 @register
@@ -59,47 +51,22 @@ class FrequencyRangeTool(RangeToolBase):
         if nfft > sample_count:
             nfft = sample_count & 0xfffffffe  # make even
 
-        overlap = int(min(1.0, max(0.0, overlap)) * nfft)
-        sample_jump = nfft - overlap
-        window = _WINDOWS[window](nfft)
-        x = np.zeros(nfft)
-        y = np.zeros(nfft // 2 + 1)
-        k = 0
-        x_offset = 0
-
-        window_factor = np.sum(window * window)
-        fft_factor = 2.0 / (fs * window_factor)
-
-        # Video explaining periodogram: https://www.youtube.com/watch?v=Qs-Zai0F2Pw
-        # Example: https://github.com/matplotlib/matplotlib/blob/d7feb03da5b78e15b002b7438779068a318a3024/lib/matplotlib/mlab.py#L405
+        engine = SpectrumEngine({
+            'fft_length': nfft,
+            'window': window,
+            'overlap': overlap,
+            'scaling': 'psd',
+            'dc_remove': False,
+            'average_mode': 'cumulative',
+            'row_period': None,
+        })
         while s_now < s_end:
             length = min(int(fs), s_end - s_now)
             rsp = self.request(signal, 'samples', s_now, 0, length)
-            d = rsp_as_f32(rsp)
-            data_offset = 0
-            d_len = len(d)
-            while (d_len + x_offset) >= nfft:
-                d_len_this = nfft - x_offset
-                x[x_offset:] = d[data_offset:(data_offset + d_len_this)]
-                z = np.fft.rfft(x * window)
-                y += np.real((z * np.conj(z))) * fft_factor
-                k += 1
-                d_len -= d_len_this
-                data_offset += d_len_this
-                x[:overlap] = x[sample_jump:]
-                x_offset = overlap
-            x[x_offset:(x_offset + d_len)] = d[data_offset:]
-            x_offset += d_len
+            engine.process(s_now, fs, rsp_as_f32(rsp))
             s_now += length
             self.progress((s_now - s_start) / sample_count)
-
-        y *= (1.0 / k)  # average
-        # One-sided: fft_factor doubled every bin, but DC and Nyquist have no
-        # negative-frequency image.
-        y[0] *= 0.5
-        if nfft % 2 == 0:
-            y[-1] *= 0.5
-        y = 10 * np.log10(y)  # power spectral density in dB
+        y = to_db(engine.average)  # power spectral density in dB
 
         self.pubsub.publish('registry/view/actions/!widget_open', {
             'value': 'FrequencyRangeToolWidget',
@@ -238,9 +205,10 @@ class FrequencyRangeToolDialog(QtWidgets.QDialog):
 
         self._window = QtWidgets.QComboBox(self)
         self._window.setObjectName("windowComboBox")
-        for key in _WINDOWS.keys():
-            self._window.addItem(key)
-        self._window.setCurrentIndex(2)  # hamming
+        self._window_keys = list(WINDOWS.keys())
+        for key in self._window_keys:
+            self._window.addItem(WINDOW_NAMES[key])
+        self._window.setCurrentIndex(self._window_keys.index('hamming'))
         self._layout.addWidget(self._window, 1, 1, 1, 1)
 
         self._fftLengthLabel = QtWidgets.QLabel(self)
@@ -283,7 +251,7 @@ class FrequencyRangeToolDialog(QtWidgets.QDialog):
             self._log.info('finished: accept - start frequency')
             self._value['kwargs'] = {
                 'signal': self._value['signals'][self._signal.currentIndex()],
-                'window': self._window.currentText(),
+                'window': self._window_keys[self._window.currentIndex()],
                 'nfft': int(self._fft_length.currentText()),
                 'overlap': self._overlapSpin.value() / 100.0,
             }

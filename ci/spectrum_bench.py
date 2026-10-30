@@ -28,7 +28,7 @@ import time
 import numpy as np
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from joulescope_ui.widgets.spectrum.spectrum_engine import SpectrumEngine  # noqa: E402
+from joulescope_ui.spectrum_engine import SpectrumEngine  # noqa: E402
 from joulescope_ui.widgets.spectrum.spectrum_worker import SpectrumWorker  # noqa: E402
 
 

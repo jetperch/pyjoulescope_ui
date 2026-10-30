@@ -20,6 +20,7 @@ import types
 import unittest
 
 import numpy as np
+from joulescope_ui.range_tool import rsp_as_f32
 from joulescope_ui.range_tools.frequency import FrequencyRangeTool
 from joulescope_ui.range_tools.plugin_helpers import calculate_histogram
 
@@ -79,6 +80,20 @@ class TestFrequency(unittest.TestCase):
         np.testing.assert_allclose(10 ** (y / 10), expect, rtol=1e-4)
         self.assertEqual(sorted(src.progress_values), src.progress_values)
         self.assertAlmostEqual(1.0, src.progress_values[-1])
+
+
+class TestRspAsF32(unittest.TestCase):
+
+    def _rsp(self, data_type, data, length):
+        return {'response_type': 'samples', 'data_type': data_type, 'data': np.array(data, dtype=np.uint8),
+                'info': {'time_range_samples': {'length': length}}}
+
+    def test_u4(self):
+        # previously used logical_and, which reduced each nibble to 0 or 1
+        np.testing.assert_equal([3, 10, 15], rsp_as_f32(self._rsp('u4', [0xa3, 0x5f], 3)))
+
+    def test_u1(self):
+        np.testing.assert_equal([1, 0, 1], rsp_as_f32(self._rsp('u1', [0x05], 3)))
 
 
 class TestHistogram(unittest.TestCase):
