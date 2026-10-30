@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="11in"
+   height="8.5in"
+   viewBox="0 0 279.4 215.9"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4.2 (f4327f4, 2025-05-13)"
+   sodipodi:docname="spectrum.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     inkscape:zoom="1.5803732"
+     inkscape:cx="767.85662"
+     inkscape:cy="487.2267"
+     inkscape:window-width="3840"
+     inkscape:window-height="2036"
+     inkscape:window-x="10068"
+     inkscape:window-y="-12"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1"
+     showgrid="true">
+    <inkscape:grid
+       id="grid1"
+       units="in"
+       originx="0"
+       originy="0"
+       spacingx="2.54"
+       spacingy="2.54"
+       empcolor="#0099e5"
+       empopacity="0.30196078"
+       color="#0099e5"
+       opacity="0.14901961"
+       empspacing="5"
+       enabled="true"
+       visible="true" />
+  </sodipodi:namedview>
+  <defs
+     id="defs1">
+    <rect
+       x="0"
+       y="-19.2"
+       width="1161.6"
+       height="844.79999"
+       id="rect14" />
+    <marker
+       style="overflow:visible"
+       id="ConcaveTriangle"
+       refX="0"
+       refY="0"
+       orient="auto-start-reverse"
+       inkscape:stockid="Concave triangle arrow"
+       markerWidth="1"
+       markerHeight="1"
+       viewBox="0 0 1 1"
+       inkscape:isstock="true"
+       inkscape:collect="always"
+       preserveAspectRatio="xMidYMid">
+      <path
+         transform="scale(0.7)"
+         d="M -2,-4 9,0 -2,4 c 2,-2.33 2,-5.66 0,-8 z"
+         style="fill:context-stroke;fill-rule:evenodd;stroke:none"
+         id="path7" />
+    </marker>
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="fill:none;stroke-width:0.3;stroke:#000000"
+       id="rect1"
+       width="254"
+       height="190.5"
+       x="12.7"
+       y="12.7" />
+    <rect
+       style="fill:none;stroke:#000000;stroke-width:0.3"
+       id="rect2"
+       width="243.84"
+       height="109.21999"
+       x="17.779999"
+       y="17.779999" />
+    <rect
+       style="fill:none;stroke:#000000;stroke-width:0.293406"
+       id="rect3"
+       width="243.84"
+       height="55.880009"
+       x="17.779999"
+       y="132.07999" />
+    <text
+       xml:space="preserve"
+       style="font-size:6.35px;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:none;stroke:#000000;stroke-width:0.3"
+       x="60.959999"
+       y="71.119995"
+       id="text3"><tspan
+         sodipodi:role="line"
+         id="tspan3"
+         style="stroke-width:0.3"
+         x="60.959999"
+         y="71.119995" /></text>
+    <rect
+       style="fill:none;stroke:#000000;stroke-width:0.387993"
+       id="rect4"
+       width="17.542015"
+       height="7.3820109"
+       x="244.034"
+       y="193.23399" />
+    <text
+       xml:space="preserve"
+       style="font-size:6.35px;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#0000ff;stroke:none;stroke-width:0.3"
+       x="147.31999"
+       y="55.879997"
+       id="text4"><tspan
+         sodipodi:role="line"
+         id="tspan4"
+         style="fill:#0000ff;stroke:none;stroke-width:0.3"
+         x="147.31999"
+         y="55.879997">Intensity Fill FFT</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#008000;stroke:none;stroke-width:0.3"
+       x="147.31999"
+       y="66.040001"
+       id="text4-5"><tspan
+         sodipodi:role="line"
+         id="tspan4-4"
+         style="font-size:4.23333px;fill:#008000;stroke:none;stroke-width:0.3"
+         x="147.31999"
+         y="66.040001">f logscale option</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:4.23333px;fill:#008000;stroke:none;stroke-width:0.3"
+         x="147.31999"
+         y="71.331665"
+         id="tspan5">f min/max viewport option</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:4.23333px;fill:#008000;stroke:none;stroke-width:0.3"
+         x="147.31999"
+         y="76.623322"
+         id="tspan6">f viewport adjusts simultaneously for FFT &amp; waterfall</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:4.23333px;fill:#008000;stroke:none;stroke-width:0.3"
+         x="147.31999"
+         y="81.914986"
+         id="tspan8">Auto display (f,dB) for N peaks</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:4.23333px;fill:#008000;stroke:none;stroke-width:0.3"
+         x="147.31999"
+         y="87.20665"
+         id="tspan9">Manual markers</tspan><tspan
+         sodipodi:role="line"
+         style="font-size:4.23333px;fill:#008000;stroke:none;stroke-width:0.3"
+         x="147.31999"
+         y="92.498314"
+         id="tspan7">Right-click for more settings, source &amp; signal selection</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#008000;stroke:none;stroke-width:0.3"
+       x="142.24001"
+       y="167.64"
+       id="text4-5-4"><tspan
+         sodipodi:role="line"
+         style="font-size:4.23333px;fill:#008000;stroke:none;stroke-width:0.3"
+         x="142.24001"
+         y="167.64"
+         id="tspan7-0">Configurable duration</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:6.35px;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#008000;stroke:none;stroke-width:0.3"
+       x="30.48"
+       y="22.859999"
+       id="text4-7"><tspan
+         sodipodi:role="line"
+         id="tspan4-1"
+         style="stroke:none;stroke-width:0.3;fill:#008000"
+         x="30.48"
+         y="22.859999">f=0 Hz</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:6.35px;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#008000;stroke:none;stroke-width:0.3"
+       x="42.994896"
+       y="123.12364"
+       id="text4-7-2"><tspan
+         sodipodi:role="line"
+         id="tspan4-1-16"
+         style="stroke:none;stroke-width:0.3;fill:#008000"
+         x="42.994896"
+         y="123.12364">intensity=min dB</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:6.35px;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#008000;stroke:none;stroke-width:0.3"
+       x="33.827702"
+       y="185.34558"
+       id="text4-7-2-3"><tspan
+         sodipodi:role="line"
+         id="tspan4-1-16-4"
+         style="stroke:none;stroke-width:0.3;fill:#008000"
+         x="33.827702"
+         y="185.34558">t = -buffer</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:6.35px;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#008000;stroke:none;stroke-width:0.3"
+       x="30.48"
+       y="139.7"
+       id="text4-7-2-3-7"><tspan
+         sodipodi:role="line"
+         id="tspan4-1-16-4-4"
+         style="stroke:none;stroke-width:0.3;fill:#008000"
+         x="30.48"
+         y="139.7">t = now</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:6.35px;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#008000;stroke:none;stroke-width:0.3"
+       x="43.18"
+       y="30.48"
+       id="text4-7-2-1"><tspan
+         sodipodi:role="line"
+         id="tspan4-1-16-8"
+         style="stroke:none;stroke-width:0.3;fill:#008000"
+         x="43.18"
+         y="30.48">intensity=max dB</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:6.35px;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#008000;stroke:none;stroke-width:0.3"
+       x="249.8018"
+       y="22.782486"
+       id="text4-7-6"><tspan
+         sodipodi:role="line"
+         id="tspan4-1-1"
+         style="stroke:none;stroke-width:0.3;fill:#008000"
+         x="249.8018"
+         y="22.782486">f=max</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:6.35px;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#0000ff;stroke:none;stroke-width:0.3"
+       x="142.24001"
+       y="160.02"
+       id="text4-8"><tspan
+         sodipodi:role="line"
+         id="tspan4-2"
+         style="fill:#0000ff;stroke:none;stroke-width:0.3"
+         x="142.24001"
+         y="160.02">Waterfall History</tspan></text>
+    <text
+       xml:space="preserve"
+       style="font-size:4.23333px;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#1a1a1a;stroke:none;stroke-width:0.3"
+       x="109.21999"
+       y="198.12"
+       id="text4-8-0"><tspan
+         sodipodi:role="line"
+         id="tspan4-2-2"
+         style="font-size:4.23333px;stroke:none;stroke-width:0.3"
+         x="109.21999"
+         y="198.12">Controls, can be relocated to top or hidden with control_location Setting, just like Waveform widget</tspan></text>
+    <path
+       style="fill:#008000;stroke:#008000;stroke-width:1;stroke-dasharray:none;marker-end:url(#ConcaveTriangle)"
+       d="M 25.4,143.73995 V 172.72"
+       id="path6" />
+    <text
+       xml:space="preserve"
+       style="font-size:6.35px;font-family:Arial;-inkscape-font-specification:Arial;text-align:center;writing-mode:lr-tb;direction:ltr;text-anchor:middle;fill:#1a1a1a;stroke:none;stroke-width:0.3"
+       x="252.76633"
+       y="198.96329"
+       id="text4-8-3"><tspan
+         sodipodi:role="line"
+         id="tspan4-2-1"
+         style="stroke:none;stroke-width:0.3;fill:#1a1a1a"
+         x="252.76633"
+         y="198.96329">Clear</tspan></text>
+    <text
+       xml:space="preserve"
+       transform="scale(0.26458333)"
+       id="text14"
+       style="text-orientation:auto;font-size:16px;text-align:center;stroke-width:3.77952756;-inkscape-font-specification:Arial;font-family:Arial;fill:#008000;writing-mode:lr-tb;direction:ltr;stroke:#008000;stroke-dasharray:none;white-space:pre;shape-inside:url(#rect14)" />
+  </g>
+</svg>
