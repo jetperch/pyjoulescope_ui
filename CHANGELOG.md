@@ -31,6 +31,12 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Fixed the recording indicator staying on after a recording stopped through
   its own stop action, such as over the TCP server.
 * Added the UI's process id to the TCP server's `server.json`.
+* Added the Spectrum widget (Widgets → Spectrum): a live FFT with live,
+  average, max hold, and min hold traces, plus a waterfall history.  It
+  supports amplitude or PSD scaling, span (decimation), FFT length,
+  window, log frequency, markers, and automatic peaks.
+* Fixed analysis tools reading 4-bit signals, such as current range, as
+  0 or 1 instead of their value.
 
 
 ## 1.7.7

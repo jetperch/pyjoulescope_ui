@@ -486,12 +486,15 @@ class SpectrumEngine:
             scale[-1] *= 0.5
         return scale
 
-    def process(self, sample_id, fs, x):
+    def process(self, sample_id, fs, x, resync=False):
         """Process input samples.
 
         :param sample_id: The input sample id of x[0].
         :param fs: The input sample rate in Hz.
         :param x: The input samples.
+        :param resync: True when a discontinuity is expected, such as after
+            the user resumes from hold.  It still discards partial data,
+            but does not count as a gap.
         :return: The number of new spectra.
         """
         if self.fs_in != fs:
@@ -503,6 +506,8 @@ class SpectrumEngine:
             self.clear()
         elif self._sample_id_next is not None and sample_id != self._sample_id_next:
             self.gap()
+            if resync:
+                self.gaps -= 1
         if self._sample_id_next is None:
             self._out_id = sample_id // self.decimate
         self._sample_id_next = sample_id + len(x)

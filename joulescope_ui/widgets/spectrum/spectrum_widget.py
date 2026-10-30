@@ -346,6 +346,8 @@ class SpectrumWidget(QtWidgets.QWidget):
         self._color_table = None
         self._colorbar = None
         self._configure_pending = False
+        self._paused = False        # global signal_stream_enable is off
+        self._resync = False        # next data follows a hold or pause
         self.peaks = []
         self.marker_freqs = []      # displayed markers, which may be mid-drag
         self._f_view = None         # displayed viewport, which may be mid-pan
@@ -391,6 +393,14 @@ class SpectrumWidget(QtWidgets.QWidget):
         self._worker.start()
         self._configure()
         self._signals_update()
+        self.pubsub.subscribe('registry/app/settings/signal_stream_enable',
+                              self._on_signal_stream_enable, ['pub', 'retain'])
+
+    def _on_signal_stream_enable(self, value):
+        # Devices keep streaming while paused; only the buffers hold.  Match them.
+        self._paused = not bool(value)
+        self._resync = True
+        self._status_update()
 
     def on_pubsub_unregister(self):
         self._worker.stop()
@@ -470,7 +480,7 @@ class SpectrumWidget(QtWidgets.QWidget):
         if topic == self._data_topic:
             return
         self._data_disconnect()
-        self.on_action_clear()
+        self._configure()  # new data stream: reset the engine, including gap tracking
         if topic is not None:
             try:
                 self.pubsub.subscribe(topic, self._on_data, ['pub'])
@@ -480,7 +490,8 @@ class SpectrumWidget(QtWidgets.QWidget):
         self._status_update()
 
     def _on_data(self, value):
-        if self.hold:
+        if self.hold or self._paused:
+            self._resync = True
             return
         fs = value['sample_freq']
         if fs != self._fs_in:
@@ -488,7 +499,8 @@ class SpectrumWidget(QtWidgets.QWidget):
             self._configure()
             self._span_labels_update()
         self._units = value.get('units', '') or ''
-        if not self._worker.push(value['sample_id'], fs, value['data'], value.get('dtype', 'f32')):
+        resync, self._resync = self._resync, False
+        if not self._worker.push(value['sample_id'], fs, value['data'], value.get('dtype', 'f32'), resync):
             self._status_update()
 
     # ---- engine configuration ----
@@ -699,6 +711,27 @@ class SpectrumWidget(QtWidgets.QWidget):
     def displayed_peaks(self):
         """The displayed peaks as [[frequency Hz, dB], ...], for automation."""
         return [[float(f), float(db)] for f, db in self.peaks]
+
+    def spectrum_info(self):
+        """The displayed spectrum state, for automation.
+
+        :return: dict with status, peaks, source, signal, and, once data
+            arrives, fs (Hz, after decimation), n, rbw (Hz), count, gaps,
+            overruns, and waterfall_rows.
+        """
+        s = self._snapshot
+        info = {
+            'status': self.status,
+            'peaks': self.displayed_peaks(),
+            'source': self.source_selector.resolved(),
+            'signal': self.signal if self._data_topic is not None else None,
+            'overruns': int(self._worker.overruns),
+            'waterfall_rows': int(self.waterfall.count),
+        }
+        if 'fs' in s:
+            info.update({'fs': float(s['fs']), 'n': int(s['n']), 'rbw': float(s['rbw']),
+                         'count': int(s['count']), 'gaps': int(s['gaps'])})
+        return info
 
     # ---- shared plot state ----
 
@@ -1167,6 +1200,8 @@ class SpectrumWidget(QtWidgets.QWidget):
             parts.append(N_('No signal'))
         elif self.hold:
             parts.append(N_('Hold'))
+        elif self._paused:
+            parts.append(N_('Paused'))
         if 'fs' in s:
             parts.append(f'RBW {f_str(s["rbw"])}')
             parts.append(f'{s["n"] // 2 + 1} bins')

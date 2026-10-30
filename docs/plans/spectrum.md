@@ -259,10 +259,11 @@ Design points:
   The UI has had leaks from widgets that outlive their dock; add a test
   that opens/closes the widget repeatedly and checks that threads and
   subscriptions return to baseline.
-- **Streaming pause.**  When `registry/app/settings/signal_stream_enable`
-  goes false, the display freezes naturally (no data).  Run/Hold is a
-  separate, per-widget freeze that keeps the last traces while the device
-  keeps streaming.
+- **Streaming pause.**  Devices keep streaming when
+  `registry/app/settings/signal_stream_enable` goes false; only the stream
+  buffers hold.  The widget subscribes to it and drops data while paused,
+  so it freezes with the Waveform.  Hold is a separate, per-widget freeze.
+  Resuming from either is a resync, not a counted gap.
 
 ### Compute budget
 
@@ -456,9 +457,10 @@ proven first.
 Work on a feature branch (`feature/spectrum`).  Each stage builds, passes
 `python -m unittest`, and is reviewable alone.
 
-Status (2026-10-30): stages 0-5 are implemented on `feature/spectrum`.
-Stages 2-5 landed as one commit because they share the widget files.
-Stage 6 ran partially on this machine (see Stage 6).
+Status (2026-10-30): stages 0-5 and 7 are implemented on
+`feature/spectrum`, and stage 6 ran on the dev machine with the limits
+listed under Stage 6.  Stages 2-5 landed as one commit because they share
+the widget files.
 
 **Stage 0: engine and benchmark.**
 `spectrum_engine.py` with windows (+ENBW, coherent gain), amplitude/PSD
@@ -516,10 +518,38 @@ invariance.
   stations, including `ci_linux_arm`.
 - 1-hour soak for memory growth.
 
+Results 2026-10-30, dev machine (JS220 000415 and JS320 8W2A, UI offscreen
+through the TCP server, nothing connected to the inputs):
+
+- Pass: live streaming on both devices with no overruns or gaps; JS220
+  sample-rate change to 100 kHz (RBW 36.6 Hz) and back; global pause and
+  resume; Hold; JS320 close (source disappears, "No signal") and reopen
+  (resumes on the kept selection); Oscilloscope view plus two Spectrum
+  widgets.
+- CPU: the UI used 17-27% of one core with the Oscilloscope view and
+  41-47% with two Spectrum widgets added (about 12-15% per widget at
+  30 frames/s, mostly painting).
+- 10-minute soak with both widgets: RSS flat at 695 MB after the first
+  30 s, zero overruns.
+- Found and fixed: a source change counted the new stream as a gap; the
+  widget ignored global pause (devices keep streaming).
+- Not done here: ADP3450 tone accuracy (the generator was not reachable,
+  so accuracy rests on the engine unit tests), JS110, USB unplug/replug
+  (the hub controller was in its ROM bootloader), the 1-hour soak, and
+  the ARM and Windows farm stations.
+
 **Stage 7: release integration.**  Add a UI release farm test (open
 widget via TCP, publish settings, read peak results), user docs/help,
 screenshots, changelog, and update `docs/features_future.md`.  Move this
 plan to `docs/plans/completed/`.
+
+Done: `ci/uitest/test_spectrum.py` (device test through
+`SpectrumWidget.spectrum_info`, 8/9 passing runs here, then 3/3 after
+moving the gap check past the startup rate apply), CHANGELOG, and
+`docs/features_future.md`.  Open: user documentation on
+docs.joulescope.com, screenshots, translation extraction for the new
+strings, the remaining Stage 6 items, then moving this plan to
+`completed/`.
 
 **Stage 8 (optional): buffer source mode.**  See above.
 

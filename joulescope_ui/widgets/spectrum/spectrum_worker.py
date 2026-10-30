@@ -80,13 +80,14 @@ class SpectrumWorker:
         """Clear the traces and waterfall."""
         self._queue.put(('clear',))
 
-    def push(self, sample_id, fs, data, dtype='f32'):
+    def push(self, sample_id, fs, data, dtype='f32', resync=False):
         """Add sample data.  Never blocks.
 
         :param sample_id: The sample id for data[0].
         :param fs: The sample rate in Hz.
         :param data: The sample data, which must not be modified later.
         :param dtype: The data type, see :func:`spectrum_engine.unpack`.
+        :param resync: Expect a discontinuity, see SpectrumEngine.process.
         :return: True if queued, False if dropped due to overrun.
         """
         n = len(data) * (8 if dtype == 'u1' else 1)
@@ -95,7 +96,7 @@ class SpectrumWorker:
                 self.overruns += 1
                 return False
             self._queued_samples += n
-        self._queue.put(('data', sample_id, fs, data, dtype, n))
+        self._queue.put(('data', sample_id, fs, data, dtype, n, resync))
         return True
 
     def _run(self):
@@ -116,12 +117,12 @@ class SpectrumWorker:
                 if cmd == 'quit':
                     break
                 elif cmd == 'data':
-                    _, sample_id, fs, data, dtype, n = item
+                    _, sample_id, fs, data, dtype, n, resync = item
                     with self._lock:
                         self._queued_samples -= n
                     if engine is not None:
                         try:
-                            if engine.process(sample_id, fs, unpack(data, dtype)):
+                            if engine.process(sample_id, fs, unpack(data, dtype), resync):
                                 dirty = True
                         except Exception:
                             self._log.exception('engine process failed')

@@ -28,9 +28,10 @@ The UI is under active development, and many features remain outstanding.
 
 ### Frequency analysis
 
-*   Add real-time FFT display with max, min and average. Include controls for
-    windowing, FFT length and window overlap %.
-*   Add [spectrogram](https://en.wikipedia.org/wiki/Spectrogram).
+*   Spectrum widget: analyze JLS files and paused buffers, not just the live
+    stream (see docs/plans/spectrum.md, "Buffer source mode").
+*   Spectrum widget: overlay multiple signals, trace math, and persistence
+    display.
 
 
 ### System integration

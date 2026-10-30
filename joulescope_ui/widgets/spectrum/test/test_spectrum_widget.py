@@ -16,6 +16,7 @@
 Test joulescope_ui.widgets.spectrum.spectrum_widget and spectrum_plot
 """
 
+import json
 import os
 import threading
 import time
@@ -297,6 +298,9 @@ class TestSpectrumWidgetPubSub(unittest.TestCase):
         topic = 'registry/app/settings/defaults/signal_stream_source'
         if topic not in self.p:
             self.p.topic_add(topic, Metadata('str', 'default', default=None))
+        topic = 'registry/app/settings/signal_stream_enable'
+        if topic not in self.p:
+            self.p.topic_add(topic, Metadata('bool', 'stream', default=True))
         self.threads = threading.active_count()
         self.source = _FakeSource()
         self.p.register(self.source, 'FakeSource-001')
@@ -327,18 +331,28 @@ class TestSpectrumWidgetPubSub(unittest.TestCase):
         self.assertTrue(_process_events(lambda: len(self.w.peaks) > 0))
         self.assertAlmostEqual(5_000.0, self.w.peaks[0][0], delta=FS / 4096)
         self.assertEqual('A', self.w._units)
+        info = self.w.spectrum_info()
+        self.assertEqual('FakeSource-001', info['source'])
+        self.assertEqual('i', info['signal'])
+        self.assertEqual(FS, info['fs'])
+        self.assertEqual(4096, info['n'])
+        self.assertEqual(0, info['gaps'])
+        json.dumps(info)
 
     def test_signal_enable_like_waveform(self):
         self.p.publish(f'{self.w.topic}/settings/signal', 'v')
         self.assertIsNone(self.w._data_topic)  # v disabled: no data, selection kept
         self.assertEqual('v', self.w.signal)
         self.assertEqual(False, self.p.query(f'{get_topic_name(self.source)}/settings/signals/v/enable'))
+        self._push('i')  # another stream's sample ids must not count as a gap
         self.p.publish(f'{get_topic_name(self.source)}/settings/signals/v/enable', True)
         self.assertIsNotNone(self.w._data_topic)
+        self.sample_id += 1_000_000
         self._push('v', f=2_000.0)
         self._push('v', f=2_000.0)
         self.assertTrue(_process_events(lambda: len(self.w.peaks) > 0))
         self.assertAlmostEqual(2_000.0, self.w.peaks[0][0], delta=FS / 4096)
+        self.assertEqual(0, self.w.spectrum_info()['gaps'])
 
     def test_setting_reconfigures(self):
         self.p.publish(f'{self.w.topic}/settings/fft_length', 1024)
@@ -355,6 +369,22 @@ class TestSpectrumWidgetPubSub(unittest.TestCase):
         _process_events(lambda: False, 0.2)
         self.assertEqual({}, self.w._snapshot)
         self.assertIn('Hold', self.w.status)
+
+    def test_global_pause(self):
+        topic = 'registry/app/settings/signal_stream_enable'
+        self.p.publish(topic, False)
+        try:
+            for _ in range(3):
+                self._push()
+            _process_events(lambda: False, 0.2)
+            self.assertEqual({}, self.w._snapshot)
+            self.assertIn('Paused', self.w.status)
+        finally:
+            self.p.publish(topic, True)
+        self._push()
+        self._push()
+        self.assertTrue(_process_events(lambda: len(self.w.peaks) > 0))
+        self.assertEqual(0, self.w.spectrum_info()['gaps'])  # user pause is not a gap
 
     def test_clear_action(self):
         for _ in range(3):

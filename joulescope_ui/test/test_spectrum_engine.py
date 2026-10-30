@@ -123,6 +123,13 @@ class TestEngine(unittest.TestCase):
         e.process(3000, FS, np.zeros(24))
         self.assertEqual(1, e.count)
 
+    def test_resync_not_gap(self):
+        e = self._engine(overlap=0.0)
+        e.process(0, FS, np.zeros(1000))
+        e.process(5000, FS, np.zeros(1024), resync=True)
+        self.assertEqual(0, e.gaps)
+        self.assertEqual(1, e.count)
+
     def test_rate_change_clears(self):
         e = self._engine(overlap=0.0)
         e.process(0, FS, np.ones(2048))

@@ -26,7 +26,7 @@ Run everything with `pytest` from the **`pyjoulescope_ui/`** directory.
 | Qt-free unit tests | `test_harness_unit.py` | nothing (no UI) |
 | Hardware-free UI | `test_basics`, `test_preferences`, `test_open_jls`, `test_waveform`, `test_analysis` | the UI (runs offscreen) |
 | Interactive (rendered) | `test_waveform_interactive` | a real display (`JS_UITEST_DISPLAY=1` makes it required) |
-| Device | `test_multimeter`, `test_record_export` (marked `device`) | a connected Joulescope |
+| Device | `test_multimeter`, `test_record_export`, `test_spectrum` (marked `device`) | a connected Joulescope |
 | Firmware | `test_device_firmware` (marked `device` + `firmware`, always runs first) | a connected JS220/JS320; updates firmware older than the UI's bundled firmware |
 
 Tests marked `device` are selected/excluded with `-m`.  Interactive tests
