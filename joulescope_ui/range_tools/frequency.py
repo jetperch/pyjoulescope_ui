@@ -72,7 +72,7 @@ class FrequencyRangeTool(RangeToolBase):
             'value': 'FrequencyRangeToolWidget',
             'kwargs': {
                 'data': {
-                    'x': np.arange(nfft // 2 + 1) * (fs / nfft),
+                    'x': engine.frequencies(),
                     'y': y,
                 },
             },
@@ -205,10 +205,9 @@ class FrequencyRangeToolDialog(QtWidgets.QDialog):
 
         self._window = QtWidgets.QComboBox(self)
         self._window.setObjectName("windowComboBox")
-        self._window_keys = list(WINDOWS.keys())
-        for key in self._window_keys:
-            self._window.addItem(WINDOW_NAMES[key])
-        self._window.setCurrentIndex(self._window_keys.index('hamming'))
+        for key in WINDOWS:
+            self._window.addItem(WINDOW_NAMES[key], key)
+        self._window.setCurrentIndex(self._window.findData('hamming'))
         self._layout.addWidget(self._window, 1, 1, 1, 1)
 
         self._fftLengthLabel = QtWidgets.QLabel(self)
@@ -251,7 +250,7 @@ class FrequencyRangeToolDialog(QtWidgets.QDialog):
             self._log.info('finished: accept - start frequency')
             self._value['kwargs'] = {
                 'signal': self._value['signals'][self._signal.currentIndex()],
-                'window': self._window_keys[self._window.currentIndex()],
+                'window': self._window.currentData(),
                 'nfft': int(self._fft_length.currentText()),
                 'overlap': self._overlapSpin.value() / 100.0,
             }

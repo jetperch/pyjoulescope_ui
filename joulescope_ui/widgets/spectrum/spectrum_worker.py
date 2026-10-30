@@ -18,7 +18,7 @@ Data and commands share one queue, so the engine needs no locks.
 See docs/plans/spectrum.md "Threading and data flow".
 """
 
-from joulescope_ui.spectrum_engine import SpectrumEngine, unpack
+from joulescope_ui.spectrum_engine import SpectrumEngine, sample_count, unpack
 import logging
 import queue
 import threading
@@ -80,23 +80,22 @@ class SpectrumWorker:
         """Clear the traces and waterfall."""
         self._queue.put(('clear',))
 
-    def push(self, sample_id, fs, data, dtype='f32', resync=False):
+    def push(self, sample_id, fs, data, dtype='f32'):
         """Add sample data.  Never blocks.
 
         :param sample_id: The sample id for data[0].
         :param fs: The sample rate in Hz.
         :param data: The sample data, which must not be modified later.
         :param dtype: The data type, see :func:`spectrum_engine.unpack`.
-        :param resync: Expect a discontinuity, see SpectrumEngine.process.
         :return: True if queued, False if dropped due to overrun.
         """
-        n = len(data) * (8 if dtype == 'u1' else 1)
+        n = sample_count(data, dtype)
         with self._lock:
             if self._queued_samples and self._queued_samples + n > fs * _QUEUE_SECONDS:
                 self.overruns += 1
                 return False
             self._queued_samples += n
-        self._queue.put(('data', sample_id, fs, data, dtype, n, resync))
+        self._queue.put(('data', sample_id, fs, data, dtype, n))
         return True
 
     def _run(self):
@@ -117,12 +116,12 @@ class SpectrumWorker:
                 if cmd == 'quit':
                     break
                 elif cmd == 'data':
-                    _, sample_id, fs, data, dtype, n, resync = item
+                    _, sample_id, fs, data, dtype, n = item
                     with self._lock:
                         self._queued_samples -= n
                     if engine is not None:
                         try:
-                            if engine.process(sample_id, fs, unpack(data, dtype), resync):
+                            if engine.process(sample_id, fs, unpack(data, dtype)):
                                 dirty = True
                         except Exception:
                             self._log.exception('engine process failed')
@@ -157,19 +156,16 @@ class SpectrumWorker:
     def _snapshot(self, engine, generation, rows):
         s = {
             'generation': generation,
-            'overruns': self.overruns,
             'rows': rows,
         }
         if engine is None or engine.fs is None:
             return s
         s.update({
             'fs': engine.fs,
-            'fs_in': engine.fs_in,
             'n': engine.n,
             'decimate': engine.decimate,
             'rbw': engine.rbw,
             'count': engine.count,
-            'gaps': engine.gaps,
             'live': engine.live,
             'average': engine.average,
             'max': None if engine.max is None else engine.max.copy(),

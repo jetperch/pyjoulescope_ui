@@ -24,8 +24,9 @@ from joulescope_ui.widget_tools import CallableAction, settings_action_create, c
     CONTROL_LOCATION_SETTING, control_location_apply
 from joulescope_ui.source_selector import SourceSelector
 from joulescope_ui.units import three_sig_figs
-from joulescope_ui.spectrum_engine import WINDOWS, WINDOW_NAMES, DB_FLOOR, DECIMATE_ROLLOFF, \
-    to_db, find_peaks, column_map
+from joulescope_ui.spectrum_engine import WINDOWS, WINDOW_NAMES, WINDOW_PEAK_INTERPOLATE, DB_FLOOR, \
+    DECIMATE_ROLLOFF, bin_frequencies, column_map, find_peaks, hop_length, sample_count, to_db
+from joulescope_ui.styles.manager import _load_cls_colors, _load_cls_fonts
 from joulescope_ui.widgets.waveform import axis_ticks
 from .spectrum_control import SpectrumControlWidget
 from .spectrum_plot import FftPlot, WaterfallPlot, WaterfallHistory, COLORMAPS, color_table, \
@@ -41,30 +42,20 @@ _MIN_VIEW_BINS = 4
 _DB_RANGE_MAX = 200.0
 _PEAK_SEPARATION_PIXELS = 8
 
-_STYLE_DEFAULTS = {
-    'spectrum.background': '#101010ff',
-    'spectrum.text_foreground': '#C0C0C0ff',
-    'spectrum.text_background': '#101010C0',
-    'spectrum.grid_major': '#ffffff40',
-    'spectrum.grid_minor': '#80808018',
-    'spectrum.plot_border': '#ffffff80',
-    'spectrum.hover': '#ffffffa0',
-    'spectrum.trace_live': '#ffff00ff',
-    'spectrum.trace_average': '#00ffffff',
-    'spectrum.trace_max': '#ff4040c0',
-    'spectrum.trace_min': '#40ff40c0',
-    'spectrum.marker': '#ff8c00ff',
-    'spectrum.peak': '#ff00ffff',
-    'spectrum.status_warning': '#ff8c00ff',
-    'spectrum.axis_font': '10pt "Lato"',
-}
-
 _TRACES = ['live', 'average', 'max', 'min']
+_TRACE_LABELS = {'live': N_('Live'), 'average': N_('Average'), 'max': N_('Max hold'), 'min': N_('Min hold')}
 
 # Settings that change the engine configuration, which resets the traces.
 _ENGINE_SETTINGS = ['decimate', 'fft_length', 'fft_window', 'overlap', 'scaling', 'dc_remove',
                     'average_mode', 'average_count', 'waterfall_duration', 'waterfall_rows',
                     'waterfall_detector', 'waterfall_memory']
+
+
+def _engine_setting_handler(name):
+    # a real function, not partialmethod: pubsub inspects the handler's code
+    def fn(self, value):
+        self._engine_setting(name, value)
+    return fn
 
 
 def _pow2_options(k0, k1, fmt):
@@ -312,7 +303,7 @@ SETTINGS = {
         'default': 30,
         'options': [[v, str(v)] for v in [5, 10, 20, 30, 60]],
     },
-    'control_location': CONTROL_LOCATION_SETTING,
+    'control_location': dict(CONTROL_LOCATION_SETTING),
 }
 
 
@@ -347,13 +338,13 @@ class SpectrumWidget(QtWidgets.QWidget):
         self._colorbar = None
         self._configure_pending = False
         self._paused = False        # global signal_stream_enable is off
-        self._resync = False        # next data follows a hold or pause
+        self._rx_next = None        # expected next input sample id
+        self._gaps = 0              # upstream sample discontinuities
         self.peaks = []
         self.marker_freqs = []      # displayed markers, which may be mid-drag
         self._f_view = None         # displayed viewport, which may be mid-pan
         self._row_period = 0.0
         self.waterfall = WaterfallHistory()
-        self.y_prefix = ''
         super().__init__(parent)
         for key, value in SETTINGS.items():
             setattr(self, key, value['default'])  # not registered: sets the attribute only
@@ -391,6 +382,7 @@ class SpectrumWidget(QtWidgets.QWidget):
         topic = get_topic_name(self)
         self.source_selector.on_pubsub_register(self.pubsub, f'{topic}/settings/signal_stream_source')
         self._worker.start()
+        self._worker.frame_period = 1.0 / max(1, int(self.frame_rate))
         self._configure()
         self._signals_update()
         self.pubsub.subscribe('registry/app/settings/signal_stream_enable',
@@ -399,7 +391,6 @@ class SpectrumWidget(QtWidgets.QWidget):
     def _on_signal_stream_enable(self, value):
         # Devices keep streaming while paused; only the buffers hold.  Match them.
         self._paused = not bool(value)
-        self._resync = True
         self._status_update()
 
     def on_pubsub_unregister(self):
@@ -480,7 +471,7 @@ class SpectrumWidget(QtWidgets.QWidget):
         if topic == self._data_topic:
             return
         self._data_disconnect()
-        self._configure()  # new data stream: reset the engine, including gap tracking
+        self._configure()  # new data stream
         if topic is not None:
             try:
                 self.pubsub.subscribe(topic, self._on_data, ['pub'])
@@ -490,8 +481,12 @@ class SpectrumWidget(QtWidgets.QWidget):
         self._status_update()
 
     def _on_data(self, value):
+        sample_id, data, dtype = value['sample_id'], value['data'], value.get('dtype', 'f32')
+        # Count upstream gaps here, before this widget drops data for hold, pause, or overrun.
+        if self._rx_next is not None and sample_id != self._rx_next:
+            self._gaps += 1
+        self._rx_next = sample_id + sample_count(data, dtype)
         if self.hold or self._paused:
-            self._resync = True
             return
         fs = value['sample_freq']
         if fs != self._fs_in:
@@ -499,8 +494,7 @@ class SpectrumWidget(QtWidgets.QWidget):
             self._configure()
             self._span_labels_update()
         self._units = value.get('units', '') or ''
-        resync, self._resync = self._resync, False
-        if not self._worker.push(value['sample_id'], fs, value['data'], value.get('dtype', 'f32'), resync):
+        if not self._worker.push(sample_id, fs, data, dtype):
             self._status_update()
 
     # ---- engine configuration ----
@@ -511,8 +505,7 @@ class SpectrumWidget(QtWidgets.QWidget):
         overlap = float(self.overlap)
         row_period = float(self.waterfall_duration) / int(self.waterfall_rows)
         if self._fs_in:
-            hop = max(1, n - int(round(overlap * n)))
-            row_period = max(row_period, hop * decimate / self._fs_in)
+            row_period = max(row_period, hop_length(n, overlap) * decimate / self._fs_in)
         return {
             'fft_length': n,
             'window': self.fft_window,
@@ -535,7 +528,8 @@ class SpectrumWidget(QtWidgets.QWidget):
         rows_mem = max(8, int(self.waterfall_memory) * 1024 * 1024 // (bins * 4))
         self.waterfall.reset(min(rows, rows_mem), bins)
         self._generation = self._worker.configure(cfg)
-        self._worker.frame_period = 1.0 / max(1, int(self.frame_rate))
+        self._rx_next = None
+        self._gaps = 0
         self._traces_clear()
 
     def _configure_request(self):
@@ -568,41 +562,18 @@ class SpectrumWidget(QtWidgets.QWidget):
         if self.pubsub is not None:
             self._configure_request()
 
-    def on_setting_decimate(self, value):
-        self._engine_setting('decimate', value)
-
-    def on_setting_fft_length(self, value):
-        self._engine_setting('fft_length', value)
-
-    def on_setting_fft_window(self, value):
-        self._engine_setting('fft_window', value)
-
-    def on_setting_overlap(self, value):
-        self._engine_setting('overlap', value)
-
-    def on_setting_scaling(self, value):
-        self._engine_setting('scaling', value)
-
-    def on_setting_dc_remove(self, value):
-        self._engine_setting('dc_remove', value)
-
-    def on_setting_average_mode(self, value):
-        self._engine_setting('average_mode', value)
-
-    def on_setting_average_count(self, value):
-        self._engine_setting('average_count', value)
-
-    def on_setting_waterfall_duration(self, value):
-        self._engine_setting('waterfall_duration', value)
-
-    def on_setting_waterfall_rows(self, value):
-        self._engine_setting('waterfall_rows', value)
-
-    def on_setting_waterfall_detector(self, value):
-        self._engine_setting('waterfall_detector', value)
-
-    def on_setting_waterfall_memory(self, value):
-        self._engine_setting('waterfall_memory', value)
+    on_setting_decimate = _engine_setting_handler('decimate')
+    on_setting_fft_length = _engine_setting_handler('fft_length')
+    on_setting_fft_window = _engine_setting_handler('fft_window')
+    on_setting_overlap = _engine_setting_handler('overlap')
+    on_setting_scaling = _engine_setting_handler('scaling')
+    on_setting_dc_remove = _engine_setting_handler('dc_remove')
+    on_setting_average_mode = _engine_setting_handler('average_mode')
+    on_setting_average_count = _engine_setting_handler('average_count')
+    on_setting_waterfall_duration = _engine_setting_handler('waterfall_duration')
+    on_setting_waterfall_rows = _engine_setting_handler('waterfall_rows')
+    on_setting_waterfall_detector = _engine_setting_handler('waterfall_detector')
+    on_setting_waterfall_memory = _engine_setting_handler('waterfall_memory')
 
     # ---- snapshots ----
 
@@ -616,15 +587,19 @@ class SpectrumWidget(QtWidgets.QWidget):
             return
         fs, n = s['fs'], s['n']
         if self._snapshot.get('fs') != fs or self._snapshot.get('n') != n:
-            self._f = np.arange(n // 2 + 1) * (fs / n)
+            self._f = bin_frequencies(fs, n)
             self._cmap_cache = None
         self._snapshot = s
         self.waterfall.append(s['rows'])
+        intensity = self.intensity_range()
         self._derived_update()
         self._status_update()
-        self._repaint()
+        self._fft.update()
+        if s['rows'] or intensity != self.intensity_range():
+            self._waterfall.update()
 
     def _derived_update(self):
+        """Convert the snapshot traces for display, then update the view."""
         s = self._snapshot
         self._db = {}
         self._display = {}
@@ -635,8 +610,15 @@ class SpectrumWidget(QtWidgets.QWidget):
             db = to_db(p)
             self._db[name] = db
             self._display[name] = db if self.y_units == 'dB' else np.sqrt(p)
-        self._autoscale_update()
-        self._peaks_update()
+        self._view_update()
+
+    def _view_update(self):
+        """Update what depends on the viewport: autoscale and peaks."""
+        if not self._db or self._f is None:
+            return
+        view = self._view_slice()
+        self._autoscale_update(view)
+        self._peaks_update(view)
 
     def _view_slice(self):
         f0, f1 = self.viewport()
@@ -644,17 +626,15 @@ class SpectrumWidget(QtWidgets.QWidget):
         i1 = int(np.searchsorted(self._f, f1, 'right'))
         return slice(i0, max(i1, i0 + 1))
 
-    def _autoscale_update(self):
-        if not self._db or self._f is None:
-            return
-        view = self._view_slice()
+    def _autoscale_update(self, view):
         his, los = [], []
         for name, db in self._db.items():
             v = db[view]
             v = v[v > DB_FLOOR + 1]
             if len(v):
                 his.append(np.max(v))
-                los.append(np.percentile(v, 2))
+                if name == 'min' or 'min' not in self._db:  # min hold bounds every trace below
+                    los.append(np.partition(v, len(v) // 50)[len(v) // 50])  # 2nd percentile
         if not his:
             return
         hi, lo = max(his), min(los)
@@ -689,13 +669,12 @@ class SpectrumWidget(QtWidgets.QWidget):
                 return self._db[name]
         return None
 
-    def _peaks_update(self):
+    def _peaks_update(self, view):
         self.peaks = []
         y = self._peak_trace()
         count = int(self.peak_count)
-        if y is None or count <= 0:
+        if y is None or count <= 0 or not self.show_fft:
             return
-        view = self._view_slice()
         bins = view.stop - view.start
         width = max(1, self._fft.width())
         separation = max(1, int(_PEAK_SEPARATION_PIXELS * bins / width))
@@ -705,7 +684,7 @@ class SpectrumWidget(QtWidgets.QWidget):
             return
         peaks = find_peaks(y, count, float(self.peak_threshold), separation, x=f,
                            excursion=float(self.peak_excursion),
-                           y_interpolate=self.fft_window != 'flattop')
+                           y_interpolate=WINDOW_PEAK_INTERPOLATE[self.fft_window])
         self.peaks = [(fp, yp) for fp, yp, _ in peaks]
 
     def displayed_peaks(self):
@@ -716,8 +695,9 @@ class SpectrumWidget(QtWidgets.QWidget):
         """The displayed spectrum state, for automation.
 
         :return: dict with status, peaks, source, signal, and, once data
-            arrives, fs (Hz, after decimation), n, rbw (Hz), count, gaps,
-            overruns, and waterfall_rows.
+            arrives, fs (Hz, after decimation), n, rbw (Hz), and count.
+            gaps counts upstream sample discontinuities since the last
+            reconfiguration.
         """
         s = self._snapshot
         info = {
@@ -726,11 +706,12 @@ class SpectrumWidget(QtWidgets.QWidget):
             'source': self.source_selector.resolved(),
             'signal': self.signal if self._data_topic is not None else None,
             'overruns': int(self._worker.overruns),
+            'gaps': self._gaps,
             'waterfall_rows': int(self.waterfall.count),
         }
         if 'fs' in s:
             info.update({'fs': float(s['fs']), 'n': int(s['n']), 'rbw': float(s['rbw']),
-                         'count': int(s['count']), 'gaps': int(s['gaps'])})
+                         'count': int(s['count'])})
         return info
 
     # ---- shared plot state ----
@@ -745,10 +726,11 @@ class SpectrumWidget(QtWidgets.QWidget):
         return self._style_cache
 
     def _style_build(self):
-        v = dict(_STYLE_DEFAULTS)
         style_obj = getattr(self, 'style_obj', None)
         if style_obj is not None:
-            v.update({k: x for k, x in style_obj['vars'].items() if k.startswith('spectrum.')})
+            v = style_obj['vars']
+        else:  # not rendered by the style manager, such as in unit tests
+            v = {**_load_cls_colors(type(self))['dark'], **_load_cls_fonts(type(self))['js1']}
         font = font_as_qfont(v['spectrum.axis_font'])
         fm = QtGui.QFontMetrics(font)
 
@@ -783,6 +765,9 @@ class SpectrumWidget(QtWidgets.QWidget):
 
     def on_style_change(self):
         self._style_cache = None
+        self._colors_invalidate()
+
+    def _colors_invalidate(self, value=None):
         self._color_table = None
         self._colorbar = None
         self._repaint()
@@ -835,22 +820,20 @@ class SpectrumWidget(QtWidgets.QWidget):
         return float(self._u_inv(u0 + (x - rect.left()) * (u1 - u0) / max(1.0, rect.width())))
 
     def column_map(self, width):
-        """The bin to pixel column map for the viewport, or None."""
+        """The bin to pixel column map for the viewport, or None.
+
+        The same object is returned until the mapping changes, so callers
+        may cache on its identity.
+        """
         if self._f is None or width <= 0:
             return None
-        key = self.column_map_key(width)
+        f0, f1 = self.viewport()
+        key = (width, f0, f1, bool(self.x_log))
         if self._cmap_cache is None or self._cmap_cache[0] != key:
-            f0, f1 = self.viewport()
             u0, u1 = self._u(f0), self._u(f1)
             edges = self._u_inv(np.linspace(u0, u1, width + 1))
             self._cmap_cache = (key, column_map(self._f, edges))
         return self._cmap_cache[1]
-
-    def column_map_key(self, width=None):
-        if width is None and self._cmap_cache is not None:
-            return self._cmap_cache[0]
-        return (width, self.viewport(), bool(self.x_log), len(self._f) if self._f is not None else 0,
-                None if self._f is None or len(self._f) < 2 else self._f[1])
 
     def x_ticks(self, width):
         f0, f1 = self.viewport()
@@ -920,26 +903,32 @@ class SpectrumWidget(QtWidgets.QWidget):
             return f'{u}²/Hz' if self.y_units == 'dB' else f'{u}/√Hz'
         return u
 
-    def y_label(self):
+    def y_label(self, prefix=''):
+        """The y-axis label, with the tick label SI prefix for linear units."""
         u = self._units_str()
         if self.y_units == 'dB':
             return f'dB re 1 {u}' if u else 'dB'
-        return f'{self.y_prefix}{u}'
+        return f'{prefix}{u}'
 
     def _value_str(self, db):
         if self.y_units == 'dB':
             return f'{db:.1f} dB'
         return three_sig_figs(10 ** (db / 20), self._units_str())
 
+    def _bin_index(self, f):
+        return int(np.clip(np.round(f / self._f[1]), 0, len(self._f) - 1))
+
     def _trace_values_at(self, f):
         if self._f is None or len(self._f) < 2:
             return []
-        idx = int(np.clip(np.round(f / self._f[1]), 0, len(self._f) - 1))
+        idx = self._bin_index(f)
         return [(name, self._db[name][idx]) for name in _TRACES if name in self._db]
 
+    def _values_str(self, values):
+        return ', '.join(f'{name} {self._value_str(db)}' for name, db in values)
+
     def hover_lines(self, f):
-        values = ', '.join(f'{name} {self._value_str(db)}' for name, db in self._trace_values_at(f))
-        return [f'{f_str(f)}  {values}']
+        return [f'{f_str(f)}  {self._values_str(self._trace_values_at(f))}']
 
     def marker_lines(self):
         lines = []
@@ -947,8 +936,7 @@ class SpectrumWidget(QtWidgets.QWidget):
         for idx, f in enumerate(self.marker_freqs):
             v = self._trace_values_at(f)
             values.append(v[0][1] if v else None)
-            s = ', '.join(f'{name} {self._value_str(db)}' for name, db in v)
-            lines.append(f'M{idx + 1} {f_str(f)}  {s}')
+            lines.append(f'M{idx + 1} {f_str(f)}  {self._values_str(v)}')
         if len(self.marker_freqs) == 2 and None not in values:
             df = self.marker_freqs[1] - self.marker_freqs[0]
             sign = '-' if df < 0 else ''
@@ -964,9 +952,7 @@ class SpectrumWidget(QtWidgets.QWidget):
         lines = [f'{f_str(f)}  -{three_sig_figs(t, "s")}']
         row = int(fraction * self.waterfall.capacity)
         if self._f is not None and len(self._f) > 1 and 0 <= row < self.waterfall.count:
-            data, _ = self.waterfall.newest(row + 1)
-            idx = int(np.clip(np.round(f / self._f[1]), 0, len(self._f) - 1))
-            db = data[row, idx]
+            db = self.waterfall.row(row)[self._bin_index(f)]
             if np.isfinite(db):
                 lines[0] += f'  {db:.1f} dB'
         return lines
@@ -1013,8 +999,7 @@ class SpectrumWidget(QtWidgets.QWidget):
         else:
             r = [f0, f1]
         self._f_view = r
-        self._cmap_cache = None
-        self._derived_update()
+        self._view_update()
         self._repaint()
         if publish:
             self.viewport_publish()
@@ -1058,8 +1043,7 @@ class SpectrumWidget(QtWidgets.QWidget):
             CallableAction(menu, N_('Clear markers'), lambda: self.setting_publish('markers', []))
         menu.addSeparator()
         traces = menu.addMenu(N_('Traces'))
-        for name, label in [('live', N_('Live')), ('average', N_('Average')),
-                            ('max', N_('Max hold')), ('min', N_('Min hold'))]:
+        for name, label in _TRACE_LABELS.items():
             key = f'show_{name}'
             CallableAction(traces, label, self._toggle_factory(key),
                            checkable=True, checked=bool(getattr(self, key)))
@@ -1127,29 +1111,27 @@ class SpectrumWidget(QtWidgets.QWidget):
     on_setting_show_average = _display_update
     on_setting_show_max = _display_update
     on_setting_show_min = _display_update
-    on_setting_peak_count = _display_update
-    on_setting_peak_threshold = _display_update
-    on_setting_peak_excursion = _display_update
-    on_setting_intensity_follows_y = _display_update
-    on_setting_intensity_min = _display_update
-    on_setting_intensity_max = _display_update
 
-    def on_setting_x_log(self, value):
-        self._cmap_cache = None
-        self._display_update()
+    def _view_update_repaint(self, value=None):
+        self._view_update()
+        self._repaint()
+
+    on_setting_peak_count = _view_update_repaint
+    on_setting_peak_threshold = _view_update_repaint
+    on_setting_peak_excursion = _view_update_repaint
+    on_setting_y_autoscale = _view_update_repaint
+    on_setting_y_range = _view_update_repaint
+    on_setting_intensity_follows_y = _view_update_repaint
+    on_setting_intensity_min = _view_update_repaint
+    on_setting_intensity_max = _view_update_repaint
+
+    on_setting_x_log = _view_update_repaint
 
     def on_setting_f_range(self, value):
         if value is not None and (len(value) != 2 or not np.isfinite(value).all()):
             value = None
         self._f_view = value
-        self._cmap_cache = None
-        self._display_update()
-
-    def on_setting_y_autoscale(self, value):
-        self._repaint()
-
-    def on_setting_y_range(self, value):
-        self._repaint()
+        self._view_update_repaint()
 
     def on_setting_markers(self, value):
         self.marker_freqs = [float(f) for f in (value or [])]
@@ -1157,6 +1139,7 @@ class SpectrumWidget(QtWidgets.QWidget):
 
     def on_setting_show_fft(self, value):
         self._fft.setVisible(bool(value))
+        self._view_update()  # peaks are only computed while shown
 
     def on_setting_show_waterfall(self, value):
         self._waterfall.setVisible(bool(value))
@@ -1168,10 +1151,7 @@ class SpectrumWidget(QtWidgets.QWidget):
     def _on_splitter_moved(self, pos, index):
         self.setting_publish('splitter', self._splitter.sizes())
 
-    def on_setting_colormap(self, value):
-        self._color_table = None
-        self._colorbar = None
-        self._repaint()
+    on_setting_colormap = _colors_invalidate
 
     def on_setting_trace_width(self, value):
         self._style_cache = None
@@ -1205,8 +1185,8 @@ class SpectrumWidget(QtWidgets.QWidget):
         if 'fs' in s:
             parts.append(f'RBW {f_str(s["rbw"])}')
             parts.append(f'{s["n"] // 2 + 1} bins')
-            if s['gaps']:
-                parts.append(N_('gaps {0}').format(s['gaps']))
+            if self._gaps:
+                parts.append(N_('gaps {0}').format(self._gaps))
             if self.average_mode != 'off':
                 k = s['count'] if self.average_mode == 'cumulative' else min(s['count'], int(self.average_count))
                 parts.append(f'avg {k}')

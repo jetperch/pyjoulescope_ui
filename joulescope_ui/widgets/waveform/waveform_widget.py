@@ -533,7 +533,7 @@ class WaveformWidget(QtWidgets.QWidget):
             'default': None,
             'flags': ['hide', 'ro', 'skip_undo', 'tmp'],
         },
-        'control_location': CONTROL_LOCATION_SETTING,
+        'control_location': dict(CONTROL_LOCATION_SETTING),
         'show_summary': {
             'dtype': 'bool',
             'brief': N_('Show the summary waveform at top.'),

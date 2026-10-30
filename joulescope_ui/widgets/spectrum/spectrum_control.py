@@ -19,7 +19,7 @@ Each control publishes its setting.  The widget calls
 so the controls always mirror the settings.
 """
 
-from PySide6 import QtWidgets
+from PySide6 import QtCore, QtWidgets
 from joulescope_ui import N_, tooltip_format
 
 
@@ -64,7 +64,6 @@ class SpectrumControlWidget(QtWidgets.QWidget):
 
     def __init__(self, parent, settings):
         self._parent = parent
-        self._settings = settings
         self._combos = {}
         super().__init__(parent)
         self.setObjectName('spectrum_control')
@@ -76,18 +75,19 @@ class SpectrumControlWidget(QtWidgets.QWidget):
         self._hold = QtWidgets.QPushButton(N_('Hold'), self)
         self._hold.setObjectName('spectrum_hold')
         self._hold.setCheckable(True)
-        self._hold.toggled.connect(lambda checked: self._publish('hold', bool(checked)))
+        self._hold.setToolTip(_TOOLTIPS['hold'])
+        self._hold.toggled.connect(lambda checked: parent.setting_publish('hold', bool(checked)))
         layout.addWidget(self._hold)
 
         self._clear = QtWidgets.QPushButton(N_('Clear'), self)
         self._clear.setObjectName('spectrum_clear')
+        self._clear.setToolTip(_TOOLTIPS['clear'])
         self._clear.clicked.connect(lambda checked=False: parent.on_action_clear())
         layout.addWidget(self._clear)
 
         self._source = self._combo_add('source')
         self._source.activated.connect(self._on_source)
-        self._signal = self._combo_add('signal')
-        self._signal.activated.connect(self._on_signal)
+        self._combo_add('signal').activated.connect(self._factory('signal'))
 
         for name in _COMBO_SETTINGS:
             combo = self._combo_add(name)
@@ -96,8 +96,6 @@ class SpectrumControlWidget(QtWidgets.QWidget):
             combo.activated.connect(self._factory(name))
 
         layout.addStretch(1)
-        self._hold.setToolTip(_TOOLTIPS['hold'])
-        self._clear.setToolTip(_TOOLTIPS['clear'])
 
     def _combo_add(self, name):
         combo = QtWidgets.QComboBox(self)
@@ -108,34 +106,26 @@ class SpectrumControlWidget(QtWidgets.QWidget):
         self._combos[name] = combo
         return combo
 
-    def _publish(self, name, value):
-        self._parent.setting_publish(name, value)
-
     def _factory(self, name):
         def fn(index):
-            self._publish(name, self._combos[name].itemData(index))
+            self._parent.setting_publish(name, self._combos[name].itemData(index))
         return fn
 
     def _on_source(self, index):
         self._parent.source_selector.source_set(self._source.itemData(index))
 
-    def _on_signal(self, index):
-        self._publish('signal', self._signal.itemData(index))
-
     @staticmethod
     def _select(combo, value):
         idx = combo.findData(value)
         if idx >= 0:
-            combo.blockSignals(True)
-            combo.setCurrentIndex(idx)
-            combo.blockSignals(False)
+            with QtCore.QSignalBlocker(combo):
+                combo.setCurrentIndex(idx)
 
     def value_set(self, name, value):
         """Update a control to match its setting."""
         if name == 'hold':
-            self._hold.blockSignals(True)
-            self._hold.setChecked(bool(value))
-            self._hold.blockSignals(False)
+            with QtCore.QSignalBlocker(self._hold):
+                self._hold.setChecked(bool(value))
         elif name in self._combos:
             self._select(self._combos[name], value)
 
@@ -147,11 +137,10 @@ class SpectrumControlWidget(QtWidgets.QWidget):
         :param value: The selected value.
         """
         combo = self._combos[name]
-        combo.blockSignals(True)
-        combo.clear()
-        for v, label in items:
-            combo.addItem(label, v)
-        combo.blockSignals(False)
+        with QtCore.QSignalBlocker(combo):
+            combo.clear()
+            for v, label in items:
+                combo.addItem(label, v)
         self._select(combo, value)
 
     def labels_set(self, name, labels):

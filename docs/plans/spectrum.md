@@ -263,7 +263,9 @@ Design points:
   `registry/app/settings/signal_stream_enable` goes false; only the stream
   buffers hold.  The widget subscribes to it and drops data while paused,
   so it freezes with the Waveform.  Hold is a separate, per-widget freeze.
-  Resuming from either is a resync, not a counted gap.
+  The widget counts upstream gaps from sample ids before it drops any data
+  (hold, pause, overrun), so its own drops never count; the engine only
+  resyncs at a discontinuity.
 
 ### Compute budget
 

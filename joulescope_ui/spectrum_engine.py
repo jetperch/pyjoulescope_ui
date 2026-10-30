@@ -54,15 +54,15 @@ WINDOW_NAMES = {
     'bartlett': 'Bartlett',
 }
 
+WINDOW_PEAK_INTERPOLATE = {k: k != 'flattop' for k in WINDOWS}
+"""Interpolate the peak value.  A flat-top peak already gives the amplitude."""
+
 SCALINGS = ['amplitude', 'psd']
 AVERAGE_MODES = ['off', 'exponential', 'cumulative']
 DETECTORS = ['average', 'max']
 
 DECIMATE_ROLLOFF = 0.9
 """Fraction of each decimated Nyquist band that is alias-free."""
-
-_PEAK_CANDIDATES_MIN = 64
-_PEAK_CANDIDATES_PER_PEAK = 16
 
 DB_FLOOR = -400.0
 """dB value for zero power, which keeps log10 finite."""
@@ -108,6 +108,22 @@ def unpack(data, dtype, length=None):
     return y
 
 
+def sample_count(data, dtype):
+    """Get the number of samples in data, see :func:`unpack`."""
+    return len(data) * (8 if dtype == 'u1' else (2 if dtype == 'u4' else 1))
+
+
+def hop_length(n, overlap):
+    """Get the samples between successive FFTs of length n."""
+    overlap = min(0.95, max(0.0, float(overlap)))
+    return max(1, n - int(round(overlap * n)))
+
+
+def bin_frequencies(fs, n):
+    """Get the rfft bin frequencies in Hz."""
+    return np.arange(n // 2 + 1) * (fs / n)
+
+
 def to_db(p):
     """Convert power to dB."""
     with np.errstate(divide='ignore', invalid='ignore'):
@@ -137,19 +153,12 @@ def halfband_taps(attenuation_db=90.0, transition=0.05):
 class HalfBandDecimator:
     """Decimate by 2 using a polyphase half-band FIR with block state."""
 
-    def __init__(self, taps=None):
-        h = halfband_taps() if taps is None else np.asarray(taps, dtype=np.float64)
-        if len(h) % 2:
-            h = np.append(h, 0.0)
+    def __init__(self):
+        h = np.append(halfband_taps(), 0.0)  # even length for the two phases
         self._h_e = h[0::2].copy()
-        h_o = h[1::2]
-        nz = np.flatnonzero(h_o)
-        if len(nz) == 1:  # half-band: odd phase is just the center tap
-            self._h_o = None
-            self._o_idx = int(nz[0])
-            self._o_value = h_o[nz[0]]
-        else:
-            self._h_o = h_o.copy()
+        h_o = h[1::2]  # half-band: the odd phase is only the center tap
+        self._o_idx = int(np.flatnonzero(h_o)[0])
+        self._o_value = h_o[self._o_idx]
         self._le = len(self._h_e)
         self.reset()
 
@@ -170,11 +179,8 @@ class HalfBandDecimator:
             self._buf = buf
             return np.zeros(0)
         y = np.convolve(e[:m_max + 1], self._h_e, mode='valid')[1:]
-        if self._h_o is None:
-            k = self._o_idx
-            y += self._o_value * o[le - k - 1:m_max - k]
-        else:
-            y += np.convolve(o[:m_max], self._h_o, mode='valid')
+        k = self._o_idx
+        y += self._o_value * o[le - k - 1:m_max - k]
         drop = m_max + 1 - le
         self._buf = buf[2 * drop:]
         return y
@@ -284,6 +290,21 @@ def average_update(a, k, x, n):
     return y
 
 
+def _sliding(y, w, op):
+    """Reduce each length-w window: out[i] = op over y[i:i + w].
+
+    van Herk / Gil-Werman: O(n) regardless of w.
+    """
+    n = len(y) - w + 1
+    k = -(-len(y) // w) * w
+    pad = np.full(k, np.inf if op is np.minimum else -np.inf)
+    pad[:len(y)] = y
+    blocks = pad.reshape((-1, w))
+    prefix = op.accumulate(blocks, axis=1).ravel()
+    suffix = op.accumulate(blocks[:, ::-1], axis=1)[:, ::-1].ravel()
+    return op(suffix[:n], prefix[w - 1:w - 1 + n])
+
+
 def find_peaks(y, count, threshold=None, separation=1, x=None, excursion=0.0, y_interpolate=True):
     """Find the largest local maxima.
 
@@ -295,28 +316,33 @@ def find_peaks(y, count, threshold=None, separation=1, x=None, excursion=0.0, y_
     :param excursion: The minimum rise of a peak above the lowest value
         within separation samples on both sides, like a spectrum
         analyzer's peak excursion.
-    :param y_interpolate: Interpolate the peak value.  Use False for
-        flat-top windows, whose flat peak already gives the amplitude.
+    :param y_interpolate: Interpolate the peak value, see
+        :data:`WINDOW_PEAK_INTERPOLATE`.
     :return: List of (x, y, index) sorted by decreasing y, where x and y
         use parabolic interpolation.
     """
     y = np.asarray(y, dtype=np.float64)
-    if count <= 0 or len(y) < 3:
+    n = len(y)
+    if count <= 0 or n < 3:
         return []
+    sep = max(1, int(separation))
+    inf = np.full(sep, np.inf)
     c = y[1:-1]
-    idx = np.flatnonzero((c > y[:-2]) & (c >= y[2:]) & np.isfinite(c)) + 1
+    keep = np.zeros(n, dtype=bool)
+    keep[1:-1] = (c > y[:-2]) & (c >= y[2:]) & np.isfinite(c)
+    # the largest value within separation on both sides
+    keep &= y >= _sliding(np.concatenate((-inf, y, -inf)), 2 * sep + 1, np.maximum)
     if threshold is not None:
-        idx = idx[y[idx] >= threshold]
+        keep &= y >= threshold
+    if excursion > 0:
+        left = _sliding(np.concatenate((inf, y[:-1])), sep, np.minimum)       # y[i-sep:i]
+        right = _sliding(np.concatenate((y[1:], inf)), sep, np.minimum)       # y[i+1:i+1+sep]
+        keep &= y - np.maximum(left, right) >= excursion
+    idx = np.flatnonzero(keep)
     idx = idx[np.argsort(-y[idx], kind='stable')]
-    idx = idx[:max(_PEAK_CANDIDATES_MIN, _PEAK_CANDIDATES_PER_PEAK * count)]  # bound noise cost
     selected = []
-    for i in idx:
-        if excursion > 0:
-            left = np.min(y[max(0, i - separation):i])
-            right = np.min(y[i + 1:i + 1 + separation])
-            if y[i] - max(left, right) < excursion:
-                continue
-        if all(abs(i - j) >= separation for j in selected):
+    for i in idx:  # equal values within separation both survive the window test
+        if all(abs(i - j) >= sep for j in selected):
             selected.append(int(i))
             if len(selected) >= count:
                 break
@@ -360,7 +386,6 @@ def column_map(f, edges):
         'empty': empty,
         'nearest': nearest,
         'end': end_max,
-        'any_empty': bool(np.any(empty)),
     }
 
 
@@ -376,9 +401,8 @@ def column_reduce(y, cmap, op=np.maximum):
     if end <= 0:
         return y[..., cmap['nearest']]
     out = op.reduceat(y[..., :end], cmap['start'], axis=-1)
-    if cmap['any_empty']:
-        empty = cmap['empty']
-        out[..., empty] = y[..., cmap['nearest'][empty]]
+    empty = cmap['empty']
+    out[..., empty] = y[..., cmap['nearest'][empty]]
     return out
 
 
@@ -416,8 +440,7 @@ class SpectrumEngine:
         if cfg['detector'] not in DETECTORS:
             raise ValueError(f'invalid detector {cfg["detector"]}')
         self.n = n
-        overlap = min(0.95, max(0.0, float(cfg['overlap'])))
-        self.hop = max(1, n - int(round(overlap * n)))
+        self.hop = hop_length(n, cfg['overlap'])
         self.window = window(cfg['window'], n)
         self.enbw = enbw(self.window)
         self._s1 = np.sum(self.window)
@@ -428,7 +451,7 @@ class SpectrumEngine:
         self.fs = None
         self._sample_id_next = None  # expected next input sample id
         self._out_id = 0             # decimated output sample id of next output
-        self.gaps = 0
+        self._row_samples = 1
         self.clear()
 
     @property
@@ -443,7 +466,7 @@ class SpectrumEngine:
         """The bin frequencies in Hz."""
         if self.fs is None:
             return None
-        return np.arange(self.bins) * (self.fs / self.n)
+        return bin_frequencies(self.fs, self.n)
 
     @property
     def rbw(self):
@@ -465,15 +488,18 @@ class SpectrumEngine:
         self._row_count = 0
         self._row_gap = False
 
-    def gap(self):
-        """Discard partial data due to an input discontinuity."""
+    def _resync(self):
+        """Discard partial data at an input discontinuity.
+
+        Callers count upstream sample loss themselves: they know which
+        discontinuities they caused, such as hold or dropped data.
+        """
         self._decimator.reset()
         self._segmenter.reset()
         self._sample_id_next = None
         if self._row_idx is not None:
             self._row_emit()
         self._row_gap = True
-        self.gaps += 1
 
     def _scale(self):
         if self.config['scaling'] == 'psd':
@@ -486,28 +512,26 @@ class SpectrumEngine:
             scale[-1] *= 0.5
         return scale
 
-    def process(self, sample_id, fs, x, resync=False):
+    def process(self, sample_id, fs, x):
         """Process input samples.
 
-        :param sample_id: The input sample id of x[0].
-        :param fs: The input sample rate in Hz.
+        :param sample_id: The input sample id of x[0].  A discontinuity
+            discards partial data and starts new segments.
+        :param fs: The input sample rate in Hz.  A change clears all state.
         :param x: The input samples.
-        :param resync: True when a discontinuity is expected, such as after
-            the user resumes from hold.  It still discards partial data,
-            but does not count as a gap.
         :return: The number of new spectra.
         """
         if self.fs_in != fs:
             self.fs_in = fs
             self.fs = fs / self.decimate
             self._scale_k = self._scale()
-            self.gap()
-            self.gaps -= 1
+            self._row_samples = max(1, int(round((self.config['row_period'] or 0) * self.fs)))
+            self._decimator.reset()
+            self._segmenter.reset()
+            self._sample_id_next = None
             self.clear()
         elif self._sample_id_next is not None and sample_id != self._sample_id_next:
-            self.gap()
-            if resync:
-                self.gaps -= 1
+            self._resync()
         if self._sample_id_next is None:
             self._out_id = sample_id // self.decimate
         self._sample_id_next = sample_id + len(x)
@@ -543,8 +567,7 @@ class SpectrumEngine:
         self.count += len(p)
 
     def _rows_update(self, p, end_ids):
-        row_samples = max(1, int(round(self.config['row_period'] * self.fs)))
-        row_idx = end_ids // row_samples
+        row_idx = end_ids // self._row_samples
         is_max = self.config['detector'] == 'max'
         starts = np.flatnonzero(np.diff(row_idx, prepend=row_idx[0] - 1))
         if is_max:
@@ -570,10 +593,7 @@ class SpectrumEngine:
         acc = self._row_acc
         if self.config['detector'] == 'average':
             acc = acc / self._row_count
-        row_samples = max(1, int(round(self.config['row_period'] * self.fs)))
-        end_id = (self._row_idx + 1) * row_samples
         self._rows.append({
-            'sample_id': end_id * self.decimate,
             'gap': self._row_gap,
             'db': to_db(acc).astype(np.float32),
         })
@@ -585,9 +605,8 @@ class SpectrumEngine:
     def rows_pop(self):
         """Get and remove the completed waterfall rows.
 
-        :return: The list of row dicts with keys sample_id (input sample
-            id at the end of the row), gap (True if a discontinuity
-            preceded the row), and db (float32 dB values).
+        :return: The list of row dicts with keys gap (True if a
+            discontinuity preceded the row) and db (float32 dB values).
         """
         rows, self._rows = self._rows, []
         return rows

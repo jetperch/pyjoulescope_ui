@@ -98,7 +98,7 @@ class TestWorker(unittest.TestCase):
         self.assertEqual(2, self.w.overruns)
         self.w.start()
         s = self._wait(lambda s: s.get('count', 0) > 0)
-        self.assertEqual(2, s['overruns'])
+        self.assertEqual(2, self.w.overruns)
         self.assertTrue(self.w.push(0, FS, x))  # drained
 
     def test_digital(self):

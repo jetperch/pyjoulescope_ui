@@ -86,16 +86,14 @@ class TestPlotHelpers(unittest.TestCase):
     def test_history(self):
         h = WaterfallHistory()
         h.reset(3, 4)
-        self.assertIsNone(h.newest_sample_id)
-        rows = [{'sample_id': k, 'gap': k == 3, 'db': np.full(4, k, dtype=np.float32)} for k in range(1, 4)]
+        rows = [{'gap': k == 3, 'db': np.full(4, k, dtype=np.float32)} for k in range(1, 4)]
         h.append(rows)
-        data, ids = h.newest()
         # row 3 had a gap, so an empty row precedes it
-        np.testing.assert_equal([3, 3, 2], ids)
-        np.testing.assert_equal([3, np.nan, 2], data[:, 0])
+        np.testing.assert_equal([3, np.nan, 2], h.newest()[:, 0])
+        np.testing.assert_equal([3, 3, 3, 3], h.row(0))
         self.assertEqual(3, h.count)
-        h.append([{'sample_id': 9, 'gap': False, 'db': np.zeros(5, dtype=np.float32)}])  # wrong size
-        self.assertEqual(3, h.newest_sample_id)
+        h.append([{'gap': False, 'db': np.zeros(5, dtype=np.float32)}])  # wrong size
+        self.assertEqual(3, h.row(0)[0])
 
     def test_image_incremental_matches_rebuild(self):
         h = WaterfallHistory()
@@ -106,14 +104,13 @@ class TestPlotHelpers(unittest.TestCase):
         img = WaterfallImage()
         rng = np.random.default_rng(1)
         for k in range(14):
-            h.append([{'sample_id': k, 'gap': False, 'db': rng.uniform(-100, 0, 64).astype(np.float32)}])
-            img.update(h, cmap, 16, -100.0, 0.0, table, 'k')
+            h.append([{'gap': False, 'db': rng.uniform(-100, 0, 64).astype(np.float32)}])
+            pixmap = img.update(h, cmap, 16, 20, -100.0, 0.0, table)
         incremental = img._array.copy()
         img2 = WaterfallImage()
-        img2.update(h, cmap, 16, -100.0, 0.0, table, 'k')
+        img2.update(h, cmap, 16, 20, -100.0, 0.0, table)
         np.testing.assert_equal(img2._array, incremental)
-        self.assertEqual(16, img.image.width())
-        self.assertEqual(10, img.image.height())
+        self.assertEqual((16, 20), (pixmap.width(), pixmap.height()))
 
 
 class TestSpectrumWidgetUnregistered(unittest.TestCase):
@@ -338,6 +335,9 @@ class TestSpectrumWidgetPubSub(unittest.TestCase):
         self.assertEqual(4096, info['n'])
         self.assertEqual(0, info['gaps'])
         json.dumps(info)
+        self.sample_id += 1000  # upstream sample loss
+        self._push()
+        self.assertEqual(1, self.w.spectrum_info()['gaps'])
 
     def test_signal_enable_like_waveform(self):
         self.p.publish(f'{self.w.topic}/settings/signal', 'v')

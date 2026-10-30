@@ -113,7 +113,6 @@ class WaterfallHistory:
         self.capacity = max(1, int(capacity))
         self.bins = int(bins)
         self._data = np.full((self.capacity, self.bins), np.nan, dtype=np.float32)
-        self._ids = np.zeros(self.capacity, dtype=np.int64)
         self._head = 0       # next row to write
         self.count = 0       # valid rows
         self.pending = 0     # rows added since the last image update
@@ -125,79 +124,85 @@ class WaterfallHistory:
             if len(row['db']) != self.bins:
                 continue
             if row['gap'] and self.count:
-                self._add(None, row['sample_id'])
-            self._add(row['db'], row['sample_id'])
+                self._add(np.nan)
+            self._add(row['db'])
 
-    def _add(self, db, sample_id):
-        if db is None:
-            self._data[self._head, :] = np.nan
-        else:
-            self._data[self._head, :] = db
-        self._ids[self._head] = sample_id
+    def _add(self, db):
+        self._data[self._head, :] = db
         self._head = (self._head + 1) % self.capacity
         self.count = min(self.count + 1, self.capacity)
         self.pending = min(self.pending + 1, self.capacity)
 
+    def _order(self, count):
+        return (self._head - 1 - np.arange(count)) % self.capacity
+
     def newest(self, count=None):
-        """Get rows, newest first.
+        """Get a copy of the rows, newest first.
 
         :param count: The number of rows, None for all valid rows.
-        :return: (data, sample_ids)
         """
         count = self.count if count is None else min(count, self.count)
-        idx = (self._head - 1 - np.arange(count)) % self.capacity
-        return self._data[idx], self._ids[idx]
+        return self._data[self._order(count)]
 
-    @property
-    def newest_sample_id(self):
-        if not self.count:
-            return None
-        return int(self._ids[(self._head - 1) % self.capacity])
+    def row(self, index):
+        """Get one row without copying, where index 0 is the newest."""
+        return self._data[(self._head - 1 - index) % self.capacity]
+
+    def reduce(self, cmap):
+        """Reduce all valid rows to display columns, newest first."""
+        # Reduce in ring order, then reorder the small result: no history copy.
+        return column_reduce(self._data, cmap)[self._order(self.count)]
 
 
 class WaterfallImage:
-    """Map waterfall history to an Indexed8 image, newest row at top."""
+    """Map waterfall history to an image, newest row at top."""
 
     def __init__(self):
-        self.image = None
         self._key = None
         self._array = None
+        self._image = None
+        self.pixmap = None
 
-    def update(self, history, cmap, width, lo, hi, table, cmap_key):
+    def update(self, history, cmap, width, height, lo, hi, table):
         """Update the image.
 
         :param history: The WaterfallHistory.
-        :param cmap: The column map from spectrum_engine.column_map.
+        :param cmap: The column map from SpectrumWidget.column_map, which
+            stays the same object until the mapping changes.
         :param width: The image width in pixels.
+        :param height: The displayed height in pixels.
         :param lo: The dB value for the first color.
         :param hi: The dB value for the last color.
         :param table: The color table.
-        :param cmap_key: The hashable identity for cmap.
-        :return: The QImage or None.
+        :return: The QPixmap at (width, height), or None.
         """
-        key = (history.version, history.capacity, width, lo, hi, cmap_key, id(table))
-        if width <= 0:
+        if width <= 0 or height <= 0:
             return None
+        key = (history.version, id(cmap), width, lo, hi, id(table))
         if key != self._key:
             self._key = key
+            self._refs = (cmap, table)  # keep alive so id() stays unique
             stride = (width + 3) & ~3
             self._array = np.zeros((history.capacity, stride), dtype=np.uint8)
-            data, _ = history.newest()
-            if len(data):
-                self._array[:len(data), :width] = value_to_index(column_reduce(data, cmap), lo, hi)
+            if history.count:
+                self._array[:history.count, :width] = value_to_index(history.reduce(cmap), lo, hi)
             history.pending = 0
-            self.image = QtGui.QImage(self._array.data, width, history.capacity, stride,
-                                      QtGui.QImage.Format.Format_Indexed8)
-            self.image.setColorTable(table)
+            self._image = QtGui.QImage(self._array.data, width, history.capacity, stride,
+                                       QtGui.QImage.Format.Format_Indexed8)
+            self._image.setColorTable(table)
+            self.pixmap = None
         elif history.pending:
             k = history.pending
             history.pending = 0
             a = self._array
             if k < len(a):
-                a[k:] = a[:-k].copy()
-            data, _ = history.newest(k)
-            a[:len(data), :width] = value_to_index(column_reduce(data, cmap), lo, hi)
-        return self.image
+                a[k:] = a[:-k]  # numpy handles the overlap
+            a[:k, :width] = value_to_index(column_reduce(history.newest(k), cmap), lo, hi)
+            self.pixmap = None
+        if self.pixmap is None or self.pixmap.height() != height:
+            # convert and scale once per change, not on every paint
+            self.pixmap = QtGui.QPixmap.fromImage(self._image.scaled(width, height))
+        return self.pixmap
 
 
 def _minor_visible(v):
@@ -316,6 +321,15 @@ class _PlotBase(QtWidgets.QWidget):
     def _wheel_shift(self, pos, rect, steps):
         pass
 
+    def _draw_hover(self, p, rect, style):
+        """Draw the hover line and return its x, or None."""
+        hover = self._owner.hover(self)
+        if hover is None:
+            return None
+        p.setPen(style['hover_pen'])
+        p.drawLine(QtCore.QPointF(hover.x(), rect.top()), QtCore.QPointF(hover.x(), rect.bottom()))
+        return hover
+
     def _draw_markers(self, p, rect, style, labels):
         o = self._owner
         if not o.marker_freqs:
@@ -350,6 +364,7 @@ class FftPlot(_PlotBase):
 
     def __init__(self, owner, parent=None):
         self._points = PointsF()
+        self._trace_cache = None
         super().__init__(owner, parent)
         self.setObjectName('spectrum_fft')
 
@@ -373,14 +388,14 @@ class FftPlot(_PlotBase):
             p.setFont(style['font'])
             rect = self.plot_rect()
             self._draw_x_axis(p, rect, style)
-            self._draw_y_axis(p, rect, style)
+            y_prefix = self._draw_y_axis(p, rect, style)
             p.setClipRect(rect)
             self._draw_traces(p, rect, style)
             self._draw_markers(p, rect, style, labels=True)
             self._draw_peaks(p, rect, style)
             self._draw_hover(p, rect, style)
             p.setClipping(False)
-            self._draw_annotations(p, rect, style)
+            self._draw_annotations(p, rect, style, y_prefix)
             p.setPen(style['border_pen'])
             p.setBrush(QtCore.Qt.NoBrush)
             p.drawRect(rect)
@@ -402,15 +417,13 @@ class FftPlot(_PlotBase):
         p.drawLines(_v_lines(o.f_to_x(np.asarray(ticks['major']), rect), rect))
         p.setPen(style['text_pen'])
         right_edge = rect.left()
-        for f, label in zip(ticks['major'], ticks['labels']):
-            x = o.f_to_x(f, rect)
+        for x, label in zip(o.f_to_x(np.asarray(ticks['major']), rect), ticks['labels']):
             w = fm.horizontalAdvance(label)
             x_text = min(max(x - w / 2, rect.left()), rect.right() - w)
             if x_text >= right_edge:
                 p.drawText(QtCore.QPointF(x_text, y_text), label)
                 right_edge = x_text + w + 8
         units = f'{ticks["unit_prefix"]}Hz'
-        p.setPen(style['text_pen'])
         p.drawText(QtCore.QPointF(rect.right() - fm.horizontalAdvance(units), y_text + style['font_height']), units)
         p.setPen(style['warning_pen'] if o.status_warning else style['text_pen'])
         p.drawText(QtCore.QPointF(rect.left(), y_text + style['font_height']), o.status)
@@ -420,7 +433,7 @@ class FftPlot(_PlotBase):
         y0, y1 = o.y_view()
         ticks = axis_ticks.ticks(y0, y1, major_max=max(2, int(rect.height() / (2.5 * style['font_height']))))
         if ticks is None:
-            return
+            return ''
         fm = style['font_metrics']
         minor = o.y_to_pixel(ticks['minor'], rect)
         if _minor_visible(minor):
@@ -429,12 +442,11 @@ class FftPlot(_PlotBase):
         p.setPen(style['grid_major_pen'])
         p.drawLines(_h_lines(o.y_to_pixel(ticks['major'], rect), rect))
         p.setPen(style['text_pen'])
-        for v, label in zip(ticks['major'], ticks['labels']):
-            y = o.y_to_pixel(v, rect)
+        for y, label in zip(o.y_to_pixel(ticks['major'], rect), ticks['labels']):
             if not (rect.top() <= y <= rect.bottom()):
                 continue
             p.drawText(QtCore.QPointF(rect.left() - 4 - fm.horizontalAdvance(label), y + style['font_ascent'] / 2), label)
-        o.y_prefix = ticks['unit_prefix']
+        return ticks['unit_prefix']
 
     def _draw_traces(self, p, rect, style):
         o = self._owner
@@ -442,17 +454,22 @@ class FftPlot(_PlotBase):
         cmap = o.column_map(width)
         if cmap is None:
             return
-        x = rect.left() + np.arange(width, dtype=np.float64) + 0.5
+        # Hover and marker repaints reuse the reduced traces.
+        traces = [(name, o.trace(name)) for name in ['min', 'max', 'average', 'live']]
+        key = (id(cmap), o.y_view(), rect.top(), rect.height(), tuple(id(y) for _, y in traces))
+        if self._trace_cache is None or self._trace_cache[0] != key:
+            x = rect.left() + np.arange(width, dtype=np.float64) + 0.5
+            reduced = []
+            for name, y in traces:
+                if y is not None:
+                    op = np.minimum if name == 'min' else np.maximum
+                    reduced.append((name, o.y_to_pixel(column_reduce(y, cmap, op), rect)))
+            self._trace_cache = (key, x, reduced, (cmap, traces))  # refs keep id() unique
+        _, x, reduced, _ = self._trace_cache
         y_limits = (rect.top() - 1, rect.bottom() + 1)
-        for name in ['min', 'max', 'average', 'live']:
-            y = o.trace(name)
-            if y is None:
-                continue
-            op = np.minimum if name == 'min' else np.maximum
-            yc = o.y_to_pixel(column_reduce(y, cmap, op), rect)
-            segs = self._points.set_line(x, yc, y_limits)
+        for name, yc in reduced:
             p.setPen(style[f'trace_{name}_pen'])
-            p.drawPolyline(segs)
+            p.drawPolyline(self._points.set_line(x, yc, y_limits))
 
     def _draw_peaks(self, p, rect, style):
         o = self._owner
@@ -469,18 +486,10 @@ class FftPlot(_PlotBase):
             s = str(idx + 1)
             p.drawText(QtCore.QPointF(x - fm.horizontalAdvance(s) / 2, y - 11), s)
 
-    def _draw_hover(self, p, rect, style):
-        o = self._owner
-        hover = o.hover(self)
-        if hover is None:
-            return
-        p.setPen(style['hover_pen'])
-        p.drawLine(QtCore.QPointF(hover.x(), rect.top()), QtCore.QPointF(hover.x(), rect.bottom()))
-
-    def _draw_annotations(self, p, rect, style):
+    def _draw_annotations(self, p, rect, style, y_prefix):
         o = self._owner
         p.setPen(style['text_pen'])
-        p.drawText(QtCore.QPointF(rect.left() + 4, rect.top() + style['font_ascent'] + 2), o.y_label())
+        p.drawText(QtCore.QPointF(rect.left() + 4, rect.top() + style['font_ascent'] + 2), o.y_label(y_prefix))
         lines = o.marker_lines()
         hover = o.hover(self)
         if hover is not None:
@@ -511,25 +520,21 @@ class WaterfallPlot(_PlotBase):
             p.setFont(style['font'])
             rect = self.plot_rect()
             width = int(rect.width())
-            image = None
             cmap = o.column_map(width)
             lo, hi = o.intensity_range()
             if cmap is not None:
-                image = self._image.update(o.waterfall, cmap, width, lo, hi, o.color_table(), o.column_map_key())
-            if image is not None:
-                p.drawImage(rect, image, QtCore.QRectF(0, 0, width, image.height()))
+                pixmap = self._image.update(o.waterfall, cmap, width, int(rect.height()), lo, hi, o.color_table())
+                if pixmap is not None:
+                    p.drawPixmap(rect.topLeft(), pixmap)
             self._draw_time_axis(p, rect, style)
             self._draw_colorbar(p, rect, style, lo, hi)
             p.setClipRect(rect)
             self._draw_markers(p, rect, style, labels=False)
-            hover = o.hover(self)
-            if hover is not None:
-                p.setPen(style['hover_pen'])
-                p.drawLine(QtCore.QPointF(hover.x(), rect.top()), QtCore.QPointF(hover.x(), rect.bottom()))
-                lines = o.waterfall_hover_lines(o.x_to_f(hover.x(), rect), (hover.y() - rect.top()) / rect.height())
-                p.setClipping(False)
-                self._draw_text_box(p, style, lines, rect.left() + 4, rect.top() + 4, align_right=False)
+            hover = self._draw_hover(p, rect, style)
             p.setClipping(False)
+            if hover is not None:
+                lines = o.waterfall_hover_lines(o.x_to_f(hover.x(), rect), (hover.y() - rect.top()) / rect.height())
+                self._draw_text_box(p, style, lines, rect.left() + 4, rect.top() + 4, align_right=False)
             p.setPen(style['border_pen'])
             p.setBrush(QtCore.Qt.NoBrush)
             p.drawRect(rect)

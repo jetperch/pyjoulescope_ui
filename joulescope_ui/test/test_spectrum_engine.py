@@ -119,15 +119,7 @@ class TestEngine(unittest.TestCase):
         e.process(0, FS, np.zeros(1000))
         e.process(2000, FS, np.zeros(1000))  # gap: 1000 + 1000 never form a segment
         self.assertEqual(0, e.count)
-        self.assertEqual(1, e.gaps)
         e.process(3000, FS, np.zeros(24))
-        self.assertEqual(1, e.count)
-
-    def test_resync_not_gap(self):
-        e = self._engine(overlap=0.0)
-        e.process(0, FS, np.zeros(1000))
-        e.process(5000, FS, np.zeros(1024), resync=True)
-        self.assertEqual(0, e.gaps)
         self.assertEqual(1, e.count)
 
     def test_rate_change_clears(self):
@@ -187,7 +179,6 @@ class TestEngine(unittest.TestCase):
         rows = e.rows_pop()
         # segment end ids 1024..7168, rows of 2048 samples: rows 0..2 complete
         self.assertEqual(3, len(rows))
-        self.assertEqual([2048, 4096, 6144], [r['sample_id'] for r in rows])
         self.assertAlmostEqual(20 * np.log10(2.0), rows[1]['db'][0], places=4)
         self.assertEqual(np.float32, rows[0]['db'].dtype)
         self.assertEqual([], e.rows_pop())
@@ -273,6 +264,23 @@ class TestPeaks(unittest.TestCase):
         y[60] = 5                               # small isolated peak
         p = se.find_peaks(y, 10, separation=3, excursion=3)
         self.assertEqual([20, 60], [k[2] for k in p])
+
+    def test_sliding(self):
+        y = np.random.default_rng(5).normal(size=103)
+        for w in [1, 2, 7, 103]:
+            expect = [np.max(y[i:i + w]) for i in range(len(y) - w + 1)]
+            np.testing.assert_equal(expect, se._sliding(y, w, np.maximum))
+            expect = [np.min(y[i:i + w]) for i in range(len(y) - w + 1)]
+            np.testing.assert_equal(expect, se._sliding(y, w, np.minimum))
+
+    def test_tone_skirt_does_not_hide_second_tone(self):
+        # many local maxima on a strong tone's skirt must not crowd out a real tone
+        y = np.full(2000, -100.0)
+        y[100:200] = -40 - np.abs(np.arange(100) - 50) * 0.5 + np.tile([0, 1.0], 50)
+        y[150] = -10
+        y[1500] = -60
+        p = se.find_peaks(y, 2, separation=4, excursion=10)
+        self.assertEqual([150, 1500], [k[2] for k in p])
 
     def test_parabolic(self):
         x = np.arange(20, dtype=float)

@@ -34,7 +34,7 @@ def _spectrum_open(ui_session, device):
         ids = [i for i in ui_session.enumerate('registry')
                if i.startswith('SpectrumWidget:') and i not in before]
         if ids:
-            ui_session.publish(f'registry/{ids[0]}/settings/signal_stream_source', device.unique_id)
+            ui_session.publish_and_wait(f'registry/{ids[0]}/settings/signal_stream_source', device.unique_id)
             return ids[0]
         ui_session.wait(0.2)
     raise AssertionError('Spectrum widget did not open')
@@ -60,7 +60,7 @@ def _wait_info(ui_session, widget, predicate, timeout=15.0):
 @pytest.mark.device
 def test_spectrum_widget_live(ui_session, device):
     """The Spectrum widget analyzes the device's current stream."""
-    ui_session.publish('registry/app/settings/signal_stream_enable', True)
+    ui_session.publish_and_wait('registry/app/settings/signal_stream_enable', True)
     fs = ui_session.query(f'{device.topic}/settings/signal_frequency')
     widget = _spectrum_open(ui_session, device)
     info = _wait_info(ui_session, widget, lambda i: i.get('count', 0) > 10)
@@ -81,8 +81,7 @@ def test_spectrum_widget_live(ui_session, device):
     assert info['overruns'] == 0, info
     assert info['gaps'] == 0, info
 
-    ui_session.publish(f'registry/{widget}/settings/hold', True)
-    ui_session.wait(0.5)
+    ui_session.publish_and_wait(f'registry/{widget}/settings/hold', True)
     count = _info(ui_session, widget)['count']
     ui_session.wait(1.0)
     assert _info(ui_session, widget)['count'] == count

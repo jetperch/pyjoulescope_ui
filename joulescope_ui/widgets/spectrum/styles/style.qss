@@ -13,11 +13,3 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-QLabel#spectrum_status {
-    color: {% spectrum.status_foreground %};
-}
-
-QLabel#spectrum_status[overrun="true"] {
-    color: {% spectrum.status_warning %};
-}

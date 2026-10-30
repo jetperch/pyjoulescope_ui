@@ -16,5 +16,4 @@ spectrum.trace_min = #40ff40c0
 spectrum.marker = #ff8c00ff
 spectrum.peak = #ff00ffff
 
-spectrum.status_foreground = #C0C0C0ff
 spectrum.status_warning = #ff8c00ff
