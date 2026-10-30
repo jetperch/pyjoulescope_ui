@@ -240,6 +240,10 @@ class UiSession:
         """Subscribe to a pubsub topic."""
         return self._client.subscribe(topic, callback, flags)
 
+    def unsubscribe(self, topic, callback=None):
+        """Unsubscribe callback (or every callback) from a pubsub topic."""
+        return self._client.unsubscribe(topic, callback)
+
     def qt_inspect(self, path='', max_depth=50):
         """Inspect the Qt widget tree."""
         return self._client.qt_inspect(path=path, max_depth=max_depth)

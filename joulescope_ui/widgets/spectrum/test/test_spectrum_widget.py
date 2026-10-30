@@ -258,6 +258,20 @@ class TestSpectrumWidgetUnregistered(unittest.TestCase):
         _process_events(lambda: combo.width() > width, 1.0)
         self.assertGreater(combo.width(), width)
 
+    def test_automation_values(self):
+        self._snapshot(_tone(10_000.0, 0.1, 50_000), window='flattop')
+        df = FS / 1024
+        f, db = self.w.value_at(10_000.0 + 2 * df, 'average', search_bins=3)
+        self.assertAlmostEqual(10_000.0, f, delta=df)
+        self.assertAlmostEqual(-20.0, db, delta=0.1)
+        self.assertIsNone(self.w.value_at(10_000.0, 'min'))  # hidden trace
+        t = self.w.spectrum_trace('average')
+        self.assertEqual(513, len(t['db']))
+        self.assertAlmostEqual(df, t['df'])
+        col = self.w.waterfall_column(10_000.0)
+        self.assertEqual(self.w.waterfall.count, len(col))
+        self.assertAlmostEqual(-20.0, col[0], delta=0.5)
+
     def test_waterfall_hover(self):
         self._snapshot(_tone(10_000.0, 0.1, 20_000))
         lines = self.w.waterfall_hover_lines(10_000.0, 0.0)

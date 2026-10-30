@@ -714,6 +714,44 @@ class SpectrumWidget(QtWidgets.QWidget):
                          'count': int(s['count'])})
         return info
 
+    def value_at(self, f, trace='average', search_bins=0):
+        """The largest trace value near a frequency, for automation.
+
+        :param f: The frequency in Hz.
+        :param trace: The trace name: live, average, max, or min.
+        :param search_bins: Search this many bins on each side.
+        :return: [bin frequency Hz, dB], or None without data.
+        """
+        db = self._db.get(trace)
+        if db is None or self._f is None or len(self._f) < 2:
+            return None
+        idx = self._bin_index(f)
+        i0, i1 = max(0, idx - int(search_bins)), min(len(db), idx + int(search_bins) + 1)
+        k = i0 + int(np.argmax(db[i0:i1]))
+        return [float(self._f[k]), float(db[k])]
+
+    def spectrum_trace(self, trace='average'):
+        """A whole trace, for automation.
+
+        :return: {f0, df, db: [...]} in Hz and dB, or None without data.
+        """
+        db = self._db.get(trace)
+        if db is None or self._f is None or len(self._f) < 2:
+            return None
+        return {'f0': float(self._f[0]), 'df': float(self._f[1] - self._f[0]),
+                'db': [float(x) for x in db]}
+
+    def waterfall_column(self, f, count=None):
+        """Waterfall dB values at a frequency, newest row first, for automation.
+
+        Empty rows (gaps) are None.
+        """
+        if self._f is None or len(self._f) < 2 or not self.waterfall.count:
+            return []
+        idx = self._bin_index(f)
+        values = self.waterfall.newest(count)[:, idx]
+        return [float(v) if np.isfinite(v) else None for v in values]
+
     # ---- shared plot state ----
 
     def _repaint(self):

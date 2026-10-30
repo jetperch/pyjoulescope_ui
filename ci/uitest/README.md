@@ -28,6 +28,7 @@ Run everything with `pytest` from the **`pyjoulescope_ui/`** directory.
 | Interactive (rendered) | `test_waveform_interactive` | a real display (`JS_UITEST_DISPLAY=1` makes it required) |
 | Device | `test_multimeter`, `test_record_export`, `test_spectrum` (marked `device`) | a connected Joulescope |
 | Firmware | `test_device_firmware` (marked `device` + `firmware`, always runs first) | a connected JS220/JS320; updates firmware older than the UI's bundled firmware |
+| Stimulus | `test_spectrum_stimulus` (marked `device` + `stimulus`) | a Joulescope with an ADP3450 wired to it, described in `stations.yaml` |
 
 Tests marked `device` are selected/excluded with `-m`.  Interactive tests
 **skip themselves** when there is no display or the plot is not rendering
@@ -55,6 +56,22 @@ pytest ci/uitest -m "not device"
 # Interactive waveform tests (pan, y-axis range/scale, marker move/remove,
 # #352 fill) — require a real display; otherwise they fail
 JS_UITEST_DISPLAY=1 pytest ci/uitest/test_waveform_interactive.py
+```
+
+## Stimulus tests
+
+`test_spectrum_stimulus.py` drives an ADP3450 into the device and checks
+the Spectrum widget against the device's own statistics (pyjoulescope_ui
+`docs/plans/spectrum.md` stage 6b).  The wiring comes from the station's
+`stations.yaml`; see joulescope_ci `doc/adp3450_connection.md` for how to
+wire and describe it.  Without wiring, the module skips.  The default
+`not slow and not stimulus` farm gate excludes these tests; the farm runs
+them on demand as the `ui_stimulus` suite.
+
+```bash
+# on a bench, with a sibling joulescope_ci checkout for jci_instruments
+JS_UITEST_STIMULUS_FILE=~/stations.yaml JS_UITEST_STATION=<station> \
+    pytest ci/uitest/test_spectrum_stimulus.py -m "stimulus and not slow"
 ```
 
 ## Device tests

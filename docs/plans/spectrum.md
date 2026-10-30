@@ -547,28 +547,31 @@ in the same format, and is a quick check on the JS110.
 
 *Equipment and wiring*
 
-- Digilent ADP3450 (AWG W1/W2, scope ch1-4, digital I/O), using the
-  existing HIL wiring for the JS320:
-  - W1 → JS320 voltage input.
-  - W2 → /100 attenuator → JS320 current input (±20 mV full scale, so
-    W2 = 2 V is full scale and above 2 V forces the autoranger up).
-  - Scope ch4 on W1 as an independent amplitude reference.
-- JS220: the same W1/W2 arrangement on a second harness, or move the
-  leads between devices.  The JS220 has no HIL wiring today.
-- JS110: W1 → voltage input only.
-- A JS320 GPO wired to a GPI (or ADP digital out → GPI) for the digital
-  signal checks.
-- USB Insight Hub on the device ports for unplug/replug.
+The wiring, and how to describe it in `stations.yaml`, is in joulescope_ci
+`doc/adp3450_connection.md`.  In short, the standard wiring for the JS320
+and JS220 is:
+
+- W1 direct → voltage V+.
+- W2 → 100 Ω series resistor → current +.
+- ADP3450 ground → V− and current −.
+- DIO0 → GPI0 (JS320).
+- Scope CH1 and CH2 monitor W1 and W2.
+
+The JS110 needs only W1 → V+.  The tests read each station's wiring and
+skip, with the reason, whatever it cannot support.  The USB Insight Hub
+provides unplug/replug, which stays a manual step.
 
 *Prerequisites (blocking)*
 
 - [ ] ADP3450 reachable from the test host.  On 2026-10-30 `FDwfEnum`
   found no devices from the dev machine.
-- [ ] JS220 stimulus wiring decided and built.
-- [ ] Current-path scaling confirmed: what current the W2/100 stimulus
-  represents in each JS320/JS220 current range.  Until then, the
-  current-path checks are relative (frequency, linearity, spurs), not
-  absolute.
+- [ ] Bench wired per the connection guide, and its `stations.yaml` entry
+  added (`duts[].stimulus`), then the station updated from the dashboard.
+- [ ] Current path: the 100 Ω series resistor makes the current nominally
+  V/100, less the shunt and path.  The current checks compare against the
+  device's own current statistics, so they do not need the absolute
+  scaling.  100 Ω covers the 18 mA and 1.8 mA ranges; a second run with
+  10 kΩ covers the µA ranges.
 - [ ] USB Insight Hub controller back in its application firmware.  On
   2026-10-30 it enumerated as the ESP32 ROM bootloader.
 - [ ] Set every ADP3450 scope channel explicitly: attenuation 1, DC
@@ -598,15 +601,18 @@ Unless noted: voltage signal, 1 MSPS, Hann, N = 4096, amplitude scaling.
   Pass: resolved; peak within 0.1 bin.
 - **A1 Amplitude, flat top.**  Stimulus: 1 V, 100 mV, 10 mV rms at 1 kHz and
   100 kHz.  Pass: peak within 0.1 dB of statistics RMS, 1% of scope.
-- **A2 Amplitude linearity.**  Stimulus: 1 kHz sine stepped 0 to -60 dB in
-  10 dB steps.  Pass: steps 10 ± 0.1 dB.
+- **A2 Amplitude linearity.**  Stimulus: 1 kHz sine stepped down from 1 V
+  rms in 10 dB steps while the wavegen stays at or above 10 mV rms (-40 dB
+  direct; deeper through a divider).  Pass: the spectrum tracks the
+  statistics within ±0.1 dB at every step, at least four steps.
 - **A3 Scalloping per window.**  Stimulus: tone at bin center and half-bin,
   all windows.  Pass: half-bin loss matches window theory ±0.1 dB; flat top <
   0.1 dB.
 - **H1 Harmonics.**  Stimulus: 1 kHz square, 50% duty.  Pass: odd harmonics at
   20·log10(1/n) ±0.3 dB to n = 15; even < -60 dBc.
-- **H2 Two-tone dynamic range.**  Stimulus: 10 kHz at 0 dBFS plus 13 kHz at
-  -80 dBc.  Pass: small tone found; spur-free range recorded.
+- **H2 Two-tone dynamic range.**  Stimulus: 10 kHz plus 13 kHz at -60 dBc
+  (one custom waveform; -80 dBc is below the 14-bit wavegen's own spurs).
+  Pass: small tone at -60 ±1 dBc; spur-free range recorded.
 - **N1 PSD level.**  Stimulus: ADP noise, statistics std as reference.  Pass:
   integrated PSD = variance ±5%; level within ±0.5 dB across N = 1k..64k and
   every window.
@@ -622,9 +628,9 @@ Unless noted: voltage signal, 1 MSPS, Hann, N = 4096, amplitude scaling.
   amplitude ±0.1 dB; RBW halves per step.
 - **D2 Decimator aliasing.**  Stimulus: tone just above the retained band and
   near the old Nyquist.  Pass: alias ≤ -80 dBc; roll-off band hidden.
-- **C1 Current path, fixed range.**  Stimulus: W2 sine for each fixed current
-  range.  Pass: peak f correct; 10 dB steps ±0.2 dB; absolute level once
-  scaling is confirmed.
+- **C1 Current path, fixed range.**  Stimulus: W2 sine at 20% of full scale
+  for each fixed range the series resistor reaches.  Pass: peak f correct;
+  level within ±0.2 dB of the current statistics; 10 dB step ±0.2 dB.
 - **C2 Current autoranging.**  Stimulus: W2 sine swept across range
   boundaries.  Pass: waterfall shows the switching; no crash, overrun, or gap;
   artifacts documented.
@@ -675,19 +681,43 @@ the same criteria.
 - Run `test_spectrum.py` on the Windows, macOS, and `ci_linux_arm` farm
   stations.  Record the per-widget CPU against the Stage 0 budget.
 
-*Automation*
+*Automation (staged 2026-10-30)*
 
-- Add `ci/uitest/test_spectrum_stimulus.py`, marked `device` plus a new
-  `stimulus` marker, so it runs only on stations that advertise an
-  ADP3450 (the HIL capability model).  Each test sets the generator,
-  configures the widget over TCP, and checks `spectrum_info()` against
-  the criteria above.
-- Do not copy the existing ADP3450 wrapper from
-  `js320/gateware/hil/test_gpo_analog_out.py`.  Promote it to a shared
-  station capability in `joulescope_ci` and use it from both places.
-- Save a screenshot and the `spectrum_info()` JSON per test as artifacts.
-- Keep visual checks (W1, C2) manual, with screenshots attached to the
-  results.
+Everything below is in place, so a wired station runs the tests with no
+further work:
+
+- `ci/uitest/test_spectrum_stimulus.py`: one test per automatable ID
+  above (F1, F2, A1-A3, H1, H2, N1, N2, R1, R2, D1, D2, C1-C3, P1, G1, W1,
+  W2, T1, X1, S1-S3).  Each test is marked `device` and `stimulus`, with a
+  `models` marker for the devices it applies to (JS320 all, JS220 the
+  subset above, JS110 F1 and A1).  The module skips at once without a
+  stimulus wiring.  The S3 soak is also `slow` (`JS_UITEST_SOAK_S`, default
+  3600).
+- `ci/uitest/stimulus.py`: loads the wiring (`JS_UITEST_STIMULUS` from
+  the runner, or `JS_UITEST_STIMULUS_FILE` + `JS_UITEST_STATION` on a
+  bench) and drives the ADP3450 in DUT units.  `ci/uitest/spectrum.py`:
+  widget helpers, shared with `test_spectrum.py`.
+- Widget automation methods: `spectrum_info`, `value_at`,
+  `spectrum_trace`, `waterfall_column`.
+- joulescope_ci 0.3.23: the `jci_instruments` package (the ADP3450
+  wrapper, moved out of js320/gateware/hil, and the wiring rules),
+  `duts[].stimulus` in `stations.yaml`, the `stimulus` capability axis,
+  and the on-demand `ui_stimulus` suite.
+- Each test writes a JSON result and a widget screenshot to
+  `spectrum_stimulus/` in the artifacts directory.
+- Manual: hub unplug/replug (UI tests must not touch the hub) and the
+  real-display UI checks.
+
+Dry-run on 2026-10-30 (no ADP3450 reachable):
+
+- Without wiring, all 75 parametrizations skip in 0.07 s.
+- With wiring but no instrument, the JS320 test fails at setup with "adp3450
+  wired to JS320-8W2A but not available: ... No connected device found".
+  That path goes through the real Waveforms runtime.  The JS220, which had
+  no wiring, skips.
+
+The test bodies have not yet run against a generator.  Expect to tune
+tolerances on the first hardware run.
 
 Record the results in this plan with dates, device serials, and firmware
 versions.  Then finish Stage 7 and move the plan to `completed/`.

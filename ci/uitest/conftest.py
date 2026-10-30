@@ -58,6 +58,9 @@ def pytest_configure(config):
     config.addinivalue_line('markers', 'waveform_data(factory): rendered_waveform data factory')
     config.addinivalue_line('markers', 'waveform_path(factory): rendered_waveform file to open')
     config.addinivalue_line('markers', 'firmware: updates device firmware; runs first')
+    config.addinivalue_line('markers', 'stimulus: drives a stimulus instrument (ADP3450) into the device; '
+                                       'see stimulus.py')
+    config.addinivalue_line('markers', 'models(*models): the device models a stimulus test applies to')
     config.stash[FIRMWARE_STALE] = {}
 
 
@@ -285,6 +288,28 @@ def all_devices(ui_session):
 def device(ui_session, device_model):
     """The connected :class:`discover.Device` for the parametrized model."""
     return _resolve_device(ui_session, device_model)
+
+
+@pytest.fixture
+def stimulus(ui_session, device):
+    """The :class:`stimulus.Stimulus` wired to ``device``.
+
+    Skips when the station wires no instrument to this device.  Fails when
+    one is wired but cannot be opened: that is a bench fault.  Turns every
+    output off afterwards.
+    """
+    from uitest import stimulus as stimulus_mod
+    wiring = stimulus_mod.wiring_for(device)
+    if wiring is None:
+        pytest.skip(f'no stimulus instrument wired to {device.unique_id}')
+    adp3450, _ = stimulus_mod.instruments()
+    try:
+        adp = adp3450.Adp3450(serial=wiring.serial, address=wiring.address)
+    except adp3450.Adp3450Error as ex:
+        pytest.fail(f'{wiring.kind} wired to {device.unique_id} but not available: {ex}')
+    with adp:
+        adp.outputs_off()
+        yield stimulus_mod.Stimulus(ui_session, device, wiring, adp)
 
 
 def _has_display():
