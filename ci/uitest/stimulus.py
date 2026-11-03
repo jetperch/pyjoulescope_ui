@@ -124,8 +124,8 @@ class Stimulus:
         except stimulus.Incompatible as ex:
             pytest.skip(str(ex))
 
-    def _source_vpp(self, c, vpp_at_input):
-        vpp = vpp_at_input / c.gain
+    def _source_vpp(self, c, vpp_at_input, gain=None):
+        vpp = vpp_at_input / (c.gain if gain is None else gain)
         if vpp > VPP_MAX:
             pytest.skip(f'{c.target} needs {vpp:.3g} Vpp from {c.source}, above {VPP_MAX} Vpp')
         return vpp
@@ -134,13 +134,38 @@ class Stimulus:
         """The source amplitude for rms_at_input, in V rms."""
         return rms_at_input / self.require(target).gain
 
-    def sine(self, target, freq_hz, rms, offset=0.0):
+    def sine(self, target, freq_hz, rms, offset=0.0, gain=None):
+        """Output a sine of rms at the DUT input.
+
+        :param gain: The input per source volt, for a connection with no
+            defined gain (a divider into current): see :meth:`current_gain`.
+        """
         c = self.require(target)
-        vpp = self._source_vpp(c, 2 * math.sqrt(2) * rms)
+        gain = c.gain if gain is None else gain
+        vpp = self._source_vpp(c, 2 * math.sqrt(2) * rms, gain)
         if vpp / (2 * math.sqrt(2)) < VRMS_MIN:
             pytest.skip(f'{c.source} at {vpp:.3g} Vpp is below the {VRMS_MIN} V rms resolution floor')
-        self.adp.wavegen_sine(c.channel, freq_hz, vpp=vpp, offset=offset / c.gain)
+        self.adp.wavegen_sine(c.channel, freq_hz, vpp=vpp, offset=offset / gain)
         return c
+
+    def amplitude(self, target, rms):
+        """Change the running sine on target to rms without a restart glitch."""
+        c = self.require(target)
+        self.adp.wavegen_amplitude(c.channel, self._source_vpp(c, 2 * math.sqrt(2) * rms))
+
+    def current_gain(self, freq_hz=1_000.0, source_vrms=0.05):
+        """The current per source volt on the present fixed current range.
+
+        Through a series resistor this is nominal (1 / ohms).  Through a
+        divider it depends on the range shunt, so measure it with a small
+        sine.  The caller must select a fixed current range first.
+        """
+        c = self.require('current')
+        if c.network == 'series':
+            return c.gain
+        self.adp.wavegen_sine(c.channel, freq_hz, vpp=2 * math.sqrt(2) * source_vrms)
+        self.session.wait(0.5)
+        return statistics_rms(self.session, self.device, 'current') / source_vrms
 
     def square(self, target, freq_hz, vpp, duty_percent=50.0):
         c = self.require(target)

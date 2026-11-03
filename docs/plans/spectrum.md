@@ -716,8 +716,64 @@ Dry-run on 2026-10-30 (no ADP3450 reachable):
   That path goes through the real Waveforms runtime.  The JS220, which had
   no wiring, skips.
 
-The test bodies have not yet run against a generator.  Expect to tune
-tolerances on the first hardware run.
+*First hardware run (2026-11-03, agent machine, JS320-8W2A, ADP3450
+SN:210018BB6E2C)*
+
+Bench wiring: W1 into a 50 Ω terminator across V+/V− (`divider, ratio:
+0.5`, measured 0.498); W2 into a 50 Ω terminator, then 49.5 Ω over 0.5 Ω
+with the 0.5 Ω across the current inputs (`divider, ratio: 0.005`).
+Polarity checked with DC: +1 V on W1 reads +0.498 V, on W2 reads +4.49 µA
+(autorange).  No DIO and no second device: G1 and S1 skip.  C2 and C3
+skip: autoranging needs a defined current, which a divider does not give.
+
+Result: all 21 runnable tests pass, including the S3 one-hour soak.
+Measured:
+
+| Test | Result |
+|------|--------|
+| A1, A2 | spectrum vs statistics within 0.003 dB, 1 V to 10 mV rms, 1 kHz and 100 kHz |
+| A3 | scalloping loss within 0.005 dB of theory for all 7 windows |
+| C1 | 18 mA, 1.8 mA, 180 µA, 18 µA ranges within 0.003 dB; 180 mA skips (needs 6 V rms) |
+| D1 | decimate 2 to 1024 within 0.03 dB; RBW halves each step |
+| D2 | alias at 1.2 x Nyquist(d=4): -97 dBc |
+| H1 | odd harmonics at 1/k; even harmonics -84 dBc |
+| H2 | -60 dBc tone resolved; SFDR 87 dB |
+| N1 | integrated PSD equals variance for 3 lengths x 3 windows |
+| R1 | all 9 JS320 rates within 0.01 dB; fs and RBW correct; no overruns |
+| T1 | max, min, average within 0.04 dB after a 0.5, 1.0, 0.25 V rms sequence |
+| W1 | sweep slope 9884 to 9907 Hz/s vs 9900 expected |
+| W2 | burst max hold 0.0 dB; average detector -8.2 dB |
+| X1 | widget and recording agree within 0.001 dB |
+| R2 | sinc1/2/3 droop and alias within 0.25 dB of N x 20 log10 \|sinc(f/fs)\| |
+| S3 | 1 h, two widgets (v, i): 0 overruns, 0 gaps; RSS flat at 683 MiB after 5 min |
+
+Found and fixed by this run:
+
+- UI: the JS320 offered 500 kHz, which the firmware rejects (decimate
+  factors 2 and 3 were removed).  The rejected setting ended the device
+  thread and left streaming off.  Removed the option; a saved JS320 500
+  kHz loads as 200 kHz (no config version change: 500 kHz never worked); a
+  rejected command is now logged and the thread continues; a failed rate
+  change restores streaming.
+- jci_instruments: the sweep ramped for half its period, then held (the FM
+  node's default 50 % symmetry).  Reconfiguring an output restarted it,
+  a dropout that min hold caught; `wavegen_amplitude` changes a running
+  output instead.
+- Tests: R1 tests at fs/40, since the statistics are full rate and the
+  JS320 decimator droops 0.22 dB at fs/8.  D2 near the input Nyquist now
+  compares against the undecimated spectrum: the generator and the device
+  put spurs in the retained band (a 52 kHz spur at -43 dBc from a 475 kHz
+  tone, also in a raw pyjoulescope capture).  T1 uses Hann on a bin:
+  flattop's negative lobes put a segment straddling an amplitude step
+  outside the two levels (+0.15/-0.3 dB).  The current tests run on fixed
+  ranges and measure the divider gain on each.
+
+Device behavior, by design: the JS320 decimates with sinc filters, which
+do not ring, at the cost of anti-aliasing.  The Signal filter setting
+(Device Control) selects the order.  At 0.75 x Nyquist the droop is
+-2.1, -4.2, and -6.3 dB for sinc1 (the default), sinc2, and sinc3; a tone
+at 1.5 x Nyquist aliases back at -10.5, -20.9, and -31.4 dBc.  R2 checks
+each order against theory.
 
 Record the results in this plan with dates, device serials, and firmware
 versions.  Then finish Stage 7 and move the plan to `completed/`.

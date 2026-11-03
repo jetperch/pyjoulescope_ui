@@ -50,7 +50,10 @@ _DB_TOL_AMPLITUDE = 0.1
 _DB_TOL_STEP = 0.2
 _DB_TOL_HARMONIC = 0.3
 _SETTLE = 0.5            # seconds for the generator and device statistics to settle
-_RATES = [1_000_000, 500_000, 200_000, 100_000, 50_000, 20_000, 10_000, 5_000, 2_000, 1_000]
+_RATES = {              # model: the device's signal_frequency options down to 1 kHz
+    'JS320': [1_000_000, 200_000, 100_000, 50_000, 20_000, 10_000, 5_000, 2_000, 1_000],
+    'JS220': [1_000_000, 500_000, 200_000, 100_000, 50_000, 20_000, 10_000, 5_000, 2_000, 1_000],
+}
 _CURRENT_RANGES = {     # model: [(code, full scale A)], fixed ranges
     'JS320': [(130, 0.18), (132, 0.018), (136, 0.0018), (144, 180e-6), (160, 18e-6)],
     'JS220': [(130, 0.18), (132, 0.018), (136, 0.0018), (144, 180e-6), (160, 18e-6)],
@@ -304,9 +307,9 @@ def test_n2_noise_floor_baseline(bench):
 @_models('JS320', 'JS220')
 def test_r1_sample_rates(bench):
     session, device, stim, widget, record = bench
-    for rate in _RATES:
+    for rate in _RATES[device.model]:
         session.set_signal_frequency(device.unique_id, rate)
-        f = rate / 8
+        f = rate / 40   # the statistics are full rate: keep clear of the device decimator droop
         n = 4096 if rate >= 10_000 else 1024
         spectrum.configure(session, widget, fft_length=n, fft_window='flattop')
         stim.sine('voltage', f, 0.3)
@@ -323,21 +326,29 @@ def test_r1_sample_rates(bench):
 
 @_models('JS320')
 def test_r2_device_anti_alias(bench):
+    """Characterize the device decimator for each Signal filter (sincN) order.
+
+    Measures the passband droop at 0.75 x Nyquist and the alias of a tone at
+    1.5 x Nyquist against the sincN response, N x 20 log10 |sinc(f / fs)|.
+    sinc filters trade anti-aliasing for no ringing: sinc1, the default,
+    rejects the alias by only 10.5 dB.
+    """
     session, device, stim, widget, record = bench
-    reference = None
+    spectrum.configure(session, widget, fft_length=4096, fft_window='flattop')
     for rate in (100_000, 10_000):
-        session.set_signal_frequency(device.unique_id, _full_rate(device))
-        stim.sine('voltage', 0.75 * rate / 2, 0.3)
-        session.wait(_SETTLE)
-        reference = db(statistics_rms(session, device, 'voltage'))   # unfiltered level
-        session.set_signal_frequency(device.unique_id, rate)
-        spectrum.configure(session, widget, fft_length=4096, fft_window='flattop')
-        for factor in (0.75, 1.5):   # passband edge, and above the new Nyquist
-            f = factor * rate / 2
-            alias = f if f < rate / 2 else rate - f
-            stim.sine('voltage', f, 0.3)
-            _, (_, level), _ = _measure(session, device, widget, alias)
-            record(id='R2', rate=rate, f=f, read_at=alias, dbc=level - reference)
+        for order in (1, 2, 3):
+            device_settings(session, device, signal_filter=order)
+            for factor in (0.75, 1.5):   # passband edge, and above the new Nyquist
+                f = factor * rate / 2
+                alias = f if f < rate / 2 else rate - f
+                stim.sine('voltage', f, 0.3)
+                session.set_signal_frequency(device.unique_id, rate)
+                _, (_, level), reference = _measure(session, device, widget, alias)   # statistics: full rate
+                expect = order * db(abs(np.sinc(f / rate)))
+                record(id='R2', rate=rate, signal_filter=order, f=f, read_at=alias,
+                       dbc=level - reference, expect_dbc=expect)
+                assert abs(level - reference - expect) <= 0.5, (rate, order, f, level - reference)   # 0.24 seen
+    device_settings(session, device, signal_filter=1)
 
 
 # ---- D: span (decimation) ------------------------------------------------
@@ -371,14 +382,23 @@ def test_d2_decimator_aliasing(bench):
     _, (_, alias), ref = _measure(session, device, widget, 0.8 * nyquist_d)
     record(id='D2', f=f, alias_dbc=alias - ref)
     assert alias - ref <= -80, alias - ref
-    stim.sine('voltage', 0.95 * fs / 2, 0.5)   # near the input Nyquist
-    session.wait(_SETTLE)
-    spectrum.fresh(session, widget, count=10)
-    tr = spectrum.trace(session, widget)
-    retained = int(0.9 * nyquist_d / tr['df'])   # the hidden roll-off band may hold aliases
-    worst = max(tr['db'][1:retained])
-    record(id='D2', f=0.95 * fs / 2, worst_dbc=worst - ref)
-    assert worst - ref <= -80, worst - ref
+    # Near the input Nyquist.  The generator and the device put spurs in the
+    # retained band (-60 dBc measured), so compare against the undecimated
+    # spectrum: the decimator must add nothing above it.
+    stim.sine('voltage', 0.95 * fs / 2, 0.5)
+    worst, worst_f = {}, {}
+    for decimate in (1, d):
+        spectrum.configure(session, widget, decimate=decimate)
+        session.wait(_SETTLE)
+        spectrum.fresh(session, widget, count=10)
+        tr = spectrum.trace(session, widget)
+        retained = int(0.9 * nyquist_d / tr['df'])   # the hidden roll-off band may hold aliases
+        k = 4 + int(np.argmax(tr['db'][4:retained]))   # above the window main lobe at DC
+        worst[decimate], worst_f[decimate] = tr['db'][k], k * tr['df']
+    ref = db(statistics_rms(session, device, 'voltage'))
+    record(id='D2', f=0.95 * fs / 2, input_worst_dbc=worst[1] - ref, input_worst_f=worst_f[1],
+           worst_dbc=worst[d] - ref, worst_f=worst_f[d])
+    assert worst[d] <= max(worst[1] + 1.0, ref - 80), (worst, ref)
 
 
 # ---- C: current ----------------------------------------------------------
@@ -386,19 +406,20 @@ def test_d2_decimator_aliasing(bench):
 @_models('JS320', 'JS220')
 def test_c1_current_fixed_ranges(bench):
     session, device, stim, widget, record = bench
-    c = stim.require('current', networks=('series',))
+    stim.require('current')
     f = 1_000.0
     spectrum.configure(session, widget, signal='i', fft_length=4096, fft_window='flattop')
     ran = []
     for code, full_scale in _CURRENT_RANGES[device.model]:
         rms = 0.2 * full_scale
-        if rms / c.gain > 4.5 / math.sqrt(2) or rms / c.gain < 0.010:
-            record(id='C1', range=code, skipped=f'needs {rms / c.gain:.3g} V rms through {c.ohms} ohms')
-            continue
         device_settings(session, device, current_range=code)
+        gain = stim.current_gain(f)
+        if rms / gain > 4.5 / math.sqrt(2) or rms / gain < 0.010:
+            record(id='C1', range=code, gain=gain, skipped=f'needs {rms / gain:.3g} V rms from the source')
+            continue
         steps = []
         for scale in (1.0, 10 ** (-10 / 20)):
-            stim.sine('current', f, rms * scale)
+            stim.sine('current', f, rms * scale, gain=gain)
             info, (_, level), ref = _measure(session, device, widget, f, field='current')
             peak = _peak_near(info, f, 10 * info['fs'] / info['n'])
             steps.append(level - ref)
@@ -407,7 +428,7 @@ def test_c1_current_fixed_ranges(bench):
         ran.append(code)
         assert abs(steps[1] - steps[0]) <= _DB_TOL_STEP
     device_settings(session, device, current_range=-1)
-    assert ran, f'no fixed range fits {c.ohms} ohms; see doc/adp3450_connection.md'
+    assert ran, 'no fixed range fits the current wiring; see doc/adp3450_connection.md'
 
 
 def _autorange_stimulus(stim, device, f):
@@ -452,10 +473,11 @@ def test_c3_current_range_signal(bench):
 @_models('JS320', 'JS220')
 def test_p1_power_products(bench):
     session, device, stim, widget, record = bench
-    c = stim.require('current', networks=('series',))
     f1, f2 = 1_000.0, 1_300.0
+    code, full_scale = _CURRENT_RANGES[device.model][2]   # 1.8 mA: fits series and divider wiring
+    device_settings(session, device, current_range=code)
+    stim.sine('current', f2, 0.25 * full_scale, gain=stim.current_gain(f2))
     stim.sine('voltage', f1, 1.0)
-    stim.sine('current', f2, 1.0 * c.gain)
     signals_enable(session, device, 'p')
     spectrum.configure(session, widget, signal='p', fft_length=65536, fft_window='hann')
     session.wait(_SETTLE)
@@ -544,14 +566,18 @@ def test_w2_burst_detectors(bench):
 @_models('JS320')
 def test_t1_trace_modes(bench):
     session, device, stim, widget, record = bench
-    f = 10_000.0
-    spectrum.configure(session, widget, fft_length=4096, average_mode='exponential', average_count=16,
-                       show_max=True, show_min=True)
+    # Hann, not flattop: flattop's negative lobes put a segment that straddles
+    # an amplitude step outside the two levels (+0.15 / -0.3 dB measured).
+    # The tone sits on bin 41, so Hann has no scalloping loss.
+    n = 4096
+    f = 41 * _full_rate(device) / n
+    spectrum.configure(session, widget, fft_length=n, fft_window='hann', average_mode='exponential',
+                       average_count=16, show_max=True, show_min=True)
     stim.sine('voltage', f, 0.5)
     _measure(session, device, widget, f)
-    stim.sine('voltage', f, 1.0)
+    stim.amplitude('voltage', 1.0)   # a restart would drop out: min and max hold the glitch
     session.wait(2.0)
-    stim.sine('voltage', f, 0.25)
+    stim.amplitude('voltage', 0.25)
     session.wait(3.0)   # >> 16 spectra
     value = {name: spectrum.value_at(session, widget, f, name, 3)[1] for name in ('max', 'min', 'average')}
     record(id='T1', **value)
