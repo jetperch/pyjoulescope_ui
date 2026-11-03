@@ -778,7 +778,9 @@ skipped.  C1 18 mA and 1.8 mA within 0.003 dB (µA ranges need 10 kΩ).  C2
 at 100 Hz (2000 range switches in 10 s): 0 overruns, 0 gaps, level within
 0.002 dB of the statistics.  It first ran at 10 Hz on a 15 Hz bin, so it
 found only DC-adjacent energy; it now sizes the FFT like F1.  C3: the range
-signal peaks at 2f.
+signal peaks at 2f.  Full rerun with this wiring, including the S3 soak:
+25 of 25 pass in 69 min.  S3: two widgets for 1 h, 0 overruns, 0 gaps,
+RSS flat at 759 MiB from minute 5 to the end.
 
 *JS220 run (2026-11-03, JS220-000049, same ADP3450 and wiring moved
 over)*: 13 of 13 runnable tests pass (C2 deferred; the S3 soak was not
