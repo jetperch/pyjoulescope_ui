@@ -724,9 +724,8 @@ Bench wiring: W1 into a 50 Ω terminator across V+/V− (`divider, ratio:
 with the 0.5 Ω across the current inputs (`divider, ratio: 0.005`).
 Polarity checked with DC: +1 V on W1 reads +0.498 V, on W2 reads +4.49 µA
 (autorange).  DIO0 drives GPI0 (IN0).  A JS110 (001612) and a JS220
-(002122) share the hub for S1.  C2 and C3 are deferred (Matt,
-2026-11-03): autoranging needs a defined current, which a divider does not
-give, so they skip until a series-resistor bench exists.
+(002122) share the hub for S1.  C2 and C3 need a defined current, which a divider does not give: they ran
+after the series rewire below.
 
 Result: all 23 runnable JS320 tests pass, including the S3 one-hour soak.
 Measured:
@@ -771,6 +770,15 @@ Found and fixed by this run:
   flattop's negative lobes put a segment straddling an amplitude step
   outside the two levels (+0.15/-0.3 dB).  The current tests run on fixed
   ranges and measure the divider gain on each.
+
+*JS320 series-current run (2026-11-03)*: W2 rewired through a 100 Ω
+series resistor (no terminator; 1 V reads 6.587 mA, so 152 Ω with the
+wavegen's 50 Ω: `series, ohms: 150`).  All 24 non-soak tests pass, none
+skipped.  C1 18 mA and 1.8 mA within 0.003 dB (µA ranges need 10 kΩ).  C2
+at 100 Hz (2000 range switches in 10 s): 0 overruns, 0 gaps, level within
+0.002 dB of the statistics.  It first ran at 10 Hz on a 15 Hz bin, so it
+found only DC-adjacent energy; it now sizes the FFT like F1.  C3: the range
+signal peaks at 2f.
 
 *JS220 run (2026-11-03, JS220-000049, same ADP3450 and wiring moved
 over)*: 13 of 13 runnable tests pass (C2 deferred; the S3 soak was not

@@ -446,17 +446,21 @@ def _autorange_stimulus(stim, device, f):
 @_models('JS320', 'JS220')
 def test_c2_current_autoranging(bench):
     session, device, stim, widget, record = bench
-    f = 10.0
+    f = 100.0
     _autorange_stimulus(stim, device, f)
     device_settings(session, device, current_range=-1)
-    spectrum.configure(session, widget, signal='i', fft_length=65536, fft_window='hann')
+    n = _fft_length_for(_full_rate(device), f)
+    spectrum.configure(session, widget, signal='i', fft_length=n, fft_window='flattop')
     session.wait(_SETTLE)
     spectrum.fresh(session, widget, count=10)
-    session.wait(10.0)
+    session.wait(10.0)   # ranges switch twice per cycle: 2000 switches
     info = spectrum.info(session, widget)
-    record(id='C2', info=info)
+    level = spectrum.value_at(session, widget, f, 'average', 3)[1]
+    ref = db(statistics_rms(session, device, 'current'))
+    record(id='C2', info=info, level_db=level, statistics_db=ref)
     assert info['overruns'] == 0 and info['gaps'] == 0, info
-    _peak_near(info, f, 4 * info['fs'] / info['n'])
+    _peak_near(info, f, 2 * info['fs'] / info['n'])
+    assert abs(level - ref) <= _DB_TOL_STEP, (level, ref)   # 0.002 dB measured through 2000 switches
 
 
 @_models('JS320')
