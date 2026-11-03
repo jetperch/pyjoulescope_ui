@@ -37,6 +37,11 @@ This file contains the list of changes made to pyjoulescope_ui.
   window, log frequency, markers, and automatic peaks.
 * Fixed analysis tools reading 4-bit signals, such as current range, as
   0 or 1 instead of their value.
+* Removed the JS320 500 kHz signal frequency, which the JS320 does not
+  support.  Selecting it stopped the device until the UI restarted.  A
+  saved 500 kHz now loads as 200 kHz.
+* Fixed a rejected device setting stopping the device thread, and a
+  rejected signal frequency leaving streaming off.
 
 
 ## 1.7.7

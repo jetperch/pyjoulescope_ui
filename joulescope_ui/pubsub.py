@@ -1709,6 +1709,21 @@ class PubSub:
         obj['version'] = CONFIG_VERSION
         return obj
 
+    def _config_fixup(self, obj):
+        """Replace saved values that never worked, in any config version.
+
+        The JS320 firmware rejects 500 kHz, which the UI once offered.  Use
+        200 kHz, for the JS320 class defaults and each JS320 instance.
+        """
+        for key, entry in obj.get('registry', {}).get('children', {}).items():
+            children = entry.get('children', {})
+            if key != 'JS320' and children.get('instance_of', {}).get('value') != 'JS320':
+                continue
+            sf = children.get('settings', {}).get('children', {}).get('signal_frequency')
+            if sf is not None and sf.get('value') == 500_000:
+                self._log.info('%s signal_frequency 500 kHz is unsupported: use 200 kHz', key)
+                sf['value'] = 200_000
+
     def load(self, fh=None):
         if fh is None:
             if not os.path.isfile(self.config_file_path):
@@ -1744,6 +1759,7 @@ class PubSub:
         elif file_version < CONFIG_VERSION:
             self._log.info('migrate config from version %s to %s', file_version, CONFIG_VERSION)
             obj = self._config_migrate(obj, file_version)
+        self._config_fixup(obj)
         if REGISTRY_MANAGER_TOPICS.NEXT_UNIQUE_ID in obj:
             self._topic_get(REGISTRY_MANAGER_TOPICS.NEXT_UNIQUE_ID).value = obj[REGISTRY_MANAGER_TOPICS.NEXT_UNIQUE_ID]
         self._from_obj('common/settings', obj['common/settings'])

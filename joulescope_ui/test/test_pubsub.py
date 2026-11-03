@@ -384,6 +384,23 @@ class TestPubSub(unittest.TestCase):
         self.assertTrue(p2.load(io.StringIO(json.dumps(obj))))
         self.assertEqual('hello', p2.query(topic))
 
+    def test_load_js320_500khz_becomes_200khz(self):
+        p1 = PubSub()
+        p1.topic_add('registry_manager/next_unique_id', dtype='int', brief='', default=1)
+        for unique_id in ['JS320', 'JS320-8W2A', 'JS220-000415']:
+            p1.topic_add(f'registry/{unique_id}/settings/signal_frequency', dtype='int', brief='', default=500_000)
+        p1.topic_add('registry/JS320-8W2A/instance_of', dtype='str', brief='', default='JS320')
+        p1.topic_add('registry/JS220-000415/instance_of', dtype='str', brief='', default='JS220')
+        f = io.StringIO()
+        p1.save(f)
+        p2 = PubSub()
+        p2.registry_initialize()
+        p2._update_meta = lambda *args: None  # no registered JS320/JS220 classes here
+        self.assertTrue(p2.load(io.StringIO(f.getvalue())))
+        self.assertEqual(200_000, p2.query('registry/JS320/settings/signal_frequency'))
+        self.assertEqual(200_000, p2.query('registry/JS320-8W2A/settings/signal_frequency'))
+        self.assertEqual(500_000, p2.query('registry/JS220-000415/settings/signal_frequency'))
+
     def test_load_newer_version_best_effort(self):
         topic, obj = self._config_obj(9999)  # from a hypothetical future build
         p2 = PubSub()

@@ -906,7 +906,11 @@ class Js220(Device):
                 continue
             if cmd == 'close':
                 break
-            self._run_cmd(cmd, args)
+            try:
+                self._run_cmd(cmd, args)
+            except Exception:
+                # one rejected command (an unsupported setting value) must not end the thread
+                self._log.exception('cmd %s failed', cmd)
         self._close()
         self.pubsub.capabilities_remove(self, [CAPABILITIES.SERIAL_SOURCE])
         self.pubsub.capabilities_remove(self, CAPABILITIES_OBJECT_OPEN)

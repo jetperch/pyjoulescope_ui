@@ -92,9 +92,11 @@ class Device:
 
     def _signal_frequency_apply(self, value, restart):
         """Apply the signal sample rate, then restore streaming (device thread)."""
-        self._driver_publish('h/fs', value)  # blocks until applied
-        if restart:
-            self.pubsub.publish(_STREAM_ENABLE_TOPIC, True)
+        try:
+            self._driver_publish('h/fs', value)  # blocks until applied
+        finally:
+            if restart:
+                self.pubsub.publish(_STREAM_ENABLE_TOPIC, True)
 
     def _driver_publish(self, topic, value, timeout=None):
         return self._driver.publish(self._driver_topic_make(topic), value, timeout)
