@@ -135,8 +135,11 @@ def _fft_length_for(fs, f, bins=8, n_max=1 << 20):
 def test_f1_frequency_accuracy(bench):
     session, device, stim, widget, record = bench
     fs = _full_rate(device)
-    freqs = [1_000.0, 100_000.0] if device.model == 'JS110' else \
-        [10.0, 100.0, 1_000.0, 10_000.0, 100_000.0, 400_000.0]
+    if device.model == 'JS110':
+        freqs = [1_000.0, 100_000.0]
+    else:   # the top tone stays in the passband: the JS220 FIR ends near 300 kHz
+        top = 250_000.0 if device.model == 'JS220' else 400_000.0
+        freqs = [10.0, 100.0, 1_000.0, 10_000.0, 100_000.0, top]
     for f in freqs:
         n = _fft_length_for(fs, f)
         spectrum.configure(session, widget, fft_length=n, fft_window='hann')

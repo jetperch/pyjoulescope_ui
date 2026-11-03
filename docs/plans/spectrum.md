@@ -772,6 +772,16 @@ Found and fixed by this run:
   outside the two levels (+0.15/-0.3 dB).  The current tests run on fixed
   ranges and measure the divider gain on each.
 
+*JS220 run (2026-11-03, JS220-000049, same ADP3450 and wiring moved
+over)*: 13 of 13 runnable tests pass (C2 deferred; the S3 soak was not
+run).  A1/A2 within 0.004 dB; 100 kHz is flat (-0.07 dB) where the JS320
+sinc1 droops 0.75 dB.  C1 18 mA to 18 µA within 0.003 dB.  R1 all 10 rates,
+including 500 kHz, within 0.01 dB.  F1 tops out at 250 kHz: the JS220 FIR
+passband ends near 300 kHz, so 400 kHz is below -60 dB.  The bring-up
+found `outputs_off` leaving a DC output at its level (stop before reset):
+fixed in jci_instruments.  Sine tests were unaffected: their idle level is
+0 V.
+
 Device behavior, by design: the JS320 decimates with sinc filters, which
 do not ring, at the cost of anti-aliasing.  The Signal filter setting
 (Device Control) selects the order.  At 0.75 x Nyquist the droop is
