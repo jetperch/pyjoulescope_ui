@@ -625,7 +625,7 @@ def test_s1_two_devices(bench):
     if not others:
         pytest.skip('needs a second device')
     widgets = [widget, spectrum.open_widget(session, device, signal='i')]
-    for other in others[:1]:
+    for other in others:   # every other connected device, two widgets each
         signals_enable(session, other, 'i', 'v')
         widgets += [spectrum.open_widget(session, other, signal='v'),
                     spectrum.open_widget(session, other, signal='i')]

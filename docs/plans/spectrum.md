@@ -723,10 +723,12 @@ Bench wiring: W1 into a 50 Ω terminator across V+/V− (`divider, ratio:
 0.5`, measured 0.498); W2 into a 50 Ω terminator, then 49.5 Ω over 0.5 Ω
 with the 0.5 Ω across the current inputs (`divider, ratio: 0.005`).
 Polarity checked with DC: +1 V on W1 reads +0.498 V, on W2 reads +4.49 µA
-(autorange).  No DIO and no second device: G1 and S1 skip.  C2 and C3
-skip: autoranging needs a defined current, which a divider does not give.
+(autorange).  DIO0 drives GPI0 (IN0).  A JS110 (001612) and a JS220
+(002122) share the hub for S1.  C2 and C3 are deferred (Matt,
+2026-11-03): autoranging needs a defined current, which a divider does not
+give, so they skip until a series-resistor bench exists.
 
-Result: all 21 runnable tests pass, including the S3 one-hour soak.
+Result: all 23 runnable JS320 tests pass, including the S3 one-hour soak.
 Measured:
 
 | Test | Result |
@@ -744,6 +746,8 @@ Measured:
 | W1 | sweep slope 9884 to 9907 Hz/s vs 9900 expected |
 | W2 | burst max hold 0.0 dB; average detector -8.2 dB |
 | X1 | widget and recording agree within 0.001 dB |
+| G1 | 1 kHz DIO square on GPI0: third harmonic -9.54 dBc (1/3) |
+| S1 | 6 widgets on JS320, JS220, JS110 for 60 s: 0 overruns, 0 gaps |
 | R2 | sinc1/2/3 droop and alias within 0.25 dB of N x 20 log10 \|sinc(f/fs)\| |
 | S3 | 1 h, two widgets (v, i): 0 overruns, 0 gaps; RSS flat at 683 MiB after 5 min |
 
