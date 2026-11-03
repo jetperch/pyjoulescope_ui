@@ -171,9 +171,12 @@ def test_f2_low_frequency_resolution(bench):
 def test_a1_amplitude_flat_top(bench):
     session, device, stim, widget, record = bench
     levels = [1.0] if device.model == 'JS110' else [1.0, 0.1, 0.01]
-    spectrum.configure(session, widget, fft_length=4096, fft_window='flattop')
     for rms in levels:
         for f in (1_000.0, 100_000.0):
+            # keep the tone clear of its negative-frequency image: the flattop
+            # main lobe spans +/-5 bins, and 1 kHz is bin 2 at 2 MHz, n = 4096
+            n = max(4096, _fft_length_for(_full_rate(device), f))
+            spectrum.configure(session, widget, fft_length=n, fft_window='flattop')
             c = stim.sine('voltage', f, rms)
             _, (fb, level), ref = _measure(session, device, widget, f)
             scope = stim.monitor_rms(c.source)

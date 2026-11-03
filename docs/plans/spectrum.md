@@ -782,6 +782,13 @@ found `outputs_off` leaving a DC output at its level (stop before reset):
 fixed in jci_instruments.  Sine tests were unaffected: their idle level is
 0 V.
 
+*JS110 quick check (2026-11-03, JS110-001612, W1 moved over)*: F1 and A1
+pass; A1 within 0.002 dB at 1 kHz and 100 kHz.  A1 first read 0.13 dB low:
+at the JS110's 2 MHz, n = 4096 put 1 kHz on bin 2, inside the flattop main
+lobe of its negative-frequency image.  A1 now keeps the tone at least 8
+bins from DC, like F1 (the JS320 and JS220 then use n = 8192 at 1 kHz; not
+rerun, since the change only moves the tone away from DC).
+
 Device behavior, by design: the JS320 decimates with sinc filters, which
 do not ring, at the cost of anti-aliasing.  The Signal filter setting
 (Device Control) selects the order.  At 0.75 x Nyquist the droop is
