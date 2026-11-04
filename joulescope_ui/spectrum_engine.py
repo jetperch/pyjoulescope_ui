@@ -16,7 +16,7 @@
 
 All spectra are kept in "power" units: units² per bin for amplitude
 scaling (the squared RMS amplitude) and units²/Hz for PSD scaling.
-See docs/plans/spectrum.md for the design.
+See docs/plans/completed/spectrum.md for the design.
 """
 
 import numpy as np

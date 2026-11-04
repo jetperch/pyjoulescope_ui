@@ -14,7 +14,7 @@
 
 """Live spectrum analyzer widget: FFT traces and waterfall history.
 
-See docs/plans/spectrum.md.
+See docs/plans/completed/spectrum.md.
 """
 
 from PySide6 import QtCore, QtGui, QtWidgets

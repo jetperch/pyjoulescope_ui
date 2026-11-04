@@ -29,7 +29,7 @@ The UI is under active development, and many features remain outstanding.
 ### Frequency analysis
 
 *   Spectrum widget: analyze JLS files and paused buffers, not just the live
-    stream (see docs/plans/spectrum.md, "Buffer source mode").
+    stream (see docs/plans/completed/spectrum.md, "Buffer source mode").
 *   Spectrum widget: overlay multiple signals, trace math, and persistence
     display.
 

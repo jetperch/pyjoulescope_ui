@@ -17,7 +17,7 @@
 Verifies that the widget computes spectra from the device's live stream at
 the device sample rate, without overruns or stream gaps, and that its
 settings reconfigure it.  Spectrum accuracy is covered by the unit tests
-(joulescope_ui/test/test_spectrum_engine.py).  See docs/plans/spectrum.md.
+(joulescope_ui/test/test_spectrum_engine.py).  See docs/plans/completed/spectrum.md.
 """
 
 import pytest

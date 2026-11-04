@@ -16,7 +16,7 @@
 
 Reads its state through the widget's automation methods
 (``spectrum_info``, ``value_at``, ``spectrum_trace``, ``waterfall_column``).
-See docs/plans/spectrum.md.
+See docs/plans/completed/spectrum.md.
 """
 
 import time

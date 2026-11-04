@@ -24,7 +24,7 @@ needs and skips, with the reason, when the station is wired differently:
   device spec to stimulus).  ``jci_instruments`` comes from a sibling
   ``joulescope_ci`` checkout when it is not installed.
 
-See joulescope_ci doc/adp3450_connection.md and docs/plans/spectrum.md.
+See joulescope_ci doc/adp3450_connection.md and docs/plans/completed/spectrum.md.
 """
 
 import json

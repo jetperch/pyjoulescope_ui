@@ -17,7 +17,7 @@
 
 Reports engine throughput as a fraction of one core at real-time rates,
 then Qt event-loop latency while the worker processes real-time data.
-See docs/plans/spectrum.md "Compute budget".
+See docs/plans/completed/spectrum.md "Compute budget".
 
     python ci/spectrum_bench.py
 """

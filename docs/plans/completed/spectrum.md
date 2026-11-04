@@ -656,7 +656,8 @@ Unless noted: voltage signal, 1 MSPS, Hann, N = 4096, amplitude scaling.
   selection; no leaks, overruns, or exceptions in the log.
 - **S2 Worst case load.**  Stimulus: N = 2^20, 90% overlap, plus waterfall
   1000 rows.  Pass: no overruns; UI stays responsive.
-- **S3 Soak.**  Stimulus: 1 hour with two widgets (8 hours optional).  Pass:
+- **S3 Soak.**  Stimulus: 1 hour with two widgets per connected device
+  (8 hours optional).  Pass:
   RSS flat after warm-up; zero overruns; gaps only when stimulus or device
   changes.
 
@@ -809,6 +810,26 @@ each order against theory.
 Record the results in this plan with dates, device serials, and firmware
 versions.  Then finish Stage 7 and move the plan to `completed/`.
 
+*Replug and soak (2026-11-04, this machine, JS320-8W2A firmware 1.1.14)*:
+USB replug through USB Insight Hub port 3, with two widgets on the JS320 and
+one on JS220-000049 as a control.  Five power cycles (1 to 10 s off) pass:
+each shows "No signal", the device returns in under 1 s, and the widgets
+resume on the kept selection with 0 overruns and 0 gaps.  The control runs
+throughout with 0 gaps.  The log has no exceptions, only the driver's
+`ctrl failed: NOT_FOUND` for streams of the removed device.
+
+A data-only disconnect (power kept, `uih set 3 --data off`) while streaming
+does not recover: the device returns and statistics flow, but signal data
+stays stopped until a power cycle.  Toggling stream enable, signal, or sample
+rate does not help, and an idle data-only cycle followed by a new process is
+fine.  This is below the widget, and its cause is open.
+
+S3 soak for 1 h with six widgets, now including every other connected device:
+JS320 (W1 sine), JS220-000049, and JS110-001612, each with v and i.  All have
+0 overruns and 0 gaps, about 1.76 M spectra each on the JS320 and JS220 and
+3.52 M on the JS110.  RSS stays at 817 to 818 MiB from minute 5 to the end, and
+the log has no errors.
+
 **Stage 7: release integration.**  Add a UI release farm test (open
 widget via TCP, publish settings, read peak results), user docs/help,
 screenshots, changelog, and update `docs/features_future.md`.  Move this
@@ -817,10 +838,9 @@ plan to `docs/plans/completed/`.
 Done: `ci/uitest/test_spectrum.py` (device test through
 `SpectrumWidget.spectrum_info`, 8/9 passing runs here, then 3/3 after
 moving the gap check past the startup rate apply), CHANGELOG, and
-`docs/features_future.md`.  Open: user documentation on
-docs.joulescope.com, screenshots, translation extraction for the new
-strings, the remaining Stage 6 items, then moving this plan to
-`completed/`.
+`docs/features_future.md`, and translations.  The farm test passes on all
+five stations, including ARM and Windows.  Still open when this plan
+completed: user documentation on docs.joulescope.com, with screenshots.
 
 **Stage 8 (optional): buffer source mode.**  See above.
 

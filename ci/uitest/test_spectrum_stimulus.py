@@ -14,7 +14,7 @@
 
 """Spectrum widget stimulus validation: known signals in, checked numbers out.
 
-Implements the automatable tests of docs/plans/spectrum.md stage 6b.  Each
+Implements the automatable tests of docs/plans/completed/spectrum.md stage 6b.  Each
 test name starts with its plan ID.  Every test needs a Joulescope with an
 ADP3450 wired as joulescope_ci doc/adp3450_connection.md describes, and
 skips when the station's wiring cannot support it.
@@ -666,7 +666,12 @@ def test_s3_soak(bench):
     session, device, stim, widget, record = bench
     duration = float(os.environ.get('JS_UITEST_SOAK_S', '3600'))
     stim.sine('voltage', 10_000.0, 0.5)
-    second = spectrum.open_widget(session, device, signal='i')
+    widgets = [widget, spectrum.open_widget(session, device, signal='i')]
+    for other in session.devices():   # any other connected device, two widgets each
+        if other.unique_id != device.unique_id:
+            signals_enable(session, other, 'i', 'v')
+            widgets += [spectrum.open_widget(session, other, signal='v'),
+                        spectrum.open_widget(session, other, signal='i')]
     try:
         import psutil
         proc = psutil.Process(session.ui_pid)
@@ -678,7 +683,7 @@ def test_s3_soak(bench):
         if proc is not None:
             rss.append(proc.memory_info().rss)
         session.wait(60.0)
-    infos = [spectrum.info(session, w) for w in (widget, second)]
+    infos = [spectrum.info(session, w) for w in widgets]
     record(id='S3', rss=rss, infos=infos)
     for i in infos:
         assert i['overruns'] == 0 and i['gaps'] == 0, i
