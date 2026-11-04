@@ -349,7 +349,7 @@ msgid "Abort"
 msgstr "الإجهاض"
 
 #: error_window.py:120 main.py:465 widgets/settings/settings_widget.py:539
-#: widgets/spectrum/spectrum_widget.py:1088
+#: widgets/spectrum/spectrum_widget.py:1091
 msgid "View"
 msgstr "عرض"
 
@@ -1889,7 +1889,7 @@ msgstr "توزيع الكثافة الاحتمالية"
 
 #: range_tools/histogram.py:44 range_tools/max_window.py:109
 #: widgets/spectrum/spectrum_control.py:36
-#: widgets/spectrum/spectrum_widget.py:1100
+#: widgets/spectrum/spectrum_widget.py:1103
 #: widgets/trigger/trigger_widget.py:220
 msgid "Signal"
 msgstr "الإشارة"
@@ -2566,7 +2566,7 @@ msgstr "حجم ذاكرة الوصول العشوائي المستخدمة"
 
 #: widgets/memory/memory_widget.py:238 widgets/spectrum/spectrum_control.py:33
 #: widgets/spectrum/spectrum_control.py:82
-#: widgets/spectrum/spectrum_widget.py:1104
+#: widgets/spectrum/spectrum_widget.py:1107
 msgid "Clear"
 msgstr "واضح"
 
@@ -2843,7 +2843,7 @@ msgid "Select the signal to analyze."
 msgstr "اختر الإشارة المراد تحليلها."
 
 #: widgets/spectrum/spectrum_control.py:38
-#: widgets/spectrum/spectrum_widget.py:86
+#: widgets/spectrum/spectrum_widget.py:87
 msgid "Span"
 msgstr "النطاق"
 
@@ -2858,7 +2858,7 @@ msgstr ""
 "الترددي للدقة لنفس طول تحويل فورييه السريع."
 
 #: widgets/spectrum/spectrum_control.py:43
-#: widgets/spectrum/spectrum_widget.py:96
+#: widgets/spectrum/spectrum_widget.py:97
 msgid "FFT length"
 msgstr "طول التحويل السريع للفورييه (FFT)"
 
@@ -2871,7 +2871,7 @@ msgstr ""
 "نطاق دقة (RBW) أعلى، لكنها تُحدَّث بوتيرة أقل."
 
 #: widgets/spectrum/spectrum_control.py:47
-#: widgets/spectrum/spectrum_widget.py:106
+#: widgets/spectrum/spectrum_widget.py:107
 msgid "Window"
 msgstr "نافذة"
 
@@ -2884,7 +2884,7 @@ msgstr ""
 " سعة للنغمة. وتعد نافذة «Hann» خيارًا جيدًا للأغراض العامة."
 
 #: widgets/spectrum/spectrum_control.py:51
-#: widgets/spectrum/spectrum_widget.py:127
+#: widgets/spectrum/spectrum_widget.py:128
 msgid "Scaling"
 msgstr "التحجيم"
 
@@ -2897,7 +2897,7 @@ msgstr ""
 " أما «PSD» فتُظهر كثافة الطيف الطاقي، وهي الأنسب للضوضاء."
 
 #: widgets/spectrum/spectrum_control.py:54
-#: widgets/spectrum/spectrum_widget.py:46
+#: widgets/spectrum/spectrum_widget.py:47
 msgid "Average"
 msgstr "المتوسط"
 
@@ -2906,7 +2906,7 @@ msgid "The averaging mode for the average trace."
 msgstr "وضع حساب المتوسط للحصول على منحنى متوسط."
 
 #: widgets/spectrum/spectrum_control.py:75
-#: widgets/spectrum/spectrum_widget.py:1220 widgets/value/value_widget.py:257
+#: widgets/spectrum/spectrum_widget.py:1223 widgets/value/value_widget.py:257
 msgid "Hold"
 msgstr "عقد"
 
@@ -2922,31 +2922,31 @@ msgstr "أخضر"
 msgid "Grayscale"
 msgstr "تدرج الرمادي"
 
-#: widgets/spectrum/spectrum_widget.py:46
+#: widgets/spectrum/spectrum_widget.py:47
 msgid "Live"
 msgstr "مباشرة"
 
-#: widgets/spectrum/spectrum_widget.py:46
+#: widgets/spectrum/spectrum_widget.py:47
 msgid "Max hold"
 msgstr "الحد الأقصى للقراءة"
 
-#: widgets/spectrum/spectrum_widget.py:46
+#: widgets/spectrum/spectrum_widget.py:47
 msgid "Min hold"
 msgstr "فريقي"
 
-#: widgets/spectrum/spectrum_widget.py:68
+#: widgets/spectrum/spectrum_widget.py:69
 msgid "The signal data stream source."
 msgstr "مصدر تدفق بيانات الإشارة."
 
-#: widgets/spectrum/spectrum_widget.py:74
+#: widgets/spectrum/spectrum_widget.py:75
 msgid "The signal to analyze."
 msgstr "الإشارة المراد تحليلها."
 
-#: widgets/spectrum/spectrum_widget.py:80
+#: widgets/spectrum/spectrum_widget.py:81
 msgid "Hold the display."
 msgstr "اضغط مع الاستمرار على الشاشة."
 
-#: widgets/spectrum/spectrum_widget.py:87
+#: widgets/spectrum/spectrum_widget.py:88
 msgid ""
 "Reduce the analyzed frequency span by decimating the signal before the FFT. "
 "The span is the sample rate / 2 / this factor. Narrower spans give finer "
@@ -2957,7 +2957,7 @@ msgstr ""
 "العينات / 2 / هذا العامل. وتؤدي النطاقات الأضيق إلى عرض نطاق ذي دقة أعلى "
 "لنفس طول تحويل فورييه السريع (FFT)."
 
-#: widgets/spectrum/spectrum_widget.py:97
+#: widgets/spectrum/spectrum_widget.py:98
 msgid ""
 "The number of samples for each FFT. The FFT produces fft_length / 2 + 1 "
 "frequency bins, and the resolution bandwidth is approximately the window "
@@ -2967,19 +2967,19 @@ msgstr ""
 "fft_length / 2 + 1 خلية تردد، ويبلغ عرض النطاق الترددي للدقة تقريبًا ENBW "
 "النافذة × معدل العينات / fft_length."
 
-#: widgets/spectrum/spectrum_widget.py:112
+#: widgets/spectrum/spectrum_widget.py:113
 msgid "Overlap"
 msgstr "التداخل"
 
-#: widgets/spectrum/spectrum_widget.py:113
+#: widgets/spectrum/spectrum_widget.py:114
 msgid "The overlap between successive FFTs."
 msgstr "التداخل بين تحويلات فورييه السريعة (FFT) المتتالية."
 
-#: widgets/spectrum/spectrum_widget.py:119
+#: widgets/spectrum/spectrum_widget.py:120
 msgid "Remove DC"
 msgstr "إزالة التيار المستمر (DC)"
 
-#: widgets/spectrum/spectrum_widget.py:120
+#: widgets/spectrum/spectrum_widget.py:121
 msgid ""
 "Subtract the mean of each FFT segment. Joulescope signals often have a large"
 " DC component whose window leakage hides the low-frequency content."
@@ -2988,7 +2988,7 @@ msgstr ""
 "تحتوي إشارات «Joulescope» على مكون كبير من التيار المستمر (DC) الذي يخفي "
 "محتوى الترددات المنخفضة بسبب تسرب النافذة."
 
-#: widgets/spectrum/spectrum_widget.py:128
+#: widgets/spectrum/spectrum_widget.py:129
 msgid ""
 "Amplitude shows the RMS amplitude in each bin, which reads the true "
 "amplitude of a tone. PSD shows the power spectral density, which is "
@@ -2998,32 +2998,32 @@ msgstr ""
 "الحقيقية للنغمة. ويُظهر «PSD» كثافة الطيف الطاقي، وهي مستقلة عن عرض النطاق "
 "الترددي للدقة وتُعد الأفضل لقياس الضوضاء."
 
-#: widgets/spectrum/spectrum_widget.py:133
+#: widgets/spectrum/spectrum_widget.py:134
 msgid "Amplitude"
 msgstr "السعة"
 
-#: widgets/spectrum/spectrum_widget.py:133
+#: widgets/spectrum/spectrum_widget.py:134
 msgid "PSD"
 msgstr "PSD"
 
-#: widgets/spectrum/spectrum_widget.py:137
-#: widgets/spectrum/spectrum_widget.py:1095
+#: widgets/spectrum/spectrum_widget.py:138
+#: widgets/spectrum/spectrum_widget.py:1098
 msgid "Y-axis units"
 msgstr "وحدات المحور Y"
 
-#: widgets/spectrum/spectrum_widget.py:139
+#: widgets/spectrum/spectrum_widget.py:140
 msgid "dB"
 msgstr "ديسيبل (dB)"
 
-#: widgets/spectrum/spectrum_widget.py:139
+#: widgets/spectrum/spectrum_widget.py:140
 msgid "linear"
 msgstr "خطي"
 
-#: widgets/spectrum/spectrum_widget.py:143
+#: widgets/spectrum/spectrum_widget.py:144
 msgid "Average mode"
 msgstr "وضع المتوسط"
 
-#: widgets/spectrum/spectrum_widget.py:144
+#: widgets/spectrum/spectrum_widget.py:145
 msgid ""
 "Exponential averages the most recent average count spectra. Cumulative "
 "averages all spectra since the last clear. Averaging is computed on power, "
@@ -3033,75 +3033,75 @@ msgstr ""
 "لجميع الأطياف منذ آخر عملية مسح. يتم حساب المتوسط على أساس الطاقة، وليس على "
 "قيم ديسيبل (dB) أبدًا."
 
-#: widgets/spectrum/spectrum_widget.py:148
+#: widgets/spectrum/spectrum_widget.py:149
 msgid "Avg off"
 msgstr "متوسط إيقاف التشغيل"
 
-#: widgets/spectrum/spectrum_widget.py:148
+#: widgets/spectrum/spectrum_widget.py:149
 msgid "Avg exp"
 msgstr "متوسط التوزيع"
 
-#: widgets/spectrum/spectrum_widget.py:149
+#: widgets/spectrum/spectrum_widget.py:150
 msgid "Avg cumul"
 msgstr "المتوسط التراكمي"
 
-#: widgets/spectrum/spectrum_widget.py:153
+#: widgets/spectrum/spectrum_widget.py:154
 msgid "Average count"
 msgstr "متوسط العدد"
 
-#: widgets/spectrum/spectrum_widget.py:159
+#: widgets/spectrum/spectrum_widget.py:160
 msgid "Show the live trace."
 msgstr "اعرض التتبع المباشر."
 
-#: widgets/spectrum/spectrum_widget.py:164
+#: widgets/spectrum/spectrum_widget.py:165
 msgid "Show the average trace."
 msgstr "اعرض المسار المتوسط."
 
-#: widgets/spectrum/spectrum_widget.py:169
+#: widgets/spectrum/spectrum_widget.py:170
 msgid "Show the max hold trace."
 msgstr "اعرض مسار «الاحتفاظ بالقيمة القصوى»."
 
-#: widgets/spectrum/spectrum_widget.py:174
+#: widgets/spectrum/spectrum_widget.py:175
 msgid "Show the min hold trace."
 msgstr "اعرض مسار «min hold»."
 
-#: widgets/spectrum/spectrum_widget.py:179
+#: widgets/spectrum/spectrum_widget.py:180
 msgid "Logarithmic frequency axis"
 msgstr "محور التردد اللوغاريتمي"
 
-#: widgets/spectrum/spectrum_widget.py:184
+#: widgets/spectrum/spectrum_widget.py:185
 msgid "The frequency viewport [f_min, f_max] in Hz."
 msgstr "نطاق التردد [f_min, f_max] بالهرتز."
 
-#: widgets/spectrum/spectrum_widget.py:190
+#: widgets/spectrum/spectrum_widget.py:191
 msgid "Automatically scale the y-axis."
 msgstr "قم بتحجيم المحور y تلقائيًا."
 
-#: widgets/spectrum/spectrum_widget.py:195
+#: widgets/spectrum/spectrum_widget.py:196
 msgid "The manual y-axis range."
 msgstr "نطاق المحور y اليدوي."
 
-#: widgets/spectrum/spectrum_widget.py:201
+#: widgets/spectrum/spectrum_widget.py:202
 msgid "Show the FFT spectrum."
 msgstr "اعرض طيف التحويل السريع للفوري (FFT)."
 
-#: widgets/spectrum/spectrum_widget.py:206
+#: widgets/spectrum/spectrum_widget.py:207
 msgid "Show the waterfall history."
 msgstr "اعرض سجل الشلال."
 
-#: widgets/spectrum/spectrum_widget.py:211
+#: widgets/spectrum/spectrum_widget.py:212
 msgid "The FFT and waterfall pane sizes."
 msgstr "أحجام نافذة التحويل السريع للفيولنت (FFT) ونافذة الشلال."
 
-#: widgets/spectrum/spectrum_widget.py:217
+#: widgets/spectrum/spectrum_widget.py:218
 msgid "Waterfall duration"
 msgstr "مدة الشلال"
 
-#: widgets/spectrum/spectrum_widget.py:223
+#: widgets/spectrum/spectrum_widget.py:224
 msgid "Waterfall rows"
 msgstr "صفوف الشلال"
 
-#: widgets/spectrum/spectrum_widget.py:224
+#: widgets/spectrum/spectrum_widget.py:225
 msgid ""
 "The number of waterfall rows over the duration. Each row combines all FFTs "
 "over its duration using the waterfall detector."
@@ -3109,30 +3109,30 @@ msgstr ""
 "عدد صفوف الشلال على مدار المدة. يجمع كل صف جميع تحويلات فورييه السريعة (FFT)"
 " على مدار مدته باستخدام كاشف الشلال."
 
-#: widgets/spectrum/spectrum_widget.py:232
+#: widgets/spectrum/spectrum_widget.py:233
 msgid "Waterfall detector"
 msgstr "كاشف الشلال"
 
-#: widgets/spectrum/spectrum_widget.py:233
+#: widgets/spectrum/spectrum_widget.py:234
 msgid "How each row combines its FFTs. Max keeps short bursts visible."
 msgstr ""
 "كيف يجمع كل صف بين تحويلات فورييه السريعة (FFT) الخاصة به. يضمن خيار «Max» "
 "بقاء النبضات القصيرة مرئية."
 
-#: widgets/spectrum/spectrum_widget.py:236
+#: widgets/spectrum/spectrum_widget.py:237
 msgid "average"
 msgstr "المتوسط"
 
-#: widgets/spectrum/spectrum_widget.py:236
+#: widgets/spectrum/spectrum_widget.py:237
 #: widgets/waveform/y_range_widget.py:67
 msgid "max"
 msgstr "الحد الأقصى"
 
-#: widgets/spectrum/spectrum_widget.py:240
+#: widgets/spectrum/spectrum_widget.py:241
 msgid "Waterfall memory (MB)"
 msgstr "ذاكرة الشلال (MB)"
 
-#: widgets/spectrum/spectrum_widget.py:241
+#: widgets/spectrum/spectrum_widget.py:242
 msgid ""
 "The maximum waterfall history memory. Long FFTs with many rows may reduce "
 "the waterfall duration."
@@ -3140,15 +3140,15 @@ msgstr ""
 "السعة القصوى لذاكرة سجل الشكل الشلالي. قد تؤدي تحويلات فورييه الطويلة (FFT) "
 "التي تحتوي على العديد من الصفوف إلى تقليل مدة عرض الشكل الشلالي."
 
-#: widgets/spectrum/spectrum_widget.py:248
+#: widgets/spectrum/spectrum_widget.py:249
 msgid "Waterfall colormap"
 msgstr "خريطة ألوان الشلال"
 
-#: widgets/spectrum/spectrum_widget.py:254
+#: widgets/spectrum/spectrum_widget.py:255
 msgid "Waterfall intensity follows the FFT y-axis"
 msgstr "تتبع شدة الشلال المحور الصادي (y) للتحويل السريع فورييه (FFT)"
 
-#: widgets/spectrum/spectrum_widget.py:255
+#: widgets/spectrum/spectrum_widget.py:256
 msgid ""
 "When set, the waterfall color range matches the FFT dB y-axis range. When "
 "cleared, use intensity min and max."
@@ -3157,31 +3157,31 @@ msgstr ""
 "FFT dB. وعند إلغاء التعيين، يتم استخدام الحد الأدنى والحد الأقصى لشدة "
 "الاستخدام."
 
-#: widgets/spectrum/spectrum_widget.py:261
+#: widgets/spectrum/spectrum_widget.py:262
 msgid "Waterfall intensity min (dB)"
 msgstr "الحد الأدنى لشدة الشلال (ديسيبل)"
 
-#: widgets/spectrum/spectrum_widget.py:266
+#: widgets/spectrum/spectrum_widget.py:267
 msgid "Waterfall intensity max (dB)"
 msgstr "أقصى شدة الشلال (ديسيبل)"
 
-#: widgets/spectrum/spectrum_widget.py:271
+#: widgets/spectrum/spectrum_widget.py:272
 msgid "Number of peaks to display"
 msgstr "عدد القمم المراد عرضها"
 
-#: widgets/spectrum/spectrum_widget.py:277
+#: widgets/spectrum/spectrum_widget.py:278
 msgid "Peak threshold (dB)"
 msgstr "عتبة الذروة (ديسيبل)"
 
-#: widgets/spectrum/spectrum_widget.py:278
+#: widgets/spectrum/spectrum_widget.py:279
 msgid "Only display peaks at or above this value."
 msgstr "اعرض فقط القيم القصوى التي تساوي هذه القيمة أو تزيد عنها."
 
-#: widgets/spectrum/spectrum_widget.py:283
+#: widgets/spectrum/spectrum_widget.py:284
 msgid "Peak excursion (dB)"
 msgstr "الانحراف الأقصى (ديسيبل)"
 
-#: widgets/spectrum/spectrum_widget.py:284
+#: widgets/spectrum/spectrum_widget.py:285
 msgid ""
 "A peak must rise at least this far above the lowest value on each side, "
 "which ignores noise on tone skirts."
@@ -3189,77 +3189,77 @@ msgstr ""
 "يجب أن ترتفع القيمة القصوى بما لا يقل عن هذا القدر فوق أدنى قيمة على كل "
 "جانب، مع تجاهل الضوضاء الموجودة على حواف الموجة."
 
-#: widgets/spectrum/spectrum_widget.py:290
+#: widgets/spectrum/spectrum_widget.py:291
 msgid "The marker frequencies in Hz."
 msgstr "تُقاس الترددات بالهرتز (Hz)."
 
-#: widgets/spectrum/spectrum_widget.py:296
+#: widgets/spectrum/spectrum_widget.py:297
 msgid "Trace width"
 msgstr "عرض المسار"
 
-#: widgets/spectrum/spectrum_widget.py:302
+#: widgets/spectrum/spectrum_widget.py:303
 msgid "Maximum update rate (Hz)"
 msgstr "معدل التحديث الأقصى (هرتز)"
 
-#: widgets/spectrum/spectrum_widget.py:311
+#: widgets/spectrum/spectrum_widget.py:312
 msgid "Spectrum"
 msgstr "الطيف"
 
-#: widgets/spectrum/spectrum_widget.py:1069
+#: widgets/spectrum/spectrum_widget.py:1072
 msgid "Add marker"
 msgstr "إضافة علامة"
 
-#: widgets/spectrum/spectrum_widget.py:1072
+#: widgets/spectrum/spectrum_widget.py:1075
 msgid "Add marker at peak"
 msgstr "إضافة علامة عند الذروة"
 
-#: widgets/spectrum/spectrum_widget.py:1079
+#: widgets/spectrum/spectrum_widget.py:1082
 msgid "Remove marker"
 msgstr "إزالة العلامة"
 
-#: widgets/spectrum/spectrum_widget.py:1081
+#: widgets/spectrum/spectrum_widget.py:1084
 msgid "Clear markers"
 msgstr "علامات واضحة"
 
-#: widgets/spectrum/spectrum_widget.py:1083
+#: widgets/spectrum/spectrum_widget.py:1086
 msgid "Traces"
 msgstr "الخطوط"
 
-#: widgets/spectrum/spectrum_widget.py:1089
+#: widgets/spectrum/spectrum_widget.py:1092
 msgid "Logarithmic frequency"
 msgstr "التردد اللوغاريتمي"
 
-#: widgets/spectrum/spectrum_widget.py:1090
+#: widgets/spectrum/spectrum_widget.py:1093
 msgid "Autoscale y-axis"
 msgstr "التحجيم التلقائي للمحور y"
 
-#: widgets/spectrum/spectrum_widget.py:1091
+#: widgets/spectrum/spectrum_widget.py:1094
 msgid "Show FFT"
 msgstr "عرض تحويل فورييه السريع (FFT)"
 
-#: widgets/spectrum/spectrum_widget.py:1092
+#: widgets/spectrum/spectrum_widget.py:1095
 msgid "Show waterfall"
 msgstr "عرض الشكل الشلالي"
 
-#: widgets/spectrum/spectrum_widget.py:1218
+#: widgets/spectrum/spectrum_widget.py:1221
 msgid "No signal"
 msgstr "لا توجد إشارة"
 
-#: widgets/spectrum/spectrum_widget.py:1222
+#: widgets/spectrum/spectrum_widget.py:1225
 msgid "Paused"
 msgstr "متوقف مؤقتًا"
 
-#: widgets/spectrum/spectrum_widget.py:1227
+#: widgets/spectrum/spectrum_widget.py:1230
 #, python-brace-format
 msgid "gaps {0}"
 msgstr "gaps {0}"
 
-#: widgets/spectrum/spectrum_widget.py:1233
+#: widgets/spectrum/spectrum_widget.py:1236
 #, python-brace-format
 msgid "waterfall {0}"
 msgstr "waterfall {0}"
 
-#: widgets/spectrum/spectrum_widget.py:1236
+#: widgets/spectrum/spectrum_widget.py:1239
 #, python-brace-format
 msgid "overruns {0}"
 msgstr "تجاوزات {0}"
