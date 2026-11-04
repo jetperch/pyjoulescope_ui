@@ -42,6 +42,8 @@ This file contains the list of changes made to pyjoulescope_ui.
   saved 500 kHz now loads as 200 kHz.
 * Fixed a rejected device setting stopping the device thread, and a
   rejected signal frequency leaving streaming off.
+* Fixed the menu and sidebar drawing stale after switching to or from a
+  maximized view on Linux Wayland.
 
 
 ## 1.7.7

@@ -18,7 +18,8 @@ Test the main module restart support.
 
 import sys
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
+from PySide6 import QtCore
 from joulescope_ui import main
 
 
@@ -126,3 +127,22 @@ class TestRestartSpawn(unittest.TestCase):
     def test_spawn_failure_does_not_raise(self):
         with patch.object(main.subprocess, 'Popen', side_effect=OSError('no such file')):
             main._restart_spawn()
+
+
+class TestWindowStateRepaint(unittest.TestCase):
+
+    def _filter(self, obj, event_type):
+        window = Mock(_window_handle=object())
+        event = QtCore.QEvent(event_type)
+        target = window._window_handle if obj is None else obj
+        self.assertFalse(main.MainWindow.eventFilter(window, target, event))
+        return window.update
+
+    def test_state_change_repaints(self):
+        self._filter(None, QtCore.QEvent.Type.WindowStateChange).assert_called_once()
+
+    def test_other_event_ignored(self):
+        self._filter(None, QtCore.QEvent.Type.Resize).assert_not_called()
+
+    def test_other_object_ignored(self):
+        self._filter(object(), QtCore.QEvent.Type.WindowStateChange).assert_not_called()

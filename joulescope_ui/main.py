@@ -310,6 +310,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # Parented to the main window, not a view-managed widget,
         # so that it survives view switching (see View.on_cls_setting_active).
         self._opengl_dummy = prepare_for_opengl(self)
+        self._window_handle = None  # watched for window manager state changes
 
         # Create the central widget with horizontal layout
         self._central_widget = QtWidgets.QWidget(self)
@@ -842,8 +843,19 @@ class MainWindow(QtWidgets.QMainWindow):
             self._resync_event = None
             pubsub_singleton.process()
             return True
-        else:
-            return super(MainWindow, self).event(event)
+        if event.type() == QtCore.QEvent.Type.Show and self.windowHandle() is not self._window_handle:
+            self._window_handle = self.windowHandle()
+            if self._window_handle is not None:
+                self._window_handle.installEventFilter(self)
+        return super(MainWindow, self).event(event)
+
+    def eventFilter(self, obj, event):
+        if obj is self._window_handle and event.type() == QtCore.QEvent.Type.WindowStateChange:
+            # Wayland applies maximize after Qt resizes and paints the window
+            # (view switch restoreGeometry).  With no size change, Qt then
+            # repaints only the dock area, leaving the menu and sidebar stale.
+            self.update()
+        return False
 
     def resync_request(self):
         # safely resynchronize pubsub processing to the main Qt event thread
