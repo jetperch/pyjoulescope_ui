@@ -48,19 +48,38 @@ def clean_env(monkeypatch):
     return monkeypatch
 
 
+@pytest.fixture
+def jci():
+    """jci_instruments.stimulus, which GitHub CI does not have."""
+    try:
+        return stimulus.instruments()[1]
+    except ImportError:
+        pytest.skip('jci_instruments is not available')
+
+
 def test_none_configured(clean_env):
+    def instruments():
+        raise ImportError('no jci_instruments')
+    clean_env.setattr(stimulus, 'instruments', instruments)
     assert stimulus.wirings() == {}
     assert stimulus.wiring_for(_device('JS320-8W2A')) is None
 
 
-def test_runner_env(clean_env):
-    _, mod = stimulus.instruments()
-    clean_env.setenv(stimulus.ENV, mod.encode({'JS320-8W2A': _WIRING}))
+def test_configured_without_instruments(clean_env):
+    def instruments():
+        raise ImportError('no jci_instruments')
+    clean_env.setattr(stimulus, 'instruments', instruments)
+    clean_env.setenv(stimulus.ENV, 'unused')
+    assert stimulus.wirings() == {}
+
+
+def test_runner_env(clean_env, jci):
+    clean_env.setenv(stimulus.ENV, jci.encode({'JS320-8W2A': _WIRING}))
     assert stimulus.wiring_for(_device('JS320-8W2A')).serial == 'SN:1'
     assert stimulus.wiring_for(_device('JS220-000415')) is None
 
 
-def test_stations_yaml_file(clean_env, tmp_path):
+def test_stations_yaml_file(clean_env, tmp_path, jci):
     yaml = pytest.importorskip('yaml')
     path = tmp_path / 'stations.yaml'
     path.write_text(yaml.safe_dump(_STATIONS))
@@ -71,7 +90,7 @@ def test_stations_yaml_file(clean_env, tmp_path):
     assert stimulus.wirings() == {}
 
 
-def test_json_mapping_by_kind(clean_env, tmp_path):
+def test_json_mapping_by_kind(clean_env, tmp_path, jci):
     path = tmp_path / 'stimulus.json'
     path.write_text(json.dumps({'js320': _WIRING}))
     clean_env.setenv(stimulus.ENV_FILE, str(path))
@@ -86,13 +105,12 @@ class _Adp:
         return lambda *args, **kwargs: self.calls.append((name, args, kwargs))
 
 
-def _stim():
-    _, mod = stimulus.instruments()
-    return stimulus.Stimulus(None, _device('JS320-8W2A'), mod.Wiring.from_dict(_WIRING), _Adp())
+def _stim(jci):
+    return stimulus.Stimulus(None, _device('JS320-8W2A'), jci.Wiring.from_dict(_WIRING), _Adp())
 
 
-def test_sine_scales_to_dut_input():
-    s = _stim()
+def test_sine_scales_to_dut_input(jci):
+    s = _stim(jci)
     s.sine('voltage', 1000.0, 1.0)   # 1 V rms at the DUT through a 0.5 divider
     name, args, kwargs = s.adp.calls[-1]
     assert (name, args[0]) == ('wavegen_sine', 0)
@@ -102,8 +120,8 @@ def test_sine_scales_to_dut_input():
     assert s.source_vrms('current', 0.005) == pytest.approx(0.5)
 
 
-def test_out_of_range_skips():
-    s = _stim()
+def test_out_of_range_skips(jci):
+    s = _stim(jci)
     with pytest.raises(pytest.skip.Exception, match='above'):
         s.sine('voltage', 1000.0, 5.0)
     with pytest.raises(pytest.skip.Exception, match='resolution'):

@@ -81,15 +81,22 @@ def _load_file(path, station):
 
 
 def wirings():
-    """{device spec: Wiring} for this station, empty when none."""
-    _, stimulus = instruments()
+    """{device spec: Wiring} for this station, empty when none.
+
+    Also empty without jci_instruments, which is private to joulescope_ci and
+    so absent from public CI: the stimulus tests skip.
+    """
+    path = os.environ.get(ENV_FILE)
+    if not os.environ.get(ENV) and not path:
+        return {}
+    try:
+        _, stimulus = instruments()
+    except ImportError:
+        return {}
     if os.environ.get(ENV):
         return stimulus.decode(os.environ[ENV])
-    path = os.environ.get(ENV_FILE)
-    if path:
-        data = _load_file(os.path.expanduser(path), os.environ.get(ENV_STATION))
-        return {spec: stimulus.Wiring.from_dict(d) for spec, d in data.items()}
-    return {}
+    data = _load_file(os.path.expanduser(path), os.environ.get(ENV_STATION))
+    return {spec: stimulus.Wiring.from_dict(d) for spec, d in data.items()}
 
 
 def wiring_for(device):

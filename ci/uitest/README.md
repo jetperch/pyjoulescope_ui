@@ -64,7 +64,8 @@ JS_UITEST_DISPLAY=1 pytest ci/uitest/test_waveform_interactive.py
 the Spectrum widget against the device's own statistics (pyjoulescope_ui
 `docs/plans/spectrum.md` stage 6b).  The wiring comes from the station's
 `stations.yaml`; see joulescope_ci `doc/adp3450_connection.md` for how to
-wire and describe it.  Without wiring, the module skips.  The default
+wire and describe it.  Without wiring or `jci_instruments`, which is private
+to joulescope_ci, the module skips, as on GitHub CI.  The default
 `not slow and not stimulus` farm gate excludes these tests; the farm runs
 them on demand as the `ui_stimulus` suite.
 

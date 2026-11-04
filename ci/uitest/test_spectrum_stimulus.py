@@ -42,7 +42,7 @@ from uitest.stimulus import db, device_settings, signals_enable, statistics_rms,
 pytestmark = [
     pytest.mark.device,
     pytest.mark.stimulus,
-    pytest.mark.skipif(not wirings(), reason='no stimulus wiring configured (JS_UITEST_STIMULUS)'),
+    pytest.mark.skipif(not wirings(), reason='no stimulus wiring (JS_UITEST_STIMULUS) or jci_instruments'),
 ]
 
 _PPM = 100e-6            # combined crystal tolerance of the generator and the device
