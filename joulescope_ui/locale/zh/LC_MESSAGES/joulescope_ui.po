@@ -318,7 +318,7 @@ msgid "Abort"
 msgstr "终止"
 
 #: error_window.py:120 main.py:465 widgets/settings/settings_widget.py:539
-#: widgets/spectrum/spectrum_widget.py:1091
+#: widgets/spectrum/spectrum_widget.py:1093
 msgid "View"
 msgstr "查看"
 
@@ -1742,7 +1742,7 @@ msgstr "概率密度分布"
 
 #: range_tools/histogram.py:44 range_tools/max_window.py:109
 #: widgets/spectrum/spectrum_control.py:36
-#: widgets/spectrum/spectrum_widget.py:1103
+#: widgets/spectrum/spectrum_widget.py:1105
 #: widgets/trigger/trigger_widget.py:220
 msgid "Signal"
 msgstr "信号"
@@ -2388,7 +2388,7 @@ msgstr "使用的 RAM 大小"
 
 #: widgets/memory/memory_widget.py:238 widgets/spectrum/spectrum_control.py:33
 #: widgets/spectrum/spectrum_control.py:82
-#: widgets/spectrum/spectrum_widget.py:1107
+#: widgets/spectrum/spectrum_widget.py:1109
 msgid "Clear"
 msgstr "清除"
 
@@ -2708,7 +2708,7 @@ msgid "The averaging mode for the average trace."
 msgstr "平均波形图的平均模式。"
 
 #: widgets/spectrum/spectrum_control.py:75
-#: widgets/spectrum/spectrum_widget.py:1223 widgets/value/value_widget.py:257
+#: widgets/spectrum/spectrum_widget.py:1225 widgets/value/value_widget.py:257
 msgid "Hold"
 msgstr "保持"
 
@@ -2800,7 +2800,7 @@ msgid "PSD"
 msgstr "PSD"
 
 #: widgets/spectrum/spectrum_widget.py:138
-#: widgets/spectrum/spectrum_widget.py:1098
+#: widgets/spectrum/spectrum_widget.py:1100
 msgid "Y-axis units"
 msgstr "Y 轴单位"
 
@@ -2984,61 +2984,61 @@ msgstr "最大更新率（Hz）"
 msgid "Spectrum"
 msgstr "频谱"
 
-#: widgets/spectrum/spectrum_widget.py:1072
+#: widgets/spectrum/spectrum_widget.py:1074
 msgid "Add marker"
 msgstr "添加标记"
 
-#: widgets/spectrum/spectrum_widget.py:1075
+#: widgets/spectrum/spectrum_widget.py:1077
 msgid "Add marker at peak"
 msgstr "在峰值处添加标记"
 
-#: widgets/spectrum/spectrum_widget.py:1082
+#: widgets/spectrum/spectrum_widget.py:1084
 msgid "Remove marker"
 msgstr "删除标记"
 
-#: widgets/spectrum/spectrum_widget.py:1084
+#: widgets/spectrum/spectrum_widget.py:1086
 msgid "Clear markers"
 msgstr "清晰的标记"
 
-#: widgets/spectrum/spectrum_widget.py:1086
+#: widgets/spectrum/spectrum_widget.py:1088
 msgid "Traces"
 msgstr "波形图"
 
-#: widgets/spectrum/spectrum_widget.py:1092
+#: widgets/spectrum/spectrum_widget.py:1094
 msgid "Logarithmic frequency"
 msgstr "对数频率"
 
-#: widgets/spectrum/spectrum_widget.py:1093
+#: widgets/spectrum/spectrum_widget.py:1095
 msgid "Autoscale y-axis"
 msgstr "Y 轴自动缩放"
 
-#: widgets/spectrum/spectrum_widget.py:1094
+#: widgets/spectrum/spectrum_widget.py:1096
 msgid "Show FFT"
 msgstr "显示 FFT"
 
-#: widgets/spectrum/spectrum_widget.py:1095
+#: widgets/spectrum/spectrum_widget.py:1097
 msgid "Show waterfall"
 msgstr "显示瀑布图"
 
-#: widgets/spectrum/spectrum_widget.py:1221
+#: widgets/spectrum/spectrum_widget.py:1223
 msgid "No signal"
 msgstr "无信号"
 
-#: widgets/spectrum/spectrum_widget.py:1225
+#: widgets/spectrum/spectrum_widget.py:1227
 msgid "Paused"
 msgstr "暂停"
 
-#: widgets/spectrum/spectrum_widget.py:1230
+#: widgets/spectrum/spectrum_widget.py:1232
 #, python-brace-format
 msgid "gaps {0}"
 msgstr "gaps {0}"
 
-#: widgets/spectrum/spectrum_widget.py:1236
+#: widgets/spectrum/spectrum_widget.py:1238
 #, python-brace-format
 msgid "waterfall {0}"
 msgstr "瀑布图 {0}"
 
-#: widgets/spectrum/spectrum_widget.py:1239
+#: widgets/spectrum/spectrum_widget.py:1241
 #, python-brace-format
 msgid "overruns {0}"
 msgstr "超限 {0}"
