@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from PySide6 import QtGui, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 import subprocess
 import os
 import logging
@@ -242,3 +242,77 @@ def prepare_for_opengl(widget: QtWidgets.QWidget):
     dummy_widget.setObjectName(_OPENGL_DUMMY_OBJECT_NAME)
     dummy_widget.setVisible(False)
     return dummy_widget
+
+
+class NormalSizeTracker:
+    """Remember a window's normal (not maximized) size on Linux.
+
+    :param window: The top-level window, which provides resize().
+
+    Qt gets the normal geometry from the platform on Windows and macOS.
+    Linux does not provide it, so Qt follows the window size while its state
+    is normal.  A window manager maximize delivers the resize just before
+    the state change, so Qt records the maximized size as the normal size.
+    Delay accepting each resize until the state change would have arrived.
+
+    The window manager also chooses the size when leaving maximized, and it
+    does not know sizes that the application set, such as when switching
+    views.  Apply the normal size after it does.
+    """
+
+    _SETTLE_MS = 250
+
+    def __init__(self, window):
+        self._window = window
+        self._size = None
+        self._pending = None
+        self._maximized = False
+        self._timer = QtCore.QTimer()
+        self._timer.setSingleShot(True)
+        self._timer.setInterval(self._SETTLE_MS)
+        self._timer.timeout.connect(self.settle)
+
+    @property
+    def size(self):
+        """The normal size as [width, height], or None if unknown."""
+        return self._size if self._pending is None else self._pending
+
+    @size.setter
+    def size(self, value):
+        """Set the normal size, such as for the view being restored."""
+        self._cancel()
+        self._size = None if value is None else [int(value[0]), int(value[1])]
+
+    def _cancel(self):
+        self._timer.stop()
+        self._pending = None
+
+    def settle(self):
+        """Accept the pending resize as the normal size."""
+        self._timer.stop()
+        if self._pending is not None:
+            self._size, self._pending = self._pending, None
+
+    def on_resize(self, width, height, is_normal):
+        """Handle a window resize.
+
+        :param width: The new width.
+        :param height: The new height.
+        :param is_normal: False if the window is known to not be normal.
+        """
+        if is_normal:
+            self._pending = [width, height]
+            self._timer.start()
+
+    def on_state(self, is_normal):
+        """Handle the window system changing the window state.
+
+        :param is_normal: True for normal, False for maximized or full screen.
+        """
+        self._cancel()
+        if not is_normal:
+            self._maximized = True
+        elif self._maximized:
+            self._maximized = False
+            if self._size is not None:
+                self._window.resize(*self._size)

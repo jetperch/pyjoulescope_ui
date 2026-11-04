@@ -19,7 +19,7 @@ Test the main module restart support.
 import sys
 import unittest
 from unittest.mock import Mock, patch
-from PySide6 import QtCore
+from PySide6 import QtCore, QtGui
 from joulescope_ui import main
 
 
@@ -132,7 +132,7 @@ class TestRestartSpawn(unittest.TestCase):
 class TestWindowStateRepaint(unittest.TestCase):
 
     def _filter(self, obj, event_type):
-        window = Mock(_window_handle=object())
+        window = Mock(_window_handle=Mock(), normal_size=None)
         event = QtCore.QEvent(event_type)
         target = window._window_handle if obj is None else obj
         self.assertFalse(main.MainWindow.eventFilter(window, target, event))
@@ -146,3 +146,37 @@ class TestWindowStateRepaint(unittest.TestCase):
 
     def test_other_object_ignored(self):
         self._filter(object(), QtCore.QEvent.Type.WindowStateChange).assert_not_called()
+
+
+class TestWindowStateNormalSize(unittest.TestCase):
+
+    def setUp(self):
+        self.window = Mock(_window_handle=Mock())
+        self.window.windowState.return_value = QtCore.Qt.WindowState.WindowNoState
+
+    def _state(self, state):
+        self.window._window_handle.windowStates.return_value = state
+        event = QtCore.QEvent(QtCore.QEvent.Type.WindowStateChange)
+        main.MainWindow.eventFilter(self.window, self.window._window_handle, event)
+
+    def test_state(self):
+        self._state(QtCore.Qt.WindowState.WindowMaximized)
+        self.window.normal_size.on_state.assert_called_with(False)
+        self._state(QtCore.Qt.WindowState.WindowFullScreen)
+        self.window.normal_size.on_state.assert_called_with(False)
+        self._state(QtCore.Qt.WindowState.WindowNoState)
+        self.window.normal_size.on_state.assert_called_with(True)
+
+    def _resize(self):
+        event = QtGui.QResizeEvent(QtCore.QSize(1000, 700), QtCore.QSize(800, 600))
+        main.MainWindow.eventFilter(self.window, self.window._window_handle, event)
+
+    def test_resize_normal(self):
+        self._resize()
+        self.window.normal_size.on_resize.assert_called_with(1000, 700, True)
+
+    def test_resize_not_normal(self):
+        for state in [QtCore.Qt.WindowState.WindowMaximized, QtCore.Qt.WindowState.WindowMinimized]:
+            self.window.windowState.return_value = state
+            self._resize()
+            self.window.normal_size.on_resize.assert_called_with(1000, 700, False)

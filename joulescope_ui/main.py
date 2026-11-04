@@ -28,7 +28,7 @@ from joulescope_ui.safe_mode import safe_mode_dialog
 from joulescope_ui.styles.manager import style_settings
 from joulescope_ui.process_monitor import ProcessMonitor
 from joulescope_ui import software_update
-from joulescope_ui.ui_util import prepare_for_opengl, show_in_folder
+from joulescope_ui.ui_util import NormalSizeTracker, prepare_for_opengl, show_in_folder
 from joulescope_ui.widget_tools import CallableAction
 from joulescope_ui import urls
 from joulescope_ui.shift_key import is_shift_pressed
@@ -311,6 +311,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # so that it survives view switching (see View.on_cls_setting_active).
         self._opengl_dummy = prepare_for_opengl(self)
         self._window_handle = None  # watched for window manager state changes
+        self.normal_size = None     # NormalSizeTracker on Linux, set when shown
 
         # Create the central widget with horizontal layout
         self._central_widget = QtWidgets.QWidget(self)
@@ -847,14 +848,26 @@ class MainWindow(QtWidgets.QMainWindow):
             self._window_handle = self.windowHandle()
             if self._window_handle is not None:
                 self._window_handle.installEventFilter(self)
+            if QtGui.QGuiApplication.platformName() in ('wayland', 'xcb') and self.normal_size is None:
+                self.normal_size = NormalSizeTracker(self)
+                if not self.isMaximized():
+                    self.normal_size.size = [self.width(), self.height()]
         return super(MainWindow, self).event(event)
 
     def eventFilter(self, obj, event):
-        if obj is self._window_handle and event.type() == QtCore.QEvent.Type.WindowStateChange:
+        if obj is not self._window_handle:
+            return False
+        not_normal = QtCore.Qt.WindowState.WindowMaximized | QtCore.Qt.WindowState.WindowFullScreen
+        if event.type() == QtCore.QEvent.Type.WindowStateChange:
             # Wayland applies maximize after Qt resizes and paints the window
             # (view switch restoreGeometry).  With no size change, Qt then
             # repaints only the dock area, leaving the menu and sidebar stale.
             self.update()
+            if self.normal_size is not None:
+                self.normal_size.on_state(not (obj.windowStates() & not_normal))
+        elif event.type() == QtCore.QEvent.Type.Resize and self.normal_size is not None:
+            is_normal = not (self.windowState() & (not_normal | QtCore.Qt.WindowState.WindowMinimized))
+            self.normal_size.on_resize(event.size().width(), event.size().height(), is_normal)
         return False
 
     def resync_request(self):

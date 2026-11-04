@@ -367,7 +367,7 @@ msgstr "Ver como Markdown"
 msgid "Abort"
 msgstr "Abortar"
 
-#: error_window.py:120 main.py:465 widgets/settings/settings_widget.py:539
+#: error_window.py:120 main.py:466 widgets/settings/settings_widget.py:539
 #: widgets/spectrum/spectrum_widget.py:1093
 msgid "View"
 msgstr "Ver"
@@ -388,7 +388,7 @@ msgstr "Volver a la configuración anterior"
 msgid "Revert to defaults"
 msgstr "Volver a valores predeterminados"
 
-#: error_window.py:283 main.py:463 main.py:513
+#: error_window.py:283 main.py:464 main.py:514
 #: widgets/js220_cal/js220_cal_widget.py:38
 #: widgets/js320_cal/js320_cal_widget.py:60
 msgid "Exit"
@@ -415,7 +415,7 @@ msgstr "Notas"
 msgid "Select save location"
 msgstr "Seleccionar ubicación de almacenamiento"
 
-#: exporter.py:139 main.py:893
+#: exporter.py:139 main.py:906
 msgid "Export configuration"
 msgstr "Exportar configuración"
 
@@ -623,7 +623,7 @@ msgstr "Multímetro"
 msgid "Oscilloscope"
 msgstr "Osciloscopio"
 
-#: main.py:80 main.py:384 main.py:453 main.py:500
+#: main.py:80 main.py:385 main.py:454 main.py:501
 msgid "File"
 msgstr "Archivo"
 
@@ -695,140 +695,140 @@ msgstr ""
 msgid "UI"
 msgstr "INTERFAZ DE USUARIO"
 
-#: main.py:416
+#: main.py:417
 msgid "Help"
 msgstr "Ayuda"
 
-#: main.py:417 widgets/hamburger/hamburger_widget.py:21
+#: main.py:418 widgets/hamburger/hamburger_widget.py:21
 msgid "Getting Started"
 msgstr "Primeros pasos"
 
-#: main.py:418
+#: main.py:419
 msgid "Language"
 msgstr "Idioma"
 
-#: main.py:419
+#: main.py:420
 msgid "User's Guide"
 msgstr "Guía del usuario"
 
-#: main.py:420 widgets/hamburger/hamburger_widget.py:22
+#: main.py:421 widgets/hamburger/hamburger_widget.py:22
 msgid "Changelog"
 msgstr "Registro de cambios"
 
-#: main.py:421 widgets/help/help_widget.py:63
+#: main.py:422 widgets/help/help_widget.py:63
 msgid "Report Issue"
 msgstr "Número de informe"
 
-#: main.py:422
+#: main.py:423
 msgid "View logs..."
 msgstr "Ver registros..."
 
-#: main.py:423 widgets/hamburger/hamburger_widget.py:23
+#: main.py:424 widgets/hamburger/hamburger_widget.py:23
 msgid "Credits"
 msgstr "Créditos"
 
-#: main.py:424 widgets/hamburger/hamburger_widget.py:24
+#: main.py:425 widgets/hamburger/hamburger_widget.py:24
 msgid "About"
 msgstr "Acerca de"
 
-#: main.py:428
+#: main.py:429
 msgid "Clear Accumulators"
 msgstr "Acumuladores transparentes"
 
-#: main.py:431
+#: main.py:432
 msgid "Configure high accuracy time"
 msgstr "Configure el tiempo de alta precisión"
 
 #: devices/serial/serial_port_dialog.py:145
-#: devices/serial/serial_port_dialog.py:159 main.py:454
+#: devices/serial/serial_port_dialog.py:159 main.py:455
 msgid "Open"
 msgstr "Abrir"
 
-#: main.py:455
+#: main.py:456
 msgid "Open recent"
 msgstr "Abrir reciente"
 
-#: main.py:456 main.py:506 widgets/trigger/trigger_widget.py:467
+#: main.py:457 main.py:507 widgets/trigger/trigger_widget.py:467
 #: widgets/trigger/trigger_widget.py:480
 msgid "Config"
 msgstr "Config"
 
-#: main.py:457 main.py:507 widgets/waveform/waveform_widget.py:4204
+#: main.py:458 main.py:508 widgets/waveform/waveform_widget.py:4204
 msgid "Export"
 msgstr "Exportar"
 
-#: main.py:458 main.py:508 main.py:950
+#: main.py:459 main.py:509 main.py:963
 msgid "Import and restart"
 msgstr "Importar y reiniciar"
 
-#: main.py:459 main.py:509 main.py:953
+#: main.py:460 main.py:510 main.py:966
 msgid "Import and exit"
 msgstr "Importar y salir"
 
-#: main.py:460 main.py:510 main.py:967
+#: main.py:461 main.py:511 main.py:980
 msgid "Clear and restart"
 msgstr "Borrar y reiniciar"
 
-#: main.py:461 main.py:511 main.py:970
+#: main.py:462 main.py:512 main.py:983
 msgid "Clear and exit"
 msgstr "Claro y conciso"
 
-#: main.py:466 widgets/settings/settings_widget.py:541
+#: main.py:467 widgets/settings/settings_widget.py:541
 msgid "Widgets"
 msgstr "Widgets"
 
-#: main.py:467
+#: main.py:468
 msgid "Tools"
 msgstr "Herramientas"
 
-#: main.py:501
+#: main.py:502
 msgid "Info"
 msgstr "Información"
 
-#: main.py:502 widget_tools.py:119 widgets/settings/settings_widget.py:31
+#: main.py:503 widget_tools.py:119 widgets/settings/settings_widget.py:31
 #: widgets/settings/settings_widget.py:574
 #: widgets/sidebar/sidebar_widget.py:42
 msgid "Settings"
 msgstr "Ajustes"
 
-#: main.py:822
+#: main.py:823
 msgid "Manage"
 msgstr "Gestione"
 
-#: main.py:870
+#: main.py:883
 msgid "Select file to open"
 msgstr "Seleccionar archivo para abrir"
 
-#: main.py:913
+#: main.py:926
 msgid "Configuration export failed."
 msgstr "Error al exportar la configuración."
 
-#: main.py:927
+#: main.py:940
 msgid "Import configuration"
 msgstr "Importar configuración"
 
-#: main.py:946
+#: main.py:959
 msgid "The selected file is not a valid Joulescope UI configuration."
 msgstr ""
 "El archivo seleccionado no es una configuración válida de la interfaz de "
 "usuario de Joulescope."
 
-#: main.py:951
+#: main.py:964
 msgid "Replace the current configuration with the imported file and restart?"
 msgstr ""
 "¿Desea sustituir la configuración actual por el archivo importado y "
 "reiniciar?"
 
-#: main.py:954
+#: main.py:967
 msgid "Replace the current configuration with the imported file and exit?"
 msgstr ""
 "¿Desea sustituir la configuración actual por el archivo importado y salir?"
 
-#: main.py:968
+#: main.py:981
 msgid "Clear the configuration and restart?"
 msgstr "¿Borrar la configuración y reiniciar?"
 
-#: main.py:971
+#: main.py:984
 msgid "Clear the configuration and exit?"
 msgstr "¿Borrar la configuración y salir?"
 
@@ -1014,7 +1014,7 @@ msgstr "El nombre del esquema de fuentes."
 msgid "Joulescope standard font theme"
 msgstr "Tema de fuente estándar de Joulescope"
 
-#: view.py:162 widgets/view_manager/view_manager_widget.py:146
+#: view.py:168 widgets/view_manager/view_manager_widget.py:146
 msgid "New View"
 msgstr "Nueva vista"
 

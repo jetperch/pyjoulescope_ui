@@ -102,7 +102,13 @@ VIEW_SETTINGS = {
         'brief': 'The window size for restoring the view.',
         'default': None,
         'flags': ['hide'],
-    }
+    },
+    'normal_size': {
+        'dtype': 'obj',
+        'brief': 'The [width, height] when not maximized, on Linux where geometry loses it.',
+        'default': None,
+        'flags': ['hide'],
+    },
 }
 
 
@@ -186,6 +192,8 @@ class View:
             topic = get_topic_name(view.unique_id)
             if ui is not None:
                 pubsub_singleton.publish(f'{topic}/settings/geometry', ui.saveGeometry().data())
+                if ui.normal_size is not None:
+                    pubsub_singleton.publish(f'{topic}/settings/normal_size', ui.normal_size.size)
             ads_state = View._dock_manager.saveState()
             ads_state = bytes(ads_state).decode('utf-8')
             pubsub_singleton.publish(f'{topic}/settings/ads_state', ads_state)
@@ -211,6 +219,11 @@ class View:
             geometry = pubsub_singleton.query(f'{topic}/settings/geometry', default=None)
         if geometry is not None:
             ui.restoreGeometry(geometry)
+            if ui.normal_size is not None:
+                normal_size = pubsub_singleton.query(f'{topic}/settings/normal_size', default=None)
+                if normal_size is None and not ui.isMaximized():  # saved by an earlier version
+                    normal_size = [ui.width(), ui.height()]
+                ui.normal_size.size = normal_size
 
         children = pubsub_singleton.query(f'{topic}/children', default=None)
         if children is not None:

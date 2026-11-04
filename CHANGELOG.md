@@ -44,6 +44,8 @@ This file contains the list of changes made to pyjoulescope_ui.
   rejected signal frequency leaving streaming off.
 * Fixed the menu and sidebar drawing stale after switching to or from a
   maximized view on Linux Wayland.
+* Fixed a view maximized by the window manager losing its normal size on
+  Linux, so that it now returns to that size when no longer maximized.
 
 
 ## 1.7.7
