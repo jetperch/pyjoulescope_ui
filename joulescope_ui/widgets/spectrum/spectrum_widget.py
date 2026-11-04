@@ -24,7 +24,8 @@ from joulescope_ui.widget_tools import CallableAction, settings_action_create, c
     CONTROL_LOCATION_SETTING, control_location_apply
 from joulescope_ui.source_selector import SourceSelector
 from joulescope_ui.units import three_sig_figs
-from joulescope_ui.spectrum_engine import WINDOWS, WINDOW_NAMES, WINDOW_PEAK_INTERPOLATE, DB_FLOOR, \
+from joulescope_ui.spectrum_engine import WINDOWS, WINDOW_NAMES, WINDOW_PEAK_INTERPOLATE, \
+    WINDOW_MAIN_LOBE_BINS, DB_FLOOR, \
     DECIMATE_ROLLOFF, bin_frequencies, column_map, find_peaks, hop_length, sample_count, to_db
 from joulescope_ui.styles.manager import _load_cls_colors, _load_cls_fonts
 from joulescope_ui.widgets.waveform import axis_ticks
@@ -677,7 +678,9 @@ class SpectrumWidget(QtWidgets.QWidget):
             return
         bins = view.stop - view.start
         width = max(1, self._fft.width())
-        separation = max(1, int(_PEAK_SEPARATION_PIXELS * bins / width))
+        # at least the main lobe, so the excursion compares a tone between bins
+        # to its skirts, not to its nearly equal neighbor bin
+        separation = max(WINDOW_MAIN_LOBE_BINS[self.fft_window], int(_PEAK_SEPARATION_PIXELS * bins / width))
         f = self._f[view]
         y = y[view]
         if len(f) < 3:

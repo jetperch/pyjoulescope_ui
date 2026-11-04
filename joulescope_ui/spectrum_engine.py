@@ -57,6 +57,18 @@ WINDOW_NAMES = {
 WINDOW_PEAK_INTERPOLATE = {k: k != 'flattop' for k in WINDOWS}
 """Interpolate the peak value.  A flat-top peak already gives the amplitude."""
 
+WINDOW_MAIN_LOBE_BINS = {
+    'rectangular': 1,
+    'hann': 2,
+    'hamming': 2,
+    'blackman': 3,
+    'blackman_harris': 4,
+    'flattop': 5,
+    'bartlett': 2,
+}
+"""The main lobe half-width in bins, to the first null.  A tone between bins
+spans several nearly equal bins within this distance."""
+
 SCALINGS = ['amplitude', 'psd']
 AVERAGE_MODES = ['off', 'exponential', 'cumulative']
 DETECTORS = ['average', 'max']

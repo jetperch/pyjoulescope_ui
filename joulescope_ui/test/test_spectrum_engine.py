@@ -43,6 +43,14 @@ class TestWindows(unittest.TestCase):
         for name, value in expect.items():
             self.assertAlmostEqual(value, se.enbw(se.window(name, 4096)), delta=0.01, msg=name)
 
+    def test_main_lobe_bins(self):
+        z = 64  # zero padding for 1/64 bin resolution
+        for name in se.WINDOWS:
+            w = np.abs(np.fft.rfft(se.window(name, 256), 256 * z))
+            minima = (w[1:-1] <= w[:-2]) & (w[1:-1] <= w[2:])  # flattop rises near DC
+            first_null = (np.flatnonzero(minima)[0] + 1) / z
+            self.assertAlmostEqual(se.WINDOW_MAIN_LOBE_BINS[name], first_null, delta=0.1, msg=name)
+
     def test_unpack(self):
         np.testing.assert_equal([1, 0, 1, 1, 0, 0, 0, 0], se.unpack(np.array([0x0d], dtype=np.uint8), 'u1'))
         np.testing.assert_equal([0x3, 0xa, 0xf], se.unpack(np.array([0xa3, 0x5f], dtype=np.uint8), 'u4', 3))

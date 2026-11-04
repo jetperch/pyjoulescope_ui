@@ -21,6 +21,7 @@ import os
 import threading
 import time
 import unittest
+from unittest.mock import patch
 
 os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
 
@@ -187,9 +188,11 @@ class TestSpectrumWidgetUnregistered(unittest.TestCase):
         x = _tone(10_000.0, 0.1, 50_000) + _tone(31_000.0, 0.01, 50_000)
         self.w.setting_publish('peak_threshold', -100.0)
         self._snapshot(x)
-        self.w.setting_publish('f_range', [20_000.0, 40_000.0])
-        self.assertEqual(1, len(self.w.peaks))
-        self.assertAlmostEqual(31_000.0, self.w.peaks[0][0], delta=FS / 1024)
+        for width in [400, 800, 2000]:  # wide plots once lost tones between bins
+            with patch.object(self.w._fft, 'width', return_value=width):
+                self.w.setting_publish('f_range', [20_000.0, 40_000.0])
+            self.assertEqual(1, len(self.w.peaks), width)
+            self.assertAlmostEqual(31_000.0, self.w.peaks[0][0], delta=FS / 1024)
 
     def test_log_axis_mapping(self):
         self._snapshot(_tone(10_000.0, 0.1, 20_000))
