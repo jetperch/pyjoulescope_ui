@@ -317,7 +317,7 @@ msgstr "以 Markdown 格式查看"
 msgid "Abort"
 msgstr "终止"
 
-#: error_window.py:120 main.py:464 widgets/settings/settings_widget.py:539
+#: error_window.py:120 main.py:465 widgets/settings/settings_widget.py:539
 #: widgets/spectrum/spectrum_widget.py:1088
 msgid "View"
 msgstr "查看"
@@ -338,7 +338,7 @@ msgstr "恢复到以前的配置"
 msgid "Revert to defaults"
 msgstr "恢复到默认值"
 
-#: error_window.py:283 main.py:462 main.py:512
+#: error_window.py:283 main.py:463 main.py:513
 #: widgets/js220_cal/js220_cal_widget.py:38
 #: widgets/js320_cal/js320_cal_widget.py:60
 msgid "Exit"
@@ -365,7 +365,7 @@ msgstr "备注"
 msgid "Select save location"
 msgstr "选择保存位置"
 
-#: exporter.py:139 main.py:881
+#: exporter.py:139 main.py:893
 msgid "Export configuration"
 msgstr "导出配置"
 
@@ -541,7 +541,7 @@ msgstr "万用表"
 msgid "Oscilloscope"
 msgstr "示波器"
 
-#: main.py:80 main.py:383 main.py:452 main.py:499
+#: main.py:80 main.py:384 main.py:453 main.py:500
 msgid "File"
 msgstr "文件"
 
@@ -602,135 +602,135 @@ msgstr "显示此应用程序和所有应用程序的内存（RAM）利用率。
 msgid "UI"
 msgstr "UI"
 
-#: main.py:415
+#: main.py:416
 msgid "Help"
 msgstr "帮助"
 
-#: main.py:416 widgets/hamburger/hamburger_widget.py:21
+#: main.py:417 widgets/hamburger/hamburger_widget.py:21
 msgid "Getting Started"
 msgstr "开始使用"
 
-#: main.py:417
+#: main.py:418
 msgid "Language"
 msgstr "语言"
 
-#: main.py:418
+#: main.py:419
 msgid "User's Guide"
 msgstr "用户指南"
 
-#: main.py:419 widgets/hamburger/hamburger_widget.py:22
+#: main.py:420 widgets/hamburger/hamburger_widget.py:22
 msgid "Changelog"
 msgstr "更新日志"
 
-#: main.py:420 widgets/help/help_widget.py:63
+#: main.py:421 widgets/help/help_widget.py:63
 msgid "Report Issue"
 msgstr "报告问题"
 
-#: main.py:421
+#: main.py:422
 msgid "View logs..."
 msgstr "查看日志..."
 
-#: main.py:422 widgets/hamburger/hamburger_widget.py:23
+#: main.py:423 widgets/hamburger/hamburger_widget.py:23
 msgid "Credits"
 msgstr "荣誉"
 
-#: main.py:423 widgets/hamburger/hamburger_widget.py:24
+#: main.py:424 widgets/hamburger/hamburger_widget.py:24
 msgid "About"
 msgstr "关于"
 
-#: main.py:427
+#: main.py:428
 msgid "Clear Accumulators"
 msgstr "透明蓄电池"
 
-#: main.py:430
+#: main.py:431
 msgid "Configure high accuracy time"
 msgstr "配置高精度时间"
 
 #: devices/serial/serial_port_dialog.py:145
-#: devices/serial/serial_port_dialog.py:159 main.py:453
+#: devices/serial/serial_port_dialog.py:159 main.py:454
 msgid "Open"
 msgstr "打开"
 
-#: main.py:454
+#: main.py:455
 msgid "Open recent"
 msgstr "近期开放"
 
-#: main.py:455 main.py:505 widgets/trigger/trigger_widget.py:467
+#: main.py:456 main.py:506 widgets/trigger/trigger_widget.py:467
 #: widgets/trigger/trigger_widget.py:480
 msgid "Config"
 msgstr "配置"
 
-#: main.py:456 main.py:506 widgets/waveform/waveform_widget.py:4204
+#: main.py:457 main.py:507 widgets/waveform/waveform_widget.py:4204
 msgid "Export"
 msgstr "出口"
 
-#: main.py:457 main.py:507 main.py:938
+#: main.py:458 main.py:508 main.py:950
 msgid "Import and restart"
 msgstr "导入并重启"
 
-#: main.py:458 main.py:508 main.py:941
+#: main.py:459 main.py:509 main.py:953
 msgid "Import and exit"
 msgstr "导入与退出"
 
-#: main.py:459 main.py:509 main.py:955
+#: main.py:460 main.py:510 main.py:967
 msgid "Clear and restart"
 msgstr "清除并重启"
 
-#: main.py:460 main.py:510 main.py:958
+#: main.py:461 main.py:511 main.py:970
 msgid "Clear and exit"
 msgstr "清晰且直观"
 
-#: main.py:465 widgets/settings/settings_widget.py:541
+#: main.py:466 widgets/settings/settings_widget.py:541
 msgid "Widgets"
 msgstr "小工具"
 
-#: main.py:466
+#: main.py:467
 msgid "Tools"
 msgstr "工具"
 
-#: main.py:500
+#: main.py:501
 msgid "Info"
 msgstr "信息"
 
-#: main.py:501 widget_tools.py:119 widgets/settings/settings_widget.py:31
+#: main.py:502 widget_tools.py:119 widgets/settings/settings_widget.py:31
 #: widgets/settings/settings_widget.py:574
 #: widgets/sidebar/sidebar_widget.py:42
 msgid "Settings"
 msgstr "设置"
 
-#: main.py:821
+#: main.py:822
 msgid "Manage"
 msgstr "管理"
 
-#: main.py:858
+#: main.py:870
 msgid "Select file to open"
 msgstr "选择要打开的文件"
 
-#: main.py:901
+#: main.py:913
 msgid "Configuration export failed."
 msgstr "配置导出失败。"
 
-#: main.py:915
+#: main.py:927
 msgid "Import configuration"
 msgstr "导入配置"
 
-#: main.py:934
+#: main.py:946
 msgid "The selected file is not a valid Joulescope UI configuration."
 msgstr "所选文件不是有效的 Joulescope UI 配置。"
 
-#: main.py:939
+#: main.py:951
 msgid "Replace the current configuration with the imported file and restart?"
 msgstr "是否要用导入的文件替换当前配置并重启？"
 
-#: main.py:942
+#: main.py:954
 msgid "Replace the current configuration with the imported file and exit?"
 msgstr "是否用导入的文件替换当前配置并退出？"
 
-#: main.py:956
+#: main.py:968
 msgid "Clear the configuration and restart?"
 msgstr "清除配置并重启？"
 
-#: main.py:959
+#: main.py:971
 msgid "Clear the configuration and exit?"
 msgstr "清除配置并退出？"
 
