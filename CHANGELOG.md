@@ -22,19 +22,19 @@ This file contains the list of changes made to pyjoulescope_ui.
 ---
 
 
-## 1.7.8
+## 1.8.0
 
-2026 Oct 29 [in progress, unreleased]
+2026 Nov 4  [in progress, unreleased]
 
+* Added the Spectrum widget (Widgets → Spectrum): a live FFT with live,
+  average, max hold, and min hold traces, plus a waterfall history.  It
+  supports amplitude or PSD scaling, span (decimation), FFT length,
+  window, log frequency, markers, and automatic peaks.
 * Updated CI tests
 * Updated release documentation
 * Fixed the recording indicator staying on after a recording stopped through
   its own stop action, such as over the TCP server.
 * Added the UI's process id to the TCP server's `server.json`.
-* Added the Spectrum widget (Widgets → Spectrum): a live FFT with live,
-  average, max hold, and min hold traces, plus a waterfall history.  It
-  supports amplitude or PSD scaling, span (decimation), FFT length,
-  window, log frequency, markers, and automatic peaks.
 * Fixed analysis tools reading 4-bit signals, such as current range, as
   0 or 1 instead of their value.
 * Removed the JS320 500 kHz signal frequency, which the JS320 does not
