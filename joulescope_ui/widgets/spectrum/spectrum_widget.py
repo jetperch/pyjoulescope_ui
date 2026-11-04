@@ -586,6 +586,8 @@ class SpectrumWidget(QtWidgets.QWidget):
             self._traces_clear()
             self._status_update()
             return
+        if self.hold or self._paused:  # the worker may still have queued data
+            return
         fs, n = s['fs'], s['n']
         if self._snapshot.get('fs') != fs or self._snapshot.get('n') != n:
             self._f = bin_frequencies(fs, n)

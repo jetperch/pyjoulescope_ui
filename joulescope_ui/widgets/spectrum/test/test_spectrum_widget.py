@@ -168,6 +168,25 @@ class TestSpectrumWidgetUnregistered(unittest.TestCase):
         image = self.w.grab()
         self.assertFalse(image.isNull())
 
+    def _test_snapshots_frozen(self, x):
+        count = self.w._snapshot['count']
+        self._snapshot(np.concatenate((x, x)))
+        self.assertEqual(count, self.w._snapshot['count'])
+        self.w._on_snapshot({'generation': self.w._generation, 'rows': []})  # configure
+        self.assertEqual({}, self.w._snapshot)
+
+    def test_hold_ignores_snapshots(self):
+        x = _tone(10_000.0, 0.1, 20_000)
+        self._snapshot(x)
+        self.w.setting_publish('hold', True)
+        self._test_snapshots_frozen(x)
+
+    def test_pause_ignores_snapshots(self):
+        x = _tone(10_000.0, 0.1, 20_000)
+        self._snapshot(x)
+        self.w._paused = True
+        self._test_snapshots_frozen(x)
+
     def test_viewport_zoom_pan_reset(self):
         self._snapshot(_tone(10_000.0, 0.1, 20_000))
         full = self.w.viewport()
@@ -386,6 +405,19 @@ class TestSpectrumWidgetPubSub(unittest.TestCase):
         _process_events(lambda: False, 0.2)
         self.assertEqual({}, self.w._snapshot)
         self.assertIn('Hold', self.w.status)
+
+    def test_hold_freezes_with_worker_backlog(self):
+        for _ in range(20):
+            self._push()
+        self.assertTrue(_process_events(lambda: self.w._snapshot.get('count', 0) > 0))
+        for _ in range(20):  # still queued in the worker when hold applies
+            self._push()
+        self.p.publish(f'{self.w.topic}/settings/hold', True)
+        self.p.process()
+        self.assertTrue(self.w.hold)
+        count = self.w._snapshot['count']
+        _process_events(lambda: False, 0.5)
+        self.assertEqual(count, self.w._snapshot['count'])
 
     def test_global_pause(self):
         topic = 'registry/app/settings/signal_stream_enable'
