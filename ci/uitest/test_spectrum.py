@@ -31,14 +31,14 @@ def test_spectrum_widget_live(ui_session, device):
     ui_session.publish_and_wait('registry/app/settings/signal_stream_enable', True)
     fs = ui_session.query(f'{device.topic}/settings/signal_frequency')
     widget = spectrum.open_widget(ui_session, device)
-    info = spectrum.wait_info(ui_session, widget, lambda i: i.get('count', 0) > 10)
+    # the first waterfall row needs a full row period, 50 ms by default
+    info = spectrum.wait_info(ui_session, widget, lambda i: i.get('count', 0) > 10 and i['waterfall_rows'] > 0)
     assert info['source'] == device.unique_id, info
     assert info['signal'] == 'i', info
     assert info['fs'] == fs, info
     assert info['n'] == 4096, info
     assert info['rbw'] == pytest.approx(1.5 * fs / 4096, rel=0.01), info   # Hann
     assert info['overruns'] == 0, info
-    assert info['waterfall_rows'] > 0, info
     # Startup may toggle streaming (sample rate apply), a real gap, so check
     # gaps after this reconfiguration, which resets them.
 
