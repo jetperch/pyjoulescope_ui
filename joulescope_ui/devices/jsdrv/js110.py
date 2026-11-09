@@ -584,6 +584,7 @@ class Js110(Device):
             self._driver_publish('s/v/lsb_src', 3, timeout=0)
             self._driver_publish('s/stats/ctrl', 1, timeout=0)
             self._driver_subscribe('s/stats/value', 'pub', self._on_stats)
+            self._signal_frequency_open()  # before open enables streaming
             self._ui_subscribe('settings', self._on_settings, ['pub', 'retain'])
         except Exception:
             self._log.exception('driver config failed')

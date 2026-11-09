@@ -25,6 +25,7 @@ import time
 
 
 _UTC_INTERVAL = 10 * time64.MINUTE
+_GAP_FILL_MAX = 10  # seconds: JLS fills gaps with NaN, so larger jumps are skipped instead
 _DISK_MONITOR_BASE = 'registry/DiskMonitor:0'
 _DISK_MONITOR_ADD = f'{_DISK_MONITOR_BASE}/actions/!add'
 _DISK_MONITOR_REMOVE = f'{_DISK_MONITOR_BASE}/actions/!remove'
@@ -109,10 +110,15 @@ class SignalRecord:
                     self._source_add(source, value['source'])
                 self._signal_add(source, topic, value)
             signal = self._signals[topic]
-            sample_id = value['sample_id']
+            if not self._sample_freq_check(signal, value):
+                return
+            x = value['data']
+            sample_id = self._sample_id_map(signal, value['sample_id'], len(x))
             utc_now = value['utc']
             utc = [sample_id, utc_now]
-            if signal['utc_entry_prev'] is None or (utc_now - signal['utc_entry_prev'][1]) >= _UTC_INTERVAL:
+            if signal['offset_changed'] or signal['utc_entry_prev'] is None \
+                    or (utc_now - signal['utc_entry_prev'][1]) >= _UTC_INTERVAL:
+                signal['offset_changed'] = False
                 self._log.info('utc %s: %s, %s', signal['name'], sample_id, utc_now)
                 self._jls.utc(signal['id'], sample_id, utc_now)
                 signal['utc_entry_prev'] = utc
@@ -120,7 +126,6 @@ class SignalRecord:
             self._on_write_error(ex)
             return
         signal['utc_data_prev'] = utc
-        x = value['data']
         if len(x):
             x = np.ascontiguousarray(x)
             try:
@@ -139,6 +144,49 @@ class SignalRecord:
             u = min([signal['utc_data_prev'][1] for signal in self._signals.values()])
             if u >= self._utc_stop:
                 self.on_action_stop()
+
+    def _sample_freq_check(self, signal, value):
+        """Reject data at a sample rate other than the recorded signal's.
+
+        A JLS FSR signal has one fixed sample rate.  A device that reconnects
+        may briefly stream at a different rate, and its sample_id then uses
+        a different scale.
+        """
+        sample_freq = value.get('sample_freq')
+        if sample_freq is None or sample_freq == signal['sample_freq']:
+            return True
+        if not signal['rate_mismatch']:
+            self._log.warning('%s: drop data at %s Hz, recording at %s Hz',
+                              signal['name'], sample_freq, signal['sample_freq'])
+        signal['rate_mismatch'] += len(value['data'])
+        return False
+
+    def _sample_id_map(self, signal, sample_id, length):
+        """Map a stream sample_id to the JLS sample_id for this signal.
+
+        JLS fills skipped samples with NaN and drops samples before the
+        current position.  A device that reconnects can jump far forward
+        or backward, such as when its sample counter resets.  For any jump
+        larger than _GAP_FILL_MAX, adjust the offset to continue the JLS
+        signal without a gap.  The caller then writes a UTC entry, which
+        preserves the time mapping.
+        """
+        sample_id -= signal['offset']
+        expect = signal['sample_id_next']
+        if expect is not None:
+            skip = sample_id - expect
+            if abs(skip) > _GAP_FILL_MAX * signal['sample_freq']:
+                msg = f'{signal["name"]}: sample_id jump {expect} -> {sample_id}, continue without fill'
+                self._log.warning(msg)
+                self.pubsub.publish('registry/ui/actions/!status_msg', f'JLS record {msg}')
+                prev = signal['utc_data_prev']
+                if prev is not None and prev != signal['utc_entry_prev']:
+                    self._jls.utc(signal['id'], *prev)  # pin the time before the jump
+                signal['offset'] += skip
+                signal['offset_changed'] = True
+                sample_id = expect
+        signal['sample_id_next'] = max(expect or 0, sample_id + length)
+        return sample_id
 
     def _source_add(self, unique_id, info):
         info = copy.deepcopy(info)
@@ -178,6 +226,11 @@ class SignalRecord:
             'name': value['field'],
             'utc_entry_prev': None,    # the previous UTC entry
             'utc_data_prev': None,   # the previous UTC info from streaming sample data
+            'sample_freq': value['sample_freq'],
+            'sample_id_next': None,  # the next expected JLS sample_id
+            'offset': 0,             # stream sample_id - JLS sample_id
+            'offset_changed': False,  # write a UTC entry for the new offset
+            'rate_mismatch': 0,      # samples dropped due to sample rate mismatch
         }
         self._signal_idx += 1
 
@@ -213,6 +266,10 @@ class SignalRecord:
                 self.pubsub.publish('registry/ui/actions/!error_msg',
                                     N_('Recording may be incomplete')
                                     + f'\n{ex}\n{self._path}')
+        for signal in self._signals.values():
+            if signal.get('rate_mismatch'):
+                self._log.warning('%s: dropped %d samples due to sample rate mismatch',
+                                  signal['name'], signal['rate_mismatch'])
         if self in SignalRecord._instances:
             SignalRecord._instances.remove(self)
         self.pubsub.unregister(self, delete=True)

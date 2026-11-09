@@ -2602,15 +2602,15 @@ msgstr "侧边栏"
 msgid "The disk is full"
 msgstr "磁盘已满"
 
-#: widgets/signal_record/signal_record.py:61
+#: widgets/signal_record/signal_record.py:62
 msgid "Could not open file for write"
 msgstr "无法打开文件进行写入"
 
-#: widgets/signal_record/signal_record.py:98
+#: widgets/signal_record/signal_record.py:99
 msgid "Recording stopped: could not write the file"
 msgstr "记录已停止：无法写入文件"
 
-#: widgets/signal_record/signal_record.py:214
+#: widgets/signal_record/signal_record.py:267
 msgid "Recording may be incomplete"
 msgstr "记录可能不完整"
 

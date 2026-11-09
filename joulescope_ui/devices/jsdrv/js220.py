@@ -940,6 +940,7 @@ class Js220(Device):
             if self.has_fuse_support:
                 for fuse_id in _FUSE_IDS:
                     self._driver_subscribe(f's/fuse/{fuse_id}/engaged', ['pub', 'pub_retain'], self._on_fuse_engaged)
+            self._signal_frequency_open()  # before open enables streaming
             self._ui_subscribe('settings', self._on_settings, ['pub', 'retain'])
         except Exception:
             self._log.exception('driver config failed')

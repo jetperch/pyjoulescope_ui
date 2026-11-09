@@ -13,7 +13,7 @@
 # limitations under the License.
 
 """
-Test the jsdrv Device signal sample rate change sequence.
+Test the jsdrv Device signal sample rate open and change sequences.
 """
 
 import types
@@ -26,13 +26,16 @@ _STREAM = 'registry/app/settings/signal_stream_enable'
 class _Recorder(Device):
     """A Device whose thread runs commands immediately, recording all calls."""
 
-    def __init__(self, streaming):
+    topic = 'registry/JS220-000001'
+
+    def __init__(self, streaming, saved=None):
         self.calls = []
+        values = {_STREAM: streaming, f'{self.topic}/settings/signal_frequency': saved}
         driver = types.SimpleNamespace(
             publish=lambda topic, value, timeout=None: self.calls.append(('driver', topic, value)))
         super().__init__(types.SimpleNamespace(driver=driver), 'u/js220/000001')
         self.pubsub = types.SimpleNamespace(
-            query=lambda topic: streaming,
+            query=lambda topic, **kwargs: values.get(topic, kwargs.get('default')),
             publish=lambda topic, value: self.calls.append(('pubsub', topic, value)))
 
     def _send_to_thread(self, cmd, args=None):
@@ -63,12 +66,37 @@ class TestSignalFrequency(unittest.TestCase):
         d._signal_frequency_request(10_000)
         self.assertEqual([('driver', 'u/js220/000001/h/fs', 10_000)], d.calls)
 
-    def test_same_value_does_not_restart(self):
+    def test_same_value_does_nothing(self):
         d = _Recorder(streaming=True)
         d._signal_frequency_request(10_000)
         d.calls.clear()
         d._signal_frequency_request(10_000)
-        self.assertEqual([('driver', 'u/js220/000001/h/fs', 10_000)], d.calls)
+        self.assertEqual([], d.calls)
+
+    def test_open_applies_saved_rate(self):
+        # Before open reports done, so a reconnect never streams at full rate.
+        d = _Recorder(streaming=True, saved=100)
+        d._signal_frequency_open()
+        self.assertEqual([('driver', 'u/js220/000001/h/fs', 100)], d.calls)
+        d.calls.clear()
+        d._signal_frequency_request(100)  # retained setting from the settings subscribe
+        self.assertEqual([], d.calls)
+
+    def test_open_without_saved_rate(self):
+        d = _Recorder(streaming=True)
+        d._signal_frequency_open()
+        self.assertEqual([], d.calls)
+        d._signal_frequency_request(1_000)
+        self.assertEqual([('driver', 'u/js220/000001/h/fs', 1_000)], d.calls)
+
+    def test_change_after_open_restarts(self):
+        d = _Recorder(streaming=True, saved=100)
+        d._signal_frequency_open()
+        d.calls.clear()
+        d._signal_frequency_request(1_000)
+        self.assertEqual([('pubsub', _STREAM, False),
+                          ('driver', 'u/js220/000001/h/fs', 1_000),
+                          ('pubsub', _STREAM, True)], d.calls)
 
 
 if __name__ == '__main__':

@@ -24,8 +24,17 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.8.0
 
-2026 Nov 4  [in progress, unreleased]
+2026 Nov 9
 
+* Fixed reconnected devices briefly streaming at full rate before the
+  saved sample rate applied.  A JS220 at 100 Hz that reconnected during a
+  recording made the JLS file jump ahead by billions of samples and fill
+  the disk (forum 1152).  Devices now apply the saved sample rate before
+  streaming starts.
+* Made signal recording robust to device reconnects.  It drops data at a
+  sample rate other than the recorded signal's, and it continues without
+  a NaN fill after a sample_id jump of more than 10 seconds, such as a
+  reset sample counter.
 * Added the Spectrum widget (Widgets → Spectrum): a live FFT with live,
   average, max hold, and min hold traces, plus a waterfall history.  It
   supports amplitude or PSD scaling, span (decimation), FFT length,

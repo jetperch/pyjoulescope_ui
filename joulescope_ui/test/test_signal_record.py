@@ -13,7 +13,7 @@
 # limitations under the License.
 
 """
-Test SignalRecord JLS write error handling.
+Test SignalRecord JLS writes: errors, sample rate and sample_id jumps.
 """
 
 import logging
@@ -35,13 +35,16 @@ class _Writer:
         self.fsr_error = fsr_error
         self.close_error = close_error
         self.fsr_calls = 0
+        self.fsr_sample_ids = []
+        self.utc_entries = []
         self.closed = 0
 
     def utc(self, *args):
-        pass
+        self.utc_entries.append(args)
 
-    def fsr(self, *args):
+    def fsr(self, signal_id, sample_id, data):
         self.fsr_calls += 1
+        self.fsr_sample_ids.append(sample_id)
         if self.fsr_error is not None:
             raise self.fsr_error
 
@@ -61,14 +64,19 @@ def _recorder(jls):
     r._utc_stop = None
     r._utc_range = None
     r._sources = {}
-    r._signals = {_TOPIC: {'id': 1, 'name': 'current', 'utc_entry_prev': None, 'utc_data_prev': None}}
+    r._signals = {_TOPIC: {
+        'id': 1, 'name': 'current', 'utc_entry_prev': None, 'utc_data_prev': None,
+        'sample_freq': 100, 'sample_id_next': None, 'offset': 0,
+        'offset_changed': False, 'rate_mismatch': 0,
+    }}
     r._status = {'time_last': time.time(), 'dropped': 0}
     r.pubsub = Mock()
     return r
 
 
-def _value(sample_id):
-    return {'sample_id': sample_id, 'utc': 0, 'data': np.zeros(100, dtype=np.float32)}
+def _value(sample_id, sample_freq=100, utc=0):
+    return {'sample_id': sample_id, 'sample_freq': sample_freq, 'utc': utc,
+            'data': np.zeros(100, dtype=np.float32)}
 
 
 def _published(r, topic):
@@ -119,6 +127,48 @@ class TestSignalRecord(unittest.TestCase):
             self.assertEqual([], _published(a, _STOP_EVENT))   # b still records
             b.on_action_stop()
             self.assertEqual([True], _published(b, _STOP_EVENT))
+
+    def test_contiguous_and_small_gap_pass_through(self):
+        jls = _Writer()
+        r = _recorder(jls)
+        r._on_data(_TOPIC, _value(1000))
+        r._on_data(_TOPIC, _value(1100))
+        r._on_data(_TOPIC, _value(1500))   # 4 second gap: JLS fills with NaN
+        r._on_data(_TOPIC, _value(1550))   # overlap: JLS trims
+        self.assertEqual([1000, 1100, 1500, 1550], jls.fsr_sample_ids)
+        self.assertEqual(1, len(jls.utc_entries))
+
+    def test_sample_rate_mismatch_dropped(self):
+        # A reconnecting device briefly streamed at 1 MHz into a 100 Hz recording.
+        jls = _Writer()
+        r = _recorder(jls)
+        r._on_data(_TOPIC, _value(1000))
+        r._on_data(_TOPIC, _value(10_000_000, sample_freq=1_000_000))
+        r._on_data(_TOPIC, _value(1100))
+        self.assertEqual([1000, 1100], jls.fsr_sample_ids)
+        self.assertEqual(100, r._signals[_TOPIC]['rate_mismatch'])
+
+    def test_large_forward_jump_not_filled(self):
+        jls = _Writer()
+        r = _recorder(jls)
+        t = 1 << 30
+        r._on_data(_TOPIC, _value(1000, utc=t))
+        r._on_data(_TOPIC, _value(1100, utc=t + 1))
+        r._on_data(_TOPIC, _value(1_000_000_000, utc=t + 2))
+        r._on_data(_TOPIC, _value(1_000_000_100, utc=t + 3))
+        self.assertEqual([1000, 1100, 1200, 1300], jls.fsr_sample_ids)
+        # first entry, pin before the jump, entry at the new offset
+        self.assertEqual([(1, 1000, t), (1, 1100, t + 1), (1, 1200, t + 2)], jls.utc_entries)
+        self.assertEqual(1, len(_published(r, 'registry/ui/actions/!status_msg')))
+
+    def test_sample_counter_reset_continues(self):
+        jls = _Writer()
+        r = _recorder(jls)
+        r._on_data(_TOPIC, _value(500_000))
+        r._on_data(_TOPIC, _value(500_100))
+        r._on_data(_TOPIC, _value(0))   # device counter reset
+        r._on_data(_TOPIC, _value(100))
+        self.assertEqual([500_000, 500_100, 500_200, 500_300], jls.fsr_sample_ids)
 
 
 if __name__ == '__main__':

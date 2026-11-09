@@ -2893,15 +2893,15 @@ msgstr "barra lateral"
 msgid "The disk is full"
 msgstr "El disco está lleno"
 
-#: widgets/signal_record/signal_record.py:61
+#: widgets/signal_record/signal_record.py:62
 msgid "Could not open file for write"
 msgstr "No se pudo abrir el archivo para escribir"
 
-#: widgets/signal_record/signal_record.py:98
+#: widgets/signal_record/signal_record.py:99
 msgid "Recording stopped: could not write the file"
 msgstr "Grabación detenida: no se ha podido escribir el archivo"
 
-#: widgets/signal_record/signal_record.py:214
+#: widgets/signal_record/signal_record.py:267
 msgid "Recording may be incomplete"
 msgstr "Es posible que el registro esté incompleto"
 

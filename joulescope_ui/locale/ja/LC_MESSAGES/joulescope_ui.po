@@ -2644,15 +2644,15 @@ msgstr "サイドバー"
 msgid "The disk is full"
 msgstr "ディスクがいっぱいです"
 
-#: widgets/signal_record/signal_record.py:61
+#: widgets/signal_record/signal_record.py:62
 msgid "Could not open file for write"
 msgstr "書き込み用にファイルを開けませんでした"
 
-#: widgets/signal_record/signal_record.py:98
+#: widgets/signal_record/signal_record.py:99
 msgid "Recording stopped: could not write the file"
 msgstr "記録が停止しました：ファイルへの書き込みに失敗しました"
 
-#: widgets/signal_record/signal_record.py:214
+#: widgets/signal_record/signal_record.py:267
 msgid "Recording may be incomplete"
 msgstr "記録が不完全な場合があります"
 

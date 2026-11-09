@@ -2662,15 +2662,15 @@ msgstr "사이드바"
 msgid "The disk is full"
 msgstr "디스크가 꽉 찼습니다."
 
-#: widgets/signal_record/signal_record.py:61
+#: widgets/signal_record/signal_record.py:62
 msgid "Could not open file for write"
 msgstr "쓰기 위해 파일을 열 수 없습니다."
 
-#: widgets/signal_record/signal_record.py:98
+#: widgets/signal_record/signal_record.py:99
 msgid "Recording stopped: could not write the file"
 msgstr "기록이 중지되었습니다: 파일을 작성할 수 없습니다"
 
-#: widgets/signal_record/signal_record.py:214
+#: widgets/signal_record/signal_record.py:267
 msgid "Recording may be incomplete"
 msgstr "기록 내용이 불완전할 수 있습니다"
 

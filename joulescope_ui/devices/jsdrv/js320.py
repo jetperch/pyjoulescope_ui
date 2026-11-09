@@ -959,6 +959,7 @@ class Js320(Device):
                 self._driver_subscribe('s/stats/value', 'pub', self._on_stats)
                 for fuse_id in _FUSE_IDS:
                     self._driver_subscribe(f's/fuse/{fuse_id}/engaged', ['pub', 'pub_retain'], self._on_fuse_engaged)
+                self._signal_frequency_open()  # before open enables streaming
                 # Settings all target the sensor, so skip when it is missing.
                 self._ui_subscribe('settings', self._on_settings, ['pub', 'retain'])
         except Exception:

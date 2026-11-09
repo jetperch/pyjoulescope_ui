@@ -2905,15 +2905,15 @@ msgstr "encadré"
 msgid "The disk is full"
 msgstr "Le disque est plein"
 
-#: widgets/signal_record/signal_record.py:61
+#: widgets/signal_record/signal_record.py:62
 msgid "Could not open file for write"
 msgstr "Impossible d'ouvrir le fichier en écriture"
 
-#: widgets/signal_record/signal_record.py:98
+#: widgets/signal_record/signal_record.py:99
 msgid "Recording stopped: could not write the file"
 msgstr "Enregistrement arrêté : impossible d'écrire le fichier"
 
-#: widgets/signal_record/signal_record.py:214
+#: widgets/signal_record/signal_record.py:267
 msgid "Recording may be incomplete"
 msgstr "L'enregistrement peut être incomplet"
 

@@ -2789,15 +2789,15 @@ msgstr "الشريط الجانبي"
 msgid "The disk is full"
 msgstr "القرص ممتلئ"
 
-#: widgets/signal_record/signal_record.py:61
+#: widgets/signal_record/signal_record.py:62
 msgid "Could not open file for write"
 msgstr "تعذر فتح الملف للكتابة"
 
-#: widgets/signal_record/signal_record.py:98
+#: widgets/signal_record/signal_record.py:99
 msgid "Recording stopped: could not write the file"
 msgstr "توقف التسجيل: تعذر كتابة الملف"
 
-#: widgets/signal_record/signal_record.py:214
+#: widgets/signal_record/signal_record.py:267
 msgid "Recording may be incomplete"
 msgstr "قد يكون التسجيل غير مكتمل"
 

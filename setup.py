@@ -190,11 +190,11 @@ setuptools.setup(
 
     # See https://packaging.python.org/guides/distributing-packages-using-setuptools/#python-requires
     python_requires='~=3.12',
-    
+
     # See https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         'appnope>=0.1.2,<1',
-        'pyjoulescope_driver>=2.5.5,<3',
+        'pyjoulescope_driver>=2.5.6,<3',
         'joulescope>=1.7.3,<2',
         'markdown>=3,<4',
         'psutil>=5,<8',
@@ -212,7 +212,7 @@ setuptools.setup(
         'requests>=2,<3',
         'watchdog>=6,<7',
     ] + PLATFORM_INSTALL_REQUIRES,
-    
+
     extras_require={
         'dev': ['check-manifest', 'coverage', 'Cython', 'pyinstaller', 'wheel'],
     },
@@ -222,7 +222,7 @@ setuptools.setup(
             'joulescope_ui=joulescope_ui.main:run',
         ],
     },
-    
+
     project_urls={
         'Bug Reports': 'https://github.com/jetperch/pyjoulescope_ui/issues',
         'Funding': 'https://www.joulescope.com',

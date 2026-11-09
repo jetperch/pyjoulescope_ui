@@ -80,15 +80,32 @@ class Device:
 
         The jsdrv stream buffer sizes each signal for its sample rate when
         streaming starts, so a rate change stops streaming, sets the rate, then
-        restores streaming, which restarts the buffer at the new rate.  The
-        first value after open (the saved setting) only sets the rate.
+        restores streaming, which restarts the buffer at the new rate.
+        _signal_frequency_open already applied the saved setting on open.
         """
         value = int(value)
         previous, self._signal_frequency = self._signal_frequency, value
+        if previous == value:
+            return  # already applied, such as by _signal_frequency_open
         restart = previous not in (None, value) and bool(self.pubsub.query(_STREAM_ENABLE_TOPIC))
         if restart:
             self.pubsub.publish(_STREAM_ENABLE_TOPIC, False)
         self._send_to_thread('signal_frequency', (value, restart))
+
+    def _signal_frequency_open(self):
+        """Apply the saved sample rate during open (device thread).
+
+        The driver opens each device at its full-rate default.  Apply the
+        saved rate before the device reports open, which allows streaming.
+        Otherwise, the first data after each (re)connect arrives at full
+        rate, and the recorder sees a huge sample_id jump.
+        """
+        value = self.pubsub.query(self._ui_topic_make('settings/signal_frequency'), default=None)
+        if value is None:
+            return
+        value = int(value)
+        self._driver_publish('h/fs', value)  # blocks until applied
+        self._signal_frequency = value
 
     def _signal_frequency_apply(self, value, restart):
         """Apply the signal sample rate, then restore streaming (device thread)."""
