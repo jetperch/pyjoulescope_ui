@@ -200,5 +200,104 @@ class TestWaveformTrigger(unittest.TestCase):
         self.assertEqual(100.0, w.trigger_position)
 
 
+class _PubSub:
+    """Record publishes."""
+
+    def __init__(self):
+        self.published = []
+
+    def publish(self, topic, value, **kwargs):
+        self.published.append((topic, value))
+
+
+class TestWaveformTriggerMarkers(unittest.TestCase):
+    """X-axis markers that follow the trigger."""
+
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+
+    def setUp(self):
+        from collections import OrderedDict
+        w = WaveformWidget(None)
+        w.source_filter = 'JsdrvStreamBuffer:001'
+        w._is_streaming = lambda: True
+        w.trigger_mode = 'auto'
+        w.x_axis_annotation_mode = 'absolute'
+        w.x_extent = [_T0, _T0 + 1000 * _MS]
+        w.x_range = [_T0 + 990 * _MS, _T0 + 1000 * _MS]
+        w.annotations = {'next_id': 0, 'x': OrderedDict(), 'y': [], 'text': []}
+        self.e1 = _T0 + 500 * _MS  # the displayed trigger
+        self.e2 = _T0 + 600 * _MS  # the next trigger, already computed
+        w._trigger_frame_drawn = ([self.e1 - 5 * _MS, self.e1 + 5 * _MS], self.e1)
+        w._trigger_epoch_last = self.e2
+        self.widget = w
+
+    def tearDown(self):
+        self.widget.close()
+
+    def _next_frame(self, epoch):
+        w = self.widget
+        w._trigger_epoch_last = epoch
+        w._x_markers_position_update()
+        w._draw_update_markers()
+        w._trigger_frame_drawn = ([epoch - 5 * _MS, epoch + 5 * _MS], epoch)
+
+    def test_single_follows_trigger(self):
+        w = self.widget
+        m = w._x_marker_add_single(self.e1 + 2 * _MS)
+        self.assertEqual('trigger', m['mode'])
+        # relative to the displayed trigger, not the next trigger
+        self.assertEqual(2 * _MS, m['rel1'])
+        self._next_frame(self.e2)
+        self.assertEqual(self.e2 + 2 * _MS, m['pos1'])
+
+    def test_dual_follows_trigger(self):
+        w = self.widget
+        m = w._x_marker_add_dual(self.e1 - 1 * _MS, self.e1 + 3 * _MS)
+        self.assertEqual('trigger', m['mode'])
+        self.assertEqual((-1 * _MS, 3 * _MS), (m['rel1'], m['rel2']))
+        self._next_frame(self.e2)
+        self.assertEqual((self.e2 - 1 * _MS, self.e2 + 3 * _MS), (m['pos1'], m['pos2']))
+
+    def test_trigger_off_holds_position(self):
+        w = self.widget
+        m = w._x_marker_add_single(self.e1 + 2 * _MS)
+        w.trigger_mode = 'off'
+        w._x_markers_position_update()
+        w._draw_update_markers()
+        self.assertEqual(self.e1 + 2 * _MS, m['pos1'])
+        self.assertEqual('trigger', m['mode'])  # follows again when the trigger returns
+        w.trigger_mode = 'auto'
+        self._next_frame(self.e2)
+        self.assertEqual(self.e2 + 2 * _MS, m['pos1'])
+
+    def test_trigger_marker_not_expired(self):
+        w = self.widget
+        m = w._x_marker_add_single(self.e1)
+        m['pos1'] = _T0 - time64.SECOND  # outside the buffer
+        w._annotations_remove_expired()
+        self.assertIn(m['id'], w.annotations['x'])
+
+    def test_absolute_when_trigger_off(self):
+        w = self.widget
+        w.trigger_mode = 'off'
+        m = w._x_marker_add_single(self.e1)
+        self.assertEqual('absolute', m['mode'])
+
+    def test_follow_toggle(self):
+        w = self.widget
+        w.unique_id = 'WaveformWidget:test'
+        w.pubsub = _PubSub()
+        w.trigger_mode = 'off'
+        m = w._x_marker_add_dual(self.e1, self.e1 + 4 * _MS)
+        w.trigger_mode = 'auto'
+        w._x_marker_follow_trigger(m['id'], True)
+        topic, (cmd, current, previous) = w.pubsub.published[-1]
+        self.assertEqual('update', cmd)
+        self.assertEqual(('trigger', 0, 4 * _MS), (current['mode'], current['rel1'], current['rel2']))
+        self.assertEqual('absolute', previous['mode'])
+
+
 if __name__ == '__main__':
     unittest.main()

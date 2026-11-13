@@ -752,6 +752,8 @@ class WaveformWidget(QtWidgets.QWidget):
         self._trigger_status = 'off'      # off, auto, ready, trig, stop, nosig
         self._trigger_shown = None        # the displayed trigger time64
         self._trigger_epoch = None        # the x-axis zero time while triggered
+        self._trigger_epoch_last = None   # held when streaming stops, for the axis and markers
+        self._trigger_frame_drawn = None  # ([x0, x1], trigger time) of the displayed frame
         self._trigger_config = None       # the applied detector configuration
         self._trigger_arm_pending = False  # single mode: arm at the newest sample
         self._trigger_mode_prev = None
@@ -1258,7 +1260,10 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _compute_x_range(self):
         if self._trigger_active():
-            return self._trigger_x_range()
+            x_range = self._trigger_x_range()
+            if self._trigger_epoch is not None:
+                self._trigger_epoch_last = self._trigger_epoch
+            return x_range
         self._trigger_epoch = None
         e0, e1 = self.x_extent
         if self._x_epoch is not None:
@@ -1302,6 +1307,88 @@ class WaveformWidget(QtWidgets.QWidget):
             return bool(self._is_streaming())
         except Exception:
             return False
+
+    def _x_marker_trigger_anchor(self):
+        """The trigger time that trigger-mode x-axis markers follow.
+
+        :return: The time64 trigger time, or None when the trigger is off.
+            When streaming stops, this holds the last trigger time, which
+            matches the held view.
+        """
+        mode = getattr(self, 'trigger_mode', 'off')
+        if mode not in trigger_mod.MODES or mode == 'off' or self._is_file_mode:
+            return None
+        return self._trigger_epoch_last
+
+    def _x_marker_trigger_frame(self):
+        """The displayed frame for trigger-mode x-axis markers.
+
+        :return: ([x0, x1], trigger_time) for the frame on screen, or None
+            when the trigger is off.
+
+        Mouse positions and new markers use the frame on screen.  The
+        trigger time for the next frame is already computed, so offsets
+        from screen positions must use the displayed trigger time.
+        """
+        if self._x_marker_trigger_anchor() is None:
+            return None
+        return self._trigger_frame_drawn
+
+    def _x_marker_anchor(self, m):
+        """The time that an x-axis marker position follows.
+
+        :param m: The x-axis marker.
+        :return: The time64 anchor for the rel1 and rel2 offsets,
+            or None when the marker position is absolute.
+            * absolute: None.
+            * relative: The newest sample time.
+            * trigger: The trigger time, or None when the trigger is off,
+              so that the marker holds its position.
+        """
+        mode = m.get('mode', 'absolute')
+        if mode == 'relative':
+            return self.x_extent[1]
+        elif mode == 'trigger':
+            return self._x_marker_trigger_anchor()
+        return None
+
+    def _x_markers_position_update(self):
+        """Compute the next position for markers that follow an anchor.
+
+        :return: True if any marker position changed.
+        """
+        changed = False
+        for m in self.annotations['x'].values():
+            if m.get('mode', 'absolute') not in ('relative', 'trigger'):
+                continue
+            anchor = self._x_marker_anchor(m)
+            for k in range(1, 2 if m['dtype'] == 'single' else 3):
+                if anchor is None or f'rel{k}' not in m:
+                    m_pos = m[f'pos{k}']
+                else:
+                    m_pos = anchor + m[f'rel{k}']
+                if m[f'pos{k}'] != m_pos:
+                    m['changed'] = True
+                    changed = True
+                m[f'pos_next{k}'] = m_pos
+        return changed
+
+    def _x_marker_follow_trigger(self, marker_id, follow):
+        """Change whether an x-axis marker follows the trigger.
+
+        :param marker_id: The marker id.
+        :param follow: True to follow the trigger, False for absolute.
+        """
+        m = self._annotation_lookup(marker_id)
+        frame = self._x_marker_trigger_frame()
+        anchor = None if frame is None else frame[1]
+        if follow and anchor is not None:
+            changes = {'mode': 'trigger', 'rel1': m['pos1'] - anchor}
+            if m['dtype'] == 'dual':
+                changes['rel2'] = m['pos2'] - anchor
+        else:
+            changes = {'mode': 'absolute'}
+        self._x_marker_update_publish(m, changes)
 
     def _trigger_level(self):
         """The effective trigger level, including an in-progress drag."""
@@ -1578,6 +1665,7 @@ class WaveformWidget(QtWidgets.QWidget):
             self._trigger_config = None
             self._trigger_shown = None
             self._trigger_epoch = None
+            self._trigger_epoch_last = None
             if prev not in (None, 'off') and getattr(self, 'pubsub', None) is not None and self._is_streaming():
                 # follow the newest data with the triggered view duration
                 self.pin_left = False
@@ -1646,14 +1734,8 @@ class WaveformWidget(QtWidgets.QWidget):
                 self._request_signal(signal, self.x_range)
                 changed = True
         if self.state is not None:
+            self._x_markers_position_update()
             for m in self.annotations['x'].values():
-                if m.get('mode', 'absolute') == 'relative':
-                    for k in range(1, 2 if m['dtype'] == 'single' else 3):
-                        m_pos = self.x_extent[1] + m[f'rel{k}']
-                        if m[f'pos{k}'] != m_pos:
-                            m['changed'] = True
-                        m[f'pos_next{k}'] = m_pos
-
                 if m.get('changed', True) or changed:
                     changed = True
                     m['changed'] = False
@@ -1677,7 +1759,7 @@ class WaveformWidget(QtWidgets.QWidget):
             plot_id = plot['index']
             rsp_id = _marker_to_rsp_id(marker_id, plot_id)
             self._marker_data[(marker_id, plot_id)] = None  # invalidate any existing data
-            if marker.get('mode', 'absolute') == 'relative':
+            if marker.get('mode', 'absolute') in ('relative', 'trigger') and 'pos_next2' in marker:
                 x0, x1 = marker['pos_next1'], marker['pos_next2']
             else:
                 x0, x1 = marker['pos1'], marker['pos2']
@@ -2459,9 +2541,11 @@ class WaveformWidget(QtWidgets.QWidget):
             x_gain = (plot_width - 1) / (x_duration_s * time64.SECOND)
         else:
             return False
-        if self._trigger_epoch is not None and self._trigger_active():
+        trigger_anchor = self._x_marker_trigger_anchor()
+        self._trigger_frame_drawn = None if trigger_anchor is None else (list(x_range64), trigger_anchor)
+        if trigger_anchor is not None:
             # time relative to the trigger keeps the grid steady with the traces
-            epoch = self._trigger_epoch
+            epoch = trigger_anchor
         elif self.x_time_mode == 'relative_negative':
             epoch = self.x_extent[1]
         elif self.x_time_mode.startswith('relative'):
@@ -2698,7 +2782,7 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _draw_update_markers(self):
         for m in self.annotations['x'].values():
-            if m.get('mode', 'absolute') == 'relative':
+            if m.get('mode', 'absolute') in ('relative', 'trigger'):
                 m['pos1'] = m.get('pos_next1', m['pos1'])
                 if m['dtype'] == 'dual':
                     m['pos2'] = m.get('pos_next2', m['pos2'])
@@ -3722,6 +3806,9 @@ class WaveformWidget(QtWidgets.QWidget):
                 xt = self._x_map.counter_to_time64(x)
                 e0, e1 = self.x_extent
                 xr = self.x_range
+                trigger_frame = self._x_marker_trigger_frame()
+                if trigger_frame is not None:
+                    xr = trigger_frame[0]  # the mouse is in the displayed frame
                 xt = max(xr[0], min(xr[1], xt))  # bound mouse to visible range
                 item, x_offset, move_both = self._mouse_action[1:4]
                 m, m_field = self._item_parse_x_marker(item)
@@ -3737,7 +3824,17 @@ class WaveformWidget(QtWidgets.QWidget):
                     xd -= m[m_field] - e1
                     m[m_field] = e1
 
-                is_relative = m.get('mode', 'absolute') == 'relative'
+                mode = m.get('mode', 'absolute')
+                anchor = None
+                if mode == 'relative':
+                    anchor = e1
+                elif mode == 'trigger':
+                    frame = self._x_marker_trigger_frame()
+                    if frame is None:
+                        m['mode'] = 'absolute'  # placed in the untriggered view
+                    else:
+                        anchor = frame[1]  # the mouse is in the displayed frame
+                is_relative = anchor is not None
                 if m['dtype'] == 'dual' and move_both:
                     m_field2 = 'pos1' if m_field == 'pos2' else 'pos2'
                     m[m_field2] += xd
@@ -3750,9 +3847,9 @@ class WaveformWidget(QtWidgets.QWidget):
                     m[m_field] += dx
                     m[m_field2] += dx
                     if is_relative:
-                        m['rel' + m_field2[-1]] = m[m_field2] - e1
+                        m['rel' + m_field2[-1]] = m[m_field2] - anchor
                 if is_relative:
-                    m['rel' + m_field[-1]] = m[m_field] - e1
+                    m['rel' + m_field[-1]] = m[m_field] - anchor
             elif action == 'move.y_marker':
                 item, move_both = self._mouse_action[1:3]
                 m, m_field = self._item_parse_y_marker(item)
@@ -4789,7 +4886,7 @@ class WaveformWidget(QtWidgets.QWidget):
     def _on_x_interval(self, m, pos_text, interval):
         m = self._annotation_lookup(m['id'])
         other_pos = 'pos2' if pos_text == 'pos1' else 'pos1'
-        if m.get('mode', 'absolute') == 'relative':
+        if m.get('mode', 'absolute') in ('relative', 'trigger') and 'rel1' in m:
             pos_text = 'rel' + pos_text[-1]
             other_pos = 'rel' + other_pos[-1]
         self._x_marker_update_publish(m, {other_pos: m[pos_text] + int(interval * time64.SECOND)})
@@ -4852,6 +4949,12 @@ class WaveformWidget(QtWidgets.QWidget):
         CallableAction(show_time_group, N_('On'),
                        lambda: self._on_x_marker_time_show(m, 'on'),
                        checkable=True, checked=(show_time == 'on'))
+
+        if self._x_marker_trigger_frame() is not None:
+            follows = m.get('mode', 'absolute') == 'trigger'
+            CallableAction(menu, N_('Follow trigger'),
+                           lambda: self._x_marker_follow_trigger(m['id'], not follows),
+                           checkable=True, checked=follows)
 
         label_menu = menu.addMenu(N_('Label'))
         label_edit = QtWidgets.QLineEdit(m.get('label', ''))
@@ -4983,7 +5086,8 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _x_marker_position(self, xi):
         xi_init = xi
-        x0, x1 = self.x_range
+        trigger_frame = self._x_marker_trigger_frame()
+        x0, x1 = self.x_range if trigger_frame is None else trigger_frame[0]
         p0, p1 = self._x_map.time64_to_counter(x0), self._x_map.time64_to_counter(x1)
         pd = (p1 - p0) // 25
         pd = min(10, pd)
@@ -5018,7 +5122,8 @@ class WaveformWidget(QtWidgets.QWidget):
             raise ValueError('unsupported remove')
 
     def _x_marker_add_single(self, pos1=None, metadata=None):
-        x0, x1 = self.x_range
+        trigger_frame = self._x_marker_trigger_frame()
+        x0, x1 = self.x_range if trigger_frame is None else trigger_frame[0]
         if pos1 is not None and pos1 < 0:
             if self._mouse_pos is not None:
                 pos1 = self._x_map.counter_to_time64(self._mouse_pos[0])
@@ -5041,6 +5146,9 @@ class WaveformWidget(QtWidgets.QWidget):
         if metadata is not None:
             marker.update(metadata)
             marker['changed'] = True
+        elif trigger_frame is not None:  # follow the trigger
+            marker['mode'] = 'trigger'
+            marker['rel1'] = pos1 - trigger_frame[1]
         elif self.x_axis_annotation_mode == 'relative':
             marker['mode'] = 'relative'
             marker['rel1'] = pos1 - self.x_extent[1]
@@ -5048,7 +5156,8 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def _x_marker_add_dual(self, pos1=None, pos2=None, metadata=None):
         xc = None
-        x0, x1 = self.x_range
+        trigger_frame = self._x_marker_trigger_frame()
+        x0, x1 = self.x_range if trigger_frame is None else trigger_frame[0]
         if pos1 is not None and pos2 is None:
             if pos1 < 0:
                 if self._mouse_pos is not None:
@@ -5087,6 +5196,10 @@ class WaveformWidget(QtWidgets.QWidget):
         if metadata is not None:
             marker.update(metadata)
             marker['changed'] = True
+        elif trigger_frame is not None:  # follow the trigger
+            marker['mode'] = 'trigger'
+            marker['rel1'] = pos1 - trigger_frame[1]
+            marker['rel2'] = pos2 - trigger_frame[1]
         elif self.x_axis_annotation_mode == 'relative':
             e1 = self.x_extent[1]
             marker['mode'] = 'relative'
@@ -5510,6 +5623,10 @@ class WaveformWidget(QtWidgets.QWidget):
                     for m_id in inside:
                         m = self._annotation_lookup(m_id).copy()
                         m_id += 1  # convert to 1-indexed
+                        if m.get('mode') == 'trigger':  # files have no trigger
+                            m['mode'] = 'absolute'
+                            m.pop('rel1', None)
+                            m.pop('rel2', None)
 
                         # normalize so that pos1 < pos2
                         if 'pos2' in m and m['pos1'] > m['pos2']:
