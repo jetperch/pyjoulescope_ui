@@ -26,6 +26,8 @@ from .waveform_control import WaveformControlWidget
 from .waveform_source_widget import WaveformSourceWidget
 from .interval_widget import IntervalWidget
 from .y_range_widget import YRangeWidget
+from . import trigger as trigger_mod
+from joulescope_ui.spectrum_engine import unpack as samples_unpack
 from joulescope_ui.time_map import TimeMap
 import pyjls
 from joulescope_ui.jls_v2 import ChunkMeta
@@ -57,6 +59,7 @@ _Y_INNER_LINE = 4
 _Y_PLOT_MIN = 16
 _MARKER_RSP_OFFSET = (1 << 48)
 _MARKER_RSP_STEP = 512
+_TRIGGER_RSP_ID = (1 << 47)  # trigger source scan, below the marker rsp_id range
 _JS220_AXIS_R = {0: '10 A', 1: '180 mA', 2: '18 mA', 3: '1.8 mA', 4: '180 µA', 5: '18 µA',
                  6: 'off', 7: 'off', 8: 'off'}
 _JS110_AXIS_R = {0: '10 A', 1: '2 A', 2: '180 mA', 3: ' 18 mA', 4: '1.8 mA', 5: '180 µA', 6: '18 µA',
@@ -74,6 +77,15 @@ _CLIP_LIMIT_PIXELS = 8192
 _Y_PIXEL_LIMIT = 1 << 40  # bound pixels for int conversion, exact for interpolation
 _PIN_ATTENTION_DURATION_S = 3.0  # in-plot pinned x-axis message display duration
 _PIN_ATTENTION_MESSAGE = N_('X-axis pinned: click the pin buttons or press Shift+Space to unpin')
+_TRIGGER_STATUS = {
+    'auto': N_('Auto'),
+    'ready': N_('Ready'),
+    'trig': N_("Trig'd"),
+    'stop': N_('Stop'),
+    'nosig': N_('No signal'),
+}
+_TRIGGER_MARKER_SIZE = 5      # half-width of the trigger marker triangles, in pixels
+_TRIGGER_PAN_STEP = 25.0      # trigger position percent change for each x_pan step
 
 
 def _analog_plot(quantity, show, units, name, integral=None, range_bounds=None):
@@ -589,7 +601,79 @@ class WaveformWidget(QtWidgets.QWidget):
                 ['minutes', N_('Minutes')],
                 ['seconds', N_('Seconds')],
             ],
-        }
+        },
+        'trigger_mode': {
+            'dtype': 'str',
+            'brief': N_('The trigger mode.'),
+            'detail': P_([
+                N_('The trigger places a level crossing of the trigger source at the trigger '
+                   'position on the time axis, which holds repeating waveforms steady while streaming.'),
+                N_('Off follows the newest data.'),
+                N_('Auto displays each trigger, and follows the newest data when no trigger occurs.'),
+                N_('Normal displays each trigger, and holds the last trigger when no trigger occurs.'),
+                N_('Single displays the next trigger, then holds it until you arm the trigger again.'),
+            ]),
+            'options': [
+                ['off', N_('Off')],
+                ['auto', N_('Auto')],
+                ['normal', N_('Normal')],
+                ['single', N_('Single')],
+            ],
+            'default': 'off',
+        },
+        'trigger_source': {
+            'dtype': 'str',
+            'brief': N_('The trigger source signal.'),
+            'options': _QUANTITIES,
+            'default': 'i',
+        },
+        'trigger_edge': {
+            'dtype': 'str',
+            'brief': N_('The trigger edge.'),
+            'options': [
+                ['rising', N_('Rising')],
+                ['falling', N_('Falling')],
+                ['either', N_('Either')],
+            ],
+            'default': 'rising',
+        },
+        'trigger_level': {
+            'dtype': 'float',
+            'brief': N_('The trigger level in the trigger source units.'),
+            'detail': N_('Digital signals always trigger at 0.5.'),
+            'default': 0.0,
+        },
+        'trigger_hysteresis': {
+            'dtype': 'float',
+            'brief': N_('The trigger noise rejection.'),
+            'detail': P_([
+                N_('The hysteresis as a percentage of the trigger source plot height.'),
+                N_('A rising edge arms when the signal falls below the level by this amount, '
+                   'and a falling edge arms when the signal rises above the level by this amount. '
+                   'Increase to ignore noise around the trigger level.'),
+            ]),
+            'options': [
+                [0.0, N_('Off')],
+                [1.0, '1%'],
+                [2.0, '2%'],
+                [5.0, '5%'],
+                [10.0, '10%'],
+            ],
+            'default': 2.0,
+        },
+        'trigger_position': {
+            'dtype': 'float',
+            'brief': N_('The trigger position as a percentage of the time axis.'),
+            'detail': N_('0 places the trigger at the left edge, 50 at the center, and 100 at the right edge.'),
+            'default': 50.0,
+        },
+        'trigger_holdoff': {
+            'dtype': 'float',
+            'brief': N_('The trigger holdoff in seconds.'),
+            'detail': N_('Ignore triggers for this duration after each trigger. '
+                         'Set the holdoff slightly longer than a burst to trigger on the first edge of each burst.'),
+            'default': 0.0,
+        },
     }
 
     def __init__(self, parent=None, **kwargs):
@@ -663,6 +747,15 @@ class WaveformWidget(QtWidgets.QWidget):
         self._annotations_request_defer = []
         self._await = []  # defer topic publish on JLS user_data
         self._pin_attention_expire = 0.0  # end time for the pinned x-axis indication
+
+        self._trigger_scanner = trigger_mod.TriggerScanner()
+        self._trigger_status = 'off'      # off, auto, ready, trig, stop, nosig
+        self._trigger_shown = None        # the displayed trigger time64
+        self._trigger_epoch = None        # the x-axis zero time while triggered
+        self._trigger_config = None       # the applied detector configuration
+        self._trigger_arm_pending = False  # single mode: arm at the newest sample
+        self._trigger_mode_prev = None
+        self._trigger_drag = {}           # in-progress mouse values: level, position
 
         self._fps = {
             'start': time.time(),
@@ -1098,6 +1191,8 @@ class WaveformWidget(QtWidgets.QWidget):
     def _on_signal_range(self, topic, value):
         if value is None:
             return
+        range_samples = value.get('samples')
+        sample_rate = value.get('sample_rate')
         value = value['utc']
         topic_parts = topic.split('/')
         source = topic_parts[1]
@@ -1121,6 +1216,8 @@ class WaveformWidget(QtWidgets.QWidget):
             self._signals_by_rsp_id[self._signals_rsp_id_next] = d
             self._signals_rsp_id_next += 1
             self._subsources_update()
+        d['range_samples'] = range_samples  # for the trigger scan
+        d['sample_rate'] = sample_rate
         if value != d['range']:
             d['range'] = value
             d['changed'] = time.time()
@@ -1160,6 +1257,9 @@ class WaveformWidget(QtWidgets.QWidget):
         return [x0, x1]
 
     def _compute_x_range(self):
+        if self._trigger_active():
+            return self._trigger_x_range()
+        self._trigger_epoch = None
         e0, e1 = self.x_extent
         if self._x_epoch is not None:
             # relative time mode: stabilized extent start for jitter-free display
@@ -1189,6 +1289,324 @@ class WaveformWidget(QtWidgets.QWidget):
             x0 = max(x0, e0)
             return [x0, x0 + d_z]
 
+    def _trigger_active(self):
+        """Check if the trigger controls the x-axis range.
+
+        The trigger only operates on live streaming data.  When streaming
+        stops, the x-axis range holds the last displayed trigger.
+        """
+        mode = getattr(self, 'trigger_mode', 'off')
+        if mode not in trigger_mod.MODES or mode == 'off' or self._is_file_mode:
+            return False
+        try:
+            return bool(self._is_streaming())
+        except Exception:
+            return False
+
+    def _trigger_level(self):
+        """The effective trigger level, including an in-progress drag."""
+        if trigger_mod.is_digital(self.trigger_source):
+            return trigger_mod.DIGITAL_LEVEL
+        level = self._trigger_drag.get('level', self.trigger_level)
+        try:
+            level = float(level)
+        except (TypeError, ValueError):
+            return 0.0
+        return level if np.isfinite(level) else 0.0
+
+    def _trigger_position(self):
+        """The effective trigger position as a fraction, 0 to 1."""
+        position = self._trigger_drag.get('position', self.trigger_position)
+        try:
+            position = float(position)
+        except (TypeError, ValueError):
+            position = 50.0
+        if not np.isfinite(position):
+            position = 50.0
+        return min(100.0, max(0.0, position)) / 100.0
+
+    def _trigger_plot(self):
+        """The plot for the trigger source, or None."""
+        try:
+            return self._plot_find_by_quantity(self.trigger_source)
+        except (KeyError, TypeError):
+            return None
+
+    def _trigger_signal(self):
+        """Get the trigger source signal.
+
+        :return: (signal_id, signal) or (None, None) when unavailable.
+        """
+        traces = self._traces()
+        if not len(traces):
+            return None, None
+        signal_id = f'{traces[0][1]}.{self.trigger_source}'
+        signal = self._signals.get(signal_id)
+        if signal is None or not signal.get('range_samples') or not signal.get('sample_rate'):
+            return None, None
+        return signal_id, signal
+
+    def _trigger_reset(self, arm=None):
+        """Restart the trigger search.
+
+        :param arm: True to search only for new triggers, such as when
+            arming single mode.  None arms for single mode.
+        """
+        if arm is None:
+            arm = self.trigger_mode == 'single'
+        self._trigger_scanner.reset()
+        self._trigger_config = None
+        self._trigger_arm_pending = bool(arm)
+        if arm:
+            self._trigger_shown = None
+        if self._trigger_status != 'off':
+            self._trigger_status = 'ready'
+        self._repaint_request = True
+
+    def _trigger_configure(self, signal_id, signal):
+        """Apply the trigger settings to the detector.
+
+        A configuration change restarts the trigger search.
+        """
+        plot = self._trigger_plot()
+        level = self._trigger_level()
+        fs = float(signal['sample_rate'])
+        try:
+            holdoff = max(0.0, float(self.trigger_holdoff)) * fs
+        except (TypeError, ValueError):
+            holdoff = 0.0
+        edge = self.trigger_edge if self.trigger_edge in trigger_mod.EDGES else 'rising'
+        config = (signal_id, edge, level, holdoff)
+        detector = self._trigger_scanner.detector
+        if config != self._trigger_config:
+            arm = self._trigger_arm_pending or self._trigger_status == 'stop'
+            if self._trigger_config is not None and self.trigger_mode == 'single':
+                arm = True  # changing the trigger re-arms single mode
+            self._trigger_reset(arm=arm)
+            detector.configure(edge, level, 0.0, holdoff)
+            self._trigger_config = config
+
+        # The hysteresis follows the plot y-axis range.  Update without reset.
+        hysteresis = 0.0
+        if plot is not None and not trigger_mod.is_digital(self.trigger_source):
+            try:
+                pct = max(0.0, float(self.trigger_hysteresis))
+                r0, r1 = plot['range']
+                if plot.get('scale', 'linear') == 'logarithmic':
+                    r0, r1 = self._y_transform_rev(plot, r0), self._y_transform_rev(plot, r1)
+                hysteresis = abs(r1 - r0) * pct / 100.0
+            except (TypeError, ValueError, KeyError):
+                hysteresis = 0.0
+        detector.hysteresis = hysteresis
+
+    def _trigger_scan(self):
+        """Request the next block of trigger source samples."""
+        signal_id, signal = self._trigger_signal()
+        if signal is None:
+            self._trigger_status = 'nosig'
+            return
+        if self._trigger_status in ('off', 'nosig'):
+            self._trigger_status = 'ready'
+        self._trigger_configure(signal_id, signal)
+        if self._trigger_status == 'stop':
+            return  # single mode captured: hold
+        r = signal['range_samples']
+        buf_start, buf_end = int(r['start']), int(r['end']) - 1
+        fs = float(signal['sample_rate'])
+        if self._trigger_arm_pending:
+            self._trigger_arm_pending = False
+            self._trigger_scanner.reset(start=buf_end + 1)
+        x0, x1 = self.x_range
+        e0, e1 = self.x_extent
+        dt = (x1 - x0) if x1 > x0 else (e1 - e0)
+        lookback = int((dt / time64.SECOND) * fs * 1.1) + 1
+        req_range = self._trigger_scanner.request(buf_start, buf_end, lookback, time.monotonic())
+        if req_range is None:
+            return
+        source, subsignal_id = signal_id.split('.', 1)
+        req = {
+            'signal_id': subsignal_id,
+            'time_type': 'samples',
+            'start': req_range[0],
+            'end': req_range[1],
+            'length': 0,
+            'rsp_topic': f'{get_topic_name(self)}/callbacks/!response',
+            'rsp_id': _TRIGGER_RSP_ID,
+        }
+        self.pubsub.publish(f'registry/{source}/actions/!request', req, defer=True)
+
+    def _on_trigger_response(self, value):
+        """Process the trigger source samples from the stream buffer."""
+        scanner = self._trigger_scanner
+        info = value['info']
+        rs = info['time_range_samples']
+        start, length = int(rs['start']), int(rs['length'])
+        if scanner.is_stale(start):
+            return
+        if not self._trigger_active():
+            scanner.on_response_invalid()
+            return
+        if value.get('response_type') != 'samples' or length <= 0:
+            scanner.on_response_invalid(start + length if length > 0 else None)
+            return
+        try:
+            y = samples_unpack(value['data'], value['data_type'], length)
+        except ValueError:
+            self._log.warning('trigger: unsupported data type %s', value.get('data_type'))
+            scanner.on_response_invalid(start + length)
+            return
+        positions = scanner.on_response(start, y)
+        self._repaint_request = True
+        if positions is None or not len(positions):
+            return
+        fs = float(info['time_map']['counter_rate'])
+        k = np.floor(positions)
+        frac = positions - k
+        try:
+            with info['tmap'] as tmap:
+                t = tmap.sample_id_to_timestamp(k.astype(np.uint64))
+        except ValueError:
+            self._log.warning('trigger: invalid tmap, ignore response')
+            return
+        t = np.asarray(t, dtype=np.int64) + np.rint(frac * (time64.SECOND / fs)).astype(np.int64)
+        scanner.history.extend(t)
+
+    def _trigger_x_range(self):
+        """Compute the x-axis range for the trigger display."""
+        e0, e1 = self.x_extent
+        x_range = self.x_range
+        if x_range is None or len(x_range) != 2:
+            x_range = [0, 0]
+        x0, x1 = x_range
+        dt = (x1 - x0) if x1 > x0 else (e1 - e0)
+        if dt <= 0:
+            self._trigger_epoch = None
+            return [e0, e1]
+        position = self._trigger_position()
+        mode = self.trigger_mode
+        history = self._trigger_scanner.history
+        history.prune(e0)
+        nosig = self._trigger_status == 'nosig'
+
+        if mode == 'single' and self._trigger_status == 'stop' and self._trigger_shown is not None:
+            t = self._trigger_shown
+        else:
+            t_sel = trigger_mod.trigger_select(history, e1, dt, position)
+            post = int(round((1.0 - position) * dt))
+            timeout = max(int(trigger_mod.AUTO_TIMEOUT_S * time64.SECOND), dt)
+            fresh = t_sel is not None and (e1 - post - t_sel) <= timeout
+            if t_sel is not None and (fresh or mode != 'auto'):
+                t = t_sel
+                self._trigger_shown = t
+                if mode == 'single':
+                    self._trigger_status = 'stop'
+                else:
+                    self._trigger_status = 'trig' if fresh else 'ready'
+            elif mode == 'auto':
+                if not nosig:
+                    self._trigger_status = 'auto'
+                self._trigger_shown = None
+                z0 = e1 - dt
+                self._trigger_epoch = z0 + int(round(position * dt))
+                return [z0, e1]
+            else:
+                if not nosig:
+                    self._trigger_status = 'ready'
+                t = self._trigger_shown
+                if t is None:  # no trigger yet: hold the view
+                    self._trigger_epoch = x0 + int(round(position * dt))
+                    return [x0, x0 + dt]
+        self._trigger_epoch = t
+        return trigger_mod.trigger_window(t, dt, position)
+
+    def _trigger_level_center(self):
+        """Compute the level at the middle of the displayed trigger source.
+
+        :return: The level or None when no data is available.
+        """
+        traces = self._traces(self.trigger_source)
+        if not len(traces):
+            return None
+        sig = self._signals_data.get(f'{traces[0][1]}.{self.trigger_source}')
+        if sig is None:
+            return None
+        d = sig['data']
+        v_min = d['min'] if d.get('min') is not None else d['avg']
+        v_max = d['max'] if d.get('max') is not None else d['avg']
+        v_min = v_min[np.isfinite(v_min)]
+        v_max = v_max[np.isfinite(v_max)]
+        if not len(v_min) or not len(v_max):
+            return None
+        return float((np.min(v_min) + np.max(v_max)) / 2)
+
+    def on_action_trigger(self, topic, value):
+        """Perform a trigger action.
+
+        :param value: The command string or list of [command, args...]:
+            * arm: Restart the trigger search.  For single mode, capture
+              the next trigger.
+            * level_center: Set the trigger level to the middle of the
+              displayed trigger source signal.
+            * set, quantity, level: Set the trigger source and level, and
+              enable auto mode if the trigger is off.
+        """
+        if isinstance(value, str):
+            value = [value]
+        cmd = value[0]
+        if cmd == 'arm':
+            self._trigger_reset(arm=True)
+        elif cmd == 'level_center':
+            level = self._trigger_level_center()
+            if level is not None:
+                self.trigger_level = level
+        elif cmd == 'set':
+            quantity, level = value[1:3]
+            self.trigger_source = quantity
+            self.trigger_level = float(level)
+            if self.trigger_mode == 'off':
+                self.trigger_mode = 'auto'
+        else:
+            self._log.warning('unsupported trigger action %s', value)
+        self._repaint_request = True
+        return None
+
+    def on_setting_trigger_mode(self, value):
+        prev, self._trigger_mode_prev = self._trigger_mode_prev, value
+        if value == 'off':
+            self._trigger_status = 'off'
+            self._trigger_scanner.reset()
+            self._trigger_config = None
+            self._trigger_shown = None
+            self._trigger_epoch = None
+            if prev not in (None, 'off') and getattr(self, 'pubsub', None) is not None and self._is_streaming():
+                # follow the newest data with the triggered view duration
+                self.pin_left = False
+                self.pin_right = True
+        else:
+            if self._trigger_status == 'off':
+                self._trigger_status = 'ready'
+            self._trigger_reset()
+        self._plot_data_invalidate()
+
+    def on_setting_trigger_source(self):
+        self._trigger_shown = None
+        self._plot_data_invalidate()
+
+    def on_setting_trigger_edge(self):
+        self._repaint_request = True
+
+    def on_setting_trigger_level(self):
+        self._repaint_request = True
+
+    def on_setting_trigger_hysteresis(self):
+        self._repaint_request = True
+
+    def on_setting_trigger_position(self):
+        self._plot_data_invalidate()
+
+    def on_setting_trigger_holdoff(self):
+        self._repaint_request = True
+
     def _request_data(self, force=False):
         force = bool(force)
         if not len(self._x_geometry_info):
@@ -1199,7 +1617,13 @@ class WaveformWidget(QtWidgets.QWidget):
             self._x_epoch = axis_ticks.x_relative_epoch(self._x_epoch_state, e0, e1, self._is_streaming())
         else:
             self._x_epoch = None
+        trigger_active = self._trigger_active()
+        if trigger_active:
+            self._trigger_scan()
+        x_range_prev = list(self.x_range) if self.x_range is not None else None
         self.x_range = self._compute_x_range()
+        if trigger_active and list(self.x_range) != x_range_prev:
+            force = True  # the triggered view moved: request the new range
         # x0, x1 = self.x_range
         # xc = (x0 >> 1) + (x1 >> 1)
         # self._log.info(f'request x_range({x0}, {x1}) {xc} {time64.as_datetime(xc)}')
@@ -1319,6 +1743,8 @@ class WaveformWidget(QtWidgets.QWidget):
                                 {'rsp_topic': f'{self.topic}/callbacks/!annotations'})
 
     def on_callback_response(self, topic, value):
+        if value.get('rsp_id') == _TRIGGER_RSP_ID:
+            return self._on_trigger_response(value)
         sample_ids = value['info']['time_range_samples']
         if sample_ids['length'] == 0:
             return
@@ -1532,6 +1958,7 @@ class WaveformWidget(QtWidgets.QWidget):
         trace2 = color_as_string(v['waveform.trace2'], alpha=0xff)
         trace3 = color_as_string(v['waveform.trace3'], alpha=0xff)
         trace4 = color_as_string(v['waveform.trace4'], alpha=0xff)
+        trigger_color = color_as_string(v.get('waveform.trigger', '#ff9020ff'), alpha=0xff)
 
         self._style_cache = {
             'background_brush': QtGui.QBrush(color_as_qcolor(v['waveform.background'])),
@@ -1545,6 +1972,9 @@ class WaveformWidget(QtWidgets.QWidget):
 
             'waveform.hover': QBrush(color_as_qcolor(v['waveform.hover'])),
             'pin_attention_pen': QPen(color_as_qcolor(v.get('waveform.pin_attention', '#ff8c00ff')), 2),
+            'trigger_pen': QPen(color_as_qcolor(trigger_color)),
+            'trigger_brush': QBrush(color_as_qcolor(trigger_color)),
+            'trigger_line_pen': QPen(color_as_qcolor(trigger_color, alpha=0x90), 1, QtCore.Qt.PenStyle.DashLine),
 
             'summary_missing': QBrush(color_as_qcolor(summary_trace, alpha=missing_alpha)),
             'summary_trace': QPen(color_as_qcolor(summary_trace, alpha=trace_alpha)),
@@ -1874,6 +2304,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 self._draw_text_annotations(p, plot)
         self._draw_spacers(p)
         self._draw_markers(p, size)
+        self._draw_trigger(p)
 
         self._draw_hover(p)
         self._draw_pin_attention(p)
@@ -2028,7 +2459,10 @@ class WaveformWidget(QtWidgets.QWidget):
             x_gain = (plot_width - 1) / (x_duration_s * time64.SECOND)
         else:
             return False
-        if self.x_time_mode == 'relative_negative':
+        if self._trigger_epoch is not None and self._trigger_active():
+            # time relative to the trigger keeps the grid steady with the traces
+            epoch = self._trigger_epoch
+        elif self.x_time_mode == 'relative_negative':
             epoch = self.x_extent[1]
         elif self.x_time_mode.startswith('relative'):
             epoch = self.x_extent[0] if self._x_epoch is None else self._x_epoch
@@ -2691,6 +3125,94 @@ class WaveformWidget(QtWidgets.QWidget):
         p.drawText(x + margin, y + margin + font_metrics.ascent(), txt)
         self._repaint_request = True  # keep drawing until expired
 
+    def _trigger_x_pixel(self):
+        """The trigger position x pixel, or None."""
+        try:
+            w, x0, _ = self._x_geometry_info['plot']
+        except KeyError:
+            return None
+        return x0 + self._trigger_position() * max(0, w - 1)
+
+    def _trigger_level_pixel(self):
+        """Get the trigger level marker location.
+
+        :return: (plot, y_pixel, is_visible) or None when the level
+            marker is not displayed.
+        """
+        if trigger_mod.is_digital(self.trigger_source):
+            return None
+        plot = self._trigger_plot()
+        if plot is None or not plot.get('enabled') or 'y_map' not in plot:
+            return None
+        region = self._y_geometry_info.get(plot.get('y_region', ''))
+        if region is None:
+            return None
+        _, y0, y1 = region
+        y = self._y_value_to_pixel(plot, self._trigger_level())
+        return plot, min(max(y, y0), y1), y0 <= y <= y1
+
+    def _draw_trigger(self, p):
+        """Draw the trigger position marker, level marker, and status."""
+        if self.trigger_mode == 'off' or self._is_file_mode:
+            return
+        s = self._style
+        try:
+            _, ya0, ya1 = self._y_geometry_info['x_axis']
+            _, y_end, _ = self._y_geometry_info['margin.bottom']
+            w, x0, x1 = self._x_geometry_info['plot']
+        except KeyError:
+            return
+        r = _TRIGGER_MARKER_SIZE
+        p.setRenderHint(_ANTIALIASING)
+
+        # position marker: triangle at the bottom of the x-axis, line through the plots
+        xp = self._trigger_x_pixel()
+        p.setPen(s['trigger_line_pen'])
+        p.drawLine(QtCore.QPointF(xp, ya1), QtCore.QPointF(xp, y_end))
+        p.setPen(self._NO_PEN)
+        p.setBrush(s['trigger_brush'])
+        p.drawPolygon(QtGui.QPolygonF([
+            QtCore.QPointF(xp - r, ya1 - 2 * r),
+            QtCore.QPointF(xp + r, ya1 - 2 * r),
+            QtCore.QPointF(xp, ya1),
+        ]))
+
+        # level marker: triangle at the left edge, line across the plot
+        level = self._trigger_level_pixel()
+        if level is not None:
+            plot, yp, is_visible = level
+            _, py0, py1 = self._y_geometry_info[plot['y_region']]
+            p.setClipRect(x0, py0, w, py1 - py0 + 1)
+            if is_visible:
+                p.setPen(s['trigger_line_pen'])
+                p.drawLine(QtCore.QPointF(x0, yp), QtCore.QPointF(x1, yp))
+                p.setPen(s['trigger_pen'])
+                p.setFont(s['axis_font'])
+                txt = 'T ' + _si_format(self._trigger_level(), plot.get('units'), precision=self.precision)
+                tw = s['axis_font_metrics'].boundingRect(txt).width()
+                p.drawText(QtCore.QPointF(x1 - tw - 2 * _MARGIN, yp - _MARGIN), txt)
+            p.setPen(self._NO_PEN)
+            p.setBrush(s['trigger_brush'])
+            p.drawPolygon(QtGui.QPolygonF([
+                QtCore.QPointF(x0, yp - r),
+                QtCore.QPointF(x0, yp + r),
+                QtCore.QPointF(x0 + 2 * r, yp),
+            ]))
+            p.setClipping(False)
+
+        # status text in the top line of the x-axis region
+        status = _TRIGGER_STATUS.get(self._trigger_status) if self._trigger_active() else None
+        if status is not None:
+            txt = N_('Trigger') + ': ' + status
+            font_metrics = s['axis_font_metrics']
+            if self.show_statistics and 'statistics' in self._x_geometry_info:
+                tx = self._x_geometry_info['statistics'][1] + _MARGIN
+            else:
+                tx = x1 - font_metrics.boundingRect(txt).width() - _MARGIN
+            p.setFont(s['axis_font'])
+            p.setPen(s['trigger_pen'])
+            p.drawText(QtCore.QPointF(tx, ya0 + _MARGIN + font_metrics.ascent()), txt)
+
     def _draw_hover(self, p):
         if not self.show_hover:
             return
@@ -3123,9 +3645,34 @@ class WaveformWidget(QtWidgets.QWidget):
                 item = self._find_x_marker(pos[0])
             if not item and x_name.startswith('plot'):
                 item = self._find_y_marker(y_name, pos[1])
+            if not item:
+                item = self._find_trigger_level(y_name, pos[1])
         elif y_name == 'x_axis' and x_name.startswith('plot'):
             item = self._find_x_marker(pos[0])
+            if not item:
+                item = self._find_trigger_position(pos)
         return item, x_name, y_name
+
+    def _find_trigger_level(self, y_name, y):
+        if self.trigger_mode == 'off' or self._is_file_mode:
+            return ''
+        level = self._trigger_level_pixel()
+        if level is None:
+            return ''
+        plot, yp, _ = level
+        if plot.get('y_region') == y_name and abs(y - yp) <= _MARKER_SELECT_DISTANCE_PIXELS:
+            return 'trigger.level'
+        return ''
+
+    def _find_trigger_position(self, pos):
+        if self.trigger_mode == 'off' or self._is_file_mode:
+            return ''
+        xp = self._trigger_x_pixel()
+        _, _, ya1 = self._y_geometry_info['x_axis']
+        x, y = pos
+        if xp is not None and abs(x - xp) <= _TRIGGER_MARKER_SIZE + 2 and y >= ya1 - 2 * _TRIGGER_MARKER_SIZE - 2:
+            return 'trigger.position'
+        return ''
 
     def _set_cursor(self, pos=None):
         if pos is None:
@@ -3134,9 +3681,9 @@ class WaveformWidget(QtWidgets.QWidget):
         cursor = self._CURSOR_ARROW
         if item.startswith('spacer'):
             cursor = self._CURSOR_SIZE_VER
-        elif item.startswith('x_marker'):
+        elif item.startswith('x_marker') or item == 'trigger.position':
             cursor = self._CURSOR_SIZE_HOR
-        elif 'y_marker' in item:
+        elif 'y_marker' in item or item == 'trigger.level':
             cursor = self._CURSOR_SIZE_VER
         self._graphics.setCursor(cursor)
         return item, x_name, y_name
@@ -3219,6 +3766,23 @@ class WaveformWidget(QtWidgets.QWidget):
                 if m['dtype'] == 'dual' and move_both:
                     m_field = 'pos1' if m_field == 'pos2' else 'pos2'
                     m[m_field] = self._y_transform_rev(plot, yd + self._y_transform_fwd(plot, m[m_field]))
+            elif action == 'move.trigger.level':
+                plot = self._trigger_plot()
+                if plot is not None and 'y_map' in plot:
+                    yt = self._y_pixel_to_value(plot, y, skip_transform=True)
+                    yr = plot['range']
+                    yt = max(yr[0], min(yt, yr[1]))  # bound to range
+                    y = self._y_value_to_pixel(plot, yt, skip_transform=True)
+                    self._trigger_drag['level'] = float(self._y_pixel_to_value(plot, y))
+            elif action == 'move.trigger.position':
+                w, x0, _ = self._x_geometry_info['plot']
+                self._trigger_drag['position'] = 100.0 * min(1.0, max(0.0, (x - x0) / max(1, w - 1)))
+            elif action == 'trigger_pan':
+                w = self._x_geometry_info['plot'][0]
+                dx = x - self._mouse_action[1]
+                self._mouse_action[1] = x
+                position = self._trigger_position() * 100.0 + 100.0 * dx / max(1, w - 1)
+                self._trigger_drag['position'] = min(100.0, max(0.0, position))
             elif action == 'x_pan':
                 self._mouse_x_pan(x)
             elif action == 'x_pan_summary':
@@ -3305,7 +3869,15 @@ class WaveformWidget(QtWidgets.QWidget):
             return
         kind, previous = snapshot
         topic = get_topic_name(self)
-        if kind == 'x_range':
+        if kind == 'trigger':
+            # publish once at the end of the gesture for a single undo entry
+            drag, self._trigger_drag = self._trigger_drag, {}
+            if 'level' in drag and drag['level'] != self.trigger_level:
+                self.trigger_level = drag['level']
+            if 'position' in drag and drag['position'] != self.trigger_position:
+                self.trigger_position = round(drag['position'], 3)
+            self._repaint_request = True
+        elif kind == 'x_range':
             current = list(self.x_range)
             if current != previous:
                 self.pubsub.publish(f'{topic}/actions/!x_range', current + previous)
@@ -3384,6 +3956,26 @@ class WaveformWidget(QtWidgets.QWidget):
                     m, _ = self._item_parse_y_marker(item, activate=True)
                     self._mouse_action = ['move.y_marker', item, is_ctrl]
                     self._mouse_action_previous = ['y_marker', _annotation_copy(m)]
+            elif item.startswith('trigger.'):
+                if self._mouse_action is not None:
+                    self._mouse_action_end()
+                else:
+                    self._mouse_action = ['move.' + item]
+                    self._mouse_action_previous = ['trigger', None]
+            elif self._trigger_active() and x_name == 'plot' and not is_ctrl and (
+                    y_name == 'x_axis' or y_name.startswith('plot.')):
+                if y_name == 'x_axis':
+                    y0 = self._y_geometry_info['x_axis'][1]
+                    y1 = y0 + self._style['axis_font_metrics'].ascent() + _MARGIN * 2
+                    if y0 <= y <= y1:
+                        item = self._find_x_marker_banner(x)
+                        if item:
+                            self._x_marker_move_start(item, x, True)
+                            return
+                # the trigger sets the time: drag moves the trigger position
+                self._mouse_action_end()
+                self._mouse_action = ['trigger_pan', x]
+                self._mouse_action_previous = ['trigger', None]
             elif y_name == 'summary':
                 if self.pin_left or self.pin_right:
                     self._pin_attention()  # pinned to extents, cannot pan
@@ -3507,7 +4099,7 @@ class WaveformWidget(QtWidgets.QWidget):
         item, x_name, y_name = self._find_item((x, y))
         self._log.info(f'mouse release ({x}, {y}) -> ({item}, {x_name}, {y_name})')
         if self._mouse_pos_start == (x, y):
-            if item.startswith('x_marker') or 'y_marker' in item:
+            if item.startswith('x_marker') or 'y_marker' in item or item.startswith('trigger.'):
                 pass  # keep dragging
             elif item.startswith('text_annotation.') and self._mouse_action is not None:
                 a = self._item_parse_text_annotation(item)
@@ -3846,6 +4438,19 @@ class WaveformWidget(QtWidgets.QWidget):
         if plot['range_mode'] == 'manual':
             CallableAction(menu, N_('Y-axis auto range'),
                            lambda: self._on_menu_y_range_mode(idx, 'auto'))
+
+        if not self._is_file_mode and 'y_map' in plot:
+            topic = f'{get_topic_name(self)}/actions/!trigger'
+            quantity = plot['quantity']
+            if trigger_mod.is_digital(quantity):
+                level = trigger_mod.DIGITAL_LEVEL
+            else:
+                level = float(self._y_pixel_to_value(plot, event.position().y()))
+            CallableAction(menu, N_('Trigger here'),
+                           lambda: self.pubsub.publish(topic, ['set', quantity, level]))
+            if self.trigger_mode != 'off':
+                CallableAction(menu, N_('Trigger off'),
+                               lambda: self.pubsub.publish(f'{get_topic_name(self)}/settings/trigger_mode', 'off'))
 
         menu.addAction(N_('Save image to file'), self._action_save_image)
         menu.addAction(N_('Copy image to clipboard'), self._action_copy_image_to_clipboard)
@@ -5191,6 +5796,13 @@ class WaveformWidget(QtWidgets.QWidget):
 
     def on_action_x_pan(self, pan):
         self._log.info(f'on_action_x_pan {pan}')
+        if self._trigger_active():
+            # the trigger sets the time: pan moves the trigger position
+            position = self._trigger_position() * 100.0 - _TRIGGER_PAN_STEP * pan
+            position = min(100.0, max(0.0, position))
+            if position != self.trigger_position:
+                self.trigger_position = position
+            return None
         if self.pin_left or self.pin_right:
             self._pin_attention()
             return  # locked to extents

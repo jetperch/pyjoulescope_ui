@@ -15,6 +15,7 @@
 from joulescope_ui import pubsub_singleton, N_, get_topic_name, P_, tooltip_format
 from joulescope_ui.ui_util import comboBoxConfig
 from joulescope_ui.widget_tools import CallableSlotAdapter
+from .trigger_control import TriggerControlWidget
 from PySide6 import QtCore, QtGui, QtWidgets
 import sys
 import logging
@@ -87,6 +88,12 @@ _TOOLTIP_PIN_FILE_MODE = tooltip_format(
     Pins are not available when viewing a file,
     which has fixed extents."""))
 
+_TOOLTIP_PIN_TRIGGER = tooltip_format(
+    N_("Pin"),
+    N_("""Pin the waveform display to one side.
+    Pins are not available when the trigger is on,
+    since the trigger positions the display."""))
+
 _TOOLTIP_Y_AXIS_ZOOM_ALL = tooltip_format(
     N_("Y zoom all"),
     P_([
@@ -158,6 +165,10 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._pin_attention_timer.timeout.connect(self._on_pin_attention_expire)
         self._add_button('y_zoom_all', self._on_y_axis_zoom_all, _TOOLTIP_Y_AXIS_ZOOM_ALL)
 
+        self._trigger = TriggerControlWidget(self)
+        self._trigger.mode_changed.connect(self._on_trigger_mode)
+        self._layout.addWidget(self._trigger)
+
         self._show_min_max_label = QtWidgets.QLabel(self)
         self._show_min_max_label.setText('Min/Max:')
         self._show_min_max_label.setToolTip(_TOOLTIP_MIN_MAX)
@@ -208,7 +219,9 @@ class WaveformControlWidget(QtWidgets.QWidget):
                 b.setToolTip(_TOOLTIP_PIN_FILE_MODE)
             self._on_pin_left_click(False)
             self._on_pin_right_click(False)
+            self._trigger.setVisible(False)  # the trigger operates on streaming data only
         else:
+            self._trigger.on_pubsub_register(pubsub, topic)
             pubsub.subscribe(f'{self.topic}/settings/pin_left', self._on_pin_left, ['pub', 'retain'])
             pubsub.subscribe(f'{self.topic}/settings/pin_right', self._on_pin_right, ['pub', 'retain'])
             pubsub.subscribe('registry/app/settings/signal_stream_enable',
@@ -237,6 +250,13 @@ class WaveformControlWidget(QtWidgets.QWidget):
         else:
             self._on_pin_left_click(value)
             self._on_pin_right_click(value)
+
+    @QtCore.Slot(str)
+    def _on_trigger_mode(self, value):
+        enabled = value == 'off'
+        for b, tooltip in [(self._pin_left, _TOOLTIP_PIN_LEFT), (self._pin_right, _TOOLTIP_PIN_RIGHT)]:
+            b.setEnabled(enabled)
+            b.setToolTip(tooltip if enabled else _TOOLTIP_PIN_TRIGGER)
 
     def _on_min_max(self, value):
         block_signals_state = self._min_max_sel.blockSignals(True)

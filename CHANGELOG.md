@@ -22,6 +22,22 @@ This file contains the list of changes made to pyjoulescope_ui.
 ---
 
 
+## 1.9.0
+
+2026 Nov 13 [in progress, unreleased]
+
+* Added an oscilloscope-style trigger to the Waveform widget, which holds
+  repeating waveforms steady while streaming.  Select the trigger source
+  (current, voltage, power, current range, or a general purpose or trigger
+  input), the rising, falling, or either edge, the level, the trigger
+  position on the time axis, the holdoff, and the noise rejection.
+  The Auto, Normal, and Single modes work like an oscilloscope.  The trigger
+  finds the level crossings in the raw samples and interpolates between
+  them, and the time axis displays the time relative to the trigger.
+  Drag the T markers to change the level and position, or right-click a plot
+  and select "Trigger here".
+
+
 ## 1.8.0
 
 2026 Nov 9

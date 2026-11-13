@@ -11,6 +11,7 @@ waveform.plot_border = #00000080
 waveform.hover = #202020a0
 
 waveform.pin_attention = #e06000ff
+waveform.trigger = #d05800ff
 
 waveform.summary_trace = #0000A0ff
 waveform.summary_view = #0000FF20
