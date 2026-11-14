@@ -426,7 +426,7 @@ jobs:
         run: python ci/publish.py
 
       - name: Publish packages to PyPi
-        uses: pypa/gh-action-pypi-publish@v1.14.2
+        uses: pypa/gh-action-pypi-publish@v1.14.3
         with:
           print-hash: true
 
