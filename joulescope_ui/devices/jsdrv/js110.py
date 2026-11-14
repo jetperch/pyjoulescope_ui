@@ -569,10 +569,7 @@ class Js110(Device):
 
     def _open(self):
         self._log.info('open start')
-        try:
-            self._driver.open(self._path, 'restore')
-        except Exception:
-            self._log.warning('driver open failed')
+        if self._driver_open():
             self._ui_publish('settings/state', 'closing')
             return 1
         try:

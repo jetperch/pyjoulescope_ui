@@ -959,11 +959,11 @@ msgstr "ZIPファイル"
 msgid "Contents"
 msgstr "内容"
 
-#: devices/jsdrv/device.py:20
+#: devices/jsdrv/device.py:21
 msgid "Enable the streaming for the selected current range."
 msgstr "選択した電流範囲のストリーミングを有効にします。"
 
-#: devices/jsdrv/device.py:21
+#: devices/jsdrv/device.py:22
 msgid ""
 "The current range is useful for understanding how your Joulescope autoranges"
 " to measure your current signal. It can also be helpful in separating target"

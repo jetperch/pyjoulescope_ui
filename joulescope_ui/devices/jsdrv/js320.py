@@ -919,10 +919,7 @@ class Js320(Device):
     def _open(self):
         self._log.info('open start')
         self._sensor_missing = False
-        try:
-            self._driver.open(self._path, 'restore', timeout=1.0)
-        except Exception:
-            self._log.warning('driver open failed')
+        if self._driver_open():
             self._ui_publish('settings/state', 'closing')
             return 1
         try:

@@ -22,6 +22,29 @@ This file contains the list of changes made to pyjoulescope_ui.
 ---
 
 
+## 1.8.1
+
+2026 Nov 14 [in progress, unreleased]
+
+* Fixed a device staying unusable after one failed open, such as right
+  after it re-enumerates.  The UI now retries the open twice and uses the
+  driver's default open timeout for every model, where the JS320 used 1 s.
+* Bumped pyjoulescope_driver from 2.5.6 to 2.5.7, which bundles JS320
+  firmware 1.1.14 and fixes:
+  * JS320 signal data that did not return after a USB data-only disconnect
+    while streaming, such as a cable glitch or a hub port reset that keeps
+    VBUS on.  Statistics kept updating, so the device looked like it was
+    still measuring.
+  * The waveform freezing, while statistics continued, after a device's
+    sample counter restarted without a disconnect.
+  * A JS320 that stopped answering without a disconnect, which stayed open
+    with no data.  The driver now reopens it.
+  * Windows streaming that could stop for good when a USB read failed at
+    once, such as after a resume from sleep.
+  * JS220 open failing with "OP_CONNECT timed out" when the instrument
+    answered sooner than expected.  Thanks to Maxime Vincent (PR #24).
+
+
 ## 1.8.0
 
 2026 Nov 9

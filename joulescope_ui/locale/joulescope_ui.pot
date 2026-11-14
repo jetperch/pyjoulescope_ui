@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PROJECT 1.8.0\n"
+"Project-Id-Version: PROJECT 1.8.1\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2026-11-04 09:33-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -943,11 +943,11 @@ msgstr ""
 msgid "Contents"
 msgstr ""
 
-#: devices/jsdrv/device.py:20
+#: devices/jsdrv/device.py:21
 msgid "Enable the streaming for the selected current range."
 msgstr ""
 
-#: devices/jsdrv/device.py:21
+#: devices/jsdrv/device.py:22
 msgid ""
 "The current range is useful for understanding how your Joulescope autoranges"
 " to measure your current signal. It can also be helpful in separating target"

@@ -16,6 +16,7 @@ from joulescope_ui import N_
 from joulescope_ui.capabilities import CAPABILITIES
 import copy
 import logging
+import time
 
 CURRENT_RANGE_SHORT = N_("Enable the streaming for the selected current range.")
 CURRENT_RANGE_LONG = N_("""The current range is useful for understanding how
@@ -37,6 +38,8 @@ CAPABILITIES_OBJECT_OPEN = [
 
 
 _STREAM_ENABLE_TOPIC = 'registry/app/settings/signal_stream_enable'
+_OPEN_ATTEMPTS = 3
+_OPEN_RETRY_DELAY = 1.0  # seconds: spans 2 s when each open fails at once
 
 
 class Device:
@@ -74,6 +77,32 @@ class Device:
         if topic[0] != '/':
             topic = '/' + topic
         return self._path + topic
+
+    def _driver_open(self):
+        """Open the driver device in restore mode, with retries (device thread).
+
+        :return: 0 on success, 1 when every attempt failed.
+
+        A device can take more than one open timeout to answer right after
+        it re-enumerates, such as after a reset or an unclean session, and a
+        failed open otherwise ends the device until the next replug.
+        """
+        for attempt in range(1, _OPEN_ATTEMPTS + 1):
+            try:
+                self._driver.open(self._path, 'restore')  # driver default timeout
+                return 0
+            except Exception as ex:
+                self._log.warning('driver open failed, attempt %d of %d: %s',
+                                  attempt, _OPEN_ATTEMPTS, ex)
+            try:
+                self._driver.close(self._path)  # release a partial open
+            except Exception:
+                pass
+            if attempt < _OPEN_ATTEMPTS:
+                if getattr(self, '_quit', False):
+                    break
+                time.sleep(_OPEN_RETRY_DELAY)
+        return 1
 
     def _signal_frequency_request(self, value):
         """Set the signal sample rate (pubsub thread).
