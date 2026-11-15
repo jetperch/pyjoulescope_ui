@@ -39,6 +39,7 @@ import time
 from PySide6.QtGui import QPen, QBrush
 from joulescope_ui.units import convert_units, UNITS_SETTING, elapsed_time_formatter
 from . import axis_ticks
+from . import anti_alias
 from collections.abc import Iterable
 
 
@@ -412,6 +413,20 @@ class WaveformWidget(QtWidgets.QWidget):
                 [3, N_('fill 2')],
             ],
             'default': 3,
+        },
+        'anti_alias': {
+            'dtype': 'bool',
+            'brief': N_('Anti-alias the average trace when zoomed out.'),
+            'detail': P_([
+                N_('When zoomed out, each pixel summarizes many samples.  As the plot scrolls, '
+                   'a short pulse may fall into one pixel or be split between two, which '
+                   'makes the average trace flicker.'),
+                N_('When enabled, the average trace is low-pass filtered to reduce this '
+                   'flicker.  The filter preserves the mean, but short pulses appear wider '
+                   'and lower.  The min/max extents, statistics, and exported data are '
+                   'not filtered.'),
+            ]),
+            'default': False,
         },
         'show_fps': {
             'dtype': 'bool',
@@ -1098,6 +1113,7 @@ class WaveformWidget(QtWidgets.QWidget):
     def _on_signal_range(self, topic, value):
         if value is None:
             return
+        sample_rate = value.get('sample_rate')
         value = value['utc']
         topic_parts = topic.split('/')
         source = topic_parts[1]
@@ -1121,6 +1137,7 @@ class WaveformWidget(QtWidgets.QWidget):
             self._signals_by_rsp_id[self._signals_rsp_id_next] = d
             self._signals_rsp_id_next += 1
             self._subsources_update()
+        d['sample_rate'] = sample_rate
         if value != d['range']:
             d['range'] = value
             d['changed'] = time.time()
@@ -1219,7 +1236,7 @@ class WaveformWidget(QtWidgets.QWidget):
                 continue
             if force or signal.get('changed', None):
                 signal['changed'] = None
-                self._request_signal(signal, self.x_range)
+                self._request_plot_signal(signal)
                 changed = True
         if self.state is not None:
             for m in self.annotations['x'].values():
@@ -1260,6 +1277,20 @@ class WaveformWidget(QtWidgets.QWidget):
             if x0 > x1:
                 x0, x1 = x1, x0
             self._request_signal(signal_id, (x0, x1), rsp_id=rsp_id, length=1)
+
+    def _request_plot_signal(self, signal):
+        x_info = self._x_geometry_info.get('plot')
+        req = None
+        if self.anti_alias and x_info is not None:
+            req = anti_alias.request_range(self.x_range, self.x_extent, x_info[0],
+                                           signal.get('sample_rate'))
+        if req is None:  # off, or zoomed in too far for summary sub-bins
+            signal['aa_req'] = None
+            self._request_signal(signal, self.x_range)
+            return
+        x0, x1, length, pixels = req
+        signal['aa_req'] = (pixels, tuple(self.x_range))
+        self._request_signal(signal, (x0, x1), length=length)
 
     def _request_signal(self, signal, x_range, rsp_id=None, length=None):
         if isinstance(signal, str):
@@ -1391,6 +1422,16 @@ class WaveformWidget(QtWidgets.QWidget):
             if signal is None:
                 self._log.warning('Unknown signal rsp_id %s', rsp_id)
                 return
+            aa_req = signal.get('aa_req')
+            if aa_req is not None and response_type == 'summary':
+                data_aa = anti_alias.decimate(data, *aa_req)
+                if data_aa is None:
+                    return  # fewer entries than pixels: keep the previous data
+                data_aa['time_range_utc'] = data['time_range_utc']
+                data_aa['time_range_samples'] = data['time_range_samples']
+                data = data_aa
+            elif aa_req is not None:  # padded request returned samples
+                data = anti_alias.trim(data, aa_req[1])
             if signal['id'] not in self._signals_data:
                 self._signals_data[signal['id']] = {}
             self._signals_data[signal['id']]['data'] = data
@@ -1668,12 +1709,16 @@ class WaveformWidget(QtWidgets.QWidget):
             d = sig_d['data']
             finite_idx = self._finite_idx(d)
 
+            d_avg = d.get('avg_aa', d['avg'])
             if 0 == self.show_min_max:
-                sy_min = d['avg']
-                sy_max = d['avg']
+                sy_min = d_avg
+                sy_max = d_avg
+            elif d['min'] is None or d['max'] is None:
+                sy_min = d_avg
+                sy_max = d_avg
             else:
-                sy_min = d['avg'] if d['min'] is None else d['min']
-                sy_max = d['avg'] if d['max'] is None else d['max']
+                sy_min = np.minimum(d['min'], d_avg)
+                sy_max = np.maximum(d['max'], d_avg)
             sy_min = sy_min[finite_idx]
             sy_max = sy_max[finite_idx]
             if len(sy_min):
@@ -2191,12 +2236,16 @@ class WaveformWidget(QtWidgets.QWidget):
                     p.drawRect(xa, y0, max(1, xb - xa), h)
                     segment_idx_last = idx_stop
 
+            d_avg_all = d.get('avg_aa', d['avg'])  # anti-aliased display average, if present
             for idx_start, idx_stop in segment_idx:
                 d_x_segment = d_x[idx_start:idx_stop]
-                d_avg = d['avg'][idx_start:idx_stop]
+                d_avg = d_avg_all[idx_start:idx_stop]
                 if self.show_min_max and d['min'] is not None and d['max'] is not None:
-                    d_y_min = self._y_value_to_pixel(plot, d['min'][idx_start:idx_stop])
-                    d_y_max = self._y_value_to_pixel(plot, d['max'][idx_start:idx_stop])
+                    # widen the extents to contain the anti-aliased average
+                    d_min = np.minimum(d['min'][idx_start:idx_stop], d_avg)
+                    d_max = np.maximum(d['max'][idx_start:idx_stop], d_avg)
+                    d_y_min = self._y_value_to_pixel(plot, d_min)
+                    d_y_max = self._y_value_to_pixel(plot, d_max)
                     if 1 == self.show_min_max:
                         p.setPen(ts['min_max_trace'])
                         segs = self._points.set_line(d_x_segment, d_y_min, y_clip)
@@ -3610,6 +3659,9 @@ class WaveformWidget(QtWidgets.QWidget):
     def _on_menu_dt_holdover(self, value):
         self.dt_holdover = bool(value)
 
+    def _on_menu_anti_alias(self, value):
+        self.anti_alias = bool(value)
+
     def _on_menu_dt_unit(self, value):
         self.dt_unit = value
 
@@ -3846,6 +3898,10 @@ class WaveformWidget(QtWidgets.QWidget):
         if plot['range_mode'] == 'manual':
             CallableAction(menu, N_('Y-axis auto range'),
                            lambda: self._on_menu_y_range_mode(idx, 'auto'))
+
+        CallableAction(menu, N_('Anti-aliasing'),
+                       lambda checked: self._on_menu_anti_alias(checked),
+                       checkable=True, checked=self.anti_alias)
 
         menu.addAction(N_('Save image to file'), self._action_save_image)
         menu.addAction(N_('Copy image to clipboard'), self._action_copy_image_to_clipboard)
@@ -5472,6 +5528,9 @@ class WaveformWidget(QtWidgets.QWidget):
         self._repaint_request = True
 
     def on_setting_dt_holdover(self):
+        self._plot_data_invalidate()
+
+    def on_setting_anti_alias(self):
         self._plot_data_invalidate()
 
     def on_setting_dt_unit(self):

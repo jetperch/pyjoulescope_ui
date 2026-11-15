@@ -24,8 +24,12 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.8.1
 
-2026 Nov 14 [in progress, unreleased]
+2026 Nov 15 [in progress, unreleased]
 
+* Added optional Waveform anti-aliasing (#356).  When zoomed out, a short
+  pulse no longer flickers in the average trace as the plot scrolls.  The
+  mean-preserving filter applies to the displayed average only.  Enable
+  it from the plot right-click menu or the Waveform settings.
 * Fixed a device staying unusable after one failed open, such as right
   after it re-enumerates.  The UI now retries the open twice and uses the
   driver's default open timeout for every model, where the JS320 used 1 s.
