@@ -24,7 +24,11 @@ os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
 
 from PySide6 import QtCore, QtWidgets
 from joulescope_ui import pubsub_singleton, Metadata, CAPABILITIES, get_topic_name
-from joulescope_ui.test.test_efficiency_engine import js220, js320, constant
+from joulescope_ui.test.test_efficiency_engine import js220, js320, constant, steps
+from joulescope_ui.widgets.efficiency.efficiency_export import history_csv, curve_csv
+import csv
+import io
+import tempfile
 from joulescope_ui.widgets.efficiency import EfficiencyWidget
 from joulescope_ui.widgets.efficiency.efficiency_readout import value_str, efficiency_str
 from joulescope_ui.widgets.efficiency.efficiency_plot import finite_runs, reduce_to_columns
@@ -115,6 +119,34 @@ class TestPlotHelpers(unittest.TestCase):
             else:
                 self.assertAlmostEqual(np.min(seg), yr[2 * col])
                 self.assertAlmostEqual(np.max(seg), yr[2 * col + 1])
+
+
+class TestExport(unittest.TestCase):
+
+    def test_history_csv(self):
+        t0 = 260_000_000 * 2 ** 30
+        t = np.array([t0, t0 + 2 ** 29], dtype=np.int64)
+        f = io.StringIO(newline='')
+        history_csv(f, t, {'efficiency': np.array([0.9, np.nan]), 'p_in': np.array([1.0, np.nan])},
+                    {'input': 'JS220'})
+        lines = f.getvalue().splitlines()
+        self.assertEqual('# Joulescope efficiency time series', lines[0])
+        self.assertEqual('# input: JS220', lines[1])
+        rows = list(csv.reader(lines[2:]))
+        self.assertEqual(['utc', 't (s)', 'efficiency', 'p_in (W)'], rows[0])
+        self.assertEqual(['0.000000', '0.9', '1.0'], rows[1][1:])
+        self.assertTrue(rows[1][0].startswith('2026-'))
+        self.assertEqual(['0.500000', '', ''], rows[2][1:])  # invalid window: empty fields
+
+    def test_curve_csv(self):
+        f = io.StringIO(newline='')
+        bins = [{'x': 0.01, 'x_min': 0.0094, 'x_max': 0.0106, 'efficiency': 0.9, 'efficiency_min': 0.89,
+                 'efficiency_max': 0.91, 'count': 7, 'duration': 3.5, 'e_in': 0.1, 'e_out': 0.09}]
+        curve_csv(f, bins, 'i_out', 'A', {})
+        rows = list(csv.reader(f.getvalue().splitlines()[1:]))
+        self.assertEqual('i_out (A)', rows[0][0])
+        self.assertEqual(10, len(rows[0]))
+        self.assertEqual(['0.01', '0.0094', '0.0106', '0.9', '0.89', '0.91', '7', '3.5', '0.1', '0.09'], rows[1])
 
 
 class TestEfficiencyWidget(unittest.TestCase):
@@ -374,6 +406,85 @@ class TestEfficiencyWidget(unittest.TestCase):
         self.assertTrue(_process_events(lambda: self.w.efficiency_info()['history'] > 0))
         self.w.on_action_clear()
         self.assertEqual(0, self.w.efficiency_info()['history'])
+
+    def _staircase(self, currents, eta, step=1.5, duration=None):
+        p_out = [3.3 * i for i in currents]
+        p_in = [p / e for p, e in zip(p_out, eta)]
+        args = (step, 0.05)
+        self.streams = [
+            ('JS220-0001', 'p', js220(steps(p_in, *args))),
+            ('JS320-0002', 'p', js320(steps(p_out, *args))),
+            ('JS320-0002', 'i', js320(steps(currents, *args))),
+        ]
+        self._feed(step * len(currents) - 0.1 if duration is None else duration)
+
+    def test_curve(self):
+        currents, eta = [0.001, 0.01, 0.1], [0.7, 0.85, 0.9]
+        self._staircase(currents, eta)
+        self.assertTrue(_process_events(lambda: len(self.w.curve_bins()) == 3))
+        bins = self.w.efficiency_info()['curve']
+        for b, i, e in zip(bins, currents, eta):
+            self.assertAlmostEqual(i, b['x'], delta=i * 1e-6)
+            self.assertAlmostEqual(e, b['efficiency'], delta=1e-6)
+            self.assertLessEqual(b['x_min'], i)
+            self.assertGreater(b['x_max'], i)
+        json.dumps(self.w.efficiency_info())
+        self.assertIn('unsteady', self.w.status)  # windows spanning the steps
+        plot = self.w._curve_plot
+        self.w.show()
+        plot.grab()
+        self.p.publish(f'{self.w.topic}/settings/curve_x_scale', 'linear')
+        plot.grab()
+        self.assertIn('windows', plot.hover_lines(self.w.curve_bins()[0])[2])
+
+    def test_curve_power_axis(self):
+        self.p.publish(f'{self.w.topic}/settings/curve_x', 'power')
+        self.assertNotIn(('out', 'i'), self.w._data_topics)  # not needed without show_vi
+        self._staircase([0.01, 0.1], [0.8, 0.9])
+        self.assertTrue(_process_events(lambda: len(self.w.curve_bins()) == 2))
+        self.assertAlmostEqual(0.033, self.w.curve_bins()[0]['x'], delta=1e-6)
+        self.p.publish(f'{self.w.topic}/settings/curve_x', 'current')
+        self.assertIn(('out', 'i'), self.w._data_topics)
+        self.assertEqual([], self.w.curve_bins())  # cleared: different x quantity
+
+    def test_curve_hold_and_settings(self):
+        self._staircase([0.01, 0.1, 0.001], [0.8, 0.9, 0.6], duration=2.9)
+        self.assertTrue(_process_events(lambda: len(self.w.curve_bins()) == 2))
+        self.p.publish(f'{self.w.topic}/settings/curve_hold', True)
+        held = list(self.w.curve_bins())
+        self._feed(1.4)
+        _process_events(lambda: False, 0.3)
+        self.assertEqual(held, self.w.curve_bins())
+        self.assertIn('Curve hold', self.w.status)
+        self.p.publish(f'{self.w.topic}/settings/curve_hold', False)
+        self.assertTrue(_process_events(lambda: len(self.w.curve_bins()) == 3))
+        self.p.publish(f'{self.w.topic}/settings/curve_bins_per_decade', 10)
+        self.assertEqual([], self.w.curve_bins())
+
+    def test_curve_empty_paint(self):
+        self.w.show()
+        self.assertEqual([], self.w.curve_bins())
+        self.w._curve_plot.grab()
+
+    def test_export(self):
+        self._staircase([0.01, 0.1], [0.8, 0.9])
+        self.assertTrue(_process_events(lambda: len(self.w.curve_bins()) == 2))
+        with tempfile.TemporaryDirectory() as d:
+            path = os.path.join(d, 'history.csv')
+            self.w.export_history(path)
+            with open(path, newline='') as f:
+                lines = f.read().splitlines()
+            self.assertIn('# input: JS220', lines)
+            self.assertIn('# output: JS320', lines)
+            rows = list(csv.reader([x for x in lines if not x.startswith('#')]))
+            self.assertEqual(self.w.efficiency_info()['history'] + 1, len(rows))
+            path = os.path.join(d, 'curve.csv')
+            self.w.export_curve(path)
+            with open(path, newline='') as f:
+                rows = list(csv.reader([x for x in f.read().splitlines() if not x.startswith('#')]))
+            self.assertEqual('i_out (A)', rows[0][0])
+            self.assertEqual(3, len(rows))
+            self.assertAlmostEqual(0.8, float(rows[1][3]), delta=1e-6)
 
     def test_open_close_repeated(self):
         topics = dict(self.w._data_topics)

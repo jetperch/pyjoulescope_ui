@@ -366,7 +366,23 @@ on its own.  Run `python ci/translations.py --preserve-create-date
    with `spectrum_engine.column_map`/`column_reduce`; hover snaps to the
    nearest window; mouse wheel zooms into recent history, double-click
    resets.
-5. **Efficiency vs output current curve** plus CSV export.
+5. **Efficiency vs output current curve** plus CSV export DONE 2026-11-15:
+   `CurvePlot` (log or linear x, output current or power, min/max
+   whiskers, faded under-sampled bins, hover bin details, "Waiting for
+   steady load" when empty); curve settings map to the engine config and
+   clear the curve when changed; Curve hold freezes the displayed curve
+   while the readout and time plot continue; Export → Efficiency vs time
+   (CSV) and Efficiency curve (CSV), with `export_history(path)` and
+   `export_curve(path)` for automation.  `WindowHistory` now keeps P/V/I
+   columns for the time series export.  Live on the bench (JS220 input,
+   JS320 output, ADP3450 load steps from about 9 µA to 13 mA, 5 s each):
+   every level got its own bin with 9 steady windows; step transitions
+   were rejected as unsteady; bin efficiency 99.987% to 100.023%, the
+   instruments' relative gain and offset.
+   - Open for Stage 7: the time plot shows windows spanning a load step
+     off by up to +0.18%, above the ~0.06% that time alignment alone
+     predicts.  Likely the two instruments switching current ranges at
+     different moments; investigate with a slower step and fixed ranges.
 6. **Documentation:** Theory page (general knowledge + generated wiring
    figure) and UI guide page (widget usage + screenshots) on
    docs.joulescope.com; CHANGELOG entry.

@@ -494,15 +494,17 @@ class EfficiencyEngine:
 
 
 class WindowHistory:
-    """The efficiency history for display, as a bounded ring buffer.
+    """The window history for display and export, as a bounded ring buffer.
 
-    Each entry is a window end time (time64) and its efficiency, NaN for
-    invalid windows so that plots show a gap.
+    Each entry is a window end time (time64) and its :attr:`COLUMNS`
+    values, NaN when invalid or unavailable, so that plots show a gap.
     """
+
+    COLUMNS = ('efficiency', 'p_in', 'p_out', 'p_loss', 'v_in', 'i_in', 'v_out', 'i_out')
 
     def __init__(self, capacity=1024):
         self._t = np.zeros(0, dtype=np.int64)
-        self._y = np.zeros(0, dtype=np.float64)
+        self._v = np.zeros((0, len(self.COLUMNS)), dtype=np.float64)
         self._count = 0
         self._head = 0  # next write index
         self.reset(capacity)
@@ -518,35 +520,50 @@ class WindowHistory:
         self._count = 0
         self._head = 0
 
+    def _order(self):
+        n = self._count
+        return (self._head - n + np.arange(n)) % max(1, self.capacity)
+
     def reset(self, capacity):
         """Change the capacity, keeping the newest entries."""
         capacity = max(2, int(capacity))
         if capacity == self.capacity:
             return
-        t, y = self.newest()
-        t, y = t[-capacity:], y[-capacity:]
+        idx = self._order()[-capacity:]
+        t, v = self._t[idx], self._v[idx]
         self._t = np.zeros(capacity, dtype=np.int64)
-        self._y = np.full(capacity, np.nan, dtype=np.float64)
+        self._v = np.full((capacity, len(self.COLUMNS)), np.nan, dtype=np.float64)
         n = len(t)
         self._t[:n] = t
-        self._y[:n] = y
+        self._v[:n] = v
         self._count = n
         self._head = n % capacity
 
     def append(self, windows):
         """Append engine windows, see :meth:`EfficiencyEngine.process`."""
         for w in windows:
-            eta = w.get('efficiency')
             self._t[self._head] = w['utc'] + int(round((w['t1'] - w['t0']) * time64.SECOND))
-            self._y[self._head] = eta if (w['valid'] and eta is not None) else np.nan
+            valid = w['valid']
+            for col, name in enumerate(self.COLUMNS):
+                x = w.get(name) if valid else None
+                self._v[self._head, col] = np.nan if x is None else x
             self._head = (self._head + 1) % self.capacity
             self._count = min(self._count + 1, self.capacity)
 
     def newest(self):
-        """Get the entries, oldest first.
+        """Get the efficiency, oldest first.
 
         :return: (t, y) arrays of window end time64 and efficiency.
         """
-        n = self._count
-        idx = (self._head - n + np.arange(n)) % max(1, self.capacity)
-        return self._t[idx], self._y[idx]
+        idx = self._order()
+        return self._t[idx], self._v[idx, 0]
+
+    def columns(self):
+        """Get all values, oldest first.
+
+        :return: (t, values) with the window end time64 array and the
+            map of :attr:`COLUMNS` name to array.
+        """
+        idx = self._order()
+        v = self._v[idx]
+        return self._t[idx], {name: v[:, col] for col, name in enumerate(self.COLUMNS)}

@@ -325,7 +325,7 @@ msgstr "마크다운으로 보기"
 msgid "Abort"
 msgstr "Abort"
 
-#: error_window.py:120 main.py:466 widgets/efficiency/efficiency_widget.py:474
+#: error_window.py:120 main.py:466 widgets/efficiency/efficiency_widget.py:619
 #: widgets/settings/settings_widget.py:539
 #: widgets/spectrum/spectrum_widget.py:1064
 msgid "View"
@@ -368,7 +368,8 @@ msgstr "파일 이름"
 msgid "Notes"
 msgstr "참고"
 
-#: exporter.py:89 widgets/signal_record/signal_record_config_widget.py:241
+#: exporter.py:89 widgets/efficiency/efficiency_widget.py:586
+#: widgets/signal_record/signal_record_config_widget.py:241
 #: widgets/signal_record/signal_record_config_widget.py:268
 #: widgets/statistics_record/statistics_record_config_widget.py:173
 msgid "Select save location"
@@ -392,7 +393,7 @@ msgid ""
 "exported data."
 msgstr "데이터를 JLS 파일로 내보내기. 나중에 이 파일을 열어 내보낸 데이터를 표시할 수 있습니다."
 
-#: exporter.py:311
+#: exporter.py:311 widgets/efficiency/efficiency_widget.py:603
 msgid "Export failed"
 msgstr "내보내기에 실패했습니다"
 
@@ -676,7 +677,8 @@ msgstr "최근 열기"
 msgid "Config"
 msgstr "Config"
 
-#: main.py:458 main.py:508 widgets/waveform/waveform_widget.py:4260
+#: main.py:458 main.py:508 widgets/efficiency/efficiency_widget.py:630
+#: widgets/waveform/waveform_widget.py:4260
 msgid "Export"
 msgstr "Export"
 
@@ -2207,7 +2209,7 @@ msgstr "이 기능을 선택하면 새로운 데이터가 무시되어 디스플
 
 #: widgets/efficiency/efficiency_control.py:27
 #: widgets/efficiency/efficiency_control.py:53
-#: widgets/efficiency/efficiency_widget.py:482
+#: widgets/efficiency/efficiency_widget.py:633
 #: widgets/memory/memory_widget.py:238 widgets/spectrum/spectrum_control.py:33
 #: widgets/spectrum/spectrum_control.py:68
 #: widgets/spectrum/spectrum_widget.py:1080
@@ -2220,7 +2222,7 @@ msgstr "누적 효율, 이력 및 효율 곡선을 확인하십시오."
 
 #: widgets/efficiency/efficiency_control.py:30
 #: widgets/efficiency/efficiency_control.py:54
-#: widgets/efficiency/efficiency_widget.py:38
+#: widgets/efficiency/efficiency_widget.py:40
 msgid "Input"
 msgstr "입력"
 
@@ -2232,7 +2234,7 @@ msgstr "컨버터 입력을 측정하는 계측기입니다. 이 계측기의 �
 
 #: widgets/efficiency/efficiency_control.py:34
 #: widgets/efficiency/efficiency_control.py:57
-#: widgets/efficiency/efficiency_widget.py:38
+#: widgets/efficiency/efficiency_widget.py:40
 msgid "Output"
 msgstr "출력"
 
@@ -2260,21 +2262,31 @@ msgid "Enable the instrument signals that this widget needs."
 msgstr "이 위젯에 필요한 기기 신호를 활성화하십시오."
 
 #: widgets/efficiency/efficiency_control.py:52
-#: widgets/efficiency/efficiency_widget.py:544
+#: widgets/efficiency/efficiency_widget.py:725
 #: widgets/spectrum/spectrum_control.py:67
 #: widgets/spectrum/spectrum_widget.py:1196 widgets/value/value_widget.py:257
 msgid "Hold"
 msgstr "Hold"
 
-#: widgets/efficiency/efficiency_plot.py:177
+#: widgets/efficiency/efficiency_plot.py:214
 msgid "invalid"
 msgstr "무효"
+
+#: widgets/efficiency/efficiency_plot.py:283
+msgid "Waiting for steady load"
+msgstr "안정된 부하가 설정되기를 기다리는 중"
+
+#: widgets/efficiency/efficiency_plot.py:343
+#, python-brace-format
+msgid "{0} windows, {1}"
+msgstr "{0} 창, {1}"
 
 #: widgets/efficiency/efficiency_readout.py:62
 msgid "Input power"
 msgstr "입력 전력"
 
 #: widgets/efficiency/efficiency_readout.py:63
+#: widgets/efficiency/efficiency_widget.py:101
 msgid "Output power"
 msgstr "출력 전력"
 
@@ -2299,111 +2311,227 @@ msgid "Output voltage"
 msgstr "출력 전압"
 
 #: widgets/efficiency/efficiency_readout.py:72
+#: widgets/efficiency/efficiency_widget.py:101
 msgid "Output current"
 msgstr "출력 전류"
 
 #: widgets/efficiency/efficiency_readout.py:132
-#: widgets/efficiency/efficiency_widget.py:101
+#: widgets/efficiency/efficiency_widget.py:167
 msgid "Efficiency"
 msgstr "효율"
 
-#: widgets/efficiency/efficiency_widget.py:41
+#: widgets/efficiency/efficiency_widget.py:43
 msgid "power"
 msgstr "전력"
 
-#: widgets/efficiency/efficiency_widget.py:41
+#: widgets/efficiency/efficiency_widget.py:43
 msgid "current"
 msgstr "전류"
 
-#: widgets/efficiency/efficiency_widget.py:41
+#: widgets/efficiency/efficiency_widget.py:43
 msgid "voltage"
 msgstr "전압"
 
-#: widgets/efficiency/efficiency_widget.py:53
+#: widgets/efficiency/efficiency_widget.py:55
 msgid "The input instrument."
 msgstr "입력 계측기."
 
-#: widgets/efficiency/efficiency_widget.py:59
+#: widgets/efficiency/efficiency_widget.py:61
 msgid "The output instrument."
 msgstr "최고의 측정 장비."
 
-#: widgets/efficiency/efficiency_widget.py:65
+#: widgets/efficiency/efficiency_widget.py:67
 #: widgets/spectrum/spectrum_widget.py:81
 msgid "Hold the display."
 msgstr "디스플레이를 고정하세요."
 
-#: widgets/efficiency/efficiency_widget.py:71
+#: widgets/efficiency/efficiency_widget.py:73
 msgid "Show voltage and current"
 msgstr "전압 및 전류 표시"
 
-#: widgets/efficiency/efficiency_widget.py:72
+#: widgets/efficiency/efficiency_widget.py:74
 msgid "Show the input and output voltage and current in the readout."
 msgstr "디스플레이에 입력 및 출력 전압과 전류를 표시합니다."
 
-#: widgets/efficiency/efficiency_widget.py:78
+#: widgets/efficiency/efficiency_widget.py:80
 msgid "Show efficiency vs time"
 msgstr "효율 대 시간 그래프 표시"
 
-#: widgets/efficiency/efficiency_widget.py:83
+#: widgets/efficiency/efficiency_widget.py:85
 msgid "Efficiency vs time duration"
 msgstr "효율 대 시간"
 
-#: widgets/efficiency/efficiency_widget.py:84
+#: widgets/efficiency/efficiency_widget.py:86
 msgid ""
 "The duration of the efficiency vs time history. Use the mouse wheel to zoom "
 "in to recent history."
 msgstr "효율 대 시간 추이 그래프의 표시 기간입니다. 마우스 휠을 사용하여 최근 기록을 확대해 볼 수 있습니다."
 
-#: widgets/efficiency/efficiency_widget.py:92
+#: widgets/efficiency/efficiency_widget.py:94
+msgid "Show the efficiency curve"
+msgstr "효율 곡선 표시"
+
+#: widgets/efficiency/efficiency_widget.py:99
+msgid "Efficiency curve x-axis"
+msgstr "효율 곡선의 x축"
+
+#: widgets/efficiency/efficiency_widget.py:105
+msgid "Efficiency curve x-axis scale"
+msgstr "효율 곡선의 x축 눈금"
+
+#: widgets/efficiency/efficiency_widget.py:107
+#: widgets/waveform/waveform_widget.py:3786
+msgid "Logarithmic"
+msgstr "로그"
+
+#: widgets/efficiency/efficiency_widget.py:107
+#: widgets/waveform/waveform_widget.py:3781
+msgid "Linear"
+msgstr "선형"
+
+#: widgets/efficiency/efficiency_widget.py:111
+msgid "Efficiency curve bins per decade"
+msgstr "10진법 단위별 효율 곡선 구간"
+
+#: widgets/efficiency/efficiency_widget.py:112
+msgid ""
+"The efficiency curve groups steady windows into logarithmically spaced load "
+"bins. More bins give finer load resolution but need more data."
+msgstr ""
+"효율 곡선은 안정된 구간을 로그 간격으로 나눈 부하 구간으로 묶습니다. 구간 수가 많을수록 부하 분해능은 높아지지만 더 많은 데이터가 "
+"필요합니다."
+
+#: widgets/efficiency/efficiency_widget.py:120
+msgid "Efficiency curve window"
+msgstr "효율 곡선 창"
+
+#: widgets/efficiency/efficiency_widget.py:121
+msgid ""
+"The duration of each efficiency curve measurement. Statistics uses the "
+"statistics window. A shorter window captures load points from fast load "
+"sweeps, but includes more energy storage error from the converter "
+"capacitance."
+msgstr ""
+"각 효율 곡선 측정 기간을 의미합니다. ‘통계’는 통계 창을 사용합니다. 창 기간이 짧을수록 빠른 부하 스윕에서 부하 지점을 더 잘 "
+"포착할 수 있지만, 컨버터 커패시턴스로 인한 에너지 저장 오차가 더 많이 포함됩니다."
+
+#: widgets/efficiency/efficiency_widget.py:126
+msgid "Statistics"
+msgstr "통계"
+
+#: widgets/efficiency/efficiency_widget.py:131
+msgid "Steady load threshold"
+msgstr "정격 부하 임계값"
+
+#: widgets/efficiency/efficiency_widget.py:132
+msgid ""
+"The efficiency curve only includes windows where the input and output power "
+"vary by less than this fraction of their mean within the window."
+msgstr "효율 곡선에는 해당 창 내에서 입력 및 출력 전력이 평균값 대비 이 비율 미만으로 변동하는 창만 포함됩니다."
+
+#: widgets/efficiency/efficiency_widget.py:140
+msgid "Efficiency curve minimum windows"
+msgstr "효율 곡선 최소값 창"
+
+#: widgets/efficiency/efficiency_widget.py:141
+msgid "Draw bins with fewer windows faded and leave them off the line."
+msgstr "창이 희미하게 표시된 빈은 선 밖으로 빼고, 선 위에 표시되지 않도록 하십시오."
+
+#: widgets/efficiency/efficiency_widget.py:147
+msgid "Show the efficiency curve min and max"
+msgstr "효율 곡선의 최소값과 최대값 표시"
+
+#: widgets/efficiency/efficiency_widget.py:152
+msgid "Hold the efficiency curve"
+msgstr "효율 곡선 유지"
+
+#: widgets/efficiency/efficiency_widget.py:158
 msgid "The pane sizes."
 msgstr "패널 크기."
 
-#: widgets/efficiency/efficiency_widget.py:473
+#: widgets/efficiency/efficiency_widget.py:563
+msgid "input"
+msgstr "입력"
+
+#: widgets/efficiency/efficiency_widget.py:564
+msgid "output"
+msgstr "출력"
+
+#: widgets/efficiency/efficiency_widget.py:565
+msgid "window"
+msgstr "window"
+
+#: widgets/efficiency/efficiency_widget.py:577
+msgid "curve window"
+msgstr "곡선 창"
+
+#: widgets/efficiency/efficiency_widget.py:578
+msgid "steady threshold"
+msgstr "안정 임계값"
+
+#: widgets/efficiency/efficiency_widget.py:618
 msgid "Swap input and output"
 msgstr "입력 및 출력 전환"
 
-#: widgets/efficiency/efficiency_widget.py:533
+#: widgets/efficiency/efficiency_widget.py:631
+msgid "Efficiency vs time (CSV)"
+msgstr "효율 대 시간 (CSV)"
+
+#: widgets/efficiency/efficiency_widget.py:632
+msgid "Efficiency curve (CSV)"
+msgstr "효율 곡선 (CSV)"
+
+#: widgets/efficiency/efficiency_widget.py:714
 msgid "Select the input and output instruments"
 msgstr "입력 및 출력 계측기 선택"
 
-#: widgets/efficiency/efficiency_widget.py:536
+#: widgets/efficiency/efficiency_widget.py:717
 msgid "Select different input and output instruments"
 msgstr "다양한 입력 및 출력 계측기 선택"
 
-#: widgets/efficiency/efficiency_widget.py:541
+#: widgets/efficiency/efficiency_widget.py:722
 #, python-brace-format
 msgid "Disabled: {0}"
 msgstr "비활성화됨: {0}"
 
-#: widgets/efficiency/efficiency_widget.py:546
+#: widgets/efficiency/efficiency_widget.py:727
+msgid "Curve hold"
+msgstr "곡선 홀드"
+
+#: widgets/efficiency/efficiency_widget.py:729
 #: widgets/spectrum/spectrum_widget.py:1198
 msgid "Paused"
 msgstr "일시 중지됨"
 
-#: widgets/efficiency/efficiency_widget.py:553
+#: widgets/efficiency/efficiency_widget.py:736
 #, python-brace-format
 msgid "No data from {0}"
 msgstr "{0}에서 데이터가 없습니다."
 
-#: widgets/efficiency/efficiency_widget.py:556
+#: widgets/efficiency/efficiency_widget.py:739
 msgid "JS110 input includes its burden voltage"
 msgstr "JS110의 입력에는 부하 전압이 포함됩니다."
 
-#: widgets/efficiency/efficiency_widget.py:559
+#: widgets/efficiency/efficiency_widget.py:742
 msgid "Efficiency above 100%: swap input and output?"
 msgstr "100%를 초과하는 효율: 입력과 출력을 바꿔야 할까요?"
 
-#: widgets/efficiency/efficiency_widget.py:564
+#: widgets/efficiency/efficiency_widget.py:747
 #, python-brace-format
 msgid "{0} windows"
 msgstr "{0} 창"
 
-#: widgets/efficiency/efficiency_widget.py:566
+#: widgets/efficiency/efficiency_widget.py:749
 #, python-brace-format
 msgid "{0} invalid"
 msgstr "{0} 유효하지 않음"
 
-#: widgets/efficiency/efficiency_widget.py:569
+#: widgets/efficiency/efficiency_widget.py:751
+#, python-brace-format
+msgid "{0} unsteady"
+msgstr "{0} 비정상"
+
+#: widgets/efficiency/efficiency_widget.py:754
 #: widgets/spectrum/spectrum_widget.py:1212
 #, python-brace-format
 msgid "overruns {0}"
@@ -4193,14 +4321,6 @@ msgstr "정확한"
 #: widgets/waveform/waveform_widget.py:3778
 msgid "Scale"
 msgstr "스케일"
-
-#: widgets/waveform/waveform_widget.py:3781
-msgid "Linear"
-msgstr "선형"
-
-#: widgets/waveform/waveform_widget.py:3786
-msgid "Logarithmic"
-msgstr "로그"
 
 #: widgets/waveform/waveform_widget.py:3794
 msgid "Logarithmic zero"

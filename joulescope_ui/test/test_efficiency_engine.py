@@ -259,6 +259,18 @@ class TestWindowHistory(unittest.TestCase):
         self.assertEqual(0, len(h))
         self.assertEqual(0, len(h.newest()[0]))
 
+    def test_columns(self):
+        h = WindowHistory(4)
+        w = self._windows(0, 2, invalid=(1,))
+        w[0].update({'p_in': 2.0, 'p_out': 1.0, 'p_loss': 1.0, 'i_out': 0.25})
+        h.append(w)
+        t, c = h.columns()
+        self.assertEqual(list(WindowHistory.COLUMNS), list(c.keys()))
+        np.testing.assert_equal([2.0, np.nan], c['p_in'])
+        np.testing.assert_equal([0.25, np.nan], c['i_out'])
+        np.testing.assert_equal([np.nan, np.nan], c['v_in'])  # not subscribed
+        np.testing.assert_equal(h.newest()[1], c['efficiency'])
+
 
 class TestEfficiencyEngine(unittest.TestCase):
 

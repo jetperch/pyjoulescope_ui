@@ -317,7 +317,7 @@ msgstr "以 Markdown 格式查看"
 msgid "Abort"
 msgstr "终止"
 
-#: error_window.py:120 main.py:466 widgets/efficiency/efficiency_widget.py:474
+#: error_window.py:120 main.py:466 widgets/efficiency/efficiency_widget.py:619
 #: widgets/settings/settings_widget.py:539
 #: widgets/spectrum/spectrum_widget.py:1064
 msgid "View"
@@ -360,7 +360,8 @@ msgstr "文件名"
 msgid "Notes"
 msgstr "备注"
 
-#: exporter.py:89 widgets/signal_record/signal_record_config_widget.py:241
+#: exporter.py:89 widgets/efficiency/efficiency_widget.py:586
+#: widgets/signal_record/signal_record_config_widget.py:241
 #: widgets/signal_record/signal_record_config_widget.py:268
 #: widgets/statistics_record/statistics_record_config_widget.py:173
 msgid "Select save location"
@@ -384,7 +385,7 @@ msgid ""
 "exported data."
 msgstr "将数据导出到 JLS 文件。稍后可以打开该文件以显示导出的数据。"
 
-#: exporter.py:311
+#: exporter.py:311 widgets/efficiency/efficiency_widget.py:603
 msgid "Export failed"
 msgstr "导出失败"
 
@@ -661,7 +662,8 @@ msgstr "近期开放"
 msgid "Config"
 msgstr "配置"
 
-#: main.py:458 main.py:508 widgets/waveform/waveform_widget.py:4260
+#: main.py:458 main.py:508 widgets/efficiency/efficiency_widget.py:630
+#: widgets/waveform/waveform_widget.py:4260
 msgid "Export"
 msgstr "出口"
 
@@ -2151,7 +2153,7 @@ msgstr "选中此选项后，将忽略新数据，使显示屏保持静止。"
 
 #: widgets/efficiency/efficiency_control.py:27
 #: widgets/efficiency/efficiency_control.py:53
-#: widgets/efficiency/efficiency_widget.py:482
+#: widgets/efficiency/efficiency_widget.py:633
 #: widgets/memory/memory_widget.py:238 widgets/spectrum/spectrum_control.py:33
 #: widgets/spectrum/spectrum_control.py:68
 #: widgets/spectrum/spectrum_widget.py:1080
@@ -2164,7 +2166,7 @@ msgstr "清除累计效率、历史数据和效率曲线。"
 
 #: widgets/efficiency/efficiency_control.py:30
 #: widgets/efficiency/efficiency_control.py:54
-#: widgets/efficiency/efficiency_widget.py:38
+#: widgets/efficiency/efficiency_widget.py:40
 msgid "Input"
 msgstr "输入"
 
@@ -2176,7 +2178,7 @@ msgstr "用于测量转换器输入的仪器。将其电压输入端连接至转
 
 #: widgets/efficiency/efficiency_control.py:34
 #: widgets/efficiency/efficiency_control.py:57
-#: widgets/efficiency/efficiency_widget.py:38
+#: widgets/efficiency/efficiency_widget.py:40
 msgid "Output"
 msgstr "输出"
 
@@ -2204,21 +2206,31 @@ msgid "Enable the instrument signals that this widget needs."
 msgstr "请启用该小工具所需的仪器信号。"
 
 #: widgets/efficiency/efficiency_control.py:52
-#: widgets/efficiency/efficiency_widget.py:544
+#: widgets/efficiency/efficiency_widget.py:725
 #: widgets/spectrum/spectrum_control.py:67
 #: widgets/spectrum/spectrum_widget.py:1196 widgets/value/value_widget.py:257
 msgid "Hold"
 msgstr "保持"
 
-#: widgets/efficiency/efficiency_plot.py:177
+#: widgets/efficiency/efficiency_plot.py:214
 msgid "invalid"
 msgstr "无效"
+
+#: widgets/efficiency/efficiency_plot.py:283
+msgid "Waiting for steady load"
+msgstr "等待负载稳定"
+
+#: widgets/efficiency/efficiency_plot.py:343
+#, python-brace-format
+msgid "{0} windows, {1}"
+msgstr "{0} 个窗口，{1}"
 
 #: widgets/efficiency/efficiency_readout.py:62
 msgid "Input power"
 msgstr "输入功率"
 
 #: widgets/efficiency/efficiency_readout.py:63
+#: widgets/efficiency/efficiency_widget.py:101
 msgid "Output power"
 msgstr "输出功率"
 
@@ -2243,111 +2255,223 @@ msgid "Output voltage"
 msgstr "输出电压"
 
 #: widgets/efficiency/efficiency_readout.py:72
+#: widgets/efficiency/efficiency_widget.py:101
 msgid "Output current"
 msgstr "输出电流"
 
 #: widgets/efficiency/efficiency_readout.py:132
-#: widgets/efficiency/efficiency_widget.py:101
+#: widgets/efficiency/efficiency_widget.py:167
 msgid "Efficiency"
 msgstr "效率"
 
-#: widgets/efficiency/efficiency_widget.py:41
+#: widgets/efficiency/efficiency_widget.py:43
 msgid "power"
 msgstr "功率"
 
-#: widgets/efficiency/efficiency_widget.py:41
+#: widgets/efficiency/efficiency_widget.py:43
 msgid "current"
 msgstr "电流"
 
-#: widgets/efficiency/efficiency_widget.py:41
+#: widgets/efficiency/efficiency_widget.py:43
 msgid "voltage"
 msgstr "电压"
 
-#: widgets/efficiency/efficiency_widget.py:53
+#: widgets/efficiency/efficiency_widget.py:55
 msgid "The input instrument."
 msgstr "输入仪器。"
 
-#: widgets/efficiency/efficiency_widget.py:59
+#: widgets/efficiency/efficiency_widget.py:61
 msgid "The output instrument."
 msgstr "输出仪器。"
 
-#: widgets/efficiency/efficiency_widget.py:65
+#: widgets/efficiency/efficiency_widget.py:67
 #: widgets/spectrum/spectrum_widget.py:81
 msgid "Hold the display."
 msgstr "锁定显示。"
 
-#: widgets/efficiency/efficiency_widget.py:71
+#: widgets/efficiency/efficiency_widget.py:73
 msgid "Show voltage and current"
 msgstr "显示电压和电流"
 
-#: widgets/efficiency/efficiency_widget.py:72
+#: widgets/efficiency/efficiency_widget.py:74
 msgid "Show the input and output voltage and current in the readout."
 msgstr "在显示屏上显示输入和输出电压及电流。"
 
-#: widgets/efficiency/efficiency_widget.py:78
+#: widgets/efficiency/efficiency_widget.py:80
 msgid "Show efficiency vs time"
 msgstr "显示效率随时间的变化"
 
-#: widgets/efficiency/efficiency_widget.py:83
+#: widgets/efficiency/efficiency_widget.py:85
 msgid "Efficiency vs time duration"
 msgstr "效率与持续时间的关系"
 
-#: widgets/efficiency/efficiency_widget.py:84
+#: widgets/efficiency/efficiency_widget.py:86
 msgid ""
 "The duration of the efficiency vs time history. Use the mouse wheel to zoom "
 "in to recent history."
 msgstr "效率随时间变化的历史曲线时长。使用鼠标滚轮可放大查看近期历史数据。"
 
-#: widgets/efficiency/efficiency_widget.py:92
+#: widgets/efficiency/efficiency_widget.py:94
+msgid "Show the efficiency curve"
+msgstr "显示效率曲线"
+
+#: widgets/efficiency/efficiency_widget.py:99
+msgid "Efficiency curve x-axis"
+msgstr "效率曲线的 x 轴"
+
+#: widgets/efficiency/efficiency_widget.py:105
+msgid "Efficiency curve x-axis scale"
+msgstr "效率曲线 x 轴刻度"
+
+#: widgets/efficiency/efficiency_widget.py:107
+#: widgets/waveform/waveform_widget.py:3786
+msgid "Logarithmic"
+msgstr "对数"
+
+#: widgets/efficiency/efficiency_widget.py:107
+#: widgets/waveform/waveform_widget.py:3781
+msgid "Linear"
+msgstr "线性"
+
+#: widgets/efficiency/efficiency_widget.py:111
+msgid "Efficiency curve bins per decade"
+msgstr "每十年为一个区间的效率曲线"
+
+#: widgets/efficiency/efficiency_widget.py:112
+msgid ""
+"The efficiency curve groups steady windows into logarithmically spaced load "
+"bins. More bins give finer load resolution but need more data."
+msgstr "效率曲线将稳态窗口分组到对数间隔的负载区间中。区间越多，负载分辨率越高，但需要更多的数据。"
+
+#: widgets/efficiency/efficiency_widget.py:120
+msgid "Efficiency curve window"
+msgstr "效率曲线窗口"
+
+#: widgets/efficiency/efficiency_widget.py:121
+msgid ""
+"The duration of each efficiency curve measurement. Statistics uses the "
+"statistics window. A shorter window captures load points from fast load "
+"sweeps, but includes more energy storage error from the converter "
+"capacitance."
+msgstr "每次效率曲线测量的持续时间。统计功能使用统计窗口。较短的窗口可捕获快速负载扫描中的负载点，但会包含更多来自转换器电容的能量存储误差。"
+
+#: widgets/efficiency/efficiency_widget.py:126
+msgid "Statistics"
+msgstr "统计数据"
+
+#: widgets/efficiency/efficiency_widget.py:131
+msgid "Steady load threshold"
+msgstr "稳态负载阈值"
+
+#: widgets/efficiency/efficiency_widget.py:132
+msgid ""
+"The efficiency curve only includes windows where the input and output power "
+"vary by less than this fraction of their mean within the window."
+msgstr "效率曲线仅包含那些输入功率与输出功率在该区间内的波动幅度小于其平均值该比例的区间。"
+
+#: widgets/efficiency/efficiency_widget.py:140
+msgid "Efficiency curve minimum windows"
+msgstr "效率曲线最小窗口"
+
+#: widgets/efficiency/efficiency_widget.py:141
+msgid "Draw bins with fewer windows faded and leave them off the line."
+msgstr "绘制时，让较少窗口的色块变淡，并将其移出线条之外。"
+
+#: widgets/efficiency/efficiency_widget.py:147
+msgid "Show the efficiency curve min and max"
+msgstr "显示效率曲线的最小值和最大值"
+
+#: widgets/efficiency/efficiency_widget.py:152
+msgid "Hold the efficiency curve"
+msgstr "保持效率曲线"
+
+#: widgets/efficiency/efficiency_widget.py:158
 msgid "The pane sizes."
 msgstr "面板尺寸。"
 
-#: widgets/efficiency/efficiency_widget.py:473
+#: widgets/efficiency/efficiency_widget.py:563
+msgid "input"
+msgstr "输入"
+
+#: widgets/efficiency/efficiency_widget.py:564
+msgid "output"
+msgstr "输出"
+
+#: widgets/efficiency/efficiency_widget.py:565
+msgid "window"
+msgstr "window"
+
+#: widgets/efficiency/efficiency_widget.py:577
+msgid "curve window"
+msgstr "曲线窗口"
+
+#: widgets/efficiency/efficiency_widget.py:578
+msgid "steady threshold"
+msgstr "稳态阈值"
+
+#: widgets/efficiency/efficiency_widget.py:618
 msgid "Swap input and output"
 msgstr "交换输入和输出"
 
-#: widgets/efficiency/efficiency_widget.py:533
+#: widgets/efficiency/efficiency_widget.py:631
+msgid "Efficiency vs time (CSV)"
+msgstr "效率与时间的关系（CSV）"
+
+#: widgets/efficiency/efficiency_widget.py:632
+msgid "Efficiency curve (CSV)"
+msgstr "效率曲线 (CSV)"
+
+#: widgets/efficiency/efficiency_widget.py:714
 msgid "Select the input and output instruments"
 msgstr "选择输入和输出仪器"
 
-#: widgets/efficiency/efficiency_widget.py:536
+#: widgets/efficiency/efficiency_widget.py:717
 msgid "Select different input and output instruments"
 msgstr "选择不同的输入和输出仪器"
 
-#: widgets/efficiency/efficiency_widget.py:541
+#: widgets/efficiency/efficiency_widget.py:722
 #, python-brace-format
 msgid "Disabled: {0}"
 msgstr "已禁用：{0}"
 
-#: widgets/efficiency/efficiency_widget.py:546
+#: widgets/efficiency/efficiency_widget.py:727
+msgid "Curve hold"
+msgstr "曲线保持"
+
+#: widgets/efficiency/efficiency_widget.py:729
 #: widgets/spectrum/spectrum_widget.py:1198
 msgid "Paused"
 msgstr "暂停"
 
-#: widgets/efficiency/efficiency_widget.py:553
+#: widgets/efficiency/efficiency_widget.py:736
 #, python-brace-format
 msgid "No data from {0}"
 msgstr "{0} 没有数据"
 
-#: widgets/efficiency/efficiency_widget.py:556
+#: widgets/efficiency/efficiency_widget.py:739
 msgid "JS110 input includes its burden voltage"
 msgstr "JS110 的输入包含其负载电压"
 
-#: widgets/efficiency/efficiency_widget.py:559
+#: widgets/efficiency/efficiency_widget.py:742
 msgid "Efficiency above 100%: swap input and output?"
 msgstr "效率超过 100%：是输入和输出接反了吗？"
 
-#: widgets/efficiency/efficiency_widget.py:564
+#: widgets/efficiency/efficiency_widget.py:747
 #, python-brace-format
 msgid "{0} windows"
 msgstr "{0} 个窗口"
 
-#: widgets/efficiency/efficiency_widget.py:566
+#: widgets/efficiency/efficiency_widget.py:749
 #, python-brace-format
 msgid "{0} invalid"
 msgstr "{0} 无效"
 
-#: widgets/efficiency/efficiency_widget.py:569
+#: widgets/efficiency/efficiency_widget.py:751
+#, python-brace-format
+msgid "{0} unsteady"
+msgstr "{0} 非稳态"
+
+#: widgets/efficiency/efficiency_widget.py:754
 #: widgets/spectrum/spectrum_widget.py:1212
 #, python-brace-format
 msgid "overruns {0}"
@@ -4105,14 +4229,6 @@ msgstr "精确"
 #: widgets/waveform/waveform_widget.py:3778
 msgid "Scale"
 msgstr "规模"
-
-#: widgets/waveform/waveform_widget.py:3781
-msgid "Linear"
-msgstr "线性"
-
-#: widgets/waveform/waveform_widget.py:3786
-msgid "Logarithmic"
-msgstr "对数"
 
 #: widgets/waveform/waveform_widget.py:3794
 msgid "Logarithmic zero"

@@ -18,7 +18,7 @@ See docs/plans/efficiency.md.
 """
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from joulescope_ui import register, N_, get_topic_name, CAPABILITIES
+from joulescope_ui import register, N_, get_topic_name, CAPABILITIES, time64
 from joulescope_ui.styles import styled_widget, color_as_qcolor, font_as_qfont
 from joulescope_ui.widget_tools import CallableAction, settings_action_create, context_menu_show, \
     CONTROL_LOCATION_SETTING, control_location_apply
@@ -26,11 +26,13 @@ from joulescope_ui.source_selector import SourceSelector
 from joulescope_ui.widgets import plot_base
 from joulescope_ui.efficiency_engine import WindowHistory
 from .efficiency_control import EfficiencyControlWidget
-from .efficiency_plot import TimePlot
+from .efficiency_export import history_csv, curve_csv
+from .efficiency_plot import TimePlot, CurvePlot
 from .efficiency_readout import EfficiencyReadout
 from .efficiency_worker import EfficiencyWorker
 import logging
 import numpy as np
+import os
 import time
 
 
@@ -87,6 +89,70 @@ SETTINGS = {
         'options': [[10.0, '10 s'], [30.0, '30 s'], [60.0, '1 min'], [120.0, '2 min'],
                     [300.0, '5 min'], [600.0, '10 min'], [1800.0, '30 min'], [3600.0, '1 h']],
     },
+    'curve_enable': {
+        'dtype': 'bool',
+        'brief': N_('Show the efficiency curve'),
+        'default': True,
+    },
+    'curve_x': {
+        'dtype': 'str',
+        'brief': N_('Efficiency curve x-axis'),
+        'default': 'current',
+        'options': [['current', N_('Output current')], ['power', N_('Output power')]],
+    },
+    'curve_x_scale': {
+        'dtype': 'str',
+        'brief': N_('Efficiency curve x-axis scale'),
+        'default': 'log',
+        'options': [['log', N_('Logarithmic')], ['linear', N_('Linear')]],
+    },
+    'curve_bins_per_decade': {
+        'dtype': 'int',
+        'brief': N_('Efficiency curve bins per decade'),
+        'detail': N_("""The efficiency curve groups steady windows into
+            logarithmically spaced load bins.  More bins give finer load
+            resolution but need more data."""),
+        'default': 20,
+        'options': [[5, '5'], [10, '10'], [20, '20'], [50, '50']],
+    },
+    'curve_window': {
+        'dtype': 'float',
+        'brief': N_('Efficiency curve window'),
+        'detail': N_("""The duration of each efficiency curve measurement.
+            Statistics uses the statistics window.  A shorter window
+            captures load points from fast load sweeps, but includes
+            more energy storage error from the converter capacitance."""),
+        'default': 0.0,
+        'options': [[0.0, N_('Statistics')], [0.01, '10 ms'], [0.02, '20 ms'], [0.05, '50 ms'],
+                    [0.1, '100 ms'], [0.2, '200 ms'], [0.5, '500 ms'], [1.0, '1 s']],
+    },
+    'steady_threshold': {
+        'dtype': 'float',
+        'brief': N_('Steady load threshold'),
+        'detail': N_("""The efficiency curve only includes windows where the
+            input and output power vary by less than this fraction of their
+            mean within the window."""),
+        'default': 0.05,
+        'options': [[0.01, '1%'], [0.02, '2%'], [0.05, '5%'], [0.1, '10%'], [0.2, '20%']],
+    },
+    'curve_min_count': {
+        'dtype': 'int',
+        'brief': N_('Efficiency curve minimum windows'),
+        'detail': N_('Draw bins with fewer windows faded and leave them off the line.'),
+        'default': 5,
+        'options': [[1, '1'], [2, '2'], [5, '5'], [10, '10'], [20, '20']],
+    },
+    'curve_whiskers': {
+        'dtype': 'bool',
+        'brief': N_('Show the efficiency curve min and max'),
+        'default': True,
+    },
+    'curve_hold': {
+        'dtype': 'bool',
+        'brief': N_('Hold the efficiency curve'),
+        'default': False,
+        'flags': ['hide', 'tmp', 'skip_undo'],
+    },
     'splitter': {
         'dtype': 'obj',
         'brief': N_('The pane sizes.'),
@@ -122,6 +188,7 @@ class EfficiencyWidget(QtWidgets.QWidget):
         self._window = None                         # latest window
         self._window_valid = None                   # latest valid window
         self._snapshot = {}
+        self._curve_bins = []
         self._swap_count = 0
         self.status = ''
         self.status_warning = False
@@ -148,10 +215,13 @@ class EfficiencyWidget(QtWidgets.QWidget):
         self._splitter.setChildrenCollapsible(False)
         self._readout = EfficiencyReadout(self, self._splitter)
         self._time_plot = TimePlot(self, self._splitter)
+        self._curve_plot = CurvePlot(self, self._splitter)
         self._splitter.addWidget(self._readout)
         self._splitter.addWidget(self._time_plot)
+        self._splitter.addWidget(self._curve_plot)
         self._splitter.setStretchFactor(0, 0)
         self._splitter.setStretchFactor(1, 1)
+        self._splitter.setStretchFactor(2, 1)
         self._splitter.splitterMoved.connect(self._on_splitter_moved)
         self._layout.addWidget(self._splitter, 1)
         self._control = EfficiencyControlWidget(self)
@@ -261,10 +331,10 @@ class EfficiencyWidget(QtWidgets.QWidget):
 
     def _signals_needed(self):
         extra = ['v', 'i'] if self.show_vi else []
-        return {
-            'in': ['p'] + extra,
-            'out': ['p', 'i'] + [s for s in extra if s != 'i'],
-        }
+        out = ['p'] + extra
+        if self.curve_x == 'current' and 'i' not in out:
+            out.append('i')
+        return {'in': ['p'] + extra, 'out': out}
 
     def _disconnect(self):
         for key, topic in self._data_topics.items():
@@ -350,9 +420,17 @@ class EfficiencyWidget(QtWidgets.QWidget):
                 self._status_update()
         return fn
 
+    def _engine_curve_config(self):
+        return {
+            'curve_x': self.curve_x,
+            'bins_per_decade': int(self.curve_bins_per_decade),
+            'curve_period': float(self.curve_window) or None,
+            'steady_threshold': float(self.steady_threshold),
+        }
+
     def _reset(self):
         """Restart processing, such as for new instruments."""
-        self._generation = self._worker.configure({'period': self.period})
+        self._generation = self._worker.configure({'period': self.period, **self._engine_curve_config()})
         self._rx_time = {'in': None, 'out': None}
         self._results_clear()
 
@@ -361,9 +439,11 @@ class EfficiencyWidget(QtWidgets.QWidget):
         self._window_valid = None
         self._snapshot = {}
         self._swap_count = 0
+        self._curve_bins = []
         self.history.clear()
         self._readout.update()
         self._time_plot.clear()
+        self._curve_plot.clear()
 
     def _history_resize(self):
         self.history.reset(int(np.ceil(float(self.time_plot_duration) / self.period)) + 4)
@@ -380,6 +460,9 @@ class EfficiencyWidget(QtWidgets.QWidget):
             return
         self._snapshot = s
         self.history.append(s['windows'])
+        if not self.curve_hold and 'curve' in s and s['curve'] != self._curve_bins:
+            self._curve_bins = s['curve']
+            self._curve_plot.update()
         for w in s['windows']:
             self._window = w
             if w['valid']:
@@ -393,6 +476,10 @@ class EfficiencyWidget(QtWidgets.QWidget):
         if s['windows']:
             self._time_plot.update()
         self._status_update()
+
+    def curve_bins(self):
+        """The displayed efficiency curve bins, see :meth:`Curve.bins`."""
+        return self._curve_bins
 
     def readout(self):
         """The readout state.
@@ -433,6 +520,7 @@ class EfficiencyWidget(QtWidgets.QWidget):
             'overruns': int(self._worker.overruns),
             'disabled': [f'{instrument}.{signal}' for instrument, signal in self._disabled],
             'history': len(self.history),
+            'curve': [self._json_window(b) for b in self._curve_bins],
         }
 
     # ---- style ----
@@ -452,6 +540,13 @@ class EfficiencyWidget(QtWidgets.QWidget):
             s[f'{name}_color'] = color_as_qcolor(v[f'efficiency.{name}_color'])
         s['invalid_color'] = color_as_qcolor(v['efficiency.invalid_color'])
         s['trace_pen'] = QtGui.QPen(color_as_qcolor(v['efficiency.trace']))
+        curve = color_as_qcolor(v['efficiency.curve'])
+        faded = QtGui.QColor(curve)
+        faded.setAlphaF(curve.alphaF() * 0.3)
+        s['curve_pen'] = QtGui.QPen(curve)
+        s['curve_brush'] = QtGui.QBrush(curve)
+        s['curve_faded_pen'] = QtGui.QPen(faded)
+        s['curve_faded_brush'] = QtGui.QBrush(faded)
         return s
 
     def on_style_change(self):
@@ -459,6 +554,56 @@ class EfficiencyWidget(QtWidgets.QWidget):
         self._readout.updateGeometry()
         self._readout.update()
         self._time_plot.update()
+        self._curve_plot.update()
+
+    # ---- export ----
+
+    def _export_meta(self):
+        return {
+            N_('input'): self._source_name(self._sources['in']),
+            N_('output'): self._source_name(self._sources['out']),
+            N_('window'): f'{self.period:g} s',
+        }
+
+    def export_history(self, path):
+        """Export the efficiency vs time history as CSV."""
+        t, columns = self.history.columns()
+        with open(path, 'wt', newline='', encoding='utf-8') as f:
+            history_csv(f, t, columns, self._export_meta())
+
+    def export_curve(self, path):
+        """Export the efficiency curve as CSV."""
+        meta = self._export_meta()
+        meta[N_('curve window')] = f'{float(self.curve_window) or self.period:g} s'
+        meta[N_('steady threshold')] = f'{float(self.steady_threshold):g}'
+        x_name, units = ('i_out', 'A') if self.curve_x == 'current' else ('p_out', 'W')
+        with open(path, 'wt', newline='', encoding='utf-8') as f:
+            curve_csv(f, self._curve_bins, x_name, units, meta)
+
+    def _export_request(self, kind):
+        path = self.pubsub.query('registry/paths/settings/path', default='') if self.pubsub else ''
+        filename = time64.filename(f'_efficiency_{kind}.csv')
+        dialog = QtWidgets.QFileDialog(self, N_('Select save location'), os.path.join(path, filename),
+                                       'CSV (*.csv)')
+        dialog.setFileMode(QtWidgets.QFileDialog.AnyFile)
+        dialog.setAcceptMode(QtWidgets.QFileDialog.AcceptSave)
+        dialog.setDefaultSuffix('csv')
+        self._dialog = dialog
+
+        def on_finished(result):
+            self._dialog = None
+            files = dialog.selectedFiles()
+            if result != QtWidgets.QDialog.DialogCode.Accepted or len(files) != 1:
+                return
+            try:
+                (self.export_history if kind == 'history' else self.export_curve)(files[0])
+                self.pubsub.publish('registry/paths/actions/!mru_save', files[0])
+            except Exception as ex:
+                self._log.exception('efficiency export failed')
+                self.pubsub.publish('registry/ui/actions/!error_msg', N_('Export failed') + f'\n{ex}')
+
+        dialog.finished.connect(on_finished)
+        dialog.open()
 
     # ---- menus ----
 
@@ -472,13 +617,19 @@ class EfficiencyWidget(QtWidgets.QWidget):
         menu = QtWidgets.QMenu(self)
         CallableAction(menu, N_('Swap input and output'), self.on_action_swap)
         view = menu.addMenu(N_('View'))
-        for key in ['show_vi', 'time_plot_enable']:
+        for key in ['show_vi', 'time_plot_enable', 'curve_enable', 'curve_whiskers']:
             CallableAction(view, SETTINGS[key]['brief'], self._toggle_factory(key),
                            checkable=True, checked=bool(getattr(self, key)))
-        duration = menu.addMenu(SETTINGS['time_plot_duration']['brief'])
-        for value, label in SETTINGS['time_plot_duration']['options']:
-            CallableAction(duration, label, self._value_factory('time_plot_duration', value),
-                           checkable=True, checked=float(self.time_plot_duration) == value)
+        for key in ['time_plot_duration', 'curve_x', 'curve_x_scale']:
+            submenu = menu.addMenu(SETTINGS[key]['brief'])
+            for value, label in SETTINGS[key]['options']:
+                CallableAction(submenu, label, self._value_factory(key, value),
+                               checkable=True, checked=getattr(self, key) == value)
+        CallableAction(menu, SETTINGS['curve_hold']['brief'], self._toggle_factory('curve_hold'),
+                       checkable=True, checked=bool(self.curve_hold))
+        export = menu.addMenu(N_('Export'))
+        CallableAction(export, N_('Efficiency vs time (CSV)'), lambda: self._export_request('history'))
+        CallableAction(export, N_('Efficiency curve (CSV)'), lambda: self._export_request('curve'))
         CallableAction(menu, N_('Clear'), self.on_action_clear)
         settings_action_create(self, menu)
         context_menu_show(menu, event)
@@ -514,6 +665,36 @@ class EfficiencyWidget(QtWidgets.QWidget):
         self._history_resize()
         self._time_plot.update()
 
+    def on_setting_curve_enable(self, value):
+        self._curve_plot.setVisible(bool(value))
+
+    def _curve_config_update(self, value=None):
+        self._worker.update(self._engine_curve_config())
+        self._curve_bins = []
+        self._curve_plot.clear()
+
+    on_setting_curve_bins_per_decade = _curve_config_update
+    on_setting_curve_window = _curve_config_update
+    on_setting_steady_threshold = _curve_config_update
+
+    def on_setting_curve_x(self, value):
+        self._curve_config_update()
+        if self.pubsub is not None:
+            self._connect()  # output current subscription
+
+    def _curve_repaint(self, value=None):
+        self._curve_plot.clear()
+
+    on_setting_curve_x_scale = _curve_repaint
+    on_setting_curve_whiskers = _curve_repaint
+    on_setting_curve_min_count = _curve_repaint
+
+    def on_setting_curve_hold(self, value):
+        if not value and 'curve' in self._snapshot:
+            self._curve_bins = self._snapshot['curve']
+        self._curve_plot.update()
+        self._status_update()
+
     def on_setting_splitter(self, value):
         if value and len(value) == self._splitter.count():
             self._splitter.setSizes([int(v) for v in value])
@@ -542,6 +723,8 @@ class EfficiencyWidget(QtWidgets.QWidget):
                 warning = True
             if self.hold:
                 parts.append(N_('Hold'))
+            elif self.curve_hold:
+                parts.append(N_('Curve hold'))
             elif self._paused:
                 parts.append(N_('Paused'))
             now = time.monotonic()
@@ -564,6 +747,8 @@ class EfficiencyWidget(QtWidgets.QWidget):
             parts.append(N_('{0} windows').format(totals['windows']))
             if totals['invalid']:
                 parts.append(N_('{0} invalid').format(totals['invalid']))
+            if self._snapshot.get('rejected'):
+                parts.append(N_('{0} unsteady').format(self._snapshot['rejected']))
         overruns = self._worker.overruns
         if overruns:
             parts.append(N_('overruns {0}').format(overruns))
