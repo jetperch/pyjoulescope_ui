@@ -74,6 +74,31 @@ def style_build(v, prefix):
     }
 
 
+def autoscale_hysteresis(current, lo, hi, step):
+    """Autoscale an axis range without jitter.
+
+    :param current: The current [y0, y1] range, or None.
+    :param lo: The data minimum.
+    :param hi: The data maximum.
+    :param step: The range granularity.  The range snaps to multiples of
+        step with at least half a step of margin, and only changes when
+        the data leaves it or falls well inside it.
+    :return: The new [y0, y1] range.
+    """
+    target_hi = np.ceil((hi + 0.5 * step) / step) * step
+    target_lo = np.floor((lo - 0.5 * step) / step) * step
+    if current is None:
+        return [target_lo, target_hi]
+    y0, y1 = current
+    if hi > y1 or hi < y1 - 3 * step:
+        y1 = target_hi
+    if lo < y0 or lo > y0 + 4 * step:
+        y0 = target_lo
+    if y1 - y0 < 2 * step:
+        y0 = y1 - 2 * step
+    return [y0, y1]
+
+
 def minor_visible(v):
     """True if minor grid lines at pixels v are far enough apart to draw."""
     return v is not None and len(v) > 1 and np.min(np.abs(np.diff(v))) >= MINOR_GRID_PIXELS

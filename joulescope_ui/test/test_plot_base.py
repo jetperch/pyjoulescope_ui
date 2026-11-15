@@ -77,6 +77,15 @@ class TestPlotBase(unittest.TestCase):
         with self.assertRaises(KeyError):
             plot_base.style_build(self.style_vars, 'nonexistent')
 
+    def test_autoscale_hysteresis(self):
+        r = plot_base.autoscale_hysteresis(None, -73.0, -21.0, 10.0)
+        self.assertEqual([-80.0, -10.0], r)
+        self.assertEqual(r, plot_base.autoscale_hysteresis(r, -70.0, -25.0, 10.0))  # small moves keep it
+        self.assertEqual([-80.0, 10.0], plot_base.autoscale_hysteresis(r, -70.0, 2.0, 10.0))  # above
+        self.assertEqual([-100.0, -10.0], plot_base.autoscale_hysteresis(r, -95.0, -21.0, 10.0))  # below
+        self.assertEqual([-80.0, -50.0], plot_base.autoscale_hysteresis(r, -73.0, -58.0, 10.0))  # shrink
+        self.assertEqual([-20.0, 0.0], plot_base.autoscale_hysteresis([-20.0, 0.0], -10.0, -10.0, 10.0))
+
     def test_minor_visible(self):
         self.assertFalse(plot_base.minor_visible(None))
         self.assertFalse(plot_base.minor_visible(np.array([1.0])))

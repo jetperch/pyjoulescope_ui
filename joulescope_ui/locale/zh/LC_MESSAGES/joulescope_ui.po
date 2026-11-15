@@ -317,8 +317,9 @@ msgstr "以 Markdown 格式查看"
 msgid "Abort"
 msgstr "终止"
 
-#: error_window.py:120 main.py:466 widgets/settings/settings_widget.py:539
-#: widgets/spectrum/spectrum_widget.py:1079
+#: error_window.py:120 main.py:466 widgets/efficiency/efficiency_widget.py:474
+#: widgets/settings/settings_widget.py:539
+#: widgets/spectrum/spectrum_widget.py:1064
 msgid "View"
 msgstr "查看"
 
@@ -1742,7 +1743,7 @@ msgstr "概率密度分布"
 
 #: range_tools/histogram.py:44 range_tools/max_window.py:109
 #: widgets/spectrum/spectrum_control.py:36
-#: widgets/spectrum/spectrum_widget.py:1091
+#: widgets/spectrum/spectrum_widget.py:1076
 #: widgets/trigger/trigger_widget.py:220
 msgid "Signal"
 msgstr "信号"
@@ -2150,10 +2151,10 @@ msgstr "选中此选项后，将忽略新数据，使显示屏保持静止。"
 
 #: widgets/efficiency/efficiency_control.py:27
 #: widgets/efficiency/efficiency_control.py:53
-#: widgets/efficiency/efficiency_widget.py:434
+#: widgets/efficiency/efficiency_widget.py:482
 #: widgets/memory/memory_widget.py:238 widgets/spectrum/spectrum_control.py:33
 #: widgets/spectrum/spectrum_control.py:68
-#: widgets/spectrum/spectrum_widget.py:1095
+#: widgets/spectrum/spectrum_widget.py:1080
 msgid "Clear"
 msgstr "清除"
 
@@ -2163,7 +2164,7 @@ msgstr "清除累计效率、历史数据和效率曲线。"
 
 #: widgets/efficiency/efficiency_control.py:30
 #: widgets/efficiency/efficiency_control.py:54
-#: widgets/efficiency/efficiency_widget.py:36
+#: widgets/efficiency/efficiency_widget.py:38
 msgid "Input"
 msgstr "输入"
 
@@ -2175,7 +2176,7 @@ msgstr "用于测量转换器输入的仪器。将其电压输入端连接至转
 
 #: widgets/efficiency/efficiency_control.py:34
 #: widgets/efficiency/efficiency_control.py:57
-#: widgets/efficiency/efficiency_widget.py:36
+#: widgets/efficiency/efficiency_widget.py:38
 msgid "Output"
 msgstr "输出"
 
@@ -2203,11 +2204,15 @@ msgid "Enable the instrument signals that this widget needs."
 msgstr "请启用该小工具所需的仪器信号。"
 
 #: widgets/efficiency/efficiency_control.py:52
-#: widgets/efficiency/efficiency_widget.py:472
+#: widgets/efficiency/efficiency_widget.py:544
 #: widgets/spectrum/spectrum_control.py:67
-#: widgets/spectrum/spectrum_widget.py:1211 widgets/value/value_widget.py:257
+#: widgets/spectrum/spectrum_widget.py:1196 widgets/value/value_widget.py:257
 msgid "Hold"
 msgstr "保持"
+
+#: widgets/efficiency/efficiency_plot.py:177
+msgid "invalid"
+msgstr "无效"
 
 #: widgets/efficiency/efficiency_readout.py:62
 msgid "Input power"
@@ -2242,91 +2247,108 @@ msgid "Output current"
 msgstr "输出电流"
 
 #: widgets/efficiency/efficiency_readout.py:132
-#: widgets/efficiency/efficiency_widget.py:79
+#: widgets/efficiency/efficiency_widget.py:101
 msgid "Efficiency"
 msgstr "效率"
 
-#: widgets/efficiency/efficiency_widget.py:39
+#: widgets/efficiency/efficiency_widget.py:41
 msgid "power"
 msgstr "功率"
 
-#: widgets/efficiency/efficiency_widget.py:39
+#: widgets/efficiency/efficiency_widget.py:41
 msgid "current"
 msgstr "电流"
 
-#: widgets/efficiency/efficiency_widget.py:39
+#: widgets/efficiency/efficiency_widget.py:41
 msgid "voltage"
 msgstr "电压"
 
-#: widgets/efficiency/efficiency_widget.py:51
+#: widgets/efficiency/efficiency_widget.py:53
 msgid "The input instrument."
 msgstr "输入仪器。"
 
-#: widgets/efficiency/efficiency_widget.py:57
+#: widgets/efficiency/efficiency_widget.py:59
 msgid "The output instrument."
 msgstr "输出仪器。"
 
-#: widgets/efficiency/efficiency_widget.py:63
+#: widgets/efficiency/efficiency_widget.py:65
 #: widgets/spectrum/spectrum_widget.py:81
 msgid "Hold the display."
 msgstr "锁定显示。"
 
-#: widgets/efficiency/efficiency_widget.py:69
-#: widgets/efficiency/efficiency_widget.py:432
+#: widgets/efficiency/efficiency_widget.py:71
 msgid "Show voltage and current"
 msgstr "显示电压和电流"
 
-#: widgets/efficiency/efficiency_widget.py:70
+#: widgets/efficiency/efficiency_widget.py:72
 msgid "Show the input and output voltage and current in the readout."
 msgstr "在显示屏上显示输入和输出电压及电流。"
 
-#: widgets/efficiency/efficiency_widget.py:431
+#: widgets/efficiency/efficiency_widget.py:78
+msgid "Show efficiency vs time"
+msgstr "显示效率随时间的变化"
+
+#: widgets/efficiency/efficiency_widget.py:83
+msgid "Efficiency vs time duration"
+msgstr "效率与持续时间的关系"
+
+#: widgets/efficiency/efficiency_widget.py:84
+msgid ""
+"The duration of the efficiency vs time history. Use the mouse wheel to zoom "
+"in to recent history."
+msgstr "效率随时间变化的历史曲线时长。使用鼠标滚轮可放大查看近期历史数据。"
+
+#: widgets/efficiency/efficiency_widget.py:92
+msgid "The pane sizes."
+msgstr "面板尺寸。"
+
+#: widgets/efficiency/efficiency_widget.py:473
 msgid "Swap input and output"
 msgstr "交换输入和输出"
 
-#: widgets/efficiency/efficiency_widget.py:461
+#: widgets/efficiency/efficiency_widget.py:533
 msgid "Select the input and output instruments"
 msgstr "选择输入和输出仪器"
 
-#: widgets/efficiency/efficiency_widget.py:464
+#: widgets/efficiency/efficiency_widget.py:536
 msgid "Select different input and output instruments"
 msgstr "选择不同的输入和输出仪器"
 
-#: widgets/efficiency/efficiency_widget.py:469
+#: widgets/efficiency/efficiency_widget.py:541
 #, python-brace-format
 msgid "Disabled: {0}"
 msgstr "已禁用：{0}"
 
-#: widgets/efficiency/efficiency_widget.py:474
-#: widgets/spectrum/spectrum_widget.py:1213
+#: widgets/efficiency/efficiency_widget.py:546
+#: widgets/spectrum/spectrum_widget.py:1198
 msgid "Paused"
 msgstr "暂停"
 
-#: widgets/efficiency/efficiency_widget.py:481
+#: widgets/efficiency/efficiency_widget.py:553
 #, python-brace-format
 msgid "No data from {0}"
 msgstr "{0} 没有数据"
 
-#: widgets/efficiency/efficiency_widget.py:484
+#: widgets/efficiency/efficiency_widget.py:556
 msgid "JS110 input includes its burden voltage"
 msgstr "JS110 的输入包含其负载电压"
 
-#: widgets/efficiency/efficiency_widget.py:487
+#: widgets/efficiency/efficiency_widget.py:559
 msgid "Efficiency above 100%: swap input and output?"
 msgstr "效率超过 100%：是输入和输出接反了吗？"
 
-#: widgets/efficiency/efficiency_widget.py:492
+#: widgets/efficiency/efficiency_widget.py:564
 #, python-brace-format
 msgid "{0} windows"
 msgstr "{0} 个窗口"
 
-#: widgets/efficiency/efficiency_widget.py:494
+#: widgets/efficiency/efficiency_widget.py:566
 #, python-brace-format
 msgid "{0} invalid"
 msgstr "{0} 无效"
 
-#: widgets/efficiency/efficiency_widget.py:497
-#: widgets/spectrum/spectrum_widget.py:1227
+#: widgets/efficiency/efficiency_widget.py:569
+#: widgets/spectrum/spectrum_widget.py:1212
 #, python-brace-format
 msgid "overruns {0}"
 msgstr "超限 {0}"
@@ -2973,7 +2995,7 @@ msgid "PSD"
 msgstr "PSD"
 
 #: widgets/spectrum/spectrum_widget.py:138
-#: widgets/spectrum/spectrum_widget.py:1086
+#: widgets/spectrum/spectrum_widget.py:1071
 msgid "Y-axis units"
 msgstr "Y 轴单位"
 
@@ -3157,52 +3179,52 @@ msgstr "最大更新率（Hz）"
 msgid "Spectrum"
 msgstr "频谱"
 
-#: widgets/spectrum/spectrum_widget.py:1060
+#: widgets/spectrum/spectrum_widget.py:1045
 msgid "Add marker"
 msgstr "添加标记"
 
-#: widgets/spectrum/spectrum_widget.py:1063
+#: widgets/spectrum/spectrum_widget.py:1048
 msgid "Add marker at peak"
 msgstr "在峰值处添加标记"
 
-#: widgets/spectrum/spectrum_widget.py:1070
+#: widgets/spectrum/spectrum_widget.py:1055
 msgid "Remove marker"
 msgstr "删除标记"
 
-#: widgets/spectrum/spectrum_widget.py:1072
+#: widgets/spectrum/spectrum_widget.py:1057
 msgid "Clear markers"
 msgstr "清晰的标记"
 
-#: widgets/spectrum/spectrum_widget.py:1074
+#: widgets/spectrum/spectrum_widget.py:1059
 msgid "Traces"
 msgstr "波形图"
 
-#: widgets/spectrum/spectrum_widget.py:1080
+#: widgets/spectrum/spectrum_widget.py:1065
 msgid "Logarithmic frequency"
 msgstr "对数频率"
 
-#: widgets/spectrum/spectrum_widget.py:1081
+#: widgets/spectrum/spectrum_widget.py:1066
 msgid "Autoscale y-axis"
 msgstr "Y 轴自动缩放"
 
-#: widgets/spectrum/spectrum_widget.py:1082
+#: widgets/spectrum/spectrum_widget.py:1067
 msgid "Show FFT"
 msgstr "显示 FFT"
 
-#: widgets/spectrum/spectrum_widget.py:1083
+#: widgets/spectrum/spectrum_widget.py:1068
 msgid "Show waterfall"
 msgstr "显示瀑布图"
 
-#: widgets/spectrum/spectrum_widget.py:1209
+#: widgets/spectrum/spectrum_widget.py:1194
 msgid "No signal"
 msgstr "无信号"
 
-#: widgets/spectrum/spectrum_widget.py:1218
+#: widgets/spectrum/spectrum_widget.py:1203
 #, python-brace-format
 msgid "gaps {0}"
 msgstr "gaps {0}"
 
-#: widgets/spectrum/spectrum_widget.py:1224
+#: widgets/spectrum/spectrum_widget.py:1209
 #, python-brace-format
 msgid "waterfall {0}"
 msgstr "瀑布图 {0}"

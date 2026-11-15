@@ -325,8 +325,9 @@ msgstr "마크다운으로 보기"
 msgid "Abort"
 msgstr "Abort"
 
-#: error_window.py:120 main.py:466 widgets/settings/settings_widget.py:539
-#: widgets/spectrum/spectrum_widget.py:1079
+#: error_window.py:120 main.py:466 widgets/efficiency/efficiency_widget.py:474
+#: widgets/settings/settings_widget.py:539
+#: widgets/spectrum/spectrum_widget.py:1064
 msgid "View"
 msgstr "View"
 
@@ -1791,7 +1792,7 @@ msgstr "확률 밀도 분포"
 
 #: range_tools/histogram.py:44 range_tools/max_window.py:109
 #: widgets/spectrum/spectrum_control.py:36
-#: widgets/spectrum/spectrum_widget.py:1091
+#: widgets/spectrum/spectrum_widget.py:1076
 #: widgets/trigger/trigger_widget.py:220
 msgid "Signal"
 msgstr "신호"
@@ -2206,10 +2207,10 @@ msgstr "이 기능을 선택하면 새로운 데이터가 무시되어 디스플
 
 #: widgets/efficiency/efficiency_control.py:27
 #: widgets/efficiency/efficiency_control.py:53
-#: widgets/efficiency/efficiency_widget.py:434
+#: widgets/efficiency/efficiency_widget.py:482
 #: widgets/memory/memory_widget.py:238 widgets/spectrum/spectrum_control.py:33
 #: widgets/spectrum/spectrum_control.py:68
-#: widgets/spectrum/spectrum_widget.py:1095
+#: widgets/spectrum/spectrum_widget.py:1080
 msgid "Clear"
 msgstr "Clear"
 
@@ -2219,7 +2220,7 @@ msgstr "누적 효율, 이력 및 효율 곡선을 확인하십시오."
 
 #: widgets/efficiency/efficiency_control.py:30
 #: widgets/efficiency/efficiency_control.py:54
-#: widgets/efficiency/efficiency_widget.py:36
+#: widgets/efficiency/efficiency_widget.py:38
 msgid "Input"
 msgstr "입력"
 
@@ -2231,7 +2232,7 @@ msgstr "컨버터 입력을 측정하는 계측기입니다. 이 계측기의 �
 
 #: widgets/efficiency/efficiency_control.py:34
 #: widgets/efficiency/efficiency_control.py:57
-#: widgets/efficiency/efficiency_widget.py:36
+#: widgets/efficiency/efficiency_widget.py:38
 msgid "Output"
 msgstr "출력"
 
@@ -2259,11 +2260,15 @@ msgid "Enable the instrument signals that this widget needs."
 msgstr "이 위젯에 필요한 기기 신호를 활성화하십시오."
 
 #: widgets/efficiency/efficiency_control.py:52
-#: widgets/efficiency/efficiency_widget.py:472
+#: widgets/efficiency/efficiency_widget.py:544
 #: widgets/spectrum/spectrum_control.py:67
-#: widgets/spectrum/spectrum_widget.py:1211 widgets/value/value_widget.py:257
+#: widgets/spectrum/spectrum_widget.py:1196 widgets/value/value_widget.py:257
 msgid "Hold"
 msgstr "Hold"
+
+#: widgets/efficiency/efficiency_plot.py:177
+msgid "invalid"
+msgstr "무효"
 
 #: widgets/efficiency/efficiency_readout.py:62
 msgid "Input power"
@@ -2298,91 +2303,108 @@ msgid "Output current"
 msgstr "출력 전류"
 
 #: widgets/efficiency/efficiency_readout.py:132
-#: widgets/efficiency/efficiency_widget.py:79
+#: widgets/efficiency/efficiency_widget.py:101
 msgid "Efficiency"
 msgstr "효율"
 
-#: widgets/efficiency/efficiency_widget.py:39
+#: widgets/efficiency/efficiency_widget.py:41
 msgid "power"
 msgstr "전력"
 
-#: widgets/efficiency/efficiency_widget.py:39
+#: widgets/efficiency/efficiency_widget.py:41
 msgid "current"
 msgstr "전류"
 
-#: widgets/efficiency/efficiency_widget.py:39
+#: widgets/efficiency/efficiency_widget.py:41
 msgid "voltage"
 msgstr "전압"
 
-#: widgets/efficiency/efficiency_widget.py:51
+#: widgets/efficiency/efficiency_widget.py:53
 msgid "The input instrument."
 msgstr "입력 계측기."
 
-#: widgets/efficiency/efficiency_widget.py:57
+#: widgets/efficiency/efficiency_widget.py:59
 msgid "The output instrument."
 msgstr "최고의 측정 장비."
 
-#: widgets/efficiency/efficiency_widget.py:63
+#: widgets/efficiency/efficiency_widget.py:65
 #: widgets/spectrum/spectrum_widget.py:81
 msgid "Hold the display."
 msgstr "디스플레이를 고정하세요."
 
-#: widgets/efficiency/efficiency_widget.py:69
-#: widgets/efficiency/efficiency_widget.py:432
+#: widgets/efficiency/efficiency_widget.py:71
 msgid "Show voltage and current"
 msgstr "전압 및 전류 표시"
 
-#: widgets/efficiency/efficiency_widget.py:70
+#: widgets/efficiency/efficiency_widget.py:72
 msgid "Show the input and output voltage and current in the readout."
 msgstr "디스플레이에 입력 및 출력 전압과 전류를 표시합니다."
 
-#: widgets/efficiency/efficiency_widget.py:431
+#: widgets/efficiency/efficiency_widget.py:78
+msgid "Show efficiency vs time"
+msgstr "효율 대 시간 그래프 표시"
+
+#: widgets/efficiency/efficiency_widget.py:83
+msgid "Efficiency vs time duration"
+msgstr "효율 대 시간"
+
+#: widgets/efficiency/efficiency_widget.py:84
+msgid ""
+"The duration of the efficiency vs time history. Use the mouse wheel to zoom "
+"in to recent history."
+msgstr "효율 대 시간 추이 그래프의 표시 기간입니다. 마우스 휠을 사용하여 최근 기록을 확대해 볼 수 있습니다."
+
+#: widgets/efficiency/efficiency_widget.py:92
+msgid "The pane sizes."
+msgstr "패널 크기."
+
+#: widgets/efficiency/efficiency_widget.py:473
 msgid "Swap input and output"
 msgstr "입력 및 출력 전환"
 
-#: widgets/efficiency/efficiency_widget.py:461
+#: widgets/efficiency/efficiency_widget.py:533
 msgid "Select the input and output instruments"
 msgstr "입력 및 출력 계측기 선택"
 
-#: widgets/efficiency/efficiency_widget.py:464
+#: widgets/efficiency/efficiency_widget.py:536
 msgid "Select different input and output instruments"
 msgstr "다양한 입력 및 출력 계측기 선택"
 
-#: widgets/efficiency/efficiency_widget.py:469
+#: widgets/efficiency/efficiency_widget.py:541
 #, python-brace-format
 msgid "Disabled: {0}"
 msgstr "비활성화됨: {0}"
 
-#: widgets/efficiency/efficiency_widget.py:474
-#: widgets/spectrum/spectrum_widget.py:1213
+#: widgets/efficiency/efficiency_widget.py:546
+#: widgets/spectrum/spectrum_widget.py:1198
 msgid "Paused"
 msgstr "일시 중지됨"
 
-#: widgets/efficiency/efficiency_widget.py:481
+#: widgets/efficiency/efficiency_widget.py:553
 #, python-brace-format
 msgid "No data from {0}"
 msgstr "{0}에서 데이터가 없습니다."
 
-#: widgets/efficiency/efficiency_widget.py:484
+#: widgets/efficiency/efficiency_widget.py:556
 msgid "JS110 input includes its burden voltage"
 msgstr "JS110의 입력에는 부하 전압이 포함됩니다."
 
-#: widgets/efficiency/efficiency_widget.py:487
+#: widgets/efficiency/efficiency_widget.py:559
 msgid "Efficiency above 100%: swap input and output?"
 msgstr "100%를 초과하는 효율: 입력과 출력을 바꿔야 할까요?"
 
-#: widgets/efficiency/efficiency_widget.py:492
+#: widgets/efficiency/efficiency_widget.py:564
 #, python-brace-format
 msgid "{0} windows"
 msgstr "{0} 창"
 
-#: widgets/efficiency/efficiency_widget.py:494
+#: widgets/efficiency/efficiency_widget.py:566
 #, python-brace-format
 msgid "{0} invalid"
 msgstr "{0} 유효하지 않음"
 
-#: widgets/efficiency/efficiency_widget.py:497
-#: widgets/spectrum/spectrum_widget.py:1227
+#: widgets/efficiency/efficiency_widget.py:569
+#: widgets/spectrum/spectrum_widget.py:1212
 #, python-brace-format
 msgid "overruns {0}"
 msgstr "overruns {0}"
@@ -3042,7 +3064,7 @@ msgid "PSD"
 msgstr "PSD"
 
 #: widgets/spectrum/spectrum_widget.py:138
-#: widgets/spectrum/spectrum_widget.py:1086
+#: widgets/spectrum/spectrum_widget.py:1071
 msgid "Y-axis units"
 msgstr "Y축 단위"
 
@@ -3229,52 +3251,52 @@ msgstr "최대 업데이트 속도 (Hz)"
 msgid "Spectrum"
 msgstr "스펙트럼"
 
-#: widgets/spectrum/spectrum_widget.py:1060
+#: widgets/spectrum/spectrum_widget.py:1045
 msgid "Add marker"
 msgstr "마커 추가"
 
-#: widgets/spectrum/spectrum_widget.py:1063
+#: widgets/spectrum/spectrum_widget.py:1048
 msgid "Add marker at peak"
 msgstr "피크 지점에 마커 추가"
 
-#: widgets/spectrum/spectrum_widget.py:1070
+#: widgets/spectrum/spectrum_widget.py:1055
 msgid "Remove marker"
 msgstr "마커 제거"
 
-#: widgets/spectrum/spectrum_widget.py:1072
+#: widgets/spectrum/spectrum_widget.py:1057
 msgid "Clear markers"
 msgstr "명확한 표시기"
 
-#: widgets/spectrum/spectrum_widget.py:1074
+#: widgets/spectrum/spectrum_widget.py:1059
 msgid "Traces"
 msgstr "트레이스"
 
-#: widgets/spectrum/spectrum_widget.py:1080
+#: widgets/spectrum/spectrum_widget.py:1065
 msgid "Logarithmic frequency"
 msgstr "대수 주파수"
 
-#: widgets/spectrum/spectrum_widget.py:1081
+#: widgets/spectrum/spectrum_widget.py:1066
 msgid "Autoscale y-axis"
 msgstr "Y축 자동 스케일링"
 
-#: widgets/spectrum/spectrum_widget.py:1082
+#: widgets/spectrum/spectrum_widget.py:1067
 msgid "Show FFT"
 msgstr "FFT 표시"
 
-#: widgets/spectrum/spectrum_widget.py:1083
+#: widgets/spectrum/spectrum_widget.py:1068
 msgid "Show waterfall"
 msgstr "워터폴 표시"
 
-#: widgets/spectrum/spectrum_widget.py:1209
+#: widgets/spectrum/spectrum_widget.py:1194
 msgid "No signal"
 msgstr "신호 없음"
 
-#: widgets/spectrum/spectrum_widget.py:1218
+#: widgets/spectrum/spectrum_widget.py:1203
 #, python-brace-format
 msgid "gaps {0}"
 msgstr "gaps {0}"
 
-#: widgets/spectrum/spectrum_widget.py:1224
+#: widgets/spectrum/spectrum_widget.py:1209
 #, python-brace-format
 msgid "waterfall {0}"
 msgstr "waterfall {0}"

@@ -18,7 +18,7 @@ import math
 import unittest
 import numpy as np
 from joulescope_ui import time64
-from joulescope_ui.efficiency_engine import SignalIntegrator, Curve, EfficiencyEngine
+from joulescope_ui.efficiency_engine import SignalIntegrator, Curve, EfficiencyEngine, WindowHistory
 
 
 T0 = 260_000_000  # realistic time64 UTC seconds (2026), integer
@@ -222,6 +222,42 @@ class TestCurve(unittest.TestCase):
         self.assertAlmostEqual(0.95, bins[1]['efficiency'])
         c.clear()
         self.assertEqual([], c.bins())
+
+
+class TestWindowHistory(unittest.TestCase):
+
+    @staticmethod
+    def _windows(k0, k1, period=0.5, invalid=()):
+        return [{'t0': k * period, 't1': (k + 1) * period, 'utc': T0_64 + int(k * period * time64.SECOND),
+                 'valid': k not in invalid, 'efficiency': None if k in invalid else 0.5 + k / 1000}
+                for k in range(k0, k1)]
+
+    def test_append_and_wrap(self):
+        h = WindowHistory(4)
+        self.assertEqual(0, len(h))
+        h.append(self._windows(0, 3, invalid=(1,)))
+        t, y = h.newest()
+        self.assertEqual(3, len(h))
+        np.testing.assert_equal([0.5, np.nan, 0.502], y)
+        self.assertEqual(T0_64 + time64.SECOND // 2, t[0])  # window end time
+        h.append(self._windows(3, 7))
+        t, y = h.newest()
+        self.assertEqual(4, len(h))
+        np.testing.assert_allclose([0.503, 0.504, 0.505, 0.506], y)
+        self.assertTrue(np.all(np.diff(t) > 0))
+
+    def test_reset_keeps_newest(self):
+        h = WindowHistory(10)
+        h.append(self._windows(0, 8))
+        h.reset(3)
+        np.testing.assert_allclose([0.505, 0.506, 0.507], h.newest()[1])
+        h.reset(20)
+        self.assertEqual(3, len(h))
+        h.append(self._windows(8, 9))
+        np.testing.assert_allclose([0.505, 0.506, 0.507, 0.508], h.newest()[1])
+        h.clear()
+        self.assertEqual(0, len(h))
+        self.assertEqual(0, len(h.newest()[0]))
 
 
 class TestEfficiencyEngine(unittest.TestCase):

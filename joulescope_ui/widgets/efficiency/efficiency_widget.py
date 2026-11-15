@@ -24,11 +24,13 @@ from joulescope_ui.widget_tools import CallableAction, settings_action_create, c
     CONTROL_LOCATION_SETTING, control_location_apply
 from joulescope_ui.source_selector import SourceSelector
 from joulescope_ui.widgets import plot_base
+from joulescope_ui.efficiency_engine import WindowHistory
 from .efficiency_control import EfficiencyControlWidget
+from .efficiency_plot import TimePlot
 from .efficiency_readout import EfficiencyReadout
 from .efficiency_worker import EfficiencyWorker
 import logging
-import math
+import numpy as np
 import time
 
 
@@ -70,6 +72,26 @@ SETTINGS = {
         'detail': N_("""Show the input and output voltage and current
             in the readout."""),
         'default': False,
+    },
+    'time_plot_enable': {
+        'dtype': 'bool',
+        'brief': N_('Show efficiency vs time'),
+        'default': True,
+    },
+    'time_plot_duration': {
+        'dtype': 'float',
+        'brief': N_('Efficiency vs time duration'),
+        'detail': N_("""The duration of the efficiency vs time history.
+            Use the mouse wheel to zoom in to recent history."""),
+        'default': 600.0,
+        'options': [[10.0, '10 s'], [30.0, '30 s'], [60.0, '1 min'], [120.0, '2 min'],
+                    [300.0, '5 min'], [600.0, '10 min'], [1800.0, '30 min'], [3600.0, '1 h']],
+    },
+    'splitter': {
+        'dtype': 'obj',
+        'brief': N_('The pane sizes.'),
+        'default': None,
+        'flags': ['hide'],
     },
     'control_location': dict(CONTROL_LOCATION_SETTING),
 }
@@ -120,9 +142,18 @@ class EfficiencyWidget(QtWidgets.QWidget):
         self._layout = QtWidgets.QVBoxLayout(self)
         self._layout.setContentsMargins(0, 0, 0, 0)
         self._layout.setSpacing(0)
-        self._readout = EfficiencyReadout(self, self)
-        self._layout.addWidget(self._readout)
-        self._layout.addStretch(1)
+        self.history = WindowHistory()
+        self._history_resize()
+        self._splitter = QtWidgets.QSplitter(QtCore.Qt.Vertical, self)
+        self._splitter.setChildrenCollapsible(False)
+        self._readout = EfficiencyReadout(self, self._splitter)
+        self._time_plot = TimePlot(self, self._splitter)
+        self._splitter.addWidget(self._readout)
+        self._splitter.addWidget(self._time_plot)
+        self._splitter.setStretchFactor(0, 0)
+        self._splitter.setStretchFactor(1, 1)
+        self._splitter.splitterMoved.connect(self._on_splitter_moved)
+        self._layout.addWidget(self._splitter, 1)
         self._control = EfficiencyControlWidget(self)
         self._layout.addWidget(self._control)
         self._control.value_set('hold', self.hold)
@@ -305,6 +336,7 @@ class EfficiencyWidget(QtWidgets.QWidget):
         if period != self.period:
             self.period = period
             self._worker.update({'period': period})
+            self._history_resize()
         self._status_update()
 
     # ---- data ----
@@ -329,7 +361,12 @@ class EfficiencyWidget(QtWidgets.QWidget):
         self._window_valid = None
         self._snapshot = {}
         self._swap_count = 0
+        self.history.clear()
         self._readout.update()
+        self._time_plot.clear()
+
+    def _history_resize(self):
+        self.history.reset(int(np.ceil(float(self.time_plot_duration) / self.period)) + 4)
 
     def on_action_clear(self):
         """Clear the cumulative efficiency and the history."""
@@ -342,6 +379,7 @@ class EfficiencyWidget(QtWidgets.QWidget):
         if s['generation'] != self._generation:
             return
         self._snapshot = s
+        self.history.append(s['windows'])
         for w in s['windows']:
             self._window = w
             if w['valid']:
@@ -352,6 +390,8 @@ class EfficiencyWidget(QtWidgets.QWidget):
                 else:
                     self._swap_count = 0
         self._readout.update()
+        if s['windows']:
+            self._time_plot.update()
         self._status_update()
 
     def readout(self):
@@ -392,6 +432,7 @@ class EfficiencyWidget(QtWidgets.QWidget):
             'rejected': int(self._snapshot.get('rejected', 0)),
             'overruns': int(self._worker.overruns),
             'disabled': [f'{instrument}.{signal}' for instrument, signal in self._disabled],
+            'history': len(self.history),
         }
 
     # ---- style ----
@@ -410,12 +451,14 @@ class EfficiencyWidget(QtWidgets.QWidget):
             s[f'{name}_metrics'] = QtGui.QFontMetrics(font)
             s[f'{name}_color'] = color_as_qcolor(v[f'efficiency.{name}_color'])
         s['invalid_color'] = color_as_qcolor(v['efficiency.invalid_color'])
+        s['trace_pen'] = QtGui.QPen(color_as_qcolor(v['efficiency.trace']))
         return s
 
     def on_style_change(self):
         self._style_cache = None
         self._readout.updateGeometry()
         self._readout.update()
+        self._time_plot.update()
 
     # ---- menus ----
 
@@ -424,16 +467,31 @@ class EfficiencyWidget(QtWidgets.QWidget):
             self.setting_publish(key, not bool(getattr(self, key)))
         return fn
 
+    def context_menu(self, event):
+        """Show the context menu."""
+        menu = QtWidgets.QMenu(self)
+        CallableAction(menu, N_('Swap input and output'), self.on_action_swap)
+        view = menu.addMenu(N_('View'))
+        for key in ['show_vi', 'time_plot_enable']:
+            CallableAction(view, SETTINGS[key]['brief'], self._toggle_factory(key),
+                           checkable=True, checked=bool(getattr(self, key)))
+        duration = menu.addMenu(SETTINGS['time_plot_duration']['brief'])
+        for value, label in SETTINGS['time_plot_duration']['options']:
+            CallableAction(duration, label, self._value_factory('time_plot_duration', value),
+                           checkable=True, checked=float(self.time_plot_duration) == value)
+        CallableAction(menu, N_('Clear'), self.on_action_clear)
+        settings_action_create(self, menu)
+        context_menu_show(menu, event)
+
+    def _value_factory(self, key, value):
+        def fn(checked=False):
+            self.setting_publish(key, value)
+        return fn
+
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.RightButton:
             event.accept()
-            menu = QtWidgets.QMenu(self)
-            CallableAction(menu, N_('Swap input and output'), self.on_action_swap)
-            CallableAction(menu, N_('Show voltage and current'), self._toggle_factory('show_vi'),
-                           checkable=True, checked=bool(self.show_vi))
-            CallableAction(menu, N_('Clear'), self.on_action_clear)
-            settings_action_create(self, menu)
-            context_menu_show(menu, event)
+            self.context_menu(event)
         else:
             super().mousePressEvent(event)
 
@@ -448,6 +506,20 @@ class EfficiencyWidget(QtWidgets.QWidget):
         self._readout.update()
         if self.pubsub is not None:
             self._connect()
+
+    def on_setting_time_plot_enable(self, value):
+        self._time_plot.setVisible(bool(value))
+
+    def on_setting_time_plot_duration(self, value):
+        self._history_resize()
+        self._time_plot.update()
+
+    def on_setting_splitter(self, value):
+        if value and len(value) == self._splitter.count():
+            self._splitter.setSizes([int(v) for v in value])
+
+    def _on_splitter_moved(self, pos, index):
+        self.setting_publish('splitter', self._splitter.sizes())
 
     def on_setting_control_location(self, value):
         control_location_apply(self._layout, self._control, value)

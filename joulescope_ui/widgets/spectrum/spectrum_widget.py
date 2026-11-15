@@ -645,7 +645,7 @@ class SpectrumWidget(QtWidgets.QWidget):
             return
         hi, lo = max(his), min(los)
         lo = max(lo, hi - _DB_RANGE_MAX)
-        self._db_auto = self._hysteresis(self._db_auto, lo, hi, 10.0)
+        self._db_auto = plot_base.autoscale_hysteresis(self._db_auto, lo, hi, 10.0)
         if self.y_units == 'dB':
             self._y_auto = self._db_auto
         else:
@@ -653,21 +653,6 @@ class SpectrumWidget(QtWidgets.QWidget):
             y = self._y_auto
             if y is None or v_hi > y[1] or v_hi < 0.4 * y[1]:
                 self._y_auto = [0.0, v_hi * 1.25]
-
-    @staticmethod
-    def _hysteresis(current, lo, hi, step):
-        target_hi = np.ceil((hi + 0.5 * step) / step) * step
-        target_lo = np.floor((lo - 0.5 * step) / step) * step
-        if current is None:
-            return [target_lo, target_hi]
-        y0, y1 = current
-        if hi > y1 or hi < y1 - 3 * step:
-            y1 = target_hi
-        if lo < y0 or lo > y0 + 4 * step:
-            y0 = target_lo
-        if y1 - y0 < 2 * step:
-            y0 = y1 - 2 * step
-        return [y0, y1]
 
     def _peak_trace(self):
         for name in ['average', 'live', 'max']:

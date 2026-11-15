@@ -27,6 +27,8 @@ from joulescope_ui import pubsub_singleton, Metadata, CAPABILITIES, get_topic_na
 from joulescope_ui.test.test_efficiency_engine import js220, js320, constant
 from joulescope_ui.widgets.efficiency import EfficiencyWidget
 from joulescope_ui.widgets.efficiency.efficiency_readout import value_str, efficiency_str
+from joulescope_ui.widgets.efficiency.efficiency_plot import finite_runs, reduce_to_columns
+import numpy as np
 
 
 def _app():
@@ -83,6 +85,36 @@ class TestFormat(unittest.TestCase):
     def test_efficiency_str(self):
         self.assertEqual('91.37 %', efficiency_str(0.91372))
         self.assertEqual('--- %', efficiency_str(None))
+
+
+class TestPlotHelpers(unittest.TestCase):
+
+    def test_finite_runs(self):
+        self.assertEqual([], finite_runs(np.zeros(0)))
+        self.assertEqual([(0, 3)], finite_runs(np.array([1.0, 2.0, 3.0])))
+        y = np.array([np.nan, 1.0, 2.0, np.nan, np.nan, 3.0, np.nan, 4.0, 5.0])
+        self.assertEqual([(1, 3), (5, 6), (7, 9)], [(int(a), int(b)) for a, b in finite_runs(y)])
+
+    def test_reduce_few_points_unchanged(self):
+        x, y = np.arange(10.0), np.arange(10.0)
+        xr, yr = reduce_to_columns(x, y, 0.0, 10.0, 100)
+        self.assertIs(x, xr)
+        self.assertIs(y, yr)
+
+    def test_reduce_min_max_and_gaps(self):
+        x = np.arange(1000) / 100.0        # 0 to 9.99
+        y = np.sin(x * 7)
+        y[500:520] = np.nan                # a gap in columns 5
+        xr, yr = reduce_to_columns(x, y, 0.0, 10.0, 10)
+        self.assertEqual(20, len(xr))
+        np.testing.assert_allclose(np.repeat(np.arange(10) + 0.5, 2), xr)
+        for col in range(10):
+            seg = y[col * 100:(col + 1) * 100]
+            if col == 5:
+                self.assertTrue(np.all(np.isnan(yr[10:12])))
+            else:
+                self.assertAlmostEqual(np.min(seg), yr[2 * col])
+                self.assertAlmostEqual(np.max(seg), yr[2 * col + 1])
 
 
 class TestEfficiencyWidget(unittest.TestCase):
@@ -280,6 +312,68 @@ class TestEfficiencyWidget(unittest.TestCase):
         self.assertGreater(r.heightForWidth(narrow_width), wide)
         r.resize(narrow_width, r.heightForWidth(narrow_width))
         r.grab()
+
+    def test_time_plot(self):
+        self.w.show()
+        self._feed(3.0)
+        self.assertTrue(_process_events(lambda: self.w.efficiency_info()['history'] >= 5))
+        plot = self.w._time_plot
+        x, y = plot.data()
+        self.assertTrue(np.all(np.diff(x) > 0))
+        self.assertEqual(0.0, x[-1])
+        np.testing.assert_allclose(90.0, y, atol=1e-4)
+        y0, y1 = plot.y_view(y)
+        self.assertLess(y0, 90.0)
+        self.assertGreater(y1, 90.0)
+        self.assertLess(y1 - y0, 1.0)  # zoomed to the data, not 0 to 100%
+        self.assertGreater(len(plot.grab().toImage().bits()), 0)
+        # hover snaps to the nearest window
+        plot._span = 5.0  # windows well apart in pixels
+        x, y = plot.data()
+        rect = plot.plot_rect()
+        plot._hover = QtCore.QPointF(rect.right() - 1, rect.center().y())
+        hover_x, lines = plot._hover_at(rect, x, y, lambda v: rect.left() + (np.asarray(v) + plot.span())
+                                        * rect.width() / plot.span())
+        self.assertAlmostEqual(rect.right(), hover_x)
+        self.assertEqual(['0.000 s', '90.00 %'], lines)
+        plot.grab()
+
+    def test_time_plot_settings(self):
+        self.assertEqual(600.0 / 0.5 + 4, self.w.history.capacity)
+        self.p.publish(f'{self.w.topic}/settings/time_plot_duration', 60.0)
+        self.assertEqual(60.0 / 0.5 + 4, self.w.history.capacity)
+        self.p.publish(f'{get_topic_name("JS220-0001")}/settings/statistics_frequency', 10.0)
+        self.assertEqual(60.0 / 0.1 + 4, self.w.history.capacity)
+        self.p.publish(f'{self.w.topic}/settings/time_plot_enable', False)
+        self.assertTrue(self.w._time_plot.isHidden())
+        self.p.publish(f'{self.w.topic}/settings/time_plot_enable', True)
+        self.assertFalse(self.w._time_plot.isHidden())
+
+    def test_time_plot_zoom(self):
+        plot = self.w._time_plot
+        self.assertEqual(600.0, plot.span())
+        plot._span = 30.0
+        self.assertEqual(30.0, plot.span())
+        self.p.publish(f'{self.w.topic}/settings/time_plot_duration', 10.0)
+        self.assertEqual(10.0, plot.span())  # never wider than the history
+
+    def test_time_plot_gap(self):
+        self.w.show()
+        self._feed(2.0)
+        out = self.streams[1][2]
+        out.skip()  # lose one output chunk
+        self._feed(2.0)
+        self.assertTrue(_process_events(lambda: len(finite_runs(self.w._time_plot.data()[1])) >= 2))
+        _, y = self.w._time_plot.data()
+        self.assertTrue(np.any(np.isnan(y)))
+        self.assertEqual(1, self.w.efficiency_info()['totals']['invalid'])
+        self.w._time_plot.grab()
+
+    def test_clear_clears_history(self):
+        self._feed(2.0)
+        self.assertTrue(_process_events(lambda: self.w.efficiency_info()['history'] > 0))
+        self.w.on_action_clear()
+        self.assertEqual(0, self.w.efficiency_info()['history'])
 
     def test_open_close_repeated(self):
         topics = dict(self.w._data_topics)

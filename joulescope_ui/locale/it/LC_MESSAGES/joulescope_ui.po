@@ -368,8 +368,9 @@ msgstr "Visualizza come Markdown"
 msgid "Abort"
 msgstr "Interruzione"
 
-#: error_window.py:120 main.py:466 widgets/settings/settings_widget.py:539
-#: widgets/spectrum/spectrum_widget.py:1079
+#: error_window.py:120 main.py:466 widgets/efficiency/efficiency_widget.py:474
+#: widgets/settings/settings_widget.py:539
+#: widgets/spectrum/spectrum_widget.py:1064
 msgid "View"
 msgstr "Visualizza"
 
@@ -1974,7 +1975,7 @@ msgstr "Distribuzione della densità di probabilità"
 
 #: range_tools/histogram.py:44 range_tools/max_window.py:109
 #: widgets/spectrum/spectrum_control.py:36
-#: widgets/spectrum/spectrum_widget.py:1091
+#: widgets/spectrum/spectrum_widget.py:1076
 #: widgets/trigger/trigger_widget.py:220
 msgid "Signal"
 msgstr "Segnale"
@@ -2427,10 +2428,10 @@ msgstr ""
 
 #: widgets/efficiency/efficiency_control.py:27
 #: widgets/efficiency/efficiency_control.py:53
-#: widgets/efficiency/efficiency_widget.py:434
+#: widgets/efficiency/efficiency_widget.py:482
 #: widgets/memory/memory_widget.py:238 widgets/spectrum/spectrum_control.py:33
 #: widgets/spectrum/spectrum_control.py:68
-#: widgets/spectrum/spectrum_widget.py:1095
+#: widgets/spectrum/spectrum_widget.py:1080
 msgid "Clear"
 msgstr "Chiaro"
 
@@ -2441,7 +2442,7 @@ msgstr ""
 
 #: widgets/efficiency/efficiency_control.py:30
 #: widgets/efficiency/efficiency_control.py:54
-#: widgets/efficiency/efficiency_widget.py:36
+#: widgets/efficiency/efficiency_widget.py:38
 msgid "Input"
 msgstr "Input"
 
@@ -2455,7 +2456,7 @@ msgstr ""
 
 #: widgets/efficiency/efficiency_control.py:34
 #: widgets/efficiency/efficiency_control.py:57
-#: widgets/efficiency/efficiency_widget.py:36
+#: widgets/efficiency/efficiency_widget.py:38
 msgid "Output"
 msgstr "Uscita"
 
@@ -2485,11 +2486,15 @@ msgid "Enable the instrument signals that this widget needs."
 msgstr "Abilita i segnali dello strumento necessari a questo widget."
 
 #: widgets/efficiency/efficiency_control.py:52
-#: widgets/efficiency/efficiency_widget.py:472
+#: widgets/efficiency/efficiency_widget.py:544
 #: widgets/spectrum/spectrum_control.py:67
-#: widgets/spectrum/spectrum_widget.py:1211 widgets/value/value_widget.py:257
+#: widgets/spectrum/spectrum_widget.py:1196 widgets/value/value_widget.py:257
 msgid "Hold"
 msgstr "Tenere"
+
+#: widgets/efficiency/efficiency_plot.py:177
+msgid "invalid"
+msgstr "non valido"
 
 #: widgets/efficiency/efficiency_readout.py:62
 msgid "Input power"
@@ -2524,94 +2529,113 @@ msgid "Output current"
 msgstr "Corrente di uscita"
 
 #: widgets/efficiency/efficiency_readout.py:132
-#: widgets/efficiency/efficiency_widget.py:79
+#: widgets/efficiency/efficiency_widget.py:101
 msgid "Efficiency"
 msgstr "Efficienza"
 
-#: widgets/efficiency/efficiency_widget.py:39
+#: widgets/efficiency/efficiency_widget.py:41
 msgid "power"
 msgstr "potenza"
 
-#: widgets/efficiency/efficiency_widget.py:39
+#: widgets/efficiency/efficiency_widget.py:41
 msgid "current"
 msgstr "corrente"
 
-#: widgets/efficiency/efficiency_widget.py:39
+#: widgets/efficiency/efficiency_widget.py:41
 msgid "voltage"
 msgstr "tensione"
 
-#: widgets/efficiency/efficiency_widget.py:51
+#: widgets/efficiency/efficiency_widget.py:53
 msgid "The input instrument."
 msgstr "Lo strumento di riferimento."
 
-#: widgets/efficiency/efficiency_widget.py:57
+#: widgets/efficiency/efficiency_widget.py:59
 msgid "The output instrument."
 msgstr "Lo strumento di riferimento."
 
-#: widgets/efficiency/efficiency_widget.py:63
+#: widgets/efficiency/efficiency_widget.py:65
 #: widgets/spectrum/spectrum_widget.py:81
 msgid "Hold the display."
 msgstr "Blocca il display."
 
-#: widgets/efficiency/efficiency_widget.py:69
-#: widgets/efficiency/efficiency_widget.py:432
+#: widgets/efficiency/efficiency_widget.py:71
 msgid "Show voltage and current"
 msgstr "Visualizza tensione e corrente"
 
-#: widgets/efficiency/efficiency_widget.py:70
+#: widgets/efficiency/efficiency_widget.py:72
 msgid "Show the input and output voltage and current in the readout."
 msgstr ""
 "Visualizza la tensione e la corrente di ingresso e di uscita sul display."
 
-#: widgets/efficiency/efficiency_widget.py:431
+#: widgets/efficiency/efficiency_widget.py:78
+msgid "Show efficiency vs time"
+msgstr "Mostra l’efficienza in funzione del tempo"
+
+#: widgets/efficiency/efficiency_widget.py:83
+msgid "Efficiency vs time duration"
+msgstr "Efficienza rispetto alla durata"
+
+#: widgets/efficiency/efficiency_widget.py:84
+msgid ""
+"The duration of the efficiency vs time history. Use the mouse wheel to zoom "
+"in to recent history."
+msgstr ""
+"La durata dell’andamento dell’efficienza in funzione del tempo. Utilizza la "
+"rotellina del mouse per ingrandire la cronologia recente."
+
+#: widgets/efficiency/efficiency_widget.py:92
+msgid "The pane sizes."
+msgstr "Le dimensioni dei riquadri."
+
+#: widgets/efficiency/efficiency_widget.py:473
 msgid "Swap input and output"
 msgstr "Scambia ingresso e uscita"
 
-#: widgets/efficiency/efficiency_widget.py:461
+#: widgets/efficiency/efficiency_widget.py:533
 msgid "Select the input and output instruments"
 msgstr "Selezionare gli strumenti di ingresso e di uscita"
 
-#: widgets/efficiency/efficiency_widget.py:464
+#: widgets/efficiency/efficiency_widget.py:536
 msgid "Select different input and output instruments"
 msgstr "Selezionare diversi strumenti di ingresso e uscita"
 
-#: widgets/efficiency/efficiency_widget.py:469
+#: widgets/efficiency/efficiency_widget.py:541
 #, python-brace-format
 msgid "Disabled: {0}"
 msgstr "Disabilitato: {0}"
 
-#: widgets/efficiency/efficiency_widget.py:474
-#: widgets/spectrum/spectrum_widget.py:1213
+#: widgets/efficiency/efficiency_widget.py:546
+#: widgets/spectrum/spectrum_widget.py:1198
 msgid "Paused"
 msgstr "In pausa"
 
-#: widgets/efficiency/efficiency_widget.py:481
+#: widgets/efficiency/efficiency_widget.py:553
 #, python-brace-format
 msgid "No data from {0}"
 msgstr "Nessun dato da {0}"
 
-#: widgets/efficiency/efficiency_widget.py:484
+#: widgets/efficiency/efficiency_widget.py:556
 msgid "JS110 input includes its burden voltage"
 msgstr "L'ingresso del JS110 include la tensione di carico"
 
-#: widgets/efficiency/efficiency_widget.py:487
+#: widgets/efficiency/efficiency_widget.py:559
 msgid "Efficiency above 100%: swap input and output?"
 msgstr ""
 "Efficienza superiore al 100%: si tratta di uno scambio tra ingresso e "
 "uscita?"
 
-#: widgets/efficiency/efficiency_widget.py:492
+#: widgets/efficiency/efficiency_widget.py:564
 #, python-brace-format
 msgid "{0} windows"
 msgstr "{0} finestre"
 
-#: widgets/efficiency/efficiency_widget.py:494
+#: widgets/efficiency/efficiency_widget.py:566
 #, python-brace-format
 msgid "{0} invalid"
 msgstr "{0} non valido"
 
-#: widgets/efficiency/efficiency_widget.py:497
-#: widgets/spectrum/spectrum_widget.py:1227
+#: widgets/efficiency/efficiency_widget.py:569
+#: widgets/spectrum/spectrum_widget.py:1212
 #, python-brace-format
 msgid "overruns {0}"
 msgstr "superamenti {0}"
@@ -3312,7 +3336,7 @@ msgid "PSD"
 msgstr "PSD"
 
 #: widgets/spectrum/spectrum_widget.py:138
-#: widgets/spectrum/spectrum_widget.py:1086
+#: widgets/spectrum/spectrum_widget.py:1071
 msgid "Y-axis units"
 msgstr "Unità dell’asse Y"
 
@@ -3512,52 +3536,52 @@ msgstr "Frequenza di aggiornamento massima (Hz)"
 msgid "Spectrum"
 msgstr "Spettro"
 
-#: widgets/spectrum/spectrum_widget.py:1060
+#: widgets/spectrum/spectrum_widget.py:1045
 msgid "Add marker"
 msgstr "Aggiungi indicatore"
 
-#: widgets/spectrum/spectrum_widget.py:1063
+#: widgets/spectrum/spectrum_widget.py:1048
 msgid "Add marker at peak"
 msgstr "Aggiungi un indicatore al picco"
 
-#: widgets/spectrum/spectrum_widget.py:1070
+#: widgets/spectrum/spectrum_widget.py:1055
 msgid "Remove marker"
 msgstr "Rimuovi indicatore"
 
-#: widgets/spectrum/spectrum_widget.py:1072
+#: widgets/spectrum/spectrum_widget.py:1057
 msgid "Clear markers"
 msgstr "Indicatori chiari"
 
-#: widgets/spectrum/spectrum_widget.py:1074
+#: widgets/spectrum/spectrum_widget.py:1059
 msgid "Traces"
 msgstr "Tracce"
 
-#: widgets/spectrum/spectrum_widget.py:1080
+#: widgets/spectrum/spectrum_widget.py:1065
 msgid "Logarithmic frequency"
 msgstr "Frequenza logaritmica"
 
-#: widgets/spectrum/spectrum_widget.py:1081
+#: widgets/spectrum/spectrum_widget.py:1066
 msgid "Autoscale y-axis"
 msgstr "Scala automatica dell’asse y"
 
-#: widgets/spectrum/spectrum_widget.py:1082
+#: widgets/spectrum/spectrum_widget.py:1067
 msgid "Show FFT"
 msgstr "Mostra FFT"
 
-#: widgets/spectrum/spectrum_widget.py:1083
+#: widgets/spectrum/spectrum_widget.py:1068
 msgid "Show waterfall"
 msgstr "Mostra il grafico a cascata"
 
-#: widgets/spectrum/spectrum_widget.py:1209
+#: widgets/spectrum/spectrum_widget.py:1194
 msgid "No signal"
 msgstr "Nessun segnale"
 
-#: widgets/spectrum/spectrum_widget.py:1218
+#: widgets/spectrum/spectrum_widget.py:1203
 #, python-brace-format
 msgid "gaps {0}"
 msgstr "gaps {0}"
 
-#: widgets/spectrum/spectrum_widget.py:1224
+#: widgets/spectrum/spectrum_widget.py:1209
 #, python-brace-format
 msgid "waterfall {0}"
 msgstr "waterfall {0}"

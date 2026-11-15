@@ -357,7 +357,15 @@ on its own.  Run `python ci/translations.py --preserve-create-date
      square-wave load (10 steps per window) η = 99.976 to 99.990% over 40
      windows, cumulative 99.982%; no invalid windows or overruns; all 40
      square-wave windows correctly rejected from the curve as unsteady.
-4. **Efficiency vs time plot.**
+4. **Efficiency vs time plot** DONE 2026-11-15: `efficiency_plot.py`
+   `TimePlot` in a splitter under the readout; `WindowHistory` ring buffer
+   (Qt-free, in `efficiency_engine.py`) sized to the duration setting
+   (10 s to 1 h, default 10 min) at the current rate; invalid windows are
+   gaps; y autoscales with `plot_base.autoscale_hysteresis` (moved from
+   Spectrum); more points than pixels reduce to a min/max pair per column
+   with `spectrum_engine.column_map`/`column_reduce`; hover snaps to the
+   nearest window; mouse wheel zooms into recent history, double-click
+   resets.
 5. **Efficiency vs output current curve** plus CSV export.
 6. **Documentation:** Theory page (general knowledge + generated wiring
    figure) and UI guide page (widget usage + screenshots) on

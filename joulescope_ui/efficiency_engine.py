@@ -491,3 +491,62 @@ class EfficiencyEngine:
             if x is None or not self._steady(t0, t1) or not self.curve.add(x, e_in, e_out, t1 - t0):
                 self.rejected += 1
         return windows
+
+
+class WindowHistory:
+    """The efficiency history for display, as a bounded ring buffer.
+
+    Each entry is a window end time (time64) and its efficiency, NaN for
+    invalid windows so that plots show a gap.
+    """
+
+    def __init__(self, capacity=1024):
+        self._t = np.zeros(0, dtype=np.int64)
+        self._y = np.zeros(0, dtype=np.float64)
+        self._count = 0
+        self._head = 0  # next write index
+        self.reset(capacity)
+
+    def __len__(self):
+        return self._count
+
+    @property
+    def capacity(self):
+        return len(self._t)
+
+    def clear(self):
+        self._count = 0
+        self._head = 0
+
+    def reset(self, capacity):
+        """Change the capacity, keeping the newest entries."""
+        capacity = max(2, int(capacity))
+        if capacity == self.capacity:
+            return
+        t, y = self.newest()
+        t, y = t[-capacity:], y[-capacity:]
+        self._t = np.zeros(capacity, dtype=np.int64)
+        self._y = np.full(capacity, np.nan, dtype=np.float64)
+        n = len(t)
+        self._t[:n] = t
+        self._y[:n] = y
+        self._count = n
+        self._head = n % capacity
+
+    def append(self, windows):
+        """Append engine windows, see :meth:`EfficiencyEngine.process`."""
+        for w in windows:
+            eta = w.get('efficiency')
+            self._t[self._head] = w['utc'] + int(round((w['t1'] - w['t0']) * time64.SECOND))
+            self._y[self._head] = eta if (w['valid'] and eta is not None) else np.nan
+            self._head = (self._head + 1) % self.capacity
+            self._count = min(self._count + 1, self.capacity)
+
+    def newest(self):
+        """Get the entries, oldest first.
+
+        :return: (t, y) arrays of window end time64 and efficiency.
+        """
+        n = self._count
+        idx = (self._head - n + np.arange(n)) % max(1, self.capacity)
+        return self._t[idx], self._y[idx]
