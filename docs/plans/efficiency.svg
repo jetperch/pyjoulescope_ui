@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-FileCopyrightText: 2026 Jetperch LLC -->
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- Efficiency widget layout mockup.  See efficiency.md. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="760" viewBox="0 0 960 760"
+     font-family="Lato, Helvetica, Arial, sans-serif" font-size="13">
+  <rect x="0" y="0" width="960" height="760" fill="#ffffff"/>
+  <rect x="10" y="10" width="940" height="740" fill="#f7f7f7" stroke="#555" stroke-width="1.5"/>
+  <text x="20" y="30" font-weight="bold" fill="#333">Efficiency</text>
+
+  <!-- control bar -->
+  <rect x="20" y="40" width="920" height="36" fill="#e6e6e6" stroke="#999"/>
+  <g font-size="12" fill="#222">
+    <text x="30" y="63">Input:</text>
+    <rect x="70" y="48" width="120" height="20" fill="#fff" stroke="#888"/>
+    <text x="76" y="63">JS220-000049 ▾</text>
+    <text x="200" y="63">Output:</text>
+    <rect x="248" y="48" width="120" height="20" fill="#fff" stroke="#888"/>
+    <text x="254" y="63">JS320-8W2A ▾</text>
+    <rect x="378" y="48" width="60" height="20" fill="#fff" stroke="#888"/>
+    <text x="386" y="63">⇄ Swap</text>
+    <rect x="446" y="48" width="44" height="20" fill="#fff" stroke="#888"/>
+    <text x="456" y="63">Hold</text>
+    <rect x="500" y="48" width="44" height="20" fill="#fff" stroke="#888"/>
+    <text x="508" y="63">Clear</text>
+    <text x="560" y="63" fill="#555">2 Hz · 1834 windows · 12 rejected · 0 gaps</text>
+    <text x="850" y="63" fill="#555">⚙ menu</text>
+  </g>
+
+  <!-- readout -->
+  <rect x="20" y="84" width="920" height="120" fill="#fff" stroke="#999"/>
+  <text x="40" y="160" font-size="64" font-weight="bold" fill="#1f5fa8">91.37 %</text>
+  <text x="40" y="190" font-size="12" fill="#666">η = P_out / P_in over the last window</text>
+  <g font-size="15" fill="#222">
+    <text x="400" y="112">P_in</text><text x="610" y="112" text-anchor="end">365.21 mW</text>
+    <text x="400" y="137">P_out</text><text x="610" y="137" text-anchor="end">333.69 mW</text>
+    <text x="400" y="162">P_loss</text><text x="610" y="162" text-anchor="end">31.52 mW</text>
+    <text x="400" y="187">η cumulative</text><text x="610" y="187" text-anchor="end">89.84 %</text>
+  </g>
+  <g font-size="13" fill="#777">
+    <text x="660" y="112">optional V/I readout:</text>
+    <text x="660" y="137">V_in 5.0012 V    I_in 73.025 mA</text>
+    <text x="660" y="162">V_out 3.3004 V   I_out 101.10 mA</text>
+  </g>
+
+  <!-- splitter handle -->
+  <rect x="440" y="207" width="80" height="4" rx="2" fill="#bbb"/>
+
+  <!-- efficiency vs time -->
+  <rect x="20" y="214" width="920" height="230" fill="#fff" stroke="#999"/>
+  <text x="30" y="232" font-size="12" font-weight="bold" fill="#333">Efficiency vs time</text>
+  <g stroke="#ccc" stroke-width="1">
+    <line x1="80" y1="250" x2="920" y2="250"/>
+    <line x1="80" y1="300" x2="920" y2="300"/>
+    <line x1="80" y1="350" x2="920" y2="350"/>
+    <line x1="80" y1="400" x2="920" y2="400"/>
+  </g>
+  <line x1="80" y1="245" x2="80" y2="415" stroke="#333"/>
+  <line x1="80" y1="415" x2="920" y2="415" stroke="#333"/>
+  <g font-size="11" fill="#333" text-anchor="end">
+    <text x="74" y="254">100 %</text><text x="74" y="304">95 %</text>
+    <text x="74" y="354">90 %</text><text x="74" y="404">85 %</text>
+  </g>
+  <g font-size="11" fill="#333" text-anchor="middle">
+    <text x="80" y="432">-10 min</text><text x="290" y="432">-7.5 min</text>
+    <text x="500" y="432">-5 min</text><text x="710" y="432">-2.5 min</text>
+    <text x="912" y="432">0</text>
+  </g>
+  <polyline fill="none" stroke="#1f5fa8" stroke-width="1.6"
+    points="80,330 120,328 160,332 200,329 230,331 240,300 250,295 260,297 300,296 340,298 360,297
+            370,362 380,372 400,370 440,371 470,369 480,346 490,312 500,334 520,336 560,335 600,337
+            620,335 640,334 660,336 700,320 720,322 740,321 760,323"/>
+  <!-- invalid window (gap) break -->
+  <polyline fill="none" stroke="#1f5fa8" stroke-width="1.6"
+    points="790,324 820,323 860,325 900,324 920,324"/>
+  <text x="775" y="300" font-size="10" fill="#d1495b" text-anchor="middle">gap</text>
+  <line x1="775" y1="306" x2="775" y2="410" stroke="#d1495b" stroke-dasharray="3,3"/>
+  <text x="485" y="300" font-size="10" fill="#777">transient</text>
+
+  <!-- splitter handle -->
+  <rect x="440" y="447" width="80" height="4" rx="2" fill="#bbb"/>
+
+  <!-- efficiency vs output current -->
+  <rect x="20" y="454" width="920" height="286" fill="#fff" stroke="#999"/>
+  <text x="30" y="472" font-size="12" font-weight="bold" fill="#333">Efficiency vs output current</text>
+  <text x="930" y="472" font-size="11" fill="#666" text-anchor="end">x: current ▾ (power) · log ▾</text>
+  <g stroke="#ccc" stroke-width="1">
+    <line x1="80" y1="490" x2="920" y2="490"/>
+    <line x1="80" y1="540" x2="920" y2="540"/>
+    <line x1="80" y1="590" x2="920" y2="590"/>
+    <line x1="80" y1="640" x2="920" y2="640"/>
+    <line x1="80" y1="690" x2="920" y2="690"/>
+    <line x1="290" y1="485" x2="290" y2="700"/>
+    <line x1="500" y1="485" x2="500" y2="700"/>
+    <line x1="710" y1="485" x2="710" y2="700"/>
+  </g>
+  <line x1="80" y1="485" x2="80" y2="700" stroke="#333"/>
+  <line x1="80" y1="700" x2="920" y2="700" stroke="#333"/>
+  <g font-size="11" fill="#333" text-anchor="end">
+    <text x="74" y="494">100 %</text><text x="74" y="544">90 %</text>
+    <text x="74" y="594">80 %</text><text x="74" y="644">70 %</text><text x="74" y="694">60 %</text>
+  </g>
+  <g font-size="11" fill="#333" text-anchor="middle">
+    <text x="80" y="717">10 µA</text><text x="290" y="717">100 µA</text>
+    <text x="500" y="717">1 mA</text><text x="710" y="717">10 mA</text>
+    <text x="912" y="717">100 mA</text>
+  </g>
+  <text x="500" y="735" font-size="12" fill="#333" text-anchor="middle">Output current (log)</text>
+  <!-- curve: line through bin means -->
+  <polyline fill="none" stroke="#2a9d5c" stroke-width="1.6"
+    points="150,672 220,640 290,606 360,578 430,557 500,543 570,533 640,527 710,524 780,526 850,532"/>
+  <!-- faded low-count bins -->
+  <g fill="#2a9d5c" fill-opacity="0.3">
+    <circle cx="150" cy="672" r="3.5"/><circle cx="220" cy="640" r="3.5"/>
+  </g>
+  <!-- bins with min/max whiskers -->
+  <g stroke="#2a9d5c" stroke-width="1">
+    <line x1="290" y1="596" x2="290" y2="617"/><line x1="360" y1="570" x2="360" y2="587"/>
+    <line x1="430" y1="551" x2="430" y2="564"/><line x1="500" y1="538" x2="500" y2="548"/>
+    <line x1="570" y1="529" x2="570" y2="537"/><line x1="640" y1="524" x2="640" y2="531"/>
+    <line x1="710" y1="521" x2="710" y2="527"/><line x1="780" y1="523" x2="780" y2="529"/>
+    <line x1="850" y1="528" x2="850" y2="536"/>
+  </g>
+  <g fill="#2a9d5c">
+    <circle cx="290" cy="606" r="3.5"/><circle cx="360" cy="578" r="3.5"/>
+    <circle cx="430" cy="557" r="3.5"/><circle cx="500" cy="543" r="3.5"/>
+    <circle cx="570" cy="533" r="3.5"/><circle cx="640" cy="527" r="3.5"/>
+    <circle cx="710" cy="524" r="3.5"/><circle cx="780" cy="526" r="3.5"/>
+    <circle cx="850" cy="532" r="3.5"/>
+  </g>
+  <!-- hover readout -->
+  <rect x="650" y="580" width="230" height="58" fill="#ffffff" fill-opacity="0.9" stroke="#999"/>
+  <g font-size="11" fill="#333">
+    <text x="658" y="596">I_out 10.0–11.2 mA (bin)</text>
+    <text x="658" y="611">η 91.2 %  (min 90.7, max 91.6)</text>
+    <text x="658" y="626">42 windows · 21.0 s</text>
+  </g>
+  <text x="185" y="625" font-size="10" fill="#777">faded: fewer than N windows</text>
+</svg>
