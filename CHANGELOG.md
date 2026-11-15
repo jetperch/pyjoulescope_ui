@@ -26,6 +26,14 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 2026 Nov 15 [in progress, unreleased]
 
+* Added the Efficiency widget, which measures power converter efficiency
+  with two Joulescopes: one on the converter input and one on the output.
+  It shows the efficiency at the statistics rate, efficiency vs time, and
+  an efficiency vs output current curve built from steady load windows,
+  and it exports both to CSV.  The widget integrates both instruments over
+  the same time interval, so the free-running instrument clocks do not
+  affect the result.  See "Theory: Efficiency" on docs.joulescope.com for
+  the wiring that keeps the burden voltage out of the measurement.
 * Added optional Waveform anti-aliasing (#356).  When zoomed out, a short
   pulse no longer flickers in the average trace as the plot scrolls.  The
   mean-preserving filter applies to the displayed average only.  Enable

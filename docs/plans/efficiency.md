@@ -383,9 +383,14 @@ on its own.  Run `python ci/translations.py --preserve-create-date
      off by up to +0.18%, above the ~0.06% that time alignment alone
      predicts.  Likely the two instruments switching current ranges at
      different moments; investigate with a slower step and fixed ranges.
-6. **Documentation:** Theory page (general knowledge + generated wiring
-   figure) and UI guide page (widget usage + screenshots) on
-   docs.joulescope.com; CHANGELOG entry.
+6. **Documentation** DONE 2026-11-15: joulescope_docs branch
+   `feature/efficiency` (local, unpushed; pushing `main` deploys the live
+   site): `source/theory/efficiency.md` with the wiring figure from
+   `scripts/theory_efficiency_figures.py` (block diagram helpers moved to
+   `scripts/diagram_util.py`, now byte-stable); UI guide revision 1.8 with
+   chapter 6 `software/joulescope_ui/efficiency.md` and a screenshot
+   rendered from an example converter loss model; CHANGELOG entry here.
+   Merge the docs branch only once the UI release with the widget is out.
 7. **Hardware verification** (on the agent bench):
    - Null test: the bench ADP3450 drives JS220 and JS320 with currents in
      series and voltages in parallel, so η = 100% within instrument
