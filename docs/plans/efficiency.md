@@ -274,11 +274,15 @@ curve uses only steady windows (below).  The docs explain this.
 
 Both plots are custom `QPainter` plots like Spectrum, reusing
 `widgets/waveform/axis_ticks.py`, `line_segments.PointsF`, and `units.py`.
-Spectrum's `_PlotBase` (`widgets/spectrum/spectrum_plot.py`: hover, markers,
-text box, wheel zoom) is what both plots need.  Stage 2 moves `_PlotBase`
-and the axis drawing into a shared `joulescope_ui/widgets/plot_base.py`, with
-Spectrum refactored onto it and its tests passing, before the Efficiency
-plots use it.  No copied plot code.
+Stage 2 moved the shared drawing into `joulescope_ui/widgets/plot_base.py`:
+`style_vars`/`style_build` (common pens and font from `{prefix}.*` style
+variables), `draw_x_axis`, `draw_y_axis`, grid lines, `draw_v_line`,
+`draw_text_box`, and `draw_border`.  Spectrum now uses them, and renders
+pixel-identical to before.  Spectrum's `_PlotBase` mouse handling stayed in
+Spectrum: it is built around frequency markers and the frequency viewport,
+so sharing it would only rename Spectrum concepts.  The Efficiency plots
+implement their own small mouse handling (hover, and zoom on the time plot).
+No copied plot code.
 
 pyqtgraph (already a dependency, used by the range tools, timesync, and
 fuse widgets) was considered.  Matt prefers the look of the custom
@@ -292,9 +296,11 @@ Same pattern as Spectrum (`widgets/spectrum/spectrum_worker.py`): Qt-thread
 into one bounded queue with config commands; a `threading.Thread` runs the
 engine and emits immutable window results via a queued Qt signal.  The data
 rate is low (about 3 × 1 MSPS f32), and the engine work is one `cumsum` per
-chunk.  If the worker loop is generic enough, factor a shared `StreamWorker`
-base out of `SpectrumWorker` in the same refactor stage; otherwise keep them
-separate and note why.
+chunk.  Stage 2 factored the generic loop (command queue, backpressure in
+seconds of queued data, frame-rate snapshots, start/stop) out of
+`SpectrumWorker` into `joulescope_ui/stream_worker.py` `StreamWorker`; the
+efficiency worker subclasses it with `queue_seconds` sized for three
+streams.
 
 ### Settings (persisted)
 
@@ -327,8 +333,11 @@ on its own.  Run `python ci/translations.py --preserve-create-date
    (e.g. 1 MHz and 999,950 Hz with drift in the time map) produce η = known
    value exactly; gaps; window grid; steady filter; curve binning; cumulative
    η; bounded memory.
-2. **Refactor** Spectrum plot base (and worker, if applicable) into shared
-   modules; Spectrum tests and farm test unchanged and passing.
+2. **Refactor** DONE 2026-11-15: `widgets/plot_base.py` and `stream_worker.py`
+   with tests (`test_plot_base.py`, `test_stream_worker.py`); Spectrum moved
+   onto both.  Spectrum tests unchanged and passing; FFT and waterfall
+   renders (markers, hover, text boxes) are pixel-identical before and after.
+   The farm test is not needed for a pixel-identical refactor.
 3. **Widget, readout only:** sources, Swap, Enable, pause handling, worker,
    status, settings, `efficiency_info`; open/close leak test (threads and
    subscriptions) like Spectrum's.

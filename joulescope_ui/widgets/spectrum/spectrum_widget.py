@@ -19,7 +19,7 @@ See docs/plans/completed/spectrum.md.
 
 from PySide6 import QtCore, QtGui, QtWidgets
 from joulescope_ui import register, N_, get_topic_name
-from joulescope_ui.styles import styled_widget, color_as_qcolor, font_as_qfont
+from joulescope_ui.styles import styled_widget, color_as_qcolor
 from joulescope_ui.widget_tools import CallableAction, settings_action_create, context_menu_show, \
     CONTROL_LOCATION_SETTING, control_location_apply
 from joulescope_ui.source_selector import SourceSelector
@@ -27,7 +27,7 @@ from joulescope_ui.units import three_sig_figs
 from joulescope_ui.spectrum_engine import WINDOWS, WINDOW_NAMES, WINDOW_PEAK_INTERPOLATE, \
     WINDOW_MAIN_LOBE_BINS, DB_FLOOR, \
     DECIMATE_ROLLOFF, bin_frequencies, column_map, find_peaks, hop_length, sample_count, to_db
-from joulescope_ui.styles.manager import _load_cls_colors, _load_cls_fonts
+from joulescope_ui.widgets import plot_base
 from joulescope_ui.widgets.waveform import axis_ticks
 from .spectrum_control import SpectrumControlWidget
 from .spectrum_plot import FftPlot, WaterfallPlot, WaterfallHistory, COLORMAPS, color_table, \
@@ -769,37 +769,20 @@ class SpectrumWidget(QtWidgets.QWidget):
         return self._style_cache
 
     def _style_build(self):
-        style_obj = getattr(self, 'style_obj', None)
-        if style_obj is not None:
-            v = style_obj['vars']
-        else:  # not rendered by the style manager, such as in unit tests
-            v = {**_load_cls_colors(type(self))['dark'], **_load_cls_fonts(type(self))['js1']}
-        font = font_as_qfont(v['spectrum.axis_font'])
-        fm = QtGui.QFontMetrics(font)
+        v = plot_base.style_vars(self)
+        s = plot_base.style_build(v, 'spectrum')
+        fm = s['font_metrics']
 
         def pen(name):
             return QtGui.QPen(color_as_qcolor(v[name]))
 
-        s = {
-            'background': color_as_qcolor(v['spectrum.background']),
-            'background_brush': QtGui.QBrush(color_as_qcolor(v['spectrum.background'])),
-            'text_pen': pen('spectrum.text_foreground'),
-            'text_bg_brush': QtGui.QBrush(color_as_qcolor(v['spectrum.text_background'])),
-            'grid_major_pen': pen('spectrum.grid_major'),
-            'grid_minor_pen': pen('spectrum.grid_minor'),
-            'border_pen': pen('spectrum.plot_border'),
-            'hover_pen': pen('spectrum.hover'),
+        s.update({
             'marker_pen': pen('spectrum.marker'),
             'peak_pen': pen('spectrum.peak'),
             'peak_brush': QtGui.QBrush(color_as_qcolor(v['spectrum.peak'])),
-            'warning_pen': pen('spectrum.status_warning'),
-            'font': font,
-            'font_metrics': fm,
-            'font_height': fm.height(),
-            'font_ascent': fm.ascent(),
             'y_label_width': fm.horizontalAdvance('-888.88'),
             'right_width': 6 + 12 + 3 + fm.horizontalAdvance('-888') + 4,
-        }
+        })
         for name in _TRACES:
             p = pen(f'spectrum.trace_{name}')
             p.setWidth(int(self.trace_width))

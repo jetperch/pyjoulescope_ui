@@ -23,6 +23,7 @@ from PySide6 import QtCore, QtGui, QtWidgets
 from joulescope_ui import N_
 from joulescope_ui.spectrum_engine import column_reduce
 from joulescope_ui.units import unit_prefix
+from joulescope_ui.widgets import plot_base
 from joulescope_ui.widgets.waveform import axis_ticks
 from joulescope_ui.widgets.waveform.line_segments import PointsF
 import numpy as np
@@ -31,7 +32,6 @@ import numpy as np
 _DRAG_PIXELS = 5     # marker grab distance
 _ZOOM_STEP = 0.8     # viewport scale per wheel step
 _COLORBAR_WIDTH = 12
-_MINOR_GRID_PIXELS = 6
 
 _COLORMAP_POLY = {
     # 6th-order polynomial fits by Matt Zucker (CC0), t in [0, 1]
@@ -205,25 +205,6 @@ class WaterfallImage:
         return self.pixmap
 
 
-def _minor_visible(v):
-    """True if minor grid lines at pixels v are far enough apart to draw."""
-    return v is not None and len(v) > 1 and np.min(np.abs(np.diff(v))) >= _MINOR_GRID_PIXELS
-
-
-def _v_lines(x, rect):
-    """Vertical grid lines at x within rect, for QPainter.drawLines."""
-    if x is None:
-        return []
-    t, b = rect.top(), rect.bottom()
-    return [QtCore.QLineF(v, t, v, b) for v in x if rect.left() <= v <= rect.right()]
-
-
-def _h_lines(y, rect):
-    """Horizontal grid lines at y within rect, for QPainter.drawLines."""
-    left, right = rect.left(), rect.right()
-    return [QtCore.QLineF(left, v, right, v) for v in y if rect.top() <= v <= rect.bottom()]
-
-
 def f_str(f):
     """Format a frequency."""
     if f is None or not np.isfinite(f):
@@ -326,8 +307,7 @@ class _PlotBase(QtWidgets.QWidget):
         hover = self._owner.hover(self)
         if hover is None:
             return None
-        p.setPen(style['hover_pen'])
-        p.drawLine(QtCore.QPointF(hover.x(), rect.top()), QtCore.QPointF(hover.x(), rect.bottom()))
+        plot_base.draw_v_line(p, rect, style['hover_pen'], hover.x())
         return hover
 
     def _draw_markers(self, p, rect, style, labels):
@@ -342,21 +322,6 @@ class _PlotBase(QtWidgets.QWidget):
             p.drawLine(QtCore.QPointF(x, rect.top()), QtCore.QPointF(x, rect.bottom()))
             if labels:
                 p.drawText(QtCore.QPointF(x + 3, rect.bottom() - 3), f'M{idx + 1}')
-
-    def _draw_text_box(self, p, style, lines, x, y, align_right):
-        """Draw lines of text with a background box at (x, y) top corner."""
-        if not lines:
-            return
-        fm = style['font_metrics']
-        w = max(fm.horizontalAdvance(s) for s in lines) + 8
-        h = len(lines) * style['font_height'] + 4
-        x0 = x - w if align_right else x
-        p.setPen(QtCore.Qt.NoPen)
-        p.setBrush(style['text_bg_brush'])
-        p.drawRect(QtCore.QRectF(x0, y, w, h))
-        p.setPen(style['text_pen'])
-        for idx, s in enumerate(lines):
-            p.drawText(QtCore.QPointF(x0 + 4, y + 2 + style['font_ascent'] + idx * style['font_height']), s)
 
 
 class FftPlot(_PlotBase):
@@ -396,9 +361,7 @@ class FftPlot(_PlotBase):
             self._draw_hover(p, rect, style)
             p.setClipping(False)
             self._draw_annotations(p, rect, style, y_prefix)
-            p.setPen(style['border_pen'])
-            p.setBrush(QtCore.Qt.NoBrush)
-            p.drawRect(rect)
+            plot_base.draw_border(p, rect, style)
         finally:
             p.end()
 
@@ -407,22 +370,8 @@ class FftPlot(_PlotBase):
         ticks = o.x_ticks(rect.width())
         if ticks is None:
             return
-        y_text = rect.bottom() + style['font_height']
         fm = style['font_metrics']
-        minor = o.f_to_x(np.asarray(ticks['minor']), rect)
-        if _minor_visible(minor):
-            p.setPen(style['grid_minor_pen'])
-            p.drawLines(_v_lines(minor, rect))
-        p.setPen(style['grid_major_pen'])
-        p.drawLines(_v_lines(o.f_to_x(np.asarray(ticks['major']), rect), rect))
-        p.setPen(style['text_pen'])
-        right_edge = rect.left()
-        for x, label in zip(o.f_to_x(np.asarray(ticks['major']), rect), ticks['labels']):
-            w = fm.horizontalAdvance(label)
-            x_text = min(max(x - w / 2, rect.left()), rect.right() - w)
-            if x_text >= right_edge:
-                p.drawText(QtCore.QPointF(x_text, y_text), label)
-                right_edge = x_text + w + 8
+        y_text = plot_base.draw_x_axis(p, rect, style, ticks, lambda f: o.f_to_x(f, rect))
         units = f'{ticks["unit_prefix"]}Hz'
         p.drawText(QtCore.QPointF(rect.right() - fm.horizontalAdvance(units), y_text + style['font_height']), units)
         p.setPen(style['warning_pen'] if o.status_warning else style['text_pen'])
@@ -432,21 +381,7 @@ class FftPlot(_PlotBase):
         o = self._owner
         y0, y1 = o.y_view()
         ticks = axis_ticks.ticks(y0, y1, major_max=max(2, int(rect.height() / (2.5 * style['font_height']))))
-        if ticks is None:
-            return ''
-        fm = style['font_metrics']
-        minor = o.y_to_pixel(ticks['minor'], rect)
-        if _minor_visible(minor):
-            p.setPen(style['grid_minor_pen'])
-            p.drawLines(_h_lines(minor, rect))
-        p.setPen(style['grid_major_pen'])
-        p.drawLines(_h_lines(o.y_to_pixel(ticks['major'], rect), rect))
-        p.setPen(style['text_pen'])
-        for y, label in zip(o.y_to_pixel(ticks['major'], rect), ticks['labels']):
-            if not (rect.top() <= y <= rect.bottom()):
-                continue
-            p.drawText(QtCore.QPointF(rect.left() - 4 - fm.horizontalAdvance(label), y + style['font_ascent'] / 2), label)
-        return ticks['unit_prefix']
+        return plot_base.draw_y_axis(p, rect, style, ticks, lambda y: o.y_to_pixel(y, rect))
 
     def _draw_traces(self, p, rect, style):
         o = self._owner
@@ -495,8 +430,8 @@ class FftPlot(_PlotBase):
         if hover is not None:
             lines = o.hover_lines(o.x_to_f(hover.x(), rect)) + lines
         y = rect.top() + style['font_height'] + 4
-        self._draw_text_box(p, style, lines, rect.left() + 4, y, align_right=False)
-        self._draw_text_box(p, style, o.peak_lines(), rect.right() - 4, rect.top() + 4, align_right=True)
+        plot_base.draw_text_box(p, style, lines, rect.left() + 4, y, align_right=False)
+        plot_base.draw_text_box(p, style, o.peak_lines(), rect.right() - 4, rect.top() + 4, align_right=True)
 
 
 class WaterfallPlot(_PlotBase):
@@ -534,10 +469,8 @@ class WaterfallPlot(_PlotBase):
             p.setClipping(False)
             if hover is not None:
                 lines = o.waterfall_hover_lines(o.x_to_f(hover.x(), rect), (hover.y() - rect.top()) / rect.height())
-                self._draw_text_box(p, style, lines, rect.left() + 4, rect.top() + 4, align_right=False)
-            p.setPen(style['border_pen'])
-            p.setBrush(QtCore.Qt.NoBrush)
-            p.drawRect(rect)
+                plot_base.draw_text_box(p, style, lines, rect.left() + 4, rect.top() + 4, align_right=False)
+            plot_base.draw_border(p, rect, style)
         finally:
             p.end()
 
