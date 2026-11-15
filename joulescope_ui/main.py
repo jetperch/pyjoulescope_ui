@@ -1213,6 +1213,10 @@ def run(log_level=None, file_log_level=None, filename=None, safe_mode=False, tcp
     :return: 0 on success or error code on failure.
     """
     global _software_update, _config_save, _config_clear, _config_import
+    # Qt Wayland text-input-v3 warns twice on every window activation when the
+    # compositor has not yet sent text-input enter.  Harmless, so hide it.
+    # QT_LOGGING_RULES overrides this rule to restore it for debugging.
+    QtCore.QLoggingCategory.setFilterRules('qt.qpa.wayland.textinput.warning=false')
     app = None
     ui = None
     rc = 1

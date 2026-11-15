@@ -30,6 +30,8 @@ This file contains the list of changes made to pyjoulescope_ui.
   pulse no longer flickers in the average trace as the plot scrolls.  The
   mean-preserving filter applies to the displayed average only.  Enable
   it from the plot right-click menu or the Waveform settings.
+* Silenced the harmless "qt.qpa.wayland.textinput" warnings that Qt prints
+  on Linux Wayland each time a UI window becomes active.
 * Fixed a device staying unusable after one failed open, such as right
   after it re-enumerates.  The UI now retries the open twice and uses the
   driver's default open timeout for every model, where the JS320 used 1 s.
