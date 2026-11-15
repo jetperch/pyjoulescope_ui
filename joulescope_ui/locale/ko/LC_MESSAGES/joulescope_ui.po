@@ -326,7 +326,7 @@ msgid "Abort"
 msgstr "Abort"
 
 #: error_window.py:120 main.py:466 widgets/settings/settings_widget.py:539
-#: widgets/spectrum/spectrum_widget.py:1076
+#: widgets/spectrum/spectrum_widget.py:1079
 msgid "View"
 msgstr "View"
 
@@ -1791,7 +1791,7 @@ msgstr "확률 밀도 분포"
 
 #: range_tools/histogram.py:44 range_tools/max_window.py:109
 #: widgets/spectrum/spectrum_control.py:36
-#: widgets/spectrum/spectrum_widget.py:1088
+#: widgets/spectrum/spectrum_widget.py:1091
 #: widgets/trigger/trigger_widget.py:220
 msgid "Signal"
 msgstr "신호"
@@ -2209,7 +2209,7 @@ msgstr "이 기능을 선택하면 새로운 데이터가 무시되어 디스플
 #: widgets/efficiency/efficiency_widget.py:434
 #: widgets/memory/memory_widget.py:238 widgets/spectrum/spectrum_control.py:33
 #: widgets/spectrum/spectrum_control.py:68
-#: widgets/spectrum/spectrum_widget.py:1092
+#: widgets/spectrum/spectrum_widget.py:1095
 msgid "Clear"
 msgstr "Clear"
 
@@ -2261,7 +2261,7 @@ msgstr "이 위젯에 필요한 기기 신호를 활성화하십시오."
 #: widgets/efficiency/efficiency_control.py:52
 #: widgets/efficiency/efficiency_widget.py:472
 #: widgets/spectrum/spectrum_control.py:67
-#: widgets/spectrum/spectrum_widget.py:1208 widgets/value/value_widget.py:257
+#: widgets/spectrum/spectrum_widget.py:1211 widgets/value/value_widget.py:257
 msgid "Hold"
 msgstr "Hold"
 
@@ -2354,7 +2354,7 @@ msgid "Disabled: {0}"
 msgstr "비활성화됨: {0}"
 
 #: widgets/efficiency/efficiency_widget.py:474
-#: widgets/spectrum/spectrum_widget.py:1210
+#: widgets/spectrum/spectrum_widget.py:1213
 msgid "Paused"
 msgstr "일시 중지됨"
 
@@ -2382,7 +2382,7 @@ msgid "{0} invalid"
 msgstr "{0} 유효하지 않음"
 
 #: widgets/efficiency/efficiency_widget.py:497
-#: widgets/spectrum/spectrum_widget.py:1224
+#: widgets/spectrum/spectrum_widget.py:1227
 #, python-brace-format
 msgid "overruns {0}"
 msgstr "overruns {0}"
@@ -3042,7 +3042,7 @@ msgid "PSD"
 msgstr "PSD"
 
 #: widgets/spectrum/spectrum_widget.py:138
-#: widgets/spectrum/spectrum_widget.py:1083
+#: widgets/spectrum/spectrum_widget.py:1086
 msgid "Y-axis units"
 msgstr "Y축 단위"
 
@@ -3229,52 +3229,52 @@ msgstr "최대 업데이트 속도 (Hz)"
 msgid "Spectrum"
 msgstr "스펙트럼"
 
-#: widgets/spectrum/spectrum_widget.py:1057
+#: widgets/spectrum/spectrum_widget.py:1060
 msgid "Add marker"
 msgstr "마커 추가"
 
-#: widgets/spectrum/spectrum_widget.py:1060
+#: widgets/spectrum/spectrum_widget.py:1063
 msgid "Add marker at peak"
 msgstr "피크 지점에 마커 추가"
 
-#: widgets/spectrum/spectrum_widget.py:1067
+#: widgets/spectrum/spectrum_widget.py:1070
 msgid "Remove marker"
 msgstr "마커 제거"
 
-#: widgets/spectrum/spectrum_widget.py:1069
+#: widgets/spectrum/spectrum_widget.py:1072
 msgid "Clear markers"
 msgstr "명확한 표시기"
 
-#: widgets/spectrum/spectrum_widget.py:1071
+#: widgets/spectrum/spectrum_widget.py:1074
 msgid "Traces"
 msgstr "트레이스"
 
-#: widgets/spectrum/spectrum_widget.py:1077
+#: widgets/spectrum/spectrum_widget.py:1080
 msgid "Logarithmic frequency"
 msgstr "대수 주파수"
 
-#: widgets/spectrum/spectrum_widget.py:1078
+#: widgets/spectrum/spectrum_widget.py:1081
 msgid "Autoscale y-axis"
 msgstr "Y축 자동 스케일링"
 
-#: widgets/spectrum/spectrum_widget.py:1079
+#: widgets/spectrum/spectrum_widget.py:1082
 msgid "Show FFT"
 msgstr "FFT 표시"
 
-#: widgets/spectrum/spectrum_widget.py:1080
+#: widgets/spectrum/spectrum_widget.py:1083
 msgid "Show waterfall"
 msgstr "워터폴 표시"
 
-#: widgets/spectrum/spectrum_widget.py:1206
+#: widgets/spectrum/spectrum_widget.py:1209
 msgid "No signal"
 msgstr "신호 없음"
 
-#: widgets/spectrum/spectrum_widget.py:1215
+#: widgets/spectrum/spectrum_widget.py:1218
 #, python-brace-format
 msgid "gaps {0}"
 msgstr "gaps {0}"
 
-#: widgets/spectrum/spectrum_widget.py:1221
+#: widgets/spectrum/spectrum_widget.py:1224
 #, python-brace-format
 msgid "waterfall {0}"
 msgstr "waterfall {0}"

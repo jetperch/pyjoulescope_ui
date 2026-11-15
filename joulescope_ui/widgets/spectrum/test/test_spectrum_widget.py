@@ -375,6 +375,12 @@ class TestSpectrumWidgetPubSub(unittest.TestCase):
         self._push()
         self.assertEqual(1, self.w.spectrum_info()['gaps'])
 
+    def test_source_combo_follows_setting(self):
+        combo = self.w._control._combos['source']
+        self.assertEqual('default', combo.currentData())
+        self.p.publish(f'{self.w.topic}/settings/signal_stream_source', 'FakeSource-001')
+        self.assertEqual('FakeSource-001', combo.currentData())
+
     def test_signal_enable_like_waveform(self):
         self.p.publish(f'{self.w.topic}/settings/signal', 'v')
         self.assertIsNone(self.w._data_topic)  # v disabled: no data, selection kept

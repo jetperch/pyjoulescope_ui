@@ -315,7 +315,7 @@ msgid "Abort"
 msgstr ""
 
 #: error_window.py:120 main.py:466 widgets/settings/settings_widget.py:539
-#: widgets/spectrum/spectrum_widget.py:1076
+#: widgets/spectrum/spectrum_widget.py:1079
 msgid "View"
 msgstr ""
 
@@ -1727,7 +1727,7 @@ msgstr ""
 
 #: range_tools/histogram.py:44 range_tools/max_window.py:109
 #: widgets/spectrum/spectrum_control.py:36
-#: widgets/spectrum/spectrum_widget.py:1088
+#: widgets/spectrum/spectrum_widget.py:1091
 #: widgets/trigger/trigger_widget.py:220
 msgid "Signal"
 msgstr ""
@@ -2138,7 +2138,7 @@ msgstr ""
 #: widgets/efficiency/efficiency_widget.py:434
 #: widgets/memory/memory_widget.py:238 widgets/spectrum/spectrum_control.py:33
 #: widgets/spectrum/spectrum_control.py:68
-#: widgets/spectrum/spectrum_widget.py:1092
+#: widgets/spectrum/spectrum_widget.py:1095
 msgid "Clear"
 msgstr ""
 
@@ -2190,7 +2190,7 @@ msgstr ""
 #: widgets/efficiency/efficiency_control.py:52
 #: widgets/efficiency/efficiency_widget.py:472
 #: widgets/spectrum/spectrum_control.py:67
-#: widgets/spectrum/spectrum_widget.py:1208 widgets/value/value_widget.py:257
+#: widgets/spectrum/spectrum_widget.py:1211 widgets/value/value_widget.py:257
 msgid "Hold"
 msgstr ""
 
@@ -2283,7 +2283,7 @@ msgid "Disabled: {0}"
 msgstr ""
 
 #: widgets/efficiency/efficiency_widget.py:474
-#: widgets/spectrum/spectrum_widget.py:1210
+#: widgets/spectrum/spectrum_widget.py:1213
 msgid "Paused"
 msgstr ""
 
@@ -2311,7 +2311,7 @@ msgid "{0} invalid"
 msgstr ""
 
 #: widgets/efficiency/efficiency_widget.py:497
-#: widgets/spectrum/spectrum_widget.py:1224
+#: widgets/spectrum/spectrum_widget.py:1227
 #, python-brace-format
 msgid "overruns {0}"
 msgstr ""
@@ -2952,7 +2952,7 @@ msgid "PSD"
 msgstr ""
 
 #: widgets/spectrum/spectrum_widget.py:138
-#: widgets/spectrum/spectrum_widget.py:1083
+#: widgets/spectrum/spectrum_widget.py:1086
 msgid "Y-axis units"
 msgstr ""
 
@@ -3136,52 +3136,52 @@ msgstr ""
 msgid "Spectrum"
 msgstr ""
 
-#: widgets/spectrum/spectrum_widget.py:1057
+#: widgets/spectrum/spectrum_widget.py:1060
 msgid "Add marker"
 msgstr ""
 
-#: widgets/spectrum/spectrum_widget.py:1060
+#: widgets/spectrum/spectrum_widget.py:1063
 msgid "Add marker at peak"
 msgstr ""
 
-#: widgets/spectrum/spectrum_widget.py:1067
+#: widgets/spectrum/spectrum_widget.py:1070
 msgid "Remove marker"
 msgstr ""
 
-#: widgets/spectrum/spectrum_widget.py:1069
+#: widgets/spectrum/spectrum_widget.py:1072
 msgid "Clear markers"
 msgstr ""
 
-#: widgets/spectrum/spectrum_widget.py:1071
+#: widgets/spectrum/spectrum_widget.py:1074
 msgid "Traces"
 msgstr ""
 
-#: widgets/spectrum/spectrum_widget.py:1077
+#: widgets/spectrum/spectrum_widget.py:1080
 msgid "Logarithmic frequency"
 msgstr ""
 
-#: widgets/spectrum/spectrum_widget.py:1078
+#: widgets/spectrum/spectrum_widget.py:1081
 msgid "Autoscale y-axis"
 msgstr ""
 
-#: widgets/spectrum/spectrum_widget.py:1079
+#: widgets/spectrum/spectrum_widget.py:1082
 msgid "Show FFT"
 msgstr ""
 
-#: widgets/spectrum/spectrum_widget.py:1080
+#: widgets/spectrum/spectrum_widget.py:1083
 msgid "Show waterfall"
 msgstr ""
 
-#: widgets/spectrum/spectrum_widget.py:1206
+#: widgets/spectrum/spectrum_widget.py:1209
 msgid "No signal"
 msgstr ""
 
-#: widgets/spectrum/spectrum_widget.py:1215
+#: widgets/spectrum/spectrum_widget.py:1218
 #, python-brace-format
 msgid "gaps {0}"
 msgstr ""
 
-#: widgets/spectrum/spectrum_widget.py:1221
+#: widgets/spectrum/spectrum_widget.py:1224
 #, python-brace-format
 msgid "waterfall {0}"
 msgstr ""

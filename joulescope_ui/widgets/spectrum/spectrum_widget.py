@@ -352,6 +352,9 @@ class SpectrumWidget(QtWidgets.QWidget):
         self.setObjectName('spectrum_widget')
         self.source_selector = SourceSelector(self, 'signal_stream')
         self.source_selector.sources_changed.connect(self._on_sources_changed)
+        # a selection change, such as from undo or the context menu, keeps the list
+        self.source_selector.source_changed.connect(
+            lambda value: self._on_sources_changed(self.source_selector.sources))
         self.source_selector.resolved_changed.connect(self._on_resolved_changed)
 
         self._layout = QtWidgets.QVBoxLayout(self)
