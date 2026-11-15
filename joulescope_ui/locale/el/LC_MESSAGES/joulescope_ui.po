@@ -2414,6 +2414,204 @@ msgstr "Επαναφορά στις προεπιλογές"
 msgid "Clear accum"
 msgstr "Σαφής συσσώρευση"
 
+#: widgets/efficiency/efficiency_control.py:24
+#: widgets/spectrum/spectrum_control.py:30 widgets/value/value_widget.py:125
+msgid "Hold the display"
+msgstr "Κρατήστε την οθόνη"
+
+#: widgets/efficiency/efficiency_control.py:25
+msgid "When selected, ignore new data so that the display stays frozen."
+msgstr ""
+"Όταν επιλεγεί, αγνοούνται τα νέα δεδομένα, ώστε η οθόνη να παραμένει "
+"σταθερή."
+
+#: widgets/efficiency/efficiency_control.py:27
+#: widgets/efficiency/efficiency_control.py:53
+#: widgets/efficiency/efficiency_widget.py:434
+#: widgets/memory/memory_widget.py:238 widgets/spectrum/spectrum_control.py:33
+#: widgets/spectrum/spectrum_control.py:68
+#: widgets/spectrum/spectrum_widget.py:1092
+msgid "Clear"
+msgstr "Σαφής"
+
+#: widgets/efficiency/efficiency_control.py:28
+msgid "Clear the cumulative efficiency, history, and efficiency curve."
+msgstr "Δείτε τη συνολική απόδοση, το ιστορικό και την καμπύλη απόδοσης."
+
+#: widgets/efficiency/efficiency_control.py:30
+#: widgets/efficiency/efficiency_control.py:54
+#: widgets/efficiency/efficiency_widget.py:36
+msgid "Input"
+msgstr "Εισαγωγή"
+
+#: widgets/efficiency/efficiency_control.py:31
+msgid ""
+"The instrument that measures the converter input. Connect its voltage inputs"
+" at the converter input pins."
+msgstr ""
+"Το όργανο που μετρά την είσοδο του μετατροπέα. Συνδέστε τις εισόδους τάσης "
+"του στις ακίδες εισόδου του μετατροπέα."
+
+#: widgets/efficiency/efficiency_control.py:34
+#: widgets/efficiency/efficiency_control.py:57
+#: widgets/efficiency/efficiency_widget.py:36
+msgid "Output"
+msgstr "Έξοδος"
+
+#: widgets/efficiency/efficiency_control.py:35
+msgid ""
+"The instrument that measures the converter output. Connect its voltage "
+"inputs at the converter output pins."
+msgstr ""
+"Το όργανο που μετρά την έξοδο του μετατροπέα. Συνδέστε τις εισόδους τάσης "
+"του στις ακίδες εξόδου του μετατροπέα."
+
+#: widgets/efficiency/efficiency_control.py:37
+msgid "Swap"
+msgstr "Ανταλλαγή"
+
+#: widgets/efficiency/efficiency_control.py:37
+msgid "Swap the input and output instruments."
+msgstr "Ανταλλάξτε τα όργανα εισόδου και εξόδου."
+
+#: widgets/efficiency/efficiency_control.py:39
+#: widgets/efficiency/efficiency_control.py:59
+msgid "Enable signals"
+msgstr "Ενεργοποίηση σημάτων"
+
+#: widgets/efficiency/efficiency_control.py:40
+msgid "Enable the instrument signals that this widget needs."
+msgstr "Ενεργοποιήστε τα σήματα του οργάνου που απαιτεί αυτό το widget."
+
+#: widgets/efficiency/efficiency_control.py:52
+#: widgets/efficiency/efficiency_widget.py:472
+#: widgets/spectrum/spectrum_control.py:67
+#: widgets/spectrum/spectrum_widget.py:1208 widgets/value/value_widget.py:257
+msgid "Hold"
+msgstr "Hold"
+
+#: widgets/efficiency/efficiency_readout.py:62
+msgid "Input power"
+msgstr "Ισχύς εισόδου"
+
+#: widgets/efficiency/efficiency_readout.py:63
+msgid "Output power"
+msgstr "Ισχύς εξόδου"
+
+#: widgets/efficiency/efficiency_readout.py:64
+msgid "Power loss"
+msgstr "Απώλεια ισχύος"
+
+#: widgets/efficiency/efficiency_readout.py:65
+msgid "Cumulative efficiency"
+msgstr "Συνολική απόδοση"
+
+#: widgets/efficiency/efficiency_readout.py:69
+msgid "Input voltage"
+msgstr "Τάση εισόδου"
+
+#: widgets/efficiency/efficiency_readout.py:70
+msgid "Input current"
+msgstr "Ρεύμα εισόδου"
+
+#: widgets/efficiency/efficiency_readout.py:71
+msgid "Output voltage"
+msgstr "Τάση εξόδου"
+
+#: widgets/efficiency/efficiency_readout.py:72
+msgid "Output current"
+msgstr "Ρεύμα εξόδου"
+
+#: widgets/efficiency/efficiency_readout.py:132
+#: widgets/efficiency/efficiency_widget.py:79
+msgid "Efficiency"
+msgstr "Απόδοση"
+
+#: widgets/efficiency/efficiency_widget.py:39
+msgid "power"
+msgstr "ισχύς"
+
+#: widgets/efficiency/efficiency_widget.py:39
+msgid "current"
+msgstr "ρεύμα"
+
+#: widgets/efficiency/efficiency_widget.py:39
+msgid "voltage"
+msgstr "τάση"
+
+#: widgets/efficiency/efficiency_widget.py:51
+msgid "The input instrument."
+msgstr "Το όργανο εισόδου."
+
+#: widgets/efficiency/efficiency_widget.py:57
+msgid "The output instrument."
+msgstr "Το όργανο εξόδου."
+
+#: widgets/efficiency/efficiency_widget.py:63
+#: widgets/spectrum/spectrum_widget.py:81
+msgid "Hold the display."
+msgstr "Κρατήστε πατημένη την οθόνη."
+
+#: widgets/efficiency/efficiency_widget.py:69
+#: widgets/efficiency/efficiency_widget.py:432
+msgid "Show voltage and current"
+msgstr "Εμφάνιση τάσης και ρεύματος"
+
+#: widgets/efficiency/efficiency_widget.py:70
+msgid "Show the input and output voltage and current in the readout."
+msgstr "Εμφάνιση της τάσης και του ρεύματος εισόδου και εξόδου στην οθόνη."
+
+#: widgets/efficiency/efficiency_widget.py:431
+msgid "Swap input and output"
+msgstr "Ανταλλαγή εισόδου και εξόδου"
+
+#: widgets/efficiency/efficiency_widget.py:461
+msgid "Select the input and output instruments"
+msgstr "Επιλέξτε τα όργανα εισόδου και εξόδου"
+
+#: widgets/efficiency/efficiency_widget.py:464
+msgid "Select different input and output instruments"
+msgstr "Επιλέξτε διαφορετικά όργανα εισόδου και εξόδου"
+
+#: widgets/efficiency/efficiency_widget.py:469
+#, python-brace-format
+msgid "Disabled: {0}"
+msgstr "Απενεργοποιημένο: {0}"
+
+#: widgets/efficiency/efficiency_widget.py:474
+#: widgets/spectrum/spectrum_widget.py:1210
+msgid "Paused"
+msgstr "Παύση"
+
+#: widgets/efficiency/efficiency_widget.py:481
+#, python-brace-format
+msgid "No data from {0}"
+msgstr "Δεν υπάρχουν δεδομένα από το {0}"
+
+#: widgets/efficiency/efficiency_widget.py:484
+msgid "JS110 input includes its burden voltage"
+msgstr "Η είσοδος του JS110 περιλαμβάνει την τάση φορτίου του"
+
+#: widgets/efficiency/efficiency_widget.py:487
+msgid "Efficiency above 100%: swap input and output?"
+msgstr "Απόδοση άνω του 100%: ανταλλαγή εισόδου και εξόδου;"
+
+#: widgets/efficiency/efficiency_widget.py:492
+#, python-brace-format
+msgid "{0} windows"
+msgstr "{0} παράθυρα"
+
+#: widgets/efficiency/efficiency_widget.py:494
+#, python-brace-format
+msgid "{0} invalid"
+msgstr "{0} μη έγκυρο"
+
+#: widgets/efficiency/efficiency_widget.py:497
+#: widgets/spectrum/spectrum_widget.py:1224
+#, python-brace-format
+msgid "overruns {0}"
+msgstr "υπέρβαση {0}"
+
 #: widgets/example/example_widget.py:22
 msgid "Example"
 msgstr "Παράδειγμα"
@@ -2678,12 +2876,6 @@ msgstr "Διαθέσιμο μέγεθος RAM"
 msgid "Used RAM size"
 msgstr "Μέγεθος χρησιμοποιούμενης μνήμης RAM"
 
-#: widgets/memory/memory_widget.py:238 widgets/spectrum/spectrum_control.py:33
-#: widgets/spectrum/spectrum_control.py:82
-#: widgets/spectrum/spectrum_widget.py:1092
-msgid "Clear"
-msgstr "Σαφής"
-
 #: widgets/memory/memory_widget.py:242
 msgid "Clear on play"
 msgstr "Καθαρό στο παιχνίδι"
@@ -2936,10 +3128,6 @@ msgstr "Σήματα προς καταγραφή"
 msgid "Configure signal recording"
 msgstr "Διαμόρφωση της καταγραφής σήματος"
 
-#: widgets/spectrum/spectrum_control.py:30 widgets/value/value_widget.py:125
-msgid "Hold the display"
-msgstr "Κρατήστε την οθόνη"
-
 #: widgets/spectrum/spectrum_control.py:31
 msgid ""
 "When selected, ignore new data so that the spectrum and waterfall stay "
@@ -3025,11 +3213,6 @@ msgstr "Μέσος όρος"
 msgid "The averaging mode for the average trace."
 msgstr "Η λειτουργία υπολογισμού μέσου όρου για το γράφημα μέσου όρου."
 
-#: widgets/spectrum/spectrum_control.py:75
-#: widgets/spectrum/spectrum_widget.py:1208 widgets/value/value_widget.py:257
-msgid "Hold"
-msgstr "Hold"
-
 #: widgets/spectrum/spectrum_plot.py:59
 msgid "Inferno"
 msgstr "Inferno"
@@ -3061,10 +3244,6 @@ msgstr "Η πηγή της ροής δεδομένων σήματος."
 #: widgets/spectrum/spectrum_widget.py:75
 msgid "The signal to analyze."
 msgstr "Το σήμα προς ανάλυση."
-
-#: widgets/spectrum/spectrum_widget.py:81
-msgid "Hold the display."
-msgstr "Κρατήστε πατημένη την οθόνη."
 
 #: widgets/spectrum/spectrum_widget.py:88
 msgid ""
@@ -3369,10 +3548,6 @@ msgstr "Εμφάνιση διαγράμματος καταρράκτη"
 msgid "No signal"
 msgstr "Δεν υπάρχει σήμα"
 
-#: widgets/spectrum/spectrum_widget.py:1210
-msgid "Paused"
-msgstr "Παύση"
-
 #: widgets/spectrum/spectrum_widget.py:1215
 #, python-brace-format
 msgid "gaps {0}"
@@ -3382,11 +3557,6 @@ msgstr "κενά {0}"
 #, python-brace-format
 msgid "waterfall {0}"
 msgstr "waterfall {0}"
-
-#: widgets/spectrum/spectrum_widget.py:1224
-#, python-brace-format
-msgid "overruns {0}"
-msgstr "υπέρβαση {0}"
 
 #: widgets/statistics_record/statistics_record_config_widget.py:86
 msgid "StatisticsRecordConfig"

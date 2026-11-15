@@ -1,0 +1,4 @@
+efficiency.axis_font = 10pt "Lato"
+efficiency.title_font = 10pt "Lato"
+efficiency.main_font = black 42pt "Lato"
+efficiency.stats_font = bold 11pt "Lato"

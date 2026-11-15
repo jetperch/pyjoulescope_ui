@@ -2139,6 +2139,198 @@ msgstr "重置为默认值"
 msgid "Clear accum"
 msgstr "清除累积"
 
+#: widgets/efficiency/efficiency_control.py:24
+#: widgets/spectrum/spectrum_control.py:30 widgets/value/value_widget.py:125
+msgid "Hold the display"
+msgstr "保持显示"
+
+#: widgets/efficiency/efficiency_control.py:25
+msgid "When selected, ignore new data so that the display stays frozen."
+msgstr "选中此选项后，将忽略新数据，使显示屏保持静止。"
+
+#: widgets/efficiency/efficiency_control.py:27
+#: widgets/efficiency/efficiency_control.py:53
+#: widgets/efficiency/efficiency_widget.py:434
+#: widgets/memory/memory_widget.py:238 widgets/spectrum/spectrum_control.py:33
+#: widgets/spectrum/spectrum_control.py:68
+#: widgets/spectrum/spectrum_widget.py:1092
+msgid "Clear"
+msgstr "清除"
+
+#: widgets/efficiency/efficiency_control.py:28
+msgid "Clear the cumulative efficiency, history, and efficiency curve."
+msgstr "清除累计效率、历史数据和效率曲线。"
+
+#: widgets/efficiency/efficiency_control.py:30
+#: widgets/efficiency/efficiency_control.py:54
+#: widgets/efficiency/efficiency_widget.py:36
+msgid "Input"
+msgstr "输入"
+
+#: widgets/efficiency/efficiency_control.py:31
+msgid ""
+"The instrument that measures the converter input. Connect its voltage inputs"
+" at the converter input pins."
+msgstr "用于测量转换器输入的仪器。将其电压输入端连接至转换器的输入引脚。"
+
+#: widgets/efficiency/efficiency_control.py:34
+#: widgets/efficiency/efficiency_control.py:57
+#: widgets/efficiency/efficiency_widget.py:36
+msgid "Output"
+msgstr "输出"
+
+#: widgets/efficiency/efficiency_control.py:35
+msgid ""
+"The instrument that measures the converter output. Connect its voltage "
+"inputs at the converter output pins."
+msgstr "用于测量转换器输出的仪器。将其电压输入端连接至转换器的输出引脚。"
+
+#: widgets/efficiency/efficiency_control.py:37
+msgid "Swap"
+msgstr "替换"
+
+#: widgets/efficiency/efficiency_control.py:37
+msgid "Swap the input and output instruments."
+msgstr "交换输入和输出仪表的位置。"
+
+#: widgets/efficiency/efficiency_control.py:39
+#: widgets/efficiency/efficiency_control.py:59
+msgid "Enable signals"
+msgstr "启用信号"
+
+#: widgets/efficiency/efficiency_control.py:40
+msgid "Enable the instrument signals that this widget needs."
+msgstr "请启用该小工具所需的仪器信号。"
+
+#: widgets/efficiency/efficiency_control.py:52
+#: widgets/efficiency/efficiency_widget.py:472
+#: widgets/spectrum/spectrum_control.py:67
+#: widgets/spectrum/spectrum_widget.py:1208 widgets/value/value_widget.py:257
+msgid "Hold"
+msgstr "保持"
+
+#: widgets/efficiency/efficiency_readout.py:62
+msgid "Input power"
+msgstr "输入功率"
+
+#: widgets/efficiency/efficiency_readout.py:63
+msgid "Output power"
+msgstr "输出功率"
+
+#: widgets/efficiency/efficiency_readout.py:64
+msgid "Power loss"
+msgstr "功耗"
+
+#: widgets/efficiency/efficiency_readout.py:65
+msgid "Cumulative efficiency"
+msgstr "累计效率"
+
+#: widgets/efficiency/efficiency_readout.py:69
+msgid "Input voltage"
+msgstr "输入电压"
+
+#: widgets/efficiency/efficiency_readout.py:70
+msgid "Input current"
+msgstr "输入电流"
+
+#: widgets/efficiency/efficiency_readout.py:71
+msgid "Output voltage"
+msgstr "输出电压"
+
+#: widgets/efficiency/efficiency_readout.py:72
+msgid "Output current"
+msgstr "输出电流"
+
+#: widgets/efficiency/efficiency_readout.py:132
+#: widgets/efficiency/efficiency_widget.py:79
+msgid "Efficiency"
+msgstr "效率"
+
+#: widgets/efficiency/efficiency_widget.py:39
+msgid "power"
+msgstr "功率"
+
+#: widgets/efficiency/efficiency_widget.py:39
+msgid "current"
+msgstr "电流"
+
+#: widgets/efficiency/efficiency_widget.py:39
+msgid "voltage"
+msgstr "电压"
+
+#: widgets/efficiency/efficiency_widget.py:51
+msgid "The input instrument."
+msgstr "输入仪器。"
+
+#: widgets/efficiency/efficiency_widget.py:57
+msgid "The output instrument."
+msgstr "输出仪器。"
+
+#: widgets/efficiency/efficiency_widget.py:63
+#: widgets/spectrum/spectrum_widget.py:81
+msgid "Hold the display."
+msgstr "锁定显示。"
+
+#: widgets/efficiency/efficiency_widget.py:69
+#: widgets/efficiency/efficiency_widget.py:432
+msgid "Show voltage and current"
+msgstr "显示电压和电流"
+
+#: widgets/efficiency/efficiency_widget.py:70
+msgid "Show the input and output voltage and current in the readout."
+msgstr "在显示屏上显示输入和输出电压及电流。"
+
+#: widgets/efficiency/efficiency_widget.py:431
+msgid "Swap input and output"
+msgstr "交换输入和输出"
+
+#: widgets/efficiency/efficiency_widget.py:461
+msgid "Select the input and output instruments"
+msgstr "选择输入和输出仪器"
+
+#: widgets/efficiency/efficiency_widget.py:464
+msgid "Select different input and output instruments"
+msgstr "选择不同的输入和输出仪器"
+
+#: widgets/efficiency/efficiency_widget.py:469
+#, python-brace-format
+msgid "Disabled: {0}"
+msgstr "已禁用：{0}"
+
+#: widgets/efficiency/efficiency_widget.py:474
+#: widgets/spectrum/spectrum_widget.py:1210
+msgid "Paused"
+msgstr "暂停"
+
+#: widgets/efficiency/efficiency_widget.py:481
+#, python-brace-format
+msgid "No data from {0}"
+msgstr "{0} 没有数据"
+
+#: widgets/efficiency/efficiency_widget.py:484
+msgid "JS110 input includes its burden voltage"
+msgstr "JS110 的输入包含其负载电压"
+
+#: widgets/efficiency/efficiency_widget.py:487
+msgid "Efficiency above 100%: swap input and output?"
+msgstr "效率超过 100%：是输入和输出接反了吗？"
+
+#: widgets/efficiency/efficiency_widget.py:492
+#, python-brace-format
+msgid "{0} windows"
+msgstr "{0} 个窗口"
+
+#: widgets/efficiency/efficiency_widget.py:494
+#, python-brace-format
+msgid "{0} invalid"
+msgstr "{0} 无效"
+
+#: widgets/efficiency/efficiency_widget.py:497
+#: widgets/spectrum/spectrum_widget.py:1224
+#, python-brace-format
+msgid "overruns {0}"
+msgstr "超限 {0}"
+
 #: widgets/example/example_widget.py:22
 msgid "Example"
 msgstr "示例"
@@ -2386,12 +2578,6 @@ msgstr "可用 RAM 大小"
 msgid "Used RAM size"
 msgstr "使用的 RAM 大小"
 
-#: widgets/memory/memory_widget.py:238 widgets/spectrum/spectrum_control.py:33
-#: widgets/spectrum/spectrum_control.py:82
-#: widgets/spectrum/spectrum_widget.py:1092
-msgid "Clear"
-msgstr "清除"
-
 #: widgets/memory/memory_widget.py:242
 msgid "Clear on play"
 msgstr "播放清晰"
@@ -2631,10 +2817,6 @@ msgstr "记录信号"
 msgid "Configure signal recording"
 msgstr "配置信号记录"
 
-#: widgets/spectrum/spectrum_control.py:30 widgets/value/value_widget.py:125
-msgid "Hold the display"
-msgstr "保持显示"
-
 #: widgets/spectrum/spectrum_control.py:31
 msgid ""
 "When selected, ignore new data so that the spectrum and waterfall stay "
@@ -2707,11 +2889,6 @@ msgstr "平均值"
 msgid "The averaging mode for the average trace."
 msgstr "平均波形图的平均模式。"
 
-#: widgets/spectrum/spectrum_control.py:75
-#: widgets/spectrum/spectrum_widget.py:1208 widgets/value/value_widget.py:257
-msgid "Hold"
-msgstr "保持"
-
 #: widgets/spectrum/spectrum_plot.py:59
 msgid "Inferno"
 msgstr "Inferno"
@@ -2743,10 +2920,6 @@ msgstr "信号数据流的来源。"
 #: widgets/spectrum/spectrum_widget.py:75
 msgid "The signal to analyze."
 msgstr "待分析的信号。"
-
-#: widgets/spectrum/spectrum_widget.py:81
-msgid "Hold the display."
-msgstr "锁定显示。"
 
 #: widgets/spectrum/spectrum_widget.py:88
 msgid ""
@@ -3024,10 +3197,6 @@ msgstr "显示瀑布图"
 msgid "No signal"
 msgstr "无信号"
 
-#: widgets/spectrum/spectrum_widget.py:1210
-msgid "Paused"
-msgstr "暂停"
-
 #: widgets/spectrum/spectrum_widget.py:1215
 #, python-brace-format
 msgid "gaps {0}"
@@ -3037,11 +3206,6 @@ msgstr "gaps {0}"
 #, python-brace-format
 msgid "waterfall {0}"
 msgstr "瀑布图 {0}"
-
-#: widgets/spectrum/spectrum_widget.py:1224
-#, python-brace-format
-msgid "overruns {0}"
-msgstr "超限 {0}"
 
 #: widgets/statistics_record/statistics_record_config_widget.py:86
 msgid "StatisticsRecordConfig"

@@ -19,8 +19,8 @@ Each control publishes its setting.  The widget calls
 so the controls always mirror the settings.
 """
 
-from PySide6 import QtCore, QtWidgets
 from joulescope_ui import N_, tooltip_format
+from joulescope_ui.widgets.control_bar import ControlBar
 
 
 _COMBO_SETTINGS = ['decimate', 'fft_length', 'fft_window', 'scaling', 'average_mode']
@@ -55,7 +55,7 @@ _TOOLTIPS = {
 }
 
 
-class SpectrumControlWidget(QtWidgets.QWidget):
+class SpectrumControlWidget(ControlBar):
     """The control bar.
 
     :param parent: The SpectrumWidget.
@@ -63,95 +63,15 @@ class SpectrumControlWidget(QtWidgets.QWidget):
     """
 
     def __init__(self, parent, settings):
-        self._parent = parent
-        self._combos = {}
-        super().__init__(parent)
-        self.setObjectName('spectrum_control')
-        layout = QtWidgets.QHBoxLayout(self)
-        layout.setContentsMargins(4, 2, 4, 2)
-        layout.setSpacing(4)
-        self._layout = layout
-
-        self._hold = QtWidgets.QPushButton(N_('Hold'), self)
-        self._hold.setObjectName('spectrum_hold')
-        self._hold.setCheckable(True)
-        self._hold.setToolTip(_TOOLTIPS['hold'])
-        self._hold.toggled.connect(lambda checked: parent.setting_publish('hold', bool(checked)))
-        layout.addWidget(self._hold)
-
-        self._clear = QtWidgets.QPushButton(N_('Clear'), self)
-        self._clear.setObjectName('spectrum_clear')
-        self._clear.setToolTip(_TOOLTIPS['clear'])
-        self._clear.clicked.connect(lambda checked=False: parent.on_action_clear())
-        layout.addWidget(self._clear)
-
-        self._source = self._combo_add('source')
+        super().__init__(parent, 'spectrum', _TOOLTIPS)
+        self._hold = self.toggle_add('hold', N_('Hold'))
+        self._clear = self.button_add('clear', N_('Clear'), parent.on_action_clear)
+        self._source = self.combo_add('source')
         self._source.activated.connect(self._on_source)
-        self._combo_add('signal').activated.connect(self._factory('signal'))
-
+        self.combo_add('signal').activated.connect(self._factory('signal'))
         for name in _COMBO_SETTINGS:
-            combo = self._combo_add(name)
-            for value, label in settings[name]['options']:
-                combo.addItem(label, value)
-            combo.activated.connect(self._factory(name))
-
-        layout.addStretch(1)
-
-    def _combo_add(self, name):
-        combo = QtWidgets.QComboBox(self)
-        combo.setObjectName(f'spectrum_{name}')
-        combo.setSizeAdjustPolicy(QtWidgets.QComboBox.SizeAdjustPolicy.AdjustToContents)
-        combo.setToolTip(_TOOLTIPS[name])
-        self._layout.addWidget(combo)
-        self._combos[name] = combo
-        return combo
-
-    def _factory(self, name):
-        def fn(index):
-            self._parent.setting_publish(name, self._combos[name].itemData(index))
-        return fn
+            self.combo_add(name, settings[name]['options'])
+        self._layout.addStretch(1)
 
     def _on_source(self, index):
         self._parent.source_selector.source_set(self._source.itemData(index))
-
-    @staticmethod
-    def _select(combo, value):
-        idx = combo.findData(value)
-        if idx >= 0:
-            with QtCore.QSignalBlocker(combo):
-                combo.setCurrentIndex(idx)
-
-    def value_set(self, name, value):
-        """Update a control to match its setting."""
-        if name == 'hold':
-            with QtCore.QSignalBlocker(self._hold):
-                self._hold.setChecked(bool(value))
-        elif name in self._combos:
-            self._select(self._combos[name], value)
-
-    def items_set(self, name, items, value):
-        """Replace a combobox's items.
-
-        :param name: The combobox name.
-        :param items: The list of (value, label).
-        :param value: The selected value.
-        """
-        combo = self._combos[name]
-        with QtCore.QSignalBlocker(combo):
-            combo.clear()
-            for v, label in items:
-                combo.addItem(label, v)
-        self._select(combo, value)
-
-    def labels_set(self, name, labels):
-        """Update the item labels, keeping values.
-
-        :param name: The combobox name.
-        :param labels: The map of value to label.
-        """
-        combo = self._combos[name]
-        for idx in range(combo.count()):
-            label = labels.get(combo.itemData(idx))
-            if label is not None:
-                combo.setItemText(idx, label)
-        combo.updateGeometry()  # the size hint changed, but the layout does not know

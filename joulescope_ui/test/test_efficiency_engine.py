@@ -266,8 +266,32 @@ class TestEfficiencyEngine(unittest.TestCase):
         for w in windows:
             self.assertAlmostEqual(0.8, w['efficiency'], delta=1e-6)
 
+    def test_window_waits_for_all_signals(self):
+        # streams arrive in arbitrary order: the input voltage lags
+        e = EfficiencyEngine(period=0.1, signals=['in.p', 'out.p', 'in.v'])
+        s_v = js220(constant(5.0))
+        streams = self._streams(constant(1.0), constant(0.9))
+        windows = feed(e, streams, 1.0)
+        self.assertEqual([], windows)
+        for msg in s_v.until(1.0):
+            e.push('in', 'v', msg)
+        windows = e.process()
+        self.assertGreater(len(windows), 5)
+        for w in windows:
+            self.assertAlmostEqual(5.0, w['v_in'], delta=1e-7)
+            self.assertIsNone(w['v_out'])
+        # removing the signal drops its data, so windows continue without it
+        e.configure(signals=['in.p', 'out.p'])
+        self.assertIsNone(e.integrator('in', 'v'))
+        windows = feed(e, streams, 2.0)
+        self.assertGreater(len(windows), 5)
+        self.assertIsNone(windows[-1]['v_in'])
+        with self.assertRaises(ValueError):
+            e.configure(signals=['in.q'])
+        self.assertEqual(['in.p', 'out.p'], e.config['signals'])  # unchanged
+
     def test_efficiency_with_current(self):
-        e = EfficiencyEngine(period=0.25)
+        e = EfficiencyEngine(period=0.25, signals=['in.p', 'out.p', 'out.i'])
         windows = feed(e, self._streams(constant(2.0), constant(1.5), constant(0.45)), 2.0)
         for w in windows:
             self.assertAlmostEqual(0.75, w['efficiency'], delta=1e-7)

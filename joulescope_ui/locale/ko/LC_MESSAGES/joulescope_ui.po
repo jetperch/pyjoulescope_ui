@@ -2195,6 +2195,198 @@ msgstr "기본값으로 재설정"
 msgid "Clear accum"
 msgstr "명확한 누적"
 
+#: widgets/efficiency/efficiency_control.py:24
+#: widgets/spectrum/spectrum_control.py:30 widgets/value/value_widget.py:125
+msgid "Hold the display"
+msgstr "디스플레이 잡기"
+
+#: widgets/efficiency/efficiency_control.py:25
+msgid "When selected, ignore new data so that the display stays frozen."
+msgstr "이 기능을 선택하면 새로운 데이터가 무시되어 디스플레이가 고정된 상태로 유지됩니다."
+
+#: widgets/efficiency/efficiency_control.py:27
+#: widgets/efficiency/efficiency_control.py:53
+#: widgets/efficiency/efficiency_widget.py:434
+#: widgets/memory/memory_widget.py:238 widgets/spectrum/spectrum_control.py:33
+#: widgets/spectrum/spectrum_control.py:68
+#: widgets/spectrum/spectrum_widget.py:1092
+msgid "Clear"
+msgstr "Clear"
+
+#: widgets/efficiency/efficiency_control.py:28
+msgid "Clear the cumulative efficiency, history, and efficiency curve."
+msgstr "누적 효율, 이력 및 효율 곡선을 확인하십시오."
+
+#: widgets/efficiency/efficiency_control.py:30
+#: widgets/efficiency/efficiency_control.py:54
+#: widgets/efficiency/efficiency_widget.py:36
+msgid "Input"
+msgstr "입력"
+
+#: widgets/efficiency/efficiency_control.py:31
+msgid ""
+"The instrument that measures the converter input. Connect its voltage inputs"
+" at the converter input pins."
+msgstr "컨버터 입력을 측정하는 계측기입니다. 이 계측기의 전압 입력 단자를 컨버터 입력 핀에 연결하십시오."
+
+#: widgets/efficiency/efficiency_control.py:34
+#: widgets/efficiency/efficiency_control.py:57
+#: widgets/efficiency/efficiency_widget.py:36
+msgid "Output"
+msgstr "출력"
+
+#: widgets/efficiency/efficiency_control.py:35
+msgid ""
+"The instrument that measures the converter output. Connect its voltage "
+"inputs at the converter output pins."
+msgstr "컨버터 출력을 측정하는 계측기입니다. 이 계측기의 전압 입력 단자를 컨버터 출력 핀에 연결하십시오."
+
+#: widgets/efficiency/efficiency_control.py:37
+msgid "Swap"
+msgstr "교체"
+
+#: widgets/efficiency/efficiency_control.py:37
+msgid "Swap the input and output instruments."
+msgstr "입력 및 출력 계측기를 교체하십시오."
+
+#: widgets/efficiency/efficiency_control.py:39
+#: widgets/efficiency/efficiency_control.py:59
+msgid "Enable signals"
+msgstr "신호 활성화"
+
+#: widgets/efficiency/efficiency_control.py:40
+msgid "Enable the instrument signals that this widget needs."
+msgstr "이 위젯에 필요한 기기 신호를 활성화하십시오."
+
+#: widgets/efficiency/efficiency_control.py:52
+#: widgets/efficiency/efficiency_widget.py:472
+#: widgets/spectrum/spectrum_control.py:67
+#: widgets/spectrum/spectrum_widget.py:1208 widgets/value/value_widget.py:257
+msgid "Hold"
+msgstr "Hold"
+
+#: widgets/efficiency/efficiency_readout.py:62
+msgid "Input power"
+msgstr "입력 전력"
+
+#: widgets/efficiency/efficiency_readout.py:63
+msgid "Output power"
+msgstr "출력 전력"
+
+#: widgets/efficiency/efficiency_readout.py:64
+msgid "Power loss"
+msgstr "전력 손실"
+
+#: widgets/efficiency/efficiency_readout.py:65
+msgid "Cumulative efficiency"
+msgstr "누적 효율"
+
+#: widgets/efficiency/efficiency_readout.py:69
+msgid "Input voltage"
+msgstr "입력 전압"
+
+#: widgets/efficiency/efficiency_readout.py:70
+msgid "Input current"
+msgstr "입력 전류"
+
+#: widgets/efficiency/efficiency_readout.py:71
+msgid "Output voltage"
+msgstr "출력 전압"
+
+#: widgets/efficiency/efficiency_readout.py:72
+msgid "Output current"
+msgstr "출력 전류"
+
+#: widgets/efficiency/efficiency_readout.py:132
+#: widgets/efficiency/efficiency_widget.py:79
+msgid "Efficiency"
+msgstr "효율"
+
+#: widgets/efficiency/efficiency_widget.py:39
+msgid "power"
+msgstr "전력"
+
+#: widgets/efficiency/efficiency_widget.py:39
+msgid "current"
+msgstr "전류"
+
+#: widgets/efficiency/efficiency_widget.py:39
+msgid "voltage"
+msgstr "전압"
+
+#: widgets/efficiency/efficiency_widget.py:51
+msgid "The input instrument."
+msgstr "입력 계측기."
+
+#: widgets/efficiency/efficiency_widget.py:57
+msgid "The output instrument."
+msgstr "최고의 측정 장비."
+
+#: widgets/efficiency/efficiency_widget.py:63
+#: widgets/spectrum/spectrum_widget.py:81
+msgid "Hold the display."
+msgstr "디스플레이를 고정하세요."
+
+#: widgets/efficiency/efficiency_widget.py:69
+#: widgets/efficiency/efficiency_widget.py:432
+msgid "Show voltage and current"
+msgstr "전압 및 전류 표시"
+
+#: widgets/efficiency/efficiency_widget.py:70
+msgid "Show the input and output voltage and current in the readout."
+msgstr "디스플레이에 입력 및 출력 전압과 전류를 표시합니다."
+
+#: widgets/efficiency/efficiency_widget.py:431
+msgid "Swap input and output"
+msgstr "입력 및 출력 전환"
+
+#: widgets/efficiency/efficiency_widget.py:461
+msgid "Select the input and output instruments"
+msgstr "입력 및 출력 계측기 선택"
+
+#: widgets/efficiency/efficiency_widget.py:464
+msgid "Select different input and output instruments"
+msgstr "다양한 입력 및 출력 계측기 선택"
+
+#: widgets/efficiency/efficiency_widget.py:469
+#, python-brace-format
+msgid "Disabled: {0}"
+msgstr "비활성화됨: {0}"
+
+#: widgets/efficiency/efficiency_widget.py:474
+#: widgets/spectrum/spectrum_widget.py:1210
+msgid "Paused"
+msgstr "일시 중지됨"
+
+#: widgets/efficiency/efficiency_widget.py:481
+#, python-brace-format
+msgid "No data from {0}"
+msgstr "{0}에서 데이터가 없습니다."
+
+#: widgets/efficiency/efficiency_widget.py:484
+msgid "JS110 input includes its burden voltage"
+msgstr "JS110의 입력에는 부하 전압이 포함됩니다."
+
+#: widgets/efficiency/efficiency_widget.py:487
+msgid "Efficiency above 100%: swap input and output?"
+msgstr "100%를 초과하는 효율: 입력과 출력을 바꿔야 할까요?"
+
+#: widgets/efficiency/efficiency_widget.py:492
+#, python-brace-format
+msgid "{0} windows"
+msgstr "{0} 창"
+
+#: widgets/efficiency/efficiency_widget.py:494
+#, python-brace-format
+msgid "{0} invalid"
+msgstr "{0} 유효하지 않음"
+
+#: widgets/efficiency/efficiency_widget.py:497
+#: widgets/spectrum/spectrum_widget.py:1224
+#, python-brace-format
+msgid "overruns {0}"
+msgstr "overruns {0}"
+
 #: widgets/example/example_widget.py:22
 msgid "Example"
 msgstr "예제"
@@ -2442,12 +2634,6 @@ msgstr "사용 가능한 RAM 크기"
 msgid "Used RAM size"
 msgstr "사용된 RAM 크기"
 
-#: widgets/memory/memory_widget.py:238 widgets/spectrum/spectrum_control.py:33
-#: widgets/spectrum/spectrum_control.py:82
-#: widgets/spectrum/spectrum_widget.py:1092
-msgid "Clear"
-msgstr "Clear"
-
 #: widgets/memory/memory_widget.py:242
 msgid "Clear on play"
 msgstr "플레이 시 클리어"
@@ -2691,10 +2877,6 @@ msgstr "기록할 신호"
 msgid "Configure signal recording"
 msgstr "신호 기록 구성"
 
-#: widgets/spectrum/spectrum_control.py:30 widgets/value/value_widget.py:125
-msgid "Hold the display"
-msgstr "디스플레이 잡기"
-
 #: widgets/spectrum/spectrum_control.py:31
 msgid ""
 "When selected, ignore new data so that the spectrum and waterfall stay "
@@ -2772,11 +2954,6 @@ msgstr "평균"
 msgid "The averaging mode for the average trace."
 msgstr "평균 트레이스를 위한 평균화 모드."
 
-#: widgets/spectrum/spectrum_control.py:75
-#: widgets/spectrum/spectrum_widget.py:1208 widgets/value/value_widget.py:257
-msgid "Hold"
-msgstr "Hold"
-
 #: widgets/spectrum/spectrum_plot.py:59
 msgid "Inferno"
 msgstr "Inferno"
@@ -2808,10 +2985,6 @@ msgstr "신호 데이터 스트림의 출처."
 #: widgets/spectrum/spectrum_widget.py:75
 msgid "The signal to analyze."
 msgstr "분석할 신호."
-
-#: widgets/spectrum/spectrum_widget.py:81
-msgid "Hold the display."
-msgstr "디스플레이를 고정하세요."
 
 #: widgets/spectrum/spectrum_widget.py:88
 msgid ""
@@ -3096,10 +3269,6 @@ msgstr "워터폴 표시"
 msgid "No signal"
 msgstr "신호 없음"
 
-#: widgets/spectrum/spectrum_widget.py:1210
-msgid "Paused"
-msgstr "일시 중지됨"
-
 #: widgets/spectrum/spectrum_widget.py:1215
 #, python-brace-format
 msgid "gaps {0}"
@@ -3109,11 +3278,6 @@ msgstr "gaps {0}"
 #, python-brace-format
 msgid "waterfall {0}"
 msgstr "waterfall {0}"
-
-#: widgets/spectrum/spectrum_widget.py:1224
-#, python-brace-format
-msgid "overruns {0}"
-msgstr "overruns {0}"
 
 #: widgets/statistics_record/statistics_record_config_widget.py:86
 msgid "StatisticsRecordConfig"

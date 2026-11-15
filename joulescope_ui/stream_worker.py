@@ -30,7 +30,8 @@ class StreamWorker:
 
     Subclasses implement the engine hooks, which run only on the worker
     thread: :meth:`engine_create`, :meth:`engine_data`,
-    :meth:`engine_clear`, :meth:`engine_poll`, and :meth:`snapshot`.
+    :meth:`engine_update`, :meth:`engine_clear`, :meth:`engine_poll`, and
+    :meth:`snapshot`.
 
     :param on_snapshot: The callable(snapshot) called from the worker
         thread at most once per frame_period.  Use a queued Qt signal to
@@ -82,6 +83,14 @@ class StreamWorker:
         self._queue.put(('config', self._generation, dict(config)))
         return self._generation
 
+    def update(self, config):
+        """Update the engine configuration in place, keeping its state.
+
+        :param config: The partial engine configuration dict, passed to
+            :meth:`engine_update`.
+        """
+        self._queue.put(('update', dict(config)))
+
     def clear(self):
         """Clear the engine results."""
         self._queue.put(('clear',))
@@ -114,6 +123,10 @@ class StreamWorker:
         :return: True if the snapshot changed.
         """
         raise NotImplementedError()
+
+    def engine_update(self, engine, config):
+        """Update the engine configuration in place, engine may be None."""
+        pass
 
     def engine_clear(self, engine):
         """Clear the engine results, engine may be None."""
@@ -161,6 +174,12 @@ class StreamWorker:
                         self._log.exception('invalid config %s', config)
                         engine = None
                     self.engine_clear(engine)
+                    dirty = True
+                elif cmd == 'update':
+                    try:
+                        self.engine_update(engine, item[1])
+                    except Exception:
+                        self._log.exception('invalid update %s', item[1])
                     dirty = True
                 elif cmd == 'clear':
                     self.engine_clear(engine)

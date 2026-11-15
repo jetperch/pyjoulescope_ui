@@ -2124,6 +2124,198 @@ msgstr ""
 msgid "Clear accum"
 msgstr ""
 
+#: widgets/efficiency/efficiency_control.py:24
+#: widgets/spectrum/spectrum_control.py:30 widgets/value/value_widget.py:125
+msgid "Hold the display"
+msgstr ""
+
+#: widgets/efficiency/efficiency_control.py:25
+msgid "When selected, ignore new data so that the display stays frozen."
+msgstr ""
+
+#: widgets/efficiency/efficiency_control.py:27
+#: widgets/efficiency/efficiency_control.py:53
+#: widgets/efficiency/efficiency_widget.py:434
+#: widgets/memory/memory_widget.py:238 widgets/spectrum/spectrum_control.py:33
+#: widgets/spectrum/spectrum_control.py:68
+#: widgets/spectrum/spectrum_widget.py:1092
+msgid "Clear"
+msgstr ""
+
+#: widgets/efficiency/efficiency_control.py:28
+msgid "Clear the cumulative efficiency, history, and efficiency curve."
+msgstr ""
+
+#: widgets/efficiency/efficiency_control.py:30
+#: widgets/efficiency/efficiency_control.py:54
+#: widgets/efficiency/efficiency_widget.py:36
+msgid "Input"
+msgstr ""
+
+#: widgets/efficiency/efficiency_control.py:31
+msgid ""
+"The instrument that measures the converter input. Connect its voltage inputs"
+" at the converter input pins."
+msgstr ""
+
+#: widgets/efficiency/efficiency_control.py:34
+#: widgets/efficiency/efficiency_control.py:57
+#: widgets/efficiency/efficiency_widget.py:36
+msgid "Output"
+msgstr ""
+
+#: widgets/efficiency/efficiency_control.py:35
+msgid ""
+"The instrument that measures the converter output. Connect its voltage "
+"inputs at the converter output pins."
+msgstr ""
+
+#: widgets/efficiency/efficiency_control.py:37
+msgid "Swap"
+msgstr ""
+
+#: widgets/efficiency/efficiency_control.py:37
+msgid "Swap the input and output instruments."
+msgstr ""
+
+#: widgets/efficiency/efficiency_control.py:39
+#: widgets/efficiency/efficiency_control.py:59
+msgid "Enable signals"
+msgstr ""
+
+#: widgets/efficiency/efficiency_control.py:40
+msgid "Enable the instrument signals that this widget needs."
+msgstr ""
+
+#: widgets/efficiency/efficiency_control.py:52
+#: widgets/efficiency/efficiency_widget.py:472
+#: widgets/spectrum/spectrum_control.py:67
+#: widgets/spectrum/spectrum_widget.py:1208 widgets/value/value_widget.py:257
+msgid "Hold"
+msgstr ""
+
+#: widgets/efficiency/efficiency_readout.py:62
+msgid "Input power"
+msgstr ""
+
+#: widgets/efficiency/efficiency_readout.py:63
+msgid "Output power"
+msgstr ""
+
+#: widgets/efficiency/efficiency_readout.py:64
+msgid "Power loss"
+msgstr ""
+
+#: widgets/efficiency/efficiency_readout.py:65
+msgid "Cumulative efficiency"
+msgstr ""
+
+#: widgets/efficiency/efficiency_readout.py:69
+msgid "Input voltage"
+msgstr ""
+
+#: widgets/efficiency/efficiency_readout.py:70
+msgid "Input current"
+msgstr ""
+
+#: widgets/efficiency/efficiency_readout.py:71
+msgid "Output voltage"
+msgstr ""
+
+#: widgets/efficiency/efficiency_readout.py:72
+msgid "Output current"
+msgstr ""
+
+#: widgets/efficiency/efficiency_readout.py:132
+#: widgets/efficiency/efficiency_widget.py:79
+msgid "Efficiency"
+msgstr ""
+
+#: widgets/efficiency/efficiency_widget.py:39
+msgid "power"
+msgstr ""
+
+#: widgets/efficiency/efficiency_widget.py:39
+msgid "current"
+msgstr ""
+
+#: widgets/efficiency/efficiency_widget.py:39
+msgid "voltage"
+msgstr ""
+
+#: widgets/efficiency/efficiency_widget.py:51
+msgid "The input instrument."
+msgstr ""
+
+#: widgets/efficiency/efficiency_widget.py:57
+msgid "The output instrument."
+msgstr ""
+
+#: widgets/efficiency/efficiency_widget.py:63
+#: widgets/spectrum/spectrum_widget.py:81
+msgid "Hold the display."
+msgstr ""
+
+#: widgets/efficiency/efficiency_widget.py:69
+#: widgets/efficiency/efficiency_widget.py:432
+msgid "Show voltage and current"
+msgstr ""
+
+#: widgets/efficiency/efficiency_widget.py:70
+msgid "Show the input and output voltage and current in the readout."
+msgstr ""
+
+#: widgets/efficiency/efficiency_widget.py:431
+msgid "Swap input and output"
+msgstr ""
+
+#: widgets/efficiency/efficiency_widget.py:461
+msgid "Select the input and output instruments"
+msgstr ""
+
+#: widgets/efficiency/efficiency_widget.py:464
+msgid "Select different input and output instruments"
+msgstr ""
+
+#: widgets/efficiency/efficiency_widget.py:469
+#, python-brace-format
+msgid "Disabled: {0}"
+msgstr ""
+
+#: widgets/efficiency/efficiency_widget.py:474
+#: widgets/spectrum/spectrum_widget.py:1210
+msgid "Paused"
+msgstr ""
+
+#: widgets/efficiency/efficiency_widget.py:481
+#, python-brace-format
+msgid "No data from {0}"
+msgstr ""
+
+#: widgets/efficiency/efficiency_widget.py:484
+msgid "JS110 input includes its burden voltage"
+msgstr ""
+
+#: widgets/efficiency/efficiency_widget.py:487
+msgid "Efficiency above 100%: swap input and output?"
+msgstr ""
+
+#: widgets/efficiency/efficiency_widget.py:492
+#, python-brace-format
+msgid "{0} windows"
+msgstr ""
+
+#: widgets/efficiency/efficiency_widget.py:494
+#, python-brace-format
+msgid "{0} invalid"
+msgstr ""
+
+#: widgets/efficiency/efficiency_widget.py:497
+#: widgets/spectrum/spectrum_widget.py:1224
+#, python-brace-format
+msgid "overruns {0}"
+msgstr ""
+
 #: widgets/example/example_widget.py:22
 msgid "Example"
 msgstr ""
@@ -2369,12 +2561,6 @@ msgstr ""
 msgid "Used RAM size"
 msgstr ""
 
-#: widgets/memory/memory_widget.py:238 widgets/spectrum/spectrum_control.py:33
-#: widgets/spectrum/spectrum_control.py:82
-#: widgets/spectrum/spectrum_widget.py:1092
-msgid "Clear"
-msgstr ""
-
 #: widgets/memory/memory_widget.py:242
 msgid "Clear on play"
 msgstr ""
@@ -2614,10 +2800,6 @@ msgstr ""
 msgid "Configure signal recording"
 msgstr ""
 
-#: widgets/spectrum/spectrum_control.py:30 widgets/value/value_widget.py:125
-msgid "Hold the display"
-msgstr ""
-
 #: widgets/spectrum/spectrum_control.py:31
 msgid ""
 "When selected, ignore new data so that the spectrum and waterfall stay "
@@ -2690,11 +2872,6 @@ msgstr ""
 msgid "The averaging mode for the average trace."
 msgstr ""
 
-#: widgets/spectrum/spectrum_control.py:75
-#: widgets/spectrum/spectrum_widget.py:1208 widgets/value/value_widget.py:257
-msgid "Hold"
-msgstr ""
-
 #: widgets/spectrum/spectrum_plot.py:59
 msgid "Inferno"
 msgstr ""
@@ -2725,10 +2902,6 @@ msgstr ""
 
 #: widgets/spectrum/spectrum_widget.py:75
 msgid "The signal to analyze."
-msgstr ""
-
-#: widgets/spectrum/spectrum_widget.py:81
-msgid "Hold the display."
 msgstr ""
 
 #: widgets/spectrum/spectrum_widget.py:88
@@ -3003,10 +3176,6 @@ msgstr ""
 msgid "No signal"
 msgstr ""
 
-#: widgets/spectrum/spectrum_widget.py:1210
-msgid "Paused"
-msgstr ""
-
 #: widgets/spectrum/spectrum_widget.py:1215
 #, python-brace-format
 msgid "gaps {0}"
@@ -3015,11 +3184,6 @@ msgstr ""
 #: widgets/spectrum/spectrum_widget.py:1221
 #, python-brace-format
 msgid "waterfall {0}"
-msgstr ""
-
-#: widgets/spectrum/spectrum_widget.py:1224
-#, python-brace-format
-msgid "overruns {0}"
 msgstr ""
 
 #: widgets/statistics_record/statistics_record_config_widget.py:86

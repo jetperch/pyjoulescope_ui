@@ -254,6 +254,7 @@ _CONFIG_DEFAULTS = {
     'steady_threshold': 0.05,   # (max - min) / mean of sub-window power
     'steady_segments': 10,
     'history': 10.0,            # retained seconds per signal
+    'signals': ['in.p', 'out.p'],  # the 'instrument.signal' streams each window requires
 }
 
 
@@ -269,6 +270,7 @@ class EfficiencyEngine:
         self.config = dict(_CONFIG_DEFAULTS)
         self._integrators = {}
         self.t_ref = None  # time64, integer seconds
+        self._signals = [('in', 'p'), ('out', 'p')]
         self._history = self.config['history']
         self._grid = _Grid(self.config['period'])
         self._curve_grid = _Grid(self.config['period'])
@@ -285,14 +287,27 @@ class EfficiencyEngine:
         for key in config:
             if key not in _CONFIG_DEFAULTS:
                 raise KeyError(f'unsupported config {key}')
-        prev = dict(self.config)
-        self.config.update(config)
-        c = self.config
+        prev = self.config
+        c = dict(prev)
+        c.update(config)
         if c['period'] <= 0:
             raise ValueError('period must be > 0')
         curve_period = c['curve_period'] or c['period']
         if c['curve_x'] not in ('current', 'power'):
             raise ValueError(f'unsupported curve_x {c["curve_x"]}')
+        signals = [tuple(x.split('.')) for x in c['signals']]
+        for instrument, signal in signals:
+            if instrument not in INSTRUMENTS or signal not in SIGNALS:
+                raise ValueError(f'unsupported signal {instrument}.{signal}')
+        for key in [('in', 'p'), ('out', 'p')]:
+            if key not in signals:
+                signals.append(key)
+        self.config = c  # validated
+        self._signals = signals
+        curve_required = [('out', 'i')] if c['curve_x'] == 'current' else []
+        for key in list(self._integrators):
+            if key not in signals and key not in curve_required:
+                del self._integrators[key]  # stale data would stall the windows
         if self._grid.period != c['period']:
             self._grid = _Grid(c['period'], self._grid.t_last)
         if self._curve_grid.period != curve_period:
@@ -334,6 +349,9 @@ class EfficiencyEngine:
         :param instrument: 'in' or 'out'.
         :param signal: 'p', 'i' or 'v'.
         :param value: The SIGNAL_STREAM_SOURCE !data message.
+
+        Each window waits for every configured signal, so push only the
+        configured signals, plus 'out.i' for the current curve.
         """
         if instrument not in INSTRUMENTS:
             raise ValueError(f'unsupported instrument {instrument}')
@@ -426,7 +444,8 @@ class EfficiencyEngine:
                 w['efficiency'] = e_out / e_in
         for instrument in INSTRUMENTS:
             for signal in ('i', 'v'):
-                w[f'{signal}_{instrument}'] = self._mean(instrument, signal, t0, t1)
+                key = (instrument, signal)
+                w[f'{signal}_{instrument}'] = self._mean(*key, t0, t1) if key in self._signals else None
         return w
 
     def process(self):
@@ -442,7 +461,7 @@ class EfficiencyEngine:
         """
         windows = []
         p_signals = [('in', 'p'), ('out', 'p')]
-        for t0, t1, skipped in self._advance(self._grid, p_signals):
+        for t0, t1, skipped in self._advance(self._grid, self._signals):
             w = self._window(t0, t1) if not skipped else {
                 't0': t0, 't1': t1, 'utc': self._utc(t0), 'valid': False, 'efficiency': None}
             if w['valid']:

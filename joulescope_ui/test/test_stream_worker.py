@@ -52,6 +52,11 @@ class _Worker(StreamWorker):
         engine.total += args[0]
         return True
 
+    def engine_update(self, engine, config):
+        if config.get('fail'):
+            raise ValueError('bad update')
+        engine.config.update(config)
+
     def engine_clear(self, engine):
         if engine is not None:
             engine.total = 0
@@ -60,7 +65,8 @@ class _Worker(StreamWorker):
     def snapshot(self, engine, generation):
         if engine is None:
             return {'generation': generation, 'total': None}
-        return {'generation': generation, 'total': engine.total, 'clears': engine.clears}
+        return {'generation': generation, 'total': engine.total, 'clears': engine.clears,
+                'config': dict(engine.config)}
 
 
 class TestStreamWorker(unittest.TestCase):
@@ -93,6 +99,19 @@ class TestStreamWorker(unittest.TestCase):
         g2 = self.w.configure({'a': 2})
         self.assertEqual(g + 1, g2)
         self._wait(lambda s: s['generation'] == g2 and s['total'] == 0)
+
+    def test_update_keeps_state(self):
+        g = self.w.configure({'a': 1})
+        self.w.push(3)
+        self._wait(lambda s: s.get('total') == 3)
+        self.w.update({'b': 2})
+        s = self._wait(lambda s: s['config'].get('b') == 2)
+        self.assertEqual({'a': 1, 'b': 2}, s['config'])
+        self.assertEqual(3, s['total'])
+        self.assertEqual(g, s['generation'])
+        self.w.update({'fail': True})  # logged, worker continues
+        self.w.push(1)
+        self._wait(lambda s: s['total'] == 4)
 
     def test_data_before_config_ignored(self):
         self.w.push(7)

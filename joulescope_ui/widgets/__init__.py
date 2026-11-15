@@ -19,6 +19,7 @@ from .accumulator import AccumulatorWidget
 from .clock import ClockWidget
 from .device_control import DeviceControlWidget, DeviceUpdateDialog
 from .developer import DEVELOPER_WIDGETS
+from .efficiency import EfficiencyWidget
 # from .example import ExampleWidget
 from .memory import MemoryWidget
 from .hamburger import HamburgerWidget

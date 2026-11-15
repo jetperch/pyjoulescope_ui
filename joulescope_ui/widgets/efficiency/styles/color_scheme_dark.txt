@@ -1,0 +1,19 @@
+efficiency.background = #101010ff
+
+efficiency.text_foreground = #C0C0C0ff
+efficiency.text_background = #101010C0
+
+efficiency.grid_major = #ffffff40
+efficiency.grid_minor = #80808018
+efficiency.plot_border = #ffffff80
+efficiency.hover = #ffffffa0
+
+efficiency.title_color = #ffffff80
+efficiency.main_color = #20C020ff
+efficiency.stats_color = #20C020ff
+efficiency.invalid_color = #808080ff
+
+efficiency.trace = #00ffffff
+efficiency.curve = #20C020ff
+
+efficiency.status_warning = #ff8c00ff

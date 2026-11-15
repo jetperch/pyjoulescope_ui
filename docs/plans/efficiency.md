@@ -338,9 +338,25 @@ on its own.  Run `python ci/translations.py --preserve-create-date
    onto both.  Spectrum tests unchanged and passing; FFT and waterfall
    renders (markers, hover, text boxes) are pixel-identical before and after.
    The farm test is not needed for a pixel-identical refactor.
-3. **Widget, readout only:** sources, Swap, Enable, pause handling, worker,
-   status, settings, `efficiency_info`; open/close leak test (threads and
-   subscriptions) like Spectrum's.
+3. **Widget, readout only** DONE 2026-11-15: sources, Swap, Enable, pause
+   handling, worker, status, settings, `efficiency_info`; open/close leak
+   test (threads and subscriptions) like Spectrum's.  17 widget tests.
+   Also in this stage:
+   - `widgets/control_bar.py` `ControlBar`: the combo/toggle/button helpers
+     from Spectrum's control bar, shared by both (object names unchanged).
+   - `StreamWorker.update(config)`: in-place engine reconfiguration, so a
+     statistics rate change keeps the cumulative totals.
+   - Engine `signals` config: each display window waits for every
+     subscribed stream, not just `p`.  Streams arrive in any order, so the
+     optional V/I means were empty when computed on `p` coverage alone.
+     The engine drops integrators for removed signals so they can't stall.
+   - The readout uses height-for-width: the table moves below the main
+     value when the dock is narrow.
+   - Live on the bench (UI offscreen, JS220 input, JS320 output, ADP3450):
+     DC null test η = 99.988%, cumulative 99.987% over 16 windows; 10 Hz
+     square-wave load (10 steps per window) η = 99.976 to 99.990% over 40
+     windows, cumulative 99.982%; no invalid windows or overruns; all 40
+     square-wave windows correctly rejected from the curve as unsteady.
 4. **Efficiency vs time plot.**
 5. **Efficiency vs output current curve** plus CSV export.
 6. **Documentation:** Theory page (general knowledge + generated wiring
