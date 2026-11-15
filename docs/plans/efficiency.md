@@ -171,6 +171,12 @@ Packed digital signals are never needed; reuse `sample_count` from
 
 ### Window grid and pairing
 
+All engine times are float seconds relative to `t_ref`, an integer UTC
+second (exact in time64) taken from the first message.  Absolute UTC in
+float64 only resolves about 30 ns, which cost about 1e-7 relative accuracy
+in the first engine tests.  Windows report `t0`/`t1` relative to `t_ref`
+plus `utc` (time64 of `t0`).
+
 - Windows are aligned to a common UTC grid: `[k·T, (k+1)·T)`, with
   `T = 1 / statistics_frequency`.
 - **Rate source:** the widget follows the **input** instrument's
@@ -183,7 +189,11 @@ Packed digital signals are never needed; reuse `sample_count` from
 - A window with a gap on either instrument is emitted as invalid (shown as a
   break in the time plot, excluded from the curve and the cumulative η).
 - If one instrument stops (unplug, closed), windows stall; after a timeout
-  the status line shows which instrument is missing.
+  the status line shows which instrument is missing.  When both overlap
+  again, the engine emits one invalid window spanning the discarded data,
+  then continues on the grid.
+- A configuration change never re-emits a window: each grid keeps the end
+  of its last emitted window across period changes.
 
 ### Alignment error budget
 
@@ -206,14 +216,16 @@ curve uses only steady windows (below).  The docs explain this.
   the output instrument's `i` signal, so the widget subscribes `p` on both
   instruments and `i` on the output instrument.
 - Log-spaced bins (setting: bins per decade, default 20), auto-extending as
-  new load levels appear.
+  new load levels appear.  Bins are centered on `10^(k / bins_per_decade)`,
+  so round loads such as 10 mA land in a bin center, not on an edge.
 - Each accepted window adds to its bin: `ΣE_in`, `ΣE_out`, duration, window
   count, η min/max.  The bin's η is `ΣE_out / ΣE_in` (energy-weighted, so
   noisy light-load windows do not bias it).
-- **Steady-state filter:** a window is accepted only if the output power is
-  steady within it.  The integrator splits each window into 10 sub-windows;
-  accept when `(max − min) / mean` of sub-window `P_out` is below a threshold
-  (setting, default 5%).  Rejected windows are counted in the status line.
+- **Steady-state filter:** a window is accepted only if both the input and
+  output power are steady within it.  The engine splits each window into 10
+  sub-windows; accept when `(max − min) / mean` of the sub-window power is
+  below a threshold (setting, default 5%) for both instruments.  Rejected
+  windows are counted in the status line.
 - **Curve window:** the curve uses the same window T by default; a setting
   allows a shorter curve window (e.g. 10 ms) for fast load sweeps.
 - Clear resets the curve; the curve can be frozen (Hold) while the time plot
@@ -268,6 +280,11 @@ and the axis drawing into a shared `joulescope_ui/widgets/plot_base.py`, with
 Spectrum refactored onto it and its tests passing, before the Efficiency
 plots use it.  No copied plot code.
 
+pyqtgraph (already a dependency, used by the range tools, timesync, and
+fuse widgets) was considered.  Matt prefers the look of the custom
+Waveform/Spectrum plots, so v1 uses QPainter; pyqtgraph is the fallback if
+the custom plots don't work out.
+
 ### Threading
 
 Same pattern as Spectrum (`widgets/spectrum/spectrum_worker.py`): Qt-thread
@@ -303,7 +320,9 @@ on its own.  Run `python ci/translations.py --preserve-create-date
 0. **Plan + mockup + measurements.**  DONE 2026-11-15: this plan,
    `efficiency.svg`, JS110 voltage point verified from its guide, null test
    and alignment measured (see [Stage 0 results](#stage-0-results)).
-1. **Engine** (`joulescope_ui/efficiency_engine.py`, Qt-free) with unit tests:
+1. **Engine** DONE 2026-11-15 (`joulescope_ui/efficiency_engine.py`,
+   Qt-free; `joulescope_ui/test/test_efficiency_engine.py`, 20 tests) with
+   unit tests:
    integrator edge interpolation; two synthetic devices at different rates
    (e.g. 1 MHz and 999,950 Hz with drift in the time map) produce η = known
    value exactly; gaps; window grid; steady filter; curve binning; cumulative
