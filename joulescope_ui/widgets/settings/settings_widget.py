@@ -473,6 +473,24 @@ def _class_items(capability):
     return entries
 
 
+def _is_resettable(unique_id):
+    """True for a tree entry that has settings: not a group row."""
+    if unique_id is None:
+        return False
+    unique_id = get_unique_id(unique_id)
+    return not unique_id.startswith('__') and get_instance(unique_id, default=None) is not None
+
+
+def _reset_text(pubsub, unique_id, tab=None):
+    """The reset action text, see docs/plans/settings_reset.md."""
+    factory = settings_reset.base_topic(pubsub, unique_id) is None
+    if tab is None:
+        return N_('Reset to factory defaults') if factory else N_('Reset to defaults')
+    if factory:
+        return N_('Reset {tab} to factory defaults').format(tab=tab)
+    return N_('Reset {tab} to defaults').format(tab=tab)
+
+
 class SelectorWidget(QtWidgets.QTreeView):
 
     def __init__(self, parent=None):
@@ -491,6 +509,17 @@ class SelectorWidget(QtWidgets.QTreeView):
         self.setModel(self._model)
         self.setHeaderHidden(True)
         self.selectionModel().currentChanged.connect(self._on_changed)
+
+    def contextMenuEvent(self, event):
+        index = self.indexAt(event.pos())
+        unique_id = self._model.data(index, QtCore.Qt.UserRole + 1) if index.isValid() else None
+        if not _is_resettable(unique_id):
+            return super().contextMenuEvent(event)
+        menu = QtWidgets.QMenu(self)
+        menu.addAction(_reset_text(self.pubsub, unique_id) + '…',
+                       lambda: self.parent().reset_request(unique_id))
+        menu.popup(event.globalPos())
+        event.accept()
 
     @QtCore.Slot(object, object)
     def _on_changed(self, model_index, model_index_old):
@@ -583,13 +612,14 @@ class SettingsWidget(QtWidgets.QSplitter):
         self._tabs.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.addWidget(self._tabs)
 
-        widgets = [
-            [SettingsEditorWidget(self), N_('Settings')],
-            [ColorEditorWidget(self), N_('Colors')],
-            [FontEditorWidget(self), N_('Fonts')],
-            [StyleDefineEditorWidget(self), N_('Defines')],
+        widgets = [  # widget, title, settings_reset tab
+            [SettingsEditorWidget(self), N_('Settings'), 'settings'],
+            [ColorEditorWidget(self), N_('Colors'), 'colors'],
+            [FontEditorWidget(self), N_('Fonts'), 'fonts'],
+            [StyleDefineEditorWidget(self), N_('Defines'), 'style_defines'],
         ]
-        for widget, title in widgets:
+        self._tab_info = []
+        for widget, title, tab in widgets:
             widget.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
             scroll = QtWidgets.QScrollArea(self._tabs)
             scroll.setObjectName(widget.objectName() + '_scroll')
@@ -597,6 +627,20 @@ class SettingsWidget(QtWidgets.QSplitter):
             scroll.setWidget(widget)
             self._tabs.addTab(scroll, title)
             self._widgets.append([widget, scroll])
+            self._tab_info.append([title, tab])
+
+        # Reset: tab bar corner button and tab right-click menu
+        self._reset_menu = QtWidgets.QMenu(self)
+        self._reset_menu.aboutToShow.connect(self._reset_menu_populate)
+        self._reset_button = QtWidgets.QToolButton(self._tabs)
+        self._reset_button.setObjectName('reset_button')
+        self._reset_button.setText(N_('Reset'))
+        self._reset_button.setPopupMode(QtWidgets.QToolButton.ToolButtonPopupMode.InstantPopup)
+        self._reset_button.setMenu(self._reset_menu)
+        self._tabs.setCornerWidget(self._reset_button, QtCore.Qt.Corner.TopRightCorner)
+        tab_bar = self._tabs.tabBar()
+        tab_bar.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.CustomContextMenu)
+        tab_bar.customContextMenuRequested.connect(self._on_tab_context_menu)
 
     def closeEvent(self, event):
         self.object = None
@@ -627,6 +671,62 @@ class SettingsWidget(QtWidgets.QSplitter):
             widget.pubsub = self._object_pubsub
             widget.object = obj
         self._obj = obj
+        self._reset_button.setEnabled(_is_resettable(obj))
+
+    def _reset_tab_action(self, menu, index):
+        title, tab = self._tab_info[index]
+        unique_id = get_unique_id(self._obj)
+        action = menu.addAction(_reset_text(self.pubsub, unique_id, title),
+                                lambda: self.reset_request(unique_id, tab))
+        action.setEnabled(len(self._widgets[index][0]) > 0)  # empty tab: nothing to reset
+
+    def _reset_menu_populate(self):
+        self._reset_menu.clear()
+        if not _is_resettable(self._obj):
+            return
+        unique_id = get_unique_id(self._obj)
+        self._reset_tab_action(self._reset_menu, self._tabs.currentIndex())
+        self._reset_menu.addAction(_reset_text(self.pubsub, unique_id) + '…',
+                                   lambda: self.reset_request(unique_id))
+
+    def _on_tab_context_menu(self, pos):
+        index = self._tabs.tabBar().tabAt(pos)
+        if index < 0 or not _is_resettable(self._obj):
+            return
+        menu = QtWidgets.QMenu(self)
+        self._reset_tab_action(menu, index)
+        menu.popup(self._tabs.tabBar().mapToGlobal(pos))
+
+    def reset_request(self, unique_id, tab=None):
+        """Reset settings, see :func:`joulescope_ui.settings_reset.reset`.
+
+        :param unique_id: The instance or class to reset.
+        :param tab: The settings_reset tab name, or None to confirm and
+            then reset all tabs.
+        """
+        unique_id = get_unique_id(unique_id)
+        value = {'target': unique_id}
+        if tab is None:
+            name = self.pubsub.query(f'{get_topic_name(unique_id)}/settings/name', default=unique_id)
+            box = QtWidgets.QMessageBox(self)
+            box.setWindowTitle(_reset_text(self.pubsub, unique_id))
+            box.setText(N_('Reset all settings for {name}?').format(name=name))
+            box.setInformativeText(N_('Undo restores them.'))
+            box.setStandardButtons(QtWidgets.QMessageBox.StandardButton.Yes | QtWidgets.QMessageBox.StandardButton.No)
+            box.setDefaultButton(QtWidgets.QMessageBox.StandardButton.No)
+            if box.exec() != QtWidgets.QMessageBox.StandardButton.Yes:
+                return
+        else:
+            value['tabs'] = [tab]
+            view_topic = get_topic_name(self.pubsub.query('registry/view/settings/active'))
+            value['schemes'] = {
+                'colors': self.pubsub.query(f'{view_topic}/settings/color_scheme', default='dark'),
+                'fonts': self.pubsub.query(f'{view_topic}/settings/font_scheme', default='js1'),
+            }
+        self._log.info('reset %s', value)
+        self.pubsub.publish(settings_reset.RESET_TOPIC, value)
+        if self._obj is not None and get_unique_id(self._obj) == unique_id:
+            self.object = self._obj  # refresh the style editors
 
     def _on_populate(self):
         self._left.populate()
