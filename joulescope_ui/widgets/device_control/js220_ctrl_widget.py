@@ -21,6 +21,7 @@ from joulescope_ui.styles import color_as_qcolor
 from joulescope_ui.software_update import str_to_version
 from joulescope_ui.ui_util import comboBoxConfig
 from joulescope_ui.widget_tools import CallableSlotAdapter
+from joulescope_ui import settings_reset
 from .device_info_dialog import DeviceInfoDialog
 from .current_limits import CurrentLimits
 from .fuse import FuseWidget
@@ -69,8 +70,10 @@ _OPEN_TOOLTIP = tooltip_format(
 )
 
 _RESET_TO_DEFAULTS_TOOLTIP = tooltip_format(
-    N_('Reset to default settings'),
-    N_('Click this button to reset this device to the default settings'),
+    N_('Reset to defaults'),
+    N_("""Click this button to close this device and reset its settings
+    to the device defaults.  Edit the device defaults in the Settings
+    widget under Devices.  Undo restores the previous settings."""),
 )
 
 _CLEAR_ACCUM_TOOLTIP = tooltip_format(
@@ -681,18 +684,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
 
     def _reset_to_defaults(self):
         self._log.info('reset to defaults')
-        topic_base = f'{get_topic_name(self.unique_id)}/settings'
-        # disable all streaming
-        for name in self._DEVICE_SETTINGS.keys():
-            if name.endswith('/enable'):
-                self.pubsub.publish(f'{topic_base}/{name}', False)
-        self.pubsub.publish(f'{get_topic_name(self.unique_id)}/actions/!state_req', 0)
-        for name, meta in self._DEVICE_SETTINGS.items():
-            meta = Metadata(meta)
-            value = meta.default
-            if name == 'name':
-                value = self.unique_id
-            self.pubsub.publish(f'{topic_base}/{name}', value)
+        self.pubsub.publish(settings_reset.RESET_TOPIC, {'target': self.unique_id})
 
     def _clear_accumulators(self):
         self._log.info('clear accumulators')
