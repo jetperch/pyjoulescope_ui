@@ -499,6 +499,35 @@ class TestEfficiencyWidget(unittest.TestCase):
             self.assertEqual(3, len(rows))
             self.assertAlmostEqual(0.8, float(rows[1][3]), delta=1e-6)
 
+    def test_reconnect_keeps_history(self):
+        self._feed(2.0)
+        self.assertTrue(_process_events(lambda: self.w.efficiency_info()['history'] >= 3))
+        history = self.w.efficiency_info()['history']
+        # unplug the output instrument for a while
+        self.p.unregister(self.sources['JS320-0002'], delete=True)
+        self.assertIsNone(self.w.efficiency_info()['output'])
+        self.assertIn('Output JS320-0002 is not connected', self.w.status)
+        self.assertTrue(self.w.status_warning)
+        self.assertGreaterEqual(self.w.efficiency_info()['history'], history)  # kept
+        for _ in range(100):  # 2 s of output data never arrives
+            self.streams[1][2].skip()
+            self.streams[2][2].skip()
+        self._source_add('JS320-0002', 'JS320')
+        self.assertEqual('JS320-0002', self.w.efficiency_info()['output'])
+        self._feed(3.0)
+        self.assertTrue(_process_events(
+            lambda: self.w.efficiency_info()['history'] >= history + 6))
+        info = self.w.efficiency_info()
+        self.assertGreaterEqual(info['totals']['invalid'], 1)  # the outage
+        self.assertAlmostEqual(0.9, info['window']['efficiency'], delta=1e-6)
+        self.assertAlmostEqual(0.9, info['efficiency_cumulative'], delta=1e-6)
+
+    def test_new_pair_resets(self):
+        self._feed(1.5)
+        self.assertTrue(_process_events(lambda: self.w.efficiency_info()['history'] >= 2))
+        self.w.on_action_swap()
+        self.assertEqual(0, self.w.efficiency_info()['history'])
+
     def test_open_close_repeated(self):
         topics = dict(self.w._data_topics)
         for _ in range(5):

@@ -178,6 +178,7 @@ class EfficiencyWidget(QtWidgets.QWidget):
         self._style_cache = None
         self._generation = 0
         self._sources = {'in': None, 'out': None}   # resolved sources being processed
+        self._sources_valid = None                  # the last valid input/output pair
         self._data_topics = {}                      # (instrument, signal) -> topic
         self._enable_topics = []
         self._disabled = []                         # (instrument, signal) not enabled
@@ -253,6 +254,7 @@ class EfficiencyWidget(QtWidgets.QWidget):
         self._worker.stop()
         self._disconnect()
         self._sources = {'in': None, 'out': None}
+        self._sources_valid = None
 
     def setting_publish(self, name, value):
         """Publish one of this widget's settings."""
@@ -354,8 +356,11 @@ class EfficiencyWidget(QtWidgets.QWidget):
         self._disconnect()
         sources = {instrument: self._selectors[instrument].resolved() for instrument in INSTRUMENTS}
         valid = all(sources.values()) and sources['in'] != sources['out']
-        if sources != self._sources:
-            self._sources = dict(sources)
+        self._sources = dict(sources)
+        if valid and sources != self._sources_valid:
+            # A new pair restarts.  The same pair after a disconnect, such as
+            # a cable glitch, keeps the history: the engine marks the outage.
+            self._sources_valid = dict(sources)
             self._reset()
         self._disabled = []
         if valid:
@@ -711,7 +716,14 @@ class EfficiencyWidget(QtWidgets.QWidget):
         parts, warning = [], False
         names = {i: self._source_name(self._sources[i]) for i in INSTRUMENTS}
         if not all(self._sources.values()):
-            parts.append(N_('Select the input and output instruments'))
+            missing = [i for i in INSTRUMENTS if self._sources[i] is None
+                       and self._selectors[i].value not in (None, 'default')]
+            if missing:
+                for i in missing:
+                    parts.append(N_('{0} {1} is not connected').format(
+                        _INSTRUMENT_NAMES[i], self._selectors[i].value))
+            else:
+                parts.append(N_('Select the input and output instruments'))
             warning = True
         elif self._sources['in'] == self._sources['out']:
             parts.append(N_('Select different input and output instruments'))

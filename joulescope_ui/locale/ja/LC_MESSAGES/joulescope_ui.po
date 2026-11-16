@@ -322,7 +322,7 @@ msgstr "マークダウンで表示"
 msgid "Abort"
 msgstr "中止"
 
-#: error_window.py:120 main.py:466 widgets/efficiency/efficiency_widget.py:619
+#: error_window.py:120 main.py:466 widgets/efficiency/efficiency_widget.py:624
 #: widgets/settings/settings_widget.py:539
 #: widgets/spectrum/spectrum_widget.py:1064
 msgid "View"
@@ -365,7 +365,7 @@ msgstr "ファイル名"
 msgid "Notes"
 msgstr "注記"
 
-#: exporter.py:89 widgets/efficiency/efficiency_widget.py:586
+#: exporter.py:89 widgets/efficiency/efficiency_widget.py:591
 #: widgets/signal_record/signal_record_config_widget.py:241
 #: widgets/signal_record/signal_record_config_widget.py:268
 #: widgets/statistics_record/statistics_record_config_widget.py:173
@@ -390,7 +390,7 @@ msgid ""
 "exported data."
 msgstr "データを JLS ファイルにエクスポートします。このファイルを後で開いて、エクスポートしたデータを表示することができます。"
 
-#: exporter.py:311 widgets/efficiency/efficiency_widget.py:603
+#: exporter.py:311 widgets/efficiency/efficiency_widget.py:608
 msgid "Export failed"
 msgstr "エクスポートに失敗しました"
 
@@ -672,7 +672,7 @@ msgstr "最近のオープン"
 msgid "Config"
 msgstr "構成"
 
-#: main.py:458 main.py:508 widgets/efficiency/efficiency_widget.py:630
+#: main.py:458 main.py:508 widgets/efficiency/efficiency_widget.py:635
 #: widgets/waveform/waveform_widget.py:4260
 msgid "Export"
 msgstr "輸出"
@@ -2192,7 +2192,7 @@ msgstr "このオプションを選択すると、新しいデータが無視さ
 
 #: widgets/efficiency/efficiency_control.py:27
 #: widgets/efficiency/efficiency_control.py:53
-#: widgets/efficiency/efficiency_widget.py:633
+#: widgets/efficiency/efficiency_widget.py:638
 #: widgets/memory/memory_widget.py:238 widgets/spectrum/spectrum_control.py:33
 #: widgets/spectrum/spectrum_control.py:68
 #: widgets/spectrum/spectrum_widget.py:1080
@@ -2245,21 +2245,21 @@ msgid "Enable the instrument signals that this widget needs."
 msgstr "このウィジェットに必要な機器の信号を有効にしてください。"
 
 #: widgets/efficiency/efficiency_control.py:52
-#: widgets/efficiency/efficiency_widget.py:725
+#: widgets/efficiency/efficiency_widget.py:737
 #: widgets/spectrum/spectrum_control.py:67
 #: widgets/spectrum/spectrum_widget.py:1196 widgets/value/value_widget.py:257
 msgid "Hold"
 msgstr "ホールド"
 
-#: widgets/efficiency/efficiency_plot.py:214
+#: widgets/efficiency/efficiency_plot.py:215
 msgid "invalid"
 msgstr "無効"
 
-#: widgets/efficiency/efficiency_plot.py:283
+#: widgets/efficiency/efficiency_plot.py:288
 msgid "Waiting for steady load"
 msgstr "負荷が安定するのを待機中"
 
-#: widgets/efficiency/efficiency_plot.py:343
+#: widgets/efficiency/efficiency_plot.py:348
 #, python-brace-format
 msgid "{0} windows, {1}"
 msgstr "{0} ウィンドウ、{1}"
@@ -2430,89 +2430,94 @@ msgstr "効率曲線を保持する"
 msgid "The pane sizes."
 msgstr "ペインのサイズ。"
 
-#: widgets/efficiency/efficiency_widget.py:563
+#: widgets/efficiency/efficiency_widget.py:568
 msgid "input"
 msgstr "入力"
 
-#: widgets/efficiency/efficiency_widget.py:564
+#: widgets/efficiency/efficiency_widget.py:569
 msgid "output"
 msgstr "出力"
 
-#: widgets/efficiency/efficiency_widget.py:565
+#: widgets/efficiency/efficiency_widget.py:570
 msgid "window"
 msgstr "window"
 
-#: widgets/efficiency/efficiency_widget.py:577
+#: widgets/efficiency/efficiency_widget.py:582
 msgid "curve window"
 msgstr "波形ウィンドウ"
 
-#: widgets/efficiency/efficiency_widget.py:578
+#: widgets/efficiency/efficiency_widget.py:583
 msgid "steady threshold"
 msgstr "定常しきい値"
 
-#: widgets/efficiency/efficiency_widget.py:618
+#: widgets/efficiency/efficiency_widget.py:623
 msgid "Swap input and output"
 msgstr "入力と出力の切り替え"
 
-#: widgets/efficiency/efficiency_widget.py:631
+#: widgets/efficiency/efficiency_widget.py:636
 msgid "Efficiency vs time (CSV)"
 msgstr "効率対時間 (CSV)"
 
-#: widgets/efficiency/efficiency_widget.py:632
+#: widgets/efficiency/efficiency_widget.py:637
 msgid "Efficiency curve (CSV)"
 msgstr "効率曲線（CSV）"
 
-#: widgets/efficiency/efficiency_widget.py:714
+#: widgets/efficiency/efficiency_widget.py:723
+#, python-brace-format
+msgid "{0} {1} is not connected"
+msgstr "{0} {1}は接続されていません"
+
+#: widgets/efficiency/efficiency_widget.py:726
 msgid "Select the input and output instruments"
 msgstr "入力および出力の計測器を選択してください"
 
-#: widgets/efficiency/efficiency_widget.py:717
+#: widgets/efficiency/efficiency_widget.py:729
 msgid "Select different input and output instruments"
 msgstr "さまざまな入力・出力計測器を選択"
 
-#: widgets/efficiency/efficiency_widget.py:722
+#: widgets/efficiency/efficiency_widget.py:734
 #, python-brace-format
 msgid "Disabled: {0}"
 msgstr "無効: {0}"
 
-#: widgets/efficiency/efficiency_widget.py:727
+#: widgets/efficiency/efficiency_widget.py:739
 msgid "Curve hold"
 msgstr "カーブホールド"
 
-#: widgets/efficiency/efficiency_widget.py:729
+#: widgets/efficiency/efficiency_widget.py:741
 #: widgets/spectrum/spectrum_widget.py:1198
 msgid "Paused"
 msgstr "一時停止"
 
-#: widgets/efficiency/efficiency_widget.py:736
+#: widgets/efficiency/efficiency_widget.py:748
 #, python-brace-format
 msgid "No data from {0}"
 msgstr "{0}からのデータはありません"
 
-#: widgets/efficiency/efficiency_widget.py:739
+#: widgets/efficiency/efficiency_widget.py:751
 msgid "JS110 input includes its burden voltage"
 msgstr "JS110の入力には、その負荷電圧が含まれています"
 
-#: widgets/efficiency/efficiency_widget.py:742
+#: widgets/efficiency/efficiency_widget.py:754
 msgid "Efficiency above 100%: swap input and output?"
 msgstr "100%を超える効率：入力と出力を入れ替えたのか？"
 
-#: widgets/efficiency/efficiency_widget.py:747
+#: widgets/efficiency/efficiency_widget.py:759
 #, python-brace-format
 msgid "{0} windows"
 msgstr "{0} ウィンドウ"
 
-#: widgets/efficiency/efficiency_widget.py:749
+#: widgets/efficiency/efficiency_widget.py:761
 #, python-brace-format
 msgid "{0} invalid"
 msgstr "{0} 無効"
 
-#: widgets/efficiency/efficiency_widget.py:751
+#: widgets/efficiency/efficiency_widget.py:763
 #, python-brace-format
 msgid "{0} unsteady"
 msgstr "{0} 非定常"
 
-#: widgets/efficiency/efficiency_widget.py:754
+#: widgets/efficiency/efficiency_widget.py:766
 #: widgets/spectrum/spectrum_widget.py:1212
 #, python-brace-format
 msgid "overruns {0}"

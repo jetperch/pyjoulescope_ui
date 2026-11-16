@@ -183,6 +183,22 @@ class TestSignalIntegrator(unittest.TestCase):
         self.assertAlmostEqual(0.01, x.integral(t_gap1 + 0.01, t_gap1 + 0.02), delta=1e-9)
         self.assertAlmostEqual(0.01, x.integral(t_gap0 - 0.02, t_gap0 - 0.01), delta=1e-9)
 
+    def test_nan_samples_are_gaps(self):
+        s = js220(constant(1.0))
+        x = SignalIntegrator(T0_64)
+        msgs = s.until(0.3)
+        msgs[3]['data'][100:150] = np.nan  # 50 missing samples
+        msgs[7]['data'][-1] = np.inf
+        for msg in msgs:
+            x.push(msg)
+        t_nan = msgs[3]
+        t_nan0 = (t_nan['time_map']['offset_time'] - T0_64) / time64.SECOND + \
+            (t_nan['origin_sample_id'] - t_nan['time_map']['offset_counter']) / s.rate + 100 * s.dec / s.rate
+        self.assertIsNone(x.integral(t_nan0 - 0.001, t_nan0 + 0.001))
+        # data after the missing samples is not poisoned
+        self.assertAlmostEqual(0.05, x.integral(0.2, 0.25), delta=1e-9)
+        self.assertAlmostEqual(0.01, x.integral(t_nan0 - 0.011, t_nan0 - 0.001), delta=1e-9)
+
     def test_history_bounded(self):
         s = js220(constant(1.0))
         x = SignalIntegrator(T0_64, history=2.0)
@@ -364,6 +380,22 @@ class TestEfficiencyEngine(unittest.TestCase):
             if w['valid']:
                 self.assertAlmostEqual(0.9, w['efficiency'], delta=1e-7)
         self.assertEqual(len(invalid), e.totals['invalid'])
+        self.assertAlmostEqual(0.9, e.efficiency_cumulative, delta=1e-7)
+
+    def test_nan_window_invalid_then_recovers(self):
+        e = EfficiencyEngine(period=0.1)
+        streams = self._streams(constant(1.0), constant(0.9))
+        windows = feed(e, streams, 0.5)
+        msg = streams[0][2].next()  # one input chunk with missing samples
+        msg['data'][:] = np.nan
+        e.push('in', 'p', msg)
+        windows += feed(e, streams, 2.0)
+        invalid = [w for w in windows if not w['valid']]
+        self.assertGreaterEqual(len(invalid), 1)
+        self.assertLessEqual(len(invalid), 2)
+        for w in windows[-5:]:
+            self.assertTrue(w['valid'])
+            self.assertAlmostEqual(0.9, w['efficiency'], delta=1e-7)
         self.assertAlmostEqual(0.9, e.efficiency_cumulative, delta=1e-7)
 
     def test_missing_instrument(self):

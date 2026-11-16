@@ -118,7 +118,16 @@ class SignalIntegrator:
         if self._next_origin is not None and origin != self._next_origin and self._chunks:
             self._gaps.append((self._chunks[-1].t_end, t_start))
         self._next_origin = origin + n * dec
-        chunk = _Chunk(t_start, dt, np.asarray(data, dtype=np.float32), self._total)
+        data = np.asarray(data, dtype=np.float32)
+        missing = ~np.isfinite(data)
+        if np.any(missing):
+            # NaN marks samples the instrument could not measure: treat them
+            # as a gap, and keep them out of the running integral.
+            edges = np.diff(np.concatenate([[False], missing, [False]]).astype(np.int8))
+            for k0, k1 in zip(np.nonzero(edges == 1)[0], np.nonzero(edges == -1)[0]):
+                self._gaps.append((t_start + k0 * dt, t_start + k1 * dt))
+            data = np.where(missing, np.float32(0), data)
+        chunk = _Chunk(t_start, dt, data, self._total)
         self._total += chunk.cumsum[-1]
         self._chunks.append(chunk)
         self._starts.append(t_start)

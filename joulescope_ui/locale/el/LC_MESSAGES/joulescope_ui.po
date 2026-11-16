@@ -368,7 +368,7 @@ msgstr "Προβολή ως Markdown"
 msgid "Abort"
 msgstr "Διακοπή"
 
-#: error_window.py:120 main.py:466 widgets/efficiency/efficiency_widget.py:619
+#: error_window.py:120 main.py:466 widgets/efficiency/efficiency_widget.py:624
 #: widgets/settings/settings_widget.py:539
 #: widgets/spectrum/spectrum_widget.py:1064
 msgid "View"
@@ -411,7 +411,7 @@ msgstr "Όνομα αρχείου"
 msgid "Notes"
 msgstr "Σημειώσεις"
 
-#: exporter.py:89 widgets/efficiency/efficiency_widget.py:586
+#: exporter.py:89 widgets/efficiency/efficiency_widget.py:591
 #: widgets/signal_record/signal_record_config_widget.py:241
 #: widgets/signal_record/signal_record_config_widget.py:268
 #: widgets/statistics_record/statistics_record_config_widget.py:173
@@ -438,7 +438,7 @@ msgstr ""
 "Εξαγωγή δεδομένων σε αρχείο JLS. Μπορείτε να ανοίξετε αυτό το αρχείο "
 "αργότερα για να εμφανίσετε τα εξαγόμενα δεδομένα."
 
-#: exporter.py:311 widgets/efficiency/efficiency_widget.py:603
+#: exporter.py:311 widgets/efficiency/efficiency_widget.py:608
 msgid "Export failed"
 msgstr "Η εξαγωγή απέτυχε"
 
@@ -753,7 +753,7 @@ msgstr "Ανοικτό πρόσφατα"
 msgid "Config"
 msgstr "Διαμόρφωση"
 
-#: main.py:458 main.py:508 widgets/efficiency/efficiency_widget.py:630
+#: main.py:458 main.py:508 widgets/efficiency/efficiency_widget.py:635
 #: widgets/waveform/waveform_widget.py:4260
 msgid "Export"
 msgstr "Εξαγωγή"
@@ -2430,7 +2430,7 @@ msgstr ""
 
 #: widgets/efficiency/efficiency_control.py:27
 #: widgets/efficiency/efficiency_control.py:53
-#: widgets/efficiency/efficiency_widget.py:633
+#: widgets/efficiency/efficiency_widget.py:638
 #: widgets/memory/memory_widget.py:238 widgets/spectrum/spectrum_control.py:33
 #: widgets/spectrum/spectrum_control.py:68
 #: widgets/spectrum/spectrum_widget.py:1080
@@ -2487,21 +2487,21 @@ msgid "Enable the instrument signals that this widget needs."
 msgstr "Ενεργοποιήστε τα σήματα του οργάνου που απαιτεί αυτό το widget."
 
 #: widgets/efficiency/efficiency_control.py:52
-#: widgets/efficiency/efficiency_widget.py:725
+#: widgets/efficiency/efficiency_widget.py:737
 #: widgets/spectrum/spectrum_control.py:67
 #: widgets/spectrum/spectrum_widget.py:1196 widgets/value/value_widget.py:257
 msgid "Hold"
 msgstr "Hold"
 
-#: widgets/efficiency/efficiency_plot.py:214
+#: widgets/efficiency/efficiency_plot.py:215
 msgid "invalid"
 msgstr "μη έγκυρο"
 
-#: widgets/efficiency/efficiency_plot.py:283
+#: widgets/efficiency/efficiency_plot.py:288
 msgid "Waiting for steady load"
 msgstr "Αναμονή για σταθερό φορτίο"
 
-#: widgets/efficiency/efficiency_plot.py:343
+#: widgets/efficiency/efficiency_plot.py:348
 #, python-brace-format
 msgid "{0} windows, {1}"
 msgstr "{0} παράθυρα, {1}"
@@ -2684,89 +2684,94 @@ msgstr "Διατήρηση της καμπύλης απόδοσης"
 msgid "The pane sizes."
 msgstr "Τα μεγέθη των παραθύρων."
 
-#: widgets/efficiency/efficiency_widget.py:563
+#: widgets/efficiency/efficiency_widget.py:568
 msgid "input"
 msgstr "εισόδου"
 
-#: widgets/efficiency/efficiency_widget.py:564
+#: widgets/efficiency/efficiency_widget.py:569
 msgid "output"
 msgstr "έξοδος"
 
-#: widgets/efficiency/efficiency_widget.py:565
+#: widgets/efficiency/efficiency_widget.py:570
 msgid "window"
 msgstr "παράθυρο"
 
-#: widgets/efficiency/efficiency_widget.py:577
+#: widgets/efficiency/efficiency_widget.py:582
 msgid "curve window"
 msgstr "παράθυρο καμπύλης"
 
-#: widgets/efficiency/efficiency_widget.py:578
+#: widgets/efficiency/efficiency_widget.py:583
 msgid "steady threshold"
 msgstr "σταθερό όριο"
 
-#: widgets/efficiency/efficiency_widget.py:618
+#: widgets/efficiency/efficiency_widget.py:623
 msgid "Swap input and output"
 msgstr "Ανταλλαγή εισόδου και εξόδου"
 
-#: widgets/efficiency/efficiency_widget.py:631
+#: widgets/efficiency/efficiency_widget.py:636
 msgid "Efficiency vs time (CSV)"
 msgstr "Απόδοση έναντι χρόνου (CSV)"
 
-#: widgets/efficiency/efficiency_widget.py:632
+#: widgets/efficiency/efficiency_widget.py:637
 msgid "Efficiency curve (CSV)"
 msgstr "Καμπύλη απόδοσης (CSV)"
 
-#: widgets/efficiency/efficiency_widget.py:714
+#: widgets/efficiency/efficiency_widget.py:723
+#, python-brace-format
+msgid "{0} {1} is not connected"
+msgstr "{0} {1} δεν είναι συνδεδεμένο"
+
+#: widgets/efficiency/efficiency_widget.py:726
 msgid "Select the input and output instruments"
 msgstr "Επιλέξτε τα όργανα εισόδου και εξόδου"
 
-#: widgets/efficiency/efficiency_widget.py:717
+#: widgets/efficiency/efficiency_widget.py:729
 msgid "Select different input and output instruments"
 msgstr "Επιλέξτε διαφορετικά όργανα εισόδου και εξόδου"
 
-#: widgets/efficiency/efficiency_widget.py:722
+#: widgets/efficiency/efficiency_widget.py:734
 #, python-brace-format
 msgid "Disabled: {0}"
 msgstr "Απενεργοποιημένο: {0}"
 
-#: widgets/efficiency/efficiency_widget.py:727
+#: widgets/efficiency/efficiency_widget.py:739
 msgid "Curve hold"
 msgstr "Διατήρηση καμπύλης"
 
-#: widgets/efficiency/efficiency_widget.py:729
+#: widgets/efficiency/efficiency_widget.py:741
 #: widgets/spectrum/spectrum_widget.py:1198
 msgid "Paused"
 msgstr "Παύση"
 
-#: widgets/efficiency/efficiency_widget.py:736
+#: widgets/efficiency/efficiency_widget.py:748
 #, python-brace-format
 msgid "No data from {0}"
 msgstr "Δεν υπάρχουν δεδομένα από το {0}"
 
-#: widgets/efficiency/efficiency_widget.py:739
+#: widgets/efficiency/efficiency_widget.py:751
 msgid "JS110 input includes its burden voltage"
 msgstr "Η είσοδος του JS110 περιλαμβάνει την τάση φορτίου του"
 
-#: widgets/efficiency/efficiency_widget.py:742
+#: widgets/efficiency/efficiency_widget.py:754
 msgid "Efficiency above 100%: swap input and output?"
 msgstr "Απόδοση άνω του 100%: ανταλλαγή εισόδου και εξόδου;"
 
-#: widgets/efficiency/efficiency_widget.py:747
+#: widgets/efficiency/efficiency_widget.py:759
 #, python-brace-format
 msgid "{0} windows"
 msgstr "{0} παράθυρα"
 
-#: widgets/efficiency/efficiency_widget.py:749
+#: widgets/efficiency/efficiency_widget.py:761
 #, python-brace-format
 msgid "{0} invalid"
 msgstr "{0} μη έγκυρο"
 
-#: widgets/efficiency/efficiency_widget.py:751
+#: widgets/efficiency/efficiency_widget.py:763
 #, python-brace-format
 msgid "{0} unsteady"
 msgstr "{0} μη σταθερό"
 
-#: widgets/efficiency/efficiency_widget.py:754
+#: widgets/efficiency/efficiency_widget.py:766
 #: widgets/spectrum/spectrum_widget.py:1212
 #, python-brace-format
 msgid "overruns {0}"
