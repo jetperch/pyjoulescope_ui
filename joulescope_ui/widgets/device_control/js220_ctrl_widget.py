@@ -578,7 +578,7 @@ class Js220CtrlWidget(QtWidgets.QWidget):
         w = CurrentLimits(self)
         topic = f'{get_topic_name(self.unique_id)}/settings/{name}'
         self._control_widgets[name] = w
-        adapter = CallableSlotAdapter(w, lambda v0, v1: self.pubsub.publish(topic, [v0, v1]))
+        adapter = CallableSlotAdapter(w, lambda v0, v1: self.pubsub.publish(topic, sorted([v0, v1])))  # [low, high], as the default
         w.values_changed.connect(adapter.slot)
 
         # The predict marker shares the CurrentLimits slider but is a separate setting.

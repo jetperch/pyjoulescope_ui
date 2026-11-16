@@ -96,7 +96,12 @@ class CurrentLimits(QtWidgets.QWidget):
         self.slider.values = value
 
     def values_set(self, value):
-        self.values = value
+        """Set the current_range_limits setting value.
+
+        :param value: The [index, index] pair in either order.  The
+            setting stores [low, high], and this widget shows [high, low].
+        """
+        self.values = sorted(value, reverse=True)
 
     @property
     def predict(self):
