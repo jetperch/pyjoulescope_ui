@@ -437,6 +437,19 @@ class TestEfficiencyWidget(unittest.TestCase):
         plot.grab()
         self.assertIn('windows', plot.hover_lines(self.w.curve_bins()[0])[2])
 
+    def test_curve_narrow_log_axis_has_labels(self):
+        # all load within one bin: the log axis must still label ticks
+        from joulescope_ui.widgets.waveform import axis_ticks
+        plot = self.w._curve_plot
+        bins = [{'x_min': 0.0322, 'x_max': 0.0341}, {'x_min': 0.0341, 'x_max': 0.0361}]
+        x0, x1 = plot.x_view(bins)
+        self.assertLessEqual(x0, 0.0322 / 1.2)
+        self.assertGreaterEqual(x1, 0.0361 * 1.2)
+        self.assertAlmostEqual(10.0, x1 / x0)
+        self.assertGreaterEqual(len(axis_ticks.log_ticks(x0, x1)['labels']), 2)
+        wide = [{'x_min': 1e-5, 'x_max': 0.3}]
+        self.assertEqual((1e-5 / 1.2, 0.3 * 1.2), plot.x_view(wide))
+
     def test_curve_power_axis(self):
         self.p.publish(f'{self.w.topic}/settings/curve_x', 'power')
         self.assertNotIn(('out', 'i'), self.w._data_topics)  # not needed without show_vi

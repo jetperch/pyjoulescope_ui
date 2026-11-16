@@ -21,6 +21,7 @@ from joulescope_ui.widgets import plot_base
 from joulescope_ui.widgets.waveform import axis_ticks
 from joulescope_ui.widgets.waveform.line_segments import PointsF
 from .efficiency_readout import efficiency_str, value_str
+import math
 import numpy as np
 
 
@@ -254,7 +255,11 @@ class CurvePlot(_PlotBase):
         lo = min(b['x_min'] for b in bins)
         hi = max(b['x_max'] for b in bins)
         if self.x_log():
-            return lo / 1.2, hi * 1.2
+            lo, hi = lo / 1.2, hi * 1.2
+            if hi < 10 * lo:  # a full decade always has labeled 1, 2, 5 ticks
+                center = math.sqrt(lo * hi)
+                lo, hi = center / math.sqrt(10), center * math.sqrt(10)
+            return lo, hi
         span = max(hi - lo, abs(hi) * 1e-3, 1e-12)
         return max(0.0, lo - 0.05 * span) if lo >= 0 else lo - 0.05 * span, hi + 0.05 * span
 
