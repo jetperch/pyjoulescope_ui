@@ -17,16 +17,20 @@
 # target architecture).
 
 appnope>=0.1.2,<1
-pyjoulescope_driver>=2.2.9,<3
-joulescope>=1.5.0,<2
+pyjoulescope_driver>=2.5.7,<3
+joulescope>=1.7.3,<2
+joulescope_event_analyzer>=0.1.0,<1
 markdown>=3,<4
 psutil>=5,<8
-pyjls>=0.17.0,<1
+pyjls>=0.19.1,<1
 pyopengl>=3,<4
 pyqtgraph>=0.14.0,<1
 pyserial>=3,<4
-PySide6>=6.11.1,<7
-PySide6-QtAds>=4.5.0.5,<5
+# PySide6 6.12 adds PySide6_WebEngine and PySide6_Pdf dependencies that
+# flatpak-pip-generator cannot pin (platform-only wheels); hold 6.11 until
+# the Flatpak build is updated for them.  QtAds 5.0.x matches PySide6 6.11.1.
+PySide6>=6.11.1,<6.12
+PySide6-QtAds>=5.0.0.2,<5.1
 QtPy>=2,<3
 requests>=2,<3
 watchdog>=6,<7
