@@ -1,6 +1,7 @@
 # Proposal: reset settings in the Settings widget
 
-Status: PROPOSAL for discussion, 2026-11-16.  No code yet.  Follows
+Status: DONE 2026-11-16 on branch `feature/settings_reset`; Matt
+approved all recommendations.  Follows
 [widget_default_colors.md](widget_default_colors.md).
 
 
@@ -153,3 +154,28 @@ Stages, each buildable and reviewable on its own:
    defaults instead of the factory defaults?
 6. Include per-setting reset and the modified indicator (stage 4)?
 7. Ship in 1.8.1 with the colors fix, or in a later release?
+
+
+## Result (2026-11-16)
+
+All stages implemented as recommended, with these details:
+
+* `joulescope_ui/settings_reset.py`: `reset_values`, `modified` and the
+  `registry/settings/actions/!reset` command (on `SettingsWidget`).  Devices
+  include their hidden settings (signal enables, fuses, target power),
+  which are configuration, not widget state.
+* Reset button: a `QToolButton` corner widget with the current tab's reset
+  and **Reset to defaults…**.  Row resets: right-click on the name label.
+* The remote Qt interface gained a `context_menu` action, since `click`
+  sends only mouse events.  Under GNOME Wayland, popups from synthetic
+  input fail ("Failed to create grabbing popup"); run the UI with
+  `QT_QPA_PLATFORM=xcb` for automated menu tests.
+* Found and fixed: the device control `CurrentLimits` slider republished
+  `current_range_limits` as [high, low], so a [0, 5] reset never stuck.
+
+Verified in the running UI (isolated `HOME`, JS220 and JS320 connected):
+tree menu text for each entry kind; Waveform defaults factory reset with
+confirmation, live re-render, then one Ctrl+Z restore; one-tab View
+defaults Colors reset; JS320 device control reset to the JS320 defaults
+(name kept, closed, reopened and streaming), then undo while open; bold
+names and a one-row reset.

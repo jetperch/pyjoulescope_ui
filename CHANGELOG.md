@@ -40,6 +40,19 @@ This file contains the list of changes made to pyjoulescope_ui.
   and new widget of that type, except for colors changed on the widget
   itself, and they persist across restarts.  New widgets no longer copy the
   default colors into their own settings.
+* Added Reset to the Settings widget.  Right-click an item in the tree
+  for "Reset to defaults…", which resets a device, widget or view to its
+  defaults, or "Reset to factory defaults…" for the defaults themselves.
+  The Reset button at the end of the tabs, or a tab right-click, resets one
+  tab.  Names that differ from their defaults show in bold, and a
+  right-click on a name resets that one setting, color, font or define.
+  Ctrl+Z undoes a reset.  The TCP server gained a context_menu action to
+  test these menus.
+* Changed the Device control "Reset to defaults" button to use the device
+  defaults from the Settings widget, rather than the factory defaults, and
+  to keep the device name.
+* Fixed the Device control current range limits slider rewriting the
+  limits in reverse order.
 * Added optional Waveform anti-aliasing (#356).  When zoomed out, a short
   pulse no longer flickers in the average trace as the plot scrolls.  The
   mean-preserving filter applies to the displayed average only.  Enable
