@@ -76,7 +76,7 @@ class _GridWidget(QtWidgets.QWidget):
     def _name_label(self, name):
         """Create the row name label, which shows and resets modified rows.
 
-        See docs/plans/settings_reset.md.
+        See docs/plans/completed/settings_reset.md.
         """
         label = QtWidgets.QLabel(name, self)
         label.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.CustomContextMenu)
@@ -558,7 +558,7 @@ def _is_resettable(unique_id):
 
 
 def _reset_text(pubsub, unique_id, tab=None, one=False):
-    """The reset action text, see docs/plans/settings_reset.md."""
+    """The reset action text, see docs/plans/completed/settings_reset.md."""
     factory = settings_reset.base_topic(pubsub, unique_id) is None
     if one:
         return N_('Reset to factory default') if factory else N_('Reset to default')

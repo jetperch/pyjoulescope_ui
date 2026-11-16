@@ -17,7 +17,7 @@
 An instance of a widget, device or view resets to its class: the defaults
 the user edits in the Settings widget.  A class, or an instance with no
 editable class, resets to the factory defaults in SETTINGS.
-See docs/plans/settings_reset.md.
+See docs/plans/completed/settings_reset.md.
 """
 
 from joulescope_ui import get_topic_name, get_unique_id
