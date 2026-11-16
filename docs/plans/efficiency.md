@@ -388,8 +388,11 @@ on its own.  Run `python ci/translations.py --preserve-create-date
    site): `source/theory/efficiency.md` with the wiring figure from
    `scripts/theory_efficiency_figures.py` (block diagram helpers moved to
    `scripts/diagram_util.py`, now byte-stable); UI guide revision 1.8 with
-   chapter 6 `software/joulescope_ui/efficiency.md` and a screenshot
-   rendered from an example converter loss model; CHANGELOG entry here.
+   a new chapter 6 Widgets (Matt, 2026-11-16): Meet the Joulescope UI
+   keeps the basics, and `software/joulescope_ui/widgets/` documents
+   Multimeter, Waveform, Trigger, Spectrum (previously undocumented) and
+   Efficiency, whose screenshot is rendered from an example converter loss
+   model; CHANGELOG entry here.
    Merge the docs branch only once the UI release with the widget is out.
 7. **Hardware verification** (on the agent bench):
    - Null test: the bench ADP3450 drives JS220 and JS320 with currents in
