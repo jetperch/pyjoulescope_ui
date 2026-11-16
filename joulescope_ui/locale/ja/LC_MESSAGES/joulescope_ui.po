@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-15 03:59-0500\n"
+"POT-Creation-Date: 2026-11-16 13:26-0500\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: ja <LL@li.org>\n"
@@ -53,7 +53,7 @@ msgid ""
 "must prevent excessive backwards current."
 msgstr "JS110はIN+からOUT+への電流を切断しますが、システムのセットアップでは過大な逆方向電流を防止する必要があります。"
 
-#: app.py:61 widgets/device_control/js220_ctrl_widget.py:51
+#: app.py:61 widgets/device_control/js220_ctrl_widget.py:52
 msgid "Fuse engaged indicator"
 msgstr "ヒューズ作動インジケーター"
 
@@ -65,7 +65,7 @@ msgid ""
 msgstr ""
 "このインジケータは、接続された計器のうち少なくとも1台にヒューズが接続されている場合にアクティブになります。ヒューズが作動している機器は、解除されるまで電流が流れません。"
 
-#: app.py:66 widgets/device_control/js220_ctrl_widget.py:56
+#: app.py:66 widgets/device_control/js220_ctrl_widget.py:57
 msgid "Press to clear."
 msgstr "を押してクリアします。"
 
@@ -323,7 +323,7 @@ msgid "Abort"
 msgstr "中止"
 
 #: error_window.py:120 main.py:466 widgets/efficiency/efficiency_widget.py:624
-#: widgets/settings/settings_widget.py:539
+#: widgets/settings/settings_widget.py:659
 #: widgets/spectrum/spectrum_widget.py:1064
 msgid "View"
 msgstr "表示"
@@ -693,7 +693,7 @@ msgstr "クリアおよび再起動"
 msgid "Clear and exit"
 msgstr "明確で分かりやすい"
 
-#: main.py:467 widgets/settings/settings_widget.py:541
+#: main.py:467 widgets/settings/settings_widget.py:661
 msgid "Widgets"
 msgstr "ウィジェット"
 
@@ -705,8 +705,8 @@ msgstr "ツール"
 msgid "Info"
 msgstr "情報"
 
-#: main.py:503 widget_tools.py:119 widgets/settings/settings_widget.py:31
-#: widgets/settings/settings_widget.py:574
+#: main.py:503 widget_tools.py:119 widgets/settings/settings_widget.py:32
+#: widgets/settings/settings_widget.py:694
 #: widgets/sidebar/sidebar_widget.py:42
 msgid "Settings"
 msgstr "設定"
@@ -1001,7 +1001,7 @@ msgstr ""
 #: devices/jsdrv/js220.py:106 devices/jsdrv/js220.py:136
 #: devices/jsdrv/js320.py:102 devices/jsdrv/js320.py:132
 #: devices/serial/serial_device.py:45 devices/serial/serial_device.py:69
-#: widgets/device_control/js220_ctrl_widget.py:36
+#: widgets/device_control/js220_ctrl_widget.py:37
 msgid "Device information"
 msgstr "デバイス情報"
 
@@ -1571,10 +1571,10 @@ msgstr "汎用入出力端子の基準電圧を設定してください。"
 #: devices/jsdrv/jsdrv_stream_buffer.py:93
 #: devices/jsdrv/jsdrv_stream_buffer.py:107
 #: devices/serial/serial_port_dialog.py:46 plugins/selector.py:58
-#: widgets/settings/settings_widget.py:85
-#: widgets/settings/settings_widget.py:266
-#: widgets/settings/settings_widget.py:364
-#: widgets/settings/settings_widget.py:431
+#: widgets/settings/settings_widget.py:142
+#: widgets/settings/settings_widget.py:334
+#: widgets/settings/settings_widget.py:441
+#: widgets/settings/settings_widget.py:515
 #: widgets/waveform/waveform_widget.py:3820
 msgid "Name"
 msgstr "名称"
@@ -2079,36 +2079,36 @@ msgstr "時間"
 msgid "Fuse"
 msgstr "ヒューズ"
 
-#: widgets/device_control/js220_ctrl_widget.py:31
+#: widgets/device_control/js220_ctrl_widget.py:32
 msgid "Device documentation"
 msgstr "デバイス・ドキュメント"
 
-#: widgets/device_control/js220_ctrl_widget.py:32
+#: widgets/device_control/js220_ctrl_widget.py:33
 msgid "Click to display the device documentation PDF."
 msgstr "クリックするとデバイス・ドキュメントのPDFが表示されます。"
 
-#: widgets/device_control/js220_ctrl_widget.py:37
+#: widgets/device_control/js220_ctrl_widget.py:38
 msgid "Click to display detailed information about the device."
 msgstr "クリックすると、デバイスの詳細情報が表示されます。"
 
-#: widgets/device_control/js220_ctrl_widget.py:41
+#: widgets/device_control/js220_ctrl_widget.py:42
 msgid "Select this device as the default"
 msgstr "このデバイスをデフォルトとして選択"
 
-#: widgets/device_control/js220_ctrl_widget.py:43
+#: widgets/device_control/js220_ctrl_widget.py:44
 msgid ""
 "When selected, this device because the default. All widgets using the "
 "default device will use the data provided by this device."
 msgstr ""
 "選択すると、このデバイスがデフォルトになります。デフォルト・デバイスを使用するすべてのウィジェットは、このデバイスが提供するデータを使用します。"
 
-#: widgets/device_control/js220_ctrl_widget.py:45
+#: widgets/device_control/js220_ctrl_widget.py:46
 msgid ""
 "When unselected, another device is the default. Widgets can still be "
 "configured to use data from this device."
 msgstr "選択されていない場合は、別のデバイスがデフォルトとなります。ウィジェットはこのデバイスからのデータを使用するように設定できます。"
 
-#: widgets/device_control/js220_ctrl_widget.py:53
+#: widgets/device_control/js220_ctrl_widget.py:54
 msgid ""
 "This indicator becomes active when this device has at least one engaged "
 "fuse. Engaged fuses prevent current flow until cleared."
@@ -2116,11 +2116,11 @@ msgstr ""
 "このインジケータは、このデバイスに少なくとも 1 "
 "つのヒューズが接続されている場合にアクティブになります。作動したヒューズは、クリアされるまで電流が流れなくなります。"
 
-#: widgets/device_control/js220_ctrl_widget.py:61
+#: widgets/device_control/js220_ctrl_widget.py:62
 msgid "Open and close the device"
 msgstr "デバイスの開閉"
 
-#: widgets/device_control/js220_ctrl_widget.py:63
+#: widgets/device_control/js220_ctrl_widget.py:64
 msgid ""
 "When closed, click to attempt to open the device. The icon will only change "
 "on a successful device open. Only one application can use a Joulescope "
@@ -2128,25 +2128,31 @@ msgid ""
 msgstr ""
 "閉じている場合は、クリックしてデバイスを開こうとします。アイコンは、デバイスのオープンに成功した場合のみ変化します。Joulescopeデバイスを一度に使用できるのは1つのアプリケーションのみです。"
 
-#: widgets/device_control/js220_ctrl_widget.py:66
+#: widgets/device_control/js220_ctrl_widget.py:67
 msgid ""
 "When open, click to close the device. This allows the device to be used in "
 "other programs."
 msgstr "開いているときは、クリックしてデバイスを閉じます。これにより、デバイスを他のプログラムで使用することができます。"
 
-#: widgets/device_control/js220_ctrl_widget.py:72
-msgid "Reset to default settings"
-msgstr "デフォルト設定にリセット"
-
 #: widgets/device_control/js220_ctrl_widget.py:73
-msgid "Click this button to reset this device to the default settings"
-msgstr "このボタンをクリックすると、このデバイスがデフォルト設定にリセットされます。"
+#: widgets/device_control/js220_ctrl_widget.py:654
+#: widgets/settings/settings_widget.py:566
+msgid "Reset to defaults"
+msgstr "デフォルトにリセット"
 
-#: widgets/device_control/js220_ctrl_widget.py:77
+#: widgets/device_control/js220_ctrl_widget.py:74
+msgid ""
+"Click this button to close this device and reset its settings to the device "
+"defaults. Edit the device defaults in the Settings widget under Devices. "
+"Undo restores the previous settings."
+msgstr ""
+"このボタンをクリックすると、このデバイスが閉じられ、設定がデフォルト値にリセットされます。デバイスのデフォルト設定は、「デバイス」の下にある「設定」ウィジェットで編集できます。「元に戻す」を選択すると、前の設定に戻ります。"
+
+#: widgets/device_control/js220_ctrl_widget.py:80
 msgid "Clear accumulators"
 msgstr "クリアなアキュムレータ"
 
-#: widgets/device_control/js220_ctrl_widget.py:78
+#: widgets/device_control/js220_ctrl_widget.py:81
 msgid ""
 "Click this button to clear the charge and energy accumulators. The "
 "\"Accrue\" feature of the value display widgets, including the multimeter, "
@@ -2155,12 +2161,12 @@ msgstr ""
 "このボタンをクリックすると、チャージおよびエネ ルギー・アキュムレータがクリアされます。マルチメータを含む値表示ウィジェットの \"Accrue "
 "\"機能は影響を受けません。"
 
-#: widgets/device_control/js220_ctrl_widget.py:84
-#: widgets/device_control/js220_ctrl_widget.py:666
+#: widgets/device_control/js220_ctrl_widget.py:87
+#: widgets/device_control/js220_ctrl_widget.py:669
 msgid "Calibrate"
 msgstr "校正"
 
-#: widgets/device_control/js220_ctrl_widget.py:85
+#: widgets/device_control/js220_ctrl_widget.py:88
 msgid ""
 "Click this button to recalibrate your Joulescope JS220. Recalibration is not"
 " required for normal operation. Performing calibration can improve accuracy "
@@ -2169,15 +2175,11 @@ msgstr ""
 "Joulescope "
 "JS220を再校正するには、このボタンをクリックしてください。通常の操作では再校正は必要ありません。校正を行うことで、既存の温度や経年劣化の影響を考慮し、精度を向上させることができます。"
 
-#: widgets/device_control/js220_ctrl_widget.py:443
+#: widgets/device_control/js220_ctrl_widget.py:446
 msgid "GPO"
 msgstr "GPO"
 
-#: widgets/device_control/js220_ctrl_widget.py:651
-msgid "Reset to defaults"
-msgstr "デフォルトにリセット"
-
-#: widgets/device_control/js220_ctrl_widget.py:657
+#: widgets/device_control/js220_ctrl_widget.py:660
 msgid "Clear accum"
 msgstr "クリアアキュム"
 
@@ -2874,45 +2876,80 @@ msgstr "波形の注釈"
 msgid "External Serial..."
 msgstr "外部シリアル..."
 
-#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:797
+#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:797
 msgid "Value"
 msgstr "値"
 
-#: widgets/settings/settings_widget.py:268
+#: widgets/settings/settings_widget.py:336
 msgid "Color"
 msgstr "カラー"
 
-#: widgets/settings/settings_widget.py:366
+#: widgets/settings/settings_widget.py:443
 msgid "Font"
 msgstr "フォント"
 
-#: widgets/settings/settings_widget.py:433
+#: widgets/settings/settings_widget.py:517
 msgid "Define"
 msgstr "定義"
 
-#: widgets/settings/settings_widget.py:535
+#: widgets/settings/settings_widget.py:564
+msgid "Reset to factory default"
+msgstr "工場出荷時の設定にリセット"
+
+#: widgets/settings/settings_widget.py:564
+msgid "Reset to default"
+msgstr "デフォルト設定にリセット"
+
+#: widgets/settings/settings_widget.py:566
+msgid "Reset to factory defaults"
+msgstr "工場出荷時の設定にリセット"
+
+#: widgets/settings/settings_widget.py:568
+#, python-brace-format
+msgid "Reset {tab} to factory defaults"
+msgstr "{tab} を押して工場出荷時のデフォルト設定にリセット"
+
+#: widgets/settings/settings_widget.py:569
+#, python-brace-format
+msgid "Reset {tab} to defaults"
+msgstr "{tab} をデフォルト設定にリセット"
+
+#: widgets/settings/settings_widget.py:655
 msgid "Common"
 msgstr "共通"
 
-#: widgets/settings/settings_widget.py:538
+#: widgets/settings/settings_widget.py:658
 msgid "View defaults"
 msgstr "デフォルトを表示"
 
-#: widgets/settings/settings_widget.py:540
+#: widgets/settings/settings_widget.py:660
 msgid "Devices"
 msgstr "デバイス"
 
-#: widgets/settings/settings_widget.py:575
+#: widgets/settings/settings_widget.py:695
 msgid "Colors"
 msgstr "カラー"
 
-#: widgets/settings/settings_widget.py:576
+#: widgets/settings/settings_widget.py:696
 msgid "Fonts"
 msgstr "フォント"
 
-#: widgets/settings/settings_widget.py:577
+#: widgets/settings/settings_widget.py:697
 msgid "Defines"
 msgstr "定義"
+
+#: widgets/settings/settings_widget.py:715
+msgid "Reset"
+msgstr "リセット"
+
+#: widgets/settings/settings_widget.py:791
+#, python-brace-format
+msgid "Reset all settings for {name}?"
+msgstr "{name}の設定をすべてリセットしますか？"
+
+#: widgets/settings/settings_widget.py:792
+msgid "Undo restores them."
+msgstr "「元に戻す」で元に戻せます。"
 
 #: widgets/settings/unique_strings_widget.py:50
 msgid "Available"
@@ -4487,3 +4524,9 @@ msgstr "単位"
 #~ msgstr ""
 #~ "JS220では、電流ポートを電源と被試験デバイスの間に接続します。電圧ポートは電源に接続します。接続例についてはJoulescope "
 #~ "JS220ユーザーズガイドを参照してください。"
+
+#~ msgid "Reset to default settings"
+#~ msgstr "デフォルト設定にリセット"
+
+#~ msgid "Click this button to reset this device to the default settings"
+#~ msgstr "このボタンをクリックすると、このデバイスがデフォルト設定にリセットされます。"

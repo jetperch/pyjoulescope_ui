@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-15 03:59-0500\n"
+"POT-Creation-Date: 2026-11-16 13:26-0500\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: zh <LL@li.org>\n"
@@ -52,7 +52,7 @@ msgid ""
 "must prevent excessive backwards current."
 msgstr "JS110 可断开 IN+ 至 OUT+ 的电流，但系统设置必须防止过大的反向电流。"
 
-#: app.py:61 widgets/device_control/js220_ctrl_widget.py:51
+#: app.py:61 widgets/device_control/js220_ctrl_widget.py:52
 msgid "Fuse engaged indicator"
 msgstr "保险丝啮合指示器"
 
@@ -63,7 +63,7 @@ msgid ""
 "cleared."
 msgstr "当至少一个连接的仪器有保险丝啮合时，该指示灯变为激活状态。保险丝啮合的仪器会阻止电流流动，直到保险丝被清除。"
 
-#: app.py:66 widgets/device_control/js220_ctrl_widget.py:56
+#: app.py:66 widgets/device_control/js220_ctrl_widget.py:57
 msgid "Press to clear."
 msgstr "按下清除。"
 
@@ -318,7 +318,7 @@ msgid "Abort"
 msgstr "终止"
 
 #: error_window.py:120 main.py:466 widgets/efficiency/efficiency_widget.py:624
-#: widgets/settings/settings_widget.py:539
+#: widgets/settings/settings_widget.py:659
 #: widgets/spectrum/spectrum_widget.py:1064
 msgid "View"
 msgstr "查看"
@@ -683,7 +683,7 @@ msgstr "清除并重启"
 msgid "Clear and exit"
 msgstr "清晰且直观"
 
-#: main.py:467 widgets/settings/settings_widget.py:541
+#: main.py:467 widgets/settings/settings_widget.py:661
 msgid "Widgets"
 msgstr "小工具"
 
@@ -695,8 +695,8 @@ msgstr "工具"
 msgid "Info"
 msgstr "信息"
 
-#: main.py:503 widget_tools.py:119 widgets/settings/settings_widget.py:31
-#: widgets/settings/settings_widget.py:574
+#: main.py:503 widget_tools.py:119 widgets/settings/settings_widget.py:32
+#: widgets/settings/settings_widget.py:694
 #: widgets/sidebar/sidebar_widget.py:42
 msgid "Settings"
 msgstr "设置"
@@ -988,7 +988,7 @@ msgstr "该设置允许您更改默认值，以更好地反映您使用 JS110 �
 #: devices/jsdrv/js220.py:106 devices/jsdrv/js220.py:136
 #: devices/jsdrv/js320.py:102 devices/jsdrv/js320.py:132
 #: devices/serial/serial_device.py:45 devices/serial/serial_device.py:69
-#: widgets/device_control/js220_ctrl_widget.py:36
+#: widgets/device_control/js220_ctrl_widget.py:37
 msgid "Device information"
 msgstr "设备信息"
 
@@ -1541,10 +1541,10 @@ msgstr "配置通用输入和输出的参考电压。"
 #: devices/jsdrv/jsdrv_stream_buffer.py:93
 #: devices/jsdrv/jsdrv_stream_buffer.py:107
 #: devices/serial/serial_port_dialog.py:46 plugins/selector.py:58
-#: widgets/settings/settings_widget.py:85
-#: widgets/settings/settings_widget.py:266
-#: widgets/settings/settings_widget.py:364
-#: widgets/settings/settings_widget.py:431
+#: widgets/settings/settings_widget.py:142
+#: widgets/settings/settings_widget.py:334
+#: widgets/settings/settings_widget.py:441
+#: widgets/settings/settings_widget.py:515
 #: widgets/waveform/waveform_widget.py:3820
 msgid "Name"
 msgstr "名称"
@@ -2048,97 +2048,98 @@ msgstr "时间"
 msgid "Fuse"
 msgstr "保险丝"
 
-#: widgets/device_control/js220_ctrl_widget.py:31
+#: widgets/device_control/js220_ctrl_widget.py:32
 msgid "Device documentation"
 msgstr "设备文档"
 
-#: widgets/device_control/js220_ctrl_widget.py:32
+#: widgets/device_control/js220_ctrl_widget.py:33
 msgid "Click to display the device documentation PDF."
 msgstr "单击显示设备文档 PDF。"
 
-#: widgets/device_control/js220_ctrl_widget.py:37
+#: widgets/device_control/js220_ctrl_widget.py:38
 msgid "Click to display detailed information about the device."
 msgstr "单击可显示设备的详细信息。"
 
-#: widgets/device_control/js220_ctrl_widget.py:41
+#: widgets/device_control/js220_ctrl_widget.py:42
 msgid "Select this device as the default"
 msgstr "选择此设备作为默认设置"
 
-#: widgets/device_control/js220_ctrl_widget.py:43
+#: widgets/device_control/js220_ctrl_widget.py:44
 msgid ""
 "When selected, this device because the default. All widgets using the "
 "default device will use the data provided by this device."
 msgstr "选中后，该设备将作为默认设备。所有使用默认设备的 widget 都将使用该设备提供的数据。"
 
-#: widgets/device_control/js220_ctrl_widget.py:45
+#: widgets/device_control/js220_ctrl_widget.py:46
 msgid ""
 "When unselected, another device is the default. Widgets can still be "
 "configured to use data from this device."
 msgstr "未选择时，默认使用其他设备。小工具仍可配置为使用该设备的数据。"
 
-#: widgets/device_control/js220_ctrl_widget.py:53
+#: widgets/device_control/js220_ctrl_widget.py:54
 msgid ""
 "This indicator becomes active when this device has at least one engaged "
 "fuse. Engaged fuses prevent current flow until cleared."
 msgstr "当该设备至少有一个保险丝啮合时，该指示灯变为激活状态。啮合的保险丝会阻止电流流动，直到被清除。"
 
-#: widgets/device_control/js220_ctrl_widget.py:61
+#: widgets/device_control/js220_ctrl_widget.py:62
 msgid "Open and close the device"
 msgstr "打开和关闭设备"
 
-#: widgets/device_control/js220_ctrl_widget.py:63
+#: widgets/device_control/js220_ctrl_widget.py:64
 msgid ""
 "When closed, click to attempt to open the device. The icon will only change "
 "on a successful device open. Only one application can use a Joulescope "
 "device at a time."
 msgstr "关闭时，单击可尝试打开设备。只有在成功打开设备时，图标才会改变。一个 Joulescope 设备一次只能使用一个应用程序。"
 
-#: widgets/device_control/js220_ctrl_widget.py:66
+#: widgets/device_control/js220_ctrl_widget.py:67
 msgid ""
 "When open, click to close the device. This allows the device to be used in "
 "other programs."
 msgstr "打开时，单击可关闭设备。这样就可以在其他程序中使用该设备。"
 
-#: widgets/device_control/js220_ctrl_widget.py:72
-msgid "Reset to default settings"
-msgstr "重置为默认设置"
-
 #: widgets/device_control/js220_ctrl_widget.py:73
-msgid "Click this button to reset this device to the default settings"
-msgstr "单击此按钮可将此设备重置为默认设置"
+#: widgets/device_control/js220_ctrl_widget.py:654
+#: widgets/settings/settings_widget.py:566
+msgid "Reset to defaults"
+msgstr "重置为默认值"
 
-#: widgets/device_control/js220_ctrl_widget.py:77
+#: widgets/device_control/js220_ctrl_widget.py:74
+msgid ""
+"Click this button to close this device and reset its settings to the device "
+"defaults. Edit the device defaults in the Settings widget under Devices. "
+"Undo restores the previous settings."
+msgstr "点击此按钮可关闭该设备，并将设置重置为默认值。您可在“设备”下的“设置”小部件中编辑设备默认设置。“撤销”可恢复之前的设置。"
+
+#: widgets/device_control/js220_ctrl_widget.py:80
 msgid "Clear accumulators"
 msgstr "透明蓄电池"
 
-#: widgets/device_control/js220_ctrl_widget.py:78
+#: widgets/device_control/js220_ctrl_widget.py:81
 msgid ""
 "Click this button to clear the charge and energy accumulators. The "
 "\"Accrue\" feature of the value display widgets, including the multimeter, "
 "will be unaffected."
 msgstr "单击此按钮可清除电荷和能量累积器。数值显示部件（包括万用表）的 \"累积 \"功能将不受影响。"
 
-#: widgets/device_control/js220_ctrl_widget.py:84
-#: widgets/device_control/js220_ctrl_widget.py:666
+#: widgets/device_control/js220_ctrl_widget.py:87
+#: widgets/device_control/js220_ctrl_widget.py:669
 msgid "Calibrate"
 msgstr "校准"
 
-#: widgets/device_control/js220_ctrl_widget.py:85
+#: widgets/device_control/js220_ctrl_widget.py:88
 msgid ""
 "Click this button to recalibrate your Joulescope JS220. Recalibration is not"
 " required for normal operation. Performing calibration can improve accuracy "
 "by accounting for the existing temperature and aging effects."
 msgstr "点击此按钮重新校准 Joulescope JS220。正常操作不需要重新校准。进行校准可以通过考虑现有的温度和老化影响来提高精度。"
 
-#: widgets/device_control/js220_ctrl_widget.py:443
+#: widgets/device_control/js220_ctrl_widget.py:446
 msgid "GPO"
 msgstr "GPO"
 
-#: widgets/device_control/js220_ctrl_widget.py:651
-msgid "Reset to defaults"
-msgstr "重置为默认值"
-
-#: widgets/device_control/js220_ctrl_widget.py:657
+#: widgets/device_control/js220_ctrl_widget.py:660
 msgid "Clear accum"
 msgstr "清除累积"
 
@@ -2833,45 +2834,80 @@ msgstr "注释波形"
 msgid "External Serial..."
 msgstr "外部串行..."
 
-#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:797
+#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:797
 msgid "Value"
 msgstr "值"
 
-#: widgets/settings/settings_widget.py:268
+#: widgets/settings/settings_widget.py:336
 msgid "Color"
 msgstr "颜色"
 
-#: widgets/settings/settings_widget.py:366
+#: widgets/settings/settings_widget.py:443
 msgid "Font"
 msgstr "字体"
 
-#: widgets/settings/settings_widget.py:433
+#: widgets/settings/settings_widget.py:517
 msgid "Define"
 msgstr "定义"
 
-#: widgets/settings/settings_widget.py:535
+#: widgets/settings/settings_widget.py:564
+msgid "Reset to factory default"
+msgstr "恢复出厂设置"
+
+#: widgets/settings/settings_widget.py:564
+msgid "Reset to default"
+msgstr "恢复默认设置"
+
+#: widgets/settings/settings_widget.py:566
+msgid "Reset to factory defaults"
+msgstr "恢复出厂设置"
+
+#: widgets/settings/settings_widget.py:568
+#, python-brace-format
+msgid "Reset {tab} to factory defaults"
+msgstr "按 {tab} 键恢复出厂设置"
+
+#: widgets/settings/settings_widget.py:569
+#, python-brace-format
+msgid "Reset {tab} to defaults"
+msgstr "重置 {tab} 至默认值"
+
+#: widgets/settings/settings_widget.py:655
 msgid "Common"
 msgstr "通用"
 
-#: widgets/settings/settings_widget.py:538
+#: widgets/settings/settings_widget.py:658
 msgid "View defaults"
 msgstr "查看默认设置"
 
-#: widgets/settings/settings_widget.py:540
+#: widgets/settings/settings_widget.py:660
 msgid "Devices"
 msgstr "设备"
 
-#: widgets/settings/settings_widget.py:575
+#: widgets/settings/settings_widget.py:695
 msgid "Colors"
 msgstr "颜色"
 
-#: widgets/settings/settings_widget.py:576
+#: widgets/settings/settings_widget.py:696
 msgid "Fonts"
 msgstr "字体"
 
-#: widgets/settings/settings_widget.py:577
+#: widgets/settings/settings_widget.py:697
 msgid "Defines"
 msgstr "定义"
+
+#: widgets/settings/settings_widget.py:715
+msgid "Reset"
+msgstr "重置"
+
+#: widgets/settings/settings_widget.py:791
+#, python-brace-format
+msgid "Reset all settings for {name}?"
+msgstr "是否要重置 {name} 的所有设置？"
+
+#: widgets/settings/settings_widget.py:792
+msgid "Undo restores them."
+msgstr "“撤销”可恢复这些操作。"
 
 #: widgets/settings/unique_strings_widget.py:50
 msgid "Available"
@@ -4428,3 +4464,9 @@ msgstr "单位"
 #~ "Joulescope JS220 User's Guide for more connection examples."
 #~ msgstr ""
 #~ "对于 JS220，将电流端口连接到电源和被测设备之间。将电压端口连接到电源。有关更多连接示例，请参阅《Joulescope JS220 用户指南》。"
+
+#~ msgid "Reset to default settings"
+#~ msgstr "重置为默认设置"
+
+#~ msgid "Click this button to reset this device to the default settings"
+#~ msgstr "单击此按钮可将此设备重置为默认设置"

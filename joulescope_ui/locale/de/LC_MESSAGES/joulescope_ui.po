@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-15 03:59-0500\n"
+"POT-Creation-Date: 2026-11-16 13:26-0500\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: de <LL@li.org>\n"
@@ -57,7 +57,7 @@ msgstr ""
 "Das JS110 unterbricht den Stromfluss von IN+ nach OUT+, aber der "
 "Versuchsaufbau muss einen übermäßigen Rückwärtsstrom verhindern."
 
-#: app.py:61 widgets/device_control/js220_ctrl_widget.py:51
+#: app.py:61 widgets/device_control/js220_ctrl_widget.py:52
 msgid "Fuse engaged indicator"
 msgstr "Anzeige für den Zustand der Sicherung"
 
@@ -71,7 +71,7 @@ msgstr ""
 "Strom ist unterbrochen, bis die Sicherung zurückgesetzt wird. Zum "
 "Zurücksetzen bitte drücken."
 
-#: app.py:66 widgets/device_control/js220_ctrl_widget.py:56
+#: app.py:66 widgets/device_control/js220_ctrl_widget.py:57
 msgid "Press to clear."
 msgstr "Drücken Sie zum Löschen."
 
@@ -367,7 +367,7 @@ msgid "Abort"
 msgstr "Abbruch"
 
 #: error_window.py:120 main.py:466 widgets/efficiency/efficiency_widget.py:624
-#: widgets/settings/settings_widget.py:539
+#: widgets/settings/settings_widget.py:659
 #: widgets/spectrum/spectrum_widget.py:1064
 msgid "View"
 msgstr "Siehe"
@@ -774,7 +774,7 @@ msgstr "Löschen und neu starten"
 msgid "Clear and exit"
 msgstr "Klar und deutlich"
 
-#: main.py:467 widgets/settings/settings_widget.py:541
+#: main.py:467 widgets/settings/settings_widget.py:661
 msgid "Widgets"
 msgstr "Widgets"
 
@@ -786,8 +786,8 @@ msgstr "Werkzeuge"
 msgid "Info"
 msgstr "Info"
 
-#: main.py:503 widget_tools.py:119 widgets/settings/settings_widget.py:31
-#: widgets/settings/settings_widget.py:574
+#: main.py:503 widget_tools.py:119 widgets/settings/settings_widget.py:32
+#: widgets/settings/settings_widget.py:694
 #: widgets/sidebar/sidebar_widget.py:42
 msgid "Settings"
 msgstr "Einstellungen"
@@ -1095,7 +1095,7 @@ msgstr ""
 #: devices/jsdrv/js220.py:106 devices/jsdrv/js220.py:136
 #: devices/jsdrv/js320.py:102 devices/jsdrv/js320.py:132
 #: devices/serial/serial_device.py:45 devices/serial/serial_device.py:69
-#: widgets/device_control/js220_ctrl_widget.py:36
+#: widgets/device_control/js220_ctrl_widget.py:37
 msgid "Device information"
 msgstr "Informationen zum Gerät"
 
@@ -1757,10 +1757,10 @@ msgstr ""
 #: devices/jsdrv/jsdrv_stream_buffer.py:93
 #: devices/jsdrv/jsdrv_stream_buffer.py:107
 #: devices/serial/serial_port_dialog.py:46 plugins/selector.py:58
-#: widgets/settings/settings_widget.py:85
-#: widgets/settings/settings_widget.py:266
-#: widgets/settings/settings_widget.py:364
-#: widgets/settings/settings_widget.py:431
+#: widgets/settings/settings_widget.py:142
+#: widgets/settings/settings_widget.py:334
+#: widgets/settings/settings_widget.py:441
+#: widgets/settings/settings_widget.py:515
 #: widgets/waveform/waveform_widget.py:3820
 msgid "Name"
 msgstr "Name"
@@ -2289,24 +2289,24 @@ msgstr "Zeit"
 msgid "Fuse"
 msgstr "Sicherung"
 
-#: widgets/device_control/js220_ctrl_widget.py:31
+#: widgets/device_control/js220_ctrl_widget.py:32
 msgid "Device documentation"
 msgstr "Gerätedokumentation"
 
-#: widgets/device_control/js220_ctrl_widget.py:32
+#: widgets/device_control/js220_ctrl_widget.py:33
 msgid "Click to display the device documentation PDF."
 msgstr "Klicken Sie hier, um das PDF der Gerätedokumentation anzuzeigen."
 
-#: widgets/device_control/js220_ctrl_widget.py:37
+#: widgets/device_control/js220_ctrl_widget.py:38
 msgid "Click to display detailed information about the device."
 msgstr ""
 "Klicken Sie hier, um detaillierte Informationen über das Gerät anzuzeigen."
 
-#: widgets/device_control/js220_ctrl_widget.py:41
+#: widgets/device_control/js220_ctrl_widget.py:42
 msgid "Select this device as the default"
 msgstr "Wählen Sie dieses Gerät als Standard"
 
-#: widgets/device_control/js220_ctrl_widget.py:43
+#: widgets/device_control/js220_ctrl_widget.py:44
 msgid ""
 "When selected, this device because the default. All widgets using the "
 "default device will use the data provided by this device."
@@ -2315,7 +2315,7 @@ msgstr ""
 "die das Standardgerät verwenden, nutzen die von diesem Gerät "
 "bereitgestellten Daten."
 
-#: widgets/device_control/js220_ctrl_widget.py:45
+#: widgets/device_control/js220_ctrl_widget.py:46
 msgid ""
 "When unselected, another device is the default. Widgets can still be "
 "configured to use data from this device."
@@ -2323,7 +2323,7 @@ msgstr ""
 "Wenn nicht ausgewählt, ist ein anderes Gerät der Standard. Widgets können "
 "dennoch so konfiguriert werden, dass sie Daten von diesem Gerät verwenden."
 
-#: widgets/device_control/js220_ctrl_widget.py:53
+#: widgets/device_control/js220_ctrl_widget.py:54
 msgid ""
 "This indicator becomes active when this device has at least one engaged "
 "fuse. Engaged fuses prevent current flow until cleared."
@@ -2332,11 +2332,11 @@ msgstr ""
 "hat. Eingeschaltete Sicherungen verhindern den Stromfluss, bis sie gelöscht "
 "werden."
 
-#: widgets/device_control/js220_ctrl_widget.py:61
+#: widgets/device_control/js220_ctrl_widget.py:62
 msgid "Open and close the device"
 msgstr "Öffnen und schließen Sie das Gerät"
 
-#: widgets/device_control/js220_ctrl_widget.py:63
+#: widgets/device_control/js220_ctrl_widget.py:64
 msgid ""
 "When closed, click to attempt to open the device. The icon will only change "
 "on a successful device open. Only one application can use a Joulescope "
@@ -2347,7 +2347,7 @@ msgstr ""
 "geöffnet wurde. Nur eine Anwendung kann ein Joulescope-Gerät gleichzeitig "
 "verwenden."
 
-#: widgets/device_control/js220_ctrl_widget.py:66
+#: widgets/device_control/js220_ctrl_widget.py:67
 msgid ""
 "When open, click to close the device. This allows the device to be used in "
 "other programs."
@@ -2355,21 +2355,28 @@ msgstr ""
 "Wenn geöffnet, klicken Sie auf , um das Gerät zu schließen. Dadurch kann das"
 " Gerät in anderen Programmen verwendet werden."
 
-#: widgets/device_control/js220_ctrl_widget.py:72
-msgid "Reset to default settings"
-msgstr "Zurücksetzen auf Standardeinstellungen"
-
 #: widgets/device_control/js220_ctrl_widget.py:73
-msgid "Click this button to reset this device to the default settings"
-msgstr ""
-"Klicken Sie auf diese Schaltfläche, um dieses Gerät auf die "
-"Standardeinstellungen zurückzusetzen"
+#: widgets/device_control/js220_ctrl_widget.py:654
+#: widgets/settings/settings_widget.py:566
+msgid "Reset to defaults"
+msgstr "Zurücksetzen auf Standardwerte"
 
-#: widgets/device_control/js220_ctrl_widget.py:77
+#: widgets/device_control/js220_ctrl_widget.py:74
+msgid ""
+"Click this button to close this device and reset its settings to the device "
+"defaults. Edit the device defaults in the Settings widget under Devices. "
+"Undo restores the previous settings."
+msgstr ""
+"Klicken Sie auf diese Schaltfläche, um das Gerät zu schließen und die "
+"Einstellungen auf die Werkseinstellungen zurückzusetzen. Bearbeiten Sie die "
+"Werkseinstellungen im Widget „Einstellungen“ unter „Geräte“. Mit "
+"„Rückgängig“ werden die vorherigen Einstellungen wiederhergestellt."
+
+#: widgets/device_control/js220_ctrl_widget.py:80
 msgid "Clear accumulators"
 msgstr "Akkumulatoren zurücksetzen"
 
-#: widgets/device_control/js220_ctrl_widget.py:78
+#: widgets/device_control/js220_ctrl_widget.py:81
 msgid ""
 "Click this button to clear the charge and energy accumulators. The "
 "\"Accrue\" feature of the value display widgets, including the multimeter, "
@@ -2379,12 +2386,12 @@ msgstr ""
 "löschen. Die \"Accrue\"-Funktion der Wertanzeige-Widgets, einschließlich des"
 " Multimeters, bleibt davon unberührt."
 
-#: widgets/device_control/js220_ctrl_widget.py:84
-#: widgets/device_control/js220_ctrl_widget.py:666
+#: widgets/device_control/js220_ctrl_widget.py:87
+#: widgets/device_control/js220_ctrl_widget.py:669
 msgid "Calibrate"
 msgstr "Kalibrieren"
 
-#: widgets/device_control/js220_ctrl_widget.py:85
+#: widgets/device_control/js220_ctrl_widget.py:88
 msgid ""
 "Click this button to recalibrate your Joulescope JS220. Recalibration is not"
 " required for normal operation. Performing calibration can improve accuracy "
@@ -2396,15 +2403,11 @@ msgstr ""
 "verbessern, indem die vorhandenen Temperatur- und Alterungseffekte "
 "berücksichtigt werden."
 
-#: widgets/device_control/js220_ctrl_widget.py:443
+#: widgets/device_control/js220_ctrl_widget.py:446
 msgid "GPO"
 msgstr "GPO"
 
-#: widgets/device_control/js220_ctrl_widget.py:651
-msgid "Reset to defaults"
-msgstr "Zurücksetzen auf Standardwerte"
-
-#: widgets/device_control/js220_ctrl_widget.py:657
+#: widgets/device_control/js220_ctrl_widget.py:660
 msgid "Clear accum"
 msgstr "Klare Akkumulation"
 
@@ -3141,45 +3144,80 @@ msgstr "Wellenform annotieren"
 msgid "External Serial..."
 msgstr "Externe serielle..."
 
-#: widgets/settings/settings_widget.py:87 widgets/value/value_widget.py:797
+#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:797
 msgid "Value"
 msgstr "Wert"
 
-#: widgets/settings/settings_widget.py:268
+#: widgets/settings/settings_widget.py:336
 msgid "Color"
 msgstr "Farbe"
 
-#: widgets/settings/settings_widget.py:366
+#: widgets/settings/settings_widget.py:443
 msgid "Font"
 msgstr "Schriftart"
 
-#: widgets/settings/settings_widget.py:433
+#: widgets/settings/settings_widget.py:517
 msgid "Define"
 msgstr "Definieren Sie"
 
-#: widgets/settings/settings_widget.py:535
+#: widgets/settings/settings_widget.py:564
+msgid "Reset to factory default"
+msgstr "Auf Werkseinstellungen zurücksetzen"
+
+#: widgets/settings/settings_widget.py:564
+msgid "Reset to default"
+msgstr "Auf Werkseinstellungen zurücksetzen"
+
+#: widgets/settings/settings_widget.py:566
+msgid "Reset to factory defaults"
+msgstr "Auf Werkseinstellungen zurücksetzen"
+
+#: widgets/settings/settings_widget.py:568
+#, python-brace-format
+msgid "Reset {tab} to factory defaults"
+msgstr "{tab} auf Werkseinstellungen zurücksetzen"
+
+#: widgets/settings/settings_widget.py:569
+#, python-brace-format
+msgid "Reset {tab} to defaults"
+msgstr "{tab} auf Standardwerte zurücksetzen"
+
+#: widgets/settings/settings_widget.py:655
 msgid "Common"
 msgstr "Allgemein"
 
-#: widgets/settings/settings_widget.py:538
+#: widgets/settings/settings_widget.py:658
 msgid "View defaults"
 msgstr "Standardeinstellungen anzeigen"
 
-#: widgets/settings/settings_widget.py:540
+#: widgets/settings/settings_widget.py:660
 msgid "Devices"
 msgstr "Geräte"
 
-#: widgets/settings/settings_widget.py:575
+#: widgets/settings/settings_widget.py:695
 msgid "Colors"
 msgstr "Farben"
 
-#: widgets/settings/settings_widget.py:576
+#: widgets/settings/settings_widget.py:696
 msgid "Fonts"
 msgstr "Schriftarten"
 
-#: widgets/settings/settings_widget.py:577
+#: widgets/settings/settings_widget.py:697
 msgid "Defines"
 msgstr "Definiert"
+
+#: widgets/settings/settings_widget.py:715
+msgid "Reset"
+msgstr "Zurücksetzen"
+
+#: widgets/settings/settings_widget.py:791
+#, python-brace-format
+msgid "Reset all settings for {name}?"
+msgstr "Alle Einstellungen für {name} zurücksetzen?"
+
+#: widgets/settings/settings_widget.py:792
+msgid "Undo restores them."
+msgstr "Mit „Rückgängig“ werden sie wiederhergestellt."
 
 #: widgets/settings/unique_strings_widget.py:50
 msgid "Available"
@@ -4918,3 +4956,11 @@ msgstr "Einheiten"
 #~ "prüfenden Gerät an. Schliessen Sie den Spannungsanschluss an die "
 #~ "Spannungsversorgung an. Weitere Anschlussbeispiele finden Sie im Joulescope "
 #~ "JS220 Benutzerhandbuch."
+
+#~ msgid "Reset to default settings"
+#~ msgstr "Zurücksetzen auf Standardeinstellungen"
+
+#~ msgid "Click this button to reset this device to the default settings"
+#~ msgstr ""
+#~ "Klicken Sie auf diese Schaltfläche, um dieses Gerät auf die "
+#~ "Standardeinstellungen zurückzusetzen"
