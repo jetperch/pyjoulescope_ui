@@ -24,6 +24,7 @@ from joulescope_ui.styles import styled_widget, font_as_qfont, font_as_qss
 from joulescope_ui.styles.color_picker import ColorItem
 from joulescope_ui.styles.manager import style_settings, style_cls_ensure
 from joulescope_ui.widget_tools import CallableSlotAdapter
+from joulescope_ui import settings_reset
 import copy
 import logging
 
@@ -635,6 +636,15 @@ class SettingsWidget(QtWidgets.QSplitter):
         self.pubsub.subscribe('registry/view/settings/active', self._on_populate, ['pub', 'retain'])
         for c in [REGISTRY_MANAGER_TOPICS.REGISTRY_ADD, REGISTRY_MANAGER_TOPICS.REGISTRY_REMOVE]:
             self.pubsub.subscribe(c, self._on_populate, ['pub'])
+
+    @staticmethod
+    def on_cls_action_reset(pubsub, topic, value):
+        """Reset settings to their defaults as one undo step.
+
+        :param value: The map with keys target, and optionally tabs and
+            schemes.  See :func:`joulescope_ui.settings_reset.reset_values`.
+        """
+        return settings_reset.reset(pubsub, value)
 
     @staticmethod
     def on_cls_action_edit(pubsub, topic, value):
