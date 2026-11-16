@@ -57,7 +57,30 @@ def base_topic(pubsub, target):
     return None
 
 
-def reset_values(pubsub, target, tabs=None, schemes=None):
+def _style_remove(value, scheme, names):
+    """Remove style overrides, returning the new value or None if empty.
+
+    :param value: The colors, fonts or style_defines override value.
+    :param scheme: The scheme for colors and fonts, None for all schemes,
+        or False for style_defines, which has no schemes.
+    :param names: The override names to remove, or None for all.
+    """
+    if not isinstance(value, dict):
+        return None
+    if scheme is False:
+        if names is None:
+            return None
+        return {k: v for k, v in value.items() if k not in names} or None
+    rv = {}
+    for k, v in value.items():
+        if scheme is None or k == scheme:
+            v = None if names is None else _style_remove(v, False, names)
+        if v:
+            rv[k] = v
+    return rv or None
+
+
+def reset_values(pubsub, target, tabs=None, schemes=None, names=None):
     """Compute the settings changes for a reset.
 
     :param pubsub: The pubsub instance.
@@ -66,6 +89,8 @@ def reset_values(pubsub, target, tabs=None, schemes=None):
     :param schemes: For a one-tab reset, the map of tab name to the
         active scheme, like {'colors': 'dark'}.  Colors and fonts then reset
         only that scheme.  None resets every scheme.
+    :param names: The setting, color, font or define names to reset, for a
+        one-setting reset.  None resets all.
     :return: The list of [topic, value] changes, skipping unchanged values.
     """
     tabs = TABS if tabs is None else tabs
@@ -82,7 +107,7 @@ def reset_values(pubsub, target, tabs=None, schemes=None):
         include_hidden = _is_device(pubsub, get_unique_id(topic))  # device configuration
         settings = pubsub.enumerate(f'{topic}/settings', absolute=False, traverse=True)
         for name in settings:
-            if name in _SKIP:
+            if name in _SKIP or (names is not None and name not in names):
                 continue
             t = f'{topic}/settings/{name}'
             meta = pubsub.metadata(t)
@@ -102,27 +127,41 @@ def reset_values(pubsub, target, tabs=None, schemes=None):
         t = f'{topic}/settings/{tab}'
         if tab not in tabs or t not in pubsub:
             continue
-        value = pubsub.query(t)
-        scheme = schemes.get(tab)
-        if scheme is not None and isinstance(value, dict):
-            value = {k: v for k, v in value.items() if k != scheme} or None
-        else:
-            value = None
-        add(t, value)
+        scheme = False if tab == 'style_defines' else schemes.get(tab)
+        add(t, _style_remove(pubsub.query(t), scheme, names))
     return changes
+
+
+def modified(pubsub, target, tab, scheme=None):
+    """The names that differ from what a reset would give.
+
+    :param pubsub: The pubsub instance.
+    :param target: The instance or class unique_id, topic or object.
+    :param tab: One of TABS.
+    :param scheme: The active scheme for colors and fonts.
+    :return: The set of modified setting, color, font or define names.
+    """
+    topic = get_topic_name(target)
+    if tab == 'settings':
+        prefix = f'{topic}/settings/'
+        return {t[len(prefix):] for t, _ in reset_values(pubsub, topic, ['settings'])}
+    value = pubsub.query(f'{topic}/settings/{tab}', default=None)
+    if tab != 'style_defines' and isinstance(value, dict):
+        value = value.get(scheme)
+    return set(value.keys()) if isinstance(value, dict) else set()
 
 
 def reset(pubsub, value):
     """Reset settings as a single undo step.
 
     :param pubsub: The pubsub instance.
-    :param value: The map with keys target, and optionally tabs and schemes.
-        See :func:`reset_values`.
+    :param value: The map with keys target, and optionally tabs, schemes
+        and names.  See :func:`reset_values`.
     :return: The undo/redo specification, or None when nothing changed.
     """
     target = value['target']
     topic = get_topic_name(target)
-    changes = reset_values(pubsub, topic, value.get('tabs'), value.get('schemes'))
+    changes = reset_values(pubsub, topic, value.get('tabs'), value.get('schemes'), value.get('names'))
     if not len(changes):
         return None
     undo = [[t, pubsub.query(t)] for t, _ in changes]

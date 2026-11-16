@@ -18,7 +18,7 @@ import unittest
 from joulescope_ui.pubsub import PubSub
 from joulescope_ui import CAPABILITIES
 from joulescope_ui.styles.manager import style_settings
-from joulescope_ui.settings_reset import RESET_TOPIC, reset, reset_values, base_topic
+from joulescope_ui.settings_reset import RESET_TOPIC, reset, reset_values, base_topic, modified
 
 
 _SETTINGS = {
@@ -180,3 +180,42 @@ class TestSettingsReset(unittest.TestCase):
         self.assertTrue(self.p.query(f'{t}/signals/i/enable'))  # restored
         self.assertFalse(self.p.query(f'{t}/signals/r/enable'))
         self.assertEqual('Bench', self.p.query(f'{t}/name'))
+
+    def test_one_setting(self):
+        w = self._widget()
+        t = f'{w.topic}/settings'
+        self.p.publish(f'{t}/gain', 7)
+        self.p.publish(f'{t}/mode', 'b')
+        self.p.publish(RESET_TOPIC, {'target': w.unique_id, 'tabs': ['settings'], 'names': ['gain']})
+        self.assertEqual(1, self.p.query(f'{t}/gain'))
+        self.assertEqual('b', self.p.query(f'{t}/mode'))
+
+    def test_one_color_and_define(self):
+        w = self._widget()
+        t = f'{w.topic}/settings'
+        self.p.publish(f'{t}/colors', {'dark': {'a': '#112233ff', 'b': '#445566ff'},
+                                       'light': {'a': '#778899ff'}})
+        self.p.publish(f'{t}/style_defines', {'d': '4px', 'e': '5px'})
+        self.p.publish(RESET_TOPIC, {'target': w.unique_id, 'tabs': ['colors'],
+                                     'schemes': {'colors': 'dark'}, 'names': ['a']})
+        self.assertEqual({'dark': {'b': '#445566ff'}, 'light': {'a': '#778899ff'}},
+                         self.p.query(f'{t}/colors'))
+        self.p.publish(RESET_TOPIC, {'target': w.unique_id, 'tabs': ['colors'],
+                                     'schemes': {'colors': 'dark'}, 'names': ['b']})
+        self.assertEqual({'light': {'a': '#778899ff'}}, self.p.query(f'{t}/colors'))
+        self.p.publish(RESET_TOPIC, {'target': w.unique_id, 'tabs': ['style_defines'], 'names': ['d']})
+        self.assertEqual({'e': '5px'}, self.p.query(f'{t}/style_defines'))
+
+    def test_modified(self):
+        self.p.publish('registry/Widget/settings/gain', 5)
+        w = self._widget()
+        t = f'{w.topic}/settings'
+        self.assertEqual(set(), modified(self.p, w, 'settings'))  # equals the class
+        self.p.publish(f'{t}/mode', 'b')
+        self.p.publish(f'{t}/state', 4)  # hidden: not reset, so not modified
+        self.assertEqual({'mode'}, modified(self.p, w, 'settings'))
+        self.assertEqual({'gain'}, modified(self.p, 'Widget', 'settings'))  # vs factory
+        self.p.publish(f'{t}/colors', {'dark': {'a': '#112233ff'}})
+        self.assertEqual({'a'}, modified(self.p, w, 'colors', 'dark'))
+        self.assertEqual(set(), modified(self.p, w, 'colors', 'light'))
+        self.assertEqual(set(), modified(self.p, w, 'style_defines'))
