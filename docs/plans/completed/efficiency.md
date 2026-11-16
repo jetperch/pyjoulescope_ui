@@ -1,5 +1,8 @@
 # Efficiency widget: two-instrument DC-DC efficiency measurement
 
+Status: COMPLETE 2026-11-16.  Remaining verification and tests are in
+[../efficiency_followup.md](../efficiency_followup.md).
+
 ## Context
 
 Customers measure converter efficiency (DC-DC, LDO, charger, PMIC rail) with
@@ -394,28 +397,32 @@ on its own.  Run `python ci/translations.py --preserve-create-date
    Efficiency, whose screenshot is rendered from an example converter loss
    model; CHANGELOG entry here.
    Merge the docs branch only once the UI release with the widget is out.
-7. **Hardware verification** (on the agent bench):
-   - Null test: the bench ADP3450 drives JS220 and JS320 with currents in
-     series and voltages in parallel, so η = 100% within instrument
-     accuracy, both steady and with a square-wave load.
-   - Resistor as the "regulator": compare to `R_L / (R + R_L)` across load
-     steps.
-   - Real DC-DC module swept with a load (ADP3450 or electronic load): curve
-     shape vs the module datasheet.
-   - Unplug/replug either instrument; 1 h soak with both streaming.
-   - Farm uitest: automated null test needs a station with two instruments;
-     if none exists, run it on the agent bench and record it.
-   - 2026-11-16 real buck converter (JS220 input, JS320 output), first
-     look: a floating JS320 Voltage - read a pinned 16.6062 V (min = max),
-     the over-range signature.  Once connected: 4.765 V in, 3.306 V out,
-     58.5 mA in, 33.3 mA out, η 39.5%, with readout = V × I on both sides,
-     no invalid windows after start-up, no overruns.  I_in - I_out was a
-     constant 25.2 mA at two operating points, so the low η comes from the
-     circuit (linear-like path or ~25 mA input-side load), not the widget.
-     Found and fixed: the curve log axis had no labels when all loads fell
-     inside one 1-2-5 interval (ca7d610).  Open: one live frame showed a
-     curve whisker past the y range; not reproduced offline or in later
-     frames.
+7. **Hardware verification** DONE 2026-11-16 for the release; the soak,
+   switching converter sweep, resistor test, load-step investigation, farm
+   test and more unit tests moved to
+   [../efficiency_followup.md](../efficiency_followup.md).
+   - Null test, ADP3450 load sweep and square-wave load: Stages 0, 3 and 5.
+   - Real regulator (JS220 input, JS320 output; Matt first described it as a
+     buck, it is an LDO): a floating JS320 Voltage - read a pinned 16.6062 V
+     (min = max), the over-range signature.  Once connected: 4.765 V in,
+     3.306 V out, 58.5 mA in, 33.3 mA out, η 39.5%, which matches the LDO
+     (V_out / V_in) × (I_out / I_in) = 0.694 × 0.569.  Readout = V × I on
+     both sides.  I_in - I_out was a constant 25.2 mA at two operating
+     points: the LDO overhead.
+   - Fixed: the curve log axis had no labels when all loads fell inside
+     one 1-2-5 interval; it now spans at least one decade (ca7d610).
+   - Unplug/replug with the USB Insight Hub (JS320 port 3, then JS220
+     port 2, 15 s off each): the first run found that a reconnected JS220
+     streams NaN samples, which poisoned the running integral so efficiency
+     never recovered, and that a disconnect cleared the history.  Fixed
+     (976e65f): NaN samples are a gap, the same pair reconnecting keeps the
+     history with one invalid window per outage, and the status names the
+     disconnected instrument.  Rerun: both instruments resumed within about
+     5 s, 157 windows, 2 invalid (one per outage), no overruns, cumulative
+     η 39.56-39.57% throughout.
+   - The "curve whisker past the y range" observation was not a bug: the y
+     autoscale includes the whiskers with half a step of margin, so a
+     bin's whisker can span almost the whole plot.
 
 
 ## Stage 0 results
