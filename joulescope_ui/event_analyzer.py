@@ -45,7 +45,9 @@ OPTIONS = [
 
 
 def _setting(brief, default=None):
-    return {'dtype': 'obj', 'brief': brief, 'default': default, 'flags': ['hide']}
+    # Remembered dialog state: hidden from Settings and Reset, and kept off the
+    # global undo stack so Ctrl+Z after a run undoes the user's last real edit.
+    return {'dtype': 'obj', 'brief': brief, 'default': default, 'flags': ['hide', 'skip_undo']}
 
 
 SETTINGS = {

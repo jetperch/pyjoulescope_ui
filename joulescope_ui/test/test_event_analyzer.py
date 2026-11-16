@@ -117,6 +117,16 @@ class TestHelpers(unittest.TestCase):
         for name in ea.SETTINGS:
             pubsub_singleton.query(f'registry/event_analyzer/settings/{name}')
 
+    def test_settings_skip_undo(self):
+        topic = 'registry/event_analyzer/settings/merge_gap'
+        undos = len(pubsub_singleton.undos)
+        pubsub_singleton.publish(topic, 1e-3)
+        pubsub_singleton.process()
+        self.assertEqual(1e-3, pubsub_singleton.query(topic))
+        self.assertEqual(undos, len(pubsub_singleton.undos))
+        pubsub_singleton.publish(topic, None)
+        pubsub_singleton.process()
+
 
 class TestRun(unittest.TestCase):
 
