@@ -34,6 +34,12 @@ This file contains the list of changes made to pyjoulescope_ui.
   the same time interval, so the free-running instrument clocks do not
   affect the result.  See "Theory: Efficiency" on docs.joulescope.com for
   the wiring that keeps the burden voltage out of the measurement.
+* Fixed the empty Colors, Fonts and Defines tabs in the Settings widget for
+  widget defaults (Widgets → Waveform, for example) and View defaults
+  (forum 1153).  The default colors now apply right away to every existing
+  and new widget of that type, except for colors changed on the widget
+  itself, and they persist across restarts.  New widgets no longer copy the
+  default colors into their own settings.
 * Added optional Waveform anti-aliasing (#356).  When zoomed out, a short
   pulse no longer flickers in the average trace as the plot scrolls.  The
   mean-preserving filter applies to the displayed average only.  Enable

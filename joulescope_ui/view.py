@@ -288,6 +288,18 @@ class View:
         if self.is_active:
             self._render()
 
+    on_setting_fonts = on_setting_colors
+    on_setting_style_defines = on_setting_colors
+
+    @staticmethod
+    def on_cls_setting_colors(value):
+        """Render the active view, which inherits the View defaults."""
+        if 'registry/style/actions/!render' in pubsub_singleton:
+            pubsub_singleton.publish('registry/style/actions/!render', None)
+
+    on_cls_setting_fonts = on_cls_setting_colors
+    on_cls_setting_style_defines = on_cls_setting_colors
+
     def on_action_widget_open(self, value):
         """Create a widget, possibly reusing existing settings.
 

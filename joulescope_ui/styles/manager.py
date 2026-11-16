@@ -81,19 +81,19 @@ def style_settings(name):
             'dtype': 'obj',  # map[color_scheme, map[color name str, color value str]]
             'brief': 'The override colors for each color theme',
             'default': None,
-            'flags': ['hide'],
+            'flags': ['hide', 'noinit'],  # inherit from class at render
         },
         'fonts': {
             'dtype': 'obj',  # map[font_scheme, [font name str, font value str]]
             'brief': 'The override fonts for each font theme',
             'default': None,
-            'flags': ['hide'],
+            'flags': ['hide', 'noinit'],  # inherit from class at render
         },
         'style_defines': {
             'dtype': 'obj',  # map[property_name, value]
             'brief': 'The style defines',
             'default': None,
-            'flags': ['hide'],
+            'flags': ['hide', 'noinit'],  # inherit from class at render
         },
         'style_obj': {
             'dtype': 'obj',
@@ -183,6 +183,22 @@ def _load_style_for_class(cls, theme):
         },
         'vars': {},
     }
+
+
+def style_cls_ensure(cls):
+    """Load the class style definitions, if not already loaded.
+
+    :param cls: The styled class.
+    :return: The class style definitions, cls._style_cls.
+
+    Classes load their style on the first instance render.  The settings
+    editor also needs them to edit class defaults before any instance exists.
+    """
+    if getattr(cls, '_style_cls', None) is None:
+        view_topic = get_topic_name(pubsub_singleton.query('registry/view/settings/active', default='view'))
+        theme = pubsub_singleton.query(f'{view_topic}/settings/theme', default='js1')
+        _load_style_for_class(cls, theme)
+    return cls._style_cls
 
 
 def _render_images(obj, path):
@@ -459,10 +475,15 @@ class StyleManager:
         except KeyError:
             return
         if isinstance(obj, type):
-            objs = _objs_in_view()
-            for child in pubsub_singleton.query(f'{get_topic_name(obj)}/children'):
-                if child in objs:
-                    self.on_action_render(child)
+            # Class style defaults changed: re-render its instances in the active view.
+            active_view = self.pubsub.query('registry/view/settings/active', default=None)
+            if active_view is None:
+                return
+            instances = self.pubsub.query(f'{get_topic_name(obj)}/instances', default=[])
+            objs = _objs_in_view(active_view)
+            for instance in instances:
+                if instance in objs:
+                    self._render(instance)
             return
         active_view = self.pubsub.query('registry/view/settings/active', default=None)
         if active_view is None:

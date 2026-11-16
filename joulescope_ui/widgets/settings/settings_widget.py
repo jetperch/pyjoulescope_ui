@@ -22,7 +22,7 @@ from joulescope_ui.pubsub_proxy import PubSubProxy
 from joulescope_ui.ui_util import comboBoxConfig, clear_layout
 from joulescope_ui.styles import styled_widget, font_as_qfont, font_as_qss
 from joulescope_ui.styles.color_picker import ColorItem
-from joulescope_ui.styles.manager import style_settings
+from joulescope_ui.styles.manager import style_settings, style_cls_ensure
 from joulescope_ui.widget_tools import CallableSlotAdapter
 import copy
 import logging
@@ -30,6 +30,15 @@ import logging
 
 _NAME = N_('Settings')
 _STYLE_AVOID = ['ui']  # list of unique_id values to not display style info
+
+
+def _styled_class(obj):
+    """The styled class for a class or instance, or None if not styled."""
+    if not isinstance(obj, type):
+        return obj.__class__ if hasattr(obj, 'style_obj') else None
+    if 'style_obj' not in getattr(obj, 'SETTINGS', {}):
+        return None
+    return obj
 
 
 class _GridWidget(QtWidgets.QWidget):
@@ -244,18 +253,18 @@ class ColorEditorWidget(_GridWidget):
             return
         if obj.unique_id in _STYLE_AVOID:
             return
-        if not hasattr(obj, 'style_obj') or obj.style_obj is None:
+        cls = _styled_class(obj)
+        if cls is None:
             return
         active_view = self.pubsub.query('registry/view/settings/active', default='view')
         active_view_topic = get_topic_name(active_view)
         self._color_scheme = self.pubsub.query(f'{active_view_topic}/settings/color_scheme', default='dark')
         self._obj = obj
         self._topic = get_topic_name(obj)
-        cls = obj.__class__
-        colors = copy.deepcopy(cls._style_cls['load']['colors'][self._color_scheme])
-        cls_colors = self.pubsub.query(f'{get_topic_name(obj.__class__)}/settings/colors', default=None)
+        colors = copy.deepcopy(style_cls_ensure(cls)['load']['colors'][self._color_scheme])
+        cls_colors = self.pubsub.query(f'{get_topic_name(cls)}/settings/colors', default=None)
         if cls_colors is not None:
-            for color_name, color_value in cls_colors[self._color_scheme].items():
+            for color_name, color_value in cls_colors.get(self._color_scheme, {}).items():
                 colors[color_name] = color_value
         if not isinstance(obj, type):
             if obj.colors is not None and obj.colors.get(self._color_scheme) is not None:
@@ -341,23 +350,23 @@ class FontEditorWidget(_GridWidget):
             return
         if obj.unique_id in _STYLE_AVOID:
             return
-        if not hasattr(obj, 'style_obj') or obj.style_obj is None:
+        cls = _styled_class(obj)
+        if cls is None:
             return
         active_view = self.pubsub.query('registry/view/settings/active', default='view')
         active_view_topic = get_topic_name(active_view)
         self._font_scheme = self.pubsub.query(f'{active_view_topic}/settings/font_scheme', default='js1')
         self._obj = obj
         self._topic = get_topic_name(obj)
-        cls = obj.__class__
 
-        fonts = copy.deepcopy(cls._style_cls['load']['fonts'][self._font_scheme])
-        cls_fonts = self.pubsub.query(f'{get_topic_name(obj.__class__)}/settings/fonts', default=None)
+        fonts = copy.deepcopy(style_cls_ensure(cls)['load']['fonts'][self._font_scheme])
+        cls_fonts = self.pubsub.query(f'{get_topic_name(cls)}/settings/fonts', default=None)
         if cls_fonts is not None:
-            for font_name, font_value in cls_fonts[self._font_scheme].items():
+            for font_name, font_value in cls_fonts.get(self._font_scheme, {}).items():
                 fonts[font_name] = font_value
         if not isinstance(obj, type):
             if obj.fonts is not None:
-                for key, value in obj.fonts[self._font_scheme].items():
+                for key, value in obj.fonts.get(self._font_scheme, {}).items():
                     fonts[key] = value
         self._fonts = fonts
 
@@ -412,14 +421,14 @@ class StyleDefineEditorWidget(_GridWidget):
         if obj is None:
             self._obj = None
             return
-        if not hasattr(obj, 'style_obj') or obj.style_obj is None:
+        cls = _styled_class(obj)
+        if cls is None:
             return
 
         self._obj = obj
         self._topic = get_topic_name(obj)
-        cls = obj.__class__
-        entries = copy.deepcopy(cls._style_cls['load']['style_defines'])
-        cls_entries = self.pubsub.query(f'{get_topic_name(obj.__class__)}/settings/style_defines', default=None)
+        entries = copy.deepcopy(style_cls_ensure(cls)['load']['style_defines'])
+        cls_entries = self.pubsub.query(f'{get_topic_name(cls)}/settings/style_defines', default=None)
         if cls_entries is not None:
             for e_name, e_value in cls_entries.items():
                 entries[e_name] = e_value
@@ -447,7 +456,10 @@ class StyleDefineEditorWidget(_GridWidget):
 
     def _on_change(self, name, value):
         self._entries[name] = value
-        self.pubsub.publish(f'{self._topic}/settings/style_defines', dict(self._entries))
+        topic = f'{self._topic}/settings/style_defines'
+        entries = dict(self.pubsub.query(topic, default=None) or {})  # overrides only
+        entries[name] = value
+        self.pubsub.publish(topic, entries)
 
 
 def _class_items(capability):
