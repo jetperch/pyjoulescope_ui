@@ -405,6 +405,17 @@ on its own.  Run `python ci/translations.py --preserve-create-date
    - Unplug/replug either instrument; 1 h soak with both streaming.
    - Farm uitest: automated null test needs a station with two instruments;
      if none exists, run it on the agent bench and record it.
+   - 2026-11-16 real buck converter (JS220 input, JS320 output), first
+     look: a floating JS320 Voltage - read a pinned 16.6062 V (min = max),
+     the over-range signature.  Once connected: 4.765 V in, 3.306 V out,
+     58.5 mA in, 33.3 mA out, η 39.5%, with readout = V × I on both sides,
+     no invalid windows after start-up, no overruns.  I_in - I_out was a
+     constant 25.2 mA at two operating points, so the low η comes from the
+     circuit (linear-like path or ~25 mA input-side load), not the widget.
+     Found and fixed: the curve log axis had no labels when all loads fell
+     inside one 1-2-5 interval (ca7d610).  Open: one live frame showed a
+     curve whisker past the y range; not reproduced offline or in later
+     frames.
 
 
 ## Stage 0 results
