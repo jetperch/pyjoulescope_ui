@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-16 13:26-0500\n"
+"POT-Creation-Date: 2026-11-16 15:25-0500\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: ko <LL@li.org>\n"
@@ -325,7 +325,7 @@ msgstr "마크다운으로 보기"
 msgid "Abort"
 msgstr "Abort"
 
-#: error_window.py:120 main.py:466 widgets/efficiency/efficiency_widget.py:624
+#: error_window.py:120 main.py:468 widgets/efficiency/efficiency_widget.py:624
 #: widgets/settings/settings_widget.py:659
 #: widgets/spectrum/spectrum_widget.py:1064
 msgid "View"
@@ -347,11 +347,152 @@ msgstr "이전 구성으로 되돌리기"
 msgid "Revert to defaults"
 msgstr "기본값으로 되돌리기"
 
-#: error_window.py:283 main.py:464 main.py:514
+#: error_window.py:283 main.py:466 main.py:516
 #: widgets/js220_cal/js220_cal_widget.py:38
 #: widgets/js320_cal/js320_cal_widget.py:60
 msgid "Exit"
 msgstr "Exit"
+
+#: event_analyzer.py:54
+msgid "Sleep current in A, or None for automatic"
+msgstr "슬립 전류(A 단위) 또는 자동 측정 시 ‘None’"
+
+#: event_analyzer.py:55
+msgid "Event start threshold above sleep in A, or None for automatic"
+msgstr "슬립 모드 이상의 이벤트 시작 임계값(A 단위) 또는 자동 설정을 위한 ‘없음’"
+
+#: event_analyzer.py:56
+msgid "Join events closer than this, in seconds"
+msgstr "이보다 더 가까운 곳에서 열리는 행사에 몇 초 만에 참여하세요"
+
+#: event_analyzer.py:57
+msgid "Waveform match tolerance; smaller gives more event types"
+msgstr "파형 일치 허용 오차; 수치가 작을수록 더 많은 이벤트 유형을 감지합니다."
+
+#: event_analyzer.py:58
+msgid "Battery capacity in mAh for the battery-life estimate"
+msgstr "배터리 수명 추정을 위한 배터리 용량(mAh)"
+
+#: event_analyzer.py:59
+msgid "Event type templates file"
+msgstr "이벤트 유형 템플릿 파일"
+
+#: event_analyzer.py:201 main.py:431
+msgid "Event Analyzer (alpha)"
+msgstr "이벤트 분석기 (알파)"
+
+#: event_analyzer.py:206
+msgid ""
+"Find the wake-up events in a capture, group them into types and account for "
+"all charge. The report opens in your web browser. This feature is an alpha "
+"preview: please share your feedback."
+msgstr ""
+"캡처 데이터에서 웨이크업 이벤트를 찾아 유형별로 그룹화하고 모든 전하를 파악하세요. 보고서는 웹 브라우저에서 열립니다. 이 기능은 알파 "
+"프리뷰 단계입니다. 피드백을 공유해 주시기 바랍니다."
+
+#: event_analyzer.py:214
+msgid "JLS file"
+msgstr "JLS 파일"
+
+#: event_analyzer.py:215
+msgid "Output directory"
+msgstr "출력 디렉터리"
+
+#: event_analyzer.py:219
+msgid "Sleep current"
+msgstr "절전 모드 전류"
+
+#: event_analyzer.py:219 event_analyzer.py:220
+#: widgets/waveform/waveform_widget.py:602
+#: widgets/waveform/waveform_widget.py:3763
+#: widgets/waveform/waveform_widget.py:3929
+#: widgets/waveform/waveform_widget.py:4284
+msgid "Auto"
+msgstr "Auto"
+
+#: event_analyzer.py:220
+msgid "Start threshold"
+msgstr "시작 임계값"
+
+#: event_analyzer.py:221
+msgid "Merge gap"
+msgstr "메르지 갭"
+
+#: event_analyzer.py:222
+msgid "Match tolerance"
+msgstr "허용 오차"
+
+#: event_analyzer.py:223
+msgid "Battery capacity (mAh)"
+msgstr "배터리 용량 (mAh)"
+
+#: event_analyzer.py:223 event_analyzer.py:225
+msgid "None"
+msgstr "없음"
+
+#: event_analyzer.py:224
+msgid "Templates file"
+msgstr "템플릿 파일"
+
+#: event_analyzer.py:238
+msgid "Analyze"
+msgstr "분석"
+
+#: event_analyzer.py:255
+msgid "Browse..."
+msgstr "더 보기..."
+
+#: event_analyzer.py:293
+msgid "Invalid value"
+msgstr "잘못된 값"
+
+#: event_analyzer.py:295
+msgid "Values must be positive"
+msgstr "값은 양수여야 합니다."
+
+#: event_analyzer.py:310
+msgid "Select capture"
+msgstr "캡처 선택"
+
+#: event_analyzer.py:317
+msgid "Select output directory"
+msgstr "출력 디렉터리 선택"
+
+#: event_analyzer.py:325
+msgid "Select templates"
+msgstr "템플릿 선택"
+
+#: event_analyzer.py:340 event_analyzer.py:368
+msgid "Event Analyzer"
+msgstr "이벤트 분석기"
+
+#: event_analyzer.py:346
+msgid "Select an existing JLS file."
+msgstr "기존 JLS 파일을 선택하십시오."
+
+#: event_analyzer.py:352
+msgid "The templates file does not exist."
+msgstr "템플릿 파일이 존재하지 않습니다."
+
+#: event_analyzer.py:369
+msgid "This directory already contains a report for this capture. Replace it?"
+msgstr "이 디렉토리에는 이미 이 캡처에 대한 보고서가 포함되어 있습니다. 덮어쓰시겠습니까?"
+
+#: event_analyzer.py:378
+msgid "Analyzing..."
+msgstr "분석 중..."
+
+#: event_analyzer.py:402
+msgid "Event analysis failed"
+msgstr "이벤트 분석에 실패했습니다."
+
+#: event_analyzer.py:404
+msgid "Cancelled"
+msgstr "취소됨"
+
+#: event_analyzer.py:409
+msgid "Cancelling..."
+msgstr "취소 중..."
 
 #: exporter.py:52 widgets/signal_record/signal_record_config_widget.py:148
 #: widgets/statistics_record/statistics_record_config_widget.py:111
@@ -375,7 +516,7 @@ msgstr "참고"
 msgid "Select save location"
 msgstr "저장 위치 선택"
 
-#: exporter.py:139 main.py:906
+#: exporter.py:139 main.py:908
 msgid "Export configuration"
 msgstr "구성 내보내기"
 
@@ -548,23 +689,23 @@ msgstr "언어 선택"
 msgid "The application will automatically close when you change the locale."
 msgstr "로캘을 변경하면 애플리케이션이 자동으로 닫힙니다."
 
-#: main.py:78 widgets/value/value_widget.py:788
+#: main.py:79 widgets/value/value_widget.py:788
 msgid "Multimeter"
 msgstr "멀티미터"
 
-#: main.py:79
+#: main.py:80
 msgid "Oscilloscope"
 msgstr "오실로스코프"
 
-#: main.py:80 main.py:385 main.py:454 main.py:501
+#: main.py:81 main.py:386 main.py:456 main.py:503
 msgid "File"
 msgstr "파일"
 
-#: main.py:90
+#: main.py:91
 msgid "The UI status bar display mode"
 msgstr "UI 상태 표시줄 표시 모드"
 
-#: main.py:91
+#: main.py:92
 msgid ""
 "This setting controls the amount of detail shown on the status bar at the "
 "bottom of the UI window. You should usually leave this set to \"normal\" "
@@ -573,182 +714,182 @@ msgstr ""
 "이 설정은 UI 창 하단의 상태 표시줄에 표시되는 세부 정보의 양을 제어합니다. UI 내부 작동에 대한 자세한 정보를 원하지 않는 한 "
 "일반적으로 이 설정을 \"보통\"으로 두는 것이 좋습니다."
 
-#: main.py:96 safe_mode.py:43
+#: main.py:97 safe_mode.py:43
 msgid "Normal"
 msgstr "정상"
 
-#: main.py:97
+#: main.py:98
 msgid "Troubleshoot"
 msgstr "문제 해결"
 
-#: main.py:103
+#: main.py:104
 msgid "Enable developer mode."
 msgstr "개발자 모드를 활성화합니다."
 
-#: main.py:116
+#: main.py:117
 msgid "PubSub utilization"
 msgstr "PubSub 활용"
 
-#: main.py:117
+#: main.py:118
 msgid ""
 "Display the number of actions processed by the publish-subscribe broker in "
 "each second."
 msgstr "게시-구독 브로커가 매초 처리하는 작업 수를 표시합니다."
 
-#: main.py:122
+#: main.py:123
 msgid "CPU utilization"
 msgstr "CPU 사용률"
 
-#: main.py:123
+#: main.py:124
 msgid ""
 "Display the CPU utilization by this application and the total CPU "
 "utilization by all applications. The value is displayed in percent."
 msgstr "이 애플리케이션의 CPU 사용률과 모든 애플리케이션의 총 CPU 사용률을 표시합니다. 값은 퍼센트 단위로 표시됩니다."
 
-#: main.py:129
+#: main.py:130
 msgid "Memory utilization"
 msgstr "메모리 사용률"
 
-#: main.py:130
+#: main.py:131
 msgid ""
 "Display the memory (RAM) utilization by this application and by all "
 "applications. The value is displayed in percent."
 msgstr "이 애플리케이션 및 모든 애플리케이션의 메모리(RAM) 사용률을 표시합니다. 값은 퍼센트 단위로 표시됩니다."
 
-#: main.py:297
+#: main.py:298
 msgid "UI"
 msgstr "UI"
 
-#: main.py:417
+#: main.py:418
 msgid "Help"
 msgstr "도움말"
 
-#: main.py:418 widgets/hamburger/hamburger_widget.py:21
+#: main.py:419 widgets/hamburger/hamburger_widget.py:21
 msgid "Getting Started"
 msgstr "시작하기"
 
-#: main.py:419
+#: main.py:420
 msgid "Language"
 msgstr "언어"
 
-#: main.py:420
+#: main.py:421
 msgid "User's Guide"
 msgstr "사용자 가이드"
 
-#: main.py:421 widgets/hamburger/hamburger_widget.py:22
+#: main.py:422 widgets/hamburger/hamburger_widget.py:22
 msgid "Changelog"
 msgstr "변경 로그"
 
-#: main.py:422 widgets/help/help_widget.py:63
+#: main.py:423 widgets/help/help_widget.py:63
 msgid "Report Issue"
 msgstr "이슈 보고"
 
-#: main.py:423
+#: main.py:424
 msgid "View logs..."
 msgstr "로그 보기..."
 
-#: main.py:424 widgets/hamburger/hamburger_widget.py:23
+#: main.py:425 widgets/hamburger/hamburger_widget.py:23
 msgid "Credits"
 msgstr "크레딧"
 
-#: main.py:425 widgets/hamburger/hamburger_widget.py:24
+#: main.py:426 widgets/hamburger/hamburger_widget.py:24
 msgid "About"
 msgstr "About"
 
-#: main.py:429
+#: main.py:430
 msgid "Clear Accumulators"
 msgstr "클리어 어큐뮬레이터"
 
-#: main.py:432
+#: main.py:434
 msgid "Configure high accuracy time"
 msgstr "고정밀 시간 구성"
 
 #: devices/serial/serial_port_dialog.py:145
-#: devices/serial/serial_port_dialog.py:159 main.py:455
+#: devices/serial/serial_port_dialog.py:159 main.py:457
 msgid "Open"
 msgstr "Open"
 
-#: main.py:456
+#: main.py:458
 msgid "Open recent"
 msgstr "최근 열기"
 
-#: main.py:457 main.py:507 widgets/trigger/trigger_widget.py:467
+#: main.py:459 main.py:509 widgets/trigger/trigger_widget.py:467
 #: widgets/trigger/trigger_widget.py:480
 msgid "Config"
 msgstr "Config"
 
-#: main.py:458 main.py:508 widgets/efficiency/efficiency_widget.py:635
+#: main.py:460 main.py:510 widgets/efficiency/efficiency_widget.py:635
 #: widgets/waveform/waveform_widget.py:4260
 msgid "Export"
 msgstr "Export"
 
-#: main.py:459 main.py:509 main.py:963
+#: main.py:461 main.py:511 main.py:965
 msgid "Import and restart"
 msgstr "가져오기 및 다시 시작"
 
-#: main.py:460 main.py:510 main.py:966
+#: main.py:462 main.py:512 main.py:968
 msgid "Import and exit"
 msgstr "수입 및 출국"
 
-#: main.py:461 main.py:511 main.py:980
+#: main.py:463 main.py:513 main.py:982
 msgid "Clear and restart"
 msgstr "지우기 및 재시작"
 
-#: main.py:462 main.py:512 main.py:983
+#: main.py:464 main.py:514 main.py:985
 msgid "Clear and exit"
 msgstr "명확하고"
 
-#: main.py:467 widgets/settings/settings_widget.py:661
+#: main.py:469 widgets/settings/settings_widget.py:661
 msgid "Widgets"
 msgstr "위젯"
 
-#: main.py:468
+#: main.py:470
 msgid "Tools"
 msgstr "도구"
 
-#: main.py:502
+#: main.py:504
 msgid "Info"
 msgstr "정보"
 
-#: main.py:503 widget_tools.py:119 widgets/settings/settings_widget.py:32
+#: main.py:505 widget_tools.py:119 widgets/settings/settings_widget.py:32
 #: widgets/settings/settings_widget.py:694
 #: widgets/sidebar/sidebar_widget.py:42
 msgid "Settings"
 msgstr "설정"
 
-#: main.py:823
+#: main.py:825
 msgid "Manage"
 msgstr "관리"
 
-#: main.py:883
+#: main.py:885
 msgid "Select file to open"
 msgstr "열 파일 선택"
 
-#: main.py:926
+#: main.py:928
 msgid "Configuration export failed."
 msgstr "구성 내보내기에 실패했습니다."
 
-#: main.py:940
+#: main.py:942
 msgid "Import configuration"
 msgstr "구성 가져오기"
 
-#: main.py:959
+#: main.py:961
 msgid "The selected file is not a valid Joulescope UI configuration."
 msgstr "선택한 파일은 유효한 Joulescope UI 구성이 아닙니다."
 
-#: main.py:964
+#: main.py:966
 msgid "Replace the current configuration with the imported file and restart?"
 msgstr "현재 구성을 가져온 파일로 대체하고 다시 시작하시겠습니까?"
 
-#: main.py:967
+#: main.py:969
 msgid "Replace the current configuration with the imported file and exit?"
 msgstr "현재 구성을 가져온 파일로 교체하고 종료하시겠습니까?"
 
-#: main.py:981
+#: main.py:983
 msgid "Clear the configuration and restart?"
 msgstr "설정을 초기화하고 다시 시작하시겠습니까?"
 
-#: main.py:984
+#: main.py:986
 msgid "Clear the configuration and exit?"
 msgstr "설정을 초기화하고 종료하시겠습니까?"
 
@@ -4288,13 +4429,6 @@ msgstr "시간, 분, 초는 해당 단위의 소수점 값을 표시합니다."
 #: widgets/waveform/waveform_widget.py:3928
 msgid "Conventional"
 msgstr "기존의"
-
-#: widgets/waveform/waveform_widget.py:602
-#: widgets/waveform/waveform_widget.py:3763
-#: widgets/waveform/waveform_widget.py:3929
-#: widgets/waveform/waveform_widget.py:4284
-msgid "Auto"
-msgstr "Auto"
 
 #: widgets/waveform/waveform_widget.py:603
 #: widgets/waveform/waveform_widget.py:3930

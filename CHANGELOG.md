@@ -24,7 +24,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.8.1
 
-2026 Nov 15 [in progress, unreleased]
+2026 Nov 16
 
 * Added the Efficiency widget, which measures power converter efficiency
   with two Joulescopes: one on the converter input and one on the output.

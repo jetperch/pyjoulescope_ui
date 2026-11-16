@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-16 13:26-0500\n"
+"POT-Creation-Date: 2026-11-16 15:25-0500\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: de <LL@li.org>\n"
@@ -366,7 +366,7 @@ msgstr "Als Markdown anzeigen"
 msgid "Abort"
 msgstr "Abbruch"
 
-#: error_window.py:120 main.py:466 widgets/efficiency/efficiency_widget.py:624
+#: error_window.py:120 main.py:468 widgets/efficiency/efficiency_widget.py:624
 #: widgets/settings/settings_widget.py:659
 #: widgets/spectrum/spectrum_widget.py:1064
 msgid "View"
@@ -388,11 +388,160 @@ msgstr "Zur vorherigen Konfiguration zurückkehren"
 msgid "Revert to defaults"
 msgstr "Zu Standardeinstellungen zurückkehren"
 
-#: error_window.py:283 main.py:464 main.py:514
+#: error_window.py:283 main.py:466 main.py:516
 #: widgets/js220_cal/js220_cal_widget.py:38
 #: widgets/js320_cal/js320_cal_widget.py:60
 msgid "Exit"
 msgstr "Beenden"
+
+#: event_analyzer.py:54
+msgid "Sleep current in A, or None for automatic"
+msgstr "Ruhestrom in A oder „Keine Angabe“ für automatische Messung"
+
+#: event_analyzer.py:55
+msgid "Event start threshold above sleep in A, or None for automatic"
+msgstr ""
+"Schwellenwert für den Ereignisstart oberhalb des Ruhezustands in A oder "
+"„Keine“ für automatische Erfassung"
+
+#: event_analyzer.py:56
+msgid "Join events closer than this, in seconds"
+msgstr "Nehmen Sie in Sekundenschnelle an Veranstaltungen in Ihrer Nähe teil"
+
+#: event_analyzer.py:57
+msgid "Waveform match tolerance; smaller gives more event types"
+msgstr ""
+"Toleranz bei der Wellenformübereinstimmung; je kleiner, desto mehr "
+"Ereignistypen"
+
+#: event_analyzer.py:58
+msgid "Battery capacity in mAh for the battery-life estimate"
+msgstr "Akkukapazität in mAh zur Abschätzung der Akkulaufzeit"
+
+#: event_analyzer.py:59
+msgid "Event type templates file"
+msgstr "Datei mit Vorlagen für Ereignistypen"
+
+#: event_analyzer.py:201 main.py:431
+msgid "Event Analyzer (alpha)"
+msgstr "Event Analyzer (Alpha)"
+
+#: event_analyzer.py:206
+msgid ""
+"Find the wake-up events in a capture, group them into types and account for "
+"all charge. The report opens in your web browser. This feature is an alpha "
+"preview: please share your feedback."
+msgstr ""
+"Finden Sie die Wake-up-Ereignisse in einer Aufzeichnung, gruppieren Sie sie "
+"nach Typen und erfassen Sie die gesamte Ladung. Der Bericht wird in Ihrem "
+"Webbrowser geöffnet. Diese Funktion befindet sich in der Alpha-Vorschau: "
+"Bitte teilen Sie uns Ihr Feedback mit."
+
+#: event_analyzer.py:214
+msgid "JLS file"
+msgstr "JLS-Datei"
+
+#: event_analyzer.py:215
+msgid "Output directory"
+msgstr "Ausgabeverzeichnis"
+
+#: event_analyzer.py:219
+msgid "Sleep current"
+msgstr "Ruhestrom"
+
+#: event_analyzer.py:219 event_analyzer.py:220
+#: widgets/waveform/waveform_widget.py:602
+#: widgets/waveform/waveform_widget.py:3763
+#: widgets/waveform/waveform_widget.py:3929
+#: widgets/waveform/waveform_widget.py:4284
+msgid "Auto"
+msgstr "Auto"
+
+#: event_analyzer.py:220
+msgid "Start threshold"
+msgstr "Startschwelle"
+
+#: event_analyzer.py:221
+msgid "Merge gap"
+msgstr "Lücke schließen"
+
+#: event_analyzer.py:222
+msgid "Match tolerance"
+msgstr "Toleranz anpassen"
+
+#: event_analyzer.py:223
+msgid "Battery capacity (mAh)"
+msgstr "Batteriekapazität (mAh)"
+
+#: event_analyzer.py:223 event_analyzer.py:225
+msgid "None"
+msgstr "Keine"
+
+#: event_analyzer.py:224
+msgid "Templates file"
+msgstr "Vorlagendatei"
+
+#: event_analyzer.py:238
+msgid "Analyze"
+msgstr "Analysieren"
+
+#: event_analyzer.py:255
+msgid "Browse..."
+msgstr "Weiterlesen..."
+
+#: event_analyzer.py:293
+msgid "Invalid value"
+msgstr "Ungültiger Wert"
+
+#: event_analyzer.py:295
+msgid "Values must be positive"
+msgstr "Die Werte müssen positiv sein"
+
+#: event_analyzer.py:310
+msgid "Select capture"
+msgstr "Erfassung auswählen"
+
+#: event_analyzer.py:317
+msgid "Select output directory"
+msgstr "Ausgabeverzeichnis auswählen"
+
+#: event_analyzer.py:325
+msgid "Select templates"
+msgstr "Vorlagen auswählen"
+
+#: event_analyzer.py:340 event_analyzer.py:368
+msgid "Event Analyzer"
+msgstr "Ereignisanalysator"
+
+#: event_analyzer.py:346
+msgid "Select an existing JLS file."
+msgstr "Wählen Sie eine vorhandene JLS-Datei aus."
+
+#: event_analyzer.py:352
+msgid "The templates file does not exist."
+msgstr "Die Vorlagendatei existiert nicht."
+
+#: event_analyzer.py:369
+msgid "This directory already contains a report for this capture. Replace it?"
+msgstr ""
+"Dieses Verzeichnis enthält bereits einen Bericht zu dieser Aufzeichnung. "
+"Möchten Sie ihn ersetzen?"
+
+#: event_analyzer.py:378
+msgid "Analyzing..."
+msgstr "Wird analysiert..."
+
+#: event_analyzer.py:402
+msgid "Event analysis failed"
+msgstr "Die Ereignisanalyse ist fehlgeschlagen"
+
+#: event_analyzer.py:404
+msgid "Cancelled"
+msgstr "Storniert"
+
+#: event_analyzer.py:409
+msgid "Cancelling..."
+msgstr "Wird abgebrochen..."
 
 #: exporter.py:52 widgets/signal_record/signal_record_config_widget.py:148
 #: widgets/statistics_record/statistics_record_config_widget.py:111
@@ -416,7 +565,7 @@ msgstr "Anmerkungen"
 msgid "Select save location"
 msgstr "Speicherort auswählen"
 
-#: exporter.py:139 main.py:906
+#: exporter.py:139 main.py:908
 msgid "Export configuration"
 msgstr "Konfiguration exportieren"
 
@@ -616,23 +765,23 @@ msgstr ""
 "Die Anwendung wird automatisch geschlossen, wenn Sie das Gebietsschema "
 "ändern."
 
-#: main.py:78 widgets/value/value_widget.py:788
+#: main.py:79 widgets/value/value_widget.py:788
 msgid "Multimeter"
 msgstr "Multimeter"
 
-#: main.py:79
+#: main.py:80
 msgid "Oscilloscope"
 msgstr "Oszilloskop"
 
-#: main.py:80 main.py:385 main.py:454 main.py:501
+#: main.py:81 main.py:386 main.py:456 main.py:503
 msgid "File"
 msgstr "Datei"
 
-#: main.py:90
+#: main.py:91
 msgid "The UI status bar display mode"
 msgstr "Der UI-Statusleisten-Anzeigemodus"
 
-#: main.py:91
+#: main.py:92
 msgid ""
 "This setting controls the amount of detail shown on the status bar at the "
 "bottom of the UI window. You should usually leave this set to \"normal\" "
@@ -643,23 +792,23 @@ msgstr ""
 "diese Einstellung auf \"normal\" belassen, es sei denn, Sie möchten mehr "
 "Details über den internen Betrieb der Benutzeroberfläche erfahren."
 
-#: main.py:96 safe_mode.py:43
+#: main.py:97 safe_mode.py:43
 msgid "Normal"
 msgstr "Normal"
 
-#: main.py:97
+#: main.py:98
 msgid "Troubleshoot"
 msgstr "Fehlersuche"
 
-#: main.py:103
+#: main.py:104
 msgid "Enable developer mode."
 msgstr "Aktivieren Sie den Entwicklermodus."
 
-#: main.py:116
+#: main.py:117
 msgid "PubSub utilization"
 msgstr "PubSub Nutzung"
 
-#: main.py:117
+#: main.py:118
 msgid ""
 "Display the number of actions processed by the publish-subscribe broker in "
 "each second."
@@ -667,11 +816,11 @@ msgstr ""
 "Zeigt die Anzahl der Aktionen an, die der Publish-Subscribe-Broker in jeder "
 "Sekunde verarbeitet."
 
-#: main.py:122
+#: main.py:123
 msgid "CPU utilization"
 msgstr "CPU-Auslastung"
 
-#: main.py:123
+#: main.py:124
 msgid ""
 "Display the CPU utilization by this application and the total CPU "
 "utilization by all applications. The value is displayed in percent."
@@ -679,11 +828,11 @@ msgstr ""
 "Zeigt die CPU-Auslastung durch diese Anwendung und die gesamte CPU-"
 "Auslastung durch alle Anwendungen an. Der Wert wird in Prozent angezeigt."
 
-#: main.py:129
+#: main.py:130
 msgid "Memory utilization"
 msgstr "Speicherauslastung"
 
-#: main.py:130
+#: main.py:131
 msgid ""
 "Display the memory (RAM) utilization by this application and by all "
 "applications. The value is displayed in percent."
@@ -691,143 +840,143 @@ msgstr ""
 "Zeigt die Speicherauslastung (RAM) durch diese Anwendung und durch alle "
 "Anwendungen an. Der Wert wird in Prozent angezeigt."
 
-#: main.py:297
+#: main.py:298
 msgid "UI"
 msgstr "UI"
 
-#: main.py:417
+#: main.py:418
 msgid "Help"
 msgstr "Hilfe"
 
-#: main.py:418 widgets/hamburger/hamburger_widget.py:21
+#: main.py:419 widgets/hamburger/hamburger_widget.py:21
 msgid "Getting Started"
 msgstr "Erste Schritte"
 
-#: main.py:419
+#: main.py:420
 msgid "Language"
 msgstr "Sprache"
 
-#: main.py:420
+#: main.py:421
 msgid "User's Guide"
 msgstr "Benutzerhandbuch"
 
-#: main.py:421 widgets/hamburger/hamburger_widget.py:22
+#: main.py:422 widgets/hamburger/hamburger_widget.py:22
 msgid "Changelog"
 msgstr "Changelog"
 
-#: main.py:422 widgets/help/help_widget.py:63
+#: main.py:423 widgets/help/help_widget.py:63
 msgid "Report Issue"
 msgstr "Bericht Ausgabe"
 
-#: main.py:423
+#: main.py:424
 msgid "View logs..."
 msgstr "Protokolle anzeigen..."
 
-#: main.py:424 widgets/hamburger/hamburger_widget.py:23
+#: main.py:425 widgets/hamburger/hamburger_widget.py:23
 msgid "Credits"
 msgstr "Credits"
 
-#: main.py:425 widgets/hamburger/hamburger_widget.py:24
+#: main.py:426 widgets/hamburger/hamburger_widget.py:24
 msgid "About"
 msgstr "Über"
 
-#: main.py:429
+#: main.py:430
 msgid "Clear Accumulators"
 msgstr "Akkumulatoren zurücksetzen"
 
-#: main.py:432
+#: main.py:434
 msgid "Configure high accuracy time"
 msgstr "Konfigurieren Sie hochgenaue Zeit"
 
 #: devices/serial/serial_port_dialog.py:145
-#: devices/serial/serial_port_dialog.py:159 main.py:455
+#: devices/serial/serial_port_dialog.py:159 main.py:457
 msgid "Open"
 msgstr "Öffnen"
 
-#: main.py:456
+#: main.py:458
 msgid "Open recent"
 msgstr "Zuletzt geöffnet"
 
-#: main.py:457 main.py:507 widgets/trigger/trigger_widget.py:467
+#: main.py:459 main.py:509 widgets/trigger/trigger_widget.py:467
 #: widgets/trigger/trigger_widget.py:480
 msgid "Config"
 msgstr "Konfig"
 
-#: main.py:458 main.py:508 widgets/efficiency/efficiency_widget.py:635
+#: main.py:460 main.py:510 widgets/efficiency/efficiency_widget.py:635
 #: widgets/waveform/waveform_widget.py:4260
 msgid "Export"
 msgstr "Exportieren"
 
-#: main.py:459 main.py:509 main.py:963
+#: main.py:461 main.py:511 main.py:965
 msgid "Import and restart"
 msgstr "Importieren und neu starten"
 
-#: main.py:460 main.py:510 main.py:966
+#: main.py:462 main.py:512 main.py:968
 msgid "Import and exit"
 msgstr "Importieren und Beenden"
 
-#: main.py:461 main.py:511 main.py:980
+#: main.py:463 main.py:513 main.py:982
 msgid "Clear and restart"
 msgstr "Löschen und neu starten"
 
-#: main.py:462 main.py:512 main.py:983
+#: main.py:464 main.py:514 main.py:985
 msgid "Clear and exit"
 msgstr "Klar und deutlich"
 
-#: main.py:467 widgets/settings/settings_widget.py:661
+#: main.py:469 widgets/settings/settings_widget.py:661
 msgid "Widgets"
 msgstr "Widgets"
 
-#: main.py:468
+#: main.py:470
 msgid "Tools"
 msgstr "Werkzeuge"
 
-#: main.py:502
+#: main.py:504
 msgid "Info"
 msgstr "Info"
 
-#: main.py:503 widget_tools.py:119 widgets/settings/settings_widget.py:32
+#: main.py:505 widget_tools.py:119 widgets/settings/settings_widget.py:32
 #: widgets/settings/settings_widget.py:694
 #: widgets/sidebar/sidebar_widget.py:42
 msgid "Settings"
 msgstr "Einstellungen"
 
-#: main.py:823
+#: main.py:825
 msgid "Manage"
 msgstr "Ansichts-Einstellungen"
 
-#: main.py:883
+#: main.py:885
 msgid "Select file to open"
 msgstr "Datei zum Öffnen auswählen"
 
-#: main.py:926
+#: main.py:928
 msgid "Configuration export failed."
 msgstr "Der Export der Konfiguration ist fehlgeschlagen."
 
-#: main.py:940
+#: main.py:942
 msgid "Import configuration"
 msgstr "Konfiguration importieren"
 
-#: main.py:959
+#: main.py:961
 msgid "The selected file is not a valid Joulescope UI configuration."
 msgstr "Die ausgewählte Datei ist keine gültige Joulescope-UI-Konfiguration."
 
-#: main.py:964
+#: main.py:966
 msgid "Replace the current configuration with the imported file and restart?"
 msgstr ""
 "Die aktuelle Konfiguration durch die importierte Datei ersetzen und neu "
 "starten?"
 
-#: main.py:967
+#: main.py:969
 msgid "Replace the current configuration with the imported file and exit?"
 msgstr ""
 "Die aktuelle Konfiguration durch die importierte Datei ersetzen und beenden?"
 
-#: main.py:981
+#: main.py:983
 msgid "Clear the configuration and restart?"
 msgstr "Konfiguration löschen und neu starten?"
 
-#: main.py:984
+#: main.py:986
 msgid "Clear the configuration and exit?"
 msgstr "Konfiguration löschen und beenden?"
 
@@ -4665,13 +4814,6 @@ msgstr ""
 #: widgets/waveform/waveform_widget.py:3928
 msgid "Conventional"
 msgstr "Herkömmlich"
-
-#: widgets/waveform/waveform_widget.py:602
-#: widgets/waveform/waveform_widget.py:3763
-#: widgets/waveform/waveform_widget.py:3929
-#: widgets/waveform/waveform_widget.py:4284
-msgid "Auto"
-msgstr "Auto"
 
 #: widgets/waveform/waveform_widget.py:603
 #: widgets/waveform/waveform_widget.py:3930

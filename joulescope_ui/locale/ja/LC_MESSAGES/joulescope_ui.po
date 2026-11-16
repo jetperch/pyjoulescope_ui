@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT 1.1.2\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2026-11-16 13:26-0500\n"
+"POT-Creation-Date: 2026-11-16 15:25-0500\n"
 "PO-Revision-Date: 2024-04-04 14:45-0400\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: ja <LL@li.org>\n"
@@ -322,7 +322,7 @@ msgstr "マークダウンで表示"
 msgid "Abort"
 msgstr "中止"
 
-#: error_window.py:120 main.py:466 widgets/efficiency/efficiency_widget.py:624
+#: error_window.py:120 main.py:468 widgets/efficiency/efficiency_widget.py:624
 #: widgets/settings/settings_widget.py:659
 #: widgets/spectrum/spectrum_widget.py:1064
 msgid "View"
@@ -344,11 +344,151 @@ msgstr "前の設定に戻す"
 msgid "Revert to defaults"
 msgstr "デフォルトに戻す"
 
-#: error_window.py:283 main.py:464 main.py:514
+#: error_window.py:283 main.py:466 main.py:516
 #: widgets/js220_cal/js220_cal_widget.py:38
 #: widgets/js320_cal/js320_cal_widget.py:60
 msgid "Exit"
 msgstr "終了"
+
+#: event_analyzer.py:54
+msgid "Sleep current in A, or None for automatic"
+msgstr "スリープ電流（単位：A）、または「なし」（自動測定）"
+
+#: event_analyzer.py:55
+msgid "Event start threshold above sleep in A, or None for automatic"
+msgstr "スリープモードより高いイベント開始閾値（A単位）、または自動の場合は「なし」"
+
+#: event_analyzer.py:56
+msgid "Join events closer than this, in seconds"
+msgstr "これよりも近い場所で開催されるイベントに、数秒で参加しましょう"
+
+#: event_analyzer.py:57
+msgid "Waveform match tolerance; smaller gives more event types"
+msgstr "波形一致許容誤差。数値が小さいほど、検出可能なイベントの種類が増えます。"
+
+#: event_analyzer.py:58
+msgid "Battery capacity in mAh for the battery-life estimate"
+msgstr "バッテリー駆動時間の推定値は、mAh単位のバッテリー容量に基づいています。"
+
+#: event_analyzer.py:59
+msgid "Event type templates file"
+msgstr "イベントタイプテンプレートファイル"
+
+#: event_analyzer.py:201 main.py:431
+msgid "Event Analyzer (alpha)"
+msgstr "イベントアナライザ（アルファ版）"
+
+#: event_analyzer.py:206
+msgid ""
+"Find the wake-up events in a capture, group them into types and account for "
+"all charge. The report opens in your web browser. This feature is an alpha "
+"preview: please share your feedback."
+msgstr ""
+"キャプチャデータからウェイクアップイベントを特定し、タイプごとにグループ化して、すべての電荷を算出します。レポートはウェブブラウザで開きます。この機能はアルファ版プレビューです。ぜひフィードバックをお寄せください。"
+
+#: event_analyzer.py:214
+msgid "JLS file"
+msgstr "JLSファイル"
+
+#: event_analyzer.py:215
+msgid "Output directory"
+msgstr "出力ディレクトリ"
+
+#: event_analyzer.py:219
+msgid "Sleep current"
+msgstr "スリープ電流"
+
+#: event_analyzer.py:219 event_analyzer.py:220
+#: widgets/waveform/waveform_widget.py:602
+#: widgets/waveform/waveform_widget.py:3763
+#: widgets/waveform/waveform_widget.py:3929
+#: widgets/waveform/waveform_widget.py:4284
+msgid "Auto"
+msgstr "オート"
+
+#: event_analyzer.py:220
+msgid "Start threshold"
+msgstr "起動閾値"
+
+#: event_analyzer.py:221
+msgid "Merge gap"
+msgstr "ギャップを統合"
+
+#: event_analyzer.py:222
+msgid "Match tolerance"
+msgstr "許容誤差"
+
+#: event_analyzer.py:223
+msgid "Battery capacity (mAh)"
+msgstr "バッテリー容量（mAh）"
+
+#: event_analyzer.py:223 event_analyzer.py:225
+msgid "None"
+msgstr "なし"
+
+#: event_analyzer.py:224
+msgid "Templates file"
+msgstr "テンプレートファイル"
+
+#: event_analyzer.py:238
+msgid "Analyze"
+msgstr "分析"
+
+#: event_analyzer.py:255
+msgid "Browse..."
+msgstr "閲覧..."
+
+#: event_analyzer.py:293
+msgid "Invalid value"
+msgstr "無効な値"
+
+#: event_analyzer.py:295
+msgid "Values must be positive"
+msgstr "値は正でなければなりません"
+
+#: event_analyzer.py:310
+msgid "Select capture"
+msgstr "キャプチャを選択"
+
+#: event_analyzer.py:317
+msgid "Select output directory"
+msgstr "出力ディレクトリを選択してください"
+
+#: event_analyzer.py:325
+msgid "Select templates"
+msgstr "テンプレートの選択"
+
+#: event_analyzer.py:340 event_analyzer.py:368
+msgid "Event Analyzer"
+msgstr "イベントアナライザ"
+
+#: event_analyzer.py:346
+msgid "Select an existing JLS file."
+msgstr "既存のJLSファイルを選択してください。"
+
+#: event_analyzer.py:352
+msgid "The templates file does not exist."
+msgstr "テンプレートファイルは存在しません。"
+
+#: event_analyzer.py:369
+msgid "This directory already contains a report for this capture. Replace it?"
+msgstr "このディレクトリには、このキャプチャに関するレポートがすでに存在します。上書きしますか？"
+
+#: event_analyzer.py:378
+msgid "Analyzing..."
+msgstr "分析中..."
+
+#: event_analyzer.py:402
+msgid "Event analysis failed"
+msgstr "イベント分析に失敗しました"
+
+#: event_analyzer.py:404
+msgid "Cancelled"
+msgstr "キャンセルされました"
+
+#: event_analyzer.py:409
+msgid "Cancelling..."
+msgstr "キャンセル中..."
 
 #: exporter.py:52 widgets/signal_record/signal_record_config_widget.py:148
 #: widgets/statistics_record/statistics_record_config_widget.py:111
@@ -372,7 +512,7 @@ msgstr "注記"
 msgid "Select save location"
 msgstr "保存場所を選択"
 
-#: exporter.py:139 main.py:906
+#: exporter.py:139 main.py:908
 msgid "Export configuration"
 msgstr "設定のエクスポート"
 
@@ -543,23 +683,23 @@ msgstr "言語を選択"
 msgid "The application will automatically close when you change the locale."
 msgstr "ロケールを変更すると、アプリケーションは自動的に終了します。"
 
-#: main.py:78 widgets/value/value_widget.py:788
+#: main.py:79 widgets/value/value_widget.py:788
 msgid "Multimeter"
 msgstr "マルチメーター"
 
-#: main.py:79
+#: main.py:80
 msgid "Oscilloscope"
 msgstr "オシロスコープ"
 
-#: main.py:80 main.py:385 main.py:454 main.py:501
+#: main.py:81 main.py:386 main.py:456 main.py:503
 msgid "File"
 msgstr "ファイル"
 
-#: main.py:90
+#: main.py:91
 msgid "The UI status bar display mode"
 msgstr "UIステータスバー表示モード"
 
-#: main.py:91
+#: main.py:92
 msgid ""
 "This setting controls the amount of detail shown on the status bar at the "
 "bottom of the UI window. You should usually leave this set to \"normal\" "
@@ -568,182 +708,182 @@ msgstr ""
 "この設定は、UIウィンドウの下部にあるステータスバーに表示される詳細の量を制御します。UI の内部動作に関する詳細が必要な場合を除き、通常は "
 "\"normal\" のままに設定してください。"
 
-#: main.py:96 safe_mode.py:43
+#: main.py:97 safe_mode.py:43
 msgid "Normal"
 msgstr "通常"
 
-#: main.py:97
+#: main.py:98
 msgid "Troubleshoot"
 msgstr "トラブルシューティング"
 
-#: main.py:103
+#: main.py:104
 msgid "Enable developer mode."
 msgstr "開発者モードを有効にします。"
 
-#: main.py:116
+#: main.py:117
 msgid "PubSub utilization"
 msgstr "パブサブ利用"
 
-#: main.py:117
+#: main.py:118
 msgid ""
 "Display the number of actions processed by the publish-subscribe broker in "
 "each second."
 msgstr "パブリッシュ・サブスクライブ・ブローカーが各秒に処理したアクション数を表示します。"
 
-#: main.py:122
+#: main.py:123
 msgid "CPU utilization"
 msgstr "CPU使用率"
 
-#: main.py:123
+#: main.py:124
 msgid ""
 "Display the CPU utilization by this application and the total CPU "
 "utilization by all applications. The value is displayed in percent."
 msgstr "このアプリケーションによるCPU使用率と、すべてのアプリケーションによるCPU使用率の合計を表示します。値はパーセントで表示されます。"
 
-#: main.py:129
+#: main.py:130
 msgid "Memory utilization"
 msgstr "メモリ使用率"
 
-#: main.py:130
+#: main.py:131
 msgid ""
 "Display the memory (RAM) utilization by this application and by all "
 "applications. The value is displayed in percent."
 msgstr "このアプリケーションおよびすべてのアプリケーションによるメモリ（RAM）使用率を表示します。値はパーセントで表示されます。"
 
-#: main.py:297
+#: main.py:298
 msgid "UI"
 msgstr "UI"
 
-#: main.py:417
+#: main.py:418
 msgid "Help"
 msgstr "ヘルプ"
 
-#: main.py:418 widgets/hamburger/hamburger_widget.py:21
+#: main.py:419 widgets/hamburger/hamburger_widget.py:21
 msgid "Getting Started"
 msgstr "はじめに"
 
-#: main.py:419
+#: main.py:420
 msgid "Language"
 msgstr "使用言語"
 
-#: main.py:420
+#: main.py:421
 msgid "User's Guide"
 msgstr "ユーザーガイド"
 
-#: main.py:421 widgets/hamburger/hamburger_widget.py:22
+#: main.py:422 widgets/hamburger/hamburger_widget.py:22
 msgid "Changelog"
 msgstr "変更履歴"
 
-#: main.py:422 widgets/help/help_widget.py:63
+#: main.py:423 widgets/help/help_widget.py:63
 msgid "Report Issue"
 msgstr "報告書発行"
 
-#: main.py:423
+#: main.py:424
 msgid "View logs..."
 msgstr "ログを見る"
 
-#: main.py:424 widgets/hamburger/hamburger_widget.py:23
+#: main.py:425 widgets/hamburger/hamburger_widget.py:23
 msgid "Credits"
 msgstr "クレジット"
 
-#: main.py:425 widgets/hamburger/hamburger_widget.py:24
+#: main.py:426 widgets/hamburger/hamburger_widget.py:24
 msgid "About"
 msgstr "Joulescopeについて"
 
-#: main.py:429
+#: main.py:430
 msgid "Clear Accumulators"
 msgstr "クリアアキュムレータ"
 
-#: main.py:432
+#: main.py:434
 msgid "Configure high accuracy time"
 msgstr "高精度時間の設定"
 
 #: devices/serial/serial_port_dialog.py:145
-#: devices/serial/serial_port_dialog.py:159 main.py:455
+#: devices/serial/serial_port_dialog.py:159 main.py:457
 msgid "Open"
 msgstr "オープン"
 
-#: main.py:456
+#: main.py:458
 msgid "Open recent"
 msgstr "最近のオープン"
 
-#: main.py:457 main.py:507 widgets/trigger/trigger_widget.py:467
+#: main.py:459 main.py:509 widgets/trigger/trigger_widget.py:467
 #: widgets/trigger/trigger_widget.py:480
 msgid "Config"
 msgstr "構成"
 
-#: main.py:458 main.py:508 widgets/efficiency/efficiency_widget.py:635
+#: main.py:460 main.py:510 widgets/efficiency/efficiency_widget.py:635
 #: widgets/waveform/waveform_widget.py:4260
 msgid "Export"
 msgstr "輸出"
 
-#: main.py:459 main.py:509 main.py:963
+#: main.py:461 main.py:511 main.py:965
 msgid "Import and restart"
 msgstr "インポートして再起動"
 
-#: main.py:460 main.py:510 main.py:966
+#: main.py:462 main.py:512 main.py:968
 msgid "Import and exit"
 msgstr "インポートと終了"
 
-#: main.py:461 main.py:511 main.py:980
+#: main.py:463 main.py:513 main.py:982
 msgid "Clear and restart"
 msgstr "クリアおよび再起動"
 
-#: main.py:462 main.py:512 main.py:983
+#: main.py:464 main.py:514 main.py:985
 msgid "Clear and exit"
 msgstr "明確で分かりやすい"
 
-#: main.py:467 widgets/settings/settings_widget.py:661
+#: main.py:469 widgets/settings/settings_widget.py:661
 msgid "Widgets"
 msgstr "ウィジェット"
 
-#: main.py:468
+#: main.py:470
 msgid "Tools"
 msgstr "ツール"
 
-#: main.py:502
+#: main.py:504
 msgid "Info"
 msgstr "情報"
 
-#: main.py:503 widget_tools.py:119 widgets/settings/settings_widget.py:32
+#: main.py:505 widget_tools.py:119 widgets/settings/settings_widget.py:32
 #: widgets/settings/settings_widget.py:694
 #: widgets/sidebar/sidebar_widget.py:42
 msgid "Settings"
 msgstr "設定"
 
-#: main.py:823
+#: main.py:825
 msgid "Manage"
 msgstr "管理"
 
-#: main.py:883
+#: main.py:885
 msgid "Select file to open"
 msgstr "ファイルを選択して開く"
 
-#: main.py:926
+#: main.py:928
 msgid "Configuration export failed."
 msgstr "設定のエクスポートに失敗しました。"
 
-#: main.py:940
+#: main.py:942
 msgid "Import configuration"
 msgstr "設定のインポート"
 
-#: main.py:959
+#: main.py:961
 msgid "The selected file is not a valid Joulescope UI configuration."
 msgstr "選択されたファイルは、有効なJoulescope UI設定ではありません。"
 
-#: main.py:964
+#: main.py:966
 msgid "Replace the current configuration with the imported file and restart?"
 msgstr "現在の設定をインポートしたファイルに置き換えて、再起動しますか？"
 
-#: main.py:967
+#: main.py:969
 msgid "Replace the current configuration with the imported file and exit?"
 msgstr "現在の設定をインポートしたファイルに置き換えて終了しますか？"
 
-#: main.py:981
+#: main.py:983
 msgid "Clear the configuration and restart?"
 msgstr "設定をクリアして再起動しますか？"
 
-#: main.py:984
+#: main.py:986
 msgid "Clear the configuration and exit?"
 msgstr "設定をクリアして終了しますか？"
 
@@ -4251,13 +4391,6 @@ msgstr "「時間」、「分」、「秒」は、それぞれの単位での小
 #: widgets/waveform/waveform_widget.py:3928
 msgid "Conventional"
 msgstr "従来の"
-
-#: widgets/waveform/waveform_widget.py:602
-#: widgets/waveform/waveform_widget.py:3763
-#: widgets/waveform/waveform_widget.py:3929
-#: widgets/waveform/waveform_widget.py:4284
-msgid "Auto"
-msgstr "オート"
 
 #: widgets/waveform/waveform_widget.py:603
 #: widgets/waveform/waveform_widget.py:3930
