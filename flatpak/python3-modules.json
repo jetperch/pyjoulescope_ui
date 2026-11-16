@@ -243,13 +243,13 @@
             "name": "python3-joulescope_event_analyzer",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"joulescope_event_analyzer>=0.1.0,<1\" --no-build-isolation"
+                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"joulescope_event_analyzer>=0.1.1,<1\" --no-build-isolation"
             ],
             "sources": [
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/32/e9/a9eac7952e0d3d7b3367f6dd51e04ea69850415ffd5608eeeafc0fde1e80/joulescope_event_analyzer-0.1.0-py3-none-any.whl",
-                    "sha256": "e2ac14212a6afb6b33fce78fca5a8942622950c4ee7e2514fc8d8442938d3f0a"
+                    "url": "https://files.pythonhosted.org/packages/de/9c/0c2258cbe4a6b637f415e1f2df32803758376f6503f871623c7e4f10b882/joulescope_event_analyzer-0.1.1-py3-none-any.whl",
+                    "sha256": "db99dd5c7b18aa21e6859282cfecde725db2507d2eca6462c7aad7616daadf1b"
                 },
                 {
                     "type": "file",

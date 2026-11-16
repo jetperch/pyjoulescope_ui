@@ -85,8 +85,9 @@ Remember the last-used values in the UI settings (not the file path).
   package).  Bundle `plotly.min.js` (MIT) in the UI resources and point the
   analyzer at it, so that reports work offline from the first run with no
   download.  Add it to the credits.
-* **Dependency.**  `joulescope_event_analyzer>=0.1.0,<1` is an
-  `install_requires` entry (on PyPI since 2026-11-16).  The UI imports it
+* **Dependency.**  `joulescope_event_analyzer>=0.1.1,<1` is an
+  `install_requires` entry.  0.1.1 fixes event tails biasing the sleep
+  current, found in the Stage 3 hardware test.  The UI imports it
   lazily, inside the functions that use it.
 * **Settings.**  The dialog's last-used values live in
   `registry/event_analyzer/settings/*`, flagged `hide`: they are dialog
@@ -128,7 +129,15 @@ joulescope_event_analyzer 0.1.0 released to PyPI 2026-11-16.
 * CHANGELOG entry; user's guide section on docs.joulescope.com marked
   alpha.
 
-### Stage 3: Verification
+### Stage 3: Verification — hardware done; packaged builds open
+
+ADP3450 W2 → 100 Ω → JS320 current, playing repeating waveforms with known
+events (2026-11-16): one type, three interleaved types, amplitude jitter,
+merge gap, 0.3 µC and 12 nC events, sleep dips, a 2 ms exponential tail,
+at 1 MHz and 50 kHz.  The tail exposed a sleep-estimate bias, fixed in
+analyzer 0.1.1; see the analyzer's CLAUDE.md "Hardware validation".  The
+harness needs the private ADP3450 wrapper, so it belongs in joulescope_ci.
+
 
 * Analyze a JS220 and a JS320 capture (1 MHz and a downsampled rate) from
   the packaged build on Windows and Linux with the network disabled; check
