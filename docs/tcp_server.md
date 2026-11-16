@@ -119,6 +119,14 @@ client.qt_action('click', path='my_button')
 client.qt_action('click', path='my_button', pos=[10, 10], button='LeftButton')
 ```
 
+**Context menu:** request a context menu as a real right-click does, for
+widgets that use `contextMenuEvent` or `customContextMenuRequested`.  Then
+use `menu_items` and `menu_invoke`.
+
+```python
+client.qt_action('context_menu', path='my_tree', pos=[20, 30])
+```
+
 **Key press:**
 
 ```python

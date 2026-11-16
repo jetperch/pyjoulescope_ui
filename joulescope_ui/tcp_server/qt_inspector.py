@@ -417,6 +417,17 @@ class QtInspector:
             QtWidgets.QApplication.sendEvent(widget, release)
             return {'ok': True, 'action': 'click'}
 
+        elif action == 'context_menu':
+            # Request a context menu, as a real right-click does.  The 'click'
+            # action only sends mouse events, which widgets that use
+            # contextMenuEvent or customContextMenuRequested ignore.
+            pos = header.get('pos')
+            pos = widget.rect().center() if pos is None else QtCore.QPoint(pos[0], pos[1])
+            event = QtGui.QContextMenuEvent(QtGui.QContextMenuEvent.Reason.Mouse,
+                                            pos, widget.mapToGlobal(pos))
+            QtWidgets.QApplication.sendEvent(widget, event)
+            return {'ok': True, 'action': 'context_menu'}
+
         elif action == 'drag':
             button = getattr(QtCore.Qt, header.get('button', 'LeftButton'), QtCore.Qt.LeftButton)
             no_button = QtCore.Qt.MouseButton.NoButton

@@ -20,7 +20,7 @@ from unittest import mock
 
 os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
 
-from PySide6 import QtWidgets
+from PySide6 import QtCore, QtWidgets
 from joulescope_ui.tcp_server.qt_inspector import QtInspector
 
 
@@ -52,6 +52,32 @@ class TestCursorAction(unittest.TestCase):
             if result['widget'] is not None:  # offscreen platform dependent
                 self.assertEqual('cursor_target', result['widget']['objectName'])
                 self.assertEqual(2, len(result['widget']['window_local']))
+        finally:
+            w.close()
+
+
+class TestContextMenuAction(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+
+    def setUp(self):
+        self.inspector = QtInspector(pubsub=None)
+
+    def test_custom_context_menu_requested(self):
+        w = QtWidgets.QWidget()
+        w.setObjectName('context_target')
+        w.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.CustomContextMenu)
+        requests = []
+        w.customContextMenuRequested.connect(lambda pos: requests.append((pos.x(), pos.y())))
+        w.resize(100, 100)
+        w.show()
+        try:
+            with mock.patch.object(QtWidgets.QApplication, 'activeWindow', return_value=w):
+                rsp = self.inspector._action({'action': 'context_menu', 'path': '', 'pos': [10, 20]})
+            self.assertTrue(rsp['ok'])
+            self.assertEqual([(10, 20)], requests)
         finally:
             w.close()
 
