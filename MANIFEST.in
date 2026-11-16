@@ -7,3 +7,4 @@ recursive-include joulescope_ui *.svg *.json *.qss *.rcc *.html *.md *.txt *.py 
 recursive-include joulescope_ui/locale *
 include joulescope_ui/test/*.jls
 include joulescope_ui/resources/icon.ico
+include joulescope_ui/resources/plotly/plotly.min.js

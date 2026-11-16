@@ -54,6 +54,7 @@ from .app import App
 from .paths import Paths
 from .view import View  # registers the view manager
 import joulescope_ui.range_tools   # register range_tools
+import joulescope_ui.event_analyzer   # register the Event Analyzer dialog
 import appnope
 import datetime
 import json
@@ -427,6 +428,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         tools = [
             ['accum_clear', N_('Clear Accumulators'), ['registry/ui/actions/!accum_clear', None]],
+            ['event_analyzer', N_('Event Analyzer (alpha)'), ['registry/event_analyzer/actions/!show', None]],
         ]
         if sys.platform.startswith('win'):
             w32time_tool = ['w32time', N_('Configure high accuracy time'), ['registry/ui/actions/!w32time', None]]

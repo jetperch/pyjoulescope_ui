@@ -22,6 +22,7 @@ check-manifest>=0.37,<1
 coverage>=4.5.2
 pyjoulescope_driver>=2.5.7,<3      # also update JOULESCOPE_DRIVER_VERSION_MIN in setup.py
 joulescope>=1.7.3,<2               # also update JOULESCOPE_VERSION_MIN in setup.py
+joulescope_event_analyzer>=0.1.0,<1
 markdown>=3,<4
 psutil>=5,<8
 pyjls>=0.19.1,<1

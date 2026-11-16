@@ -85,19 +85,22 @@ Remember the last-used values in the UI settings (not the file path).
   package).  Bundle `plotly.min.js` (MIT) in the UI resources and point the
   analyzer at it, so that reports work offline from the first run with no
   download.  Add it to the credits.
-* **Dependency.**  `joulescope_event_analyzer` becomes an `install_requires`
-  entry once it is on PyPI.  Until then, the import is optional and the
-  menu item is hidden when the package is missing.
+* **Dependency.**  `joulescope_event_analyzer>=0.1.0,<1` is an
+  `install_requires` entry (on PyPI since 2026-11-16).  The UI imports it
+  lazily, inside the functions that use it.
+* **Settings.**  The dialog's last-used values live in
+  `registry/event_analyzer/settings/*`, flagged `hide`: they are dialog
+  state, so the Settings widget and its Reset leave them alone.
 
 
 ## Stages
 
-### Stage 0: Analyzer library entry point (analyzer repo)
+### Stage 0: Analyzer library entry point (analyzer repo) — DONE
 
-Add `analyze_file` (see Design), use it in `cmd_analyze`, test it, and
-release the analyzer (see the analyzer's public release checklist).
+`analyze_file` with `plotly=` and cancel through the progress callback;
+joulescope_event_analyzer 0.1.0 released to PyPI 2026-11-16.
 
-### Stage 1: Dialog, worker, menu item
+### Stage 1: Dialog, worker, menu item — DONE
 
 * `joulescope_ui/event_analyzer.py`: dialog, option-to-`Config` mapping,
   worker, result handling.
@@ -105,12 +108,23 @@ release the analyzer (see the analyzer's public release checklist).
 * Unit tests: option-to-`Config` mapping, default output directory, worker
   success, error and cancel paths on a synthetic JLS (write one with
   `joulescope_event_analyzer.synthetic` and pyjls).
+  (`joulescope_ui/test/test_event_analyzer.py`)
 
-### Stage 2: Packaging
+### Stage 2: Packaging — DONE except the user's guide
 
-* Add the dependency to `setup.py` and the release builds (Windows,
-  macOS, Flatpak).  Check that PyInstaller collects the package.
-* Bundle plotly.js and add it to the credits.
+* Add the dependency to `setup.py`, `requirements.txt` and
+  `flatpak/requirements-flatpak.txt`, and regenerate
+  `flatpak/python3-modules.json`.  The regeneration also brought the
+  Flatpak's stale pins up to `setup.py` (pyjls 0.17 → 0.19.2, driver
+  2.2.9 → 2.5.7, joulescope 1.5.0 → 1.7.3, QtAds 4.5 → 5.0.0.2).  PySide6
+  stays at 6.11 in the Flatpak: 6.12 adds PySide6_WebEngine and
+  PySide6_Pdf, which flatpak-pip-generator cannot pin.
+* PyInstaller finds the package through its imports; check the packaged
+  build in Stage 3.
+* Bundle plotly.js (`joulescope_ui/resources/plotly/`, with its MIT
+  license; MANIFEST.in includes it) and add it and the analyzer to the
+  credits.  A test checks that the bundled file matches the analyzer's
+  pinned SHA-256, so bump both together.
 * CHANGELOG entry; user's guide section on docs.joulescope.com marked
   alpha.
 

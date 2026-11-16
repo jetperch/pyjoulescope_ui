@@ -34,6 +34,13 @@ This file contains the list of changes made to pyjoulescope_ui.
   the same time interval, so the free-running instrument clocks do not
   affect the result.  See "Theory: Efficiency" on docs.joulescope.com for
   the wiring that keeps the burden voltage out of the measurement.
+* Added Tools → Event Analyzer (alpha).  Select a JLS capture and the
+  analyzer finds the wake-up events above the sleep current, groups
+  repeated events into types by waveform shape, and accounts for all of
+  the charge.  It writes an HTML report, which opens in your web browser,
+  plus CSV and summary JSON files, by default next to the capture.  The
+  report works offline and can be shared as a single file.  This preview
+  uses the new joulescope_event_analyzer package; please share feedback.
 * Fixed the empty Colors, Fonts and Defines tabs in the Settings widget for
   widget defaults (Widgets → Waveform, for example) and View defaults
   (forum 1153).  The default colors now apply right away to every existing

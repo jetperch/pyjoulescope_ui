@@ -196,6 +196,7 @@ setuptools.setup(
         'appnope>=0.1.2,<1',
         'pyjoulescope_driver>=2.5.7,<3',
         'joulescope>=1.7.3,<2',
+        'joulescope_event_analyzer>=0.1.0,<1',
         'markdown>=3,<4',
         'psutil>=5,<8',
         'pyjls>=0.19.1,<1',
