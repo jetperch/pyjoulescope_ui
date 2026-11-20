@@ -17,6 +17,17 @@
 
 # Event Analyzer (alpha) in Tools
 
+## Status (2026-11-19)
+
+Stages 0-2 are on main (`5c3a3a9`, `073b0c9`) and listed under 1.8.1 in
+`CHANGELOG.md`; there is no `v1.8.1` tag yet.  The Stage 3 bench check is
+done.  Remaining:
+
+* The user's guide section (Stage 2).  joulescope_docs has no Event
+  Analyzer page yet.
+* The packaged-build checks in Stage 3: Windows and Linux with the network
+  off, charts render, Cancel, and memory and time on a multi-hour capture.
+
 ## Context
 
 [joulescope_event_analyzer](https://github.com/jetperch/joulescope_event_analyzer)

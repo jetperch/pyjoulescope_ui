@@ -1,5 +1,13 @@
 # Efficiency widget follow-up
 
+## Status (2026-11-19)
+
+Nothing here is done yet.  Item 6 (unit tests) is pure software and can
+run now: `test_efficiency_engine.py` and `test_efficiency_widget.py` exist,
+but none of the item 6 cases is covered.  Items
+1-4 need the agent bench, and item 5 needs a farm station with two
+instruments.
+
 ## Context
 
 The Efficiency widget shipped from
