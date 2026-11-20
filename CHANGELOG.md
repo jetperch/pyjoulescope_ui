@@ -22,6 +22,16 @@ This file contains the list of changes made to pyjoulescope_ui.
 ---
 
 
+## 1.8.2
+
+2026 Nov 20 [in progress, unreleased]
+
+* Fixed missing icons and fonts on macOS when the UI is installed with pip.
+  The source package compiled its Qt resources with zstd compression on
+  Linux, but the macOS PySide6 Qt has no zstd support, so it rejected
+  them.  The resources now use zlib, which every Qt build supports.
+
+
 ## 1.8.1
 
 2026 Nov 16

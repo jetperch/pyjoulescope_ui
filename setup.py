@@ -76,7 +76,10 @@ def convert_qt_ui():
                     target = os.path.join(os.path.dirname(root), source)
                     target = os.path.splitext(target)[0] + '.rcc'
                     print(f'Generate {os.path.relpath(target, MYPATH)}')
-                    rc = subprocess.run([rcc_path, src, '--binary', '--threshold', '33', '-o', target])
+                    # zlib: the macOS PySide6 Qt has no zstd, so it rejects zstd
+                    # resources built on Linux (registerResourceData fails).
+                    rc = subprocess.run([rcc_path, src, '--binary', '--threshold', '33',
+                                         '--compress-algo', 'zlib', '-o', target])
                     if rc.returncode:
                         raise RuntimeError('failed on .qrc file')
                 else:
