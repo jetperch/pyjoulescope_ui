@@ -166,7 +166,7 @@ SETTINGS = {
     },
     'mode': {
         'dtype': 'str',
-        'brief': 'The trigger mode.',
+        'brief': N_('The trigger mode.'),
         'default': 'single',
         'options': [
             ['single', _RUN_MODE_SINGLE],
@@ -186,7 +186,7 @@ SETTINGS = {
     },
     'config': {
         'dtype': 'obj',
-        'brief': 'The trigger configuration.',
+        'brief': N_('The trigger configuration.'),
         'default': None,
     },
 }

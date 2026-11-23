@@ -16,6 +16,7 @@
 from PySide6 import QtWidgets
 from .color_picker import ColorItem
 from joulescope_ui.styles import color_file
+from joulescope_ui.locale import N_
 import os
 
 
@@ -71,7 +72,7 @@ class ColorEditor(QtWidgets.QWidget):
         colors = set(c_dark.keys())
         colors = colors.union(c_light.keys())
 
-        name_label = QtWidgets.QLabel('Color', self._middle)
+        name_label = QtWidgets.QLabel(N_('Color'), self._middle)
         self._color_widgets.append(name_label)
         self._grid.addWidget(name_label, 0, 0, 1, 1)
         for color_scheme_idx, color_scheme in enumerate(color_map.keys()):

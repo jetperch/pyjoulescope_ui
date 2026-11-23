@@ -230,11 +230,17 @@ class _DeviceWidget(QtWidgets.QWidget):
         except Exception:
             pass
 
+    def _selected_unique_id(self):
+        idx = self._device_select.currentIndex()
+        if 0 <= idx < len(self._device_unique_ids):
+            return self._device_unique_ids[idx]
+        return None
+
     def device_show(self, unique_id):
         if unique_id is None:
             self._device_label.show()
             self._device_label.setText(N_('Not present'))
-        elif self._device_unique_ids[self._device_select.currentIndex()] == 'default':
+        elif self._selected_unique_id() == 'default':
             self._device_label.show()
             self._device_label.setText(self._unique_id_to_name(unique_id))
         else:

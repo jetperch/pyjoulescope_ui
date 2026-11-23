@@ -20,6 +20,7 @@ between the local application and remote clients, and provides Qt
 widget inspection for test automation.
 """
 
+from joulescope_ui.locale import N_
 import asyncio
 import logging
 import os
@@ -37,20 +38,20 @@ _log = logging.getLogger(__name__)
 _SETTINGS = {
     'enable': {
         'dtype': 'bool',
-        'brief': 'Enable TCP server',
-        'detail': 'When enabled, a TCP socket server listens for connections from external processes.',
+        'brief': N_('Enable TCP server'),
+        'detail': N_('When enabled, a TCP socket server listens for connections from external processes.'),
         'default': False,
     },
     'host': {
         'dtype': 'str',
-        'brief': 'Server bind address',
-        'detail': 'The network interface to bind to.  Use 127.0.0.1 for localhost only.',
+        'brief': N_('Server bind address'),
+        'detail': N_('The network interface to bind to.  Use 127.0.0.1 for localhost only.'),
         'default': '127.0.0.1',
     },
     'port': {
         'dtype': 'u16',
-        'brief': 'Server TCP port',
-        'detail': 'The TCP port number for the server.',
+        'brief': N_('Server TCP port'),
+        'detail': N_('The TCP port number for the server.'),
         'default': DEFAULT_PORT,
     },
 }

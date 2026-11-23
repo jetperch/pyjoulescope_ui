@@ -135,7 +135,7 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._layout.addItem(self._spacer_l)
 
         self._markers_label = QtWidgets.QLabel(self)
-        self._markers_label.setText('Markers:')
+        self._markers_label.setText(N_('Markers:'))
         self._layout.addWidget(self._markers_label)
 
         self._add_button('marker_add1', self._on_markers_single_add, _TOOLTIP_MARKER_SINGLE_ADD)
@@ -143,7 +143,7 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._add_button('marker_clear', self._on_markers_clear, _TOOLTIP_MARKER_CLEAR)
 
         self._x_axis_label = QtWidgets.QLabel(self)
-        self._x_axis_label.setText('X-Axis:')
+        self._x_axis_label.setText(N_('X-Axis:'))
         self._layout.addWidget(self._x_axis_label)
 
         self._add_button('zoom_in', self._on_x_axis_zoom_in, _TOOLTIP_X_AXIS_ZOOM_IN)
@@ -159,7 +159,7 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._add_button('y_zoom_all', self._on_y_axis_zoom_all, _TOOLTIP_Y_AXIS_ZOOM_ALL)
 
         self._show_min_max_label = QtWidgets.QLabel(self)
-        self._show_min_max_label.setText('Min/Max:')
+        self._show_min_max_label.setText(N_('Min/Max:'))
         self._show_min_max_label.setToolTip(_TOOLTIP_MIN_MAX)
         self._layout.addWidget(self._show_min_max_label)
 
@@ -170,7 +170,7 @@ class WaveformControlWidget(QtWidgets.QWidget):
         self._min_max_sel.currentIndexChanged.connect(self._on_min_max_sel)
 
         self._signals_label = QtWidgets.QLabel(self)
-        self._signals_label.setText('Signals:')
+        self._signals_label.setText(N_('Signals:'))
         self._layout.addWidget(self._signals_label)
 
         self._signal_holder = QtWidgets.QWidget(self)

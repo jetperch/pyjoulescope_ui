@@ -25,7 +25,7 @@ https://docs.python.org/3/library/importlib.html
 """
 
 
-from joulescope_ui import is_release, get_topic_name, get_instance
+from joulescope_ui import N_, is_release, get_topic_name, get_instance
 from joulescope_ui.pubsub import REGISTRY_MANAGER_TOPICS
 from PySide6 import QtCore, QtWidgets
 import importlib
@@ -56,12 +56,12 @@ class PluginManager(QtCore.QObject):
         },
         'monitor': {
             'dtype': 'str',
-            'brief': 'Monitor a plugin for changes',
+            'brief': N_('Monitor a plugin for changes'),
             'default': None,
         },
         'monitor_reload_delay_ms': {
             'dtype': 'int',
-            'brief': 'Monitor reload delay from filesystem changes in milliseconds.',
+            'brief': N_('Monitor reload delay from filesystem changes in milliseconds.'),
             'default': 250,
         },
     }

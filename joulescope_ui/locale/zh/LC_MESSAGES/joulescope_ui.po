@@ -248,6 +248,10 @@ msgstr "未指定"
 msgid "Prompt to switch from Intel graphics to software renderer."
 msgstr "提示从英特尔显卡切换到软件渲染器。"
 
+#: disk_monitor.py:33
+msgid "The free threshold for declaring fullness"
+msgstr "判定磁盘已满的剩余空间阈值"
+
 #: devices/serial/serial_port_dialog.py:181
 #: devices/serial/serial_port_dialog.py:203 error_dialog.py:42
 #: error_window.py:311
@@ -665,6 +669,18 @@ msgid ""
 "options."
 msgstr "点击左下角的帮助图标，了解更多信息和支持选项。"
 
+#: jls_source.py:110
+msgid "The name for this JLS stream buffer source"
+msgstr "此 JLS 数据流缓冲源的名称"
+
+#: jls_source.py:115
+msgid "The file path."
+msgstr "文件路径。"
+
+#: jls_source.py:120
+msgid "The user notes."
+msgstr "用户备注。"
+
 #: locale_dialog.py:21
 msgid "Select a language"
 msgstr "选择语言"
@@ -673,7 +689,7 @@ msgstr "选择语言"
 msgid "The application will automatically close when you change the locale."
 msgstr "更改语言区域后，应用程序将自动关闭。"
 
-#: main.py:79 widgets/value/value_widget.py:787
+#: main.py:79 widgets/value/value_widget.py:793
 msgid "Multimeter"
 msgstr "万用表"
 
@@ -938,7 +954,7 @@ msgstr "最近使用列表长度"
 
 #: range_tool.py:334
 msgid "Range tool failed"
-msgstr "量程工具失败"
+msgstr "范围工具失败"
 
 #: safe_mode.py:31
 msgid "Options"
@@ -1016,6 +1032,8 @@ msgid "Copy to clipboard"
 msgstr "复制到剪贴板"
 
 #: software_update.py:334 widgets/device_control/device_update_dialog.py:44
+#: widgets/view_manager/view_manager_widget.py:136
+#: widgets/waveform/text_annotation.py:168
 msgid "OK"
 msgstr "确定"
 
@@ -1709,6 +1727,21 @@ msgstr "缓冲存储器大小（字节）"
 msgid "Buffer memory duration in seconds"
 msgstr "缓冲存储器持续时间（秒）"
 
+#: devices/jsdrv/jsdrv_stream_buffer.py:72 widgets/memory/memory_widget.py:242
+msgid "Clear on play"
+msgstr "播放时清除"
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:73
+msgid ""
+"When signal sample streaming is paused, the stream buffer pauses sample "
+"accumulation. This setting controls what happens on play when streaming "
+"resumes. When unset, the buffer continues to accumulate samples into the "
+"existing buffer data. This mode treats the pause duration as missing "
+"samples. When set, the buffer is cleared and all prior data is purged. The "
+"buffer functions as if sample streaming started for the first time."
+msgstr ""
+"信号采样流暂停时，数据流缓冲器会暂停采样累积。此设置控制恢复播放、重新开始流传输时的行为。未设置时，缓冲器会继续将采样累积到现有缓冲数据中，暂停期间视为缺失采样。设置后，缓冲器会被清空，之前的所有数据都会被清除，缓冲器的行为如同首次开始采样流传输。"
+
 #: devices/jsdrv/jsdrv_stream_buffer.py:94
 msgid "Source name"
 msgstr "源名称"
@@ -1811,6 +1844,14 @@ msgstr "删除"
 msgid "Invalid baud rate"
 msgstr "波特率无效"
 
+#: plugins/manager.py:59
+msgid "Monitor a plugin for changes"
+msgstr "监视插件的更改"
+
+#: plugins/manager.py:64
+msgid "Monitor reload delay from filesystem changes in milliseconds."
+msgstr "文件系统发生更改后，监视功能重新加载前的延迟（毫秒）。"
+
 #: plugins/selector.py:32
 msgid "Plugins"
 msgstr "插件"
@@ -1825,7 +1866,7 @@ msgstr "活动"
 
 #: plugins/selector.py:128
 msgid "Monitor"
-msgstr "监控器"
+msgstr "监视"
 
 #: range_tools/cdf.py:28
 msgid "Compute the Cumulative Distribution Function"
@@ -1846,6 +1887,10 @@ msgid ""
 msgstr ""
 "用于分析电流或功率时，它以图形方式显示在每种电流模式下所花费的时间。与直方图相比，CDF 只需测量 y 轴值的变化，就能更轻松地比较每种模式下的时间量。"
 
+#: range_tools/cdf.py:76
+msgid "Hold the data"
+msgstr "保持数据"
+
 #: range_tools/cdf.py:147
 msgid "Probability"
 msgstr "概率"
@@ -1853,6 +1898,15 @@ msgstr "概率"
 #: range_tools/cdf.py:168
 msgid "CDF configuration"
 msgstr "CDF 配置"
+
+#: range_tools/cdf.py:175 range_tools/frequency.py:194
+#: range_tools/histogram.py:44 range_tools/max_window.py:109
+#: widgets/spectrum/spectrum_control.py:36
+#: widgets/spectrum/spectrum_widget.py:1071
+#: widgets/trigger/trigger_widget.py:220
+#: widgets/waveform/waveform_widget.py:4417
+msgid "Signal"
+msgstr "信号"
 
 #: range_tools/cdf.py:182 range_tools/histogram.py:50
 msgid "Number of bins (0 for auto)"
@@ -1876,9 +1930,26 @@ msgid ""
 "signal's data values over the selected range."
 msgstr "计算频谱，分析选定范围内信号数据值的频率内容。"
 
+#: range_tools/frequency.py:94 range_tools/histogram.py:103
+msgid "Hold the histogram data"
+msgstr "保持直方图数据"
+
 #: range_tools/frequency.py:187
 msgid "Frequency configuration"
 msgstr "频率配置"
+
+#: range_tools/frequency.py:203 widgets/spectrum/spectrum_control.py:47
+#: widgets/spectrum/spectrum_widget.py:107
+msgid "Window"
+msgstr "窗函数"
+
+#: range_tools/frequency.py:214
+msgid "FFT Length"
+msgstr "FFT 长度"
+
+#: range_tools/frequency.py:225
+msgid "Overlap %"
+msgstr "重叠 %"
 
 #: range_tools/histogram.py:24
 msgid "Histogram"
@@ -1895,13 +1966,6 @@ msgstr "频率分布"
 #: range_tools/histogram.py:28
 msgid "Probability Density Distribution"
 msgstr "概率密度分布"
-
-#: range_tools/histogram.py:44 range_tools/max_window.py:109
-#: widgets/spectrum/spectrum_control.py:36
-#: widgets/spectrum/spectrum_widget.py:1071
-#: widgets/trigger/trigger_widget.py:220
-msgid "Signal"
-msgstr "信号"
 
 #: range_tools/histogram.py:56
 msgid "Histogram type"
@@ -1962,6 +2026,10 @@ msgid ""
 "for analysis."
 msgstr "使用双标记选择目标设备通电后至少 100 毫秒。该工具将把所选数据发送到 USBET 工具进行分析。"
 
+#: styles/color_editor.py:75 widgets/settings/settings_widget.py:336
+msgid "Color"
+msgstr "颜色"
+
 #: styles/color_scheme.py:21
 msgid "dark"
 msgstr "深色"
@@ -1985,6 +2053,32 @@ msgstr "默认值"
 #: styles/font_scheme.py:22
 msgid "Joulescope default font scheme"
 msgstr "Joulescope 默认字体方案"
+
+#: tcp_server/__init__.py:41
+msgid "Enable TCP server"
+msgstr "启用 TCP 服务器"
+
+#: tcp_server/__init__.py:42
+msgid ""
+"When enabled, a TCP socket server listens for connections from external "
+"processes."
+msgstr "启用后，TCP 套接字服务器将侦听来自外部进程的连接。"
+
+#: tcp_server/__init__.py:47
+msgid "Server bind address"
+msgstr "服务器绑定地址"
+
+#: tcp_server/__init__.py:48
+msgid "The network interface to bind to. Use 127.0.0.1 for localhost only."
+msgstr "要绑定的网络接口。使用 127.0.0.1 则仅限本机访问。"
+
+#: tcp_server/__init__.py:53
+msgid "Server TCP port"
+msgstr "服务器 TCP 端口"
+
+#: tcp_server/__init__.py:54
+msgid "The TCP port number for the server."
+msgstr "服务器的 TCP 端口号。"
 
 #: widgets/accumulator/accumulator_widget.py:27
 #: widgets/value/value_widget.py:32
@@ -2060,6 +2154,10 @@ msgstr "演示"
 msgid "Device Control"
 msgstr "设备控制"
 
+#: widgets/device_control/device_info_dialog.py:30
+msgid "Device Information"
+msgstr "设备信息"
+
 #: widgets/device_control/device_update_dialog.py:24
 #: widgets/device_control/device_update_dialog.py:45
 msgid "Update"
@@ -2112,6 +2210,7 @@ msgstr "全不选"
 #: widgets/device_control/device_update_dialog.py:43
 #: widgets/js220_cal/js220_cal_widget.py:37
 #: widgets/js320_cal/js320_cal_widget.py:59
+#: widgets/waveform/text_annotation.py:167
 msgid "Cancel"
 msgstr "取消"
 
@@ -2141,7 +2240,7 @@ msgstr "保险丝跳闸阈值"
 
 #: widgets/device_control/fuse.py:33
 msgid "Any current above this threshold will eventually trip the fuse."
-msgstr "任何超过此阈值的电流最终都会触发保险丝。"
+msgstr "任何超过此阈值的电流最终都会导致保险丝跳闸。"
 
 #: widgets/device_control/fuse.py:37
 msgid "Fuse speed threshold"
@@ -2192,8 +2291,6 @@ msgid "Fuse response"
 msgstr "保险丝响应"
 
 #: widgets/device_control/fuse.py:102
-#: widgets/record_status/record_stop_config_widget.py:31
-#: widgets/serial_console/serial_console_widget.py:72
 msgid "Time"
 msgstr "时间"
 
@@ -2360,9 +2457,7 @@ msgid "Enable the instrument signals that this widget needs."
 msgstr "请启用该小部件所需的仪器信号。"
 
 #: widgets/efficiency/efficiency_control.py:52
-#: widgets/efficiency/efficiency_widget.py:732
-#: widgets/spectrum/spectrum_control.py:67
-#: widgets/spectrum/spectrum_widget.py:1191 widgets/value/value_widget.py:256
+#: widgets/spectrum/spectrum_control.py:67 widgets/value/value_widget.py:262
 msgid "Hold"
 msgstr "保持"
 
@@ -2592,6 +2687,12 @@ msgstr "选择不同的输入和输出仪器"
 #, python-brace-format
 msgid "Disabled: {0}"
 msgstr "已禁用：{0}"
+
+#: widgets/efficiency/efficiency_widget.py:732
+#: widgets/spectrum/spectrum_widget.py:1191
+msgctxt "state"
+msgid "Hold"
+msgstr "已保持"
 
 #: widgets/efficiency/efficiency_widget.py:734
 msgid "Curve hold"
@@ -2839,7 +2940,7 @@ msgstr "有效"
 
 #: widgets/js320_cal/js320_cal_widget.py:204
 msgid "Source info"
-msgstr "来源信息"
+msgstr "源信息"
 
 #: widgets/js320_cal/js320_cal_widget.py:205
 msgid "Date"
@@ -2882,10 +2983,6 @@ msgstr "可用 RAM 大小"
 #: widgets/memory/memory_widget.py:221
 msgid "Used RAM size"
 msgstr "使用的 RAM 大小"
-
-#: widgets/memory/memory_widget.py:242
-msgid "Clear on play"
-msgstr "播放时清除"
 
 #: widgets/notes/notes_widget.py:28
 msgid "The notes value."
@@ -2943,6 +3040,12 @@ msgstr "经过一段时间后"
 msgid "At a specific time"
 msgstr "在特定时刻"
 
+#: widgets/record_status/record_stop_config_widget.py:31
+#: widgets/serial_console/serial_console_widget.py:72
+msgctxt "clock"
+msgid "Time"
+msgstr "时间"
+
 #: widgets/record_status/record_stop_config_widget.py:32
 msgid "Configure recording stop"
 msgstr "配置记录停止"
@@ -2987,13 +3090,9 @@ msgstr "注释波形"
 msgid "External Serial..."
 msgstr "外部串行..."
 
-#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:796
+#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:802
 msgid "Value"
 msgstr "值"
-
-#: widgets/settings/settings_widget.py:336
-msgid "Color"
-msgstr "颜色"
 
 #: widgets/settings/settings_widget.py:443
 msgid "Font"
@@ -3124,6 +3223,14 @@ msgstr "单击可显示其他设置和操作。"
 msgid "sidebar"
 msgstr "侧边栏"
 
+#: widgets/sidebar/sidebar_widget.py:89
+msgid "Show the separator between widgets."
+msgstr "显示小部件之间的分隔线。"
+
+#: widgets/sidebar/sidebar_widget.py:94
+msgid "The size of the separator."
+msgstr "分隔线的大小。"
+
 #: widgets/signal_record/disk_full_dialog.py:19
 msgid "The disk is full"
 msgstr "磁盘已满"
@@ -3178,14 +3285,14 @@ msgstr "选择要分析的信号。"
 #: widgets/spectrum/spectrum_control.py:38
 #: widgets/spectrum/spectrum_widget.py:87
 msgid "Span"
-msgstr "跨度"
+msgstr "扫宽"
 
 #: widgets/spectrum/spectrum_control.py:39
 msgid ""
 "The analyzed frequency span. Spans narrower than the full sample rate "
 "decimate the signal before the FFT, which improves the resolution bandwidth "
 "for the same FFT length."
-msgstr "被分析的频率范围。若频率范围小于全采样率，系统会在进行 FFT 之前对信号进行降采样，从而在相同的 FFT 长度下提高分辨率带宽。"
+msgstr "被分析的频率扫宽。若扫宽小于全采样率，系统会在进行 FFT 之前对信号进行降采样，从而在相同的 FFT 长度下获得更精细的分辨率带宽。"
 
 #: widgets/spectrum/spectrum_control.py:43
 #: widgets/spectrum/spectrum_widget.py:97
@@ -3196,12 +3303,7 @@ msgstr "FFT长度"
 msgid ""
 "The number of samples in each FFT. Longer FFTs give finer resolution "
 "bandwidth (RBW) but update less often."
-msgstr "每次 FFT 的采样点数。FFT 长度越长，分辨率带宽 (RBW) 越高，但更新频率越低。"
-
-#: widgets/spectrum/spectrum_control.py:47
-#: widgets/spectrum/spectrum_widget.py:107
-msgid "Window"
-msgstr "窗函数"
+msgstr "每次 FFT 的采样点数。FFT 长度越长，分辨率带宽 (RBW) 越精细，但更新频率越低。"
 
 #: widgets/spectrum/spectrum_control.py:48
 msgid ""
@@ -3223,7 +3325,7 @@ msgstr "“振幅”显示每个频段的均方根振幅，最适用于纯音信
 #: widgets/spectrum/spectrum_control.py:54
 #: widgets/spectrum/spectrum_widget.py:47
 msgid "Average"
-msgstr "平均值"
+msgstr "平均"
 
 #: widgets/spectrum/spectrum_control.py:54
 msgid "The averaging mode for the average trace."
@@ -3267,8 +3369,8 @@ msgid ""
 "The span is the sample rate / 2 / this factor. Narrower spans give finer "
 "resolution bandwidth for the same FFT length."
 msgstr ""
-"在进行 FFT 之前对信号进行降采样，可缩小分析的频率范围。该范围等于采样率除以 2 再除以该系数。在 FFT "
-"长度不变的情况下，更窄的频率范围可提供更精细的分辨率带宽。"
+"在进行 FFT 之前对信号进行降采样，可缩小分析的频率扫宽。扫宽等于采样率除以 2 再除以该系数。在 FFT "
+"长度不变的情况下，更窄的扫宽可提供更精细的分辨率带宽。"
 
 #: widgets/spectrum/spectrum_widget.py:98
 msgid ""
@@ -3382,7 +3484,7 @@ msgstr "自动缩放 y 轴。"
 
 #: widgets/spectrum/spectrum_widget.py:196
 msgid "The manual y-axis range."
-msgstr "手动设置 Y 轴量程。"
+msgstr "手动设置的 Y 轴范围。"
 
 #: widgets/spectrum/spectrum_widget.py:202
 msgid "Show the FFT spectrum."
@@ -3640,6 +3742,14 @@ msgstr "外部"
 msgid "The source instrument."
 msgstr "源仪器。"
 
+#: widgets/trigger/trigger_widget.py:169
+msgid "The trigger mode."
+msgstr "触发模式。"
+
+#: widgets/trigger/trigger_widget.py:189
+msgid "The trigger configuration."
+msgstr "触发配置。"
+
 #: widgets/trigger/trigger_widget.py:219
 msgid "Type"
 msgstr "类型"
@@ -3809,23 +3919,23 @@ msgid ""
 "Both accumulate indefinitely regardless of this button state."
 msgstr "请注意，该按钮不会影响电荷和能量的累积。无论按钮状态如何，两者都会无限累积。"
 
-#: widgets/value/value_widget.py:236
+#: widgets/value/value_widget.py:242
 msgid "Not present"
 msgstr "不存在"
 
-#: widgets/value/value_widget.py:264
+#: widgets/value/value_widget.py:270
 msgid "Accrue"
 msgstr "累积"
 
-#: widgets/value/value_widget.py:600 widgets/waveform/waveform_widget.py:3808
+#: widgets/value/value_widget.py:606 widgets/waveform/waveform_widget.py:3808
 msgid "Preferred prefix"
 msgstr "首选前缀"
 
-#: widgets/value/value_widget.py:605
+#: widgets/value/value_widget.py:611
 msgid "auto"
 msgstr "自动"
 
-#: widgets/value/value_widget.py:607
+#: widgets/value/value_widget.py:613
 msgid "none"
 msgstr "无"
 
@@ -3886,6 +3996,10 @@ msgstr "手动"
 #: widgets/waveform/text_annotation.py:68
 msgid "Centered"
 msgstr "居中"
+
+#: widgets/waveform/text_annotation.py:91
+msgid "Edit annotation"
+msgstr "编辑注释"
 
 #: widgets/waveform/text_annotation.py:101
 #: widgets/waveform/waveform_widget.py:3890
@@ -4009,13 +4123,13 @@ msgstr "Y 轴全部显示"
 
 #: widgets/waveform/waveform_control.py:93
 msgid "Click to reset the y-axis of all plots to auto ranging mode."
-msgstr "单击可将所有曲线图的 y 轴重置为自动量程模式。"
+msgstr "单击可将所有曲线图的 y 轴重置为自动范围模式。"
 
 #: widgets/waveform/waveform_control.py:94
 msgid ""
 "This operation does not affect the fixed range plots such as the general "
 "purpose inputs."
-msgstr "此操作不影响固定量程图，如通用输入。"
+msgstr "此操作不影响固定范围的曲线图，如通用输入。"
 
 #: widgets/waveform/waveform_control.py:99
 msgid "Show min/max extents"
@@ -4051,6 +4165,22 @@ msgstr "显示/隐藏信号"
 #: widgets/waveform/waveform_control.py:113
 msgid "Click to toggle the signal axis display in the Waveform widget."
 msgstr "单击可切换波形小部件中的信号轴显示。"
+
+#: widgets/waveform/waveform_control.py:138
+msgid "Markers:"
+msgstr "标记："
+
+#: widgets/waveform/waveform_control.py:146
+msgid "X-Axis:"
+msgstr "X 轴："
+
+#: widgets/waveform/waveform_control.py:162
+msgid "Min/Max:"
+msgstr "最小/最大："
+
+#: widgets/waveform/waveform_control.py:173
+msgid "Signals:"
+msgstr "信号："
 
 #: widgets/waveform/waveform_source_widget.py:30
 msgid "Enable trace"
@@ -4439,7 +4569,7 @@ msgstr "水平"
 
 #: widgets/waveform/waveform_widget.py:3899
 msgid "Y-axis auto range"
-msgstr "Y 轴自动量程"
+msgstr "Y 轴自动范围"
 
 #: widgets/waveform/waveform_widget.py:3902
 msgid "Anti-aliasing"
@@ -4504,7 +4634,7 @@ msgstr "显示时间"
 
 #: widgets/waveform/waveform_widget.py:4303
 msgid "On"
-msgstr "开启"
+msgstr "打开"
 
 #: widgets/waveform/waveform_widget.py:4307
 msgid "Label"

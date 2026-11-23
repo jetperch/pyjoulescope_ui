@@ -14,6 +14,7 @@
 
 
 from PySide6 import QtCore, QtWidgets
+from joulescope_ui.locale import N_
 import logging
 
 
@@ -26,7 +27,7 @@ class DeviceInfoDialog(QtWidgets.QDialog):
         parent = pubsub.query('registry/ui/instance')
         super().__init__(parent=parent)
         self.setObjectName("device_info_dialog")
-        self.setWindowTitle('Device Information')
+        self.setWindowTitle(N_('Device Information'))
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
 
         self._layout = QtWidgets.QVBoxLayout(self)

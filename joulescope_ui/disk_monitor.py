@@ -30,7 +30,7 @@ class DiskMonitor:
     SETTINGS = {
         'free_threshold': {
             'dtype': 'int',
-            'brief': 'The free threshold for declaring fullness',
+            'brief': N_('The free threshold for declaring fullness'),
             'default': _FREE_THRESHOLD,
         },
     }

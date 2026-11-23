@@ -59,7 +59,7 @@ msgstr ""
 
 #: app.py:61 widgets/device_control/js220_ctrl_widget.py:52
 msgid "Fuse engaged indicator"
-msgstr "Indicador de fusible activado"
+msgstr "Indicador de fusible disparado"
 
 #: app.py:63
 msgid ""
@@ -68,8 +68,8 @@ msgid ""
 "cleared."
 msgstr ""
 "Este indicador se activa cuando al menos un instrumento conectado tiene un "
-"fusible activado. Los instrumentos con fusibles activados impiden el flujo "
-"de corriente hasta que se restablecen."
+"fusible disparado. Los instrumentos con fusibles disparados impiden el flujo"
+" de corriente hasta que se restablecen."
 
 #: app.py:66 widgets/device_control/js220_ctrl_widget.py:57
 msgid "Press to clear."
@@ -286,6 +286,10 @@ msgstr "No especificado"
 #: app.py:196
 msgid "Prompt to switch from Intel graphics to software renderer."
 msgstr "Indicación para cambiar de gráficos Intel a renderizador de software."
+
+#: disk_monitor.py:33
+msgid "The free threshold for declaring fullness"
+msgstr "Umbral de espacio libre para considerar el disco lleno"
 
 #: devices/serial/serial_port_dialog.py:181
 #: devices/serial/serial_port_dialog.py:203 error_dialog.py:42
@@ -721,7 +725,8 @@ msgstr ""
 
 #: getting_started.py:45
 msgid "Use the scroll wheel to zoom the time x-axis."
-msgstr "Utilice la rueda de desplazamiento para ampliar el eje x de tiempo."
+msgstr ""
+"Utilice la rueda de desplazamiento para hacer zoom en el eje x de tiempo."
 
 #: getting_started.py:46
 msgid "Left-click and drag to pan in time."
@@ -754,6 +759,18 @@ msgstr ""
 "Haga clic en el icono de ayuda de la parte inferior izquierda para obtener "
 "más información y opciones de asistencia."
 
+#: jls_source.py:110
+msgid "The name for this JLS stream buffer source"
+msgstr "El nombre de esta fuente de búfer de flujo JLS"
+
+#: jls_source.py:115
+msgid "The file path."
+msgstr "La ruta del archivo."
+
+#: jls_source.py:120
+msgid "The user notes."
+msgstr "Las notas del usuario."
+
 #: locale_dialog.py:21
 msgid "Select a language"
 msgstr "Seleccione un idioma"
@@ -764,7 +781,7 @@ msgstr ""
 "La aplicación se cerrará automáticamente al cambiar la configuración "
 "regional."
 
-#: main.py:79 widgets/value/value_widget.py:787
+#: main.py:79 widgets/value/value_widget.py:793
 msgid "Multimeter"
 msgstr "Multímetro"
 
@@ -1125,6 +1142,8 @@ msgid "Copy to clipboard"
 msgstr "Copiar al portapapeles"
 
 #: software_update.py:334 widgets/device_control/device_update_dialog.py:44
+#: widgets/view_manager/view_manager_widget.py:136
+#: widgets/waveform/text_annotation.py:168
 msgid "OK"
 msgstr "OK"
 
@@ -1622,7 +1641,7 @@ msgstr "Límites"
 
 #: devices/jsdrv/js220.py:232 devices/jsdrv/js320.py:227
 msgid "Configure the autoranging current limits."
-msgstr "Configure los límites de corriente de cambio automático."
+msgstr "Configure los límites de corriente del rango automático."
 
 #: devices/jsdrv/js220.py:233 devices/jsdrv/js320.py:228
 msgid "This setting is only effective when the Current Range is set to \"auto\"."
@@ -1636,8 +1655,8 @@ msgid ""
 "full measurement range."
 msgstr ""
 "Puede utilizar este ajuste para limitar el rango de corriente y mejorar la "
-"precisión de la escala automática cuando sepa que la corriente de su "
-"aplicación es más limitada que el rango de medida completo."
+"precisión del rango automático cuando sepa que la corriente de su aplicación"
+" es más limitada que el rango de medida completo."
 
 #: devices/jsdrv/js220.py:243
 msgid ""
@@ -1933,6 +1952,27 @@ msgstr "Tamaño de la memoria intermedia en bytes"
 msgid "Buffer memory duration in seconds"
 msgstr "Duración de la memoria intermedia en segundos"
 
+#: devices/jsdrv/jsdrv_stream_buffer.py:72 widgets/memory/memory_widget.py:242
+msgid "Clear on play"
+msgstr "Borrar al reproducir"
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:73
+msgid ""
+"When signal sample streaming is paused, the stream buffer pauses sample "
+"accumulation. This setting controls what happens on play when streaming "
+"resumes. When unset, the buffer continues to accumulate samples into the "
+"existing buffer data. This mode treats the pause duration as missing "
+"samples. When set, the buffer is cleared and all prior data is purged. The "
+"buffer functions as if sample streaming started for the first time."
+msgstr ""
+"Cuando el flujo de muestras de señal está en pausa, el búfer de flujo deja "
+"de acumular muestras. Este ajuste controla qué ocurre al reproducir cuando "
+"se reanuda el flujo. Si está desactivado, el búfer sigue acumulando muestras"
+" sobre los datos existentes del búfer. Este modo trata la duración de la "
+"pausa como muestras ausentes. Si está activado, el búfer se borra y se "
+"eliminan todos los datos anteriores. El búfer funciona como si el flujo de "
+"muestras se iniciara por primera vez."
+
 #: devices/jsdrv/jsdrv_stream_buffer.py:94
 msgid "Source name"
 msgstr "Nombre de la fuente"
@@ -2035,6 +2075,15 @@ msgstr "Eliminar"
 msgid "Invalid baud rate"
 msgstr "Velocidad de transmisión no válida"
 
+#: plugins/manager.py:59
+msgid "Monitor a plugin for changes"
+msgstr "Supervisar los cambios de un plugin"
+
+#: plugins/manager.py:64
+msgid "Monitor reload delay from filesystem changes in milliseconds."
+msgstr ""
+"Retardo de recarga tras cambios en el sistema de archivos, en milisegundos."
+
 #: plugins/selector.py:32
 msgid "Plugins"
 msgstr "Plugins"
@@ -2075,6 +2124,10 @@ msgstr ""
 "Comparado con un histograma, el CDF facilita la comparación de la cantidad "
 "de tiempo en cada modo simplemente midiendo el cambio en el valor del eje y."
 
+#: range_tools/cdf.py:76
+msgid "Hold the data"
+msgstr "Retener los datos"
+
 #: range_tools/cdf.py:147
 msgid "Probability"
 msgstr "Probabilidad"
@@ -2082,6 +2135,15 @@ msgstr "Probabilidad"
 #: range_tools/cdf.py:168
 msgid "CDF configuration"
 msgstr "Configuración CDF"
+
+#: range_tools/cdf.py:175 range_tools/frequency.py:194
+#: range_tools/histogram.py:44 range_tools/max_window.py:109
+#: widgets/spectrum/spectrum_control.py:36
+#: widgets/spectrum/spectrum_widget.py:1071
+#: widgets/trigger/trigger_widget.py:220
+#: widgets/waveform/waveform_widget.py:4417
+msgid "Signal"
+msgstr "Señal"
 
 #: range_tools/cdf.py:182 range_tools/histogram.py:50
 msgid "Number of bins (0 for auto)"
@@ -2107,9 +2169,26 @@ msgstr ""
 "Calcule el espectro de frecuencia para analizar el contenido de frecuencia "
 "de los valores de datos de la señal en el rango seleccionado."
 
+#: range_tools/frequency.py:94 range_tools/histogram.py:103
+msgid "Hold the histogram data"
+msgstr "Retener los datos del histograma"
+
 #: range_tools/frequency.py:187
 msgid "Frequency configuration"
 msgstr "Configuración de frecuencia"
+
+#: range_tools/frequency.py:203 widgets/spectrum/spectrum_control.py:47
+#: widgets/spectrum/spectrum_widget.py:107
+msgid "Window"
+msgstr "Ventana"
+
+#: range_tools/frequency.py:214
+msgid "FFT Length"
+msgstr "Longitud de la FFT"
+
+#: range_tools/frequency.py:225
+msgid "Overlap %"
+msgstr "Superposición %"
 
 #: range_tools/histogram.py:24
 msgid "Histogram"
@@ -2126,13 +2205,6 @@ msgstr "Distribución de frecuencias"
 #: range_tools/histogram.py:28
 msgid "Probability Density Distribution"
 msgstr "Distribución de densidad de probabilidad"
-
-#: range_tools/histogram.py:44 range_tools/max_window.py:109
-#: widgets/spectrum/spectrum_control.py:36
-#: widgets/spectrum/spectrum_widget.py:1071
-#: widgets/trigger/trigger_widget.py:220
-msgid "Signal"
-msgstr "Señal"
 
 #: range_tools/histogram.py:56
 msgid "Histogram type"
@@ -2203,6 +2275,10 @@ msgstr ""
 " de activar la alimentación del dispositivo de destino. Esta herramienta "
 "enviará los datos seleccionados a la herramienta USBET para su análisis."
 
+#: styles/color_editor.py:75 widgets/settings/settings_widget.py:336
+msgid "Color"
+msgstr "Color"
+
 #: styles/color_scheme.py:21
 msgid "dark"
 msgstr "oscuro"
@@ -2226,6 +2302,36 @@ msgstr "por defecto"
 #: styles/font_scheme.py:22
 msgid "Joulescope default font scheme"
 msgstr "Esquema de fuentes por defecto de Joulescope"
+
+#: tcp_server/__init__.py:41
+msgid "Enable TCP server"
+msgstr "Habilitar servidor TCP"
+
+#: tcp_server/__init__.py:42
+msgid ""
+"When enabled, a TCP socket server listens for connections from external "
+"processes."
+msgstr ""
+"Cuando está activado, un servidor de sockets TCP escucha las conexiones de "
+"procesos externos."
+
+#: tcp_server/__init__.py:47
+msgid "Server bind address"
+msgstr "Dirección de enlace del servidor"
+
+#: tcp_server/__init__.py:48
+msgid "The network interface to bind to. Use 127.0.0.1 for localhost only."
+msgstr ""
+"La interfaz de red a la que enlazar. Use 127.0.0.1 para limitarlo al equipo "
+"local (localhost)."
+
+#: tcp_server/__init__.py:53
+msgid "Server TCP port"
+msgstr "Puerto TCP del servidor"
+
+#: tcp_server/__init__.py:54
+msgid "The TCP port number for the server."
+msgstr "El número de puerto TCP del servidor."
 
 #: widgets/accumulator/accumulator_widget.py:27
 #: widgets/value/value_widget.py:32
@@ -2302,6 +2408,10 @@ msgstr "Demo"
 msgid "Device Control"
 msgstr "Control de dispositivos"
 
+#: widgets/device_control/device_info_dialog.py:30
+msgid "Device Information"
+msgstr "Información del dispositivo"
+
 #: widgets/device_control/device_update_dialog.py:24
 #: widgets/device_control/device_update_dialog.py:45
 msgid "Update"
@@ -2356,6 +2466,7 @@ msgstr "Seleccionar ninguno"
 #: widgets/device_control/device_update_dialog.py:43
 #: widgets/js220_cal/js220_cal_widget.py:37
 #: widgets/js320_cal/js320_cal_widget.py:59
+#: widgets/waveform/text_annotation.py:167
 msgid "Cancel"
 msgstr "Cancelar"
 
@@ -2419,8 +2530,8 @@ msgstr ""
 #: widgets/device_control/fuse.py:52
 msgid "Fuse state indicator. When enabled and engaged, click to clear."
 msgstr ""
-"Indicador del estado del fusible. Cuando está activado y conectado, haga "
-"clic para borrarlo."
+"Indicador del estado del fusible. Cuando está habilitado y disparado, haga "
+"clic para restablecerlo."
 
 #: widgets/device_control/fuse.py:86
 msgid "Threshold 1"
@@ -2441,8 +2552,6 @@ msgid "Fuse response"
 msgstr "Respuesta del fusible"
 
 #: widgets/device_control/fuse.py:102
-#: widgets/record_status/record_stop_config_widget.py:31
-#: widgets/serial_console/serial_console_widget.py:72
 msgid "Time"
 msgstr "Tiempo"
 
@@ -2489,8 +2598,8 @@ msgid ""
 "fuse. Engaged fuses prevent current flow until cleared."
 msgstr ""
 "Este indicador se activa cuando el dispositivo tiene al menos un fusible "
-"activado. Los fusibles activados impiden el flujo de corriente hasta que se "
-"desactivan."
+"disparado. Los fusibles disparados impiden el flujo de corriente hasta que "
+"se restablecen."
 
 #: widgets/device_control/js220_ctrl_widget.py:62
 msgid "Open and close the device"
@@ -2640,9 +2749,7 @@ msgid "Enable the instrument signals that this widget needs."
 msgstr "Activa las señales del instrumento que necesita este widget."
 
 #: widgets/efficiency/efficiency_control.py:52
-#: widgets/efficiency/efficiency_widget.py:732
-#: widgets/spectrum/spectrum_control.py:67
-#: widgets/spectrum/spectrum_widget.py:1191 widgets/value/value_widget.py:256
+#: widgets/spectrum/spectrum_control.py:67 widgets/value/value_widget.py:262
 msgid "Hold"
 msgstr "Retener"
 
@@ -2887,6 +2994,12 @@ msgstr "Seleccione instrumentos de entrada y salida diferentes"
 #, python-brace-format
 msgid "Disabled: {0}"
 msgstr "Desactivado: {0}"
+
+#: widgets/efficiency/efficiency_widget.py:732
+#: widgets/spectrum/spectrum_widget.py:1191
+msgctxt "state"
+msgid "Hold"
+msgstr "Retenido"
 
 #: widgets/efficiency/efficiency_widget.py:734
 msgid "Curve hold"
@@ -3195,10 +3308,6 @@ msgstr "Tamaño de RAM disponible"
 msgid "Used RAM size"
 msgstr "Tamaño de RAM utilizado"
 
-#: widgets/memory/memory_widget.py:242
-msgid "Clear on play"
-msgstr "Borrar al reproducir"
-
 #: widgets/notes/notes_widget.py:28
 msgid "The notes value."
 msgstr "El valor de las notas."
@@ -3255,6 +3364,12 @@ msgstr "Tras un periodo de tiempo"
 msgid "At a specific time"
 msgstr "En un momento determinado"
 
+#: widgets/record_status/record_stop_config_widget.py:31
+#: widgets/serial_console/serial_console_widget.py:72
+msgctxt "clock"
+msgid "Time"
+msgstr "Hora"
+
 #: widgets/record_status/record_stop_config_widget.py:32
 msgid "Configure recording stop"
 msgstr "Configurar la parada de la grabación"
@@ -3299,13 +3414,9 @@ msgstr "Anotar forma de onda"
 msgid "External Serial..."
 msgstr "Serie externa..."
 
-#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:796
+#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:802
 msgid "Value"
 msgstr "Valor"
-
-#: widgets/settings/settings_widget.py:336
-msgid "Color"
-msgstr "Color"
 
 #: widgets/settings/settings_widget.py:443
 msgid "Font"
@@ -3448,6 +3559,14 @@ msgstr "Haga clic para ver ajustes y acciones adicionales."
 msgid "sidebar"
 msgstr "barra lateral"
 
+#: widgets/sidebar/sidebar_widget.py:89
+msgid "Show the separator between widgets."
+msgstr "Muestra el separador entre widgets."
+
+#: widgets/sidebar/sidebar_widget.py:94
+msgid "The size of the separator."
+msgstr "El tamaño del separador."
+
 #: widgets/signal_record/disk_full_dialog.py:19
 msgid "The disk is full"
 msgstr "El disco está lleno"
@@ -3491,7 +3610,9 @@ msgstr ""
 
 #: widgets/spectrum/spectrum_control.py:34
 msgid "Clear the average, max hold, min hold, and waterfall history."
-msgstr "Borra el historial de valores medios, máximos, mínimos y en cascada."
+msgstr ""
+"Borra el promedio, la retención de máximos, la retención de mínimos y el "
+"historial de la cascada."
 
 #: widgets/spectrum/spectrum_control.py:35
 msgid "Select the source device."
@@ -3504,7 +3625,7 @@ msgstr "Seleccione la señal que desea analizar."
 #: widgets/spectrum/spectrum_control.py:38
 #: widgets/spectrum/spectrum_widget.py:87
 msgid "Span"
-msgstr "Rango"
+msgstr "Span"
 
 #: widgets/spectrum/spectrum_control.py:39
 msgid ""
@@ -3512,9 +3633,9 @@ msgid ""
 "decimate the signal before the FFT, which improves the resolution bandwidth "
 "for the same FFT length."
 msgstr ""
-"El intervalo de frecuencias analizado. Los intervalos más estrechos que la "
-"frecuencia de muestreo completa deciman la señal antes de la FFT, lo que "
-"mejora el ancho de banda de resolución para la misma longitud de FFT."
+"El span de frecuencias analizado. Los spans más estrechos que la frecuencia "
+"de muestreo completa diezman la señal antes de la FFT, lo que mejora el "
+"ancho de banda de resolución para la misma longitud de FFT."
 
 #: widgets/spectrum/spectrum_control.py:43
 #: widgets/spectrum/spectrum_widget.py:97
@@ -3529,11 +3650,6 @@ msgstr ""
 "El número de muestras en cada FFT. Las FFT más largas ofrecen un ancho de "
 "banda de resolución (RBW) más preciso, pero se actualizan con menos "
 "frecuencia."
-
-#: widgets/spectrum/spectrum_control.py:47
-#: widgets/spectrum/spectrum_widget.py:107
-msgid "Window"
-msgstr "Ventana"
 
 #: widgets/spectrum/spectrum_control.py:48
 msgid ""
@@ -3559,11 +3675,11 @@ msgstr ""
 #: widgets/spectrum/spectrum_control.py:54
 #: widgets/spectrum/spectrum_widget.py:47
 msgid "Average"
-msgstr "Media"
+msgstr "Promedio"
 
 #: widgets/spectrum/spectrum_control.py:54
 msgid "The averaging mode for the average trace."
-msgstr "El modo de promediado para la traza media."
+msgstr "El modo de promediado de la traza promedio."
 
 #: widgets/spectrum/spectrum_plot.py:59
 msgid "Inferno"
@@ -3583,11 +3699,11 @@ msgstr "En directo"
 
 #: widgets/spectrum/spectrum_widget.py:47
 msgid "Max hold"
-msgstr "Retención de máx."
+msgstr "Retención de máximos"
 
 #: widgets/spectrum/spectrum_widget.py:47
 msgid "Min hold"
-msgstr "Retención de mín."
+msgstr "Retención de mínimos"
 
 #: widgets/spectrum/spectrum_widget.py:69
 msgid "The signal data stream source."
@@ -3603,10 +3719,10 @@ msgid ""
 "The span is the sample rate / 2 / this factor. Narrower spans give finer "
 "resolution bandwidth for the same FFT length."
 msgstr ""
-"Reduce el intervalo de frecuencia analizado decimando la señal antes de la "
-"FFT. El intervalo es igual a la frecuencia de muestreo / 2 / este factor. "
-"Los intervalos más estrechos proporcionan un ancho de banda de resolución "
-"más preciso para la misma longitud de FFT."
+"Reduce el span de frecuencias analizado diezmando la señal antes de la FFT. "
+"El span es igual a la frecuencia de muestreo / 2 / este factor. Los spans "
+"más estrechos proporcionan un ancho de banda de resolución más fino para la "
+"misma longitud de FFT."
 
 #: widgets/spectrum/spectrum_widget.py:98
 msgid ""
@@ -3708,15 +3824,15 @@ msgstr "Mostrar la traza en tiempo real."
 
 #: widgets/spectrum/spectrum_widget.py:165
 msgid "Show the average trace."
-msgstr "Mostrar la traza media."
+msgstr "Mostrar la traza promedio."
 
 #: widgets/spectrum/spectrum_widget.py:170
 msgid "Show the max hold trace."
-msgstr "Mostrar la traza de retención máxima."
+msgstr "Mostrar la traza de retención de máximos."
 
 #: widgets/spectrum/spectrum_widget.py:175
 msgid "Show the min hold trace."
-msgstr "Mostrar la traza de retención mínima."
+msgstr "Mostrar la traza de retención de mínimos."
 
 #: widgets/spectrum/spectrum_widget.py:180
 msgid "Logarithmic frequency axis"
@@ -4012,6 +4128,14 @@ msgstr "exterior"
 msgid "The source instrument."
 msgstr "El instrumento fuente."
 
+#: widgets/trigger/trigger_widget.py:169
+msgid "The trigger mode."
+msgstr "El modo de disparo."
+
+#: widgets/trigger/trigger_widget.py:189
+msgid "The trigger configuration."
+msgstr "La configuración del disparo."
+
 #: widgets/trigger/trigger_widget.py:219
 msgid "Type"
 msgstr "Tipo"
@@ -4043,7 +4167,7 @@ msgstr "Ajustar salida"
 #: widgets/trigger/trigger_widget.py:506 widgets/trigger/trigger_widget.py:636
 #: widgets/waveform/waveform_control.py:29
 msgid "Add single marker"
-msgstr "Añadir un marcador"
+msgstr "Añadir marcador simple"
 
 #: widgets/trigger/trigger_widget.py:640
 #: widgets/waveform/waveform_control.py:38
@@ -4208,23 +4332,23 @@ msgstr ""
 "energía. Ambas se acumulan indefinidamente independientemente del estado de "
 "este botón."
 
-#: widgets/value/value_widget.py:236
+#: widgets/value/value_widget.py:242
 msgid "Not present"
 msgstr "No presente"
 
-#: widgets/value/value_widget.py:264
+#: widgets/value/value_widget.py:270
 msgid "Accrue"
 msgstr "Acumular"
 
-#: widgets/value/value_widget.py:600 widgets/waveform/waveform_widget.py:3808
+#: widgets/value/value_widget.py:606 widgets/waveform/waveform_widget.py:3808
 msgid "Preferred prefix"
 msgstr "Prefijo preferido"
 
-#: widgets/value/value_widget.py:605
+#: widgets/value/value_widget.py:611
 msgid "auto"
 msgstr "auto"
 
-#: widgets/value/value_widget.py:607
+#: widgets/value/value_widget.py:613
 msgid "none"
 msgstr "ninguna"
 
@@ -4286,6 +4410,10 @@ msgstr "Manual"
 msgid "Centered"
 msgstr "Centrado"
 
+#: widgets/waveform/text_annotation.py:91
+msgid "Edit annotation"
+msgstr "Editar anotación"
+
 #: widgets/waveform/text_annotation.py:101
 #: widgets/waveform/waveform_widget.py:3890
 msgid "Text"
@@ -4316,7 +4444,7 @@ msgstr ""
 
 #: widgets/waveform/waveform_control.py:31
 msgid "Click to add a single marker to the waveform."
-msgstr "Haga clic para añadir un único marcador a la forma de onda."
+msgstr "Haga clic para añadir un marcador simple a la forma de onda."
 
 #: widgets/waveform/waveform_control.py:33
 msgid ""
@@ -4328,14 +4456,14 @@ msgstr ""
 
 #: widgets/waveform/waveform_control.py:40
 msgid "Click to add a dual markers to the waveform."
-msgstr "Haga clic para añadir un marcador doble a la forma de onda."
+msgstr "Haga clic para añadir marcadores duales a la forma de onda."
 
 #: widgets/waveform/waveform_control.py:42
 msgid ""
 "You can also add a dual markers by right-clicking on the x-axis or in the "
 "plot area."
 msgstr ""
-"También puede añadir un marcador doble haciendo clic con el botón derecho en"
+"También puede añadir marcadores duales haciendo clic con el botón derecho en"
 " el eje x o en el área de trazado."
 
 #: widgets/waveform/waveform_control.py:47
@@ -4348,15 +4476,15 @@ msgid ""
 "single markers and dual markers."
 msgstr ""
 "Haga clic para borrar todos los marcadores de la forma de onda. Esta "
-"operación elimina tanto los marcadores simples como los dobles."
+"operación elimina tanto los marcadores simples como los duales."
 
 #: widgets/waveform/waveform_control.py:53
 msgid "Zoom in"
-msgstr "Ampliar"
+msgstr "Acercar"
 
 #: widgets/waveform/waveform_control.py:55
 msgid "Click to zoom in along the time x-axis."
-msgstr "Haga clic para ampliar en el eje x de tiempo."
+msgstr "Haga clic para acercar en el eje x de tiempo."
 
 #: widgets/waveform/waveform_control.py:56
 #: widgets/waveform/waveform_control.py:64
@@ -4373,7 +4501,7 @@ msgstr "Alejar"
 
 #: widgets/waveform/waveform_control.py:63
 msgid "Click to zoom out along the time x-axis."
-msgstr "Haga clic para alejar la imagen en el eje x de tiempo."
+msgstr "Haga clic para alejar en el eje x de tiempo."
 
 #: widgets/waveform/waveform_control.py:69
 msgid "Zoom all"
@@ -4481,6 +4609,22 @@ msgid "Click to toggle the signal axis display in the Waveform widget."
 msgstr ""
 "Haga clic para alternar la visualización del eje de la señal en el widget "
 "Forma de onda."
+
+#: widgets/waveform/waveform_control.py:138
+msgid "Markers:"
+msgstr "Marcadores:"
+
+#: widgets/waveform/waveform_control.py:146
+msgid "X-Axis:"
+msgstr "Eje X:"
+
+#: widgets/waveform/waveform_control.py:162
+msgid "Min/Max:"
+msgstr "Mín./máx.:"
+
+#: widgets/waveform/waveform_control.py:173
+msgid "Signals:"
+msgstr "Señales:"
 
 #: widgets/waveform/waveform_source_widget.py:30
 msgid "Enable trace"
@@ -4833,7 +4977,7 @@ msgstr "Guardar imagen en archivo"
 #: widgets/waveform/waveform_widget.py:3593
 #: widgets/waveform/waveform_widget.py:3705
 msgid "Single marker"
-msgstr "Marcador único"
+msgstr "Marcador simple"
 
 #: widgets/waveform/waveform_widget.py:3594
 #: widgets/waveform/waveform_widget.py:3706

@@ -86,7 +86,7 @@ msgid ""
 "When enabled, the widgets will display the statistics data as it arrives "
 "from the connected instruments."
 msgstr ""
-"عند التمكين، ستعرض الأدوات المصغّرة البيانات الإحصائية عند وصولها من أجهزة "
+"عند التمكين، ستعرض عناصر الواجهة البيانات الإحصائية عند وصولها من أجهزة "
 "القياس المتصلة."
 
 #: app.py:76
@@ -95,7 +95,7 @@ msgid ""
 "but widgets displaying statistics information do not update."
 msgstr ""
 "عند تعطيله، يتم الاحتفاظ بالقيم الحالية. تتم معالجة بيانات الإحصائيات "
-"الجديدة، ولكن لا يتم تحديث الأدوات التي تعرض معلومات الإحصائيات."
+"الجديدة، ولكن لا يتم تحديث عناصر الواجهة التي تعرض معلومات الإحصائيات."
 
 #: app.py:84
 msgid "Statistics recording"
@@ -134,15 +134,15 @@ msgid ""
 "all sample widgets for acquisition mode."
 msgstr ""
 "عند التمكين، يتم بث بيانات العينات من جميع مصادر العينات المفتوحة وتهيئة "
-"جميع أدوات العينات لوضع الالتقاط."
+"جميع عناصر واجهة العينات لوضع الالتقاط."
 
 #: app.py:100
 msgid ""
 "When disabled, stop sample streaming and configure all sample widgets for "
 "buffer mode."
 msgstr ""
-"عند تعطيله، أوقف تدفق العينة وقم بتكوين جميع أدوات العينة لوضع المخزن "
-"المؤقت."
+"عند تعطيله، يتم إيقاف بث العينات وتهيئة جميع عناصر واجهة العينات لوضع المخزن"
+" المؤقت."
 
 #: app.py:107
 msgid "Signal sample recording"
@@ -271,6 +271,10 @@ msgstr "غير محدد"
 #: app.py:196
 msgid "Prompt to switch from Intel graphics to software renderer."
 msgstr "المطالبة بالتبديل من رسومات Intel إلى العارض البرمجي."
+
+#: disk_monitor.py:33
+msgid "The free threshold for declaring fullness"
+msgstr "عتبة المساحة الحرة التي يُعدّ القرص عندها ممتلئًا"
 
 #: devices/serial/serial_port_dialog.py:181
 #: devices/serial/serial_port_dialog.py:203 error_dialog.py:42
@@ -630,7 +634,7 @@ msgid ""
 "ports are referenced to USB ground."
 msgstr ""
 "منافذ المستشعر معزولة كهربائياً عن USB. يجب ألا يتجاوز الجهد بين أي منفذ "
-"مستشعر وأرضي USB ± 48 فولت. منافذ GPI/O ومنافذ الزناد مرجعها أرضي USB."
+"مستشعر وأرضي USB ± 48 فولت. منافذ GPI/O ومنافذ القدح مرجعها أرضي USB."
 
 #: getting_started.py:30
 msgid "Connect"
@@ -672,7 +676,7 @@ msgid ""
 "The Joulescope software starts in the Multimeter View displaying the value "
 "current, voltage, power, and energy."
 msgstr ""
-"يبدأ برنامج Joulescope في عرض متعدد المقاييس الذي يعرض قيم التيار والجهد "
+"يبدأ برنامج Joulescope في عرض المقياس المتعدد الذي يعرض قيم التيار والجهد "
 "والقدرة والطاقة."
 
 #: getting_started.py:42
@@ -719,6 +723,18 @@ msgid ""
 msgstr ""
 "انقر على أيقونة المساعدة في أسفل اليسار لمزيد من المعلومات وخيارات الدعم."
 
+#: jls_source.py:110
+msgid "The name for this JLS stream buffer source"
+msgstr "اسم مصدر المخزن المؤقت لبث JLS هذا"
+
+#: jls_source.py:115
+msgid "The file path."
+msgstr "مسار الملف."
+
+#: jls_source.py:120
+msgid "The user notes."
+msgstr "ملاحظات المستخدم."
+
 #: locale_dialog.py:21
 msgid "Select a language"
 msgstr "اختر لغة"
@@ -727,9 +743,9 @@ msgstr "اختر لغة"
 msgid "The application will automatically close when you change the locale."
 msgstr "سيُغلق التطبيق تلقائيًا عند تغيير اللغة."
 
-#: main.py:79 widgets/value/value_widget.py:787
+#: main.py:79 widgets/value/value_widget.py:793
 msgid "Multimeter"
-msgstr "متعدد المقاييس"
+msgstr "المقياس المتعدد"
 
 #: main.py:80
 msgid "Oscilloscope"
@@ -890,7 +906,7 @@ msgstr "عرض"
 
 #: main.py:469 widgets/settings/settings_widget.py:661
 msgid "Widgets"
-msgstr "الأدوات المصغّرة"
+msgstr "عناصر الواجهة"
 
 #: main.py:470
 msgid "Tools"
@@ -944,7 +960,7 @@ msgstr "هل تريد مسح التكوين والخروج؟"
 
 #: paths.py:31 styles/manager.py:54
 msgid "The name for this widget."
-msgstr "اسم هذه الأداة"
+msgstr "اسم عنصر الواجهة هذا."
 
 #: paths.py:32
 msgid "Paths"
@@ -1000,7 +1016,7 @@ msgstr "الطول الأكثر استخدامًا مؤخرًا"
 
 #: range_tool.py:334
 msgid "Range tool failed"
-msgstr "فشل أداة النطاق"
+msgstr "فشلت أداة النطاق"
 
 #: safe_mode.py:31
 msgid "Options"
@@ -1078,6 +1094,8 @@ msgid "Copy to clipboard"
 msgstr "نسخ إلى الحافظة"
 
 #: software_update.py:334 widgets/device_control/device_update_dialog.py:44
+#: widgets/view_manager/view_manager_widget.py:136
+#: widgets/waveform/text_annotation.py:168
 msgid "OK"
 msgstr "موافق"
 
@@ -1258,9 +1276,9 @@ msgid ""
 "displayed in the multimeter and value widgets. Statistics data is computed "
 "over the full rate 2 MHz samples."
 msgstr ""
-"يتحكم هذا الإعداد في تردد الإخراج لبيانات الإحصائيات التي يتم عرضها في أدوات"
-" القياس المتعدد والقيمة. يتم حساب البيانات الإحصائية على المعدل الكامل 2 "
-"ميجاهرتز للعينات."
+"يتحكم هذا الإعداد في تردد الإخراج لبيانات الإحصائيات التي يتم عرضها في عنصري"
+" واجهة المقياس المتعدد والقيمة. يتم حساب البيانات الإحصائية على المعدل "
+"الكامل 2 ميجاهرتز للعينات."
 
 #: devices/jsdrv/js110.py:137 devices/jsdrv/js220.py:200
 #: devices/jsdrv/js320.py:195
@@ -1544,9 +1562,9 @@ msgid ""
 "displayed in the multimeter and value widgets. Statistics data is computed "
 "over the full rate 1 MHz samples."
 msgstr ""
-"يتحكم هذا الإعداد في تردد الإخراج لبيانات الإحصائيات التي يتم عرضها في أدوات"
-" القياس المتعدد والقيمة. يتم حساب البيانات الإحصائية على المعدل الكامل "
-"لعينات 1 ميجاهرتز."
+"يتحكم هذا الإعداد في تردد الإخراج لبيانات الإحصائيات التي يتم عرضها في عنصري"
+" واجهة المقياس المتعدد والقيمة. يتم حساب البيانات الإحصائية على المعدل "
+"الكامل لعينات 1 ميجاهرتز."
 
 #: devices/jsdrv/js220.py:212
 msgid ""
@@ -1587,31 +1605,32 @@ msgstr ""
 
 #: devices/jsdrv/js220.py:254 devices/jsdrv/js320.py:267
 msgid "Trigger direction"
-msgstr "اتجاه الزناد"
+msgstr "اتجاه القدح"
 
 #: devices/jsdrv/js220.py:256
 msgid "Configure the direction of the JS220's trigger BNC connection."
-msgstr "قم بتكوين اتجاه وصلة BNC للزناد في JS220."
+msgstr "قم بتهيئة اتجاه وصلة BNC للقدح في JS220."
 
 #: devices/jsdrv/js220.py:257 devices/jsdrv/js320.py:270
 msgid ""
 "0 (default) configures the BNC trigger for input only. The BNC connection is"
 " high-impedance."
-msgstr "0 (افتراضي) يهيئ زناد BNC للإدخال فقط. وصلة BNC ذات مقاومة عالية."
+msgstr ""
+"0 (افتراضي) يهيئ وصلة BNC للقدح للإدخال فقط. وصلة BNC ذات مقاومة عالية."
 
 #: devices/jsdrv/js220.py:259 devices/jsdrv/js320.py:272
 msgid ""
 "1 configures the BNC trigger for output. The BNC connection has 50 Ohm "
 "output impedance."
-msgstr "1 يهيئ زناد BNC للإخراج. تحتوي وصلة BNC على مقاومة خرج 50 أوم."
+msgstr "1 يهيئ وصلة BNC للقدح للإخراج. تحتوي وصلة BNC على مقاومة خرج 50 أوم."
 
 #: devices/jsdrv/js220.py:261 devices/jsdrv/js320.py:274
 msgid ""
 "In both cases, the trigger input signal is valid, which enables internal "
 "inspection and recording of the trigger output."
 msgstr ""
-"في كلتا الحالتين، تكون إشارة دخل الزناد صالحة، مما يتيح الفحص الداخلي وتسجيل"
-" خرج الزناد."
+"في كلتا الحالتين، تكون إشارة دخل القدح صالحة، مما يتيح الفحص الداخلي وتسجيل "
+"خرج القدح."
 
 #: devices/jsdrv/js220.py:273
 msgid ""
@@ -1637,17 +1656,17 @@ msgstr "\"3.3 فولت\" يستخدم جهدًا مرجعيًا 3.3 فولت م�
 
 #: devices/jsdrv/js220.py:301 devices/jsdrv/js320.py:314
 msgid "Trigger output value"
-msgstr "قيمة خرج الزناد"
+msgstr "قيمة خرج القدح"
 
 #: devices/jsdrv/js220.py:303 devices/jsdrv/js320.py:316
 msgid "Turn the trigger output on or off."
-msgstr "تشغيل خرج الزناد أو إيقاف تشغيله."
+msgstr "تشغيل خرج القدح أو إيقاف تشغيله."
 
 #: devices/jsdrv/js220.py:304 devices/jsdrv/js320.py:317
 msgid ""
 "The trigger must also be configured for output for this setting to have any "
 "effect."
-msgstr "يجب أيضًا تكوين الزناد للإخراج حتى يكون لهذا الإعداد أي تأثير."
+msgstr "يجب أيضًا تهيئة القدح للإخراج حتى يكون لهذا الإعداد أي تأثير."
 
 #: devices/jsdrv/js220.py:312
 msgid "The maturity level channel for firmware updates."
@@ -1748,11 +1767,11 @@ msgstr "تمكين تدفق إشارة الإدخال 3 للأغراض العا�
 #: devices/jsdrv/js220.py:512 devices/jsdrv/js320.py:492
 #: widgets/waveform/waveform_widget.py:134
 msgid "Trigger input"
-msgstr "مدخلات الزناد"
+msgstr "دخل القدح"
 
 #: devices/jsdrv/js220.py:513 devices/jsdrv/js320.py:493
 msgid "Enable the trigger input signal streaming."
-msgstr "تمكين تدفق إشارة إدخال الزناد."
+msgstr "تمكين بث إشارة دخل القدح."
 
 #: devices/jsdrv/js220.py:523 devices/jsdrv/js320.py:503
 #: devices/serial/serial_device.py:77 devices/serial/serial_device.py:81
@@ -1822,7 +1841,7 @@ msgstr ""
 
 #: devices/jsdrv/js320.py:269
 msgid "Configure the direction of the trigger BNC connection."
-msgstr "قم بتكوين اتجاه وصلة BNC للزناد."
+msgstr "قم بتهيئة اتجاه وصلة BNC للقدح."
 
 #: devices/jsdrv/js320.py:286
 msgid ""
@@ -1852,6 +1871,26 @@ msgstr "حجم ذاكرة المخزن المؤقت بالبايت"
 #: devices/jsdrv/jsdrv_stream_buffer.py:54
 msgid "Buffer memory duration in seconds"
 msgstr "مدة ذاكرة المخزن المؤقت بالثواني"
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:72 widgets/memory/memory_widget.py:242
+msgid "Clear on play"
+msgstr "مسح عند التشغيل"
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:73
+msgid ""
+"When signal sample streaming is paused, the stream buffer pauses sample "
+"accumulation. This setting controls what happens on play when streaming "
+"resumes. When unset, the buffer continues to accumulate samples into the "
+"existing buffer data. This mode treats the pause duration as missing "
+"samples. When set, the buffer is cleared and all prior data is purged. The "
+"buffer functions as if sample streaming started for the first time."
+msgstr ""
+"عند الإيقاف المؤقت لبث عينات الإشارة، يوقف المخزن المؤقت للبث تجميع العينات "
+"مؤقتًا. يتحكم هذا الإعداد فيما يحدث عند التشغيل حين يُستأنف البث. عند إلغاء "
+"التعيين، يواصل المخزن المؤقت تجميع العينات ضمن بيانات المخزن الحالية، ويعامل"
+" هذا الوضع مدة الإيقاف المؤقت على أنها عينات مفقودة. عند التعيين، يُمسح "
+"المخزن المؤقت وتُحذف جميع البيانات السابقة، ويعمل المخزن المؤقت كما لو أن بث"
+" العينات بدأ لأول مرة."
 
 #: devices/jsdrv/jsdrv_stream_buffer.py:94
 msgid "Source name"
@@ -1955,6 +1994,14 @@ msgstr "إزالة"
 msgid "Invalid baud rate"
 msgstr "معدل الباود غير صالح"
 
+#: plugins/manager.py:59
+msgid "Monitor a plugin for changes"
+msgstr "مراقبة المكوّن الإضافي بحثًا عن تغييرات"
+
+#: plugins/manager.py:64
+msgid "Monitor reload delay from filesystem changes in milliseconds."
+msgstr "مهلة إعادة التحميل بعد تغييرات نظام الملفات، بالمللي ثانية."
+
 #: plugins/selector.py:32
 msgid "Plugins"
 msgstr "المكونات الإضافية"
@@ -1994,6 +2041,10 @@ msgstr ""
 "وضع تيار. بالمقارنة مع المدرج التكراري، يسهّل CDF مقارنة مقدار الوقت "
 "المستغرق في كل وضع بمجرد قياس التغير في قيمة المحور y."
 
+#: range_tools/cdf.py:76
+msgid "Hold the data"
+msgstr "تثبيت البيانات"
+
 #: range_tools/cdf.py:147
 msgid "Probability"
 msgstr "الاحتمالية"
@@ -2001,6 +2052,15 @@ msgstr "الاحتمالية"
 #: range_tools/cdf.py:168
 msgid "CDF configuration"
 msgstr "تكوين CDF"
+
+#: range_tools/cdf.py:175 range_tools/frequency.py:194
+#: range_tools/histogram.py:44 range_tools/max_window.py:109
+#: widgets/spectrum/spectrum_control.py:36
+#: widgets/spectrum/spectrum_widget.py:1071
+#: widgets/trigger/trigger_widget.py:220
+#: widgets/waveform/waveform_widget.py:4417
+msgid "Signal"
+msgstr "الإشارة"
 
 #: range_tools/cdf.py:182 range_tools/histogram.py:50
 msgid "Number of bins (0 for auto)"
@@ -2025,9 +2085,26 @@ msgid ""
 msgstr ""
 "حساب طيف التردد لتحليل محتوى التردد لقيم بيانات الإشارة على النطاق المحدد."
 
+#: range_tools/frequency.py:94 range_tools/histogram.py:103
+msgid "Hold the histogram data"
+msgstr "تثبيت بيانات المدرج التكراري"
+
 #: range_tools/frequency.py:187
 msgid "Frequency configuration"
 msgstr "تكوين التردد"
+
+#: range_tools/frequency.py:203 widgets/spectrum/spectrum_control.py:47
+#: widgets/spectrum/spectrum_widget.py:107
+msgid "Window"
+msgstr "نافذة"
+
+#: range_tools/frequency.py:214
+msgid "FFT Length"
+msgstr "طول FFT"
+
+#: range_tools/frequency.py:225
+msgid "Overlap %"
+msgstr "التداخل %"
 
 #: range_tools/histogram.py:24
 msgid "Histogram"
@@ -2044,13 +2121,6 @@ msgstr "توزيع التردد"
 #: range_tools/histogram.py:28
 msgid "Probability Density Distribution"
 msgstr "توزيع الكثافة الاحتمالية"
-
-#: range_tools/histogram.py:44 range_tools/max_window.py:109
-#: widgets/spectrum/spectrum_control.py:36
-#: widgets/spectrum/spectrum_widget.py:1071
-#: widgets/trigger/trigger_widget.py:220
-msgid "Signal"
-msgstr "الإشارة"
 
 #: range_tools/histogram.py:56
 msgid "Histogram type"
@@ -2115,6 +2185,10 @@ msgstr ""
 "استخدم علامات مزدوجة لتحديد 100 ميلي ثانية على الأقل بعد تشغيل التغذية "
 "للجهاز المستهدف. سترسل هذه الأداة البيانات المحددة إلى أداة USBET لتحليلها."
 
+#: styles/color_editor.py:75 widgets/settings/settings_widget.py:336
+msgid "Color"
+msgstr "اللون"
+
 #: styles/color_scheme.py:21
 msgid "dark"
 msgstr "داكن"
@@ -2138,6 +2212,33 @@ msgstr "افتراضي"
 #: styles/font_scheme.py:22
 msgid "Joulescope default font scheme"
 msgstr "نظام الخط الافتراضي لجولسكوب"
+
+#: tcp_server/__init__.py:41
+msgid "Enable TCP server"
+msgstr "تمكين خادم TCP"
+
+#: tcp_server/__init__.py:42
+msgid ""
+"When enabled, a TCP socket server listens for connections from external "
+"processes."
+msgstr ""
+"عند التمكين، يستمع خادم مقابس TCP للاتصالات الواردة من العمليات الخارجية."
+
+#: tcp_server/__init__.py:47
+msgid "Server bind address"
+msgstr "عنوان ربط الخادم"
+
+#: tcp_server/__init__.py:48
+msgid "The network interface to bind to. Use 127.0.0.1 for localhost only."
+msgstr "واجهة الشبكة المراد الربط بها. استخدم 127.0.0.1 للمضيف المحلي فقط."
+
+#: tcp_server/__init__.py:53
+msgid "Server TCP port"
+msgstr "منفذ TCP للخادم"
+
+#: tcp_server/__init__.py:54
+msgid "The TCP port number for the server."
+msgstr "رقم منفذ TCP للخادم."
 
 #: widgets/accumulator/accumulator_widget.py:27
 #: widgets/value/value_widget.py:32
@@ -2213,6 +2314,10 @@ msgstr "عرض توضيحي"
 msgid "Device Control"
 msgstr "التحكم في الجهاز"
 
+#: widgets/device_control/device_info_dialog.py:30
+msgid "Device Information"
+msgstr "معلومات الجهاز"
+
 #: widgets/device_control/device_update_dialog.py:24
 #: widgets/device_control/device_update_dialog.py:45
 msgid "Update"
@@ -2267,6 +2372,7 @@ msgstr "حدد لا شيء"
 #: widgets/device_control/device_update_dialog.py:43
 #: widgets/js220_cal/js220_cal_widget.py:37
 #: widgets/js320_cal/js320_cal_widget.py:59
+#: widgets/waveform/text_annotation.py:167
 msgid "Cancel"
 msgstr "إلغاء"
 
@@ -2349,8 +2455,6 @@ msgid "Fuse response"
 msgstr "استجابة المصهر"
 
 #: widgets/device_control/fuse.py:102
-#: widgets/record_status/record_stop_config_widget.py:31
-#: widgets/serial_console/serial_console_widget.py:72
 msgid "Time"
 msgstr "الوقت"
 
@@ -2379,16 +2483,16 @@ msgid ""
 "When selected, this device because the default. All widgets using the "
 "default device will use the data provided by this device."
 msgstr ""
-"عند تحديده، يصبح هذا الجهاز هو الافتراضي. ستستخدم جميع الأدوات التي تستخدم "
-"الجهاز الافتراضي البيانات التي يوفرها هذا الجهاز."
+"عند تحديده، يصبح هذا الجهاز هو الافتراضي. ستستخدم جميع عناصر الواجهة التي "
+"تستخدم الجهاز الافتراضي البيانات التي يوفرها هذا الجهاز."
 
 #: widgets/device_control/js220_ctrl_widget.py:46
 msgid ""
 "When unselected, another device is the default. Widgets can still be "
 "configured to use data from this device."
 msgstr ""
-"عند عدم تحديده، يكون جهاز آخر هو الجهاز الافتراضي. لا يزال من الممكن تكوين "
-"الأدوات لاستخدام البيانات من هذا الجهاز."
+"عند عدم تحديده، يكون جهاز آخر هو الجهاز الافتراضي. لا يزال من الممكن تهيئة "
+"عناصر الواجهة لاستخدام البيانات من هذا الجهاز."
 
 #: widgets/device_control/js220_ctrl_widget.py:54
 msgid ""
@@ -2430,8 +2534,9 @@ msgid ""
 "Undo restores the previous settings."
 msgstr ""
 "انقر على هذا الزر لإغلاق هذا الجهاز وإعادة ضبط إعداداته إلى الإعدادات "
-"الافتراضية. يمكنك تعديل الإعدادات الافتراضية للجهاز من خلال أداة «الإعدادات»"
-" ضمن قسم «الأجهزة». يعمل خيار «تراجع» على استعادة الإعدادات السابقة."
+"الافتراضية. يمكنك تعديل الإعدادات الافتراضية للجهاز من خلال عنصر الواجهة "
+"«الإعدادات» ضمن قسم «الأجهزة». يعمل خيار «تراجع» على استعادة الإعدادات "
+"السابقة."
 
 #: widgets/device_control/js220_ctrl_widget.py:80
 msgid "Clear accumulators"
@@ -2444,7 +2549,7 @@ msgid ""
 "will be unaffected."
 msgstr ""
 "انقر فوق هذا الزر لمسح مُراكِمات الشحنة والطاقة. لن تتأثر ميزة \"تراكم\" "
-"الخاصة بأدوات عرض القيم، بما في ذلك المقياس المتعدد."
+"الخاصة بعناصر واجهة عرض القيم، بما في ذلك المقياس المتعدد."
 
 #: widgets/device_control/js220_ctrl_widget.py:87
 #: widgets/device_control/js220_ctrl_widget.py:669
@@ -2535,12 +2640,10 @@ msgstr "تمكين الإشارات"
 
 #: widgets/efficiency/efficiency_control.py:40
 msgid "Enable the instrument signals that this widget needs."
-msgstr "قم بتمكين إشارات الجهاز التي تحتاجها هذه الأداة المصغرة."
+msgstr "قم بتمكين إشارات الجهاز التي يحتاجها عنصر الواجهة هذا."
 
 #: widgets/efficiency/efficiency_control.py:52
-#: widgets/efficiency/efficiency_widget.py:732
-#: widgets/spectrum/spectrum_control.py:67
-#: widgets/spectrum/spectrum_widget.py:1191 widgets/value/value_widget.py:256
+#: widgets/spectrum/spectrum_control.py:67 widgets/value/value_widget.py:262
 msgid "Hold"
 msgstr "تثبيت"
 
@@ -2725,7 +2828,7 @@ msgstr "عرض الحد الأدنى والحد الأقصى لمنحنى الك
 
 #: widgets/efficiency/efficiency_widget.py:152
 msgid "Hold the efficiency curve"
-msgstr "احتفظ بمنحنى الكفاءة"
+msgstr "تثبيت منحنى الكفاءة"
 
 #: widgets/efficiency/efficiency_widget.py:158
 msgid "The pane sizes."
@@ -2780,6 +2883,12 @@ msgstr "اختر أجهزة إدخال وإخراج مختلفة"
 #, python-brace-format
 msgid "Disabled: {0}"
 msgstr "معطل: {0}"
+
+#: widgets/efficiency/efficiency_widget.py:732
+#: widgets/spectrum/spectrum_widget.py:1191
+msgctxt "state"
+msgid "Hold"
+msgstr "مُثبَّت"
 
 #: widgets/efficiency/efficiency_widget.py:734
 msgid "Curve hold"
@@ -3081,10 +3190,6 @@ msgstr "حجم ذاكرة الوصول العشوائي المتاحة"
 msgid "Used RAM size"
 msgstr "حجم ذاكرة الوصول العشوائي المستخدمة"
 
-#: widgets/memory/memory_widget.py:242
-msgid "Clear on play"
-msgstr "مسح عند التشغيل"
-
 #: widgets/notes/notes_widget.py:28
 msgid "The notes value."
 msgstr "قيمة الملاحظات."
@@ -3141,6 +3246,12 @@ msgstr "بعد فترة"
 msgid "At a specific time"
 msgstr "في وقت محدد"
 
+#: widgets/record_status/record_stop_config_widget.py:31
+#: widgets/serial_console/serial_console_widget.py:72
+msgctxt "clock"
+msgid "Time"
+msgstr "الوقت"
+
 #: widgets/record_status/record_stop_config_widget.py:32
 msgid "Configure recording stop"
 msgstr "تكوين إيقاف التسجيل"
@@ -3159,7 +3270,7 @@ msgstr "مصدر بث عينات الإشارة."
 
 #: widgets/serial_console/serial_console_widget.py:43
 msgid "The target waveform widget."
-msgstr "أداة الشكل الموجي المستهدف."
+msgstr "عنصر واجهة الشكل الموجي المستهدف."
 
 #: widgets/serial_console/serial_console_widget.py:72
 msgid "Message"
@@ -3185,13 +3296,9 @@ msgstr "إضافة تعليقات توضيحية إلى الشكل الموجي"
 msgid "External Serial..."
 msgstr "منفذ تسلسلي خارجي..."
 
-#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:796
+#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:802
 msgid "Value"
 msgstr "القيمة"
-
-#: widgets/settings/settings_widget.py:336
-msgid "Color"
-msgstr "اللون"
 
 #: widgets/settings/settings_widget.py:443
 msgid "Font"
@@ -3278,8 +3385,8 @@ msgid ""
 " and their settings. Use this widget to open and close devices and configure"
 " their operation."
 msgstr ""
-"انقر لإظهار أداة التحكم في الجهاز التي تعرض الأجهزة المتصلة وإعداداتها. "
-"استخدم هذه الأداة لفتح الأجهزة وإغلاقها وتهيئة تشغيلها."
+"انقر لإظهار عنصر واجهة التحكم في الجهاز الذي يعرض الأجهزة المتصلة "
+"وإعداداتها. استخدم عنصر الواجهة هذا لفتح الأجهزة وإغلاقها وتهيئة تشغيلها."
 
 #: widgets/sidebar/sidebar_widget.py:35
 msgid "Memory buffer settings"
@@ -3291,17 +3398,17 @@ msgid ""
 "this button to show the memory management widget which allows you to "
 "configure the memory used by this Joulescope UI instance."
 msgstr ""
-"يتم تخزين بيانات عينة الإشارة المتدفقة في ذاكرة الوصول العشوائي للكمبيوتر "
-"المضيف. انقر فوق هذا الزر لإظهار أداة إدارة الذاكرة التي تسمح لك بتكوين "
-"الذاكرة التي يستخدمها مثيل واجهة مستخدم Joulescope هذا."
+"يتم تخزين بيانات عينات الإشارة المتدفقة في ذاكرة الوصول العشوائي للكمبيوتر "
+"المضيف. انقر فوق هذا الزر لإظهار عنصر واجهة إدارة الذاكرة الذي يتيح لك تهيئة"
+" الذاكرة التي يستخدمها مثيل واجهة مستخدم Joulescope هذا."
 
 #: widgets/sidebar/sidebar_widget.py:44
 msgid ""
 "Click to show the settings which allows you to change the global, default, "
 "and individual instance settings for devices and widgets."
 msgstr ""
-"انقر لإظهار الإعدادات التي تسمح لك بتغيير إعدادات المثيل العامة والافتراضية "
-"والفردية للأجهزة والأدوات."
+"انقر لإظهار الإعدادات التي تتيح لك تغيير الإعدادات العامة والافتراضية "
+"والخاصة بكل مثيل للأجهزة وعناصر الواجهة."
 
 #: widgets/sidebar/sidebar_widget.py:47
 msgid ""
@@ -3330,6 +3437,14 @@ msgstr "انقر لعرض إعدادات وإجراءات إضافية."
 #: widgets/sidebar/sidebar_widget.py:72
 msgid "sidebar"
 msgstr "الشريط الجانبي"
+
+#: widgets/sidebar/sidebar_widget.py:89
+msgid "Show the separator between widgets."
+msgstr "إظهار الفاصل بين عناصر الواجهة."
+
+#: widgets/sidebar/sidebar_widget.py:94
+msgid "The size of the separator."
+msgstr "حجم الفاصل."
 
 #: widgets/signal_record/disk_full_dialog.py:19
 msgid "The disk is full"
@@ -3369,12 +3484,14 @@ msgid ""
 "When selected, ignore new data so that the spectrum and waterfall stay "
 "frozen."
 msgstr ""
-"عند تحديد هذه الخيار، يتم تجاهل البيانات الجديدة بحيث يظل الطيف والشكل "
+"عند تحديد هذا الخيار، يتم تجاهل البيانات الجديدة بحيث يظل الطيف والمخطط "
 "الشلالي ثابتين."
 
 #: widgets/spectrum/spectrum_control.py:34
 msgid "Clear the average, max hold, min hold, and waterfall history."
-msgstr "امسح سجل المتوسط، والحد الأقصى، والحد الأدنى، وسجل الشلال."
+msgstr ""
+"امسح سجل المتوسط والاحتفاظ بالحد الأقصى والاحتفاظ بالحد الأدنى والمخطط "
+"الشلالي."
 
 #: widgets/spectrum/spectrum_control.py:35
 msgid "Select the source device."
@@ -3411,11 +3528,6 @@ msgid ""
 msgstr ""
 "عدد العينات في كل تحويل فورييه السريع (FFT). توفر تحويلات FFT الأطول عرض "
 "نطاق دقة (RBW) أعلى، لكنها تُحدَّث بوتيرة أقل."
-
-#: widgets/spectrum/spectrum_control.py:47
-#: widgets/spectrum/spectrum_widget.py:107
-msgid "Window"
-msgstr "نافذة"
 
 #: widgets/spectrum/spectrum_control.py:48
 msgid ""
@@ -3620,31 +3732,31 @@ msgstr "اعرض طيف تحويل فورييه السريع (FFT)."
 
 #: widgets/spectrum/spectrum_widget.py:207
 msgid "Show the waterfall history."
-msgstr "اعرض سجل الشلال."
+msgstr "اعرض سجل المخطط الشلالي."
 
 #: widgets/spectrum/spectrum_widget.py:212
 msgid "The FFT and waterfall pane sizes."
-msgstr "أحجام لوحتي FFT والشلال."
+msgstr "أحجام لوحتي FFT والمخطط الشلالي."
 
 #: widgets/spectrum/spectrum_widget.py:218
 msgid "Waterfall duration"
-msgstr "مدة الشلال"
+msgstr "مدة المخطط الشلالي"
 
 #: widgets/spectrum/spectrum_widget.py:224
 msgid "Waterfall rows"
-msgstr "صفوف الشلال"
+msgstr "صفوف المخطط الشلالي"
 
 #: widgets/spectrum/spectrum_widget.py:225
 msgid ""
 "The number of waterfall rows over the duration. Each row combines all FFTs "
 "over its duration using the waterfall detector."
 msgstr ""
-"عدد صفوف الشلال على مدار المدة. يجمع كل صف جميع تحويلات فورييه السريعة (FFT)"
-" على مدار مدته باستخدام كاشف الشلال."
+"عدد صفوف المخطط الشلالي على مدار المدة. يجمع كل صف جميع تحويلات FFT على مدار"
+" مدته باستخدام كاشف المخطط الشلالي."
 
 #: widgets/spectrum/spectrum_widget.py:233
 msgid "Waterfall detector"
-msgstr "كاشف الشلال"
+msgstr "كاشف المخطط الشلالي"
 
 #: widgets/spectrum/spectrum_widget.py:234
 msgid "How each row combines its FFTs. Max keeps short bursts visible."
@@ -3663,39 +3775,39 @@ msgstr "الحد الأقصى"
 
 #: widgets/spectrum/spectrum_widget.py:241
 msgid "Waterfall memory (MB)"
-msgstr "ذاكرة الشلال (MB)"
+msgstr "ذاكرة المخطط الشلالي (MB)"
 
 #: widgets/spectrum/spectrum_widget.py:242
 msgid ""
 "The maximum waterfall history memory. Long FFTs with many rows may reduce "
 "the waterfall duration."
 msgstr ""
-"السعة القصوى لذاكرة سجل الشكل الشلالي. قد تؤدي تحويلات فورييه الطويلة (FFT) "
-"التي تحتوي على العديد من الصفوف إلى تقليل مدة عرض الشكل الشلالي."
+"السعة القصوى لذاكرة سجل المخطط الشلالي. قد تؤدي تحويلات FFT الطويلة التي "
+"تحتوي على العديد من الصفوف إلى تقليل مدة المخطط الشلالي."
 
 #: widgets/spectrum/spectrum_widget.py:249
 msgid "Waterfall colormap"
-msgstr "خريطة ألوان الشلال"
+msgstr "خريطة ألوان المخطط الشلالي"
 
 #: widgets/spectrum/spectrum_widget.py:255
 msgid "Waterfall intensity follows the FFT y-axis"
-msgstr "تتبع شدة الشلال المحور الصادي (y) للتحويل السريع فورييه (FFT)"
+msgstr "شدة المخطط الشلالي تتبع المحور y لـ FFT"
 
 #: widgets/spectrum/spectrum_widget.py:256
 msgid ""
 "When set, the waterfall color range matches the FFT dB y-axis range. When "
 "cleared, use intensity min and max."
 msgstr ""
-"عند التعيين، يتطابق نطاق ألوان الشكل الشلالي مع نطاق المحور الصادي (y) لـ "
-"FFT dB. وعند إلغاء التعيين، يتم استخدام الحد الأدنى والحد الأقصى للشدة."
+"عند التعيين، يتطابق نطاق ألوان المخطط الشلالي مع نطاق المحور y لـ FFT بوحدة "
+"dB. وعند إلغاء التعيين، يتم استخدام الحد الأدنى والحد الأقصى للشدة."
 
 #: widgets/spectrum/spectrum_widget.py:262
 msgid "Waterfall intensity min (dB)"
-msgstr "الحد الأدنى لشدة الشلال (ديسيبل)"
+msgstr "الحد الأدنى لشدة المخطط الشلالي (dB)"
 
 #: widgets/spectrum/spectrum_widget.py:267
 msgid "Waterfall intensity max (dB)"
-msgstr "أقصى شدة الشلال (ديسيبل)"
+msgstr "الحد الأقصى لشدة المخطط الشلالي (dB)"
 
 #: widgets/spectrum/spectrum_widget.py:272
 msgid "Number of peaks to display"
@@ -3771,7 +3883,7 @@ msgstr "عرض تحويل فورييه السريع (FFT)"
 
 #: widgets/spectrum/spectrum_widget.py:1063
 msgid "Show waterfall"
-msgstr "عرض الشكل الشلالي"
+msgstr "عرض المخطط الشلالي"
 
 #: widgets/spectrum/spectrum_widget.py:1189
 msgid "No signal"
@@ -3785,7 +3897,7 @@ msgstr "فجوات {0}"
 #: widgets/spectrum/spectrum_widget.py:1204
 #, python-brace-format
 msgid "waterfall {0}"
-msgstr "الشلال {0}"
+msgstr "المخطط الشلالي {0}"
 
 #: widgets/statistics_record/statistics_record_config_widget.py:86
 msgid "StatisticsRecordConfig"
@@ -3817,7 +3929,7 @@ msgstr "مفرد"
 
 #: widgets/trigger/trigger_widget.py:46
 msgid "Perform one trigger sequence and then return to inactive mode."
-msgstr "إجراء تسلسل زناد واحد ثم العودة إلى الوضع غير النشط."
+msgstr "تنفيذ تسلسل قدح واحد ثم العودة إلى الوضع غير النشط."
 
 #: widgets/trigger/trigger_widget.py:47
 msgid "Continuous"
@@ -3825,7 +3937,7 @@ msgstr "مستمر"
 
 #: widgets/trigger/trigger_widget.py:48
 msgid "Repeat the trigger sequence indefinitely until manually stopped."
-msgstr "كرر تسلسل الزناد إلى أجل غير مسمى حتى يتم إيقافه يدويًا."
+msgstr "تكرار تسلسل القدح إلى أجل غير مسمى حتى يتم إيقافه يدويًا."
 
 #: widgets/trigger/trigger_widget.py:65
 msgid "Start, stop and indicate status"
@@ -3837,7 +3949,7 @@ msgstr "غير نشط"
 
 #: widgets/trigger/trigger_widget.py:67
 msgid "Configure trigger options and then press to start."
-msgstr "قم بتكوين خيارات الزناد ثم اضغط للبدء."
+msgstr "قم بتهيئة خيارات القدح ثم اضغط للبدء."
 
 #: widgets/trigger/trigger_widget.py:68
 msgid "Searching"
@@ -3884,6 +3996,14 @@ msgstr "خارج"
 #: widgets/trigger/trigger_widget.py:164
 msgid "The source instrument."
 msgstr "جهاز القياس المصدر."
+
+#: widgets/trigger/trigger_widget.py:169
+msgid "The trigger mode."
+msgstr "وضع القدح."
+
+#: widgets/trigger/trigger_widget.py:189
+msgid "The trigger configuration."
+msgstr "تهيئة القدح."
 
 #: widgets/trigger/trigger_widget.py:219
 msgid "Type"
@@ -3933,7 +4053,7 @@ msgstr "التأخير"
 
 #: widgets/trigger/trigger_widget.py:777
 msgid "Trigger"
-msgstr "الزناد"
+msgstr "القدح"
 
 #: widgets/trigger/trigger_widget.py:817
 msgid "No sources found"
@@ -4002,7 +4122,8 @@ msgid ""
 "The values displayed by this widget come from a single source device. Select"
 " the source device here."
 msgstr ""
-"تأتي القيم التي تعرضها هذه الأداة من جهاز مصدر واحد. حدد الجهاز المصدر هنا."
+"تأتي القيم التي يعرضها عنصر الواجهة هذا من جهاز مصدر واحد. حدد الجهاز المصدر"
+" هنا."
 
 #: widgets/value/value_widget.py:127
 msgid "When selected, prevent the display from updating."
@@ -4071,23 +4192,23 @@ msgstr ""
 "لاحظ أن هذا الزر لا يؤثر على تراكم الشحنة والطاقة. يتراكم كلاهما إلى أجل غير"
 " مسمى بغض النظر عن حالة هذا الزر."
 
-#: widgets/value/value_widget.py:236
+#: widgets/value/value_widget.py:242
 msgid "Not present"
 msgstr "غير موجود"
 
-#: widgets/value/value_widget.py:264
+#: widgets/value/value_widget.py:270
 msgid "Accrue"
 msgstr "تراكم"
 
-#: widgets/value/value_widget.py:600 widgets/waveform/waveform_widget.py:3808
+#: widgets/value/value_widget.py:606 widgets/waveform/waveform_widget.py:3808
 msgid "Preferred prefix"
 msgstr "البادئة المفضلة"
 
-#: widgets/value/value_widget.py:605
+#: widgets/value/value_widget.py:611
 msgid "auto"
 msgstr "تلقائي"
 
-#: widgets/value/value_widget.py:607
+#: widgets/value/value_widget.py:613
 msgid "none"
 msgstr "لا شيء"
 
@@ -4148,6 +4269,10 @@ msgstr "يدوي"
 #: widgets/waveform/text_annotation.py:68
 msgid "Centered"
 msgstr "متمركز"
+
+#: widgets/waveform/text_annotation.py:91
+msgid "Edit annotation"
+msgstr "تحرير التعليق التوضيحي"
 
 #: widgets/waveform/text_annotation.py:101
 #: widgets/waveform/waveform_widget.py:3890
@@ -4332,7 +4457,23 @@ msgstr "إظهار/إخفاء الإشارات"
 
 #: widgets/waveform/waveform_control.py:113
 msgid "Click to toggle the signal axis display in the Waveform widget."
-msgstr "انقر لتبديل عرض محور الإشارة في أداة الشكل الموجي."
+msgstr "انقر لتبديل عرض محور الإشارة في عنصر واجهة الشكل الموجي."
+
+#: widgets/waveform/waveform_control.py:138
+msgid "Markers:"
+msgstr "العلامات:"
+
+#: widgets/waveform/waveform_control.py:146
+msgid "X-Axis:"
+msgstr "المحور X:"
+
+#: widgets/waveform/waveform_control.py:162
+msgid "Min/Max:"
+msgstr "الحد الأدنى/الأقصى:"
+
+#: widgets/waveform/waveform_control.py:173
+msgid "Signals:"
+msgstr "الإشارات:"
 
 #: widgets/waveform/waveform_source_widget.py:30
 msgid "Enable trace"
@@ -4363,8 +4504,8 @@ msgid ""
 "\"default\" will use the default source which is normally configured using "
 "the Device Control widget."
 msgstr ""
-"\"افتراضي\" سيستخدم المصدر الافتراضي الذي يتم تكوينه عادةً باستخدام أداة "
-"التحكم في الجهاز."
+"\"افتراضي\" سيستخدم المصدر الافتراضي الذي تتم تهيئته عادةً باستخدام عنصر "
+"واجهة التحكم في الجهاز."
 
 #: widgets/waveform/waveform_widget.py:46
 msgid "Waveform"
@@ -4877,7 +5018,7 @@ msgstr "الوحدات"
 #~ msgstr ""
 #~ "إذا كنت غير متأكد، اختر \"لا\" واترك \"عدم العرض مرة أخرى\" بدون تحديد. إذا "
 #~ "لاحظت توقف الرسومات عن العمل، يمكنك تحديد \"نعم\" في المستقبل. يمكنك تحديد "
-#~ "عارض OpenGL في أي وقت باستخدام Widgets → الإعدادات → Common → opengl. "
+#~ "عارض OpenGL في أي وقت باستخدام عناصر الواجهة → الإعدادات → عام → opengl. "
 #~ "الإعداد الافتراضي هو \"سطح المكتب\"."
 
 #~ msgid "Do not show again"

@@ -290,6 +290,10 @@ msgid "Prompt to switch from Intel graphics to software renderer."
 msgstr ""
 "Invite à passer de la carte graphique Intel au moteur de rendu logiciel."
 
+#: disk_monitor.py:33
+msgid "The free threshold for declaring fullness"
+msgstr "Seuil d'espace libre en dessous duquel le disque est déclaré plein"
+
 #: devices/serial/serial_port_dialog.py:181
 #: devices/serial/serial_port_dialog.py:203 error_dialog.py:42
 #: error_window.py:311
@@ -757,6 +761,18 @@ msgstr ""
 "Cliquez sur l'icône d'aide en bas à gauche pour plus d'informations et "
 "d'options d'assistance."
 
+#: jls_source.py:110
+msgid "The name for this JLS stream buffer source"
+msgstr "Le nom de cette source de tampon de flux JLS"
+
+#: jls_source.py:115
+msgid "The file path."
+msgstr "Le chemin du fichier."
+
+#: jls_source.py:120
+msgid "The user notes."
+msgstr "Les notes de l'utilisateur."
+
 #: locale_dialog.py:21
 msgid "Select a language"
 msgstr "Sélectionnez une langue"
@@ -766,7 +782,7 @@ msgid "The application will automatically close when you change the locale."
 msgstr ""
 "L'application se ferme automatiquement lorsque vous changez de langue."
 
-#: main.py:79 widgets/value/value_widget.py:787
+#: main.py:79 widgets/value/value_widget.py:793
 msgid "Multimeter"
 msgstr "Multimètre"
 
@@ -1130,6 +1146,8 @@ msgid "Copy to clipboard"
 msgstr "Copier dans le presse-papiers"
 
 #: software_update.py:334 widgets/device_control/device_update_dialog.py:44
+#: widgets/view_manager/view_manager_widget.py:136
+#: widgets/waveform/text_annotation.py:168
 msgid "OK"
 msgstr "OK"
 
@@ -1671,7 +1689,7 @@ msgid ""
 "0 (default) configures the BNC trigger for input only. The BNC connection is"
 " high-impedance."
 msgstr ""
-"0 (par défaut) configure le déclencheur BNC pour l'entrée uniquement. La "
+"0 (par défaut) configure le BNC de déclenchement en entrée uniquement. La "
 "connexion BNC est à haute impédance."
 
 #: devices/jsdrv/js220.py:259 devices/jsdrv/js320.py:272
@@ -1679,7 +1697,7 @@ msgid ""
 "1 configures the BNC trigger for output. The BNC connection has 50 Ohm "
 "output impedance."
 msgstr ""
-"1 configure le déclencheur BNC pour la sortie. La connexion BNC a une "
+"1 configure le BNC de déclenchement en sortie. La connexion BNC a une "
 "impédance de sortie de 50 Ohm."
 
 #: devices/jsdrv/js220.py:261 devices/jsdrv/js320.py:274
@@ -1729,7 +1747,7 @@ msgid ""
 "The trigger must also be configured for output for this setting to have any "
 "effect."
 msgstr ""
-"Le déclencheur doit également être configuré pour la sortie pour que ce "
+"Le BNC de déclenchement doit également être configuré en sortie pour que ce "
 "paramètre ait un effet."
 
 #: devices/jsdrv/js220.py:312
@@ -1911,7 +1929,7 @@ msgstr ""
 
 #: devices/jsdrv/js320.py:269
 msgid "Configure the direction of the trigger BNC connection."
-msgstr "Configurez le sens de la connexion BNC du déclencheur."
+msgstr "Configurez le sens de la connexion BNC de déclenchement."
 
 #: devices/jsdrv/js320.py:286
 msgid ""
@@ -1943,6 +1961,28 @@ msgstr "Taille de la mémoire tampon en octets"
 #: devices/jsdrv/jsdrv_stream_buffer.py:54
 msgid "Buffer memory duration in seconds"
 msgstr "Durée de la mémoire tampon en secondes"
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:72 widgets/memory/memory_widget.py:242
+msgid "Clear on play"
+msgstr "Effacer à la lecture"
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:73
+msgid ""
+"When signal sample streaming is paused, the stream buffer pauses sample "
+"accumulation. This setting controls what happens on play when streaming "
+"resumes. When unset, the buffer continues to accumulate samples into the "
+"existing buffer data. This mode treats the pause duration as missing "
+"samples. When set, the buffer is cleared and all prior data is purged. The "
+"buffer functions as if sample streaming started for the first time."
+msgstr ""
+"Lorsque le flux d'échantillons de signaux est en pause, le tampon de flux "
+"suspend l'accumulation des échantillons. Ce paramètre détermine ce qui se "
+"passe à la reprise de la lecture du flux. Lorsqu'il est désactivé, le tampon"
+" continue d'accumuler les échantillons à la suite des données existantes. "
+"Dans ce mode, la durée de la pause est traitée comme des échantillons "
+"manquants. Lorsqu'il est activé, le tampon est vidé et toutes les données "
+"antérieures sont supprimées. Le tampon fonctionne alors comme si le flux "
+"d'échantillons démarrait pour la première fois."
 
 #: devices/jsdrv/jsdrv_stream_buffer.py:94
 msgid "Source name"
@@ -2046,9 +2086,19 @@ msgstr "Enlever"
 msgid "Invalid baud rate"
 msgstr "Débit en bauds non valide"
 
+#: plugins/manager.py:59
+msgid "Monitor a plugin for changes"
+msgstr "Surveiller les modifications d'un module d'extension"
+
+#: plugins/manager.py:64
+msgid "Monitor reload delay from filesystem changes in milliseconds."
+msgstr ""
+"Délai de rechargement après une modification du système de fichiers, en "
+"millisecondes."
+
 #: plugins/selector.py:32
 msgid "Plugins"
-msgstr "Plugins"
+msgstr "Modules d'extension"
 
 #: plugins/selector.py:59 widgets/device_control/device_update_dialog.py:26
 msgid "Version"
@@ -2086,6 +2136,10 @@ msgstr ""
 "histogramme, la CDF permet de comparer plus facilement le temps passé dans "
 "chaque mode en mesurant simplement la variation de la valeur de l'axe des y."
 
+#: range_tools/cdf.py:76
+msgid "Hold the data"
+msgstr "Figer les données"
+
 #: range_tools/cdf.py:147
 msgid "Probability"
 msgstr "Probabilité"
@@ -2093,6 +2147,15 @@ msgstr "Probabilité"
 #: range_tools/cdf.py:168
 msgid "CDF configuration"
 msgstr "Configuration CDF"
+
+#: range_tools/cdf.py:175 range_tools/frequency.py:194
+#: range_tools/histogram.py:44 range_tools/max_window.py:109
+#: widgets/spectrum/spectrum_control.py:36
+#: widgets/spectrum/spectrum_widget.py:1071
+#: widgets/trigger/trigger_widget.py:220
+#: widgets/waveform/waveform_widget.py:4417
+msgid "Signal"
+msgstr "Signal"
 
 #: range_tools/cdf.py:182 range_tools/histogram.py:50
 msgid "Number of bins (0 for auto)"
@@ -2118,9 +2181,26 @@ msgstr ""
 "Calculer le spectre de fréquence pour analyser le contenu en fréquence des "
 "valeurs de données du signal sur la plage sélectionnée."
 
+#: range_tools/frequency.py:94 range_tools/histogram.py:103
+msgid "Hold the histogram data"
+msgstr "Figer les données de l'histogramme"
+
 #: range_tools/frequency.py:187
 msgid "Frequency configuration"
 msgstr "Configuration de la fréquence"
+
+#: range_tools/frequency.py:203 widgets/spectrum/spectrum_control.py:47
+#: widgets/spectrum/spectrum_widget.py:107
+msgid "Window"
+msgstr "Fenêtre"
+
+#: range_tools/frequency.py:214
+msgid "FFT Length"
+msgstr "Longueur de la FFT"
+
+#: range_tools/frequency.py:225
+msgid "Overlap %"
+msgstr "Chevauchement (%)"
 
 #: range_tools/histogram.py:24
 msgid "Histogram"
@@ -2137,13 +2217,6 @@ msgstr "Distribution de fréquence"
 #: range_tools/histogram.py:28
 msgid "Probability Density Distribution"
 msgstr "Distribution de densité de probabilité"
-
-#: range_tools/histogram.py:44 range_tools/max_window.py:109
-#: widgets/spectrum/spectrum_control.py:36
-#: widgets/spectrum/spectrum_widget.py:1071
-#: widgets/trigger/trigger_widget.py:220
-msgid "Signal"
-msgstr "Signal"
 
 #: range_tools/histogram.py:56
 msgid "Histogram type"
@@ -2214,6 +2287,10 @@ msgstr ""
 "après l'activation de l'alimentation de l'appareil cible. Cet outil enverra "
 "les données sélectionnées à l'outil USBET pour analyse."
 
+#: styles/color_editor.py:75 widgets/settings/settings_widget.py:336
+msgid "Color"
+msgstr "Couleur"
+
 #: styles/color_scheme.py:21
 msgid "dark"
 msgstr "sombre"
@@ -2237,6 +2314,36 @@ msgstr "par défaut"
 #: styles/font_scheme.py:22
 msgid "Joulescope default font scheme"
 msgstr "Police de caractères par défaut du Joulescope"
+
+#: tcp_server/__init__.py:41
+msgid "Enable TCP server"
+msgstr "Activer le serveur TCP"
+
+#: tcp_server/__init__.py:42
+msgid ""
+"When enabled, a TCP socket server listens for connections from external "
+"processes."
+msgstr ""
+"Lorsque cette option est activée, un serveur de sockets TCP attend les "
+"connexions de processus externes."
+
+#: tcp_server/__init__.py:47
+msgid "Server bind address"
+msgstr "Adresse d'écoute du serveur"
+
+#: tcp_server/__init__.py:48
+msgid "The network interface to bind to. Use 127.0.0.1 for localhost only."
+msgstr ""
+"L'interface réseau sur laquelle écouter. Utilisez 127.0.0.1 pour limiter "
+"l'accès à l'hôte local."
+
+#: tcp_server/__init__.py:53
+msgid "Server TCP port"
+msgstr "Port TCP du serveur"
+
+#: tcp_server/__init__.py:54
+msgid "The TCP port number for the server."
+msgstr "Le numéro de port TCP du serveur."
 
 #: widgets/accumulator/accumulator_widget.py:27
 #: widgets/value/value_widget.py:32
@@ -2312,6 +2419,10 @@ msgstr "Démonstration"
 msgid "Device Control"
 msgstr "Contrôle des appareils"
 
+#: widgets/device_control/device_info_dialog.py:30
+msgid "Device Information"
+msgstr "Informations sur l'appareil"
+
 #: widgets/device_control/device_update_dialog.py:24
 #: widgets/device_control/device_update_dialog.py:45
 msgid "Update"
@@ -2368,6 +2479,7 @@ msgstr "Sélectionner aucun"
 #: widgets/device_control/device_update_dialog.py:43
 #: widgets/js220_cal/js220_cal_widget.py:37
 #: widgets/js320_cal/js320_cal_widget.py:59
+#: widgets/waveform/text_annotation.py:167
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -2452,8 +2564,6 @@ msgid "Fuse response"
 msgstr "Réponse des fusibles"
 
 #: widgets/device_control/fuse.py:102
-#: widgets/record_status/record_stop_config_widget.py:31
-#: widgets/serial_console/serial_console_widget.py:72
 msgid "Time"
 msgstr "Temps"
 
@@ -2651,9 +2761,7 @@ msgid "Enable the instrument signals that this widget needs."
 msgstr "Activez les signaux de l'instrument dont ce widget a besoin."
 
 #: widgets/efficiency/efficiency_control.py:52
-#: widgets/efficiency/efficiency_widget.py:732
-#: widgets/spectrum/spectrum_control.py:67
-#: widgets/spectrum/spectrum_widget.py:1191 widgets/value/value_widget.py:256
+#: widgets/spectrum/spectrum_control.py:67 widgets/value/value_widget.py:262
 msgid "Hold"
 msgstr "Figer"
 
@@ -2897,6 +3005,12 @@ msgstr "Sélectionnez différents instruments d'entrée et de sortie"
 #, python-brace-format
 msgid "Disabled: {0}"
 msgstr "Désactivé : {0}"
+
+#: widgets/efficiency/efficiency_widget.py:732
+#: widgets/spectrum/spectrum_widget.py:1191
+msgctxt "state"
+msgid "Hold"
+msgstr "Figé"
 
 #: widgets/efficiency/efficiency_widget.py:734
 msgid "Curve hold"
@@ -3208,10 +3322,6 @@ msgstr "Taille de la RAM disponible"
 msgid "Used RAM size"
 msgstr "Taille de la RAM utilisée"
 
-#: widgets/memory/memory_widget.py:242
-msgid "Clear on play"
-msgstr "Effacer à la lecture"
-
 #: widgets/notes/notes_widget.py:28
 msgid "The notes value."
 msgstr "La valeur des notes."
@@ -3268,6 +3378,12 @@ msgstr "Après une durée"
 msgid "At a specific time"
 msgstr "À un moment donné"
 
+#: widgets/record_status/record_stop_config_widget.py:31
+#: widgets/serial_console/serial_console_widget.py:72
+msgctxt "clock"
+msgid "Time"
+msgstr "Heure"
+
 #: widgets/record_status/record_stop_config_widget.py:32
 msgid "Configure recording stop"
 msgstr "Configurer l'arrêt de l'enregistrement"
@@ -3312,13 +3428,9 @@ msgstr "Annoter la forme d'onde"
 msgid "External Serial..."
 msgstr "Série externe..."
 
-#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:796
+#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:802
 msgid "Value"
 msgstr "Valeur"
-
-#: widgets/settings/settings_widget.py:336
-msgid "Color"
-msgstr "Couleur"
 
 #: widgets/settings/settings_widget.py:443
 msgid "Font"
@@ -3460,6 +3572,14 @@ msgstr "Cliquez pour afficher des paramètres et des actions supplémentaires."
 msgid "sidebar"
 msgstr "barre latérale"
 
+#: widgets/sidebar/sidebar_widget.py:89
+msgid "Show the separator between widgets."
+msgstr "Afficher le séparateur entre les widgets."
+
+#: widgets/sidebar/sidebar_widget.py:94
+msgid "The size of the separator."
+msgstr "La taille du séparateur."
+
 #: widgets/signal_record/disk_full_dialog.py:19
 msgid "The disk is full"
 msgstr "Le disque est plein"
@@ -3504,7 +3624,7 @@ msgstr ""
 #: widgets/spectrum/spectrum_control.py:34
 msgid "Clear the average, max hold, min hold, and waterfall history."
 msgstr ""
-"Effacer l'historique des valeurs moyennes, maximales, minimales et en "
+"Effacer la moyenne, le maintien max, le maintien min et l'historique de la "
 "cascade."
 
 #: widgets/spectrum/spectrum_control.py:35
@@ -3543,11 +3663,6 @@ msgstr ""
 "Nombre d'échantillons dans chaque FFT. Des FFT plus longues offrent une "
 "bande passante de résolution (RBW) plus fine, mais sont mises à jour moins "
 "fréquemment."
-
-#: widgets/spectrum/spectrum_control.py:47
-#: widgets/spectrum/spectrum_widget.py:107
-msgid "Window"
-msgstr "Fenêtre"
 
 #: widgets/spectrum/spectrum_control.py:48
 msgid ""
@@ -3760,7 +3875,7 @@ msgstr "Afficher l'historique en cascade."
 
 #: widgets/spectrum/spectrum_widget.py:212
 msgid "The FFT and waterfall pane sizes."
-msgstr "Les tailles des fenêtres FFT et en cascade."
+msgstr "Les dimensions des panneaux FFT et du graphique en cascade."
 
 #: widgets/spectrum/spectrum_widget.py:218
 msgid "Waterfall duration"
@@ -3776,11 +3891,11 @@ msgid ""
 "over its duration using the waterfall detector."
 msgstr ""
 "Nombre de lignes du graphique en cascade sur la durée. Chaque ligne regroupe"
-" toutes les FFT sur sa durée à l'aide du détecteur de cascade."
+" toutes les FFT sur sa durée à l'aide du détecteur de la cascade."
 
 #: widgets/spectrum/spectrum_widget.py:233
 msgid "Waterfall detector"
-msgstr "Détecteur en cascade"
+msgstr "Détecteur de la cascade"
 
 #: widgets/spectrum/spectrum_widget.py:234
 msgid "How each row combines its FFTs. Max keeps short bursts visible."
@@ -3799,7 +3914,7 @@ msgstr "max"
 
 #: widgets/spectrum/spectrum_widget.py:241
 msgid "Waterfall memory (MB)"
-msgstr "Mémoire en cascade (Mo)"
+msgstr "Mémoire de la cascade (Mo)"
 
 #: widgets/spectrum/spectrum_widget.py:242
 msgid ""
@@ -3812,7 +3927,7 @@ msgstr ""
 
 #: widgets/spectrum/spectrum_widget.py:249
 msgid "Waterfall colormap"
-msgstr "Carte de couleurs en cascade"
+msgstr "Palette de couleurs de la cascade"
 
 #: widgets/spectrum/spectrum_widget.py:255
 msgid "Waterfall intensity follows the FFT y-axis"
@@ -3981,7 +4096,7 @@ msgstr "Inactif"
 
 #: widgets/trigger/trigger_widget.py:67
 msgid "Configure trigger options and then press to start."
-msgstr "Configurer les options de déclenchement et appuyer sur pour démarrer."
+msgstr "Configurez les options de déclenchement, puis appuyez pour démarrer."
 
 #: widgets/trigger/trigger_widget.py:68
 msgid "Searching"
@@ -3993,8 +4108,8 @@ msgid ""
 " and advance to active. Press to halt and return to inactive."
 msgstr ""
 "Rechercher la condition de démarrage configurée. En cas de correspondance, "
-"effectuer les actions de démarrage et passer en mode actif. Appuyer sur pour"
-" arrêter et revenir à l'état inactif."
+"effectuer les actions de démarrage et passer en mode actif. Appuyez pour "
+"arrêter et revenir à l'état inactif."
 
 #: widgets/trigger/trigger_widget.py:75
 msgid ""
@@ -4003,9 +4118,9 @@ msgid ""
 "transition to searching. Press to halt and return to inactive."
 msgstr ""
 "Rechercher la condition d'arrêt configurée. En cas de correspondance, "
-"effectuer les actions d'arrêt. Pour le mode d'exécution simple, passer à "
-"l'état inactif. Pour le mode de fonctionnement continu, passer à la "
-"recherche. Appuyer sur pour arrêter et revenir à l'état inactif."
+"effectuer les actions d'arrêt. En mode de fonctionnement « Unique », passer "
+"à l'état inactif. En mode de fonctionnement « Continu », reprendre la "
+"recherche. Appuyez pour arrêter et revenir à l'état inactif."
 
 #: widgets/trigger/trigger_widget.py:113
 msgid "Edge"
@@ -4030,6 +4145,14 @@ msgstr "à l'extérieur"
 #: widgets/trigger/trigger_widget.py:164
 msgid "The source instrument."
 msgstr "L'instrument source."
+
+#: widgets/trigger/trigger_widget.py:169
+msgid "The trigger mode."
+msgstr "Le mode de déclenchement."
+
+#: widgets/trigger/trigger_widget.py:189
+msgid "The trigger configuration."
+msgstr "La configuration du déclenchement."
 
 #: widgets/trigger/trigger_widget.py:219
 msgid "Type"
@@ -4229,23 +4352,23 @@ msgstr ""
 "Notez que ce bouton n'affecte pas l'accumulation de charge et d'énergie. Les"
 " deux s'accumulent indéfiniment quel que soit l'état de ce bouton."
 
-#: widgets/value/value_widget.py:236
+#: widgets/value/value_widget.py:242
 msgid "Not present"
 msgstr "Non présent"
 
-#: widgets/value/value_widget.py:264
+#: widgets/value/value_widget.py:270
 msgid "Accrue"
 msgstr "Cumuler"
 
-#: widgets/value/value_widget.py:600 widgets/waveform/waveform_widget.py:3808
+#: widgets/value/value_widget.py:606 widgets/waveform/waveform_widget.py:3808
 msgid "Preferred prefix"
 msgstr "Préfixe préféré"
 
-#: widgets/value/value_widget.py:605
+#: widgets/value/value_widget.py:611
 msgid "auto"
 msgstr "auto"
 
-#: widgets/value/value_widget.py:607
+#: widgets/value/value_widget.py:613
 msgid "none"
 msgstr "aucun"
 
@@ -4306,6 +4429,10 @@ msgstr "Manuel"
 #: widgets/waveform/text_annotation.py:68
 msgid "Centered"
 msgstr "Centré"
+
+#: widgets/waveform/text_annotation.py:91
+msgid "Edit annotation"
+msgstr "Modifier l'annotation"
 
 #: widgets/waveform/text_annotation.py:101
 #: widgets/waveform/waveform_widget.py:3890
@@ -4505,6 +4632,22 @@ msgid "Click to toggle the signal axis display in the Waveform widget."
 msgstr ""
 "Cliquez pour basculer l'affichage de l'axe du signal dans le widget Forme "
 "d'onde."
+
+#: widgets/waveform/waveform_control.py:138
+msgid "Markers:"
+msgstr "Marqueurs :"
+
+#: widgets/waveform/waveform_control.py:146
+msgid "X-Axis:"
+msgstr "Axe X :"
+
+#: widgets/waveform/waveform_control.py:162
+msgid "Min/Max:"
+msgstr "Min/max :"
+
+#: widgets/waveform/waveform_control.py:173
+msgid "Signals:"
+msgstr "Signaux :"
 
 #: widgets/waveform/waveform_source_widget.py:30
 msgid "Enable trace"

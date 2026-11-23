@@ -88,7 +88,7 @@ class TextAnnotationDialog(QtWidgets.QDialog):
         super().__init__(parent)
         self.setObjectName('TextAnnotationDialog')
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self.setWindowTitle('Edit annotation')
+        self.setWindowTitle(N_('Edit annotation'))
         self.resize(300, 100)
         self.setModal(True)
         self._layout = QtWidgets.QVBoxLayout(self)
@@ -164,8 +164,8 @@ class TextAnnotationDialog(QtWidgets.QDialog):
         self._layout.addWidget(self._grid_widget)
         self._layout.addWidget(self._button_frame)
 
-        self.cancelButton.setText('Cancel')
-        self.okButton.setText('OK')
+        self.cancelButton.setText(N_('Cancel'))
+        self.okButton.setText(N_('OK'))
         self.finished.connect(self._on_finished)
 
     def _update(self):

@@ -73,7 +73,7 @@ class CdfRangeToolWidget(QtWidgets.QWidget):
     SETTINGS = {
         'data': {
             'dtype': 'obj',
-            'brief': 'Hold the data',
+            'brief': N_('Hold the data'),
             'default': None,
             'flags': ['hide'],
         }
@@ -172,7 +172,7 @@ class CdfRangeToolDialog(QtWidgets.QDialog):
         self._layout = QtWidgets.QGridLayout()
 
         self._signal_label = QtWidgets.QLabel(self)
-        self._signal_label.setText("Signal")
+        self._signal_label.setText(N_("Signal"))
         self._layout.addWidget(self._signal_label, 0, 0, 1, 1)
         self._signal = QtWidgets.QComboBox(self)
         self._signal.setObjectName("signalComboBox")

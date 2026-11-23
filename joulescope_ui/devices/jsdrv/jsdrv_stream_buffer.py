@@ -69,8 +69,8 @@ _SETTINGS = {
     },
     'clear_on_play': {
         'dtype': 'bool',
-        'brief': 'Clear on play',
-        'detail': """\
+        'brief': N_('Clear on play'),
+        'detail': N_("""\
             When signal sample streaming is paused, the stream buffer pauses
             sample accumulation.  This setting controls what happens on play
             when streaming resumes.
@@ -81,7 +81,7 @@ _SETTINGS = {
             
             When set, the buffer is cleared and all prior data is purged.
             The buffer functions as if sample streaming started for the
-            first time.""",
+            first time."""),
         'default': True,
     }
 

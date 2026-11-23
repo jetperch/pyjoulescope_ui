@@ -100,7 +100,7 @@ class HistogramRangeToolWidget(QtWidgets.QWidget):
     SETTINGS = {
         'data': {
             'dtype': 'obj',
-            'brief': 'Hold the histogram data',
+            'brief': N_('Hold the histogram data'),
             'default': None,
             'flags': ['hide'],
         }

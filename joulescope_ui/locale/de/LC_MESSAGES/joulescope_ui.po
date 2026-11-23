@@ -288,6 +288,12 @@ msgstr "Nicht spezifiziert"
 msgid "Prompt to switch from Intel graphics to software renderer."
 msgstr "Aufforderung zum Wechsel von Intel-Grafik auf Software-Renderer."
 
+#: disk_monitor.py:33
+msgid "The free threshold for declaring fullness"
+msgstr ""
+"Schwellenwert des freien Speicherplatzes, unterhalb dessen der Datenträger "
+"als voll gilt"
+
 #: devices/serial/serial_port_dialog.py:181
 #: devices/serial/serial_port_dialog.py:203 error_dialog.py:42
 #: error_window.py:311
@@ -755,6 +761,18 @@ msgstr ""
 "Klicken Sie auf das Hilfesymbol unten links, um weitere Informationen und "
 "Supportoptionen zu erhalten."
 
+#: jls_source.py:110
+msgid "The name for this JLS stream buffer source"
+msgstr "Der Name dieser JLS-Streampuffer-Quelle"
+
+#: jls_source.py:115
+msgid "The file path."
+msgstr "Der Dateipfad."
+
+#: jls_source.py:120
+msgid "The user notes."
+msgstr "Die Benutzeranmerkungen."
+
 #: locale_dialog.py:21
 msgid "Select a language"
 msgstr "Wählen Sie eine Sprache"
@@ -765,7 +783,7 @@ msgstr ""
 "Die Anwendung wird automatisch geschlossen, wenn Sie das Gebietsschema "
 "ändern."
 
-#: main.py:79 widgets/value/value_widget.py:787
+#: main.py:79 widgets/value/value_widget.py:793
 msgid "Multimeter"
 msgstr "Multimeter"
 
@@ -862,7 +880,7 @@ msgstr "Benutzerhandbuch"
 
 #: main.py:422 widgets/hamburger/hamburger_widget.py:22
 msgid "Changelog"
-msgstr "Changelog"
+msgstr "Änderungsprotokoll"
 
 #: main.py:423 widgets/help/help_widget.py:63
 msgid "Report Issue"
@@ -874,7 +892,7 @@ msgstr "Protokolle anzeigen..."
 
 #: main.py:425 widgets/hamburger/hamburger_widget.py:23
 msgid "Credits"
-msgstr "Credits"
+msgstr "Mitwirkende"
 
 #: main.py:426 widgets/hamburger/hamburger_widget.py:24
 msgid "About"
@@ -899,7 +917,7 @@ msgstr "Zuletzt geöffnet"
 #: main.py:459 main.py:509 widgets/trigger/trigger_widget.py:467
 #: widgets/trigger/trigger_widget.py:480
 msgid "Config"
-msgstr "Konfig"
+msgstr "Konfiguration"
 
 #: main.py:460 main.py:510 widgets/efficiency/efficiency_widget.py:630
 #: widgets/waveform/waveform_widget.py:4260
@@ -1124,6 +1142,8 @@ msgid "Copy to clipboard"
 msgstr "In die Zwischenablage kopieren"
 
 #: software_update.py:334 widgets/device_control/device_update_dialog.py:44
+#: widgets/view_manager/view_manager_widget.py:136
+#: widgets/waveform/text_annotation.py:168
 msgid "OK"
 msgstr "OK"
 
@@ -1271,7 +1291,7 @@ msgstr "Versuch, automatisch zu öffnen"
 #: devices/jsdrv/js110.py:81 devices/jsdrv/js220.py:146
 #: devices/jsdrv/js320.py:142
 msgid "Signal frequency"
-msgstr "Signalfrequenz"
+msgstr "Signal-Abtastrate"
 
 #: devices/jsdrv/js110.py:83 devices/jsdrv/js220.py:148
 #: devices/jsdrv/js320.py:144
@@ -1281,8 +1301,8 @@ msgid ""
 "storage requirements for long captures where lower temporal accuracy is "
 "sufficient."
 msgstr ""
-"Diese Einstellung steuert die Ausgangsabtastfrequenz für die Messsignale "
-"Strom, Spannung und Leistung. Verwenden Sie diese Einstellung, um den "
+"Diese Einstellung steuert die Ausgangsabtastrate für die Messsignale Strom, "
+"Spannung und Leistung. Verwenden Sie diese Einstellung, um den "
 "Datenspeicherbedarf für lange Erfassungen zu reduzieren, bei denen eine "
 "geringere zeitliche Genauigkeit ausreichend ist."
 
@@ -1935,6 +1955,28 @@ msgstr "Pufferspeichergröße in Bytes"
 msgid "Buffer memory duration in seconds"
 msgstr "Pufferspeicherdauer in Sekunden"
 
+#: devices/jsdrv/jsdrv_stream_buffer.py:72 widgets/memory/memory_widget.py:242
+msgid "Clear on play"
+msgstr "Bei Start löschen"
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:73
+msgid ""
+"When signal sample streaming is paused, the stream buffer pauses sample "
+"accumulation. This setting controls what happens on play when streaming "
+"resumes. When unset, the buffer continues to accumulate samples into the "
+"existing buffer data. This mode treats the pause duration as missing "
+"samples. When set, the buffer is cleared and all prior data is purged. The "
+"buffer functions as if sample streaming started for the first time."
+msgstr ""
+"Wenn das Messdaten-Streaming pausiert ist, nimmt der Streampuffer keine "
+"Abtastwerte mehr auf. Diese Einstellung legt fest, was beim Start geschieht,"
+" wenn das Streaming fortgesetzt wird. Ist sie deaktiviert, sammelt der "
+"Puffer die Abtastwerte weiter zu den vorhandenen Pufferdaten. In diesem "
+"Modus wird die Pausendauer als fehlende Abtastwerte behandelt. Ist sie "
+"aktiviert, wird der Puffer geleert und alle bisherigen Daten werden "
+"verworfen. Der Puffer verhält sich dann so, als würde das Messdaten-"
+"Streaming zum ersten Mal gestartet."
+
 #: devices/jsdrv/jsdrv_stream_buffer.py:94
 msgid "Source name"
 msgstr "Name der Quelle"
@@ -2037,6 +2079,16 @@ msgstr "Entfernen"
 msgid "Invalid baud rate"
 msgstr "Ungültige Baudrate"
 
+#: plugins/manager.py:59
+msgid "Monitor a plugin for changes"
+msgstr "Plugin auf Änderungen überwachen"
+
+#: plugins/manager.py:64
+msgid "Monitor reload delay from filesystem changes in milliseconds."
+msgstr ""
+"Verzögerung in Millisekunden, bevor nach Dateisystemänderungen neu geladen "
+"wird."
+
 #: plugins/selector.py:32
 msgid "Plugins"
 msgstr "Plugins"
@@ -2078,6 +2130,10 @@ msgstr ""
 " erleichtert die CDF den Vergleich der in den einzelnen Modi verbrachten "
 "Zeit, indem einfach die Änderung des y-Achsenwerts gemessen wird."
 
+#: range_tools/cdf.py:76
+msgid "Hold the data"
+msgstr "Daten halten"
+
 #: range_tools/cdf.py:147
 msgid "Probability"
 msgstr "Wahrscheinlichkeit"
@@ -2085,6 +2141,15 @@ msgstr "Wahrscheinlichkeit"
 #: range_tools/cdf.py:168
 msgid "CDF configuration"
 msgstr "CDF-Konfiguration"
+
+#: range_tools/cdf.py:175 range_tools/frequency.py:194
+#: range_tools/histogram.py:44 range_tools/max_window.py:109
+#: widgets/spectrum/spectrum_control.py:36
+#: widgets/spectrum/spectrum_widget.py:1071
+#: widgets/trigger/trigger_widget.py:220
+#: widgets/waveform/waveform_widget.py:4417
+msgid "Signal"
+msgstr "Signal"
 
 #: range_tools/cdf.py:182 range_tools/histogram.py:50
 msgid "Number of bins (0 for auto)"
@@ -2110,9 +2175,26 @@ msgstr ""
 "Berechnen Sie das Frequenzspektrum, um den Frequenzgehalt der Datenwerte des"
 " Signals über den ausgewählten Bereich zu analysieren."
 
+#: range_tools/frequency.py:94 range_tools/histogram.py:103
+msgid "Hold the histogram data"
+msgstr "Histogrammdaten halten"
+
 #: range_tools/frequency.py:187
 msgid "Frequency configuration"
 msgstr "Frequenz-Konfiguration"
+
+#: range_tools/frequency.py:203 widgets/spectrum/spectrum_control.py:47
+#: widgets/spectrum/spectrum_widget.py:107
+msgid "Window"
+msgstr "Fenster"
+
+#: range_tools/frequency.py:214
+msgid "FFT Length"
+msgstr "FFT-Länge"
+
+#: range_tools/frequency.py:225
+msgid "Overlap %"
+msgstr "Überlappung %"
 
 #: range_tools/histogram.py:24
 msgid "Histogram"
@@ -2129,13 +2211,6 @@ msgstr "Häufigkeitsverteilung"
 #: range_tools/histogram.py:28
 msgid "Probability Density Distribution"
 msgstr "Wahrscheinlichkeits-Dichte-Verteilung"
-
-#: range_tools/histogram.py:44 range_tools/max_window.py:109
-#: widgets/spectrum/spectrum_control.py:36
-#: widgets/spectrum/spectrum_widget.py:1071
-#: widgets/trigger/trigger_widget.py:220
-msgid "Signal"
-msgstr "Signal"
 
 #: range_tools/histogram.py:56
 msgid "Histogram type"
@@ -2205,6 +2280,10 @@ msgstr ""
 "auszuwählen. Dieses Tool sendet die ausgewählten Daten zur Analyse an das "
 "USBET-Tool."
 
+#: styles/color_editor.py:75 widgets/settings/settings_widget.py:336
+msgid "Color"
+msgstr "Farbe"
+
 #: styles/color_scheme.py:21
 msgid "dark"
 msgstr "dunkel"
@@ -2228,6 +2307,36 @@ msgstr "Standard"
 #: styles/font_scheme.py:22
 msgid "Joulescope default font scheme"
 msgstr "Joulescope Standard-Schriftschema"
+
+#: tcp_server/__init__.py:41
+msgid "Enable TCP server"
+msgstr "TCP-Server aktivieren"
+
+#: tcp_server/__init__.py:42
+msgid ""
+"When enabled, a TCP socket server listens for connections from external "
+"processes."
+msgstr ""
+"Wenn aktiviert, wartet ein TCP-Socket-Server auf Verbindungen von externen "
+"Prozessen."
+
+#: tcp_server/__init__.py:47
+msgid "Server bind address"
+msgstr "Server-Bindungsadresse"
+
+#: tcp_server/__init__.py:48
+msgid "The network interface to bind to. Use 127.0.0.1 for localhost only."
+msgstr ""
+"Die Netzwerkschnittstelle, an die gebunden wird. Verwenden Sie 127.0.0.1, um"
+" nur lokale Verbindungen (localhost) zuzulassen."
+
+#: tcp_server/__init__.py:53
+msgid "Server TCP port"
+msgstr "TCP-Port des Servers"
+
+#: tcp_server/__init__.py:54
+msgid "The TCP port number for the server."
+msgstr "Die TCP-Portnummer des Servers."
 
 #: widgets/accumulator/accumulator_widget.py:27
 #: widgets/value/value_widget.py:32
@@ -2303,6 +2412,10 @@ msgstr "Demo"
 msgid "Device Control"
 msgstr "Gerätesteuerung"
 
+#: widgets/device_control/device_info_dialog.py:30
+msgid "Device Information"
+msgstr "Informationen zum Gerät"
+
 #: widgets/device_control/device_update_dialog.py:24
 #: widgets/device_control/device_update_dialog.py:45
 msgid "Update"
@@ -2357,6 +2470,7 @@ msgstr "Keine auswählen"
 #: widgets/device_control/device_update_dialog.py:43
 #: widgets/js220_cal/js220_cal_widget.py:37
 #: widgets/js320_cal/js320_cal_widget.py:59
+#: widgets/waveform/text_annotation.py:167
 msgid "Cancel"
 msgstr "Abbrechen"
 
@@ -2447,8 +2561,6 @@ msgid "Fuse response"
 msgstr "Ansprechverhalten von Sicherungen"
 
 #: widgets/device_control/fuse.py:102
-#: widgets/record_status/record_stop_config_widget.py:31
-#: widgets/serial_console/serial_console_widget.py:72
 msgid "Time"
 msgstr "Zeit"
 
@@ -2649,9 +2761,7 @@ msgid "Enable the instrument signals that this widget needs."
 msgstr "Aktivieren Sie die Gerätesignale, die dieses Widget benötigt."
 
 #: widgets/efficiency/efficiency_control.py:52
-#: widgets/efficiency/efficiency_widget.py:732
-#: widgets/spectrum/spectrum_control.py:67
-#: widgets/spectrum/spectrum_widget.py:1191 widgets/value/value_widget.py:256
+#: widgets/spectrum/spectrum_control.py:67 widgets/value/value_widget.py:262
 msgid "Hold"
 msgstr "Halten"
 
@@ -2897,6 +3007,12 @@ msgstr "Wählen Sie verschiedene Eingangs- und Ausgangsinstrumente aus"
 #, python-brace-format
 msgid "Disabled: {0}"
 msgstr "Deaktiviert: {0}"
+
+#: widgets/efficiency/efficiency_widget.py:732
+#: widgets/spectrum/spectrum_widget.py:1191
+msgctxt "state"
+msgid "Hold"
+msgstr "Gehalten"
 
 #: widgets/efficiency/efficiency_widget.py:734
 msgid "Curve hold"
@@ -3207,10 +3323,6 @@ msgstr "Verfügbare RAM-Größe"
 msgid "Used RAM size"
 msgstr "Verwendete RAM-Größe"
 
-#: widgets/memory/memory_widget.py:242
-msgid "Clear on play"
-msgstr "Bei Start löschen"
-
 #: widgets/notes/notes_widget.py:28
 msgid "The notes value."
 msgstr "Der Text der Anmerkungen."
@@ -3267,6 +3379,12 @@ msgstr "Nach einer Dauer"
 msgid "At a specific time"
 msgstr "Zu einem bestimmten Zeitpunkt"
 
+#: widgets/record_status/record_stop_config_widget.py:31
+#: widgets/serial_console/serial_console_widget.py:72
+msgctxt "clock"
+msgid "Time"
+msgstr "Uhrzeit"
+
 #: widgets/record_status/record_stop_config_widget.py:32
 msgid "Configure recording stop"
 msgstr "Aufzeichnungsende konfigurieren"
@@ -3311,13 +3429,9 @@ msgstr "Wellenform annotieren"
 msgid "External Serial..."
 msgstr "Externe serielle..."
 
-#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:796
+#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:802
 msgid "Value"
 msgstr "Wert"
-
-#: widgets/settings/settings_widget.py:336
-msgid "Color"
-msgstr "Farbe"
 
 #: widgets/settings/settings_widget.py:443
 msgid "Font"
@@ -3461,6 +3575,14 @@ msgstr "Klicken Sie, um zusätzliche Einstellungen und Aktionen anzuzeigen."
 msgid "sidebar"
 msgstr "Seitenleiste"
 
+#: widgets/sidebar/sidebar_widget.py:89
+msgid "Show the separator between widgets."
+msgstr "Trennlinie zwischen den Widgets anzeigen."
+
+#: widgets/sidebar/sidebar_widget.py:94
+msgid "The size of the separator."
+msgstr "Die Breite der Trennlinie."
+
 #: widgets/signal_record/disk_full_dialog.py:19
 msgid "The disk is full"
 msgstr "Die Festplatte ist voll"
@@ -3505,8 +3627,7 @@ msgstr ""
 #: widgets/spectrum/spectrum_control.py:34
 msgid "Clear the average, max hold, min hold, and waterfall history."
 msgstr ""
-"Löschen Sie den Durchschnittswert, den Maximalwert, den Minimalwert und den "
-"Wasserfall-Verlauf."
+"Löschen Sie den Mittelwert, Max Hold, Min Hold und den Wasserfall-Verlauf."
 
 #: widgets/spectrum/spectrum_control.py:35
 msgid "Select the source device."
@@ -3527,9 +3648,9 @@ msgid ""
 "decimate the signal before the FFT, which improves the resolution bandwidth "
 "for the same FFT length."
 msgstr ""
-"Der analysierte Frequenzbereich. Bereiche, die schmaler sind als die volle "
-"Abtastrate, dezimieren das Signal vor der FFT, was die Auflösungsbandbreite "
-"bei gleicher FFT-Länge verbessert."
+"Der analysierte Frequenzbereich (Span). Ein Span, der schmaler ist als die "
+"volle Abtastrate, dezimiert das Signal vor der FFT, was die "
+"Auflösungsbandbreite bei gleicher FFT-Länge verbessert."
 
 #: widgets/spectrum/spectrum_control.py:43
 #: widgets/spectrum/spectrum_widget.py:97
@@ -3543,11 +3664,6 @@ msgid ""
 msgstr ""
 "Die Anzahl der Abtastwerte in jeder FFT. Längere FFTs bieten eine feinere "
 "Auflösungsbandbreite (RBW), werden jedoch seltener aktualisiert."
-
-#: widgets/spectrum/spectrum_control.py:47
-#: widgets/spectrum/spectrum_widget.py:107
-msgid "Window"
-msgstr "Fenster"
 
 #: widgets/spectrum/spectrum_control.py:48
 msgid ""
@@ -3574,7 +3690,7 @@ msgstr ""
 #: widgets/spectrum/spectrum_control.py:54
 #: widgets/spectrum/spectrum_widget.py:47
 msgid "Average"
-msgstr "Durchschnitt"
+msgstr "Mittelwert"
 
 #: widgets/spectrum/spectrum_control.py:54
 msgid "The averaging mode for the average trace."
@@ -3618,9 +3734,9 @@ msgid ""
 "The span is the sample rate / 2 / this factor. Narrower spans give finer "
 "resolution bandwidth for the same FFT length."
 msgstr ""
-"Reduzieren Sie den analysierten Frequenzbereich, indem Sie das Signal vor "
-"der FFT dezimieren. Der Bereich entspricht der Abtastrate geteilt durch 2 "
-"und diesen Faktor. Engere Bereiche ergeben bei gleicher FFT-Länge eine "
+"Reduzieren Sie den analysierten Frequenzbereich (Span), indem Sie das Signal"
+" vor der FFT dezimieren. Der Span entspricht der Abtastrate geteilt durch 2 "
+"und diesen Faktor. Ein schmalerer Span ergibt bei gleicher FFT-Länge eine "
 "feinere Auflösungsbandbreite."
 
 #: widgets/spectrum/spectrum_widget.py:98
@@ -3630,7 +3746,7 @@ msgid ""
 "ENBW x sample rate / fft_length."
 msgstr ""
 "Die Anzahl der Abtastwerte pro FFT. Die FFT erzeugt fft_length / 2 + 1 "
-"Frequenzbänder, und die Auflösungsbandbreite beträgt ungefähr das Fenster "
+"Frequenz-Bins, und die Auflösungsbandbreite beträgt ungefähr das Fenster "
 "ENBW × Abtastrate / fft_length."
 
 #: widgets/spectrum/spectrum_widget.py:113
@@ -3788,7 +3904,7 @@ msgstr ""
 
 #: widgets/spectrum/spectrum_widget.py:237
 msgid "average"
-msgstr "Durchschnitt"
+msgstr "Mittelwert"
 
 #: widgets/spectrum/spectrum_widget.py:237
 #: widgets/waveform/y_range_widget.py:67
@@ -4031,6 +4147,14 @@ msgstr "außerhalb"
 msgid "The source instrument."
 msgstr "Das Quellinstrument."
 
+#: widgets/trigger/trigger_widget.py:169
+msgid "The trigger mode."
+msgstr "Der Triggermodus."
+
+#: widgets/trigger/trigger_widget.py:189
+msgid "The trigger configuration."
+msgstr "Die Triggerkonfiguration."
+
 #: widgets/trigger/trigger_widget.py:219
 msgid "Type"
 msgstr "Typ"
@@ -4226,23 +4350,23 @@ msgstr ""
 "Ladung und Energie hat. Beide akkumulieren sich unabhängig vom Zustand "
 "dieser Taste auf unbestimmte Zeit."
 
-#: widgets/value/value_widget.py:236
+#: widgets/value/value_widget.py:242
 msgid "Not present"
 msgstr "Nicht vorhanden"
 
-#: widgets/value/value_widget.py:264
+#: widgets/value/value_widget.py:270
 msgid "Accrue"
 msgstr "Kumulieren"
 
-#: widgets/value/value_widget.py:600 widgets/waveform/waveform_widget.py:3808
+#: widgets/value/value_widget.py:606 widgets/waveform/waveform_widget.py:3808
 msgid "Preferred prefix"
 msgstr "Bevorzugtes Präfix"
 
-#: widgets/value/value_widget.py:605
+#: widgets/value/value_widget.py:611
 msgid "auto"
 msgstr "auto"
 
-#: widgets/value/value_widget.py:607
+#: widgets/value/value_widget.py:613
 msgid "none"
 msgstr "keine"
 
@@ -4303,6 +4427,10 @@ msgstr "Manuell"
 #: widgets/waveform/text_annotation.py:68
 msgid "Centered"
 msgstr "Zentriert"
+
+#: widgets/waveform/text_annotation.py:91
+msgid "Edit annotation"
+msgstr "Anmerkung bearbeiten"
 
 #: widgets/waveform/text_annotation.py:101
 #: widgets/waveform/waveform_widget.py:3890
@@ -4502,6 +4630,22 @@ msgstr ""
 "Klicken Sie hier, um die Anzeige der Signalachse im Widget „Wellenform“ "
 "umzuschalten."
 
+#: widgets/waveform/waveform_control.py:138
+msgid "Markers:"
+msgstr "Marker:"
+
+#: widgets/waveform/waveform_control.py:146
+msgid "X-Axis:"
+msgstr "X-Achse:"
+
+#: widgets/waveform/waveform_control.py:162
+msgid "Min/Max:"
+msgstr "Min/Max:"
+
+#: widgets/waveform/waveform_control.py:173
+msgid "Signals:"
+msgstr "Signale:"
+
 #: widgets/waveform/waveform_source_widget.py:30
 msgid "Enable trace"
 msgstr "Kurve aktivieren"
@@ -4614,7 +4758,7 @@ msgstr "Füllung 2"
 
 #: widgets/waveform/waveform_widget.py:419
 msgid "Anti-alias the average trace when zoomed out."
-msgstr "Anti-Aliasing der durchschnittlichen Kurve beim Herauszoomen."
+msgstr "Anti-Aliasing der Mittelwertkurve beim Herauszoomen."
 
 #: widgets/waveform/waveform_widget.py:421
 msgid ""
@@ -4624,7 +4768,7 @@ msgid ""
 msgstr ""
 "Im ausgezoomten Zustand fasst jedes Pixel viele Messwerte zusammen. Beim "
 "Scrollen der Kurve kann ein kurzer Impuls in ein Pixel fallen oder auf zwei "
-"Pixel aufgeteilt werden, was zu einem Flackern der Durchschnittskurve führt."
+"Pixel aufgeteilt werden, was zu einem Flackern der Mittelwertkurve führt."
 
 #: widgets/waveform/waveform_widget.py:424
 msgid ""
@@ -4632,7 +4776,7 @@ msgid ""
 " The filter preserves the mean, but short pulses appear wider and lower. The"
 " min/max extents, statistics, and exported data are not filtered."
 msgstr ""
-"Wenn diese Funktion aktiviert ist, wird die Durchschnittskurve "
+"Wenn diese Funktion aktiviert ist, wird die Mittelwertkurve "
 "tiefpassgefiltert, um dieses Flackern zu reduzieren. Der Filter bewahrt den "
 "Mittelwert bei, doch kurze Impulse erscheinen breiter und tiefer. Die "
 "Min-/Max-Werte, Statistiken und exportierten Daten werden nicht gefiltert."

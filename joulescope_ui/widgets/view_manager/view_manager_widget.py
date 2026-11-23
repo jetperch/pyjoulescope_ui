@@ -133,7 +133,7 @@ class ViewManagerWidget(QtWidgets.QWidget):
                                              QtWidgets.QSizePolicy.Minimum)
         self._bottom_layout.addItem(self._spacer)
 
-        self.ok_button = QtWidgets.QPushButton('OK')
+        self.ok_button = QtWidgets.QPushButton(N_('OK'))
         self._bottom_layout.addWidget(self.ok_button)
 
     def on_pubsub_register(self):

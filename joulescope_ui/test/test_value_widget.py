@@ -24,7 +24,7 @@ from unittest import mock
 os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
 
 from PySide6 import QtWidgets
-from joulescope_ui.widgets.value.value_widget import _BaseWidget, _InnerWidget
+from joulescope_ui.widgets.value.value_widget import _BaseWidget, _DeviceWidget, _InnerWidget
 
 
 class TestInnerWidget(unittest.TestCase):
@@ -57,3 +57,35 @@ class TestInnerWidget(unittest.TestCase):
                          _BaseWidget.displayed_text(widget))
         self.assertEqual({}, _BaseWidget.displayed_text(
             types.SimpleNamespace(_inner=types.SimpleNamespace(_geometry=None))))
+
+
+class TestDeviceWidget(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls._app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+
+    def setUp(self):
+        self.parent = QtWidgets.QWidget()
+        self.parent.pubsub = None
+        self.widget = _DeviceWidget(self.parent)
+
+    def tearDown(self):
+        self.parent.deleteLater()
+
+    def test_show_before_device_list(self):
+        self.widget.device_show('JsdrvDevice-u-js220-000415')
+        self.assertTrue(self.widget._device_label.isHidden())
+
+    def test_show_default_names_resolved_device(self):
+        self.parent.source_selector = types.SimpleNamespace(value='default')
+        self.widget.device_list(['default', 'JsdrvDevice-u-js220-000415'])
+        self.widget.device_show('JsdrvDevice-u-js220-000415')
+        self.assertFalse(self.widget._device_label.isHidden())
+        self.assertEqual('JsdrvDevice-u-js220-000415', self.widget._device_label.text())
+
+    def test_show_explicit_device_hides_label(self):
+        self.parent.source_selector = types.SimpleNamespace(value='JsdrvDevice-u-js220-000415')
+        self.widget.device_list(['default', 'JsdrvDevice-u-js220-000415'])
+        self.widget.device_show('JsdrvDevice-u-js220-000415')
+        self.assertTrue(self.widget._device_label.isHidden())

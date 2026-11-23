@@ -14,7 +14,7 @@
 
 from PySide6 import QtCore, QtGui, QtWidgets
 from joulescope_ui.source_selector import SourceSelector
-from joulescope_ui import N_, register, get_topic_name
+from joulescope_ui import C_, N_, register, get_topic_name
 from joulescope_ui.styles import styled_widget
 from joulescope_ui.widget_tools import CallableAction, settings_action_create
 from pyjoulescope_driver import time64
@@ -69,7 +69,7 @@ class SerialConsoleWidget(QtWidgets.QWidget):
         self._table = QtWidgets.QTableWidget(rowCount=0, columnCount=2, parent=self)
         self._table.setShowGrid(False)
         self._table.setEditTriggers(QtWidgets.QAbstractItemView.EditTrigger.NoEditTriggers)
-        self._table.setHorizontalHeaderLabels([N_('Time'), N_('Message')])
+        self._table.setHorizontalHeaderLabels([C_('clock', 'Time'), N_('Message')])
         self._table.setContextMenuPolicy(QtCore.Qt.ContextMenuPolicy.CustomContextMenu)
         self._table.customContextMenuRequested.connect(self._context_menu)
         self._table.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectionBehavior.SelectRows)

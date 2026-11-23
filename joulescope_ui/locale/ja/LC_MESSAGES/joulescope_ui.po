@@ -251,6 +251,10 @@ msgstr "指定なし"
 msgid "Prompt to switch from Intel graphics to software renderer."
 msgstr "Intel グラフィックスからソフトウェアレンダラーへの切り替えを促します。"
 
+#: disk_monitor.py:33
+msgid "The free threshold for declaring fullness"
+msgstr "ディスクフルと判定する空き容量のしきい値"
+
 #: devices/serial/serial_port_dialog.py:181
 #: devices/serial/serial_port_dialog.py:203 error_dialog.py:42
 #: error_window.py:311
@@ -672,6 +676,18 @@ msgid ""
 "options."
 msgstr "左下のヘルプアイコンをクリックすると、詳細情報とサポートオプションが表示されます。"
 
+#: jls_source.py:110
+msgid "The name for this JLS stream buffer source"
+msgstr "このJLSストリームバッファ・ソースの名称"
+
+#: jls_source.py:115
+msgid "The file path."
+msgstr "ファイルパス。"
+
+#: jls_source.py:120
+msgid "The user notes."
+msgstr "ユーザー注記。"
+
 #: locale_dialog.py:21
 msgid "Select a language"
 msgstr "言語を選択"
@@ -680,7 +696,7 @@ msgstr "言語を選択"
 msgid "The application will automatically close when you change the locale."
 msgstr "ロケールを変更すると、アプリケーションは自動的に終了します。"
 
-#: main.py:79 widgets/value/value_widget.py:787
+#: main.py:79 widgets/value/value_widget.py:793
 msgid "Multimeter"
 msgstr "マルチメーター"
 
@@ -789,7 +805,7 @@ msgstr "Joulescopeについて"
 
 #: main.py:430
 msgid "Clear Accumulators"
-msgstr "アキュムレータをクリア"
+msgstr "積算値をクリア"
 
 #: main.py:434
 msgid "Configure high accuracy time"
@@ -1025,6 +1041,8 @@ msgid "Copy to clipboard"
 msgstr "クリップボードにコピー"
 
 #: software_update.py:334 widgets/device_control/device_update_dialog.py:44
+#: widgets/view_manager/view_manager_widget.py:136
+#: widgets/waveform/text_annotation.py:168
 msgid "OK"
 msgstr "OK"
 
@@ -1289,7 +1307,7 @@ msgid ""
 " mechanism applied on current range changes. We do not recommend changing "
 "these settings for normal operation."
 msgstr ""
-"電流レンジフィルター（IRF）タイプを設定し、電流レンジの変化に適用されるフィルターリング機構を決定します。通常の動作では、これらの設定を変更することはお勧めしません。"
+"電流レンジフィルター（IRF）タイプを設定し、電流レンジの変化に適用されるフィルタリング機構を決定します。通常の動作では、これらの設定を変更することはお勧めしません。"
 
 #: devices/jsdrv/js110.py:216
 msgid ""
@@ -1315,7 +1333,7 @@ msgstr "「NaN」はウィンドウ内のすべてのサンプルをNaNに設定
 msgid ""
 "\"off\" disables the current range filtering, and you will see additional "
 "current range switching artifacts."
-msgstr "「off」は電流レンジのフィルターリングを無効にし、電流レンジのスイッチングアーチファクトが追加で表示されます。"
+msgstr "「off」は電流レンジのフィルタリングを無効にし、電流レンジのスイッチングアーチファクトが追加で表示されます。"
 
 #: devices/jsdrv/js110.py:236
 msgid "IRF pre"
@@ -1735,6 +1753,21 @@ msgstr "バッファメモリサイズ（バイト）"
 msgid "Buffer memory duration in seconds"
 msgstr "バッファメモリ持続時間（秒）"
 
+#: devices/jsdrv/jsdrv_stream_buffer.py:72 widgets/memory/memory_widget.py:242
+msgid "Clear on play"
+msgstr "再生時にクリア"
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:73
+msgid ""
+"When signal sample streaming is paused, the stream buffer pauses sample "
+"accumulation. This setting controls what happens on play when streaming "
+"resumes. When unset, the buffer continues to accumulate samples into the "
+"existing buffer data. This mode treats the pause duration as missing "
+"samples. When set, the buffer is cleared and all prior data is purged. The "
+"buffer functions as if sample streaming started for the first time."
+msgstr ""
+"信号サンプルストリーミングを一時停止すると、ストリームバッファもサンプルの蓄積を一時停止します。この設定は、ストリーミングを再開（再生）したときの動作を制御します。無効の場合、バッファは既存のバッファデータに続けてサンプルを蓄積します。このモードでは、一時停止していた期間は欠落サンプルとして扱われます。有効の場合、バッファはクリアされ、それまでのデータはすべて破棄されます。バッファは、サンプルストリーミングを初めて開始したときと同じ状態で動作します。"
+
 #: devices/jsdrv/jsdrv_stream_buffer.py:94
 msgid "Source name"
 msgstr "ソース名"
@@ -1837,6 +1870,14 @@ msgstr "削除"
 msgid "Invalid baud rate"
 msgstr "無効なボーレート"
 
+#: plugins/manager.py:59
+msgid "Monitor a plugin for changes"
+msgstr "プラグインの変更を監視"
+
+#: plugins/manager.py:64
+msgid "Monitor reload delay from filesystem changes in milliseconds."
+msgstr "ファイルシステムの変更を検出してから再読み込みするまでの遅延（ミリ秒）。"
+
 #: plugins/selector.py:32
 msgid "Plugins"
 msgstr "プラグイン"
@@ -1872,6 +1913,10 @@ msgid ""
 msgstr ""
 "電流または電力の解析に使用する場合、各電流モードで費やされた時間をグラフで示します。ヒストグラムと比較して、CDFではY軸の値の変化を測定するだけで、各モードに費やされた時間を簡単に比較できます。"
 
+#: range_tools/cdf.py:76
+msgid "Hold the data"
+msgstr "データをホールド"
+
 #: range_tools/cdf.py:147
 msgid "Probability"
 msgstr "確率"
@@ -1879,6 +1924,15 @@ msgstr "確率"
 #: range_tools/cdf.py:168
 msgid "CDF configuration"
 msgstr "CDF構成"
+
+#: range_tools/cdf.py:175 range_tools/frequency.py:194
+#: range_tools/histogram.py:44 range_tools/max_window.py:109
+#: widgets/spectrum/spectrum_control.py:36
+#: widgets/spectrum/spectrum_widget.py:1071
+#: widgets/trigger/trigger_widget.py:220
+#: widgets/waveform/waveform_widget.py:4417
+msgid "Signal"
+msgstr "信号"
 
 #: range_tools/cdf.py:182 range_tools/histogram.py:50
 msgid "Number of bins (0 for auto)"
@@ -1902,9 +1956,26 @@ msgid ""
 "signal's data values over the selected range."
 msgstr "周波数スペクトルを計算し、選択した範囲の信号のデータ値の周波数コンテンツを分析します。"
 
+#: range_tools/frequency.py:94 range_tools/histogram.py:103
+msgid "Hold the histogram data"
+msgstr "ヒストグラムデータをホールド"
+
 #: range_tools/frequency.py:187
 msgid "Frequency configuration"
 msgstr "周波数構成"
+
+#: range_tools/frequency.py:203 widgets/spectrum/spectrum_control.py:47
+#: widgets/spectrum/spectrum_widget.py:107
+msgid "Window"
+msgstr "窓関数"
+
+#: range_tools/frequency.py:214
+msgid "FFT Length"
+msgstr "FFT長"
+
+#: range_tools/frequency.py:225
+msgid "Overlap %"
+msgstr "オーバーラップ %"
 
 #: range_tools/histogram.py:24
 msgid "Histogram"
@@ -1921,13 +1992,6 @@ msgstr "度数分布"
 #: range_tools/histogram.py:28
 msgid "Probability Density Distribution"
 msgstr "確率密度分布"
-
-#: range_tools/histogram.py:44 range_tools/max_window.py:109
-#: widgets/spectrum/spectrum_control.py:36
-#: widgets/spectrum/spectrum_widget.py:1071
-#: widgets/trigger/trigger_widget.py:220
-msgid "Signal"
-msgstr "信号"
 
 #: range_tools/histogram.py:56
 msgid "Histogram type"
@@ -1989,6 +2053,10 @@ msgid ""
 msgstr ""
 "デュアル・マーカーを使用して、ターゲット・デバイスの電源を有効にしてから少なくとも100ミリ秒後に選択します。このツールは、選択したデータをUSBETツールに送信して解析します。"
 
+#: styles/color_editor.py:75 widgets/settings/settings_widget.py:336
+msgid "Color"
+msgstr "カラー"
+
 #: styles/color_scheme.py:21
 msgid "dark"
 msgstr "ダーク"
@@ -2012,6 +2080,32 @@ msgstr "デフォルト"
 #: styles/font_scheme.py:22
 msgid "Joulescope default font scheme"
 msgstr "Joulescopeデフォルトのフォントスキーム"
+
+#: tcp_server/__init__.py:41
+msgid "Enable TCP server"
+msgstr "TCPサーバーを有効にする"
+
+#: tcp_server/__init__.py:42
+msgid ""
+"When enabled, a TCP socket server listens for connections from external "
+"processes."
+msgstr "有効にすると、TCPソケットサーバーが外部プロセスからの接続を待ち受けます。"
+
+#: tcp_server/__init__.py:47
+msgid "Server bind address"
+msgstr "サーバーのバインドアドレス"
+
+#: tcp_server/__init__.py:48
+msgid "The network interface to bind to. Use 127.0.0.1 for localhost only."
+msgstr "バインドするネットワークインターフェース。ローカルホストのみに限定する場合は 127.0.0.1 を使用します。"
+
+#: tcp_server/__init__.py:53
+msgid "Server TCP port"
+msgstr "サーバーのTCPポート"
+
+#: tcp_server/__init__.py:54
+msgid "The TCP port number for the server."
+msgstr "サーバーのTCPポート番号。"
 
 #: widgets/accumulator/accumulator_widget.py:27
 #: widgets/value/value_widget.py:32
@@ -2038,7 +2132,7 @@ msgstr "各信号の統計セクションタイトルを表示します。"
 
 #: widgets/accumulator/accumulator_widget.py:48
 msgid "Accumulator"
-msgstr "アキュムレータ"
+msgstr "積算"
 
 #: widgets/accumulator/accumulator_widget.py:140
 msgid "Show charge"
@@ -2086,6 +2180,10 @@ msgstr "デモ"
 #: widgets/device_control/device_control_widget.py:23
 msgid "Device Control"
 msgstr "デバイス制御"
+
+#: widgets/device_control/device_info_dialog.py:30
+msgid "Device Information"
+msgstr "デバイス情報"
 
 #: widgets/device_control/device_update_dialog.py:24
 #: widgets/device_control/device_update_dialog.py:45
@@ -2139,6 +2237,7 @@ msgstr "選択解除"
 #: widgets/device_control/device_update_dialog.py:43
 #: widgets/js220_cal/js220_cal_widget.py:37
 #: widgets/js320_cal/js320_cal_widget.py:59
+#: widgets/waveform/text_annotation.py:167
 msgid "Cancel"
 msgstr "キャンセル"
 
@@ -2219,8 +2318,6 @@ msgid "Fuse response"
 msgstr "ヒューズ応答"
 
 #: widgets/device_control/fuse.py:102
-#: widgets/record_status/record_stop_config_widget.py:31
-#: widgets/serial_console/serial_console_widget.py:72
 msgid "Time"
 msgstr "時間"
 
@@ -2299,7 +2396,7 @@ msgstr ""
 
 #: widgets/device_control/js220_ctrl_widget.py:80
 msgid "Clear accumulators"
-msgstr "アキュムレータをクリア"
+msgstr "積算値をクリア"
 
 #: widgets/device_control/js220_ctrl_widget.py:81
 msgid ""
@@ -2307,7 +2404,7 @@ msgid ""
 "\"Accrue\" feature of the value display widgets, including the multimeter, "
 "will be unaffected."
 msgstr ""
-"このボタンをクリックすると、電荷およびエネルギーのアキュムレータがクリアされます。マルチメーターを含む値表示ウィジェットの「累積」機能は影響を受けません。"
+"このボタンをクリックすると、電荷およびエネルギーの積算値がクリアされます。マルチメーターを含む値表示ウィジェットの「累積」機能は影響を受けません。"
 
 #: widgets/device_control/js220_ctrl_widget.py:87
 #: widgets/device_control/js220_ctrl_widget.py:669
@@ -2329,7 +2426,7 @@ msgstr "GPO"
 
 #: widgets/device_control/js220_ctrl_widget.py:660
 msgid "Clear accum"
-msgstr "アキュムクリア"
+msgstr "積算クリア"
 
 #: widgets/efficiency/efficiency_control.py:24
 #: widgets/spectrum/spectrum_control.py:30 widgets/value/value_widget.py:125
@@ -2395,9 +2492,7 @@ msgid "Enable the instrument signals that this widget needs."
 msgstr "このウィジェットに必要な機器の信号を有効にしてください。"
 
 #: widgets/efficiency/efficiency_control.py:52
-#: widgets/efficiency/efficiency_widget.py:732
-#: widgets/spectrum/spectrum_control.py:67
-#: widgets/spectrum/spectrum_widget.py:1191 widgets/value/value_widget.py:256
+#: widgets/spectrum/spectrum_control.py:67 widgets/value/value_widget.py:262
 msgid "Hold"
 msgstr "ホールド"
 
@@ -2629,6 +2724,12 @@ msgstr "入力と出力に異なる計測器を選択してください"
 #, python-brace-format
 msgid "Disabled: {0}"
 msgstr "無効: {0}"
+
+#: widgets/efficiency/efficiency_widget.py:732
+#: widgets/spectrum/spectrum_widget.py:1191
+msgctxt "state"
+msgid "Hold"
+msgstr "ホールド中"
 
 #: widgets/efficiency/efficiency_widget.py:734
 msgid "Curve hold"
@@ -2920,10 +3021,6 @@ msgstr "利用可能なRAMサイズ"
 msgid "Used RAM size"
 msgstr "使用RAMサイズ"
 
-#: widgets/memory/memory_widget.py:242
-msgid "Clear on play"
-msgstr "再生時にクリア"
-
 #: widgets/notes/notes_widget.py:28
 msgid "The notes value."
 msgstr "注釈値。"
@@ -2980,6 +3077,12 @@ msgstr "一定時間経過後"
 msgid "At a specific time"
 msgstr "特定の時点において"
 
+#: widgets/record_status/record_stop_config_widget.py:31
+#: widgets/serial_console/serial_console_widget.py:72
+msgctxt "clock"
+msgid "Time"
+msgstr "時刻"
+
 #: widgets/record_status/record_stop_config_widget.py:32
 msgid "Configure recording stop"
 msgstr "記録停止の設定"
@@ -3024,13 +3127,9 @@ msgstr "波形の注釈"
 msgid "External Serial..."
 msgstr "外部シリアル..."
 
-#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:796
+#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:802
 msgid "Value"
 msgstr "値"
-
-#: widgets/settings/settings_widget.py:336
-msgid "Color"
-msgstr "カラー"
 
 #: widgets/settings/settings_widget.py:443
 msgid "Font"
@@ -3164,6 +3263,14 @@ msgstr "クリックすると、追加の設定とアクションが表示され
 msgid "sidebar"
 msgstr "サイドバー"
 
+#: widgets/sidebar/sidebar_widget.py:89
+msgid "Show the separator between widgets."
+msgstr "ウィジェット間の区切り線を表示します。"
+
+#: widgets/sidebar/sidebar_widget.py:94
+msgid "The size of the separator."
+msgstr "区切り線のサイズ。"
+
 #: widgets/signal_record/disk_full_dialog.py:19
 msgid "The disk is full"
 msgstr "ディスクがいっぱいです"
@@ -3239,16 +3346,11 @@ msgid ""
 "bandwidth (RBW) but update less often."
 msgstr "各FFTにおけるサンプル数。FFTが長いほど分解能帯域幅（RBW）は細かくなりますが、更新頻度は低くなります。"
 
-#: widgets/spectrum/spectrum_control.py:47
-#: widgets/spectrum/spectrum_widget.py:107
-msgid "Window"
-msgstr "ウィンドウ"
-
 #: widgets/spectrum/spectrum_control.py:48
 msgid ""
 "The FFT window. Flat top gives the most accurate tone amplitude. Hann is a "
 "good general-purpose window."
-msgstr "FFTウィンドウ。「フラットトップ」は、トーン振幅を最も正確に表します。「ハーン」は汎用性の高いウィンドウです。"
+msgstr "FFTの窓関数。Flat top はトーン振幅を最も正確に測定できます。Hann は汎用性の高い窓関数です。"
 
 #: widgets/spectrum/spectrum_control.py:51
 #: widgets/spectrum/spectrum_widget.py:128
@@ -3289,11 +3391,11 @@ msgstr "ライブ"
 
 #: widgets/spectrum/spectrum_widget.py:47
 msgid "Max hold"
-msgstr "最大ホールド"
+msgstr "最大値ホールド"
 
 #: widgets/spectrum/spectrum_widget.py:47
 msgid "Min hold"
-msgstr "最小ホールド"
+msgstr "最小値ホールド"
 
 #: widgets/spectrum/spectrum_widget.py:69
 msgid "The signal data stream source."
@@ -3318,7 +3420,7 @@ msgid ""
 "frequency bins, and the resolution bandwidth is approximately the window "
 "ENBW x sample rate / fft_length."
 msgstr ""
-"各FFTのサンプル数。FFTは fft_length / 2 + 1 個の周波数ビンを生成し、分解能帯域幅はおよそウィンドウのENBW × "
+"各FFTのサンプル数。FFTは fft_length / 2 + 1 個の周波数ビンを生成し、分解能帯域幅はおよそ窓関数のENBW × "
 "サンプリングレート / fft_length となります。"
 
 #: widgets/spectrum/spectrum_widget.py:113
@@ -3338,7 +3440,7 @@ msgid ""
 "Subtract the mean of each FFT segment. Joulescope signals often have a large"
 " DC component whose window leakage hides the low-frequency content."
 msgstr ""
-"各FFTセグメントの平均値を差し引きます。Joulescopeの信号には、ウィンドウリークによって低周波成分が隠れてしまうような、大きな直流成分が含まれていることがよくあります。"
+"各FFTセグメントの平均値を差し引きます。Joulescopeの信号には大きな直流成分が含まれていることが多く、そのスペクトル・リークによって低周波成分が隠れてしまいます。"
 
 #: widgets/spectrum/spectrum_widget.py:129
 msgid ""
@@ -3407,11 +3509,11 @@ msgstr "平均トレースを表示します。"
 
 #: widgets/spectrum/spectrum_widget.py:170
 msgid "Show the max hold trace."
-msgstr "最大ホールドトレースを表示します。"
+msgstr "最大値ホールドトレースを表示します。"
 
 #: widgets/spectrum/spectrum_widget.py:175
 msgid "Show the min hold trace."
-msgstr "最小ホールドトレースを表示します。"
+msgstr "最小値ホールドトレースを表示します。"
 
 #: widgets/spectrum/spectrum_widget.py:180
 msgid "Logarithmic frequency axis"
@@ -3453,11 +3555,11 @@ msgstr "ウォーターフォール行"
 msgid ""
 "The number of waterfall rows over the duration. Each row combines all FFTs "
 "over its duration using the waterfall detector."
-msgstr "測定期間にわたるウォーターフォール表示の行数。各行は、ウォーターフォール検出器を用いて、その期間にわたるすべてのFFTを統合したものです。"
+msgstr "測定期間にわたるウォーターフォール表示の行数。各行は、ウォーターフォール検波を用いて、その期間にわたるすべてのFFTを統合したものです。"
 
 #: widgets/spectrum/spectrum_widget.py:233
 msgid "Waterfall detector"
-msgstr "ウォーターフォール検出器"
+msgstr "ウォーターフォール検波"
 
 #: widgets/spectrum/spectrum_widget.py:234
 msgid "How each row combines its FFTs. Max keeps short bursts visible."
@@ -3686,6 +3788,14 @@ msgstr "範囲外"
 msgid "The source instrument."
 msgstr "ソース機器。"
 
+#: widgets/trigger/trigger_widget.py:169
+msgid "The trigger mode."
+msgstr "トリガモード。"
+
+#: widgets/trigger/trigger_widget.py:189
+msgid "The trigger configuration."
+msgstr "トリガ設定。"
+
 #: widgets/trigger/trigger_widget.py:219
 msgid "Type"
 msgstr "タイプ"
@@ -3843,7 +3953,7 @@ msgstr "右クリックして「優先接頭辞」→「auto」を選択する�
 
 #: widgets/value/value_widget.py:148
 msgid "Accrue values over time"
-msgstr "時間の経過とともに値を蓄積"
+msgstr "値を経時的に累積"
 
 #: widgets/value/value_widget.py:150
 msgid ""
@@ -3857,25 +3967,25 @@ msgstr ""
 msgid ""
 "Note that this button does not affect the charge and energy accumulation. "
 "Both accumulate indefinitely regardless of this button state."
-msgstr "このボタンは電荷とエネルギーの蓄積には影響しません。このボタンの状態に関係なく、どちらも無期限に蓄積されます。"
+msgstr "このボタンは電荷とエネルギーの積算には影響しません。このボタンの状態に関係なく、どちらも無期限に積算されます。"
 
-#: widgets/value/value_widget.py:236
+#: widgets/value/value_widget.py:242
 msgid "Not present"
 msgstr "存在しない"
 
-#: widgets/value/value_widget.py:264
+#: widgets/value/value_widget.py:270
 msgid "Accrue"
 msgstr "累積"
 
-#: widgets/value/value_widget.py:600 widgets/waveform/waveform_widget.py:3808
+#: widgets/value/value_widget.py:606 widgets/waveform/waveform_widget.py:3808
 msgid "Preferred prefix"
 msgstr "優先接頭辞"
 
-#: widgets/value/value_widget.py:605
+#: widgets/value/value_widget.py:611
 msgid "auto"
 msgstr "auto"
 
-#: widgets/value/value_widget.py:607
+#: widgets/value/value_widget.py:613
 msgid "none"
 msgstr "なし"
 
@@ -3936,6 +4046,10 @@ msgstr "マニュアル"
 #: widgets/waveform/text_annotation.py:68
 msgid "Centered"
 msgstr "中心"
+
+#: widgets/waveform/text_annotation.py:91
+msgid "Edit annotation"
+msgstr "注釈を編集"
 
 #: widgets/waveform/text_annotation.py:101
 #: widgets/waveform/waveform_widget.py:3890
@@ -4045,7 +4159,7 @@ msgstr "波形表示を右側に固定します。有効にすると、右側（
 
 #: widgets/waveform/waveform_control.py:85
 msgid "Pin"
-msgstr "ピン"
+msgstr "ピン留め"
 
 #: widgets/waveform/waveform_control.py:86
 msgid ""
@@ -4102,6 +4216,22 @@ msgstr "信号の表示/非表示"
 #: widgets/waveform/waveform_control.py:113
 msgid "Click to toggle the signal axis display in the Waveform widget."
 msgstr "クリックすると、波形ウィジェットの信号軸表示が切り替わります。"
+
+#: widgets/waveform/waveform_control.py:138
+msgid "Markers:"
+msgstr "マーカー："
+
+#: widgets/waveform/waveform_control.py:146
+msgid "X-Axis:"
+msgstr "X軸："
+
+#: widgets/waveform/waveform_control.py:162
+msgid "Min/Max:"
+msgstr "最小/最大："
+
+#: widgets/waveform/waveform_control.py:173
+msgid "Signals:"
+msgstr "信号："
 
 #: widgets/waveform/waveform_source_widget.py:30
 msgid "Enable trace"
@@ -4304,7 +4434,7 @@ msgid ""
 "the current Δt view duration. The plot starts mostly empty, and the traces "
 "grow as the data streams in."
 msgstr ""
-"この機能を有効にすると、サンプリングの開始時に右側のピンのみが固定され、現在のΔtビューの表示時間が維持されます。プロットは最初はほぼ空白の状態から始まり、データが流入するにつれてトレースが形成されていきます。"
+"有効にすると、サンプルストリーミングの開始時に右側のみを固定し、現在のΔt表示時間を維持します。プロットは最初はほぼ空白の状態から始まり、データが流入するにつれてトレースが伸びていきます。"
 
 #: widgets/waveform/waveform_widget.py:483
 msgid ""

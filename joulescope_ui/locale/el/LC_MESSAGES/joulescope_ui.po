@@ -60,7 +60,7 @@ msgstr ""
 
 #: app.py:61 widgets/device_control/js220_ctrl_widget.py:52
 msgid "Fuse engaged indicator"
-msgstr "Ένδειξη ενεργοποιημένης ασφάλειας"
+msgstr "Ένδειξη πτώσης ασφάλειας"
 
 #: app.py:63
 msgid ""
@@ -68,9 +68,9 @@ msgid ""
 "engaged fuse. Instruments with engaged fuses prevent current flow until "
 "cleared."
 msgstr ""
-"Αυτή η ένδειξη ενεργοποιείται όταν τουλάχιστον ένα συνδεδεμένο όργανο έχει "
-"ενεργοποιημένη ασφάλεια. Τα όργανα με ενεργοποιημένες ασφάλειες εμποδίζουν "
-"τη ροή ρεύματος έως ότου εκκαθαριστούν."
+"Αυτή η ένδειξη ενεργοποιείται όταν σε τουλάχιστον ένα συνδεδεμένο όργανο "
+"έχει πέσει ασφάλεια. Τα όργανα με ασφάλειες που έχουν πέσει εμποδίζουν τη "
+"ροή ρεύματος έως ότου γίνει εκκαθάριση."
 
 #: app.py:66 widgets/device_control/js220_ctrl_widget.py:57
 msgid "Press to clear."
@@ -90,8 +90,8 @@ msgid ""
 "When enabled, the widgets will display the statistics data as it arrives "
 "from the connected instruments."
 msgstr ""
-"Όταν είναι ενεργοποιημένο, τα widgets θα εμφανίζουν τα στατιστικά δεδομένα "
-"καθώς φθάνουν από τα συνδεδεμένα όργανα."
+"Όταν είναι ενεργοποιημένο, τα γραφικά στοιχεία θα εμφανίζουν τα στατιστικά "
+"δεδομένα καθώς φθάνουν από τα συνδεδεμένα όργανα."
 
 #: app.py:76
 msgid ""
@@ -99,8 +99,8 @@ msgid ""
 "but widgets displaying statistics information do not update."
 msgstr ""
 "Όταν είναι απενεργοποιημένο, διατηρεί τις υπάρχουσες τιμές. Τα νέα δεδομένα "
-"στατιστικών επεξεργάζονται, αλλά τα widgets που εμφανίζουν πληροφορίες "
-"στατιστικών δεν ενημερώνονται."
+"στατιστικών επεξεργάζονται, αλλά τα γραφικά στοιχεία που εμφανίζουν "
+"πληροφορίες στατιστικών δεν ενημερώνονται."
 
 #: app.py:84
 msgid "Statistics recording"
@@ -141,8 +141,8 @@ msgid ""
 "all sample widgets for acquisition mode."
 msgstr ""
 "Όταν είναι ενεργοποιημένο, ροή δεδομένων δείγματος από όλες τις ανοικτές "
-"πηγές δείγματος και διαμόρφωση όλων των widgets δείγματος για λειτουργία "
-"λήψης."
+"πηγές δείγματος και διαμόρφωση όλων των γραφικών στοιχείων δείγματος για "
+"λειτουργία λήψης."
 
 #: app.py:100
 msgid ""
@@ -150,7 +150,7 @@ msgid ""
 "buffer mode."
 msgstr ""
 "Όταν είναι απενεργοποιημένο, διακόπτει τη ροή δειγμάτων και ρυθμίζει όλα τα "
-"widgets δειγμάτων για λειτουργία απομονωτή."
+"γραφικά στοιχεία δειγμάτων για λειτουργία απομονωτή."
 
 #: app.py:107
 msgid "Signal sample recording"
@@ -289,6 +289,11 @@ msgstr "Δεν προσδιορίζεται"
 #: app.py:196
 msgid "Prompt to switch from Intel graphics to software renderer."
 msgstr "Προτροπή για εναλλαγή από τα γραφικά Intel σε renderer λογισμικού."
+
+#: disk_monitor.py:33
+msgid "The free threshold for declaring fullness"
+msgstr ""
+"Το κατώφλι ελεύθερου χώρου κάτω από το οποίο ο δίσκος θεωρείται πλήρης"
 
 #: devices/serial/serial_port_dialog.py:181
 #: devices/serial/serial_port_dialog.py:203 error_dialog.py:42
@@ -636,7 +641,7 @@ msgstr "Ξεκινώντας με το Joulescope"
 
 #: getting_started.py:22
 msgid "Safety"
-msgstr "Ασφάλεια"
+msgstr "Οδηγίες ασφαλείας"
 
 #: getting_started.py:23
 msgid "The voltage between any sensor port must never exceed ±15V."
@@ -727,7 +732,7 @@ msgstr ""
 #: getting_started.py:45
 msgid "Use the scroll wheel to zoom the time x-axis."
 msgstr ""
-"Χρησιμοποιήστε τον τροχό κύλισης για να μεγεθύνετε τον χρονικό άξονα x."
+"Χρησιμοποιήστε τον τροχό κύλισης για να κάνετε ζουμ στον χρονικό άξονα x."
 
 #: getting_started.py:46
 msgid "Left-click and drag to pan in time."
@@ -757,6 +762,18 @@ msgstr ""
 "Κάντε κλικ στο εικονίδιο βοήθειας κάτω αριστερά για περισσότερες πληροφορίες"
 " και επιλογές υποστήριξης."
 
+#: jls_source.py:110
+msgid "The name for this JLS stream buffer source"
+msgstr "Το όνομα αυτής της πηγής απομονωτή ροής JLS"
+
+#: jls_source.py:115
+msgid "The file path."
+msgstr "Η διαδρομή του αρχείου."
+
+#: jls_source.py:120
+msgid "The user notes."
+msgstr "Οι σημειώσεις του χρήστη."
+
 #: locale_dialog.py:21
 msgid "Select a language"
 msgstr "Επιλέξτε μια γλώσσα"
@@ -765,7 +782,7 @@ msgstr "Επιλέξτε μια γλώσσα"
 msgid "The application will automatically close when you change the locale."
 msgstr "Η εφαρμογή θα κλείσει αυτόματα όταν αλλάξετε τη γλώσσα."
 
-#: main.py:79 widgets/value/value_widget.py:787
+#: main.py:79 widgets/value/value_widget.py:793
 msgid "Multimeter"
 msgstr "Πολύμετρο"
 
@@ -931,7 +948,7 @@ msgstr "Προβολή"
 
 #: main.py:469 widgets/settings/settings_widget.py:661
 msgid "Widgets"
-msgstr "Widgets"
+msgstr "Γραφικά στοιχεία"
 
 #: main.py:470
 msgid "Tools"
@@ -991,7 +1008,7 @@ msgstr "Να διαγραφεί η διαμόρφωση και να τερματ
 
 #: paths.py:31 styles/manager.py:54
 msgid "The name for this widget."
-msgstr "Το όνομα για αυτό το widget."
+msgstr "Το όνομα για αυτό το γραφικό στοιχείο."
 
 #: paths.py:32
 msgid "Paths"
@@ -1129,6 +1146,8 @@ msgid "Copy to clipboard"
 msgstr "Αντιγραφή στο πρόχειρο"
 
 #: software_update.py:334 widgets/device_control/device_update_dialog.py:44
+#: widgets/view_manager/view_manager_widget.py:136
+#: widgets/waveform/text_annotation.py:168
 msgid "OK"
 msgstr "OK"
 
@@ -1314,8 +1333,8 @@ msgid ""
 "over the full rate 2 MHz samples."
 msgstr ""
 "Αυτή η ρύθμιση ελέγχει τη συχνότητα εξόδου για τα στατιστικά δεδομένα που "
-"εμφανίζονται στο πολύμετρο και στα widgets τιμών. Τα δεδομένα στατιστικής "
-"υπολογίζονται σε δείγματα πλήρους ρυθμού 2 MHz."
+"εμφανίζονται στο πολύμετρο και στα γραφικά στοιχεία τιμών. Τα δεδομένα "
+"στατιστικής υπολογίζονται σε δείγματα πλήρους ρυθμού 2 MHz."
 
 #: devices/jsdrv/js110.py:137 devices/jsdrv/js220.py:200
 #: devices/jsdrv/js320.py:195
@@ -1346,8 +1365,8 @@ msgid ""
 "Configure the JS110's current range. Most applications should use the "
 "default, \"auto\"."
 msgstr ""
-"Διαμορφώστε το εύρος ρεύματος του J110. Οι περισσότερες εφαρμογές θα πρέπει "
-"να χρησιμοποιούν την προεπιλεγμένη τιμή, \"auto\"."
+"Διαμορφώστε το εύρος ρεύματος του JS110. Οι περισσότερες εφαρμογές θα πρέπει"
+" να χρησιμοποιούν την προεπιλεγμένη τιμή, \"auto\"."
 
 #: devices/jsdrv/js110.py:151 devices/jsdrv/js220.py:214
 #: devices/jsdrv/js320.py:209
@@ -1604,8 +1623,8 @@ msgid ""
 "This setting controls additional optional downsampling."
 msgstr ""
 "Το όργανο JS220 πραγματοποιεί πάντα δειγματοληψία στα 2 MHz και στη συνέχεια"
-" υποβαθμίζει τη δειγματοληψία σε 1 MHz. Αυτή η ρύθμιση ελέγχει πρόσθετη "
-"προαιρετική υποδειγματοληψία."
+" υποδειγματοληψία στο 1 MHz. Αυτή η ρύθμιση ελέγχει πρόσθετη προαιρετική "
+"υποδειγματοληψία."
 
 #: devices/jsdrv/js220.py:181 devices/jsdrv/js320.py:176
 msgid ""
@@ -1614,8 +1633,8 @@ msgid ""
 "over the full rate 1 MHz samples."
 msgstr ""
 "Αυτή η ρύθμιση ελέγχει τη συχνότητα εξόδου για τα στατιστικά δεδομένα που "
-"εμφανίζονται στο πολύμετρο και στα widgets τιμών. Τα δεδομένα στατιστικής "
-"υπολογίζονται σε δείγματα πλήρους ρυθμού 1 MHz."
+"εμφανίζονται στο πολύμετρο και στα γραφικά στοιχεία τιμών. Τα δεδομένα "
+"στατιστικής υπολογίζονται σε δείγματα πλήρους ρυθμού 1 MHz."
 
 #: devices/jsdrv/js220.py:212
 msgid ""
@@ -1944,6 +1963,28 @@ msgstr "Μέγεθος μνήμης απομονωτή σε bytes"
 msgid "Buffer memory duration in seconds"
 msgstr "Διάρκεια μνήμης απομονωτή σε δευτερόλεπτα"
 
+#: devices/jsdrv/jsdrv_stream_buffer.py:72 widgets/memory/memory_widget.py:242
+msgid "Clear on play"
+msgstr "Εκκαθάριση κατά την αναπαραγωγή"
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:73
+msgid ""
+"When signal sample streaming is paused, the stream buffer pauses sample "
+"accumulation. This setting controls what happens on play when streaming "
+"resumes. When unset, the buffer continues to accumulate samples into the "
+"existing buffer data. This mode treats the pause duration as missing "
+"samples. When set, the buffer is cleared and all prior data is purged. The "
+"buffer functions as if sample streaming started for the first time."
+msgstr ""
+"Όταν η ροή δειγμάτων σήματος βρίσκεται σε παύση, ο απομονωτής ροής διακόπτει"
+" τη συσσώρευση δειγμάτων. Αυτή η ρύθμιση καθορίζει τι συμβαίνει κατά την "
+"αναπαραγωγή, όταν η ροή συνεχίζεται. Όταν είναι απενεργοποιημένη, ο "
+"απομονωτής συνεχίζει να συσσωρεύει δείγματα στα υπάρχοντα δεδομένα του. Σε "
+"αυτή τη λειτουργία, η διάρκεια της παύσης αντιμετωπίζεται ως δείγματα που "
+"λείπουν. Όταν είναι ενεργοποιημένη, ο απομονωτής εκκαθαρίζεται και όλα τα "
+"προηγούμενα δεδομένα διαγράφονται. Ο απομονωτής λειτουργεί σαν να ξεκίνησε η"
+" ροή δειγμάτων για πρώτη φορά."
+
 #: devices/jsdrv/jsdrv_stream_buffer.py:94
 msgid "Source name"
 msgstr "Όνομα πηγής"
@@ -2046,6 +2087,16 @@ msgstr "Αφαίρεση"
 msgid "Invalid baud rate"
 msgstr "Μη έγκυρος ρυθμός baud"
 
+#: plugins/manager.py:59
+msgid "Monitor a plugin for changes"
+msgstr "Παρακολούθηση ενός πρόσθετου για αλλαγές"
+
+#: plugins/manager.py:64
+msgid "Monitor reload delay from filesystem changes in milliseconds."
+msgstr ""
+"Καθυστέρηση επαναφόρτωσης μετά από αλλαγές στο σύστημα αρχείων, σε χιλιοστά "
+"του δευτερολέπτου."
+
 #: plugins/selector.py:32
 msgid "Plugins"
 msgstr "Πρόσθετα"
@@ -2086,6 +2137,10 @@ msgstr ""
 " ένα ιστόγραμμα, το CDF διευκολύνει τη σύγκριση του χρόνου σε κάθε "
 "λειτουργία, με την απλή μέτρηση της μεταβολής της τιμής του άξονα y."
 
+#: range_tools/cdf.py:76
+msgid "Hold the data"
+msgstr "Πάγωμα των δεδομένων"
+
 #: range_tools/cdf.py:147
 msgid "Probability"
 msgstr "Πιθανότητα"
@@ -2093,6 +2148,15 @@ msgstr "Πιθανότητα"
 #: range_tools/cdf.py:168
 msgid "CDF configuration"
 msgstr "Διαμόρφωση CDF"
+
+#: range_tools/cdf.py:175 range_tools/frequency.py:194
+#: range_tools/histogram.py:44 range_tools/max_window.py:109
+#: widgets/spectrum/spectrum_control.py:36
+#: widgets/spectrum/spectrum_widget.py:1071
+#: widgets/trigger/trigger_widget.py:220
+#: widgets/waveform/waveform_widget.py:4417
+msgid "Signal"
+msgstr "Σήμα"
 
 #: range_tools/cdf.py:182 range_tools/histogram.py:50
 msgid "Number of bins (0 for auto)"
@@ -2118,9 +2182,26 @@ msgstr ""
 "Υπολογίστε το φάσμα συχνοτήτων για να αναλύσετε το συχνοτικό περιεχόμενο των"
 " τιμών δεδομένων του σήματος στο επιλεγμένο εύρος."
 
+#: range_tools/frequency.py:94 range_tools/histogram.py:103
+msgid "Hold the histogram data"
+msgstr "Πάγωμα των δεδομένων του ιστογράμματος"
+
 #: range_tools/frequency.py:187
 msgid "Frequency configuration"
 msgstr "Διαμόρφωση συχνότητας"
+
+#: range_tools/frequency.py:203 widgets/spectrum/spectrum_control.py:47
+#: widgets/spectrum/spectrum_widget.py:107
+msgid "Window"
+msgstr "Παράθυρο"
+
+#: range_tools/frequency.py:214
+msgid "FFT Length"
+msgstr "Μήκος FFT"
+
+#: range_tools/frequency.py:225
+msgid "Overlap %"
+msgstr "Επικάλυψη %"
 
 #: range_tools/histogram.py:24
 msgid "Histogram"
@@ -2137,13 +2218,6 @@ msgstr "Κατανομή συχνότητας"
 #: range_tools/histogram.py:28
 msgid "Probability Density Distribution"
 msgstr "Κατανομή πυκνότητας πιθανότητας"
-
-#: range_tools/histogram.py:44 range_tools/max_window.py:109
-#: widgets/spectrum/spectrum_control.py:36
-#: widgets/spectrum/spectrum_widget.py:1071
-#: widgets/trigger/trigger_widget.py:220
-msgid "Signal"
-msgstr "Σήμα"
 
 #: range_tools/histogram.py:56
 msgid "Histogram type"
@@ -2215,6 +2289,10 @@ msgstr ""
 "Αυτό το εργαλείο θα στείλει τα επιλεγμένα δεδομένα στο εργαλείο USBET για "
 "ανάλυση."
 
+#: styles/color_editor.py:75 widgets/settings/settings_widget.py:336
+msgid "Color"
+msgstr "Χρώμα"
+
 #: styles/color_scheme.py:21
 msgid "dark"
 msgstr "σκούρο"
@@ -2238,6 +2316,36 @@ msgstr "προεπιλογή"
 #: styles/font_scheme.py:22
 msgid "Joulescope default font scheme"
 msgstr "Προεπιλεγμένο σχήμα γραμματοσειράς του Joulescope"
+
+#: tcp_server/__init__.py:41
+msgid "Enable TCP server"
+msgstr "Ενεργοποίηση διακομιστή TCP"
+
+#: tcp_server/__init__.py:42
+msgid ""
+"When enabled, a TCP socket server listens for connections from external "
+"processes."
+msgstr ""
+"Όταν είναι ενεργοποιημένο, ένας διακομιστής υποδοχών TCP αναμένει συνδέσεις "
+"από εξωτερικές διεργασίες."
+
+#: tcp_server/__init__.py:47
+msgid "Server bind address"
+msgstr "Διεύθυνση σύνδεσης διακομιστή"
+
+#: tcp_server/__init__.py:48
+msgid "The network interface to bind to. Use 127.0.0.1 for localhost only."
+msgstr ""
+"Η διασύνδεση δικτύου στην οποία θα γίνει η σύνδεση. Χρησιμοποιήστε 127.0.0.1"
+" μόνο για τον τοπικό υπολογιστή (localhost)."
+
+#: tcp_server/__init__.py:53
+msgid "Server TCP port"
+msgstr "Θύρα TCP διακομιστή"
+
+#: tcp_server/__init__.py:54
+msgid "The TCP port number for the server."
+msgstr "Ο αριθμός θύρας TCP του διακομιστή."
 
 #: widgets/accumulator/accumulator_widget.py:27
 #: widgets/value/value_widget.py:32
@@ -2314,6 +2422,10 @@ msgstr "Επίδειξη"
 msgid "Device Control"
 msgstr "Έλεγχος συσκευής"
 
+#: widgets/device_control/device_info_dialog.py:30
+msgid "Device Information"
+msgstr "Πληροφορίες συσκευής"
+
 #: widgets/device_control/device_update_dialog.py:24
 #: widgets/device_control/device_update_dialog.py:45
 msgid "Update"
@@ -2369,6 +2481,7 @@ msgstr "Επιλογή κανενός"
 #: widgets/device_control/device_update_dialog.py:43
 #: widgets/js220_cal/js220_cal_widget.py:37
 #: widgets/js320_cal/js320_cal_widget.py:59
+#: widgets/waveform/text_annotation.py:167
 msgid "Cancel"
 msgstr "Ακύρωση"
 
@@ -2394,13 +2507,12 @@ msgstr "Ασφάλεια μέγιστου"
 
 #: widgets/device_control/fuse.py:32
 msgid "Fuse trip threshold"
-msgstr "Κατώφλι ενεργοποίησης ασφάλειας"
+msgstr "Κατώφλι πτώσης ασφάλειας"
 
 #: widgets/device_control/fuse.py:33
 msgid "Any current above this threshold will eventually trip the fuse."
 msgstr ""
-"Οποιοδήποτε ρεύμα πάνω από αυτό το όριο θα ενεργοποιήσει τελικά την "
-"ασφάλεια."
+"Οποιοδήποτε ρεύμα πάνω από αυτό το κατώφλι θα ρίξει τελικά την ασφάλεια."
 
 #: widgets/device_control/fuse.py:37
 msgid "Fuse speed threshold"
@@ -2455,8 +2567,6 @@ msgid "Fuse response"
 msgstr "Απόκριση ασφάλειας"
 
 #: widgets/device_control/fuse.py:102
-#: widgets/record_status/record_stop_config_widget.py:31
-#: widgets/serial_console/serial_console_widget.py:72
 msgid "Time"
 msgstr "Χρόνος"
 
@@ -2486,27 +2596,27 @@ msgid ""
 "When selected, this device because the default. All widgets using the "
 "default device will use the data provided by this device."
 msgstr ""
-"Όταν επιλεγεί, αυτή η συσκευή γίνεται η προεπιλεγμένη. Όλα τα widgets που "
-"χρησιμοποιούν την προεπιλεγμένη συσκευή θα χρησιμοποιούν τα δεδομένα που "
-"παρέχονται από αυτή τη συσκευή."
+"Όταν επιλεγεί, αυτή η συσκευή γίνεται η προεπιλεγμένη. Όλα τα γραφικά "
+"στοιχεία που χρησιμοποιούν την προεπιλεγμένη συσκευή θα χρησιμοποιούν τα "
+"δεδομένα που παρέχονται από αυτή τη συσκευή."
 
 #: widgets/device_control/js220_ctrl_widget.py:46
 msgid ""
 "When unselected, another device is the default. Widgets can still be "
 "configured to use data from this device."
 msgstr ""
-"Όταν δεν έχει επιλεγεί, μια άλλη συσκευή είναι η προεπιλεγμένη. Τα widgets "
-"μπορούν ακόμα να ρυθμιστούν ώστε να χρησιμοποιούν δεδομένα από αυτή τη "
-"συσκευή."
+"Όταν δεν έχει επιλεγεί, μια άλλη συσκευή είναι η προεπιλεγμένη. Τα γραφικά "
+"στοιχεία μπορούν ακόμα να ρυθμιστούν ώστε να χρησιμοποιούν δεδομένα από αυτή"
+" τη συσκευή."
 
 #: widgets/device_control/js220_ctrl_widget.py:54
 msgid ""
 "This indicator becomes active when this device has at least one engaged "
 "fuse. Engaged fuses prevent current flow until cleared."
 msgstr ""
-"Αυτή η ένδειξη γίνεται ενεργή όταν αυτή η συσκευή έχει τουλάχιστον μία "
-"ενεργοποιημένη ασφάλεια. Οι ενεργοποιημένες ασφάλειες εμποδίζουν τη ροή "
-"ρεύματος μέχρι να εκκαθαριστούν."
+"Αυτή η ένδειξη γίνεται ενεργή όταν σε αυτή τη συσκευή έχει πέσει τουλάχιστον"
+" μία ασφάλεια. Οι ασφάλειες που έχουν πέσει εμποδίζουν τη ροή ρεύματος μέχρι"
+" να γίνει εκκαθάριση."
 
 #: widgets/device_control/js220_ctrl_widget.py:62
 msgid "Open and close the device"
@@ -2545,8 +2655,9 @@ msgid ""
 msgstr ""
 "Κάντε κλικ σε αυτό το κουμπί για να κλείσετε τη συσκευή και να επαναφέρετε "
 "τις ρυθμίσεις της στις προεπιλεγμένες τιμές. Επεξεργαστείτε τις "
-"προεπιλεγμένες ρυθμίσεις της συσκευής στο widget «Ρυθμίσεις» στην ενότητα "
-"«Συσκευές». Η επιλογή «Αναίρεση» επαναφέρει τις προηγούμενες ρυθμίσεις."
+"προεπιλεγμένες ρυθμίσεις της συσκευής στο γραφικό στοιχείο «Ρυθμίσεις» στην "
+"ενότητα «Συσκευές». Η επιλογή «Αναίρεση» επαναφέρει τις προηγούμενες "
+"ρυθμίσεις."
 
 #: widgets/device_control/js220_ctrl_widget.py:80
 msgid "Clear accumulators"
@@ -2559,8 +2670,8 @@ msgid ""
 "will be unaffected."
 msgstr ""
 "Κάντε κλικ σε αυτό το κουμπί για να μηδενίσετε τους συσσωρευτές φορτίου και "
-"ενέργειας. Η λειτουργία «Συγκέντρωση» των widgets απεικόνισης τιμών, "
-"συμπεριλαμβανομένου του πολυμέτρου, δεν θα επηρεαστεί."
+"ενέργειας. Η λειτουργία «Συγκέντρωση» των γραφικών στοιχείων απεικόνισης "
+"τιμών, συμπεριλαμβανομένου του πολυμέτρου, δεν θα επηρεαστεί."
 
 #: widgets/device_control/js220_ctrl_widget.py:87
 #: widgets/device_control/js220_ctrl_widget.py:669
@@ -2654,12 +2765,11 @@ msgstr "Ενεργοποίηση σημάτων"
 
 #: widgets/efficiency/efficiency_control.py:40
 msgid "Enable the instrument signals that this widget needs."
-msgstr "Ενεργοποιήστε τα σήματα του οργάνου που απαιτεί αυτό το widget."
+msgstr ""
+"Ενεργοποιήστε τα σήματα του οργάνου που απαιτεί αυτό το γραφικό στοιχείο."
 
 #: widgets/efficiency/efficiency_control.py:52
-#: widgets/efficiency/efficiency_widget.py:732
-#: widgets/spectrum/spectrum_control.py:67
-#: widgets/spectrum/spectrum_widget.py:1191 widgets/value/value_widget.py:256
+#: widgets/spectrum/spectrum_control.py:67 widgets/value/value_widget.py:262
 msgid "Hold"
 msgstr "Πάγωμα"
 
@@ -2903,6 +3013,12 @@ msgstr "Επιλέξτε διαφορετικά όργανα εισόδου κα
 #, python-brace-format
 msgid "Disabled: {0}"
 msgstr "Απενεργοποιημένο: {0}"
+
+#: widgets/efficiency/efficiency_widget.py:732
+#: widgets/spectrum/spectrum_widget.py:1191
+msgctxt "state"
+msgid "Hold"
+msgstr "Παγωμένο"
 
 #: widgets/efficiency/efficiency_widget.py:734
 msgid "Curve hold"
@@ -3212,10 +3328,6 @@ msgstr "Διαθέσιμο μέγεθος RAM"
 msgid "Used RAM size"
 msgstr "Μέγεθος χρησιμοποιούμενης μνήμης RAM"
 
-#: widgets/memory/memory_widget.py:242
-msgid "Clear on play"
-msgstr "Εκκαθάριση κατά την αναπαραγωγή"
-
 #: widgets/notes/notes_widget.py:28
 msgid "The notes value."
 msgstr "Η τιμή των σημειώσεων."
@@ -3272,6 +3384,12 @@ msgstr "Μετά από μια διάρκεια"
 msgid "At a specific time"
 msgstr "Σε μια συγκεκριμένη χρονική στιγμή"
 
+#: widgets/record_status/record_stop_config_widget.py:31
+#: widgets/serial_console/serial_console_widget.py:72
+msgctxt "clock"
+msgid "Time"
+msgstr "Ώρα"
+
 #: widgets/record_status/record_stop_config_widget.py:32
 msgid "Configure recording stop"
 msgstr "Ρύθμιση διακοπής εγγραφής"
@@ -3290,7 +3408,7 @@ msgstr "Η πηγή ροής δειγμάτων σήματος."
 
 #: widgets/serial_console/serial_console_widget.py:43
 msgid "The target waveform widget."
-msgstr "Το widget κυματομορφής στόχου."
+msgstr "Το γραφικό στοιχείο κυματομορφής στόχου."
 
 #: widgets/serial_console/serial_console_widget.py:72
 msgid "Message"
@@ -3316,13 +3434,9 @@ msgstr "Σχολιασμός κυματομορφής"
 msgid "External Serial..."
 msgstr "Εξωτερική σειριακή..."
 
-#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:796
+#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:802
 msgid "Value"
 msgstr "Τιμή"
-
-#: widgets/settings/settings_widget.py:336
-msgid "Color"
-msgstr "Χρώμα"
 
 #: widgets/settings/settings_widget.py:443
 msgid "Font"
@@ -3409,10 +3523,10 @@ msgid ""
 " and their settings. Use this widget to open and close devices and configure"
 " their operation."
 msgstr ""
-"Κάντε κλικ για να εμφανιστεί το widget ελέγχου συσκευών, το οποίο εμφανίζει "
-"τις συνδεδεμένες συσκευές και τις ρυθμίσεις τους. Χρησιμοποιήστε αυτό το "
-"widget για να ανοίγετε και να κλείνετε συσκευές και να ρυθμίζετε τη "
-"λειτουργία τους."
+"Κάντε κλικ για να εμφανιστεί το γραφικό στοιχείο ελέγχου συσκευών, το οποίο "
+"εμφανίζει τις συνδεδεμένες συσκευές και τις ρυθμίσεις τους. Χρησιμοποιήστε "
+"αυτό το γραφικό στοιχείο για να ανοίγετε και να κλείνετε συσκευές και να "
+"ρυθμίζετε τη λειτουργία τους."
 
 #: widgets/sidebar/sidebar_widget.py:35
 msgid "Memory buffer settings"
@@ -3425,9 +3539,9 @@ msgid ""
 "configure the memory used by this Joulescope UI instance."
 msgstr ""
 "Τα δεδομένα δειγμάτων σήματος ροής αποθηκεύονται στη μνήμη RAM του κεντρικού"
-" υπολογιστή σας. Κάντε κλικ σε αυτό το κουμπί για να εμφανιστεί το widget "
-"διαχείρισης μνήμης, το οποίο σας επιτρέπει να διαμορφώσετε τη μνήμη που "
-"χρησιμοποιείται από αυτό το στιγμιότυπο του Joulescope UI."
+" υπολογιστή σας. Κάντε κλικ σε αυτό το κουμπί για να εμφανιστεί το γραφικό "
+"στοιχείο διαχείρισης μνήμης, το οποίο σας επιτρέπει να διαμορφώσετε τη μνήμη"
+" που χρησιμοποιείται από αυτό το στιγμιότυπο του Joulescope UI."
 
 #: widgets/sidebar/sidebar_widget.py:44
 msgid ""
@@ -3436,7 +3550,7 @@ msgid ""
 msgstr ""
 "Κάντε κλικ για να εμφανίσετε τις ρυθμίσεις που σας επιτρέπουν να αλλάξετε "
 "τις καθολικές, τις προεπιλεγμένες και τις ρυθμίσεις μεμονωμένων στιγμιοτύπων"
-" για συσκευές και widgets."
+" για συσκευές και γραφικά στοιχεία."
 
 #: widgets/sidebar/sidebar_widget.py:47
 msgid ""
@@ -3465,6 +3579,14 @@ msgstr "Κάντε κλικ για να εμφανίσετε πρόσθετες 
 #: widgets/sidebar/sidebar_widget.py:72
 msgid "sidebar"
 msgstr "πλευρική γραμμή"
+
+#: widgets/sidebar/sidebar_widget.py:89
+msgid "Show the separator between widgets."
+msgstr "Εμφάνιση του διαχωριστικού μεταξύ των γραφικών στοιχείων."
+
+#: widgets/sidebar/sidebar_widget.py:94
+msgid "The size of the separator."
+msgstr "Το μέγεθος του διαχωριστικού."
 
 #: widgets/signal_record/disk_full_dialog.py:19
 msgid "The disk is full"
@@ -3510,8 +3632,8 @@ msgstr ""
 #: widgets/spectrum/spectrum_control.py:34
 msgid "Clear the average, max hold, min hold, and waterfall history."
 msgstr ""
-"Εκκαθάριση του ιστορικού μέσου όρου, μέγιστης τιμής, ελάχιστης τιμής και "
-"καταρράκτη."
+"Εκκαθάριση του μέσου όρου, της διατήρησης μέγιστου και ελάχιστου και του "
+"ιστορικού καταρράκτη."
 
 #: widgets/spectrum/spectrum_control.py:35
 msgid "Select the source device."
@@ -3548,11 +3670,6 @@ msgid ""
 msgstr ""
 "Ο αριθμός των δειγμάτων σε κάθε FFT. Οι μακρύτερες FFT παρέχουν καλύτερη "
 "ανάλυση εύρους ζώνης (RBW), αλλά ενημερώνονται λιγότερο συχνά."
-
-#: widgets/spectrum/spectrum_control.py:47
-#: widgets/spectrum/spectrum_widget.py:107
-msgid "Window"
-msgstr "Παράθυρο"
 
 #: widgets/spectrum/spectrum_control.py:48
 msgid ""
@@ -4038,6 +4155,14 @@ msgstr "εκτός"
 msgid "The source instrument."
 msgstr "Το όργανο πηγής."
 
+#: widgets/trigger/trigger_widget.py:169
+msgid "The trigger mode."
+msgstr "Η λειτουργία σκανδαλισμού."
+
+#: widgets/trigger/trigger_widget.py:189
+msgid "The trigger configuration."
+msgstr "Η διαμόρφωση του σκανδαλισμού."
+
 #: widgets/trigger/trigger_widget.py:219
 msgid "Type"
 msgstr "Τύπος"
@@ -4157,8 +4282,8 @@ msgid ""
 "The values displayed by this widget come from a single source device. Select"
 " the source device here."
 msgstr ""
-"Οι τιμές που εμφανίζονται από αυτό το widget προέρχονται από μία μόνο "
-"συσκευή πηγής. Επιλέξτε τη συσκευή πηγής εδώ."
+"Οι τιμές που εμφανίζονται από αυτό το γραφικό στοιχείο προέρχονται από μία "
+"μόνο συσκευή πηγής. Επιλέξτε τη συσκευή πηγής εδώ."
 
 #: widgets/value/value_widget.py:127
 msgid "When selected, prevent the display from updating."
@@ -4233,23 +4358,23 @@ msgstr ""
 "ενέργειας. Και τα δύο συσσωρεύονται επ' αόριστον ανεξάρτητα από την "
 "κατάσταση αυτού του κουμπιού."
 
-#: widgets/value/value_widget.py:236
+#: widgets/value/value_widget.py:242
 msgid "Not present"
 msgstr "Δεν υπάρχει"
 
-#: widgets/value/value_widget.py:264
+#: widgets/value/value_widget.py:270
 msgid "Accrue"
 msgstr "Συγκέντρωση"
 
-#: widgets/value/value_widget.py:600 widgets/waveform/waveform_widget.py:3808
+#: widgets/value/value_widget.py:606 widgets/waveform/waveform_widget.py:3808
 msgid "Preferred prefix"
 msgstr "Προτιμώμενο πρόθεμα"
 
-#: widgets/value/value_widget.py:605
+#: widgets/value/value_widget.py:611
 msgid "auto"
 msgstr "auto"
 
-#: widgets/value/value_widget.py:607
+#: widgets/value/value_widget.py:613
 msgid "none"
 msgstr "κανένα"
 
@@ -4310,6 +4435,10 @@ msgstr "Χειροκίνητο"
 #: widgets/waveform/text_annotation.py:68
 msgid "Centered"
 msgstr "Κεντραρισμένο"
+
+#: widgets/waveform/text_annotation.py:91
+msgid "Edit annotation"
+msgstr "Επεξεργασία επισήμανσης"
 
 #: widgets/waveform/text_annotation.py:101
 #: widgets/waveform/waveform_widget.py:3890
@@ -4401,7 +4530,7 @@ msgstr "Κάντε κλικ για σμίκρυνση κατά μήκος του
 
 #: widgets/waveform/waveform_control.py:69
 msgid "Zoom all"
-msgstr "Μεγέθυνση όλων"
+msgstr "Εμφάνιση όλων"
 
 #: widgets/waveform/waveform_control.py:70
 msgid "Click to display the full extents of the x-axis."
@@ -4447,7 +4576,7 @@ msgstr ""
 
 #: widgets/waveform/waveform_control.py:91
 msgid "Y zoom all"
-msgstr "Μεγέθυνση όλων Y"
+msgstr "Εμφάνιση όλων (Y)"
 
 #: widgets/waveform/waveform_control.py:93
 msgid "Click to reset the y-axis of all plots to auto ranging mode."
@@ -4506,7 +4635,24 @@ msgstr "Εμφάνιση/απόκρυψη σημάτων"
 #: widgets/waveform/waveform_control.py:113
 msgid "Click to toggle the signal axis display in the Waveform widget."
 msgstr ""
-"Κάντε κλικ για εμφάνιση/απόκρυψη του άξονα σήματος στο widget «Κυματομορφή»."
+"Κάντε κλικ για εμφάνιση/απόκρυψη του άξονα σήματος στο γραφικό στοιχείο "
+"«Κυματομορφή»."
+
+#: widgets/waveform/waveform_control.py:138
+msgid "Markers:"
+msgstr "Δείκτες:"
+
+#: widgets/waveform/waveform_control.py:146
+msgid "X-Axis:"
+msgstr "Άξονας X:"
+
+#: widgets/waveform/waveform_control.py:162
+msgid "Min/Max:"
+msgstr "Ελάχ./Μέγ.:"
+
+#: widgets/waveform/waveform_control.py:173
+msgid "Signals:"
+msgstr "Σήματα:"
 
 #: widgets/waveform/waveform_source_widget.py:30
 msgid "Enable trace"
@@ -4539,7 +4685,7 @@ msgid ""
 "the Device Control widget."
 msgstr ""
 "«προεπιλογή»: χρησιμοποιεί την προεπιλεγμένη πηγή, η οποία κανονικά "
-"διαμορφώνεται από το widget «Έλεγχος συσκευής»."
+"διαμορφώνεται από το γραφικό στοιχείο «Έλεγχος συσκευής»."
 
 #: widgets/waveform/waveform_widget.py:46
 msgid "Waveform"
@@ -5078,11 +5224,11 @@ msgstr "Μονάδες"
 #~ " can select the OpenGL renderer at any time using Widgets → Settings → "
 #~ "Common → opengl. The default is \"desktop\"."
 #~ msgstr ""
-#~ "Αν δεν είστε σίγουροι, επιλέξτε \"Όχι\" και αφήστε το \"Μην το εμφανίσετε "
-#~ "ξανά\" χωρίς τσεκάρισμα. Εάν παρατηρήσετε ότι τα γραφικά κολλάνε, μπορείτε "
-#~ "να επιλέξετε \"Ναι\" στο μέλλον. Μπορείτε ανά πάσα στιγμή να επιλέξετε τον "
-#~ "renderer OpenGL χρησιμοποιώντας τη λειτουργία Widgets → Settings → Common → "
-#~ "opengl. Η προεπιλογή είναι \"desktop\"."
+#~ "Αν δεν είστε σίγουροι, επιλέξτε «Όχι» και αφήστε το «Μην το εμφανίσετε ξανά»"
+#~ " χωρίς τσεκάρισμα. Εάν παρατηρήσετε ότι τα γραφικά κολλάνε, μπορείτε να "
+#~ "επιλέξετε «Ναι» στο μέλλον. Μπορείτε ανά πάσα στιγμή να επιλέξετε τη μέθοδο "
+#~ "απόδοσης OpenGL από Γραφικά στοιχεία → Ρυθμίσεις → Κοινό → opengl. Η "
+#~ "προεπιλογή είναι «επιτραπέζιο»."
 
 #~ msgid "Do not show again"
 #~ msgstr "Μην εμφανίζετε ξανά"

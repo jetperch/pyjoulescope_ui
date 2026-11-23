@@ -18,7 +18,7 @@ See docs/plans/completed/spectrum.md.
 """
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from joulescope_ui import register, N_, get_topic_name
+from joulescope_ui import C_, register, N_, get_topic_name
 from joulescope_ui.styles import styled_widget, color_as_qcolor
 from joulescope_ui.widget_tools import CallableAction, settings_action_create, context_menu_show, \
     CONTROL_LOCATION_SETTING, control_location_apply
@@ -1188,7 +1188,7 @@ class SpectrumWidget(QtWidgets.QWidget):
         if self._data_topic is None:
             parts.append(N_('No signal'))
         elif self.hold:
-            parts.append(N_('Hold'))
+            parts.append(C_('state', 'Hold'))
         elif self._paused:
             parts.append(N_('Paused'))
         if 'fs' in s:

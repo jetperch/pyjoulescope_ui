@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from joulescope_ui import CAPABILITIES, Metadata, register, get_topic_name, get_instance
+from joulescope_ui import N_, CAPABILITIES, Metadata, register, get_topic_name, get_instance
 from joulescope_ui.jls_v1 import JlsV1
 from joulescope_ui.jls_v2 import JlsV2, ChunkMeta
 from joulescope_ui.jls_v2_annotations import load as annotations_load
@@ -107,17 +107,17 @@ class JlsSource:
         self.SETTINGS = {
             'name': {
                 'dtype': 'str',
-                'brief': 'The name for this JLS stream buffer source',
+                'brief': N_('The name for this JLS stream buffer source'),
                 'default': name,
             },
             'path': {
                 'dtype': 'str',
-                'brief': 'The file path.',
+                'brief': N_('The file path.'),
                 'default': path,
             },
             'notes': {
                 'dtype': 'str',
-                'brief': 'The user notes.',
+                'brief': N_('The user notes.'),
                 'default': '',
             },
         }

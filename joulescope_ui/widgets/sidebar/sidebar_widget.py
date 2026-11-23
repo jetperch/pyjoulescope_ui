@@ -86,12 +86,12 @@ class SideBar(QtWidgets.QWidget):
         },
         'separator_show': {
             'dtype': 'bool',
-            'brief': 'Show the separator between widgets.',
+            'brief': N_('Show the separator between widgets.'),
             'default': True,
         },
         'separator_size': {
             'dtype': 'int',
-            'brief': 'The size of the separator.',
+            'brief': N_('The size of the separator.'),
             'default': 2,
             'options': [
                 [0, '0'],

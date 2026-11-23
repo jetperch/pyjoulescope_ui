@@ -94,3 +94,20 @@ class TestContextTranslate(unittest.TestCase):
             translate = locale.C_
             self.assertEqual('Geöffnet', translate('state', 'Open'))
         t.pgettext.assert_called_once_with('state', 'Open')
+
+
+class TestRightToLeft(unittest.TestCase):
+
+    def _is_rtl(self, languages, translate):
+        with mock.patch.object(locale, 'languages', languages), \
+                mock.patch.object(locale, 'translate', translate):
+            return locale.is_rtl()
+
+    def test_rtl(self):
+        catalog = mock.Mock(spec=gettext.GNUTranslations)
+        self.assertTrue(self._is_rtl(['ar_SA', 'ar_SA'], catalog))
+        self.assertTrue(self._is_rtl(['ar', 'ar'], catalog))
+        self.assertFalse(self._is_rtl(['de_DE', 'de_DE'], catalog))
+
+    def test_no_catalog_is_ltr(self):
+        self.assertFalse(self._is_rtl(['ar', 'ar'], gettext.NullTranslations()))

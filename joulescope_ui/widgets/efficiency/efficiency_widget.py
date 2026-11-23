@@ -18,7 +18,7 @@ See docs/plans/efficiency.md.
 """
 
 from PySide6 import QtCore, QtGui, QtWidgets
-from joulescope_ui import register, N_, get_topic_name, CAPABILITIES, time64
+from joulescope_ui import C_, register, N_, get_topic_name, CAPABILITIES, time64
 from joulescope_ui.styles import styled_widget, color_as_qcolor, font_as_qfont
 from joulescope_ui.widget_tools import CallableAction, settings_action_create, context_menu_show, \
     CONTROL_LOCATION_SETTING, control_location_apply
@@ -729,7 +729,7 @@ class EfficiencyWidget(QtWidgets.QWidget):
                 parts.append(N_('Disabled: {0}').format(', '.join(missing)))
                 warning = True
             if self.hold:
-                parts.append(N_('Hold'))
+                parts.append(C_('state', 'Hold'))
             elif self.curve_hold:
                 parts.append(N_('Curve hold'))
             elif self._paused:

@@ -256,6 +256,10 @@ msgstr "지정되지 않음"
 msgid "Prompt to switch from Intel graphics to software renderer."
 msgstr "인텔 그래픽에서 소프트웨어 렌더러로 전환하라는 메시지가 표시됩니다."
 
+#: disk_monitor.py:33
+msgid "The free threshold for declaring fullness"
+msgstr "디스크가 가득 찬 것으로 판단하는 여유 공간 임계값"
+
 #: devices/serial/serial_port_dialog.py:181
 #: devices/serial/serial_port_dialog.py:203 error_dialog.py:42
 #: error_window.py:311
@@ -682,6 +686,18 @@ msgid ""
 "options."
 msgstr "자세한 정보 및 지원 옵션을 보려면 왼쪽 하단의 도움말 아이콘을 클릭하세요."
 
+#: jls_source.py:110
+msgid "The name for this JLS stream buffer source"
+msgstr "이 JLS 스트림 버퍼 소스의 이름"
+
+#: jls_source.py:115
+msgid "The file path."
+msgstr "파일 경로입니다."
+
+#: jls_source.py:120
+msgid "The user notes."
+msgstr "사용자 메모입니다."
+
 #: locale_dialog.py:21
 msgid "Select a language"
 msgstr "언어 선택"
@@ -690,7 +706,7 @@ msgstr "언어 선택"
 msgid "The application will automatically close when you change the locale."
 msgstr "로캘을 변경하면 애플리케이션이 자동으로 닫힙니다."
 
-#: main.py:79 widgets/value/value_widget.py:787
+#: main.py:79 widgets/value/value_widget.py:793
 msgid "Multimeter"
 msgstr "멀티미터"
 
@@ -799,7 +815,7 @@ msgstr "프로그램 정보"
 
 #: main.py:430
 msgid "Clear Accumulators"
-msgstr "누적기 지우기"
+msgstr "적산값 지우기"
 
 #: main.py:434
 msgid "Configure high accuracy time"
@@ -1035,6 +1051,8 @@ msgid "Copy to clipboard"
 msgstr "클립보드에 복사"
 
 #: software_update.py:334 widgets/device_control/device_update_dialog.py:44
+#: widgets/view_manager/view_manager_widget.py:136
+#: widgets/waveform/text_annotation.py:168
 msgid "OK"
 msgstr "확인"
 
@@ -1761,6 +1779,23 @@ msgstr "버퍼 메모리 크기(바이트)"
 msgid "Buffer memory duration in seconds"
 msgstr "버퍼 메모리 지속 시간(초)"
 
+#: devices/jsdrv/jsdrv_stream_buffer.py:72 widgets/memory/memory_widget.py:242
+msgid "Clear on play"
+msgstr "재생 시 지우기"
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:73
+msgid ""
+"When signal sample streaming is paused, the stream buffer pauses sample "
+"accumulation. This setting controls what happens on play when streaming "
+"resumes. When unset, the buffer continues to accumulate samples into the "
+"existing buffer data. This mode treats the pause duration as missing "
+"samples. When set, the buffer is cleared and all prior data is purged. The "
+"buffer functions as if sample streaming started for the first time."
+msgstr ""
+"신호 샘플 스트리밍이 일시 중지되면 스트림 버퍼도 샘플 누적을 일시 중지합니다. 이 설정은 스트리밍이 재개되어 재생할 때의 동작을 "
+"제어합니다. 해제하면 버퍼는 기존 버퍼 데이터에 샘플을 계속 누적합니다. 이 모드에서는 일시 중지된 기간을 누락된 샘플로 처리합니다. "
+"설정하면 버퍼를 지우고 이전 데이터를 모두 삭제합니다. 버퍼는 샘플 스트리밍을 처음 시작한 것처럼 동작합니다."
+
 #: devices/jsdrv/jsdrv_stream_buffer.py:94
 msgid "Source name"
 msgstr "소스 이름"
@@ -1863,6 +1898,14 @@ msgstr "제거"
 msgid "Invalid baud rate"
 msgstr "잘못된 전송 속도"
 
+#: plugins/manager.py:59
+msgid "Monitor a plugin for changes"
+msgstr "플러그인의 변경 사항 모니터링"
+
+#: plugins/manager.py:64
+msgid "Monitor reload delay from filesystem changes in milliseconds."
+msgstr "파일 시스템 변경 후 다시 불러오기까지의 모니터링 지연 시간(밀리초)입니다."
+
 #: plugins/selector.py:32
 msgid "Plugins"
 msgstr "플러그인"
@@ -1899,6 +1942,10 @@ msgstr ""
 "전류 또는 전력을 분석하는 데 사용하는 경우 각 전류 모드에서 아래 시간을 그래픽으로 표시합니다. 히스토그램과 비교하여 CDF를 사용하면"
 " Y축 값의 변화를 간단히 측정하여 각 모드의 시간을 쉽게 비교할 수 있습니다."
 
+#: range_tools/cdf.py:76
+msgid "Hold the data"
+msgstr "데이터 고정"
+
 #: range_tools/cdf.py:147
 msgid "Probability"
 msgstr "확률"
@@ -1906,6 +1953,15 @@ msgstr "확률"
 #: range_tools/cdf.py:168
 msgid "CDF configuration"
 msgstr "CDF 구성"
+
+#: range_tools/cdf.py:175 range_tools/frequency.py:194
+#: range_tools/histogram.py:44 range_tools/max_window.py:109
+#: widgets/spectrum/spectrum_control.py:36
+#: widgets/spectrum/spectrum_widget.py:1071
+#: widgets/trigger/trigger_widget.py:220
+#: widgets/waveform/waveform_widget.py:4417
+msgid "Signal"
+msgstr "신호"
 
 #: range_tools/cdf.py:182 range_tools/histogram.py:50
 msgid "Number of bins (0 for auto)"
@@ -1929,9 +1985,26 @@ msgid ""
 "signal's data values over the selected range."
 msgstr "주파수 스펙트럼을 계산하여 선택한 범위에서 신호 데이터 값의 주파수 내용을 분석합니다."
 
+#: range_tools/frequency.py:94 range_tools/histogram.py:103
+msgid "Hold the histogram data"
+msgstr "히스토그램 데이터 고정"
+
 #: range_tools/frequency.py:187
 msgid "Frequency configuration"
 msgstr "주파수 구성"
+
+#: range_tools/frequency.py:203 widgets/spectrum/spectrum_control.py:47
+#: widgets/spectrum/spectrum_widget.py:107
+msgid "Window"
+msgstr "윈도우"
+
+#: range_tools/frequency.py:214
+msgid "FFT Length"
+msgstr "FFT 길이"
+
+#: range_tools/frequency.py:225
+msgid "Overlap %"
+msgstr "오버랩 %"
 
 #: range_tools/histogram.py:24
 msgid "Histogram"
@@ -1948,13 +2021,6 @@ msgstr "도수 분포"
 #: range_tools/histogram.py:28
 msgid "Probability Density Distribution"
 msgstr "확률 밀도 분포"
-
-#: range_tools/histogram.py:44 range_tools/max_window.py:109
-#: widgets/spectrum/spectrum_control.py:36
-#: widgets/spectrum/spectrum_widget.py:1071
-#: widgets/trigger/trigger_widget.py:220
-msgid "Signal"
-msgstr "신호"
 
 #: range_tools/histogram.py:56
 msgid "Histogram type"
@@ -1990,7 +2056,7 @@ msgstr "범위에서 최대값을 갖는 윈도우를 검색합니다. 전체 �
 
 #: range_tools/max_window.py:37
 msgid "When complete, this tool will add dual markers to the waveform."
-msgstr "완료되면 이 도구는 파형에 이중 마커를 추가합니다."
+msgstr "완료되면 이 도구는 파형에 듀얼 마커를 추가합니다."
 
 #: range_tools/max_window.py:86
 msgid "Max Window configuration"
@@ -2014,8 +2080,12 @@ msgid ""
 " the target device. This tool will send the selected data to the USBET tool "
 "for analysis."
 msgstr ""
-"이중 마커를 사용하여 대상 장치에 전원을 켠 후 최소 100밀리초를 선택합니다. 이 도구는 분석을 위해 선택한 데이터를 USBET 도구로"
+"듀얼 마커를 사용하여 대상 장치에 전원을 켠 후 최소 100밀리초를 선택합니다. 이 도구는 분석을 위해 선택한 데이터를 USBET 도구로"
 " 전송합니다."
+
+#: styles/color_editor.py:75 widgets/settings/settings_widget.py:336
+msgid "Color"
+msgstr "색상"
 
 #: styles/color_scheme.py:21
 msgid "dark"
@@ -2040,6 +2110,32 @@ msgstr "기본값"
 #: styles/font_scheme.py:22
 msgid "Joulescope default font scheme"
 msgstr "Joulescope 기본 글꼴 체계"
+
+#: tcp_server/__init__.py:41
+msgid "Enable TCP server"
+msgstr "TCP 서버 활성화"
+
+#: tcp_server/__init__.py:42
+msgid ""
+"When enabled, a TCP socket server listens for connections from external "
+"processes."
+msgstr "활성화하면 TCP 소켓 서버가 외부 프로세스의 연결을 수신 대기합니다."
+
+#: tcp_server/__init__.py:47
+msgid "Server bind address"
+msgstr "서버 바인드 주소"
+
+#: tcp_server/__init__.py:48
+msgid "The network interface to bind to. Use 127.0.0.1 for localhost only."
+msgstr "바인드할 네트워크 인터페이스입니다. localhost 전용으로 사용하려면 127.0.0.1을 사용하십시오."
+
+#: tcp_server/__init__.py:53
+msgid "Server TCP port"
+msgstr "서버 TCP 포트"
+
+#: tcp_server/__init__.py:54
+msgid "The TCP port number for the server."
+msgstr "서버의 TCP 포트 번호입니다."
 
 #: widgets/accumulator/accumulator_widget.py:27
 #: widgets/value/value_widget.py:32
@@ -2066,7 +2162,7 @@ msgstr "각 신호에 대한 통계 섹션 제목을 표시합니다."
 
 #: widgets/accumulator/accumulator_widget.py:48
 msgid "Accumulator"
-msgstr "누적기"
+msgstr "적산"
 
 #: widgets/accumulator/accumulator_widget.py:140
 msgid "Show charge"
@@ -2114,6 +2210,10 @@ msgstr "데모"
 #: widgets/device_control/device_control_widget.py:23
 msgid "Device Control"
 msgstr "장치 제어"
+
+#: widgets/device_control/device_info_dialog.py:30
+msgid "Device Information"
+msgstr "장치 정보"
 
 #: widgets/device_control/device_update_dialog.py:24
 #: widgets/device_control/device_update_dialog.py:45
@@ -2167,6 +2267,7 @@ msgstr "선택 안 함"
 #: widgets/device_control/device_update_dialog.py:43
 #: widgets/js220_cal/js220_cal_widget.py:37
 #: widgets/js320_cal/js320_cal_widget.py:59
+#: widgets/waveform/text_annotation.py:167
 msgid "Cancel"
 msgstr "취소"
 
@@ -2247,8 +2348,6 @@ msgid "Fuse response"
 msgstr "퓨즈 응답"
 
 #: widgets/device_control/fuse.py:102
-#: widgets/record_status/record_stop_config_widget.py:31
-#: widgets/serial_console/serial_console_widget.py:72
 msgid "Time"
 msgstr "시간"
 
@@ -2326,7 +2425,7 @@ msgstr ""
 
 #: widgets/device_control/js220_ctrl_widget.py:80
 msgid "Clear accumulators"
-msgstr "누적기 지우기"
+msgstr "적산값 지우기"
 
 #: widgets/device_control/js220_ctrl_widget.py:81
 msgid ""
@@ -2334,7 +2433,7 @@ msgid ""
 "\"Accrue\" feature of the value display widgets, including the multimeter, "
 "will be unaffected."
 msgstr ""
-"전하 및 에너지 누적기를 지우려면 이 버튼을 클릭합니다. 멀티미터를 포함한 값 표시 위젯의 '누적' 기능은 영향을 받지 않습니다."
+"전하 및 에너지 적산값을 지우려면 이 버튼을 클릭합니다. 멀티미터를 포함한 값 표시 위젯의 '누적' 기능은 영향을 받지 않습니다."
 
 #: widgets/device_control/js220_ctrl_widget.py:87
 #: widgets/device_control/js220_ctrl_widget.py:669
@@ -2356,7 +2455,7 @@ msgstr "GPO"
 
 #: widgets/device_control/js220_ctrl_widget.py:660
 msgid "Clear accum"
-msgstr "누적기 지우기"
+msgstr "적산값 지우기"
 
 #: widgets/efficiency/efficiency_control.py:24
 #: widgets/spectrum/spectrum_control.py:30 widgets/value/value_widget.py:125
@@ -2422,9 +2521,7 @@ msgid "Enable the instrument signals that this widget needs."
 msgstr "이 위젯에 필요한 기기 신호를 활성화하십시오."
 
 #: widgets/efficiency/efficiency_control.py:52
-#: widgets/efficiency/efficiency_widget.py:732
-#: widgets/spectrum/spectrum_control.py:67
-#: widgets/spectrum/spectrum_widget.py:1191 widgets/value/value_widget.py:256
+#: widgets/spectrum/spectrum_control.py:67 widgets/value/value_widget.py:262
 msgid "Hold"
 msgstr "고정"
 
@@ -2658,6 +2755,12 @@ msgstr "서로 다른 입력 및 출력 계측기 선택"
 #, python-brace-format
 msgid "Disabled: {0}"
 msgstr "비활성화됨: {0}"
+
+#: widgets/efficiency/efficiency_widget.py:732
+#: widgets/spectrum/spectrum_widget.py:1191
+msgctxt "state"
+msgid "Hold"
+msgstr "고정됨"
 
 #: widgets/efficiency/efficiency_widget.py:734
 msgid "Curve hold"
@@ -2949,10 +3052,6 @@ msgstr "사용 가능한 RAM 크기"
 msgid "Used RAM size"
 msgstr "사용된 RAM 크기"
 
-#: widgets/memory/memory_widget.py:242
-msgid "Clear on play"
-msgstr "재생 시 지우기"
-
 #: widgets/notes/notes_widget.py:28
 msgid "The notes value."
 msgstr "메모 값입니다."
@@ -3009,6 +3108,12 @@ msgstr "지정된 시간이 지난 후"
 msgid "At a specific time"
 msgstr "특정 시점에"
 
+#: widgets/record_status/record_stop_config_widget.py:31
+#: widgets/serial_console/serial_console_widget.py:72
+msgctxt "clock"
+msgid "Time"
+msgstr "시각"
+
 #: widgets/record_status/record_stop_config_widget.py:32
 msgid "Configure recording stop"
 msgstr "기록 중지 설정"
@@ -3053,13 +3158,9 @@ msgstr "파형에 주석 달기"
 msgid "External Serial..."
 msgstr "외부 직렬..."
 
-#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:796
+#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:802
 msgid "Value"
 msgstr "값"
-
-#: widgets/settings/settings_widget.py:336
-msgid "Color"
-msgstr "색상"
 
 #: widgets/settings/settings_widget.py:443
 msgid "Font"
@@ -3194,6 +3295,14 @@ msgstr "추가 설정 및 작업을 표시하려면 클릭하세요."
 msgid "sidebar"
 msgstr "사이드바"
 
+#: widgets/sidebar/sidebar_widget.py:89
+msgid "Show the separator between widgets."
+msgstr "위젯 사이에 구분선을 표시합니다."
+
+#: widgets/sidebar/sidebar_widget.py:94
+msgid "The size of the separator."
+msgstr "구분선의 크기입니다."
+
 #: widgets/signal_record/disk_full_dialog.py:19
 msgid "The disk is full"
 msgstr "디스크가 꽉 찼습니다."
@@ -3235,7 +3344,7 @@ msgstr "이 옵션을 선택하면 새로운 데이터가 무시되어 스펙트
 
 #: widgets/spectrum/spectrum_control.py:34
 msgid "Clear the average, max hold, min hold, and waterfall history."
-msgstr "평균, 최대 홀드, 최소 홀드 및 워터폴 기록을 지웁니다."
+msgstr "평균, 최대 홀드, 최소 홀드 및 워터폴 이력을 지웁니다."
 
 #: widgets/spectrum/spectrum_control.py:35
 msgid "Select the source device."
@@ -3256,8 +3365,8 @@ msgid ""
 "decimate the signal before the FFT, which improves the resolution bandwidth "
 "for the same FFT length."
 msgstr ""
-"분석되는 주파수 범위. 전체 샘플링 속도보다 좁은 범위의 경우, FFT 전에 신호를 디시메이트(decimate)하여 동일한 FFT "
-"길이에서 분해능 대역폭을 향상시킵니다."
+"분석되는 주파수 스팬. 전체 샘플링 속도보다 좁은 스팬의 경우, FFT 전에 신호를 데시메이션하여 동일한 FFT 길이에서 분해능 대역폭을"
+" 향상시킵니다."
 
 #: widgets/spectrum/spectrum_control.py:43
 #: widgets/spectrum/spectrum_widget.py:97
@@ -3269,11 +3378,6 @@ msgid ""
 "The number of samples in each FFT. Longer FFTs give finer resolution "
 "bandwidth (RBW) but update less often."
 msgstr "각 FFT의 샘플 수입니다. FFT 길이가 길수록 분해능 대역폭(RBW)은 더 정밀해지지만, 업데이트 빈도는 낮아집니다."
-
-#: widgets/spectrum/spectrum_control.py:47
-#: widgets/spectrum/spectrum_widget.py:107
-msgid "Window"
-msgstr "윈도우"
 
 #: widgets/spectrum/spectrum_control.py:48
 msgid ""
@@ -3342,7 +3446,7 @@ msgid ""
 "The span is the sample rate / 2 / this factor. Narrower spans give finer "
 "resolution bandwidth for the same FFT length."
 msgstr ""
-"FFT 전에 신호를 디시메이션하여 분석 주파수 범위를 줄일 수 있습니다. 범위는 샘플링 속도 / 2 / 이 계수로 계산됩니다. 범위가 "
+"FFT 전에 신호를 데시메이션하여 분석 주파수 스팬을 줄일 수 있습니다. 스팬은 샘플링 속도 / 2 / 이 계수로 계산됩니다. 스팬이 "
 "좁을수록 동일한 FFT 길이에서 더 정밀한 분해능 대역폭을 얻을 수 있습니다."
 
 #: widgets/spectrum/spectrum_widget.py:98
@@ -3423,11 +3527,11 @@ msgstr "평균 끄기"
 
 #: widgets/spectrum/spectrum_widget.py:149
 msgid "Avg exp"
-msgstr "평균 지수"
+msgstr "지수 평균"
 
 #: widgets/spectrum/spectrum_widget.py:150
 msgid "Avg cumul"
-msgstr "평균 누적"
+msgstr "누적 평균"
 
 #: widgets/spectrum/spectrum_widget.py:154
 msgid "Average count"
@@ -3516,7 +3620,7 @@ msgstr "워터폴 메모리 (MB)"
 msgid ""
 "The maximum waterfall history memory. Long FFTs with many rows may reduce "
 "the waterfall duration."
-msgstr "최대 워터폴 기록 메모리 용량. 행 수가 많은 긴 FFT는 워터폴 표시 시간을 단축시킬 수 있습니다."
+msgstr "최대 워터폴 이력 메모리 용량. 행 수가 많은 긴 FFT는 워터폴 표시 시간을 단축시킬 수 있습니다."
 
 #: widgets/spectrum/spectrum_widget.py:249
 msgid "Waterfall colormap"
@@ -3725,6 +3829,14 @@ msgstr "범위 밖"
 msgid "The source instrument."
 msgstr "소스 계측기."
 
+#: widgets/trigger/trigger_widget.py:169
+msgid "The trigger mode."
+msgstr "트리거 모드입니다."
+
+#: widgets/trigger/trigger_widget.py:189
+msgid "The trigger configuration."
+msgstr "트리거 구성입니다."
+
 #: widgets/trigger/trigger_widget.py:219
 msgid "Type"
 msgstr "유형"
@@ -3861,7 +3973,7 @@ msgid ""
 "selected)."
 msgstr ""
 "표시된 값은 일반적으로 장치에서 계산된 새로운 통계 데이터에 따라 업데이트됩니다. 이 버튼을 선택하면 디스플레이가 업데이트되지 않습니다."
-" 그러나 통계는 계속 누적되며, (선택한 경우) 누적(accrue)도 계속됩니다."
+" 그러나 통계의 적산은 계속되며, (선택한 경우) 누적도 계속됩니다."
 
 #: widgets/value/value_widget.py:138
 msgid "Manual prefix active"
@@ -3899,25 +4011,25 @@ msgstr ""
 msgid ""
 "Note that this button does not affect the charge and energy accumulation. "
 "Both accumulate indefinitely regardless of this button state."
-msgstr "이 버튼은 전하 및 에너지 누적에 영향을 주지 않습니다. 둘 다 이 버튼 상태에 관계없이 무기한으로 누적됩니다."
+msgstr "이 버튼은 전하 및 에너지 적산에 영향을 주지 않습니다. 둘 다 이 버튼 상태에 관계없이 무기한으로 적산됩니다."
 
-#: widgets/value/value_widget.py:236
+#: widgets/value/value_widget.py:242
 msgid "Not present"
 msgstr "현재 없음"
 
-#: widgets/value/value_widget.py:264
+#: widgets/value/value_widget.py:270
 msgid "Accrue"
 msgstr "누적"
 
-#: widgets/value/value_widget.py:600 widgets/waveform/waveform_widget.py:3808
+#: widgets/value/value_widget.py:606 widgets/waveform/waveform_widget.py:3808
 msgid "Preferred prefix"
 msgstr "선호 접두사"
 
-#: widgets/value/value_widget.py:605
+#: widgets/value/value_widget.py:611
 msgid "auto"
 msgstr "자동"
 
-#: widgets/value/value_widget.py:607
+#: widgets/value/value_widget.py:613
 msgid "none"
 msgstr "없음"
 
@@ -3979,6 +4091,10 @@ msgstr "수동"
 msgid "Centered"
 msgstr "중앙"
 
+#: widgets/waveform/text_annotation.py:91
+msgid "Edit annotation"
+msgstr "주석 편집"
+
 #: widgets/waveform/text_annotation.py:101
 #: widgets/waveform/waveform_widget.py:3890
 msgid "Text"
@@ -4016,13 +4132,13 @@ msgstr "X축 또는 플롯 영역에서 마우스 오른쪽 버튼을 클릭하�
 
 #: widgets/waveform/waveform_control.py:40
 msgid "Click to add a dual markers to the waveform."
-msgstr "파형에 이중 마커를 추가하려면 클릭합니다."
+msgstr "파형에 듀얼 마커를 추가하려면 클릭합니다."
 
 #: widgets/waveform/waveform_control.py:42
 msgid ""
 "You can also add a dual markers by right-clicking on the x-axis or in the "
 "plot area."
-msgstr "X축 또는 플롯 영역에서 마우스 오른쪽 버튼을 클릭하여 이중 마커를 추가할 수도 있습니다."
+msgstr "X축 또는 플롯 영역에서 마우스 오른쪽 버튼을 클릭하여 듀얼 마커를 추가할 수도 있습니다."
 
 #: widgets/waveform/waveform_control.py:47
 msgid "Clear all markers"
@@ -4032,7 +4148,7 @@ msgstr "모든 마커 지우기"
 msgid ""
 "Click to clear all markers from the waveform. This operation removes both "
 "single markers and dual markers."
-msgstr "파형에서 모든 마커를 지우려면 클릭합니다. 이 작업은 단일 마커와 이중 마커를 모두 제거합니다."
+msgstr "파형에서 모든 마커를 지우려면 클릭합니다. 이 작업은 단일 마커와 듀얼 마커를 모두 제거합니다."
 
 #: widgets/waveform/waveform_control.py:53
 msgid "Zoom in"
@@ -4145,6 +4261,22 @@ msgstr "신호 표시/숨기기"
 #: widgets/waveform/waveform_control.py:113
 msgid "Click to toggle the signal axis display in the Waveform widget."
 msgstr "파형 위젯에서 신호 축 표시를 전환하려면 클릭합니다."
+
+#: widgets/waveform/waveform_control.py:138
+msgid "Markers:"
+msgstr "마커:"
+
+#: widgets/waveform/waveform_control.py:146
+msgid "X-Axis:"
+msgstr "X축:"
+
+#: widgets/waveform/waveform_control.py:162
+msgid "Min/Max:"
+msgstr "최소/최대:"
+
+#: widgets/waveform/waveform_control.py:173
+msgid "Signals:"
+msgstr "신호:"
 
 #: widgets/waveform/waveform_source_widget.py:30
 msgid "Enable trace"

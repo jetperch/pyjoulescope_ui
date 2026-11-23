@@ -245,6 +245,10 @@ msgstr ""
 msgid "Prompt to switch from Intel graphics to software renderer."
 msgstr ""
 
+#: disk_monitor.py:33
+msgid "The free threshold for declaring fullness"
+msgstr ""
+
 #: devices/serial/serial_port_dialog.py:181
 #: devices/serial/serial_port_dialog.py:203 error_dialog.py:42
 #: error_window.py:311
@@ -659,6 +663,18 @@ msgid ""
 "options."
 msgstr ""
 
+#: jls_source.py:110
+msgid "The name for this JLS stream buffer source"
+msgstr ""
+
+#: jls_source.py:115
+msgid "The file path."
+msgstr ""
+
+#: jls_source.py:120
+msgid "The user notes."
+msgstr ""
+
 #: locale_dialog.py:21
 msgid "Select a language"
 msgstr ""
@@ -667,7 +683,7 @@ msgstr ""
 msgid "The application will automatically close when you change the locale."
 msgstr ""
 
-#: main.py:79 widgets/value/value_widget.py:787
+#: main.py:79 widgets/value/value_widget.py:793
 msgid "Multimeter"
 msgstr ""
 
@@ -1010,6 +1026,8 @@ msgid "Copy to clipboard"
 msgstr ""
 
 #: software_update.py:334 widgets/device_control/device_update_dialog.py:44
+#: widgets/view_manager/view_manager_widget.py:136
+#: widgets/waveform/text_annotation.py:168
 msgid "OK"
 msgstr ""
 
@@ -1695,6 +1713,20 @@ msgstr ""
 msgid "Buffer memory duration in seconds"
 msgstr ""
 
+#: devices/jsdrv/jsdrv_stream_buffer.py:72 widgets/memory/memory_widget.py:242
+msgid "Clear on play"
+msgstr ""
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:73
+msgid ""
+"When signal sample streaming is paused, the stream buffer pauses sample "
+"accumulation. This setting controls what happens on play when streaming "
+"resumes. When unset, the buffer continues to accumulate samples into the "
+"existing buffer data. This mode treats the pause duration as missing "
+"samples. When set, the buffer is cleared and all prior data is purged. The "
+"buffer functions as if sample streaming started for the first time."
+msgstr ""
+
 #: devices/jsdrv/jsdrv_stream_buffer.py:94
 msgid "Source name"
 msgstr ""
@@ -1797,6 +1829,14 @@ msgstr ""
 msgid "Invalid baud rate"
 msgstr ""
 
+#: plugins/manager.py:59
+msgid "Monitor a plugin for changes"
+msgstr ""
+
+#: plugins/manager.py:64
+msgid "Monitor reload delay from filesystem changes in milliseconds."
+msgstr ""
+
 #: plugins/selector.py:32
 msgid "Plugins"
 msgstr ""
@@ -1831,12 +1871,25 @@ msgid ""
 "change in the y-axis value."
 msgstr ""
 
+#: range_tools/cdf.py:76
+msgid "Hold the data"
+msgstr ""
+
 #: range_tools/cdf.py:147
 msgid "Probability"
 msgstr ""
 
 #: range_tools/cdf.py:168
 msgid "CDF configuration"
+msgstr ""
+
+#: range_tools/cdf.py:175 range_tools/frequency.py:194
+#: range_tools/histogram.py:44 range_tools/max_window.py:109
+#: widgets/spectrum/spectrum_control.py:36
+#: widgets/spectrum/spectrum_widget.py:1071
+#: widgets/trigger/trigger_widget.py:220
+#: widgets/waveform/waveform_widget.py:4417
+msgid "Signal"
 msgstr ""
 
 #: range_tools/cdf.py:182 range_tools/histogram.py:50
@@ -1861,8 +1914,25 @@ msgid ""
 "signal's data values over the selected range."
 msgstr ""
 
+#: range_tools/frequency.py:94 range_tools/histogram.py:103
+msgid "Hold the histogram data"
+msgstr ""
+
 #: range_tools/frequency.py:187
 msgid "Frequency configuration"
+msgstr ""
+
+#: range_tools/frequency.py:203 widgets/spectrum/spectrum_control.py:47
+#: widgets/spectrum/spectrum_widget.py:107
+msgid "Window"
+msgstr ""
+
+#: range_tools/frequency.py:214
+msgid "FFT Length"
+msgstr ""
+
+#: range_tools/frequency.py:225
+msgid "Overlap %"
 msgstr ""
 
 #: range_tools/histogram.py:24
@@ -1879,13 +1949,6 @@ msgstr ""
 
 #: range_tools/histogram.py:28
 msgid "Probability Density Distribution"
-msgstr ""
-
-#: range_tools/histogram.py:44 range_tools/max_window.py:109
-#: widgets/spectrum/spectrum_control.py:36
-#: widgets/spectrum/spectrum_widget.py:1071
-#: widgets/trigger/trigger_widget.py:220
-msgid "Signal"
 msgstr ""
 
 #: range_tools/histogram.py:56
@@ -1947,6 +2010,10 @@ msgid ""
 "for analysis."
 msgstr ""
 
+#: styles/color_editor.py:75 widgets/settings/settings_widget.py:336
+msgid "Color"
+msgstr ""
+
 #: styles/color_scheme.py:21
 msgid "dark"
 msgstr ""
@@ -1969,6 +2036,32 @@ msgstr ""
 
 #: styles/font_scheme.py:22
 msgid "Joulescope default font scheme"
+msgstr ""
+
+#: tcp_server/__init__.py:41
+msgid "Enable TCP server"
+msgstr ""
+
+#: tcp_server/__init__.py:42
+msgid ""
+"When enabled, a TCP socket server listens for connections from external "
+"processes."
+msgstr ""
+
+#: tcp_server/__init__.py:47
+msgid "Server bind address"
+msgstr ""
+
+#: tcp_server/__init__.py:48
+msgid "The network interface to bind to. Use 127.0.0.1 for localhost only."
+msgstr ""
+
+#: tcp_server/__init__.py:53
+msgid "Server TCP port"
+msgstr ""
+
+#: tcp_server/__init__.py:54
+msgid "The TCP port number for the server."
 msgstr ""
 
 #: widgets/accumulator/accumulator_widget.py:27
@@ -2045,6 +2138,10 @@ msgstr ""
 msgid "Device Control"
 msgstr ""
 
+#: widgets/device_control/device_info_dialog.py:30
+msgid "Device Information"
+msgstr ""
+
 #: widgets/device_control/device_update_dialog.py:24
 #: widgets/device_control/device_update_dialog.py:45
 msgid "Update"
@@ -2097,6 +2194,7 @@ msgstr ""
 #: widgets/device_control/device_update_dialog.py:43
 #: widgets/js220_cal/js220_cal_widget.py:37
 #: widgets/js320_cal/js320_cal_widget.py:59
+#: widgets/waveform/text_annotation.py:167
 msgid "Cancel"
 msgstr ""
 
@@ -2177,8 +2275,6 @@ msgid "Fuse response"
 msgstr ""
 
 #: widgets/device_control/fuse.py:102
-#: widgets/record_status/record_stop_config_widget.py:31
-#: widgets/serial_console/serial_console_widget.py:72
 msgid "Time"
 msgstr ""
 
@@ -2345,9 +2441,7 @@ msgid "Enable the instrument signals that this widget needs."
 msgstr ""
 
 #: widgets/efficiency/efficiency_control.py:52
-#: widgets/efficiency/efficiency_widget.py:732
-#: widgets/spectrum/spectrum_control.py:67
-#: widgets/spectrum/spectrum_widget.py:1191 widgets/value/value_widget.py:256
+#: widgets/spectrum/spectrum_control.py:67 widgets/value/value_widget.py:262
 msgid "Hold"
 msgstr ""
 
@@ -2576,6 +2670,12 @@ msgstr ""
 #: widgets/efficiency/efficiency_widget.py:729
 #, python-brace-format
 msgid "Disabled: {0}"
+msgstr ""
+
+#: widgets/efficiency/efficiency_widget.py:732
+#: widgets/spectrum/spectrum_widget.py:1191
+msgctxt "state"
+msgid "Hold"
 msgstr ""
 
 #: widgets/efficiency/efficiency_widget.py:734
@@ -2866,10 +2966,6 @@ msgstr ""
 msgid "Used RAM size"
 msgstr ""
 
-#: widgets/memory/memory_widget.py:242
-msgid "Clear on play"
-msgstr ""
-
 #: widgets/notes/notes_widget.py:28
 msgid "The notes value."
 msgstr ""
@@ -2926,6 +3022,12 @@ msgstr ""
 msgid "At a specific time"
 msgstr ""
 
+#: widgets/record_status/record_stop_config_widget.py:31
+#: widgets/serial_console/serial_console_widget.py:72
+msgctxt "clock"
+msgid "Time"
+msgstr ""
+
 #: widgets/record_status/record_stop_config_widget.py:32
 msgid "Configure recording stop"
 msgstr ""
@@ -2970,12 +3072,8 @@ msgstr ""
 msgid "External Serial..."
 msgstr ""
 
-#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:796
+#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:802
 msgid "Value"
-msgstr ""
-
-#: widgets/settings/settings_widget.py:336
-msgid "Color"
 msgstr ""
 
 #: widgets/settings/settings_widget.py:443
@@ -3107,6 +3205,14 @@ msgstr ""
 msgid "sidebar"
 msgstr ""
 
+#: widgets/sidebar/sidebar_widget.py:89
+msgid "Show the separator between widgets."
+msgstr ""
+
+#: widgets/sidebar/sidebar_widget.py:94
+msgid "The size of the separator."
+msgstr ""
+
 #: widgets/signal_record/disk_full_dialog.py:19
 msgid "The disk is full"
 msgstr ""
@@ -3179,11 +3285,6 @@ msgstr ""
 msgid ""
 "The number of samples in each FFT. Longer FFTs give finer resolution "
 "bandwidth (RBW) but update less often."
-msgstr ""
-
-#: widgets/spectrum/spectrum_control.py:47
-#: widgets/spectrum/spectrum_widget.py:107
-msgid "Window"
 msgstr ""
 
 #: widgets/spectrum/spectrum_control.py:48
@@ -3619,6 +3720,14 @@ msgstr ""
 msgid "The source instrument."
 msgstr ""
 
+#: widgets/trigger/trigger_widget.py:169
+msgid "The trigger mode."
+msgstr ""
+
+#: widgets/trigger/trigger_widget.py:189
+msgid "The trigger configuration."
+msgstr ""
+
 #: widgets/trigger/trigger_widget.py:219
 msgid "Type"
 msgstr ""
@@ -3788,23 +3897,23 @@ msgid ""
 "Both accumulate indefinitely regardless of this button state."
 msgstr ""
 
-#: widgets/value/value_widget.py:236
+#: widgets/value/value_widget.py:242
 msgid "Not present"
 msgstr ""
 
-#: widgets/value/value_widget.py:264
+#: widgets/value/value_widget.py:270
 msgid "Accrue"
 msgstr ""
 
-#: widgets/value/value_widget.py:600 widgets/waveform/waveform_widget.py:3808
+#: widgets/value/value_widget.py:606 widgets/waveform/waveform_widget.py:3808
 msgid "Preferred prefix"
 msgstr ""
 
-#: widgets/value/value_widget.py:605
+#: widgets/value/value_widget.py:611
 msgid "auto"
 msgstr ""
 
-#: widgets/value/value_widget.py:607
+#: widgets/value/value_widget.py:613
 msgid "none"
 msgstr ""
 
@@ -3864,6 +3973,10 @@ msgstr ""
 
 #: widgets/waveform/text_annotation.py:68
 msgid "Centered"
+msgstr ""
+
+#: widgets/waveform/text_annotation.py:91
+msgid "Edit annotation"
 msgstr ""
 
 #: widgets/waveform/text_annotation.py:101
@@ -4029,6 +4142,22 @@ msgstr ""
 
 #: widgets/waveform/waveform_control.py:113
 msgid "Click to toggle the signal axis display in the Waveform widget."
+msgstr ""
+
+#: widgets/waveform/waveform_control.py:138
+msgid "Markers:"
+msgstr ""
+
+#: widgets/waveform/waveform_control.py:146
+msgid "X-Axis:"
+msgstr ""
+
+#: widgets/waveform/waveform_control.py:162
+msgid "Min/Max:"
+msgstr ""
+
+#: widgets/waveform/waveform_control.py:173
+msgid "Signals:"
 msgstr ""
 
 #: widgets/waveform/waveform_source_widget.py:30

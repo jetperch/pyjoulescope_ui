@@ -4414,7 +4414,7 @@ class WaveformWidget(QtWidgets.QWidget):
     def _menu_summary(self, event: QtGui.QMouseEvent):
         self._log.info('_menu_summary(%s)', event.position())
         menu = QtWidgets.QMenu('Waveform summary context menu', self)
-        signal_menu = QtWidgets.QMenu('Signal', menu)
+        signal_menu = QtWidgets.QMenu(N_('Signal'), menu)
         menu.addMenu(signal_menu)
         selected = self.summary_quantity
         for plot in self.state['plots']:

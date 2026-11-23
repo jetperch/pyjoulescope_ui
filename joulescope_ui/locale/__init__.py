@@ -127,5 +127,20 @@ def C_(context: str, txt: str) -> str:
     return translate.pgettext(context, txt)
 
 
+_RTL_LANGUAGES = ('ar', 'fa', 'he', 'ur')
+
+
+def is_rtl() -> bool:
+    """Check if the active translation is a right-to-left language.
+
+    Qt sets the layout direction from its own translator, which this
+    application does not use, so the application sets it from this value.
+    """
+    if not isinstance(translate, gettext.GNUTranslations):
+        return False  # no catalog loaded, so the UI shows English
+    lang = languages[0].replace('-', '_').split('_')[0].lower()
+    return lang in _RTL_LANGUAGES
+
+
 def locale_get():
     return _locale_str

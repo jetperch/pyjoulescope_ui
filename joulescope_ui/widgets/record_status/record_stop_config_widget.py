@@ -15,7 +15,7 @@
 """Dialog to schedule when an in-progress recording should automatically stop."""
 
 from PySide6 import QtCore, QtWidgets
-from joulescope_ui import N_, pubsub_singleton, time64
+from joulescope_ui import C_, N_, pubsub_singleton, time64
 from joulescope_ui.units import elapsed_time_formatter
 from joulescope_ui.widgets.waveform.interval_widget import IntervalWidget
 import logging
@@ -28,7 +28,7 @@ _MODE_NONE = N_('When manually stopped')
 _MODE_DURATION = N_('After a duration')
 _MODE_TIME = N_('At a specific time')
 _DURATION = N_('Duration')
-_TIME = N_('Time')
+_TIME = C_('clock', 'Time')
 _TITLE = N_('Configure recording stop')
 _PAST_ERROR = N_('The selected stop time is in the past.')
 

@@ -51,6 +51,13 @@ This file contains the list of changes made to pyjoulescope_ui.
   now translated in every source menu and selector.
 * Fixed the Histogram dialog and the Value widget device selector relying
   on displayed (translated) text.
+* Translated UI text that was previously hardcoded in English, including
+  the Waveform control bar (Markers, X-Axis, Min/Max, Signals), the
+  Frequency and CDF dialogs, the annotation editor, and several settings
+  tooltips.
+* Checked the terminology of every translation against localized test
+  instrument manuals and platform conventions, and corrected 210 entries.
+* Arabic now uses a right-to-left layout.
 
 
 ## 1.8.1

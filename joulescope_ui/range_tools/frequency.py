@@ -91,7 +91,7 @@ class FrequencyRangeToolWidget(QtWidgets.QWidget):
     SETTINGS = {
         'data': {
             'dtype': 'obj',
-            'brief': 'Hold the histogram data',
+            'brief': N_('Hold the histogram data'),
             'default': None,
             'flags': ['hide'],
         }
@@ -191,7 +191,7 @@ class FrequencyRangeToolDialog(QtWidgets.QDialog):
         self._layout = QtWidgets.QGridLayout()
 
         self._signal_label = QtWidgets.QLabel(self)
-        self._signal_label.setText("Signal")
+        self._signal_label.setText(N_("Signal"))
         self._layout.addWidget(self._signal_label, 0, 0, 1, 1)
 
         self._signal = QtWidgets.QComboBox(self)
@@ -200,7 +200,7 @@ class FrequencyRangeToolDialog(QtWidgets.QDialog):
         self._layout.addWidget(self._signal, 0, 1, 1, 1)
 
         self._windowLabel = QtWidgets.QLabel(self)
-        self._windowLabel.setText("Window")
+        self._windowLabel.setText(N_("Window"))
         self._layout.addWidget(self._windowLabel, 1, 0, 1, 1)
 
         self._window = QtWidgets.QComboBox(self)
@@ -211,7 +211,7 @@ class FrequencyRangeToolDialog(QtWidgets.QDialog):
         self._layout.addWidget(self._window, 1, 1, 1, 1)
 
         self._fftLengthLabel = QtWidgets.QLabel(self)
-        self._fftLengthLabel.setText('FFT Length')
+        self._fftLengthLabel.setText(N_('FFT Length'))
         self._layout.addWidget(self._fftLengthLabel, 2, 0, 1, 1)
 
         self._fft_length = QtWidgets.QComboBox(self)
@@ -222,7 +222,7 @@ class FrequencyRangeToolDialog(QtWidgets.QDialog):
         self._layout.addWidget(self._fft_length, 2, 1, 1, 1)
 
         self._overlapLabel = QtWidgets.QLabel(self)
-        self._overlapLabel.setText('Overlap %')
+        self._overlapLabel.setText(N_('Overlap %'))
         self._layout.addWidget(self._overlapLabel, 3, 0, 1, 1)
 
         self._overlapSpin = QtWidgets.QSpinBox(self)
