@@ -2523,7 +2523,7 @@ msgstr "이 위젯에 필요한 기기 신호를 활성화하십시오."
 #: widgets/efficiency/efficiency_control.py:52
 #: widgets/spectrum/spectrum_control.py:67 widgets/value/value_widget.py:262
 msgid "Hold"
-msgstr "고정"
+msgstr "홀드"
 
 #: widgets/efficiency/efficiency_plot.py:215
 msgid "invalid"
@@ -2760,7 +2760,7 @@ msgstr "비활성화됨: {0}"
 #: widgets/spectrum/spectrum_widget.py:1191
 msgctxt "state"
 msgid "Hold"
-msgstr "고정됨"
+msgstr "홀드 중"
 
 #: widgets/efficiency/efficiency_widget.py:734
 msgid "Curve hold"

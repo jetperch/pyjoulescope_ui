@@ -3646,7 +3646,7 @@ msgstr "Επιλέξτε το σήμα που θέλετε να αναλύσετ
 #: widgets/spectrum/spectrum_control.py:38
 #: widgets/spectrum/spectrum_widget.py:87
 msgid "Span"
-msgstr "Εύρος"
+msgstr "Εύρος συχνοτήτων"
 
 #: widgets/spectrum/spectrum_control.py:39
 msgid ""

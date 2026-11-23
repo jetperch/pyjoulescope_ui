@@ -2077,7 +2077,7 @@ msgstr "Velocidad de transmisión no válida"
 
 #: plugins/manager.py:59
 msgid "Monitor a plugin for changes"
-msgstr "Supervisar los cambios de un plugin"
+msgstr "Supervisar los cambios de un complemento"
 
 #: plugins/manager.py:64
 msgid "Monitor reload delay from filesystem changes in milliseconds."
@@ -2086,7 +2086,7 @@ msgstr ""
 
 #: plugins/selector.py:32
 msgid "Plugins"
-msgstr "Plugins"
+msgstr "Complementos"
 
 #: plugins/selector.py:59 widgets/device_control/device_update_dialog.py:26
 msgid "Version"

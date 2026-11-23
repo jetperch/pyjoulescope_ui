@@ -69,23 +69,20 @@ terminology, which is weaker evidence.
 
 ## Open questions
 
-- **Settings row names.**  The Settings widget labels each row with the
-  raw setting key (for example `target_power`), in every language; only
-  the tooltip is translated.  Showing the translated brief instead would
-  localize the widget, but it changes the existing design.
-- **Label length.**  Screenshots of the Multimeter and Oscilloscope views
-  in all nine languages show no truncation that English does not also
-  have.  Other dialogs were not captured.
-- **Preference calls** (all defensible either way):
-  - es: "Plugins" vs Microsoft's "Complementos"; "Cascada" vs
-    "Espectrograma".
-  - it: "marcatore" vs the R&S Italian loanword "marker".
-  - fr: "fréquence d'échantillonnage" vs R&S "taux d'échantillonnage".
-  - de: "Statistikfrequenz" vs "Statistikrate".
-  - el: Span and Range are both "Εύρος", in different widgets.
-  - ko, ar: Hold and Pin share one word, in different widgets.
-  - zh: 友好名称 vs 显示名称 for "Friendly name".
-  - ar: راسم الذبذبات vs راسم إشارة for Oscilloscope.
+- **Settings row names** stay as the English setting keys by design.  Only
+  the tooltips are translated.
+- **Display audit.**  Screens beyond the two main views have not been
+  checked in each language.  See
+  [translation_display_audit.md](translation_display_audit.md).
+- **Preference calls, decided 2026-11-23.**  Changed: ko Hold → 홀드
+  (matches 최대 홀드 in the same widget), el Span → Εύρος συχνοτήτων (no
+  longer the same as Range), zh Friendly name → 显示名称 (the calque
+  友好名称 reads poorly), es Plugins → Complementos (Microsoft, Firefox,
+  and Chrome use it).  Kept, because each is consistent and defensible:
+  es "Cascada", it "marcatore", fr "fréquence d'échantillonnage", de
+  "Statistikfrequenz", ar Hold/Pin تثبيت and راسم الذبذبات.
+- **Weaker evidence.**  el and ar have no localized instrument UIs online,
+  so they need native review most.
 
 
 ## Native-speaker feedback (proposal)
