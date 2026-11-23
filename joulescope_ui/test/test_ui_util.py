@@ -24,7 +24,7 @@ os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
 
 from PySide6 import QtWidgets
 from PySide6.QtOpenGLWidgets import QOpenGLWidget
-from joulescope_ui.ui_util import NormalSizeTracker, prepare_for_opengl
+from joulescope_ui.ui_util import NormalSizeTracker, comboBoxConfig, prepare_for_opengl
 
 
 class TestPrepareForOpengl(unittest.TestCase):
@@ -119,3 +119,39 @@ class TestNormalSizeTracker(unittest.TestCase):
         self.t.on_state(False)
         self.t.on_state(True)
         self.window.resize.assert_not_called()
+
+
+class TestComboBoxConfig(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls._app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+
+    def setUp(self):
+        self.box = QtWidgets.QComboBox()
+
+    def test_default(self):
+        self.assertEqual('b', comboBoxConfig(self.box, ['a', 'b', 'c'], 'b'))
+        self.assertEqual(1, self.box.currentIndex())
+
+    def test_invalid_default_selects_first(self):
+        self.assertEqual('a', comboBoxConfig(self.box, ['a', 'b'], 'z'))
+        self.assertEqual(0, self.box.currentIndex())
+
+    def test_keep_current_value(self):
+        comboBoxConfig(self.box, ['a', 'b', 'c'], 'c')
+        self.assertEqual('c', comboBoxConfig(self.box, ['c', 'd']))
+        self.assertEqual(0, self.box.currentIndex())
+
+    def test_keep_index_with_duplicate_text(self):
+        # German once translated both "Current" and "Power" to "Strom".
+        values = ['Strom', 'Spannung', 'Strom']
+        comboBoxConfig(self.box, values)
+        for index in [0, 2]:
+            self.box.setCurrentIndex(index)
+            comboBoxConfig(self.box, values)
+            self.assertEqual(index, self.box.currentIndex())
+
+    def test_iterable_values(self):
+        comboBoxConfig(self.box, {'x': 'a', 'y': 'b'}.values(), 'b')
+        self.assertEqual(1, self.box.currentIndex())

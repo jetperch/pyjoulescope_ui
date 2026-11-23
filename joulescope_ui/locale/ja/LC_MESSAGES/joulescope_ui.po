@@ -1369,7 +1369,7 @@ msgstr "電圧信号ストリーミングを有効にします。"
 #: devices/jsdrv/js110.py:287 devices/jsdrv/js220.py:453
 #: devices/jsdrv/js320.py:433 widgets/waveform/waveform_widget.py:117
 msgid "Power"
-msgstr "パワー"
+msgstr "電力"
 
 #: devices/jsdrv/js110.py:288 devices/jsdrv/js220.py:454
 #: devices/jsdrv/js320.py:434

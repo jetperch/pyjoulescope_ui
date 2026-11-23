@@ -43,21 +43,29 @@ def comboBoxConfig(comboBox, values, default=None):
         item.
     :return: The new text value for the combobox.
     """
+    values = list(values)
     if default is not None and default not in values:
         log.warning('Ignoring default value "%s" since it is not in values: %s' % (default, values))
         default = None
+    default_index = None
     if default is None and comboBox.count():
-        # attempt to keep the previous value
+        # attempt to keep the previous value.  Prefer the same index so that
+        # duplicate display strings (such as translations) keep the selection.
         currentValue = str(comboBox.currentText())
-        if currentValue in values:
+        currentIndex = comboBox.currentIndex()
+        if 0 <= currentIndex < len(values) and values[currentIndex] == currentValue:
+            default_index = currentIndex
+        elif currentValue in values:
             default = currentValue
+    if default_index is None and default is not None:
+        default_index = values.index(default)
 
     block_state = comboBox.blockSignals(True)
     comboBox.clear()
     for value in values:
         comboBox.addItem(value)
-        if value == default:
-            comboBox.setCurrentIndex(comboBox.count() - 1)
+    if default_index is not None:
+        comboBox.setCurrentIndex(default_index)
     comboBox.blockSignals(block_state)
     return str(comboBox.currentText())
 

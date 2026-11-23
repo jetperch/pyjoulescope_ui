@@ -1498,7 +1498,7 @@ msgstr "Aktivieren Sie das Stromsignal-Streaming."
 #: devices/jsdrv/js110.py:278 devices/jsdrv/js220.py:444
 #: devices/jsdrv/js320.py:424 widgets/waveform/waveform_widget.py:116
 msgid "Voltage"
-msgstr "Voltage"
+msgstr "Spannung"
 
 #: devices/jsdrv/js110.py:279 devices/jsdrv/js220.py:445
 #: devices/jsdrv/js320.py:425
@@ -1508,12 +1508,12 @@ msgstr "Aktivieren Sie das Streaming von Spannungssignalen."
 #: devices/jsdrv/js110.py:287 devices/jsdrv/js220.py:453
 #: devices/jsdrv/js320.py:433 widgets/waveform/waveform_widget.py:117
 msgid "Power"
-msgstr "Strom"
+msgstr "Leistung"
 
 #: devices/jsdrv/js110.py:288 devices/jsdrv/js220.py:454
 #: devices/jsdrv/js320.py:434
 msgid "Enable the power signal streaming."
-msgstr "Aktivieren Sie das Stromsignal-Streaming."
+msgstr "Aktivieren Sie das Leistungssignal-Streaming."
 
 #: devices/jsdrv/js110.py:296 devices/jsdrv/js220.py:462
 #: devices/jsdrv/js320.py:442

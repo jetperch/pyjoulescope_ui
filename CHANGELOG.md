@@ -30,6 +30,13 @@ This file contains the list of changes made to pyjoulescope_ui.
   The source package compiled its Qt resources with zstd compression on
   Linux, but the macOS PySide6 Qt has no zstd support, so it rejected
   them.  The resources now use zlib, which every Qt build supports.
+* Fixed the trigger widget selecting the wrong signal when two signals
+  share the same translated name.  German translated both "Current" and
+  "Power" to "Strom", so selecting current jumped to power.  Combo boxes
+  now keep the selected entry by position, not just by text.
+* Fixed signal name translations: German "Power" is now "Leistung" and
+  "Voltage" is now "Spannung", Arabic "Power" no longer matches "Energy",
+  and Japanese and Korean "Power" now match the lowercase translation.
 
 
 ## 1.8.1

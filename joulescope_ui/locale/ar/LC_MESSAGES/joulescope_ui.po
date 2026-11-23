@@ -1449,12 +1449,12 @@ msgstr "تمكين تدفق إشارة الجهد."
 #: devices/jsdrv/js110.py:287 devices/jsdrv/js220.py:453
 #: devices/jsdrv/js320.py:433 widgets/waveform/waveform_widget.py:117
 msgid "Power"
-msgstr "الطاقة"
+msgstr "القدرة"
 
 #: devices/jsdrv/js110.py:288 devices/jsdrv/js220.py:454
 #: devices/jsdrv/js320.py:434
 msgid "Enable the power signal streaming."
-msgstr "تمكين تدفق إشارة الطاقة."
+msgstr "تمكين تدفق إشارة القدرة."
 
 #: devices/jsdrv/js110.py:296 devices/jsdrv/js220.py:462
 #: devices/jsdrv/js320.py:442
@@ -2585,7 +2585,7 @@ msgstr "الكفاءة"
 
 #: widgets/efficiency/efficiency_widget.py:43
 msgid "power"
-msgstr "الطاقة"
+msgstr "القدرة"
 
 #: widgets/efficiency/efficiency_widget.py:43
 msgid "current"
