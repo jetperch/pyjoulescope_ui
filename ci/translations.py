@@ -48,6 +48,10 @@ The Joulescope JS220 streamlines low-power design, providing clear and immediate
 With seamless measurements from 1 nA to ±10 A across sleep and active modes, \
 Joulescope is the right tool for designing modern low-power and battery-powered products. \
 Current means electrical current in this context. \
+Power means electrical power in watts, which differs from current and energy. \
+Charge means electric charge. A sample is a measurement sample. \
+A source is a connected instrument or a data file. A signal is a measurement channel. \
+Short text is a user interface label, menu item, or button. \
 """
 
 with open(os.path.join(_PATH, 'joulescope_ui', 'version.py'), 'rt') as f:

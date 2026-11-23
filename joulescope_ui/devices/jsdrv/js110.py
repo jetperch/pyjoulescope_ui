@@ -146,7 +146,7 @@ _SETTINGS_CLASS = {
         'dtype': 'int',
         'brief': N_('Current range'),
         'detail': P_([
-            N_("""Configure the J110's current range.  Most applications should
+            N_("""Configure the JS110's current range.  Most applications should
             use the default, "auto"."""),
             N_("""Use the other manual settings with care.  It is very easy to
             configure a setting that saturates, which will ignore regions

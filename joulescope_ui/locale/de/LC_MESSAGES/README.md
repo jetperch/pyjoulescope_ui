@@ -1,3 +1,5 @@
-
 This file is being reviewed as time allows.
-The furthest human review goes from the beginning through line 511.
+
+* 2024: A human reviewer corrected the beginning of the catalog.
+* 2026 Nov: All entries were audited against the UI source for meaning,
+  terminology, and consistency.  A native-speaker review is still welcome.

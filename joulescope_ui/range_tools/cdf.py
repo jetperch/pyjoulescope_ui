@@ -185,7 +185,7 @@ class CdfRangeToolDialog(QtWidgets.QDialog):
         self._num_bins.setMaximum(1000)
         self._layout.addWidget(self._num_bins, 1, 1, 1, 1)
 
-        self._complimentary_label = QtWidgets.QLabel(N_('Complimentary'), self)
+        self._complimentary_label = QtWidgets.QLabel(N_('Complementary'), self)
         self._layout.addWidget(self._complimentary_label, 2, 0, 1, 1)
         self._complimentary = QtWidgets.QCheckBox(self)
         self._complimentary.setCheckable(True)

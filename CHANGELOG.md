@@ -37,6 +37,14 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Fixed signal name translations: German "Power" is now "Leistung" and
   "Voltage" is now "Spannung", Arabic "Power" no longer matches "Energy",
   and Japanese and Korean "Power" now match the lowercase translation.
+* Audited all nine translations against the UI source and corrected about
+  1,850 entries.  The original machine translation had no UI context, so
+  many short labels had the wrong meaning: "Clear" as "transparent",
+  "Min hold" as "my team", "Edge" as "border", "charge" as "charging",
+  "Zoom out" as "Zoom in", and "stream" as electric current.  Korean also
+  had core menu items still in English.  Terminology is now consistent
+  within each language, and a new test checks the catalogs for broken
+  placeholders and duplicate signal names.
 
 
 ## 1.8.1

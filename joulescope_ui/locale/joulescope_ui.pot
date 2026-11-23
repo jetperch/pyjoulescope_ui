@@ -1189,7 +1189,7 @@ msgstr ""
 
 #: devices/jsdrv/js110.py:149
 msgid ""
-"Configure the J110's current range. Most applications should use the "
+"Configure the JS110's current range. Most applications should use the "
 "default, \"auto\"."
 msgstr ""
 
@@ -1830,7 +1830,7 @@ msgid "Number of bins (0 for auto)"
 msgstr ""
 
 #: range_tools/cdf.py:188
-msgid "Complimentary"
+msgid "Complementary"
 msgstr ""
 
 #: range_tools/frequency.py:25
