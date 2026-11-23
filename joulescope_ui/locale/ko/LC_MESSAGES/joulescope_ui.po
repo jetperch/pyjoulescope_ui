@@ -1326,7 +1326,7 @@ msgstr "\"NaN\"은 윈도우의 모든 샘플을 NaN으로 설정합니다."
 msgid ""
 "\"off\" disables the current range filtering, and you will see additional "
 "current range switching artifacts."
-msgstr "\"끄기\"를 선택하면 전류 범위 필터링이 비활성화되며 추가적인 전류 범위 스위칭 아티팩트가 표시됩니다."
+msgstr "\"off\"를 선택하면 전류 범위 필터링이 비활성화되며 추가적인 전류 범위 스위칭 아티팩트가 표시됩니다."
 
 #: devices/jsdrv/js110.py:236
 msgid "IRF pre"
