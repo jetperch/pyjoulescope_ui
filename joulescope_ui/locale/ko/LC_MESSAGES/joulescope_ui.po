@@ -199,7 +199,7 @@ msgstr "안정"
 
 #: app.py:162
 msgid "Check for device firmware updates."
-msgstr "디바이스 펌웨어 업데이트를 확인하세요."
+msgstr "장치 펌웨어 업데이트를 확인하세요."
 
 #: app.py:167 units.py:33
 msgid "The units to display."
@@ -326,9 +326,8 @@ msgstr "마크다운으로 보기"
 msgid "Abort"
 msgstr "중단"
 
-#: error_window.py:120 main.py:468 widgets/efficiency/efficiency_widget.py:624
-#: widgets/settings/settings_widget.py:659
-#: widgets/spectrum/spectrum_widget.py:1064
+#: error_window.py:120
+msgctxt "verb"
 msgid "View"
 msgstr "보기"
 
@@ -510,7 +509,7 @@ msgstr "파일 이름"
 msgid "Notes"
 msgstr "메모"
 
-#: exporter.py:89 widgets/efficiency/efficiency_widget.py:591
+#: exporter.py:89 widgets/efficiency/efficiency_widget.py:586
 #: widgets/signal_record/signal_record_config_widget.py:241
 #: widgets/signal_record/signal_record_config_widget.py:268
 #: widgets/statistics_record/statistics_record_config_widget.py:173
@@ -535,13 +534,13 @@ msgid ""
 "exported data."
 msgstr "데이터를 JLS 파일로 내보내기. 나중에 이 파일을 열어 내보낸 데이터를 표시할 수 있습니다."
 
-#: exporter.py:311 widgets/efficiency/efficiency_widget.py:608
+#: exporter.py:311 widgets/efficiency/efficiency_widget.py:603
 msgid "Export failed"
 msgstr "내보내기에 실패했습니다"
 
 #: filename_formatter.py:19
 msgid "The device identifier."
-msgstr "디바이스 식별자."
+msgstr "장치 식별자."
 
 #: filename_formatter.py:20
 msgid "The user-configurable device name."
@@ -549,11 +548,11 @@ msgstr "사용자가 구성할 수 있는 장치 이름입니다."
 
 #: filename_formatter.py:21
 msgid "The device model."
-msgstr "디바이스 모델."
+msgstr "장치 모델."
 
 #: filename_formatter.py:22
 msgid "The device serial number."
-msgstr "디바이스 일련 번호."
+msgstr "장치 일련 번호."
 
 #: filename_formatter.py:23
 msgid "Configure the filename"
@@ -691,7 +690,7 @@ msgstr "언어 선택"
 msgid "The application will automatically close when you change the locale."
 msgstr "로캘을 변경하면 애플리케이션이 자동으로 닫힙니다."
 
-#: main.py:79 widgets/value/value_widget.py:788
+#: main.py:79 widgets/value/value_widget.py:787
 msgid "Multimeter"
 msgstr "멀티미터"
 
@@ -806,7 +805,6 @@ msgstr "누적기 지우기"
 msgid "Configure high accuracy time"
 msgstr "고정밀 시간 구성"
 
-#: devices/serial/serial_port_dialog.py:145
 #: devices/serial/serial_port_dialog.py:159 main.py:457
 msgid "Open"
 msgstr "열기"
@@ -820,7 +818,7 @@ msgstr "최근 열기"
 msgid "Config"
 msgstr "구성"
 
-#: main.py:460 main.py:510 widgets/efficiency/efficiency_widget.py:635
+#: main.py:460 main.py:510 widgets/efficiency/efficiency_widget.py:630
 #: widgets/waveform/waveform_widget.py:4260
 msgid "Export"
 msgstr "내보내기"
@@ -840,6 +838,12 @@ msgstr "지우기 및 재시작"
 #: main.py:464 main.py:514 main.py:985
 msgid "Clear and exit"
 msgstr "지우기 및 종료"
+
+#: main.py:468 widgets/efficiency/efficiency_widget.py:619
+#: widgets/settings/settings_widget.py:659
+#: widgets/spectrum/spectrum_widget.py:1059
+msgid "View"
+msgstr "보기"
 
 #: main.py:469 widgets/settings/settings_widget.py:661
 msgid "Widgets"
@@ -1034,7 +1038,12 @@ msgstr "클립보드에 복사"
 msgid "OK"
 msgstr "확인"
 
-#: source_selector.py:224 widgets/jls_info/jls_info_widget.py:47
+#: source_selector.py:49
+msgctxt "source"
+msgid "default"
+msgstr "기본값"
+
+#: source_selector.py:238 widgets/jls_info/jls_info_widget.py:47
 #: widgets/spectrum/spectrum_control.py:35
 msgid "Source"
 msgstr "소스"
@@ -1084,7 +1093,7 @@ msgid "Control location"
 msgstr "제어 위치"
 
 #: widget_tools.py:94 widgets/serial_console/serial_console_widget.py:218
-#: widgets/waveform/waveform_source_widget.py:104
+#: widgets/waveform/waveform_source_widget.py:105
 #: widgets/waveform/waveform_widget.py:410
 #: widgets/waveform/waveform_widget.py:445
 msgid "off"
@@ -1128,14 +1137,14 @@ msgstr ""
 #: devices/jsdrv/js320.py:90 devices/jsdrv/js320.py:126
 #: devices/serial/serial_device.py:40 devices/serial/serial_device.py:63
 msgid "Device name"
-msgstr "디바이스 이름"
+msgstr "장치 이름"
 
 #: devices/jsdrv/js110.py:31 devices/jsdrv/js220.py:96
 #: devices/jsdrv/js320.py:92
 msgid ""
 "The Joulescope UI automatically populates the device name with the device "
 "type and serial number."
-msgstr "Joulescope UI는 디바이스 이름에 디바이스 유형과 일련 번호를 자동으로 입력합니다."
+msgstr "Joulescope UI는 장치 이름에 장치 유형과 일련 번호를 자동으로 입력합니다."
 
 #: devices/jsdrv/js110.py:33
 msgid ""
@@ -1152,12 +1161,12 @@ msgstr ""
 #: devices/serial/serial_device.py:45 devices/serial/serial_device.py:69
 #: widgets/device_control/js220_ctrl_widget.py:37
 msgid "Device information"
-msgstr "디바이스 정보"
+msgstr "장치 정보"
 
 #: devices/jsdrv/js110.py:47 devices/jsdrv/js220.py:112
 #: devices/jsdrv/js320.py:108
 msgid "Device state indicator"
-msgstr "디바이스 상태 표시기"
+msgstr "장치 상태 표시기"
 
 #: devices/jsdrv/js110.py:59 devices/jsdrv/js220.py:124
 #: devices/jsdrv/js320.py:120
@@ -1774,7 +1783,7 @@ msgstr "pyjoulescope_driver 로그 레벨."
 
 #: devices/serial/serial_device.py:51
 msgid "Device state"
-msgstr "디바이스 상태"
+msgstr "장치 상태"
 
 #: devices/serial/serial_device.py:82
 msgid "External serial data stream"
@@ -1833,6 +1842,11 @@ msgstr "자동 열기"
 #: widgets/waveform/waveform_widget.py:3875
 msgid "Add"
 msgstr "추가"
+
+#: devices/serial/serial_port_dialog.py:145
+msgctxt "state"
+msgid "Open"
+msgstr "열림"
 
 #: devices/serial/serial_port_dialog.py:145
 msgid "Closed"
@@ -1937,7 +1951,7 @@ msgstr "확률 밀도 분포"
 
 #: range_tools/histogram.py:44 range_tools/max_window.py:109
 #: widgets/spectrum/spectrum_control.py:36
-#: widgets/spectrum/spectrum_widget.py:1076
+#: widgets/spectrum/spectrum_widget.py:1071
 #: widgets/trigger/trigger_widget.py:220
 msgid "Signal"
 msgstr "신호"
@@ -2099,7 +2113,7 @@ msgstr "데모"
 
 #: widgets/device_control/device_control_widget.py:23
 msgid "Device Control"
-msgstr "디바이스 제어"
+msgstr "장치 제어"
 
 #: widgets/device_control/device_update_dialog.py:24
 #: widgets/device_control/device_update_dialog.py:45
@@ -2109,7 +2123,7 @@ msgstr "업데이트"
 #: widgets/device_control/device_update_dialog.py:25
 #: widgets/value/value_widget.py:189
 msgid "Device"
-msgstr "디바이스"
+msgstr "장치"
 
 #: widgets/device_control/device_update_dialog.py:27
 #: widgets/progress_bar/progress_bar_widget.py:59
@@ -2128,7 +2142,7 @@ msgstr "USB 허브, 도크 또는 어댑터를 사용하지 마십시오."
 
 #: widgets/device_control/device_update_dialog.py:35
 msgid "Device scan in progress."
-msgstr "디바이스 스캔이 진행 중입니다."
+msgstr "장치 스캔이 진행 중입니다."
 
 #: widgets/device_control/device_update_dialog.py:36
 msgid "No updates available."
@@ -2158,7 +2172,7 @@ msgstr "취소"
 
 #: widgets/device_control/device_update_dialog.py:54
 msgid "Device Update"
-msgstr "디바이스 업데이트"
+msgstr "장치 업데이트"
 
 #: widgets/device_control/fuse.py:23
 msgid "Fuse 1"
@@ -2244,7 +2258,7 @@ msgstr "퓨즈"
 
 #: widgets/device_control/js220_ctrl_widget.py:32
 msgid "Device documentation"
-msgstr "디바이스 문서"
+msgstr "장치 문서"
 
 #: widgets/device_control/js220_ctrl_widget.py:33
 msgid "Click to display the device documentation PDF."
@@ -2268,7 +2282,7 @@ msgstr "이 장치를 선택하면 기본값이 됩니다. 기본 장치를 사�
 msgid ""
 "When unselected, another device is the default. Widgets can still be "
 "configured to use data from this device."
-msgstr "선택하지 않으면 다른 장치가 기본값으로 사용됩니다. 이 디바이스의 데이터를 사용하도록 위젯을 구성할 수 있습니다."
+msgstr "선택하지 않으면 다른 장치가 기본값으로 사용됩니다. 이 장치의 데이터를 사용하도록 위젯을 구성할 수 있습니다."
 
 #: widgets/device_control/js220_ctrl_widget.py:54
 msgid ""
@@ -2355,10 +2369,10 @@ msgstr "이 기능을 선택하면 새로운 데이터가 무시되어 디스플
 
 #: widgets/efficiency/efficiency_control.py:27
 #: widgets/efficiency/efficiency_control.py:53
-#: widgets/efficiency/efficiency_widget.py:638
+#: widgets/efficiency/efficiency_widget.py:633
 #: widgets/memory/memory_widget.py:238 widgets/spectrum/spectrum_control.py:33
 #: widgets/spectrum/spectrum_control.py:68
-#: widgets/spectrum/spectrum_widget.py:1080
+#: widgets/spectrum/spectrum_widget.py:1075
 msgid "Clear"
 msgstr "지우기"
 
@@ -2408,9 +2422,9 @@ msgid "Enable the instrument signals that this widget needs."
 msgstr "이 위젯에 필요한 기기 신호를 활성화하십시오."
 
 #: widgets/efficiency/efficiency_control.py:52
-#: widgets/efficiency/efficiency_widget.py:737
+#: widgets/efficiency/efficiency_widget.py:732
 #: widgets/spectrum/spectrum_control.py:67
-#: widgets/spectrum/spectrum_widget.py:1196 widgets/value/value_widget.py:257
+#: widgets/spectrum/spectrum_widget.py:1191 widgets/value/value_widget.py:256
 msgid "Hold"
 msgstr "고정"
 
@@ -2595,95 +2609,95 @@ msgstr "효율 곡선 고정"
 msgid "The pane sizes."
 msgstr "패널 크기."
 
-#: widgets/efficiency/efficiency_widget.py:568
+#: widgets/efficiency/efficiency_widget.py:563
 msgid "input"
 msgstr "입력"
 
-#: widgets/efficiency/efficiency_widget.py:569
+#: widgets/efficiency/efficiency_widget.py:564
 msgid "output"
 msgstr "출력"
 
-#: widgets/efficiency/efficiency_widget.py:570
+#: widgets/efficiency/efficiency_widget.py:565
 msgid "window"
 msgstr "윈도우"
 
-#: widgets/efficiency/efficiency_widget.py:582
+#: widgets/efficiency/efficiency_widget.py:577
 msgid "curve window"
 msgstr "곡선 윈도우"
 
-#: widgets/efficiency/efficiency_widget.py:583
+#: widgets/efficiency/efficiency_widget.py:578
 msgid "steady threshold"
 msgstr "안정 임계값"
 
-#: widgets/efficiency/efficiency_widget.py:623
+#: widgets/efficiency/efficiency_widget.py:618
 msgid "Swap input and output"
 msgstr "입력 및 출력 전환"
 
-#: widgets/efficiency/efficiency_widget.py:636
+#: widgets/efficiency/efficiency_widget.py:631
 msgid "Efficiency vs time (CSV)"
 msgstr "효율 대 시간 (CSV)"
 
-#: widgets/efficiency/efficiency_widget.py:637
+#: widgets/efficiency/efficiency_widget.py:632
 msgid "Efficiency curve (CSV)"
 msgstr "효율 곡선 (CSV)"
 
-#: widgets/efficiency/efficiency_widget.py:723
+#: widgets/efficiency/efficiency_widget.py:718
 #, python-brace-format
 msgid "{0} {1} is not connected"
 msgstr "{0} {1}이 연결되어 있지 않습니다"
 
-#: widgets/efficiency/efficiency_widget.py:726
+#: widgets/efficiency/efficiency_widget.py:721
 msgid "Select the input and output instruments"
 msgstr "입력 및 출력 계측기 선택"
 
-#: widgets/efficiency/efficiency_widget.py:729
+#: widgets/efficiency/efficiency_widget.py:724
 msgid "Select different input and output instruments"
 msgstr "서로 다른 입력 및 출력 계측기 선택"
 
-#: widgets/efficiency/efficiency_widget.py:734
+#: widgets/efficiency/efficiency_widget.py:729
 #, python-brace-format
 msgid "Disabled: {0}"
 msgstr "비활성화됨: {0}"
 
-#: widgets/efficiency/efficiency_widget.py:739
+#: widgets/efficiency/efficiency_widget.py:734
 msgid "Curve hold"
 msgstr "곡선 고정"
 
-#: widgets/efficiency/efficiency_widget.py:741
-#: widgets/spectrum/spectrum_widget.py:1198
+#: widgets/efficiency/efficiency_widget.py:736
+#: widgets/spectrum/spectrum_widget.py:1193
 msgid "Paused"
 msgstr "일시 중지됨"
 
-#: widgets/efficiency/efficiency_widget.py:748
+#: widgets/efficiency/efficiency_widget.py:743
 #, python-brace-format
 msgid "No data from {0}"
 msgstr "{0}에서 데이터가 없습니다."
 
-#: widgets/efficiency/efficiency_widget.py:751
+#: widgets/efficiency/efficiency_widget.py:746
 msgid "JS110 input includes its burden voltage"
 msgstr "JS110의 입력에는 부담 전압이 포함됩니다"
 
-#: widgets/efficiency/efficiency_widget.py:754
+#: widgets/efficiency/efficiency_widget.py:749
 msgid "Efficiency above 100%: swap input and output?"
 msgstr "100%를 초과하는 효율: 입력과 출력을 바꿔야 할까요?"
 
-#: widgets/efficiency/efficiency_widget.py:759
+#: widgets/efficiency/efficiency_widget.py:754
 #, python-brace-format
 msgid "{0} windows"
 msgstr "윈도우 {0}개"
 
-#: widgets/efficiency/efficiency_widget.py:761
+#: widgets/efficiency/efficiency_widget.py:756
 #, python-brace-format
 msgid "{0} invalid"
 msgstr "{0} 유효하지 않음"
 
-#: widgets/efficiency/efficiency_widget.py:763
+#: widgets/efficiency/efficiency_widget.py:758
 #, python-brace-format
 msgid "{0} unsteady"
 msgstr "{0} 불안정"
 
-#: widgets/efficiency/efficiency_widget.py:766
-#: widgets/spectrum/spectrum_widget.py:1212
+#: widgets/efficiency/efficiency_widget.py:761
+#: widgets/spectrum/spectrum_widget.py:1207
 #, python-brace-format
 msgid "overruns {0}"
 msgstr "오버런 {0}"
@@ -2802,7 +2816,7 @@ msgstr "JS220 교정"
 #: widgets/js220_cal/js220_cal_widget.py:461
 #: widgets/js320_cal/js320_cal_widget.py:452
 msgid "The target device."
-msgstr "대상 디바이스."
+msgstr "대상 장치."
 
 #: widgets/js220_cal/js220_cal_widget.py:483
 #: widgets/js320_cal/js320_cal_widget.py:480
@@ -3039,7 +3053,7 @@ msgstr "파형에 주석 달기"
 msgid "External Serial..."
 msgstr "외부 직렬..."
 
-#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:797
+#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:796
 msgid "Value"
 msgstr "값"
 
@@ -3087,7 +3101,7 @@ msgstr "기본값 보기"
 
 #: widgets/settings/settings_widget.py:660
 msgid "Devices"
-msgstr "디바이스"
+msgstr "장치"
 
 #: widgets/settings/settings_widget.py:695
 msgid "Colors"
@@ -3124,7 +3138,7 @@ msgstr "선택됨"
 
 #: widgets/sidebar/sidebar_widget.py:28
 msgid "Device control"
-msgstr "디바이스 제어"
+msgstr "장치 제어"
 
 #: widgets/sidebar/sidebar_widget.py:29
 msgid ""
@@ -3378,7 +3392,7 @@ msgid "PSD"
 msgstr "PSD"
 
 #: widgets/spectrum/spectrum_widget.py:138
-#: widgets/spectrum/spectrum_widget.py:1071
+#: widgets/spectrum/spectrum_widget.py:1066
 msgid "Y-axis units"
 msgstr "Y축 단위"
 
@@ -3565,52 +3579,52 @@ msgstr "최대 업데이트 속도 (Hz)"
 msgid "Spectrum"
 msgstr "스펙트럼"
 
-#: widgets/spectrum/spectrum_widget.py:1045
+#: widgets/spectrum/spectrum_widget.py:1040
 msgid "Add marker"
 msgstr "마커 추가"
 
-#: widgets/spectrum/spectrum_widget.py:1048
+#: widgets/spectrum/spectrum_widget.py:1043
 msgid "Add marker at peak"
 msgstr "피크 지점에 마커 추가"
 
-#: widgets/spectrum/spectrum_widget.py:1055
+#: widgets/spectrum/spectrum_widget.py:1050
 msgid "Remove marker"
 msgstr "마커 제거"
 
-#: widgets/spectrum/spectrum_widget.py:1057
+#: widgets/spectrum/spectrum_widget.py:1052
 msgid "Clear markers"
 msgstr "마커 지우기"
 
-#: widgets/spectrum/spectrum_widget.py:1059
+#: widgets/spectrum/spectrum_widget.py:1054
 msgid "Traces"
 msgstr "트레이스"
 
-#: widgets/spectrum/spectrum_widget.py:1065
+#: widgets/spectrum/spectrum_widget.py:1060
 msgid "Logarithmic frequency"
 msgstr "로그 주파수"
 
-#: widgets/spectrum/spectrum_widget.py:1066
+#: widgets/spectrum/spectrum_widget.py:1061
 msgid "Autoscale y-axis"
 msgstr "Y축 자동 스케일링"
 
-#: widgets/spectrum/spectrum_widget.py:1067
+#: widgets/spectrum/spectrum_widget.py:1062
 msgid "Show FFT"
 msgstr "FFT 표시"
 
-#: widgets/spectrum/spectrum_widget.py:1068
+#: widgets/spectrum/spectrum_widget.py:1063
 msgid "Show waterfall"
 msgstr "워터폴 표시"
 
-#: widgets/spectrum/spectrum_widget.py:1194
+#: widgets/spectrum/spectrum_widget.py:1189
 msgid "No signal"
 msgstr "신호 없음"
 
-#: widgets/spectrum/spectrum_widget.py:1203
+#: widgets/spectrum/spectrum_widget.py:1198
 #, python-brace-format
 msgid "gaps {0}"
 msgstr "갭 {0}"
 
-#: widgets/spectrum/spectrum_widget.py:1209
+#: widgets/spectrum/spectrum_widget.py:1204
 #, python-brace-format
 msgid "waterfall {0}"
 msgstr "워터폴 {0}"
@@ -3629,7 +3643,7 @@ msgstr "통계 기록 구성"
 
 #: widgets/trigger/trigger_widget.py:41 widgets/value/value_widget.py:118
 msgid "Select the source device"
-msgstr "소스 디바이스 선택"
+msgstr "소스 장치 선택"
 
 #: widgets/trigger/trigger_widget.py:42
 msgid "The device to use for the start condition and stop condition."
@@ -3887,23 +3901,23 @@ msgid ""
 "Both accumulate indefinitely regardless of this button state."
 msgstr "이 버튼은 전하 및 에너지 누적에 영향을 주지 않습니다. 둘 다 이 버튼 상태에 관계없이 무기한으로 누적됩니다."
 
-#: widgets/value/value_widget.py:237
+#: widgets/value/value_widget.py:236
 msgid "Not present"
 msgstr "현재 없음"
 
-#: widgets/value/value_widget.py:265
+#: widgets/value/value_widget.py:264
 msgid "Accrue"
 msgstr "누적"
 
-#: widgets/value/value_widget.py:601 widgets/waveform/waveform_widget.py:3808
+#: widgets/value/value_widget.py:600 widgets/waveform/waveform_widget.py:3808
 msgid "Preferred prefix"
 msgstr "선호 접두사"
 
-#: widgets/value/value_widget.py:606
+#: widgets/value/value_widget.py:605
 msgid "auto"
 msgstr "자동"
 
-#: widgets/value/value_widget.py:608
+#: widgets/value/value_widget.py:607
 msgid "none"
 msgstr "없음"
 
@@ -4132,35 +4146,35 @@ msgstr "신호 표시/숨기기"
 msgid "Click to toggle the signal axis display in the Waveform widget."
 msgstr "파형 위젯에서 신호 축 표시를 전환하려면 클릭합니다."
 
-#: widgets/waveform/waveform_source_widget.py:29
+#: widgets/waveform/waveform_source_widget.py:30
 msgid "Enable trace"
 msgstr "트레이스 활성화"
 
-#: widgets/waveform/waveform_source_widget.py:31
+#: widgets/waveform/waveform_source_widget.py:32
 msgid "Click to toggle this trace."
 msgstr "이 트레이스를 토글하려면 클릭하세요."
 
-#: widgets/waveform/waveform_source_widget.py:32
+#: widgets/waveform/waveform_source_widget.py:33
 msgid "When enabled, the waveform will display this trace."
 msgstr "활성화하면 파형에 이 트레이스가 표시됩니다."
 
-#: widgets/waveform/waveform_source_widget.py:33
+#: widgets/waveform/waveform_source_widget.py:34
 msgid "When disabled, the waveform will hide this trace."
 msgstr "비활성화하면 파형에서 이 트레이스가 숨겨집니다."
 
-#: widgets/waveform/waveform_source_widget.py:37
+#: widgets/waveform/waveform_source_widget.py:38
 msgid "Select the source"
 msgstr "소스 선택"
 
-#: widgets/waveform/waveform_source_widget.py:39
+#: widgets/waveform/waveform_source_widget.py:40
 msgid "Select the source for this trace."
 msgstr "이 트레이스의 소스를 선택합니다."
 
-#: widgets/waveform/waveform_source_widget.py:40
+#: widgets/waveform/waveform_source_widget.py:41
 msgid ""
 "\"default\" will use the default source which is normally configured using "
 "the Device Control widget."
-msgstr "\"default\"는 일반적으로 장치 제어 위젯을 사용하여 구성되는 기본 소스를 사용합니다."
+msgstr "\"기본값\"은 일반적으로 장치 제어 위젯을 사용하여 구성되는 기본 소스를 사용합니다."
 
 #: widgets/waveform/waveform_widget.py:46
 msgid "Waveform"

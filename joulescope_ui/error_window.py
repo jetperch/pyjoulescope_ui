@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from joulescope_ui import N_, pubsub_singleton
+from joulescope_ui import N_, C_, pubsub_singleton
 from joulescope_ui import reporter
 from joulescope_ui import versioned_file
 from joulescope_ui.zip_inspector import ZipInspectorDialog
@@ -117,7 +117,7 @@ class SubmitConfigureWidget(QtWidgets.QWidget):
         self._buttons = QtWidgets.QWidget(self)
         self._buttons_layout = QtWidgets.QHBoxLayout(self._buttons)
         self._abort = QtWidgets.QPushButton(N_('Abort'), self._buttons)
-        self._view = QtWidgets.QPushButton(N_('View'), self._buttons)
+        self._view = QtWidgets.QPushButton(C_('verb', 'View'), self._buttons)
         self._submit = QtWidgets.QPushButton(N_('Submit'), self._buttons)
         self._buttons_layout.addWidget(self._abort)
         self._buttons_layout.addWidget(self._view)

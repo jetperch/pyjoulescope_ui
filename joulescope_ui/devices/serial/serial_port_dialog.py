@@ -14,7 +14,7 @@
 
 """Dialog for managing external serial port connections."""
 
-from joulescope_ui import N_, pubsub_singleton, get_topic_name
+from joulescope_ui import N_, C_, pubsub_singleton, get_topic_name
 from PySide6 import QtCore, QtWidgets
 import serial.tools.list_ports
 import logging
@@ -142,7 +142,7 @@ class ExternalSerialPortDialog(QtWidgets.QDialog):
         self._table.setItem(row, 0, QtWidgets.QTableWidgetItem(cfg['port']))
         self._table.setItem(row, 1, QtWidgets.QTableWidgetItem(cfg.get('name', '')))
         self._table.setItem(row, 2, QtWidgets.QTableWidgetItem(str(cfg.get('baud_rate', _DEFAULT_BAUD))))
-        status = N_('Open') if is_open else N_('Closed')
+        status = C_('state', 'Open') if is_open else N_('Closed')
         self._table.setItem(row, 3, QtWidgets.QTableWidgetItem(status))
 
         # Button cell with Open/Close and Remove

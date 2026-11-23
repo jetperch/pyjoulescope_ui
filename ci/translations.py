@@ -85,7 +85,7 @@ def run_babel(preserve_create_date=False):
         sys.argv[0],
         'extract',
         '--no-default-keywords',
-        '--keywords=N_',
+        '--keywords=N_ C_:1c,2',
         '--copyright-holder=Jetperch LLC',
         f'--version={__version__}',
         f"--input-dirs=.",

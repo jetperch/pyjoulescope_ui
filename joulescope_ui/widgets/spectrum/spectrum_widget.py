@@ -22,7 +22,7 @@ from joulescope_ui import register, N_, get_topic_name
 from joulescope_ui.styles import styled_widget, color_as_qcolor
 from joulescope_ui.widget_tools import CallableAction, settings_action_create, context_menu_show, \
     CONTROL_LOCATION_SETTING, control_location_apply
-from joulescope_ui.source_selector import SourceSelector
+from joulescope_ui.source_selector import SourceSelector, source_name
 from joulescope_ui.units import three_sig_figs
 from joulescope_ui.spectrum_engine import WINDOWS, WINDOW_NAMES, WINDOW_PEAK_INTERPOLATE, \
     WINDOW_MAIN_LOBE_BINS, DB_FLOOR, \
@@ -414,12 +414,7 @@ class SpectrumWidget(QtWidgets.QWidget):
 
     @QtCore.Slot(object)
     def _on_sources_changed(self, sources):
-        items = []
-        for source in sources:
-            name = source
-            if self.pubsub is not None and source != 'default':
-                name = self.pubsub.query(f'{get_topic_name(source)}/settings/name', default=source)
-            items.append((source, name))
+        items = [(source, source_name(self.pubsub, source)) for source in sources]
         self._control.items_set('source', items, self.source_selector.value)
 
     @QtCore.Slot(object)

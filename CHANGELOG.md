@@ -45,6 +45,12 @@ This file contains the list of changes made to pyjoulescope_ui.
   had core menu items still in English.  Terminology is now consistent
   within each language, and a new test checks the catalogs for broken
   placeholders and duplicate signal names.
+* Added translation contexts so one English word can have different
+  translations by role: the error window "View" button, the serial port
+  "Open" status, and the "default" source.  The "default" source entry is
+  now translated in every source menu and selector.
+* Fixed the Histogram dialog and the Value widget device selector relying
+  on displayed (translated) text.
 
 
 ## 1.8.1

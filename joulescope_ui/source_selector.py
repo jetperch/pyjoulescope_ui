@@ -14,7 +14,7 @@
 
 
 from PySide6 import QtCore, QtGui
-from joulescope_ui import N_, CAPABILITIES, get_topic_name
+from joulescope_ui import N_, C_, CAPABILITIES, get_topic_name
 from joulescope_ui.widget_tools import CallableAction
 
 
@@ -36,6 +36,20 @@ _SOURCE_DEF = {
         f'registry_manager/capabilities/{CAPABILITIES.SERIAL_SOURCE}/list'
     ],
 }
+
+
+def source_name(pubsub, source):
+    """Get the display name for a source.
+
+    :param pubsub: The pubsub instance, or None.
+    :param source: The source unique id, "default", or None.
+    :return: The user-visible source name.
+    """
+    if source == 'default':
+        return C_('source', 'default')
+    if pubsub is None or source is None:
+        return str(source)
+    return pubsub.query(f'{get_topic_name(source)}/settings/name', default=source)
 
 
 class SourceSelector(QtCore.QObject):
@@ -225,6 +239,6 @@ class SourceSelector(QtCore.QObject):
         source_group = QtGui.QActionGroup(source_menu)
         source_group.setExclusive(True)
         for device in ['default'] + self._list:
-            name = self.pubsub.query(f'{get_topic_name(device)}/settings/name', default=device)
+            name = source_name(self.pubsub, device)
             CallableAction(source_group, name, self._construct_source_action(device),
                            checkable=True, checked=(device == self.value))

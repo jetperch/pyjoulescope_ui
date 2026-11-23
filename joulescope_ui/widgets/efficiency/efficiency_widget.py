@@ -22,7 +22,7 @@ from joulescope_ui import register, N_, get_topic_name, CAPABILITIES, time64
 from joulescope_ui.styles import styled_widget, color_as_qcolor, font_as_qfont
 from joulescope_ui.widget_tools import CallableAction, settings_action_create, context_menu_show, \
     CONTROL_LOCATION_SETTING, control_location_apply
-from joulescope_ui.source_selector import SourceSelector
+from joulescope_ui.source_selector import SourceSelector, source_name
 from joulescope_ui.widgets import plot_base
 from joulescope_ui.efficiency_engine import WindowHistory
 from .efficiency_control import EfficiencyControlWidget
@@ -276,11 +276,6 @@ class EfficiencyWidget(QtWidgets.QWidget):
         instrument = 'in' if name == 'input' else 'out'
         self._selectors[instrument].source_set(value)
 
-    def _source_name(self, source):
-        if self.pubsub is None or source is None:
-            return str(source)
-        return self.pubsub.query(f'{get_topic_name(source)}/settings/name', default=source)
-
     def _source_model(self, source):
         info = self.pubsub.query(f'{get_topic_name(source)}/settings/info', default=None) or {}
         return str(info.get('model', '')).upper() if isinstance(info, dict) else ''
@@ -298,7 +293,7 @@ class EfficiencyWidget(QtWidgets.QWidget):
             return
         for instrument in INSTRUMENTS:
             selector = self._selectors[instrument]
-            items = [(s, self._source_name(s)) for s in selector.sources if s != 'default']
+            items = [(s, source_name(self.pubsub, s)) for s in selector.sources if s != 'default']
             self._control.items_set(_CONTROL[instrument], items, selector.value)
 
     def _sources_assign(self):
@@ -565,8 +560,8 @@ class EfficiencyWidget(QtWidgets.QWidget):
 
     def _export_meta(self):
         return {
-            N_('input'): self._source_name(self._sources['in']),
-            N_('output'): self._source_name(self._sources['out']),
+            N_('input'): source_name(self.pubsub, self._sources['in']),
+            N_('output'): source_name(self.pubsub, self._sources['out']),
             N_('window'): f'{self.period:g} s',
         }
 
@@ -714,7 +709,7 @@ class EfficiencyWidget(QtWidgets.QWidget):
 
     def _status_update(self):
         parts, warning = [], False
-        names = {i: self._source_name(self._sources[i]) for i in INSTRUMENTS}
+        names = {i: source_name(self.pubsub, self._sources[i]) for i in INSTRUMENTS}
         if not all(self._sources.values()):
             missing = [i for i in INSTRUMENTS if self._sources[i] is None
                        and self._selectors[i].value not in (None, 'default')]

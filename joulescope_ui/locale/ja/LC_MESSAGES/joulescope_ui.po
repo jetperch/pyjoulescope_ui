@@ -63,7 +63,7 @@ msgid ""
 "engaged fuse. Instruments with engaged fuses prevent current flow until "
 "cleared."
 msgstr ""
-"このインジケータは、接続された計器のうち少なくとも1台でヒューズが作動している場合にアクティブになります。ヒューズが作動している機器は、解除されるまで電流が流れません。"
+"このインジケーターは、接続された計器のうち少なくとも1台でヒューズが作動している場合にアクティブになります。ヒューズが作動している機器は、解除されるまで電流が流れません。"
 
 #: app.py:66 widgets/device_control/js220_ctrl_widget.py:57
 msgid "Press to clear."
@@ -286,7 +286,7 @@ msgstr "現在、弊社は{return_date}まで休業中です。復帰後、{resp
 
 #: error_window.py:51
 msgid "Submit failed. Ensure that your computer can access the internet."
-msgstr "送信に失敗しました。コンピュータがインターネットにアクセスできることを確認してください。"
+msgstr "送信に失敗しました。コンピューターがインターネットにアクセスできることを確認してください。"
 
 #: error_window.py:52
 msgid "Submit completed successfully."
@@ -320,9 +320,8 @@ msgstr "マークダウンで表示"
 msgid "Abort"
 msgstr "中止"
 
-#: error_window.py:120 main.py:468 widgets/efficiency/efficiency_widget.py:624
-#: widgets/settings/settings_widget.py:659
-#: widgets/spectrum/spectrum_widget.py:1064
+#: error_window.py:120
+msgctxt "verb"
 msgid "View"
 msgstr "表示"
 
@@ -503,7 +502,7 @@ msgstr "ファイル名"
 msgid "Notes"
 msgstr "注記"
 
-#: exporter.py:89 widgets/efficiency/efficiency_widget.py:591
+#: exporter.py:89 widgets/efficiency/efficiency_widget.py:586
 #: widgets/signal_record/signal_record_config_widget.py:241
 #: widgets/signal_record/signal_record_config_widget.py:268
 #: widgets/statistics_record/statistics_record_config_widget.py:173
@@ -528,7 +527,7 @@ msgid ""
 "exported data."
 msgstr "データを JLS ファイルにエクスポートします。このファイルを後で開いて、エクスポートしたデータを表示することができます。"
 
-#: exporter.py:311 widgets/efficiency/efficiency_widget.py:608
+#: exporter.py:311 widgets/efficiency/efficiency_widget.py:603
 msgid "Export failed"
 msgstr "エクスポートに失敗しました"
 
@@ -606,7 +605,7 @@ msgid ""
 "Connect Joulescope's USB port to your computer using the provided cable. Use"
 " an adapter or suitable cable if your computer only has USB Type C ports."
 msgstr ""
-"付属のケーブルを使用して、JoulescopeのUSBポートをコンピュータに接続します。お使いのコンピュータにUSB Type "
+"付属のケーブルを使用して、JoulescopeのUSBポートをコンピューターに接続します。お使いのコンピューターにUSB Type "
 "Cポートしかない場合は、アダプタまたは適切なケーブルを使用してください。"
 
 #: getting_started.py:33
@@ -681,7 +680,7 @@ msgstr "言語を選択"
 msgid "The application will automatically close when you change the locale."
 msgstr "ロケールを変更すると、アプリケーションは自動的に終了します。"
 
-#: main.py:79 widgets/value/value_widget.py:788
+#: main.py:79 widgets/value/value_widget.py:787
 msgid "Multimeter"
 msgstr "マルチメーター"
 
@@ -796,7 +795,6 @@ msgstr "アキュムレータをクリア"
 msgid "Configure high accuracy time"
 msgstr "高精度時間の設定"
 
-#: devices/serial/serial_port_dialog.py:145
 #: devices/serial/serial_port_dialog.py:159 main.py:457
 msgid "Open"
 msgstr "開く"
@@ -810,7 +808,7 @@ msgstr "最近使ったファイル"
 msgid "Config"
 msgstr "構成"
 
-#: main.py:460 main.py:510 widgets/efficiency/efficiency_widget.py:635
+#: main.py:460 main.py:510 widgets/efficiency/efficiency_widget.py:630
 #: widgets/waveform/waveform_widget.py:4260
 msgid "Export"
 msgstr "エクスポート"
@@ -830,6 +828,12 @@ msgstr "クリアして再起動"
 #: main.py:464 main.py:514 main.py:985
 msgid "Clear and exit"
 msgstr "クリアして終了"
+
+#: main.py:468 widgets/efficiency/efficiency_widget.py:619
+#: widgets/settings/settings_widget.py:659
+#: widgets/spectrum/spectrum_widget.py:1059
+msgid "View"
+msgstr "表示"
 
 #: main.py:469 widgets/settings/settings_widget.py:661
 msgid "Widgets"
@@ -1024,7 +1028,12 @@ msgstr "クリップボードにコピー"
 msgid "OK"
 msgstr "OK"
 
-#: source_selector.py:224 widgets/jls_info/jls_info_widget.py:47
+#: source_selector.py:49
+msgctxt "source"
+msgid "default"
+msgstr "デフォルト"
+
+#: source_selector.py:238 widgets/jls_info/jls_info_widget.py:47
 #: widgets/spectrum/spectrum_control.py:35
 msgid "Source"
 msgstr "ソース"
@@ -1074,7 +1083,7 @@ msgid "Control location"
 msgstr "制御位置"
 
 #: widget_tools.py:94 widgets/serial_console/serial_console_widget.py:218
-#: widgets/waveform/waveform_source_widget.py:104
+#: widgets/waveform/waveform_source_widget.py:105
 #: widgets/waveform/waveform_widget.py:410
 #: widgets/waveform/waveform_widget.py:445
 msgid "off"
@@ -1280,7 +1289,7 @@ msgid ""
 " mechanism applied on current range changes. We do not recommend changing "
 "these settings for normal operation."
 msgstr ""
-"電流レンジフィルター（IRF）タイプを設定し、電流レンジの変化に適用されるフィルタリング機構を決定します。通常の動作では、これらの設定を変更することはお勧めしません。"
+"電流レンジフィルター（IRF）タイプを設定し、電流レンジの変化に適用されるフィルターリング機構を決定します。通常の動作では、これらの設定を変更することはお勧めしません。"
 
 #: devices/jsdrv/js110.py:216
 msgid ""
@@ -1306,7 +1315,7 @@ msgstr "「NaN」はウィンドウ内のすべてのサンプルをNaNに設定
 msgid ""
 "\"off\" disables the current range filtering, and you will see additional "
 "current range switching artifacts."
-msgstr "「off」は電流レンジのフィルタリングを無効にし、電流レンジのスイッチングアーチファクトが追加で表示されます。"
+msgstr "「off」は電流レンジのフィルターリングを無効にし、電流レンジのスイッチングアーチファクトが追加で表示されます。"
 
 #: devices/jsdrv/js110.py:236
 msgid "IRF pre"
@@ -1406,7 +1415,7 @@ msgstr "信号名"
 msgid ""
 "Configure how the general-purpose input downsampling filter determines a "
 "single value from a sample block."
-msgstr "汎用入力ダウンサンプリングフィルタがどのようにサンプルブロックから単一の値を決定するかを設定します。"
+msgstr "汎用入力ダウンサンプリングフィルターがどのようにサンプルブロックから単一の値を決定するかを設定します。"
 
 #: devices/jsdrv/js220.py:63 devices/jsdrv/js320.py:59
 msgid "Keep at full rate and do not downsample."
@@ -1564,7 +1573,7 @@ msgstr "プレフィルター"
 
 #: devices/jsdrv/js220.py:370
 msgid "Configure the prefilter type."
-msgstr "プレフィルタ・タイプの設定"
+msgstr "プレフィルター・タイプの設定"
 
 #: devices/jsdrv/js220.py:371
 msgid ""
@@ -1579,7 +1588,7 @@ msgstr "信号フィルター"
 
 #: devices/jsdrv/js220.py:385
 msgid "Configure the signal downsampling filter type."
-msgstr "信号ダウンサンプリングフィルタのタイプを設定します。"
+msgstr "信号ダウンサンプリングフィルターのタイプを設定します。"
 
 #: devices/jsdrv/js220.py:386
 msgid ""
@@ -1588,7 +1597,7 @@ msgid ""
 "time-domain response, but it results in lower bandwidth and more aliasing. "
 "The sinc1 filter also runs on the instrument for reduced USB throughput."
 msgstr ""
-"ワイドバンドフィルタはフラットな周波数特性を提供しますが、高周波イベント付近でピーキングが発生します。sinc1フィルターは、よりスムーズな時間領域応答を提供しますが、帯域幅が狭くなり、エイリアシングが多くなります。また、sinc1フィルターは測定器上で動作するため、USBスループットを削減できます。"
+"ワイドバンドフィルターはフラットな周波数特性を提供しますが、高周波イベント付近でピーキングが発生します。sinc1フィルターは、よりスムーズな時間領域応答を提供しますが、帯域幅が狭くなり、エイリアシングが多くなります。また、sinc1フィルターは測定器上で動作するため、USBスループットを削減できます。"
 
 #: devices/jsdrv/js220.py:401 devices/jsdrv/js320.py:382
 msgid "GPI filter"
@@ -1809,6 +1818,11 @@ msgid "Add"
 msgstr "追加"
 
 #: devices/serial/serial_port_dialog.py:145
+msgctxt "state"
+msgid "Open"
+msgstr "オープン"
+
+#: devices/serial/serial_port_dialog.py:145
 msgid "Closed"
 msgstr "クローズ"
 
@@ -1910,7 +1924,7 @@ msgstr "確率密度分布"
 
 #: range_tools/histogram.py:44 range_tools/max_window.py:109
 #: widgets/spectrum/spectrum_control.py:36
-#: widgets/spectrum/spectrum_widget.py:1076
+#: widgets/spectrum/spectrum_widget.py:1071
 #: widgets/trigger/trigger_widget.py:220
 msgid "Signal"
 msgstr "信号"
@@ -2092,7 +2106,7 @@ msgstr "進捗状況"
 msgid ""
 "Before starting updates, ensure that Joulescopes are plugged directly into a"
 " USB port on the host computer."
-msgstr "アップデートを開始する前に、JoulescopesがホストコンピュータのUSBポートに直接接続されていることを確認してください。"
+msgstr "アップデートを開始する前に、JoulescopesがホストコンピューターのUSBポートに直接接続されていることを確認してください。"
 
 #: widgets/device_control/device_update_dialog.py:31
 msgid "Do not use any USB hubs, docks or adapters"
@@ -2184,7 +2198,7 @@ msgstr "指数関数的減衰時定数。ヒューズはこの時間内に蓄積
 
 #: widgets/device_control/fuse.py:52
 msgid "Fuse state indicator. When enabled and engaged, click to clear."
-msgstr "ヒューズ状態インジケータ。有効かつ作動中の場合は、クリックして解除します。"
+msgstr "ヒューズ状態インジケーター。有効かつ作動中の場合は、クリックして解除します。"
 
 #: widgets/device_control/fuse.py:86
 msgid "Threshold 1"
@@ -2248,7 +2262,7 @@ msgid ""
 "This indicator becomes active when this device has at least one engaged "
 "fuse. Engaged fuses prevent current flow until cleared."
 msgstr ""
-"このインジケータは、このデバイスで少なくとも 1 "
+"このインジケーターは、このデバイスで少なくとも 1 "
 "つのヒューズが作動している場合にアクティブになります。作動したヒューズは、クリアされるまで電流が流れなくなります。"
 
 #: widgets/device_control/js220_ctrl_widget.py:62
@@ -2328,10 +2342,10 @@ msgstr "このオプションを選択すると、新しいデータが無視さ
 
 #: widgets/efficiency/efficiency_control.py:27
 #: widgets/efficiency/efficiency_control.py:53
-#: widgets/efficiency/efficiency_widget.py:638
+#: widgets/efficiency/efficiency_widget.py:633
 #: widgets/memory/memory_widget.py:238 widgets/spectrum/spectrum_control.py:33
 #: widgets/spectrum/spectrum_control.py:68
-#: widgets/spectrum/spectrum_widget.py:1080
+#: widgets/spectrum/spectrum_widget.py:1075
 msgid "Clear"
 msgstr "クリア"
 
@@ -2381,9 +2395,9 @@ msgid "Enable the instrument signals that this widget needs."
 msgstr "このウィジェットに必要な機器の信号を有効にしてください。"
 
 #: widgets/efficiency/efficiency_control.py:52
-#: widgets/efficiency/efficiency_widget.py:737
+#: widgets/efficiency/efficiency_widget.py:732
 #: widgets/spectrum/spectrum_control.py:67
-#: widgets/spectrum/spectrum_widget.py:1196 widgets/value/value_widget.py:257
+#: widgets/spectrum/spectrum_widget.py:1191 widgets/value/value_widget.py:256
 msgid "Hold"
 msgstr "ホールド"
 
@@ -2566,95 +2580,95 @@ msgstr "効率曲線を固定"
 msgid "The pane sizes."
 msgstr "ペインのサイズ。"
 
-#: widgets/efficiency/efficiency_widget.py:568
+#: widgets/efficiency/efficiency_widget.py:563
 msgid "input"
 msgstr "入力"
 
-#: widgets/efficiency/efficiency_widget.py:569
+#: widgets/efficiency/efficiency_widget.py:564
 msgid "output"
 msgstr "出力"
 
-#: widgets/efficiency/efficiency_widget.py:570
+#: widgets/efficiency/efficiency_widget.py:565
 msgid "window"
 msgstr "ウィンドウ"
 
-#: widgets/efficiency/efficiency_widget.py:582
+#: widgets/efficiency/efficiency_widget.py:577
 msgid "curve window"
 msgstr "曲線ウィンドウ"
 
-#: widgets/efficiency/efficiency_widget.py:583
+#: widgets/efficiency/efficiency_widget.py:578
 msgid "steady threshold"
 msgstr "定常しきい値"
 
-#: widgets/efficiency/efficiency_widget.py:623
+#: widgets/efficiency/efficiency_widget.py:618
 msgid "Swap input and output"
 msgstr "入力と出力を入れ替え"
 
-#: widgets/efficiency/efficiency_widget.py:636
+#: widgets/efficiency/efficiency_widget.py:631
 msgid "Efficiency vs time (CSV)"
 msgstr "効率対時間 (CSV)"
 
-#: widgets/efficiency/efficiency_widget.py:637
+#: widgets/efficiency/efficiency_widget.py:632
 msgid "Efficiency curve (CSV)"
 msgstr "効率曲線（CSV）"
 
-#: widgets/efficiency/efficiency_widget.py:723
+#: widgets/efficiency/efficiency_widget.py:718
 #, python-brace-format
 msgid "{0} {1} is not connected"
 msgstr "{0} {1}は接続されていません"
 
-#: widgets/efficiency/efficiency_widget.py:726
+#: widgets/efficiency/efficiency_widget.py:721
 msgid "Select the input and output instruments"
 msgstr "入力および出力の計測器を選択してください"
 
-#: widgets/efficiency/efficiency_widget.py:729
+#: widgets/efficiency/efficiency_widget.py:724
 msgid "Select different input and output instruments"
 msgstr "入力と出力に異なる計測器を選択してください"
 
-#: widgets/efficiency/efficiency_widget.py:734
+#: widgets/efficiency/efficiency_widget.py:729
 #, python-brace-format
 msgid "Disabled: {0}"
 msgstr "無効: {0}"
 
-#: widgets/efficiency/efficiency_widget.py:739
+#: widgets/efficiency/efficiency_widget.py:734
 msgid "Curve hold"
 msgstr "カーブホールド"
 
-#: widgets/efficiency/efficiency_widget.py:741
-#: widgets/spectrum/spectrum_widget.py:1198
+#: widgets/efficiency/efficiency_widget.py:736
+#: widgets/spectrum/spectrum_widget.py:1193
 msgid "Paused"
 msgstr "一時停止"
 
-#: widgets/efficiency/efficiency_widget.py:748
+#: widgets/efficiency/efficiency_widget.py:743
 #, python-brace-format
 msgid "No data from {0}"
 msgstr "{0}からのデータはありません"
 
-#: widgets/efficiency/efficiency_widget.py:751
+#: widgets/efficiency/efficiency_widget.py:746
 msgid "JS110 input includes its burden voltage"
 msgstr "JS110の入力には、そのバーデン電圧が含まれています"
 
-#: widgets/efficiency/efficiency_widget.py:754
+#: widgets/efficiency/efficiency_widget.py:749
 msgid "Efficiency above 100%: swap input and output?"
 msgstr "効率が100%を超えています：入力と出力を入れ替えますか？"
 
-#: widgets/efficiency/efficiency_widget.py:759
+#: widgets/efficiency/efficiency_widget.py:754
 #, python-brace-format
 msgid "{0} windows"
 msgstr "{0} ウィンドウ"
 
-#: widgets/efficiency/efficiency_widget.py:761
+#: widgets/efficiency/efficiency_widget.py:756
 #, python-brace-format
 msgid "{0} invalid"
 msgstr "{0} 無効"
 
-#: widgets/efficiency/efficiency_widget.py:763
+#: widgets/efficiency/efficiency_widget.py:758
 #, python-brace-format
 msgid "{0} unsteady"
 msgstr "{0} 非定常"
 
-#: widgets/efficiency/efficiency_widget.py:766
-#: widgets/spectrum/spectrum_widget.py:1212
+#: widgets/efficiency/efficiency_widget.py:761
+#: widgets/spectrum/spectrum_widget.py:1207
 #, python-brace-format
 msgid "overruns {0}"
 msgstr "オーバーラン {0}"
@@ -3010,7 +3024,7 @@ msgstr "波形の注釈"
 msgid "External Serial..."
 msgstr "外部シリアル..."
 
-#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:797
+#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:796
 msgid "Value"
 msgstr "値"
 
@@ -3115,7 +3129,7 @@ msgid ""
 "this button to show the memory management widget which allows you to "
 "configure the memory used by this Joulescope UI instance."
 msgstr ""
-"ストリーミング信号のサンプル・データは、ホスト・コンピュータのRAMに保存されます。このボタンをクリックすると、メモリ管理ウィジェットが表示され、このJoulescope"
+"ストリーミング信号のサンプル・データは、ホスト・コンピューターのRAMに保存されます。このボタンをクリックすると、メモリ管理ウィジェットが表示され、このJoulescope"
 " UIインスタンスが使用するメモリを設定できます。"
 
 #: widgets/sidebar/sidebar_widget.py:44
@@ -3343,7 +3357,7 @@ msgid "PSD"
 msgstr "PSD"
 
 #: widgets/spectrum/spectrum_widget.py:138
-#: widgets/spectrum/spectrum_widget.py:1071
+#: widgets/spectrum/spectrum_widget.py:1066
 msgid "Y-axis units"
 msgstr "Y軸の単位"
 
@@ -3528,52 +3542,52 @@ msgstr "最大更新レート（Hz）"
 msgid "Spectrum"
 msgstr "スペクトル"
 
-#: widgets/spectrum/spectrum_widget.py:1045
+#: widgets/spectrum/spectrum_widget.py:1040
 msgid "Add marker"
 msgstr "マーカーを追加"
 
-#: widgets/spectrum/spectrum_widget.py:1048
+#: widgets/spectrum/spectrum_widget.py:1043
 msgid "Add marker at peak"
 msgstr "ピークにマーカーを追加"
 
-#: widgets/spectrum/spectrum_widget.py:1055
+#: widgets/spectrum/spectrum_widget.py:1050
 msgid "Remove marker"
 msgstr "マーカーを削除"
 
-#: widgets/spectrum/spectrum_widget.py:1057
+#: widgets/spectrum/spectrum_widget.py:1052
 msgid "Clear markers"
 msgstr "マーカーをクリア"
 
-#: widgets/spectrum/spectrum_widget.py:1059
+#: widgets/spectrum/spectrum_widget.py:1054
 msgid "Traces"
 msgstr "トレース"
 
-#: widgets/spectrum/spectrum_widget.py:1065
+#: widgets/spectrum/spectrum_widget.py:1060
 msgid "Logarithmic frequency"
 msgstr "対数周波数"
 
-#: widgets/spectrum/spectrum_widget.py:1066
+#: widgets/spectrum/spectrum_widget.py:1061
 msgid "Autoscale y-axis"
 msgstr "Y軸の自動スケーリング"
 
-#: widgets/spectrum/spectrum_widget.py:1067
+#: widgets/spectrum/spectrum_widget.py:1062
 msgid "Show FFT"
 msgstr "FFTを表示"
 
-#: widgets/spectrum/spectrum_widget.py:1068
+#: widgets/spectrum/spectrum_widget.py:1063
 msgid "Show waterfall"
 msgstr "ウォーターフォール表示"
 
-#: widgets/spectrum/spectrum_widget.py:1194
+#: widgets/spectrum/spectrum_widget.py:1189
 msgid "No signal"
 msgstr "信号なし"
 
-#: widgets/spectrum/spectrum_widget.py:1203
+#: widgets/spectrum/spectrum_widget.py:1198
 #, python-brace-format
 msgid "gaps {0}"
 msgstr "ギャップ {0}"
 
-#: widgets/spectrum/spectrum_widget.py:1209
+#: widgets/spectrum/spectrum_widget.py:1204
 #, python-brace-format
 msgid "waterfall {0}"
 msgstr "ウォーターフォール {0}"
@@ -3845,23 +3859,23 @@ msgid ""
 "Both accumulate indefinitely regardless of this button state."
 msgstr "このボタンは電荷とエネルギーの蓄積には影響しません。このボタンの状態に関係なく、どちらも無期限に蓄積されます。"
 
-#: widgets/value/value_widget.py:237
+#: widgets/value/value_widget.py:236
 msgid "Not present"
 msgstr "存在しない"
 
-#: widgets/value/value_widget.py:265
+#: widgets/value/value_widget.py:264
 msgid "Accrue"
 msgstr "累積"
 
-#: widgets/value/value_widget.py:601 widgets/waveform/waveform_widget.py:3808
+#: widgets/value/value_widget.py:600 widgets/waveform/waveform_widget.py:3808
 msgid "Preferred prefix"
 msgstr "優先接頭辞"
 
-#: widgets/value/value_widget.py:606
+#: widgets/value/value_widget.py:605
 msgid "auto"
 msgstr "auto"
 
-#: widgets/value/value_widget.py:608
+#: widgets/value/value_widget.py:607
 msgid "none"
 msgstr "なし"
 
@@ -4089,35 +4103,35 @@ msgstr "信号の表示/非表示"
 msgid "Click to toggle the signal axis display in the Waveform widget."
 msgstr "クリックすると、波形ウィジェットの信号軸表示が切り替わります。"
 
-#: widgets/waveform/waveform_source_widget.py:29
+#: widgets/waveform/waveform_source_widget.py:30
 msgid "Enable trace"
 msgstr "トレースを有効にする"
 
-#: widgets/waveform/waveform_source_widget.py:31
+#: widgets/waveform/waveform_source_widget.py:32
 msgid "Click to toggle this trace."
 msgstr "クリックするとこのトレースが切り替わります。"
 
-#: widgets/waveform/waveform_source_widget.py:32
+#: widgets/waveform/waveform_source_widget.py:33
 msgid "When enabled, the waveform will display this trace."
 msgstr "有効にすると、波形にこのトレースが表示されます。"
 
-#: widgets/waveform/waveform_source_widget.py:33
+#: widgets/waveform/waveform_source_widget.py:34
 msgid "When disabled, the waveform will hide this trace."
 msgstr "無効にすると、波形はこのトレースを隠します。"
 
-#: widgets/waveform/waveform_source_widget.py:37
+#: widgets/waveform/waveform_source_widget.py:38
 msgid "Select the source"
 msgstr "ソースを選択"
 
-#: widgets/waveform/waveform_source_widget.py:39
+#: widgets/waveform/waveform_source_widget.py:40
 msgid "Select the source for this trace."
 msgstr "このトレースのソースを選択します。"
 
-#: widgets/waveform/waveform_source_widget.py:40
+#: widgets/waveform/waveform_source_widget.py:41
 msgid ""
 "\"default\" will use the default source which is normally configured using "
 "the Device Control widget."
-msgstr "「default」は、通常デバイス制御ウィジェットで設定されるデフォルトのソースを使用します。"
+msgstr "「デフォルト」は、通常デバイス制御ウィジェットで設定されるデフォルトのソースを使用します。"
 
 #: widgets/waveform/waveform_widget.py:46
 msgid "Waveform"
@@ -4213,7 +4227,7 @@ msgid ""
 " The filter preserves the mean, but short pulses appear wider and lower. The"
 " min/max extents, statistics, and exported data are not filtered."
 msgstr ""
-"この機能を有効にすると、平均トレースはローパスフィルタ処理され、このフリッカーが低減されます。このフィルタ処理により平均値は維持されますが、短いパルスは幅が広く、低く表示されます。最小値/最大値の範囲、統計情報、およびエクスポートされたデータにはフィルタ処理は適用されません。"
+"この機能を有効にすると、平均トレースはローパスフィルター処理され、このフリッカーが低減されます。このフィルター処理により平均値は維持されますが、短いパルスは幅が広く、低く表示されます。最小値/最大値の範囲、統計情報、およびエクスポートされたデータにはフィルター処理は適用されません。"
 
 #: widgets/waveform/waveform_widget.py:433
 msgid "Show the frames per second."

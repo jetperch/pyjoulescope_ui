@@ -19,7 +19,7 @@ from joulescope_ui.styles import styled_widget, color_as_qcolor, font_as_qfont
 from joulescope_ui.units import RE_IS_NUMBER, UNITS_SETTING, \
     convert_units, effective_units, unit_prefix, prefix_to_scale, three_sig_figs
 from joulescope_ui.ui_util import comboBoxConfig, comboBoxSelectItemByText
-from joulescope_ui.source_selector import SourceSelector
+from joulescope_ui.source_selector import SourceSelector, source_name
 import datetime
 import numpy as np
 import copy
@@ -208,8 +208,7 @@ class _DeviceWidget(QtWidgets.QWidget):
         self.parent().source_selector.source_set(device)
 
     def _unique_id_to_name(self, unique_id):
-        pubsub = self.parent().pubsub
-        return pubsub.query(f'{get_topic_name(unique_id)}/settings/name', default=unique_id)
+        return source_name(self.parent().pubsub, unique_id)
 
     def _name_to_unique_id(self, name):
         try:
@@ -235,7 +234,7 @@ class _DeviceWidget(QtWidgets.QWidget):
         if unique_id is None:
             self._device_label.show()
             self._device_label.setText(N_('Not present'))
-        elif self._device_select.currentText() == 'default':
+        elif self._device_unique_ids[self._device_select.currentIndex()] == 'default':
             self._device_label.show()
             self._device_label.setText(self._unique_id_to_name(unique_id))
         else:

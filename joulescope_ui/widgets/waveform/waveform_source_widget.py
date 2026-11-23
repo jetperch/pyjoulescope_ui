@@ -18,8 +18,9 @@ Allow the user to configure the source devices displayed on the waveform.
 WARNING: this widget and feature is still under development.
 """
 
-from joulescope_ui import N_, P_, tooltip_format, get_topic_name
+from joulescope_ui import N_, P_, tooltip_format
 from joulescope_ui.widget_tools import CallableAction, context_menu_show
+from joulescope_ui.source_selector import source_name
 from PySide6 import QtCore, QtGui, QtWidgets
 import logging
 
@@ -97,7 +98,7 @@ class _Trace(QtWidgets.QFrame):
 
     def _source_to_name(self, source):
         subsource = source.split('.')[-1]
-        return self.pubsub.query(f'{get_topic_name(subsource)}/settings/name', default=subsource)
+        return source_name(self.pubsub, subsource)
 
     def _update(self):
         if self._priority is None or self._subsource is None:

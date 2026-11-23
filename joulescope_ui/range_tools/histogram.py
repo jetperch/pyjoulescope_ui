@@ -22,10 +22,10 @@ from joulescope_ui.styles import styled_widget
 
 
 _NAME = N_('Histogram')
-_NORMALIZATIONS = {
-    N_('Discrete Probability Distribution'): ('unity', 'Probability'),
-    N_('Frequency Distribution'): ('count', 'Sample Count'),
-    N_('Probability Density Distribution'): ('density', 'Probability Density'),
+_NORMALIZATIONS = {  # norm: (name, axis label)
+    'unity': (N_('Discrete Probability Distribution'), 'Probability'),
+    'count': (N_('Frequency Distribution'), 'Sample Count'),
+    'density': (N_('Probability Density Distribution'), 'Probability Density'),
 }
 
 
@@ -57,8 +57,8 @@ class HistogramRangeToolDialog(QtWidgets.QDialog):
         self._form.setWidget(2, QtWidgets.QFormLayout.LabelRole, self._type_label)
         self._normalization = QtWidgets.QComboBox(self)
         self._form.setWidget(2, QtWidgets.QFormLayout.FieldRole, self._normalization)
-        for name in _NORMALIZATIONS.keys():
-            self._normalization.addItem(name)
+        for norm, (name, _) in _NORMALIZATIONS.items():
+            self._normalization.addItem(name, norm)
 
         self._layout.addLayout(self._form)
         self._buttons = QtWidgets.QDialogButtonBox(self)
@@ -84,7 +84,7 @@ class HistogramRangeToolDialog(QtWidgets.QDialog):
             self._value['kwargs'] = {
                 'signal': self._value['signals'][self._signal.currentIndex()],
                 'num_bins': int(self._num_bins.value()),
-                'norm': str(self._normalization.currentText()),
+                'norm': self._normalization.currentData(),
             }
             w = HistogramRangeTool(self._value)
             pubsub_singleton.register(w)
@@ -198,7 +198,8 @@ class HistogramRangeTool(RangeToolBase):
         kwargs = self.kwargs
         num_bins = kwargs['num_bins']
         signal_id = kwargs['signal']
-        norm, norm_label = _NORMALIZATIONS[kwargs['norm']]
+        norm = kwargs['norm']
+        norm_label = _NORMALIZATIONS[norm][1]
 
         hist, bin_edges = calculate_histogram(self, self.value, signal_id, num_bins)
         hist, bin_edges = normalize_hist(hist, bin_edges, norm)

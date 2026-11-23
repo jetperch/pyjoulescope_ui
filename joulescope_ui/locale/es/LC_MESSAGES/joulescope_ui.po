@@ -366,9 +366,8 @@ msgstr "Ver como Markdown"
 msgid "Abort"
 msgstr "Abortar"
 
-#: error_window.py:120 main.py:468 widgets/efficiency/efficiency_widget.py:624
-#: widgets/settings/settings_widget.py:659
-#: widgets/spectrum/spectrum_widget.py:1064
+#: error_window.py:120
+msgctxt "verb"
 msgid "View"
 msgstr "Ver"
 
@@ -557,7 +556,7 @@ msgstr "Nombre de archivo"
 msgid "Notes"
 msgstr "Notas"
 
-#: exporter.py:89 widgets/efficiency/efficiency_widget.py:591
+#: exporter.py:89 widgets/efficiency/efficiency_widget.py:586
 #: widgets/signal_record/signal_record_config_widget.py:241
 #: widgets/signal_record/signal_record_config_widget.py:268
 #: widgets/statistics_record/statistics_record_config_widget.py:173
@@ -584,7 +583,7 @@ msgstr ""
 "Exportación de datos a un archivo JLS. Puede abrir este archivo más tarde "
 "para visualizar los datos exportados."
 
-#: exporter.py:311 widgets/efficiency/efficiency_widget.py:608
+#: exporter.py:311 widgets/efficiency/efficiency_widget.py:603
 msgid "Export failed"
 msgstr "Error al exportar"
 
@@ -765,7 +764,7 @@ msgstr ""
 "La aplicación se cerrará automáticamente al cambiar la configuración "
 "regional."
 
-#: main.py:79 widgets/value/value_widget.py:788
+#: main.py:79 widgets/value/value_widget.py:787
 msgid "Multimeter"
 msgstr "Multímetro"
 
@@ -889,7 +888,6 @@ msgstr "Borrar acumuladores"
 msgid "Configure high accuracy time"
 msgstr "Configure el tiempo de alta precisión"
 
-#: devices/serial/serial_port_dialog.py:145
 #: devices/serial/serial_port_dialog.py:159 main.py:457
 msgid "Open"
 msgstr "Abrir"
@@ -903,7 +901,7 @@ msgstr "Abrir reciente"
 msgid "Config"
 msgstr "Configuración"
 
-#: main.py:460 main.py:510 widgets/efficiency/efficiency_widget.py:635
+#: main.py:460 main.py:510 widgets/efficiency/efficiency_widget.py:630
 #: widgets/waveform/waveform_widget.py:4260
 msgid "Export"
 msgstr "Exportar"
@@ -923,6 +921,12 @@ msgstr "Borrar y reiniciar"
 #: main.py:464 main.py:514 main.py:985
 msgid "Clear and exit"
 msgstr "Borrar y salir"
+
+#: main.py:468 widgets/efficiency/efficiency_widget.py:619
+#: widgets/settings/settings_widget.py:659
+#: widgets/spectrum/spectrum_widget.py:1059
+msgid "View"
+msgstr "Ver"
 
 #: main.py:469 widgets/settings/settings_widget.py:661
 msgid "Widgets"
@@ -1124,7 +1128,12 @@ msgstr "Copiar al portapapeles"
 msgid "OK"
 msgstr "OK"
 
-#: source_selector.py:224 widgets/jls_info/jls_info_widget.py:47
+#: source_selector.py:49
+msgctxt "source"
+msgid "default"
+msgstr "predeterminada"
+
+#: source_selector.py:238 widgets/jls_info/jls_info_widget.py:47
 #: widgets/spectrum/spectrum_control.py:35
 msgid "Source"
 msgstr "Fuente"
@@ -1174,7 +1183,7 @@ msgid "Control location"
 msgstr "Ubicación de los controles"
 
 #: widget_tools.py:94 widgets/serial_console/serial_console_widget.py:218
-#: widgets/waveform/waveform_source_widget.py:104
+#: widgets/waveform/waveform_source_widget.py:105
 #: widgets/waveform/waveform_widget.py:410
 #: widgets/waveform/waveform_widget.py:445
 msgid "off"
@@ -2007,6 +2016,11 @@ msgid "Add"
 msgstr "Añadir"
 
 #: devices/serial/serial_port_dialog.py:145
+msgctxt "state"
+msgid "Open"
+msgstr "Abierto"
+
+#: devices/serial/serial_port_dialog.py:145
 msgid "Closed"
 msgstr "Cerrado"
 
@@ -2115,7 +2129,7 @@ msgstr "Distribución de densidad de probabilidad"
 
 #: range_tools/histogram.py:44 range_tools/max_window.py:109
 #: widgets/spectrum/spectrum_control.py:36
-#: widgets/spectrum/spectrum_widget.py:1076
+#: widgets/spectrum/spectrum_widget.py:1071
 #: widgets/trigger/trigger_widget.py:220
 msgid "Signal"
 msgstr "Señal"
@@ -2569,10 +2583,10 @@ msgstr ""
 
 #: widgets/efficiency/efficiency_control.py:27
 #: widgets/efficiency/efficiency_control.py:53
-#: widgets/efficiency/efficiency_widget.py:638
+#: widgets/efficiency/efficiency_widget.py:633
 #: widgets/memory/memory_widget.py:238 widgets/spectrum/spectrum_control.py:33
 #: widgets/spectrum/spectrum_control.py:68
-#: widgets/spectrum/spectrum_widget.py:1080
+#: widgets/spectrum/spectrum_widget.py:1075
 msgid "Clear"
 msgstr "Borrar"
 
@@ -2626,9 +2640,9 @@ msgid "Enable the instrument signals that this widget needs."
 msgstr "Activa las señales del instrumento que necesita este widget."
 
 #: widgets/efficiency/efficiency_control.py:52
-#: widgets/efficiency/efficiency_widget.py:737
+#: widgets/efficiency/efficiency_widget.py:732
 #: widgets/spectrum/spectrum_control.py:67
-#: widgets/spectrum/spectrum_widget.py:1196 widgets/value/value_widget.py:257
+#: widgets/spectrum/spectrum_widget.py:1191 widgets/value/value_widget.py:256
 msgid "Hold"
 msgstr "Retener"
 
@@ -2824,95 +2838,95 @@ msgstr "Retener la curva de eficiencia"
 msgid "The pane sizes."
 msgstr "Los tamaños de los paneles."
 
-#: widgets/efficiency/efficiency_widget.py:568
+#: widgets/efficiency/efficiency_widget.py:563
 msgid "input"
 msgstr "entrada"
 
-#: widgets/efficiency/efficiency_widget.py:569
+#: widgets/efficiency/efficiency_widget.py:564
 msgid "output"
 msgstr "salida"
 
-#: widgets/efficiency/efficiency_widget.py:570
+#: widgets/efficiency/efficiency_widget.py:565
 msgid "window"
 msgstr "ventana"
 
-#: widgets/efficiency/efficiency_widget.py:582
+#: widgets/efficiency/efficiency_widget.py:577
 msgid "curve window"
 msgstr "ventana de curvas"
 
-#: widgets/efficiency/efficiency_widget.py:583
+#: widgets/efficiency/efficiency_widget.py:578
 msgid "steady threshold"
 msgstr "umbral constante"
 
-#: widgets/efficiency/efficiency_widget.py:623
+#: widgets/efficiency/efficiency_widget.py:618
 msgid "Swap input and output"
 msgstr "Intercambiar entrada y salida"
 
-#: widgets/efficiency/efficiency_widget.py:636
+#: widgets/efficiency/efficiency_widget.py:631
 msgid "Efficiency vs time (CSV)"
 msgstr "Eficiencia frente al tiempo (CSV)"
 
-#: widgets/efficiency/efficiency_widget.py:637
+#: widgets/efficiency/efficiency_widget.py:632
 msgid "Efficiency curve (CSV)"
 msgstr "Curva de eficiencia (CSV)"
 
-#: widgets/efficiency/efficiency_widget.py:723
+#: widgets/efficiency/efficiency_widget.py:718
 #, python-brace-format
 msgid "{0} {1} is not connected"
 msgstr "{0} {1} no está conectado"
 
-#: widgets/efficiency/efficiency_widget.py:726
+#: widgets/efficiency/efficiency_widget.py:721
 msgid "Select the input and output instruments"
 msgstr "Seleccione los instrumentos de entrada y salida"
 
-#: widgets/efficiency/efficiency_widget.py:729
+#: widgets/efficiency/efficiency_widget.py:724
 msgid "Select different input and output instruments"
 msgstr "Seleccione instrumentos de entrada y salida diferentes"
 
-#: widgets/efficiency/efficiency_widget.py:734
+#: widgets/efficiency/efficiency_widget.py:729
 #, python-brace-format
 msgid "Disabled: {0}"
 msgstr "Desactivado: {0}"
 
-#: widgets/efficiency/efficiency_widget.py:739
+#: widgets/efficiency/efficiency_widget.py:734
 msgid "Curve hold"
 msgstr "Retención de curva"
 
-#: widgets/efficiency/efficiency_widget.py:741
-#: widgets/spectrum/spectrum_widget.py:1198
+#: widgets/efficiency/efficiency_widget.py:736
+#: widgets/spectrum/spectrum_widget.py:1193
 msgid "Paused"
 msgstr "Pausado"
 
-#: widgets/efficiency/efficiency_widget.py:748
+#: widgets/efficiency/efficiency_widget.py:743
 #, python-brace-format
 msgid "No data from {0}"
 msgstr "No hay datos de {0}"
 
-#: widgets/efficiency/efficiency_widget.py:751
+#: widgets/efficiency/efficiency_widget.py:746
 msgid "JS110 input includes its burden voltage"
 msgstr "La entrada del JS110 incluye su tensión de carga"
 
-#: widgets/efficiency/efficiency_widget.py:754
+#: widgets/efficiency/efficiency_widget.py:749
 msgid "Efficiency above 100%: swap input and output?"
 msgstr "¿Eficiencia superior al 100 %: ¿se invierten la entrada y la salida?"
 
-#: widgets/efficiency/efficiency_widget.py:759
+#: widgets/efficiency/efficiency_widget.py:754
 #, python-brace-format
 msgid "{0} windows"
 msgstr "{0} ventanas"
 
-#: widgets/efficiency/efficiency_widget.py:761
+#: widgets/efficiency/efficiency_widget.py:756
 #, python-brace-format
 msgid "{0} invalid"
 msgstr "{0} no válido"
 
-#: widgets/efficiency/efficiency_widget.py:763
+#: widgets/efficiency/efficiency_widget.py:758
 #, python-brace-format
 msgid "{0} unsteady"
 msgstr "{0} inestable"
 
-#: widgets/efficiency/efficiency_widget.py:766
-#: widgets/spectrum/spectrum_widget.py:1212
+#: widgets/efficiency/efficiency_widget.py:761
+#: widgets/spectrum/spectrum_widget.py:1207
 #, python-brace-format
 msgid "overruns {0}"
 msgstr "sobrepasamientos {0}"
@@ -3285,7 +3299,7 @@ msgstr "Anotar forma de onda"
 msgid "External Serial..."
 msgstr "Serie externa..."
 
-#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:797
+#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:796
 msgid "Value"
 msgstr "Valor"
 
@@ -3645,7 +3659,7 @@ msgid "PSD"
 msgstr "PSD"
 
 #: widgets/spectrum/spectrum_widget.py:138
-#: widgets/spectrum/spectrum_widget.py:1071
+#: widgets/spectrum/spectrum_widget.py:1066
 msgid "Y-axis units"
 msgstr "Unidades del eje Y"
 
@@ -3845,52 +3859,52 @@ msgstr "Frecuencia máxima de actualización (Hz)"
 msgid "Spectrum"
 msgstr "Espectro"
 
-#: widgets/spectrum/spectrum_widget.py:1045
+#: widgets/spectrum/spectrum_widget.py:1040
 msgid "Add marker"
 msgstr "Añadir marcador"
 
-#: widgets/spectrum/spectrum_widget.py:1048
+#: widgets/spectrum/spectrum_widget.py:1043
 msgid "Add marker at peak"
 msgstr "Añadir marcador en el pico"
 
-#: widgets/spectrum/spectrum_widget.py:1055
+#: widgets/spectrum/spectrum_widget.py:1050
 msgid "Remove marker"
 msgstr "Eliminar marcador"
 
-#: widgets/spectrum/spectrum_widget.py:1057
+#: widgets/spectrum/spectrum_widget.py:1052
 msgid "Clear markers"
 msgstr "Borrar marcadores"
 
-#: widgets/spectrum/spectrum_widget.py:1059
+#: widgets/spectrum/spectrum_widget.py:1054
 msgid "Traces"
 msgstr "Trazas"
 
-#: widgets/spectrum/spectrum_widget.py:1065
+#: widgets/spectrum/spectrum_widget.py:1060
 msgid "Logarithmic frequency"
 msgstr "Frecuencia logarítmica"
 
-#: widgets/spectrum/spectrum_widget.py:1066
+#: widgets/spectrum/spectrum_widget.py:1061
 msgid "Autoscale y-axis"
 msgstr "Escala automática del eje Y"
 
-#: widgets/spectrum/spectrum_widget.py:1067
+#: widgets/spectrum/spectrum_widget.py:1062
 msgid "Show FFT"
 msgstr "Mostrar FFT"
 
-#: widgets/spectrum/spectrum_widget.py:1068
+#: widgets/spectrum/spectrum_widget.py:1063
 msgid "Show waterfall"
 msgstr "Mostrar gráfico en cascada"
 
-#: widgets/spectrum/spectrum_widget.py:1194
+#: widgets/spectrum/spectrum_widget.py:1189
 msgid "No signal"
 msgstr "Sin señal"
 
-#: widgets/spectrum/spectrum_widget.py:1203
+#: widgets/spectrum/spectrum_widget.py:1198
 #, python-brace-format
 msgid "gaps {0}"
 msgstr "huecos {0}"
 
-#: widgets/spectrum/spectrum_widget.py:1209
+#: widgets/spectrum/spectrum_widget.py:1204
 #, python-brace-format
 msgid "waterfall {0}"
 msgstr "cascada {0}"
@@ -4194,23 +4208,23 @@ msgstr ""
 "energía. Ambas se acumulan indefinidamente independientemente del estado de "
 "este botón."
 
-#: widgets/value/value_widget.py:237
+#: widgets/value/value_widget.py:236
 msgid "Not present"
 msgstr "No presente"
 
-#: widgets/value/value_widget.py:265
+#: widgets/value/value_widget.py:264
 msgid "Accrue"
 msgstr "Acumular"
 
-#: widgets/value/value_widget.py:601 widgets/waveform/waveform_widget.py:3808
+#: widgets/value/value_widget.py:600 widgets/waveform/waveform_widget.py:3808
 msgid "Preferred prefix"
 msgstr "Prefijo preferido"
 
-#: widgets/value/value_widget.py:606
+#: widgets/value/value_widget.py:605
 msgid "auto"
 msgstr "auto"
 
-#: widgets/value/value_widget.py:608
+#: widgets/value/value_widget.py:607
 msgid "none"
 msgstr "ninguna"
 
@@ -4468,37 +4482,37 @@ msgstr ""
 "Haga clic para alternar la visualización del eje de la señal en el widget "
 "Forma de onda."
 
-#: widgets/waveform/waveform_source_widget.py:29
+#: widgets/waveform/waveform_source_widget.py:30
 msgid "Enable trace"
 msgstr "Habilitar traza"
 
-#: widgets/waveform/waveform_source_widget.py:31
+#: widgets/waveform/waveform_source_widget.py:32
 msgid "Click to toggle this trace."
 msgstr "Haga clic para activar esta traza."
 
-#: widgets/waveform/waveform_source_widget.py:32
+#: widgets/waveform/waveform_source_widget.py:33
 msgid "When enabled, the waveform will display this trace."
 msgstr "Cuando se activa, la forma de onda mostrará esta traza."
 
-#: widgets/waveform/waveform_source_widget.py:33
+#: widgets/waveform/waveform_source_widget.py:34
 msgid "When disabled, the waveform will hide this trace."
 msgstr "Cuando está desactivado, la forma de onda oculta esta traza."
 
-#: widgets/waveform/waveform_source_widget.py:37
+#: widgets/waveform/waveform_source_widget.py:38
 msgid "Select the source"
 msgstr "Seleccione la fuente"
 
-#: widgets/waveform/waveform_source_widget.py:39
+#: widgets/waveform/waveform_source_widget.py:40
 msgid "Select the source for this trace."
 msgstr "Seleccione la fuente para esta traza."
 
-#: widgets/waveform/waveform_source_widget.py:40
+#: widgets/waveform/waveform_source_widget.py:41
 msgid ""
 "\"default\" will use the default source which is normally configured using "
 "the Device Control widget."
 msgstr ""
-"\"default\" utilizará la fuente por defecto que normalmente se configura "
-"utilizando el widget de Control de Dispositivos."
+"\"predeterminada\" utilizará la fuente predeterminada que normalmente se "
+"configura utilizando el widget de Control de Dispositivos."
 
 #: widgets/waveform/waveform_widget.py:46
 msgid "Waveform"

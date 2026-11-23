@@ -113,5 +113,19 @@ def N_(txt: str) -> str:
     return translate.gettext(txt)
 
 
+def C_(context: str, txt: str) -> str:
+    """Normalize and translate text with a message context.
+
+    :param context: The disambiguating context, such as "verb" or "state".
+        Use this when one English word needs different translations,
+        like "Open" the action versus "Open" the status.
+    :param txt: The text to translate.
+    :return: The translated text.
+    """
+    txt = txt.strip()
+    txt = _WHITESPACE_REGEX.sub(' ', txt)
+    return translate.pgettext(context, txt)
+
+
 def locale_get():
     return _locale_str

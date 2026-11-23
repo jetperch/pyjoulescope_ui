@@ -17,7 +17,8 @@ Test joulescope_ui.source_selector
 """
 
 import unittest
-from joulescope_ui.source_selector import SourceSelector
+from unittest import mock
+from joulescope_ui.source_selector import SourceSelector, source_name
 from joulescope_ui import CAPABILITIES, Metadata
 from joulescope_ui.pubsub import PubSub, PubSubProxy
 
@@ -151,3 +152,22 @@ class TestSourceSelector(unittest.TestCase):
         source_add('111111')
         self.assertEqual([['default', 'src1.JS220-000001', 'src1.JS220-112233', 'src1.JS220-111111']],
                          self.sources_changed_calls)
+
+
+class TestSourceName(unittest.TestCase):
+
+    def test_default_is_translated(self):
+        with mock.patch('joulescope_ui.source_selector.C_', return_value='Standard') as c:
+            self.assertEqual('Standard', source_name(None, 'default'))
+        c.assert_called_once_with('source', 'default')
+
+    def test_no_pubsub(self):
+        self.assertEqual('JS220-000415', source_name(None, 'JS220-000415'))
+        self.assertEqual('None', source_name(None, None))
+
+    def test_query_name(self):
+        pubsub = mock.Mock()
+        pubsub.query.return_value = 'My Joulescope'
+        self.assertEqual('My Joulescope', source_name(pubsub, 'JsdrvDevice-u-js220-000415'))
+        topic = pubsub.query.call_args.args[0]
+        self.assertEqual('registry/JsdrvDevice-u-js220-000415/settings/name', topic)

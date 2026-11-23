@@ -317,11 +317,10 @@ msgstr "以 Markdown 格式查看"
 msgid "Abort"
 msgstr "终止"
 
-#: error_window.py:120 main.py:468 widgets/efficiency/efficiency_widget.py:624
-#: widgets/settings/settings_widget.py:659
-#: widgets/spectrum/spectrum_widget.py:1064
+#: error_window.py:120
+msgctxt "verb"
 msgid "View"
-msgstr "视图"
+msgstr "查看"
 
 #: error_window.py:121
 msgid "Submit"
@@ -499,7 +498,7 @@ msgstr "文件名"
 msgid "Notes"
 msgstr "备注"
 
-#: exporter.py:89 widgets/efficiency/efficiency_widget.py:591
+#: exporter.py:89 widgets/efficiency/efficiency_widget.py:586
 #: widgets/signal_record/signal_record_config_widget.py:241
 #: widgets/signal_record/signal_record_config_widget.py:268
 #: widgets/statistics_record/statistics_record_config_widget.py:173
@@ -524,7 +523,7 @@ msgid ""
 "exported data."
 msgstr "将数据导出到 JLS 文件。稍后可以打开该文件以显示导出的数据。"
 
-#: exporter.py:311 widgets/efficiency/efficiency_widget.py:608
+#: exporter.py:311 widgets/efficiency/efficiency_widget.py:603
 msgid "Export failed"
 msgstr "导出失败"
 
@@ -674,7 +673,7 @@ msgstr "选择语言"
 msgid "The application will automatically close when you change the locale."
 msgstr "更改语言区域后，应用程序将自动关闭。"
 
-#: main.py:79 widgets/value/value_widget.py:788
+#: main.py:79 widgets/value/value_widget.py:787
 msgid "Multimeter"
 msgstr "万用表"
 
@@ -787,7 +786,6 @@ msgstr "清除累加器"
 msgid "Configure high accuracy time"
 msgstr "配置高精度时间"
 
-#: devices/serial/serial_port_dialog.py:145
 #: devices/serial/serial_port_dialog.py:159 main.py:457
 msgid "Open"
 msgstr "打开"
@@ -801,7 +799,7 @@ msgstr "最近打开"
 msgid "Config"
 msgstr "配置"
 
-#: main.py:460 main.py:510 widgets/efficiency/efficiency_widget.py:635
+#: main.py:460 main.py:510 widgets/efficiency/efficiency_widget.py:630
 #: widgets/waveform/waveform_widget.py:4260
 msgid "Export"
 msgstr "导出"
@@ -821,6 +819,12 @@ msgstr "清除并重启"
 #: main.py:464 main.py:514 main.py:985
 msgid "Clear and exit"
 msgstr "清除并退出"
+
+#: main.py:468 widgets/efficiency/efficiency_widget.py:619
+#: widgets/settings/settings_widget.py:659
+#: widgets/spectrum/spectrum_widget.py:1059
+msgid "View"
+msgstr "视图"
 
 #: main.py:469 widgets/settings/settings_widget.py:661
 msgid "Widgets"
@@ -1015,7 +1019,12 @@ msgstr "复制到剪贴板"
 msgid "OK"
 msgstr "确定"
 
-#: source_selector.py:224 widgets/jls_info/jls_info_widget.py:47
+#: source_selector.py:49
+msgctxt "source"
+msgid "default"
+msgstr "默认"
+
+#: source_selector.py:238 widgets/jls_info/jls_info_widget.py:47
 #: widgets/spectrum/spectrum_control.py:35
 msgid "Source"
 msgstr "源"
@@ -1065,7 +1074,7 @@ msgid "Control location"
 msgstr "控制位置"
 
 #: widget_tools.py:94 widgets/serial_console/serial_console_widget.py:218
-#: widgets/waveform/waveform_source_widget.py:104
+#: widgets/waveform/waveform_source_widget.py:105
 #: widgets/waveform/waveform_widget.py:410
 #: widgets/waveform/waveform_widget.py:445
 msgid "off"
@@ -1783,6 +1792,11 @@ msgid "Add"
 msgstr "添加"
 
 #: devices/serial/serial_port_dialog.py:145
+msgctxt "state"
+msgid "Open"
+msgstr "已打开"
+
+#: devices/serial/serial_port_dialog.py:145
 msgid "Closed"
 msgstr "已关闭"
 
@@ -1884,7 +1898,7 @@ msgstr "概率密度分布"
 
 #: range_tools/histogram.py:44 range_tools/max_window.py:109
 #: widgets/spectrum/spectrum_control.py:36
-#: widgets/spectrum/spectrum_widget.py:1076
+#: widgets/spectrum/spectrum_widget.py:1071
 #: widgets/trigger/trigger_widget.py:220
 msgid "Signal"
 msgstr "信号"
@@ -2293,10 +2307,10 @@ msgstr "选中此选项后，将忽略新数据，使显示屏保持静止。"
 
 #: widgets/efficiency/efficiency_control.py:27
 #: widgets/efficiency/efficiency_control.py:53
-#: widgets/efficiency/efficiency_widget.py:638
+#: widgets/efficiency/efficiency_widget.py:633
 #: widgets/memory/memory_widget.py:238 widgets/spectrum/spectrum_control.py:33
 #: widgets/spectrum/spectrum_control.py:68
-#: widgets/spectrum/spectrum_widget.py:1080
+#: widgets/spectrum/spectrum_widget.py:1075
 msgid "Clear"
 msgstr "清除"
 
@@ -2346,9 +2360,9 @@ msgid "Enable the instrument signals that this widget needs."
 msgstr "请启用该小部件所需的仪器信号。"
 
 #: widgets/efficiency/efficiency_control.py:52
-#: widgets/efficiency/efficiency_widget.py:737
+#: widgets/efficiency/efficiency_widget.py:732
 #: widgets/spectrum/spectrum_control.py:67
-#: widgets/spectrum/spectrum_widget.py:1196 widgets/value/value_widget.py:257
+#: widgets/spectrum/spectrum_widget.py:1191 widgets/value/value_widget.py:256
 msgid "Hold"
 msgstr "保持"
 
@@ -2529,95 +2543,95 @@ msgstr "保持效率曲线"
 msgid "The pane sizes."
 msgstr "面板尺寸。"
 
-#: widgets/efficiency/efficiency_widget.py:568
+#: widgets/efficiency/efficiency_widget.py:563
 msgid "input"
 msgstr "输入"
 
-#: widgets/efficiency/efficiency_widget.py:569
+#: widgets/efficiency/efficiency_widget.py:564
 msgid "output"
 msgstr "输出"
 
-#: widgets/efficiency/efficiency_widget.py:570
+#: widgets/efficiency/efficiency_widget.py:565
 msgid "window"
 msgstr "窗口"
 
-#: widgets/efficiency/efficiency_widget.py:582
+#: widgets/efficiency/efficiency_widget.py:577
 msgid "curve window"
 msgstr "曲线窗口"
 
-#: widgets/efficiency/efficiency_widget.py:583
+#: widgets/efficiency/efficiency_widget.py:578
 msgid "steady threshold"
 msgstr "稳态阈值"
 
-#: widgets/efficiency/efficiency_widget.py:623
+#: widgets/efficiency/efficiency_widget.py:618
 msgid "Swap input and output"
 msgstr "交换输入和输出"
 
-#: widgets/efficiency/efficiency_widget.py:636
+#: widgets/efficiency/efficiency_widget.py:631
 msgid "Efficiency vs time (CSV)"
 msgstr "效率与时间的关系（CSV）"
 
-#: widgets/efficiency/efficiency_widget.py:637
+#: widgets/efficiency/efficiency_widget.py:632
 msgid "Efficiency curve (CSV)"
 msgstr "效率曲线 (CSV)"
 
-#: widgets/efficiency/efficiency_widget.py:723
+#: widgets/efficiency/efficiency_widget.py:718
 #, python-brace-format
 msgid "{0} {1} is not connected"
 msgstr "{0} {1} 未连接"
 
-#: widgets/efficiency/efficiency_widget.py:726
+#: widgets/efficiency/efficiency_widget.py:721
 msgid "Select the input and output instruments"
 msgstr "选择输入和输出仪器"
 
-#: widgets/efficiency/efficiency_widget.py:729
+#: widgets/efficiency/efficiency_widget.py:724
 msgid "Select different input and output instruments"
 msgstr "选择不同的输入和输出仪器"
 
-#: widgets/efficiency/efficiency_widget.py:734
+#: widgets/efficiency/efficiency_widget.py:729
 #, python-brace-format
 msgid "Disabled: {0}"
 msgstr "已禁用：{0}"
 
-#: widgets/efficiency/efficiency_widget.py:739
+#: widgets/efficiency/efficiency_widget.py:734
 msgid "Curve hold"
 msgstr "曲线保持"
 
-#: widgets/efficiency/efficiency_widget.py:741
-#: widgets/spectrum/spectrum_widget.py:1198
+#: widgets/efficiency/efficiency_widget.py:736
+#: widgets/spectrum/spectrum_widget.py:1193
 msgid "Paused"
 msgstr "暂停"
 
-#: widgets/efficiency/efficiency_widget.py:748
+#: widgets/efficiency/efficiency_widget.py:743
 #, python-brace-format
 msgid "No data from {0}"
 msgstr "{0} 没有数据"
 
-#: widgets/efficiency/efficiency_widget.py:751
+#: widgets/efficiency/efficiency_widget.py:746
 msgid "JS110 input includes its burden voltage"
 msgstr "JS110 的输入包含其负载电压"
 
-#: widgets/efficiency/efficiency_widget.py:754
+#: widgets/efficiency/efficiency_widget.py:749
 msgid "Efficiency above 100%: swap input and output?"
 msgstr "效率超过 100%：是输入和输出接反了吗？"
 
-#: widgets/efficiency/efficiency_widget.py:759
+#: widgets/efficiency/efficiency_widget.py:754
 #, python-brace-format
 msgid "{0} windows"
 msgstr "{0} 个窗口"
 
-#: widgets/efficiency/efficiency_widget.py:761
+#: widgets/efficiency/efficiency_widget.py:756
 #, python-brace-format
 msgid "{0} invalid"
 msgstr "{0} 无效"
 
-#: widgets/efficiency/efficiency_widget.py:763
+#: widgets/efficiency/efficiency_widget.py:758
 #, python-brace-format
 msgid "{0} unsteady"
 msgstr "{0} 非稳态"
 
-#: widgets/efficiency/efficiency_widget.py:766
-#: widgets/spectrum/spectrum_widget.py:1212
+#: widgets/efficiency/efficiency_widget.py:761
+#: widgets/spectrum/spectrum_widget.py:1207
 #, python-brace-format
 msgid "overruns {0}"
 msgstr "超限 {0}"
@@ -2973,7 +2987,7 @@ msgstr "注释波形"
 msgid "External Serial..."
 msgstr "外部串行..."
 
-#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:797
+#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:796
 msgid "Value"
 msgstr "值"
 
@@ -3299,7 +3313,7 @@ msgid "PSD"
 msgstr "PSD"
 
 #: widgets/spectrum/spectrum_widget.py:138
-#: widgets/spectrum/spectrum_widget.py:1071
+#: widgets/spectrum/spectrum_widget.py:1066
 msgid "Y-axis units"
 msgstr "Y 轴单位"
 
@@ -3483,52 +3497,52 @@ msgstr "最大更新率（Hz）"
 msgid "Spectrum"
 msgstr "频谱"
 
-#: widgets/spectrum/spectrum_widget.py:1045
+#: widgets/spectrum/spectrum_widget.py:1040
 msgid "Add marker"
 msgstr "添加标记"
 
-#: widgets/spectrum/spectrum_widget.py:1048
+#: widgets/spectrum/spectrum_widget.py:1043
 msgid "Add marker at peak"
 msgstr "在峰值处添加标记"
 
-#: widgets/spectrum/spectrum_widget.py:1055
+#: widgets/spectrum/spectrum_widget.py:1050
 msgid "Remove marker"
 msgstr "删除标记"
 
-#: widgets/spectrum/spectrum_widget.py:1057
+#: widgets/spectrum/spectrum_widget.py:1052
 msgid "Clear markers"
 msgstr "清除标记"
 
-#: widgets/spectrum/spectrum_widget.py:1059
+#: widgets/spectrum/spectrum_widget.py:1054
 msgid "Traces"
 msgstr "迹线"
 
-#: widgets/spectrum/spectrum_widget.py:1065
+#: widgets/spectrum/spectrum_widget.py:1060
 msgid "Logarithmic frequency"
 msgstr "对数频率"
 
-#: widgets/spectrum/spectrum_widget.py:1066
+#: widgets/spectrum/spectrum_widget.py:1061
 msgid "Autoscale y-axis"
 msgstr "Y 轴自动缩放"
 
-#: widgets/spectrum/spectrum_widget.py:1067
+#: widgets/spectrum/spectrum_widget.py:1062
 msgid "Show FFT"
 msgstr "显示 FFT"
 
-#: widgets/spectrum/spectrum_widget.py:1068
+#: widgets/spectrum/spectrum_widget.py:1063
 msgid "Show waterfall"
 msgstr "显示瀑布图"
 
-#: widgets/spectrum/spectrum_widget.py:1194
+#: widgets/spectrum/spectrum_widget.py:1189
 msgid "No signal"
 msgstr "无信号"
 
-#: widgets/spectrum/spectrum_widget.py:1203
+#: widgets/spectrum/spectrum_widget.py:1198
 #, python-brace-format
 msgid "gaps {0}"
 msgstr "间隙 {0}"
 
-#: widgets/spectrum/spectrum_widget.py:1209
+#: widgets/spectrum/spectrum_widget.py:1204
 #, python-brace-format
 msgid "waterfall {0}"
 msgstr "瀑布图 {0}"
@@ -3795,23 +3809,23 @@ msgid ""
 "Both accumulate indefinitely regardless of this button state."
 msgstr "请注意，该按钮不会影响电荷和能量的累积。无论按钮状态如何，两者都会无限累积。"
 
-#: widgets/value/value_widget.py:237
+#: widgets/value/value_widget.py:236
 msgid "Not present"
 msgstr "不存在"
 
-#: widgets/value/value_widget.py:265
+#: widgets/value/value_widget.py:264
 msgid "Accrue"
 msgstr "累积"
 
-#: widgets/value/value_widget.py:601 widgets/waveform/waveform_widget.py:3808
+#: widgets/value/value_widget.py:600 widgets/waveform/waveform_widget.py:3808
 msgid "Preferred prefix"
 msgstr "首选前缀"
 
-#: widgets/value/value_widget.py:606
+#: widgets/value/value_widget.py:605
 msgid "auto"
 msgstr "自动"
 
-#: widgets/value/value_widget.py:608
+#: widgets/value/value_widget.py:607
 msgid "none"
 msgstr "无"
 
@@ -4038,35 +4052,35 @@ msgstr "显示/隐藏信号"
 msgid "Click to toggle the signal axis display in the Waveform widget."
 msgstr "单击可切换波形小部件中的信号轴显示。"
 
-#: widgets/waveform/waveform_source_widget.py:29
+#: widgets/waveform/waveform_source_widget.py:30
 msgid "Enable trace"
 msgstr "启用迹线"
 
-#: widgets/waveform/waveform_source_widget.py:31
+#: widgets/waveform/waveform_source_widget.py:32
 msgid "Click to toggle this trace."
 msgstr "单击以切换此迹线。"
 
-#: widgets/waveform/waveform_source_widget.py:32
+#: widgets/waveform/waveform_source_widget.py:33
 msgid "When enabled, the waveform will display this trace."
 msgstr "启用后，波形将显示此迹线。"
 
-#: widgets/waveform/waveform_source_widget.py:33
+#: widgets/waveform/waveform_source_widget.py:34
 msgid "When disabled, the waveform will hide this trace."
 msgstr "禁用时，波形将隐藏此迹线。"
 
-#: widgets/waveform/waveform_source_widget.py:37
+#: widgets/waveform/waveform_source_widget.py:38
 msgid "Select the source"
 msgstr "选择源"
 
-#: widgets/waveform/waveform_source_widget.py:39
+#: widgets/waveform/waveform_source_widget.py:40
 msgid "Select the source for this trace."
 msgstr "选择该迹线的源。"
 
-#: widgets/waveform/waveform_source_widget.py:40
+#: widgets/waveform/waveform_source_widget.py:41
 msgid ""
 "\"default\" will use the default source which is normally configured using "
 "the Device Control widget."
-msgstr "“default”将使用默认源，该源通常通过设备控制小部件进行配置。"
+msgstr "“默认”将使用默认源，该源通常通过设备控制小部件进行配置。"
 
 #: widgets/waveform/waveform_widget.py:46
 msgid "Waveform"

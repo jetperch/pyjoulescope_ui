@@ -370,9 +370,8 @@ msgstr "Προβολή ως Markdown"
 msgid "Abort"
 msgstr "Διακοπή"
 
-#: error_window.py:120 main.py:468 widgets/efficiency/efficiency_widget.py:624
-#: widgets/settings/settings_widget.py:659
-#: widgets/spectrum/spectrum_widget.py:1064
+#: error_window.py:120
+msgctxt "verb"
 msgid "View"
 msgstr "Προβολή"
 
@@ -564,7 +563,7 @@ msgstr "Όνομα αρχείου"
 msgid "Notes"
 msgstr "Σημειώσεις"
 
-#: exporter.py:89 widgets/efficiency/efficiency_widget.py:591
+#: exporter.py:89 widgets/efficiency/efficiency_widget.py:586
 #: widgets/signal_record/signal_record_config_widget.py:241
 #: widgets/signal_record/signal_record_config_widget.py:268
 #: widgets/statistics_record/statistics_record_config_widget.py:173
@@ -591,7 +590,7 @@ msgstr ""
 "Εξαγωγή δεδομένων σε αρχείο JLS. Μπορείτε να ανοίξετε αυτό το αρχείο "
 "αργότερα για να εμφανίσετε τα εξαγόμενα δεδομένα."
 
-#: exporter.py:311 widgets/efficiency/efficiency_widget.py:608
+#: exporter.py:311 widgets/efficiency/efficiency_widget.py:603
 msgid "Export failed"
 msgstr "Η εξαγωγή απέτυχε"
 
@@ -766,7 +765,7 @@ msgstr "Επιλέξτε μια γλώσσα"
 msgid "The application will automatically close when you change the locale."
 msgstr "Η εφαρμογή θα κλείσει αυτόματα όταν αλλάξετε τη γλώσσα."
 
-#: main.py:79 widgets/value/value_widget.py:788
+#: main.py:79 widgets/value/value_widget.py:787
 msgid "Multimeter"
 msgstr "Πολύμετρο"
 
@@ -890,7 +889,6 @@ msgstr "Εκκαθάριση συσσωρευτών"
 msgid "Configure high accuracy time"
 msgstr "Διαμόρφωση χρόνου υψηλής ακρίβειας"
 
-#: devices/serial/serial_port_dialog.py:145
 #: devices/serial/serial_port_dialog.py:159 main.py:457
 msgid "Open"
 msgstr "Άνοιγμα"
@@ -904,7 +902,7 @@ msgstr "Άνοιγμα πρόσφατου"
 msgid "Config"
 msgstr "Διαμόρφωση"
 
-#: main.py:460 main.py:510 widgets/efficiency/efficiency_widget.py:635
+#: main.py:460 main.py:510 widgets/efficiency/efficiency_widget.py:630
 #: widgets/waveform/waveform_widget.py:4260
 msgid "Export"
 msgstr "Εξαγωγή"
@@ -924,6 +922,12 @@ msgstr "Εκκαθάριση και επανεκκίνηση"
 #: main.py:464 main.py:514 main.py:985
 msgid "Clear and exit"
 msgstr "Εκκαθάριση και έξοδος"
+
+#: main.py:468 widgets/efficiency/efficiency_widget.py:619
+#: widgets/settings/settings_widget.py:659
+#: widgets/spectrum/spectrum_widget.py:1059
+msgid "View"
+msgstr "Προβολή"
 
 #: main.py:469 widgets/settings/settings_widget.py:661
 msgid "Widgets"
@@ -1128,7 +1132,12 @@ msgstr "Αντιγραφή στο πρόχειρο"
 msgid "OK"
 msgstr "OK"
 
-#: source_selector.py:224 widgets/jls_info/jls_info_widget.py:47
+#: source_selector.py:49
+msgctxt "source"
+msgid "default"
+msgstr "προεπιλογή"
+
+#: source_selector.py:238 widgets/jls_info/jls_info_widget.py:47
 #: widgets/spectrum/spectrum_control.py:35
 msgid "Source"
 msgstr "Πηγή"
@@ -1178,7 +1187,7 @@ msgid "Control location"
 msgstr "Θέση ελέγχου"
 
 #: widget_tools.py:94 widgets/serial_console/serial_console_widget.py:218
-#: widgets/waveform/waveform_source_widget.py:104
+#: widgets/waveform/waveform_source_widget.py:105
 #: widgets/waveform/waveform_widget.py:410
 #: widgets/waveform/waveform_widget.py:445
 msgid "off"
@@ -2018,6 +2027,11 @@ msgid "Add"
 msgstr "Προσθήκη"
 
 #: devices/serial/serial_port_dialog.py:145
+msgctxt "state"
+msgid "Open"
+msgstr "Ανοιχτό"
+
+#: devices/serial/serial_port_dialog.py:145
 msgid "Closed"
 msgstr "Κλειστό"
 
@@ -2126,7 +2140,7 @@ msgstr "Κατανομή πυκνότητας πιθανότητας"
 
 #: range_tools/histogram.py:44 range_tools/max_window.py:109
 #: widgets/spectrum/spectrum_control.py:36
-#: widgets/spectrum/spectrum_widget.py:1076
+#: widgets/spectrum/spectrum_widget.py:1071
 #: widgets/trigger/trigger_widget.py:220
 msgid "Signal"
 msgstr "Σήμα"
@@ -2585,10 +2599,10 @@ msgstr ""
 
 #: widgets/efficiency/efficiency_control.py:27
 #: widgets/efficiency/efficiency_control.py:53
-#: widgets/efficiency/efficiency_widget.py:638
+#: widgets/efficiency/efficiency_widget.py:633
 #: widgets/memory/memory_widget.py:238 widgets/spectrum/spectrum_control.py:33
 #: widgets/spectrum/spectrum_control.py:68
-#: widgets/spectrum/spectrum_widget.py:1080
+#: widgets/spectrum/spectrum_widget.py:1075
 msgid "Clear"
 msgstr "Εκκαθάριση"
 
@@ -2643,9 +2657,9 @@ msgid "Enable the instrument signals that this widget needs."
 msgstr "Ενεργοποιήστε τα σήματα του οργάνου που απαιτεί αυτό το widget."
 
 #: widgets/efficiency/efficiency_control.py:52
-#: widgets/efficiency/efficiency_widget.py:737
+#: widgets/efficiency/efficiency_widget.py:732
 #: widgets/spectrum/spectrum_control.py:67
-#: widgets/spectrum/spectrum_widget.py:1196 widgets/value/value_widget.py:257
+#: widgets/spectrum/spectrum_widget.py:1191 widgets/value/value_widget.py:256
 msgid "Hold"
 msgstr "Πάγωμα"
 
@@ -2840,95 +2854,95 @@ msgstr "Πάγωμα της καμπύλης απόδοσης"
 msgid "The pane sizes."
 msgstr "Τα μεγέθη των πλαισίων."
 
-#: widgets/efficiency/efficiency_widget.py:568
+#: widgets/efficiency/efficiency_widget.py:563
 msgid "input"
 msgstr "είσοδος"
 
-#: widgets/efficiency/efficiency_widget.py:569
+#: widgets/efficiency/efficiency_widget.py:564
 msgid "output"
 msgstr "έξοδος"
 
-#: widgets/efficiency/efficiency_widget.py:570
+#: widgets/efficiency/efficiency_widget.py:565
 msgid "window"
 msgstr "παράθυρο"
 
-#: widgets/efficiency/efficiency_widget.py:582
+#: widgets/efficiency/efficiency_widget.py:577
 msgid "curve window"
 msgstr "παράθυρο καμπύλης"
 
-#: widgets/efficiency/efficiency_widget.py:583
+#: widgets/efficiency/efficiency_widget.py:578
 msgid "steady threshold"
 msgstr "όριο σταθερότητας"
 
-#: widgets/efficiency/efficiency_widget.py:623
+#: widgets/efficiency/efficiency_widget.py:618
 msgid "Swap input and output"
 msgstr "Ανταλλαγή εισόδου και εξόδου"
 
-#: widgets/efficiency/efficiency_widget.py:636
+#: widgets/efficiency/efficiency_widget.py:631
 msgid "Efficiency vs time (CSV)"
 msgstr "Απόδοση έναντι χρόνου (CSV)"
 
-#: widgets/efficiency/efficiency_widget.py:637
+#: widgets/efficiency/efficiency_widget.py:632
 msgid "Efficiency curve (CSV)"
 msgstr "Καμπύλη απόδοσης (CSV)"
 
-#: widgets/efficiency/efficiency_widget.py:723
+#: widgets/efficiency/efficiency_widget.py:718
 #, python-brace-format
 msgid "{0} {1} is not connected"
 msgstr "{0} {1} δεν είναι συνδεδεμένο"
 
-#: widgets/efficiency/efficiency_widget.py:726
+#: widgets/efficiency/efficiency_widget.py:721
 msgid "Select the input and output instruments"
 msgstr "Επιλέξτε τα όργανα εισόδου και εξόδου"
 
-#: widgets/efficiency/efficiency_widget.py:729
+#: widgets/efficiency/efficiency_widget.py:724
 msgid "Select different input and output instruments"
 msgstr "Επιλέξτε διαφορετικά όργανα εισόδου και εξόδου"
 
-#: widgets/efficiency/efficiency_widget.py:734
+#: widgets/efficiency/efficiency_widget.py:729
 #, python-brace-format
 msgid "Disabled: {0}"
 msgstr "Απενεργοποιημένο: {0}"
 
-#: widgets/efficiency/efficiency_widget.py:739
+#: widgets/efficiency/efficiency_widget.py:734
 msgid "Curve hold"
 msgstr "Πάγωμα καμπύλης"
 
-#: widgets/efficiency/efficiency_widget.py:741
-#: widgets/spectrum/spectrum_widget.py:1198
+#: widgets/efficiency/efficiency_widget.py:736
+#: widgets/spectrum/spectrum_widget.py:1193
 msgid "Paused"
 msgstr "Παύση"
 
-#: widgets/efficiency/efficiency_widget.py:748
+#: widgets/efficiency/efficiency_widget.py:743
 #, python-brace-format
 msgid "No data from {0}"
 msgstr "Δεν υπάρχουν δεδομένα από το {0}"
 
-#: widgets/efficiency/efficiency_widget.py:751
+#: widgets/efficiency/efficiency_widget.py:746
 msgid "JS110 input includes its burden voltage"
 msgstr "Η είσοδος του JS110 περιλαμβάνει την πτώση τάσης του"
 
-#: widgets/efficiency/efficiency_widget.py:754
+#: widgets/efficiency/efficiency_widget.py:749
 msgid "Efficiency above 100%: swap input and output?"
 msgstr "Απόδοση άνω του 100%: ανταλλαγή εισόδου και εξόδου;"
 
-#: widgets/efficiency/efficiency_widget.py:759
+#: widgets/efficiency/efficiency_widget.py:754
 #, python-brace-format
 msgid "{0} windows"
 msgstr "{0} παράθυρα"
 
-#: widgets/efficiency/efficiency_widget.py:761
+#: widgets/efficiency/efficiency_widget.py:756
 #, python-brace-format
 msgid "{0} invalid"
 msgstr "{0} μη έγκυρο"
 
-#: widgets/efficiency/efficiency_widget.py:763
+#: widgets/efficiency/efficiency_widget.py:758
 #, python-brace-format
 msgid "{0} unsteady"
 msgstr "{0} μη σταθερό"
 
-#: widgets/efficiency/efficiency_widget.py:766
-#: widgets/spectrum/spectrum_widget.py:1212
+#: widgets/efficiency/efficiency_widget.py:761
+#: widgets/spectrum/spectrum_widget.py:1207
 #, python-brace-format
 msgid "overruns {0}"
 msgstr "υπέρβαση {0}"
@@ -3302,7 +3316,7 @@ msgstr "Σχολιασμός κυματομορφής"
 msgid "External Serial..."
 msgstr "Εξωτερική σειριακή..."
 
-#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:797
+#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:796
 msgid "Value"
 msgstr "Τιμή"
 
@@ -3664,7 +3678,7 @@ msgid "PSD"
 msgstr "PSD"
 
 #: widgets/spectrum/spectrum_widget.py:138
-#: widgets/spectrum/spectrum_widget.py:1071
+#: widgets/spectrum/spectrum_widget.py:1066
 msgid "Y-axis units"
 msgstr "Μονάδες άξονα Y"
 
@@ -3865,52 +3879,52 @@ msgstr "Μέγιστος ρυθμός ενημέρωσης (Hz)"
 msgid "Spectrum"
 msgstr "Φάσμα"
 
-#: widgets/spectrum/spectrum_widget.py:1045
+#: widgets/spectrum/spectrum_widget.py:1040
 msgid "Add marker"
 msgstr "Προσθήκη δείκτη"
 
-#: widgets/spectrum/spectrum_widget.py:1048
+#: widgets/spectrum/spectrum_widget.py:1043
 msgid "Add marker at peak"
 msgstr "Προσθήκη δείκτη στην κορυφή"
 
-#: widgets/spectrum/spectrum_widget.py:1055
+#: widgets/spectrum/spectrum_widget.py:1050
 msgid "Remove marker"
 msgstr "Αφαίρεση δείκτη"
 
-#: widgets/spectrum/spectrum_widget.py:1057
+#: widgets/spectrum/spectrum_widget.py:1052
 msgid "Clear markers"
 msgstr "Εκκαθάριση δεικτών"
 
-#: widgets/spectrum/spectrum_widget.py:1059
+#: widgets/spectrum/spectrum_widget.py:1054
 msgid "Traces"
 msgstr "Ίχνη"
 
-#: widgets/spectrum/spectrum_widget.py:1065
+#: widgets/spectrum/spectrum_widget.py:1060
 msgid "Logarithmic frequency"
 msgstr "Λογαριθμική συχνότητα"
 
-#: widgets/spectrum/spectrum_widget.py:1066
+#: widgets/spectrum/spectrum_widget.py:1061
 msgid "Autoscale y-axis"
 msgstr "Αυτόματη κλιμάκωση άξονα y"
 
-#: widgets/spectrum/spectrum_widget.py:1067
+#: widgets/spectrum/spectrum_widget.py:1062
 msgid "Show FFT"
 msgstr "Εμφάνιση FFT"
 
-#: widgets/spectrum/spectrum_widget.py:1068
+#: widgets/spectrum/spectrum_widget.py:1063
 msgid "Show waterfall"
 msgstr "Εμφάνιση διαγράμματος καταρράκτη"
 
-#: widgets/spectrum/spectrum_widget.py:1194
+#: widgets/spectrum/spectrum_widget.py:1189
 msgid "No signal"
 msgstr "Δεν υπάρχει σήμα"
 
-#: widgets/spectrum/spectrum_widget.py:1203
+#: widgets/spectrum/spectrum_widget.py:1198
 #, python-brace-format
 msgid "gaps {0}"
 msgstr "κενά {0}"
 
-#: widgets/spectrum/spectrum_widget.py:1209
+#: widgets/spectrum/spectrum_widget.py:1204
 #, python-brace-format
 msgid "waterfall {0}"
 msgstr "καταρράκτης {0}"
@@ -4219,23 +4233,23 @@ msgstr ""
 "ενέργειας. Και τα δύο συσσωρεύονται επ' αόριστον ανεξάρτητα από την "
 "κατάσταση αυτού του κουμπιού."
 
-#: widgets/value/value_widget.py:237
+#: widgets/value/value_widget.py:236
 msgid "Not present"
 msgstr "Δεν υπάρχει"
 
-#: widgets/value/value_widget.py:265
+#: widgets/value/value_widget.py:264
 msgid "Accrue"
 msgstr "Συγκέντρωση"
 
-#: widgets/value/value_widget.py:601 widgets/waveform/waveform_widget.py:3808
+#: widgets/value/value_widget.py:600 widgets/waveform/waveform_widget.py:3808
 msgid "Preferred prefix"
 msgstr "Προτιμώμενο πρόθεμα"
 
-#: widgets/value/value_widget.py:606
+#: widgets/value/value_widget.py:605
 msgid "auto"
 msgstr "auto"
 
-#: widgets/value/value_widget.py:608
+#: widgets/value/value_widget.py:607
 msgid "none"
 msgstr "κανένα"
 
@@ -4494,37 +4508,37 @@ msgid "Click to toggle the signal axis display in the Waveform widget."
 msgstr ""
 "Κάντε κλικ για εμφάνιση/απόκρυψη του άξονα σήματος στο widget «Κυματομορφή»."
 
-#: widgets/waveform/waveform_source_widget.py:29
+#: widgets/waveform/waveform_source_widget.py:30
 msgid "Enable trace"
 msgstr "Ενεργοποίηση ίχνους"
 
-#: widgets/waveform/waveform_source_widget.py:31
+#: widgets/waveform/waveform_source_widget.py:32
 msgid "Click to toggle this trace."
 msgstr "Κάντε κλικ για ενεργοποίηση/απενεργοποίηση αυτού του ίχνους."
 
-#: widgets/waveform/waveform_source_widget.py:32
+#: widgets/waveform/waveform_source_widget.py:33
 msgid "When enabled, the waveform will display this trace."
 msgstr "Όταν είναι ενεργοποιημένο, η κυματομορφή θα εμφανίζει αυτό το ίχνος."
 
-#: widgets/waveform/waveform_source_widget.py:33
+#: widgets/waveform/waveform_source_widget.py:34
 msgid "When disabled, the waveform will hide this trace."
 msgstr ""
 "Όταν είναι απενεργοποιημένο, η κυματομορφή θα αποκρύψει αυτό το ίχνος."
 
-#: widgets/waveform/waveform_source_widget.py:37
+#: widgets/waveform/waveform_source_widget.py:38
 msgid "Select the source"
 msgstr "Επιλέξτε την πηγή"
 
-#: widgets/waveform/waveform_source_widget.py:39
+#: widgets/waveform/waveform_source_widget.py:40
 msgid "Select the source for this trace."
 msgstr "Επιλέξτε την πηγή για αυτό το ίχνος."
 
-#: widgets/waveform/waveform_source_widget.py:40
+#: widgets/waveform/waveform_source_widget.py:41
 msgid ""
 "\"default\" will use the default source which is normally configured using "
 "the Device Control widget."
 msgstr ""
-"«default»: χρησιμοποιεί την προεπιλεγμένη πηγή, η οποία κανονικά "
+"«προεπιλογή»: χρησιμοποιεί την προεπιλεγμένη πηγή, η οποία κανονικά "
 "διαμορφώνεται από το widget «Έλεγχος συσκευής»."
 
 #: widgets/waveform/waveform_widget.py:46
