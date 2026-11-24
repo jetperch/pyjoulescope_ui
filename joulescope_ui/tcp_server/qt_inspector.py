@@ -148,6 +148,8 @@ def _widget_info(widget, depth=0, max_depth=50):
             fit = None
         if fit is not None:
             info['fit'] = fit
+        if isinstance(widget, (QtWidgets.QMenu, QtWidgets.QMenuBar)):
+            info['actions'] = [a.text() for a in widget.actions() if a.text() and not a.isSeparator()]
 
     # Gather properties
     props = {}

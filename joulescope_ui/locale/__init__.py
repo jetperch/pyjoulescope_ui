@@ -103,7 +103,23 @@ if _locale_str is None and sys.platform.startswith('win'):
 languages = locale_to_languages(_locale_str)
 # print(f'languages={languages}')
 PATH = os.path.dirname(os.path.abspath(__file__))
-translate = gettext.translation('joulescope_ui', PATH, languages=languages, fallback=True)
+
+
+def _translation():
+    """Load the catalog, trying ``JOULESCOPE_UI_LOCALE_PATH`` first.
+
+    The extra path lets tests load generated catalogs, such as the
+    pseudo-locale in docs/plans/translation_display_audit.md.
+    """
+    extra = os.environ.get('JOULESCOPE_UI_LOCALE_PATH')
+    if extra:
+        t = gettext.translation('joulescope_ui', extra, languages=languages, fallback=True)
+        if isinstance(t, gettext.GNUTranslations):
+            return t
+    return gettext.translation('joulescope_ui', PATH, languages=languages, fallback=True)
+
+
+translate = _translation()
 
 
 def N_(txt: str) -> str:

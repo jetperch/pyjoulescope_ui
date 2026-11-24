@@ -111,3 +111,27 @@ class TestRightToLeft(unittest.TestCase):
 
     def test_no_catalog_is_ltr(self):
         self.assertFalse(self._is_rtl(['ar', 'ar'], gettext.NullTranslations()))
+
+
+class TestLocalePath(unittest.TestCase):
+
+    def _catalog(self, path, msgstr):
+        po = polib.POFile()
+        po.metadata = {'Content-Type': 'text/plain; charset=utf-8'}
+        po.append(polib.POEntry(msgid='Signal', msgstr=msgstr))
+        os.makedirs(os.path.join(path, 'xx', 'LC_MESSAGES'))
+        po.save_as_mofile(os.path.join(path, 'xx', 'LC_MESSAGES', 'joulescope_ui.mo'))
+
+    def test_extra_path_first(self):
+        with tempfile.TemporaryDirectory() as path:
+            self._catalog(path, 'Pseudo')
+            with mock.patch.dict(os.environ, {'JOULESCOPE_UI_LOCALE_PATH': path}), \
+                    mock.patch.object(locale, 'languages', ['xx', 'xx']):
+                self.assertEqual('Pseudo', locale._translation().gettext('Signal'))
+
+    def test_extra_path_missing_language_falls_back(self):
+        with tempfile.TemporaryDirectory() as path:
+            with mock.patch.dict(os.environ, {'JOULESCOPE_UI_LOCALE_PATH': path}), \
+                    mock.patch.object(locale, 'languages', ['de', 'de']):
+                t = locale._translation()
+        self.assertIsInstance(t, gettext.GNUTranslations)

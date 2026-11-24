@@ -242,3 +242,11 @@ class TestTextFit(unittest.TestCase):
 
     def test_plain_widget_has_no_fit(self):
         self.assertIsNone(self._fit(QtWidgets.QFrame(self.window)))
+
+    def test_menu_actions(self):
+        from joulescope_ui.tcp_server.qt_inspector import _widget_info
+        menu = QtWidgets.QMenu(self.window)
+        menu.addAction('Open')
+        menu.addSeparator()
+        menu.addAction('Exit')
+        self.assertEqual(['Open', 'Exit'], _widget_info(menu, max_depth=0)['actions'])

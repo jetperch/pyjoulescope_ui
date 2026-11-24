@@ -39,6 +39,8 @@ from uitest import verify, discover, fsutil, installer, assets, qt  # noqa: E402
 from uitest.harness import HELP_DIALOG, UiSession, UiSessionError  # noqa: E402
 from uitest.jls_fixtures import write_fsr_v2  # noqa: E402
 
+_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 
 def _write_v2(path, *, signal_name='current', units='A', sample_rate=1000,
               data=None, markers=0, start_value=0.0, utc_offset_s=0.0, sample_id_offset=0):
@@ -978,3 +980,51 @@ class TestOffscreenPlatform(unittest.TestCase):
             self.assertEqual([1920, 1080], [screen['width'], screen['height']])
         finally:
             os.remove(path)
+
+
+class TestPseudoLocale(unittest.TestCase):
+
+    def test_pseudo(self):
+        from uitest import pseudo_locale as p
+        out = p.pseudo('Reset {tab} to <b>defaults</b>\nnow 50%')
+        self.assertTrue(out.startswith(p.OPEN) and out.endswith(p.CLOSE))
+        for keep in ['{tab}', '<b>', '</b>', '\n']:
+            self.assertIn(keep, out)
+        self.assertNotIn('Reset', out)
+        self.assertEqual('', p.pseudo(''))
+
+    def test_expansion(self):
+        from uitest import pseudo_locale as p
+        out = p.pseudo('Signal')
+        self.assertGreaterEqual(len(out), len('Signal') * 1.4 + 2)
+
+    def test_pot_entries_keep_format(self):
+        import re
+        import polib
+        from uitest import pseudo_locale as p
+        ph = re.compile(r'\{[^{}]*\}|%\([a-z_]+\)[sdfg]|%[sdfg]')
+        tag = re.compile(r'</?([a-zA-Z][a-zA-Z0-9]*)')
+        pot = os.path.join(_ROOT, 'joulescope_ui', 'locale', 'joulescope_ui.pot')
+        for e in polib.pofile(pot):
+            out = p.pseudo(e.msgid)
+            self.assertEqual(sorted(ph.findall(e.msgid)), sorted(ph.findall(out)), e.msgid)
+            self.assertEqual(sorted(tag.findall(e.msgid)), sorted(tag.findall(out)), e.msgid)
+            self.assertEqual(e.msgid.count('\n'), out.count('\n'), e.msgid)
+
+    def test_generate(self):
+        import gettext
+        import tempfile
+        from uitest import pseudo_locale as p
+        pot = os.path.join(_ROOT, 'joulescope_ui', 'locale', 'joulescope_ui.pot')
+        with tempfile.TemporaryDirectory() as d:
+            p.generate(pot, d)
+            t = gettext.translation('joulescope_ui', d, languages=[p.LOCALE])
+            self.assertEqual(p.pseudo('Signal'), t.gettext('Signal'))
+            self.assertEqual(p.pseudo('Open'), t.pgettext('state', 'Open'))
+
+    def test_is_marked(self):
+        from uitest import pseudo_locale as p
+        self.assertTrue(p.is_marked(p.pseudo('Signal') + ': 12.5 mA'))
+        self.assertTrue(p.is_marked(p.pseudo('Device') + ' JS2'))
+        self.assertFalse(p.is_marked('Markers:'))
+        self.assertFalse(p.is_marked(p.pseudo('Signal') + ' Window'))
