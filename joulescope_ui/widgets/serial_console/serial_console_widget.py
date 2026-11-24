@@ -45,7 +45,7 @@ class SerialConsoleWidget(QtWidgets.QWidget):
         },
         'plot_index': {
             'dtype': 'int',
-            'brief': 'Plot index',
+            'brief': N_('Plot index'),
             'default': -1,
         }
     }

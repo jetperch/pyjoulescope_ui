@@ -26,6 +26,18 @@ msgstr "Joulescope UIについて"
 msgid "Version Information"
 msgstr "バージョン情報"
 
+#: about.py:37 main.py:298
+msgid "UI"
+msgstr "UI"
+
+#: about.py:41
+msgid "Platform"
+msgstr "プラットフォーム"
+
+#: about.py:42
+msgid "Processor"
+msgstr "プロセッサ"
+
 #: app.py:48 devices/jsdrv/js110.py:135 devices/jsdrv/js220.py:198
 #: devices/jsdrv/js320.py:193
 msgid "Target power"
@@ -312,7 +324,7 @@ msgstr "電子メール"
 msgid "Description"
 msgstr "説明"
 
-#: error_window.py:112 widgets/waveform/waveform_widget.py:4339
+#: error_window.py:112 widgets/waveform/waveform_widget.py:4343
 msgid "Edit"
 msgstr "編集"
 
@@ -400,10 +412,10 @@ msgid "Sleep current"
 msgstr "スリープ電流"
 
 #: event_analyzer.py:219 event_analyzer.py:220
-#: widgets/waveform/waveform_widget.py:602
-#: widgets/waveform/waveform_widget.py:3763
-#: widgets/waveform/waveform_widget.py:3929
-#: widgets/waveform/waveform_widget.py:4284
+#: widgets/waveform/waveform_widget.py:606
+#: widgets/waveform/waveform_widget.py:3767
+#: widgets/waveform/waveform_widget.py:3933
+#: widgets/waveform/waveform_widget.py:4288
 msgid "Auto"
 msgstr "オート"
 
@@ -696,7 +708,7 @@ msgstr "言語を選択"
 msgid "The application will automatically close when you change the locale."
 msgstr "ロケールを変更すると、アプリケーションは自動的に終了します。"
 
-#: main.py:79 widgets/value/value_widget.py:793
+#: main.py:79 widgets/value/value_widget.py:795
 msgid "Multimeter"
 msgstr "マルチメーター"
 
@@ -763,10 +775,6 @@ msgid ""
 "applications. The value is displayed in percent."
 msgstr "このアプリケーションおよびすべてのアプリケーションによるメモリ（RAM）使用率を表示します。値はパーセントで表示されます。"
 
-#: main.py:298
-msgid "UI"
-msgstr "UI"
-
 #: main.py:418
 msgid "Help"
 msgstr "ヘルプ"
@@ -825,7 +833,7 @@ msgid "Config"
 msgstr "構成"
 
 #: main.py:460 main.py:510 widgets/efficiency/efficiency_widget.py:630
-#: widgets/waveform/waveform_widget.py:4260
+#: widgets/waveform/waveform_widget.py:4264
 msgid "Export"
 msgstr "エクスポート"
 
@@ -990,7 +998,8 @@ msgid "Report issue"
 msgstr "問題を報告"
 
 #: devices/serial/serial_port_dialog.py:95
-#: devices/serial/serial_port_dialog.py:155 safe_mode.py:47
+#: devices/serial/serial_port_dialog.py:155 locale/qt_translator.py:35
+#: safe_mode.py:47
 msgid "Close"
 msgstr "閉じる"
 
@@ -1102,8 +1111,8 @@ msgstr "制御位置"
 
 #: widget_tools.py:94 widgets/serial_console/serial_console_widget.py:218
 #: widgets/waveform/waveform_source_widget.py:105
-#: widgets/waveform/waveform_widget.py:410
-#: widgets/waveform/waveform_widget.py:445
+#: widgets/waveform/waveform_widget.py:414
+#: widgets/waveform/waveform_widget.py:449
 msgid "off"
 msgstr "オフ"
 
@@ -1368,7 +1377,7 @@ msgid ""
 msgstr "平均を決定するために使用される電流レンジウィンドウの後のサンプル数。他のIRFタイプではこの値は無視されます。"
 
 #: devices/jsdrv/js110.py:269 devices/jsdrv/js220.py:435
-#: devices/jsdrv/js320.py:415 widgets/device_control/fuse.py:103
+#: devices/jsdrv/js320.py:415 widgets/device_control/fuse.py:105
 #: widgets/waveform/waveform_widget.py:115
 msgid "Current"
 msgstr "電流"
@@ -1737,7 +1746,7 @@ msgstr "汎用入出力端子の基準電圧を設定してください。"
 #: widgets/settings/settings_widget.py:334
 #: widgets/settings/settings_widget.py:441
 #: widgets/settings/settings_widget.py:515
-#: widgets/waveform/waveform_widget.py:3820
+#: widgets/waveform/waveform_widget.py:3824
 msgid "Name"
 msgstr "名称"
 
@@ -1846,7 +1855,7 @@ msgid "Auto-open"
 msgstr "自動オープン"
 
 #: devices/serial/serial_port_dialog.py:88
-#: widgets/waveform/waveform_widget.py:3875
+#: widgets/waveform/waveform_widget.py:3879
 msgid "Add"
 msgstr "追加"
 
@@ -1860,15 +1869,96 @@ msgid "Closed"
 msgstr "クローズ"
 
 #: devices/serial/serial_port_dialog.py:163
-#: widgets/waveform/waveform_widget.py:4332
-#: widgets/waveform/waveform_widget.py:4360
-#: widgets/waveform/waveform_widget.py:4404
+#: widgets/waveform/waveform_widget.py:4336
+#: widgets/waveform/waveform_widget.py:4364
+#: widgets/waveform/waveform_widget.py:4408
 msgid "Remove"
 msgstr "削除"
 
 #: devices/serial/serial_port_dialog.py:181
 msgid "Invalid baud rate"
 msgstr "無効なボーレート"
+
+#: locale/qt_translator.py:35
+msgid "Close Tab"
+msgstr "タブを閉じる"
+
+#: locale/qt_translator.py:35
+msgid "Close Active Tab"
+msgstr "アクティブなタブを閉じる"
+
+#: locale/qt_translator.py:35
+msgid "Close Group"
+msgstr "グループを閉じる"
+
+#: locale/qt_translator.py:36
+msgid "Close Other Groups"
+msgstr "他のグループを閉じる"
+
+#: locale/qt_translator.py:36
+msgid "Close Others"
+msgstr "その他を閉じる"
+
+#: locale/qt_translator.py:36
+msgid "Detach"
+msgstr "切り離す"
+
+#: locale/qt_translator.py:36
+msgid "Detach Group"
+msgstr "グループを切り離す"
+
+#: locale/qt_translator.py:37
+msgid "List All Tabs"
+msgstr "すべてのタブを一覧表示"
+
+#: locale/qt_translator.py:37
+msgid "Minimize"
+msgstr "最小化"
+
+#: locale/qt_translator.py:37
+msgctxt "ads"
+msgid "Pin"
+msgstr "ピン留め"
+
+#: locale/qt_translator.py:37
+msgid "Pin Group"
+msgstr "グループをピン留め"
+
+#: locale/qt_translator.py:37
+msgid "Pin Group To..."
+msgstr "グループのピン留め先..."
+
+#: locale/qt_translator.py:38
+msgid "Pin To..."
+msgstr "ピン留め先..."
+
+#: locale/qt_translator.py:38
+msgid "Pin Active Tab (Press Ctrl to Pin Group)"
+msgstr "アクティブなタブをピン留め（Ctrlキーでグループをピン留め）"
+
+#: locale/qt_translator.py:38
+msgid "Unpin (Dock)"
+msgstr "ピン留めを解除（ドッキング）"
+
+#: locale/qt_translator.py:39
+msgid "Show View"
+msgstr "ビューを表示"
+
+#: locale/qt_translator.py:39
+msgid "Top"
+msgstr "上"
+
+#: locale/qt_translator.py:39
+msgid "Bottom"
+msgstr "下"
+
+#: locale/qt_translator.py:39 widgets/waveform/waveform_widget.py:4291
+msgid "Left"
+msgstr "左"
+
+#: locale/qt_translator.py:39 widgets/waveform/waveform_widget.py:4294
+msgid "Right"
+msgstr "右"
 
 #: plugins/manager.py:59
 msgid "Monitor a plugin for changes"
@@ -1877,6 +1967,17 @@ msgstr "プラグインの変更を監視"
 #: plugins/manager.py:64
 msgid "Monitor reload delay from filesystem changes in milliseconds."
 msgstr "ファイルシステムの変更を検出してから再読み込みするまでの遅延（ミリ秒）。"
+
+#: plugins/selector.py:24
+msgid "POTENTIALLY UNSAFE"
+msgstr "安全でない可能性あり"
+
+#: plugins/selector.py:25
+msgid ""
+"Active plugins have full access to run arbitrary code on this computer. Make"
+" sure you trust a plugin before activating it."
+msgstr ""
+"有効なプラグインは、このコンピューター上で任意のコードを実行できる完全なアクセス権を持ちます。プラグインを有効にする前に、そのプラグインが信頼できることを確認してください。"
 
 #: plugins/selector.py:32
 msgid "Plugins"
@@ -1917,28 +2018,28 @@ msgstr ""
 msgid "Hold the data"
 msgstr "データをホールド"
 
-#: range_tools/cdf.py:147
+#: range_tools/cdf.py:149
 msgid "Probability"
 msgstr "確率"
 
-#: range_tools/cdf.py:168
+#: range_tools/cdf.py:170
 msgid "CDF configuration"
 msgstr "CDF構成"
 
-#: range_tools/cdf.py:175 range_tools/frequency.py:194
+#: range_tools/cdf.py:177 range_tools/frequency.py:196
 #: range_tools/histogram.py:44 range_tools/max_window.py:109
 #: widgets/spectrum/spectrum_control.py:36
 #: widgets/spectrum/spectrum_widget.py:1071
 #: widgets/trigger/trigger_widget.py:220
-#: widgets/waveform/waveform_widget.py:4417
+#: widgets/waveform/waveform_widget.py:4421
 msgid "Signal"
 msgstr "信号"
 
-#: range_tools/cdf.py:182 range_tools/histogram.py:50
+#: range_tools/cdf.py:184 range_tools/histogram.py:50
 msgid "Number of bins (0 for auto)"
 msgstr "ビン数（自動の場合は0）"
 
-#: range_tools/cdf.py:188
+#: range_tools/cdf.py:190
 msgid "Complementary"
 msgstr "相補"
 
@@ -1960,20 +2061,20 @@ msgstr "周波数スペクトルを計算し、選択した範囲の信号のデ
 msgid "Hold the histogram data"
 msgstr "ヒストグラムデータをホールド"
 
-#: range_tools/frequency.py:187
+#: range_tools/frequency.py:189
 msgid "Frequency configuration"
 msgstr "周波数構成"
 
-#: range_tools/frequency.py:203 widgets/spectrum/spectrum_control.py:47
+#: range_tools/frequency.py:205 widgets/spectrum/spectrum_control.py:47
 #: widgets/spectrum/spectrum_widget.py:107
 msgid "Window"
 msgstr "窓関数"
 
-#: range_tools/frequency.py:214
+#: range_tools/frequency.py:216
 msgid "FFT Length"
 msgstr "FFT長"
 
-#: range_tools/frequency.py:225
+#: range_tools/frequency.py:227
 msgid "Overlap %"
 msgstr "オーバーラップ %"
 
@@ -2001,11 +2102,11 @@ msgstr "ヒストグラム・タイプ"
 msgid "Histogram configuration"
 msgstr "ヒストグラム構成"
 
-#: range_tools/histogram.py:190
+#: range_tools/histogram.py:192
 msgid "Compute histogram over the range"
 msgstr "範囲にわたってヒストグラムを計算"
 
-#: range_tools/histogram.py:191
+#: range_tools/histogram.py:193
 msgid ""
 "Compute a histogram of the signal's data values over the selected range."
 msgstr "選択した範囲の信号のデータ値のヒストグラムを計算します。"
@@ -2154,13 +2255,13 @@ msgstr "クロック"
 msgid "The time zone."
 msgstr "タイムゾーン"
 
-#: widgets/clock/clock_widget.py:35 widgets/waveform/waveform_widget.py:457
-#: widgets/waveform/waveform_widget.py:3642
+#: widgets/clock/clock_widget.py:35 widgets/waveform/waveform_widget.py:461
+#: widgets/waveform/waveform_widget.py:3646
 msgid "Local"
 msgstr "ローカル"
 
-#: widgets/clock/clock_widget.py:36 widgets/waveform/waveform_widget.py:456
-#: widgets/waveform/waveform_widget.py:3639
+#: widgets/clock/clock_widget.py:36 widgets/waveform/waveform_widget.py:460
+#: widgets/waveform/waveform_widget.py:3643
 msgid "UTC"
 msgstr "UTC"
 
@@ -2317,11 +2418,11 @@ msgstr "持続時間"
 msgid "Fuse response"
 msgstr "ヒューズ応答"
 
-#: widgets/device_control/fuse.py:102
+#: widgets/device_control/fuse.py:104
 msgid "Time"
 msgstr "時間"
 
-#: widgets/device_control/fuse.py:219
+#: widgets/device_control/fuse.py:221
 msgid "Fuse"
 msgstr "ヒューズ"
 
@@ -2496,54 +2597,54 @@ msgstr "このウィジェットに必要な機器の信号を有効にしてく
 msgid "Hold"
 msgstr "ホールド"
 
-#: widgets/efficiency/efficiency_plot.py:215
+#: widgets/efficiency/efficiency_plot.py:217
 msgid "invalid"
 msgstr "無効"
 
-#: widgets/efficiency/efficiency_plot.py:288
+#: widgets/efficiency/efficiency_plot.py:290
 msgid "Waiting for steady load"
 msgstr "負荷が安定するのを待機中"
 
-#: widgets/efficiency/efficiency_plot.py:348
+#: widgets/efficiency/efficiency_plot.py:350
 #, python-brace-format
 msgid "{0} windows, {1}"
 msgstr "{0} ウィンドウ、{1}"
 
-#: widgets/efficiency/efficiency_readout.py:62
+#: widgets/efficiency/efficiency_readout.py:64
 msgid "Input power"
 msgstr "入力電力"
 
-#: widgets/efficiency/efficiency_readout.py:63
+#: widgets/efficiency/efficiency_readout.py:65
 #: widgets/efficiency/efficiency_widget.py:101
 msgid "Output power"
 msgstr "出力電力"
 
-#: widgets/efficiency/efficiency_readout.py:64
+#: widgets/efficiency/efficiency_readout.py:66
 msgid "Power loss"
 msgstr "電力損失"
 
-#: widgets/efficiency/efficiency_readout.py:65
+#: widgets/efficiency/efficiency_readout.py:67
 msgid "Cumulative efficiency"
 msgstr "累積効率"
 
-#: widgets/efficiency/efficiency_readout.py:69
+#: widgets/efficiency/efficiency_readout.py:71
 msgid "Input voltage"
 msgstr "入力電圧"
 
-#: widgets/efficiency/efficiency_readout.py:70
+#: widgets/efficiency/efficiency_readout.py:72
 msgid "Input current"
 msgstr "入力電流"
 
-#: widgets/efficiency/efficiency_readout.py:71
+#: widgets/efficiency/efficiency_readout.py:73
 msgid "Output voltage"
 msgstr "出力電圧"
 
-#: widgets/efficiency/efficiency_readout.py:72
+#: widgets/efficiency/efficiency_readout.py:74
 #: widgets/efficiency/efficiency_widget.py:101
 msgid "Output current"
 msgstr "出力電流"
 
-#: widgets/efficiency/efficiency_readout.py:132
+#: widgets/efficiency/efficiency_readout.py:134
 #: widgets/efficiency/efficiency_widget.py:167
 msgid "Efficiency"
 msgstr "効率"
@@ -2608,12 +2709,12 @@ msgid "Efficiency curve x-axis scale"
 msgstr "効率曲線のx軸目盛り"
 
 #: widgets/efficiency/efficiency_widget.py:107
-#: widgets/waveform/waveform_widget.py:3786
+#: widgets/waveform/waveform_widget.py:3790
 msgid "Logarithmic"
 msgstr "対数"
 
 #: widgets/efficiency/efficiency_widget.py:107
-#: widgets/waveform/waveform_widget.py:3781
+#: widgets/waveform/waveform_widget.py:3785
 msgid "Linear"
 msgstr "リニア"
 
@@ -2939,7 +3040,7 @@ msgid "Save ACTIVE to:"
 msgstr "ACTIVEの保存先："
 
 #: widgets/js320_cal/js320_cal_widget.py:64
-#: widgets/waveform/waveform_widget.py:3894
+#: widgets/waveform/waveform_widget.py:3898
 msgid "Save"
 msgstr "保存"
 
@@ -3103,6 +3204,10 @@ msgstr "信号サンプル・ストリーム・ソース。"
 msgid "The target waveform widget."
 msgstr "ターゲット波形ウィジェット。"
 
+#: widgets/serial_console/serial_console_widget.py:48
+msgid "Plot index"
+msgstr "プロットのインデックス"
+
 #: widgets/serial_console/serial_console_widget.py:72
 msgid "Message"
 msgstr "メッセージ"
@@ -3127,7 +3232,7 @@ msgstr "波形の注釈"
 msgid "External Serial..."
 msgstr "外部シリアル..."
 
-#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:802
+#: widgets/settings/settings_widget.py:144 widgets/value/value_widget.py:804
 msgid "Value"
 msgstr "値"
 
@@ -3882,7 +3987,7 @@ msgstr "右側の統計フィールドを表示します。"
 msgid "Show a leading + or - sign."
 msgstr "先頭の+または-記号を表示します。"
 
-#: widgets/value/value_widget.py:63 widgets/waveform/waveform_widget.py:508
+#: widgets/value/value_widget.py:63 widgets/waveform/waveform_widget.py:512
 msgid "The precision to display in digits."
 msgstr "桁で表示する精度。"
 
@@ -3977,15 +4082,15 @@ msgstr "存在しない"
 msgid "Accrue"
 msgstr "累積"
 
-#: widgets/value/value_widget.py:606 widgets/waveform/waveform_widget.py:3808
+#: widgets/value/value_widget.py:608 widgets/waveform/waveform_widget.py:3812
 msgid "Preferred prefix"
 msgstr "優先接頭辞"
 
-#: widgets/value/value_widget.py:611
+#: widgets/value/value_widget.py:613
 msgid "auto"
 msgstr "auto"
 
-#: widgets/value/value_widget.py:613
+#: widgets/value/value_widget.py:615
 msgid "none"
 msgstr "なし"
 
@@ -4039,7 +4144,7 @@ msgid "triangle left"
 msgstr "左三角形"
 
 #: widgets/waveform/text_annotation.py:67
-#: widgets/waveform/waveform_widget.py:3766
+#: widgets/waveform/waveform_widget.py:3770
 msgid "Manual"
 msgstr "マニュアル"
 
@@ -4052,17 +4157,17 @@ msgid "Edit annotation"
 msgstr "注釈を編集"
 
 #: widgets/waveform/text_annotation.py:101
-#: widgets/waveform/waveform_widget.py:3890
+#: widgets/waveform/waveform_widget.py:3894
 msgid "Text"
 msgstr "テキスト"
 
 #: widgets/waveform/text_annotation.py:109
-#: widgets/waveform/waveform_widget.py:4340
+#: widgets/waveform/waveform_widget.py:4344
 msgid "Show text"
 msgstr "テキストを表示"
 
 #: widgets/waveform/text_annotation.py:118
-#: widgets/waveform/waveform_widget.py:4352
+#: widgets/waveform/waveform_widget.py:4356
 msgid "Shape"
 msgstr "形状"
 
@@ -4291,59 +4396,59 @@ msgstr "汎用入力 2"
 msgid "General purpose input 3"
 msgstr "汎用入力 3"
 
-#: widgets/waveform/waveform_widget.py:366
+#: widgets/waveform/waveform_widget.py:370
 msgid "The source filter string."
 msgstr "ソース・フィルター・ストリング。"
 
-#: widgets/waveform/waveform_widget.py:377
+#: widgets/waveform/waveform_widget.py:381
 msgid "The trace width."
 msgstr "トレース幅。"
 
-#: widgets/waveform/waveform_widget.py:392
+#: widgets/waveform/waveform_widget.py:396
 msgid "The target frames per second."
 msgstr "目標フレーム/秒。"
 
-#: widgets/waveform/waveform_widget.py:394
+#: widgets/waveform/waveform_widget.py:398
 msgid "vsync"
 msgstr "vsync"
 
-#: widgets/waveform/waveform_widget.py:395
+#: widgets/waveform/waveform_widget.py:399
 msgid "20 Hz"
 msgstr "20 Hz"
 
-#: widgets/waveform/waveform_widget.py:396
+#: widgets/waveform/waveform_widget.py:400
 msgid "10 Hz"
 msgstr "10 Hz"
 
-#: widgets/waveform/waveform_widget.py:397
+#: widgets/waveform/waveform_widget.py:401
 msgid "5 Hz"
 msgstr "5 Hz"
 
-#: widgets/waveform/waveform_widget.py:403
+#: widgets/waveform/waveform_widget.py:407
 msgid "The minimum interval between repaint in milliseconds."
 msgstr "再描画の最小間隔（ミリ秒）。"
 
-#: widgets/waveform/waveform_widget.py:408
+#: widgets/waveform/waveform_widget.py:412
 msgid "Show the minimum and maximum extents fill."
 msgstr "最小および最大エクステントを表示します。"
 
-#: widgets/waveform/waveform_widget.py:411
+#: widgets/waveform/waveform_widget.py:415
 msgid "lines"
 msgstr "ライン"
 
-#: widgets/waveform/waveform_widget.py:412
+#: widgets/waveform/waveform_widget.py:416
 msgid "fill 1"
 msgstr "フィル 1"
 
-#: widgets/waveform/waveform_widget.py:413
+#: widgets/waveform/waveform_widget.py:417
 msgid "fill 2"
 msgstr "フィル 2"
 
-#: widgets/waveform/waveform_widget.py:419
+#: widgets/waveform/waveform_widget.py:423
 msgid "Anti-alias the average trace when zoomed out."
 msgstr "ズームアウト時には、平均トレースにアンチエイリアス処理を適用します。"
 
-#: widgets/waveform/waveform_widget.py:421
+#: widgets/waveform/waveform_widget.py:425
 msgid ""
 "When zoomed out, each pixel summarizes many samples. As the plot scrolls, a "
 "short pulse may fall into one pixel or be split between two, which makes the"
@@ -4351,7 +4456,7 @@ msgid ""
 msgstr ""
 "ズームアウト状態では、各ピクセルが多数のサンプルをまとめて表示します。プロットがスクロールする際、短いパルスが1つのピクセルに収まることもあれば、2つのピクセルに分割されることもあり、その結果、平均トレースがちらつくことがあります。"
 
-#: widgets/waveform/waveform_widget.py:424
+#: widgets/waveform/waveform_widget.py:428
 msgid ""
 "When enabled, the average trace is low-pass filtered to reduce this flicker."
 " The filter preserves the mean, but short pulses appear wider and lower. The"
@@ -4359,76 +4464,76 @@ msgid ""
 msgstr ""
 "この機能を有効にすると、平均トレースはローパスフィルター処理され、このフリッカーが低減されます。このフィルター処理により平均値は維持されますが、短いパルスは幅が広く、低く表示されます。最小値/最大値の範囲、統計情報、およびエクスポートされたデータにはフィルター処理は適用されません。"
 
-#: widgets/waveform/waveform_widget.py:433
+#: widgets/waveform/waveform_widget.py:437
 msgid "Show the frames per second."
 msgstr "フレーム/秒を表示します。"
 
-#: widgets/waveform/waveform_widget.py:438
+#: widgets/waveform/waveform_widget.py:442
 msgid "Show the statistics on mouse hover."
 msgstr "マウスホバーで統計を表示します。"
 
-#: widgets/waveform/waveform_widget.py:443
+#: widgets/waveform/waveform_widget.py:447
 msgid "The time format for mouse hover."
 msgstr "マウスホバーの時間フォーマット。"
 
-#: widgets/waveform/waveform_widget.py:446
+#: widgets/waveform/waveform_widget.py:450
 msgid "Relative to view"
 msgstr "ビュー基準"
 
-#: widgets/waveform/waveform_widget.py:447
+#: widgets/waveform/waveform_widget.py:451
 msgid "Relative to buffer"
 msgstr "バッファ基準"
 
-#: widgets/waveform/waveform_widget.py:448
+#: widgets/waveform/waveform_widget.py:452
 msgid "Absolute time"
 msgstr "絶対時間"
 
-#: widgets/waveform/waveform_widget.py:454
+#: widgets/waveform/waveform_widget.py:458
 msgid "The time zone for absolute time display."
 msgstr "絶対時刻を表示するためのタイムゾーン。"
 
-#: widgets/waveform/waveform_widget.py:463
+#: widgets/waveform/waveform_widget.py:467
 msgid "The x-axis time mode."
 msgstr "x軸が時間を表すモード。"
 
-#: widgets/waveform/waveform_widget.py:465
+#: widgets/waveform/waveform_widget.py:469
 msgid ""
 "Absolute displays the date and time of day for the configured time zone."
 msgstr "「絶対時刻」は、設定されたタイムゾーンの日付と時刻を表示します。"
 
-#: widgets/waveform/waveform_widget.py:466
+#: widgets/waveform/waveform_widget.py:470
 msgid ""
 "Relative positive displays the elapsed time from the first available sample."
 msgstr "「相対（正）」は、最初の利用可能なサンプルからの経過時間を表示します。"
 
-#: widgets/waveform/waveform_widget.py:467
+#: widgets/waveform/waveform_widget.py:471
 msgid ""
 "Relative negative displays 0 at the newest sample with negative elapsed time"
 " to the left."
 msgstr "「相対（負）」は、最新のサンプルを0とし、左側に負の経過時間を表示します。"
 
-#: widgets/waveform/waveform_widget.py:470
-#: widgets/waveform/waveform_widget.py:568
-#: widgets/waveform/waveform_widget.py:3599
-#: widgets/waveform/waveform_widget.py:3626
+#: widgets/waveform/waveform_widget.py:474
+#: widgets/waveform/waveform_widget.py:572
+#: widgets/waveform/waveform_widget.py:3603
+#: widgets/waveform/waveform_widget.py:3630
 msgid "Absolute"
 msgstr "絶対時刻"
 
-#: widgets/waveform/waveform_widget.py:471
-#: widgets/waveform/waveform_widget.py:3629
+#: widgets/waveform/waveform_widget.py:475
+#: widgets/waveform/waveform_widget.py:3633
 msgid "Relative positive"
 msgstr "相対（正）"
 
-#: widgets/waveform/waveform_widget.py:472
-#: widgets/waveform/waveform_widget.py:3632
+#: widgets/waveform/waveform_widget.py:476
+#: widgets/waveform/waveform_widget.py:3636
 msgid "Relative negative"
 msgstr "相対（負）"
 
-#: widgets/waveform/waveform_widget.py:478
+#: widgets/waveform/waveform_widget.py:482
 msgid "Maintain the Δt view duration when streaming starts."
 msgstr "ストリーミング開始時、Δtビューの表示時間を維持します。"
 
-#: widgets/waveform/waveform_widget.py:480
+#: widgets/waveform/waveform_widget.py:484
 msgid ""
 "When enabled, starting sample streaming pins the right side only and keeps "
 "the current Δt view duration. The plot starts mostly empty, and the traces "
@@ -4436,263 +4541,255 @@ msgid ""
 msgstr ""
 "有効にすると、サンプルストリーミングの開始時に右側のみを固定し、現在のΔt表示時間を維持します。プロットは最初はほぼ空白の状態から始まり、データが流入するにつれてトレースが伸びていきます。"
 
-#: widgets/waveform/waveform_widget.py:483
+#: widgets/waveform/waveform_widget.py:487
 msgid ""
 "The view duration never shrinks to the available data, so stopping a short "
 "capture shows empty space beyond the traces."
 msgstr "表示時間は利用可能なデータ量に合わせて短縮されることはなく、短いキャプチャを停止しても、トレースの先には空白の領域が表示されます。"
 
-#: widgets/waveform/waveform_widget.py:485
+#: widgets/waveform/waveform_widget.py:489
 msgid ""
 "When disabled, starting sample streaming pins both sides, and the view "
 "expands with the captured data."
 msgstr "無効にすると、サンプルストリーミングの開始時に両側が固定され、キャプチャされたデータに合わせて表示領域が拡大します。"
 
-#: widgets/waveform/waveform_widget.py:492
+#: widgets/waveform/waveform_widget.py:496
 msgid "Show the plot statistics on the right."
 msgstr "右側にプロット統計を表示します。"
 
-#: widgets/waveform/waveform_widget.py:497
+#: widgets/waveform/waveform_widget.py:501
 msgid "Show frequency for dual markers and statistics."
 msgstr "デュアルマーカーと統計のために周波数を表示します。"
 
-#: widgets/waveform/waveform_widget.py:502
+#: widgets/waveform/waveform_widget.py:506
 msgid "The quantities to display by default."
 msgstr "デフォルトで表示する量。"
 
-#: widgets/waveform/waveform_widget.py:514
+#: widgets/waveform/waveform_widget.py:518
 msgid "Use OpenGL rendering."
 msgstr "OpenGLレンダリングを使用します。"
 
-#: widgets/waveform/waveform_widget.py:531
+#: widgets/waveform/waveform_widget.py:535
 msgid "Pin the left side (oldest) data so that it stays in view."
 msgstr "左側（最も古い）のデータをピン留めして、表示されたままにします。"
 
-#: widgets/waveform/waveform_widget.py:536
+#: widgets/waveform/waveform_widget.py:540
 msgid "Pin the right side (newest) data so that it stays in view."
 msgstr "右側（最新）のデータをピン留めして、表示されたままにします。"
 
-#: widgets/waveform/waveform_widget.py:541
+#: widgets/waveform/waveform_widget.py:545
 msgid "The waveform state."
 msgstr "波形の状態。"
 
-#: widgets/waveform/waveform_widget.py:547
+#: widgets/waveform/waveform_widget.py:551
 msgid "The annotations."
 msgstr "注釈"
 
-#: widgets/waveform/waveform_widget.py:554
+#: widgets/waveform/waveform_widget.py:558
 msgid "Show the summary waveform at top."
 msgstr "上部にサマリー波形を表示。"
 
-#: widgets/waveform/waveform_widget.py:559
+#: widgets/waveform/waveform_widget.py:563
 msgid "The signal quantity to show in the summary."
 msgstr "サマリーに表示する信号量。"
 
-#: widgets/waveform/waveform_widget.py:565
+#: widgets/waveform/waveform_widget.py:569
 msgid "X-axis annotation mode"
 msgstr "X軸注釈モード"
 
-#: widgets/waveform/waveform_widget.py:569
-#: widgets/waveform/waveform_widget.py:3604
+#: widgets/waveform/waveform_widget.py:573
+#: widgets/waveform/waveform_widget.py:3608
 msgid "Relative"
 msgstr "相対"
 
-#: widgets/waveform/waveform_widget.py:575
+#: widgets/waveform/waveform_widget.py:579
 msgid "The available subsources."
 msgstr "利用可能なサブソース"
 
-#: widgets/waveform/waveform_widget.py:581
+#: widgets/waveform/waveform_widget.py:585
 msgid "The selected subsources for each trace."
 msgstr "各トレースで選択されたサブソース。"
 
-#: widgets/waveform/waveform_widget.py:587
+#: widgets/waveform/waveform_widget.py:591
 msgid "The trace priority: highest int value on top, None is off."
 msgstr "トレースの優先順位：最高 int 値が一番上、None はオフ。"
 
-#: widgets/waveform/waveform_widget.py:593
+#: widgets/waveform/waveform_widget.py:597
 msgid "The Δt display unit."
 msgstr "Δtの表示単位。"
 
-#: widgets/waveform/waveform_widget.py:595
+#: widgets/waveform/waveform_widget.py:599
 msgid "Conventional displays days:hours:minutes:seconds."
 msgstr "「標準」は「日:時:分:秒」で表示します。"
 
-#: widgets/waveform/waveform_widget.py:596
+#: widgets/waveform/waveform_widget.py:600
 msgid "Auto displays a decimal value with the best fit unit."
 msgstr "「Auto」を選択すると、最適な単位で小数表示されます。"
 
-#: widgets/waveform/waveform_widget.py:597
+#: widgets/waveform/waveform_widget.py:601
 msgid "Hours, Minutes, and Seconds display a decimal value in that unit."
 msgstr "「時間」、「分」、「秒」は、それぞれの単位での小数表示となります。"
 
-#: widgets/waveform/waveform_widget.py:601
-#: widgets/waveform/waveform_widget.py:3928
+#: widgets/waveform/waveform_widget.py:605
+#: widgets/waveform/waveform_widget.py:3932
 msgid "Conventional"
 msgstr "標準"
 
-#: widgets/waveform/waveform_widget.py:603
-#: widgets/waveform/waveform_widget.py:3930
+#: widgets/waveform/waveform_widget.py:607
+#: widgets/waveform/waveform_widget.py:3934
 msgid "Hours"
 msgstr "時間"
 
-#: widgets/waveform/waveform_widget.py:604
-#: widgets/waveform/waveform_widget.py:3931
+#: widgets/waveform/waveform_widget.py:608
+#: widgets/waveform/waveform_widget.py:3935
 msgid "Minutes"
 msgstr "分"
 
-#: widgets/waveform/waveform_widget.py:605
-#: widgets/waveform/waveform_widget.py:3932
+#: widgets/waveform/waveform_widget.py:609
+#: widgets/waveform/waveform_widget.py:3936
 msgid "Seconds"
 msgstr "秒"
 
-#: widgets/waveform/waveform_widget.py:3546
-#: widgets/waveform/waveform_widget.py:3906
+#: widgets/waveform/waveform_widget.py:3550
+#: widgets/waveform/waveform_widget.py:3910
 msgid "Save image to file"
 msgstr "画像をファイルに保存"
 
-#: widgets/waveform/waveform_widget.py:3593
-#: widgets/waveform/waveform_widget.py:3705
+#: widgets/waveform/waveform_widget.py:3597
+#: widgets/waveform/waveform_widget.py:3709
 msgid "Single marker"
 msgstr "シングルマーカー"
 
-#: widgets/waveform/waveform_widget.py:3594
-#: widgets/waveform/waveform_widget.py:3706
+#: widgets/waveform/waveform_widget.py:3598
+#: widgets/waveform/waveform_widget.py:3710
 msgid "Dual markers"
 msgstr "デュアルマーカー"
 
-#: widgets/waveform/waveform_widget.py:3596
-#: widgets/waveform/waveform_widget.py:3623
+#: widgets/waveform/waveform_widget.py:3600
+#: widgets/waveform/waveform_widget.py:3627
 msgid "Mode"
 msgstr "モード"
 
-#: widgets/waveform/waveform_widget.py:3609
-#: widgets/waveform/waveform_widget.py:3707
-#: widgets/waveform/waveform_widget.py:3878
-#: widgets/waveform/waveform_widget.py:3896
+#: widgets/waveform/waveform_widget.py:3613
+#: widgets/waveform/waveform_widget.py:3711
+#: widgets/waveform/waveform_widget.py:3882
+#: widgets/waveform/waveform_widget.py:3900
 msgid "Clear all"
 msgstr "すべてクリア"
 
-#: widgets/waveform/waveform_widget.py:3620
-#: widgets/waveform/waveform_widget.py:3756
-#: widgets/waveform/waveform_widget.py:3884
+#: widgets/waveform/waveform_widget.py:3624
+#: widgets/waveform/waveform_widget.py:3760
+#: widgets/waveform/waveform_widget.py:3888
 msgid "Annotations"
 msgstr "注釈"
 
-#: widgets/waveform/waveform_widget.py:3636
+#: widgets/waveform/waveform_widget.py:3640
 msgid "Time Zone"
 msgstr "タイムゾーン"
 
-#: widgets/waveform/waveform_widget.py:3646
-#: widgets/waveform/waveform_widget.py:3937
+#: widgets/waveform/waveform_widget.py:3650
+#: widgets/waveform/waveform_widget.py:3941
 msgid "Δt holdover"
 msgstr "Δt ホールドオーバー"
 
-#: widgets/waveform/waveform_widget.py:3759
+#: widgets/waveform/waveform_widget.py:3763
 msgid "Range"
 msgstr "範囲"
 
-#: widgets/waveform/waveform_widget.py:3769
+#: widgets/waveform/waveform_widget.py:3773
 msgid "Exact"
 msgstr "正確"
 
-#: widgets/waveform/waveform_widget.py:3778
+#: widgets/waveform/waveform_widget.py:3782
 msgid "Scale"
 msgstr "スケール"
 
-#: widgets/waveform/waveform_widget.py:3794
+#: widgets/waveform/waveform_widget.py:3798
 msgid "Logarithmic zero"
 msgstr "対数ゼロ"
 
-#: widgets/waveform/waveform_widget.py:3876
+#: widgets/waveform/waveform_widget.py:3880
 msgid "Hide all text"
 msgstr "すべてのテキストを隠す"
 
-#: widgets/waveform/waveform_widget.py:3877
+#: widgets/waveform/waveform_widget.py:3881
 msgid "Show all text"
 msgstr "すべてのテキストを表示"
 
-#: widgets/waveform/waveform_widget.py:3885
+#: widgets/waveform/waveform_widget.py:3889
 msgid "Vertical"
 msgstr "垂直"
 
-#: widgets/waveform/waveform_widget.py:3888
+#: widgets/waveform/waveform_widget.py:3892
 msgid "Horizontal"
 msgstr "水平"
 
-#: widgets/waveform/waveform_widget.py:3899
+#: widgets/waveform/waveform_widget.py:3903
 msgid "Y-axis auto range"
 msgstr "Y軸オートレンジ"
 
-#: widgets/waveform/waveform_widget.py:3902
+#: widgets/waveform/waveform_widget.py:3906
 msgid "Anti-aliasing"
 msgstr "アンチエイリアシング"
 
-#: widgets/waveform/waveform_widget.py:3907
+#: widgets/waveform/waveform_widget.py:3911
 msgid "Copy image to clipboard"
 msgstr "画像をクリップボードにコピー"
 
-#: widgets/waveform/waveform_widget.py:3908
+#: widgets/waveform/waveform_widget.py:3912
 msgid "Export visible data"
 msgstr "可視データをエクスポート"
 
-#: widgets/waveform/waveform_widget.py:3909
+#: widgets/waveform/waveform_widget.py:3913
 msgid "Export visible data as CSV"
 msgstr "可視データをCSVでエクスポート"
 
-#: widgets/waveform/waveform_widget.py:3910
+#: widgets/waveform/waveform_widget.py:3914
 msgid "Export all data"
 msgstr "すべてのデータをエクスポート"
 
-#: widgets/waveform/waveform_widget.py:3925
+#: widgets/waveform/waveform_widget.py:3929
 msgid "Unit"
 msgstr "単位"
 
-#: widgets/waveform/waveform_widget.py:4106
+#: widgets/waveform/waveform_widget.py:4110
 msgid "Export visible data to CSV file"
 msgstr "可視データをCSVファイルにエクスポート"
 
-#: widgets/waveform/waveform_widget.py:4261
+#: widgets/waveform/waveform_widget.py:4265
 msgid "Analysis"
 msgstr "解析"
 
-#: widgets/waveform/waveform_widget.py:4269
+#: widgets/waveform/waveform_widget.py:4273
 msgid "Interval"
 msgstr "インターバル"
 
-#: widgets/waveform/waveform_widget.py:4278
+#: widgets/waveform/waveform_widget.py:4282
 msgid "Zoom"
 msgstr "ズーム"
 
-#: widgets/waveform/waveform_widget.py:4282
+#: widgets/waveform/waveform_widget.py:4286
 msgid "Show statistics"
 msgstr "統計を表示"
 
-#: widgets/waveform/waveform_widget.py:4287
-msgid "Left"
-msgstr "左"
-
-#: widgets/waveform/waveform_widget.py:4290
-msgid "Right"
-msgstr "右"
-
-#: widgets/waveform/waveform_widget.py:4293
-#: widgets/waveform/waveform_widget.py:4300
+#: widgets/waveform/waveform_widget.py:4297
+#: widgets/waveform/waveform_widget.py:4304
 msgid "Off"
 msgstr "オフ"
 
-#: widgets/waveform/waveform_widget.py:4297
+#: widgets/waveform/waveform_widget.py:4301
 msgid "Show time"
 msgstr "時間を表示"
 
-#: widgets/waveform/waveform_widget.py:4303
+#: widgets/waveform/waveform_widget.py:4307
 msgid "On"
 msgstr "オン"
 
-#: widgets/waveform/waveform_widget.py:4307
+#: widgets/waveform/waveform_widget.py:4311
 msgid "Label"
 msgstr "ラベル"
 
-#: widgets/waveform/waveform_widget.py:4343
+#: widgets/waveform/waveform_widget.py:4347
 msgid "Y mode"
 msgstr "Yモード"
 

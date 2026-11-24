@@ -17,7 +17,7 @@
 
 from joulescope_ui import pubsub_singleton, N_, get_topic_name, get_instance, \
     tooltip_format, CAPABILITIES, Metadata, __version__, _pubsub_factory, is_nuitka
-from joulescope_ui.locale import locale_get, is_rtl
+from joulescope_ui.locale import locale_get, is_rtl, qt_translator
 from joulescope_ui.pubsub import UNDO_TOPIC, REDO_TOPIC, is_pubsub_registered
 from joulescope_ui.pubsub_aggregator import PubsubAggregator
 from joulescope_ui.widgets import *   # registers all built-in widgets
@@ -1248,6 +1248,7 @@ def run(log_level=None, file_log_level=None, filename=None, safe_mode=False, tcp
             _opengl_config(opengl_renderer)
 
         app = QtWidgets.QApplication([])
+        qt_translator.install(app)
         if is_rtl():
             app.setLayoutDirection(QtCore.Qt.LayoutDirection.RightToLeft)
         app.setApplicationName(_UI_WINDOW_TITLE if filename is None else _JLS_WINDOW_TITLE)

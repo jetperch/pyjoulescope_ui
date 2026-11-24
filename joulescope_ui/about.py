@@ -34,12 +34,12 @@ ABOUT = f"""\
 <p><a href="https://www.joulescope.com">https://www.joulescope.com</a></p>
 <p>{_VERSIONS}:</p>
 <table>
-<tr><td>UI</td><td>{ui_version}</td></tr>
+<tr><td>{N_('UI')}</td><td>{ui_version}</td></tr>
 <tr><td>driver</td><td>{jsdrv_version}</td></tr> 
 <tr><td>JLS</td><td>{jls_version}</td></tr>
 <tr><td>Python</td><td>{sys.version}</td></tr>
-<tr><td>Platform</td><td>{platform.platform()}</td></tr>
-<tr><td>Processor</td><td>{platform.processor()}</td></tr>
+<tr><td>{N_('Platform')}</td><td>{platform.platform()}</td></tr>
+<tr><td>{N_('Processor')}</td><td>{platform.processor()}</td></tr>
 </table>
 
 <pre>

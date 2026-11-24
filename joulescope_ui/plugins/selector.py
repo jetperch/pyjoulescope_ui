@@ -20,10 +20,10 @@ from joulescope_ui.ui_util import comboBoxConfig
 from joulescope_ui.styles import styled_widget
 
 
-_HEADER = """<html><body>
-<p>⚠ POTENTIALLY UNSAFE ⚠</p>
-<p>Active plugins have full access to run arbitrary code on this computer.
-Make sure you trust a plugin before activating it.</p>  
+_HEADER = f"""<html><body>
+<p>⚠ {N_('POTENTIALLY UNSAFE')} ⚠</p>
+<p>{N_('Active plugins have full access to run arbitrary code on this computer. '
+       'Make sure you trust a plugin before activating it.')}</p>
 </body></html>
 """
 

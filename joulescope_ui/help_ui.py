@@ -19,7 +19,7 @@ import markdown
 import os
 import re
 from PySide6 import QtCore, QtWidgets
-from joulescope_ui import pubsub_singleton, get_instance
+from joulescope_ui import N_, pubsub_singleton, get_instance
 from joulescope_ui.about import ABOUT
 from joulescope_ui.getting_started import GETTING_STARTED
 
@@ -83,7 +83,7 @@ def format_help(name, html, style=None):
     if style is None:
         style = load_style()
     try:
-        title = re.search(r'<title>(.*?)<\/title>', html)[1]
+        title = N_(re.search(r'<title>(.*?)<\/title>', html)[1])
     except Exception:
         title = name
     html = html.format(style=style)

@@ -135,3 +135,61 @@ class TestLocalePath(unittest.TestCase):
                     mock.patch.object(locale, 'languages', ['de', 'de']):
                 t = locale._translation()
         self.assertIsInstance(t, gettext.GNUTranslations)
+
+
+class TestQtTranslator(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        from PySide6 import QtWidgets
+        os.environ.setdefault('QT_QPA_PLATFORM', 'offscreen')
+        cls._app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+
+    def test_gettext_translator(self):
+        from joulescope_ui.locale.qt_translator import GettextTranslator
+        catalog = mock.Mock()
+        catalog.gettext.side_effect = lambda s: {'Close Tab': 'Tab schließen'}.get(s, s)
+        catalog.pgettext.side_effect = lambda c, s: s
+        t = GettextTranslator(catalog)
+        self.assertEqual('Tab schließen', t.translate('ads::CDockAreaTitleBar', 'Close Tab'))
+        self.assertIsNone(t.translate('ads::CDockAreaTitleBar', 'Unknown'))
+        self.assertIsNone(t.translate('ctx', ''))
+        self.assertFalse(t.isEmpty())
+
+    def test_ads_context_first(self):
+        from joulescope_ui.locale.qt_translator import GettextTranslator
+        catalog = mock.Mock()
+        catalog.pgettext.side_effect = lambda c, s: {('ads', 'Pin'): 'Anheften'}.get((c, s), s)
+        catalog.gettext.side_effect = lambda s: {'Pin': 'Fixieren'}.get(s, s)
+        t = GettextTranslator(catalog)
+        self.assertEqual('Anheften', t.translate('ads::CDockWidgetTab', 'Pin'))
+        self.assertEqual('Fixieren', t.translate('QMenu', 'Pin'))
+
+    def test_untranslated_keeps_qt_text(self):
+        from PySide6 import QtCore
+        from joulescope_ui.locale.qt_translator import GettextTranslator
+        t = GettextTranslator(gettext.NullTranslations())
+        self._app.installTranslator(t)
+        try:
+            self.assertEqual('Hello', QtCore.QCoreApplication.translate('ctx', 'Hello'))
+        finally:
+            self._app.removeTranslator(t)
+
+    def test_ads_strings_in_catalogs(self):
+        from joulescope_ui.locale.qt_translator import ADS_STRINGS
+        for locale_name, po in _catalogs():
+            ids = {e.msgid for e in po.translated_entries() if not e.msgctxt}
+            for text in ['Close Tab', 'List All Tabs', 'Detach Group']:
+                with self.subTest(locale=locale_name, text=text):
+                    self.assertIn(text, ids)
+        self.assertGreater(len(ADS_STRINGS), 10)
+
+
+class TestFontFallbacks(unittest.TestCase):
+
+    def test_regional_cjk(self):
+        from joulescope_ui.locale.qt_translator import font_fallbacks
+        self.assertIn('Noto Sans CJK SC', font_fallbacks('zh'))
+        self.assertNotIn('Noto Sans CJK JP', font_fallbacks('zh_CN'))
+        self.assertIn('Noto Sans CJK JP', font_fallbacks('ja-JP'))
+        self.assertEqual(font_fallbacks('de')[-1], font_fallbacks('fr')[-1])
