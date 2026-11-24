@@ -324,6 +324,8 @@ class _InnerWidget(QtWidgets.QWidget):
         self._log = logging.getLogger(__name__ + '.inner')
         self._statistics = None  # most recent statistics information
         super().__init__(parent=parent)
+        # Plots and readings stay left to right, also in right-to-left languages.
+        self.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self._size = (10, 10)
         self.setFixedSize(*self._size)
         self.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)

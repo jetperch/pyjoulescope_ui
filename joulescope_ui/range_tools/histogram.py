@@ -118,6 +118,8 @@ class HistogramRangeToolWidget(QtWidgets.QWidget):
         self._layout.setContentsMargins(0, 0, 0, 0)
 
         self._win = pg.GraphicsLayoutWidget(parent=self, title=_NAME)
+        # Plots and readings stay left to right, also in right-to-left languages.
+        self._win.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self._win.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self._layout.addWidget(self._win)
         p = self._win.addPlot(row=1, col=0)

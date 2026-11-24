@@ -89,6 +89,8 @@ class CdfRangeToolWidget(QtWidgets.QWidget):
         self._layout.setContentsMargins(0, 0, 0, 0)
 
         self._win = pg.GraphicsLayoutWidget(parent=self)
+        # Plots and readings stay left to right, also in right-to-left languages.
+        self._win.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self._win.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self._label = pg.LabelItem(justify='right')
         self._win.addItem(self._label)

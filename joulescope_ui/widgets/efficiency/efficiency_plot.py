@@ -78,6 +78,8 @@ class _PlotBase(QtWidgets.QWidget):
         self._hover = None      # QPointF
         self._y_auto = None     # [y0, y1] percent
         super().__init__(parent)
+        # Plots and readings stay left to right, also in right-to-left languages.
+        self.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self.setObjectName(name)
         self.setMouseTracking(True)
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)

@@ -220,6 +220,8 @@ class _PlotBase(QtWidgets.QWidget):
         self._owner = owner
         self._drag = None   # (kind, start_x, start_value)
         super().__init__(parent)
+        # Plots and readings stay left to right, also in right-to-left languages.
+        self.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self.setMouseTracking(True)
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.setMinimumHeight(40)

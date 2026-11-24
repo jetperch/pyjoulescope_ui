@@ -99,6 +99,8 @@ class FuseSubWidget(QtWidgets.QWidget):
         import pyqtgraph as pg  # deferred: expensive import off the startup path (#206)
         self._i = np.arange(0, 10.001, 0.001)
         self._p = pg.PlotWidget(parent=self._body, title=N_('Fuse response'))
+        # Plots and readings stay left to right, also in right-to-left languages.
+        self._p.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self._p.setLabel('left', N_('Time') + ' (s)')
         self._p.setLabel('bottom', N_('Current') + ' (A)')
         self._p.showGrid(True, True, alpha=0.8)
