@@ -92,6 +92,7 @@ def _text_fit(widget):
             content.setWidth(content.width() + widget.iconSize().width() + 4)
         need = widget.style().sizeFromContents(
             QtWidgets.QStyle.ContentsType.CT_ComboBox, opt, content, widget).width()
+        need = min(need, widget.sizeHint().width())  # Qt's hint already fits the longest item
         return {'text': text, 'need': need, 'have': widget.width()}
     if isinstance(widget, QtWidgets.QGroupBox):
         text = widget.title()
@@ -118,10 +119,30 @@ def _text_fit(widget):
             text = model.headerData(idx, widget.orientation(), QtCore.Qt.DisplayRole)
             if text:
                 text = str(text)
-                items.append({'text': text, 'need': _text_need(fm, text) + 12,
+                items.append({'text': text, 'need': widget.sectionSizeHint(idx),
                               'have': widget.sectionSize(idx)})
         return {'items': items} if items else None
     return None
+
+
+def _find_any(name):
+    """Find a visible widget by class or objectName in any top-level window.
+
+    Supports the ``@Name`` path form, which reaches non-modal dialogs and
+    floating widgets that are not the active window.  Top-level windows
+    match first, then their descendants in creation order.
+
+    :raises ValueError: If no visible widget matches.
+    """
+    windows = [w for w in QtWidgets.QApplication.instance().topLevelWidgets() if w.isVisible()]
+    for w in windows:
+        if name in (type(w).__name__, w.objectName()):
+            return w
+    for w in windows:
+        for child in w.findChildren(QtWidgets.QWidget):
+            if child.isVisible() and name in (type(child).__name__, child.objectName()):
+                return child
+    raise ValueError(f'no visible widget named {name!r}')
 
 
 def _widget_info(widget, depth=0, max_depth=50):
@@ -446,6 +467,8 @@ class QtInspector:
         root = self._get_root()
         if not path:
             return root
+        if path.startswith('@'):
+            return _find_any(path[1:])
         try:
             return _find_widget(root, path)
         except ValueError as ex:

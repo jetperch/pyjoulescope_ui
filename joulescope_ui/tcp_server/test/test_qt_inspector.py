@@ -250,3 +250,22 @@ class TestTextFit(unittest.TestCase):
         menu.addSeparator()
         menu.addAction('Exit')
         self.assertEqual(['Open', 'Exit'], _widget_info(menu, max_depth=0)['actions'])
+
+    def test_find_any(self):
+        from joulescope_ui.tcp_server.qt_inspector import _find_any
+
+        class AuditDialog(QtWidgets.QDialog):
+            pass
+
+        dialog = AuditDialog()
+        label = QtWidgets.QLabel('x', dialog)
+        label.setObjectName('audit_label')
+        dialog.show()
+        try:
+            self.assertIs(dialog, _find_any('AuditDialog'))
+            self.assertIs(label, _find_any('audit_label'))
+            with self.assertRaises(ValueError):
+                _find_any('NoSuchWidget')
+        finally:
+            dialog.close()
+            dialog.deleteLater()

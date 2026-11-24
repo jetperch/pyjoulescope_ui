@@ -1028,3 +1028,51 @@ class TestPseudoLocale(unittest.TestCase):
         self.assertTrue(p.is_marked(p.pseudo('Device') + ' JS2'))
         self.assertFalse(p.is_marked('Markers:'))
         self.assertFalse(p.is_marked(p.pseudo('Signal') + ' Window'))
+
+
+class TestIterTexts(unittest.TestCase):
+
+    def test_texts(self):
+        tree = {'class': 'MainWindow', 'visible': True, 'properties': {'windowTitle': 'Joulescope'},
+                'children': [
+                    {'class': 'QLabel', 'visible': True, 'properties': {'text': 'Signal', 'toolTip': ''}},
+                    {'class': 'QLabel', 'visible': False, 'properties': {'text': 'Hidden'}},
+                    {'class': 'QMenu', 'visible': False, 'actions': ['Open', 'Exit']},
+                    {'class': 'QTabBar', 'visible': True, 'fit': {'items': [{'text': 'Tab', 'need': 1, 'have': 1}]}},
+                ]}
+        texts = [t[2] for t in qt.iter_texts(tree)]
+        self.assertEqual(['Joulescope', 'Signal', 'Open', 'Exit', 'Tab'], texts)
+        self.assertEqual([], list(qt.iter_texts(None)))
+
+
+class TestReviewPack(unittest.TestCase):
+
+    def test_screen_strings(self):
+        from uitest import review_pack
+        tree = {'class': 'QWidget', 'visible': True, 'children': [
+            {'class': 'QLabel', 'visible': True, 'properties': {'text': 'Signal'}},
+            {'class': 'QLabel', 'visible': True, 'properties': {'text': 'Strom\nSpannung'}},
+            {'class': 'QLabel', 'visible': True, 'properties': {'text': 'Strom'}},
+            {'class': 'QLabel', 'visible': True, 'properties': {'text': '12.5 mA'}},
+        ]}
+        reverse = {'Signal': 'Signal', 'Strom': 'Current', 'Spannung': 'Voltage'}
+        self.assertEqual([('Signal', 'Signal'), ('Current', 'Strom'), ('Voltage', 'Spannung')],
+                         review_pack.screen_strings(tree, reverse))
+
+    def test_questions_known_locales(self):
+        from uitest import review_pack
+        self.assertTrue(set(review_pack.QUESTIONS) <= set(review_pack.LANGUAGE_NAMES))
+
+
+class TestBlankButtons(unittest.TestCase):
+
+    def test_find(self):
+        tree = {'class': 'QDialog', 'visible': True, 'children': [
+            {'class': 'QDialogButtonBox', 'visible': True, 'children': [
+                {'class': 'QPushButton', 'visible': True, 'properties': {'text': 'OK'}},
+                {'class': 'QPushButton', 'visible': True, 'properties': {'text': ''}},
+                {'class': 'QPushButton', 'visible': False, 'properties': {'text': ''}},
+            ]},
+            {'class': 'QPushButton', 'visible': True, 'properties': {'text': ''}},  # icon button
+        ]}
+        self.assertEqual(['/QDialog/QDialogButtonBox/QPushButton'], qt.find_blank_buttons(tree))

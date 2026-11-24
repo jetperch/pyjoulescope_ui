@@ -110,3 +110,64 @@ def find_truncation(tree, tolerance=1):
     if tree:
         walk(tree, '')
     return out
+
+
+_TEXT_PROPERTIES = ('text', 'title', 'windowTitle', 'placeholderText', 'toolTip')
+
+
+def iter_texts(tree):
+    """Yield the user-visible text in the tree.
+
+    Includes text properties, tab and header items, and menu actions.
+    Menus are included even while closed, since their text shows when
+    opened.  Other hidden widgets are skipped.
+
+    :param tree: The ``qt_inspect`` tree.
+    :return: Iterator of ``(class, kind, text)`` tuples.
+    """
+    def walk(node):
+        cls = node.get('class')
+        is_menu = cls in ('QMenu', 'QMenuBar')
+        if not node.get('visible', True) and not is_menu:
+            return
+        props = node.get('properties') or {}
+        for name in _TEXT_PROPERTIES:
+            value = props.get(name)
+            if isinstance(value, str) and value.strip():
+                yield cls, name, value
+        fit = node.get('fit') or {}
+        for item in fit.get('items', []):
+            yield cls, 'item', item['text']
+        for action in node.get('actions', []) or []:
+            yield cls, 'action', action
+        for child in node.get('children', []) or []:
+            yield from walk(child)
+
+    if tree:
+        yield from walk(tree)
+
+
+def find_blank_buttons(tree):
+    """Find visible dialog buttons without text.
+
+    Standard dialog buttons (OK, Cancel) always have text, so a blank one
+    means a broken translation lookup.
+
+    :return: List of button paths.
+    """
+    out = []
+
+    def walk(node, path, parent_cls):
+        cls = node.get('class')
+        path = f'{path}/{cls}'
+        if not node.get('visible', True):
+            return
+        text = (node.get('properties') or {}).get('text')
+        if cls == 'QPushButton' and parent_cls == 'QDialogButtonBox' and not (text or '').strip():
+            out.append(path)
+        for child in node.get('children', []) or []:
+            walk(child, path, cls)
+
+    if tree:
+        walk(tree, '', None)
+    return out

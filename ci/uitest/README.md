@@ -149,6 +149,33 @@ Exit codes: 0 success; 2 UI not running with `--tcp-server` (or stale
 `python ci/uitest/cli.py --help` for all subcommands.  Unlike `UiSession`,
 the CLI never launches or closes the UI and never touches the config.
 
+## Translation display audit
+
+These tools check how the UI looks in each language.  See
+[`docs/plans/translation_display_audit.md`](../../docs/plans/translation_display_audit.md).
+
+```bash
+# Screens in every language, at 1280x720 and 1920x1080, with a contact
+# sheet at <dir>/index.html.  --hide-usb keeps the UI away from the bench's
+# instruments (Linux, needs bwrap).
+python ci/uitest/display_audit.py --out <dir> --hide-usb
+
+# One language, some screen groups (views, widgets, dialogs, range_tools,
+# context_menus), one size.  --device adds the device screens, read-only.
+python ci/uitest/display_audit.py --out <dir> --lang de --screens views,dialogs --size 1280x720
+
+# Font coverage for every catalog on this computer
+python ci/uitest/font_coverage.py
+
+# Review pack for a native speaker, from an audit directory
+python ci/uitest/review_pack.py --audit <dir> --lang de --out <packs dir>
+```
+
+`qps` is a pseudo-locale generated from the POT at run time: accented,
+40 % longer, and bracketed with `⟦…⟧`.  Text without the brackets never
+went through `N_()`.  `test_display_audit.py` runs it on the
+hardware-free screens and fails on English text or truncation.
+
 ## Environment variables
 
 | Var | Purpose |
