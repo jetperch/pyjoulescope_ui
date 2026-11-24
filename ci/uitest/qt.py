@@ -77,3 +77,36 @@ def _node_text_contains(node, text):
         if isinstance(value, str) and text in value:
             return True
     return False
+
+
+def find_truncation(tree, tolerance=1):
+    """Find visible text that does not fit its widget.
+
+    Uses the ``fit`` records from the inspector (see
+    docs/plans/translation_display_audit.md).
+
+    :param tree: The ``qt_inspect`` tree.
+    :param tolerance: Allowed overflow in pixels, for rounding.
+    :return: List of dicts with ``path``, ``class``, ``text``, ``need``,
+        and ``have``, in tree order.
+    """
+    out = []
+
+    def walk(node, path):
+        path = f'{path}/{node.get("class")}'
+        if node.get('objectName'):
+            path += f'[{node["objectName"]}]'
+        if not node.get('visible', True):
+            return
+        fit = node.get('fit')
+        if fit:
+            for item in fit.get('items', [fit]):
+                if item['have'] > 0 and item['need'] > item['have'] + tolerance:
+                    out.append({'path': path, 'class': node.get('class'), 'text': item['text'],
+                                'need': item['need'], 'have': item['have']})
+        for child in node.get('children', []) or []:
+            walk(child, path)
+
+    if tree:
+        walk(tree, '')
+    return out

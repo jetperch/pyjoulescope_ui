@@ -26,11 +26,13 @@ so this module can be imported (and the Qt-free helpers unit-tested) on a machin
 without PySide6.
 """
 
+import json
 import logging
 import os
 import shutil
 import signal
 import subprocess
+import tempfile
 import time
 
 from uitest import discover, installer
@@ -60,6 +62,9 @@ class UiSession:
     :param app: Application name (drives the ``server.json`` location).
     :param offscreen: When True, set ``QT_QPA_PLATFORM=offscreen`` (headless,
         for the hardware-free suite on CI runners).
+    :param offscreen_size: The ``(width, height)`` of the offscreen virtual
+        screen.  Qt defaults to 800 x 800, which clamps larger windows.
+        None keeps the Qt default.
     :param config_clear_on_exit: When True, clear UI config on shutdown so each
         session starts from defaults.
     :param startup_timeout: Seconds to wait for ``server.json`` to appear.
@@ -80,10 +85,12 @@ class UiSession:
     def __init__(self, executable=None, app=discover.APP_NAME, *, offscreen=False,
                  config_clear_on_exit=True, startup_timeout=30.0, ready_timeout=30.0,
                  client_timeout=10.0, suppress_startup_dialogs=True, env=None, cwd=None,
-                 log_copy_dir=None):
+                 log_copy_dir=None, offscreen_size=None):
         self.executable = executable
         self.app = app
         self.offscreen = offscreen
+        self.offscreen_size = offscreen_size
+        self._offscreen_config = None
         self.config_clear_on_exit = config_clear_on_exit
         self.suppress_startup_dialogs = suppress_startup_dialogs
         self.startup_timeout = startup_timeout
@@ -114,7 +121,7 @@ class UiSession:
         env = dict(os.environ)
         env.update(self._extra_env)
         if self.offscreen:
-            env['QT_QPA_PLATFORM'] = 'offscreen'
+            env['QT_QPA_PLATFORM'] = self._offscreen_platform()
         _log.info('launching UI: %s', ' '.join(argv))
         self._proc = subprocess.Popen(argv, env=env, cwd=self._cwd)
 
@@ -166,6 +173,18 @@ class UiSession:
         raise UiSessionError(f'startup dialog {HELP_DIALOG} did not '
                              f'{"close" if shown else "appear"} within {timeout}s')
 
+    def _offscreen_platform(self):
+        """Return the ``QT_QPA_PLATFORM`` value for offscreen mode."""
+        if self.offscreen_size is None:
+            return 'offscreen'
+        width, height = [int(x) for x in self.offscreen_size]
+        screen = {'name': 'uitest', 'x': 0, 'y': 0, 'width': width, 'height': height,
+                  'logicalDpi': 96, 'logicalBaseDpi': 96, 'dpr': 1}
+        fd, self._offscreen_config = tempfile.mkstemp(prefix='uitest_offscreen_', suffix='.json')
+        with os.fdopen(fd, 'w') as f:
+            json.dump({'screens': [screen]}, f)
+        return f'offscreen:configfile={self._offscreen_config}'
+
     def stop(self):
         """Close the UI cleanly, then ensure the process is gone."""
         if self._client is not None:
@@ -181,6 +200,12 @@ class UiSession:
             self._client = None
         self._terminate_process()
         self._remove_server_json()
+        if self._offscreen_config is not None:
+            try:
+                os.remove(self._offscreen_config)
+            except OSError:
+                pass
+            self._offscreen_config = None
         self._copy_log(discover.ui_log_dir(self.app))
 
     def _copy_log(self, log_dir):

@@ -179,3 +179,66 @@ class TestRoot(unittest.TestCase):
                                return_value=None):
             info = self.inspector._inspect({'path': '', 'max_depth': 0})
         self.assertEqual('QMainWindow', info['class'])
+
+
+class TestTextFit(unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.app = QtWidgets.QApplication.instance() or QtWidgets.QApplication([])
+
+    def setUp(self):
+        self.window = QtWidgets.QWidget()
+        self.window.resize(400, 200)
+
+    def tearDown(self):
+        self.window.deleteLater()
+
+    def _fit(self, widget):
+        from joulescope_ui.tcp_server.qt_inspector import _widget_info
+        return _widget_info(widget, max_depth=0).get('fit')
+
+    def test_label_fits(self):
+        label = QtWidgets.QLabel('Signal', self.window)
+        label.resize(label.sizeHint())
+        fit = self._fit(label)
+        self.assertEqual('Signal', fit['text'])
+        self.assertLessEqual(fit['need'], fit['have'])
+
+    def test_label_truncated(self):
+        label = QtWidgets.QLabel('A much longer translated label', self.window)
+        label.resize(20, label.sizeHint().height())
+        fit = self._fit(label)
+        self.assertGreater(fit['need'], fit['have'])
+
+    def test_word_wrap_and_rich_text_skipped(self):
+        wrap = QtWidgets.QLabel('wrapped text', self.window)
+        wrap.setWordWrap(True)
+        self.assertIsNone(self._fit(wrap))
+        self.assertIsNone(self._fit(QtWidgets.QLabel('<b>rich</b>', self.window)))
+
+    def test_button(self):
+        button = QtWidgets.QPushButton('&Open', self.window)
+        button.resize(10, 20)
+        fit = self._fit(button)
+        self.assertEqual('&Open', fit['text'])
+        self.assertGreater(fit['need'], fit['have'])
+
+    def test_combobox_uses_current_text(self):
+        combo = QtWidgets.QComboBox(self.window)
+        combo.addItems(['x', 'a very long entry that is not selected'])
+        combo.resize(combo.minimumSizeHint().width() + 30, 24)
+        combo.setCurrentIndex(0)
+        fit = self._fit(combo)
+        self.assertEqual('x', fit['text'])
+        self.assertLessEqual(fit['need'], fit['have'])
+
+    def test_tab_bar_items(self):
+        tabs = QtWidgets.QTabBar(self.window)
+        tabs.addTab('One')
+        tabs.addTab('Two')
+        fit = self._fit(tabs)
+        self.assertEqual(['One', 'Two'], [x['text'] for x in fit['items']])
+
+    def test_plain_widget_has_no_fit(self):
+        self.assertIsNone(self._fit(QtWidgets.QFrame(self.window)))

@@ -929,3 +929,52 @@ class TestFirmwareFirst(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class TestFindTruncation(unittest.TestCase):
+
+    def test_find(self):
+        tree = {'class': 'MainWindow', 'visible': True, 'children': [
+            {'class': 'QLabel', 'objectName': 'ok', 'visible': True,
+             'fit': {'text': 'Fits', 'need': 30, 'have': 30}},
+            {'class': 'QLabel', 'visible': True,
+             'fit': {'text': 'Zu lang', 'need': 90, 'have': 40}},
+            {'class': 'QLabel', 'visible': False,
+             'fit': {'text': 'Hidden', 'need': 90, 'have': 40}},
+            {'class': 'QLabel', 'visible': True,
+             'fit': {'text': 'Collapsed', 'need': 90, 'have': 0}},
+            {'class': 'QTabBar', 'visible': True, 'fit': {'items': [
+                {'text': 'A', 'need': 10, 'have': 10},
+                {'text': 'Wellenform', 'need': 80, 'have': 50}]}},
+        ]}
+        found = qt.find_truncation(tree)
+        self.assertEqual(['Zu lang', 'Wellenform'], [f['text'] for f in found])
+        self.assertEqual('/MainWindow/QLabel', found[0]['path'])
+
+    def test_tolerance_and_empty(self):
+        tree = {'class': 'QLabel', 'visible': True, 'fit': {'text': 'x', 'need': 31, 'have': 30}}
+        self.assertEqual([], qt.find_truncation(tree))
+        self.assertEqual(1, len(qt.find_truncation(tree, tolerance=0)))
+        self.assertEqual([], qt.find_truncation(None))
+
+
+class TestOffscreenPlatform(unittest.TestCase):
+
+    def test_default(self):
+        from uitest.harness import UiSession
+        self.assertEqual('offscreen', UiSession(offscreen=True)._offscreen_platform())
+
+    def test_size(self):
+        import json
+        from uitest.harness import UiSession
+        session = UiSession(offscreen=True, offscreen_size=(1920, 1080))
+        value = session._offscreen_platform()
+        prefix = 'offscreen:configfile='
+        self.assertTrue(value.startswith(prefix))
+        path = value[len(prefix):]
+        try:
+            with open(path) as f:
+                screen = json.load(f)['screens'][0]
+            self.assertEqual([1920, 1080], [screen['width'], screen['height']])
+        finally:
+            os.remove(path)

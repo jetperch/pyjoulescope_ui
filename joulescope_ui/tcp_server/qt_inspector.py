@@ -54,6 +54,76 @@ def _safe_property_value(value):
     return str(value)
 
 
+def _text_need(fm, text):
+    """Width in pixels needed to show single-line text, ignoring mnemonics."""
+    return fm.horizontalAdvance(text.replace('&&', '\0').replace('&', '').replace('\0', '&'))
+
+
+def _text_fit(widget):
+    """Describe how the widget's text fits, for the display audit.
+
+    :param widget: The QWidget.
+    :return: None, or a dict with ``text``, ``need`` and ``have`` pixel widths.
+        Tab bars and header views return ``items``, a list of such dicts.
+        Text is truncated when ``need > have``.  See
+        docs/plans/translation_display_audit.md.
+    """
+    fm = widget.fontMetrics()
+    if isinstance(widget, QtWidgets.QLabel):
+        text = widget.text()
+        if not text or widget.wordWrap() or QtGui.Qt.mightBeRichText(text):
+            return None
+        margin = 2 * widget.margin() + max(0, widget.indent())
+        need = max(_text_need(fm, line) for line in text.split('\n')) + margin
+        return {'text': text, 'need': need, 'have': widget.contentsRect().width()}
+    if isinstance(widget, QtWidgets.QAbstractButton):
+        text = widget.text()
+        if not text:
+            return None
+        return {'text': text, 'need': widget.sizeHint().width(), 'have': widget.width()}
+    if isinstance(widget, QtWidgets.QComboBox):
+        text = widget.currentText()
+        if not text:
+            return None
+        opt = QtWidgets.QStyleOptionComboBox()
+        widget.initStyleOption(opt)
+        content = QtCore.QSize(_text_need(fm, text), fm.height())
+        if not widget.itemIcon(widget.currentIndex()).isNull():
+            content.setWidth(content.width() + widget.iconSize().width() + 4)
+        need = widget.style().sizeFromContents(
+            QtWidgets.QStyle.ContentsType.CT_ComboBox, opt, content, widget).width()
+        return {'text': text, 'need': need, 'have': widget.width()}
+    if isinstance(widget, QtWidgets.QGroupBox):
+        text = widget.title()
+        if not text:
+            return None
+        return {'text': text, 'need': _text_need(fm, text) + 16, 'have': widget.width()}
+    if isinstance(widget, QtWidgets.QTabBar):
+        items = []
+        for idx in range(widget.count()):
+            text = widget.tabText(idx)
+            if text:
+                items.append({'text': text, 'need': widget.tabSizeHint(idx).width(),
+                              'have': widget.tabRect(idx).width()})
+        return {'items': items} if items else None
+    if isinstance(widget, QtWidgets.QHeaderView):
+        model = widget.model()
+        if model is None:
+            return None
+        items = []
+        count = model.columnCount() if widget.orientation() == QtCore.Qt.Horizontal else model.rowCount()
+        for idx in range(count):
+            if widget.isSectionHidden(idx):
+                continue
+            text = model.headerData(idx, widget.orientation(), QtCore.Qt.DisplayRole)
+            if text:
+                text = str(text)
+                items.append({'text': text, 'need': _text_need(fm, text) + 12,
+                              'have': widget.sectionSize(idx)})
+        return {'items': items} if items else None
+    return None
+
+
 def _widget_info(widget, depth=0, max_depth=50):
     """Recursively build a widget tree dict.
 
@@ -71,6 +141,13 @@ def _widget_info(widget, depth=0, max_depth=50):
     if isinstance(widget, QtWidgets.QWidget):
         geo = widget.geometry()
         info['geometry'] = [geo.x(), geo.y(), geo.width(), geo.height()]
+        try:
+            fit = _text_fit(widget)
+        except Exception:
+            _log.exception('text fit failed for %s', type(widget).__name__)
+            fit = None
+        if fit is not None:
+            info['fit'] = fit
 
     # Gather properties
     props = {}
