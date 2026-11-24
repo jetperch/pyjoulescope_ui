@@ -320,7 +320,7 @@ _SETTINGS_CLASS = {
     },
     'update_available': {
         'dtype': 'obj',
-        'brief': 'FW available',
+        'brief': N_('FW available'),
         'detail': P_([
             N_('Firmware update availability.'),
             N_('''None when no firmware update is available.

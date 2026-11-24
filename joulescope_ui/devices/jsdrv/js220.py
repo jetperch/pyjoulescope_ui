@@ -307,7 +307,7 @@ _SETTINGS_CLASS = {
     },
     'firmware_channel': {
         'dtype': 'str',
-        'brief': 'FW channel',
+        'brief': N_('FW channel'),
         'detail': P_([
             N_('The maturity level channel for firmware updates.'),
             N_("""We recommend keeping the default "stable"
@@ -317,7 +317,7 @@ _SETTINGS_CLASS = {
     },
     'update_available': {
         'dtype': 'obj',
-        'brief': 'FW available',
+        'brief': N_('FW available'),
         'detail': P_([
             N_('Firmware update availability.'),
             N_('''None when no firmware update is available.

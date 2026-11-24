@@ -5,7 +5,8 @@
 
 # Translation display audit
 
-Status: proposed, 2026-11-23.  Nothing here is done yet.
+Status: stages 1 to 8 done on 2026-11-24.  Native-speaker review (stage 7
+packs) is waiting on reviewers.  See [Results](#results).
 
 The catalogs are now correct as text (see
 [translation_followup.md](translation_followup.md)), but nobody has looked
@@ -166,3 +167,41 @@ and attach the contact sheets to the release checklist in
   Profile, Timesync) and the demo widgets.  They stay English.
 - Settings row names, which stay as English setting keys.
 - Firmware and device strings that come from pyjoulescope_driver.
+
+
+## Results
+
+The final audit on 2026-11-24 captured 98 screens per locale (49 screens at
+1280×720 and at 1920×1080) for en, qps, and all nine languages: 1,078
+captures with no errors, no truncated text, no untranslated text, and no
+blank buttons.  The device screens (live Multimeter, Device Control,
+Device Information, and the JS220 and JS320 settings pages) were captured
+on a JS220 and a JS320 in every language at 1280×720.
+
+Problems the audit found and fixed:
+
+- **Hardcoded English:** the Waveform control bar, the Frequency and CDF
+  dialogs, the annotation editor, several settings tooltips, the plugin
+  warning, the About labels, and the help window titles.
+- **Qt's own text:** dialog buttons and the docking panel menus and
+  buttons were English in every language.  `locale/qt_translator.py` now
+  loads Qt's `qtbase` translation and answers Qt `tr()` lookups from the
+  gettext catalog.  A first version blanked English dialog buttons by
+  returning an empty string; the blank-button check now guards this.
+- **Fonts:** Qt drew Chinese with Japanese glyph shapes on Linux.  The UI
+  now sets per-language fallback fonts.
+- **Right-to-left:** Arabic used a left-to-right layout, and its plots
+  showed "-600" as "600-".  A QPainter takes its direction from the
+  application, not the widget, so the plot painters now set it.
+
+Found but not fixed:
+
+- The range tools fail on JLS v1 files, before this work too.  See
+  [jls_v1_range_tools.md](jls_v1_range_tools.md).
+- Glyph coverage was checked on Linux only.  Run
+  `ci/uitest/font_coverage.py` on Windows, macOS, and in the Flatpak.
+- The Nuitka build may not bundle Qt's `qtbase_*.qm` files.  Without them,
+  Qt dialog buttons fall back to English.  Check the Windows build.
+- pyqtgraph plots (fuse, range tool results) mirror their axis side in
+  Arabic.  The numbers are correct, and this is a valid right-to-left
+  layout.

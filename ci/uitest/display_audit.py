@@ -64,7 +64,7 @@ _LEGAL = ('Copyright ', 'License', 'WARRANTIES', '"AS IS"', 'applicable law')
 _KEEP = re.compile(
     r'^(?:[\W\d_]*|None|Python|\d+\.\d+.*|(?:Linux|Windows|macOS|Darwin)-\S+|.*\b(?:Joulescope|JS110|JS220|JS320|JLS|USB|USBET|CSV|FFT|PSD|UTC|GPI|GPO|'
     r'OpenGL|vsync|Inferno|Viridis|SignalRecordConfig|StatisticsRecordConfig)\b.*|'
-    r'[a-z0-9_]+(?:/[a-z0-9_]+)*|[A-Za-z]+:\d+|[\w.-]+\.(?:jls|csv|json|txt|log)|'
+    r'[a-z0-9_]+(?:/[A-Za-z0-9_]+)*|Jetperch LLC|[A-Za-z]+:\d+|[\w.-]+\.(?:jls|csv|json|txt|log)|'
     r'https?://\S+|(?:[A-Za-z]:)?[/\\].*|\S*\{\w+\}\S*)$')
 
 
