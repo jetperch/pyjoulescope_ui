@@ -22,6 +22,10 @@ or Frequency.  Each shows "Range tool failed":
 It reproduces on `origin/main` at 16099f7, before the 2026-11 translation
 work, for marker ranges of 10 % and 40 % of the file.
 
+Opening the same file also logs `RuntimeError: open UNSUPPORTED_FILE[26]`
+from `joulescope_ui/jls_v2_annotations.py`, which tries to read a v1 file as
+v2.  It is harmless, but the loader should skip v1 files.
+
 ## Likely cause
 
 `calculate_histogram()` requests one summary point over the marker range

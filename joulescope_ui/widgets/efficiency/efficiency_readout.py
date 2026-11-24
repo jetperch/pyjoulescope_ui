@@ -50,8 +50,6 @@ class EfficiencyReadout(QtWidgets.QWidget):
     def __init__(self, owner, parent=None):
         self._owner = owner
         super().__init__(parent)
-        # Plots and readings stay left to right, also in right-to-left languages.
-        self.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self.setObjectName('efficiency_readout')
         policy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         policy.setHeightForWidth(True)
@@ -118,6 +116,7 @@ class EfficiencyReadout(QtWidgets.QWidget):
         r, rows = self._rows()
         main, origin, label_w, value_w, _ = self._layout(style, rows, self.width())
         p = QtGui.QPainter(self)
+        p.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)  # QPainter follows the app, not the widget
         try:
             p.fillRect(self.rect(), style['background_brush'])
             valid = r['valid']

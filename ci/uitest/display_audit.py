@@ -76,6 +76,7 @@ class Catalog:
         self.locale = locale
         self.expected = set()
         self._tr = {}
+        self._translations = set()
         if locale in ('en', pseudo_locale.LOCALE):
             return
         path = os.path.join(_ROOT, 'joulescope_ui', 'locale', locale, 'LC_MESSAGES', 'joulescope_ui.po')
@@ -83,6 +84,7 @@ class Catalog:
             if entry.obsolete or entry.msgctxt or not entry.msgstr:
                 continue
             self._tr[entry.msgid] = entry.msgstr
+            self._translations.add(entry.msgstr)
             if entry.msgstr != entry.msgid:
                 self.expected.add(entry.msgid)
 
@@ -106,6 +108,8 @@ class Catalog:
             if self.locale == pseudo_locale.LOCALE:
                 if not pseudo_locale.is_marked(line):
                     return True
+            elif line in self._translations:
+                continue  # such as French "Exporter" for "Export", also an English msgid
             elif line in self.expected or line.rstrip(':').strip() in self.expected:
                 return True
         return False

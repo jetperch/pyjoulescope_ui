@@ -58,6 +58,13 @@ This file contains the list of changes made to pyjoulescope_ui.
 * Checked the terminology of every translation against localized test
   instrument manuals and platform conventions, and corrected 210 entries.
 * Arabic now uses a right-to-left layout.
+* Translated Qt's own text, such as dialog OK and Cancel buttons, and the
+  dock panel menus and buttons, which stayed English in every language.
+* Chinese, Japanese, and Korean text now uses the font for that language.
+  Han characters differ between them, and Chinese could show Japanese
+  glyph shapes.
+* Plots and readings stay left to right in Arabic, so negative axis labels
+  no longer show as "600-".
 
 
 ## 1.8.1

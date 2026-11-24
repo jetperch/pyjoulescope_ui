@@ -269,8 +269,6 @@ class _PlotOpenGLWidget(QtOpenGLWidgets.QOpenGLWidget):
         super().__init__(parent)
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.setMouseTracking(True)
-        # Plots and readings stay left to right, also in right-to-left languages.
-        self.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         # Without a stencil buffer, Qt triangulates concave fills and silently
         # drops any path exceeding +/-32767 pixels  #352
         fmt = self.format()
@@ -294,6 +292,7 @@ class _PlotOpenGLWidget(QtOpenGLWidgets.QOpenGLWidget):
     def paintGL(self):
         size = self.width(), self.height()
         painter = QtGui.QPainter(self)
+        painter.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)  # QPainter follows the app, not the widget
         painter.beginNativePainting()
         try:
             self.parent().plot_paint(painter, size)
@@ -326,12 +325,11 @@ class _PlotWidget(QtWidgets.QWidget):
         super().__init__(parent)
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         self.setMouseTracking(True)
-        # Plots and readings stay left to right, also in right-to-left languages.
-        self.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
 
     def paintEvent(self, ev):
         size = self.width(), self.height()
         painter = QtGui.QPainter(self)
+        painter.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)  # QPainter follows the app, not the widget
         self.parent().plot_paint(painter, size)
         painter.end()
 

@@ -78,8 +78,6 @@ class _PlotBase(QtWidgets.QWidget):
         self._hover = None      # QPointF
         self._y_auto = None     # [y0, y1] percent
         super().__init__(parent)
-        # Plots and readings stay left to right, also in right-to-left languages.
-        self.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self.setObjectName(name)
         self.setMouseTracking(True)
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
@@ -173,6 +171,7 @@ class TimePlot(_PlotBase):
     def paintEvent(self, event):
         style = self._owner.plot_style()
         p = QtGui.QPainter(self)
+        p.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)  # QPainter follows the app, not the widget
         try:
             p.fillRect(self.rect(), style['background_brush'])
             p.setFont(style['font'])
@@ -280,6 +279,7 @@ class CurvePlot(_PlotBase):
         o = self._owner
         style = o.plot_style()
         p = QtGui.QPainter(self)
+        p.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)  # QPainter follows the app, not the widget
         try:
             p.fillRect(self.rect(), style['background_brush'])
             p.setFont(style['font'])

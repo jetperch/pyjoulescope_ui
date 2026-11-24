@@ -324,8 +324,6 @@ class _InnerWidget(QtWidgets.QWidget):
         self._log = logging.getLogger(__name__ + '.inner')
         self._statistics = None  # most recent statistics information
         super().__init__(parent=parent)
-        # Plots and readings stay left to right, also in right-to-left languages.
-        self.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)
         self._size = (10, 10)
         self.setFixedSize(*self._size)
         self.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
@@ -363,6 +361,7 @@ class _InnerWidget(QtWidgets.QWidget):
         self._geometry = {}
         self._signal_geometry = {}
         painter = QtGui.QPainter(self)
+        painter.setLayoutDirection(QtCore.Qt.LayoutDirection.LeftToRight)  # QPainter follows the app, not the widget
         v = parent.style_obj['vars']
         x_border, y_border = 10, 10
         y_sep = 6
