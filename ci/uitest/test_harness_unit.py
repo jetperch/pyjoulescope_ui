@@ -1049,6 +1049,26 @@ class TestPseudoLocale(unittest.TestCase):
         self.assertFalse(p.is_marked(p.pseudo('Signal') + ' Window'))
 
 
+@unittest.skipIf(polib is None, 'polib is not installed')
+class TestCatalogUntranslated(unittest.TestCase):
+
+    def setUp(self):
+        from uitest import display_audit, pseudo_locale
+        self.p = pseudo_locale
+        self.catalog = display_audit.Catalog(pseudo_locale.LOCALE)
+
+    def test_about_platform_values_are_kept(self):
+        for value in ['Intel64 Family 6 Model 198 Stepping 2, GenuineIntel',
+                      'ARMv8 (64-bit) Family 8 Model 1 Revision 201, Qualcomm Technologies Inc',
+                      '3.14.6 (tags/v3.14.6:c63aec6, Jun 10 2026) [MSC v.1944 64 bit (ARM64)]',
+                      'Windows-11-10.0.26300-SP0', 'x86_64', 'arm']:
+            self.assertFalse(self.catalog.untranslated(value), value)
+
+    def test_english_is_found(self):
+        self.assertTrue(self.catalog.untranslated('Version Information'))
+        self.assertFalse(self.catalog.untranslated(self.p.pseudo('Version Information')))
+
+
 class TestIterTexts(unittest.TestCase):
 
     def test_texts(self):
