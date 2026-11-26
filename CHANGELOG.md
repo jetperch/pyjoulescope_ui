@@ -67,6 +67,8 @@ This file contains the list of changes made to pyjoulescope_ui.
   no longer show as "600-".
 * Bumped pyjoulescope_driver from 2.5.7 to 2.5.8, which fixes occasional
   JS110 and JS220 sample drops on macOS during long full-rate captures.
+* Bumped pyjls from 0.19.1 to 0.19.3, which fixes periodic write stalls
+  on macOS that could drop samples during long recordings.
 
 
 ## 1.8.1

@@ -25,7 +25,7 @@ joulescope>=1.7.3,<2               # also update JOULESCOPE_VERSION_MIN in setup
 joulescope_event_analyzer>=0.1.1,<1
 markdown>=3,<4
 psutil>=5,<8
-pyjls>=0.19.1,<1
+pyjls>=0.19.3,<1
 pyopengl>=3,<4
 # Only where PyPI has wheels; releases build it from source elsewhere (packaging.yml)
 PyOpenGL-accelerate>=3.1,<4; (platform_system == 'Windows' and platform_machine != 'ARM64') or (platform_system == 'Linux' and platform_machine == 'x86_64') or (platform_system == 'Darwin' and platform_machine == 'arm64')

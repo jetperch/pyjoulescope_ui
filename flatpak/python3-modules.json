@@ -171,16 +171,16 @@
                 },
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/3b/ce/3d8c7df32d3d435942d5cca9b9b1e50a09c68df20610e6613b4589229f12/pyjls-0.19.2-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
-                    "sha256": "4bc1b5a65540b54f9e76bef88205e29428561f68f13641e895d3890fda01e829",
+                    "url": "https://files.pythonhosted.org/packages/47/97/78815098ac1b01350039a532e71247164e3566837dbf3efd9e0a606f6956/pyjls-0.19.3-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+                    "sha256": "6f26805b02baddef09f0b2117d992799a2f3aa6c113931e9d6b282b11ac8ec75",
                     "only-arches": [
                         "x86_64"
                     ]
                 },
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/74/cc/3b71ecb430d8f357076c71ad03bb4a453a46b7cdd36c2c955fca2de7b39e/pyjls-0.19.2-cp313-cp313-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl",
-                    "sha256": "7e306decd3cdd724b78ff662f88ee16b0191276b4a361ba1a74e69c78367d4a3",
+                    "url": "https://files.pythonhosted.org/packages/00/66/abe69bdcc192a961e18cad30e349509d2b54f84cc5d87823c6f282d397fa/pyjls-0.19.3-cp313-cp313-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl",
+                    "sha256": "5d2d4cb343017df6ec9a700cee7fcf6d7e47e4a3e212a0826d0271be62e243db",
                     "only-arches": [
                         "aarch64"
                     ]
@@ -269,16 +269,16 @@
                 },
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/3b/ce/3d8c7df32d3d435942d5cca9b9b1e50a09c68df20610e6613b4589229f12/pyjls-0.19.2-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
-                    "sha256": "4bc1b5a65540b54f9e76bef88205e29428561f68f13641e895d3890fda01e829",
+                    "url": "https://files.pythonhosted.org/packages/47/97/78815098ac1b01350039a532e71247164e3566837dbf3efd9e0a606f6956/pyjls-0.19.3-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+                    "sha256": "6f26805b02baddef09f0b2117d992799a2f3aa6c113931e9d6b282b11ac8ec75",
                     "only-arches": [
                         "x86_64"
                     ]
                 },
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/74/cc/3b71ecb430d8f357076c71ad03bb4a453a46b7cdd36c2c955fca2de7b39e/pyjls-0.19.2-cp313-cp313-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl",
-                    "sha256": "7e306decd3cdd724b78ff662f88ee16b0191276b4a361ba1a74e69c78367d4a3",
+                    "url": "https://files.pythonhosted.org/packages/00/66/abe69bdcc192a961e18cad30e349509d2b54f84cc5d87823c6f282d397fa/pyjls-0.19.3-cp313-cp313-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl",
+                    "sha256": "5d2d4cb343017df6ec9a700cee7fcf6d7e47e4a3e212a0826d0271be62e243db",
                     "only-arches": [
                         "aarch64"
                     ]
@@ -328,7 +328,7 @@
             "name": "python3-pyjls",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pyjls>=0.19.1,<1\" --no-build-isolation"
+                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pyjls>=0.19.3,<1\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -349,16 +349,16 @@
                 },
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/3b/ce/3d8c7df32d3d435942d5cca9b9b1e50a09c68df20610e6613b4589229f12/pyjls-0.19.2-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
-                    "sha256": "4bc1b5a65540b54f9e76bef88205e29428561f68f13641e895d3890fda01e829",
+                    "url": "https://files.pythonhosted.org/packages/47/97/78815098ac1b01350039a532e71247164e3566837dbf3efd9e0a606f6956/pyjls-0.19.3-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl",
+                    "sha256": "6f26805b02baddef09f0b2117d992799a2f3aa6c113931e9d6b282b11ac8ec75",
                     "only-arches": [
                         "x86_64"
                     ]
                 },
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/74/cc/3b71ecb430d8f357076c71ad03bb4a453a46b7cdd36c2c955fca2de7b39e/pyjls-0.19.2-cp313-cp313-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl",
-                    "sha256": "7e306decd3cdd724b78ff662f88ee16b0191276b4a361ba1a74e69c78367d4a3",
+                    "url": "https://files.pythonhosted.org/packages/00/66/abe69bdcc192a961e18cad30e349509d2b54f84cc5d87823c6f282d397fa/pyjls-0.19.3-cp313-cp313-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl",
+                    "sha256": "5d2d4cb343017df6ec9a700cee7fcf6d7e47e4a3e212a0826d0271be62e243db",
                     "only-arches": [
                         "aarch64"
                     ]

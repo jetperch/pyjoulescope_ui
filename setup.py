@@ -202,7 +202,7 @@ setuptools.setup(
         'joulescope_event_analyzer>=0.1.1,<1',
         'markdown>=3,<4',
         'psutil>=5,<8',
-        'pyjls>=0.19.1,<1',
+        'pyjls>=0.19.3,<1',
         'pyopengl>=3,<4',
         # Optional speedup: only where PyPI has wheels, so that pip users
         # need no compiler.  Releases bundle it everywhere (packaging.yml).
