@@ -1433,7 +1433,7 @@ msgid "Enable the general purpose input 1 signal streaming."
 msgstr "汎用入力 1 信号ストリーミングを有効にします。"
 
 #: devices/jsdrv/js110.py:330 devices/jsdrv/js220.py:538
-#: devices/jsdrv/js320.py:518 devices/jsdrv/jsdrv_stream_buffer.py:108
+#: devices/jsdrv/js320.py:518 devices/jsdrv/jsdrv_stream_buffer.py:107
 #: devices/serial/serial_device.py:75
 msgid "Signal name"
 msgstr "信号名"
@@ -1747,8 +1747,8 @@ msgid ""
 msgstr "汎用入出力端子の基準電圧を設定してください。"
 
 #: devices/jsdrv/jsdrv_stream_buffer.py:44
-#: devices/jsdrv/jsdrv_stream_buffer.py:93
-#: devices/jsdrv/jsdrv_stream_buffer.py:107
+#: devices/jsdrv/jsdrv_stream_buffer.py:92
+#: devices/jsdrv/jsdrv_stream_buffer.py:106
 #: devices/serial/serial_port_dialog.py:46 plugins/selector.py:58
 #: widgets/settings/settings_widget.py:142
 #: widgets/settings/settings_widget.py:334
@@ -1774,30 +1774,41 @@ msgstr "バッファメモリ持続時間（秒）"
 msgid "Clear on play"
 msgstr "再生時にクリア"
 
-#: devices/jsdrv/jsdrv_stream_buffer.py:73
+#: devices/jsdrv/jsdrv_stream_buffer.py:74
 msgid ""
 "When signal sample streaming is paused, the stream buffer pauses sample "
 "accumulation. This setting controls what happens on play when streaming "
-"resumes. When unset, the buffer continues to accumulate samples into the "
-"existing buffer data. This mode treats the pause duration as missing "
-"samples. When set, the buffer is cleared and all prior data is purged. The "
-"buffer functions as if sample streaming started for the first time."
+"resumes."
 msgstr ""
-"信号サンプルストリーミングを一時停止すると、ストリームバッファもサンプルの蓄積を一時停止します。この設定は、ストリーミングを再開（再生）したときの動作を制御します。無効の場合、バッファは既存のバッファデータに続けてサンプルを蓄積します。このモードでは、一時停止していた期間は欠落サンプルとして扱われます。有効の場合、バッファはクリアされ、それまでのデータはすべて破棄されます。バッファは、サンプルストリーミングを初めて開始したときと同じ状態で動作します。"
+"信号サンプルストリーミングを一時停止すると、ストリームバッファもサンプルの蓄積を一時停止します。この設定は、ストリーミングを再開（再生）したときの動作を制御します。"
 
-#: devices/jsdrv/jsdrv_stream_buffer.py:94
+#: devices/jsdrv/jsdrv_stream_buffer.py:77
+msgid ""
+"When unset, the buffer continues to accumulate samples into the existing "
+"buffer data. This mode treats the pause duration as missing samples."
+msgstr ""
+"無効の場合、バッファは既存のバッファデータに続けてサンプルを蓄積します。このモードでは、一時停止していた期間は欠落サンプルとして扱われます。"
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:80
+msgid ""
+"When set, the buffer is cleared and all prior data is purged. The buffer "
+"functions as if sample streaming started for the first time."
+msgstr ""
+"有効の場合、バッファはクリアされ、それまでのデータはすべて破棄されます。バッファは、サンプルストリーミングを初めて開始したときと同じ状態で動作します。"
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:93
 msgid "Source name"
 msgstr "ソース名"
 
-#: devices/jsdrv/jsdrv_stream_buffer.py:98
+#: devices/jsdrv/jsdrv_stream_buffer.py:97
 msgid "Source information"
 msgstr "ソース情報"
 
-#: devices/jsdrv/jsdrv_stream_buffer.py:112
+#: devices/jsdrv/jsdrv_stream_buffer.py:111
 msgid "Signal metadata"
 msgstr "信号メタデータ"
 
-#: devices/jsdrv/jsdrv_stream_buffer.py:118
+#: devices/jsdrv/jsdrv_stream_buffer.py:117
 msgid "Signal time range"
 msgstr "信号時間範囲"
 
@@ -4906,3 +4917,13 @@ msgstr "単位"
 
 #~ msgid "Click this button to reset this device to the default settings"
 #~ msgstr "このボタンをクリックすると、このデバイスがデフォルト設定にリセットされます。"
+
+#~ msgid ""
+#~ "When signal sample streaming is paused, the stream buffer pauses sample "
+#~ "accumulation. This setting controls what happens on play when streaming "
+#~ "resumes. When unset, the buffer continues to accumulate samples into the "
+#~ "existing buffer data. This mode treats the pause duration as missing "
+#~ "samples. When set, the buffer is cleared and all prior data is purged. The "
+#~ "buffer functions as if sample streaming started for the first time."
+#~ msgstr ""
+#~ "信号サンプルストリーミングを一時停止すると、ストリームバッファもサンプルの蓄積を一時停止します。この設定は、ストリーミングを再開（再生）したときの動作を制御します。無効の場合、バッファは既存のバッファデータに続けてサンプルを蓄積します。このモードでは、一時停止していた期間は欠落サンプルとして扱われます。有効の場合、バッファはクリアされ、それまでのデータはすべて破棄されます。バッファは、サンプルストリーミングを初めて開始したときと同じ状態で動作します。"

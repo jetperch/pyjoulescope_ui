@@ -1454,7 +1454,7 @@ msgid "Enable the general purpose input 1 signal streaming."
 msgstr "범용 입력 1 신호 스트리밍을 활성화합니다."
 
 #: devices/jsdrv/js110.py:330 devices/jsdrv/js220.py:538
-#: devices/jsdrv/js320.py:518 devices/jsdrv/jsdrv_stream_buffer.py:108
+#: devices/jsdrv/js320.py:518 devices/jsdrv/jsdrv_stream_buffer.py:107
 #: devices/serial/serial_device.py:75
 msgid "Signal name"
 msgstr "신호 이름"
@@ -1773,8 +1773,8 @@ msgid ""
 msgstr "범용 입력 및 출력에 대한 기준 전압을 설정하십시오."
 
 #: devices/jsdrv/jsdrv_stream_buffer.py:44
-#: devices/jsdrv/jsdrv_stream_buffer.py:93
-#: devices/jsdrv/jsdrv_stream_buffer.py:107
+#: devices/jsdrv/jsdrv_stream_buffer.py:92
+#: devices/jsdrv/jsdrv_stream_buffer.py:106
 #: devices/serial/serial_port_dialog.py:46 plugins/selector.py:58
 #: widgets/settings/settings_widget.py:142
 #: widgets/settings/settings_widget.py:334
@@ -1800,32 +1800,40 @@ msgstr "버퍼 메모리 지속 시간(초)"
 msgid "Clear on play"
 msgstr "재생 시 지우기"
 
-#: devices/jsdrv/jsdrv_stream_buffer.py:73
+#: devices/jsdrv/jsdrv_stream_buffer.py:74
 msgid ""
 "When signal sample streaming is paused, the stream buffer pauses sample "
 "accumulation. This setting controls what happens on play when streaming "
-"resumes. When unset, the buffer continues to accumulate samples into the "
-"existing buffer data. This mode treats the pause duration as missing "
-"samples. When set, the buffer is cleared and all prior data is purged. The "
-"buffer functions as if sample streaming started for the first time."
+"resumes."
 msgstr ""
 "신호 샘플 스트리밍이 일시 중지되면 스트림 버퍼도 샘플 누적을 일시 중지합니다. 이 설정은 스트리밍이 재개되어 재생할 때의 동작을 "
-"제어합니다. 해제하면 버퍼는 기존 버퍼 데이터에 샘플을 계속 누적합니다. 이 모드에서는 일시 중지된 기간을 누락된 샘플로 처리합니다. "
-"설정하면 버퍼를 지우고 이전 데이터를 모두 삭제합니다. 버퍼는 샘플 스트리밍을 처음 시작한 것처럼 동작합니다."
+"제어합니다."
 
-#: devices/jsdrv/jsdrv_stream_buffer.py:94
+#: devices/jsdrv/jsdrv_stream_buffer.py:77
+msgid ""
+"When unset, the buffer continues to accumulate samples into the existing "
+"buffer data. This mode treats the pause duration as missing samples."
+msgstr "해제하면 버퍼는 기존 버퍼 데이터에 샘플을 계속 누적합니다. 이 모드에서는 일시 중지된 기간을 누락된 샘플로 처리합니다."
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:80
+msgid ""
+"When set, the buffer is cleared and all prior data is purged. The buffer "
+"functions as if sample streaming started for the first time."
+msgstr "설정하면 버퍼를 지우고 이전 데이터를 모두 삭제합니다. 버퍼는 샘플 스트리밍을 처음 시작한 것처럼 동작합니다."
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:93
 msgid "Source name"
 msgstr "소스 이름"
 
-#: devices/jsdrv/jsdrv_stream_buffer.py:98
+#: devices/jsdrv/jsdrv_stream_buffer.py:97
 msgid "Source information"
 msgstr "소스 정보"
 
-#: devices/jsdrv/jsdrv_stream_buffer.py:112
+#: devices/jsdrv/jsdrv_stream_buffer.py:111
 msgid "Signal metadata"
 msgstr "신호 메타데이터"
 
-#: devices/jsdrv/jsdrv_stream_buffer.py:118
+#: devices/jsdrv/jsdrv_stream_buffer.py:117
 msgid "Signal time range"
 msgstr "신호 시간 범위"
 
@@ -4959,3 +4967,15 @@ msgstr "단위"
 
 #~ msgid "Click this button to reset this device to the default settings"
 #~ msgstr "이 장치를 기본 설정으로 재설정하려면 이 버튼을 클릭하세요."
+
+#~ msgid ""
+#~ "When signal sample streaming is paused, the stream buffer pauses sample "
+#~ "accumulation. This setting controls what happens on play when streaming "
+#~ "resumes. When unset, the buffer continues to accumulate samples into the "
+#~ "existing buffer data. This mode treats the pause duration as missing "
+#~ "samples. When set, the buffer is cleared and all prior data is purged. The "
+#~ "buffer functions as if sample streaming started for the first time."
+#~ msgstr ""
+#~ "신호 샘플 스트리밍이 일시 중지되면 스트림 버퍼도 샘플 누적을 일시 중지합니다. 이 설정은 스트리밍이 재개되어 재생할 때의 동작을 "
+#~ "제어합니다. 해제하면 버퍼는 기존 버퍼 데이터에 샘플을 계속 누적합니다. 이 모드에서는 일시 중지된 기간을 누락된 샘플로 처리합니다. "
+#~ "설정하면 버퍼를 지우고 이전 데이터를 모두 삭제합니다. 버퍼는 샘플 스트리밍을 처음 시작한 것처럼 동작합니다."

@@ -1518,7 +1518,7 @@ msgid "Enable the general purpose input 1 signal streaming."
 msgstr "تمكين تدفق إشارة الإدخال 1 للأغراض العامة."
 
 #: devices/jsdrv/js110.py:330 devices/jsdrv/js220.py:538
-#: devices/jsdrv/js320.py:518 devices/jsdrv/jsdrv_stream_buffer.py:108
+#: devices/jsdrv/js320.py:518 devices/jsdrv/jsdrv_stream_buffer.py:107
 #: devices/serial/serial_device.py:75
 msgid "Signal name"
 msgstr "اسم الإشارة"
@@ -1866,8 +1866,8 @@ msgid ""
 msgstr "قم بتكوين الجهد المرجعي لمدخلات ومخرجات الأغراض العامة."
 
 #: devices/jsdrv/jsdrv_stream_buffer.py:44
-#: devices/jsdrv/jsdrv_stream_buffer.py:93
-#: devices/jsdrv/jsdrv_stream_buffer.py:107
+#: devices/jsdrv/jsdrv_stream_buffer.py:92
+#: devices/jsdrv/jsdrv_stream_buffer.py:106
 #: devices/serial/serial_port_dialog.py:46 plugins/selector.py:58
 #: widgets/settings/settings_widget.py:142
 #: widgets/settings/settings_widget.py:334
@@ -1893,35 +1893,44 @@ msgstr "مدة ذاكرة المخزن المؤقت بالثواني"
 msgid "Clear on play"
 msgstr "مسح عند التشغيل"
 
-#: devices/jsdrv/jsdrv_stream_buffer.py:73
+#: devices/jsdrv/jsdrv_stream_buffer.py:74
 msgid ""
 "When signal sample streaming is paused, the stream buffer pauses sample "
 "accumulation. This setting controls what happens on play when streaming "
-"resumes. When unset, the buffer continues to accumulate samples into the "
-"existing buffer data. This mode treats the pause duration as missing "
-"samples. When set, the buffer is cleared and all prior data is purged. The "
-"buffer functions as if sample streaming started for the first time."
+"resumes."
 msgstr ""
 "عند الإيقاف المؤقت لبث عينات الإشارة، يوقف المخزن المؤقت للبث تجميع العينات "
-"مؤقتًا. يتحكم هذا الإعداد فيما يحدث عند التشغيل حين يُستأنف البث. عند إلغاء "
-"التعيين، يواصل المخزن المؤقت تجميع العينات ضمن بيانات المخزن الحالية، ويعامل"
-" هذا الوضع مدة الإيقاف المؤقت على أنها عينات مفقودة. عند التعيين، يُمسح "
-"المخزن المؤقت وتُحذف جميع البيانات السابقة، ويعمل المخزن المؤقت كما لو أن بث"
-" العينات بدأ لأول مرة."
+"مؤقتًا. يتحكم هذا الإعداد فيما يحدث عند التشغيل حين يُستأنف البث."
 
-#: devices/jsdrv/jsdrv_stream_buffer.py:94
+#: devices/jsdrv/jsdrv_stream_buffer.py:77
+msgid ""
+"When unset, the buffer continues to accumulate samples into the existing "
+"buffer data. This mode treats the pause duration as missing samples."
+msgstr ""
+"عند إلغاء التعيين، يواصل المخزن المؤقت تجميع العينات ضمن بيانات المخزن "
+"الحالية، ويعامل هذا الوضع مدة الإيقاف المؤقت على أنها عينات مفقودة."
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:80
+msgid ""
+"When set, the buffer is cleared and all prior data is purged. The buffer "
+"functions as if sample streaming started for the first time."
+msgstr ""
+"عند التعيين، يُمسح المخزن المؤقت وتُحذف جميع البيانات السابقة، ويعمل المخزن "
+"المؤقت كما لو أن بث العينات بدأ لأول مرة."
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:93
 msgid "Source name"
 msgstr "اسم المصدر"
 
-#: devices/jsdrv/jsdrv_stream_buffer.py:98
+#: devices/jsdrv/jsdrv_stream_buffer.py:97
 msgid "Source information"
 msgstr "معلومات المصدر"
 
-#: devices/jsdrv/jsdrv_stream_buffer.py:112
+#: devices/jsdrv/jsdrv_stream_buffer.py:111
 msgid "Signal metadata"
 msgstr "البيانات الوصفية للإشارة"
 
-#: devices/jsdrv/jsdrv_stream_buffer.py:118
+#: devices/jsdrv/jsdrv_stream_buffer.py:117
 msgid "Signal time range"
 msgstr "النطاق الزمني للإشارة"
 
@@ -5174,3 +5183,18 @@ msgstr "الوحدات"
 
 #~ msgid "Click this button to reset this device to the default settings"
 #~ msgstr "انقر فوق هذا الزر لإعادة ضبط هذا الجهاز إلى الإعدادات الافتراضية"
+
+#~ msgid ""
+#~ "When signal sample streaming is paused, the stream buffer pauses sample "
+#~ "accumulation. This setting controls what happens on play when streaming "
+#~ "resumes. When unset, the buffer continues to accumulate samples into the "
+#~ "existing buffer data. This mode treats the pause duration as missing "
+#~ "samples. When set, the buffer is cleared and all prior data is purged. The "
+#~ "buffer functions as if sample streaming started for the first time."
+#~ msgstr ""
+#~ "عند الإيقاف المؤقت لبث عينات الإشارة، يوقف المخزن المؤقت للبث تجميع العينات "
+#~ "مؤقتًا. يتحكم هذا الإعداد فيما يحدث عند التشغيل حين يُستأنف البث. عند إلغاء "
+#~ "التعيين، يواصل المخزن المؤقت تجميع العينات ضمن بيانات المخزن الحالية، ويعامل"
+#~ " هذا الوضع مدة الإيقاف المؤقت على أنها عينات مفقودة. عند التعيين، يُمسح "
+#~ "المخزن المؤقت وتُحذف جميع البيانات السابقة، ويعمل المخزن المؤقت كما لو أن بث"
+#~ " العينات بدأ لأول مرة."

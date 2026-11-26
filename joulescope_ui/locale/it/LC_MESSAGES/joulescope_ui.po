@@ -1583,7 +1583,7 @@ msgid "Enable the general purpose input 1 signal streaming."
 msgstr "Abilitare lo streaming del segnale dell'ingresso 1 per uso generale."
 
 #: devices/jsdrv/js110.py:330 devices/jsdrv/js220.py:538
-#: devices/jsdrv/js320.py:518 devices/jsdrv/jsdrv_stream_buffer.py:108
+#: devices/jsdrv/js320.py:518 devices/jsdrv/jsdrv_stream_buffer.py:107
 #: devices/serial/serial_device.py:75
 msgid "Signal name"
 msgstr "Nome del segnale"
@@ -1958,8 +1958,8 @@ msgstr ""
 "generici."
 
 #: devices/jsdrv/jsdrv_stream_buffer.py:44
-#: devices/jsdrv/jsdrv_stream_buffer.py:93
-#: devices/jsdrv/jsdrv_stream_buffer.py:107
+#: devices/jsdrv/jsdrv_stream_buffer.py:92
+#: devices/jsdrv/jsdrv_stream_buffer.py:106
 #: devices/serial/serial_port_dialog.py:46 plugins/selector.py:58
 #: widgets/settings/settings_widget.py:142
 #: widgets/settings/settings_widget.py:334
@@ -1985,37 +1985,47 @@ msgstr "Durata della memoria tampone in secondi"
 msgid "Clear on play"
 msgstr "Cancella all'avvio"
 
-#: devices/jsdrv/jsdrv_stream_buffer.py:73
+#: devices/jsdrv/jsdrv_stream_buffer.py:74
 msgid ""
 "When signal sample streaming is paused, the stream buffer pauses sample "
 "accumulation. This setting controls what happens on play when streaming "
-"resumes. When unset, the buffer continues to accumulate samples into the "
-"existing buffer data. This mode treats the pause duration as missing "
-"samples. When set, the buffer is cleared and all prior data is purged. The "
-"buffer functions as if sample streaming started for the first time."
+"resumes."
 msgstr ""
 "Quando lo streaming dei campioni di segnale è in pausa, il buffer di "
 "streaming sospende l'accumulo dei campioni. Questa impostazione determina "
-"cosa accade all'avvio, quando lo streaming riprende. Se non è impostata, il "
-"buffer continua ad accumulare campioni insieme ai dati già presenti. In "
-"questa modalità la durata della pausa viene trattata come campioni mancanti."
-" Se è impostata, il buffer viene cancellato e tutti i dati precedenti "
-"vengono eliminati. Il buffer funziona come se lo streaming dei campioni "
-"fosse avviato per la prima volta."
+"cosa accade all'avvio, quando lo streaming riprende."
 
-#: devices/jsdrv/jsdrv_stream_buffer.py:94
+#: devices/jsdrv/jsdrv_stream_buffer.py:77
+msgid ""
+"When unset, the buffer continues to accumulate samples into the existing "
+"buffer data. This mode treats the pause duration as missing samples."
+msgstr ""
+"Se non è impostata, il buffer continua ad accumulare campioni insieme ai "
+"dati già presenti. In questa modalità la durata della pausa viene trattata "
+"come campioni mancanti."
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:80
+msgid ""
+"When set, the buffer is cleared and all prior data is purged. The buffer "
+"functions as if sample streaming started for the first time."
+msgstr ""
+"Se è impostata, il buffer viene cancellato e tutti i dati precedenti vengono"
+" eliminati. Il buffer funziona come se lo streaming dei campioni fosse "
+"avviato per la prima volta."
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:93
 msgid "Source name"
 msgstr "Nome della sorgente"
 
-#: devices/jsdrv/jsdrv_stream_buffer.py:98
+#: devices/jsdrv/jsdrv_stream_buffer.py:97
 msgid "Source information"
 msgstr "Informazioni sulla sorgente"
 
-#: devices/jsdrv/jsdrv_stream_buffer.py:112
+#: devices/jsdrv/jsdrv_stream_buffer.py:111
 msgid "Signal metadata"
 msgstr "Metadati del segnale"
 
-#: devices/jsdrv/jsdrv_stream_buffer.py:118
+#: devices/jsdrv/jsdrv_stream_buffer.py:117
 msgid "Signal time range"
 msgstr "Intervallo temporale del segnale"
 
@@ -5365,3 +5375,20 @@ msgstr "Unità di misura"
 #~ msgstr ""
 #~ "Fare clic su questo pulsante per ripristinare le impostazioni predefinite "
 #~ "del dispositivo."
+
+#~ msgid ""
+#~ "When signal sample streaming is paused, the stream buffer pauses sample "
+#~ "accumulation. This setting controls what happens on play when streaming "
+#~ "resumes. When unset, the buffer continues to accumulate samples into the "
+#~ "existing buffer data. This mode treats the pause duration as missing "
+#~ "samples. When set, the buffer is cleared and all prior data is purged. The "
+#~ "buffer functions as if sample streaming started for the first time."
+#~ msgstr ""
+#~ "Quando lo streaming dei campioni di segnale è in pausa, il buffer di "
+#~ "streaming sospende l'accumulo dei campioni. Questa impostazione determina "
+#~ "cosa accade all'avvio, quando lo streaming riprende. Se non è impostata, il "
+#~ "buffer continua ad accumulare campioni insieme ai dati già presenti. In "
+#~ "questa modalità la durata della pausa viene trattata come campioni mancanti."
+#~ " Se è impostata, il buffer viene cancellato e tutti i dati precedenti "
+#~ "vengono eliminati. Il buffer funziona come se lo streaming dei campioni "
+#~ "fosse avviato per la prima volta."

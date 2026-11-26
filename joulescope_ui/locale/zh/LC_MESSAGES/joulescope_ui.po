@@ -1414,7 +1414,7 @@ msgid "Enable the general purpose input 1 signal streaming."
 msgstr "启用通用输入 1 信号流。"
 
 #: devices/jsdrv/js110.py:330 devices/jsdrv/js220.py:538
-#: devices/jsdrv/js320.py:518 devices/jsdrv/jsdrv_stream_buffer.py:108
+#: devices/jsdrv/js320.py:518 devices/jsdrv/jsdrv_stream_buffer.py:107
 #: devices/serial/serial_device.py:75
 msgid "Signal name"
 msgstr "信号名称"
@@ -1721,8 +1721,8 @@ msgid ""
 msgstr "配置通用输入和输出的参考电压。"
 
 #: devices/jsdrv/jsdrv_stream_buffer.py:44
-#: devices/jsdrv/jsdrv_stream_buffer.py:93
-#: devices/jsdrv/jsdrv_stream_buffer.py:107
+#: devices/jsdrv/jsdrv_stream_buffer.py:92
+#: devices/jsdrv/jsdrv_stream_buffer.py:106
 #: devices/serial/serial_port_dialog.py:46 plugins/selector.py:58
 #: widgets/settings/settings_widget.py:142
 #: widgets/settings/settings_widget.py:334
@@ -1748,30 +1748,38 @@ msgstr "缓冲存储器持续时间（秒）"
 msgid "Clear on play"
 msgstr "播放时清除"
 
-#: devices/jsdrv/jsdrv_stream_buffer.py:73
+#: devices/jsdrv/jsdrv_stream_buffer.py:74
 msgid ""
 "When signal sample streaming is paused, the stream buffer pauses sample "
 "accumulation. This setting controls what happens on play when streaming "
-"resumes. When unset, the buffer continues to accumulate samples into the "
-"existing buffer data. This mode treats the pause duration as missing "
-"samples. When set, the buffer is cleared and all prior data is purged. The "
-"buffer functions as if sample streaming started for the first time."
-msgstr ""
-"信号采样流暂停时，数据流缓冲器会暂停采样累积。此设置控制恢复播放、重新开始流传输时的行为。未设置时，缓冲器会继续将采样累积到现有缓冲数据中，暂停期间视为缺失采样。设置后，缓冲器会被清空，之前的所有数据都会被清除，缓冲器的行为如同首次开始采样流传输。"
+"resumes."
+msgstr "信号采样流暂停时，数据流缓冲器会暂停采样累积。此设置控制恢复播放、重新开始流传输时的行为。"
 
-#: devices/jsdrv/jsdrv_stream_buffer.py:94
+#: devices/jsdrv/jsdrv_stream_buffer.py:77
+msgid ""
+"When unset, the buffer continues to accumulate samples into the existing "
+"buffer data. This mode treats the pause duration as missing samples."
+msgstr "未设置时，缓冲器会继续将采样累积到现有缓冲数据中，暂停期间视为缺失采样。"
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:80
+msgid ""
+"When set, the buffer is cleared and all prior data is purged. The buffer "
+"functions as if sample streaming started for the first time."
+msgstr "设置后，缓冲器会被清空，之前的所有数据都会被清除，缓冲器的行为如同首次开始采样流传输。"
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:93
 msgid "Source name"
 msgstr "源名称"
 
-#: devices/jsdrv/jsdrv_stream_buffer.py:98
+#: devices/jsdrv/jsdrv_stream_buffer.py:97
 msgid "Source information"
 msgstr "源信息"
 
-#: devices/jsdrv/jsdrv_stream_buffer.py:112
+#: devices/jsdrv/jsdrv_stream_buffer.py:111
 msgid "Signal metadata"
 msgstr "信号元数据"
 
-#: devices/jsdrv/jsdrv_stream_buffer.py:118
+#: devices/jsdrv/jsdrv_stream_buffer.py:117
 msgid "Signal time range"
 msgstr "信号时间范围"
 
@@ -4850,3 +4858,13 @@ msgstr "单位"
 
 #~ msgid "Click this button to reset this device to the default settings"
 #~ msgstr "单击此按钮可将此设备重置为默认设置"
+
+#~ msgid ""
+#~ "When signal sample streaming is paused, the stream buffer pauses sample "
+#~ "accumulation. This setting controls what happens on play when streaming "
+#~ "resumes. When unset, the buffer continues to accumulate samples into the "
+#~ "existing buffer data. This mode treats the pause duration as missing "
+#~ "samples. When set, the buffer is cleared and all prior data is purged. The "
+#~ "buffer functions as if sample streaming started for the first time."
+#~ msgstr ""
+#~ "信号采样流暂停时，数据流缓冲器会暂停采样累积。此设置控制恢复播放、重新开始流传输时的行为。未设置时，缓冲器会继续将采样累积到现有缓冲数据中，暂停期间视为缺失采样。设置后，缓冲器会被清空，之前的所有数据都会被清除，缓冲器的行为如同首次开始采样流传输。"

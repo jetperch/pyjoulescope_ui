@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from joulescope_ui import CAPABILITIES, N_, Metadata, get_topic_name, get_unique_id, get_instance
+from joulescope_ui import CAPABILITIES, N_, P_, Metadata, get_topic_name, get_unique_id, get_instance
 from pyjoulescope_driver import time64
 from .device import Device
 import copy
@@ -70,18 +70,17 @@ _SETTINGS = {
     'clear_on_play': {
         'dtype': 'bool',
         'brief': N_('Clear on play'),
-        'detail': N_("""\
-            When signal sample streaming is paused, the stream buffer pauses
+        'detail': P_([
+            N_("""When signal sample streaming is paused, the stream buffer pauses
             sample accumulation.  This setting controls what happens on play
-            when streaming resumes.
-            
-            When unset, the buffer continues to accumulate samples into the
+            when streaming resumes."""),
+            N_("""When unset, the buffer continues to accumulate samples into the
             existing buffer data.  This mode treats the pause duration as
-            missing samples.
-            
-            When set, the buffer is cleared and all prior data is purged.
+            missing samples."""),
+            N_("""When set, the buffer is cleared and all prior data is purged.
             The buffer functions as if sample streaming started for the
             first time."""),
+        ]),
         'default': True,
     }
 

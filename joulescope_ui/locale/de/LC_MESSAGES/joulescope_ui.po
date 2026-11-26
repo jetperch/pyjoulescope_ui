@@ -1579,7 +1579,7 @@ msgid "Enable the general purpose input 1 signal streaming."
 msgstr "Aktivieren Sie das Signal-Streaming für Allzweckeingang 1."
 
 #: devices/jsdrv/js110.py:330 devices/jsdrv/js220.py:538
-#: devices/jsdrv/js320.py:518 devices/jsdrv/jsdrv_stream_buffer.py:108
+#: devices/jsdrv/js320.py:518 devices/jsdrv/jsdrv_stream_buffer.py:107
 #: devices/serial/serial_device.py:75
 msgid "Signal name"
 msgstr "Signal-Name"
@@ -1949,8 +1949,8 @@ msgstr ""
 "Ausgänge."
 
 #: devices/jsdrv/jsdrv_stream_buffer.py:44
-#: devices/jsdrv/jsdrv_stream_buffer.py:93
-#: devices/jsdrv/jsdrv_stream_buffer.py:107
+#: devices/jsdrv/jsdrv_stream_buffer.py:92
+#: devices/jsdrv/jsdrv_stream_buffer.py:106
 #: devices/serial/serial_port_dialog.py:46 plugins/selector.py:58
 #: widgets/settings/settings_widget.py:142
 #: widgets/settings/settings_widget.py:334
@@ -1976,37 +1976,47 @@ msgstr "Pufferspeicherdauer in Sekunden"
 msgid "Clear on play"
 msgstr "Bei Start löschen"
 
-#: devices/jsdrv/jsdrv_stream_buffer.py:73
+#: devices/jsdrv/jsdrv_stream_buffer.py:74
 msgid ""
 "When signal sample streaming is paused, the stream buffer pauses sample "
 "accumulation. This setting controls what happens on play when streaming "
-"resumes. When unset, the buffer continues to accumulate samples into the "
-"existing buffer data. This mode treats the pause duration as missing "
-"samples. When set, the buffer is cleared and all prior data is purged. The "
-"buffer functions as if sample streaming started for the first time."
+"resumes."
 msgstr ""
 "Wenn das Messdaten-Streaming pausiert ist, nimmt der Streampuffer keine "
 "Abtastwerte mehr auf. Diese Einstellung legt fest, was beim Start geschieht,"
-" wenn das Streaming fortgesetzt wird. Ist sie deaktiviert, sammelt der "
-"Puffer die Abtastwerte weiter zu den vorhandenen Pufferdaten. In diesem "
-"Modus wird die Pausendauer als fehlende Abtastwerte behandelt. Ist sie "
-"aktiviert, wird der Puffer geleert und alle bisherigen Daten werden "
+" wenn das Streaming fortgesetzt wird."
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:77
+msgid ""
+"When unset, the buffer continues to accumulate samples into the existing "
+"buffer data. This mode treats the pause duration as missing samples."
+msgstr ""
+"Ist sie deaktiviert, sammelt der Puffer die Abtastwerte weiter zu den "
+"vorhandenen Pufferdaten. In diesem Modus wird die Pausendauer als fehlende "
+"Abtastwerte behandelt."
+
+#: devices/jsdrv/jsdrv_stream_buffer.py:80
+msgid ""
+"When set, the buffer is cleared and all prior data is purged. The buffer "
+"functions as if sample streaming started for the first time."
+msgstr ""
+"Ist sie aktiviert, wird der Puffer geleert und alle bisherigen Daten werden "
 "verworfen. Der Puffer verhält sich dann so, als würde das Messdaten-"
 "Streaming zum ersten Mal gestartet."
 
-#: devices/jsdrv/jsdrv_stream_buffer.py:94
+#: devices/jsdrv/jsdrv_stream_buffer.py:93
 msgid "Source name"
 msgstr "Name der Quelle"
 
-#: devices/jsdrv/jsdrv_stream_buffer.py:98
+#: devices/jsdrv/jsdrv_stream_buffer.py:97
 msgid "Source information"
 msgstr "Informationen zur Quelle"
 
-#: devices/jsdrv/jsdrv_stream_buffer.py:112
+#: devices/jsdrv/jsdrv_stream_buffer.py:111
 msgid "Signal metadata"
 msgstr "Signal-Metadaten"
 
-#: devices/jsdrv/jsdrv_stream_buffer.py:118
+#: devices/jsdrv/jsdrv_stream_buffer.py:117
 msgid "Signal time range"
 msgstr "Signalzeitbereich"
 
@@ -5371,3 +5381,20 @@ msgstr "Einheiten"
 #~ msgstr ""
 #~ "Klicken Sie auf diese Schaltfläche, um dieses Gerät auf die "
 #~ "Standardeinstellungen zurückzusetzen"
+
+#~ msgid ""
+#~ "When signal sample streaming is paused, the stream buffer pauses sample "
+#~ "accumulation. This setting controls what happens on play when streaming "
+#~ "resumes. When unset, the buffer continues to accumulate samples into the "
+#~ "existing buffer data. This mode treats the pause duration as missing "
+#~ "samples. When set, the buffer is cleared and all prior data is purged. The "
+#~ "buffer functions as if sample streaming started for the first time."
+#~ msgstr ""
+#~ "Wenn das Messdaten-Streaming pausiert ist, nimmt der Streampuffer keine "
+#~ "Abtastwerte mehr auf. Diese Einstellung legt fest, was beim Start geschieht,"
+#~ " wenn das Streaming fortgesetzt wird. Ist sie deaktiviert, sammelt der "
+#~ "Puffer die Abtastwerte weiter zu den vorhandenen Pufferdaten. In diesem "
+#~ "Modus wird die Pausendauer als fehlende Abtastwerte behandelt. Ist sie "
+#~ "aktiviert, wird der Puffer geleert und alle bisherigen Daten werden "
+#~ "verworfen. Der Puffer verhält sich dann so, als würde das Messdaten-"
+#~ "Streaming zum ersten Mal gestartet."
