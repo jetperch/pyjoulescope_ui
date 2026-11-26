@@ -66,6 +66,19 @@ def pseudo(text):
     return OPEN + ''.join(parts) + pad + CLOSE
 
 
+def pot_path():
+    """Find the catalog template of the joulescope_ui under test.
+
+    :return: The joulescope_ui.pot path.
+
+    The farm's suite bundle holds no source tree, so look in the package that
+    ``python -m joulescope_ui`` runs, without importing it.
+    """
+    import importlib.util
+    spec = importlib.util.find_spec('joulescope_ui')
+    return os.path.join(spec.submodule_search_locations[0], 'locale', 'joulescope_ui.pot')
+
+
 def generate(pot_path, out_path):
     """Write the compiled pseudo-locale catalog.
 

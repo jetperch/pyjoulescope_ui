@@ -1009,7 +1009,7 @@ class TestPseudoLocale(unittest.TestCase):
         from uitest import pseudo_locale as p
         ph = re.compile(r'\{[^{}]*\}|%\([a-z_]+\)[sdfg]|%[sdfg]')
         tag = re.compile(r'</?([a-zA-Z][a-zA-Z0-9]*)')
-        pot = os.path.join(_ROOT, 'joulescope_ui', 'locale', 'joulescope_ui.pot')
+        pot = p.pot_path()
         for e in polib.pofile(pot):
             out = p.pseudo(e.msgid)
             self.assertEqual(sorted(ph.findall(e.msgid)), sorted(ph.findall(out)), e.msgid)
@@ -1021,7 +1021,7 @@ class TestPseudoLocale(unittest.TestCase):
         import gettext
         import tempfile
         from uitest import pseudo_locale as p
-        pot = os.path.join(_ROOT, 'joulescope_ui', 'locale', 'joulescope_ui.pot')
+        pot = p.pot_path()
         with tempfile.TemporaryDirectory() as d:
             p.generate(pot, d)
             t = gettext.translation('joulescope_ui', d, languages=[p.LOCALE])

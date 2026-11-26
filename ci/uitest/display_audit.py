@@ -534,8 +534,7 @@ def run(argv=None):
         groups = [g for g in args.screens.split(',') if g]
         sizes = [tuple(int(x) for x in s.split('x')) for s in args.size] if args.size else SIZES
         locale_path = os.path.join(out_root, '_locale')
-        pseudo_locale.generate(os.path.join(_ROOT, 'joulescope_ui', 'locale', 'joulescope_ui.pot'),
-                               locale_path)
+        pseudo_locale.generate(pseudo_locale.pot_path(), locale_path)
         for locale in locales:
             _log.info('locale %s', locale)
             run_locale(locale, out_root, groups, sizes, locale_path, device=args.device)
