@@ -13,7 +13,7 @@
 # limitations under the License.
 
 
-# pip install babel polib deepl
+# pip install babel polib "deepl>=2"
 
 from babel.messages.frontend import CommandLineInterface
 import argparse
@@ -153,7 +153,7 @@ def _text_unpatch(s):
 
 
 def run_deepl(data):
-    translator = deepl.Translator(os.getenv('DEEPL_AUTH'))
+    translator = deepl.DeepLClient(os.getenv('DEEPL_AUTH'))
     for locale, path in data.items():
         pofile = polib.pofile(path)
         entries = pofile.untranslated_entries()
