@@ -31,6 +31,11 @@ from unittest import mock
 import numpy as np
 import pyjls
 
+try:
+    import polib
+except ImportError:  # the farm bench venvs hold only the UI and pytest
+    polib = None
+
 # Allow `from uitest import ...` when run directly (python -m unittest / file),
 # matching how pytest puts the `ci/` directory on sys.path.
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -998,9 +1003,9 @@ class TestPseudoLocale(unittest.TestCase):
         out = p.pseudo('Signal')
         self.assertGreaterEqual(len(out), len('Signal') * 1.4 + 2)
 
+    @unittest.skipIf(polib is None, 'polib is not installed')
     def test_pot_entries_keep_format(self):
         import re
-        import polib
         from uitest import pseudo_locale as p
         ph = re.compile(r'\{[^{}]*\}|%\([a-z_]+\)[sdfg]|%[sdfg]')
         tag = re.compile(r'</?([a-zA-Z][a-zA-Z0-9]*)')
@@ -1011,6 +1016,7 @@ class TestPseudoLocale(unittest.TestCase):
             self.assertEqual(sorted(tag.findall(e.msgid)), sorted(tag.findall(out)), e.msgid)
             self.assertEqual(e.msgid.count('\n'), out.count('\n'), e.msgid)
 
+    @unittest.skipIf(polib is None, 'polib is not installed')
     def test_generate(self):
         import gettext
         import tempfile

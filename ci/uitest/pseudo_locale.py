@@ -27,7 +27,6 @@ Point the UI at it with ``JOULESCOPE_UI_LOCALE_PATH``.
 import math
 import os
 import re
-import polib
 
 LOCALE = 'qps'
 OPEN = '⟦'
@@ -75,6 +74,7 @@ def generate(pot_path, out_path):
         to ``<out_path>/qps/LC_MESSAGES/joulescope_ui.mo``.
     :return: The .mo file path.
     """
+    import polib  # not in the bench venvs, which hold only the UI and pytest
     pot = polib.pofile(pot_path)
     po = polib.POFile()
     po.metadata = {

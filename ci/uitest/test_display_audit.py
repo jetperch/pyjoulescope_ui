@@ -25,6 +25,8 @@ from uitest import display_audit, pseudo_locale
 
 def test_pseudo_locale_screens(tmp_path):
     pytest.importorskip('PySide6')
+    # The packaging sdist job runs this check.  The farm bench venvs lack polib.
+    pytest.importorskip('polib')
     pot = os.path.join(display_audit._ROOT, 'joulescope_ui', 'locale', 'joulescope_ui.pot')
     locale_path = str(tmp_path / '_locale')
     pseudo_locale.generate(pot, locale_path)
