@@ -24,7 +24,7 @@ This file contains the list of changes made to pyjoulescope_ui.
 
 ## 1.8.2
 
-2026 Nov 20 [in progress, unreleased]
+2026 Nov 26
 
 * Fixed missing icons and fonts on macOS when the UI is installed with pip.
   The source package compiled its Qt resources with zstd compression on
