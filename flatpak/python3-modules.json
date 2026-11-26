@@ -21,7 +21,7 @@
             "name": "python3-pyjoulescope_driver",
             "buildsystem": "simple",
             "build-commands": [
-                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pyjoulescope_driver>=2.5.7,<3\" --no-build-isolation"
+                "pip3 install --verbose --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} \"pyjoulescope_driver>=2.5.8,<3\" --no-build-isolation"
             ],
             "sources": [
                 {
@@ -73,16 +73,16 @@
                 },
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/45/74/58e8ffbdf1c0f7bdffa81642e22b658c6fe8a6e7a57de55fd2fbe794494c/pyjoulescope_driver-2.5.7-cp313-cp313-manylinux_2_28_x86_64.whl",
-                    "sha256": "1e56b23a78044c272b8bd58d55b1abd9ac26893eb315e2e555fa6059d3e51d74",
+                    "url": "https://files.pythonhosted.org/packages/33/80/2ee669ed8540bdcb24e93a6f327b85955f57e9619e925dd8c4fe008d253e/pyjoulescope_driver-2.5.8-cp313-cp313-manylinux_2_28_x86_64.whl",
+                    "sha256": "75c063a805ceb4ff524812065319d0ed712371369d58db61bde0ea771900d62d",
                     "only-arches": [
                         "x86_64"
                     ]
                 },
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/6e/a0/2ac2eb307d28c028209e91ce31ddf4b59b83aa189a53a8805e8a57f739ab/pyjoulescope_driver-2.5.7-cp313-cp313-manylinux_2_28_aarch64.whl",
-                    "sha256": "36cf695001c39725ffdc864187765ccac34d4fbccf8aac937501a2a0bd36473c",
+                    "url": "https://files.pythonhosted.org/packages/f7/b7/f622b0eb25096f27b58e92ab68d46ed797ab7e5a272841fca7f2f7e1e59a/pyjoulescope_driver-2.5.8-cp313-cp313-manylinux_2_28_aarch64.whl",
+                    "sha256": "c6efa168f36bb74d5c01acc8508c6eb2706fc7ef3cf9bd91fdfb7c8aa9e2ddfc",
                     "only-arches": [
                         "aarch64"
                     ]
@@ -187,16 +187,16 @@
                 },
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/45/74/58e8ffbdf1c0f7bdffa81642e22b658c6fe8a6e7a57de55fd2fbe794494c/pyjoulescope_driver-2.5.7-cp313-cp313-manylinux_2_28_x86_64.whl",
-                    "sha256": "1e56b23a78044c272b8bd58d55b1abd9ac26893eb315e2e555fa6059d3e51d74",
+                    "url": "https://files.pythonhosted.org/packages/33/80/2ee669ed8540bdcb24e93a6f327b85955f57e9619e925dd8c4fe008d253e/pyjoulescope_driver-2.5.8-cp313-cp313-manylinux_2_28_x86_64.whl",
+                    "sha256": "75c063a805ceb4ff524812065319d0ed712371369d58db61bde0ea771900d62d",
                     "only-arches": [
                         "x86_64"
                     ]
                 },
                 {
                     "type": "file",
-                    "url": "https://files.pythonhosted.org/packages/6e/a0/2ac2eb307d28c028209e91ce31ddf4b59b83aa189a53a8805e8a57f739ab/pyjoulescope_driver-2.5.7-cp313-cp313-manylinux_2_28_aarch64.whl",
-                    "sha256": "36cf695001c39725ffdc864187765ccac34d4fbccf8aac937501a2a0bd36473c",
+                    "url": "https://files.pythonhosted.org/packages/f7/b7/f622b0eb25096f27b58e92ab68d46ed797ab7e5a272841fca7f2f7e1e59a/pyjoulescope_driver-2.5.8-cp313-cp313-manylinux_2_28_aarch64.whl",
+                    "sha256": "c6efa168f36bb74d5c01acc8508c6eb2706fc7ef3cf9bd91fdfb7c8aa9e2ddfc",
                     "only-arches": [
                         "aarch64"
                     ]

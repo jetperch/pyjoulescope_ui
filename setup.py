@@ -197,7 +197,7 @@ setuptools.setup(
     # See https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         'appnope>=0.1.2,<1',
-        'pyjoulescope_driver>=2.5.7,<3',
+        'pyjoulescope_driver>=2.5.8,<3',
         'joulescope>=1.7.3,<2',
         'joulescope_event_analyzer>=0.1.1,<1',
         'markdown>=3,<4',

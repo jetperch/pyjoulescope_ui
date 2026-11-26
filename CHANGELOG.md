@@ -65,6 +65,8 @@ This file contains the list of changes made to pyjoulescope_ui.
   glyph shapes.
 * Plots and readings stay left to right in Arabic, so negative axis labels
   no longer show as "600-".
+* Bumped pyjoulescope_driver from 2.5.7 to 2.5.8, which fixes occasional
+  JS110 and JS220 sample drops on macOS during long full-rate captures.
 
 
 ## 1.8.1
