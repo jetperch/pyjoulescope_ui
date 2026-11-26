@@ -50,6 +50,22 @@ DEVICE_UPDATE_DIALOG = 'device_update_dialog'
 HELP_DIALOG = 'help_html_message_box'   # Getting Started, changelog, and help
 
 
+def qpa_path(path, cwd, pathmod=os.path):
+    """Make a file path safe for a ``QT_QPA_PLATFORM`` argument.
+
+    Qt splits the platform arguments at ``:``, so a Windows drive letter cuts
+    the path short and the offscreen plugin aborts (exit 0xC0000409).
+
+    :param path: The file path.
+    :param cwd: The UI's working directory, which a relative path resolves from.
+    :param pathmod: The path module, ``ntpath`` in the unit tests.
+    :return: ``path``, relative to ``cwd`` when it has a drive.
+    """
+    if pathmod.splitdrive(path)[0]:
+        return pathmod.relpath(path, cwd)
+    return path
+
+
 class UiSessionError(RuntimeError):
     """Raised when the UI fails to start or become ready."""
 
@@ -183,7 +199,7 @@ class UiSession:
         fd, self._offscreen_config = tempfile.mkstemp(prefix='uitest_offscreen_', suffix='.json')
         with os.fdopen(fd, 'w') as f:
             json.dump({'screens': [screen]}, f)
-        return f'offscreen:configfile={self._offscreen_config}'
+        return f'offscreen:configfile={qpa_path(self._offscreen_config, self._cwd or os.getcwd())}'
 
     def stop(self):
         """Close the UI cleanly, then ensure the process is gone."""

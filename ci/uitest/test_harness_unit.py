@@ -967,6 +967,19 @@ class TestFindTruncation(unittest.TestCase):
 
 class TestOffscreenPlatform(unittest.TestCase):
 
+    def test_qpa_path_drops_the_drive_colon(self):
+        import ntpath
+        from uitest.harness import qpa_path
+        path = qpa_path(r'C:\Users\ci\AppData\Local\Temp\uitest_offscreen_1.json',
+                        r'C:\Users\ci\.cache\jci-runner\ui_suite', ntpath)
+        self.assertNotIn(':', path)
+        self.assertEqual(r'..\..\..\AppData\Local\Temp\uitest_offscreen_1.json', path)
+
+    def test_qpa_path_keeps_posix_paths(self):
+        import posixpath
+        from uitest.harness import qpa_path
+        self.assertEqual('/tmp/a.json', qpa_path('/tmp/a.json', '/home/ci', posixpath))
+
     def test_default(self):
         from uitest.harness import UiSession
         self.assertEqual('offscreen', UiSession(offscreen=True)._offscreen_platform())

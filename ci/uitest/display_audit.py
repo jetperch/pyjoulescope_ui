@@ -45,7 +45,7 @@ _ROOT = os.path.dirname(_CI)
 if _CI not in sys.path:
     sys.path.insert(0, _CI)
 
-from uitest import assets, pseudo_locale, qt  # noqa: E402
+from uitest import assets, discover, pseudo_locale, qt  # noqa: E402
 
 _log = logging.getLogger('display_audit')
 LOCALES = ['en', 'qps', 'ar', 'de', 'el', 'es', 'fr', 'it', 'ja', 'ko', 'zh']
@@ -392,15 +392,23 @@ def run_locale(locale, out_root, groups, sizes, locale_path, device=False, execu
     os.makedirs(out_dir, exist_ok=True)
     home = os.path.join(out_root, '_home', locale)
     shutil.rmtree(home, ignore_errors=True)
-    os.makedirs(os.path.join(home, '.joulescope'))
-    if locale != 'en':
-        with open(os.path.join(home, '.joulescope', 'language.txt'), 'w') as f:
-            f.write(locale)
+    os.makedirs(home)
+    catalog = Catalog(locale)
     home_prev = os.environ.get('HOME')
     os.environ['HOME'] = home  # uitest.discover finds server.json from HOME
+    # The UI reads language.txt from its app directory.  Windows does not
+    # follow HOME there, so restore the bench's own file afterwards.
+    language_path = os.path.join(discover.app_dir(), 'language.txt')
+    try:
+        with open(language_path, 'rb') as f:
+            language_prev = f.read()
+    except OSError:
+        language_prev = None
+    os.makedirs(os.path.dirname(language_path), exist_ok=True)
+    with open(language_path, 'w') as f:
+        f.write(locale)
     env = {'HOME': home, 'JOULESCOPE_UI_LOCALE_PATH': locale_path,
            'LANG': 'en_US.UTF-8' if locale == 'en' else os.environ.get('LANG', 'C.UTF-8')}
-    catalog = Catalog(locale)
     results = []
     try:
         for size in sizes:
@@ -413,6 +421,11 @@ def run_locale(locale, out_root, groups, sizes, locale_path, device=False, execu
                     fn(device) if group == 'widgets' else fn()
                 results.extend(audit.results)
     finally:
+        if language_prev is None:
+            os.remove(language_path)
+        else:
+            with open(language_path, 'wb') as f:
+                f.write(language_prev)
         if home_prev is None:
             os.environ.pop('HOME', None)
         else:
